@@ -34,6 +34,8 @@ type RouteName =
   | 'notesCreate'
   | 'noteDelete'
   | 'search'
+  | 'preview'
+  | 'change'
   | 'masqueradeStart'
   | 'masqueradeCurrent'
   | 'masqueradeExtend'
@@ -93,6 +95,16 @@ const ROUTES: Record<RouteName, Route> = {
   },
   noteDelete: { path: CONSOLE_PATHS.noteDelete, url: '/api/console/notes/1/delete', method: 'POST', route: `POST ${CONSOLE_PATHS.noteDelete}`, body: { reason: 'Written on the wrong workspace.' } },
   search: { path: CONSOLE_PATHS.search, url: `${CONSOLE_PATHS.search}?q=jamie`, method: 'GET', route: `GET ${CONSOLE_PATHS.search}` },
+  // D-160 R2-3b: the matrix change, the Owner's alone (`roles.write`). The Owner's change here carries
+  // no real token, so it is refused for that (`console-roles.test.ts` makes real changes).
+  preview: {
+    path: CONSOLE_PATHS.rolesPreview,
+    url: CONSOLE_PATHS.rolesPreview,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.rolesPreview}`,
+    body: { role: 'Admin', capability: 'masq', allowed: false },
+  },
+  change: { path: CONSOLE_PATHS.roles, url: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, body: { confirmToken: 'not-a-token' } },
   // PR 3a (D-162). Each caller here is in no masquerade; `console-masquerade.test.ts` covers one in a session.
   masqueradeStart: {
     path: CONSOLE_PATHS.masqueradeStart,
@@ -149,7 +161,7 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 
 // Spec § 5, by hand. `me` answers any staff member (with an empty list for Instructor and Content
 // Editor) and refuses a learner; `audit` is audit.read (Owner, Admin, Support); `export` is export
-// (Owner, Admin); `roles` is ops.read (Owner, Admin).
+// (Owner, Admin); `roles` is ops.read (Owner, Admin); `preview` and `change` are roles.write (the Owner).
 // PR 2: workspaces and users are workspaces.read and users.read, notes are written with notes.write
 // and read with the target's read capability, a password reset is user.password_reset (all three
 // Console roles; a learner's here), search is console.view: Owner, Admin and Support. The users
@@ -177,16 +189,19 @@ const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeSta
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...ACT(401),
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...ACT(403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...ACT(403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...ACT(403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...ACT(403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...ACT(403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...ACT(200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...ACT(200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200) },
 };
+
+/** A 403 that is not the capability's: the Owner's change with no real token. */
+const CODE: Partial<Record<string, Partial<Record<RouteName, string>>>> = { Owner: { change: 'confirm_invalid' } };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
 const SUPPORT_CAPS = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];
@@ -266,6 +281,10 @@ describe('the Console routes, by caller (D-157) @console', () => {
           // § 7.3's 401, unchanged.
           expect(JSON.parse(res.body)).toEqual({ error: 'Not signed in' });
           expect(after.length).toBe(before);
+        } else if (want === 403 && CODE[persona.name]?.[name]) {
+          // Past the capability: refused for what it carries, and nothing written.
+          expect(JSON.parse(res.body).code).toBe(CODE[persona.name]![name]);
+          expect(after.length).toBe(before);
         } else if (want === 403) {
           const body = JSON.parse(res.body) as { error: string; code: string };
           expect(body.code).toBe('console_forbidden');
@@ -305,6 +324,8 @@ describe('the Console routes, by caller (D-157) @console', () => {
             if (persona.name === 'Admin') expect(me.caps).toContain('export');
             if (persona.name === 'Admin') expect(me.caps).not.toContain('notes.delete');
             if (persona.name === 'Owner') expect(me.caps).toContain('flags.write_sensitive');
+            if (persona.name === 'Owner') expect(me.caps).toContain('roles.write');
+            if (persona.name === 'Admin') expect(me.caps).not.toContain('roles.write');
           }
         }
       }

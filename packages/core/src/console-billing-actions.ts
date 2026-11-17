@@ -48,6 +48,15 @@ export const CONFIRM_TTL_MS = 5 * 60_000;
 /** Spec § 7: billing actions, 5 a minute per session. */
 export const BILLING_ACTION_RATE = 5;
 
+/**
+ * The two shared confirm codes (R2-3b's, `CONSOLE_ERRORS`), in Billing's words: its dialog offers
+ * "Start again", which reads Stripe afresh, rather than Roles' "Close this and try again".
+ */
+export const BILLING_CONFIRM_MESSAGES = {
+  confirm_invalid: 'This confirmation isn’t valid. Start again.',
+  confirm_expired: 'This confirmation expired after 5 minutes. Start again to see the current figures.',
+} as const;
+
 /** What the preview says the action is, for the dialog's title, sentence and typed confirmation. */
 export interface BillingActionSummary {
   invoiceId: string;

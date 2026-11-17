@@ -13,17 +13,58 @@
 //                  |stripe_off|stripe_scope                         and Billing's (D-163): no Stripe key, a missing scope
 //                  |action_expired|action_scope                     and its refund and void dialogs' refusals (D-164):
 //                                                                   a 410 expired confirmation, a missing Write scope
+//   ?masquerade-flag=off                                           D8's flag off (D-162 3b): the entry
+//                                                                  points drawn disabled
 
-import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, stripeScopeMessage, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
-import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
+import {
+  CONSOLE_ERRORS,
+  CONSOLE_PAGE_DEFAULT,
+  ROLE_CONFIRM_TTL_MS,
+  STAFF_ROLES,
+  auditActionGroup,
+  auditCsv,
+  auditRedactsNetwork,
+  checkRoleChange,
+  cleanNoteBody,
+  cleanReason,
+  cleanSearch,
+  consoleCanWith,
+  consoleCapsWith,
+  permissionChangeSummary,
+  roleRowOf,
+  rolesMatrix,
+  stripeScopeMessage,
+  usersCsv,
+} from '@ai/core';
+import type {
+  AuditAction,
+  AuditFilters,
+  AuditRow,
+  ConsoleErrorCode,
+  ConsoleMe,
+  ConsolePage,
+  PermMatrix,
+  RoleChangePreview,
+  RoleGrant,
+  StaffRole,
+} from '@ai/core';
 import { clock } from '../lib/clock';
-import { fixtureRole } from './boot';
+import { fixtureRole, repo } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
-import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import {
+  fixtureMasqueradeSessions,
+  fixtureNoteTargetExists,
+  fixtureRecords,
+  fixtureSearch,
+  fixtureUser,
+  fixtureUserRows,
+  fixtureWorkspace,
+  fixtureWorkspaceRows,
+} from './console-fixture-records';
 import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
 import { readParityR2 } from './parity-r2';
-import { parityAuditRows } from './parity-r2-db';
+import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope', 'action_expired', 'action_scope'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -105,6 +146,12 @@ function pageOf<T>(all: T[], cursor: string | null | undefined): ConsolePage<T> 
   return { rows, nextCursor: start + CONSOLE_PAGE_DEFAULT < all.length ? String(start + CONSOLE_PAGE_DEFAULT) : null };
 }
 
+/** A Roles & Permissions refusal, as the API words it (D-160 R2-3b). */
+const refused = (code: ConsoleErrorCode) =>
+  code === 'invalid_query'
+    ? new ConsoleError('invalid', 400, code, 'That change isn’t valid.')
+    : new ConsoleError('refused', CONSOLE_ERRORS[code].status, code, CONSOLE_ERRORS[code].message ?? code);
+
 export interface ConsoleFixtureOptions {
   role?: StaffRole;
   state?: FixtureConsoleState | null;
@@ -138,6 +185,15 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     ];
   };
 
+  // D-160 R2-3b: the Owner's matrix changes, in memory, as `console_role_grants` holds them; the
+  // parity fixture starts from the mockup's `PERMS0`. A preview's token is a key into `tokens` (the
+  // fixture has no secret to sign with), good for the same five minutes as the server's.
+  let grants: RoleGrant[] = parity ? parityRoleGrants() : [];
+  const tokens = new Map<string, { role: RoleGrant['role']; capability: RoleGrant['capability']; before: boolean; after: boolean; exp: number }>();
+  let minted = 0;
+  /** The fixture snapshot's PermKey matrix (the `build` row), as the server reads `permissions`. */
+  const perms = async (): Promise<PermMatrix> => (await repo.snapshot()).perms;
+
   const settle = <T>(value: () => T): Promise<T> => {
     if (state === 'loading') return new Promise<T>(() => {});
     if (state === 'error') return Promise.reject(new ConsoleError('failed', 502, null, 'Bad gateway'));
@@ -151,7 +207,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     }
   };
   const need = (cap: string) => {
-    if (!staff || !consoleCan(role, cap)) throw forbidden();
+    if (!staff || !consoleCanWith(grants, role, cap)) throw forbidden();
   };
 
   return {
@@ -159,7 +215,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     // The viewer is answered whatever the list's state, so a state screenshot shows the screen.
     me: () => {
       if (!staff) return Promise.reject(forbidden());
-      const me: ConsoleMe = { role, caps: consoleCaps(role) };
+      const me: ConsoleMe = { role, caps: consoleCapsWith(grants, role), masqueradeEnabled: qs.get('masquerade-flag') !== 'off' };
       return Promise.resolve(me);
     },
     audit: (filters, cursor) =>
@@ -200,7 +256,58 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     roles: () =>
       settle(() => {
         need('ops.read');
-        return rolesMatrix();
+        return rolesMatrix(grants);
+      }),
+    // The `build` row's PermKeys are the fixture snapshot's (`repo`), set with the same core mutation the
+    // server runs, so Staff & Roles and this matrix agree here as they do over http.
+    previewRole: (change) =>
+      settle(() => need('roles.write')).then(async () => {
+        const check = checkRoleChange({ viewerRole: role, ...change, grants, perms: await perms() });
+        if (!check.ok) throw refused(check.code);
+        const exp = now() + ROLE_CONFIRM_TTL_MS;
+        const confirmToken = `fixture-${++minted}`;
+        tokens.set(confirmToken, { role: check.role, capability: check.row.key, before: check.before, after: check.after, exp });
+        const preview: RoleChangePreview = {
+          role: check.role,
+          capability: check.row.key,
+          before: check.before,
+          after: check.after,
+          summary: permissionChangeSummary(check.row.label, check.before, check.after),
+          confirmToken,
+          expiresAt: exp,
+        };
+        return preview;
+      }),
+    changeRole: (confirmToken) =>
+      settle(() => need('roles.write')).then(async () => {
+        const p = await perms();
+        const t = tokens.get(confirmToken);
+        if (!t) throw refused('confirm_invalid');
+        if (now() > t.exp) throw refused('confirm_expired');
+        const check = checkRoleChange({ viewerRole: role, role: t.role, capability: t.capability, allowed: t.after, grants, perms: p });
+        if (!check.ok || check.before !== t.before) throw refused('grant_stale');
+        tokens.delete(confirmToken);
+        const row = roleRowOf(t.capability);
+        if (row.caps?.length) grants = [...grants.filter((g) => !(g.role === t.role && g.capability === t.capability)), { role: t.role, capability: t.capability, allowed: t.after }];
+        else for (const perm of row.perms ?? []) if (!!p[t.role]?.[perm] !== t.after) await repo.run('togglePermission', { role: t.role, perm });
+        const side = (allowed: boolean) => ({ permission: t.capability, label: row.label, allowed, ...(row.caps ? { capabilities: row.caps } : {}), ...(row.perms ? { perms: row.perms } : {}) });
+        const self: AuditRow = {
+          id: String(next++),
+          at: now(),
+          actor: { ...STAFF.casey, role, source: 'staff' },
+          masqueradeSessionId: null,
+          action: 'permission.change',
+          target: { type: 'role', id: t.role, label: t.role },
+          reason: null,
+          before: side(t.before),
+          after: side(t.after),
+          outcome: 'ok',
+          ip: '203.0.113.10',
+          userAgent: UA,
+          requestId: null,
+        };
+        rows = [self, ...rows];
+        return rolesMatrix(grants);
       }),
     workspaces: (filters, cursor) =>
       settle(() => {
@@ -302,6 +409,11 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (words === null) throw new ConsoleError('invalid', 400, 'invalid_query', 'Search for 2 to 100 characters.');
         if (state === 'empty') return { users: [], workspaces: [], orders: [], skills: [] };
         return fixtureSearch(records, words, role);
+      }),
+    masqueradeSessions: (cursor) =>
+      settle(() => {
+        need('masquerade.start');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureMasqueradeSessions(), cursor);
       }),
   };
 }

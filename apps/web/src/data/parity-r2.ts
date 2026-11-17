@@ -28,6 +28,24 @@ export const STAFF = [
 export const ROLES = ['Owner', 'Admin', 'Support'] as const;
 
 /**
+ * `PERMS0` (R2-3b, editable Roles): the matrix, verbatim, one value per `ROLES` column. The parity
+ * fixture stores it as the Owner's changes (`parityRoleGrants`) within the ceiling, which `CONSOLE_CAPS`
+ * keeps in code: where `PERMS0` shows a box the ceiling forbids (Support's "Export audit and email
+ * logs"), the ceiling wins and the box is drawn locked, as production draws it.
+ */
+export const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]],
+  ['masq', 'Start and extend masquerade', [1, 1, 0]],
+  ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]],
+  ['refund', 'Refund or void an invoice', [1, 1, 0]],
+  ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]],
+  ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]],
+  ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+] as const;
+
+/**
  * `MODS0` (R2-2): the curriculum, verbatim. `ses` is the live session's two lines as the mockup writes
  * them; the parity snapshot (`parity-r2-db.ts`) turns each row into the app's own AI Employee, session
  * and baseline, and the Curriculum and Module Builder screens print them back from those.
@@ -368,6 +386,16 @@ export const SUPPORT_USERS = [
   { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'Tidewater Property Co.', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', st: 'Past due', pr: 1, of: 2 },
   { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'Lantern Street Partners', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', st: 'Trialing', pr: 1, of: 5 },
   { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
+] as const;
+
+/**
+ * D-162 3b: the Masquerade screen's "Recent sessions", verbatim (`Masquerade()`): staff, user, reason,
+ * started, length, ended. The console fixture turns each into the API's history row.
+ */
+export const MASQ_SESSIONS = [
+  ['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'],
+  ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'],
+  ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff'],
 ] as const;
 
 /** `INV`: the invoices, as the workspaces' orders. */

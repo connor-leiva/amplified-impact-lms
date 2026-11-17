@@ -251,8 +251,13 @@ describe('Start (spec § 6) @console', () => {
 
   it('answers 403 masquerade_disabled while the flag is off (the seam defaults on)', async () => {
     expect(await masqueradeEnabled()).toBe(true);
+    // 3b: `GET /api/console/me` says so too, so the entry points can be drawn disabled.
+    const on = new Browser(await app.signInAs('st_admin'));
+    expect((await on.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: true });
     await app.close();
     app = await build({ logger: false, console: { masqueradeEnabled: async () => false } });
+    const off = new Browser(await app.signInAs('st_admin'));
+    expect((await off.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: false });
     const res = (await masquerade('u_jamie')).res;
     expect(res.statusCode).toBe(403);
     expect(res.json()).toEqual({ error: 'Masquerade is turned off.', code: 'masquerade_disabled' });
@@ -484,6 +489,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: CONSOLE_PATHS.audit },
       { method: 'POST', url: CONSOLE_PATHS.auditExport },
       { method: 'GET', url: CONSOLE_PATHS.roles },
+      // D-160 R2-3b's two-step Roles change, a write: blocked too.
+      { method: 'POST', url: CONSOLE_PATHS.rolesPreview },
+      { method: 'POST', url: CONSOLE_PATHS.roles },
       { method: 'GET', url: CONSOLE_PATHS.workspaces },
       { method: 'GET', url: '/api/console/workspaces/northline' },
       { method: 'GET', url: CONSOLE_PATHS.users },

@@ -657,10 +657,10 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
-    // PR 3a (D-162): masquerade's endpoints too. PR 4 (D-163): Billing reads Stripe through its own
-    // narrow, cached, read-only client, from the same key.
-    // PR 5 (D-164): its two confirmed writes, refund and void, read Stripe fresh (the same read client,
-    // uncached) and write through a separate, narrow write client, from the same key.
+    // PR 3a (D-162): masquerade's endpoints too; D-160 R2-3b: the event hub, for a Roles change.
+    // PR 4 (D-163): Billing reads Stripe through its own narrow, cached, read-only client, from the
+    // same key. PR 5 (D-164): its two confirmed writes, refund and void, read Stripe fresh (the same
+    // read client, uncached) and write through a separate, narrow write client, from the same key.
     const consoleKey = offerConfig.stripeSecretKey;
     const testBilling = options.consoleBilling;
     const consoleFresh =
@@ -686,6 +686,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
         : null;
     await registerConsoleRoutes(app, {
       ...(options.console ?? {}),
+      broadcast,
       billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) },
       billingActions: { read: consoleFresh, write: consoleWrite },
     });
