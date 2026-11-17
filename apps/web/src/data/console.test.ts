@@ -98,7 +98,10 @@ describe('the Console client (D-157)', () => {
   it('maps statuses without a code', () => {
     expect(failureOf(403, undefined)).toBe('forbidden');
     expect(failureOf(429, 'console_forbidden')).toBe('forbidden');
-    expect(failureOf(503, 'stripe_permission_missing')).toBe('failed');
+    // D-163: Billing's two Stripe states.
+    expect(failureOf(503, 'stripe_permission_missing')).toBe('stripe_scope');
+    expect(failureOf(503, 'stripe_not_connected')).toBe('stripe_off');
+    expect(failureOf(502, 'stripe_unavailable')).toBe('failed');
   });
 
   it('builds the audit query from the set filters only', () => {

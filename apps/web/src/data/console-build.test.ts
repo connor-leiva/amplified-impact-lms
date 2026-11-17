@@ -53,7 +53,10 @@ async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): P
     .join('\n');
 }
 
-/** D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). */
+/**
+ * D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). D-163:
+ * Billing's sample figures and their "· sample" qualifiers.
+ */
 const RECORD_SENTINELS = [
   'ws_northshore',
   'Elena Vargas',
@@ -63,9 +66,23 @@ const RECORD_SENTINELS = [
   'Checking seat invite flow after upgrade request',
   'Verifying Week 2 step order on her account',
   'masquerade-flag',
+  // D-163: Billing's sample figures and their qualifiers.
+  'MRR · sample',
+  'Plan economics · sample figures',
+  '+$695 this week',
+  '$29 per agent, monthly',
+  'card_declined: do_not_honor',
+  're_3QxK5fFm70',
 ];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
+  it('D-163: the Billing screen’s production view-model has no sample words', async () => {
+    const code = await bundle('production', '../routes/console/billing.vm.ts');
+    expect(code).toContain('Plan economics');
+    for (const s of ['MRR · sample', 'Plan economics · sample figures', '+$695 this week', '$18,516', '$67,500'])
+      expect(code, s).not.toContain(s);
+  }, 60_000);
+
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');

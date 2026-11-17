@@ -11,6 +11,12 @@ import { isConsoleErrorCode } from '@ai/core';
 import type {
   AuditFilters,
   AuditRow,
+  BillingCustomerRow,
+  BillingFailedRow,
+  BillingInvoiceRow,
+  BillingRefundRow,
+  BillingSubscriptionRow,
+  BillingSummary,
   ConsoleErrorCode,
   ConsoleMe,
   ConsolePage,
@@ -54,6 +60,10 @@ export type ConsoleFailure =
    * code's own sentence (`CONSOLE_ERRORS`).
    */
   | 'refused'
+  /** 503 `stripe_not_connected` (PR 4, D-163): "Stripe isn't connected". */
+  | 'stripe_off'
+  /** 503 `stripe_permission_missing`: the key lacks a Read permission, which the error names. */
+  | 'stripe_scope'
   /** Anything else: a 5xx, a dropped connection, a body that isn't JSON. */
   | 'failed';
 
@@ -95,6 +105,8 @@ export function failureOf(status: number, code: unknown): ConsoleFailure {
   if (code === 'invalid_query' || code === 'invalid_body' || code === 'reason_required') return 'invalid';
   if (code === 'not_found') return 'not_found';
   if (typeof code === 'string' && (REFUSALS as readonly string[]).includes(code)) return 'refused';
+  if (code === 'stripe_not_connected') return 'stripe_off';
+  if (code === 'stripe_permission_missing') return 'stripe_scope';
   if (status === 429) return 'rate_limited';
   if (status === 404) return 'not_found';
   if (status === 403) return 'forbidden';
@@ -131,6 +143,31 @@ export interface ConsoleApi {
   previewStaff(change: StaffConsoleRequest): Promise<StaffChangePreview>;
   /** Makes the previewed staff change; answers its toast. */
   changeStaff(confirmToken: string): Promise<{ toast: string }>;
+  // PR 4 (D-163): Billing, read-only.
+  billingSummary(): Promise<BillingSummary>;
+  billingList<K extends BillingListKind>(kind: K, cursor?: string | null): Promise<ConsolePage<BillingRows[K]>>;
+  /**
+   * FIXTURE ONLY: the mockup's "· sample" qualifiers for its sample figures (BUILD-SPEC § 6.1). The
+   * http client has no such method, so production prints its own words (D-163).
+   */
+  billingSample?(): BillingSample;
+}
+
+/** Billing's lists (spec § 7.6), by the tab that shows each. */
+export interface BillingRows {
+  customers: BillingCustomerRow;
+  subscriptions: BillingSubscriptionRow;
+  invoices: BillingInvoiceRow;
+  failed: BillingFailedRow;
+  refunds: BillingRefundRow;
+}
+export type BillingListKind = keyof BillingRows;
+
+/** What the fixture's sample figures are labelled (the mockup's words), fixture build only. */
+export interface BillingSample {
+  mrrLabel: string;
+  mrrSub: string;
+  plansTitle: string;
 }
 
 /**
@@ -250,6 +287,8 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       ),
     changeStaff: async (confirmToken) =>
       json<{ toast: string }>(await request(fetchImpl, '/api/console/staff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
+    billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
+    billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
   };
 }
 

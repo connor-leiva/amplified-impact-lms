@@ -10,6 +10,7 @@
 //   ?console-role=Owner|Admin|Support|Instructor|Content Editor   the viewer's staff role (default:
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
+//                  |stripe_off|stripe_scope                         and Billing's (D-163): no Stripe key, a missing scope
 //   ?masquerade-flag=off                                           D8's flag off (D-162 3b): the entry
 //                                                                  points drawn disabled
 
@@ -37,6 +38,7 @@ import {
   permissionChangeSummary,
   roleRowOf,
   rolesMatrix,
+  stripeScopeMessage,
   usersCsv,
 } from '@ai/core';
 import type {
@@ -69,10 +71,11 @@ import {
   fixtureWorkspace,
   fixtureWorkspaceRows,
 } from './console-fixture-records';
+import { BILLING_SAMPLE_LABELS, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 
-export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
+export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
 
 const HOUR = 3600_000;
@@ -221,6 +224,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     if (state === 'loading') return new Promise<T>(() => {});
     if (state === 'error') return Promise.reject(new ConsoleError('failed', 502, null, 'Bad gateway'));
     if (state === 'rate_limited') return Promise.reject(new ConsoleError('rate_limited', 429, null, 'Rate limit exceeded, retry in 1 minute'));
+    if (state === 'stripe_off') return Promise.reject(new ConsoleError('stripe_off', 503, 'stripe_not_connected', 'Stripe isn’t connected.'));
+    if (state === 'stripe_scope') return Promise.reject(new ConsoleError('stripe_scope', 503, 'stripe_permission_missing', stripeScopeMessage('Invoices')));
     try {
       return Promise.resolve(value());
     } catch (e) {
@@ -459,6 +464,18 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
         return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
       }),
+    // D-163: Billing, the mockup's figures and records (read-only, like the API).
+    billingSummary: () =>
+      settle(() => {
+        need('billing.read');
+        return fixtureBillingSummary(now());
+      }),
+    billingList: (kind, cursor) =>
+      settle(() => {
+        need('billing.read');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureBillingRows()[kind] as never[], cursor);
+      }),
+    billingSample: () => ({ ...BILLING_SAMPLE_LABELS }),
     search: (q) =>
       settle(() => {
         need('console.view');
