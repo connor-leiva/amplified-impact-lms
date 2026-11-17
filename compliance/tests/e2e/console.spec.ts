@@ -356,7 +356,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
     Owner: [
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams'],
+      // D-160 R2-1c part 1: Workspaces is on in production.
+      ['Support', 'Learners & Teams', 'Workspaces'],
       ['Revenue', 'Tiers & Upgrades'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
@@ -364,7 +365,7 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
   };
   EXPECT.Admin = EXPECT.Owner!;
   EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => x !== 'Roles & Permissions'));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {

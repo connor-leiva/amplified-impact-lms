@@ -51,17 +51,20 @@ async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): P
     .join('\n');
 }
 
+/** D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). */
+const RECORD_SENTINELS = ['ws_northshore', 'Elena Vargas', 'cus_Rk3NshoreA1', 'in_1QxT4mNs0291'];
+
 describe('the Console fixture is not in the http build (D-157)', () => {
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
     expect(code).toContain('/api/console/roles/preview');
-    for (const s of SENTINELS) expect(code, s).not.toContain(s);
+    for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).not.toContain(s);
   }, 60_000);
 
   it('the fixture build has it, so the check above can fail', async () => {
     const code = await bundle('fixture');
-    for (const s of SENTINELS) expect(code, s).toContain(s);
+    for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).toContain(s);
   }, 60_000);
 });
 

@@ -301,6 +301,54 @@
   font-weight: 500;
   color: var(--r2-ink);
 }
+/* A record's page (D-160 R2-1c): its row's crumb links back (`.lk`, weight 400, --f3) and the record's
+   name follows (`b.el`). */
+.crumbLink {
+  color: var(--r2-f3);
+  text-decoration: none;
+  border-radius: 4px;
+}
+.crumbLink:hover {
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+}
+.record {
+  font-weight: 500;
+  color: var(--r2-ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* `.toast`: the R2 toast, bottom centre, a mint check. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  background: var(--r2-toast-bg);
+  color: var(--r2-toast-ink);
+  border-radius: 8px;
+  padding: 8px 12px;
+  z-index: 50;
+  max-width: calc(100% - 32px);
+  font-size: calc(var(--r2-t) - 1px);
+  box-shadow: var(--r2-sh-toast);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.toastGlyph {
+  color: var(--r2-mint);
+  display: flex;
+}
+@media (max-width: 767px) {
+  .toast {
+    font-size: var(--r2-t);
+  }
+}
 
 /* `.srch`: the ⌘K trigger. */
 .search {

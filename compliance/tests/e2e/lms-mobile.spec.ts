@@ -60,6 +60,10 @@ const ROUTES: readonly [Persona, string][] = [
   // The Audit Log, and its "Too many requests".
   ['admin', '/admin/audit'],
   ['admin', '/admin/audit?console-state=rate_limited'],
+  // The Support records on R2 (D-160 R2-1c): Workspaces and a workspace.
+  ['admin', '/admin/workspaces'],
+  ['admin', '/admin/workspaces/ws_northshore'],
+  ['admin', '/admin/workspaces?console-state=error'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],
