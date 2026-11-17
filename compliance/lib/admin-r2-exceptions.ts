@@ -60,6 +60,18 @@ export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
     ref: EXCEPTION_DECISION,
     pr: 138,
   },
+  // R2-1c part 1 (#136): Workspace (Northshore Group) on a phone. Its key facts' values: the workspace
+  // id, plan, seats, owner, MRR and last activity (y 276–435).
+  {
+    cell: 'workspace-detail-390',
+    width: 390,
+    height: 1341,
+    ceilingPx: 1993,
+    ceilingPct: 0.3811,
+    reason: EXCEPTION_REASON,
+    ref: EXCEPTION_DECISION,
+    pr: 136,
+  },
 ];
 
 /** A ceiling as the report prints it: `0.3390% · 2766 px`. */
