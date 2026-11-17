@@ -50,8 +50,9 @@ test.describe('admin-r2 setup', () => {
   // screens with the same key-facts component (the shepherd, Nov 17). The list is closed.
   test('approved exceptions are decision A’s closed list', () => {
     const cells = APPROVED_EXCEPTIONS.map((e) => e.cell);
-    // Decision A's three, and the later screens with the same key-facts component (Nov 17): flags-390 (#151).
-    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'flags-390', 'user-390', 'workspace-detail-390']);
+    // Decision A's three, and the later screens with the same key-facts component (Nov 17): incident-390
+    // (#152) and flags-390 (#151).
+    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'flags-390', 'incident-390', 'user-390', 'workspace-detail-390']);
     expect(cells.every((c) => (ALLOWED_EXCEPTION_CELLS as readonly string[]).includes(c)), `only ${ALLOWED_EXCEPTION_CELLS.join(', ')}`).toBe(true);
     expect(new Set(cells).size, 'no cell listed twice').toBe(cells.length);
     expect(exceptionProblems()).toEqual([]);

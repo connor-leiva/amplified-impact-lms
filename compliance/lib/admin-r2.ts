@@ -151,9 +151,9 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
  * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four;
  * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four; Console PR 7 (D-166):
- * `email` and `usage` at all four; D-167: `incidents` at all four, `incident` at 1440, 1280 and 1024; Console PR 9 (D-168):
- * `integrations`, `deploys` and `db` at all four, `flags` at 1440, 1280 and 1024 (and 390 as an approved
- * exception).
+ * `email` and `usage` at all four; D-167: `incidents` at all four, `incident` at 1440, 1280 and 1024
+ * (and 390 as an approved exception); Console PR 9 (D-168): `integrations`, `deploys` and `db` at all four,
+ * `flags` at 1440, 1280 and 1024 (and 390 as an approved exception).
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -199,9 +199,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // Console PR 7 (D-166): the Email Log and Usage at all four widths.
   `email-${w}`,
   `usage-${w}`,
-  // D-167: Incidents at all four widths; Incident at 1440, 1280 and 1024. `incident-390` is built and
-  // reported, not enforced, for `workspace-detail-390`'s reason: its key-facts values, 15px in the
-  // mockup on a phone, 16px here (its figures, and 0 px with 15px, are in D-167).
+  // D-167: Incidents at all four widths; Incident at 1440, 1280 and 1024. `incident-390` is not here,
+  // for `workspace-detail-390`'s reason (its key-facts values, 15px in the mockup on a phone, 16px
+  // here): it is an approved exception under decision A (`admin-r2-exceptions.ts`, D-160).
   `incidents-${w}`,
   ...(w === 390 ? [] : [`incident-${w}`]),
   // Console PR 9 (D-168): Integrations, Deploys & Commits and DB Health at all four widths; Environment
