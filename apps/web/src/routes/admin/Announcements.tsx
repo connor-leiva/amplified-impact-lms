@@ -269,7 +269,7 @@ export function Component() {
               </Sel>
             </label>
           </div>
-          <div className={clsx(k.row, s.pair)}>
+          <div className={clsx(k.row, s.pair, s.when)}>
             <label className={s.lab}>
               When
               <Sel
