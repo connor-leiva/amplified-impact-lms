@@ -47,13 +47,13 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs.
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs; D-166 Usage and the Email Log.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
-      ['Revenue', 'Tiers & Upgrades', 'Billing'],
-      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs'],
+      ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
+      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
   });
@@ -64,8 +64,8 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       expect(support.flat()).not.toContain(ops);
     expect(support.map((g) => g[0])).not.toContain('Access');
     expect(support.flat()).toContain('Audit Log');
-    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too.
-    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toEqual(['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs']);
+    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too; D-166 the Email Log.
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toEqual(['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log']);
     const instructor = labels(nav({ role: 'Instructor', fullNav: false }));
     expect(instructor.map((g) => g[0])).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
@@ -81,7 +81,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       'Revenue',
       'Tiers & Upgrades',
       'Billing',
+      'Usage',
     ]);
+    // D-166: Usage and the Email Log read `usage.read` and `email.read`: Support has both (D3); an Instructor neither.
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toContain('Email Log');
   });
 
   it('badges real work and alerts only, and hides each at zero', () => {
@@ -134,6 +137,8 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(activeRowId('/admin/curriculum/new')).toBe('builder');
     expect(activeRowId('/admin/curriculum/marketing')).toBe('builder');
     expect(activeRowId('/admin/staff')).toBe('staff');
+    expect(activeRowId('/admin/usage')).toBe('usage');
+    expect(activeRowId('/admin/email')).toBe('email');
     // Not built yet: the Console 404, with no row lit.
     expect(activeRowId('/admin/health')).toBeNull();
     expect(activeRowId('/admin/no-such-page')).toBeNull();

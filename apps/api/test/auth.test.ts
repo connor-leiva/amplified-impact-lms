@@ -46,6 +46,7 @@ import { AUTH_REQUEST_IP_MAX } from '../src/routes/auth';
 import { authSessions, authTokens, users } from '../src/db/schema';
 import { outbox, resetOutbox } from '../src/email/transport';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
+import { clearUsage, usageRows, withoutUsageTable } from './usage-helpers';
 
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
 const JAMIE = 'jamie@ortizhomes.com';
@@ -798,5 +799,34 @@ describe('PATCH /api/me/prefs @g7', () => {
     const before = (await loadDb()).users.find((u) => u.id === 'u_jamie');
     await patch({ tz: 'America/Denver', theme: 'dark' }, { cookie });
     expect((await loadDb()).users.find((u) => u.id === 'u_jamie')).toEqual(before);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// D-166: the usage count a link sign-in makes (spec §§ 7.7, 9)
+// ------------------------------------------------------------------------------------------------
+
+describe('POST /api/auth/verify counts a sign-in (D-166) @console', () => {
+  beforeEach(clearUsage);
+
+  it('counts one sign-in for the learner, on the program-zone day', async () => {
+    const res = await post('/api/auth/verify', { token: await requestLink(JAMIE) });
+    expect(res.statusCode).toBe(200);
+    expect(await usageRows()).toEqual([expect.objectContaining({ day: '2026-12-07', user_id: 'u_jamie', kind: 'sign_in', count: 1 })]);
+  });
+
+  it('answers exactly as before when the count cannot be written', async () => {
+    const token = await requestLink(JAMIE);
+    const res = await withoutUsageTable(() => post('/api/auth/verify', { token }));
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, team: null, landing: '/' });
+    const me = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: cookieFrom(res.headers['set-cookie']) } });
+    expect(me.statusCode).toBe(200);
+    expect(await usageRows()).toEqual([]);
+  });
+
+  it('counts no staff sign-in: staff are not usage of the product', async () => {
+    expect((await post('/api/auth/verify', { token: await requestLink(CASEY) })).statusCode).toBe(200);
+    expect(await usageRows()).toEqual([]);
   });
 });

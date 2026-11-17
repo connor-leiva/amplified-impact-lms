@@ -114,10 +114,6 @@ export const USER_COPY = {
     empty: 'No orders for this user',
   },
   progress: { empty: 'No builds started yet', deployed: 'Deployed', building: 'In progress', none: 'Not started' },
-  emails: {
-    title: 'The email log isn’t built yet',
-    body: 'Emails sent to this person show here once the Email Log is live.',
-  },
   noActivity: 'No activity yet',
   identity: {
     title: 'Identity',

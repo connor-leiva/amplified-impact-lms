@@ -257,17 +257,19 @@ export function resetResendClient(): void {
   client = null;
 }
 
-async function sendViaResend(to: string, subject: string, html: string | null): Promise<void> {
+/** Resend's message id for an accepted send (D-166: the email log keeps it), or null when it gave none. */
+async function sendViaResend(to: string, subject: string, html: string | null): Promise<string | null> {
   const from = process.env.EMAIL_FROM;
   if (!from) throw new Error('EMAIL_FROM is not set');
   // No renderer means no body. An email with an empty body is worse than a send that did not
   // happen, because it looks delivered to everyone involved, so this is a hard failure.
   if (html === null) throw new Error('No template renderer is registered');
   const resend = await resendClient();
-  const { error } = await resend.emails.send({ from, to, subject, html });
+  const { data, error } = await resend.emails.send({ from, to, subject, html });
   // The SDK reports a rejected send in `error` rather than by throwing. Both paths end up in
   // `send`'s catch.
   if (error) throw new Error(`${error.name}: ${error.message}`);
+  return data?.id ?? null;
 }
 
 // --- send --------------------------------------------------------------------------------------
@@ -297,6 +299,27 @@ function fail(
   return { ok: false, mode, template, to, subject, error };
 }
 
+// --- the send log (D-166, spec § 7.15) -------------------------------------------------------------
+
+/** What the email log records about one send: its result, and Resend's message id when it gave one. */
+export interface SendRecord {
+  result: SendResult;
+  providerId: string | null;
+}
+
+/** Called once after every `send()`, with what happened. It must not throw, and it is never awaited. */
+export type SendObserver = (record: SendRecord) => void;
+
+let observer: SendObserver | null = null;
+
+/**
+ * Registers the email log's writer (`email/log.ts`), once, beside the renderer; null unregisters it.
+ * With none registered (this file's own tests, a script) `send` is exactly what it was.
+ */
+export function setSendObserver(next: SendObserver | null): void {
+  observer = next;
+}
+
 /**
  * § 8.1's one entry point. Resolves the mode, builds the subject from § 8.1's table, renders the
  * body if a renderer is registered, and then does one of three things.
@@ -304,12 +327,29 @@ function fail(
  * The mode is resolved per call, not at import: vitest imports a module before any test body runs,
  * so an import-time read would bake in whatever `NODE_ENV` happened to be set first and a suite
  * could never exercise the other two branches.
+ *
+ * D-166: AFTER the send, and only then, the observer hears what happened (the email log). It is
+ * called inside a `try` and never awaited, so a log that fails, throws or hangs never throws from
+ * here, never delays the send and never changes its result. The body is not handed to it.
  */
-export async function send<K extends TemplateName>({
-  template,
-  to,
-  data,
-}: SendRequest<K>): Promise<SendResult> {
+export async function send<K extends TemplateName>(request: SendRequest<K>): Promise<SendResult> {
+  const sent = { providerId: null as string | null };
+  const result = await deliver(request, sent);
+  if (observer) {
+    try {
+      observer({ result, providerId: sent.providerId });
+    } catch {
+      // Decision 1 holds for the log too: nothing about recording a send may undo or fail it.
+    }
+  }
+  return result;
+}
+
+/** `send` itself, as it was before the log: `sent.providerId` is set when Resend accepts it. */
+async function deliver<K extends TemplateName>(
+  { template, to, data }: SendRequest<K>,
+  sent: { providerId: string | null },
+): Promise<SendResult> {
   const mode = resolveMode();
 
   const badRecipient = invalidRecipient(to);
@@ -360,7 +400,7 @@ export async function send<K extends TemplateName>({
   }
 
   try {
-    await sendViaResend(to, subject, html);
+    sent.providerId = await sendViaResend(to, subject, html);
     return { ok: true, mode, template, to, subject };
   } catch (err) {
     // Decision 1: a production failure is reported, never thrown. The invite stands.

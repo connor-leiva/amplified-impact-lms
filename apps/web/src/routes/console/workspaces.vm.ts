@@ -188,10 +188,6 @@ export const WORKSPACE_COPY = {
     open: 'Open in Billing',
     to: '/admin/billing/invoices',
   },
-  usage: {
-    title: 'Usage isn’t counted yet',
-    body: 'Sign-ins, lesson plays, guide views and storage show here once usage is tracked.',
-  },
   noActivity: 'No activity yet',
   notes: {
     title: 'Staff notes',

@@ -22,6 +22,7 @@ import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
 import { useMasqueradeEntry } from './useMasqueradeEntry';
+import { UserEmailsTab } from './RecordTabs';
 import { USER_COPY as C, USER_TABS, canReset, userVM } from './users.vm';
 import type { UserTab, UserVM } from './users.vm';
 import { NONE } from './workspaces.vm';
@@ -200,11 +201,7 @@ export function Component() {
               )}
             </Card>
           ) : null}
-          {tab === 'emails' ? (
-            <Card pad={false}>
-              <Empty icon="r2Email" title={C.emails.title} body={C.emails.body} />
-            </Card>
-          ) : null}
+          {tab === 'emails' ? <UserEmailsTab api={gate.api} userId={user.id} /> : null}
           {tab === 'activity' ? (
             <Card>
               {vm.activity.length ? (

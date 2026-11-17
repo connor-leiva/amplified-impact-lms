@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -25,6 +25,9 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   // D-165 (spec §§ 7.9-7.10).
   api: { title: 'API & Webhooks', cap: 'api.read', path: '/admin/api' },
   jobs: { title: 'Scheduled Jobs', cap: 'jobs.read', path: '/admin/jobs' },
+  // D-166 (spec §§ 7.7, 7.15).
+  email: { title: 'Email Log', cap: 'email.read', path: '/admin/email' },
+  usage: { title: 'Usage', cap: 'usage.read', path: '/admin/usage' },
 };
 
 /** The way out of Denied and the 404. */

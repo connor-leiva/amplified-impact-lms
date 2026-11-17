@@ -127,6 +127,9 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
   api: { path: '/admin/api' },
   jobs: { path: '/admin/jobs' },
+  // Console PR 7 (D-166): the Email Log and Usage, on the mockup's own `EMAILS` and `Usage` figures.
+  email: { path: '/admin/email' },
+  usage: { path: '/admin/usage' },
 };
 
 /**
@@ -138,7 +141,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
  * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
  * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four;
- * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four.
+ * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four; Console PR 7 (D-166):
+ * `email` and `usage` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -181,6 +185,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
   `api-${w}`,
   `jobs-${w}`,
+  // Console PR 7 (D-166): the Email Log and Usage at all four widths.
+  `email-${w}`,
+  `usage-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

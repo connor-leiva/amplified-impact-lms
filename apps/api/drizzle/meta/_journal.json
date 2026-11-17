@@ -141,6 +141,13 @@
       "when": 1794897724967,
       "tag": "0019_ops_telemetry",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794901397089,
+      "tag": "0020_email_log_usage",
+      "breakpoints": true
     }
   ]
 }
