@@ -5265,7 +5265,7 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
 **Date:** 2026-11-17
 **Approved by:** Connor's decision B, Monday, Nov 16, 2026, 8:27 AM MST (America/Phoenix), for Roles & Permissions: *"a guard so nobody can remove their own admin access or the last owner"* and *"an audit-log entry for every change (who, what, before/after)"*. #140 (D-160 R2-3b) built that for the matrix; its "Change role…" and "Invite staff" still lead to Staff & Roles (`/admin/staff`), whose writes are core's `setStaffRole`, `removeStaff` and `inviteStaff` through `POST /api/mutate/:name`, which wrote no audit row and let a holder of the `staff` permission change their own role. This entry carries the same decision to those three writes.
 **Number:** D-162 to D-169 are reserved for the Console chain and D-170 for the stale-chunk PR; D-171 was free on `main` (46dc5ae) and in every open pull request (checked Nov 17, 2026). A standalone PR off `main`, outside the R2/Console stack; it can merge before or after any of it.
-**Status:** on a pull request.
+**Status:** on a pull request (https://github.com/connor-leiva/amplified-impact-lms/pull/155), base `main`.
 **Scope:**
 - `packages/core/src/staff-guard.ts` (new): the rules, pure and exported, so a later Console path (R2-gaps: the Roles screen's "Invite staff" and "Change role…") runs the same ones. `console.ts`: three audit actions, and the three refusal codes in `CONSOLE_ERRORS`. `index.ts`: the export.
 - `apps/api/src/console/staff-writes.ts` (new): where the route meets the rules and writes the rows. `apps/api/src/routes/mutate.ts`: calls it, for these three writes only.
