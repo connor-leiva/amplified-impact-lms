@@ -10,9 +10,10 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import { cohortSeatsSold } from '../src/billing/provision';
 import { HEALTH_PATHS } from '../src/console/health';
+import { resetDeploysCache } from '../src/console/infra-deploys';
 import type { HealthSources } from '../src/console/health';
 import type { ReadInvoice } from '../src/console/stripe-read';
-import { accounts, ai101Waitlist, auditLog, orders, plans, skills, stripeEvents, users } from '../src/db/schema';
+import { accounts, ai101Waitlist, apiMetrics, auditLog, incidents, jobTicks, orders, plans, skills, stripeEvents, users } from '../src/db/schema';
 import { MAX_ATTEMPTS } from '../src/jobs/ghl-sync';
 import { settleEmails } from '../src/auth';
 import { fakeConsoleStripe } from './fake-console-stripe';
@@ -50,12 +51,16 @@ const inv = (id: string, attemptCount: number, over: Partial<ReadInvoice> = {}):
 let app: App;
 let fake: ReturnType<typeof fakeConsoleStripe>;
 
-const boot = async (opts: { sources?: Partial<HealthSources>; stripe?: boolean; timeoutMs?: number } = {}) => {
+const boot = async (
+  opts: { sources?: Partial<HealthSources>; stripe?: boolean; timeoutMs?: number; env?: NodeJS.ProcessEnv; fetch?: (input: string) => Promise<Response> } = {},
+) => {
   await app?.close();
+  resetDeploysCache();
   app = await build({
     logger: false,
     consoleBilling: { stripe: opts.stripe === false ? null : fake.stripe, mode: 'test' },
-    console: { health: { sources: opts.sources, timeoutMs: opts.timeoutMs } },
+    // PR 9's deploy history reads this environment (no token unless a test gives one), never the process's.
+    console: { infra: { env: opts.env ?? {}, fetch: opts.fetch }, health: { sources: opts.sources, timeoutMs: opts.timeoutMs } },
   });
 };
 
@@ -143,11 +148,52 @@ describe('GET /api/console/health (D-169)', () => {
     expect(r.seatPressure!.map((s) => s.key)).toContain('harbor');
   });
 
-  it('a source this server can’t read yet reads "not configured", never a 500', async () => {
+  it('sign-ins, job failures and open incidents come from api_metrics, job_ticks and incidents', async () => {
+    const db = await testDatabase();
+    // Nothing recorded yet: no sign-ins, no runs, nothing open.
+    const quiet = await health();
+    expect(quiet.tiles.signInSuccess).toEqual({ value: null, status: 'ok', detail: { attempts: 0 } });
+    expect(quiet.tiles.jobFailures).toEqual({ value: 0, status: 'ok', detail: { failedJobs: [], jobs: 0 } });
+    expect(quiet.tiles.openIncidents).toEqual({ value: 0, status: 'ok', detail: { top: null } });
+    // No read-only token here: deploys are "not configured", off Railway with no live commit.
+    expect(quiet.deploys).toEqual({ state: 'not_configured', live: null });
+
+    const minute = (ago: number) => NOW - ago - ((NOW - ago) % 60_000);
+    await db.insert(apiMetrics).values([
+      // 48 answers on the two sign-in routes in the window, 2 of them refused.
+      { minute: minute(3600_000), route: 'POST /api/auth/login', count: 30, errors4xx: 2, errors5xx: 0, hist: { '100': 30 } },
+      { minute: minute(7200_000), route: 'POST /api/auth/verify', count: 18, errors4xx: 0, errors5xx: 0, hist: { '100': 18 } },
+      // Older than a day, another route, and Google's callback: none of them count.
+      { minute: minute(2 * DAY), route: 'POST /api/auth/login', count: 50, errors4xx: 50, errors5xx: 0, hist: { '100': 50 } },
+      { minute: minute(3600_000), route: 'GET /api/skills', count: 100, errors4xx: 90, errors5xx: 0, hist: { '100': 100 } },
+      { minute: minute(3600_000), route: 'GET /api/auth/google/callback', count: 5, errors4xx: 0, errors5xx: 0, hist: { '100': 5 } },
+    ]);
+    const tick = (job: string, status: string, ago: number, errorKind: string | null = null) => ({
+      job,
+      startedAt: NOW - ago,
+      finishedAt: status === 'running' ? null : NOW - ago + 1000,
+      status,
+      errorKind,
+      trigger: 'schedule',
+    });
+    await db.insert(jobTicks).values([
+      tick('ghl-orders', 'failed', 600_000, 'http_401'),
+      tick('ghl-orders', 'failed', 1200_000, 'http_401'),
+      tick('session-24h', 'succeeded', 600_000),
+      tick('session-1h', 'running', 60_000),
+      tick('weekly-digest', 'failed', 2 * DAY, 'timeout'),
+    ]);
+    await db.insert(incidents).values([
+      { id: 'INC-0002', title: 'GHL order sync failing with 401', severity: 'sev2', status: 'open', fingerprint: 'job:ghl-orders', openedAt: NOW - 3600_000 },
+      { id: 'INC-0001', title: 'Weekly digest bounces', severity: 'sev3', status: 'acknowledged', fingerprint: null, openedAt: NOW - DAY, acknowledgedAt: NOW - DAY + 60_000 },
+      { id: 'INC-0003', title: 'Old', severity: 'sev1', status: 'resolved', fingerprint: null, openedAt: NOW - 3 * DAY, resolvedAt: NOW - 2 * DAY },
+    ]);
     const r = await health();
-    // Wired by the stack's later merges (api_metrics, job_ticks, incidents, deploys).
-    for (const k of ['signInSuccess', 'jobFailures', 'openIncidents'] as const) expect(r.tiles[k], k).toEqual({ value: null, status: 'unavailable', reason: 'not_configured' });
-    expect(r.deploys).toEqual({ state: 'unavailable' });
+    expect(r.tiles.signInSuccess).toEqual({ value: 95.8, status: 'ok', detail: { attempts: 48 } });
+    expect(r.tiles.jobFailures).toEqual({ value: 1, status: 'attention', detail: { failedJobs: ['ghl-orders'], jobs: 2 } });
+    expect(r.tiles.openIncidents).toEqual({ value: 1, status: 'attention', detail: { top: { id: 'INC-0002', severity: 'sev2' } } });
+    // INC-0002 covers ghl-orders, so the job isn't listed twice.
+    expect(r.attention.map((a) => (a.kind === 'incident' ? a.id : a.kind))).toEqual(['INC-0002', 'payment', 'webhook', 'ghl']);
   });
 
   it('each tile degrades on its own: a throw, a hang, a missing Stripe key, a missing scope', async () => {
@@ -194,6 +240,23 @@ describe('GET /api/console/health (D-169)', () => {
     expect(r.tiles.openIncidents).toEqual({ value: 1, status: 'attention', detail: { top: { id: 'INC-0001', severity: 'sev2' } } });
     expect(r.attention.map((a) => a.kind)).toEqual(['incident', 'payment', 'webhook', 'ghl']);
     expect(r.deploys!.state === 'ok' && r.deploys!.rows.map((d) => d.sha)).toEqual(['1aaaaaa', '2aaaaaa', '3aaaaaa']);
+  });
+
+  it('deploys come from PR 9’s history: not configured (with the live commit), or unavailable when the provider fails', async () => {
+    const live = 'a3f91c2b7e0d4c1f9a8b6e5d4c3b2a1f0e9d8c7b';
+    await boot({ env: { RAILWAY_GIT_COMMIT_SHA: live } });
+    expect((await health()).deploys).toEqual({ state: 'not_configured', live });
+    // A read-only token is set but GitHub can't be reached: the card says so, and every tile still reads.
+    await boot({
+      env: { CONSOLE_GITHUB_TOKEN: 'ghp_TESTSENTINEL0000', RAILWAY_GIT_COMMIT_SHA: live },
+      fetch: async () => {
+        throw new Error('offline ghp_TESTSENTINEL0000');
+      },
+    });
+    const r = await health();
+    expect(r.deploys).toEqual({ state: 'unavailable' });
+    expect(r.tiles.acceleratorSeats.status).toBe('ok');
+    expect(JSON.stringify(r)).not.toContain('TESTSENTINEL');
   });
 
   it('Support reads Health but no deploys (D3: no ops page); the Owner and Admin read them', async () => {

@@ -378,6 +378,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     // PR 9 (D-168): Check now shares the exports' and billing's 5 a minute (spec § 7).
     registerInfraRoutes(scope, deps.infra ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
     // PR 10 (D-169): System Health reads Billing through the same deps, and the event hub's client count.
-    registerHealthRoutes(scope, { ...(deps.health ?? {}), billing }, { config: limit(CONSOLE_RATE.read) });
+    registerHealthRoutes(scope, { infra: deps.infra, ...(deps.health ?? {}), billing }, { config: limit(CONSOLE_RATE.read) });
   });
 }

@@ -17,8 +17,8 @@
 // row for a refused staff member is the only row either route can cause.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, count, desc, isNotNull, isNull, sql } from 'drizzle-orm';
-import { CONSOLE_PAGE_DEFAULT, CONSOLE_PAGE_MAX, CONSOLE_PLAN_LABELS, HEALTH_SEAT_CAP, HEALTH_WINDOW_MS, composeHealth, consoleCan } from '@ai/core';
+import { and, count, desc, gte, inArray, isNotNull, isNull, ne, sql } from 'drizzle-orm';
+import { CONSOLE_PAGE_DEFAULT, CONSOLE_PAGE_MAX, CONSOLE_PLAN_LABELS, HEALTH_SEAT_CAP, HEALTH_WINDOW_MS, composeHealth, consoleCan, consoleCanWith } from '@ai/core';
 import type {
   ConsoleSkillRow,
   ConsolePage,
@@ -28,6 +28,7 @@ import type {
   HealthIncident,
   HealthInputs,
   HealthJobs,
+  HealthSeverity,
   HealthUnavailable,
   HealthWorkspace,
   Settled,
@@ -38,12 +39,15 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { cohortSeatsSold } from '../billing/provision';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
-import { skills, stripeEvents } from '../db/schema';
+import { apiMetrics, incidents, jobTicks, skills, stripeEvents } from '../db/schema';
 import { clock } from '../lib/clock';
 import { crmSyncReport } from '../routes/crm-sync';
 import { billingSummary, localRefs, openInvoices } from './billing';
 import type { BillingDeps } from './billing';
 import { consoleError, requireConsole } from './guard';
+import { readDeploys } from './infra-deploys';
+import type { FetchLike } from './infra-deploys';
+import { roleGrants } from './roles';
 import { decodeCursor, encodeCursor, listWorkspaces } from './records';
 import { StripeScopeError } from './stripe-read';
 
@@ -92,6 +96,8 @@ export interface HealthDeps {
   sources?: Partial<HealthSources>;
   /** A test's shorter `SOURCE_TIMEOUT_MS`. */
   timeoutMs?: number;
+  /** The deploy history's environment and `fetch` (PR 9's, `InfraDeps`); the process's own by default. */
+  infra?: { env?: NodeJS.ProcessEnv; fetch?: FetchLike };
 }
 
 /** How long one source may take before its tile reads unavailable. */
@@ -101,10 +107,6 @@ export const SOURCE_TIMEOUT_MS = 5000;
 const STRIPE_ROWS = 6;
 
 // --- the real sources ----------------------------------------------------------------------------
-
-const notYet = (source: string) => async (): Promise<never> => {
-  throw new HealthNotConfigured(source);
-};
 
 async function billingSource(deps: BillingDeps | undefined, db: Database, now: number): Promise<HealthBilling> {
   const stripe = deps?.stripe;
@@ -172,6 +174,72 @@ async function workspaceSource(db: Database): Promise<HealthWorkspace[]> {
   throw new Error('too many workspaces');
 }
 
+/**
+ * The sign-ins `api_metrics` can judge: the password and the emailed-code sign-ins. Google's callback
+ * answers 302 whether it signs someone in or not, so its answers say nothing about success.
+ */
+export const SIGN_IN_ROUTES = ['POST /api/auth/login', 'POST /api/auth/verify'] as const;
+
+/**
+ * Sign-in success over the window: answers that were neither 4xx nor 5xx, of all answers. `api_metrics`
+ * keeps 4xx as one count, so a 429 counts as a failure here (D-169, Needs Connor's call).
+ */
+async function signInSource(db: Database, since: number) {
+  const [row] = await db
+    .select({
+      n: sql<number>`coalesce(sum(${apiMetrics.count}), 0)::int`,
+      bad: sql<number>`coalesce(sum(${apiMetrics.errors4xx} + ${apiMetrics.errors5xx}), 0)::int`,
+    })
+    .from(apiMetrics)
+    .where(and(inArray(apiMetrics.route, [...SIGN_IN_ROUTES]), gte(apiMetrics.minute, since)));
+  const attempts = Number(row?.n ?? 0);
+  return { attempts, ok: attempts - Number(row?.bad ?? 0) };
+}
+
+/** Every finished tick over the window: the jobs that ran, and each one's failures. */
+async function jobsSource(db: Database, since: number): Promise<HealthJobs> {
+  const rows = await db
+    .select({ job: jobTicks.job, status: jobTicks.status, at: jobTicks.startedAt, error: jobTicks.errorKind })
+    .from(jobTicks)
+    .where(and(gte(jobTicks.startedAt, since), ne(jobTicks.status, 'running')));
+  const failures = new Map<string, { job: string; failures: number; lastAt: number; error: string | null }>();
+  for (const r of rows) {
+    if (r.status !== 'failed') continue;
+    const f = failures.get(r.job) ?? { job: r.job, failures: 0, lastAt: 0, error: null };
+    f.failures += 1;
+    if (Number(r.at) >= f.lastAt) {
+      f.lastAt = Number(r.at);
+      f.error = r.error;
+    }
+    failures.set(r.job, f);
+  }
+  return { jobs: [...new Set(rows.map((r) => r.job))], failures: [...failures.values()] };
+}
+
+/** The unresolved incidents (open and acknowledged): the tile counts the open ones. */
+async function incidentsSource(db: Database): Promise<HealthIncident[]> {
+  const rows = await db
+    .select({ id: incidents.id, title: incidents.title, severity: incidents.severity, status: incidents.status, openedAt: incidents.openedAt, fingerprint: incidents.fingerprint })
+    .from(incidents)
+    .where(ne(incidents.status, 'resolved'));
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    severity: r.severity as HealthSeverity,
+    status: r.status as HealthIncident['status'],
+    openedAt: Number(r.openedAt),
+    fingerprint: r.fingerprint,
+  }));
+}
+
+/** PR 9's deploy history (D-168, its 5-minute cache), as Health's card reads it. */
+async function deploysSource(deps: HealthDeps): Promise<HealthDeploys> {
+  const v = await readDeploys({ env: deps.infra?.env, fetch: deps.infra?.fetch, now: () => clock.now() });
+  if (v.history.state === 'not_configured') return { state: 'not_configured', live: v.liveCommit };
+  if (v.history.state === 'unavailable') return { state: 'unavailable' };
+  return { state: 'ok', rows: v.history.rows.map((r) => ({ sha: r.sha, message: r.message, author: r.author, at: r.at, status: r.status })) };
+}
+
 export function realHealthSources(deps: HealthDeps): HealthSources {
   const db = () => getDb();
   return {
@@ -179,15 +247,15 @@ export function realHealthSources(deps: HealthDeps): HealthSources {
       if (!deps.events) throw new HealthNotConfigured('events');
       return deps.events.clients();
     },
-    signIns: notYet('api_metrics'),
+    signIns: (since) => signInSource(db(), since),
     billing: (now) => billingSource(deps.billing, db(), now),
     stripeWebhooks: () => stripeWebhookSource(db()),
     ghl: ghlSource,
-    jobs: notYet('job_ticks'),
-    incidents: notYet('incidents'),
+    jobs: (since) => jobsSource(db(), since),
+    incidents: () => incidentsSource(db()),
     seats: async () => ({ sold: await cohortSeatsSold(db()), cap: HEALTH_SEAT_CAP }),
     workspaces: () => workspaceSource(db()),
-    deploys: notYet('deploys'),
+    deploys: () => deploysSource(deps),
   };
 }
 
@@ -246,6 +314,11 @@ const roleOf = (req: FastifyRequest): string | null => {
   return v.user.kind === 'staff' ? (v.user.staffRole ?? null) : null;
 };
 
+/** Whether the viewer reads ops pages, as the guard decides it: the ceiling, then the Owner's grants (#140). */
+async function opsRead(role: string | null): Promise<boolean> {
+  return consoleCan(role, 'ops.read') && (role === 'Owner' || consoleCanWith(await roleGrants(), role, 'ops.read'));
+}
+
 const pageSize = (raw: unknown): number | null => {
   if (raw === undefined || raw === '') return CONSOLE_PAGE_DEFAULT;
   const n = typeof raw === 'string' && /^\d{1,4}$/.test(raw) ? Number(raw) : NaN;
@@ -258,7 +331,7 @@ export function registerHealthRoutes(scope: FastifyInstance, deps: HealthDeps, r
 
   scope.get(HEALTH_PATHS.health, opts, async (req, reply): Promise<FastifyReply> => {
     const now = clock.now();
-    const inputs = await readHealth(req, sources, now, consoleCan(roleOf(req), 'ops.read'), deps.timeoutMs);
+    const inputs = await readHealth(req, sources, now, await opsRead(roleOf(req)), deps.timeoutMs);
     return reply.send(composeHealth(inputs, now));
   });
 
