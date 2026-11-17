@@ -11,6 +11,8 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 //                  |stripe_off|stripe_scope                         and Billing's (D-163): no Stripe key, a missing scope
+//                  |action_expired|action_scope                     and its refund and void dialogs' refusals (D-164):
+//                                                                   a 410 expired confirmation, a missing Write scope
 //   ?masquerade-flag=off                                           D8's flag off (D-162 3b): the entry
 //                                                                  points drawn disabled
 
@@ -60,11 +62,11 @@ import {
   fixtureWorkspace,
   fixtureWorkspaceRows,
 } from './console-fixture-records';
-import { BILLING_SAMPLE_LABELS, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
+import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 
-export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope'] as const;
+export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope', 'action_expired', 'action_scope'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
 
 const HOUR = 3600_000;
@@ -171,6 +173,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   let rows = parity ? parityAuditRows() : fixtureAuditRows(now());
   let next = parity ? 2001 : 1001;
   const records = fixtureRecords();
+  // D-164: Billing's lists, kept so a refund or a void shows on the next read, as Stripe's would.
+  const billing = fixtureBillingRows();
   let noteId = 100;
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
@@ -382,9 +386,22 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     billingList: (kind, cursor) =>
       settle(() => {
         need('billing.read');
-        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureBillingRows()[kind] as never[], cursor);
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(billing[kind] as never[], cursor);
       }),
     billingSample: () => ({ ...BILLING_SAMPLE_LABELS }),
+    billingPreview: (action, params) =>
+      settle(() => {
+        need(action === 'refund' ? 'billing.refund' : 'billing.void');
+        return fixtureBillingPreview(billing, action, params.invoiceId, now());
+      }),
+    billingExecute: (action, body) =>
+      settle(() => {
+        need(action === 'refund' ? 'billing.refund' : 'billing.void');
+        const out = fixtureBillingExecute(billing, action, body, now(), state);
+        const r = billing.invoices.find((i) => i.id === out.invoiceId);
+        record(`billing.${action}`, { type: 'invoice', id: out.invoiceId, label: r?.customerName ?? null }, action === 'refund' ? { amountCents: out.refund?.amountCents ?? null } : { status: 'void' }, body.reason.trim());
+        return out;
+      }),
     search: (q) =>
       settle(() => {
         need('console.view');

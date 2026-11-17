@@ -11,6 +11,9 @@ import { isConsoleErrorCode } from '@ai/core';
 import type {
   AuditFilters,
   AuditRow,
+  BillingAction,
+  BillingActionPreview,
+  BillingActionResult,
   BillingCustomerRow,
   BillingFailedRow,
   BillingInvoiceRow,
@@ -130,6 +133,11 @@ export interface ConsoleApi {
    * http client has no such method, so production prints its own words (D-163).
    */
   billingSample?(): BillingSample;
+  // PR 5 (D-164): the confirmed refund and void, in two steps (spec § 7.6).
+  /** What the action would do, and a confirm token good for 5 minutes. A refund is of what is left to refund. */
+  billingPreview(action: BillingAction, params: { invoiceId: string }): Promise<BillingActionPreview>;
+  /** The action itself: the preview's token, a reason of 10 to 500 characters, and what staff typed. */
+  billingExecute(action: BillingAction, body: { confirmToken: string; reason: string; typed: string }): Promise<BillingActionResult>;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -262,6 +270,9 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     masqueradeSessions: async (cursor) => json<ConsolePage<MasqueradeHistoryRow>>(await request(fetchImpl, `/api/console/masquerade/sessions${listQuery({}, cursor)}`)),
     billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
     billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
+    billingPreview: async (action, params) =>
+      json<BillingActionPreview>(await request(fetchImpl, `/api/console/billing/${action}/preview`, JSON_POST({ invoiceId: params.invoiceId }))),
+    billingExecute: async (action, body) => json<BillingActionResult>(await request(fetchImpl, `/api/console/billing/${action}`, JSON_POST(body))),
   };
 }
 

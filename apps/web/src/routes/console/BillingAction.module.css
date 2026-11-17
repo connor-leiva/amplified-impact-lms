@@ -1,0 +1,41 @@
+/* The refund and void dialogs (D-164): the mockup's `Confirm` body (`.s2`, `.lab`, `.in`, `.me`), with
+   the spec's consequences in the R2 note box (`--r2-hov` on `--r2-line`, as the blocked modal's note).
+   Tokens only. */
+
+.what {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--r2-f2);
+}
+/* `.lab`: a field's label above it. */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.err {
+  color: var(--r2-bad);
+}
+@media (max-width: 767px) {
+  .lab {
+    font-size: 16px;
+  }
+  /* A primary on a phone is 48px (D-156). */
+  button.primary {
+    height: var(--r2-cp);
+  }
+}
