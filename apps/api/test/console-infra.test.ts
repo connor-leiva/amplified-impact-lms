@@ -13,12 +13,12 @@ import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
 import { consoleFlagOn, invalidateConsoleFlags } from '../src/console/flags';
 import { masqueradeEnabled } from '../src/console/masquerade';
-import { JOURNAL, mapMigrations, readDbHealth } from '../src/console/ops-db';
-import { resetDeploysCache } from '../src/console/ops-deploys';
-import { ghlErrorDetail, resetProbes } from '../src/console/ops-integrations';
-import type { StripeScopes } from '../src/console/ops-integrations';
-import { resetDbHealthCache } from '../src/console/ops-routes';
-import type { OpsDeps } from '../src/console/ops-routes';
+import { JOURNAL, mapMigrations, readDbHealth } from '../src/console/infra-db';
+import { resetDeploysCache } from '../src/console/infra-deploys';
+import { ghlErrorDetail, resetProbes } from '../src/console/infra-integrations';
+import type { StripeScopes } from '../src/console/infra-integrations';
+import { resetDbHealthCache } from '../src/console/infra-routes';
+import type { InfraDeps } from '../src/console/infra-routes';
 import type { Database } from '../src/db/client';
 import { auditLog, consoleFlags, stripeEvents, users } from '../src/db/schema';
 import type { CrmSyncReport } from '../src/routes/crm-sync';
@@ -46,9 +46,9 @@ const refuse = () => {
   throw new Error('no network in this test');
 };
 
-async function open(ops: OpsDeps = {}): Promise<void> {
+async function open(ops: InfraDeps = {}): Promise<void> {
   await app?.close();
-  app = await build({ logger: false, console: { ops: { env: {}, fetch: refuse, ...ops } } });
+  app = await build({ logger: false, console: { infra: { env: {}, fetch: refuse, ...ops } } });
 }
 const as = async (userId: string) => ({ cookie: await app.signInAs(userId) });
 const get = async (url: string, userId = 'st1') => app.inject({ method: 'GET', url, headers: await as(userId) });

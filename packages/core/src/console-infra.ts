@@ -5,7 +5,7 @@
 //
 // SECRETS NEVER LEAVE THE SERVER. Env reaches the browser only as a presence state (`present` or
 // `not_configured`) or a mode (`live`, `test`, …). No shape here has room for a value, a prefix, a
-// suffix, a length or a hash, and the API's sentinel test (`console-ops-sentinel.test.ts`) proves it.
+// suffix, a length or a hash, and the API's sentinel test (`console-infra-sentinel.test.ts`) proves it.
 // There is no Replace or Reveal (D9).
 //
 // FLAGS (D8, D10). `CONSOLE_FLAGS` is the closed list of flags the Console owns, and v1 has one:
@@ -20,7 +20,7 @@ import { MASQUERADE_ENABLED_DEFAULT } from './console-masquerade';
 // Paths
 // ================================================================================================
 
-export const OPS_PATHS = {
+export const INFRA_PATHS = {
   /** `{ flags, env, modes }`: the Environment Flags page. `ops.read`. */
   env: '/api/console/env',
   /** `POST { on, typed? }`: flip one Console flag. `flags.write`, or `flags.write_sensitive`. */

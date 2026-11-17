@@ -9,7 +9,7 @@ import {
   INTEGRATION_IDS,
   INTEGRATION_NAMES,
   MASQUERADE_ENABLED_DEFAULT,
-  OPS_PATHS,
+  INFRA_PATHS,
   PROBE_INTEGRATIONS,
   SLOW_QUERY_MAX_CHARS,
   bytesLabel,
@@ -88,7 +88,7 @@ describe('integrations (spec § 7.13) @console', () => {
   });
 
   it('routes every Operations path under /api/console', () => {
-    for (const p of Object.values(OPS_PATHS)) expect(p.startsWith('/api/console/')).toBe(true);
+    for (const p of Object.values(INFRA_PATHS)) expect(p.startsWith('/api/console/')).toBe(true);
   });
 });
 

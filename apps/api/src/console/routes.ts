@@ -33,7 +33,7 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   MASQUERADE_PATHS,
-  OPS_PATHS,
+  INFRA_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCaps,
@@ -50,8 +50,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
-import { registerOpsRoutes } from './ops-routes';
-import type { OpsDeps } from './ops-routes';
+import { registerInfraRoutes } from './infra-routes';
+import type { InfraDeps } from './infra-routes';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -67,12 +67,12 @@ export const CONSOLE_PATHS = {
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
   // PR 9 (D-168): Environment Flags, Integrations, Deploys and DB health.
-  opsEnv: OPS_PATHS.env,
-  flagFlip: OPS_PATHS.flagFlip,
-  integrations: OPS_PATHS.integrations,
-  integrationCheck: OPS_PATHS.integrationCheck,
-  deploys: OPS_PATHS.deploys,
-  dbHealth: OPS_PATHS.db,
+  opsEnv: INFRA_PATHS.env,
+  flagFlip: INFRA_PATHS.flagFlip,
+  integrations: INFRA_PATHS.integrations,
+  integrationCheck: INFRA_PATHS.integrationCheck,
+  deploys: INFRA_PATHS.deploys,
+  dbHealth: INFRA_PATHS.db,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -84,7 +84,7 @@ export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute
  * What `app.ts` hands the routes: masquerade's flag (PR 3a, D-162; PR 9 reads it from `console_flags`),
  * and the Operations pages' environment, fetch and Stripe scope probe (PR 9, D-168).
  */
-export type ConsoleDeps = Readonly<MasqueradeDeps & { ops?: OpsDeps }>;
+export type ConsoleDeps = Readonly<MasqueradeDeps & { infra?: InfraDeps }>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -289,6 +289,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
     // PR 9 (D-168): Check now shares the exports' and billing's 5 a minute (spec § 7).
-    registerOpsRoutes(scope, deps.ops ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
+    registerInfraRoutes(scope, deps.infra ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
   });
 }

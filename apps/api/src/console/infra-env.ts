@@ -7,7 +7,7 @@
 // modes: `keyMode` for Stripe, `resolveMode` for email, `readGhlConfig` and `ghlSyncPaused` for
 // GoHighLevel. Nothing here returns, logs or throws a value, a prefix, a suffix, a length or a hash:
 // a reader's own error (which can quote a value) is caught and never read, and `readSessionSecret` is
-// never called (it warns with a short secret's length). `console-ops-sentinel.test.ts` sets every one
+// never called (it warns with a short secret's length). `console-infra-sentinel.test.ts` sets every one
 // of these variables to a sentinel and proves none of it leaves.
 //
 // No Replace and no Reveal (D9). Never Railway's list-variables: the process's own environment only.
@@ -18,7 +18,7 @@ import { resolveMode } from '../email/transport';
 import { ghlSyncPaused, readGhlConfig } from '../integrations/ghl';
 import { readS3Config } from '../storage';
 import type { ConsoleFlagView, EnvPresence, EnvState, OpsModes } from '@ai/core';
-import { readConsoleTokens } from './ops-deploys';
+import { readConsoleTokens } from './infra-deploys';
 
 type Env = NodeJS.ProcessEnv;
 

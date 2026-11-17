@@ -6,7 +6,7 @@
 //                                               env switches (read-only), each secret's presence, the
 //                                               modes. Booleans and modes only (spec § 7.13).
 //   POST /api/console/flags/:key                flip a Console flag (`flags.ts`).
-//   GET  /api/console/integrations              one card per service (`ops-integrations.ts`).
+//   GET  /api/console/integrations              one card per service (`infra-integrations.ts`).
 //   POST /api/console/integrations/:id/check    Check now, Stripe and Resend only, read-only.
 //                                               `integrations.probe`; 5 a minute. Audited
 //                                               (`integration.probe`) with its outcome.
@@ -18,7 +18,7 @@
 // every one of them answers 403 `masquerade_blocked` (D2, `requireSession`).
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { DB_CACHE_MS, OPS_PATHS, isIntegrationId, isProbeIntegration } from '@ai/core';
+import { DB_CACHE_MS, INFRA_PATHS, isIntegrationId, isProbeIntegration } from '@ai/core';
 import type { DbHealthView, OpsEnv } from '@ai/core';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
@@ -26,15 +26,15 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { registerFlagRoutes, readConsoleFlags } from './flags';
 import { consoleError, requireConsole, staffActor } from './guard';
-import { readDbHealth } from './ops-db';
-import { readDeploys } from './ops-deploys';
-import type { FetchLike } from './ops-deploys';
-import { envPresence, envSwitches, opsModes } from './ops-env';
-import { checkIntegration, readIntegrations } from './ops-integrations';
-import type { IntegrationsDeps } from './ops-integrations';
+import { readDbHealth } from './infra-db';
+import { readDeploys } from './infra-deploys';
+import type { FetchLike } from './infra-deploys';
+import { envPresence, envSwitches, opsModes } from './infra-env';
+import { checkIntegration, readIntegrations } from './infra-integrations';
+import type { IntegrationsDeps } from './infra-integrations';
 
 /** What `app.ts` (or a test) hands the Operations routes. */
-export interface OpsDeps {
+export interface InfraDeps {
   /** The environment to read presence and modes from; the process's own by default. */
   env?: NodeJS.ProcessEnv;
   /** The deploy history's and Resend's `fetch`; a test's fake. */
@@ -54,12 +54,12 @@ export function resetDbHealthCache(): void {
   dbCache = null;
 }
 
-export function registerOpsRoutes(scope: FastifyInstance, deps: OpsDeps, limits: { read: number; write: number; probe: number }): void {
+export function registerInfraRoutes(scope: FastifyInstance, deps: InfraDeps, limits: { read: number; write: number; probe: number }): void {
   const now = () => clock.now();
   const env = () => deps.env ?? process.env;
   const read = { preHandler: [requireSession, requireConsole('ops.read')], config: rate(limits.read) };
 
-  scope.get(OPS_PATHS.env, read, async (_req, reply): Promise<FastifyReply> => {
+  scope.get(INFRA_PATHS.env, read, async (_req, reply): Promise<FastifyReply> => {
     const e = env();
     const out: OpsEnv = { flags: [...(await readConsoleFlags()), ...envSwitches(e)], env: envPresence(e), modes: opsModes(e) };
     return reply.send(out);
@@ -67,12 +67,12 @@ export function registerOpsRoutes(scope: FastifyInstance, deps: OpsDeps, limits:
 
   registerFlagRoutes(scope, { write: limits.write });
 
-  scope.get(OPS_PATHS.integrations, read, async (_req, reply): Promise<FastifyReply> =>
+  scope.get(INFRA_PATHS.integrations, read, async (_req, reply): Promise<FastifyReply> =>
     reply.send({ integrations: await readIntegrations({ env: env(), fetch: deps.fetch, now, stripeScopes: deps.stripeScopes, crm: deps.crm }) }),
   );
 
   scope.post(
-    OPS_PATHS.integrationCheck,
+    INFRA_PATHS.integrationCheck,
     { preHandler: [requireSession, requireJsonSameOrigin, requireConsole('integrations.probe')], config: rate(limits.probe) },
     async (req, reply): Promise<FastifyReply> => {
       const id = (req.params as { id?: unknown }).id;
@@ -90,9 +90,9 @@ export function registerOpsRoutes(scope: FastifyInstance, deps: OpsDeps, limits:
     },
   );
 
-  scope.get(OPS_PATHS.deploys, read, async (_req, reply): Promise<FastifyReply> => reply.send(await readDeploys({ env: env(), fetch: deps.fetch, now })));
+  scope.get(INFRA_PATHS.deploys, read, async (_req, reply): Promise<FastifyReply> => reply.send(await readDeploys({ env: env(), fetch: deps.fetch, now })));
 
-  scope.get(OPS_PATHS.db, read, async (_req, reply): Promise<FastifyReply> => {
+  scope.get(INFRA_PATHS.db, read, async (_req, reply): Promise<FastifyReply> => {
     const t = now();
     if (dbCache && t >= dbCache.at && t - dbCache.at < DB_CACHE_MS) return reply.send(dbCache.view);
     try {

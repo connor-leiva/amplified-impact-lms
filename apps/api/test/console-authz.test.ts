@@ -15,7 +15,7 @@ import { CONSOLE_PATHS } from '../src/console/routes';
 import { auditLog, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { invalidateConsoleFlags } from '../src/console/flags';
-import { resetProbes } from '../src/console/ops-integrations';
+import { resetProbes } from '../src/console/infra-integrations';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -177,7 +177,7 @@ beforeEach(async () => {
   const noNetwork = async (): Promise<Response> => {
     throw new Error('no network in this test');
   };
-  app = await build({ logger: false, console: { ops: { env: {}, fetch: noNetwork } } });
+  app = await build({ logger: false, console: { infra: { env: {}, fetch: noNetwork } } });
 });
 afterEach(async () => {
   await settleEmails();

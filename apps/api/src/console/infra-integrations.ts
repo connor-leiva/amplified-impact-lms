@@ -29,8 +29,8 @@ import { stripeEvents } from '../db/schema';
 import { GA4_MEASUREMENT_ID, META_PIXEL_ID } from '../lib/analytics';
 import { crmSyncReport } from '../routes/crm-sync';
 import type { CrmSyncReport } from '../routes/crm-sync';
-import { envPresence, googleConfigured, opsModes, storageConfigured } from './ops-env';
-import type { FetchLike } from './ops-deploys';
+import { envPresence, googleConfigured, opsModes, storageConfigured } from './infra-env';
+import type { FetchLike } from './infra-deploys';
 
 type Env = NodeJS.ProcessEnv;
 

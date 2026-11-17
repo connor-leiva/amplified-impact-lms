@@ -2,7 +2,7 @@
 // set to its own sentinel, every Operations route is called (its successes, its refusals and its
 // failures, with providers that echo the secret back), and no response body or header, log line,
 // console line, error or audit row may contain any sentinel, any four-character slice of one, or its
-// length. The shapes are fixed (`console-ops.test.ts`); this proves what is NOT in them.
+// length. The shapes are fixed (`console-infra.test.ts`); this proves what is NOT in them.
 import { randomBytes } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { seedForDatabase } from '@ai/core';
@@ -10,9 +10,9 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
 import { invalidateConsoleFlags } from '../src/console/flags';
-import { resetDbHealthCache } from '../src/console/ops-routes';
-import { resetDeploysCache } from '../src/console/ops-deploys';
-import { resetProbes } from '../src/console/ops-integrations';
+import { resetDbHealthCache } from '../src/console/infra-routes';
+import { resetDeploysCache } from '../src/console/infra-deploys';
+import { resetProbes } from '../src/console/infra-integrations';
 import { auditLog, users } from '../src/db/schema';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -92,7 +92,7 @@ beforeAll(async () => {
   app = await build({
     logger: { level: 'trace', stream: { write: (l: string) => void lines.push(l) } },
     console: {
-      ops: {
+      infra: {
         env: ENV,
         fetch: echoingFetch,
         stripeScopes: async () => {
