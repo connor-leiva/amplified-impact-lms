@@ -541,8 +541,11 @@ export const CONSOLE_ERRORS = {
   // Stripe refused for some other reason (or never answered) is a 502 the screen can retry.
   stripe_not_connected: { status: 503, message: 'Stripe isn’t connected.' },
   stripe_unavailable: { status: 502, message: 'Stripe didn’t answer. Nothing was changed.' },
-  job_not_runnable: { status: 403, message: null },
-  scheduler_busy: { status: 409, message: null },
+  // PR 6 (D-165, spec § 7.10): Run Now's two refusals, in the mockup's own words for the first, and
+  // the GHL retry's guard (spec § 1: the Console never writes to Spring's GHL location).
+  job_not_runnable: { status: 403, message: 'This job only runs on its schedule. It cannot be started by hand.' },
+  scheduler_busy: { status: 409, message: 'The scheduler is running right now. Try again in a minute.' },
+  ghl_location_guarded: { status: 409, message: 'GoHighLevel still points at Spring’s location, so Console won’t queue a retry there.' },
 } as const satisfies Record<string, { status: number; message: string | null }>;
 
 export type ConsoleErrorCode = keyof typeof CONSOLE_ERRORS;
