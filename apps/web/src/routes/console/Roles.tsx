@@ -1,18 +1,23 @@
 // /admin/roles (D-157, spec § 7.16) on the Admin redesign R2 (D-160 R2-3b): the signed-off mockup's
-// `Roles` (AdminRedesign.jsx). The staff table and the permission matrix, READ-ONLY: the Console's
-// capabilities are set in code (`CONSOLE_CAPS`, D11) and spec § 7.16 allows no write endpoint, so every
-// box is drawn disabled, the Owner column checked, and Support's refund and masquerade locked "Fixed by
-// product rules". The mockup's confirm ("Remove this permission from Admin?") is not built (Needs
-// Connor's call). Staff and their roles are managed on Staff & Roles, which Invite staff and each
-// member's "Change role…" open. Owner and Admin (`ops.read`). Markup only: the words come from
-// Roles.vm.ts.
+// `Roles` (AdminRedesign.jsx). The staff table and the permission matrix, EDITABLE by the Owner (Connor,
+// Nov 16, 2026, 8:27 AM MST, superseding the spec's D11): a box opens the mockup's confirm ("Remove this
+// permission from Admin?"), which asks the server for a preview as it opens and makes the change with the
+// preview's confirm token (`POST /api/console/roles/preview`, then `POST /api/console/roles`); the server
+// refuses anything past `CONSOLE_CAPS` and writes one audit row, and its refusals show in the dialog.
+// The Owner column is fixed, a box past the ceiling is locked ("Fixed by product rules"), the `build` row
+// is set in Staff & Roles, and everyone but the Owner sees the matrix read-only. Staff and their roles
+// are managed on Staff & Roles, which Invite staff and each member's "Change role…" open. Owner and Admin
+// (`ops.read`). Markup only: the words come from Roles.vm.ts.
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
-import type { RolesMatrix } from '@ai/core';
+import { CONSOLE_ERRORS, fixedByProductMessage } from '@ai/core';
+import type { ConsoleMe, RolesMatrix } from '@ai/core';
 import { Button, ButtonLink } from '../../components/r2/Button';
 import { Box, Card } from '../../components/r2/Card';
+import { Confirm } from '../../components/r2/Modal';
+import { useToaster } from '../../components/primitives/Toaster';
 import type { MenuEntry } from '../../components/r2/Menu';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
@@ -23,13 +28,35 @@ import type { ConsoleApi, ConsoleFailure } from '../../data/console';
 import { useDb, useViewer } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { ROLES_COPY, ROLES_R2_COPY, rolesMatrixR2, rolesStaffR2 } from './Roles.vm';
-import type { RolesR2Staff } from './Roles.vm';
+import type { RolesR2Cell, RolesR2Staff } from './Roles.vm';
 import { CONSOLE_SCREENS, errorCopy } from './console.vm';
 import { Denied } from './Denied';
 import { useConsoleGate } from './useConsoleGate';
 import s from './Roles.module.css';
 
 type Load = { kind: 'loading' } | { kind: 'error'; failure: ConsoleFailure } | { kind: 'denied' } | { kind: 'ready'; matrix: RolesMatrix };
+
+/** The open confirm: its words, the preview's token once it answers, and a refusal in words. */
+interface Dialog {
+  change: NonNullable<RolesR2Cell['change']>;
+  token: string | null;
+  busy: boolean;
+  error: string | null;
+}
+
+/**
+ * A refusal's sentence: past the ceiling, "Fixed by product rules." and why; otherwise the Console's own
+ * for a guard or a token (`CONSOLE_ERRORS`), else the generic one.
+ */
+function refusalCopy(e: unknown, change: Dialog['change']): string {
+  if (e instanceof ConsoleError) {
+    if (e.code === 'fixed_by_product') return fixedByProductMessage(change.capability);
+    const own = e.code ? CONSOLE_ERRORS[e.code].message : null;
+    if (own && e.kind !== 'failed') return own;
+    if (e.kind === 'rate_limited') return `${errorCopy('rate_limited').title} ${errorCopy('rate_limited').body}`;
+  }
+  return errorCopy('failed').body;
+}
 
 const STAFF_PATH = '/admin/staff';
 
@@ -53,13 +80,43 @@ function Head({ canManageStaff }: { canManageStaff: boolean }) {
   );
 }
 
-function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
+function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
+  const role = me.role;
   const db = useDb();
   const viewer = useViewer();
   const navigate = useNavigate();
+  const { toast } = useToaster();
   const phone = useViewportWidth() < 768;
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  const [dialog, setDialog] = useState<Dialog | null>(null);
+
+  // A box: the confirm opens at once with the mockup's words; the server's preview (and its guards)
+  // answers behind it, and the action waits for its token.
+  const open = useCallback(
+    (change: Dialog['change']) => {
+      setDialog({ change, token: null, busy: true, error: null });
+      api.previewRole({ role: change.role, capability: change.capability, allowed: change.allowed }).then(
+        (p) => setDialog((d) => (d && d.change === change ? { ...d, token: p.confirmToken, busy: false } : d)),
+        (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
+      );
+    },
+    [api],
+  );
+  const confirm = useCallback(() => {
+    if (!dialog?.token) return;
+    const { change, token } = dialog;
+    setDialog({ ...dialog, busy: true });
+    api.changeRole(token).then(
+      (matrix) => {
+        setLoad({ kind: 'ready', matrix });
+        setDialog(null);
+        toast(ROLES_R2_COPY.updated);
+      },
+      (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
+    );
+  }, [api, dialog, toast]);
+  const close = useCallback(() => setDialog(null), []);
 
   useEffect(() => {
     let alive = true;
@@ -81,7 +138,7 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
 
   const viewerId = viewer.actor.kind === 'staff' ? viewer.actor.staffId : null;
   const { staff, canManageStaff } = rolesStaffR2(db, viewerId);
-  const vm = load.kind === 'ready' ? rolesMatrixR2(load.matrix, db) : null;
+  const vm = load.kind === 'ready' ? rolesMatrixR2(load.matrix, db, { canEdit: me.caps.includes('roles.write'), role }) : null;
 
   const cols: Column<RolesR2Staff>[] = [
     {
@@ -141,10 +198,18 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
                     {p.label}
                   </span>
                   {p.cells.map((c) => (
-                    <div key={c.role} role="cell" className={clsx(k.pcR, s.cardRow)} title={c.locked ? 'Fixed by product rules' : undefined}>
+                    <label key={c.role} role="cell" className={clsx(k.pcR, s.cardRow)} title={c.locked ? 'Fixed by product rules' : c.title}>
                       <span className={k.mu}>{c.role}</span>
-                      <CheckCell phone label={`${p.label}, ${c.role}`} on={c.on} locked={c.locked} word={c.wordPhone} />
-                    </div>
+                      <CheckCell
+                        phone
+                        label={c.aria}
+                        on={c.on}
+                        locked={c.locked}
+                        word={c.wordPhone}
+                        title={c.title}
+                        onToggle={c.change ? () => open(c.change!) : undefined}
+                      />
+                    </label>
                   ))}
                 </div>
               ) : (
@@ -155,7 +220,14 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
                   {p.cells.map((c) => (
                     <Fragment key={c.role}>
                       <span role="cell">
-                        <CheckCell label={`${p.label}, ${c.role}`} on={c.on} locked={c.locked} word={c.word} />
+                        <CheckCell
+                          label={c.aria}
+                          on={c.on}
+                          locked={c.locked}
+                          word={c.word}
+                          title={c.title}
+                          onToggle={c.change ? () => open(c.change!) : undefined}
+                        />
                       </span>
                     </Fragment>
                   ))}
@@ -167,6 +239,18 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
       ) : (
         <Skel lines={8} />
       )}
+      {dialog ? (
+        <Confirm
+          title={dialog.change.title}
+          body={dialog.change.body}
+          cta={dialog.change.cta}
+          keepOpen
+          busy={dialog.busy}
+          error={dialog.error}
+          onConfirm={confirm}
+          onClose={close}
+        />
+      ) : null}
     </Page>
   );
 }
@@ -175,7 +259,7 @@ export function Component() {
   const gate = useConsoleGate('roles');
   if (gate.kind === 'hidden') return null;
   if (gate.kind === 'denied') return <Denied what={CONSOLE_SCREENS.roles.title} role={gate.role} />;
-  if (gate.kind === 'ready') return <Matrix api={gate.api} role={gate.me.role} />;
+  if (gate.kind === 'ready') return <Matrix api={gate.api} me={gate.me} />;
   return (
     <Page>
       <Head canManageStaff={false} />

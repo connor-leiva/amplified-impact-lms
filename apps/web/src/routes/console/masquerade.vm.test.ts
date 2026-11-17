@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { consoleCaps } from '@ai/core';
 import type { MasqueradeHistoryRow, MasqueradeView } from '@ai/core';
 import {
   MASQ_COPY,
@@ -174,13 +175,18 @@ describe('recent sessions', () => {
 });
 
 describe('the entry points, by role (spec § 6)', () => {
-  const me = (role: 'Owner' | 'Admin' | 'Support' | 'Instructor' | 'Content Editor', masqueradeEnabled = true) => ({ role, masqueradeEnabled });
+  const me = (role: 'Owner' | 'Admin' | 'Support' | 'Instructor' | 'Content Editor', masqueradeEnabled = true) => ({ role, caps: consoleCaps(role), masqueradeEnabled });
 
   it('Owner and Admin see them; Support, Instructor and Content Editor do not', () => {
     expect(entryState(me('Owner'))).toEqual({ show: true, off: null });
     expect(entryState(me('Admin'))).toEqual({ show: true, off: null });
     for (const r of ['Support', 'Instructor', 'Content Editor'] as const) expect(entryState(me(r))).toEqual({ show: false });
     expect(entryState(null)).toEqual({ show: false });
+  });
+
+  it('follows the capabilities `me` answers, so a Roles & Permissions change moves it', () => {
+    expect(entryState({ caps: consoleCaps('Admin').filter((c) => c !== 'masquerade.start'), masqueradeEnabled: true })).toEqual({ show: false });
+    expect(entryState({ caps: ['console.view', 'masquerade.start'], masqueradeEnabled: true })).toEqual({ show: true, off: null });
   });
 
   it('never for a staff target; disabled, saying why, while the flag is off', () => {

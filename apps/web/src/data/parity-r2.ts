@@ -28,6 +28,24 @@ export const STAFF = [
 export const ROLES = ['Owner', 'Admin', 'Support'] as const;
 
 /**
+ * `PERMS0` (R2-3b, editable Roles): the matrix, verbatim, one value per `ROLES` column. The parity
+ * fixture stores it as the Owner's changes (`parityRoleGrants`) within the ceiling, which `CONSOLE_CAPS`
+ * keeps in code: where `PERMS0` shows a box the ceiling forbids (Support's "Export audit and email
+ * logs"), the ceiling wins and the box is drawn locked, as production draws it.
+ */
+export const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]],
+  ['masq', 'Start and extend masquerade', [1, 1, 0]],
+  ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]],
+  ['refund', 'Refund or void an invoice', [1, 1, 0]],
+  ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]],
+  ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]],
+  ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+] as const;
+
+/**
  * `MODS0` (R2-2): the curriculum, verbatim. `ses` is the live session's two lines as the mockup writes
  * them; the parity snapshot (`parity-r2-db.ts`) turns each row into the app's own AI Employee, session
  * and baseline, and the Curriculum and Module Builder screens print them back from those.

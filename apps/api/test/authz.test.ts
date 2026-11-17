@@ -113,7 +113,8 @@
 //      public /terms and /privacy pages (`routes/legal.ts`) are classified the same way.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { can, MutationError, PERMS, seedForDatabase, STAFF_ROLES } from '@ai/core';
+import { asc, gt } from 'drizzle-orm';
+import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES } from '@ai/core';
 import type { AIEmployee, Actor, Ctx, Db, MutationArgs, MutationName, PermKey, StaffRole } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { build } from '../src/app';
@@ -122,6 +123,7 @@ import { deterministicIds } from '../src/lib/clock';
 import { resetOutbox } from '../src/email/transport';
 import { SCHEMAS } from '../src/routes/schemas';
 import { GUIDE_ALIASES, GUIDE_SLUGS } from '../src/routes/guide-list';
+import { auditLog } from '../src/db/schema';
 import { resetDatabase, testDatabase } from './helpers';
 
 /** Gate 7's instant, the one the oracle and the parity run use. */
@@ -626,7 +628,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/me', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/audit', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/audit/export', methods: 'POST', guard: 'session' },
-  { path: '/api/console/roles', methods: 'GET, HEAD', guard: 'session' },
+  // D-160 R2-3b: the Owner's two-step change to the matrix (a POST to the same path, and its preview).
+  { path: '/api/console/roles', methods: 'GET, HEAD, POST', guard: 'session' },
+  { path: '/api/console/roles/preview', methods: 'POST', guard: 'session' },
   // Admin Console PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export
   // and search. Signed in, then by capability (`test/console-authz.test.ts`).
   { path: '/api/console/workspaces', methods: 'GET, HEAD', guard: 'session' },
@@ -823,6 +827,18 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           const cookie = await app.signInAs(staffId);
 
           const failures: string[] = [];
+          // D-171: the audit rows each case wrote. The three staff writes write exactly one each (`ok`
+          // on a 200, `denied` on a 403); every other mutation on `/api/mutate` writes none.
+          let lastAuditId = 0;
+          const newAuditRows = async () => {
+            const rows = await (await testDatabase())
+              .select({ id: auditLog.id, action: auditLog.action, outcome: auditLog.outcome })
+              .from(auditLog)
+              .where(gt(auditLog.id, lastAuditId))
+              .orderBy(asc(auditLog.id));
+            lastAuditId = rows.at(-1)?.id ?? lastAuditId;
+            return rows.map((r) => `${r.action}:${r.outcome}`);
+          };
           for (const c of STAFF_CASES) {
             const perms = EXPECTED_PERMISSIONS[c.label]!;
             // The expectation, from core's own reader of the real `permissions` table. Nothing in
@@ -832,6 +848,11 @@ describe('Gate 7 · the authorization matrix @g7', () => {
 
             const res = await mutate(c.name, c.args, cookie);
             EXECUTED.matrix += 1;
+            const audited = await newAuditRows();
+            const auditExpected = isStaffWrite(c.name) ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`] : [];
+            if (JSON.stringify(audited) !== JSON.stringify(auditExpected)) {
+              failures.push(`${role} · ${c.label}: audit rows ${JSON.stringify(audited)}, expected ${JSON.stringify(auditExpected)}`);
+            }
             if (res.statusCode !== expected) {
               failures.push(
                 `${role} · ${c.label} (needs ${perms.join(' + ')}): expected ${expected}, got ` +
@@ -1101,6 +1122,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { reason: 'A reason long enough' },
             }),
           '/api/console/search': () => app.inject({ method: 'GET', url: '/api/console/search?q=jamie' }),
+          '/api/console/roles/preview': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/roles/preview',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { role: 'Admin', capability: 'masq', allowed: false },
+            }),
           // Admin Console PR 3a (D-162).
           '/api/console/masquerade': () =>
             app.inject({
@@ -1296,9 +1324,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
-    // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), and 39 with masquerade's five (D-162).
-    expect(EXECUTED.unauthenticated).toBe(39);
+    // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
+    // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
+    // with Console PR 2's nine (D-158), and 40 with masquerade's five (D-162).
+    expect(EXECUTED.unauthenticated).toBe(40);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1308,8 +1337,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // password routes, two probed unauthenticated and five as exempt. The + 2: the CRM sync log and its
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
-    // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
-    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5);
+    // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
+    // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
+    // probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5);
   });
 });

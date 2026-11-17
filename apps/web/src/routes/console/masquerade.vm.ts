@@ -5,7 +5,7 @@
 // modal in AdminRedesign.jsx), word for word. Where the spec and the mockup disagree on behaviour the
 // spec wins (D-162 3b): a reason of 10 characters, not 8; the banner a region, not a status.
 
-import { MASQUERADE_MAX_MS, MASQUERADE_REASON_MAX, MASQUERADE_REASON_MIN, adminStamp, consoleCan } from '@ai/core';
+import { MASQUERADE_MAX_MS, MASQUERADE_REASON_MAX, MASQUERADE_REASON_MIN, adminStamp } from '@ai/core';
 import type { ConsoleMe, MasqueradeEndReason, MasqueradeHistoryRow, MasqueradeView } from '@ai/core';
 
 export const MASQ_COPY = {
@@ -229,13 +229,12 @@ export const pickLabel = (u: { name: string; workspace: string | null }): string
 export type EntryState = { show: false } | { show: true; off: string | null };
 
 /**
- * Who sees an entry point (spec § 6): Owner and Admin (`masquerade.start`); hidden for Support and for
- * a staff target; drawn disabled, with the reason, while D8's flag is off.
+ * Who sees an entry point (spec § 6): a viewer whose capabilities, as `GET /api/console/me` answers
+ * them (Roles & Permissions' grants included), hold `masquerade.start` (the Owner and Admins by
+ * default); hidden for Support and for a staff target; drawn disabled, with the reason, while D8's flag
+ * is off.
  */
-export function entryState(
-  me: Pick<ConsoleMe, 'role' | 'masqueradeEnabled'> | null,
-  targetKind: 'learner' | 'staff' = 'learner',
-): EntryState {
-  if (!me || targetKind !== 'learner' || !consoleCan(me.role, 'masquerade.start')) return { show: false };
+export function entryState(me: Pick<ConsoleMe, 'caps' | 'masqueradeEnabled'> | null, targetKind: 'learner' | 'staff' = 'learner'): EntryState {
+  if (!me || targetKind !== 'learner' || !me.caps.includes('masquerade.start')) return { show: false };
   return { show: true, off: me.masqueradeEnabled ? null : MASQ_COPY.off };
 }

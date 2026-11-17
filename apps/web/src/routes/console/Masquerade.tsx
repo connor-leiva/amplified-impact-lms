@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router';
-import { consoleCan } from '@ai/core';
 import type { ConsoleUserRow } from '@ai/core';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
@@ -34,7 +33,7 @@ export function Component() {
   const now = useNow(60_000);
   const me = gate.kind === 'ready' ? gate.me : null;
   const entry = useMasqueradeEntry(me);
-  const may = me ? consoleCan(me.role, 'masquerade.start') : false;
+  const may = me ? me.caps.includes('masquerade.start') : false;
   const api = gate.kind === 'ready' && may ? gate.api : null;
   const list = useConsolePages(api, (a, cursor) => a.masqueradeSessions(cursor), 'sessions');
   const rows = useMemo(() => list.rows.map((r) => historyRowVM(r, now)), [list.rows, now]);
