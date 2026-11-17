@@ -505,6 +505,11 @@ export interface RoleChangePreview {
 export interface ConsoleMe {
   role: StaffRole;
   caps: ConsoleCap[];
+  /**
+   * D8's `masquerade_enabled` (D-162 3b): whether a session may start, so the entry points can say
+   * so before a click. The server still decides (403 `masquerade_disabled`).
+   */
+  masqueradeEnabled: boolean;
 }
 
 // ================================================================================================
@@ -515,19 +520,19 @@ export const CONSOLE_ERRORS = {
   console_forbidden: { status: 403, message: 'Your role can’t use this part of Console.' },
   invalid_query: { status: 400, message: 'One of the filters isn’t valid.' },
   export_too_large: { status: 422, message: 'This export is over 10,000 rows. Narrow the filters and try again.' },
-  // Spec § 5 gives this sentence; masquerade is PR 3.
+  // Spec § 5 gives this sentence (PR 3a, D-162).
   masquerade_blocked: { status: 403, message: 'Blocked while masquerading. Exit to continue.' },
   // PR 2 (D-158): a record that isn't there, a body that isn't valid, and a reason staff must give
   // (a note's deletion here; masquerade and billing reuse it in PRs 3 and 5).
   not_found: { status: 404, message: 'That record doesn’t exist.' },
   invalid_body: { status: 400, message: 'That request isn’t valid.' },
   reason_required: { status: 422, message: 'Give a reason of 10 to 500 characters.' },
-  // Later PRs (spec §§ 6-7). Their sentences are written with them.
-  masquerade_target_staff: { status: 403, message: null },
-  masquerade_active: { status: 409, message: null },
-  masquerade_max_reached: { status: 409, message: null },
-  masquerade_disabled: { status: 403, message: null },
-  masquerade_ended: { status: 409, message: null },
+  // PR 3a (D-162, spec § 6): masquerade.
+  masquerade_target_staff: { status: 403, message: 'You can only masquerade as a learner.' },
+  masquerade_active: { status: 409, message: 'Exit the current masquerade session first.' },
+  masquerade_max_reached: { status: 409, message: 'This session can’t go past 60 minutes.' },
+  masquerade_disabled: { status: 403, message: 'Masquerade is turned off.' },
+  masquerade_ended: { status: 409, message: 'This masquerade session has ended.' },
   // D-160 R2-3b: a two-step confirm (Roles & Permissions first; billing reuses them).
   confirm_invalid: { status: 403, message: 'This confirmation isn’t valid. Close this and try again.' },
   confirm_expired: { status: 410, message: 'This confirmation expired. Close this and try again.' },

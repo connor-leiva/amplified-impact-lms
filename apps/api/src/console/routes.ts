@@ -21,6 +21,11 @@
 //   POST /api/console/staff         { confirmToken } → makes it (core's `inviteStaff` / `setStaffRole`),
 //                                   with one audit row. Both `roles.write`, D-172; see `staff.ts`.
 //
+// PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
+// `requireSession`).
+//
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
 // `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, writes 20, exports 5, per
@@ -36,6 +41,7 @@ import {
   AUDIT_IDS_MAX,
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
+  MASQUERADE_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCapsWith,
@@ -52,6 +58,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 import { commitStaffChange, previewStaffChange } from './staff';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
+import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
+import type { MasqueradeDeps } from './masquerade';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -65,6 +73,12 @@ export const CONSOLE_PATHS = {
   staff: '/api/console/staff',
   // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
   ...SUPPORT_PATHS,
+  // PR 3a (D-162): masquerade.
+  masqueradeStart: MASQUERADE_PATHS.start,
+  masqueradeCurrent: MASQUERADE_PATHS.current,
+  masqueradeExtend: MASQUERADE_PATHS.extend,
+  masqueradeExit: MASQUERADE_PATHS.exit,
+  masqueradeSessions: MASQUERADE_PATHS.sessions,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -73,10 +87,11 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
 /**
- * What the app hands the Console routes. D-160 R2-3b: the event hub's `broadcast`, so a Roles change to
- * the `PermKey` matrix wakes every client as a `/api/mutate` write does. Later Console PRs add theirs.
+ * What the app hands the Console routes. PR 3a (D-162): masquerade's flag. D-160 R2-3b: the event hub's
+ * `broadcast`, so a Roles change to the `PermKey` matrix wakes every client as a `/api/mutate` write
+ * does. Later Console PRs add theirs (Stripe, the price cache).
  */
-export interface ConsoleDeps {
+export interface ConsoleDeps extends Readonly<MasqueradeDeps> {
   readonly broadcast?: () => void;
 }
 
@@ -223,7 +238,8 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
       const viewer = viewerOrThrow(req);
       const staff = staffActor(viewer);
       if (!staff) return consoleError(reply, 'console_forbidden');
-      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCapsWith(staff.role === 'Owner' ? [] : await roleGrants(), staff.role) };
+      // D-162 3b: and whether a masquerade may start (D8's flag), for the entry points.
+      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCapsWith(staff.role === 'Owner' ? [] : await roleGrants(), staff.role), masqueradeEnabled: await (deps.masqueradeEnabled ?? masqueradeEnabled)() };
       return reply.send(me);
     });
 
@@ -305,5 +321,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     scope.post(CONSOLE_PATHS.staff, write, (req, reply) => commitStaffChange(req, reply, deps.broadcast));
 
     registerSupportRoutes(scope);
+    registerMasqueradeRoutes(scope, deps);
   });
 }

@@ -22,7 +22,7 @@ import type { Browser, Page } from '@playwright/test';
 // REPORT-ONLY until a cell is enforced. A built cell that fails is reported as FAIL and the run
 // still passes; an ENFORCED cell that fails fails the run. A cell with no built screen is reported
 // as "not built", never as a pass. R2-0 built nothing; R2-1b builds the shell, the 404 and Denied
-// and enforces their eight cells; R2-1c the Support records (Workspaces and Workspace in part 1); each
+// and enforces their eight cells; R2-1c the Support records (Workspaces, Workspace, Users, User); each
 // later R2 PR adds its screens to ROUTES and its cells to ENFORCED.
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -111,10 +111,16 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
       await page.mouse.move(0, 0);
     },
   },
-  // R2-1c (D-160): the Support records, on the mockup's own `WS` (the Console fixture answers with
-  // them): Northshore Group is the mockup's detail record.
+  // R2-1c (D-160): the Support records, on the mockup's own `WS` and `USERS` (the Console fixture
+  // answers with them): Northshore Group and Elena Vargas are the mockup's detail records.
   workspaces: { path: '/admin/workspaces' },
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
+  users: { path: '/admin/users' },
+  user: { path: '/admin/users/u_1042' },
+  // D-162 3b (Masquerade on R2): the page, and the mockup's learner view (`as`), which with no session
+  // (always, in the Console, by D2) is its "No masquerade session is active" empty state.
+  masquerade: { path: '/admin/masquerade' },
+  as: { path: '/admin/masquerade/learner-view' },
 };
 
 /**
@@ -124,7 +130,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four; R2-1c part 1:
  * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
- * exception, `admin-r2-exceptions.ts`).
+ * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
+ * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -154,6 +161,14 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `workspaces-${w}`,
   ...(w === 390 ? [] : [`workspace-detail-${w}`]),
+  // R2-1c part 2 (D-160): Users at all four widths; User at 1440, 1280 and 1024. `user-390` is not here,
+  // for `workspace-detail-390`'s reason (its key-facts values, 15px in the mockup on a phone, 16px here):
+  // it is an approved exception (`admin-r2-exceptions.ts`, D-160).
+  `users-${w}`,
+  ...(w === 390 ? [] : [`user-${w}`]),
+  // D-162 3b: Masquerade and its learner view (`as`), at all four widths.
+  `masquerade-${w}`,
+  `as-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------
