@@ -4,6 +4,7 @@
 // quotes the key, as Stripe's does), a 404, or a dropped connection.
 import type { BillingSubscription } from '@ai/core';
 import type { ConsoleStripe, ReadCharge, ReadCustomer, ReadInvoice, ReadRefund, StripePage } from '../src/console/stripe-read';
+import type { ConsoleStripeWrite } from '../src/console/stripe-write';
 
 export interface FakeStripeData {
   subscriptions: BillingSubscription[];
@@ -79,4 +80,70 @@ export function fakeConsoleStripe(data: Partial<FakeStripeData> = {}, key = 'rk_
     },
   };
   return { stripe, data: d, calls, fail };
+}
+
+// --- D-164: the write client ------------------------------------------------------------------------
+
+export type FakeWriteFailure = FakeFailure | 'refused';
+
+/**
+ * A fake of the Console's Stripe write client, over a read fake's data: a refund raises the charge's
+ * refunded amount and adds a refund; a void marks the invoice void, so the next read sees each. Like
+ * Stripe, an idempotency key seen before answers the first result again, and the same key with other
+ * parameters is an `idempotency_error`. Every call is recorded with its key and parameters.
+ */
+export function fakeConsoleStripeWrite(read: { data: FakeStripeData }, key = 'rk_test_fake') {
+  const calls: { method: keyof ConsoleStripeWrite; key: string; params: Record<string, unknown> }[] = [];
+  const fail: Partial<Record<keyof ConsoleStripeWrite, FakeWriteFailure>> = {};
+  const seen = new Map<string, { params: string; result: unknown }>();
+  let n = 0;
+  const refused = (code: string) =>
+    Object.assign(new Error(`Request refused (${code}); key ${key}`), { type: 'StripeInvalidRequestError', code, statusCode: 400 });
+  const once = <T>(method: keyof ConsoleStripeWrite, idem: string, params: Record<string, unknown>, make: () => T): T => {
+    calls.push({ method, key: idem, params });
+    const f = fail[method];
+    if (f) throw f === 'refused' ? refused('charge_already_refunded') : stripeError(f, key);
+    const p = JSON.stringify(params);
+    const hit = seen.get(idem);
+    if (hit) {
+      if (hit.params !== p) throw refused('idempotency_error');
+      return hit.result as T;
+    }
+    const result = make();
+    seen.set(idem, { params: p, result });
+    return result;
+  };
+  const write: ConsoleStripeWrite = {
+    async createRefund(p, idem) {
+      return once('createRefund', idem, { ...p }, () => {
+        const charge = p.paymentIntentId ? read.data.charges[`pi:${p.paymentIntentId}`] : read.data.charges[p.chargeId ?? ''];
+        if (!charge) throw stripeError('missing', key);
+        if (p.amountCents > charge.amountCents - charge.refundedCents) throw refused('amount_too_large');
+        charge.refundedCents += p.amountCents;
+        const refund: ReadRefund = {
+          id: `re_fake${++n}`,
+          amountCents: p.amountCents,
+          chargeId: charge.id,
+          paymentIntentId: p.paymentIntentId,
+          invoiceId: null,
+          created: Date.parse(process.env.FIXED_NOW ?? '2026-12-07T16:42:00Z'),
+          status: 'succeeded',
+          reason: null,
+          metadata: { ...p.metadata },
+        };
+        read.data.refunds.unshift(refund);
+        return { id: refund.id, amountCents: refund.amountCents, status: refund.status };
+      });
+    },
+    async voidInvoice(id, idem) {
+      return once('voidInvoice', idem, { id }, () => {
+        const inv = read.data.invoices.find((i) => i.id === id);
+        if (!inv) throw stripeError('missing', key);
+        if (inv.status !== 'open' && inv.status !== 'uncollectible') throw refused('invoice_not_voidable');
+        inv.status = 'void';
+        return { id, status: 'void' };
+      });
+    },
+  };
+  return { write, calls, fail };
 }

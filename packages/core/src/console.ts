@@ -522,8 +522,17 @@ export const CONSOLE_ERRORS = {
   grant_stale: { status: 409, message: 'Someone changed this permission since you opened it. Close this and try again.' },
   // D-171: the guards on staff role assignment (`checkStaffChange`), each in words.
   ...STAFF_GUARD_ERRORS,
-  invoice_not_voidable: { status: 409, message: null },
+  // PR 5 (D-164, spec § 7.6): the confirmed Billing actions. They reuse the two codes above (with
+  // their own sentences, `BILLING_CONFIRM_MESSAGES`) and add these.
+  confirm_used: { status: 409, message: 'This confirmation was already used. Start again to make another change.' },
+  confirm_mismatch: { status: 422, message: 'What you typed doesn’t match. Type it exactly as shown.' },
+  invoice_not_voidable: { status: 409, message: 'Only an open or uncollectible invoice can be voided.' },
+  invoice_not_refundable: { status: 409, message: 'Only a paid invoice can be refunded.' },
+  refund_too_large: { status: 409, message: 'That’s more than this payment has left to refund.' },
+  stripe_refused: { status: 409, message: 'Stripe refused this change. Nothing was changed.' },
+  // The seat tier's (spec § 7.6). Unused: its gate failed, so it has no endpoint (D-164).
   seats_in_use: { status: 409, message: null },
+  // R2-4a's routes and PR 5's each give the sentence, naming the Read or Write permission.
   stripe_permission_missing: { status: 503, message: null },
   // PR 4 (D-163): Billing reads Stripe. With no key, the screen says "Stripe isn't connected"; a read
   // Stripe refused for some other reason (or never answered) is a 502 the screen can retry.
