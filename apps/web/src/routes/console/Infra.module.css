@@ -58,6 +58,10 @@
   color: inherit;
   cursor: pointer;
   border-radius: 4px;
+  /* Its box is the status's own (20px, not a 21.5px line box), so the dot sits on the pixel the
+     mockup's does (the strict pass's anti-aliasing check). */
+  display: inline-flex;
+  align-items: center;
 }
 .flip:hover {
   text-decoration: underline;
@@ -90,8 +94,6 @@
   .flip {
     min-height: 44px;
     min-width: 44px;
-    display: inline-flex;
-    align-items: center;
     justify-content: flex-end;
     margin: -10px 0;
   }
