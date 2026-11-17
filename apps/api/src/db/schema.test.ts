@@ -163,6 +163,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     gate: 9,
   },
   incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
+  // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
+  consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -366,6 +368,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['incidents', 'acknowledgedAt'],
   ['incidents', 'resolvedAt'],
   ['incidentEvents', 'at'],
+  // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
+  ['consoleFlags', 'updatedAt'],
 ];
 
 /**
@@ -429,6 +433,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
+  consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)

@@ -15,6 +15,8 @@ import { CONSOLE_PATHS } from '../src/console/routes';
 import { auditLog, emailLog, ghlLogins, incidents, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { fakeConsoleStripe, fakeConsoleStripeWrite } from './fake-console-stripe';
+import { invalidateConsoleFlags } from '../src/console/flags';
+import { resetProbes } from '../src/console/infra-integrations';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -58,7 +60,13 @@ type RouteName =
   | 'incidentCreate'
   | 'incidentAck'
   | 'incidentResolve'
-  | 'incidentNote';
+  | 'incidentNote'
+  | 'opsEnv'
+  | 'flagFlip'
+  | 'integrations'
+  | 'integrationCheck'
+  | 'deploys'
+  | 'dbHealth';
 
 // PR 4 (D-163): Billing, read-only, every route `billing.read`.
 const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
@@ -189,6 +197,19 @@ const ROUTES: Record<RouteName, Route> = {
     body: { note: 'Token rotated; the job is green again.' },
   },
   incidentNote: { path: CONSOLE_PATHS.incidentNotes, url: '/api/console/incidents/INC-0001/notes', method: 'POST', route: `POST ${CONSOLE_PATHS.incidentNotes}`, body: { body: 'Checked the GHL copy.' } },
+  // PR 9 (D-168). The flip turns masquerade off; Check now asks Resend, which has no key here (no network).
+  opsEnv: { path: CONSOLE_PATHS.opsEnv, url: CONSOLE_PATHS.opsEnv, method: 'GET', route: `GET ${CONSOLE_PATHS.opsEnv}` },
+  flagFlip: {
+    path: CONSOLE_PATHS.flagFlip,
+    url: '/api/console/flags/masquerade_enabled',
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.flagFlip}`,
+    body: { on: false, typed: 'masquerade_enabled' },
+  },
+  integrations: { path: CONSOLE_PATHS.integrations, url: CONSOLE_PATHS.integrations, method: 'GET', route: `GET ${CONSOLE_PATHS.integrations}` },
+  integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
+  deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
+  dbHealth: { path: CONSOLE_PATHS.dbHealth, url: CONSOLE_PATHS.dbHealth, method: 'GET', route: `GET ${CONSOLE_PATHS.dbHealth}` },
 };
 
 /** The routes whose success writes its own audit row. */
@@ -208,6 +229,8 @@ const WRITES = new Set<RouteName>([
   'incidentAck',
   'incidentResolve',
   'incidentNote',
+  'flagFlip',
+  'integrationCheck',
 ]);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
@@ -270,18 +293,22 @@ const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeSta
 // PR 7 (D-166): the email log and usage are read with email.read and usage.read (Owner, Admin and
 // Support, D3: Support sees the email log); the export is export (Owner, Admin).
 const EU = (read: number, exp: number) => ({ emailLog: read, emailLogOne: read, emailLogExport: exp, usage: read });
+// PR 9 (D-168): every infrastructure route is ops.read (Owner, Admin; Support none, D3), Check now is
+// integrations.probe (Owner, Admin), and the flip of the sensitive `masquerade_enabled` is
+// flags.write_sensitive: the Owner alone (D8). An Admin's flip is refused, and audited, at that second step.
+const INFRA = (read: number, flip: number, check: number) => ({ opsEnv: read, flagFlip: flip, integrations: read, integrationCheck: check, deploys: read, dbHealth: read });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401), ...OPS(401), ...EU(401, 401), ...INC(401, 401, 401),
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401), ...OPS(401), ...EU(401, 401), ...INC(401, 401, 401), ...INFRA(401, 401, 401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(200, 403), ...INC(200, 201, 403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(200, 403), ...INC(200, 201, 403), ...INFRA(403, 403, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 403, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 200, 200) },
 };
 
 /** A 403 that is not the capability's: the Owner's change with no real token. */
@@ -323,7 +350,13 @@ beforeEach(async () => {
     ],
     charges: { 'pi:pi_Paid': { id: 'ch_Paid', amountCents: 49_700, refundedCents: 0, paymentMethod: 'Visa ending 4242', failure: null } },
   });
-  app = await build({ logger: false, consoleBilling: { stripe: fake.stripe, write: fakeConsoleStripeWrite(fake).write, mode: 'test' } });
+  invalidateConsoleFlags();
+  resetProbes();
+  // PR 9 (D-168): the infrastructure routes read this environment, and nothing here reaches a network.
+  const noNetwork = async (): Promise<Response> => {
+    throw new Error('no network in this test');
+  };
+  app = await build({ logger: false, consoleBilling: { stripe: fake.stripe, write: fakeConsoleStripeWrite(fake).write, mode: 'test' }, console: { infra: { env: {}, fetch: noNetwork } } });
 });
 afterEach(async () => {
   await settleEmails();

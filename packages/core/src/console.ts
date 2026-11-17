@@ -547,6 +547,9 @@ export const CONSOLE_ERRORS = {
   ghl_location_guarded: { status: 409, message: 'GoHighLevel still points at Spring’s location, so Console won’t queue a retry there.' },
   // PR 8 (D-167): Acknowledge on an incident that isn't open, Resolve on one already resolved.
   incident_state: { status: 409, message: 'This incident has already moved on. Reload it to see where it is.' },
+  // PR 9 (D-168): a read the Console couldn't finish (DB health's two-second limit, a Check now with
+  // nothing to ask).
+  ops_unavailable: { status: 503, message: 'This didn’t finish. Try again in a minute.' },
 } as const satisfies Record<string, { status: number; message: string | null }>;
 
 export type ConsoleErrorCode = keyof typeof CONSOLE_ERRORS;
