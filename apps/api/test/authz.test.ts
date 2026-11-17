@@ -664,6 +664,13 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/billing/refund', methods: 'POST', guard: 'session' },
   { path: '/api/console/billing/void/preview', methods: 'POST', guard: 'session' },
   { path: '/api/console/billing/void', methods: 'POST', guard: 'session' },
+  // Admin Console PR 6 (D-165): API & Webhooks and Scheduled Jobs. Signed in, then by capability
+  // (`test/console-authz.test.ts`, `test/console-ops.test.ts`).
+  { path: '/api/console/api/endpoints', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/webhooks', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/webhooks/ghl/retry', methods: 'POST', guard: 'session' },
+  { path: '/api/console/jobs', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/jobs/:job/run', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -1182,6 +1189,19 @@ describe('Gate 7 · the authorization matrix @g7', () => {
                 }),
             ]),
           ),
+          // Admin Console PR 6 (D-165).
+          '/api/console/api/endpoints': () => app.inject({ method: 'GET', url: '/api/console/api/endpoints' }),
+          '/api/console/webhooks': () => app.inject({ method: 'GET', url: '/api/console/webhooks' }),
+          '/api/console/webhooks/ghl/retry': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/webhooks/ghl/retry',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { kind: 'order', id: 'ord_1' },
+            }),
+          '/api/console/jobs': () => app.inject({ method: 'GET', url: '/api/console/jobs' }),
+          '/api/console/jobs/:job/run': () =>
+            app.inject({ method: 'POST', url: '/api/console/jobs/session-24h/run', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1361,8 +1381,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
     // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
     // with Console PR 2's nine (D-158), 40 with masquerade's five (D-162), 47 with Billing's seven
-    // (D-163), and 51 with Billing's refund and void, previews included (D-164).
-    expect(EXECUTED.unauthenticated).toBe(51);
+    // (D-163), 51 with Billing's refund and void, previews included (D-164), and 56 with API & Webhooks
+    // and Scheduled Jobs' five (D-165).
+    expect(EXECUTED.unauthenticated).toBe(56);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1374,8 +1395,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
     // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
-    // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163) and + 4 for
-    // its refund and void (D-164), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4);
+    // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163), + 4 for
+    // its refund and void (D-164) and + 5 for API & Webhooks and Scheduled Jobs (D-165), probed
+    // unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5);
   });
 });

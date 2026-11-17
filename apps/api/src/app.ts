@@ -116,6 +116,8 @@ import type { PriceCache } from './billing/prices';
 import { stripeClient, stripeVerifier } from './billing/stripe';
 import type { BillingStripe } from './billing/stripe';
 import { clientIpEvidence, clientIpHeaderFor, clientIpOf } from './lib/client-ip';
+import { createApiMetrics } from './lib/api-metrics';
+import type { ApiMetrics } from './lib/api-metrics';
 
 /**
  * Fastify's `trustProxy`, as the one-hop function the comment at the call site argues for.
@@ -243,6 +245,12 @@ export interface BuildOptions {
   };
   /** What the Admin Console's routes are handed (`console/routes.ts`): masquerade's flag, for a test. */
   console?: ConsoleDeps;
+  /**
+   * The Console's API metrics (D-165, `lib/api-metrics.ts`): an observe-only `onResponse` hook. Left
+   * out, on wherever the Console is (not in fixture mode) except under test, where a suite passes its
+   * own; null for none.
+   */
+  metrics?: ApiMetrics | null;
 }
 
 /** § 7.7's `build()`, with the two things Gate 7's snippet calls on the result. */
@@ -543,6 +551,15 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // no such cookie (every server-to-server webhook) passes with no database read. Not in fixture
   // mode, where no Console route exists to start one.
   if (!fixtureOnly) app.addHook('onRequest', masqueradeWriteBlock);
+
+  // D-165: the Console's API metrics (spec § 7.9). `onResponse` runs after the answer has gone, and
+  // `record` only counts, in memory, by route template; a timer writes once a minute and its failures
+  // stay there. Not in fixture mode, which has no database and no Console.
+  const metrics = fixtureOnly ? null : options.metrics !== undefined ? options.metrics : isTestEnv() ? null : createApiMetrics({ log: app.log });
+  if (metrics) {
+    app.addHook('onResponse', async (req, reply) => metrics.record(req, reply));
+    app.addHook('onClose', async () => metrics.close());
+  }
 
   decorateViewer(app);
 

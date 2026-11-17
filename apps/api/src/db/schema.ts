@@ -448,3 +448,52 @@ export const masqueradeSessions = pgTable('masquerade_sessions', {
   check('masquerade_sessions_end_reason', sql`(${t.endedAt} is null and ${t.endReason} is null) or (${t.endedAt} is not null and ${t.endReason} in ('exit', 'expired', 'signed_out', 'revoked'))`),
   check('masquerade_sessions_expiry', sql`${t.expiresAt} <= ${t.hardExpiresAt}`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S OPS TELEMETRY (D-165, spec §§ 7.9-7.10)
+// ================================================================================================
+// Two observe-only tables. Neither is part of a `Db` or a snapshot, and nothing reads them but the
+// Console's API & Webhooks and Scheduled Jobs screens.
+//
+// `api_metrics`: one row per minute and route TEMPLATE (`GET /api/sessions/:id/join`, never a raw URL,
+// so no id, token or email is ever a key). `lib/api-metrics.ts` counts answers in memory and adds each
+// minute's counts here once a minute; two replicas add to the same row. `hist` is the minute's
+// latencies per bucket (`API_METRIC_BOUNDS`, then `+inf`), not cumulative. Kept 30 days (D6).
+//
+// `job_ticks`: one row per run of a scheduled loop, written by `jobs/ticks.ts`'s `recordTick` around the
+// existing call: `running` when it starts, then `succeeded`, `failed` (with a short `error_kind`, never
+// a message) or `skipped` (the scheduler lock was another runner's). `trigger` is `schedule`, or
+// `manual` for Run Now, which names the staff member. Kept 90 days (D6). Times are epoch ms.
+export const apiMetrics = pgTable('api_metrics', {
+  minute: ts('minute').notNull(),
+  route: text('route').notNull(),
+  count: integer('count').notNull(),
+  errors4xx: integer('errors_4xx').notNull(),
+  errors5xx: integer('errors_5xx').notNull(),
+  hist: jsonb('hist').$type<Record<string, number>>().notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.minute, t.route] }),
+  check('api_metrics_counts', sql`${t.count} >= 0 and ${t.errors4xx} >= 0 and ${t.errors5xx} >= 0 and ${t.errors4xx} + ${t.errors5xx} <= ${t.count}`),
+]);
+
+export const jobTicks = pgTable('job_ticks', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  job: text('job').notNull(),
+  startedAt: ts('started_at').notNull(),
+  finishedAt: ts('finished_at'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+  trigger: text('trigger').notNull(),
+  actorUserId: text('actor_user_id'),
+}, (t) => [
+  index('job_ticks_job_started_idx').on(t.job, t.startedAt),
+  index('job_ticks_started_idx').on(t.startedAt),
+  // The closed lists in `@ai/core/console-ops` (`JOB_TICK_STATUSES`, `JobTrigger`), typed out because
+  // drizzle-kit reads this file on its own.
+  check('job_ticks_status', sql`${t.status} in ('running', 'succeeded', 'failed', 'skipped')`),
+  check('job_ticks_trigger', sql`${t.trigger} in ('schedule', 'manual')`),
+  // A manual run names who started it; a scheduled one names nobody.
+  check('job_ticks_actor', sql`(${t.trigger} = 'manual') = (${t.actorUserId} is not null)`),
+  // Running has no end; anything else has one.
+  check('job_ticks_finished', sql`(${t.status} = 'running') = (${t.finishedAt} is null)`),
+]);
