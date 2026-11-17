@@ -4,7 +4,7 @@ R2-gaps-a (D-172): Curriculum's Duplicate, and the Module Builder's Add step, Du
 
 Base64 text, one line per file (`base64 -w 0`). Decode with `base64 -d <file> > out.png`; a split file is joined first: `cat <file>.part1 <file>.part2 | base64 -d > out.png`.
 
-Measured at gaps-a's code at `31caeb3` (the merge of #153's final `320c23c`), the code of this part's final head: the commit that adds these files changes only `docs/pr-review/156/`.
+Measured at gaps-a's code at `31caeb3` (the merge of #153's final `320c23c`). The head adds only these files and the Audit Log's group label for `module.*` rows ("AI Employees"), which neither screen draws; the results comment's parity run at the head gives the same numbers.
 
 ## The touched screens: ref, build and diff at four widths
 
