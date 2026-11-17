@@ -12,24 +12,24 @@ Measured at gaps-c's head `eb3e5cb` (pre-final; it carries this part unchanged, 
 
 | file(s) | screen | width | kind | parts | cell diff (the rule) | strict (report-only) |
 |---|---|---|---|---|---|---|
-| `curriculum-1440.ref.png.b64` | curriculum | 1440 | ref | 1 | 0.1045% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1440.build.png.b64` | curriculum | 1440 | build | 1 | 0.1045% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1440.diff.png.b64` | curriculum | 1440 | diff | 1 | 0.1045% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1280.ref.png.b64` | curriculum | 1280 | ref | 1 | 0.1175% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1280.build.png.b64` | curriculum | 1280 | build | 1 | 0.1175% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1280.diff.png.b64` | curriculum | 1280 | diff | 1 | 0.1175% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1024.ref.png.b64` | curriculum | 1024 | ref | 1 | 0.1469% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1024.build.png.b64` | curriculum | 1024 | build | 1 | 0.1469% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-1024.diff.png.b64` | curriculum | 1024 | diff | 1 | 0.1469% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
-| `curriculum-390.ref.png.b64` | curriculum | 390 | ref | 1 | 0.0655% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
-| `curriculum-390.build.png.b64` | curriculum | 390 | build | 1 | 0.0655% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
-| `curriculum-390.diff.png.b64` | curriculum | 390 | diff | 1 | 0.0655% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
+| `curriculum-1440.ref.png.b64` | curriculum | 1440 | ref | 1 | 0.0010% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1440.build.png.b64` | curriculum | 1440 | build | 1 | 0.0010% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1440.diff.png.b64` | curriculum | 1440 | diff | 1 | 0.0010% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1280.ref.png.b64` | curriculum | 1280 | ref | 1 | 0.0012% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1280.build.png.b64` | curriculum | 1280 | build | 1 | 0.0012% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1280.diff.png.b64` | curriculum | 1280 | diff | 1 | 0.0012% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1024.ref.png.b64` | curriculum | 1024 | ref | 1 | 0.0015% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1024.build.png.b64` | curriculum | 1024 | build | 1 | 0.0015% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-1024.diff.png.b64` | curriculum | 1024 | diff | 1 | 0.0015% · 17 px · dims OK · enforced, pass | Δ>60 0 px, AA 22 px |
+| `curriculum-390.ref.png.b64` | curriculum | 390 | ref | 1 | 0.0007% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
+| `curriculum-390.build.png.b64` | curriculum | 390 | build | 1 | 0.0007% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
+| `curriculum-390.diff.png.b64` | curriculum | 390 | diff | 1 | 0.0007% · 8 px · dims OK · enforced, pass | Δ>60 0 px, AA 80 px |
 | `builder-1440.ref.png.b64` | builder | 1440 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `builder-1440.build.png.b64` | builder | 1440 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `builder-1440.diff.png.b64` | builder | 1440 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
-| `builder-1280.ref.png.b64` | builder | 1280 | ref | 1 | 0.0057% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
-| `builder-1280.build.png.b64` | builder | 1280 | build | 1 | 0.0057% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
-| `builder-1280.diff.png.b64` | builder | 1280 | diff | 1 | 0.0057% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
+| `builder-1280.ref.png.b64` | builder | 1280 | ref | 1 | 0.0001% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
+| `builder-1280.build.png.b64` | builder | 1280 | build | 1 | 0.0001% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
+| `builder-1280.diff.png.b64` | builder | 1280 | diff | 1 | 0.0001% · 1 px · dims OK · enforced, pass | Δ>60 0 px, AA 3 px |
 | `builder-1024.ref.png.b64` | builder | 1024 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `builder-1024.build.png.b64` | builder | 1024 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `builder-1024.diff.png.b64` | builder | 1024 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
