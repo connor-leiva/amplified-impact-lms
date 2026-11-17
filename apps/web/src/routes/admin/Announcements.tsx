@@ -7,16 +7,20 @@ import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
-import { useDb, useMutate } from '../../data/hooks';
+import type { MenuEntry } from '../../components/r2/Menu';
+import { useAct, useDb, useMutate } from '../../data/hooks';
 import {
   R2_AUDIENCES,
   R2_CHANNELS,
   announceR2Rows,
+  announcementFields,
+  announcementFormOf,
   atForSend,
   blankAnnouncementForm,
   channelsFrom,
   channelsOf,
   defaultScheduleMst,
+  editable,
 } from './Announcements.vm';
 import type { AnnounceR2Row, AnnouncementForm } from './Announcements.vm';
 import s from './Announcements.module.css';
@@ -27,9 +31,11 @@ import s from './Announcements.module.css';
 // New announcement opens the mockup's dialog (Title, Message, Audience, Channels) with the composer's
 // other settings after them (severity, the banner's action button, send now or schedule, the schedule
 // typed in MST), and sends through `sendAnnouncement`, as before; its refusals show in the dialog.
-// The app has no announcement draft, edit or duplicate, so the dialog sends rather than saving a
-// draft, and each row's "…" is drawn and does nothing (`aria-disabled`). The automatic reminder
-// switches and the old history's open rates are not drawn. Needs Connor's call (D-160 R2-2b).
+// D-172: the dialog's Save draft (the mockup's: a draft, never sent; `saveAnnouncementDraft`, audited
+// `announce.create`), and each row's "…": Edit for a draft or a scheduled one (the dialog filled in;
+// Save draft, Schedule or Send now; `updateAnnouncement`, audited `announce.update`), drawn disabled on
+// a sent one, and Duplicate (a draft copy; `duplicateAnnouncement`, audited `announce.duplicate`). The
+// automatic reminder switches and the old history's open rates are not drawn (D-160 R2-2b).
 
 const SEVERITIES = [
   ['info', 'Info'],
@@ -49,9 +55,12 @@ const fresh = (): AnnouncementForm => {
 export function Component() {
   const db = useDb();
   const mutate = useMutate();
+  const act = useAct();
   const rows = announceR2Rows(db);
 
   const [open, setOpen] = useState(false);
+  /** The row Edit opened, or null for New announcement. */
+  const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<AnnouncementForm>(fresh);
   const [err, setErr] = useState('');
 
@@ -60,7 +69,30 @@ export function Component() {
     setErr('');
   }, []);
 
+  const close = useCallback(() => {
+    setOpen(false);
+    setEditing(null);
+    setForm(fresh());
+  }, []);
+
+  /** Save draft (New or Edit), or an edited row's Send now / Schedule. Nothing here sends on save. */
+  const keep = useCallback(
+    async (when: 'draft' | 'now' | 'later') => {
+      const out =
+        editing === null
+          ? await act('saveAnnouncementDraft', announcementFields(form))
+          : await act('updateAnnouncement', { ...announcementFields(form), id: editing, when });
+      if (out.error) {
+        setErr(out.error);
+        return;
+      }
+      close();
+    },
+    [act, close, editing, form],
+  );
+
   const send = useCallback(async () => {
+    if (editing !== null) return keep(form.when);
     const out = await mutate('sendAnnouncement', {
       title: form.title,
       body: form.body,
@@ -76,9 +108,28 @@ export function Component() {
       setErr(out.error);
       return;
     }
-    setOpen(false);
-    setForm(fresh());
-  }, [form, mutate]);
+    close();
+  }, [close, editing, form, keep, mutate]);
+
+  const menu = (r: (typeof rows)[number]): MenuEntry[] => {
+    const a = db.announcements.find((x) => x.id === r.id);
+    const canEdit = !!a && editable(a);
+    return [
+      {
+        label: 'Edit',
+        disabled: !canEdit,
+        title: canEdit ? undefined : 'Sent announcements can’t be edited.',
+        onSelect: () => {
+          if (!a) return;
+          setForm(announcementFormOf(a));
+          setEditing(a.id);
+          setErr('');
+          setOpen(true);
+        },
+      },
+      { label: 'Duplicate', onSelect: () => void act('duplicateAnnouncement', { id: r.id }) },
+    ];
+  };
 
   const cols: Column<AnnounceR2Row>[] = [
     {
@@ -112,6 +163,8 @@ export function Component() {
             icon="r2Plus"
             onClick={() => {
               setErr('');
+              setEditing(null);
+              setForm(fresh());
               setOpen(true);
             }}
           >
@@ -124,7 +177,7 @@ export function Component() {
         cols={cols}
         rows={rows}
         rowKey={(r) => r.id}
-        menu={() => []}
+        menu={menu}
         empty={{
           icon: 'r2Announce',
           title: 'No announcements yet',
@@ -134,11 +187,14 @@ export function Component() {
 
       {open ? (
         <Modal
-          title="New announcement"
-          onClose={() => setOpen(false)}
+          title={editing === null ? 'New announcement' : 'Edit announcement'}
+          onClose={close}
           foot={
             <>
-              <Button onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={close}>Cancel</Button>
+              <Button disabled={!form.title.trim()} onClick={() => void keep('draft')}>
+                Save draft
+              </Button>
               <Button kind="primary" disabled={!form.title.trim()} onClick={() => void send()}>
                 {form.when === 'later' ? 'Schedule' : 'Send now'}
               </Button>
@@ -213,7 +269,7 @@ export function Component() {
               </Sel>
             </label>
           </div>
-          <div className={clsx(k.row, s.pair)}>
+          <div className={clsx(k.row, s.pair, s.when)}>
             <label className={s.lab}>
               When
               <Sel

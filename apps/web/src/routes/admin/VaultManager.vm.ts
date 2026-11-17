@@ -11,7 +11,7 @@
 // summary against a `ZERO_BASE` snapshot, which is what the API returns in http mode.
 
 import { EXEC_CATEGORIES, adminMonthDay, fmt } from '@ai/core';
-import type { Db, IconName, Tier } from '@ai/core';
+import type { Db, IconName, Resource, Tier } from '@ai/core';
 
 export type VaultTabId = 'all' | 'library' | 'exec';
 
@@ -226,3 +226,61 @@ export function vaultR2VM(db: Db): VaultR2VM {
   }));
   return { rows, types: ['All types', ...new Set(rows.map((r) => r.type))] };
 }
+
+// ================================================================================================
+// D-172 R2-gaps: the hover Download and Edit details (the mockup's `Vault` quick action and "…").
+// ================================================================================================
+
+/**
+ * The file the fixture build saves on Download, where there is no bucket: the reference's `ext` /
+ * `fname` / `body` stand-in, as the learner Vault saves it. In http mode the browser goes to
+ * `/api/files/resource/:id` instead, which serves the vault's editors the stored object.
+ */
+export function vaultFileOf(r: Pick<Resource, 'title' | 'type' | 'desc' | 'cat'>): { name: string; body: string; mime: string } {
+  const ext = r.type === 'Workflow JSON' || r.type === 'Claude Project' ? '.json' : r.type === 'PDF guide' ? '.pdf' : '.md';
+  return {
+    name: r.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + ext,
+    body:
+      ext === '.json'
+        ? JSON.stringify({ name: r.title, type: r.type, category: r.cat, version: '1.0.0', source: 'Amplified Impact Resource Vault' }, null, 2)
+        : `# ${r.title}\n\n${r.desc}\n\nCategory: ${r.cat}\n`,
+    mime: ext === '.json' ? 'application/json' : 'text/plain',
+  };
+}
+
+/** Edit details' fields, from a resource; `module` is '' for none (the select's value). */
+export interface VaultEditForm {
+  id: string;
+  title: string;
+  desc: string;
+  cat: string;
+  tier: Tier;
+  module: string;
+}
+
+export const vaultEditForm = (r: Resource): VaultEditForm => ({
+  id: r.id,
+  title: r.title,
+  desc: r.desc,
+  cat: r.cat,
+  tier: r.tier,
+  module: r.module ?? '',
+});
+
+/** The form as `editResource` takes it. */
+export const vaultEditArgs = (f: VaultEditForm) => ({
+  id: f.id,
+  title: f.title,
+  desc: f.desc,
+  cat: f.cat,
+  tier: f.tier,
+  module: f.module === '' ? null : f.module,
+});
+
+/** Edit details' "Attached to" choices: None, then every AI Employee in the curriculum's order. */
+export function attachOptions(db: Db): { value: string; label: string }[] {
+  return [{ value: '', label: 'None' }, ...[...db.modules].sort((a, b) => a.order - b.order).map((m) => ({ value: m.id, label: m.name }))];
+}
+
+/** Whether a category forces Team only (the executive vault), as `editResource` and `uploadResource` decide. */
+export const forcesTeam = (cat: string): boolean => EXEC_CATEGORIES.includes(cat);

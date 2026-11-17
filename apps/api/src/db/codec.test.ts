@@ -131,6 +131,17 @@ describe('§7.3 snapshot round trip @g7', () => {
     expect(out.nudged).toBe(u.nudged);
   });
 
+  it('carries D-172’s two optional fields, and keeps them absent when unset @g7', () => {
+    const db = seedForDatabase('live');
+    db.resources[0]!.module = 'marketing';
+    db.sessions[0]!.replayUrl = 'https://example.com/replays/1';
+    const out = roundTrip(db);
+    expect(out.resources[0]!.module).toBe('marketing');
+    expect(out.sessions[0]!.replayUrl).toBe('https://example.com/replays/1');
+    expect('module' in out.resources[1]!).toBe(false);
+    expect('replayUrl' in out.sessions[1]!).toBe(false);
+  });
+
   it('round-trips the whole of a learner progress record, including its run output @g7', () => {
     const db = seedForDatabase('live');
     const u = db.users[0]!;

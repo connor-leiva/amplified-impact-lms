@@ -22,4 +22,9 @@
   .lab {
     font-size: var(--r2-t);
   }
+  /* D-172: on a phone "Send at (MST)" takes its own line, so When's select keeps its words
+     ("Schedule", not "Sc"); Edit opens a scheduled announcement in this state. */
+  .when > .lab {
+    flex-basis: 100%;
+  }
 }

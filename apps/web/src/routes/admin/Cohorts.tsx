@@ -10,8 +10,8 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Facts, PageHead, k } from '../../components/r2/kit';
 import { ADMIN_COHORT } from '../../data/admin-shell';
-import { useDb, useMutate, useNow } from '../../data/hooks';
-import { cohortsR2VM, sessionArgsR2, sessionFormR2 } from './Cohorts.vm';
+import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
+import { addSessionArgsR2, blankSessionFormR2, cohortsR2VM, sessionArgsR2, sessionFormR2 } from './Cohorts.vm';
 import type { CohortsR2Row, SessionForm } from './Cohorts.vm';
 import s from './Cohorts.module.css';
 
@@ -21,18 +21,23 @@ import s from './Cohorts.module.css';
 // offered, through the same mutations: Edit session (`updateSession`, the date and time typed in
 // MST), Copy join link, and Go Live, End Session or Publish Replay when the session is at that step.
 //
-// Add session is drawn and does nothing (`aria-disabled`): the app cannot add a session. The old
-// cohort cards (picking another cohort, New Cohort, Open Enrollment) are not drawn. Both are listed
-// under Needs Connor's call (D-160 R2-2b).
+// D-172: Add session opens Edit session's fields as "Add session" and adds one to the cohort on
+// screen (`addSession`, the time typed in MST, audited `session.create`); a session's "…" adds the
+// mockup's Attach replay, for a session that has ended (`attachReplay`: the link, validated, audited
+// `session.replay_attach`; an unpublished replay is published as Publish Replay publishes it). The old
+// cohort cards (picking another cohort, New Cohort, Open Enrollment) are not drawn (D-160 R2-2b).
 
 export function Component() {
   const db = useDb();
   const now = useNow();
   const mutate = useMutate();
+  const act = useAct();
   const { toast } = useToaster();
   const vm = cohortsR2VM(db, now, ADMIN_COHORT);
 
-  const [edit, setEdit] = useState<{ id: string; n: number; form: SessionForm; err: string } | null>(null);
+  // `id: null` is Add session; otherwise the session Edit session changes.
+  const [edit, setEdit] = useState<{ id: string | null; n: number; form: SessionForm; err: string } | null>(null);
+  const [replay, setReplay] = useState<{ id: string; n: number; url: string; err: string } | null>(null);
 
   const warn = useCallback((e?: string) => e && toast(e, 'warn'), [toast]);
 
@@ -56,14 +61,32 @@ export function Component() {
     setEdit((e) => (e ? { ...e, form: { ...e.form, [key]: v }, err: '' } : e));
   const save = async () => {
     if (!edit) return;
-    const out = await mutate('updateSession', sessionArgsR2(edit.id, edit.form));
+    const out =
+      edit.id === null
+        ? await act('addSession', addSessionArgsR2(vm?.cohortId ?? ADMIN_COHORT, edit.form))
+        : await mutate('updateSession', sessionArgsR2(edit.id, edit.form));
     if (out.error) setEdit((e) => (e ? { ...e, err: out.error! } : e));
     else setEdit(null);
+  };
+  const attach = async () => {
+    if (!replay) return;
+    const out = await act('attachReplay', { sessionId: replay.id, url: replay.url });
+    if (out.error) setReplay((x) => (x ? { ...x, err: out.error! } : x));
+    else setReplay(null);
   };
 
   const menu = (r: CohortsR2Row): MenuEntry[] => [
     { label: 'Edit session', onSelect: () => openEdit(r) },
     ...(r.zoom ? [{ label: 'Copy join link', onSelect: () => copy(r.zoom) }] : []),
+    {
+      label: 'Attach replay',
+      disabled: !r.ended,
+      title: r.ended ? undefined : 'Attach a replay after the session ends.',
+      onSelect: () => {
+        const n = db.sessions.find((x) => x.id === r.id)?.n ?? 0;
+        setReplay({ id: r.id, n, url: r.replayUrl, err: '' });
+      },
+    },
     ...(r.primary
       ? [
           'separator' as const,
@@ -128,7 +151,7 @@ export function Component() {
         title="Cohorts & Sessions"
         description="The cohort calendar and each live build on Zoom. All times are MST (America/Phoenix)."
         right={
-          <Button header kind="primary" icon="r2Plus" aria-disabled="true" title="Sessions come with the cohort">
+          <Button header kind="primary" icon="r2Plus" onClick={() => setEdit({ id: null, n: 0, form: blankSessionFormR2(), err: '' })}>
             Add session
           </Button>
         }
@@ -163,13 +186,13 @@ export function Component() {
 
       {edit ? (
         <Modal
-          title={`Edit Session ${edit.n}`}
+          title={edit.id === null ? 'Add session' : `Edit Session ${edit.n}`}
           onClose={() => setEdit(null)}
           foot={
             <>
               <Button onClick={() => setEdit(null)}>Cancel</Button>
               <Button kind="primary" onClick={() => void save()}>
-                Save session
+                {edit.id === null ? 'Add session' : 'Save session'}
               </Button>
             </>
           }
@@ -215,6 +238,42 @@ export function Component() {
           {edit.err ? (
             <p role="alert" className={clsx(k.p, s.err)}>
               {edit.err}
+            </p>
+          ) : null}
+        </Modal>
+      ) : null}
+
+      {replay ? (
+        <Modal
+          title="Attach replay"
+          onClose={() => setReplay(null)}
+          foot={
+            <>
+              <Button onClick={() => setReplay(null)}>Cancel</Button>
+              <Button kind="primary" disabled={!replay.url.trim()} onClick={() => void attach()}>
+                Attach replay
+              </Button>
+            </>
+          }
+        >
+          <label className={s.lab}>
+            Replay link for Session {replay.n}
+            <input
+              className={k.in}
+              type="url"
+              inputMode="url"
+              placeholder="https://"
+              value={replay.url}
+              onChange={(e) => {
+                const url = e.target.value;
+                setReplay((x) => (x ? { ...x, url, err: '' } : x));
+              }}
+            />
+          </label>
+          <p className={clsx(k.p, k.me)}>Learners see the replay as ready. This action is audit-logged.</p>
+          {replay.err ? (
+            <p role="alert" className={clsx(k.p, s.err)}>
+              {replay.err}
             </p>
           ) : null}
         </Modal>

@@ -40,7 +40,9 @@ const redactModule = (m: AIEmployee): AIEmployee => {
 };
 
 /** Phase 08 reveals the join URL through a route that checks the join window. */
-const redactSession = (s: Session): Session => ({ ...s, zoom: '' });
+// D-172: a replay link is staff's record of where a recording is; nothing learner-facing reads it, so it
+// stays out of a learner's snapshot (with the join URL).
+const redactSession = ({ replayUrl: _replay, ...s }: Session): Session => ({ ...s, zoom: '' });
 
 const redactResource = (r: Resource): Resource => {
   const copy: StoredResource = { ...r };

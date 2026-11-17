@@ -69,6 +69,10 @@
 // (`curriculum: 0`) every Team-tier object in the bucket for a convenience nothing asks for.
 // Flagged for DECISIONS.md, because it is a rule § 8.2 does not state either way.
 //
+// D-172 opens ONE door in it: the admin Resource Vault's hover Download (the R2 mockup's). Staff who
+// may edit the vault (`curriculum`) get a vault row from `/api/files/resource/:id`, hidden rows too,
+// with no tier rule and no count. Support (`curriculum: 0`) and every skill file stay refused.
+//
 // ================================================================================================
 // WHICH OBJECT AN ASK NAMES, WHICH IS A SEPARATE QUESTION FROM WHO MAY HAVE IT
 // ================================================================================================
@@ -340,13 +344,18 @@ export function registerFilesRoutes(app: FastifyInstance): void {
     async (req, reply): Promise<FastifyReply> => {
       const db = await loadDb(getDb());
       const me = learnerFor(db, req);
-      if (!me) return reply.code(403).send({ error: LEARNERS_ONLY });
+      // D-172: the admin Resource Vault's hover Download. Staff who may edit the vault (the `curriculum`
+      // PermKey, as every vault write needs) get any row, hidden ones included, with no tier rule and
+      // no count: `dl` is learners' opens, and `downloadResource` refuses staff. Every other staff
+      // member is still refused (a Support account has `curriculum: 0`).
+      const staff = !me && can(db, viewerOrThrow(req).actor, 'curriculum');
+      if (!me && !staff) return reply.code(403).send({ error: LEARNERS_ONLY });
 
       const resource = db.resources.find((r) => r.id === req.params.id);
-      if (!resource || resource.status !== 'published') {
+      if (!resource || (!staff && resource.status !== 'published')) {
         return reply.code(404).send({ error: NOT_FOUND });
       }
-      if (!accessFor(me, resource)) return reply.code(403).send({ error: TIER_REFUSED });
+      if (me && !accessFor(me, resource)) return reply.code(403).send({ error: TIER_REFUSED });
 
       // The stored key first, `resources/<id>` only when the column is NULL — header rule 1.
       const stored = await storedKeyOf(resource.id);

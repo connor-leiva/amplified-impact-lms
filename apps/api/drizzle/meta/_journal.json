@@ -162,6 +162,13 @@
       "when": 1794909397191,
       "tag": "0022_console_flags",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794919460401,
+      "tag": "0023_resource_module_session_replay",
+      "breakpoints": true
     }
   ]
 }
