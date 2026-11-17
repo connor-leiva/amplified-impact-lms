@@ -107,13 +107,15 @@ describe('masquerade_enabled (spec § 7.13, D8) @console', () => {
       before: { on: true },
       after: { on: false, sensitive: true },
     });
-    // 3a's seam reads the flag, and the flip dropped the cache at once.
+    // 3a's seam reads the flag, and the flip dropped the cache at once; so does `/me` (3b's entry points).
     expect(await masqueradeEnabled()).toBe(false);
+    expect((await get('/api/console/me', 'st_admin')).json().masqueradeEnabled).toBe(false);
     const start = await post(MASQUERADE_PATHS.start, { targetUserId: 'u_jamie', reason: 'Checking the Week 2 steps for a ticket.' }, 'st_admin');
     expect(start.statusCode).toBe(403);
     expect(start.json().code).toBe('masquerade_disabled');
     // And back on.
     expect((await flip(true)).json().flag.on).toBe(true);
+    expect((await get('/api/console/me', 'st_admin')).json().masqueradeEnabled).toBe(true);
     const again = await post(MASQUERADE_PATHS.start, { targetUserId: 'u_jamie', reason: 'Checking the Week 2 steps for a ticket.' }, 'st_admin');
     expect(again.statusCode).toBe(201);
   });
