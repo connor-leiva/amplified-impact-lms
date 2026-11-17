@@ -78,6 +78,7 @@ import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fi
 import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
+import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope', 'action_expired', 'action_scope'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -189,6 +190,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   const records = fixtureRecords();
   // D-164: Billing's lists, kept so a refund or a void shows on the next read, as Stripe's would.
   const billing = fixtureBillingRows();
+  const emails = fixtureEmails();
   let noteId = 100;
   // D-165: the mockup's deliveries and jobs, changed by a retry or a Run Now as the API's would be.
   let hooks = fixtureWebhookRows();
@@ -544,6 +546,26 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
       settle(() => {
         need('masquerade.start');
         return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureMasqueradeSessions(), cursor);
+      }),
+    // PR 7 (D-166): the mockup's `EMAILS` and `Usage` figures.
+    emails: (filters) =>
+      settle(() => {
+        need('email.read');
+        const page = fixtureEmailPage(emails, filters);
+        return state === 'empty' ? { ...page, rows: [] } : page;
+      }),
+    exportEmails: (filters) =>
+      settle(() => {
+        need('export');
+        const { csv, count } = fixtureEmailCsv(emails, filters);
+        record('email_log.export', { type: 'email_log', id: null, label: 'Email log' }, { rows: count, format: 'csv', filters: { ...filters, ids: filters.ids?.length } });
+        return { csv, filename: `email-log-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    usage: (query) =>
+      settle(() => {
+        need('usage.read');
+        const report = fixtureUsage(query, now());
+        return state === 'empty' ? { ...report, hasData: false, countingSince: query.to, workspaces: [] } : report;
       }),
   };
 }

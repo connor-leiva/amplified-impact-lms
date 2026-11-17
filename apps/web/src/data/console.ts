@@ -34,12 +34,16 @@ import type {
   EditableRole,
   RoleChangePreview,
   RoleRowKey,
+  EmailLogFilters,
+  EmailLogPage,
   RolesMatrix,
   StaffChangePreview,
   StaffConsoleRequest,
   SearchResults,
   StaffNote,
   StaffNoteTarget,
+  UsageQuery,
+  UsageReport,
   UserFilters,
   WorkspaceDetail,
   WorkspaceFilters,
@@ -172,6 +176,10 @@ export interface ConsoleApi {
   jobs(): Promise<ConsoleJobs>;
   /** Run Now (D14): the manual tick it recorded. */
   runJob(job: string): Promise<JobRunResult>;
+  // PR 7 (D-166): the email log and usage.
+  emails(filters: EmailLogFilters, cursor?: string | null): Promise<EmailLogPage>;
+  exportEmails(filters: EmailLogFilters): Promise<{ csv: string; filename: string }>;
+  usage(query: UsageQuery): Promise<UsageReport>;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -320,6 +328,17 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     },
     jobs: async () => json<ConsoleJobs>(await request(fetchImpl, OPS_PATHS.jobs)),
     runJob: async (job) => json<JobRunResult>(await request(fetchImpl, jobRunPath(job), JSON_POST({}))),
+    emails: async (f, cursor) =>
+      json<EmailLogPage>(await request(fetchImpl, `/api/console/email${listQuery({ q: f.q, template: f.template, status: f.status, userId: f.userId, teamId: f.teamId, from: f.from, to: f.to }, cursor)}`)),
+    exportEmails: async (f) => {
+      const res = await request(fetchImpl, '/api/console/email/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/csv' },
+        body: JSON.stringify(f),
+      });
+      return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'email-log.csv') };
+    },
+    usage: async (u) => json<UsageReport>(await request(fetchImpl, `/api/console/usage${listQuery({ from: u.from, to: u.to, teamId: u.teamId, planKind: u.planKind })}`)),
   };
 }
 

@@ -204,3 +204,28 @@ describe('the ops fixture is not in the http build (D-165)', () => {
     for (const s of ['76,320', '41,208', '212 ms', '3 GHL, 1 Stripe', 'Every 5 min']) expect(code, s).not.toContain(s);
   }, 60_000);
 });
+
+/**
+ * D-166: the Email Log's and Usage's sample figures (the mockup's `EMAILS`, the chart's bars and its
+ * per-seat multipliers, `console-fixture-email-usage.ts`) are the fixture's alone. Production shows
+ * what the API counted: the http build of the client, and of the two screens' view-models, has none.
+ */
+const EMAIL_USAGE_SENTINELS = ['This week: 2 new AI Employees', 'Receipt for Team Plan, 16 seats', 're_fixture_', 'storageGb'];
+
+describe('the Email Log and Usage figures are fixture only (D-166)', () => {
+  it('the http build has none of them, and asks the API', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/email');
+    expect(code).toContain('/api/console/usage');
+    for (const s of EMAIL_USAGE_SENTINELS) expect(code, s).not.toContain(s);
+    for (const vm of ['../routes/console/usage.vm.ts', '../routes/console/email.vm.ts']) {
+      const screen = await bundle('production', vm);
+      for (const s of [...EMAIL_USAGE_SENTINELS, 'USAGE_PER_SEAT', 'USAGE_BARS']) expect(screen, `${vm}: ${s}`).not.toContain(s);
+    }
+  }, 120_000);
+
+  it('the fixture build has them, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of EMAIL_USAGE_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+});

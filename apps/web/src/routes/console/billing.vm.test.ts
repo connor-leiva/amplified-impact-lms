@@ -147,6 +147,8 @@ describe('the lists', () => {
       ['Hale & Marlowe Realty', 'authentication_required', '$695.00', '1', 'Dec 11, 8:00 AM'],
       ['Copper Basin Realty', 'card_declined: do_not_honor', '$3,750.00', '1', 'Dec 12, 12:00 PM'],
     ]);
+    // D-166: "Open email log" opens the Email Log for the customer's workspace.
+    expect(failedVM(rows.failed[0]!).emailLog).toBe('/admin/email?teamId=ws_tidewater&workspace=Tidewater+Property+Co.');
     expect(refundVM(rows.refunds[0]!)).toMatchObject({
       id: 're_3QxK5fFm70',
       invoice: 'in_1QxK5fFm0270',

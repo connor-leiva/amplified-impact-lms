@@ -40,6 +40,7 @@ import type {
 } from '@ai/core';
 import { ConsoleError } from '../../data/console';
 import type { BillingSample } from '../../data/console';
+import { emailLogHref } from './email.vm';
 
 export const BILLING_TABS = ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds'] as const;
 export type BillingTab = (typeof BILLING_TABS)[number];
@@ -131,8 +132,6 @@ export const BILLING_COPY = {
     someone: 'this customer',
     tooMany: 'Too many requests.',
   },
-  /** The disabled items' title: refund and void are R2-4b's (spec PR 5); the email log is its own PR. */
-  later: 'Not available yet',
   more: 'Load more',
 } as const;
 
@@ -352,6 +351,8 @@ export function actionErrorOf(e: unknown): { message: string; restart: boolean }
 }
 
 export interface FailedVM extends RowBase {
+  /** D-166: "Open email log", for this customer's workspace (the whole log when it has none). */
+  emailLog: string;
   customer: string;
   reason: string;
   amount: string;
@@ -362,6 +363,7 @@ export const failedVM = (r: BillingFailedRow): FailedVM => ({
   key: r.invoiceId,
   href: hrefOf(r.workspace),
   stripe: r.url,
+  emailLog: emailLogHref(r.workspace),
   customer: r.customerName ?? NONE,
   reason: r.declineReason ?? NONE,
   amount: usdCents(r.amountCents),

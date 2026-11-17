@@ -145,8 +145,15 @@
     {
       "idx": 20,
       "version": "7",
-      "when": 1794900776976,
-      "tag": "0020_resource_module_session_replay",
+      "when": 1794901397089,
+      "tag": "0020_email_log_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794909521431,
+      "tag": "0021_resource_module_session_replay",
       "breakpoints": true
     }
   ]

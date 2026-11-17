@@ -105,6 +105,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
 import { acceleratorAccess } from '../lib/course-access';
+import { recordUsage } from '../lib/usage';
 
 /**
  * § 8.4's 409 body, verbatim and exact.
@@ -182,6 +183,7 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // ever sits in front of this API) re-serve the URL after `endSession`, from a response the
       // server has no way to recall. It also keeps the URL out of the back/forward cache.
       reply.header('cache-control', 'no-store');
+      recordUsage(req, me.id, 'session_join'); // D-166: a usage count, once the join is handed out; it changes nothing here.
       // `session.zoom` as stored, not as scoped — this handler read the UNSCOPED `db` on purpose.
       // An empty string here would mean a session row with no meeting behind it; the client reads
       // that as shut (`http.ts`: "a 200 with no URL is shut, not an open tab on this origin"),
