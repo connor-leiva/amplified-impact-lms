@@ -626,7 +626,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/me', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/audit', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/audit/export', methods: 'POST', guard: 'session' },
-  { path: '/api/console/roles', methods: 'GET, HEAD', guard: 'session' },
+  // D-160 R2-3b: the Owner's two-step change to the matrix (a POST to the same path, and its preview).
+  { path: '/api/console/roles', methods: 'GET, HEAD, POST', guard: 'session' },
+  { path: '/api/console/roles/preview', methods: 'POST', guard: 'session' },
   // Admin Console PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export
   // and search. Signed in, then by capability (`test/console-authz.test.ts`).
   { path: '/api/console/workspaces', methods: 'GET, HEAD', guard: 'session' },
@@ -1101,6 +1103,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { reason: 'A reason long enough' },
             }),
           '/api/console/search': () => app.inject({ method: 'GET', url: '/api/console/search?q=jamie' }),
+          '/api/console/roles/preview': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/roles/preview',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { role: 'Admin', capability: 'masq', allowed: false },
+            }),
           // Admin Console PR 3a (D-162).
           '/api/console/masquerade': () =>
             app.inject({
@@ -1296,9 +1305,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
-    // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), and 39 with masquerade's five (D-162).
-    expect(EXECUTED.unauthenticated).toBe(39);
+    // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
+    // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
+    // with Console PR 2's nine (D-158), and 40 with masquerade's five (D-162).
+    expect(EXECUTED.unauthenticated).toBe(40);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1308,8 +1318,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // password routes, two probed unauthenticated and five as exempt. The + 2: the CRM sync log and its
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
-    // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
-    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5);
+    // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
+    // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
+    // probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5);
   });
 });

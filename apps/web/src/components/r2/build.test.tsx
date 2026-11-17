@@ -198,7 +198,9 @@ describe('Modal and Confirm (R2-2)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
     expect(onConfirm).toHaveBeenCalledOnce();
     expect(onClose).toHaveBeenCalledTimes(2);
-    expect(screen.queryByText('This action is audit-logged.')).toBeNull();
+    // R2-3b: every confirm ends with the mockup's "This action is audit-logged." (its `Confirm` always
+    // draws it), so part 2's `audited` no longer decides it.
+    expect(screen.getByText('This action is audit-logged.')).toBeInTheDocument();
   });
 });
 
