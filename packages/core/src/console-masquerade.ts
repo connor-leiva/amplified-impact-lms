@@ -60,7 +60,7 @@ export const MASQUERADE_REASON_MIN = CONSOLE_REASON_MIN;
 export const MASQUERADE_REASON_MAX = CONSOLE_REASON_MAX;
 export const cleanMasqueradeReason = cleanReason;
 
-/** Migration 0017's `end_reason` list, in the spec's order. */
+/** Migration 0018's `end_reason` list, in the spec's order. */
 export const MASQUERADE_END_REASONS = ['exit', 'expired', 'signed_out', 'revoked'] as const;
 export type MasqueradeEndReason = (typeof MASQUERADE_END_REASONS)[number];
 

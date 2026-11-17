@@ -1,14 +1,5 @@
 /* Admin Learners & Teams on R2 (D-160 R2-3): what the mockup's `Learners` writes inline, on the R2 kit,
-   and the details drawer and Needs Attention dialog (no mockup frame; R2 parts). Tokens only. */
-.head {
-  position: relative;
-}
-/* The page's "…" sits at the head's top right, so nothing the mockup draws moves. */
-.more {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
+   and the details drawer (no mockup frame; R2 parts). Tokens only. */
 .who {
   gap: 10px;
 }
@@ -34,8 +25,7 @@
   font-weight: 500;
   color: var(--r2-f3);
 }
-.mods,
-.risk {
+.mods {
   border: 1px solid var(--r2-line);
   border-radius: 8px;
 }
@@ -49,17 +39,8 @@
 .locked {
   gap: 6px;
 }
-.riskRow {
-  padding: 10px 12px;
-  flex-wrap: wrap;
-}
-.riskWho {
-  flex: 1 1 200px;
-  min-width: 0;
-}
 @media (max-width: 767px) {
-  .mod,
-  .riskRow {
+  .mod {
     flex-wrap: wrap;
   }
 }

@@ -117,22 +117,36 @@
     {
       "idx": 16,
       "version": "7",
-      "when": 1794767731519,
-      "tag": "0016_staff_notes",
+      "when": 1794844154176,
+      "tag": "0016_console_role_grants",
       "breakpoints": true
     },
     {
       "idx": 17,
       "version": "7",
-      "when": 1794833249946,
-      "tag": "0017_masquerade_sessions",
+      "when": 1794864780668,
+      "tag": "0017_staff_notes",
       "breakpoints": true
     },
     {
       "idx": 18,
       "version": "7",
-      "when": 1794856701449,
-      "tag": "0018_email_log_usage",
+      "when": 1794887449681,
+      "tag": "0018_masquerade_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794897724967,
+      "tag": "0019_ops_telemetry",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794901397089,
+      "tag": "0020_email_log_usage",
       "breakpoints": true
     }
   ]

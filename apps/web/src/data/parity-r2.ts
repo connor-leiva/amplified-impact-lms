@@ -28,6 +28,24 @@ export const STAFF = [
 export const ROLES = ['Owner', 'Admin', 'Support'] as const;
 
 /**
+ * `PERMS0` (R2-3b, editable Roles): the matrix, verbatim, one value per `ROLES` column. The parity
+ * fixture stores it as the Owner's changes (`parityRoleGrants`) within the ceiling, which `CONSOLE_CAPS`
+ * keeps in code: where `PERMS0` shows a box the ceiling forbids (Support's "Export audit and email
+ * logs"), the ceiling wins and the box is drawn locked, as production draws it.
+ */
+export const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]],
+  ['masq', 'Start and extend masquerade', [1, 1, 0]],
+  ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]],
+  ['refund', 'Refund or void an invoice', [1, 1, 0]],
+  ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]],
+  ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]],
+  ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+] as const;
+
+/**
  * `MODS0` (R2-2): the curriculum, verbatim. `ses` is the live session's two lines as the mockup writes
  * them; the parity snapshot (`parity-r2-db.ts`) turns each row into the app's own AI Employee, session
  * and baseline, and the Curriculum and Module Builder screens print them back from those.
@@ -370,6 +388,16 @@ export const SUPPORT_USERS = [
   { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
 ] as const;
 
+/**
+ * D-162 3b: the Masquerade screen's "Recent sessions", verbatim (`Masquerade()`): staff, user, reason,
+ * started, length, ended. The console fixture turns each into the API's history row.
+ */
+export const MASQ_SESSIONS = [
+  ['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'],
+  ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'],
+  ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff'],
+] as const;
+
 /** `INV`: the invoices, as the workspaces' orders. */
 export const INV = [
   { id: 'in_1QxT4mNs0291', c: 'Northshore Group', amt: '$1,495.00', st: 'Paid', d: 'Dec 8, 2026', card: 'Visa ending 4242' },
@@ -379,6 +407,44 @@ export const INV = [
   { id: 'in_1QxN1hHm0279', c: 'Hale & Marlowe Realty', amt: '$695.00', st: 'Open', d: 'Dec 3, 2026', card: 'Visa ending 3310' },
   { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
 ] as const;
+
+// ---- D-163: Billing's Summary and lists, verbatim (`Billing()` in AdminRedesign.jsx) ------------------
+// The Console fixture (`console-fixture-billing.ts`) turns these into the API's shapes. Every figure is
+// the mockup's own sample, so the fixture also carries its "· sample" qualifiers (BUILD-SPEC § 6.1);
+// production (http) prints neither.
+
+/** The four stats, the plan lines' title and their qualifiers. */
+export const BILLING_SAMPLE = {
+  mrrLabel: 'MRR · sample',
+  mrr: '$18,516',
+  mrrSub: '+$695 this week',
+  subscriptions: 77,
+  failed: 3,
+  refunds30d: '$0',
+  plansTitle: 'Plan economics · sample figures',
+} as const;
+
+/** "Plan economics · sample figures": plan, price, active, MRR. */
+export const BILLING_PLANS = [
+  ['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'],
+  ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'],
+  ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'],
+  ['Insiders', '$97 monthly', '61 members', '$5,917'],
+  ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time'],
+] as const;
+
+/** The AI Accelerator card: 11 of 15 sold, $67,500 collected, 4 × $3,750 = $15,000 still due. */
+export const BILLING_ACCELERATOR = { sold: 11, paidInFull: 7, twoPay: 4, collected: '$67,500', scheduled: '$15,000' } as const;
+
+/** The Failed payments tab: customer, amount, decline reason, attempts, next retry. */
+export const BILLING_FAILED = [
+  ['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM'],
+  ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM'],
+  ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM'],
+] as const;
+
+/** The Refunds tab: refund, invoice, amount, reason, by, when. */
+export const BILLING_REFUNDS = [['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']] as const;
 
 /** The Workspace screen's staff notes (on Northshore Group), newest first. */
 export const WORKSPACE_NOTES = [
@@ -395,6 +461,51 @@ export const IDENTITY = { verified: 'Nov 24, 2026', password: true, google: true
 /** "Account created at checkout": the User screen's Activity, Nov 24, 9:30 AM. */
 export const JOINED = 'Nov 24, 9:30 AM';
 
+// ---- D-165: API & Webhooks and Scheduled Jobs, verbatim (`Api()` and `Jobs()` in AdminRedesign.jsx) -------
+// The Console fixture (`console-fixture-ops.ts`) turns these into the API's shapes, so the screens'
+// view-models print the mockup's words from what the API answers.
+
+/** `ENDPOINTS`: the last 24 hours by endpoint. */
+export const ENDPOINTS = [
+  { p: 'GET /api/events', req: '41,208', p50: 'stream', p95: 'stream', er: 0.1 },
+  { p: 'GET /api/snapshot', req: '18,940', p50: '48 ms', p95: '212 ms', er: 0.2 },
+  { p: 'POST /api/mutate', req: '6,312', p50: '61 ms', p95: '240 ms', er: 0.4 },
+  { p: 'GET /api/skills', req: '5,926', p50: '35 ms', p95: '118 ms', er: 0.0 },
+  { p: 'GET /api/course', req: '3,410', p50: '42 ms', p95: '160 ms', er: 0.1 },
+  { p: 'GET /api/sessions/:id/join', req: '286', p50: '90 ms', p95: '410 ms', er: 0.7 },
+  { p: 'POST /api/billing/webhook', req: '142', p50: '120 ms', p95: '880 ms', er: 2.1 },
+  { p: 'POST /api/crm-sync', req: '96', p50: '310 ms', p95: '1,940 ms', er: 6.3 },
+] as const;
+
+/** The API screen's stats: p95 latency and error rate (the mockup's own figures, not computed). */
+export const ENDPOINT_STATS = { p95: '212 ms', errorRate: 0.4 } as const;
+
+/** `HOOKS`: every webhook delivery in and out. */
+export const HOOKS = [
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2291', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2288', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'login.sync', id: 'u_1077', st: 'Retrying', att: '2 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'Stripe', ev: 'invoice.payment_failed', id: 'evt_1QxP7tTw83', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
+  { src: 'Stripe', ev: 'checkout.session.completed', id: 'evt_1QxQ2cCb85', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
+  { src: 'Stripe', ev: 'customer.subscription.updated', id: 'evt_1QxN1hHm79', st: 'Failed', att: '5 of 5', next: 'None, attempts used', err: 'Handler timeout after 10 s' },
+  { src: 'Zoom', ev: 'recording.completed', id: '—', st: 'Not configured', att: '—', next: '—', err: 'Recording webhook is not live' },
+] as const;
+
+/** `JOBS`: the scheduled jobs. */
+export const JOBS = [
+  { j: 'session-24h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.4 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'session-1h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.3 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'replay-ready', sch: 'Every 15 min', last: 'Dec 10, 9:15 AM', dur: '0.9 s', st: 'Succeeded', next: '9:30 AM' },
+  { j: 'build-48h', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.5 s', st: 'Succeeded', next: '10:00 AM' },
+  { j: 'weekly-digest', sch: 'Mon 7:00 AM', last: 'Dec 7, 7:00 AM', dur: '48 s', st: 'Succeeded', next: 'Dec 14, 7:00 AM' },
+  { j: 'announcement', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.2 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'billing', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '2.1 s', st: 'Succeeded', next: '10:00 AM' },
+  { j: 'accelerator-reminders', sch: 'Daily 9:00 AM', last: 'Dec 10, 9:00 AM', dur: '1.4 s', st: 'Succeeded', next: 'Dec 11, 9:00 AM' },
+  { j: 'ghl-sync', sch: 'Every 10 min', last: 'Dec 10, 9:20 AM', dur: '3.8 s', st: 'Running', next: '9:30 AM' },
+  { j: 'ghl-logins', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '1.1 s', st: 'Succeeded', next: '9:30 AM' },
+  { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '0.6 s', st: 'Failed', next: '9:30 AM' },
+  { j: 'ghl-extras', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.8 s', st: 'Waiting', next: '10:00 AM' },
+] as const;
 // ---- PR 7 (D-166): the Email Log's and Usage's figures, verbatim ----------------------------------------
 
 /** `EMAILS`, verbatim: recipient, template, subject, status, sent. */

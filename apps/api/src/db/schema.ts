@@ -368,6 +368,27 @@ export const auditLog = pgTable('audit_log', {
   check('audit_log_staff_actor', sql`${t.actorSource} = 'system' or ${t.actorUserId} is not null`),
 ]);
 
+// D-160 R2-3b (Connor, Nov 16, 2026, 8:27 AM MST): the Owner's changes to the Roles & Permissions
+// matrix. `CONSOLE_CAPS` (@ai/core) stays the ceiling in code; a row here only takes a matrix row from
+// Admin or Support (`allowed` false) or records that it was given back (true), with who and when. A
+// role's effective capability is the ceiling AND NOT removed (`consoleCanWith`), so an empty table is
+// the ceiling exactly and no row can lift a role past it. Not a `Db` record, like `audit_log`; every
+// change also writes one `permission.change` audit row, in the same transaction. Not the `permissions`
+// table, which round-trips the app's `Db` and backs `/admin/staff`'s `PermKey` matrix.
+export const consoleRoleGrants = pgTable('console_role_grants', {
+  role: text('role').notNull(),
+  capability: text('capability').notNull(),
+  allowed: boolean('allowed').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  updatedAt: ts('updated_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.role, t.capability] }),
+  // `EDITABLE_ROLES` and `ROLE_ROW_KEYS` in `@ai/core/console`, typed out because drizzle-kit reads
+  // this file on its own; `schema.test.ts` pins them to the constants.
+  check('console_role_grants_role', sql`${t.role} in ('Admin', 'Support')`),
+  check('console_role_grants_capability', sql`${t.capability} in ('build', 'masq', 'account', 'billview', 'refund', 'jobs', 'export', 'ops', 'staff')`),
+]);
+
 // ================================================================================================
 // THE ADMIN CONSOLE'S STAFF NOTES (D-158, spec § 7.3)
 // ================================================================================================
@@ -375,7 +396,7 @@ export const auditLog = pgTable('audit_log', {
 // or the user, and never in any snapshot (not part of a `Db` and not in the codec, like `audit_log`;
 // `test/console-support.test.ts` reads `/api/snapshot` to prove it).
 //
-// Immutable once written, and the database says so: migration 0016's trigger refuses any DELETE, and
+// Immutable once written, and the database says so: migration 0017's trigger refuses any DELETE, and
 // any UPDATE but the one that soft-deletes a note, which only sets `deleted_at`, `deleted_by` and
 // `delete_reason`, once (an Owner, with a reason: spec § 7.3). The body, its author, its target and
 // its time never change. TRUNCATE is not covered, as on `audit_log`: the test harness empties every
@@ -426,6 +447,55 @@ export const masqueradeSessions = pgTable('masquerade_sessions', {
   // An ended row says why, with one of the closed list's reasons (`MASQUERADE_END_REASONS`); a live one says nothing.
   check('masquerade_sessions_end_reason', sql`(${t.endedAt} is null and ${t.endReason} is null) or (${t.endedAt} is not null and ${t.endReason} in ('exit', 'expired', 'signed_out', 'revoked'))`),
   check('masquerade_sessions_expiry', sql`${t.expiresAt} <= ${t.hardExpiresAt}`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S OPS TELEMETRY (D-165, spec §§ 7.9-7.10)
+// ================================================================================================
+// Two observe-only tables. Neither is part of a `Db` or a snapshot, and nothing reads them but the
+// Console's API & Webhooks and Scheduled Jobs screens.
+//
+// `api_metrics`: one row per minute and route TEMPLATE (`GET /api/sessions/:id/join`, never a raw URL,
+// so no id, token or email is ever a key). `lib/api-metrics.ts` counts answers in memory and adds each
+// minute's counts here once a minute; two replicas add to the same row. `hist` is the minute's
+// latencies per bucket (`API_METRIC_BOUNDS`, then `+inf`), not cumulative. Kept 30 days (D6).
+//
+// `job_ticks`: one row per run of a scheduled loop, written by `jobs/ticks.ts`'s `recordTick` around the
+// existing call: `running` when it starts, then `succeeded`, `failed` (with a short `error_kind`, never
+// a message) or `skipped` (the scheduler lock was another runner's). `trigger` is `schedule`, or
+// `manual` for Run Now, which names the staff member. Kept 90 days (D6). Times are epoch ms.
+export const apiMetrics = pgTable('api_metrics', {
+  minute: ts('minute').notNull(),
+  route: text('route').notNull(),
+  count: integer('count').notNull(),
+  errors4xx: integer('errors_4xx').notNull(),
+  errors5xx: integer('errors_5xx').notNull(),
+  hist: jsonb('hist').$type<Record<string, number>>().notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.minute, t.route] }),
+  check('api_metrics_counts', sql`${t.count} >= 0 and ${t.errors4xx} >= 0 and ${t.errors5xx} >= 0 and ${t.errors4xx} + ${t.errors5xx} <= ${t.count}`),
+]);
+
+export const jobTicks = pgTable('job_ticks', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  job: text('job').notNull(),
+  startedAt: ts('started_at').notNull(),
+  finishedAt: ts('finished_at'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+  trigger: text('trigger').notNull(),
+  actorUserId: text('actor_user_id'),
+}, (t) => [
+  index('job_ticks_job_started_idx').on(t.job, t.startedAt),
+  index('job_ticks_started_idx').on(t.startedAt),
+  // The closed lists in `@ai/core/console-ops` (`JOB_TICK_STATUSES`, `JobTrigger`), typed out because
+  // drizzle-kit reads this file on its own.
+  check('job_ticks_status', sql`${t.status} in ('running', 'succeeded', 'failed', 'skipped')`),
+  check('job_ticks_trigger', sql`${t.trigger} in ('schedule', 'manual')`),
+  // A manual run names who started it; a scheduled one names nobody.
+  check('job_ticks_actor', sql`(${t.trigger} = 'manual') = (${t.actorUserId} is not null)`),
+  // Running has no end; anything else has one.
+  check('job_ticks_finished', sql`(${t.status} = 'running') = (${t.finishedAt} is null)`),
 ]);
 
 // ================================================================================================

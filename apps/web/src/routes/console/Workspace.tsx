@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
 import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
-import { Button } from '../../components/r2/Button';
+import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
@@ -30,6 +30,7 @@ import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
+import { useMasqueradeEntry } from './useMasqueradeEntry';
 import { WorkspaceUsageTab } from './RecordTabs';
 import { NONE, WORKSPACE_COPY as C, WORKSPACE_TABS, workspaceVM } from './workspaces.vm';
 import type { MemberVM, WorkspaceTab } from './workspaces.vm';
@@ -37,7 +38,8 @@ import type { MemberVM, WorkspaceTab } from './workspaces.vm';
 // /admin/workspaces/:teamId on R2 (D-160 R2-1c, spec § 7.3): the mockup's `Workspace`. Key facts; the
 // tabs Members, Plan & entitlements, Usage, Billing and Activity; and Staff notes beside them. Billing
 // is the app's own order records (Stripe's reads are the Billing PR); Usage is the last 7 days' counts
-// (D-166); "Masquerade as owner" is the Masquerade PR's, drawn and not yet live.
+// (D-166). "Masquerade as owner" and a member's "Masquerade…" open the reason dialog (D-162 3b): Owner
+// and Admin only.
 
 export function Component() {
   const { teamId = '' } = useParams();
@@ -52,6 +54,7 @@ export function Component() {
   const [notes, setNotes] = useState<StaffNote[]>([]);
   const [draft, setDraft] = useState('');
   const [saving, setSaving] = useState(false);
+  const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
   useRecordCrumb(vm?.title ?? null);
 
   useEffect(() => {
@@ -88,6 +91,8 @@ export function Component() {
       </Page>
     );
 
+  const team = rec.data?.team;
+  const owner = entry.state();
   const save = () => {
     const body = cleanNoteBody(draft);
     if (!api || !body) return;
@@ -150,9 +155,19 @@ export function Component() {
         title={vm.title}
         meta={<Pill status={vm.status} />}
         right={
-          <Button header icon="r2Masquerade" aria-disabled="true" title={C.masqueradeLater}>
-            {C.masquerade}
-          </Button>
+          owner.show && team?.ownerId ? (
+            <Button
+              header
+              icon="r2Masquerade"
+              disabled={owner.off !== null}
+              title={owner.off ?? undefined}
+              onClick={() =>
+                entry.open({ id: team.ownerId, name: team.ownerName ?? vm.facts.owner, workspace: team.name })
+              }
+            >
+              {C.masquerade}
+            </Button>
+          ) : undefined
         }
       />
       <Facts
@@ -177,7 +192,7 @@ export function Component() {
               onRow={(m) => navigate(m.href)}
               menu={(m) => [
                 { label: C.members.open, onSelect: () => navigate(m.href) },
-                { label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} },
+                ...entry.item(C.members.masquerade, { id: m.key, name: m.name, workspace: vm.title }),
               ]}
               empty={{ icon: 'r2Users', title: C.members.empty }}
             />
@@ -210,24 +225,29 @@ export function Component() {
           {tab === 'usage' && api ? <WorkspaceUsageTab api={api} teamId={teamId} /> : null}
           {tab === 'billing' ? (
             <Card>
-              <KV
-                rows={[
-                  { label: C.billing.customer, value: <span className={k.mo}>{vm.billing.customer}</span> },
-                  { label: C.billing.subscription, value: <span className={k.mo}>{vm.billing.subscription}</span> },
-                  { label: C.billing.mrr, value: vm.billing.mrr },
-                  {
-                    label: C.billing.invoice,
-                    value: vm.billing.invoice ? (
-                      <span className={k.row} style={{ gap: 8 }}>
-                        <span className={k.mo}>{vm.billing.invoice.id}</span>
-                        <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
-                      </span>
-                    ) : (
-                      NONE
-                    ),
-                  },
-                ]}
-              />
+              <div className={k.col}>
+                <KV
+                  rows={[
+                    { label: C.billing.customer, value: <span className={k.mo}>{vm.billing.customer}</span> },
+                    { label: C.billing.subscription, value: <span className={k.mo}>{vm.billing.subscription}</span> },
+                    { label: C.billing.mrr, value: vm.billing.mrr },
+                    {
+                      label: C.billing.invoice,
+                      value: vm.billing.invoice ? (
+                        <span className={k.row} style={{ gap: 8 }}>
+                          <span className={k.mo}>{vm.billing.invoice.id}</span>
+                          <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
+                        </span>
+                      ) : (
+                        NONE
+                      ),
+                    },
+                  ]}
+                />
+                <div>
+                  <ButtonLink to={C.billing.to}>{C.billing.open}</ButtonLink>
+                </div>
+              </div>
             </Card>
           ) : null}
           {tab === 'activity' ? (
@@ -261,6 +281,7 @@ export function Component() {
           </div>
         </Card>
       </div>
+      {entry.dialog}
     </Page>
   );
 }

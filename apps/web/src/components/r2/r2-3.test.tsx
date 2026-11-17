@@ -46,7 +46,7 @@ describe('Skel and CheckCell', () => {
     expect(s.children).toHaveLength(3);
   });
 
-  it('CheckCell is a read-only box and its word; a locked one says it is fixed by product rules', () => {
+  it('CheckCell without a handler is a disabled box and its word; a locked one says it is fixed by product rules', () => {
     const { rerender } = render(<CheckCell label="View billing, Admin" on word="Yes" />);
     const box = screen.getByRole('checkbox', { name: 'View billing, Admin' });
     expect(box).toBeChecked();
@@ -131,5 +131,55 @@ describe('ErrorState and CheckCell’s phone order (R2-3b)', () => {
     const { container } = render(<CheckCell phone label="View billing, Support" on word="Allowed" />);
     expect(container.textContent).toBe('Allowed');
     expect(container.firstElementChild!.firstChild!.nodeType).toBe(Node.TEXT_NODE);
+  });
+});
+
+describe('CheckCell as a toggle, and the confirm (D-160 R2-3b, editable Roles)', () => {
+  it('asks its caller and changes nothing itself; a disabled one says why', async () => {
+    const onToggle = vi.fn();
+    const { rerender } = render(<CheckCell label="Start and extend masquerade, Admin" on word="Yes" onToggle={onToggle} />);
+    const box = screen.getByRole('checkbox', { name: 'Start and extend masquerade, Admin' });
+    expect(box).toBeEnabled();
+    fireEvent.click(box);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    // Controlled: it stays as it was until the confirmed change comes back.
+    expect(box).toBeChecked();
+    rerender(<CheckCell label="Edit curriculum, Admin" on word="Yes" title="This permission is set in Staff & Roles." />);
+    const off = screen.getByRole('checkbox', { name: 'Edit curriculum, Admin' });
+    expect(off).toBeDisabled();
+    expect(off.closest('[title]')).toHaveAttribute('title', 'This permission is set in Staff & Roles.');
+    // A locked box never toggles, even with a handler.
+    rerender(<CheckCell label="Refund or void an invoice, Support" on={false} locked word="No" onToggle={onToggle} />);
+    expect(screen.getByRole('checkbox', { name: 'Refund or void an invoice, Support. Fixed by product rules' })).toBeDisabled();
+  });
+
+  it('on a phone the real control is one named box over the row; the drawn one is hidden', async () => {
+    const onToggle = vi.fn();
+    const { container } = render(<CheckCell phone label="View billing, Support" on word="Allowed" onToggle={onToggle} />);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'View billing, Support' }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(container.querySelectorAll('input[type=checkbox]')).toHaveLength(2);
+    expect(container.textContent).toBe('Allowed');
+  });
+
+  it('the confirm says it is audit-logged, waits while busy, and shows a refusal with the action off', async () => {
+    const { Confirm } = await import('./Modal');
+    const onConfirm = vi.fn();
+    const onClose = vi.fn();
+    const props = { title: 'Remove this permission from Admin?', body: 'Start and extend masquerade. Applies to every Admin on staff right away.', cta: 'Remove permission', onConfirm, onClose, keepOpen: true };
+    const { rerender } = render(<Confirm {...props} busy />);
+    const dialog = screen.getByRole('dialog', { name: 'Remove this permission from Admin?' });
+    expect(dialog).toHaveTextContent('This action is audit-logged.');
+    expect(screen.getByRole('button', { name: 'Remove permission' })).toBeDisabled();
+    rerender(<Confirm {...props} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove permission' }));
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+    rerender(<Confirm {...props} error="Fixed by product rules." />);
+    expect(screen.getByRole('alert')).toHaveTextContent('Fixed by product rules.');
+    expect(screen.getByRole('button', { name: 'Remove permission' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
