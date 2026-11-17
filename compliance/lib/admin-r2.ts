@@ -22,8 +22,8 @@ import type { Browser, Page } from '@playwright/test';
 // REPORT-ONLY until a cell is enforced. A built cell that fails is reported as FAIL and the run
 // still passes; an ENFORCED cell that fails fails the run. A cell with no built screen is reported
 // as "not built", never as a pass. R2-0 built nothing; R2-1b builds the shell, the 404 and Denied
-// and enforces their eight cells; each later R2 PR adds its screens to ROUTES and its cells to
-// ENFORCED.
+// and enforces their eight cells; R2-1c the Support records (Workspaces and Workspace in part 1); each
+// later R2 PR adds its screens to ROUTES and its cells to ENFORCED.
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const R2_DIR = join(ROOT, 'design-reference/admin-redesign-r2');
@@ -111,6 +111,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
       await page.mouse.move(0, 0);
     },
   },
+  // R2-1c (D-160): the Support records, on the mockup's own `WS` (the Console fixture answers with
+  // them): Northshore Group is the mockup's detail record.
+  workspaces: { path: '/admin/workspaces' },
+  'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
 };
 
 /**
@@ -118,7 +122,9 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
- * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four.
+ * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four; R2-1c part 1:
+ * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
+ * exception, `admin-r2-exceptions.ts`).
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -143,6 +149,11 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `audit-${w}`,
   `roles-${w}`,
   `roles-confirm-${w}`,
+  // R2-1c part 1 (D-160): Workspaces at all four widths; Workspace at 1440, 1280 and 1024.
+  // `workspace-detail-390` is not here: the mockup sets the key-facts values at 15px on a phone, under
+  // the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
+  `workspaces-${w}`,
+  ...(w === 390 ? [] : [`workspace-detail-${w}`]),
 ]);
 
 // ------------------------------------------------------------------------------------------------
