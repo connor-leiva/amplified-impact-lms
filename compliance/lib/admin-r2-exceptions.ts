@@ -25,14 +25,15 @@
 // under 0.5%. The list is checked when this module loads and by the runner's own test
 // (`admin-r2-parity.spec.ts`, "approved exceptions"). Each PR adds its own cell when it lands: R2-2b
 // (#138) `cohorts-sessions-390`, R2-1c part 1 (#136) `workspace-detail-390`, R2-1c part 2 (#141)
-// `user-390`, and Console PR 8 (#152, D-167) `incident-390`, a later screen with the same key facts.
+// `user-390`, Console PR 8 (#152, D-167) `incident-390` and Console PR 9 (#151, D-168) `flags-390`,
+// later screens with the same key facts.
 
 /** Where the decision is recorded. */
 export const EXCEPTION_DECISION = 'D-160, Connor, Nov 16, 2026, 8:27 AM MST' as const;
 /** The one reason decision A accepts. */
 export const EXCEPTION_REASON = '15px vs 16px phone key-facts text; the build keeps the 16px floor' as const;
 /** The cells decision A names, and the later ones it covers by name. The list below holds these and nothing else. */
-export const ALLOWED_EXCEPTION_CELLS = ['cohorts-sessions-390', 'workspace-detail-390', 'user-390', 'incident-390'] as const;
+export const ALLOWED_EXCEPTION_CELLS = ['cohorts-sessions-390', 'workspace-detail-390', 'user-390', 'incident-390', 'flags-390'] as const;
 /** Every ceiling must be under this % of the cell's pixels. */
 export const EXCEPTION_CEILING_LIMIT_PCT = 0.5;
 
@@ -99,6 +100,18 @@ export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 152,
+  },
+  // Console PR 9 (#151, D-168): Environment Flags on a phone. Its key facts' values: Production, Live,
+  // Resend, live sending and 6 of 8 (y 240–328). 0 px with the mockup's 15px applied.
+  {
+    cell: 'flags-390',
+    width: 390,
+    height: 1671,
+    ceilingPx: 1290,
+    ceilingPct: 0.1979,
+    reason: EXCEPTION_REASON,
+    ref: EXCEPTION_DECISION,
+    pr: 151,
   },
 ];
 

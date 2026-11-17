@@ -103,6 +103,11 @@ const routes: RouteObject[] = [
       // Incidents and one incident (D-167, spec § 7.14).
       { path: 'admin/incidents', lazy: () => import('./routes/console/Incidents') },
       { path: 'admin/incidents/:id', lazy: () => import('./routes/console/Incident') },
+      // The Operations pages on R2 (D-168; spec §§ 7.11-7.13).
+      { path: 'admin/integrations', lazy: () => import('./routes/console/Integrations') },
+      { path: 'admin/deploys', lazy: () => import('./routes/console/Deploys') },
+      { path: 'admin/db', lazy: () => import('./routes/console/DbHealth') },
+      { path: 'admin/flags', lazy: () => import('./routes/console/Flags') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every

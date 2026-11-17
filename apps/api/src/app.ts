@@ -107,7 +107,7 @@ import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
 import { keyMode, readOfferConfig } from './billing/config';
-import { cachedConsoleStripe, consoleStripeClient, scopedConsoleStripe } from './console/stripe-read';
+import { cachedConsoleStripe, consoleStripeClient, probeStripeScopes, scopedConsoleStripe } from './console/stripe-read';
 import type { ConsoleStripe } from './console/stripe-read';
 import { consoleStripeWriter, scopedConsoleStripeWrite } from './console/stripe-write';
 import type { ConsoleStripeWrite } from './console/stripe-write';
@@ -710,6 +710,13 @@ export async function build(options: BuildOptions = {}): Promise<App> {
       broadcast,
       billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) },
       billingActions: { read: consoleFresh, write: consoleWrite },
+      // PR 9 (D-168): Check now for Stripe is Billing's scope probe over the fresh read client (never
+      // the cache), so it asks Stripe each time; with no key there is nothing to check.
+      infra: {
+        ...(options.console?.infra ?? {}),
+        stripeScopes:
+          options.console?.infra?.stripeScopes !== undefined ? options.console.infra.stripeScopes : consoleFresh ? () => probeStripeScopes(consoleFresh) : null,
+      },
     });
     registerMutateRoute(app, { broadcast });
     // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.

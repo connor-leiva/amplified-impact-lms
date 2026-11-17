@@ -591,3 +591,22 @@ export const incidentEvents = pgTable('incident_events', {
   check('incident_events_kind', sql`${t.kind} in ('opened', 'signal', 'acknowledged', 'resolved', 'note')`),
   check('incident_events_body', sql`${t.body} is null or char_length(${t.body}) between 1 and 2000`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S FLAGS (D-168, spec § 7.13, D8, D10)
+// ================================================================================================
+// The flags the Console owns: one row per key in `CONSOLE_FLAGS` (@ai/core), a closed list the CHECK
+// repeats, so a key the code doesn't know can't be stored. v1 has one, `masquerade_enabled`, on and
+// sensitive, which migration 0022 seeds. A missing row reads as the flag's default. Env switches are
+// not here: they stay in Railway and the Console only reads them (D10). Every flip is one audit row
+// (`flag.flip`, before and after). `updated_at` is `clock.now()`, epoch ms; `updated_by` the staff
+// member's id. Not part of a `Db`, never in a snapshot.
+export const consoleFlags = pgTable('console_flags', {
+  key: text('key').primaryKey(),
+  on: boolean('on').notNull(),
+  sensitive: boolean('sensitive').notNull(),
+  updatedAt: ts('updated_at'),
+  updatedBy: text('updated_by'),
+}, (t) => [
+  check('console_flags_key', sql`${t.key} in ('masquerade_enabled')`),
+]);
