@@ -37,9 +37,10 @@ export const initials = (name: string): string =>
 
 /**
  * From the snapshot. `role` is the staff role the shell filters by (the fixture build may preview
- * another). There are no incidents before Console PR 8, so their count is 0 and the badge hides.
+ * another). `openIncidents` is the API's count of open incidents (D-167, `useOpenIncidents`); the badge
+ * hides at zero.
  */
-export function shellDataFrom(db: Db, staffId: string | null, role: string | null): AdminShellData {
+export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0): AdminShellData {
   const me = db.staff.find((x) => x.id === staffId) ?? null;
   const cohort = db.cohorts.find((c) => c.id === ADMIN_COHORT) ?? db.cohorts[0];
   return {
@@ -50,7 +51,7 @@ export function shellDataFrom(db: Db, staffId: string | null, role: string | nul
     counts: {
       drafts: db.modules.filter((m) => m.status === 'draft').length,
       requests: db.requests.filter((q) => q.status === 'new').length,
-      incidents: 0,
+      incidents: openIncidents,
     },
     fullNav: false,
   };

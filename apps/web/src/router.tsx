@@ -100,6 +100,9 @@ const routes: RouteObject[] = [
       // D-166: the Email Log and Usage (spec §§ 7.7, 7.15).
       { path: 'admin/email', lazy: () => import('./routes/console/EmailLog') },
       { path: 'admin/usage', lazy: () => import('./routes/console/Usage') },
+      // Incidents and one incident (D-167, spec § 7.14).
+      { path: 'admin/incidents', lazy: () => import('./routes/console/Incidents') },
+      { path: 'admin/incidents/:id', lazy: () => import('./routes/console/Incident') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every

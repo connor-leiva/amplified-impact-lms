@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router';
 import { consoleCan } from '@ai/core';
 import type { MenuEntry } from '../../components/r2/Menu';
 import { Confirm } from '../../components/r2/Modal';
@@ -21,11 +22,12 @@ import s from './Ops.module.css';
 // /admin/jobs on R2 (D-165, spec § 7.10): the mockup's `Jobs()`. Every scheduled job from code
 // (`JOB_SCHEDULES`), its latest tick (`job_ticks`), and Run Now for the six the allowlist names (D14):
 // a confirm, then one extra run of the scheduler's tick, audited. Billing never runs by hand, and its
-// row says so (spec § 7.10). Support sees the list and no Run Now (D3). "Open incident" waits for the
-// Incidents screen.
+// row says so (spec § 7.10). Support sees the list and no Run Now (D3). "Open incident" opens the
+// Incidents screen (D-167).
 
 export function Component() {
   const gate = useConsoleGate('jobs');
+  const navigate = useNavigate();
   const { toast } = useAdminChrome();
   const api = gate.kind === 'ready' ? gate.api : null;
   const [reload, setReload] = useState(0);
@@ -76,7 +78,8 @@ export function Component() {
       : r.runNow === 'allowed'
         ? [{ label: C.runNow, icon: 'r2Play' as const, disabled: !!running[r.job], onSelect: () => setConfirm(r) }]
         : [{ label: C.off(r.job), disabled: true, onSelect: () => {} }]),
-    ...(r.failed ? [{ label: C.openIncident, disabled: true, title: C.incidentsLater, onSelect: () => {} }] : []),
+    // D-167: the Incidents screen, where a failing job's incident is (the rules open one after 3 failed runs).
+    ...(r.failed ? [{ label: C.openIncident, onSelect: () => navigate('/admin/incidents') }] : []),
   ];
 
   const run = (r: JobVM) => {

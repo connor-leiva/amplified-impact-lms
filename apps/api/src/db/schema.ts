@@ -549,3 +549,47 @@ export const usageDaily = pgTable('usage_daily', {
   check('usage_daily_kind', sql`${t.kind} in ('sign_in', 'lesson_play', 'guide_view', 'session_join')`),
   check('usage_daily_count', sql`${t.count} > 0`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S INCIDENTS (D-167, spec § 7.14)
+// ================================================================================================
+// One row per incident, `INC-0001` upward (numbered under an advisory lock, `console/incidents.ts`).
+// `fingerprint` names the auto-open rule that opened it (`job:ghl-orders`, `stripe:invoice.paid`,
+// `ghl:gave_up`, `api:5xx`), or is null when staff opened it; while an incident is unresolved its
+// fingerprint is unique, so a rule repeats on it (a `signal` event) instead of opening another. The
+// `_by` columns are staff user ids, null for the system. `incident_events` is the timeline: one row
+// per opening, repeat, acknowledgement, resolution and note, each written with its audit row.
+export const incidents = pgTable('incidents', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  severity: text('severity').notNull(),
+  status: text('status').notNull(),
+  fingerprint: text('fingerprint'),
+  openedAt: ts('opened_at').notNull(), openedBy: text('opened_by'),
+  acknowledgedAt: ts('acknowledged_at'), acknowledgedBy: text('acknowledged_by'),
+  resolvedAt: ts('resolved_at'), resolvedBy: text('resolved_by'),
+}, (t) => [
+  uniqueIndex('incidents_fingerprint_unresolved_idx').on(t.fingerprint).where(sql`${t.status} <> 'resolved'`),
+  index('incidents_status_idx').on(t.status),
+  // The closed lists in `@ai/core/console-incidents` (INCIDENT_SEVERITIES, INCIDENT_STATUSES).
+  check('incidents_severity', sql`${t.severity} in ('sev1', 'sev2', 'sev3')`),
+  check('incidents_status', sql`${t.status} in ('open', 'acknowledged', 'resolved')`),
+  check('incidents_title', sql`char_length(${t.title}) between 3 and 200`),
+  // An acknowledged or resolved incident says when; an open one has neither.
+  check('incidents_resolved', sql`(${t.status} = 'resolved') = (${t.resolvedAt} is not null)`),
+  check('incidents_acknowledged', sql`${t.status} <> 'acknowledged' or ${t.acknowledgedAt} is not null`),
+]);
+
+export const incidentEvents = pgTable('incident_events', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  incidentId: text('incident_id').notNull(),
+  at: ts('at').notNull(),
+  kind: text('kind').notNull(),
+  actorUserId: text('actor_user_id'),
+  body: text('body'),
+  link: text('link'),
+}, (t) => [
+  index('incident_events_incident_idx').on(t.incidentId, t.at),
+  check('incident_events_kind', sql`${t.kind} in ('opened', 'signal', 'acknowledged', 'resolved', 'note')`),
+  check('incident_events_body', sql`${t.body} is null or char_length(${t.body}) between 1 and 2000`),
+]);

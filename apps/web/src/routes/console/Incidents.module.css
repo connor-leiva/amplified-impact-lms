@@ -1,0 +1,4 @@
+/* Incident (D-167): a Linked row's name takes the row, its chevron at the end (the mockup's `flex: 1`). */
+.grow {
+  flex: 1;
+}

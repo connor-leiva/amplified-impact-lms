@@ -47,15 +47,21 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs; D-166 Usage and the Email Log.
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs; D-166 Usage and the Email Log; D-167 Incidents.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
       ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
-      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
+      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
+  });
+
+  it('makes an incident’s page the Incidents row’s, with its id in the crumb (D-167)', () => {
+    expect(activeRowId('/admin/incidents/INC-0007')).toBe('incidents');
+    expect(crumbTrail('/admin/incidents/INC-0007')).toEqual({ group: 'Operations', page: 'Incidents', parent: '/admin/incidents' });
+    expect(crumbTrail('/admin/incidents')).toEqual({ group: 'Operations', page: 'Incidents' });
   });
 
   it('filters Console rows by capability, and leaves out a group with none', () => {
@@ -64,8 +70,15 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       expect(support.flat()).not.toContain(ops);
     expect(support.map((g) => g[0])).not.toContain('Access');
     expect(support.flat()).toContain('Audit Log');
-    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too; D-166 the Email Log.
-    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toEqual(['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log']);
+    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too; D-166 the Email Log; D-167 Incidents.
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toEqual([
+      'Operations',
+      'Incidents',
+      'Audit Log',
+      'API & Webhooks',
+      'Scheduled Jobs',
+      'Email Log',
+    ]);
     const instructor = labels(nav({ role: 'Instructor', fullNav: false }));
     expect(instructor.map((g) => g[0])).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
@@ -108,8 +121,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(nav({ counts: { ...COUNTS, incidents: 0 } }).find((x) => x.label === 'Operations')?.alert).toBeUndefined();
     // Open, the count is on the row instead.
     expect(nav({ open: { Operations: true } }).find((x) => x.label === 'Operations')?.alert).toBeUndefined();
-    // Without the Incidents row (production, before Console PR 8), no alert.
-    expect(nav({ fullNav: false }).find((x) => x.label === 'Operations')?.alert).toBeUndefined();
+    // Production (D-167): the Incidents row is on, so a closed Operations shows the real count.
+    expect(nav({ fullNav: false }).find((x) => x.label === 'Operations')?.alert).toBe('1 incident');
+    // Without the Incidents row (a role that can't read incidents), no alert.
+    expect(nav({ fullNav: false, role: 'Instructor' }).find((x) => x.label === 'Operations')).toBeUndefined();
   });
 
   it('keeps the group holding the page open, whatever was remembered', () => {

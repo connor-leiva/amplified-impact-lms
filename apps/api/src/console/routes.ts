@@ -20,9 +20,10 @@
 // PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
 // adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. PR 4 (D-163) adds
 // Billing's reads (`billing.ts`), and PR 5 (D-164) its two confirmed writes, refund and void
-// (`billing-actions.ts`), each a preview and an execute with a confirm token. During a
-// masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
-// `requireSession`).
+// (`billing-actions.ts`), each a preview and an execute with a confirm token. PR 8 (D-167) adds
+// incidents (`incidents.ts`): the list, its summary, one incident, create, ack, resolve and notes.
+// During a masquerade every Console route but current, Extend and Exit answers 403
+// `masquerade_blocked` (D2, `requireSession`).
 //
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
@@ -62,6 +63,7 @@ import { forgetConsoleStripe } from './stripe-read';
 import type { ConsoleStripe } from './stripe-read';
 import type { ConsoleStripeWrite } from './stripe-write';
 import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
+import { INCIDENT_PATHS, registerIncidentRoutes } from './incidents';
 import type { MasqueradeDeps } from './masquerade';
 import { registerOpsRoutes } from './ops';
 import type { OpsDeps } from './ops';
@@ -94,6 +96,8 @@ export const CONSOLE_PATHS = {
   emailLogOne: EMAIL_USAGE_PATHS.emailOne,
   emailLogExport: EMAIL_USAGE_PATHS.emailExport,
   usage: EMAIL_USAGE_PATHS.usage,
+  // PR 8 (D-167): incidents.
+  ...INCIDENT_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -349,5 +353,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     });
     registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
     registerEmailUsageRoutes(scope, deps);
+    registerIncidentRoutes(scope);
   });
 }
