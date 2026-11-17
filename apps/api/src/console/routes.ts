@@ -10,18 +10,24 @@
 //   POST /api/console/audit/export  the same filters as JSON → a CSV of every matching row, 10,000 at
 //                                   most (else 422 `export_too_large`). `export` (Owner, Admin). The
 //                                   export is itself audited, as is a refused one.
-//   GET  /api/console/roles         the capability matrix, read-only, built from `CONSOLE_CAPS`, with
-//                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
+//   GET  /api/console/roles         the capability matrix: `CONSOLE_CAPS` (the ceiling), what each role
+//                                   holds now and the Owner's stored changes, with the path of the
+//                                   Staff & Roles screen. `ops.read` (Owner, Admin).
+//   POST /api/console/roles/preview { role, capability, allowed } → the change and its confirm token.
+//   POST /api/console/roles         { confirmToken } → makes it, with one audit row. Both `roles.write`
+//                                   (the Owner), D-160 R2-3b; see `roles.ts`.
 //
 // PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
-// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. PR 4 (D-163) adds
+// Billing's reads (`billing.ts`), and PR 5 (D-164) its two confirmed writes, refund and void
+// (`billing-actions.ts`), each a preview and an execute with a confirm token. During a
 // masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
 // `requireSession`).
 //
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
-// `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, exports 5, per session.
-// No GET here writes anything except the audit row for a staff member it refuses.
+// `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, writes 20, exports 5, per
+// session. No GET here writes anything except the audit row for a staff member it refuses.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, desc, eq, gte, like, lt, lte, or, sql } from 'drizzle-orm';
@@ -36,7 +42,7 @@ import {
   OPS_PATHS,
   auditCsv,
   auditRedactsNetwork,
-  consoleCaps,
+  consoleCapsWith,
   isAuditOutcome,
   rolesMatrix,
 } from '@ai/core';
@@ -47,8 +53,15 @@ import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
+import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
-import { registerMasqueradeRoutes } from './masquerade';
+import { BILLING_PATHS, registerBillingRoutes } from './billing';
+import type { BillingDeps } from './billing';
+import { BILLING_ACTION_ROUTES, registerBillingActionRoutes, staleAfter } from './billing-actions';
+import { forgetConsoleStripe } from './stripe-read';
+import type { ConsoleStripe } from './stripe-read';
+import type { ConsoleStripeWrite } from './stripe-write';
+import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 import { registerOpsRoutes } from './ops';
 import type { OpsDeps } from './ops';
@@ -58,6 +71,8 @@ export const CONSOLE_PATHS = {
   audit: '/api/console/audit',
   auditExport: '/api/console/audit/export',
   roles: '/api/console/roles',
+  // D-160 R2-3b: the two-step matrix change. The change itself is a POST to `roles`.
+  rolesPreview: '/api/console/roles/preview',
   // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
   ...SUPPORT_PATHS,
   // PR 3a (D-162): masquerade.
@@ -66,6 +81,10 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 4 (D-163): Billing, read-only.
+  ...BILLING_PATHS,
+  // PR 5 (D-164): Billing's confirmed refund and void.
+  ...BILLING_ACTION_ROUTES,
   // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
   ...OPS_PATHS,
 } as const;
@@ -75,8 +94,23 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 /** A route's per-minute limit, per session (D-137's limiter). */
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag so far. */
-export type ConsoleDeps = Readonly<MasqueradeDeps & { ops?: OpsDeps }>;
+/**
+ * What the app hands the Console routes. PR 3a (D-162): masquerade's flag. D-160 R2-3b: the event hub's
+ * `broadcast`, so a Roles change to the `PermKey` matrix wakes every client as a `/api/mutate` write
+ * does. PR 4 (D-163): Billing's cached Stripe read client (null with no key), the offer's price cache and
+ * the key's mode; without them, Billing answers "Stripe isn't connected".
+ */
+export interface ConsoleDeps extends Readonly<MasqueradeDeps> {
+  readonly broadcast?: () => void;
+  readonly billing?: BillingDeps;
+  /**
+   * PR 5 (D-164): the confirmed actions' Stripe clients: reads made fresh (never the cache) and the
+   * narrow write client. Without them the actions answer "Stripe isn't connected".
+   */
+  readonly billingActions?: { read: ConsoleStripe | null; write: ConsoleStripeWrite | null };
+  /** PR 6 (D-165): API & Webhooks' Stripe key mode, for a test. Left out, read from the key. */
+  readonly ops?: OpsDeps;
+}
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -198,7 +232,12 @@ const roleOfViewer = (req: FastifyRequest): string | null => {
 
 // --- the routes ----------------------------------------------------------------------------------
 
+/** A price cache with nothing in it, for a Console registered without Billing's deps. */
+const NO_PRICES = { get: async () => null, reset: () => {} };
+
 export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleDeps): Promise<void> {
+  // A new app reads the stored matrix changes afresh (each test builds one against a fresh database).
+  invalidateRoleGrants();
   await app.register(async (scope) => {
     // Every Console answer is the viewer's alone, refusals and 429s included (`requireSession` sets the
     // same header, but only once it has run, which a rate-limited request never reaches).
@@ -211,7 +250,8 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
       const viewer = viewerOrThrow(req);
       const staff = staffActor(viewer);
       if (!staff) return consoleError(reply, 'console_forbidden');
-      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCaps(staff.role) };
+      // D-162 3b: and whether a masquerade may start (D8's flag), for the entry points.
+      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCapsWith(staff.role === 'Owner' ? [] : await roleGrants(), staff.role), masqueradeEnabled: await (deps.masqueradeEnabled ?? masqueradeEnabled)() };
       return reply.send(me);
     });
 
@@ -275,11 +315,30 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     scope.get(
       CONSOLE_PATHS.roles,
       { preHandler: [requireSession, requireConsole('ops.read')], config: limit(CONSOLE_RATE.read) },
-      async (_req, reply): Promise<FastifyReply> => reply.send(rolesMatrix()),
+      async (_req, reply): Promise<FastifyReply> => reply.send(rolesMatrix(await roleGrants())),
     );
+
+    // D-160 R2-3b: the Owner's two-step change to the matrix (`roles.ts`).
+    const write = { preHandler: [requireSession, requireJsonSameOrigin, requireConsole('roles.write')], config: limit(CONSOLE_RATE.write) };
+    scope.post(CONSOLE_PATHS.rolesPreview, write, previewRoleChange);
+    scope.post(CONSOLE_PATHS.roles, write, async (req, reply): Promise<FastifyReply> => {
+      const refused = await commitRoleChange(req, reply, deps.broadcast);
+      return refused ?? reply.send(rolesMatrix(await roleGrants()));
+    });
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    const billing = deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' as const };
+    const memo = registerBillingRoutes(scope, billing, { config: limit(CONSOLE_RATE.read) });
+    registerBillingActionRoutes(scope, {
+      read: deps.billingActions?.read ?? null,
+      write: deps.billingActions?.write ?? null,
+      // The acted-on invoice's cached reads, and the summary, are read again (D-164).
+      afterWrite: (ref) => {
+        if (billing.stripe) forgetConsoleStripe(billing.stripe, staleAfter(ref));
+        memo.forgetSummary();
+      },
+    });
     registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
   });
 }

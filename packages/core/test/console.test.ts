@@ -28,7 +28,8 @@ import type { AuditRow, ConsoleCap } from '../src/index';
 // Spec § 5, typed out independently of `CONSOLE_CAPS`, so a change to either side is a red test.
 const EVERY_STAFF = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];
 const OWNER_ADMIN = ['masquerade.start', 'masquerade.extend', 'billing.refund', 'billing.void', 'billing.seat_tier', 'export', 'incidents.resolve', 'jobs.run_now', 'webhooks.retry', 'ops.read', 'flags.write', 'integrations.probe'];
-const OWNER_ONLY = ['notes.delete', 'flags.write_sensitive'];
+// D-160 R2-3b adds `roles.write` (editing Roles & Permissions), the Owner's alone.
+const OWNER_ONLY = ['notes.delete', 'flags.write_sensitive', 'roles.write'];
 
 describe('consoleCan (spec § 5) @console', () => {
   it('lists exactly the table’s capabilities', () => {
@@ -98,8 +99,10 @@ describe('consoleCan (spec § 5) @console', () => {
     for (const r of ['Instructor', null, 'anything']) expect(auditRedactsNetwork(r)).toBe(true);
   });
 
-  it('builds the read-only Roles matrix from CONSOLE_CAPS', () => {
+  it('builds the Roles matrix from CONSOLE_CAPS; with no stored change it is the ceiling', () => {
     const m = rolesMatrix();
+    expect(m.grants).toEqual([]);
+    for (const row of m.caps) expect(row.allowed).toEqual(row.ceiling);
     expect(m.roles).toEqual(['Owner', 'Admin', 'Support']);
     expect(m.noAccess).toEqual(['Instructor', 'Content Editor']);
     expect(m.staffPath).toBe('/admin/staff');

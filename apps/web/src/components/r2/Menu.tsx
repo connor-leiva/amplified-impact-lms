@@ -19,6 +19,12 @@ export interface MenuItem {
   locked?: boolean;
   /** Not available here (the mockup's `off`, R2-3): disabled, without a lock; `title` says why. */
   disabled?: boolean;
+  /**
+   * Drawn but not available, with the reason in words under the label (D-164: the gated seat tier).
+   * `aria-disabled` rather than `disabled`, so it stays focusable and its reason is read with it
+   * (`aria-describedby`); choosing it does nothing.
+   */
+  unavailable?: string;
   title?: string;
   onSelect: () => void;
 }
@@ -125,19 +131,32 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
                 type="button"
                 role="menuitem"
                 disabled={it.locked || it.disabled}
+                aria-disabled={it.unavailable ? true : undefined}
+                aria-label={it.unavailable ? it.label : undefined}
+                aria-describedby={it.unavailable ? `${id}-why${i}` : undefined}
                 title={it.title}
-                className={clsx(s.item, it.danger && s.danger)}
+                className={clsx(s.item, it.danger && s.danger, it.unavailable && s.off)}
                 onClick={() => {
+                  if (it.unavailable) return;
                   close(false);
                   it.onSelect();
                 }}
               >
-                {it.locked ? (
+                {it.locked || it.unavailable ? (
                   <Icon name="r2Lock" size={16} strokeWidth={1.75} />
                 ) : it.icon ? (
                   <Icon name={it.icon} size={16} strokeWidth={1.75} />
                 ) : null}
-                {it.label}
+                {it.unavailable ? (
+                  <span className={s.text}>
+                    <span>{it.label}</span>
+                    <span id={`${id}-why${i}`} className={s.why}>
+                      {it.unavailable}
+                    </span>
+                  </span>
+                ) : (
+                  it.label
+                )}
                 {it.checked ? (
                   <span className={s.check}>
                     <Icon name="r2Check" size={16} strokeWidth={1.75} />

@@ -179,7 +179,15 @@ export const WORKSPACE_COPY = {
     other: 'Per agent',
   },
   oneTime: 'One-time purchase',
-  billing: { customer: 'Stripe customer', subscription: 'Subscription', mrr: 'MRR', invoice: 'Last invoice' },
+  billing: {
+    customer: 'Stripe customer',
+    subscription: 'Subscription',
+    mrr: 'MRR',
+    invoice: 'Last invoice',
+    // D-163: Billing exists, so the mockup's way there is drawn (its Invoices tab).
+    open: 'Open in Billing',
+    to: '/admin/billing/invoices',
+  },
   usage: {
     title: 'Usage isn’t counted yet',
     body: 'Sign-ins, lesson plays, guide views and storage show here once usage is tracked.',

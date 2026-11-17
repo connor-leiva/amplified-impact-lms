@@ -7,7 +7,9 @@
 
    SCOPED TO THE ADMIN SHELL. Every token is set on `[data-r2-shell]`, the attribute the admin AppShell
    puts on its root (the mockup's `.ax`), so no learner screen can read one, and learner tokens.css and
-   lms.css are unchanged. Component CSS modules use these as `var(--r2-…)` and never a raw colour
+   lms.css are unchanged. `[data-r2-scope]` (D-162 3b) carries the same tokens for the masquerade
+   banner and its dialogs, which sit above every page, learner pages included, and only during a
+   session. Component CSS modules use these as `var(--r2-…)` and never a raw colour
    (scripts/check-css-colors.mjs).
 
    BREAKPOINTS, as the mockup's frame classes: phone ≤ 767px (`.ph`), laptop 768–1199px (`.lap`, the
@@ -15,6 +17,7 @@
    holds by construction: every type token is 16px or more there, controls 44px and primaries 48px
    (r2-tokens.test.ts reads this file and checks it). */
 
+[data-r2-scope],
 [data-r2-shell] {
   /* Colour (BUILD-SPEC § 3) */
   --r2-ink: #15211d;
@@ -131,6 +134,7 @@
 
 /* Laptop: 768–1199px (`.ax.lap`). */
 @media (min-width: 768px) and (max-width: 1199px) {
+  [data-r2-scope],
   [data-r2-shell] {
     --r2-pad: 24px;
   }
@@ -138,6 +142,7 @@
 
 /* Phone: 767px and under (`.ax.ph`, and every `.ph …` raw override). The floor, by construction. */
 @media (max-width: 767px) {
+  [data-r2-scope],
   [data-r2-shell] {
     --r2-t: 16px;
     --r2-tl: 24px;
@@ -169,7 +174,7 @@
 /* The frame's base, as `.ax` and `.arx *` draw it. Zero specificity (`:where`), so a component's own
    rule always wins over it. Every admin screen is on R2 (D-160 R2-3b), so the resets and the focus
    ring hold throughout the frame. */
-:where([data-r2-shell]) {
+:where([data-r2-shell], [data-r2-scope]) {
   background: var(--r2-bg);
   color: var(--r2-ink);
   font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
@@ -177,18 +182,18 @@
   hyphens: none;
   -webkit-hyphens: none;
 }
-:where([data-r2-shell] *, [data-r2-shell] *::before, [data-r2-shell] *::after) {
+:where([data-r2-shell], [data-r2-scope]) :where(*, *::before, *::after) {
   box-sizing: border-box;
 }
-:where([data-r2-shell] :is(button, input, select, textarea)) {
+:where([data-r2-shell], [data-r2-scope]) :where(button, input, select, textarea) {
   font: inherit;
   color: inherit;
   margin: 0;
 }
-:where([data-r2-shell] :focus) {
+:where([data-r2-shell], [data-r2-scope]) :where(:focus) {
   outline: none;
 }
-:where([data-r2-shell] :focus-visible) {
+:where([data-r2-shell], [data-r2-scope]) :where(:focus-visible) {
   outline: none;
   box-shadow: var(--r2-focus);
 }
