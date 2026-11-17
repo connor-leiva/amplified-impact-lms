@@ -111,10 +111,13 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await rows(page).first().getByRole('cell').nth(1).click();
     await expect(page).toHaveURL(/\/admin\/workspaces\/ws_northshore(\?|$)/);
 
-    // Failed payments: the email log is its own PR.
+    // Failed payments: "Open email log" opens the Email Log for the customer's workspace (D-166).
     await page.goto(`${APP_BASE}/admin/billing/failed?as=admin`);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Open email log' })).toBeDisabled();
+    await page.getByRole('menuitem', { name: 'Open email log' }).click();
+    await expect(page).toHaveURL(/\/admin\/email\?teamId=ws_tidewater&workspace=Tidewater/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Email Log' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Workspace: Tidewater Property Co.' })).toBeVisible();
     await close();
   });
 

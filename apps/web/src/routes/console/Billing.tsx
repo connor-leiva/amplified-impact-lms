@@ -337,7 +337,8 @@ function List({
       { key: 'n', label: C.columns.attempts, width: '80px', value: (r) => r.attempts },
       { key: 'next', label: C.columns.retry, width: '136px', noSort: true, value: (r) => r.retry },
     ];
-    const email: MenuEntry = { label: C.menu.email, disabled: true, title: C.later, onSelect: () => {} };
+    // D-166: the Email Log, opened to this customer's workspace.
+    const email = (r: FailedVM): MenuEntry => ({ label: C.menu.email, onSelect: () => open(r.emailLog) });
     return (
       <Table
         label={C.tabs.failed}
@@ -345,7 +346,7 @@ function List({
         rows={rows(failedVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), email, ...stripe(r.stripe)]}
+        menu={(r) => [...customer(r), email(r), ...stripe(r.stripe)]}
         {...common}
       />
     );

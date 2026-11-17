@@ -499,3 +499,53 @@ export const jobTicks = pgTable('job_ticks', {
   // Running has no end; anything else has one.
   check('job_ticks_finished', sql`(${t.status} = 'running') = (${t.finishedAt} is null)`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S EMAIL LOG AND USAGE COUNTS (D-166, spec §§ 7.7, 7.15)
+// ================================================================================================
+// `email_log`: one row per `send()` (email/transport.ts), written after it by `email/log.ts`, fire and
+// forget: a failed write never throws and never changes the send. The recipient, the template, the
+// subject, the provider and its message id, and what happened (`sent`, `failed`, `skipped`), with a
+// failure's kind, never its words. NEVER THE BODY: there is no column for one. `user_id` is the user
+// whose address it went to when one existed at the time, with no foreign key, so a send inside a
+// transaction that is still creating that user can never wait on it. Pruned after 180 days (D6).
+export const emailLog = pgTable('email_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  at: ts('at').notNull(),
+  to: text('to').notNull(),
+  userId: text('user_id'),
+  template: text('template').notNull(),
+  subject: text('subject').notNull(),
+  provider: text('provider').notNull(),
+  providerId: text('provider_id'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+}, (t) => [
+  index('email_log_at_idx').on(t.at),
+  index('email_log_user_idx').on(t.userId),
+  index('email_log_template_idx').on(t.template),
+  // The closed lists in `@ai/core` (EMAIL_STATUSES, EMAIL_PROVIDERS, EMAIL_ERROR_KINDS), typed out
+  // because drizzle-kit reads this file on its own.
+  check('email_log_status', sql`${t.status} in ('sent', 'failed', 'skipped')`),
+  check('email_log_provider', sql`${t.provider} in ('resend', 'outbox', 'log')`),
+  // A failure names its kind; nothing else has one.
+  check('email_log_error_kind', sql`(${t.status} = 'failed' and ${t.errorKind} in ('invalid_recipient', 'subject', 'render', 'config', 'provider')) or (${t.status} <> 'failed' and ${t.errorKind} is null)`),
+]);
+
+// `usage_daily`: how often each learner signed in, viewed a guided setup and joined a live session,
+// per program-zone day (America/Chicago). One fire-and-forget upsert per event (`lib/usage.ts`),
+// skipped during a masquerade (spec § 6). `team_id` is the learner's team when it was counted. Pruned
+// after 400 days (D6). `lesson_play` is a kind with nothing counting it yet (D-166).
+export const usageDaily = pgTable('usage_daily', {
+  day: text('day').notNull(),
+  userId: text('user_id').notNull(),
+  teamId: text('team_id'),
+  kind: text('kind').notNull(),
+  count: integer('count').notNull().default(1),
+}, (t) => [
+  primaryKey({ columns: [t.day, t.userId, t.kind] }),
+  index('usage_daily_team_idx').on(t.teamId, t.day),
+  check('usage_daily_day', sql`${t.day} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
+  check('usage_daily_kind', sql`${t.kind} in ('sign_in', 'lesson_play', 'guide_view', 'session_join')`),
+  check('usage_daily_count', sql`${t.count} > 0`),
+]);

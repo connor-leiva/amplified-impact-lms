@@ -88,7 +88,8 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await expectAccessible(page);
     for (const [tab, text] of [
       ['Plan & entitlements', 'Team Plan is sold in two sizes, 16 or 41 seats.'],
-      ['Usage', 'Usage isn’t counted yet'],
+      // D-166: the last 7 days' counts, the mockup's figures in the fixture.
+      ['Usage', 'Sign-ins, 7d'],
       ['Billing', 'cus_Rk3NshoreA1'],
       ['Activity', 'Team Plan order started'],
     ] as const) {

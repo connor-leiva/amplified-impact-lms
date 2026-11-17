@@ -82,6 +82,10 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/api/hooks'],
   ['admin', '/admin/jobs'],
   ['admin', '/admin/jobs?console-role=Support'],
+  // D-166: the Email Log and Usage.
+  ['admin', '/admin/email'],
+  ['admin', '/admin/usage'],
+  ['admin', '/admin/usage?console-state=empty'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

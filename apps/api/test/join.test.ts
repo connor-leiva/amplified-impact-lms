@@ -77,6 +77,7 @@ import { JOIN_WINDOW_SHUT, TIER_REQUIRED } from '../src/routes/join';
 import { sessions } from '../src/db/schema';
 import type { Database } from '../src/db/client';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
+import { clearUsage, usageRows, withoutUsageTable } from './usage-helpers';
 
 // --- the instants -------------------------------------------------------------------------------
 
@@ -494,5 +495,30 @@ describe('Gate 8 · what the join route must not leak (§ 8.4) @g8', () => {
 
     expect(res.statusCode).toBe(404);
     expect(res.json()).toEqual({ error: 'No session dec26/s3' });
+  });
+});
+
+// D-166: the usage count a join makes (spec §§ 7.7, 9): one `session_join` when the link is handed out,
+// none for a refusal, and the same answer when the count cannot be written.
+describe('the join route counts a session join (D-166) @console', () => {
+  beforeEach(clearUsage);
+
+  it('counts one join for the learner it answers 200, and none for a refusal', async () => {
+    at(OPEN);
+    expect((await join('dec26-s3', cookieFor('u_jamie'))).statusCode).toBe(200);
+    expect((await join('dec26-s4', cookieFor('u_jamie'))).statusCode).toBe(403);
+    at(SHUT);
+    expect((await join('dec26-s3', cookieFor('u_jamie'))).statusCode).toBe(409);
+    expect(await usageRows()).toEqual([expect.objectContaining({ user_id: 'u_jamie', kind: 'session_join', count: 1 })]);
+  });
+
+  it('answers exactly as before when the count cannot be written', async () => {
+    at(OPEN);
+    const stored = whole.sessions.find((s) => s.id === 'dec26-s3')?.zoom;
+    const res = await withoutUsageTable(() => join('dec26-s3', cookieFor('u_jamie')));
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.json()).toEqual({ url: stored });
+    expect(await usageRows()).toEqual([]);
   });
 });

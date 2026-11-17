@@ -65,6 +65,8 @@ import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 import { registerOpsRoutes } from './ops';
 import type { OpsDeps } from './ops';
+import { EMAIL_USAGE_PATHS, registerEmailUsageRoutes } from './email-usage';
+import type { UsageDeps } from './email-usage';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -87,6 +89,11 @@ export const CONSOLE_PATHS = {
   ...BILLING_ACTION_ROUTES,
   // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
   ...OPS_PATHS,
+  // PR 7 (D-166): the email log and usage.
+  emailLog: EMAIL_USAGE_PATHS.email,
+  emailLogOne: EMAIL_USAGE_PATHS.emailOne,
+  emailLogExport: EMAIL_USAGE_PATHS.emailExport,
+  usage: EMAIL_USAGE_PATHS.usage,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -98,9 +105,10 @@ export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute
  * What the app hands the Console routes. PR 3a (D-162): masquerade's flag. D-160 R2-3b: the event hub's
  * `broadcast`, so a Roles change to the `PermKey` matrix wakes every client as a `/api/mutate` write
  * does. PR 4 (D-163): Billing's cached Stripe read client (null with no key), the offer's price cache and
- * the key's mode; without them, Billing answers "Stripe isn't connected".
+ * the key's mode; without them, Billing answers "Stripe isn't connected". PR 7 (D-166): the bucket's size
+ * (`UsageDeps.storageBytes`), for a test.
  */
-export interface ConsoleDeps extends Readonly<MasqueradeDeps> {
+export interface ConsoleDeps extends Readonly<MasqueradeDeps>, Readonly<UsageDeps> {
   readonly broadcast?: () => void;
   readonly billing?: BillingDeps;
   /**
@@ -340,5 +348,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
       },
     });
     registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
+    registerEmailUsageRoutes(scope, deps);
   });
 }

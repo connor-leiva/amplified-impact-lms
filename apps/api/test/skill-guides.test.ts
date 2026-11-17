@@ -22,6 +22,7 @@ import type { OutboxEntry } from '../src/email/transport';
 import { registerStaticFiles } from '../src/static';
 import { GUIDE_SLUGS } from '../src/routes/guide-list';
 import { MIGRATIONS_FOLDER, resetDatabase, testDatabase } from './helpers';
+import { clearUsage, usageRows, withoutUsageTable } from './usage-helpers';
 
 const NOW = Date.parse('2026-11-13T09:00:00-06:00');
 const DAY = 86_400_000;
@@ -275,5 +276,30 @@ describe('the course’s links (migration 0013, D-151)', () => {
     for (const m of acceleratorModules()) expect(after.get(m.id), m.id).toBe(m.prompt);
     // A page that is not a skill stays on www.
     expect([...after.values()].join('\n')).toContain('https://www.amplifiedimpact.io/voice-profile');
+  });
+});
+
+// D-166: the usage count a guide view makes (spec §§ 7.7, 9): one `guide_view` per answered page, open
+// or locked, none for a refusal, and the same answer when the count cannot be written.
+describe('a guide view is counted (D-166) @console', () => {
+  beforeEach(clearUsage);
+
+  it('counts each guide a learner is answered, and nothing for staff or a page that is not a guide', async () => {
+    const cookie = await learner();
+    expect((await guide('perfect-week', cookie)).statusCode).toBe(200);
+    expect((await guide('appointment-follow-up', cookie)).statusCode).toBe(200);
+    expect((await guide('not-a-skill', cookie)).statusCode).toBe(404);
+    expect((await guide('perfect-week', await app.signInAs('st1'))).statusCode).toBe(403);
+    expect(await usageRows()).toEqual([expect.objectContaining({ user_id: 'u_jamie', kind: 'guide_view', count: 2 })]);
+  });
+
+  it('answers exactly as before when the count cannot be written', async () => {
+    const cookie = await learner();
+    const counted = await guide('perfect-week', cookie);
+    const res = await withoutUsageTable(() => guide('perfect-week', cookie));
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['cache-control']).toBe('private, no-store');
+    expect(res.body).toBe(counted.body);
+    expect((await usageRows())[0]!.count).toBe(1);
   });
 });
