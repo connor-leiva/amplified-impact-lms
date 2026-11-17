@@ -47,11 +47,11 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2); R2-4a (D-163) Billing.
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
+      ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
       ['Revenue', 'Tiers & Upgrades', 'Billing'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
@@ -69,6 +69,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
     expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
+    // D-162 3b: Masquerade is the Owner's and Admin's (`masquerade.start`); Support reaches its lock card by address.
+    expect(labels(nav({ role: 'Admin', fullNav: false })).find((g) => g[0] === 'Support')).toContain('Masquerade');
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams', 'Workspaces', 'Users']);
+    expect(support.flat()).not.toContain('Masquerade');
     // Billing reads `billing.read`: Support has it (read-only, D3); an Instructor does not.
     expect(instructor.find((g) => g[0] === 'Revenue')).toEqual(['Revenue', 'Tiers & Upgrades']);
     expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Revenue')).toEqual([
@@ -139,6 +143,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(crumbTrail('/admin/curriculum/new')).toEqual({ group: 'Build', page: 'Module Builder' });
     expect(crumbTrail('/admin')).toEqual({ group: 'Health', page: 'Overview' });
     expect(crumbTrail('/admin/no-such-page')).toBeNull();
+    // D-162 3b: Masquerade, and the mockup's learner view under it, its parent crumb bold, not a link.
+    expect(crumbTrail('/admin/masquerade')).toEqual({ group: 'Support', page: 'Masquerade' });
+    expect(activeRowId('/admin/masquerade/learner-view')).toBe('masquerade');
+    expect(crumbTrail('/admin/masquerade/learner-view')).toEqual({ group: 'Support', page: 'Masquerade', parent: '/admin/masquerade', parentLink: false });
     // D-160 R2-1c: a record's page belongs to its row (the mockup's PARENT), and its crumb links back.
     expect(activeRowId('/admin/workspaces/ws_northshore')).toBe('workspaces');
     expect(activeRowId('/admin/users/u_1042')).toBe('users');

@@ -17,6 +17,7 @@
 //   400  the body is not that mutation's arguments      the zod schema refused it
 //   422  core refused the request                       `out.error`, or `MutationError('invalid')`
 //   403  this actor may not                             `MutationError('forbidden')`
+//   403  a staff-write guard refused (D-171)            `{ error, code }`, `checkStaffChange`
 //   404  the thing it names is gone                     `MutationError('not_found')`
 //   200  it happened
 //
@@ -56,6 +57,16 @@
 // that viewer. Confetti is the only effect the client performs, and `prefers-reduced-motion`
 // decides whether it does.
 
+// ------------------------------------------------------------------------------------------------
+// THE STAFF WRITES' GUARDS AND AUDIT ROWS (D-171)
+// ------------------------------------------------------------------------------------------------
+// `inviteStaff`, `setStaffRole` and `removeStaff` by a staff member are guarded and audited HERE,
+// around core's mutations, which stay the reference's (the oracle still compares them). Inside the
+// transaction and under its lock: the guards (`checkStaffChange`: never your own role, never yourself,
+// never the last Owner, the Owner role only from an Owner), then the mutation, then a check that the
+// result still has an Owner, then the write and its ONE `ok` audit row, together. Each refusal writes
+// one `denied` row, and so does core's own 403 for a staff member. `console/staff-writes.ts`.
+
 import { MutationError } from '@ai/core';
 import type { Actor, Ctx, Db, Effect, Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
@@ -71,6 +82,7 @@ import { TEMPLATE_NAMES } from '../email/subjects';
 import { send } from '../email/transport';
 import type { SendRequest, TemplateName } from '../email/transport';
 import { clock, newIds } from '../lib/clock';
+import { recordStaffRefusal, refuseOwnerlessResult, refuseStaffWrite, staffWriteContext, writeStaffChange } from '../console/staff-writes';
 import { schemaFor } from './schemas';
 
 /**
@@ -193,7 +205,7 @@ export const statusForMutationError = (code: MutationError['code']): number =>
 /** What the transaction hands back: the response to send, and the mail to send after committing. */
 type Committed =
   | { ok: true; body: { toast?: Outcome['toast']; effects: Effect[] }; sends: PendingSend[] }
-  | { ok: false; status: number; body: { error: string } };
+  | { ok: false; status: number; body: { error: string; code?: string } };
 
 export interface MutateRouteOptions {
   /** § 7.6: called after each commit, so every connected client refetches. */
@@ -229,12 +241,17 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
         return reply.code(400).send({ error: 'Invalid request body', issues });
       }
 
-      const { actor } = viewerOrThrow(req);
+      const viewer = viewerOrThrow(req);
+      const { actor } = viewer;
       const now = clock.now();
       // One generator per request, per `lib/clock.ts`: the oracle creates a fresh
       // `deterministicIds()` per mutation on the core side, so a process-wide counter would make
       // the first request of a run and the fortieth disagree about the ids they mint.
       const id = newIds();
+      // D-171: a staff write by a staff member (`inviteStaff`, `setStaffRole`, `removeStaff`) is
+      // guarded and audited around core's mutation, which is unchanged (`console/staff-writes.ts`).
+      const staffWrite = staffWriteContext(name, parsed.data, viewer);
+      let staffBefore: Db['staff'] | null = null;
 
       let committed: Committed;
       try {
@@ -245,12 +262,24 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
           await tx.execute(sql`select pg_advisory_xact_lock(42)`);
 
           const before = await loadDb(tx);
+          if (staffWrite) {
+            staffBefore = before.staff;
+            // Under the lock, so the Owners counted are the Owners there are. A refusal commits its
+            // one `denied` row and nothing else.
+            const refused = await refuseStaffWrite(req, tx, staffWrite, before);
+            if (refused) return { ok: false, ...refused };
+          }
           const out = mutation(before, actor, parsed.data as never, { now, id });
           // `{ db, error }` with the db untouched: validation the UI renders inline. Nothing was
           // written, so there is nothing to roll back and the transaction may commit empty.
           if (out.error) return { ok: false, status: 422, body: { error: out.error } };
+          if (staffWrite) {
+            const refused = await refuseOwnerlessResult(req, tx, staffWrite, before, out.db);
+            if (refused) return { ok: false, ...refused };
+          }
 
           await persistDiff(tx, before, out.db);
+          if (staffWrite) await writeStaffChange(req, tx, staffWrite, before, out.db);
           const sends = await pendingSendsFor(tx, out.effects ?? [], now, req.log);
 
           return {
@@ -267,6 +296,9 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
         // what must happen: `requirePerm` throws before anything is written, but a `not_found`
         // deeper in a mutation can throw after it has built a new db, and that db must not persist.
         if (err instanceof MutationError) {
+          // D-171: core refused a staff member's staff write (no `staff` permission, or the Owner's
+          // role is fixed). The transaction is gone, so its `denied` row is written on its own.
+          if (staffWrite && err.code === 'forbidden') await recordStaffRefusal(req, staffWrite, staffBefore, err.message);
           return reply.code(statusForMutationError(err.code)).send({ error: err.message });
         }
         throw err;

@@ -11,6 +11,13 @@ import { router } from './router';
 import { bootPrefs } from './lib/prefs';
 import { isFixture } from './data/boot'; // chooses the data source before anything renders
 import { guardRestoredPages, onSignOut } from './data/session';
+import { installStaleChunkRecovery, routerDestination } from './lib/stale-chunk';
+
+// D-170: a tab opened before a deploy reloads once when a screen's file is gone, instead of showing
+// "Unexpected Application Error!" (`lib/stale-chunk.ts`), and lands on the screen it was opening.
+// Vite's `vite:preloadError` arrives in a later task than this line, so the router's first lazy load,
+// started as `./router` was imported, is covered.
+installStaleChunkRecovery({ navigatingTo: () => routerDestination(router) });
 
 bootPrefs();
 
