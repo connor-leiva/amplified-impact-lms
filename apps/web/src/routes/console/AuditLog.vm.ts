@@ -194,6 +194,14 @@ export function detailOf(r: AuditRow): string {
     const span = range ? `, ${range.label.toLowerCase()}` : '';
     return n === null ? `CSV${span}.` : `CSV${span}, ${fmt.num(n)} ${n === 1 ? 'row' : 'rows'}.`;
   }
+  if (r.action === 'module.publish' || r.action === 'module.unpublish') {
+    // D-172: the mockup's own Detail for a publish, "Draft to Published.", from the row's statuses.
+    const b = (r.before ?? {}) as Record<string, unknown>;
+    const word = (v: unknown) => (typeof v === 'string' && v ? v.charAt(0).toUpperCase() + v.slice(1) : null);
+    const from = word(b.status);
+    const to = word(after.status);
+    if (from && to) return `${from} to ${to}.`;
+  }
   if (r.action === 'permission.change') {
     // D-160 R2-3b: "Refund or void an invoice: allowed to not allowed." (the mockup's words), from the
     // row's before and after; a row without them keeps its own words.

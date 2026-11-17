@@ -114,7 +114,7 @@
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, gt } from 'drizzle-orm';
-import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES } from '@ai/core';
+import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES, BUILD_AUDIT_ACTION, isBuildConfirmWrite } from '@ai/core';
 import type { AIEmployee, Actor, Ctx, Db, MutationArgs, MutationName, PermKey, StaffRole } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { build } from '../src/app';
@@ -825,7 +825,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
 
           const failures: string[] = [];
           // D-171: the audit rows each case wrote. The three staff writes write exactly one each (`ok`
-          // on a 200, `denied` on a 403); every other mutation on `/api/mutate` writes none.
+          // on a 200, `denied` on a 403); D-172: the four Build writes behind a Confirm write one `ok`
+          // row on a 200; every other mutation on `/api/mutate` writes none.
           let lastAuditId = 0;
           const newAuditRows = async () => {
             const rows = await (await testDatabase())
@@ -846,7 +847,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             const res = await mutate(c.name, c.args, cookie);
             EXECUTED.matrix += 1;
             const audited = await newAuditRows();
-            const auditExpected = isStaffWrite(c.name) ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`] : [];
+            // D-172: a Build write behind an R2 Confirm writes one `ok` row when it is allowed (and none
+            // when core refuses it).
+            const auditExpected = isStaffWrite(c.name)
+              ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`]
+              : isBuildConfirmWrite(c.name) && allowed
+                ? [`${BUILD_AUDIT_ACTION[c.name]}:ok`]
+                : [];
             if (JSON.stringify(audited) !== JSON.stringify(auditExpected)) {
               failures.push(`${role} · ${c.label}: audit rows ${JSON.stringify(audited)}, expected ${JSON.stringify(auditExpected)}`);
             }

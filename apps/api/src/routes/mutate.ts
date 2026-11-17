@@ -58,6 +58,16 @@
 // decides whether it does.
 
 // ------------------------------------------------------------------------------------------------
+// THE CONFIRMED BUILD WRITES' AUDIT ROWS (D-172)
+// ------------------------------------------------------------------------------------------------
+// `publishModule`, `unpublishModule`, `deleteModule` and `deleteResource` are the Build writes an R2
+// `Confirm` asks about, and every R2 Confirm says "This action is audit-logged." (the mockup's line).
+// A staff member's one that changed something writes ONE `ok` row (`module.publish`,
+// `module.unpublish`, `module.delete`, `vault.remove`: the AI Employee or resource by id and name,
+// before and after) in the mutation's own transaction, after its write (`build-audit.ts` reads what
+// it changed). Core's mutations are unchanged; a refusal writes no row.
+//
+// ------------------------------------------------------------------------------------------------
 // THE STAFF WRITES' GUARDS AND AUDIT ROWS (D-171)
 // ------------------------------------------------------------------------------------------------
 // `inviteStaff`, `setStaffRole` and `removeStaff` by a staff member are guarded and audited HERE,
@@ -67,7 +77,7 @@
 // result still has an Owner, then the write and its ONE `ok` audit row, together. Each refusal writes
 // one `denied` row, and so does core's own 403 for a staff member. `console/staff-writes.ts`.
 
-import { MutationError } from '@ai/core';
+import { MutationError, buildWriteRecordOf, isBuildConfirmWrite } from '@ai/core';
 import type { Actor, Ctx, Db, Effect, Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { sql } from 'drizzle-orm';
@@ -83,6 +93,8 @@ import { send } from '../email/transport';
 import type { SendRequest, TemplateName } from '../email/transport';
 import { clock, newIds } from '../lib/clock';
 import { recordStaffRefusal, refuseOwnerlessResult, refuseStaffWrite, staffWriteContext, writeStaffChange } from '../console/staff-writes';
+import { audit } from '../console/audit';
+import { staffActor } from '../console/guard';
 import { schemaFor } from './schemas';
 
 /**
@@ -280,6 +292,13 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
 
           await persistDiff(tx, before, out.db);
           if (staffWrite) await writeStaffChange(req, tx, staffWrite, before, out.db);
+          // D-172: a Build write behind an R2 Confirm ("This action is audit-logged.") writes its ONE
+          // row here, in this transaction, as the staff writes do; core's mutation is unchanged.
+          const buildActor = isBuildConfirmWrite(name) ? staffActor(viewer) : null;
+          if (buildActor && isBuildConfirmWrite(name)) {
+            const record = buildWriteRecordOf(name, parsed.data, before, out.db);
+            if (record) await audit(req, { ...record, outcome: 'ok', actor: buildActor }, tx);
+          }
           const sends = await pendingSendsFor(tx, out.effects ?? [], now, req.log);
 
           return {

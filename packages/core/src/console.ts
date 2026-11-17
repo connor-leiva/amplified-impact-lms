@@ -196,6 +196,11 @@ export const AUDIT_ACTIONS = [
   'announce.create',
   'announce.update',
   'announce.duplicate',
+  // D-172: the existing Build writes behind an R2 Confirm (`build-audit.ts`), audited on `/api/mutate`.
+  'module.publish',
+  'module.unpublish',
+  'module.delete',
+  'vault.remove',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
