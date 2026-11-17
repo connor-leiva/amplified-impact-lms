@@ -86,6 +86,10 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/email'],
   ['admin', '/admin/usage'],
   ['admin', '/admin/usage?console-state=empty'],
+  // Incidents and one incident (D-167), and a Support viewer's (no Resolve).
+  ['admin', '/admin/incidents'],
+  ['admin', '/admin/incidents/INC-0007'],
+  ['admin', '/admin/incidents/INC-0007?console-role=Support'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

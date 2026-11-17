@@ -177,6 +177,8 @@ export const AUDIT_ACTIONS = [
   'incident.ack',
   'incident.resolve',
   'incident.note',
+  // D-167: a rule repeating on an open incident (the system's own line)
+  'incident.signal',
   // PR 9: flags and integrations
   'flag.flip',
   'integration.probe',
@@ -569,6 +571,8 @@ export const CONSOLE_ERRORS = {
   job_not_runnable: { status: 403, message: 'This job only runs on its schedule. It cannot be started by hand.' },
   scheduler_busy: { status: 409, message: 'The scheduler is running right now. Try again in a minute.' },
   ghl_location_guarded: { status: 409, message: 'GoHighLevel still points at Spring’s location, so Console won’t queue a retry there.' },
+  // PR 8 (D-167): Acknowledge on an incident that isn't open, Resolve on one already resolved.
+  incident_state: { status: 409, message: 'This incident has already moved on. Reload it to see where it is.' },
 } as const satisfies Record<string, { status: number; message: string | null }>;
 
 export type ConsoleErrorCode = keyof typeof CONSOLE_ERRORS;
