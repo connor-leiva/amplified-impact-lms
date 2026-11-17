@@ -59,6 +59,33 @@
   margin-left: auto;
   display: flex;
 }
+/* D-164: an item drawn but not available, its reason in words under the label (`aria-disabled`). */
+.item.off {
+  color: var(--r2-f3);
+  cursor: not-allowed;
+  height: auto;
+  min-height: var(--r2-c);
+  padding: 6px 10px;
+  align-items: flex-start;
+  white-space: normal;
+  max-width: 280px;
+}
+.item.off:hover {
+  background: none;
+}
+.item.off > svg {
+  margin-top: 2px;
+  flex: none;
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.why {
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+}
 .sep {
   border: 0;
   border-top: 1px solid var(--r2-line);
