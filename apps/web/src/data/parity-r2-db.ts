@@ -17,7 +17,7 @@
 // Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
 // figure is still the production view-model's, printed from this snapshot.
 
-import { seed } from '@ai/core';
+import { EDITABLE_ROLES, roleRowCeiling, roleRowOf, seed } from '@ai/core';
 import type {
   AIEmployee,
   Announcement,
@@ -27,6 +27,7 @@ import type {
   Learner,
   Progress,
   Resource,
+  RoleGrant,
   Session,
   SkillFile,
   Staff,
@@ -46,6 +47,8 @@ import {
   OVERVIEW_FUNNEL,
   OVERVIEW_PTS,
   OVERVIEW_RECENT,
+  PERMS0,
+  ROLES,
   STAFF,
   TIER_CARDS,
   UPGRADE_REQUESTS,
@@ -333,6 +336,26 @@ export function parityDb(path = '/admin/curriculum'): Db {
     mod: { ...CURRICULUM_BASE },
   };
   return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
+}
+
+/**
+ * The Roles & Permissions matrix's stored changes for `?parity=r2` (D-160 R2-3b): `PERMS0` within the
+ * ceiling. A box `PERMS0` leaves off that the ceiling allows is a removal; a box past the ceiling
+ * stores nothing, since the ceiling decides it anyway; the `build` row is the `PermKey` matrix's
+ * (`db.perms`). On the mockup's own data that is no change at all: `PERMS0` is the ceiling but for
+ * Support's export, which the ceiling refuses.
+ */
+export function parityRoleGrants(): RoleGrant[] {
+  const out: RoleGrant[] = [];
+  for (const [key, , cells] of PERMS0) {
+    const row = roleRowOf(key);
+    if (!row.caps?.length) continue;
+    for (const role of EDITABLE_ROLES) {
+      const on = cells[ROLES.indexOf(role)] === 1;
+      if (!on && roleRowCeiling(row, role)) out.push({ role, capability: key, allowed: false });
+    }
+  }
+  return out;
 }
 
 const AUDIT_TARGET: Record<string, string> = {

@@ -89,16 +89,40 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   overview: { path: '/admin' },
   learners: { path: '/admin/learners' },
   tiers: { path: '/admin/tiers' },
-  // R2-3b: the Audit Log and Roles & Permissions. `roles-confirm` has no route: its dialog exists only
-  // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
+  // R2-3b: the Audit Log and Roles & Permissions, editable (Connor, Nov 16, 2026, 8:27 AM MST).
   audit: { path: '/admin/audit' },
   roles: { path: '/admin/roles' },
+  // BUILD-SPEC § 6.2: "viewport frame at page top with the 'Remove this permission from Admin?' dialog
+  // open (third enabled checkbox, i.e. Admin's 'Start and extend masquerade')". The harness clicks the
+  // mockup's third enabled box; here the same box (the third enabled one in the app too) by its name.
+  'roles-confirm': {
+    path: '/admin/roles',
+    frame: 'viewport',
+    prepare: async (page) => {
+      await page.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
+      await dialog.waitFor();
+      // The preview has answered: the action is on.
+      await dialog.getByRole('button', { name: 'Remove permission' }).and(page.locator(':enabled')).waitFor();
+      // The harness's `main.scrollTop = 0`: the frame is the page top with the dialog open.
+      await page.evaluate(() => {
+        for (const el of [document.scrollingElement, ...Array.from(document.querySelectorAll('*'))]) if (el && el.scrollTop) el.scrollTop = 0;
+      });
+      await page.mouse.move(0, 0);
+    },
+  },
   // R2-1c (D-160): the Support records, on the mockup's own `WS` and `USERS` (the Console fixture
   // answers with them): Northshore Group and Elena Vargas are the mockup's detail records.
   workspaces: { path: '/admin/workspaces' },
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
   users: { path: '/admin/users' },
   user: { path: '/admin/users/u_1042' },
+  // D-162 3b (Masquerade on R2): the page, and the mockup's learner view (`as`), which with no session
+  // (always, in the Console, by D2) is its "No masquerade session is active" empty state.
+  masquerade: { path: '/admin/masquerade' },
+  as: { path: '/admin/masquerade/learner-view' },
+  // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`).
+  billing: { path: '/admin/billing' },
   // D-165: API & Webhooks (its Endpoints tab, the mockup's default `route.tab || 'endpoints'`) and
   // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
   api: { path: '/admin/api' },
@@ -110,9 +134,11 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
- * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
- * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
- * and 1024; D-165: `api` and `jobs` at all four.
+ * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four; R2-1c part 1:
+ * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
+ * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
+ * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four;
+ * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -121,8 +147,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `curriculum-${w}`,
   `builder-${w}`,
   // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
-  // cohorts-sessions-390 is not enforced: the mockup draws its key-fact values at 15px on a phone
-  // (`.ph .fx>div>span:last-child`), under the 16px phone floor, which stays (Needs Connor's call).
+  // cohorts-sessions-390 is not here: the mockup draws its key-fact values at 15px on a phone, under the
+  // 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `vault-${w}`,
   `announce-${w}`,
   ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
@@ -130,21 +156,28 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `overview-${w}`,
   `learners-${w}`,
   `tiers-${w}`,
-  // R2-3b (D-160): the Audit Log at all four widths. `roles` is not enforced: the matrix is drawn
-  // read-only (D11, spec § 7.16), which costs 0.21–0.50% (Needs Connor's call); `roles-confirm` is not
-  // built, its dialog existing only through a permission write the spec forbids.
+  // R2-3b (D-160): the Audit Log at all four widths. Editable Roles (Connor, Nov 16, 2026, 8:27 AM
+  // MST): `roles` and `roles-confirm` at all four. The five boxes past `CONSOLE_CAPS` that the mockup
+  // draws as plain toggles are drawn so (the server refuses them and the confirm says why); the only
+  // difference left is Support's Export box, which `PERMS0` checks and the ceiling refuses.
   `audit-${w}`,
+  `roles-${w}`,
+  `roles-confirm-${w}`,
   // R2-1c part 1 (D-160): Workspaces at all four widths; Workspace at 1440, 1280 and 1024.
-  // `workspace-detail-390` is built and reported, not enforced: the mockup sets the key-facts values at
-  // 15px on a phone (`.ph .fx>div>span:last-child`), under the 16px phone floor the build keeps
-  // (BUILD-SPEC § 8), and those values are every pixel that differs.
+  // `workspace-detail-390` is not here: the mockup sets the key-facts values at 15px on a phone, under
+  // the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `workspaces-${w}`,
   ...(w === 390 ? [] : [`workspace-detail-${w}`]),
-  // R2-1c part 2 (D-160): Users at all four widths; User at 1440, 1280 and 1024. `user-390` is built and
-  // reported, not enforced, for `workspace-detail-390`'s reason: its key-facts values, 15px in the
-  // mockup on a phone, 16px here.
+  // R2-1c part 2 (D-160): Users at all four widths; User at 1440, 1280 and 1024. `user-390` is not here,
+  // for `workspace-detail-390`'s reason (its key-facts values, 15px in the mockup on a phone, 16px here):
+  // it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `users-${w}`,
   ...(w === 390 ? [] : [`user-${w}`]),
+  // D-162 3b: Masquerade and its learner view (`as`), at all four widths.
+  `masquerade-${w}`,
+  `as-${w}`,
+  // R2-4a (D-163): Billing's Summary at all four widths.
+  `billing-${w}`,
   // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
   `api-${w}`,
   `jobs-${w}`,
@@ -221,7 +254,9 @@ export async function openCell(browser: Browser, route: Route, width: Width) {
   await page.clock.setFixedTime(new Date(PARITY_NOW));
   await page.goto(parityUrl(route));
   await page.locator('body[data-app-ready="true"]').waitFor();
-  await page.addStyleTag({ content: PARITY_FULL_CSS });
+  // A viewport frame is the screen as it opens, W×H, as the harness's confirm frame is: its frame is
+  // the viewport's height, not grown to its content.
+  if (route.frame !== 'viewport') await page.addStyleTag({ content: PARITY_FULL_CSS });
   if (route.prepare) await route.prepare(page);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400); // the harness's settle()
@@ -239,8 +274,32 @@ export async function openCell(browser: Browser, route: Route, width: Width) {
  */
 export async function capture(page: Page, route: Route, width: Width): Promise<Buffer> {
   const opts = { animations: 'disabled', caret: 'hide' } as const;
-  if (route.frame === 'viewport') return page.screenshot({ ...opts, clip: { x: 0, y: 0, ...viewportFor(width) } });
+  if (route.frame === 'viewport') return onStage(await page.screenshot({ ...opts, clip: { x: 0, y: 0, ...viewportFor(width) } }));
   return page.locator(FRAME).screenshot(opts);
+}
+
+/**
+ * Where the harness's viewport frame puts the mockup (`render-mockup.mjs`, the roles-confirm refs): it
+ * screenshots the PAGE at (0, 0), and on that page the artboard is not at x = 0. The mockup scales its
+ * artboard to the stage, `sc = (stage width − 32) / W`, and centres a `.hold` of `W × sc` in it; the
+ * harness's CSS undoes the scale (`transform: none`) but not the centring, so the full-width `.ax`
+ * starts 16px in. Every confirm ref is that: 16 columns of the stage's grey (#D9D5CA, which the scrim
+ * does not cover), then the frame's first W − 16 columns. The app's viewport capture is placed the
+ * same way. Not a mask: every app pixel still in the ref's frame is compared.
+ */
+export const STAGE_X = 16;
+export const STAGE_RGB = [0xd9, 0xd5, 0xca] as const;
+export function onStage(buf: Buffer): Buffer {
+  const app = PNG.sync.read(buf);
+  const out = new PNG({ width: app.width, height: app.height });
+  for (let i = 0; i < out.data.length; i += 4) {
+    out.data[i] = STAGE_RGB[0];
+    out.data[i + 1] = STAGE_RGB[1];
+    out.data[i + 2] = STAGE_RGB[2];
+    out.data[i + 3] = 255;
+  }
+  PNG.bitblt(app, out, 0, 0, app.width - STAGE_X, app.height, STAGE_X, 0);
+  return PNG.sync.write(out);
 }
 
 // ------------------------------------------------------------------------------------------------

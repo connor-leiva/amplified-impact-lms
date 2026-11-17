@@ -10,6 +10,7 @@
 // trigger), so a row, once written, is the record.
 
 import type { FastifyRequest } from 'fastify';
+import { sql } from 'drizzle-orm';
 import { isAuditAction } from '@ai/core';
 import type { AuditAction, AuditOutcome } from '@ai/core';
 import { getDb } from '../db/client';
@@ -92,6 +93,12 @@ export function redactAuditPayload(value: unknown): unknown {
 export type AuditActor = { source: 'staff'; userId: string; role: string | null } | { source: 'system' };
 
 export interface AuditInput {
+  /**
+   * The row's id, when it was reserved before the write it records (D-164: a refund's
+   * `console_audit_id` goes to Stripe first, and this row is written once Stripe answers). Else the
+   * table's own sequence picks it.
+   */
+  id?: number;
   action: AuditAction;
   outcome: AuditOutcome;
   actor: AuditActor;
@@ -119,6 +126,12 @@ export function requestFacts(req: FastifyRequest | null): { ip: string | null; u
   };
 }
 
+/** Take the next audit row id from the table's own sequence without writing a row (D-164). */
+export async function reserveAuditId(db: Pick<Database, 'execute'> = getDb()): Promise<number> {
+  const rows = (await db.execute(sql`select nextval(pg_get_serial_sequence('audit_log', 'id'))::text as id`)) as unknown as { id: string }[];
+  return Number(rows[0]!.id);
+}
+
 /**
  * Write one audit row and return its id. `req` is null for the system (a sweep, a job). Throws on an
  * action outside `AUDIT_ACTIONS`, so a typo is a failing test rather than an unfilterable row.
@@ -129,6 +142,7 @@ export async function audit(req: FastifyRequest | null, input: AuditInput, db: A
   const [row] = await db
     .insert(auditLog)
     .values({
+      ...(input.id !== undefined ? { id: input.id } : {}),
       at: clock.now(),
       actorUserId: input.actor.source === 'staff' ? input.actor.userId : null,
       actorRole: input.actor.source === 'staff' ? input.actor.role : null,
