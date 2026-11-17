@@ -4,7 +4,7 @@ R2-gaps-c (D-172): the Audit Log's Export selected, and Roles & Permissions' Inv
 
 Base64 text, one line per file (`base64 -w 0`). Decode with `base64 -d <file> > out.png`; a split file is joined first: `cat <file>.part1 <file>.part2 | base64 -d > out.png`.
 
-Measured at gaps-c's code at `b60bd25` (#153's final `320c23c` merged in through gaps-a and gaps-b), the code of this part's final head: the commit that adds these files changes only `docs/pr-review/158/`.
+Measured at gaps-c's code at `b60bd25` (#153's final `320c23c` merged in through gaps-a and gaps-b), the code of this part's final head: after it come only these files and two D-172 lines in `DECISIONS.md`; the results comment's parity run at the head gives the same numbers.
 
 ## The touched screens: ref, build and diff at four widths
 
