@@ -178,3 +178,29 @@ describe('the simulated masquerade is not in the http build (D-162 3b)', () => {
     for (const s of MASQUERADE_SENTINELS) expect(code, s).toContain(s);
   }, 60_000);
 });
+
+/**
+ * D-165: API & Webhooks' and Scheduled Jobs' mockup records (`ENDPOINTS`, `HOOKS`, `JOBS` in
+ * `parity-r2.ts`, shaped by `console-fixture-ops.ts`) are fixture-build only, and the screens'
+ * production view-model holds none of their figures (spec § 13).
+ */
+const OPS_SENTINELS = ['ord_2291', 'evt_1QxN1hHm79', 'Handler timeout after 10 s', 'u_1077', 'Daily 9:00 AM'];
+
+describe('the ops fixture is not in the http build (D-165)', () => {
+  it('the http build has none of it', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/jobs');
+    for (const s of OPS_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of OPS_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+
+  it('the screens’ production view-model has no sample figure', async () => {
+    const code = await bundle('production', '../routes/console/ops.vm.ts');
+    expect(code).toContain('Failed deliveries');
+    for (const s of ['76,320', '41,208', '212 ms', '3 GHL, 1 Stripe', 'Every 5 min']) expect(code, s).not.toContain(s);
+  }, 60_000);
+});

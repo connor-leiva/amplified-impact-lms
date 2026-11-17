@@ -123,6 +123,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   as: { path: '/admin/masquerade/learner-view' },
   // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`).
   billing: { path: '/admin/billing' },
+  // D-165: API & Webhooks (its Endpoints tab, the mockup's default `route.tab || 'endpoints'`) and
+  // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
+  api: { path: '/admin/api' },
+  jobs: { path: '/admin/jobs' },
 };
 
 /**
@@ -134,7 +138,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
  * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
  * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four;
- * R2-4a (D-163): `billing` at all four.
+ * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -174,6 +178,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `as-${w}`,
   // R2-4a (D-163): Billing's Summary at all four widths.
   `billing-${w}`,
+  // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
+  `api-${w}`,
+  `jobs-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

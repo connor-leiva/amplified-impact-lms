@@ -1,0 +1,16 @@
+/* API & Webhooks and Scheduled Jobs on R2 (D-165): what the mockup's `Api()` and `Jobs()` write inline,
+   on the R2 kit, and the one line it does not draw (the billing job's note, spec § 7.10). Tokens only. */
+.rate {
+  width: 40px;
+  flex: none;
+}
+.ev {
+  gap: 0;
+}
+/* The billing row's note, under its mono name, in the body face (spec § 7.10). */
+.note {
+  display: block;
+  font-family: var(--r2-font);
+  letter-spacing: normal;
+  white-space: normal;
+}

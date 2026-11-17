@@ -364,7 +364,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
       ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
       // D-163: Billing is on in production (billing.read: Owner, Admin, Support).
       ['Revenue', 'Tiers & Upgrades', 'Billing'],
-      ['Operations', 'Audit Log'],
+      // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3).
+      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };
