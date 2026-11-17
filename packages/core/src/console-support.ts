@@ -111,6 +111,8 @@ export const INDIVIDUAL_LABEL = 'Individual';
 export interface WorkspaceRow {
   teamId: string;
   name: string;
+  /** The team owner's user id: "Masquerade as owner…" starts from it (D-162 3b). */
+  ownerId: string | null;
   ownerName: string | null;
   ownerEmail: string | null;
   planKind: PlanKind | null;

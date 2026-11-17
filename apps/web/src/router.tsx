@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import type { RouteObject } from 'react-router';
 import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
 import { withStaleChunkRecovery } from './lib/StaleChunkBoundary';
+import { MasqueradeRoot } from './shell/MasqueradeRoot';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
@@ -86,6 +87,9 @@ const routes: RouteObject[] = [
       { path: 'admin/users', lazy: () => import('./routes/console/Users') },
       { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
       { path: 'admin/search', lazy: () => import('./routes/console/Search') },
+      // Masquerade on R2 (D-162 3b, spec § 6): the page, and the mockup's learner view (its `as`).
+      { path: 'admin/masquerade', lazy: () => import('./routes/console/Masquerade') },
+      { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
@@ -100,4 +104,8 @@ const routes: RouteObject[] = [
 // element: every address matches and renders as before). A lazy screen whose file a deploy removed
 // reloads the page once instead of showing "Unexpected Application Error!"; any other error still
 // gets React Router's default screen, as it always has. `lib/StaleChunkBoundary.tsx` says how.
-export const router = createBrowserRouter(withStaleChunkRecovery(routes));
+//
+// THE ROOT (D-162 3b). Inside that, every route is a child of `MasqueradeRoot`, a pathless layout that
+// draws only its page until a masquerade session is known: then the banner shows on every page and
+// every `/admin/*` address is the paused Console (spec § 6, D2). With no session the DOM is the page's alone.
+export const router = createBrowserRouter(withStaleChunkRecovery([{ element: <MasqueradeRoot />, children: routes }]));

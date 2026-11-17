@@ -118,6 +118,7 @@ describe('workspaces (spec § 7.3) @console', () => {
     expect(north).toEqual({
       teamId: 'northline',
       name: 'Northline Realty Team',
+      ownerId: 'u_alex',
       ownerName: 'Alex Morgan',
       ownerEmail: 'alex@northlinerealty.com',
       planKind: 'cohort',

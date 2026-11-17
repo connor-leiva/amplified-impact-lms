@@ -483,6 +483,11 @@ export interface RoleChangePreview {
 export interface ConsoleMe {
   role: StaffRole;
   caps: ConsoleCap[];
+  /**
+   * D8's `masquerade_enabled` (D-162 3b): whether a session may start, so the entry points can say
+   * so before a click. The server still decides (403 `masquerade_disabled`).
+   */
+  masqueradeEnabled: boolean;
 }
 
 // ================================================================================================

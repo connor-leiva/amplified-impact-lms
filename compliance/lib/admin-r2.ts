@@ -117,6 +117,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
   users: { path: '/admin/users' },
   user: { path: '/admin/users/u_1042' },
+  // D-162 3b (Masquerade on R2): the page, and the mockup's learner view (`as`), which with no session
+  // (always, in the Console, by D2) is its "No masquerade session is active" empty state.
+  masquerade: { path: '/admin/masquerade' },
+  as: { path: '/admin/masquerade/learner-view' },
 };
 
 /**
@@ -127,7 +131,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four; R2-1c part 1:
  * `workspaces` at all four, `workspace-detail` at 1440, 1280 and 1024 (and 390 as an approved
  * exception, `admin-r2-exceptions.ts`); R2-1c part 2: `users` at all four, `user` at 1440, 1280 and
- * 1024 (and 390 as an approved exception).
+ * 1024 (and 390 as an approved exception); Masquerade 3b (D-162): `masquerade` and `as` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -162,6 +166,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `users-${w}`,
   ...(w === 390 ? [] : [`user-${w}`]),
+  // D-162 3b: Masquerade and its learner view (`as`), at all four widths.
+  `masquerade-${w}`,
+  `as-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

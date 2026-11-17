@@ -67,6 +67,12 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/users'],
   ['admin', '/admin/users/u_1042'],
   ['admin', '/admin/search?q=north'],
+  // Masquerade on R2 (D-162 3b): the page, the learner view, and a session the fixture simulates
+  // (`?masquerade=demo`): the paused Console and the banner over a learner page.
+  ['admin', '/admin/masquerade'],
+  ['admin', '/admin/masquerade/learner-view'],
+  ['admin', '/admin/workspaces?masquerade=demo'],
+  ['agent', '/?masquerade=demo'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

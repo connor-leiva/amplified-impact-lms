@@ -251,8 +251,13 @@ describe('Start (spec § 6) @console', () => {
 
   it('answers 403 masquerade_disabled while the flag is off (the seam defaults on)', async () => {
     expect(await masqueradeEnabled()).toBe(true);
+    // 3b: `GET /api/console/me` says so too, so the entry points can be drawn disabled.
+    const on = new Browser(await app.signInAs('st_admin'));
+    expect((await on.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: true });
     await app.close();
     app = await build({ logger: false, console: { masqueradeEnabled: async () => false } });
+    const off = new Browser(await app.signInAs('st_admin'));
+    expect((await off.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: false });
     const res = (await masquerade('u_jamie')).res;
     expect(res.statusCode).toBe(403);
     expect(res.json()).toEqual({ error: 'Masquerade is turned off.', code: 'masquerade_disabled' });
