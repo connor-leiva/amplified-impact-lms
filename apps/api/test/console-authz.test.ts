@@ -12,8 +12,9 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, ghlLogins, incidents, staffNotes, users } from '../src/db/schema';
+import { auditLog, emailLog, ghlLogins, incidents, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
+import { fakeConsoleStripe, fakeConsoleStripeWrite } from './fake-console-stripe';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -33,16 +34,24 @@ type RouteName =
   | 'notesCreate'
   | 'noteDelete'
   | 'search'
+  | 'preview'
+  | 'change'
   | 'masqueradeStart'
   | 'masqueradeCurrent'
   | 'masqueradeExtend'
   | 'masqueradeExit'
   | 'masqueradeSessions'
+  | BillingRoute
+  | ActionRoute
   | 'apiEndpoints'
   | 'webhooks'
   | 'ghlRetry'
   | 'jobs'
   | 'jobRun'
+  | 'emailLog'
+  | 'emailLogOne'
+  | 'emailLogExport'
+  | 'usage'
   | 'incidents'
   | 'incidentSummary'
   | 'incident'
@@ -51,8 +60,36 @@ type RouteName =
   | 'incidentResolve'
   | 'incidentNote';
 
+// PR 4 (D-163): Billing, read-only, every route `billing.read`.
+const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
+type BillingRoute = (typeof BILLING)[number];
+// PR 5 (D-164): the confirmed refund and void, billing.refund and billing.void (Owner, Admin).
+const ACTIONS = ['billingRefundPreview', 'billingRefund', 'billingVoidPreview', 'billingVoid'] as const;
+type ActionRoute = (typeof ACTIONS)[number];
+const ACTION_REASON = 'Customer canceled inside the trial window.';
+
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
-const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
+interface Route {
+  path: string;
+  url: string;
+  method: 'GET' | 'POST';
+  route: string;
+  body?: Record<string, unknown>;
+  /** A body that needs the caller first (an execute's confirm token, from its own preview). */
+  prepare?: (userId: string | null) => Promise<Record<string, unknown>>;
+}
+
+/** An execute's body: the caller's own preview's token when they may preview, else none. */
+const confirmBody = (preview: string, invoiceId: string, typed: string) => async (userId: string | null) => {
+  let confirmToken = 'none';
+  if (userId) {
+    const res = await app.inject({ method: 'POST', url: preview, headers: { cookie: await app.signInAs(userId), 'content-type': 'application/json' }, payload: { invoiceId } });
+    if (res.statusCode === 200) confirmToken = (JSON.parse(res.body) as { confirmToken: string }).confirmToken;
+  }
+  return { confirmToken, reason: ACTION_REASON, typed };
+};
+
+const ROUTES: Record<RouteName, Route> = {
   me: { path: CONSOLE_PATHS.me, url: CONSOLE_PATHS.me, method: 'GET', route: `GET ${CONSOLE_PATHS.me}` },
   audit: { path: CONSOLE_PATHS.audit, url: CONSOLE_PATHS.audit, method: 'GET', route: `GET ${CONSOLE_PATHS.audit}` },
   export: { path: CONSOLE_PATHS.auditExport, url: CONSOLE_PATHS.auditExport, method: 'POST', route: `POST ${CONSOLE_PATHS.auditExport}` },
@@ -74,6 +111,16 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   noteDelete: { path: CONSOLE_PATHS.noteDelete, url: '/api/console/notes/1/delete', method: 'POST', route: `POST ${CONSOLE_PATHS.noteDelete}`, body: { reason: 'Written on the wrong workspace.' } },
   search: { path: CONSOLE_PATHS.search, url: `${CONSOLE_PATHS.search}?q=jamie`, method: 'GET', route: `GET ${CONSOLE_PATHS.search}` },
+  // D-160 R2-3b: the matrix change, the Owner's alone (`roles.write`). The Owner's change here carries
+  // no real token, so it is refused for that (`console-roles.test.ts` makes real changes).
+  preview: {
+    path: CONSOLE_PATHS.rolesPreview,
+    url: CONSOLE_PATHS.rolesPreview,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.rolesPreview}`,
+    body: { role: 'Admin', capability: 'masq', allowed: false },
+  },
+  change: { path: CONSOLE_PATHS.roles, url: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, body: { confirmToken: 'not-a-token' } },
   // PR 3a (D-162). Each caller here is in no masquerade; `console-masquerade.test.ts` covers one in a session.
   masqueradeStart: {
     path: CONSOLE_PATHS.masqueradeStart,
@@ -92,12 +139,36 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   masqueradeExit: { path: CONSOLE_PATHS.masqueradeExit, url: CONSOLE_PATHS.masqueradeExit, method: 'POST', route: `POST ${CONSOLE_PATHS.masqueradeExit}` },
   masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
+  // PR 4 (D-163).
+  ...(Object.fromEntries(BILLING.map((b) => [b, { path: CONSOLE_PATHS[b], url: CONSOLE_PATHS[b], method: 'GET', route: `GET ${CONSOLE_PATHS[b]}` }])) as Record<BillingRoute, { path: string; url: string; method: 'GET'; route: string }>),
+  // PR 5 (D-164). A preview against the fake's invoices; an execute with the caller's own token.
+  billingRefundPreview: { path: CONSOLE_PATHS.billingRefundPreview, url: CONSOLE_PATHS.billingRefundPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.billingRefundPreview}`, body: { invoiceId: 'in_Paid' } },
+  billingRefund: {
+    path: CONSOLE_PATHS.billingRefund,
+    url: CONSOLE_PATHS.billingRefund,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.billingRefund}`,
+    prepare: confirmBody(CONSOLE_PATHS.billingRefundPreview, 'in_Paid', '$497.00'),
+  },
+  billingVoidPreview: { path: CONSOLE_PATHS.billingVoidPreview, url: CONSOLE_PATHS.billingVoidPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.billingVoidPreview}`, body: { invoiceId: 'in_Open' } },
+  billingVoid: {
+    path: CONSOLE_PATHS.billingVoid,
+    url: CONSOLE_PATHS.billingVoid,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.billingVoid}`,
+    prepare: confirmBody(CONSOLE_PATHS.billingVoidPreview, 'in_Open', 'in_Open'),
+  },
   // PR 6 (D-165). The retry resets the first sign-in below; Run Now runs the scheduler's tick.
   apiEndpoints: { path: CONSOLE_PATHS.apiEndpoints, url: CONSOLE_PATHS.apiEndpoints, method: 'GET', route: `GET ${CONSOLE_PATHS.apiEndpoints}` },
   webhooks: { path: CONSOLE_PATHS.webhooks, url: CONSOLE_PATHS.webhooks, method: 'GET', route: `GET ${CONSOLE_PATHS.webhooks}` },
   ghlRetry: { path: CONSOLE_PATHS.ghlRetry, url: CONSOLE_PATHS.ghlRetry, method: 'POST', route: `POST ${CONSOLE_PATHS.ghlRetry}`, body: { kind: 'login', id: 'u_jamie' } },
   jobs: { path: CONSOLE_PATHS.jobs, url: CONSOLE_PATHS.jobs, method: 'GET', route: `GET ${CONSOLE_PATHS.jobs}` },
   jobRun: { path: CONSOLE_PATHS.jobRun, url: '/api/console/jobs/session-24h/run', method: 'POST', route: `POST ${CONSOLE_PATHS.jobRun}` },
+  // PR 7 (D-166). Row 1 is a logged send, inserted below.
+  emailLog: { path: CONSOLE_PATHS.emailLog, url: CONSOLE_PATHS.emailLog, method: 'GET', route: `GET ${CONSOLE_PATHS.emailLog}` },
+  emailLogOne: { path: CONSOLE_PATHS.emailLogOne, url: '/api/console/email/1', method: 'GET', route: `GET ${CONSOLE_PATHS.emailLogOne}` },
+  emailLogExport: { path: CONSOLE_PATHS.emailLogExport, url: CONSOLE_PATHS.emailLogExport, method: 'POST', route: `POST ${CONSOLE_PATHS.emailLogExport}` },
+  usage: { path: CONSOLE_PATHS.usage, url: `${CONSOLE_PATHS.usage}?from=2026-11-24&to=2026-12-07`, method: 'GET', route: `GET ${CONSOLE_PATHS.usage}` },
   // PR 8 (D-167). INC-0001 (below) is open: acknowledged first, then resolved, then noted.
   incidents: { path: CONSOLE_PATHS.incidents, url: `${CONSOLE_PATHS.incidents}?status=open`, method: 'GET', route: `GET ${CONSOLE_PATHS.incidents}` },
   incidentSummary: { path: CONSOLE_PATHS.incidentSummary, url: CONSOLE_PATHS.incidentSummary, method: 'GET', route: `GET ${CONSOLE_PATHS.incidentSummary}` },
@@ -128,8 +199,11 @@ const WRITES = new Set<RouteName>([
   'notesCreate',
   'noteDelete',
   'masqueradeStart',
+  'billingRefund',
+  'billingVoid',
   'ghlRetry',
   'jobRun',
+  'emailLogExport',
   'incidentCreate',
   'incidentAck',
   'incidentResolve',
@@ -150,7 +224,7 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 
 // Spec § 5, by hand. `me` answers any staff member (with an empty list for Instructor and Content
 // Editor) and refuses a learner; `audit` is audit.read (Owner, Admin, Support); `export` is export
-// (Owner, Admin); `roles` is ops.read (Owner, Admin).
+// (Owner, Admin); `roles` is ops.read (Owner, Admin); `preview` and `change` are roles.write (the Owner).
 // PR 2: workspaces and users are workspaces.read and users.read, notes are written with notes.write
 // and read with the target's read capability, a password reset is user.password_reset (all three
 // Console roles; a learner's here), search is console.view: Owner, Admin and Support. The users
@@ -159,12 +233,29 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // roles (Owner, Admin). `current` answers any signed-in viewer (null outside a session). Extend asks
 // the viewer's masquerade.extend first, then answers 409 `masquerade_ended`, as Exit does for
 // everyone, because none of these callers is in a session.
+// PR 4: every Billing route is billing.read: Owner, Admin and Support (Support reads, D3).
+// PR 5 (D-164): refund and void, previews included, are billing.refund and billing.void: Owner and
+// Admin. Support reads billing and changes nothing (D3).
+const ACT = (v: number) => Object.fromEntries(ACTIONS.map((a) => [a, v])) as Record<ActionRoute, number>;
+const ALL = (v: number) => ({
+  workspaces: v,
+  workspace: v,
+  users: v,
+  user: v,
+  passwordReset: v,
+  notesList: v,
+  notesCreate: v,
+  search: v,
+  ...(Object.fromEntries(BILLING.map((b) => [b, v])) as Record<BillingRoute, number>),
+  apiEndpoints: v,
+  webhooks: v,
+  jobs: v,
+});
 // PR 6 (D-165): the API & Webhooks and Jobs reads are api.read and jobs.read (Owner, Admin, Support);
 // the GHL retry and Run Now are webhooks.retry and jobs.run_now (Owner, Admin).
 // PR 8 (D-167): the incident reads are incidents.read, create incidents.create, Acknowledge
 // incidents.ack and a note notes.write (Owner, Admin, Support); Resolve is incidents.resolve (Owner,
 // Admin: D3, Support acknowledges and does not resolve).
-const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v, apiEndpoints: v, webhooks: v, jobs: v });
 const OPS = (v: number) => ({ ghlRetry: v, jobRun: v });
 const INC = (read: number, write: number, resolve: number) => ({
   incidents: read,
@@ -176,19 +267,25 @@ const INC = (read: number, write: number, resolve: number) => ({
   incidentNote: write,
 });
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
+// PR 7 (D-166): the email log and usage are read with email.read and usage.read (Owner, Admin and
+// Support, D3: Support sees the email log); the export is export (Owner, Admin).
+const EU = (read: number, exp: number) => ({ emailLog: read, emailLogOne: read, emailLogExport: exp, usage: read });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...OPS(401), ...INC(401, 401, 401),
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401), ...OPS(401), ...EU(401, 401), ...INC(401, 401, 401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(200, 201, 403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...OPS(200), ...INC(200, 201, 200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...OPS(200), ...INC(200, 201, 200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(200, 403), ...INC(200, 201, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200) },
 };
+
+/** A 403 that is not the capability's: the Owner's change with no real token. */
+const CODE: Partial<Record<string, Partial<Record<RouteName, string>>>> = { Owner: { change: 'confirm_invalid' } };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
 const SUPPORT_CAPS = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];
@@ -211,11 +308,22 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
+  // Email 1, for the detail route to find (D-166).
+  await db.insert(emailLog).values({ at: NOW - 3600_000, to: 'jamie@ortizhomes.com', userId: 'u_jamie', template: 'sign-in', subject: 'Your sign-in link', provider: 'outbox', status: 'skipped' });
   // INC-0001, open, for the incident routes to act on (D-167).
   await db.insert(incidents).values({ id: 'INC-0001', title: 'Job ghl-orders is failing', severity: 'sev2', status: 'open', fingerprint: 'job:ghl-orders', openedAt: NOW - 3600_000 });
   // A first sign-in GHL gave up on, for the retry route to reset (D-165).
   await db.insert(ghlLogins).values({ userId: 'u_jamie', firstLoginAt: NOW - 86_400_000, ghlAttempts: 8, ghlError: 'contact:unauthorized:401' });
-  app = await build({ logger: false });
+  // Billing reads a fake Stripe (spec § 9: no live calls), so its routes answer 200 to who may read;
+  // PR 5's refund and void write to a fake too, a paid invoice and an open one, fresh for each caller.
+  const fake = fakeConsoleStripe({
+    invoices: [
+      { id: 'in_Paid', customerId: null, customerName: 'Northline Realty Team', subscriptionId: null, status: 'paid', totalCents: 49_700, amountPaidCents: 49_700, amountRemainingCents: 0, attemptCount: 0, created: NOW - 86_400_000, nextPaymentAttempt: null, paymentIntentId: 'pi_Paid', chargeId: null },
+      { id: 'in_Open', customerId: null, customerName: 'Harbor & Pine Group', subscriptionId: null, status: 'open', totalCents: 9_700, amountPaidCents: 0, amountRemainingCents: 9_700, attemptCount: 1, created: NOW - 86_400_000, nextPaymentAttempt: null, paymentIntentId: null, chargeId: null },
+    ],
+    charges: { 'pi:pi_Paid': { id: 'ch_Paid', amountCents: 49_700, refundedCents: 0, paymentMethod: 'Visa ending 4242', failure: null } },
+  });
+  app = await build({ logger: false, consoleBilling: { stripe: fake.stripe, write: fakeConsoleStripeWrite(fake).write, mode: 'test' } });
 });
 afterEach(async () => {
   await settleEmails();
@@ -227,13 +335,13 @@ afterAll(() => {
   else process.env.APP_URL = savedAppUrl;
 });
 
-const call = async (name: RouteName, userId: string | null) => {
+const call = async (name: RouteName, userId: string | null, body?: Record<string, unknown>) => {
   const r = ROUTES[name];
   const headers: Record<string, string> = {};
   if (userId) headers.cookie = await app.signInAs(userId);
   if (r.method === 'POST') {
     headers['content-type'] = 'application/json';
-    return app.inject({ method: 'POST', url: r.url, headers, payload: r.body ?? {} });
+    return app.inject({ method: 'POST', url: r.url, headers, payload: body ?? r.body ?? {} });
   }
   return app.inject({ method: 'GET', url: r.url, headers });
 };
@@ -249,8 +357,10 @@ describe('the Console routes, by caller (D-157) @console', () => {
   for (const persona of PERSONAS) {
     it(`${persona.name}: ${JSON.stringify(EXPECT[persona.name])}`, async () => {
       for (const name of Object.keys(ROUTES) as RouteName[]) {
+        // An execute's token comes from the caller's own preview, before this route's count starts.
+        const body = await ROUTES[name].prepare?.(persona.userId);
         const before = (await auditRows()).length;
-        const res = await call(name, persona.userId);
+        const res = await call(name, persona.userId, body);
         const want = EXPECT[persona.name]![name];
         expect(res.statusCode, `${persona.name} ${name}: ${res.body.slice(0, 200)}`).toBe(want);
         // Every Console answer is the viewer's alone, refusals included.
@@ -260,6 +370,10 @@ describe('the Console routes, by caller (D-157) @console', () => {
         if (want === 401) {
           // § 7.3's 401, unchanged.
           expect(JSON.parse(res.body)).toEqual({ error: 'Not signed in' });
+          expect(after.length).toBe(before);
+        } else if (want === 403 && CODE[persona.name]?.[name]) {
+          // Past the capability: refused for what it carries, and nothing written.
+          expect(JSON.parse(res.body).code).toBe(CODE[persona.name]![name]);
           expect(after.length).toBe(before);
         } else if (want === 403) {
           const body = JSON.parse(res.body) as { error: string; code: string };
@@ -300,6 +414,8 @@ describe('the Console routes, by caller (D-157) @console', () => {
             if (persona.name === 'Admin') expect(me.caps).toContain('export');
             if (persona.name === 'Admin') expect(me.caps).not.toContain('notes.delete');
             if (persona.name === 'Owner') expect(me.caps).toContain('flags.write_sensitive');
+            if (persona.name === 'Owner') expect(me.caps).toContain('roles.write');
+            if (persona.name === 'Admin') expect(me.caps).not.toContain('roles.write');
           }
         }
       }

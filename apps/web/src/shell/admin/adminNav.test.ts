@@ -47,14 +47,13 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-165 API & Webhooks and Scheduled Jobs;
-    // D-167 Incidents.
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs; D-166 Usage and the Email Log; D-167 Incidents.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
-      ['Revenue', 'Tiers & Upgrades'],
-      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs'],
+      ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
+      ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
+      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
   });
@@ -71,19 +70,34 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       expect(support.flat()).not.toContain(ops);
     expect(support.map((g) => g[0])).not.toContain('Access');
     expect(support.flat()).toContain('Audit Log');
-    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too; D-167 Incidents.
+    // D-165 (D3): Support sees API & Webhooks and Scheduled Jobs, in production too; D-166 the Email Log; D-167 Incidents.
     expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toEqual([
       'Operations',
       'Incidents',
       'Audit Log',
       'API & Webhooks',
       'Scheduled Jobs',
+      'Email Log',
     ]);
     const instructor = labels(nav({ role: 'Instructor', fullNav: false }));
     expect(instructor.map((g) => g[0])).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
     expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
+    // D-162 3b: Masquerade is the Owner's and Admin's (`masquerade.start`); Support reaches its lock card by address.
+    expect(labels(nav({ role: 'Admin', fullNav: false })).find((g) => g[0] === 'Support')).toContain('Masquerade');
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams', 'Workspaces', 'Users']);
+    expect(support.flat()).not.toContain('Masquerade');
+    // Billing reads `billing.read`: Support has it (read-only, D3); an Instructor does not.
+    expect(instructor.find((g) => g[0] === 'Revenue')).toEqual(['Revenue', 'Tiers & Upgrades']);
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Revenue')).toEqual([
+      'Revenue',
+      'Tiers & Upgrades',
+      'Billing',
+      'Usage',
+    ]);
+    // D-166: Usage and the Email Log read `usage.read` and `email.read`: Support has both (D3); an Instructor neither.
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toContain('Email Log');
   });
 
   it('badges real work and alerts only, and hides each at zero', () => {
@@ -138,6 +152,8 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(activeRowId('/admin/curriculum/new')).toBe('builder');
     expect(activeRowId('/admin/curriculum/marketing')).toBe('builder');
     expect(activeRowId('/admin/staff')).toBe('staff');
+    expect(activeRowId('/admin/usage')).toBe('usage');
+    expect(activeRowId('/admin/email')).toBe('email');
     // Not built yet: the Console 404, with no row lit.
     expect(activeRowId('/admin/health')).toBeNull();
     expect(activeRowId('/admin/no-such-page')).toBeNull();
@@ -149,6 +165,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(crumbTrail('/admin/curriculum/new')).toEqual({ group: 'Build', page: 'Module Builder' });
     expect(crumbTrail('/admin')).toEqual({ group: 'Health', page: 'Overview' });
     expect(crumbTrail('/admin/no-such-page')).toBeNull();
+    // D-162 3b: Masquerade, and the mockup's learner view under it, its parent crumb bold, not a link.
+    expect(crumbTrail('/admin/masquerade')).toEqual({ group: 'Support', page: 'Masquerade' });
+    expect(activeRowId('/admin/masquerade/learner-view')).toBe('masquerade');
+    expect(crumbTrail('/admin/masquerade/learner-view')).toEqual({ group: 'Support', page: 'Masquerade', parent: '/admin/masquerade', parentLink: false });
     // D-160 R2-1c: a record's page belongs to its row (the mockup's PARENT), and its crumb links back.
     expect(activeRowId('/admin/workspaces/ws_northshore')).toBe('workspaces');
     expect(activeRowId('/admin/users/u_1042')).toBe('users');
@@ -160,6 +180,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       parent: '/admin/workspaces',
     });
     expect(crumbTrail('/admin/users/u_1042')).toEqual({ group: 'Support', page: 'Users', parent: '/admin/users' });
+    // D-163: Billing's tabs are one page with its own addresses, not records: no record crumb.
+    expect(activeRowId('/admin/billing')).toBe('billing');
+    expect(activeRowId('/admin/billing/invoices')).toBe('billing');
+    expect(crumbTrail('/admin/billing/failed')).toEqual({ group: 'Revenue', page: 'Billing' });
     expect(nav({ pathname: '/admin/users/u_1042' }).find((g) => g.label === 'Support')).toMatchObject({
       active: true,
       open: true,

@@ -368,6 +368,27 @@ export const auditLog = pgTable('audit_log', {
   check('audit_log_staff_actor', sql`${t.actorSource} = 'system' or ${t.actorUserId} is not null`),
 ]);
 
+// D-160 R2-3b (Connor, Nov 16, 2026, 8:27 AM MST): the Owner's changes to the Roles & Permissions
+// matrix. `CONSOLE_CAPS` (@ai/core) stays the ceiling in code; a row here only takes a matrix row from
+// Admin or Support (`allowed` false) or records that it was given back (true), with who and when. A
+// role's effective capability is the ceiling AND NOT removed (`consoleCanWith`), so an empty table is
+// the ceiling exactly and no row can lift a role past it. Not a `Db` record, like `audit_log`; every
+// change also writes one `permission.change` audit row, in the same transaction. Not the `permissions`
+// table, which round-trips the app's `Db` and backs `/admin/staff`'s `PermKey` matrix.
+export const consoleRoleGrants = pgTable('console_role_grants', {
+  role: text('role').notNull(),
+  capability: text('capability').notNull(),
+  allowed: boolean('allowed').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  updatedAt: ts('updated_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.role, t.capability] }),
+  // `EDITABLE_ROLES` and `ROLE_ROW_KEYS` in `@ai/core/console`, typed out because drizzle-kit reads
+  // this file on its own; `schema.test.ts` pins them to the constants.
+  check('console_role_grants_role', sql`${t.role} in ('Admin', 'Support')`),
+  check('console_role_grants_capability', sql`${t.capability} in ('build', 'masq', 'account', 'billview', 'refund', 'jobs', 'export', 'ops', 'staff')`),
+]);
+
 // ================================================================================================
 // THE ADMIN CONSOLE'S STAFF NOTES (D-158, spec § 7.3)
 // ================================================================================================
@@ -375,7 +396,7 @@ export const auditLog = pgTable('audit_log', {
 // or the user, and never in any snapshot (not part of a `Db` and not in the codec, like `audit_log`;
 // `test/console-support.test.ts` reads `/api/snapshot` to prove it).
 //
-// Immutable once written, and the database says so: migration 0016's trigger refuses any DELETE, and
+// Immutable once written, and the database says so: migration 0017's trigger refuses any DELETE, and
 // any UPDATE but the one that soft-deletes a note, which only sets `deleted_at`, `deleted_by` and
 // `delete_reason`, once (an Owner, with a reason: spec § 7.3). The body, its author, its target and
 // its time never change. TRUNCATE is not covered, as on `audit_log`: the test harness empties every
@@ -475,6 +496,56 @@ export const jobTicks = pgTable('job_ticks', {
   check('job_ticks_actor', sql`(${t.trigger} = 'manual') = (${t.actorUserId} is not null)`),
   // Running has no end; anything else has one.
   check('job_ticks_finished', sql`(${t.status} = 'running') = (${t.finishedAt} is null)`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S EMAIL LOG AND USAGE COUNTS (D-166, spec §§ 7.7, 7.15)
+// ================================================================================================
+// `email_log`: one row per `send()` (email/transport.ts), written after it by `email/log.ts`, fire and
+// forget: a failed write never throws and never changes the send. The recipient, the template, the
+// subject, the provider and its message id, and what happened (`sent`, `failed`, `skipped`), with a
+// failure's kind, never its words. NEVER THE BODY: there is no column for one. `user_id` is the user
+// whose address it went to when one existed at the time, with no foreign key, so a send inside a
+// transaction that is still creating that user can never wait on it. Pruned after 180 days (D6).
+export const emailLog = pgTable('email_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  at: ts('at').notNull(),
+  to: text('to').notNull(),
+  userId: text('user_id'),
+  template: text('template').notNull(),
+  subject: text('subject').notNull(),
+  provider: text('provider').notNull(),
+  providerId: text('provider_id'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+}, (t) => [
+  index('email_log_at_idx').on(t.at),
+  index('email_log_user_idx').on(t.userId),
+  index('email_log_template_idx').on(t.template),
+  // The closed lists in `@ai/core` (EMAIL_STATUSES, EMAIL_PROVIDERS, EMAIL_ERROR_KINDS), typed out
+  // because drizzle-kit reads this file on its own.
+  check('email_log_status', sql`${t.status} in ('sent', 'failed', 'skipped')`),
+  check('email_log_provider', sql`${t.provider} in ('resend', 'outbox', 'log')`),
+  // A failure names its kind; nothing else has one.
+  check('email_log_error_kind', sql`(${t.status} = 'failed' and ${t.errorKind} in ('invalid_recipient', 'subject', 'render', 'config', 'provider')) or (${t.status} <> 'failed' and ${t.errorKind} is null)`),
+]);
+
+// `usage_daily`: how often each learner signed in, viewed a guided setup and joined a live session,
+// per program-zone day (America/Chicago). One fire-and-forget upsert per event (`lib/usage.ts`),
+// skipped during a masquerade (spec § 6). `team_id` is the learner's team when it was counted. Pruned
+// after 400 days (D6). `lesson_play` is a kind with nothing counting it yet (D-166).
+export const usageDaily = pgTable('usage_daily', {
+  day: text('day').notNull(),
+  userId: text('user_id').notNull(),
+  teamId: text('team_id'),
+  kind: text('kind').notNull(),
+  count: integer('count').notNull().default(1),
+}, (t) => [
+  primaryKey({ columns: [t.day, t.userId, t.kind] }),
+  index('usage_daily_team_idx').on(t.teamId, t.day),
+  check('usage_daily_day', sql`${t.day} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
+  check('usage_daily_kind', sql`${t.kind} in ('sign_in', 'lesson_play', 'guide_view', 'session_join')`),
+  check('usage_daily_count', sql`${t.count} > 0`),
 ]);
 
 // ================================================================================================

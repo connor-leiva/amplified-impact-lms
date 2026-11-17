@@ -7,7 +7,8 @@ import { Icon } from '../../components/Icon';
 import { Status } from '../../components/r2/Status';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
-import { fixtureConsoleRole, masqueradeActive } from '../../data/console';
+import { fixtureConsoleRole } from '../../data/console';
+import { masqueradeActive } from '../../data/masquerade';
 import { PARITY_POSSIBLE, parityR2, shellDataFrom, shellDataFromParity } from '../../data/admin-shell';
 import type { ParityR2 } from '../../data/parity-r2';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
@@ -39,7 +40,7 @@ import s from './AdminShell.module.css';
 //
 // THE ⌘K PALETTE (D-160 R2-1c, spec § 7.5): the top bar's "Search or jump to…", the phone's Search,
 // the 404's "Search the admin" and ⌘K / Ctrl+K open it, unless a masquerade session is running
-// (`masqueradeActive`, the Masquerade PR's seam). A record's page names itself in the breadcrumb, and
+// (`masqueradeActive`, D-162 3b's store). A record's page names itself in the breadcrumb, and
 // the R2 toast is the shell's (`chrome.ts`).
 
 const ADMIN_ROOT = '/admin';
@@ -239,9 +240,13 @@ export function AdminShell() {
           <span aria-hidden="true">/</span>
           {trail.parent ? (
             <>
-              <Link to={trail.parent} className={s.crumbLink}>
-                {trail.page}
-              </Link>
+              {trail.parentLink === false ? (
+                <b className={s.here}>{trail.page}</b>
+              ) : (
+                <Link to={trail.parent} className={s.crumbLink}>
+                  {trail.page}
+                </Link>
+              )}
               {record ? (
                 <>
                   <span aria-hidden="true">/</span>

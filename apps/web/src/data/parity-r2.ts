@@ -28,6 +28,24 @@ export const STAFF = [
 export const ROLES = ['Owner', 'Admin', 'Support'] as const;
 
 /**
+ * `PERMS0` (R2-3b, editable Roles): the matrix, verbatim, one value per `ROLES` column. The parity
+ * fixture stores it as the Owner's changes (`parityRoleGrants`) within the ceiling, which `CONSOLE_CAPS`
+ * keeps in code: where `PERMS0` shows a box the ceiling forbids (Support's "Export audit and email
+ * logs"), the ceiling wins and the box is drawn locked, as production draws it.
+ */
+export const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]],
+  ['masq', 'Start and extend masquerade', [1, 1, 0]],
+  ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]],
+  ['refund', 'Refund or void an invoice', [1, 1, 0]],
+  ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]],
+  ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]],
+  ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+] as const;
+
+/**
  * `MODS0` (R2-2): the curriculum, verbatim. `ses` is the live session's two lines as the mockup writes
  * them; the parity snapshot (`parity-r2-db.ts`) turns each row into the app's own AI Employee, session
  * and baseline, and the Curriculum and Module Builder screens print them back from those.
@@ -414,6 +432,16 @@ export const SUPPORT_USERS = [
   { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
 ] as const;
 
+/**
+ * D-162 3b: the Masquerade screen's "Recent sessions", verbatim (`Masquerade()`): staff, user, reason,
+ * started, length, ended. The console fixture turns each into the API's history row.
+ */
+export const MASQ_SESSIONS = [
+  ['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'],
+  ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'],
+  ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff'],
+] as const;
+
 /** `INV`: the invoices, as the workspaces' orders. */
 export const INV = [
   { id: 'in_1QxT4mNs0291', c: 'Northshore Group', amt: '$1,495.00', st: 'Paid', d: 'Dec 8, 2026', card: 'Visa ending 4242' },
@@ -423,6 +451,44 @@ export const INV = [
   { id: 'in_1QxN1hHm0279', c: 'Hale & Marlowe Realty', amt: '$695.00', st: 'Open', d: 'Dec 3, 2026', card: 'Visa ending 3310' },
   { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
 ] as const;
+
+// ---- D-163: Billing's Summary and lists, verbatim (`Billing()` in AdminRedesign.jsx) ------------------
+// The Console fixture (`console-fixture-billing.ts`) turns these into the API's shapes. Every figure is
+// the mockup's own sample, so the fixture also carries its "· sample" qualifiers (BUILD-SPEC § 6.1);
+// production (http) prints neither.
+
+/** The four stats, the plan lines' title and their qualifiers. */
+export const BILLING_SAMPLE = {
+  mrrLabel: 'MRR · sample',
+  mrr: '$18,516',
+  mrrSub: '+$695 this week',
+  subscriptions: 77,
+  failed: 3,
+  refunds30d: '$0',
+  plansTitle: 'Plan economics · sample figures',
+} as const;
+
+/** "Plan economics · sample figures": plan, price, active, MRR. */
+export const BILLING_PLANS = [
+  ['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'],
+  ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'],
+  ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'],
+  ['Insiders', '$97 monthly', '61 members', '$5,917'],
+  ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time'],
+] as const;
+
+/** The AI Accelerator card: 11 of 15 sold, $67,500 collected, 4 × $3,750 = $15,000 still due. */
+export const BILLING_ACCELERATOR = { sold: 11, paidInFull: 7, twoPay: 4, collected: '$67,500', scheduled: '$15,000' } as const;
+
+/** The Failed payments tab: customer, amount, decline reason, attempts, next retry. */
+export const BILLING_FAILED = [
+  ['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM'],
+  ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM'],
+  ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM'],
+] as const;
+
+/** The Refunds tab: refund, invoice, amount, reason, by, when. */
+export const BILLING_REFUNDS = [['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']] as const;
 
 /** The Workspace screen's staff notes (on Northshore Group), newest first. */
 export const WORKSPACE_NOTES = [
@@ -484,6 +550,33 @@ export const JOBS = [
   { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '0.6 s', st: 'Failed', next: '9:30 AM' },
   { j: 'ghl-extras', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.8 s', st: 'Waiting', next: '10:00 AM' },
 ] as const;
+// ---- PR 7 (D-166): the Email Log's and Usage's figures, verbatim ----------------------------------------
+
+/** `EMAILS`, verbatim: recipient, template, subject, status, sent. */
+export const EMAILS = [
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM' },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Opened', t: 'Dec 9, 3:10 PM' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Queued', t: 'Dec 10, 9:18 AM' },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM' },
+] as const;
+
+/** The Email Log's Status options (`Sel` in `Email`), after "Any status". */
+export const EMAIL_STATUS_OPTIONS = ['Delivered', 'Opened', 'Queued', 'Bounced'] as const;
+
+/** `Usage`'s chart (`bars`), verbatim: each day's height in percent, Nov 27 to Dec 10. */
+export const USAGE_BARS = [62, 71, 68, 80, 77, 31, 28, 74, 85, 88, 92, 81, 36, 30] as const;
+
+/** `Usage`'s figures, per seat in use (`k`): sign-ins, lesson plays, skill-guide views and emails sent. */
+export const USAGE_PER_SEAT = { signIns: 16, lessonPlays: 43, guideViews: 74, emails: 29 } as const;
+
+/** The workspace's Usage tab, per seat in use, over 7 days, and its storage in GB per seat. */
+export const USAGE_TAB_PER_SEAT = { signIns: 6, lessonPlays: 4, guideViews: 9, storageGb: 0.2 } as const;
+
+/** `Usage`'s Storage tile: "41.2 GB", "of 100 GB bucket". */
+export const USAGE_STORAGE = { bytes: 41.2e9, capBytes: 100e9 } as const;
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

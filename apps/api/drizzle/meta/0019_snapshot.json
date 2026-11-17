@@ -1,6 +1,6 @@
 {
-  "id": "a8f69dcc-749f-4711-91a1-d7e18576b2a5",
-  "prevId": "205ded31-8d2f-46fe-ba43-87d0435425f9",
+  "id": "0e9377eb-472d-456e-9d2d-b2597d8f4f6b",
+  "prevId": "2ba5e580-9411-43be-868b-974c651942bd",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -916,6 +916,66 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.console_role_grants": {
+      "name": "console_role_grants",
+      "schema": "",
+      "columns": {
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capability": {
+          "name": "capability",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allowed": {
+          "name": "allowed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "console_role_grants_role_capability_pk": {
+          "name": "console_role_grants_role_capability_pk",
+          "columns": [
+            "role",
+            "capability"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "console_role_grants_role": {
+          "name": "console_role_grants_role",
+          "value": "\"console_role_grants\".\"role\" in ('Admin', 'Support')"
+        },
+        "console_role_grants_capability": {
+          "name": "console_role_grants_capability",
+          "value": "\"console_role_grants\".\"capability\" in ('build', 'masq', 'account', 'billview', 'refund', 'jobs', 'export', 'ops', 'staff')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.dismissals": {
       "name": "dismissals",
       "schema": "",
@@ -1079,224 +1139,6 @@
       },
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.incident_events": {
-      "name": "incident_events",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigserial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "incident_id": {
-          "name": "incident_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "at": {
-          "name": "at",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "actor_user_id": {
-          "name": "actor_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "body": {
-          "name": "body",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "link": {
-          "name": "link",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "incident_events_incident_idx": {
-          "name": "incident_events_incident_idx",
-          "columns": [
-            {
-              "expression": "incident_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "incident_events_kind": {
-          "name": "incident_events_kind",
-          "value": "\"incident_events\".\"kind\" in ('opened', 'signal', 'acknowledged', 'resolved', 'note')"
-        },
-        "incident_events_body": {
-          "name": "incident_events_body",
-          "value": "\"incident_events\".\"body\" is null or char_length(\"incident_events\".\"body\") between 1 and 2000"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.incidents": {
-      "name": "incidents",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "severity": {
-          "name": "severity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fingerprint": {
-          "name": "fingerprint",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "opened_at": {
-          "name": "opened_at",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "opened_by": {
-          "name": "opened_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "acknowledged_at": {
-          "name": "acknowledged_at",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "acknowledged_by": {
-          "name": "acknowledged_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resolved_at": {
-          "name": "resolved_at",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resolved_by": {
-          "name": "resolved_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "incidents_fingerprint_unresolved_idx": {
-          "name": "incidents_fingerprint_unresolved_idx",
-          "columns": [
-            {
-              "expression": "fingerprint",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"incidents\".\"status\" <> 'resolved'",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "incidents_status_idx": {
-          "name": "incidents_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "incidents_severity": {
-          "name": "incidents_severity",
-          "value": "\"incidents\".\"severity\" in ('sev1', 'sev2', 'sev3')"
-        },
-        "incidents_status": {
-          "name": "incidents_status",
-          "value": "\"incidents\".\"status\" in ('open', 'acknowledged', 'resolved')"
-        },
-        "incidents_title": {
-          "name": "incidents_title",
-          "value": "char_length(\"incidents\".\"title\") between 3 and 200"
-        },
-        "incidents_resolved": {
-          "name": "incidents_resolved",
-          "value": "(\"incidents\".\"status\" = 'resolved') = (\"incidents\".\"resolved_at\" is not null)"
-        },
-        "incidents_acknowledged": {
-          "name": "incidents_acknowledged",
-          "value": "\"incidents\".\"status\" <> 'acknowledged' or \"incidents\".\"acknowledged_at\" is not null"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.job_runs": {

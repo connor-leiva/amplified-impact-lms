@@ -21,6 +21,8 @@ import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
+import { useMasqueradeEntry } from './useMasqueradeEntry';
+import { UserEmailsTab } from './RecordTabs';
 import { USER_COPY as C, USER_TABS, canReset, userVM } from './users.vm';
 import type { UserTab, UserVM } from './users.vm';
 import { NONE } from './workspaces.vm';
@@ -29,7 +31,8 @@ import { NONE } from './workspaces.vm';
 // Orders, Progress, Emails sent and Activity; Identity (existence only, never a hash) and staff notes
 // beside them. "Send password reset…" is the one production send the Console adds (spec § 1): the
 // existing reset email, audited, a staff member's by the Owner alone. There is no email change (spec
-// § 7.4), so "Change email…" is locked. "Masquerade" is the Masquerade PR's, drawn and not yet live.
+// § 7.4), so "Change email…" is locked. "Masquerade" opens the reason dialog (D-162 3b): Owner and
+// Admin, a learner only.
 // The reset's confirm is the R2 `Confirm` (the mockup's: it closes, then the action runs); the send's
 // result is the R2 toast, or the app toaster's warning when it fails, as the shell's own Sign out does.
 
@@ -48,6 +51,7 @@ export function Component() {
   const [tab, setTab] = useState<UserTab>('orders');
   const [notes, setNotes] = useState<StaffNote[]>([]);
   const [confirm, setConfirm] = useState(false);
+  const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
   useRecordCrumb(vm?.title ?? null);
 
   useEffect(() => {
@@ -86,6 +90,7 @@ export function Component() {
 
   const user = rec.data.user;
   const mayReset = canReset(gate.me.role, user);
+  const mq = entry.state(user.kind);
   const send = () => {
     gate.api.resetPassword(user.id).then(
       ({ link }) => toast(link === 'set' ? C.reset.setSent : C.reset.sent),
@@ -115,9 +120,17 @@ export function Component() {
         meta={<Pill status={vm.status} />}
         right={
           <>
-            <Button header icon="r2Masquerade" aria-disabled="true" title={C.masqueradeLater}>
-              {C.masquerade}
-            </Button>
+            {mq.show ? (
+              <Button
+                header
+                icon="r2Masquerade"
+                disabled={mq.off !== null}
+                title={mq.off ?? undefined}
+                onClick={() => entry.open({ id: user.id, name: user.name, workspace: user.workspace })}
+              >
+                {C.masquerade}
+              </Button>
+            ) : null}
             <Menu
               label={C.more}
               items={[
@@ -188,11 +201,7 @@ export function Component() {
               )}
             </Card>
           ) : null}
-          {tab === 'emails' ? (
-            <Card pad={false}>
-              <Empty icon="r2Email" title={C.emails.title} body={C.emails.body} />
-            </Card>
-          ) : null}
+          {tab === 'emails' ? <UserEmailsTab api={gate.api} userId={user.id} /> : null}
           {tab === 'activity' ? (
             <Card>
               {vm.activity.length ? (
@@ -240,6 +249,7 @@ export function Component() {
           </Card>
         </div>
       </div>
+      {entry.dialog}
       {confirm ? (
         <Confirm
           title={C.reset.title(user.name)}
