@@ -110,6 +110,19 @@ describe('HttpRepository @g7', () => {
     expect(JSON.parse(String(opts.body))).toEqual({ moduleId: 'sales', stepId: 'c4' });
   });
 
+  it('posts an audited Build action by name, answering as a mutation does (D-172)', async () => {
+    fetchMock.mockImplementation(async () => json(200, { toast: { msg: 'Duplicated as a draft', tone: 'success' } }));
+    const out = await createHttpRepository().act('duplicateModule', { id: 'sales' });
+    expect(out).toEqual({ toast: { msg: 'Duplicated as a draft', tone: 'success' } });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/admin/actions/duplicateModule');
+    const opts = optionsOf(0)!;
+    expect(opts.method).toBe('POST');
+    expect(opts.credentials).toBe('include');
+    expect(JSON.parse(String(opts.body))).toEqual({ id: 'sales' });
+    fetchMock.mockImplementation(async () => json(422, { error: 'Give all six build steps a title.' }));
+    await expect(createHttpRepository().act('duplicateModule', { id: 'sales' })).resolves.toEqual({ error: 'Give all six build steps a title.' });
+  });
+
   it('a 422 is a form error, not a failure', async () => {
     fetchMock.mockImplementation(async () => json(422, { error: 'Pick a session first.' }));
 

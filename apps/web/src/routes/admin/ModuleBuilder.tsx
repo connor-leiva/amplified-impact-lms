@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useBlocker, useNavigate, useParams } from 'react-router';
 import clsx from 'clsx';
-import { MODULE_ICONS } from '@ai/core';
+import { MODULE_ICONS, addStep, duplicateStep, removeStep } from '@ai/core';
 import type { AIEmployee, Db, ModuleStatus } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
@@ -9,7 +9,7 @@ import { useToaster } from '../../components/primitives/Toaster';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Menu } from '../../components/r2/Menu';
-import { Modal } from '../../components/r2/Modal';
+import { Confirm, Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
@@ -17,7 +17,7 @@ import type { Column } from '../../components/r2/Table';
 import { TierPill } from '../../components/r2/TierPill';
 import { KV, PageHead, Pill, Sel, TextArea, k } from '../../components/r2/kit';
 import { isFixture } from '../../data/boot';
-import { useDb, useMutate, useNow } from '../../data/hooks';
+import { useAct, useDb, useNow } from '../../data/hooks';
 import { clock } from '../../lib/clock';
 import { useViewportWidth } from '../../shell/hooks';
 import {
@@ -48,8 +48,12 @@ import s from './ModuleBuilder.module.css';
 //   - The fields the mockup does not draw (sidebar label, headline, for, icon, outputs, live session,
 //     opening day, platform, run label, notes, system prompt, removing a file) are in "Edit details",
 //     the AI Employee's icon tile; a step's hint, chapter, replay time and minutes in its "…" menu.
-//     Add step is drawn and does nothing: every AI Employee has exactly six steps (phase 06 § 6.3).
-//     Needs Connor's call (D-160 R2-2).
+//   - D-172: Add step appends the mockup's new step (Build, "New step", 5 min); a step's "…" adds the
+//     mockup's Duplicate step (a copy, last) and Remove step (after a confirm). Each changes the draft,
+//     as every other edit here does, so Discard undoes it; Save changes persists the draft through
+//     `saveBuilderModule` (core's `saveModule`, learners' checks kept on their steps, one audited
+//     `module.save` row). Connor's request (Nov 16) supersedes phase 06 § 6.3's "exactly 6 steps";
+//     publishing still needs six titled steps (`saveModule`'s check).
 
 type TextKey = 'short' | 'headline' | 'forWho' | 'prompt' | 'notes' | 'platform' | 'runLabel';
 
@@ -76,7 +80,7 @@ const STATUSES: readonly [ModuleStatus, string][] = [
 export function Component() {
   const db = useDb();
   const now = useNow();
-  const mutate = useMutate();
+  const act = useAct();
   const navigate = useNavigate();
   const { toast } = useToaster();
   const params = useParams();
@@ -87,6 +91,7 @@ export function Component() {
   const [st, setSt] = useState<BuilderState>(() => seedState(db, routeId));
   const [details, setDetails] = useState(false);
   const [stepAt, setStepAt] = useState<number | null>(null);
+  const [removeAt, setRemoveAt] = useState<number | null>(null);
 
   // A brand-new draft just saved: `/new` must not reseed over it while the navigation is in flight.
   const savedNew = useRef<string | null>(null);
@@ -119,7 +124,7 @@ export function Component() {
       const isNew = !st.key;
       const draft = structuredClone(st.draft);
       if (status === 'scheduled' && !draft.opens) draft.opens = DEFAULT_OPENS;
-      const out = await mutate('saveModule', { draft, status });
+      const out = await act('saveBuilderModule', { draft, status });
       if (out.error) {
         setSt((prev) => ({ ...prev, errors: out.error!.split('\n') }));
         return;
@@ -132,7 +137,7 @@ export function Component() {
         void navigate(`/admin/curriculum/${saved.id}`);
       }
     },
-    [mutate, navigate, st.draft, st.key],
+    [act, navigate, st.draft, st.key],
   );
 
   const d = st.draft;
@@ -283,7 +288,15 @@ export function Component() {
             label="Steps"
             title={`Steps · ${vm.steps.length}`}
             right={
-              <Button kind="quiet" icon="r2Plus" aria-disabled="true" title="Every AI Employee has six steps">
+              <Button
+                kind="quiet"
+                icon="r2Plus"
+                onClick={() =>
+                  up((x) => {
+                    x.checklist = addStep(x.checklist);
+                  })
+                }
+              >
                 Add step
               </Button>
             }
@@ -295,7 +308,17 @@ export function Component() {
                 x.checklist = moveStepTo(x.checklist, a, b);
               })
             }
-            menu={(r) => [{ label: 'Edit step details', onSelect: () => setStepAt(Number(r.key)) }]}
+            menu={(r) => [
+              { label: 'Edit step details', onSelect: () => setStepAt(Number(r.key)) },
+              {
+                label: 'Duplicate step',
+                onSelect: () =>
+                  up((x) => {
+                    x.checklist = duplicateStep(x.checklist, Number(r.key));
+                  }),
+              },
+              { label: 'Remove step', danger: true, onSelect: () => setRemoveAt(Number(r.key)) },
+            ]}
             empty={{ icon: 'r2Builder', title: 'No steps yet' }}
           />
           <Card
@@ -606,6 +629,23 @@ export function Component() {
             </label>
           </div>
         </Modal>
+      ) : null}
+
+      {/* D-172: Remove step asks first (Connor's request). The step leaves the draft; Save changes persists it. */}
+      {removeAt !== null && d.checklist[removeAt] ? (
+        <Confirm
+          title={`Remove step ${removeAt + 1}?`}
+          body={`“${d.checklist[removeAt]!.text}” is removed when you save. Learners’ checks on it are cleared.`}
+          cta="Remove step"
+          danger
+          onConfirm={() => {
+            const at = removeAt;
+            up((x) => {
+              x.checklist = removeStep(x.checklist, at);
+            });
+          }}
+          onClose={() => setRemoveAt(null)}
+        />
       ) : null}
 
       {/* The approved net-new interaction (phase 06 § 6.3, D-015): leaving with unsaved changes asks first. */}

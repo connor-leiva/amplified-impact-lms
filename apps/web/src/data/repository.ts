@@ -1,4 +1,4 @@
-import type { Db, MutationArgs, MutationName, Outcome } from '@ai/core';
+import type { AdminActionArgs, AdminActionName, Db, MutationArgs, MutationName, Outcome } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import * as M from '@ai/core/mutations';
 
@@ -12,7 +12,7 @@ import * as M from '@ai/core/mutations';
 // The catalog types live in `@ai/core/catalog` so that these screens and the API's request schemas
 // derive them from the same `mutations.ts`; re-exported here because this is where the screens
 // import the rest of the seam from.
-export type { MutationArgs, MutationName };
+export type { AdminActionArgs, AdminActionName, MutationArgs, MutationName };
 
 /** What a mutation hands back to the UI. The new Db is applied by the repository, not the caller. */
 export type MutationResult = Omit<Outcome, 'db'>;
@@ -79,6 +79,12 @@ export interface LmsRepository {
   /** Role-scoped in http mode; the whole demo database in fixture mode. */
   snapshot(): Promise<Db>;
   run<K extends MutationName>(name: K, args: MutationArgs<K>): Promise<MutationResult>;
+  /**
+   * D-172: an audited Build action (`@ai/core`'s `ADMIN_ACTIONS`): in http mode
+   * `POST /api/admin/actions/:name`, which writes its audit row with it; in fixture mode the same
+   * function, in the browser, as `run`. Answers like `run`: a 422 is `{ error }`, anything else throws.
+   */
+  act<K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult>;
   /** Cross-tab storage events in fixture mode, Server-Sent Events in http mode. */
   subscribe(onChange: () => void): () => void;
   /**

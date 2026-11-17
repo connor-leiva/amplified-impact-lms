@@ -89,6 +89,7 @@ import type { EventHub } from './routes/events';
 import { registerFilesRoutes } from './routes/files';
 import { registerJoinRoute } from './routes/join';
 import { registerMutateRoute } from './routes/mutate';
+import { registerAdminActionsRoute } from './routes/admin-actions';
 import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
@@ -630,6 +631,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
     await registerConsoleRoutes(app, { broadcast });
     registerMutateRoute(app, { broadcast });
+    // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.
+    registerAdminActionsRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and
     // re-checks it, so moving this line cannot smuggle the routes into another environment.

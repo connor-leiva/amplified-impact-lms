@@ -1,5 +1,7 @@
 import type { Db } from '@ai/core';
 import type {
+  AdminActionArgs,
+  AdminActionName,
   JoinTicket,
   LmsRepository,
   MutationArgs,
@@ -71,6 +73,13 @@ export function createHttpRepository(): LmsRepository {
     snapshot: () => fetch('/api/snapshot', { credentials: 'include' }).then(parse) as Promise<Db>,
     run: <K extends MutationName>(name: K, args: MutationArgs<K>) =>
       fetch(`/api/mutate/${name}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(args),
+      }).then(parse) as Promise<MutationResult>,
+    act: <K extends AdminActionName>(name: K, args: AdminActionArgs<K>) =>
+      fetch(`/api/admin/actions/${name}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'content-type': 'application/json' },

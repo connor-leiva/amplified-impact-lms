@@ -525,6 +525,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/me', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/me/prefs', methods: 'PATCH', guard: 'session' },
   { path: '/api/mutate/:name', methods: 'POST', guard: 'session' },
+  // D-172: the R2 mockup's remaining Build controls, audited, beside `/api/mutate` and guarded as it is.
+  { path: '/api/admin/actions/:name', methods: 'POST', guard: 'session' },
   { path: '/api/snapshot', methods: 'GET, HEAD', guard: 'session' },
   // Phase 08's four. All session-guarded, and every one hands out something a learner must not get
   // for free: a presigned object URL (§ 8.2) or a Zoom link (§ 8.4). This table is why they could
@@ -1005,6 +1007,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/mutate/:name': () =>
             app.inject({ method: 'POST', url: '/api/mutate/toggleStep', payload: { moduleId: 'sales', stepId: 'c4' } }),
           '/api/snapshot': () => app.inject({ method: 'GET', url: '/api/snapshot' }),
+          // D-172: a valid body, for the same reason as `/api/mutate/:name`'s.
+          '/api/admin/actions/:name': () =>
+            app.inject({ method: 'POST', url: '/api/admin/actions/duplicateModule', payload: { id: 'sales' } }),
           // Phase 08's four. Each hands out something a learner must not get for free — a presigned
           // object URL (§ 8.2) or a Zoom link (§ 8.4) — so the 401 matters more here than anywhere
           // else in this table. Real ids from the fixture, because a 404 on a made-up id would
@@ -1240,8 +1245,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
-    // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path).
-    expect(EXECUTED.unauthenticated).toBe(26);
+    // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 27
+    // with the audited Build actions (D-172).
+    expect(EXECUTED.unauthenticated).toBe(27);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1252,7 +1258,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
-    // Permissions preview (D-160 R2-3b), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1);
+    // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 1 for the audited Build actions
+    // (D-172), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 1);
   });
 });

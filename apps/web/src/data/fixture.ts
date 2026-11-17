@@ -1,8 +1,9 @@
-import { DB_KEY, DB_V, seed, type Db, type Phase } from '@ai/core';
+import { ADMIN_ACTIONS, DB_KEY, DB_V, seed, type Db, type Phase } from '@ai/core';
+import type { Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { MutationError } from '@ai/core';
 import { clock } from '../lib/clock';
-import type { LmsRepository, MutationArgs, MutationName, MutationResult, Viewer } from './repository';
+import type { AdminActionArgs, AdminActionName, LmsRepository, MutationArgs, MutationName, MutationResult, Viewer } from './repository';
 
 /**
  * The prototype, in the browser.
@@ -46,6 +47,35 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     db = p;
   });
 
+  type Ctx = { now: number; id: (p: string) => string };
+  /** Run one mutation or action on the current db: keep its db, tell the listeners, answer the rest. */
+  const apply = async (exec: (c: Ctx) => Outcome): Promise<MutationResult> => {
+    await ready;
+    const ctx: Ctx = { now: clock.now(), id: (p: string) => `${p}${clock.now().toString(36)}${(n++).toString(36)}` };
+    let out: Outcome;
+    try {
+      out = exec(ctx);
+    } catch (e) {
+      // A thrown MutationError is an authorization or programming failure. The UI surfaces it the
+      // same way the API will (phase 07), rather than letting it escape as an unhandled rejection.
+      if (e instanceof MutationError) return { error: e.message };
+      throw e;
+    }
+    if (!out.error) {
+      db = out.db;
+      try {
+        if (!parity) localStorage.setItem(dbKey(phase), JSON.stringify(db));
+      } catch {
+        /* over quota: the change still applies in memory for this tab */
+      }
+      listeners.forEach((f) => f());
+    }
+    const { db: _next, ...rest } = out;
+    // An action's audit row is the server's to write; the screens get the toast and the error.
+    delete (rest as { audit?: unknown }).audit;
+    return rest;
+  };
+
   // Another tab (the admin console, or the prototype itself) wrote the database.
   window.addEventListener('storage', (e) => {
     if (e.key === dbKey(phase) && !parity) {
@@ -64,29 +94,14 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
       return db;
     },
     async run<K extends MutationName>(name: K, args: MutationArgs<K>): Promise<MutationResult> {
-      await ready;
-      const ctx = { now: clock.now(), id: (p: string) => `${p}${clock.now().toString(36)}${(n++).toString(36)}` };
-      const fn = M[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: MutationArgs<K>, c: typeof ctx) => ReturnType<typeof M.markDeployed>;
-      let out;
-      try {
-        out = fn(db, PERSONA[role], args, ctx);
-      } catch (e) {
-        // A thrown MutationError is an authorization or programming failure. The UI surfaces it the
-        // same way the API will (phase 07), rather than letting it escape as an unhandled rejection.
-        if (e instanceof MutationError) return { error: e.message };
-        throw e;
-      }
-      if (!out.error) {
-        db = out.db;
-        try {
-          if (!parity) localStorage.setItem(dbKey(phase), JSON.stringify(db));
-        } catch {
-          /* over quota: the change still applies in memory for this tab */
-        }
-        listeners.forEach((f) => f());
-      }
-      const { db: _next, ...rest } = out;
-      return rest;
+      const fn = M[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: MutationArgs<K>, c: Ctx) => Outcome;
+      return apply((c) => fn(db, PERSONA[role], args, c));
+    },
+    // D-172: the audited Build actions run here as the mutations do. There is no audit log in the
+    // browser (the Console's fixture keeps its own); the server writes the row in http mode.
+    async act<K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult> {
+      const fn = ADMIN_ACTIONS[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: AdminActionArgs<K>, c: Ctx) => Outcome;
+      return apply((c) => fn(db, PERSONA[role], args, c));
     },
     // Phase 08 § 8.2. The prototype has no bucket and never did: its Download buttons serialise a
     // Blob in the browser. Answering `null` is what keeps that true — every parity scenario and
