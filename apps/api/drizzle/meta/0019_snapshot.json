@@ -1,5 +1,5 @@
 {
-  "id": "7800743f-8087-4659-8393-df945b390533",
+  "id": "0e9377eb-472d-456e-9d2d-b2597d8f4f6b",
   "prevId": "2ba5e580-9411-43be-868b-974c651942bd",
   "version": "7",
   "dialect": "postgresql",
@@ -509,6 +509,68 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.api_metrics": {
+      "name": "api_metrics",
+      "schema": "",
+      "columns": {
+        "minute": {
+          "name": "minute",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "route": {
+          "name": "route",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "errors_4xx": {
+          "name": "errors_4xx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "errors_5xx": {
+          "name": "errors_5xx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hist": {
+          "name": "hist",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "api_metrics_minute_route_pk": {
+          "name": "api_metrics_minute_route_pk",
+          "columns": [
+            "minute",
+            "route"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "api_metrics_counts": {
+          "name": "api_metrics_counts",
+          "value": "\"api_metrics\".\"count\" >= 0 and \"api_metrics\".\"errors_4xx\" >= 0 and \"api_metrics\".\"errors_5xx\" >= 0 and \"api_metrics\".\"errors_4xx\" + \"api_metrics\".\"errors_5xx\" <= \"api_metrics\".\"count\""
+        }
+      },
       "isRLSEnabled": false
     },
     "public.audit_log": {
@@ -1116,6 +1178,121 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_ticks": {
+      "name": "job_ticks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "job": {
+          "name": "job",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "error_kind": {
+          "name": "error_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trigger": {
+          "name": "trigger",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "job_ticks_job_started_idx": {
+          "name": "job_ticks_job_started_idx",
+          "columns": [
+            {
+              "expression": "job",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_ticks_started_idx": {
+          "name": "job_ticks_started_idx",
+          "columns": [
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "job_ticks_status": {
+          "name": "job_ticks_status",
+          "value": "\"job_ticks\".\"status\" in ('running', 'succeeded', 'failed', 'skipped')"
+        },
+        "job_ticks_trigger": {
+          "name": "job_ticks_trigger",
+          "value": "\"job_ticks\".\"trigger\" in ('schedule', 'manual')"
+        },
+        "job_ticks_actor": {
+          "name": "job_ticks_actor",
+          "value": "(\"job_ticks\".\"trigger\" = 'manual') = (\"job_ticks\".\"actor_user_id\" is not null)"
+        },
+        "job_ticks_finished": {
+          "name": "job_ticks_finished",
+          "value": "(\"job_ticks\".\"status\" = 'running') = (\"job_ticks\".\"finished_at\" is null)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.login_failures": {
@@ -2166,12 +2343,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
-        },
-        "module_id": {
-          "name": "module_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -2257,12 +2428,6 @@
         "moved_from": {
           "name": "moved_from",
           "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "replay_url": {
-          "name": "replay_url",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         }

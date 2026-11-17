@@ -44,6 +44,7 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   MASQUERADE_PATHS,
+  OPS_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCapsWith,
@@ -68,6 +69,8 @@ import type { ConsoleStripe } from './stripe-read';
 import type { ConsoleStripeWrite } from './stripe-write';
 import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
+import { registerOpsRoutes } from './ops';
+import type { OpsDeps } from './ops';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -91,6 +94,8 @@ export const CONSOLE_PATHS = {
   ...BILLING_PATHS,
   // PR 5 (D-164): Billing's confirmed refund and void.
   ...BILLING_ACTION_ROUTES,
+  // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
+  ...OPS_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -112,6 +117,8 @@ export interface ConsoleDeps extends Readonly<MasqueradeDeps> {
    * narrow write client. Without them the actions answer "Stripe isn't connected".
    */
   readonly billingActions?: { read: ConsoleStripe | null; write: ConsoleStripeWrite | null };
+  /** PR 6 (D-165): API & Webhooks' Stripe key mode, for a test. Left out, read from the key. */
+  readonly ops?: OpsDeps;
 }
 
 // --- filters -------------------------------------------------------------------------------------
@@ -355,5 +362,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
         memo.forgetSummary();
       },
     });
+    registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
   });
 }

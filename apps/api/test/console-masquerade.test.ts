@@ -530,6 +530,12 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'POST', url: CONSOLE_PATHS.billingRefund },
       { method: 'POST', url: CONSOLE_PATHS.billingVoidPreview },
       { method: 'POST', url: CONSOLE_PATHS.billingVoid },
+      // PR 6 (D-165): API & Webhooks and Scheduled Jobs, reads and writes alike.
+      { method: 'GET', url: CONSOLE_PATHS.apiEndpoints },
+      { method: 'GET', url: CONSOLE_PATHS.webhooks },
+      { method: 'POST', url: CONSOLE_PATHS.ghlRetry },
+      { method: 'GET', url: CONSOLE_PATHS.jobs },
+      { method: 'POST', url: '/api/console/jobs/session-24h/run' },
       // D-172's Invite staff and Change role…, two steps: both blocked.
       { method: 'POST', url: CONSOLE_PATHS.staffPreview },
       { method: 'POST', url: CONSOLE_PATHS.staff },

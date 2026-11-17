@@ -151,6 +151,21 @@ export async function crmSyncReport(env: NodeJS.ProcessEnv = process.env): Promi
 
 const TABLES = { waitlist: ai101Waitlist, order: orders, login: ghlLogins } as const;
 
+/**
+ * The retry's reset, in one place (D-165, spec D13): the row's attempts back to 0 and its next-attempt
+ * lock cleared, so the next tick takes it again. The Console's GHL retry calls this same function.
+ * True when the row exists. Writes this database only; GHL hears of the row on the loop's next tick.
+ */
+export async function resetCrmSyncRow(kind: CrmKind, id: string): Promise<boolean> {
+  const db = getDb();
+  const reset = { ghlAttempts: 0, ghlNextAttemptAt: null } as const;
+  const updated =
+    kind === 'login'
+      ? await db.update(ghlLogins).set(reset).where(eq(ghlLogins.userId, id)).returning({ id: ghlLogins.userId })
+      : await db.update(TABLES[kind]).set(reset).where(eq(TABLES[kind].id, id)).returning({ id: TABLES[kind].id });
+  return updated.length > 0;
+}
+
 export function registerCrmSyncRoutes(app: FastifyInstance): void {
   app.get(CRM_SYNC_PATH, { preHandler: requireSession }, async (req, reply) => {
     if (!isAdmin(viewerOrThrow(req))) return forbidden(reply);
@@ -164,13 +179,7 @@ export function registerCrmSyncRoutes(app: FastifyInstance): void {
     const kind = body.kind;
     const id = typeof body.id === 'string' ? body.id.trim() : '';
     if ((kind !== 'waitlist' && kind !== 'order' && kind !== 'login') || id === '') return reply.code(400).send({ error: 'Say which row: kind and id.' });
-    const db = getDb();
-    const reset = { ghlAttempts: 0, ghlNextAttemptAt: null } as const;
-    const updated =
-      kind === 'login'
-        ? await db.update(ghlLogins).set(reset).where(eq(ghlLogins.userId, id)).returning({ id: ghlLogins.userId })
-        : await db.update(TABLES[kind]).set(reset).where(eq(TABLES[kind].id, id)).returning({ id: TABLES[kind].id });
-    if (updated.length === 0) return reply.code(404).send({ error: 'No such row.' });
+    if (!(await resetCrmSyncRow(kind, id))) return reply.code(404).send({ error: 'No such row.' });
     // Ids only: never the row's email.
     req.log.info({ kind, row: id, by: viewer.user.id }, 'CRM sync: row retried by staff');
     return reply.send({ ok: true });

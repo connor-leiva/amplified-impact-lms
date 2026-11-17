@@ -138,8 +138,15 @@
     {
       "idx": 19,
       "version": "7",
-      "when": 1794892023354,
-      "tag": "0019_resource_module_session_replay",
+      "when": 1794897724967,
+      "tag": "0019_ops_telemetry",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794900776976,
+      "tag": "0020_resource_module_session_replay",
       "breakpoints": true
     }
   ]
