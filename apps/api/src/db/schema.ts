@@ -418,3 +418,33 @@ export const staffNotes = pgTable('staff_notes', {
   // A deletion is all three or none: when, by whom, and why (10 to 500 characters).
   check('staff_notes_deleted', sql`(${t.deletedAt} is null and ${t.deletedBy} is null and ${t.deleteReason} is null) or (${t.deletedAt} is not null and ${t.deletedBy} is not null and char_length(${t.deleteReason}) between 10 and 500)`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S MASQUERADE SESSIONS (D-162, spec § 6)
+// ================================================================================================
+// One row per masquerade: an Owner or Admin seeing the LMS as one learner, look-only, for 15 minutes
+// at a time (+15 per Extend, never past 60). `auth_session_id` is the impersonation session the row
+// minted (`auth_sessions.impersonating` holds the staff member's id); `staff_auth_session_id` is the
+// staff member's own session, which Exit puts back and which never leaves the server.
+//
+// One live row per staff member, and the database says so: a partial unique index on `staff_user_id`
+// where `ended_at` is null. `reason` is the latest one given (Start's, then each Extend's); every one
+// is also in its audit row. Times are `clock.now()`, epoch ms. Not part of a `Db`, never in a snapshot.
+export const masqueradeSessions = pgTable('masquerade_sessions', {
+  id: text('id').primaryKey(),
+  staffUserId: text('staff_user_id').notNull(), targetUserId: text('target_user_id').notNull(),
+  reason: text('reason').notNull(),
+  startedAt: ts('started_at').notNull(), expiresAt: ts('expires_at').notNull(), hardExpiresAt: ts('hard_expires_at').notNull(),
+  extendCount: integer('extend_count').notNull().default(0),
+  endedAt: ts('ended_at'), endReason: text('end_reason'),
+  authSessionId: text('auth_session_id').notNull(), staffAuthSessionId: text('staff_auth_session_id').notNull(),
+  startedFrom: text('started_from'),
+  ip: text('ip'), userAgent: text('user_agent'),
+}, (t) => [
+  uniqueIndex('masquerade_sessions_one_live_idx').on(t.staffUserId).where(sql`${t.endedAt} is null`),
+  check('masquerade_sessions_reason', sql`char_length(${t.reason}) between 10 and 500`),
+  check('masquerade_sessions_not_self', sql`${t.staffUserId} <> ${t.targetUserId}`),
+  // An ended row says why, with one of the closed list's reasons (`MASQUERADE_END_REASONS`); a live one says nothing.
+  check('masquerade_sessions_end_reason', sql`(${t.endedAt} is null and ${t.endReason} is null) or (${t.endedAt} is not null and ${t.endReason} in ('exit', 'expired', 'signed_out', 'revoked'))`),
+  check('masquerade_sessions_expiry', sql`${t.expiresAt} <= ${t.hardExpiresAt}`),
+]);
