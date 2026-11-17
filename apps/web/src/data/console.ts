@@ -40,6 +40,13 @@ import type {
   RoleRowKey,
   EmailLogFilters,
   EmailLogPage,
+  DbHealthView,
+  DeploysView,
+  FlagFlipResult,
+  IntegrationView,
+  OpsEnv,
+  ProbeIntegration,
+  ProbeResult,
   RolesMatrix,
   SearchResults,
   StaffNote,
@@ -171,6 +178,14 @@ export interface ConsoleApi {
   ackIncident(id: string): Promise<IncidentDetail>;
   resolveIncident(id: string, note: string): Promise<IncidentDetail>;
   noteIncident(id: string, body: string): Promise<IncidentDetail>;
+  // PR 9 (D-168): the Operations pages (`ops.read`), the flag flip and Check now.
+  opsEnv(): Promise<OpsEnv>;
+  /** `typed`: a sensitive flag's key, typed to confirm. */
+  flipFlag(key: string, on: boolean, typed?: string): Promise<FlagFlipResult>;
+  integrations(): Promise<IntegrationView[]>;
+  checkIntegration(id: ProbeIntegration): Promise<ProbeResult>;
+  deploys(): Promise<DeploysView>;
+  dbHealth(): Promise<DbHealthView>;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -335,6 +350,13 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     ackIncident: async (id) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/ack`, JSON_POST({}))),
     resolveIncident: async (id, note) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/resolve`, JSON_POST({ note }))),
     noteIncident: async (id, body) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/notes`, JSON_POST({ body }))),
+    opsEnv: async () => json<OpsEnv>(await request(fetchImpl, '/api/console/env')),
+    flipFlag: async (key, on, typed) =>
+      json<FlagFlipResult>(await request(fetchImpl, `/api/console/flags/${encodeURIComponent(key)}`, JSON_POST(typed === undefined ? { on } : { on, typed }))),
+    integrations: async () => (await json<{ integrations: IntegrationView[] }>(await request(fetchImpl, '/api/console/integrations'))).integrations,
+    checkIntegration: async (id) => (await json<{ result: ProbeResult }>(await request(fetchImpl, `/api/console/integrations/${id}/check`, JSON_POST({})))).result,
+    deploys: async () => json<DeploysView>(await request(fetchImpl, '/api/console/deploys')),
+    dbHealth: async () => json<DbHealthView>(await request(fetchImpl, '/api/console/db')),
   };
 }
 

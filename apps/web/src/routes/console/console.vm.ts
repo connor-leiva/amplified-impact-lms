@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -30,6 +30,11 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   usage: { title: 'Usage', cap: 'usage.read', path: '/admin/usage' },
   // D-167 (spec § 7.14).
   incidents: { title: 'Incidents', cap: 'incidents.read', path: '/admin/incidents' },
+  // D-168 (spec §§ 7.11-7.13): the Operations pages, Owner and Admin (`ops.read`; Support none, D3).
+  integrations: { title: 'Integrations', cap: 'ops.read', path: '/admin/integrations' },
+  deploys: { title: 'Deploys & Commits', cap: 'ops.read', path: '/admin/deploys' },
+  db: { title: 'DB Health', cap: 'ops.read', path: '/admin/db' },
+  flags: { title: 'Environment Flags', cap: 'ops.read', path: '/admin/flags' },
 };
 
 /** The way out of Denied and the 404. */
