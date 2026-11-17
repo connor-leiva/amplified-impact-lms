@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { DbHealthView, DeploysView, IntegrationView, OpsEnv } from '@ai/core';
 import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from '../../data/console-fixture-infra';
+import { consoleCaps } from '@ai/core';
 import { dbVM, deploysVM, flagsVM, flipConfirm, flipLabel, integrationCardVM, stampWords } from './infra.vm';
 
 const NOW = Date.parse('2026-12-10T16:30:00Z');
@@ -127,7 +128,7 @@ describe('Environment Flags (D-168) @console', () => {
   const env = (): OpsEnv => fixtureOps(() => NOW, 'Casey Lin').env();
 
   it('prints the mockup’s facts, flags and secrets from the fixture', () => {
-    const vm = flagsVM(env(), 'Owner');
+    const vm = flagsVM(env(), consoleCaps('Owner'));
     expect(vm.facts).toEqual({ environment: 'Production', stripe: { label: 'Live', tone: 'ok' }, email: 'Resend, live sending', on: '6 of 8' });
     expect(vm.flags.map((f) => [f.key, f.status.label])).toEqual([
       ['masquerade_enabled', 'On'],
@@ -143,7 +144,7 @@ describe('Environment Flags (D-168) @console', () => {
   });
 
   it('lets only the Owner flip masquerade_enabled, typed; never an env switch or a mockup-only flag', () => {
-    const owner = flagsVM(env(), 'Owner').flags;
+    const owner = flagsVM(env(), consoleCaps('Owner')).flags;
     expect(owner.filter((f) => f.flip).map((f) => f.key)).toEqual(['masquerade_enabled']);
     expect(owner[0]!.flip!.confirm).toEqual({
       title: 'Turn off masquerade_enabled?',
@@ -153,13 +154,13 @@ describe('Environment Flags (D-168) @console', () => {
       typed: { word: 'masquerade_enabled', label: 'Type masquerade_enabled to confirm' },
     });
     expect(flipLabel(owner[0]!)).toBe('masquerade_enabled: On. Turn off…');
-    for (const role of ['Admin', 'Support', null]) expect(flagsVM(env(), role).flags.filter((f) => f.flip), String(role)).toEqual([]);
+    for (const role of ['Admin', 'Support', null]) expect(flagsVM(env(), consoleCaps(role)).flags.filter((f) => f.flip), String(role)).toEqual([]);
     expect(flipConfirm('masquerade_enabled', true, true)).toMatchObject({ title: 'Turn on masquerade_enabled?', cta: 'Turn on', danger: false });
   });
 
   it('prints production’s modes', () => {
     const prod: OpsEnv = { flags: [], env: [], modes: { environment: 'development', stripe: 'unset', email: 'development', ghl: 'off' } };
-    expect(flagsVM(prod, 'Owner').facts).toEqual({ environment: 'Development', stripe: { label: 'Not configured', tone: 'warn' }, email: 'Log file, not sent', on: '0 of 0' });
-    expect(flagsVM({ ...prod, modes: { ...prod.modes, stripe: 'test', email: 'test' } }, 'Owner').facts).toMatchObject({ stripe: { label: 'Test', tone: 'info' }, email: 'Test outbox, not sent' });
+    expect(flagsVM(prod, consoleCaps('Owner')).facts).toEqual({ environment: 'Development', stripe: { label: 'Not configured', tone: 'warn' }, email: 'Log file, not sent', on: '0 of 0' });
+    expect(flagsVM({ ...prod, modes: { ...prod.modes, stripe: 'test', email: 'test' } }, consoleCaps('Owner')).facts).toMatchObject({ stripe: { label: 'Test', tone: 'info' }, email: 'Test outbox, not sent' });
   });
 });

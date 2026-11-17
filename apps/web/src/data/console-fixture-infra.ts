@@ -69,8 +69,8 @@ export function fixtureDbHealth(now: number, slow = true): DbHealthView {
 }
 
 /** The fixture's flag store: the mockup's `F`, with `masquerade_enabled` the Console's own (and flippable). */
-export function fixtureOps(now: () => number, actorName: string) {
-  let masquerade = { on: true, updatedAt: null as number | null, updatedBy: null as string | null };
+export function fixtureOps(now: () => number, actorName: string, masqueradeOn = true) {
+  let masquerade = { on: masqueradeOn, updatedAt: null as number | null, updatedBy: null as string | null };
   const flags = (): ConsoleFlagView[] =>
     FLAGS.map(([key, label, on]) =>
       isConsoleFlagKey(key)
@@ -79,6 +79,8 @@ export function fixtureOps(now: () => number, actorName: string) {
     );
   const env = (): EnvPresence[] => SECRETS.map(([name, on]) => ({ name, group: name.split(' ')[0]!, state: on ? 'present' : 'not_configured' }));
   return {
+    /** D8's flag, as `me` reports it (D-162 3b's entry points). */
+    masqueradeOn: (): boolean => masquerade.on,
     env: (): OpsEnv => ({ flags: flags(), env: env(), modes: { environment: 'production', stripe: 'live', email: 'production', ghl: 'on' } }),
     flip: (key: string, on: boolean): ConsoleFlagView => {
       if (masquerade.on !== on) masquerade = { on, updatedAt: now(), updatedBy: actorName };

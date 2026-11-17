@@ -1,5 +1,5 @@
 // Staff notes (D-158, spec § 7.3): staff's own notes on a workspace or a user. Internal: never shown
-// to the workspace or the user, never in a snapshot. Immutable (migration 0016's trigger): a note is
+// to the workspace or the user, never in a snapshot. Immutable (migration 0017's trigger): a note is
 // written once and can only be soft-deleted, by the Owner, with a reason. The audit row of either
 // records the note's length, never its words.
 

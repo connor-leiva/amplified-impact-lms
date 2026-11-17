@@ -1,6 +1,6 @@
 {
-  "id": "5c6ceb93-bce6-4521-a166-becdb3eb57af",
-  "prevId": "d21dd025-c300-4403-85e0-2578e7b33387",
+  "id": "2ba5e580-9411-43be-868b-974c651942bd",
+  "prevId": "e5dc4b32-74d1-4ae0-87d6-b948ae1aa35c",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -854,25 +854,31 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.console_flags": {
-      "name": "console_flags",
+    "public.console_role_grants": {
+      "name": "console_role_grants",
       "schema": "",
       "columns": {
-        "key": {
-          "name": "key",
+        "role": {
+          "name": "role",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
-        "on": {
-          "name": "on",
+        "capability": {
+          "name": "capability",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allowed": {
+          "name": "allowed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true
         },
-        "sensitive": {
-          "name": "sensitive",
-          "type": "boolean",
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -880,24 +886,30 @@
           "name": "updated_at",
           "type": "bigint",
           "primaryKey": false,
-          "notNull": false
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "console_role_grants_role_capability_pk": {
+          "name": "console_role_grants_role_capability_pk",
+          "columns": [
+            "role",
+            "capability"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
-        "console_flags_key": {
-          "name": "console_flags_key",
-          "value": "\"console_flags\".\"key\" in ('masquerade_enabled')"
+        "console_role_grants_role": {
+          "name": "console_role_grants_role",
+          "value": "\"console_role_grants\".\"role\" in ('Admin', 'Support')"
+        },
+        "console_role_grants_capability": {
+          "name": "console_role_grants_capability",
+          "value": "\"console_role_grants\".\"capability\" in ('build', 'masq', 'account', 'billview', 'refund', 'jobs', 'export', 'ops', 'staff')"
         }
       },
       "isRLSEnabled": false

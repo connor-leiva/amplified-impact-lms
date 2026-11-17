@@ -3,7 +3,8 @@
 //
 // Production lists the Console's own flag (`masquerade_enabled`) and the env switches the app's readers
 // already read (OFFER_OPEN, GHL_SYNC_ENABLED), read-only (D10). The mockup draws no control, so a Console
-// flag's On/Off is its switch, for the role its sensitivity asks (the Owner for `masquerade_enabled`):
+// flag's On/Off is its switch, for a viewer holding the capability its sensitivity asks (the Owner's
+// `flags.write_sensitive` for `masquerade_enabled`, from `/me`'s caps):
 // the R2 Confirm, with the key typed, then one audit row. Owner and Admin read it (`ops.read`).
 
 import { useState } from 'react';
@@ -22,10 +23,10 @@ import type { FlagRowVM } from './infra.vm';
 import { InfraFrame } from './InfraFrame';
 import s from './Infra.module.css';
 
-function FlagsBody({ env, api, role, reload }: { env: OpsEnv; api: ConsoleApi; role: string; reload: () => void }) {
+function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; caps: readonly string[]; reload: () => void }) {
   const { toast } = useAdminChrome();
   const [ask, setAsk] = useState<FlagRowVM | null>(null);
-  const vm = flagsVM(env, role);
+  const vm = flagsVM(env, caps);
   const flip = (r: FlagRowVM, typed?: string) => {
     if (!r.flip) return;
     api.flipFlag(r.key, r.flip.to, typed).then(
@@ -97,7 +98,7 @@ export function Component() {
       head={<PageHead title={C.title} meta={<Pill>{C.readOnly}</Pill>} description={C.description} />}
       read={(a) => a.opsEnv()}
     >
-      {(env, { api, me, reload }) => <FlagsBody env={env} api={api} role={me.role} reload={reload} />}
+      {(env, { api, me, reload }) => <FlagsBody env={env} api={api} caps={me.caps} reload={reload} />}
     </InfraFrame>
   );
 }

@@ -11,7 +11,6 @@ import {
   WWW_ONLY_INTEGRATIONS,
   adminStamp,
   bytesLabel,
-  consoleCan,
   consoleFlagDef,
   durationLabel,
   flagWriteCap,
@@ -298,7 +297,8 @@ export function flipConfirm(key: string, to: boolean, sensitive: boolean): FlipC
   };
 }
 
-export function flagsVM(e: OpsEnv, role: string | null): FlagsVM {
+/** `caps`: the viewer's capabilities as `/api/console/me` answers them (role grants included, D-160 R2-3b). */
+export function flagsVM(e: OpsEnv, caps: readonly string[]): FlagsVM {
   const on = e.flags.filter((f) => f.on).length;
   return {
     facts: {
@@ -308,7 +308,7 @@ export function flagsVM(e: OpsEnv, role: string | null): FlagsVM {
       on: `${on} of ${e.flags.length}`,
     },
     flags: e.flags.map((f) => {
-      const mine = f.source === 'console' && isConsoleFlagKey(f.key) && consoleCan(role, flagWriteCap(consoleFlagDef(f.key)));
+      const mine = f.source === 'console' && isConsoleFlagKey(f.key) && caps.includes(flagWriteCap(consoleFlagDef(f.key)));
       return {
         key: f.key,
         label: f.label,

@@ -11,6 +11,7 @@ import { Denied } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsolePages, useSettled } from './useConsoleData';
+import { useMasqueradeEntry } from './useMasqueradeEntry';
 import {
   DEFAULT_WORKSPACE_FILTERS,
   PLAN_OPTIONS,
@@ -24,7 +25,7 @@ import type { WorkspaceRowVM } from './workspaces.vm';
 
 // /admin/workspaces on R2 (D-160 R2-1c, spec § 7.3): the mockup's `Workspaces`. Every team and solo
 // account, filtered on the server by words, plan and status, a page at a time; a row opens its
-// workspace. "Masquerade as owner…" is the Masquerade PR's (locked until then).
+// workspace. "Masquerade as owner…" opens the reason dialog for its owner (D-162 3b): Owner and Admin.
 
 export function Component() {
   const gate = useConsoleGate('workspaces');
@@ -35,6 +36,8 @@ export function Component() {
   const query = useMemo(() => workspaceFiltersFor({ ...filters, q }), [filters, q]);
   const list = useConsolePages(api, (a, cursor) => a.workspaces(query, cursor), JSON.stringify(query));
   const rows = useMemo(() => list.rows.map(workspaceRowVM), [list.rows]);
+  const raw = useMemo(() => new Map(list.rows.map((w) => [w.teamId, w])), [list.rows]);
+  const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
 
   if (gate.kind === 'hidden') return null;
   if (gate.kind === 'denied') return <Denied what={C.title} role={gate.role} />;
@@ -109,10 +112,15 @@ export function Component() {
           rowKey={(w) => w.key}
           loading={list.status === 'loading' || gate.kind === 'loading'}
           onRow={(w) => navigate(w.href)}
-          menu={(w) => [
-            { label: C.open, onSelect: () => navigate(w.href) },
-            { label: C.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} },
-          ]}
+          menu={(w) => {
+            const r = raw.get(w.key);
+            return [
+              { label: C.open, onSelect: () => navigate(w.href) },
+              ...(r?.ownerId
+                ? entry.item(C.masquerade, { id: r.ownerId, name: r.ownerName ?? w.owner, workspace: r.name })
+                : []),
+            ];
+          }}
           empty={{ icon: 'r2Workspaces', title: C.empty.title, body: C.empty.body }}
           filtered={!isDefaultWorkspaceFilters(filters)}
           footer={
@@ -126,6 +134,7 @@ export function Component() {
           }
         />
       )}
+      {entry.dialog}
     </Page>
   );
 }

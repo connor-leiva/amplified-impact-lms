@@ -69,7 +69,8 @@ import type { FastifyError, FastifyInstance, FastifyRequest, FastifyServerOption
 import { createSession, decorateViewer, readSessionSecret, SESSION_COOKIE, settleEmails } from './auth';
 import { close as closeDatabase, getDb } from './db/client';
 import { renderTemplate } from './email/templates';
-import { setRenderer } from './email/transport';
+import { setRenderer, setSendObserver } from './email/transport';
+import { logSend } from './email/log';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerLegalPages } from './routes/legal';
@@ -104,13 +105,20 @@ import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
-import { readOfferConfig } from './billing/config';
+import { keyMode, readOfferConfig } from './billing/config';
+import { cachedConsoleStripe, consoleStripeClient, probeStripeScopes, scopedConsoleStripe } from './console/stripe-read';
+import type { ConsoleStripe } from './console/stripe-read';
+import { consoleStripeWriter, scopedConsoleStripeWrite } from './console/stripe-write';
+import type { ConsoleStripeWrite } from './console/stripe-write';
+import type { StripeMode } from '@ai/core';
 import type { OfferConfig } from './billing/config';
 import { createPriceCache } from './billing/prices';
 import type { PriceCache } from './billing/prices';
 import { stripeClient, stripeVerifier } from './billing/stripe';
 import type { BillingStripe } from './billing/stripe';
 import { clientIpEvidence, clientIpHeaderFor, clientIpOf } from './lib/client-ip';
+import { createApiMetrics } from './lib/api-metrics';
+import type { ApiMetrics } from './lib/api-metrics';
 
 /**
  * Fastify's `trustProxy`, as the one-hop function the comment at the call site argues for.
@@ -217,6 +225,18 @@ export interface BuildOptions {
    * Railway, nothing elsewhere. A test passes `'x-real-ip'` to stand in for Railway's edge.
    */
   clientIpHeader?: string | null;
+  /**
+   * The Admin Console's Billing (D-163), for a test: its Stripe read client (a fake; null for "Stripe
+   * isn't connected") and the key's mode for its Dashboard links. Left out, both come from the key.
+   */
+  consoleBilling?: {
+    stripe?: ConsoleStripe | null;
+    mode?: StripeMode;
+    /** D-164: the confirmed actions' write client (a fake); left out of a test, there is none. */
+    write?: ConsoleStripeWrite | null;
+    /** Wrap the fake read client in the 10-minute cache, as production's is. */
+    cache?: boolean;
+  };
   offer?: {
     pages?: OfferPages;
     config?: OfferConfig;
@@ -226,6 +246,12 @@ export interface BuildOptions {
   };
   /** What the Admin Console's routes are handed (`console/routes.ts`): masquerade's flag, for a test. */
   console?: ConsoleDeps;
+  /**
+   * The Console's API metrics (D-165, `lib/api-metrics.ts`): an observe-only `onResponse` hook. Left
+   * out, on wherever the Console is (not in fixture mode) except under test, where a suite passes its
+   * own; null for none.
+   */
+  metrics?: ApiMetrics | null;
 }
 
 /** § 7.7's `build()`, with the two things Gate 7's snippet calls on the result. */
@@ -527,6 +553,15 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // mode, where no Console route exists to start one.
   if (!fixtureOnly) app.addHook('onRequest', masqueradeWriteBlock);
 
+  // D-165: the Console's API metrics (spec § 7.9). `onResponse` runs after the answer has gone, and
+  // `record` only counts, in memory, by route template; a timer writes once a minute and its failures
+  // stay there. Not in fixture mode, which has no database and no Console.
+  const metrics = fixtureOnly ? null : options.metrics !== undefined ? options.metrics : isTestEnv() ? null : createApiMetrics({ log: app.log });
+  if (metrics) {
+    app.addHook('onResponse', async (req, reply) => metrics.record(req, reply));
+    app.addHook('onClose', async () => metrics.close());
+  }
+
   decorateViewer(app);
 
   /**
@@ -581,16 +616,18 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   const offerConfig = options.offer?.config ?? readOfferConfig();
   const offerStripe =
     options.offer?.stripe !== undefined ? options.offer.stripe : offerConfig.stripeSecretKey ? stripeClient(offerConfig.stripeSecretKey) : null;
+  // One price cache for the offer and the Console's Billing (D-163 reads its labels from it).
+  const offerPrices =
+    options.offer?.prices ??
+    createPriceCache(
+      () => offerStripe,
+      (err) => app.log.warn({ reason: (err as { code?: string; type?: string }).code ?? (err as { type?: string }).type }, 'Stripe prices could not be loaded'),
+    );
   {
     const config = offerConfig;
     const stripe = offerStripe;
     const verify = options.offer?.verify !== undefined ? options.offer.verify : config.stripeWebhookSecret ? stripeVerifier() : null;
-    const prices =
-      options.offer?.prices ??
-      createPriceCache(
-        () => stripe,
-        (err) => app.log.warn({ reason: (err as { code?: string; type?: string }).code ?? (err as { type?: string }).type }, 'Stripe prices could not be loaded'),
-      );
+    const prices = offerPrices;
     await registerOfferRoutes(app, {
       pages: options.offer?.pages ?? {},
       config,
@@ -608,6 +645,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // from the renderer, so registering it is what turns the nine templates on; without it every
     // email goes out with no body and `sendViaResend` refuses to send at all.
     setRenderer(renderTemplate);
+    // D-166: the email log, written after each send and never in its way (`email/log.ts`).
+    setSendObserver(logSend);
 
     events = registerEventsRoute(app);
     // A thunk, not `events.broadcast` by reference: the routes then call whatever the hub's
@@ -638,8 +677,46 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
-    // PR 3a (D-162): masquerade's endpoints too.
-    await registerConsoleRoutes(app, options.console ?? {});
+    // PR 3a (D-162): masquerade's endpoints too; D-160 R2-3b: the event hub, for a Roles change.
+    // PR 4 (D-163): Billing reads Stripe through its own narrow, cached, read-only client, from the
+    // same key. PR 5 (D-164): its two confirmed writes, refund and void, read Stripe fresh (the same
+    // read client, uncached) and write through a separate, narrow write client, from the same key.
+    const consoleKey = offerConfig.stripeSecretKey;
+    const testBilling = options.consoleBilling;
+    const consoleFresh =
+      testBilling?.stripe !== undefined
+        ? testBilling.stripe && scopedConsoleStripe(testBilling.stripe)
+        : consoleKey
+          ? scopedConsoleStripe(consoleStripeClient(consoleKey))
+          : null;
+    const consoleStripe =
+      testBilling?.stripe !== undefined
+        ? consoleFresh && testBilling.cache
+          ? cachedConsoleStripe(consoleFresh, () => clock.now())
+          : consoleFresh
+        : consoleKey
+          ? cachedConsoleStripe(scopedConsoleStripe(consoleStripeClient(consoleKey)), () => clock.now())
+          : null;
+    const consoleWrite = testBilling
+      ? testBilling.write
+        ? scopedConsoleStripeWrite(testBilling.write)
+        : null
+      : consoleKey
+        ? scopedConsoleStripeWrite(consoleStripeWriter(consoleKey))
+        : null;
+    await registerConsoleRoutes(app, {
+      ...(options.console ?? {}),
+      broadcast,
+      billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) },
+      billingActions: { read: consoleFresh, write: consoleWrite },
+      // PR 9 (D-168): Check now for Stripe is Billing's scope probe over the fresh read client (never
+      // the cache), so it asks Stripe each time; with no key there is nothing to check.
+      infra: {
+        ...(options.console?.infra ?? {}),
+        stripeScopes:
+          options.console?.infra?.stripeScopes !== undefined ? options.console.infra.stripeScopes : consoleFresh ? () => probeStripeScopes(consoleFresh) : null,
+      },
+    });
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

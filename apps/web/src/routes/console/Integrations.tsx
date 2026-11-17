@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
-import { consoleCan, probeMessage } from '@ai/core';
+import { probeMessage } from '@ai/core';
 import type { IntegrationView, ProbeIntegration } from '@ai/core';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
@@ -75,7 +75,7 @@ function Cards({ list, api, canProbe }: { list: IntegrationView[]; api: ConsoleA
 export function Component() {
   return (
     <InfraFrame screen="integrations" lines={8} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.integrations()}>
-      {(list, { api, me }) => <Cards list={list} api={api} canProbe={consoleCan(me.role, 'integrations.probe')} />}
+      {(list, { api, me }) => <Cards list={list} api={api} canProbe={me.caps.includes('integrations.probe')} />}
     </InfraFrame>
   );
 }

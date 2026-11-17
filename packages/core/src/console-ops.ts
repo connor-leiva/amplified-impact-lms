@@ -1,363 +1,222 @@
-// The Admin Console's operations pages, PR 9 (D-168, spec §§ 7.11-7.13): the Console-owned flags,
-// env presence, the integrations, the deploys and DB health. Pure, like the rest of @ai/core: the API
-// answers with these shapes and closed lists, and the four R2 screens' view-models turn them into the
-// mockup's words, so the two cannot disagree on a label, a limit or a state.
+// The Admin Console, PR 6 (D-165, spec §§ 7.9-7.10): API & Webhooks and Scheduled Jobs. Pure, like the
+// rest of @ai/core: the API answers in these shapes (`apps/api/src/console/ops.ts`) and the R2 screens'
+// view-models (`routes/console/ops.vm.ts`) turn them into the mockup's words.
 //
-// SECRETS NEVER LEAVE THE SERVER. Env reaches the browser only as a presence state (`present` or
-// `not_configured`) or a mode (`live`, `test`, …). No shape here has room for a value, a prefix, a
-// suffix, a length or a hash, and the API's sentinel test (`console-ops-sentinel.test.ts`) proves it.
-// There is no Replace or Reveal (D9).
-//
-// FLAGS (D8, D10). `CONSOLE_FLAGS` is the closed list of flags the Console owns, and v1 has one:
-// `masquerade_enabled`, on by default, sensitive (only the Owner turns it off, typing its key). Env
-// switches are read-only and come from their existing readers. No flag may touch checkout, Payment
-// Links, the seat cap, webhooks, gating, analytics or `/agreement`.
-
-import type { ConsoleCap } from './console';
-import { MASQUERADE_ENABLED_DEFAULT } from './console-masquerade';
-
-// ================================================================================================
-// Paths
-// ================================================================================================
+// WHERE THE NUMBERS COME FROM (spec § 13: never sample numbers). Latencies, request counts and error
+// rates are `api_metrics` (an observe-only `onResponse` hook, one row per minute and route template).
+// Webhook deliveries are `stripe_events` (view-only, D13) and the CRM sync log (`crmSyncReport()`).
+// Job results are `job_ticks` (an observe-only wrapper around the scheduler's tick), and schedules are
+// the loops' own intervals (`JOB_SCHEDULES` in the API).
 
 export const OPS_PATHS = {
-  /** `{ flags, env, modes }`: the Environment Flags page. `ops.read`. */
-  env: '/api/console/env',
-  /** `POST { on, typed? }`: flip one Console flag. `flags.write`, or `flags.write_sensitive`. */
-  flagFlip: '/api/console/flags/:key',
-  integrations: '/api/console/integrations',
-  /** `POST`: Check now, Stripe and Resend only, read-only. `integrations.probe`. */
-  integrationCheck: '/api/console/integrations/:id/check',
-  deploys: '/api/console/deploys',
-  db: '/api/console/db',
+  apiEndpoints: '/api/console/api/endpoints',
+  webhooks: '/api/console/webhooks',
+  ghlRetry: '/api/console/webhooks/ghl/retry',
+  jobs: '/api/console/jobs',
+  jobRun: '/api/console/jobs/:job/run',
 } as const;
 
+export const jobRunPath = (job: string): string => `/api/console/jobs/${encodeURIComponent(job)}/run`;
+
 // ================================================================================================
-// Console flags (spec § 7.13, D8, D10)
+// API metrics (spec § 7.9)
 // ================================================================================================
 
-export interface ConsoleFlagDef {
-  key: string;
-  /** What it does, in sentence case: the mockup's second line. */
-  label: string;
-  /** Sensitive: `flags.write_sensitive` (the Owner), and the key typed to confirm. */
-  sensitive: boolean;
-  /** Its state when no row says otherwise. */
-  defaultOn: boolean;
+/** A latency histogram's upper bounds, in ms (spec: "buckets 10…5000,+inf"). */
+export const API_METRIC_BOUNDS = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000] as const;
+export const API_METRIC_INF = '+inf';
+/** One minute's samples per bucket (not cumulative), keyed by bound: `{ "10": 3, "+inf": 0 }`. */
+export type ApiHist = Record<string, number>;
+
+/** The bucket a latency falls in: the first bound at or above it. */
+export function bucketOf(ms: number): string {
+  for (const b of API_METRIC_BOUNDS) if (ms <= b) return String(b);
+  return API_METRIC_INF;
 }
 
-/** The closed list. v1 has one flag (spec § 7.13). */
-export const CONSOLE_FLAGS = [
-  { key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: MASQUERADE_ENABLED_DEFAULT },
-] as const satisfies readonly ConsoleFlagDef[];
-
-export type ConsoleFlagKey = (typeof CONSOLE_FLAGS)[number]['key'];
-export const CONSOLE_FLAG_KEYS: readonly ConsoleFlagKey[] = CONSOLE_FLAGS.map((f) => f.key);
-
-export const isConsoleFlagKey = (v: unknown): v is ConsoleFlagKey => typeof v === 'string' && (CONSOLE_FLAG_KEYS as readonly string[]).includes(v);
-
-export const consoleFlagDef = (key: ConsoleFlagKey): ConsoleFlagDef => CONSOLE_FLAGS.find((f) => f.key === key)!;
-
-/** The capability a flip needs: a sensitive flag is the Owner's alone (D8). */
-export const flagWriteCap = (def: Pick<ConsoleFlagDef, 'sensitive'>): ConsoleCap => (def.sensitive ? 'flags.write_sensitive' : 'flags.write');
-
-/** A sensitive flip is confirmed by typing the flag's key, exactly; any other flip needs nothing typed. */
-export const flagTypedOk = (def: Pick<ConsoleFlagDef, 'key' | 'sensitive'>, typed: unknown): boolean =>
-  !def.sensitive || (typeof typed === 'string' && typed.trim() === def.key);
+/** Two histograms added together. */
+export function addHist(a: ApiHist, b: ApiHist): ApiHist {
+  const out: ApiHist = { ...a };
+  for (const [k, n] of Object.entries(b)) out[k] = (out[k] ?? 0) + n;
+  return out;
+}
 
 /**
- * D10: what no Console flag may control. A test reads every flag's key and label against these, so a
- * flag over checkout, Payment Links, the cap, webhooks, gating, analytics or `/agreement` can't be
- * added without that test changing in the same diff.
+ * The q-quantile of a histogram, by linear interpolation inside its bucket (as Prometheus's
+ * `histogram_quantile` does), rounded to a whole ms; the +inf bucket answers its lower bound. Null
+ * with no samples.
  */
-export const FLAG_FORBIDDEN_AREAS = ['checkout', 'payment link', 'seat cap', 'webhook', 'gating', 'course access', 'analytics', 'pixel', 'agreement'] as const;
-
-export type FlagSource = 'console' | 'env';
-
-/** One row of the Feature flags card: a Console flag, or an env switch read from its existing reader. */
-export interface ConsoleFlagView {
-  key: string;
-  label: string;
-  on: boolean;
-  source: FlagSource;
-  /** Console flags only: the Owner's alone, and typed to confirm. */
-  sensitive: boolean;
-  /** Console flags only, once flipped. */
-  updatedAt: number | null;
-  updatedBy: string | null;
-}
-
-/** What `POST /api/console/flags/:key` answers. */
-export interface FlagFlipResult {
-  flag: ConsoleFlagView;
-}
-
-// ================================================================================================
-// Env presence (spec § 7.13): booleans and modes only
-// ================================================================================================
-
-export const ENV_STATES = ['present', 'not_configured'] as const;
-export type EnvState = (typeof ENV_STATES)[number];
-
-/** One configured secret: its name as the page prints it, its group, and whether it is set. Nothing else. */
-export interface EnvPresence {
-  name: string;
-  group: string;
-  state: EnvState;
-}
-
-export type OpsEnvironment = 'production' | 'development' | 'test';
-export type StripeKeyMode = 'live' | 'test' | 'unknown' | 'unset';
-/** Email: Resend sends (`production`), the log file (`development`) or the test outbox. */
-export type EmailMode = 'production' | 'development' | 'test';
-export type GhlMode = 'on' | 'paused' | 'off';
-
-export interface OpsModes {
-  environment: OpsEnvironment;
-  stripe: StripeKeyMode;
-  email: EmailMode;
-  ghl: GhlMode;
-}
-
-/** `GET /api/console/env`: the fixed shape (spec § 7.13). */
-export interface OpsEnv {
-  flags: ConsoleFlagView[];
-  env: EnvPresence[];
-  modes: OpsModes;
-}
-
-// ================================================================================================
-// Integrations (spec § 7.13)
-// ================================================================================================
-
-export const INTEGRATION_IDS = ['stripe', 'ghl', 'zoom', 'google', 'resend', 'storage', 'ga4', 'meta'] as const;
-export type IntegrationId = (typeof INTEGRATION_IDS)[number];
-export const isIntegrationId = (v: unknown): v is IntegrationId => typeof v === 'string' && (INTEGRATION_IDS as readonly string[]).includes(v);
-
-/** "Check now" exists for these two only, and only reads (spec § 7.13). */
-export const PROBE_INTEGRATIONS = ['stripe', 'resend'] as const satisfies readonly IntegrationId[];
-export type ProbeIntegration = (typeof PROBE_INTEGRATIONS)[number];
-export const isProbeIntegration = (v: unknown): v is ProbeIntegration => typeof v === 'string' && (PROBE_INTEGRATIONS as readonly string[]).includes(v);
-
-/** Each integration's card title and its line, the mockup's words. */
-export const INTEGRATION_NAMES: Readonly<Record<IntegrationId, { name: string; use: string }>> = {
-  stripe: { name: 'Stripe', use: 'Payments, subscriptions, invoices' },
-  ghl: { name: 'GoHighLevel', use: 'CRM sync for logins and orders' },
-  zoom: { name: 'Zoom', use: 'Session join links' },
-  google: { name: 'Google', use: 'Sign in with Google' },
-  resend: { name: 'Resend', use: 'Transactional email' },
-  storage: { name: 'Storage', use: 'Railway S3-compatible bucket' },
-  ga4: { name: 'GA4', use: 'Analytics on www only' },
-  meta: { name: 'Meta Pixel', use: 'Ads measurement on www only' },
-};
-
-/** GA4 and the Meta Pixel are www's (D-155): their ids are shown, nothing is checked. */
-export const WWW_ONLY_INTEGRATIONS: readonly IntegrationId[] = ['ga4', 'meta'];
-
-export type IntegrationState = 'connected' | 'degraded' | 'paused' | 'not_configured' | 'www_only';
-
-/** A last success or error: when, and a short, fixed detail (a status, a kind), or none, or no source. */
-export type IntegrationStamp = { at: number; detail: string | null } | 'none' | 'unavailable';
-
-export interface IntegrationView {
-  id: IntegrationId;
-  name: string;
-  use: string;
-  state: IntegrationState;
-  /** `live` / `test` (Stripe), `on` / `paused` / `off` (GoHighLevel), the email mode (Resend); else null. */
-  mode: string | null;
-  lastSuccess: IntegrationStamp;
-  lastError: IntegrationStamp;
-  /** Which table the two stamps come from, or null when there is none. */
-  source: string | null;
-  /** Each secret's presence, by its short name on the card. */
-  secrets: { label: string; state: EnvState }[];
-  /** GA4's and Meta's public ids (D-155), from the existing analytics constants. */
-  publicId: string | null;
-  /** "Check now" exists (Stripe and Resend). */
-  probe: boolean;
-}
-
-/** A card's state from what the reader and the tables say. An error newer than the last success is Degraded. */
-export function integrationState(i: { configured: boolean; paused?: boolean; lastSuccess: IntegrationStamp; lastError: IntegrationStamp }): IntegrationState {
-  if (!i.configured) return 'not_configured';
-  if (i.paused) return 'paused';
-  const ok = typeof i.lastSuccess === 'object' ? i.lastSuccess.at : null;
-  const bad = typeof i.lastError === 'object' ? i.lastError.at : null;
-  if (bad !== null && (ok === null || bad > ok)) return 'degraded';
-  return 'connected';
-}
-
-/** The newer of two stamps; a real stamp beats `none`, which beats `unavailable`. */
-export function newerStamp(a: IntegrationStamp, b: IntegrationStamp): IntegrationStamp {
-  if (typeof a === 'object' && typeof b === 'object') return b.at > a.at ? b : a;
-  if (typeof a === 'object') return a;
-  if (typeof b === 'object') return b;
-  return a === 'none' || b === 'none' ? 'none' : 'unavailable';
-}
-
-/** What a Check now found. A closed list: never the provider's own words. */
-export type ProbeOutcome = 'ok' | 'not_configured' | 'refused' | 'scope_missing' | 'rate_limited' | 'unreachable' | 'failed';
-
-export interface ProbeResult {
-  id: ProbeIntegration;
-  outcome: ProbeOutcome;
-  at: number;
-  /** The HTTP status the provider answered, when that is the finding. */
-  status: number | null;
-  /** Stripe: the Read permissions the key lacks, by name (D-163's scopes). */
-  missing: string[];
-}
-
-const STATUS_TEXT: Readonly<Record<number, string>> = { 400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found', 429: 'Too Many Requests', 500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable' };
-
-/** "401 Unauthorized". */
-export const statusLine = (status: number): string => `${status}${STATUS_TEXT[status] ? ` ${STATUS_TEXT[status]}` : ''}`;
-
-/** The toast a Check now ends with, in the mockup's words ("Stripe: connection ok", "…: test failed, 401 Unauthorized"). */
-export function probeMessage(r: ProbeResult): string {
-  const name = INTEGRATION_NAMES[r.id].name;
-  switch (r.outcome) {
-    case 'ok':
-      return `${name}: connection ok`;
-    case 'not_configured':
-      return `${name}: not configured`;
-    case 'scope_missing':
-      return `${name}: test failed, missing Read on ${r.missing.join(', ')}`;
-    case 'unreachable':
-      return `${name}: test failed, no answer`;
-    default:
-      return `${name}: test failed${r.status ? `, ${statusLine(r.status)}` : ''}`;
+export function histQuantile(hist: ApiHist, q: number): number | null {
+  const bounds: [string, number, number][] = [];
+  let lower = 0;
+  for (const b of API_METRIC_BOUNDS) {
+    bounds.push([String(b), lower, b]);
+    lower = b;
   }
+  bounds.push([API_METRIC_INF, lower, lower]);
+  const total = bounds.reduce((n, [k]) => n + (hist[k] ?? 0), 0);
+  if (total <= 0) return null;
+  const rank = q * total;
+  let seen = 0;
+  for (const [k, lo, hi] of bounds) {
+    const n = hist[k] ?? 0;
+    if (n > 0 && seen + n >= rank) return Math.round(lo + (hi - lo) * ((rank - seen) / n));
+    seen += n;
+  }
+  return lower;
 }
 
-// ================================================================================================
-// Deploys (spec § 7.11)
-// ================================================================================================
+/** The window the API & Webhooks screen reads: the last 24 hours. */
+export const API_WINDOW_MS = 24 * 3600_000;
+/** D6: API metrics are kept 30 days, job ticks 90. */
+export const API_METRICS_RETENTION_MS = 30 * 24 * 3600_000;
+export const JOB_TICKS_RETENTION_MS = 90 * 24 * 3600_000;
 
-/**
- * The service as `.railway/railway.ts` describes it: the repository Railway builds, its one branch and
- * the `web` service. Code, not env (env leaves the server only as booleans and modes); a test pins
- * these to that file.
- */
-export const DEPLOY_FACTS = { repository: 'amplified-impact-lms', owner: 'connor-leiva', branch: 'main', service: 'web' } as const;
-
-/** History is fetched at most once per 5 minutes (spec § 7.11). */
-export const DEPLOYS_CACHE_MS = 5 * 60_000;
-/** How many commits or deploys the history lists. */
-export const DEPLOYS_LIMIT = 10;
-
-export type DeployStatus = 'live' | 'succeeded' | 'failed' | 'building' | 'removed' | 'skipped';
-export type DeploySource = 'github' | 'railway';
-
-export interface DeployRow {
-  sha: string;
-  message: string;
-  /** Null when the source can't say (GitHub's commits carry no deploy). */
-  status: DeployStatus | null;
-  buildMs: number | null;
-  author: string | null;
-  at: number;
+/** One route template's last 24 hours. `errorRate` is 5xx answers as a percent of requests. */
+export interface ApiEndpointRow {
+  /** `GET /api/snapshot`: the method and the route as registered, never a raw URL. */
+  route: string;
+  requests: number;
+  errorRate: number;
+  p50Ms: number | null;
+  p95Ms: number | null;
+  /** An event stream: its latency is the connection's life, so it reads "stream". */
+  stream?: boolean;
 }
 
-export type DeployHistory =
-  | { state: 'not_configured' }
-  | { state: 'unavailable'; source: DeploySource }
-  | { state: 'ok'; source: DeploySource; rows: DeployRow[]; asOf: number };
-
-export interface DeploysView {
-  repository: string;
-  branch: string;
-  service: string;
-  environment: OpsEnvironment;
-  /** `RAILWAY_GIT_COMMIT_SHA`, as `/api/health` shows it, or null off Railway. */
-  liveCommit: string | null;
-  history: DeployHistory;
-}
-
-/** "a3f91c2". */
-export const shortSha = (sha: string): string => sha.slice(0, 7);
-
-/** "1m 48s", "0m 39s", "2m 03s". */
-export function durationLabel(ms: number): string {
-  const s = Math.max(0, Math.round(ms / 1000));
-  return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
-}
-
-// ================================================================================================
-// Database (spec § 7.12)
-// ================================================================================================
-
-/** Every query runs in a READ ONLY transaction with this statement timeout. */
-export const DB_STATEMENT_TIMEOUT_MS = 2000;
-/** The page's answer is reused for a minute. */
-export const DB_CACHE_MS = 60_000;
-export const DB_TOP_TABLES = 10;
-export const DB_MIGRATIONS_SHOWN = 10;
-/** `pg_stat_statements`, when it exists: the five slowest, each cut to 400 characters. */
-export const SLOW_QUERY_LIMIT = 5;
-export const SLOW_QUERY_MAX_CHARS = 400;
-/** "Slow" is a mean over 500 ms (the mockup's "over 500 ms"). */
-export const SLOW_QUERY_MS = 500;
-
-export interface DbTable {
-  name: string;
-  bytes: number;
-  /** Postgres's own estimate (`n_live_tup`). */
-  rows: number;
-}
-
-export interface DbSlowQuery {
-  meanMs: number;
-  calls: number;
-  /** Normalised by Postgres (parameters are `$1`), and at most 400 characters. */
-  query: string;
-}
-
-export type DbSlow =
-  | { available: false }
-  | {
-      available: true;
-      /** The window the counts cover, in hours, or null when they run since the statistics were reset. */
-      windowHours: number | null;
-      over500: number;
-      rows: DbSlowQuery[];
-    };
-
-export interface DbHealthView {
+export interface ApiEndpoints {
+  windowMs: number;
+  /** The last flush the numbers include. */
   asOf: number;
-  connections: { used: number; max: number };
-  sizeBytes: number;
-  tables: DbTable[];
-  /** Applied, newest first, each the journal's tag and its `when`; then the journal's tags not applied. */
-  migrations: { applied: { tag: string; at: number }[]; pending: string[] };
-  slow: DbSlow;
+  summary: { requests: number; errorRate: number | null; p95Ms: number | null };
+  /** Most requests first. */
+  rows: ApiEndpointRow[];
 }
 
-/** A slow query cut to 400 characters, with an ellipsis when it was cut. */
-export const clipQuery = (q: string): string => (q.length <= SLOW_QUERY_MAX_CHARS ? q : `${q.slice(0, SLOW_QUERY_MAX_CHARS - 1)}…`);
+// ================================================================================================
+// Webhook deliveries (spec § 7.9, D13)
+// ================================================================================================
 
-const scaled = (n: number, unit: number, suffixes: readonly string[], join: string): string => {
-  let i = 0;
-  let v = n;
-  while (v >= unit && i < suffixes.length - 1) {
-    v /= unit;
-    i += 1;
-  }
-  const tenth = Math.round(v * 10) / 10;
-  const shown = i === 0 || tenth >= 10 ? String(Math.round(v)) : tenth.toFixed(1);
-  return `${shown}${join}${suffixes[i]}`;
+export type WebhookSource = 'ghl' | 'stripe' | 'zoom';
+export const WEBHOOK_SOURCE_LABELS: Readonly<Record<WebhookSource, string>> = {
+  ghl: 'GoHighLevel',
+  stripe: 'Stripe',
+  zoom: 'Zoom',
 };
 
-/** "1.8 GB", "412 MB", "22 MB" (1024s, as `pg_size_pretty` counts). */
-export const bytesLabel = (n: number): string => scaled(n, 1024, ['bytes', 'kB', 'MB', 'GB', 'TB'], ' ');
+export type DeliveryStatus = 'delivered' | 'queued' | 'retrying' | 'failed' | 'not_configured';
+export const DELIVERY_STATUS_LABELS: Readonly<Record<DeliveryStatus, string>> = {
+  delivered: 'Delivered',
+  queued: 'Queued',
+  retrying: 'Retrying',
+  failed: 'Failed',
+  not_configured: 'Not configured',
+};
 
-/** "2.1M rows", "940K rows", "3.2K rows", "12 rows". */
-export const rowsLabel = (n: number): string => `${scaled(n, 1000, ['', 'K', 'M', 'B'], '')} rows`;
+/** A CRM sync row's kind, as the CRM sync log names it (`routes/crm-sync.ts`). */
+export type GhlRetryKind = 'waitlist' | 'order' | 'login';
+export const GHL_RETRY_KINDS: readonly GhlRetryKind[] = ['waitlist', 'order', 'login'];
+export const isGhlRetryKind = (v: unknown): v is GhlRetryKind => typeof v === 'string' && (GHL_RETRY_KINDS as readonly string[]).includes(v);
 
-/** "1,940 ms mean · 96 calls". */
-export const slowQueryLine = (q: Pick<DbSlowQuery, 'meanMs' | 'calls'>): string =>
-  `${Math.round(q.meanMs).toLocaleString('en-US')} ms mean · ${q.calls.toLocaleString('en-US')} call${q.calls === 1 ? '' : 's'}`;
+export interface WebhookDelivery {
+  source: WebhookSource;
+  /** `order.sync`, `invoice.paid`, `recording.completed`. */
+  event: string;
+  /** The order, user or Stripe event it is about; null when there is none. */
+  id: string | null;
+  status: DeliveryStatus;
+  /** Attempts made of those allowed; null where the sender keeps count (Stripe). */
+  attempts: { n: number; of: number } | null;
+  nextAttemptAt: number | null;
+  /** A failure with no attempts left: "None, attempts used". */
+  attemptsUsed: boolean;
+  /** A short, safe reason: GHL's `step:kind:status`, a Stripe error code. Never a body. */
+  error: string | null;
+  /** When it last happened, for the order. */
+  at: number | null;
+  /** A GHL row a retry can reset (D13: the CRM sync's own reset). */
+  retry: { kind: GhlRetryKind; id: string } | null;
+  /** The event in the Stripe Dashboard (D13: Stripe is view-only). */
+  stripeUrl: string | null;
+}
 
-/** A migration's number, its tag's first four digits: "0014". */
-export const migrationNumber = (tag: string): string => /^\d{4}/.exec(tag)?.[0] ?? tag;
+export interface ConsoleWebhooks {
+  rows: WebhookDelivery[];
+  /** Deliveries failing or retrying, by source, beyond the rows listed. */
+  failed: { ghl: number; stripe: number };
+}
+
+/** The Stripe Dashboard's page for an event, in the key's mode (D13). */
+export const stripeEventUrl = (id: string, mode: 'live' | 'test'): string =>
+  `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : ''}events/${encodeURIComponent(id)}`;
+
+// ================================================================================================
+// Scheduled jobs (spec § 7.10, D14)
+// ================================================================================================
+
+export type JobTickStatus = 'running' | 'succeeded' | 'failed' | 'skipped';
+export const JOB_TICK_STATUSES: readonly JobTickStatus[] = ['running', 'succeeded', 'failed', 'skipped'];
+export type JobTrigger = 'schedule' | 'manual';
+
+/**
+ * A tick's status in the mockup's words. `skipped` (the lock was another runner's, so this one did
+ * nothing) reads "Waiting", the mockup's word for a job that did not get its turn.
+ */
+export const JOB_STATUS_LABELS: Readonly<Record<JobTickStatus, string>> = {
+  running: 'Running',
+  succeeded: 'Succeeded',
+  failed: 'Failed',
+  skipped: 'Waiting',
+};
+
+/**
+ * What Run Now may do with a job (D14): `allowed`, `schedule_only` (billing, the D-154 reconcile:
+ * never by hand), or `off` (on D14's list, but kept off for the reason D-165 records).
+ */
+export type RunNowPolicy = 'allowed' | 'schedule_only' | 'off';
+
+/** The scheduler's six jobs (`JOB_NAMES`), which one tick runs together. */
+export const REMINDER_JOBS = ['session-24h', 'session-1h', 'replay-ready', 'build-48h', 'weekly-digest', 'announcement'] as const;
+
+/** Run Now's allowlist (D14, D-165). Nothing else is runnable by hand. */
+export const RUN_NOW_JOBS: readonly string[] = REMINDER_JOBS;
+export const isRunNowJob = (job: string): boolean => RUN_NOW_JOBS.includes(job);
+
+/** Spec § 7.10's words for the billing row. */
+export const BILLING_JOB_NOTE = 'Runs on schedule only · keeps the AI Accelerator seat cap in sync with Stripe';
+
+export interface JobRow {
+  job: string;
+  /** "Every minute", from the loop's own interval. */
+  schedule: string;
+  /** A line under the job's name (the billing row's). */
+  note: string | null;
+  /** The latest tick, scheduled or manual. */
+  last: { status: JobTickStatus; startedAt: number; trigger: JobTrigger } | null;
+  /** The latest finished tick's duration. */
+  durationMs: number | null;
+  /** The latest scheduled tick plus the interval. */
+  nextRunAt: number | null;
+  runNow: RunNowPolicy;
+}
+
+export interface ConsoleJobs {
+  rows: JobRow[];
+  asOf: number;
+}
+
+/** What Run Now answers: the manual tick it recorded. */
+export interface JobRunResult {
+  job: string;
+  status: JobTickStatus;
+  startedAt: number;
+  finishedAt: number | null;
+}
+
+/** An interval as the Schedule column says it: "Every minute", "Every 5 min", "Hourly". */
+export function scheduleLabel(intervalMs: number): string {
+  const min = Math.round(intervalMs / 60_000);
+  if (min <= 1) return 'Every minute';
+  if (min === 60) return 'Hourly';
+  return `Every ${min} min`;
+}

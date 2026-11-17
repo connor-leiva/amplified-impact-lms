@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'integrations' | 'deploys' | 'db' | 'flags';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -18,6 +18,18 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
   users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
   search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
+  // D-162 3b (spec § 6): any Console role opens it; Support sees why it can't start one.
+  masquerade: { title: 'Masquerade', cap: 'console.view', path: '/admin/masquerade' },
+  // D-163 (spec § 7.6).
+  billing: { title: 'Billing', cap: 'billing.read', path: '/admin/billing' },
+  // D-165 (spec §§ 7.9-7.10).
+  api: { title: 'API & Webhooks', cap: 'api.read', path: '/admin/api' },
+  jobs: { title: 'Scheduled Jobs', cap: 'jobs.read', path: '/admin/jobs' },
+  // D-166 (spec §§ 7.7, 7.15).
+  email: { title: 'Email Log', cap: 'email.read', path: '/admin/email' },
+  usage: { title: 'Usage', cap: 'usage.read', path: '/admin/usage' },
+  // D-167 (spec § 7.14).
+  incidents: { title: 'Incidents', cap: 'incidents.read', path: '/admin/incidents' },
   // D-168 (spec §§ 7.11-7.13): the Operations pages, Owner and Admin (`ops.read`; Support none, D3).
   integrations: { title: 'Integrations', cap: 'ops.read', path: '/admin/integrations' },
   deploys: { title: 'Deploys & Commits', cap: 'ops.read', path: '/admin/deploys' },
@@ -67,9 +79,17 @@ export interface ErrorCopy {
   retry: string;
 }
 
-/** A list that didn't load. A 429 says so, in the words spec § 7 gives it. */
-export function errorCopy(kind: ConsoleFailure): ErrorCopy {
+/**
+ * A list that didn't load. A 429 says so, in the words spec § 7 gives it. Billing (D-163): no Stripe
+ * key is spec § 7.6's "Stripe isn't connected"; a missing Read permission is the server's own
+ * sentence (`detail`), which names it.
+ */
+export function errorCopy(kind: ConsoleFailure, detail?: string | null): ErrorCopy {
   if (kind === 'rate_limited') return { badge: 'Too Many Requests', title: 'Too many requests.', body: 'Wait a minute, then try again.', retry: 'Retry' };
+  if (kind === 'stripe_off')
+    return { badge: 'Not Connected', title: "Stripe isn't connected", body: 'Billing reads Stripe once its restricted key is set.', retry: 'Retry' };
+  if (kind === 'stripe_scope')
+    return { badge: 'Permission Missing', title: 'Stripe needs a permission', body: detail ?? 'The Stripe key is missing a Read permission.', retry: 'Retry' };
   return { badge: 'Error', title: 'This didn’t load.', body: 'The request failed. Nothing was changed.', retry: 'Retry' };
 }
 

@@ -28,6 +28,7 @@ import type {
   ConsolePlan,
   ConsoleUserDetail,
   ConsoleUserRow,
+  MasqueradeHistoryRow,
   SearchResults,
   StaffNote,
   StaffNoteTarget,
@@ -43,6 +44,7 @@ import {
   INV,
   IDENTITY,
   JOINED,
+  MASQ_SESSIONS,
   STAFF,
   SUPPORT_USERS,
   SUPPORT_WS,
@@ -60,7 +62,7 @@ const PLAN_OF: Record<string, PlanKind> = {
   'AI Accelerator': 'cohort',
   Insiders: 'membership',
 };
-const planKindOf = (plan: string): PlanKind => PLAN_OF[plan.split(' · ')[0]!] ?? 'library';
+export const planKindOf = (plan: string): PlanKind => PLAN_OF[plan.split(' · ')[0]!] ?? 'library';
 const STATUS_OF: Record<string, PlanStatus> = {
   Active: 'active',
   Trialing: 'trialing',
@@ -211,6 +213,7 @@ const rowOf = (r: FixtureRecords, w: Ws): WorkspaceRow => {
   return {
     teamId: w.id,
     name: w.n,
+    ownerId: owner?.id ?? null,
     ownerName: w.owner,
     ownerEmail: owner?.email ?? null,
     planKind: p.kind,
@@ -405,4 +408,28 @@ export function fixtureSearch(r: FixtureRecords, q: string, role: string | null)
         href: null,
       }));
   return out;
+}
+
+/**
+ * D-162 3b: the mockup's three recent masquerade sessions as the API's history rows, newest first.
+ * "Exited by staff" ended at its length; "Expired" at its expiry.
+ */
+export function fixtureMasqueradeSessions(): MasqueradeHistoryRow[] {
+  return MASQ_SESSIONS.map(([staff, user, reason, started, length, ended], i) => {
+    const startedAt = mockStamp(started);
+    const endedAt = startedAt + Number.parseInt(length, 10) * 60_000;
+    const target = SUPPORT_USERS.find((u) => u.n === user);
+    return {
+      id: `mq_fixture_${i + 1}`,
+      target: { id: target?.id ?? user, name: user },
+      staff: { id: authorId(staff), name: staff },
+      reason,
+      startedAt,
+      expiresAt: ended === 'Expired' ? endedAt : startedAt + 15 * 60_000,
+      endedAt,
+      endReason: ended === 'Expired' ? 'expired' : 'exit',
+      extendCount: 0,
+      startedFrom: null,
+    };
+  });
 }

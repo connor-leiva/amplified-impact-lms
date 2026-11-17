@@ -58,6 +58,8 @@ import { close, databaseNameOf, readDatabaseUrl, useDatabase, withDatabase } fro
 import type { Database } from '../src/db/client';
 import { insertSnapshot, loadDb as loadDbFrom } from '../src/db/io';
 import * as schema from '../src/db/schema';
+import { settleEmails } from '../src/auth/mailer';
+import { settleObserved } from '../src/lib/observe';
 
 /** The database the deployed Web service reads. Nothing here may ever address it. D-019. */
 const DEPLOYED_DATABASE = 'railway';
@@ -257,6 +259,11 @@ export const testDatabase = (): Promise<Database> => ensure();
  */
 export async function resetDatabase(snapshot?: Db): Promise<void> {
   const db = await ensure();
+  // D-166: the email log's and usage's background writes from the last test land first; a TRUNCATE
+  // racing one of them can deadlock (it locks every table, the insert reads `users`). The mail queue
+  // first, since each send it still holds starts one of those writes.
+  await settleEmails();
+  await settleObserved();
   const names = ALL_TABLES.map((t) => `"${t}"`).join(', ');
   await db.execute(sql.raw(`truncate table ${names} restart identity cascade`));
   if (snapshot) await db.transaction(async (tx) => void (await insertSnapshot(tx, snapshot)));

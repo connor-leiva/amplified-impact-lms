@@ -8,7 +8,7 @@
 //
 // The keys are `CONSOLE_FLAGS` (@ai/core), a closed list the table's CHECK repeats; v1 has one,
 // `masquerade_enabled`. A key with no row reads as its default. Env switches are not flags here: the
-// Console only reads them (D10, `ops-env.ts`).
+// Console only reads them (D10, `infra-env.ts`).
 //
 // THE CACHE. Masquerade's Start and Extend ask `consoleFlagOn('masquerade_enabled')` (3a's
 // `masqueradeEnabled()` seam), so the answer is kept for 30 seconds and dropped at once by a flip in
@@ -18,7 +18,7 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { CONSOLE_FLAGS, OPS_PATHS, consoleFlagDef, flagTypedOk, flagWriteCap, isConsoleFlagKey } from '@ai/core';
+import { CONSOLE_FLAGS, INFRA_PATHS, consoleFlagDef, flagTypedOk, flagWriteCap, isConsoleFlagKey } from '@ai/core';
 import type { ConsoleFlagKey, ConsoleFlagView, FlagFlipResult } from '@ai/core';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
@@ -86,7 +86,7 @@ const bodyOf = (b: unknown): Record<string, unknown> => (b && typeof b === 'obje
 
 export function registerFlagRoutes(scope: FastifyInstance, rate: { write: number }): void {
   scope.post(
-    OPS_PATHS.flagFlip,
+    INFRA_PATHS.flagFlip,
     { preHandler: [requireSession, requireJsonSameOrigin, requireConsole('flags.write')], config: { rateLimit: { max: rate.write, timeWindow: '1 minute' } } },
     async (req, reply): Promise<FastifyReply> => {
       const viewer = viewerOrThrow(req);
