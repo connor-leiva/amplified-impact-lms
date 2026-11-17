@@ -709,8 +709,8 @@
   flex-direction: column;
   gap: 18px;
 }
-.check {
-  gap: 8px;
+.retry {
+  margin-top: 10px;
 }
 .tapBox {
   position: relative;
@@ -728,8 +728,23 @@
   box-shadow: var(--r2-focus);
   border-radius: 4px;
 }
-.check:has(.chk:disabled:not(:checked)) {
+.check:has(.lockGroup) {
   cursor: not-allowed;
+}
+/* D-160 R2-3b: a toggle's label (the mockup's `cursor: pointer`); a disabled box keeps the default. */
+.live {
+  cursor: pointer;
+}
+/* On a phone the drawn box is a picture of the state; the real one is `.hit`, over the whole row. */
+.drawn {
+  pointer-events: none;
+}
+.drawn:has(+ .hit:focus-visible) {
+  box-shadow: var(--r2-focus);
+  border-radius: 4px;
+}
+.lockGroup {
+  gap: 4px;
 }
 
 /* ---- laptop: 768–1199px (`.lap`) ------------------------------------------------------------------ */

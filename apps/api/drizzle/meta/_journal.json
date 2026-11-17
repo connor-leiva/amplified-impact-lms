@@ -113,6 +113,13 @@
       "when": 1794748004155,
       "tag": "0015_console_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794844154176,
+      "tag": "0016_console_role_grants",
+      "breakpoints": true
     }
   ]
 }

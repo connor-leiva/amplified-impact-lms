@@ -10,14 +10,18 @@
 //   staff action and would only fill the log with noise someone could generate at will.
 //
 // The capability is read from the role on the user row `requireSession` just loaded, so a role change
-// takes effect on the next request.
+// takes effect on the next request. Since D-160 R2-3b it is the EFFECTIVE capability: `CONSOLE_CAPS`
+// (the ceiling) AND NOT a row the Owner took from that role on Roles & Permissions (`consoleCanWith`,
+// the stored changes read through `roles.ts`'s cache). The Owner and anything the ceiling refuses are
+// decided without reading them.
 
 import type { FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
-import { CONSOLE_ERRORS, consoleCan } from '@ai/core';
+import { CONSOLE_ERRORS, consoleCan, consoleCanWith } from '@ai/core';
 import type { ConsoleCap, ConsoleErrorCode } from '@ai/core';
 import type { SessionViewer } from '../auth';
 import { audit } from './audit';
 import type { AuditActor } from './audit';
+import { roleGrants } from './roles';
 
 /** A Console refusal: `{ error, code }` with the code's status (spec § 5). */
 export function consoleError(reply: FastifyReply, code: ConsoleErrorCode, error?: string): FastifyReply {
@@ -40,7 +44,7 @@ export function requireConsole(cap: ConsoleCap): preHandlerAsyncHookHandler {
     if (reply.sent || req.viewer === null) return;
     const viewer = req.viewer;
     const staff = staffActor(viewer);
-    if (staff && consoleCan(staff.role, cap)) return;
+    if (staff && consoleCan(staff.role, cap) && (staff.role === 'Owner' || consoleCanWith(await roleGrants(), staff.role, cap))) return;
     if (staff) {
       await audit(req, {
         action: 'console.access_denied',

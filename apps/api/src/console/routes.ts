@@ -10,13 +10,17 @@
 //   POST /api/console/audit/export  the same filters as JSON → a CSV of every matching row, 10,000 at
 //                                   most (else 422 `export_too_large`). `export` (Owner, Admin). The
 //                                   export is itself audited, as is a refused one.
-//   GET  /api/console/roles         the capability matrix, read-only, built from `CONSOLE_CAPS`, with
-//                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
+//   GET  /api/console/roles         the capability matrix: `CONSOLE_CAPS` (the ceiling), what each role
+//                                   holds now and the Owner's stored changes, with the path of the
+//                                   Staff & Roles screen. `ops.read` (Owner, Admin).
+//   POST /api/console/roles/preview { role, capability, allowed } → the change and its confirm token.
+//   POST /api/console/roles         { confirmToken } → makes it, with one audit row. Both `roles.write`
+//                                   (the Owner), D-160 R2-3b; see `roles.ts`.
 //
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
-// `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, exports 5, per session.
-// No GET here writes anything except the audit row for a staff member it refuses.
+// `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, writes 20, exports 5, per
+// session. No GET here writes anything except the audit row for a staff member it refuses.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, desc, eq, gte, like, lt, lte, or, sql } from 'drizzle-orm';
@@ -29,7 +33,7 @@ import {
   CONSOLE_PAGE_MAX,
   auditCsv,
   auditRedactsNetwork,
-  consoleCaps,
+  consoleCapsWith,
   isAuditOutcome,
   rolesMatrix,
 } from '@ai/core';
@@ -40,20 +44,28 @@ import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
+import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
   audit: '/api/console/audit',
   auditExport: '/api/console/audit/export',
   roles: '/api/console/roles',
+  // D-160 R2-3b: the two-step matrix change. The change itself is a POST to `roles`.
+  rolesPreview: '/api/console/roles/preview',
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
 export const CONSOLE_RATE = { read: 60, write: 20, export: 5 } as const;
 const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub). Nothing yet. */
-export type ConsoleDeps = Readonly<Record<never, never>>;
+/**
+ * What the app hands the Console routes. D-160 R2-3b: the event hub's `broadcast`, so a Roles change to
+ * the `PermKey` matrix wakes every client as a `/api/mutate` write does. Later Console PRs add theirs.
+ */
+export interface ConsoleDeps {
+  readonly broadcast?: () => void;
+}
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -175,7 +187,9 @@ const roleOfViewer = (req: FastifyRequest): string | null => {
 
 // --- the routes ----------------------------------------------------------------------------------
 
-export async function registerConsoleRoutes(app: FastifyInstance, _deps: ConsoleDeps): Promise<void> {
+export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleDeps): Promise<void> {
+  // A new app reads the stored matrix changes afresh (each test builds one against a fresh database).
+  invalidateRoleGrants();
   await app.register(async (scope) => {
     // Every Console answer is the viewer's alone, refusals and 429s included (`requireSession` sets the
     // same header, but only once it has run, which a rate-limited request never reaches).
@@ -188,7 +202,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, _deps: Console
       const viewer = viewerOrThrow(req);
       const staff = staffActor(viewer);
       if (!staff) return consoleError(reply, 'console_forbidden');
-      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCaps(staff.role) };
+      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCapsWith(staff.role === 'Owner' ? [] : await roleGrants(), staff.role) };
       return reply.send(me);
     });
 
@@ -252,7 +266,15 @@ export async function registerConsoleRoutes(app: FastifyInstance, _deps: Console
     scope.get(
       CONSOLE_PATHS.roles,
       { preHandler: [requireSession, requireConsole('ops.read')], config: limit(CONSOLE_RATE.read) },
-      async (_req, reply): Promise<FastifyReply> => reply.send(rolesMatrix()),
+      async (_req, reply): Promise<FastifyReply> => reply.send(rolesMatrix(await roleGrants())),
     );
+
+    // D-160 R2-3b: the Owner's two-step change to the matrix (`roles.ts`).
+    const write = { preHandler: [requireSession, requireJsonSameOrigin, requireConsole('roles.write')], config: limit(CONSOLE_RATE.write) };
+    scope.post(CONSOLE_PATHS.rolesPreview, write, previewRoleChange);
+    scope.post(CONSOLE_PATHS.roles, write, async (req, reply): Promise<FastifyReply> => {
+      const refused = await commitRoleChange(req, reply, deps.broadcast);
+      return refused ?? reply.send(rolesMatrix(await roleGrants()));
+    });
   });
 }

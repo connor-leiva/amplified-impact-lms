@@ -13,7 +13,17 @@ const WEB = fileURLToPath(new URL('../..', import.meta.url));
 const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src/${p}`, import.meta.url));
 
 /** Strings only `console-fixture.ts` holds: its two query parameters and its documentation addresses. */
-const SENTINELS = ['console-role', 'console-state', '203.0.113.'];
+const SENTINELS = [
+  'console-role',
+  'console-state',
+  '203.0.113.',
+  // R2-3b: the parity fixture's audit rows (`AUDIT0`).
+  'in_1QxK5fFm0270',
+  'Customer cannot see the Session 2 replay',
+  // R2-3b, editable Roles: the fixture's stand-in confirm tokens and its `PERMS0` (the parity matrix).
+  'fixture-${',
+  'parityRoleGrants',
+];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
   const out = (await build({
@@ -45,6 +55,7 @@ describe('the Console fixture is not in the http build (D-157)', () => {
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
+    expect(code).toContain('/api/console/roles/preview');
     for (const s of SENTINELS) expect(code, s).not.toContain(s);
   }, 60_000);
 
@@ -63,7 +74,7 @@ describe('the Console fixture is not in the http build (D-157)', () => {
 const PARITY_SENTINELS = ['Connor Leiva', 'INC-0007', 'Kenji Watanabe', 'December 2026 Cohort'];
 
 describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
-  it('the http build of the admin shell\'s data has none of it', async () => {
+  it("the http build of the admin shell's data has none of it", async () => {
     const code = await bundle('production', './admin-shell.ts');
     expect(code).toContain('Amplified AI Accelerator');
     for (const s of PARITY_SENTINELS) expect(code, s).not.toContain(s);
