@@ -162,8 +162,8 @@
 }
 
 /* The frame's base, as `.ax` and `.arx *` draw it. Zero specificity (`:where`), so a component's own
-   rule always wins over it. The element resets and the focus ring stop at an admin screen not yet
-   rebuilt on R2 (`main[data-legacy]`): it keeps its own controls' margins and its own focus styles. */
+   rule always wins over it. Every admin screen is on R2 (D-160 R2-3b), so the resets and the focus
+   ring hold throughout the frame. */
 :where([data-r2-shell]) {
   background: var(--r2-bg);
   color: var(--r2-ink);
@@ -175,15 +175,15 @@
 :where([data-r2-shell] *, [data-r2-shell] *::before, [data-r2-shell] *::after) {
   box-sizing: border-box;
 }
-:where([data-r2-shell] :is(button, input, select, textarea):not([data-legacy] *)) {
+:where([data-r2-shell] :is(button, input, select, textarea)) {
   font: inherit;
   color: inherit;
   margin: 0;
 }
-:where([data-r2-shell] :focus:not([data-legacy] *)) {
+:where([data-r2-shell] :focus) {
   outline: none;
 }
-:where([data-r2-shell] :focus-visible:not([data-legacy] *)) {
+:where([data-r2-shell] :focus-visible) {
   outline: none;
   box-shadow: var(--r2-focus);
 }

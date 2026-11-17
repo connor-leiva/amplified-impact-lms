@@ -17,7 +17,6 @@ import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
 import { adminNav, crumbTrail, toggleGroup, type R2Group } from './adminNav';
-import { legacyFor } from './legacy';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { Wordmark } from './Wordmark';
 import s from './AdminShell.module.css';
@@ -104,8 +103,6 @@ export function AdminShell() {
   const band = bandOf(vw);
   // The rail toggle is remembered only while the window stays in the same band, as the mockup resets
   // it with the width: a laptop starts on the rail, a desktop expanded.
-  // A screen not yet rebuilt on R2 keeps its old type (legacy.ts).
-  const legacy = legacyFor(path);
   const [railChoice, setRailChoice] = useState<{ band: Band; rail: boolean } | null>(null);
   const rail = band !== 'phone' && (railChoice?.band === band ? railChoice.rail : band === 'laptop');
   const mode: SidebarMode = band === 'phone' ? 'drawer' : rail ? 'rail' : 'full';
@@ -260,7 +257,7 @@ export function AdminShell() {
                 </>
               )}
             </header>
-            <main ref={mainRef} className={s.main} data-legacy={legacy.type ? 'true' : undefined}>
+            <main ref={mainRef} className={s.main}>
               <Outlet />
             </main>
           </div>

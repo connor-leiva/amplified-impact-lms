@@ -169,16 +169,16 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(screen.getByText('Production')).toBeInTheDocument();
   });
 
-  it('keeps an old screen’s type; R2 everywhere else, at R2’s geometry (D-160 R2-3a)', async () => {
+  it('draws every admin screen in R2: no legacy type or geometry is left (D-160 R2-3b)', async () => {
     const router = renderAt('/admin');
     await screen.findByText('the overview');
-    expect(document.querySelector('main')).not.toHaveAttribute('data-legacy');
-    expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
-    await act(async () => {
-      await router.navigate('/admin/audit');
-    });
-    await screen.findByText('the audit log');
-    expect(document.querySelector('main')).toHaveAttribute('data-legacy', 'true');
+    for (const path of ['/admin/audit', '/admin/roles', '/admin/no-such-page']) {
+      await act(async () => {
+        await router.navigate(path);
+      });
+      expect(document.querySelector('main')).not.toHaveAttribute('data-legacy');
+      expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
+    }
   });
 
   it('starts every screen on the rail at 1024, the Overview included', async () => {
