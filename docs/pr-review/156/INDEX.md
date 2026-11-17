@@ -1,10 +1,10 @@
 # Review files for PR #156
 
-R2-gaps-a (D-172): Curriculum's Duplicate, and the Module Builder's Add step, Duplicate step and Remove step. Touched screens: `curriculum`, `builder` (every cell at its D-160 numbers; nothing new is enforced).
+R2-gaps-a (D-172): Curriculum's Duplicate, and the Module Builder's Add step, Duplicate step and Remove step. Touched screens: `curriculum`, `builder`: every cell at its D-160 numbers, 0 px over the strict guard's 60 delta, nothing new enforced, no approved exception (no key facts on either screen).
 
 Base64 text, one line per file (`base64 -w 0`). Decode with `base64 -d <file> > out.png`; a split file is joined first: `cat <file>.part1 <file>.part2 | base64 -d > out.png`.
 
-Measured at gaps-c's head `eb3e5cb` (pre-final; it carries this part unchanged, and the parts above draw nothing on these two screens). Each part's own final head is measured after #153's final branch merges in, and its files replace these.
+Measured at gaps-a's code at `31caeb3` (the merge of #153's final `320c23c`), the code of this part's final head: the commit that adds these files changes only `docs/pr-review/156/`.
 
 ## The touched screens: ref, build and diff at four widths
 
@@ -43,13 +43,13 @@ Menus and dialogs stay closed in the parity frames, so these have no ref: each i
 
 | file(s) | state | width | kind | parts |
 |---|---|---|---|---|
-| `curriculum-row-menu-1280.build.png.b64` | curriculum-row-menu | 1280 | build only | 1 |
-| `curriculum-row-menu-390.build.png.b64` | curriculum-row-menu | 390 | build only | 1 |
 | `curriculum-duplicated-1280.build.png.b64` | curriculum-duplicated | 1280 | build only | 1 |
 | `curriculum-duplicated-390.build.png.b64` | curriculum-duplicated | 390 | build only | 1 |
+| `curriculum-row-menu-1280.build.png.b64` | curriculum-row-menu | 1280 | build only | 1 |
+| `curriculum-row-menu-390.build.png.b64` | curriculum-row-menu | 390 | build only | 1 |
 | `builder-add-step-1280.build.png.b64` | builder-add-step | 1280 | build only | 1 |
 | `builder-add-step-390.build.png.b64` | builder-add-step | 390 | build only | 1 |
-| `builder-step-menu-1280.build.png.b64` | builder-step-menu | 1280 | build only | 1 |
-| `builder-step-menu-390.build.png.b64` | builder-step-menu | 390 | build only | 1 |
 | `builder-remove-step-confirm-1280.build.png.b64` | builder-remove-step-confirm | 1280 | build only | 1 |
 | `builder-remove-step-confirm-390.build.png.b64` | builder-remove-step-confirm | 390 | build only | 1 |
+| `builder-step-menu-1280.build.png.b64` | builder-step-menu | 1280 | build only | 1 |
+| `builder-step-menu-390.build.png.b64` | builder-step-menu | 390 | build only | 1 |
