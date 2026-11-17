@@ -58,7 +58,9 @@
   justify-self: center;
   text-align: center;
 }
-/* `.mx`: an access cell, 28px (44px on a phone). Included is green, gated amber with a lock. */
+/* `.mx`: an access cell, 28px (44px on a phone). Included is a tick on green, gated amber with a lock.
+   The tick is the row's ink, not green: the mockup's `.arx button{color:inherit}` outranks its `.mx`
+   colour (D-160 R2-3a, found by the strict guard). */
 .mx {
   width: 28px;
   height: 28px;
@@ -69,7 +71,7 @@
   justify-content: center;
   cursor: pointer;
   background: var(--r2-okb);
-  color: var(--r2-ok);
+  color: inherit;
   padding: 0;
 }
 .mx.gated {

@@ -6,18 +6,18 @@
 //
 //   - The mockup's row checkboxes are drawn; its "Export selected" does nothing (`aria-disabled`): the
 //     API exports by filter, not by row (Needs Connor's call, D-160 R2-3b).
-//   - The Outcome filter, which the mockup does not draw, is in the filter row's "…".
+//   - No Outcome filter on the screen: the mockup draws none (its filter row ends at Date range), so
+//     the "…" that held it is gone (the Nov 16 eye check); the API keeps `outcome`, and the entry's
+//     drawer shows each row's outcome.
 //   - A row (or its time, by keyboard) opens the entry's detail in the R2 drawer.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import type { AuditRow } from '@ai/core';
-import { Icon } from '../../components/Icon';
 import { Button } from '../../components/r2/Button';
 import { Box } from '../../components/r2/Card';
 import { Drawer } from '../../components/r2/Drawer';
 import { Empty } from '../../components/r2/Empty';
-import { Menu } from '../../components/r2/Menu';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
@@ -31,7 +31,6 @@ import {
   AUDIT_COPY,
   AUDIT_R2_COPY,
   DEFAULT_FILTERS,
-  OUTCOME_OPTIONS_R2,
   RANGE_OPTIONS_R2,
   actionGroupLabel,
   actionOptionsR2,
@@ -179,12 +178,6 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
     },
   ];
 
-  const outcomeItems = OUTCOME_OPTIONS_R2.map((o) => ({
-    label: o.label,
-    checked: filters.outcome === o.value,
-    onSelect: () => set('outcome', o.value as AuditFilterState['outcome']),
-  }));
-
   return (
     <Page>
       <PageHead
@@ -215,23 +208,6 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
             </option>
           ))}
         </Sel>
-        <Menu
-          label={AUDIT_R2_COPY.moreFilters}
-          items={outcomeItems}
-          placement="below-left"
-          className={s.more}
-          trigger={(t) => (
-            <button
-              type="button"
-              className={k.ib}
-              aria-label={filters.outcome ? `${AUDIT_R2_COPY.moreFilters}: Outcome ${filters.outcome}` : AUDIT_R2_COPY.moreFilters}
-              {...t.props}
-              onClick={t.toggle}
-            >
-              <Icon name="r2More" size={16} strokeWidth={2.6} />
-            </button>
-          )}
-        />
       </div>
 
       {list.kind === 'error' ? (
