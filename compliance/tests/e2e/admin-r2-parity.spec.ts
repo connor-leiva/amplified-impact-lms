@@ -46,10 +46,13 @@ test.describe('admin-r2 setup', () => {
   });
 
   // D-160, Connor, Nov 16, 2026, 8:27 AM MST (decision A): the only parity exceptions allowed are the
-  // three 390 cells whose sole diff is the 15px vs 16px phone key-facts text. The list is closed.
+  // 390 cells whose sole diff is the 15px vs 16px phone key-facts text, the three it names and later
+  // screens with the same key-facts component (the shepherd, Nov 17). The list is closed.
   test('approved exceptions are decision A’s closed list', () => {
     const cells = APPROVED_EXCEPTIONS.map((e) => e.cell);
-    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'incident-390', 'user-390', 'workspace-detail-390']);
+    // Decision A's three, and the later screens with the same key-facts component (Nov 17): incident-390
+    // (#152) and flags-390 (#151).
+    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'flags-390', 'incident-390', 'user-390', 'workspace-detail-390']);
     expect(cells.every((c) => (ALLOWED_EXCEPTION_CELLS as readonly string[]).includes(c)), `only ${ALLOWED_EXCEPTION_CELLS.join(', ')}`).toBe(true);
     expect(new Set(cells).size, 'no cell listed twice').toBe(cells.length);
     expect(exceptionProblems()).toEqual([]);

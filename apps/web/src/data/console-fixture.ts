@@ -18,6 +18,7 @@
 
 import {
   CONSOLE_ERRORS,
+  CONSOLE_FLAGS,
   CONSOLE_PAGE_DEFAULT,
   ROLE_CONFIRM_TTL_MS,
   STAFF_AUDIT_ACTION,
@@ -37,6 +38,7 @@ import {
   cleanSearch,
   consoleCanWith,
   consoleCapsWith,
+  flagTypedOk,
   isRunNowJob,
   permissionChangeSummary,
   roleRowOf,
@@ -77,6 +79,7 @@ import {
 import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
 import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
 import { FIXTURE_ME, fixtureIncidentChange, fixtureIncidentPage, fixtureIncidents, fixturePerson } from './console-fixture-incidents';
+import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from './console-fixture-infra';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
@@ -199,6 +202,9 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   // D-167: the mockup's incidents, changed by Acknowledge, Resolve and a note as the API's would be.
   let incidents = fixtureIncidents();
   const me = parity ? FIXTURE_ME : fixturePerson(STAFF.casey.name);
+  // D-168: the Operations pages, the mockup's data; `masquerade_enabled` flips in memory (and starts
+  // off with `?masquerade-flag=off`), and `me` reads it, as the API's does.
+  const ops = fixtureOps(now, STAFF.casey.name, qs.get('masquerade-flag') !== 'off');
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
   const record = (action: AuditAction, target: AuditRow['target'], after: unknown, reason: string | null = null) => {
@@ -269,7 +275,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     // The viewer is answered whatever the list's state, so a state screenshot shows the screen.
     me: () => {
       if (!staff) return Promise.reject(forbidden());
-      const me: ConsoleMe = { role, caps: consoleCapsWith(grants, role), masqueradeEnabled: qs.get('masquerade-flag') !== 'off' };
+      const me: ConsoleMe = { role, caps: consoleCapsWith(grants, role), masqueradeEnabled: ops.masqueradeOn() };
       return Promise.resolve(me);
     },
     audit: (filters, cursor) =>
@@ -568,6 +574,46 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     ackIncident: (id) => changeIncident(id, 'incidents.ack', 'incident.ack', { kind: 'acknowledged' }),
     resolveIncident: (id, note) => changeIncident(id, 'incidents.resolve', 'incident.resolve', { kind: 'resolved', body: note.trim() }),
     noteIncident: (id, body) => changeIncident(id, 'notes.write', 'incident.note', { kind: 'note', body: body.trim() }),
+    // D-168: the Operations pages (ops.read). `?console-state=empty` is production's empty states: no
+    // deploy token, no pg_stat_statements.
+    opsEnv: () =>
+      settle(() => {
+        need('ops.read');
+        return ops.env();
+      }),
+    flipFlag: (key, on, typed) =>
+      settle(() => {
+        need('flags.write');
+        const def = CONSOLE_FLAGS.find((f) => f.key === key);
+        if (!def) throw notFound();
+        if (def.sensitive) need('flags.write_sensitive');
+        if (!flagTypedOk(def, typed)) throw new ConsoleError('invalid', 400, 'invalid_body', `Type ${def.key} to confirm.`);
+        const flag = ops.flip(key, on);
+        record('flag.flip', { type: 'flag', id: key, label: def.label }, { on, sensitive: def.sensitive });
+        return { flag };
+      }),
+    integrations: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureIntegrations();
+      }),
+    checkIntegration: (id) =>
+      settle(() => {
+        need('integrations.probe');
+        const result = ops.probe(id);
+        record('integration.probe', { type: 'integration', id, label: id === 'stripe' ? 'Stripe' : 'Resend' }, { outcome: result.outcome });
+        return result;
+      }),
+    deploys: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureDeploys(now(), state !== 'empty');
+      }),
+    dbHealth: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureDbHealth(now(), state !== 'empty');
+      }),
     search: (q) =>
       settle(() => {
         need('console.view');

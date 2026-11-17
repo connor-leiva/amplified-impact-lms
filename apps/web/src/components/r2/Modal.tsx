@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { Icon } from '../Icon';
 import { Button } from './Button';
+import { k } from './kit';
 import s from './Modal.module.css';
 
 // The R2 modal and confirm (D-160 R2-2): the mockup's `Modal` (a 480px dialog on a scrim, a head with
@@ -109,7 +110,12 @@ export interface ConfirmProps {
    * mockup's "This action is audit-logged." (`AUDITED`), as the mockup's `Confirm` does (R2-3b).
    */
   audited?: boolean;
-  onConfirm: () => void;
+  /**
+   * D-168: typed confirmation, the mockup's `Confirm` field (`.lab` over `.in`): the action stays off
+   * until `word` is typed exactly, and `onConfirm` is handed what was typed.
+   */
+  typed?: { word: string; label: string } | null;
+  onConfirm: (typed?: string) => void;
   onClose: () => void;
   /**
    * D-160 R2-3b: the action is the server's two-step confirm. The dialog stays open on the action (the
@@ -124,7 +130,9 @@ export interface ConfirmProps {
 export const AUDITED = 'This action is audit-logged.';
 
 /** The mockup's `Confirm`: the question, the sentence, "This action is audit-logged.", Cancel and the action. */
-export function Confirm({ title, body, cta, danger, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
+export function Confirm({ title, body, cta, danger, typed, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
+  const [text, setText] = useState('');
+  const ok = !typed || text.trim() === typed.word;
   return (
     <Modal
       title={title}
@@ -134,10 +142,10 @@ export function Confirm({ title, body, cta, danger, onConfirm, onClose, keepOpen
           <Button onClick={onClose}>Cancel</Button>
           <Button
             kind={danger ? 'primary-danger' : 'primary'}
-            disabled={!!busy || !!error}
+            disabled={!ok || !!busy || !!error}
             onClick={() => {
               if (!keepOpen) onClose();
-              onConfirm();
+              onConfirm(typed ? text.trim() : undefined);
             }}
           >
             {cta}
@@ -146,6 +154,20 @@ export function Confirm({ title, body, cta, danger, onConfirm, onClose, keepOpen
       }
     >
       <p className={s.body}>{body}</p>
+      {typed ? (
+        <label className={s.lab}>
+          {typed.label}
+          <input
+            className={k.in}
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            value={text}
+            placeholder={typed.word}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </label>
+      ) : null}
       {error ? (
         <p className={s.error} role="alert">
           {error}

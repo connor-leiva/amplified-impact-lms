@@ -366,12 +366,14 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
       ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
       // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3); D-166 the Email Log.
       // D-167: Incidents is on in production too (Support reads and acknowledges, D3).
-      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
+      // D-168: the four infrastructure pages are on in production (ops.read: Owner, Admin; Support none, D3).
+      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };
+  const OPS_ROWS = ['Roles & Permissions', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'];
   EXPECT.Admin = EXPECT.Owner!;
-  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions' && x !== 'Masquerade'));
+  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => !OPS_ROWS.includes(x) && x !== 'Masquerade'));
   EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade', 'Billing', 'Usage'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {

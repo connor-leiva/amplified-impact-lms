@@ -46,6 +46,7 @@ import {
   CONSOLE_PAGE_MAX,
   MASQUERADE_PATHS,
   OPS_PATHS,
+  INFRA_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCapsWith,
@@ -75,6 +76,8 @@ import { registerOpsRoutes } from './ops';
 import type { OpsDeps } from './ops';
 import { EMAIL_USAGE_PATHS, registerEmailUsageRoutes } from './email-usage';
 import type { UsageDeps } from './email-usage';
+import { registerInfraRoutes } from './infra-routes';
+import type { InfraDeps } from './infra-routes';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -107,6 +110,13 @@ export const CONSOLE_PATHS = {
   usage: EMAIL_USAGE_PATHS.usage,
   // PR 8 (D-167): incidents.
   ...INCIDENT_PATHS,
+  // PR 9 (D-168): Environment Flags, Integrations, Deploys and DB health.
+  opsEnv: INFRA_PATHS.env,
+  flagFlip: INFRA_PATHS.flagFlip,
+  integrations: INFRA_PATHS.integrations,
+  integrationCheck: INFRA_PATHS.integrationCheck,
+  deploys: INFRA_PATHS.deploys,
+  dbHealth: INFRA_PATHS.db,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -115,7 +125,7 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
 /**
- * What the app hands the Console routes. PR 3a (D-162): masquerade's flag. D-160 R2-3b: the event hub's
+ * What the app hands the Console routes. PR 3a (D-162): masquerade's flag (PR 9 reads it from `console_flags`). D-160 R2-3b: the event hub's
  * `broadcast`, so a Roles change to the `PermKey` matrix wakes every client as a `/api/mutate` write
  * does. PR 4 (D-163): Billing's cached Stripe read client (null with no key), the offer's price cache and
  * the key's mode; without them, Billing answers "Stripe isn't connected". PR 7 (D-166): the bucket's size
@@ -131,6 +141,11 @@ export interface ConsoleDeps extends Readonly<MasqueradeDeps>, Readonly<UsageDep
   readonly billingActions?: { read: ConsoleStripe | null; write: ConsoleStripeWrite | null };
   /** PR 6 (D-165): API & Webhooks' Stripe key mode, for a test. Left out, read from the key. */
   readonly ops?: OpsDeps;
+  /**
+   * PR 9 (D-168): the infrastructure pages' environment, `fetch` and Billing's Stripe scope probe (Check
+   * now), for a test and for `app.ts`. Left out, the process's own environment and no probe.
+   */
+  readonly infra?: InfraDeps;
 }
 
 // --- filters -------------------------------------------------------------------------------------
@@ -377,5 +392,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
     registerEmailUsageRoutes(scope, deps);
     registerIncidentRoutes(scope);
+    // PR 9 (D-168): Check now shares the exports' and billing's 5 a minute (spec § 7).
+    registerInfraRoutes(scope, deps.infra ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
   });
 }

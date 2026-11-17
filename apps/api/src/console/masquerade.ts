@@ -31,7 +31,6 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   MASQUERADE_DEFAULT_RETURN,
-  MASQUERADE_ENABLED_DEFAULT,
   MASQUERADE_EXTEND_MS,
   MASQUERADE_PATHS,
   cleanMasqueradeReason,
@@ -61,19 +60,21 @@ import { clock } from '../lib/clock';
 import { landingFor } from '../lib/landing';
 import { audit, requestFacts } from './audit';
 import type { AuditActor } from './audit';
+import { consoleFlagOn } from './flags';
 import { consoleAllows, consoleError, requireConsole, staffActor } from './guard';
 
-/** What the routes are handed: the flag (Console PR 9 reads `console_flags`; a test turns it off). */
+/** What the routes are handed: the flag (`console_flags`, PR 9; a test turns it off). */
 export interface MasqueradeDeps {
   masqueradeEnabled?: () => Promise<boolean>;
 }
 
 /**
- * D8's `masquerade_enabled`, default on. The one seam Console PR 9 wires to `console_flags`
- * (migration 0021); until then it is the spec's default.
+ * D8's `masquerade_enabled`: the Console flag in `console_flags` (PR 9, D-168, migration 0022), on by
+ * default (`MASQUERADE_ENABLED_DEFAULT`, a missing row), turned off only by the Owner. Read through
+ * `flags.ts`'s 30-second cache, which a flip drops at once; a read that fails answers off.
  */
 export async function masqueradeEnabled(): Promise<boolean> {
-  return MASQUERADE_ENABLED_DEFAULT;
+  return consoleFlagOn('masquerade_enabled');
 }
 
 const ID = /^[A-Za-z0-9_.:@-]{1,128}$/;

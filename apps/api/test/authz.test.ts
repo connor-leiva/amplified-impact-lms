@@ -687,6 +687,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/incidents/:id/ack', methods: 'POST', guard: 'session' },
   { path: '/api/console/incidents/:id/resolve', methods: 'POST', guard: 'session' },
   { path: '/api/console/incidents/:id/notes', methods: 'POST', guard: 'session' },
+  // Admin Console PR 9 (D-168): Environment Flags, the flag flip, Integrations and Check now, Deploys
+  // and DB health. Signed in, then by capability (`test/console-authz.test.ts`).
+  { path: '/api/console/env', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/flags/:key', methods: 'POST', guard: 'session' },
+  { path: '/api/console/integrations', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/integrations/:id/check', methods: 'POST', guard: 'session' },
+  { path: '/api/console/deploys', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/db', methods: 'GET, HEAD', guard: 'session' },
   // D-172: Invite staff and Change role…, two steps (the change is a POST to `/api/console/staff`).
   { path: '/api/console/staff/preview', methods: 'POST', guard: 'session' },
   { path: '/api/console/staff', methods: 'POST', guard: 'session' },
@@ -1252,6 +1260,20 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             }),
           '/api/console/incidents/:id/notes': () =>
             app.inject({ method: 'POST', url: '/api/console/incidents/INC-0001/notes', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { body: 'Checked.' } }),
+          // Admin Console PR 9 (D-168).
+          '/api/console/env': () => app.inject({ method: 'GET', url: '/api/console/env' }),
+          '/api/console/flags/:key': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/flags/masquerade_enabled',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { on: false, typed: 'masquerade_enabled' },
+            }),
+          '/api/console/integrations': () => app.inject({ method: 'GET', url: '/api/console/integrations' }),
+          '/api/console/integrations/:id/check': () =>
+            app.inject({ method: 'POST', url: '/api/console/integrations/resend/check', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/deploys': () => app.inject({ method: 'GET', url: '/api/console/deploys' }),
+          '/api/console/db': () => app.inject({ method: 'GET', url: '/api/console/db' }),
           '/api/console/staff/preview': () =>
             app.inject({
               method: 'POST',
@@ -1446,10 +1468,11 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
     // with Console PR 2's nine (D-158), 40 with masquerade's five (D-162), 47 with Billing's seven
     // (D-163), 51 with Billing's refund and void, previews included (D-164), 56 with API & Webhooks
-    // and Scheduled Jobs' five (D-165), 60 with the email log's and usage's four (D-166), 66 with the
-    // incidents' six (D-167), 67 with the audited Build actions (D-172), and 69 with Invite staff and
-    // Change role…'s two (D-172).
-    expect(EXECUTED.unauthenticated).toBe(69);
+    // and Scheduled Jobs' five (D-165), 60 with the email log's and usage's four (D-166), 66 with
+    // the incidents' six (D-167), 72 with the flag, env, integrations, deploys and DB health's six
+    // (D-168), 73 with the audited Build actions (D-172), and 75 with Invite staff and Change role…'s
+    // two (D-172).
+    expect(EXECUTED.unauthenticated).toBe(75);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1463,9 +1486,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
     // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163), + 4 for
     // its refund and void (D-164), + 5 for API & Webhooks and Scheduled Jobs (D-165), + 4 for the
-    // email log's and usage's (D-166) and + 6 for the incidents' (D-167), probed unauthenticated. And
-    // + 1 for the audited Build actions (D-172), probed unauthenticated, and + 2 for Invite staff and
-    // Change role… (D-172).
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 1 + 2);
+    // email log's and usage's (D-166), + 6 for the incidents' (D-167) and + 6 for the flag, env,
+    // integrations, deploys and DB health's (D-168), probed unauthenticated. And + 1 for the audited
+    // Build actions (D-172), probed unauthenticated, and + 2 for Invite staff and Change role… (D-172).
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 1 + 2);
   });
 });
