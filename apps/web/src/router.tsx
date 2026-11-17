@@ -90,6 +90,9 @@ const routes: RouteObject[] = [
       // Masquerade on R2 (D-162 3b, spec § 6): the page, and the mockup's learner view (its `as`).
       { path: 'admin/masquerade', lazy: () => import('./routes/console/Masquerade') },
       { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
+      // Billing, read-only (D-163, spec § 7.6): the Summary, and each list at its own tab address.
+      { path: 'admin/billing', lazy: () => import('./routes/console/Billing') },
+      { path: 'admin/billing/:tab', lazy: () => import('./routes/console/Billing') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
