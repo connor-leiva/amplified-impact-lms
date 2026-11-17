@@ -77,6 +77,11 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/billing'],
   ['admin', '/admin/billing/invoices'],
   ['admin', '/admin/billing?console-state=stripe_off'],
+  // API & Webhooks (both tabs) and Scheduled Jobs (D-165), and a Support viewer's Jobs (no Run Now).
+  ['admin', '/admin/api'],
+  ['admin', '/admin/api/hooks'],
+  ['admin', '/admin/jobs'],
+  ['admin', '/admin/jobs?console-role=Support'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],
