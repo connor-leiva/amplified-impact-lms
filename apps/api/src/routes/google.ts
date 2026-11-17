@@ -48,6 +48,7 @@ import { landingFor } from '../lib/landing';
 import { safeNext } from '@ai/core/landing';
 import { accountForGroupAddress } from './auth';
 import { LOGIN_IP_MAX, LOGIN_IP_WINDOW } from './password';
+import { recordUsage } from '../lib/usage';
 
 /** The flow's cookie: the state, the PKCE verifier and the nonce, signed, for ten minutes. */
 export const GOOGLE_FLOW_COOKIE = 'ai_google';
@@ -191,6 +192,7 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
       const sessionId = await createSession(db, user.id, now, { remember: true });
       await markActive(db, user.id, now);
       reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember: true }));
+      recordUsage(req, user.id, 'sign_in'); // D-166: a usage count, after the sign-in; it changes nothing here.
       // An activated owner changes a `users` row, which every teammate's Team Hub shows.
       if (activated) broadcast();
       // D-151: the guided setup the visitor came from, when there is one. Otherwise D-150: a learner with

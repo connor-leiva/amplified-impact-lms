@@ -132,6 +132,9 @@ import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorLearnerIds } from '../lib/course-access';
 import { sweepMasquerades } from '../console/masquerade';
+import { SCHEDULER_TICK_JOB, recordTick } from './ticks';
+import { pruneEmailAndUsage } from './prune-logs';
+import { evaluateIncidentRules } from '../console/incident-rules';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -629,7 +632,30 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
     } catch (err) {
       log.error({ err }, 'masquerade sweep failed; the next tick retries');
     }
-    return runScheduledJobs(runOptions);
+    // D-166: the email log's 180 days and usage's 400 (D6), the same way: its own try/catch, outside the lock.
+    try {
+      const pruned = await pruneEmailAndUsage(runOptions.db ?? getDb(), clock.now());
+      if (pruned.emails + pruned.usage > 0) log.info(pruned, 'email log and usage pruned');
+    } catch (err) {
+      log.error({ err }, 'email log and usage prune failed; the next tick retries');
+    }
+    try {
+      // D-165: observe-only. The tick is recorded in `job_ticks` (`jobs/ticks.ts`), which never throws and
+      // never changes what the tick does or returns. On the app's own database only: a caller that hands
+      // the scheduler a stand-in `db` gets the tick exactly as before.
+      if (options.db) return await runScheduledJobs(runOptions);
+      return await recordTick(SCHEDULER_TICK_JOB, () => runScheduledJobs(runOptions), { log, skipped: (run) => !run.ran });
+    } finally {
+      // D-167: the incidents' auto-open rules (spec § 7.14), once per tick after the jobs, observe-only
+      // and in their own try/catch: whatever they do or throw, the tick answers exactly what it answered
+      // without them, and no job ever waits on them for anything but time.
+      try {
+        const run = await evaluateIncidentRules(runOptions.db ?? getDb(), clock.now());
+        if (run.opened.length || run.signaled.length || run.failed.length) log.info({ ...run }, 'incident rules');
+      } catch (err) {
+        log.error({ err }, 'incident rules failed; the next tick retries');
+      }
+    }
   };
 
   const fire = (): void => {

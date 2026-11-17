@@ -20,6 +20,9 @@ const SENTINELS = [
   // R2-3b: the parity fixture's audit rows (`AUDIT0`).
   'in_1QxK5fFm0270',
   'Customer cannot see the Session 2 replay',
+  // R2-3b, editable Roles: the fixture's stand-in confirm tokens and its `PERMS0` (the parity matrix).
+  'fixture-${',
+  'parityRoleGrants',
 ];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
@@ -48,13 +51,46 @@ async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): P
     .join('\n');
 }
 
-/** D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). */
-const RECORD_SENTINELS = ['ws_northshore', 'Elena Vargas', 'cus_Rk3NshoreA1', 'in_1QxT4mNs0291'];
+/**
+ * D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). D-163:
+ * Billing's sample figures and their "· sample" qualifiers.
+ */
+const RECORD_SENTINELS = [
+  'ws_northshore',
+  'Elena Vargas',
+  'cus_Rk3NshoreA1',
+  'in_1QxT4mNs0291',
+  // D-162 3b: the mockup's recent masquerade sessions, and the switch that turns the flag off.
+  'Checking seat invite flow after upgrade request',
+  'Verifying Week 2 step order on her account',
+  'masquerade-flag',
+  // D-163: Billing's sample figures and their qualifiers.
+  'MRR · sample',
+  'Plan economics · sample figures',
+  '+$695 this week',
+  '$29 per agent, monthly',
+  'card_declined: do_not_honor',
+  're_3QxK5fFm70',
+  // D-164: the fixture's stand-in confirm token and its two refusal states for the dialogs.
+  'fixture-confirm',
+  'action_expired',
+  'action_scope',
+];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
+  it('D-163: the Billing screen’s production view-model has no sample words', async () => {
+    const code = await bundle('production', '../routes/console/billing.vm.ts');
+    expect(code).toContain('Plan economics');
+    for (const s of ['MRR · sample', 'Plan economics · sample figures', '+$695 this week', '$18,516', '$67,500'])
+      expect(code, s).not.toContain(s);
+  }, 60_000);
+
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
+    expect(code).toContain('/api/console/roles/preview');
+    // D-164: the http client asks the API for Billing's preview and execute.
+    expect(code).toContain('/api/console/billing/');
     for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).not.toContain(s);
   }, 60_000);
 
@@ -118,4 +154,101 @@ describe('the R2 parity snapshot is not in the http build (D-160 R2-2)', () => {
     const code = await bundle('fixture', './boot.ts');
     for (const s of SNAPSHOT_SENTINELS) expect(code, s).toContain(s);
   }, 120_000);
+});
+
+/**
+ * D-162 3b: the fixture's simulated masquerade session (`masquerade-fixture.ts`: its storage key, its
+ * `?masquerade=` switch, the mockup's demo session and its write block) is loaded by `masquerade.ts`
+ * behind the same constant, so the http build can never fake a session.
+ */
+const MASQUERADE_SENTINELS = ['ai-lms-masquerade', 'mq_fixture', 'Customer reports Week 2 steps are out of order', 'createMasqueradeFixture'];
+
+describe('the simulated masquerade is not in the http build (D-162 3b)', () => {
+  it('the http build of the masquerade client has none of it, and talks to the API', async () => {
+    const code = await bundle('production', './masquerade.ts');
+    expect(code).toContain('/api/console/masquerade/current');
+    for (const s of MASQUERADE_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture', './masquerade.ts');
+    for (const s of MASQUERADE_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+});
+
+/**
+ * D-165: API & Webhooks' and Scheduled Jobs' mockup records (`ENDPOINTS`, `HOOKS`, `JOBS` in
+ * `parity-r2.ts`, shaped by `console-fixture-ops.ts`) are fixture-build only, and the screens'
+ * production view-model holds none of their figures (spec § 13).
+ */
+const OPS_SENTINELS = ['ord_2291', 'evt_1QxN1hHm79', 'Handler timeout after 10 s', 'u_1077', 'Daily 9:00 AM'];
+
+describe('the ops fixture is not in the http build (D-165)', () => {
+  it('the http build has none of it', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/jobs');
+    for (const s of OPS_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of OPS_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+
+  it('the screens’ production view-model has no sample figure', async () => {
+    const code = await bundle('production', '../routes/console/ops.vm.ts');
+    expect(code).toContain('Failed deliveries');
+    for (const s of ['76,320', '41,208', '212 ms', '3 GHL, 1 Stripe', 'Every 5 min']) expect(code, s).not.toContain(s);
+  }, 60_000);
+});
+
+/**
+ * D-166: the Email Log's and Usage's sample figures (the mockup's `EMAILS`, the chart's bars and its
+ * per-seat multipliers, `console-fixture-email-usage.ts`) are the fixture's alone. Production shows
+ * what the API counted: the http build of the client, and of the two screens' view-models, has none.
+ */
+const EMAIL_USAGE_SENTINELS = ['This week: 2 new AI Employees', 'Receipt for Team Plan, 16 seats', 're_fixture_', 'storageGb'];
+
+describe('the Email Log and Usage figures are fixture only (D-166)', () => {
+  it('the http build has none of them, and asks the API', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/email');
+    expect(code).toContain('/api/console/usage');
+    for (const s of EMAIL_USAGE_SENTINELS) expect(code, s).not.toContain(s);
+    for (const vm of ['../routes/console/usage.vm.ts', '../routes/console/email.vm.ts']) {
+      const screen = await bundle('production', vm);
+      for (const s of [...EMAIL_USAGE_SENTINELS, 'USAGE_PER_SEAT', 'USAGE_BARS']) expect(screen, `${vm}: ${s}`).not.toContain(s);
+    }
+  }, 120_000);
+
+  it('the fixture build has them, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of EMAIL_USAGE_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+});
+
+/**
+ * D-167: the mockup's incidents (`INCIDENTS` in `parity-r2.ts`, shaped by
+ * `console-fixture-incidents.ts`) are fixture-build only; production shows real incidents or the
+ * empty state, and the screens' view-model holds none of the mockup's records.
+ */
+const INCIDENT_SENTINELS = ['GHL order sync failing with 401', 'INC-0007', 'Imani Brooks confirmed orders', 'Weekly digest bounces above 2%'];
+
+describe('the incidents fixture is not in the http build (D-167)', () => {
+  it('the http build has none of it', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/incidents');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+
+  it('the screens’ production view-model has no sample record', async () => {
+    const code = await bundle('production', '../routes/console/incidents.vm.ts');
+    expect(code).toContain('What broke, who has it, and what it is linked to.');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
 });

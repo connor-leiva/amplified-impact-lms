@@ -201,6 +201,8 @@
   position: absolute;
   left: -4px;
   top: 6px;
+  /* The mockup's 7px dot, its 1.5px ring inside it (its `*` and pseudo-elements are border-box). */
+  box-sizing: border-box;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -668,6 +670,12 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
+/* D-163: Billing's four stats (`.g4`), and a stat's line in `--bad` ("Needs review"). */
+.g4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
 .stat {
   padding: 16px;
   display: flex;
@@ -703,6 +711,9 @@
 .toneWarn {
   color: var(--r2-warn);
 }
+.toneBad {
+  color: var(--r2-bad);
+}
 .skel {
   padding: 20px;
   display: flex;
@@ -730,6 +741,18 @@
 }
 .check:has(.lockGroup) {
   cursor: not-allowed;
+}
+/* D-160 R2-3b: a toggle's label (the mockup's `cursor: pointer`); a disabled box keeps the default. */
+.live {
+  cursor: pointer;
+}
+/* On a phone the drawn box is a picture of the state; the real one is `.hit`, over the whole row. */
+.drawn {
+  pointer-events: none;
+}
+.drawn:has(+ .hit:focus-visible) {
+  box-shadow: var(--r2-focus);
+  border-radius: 4px;
 }
 .lockGroup {
   gap: 4px;
@@ -766,6 +789,7 @@
   .g3 {
     grid-template-columns: minmax(0, 1fr);
   }
+  .g4,
   .g5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;

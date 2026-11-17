@@ -80,28 +80,29 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
       row('learners', 'Learners & Teams', 'r2Learners', '/admin/learners', true),
       row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', true, { cap: 'workspaces.read' }),
       row('users', 'Users', 'r2Users', '/admin/users', true, { cap: 'users.read' }),
-      row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', false, { cap: 'console.view' }),
+      // D-162 3b: built, for the roles that can start one (spec § 6). Support reaches its lock card by address.
+      row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', true, { cap: 'masquerade.start' }),
     ],
   ],
   [
     'Revenue',
     [
       row('tiers', 'Tiers & Upgrades', 'r2Tiers', '/admin/tiers', true, { badge: 'requests' }),
-      row('billing', 'Billing', 'r2Billing', '/admin/billing', false, { cap: 'billing.read' }),
-      row('usage', 'Usage', 'r2Usage', '/admin/usage', false, { cap: 'usage.read' }),
+      row('billing', 'Billing', 'r2Billing', '/admin/billing', true, { cap: 'billing.read' }),
+      row('usage', 'Usage', 'r2Usage', '/admin/usage', true, { cap: 'usage.read' }),
     ],
   ],
   [
     'Operations',
     [
-      row('incidents', 'Incidents', 'r2Incidents', '/admin/incidents', false, {
+      row('incidents', 'Incidents', 'r2Incidents', '/admin/incidents', true, {
         cap: 'incidents.read',
         badge: 'incidents',
       }),
       row('audit', 'Audit Log', 'r2Audit', '/admin/audit', true, { cap: 'audit.read' }),
-      row('api', 'API & Webhooks', 'r2Api', '/admin/api', false, { cap: 'api.read' }),
-      row('jobs', 'Scheduled Jobs', 'r2Jobs', '/admin/jobs', false, { cap: 'jobs.read' }),
-      row('email', 'Email Log', 'r2Email', '/admin/email', false, { cap: 'email.read' }),
+      row('api', 'API & Webhooks', 'r2Api', '/admin/api', true, { cap: 'api.read' }),
+      row('jobs', 'Scheduled Jobs', 'r2Jobs', '/admin/jobs', true, { cap: 'jobs.read' }),
+      row('email', 'Email Log', 'r2Email', '/admin/email', true, { cap: 'email.read' }),
       row('integrations', 'Integrations', 'r2Integrations', '/admin/integrations', false, { cap: 'ops.read' }),
       row('deploys', 'Deploys & Commits', 'r2Deploys', '/admin/deploys', false, { cap: 'ops.read' }),
       row('db', 'DB Health', 'r2Db', '/admin/db', false, { cap: 'ops.read' }),
@@ -144,6 +145,10 @@ const norm = (pathname: string): string => {
 export function activeRowId(pathname: string): string | null {
   const p = norm(pathname);
   if (p.startsWith('/admin/curriculum/')) return 'builder';
+  // Billing's tabs have their own addresses (D-163, spec § 8: `admin/billing[/:tab]`): one row, one page.
+  if (p.startsWith('/admin/billing/')) return 'billing';
+  // API & Webhooks' deliveries tab has its own address (D-165, spec § 8: `admin/api[/:tab]`): one row, one page.
+  if (p.startsWith('/admin/api/')) return 'api';
   const parent = recordParent(p);
   if (parent) return parent;
   for (const [, rows] of R2_NAV) for (const r of rows) if (r.built && r.id !== 'builder' && r.path === p) return r.id;
@@ -239,12 +244,20 @@ export function toggleGroup(group: R2Group, active: boolean, open: OpenState): O
 
 /**
  * A record's page (D-160 R2-1c, the mockup's `PARENT`): `/admin/workspaces/:teamId` belongs to the
- * Workspaces row and `/admin/users/:userId` to Users, so their row stays active and their group open.
+ * Workspaces row, `/admin/users/:userId` to Users and `/admin/incidents/:id` to Incidents (D-167), so
+ * their row stays active and their group open.
  */
 export const RECORD_PARENTS: Readonly<Record<string, string>> = {
   '/admin/workspaces/': 'workspaces',
   '/admin/users/': 'users',
+  // D-162 3b: the mockup's learner view (`as`) belongs to Masquerade.
+  '/admin/masquerade/': 'masquerade',
+  // D-167: an incident belongs to the Incidents row (the mockup's `PARENT`: incident → incidents).
+  '/admin/incidents/': 'incidents',
 };
+
+/** The mockup's learner view, whose parent crumb is drawn as the page's (bold), not as a link back. */
+export const LEARNER_VIEW_PATH = '/admin/masquerade/learner-view';
 
 function recordParent(p: string): string | null {
   for (const [prefix, id] of Object.entries(RECORD_PARENTS))
@@ -257,6 +270,8 @@ export interface CrumbTrail {
   page: string;
   /** A record's page: the row's own address, which its crumb links back to. */
   parent?: string;
+  /** False when the row's crumb is drawn bold rather than as that link (the learner view, as the mockup's). */
+  parentLink?: false;
 }
 
 /**
@@ -270,6 +285,8 @@ export function crumbTrail(pathname: string): CrumbTrail | null {
   const record = recordParent(norm(pathname)) !== null;
   for (const [group, defs] of R2_NAV) {
     const d = defs.find((x) => x.id === id);
+    if (d && record && norm(pathname) === LEARNER_VIEW_PATH)
+      return { group, page: d.label, parent: d.path, parentLink: false };
     if (d) return record ? { group, page: d.label, parent: d.path } : { group, page: d.label };
   }
   return null;

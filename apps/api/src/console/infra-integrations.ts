@@ -9,9 +9,12 @@
 //                (the newest synced row, the newest row with an error, as its status: never an email).
 //   Zoom         not configured: the app has no Zoom route or reader (spec § 7.9); join links are
 //                pasted per session.
-//   Google       `readGoogleConfig`; no table records a Google sign-in's outcome: Unavailable.
-//   Resend       its key and `resolveMode`; no table records a send's outcome in this build: Unavailable.
-//   Storage      `readS3Config`; no table records a bucket call: Unavailable.
+//   Google       `readGoogleConfig`; no table records a Google sign-in's outcome: Unavailable. (`api_metrics`,
+//                D-165, counts route answers, not Google's: the callback redirects either way.)
+//   Resend       its key and `resolveMode`; last success and error from `email_log` (D-166): the newest
+//                send Resend accepted, the newest it didn't, with its kind in the Email Log's words.
+//   Storage      `readS3Config`; no table records a bucket call: Unavailable. (The file routes presign
+//                locally, without calling the bucket, so their `api_metrics` rows prove nothing about it.)
 //   GA4, Meta    www only (D-155), with their public ids from `lib/analytics.ts`. Nothing is checked.
 //
 // CHECK NOW reads and changes nothing. Stripe: Billing's scope probe, handed in by `app.ts`, which
@@ -20,12 +23,13 @@
 // words never come back; the answer is a closed outcome and a status code. 5 a minute per session,
 // and one Check per service is reused for 10 seconds across everyone.
 
-import { desc, isNotNull, isNull, and, max } from 'drizzle-orm';
-import { INTEGRATION_IDS, INTEGRATION_NAMES, PROBE_INTEGRATIONS, WWW_ONLY_INTEGRATIONS, integrationState, statusLine } from '@ai/core';
+import { desc, eq, isNotNull, isNull, and, max } from 'drizzle-orm';
+import { EMAIL_ERROR_LABELS, INTEGRATION_IDS, INTEGRATION_NAMES, PROBE_INTEGRATIONS, WWW_ONLY_INTEGRATIONS, integrationState, statusLine } from '@ai/core';
+import type { EmailErrorKind } from '@ai/core';
 import type { EnvPresence, IntegrationId, IntegrationStamp, IntegrationView, OpsModes, ProbeIntegration, ProbeResult } from '@ai/core';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
-import { stripeEvents } from '../db/schema';
+import { emailLog, stripeEvents } from '../db/schema';
 import { GA4_MEASUREMENT_ID, META_PIXEL_ID } from '../lib/analytics';
 import { crmSyncReport } from '../routes/crm-sync';
 import type { CrmSyncReport } from '../routes/crm-sync';
@@ -69,6 +73,19 @@ async function stripeStamps(db: Database): Promise<{ ok: IntegrationStamp; bad: 
   return { ok: stamp(ok?.at ?? null), bad: bad ? stamp(bad.at, bad.error) : 'none' };
 }
 
+/** Resend, from the email log (D-166): only what went through Resend, never the log file or the test outbox. */
+async function resendStamps(db: Database): Promise<{ ok: IntegrationStamp; bad: IntegrationStamp }> {
+  const [ok] = await db.select({ at: max(emailLog.at) }).from(emailLog).where(and(eq(emailLog.provider, 'resend'), eq(emailLog.status, 'sent')));
+  const [bad] = await db
+    .select({ at: emailLog.at, kind: emailLog.errorKind })
+    .from(emailLog)
+    .where(and(eq(emailLog.provider, 'resend'), eq(emailLog.status, 'failed')))
+    .orderBy(desc(emailLog.at), desc(emailLog.id))
+    .limit(1);
+  const words = bad?.kind ? (EMAIL_ERROR_LABELS[bad.kind as EmailErrorKind] ?? null) : null;
+  return { ok: stamp(ok?.at ?? null), bad: bad ? stamp(bad.at, words) : 'none' };
+}
+
 function ghlStamps(report: CrmSyncReport): { ok: IntegrationStamp; bad: IntegrationStamp } {
   const rows = [...report.recent, ...report.problems];
   let ok: number | null = null;
@@ -109,6 +126,7 @@ export async function readIntegrations(deps: IntegrationsDeps, db: Database = ge
   const modes: OpsModes = opsModes(env);
   const has = (name: string) => presence.find((p) => p.name === name)?.state === 'present';
   const stripe = await stripeStamps(db);
+  const resend = await resendStamps(db);
   const crm = await (deps.crm ?? (() => crmSyncReport(env)))();
   const ghl = ghlStamps(crm);
   const cards: Record<IntegrationId, IntegrationView> = {
@@ -141,9 +159,9 @@ export async function readIntegrations(deps: IntegrationsDeps, db: Database = ge
     resend: card('resend', {
       configured: has('Resend API key'),
       mode: modes.email,
-      ok: 'unavailable',
-      bad: 'unavailable',
-      source: null,
+      ok: resend.ok,
+      bad: resend.bad,
+      source: 'email_log',
       secrets: secretsOf(presence, 'Resend', { 'Resend API key': 'API key' }),
     }),
     storage: card('storage', {
@@ -188,9 +206,9 @@ export async function probeResend(env: Env, fetchImpl: FetchLike, now: number): 
 }
 
 /** Stripe: Billing's scope probe. Every Read permission there is ok; a refused one is named. */
-export async function probeStripe(env: Env, scopes: (() => Promise<StripeScopes>) | null | undefined, now: number): Promise<ProbeResult> {
+export async function probeStripe(scopes: (() => Promise<StripeScopes>) | null | undefined, now: number): Promise<ProbeResult> {
   const result = (outcome: ProbeResult['outcome'], missing: string[] = []): ProbeResult => ({ id: 'stripe', outcome, at: now, status: null, missing });
-  if (!(env.STRIPE_SECRET_KEY ?? '').trim() || !scopes) return result('not_configured');
+  if (!scopes) return result('not_configured');
   let got: StripeScopes;
   try {
     got = await scopes();
@@ -219,7 +237,7 @@ export async function checkIntegration(id: ProbeIntegration, deps: IntegrationsD
   if (last && now >= last.at && now - last.at < PROBE_REUSE_MS) return last;
   const env = deps.env ?? process.env;
   const fetchImpl: FetchLike = deps.fetch ?? ((input, init) => fetch(input, init));
-  const out = id === 'resend' ? await probeResend(env, fetchImpl, now) : await probeStripe(env, deps.stripeScopes, now);
+  const out = id === 'resend' ? await probeResend(env, fetchImpl, now) : await probeStripe(deps.stripeScopes, now);
   recent.set(id, out);
   return out;
 }

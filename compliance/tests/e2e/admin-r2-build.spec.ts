@@ -240,20 +240,27 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
     await close();
   });
 
-  test('Learners: a row opens the learner’s details as a drawer; the page’s "…" keeps Export roster and Needs Attention', async ({ browser }) => {
+  test('Learners: a row opens the learner’s details as a drawer, with the nudge; the head is the mockup’s, with no page "…"', async ({ browser }) => {
+    for (const width of [1440, 390]) {
+      const { page, close } = await openAt(browser, '/admin/learners', width);
+      // D-160 R2-3a: the mockup's head has no page-level "…", so every "More actions" is a row's.
+      // The table's card (`section`), whose rows are a table on a desktop and cards on a phone.
+      const rows = page.locator('main section[aria-label="Learners"]').getByRole('button', { name: 'More actions' });
+      await expect(rows.first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'More actions' })).toHaveCount(await rows.count());
+      await expect(page.getByRole('menu', { name: 'Learners & Teams actions' })).toHaveCount(0);
+      await close();
+    }
     const { page, close } = await openAt(browser, '/admin/learners');
     await page.getByRole('table', { name: 'Learners' }).getByText('Elena Vargas').click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toHaveAttribute('role', 'dialog');
     await expect(drawer.getByText('Build Progress')).toBeVisible();
     await expect(drawer.getByRole('button', { name: 'Move to Agent Tier' })).toBeVisible();
+    await expect(drawer.getByRole('button', { name: /Nudge|Resend Invite/ })).toBeVisible();
     await expectAccessible(page);
     await page.keyboard.press('Escape');
     await expect(drawer).toHaveCount(0);
-    await page.getByRole('button', { name: 'More actions' }).first().click();
-    await expect(page.getByRole('menuitem', { name: 'Export roster' })).toBeVisible();
-    await page.getByRole('menuitem', { name: 'Learners who need attention' }).click();
-    await expect(page.getByRole('dialog', { name: 'Needs Attention' })).toBeVisible();
     await close();
   });
 
@@ -302,17 +309,38 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
     await close();
   });
 
-  test('Roles & Permissions: read-only; the Owner column on; Support’s refund and masquerade locked', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/roles');
-    const matrix = page.getByRole('table', { name: 'Console permissions by role' });
-    await expect(matrix.locator('input[type="checkbox"]:not(:disabled)')).toHaveCount(0);
-    for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix'])
-      await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
-    for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
-      await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).not.toBeChecked();
-    await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin' }).dispatchEvent('click');
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
-    await close();
+  test('Roles & Permissions: the Owner column on; the mockup’s two locks; a box opens the mockup’s confirm', async ({ browser }) => {
+    // D-160 R2-3b, editable (Connor, Nov 16, 2026, 8:27 AM MST).
+    for (const width of [1440, 390]) {
+      const { page, close } = await openAt(browser, '/admin/roles', width);
+      const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+      for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix']) {
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeDisabled();
+      }
+      for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).toBeDisabled();
+      // Past the ceiling but drawn as the mockup's toggles: named so, refused by the server.
+      for (const cap of ['Run a job now, retry a webhook, update incidents', 'Export audit and email logs', 'View integrations, deploys, DB health, flags, roles', 'Edit staff roles and this matrix'])
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support, fixed by product rules` })).not.toBeChecked();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })).toBeEnabled();
+      await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
+      await expect(dialog).toContainText('Start and extend masquerade. Applies to every Admin on staff right away.');
+      await expect(dialog).toContainText('This action is audit-logged.');
+      await expect(dialog.getByRole('button', { name: 'Remove permission' })).toBeEnabled();
+      await expectAccessible(page);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true })).toBeChecked();
+      await matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' }).click();
+      const fixed = page.getByRole('dialog', { name: 'Give this permission to Admin?' });
+      await expect(fixed.getByRole('alert')).toHaveText('Fixed by product rules. Only the Owner can edit staff roles and this matrix.');
+      await expect(fixed.getByRole('button', { name: 'Allow' })).toBeDisabled();
+      await expectAccessible(page);
+      await page.keyboard.press('Escape');
+      await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
+      await close();
+    }
   });
 });

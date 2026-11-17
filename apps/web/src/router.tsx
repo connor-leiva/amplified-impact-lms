@@ -1,5 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router';
+import type { RouteObject } from 'react-router';
 import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
+import { withStaleChunkRecovery } from './lib/StaleChunkBoundary';
+import { MasqueradeRoot } from './shell/MasqueradeRoot';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
@@ -28,7 +31,7 @@ const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 
 // (§ 7.5's "does not reveal whether an account exists" holds end to end only if the UI refuses to
 // branch), and the viewer sees "Check Your Email". That is what makes the smoke checks in
 // compliance/tests/e2e/signin.spec.ts meaningful against a deployment with no fixture data.
-export const router = createBrowserRouter([
+const routes: RouteObject[] = [
   ...(devRoutes
     ? [
         { path: '/__states', lazy: () => import('./routes/__states') },
@@ -84,6 +87,22 @@ export const router = createBrowserRouter([
       { path: 'admin/users', lazy: () => import('./routes/console/Users') },
       { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
       { path: 'admin/search', lazy: () => import('./routes/console/Search') },
+      // Masquerade on R2 (D-162 3b, spec § 6): the page, and the mockup's learner view (its `as`).
+      { path: 'admin/masquerade', lazy: () => import('./routes/console/Masquerade') },
+      { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
+      // Billing, read-only (D-163, spec § 7.6): the Summary, and each list at its own tab address.
+      { path: 'admin/billing', lazy: () => import('./routes/console/Billing') },
+      { path: 'admin/billing/:tab', lazy: () => import('./routes/console/Billing') },
+      // API & Webhooks (with its deliveries tab at its own address) and Scheduled Jobs (D-165, spec §§ 7.9-7.10).
+      { path: 'admin/api', lazy: () => import('./routes/console/Api') },
+      { path: 'admin/api/:tab', lazy: () => import('./routes/console/Api') },
+      { path: 'admin/jobs', lazy: () => import('./routes/console/Jobs') },
+      // D-166: the Email Log and Usage (spec §§ 7.7, 7.15).
+      { path: 'admin/email', lazy: () => import('./routes/console/EmailLog') },
+      { path: 'admin/usage', lazy: () => import('./routes/console/Usage') },
+      // Incidents and one incident (D-167, spec § 7.14).
+      { path: 'admin/incidents', lazy: () => import('./routes/console/Incidents') },
+      { path: 'admin/incidents/:id', lazy: () => import('./routes/console/Incident') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
@@ -92,4 +111,14 @@ export const router = createBrowserRouter([
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-]);
+];
+
+// D-170: every route above sits under `withStaleChunkRecovery`, two pathless routes (no path, no
+// element: every address matches and renders as before). A lazy screen whose file a deploy removed
+// reloads the page once instead of showing "Unexpected Application Error!"; any other error still
+// gets React Router's default screen, as it always has. `lib/StaleChunkBoundary.tsx` says how.
+//
+// THE ROOT (D-162 3b). Inside that, every route is a child of `MasqueradeRoot`, a pathless layout that
+// draws only its page until a masquerade session is known: then the banner shows on every page and
+// every `/admin/*` address is the paused Console (spec § 6, D2). With no session the DOM is the page's alone.
+export const router = createBrowserRouter(withStaleChunkRecovery([{ element: <MasqueradeRoot />, children: routes }]));

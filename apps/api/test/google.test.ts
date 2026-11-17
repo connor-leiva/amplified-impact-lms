@@ -18,6 +18,7 @@ import { accessGroups, accounts, authSessions, emailVerifications, googleIdentit
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { GOOGLE_FLOW_COOKIE } from '../src/routes/google';
 import { resetDatabase, testDatabase } from './helpers';
+import { clearUsage, usageRows, withoutUsageTable } from './usage-helpers';
 import type { Database } from '../src/db/client';
 
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
@@ -516,5 +517,29 @@ describe('back to a guided setup after Google (D-151)', () => {
       const res = await callback(`code=good-code&state=${encodeURIComponent(s.state)}`, s.cookie);
       expect(res.headers.location, next).toBe('/');
     }
+  });
+});
+
+// D-166: the usage count a Google sign-in makes (spec §§ 7.7, 9).
+describe('the Google callback counts a sign-in (D-166) @console', () => {
+  beforeEach(clearUsage);
+
+  it('counts one sign-in for the learner', async () => {
+    const res = await signInWithGoogle('Jamie@OrtizHomes.com');
+    expect([res.statusCode, res.headers.location]).toEqual([302, '/']);
+    expect(await usageRows()).toEqual([expect.objectContaining({ user_id: 'u_jamie', kind: 'sign_in', count: 1 })]);
+  });
+
+  it('answers exactly as before when the count cannot be written', async () => {
+    const res = await withoutUsageTable(() => signInWithGoogle('Jamie@OrtizHomes.com'));
+    expect([res.statusCode, res.headers.location]).toEqual([302, '/']);
+    expect((await me(res))!.json().viewer.actor).toEqual({ kind: 'learner', userId: 'u_jamie' });
+    expect(await usageRows()).toEqual([]);
+  });
+
+  it('counts nothing for a refused sign-in', async () => {
+    const res = await signInWithGoogle('nobody@example.com');
+    expect(res.statusCode).toBe(302);
+    expect(await usageRows()).toEqual([]);
   });
 });

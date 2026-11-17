@@ -20,7 +20,7 @@ import type { StripeScopes } from '../src/console/infra-integrations';
 import { resetDbHealthCache } from '../src/console/infra-routes';
 import type { InfraDeps } from '../src/console/infra-routes';
 import type { Database } from '../src/db/client';
-import { auditLog, consoleFlags, stripeEvents, users } from '../src/db/schema';
+import { auditLog, consoleFlags, emailLog, stripeEvents, users } from '../src/db/schema';
 import type { CrmSyncReport } from '../src/routes/crm-sync';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -225,6 +225,12 @@ describe('integrations (spec § 7.13) @console', () => {
       crm: async () => CRM,
     });
     const d = await db();
+    // D-166's email log: Resend's last send and its last refusal; the outbox's rows don't count.
+    await d.insert(emailLog).values([
+      { at: NOW - 30 * MIN, to: 'a@example.com', userId: null, template: 'sign-in', subject: 'Your sign-in link', provider: 'resend', providerId: 'msg_1', status: 'sent', errorKind: null },
+      { at: NOW - 90 * MIN, to: 'b@example.com', userId: null, template: 'sign-in', subject: 'Your sign-in link', provider: 'resend', providerId: null, status: 'failed', errorKind: 'provider' },
+      { at: NOW - 5 * MIN, to: 'c@example.com', userId: null, template: 'sign-in', subject: 'Your sign-in link', provider: 'outbox', providerId: null, status: 'failed', errorKind: 'render' },
+    ]);
     await d.insert(stripeEvents).values([
       { id: 'evt_1', type: 'invoice.paid', receivedAt: NOW - 50 * MIN, processedAt: NOW - 49 * MIN, error: null },
       { id: 'evt_2', type: 'invoice.paid', receivedAt: NOW - 40 * MIN, processedAt: null, error: 'StripeCardError:card_declined' },
@@ -253,7 +259,15 @@ describe('integrations (spec § 7.13) @console', () => {
     });
     expect(card('ghl')).toMatchObject({ mode: 'on', lastSuccess: { at: NOW - 720 * MIN }, lastError: { at: NOW - 20 * MIN, detail: '401 Unauthorized' }, probe: false });
     expect(res.body).not.toContain('ana@example.com');
-    expect(card('resend')).toMatchObject({ mode: 'production', lastSuccess: 'unavailable', lastError: 'unavailable', secrets: [{ label: 'API key', state: 'present' }], probe: true });
+    expect(card('resend')).toMatchObject({
+      mode: 'production',
+      lastSuccess: { at: NOW - 30 * MIN, detail: null },
+      lastError: { at: NOW - 90 * MIN, detail: 'Resend refused it' },
+      source: 'email_log',
+      secrets: [{ label: 'API key', state: 'present' }],
+      probe: true,
+    });
+    expect(res.body).not.toContain('a@example.com');
     expect(card('zoom')).toMatchObject({ secrets: [], lastSuccess: 'unavailable' });
     expect(card('ga4')).toMatchObject({ publicId: 'G-TSQ5YB5BCP', name: 'GA4', use: 'Analytics on www only' });
     expect(card('meta')).toMatchObject({ publicId: '1835170747490806' });

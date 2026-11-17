@@ -84,11 +84,11 @@ export function decodeCursor(raw: unknown): NameCursor | null {
 const n = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
 
 /** `array['cohort', …]::text[]`, each kind a bound value: the order `primaryPlan` ranks by. */
-const priorityArray = sql`array[${sql.join(
+export const priorityArray = sql`array[${sql.join(
   PLAN_PRIORITY.map((k) => sql`${k}`),
   sql`, `,
 )}]::text[]`;
-const liveArray = sql`array[${sql.join(
+export const liveArray = sql`array[${sql.join(
   LIVE_PLAN_STATUSES.map((k) => sql`${k}`),
   sql`, `,
 )}]::text[]`;
@@ -189,7 +189,7 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
   if (opts.after) where.push(sql`(lower(t.name), t.id) > (${opts.after.name}, ${opts.after.id})`);
   const whereSql = where.length ? sql`where ${sql.join(where, sql` and `)}` : sql``;
   const raw = (await db.execute(sql`
-    select t.id, t.name, t.seats, o.name as owner_name, o.email as owner_email, pp.kind, pp.status,
+    select t.id, t.name, t.seats, t.owner_id, o.name as owner_name, o.email as owner_email, pp.kind, pp.status,
       (select count(*)::int from users m where m.team_id = t.id) as used,
       (select max(m.last) from users m where m.team_id = t.id) as last
     from teams t
@@ -207,6 +207,7 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
     id: string;
     name: string;
     seats: number;
+    owner_id: string | null;
     owner_name: string | null;
     owner_email: string | null;
     kind: string | null;
@@ -220,6 +221,7 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
     return {
       teamId: r.id,
       name: r.name,
+      ownerId: r.owner_id,
       ownerName: r.owner_name,
       ownerEmail: r.owner_email,
       planKind: kind,
