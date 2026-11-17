@@ -29,4 +29,5 @@ export * from './console-view';
 export * from './admin-build';
 export * from './console-billing';
 export * from './console-billing-actions';
+export * from './console-ops';
 export * from './admin-actions';
