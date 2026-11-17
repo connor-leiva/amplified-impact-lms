@@ -33,7 +33,7 @@ import s from './Ops.module.css';
 // (`api_metrics`), then Endpoints (latency and error rate by route template) and Webhook deliveries (GHL
 // from the CRM sync log, Stripe from `stripe_events`, Zoom not configured). "Retry now…" on a GHL row
 // failing or retrying is the CRM sync's own reset (Owner and Admin; hidden for Support); a Stripe row
-// is view-only, with "View in Stripe" (D13). "Related incidents" waits for the Incidents screen.
+// is view-only, with "View in Stripe" (D13). "Related incidents" opens the Incidents screen (D-167).
 
 export function Component() {
   const { tab: raw } = useParams();
@@ -110,7 +110,8 @@ export function Component() {
           },
         ]
       : []),
-    { label: C.menu.related, disabled: true, title: C.menu.incidentsLater, onSelect: () => {} },
+    // D-167: the Incidents screen exists now (the mockup's `go('incidents')`).
+    { label: C.menu.related, onSelect: () => navigate('/admin/incidents') },
     ...(r.stripeUrl ? [{ label: C.menu.stripe, onSelect: () => void window.open(r.stripeUrl!, '_blank', 'noopener') }] : []),
   ];
 
