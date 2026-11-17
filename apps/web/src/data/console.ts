@@ -8,7 +8,7 @@
 // never reach production: `console-build.test.ts` builds this module both ways and checks.
 
 import { isConsoleErrorCode } from '@ai/core';
-import type { AuditFilters, AuditRow, ConsoleErrorCode, ConsoleMe, ConsolePage, EditableRole, RoleChangePreview, RoleRowKey, RolesMatrix } from '@ai/core';
+import type { AuditFilters, AuditRow, ConsoleErrorCode, ConsoleMe, ConsolePage, EditableRole, RoleChangePreview, RoleRowKey, RolesMatrix, StaffChangePreview, StaffConsoleChange } from '@ai/core';
 import { navigation } from './http';
 
 /** What went wrong, as a screen needs to know it. */
@@ -47,7 +47,22 @@ export class ConsoleError extends Error {
 }
 
 /** The codes a Roles & Permissions change is refused with (D-160 R2-3b). */
-export const REFUSALS = ['role_fixed', 'managed_elsewhere', 'fixed_by_product', 'self_lockout', 'no_change', 'grant_stale', 'confirm_invalid', 'confirm_expired'] as const;
+export const REFUSALS = [
+  'role_fixed',
+  'managed_elsewhere',
+  'fixed_by_product',
+  'self_lockout',
+  'no_change',
+  'grant_stale',
+  'confirm_invalid',
+  'confirm_expired',
+  // D-172: Invite staff and Change role….
+  'staff_self_change',
+  'staff_last_owner',
+  'staff_unchanged',
+  'staff_stale',
+  'staff_invalid',
+] as const;
 
 /** A status and a code as a failure kind. The code wins where there is one. */
 export function failureOf(status: number, code: unknown): ConsoleFailure {
@@ -73,6 +88,10 @@ export interface ConsoleApi {
   previewRole(change: { role: EditableRole; capability: RoleRowKey; allowed: boolean }): Promise<RoleChangePreview>;
   /** Makes the previewed change; answers the matrix as it now is. */
   changeRole(confirmToken: string): Promise<RolesMatrix>;
+  /** D-172, the Owner's two-step Invite staff and Change role…: the change in words, and its token. */
+  previewStaff(change: StaffConsoleChange): Promise<StaffChangePreview>;
+  /** Makes the previewed staff change; answers its toast. */
+  changeStaff(confirmToken: string): Promise<{ toast: string }>;
 }
 
 /** The audit list's query string: only the filters that are set, then the cursor. */
@@ -142,6 +161,12 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       ),
     changeRole: async (confirmToken) =>
       json<RolesMatrix>(await request(fetchImpl, '/api/console/roles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
+    previewStaff: async (change) =>
+      json<StaffChangePreview>(
+        await request(fetchImpl, '/api/console/staff/preview', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(change) }),
+      ),
+    changeStaff: async (confirmToken) =>
+      json<{ toast: string }>(await request(fetchImpl, '/api/console/staff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
   };
 }
 

@@ -17,7 +17,7 @@ import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
 
-type RouteName = 'me' | 'audit' | 'export' | 'roles' | 'preview' | 'change';
+type RouteName = 'me' | 'audit' | 'export' | 'roles' | 'preview' | 'change' | 'staffPreview' | 'staffChange';
 
 const ROUTES: Record<RouteName, { path: string; method: 'GET' | 'POST'; route: string; payload?: Record<string, unknown> }> = {
   me: { path: CONSOLE_PATHS.me, method: 'GET', route: `GET ${CONSOLE_PATHS.me}` },
@@ -28,6 +28,9 @@ const ROUTES: Record<RouteName, { path: string; method: 'GET' | 'POST'; route: s
   // no real token, so it is refused for that (`console-roles.test.ts` makes real changes).
   preview: { path: CONSOLE_PATHS.rolesPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.rolesPreview}`, payload: { role: 'Admin', capability: 'masq', allowed: false } },
   change: { path: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, payload: { confirmToken: 'not-a-token' } },
+  // D-172: Invite staff and Change role…, the Owner's alone too (`console-staff.test.ts` makes real ones).
+  staffPreview: { path: CONSOLE_PATHS.staffPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.staffPreview}`, payload: { kind: 'role', staffId: 'st2', role: 'Support' } },
+  staffChange: { path: CONSOLE_PATHS.staff, method: 'POST', route: `POST ${CONSOLE_PATHS.staff}`, payload: { confirmToken: 'not-a-token' } },
 };
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
@@ -46,18 +49,18 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // Editor) and refuses a learner; `audit` is audit.read (Owner, Admin, Support); `export` is export
 // (Owner, Admin); `roles` is ops.read (Owner, Admin); `preview` and `change` are roles.write (the Owner).
 const EXPECT: Record<string, Record<RouteName, number>> = {
-  anon: { me: 401, audit: 401, export: 401, roles: 401, preview: 401, change: 401 },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, preview: 403, change: 403 },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, preview: 403, change: 403 },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, preview: 200, change: 403 },
+  anon: { me: 401, audit: 401, export: 401, roles: 401, preview: 401, change: 401, staffPreview: 401, staffChange: 401 },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, preview: 200, change: 403, staffPreview: 200, staffChange: 403 },
 };
 
 /** A 403 that is not the capability's: the Owner's change with no real token. */
-const CODE: Partial<Record<string, Partial<Record<RouteName, string>>>> = { Owner: { change: 'confirm_invalid' } };
+const CODE: Partial<Record<string, Partial<Record<RouteName, string>>>> = { Owner: { change: 'confirm_invalid', staffChange: 'confirm_invalid' } };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
 const SUPPORT_CAPS = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];

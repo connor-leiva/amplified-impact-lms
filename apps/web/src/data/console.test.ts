@@ -155,3 +155,32 @@ describe('the Console fixture (fixture build only)', () => {
     expect((await createConsoleFixture({ role: 'Owner', staff: true, state: 'empty' }).audit({})).rows).toEqual([]);
   });
 });
+
+describe('D-172: Export selected, and Invite staff and Change role…', () => {
+  it('the client posts the staff preview and change, and a guard’s refusal is "refused" with its code', async () => {
+    const calls: { url: string; body: unknown }[] = [];
+    const answers = [res(200, { confirmToken: 't', title: 'x' }), res(200, { toast: 'Jordan Hale is now Support' }), res(403, { error: 'There must always be at least one Owner.', code: 'staff_last_owner' }), res(422, { error: 'Enter a valid email address.', code: 'staff_invalid' })];
+    const api = createConsoleHttp((async (url: string, init?: RequestInit) => {
+      calls.push({ url, body: init?.body ? JSON.parse(String(init.body)) : null });
+      return answers.shift()!;
+    }) as unknown as typeof fetch);
+    expect(await api.previewStaff({ kind: 'role', staffId: 'st2', role: 'Support' })).toMatchObject({ confirmToken: 't' });
+    expect(await api.changeStaff('t')).toEqual({ toast: 'Jordan Hale is now Support' });
+    expect(calls.map((c) => c.url)).toEqual(['/api/console/staff/preview', '/api/console/staff']);
+    expect(calls[1]!.body).toEqual({ confirmToken: 't' });
+    const owner = await failure(api.previewStaff({ kind: 'role', staffId: 'st1', role: 'Admin' }));
+    expect(owner).toMatchObject({ kind: 'refused', status: 403, code: 'staff_last_owner', message: 'There must always be at least one Owner.' });
+    const bad = await failure(api.previewStaff({ kind: 'invite', email: 'x', role: 'Support' }));
+    expect(bad).toMatchObject({ kind: 'refused', status: 422, code: 'staff_invalid', message: 'Enter a valid email address.' });
+  });
+
+  it('the fixture exports exactly the ids named, and records how many', async () => {
+    const NOW = Date.parse('2026-12-07T16:42:00Z');
+    const owner = createConsoleFixture({ role: 'Owner', staff: true, now: () => NOW });
+    const ids = (await owner.audit({})).rows.slice(0, 2).map((r) => r.id);
+    const { csv } = await owner.exportAudit({ ids });
+    expect(csv.trimEnd().split('\r\n')).toHaveLength(3);
+    expect((await owner.audit({})).rows[0]).toMatchObject({ action: 'audit.export', after: { rows: 2, filters: {}, selected: 2 } });
+    expect(matches(fixtureAuditRows(NOW)[0]!, { ids: ['nope'] })).toBe(false);
+  });
+});

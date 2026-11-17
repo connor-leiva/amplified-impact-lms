@@ -631,6 +631,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // D-160 R2-3b: the Owner's two-step change to the matrix (a POST to the same path, and its preview).
   { path: '/api/console/roles', methods: 'GET, HEAD, POST', guard: 'session' },
   { path: '/api/console/roles/preview', methods: 'POST', guard: 'session' },
+  // D-172: Invite staff and Change role…, two steps (the change is a POST to `/api/console/staff`).
+  { path: '/api/console/staff/preview', methods: 'POST', guard: 'session' },
+  { path: '/api/console/staff', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -1068,6 +1071,20 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
               payload: { role: 'Admin', capability: 'masq', allowed: false },
             }),
+          '/api/console/staff/preview': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/staff/preview',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { kind: 'role', staffId: 'st2', role: 'Support' },
+            }),
+          '/api/console/staff': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/staff',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { confirmToken: 'x' },
+            }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1246,8 +1263,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
     // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 27
-    // with the audited Build actions (D-172).
-    expect(EXECUTED.unauthenticated).toBe(27);
+    // with the audited Build actions (D-172), 29 with Invite staff and Change role…'s two (D-172).
+    expect(EXECUTED.unauthenticated).toBe(29);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1259,7 +1276,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
     // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 1 for the audited Build actions
-    // (D-172), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 1);
+    // (D-172), probed unauthenticated, and + 2 for Invite staff and Change role… (D-172).
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 1 + 2);
   });
 });

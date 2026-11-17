@@ -16,6 +16,10 @@
 //   POST /api/console/roles/preview { role, capability, allowed } → the change and its confirm token.
 //   POST /api/console/roles         { confirmToken } → makes it, with one audit row. Both `roles.write`
 //                                   (the Owner), D-160 R2-3b; see `roles.ts`.
+//   POST /api/console/staff/preview { kind: 'invite', email, role } | { kind: 'role', staffId, role }
+//                                   → the change, its words and its confirm token.
+//   POST /api/console/staff         { confirmToken } → makes it (core's `inviteStaff` / `setStaffRole`),
+//                                   with one audit row. Both `roles.write`, D-172; see `staff.ts`.
 //
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
@@ -23,12 +27,13 @@
 // session. No GET here writes anything except the audit row for a staff member it refuses.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, desc, eq, gte, like, lt, lte, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, like, lt, lte, or, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import {
   AUDIT_ACTIONS,
   AUDIT_ACTION_GROUPS,
   AUDIT_EXPORT_MAX_ROWS,
+  AUDIT_IDS_MAX,
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   auditCsv,
@@ -45,6 +50,7 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
+import { commitStaffChange, previewStaffChange } from './staff';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -53,6 +59,9 @@ export const CONSOLE_PATHS = {
   roles: '/api/console/roles',
   // D-160 R2-3b: the two-step matrix change. The change itself is a POST to `roles`.
   rolesPreview: '/api/console/roles/preview',
+  // D-172: Invite staff and Change role…, two steps. The change itself is a POST to `staff`.
+  staffPreview: '/api/console/staff/preview',
+  staff: '/api/console/staff',
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -108,6 +117,13 @@ export function parseAuditFilters(input: Record<string, unknown>): Parsed<AuditF
     out[key] = n;
   }
   if (out.from !== undefined && out.to !== undefined && out.from > out.to) return { ok: false, field: 'from' };
+  // D-172: "Export selected": 1 to 500 row ids, each a positive integer as a string (a bound value).
+  if (present(input.ids)) {
+    const ids = input.ids;
+    if (!Array.isArray(ids) || ids.length < 1 || ids.length > AUDIT_IDS_MAX || !ids.every((v) => typeof v === 'string' && /^[1-9]\d{0,15}$/.test(v)))
+      return { ok: false, field: 'ids' };
+    out.ids = [...new Set(ids as string[])];
+  }
   return { ok: true, value: out };
 }
 
@@ -128,6 +144,7 @@ function whereOf(f: AuditFilters): SQL | undefined {
   if (f.outcome !== undefined) parts.push(eq(auditLog.outcome, f.outcome));
   if (f.from !== undefined) parts.push(gte(auditLog.at, f.from));
   if (f.to !== undefined) parts.push(lte(auditLog.at, f.to));
+  if (f.ids !== undefined) parts.push(inArray(auditLog.id, f.ids.map(Number)));
   const set = parts.filter((p): p is SQL => p !== undefined);
   return set.length ? and(...set) : undefined;
 }
@@ -247,14 +264,17 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
         const [counted] = await getDb().select({ n: sql<number>`count(*)::int` }).from(auditLog).where(where);
         const total = Number(counted?.n ?? 0);
         const target = { type: 'audit_log', label: 'Audit log' };
+        // D-172: an "Export selected" records how many it named, not the ids (500 would pass 2 KB).
+        const { ids, ...named } = filters;
+        const recorded = ids ? { filters: named, selected: ids.length } : { filters };
         if (total > AUDIT_EXPORT_MAX_ROWS) {
-          await audit(req, { action: 'audit.export', outcome: 'failed', actor, target, reason: 'export_too_large', after: { rows: total, filters } });
+          await audit(req, { action: 'audit.export', outcome: 'failed', actor, target, reason: 'export_too_large', after: { rows: total, ...recorded } });
           return consoleError(reply, 'export_too_large');
         }
         const rows = (await readAudit(filters, { limit: AUDIT_EXPORT_MAX_ROWS })).map((r) => toRow(r, false));
         const csv = auditCsv(rows);
         // After the read, so the export never lists itself; its own row is the next one written.
-        await audit(req, { action: 'audit.export', outcome: 'ok', actor, target, after: { rows: rows.length, format: 'csv', filters } });
+        await audit(req, { action: 'audit.export', outcome: 'ok', actor, target, after: { rows: rows.length, format: 'csv', ...recorded } });
         const day = new Date(clock.now()).toISOString().slice(0, 10);
         return reply
           .header('content-type', 'text/csv; charset=utf-8')
@@ -276,5 +296,8 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
       const refused = await commitRoleChange(req, reply, deps.broadcast);
       return refused ?? reply.send(rolesMatrix(await roleGrants()));
     });
+    // D-172: Invite staff and Change role…, the Owner's two-step write (`staff.ts`).
+    scope.post(CONSOLE_PATHS.staffPreview, write, previewStaffChange);
+    scope.post(CONSOLE_PATHS.staff, write, (req, reply) => commitStaffChange(req, reply, deps.broadcast));
   });
 }

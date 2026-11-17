@@ -25,3 +25,4 @@ export * from './console';
 export * from './console-view';
 export * from './admin-build';
 export * from './admin-actions';
+export * from './console-staff';

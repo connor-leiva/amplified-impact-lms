@@ -228,3 +228,93 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
     await close();
   });
 });
+
+test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite staff and Change role… (D-172) @g9 @r2', () => {
+  test('Audit Log: Export selected saves exactly the selected rows, and the export is in the log', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/audit');
+    const table = page.getByRole('table', { name: 'Audit log entries' });
+    const boxes = table.getByRole('checkbox', { name: 'Select row' });
+    await boxes.nth(0).check();
+    await boxes.nth(2).check();
+    await expect(page.getByText('2 selected')).toBeVisible();
+    const saved = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export selected' }).click();
+    const file = await saved;
+    expect(file.suggestedFilename()).toMatch(/^audit-log-\d{4}-\d{2}-\d{2}\.csv$/);
+    const csv = await (await file.createReadStream()).toArray().then((c) => Buffer.concat(c as Buffer[]).toString('utf8'));
+    const lines = csv.trim().split('\n');
+    expect(lines).toHaveLength(3);
+    expect(lines[1]).toContain('job.run_now');
+    expect(lines[2]).toContain('masquerade.blocked_action');
+    await expect(table.getByText('CSV, 2 rows.')).toBeVisible();
+    await close();
+  });
+
+  test('Audit Log: a role that may not export (Support) gets no Export selected', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/audit?console-role=Support');
+    await page.getByRole('table', { name: 'Audit log entries' }).getByRole('checkbox', { name: 'Select row' }).first().check();
+    await expect(page.getByText('1 selected')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Export selected' })).toHaveCount(0);
+    await close();
+  });
+
+  test('Roles: Change role… is a form, then the confirm; the change is made and toasted', async ({ browser }) => {
+    for (const width of [1280, 390]) {
+      const { page, close } = await openAt(browser, '/admin/roles', width);
+      // A phone card has no row role: the innermost block holding the name and its "…".
+      const staffRow = (name: string) =>
+        width < 768
+          ? page.locator('main div').filter({ hasText: name }).filter({ has: page.getByRole('button', { name: 'More actions' }) }).last()
+          : rowOf(page, name);
+      // The Owner's own row: fixed.
+      await staffRow('Connor Leiva (you)').getByRole('button', { name: 'More actions' }).click();
+      await expect(page.getByRole('menuitem', { name: 'Change role…' })).toBeDisabled();
+      await page.keyboard.press('Escape');
+
+      await staffRow('Avery Stone').getByRole('button', { name: 'More actions' }).click();
+      await page.getByRole('menuitem', { name: 'Change role…' }).click();
+      const form = page.getByRole('dialog', { name: 'Change role for Avery Stone' });
+      await expect(form.getByLabel('Role')).toHaveValue('Admin');
+      await expect(form.getByRole('button', { name: 'Continue' })).toBeDisabled();
+      await expectAccessible(page);
+      await form.getByLabel('Role').selectOption('Support');
+      await form.getByRole('button', { name: 'Continue' }).click();
+      const confirm = page.getByRole('dialog', { name: 'Change Avery Stone to Support?' });
+      await expect(confirm).toContainText('Admin to Support. It applies right away.');
+      await expect(confirm).toContainText('This action is audit-logged.');
+      await expectAccessible(page);
+      await confirm.getByRole('button', { name: 'Change role' }).click();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page.getByText('Avery Stone is now Support')).toBeVisible();
+      await close();
+    }
+  });
+
+  test('Roles: Invite staff is a form, then the confirm; the new member is on staff; a bad address is refused', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/roles');
+    await page.getByRole('button', { name: 'Invite staff' }).click();
+    const form = page.getByRole('dialog', { name: 'Invite staff' });
+    await expect(form.getByLabel('Role').locator('option')).toHaveText(['Admin', 'Instructor', 'Content Editor', 'Support']);
+    await expectAccessible(page);
+    await form.getByLabel('Email').fill('not-an-email');
+    await form.getByRole('button', { name: 'Continue' }).click();
+    await expect(form.getByRole('alert')).toHaveText('Enter a valid email address.');
+    await form.getByLabel('Email').fill('jo.hale@amplifiedimpact.example');
+    await form.getByLabel('Role').selectOption('Instructor');
+    await form.getByRole('button', { name: 'Continue' }).click();
+    const confirm = page.getByRole('dialog', { name: 'Invite jo.hale@amplifiedimpact.example as Instructor?' });
+    await expect(confirm).toContainText('They join staff as Instructor right away. No email is sent.');
+    await confirm.getByRole('button', { name: 'Invite staff' }).click();
+    await expect(page.getByText('jo.hale@amplifiedimpact.example added to staff as Instructor')).toBeVisible();
+    await expect(rowOf(page, 'Jo Hale')).toContainText('Instructor');
+    await close();
+  });
+
+  test('Roles: for anyone but the Owner, Invite staff and Change role… are locked', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/roles?console-role=Admin');
+    await expect(page.getByRole('button', { name: 'Invite staff' })).toHaveAttribute('aria-disabled', 'true');
+    await rowOf(page, 'Imani Brooks').getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Change role…' })).toBeDisabled();
+    await close();
+  });
+});

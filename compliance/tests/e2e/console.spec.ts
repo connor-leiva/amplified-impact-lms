@@ -40,7 +40,7 @@ async function expectShell(page: Page) {
 const rows = (page: Page) => page.locator('main [role="table"] [role="row"]:has([role="cell"])');
 
 test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (D-157) @g9 @console', () => {
-  test('Roles: the matrix the Owner edits, with the way to Staff & Roles, in both themes', async ({ browser }) => {
+  test('Roles: the matrix the Owner edits, and Invite staff’s form, in both themes', async ({ browser }) => {
     // D-160 R2-3b, editable (Connor, Nov 16, 2026): the mockup's nine rows; the Owner's column fixed,
     // Support's refund and masquerade locked (the mockup's two locks), every other Admin and Support box
     // a toggle (16), the five past `CONSOLE_CAPS` among them, named so and refused by the server.
@@ -60,8 +60,10 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
       await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })).toBeEnabled();
       await expectAccessible(page);
       if (theme === 'light') {
-        await page.getByRole('link', { name: 'Invite staff' }).click();
-        await expect(page).toHaveURL(/\/admin\/staff/);
+        // D-172: Invite staff opens its form here (the Console's audited path), no longer Staff & Roles.
+        await page.getByRole('button', { name: 'Invite staff' }).click();
+        await expect(page.getByRole('dialog', { name: 'Invite staff' })).toBeVisible();
+        await expect(page).toHaveURL(/\/admin\/roles/);
       }
       await close();
     }

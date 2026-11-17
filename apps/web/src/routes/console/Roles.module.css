@@ -18,3 +18,21 @@
   align-items: center;
   min-height: 44px;
 }
+
+/* D-172: the Invite staff and Change role… dialogs' fields (R2 parts; no mockup frame), as Cohorts' Edit session. */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.err {
+  color: var(--r2-bad);
+}
+
+@media (max-width: 767px) {
+  .lab {
+    font-size: var(--r2-t);
+  }
+}

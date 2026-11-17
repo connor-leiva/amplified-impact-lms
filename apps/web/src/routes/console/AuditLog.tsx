@@ -4,8 +4,9 @@
 // from AuditLog.vm.ts. `audit_log` stays append-only: nothing here writes to it but the export, which
 // the server audits.
 //
-//   - The mockup's row checkboxes are drawn; its "Export selected" does nothing (`aria-disabled`): the
-//     API exports by filter, not by row (Needs Connor's call, D-160 R2-3b).
+//   - The mockup's row checkboxes are drawn; its "Export selected" (D-172) exports exactly the selected
+//     rows as CSV through the same export (`ids`, 1 to 500, audited, 10,000 rows at most), for the
+//     roles that may export (Owner, Admin, D6). For the others the bar has no Export selected.
 //   - No Outcome filter on the screen: the mockup draws none (its filter row ends at Date range), so
 //     the "…" that held it is gone (the Nov 16 eye check); the API keeps `outcome`, and the entry's
 //     drawer shows each row's outcome.
@@ -54,7 +55,6 @@ type List =
   | { kind: 'ready'; rows: AuditRow[]; nextCursor: string | null; more: boolean };
 
 const failureOf = (e: unknown): ConsoleFailure => (e instanceof ConsoleError ? e.kind : 'failed');
-const NOT_YET = 'Not available yet';
 
 /** Hand the browser a file. A blob URL, so nothing leaves the page. */
 function download(csv: string, filename: string): void {
@@ -123,11 +123,12 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
     );
   }, [api, list, query, toast]);
 
-  const runExport = useCallback(async () => {
+  /** Export CSV (the filters) or, with `ids`, Export selected (exactly those rows; D-172). */
+  const runExport = useCallback(async (ids?: string[]) => {
     if (exporting) return;
     setExporting(true);
     try {
-      const { csv, filename } = await api.exportAudit(query);
+      const { csv, filename } = await api.exportAudit(ids ? { ids } : query);
       download(csv, filename);
       toast(AUDIT_COPY.exported, 'success');
       setAttempt((n) => n + 1);
@@ -238,11 +239,13 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
           loading={list.kind === 'loading'}
           rowKey={(r) => r.key}
           onRow={view}
-          bulk={() => (
-            <Button aria-disabled="true" title={NOT_YET}>
-              {AUDIT_R2_COPY.exportSelected}
-            </Button>
-          )}
+          bulk={(keys) =>
+            canExport(role) ? (
+              <Button onClick={() => void runExport(keys)} aria-busy={exporting || undefined} aria-disabled={exporting || undefined}>
+                {AUDIT_R2_COPY.exportSelected}
+              </Button>
+            ) : null
+          }
           empty={{ icon: 'r2Audit', title: AUDIT_R2_COPY.emptyTitle, body: AUDIT_R2_COPY.emptyBody }}
           footer={
             list.kind === 'ready' && list.nextCursor ? (
