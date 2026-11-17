@@ -114,7 +114,7 @@
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, gt } from 'drizzle-orm';
-import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES } from '@ai/core';
+import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES, BUILD_AUDIT_ACTION, isBuildConfirmWrite } from '@ai/core';
 import type { AIEmployee, Actor, Ctx, Db, MutationArgs, MutationName, PermKey, StaffRole } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { build } from '../src/app';
@@ -698,6 +698,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // Admin Console PR 10 (D-169): System Health and the Skills list. Signed in, then console.view.
   { path: '/api/console/health', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/skills', methods: 'GET, HEAD', guard: 'session' },
+  // D-172: Invite staff and Change role…, two steps (the change is a POST to `/api/console/staff`).
+  { path: '/api/console/staff/preview', methods: 'POST', guard: 'session' },
+  { path: '/api/console/staff', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -876,7 +879,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
 
           const failures: string[] = [];
           // D-171: the audit rows each case wrote. The three staff writes write exactly one each (`ok`
-          // on a 200, `denied` on a 403); every other mutation on `/api/mutate` writes none.
+          // on a 200, `denied` on a 403); D-172: the four Build writes behind a Confirm write one `ok`
+          // row on a 200; every other mutation on `/api/mutate` writes none.
           let lastAuditId = 0;
           const newAuditRows = async () => {
             const rows = await (await testDatabase())
@@ -897,7 +901,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             const res = await mutate(c.name, c.args, cookie);
             EXECUTED.matrix += 1;
             const audited = await newAuditRows();
-            const auditExpected = isStaffWrite(c.name) ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`] : [];
+            // D-172: a Build write behind an R2 Confirm writes one `ok` row when it is allowed (and none
+            // when core refuses it).
+            const auditExpected = isStaffWrite(c.name)
+              ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`]
+              : isBuildConfirmWrite(c.name) && allowed
+                ? [`${BUILD_AUDIT_ACTION[c.name]}:ok`]
+                : [];
             if (JSON.stringify(audited) !== JSON.stringify(auditExpected)) {
               failures.push(`${role} · ${c.label}: audit rows ${JSON.stringify(audited)}, expected ${JSON.stringify(auditExpected)}`);
             }
@@ -1270,6 +1280,20 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // Admin Console PR 10 (D-169).
           '/api/console/health': () => app.inject({ method: 'GET', url: '/api/console/health' }),
           '/api/console/skills': () => app.inject({ method: 'GET', url: '/api/console/skills' }),
+          '/api/console/staff/preview': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/staff/preview',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { kind: 'role', id: 'st2', role: 'Support' },
+            }),
+          '/api/console/staff': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/staff',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { confirmToken: 'x' },
+            }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1452,9 +1476,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-163), 51 with Billing's refund and void, previews included (D-164), 56 with API & Webhooks
     // and Scheduled Jobs' five (D-165), 60 with the email log's and usage's four (D-166), 66 with
     // the incidents' six (D-167), 72 with the flag, env, integrations, deploys and DB health's six
-    // (D-168), 74 with System Health and the Skills list (D-169), and 75 with the audited Build
-    // actions (D-172).
-    expect(EXECUTED.unauthenticated).toBe(75);
+    // (D-168), 74 with System Health and the Skills list (D-169), 75 with the audited Build actions
+    // (D-172), and 77 with Invite staff and Change role…'s two (D-172).
+    expect(EXECUTED.unauthenticated).toBe(77);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1470,7 +1494,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // its refund and void (D-164), + 5 for API & Webhooks and Scheduled Jobs (D-165), + 4 for the
     // email log's and usage's (D-166), + 6 for the incidents' (D-167) and + 6 for the flag, env,
     // integrations, deploys and DB health's (D-168), + 2 for System Health and the Skills list (D-169),
-    // probed unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1);
+    // probed unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated,
+    // and + 2 for Invite staff and Change role… (D-172).
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2);
   });
 });

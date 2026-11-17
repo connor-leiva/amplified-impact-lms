@@ -24,6 +24,8 @@ const SENTINELS = [
   // R2-3b, editable Roles: the fixture's stand-in confirm tokens and its `PERMS0` (the parity matrix).
   'fixture-${',
   'parityRoleGrants',
+  // D-172: the fixture's stand-in staff confirm tokens.
+  'fixture-staff-',
 ];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
@@ -119,6 +121,7 @@ describe('the Console fixture is not in the http build (D-157)', () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
     expect(code).toContain('/api/console/roles/preview');
+    expect(code).toContain('/api/console/staff/preview');
     // D-164: the http client asks the API for Billing's preview and execute.
     expect(code).toContain('/api/console/billing/');
     for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).not.toContain(s);

@@ -293,14 +293,15 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
       }
     });
 
-  test('Audit Log: the times in MST; selecting rows draws Export selected, which does nothing; a row opens its entry', async ({ browser }) => {
+  test('Audit Log: the times in MST; selecting rows draws Export selected (D-172: it exports them); a row opens its entry', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
     const table = page.getByRole('table', { name: 'Audit log entries' });
     await expect(table.getByRole('button', { name: 'View the entry from Dec 10, 8:58 AM' })).toBeVisible();
     await expect(table.getByText('CSV, last 7 days, 212 rows.')).toBeVisible();
     await table.getByRole('checkbox', { name: 'Select row' }).first().check();
     const exportSelected = page.getByRole('button', { name: 'Export selected' });
-    await expect(exportSelected).toHaveAttribute('aria-disabled', 'true');
+    await expect(exportSelected).toBeVisible();
+    await expect(exportSelected).not.toHaveAttribute('aria-disabled', 'true');
     await table.getByRole('button', { name: 'View the entry from Dec 9, 9:27 PM' }).click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toContainText('masquerade.blocked_action');

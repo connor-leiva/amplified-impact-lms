@@ -198,6 +198,11 @@ export const AUDIT_ACTIONS = [
   'announce.create',
   'announce.update',
   'announce.duplicate',
+  // D-172: the existing Build writes behind an R2 Confirm (`build-audit.ts`), audited on `/api/mutate`.
+  'module.publish',
+  'module.unpublish',
+  'module.delete',
+  'vault.remove',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -261,7 +266,15 @@ export interface AuditFilters {
   from?: number;
   /** Epoch ms, inclusive. */
   to?: number;
+  /**
+   * D-172: the Audit Log's "Export selected": exactly these rows, 1 to `AUDIT_IDS_MAX` ids, each a bound
+   * value. The list itself never sends it.
+   */
+  ids?: string[];
 }
+
+/** D-172: the most rows "Export selected" names (one page at most is ever selected: 200). */
+export const AUDIT_IDS_MAX = 500;
 
 // ================================================================================================
 // Roles & Permissions (D-157, spec § 7.16; editable since D-160 R2-3b, Connor, Nov 16, 2026)
@@ -533,6 +546,10 @@ export const CONSOLE_ERRORS = {
   grant_stale: { status: 409, message: 'Someone changed this permission since you opened it. Close this and try again.' },
   // D-171: the guards on staff role assignment (`checkStaffChange`), each in words.
   ...STAFF_GUARD_ERRORS,
+  // D-172: the two-step Invite staff and Change role… on Roles & Permissions (`console/staff.ts`): a
+  // confirm that no longer holds, and core's own sentence for what it refuses (an address, an Owner).
+  staff_stale: { status: 409, message: 'Someone changed staff since you opened this. Close this and try again.' },
+  staff_invalid: { status: 422, message: null },
   // PR 5 (D-164, spec § 7.6): the confirmed Billing actions. They reuse the two codes above (with
   // their own sentences, `BILLING_CONFIRM_MESSAGES`) and add these.
   confirm_used: { status: 409, message: 'This confirmation was already used. Start again to make another change.' },

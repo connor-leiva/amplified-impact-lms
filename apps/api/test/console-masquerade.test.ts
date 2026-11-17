@@ -559,6 +559,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       // PR 10 (D-169).
       { method: 'GET', url: CONSOLE_PATHS.health },
       { method: 'GET', url: CONSOLE_PATHS.skills },
+      // D-172's Invite staff and Change role…, two steps: both blocked.
+      { method: 'POST', url: CONSOLE_PATHS.staffPreview },
+      { method: 'POST', url: CONSOLE_PATHS.staff },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);

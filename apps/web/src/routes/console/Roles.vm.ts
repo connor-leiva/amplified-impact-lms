@@ -85,7 +85,19 @@ export const ROLES_R2_COPY = {
   changeRole: 'Change role…',
   fixed: 'Fixed by product rules',
   updated: 'Permission updated',
+  // D-172: Invite staff and Change role… through the Console (new words; the mockup draws neither dialog).
+  changeRoleFor: (name: string) => `Change role for ${name}`,
+  email: 'Email',
+  role: 'Role',
+  continue: 'Continue',
 } as const;
+
+/** D-172: a staff change's refusal in words: the server's own sentence for a guard or core's rule. */
+export function staffRefusalCopy(e: { kind?: string; code?: string | null; message?: string } | unknown, fallback: string): string {
+  const x = (e && typeof e === 'object' ? e : {}) as { kind?: string; code?: string | null; message?: string };
+  if (x.kind === 'refused' || x.kind === 'invalid') return x.message || fallback;
+  return fallback;
+}
 
 /** The mockup's `guard('staff', …)` toast, as a locked box's title: "Your role (Admin) can't do this: Change Support permission". */
 export const guardTitle = (viewerRole: string | null, role: string): string => `Your role (${viewerRole ?? 'none'}) can't do this: Change ${role} permission`;

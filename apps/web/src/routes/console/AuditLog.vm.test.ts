@@ -98,6 +98,9 @@ describe('AuditLog.vm (D-157)', () => {
   it('describes a refusal and an export from the row’s own payload', () => {
     expect(detailOf(row({ action: 'console.access_denied', outcome: 'denied', after: { capability: 'ops.read' } }))).toBe('Needed “View Operations Pages”.');
     expect(detailOf(row({ action: 'console.access_denied', outcome: 'denied', after: { capability: 'nonsense' } }))).toBe('Refused by role.');
+    // D-172: a publish's Detail is the mockup's "Draft to Published.".
+    expect(detailOf(row({ action: 'module.publish', before: { status: 'draft' }, after: { status: 'published' } }))).toBe('Draft to Published.');
+    expect(detailOf(row({ action: 'module.unpublish', before: { status: 'scheduled' }, after: { status: 'draft' } }))).toBe('Scheduled to Draft.');
     expect(detailOf(row())).toBe('CSV, 12 rows.');
     expect(detailOf(row({ after: { rows: 1 } }))).toBe('CSV, 1 row.');
     expect(detailOf(row({ outcome: 'failed', reason: 'export_too_large', after: { rows: 10412 } }))).toBe('Refused: 10,412 rows is over 10,000.');

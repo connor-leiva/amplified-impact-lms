@@ -23,8 +23,15 @@ import {
   CONSOLE_FLAGS,
   CONSOLE_PAGE_DEFAULT,
   ROLE_CONFIRM_TTL_MS,
+  STAFF_AUDIT_ACTION,
+  STAFF_CONFIRM_TTL_MS,
   STAFF_ROLES,
+  STAFF_UNCHANGED,
   auditActionGroup,
+  checkStaffChange,
+  leavesNoOwner,
+  readStaffConsoleRequest,
+  staffConfirmCopy,
   auditCsv,
   auditRedactsNetwork,
   checkRoleChange,
@@ -53,6 +60,10 @@ import type {
   RoleGrant,
   StaffRole,
 } from '@ai/core';
+import type { StaffChangePreview, StaffConsoleRequest } from '@ai/core';
+import { MutationError } from '@ai/core';
+import type { Staff as StaffRow } from '@ai/core';
+import * as M from '@ai/core/mutations';
 import { clock } from '../lib/clock';
 import { fixtureRole, repo } from './boot';
 import { ConsoleError } from './console';
@@ -130,6 +141,7 @@ export function matches(r: AuditRow, f: AuditFilters): boolean {
     const t = f.target.toLowerCase();
     if (![r.target.id, r.target.label, r.target.type].some((v) => v?.toLowerCase().includes(t))) return false;
   }
+  if (f.ids !== undefined && !f.ids.includes(r.id)) return false;
   return true;
 }
 
@@ -211,6 +223,24 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   let grants: RoleGrant[] = parity ? parityRoleGrants() : [];
   const tokens = new Map<string, { role: RoleGrant['role']; capability: RoleGrant['capability']; before: boolean; after: boolean; exp: number }>();
   let minted = 0;
+  // D-172: Invite staff and Change role…'s tokens, like the matrix's; the guards are D-171's, and the
+  // change is the fixture snapshot's (`repo`), made with the same core mutation the server runs.
+  const staffTokens = new Map<string, { request: StaffConsoleRequest; before: StaffRole | null; exp: number }>();
+  /** Core's own mutation on a copy, for the preview's dry run: its refusal in words, or the staff after. */
+  const dryRun = async (request: StaffConsoleRequest): Promise<{ error: string } | { staff: StaffRow[] }> => {
+    const db = await repo.snapshot();
+    const actor = (await repo.viewer()).actor;
+    try {
+      const ctx = { now: now(), id: (p: string) => `${p}-dry` };
+      const out =
+        request.kind === 'invite' ? M.inviteStaff(db, actor, { email: request.email, role: request.role }, ctx) : M.setStaffRole(db, actor, { id: request.id, role: request.role }, ctx);
+      return out.error ? { error: out.error } : { staff: out.db.staff };
+    } catch (e) {
+      if (e instanceof MutationError) return { error: e.message };
+      throw e;
+    }
+  };
+  const staffRefused = (message: string) => new ConsoleError('refused', 422, 'staff_invalid', message);
   /** The fixture snapshot's PermKey matrix (the `build` row), as the server reads `permissions`. */
   const perms = async (): Promise<PermMatrix> => (await repo.snapshot()).perms;
 
@@ -267,7 +297,9 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         const picked = rows.filter((r) => matches(r, filters));
         const csv = auditCsv(picked);
         const at = now();
-        // The export is audited here too, so the list shows it on the next load.
+        // The export is audited here too, so the list shows it on the next load. D-172: an Export
+        // selected records how many it named, as the server does.
+        const { ids, ...named } = filters;
         const self: AuditRow = {
           id: String(next++),
           at,
@@ -277,7 +309,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
           target: { type: 'audit_log', id: null, label: 'Audit log' },
           reason: null,
           before: null,
-          after: { rows: picked.length, format: 'csv', filters },
+          after: { rows: picked.length, format: 'csv', filters: named, ...(ids ? { selected: ids.length } : {}) },
           outcome: 'ok',
           ip: '203.0.113.10',
           userAgent: UA,
@@ -341,6 +373,65 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         };
         rows = [self, ...rows];
         return rolesMatrix(grants);
+      }),
+    // D-172: Invite staff and Change role…, as `console/staff.ts` does them, with D-171's guards.
+    previewStaff: (input) =>
+      settle(() => need('roles.write')).then(async () => {
+        const write = readStaffConsoleRequest(input);
+        if (!write) throw refused('invalid_query');
+        const db = await repo.snapshot();
+        const actor = (await repo.viewer()).actor;
+        const r = write.request;
+        const target = r.kind === 'role' ? db.staff.find((x) => x.id === r.id) : null;
+        if (target === undefined) throw refused('invalid_query');
+        const check = checkStaffChange(db.staff, actor.kind === 'staff' ? actor.staffId : '', write.change);
+        if (!check.ok) throw refused(check.code);
+        if (target && target.role === r.role) throw new ConsoleError('invalid', 400, 'invalid_query', STAFF_UNCHANGED);
+        const dry = await dryRun(r);
+        if ('error' in dry) throw staffRefused(dry.error);
+        if (leavesNoOwner(db.staff, dry.staff)) throw refused('staff_last_owner');
+        const before = target ? target.role : null;
+        const exp = now() + STAFF_CONFIRM_TTL_MS;
+        const confirmToken = `fixture-staff-${++minted}`;
+        staffTokens.set(confirmToken, { request: r, before, exp });
+        const preview: StaffChangePreview = { change: r, before, ...staffConfirmCopy(r, target ? target.name : null, before), confirmToken, expiresAt: exp };
+        return preview;
+      }),
+    changeStaff: (confirmToken) =>
+      settle(() => need('roles.write')).then(async () => {
+        const t = staffTokens.get(confirmToken);
+        if (!t) throw refused('confirm_invalid');
+        if (now() > t.exp) throw refused('confirm_expired');
+        const write = readStaffConsoleRequest(t.request)!;
+        const before = await repo.snapshot();
+        const actor = (await repo.viewer()).actor;
+        const check = checkStaffChange(before.staff, actor.kind === 'staff' ? actor.staffId : '', write.change);
+        if (!check.ok) throw refused(check.code);
+        const r = t.request;
+        const now0 = r.kind === 'role' ? before.staff.find((x) => x.id === r.id)?.role : null;
+        if (now0 !== t.before) throw refused('staff_stale');
+        staffTokens.delete(confirmToken);
+        const out = r.kind === 'invite' ? await repo.run('inviteStaff', { email: r.email, role: r.role }) : await repo.run('setStaffRole', { id: r.id, role: r.role });
+        if (out.error) throw staffRefused(out.error);
+        const after = await repo.snapshot();
+        const who = r.kind === 'invite' ? after.staff.find((x) => !before.staff.some((b) => b.id === x.id))! : after.staff.find((x) => x.id === r.id)!;
+        const self: AuditRow = {
+          id: String(next++),
+          at: now(),
+          actor: { ...STAFF.casey, role, source: 'staff' },
+          masqueradeSessionId: null,
+          action: STAFF_AUDIT_ACTION[write.name],
+          target: { type: 'staff', id: who.id, label: who.name },
+          reason: null,
+          before: { role: t.before },
+          after: { role: r.role },
+          outcome: 'ok',
+          ip: '203.0.113.10',
+          userAgent: UA,
+          requestId: null,
+        };
+        rows = [self, ...rows];
+        return { toast: r.kind === 'invite' ? `${r.email} added to staff as ${r.role}` : `${who.name} is now ${r.role}` };
       }),
     workspaces: (filters, cursor) =>
       settle(() => {

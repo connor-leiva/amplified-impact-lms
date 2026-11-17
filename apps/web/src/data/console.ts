@@ -51,6 +51,8 @@ import type {
   ProbeIntegration,
   ProbeResult,
   RolesMatrix,
+  StaffChangePreview,
+  StaffConsoleRequest,
   SearchResults,
   StaffNote,
   StaffNoteTarget,
@@ -104,7 +106,22 @@ export class ConsoleError extends Error {
 }
 
 /** The codes a Roles & Permissions change is refused with (D-160 R2-3b). */
-export const REFUSALS = ['role_fixed', 'managed_elsewhere', 'fixed_by_product', 'self_lockout', 'no_change', 'grant_stale', 'confirm_invalid', 'confirm_expired'] as const;
+export const REFUSALS = [
+  'role_fixed',
+  'managed_elsewhere',
+  'fixed_by_product',
+  'self_lockout',
+  'no_change',
+  'grant_stale',
+  'confirm_invalid',
+  'confirm_expired',
+  // D-171's guards (#155), and D-172's Invite staff and Change role….
+  'staff_self_change',
+  'staff_last_owner',
+  'staff_owner_grant',
+  'staff_stale',
+  'staff_invalid',
+] as const;
 
 /** A status and a code as a failure kind. The code wins where there is one. */
 export function failureOf(status: number, code: unknown): ConsoleFailure {
@@ -148,6 +165,10 @@ export interface ConsoleApi {
   changeRole(confirmToken: string): Promise<RolesMatrix>;
   /** PR 3 (D-162): every masquerade session, newest first (`masquerade.start`). */
   masqueradeSessions(cursor?: string | null): Promise<ConsolePage<MasqueradeHistoryRow>>;
+  /** D-172, the Owner's two-step Invite staff and Change role…: the change in words, and its token. */
+  previewStaff(change: StaffConsoleRequest): Promise<StaffChangePreview>;
+  /** Makes the previewed staff change; answers its toast. */
+  changeStaff(confirmToken: string): Promise<{ toast: string }>;
   // PR 4 (D-163): Billing, read-only.
   billingSummary(): Promise<BillingSummary>;
   billingList<K extends BillingListKind>(kind: K, cursor?: string | null): Promise<ConsolePage<BillingRows[K]>>;
@@ -350,6 +371,12 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     changeRole: async (confirmToken) =>
       json<RolesMatrix>(await request(fetchImpl, '/api/console/roles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
     masqueradeSessions: async (cursor) => json<ConsolePage<MasqueradeHistoryRow>>(await request(fetchImpl, `/api/console/masquerade/sessions${listQuery({}, cursor)}`)),
+    previewStaff: async (change) =>
+      json<StaffChangePreview>(
+        await request(fetchImpl, '/api/console/staff/preview', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(change) }),
+      ),
+    changeStaff: async (confirmToken) =>
+      json<{ toast: string }>(await request(fetchImpl, '/api/console/staff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
     billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
     billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
     billingPreview: async (action, params) =>
