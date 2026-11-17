@@ -16,6 +16,7 @@
 // unchanged.
 
 import type { PermKey, StaffRole } from './types';
+import { STAFF_GUARD_ERRORS } from './staff-guard';
 
 /** The two roles besides the Owner that hold Console capabilities. */
 type CapRole = 'Admin' | 'Support';
@@ -181,6 +182,11 @@ export const AUDIT_ACTIONS = [
   'integration.probe',
   // D-160 R2-3b: a row of the Roles & Permissions matrix taken from, or given back to, a role.
   'permission.change',
+  // D-171: a staff member's role set, a staff member removed, a staff member invited (Staff & Roles,
+  // through `/api/mutate`; `STAFF_AUDIT_ACTION` in `staff-guard.ts`).
+  'staff.role_change',
+  'staff.remove',
+  'staff.invite',
   // D-172 R2-gaps: the Build screens' remaining controls (`admin-actions.ts`).
   'module.duplicate',
   'module.save',
@@ -512,6 +518,8 @@ export const CONSOLE_ERRORS = {
   self_lockout: { status: 403, message: 'You can’t remove your own access to Roles & Permissions.' },
   no_change: { status: 409, message: 'This permission already has that setting.' },
   grant_stale: { status: 409, message: 'Someone changed this permission since you opened it. Close this and try again.' },
+  // D-171: the guards on staff role assignment (`checkStaffChange`), each in words.
+  ...STAFF_GUARD_ERRORS,
   invoice_not_voidable: { status: 409, message: null },
   seats_in_use: { status: 409, message: null },
   stripe_permission_missing: { status: 503, message: null },
