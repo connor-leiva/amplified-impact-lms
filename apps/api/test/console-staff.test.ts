@@ -1,7 +1,7 @@
 // D-172: Roles & Permissions' Invite staff and Change role…, and the Audit Log's Export selected,
 // through the real router and a real Postgres. The staff change is the Owner's alone, two steps (the
-// matrix's confirm token), one audit row each, and refused on your own role and the last Owner. The
-// guards themselves are unit-tested in `packages/core/test/console-staff.test.ts`.
+// matrix's confirm token), with D-171's guards, codes, actions and audit shape (#155's `staff-guard.ts`
+// and `staff-writes.ts`, unit-tested there): one row each, refused on your own role and the last Owner.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
@@ -39,12 +39,12 @@ const roleOf = async (id: string) => (await loadDb()).staff.find((s) => s.id ===
 
 describe('Change role… (D-172) @console', () => {
   it('previews without writing, then changes the role with one staff.role_change row', async () => {
-    const p = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st2', role: 'Support' });
+    const p = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st2', role: 'Support' });
     expect(p.statusCode).toBe(200);
     expect(p.headers['cache-control']).toBe('private, no-store');
     const pv = body<StaffChangePreview>(p);
     expect(pv).toMatchObject({
-      change: { kind: 'role', staffId: 'st2', role: 'Support' },
+      change: { kind: 'role', id: 'st2', role: 'Support' },
       before: 'Instructor',
       title: 'Change Jordan Hale to Support?',
       body: 'Instructor to Support. It applies right away.',
@@ -79,27 +79,28 @@ describe('Change role… (D-172) @console', () => {
   });
 
   it('refuses your own role, the last Owner, no change, a stranger, and an Owner’s role (core’s rule)', async () => {
-    const own = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st1', role: 'Admin' });
+    const own = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st1', role: 'Admin' });
     expect(own.statusCode).toBe(403);
     expect(body(own)).toEqual({ error: 'You can’t change your own role or remove yourself.', code: 'staff_self_change' });
-    const same = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st4', role: 'Support' });
-    expect(body(same)).toMatchObject({ code: 'staff_unchanged' });
-    const stranger = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'nope', role: 'Admin' });
+    const same = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st4', role: 'Support' });
+    expect(same.statusCode).toBe(400);
+    expect(body(same)).toEqual({ error: 'They already have that role.', code: 'invalid_query' });
+    const stranger = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'nope', role: 'Admin' });
     expect(stranger.statusCode).toBe(400);
     // A second Owner: the guard lets the change through, core's setStaffRole refuses an Owner's role.
     await (await testDatabase()).insert(users).values({ id: 'st_owner2', email: 'kai@amplifiedimpact.com', name: 'Kai Moreno', kind: 'staff', staffRole: 'Owner' });
-    const fixed = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st_owner2', role: 'Admin' });
+    const fixed = await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st_owner2', role: 'Admin' });
     expect(fixed.statusCode).toBe(422);
     expect(body(fixed)).toEqual({ error: 'The owner’s role is fixed.', code: 'staff_invalid' });
     expect(await auditRows()).toHaveLength(0);
   });
 
   it('is the Owner’s alone; another staff member’s token is not valid', async () => {
-    const admin = await post('st_admin', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st2', role: 'Support' });
+    const admin = await post('st_admin', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st2', role: 'Support' });
     expect(admin.statusCode).toBe(403);
     expect(body(admin)).toMatchObject({ code: 'console_forbidden' });
     expect((await auditRows()).map((r) => r.action)).toEqual(['console.access_denied']);
-    const pv = body<StaffChangePreview>(await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st2', role: 'Support' }));
+    const pv = body<StaffChangePreview>(await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st2', role: 'Support' }));
     const tampered = pv.confirmToken.replace(/.$/, (c) => (c === 'A' ? 'B' : 'A'));
     expect(body(await post('st1', CONSOLE_PATHS.staff, { confirmToken: tampered }))).toMatchObject({ code: 'confirm_invalid' });
     expect(body(await post('st1', CONSOLE_PATHS.staff, { confirmToken: 42 }))).toMatchObject({ code: 'confirm_invalid' });
@@ -139,7 +140,7 @@ describe('Invite staff (D-172) @console', () => {
 describe('Audit Log › Export selected (D-172) @console', () => {
   it('exports exactly the rows named, records how many, and refuses a bad list', async () => {
     // Three rows to export: three refused Admin previews.
-    for (let i = 0; i < 3; i++) await post('st_admin', CONSOLE_PATHS.staffPreview, { kind: 'role', staffId: 'st2', role: 'Support' });
+    for (let i = 0; i < 3; i++) await post('st_admin', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st2', role: 'Support' });
     const ids = (await auditRows()).map((r) => String(r.id));
     const res = await post('st1', CONSOLE_PATHS.auditExport, { ids: [ids[0], ids[2]] });
     expect(res.statusCode).toBe(200);

@@ -109,12 +109,13 @@ const GROUP_LABELS: Record<string, string> = {
   integration: 'Integrations',
   // D-160 R2-3b: Roles & Permissions changes.
   permission: 'Permissions',
-  // D-172: the Build screens' remaining controls, and Invite staff and Change role….
+  // D-172: the Build screens' remaining controls.
   module: 'AI Employees',
   vault: 'Resource Vault',
   session: 'Sessions',
   announce: 'Announcements',
-  staff: 'Staff',
+  // D-171: role changes, removals and invites on Staff & Roles.
+  staff: 'Staff & Roles',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

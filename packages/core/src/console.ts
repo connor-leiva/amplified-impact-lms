@@ -16,6 +16,7 @@
 // unchanged.
 
 import type { PermKey, StaffRole } from './types';
+import { STAFF_GUARD_ERRORS } from './staff-guard';
 
 /** The two roles besides the Owner that hold Console capabilities. */
 type CapRole = 'Admin' | 'Support';
@@ -181,6 +182,11 @@ export const AUDIT_ACTIONS = [
   'integration.probe',
   // D-160 R2-3b: a row of the Roles & Permissions matrix taken from, or given back to, a role.
   'permission.change',
+  // D-171: a staff member's role set, a staff member removed, a staff member invited (Staff & Roles,
+  // through `/api/mutate`; `STAFF_AUDIT_ACTION` in `staff-guard.ts`).
+  'staff.role_change',
+  'staff.remove',
+  'staff.invite',
   // D-172 R2-gaps: the Build screens' remaining controls (`admin-actions.ts`).
   'module.duplicate',
   'module.save',
@@ -190,9 +196,6 @@ export const AUDIT_ACTIONS = [
   'announce.create',
   'announce.update',
   'announce.duplicate',
-  // D-172: Roles & Permissions' Invite staff and Change role… (`console-staff.ts`; D-171's names).
-  'staff.invite',
-  'staff.role_change',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -529,11 +532,10 @@ export const CONSOLE_ERRORS = {
   self_lockout: { status: 403, message: 'You can’t remove your own access to Roles & Permissions.' },
   no_change: { status: 409, message: 'This permission already has that setting.' },
   grant_stale: { status: 409, message: 'Someone changed this permission since you opened it. Close this and try again.' },
-  // D-172: Invite staff and Change role… on Roles & Permissions (`checkStaffConsoleChange`). The first
-  // two are D-171's sentences. `staff_invalid` carries core's own sentence (an address, an Owner's role).
-  staff_self_change: { status: 403, message: 'You can’t change your own role or remove yourself.' },
-  staff_last_owner: { status: 403, message: 'There must always be at least one Owner.' },
-  staff_unchanged: { status: 409, message: 'They already have that role.' },
+  // D-171: the guards on staff role assignment (`checkStaffChange`), each in words.
+  ...STAFF_GUARD_ERRORS,
+  // D-172: the two-step Invite staff and Change role… on Roles & Permissions (`console/staff.ts`): a
+  // confirm that no longer holds, and core's own sentence for what it refuses (an address, an Owner).
   staff_stale: { status: 409, message: 'Someone changed staff since you opened this. Close this and try again.' },
   staff_invalid: { status: 422, message: null },
   invoice_not_voidable: { status: 409, message: null },

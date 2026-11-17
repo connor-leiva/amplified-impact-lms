@@ -164,11 +164,11 @@ describe('D-172: Export selected, and Invite staff and Change role…', () => {
       calls.push({ url, body: init?.body ? JSON.parse(String(init.body)) : null });
       return answers.shift()!;
     }) as unknown as typeof fetch);
-    expect(await api.previewStaff({ kind: 'role', staffId: 'st2', role: 'Support' })).toMatchObject({ confirmToken: 't' });
+    expect(await api.previewStaff({ kind: 'role', id: 'st2', role: 'Support' })).toMatchObject({ confirmToken: 't' });
     expect(await api.changeStaff('t')).toEqual({ toast: 'Jordan Hale is now Support' });
     expect(calls.map((c) => c.url)).toEqual(['/api/console/staff/preview', '/api/console/staff']);
     expect(calls[1]!.body).toEqual({ confirmToken: 't' });
-    const owner = await failure(api.previewStaff({ kind: 'role', staffId: 'st1', role: 'Admin' }));
+    const owner = await failure(api.previewStaff({ kind: 'role', id: 'st1', role: 'Admin' }));
     expect(owner).toMatchObject({ kind: 'refused', status: 403, code: 'staff_last_owner', message: 'There must always be at least one Owner.' });
     const bad = await failure(api.previewStaff({ kind: 'invite', email: 'x', role: 'Support' }));
     expect(bad).toMatchObject({ kind: 'refused', status: 422, code: 'staff_invalid', message: 'Enter a valid email address.' });

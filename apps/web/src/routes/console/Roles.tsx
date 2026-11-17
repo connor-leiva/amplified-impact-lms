@@ -10,8 +10,8 @@
 // D-172: Invite staff and each member's "Change role…" no longer open Staff & Roles: each opens a form
 // (R2 parts; the mockup draws neither), whose Continue asks the server for a preview, then the R2
 // confirm makes the change with its token (`POST /api/console/staff/preview`, then `/api/console/staff`:
-// the Owner's alone, `roles.write`, one audit row, never your own role nor the last Owner). No email
-// is sent: core's invite has none.
+// the Owner's alone, `roles.write`, with D-171's guards and audit rows: never your own role nor the last
+// Owner). No email is sent: core's invite has none.
 
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
@@ -64,7 +64,7 @@ function refusalCopy(e: unknown, change: Dialog['change']): string {
 /** D-172: the Invite staff or Change role… form, then its confirm. */
 type StaffDialog =
   | { step: 'form'; kind: 'invite'; email: string; role: StaffRole; busy: boolean; error: string | null }
-  | { step: 'form'; kind: 'role'; staffId: string; name: string; current: StaffRole; role: StaffRole; busy: boolean; error: string | null }
+  | { step: 'form'; kind: 'role'; id: string; name: string; current: StaffRole; role: StaffRole; busy: boolean; error: string | null }
   | { step: 'confirm'; preview: StaffChangePreview; busy: boolean; error: string | null };
 
 function Head({ canManageStaff, onInvite }: { canManageStaff: boolean; onInvite: () => void }) {
@@ -131,7 +131,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
     const d = staffDialog;
     if (!d || d.step !== 'form') return;
     setStaffDialog({ ...d, busy: true, error: null });
-    const change = d.kind === 'invite' ? { kind: 'invite' as const, email: d.email, role: d.role } : { kind: 'role' as const, staffId: d.staffId, role: d.role };
+    const change = d.kind === 'invite' ? { kind: 'invite' as const, email: d.email, role: d.role } : { kind: 'role' as const, id: d.id, role: d.role };
     api.previewStaff(change).then(
       (preview) => setStaffDialog((x) => (x === null ? x : { step: 'confirm', preview, busy: false, error: null })),
       (e: unknown) => setStaffDialog((x) => (x && x.step === 'form' ? { ...x, busy: false, error: staffRefusalCopy(e, failed) } : x)),
@@ -197,7 +197,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
           label: ROLES_R2_COPY.changeRole,
           onSelect: () => {
             const row = db.staff.find((x) => x.id === r.id);
-            if (row) setStaffDialog({ step: 'form', kind: 'role', staffId: row.id, name: row.name, current: row.role, role: row.role, busy: false, error: null });
+            if (row) setStaffDialog({ step: 'form', kind: 'role', id: row.id, name: row.name, current: row.role, role: row.role, busy: false, error: null });
           },
         },
   ];
