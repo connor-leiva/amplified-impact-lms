@@ -1,0 +1,31 @@
+/* /admin/health on R2 (D-169): the mockup's `Health()` pieces the kit doesn't have. Tokens only. */
+
+/* A Needs attention row's words: `col` with `flex: '1 1 220px', gap: 0`. */
+.what {
+  flex: 1 1 220px;
+}
+
+/* `.lk.a`: the card head's "All deploys", in forest. */
+.accent {
+  color: var(--r2-for);
+}
+
+/* Seat pressure (production; the R1 mock's "Seat-cap pressure" row): name, bar, figures. */
+.seatName {
+  flex: 0 1 136px;
+}
+/* On a phone the name takes its own line, then the bar and the figures (the Overview funnel's way). */
+@media (max-width: 767px) {
+  .seatName {
+    flex: 1 1 100%;
+  }
+}
+.seatText {
+  white-space: nowrap;
+}
+
+/* More than one deploy: a rule between them, as between list rows. */
+.deploys > * + * {
+  border-top: 1px solid var(--r2-line);
+  padding-top: 16px;
+}

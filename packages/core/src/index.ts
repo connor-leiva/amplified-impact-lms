@@ -33,4 +33,5 @@ export * from './console-billing';
 export * from './console-billing-actions';
 export * from './console-ops';
 export * from './console-usage';
+export * from './console-health';
 export * from './admin-actions';

@@ -108,6 +108,9 @@ const routes: RouteObject[] = [
       { path: 'admin/deploys', lazy: () => import('./routes/console/Deploys') },
       { path: 'admin/db', lazy: () => import('./routes/console/DbHealth') },
       { path: 'admin/flags', lazy: () => import('./routes/console/Flags') },
+      // D-169 (spec §§ 7.1–7.2): System Health, the Console's home (D15), and the Build hub.
+      { path: 'admin/health', lazy: () => import('./routes/console/Health') },
+      { path: 'admin/build', lazy: () => import('./routes/console/BuildHub') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every

@@ -17,7 +17,7 @@ import { DemoControls } from '../DemoControls';
 import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
-import { adminNav, crumbTrail, toggleGroup, type R2Group } from './adminNav';
+import { adminNav, crumbTrail, groupHub, hubPages, toggleGroup, type R2Group } from './adminNav';
 import { AdminChromeProvider } from './chrome';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
@@ -207,6 +207,7 @@ export function AdminShell() {
   }, [band]);
 
   const trail = crumbTrail(path);
+  const hub = trail && !trail.hub ? groupHub(trail.group, parity ? data.viewer.role : role, data.fullNav) : null;
 
   const shellApi = useMemo(() => ({ openLocked: () => {}, sidebarMode: mode, vw }), [mode, vw]);
 
@@ -233,10 +234,24 @@ export function AdminShell() {
   const breadcrumb = (
     <nav aria-label="Breadcrumb" className={band === 'phone' ? s.srOnly : s.crumbs}>
       <span>Admin</span>
-      {trail ? (
+      {trail?.hub ? (
         <>
           <span aria-hidden="true">/</span>
-          <span>{trail.group}</span>
+          <b className={s.here} aria-current="page">
+            {trail.group}
+          </b>
+        </>
+      ) : trail ? (
+        <>
+          <span aria-hidden="true">/</span>
+          {/* D-169: a group with a hub (Build) links its crumb there; drawn as the crumb's own text. */}
+          {hub ? (
+            <Link to={hub} className={s.crumbLink}>
+              {trail.group}
+            </Link>
+          ) : (
+            <span>{trail.group}</span>
+          )}
           <span aria-hidden="true">/</span>
           {trail.parent ? (
             <>
@@ -334,7 +349,7 @@ export function AdminShell() {
 
         {paletteOpen ? (
           <Palette
-            pages={groups.flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, icon: r.icon, to: r.to })))}
+            pages={[...groups.flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, icon: r.icon, to: r.to }))), ...hubPages(parity ? data.viewer.role : role, data.fullNav)]}
             modules={db.modules.map((m) => ({ id: m.id, name: m.name, status: m.status }))}
             phone={band === 'phone'}
             go={go}

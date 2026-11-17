@@ -556,6 +556,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'POST', url: '/api/console/integrations/stripe/check' },
       { method: 'GET', url: CONSOLE_PATHS.deploys },
       { method: 'GET', url: CONSOLE_PATHS.dbHealth },
+      // PR 10 (D-169).
+      { method: 'GET', url: CONSOLE_PATHS.health },
+      { method: 'GET', url: CONSOLE_PATHS.skills },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);

@@ -139,6 +139,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   deploys: { path: '/admin/deploys' },
   db: { path: '/admin/db' },
   flags: { path: '/admin/flags' },
+  // Console PR 10 (D-169): System Health, the Console's home (D15).
+  health: { path: '/admin/health' },
 };
 
 /**
@@ -153,7 +155,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * R2-4a (D-163): `billing` at all four; D-165: `api` and `jobs` at all four; Console PR 7 (D-166):
  * `email` and `usage` at all four; D-167: `incidents` at all four, `incident` at 1440, 1280 and 1024
  * (and 390 as an approved exception); Console PR 9 (D-168): `integrations`, `deploys` and `db` at all four,
- * `flags` at 1440, 1280 and 1024 (and 390 as an approved exception).
+ * `flags` at 1440, 1280 and 1024 (and 390 as an approved exception); Console PR 10 (D-169): `health` at
+ * all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -212,6 +215,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `deploys-${w}`,
   `db-${w}`,
   ...(w === 390 ? [] : [`flags-${w}`]),
+  // Console PR 10 (D-169): System Health at all four widths (Connor's must-pass set).
+  `health-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------
