@@ -88,6 +88,11 @@ function blockWrites(): void {
     masqueradeBlocked(`POST /api/mutate/${name}`);
     return Promise.resolve({ error: BLOCKED_MESSAGE });
   };
+  // D-172's audited Build actions are writes too.
+  repo.act = (name) => {
+    masqueradeBlocked(`POST /api/admin/actions/${name}`);
+    return Promise.resolve({ error: BLOCKED_MESSAGE });
+  };
 }
 
 export function createMasqueradeFixture(

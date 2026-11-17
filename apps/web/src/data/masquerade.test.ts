@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import type { MasqueradeView } from '@ai/core';
-import { navigation } from './http';
+import { repo } from './boot';
+import { BLOCKED_MESSAGE, navigation } from './http';
 import { MasqueradeError, createMasqueradeHttp, masquerade, masqueradeActive, resetMasquerade } from './masquerade';
 import type { MasqueradeClient } from './masquerade';
 import { createMasqueradeFixture } from './masquerade-fixture';
@@ -141,5 +142,11 @@ describe('the fixture’s simulated session (fixture build only)', () => {
     await expect(plain.start({ id: 'u_1061', name: 'Jordan Hale', workspace: 'Hale & Marlowe Realty' }, 'Ticket 4411 seat invite', '/admin/users/u_1061')).resolves.toEqual({ redirect: '/' });
     expect(sessionStorage.getItem('ai-lms-role')).toBe('agent');
     await expect(plain.exit()).resolves.toEqual({ redirect: '/admin/users/u_1061' });
+  });
+
+  it('refuses every portal write during a session, the audited Build actions too (D-172)', async () => {
+    await createMasqueradeFixture('?masquerade=demo', () => T0).current();
+    await expect(repo.run('toggleStep', { moduleId: 'm1', step: 0 } as never)).resolves.toEqual({ error: BLOCKED_MESSAGE });
+    await expect(repo.act('duplicateModule', { id: 'sales' })).resolves.toEqual({ error: BLOCKED_MESSAGE });
   });
 });
