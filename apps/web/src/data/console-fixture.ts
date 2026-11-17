@@ -15,6 +15,8 @@
 //                                                                   a 410 expired confirmation, a missing Write scope
 //   ?masquerade-flag=off                                           D8's flag off (D-162 3b): the entry
 //                                                                  points drawn disabled
+//   ?console-sample=off                                             System Health without the mockup's own tiles
+//                                                                   and cards: production's composition (D-169)
 
 import {
   CONSOLE_ERRORS,
@@ -80,6 +82,7 @@ import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fi
 import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
 import { FIXTURE_ME, fixtureIncidentChange, fixtureIncidentPage, fixtureIncidents, fixturePerson } from './console-fixture-incidents';
 import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from './console-fixture-infra';
+import { fixtureHealth, fixtureHealthSample, fixtureSkills } from './console-fixture-health';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
@@ -613,6 +616,20 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
       settle(() => {
         need('ops.read');
         return fixtureDbHealth(now(), state !== 'empty');
+      }),
+    // D-169: System Health (the mockup's, and its empty state) and the skill library, read-only.
+    health: () =>
+      settle(() => {
+        need('console.view');
+        const r = fixtureHealth(records, now(), state === 'empty');
+        // As the API: no deploys for a role without ops.read (D3).
+        return consoleCanWith(grants, role, 'ops.read') ? r : { ...r, deploys: null };
+      }),
+    ...(qs.get('console-sample') === 'off' ? {} : { healthSample: () => fixtureHealthSample(state === 'empty') }),
+    skills: (cursor) =>
+      settle(() => {
+        need('console.view');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureSkills(), cursor);
       }),
     search: (q) =>
       settle(() => {

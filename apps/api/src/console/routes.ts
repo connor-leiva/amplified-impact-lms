@@ -71,6 +71,8 @@ import type { ConsoleStripe } from './stripe-read';
 import type { ConsoleStripeWrite } from './stripe-write';
 import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import { INCIDENT_PATHS, registerIncidentRoutes } from './incidents';
+import { HEALTH_PATHS, registerHealthRoutes } from './health';
+import type { HealthDeps } from './health';
 import type { MasqueradeDeps } from './masquerade';
 import { registerOpsRoutes } from './ops';
 import type { OpsDeps } from './ops';
@@ -117,6 +119,8 @@ export const CONSOLE_PATHS = {
   integrationCheck: INFRA_PATHS.integrationCheck,
   deploys: INFRA_PATHS.deploys,
   dbHealth: INFRA_PATHS.db,
+  // PR 10 (D-169): System Health and the Build hub's Skills list.
+  ...HEALTH_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -146,6 +150,8 @@ export interface ConsoleDeps extends Readonly<MasqueradeDeps>, Readonly<UsageDep
    * now), for a test and for `app.ts`. Left out, the process's own environment and no probe.
    */
   readonly infra?: InfraDeps;
+  /** PR 10 (D-169): System Health's event hub (and, for a test, its stand-in sources); it reads Billing's own deps. */
+  readonly health?: Omit<HealthDeps, 'billing'>;
 }
 
 // --- filters -------------------------------------------------------------------------------------
@@ -394,5 +400,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     registerIncidentRoutes(scope);
     // PR 9 (D-168): Check now shares the exports' and billing's 5 a minute (spec § 7).
     registerInfraRoutes(scope, deps.infra ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
+    // PR 10 (D-169): System Health reads Billing through the same deps, and the event hub's client count.
+    registerHealthRoutes(scope, { infra: deps.infra, ...(deps.health ?? {}), billing }, { config: limit(CONSOLE_RATE.read) });
   });
 }

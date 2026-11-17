@@ -556,6 +556,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'POST', url: '/api/console/integrations/stripe/check' },
       { method: 'GET', url: CONSOLE_PATHS.deploys },
       { method: 'GET', url: CONSOLE_PATHS.dbHealth },
+      // PR 10 (D-169).
+      { method: 'GET', url: CONSOLE_PATHS.health },
+      { method: 'GET', url: CONSOLE_PATHS.skills },
       // D-172's Invite staff and Change role…, two steps: both blocked.
       { method: 'POST', url: CONSOLE_PATHS.staffPreview },
       { method: 'POST', url: CONSOLE_PATHS.staff },

@@ -358,7 +358,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
 
   const EXPECT: Record<string, string[][]> = {
     Owner: [
-      ['Health', 'Overview'],
+      // D-169: System Health is on in production (console.view: Owner, Admin, Support).
+      ['Health', 'Overview', 'System Health'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       // D-160 R2-1c: Workspaces and Users are on in production; D-162 3b: Masquerade (`masquerade.start`).
       ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
@@ -374,7 +375,7 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
   const OPS_ROWS = ['Roles & Permissions', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'];
   EXPECT.Admin = EXPECT.Owner!;
   EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => !OPS_ROWS.includes(x) && x !== 'Masquerade'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade', 'Billing', 'Usage'].includes(x)));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade', 'Billing', 'Usage', 'System Health'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {

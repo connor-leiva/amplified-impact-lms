@@ -717,6 +717,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
         stripeScopes:
           options.console?.infra?.stripeScopes !== undefined ? options.console.infra.stripeScopes : consoleFresh ? () => probeStripeScopes(consoleFresh) : null,
       },
+      // PR 10 (D-169): System Health counts this server's `/api/events` browsers.
+      health: { events, ...(options.console?.health ?? {}) },
     });
     registerMutateRoute(app, { broadcast });
     // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.
