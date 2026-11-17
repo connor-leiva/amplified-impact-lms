@@ -1,10 +1,10 @@
 # Review files for PR #158
 
-R2-gaps-c (D-172): the Audit Log's Export selected, and Roles & Permissions' Invite staff and Change role…. Touched screens: `audit`, `roles`, `roles-confirm` (every cell at its D-160 numbers; nothing new is enforced).
+R2-gaps-c (D-172): the Audit Log's Export selected, and Roles & Permissions' Invite staff and Change role…. Touched screens: `audit`, `roles`, `roles-confirm`: every cell at its D-160 numbers, nothing new enforced, no approved exception (no key facts on these screens). `audit` has 0 px over the strict guard's 60 delta at every width. `roles` (321 at 1440, 1280 and 1024; 613 at 390) and `roles-confirm` (245 at 1440, 1280 and 1024) have the same pixels over the 60 delta as on #153's final head: the permission matrix's check column (one Support box the build leaves unchecked where the mockup draws Yes, R2-3b's own), which this PR doesn't touch; Invite staff, the staff rows' "…" and the dialogs add none.
 
 Base64 text, one line per file (`base64 -w 0`). Decode with `base64 -d <file> > out.png`; a split file is joined first: `cat <file>.part1 <file>.part2 | base64 -d > out.png`.
 
-Measured at `eb3e5cb` (pre-final: gaps-c before its Build-confirm audit commit `c3f9093`, which draws nothing differently). The final head's files replace these after #153's final branch merges in.
+Measured at gaps-c's code at `b60bd25` (#153's final `320c23c` merged in through gaps-a and gaps-b), the code of this part's final head: the commit that adds these files changes only `docs/pr-review/158/`.
 
 ## The touched screens: ref, build and diff at four widths
 
@@ -57,13 +57,13 @@ Menus and dialogs stay closed in the parity frames, so these have no ref: each i
 |---|---|---|---|---|
 | `audit-export-selected-1280.build.png.b64` | audit-export-selected | 1280 | build only | 1 |
 | `audit-export-selected-390.build.png.b64` | audit-export-selected | 390 | build only | 1 |
-| `roles-invite-form-1280.build.png.b64` | roles-invite-form | 1280 | build only | 1 |
-| `roles-invite-form-390.build.png.b64` | roles-invite-form | 390 | build only | 1 |
-| `roles-invite-confirm-1280.build.png.b64` | roles-invite-confirm | 1280 | build only | 1 |
-| `roles-invite-confirm-390.build.png.b64` | roles-invite-confirm | 390 | build only | 1 |
-| `roles-staff-menu-1280.build.png.b64` | roles-staff-menu | 1280 | build only | 1 |
-| `roles-staff-menu-390.build.png.b64` | roles-staff-menu | 390 | build only | 1 |
-| `roles-change-role-form-1280.build.png.b64` | roles-change-role-form | 1280 | build only | 1 |
-| `roles-change-role-form-390.build.png.b64` | roles-change-role-form | 390 | build only | 1 |
 | `roles-change-role-confirm-1280.build.png.b64` | roles-change-role-confirm | 1280 | build only | 1 |
 | `roles-change-role-confirm-390.build.png.b64` | roles-change-role-confirm | 390 | build only | 1 |
+| `roles-change-role-form-1280.build.png.b64` | roles-change-role-form | 1280 | build only | 1 |
+| `roles-change-role-form-390.build.png.b64` | roles-change-role-form | 390 | build only | 1 |
+| `roles-invite-confirm-1280.build.png.b64` | roles-invite-confirm | 1280 | build only | 1 |
+| `roles-invite-confirm-390.build.png.b64` | roles-invite-confirm | 390 | build only | 1 |
+| `roles-invite-form-1280.build.png.b64` | roles-invite-form | 1280 | build only | 1 |
+| `roles-invite-form-390.build.png.b64` | roles-invite-form | 390 | build only | 1 |
+| `roles-staff-menu-1280.build.png.b64` | roles-staff-menu | 1280 | build only | 1 |
+| `roles-staff-menu-390.build.png.b64` | roles-staff-menu | 390 | build only | 1 |
