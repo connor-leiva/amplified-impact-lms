@@ -1,4 +1,4 @@
-// The Admin Console's authorization matrix (D-157, spec § 11.1): every PR 1 Console route against
+// The Admin Console's authorization matrix (D-157, D-158, spec § 11.1): every Console route against
 // every kind of caller — no session, a learner, a team owner, and each staff role — through the real
 // router, `requireSession`, `requireJsonSameOrigin`, `requireConsole` and a real Postgres.
 //
@@ -12,26 +12,78 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, users } from '../src/db/schema';
+import { auditLog, staffNotes, users } from '../src/db/schema';
+import { settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
 
-type RouteName = 'me' | 'audit' | 'export' | 'roles' | 'preview' | 'change' | 'staffPreview' | 'staffChange';
+type RouteName =
+  | 'me'
+  | 'audit'
+  | 'export'
+  | 'roles'
+  | 'workspaces'
+  | 'workspace'
+  | 'users'
+  | 'user'
+  | 'passwordReset'
+  | 'usersExport'
+  | 'notesList'
+  | 'notesCreate'
+  | 'noteDelete'
+  | 'search'
+  | 'preview'
+  | 'change'
+  | 'staffPreview'
+  | 'staffChange';
 
-const ROUTES: Record<RouteName, { path: string; method: 'GET' | 'POST'; route: string; payload?: Record<string, unknown> }> = {
-  me: { path: CONSOLE_PATHS.me, method: 'GET', route: `GET ${CONSOLE_PATHS.me}` },
-  audit: { path: CONSOLE_PATHS.audit, method: 'GET', route: `GET ${CONSOLE_PATHS.audit}` },
-  export: { path: CONSOLE_PATHS.auditExport, method: 'POST', route: `POST ${CONSOLE_PATHS.auditExport}` },
-  roles: { path: CONSOLE_PATHS.roles, method: 'GET', route: `GET ${CONSOLE_PATHS.roles}` },
+/** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
+const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
+  me: { path: CONSOLE_PATHS.me, url: CONSOLE_PATHS.me, method: 'GET', route: `GET ${CONSOLE_PATHS.me}` },
+  audit: { path: CONSOLE_PATHS.audit, url: CONSOLE_PATHS.audit, method: 'GET', route: `GET ${CONSOLE_PATHS.audit}` },
+  export: { path: CONSOLE_PATHS.auditExport, url: CONSOLE_PATHS.auditExport, method: 'POST', route: `POST ${CONSOLE_PATHS.auditExport}` },
+  roles: { path: CONSOLE_PATHS.roles, url: CONSOLE_PATHS.roles, method: 'GET', route: `GET ${CONSOLE_PATHS.roles}` },
+  // PR 2 (D-158).
+  workspaces: { path: CONSOLE_PATHS.workspaces, url: CONSOLE_PATHS.workspaces, method: 'GET', route: `GET ${CONSOLE_PATHS.workspaces}` },
+  workspace: { path: CONSOLE_PATHS.workspace, url: '/api/console/workspaces/northline', method: 'GET', route: `GET ${CONSOLE_PATHS.workspace}` },
+  users: { path: CONSOLE_PATHS.users, url: CONSOLE_PATHS.users, method: 'GET', route: `GET ${CONSOLE_PATHS.users}` },
+  user: { path: CONSOLE_PATHS.user, url: '/api/console/users/u_jamie', method: 'GET', route: `GET ${CONSOLE_PATHS.user}` },
+  passwordReset: { path: CONSOLE_PATHS.passwordReset, url: '/api/console/users/u_jamie/password-reset', method: 'POST', route: `POST ${CONSOLE_PATHS.passwordReset}` },
+  usersExport: { path: CONSOLE_PATHS.usersExport, url: CONSOLE_PATHS.usersExport, method: 'POST', route: `POST ${CONSOLE_PATHS.usersExport}` },
+  notesList: { path: CONSOLE_PATHS.notes, url: `${CONSOLE_PATHS.notes}?targetType=workspace&targetId=northline`, method: 'GET', route: `GET ${CONSOLE_PATHS.notes}` },
+  notesCreate: {
+    path: CONSOLE_PATHS.notes,
+    url: CONSOLE_PATHS.notes,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.notes}`,
+    body: { targetType: 'workspace', targetId: 'northline', body: 'Called the owner about seats.' },
+  },
+  noteDelete: { path: CONSOLE_PATHS.noteDelete, url: '/api/console/notes/1/delete', method: 'POST', route: `POST ${CONSOLE_PATHS.noteDelete}`, body: { reason: 'Written on the wrong workspace.' } },
+  search: { path: CONSOLE_PATHS.search, url: `${CONSOLE_PATHS.search}?q=jamie`, method: 'GET', route: `GET ${CONSOLE_PATHS.search}` },
   // D-160 R2-3b: the matrix change, the Owner's alone (`roles.write`). The Owner's change here carries
   // no real token, so it is refused for that (`console-roles.test.ts` makes real changes).
-  preview: { path: CONSOLE_PATHS.rolesPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.rolesPreview}`, payload: { role: 'Admin', capability: 'masq', allowed: false } },
-  change: { path: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, payload: { confirmToken: 'not-a-token' } },
+  preview: {
+    path: CONSOLE_PATHS.rolesPreview,
+    url: CONSOLE_PATHS.rolesPreview,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.rolesPreview}`,
+    body: { role: 'Admin', capability: 'masq', allowed: false },
+  },
+  change: { path: CONSOLE_PATHS.roles, url: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, body: { confirmToken: 'not-a-token' } },
   // D-172: Invite staff and Change role…, the Owner's alone too (`console-staff.test.ts` makes real ones).
-  staffPreview: { path: CONSOLE_PATHS.staffPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.staffPreview}`, payload: { kind: 'role', staffId: 'st2', role: 'Support' } },
-  staffChange: { path: CONSOLE_PATHS.staff, method: 'POST', route: `POST ${CONSOLE_PATHS.staff}`, payload: { confirmToken: 'not-a-token' } },
+  staffPreview: {
+    path: CONSOLE_PATHS.staffPreview,
+    url: CONSOLE_PATHS.staffPreview,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.staffPreview}`,
+    body: { kind: 'role', id: 'st2', role: 'Support' },
+  },
+  staffChange: { path: CONSOLE_PATHS.staff, url: CONSOLE_PATHS.staff, method: 'POST', route: `POST ${CONSOLE_PATHS.staff}`, body: { confirmToken: 'not-a-token' } },
 };
+
+/** The routes whose success writes its own audit row. */
+const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete']);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -48,15 +100,20 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // Spec § 5, by hand. `me` answers any staff member (with an empty list for Instructor and Content
 // Editor) and refuses a learner; `audit` is audit.read (Owner, Admin, Support); `export` is export
 // (Owner, Admin); `roles` is ops.read (Owner, Admin); `preview` and `change` are roles.write (the Owner).
+// PR 2: workspaces and users are workspaces.read and users.read, notes are written with notes.write
+// and read with the target's read capability, a password reset is user.password_reset (all three
+// Console roles; a learner's here), search is console.view: Owner, Admin and Support. The users
+// export is export (Owner, Admin). Deleting a note is notes.delete: the Owner alone.
+const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
 const EXPECT: Record<string, Record<RouteName, number>> = {
-  anon: { me: 401, audit: 401, export: 401, roles: 401, preview: 401, change: 401, staffPreview: 401, staffChange: 401 },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, preview: 200, change: 403, staffPreview: 200, staffChange: 403 },
+  anon: { me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401, preview: 401, change: 401, staffPreview: 401, staffChange: 401 },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, preview: 403, change: 403, staffPreview: 403, staffChange: 403 },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, preview: 200, change: 403, staffPreview: 200, staffChange: 403 },
 };
 
 /** A 403 that is not the capability's: the Owner's change with no real token. */
@@ -67,7 +124,12 @@ const SUPPORT_CAPS = ['console.view', 'workspaces.read', 'users.read', 'notes.wr
 
 let app: App;
 
+let savedAppUrl: string | undefined;
+
 beforeAll(async () => {
+  // The password reset renders the existing email, whose links need this.
+  savedAppUrl = process.env.APP_URL;
+  process.env.APP_URL = 'https://learn.example.com';
   await testDatabase();
 });
 beforeEach(async () => {
@@ -76,13 +138,18 @@ beforeEach(async () => {
   const db = await testDatabase();
   // The seed has no Admin; the matrix needs one.
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
+  // Note 1, for the delete route to find.
+  await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
   app = await build({ logger: false });
 });
 afterEach(async () => {
+  await settleEmails();
   await app?.close();
 });
 afterAll(() => {
   delete process.env.FIXED_NOW;
+  if (savedAppUrl === undefined) delete process.env.APP_URL;
+  else process.env.APP_URL = savedAppUrl;
 });
 
 const call = async (name: RouteName, userId: string | null) => {
@@ -91,15 +158,15 @@ const call = async (name: RouteName, userId: string | null) => {
   if (userId) headers.cookie = await app.signInAs(userId);
   if (r.method === 'POST') {
     headers['content-type'] = 'application/json';
-    return app.inject({ method: 'POST', url: r.path, headers, payload: r.payload ?? {} });
+    return app.inject({ method: 'POST', url: r.url, headers, payload: r.body ?? {} });
   }
-  return app.inject({ method: 'GET', url: r.path, headers });
+  return app.inject({ method: 'GET', url: r.url, headers });
 };
 
 const auditRows = async () => (await testDatabase()).select().from(auditLog).orderBy(asc(auditLog.id));
 
 describe('the Console routes, by caller (D-157) @console', () => {
-  it('covers every PR 1 Console route', () => {
+  it('covers every Console route', () => {
     expect([...new Set(Object.values(ROUTES).map((r) => r.path))].sort()).toEqual(Object.values(CONSOLE_PATHS).sort());
     expect(Object.keys(EXPECT)).toEqual(PERSONAS.map((p) => p.name));
   });
@@ -146,8 +213,8 @@ describe('the Console routes, by caller (D-157) @console', () => {
             expect(after.length, `${persona.name} ${name} not audited`).toBe(before);
           }
         } else {
-          // Reads write nothing; an export writes its own row.
-          expect(after.length).toBe(before + (name === 'export' ? 1 : 0));
+          // Reads write nothing; every write writes its own row.
+          expect(after.length, `${persona.name} ${name} rows`).toBe(before + (WRITES.has(name) ? 1 : 0));
           if (name === 'me') {
             const me = JSON.parse(res.body) as { role: string; caps: string[] };
             expect(me.role).toBe(persona.name);

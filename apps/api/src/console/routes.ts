@@ -51,6 +51,7 @@ import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 import { commitStaffChange, previewStaffChange } from './staff';
+import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -62,11 +63,14 @@ export const CONSOLE_PATHS = {
   // D-172: Invite staff and Change role…, two steps. The change itself is a POST to `staff`.
   staffPreview: '/api/console/staff/preview',
   staff: '/api/console/staff',
+  // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
+  ...SUPPORT_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
-export const CONSOLE_RATE = { read: 60, write: 20, export: 5 } as const;
-const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
+export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as const;
+/** A route's per-minute limit, per session (D-137's limiter). */
+export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
 /**
  * What the app hands the Console routes. D-160 R2-3b: the event hub's `broadcast`, so a Roles change to
@@ -83,11 +87,11 @@ const TARGET_MAX = 100;
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; field: string };
 
-const int = (v: unknown): number | null => {
+export const int = (v: unknown): number | null => {
   const n = typeof v === 'number' ? v : typeof v === 'string' && /^\d{1,16}$/.test(v.trim()) ? Number(v.trim()) : NaN;
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
 };
-const present = (v: unknown): boolean => v !== undefined && v !== null && v !== '';
+export const present = (v: unknown): boolean => v !== undefined && v !== null && v !== '';
 
 /** The audit filters from a query string or an export body. Anything malformed is refused, never guessed. */
 export function parseAuditFilters(input: Record<string, unknown>): Parsed<AuditFilters> {
@@ -299,5 +303,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     // D-172: Invite staff and Change role…, the Owner's two-step write (`staff.ts`).
     scope.post(CONSOLE_PATHS.staffPreview, write, previewStaffChange);
     scope.post(CONSOLE_PATHS.staff, write, (req, reply) => commitStaffChange(req, reply, deps.broadcast));
+
+    registerSupportRoutes(scope);
   });
 }

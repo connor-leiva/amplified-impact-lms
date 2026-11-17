@@ -124,8 +124,15 @@
     {
       "idx": 17,
       "version": "7",
-      "when": 1794883967113,
-      "tag": "0017_resource_module_session_replay",
+      "when": 1794864780668,
+      "tag": "0017_staff_notes",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794886398742,
+      "tag": "0018_resource_module_session_replay",
       "breakpoints": true
     }
   ]
