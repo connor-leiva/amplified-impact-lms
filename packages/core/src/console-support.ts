@@ -278,7 +278,15 @@ export interface UserFilters {
   /** A learner role or a staff role. */
   role?: string;
   kind?: UserKind;
+  /**
+   * Exactly these users: the list's selection, for the export's "Export selected" (D-160 R2-1c). 1 to
+   * 500 ids; the list itself never sends it.
+   */
+  ids?: string[];
 }
+
+/** The most users "Export selected" sends. */
+export const USER_IDS_MAX = 500;
 
 /** Existence only (spec § 7.4): never the hash, never the Google subject. */
 export interface ConsoleIdentity {

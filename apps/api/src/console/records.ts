@@ -311,6 +311,7 @@ function userWhere(f: UserFilters): SQL[] {
   }
   if (f.role !== undefined) where.push(sql`(u.role = ${f.role} or u.staff_role = ${f.role})`);
   if (f.kind !== undefined) where.push(sql`u.kind = ${f.kind}`);
+  if (f.ids !== undefined && f.ids.length) where.push(sql`u.id in (${sql.join(f.ids.map((id) => sql`${id}`), sql`, `)})`);
   return where;
 }
 

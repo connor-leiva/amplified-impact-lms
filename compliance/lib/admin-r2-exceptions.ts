@@ -72,6 +72,18 @@ export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
     ref: EXCEPTION_DECISION,
     pr: 136,
   },
+  // R2-1c part 2 (#141): User (Elena Vargas) on a phone. Its key facts' values: the user id, email,
+  // workspace, role, tier and last sign-in (y 286–455).
+  {
+    cell: 'user-390',
+    width: 390,
+    height: 1273,
+    ceilingPx: 1644,
+    ceilingPct: 0.3311,
+    reason: EXCEPTION_REASON,
+    ref: EXCEPTION_DECISION,
+    pr: 141,
+  },
 ];
 
 /** A ceiling as the report prints it: `0.3390% · 2766 px`. */

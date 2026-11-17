@@ -26,6 +26,7 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   LEARNER_ROLES,
+  USER_IDS_MAX,
   STAFF_ROLES,
   cleanNoteBody,
   cleanReason,
@@ -105,6 +106,12 @@ export function parseUserFilters(input: Record<string, unknown>): Parsed<UserFil
   if (present(input.kind)) {
     if (!isUserKind(input.kind)) return { ok: false, field: 'kind' };
     out.kind = input.kind;
+  }
+  // The list's selection, for "Export selected" (D-160 R2-1c): 1 to 500 user ids, each a bound value.
+  if (present(input.ids)) {
+    const ids = input.ids;
+    if (!Array.isArray(ids) || ids.length < 1 || ids.length > USER_IDS_MAX || !ids.every((v) => typeof v === 'string' && ID.test(v))) return { ok: false, field: 'ids' };
+    out.ids = [...new Set(ids as string[])];
   }
   return { ok: true, value: out };
 }

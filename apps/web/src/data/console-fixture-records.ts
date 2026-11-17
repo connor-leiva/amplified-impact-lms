@@ -307,7 +307,8 @@ export function fixtureUserRows(r: FixtureRecords, f: UserFilters): ConsoleUserR
       (u) =>
         (f.q === undefined || u.id === f.q || has([u.name, u.email, u.workspace], f.q)) &&
         wantsRole(u.role, f.role) &&
-        (f.kind === undefined || u.kind === f.kind),
+        (f.kind === undefined || u.kind === f.kind) &&
+        (f.ids === undefined || f.ids.includes(u.id)),
     )
     .map(({ joined: _j, tier: _t, ...row }) => row);
 }

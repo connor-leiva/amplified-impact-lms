@@ -80,9 +80,12 @@ const routes: RouteObject[] = [
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
       { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
       { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
-      // The Support records on R2 (D-160 R2-1c; spec § 7.3, D-158's API).
+      // The Support records on R2 (D-160 R2-1c; spec §§ 7.3–7.5, D-158's API).
       { path: 'admin/workspaces', lazy: () => import('./routes/console/Workspaces') },
       { path: 'admin/workspaces/:teamId', lazy: () => import('./routes/console/Workspace') },
+      { path: 'admin/users', lazy: () => import('./routes/console/Users') },
+      { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
+      { path: 'admin/search', lazy: () => import('./routes/console/Search') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every

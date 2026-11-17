@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
 import { Button } from '../../components/r2/Button';
@@ -42,6 +42,7 @@ import type { MemberVM, WorkspaceTab } from './workspaces.vm';
 export function Component() {
   const { teamId = '' } = useParams();
   const gate = useConsoleGate('workspaces');
+  const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
   const { toast } = useAdminChrome();
   const api = gate.kind === 'ready' ? gate.api : null;
@@ -108,10 +109,10 @@ export function Component() {
       label: C.members.name,
       width: 'minmax(180px,1.5fr)',
       value: (m) => m.name,
-      cell: (m) => (
+      cell: (m, f) => (
         <div className={clsx(k.row, k.nw)} style={{ gap: 10 }}>
           <Avatar initials={m.initials} />
-          <Two a={m.name} b={m.email} />
+          <Two a={m.name} b={m.email} to={f.phone ? undefined : m.href} />
         </div>
       ),
     },
@@ -173,7 +174,11 @@ export function Component() {
               cols={memberCols}
               rows={vm.members}
               rowKey={(m) => m.key}
-              menu={() => [{ label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} }]}
+              onRow={(m) => navigate(m.href)}
+              menu={(m) => [
+                { label: C.members.open, onSelect: () => navigate(m.href) },
+                { label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} },
+              ]}
               empty={{ icon: 'r2Users', title: C.members.empty }}
             />
           ) : null}

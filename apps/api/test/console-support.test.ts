@@ -388,6 +388,18 @@ describe('the users export (spec § 7.4, D6) @console', () => {
     expect((await auditRows()).at(-1)).toMatchObject({ action: 'user.export', outcome: 'ok', actorUserId: 'st_admin', targetType: 'users', after: { rows: 14, format: 'csv', filters: { kind: 'learner' } } });
   });
 
+  it('exports exactly the selected users, and audits the selection (D-160 R2-1c: "Export selected")', async () => {
+    const res = await post(CONSOLE_PATHS.usersExport, { ids: ['u_kenji', 'st1', 'u_kenji', 'no_such_user'] }, 'st_admin');
+    expect(res.statusCode).toBe(200);
+    const ids = res.body.trimEnd().split('\r\n').slice(1).map((l) => l.split(',')[0]);
+    expect(ids.sort()).toEqual(['"st1"', '"u_kenji"']);
+    expect((await auditRows()).at(-1)).toMatchObject({ action: 'user.export', outcome: 'ok', after: { rows: 2, filters: { ids: ['u_kenji', 'st1', 'no_such_user'] } } });
+    for (const ids of [[], 'u_kenji', ['bad id'], Array.from({ length: 501 }, (_, i) => `u${i}`)]) {
+      const bad = await post(CONSOLE_PATHS.usersExport, { ids }, 'st_admin');
+      expect(bad.statusCode, JSON.stringify(ids).slice(0, 40)).toBe(400);
+    }
+  });
+
   it('refuses more than 10,000 rows with 422 and audits the refusal', async () => {
     await (await testDatabase()).execute(sql`insert into users (id, email, name, kind) select 'bulk_' || g, 'bulk' || g || '@example.com', 'Bulk ' || g, 'learner' from generate_series(1, ${AUDIT_EXPORT_MAX_ROWS}) g`);
     const res = await post(CONSOLE_PATHS.usersExport, {}, 'st1');
