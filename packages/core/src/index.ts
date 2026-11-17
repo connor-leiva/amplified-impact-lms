@@ -23,5 +23,6 @@ export type { MutationName, MutationArgs } from './catalog';
 export * from './provision';
 export * from './console';
 export * from './console-support';
+export * from './staff-guard';
 export * from './console-view';
 export * from './admin-build';
