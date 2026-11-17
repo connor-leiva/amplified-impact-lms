@@ -115,6 +115,23 @@ describe('withPreview', () => {
     expect(JSON.stringify(await inner.snapshot())).toBe(before);
   });
 
+  it('refuses the audited Build actions too (D-172), and the fixture runs them for staff', async () => {
+    const inner = createFixtureRepository('admin', 'live');
+    const act = vi.spyOn(inner, 'act');
+    const repo = withPreview(inner, 'owner');
+    expect(await repo.act('duplicateModule', { id: 'sales' })).toEqual({ error: PREVIEW_ONLY });
+    expect(act).not.toHaveBeenCalled();
+
+    // Outside a preview, the fixture runs the same function the API runs, without its audit row.
+    const out = await inner.act('duplicateModule', { id: 'sales' });
+    expect(out).toEqual({ toast: { msg: 'Duplicated as a draft', tone: 'success' } });
+    expect((await inner.snapshot()).modules.some((m) => m.name === 'Sales AI Employee (copy)')).toBe(true);
+    // A refusal is the inline error, as a mutation's is.
+    expect(await createFixtureRepository('agent', 'live').act('duplicateModule', { id: 'sales' })).toEqual({
+      error: 'You don’t have permission to do that.',
+    });
+  });
+
   it('does nothing for a learner who adds the flag', async () => {
     const inner = createFixtureRepository('agent', 'live');
     const repo = withPreview(inner, 'owner');

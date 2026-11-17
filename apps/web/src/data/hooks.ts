@@ -4,7 +4,7 @@ import type { Db } from '@ai/core';
 import { clock } from '../lib/clock';
 import { repo } from './boot';
 import { PREVIEW_ONLY } from './preview';
-import type { MutationArgs, MutationName, MutationResult, Viewer } from './repository';
+import type { AdminActionArgs, AdminActionName, MutationArgs, MutationName, MutationResult, Viewer } from './repository';
 import { useToaster } from '../components/primitives/Toaster';
 import { useConfetti } from '../shell/Confetti';
 
@@ -44,6 +44,26 @@ export function useMutate() {
       return r;
     },
     [qc, toast, celebrate],
+  );
+}
+
+/**
+ * D-172: run an audited Build action (`repo.act`), with `useMutate`'s handling of its answer: the
+ * toast, an inline error the caller renders, and a refetch.
+ */
+export function useAct() {
+  const qc = useQueryClient();
+  const { toast } = useToaster();
+  return useCallback(
+    async <K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult> => {
+      const r = await repo.act(name, args);
+      if (r.error === PREVIEW_ONLY) toast(PREVIEW_ONLY, 'info');
+      if (r.error) return r;
+      if (r.toast) toast(r.toast.msg, r.toast.tone);
+      await qc.invalidateQueries({ queryKey: DB_KEY });
+      return r;
+    },
+    [qc, toast],
   );
 }
 

@@ -1,5 +1,7 @@
 import type { Db } from '@ai/core';
 import type {
+  AdminActionArgs,
+  AdminActionName,
   JoinTicket,
   LmsRepository,
   MutationArgs,
@@ -133,6 +135,14 @@ export function createHttpRepository(): LmsRepository {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(args),
       }).then((res) => parse(res, `POST /api/mutate/${name}`)) as Promise<MutationResult>,
+    // D-172: an audited Build action; a masquerade's refusal resolves as the mutation's does.
+    act: <K extends AdminActionName>(name: K, args: AdminActionArgs<K>) =>
+      fetch(`/api/admin/actions/${name}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(args),
+      }).then((res) => parse(res, `POST /api/admin/actions/${name}`)) as Promise<MutationResult>,
     // § 8.2: the browser navigates here and the route 302-redirects to a presigned GET. The URL is
     // returned rather than fetched, because the redirect has to be followed by the browser itself
     // for the download to land in the downloads tray.

@@ -109,6 +109,8 @@ const GROUP_LABELS: Record<string, string> = {
   integration: 'Integrations',
   // D-160 R2-3b: Roles & Permissions changes.
   permission: 'Permissions',
+  // D-172: the Build screens' remaining controls.
+  module: 'AI Employees',
   // D-171: role changes, removals and invites on Staff & Roles.
   staff: 'Staff & Roles',
 };

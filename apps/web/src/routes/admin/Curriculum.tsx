@@ -17,7 +17,7 @@ import { TierPill } from '../../components/r2/TierPill';
 import { Bar, Find, PageHead, Sel, k, keepHyphens } from '../../components/r2/kit';
 import { ButtonLink } from '../../components/r2/Button';
 import { isFixture } from '../../data/boot';
-import { useDb, useMutate, useNow } from '../../data/hooks';
+import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { curriculumR2VM, movesFor, previewUrl, type CurriculumR2Row } from './Curriculum.vm';
 import s from './Curriculum.module.css';
@@ -35,6 +35,8 @@ import s from './Curriculum.module.css';
 //     read-only preview tab, D-138).
 //   - Delete (drafts): the "…" menu, after a confirm. The mockup draws no Delete; the old Module
 //     Builder's Delete Draft lives here now (Needs Connor's call, D-160 R2-2).
+//   - Duplicate (D-172): the "…" menu, as the mockup orders it: a draft copy, "{name} (copy)", with
+//     every step and setting (`duplicateModule`, audited `module.duplicate`), and its toast.
 
 /** Demo params a persona switch must keep, so a pinned clock survives the preview navigation. */
 const CARRY_PARAMS = ['phase', 'now', 'demo'] as const;
@@ -52,6 +54,7 @@ function Curriculum() {
   const db = useDb();
   const now = useNow();
   const mutate = useMutate();
+  const act = useAct();
   const navigate = useNavigate();
   const { toast } = useToaster();
   const vw = useViewportWidth();
@@ -132,6 +135,8 @@ function Curriculum() {
   const menu = (r: CurriculumR2Row): MenuEntry[] => [
     { label: 'Edit in Module Builder', icon: 'r2Builder', onSelect: () => edit(r) },
     { label: 'Preview as Learner', icon: 'r2Eye', onSelect: () => preview(r) },
+    // D-172: the mockup's Duplicate, a draft copy with every step and setting, audited.
+    { label: 'Duplicate', onSelect: () => void act('duplicateModule', { id: r.id }).then((o) => warn(o.error)) },
     'separator',
     r.publishes
       ? { label: 'Publish', onSelect: () => publish(r, true) }

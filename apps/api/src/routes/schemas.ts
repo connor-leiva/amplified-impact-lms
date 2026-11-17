@@ -107,6 +107,15 @@ const draft = z.strictObject({
     .optional(),
 });
 
+/**
+ * D-172: the Module Builder's audited save (`POST /api/admin/actions/saveBuilderModule`) sends the same
+ * draft, with each step's optional `kind` (the R2 builder's Type, which its Add step sets). Exported for
+ * that route; `saveModule`'s own schema below is unchanged.
+ */
+export const builderDraft = draft.extend({
+  checklist: z.array(step.extend({ kind: z.enum(['Watch', 'Read', 'Build', 'Check', 'Ship']).optional() })),
+});
+
 // --- the registry ----------------------------------------------------------
 
 /**

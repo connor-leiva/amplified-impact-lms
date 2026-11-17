@@ -189,6 +189,9 @@ export const AUDIT_ACTIONS = [
   'staff.role_change',
   'staff.remove',
   'staff.invite',
+  // D-172 R2-gaps: the Build screens' remaining controls (`admin-actions.ts`).
+  'module.duplicate',
+  'module.save',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

@@ -527,6 +527,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/me', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/me/prefs', methods: 'PATCH', guard: 'session' },
   { path: '/api/mutate/:name', methods: 'POST', guard: 'session' },
+  // D-172: the R2 mockup's remaining Build controls, audited, beside `/api/mutate` and guarded as it is.
+  { path: '/api/admin/actions/:name', methods: 'POST', guard: 'session' },
   { path: '/api/snapshot', methods: 'GET, HEAD', guard: 'session' },
   // Phase 08's four. All session-guarded, and every one hands out something a learner must not get
   // for free: a presigned object URL (§ 8.2) or a Zoom link (§ 8.4). This table is why they could
@@ -1089,6 +1091,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/mutate/:name': () =>
             app.inject({ method: 'POST', url: '/api/mutate/toggleStep', payload: { moduleId: 'sales', stepId: 'c4' } }),
           '/api/snapshot': () => app.inject({ method: 'GET', url: '/api/snapshot' }),
+          // D-172: a valid body, for the same reason as `/api/mutate/:name`'s.
+          '/api/admin/actions/:name': () =>
+            app.inject({ method: 'POST', url: '/api/admin/actions/duplicateModule', payload: { id: 'sales' } }),
           // Phase 08's four. Each hands out something a learner must not get for free — a presigned
           // object URL (§ 8.2) or a Zoom link (§ 8.4) — so the 401 matters more here than anywhere
           // else in this table. Real ids from the fixture, because a 404 on a made-up id would
@@ -1446,9 +1451,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // with Console PR 2's nine (D-158), 40 with masquerade's five (D-162), 47 with Billing's seven
     // (D-163), 51 with Billing's refund and void, previews included (D-164), 56 with API & Webhooks
     // and Scheduled Jobs' five (D-165), 60 with the email log's and usage's four (D-166), 66 with
-    // the incidents' six (D-167), and 72 with the flag, env, integrations, deploys and DB health's six
-    // (D-168), and 74 with System Health and the Skills list (D-169).
-    expect(EXECUTED.unauthenticated).toBe(74);
+    // the incidents' six (D-167), 72 with the flag, env, integrations, deploys and DB health's six
+    // (D-168), 74 with System Health and the Skills list (D-169), and 75 with the audited Build
+    // actions (D-172).
+    expect(EXECUTED.unauthenticated).toBe(75);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1464,7 +1470,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // its refund and void (D-164), + 5 for API & Webhooks and Scheduled Jobs (D-165), + 4 for the
     // email log's and usage's (D-166), + 6 for the incidents' (D-167) and + 6 for the flag, env,
     // integrations, deploys and DB health's (D-168), + 2 for System Health and the Skills list (D-169),
-    // probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2);
+    // probed unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1);
   });
 });
