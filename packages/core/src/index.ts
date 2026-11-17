@@ -24,6 +24,7 @@ export * from './provision';
 export * from './console';
 export * from './console-support';
 export * from './console-masquerade';
+export * from './staff-guard';
 export * from './console-view';
 export * from './admin-build';
 export * from './console-billing';

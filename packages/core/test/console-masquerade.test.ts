@@ -73,7 +73,7 @@ describe('reasons and where Exit returns @console', () => {
     }
   });
 
-  it('ends one of four ways (migration 0017’s check)', () => {
+  it('ends one of four ways (migration 0018’s check)', () => {
     expect(MASQUERADE_END_REASONS).toEqual(['exit', 'expired', 'signed_out', 'revoked']);
   });
 });

@@ -20,6 +20,9 @@ const SENTINELS = [
   // R2-3b: the parity fixture's audit rows (`AUDIT0`).
   'in_1QxK5fFm0270',
   'Customer cannot see the Session 2 replay',
+  // R2-3b, editable Roles: the fixture's stand-in confirm tokens and its `PERMS0` (the parity matrix).
+  'fixture-${',
+  'parityRoleGrants',
 ];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
@@ -49,12 +52,22 @@ async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): P
 }
 
 /** D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). */
-const RECORD_SENTINELS = ['ws_northshore', 'Elena Vargas', 'cus_Rk3NshoreA1', 'in_1QxT4mNs0291'];
+const RECORD_SENTINELS = [
+  'ws_northshore',
+  'Elena Vargas',
+  'cus_Rk3NshoreA1',
+  'in_1QxT4mNs0291',
+  // D-162 3b: the mockup's recent masquerade sessions, and the switch that turns the flag off.
+  'Checking seat invite flow after upgrade request',
+  'Verifying Week 2 step order on her account',
+  'masquerade-flag',
+];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
+    expect(code).toContain('/api/console/roles/preview');
     for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).not.toContain(s);
   }, 60_000);
 
@@ -118,4 +131,24 @@ describe('the R2 parity snapshot is not in the http build (D-160 R2-2)', () => {
     const code = await bundle('fixture', './boot.ts');
     for (const s of SNAPSHOT_SENTINELS) expect(code, s).toContain(s);
   }, 120_000);
+});
+
+/**
+ * D-162 3b: the fixture's simulated masquerade session (`masquerade-fixture.ts`: its storage key, its
+ * `?masquerade=` switch, the mockup's demo session and its write block) is loaded by `masquerade.ts`
+ * behind the same constant, so the http build can never fake a session.
+ */
+const MASQUERADE_SENTINELS = ['ai-lms-masquerade', 'mq_fixture', 'Customer reports Week 2 steps are out of order', 'createMasqueradeFixture'];
+
+describe('the simulated masquerade is not in the http build (D-162 3b)', () => {
+  it('the http build of the masquerade client has none of it, and talks to the API', async () => {
+    const code = await bundle('production', './masquerade.ts');
+    expect(code).toContain('/api/console/masquerade/current');
+    for (const s of MASQUERADE_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture', './masquerade.ts');
+    for (const s of MASQUERADE_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
 });

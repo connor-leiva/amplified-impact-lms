@@ -1,0 +1,132 @@
+/* Masquerade on R2 (D-162 3b): the mockup's `.mq` banner (its `.who`, `.b` and `.b.p`), its
+   `ReasonModal`'s `.lab`, and the blocked modal's lock note. Tokens only (`--r2-mq-*` are BUILD-SPEC
+   § 3's banner fill, ink and border, in styles/r2.css). */
+
+/* `.mq`: sticky and in flow at the top of every page (spec § 6), never over the content. */
+.mq {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--r2-mq-bg);
+  color: var(--r2-mq-ink);
+  border-bottom: 1px solid var(--r2-mq-line);
+  padding: 6px var(--r2-pad);
+  min-height: 40px;
+  display: flex;
+  gap: 4px 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
+}
+/* `.ax.msq`: the frame's inset outline, drawn over the page while a session runs. */
+.frame {
+  position: fixed;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px var(--r2-mq-line);
+  pointer-events: none;
+  z-index: 29;
+}
+.who {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.el {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.name {
+  font-weight: 600;
+}
+.reason {
+  font-size: var(--r2-fs-12);
+  line-height: var(--r2-lh-16);
+}
+.left {
+  font-family: var(--r2-font-mono);
+  font-size: var(--r2-mo);
+  letter-spacing: -0.01em;
+  font-weight: 500;
+  white-space: nowrap;
+  flex: none;
+}
+/* `.mq .b` and `.mq .b.p`. */
+.mq .b {
+  background: transparent;
+  border-color: var(--r2-mq-button-line);
+  color: var(--r2-mq-ink);
+  box-shadow: none;
+}
+.mq .b:hover {
+  background: var(--r2-mq-button-hover);
+  border-color: var(--r2-mq-button-line);
+  color: var(--r2-mq-ink);
+}
+.mq .b.p,
+.mq .b.p:hover {
+  border-color: var(--r2-mq-ink);
+  color: var(--r2-on-for);
+}
+.mq .b.p {
+  background: var(--r2-mq-ink);
+}
+.mq .b.p:hover {
+  background: var(--r2-mq-primary-hover);
+}
+.mq .b:disabled:hover {
+  background: transparent;
+}
+
+/* `.lk.a`: a link button in the forest colour ("Curriculum"). */
+button.link {
+  color: var(--r2-for);
+}
+
+/* `.lab`: a field's label above it. */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.err {
+  color: var(--r2-bad);
+}
+/* The blocked modal's `.note.row.nw`: the lock and what was tried. */
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.attempt {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* The paused Console's frame: the R2 top bar and main, below the banner. */
+.paused {
+  min-height: calc(100dvh - var(--ai-masquerade-h, 0px));
+  display: flex;
+  flex-direction: column;
+}
+
+/* A phone: 16px text (the tokens), the timer takes the row's slack, controls 44px and primaries 48px. */
+@media (max-width: 767px) {
+  .left {
+    flex: 1;
+  }
+  .lab {
+    font-size: 16px;
+  }
+  button.primary {
+    height: var(--r2-cp);
+  }
+}

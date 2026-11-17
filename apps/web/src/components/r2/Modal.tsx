@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
-import clsx from 'clsx';
 import { Icon } from '../Icon';
 import { Button } from './Button';
-import { k } from './kit';
 import s from './Modal.module.css';
 
 // The R2 modal and confirm (D-160 R2-2): the mockup's `Modal` (a 480px dialog on a scrim, a head with
@@ -11,8 +9,9 @@ import s from './Modal.module.css';
 // and the action). Escape and a click on the scrim close it, unless `lock`; focus moves into the
 // dialog when it opens and back to where it was when it closes. R2-1c part 2: Tab and Shift+Tab stay
 // inside (`useDialog`, which the ⌘K palette shares), the mockup's `scrim top0` (`.top`) for the
-// palette, and `Confirm`'s `audited`, the mockup's "This action is audit-logged." for an action that
-// writes an audit row.
+// palette. Every `Confirm` ends with the mockup's "This action is audit-logged." (`AUDITED`), as the
+// mockup's own `Confirm` does (R2-3b); part 2's `audited` flag, which asked for it, is kept for its
+// callers and changes nothing.
 
 /** The dialog's own styles, for a dialog the mockup builds from them directly (the ⌘K palette). */
 export { s as modalStyles };
@@ -105,15 +104,27 @@ export interface ConfirmProps {
   body: string;
   cta: string;
   danger?: boolean;
-  /** The action writes an audit row: end with the mockup's "This action is audit-logged.". */
+  /**
+   * The action writes an audit row. Kept for R2-1c part 2's callers: every confirm now ends with the
+   * mockup's "This action is audit-logged." (`AUDITED`), as the mockup's `Confirm` does (R2-3b).
+   */
   audited?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /**
+   * D-160 R2-3b: the action is the server's two-step confirm. The dialog stays open on the action (the
+   * caller closes it once the change is made), the action waits while `busy`, and a refusal shows in
+   * the dialog (`error`, an alert) with the action off.
+   */
+  keepOpen?: boolean;
+  busy?: boolean;
+  error?: string | null;
 }
 
 export const AUDITED = 'This action is audit-logged.';
 
-export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose }: ConfirmProps) {
+/** The mockup's `Confirm`: the question, the sentence, "This action is audit-logged.", Cancel and the action. */
+export function Confirm({ title, body, cta, danger, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
   return (
     <Modal
       title={title}
@@ -123,8 +134,9 @@ export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose 
           <Button onClick={onClose}>Cancel</Button>
           <Button
             kind={danger ? 'primary-danger' : 'primary'}
+            disabled={!!busy || !!error}
             onClick={() => {
-              onClose();
+              if (!keepOpen) onClose();
               onConfirm();
             }}
           >
@@ -134,7 +146,12 @@ export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose 
       }
     >
       <p className={s.body}>{body}</p>
-      {audited ? <p className={clsx(k.p, k.me)}>{AUDITED}</p> : null}
+      {error ? (
+        <p className={s.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+      <p className={s.note}>{AUDITED}</p>
     </Modal>
   );
 }

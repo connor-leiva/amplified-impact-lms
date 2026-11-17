@@ -16,6 +16,10 @@ import type {
   ConsolePage,
   ConsoleUserDetail,
   ConsoleUserRow,
+  MasqueradeHistoryRow,
+  EditableRole,
+  RoleChangePreview,
+  RoleRowKey,
   RolesMatrix,
   SearchResults,
   StaffNote,
@@ -25,7 +29,8 @@ import type {
   WorkspaceFilters,
   WorkspaceRow,
 } from '@ai/core';
-import { navigation } from './http';
+import { masqueradeRefusal, navigation } from './http';
+import { masqueradeActive } from './masquerade';
 
 /** What went wrong, as a screen needs to know it. */
 export type ConsoleFailure =
@@ -41,6 +46,12 @@ export type ConsoleFailure =
   | 'too_large'
   /** 400 `invalid_query`. */
   | 'invalid'
+  /**
+   * D-160 R2-3b: a Roles & Permissions change refused by a guard or its confirm token (`role_fixed`,
+   * `fixed_by_product`, `self_lockout`, `grant_stale`, `confirm_expired`, …). The dialog shows the
+   * code's own sentence (`CONSOLE_ERRORS`).
+   */
+  | 'refused'
   /** Anything else: a 5xx, a dropped connection, a body that isn't JSON. */
   | 'failed';
 
@@ -56,6 +67,9 @@ export class ConsoleError extends Error {
   }
 }
 
+/** The codes a Roles & Permissions change is refused with (D-160 R2-3b). */
+export const REFUSALS = ['role_fixed', 'managed_elsewhere', 'fixed_by_product', 'self_lockout', 'no_change', 'grant_stale', 'confirm_invalid', 'confirm_expired'] as const;
+
 /** A status and a code as a failure kind. The code wins where there is one. */
 export function failureOf(status: number, code: unknown): ConsoleFailure {
   if (code === 'console_forbidden') return 'forbidden';
@@ -63,6 +77,7 @@ export function failureOf(status: number, code: unknown): ConsoleFailure {
   if (code === 'export_too_large') return 'too_large';
   if (code === 'invalid_query' || code === 'invalid_body' || code === 'reason_required') return 'invalid';
   if (code === 'not_found') return 'not_found';
+  if (typeof code === 'string' && (REFUSALS as readonly string[]).includes(code)) return 'refused';
   if (status === 429) return 'rate_limited';
   if (status === 404) return 'not_found';
   if (status === 403) return 'forbidden';
@@ -89,14 +104,19 @@ export interface ConsoleApi {
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
   /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
   search(q: string): Promise<SearchResults>;
+  /** D-160 R2-3b, the Owner's two-step change: what it would do, and the token that confirms it. */
+  previewRole(change: { role: EditableRole; capability: RoleRowKey; allowed: boolean }): Promise<RoleChangePreview>;
+  /** Makes the previewed change; answers the matrix as it now is. */
+  changeRole(confirmToken: string): Promise<RolesMatrix>;
+  /** PR 3 (D-162): every masquerade session, newest first (`masquerade.start`). */
+  masqueradeSessions(cursor?: string | null): Promise<ConsolePage<MasqueradeHistoryRow>>;
 }
 
 /**
  * Whether a masquerade session is running (spec § 7.5: the palette is "disabled during a session").
- * Masquerade is Console PR 3; until then there is never a session, and this is the one place PR 3
- * answers it. The palette asks before it opens.
+ * The masquerade store's answer (`data/masquerade.ts`, D-162 3b); the palette asks before it opens.
  */
-export const masqueradeActive = (): boolean => false;
+export { masqueradeActive };
 
 /** A query string of the set values, in the order given, then the cursor. */
 export function listQuery(values: Record<string, string | number | undefined>, cursor?: string | null): string {
@@ -127,6 +147,8 @@ async function refusal(res: Response): Promise<never> {
     throw new ConsoleError('failed', 401, null, 'Not signed in');
   }
   const body = (await res.json().catch(() => ({}))) as { error?: unknown; code?: unknown };
+  // During a masquerade (D-162 3b): a session that ended goes back; a refused call opens the dialog.
+  masqueradeRefusal(res.status, body);
   const code = isConsoleErrorCode(body.code) ? body.code : null;
   throw new ConsoleError(failureOf(res.status, body.code), res.status, code, typeof body.error === 'string' ? body.error : `HTTP ${res.status}`);
 }
@@ -194,6 +216,13 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
+    previewRole: async (change) =>
+      json<RoleChangePreview>(
+        await request(fetchImpl, '/api/console/roles/preview', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(change) }),
+      ),
+    changeRole: async (confirmToken) =>
+      json<RolesMatrix>(await request(fetchImpl, '/api/console/roles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
+    masqueradeSessions: async (cursor) => json<ConsolePage<MasqueradeHistoryRow>>(await request(fetchImpl, `/api/console/masquerade/sessions${listQuery({}, cursor)}`)),
   };
 }
 
