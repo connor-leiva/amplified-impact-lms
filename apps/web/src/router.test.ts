@@ -34,8 +34,12 @@ describe('the app’s route table', () => {
     const all = walk(router.routes);
     const under = walk(inner.children ?? []);
     expect(all).toHaveLength(under.length + 2);
+    // D-162 3b: inside the boundary, one pathless layout (the masquerade root) holds every route.
+    expect(inner.children).toHaveLength(1);
+    const root = inner.children![0]!;
+    expect(root.path).toBeUndefined();
     // The addresses the app answers, unchanged.
-    expect(inner.children!.map((r) => r.path)).toEqual(
+    expect(root.children!.map((r) => r.path)).toEqual(
       expect.arrayContaining([
         '/sign-in',
         '/login',

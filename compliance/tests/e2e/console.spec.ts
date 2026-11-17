@@ -172,9 +172,11 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
     await expect(page.getByRole('heading', { level: 1 })).toHaveText("This page doesn't exist");
     await expect(page.getByText('The link may be old, or the record was removed. Error 404.')).toBeVisible();
     await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toHaveText('Admin');
-    // "Search the admin" opens the command palette, which is R2-5: until then it does nothing.
-    await expect(page.getByRole('button', { name: 'Search the admin' })).toHaveAttribute('aria-disabled', 'true');
+    // "Search the admin" opens the ⌘K palette (D-160 R2-1c).
     await expectAccessible(page);
+    await page.getByRole('button', { name: 'Search the admin' }).click();
+    await expect(page.getByRole('dialog', { name: 'Command palette' })).toBeVisible();
+    await page.keyboard.press('Escape');
     await page.getByRole('link', { name: 'Go to Overview' }).click();
     await expect(page).toHaveURL(/\/admin(\?|$)/);
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText("This page doesn't exist");
@@ -356,16 +358,16 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
     Owner: [
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      // D-160 R2-1c part 1: Workspaces is on in production.
-      ['Support', 'Learners & Teams', 'Workspaces'],
+      // D-160 R2-1c: Workspaces and Users are on in production; D-162 3b: Masquerade (`masquerade.start`).
+      ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
       ['Revenue', 'Tiers & Upgrades'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };
   EXPECT.Admin = EXPECT.Owner!;
-  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces'].includes(x)));
+  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions' && x !== 'Masquerade'));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {

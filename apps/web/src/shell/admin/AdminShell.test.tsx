@@ -158,13 +158,22 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     await waitFor(() => expect(drawer).toHaveAttribute('hidden'));
   });
 
-  it('renders the ⌘K trigger and the environment, and the trigger does nothing until R2-5', async () => {
+  it('renders the ⌘K trigger and the environment; the trigger and ⌘K open the palette, Escape closes it (R2-1c)', async () => {
     const router = renderAt('/admin/no-such-page');
     await screen.findByText('the 404');
     const trigger = screen.getByRole('button', { name: /Search or jump to…/ });
-    expect(trigger).toHaveAttribute('aria-disabled', 'true');
+    expect(trigger).not.toHaveAttribute('aria-disabled');
     fireEvent.click(trigger);
-    expect(screen.queryByRole('dialog')).toBeNull();
+    const palette = await screen.findByRole('dialog', { name: 'Command palette' });
+    expect(within(palette).getByRole('combobox', { name: 'Command palette search' })).toHaveFocus();
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Command palette' })).toBeNull());
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+    });
+    expect(await screen.findByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/admin/no-such-page');
     expect(screen.getByText('Production')).toBeInTheDocument();
   });

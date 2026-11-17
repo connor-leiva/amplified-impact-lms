@@ -5,12 +5,12 @@ import { Empty, EmptyActions } from '../../components/r2/Empty';
 import { Page } from '../../components/r2/Page';
 import { consoleApi } from '../../data/console';
 import { useViewer } from '../../data/hooks';
+import { useAdminChrome } from '../../shell/admin/chrome';
 import { NOT_FOUND_COPY, deniedCopy } from './console.vm';
 
 // Denied and the Console 404 on R2 (D-160 R2-1b): the mockup's `Denied` and `NotFound`, a card holding
 // the message (`Empty`, its title the page's h1) and the way out. "Go to Overview" stays until Health
-// exists (Connor). "Search the admin" opens the command palette, which arrives in R2-5: until then it
-// is drawn exactly and does nothing (`aria-disabled`).
+// exists (Connor). "Search the admin" opens the ⌘K palette (D-160 R2-1c).
 
 /** Denied: the viewer's role can't open `what` (a page's name), or "this page". */
 export function Denied({ what, role }: { what: string | null; role: string | null }) {
@@ -31,6 +31,7 @@ export function Denied({ what, role }: { what: string | null; role: string | nul
 
 /** The Console 404: any `/admin/…` address that is no screen. */
 export function NotFound() {
+  const { openPalette } = useAdminChrome();
   return (
     <Page>
       <Box>
@@ -39,7 +40,9 @@ export function NotFound() {
           <ButtonLink kind="primary" to={NOT_FOUND_COPY.action.to}>
             {NOT_FOUND_COPY.action.label}
           </ButtonLink>
-          <Button aria-disabled="true">{NOT_FOUND_COPY.search}</Button>
+          <Button aria-haspopup="dialog" onClick={openPalette}>
+            {NOT_FOUND_COPY.search}
+          </Button>
         </EmptyActions>
       </Box>
     </Page>

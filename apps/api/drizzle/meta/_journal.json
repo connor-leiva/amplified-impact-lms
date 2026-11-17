@@ -127,6 +127,13 @@
       "when": 1794864780668,
       "tag": "0017_staff_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794887449681,
+      "tag": "0018_masquerade_sessions",
+      "breakpoints": true
     }
   ]
 }
