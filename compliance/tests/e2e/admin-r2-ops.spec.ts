@@ -57,7 +57,8 @@ test.describe('API & Webhooks on R2 (D-165) @g9 @console', () => {
     await expect(first).toContainText('ord_2291');
     await expect(first).toContainText('Failed');
     await first.getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Related incidents' })).toBeDisabled();
+    // D-167: it opens the Incidents screen.
+    await expect(page.getByRole('menuitem', { name: 'Related incidents' })).toBeEnabled();
     await page.getByRole('menuitem', { name: 'Retry now…' }).click();
     const dialog = page.getByRole('dialog', { name: 'Retry order.sync for ord_2291?' });
     await expect(dialog).toContainText('Sends this GoHighLevel delivery again now. Handlers are idempotent, so a repeat is safe.');
@@ -104,12 +105,13 @@ test.describe('Scheduled Jobs on R2 (D-165) @g9 @console', () => {
     await close();
   });
 
-  test('a failed job’s incident waits for the Incidents screen', async ({ browser }) => {
+  test('a failed job’s Open incident goes to the Incidents screen (D-167)', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/jobs');
     const failed = rows(page).filter({ hasText: 'ghl-orders' });
     await failed.getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'Run now is off for ghl-orders' })).toBeDisabled();
-    await expect(page.getByRole('menuitem', { name: 'Open incident' })).toBeDisabled();
+    await page.getByRole('menuitem', { name: 'Open incident' }).click();
+    await expect(page).toHaveURL(/\/admin\/incidents$|\/admin\/incidents\?/);
     await close();
   });
 });

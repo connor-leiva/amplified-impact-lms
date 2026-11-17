@@ -9,6 +9,10 @@
 
 import { OPS_PATHS, isConsoleErrorCode, jobRunPath } from '@ai/core';
 import type {
+  IncidentDetail,
+  IncidentFilters,
+  IncidentRow,
+  IncidentSummary,
   ApiEndpoints,
   ConsoleJobs,
   ConsoleWebhooks,
@@ -159,6 +163,14 @@ export interface ConsoleApi {
   emails(filters: EmailLogFilters, cursor?: string | null): Promise<EmailLogPage>;
   exportEmails(filters: EmailLogFilters): Promise<{ csv: string; filename: string }>;
   usage(query: UsageQuery): Promise<UsageReport>;
+  // PR 8 (D-167): incidents. Each write answers the incident as it now is.
+  incidents(filters: IncidentFilters, cursor?: string | null): Promise<ConsolePage<IncidentRow>>;
+  /** The sidebar's "1 incident": how many are open and not yet acknowledged. */
+  incidentSummary(): Promise<IncidentSummary>;
+  incident(id: string): Promise<IncidentDetail>;
+  ackIncident(id: string): Promise<IncidentDetail>;
+  resolveIncident(id: string, note: string): Promise<IncidentDetail>;
+  noteIncident(id: string, body: string): Promise<IncidentDetail>;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -192,6 +204,11 @@ export function listQuery(values: Record<string, string | number | undefined>, c
   const s = q.toString();
   return s ? `?${s}` : '';
 }
+
+/** A window event the incident screens dispatch after a change, so the sidebar's count reads again. */
+export const INCIDENTS_CHANGED = 'ai-incidents-changed';
+
+const incidentPath = (id: string): string => `/api/console/incidents/${encodeURIComponent(id)}`;
 
 const JSON_POST = (body: unknown): RequestInit => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
@@ -312,6 +329,12 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'email-log.csv') };
     },
     usage: async (u) => json<UsageReport>(await request(fetchImpl, `/api/console/usage${listQuery({ from: u.from, to: u.to, teamId: u.teamId, planKind: u.planKind })}`)),
+    incidents: async (f, cursor) => json<ConsolePage<IncidentRow>>(await request(fetchImpl, `/api/console/incidents${listQuery({ status: f.status }, cursor)}`)),
+    incidentSummary: async () => json<IncidentSummary>(await request(fetchImpl, '/api/console/incidents/summary')),
+    incident: async (id) => json<IncidentDetail>(await request(fetchImpl, incidentPath(id))),
+    ackIncident: async (id) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/ack`, JSON_POST({}))),
+    resolveIncident: async (id, note) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/resolve`, JSON_POST({ note }))),
+    noteIncident: async (id, body) => json<IncidentDetail>(await request(fetchImpl, `${incidentPath(id)}/notes`, JSON_POST({ body }))),
   };
 }
 

@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { avatarColor, fmt, nextSession } from '@ai/core';
+import { avatarColor, consoleCan, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
 import { Icon } from '../../components/Icon';
@@ -22,6 +22,7 @@ import { AdminChromeProvider } from './chrome';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { Wordmark } from './Wordmark';
+import { useOpenIncidents } from './useOpenIncidents';
 import s from './AdminShell.module.css';
 
 // The admin AppShell of the Admin redesign R2 (D-160 R2-1b, BUILD-SPEC § 4), the mockup's frame: the
@@ -99,9 +100,11 @@ export function AdminShell() {
   }, []);
   const role = previewRole ?? staffRole;
 
+  // D-167: the sidebar's "1 incident" from the API, once we know this is not the parity fixture.
+  const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
   const data = useMemo(
-    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role)),
-    [db, parity, role, staffId],
+    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents)),
+    [db, openIncidents, parity, role, staffId],
   );
 
   // ---- the sidebar's form --------------------------------------------------------------------------

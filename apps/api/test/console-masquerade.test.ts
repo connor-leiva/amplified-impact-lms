@@ -528,6 +528,14 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: '/api/console/email/1' },
       { method: 'POST', url: CONSOLE_PATHS.emailLogExport },
       { method: 'GET', url: CONSOLE_PATHS.usage },
+      // PR 8 (D-167): incidents, reads and writes alike.
+      { method: 'GET', url: CONSOLE_PATHS.incidents },
+      { method: 'POST', url: CONSOLE_PATHS.incidents },
+      { method: 'GET', url: CONSOLE_PATHS.incidentSummary },
+      { method: 'GET', url: '/api/console/incidents/INC-0001' },
+      { method: 'POST', url: '/api/console/incidents/INC-0001/ack' },
+      { method: 'POST', url: '/api/console/incidents/INC-0001/resolve' },
+      { method: 'POST', url: '/api/console/incidents/INC-0001/notes' },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);

@@ -74,7 +74,6 @@ export const API_COPY = {
     stripe: 'View in Stripe',
     /** Why "Retry now…" is off on a Stripe row (D13: Stripe deliveries are view-only). */
     stripeViewOnly: 'Stripe deliveries are view-only. Stripe retries them itself.',
-    incidentsLater: 'Incidents arrive with the Incidents screen.',
   },
   retry: {
     title: (event: string, id: string) => `Retry ${event} for ${id}?`,
@@ -252,7 +251,6 @@ export const JOBS_COPY = {
   runNow: 'Run now…',
   off: (job: string) => `Run now is off for ${job}`,
   openIncident: 'Open incident',
-  incidentsLater: 'Incidents arrive with the Incidents screen.',
   confirm: {
     title: (job: string) => `Run ${job} now?`,
     body: (schedule: string) => `Starts one extra run outside the schedule (${schedule.toLowerCase()}). Anything already sent is skipped.`,

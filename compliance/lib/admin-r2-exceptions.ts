@@ -12,23 +12,27 @@
 // phone; the build keeps the 16px phone floor. Each cell below differs from its ref by those values
 // alone, which is proven by measuring it with the mockup's 15px applied temporarily: 0.0000% (0 px).
 //
+// Decision A also covers "any later screen with the same key-facts component" (the shepherd, Nov 17,
+// 2026, 2:00 AM PST): a later 390 cell whose ONLY diff is that text, under ~0.5% and 0 px with the
+// mockup's 15px applied temporarily, joins the list by name, recorded in D-160 and its PR.
+//
 // How `pnpm parity:admin-r2` treats a listed cell: it is ENFORCED, and it passes only with IDENTICAL
 // width × height (its ref's, recorded below) AND at most its recorded ceiling of differing pixels, the
 // exact count measured at the last runs. It is reported as "PASS (approved exception, D-160)". Nothing
 // else changes: every other cell keeps the 0.1% rule (`MAX_DIFF_RATIO`), and there is no mask.
 //
-// Only the three cells decision A names may ever be listed (`ALLOWED_EXCEPTION_CELLS`), each 390 wide
-// with a ceiling under 0.5%. The list is checked when this module loads and by the runner's own test
-// (`admin-r2-parity.spec.ts`, "approved exceptions"). Each R2 PR adds its own cell when it lands: R2-2b
+// Only the cells named in `ALLOWED_EXCEPTION_CELLS` may ever be listed, each 390 wide with a ceiling
+// under 0.5%. The list is checked when this module loads and by the runner's own test
+// (`admin-r2-parity.spec.ts`, "approved exceptions"). Each PR adds its own cell when it lands: R2-2b
 // (#138) `cohorts-sessions-390`, R2-1c part 1 (#136) `workspace-detail-390`, R2-1c part 2 (#141)
-// `user-390`.
+// `user-390`, and Console PR 8 (#152, D-167) `incident-390`, a later screen with the same key facts.
 
 /** Where the decision is recorded. */
 export const EXCEPTION_DECISION = 'D-160, Connor, Nov 16, 2026, 8:27 AM MST' as const;
 /** The one reason decision A accepts. */
 export const EXCEPTION_REASON = '15px vs 16px phone key-facts text; the build keeps the 16px floor' as const;
-/** The cells decision A names. The list below holds some of these and nothing else. */
-export const ALLOWED_EXCEPTION_CELLS = ['cohorts-sessions-390', 'workspace-detail-390', 'user-390'] as const;
+/** The cells decision A names, and the later ones it covers by name. The list below holds these and nothing else. */
+export const ALLOWED_EXCEPTION_CELLS = ['cohorts-sessions-390', 'workspace-detail-390', 'user-390', 'incident-390'] as const;
 /** Every ceiling must be under this % of the cell's pixels. */
 export const EXCEPTION_CEILING_LIMIT_PCT = 0.5;
 
@@ -83,6 +87,18 @@ export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 141,
+  },
+  // Console PR 8 (#152, D-167): Incident (INC-0007) on a phone, a later screen with the same key-facts
+  // component. Its key facts' values: the incident id, status, severity, owner and opened (y 316–475).
+  {
+    cell: 'incident-390',
+    width: 390,
+    height: 1085,
+    ceilingPx: 1369,
+    ceilingPct: 0.3235,
+    reason: EXCEPTION_REASON,
+    ref: EXCEPTION_DECISION,
+    pr: 152,
   },
 ];
 
