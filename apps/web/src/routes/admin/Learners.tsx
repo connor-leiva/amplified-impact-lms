@@ -6,9 +6,7 @@ import { userPath, workspacePath } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/r2/Button';
 import { Drawer } from '../../components/r2/Drawer';
-import { Menu } from '../../components/r2/Menu';
 import type { MenuEntry } from '../../components/r2/Menu';
-import { Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
@@ -17,7 +15,6 @@ import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
-import { overviewVM } from './Overview.vm';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
 import s from './Learners.module.css';
@@ -32,20 +29,10 @@ import s from './Learners.module.css';
 //   - "Open user record" opens the learner's User page and the Teams tab's "Open workspace" the team's
 //     Workspace (D-160 R2-1c part 2): a learner's id is their `users.id` and a team's its `teams.id`,
 //     the ids those pages take. "Masquerade…" stays disabled until the Masquerade PR.
-//   - The page's "…" keeps what the old screens offered and the mockup does not draw: Export roster,
-//     and the Overview's Needs Attention list with its nudges (Needs Connor's call, D-160 R2-3).
-
-/** Phase 08 § 8.2 does not touch this: the roster is generated from the snapshot, never stored. */
-function downloadText(name: string, text: string, mime: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: mime }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
+//   - The head is the mockup's exactly: no page-level "…" (D-160 R2-3a, the shepherd's eye check). The
+//     old screens' Export roster and the Needs Attention list with Nudge All have no surface the mockup
+//     draws, so they are not offered here (Needs Connor's call); each learner's nudge stays in their
+//     details drawer.
 
 const NOT_YET = 'Not available yet';
 
@@ -61,12 +48,10 @@ function Learners() {
   const [q, setQ] = useState('');
   const [tier, setTier] = useState<R2TierFilter>('All tiers');
   const [sel, setSel] = useState<string | null>(null);
-  const [attention, setAttention] = useState(false);
 
   const vm = useMemo(() => learnersR2VM(db, now, { tier, q }), [db, now, tier, q]);
   const person = useMemo(() => learnersVM(db, now, { ...LEARNERS_UI, sel }).drawer.person, [db, now, sel]);
   const details = person ? learnerR2Details(db, person) : null;
-  const risk = useMemo(() => (attention ? overviewVM(db, now).risk : []), [attention, db, now]);
 
   const changeTier = useCallback(async () => {
     if (!person) return;
@@ -87,12 +72,6 @@ function Learners() {
     },
     [mutate, toast],
   );
-
-  const exportRoster = useCallback(() => {
-    const v = learnersVM(db, now, LEARNERS_UI);
-    downloadText(v.csvName, v.csvText, 'text/csv');
-    toast('Roster exported');
-  }, [db, now, toast]);
 
   const filtered = q !== '' || tier !== 'All tiers';
 
@@ -164,31 +143,14 @@ function Learners() {
     { label: 'Masquerade…', icon: 'r2Masquerade', disabled: true, title: NOT_YET, onSelect: () => {} },
   ];
 
-  const pageMenu: MenuEntry[] = [
-    { label: 'Export roster', icon: 'r2Download', onSelect: exportRoster },
-    { label: 'Learners who need attention', icon: 'r2Learners', onSelect: () => setAttention(true) },
-  ];
-
   const cohortName = db.cohorts.find((c) => c.id === 'dec26')?.name ?? db.cohorts[0]?.name ?? 'current';
 
   return (
     <Page>
-      <div className={s.head}>
-        <PageHead
-          title="Learners & Teams"
-          description={`Everyone enrolled in the ${cohortName} Cohort, with build progress. Account and billing support lives in Workspaces and Users.`}
-        />
-        <Menu
-          label="Learners & Teams actions"
-          items={pageMenu}
-          className={s.more}
-          trigger={(t) => (
-            <button type="button" className={k.ib} aria-label="More actions" {...t.props} onClick={t.toggle}>
-              <Icon name="r2More" size={16} strokeWidth={2.6} />
-            </button>
-          )}
-        />
-      </div>
+      <PageHead
+        title="Learners & Teams"
+        description={`Everyone enrolled in the ${cohortName} Cohort, with build progress. Account and billing support lives in Workspaces and Users.`}
+      />
 
       <Tabs
         label="Section"
@@ -271,42 +233,6 @@ function Learners() {
             </div>
           </div>
         </Drawer>
-      ) : null}
-
-      {attention ? (
-        <Modal
-          title="Needs Attention"
-          width={560}
-          onClose={() => setAttention(false)}
-          foot={
-            <>
-              <Button onClick={() => setAttention(false)}>Close</Button>
-              {risk.length ? (
-                <Button kind="primary" icon="r2Announce" onClick={() => void nudge(risk.map((r) => r.id))}>
-                  Nudge All
-                </Button>
-              ) : null}
-            </>
-          }
-        >
-          <p className={clsx(k.p, k.s2)}>No build progress or inactive for 5+ days</p>
-          {risk.length ? (
-            <div className={s.risk}>
-              {risk.map((r) => (
-                <div key={r.id} className={clsx(k.li, s.riskRow)}>
-                  <div className={clsx(k.col, k.col0, s.riskWho)}>
-                    <span className={k.w5}>{r.name}</span>
-                    <span className={k.me}>{r.sub}</span>
-                  </div>
-                  <Pill tone="warn">{r.reason}</Pill>
-                  <Button onClick={() => void nudge([r.id])}>{r.btn}</Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className={clsx(k.p, k.mu)}>Everyone is moving. Nice.</p>
-          )}
-        </Modal>
       ) : null}
     </Page>
   );

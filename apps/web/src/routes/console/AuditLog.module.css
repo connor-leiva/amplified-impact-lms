@@ -1,9 +1,5 @@
 /* The Audit Log on R2 (D-160 R2-3b): what the mockup's `Audit` writes inline, on the R2 kit, and the
-   pieces it does not draw (the Outcome filter's "…", Load More, an empty state's action, the drawer's
-   JSON). Tokens only. */
-.more {
-  flex: none;
-}
+   pieces it does not draw (Load More, an empty state's action, the drawer's JSON). Tokens only. */
 .cta {
   margin-top: 10px;
 }

@@ -82,3 +82,15 @@
   color: var(--r2-f2);
   text-wrap: pretty;
 }
+/* The mockup's `.me` under every confirm: "This action is audit-logged." */
+.note {
+  margin: 0;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+}
+/* D-160 R2-3b: a refusal, in the dialog (no mockup frame; the R2 error colour). */
+.error {
+  margin: 0;
+  color: var(--r2-bad);
+}

@@ -628,7 +628,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
-    await registerConsoleRoutes(app, {});
+    await registerConsoleRoutes(app, { broadcast });
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

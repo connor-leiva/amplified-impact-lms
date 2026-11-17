@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { consoleCan } from '@ai/core';
 import type { ConsoleMe } from '@ai/core';
 import { useDb, useViewer } from '../../data/hooks';
 import { ConsoleError, consoleApi } from '../../data/console';
@@ -40,7 +39,8 @@ export function useConsoleGate(screen: ConsoleScreen | null): Gate {
         const api = await consoleApi();
         const me = await api.me();
         if (!alive) return;
-        if (screen && !consoleCan(me.role, CONSOLE_SCREENS[screen].cap)) setGate({ kind: 'denied', role: me.role });
+        // The server's list (D-160 R2-3b): the ceiling less any row the Owner took from this role.
+        if (screen && !me.caps.includes(CONSOLE_SCREENS[screen].cap)) setGate({ kind: 'denied', role: me.role });
         else setGate({ kind: 'ready', api, me });
       } catch (e) {
         if (!alive) return;

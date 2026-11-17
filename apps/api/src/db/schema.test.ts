@@ -14,7 +14,7 @@
 import { describe, it, expect } from 'vitest';
 import { is, getTableColumns } from 'drizzle-orm';
 import { PgTable, getTableConfig } from 'drizzle-orm/pg-core';
-import { fmt, seed } from '@ai/core';
+import { EDITABLE_ROLES, ROLE_ROW_KEYS, fmt, seed } from '@ai/core';
 import * as schema from './schema';
 
 const db = seed('live');
@@ -128,6 +128,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['action', 'actor_role', 'actor_source', 'actor_user_id', 'after', 'at', 'before', 'id', 'ip', 'masquerade_session_id', 'outcome', 'reason', 'request_id', 'target_id', 'target_label', 'target_type', 'user_agent'],
     gate: 9,
   },
+  // D-160 R2-3b: the Owner's changes to the Roles & Permissions matrix. Not a `Db` record, like `orders`.
+  consoleRoleGrants: { table: 'console_role_grants', columns: ['allowed', 'capability', 'role', 'updated_at', 'updated_by'], gate: 9 },
   // D-158: the Admin Console's staff notes (spec § 7.3). Not a `Db` record, like `audit_log`.
   staffNotes: {
     table: 'staff_notes',
@@ -316,6 +318,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
   // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
   ['auditLog', 'at'],
+  // D-160 R2-3b: when the Owner last changed a matrix row, `clock.now()`.
+  ['consoleRoleGrants', 'updatedAt'],
   // D-158: when a staff note was written, and when it was deleted, as `clock.now()` stamps them.
   ['staffNotes', 'createdAt'],
   ['staffNotes', 'deletedAt'],
@@ -373,6 +377,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
+  consoleRoleGrants: { unit: 'epoch-ms', why: 'D-160 R2-3b: updated_at is clock.now() as written by console/roles.ts; no reader converts it' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
 };
 
@@ -528,6 +533,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   jobRuns: ['job', 'key'],
   // D-148: an address is on a group's list once. The pair is the key, so listing it twice is a no-op.
   accessGroupMembers: ['group_id', 'email'],
+  // D-160 R2-3b: one stored change per role and matrix row; a second change to the pair replaces it.
+  consoleRoleGrants: ['role', 'capability'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {
@@ -621,5 +628,21 @@ describe('unique indexes @g9', () => {
     // A new index is a new rule about which rows may coexist, which is worth a line here.
     const indexed = tables.filter(([, t]) => getTableConfig(t).indexes.length > 0).map(([n]) => n);
     expect(indexed.sort()).toEqual([...Object.keys(UNIQUE_INDEXES), ...Object.keys(LOOKUP_INDEXES)].sort());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// D-160 R2-3b: the Roles & Permissions changes' CHECKs are core's lists, typed out in schema.ts.
+// ---------------------------------------------------------------------------
+
+describe('console_role_grants checks @g9', () => {
+  const checksOf = (t: PgTable) =>
+    Object.fromEntries(getTableConfig(t).checks.map((c) => [c.name, String((c.value as unknown as { queryChunks: unknown[] }).queryChunks.map((q) => (typeof q === 'object' && q && 'value' in q ? (q as { value: string[] }).value.join('') : '')).join(''))]));
+
+  it('keeps the role to Admin and Support and the row to the matrix’s nine', () => {
+    const checks = checksOf(tableOf('consoleRoleGrants'));
+    expect(Object.keys(checks).sort()).toEqual(['console_role_grants_capability', 'console_role_grants_role']);
+    expect(checks.console_role_grants_role).toContain(`in (${EDITABLE_ROLES.map((r) => `'${r}'`).join(', ')})`);
+    expect(checks.console_role_grants_capability).toContain(`in (${ROLE_ROW_KEYS.map((r) => `'${r}'`).join(', ')})`);
   });
 });
