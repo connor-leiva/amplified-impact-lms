@@ -74,6 +74,7 @@ import { landingFor } from '../lib/landing';
 import { AUTH_REQUEST_IP_MAX, AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForSelfServe, claimToken } from './auth';
 import { domainGroupsOf } from '../billing/access-groups';
 import { selfServeAddress } from '../billing/self-serve';
+import { recordUsage } from '../lib/usage';
 
 // --- words -----------------------------------------------------------------------------------------
 
@@ -158,6 +159,7 @@ async function signIn(db: Database, reply: FastifyReply, userId: string, now: nu
   const sessionId = await createSession(db, userId, now, { remember });
   await markActive(db, userId, now);
   reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember }));
+  recordUsage(reply.request, userId, 'sign_in'); // D-166: a usage count, after the sign-in; it changes nothing here.
 }
 
 // --- the welcome page's button ---------------------------------------------------------------------

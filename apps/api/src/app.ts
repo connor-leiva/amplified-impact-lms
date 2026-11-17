@@ -69,7 +69,8 @@ import type { FastifyError, FastifyInstance, FastifyRequest, FastifyServerOption
 import { createSession, decorateViewer, readSessionSecret, SESSION_COOKIE, settleEmails } from './auth';
 import { close as closeDatabase, getDb } from './db/client';
 import { renderTemplate } from './email/templates';
-import { setRenderer } from './email/transport';
+import { setRenderer, setSendObserver } from './email/transport';
+import { logSend } from './email/log';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerLegalPages } from './routes/legal';
@@ -644,6 +645,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // from the renderer, so registering it is what turns the nine templates on; without it every
     // email goes out with no body and `sendViaResend` refuses to send at all.
     setRenderer(renderTemplate);
+    // D-166: the email log, written after each send and never in its way (`email/log.ts`).
+    setSendObserver(logSend);
 
     events = registerEventsRoute(app);
     // A thunk, not `events.broadcast` by reference: the routes then call whatever the hub's

@@ -671,6 +671,12 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/webhooks/ghl/retry', methods: 'POST', guard: 'session' },
   { path: '/api/console/jobs', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/jobs/:job/run', methods: 'POST', guard: 'session' },
+  // Admin Console PR 7 (D-166): the email log and usage. Signed in, then by capability
+  // (`test/console-authz.test.ts`).
+  { path: '/api/console/email', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/email/:id', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/email/export', methods: 'POST', guard: 'session' },
+  { path: '/api/console/usage', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -1202,6 +1208,12 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/jobs': () => app.inject({ method: 'GET', url: '/api/console/jobs' }),
           '/api/console/jobs/:job/run': () =>
             app.inject({ method: 'POST', url: '/api/console/jobs/session-24h/run', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          // Admin Console PR 7 (D-166).
+          '/api/console/email': () => app.inject({ method: 'GET', url: '/api/console/email' }),
+          '/api/console/email/:id': () => app.inject({ method: 'GET', url: '/api/console/email/1' }),
+          '/api/console/email/export': () =>
+            app.inject({ method: 'POST', url: '/api/console/email/export', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/usage': () => app.inject({ method: 'GET', url: '/api/console/usage' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1381,9 +1393,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
     // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
     // with Console PR 2's nine (D-158), 40 with masquerade's five (D-162), 47 with Billing's seven
-    // (D-163), 51 with Billing's refund and void, previews included (D-164), and 56 with API & Webhooks
-    // and Scheduled Jobs' five (D-165).
-    expect(EXECUTED.unauthenticated).toBe(56);
+    // (D-163), 51 with Billing's refund and void, previews included (D-164), 56 with API & Webhooks
+    // and Scheduled Jobs' five (D-165), and 60 with the email log's and usage's four (D-166).
+    expect(EXECUTED.unauthenticated).toBe(60);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1396,8 +1408,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
     // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
     // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163), + 4 for
-    // its refund and void (D-164) and + 5 for API & Webhooks and Scheduled Jobs (D-165), probed
-    // unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5);
+    // its refund and void (D-164), + 5 for API & Webhooks and Scheduled Jobs (D-165) and + 4 for the
+    // email log's and usage's (D-166), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4);
   });
 });
