@@ -333,7 +333,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:SH-7 a visible trail above the week and the step: Home, the week, the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:SH-7 Home, the week, and the step on a step",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:SH-7 the week and the step show a visible trail"
+      ]
     },
     {
       "id": "SH-8",
@@ -356,7 +360,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:SH-9 the cohort line under the wordmark",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:SH-9 the cohort line for a learner in the course, and none without the course",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:SH-9 the cohort line is in the sidebar"
+      ]
     },
     {
       "id": "SH-10",
@@ -576,7 +584,7 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: \\\"Your Cohort Wrapped\\\", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3"
       ]
     },
     {
@@ -680,15 +688,18 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/components/replay/HlsEngine.test.ts › a recording whose length the snapshot doesn’t give (D-183) › learns the length from the element’s metadata, tells its listener, and plays before it is known @parity:E-1 @parity:MO-5",
         "apps/web/src/components/replay/HlsEngine.test.ts › a video file, played by the element itself (D-183) › sets the element’s source, fetches no hls.js, and holds a seek until the metadata loads @parity:E-1",
         "apps/web/src/components/replay/source.test.ts › the replay link, classified (D-183) › plays an HLS manifest and a video file; offers any other page as a link @parity:E-1",
         "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
-        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and \\\"Watch at mm:ss\\\" seeks it to the step’s chapter @parity:E-17 @parity:E-1",
-        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: \\\"Watch Replay\\\" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and “Watch at mm:ss” seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no \\\"Watch at\\\" @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › the module’s manifest with no length plays too; a page on another site draws its link @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and \\\"Watch at mm:ss\\\" for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
@@ -783,7 +794,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › the replay’s saved position (D-183) › resumes where the learner left off, and saves the position on page hide, under today’s key @parity:E-7"
+      ]
     },
     {
       "id": "E-8",
@@ -796,7 +809,7 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the \\\"Replay Processing\\\" state until a replay is published @parity:C-2 @parity:E-8"
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the “Replay Processing” state until a replay is published @parity:C-2 @parity:E-8"
       ]
     },
     {
@@ -825,7 +838,12 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 @parity:E-13 the system prompt with View and Copy, its variables, and the instructor notes",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 the step player shows the week’s prompt in its kit",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-10 @parity:C-10 the system prompt: its stats, its text to view and copy, and its variables",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-10 @parity:C-10 the kit’s system prompt copies to the clipboard, and opens to view"
+      ]
     },
     {
       "id": "E-11",
@@ -837,7 +855,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-11 @parity:A-9 a module file downloads through the gated files route, and previews",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-11 @parity:A-9 the module’s files, each downloaded through the gated files route; a Notion template only previews",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route"
+      ]
     },
     {
       "id": "E-12",
@@ -863,7 +885,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 @parity:E-13 the system prompt with View and Copy, its variables, and the instructor notes",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-13 the instructor notes, with who wrote them"
+      ]
     },
     {
       "id": "E-14",
@@ -897,6 +922,8 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Learn.test.tsx › the step player (D-177) › @parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-16 a done step’s button reads Undo, and the same toggle takes it back",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the steps: done, current, to do; Mark step done toggles @parity:E-16"
       ]
     },
@@ -912,8 +939,8 @@
       "by": "claude/learner-pr9b-parity",
       "tests": [
         "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
-        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and \\\"Watch at mm:ss\\\" seeks it to the step’s chapter @parity:E-17 @parity:E-1",
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and \\\"Watch at mm:ss\\\" for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and “Watch at mm:ss” seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
       ]
     },
@@ -928,7 +955,11 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "note": "Best call: CHANGED and not named in Connor’s § 2. The week header’s outcome, time and owner/operator lines come with the week content on claude/learner-pr9c-content. The runtime token goes with E-14.",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:E-18 the header line: From Session N to the Schedule, or Self-Paced, the build minutes and who it’s for",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title"
+      ]
     },
     {
       "id": "E-19",
@@ -967,7 +998,10 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "note": "Unverified in the inventory; restored by claude/learner-pr9c-content (the staff \"Preview only\" behavior on module files).",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-21 in a staff member’s preview tab a module file says Preview only, and opens nothing",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-21 in a staff member’s preview tab a module file says Preview only"
+      ]
     },
     {
       "id": "E-22",
@@ -1104,7 +1138,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-2",
@@ -1116,7 +1154,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-3",
@@ -1128,7 +1170,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-4",
@@ -1140,7 +1186,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-5",
@@ -1152,6 +1202,9 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-5 @parity:K-15 a week’s question under its title, its skills tagged with their role and Free, the Library link, and its seat and playbook cards",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-5 a week’s skills carry their role and Free, as the course page tags them, and the kit links the Skill Library",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the week’s steps open in the step player, and its skills link to the library @parity:K-5"
       ]
     },
@@ -1165,7 +1218,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-7",
@@ -1177,7 +1234,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-8",
@@ -1189,7 +1250,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-8 @parity:K-10 How It Works on the course’s first week, the graduation and after-the-course paths on its last"
+      ]
     },
     {
       "id": "K-9",
@@ -1215,7 +1279,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-8 @parity:K-10 How It Works on the course’s first week, the graduation and after-the-course paths on its last"
+      ]
     },
     {
       "id": "K-11",
@@ -1240,7 +1306,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-12 Previous and Next week, each to its own week page",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
     },
     {
       "id": "K-13",
@@ -1252,7 +1321,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s downloads (D-184) › @parity:K-13 the per-week templates on their weeks; the worksheet and practice set only while the practice set note is set",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-13 the CSV downloads appear on their week, and nowhere else"
+      ]
     },
     {
       "id": "K-14",
@@ -1279,7 +1352,14 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-5 @parity:K-15 a week’s question under its title, its skills tagged with their role and Free, the Library link, and its seat and playbook cards",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-15 the seat card and the playbook card, as `GET /api/course` now sends them, each row the builder filled",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 a learner’s snapshot never carries them, open week or not, course or no course",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 a locked week sends neither: its stub is the outline’s, and none of a card’s words are in the answer",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 an open week carries its seat card and playbook card, exactly as the builder saved them"
+      ]
     },
     {
       "id": "K-16",
@@ -1523,7 +1603,12 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, linking today’s page",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 no Team Hub for an Agent tier learner",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, never for an Agent tier one",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:T-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one"
+      ]
     },
     {
       "id": "T-2",
@@ -1788,6 +1873,9 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-11 @parity:A-9 a module file downloads through the gated files route, and previews",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-11 @parity:A-9 the module’s files, each downloaded through the gated files route; a Notion template only previews",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route",
         "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a module file in the week kit downloads from the module files route @parity:A-9"
       ]
     },
@@ -2163,9 +2251,10 @@
       "by": "claude/learner-pr9b-parity",
       "tests": [
         "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2",
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the \\\"Replay Processing\\\" state until a replay is published @parity:C-2 @parity:E-8",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the “Replay Processing” state until a replay is published @parity:C-2 @parity:E-8",
         "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › End Session takes Live now and Join away at once, even on a browser clock a few seconds behind the server’s @parity:C-2",
         "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3"
       ]
     },
@@ -2180,11 +2269,11 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: \\\"Your Cohort Wrapped\\\", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3",
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3",
         "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3",
-        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: \\\"Watch Replay\\\" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
-        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no \\\"Watch at\\\" @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
         "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
@@ -2290,7 +2379,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/admin/WeekBuilder.test.tsx › the live preview from the unsaved draft (D-174, D-184) › @parity:C-9 draws the learner portal’s week page and step player from the draft: an unsaved edit shows, as an owner, a Utah Life member and before launch",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:C-9 the builder’s live preview draws the learner portal’s week page and step player, and never leaves the builder"
+      ]
     },
     {
       "id": "C-10",
@@ -2302,7 +2394,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-10 @parity:C-10 the system prompt: its stats, its text to view and copy, and its variables",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-10 @parity:C-10 the kit’s system prompt copies to the clipboard, and opens to view"
+      ]
     },
     {
       "id": "C-11",
@@ -2694,6 +2789,8 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/components/replay/HlsEngine.test.ts › a recording whose length the snapshot doesn’t give (D-183) › learns the length from the element’s metadata, tells its listener, and plays before it is known @parity:E-1 @parity:MO-5",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Home with the announcement and Join at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live week at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live-build step with its replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
@@ -2760,6 +2857,9 @@
       "by": "unassigned (found by the parity suite; needs an owner, or Connor's call to drop it)",
       "added": "Not in the inventory. Today: apps/web/src/routes/course/Course.tsx:477 sets document.title per week; no /learn screen sets one.",
       "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:X-2 the tab is named after the week, and a step after itself and its week, as the course page names it",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: found beyond the inventory › a course week’s page names the browser tab after the week @parity:X-2"
       ]
     }

@@ -181,7 +181,7 @@ test.describe('learner parity: the shell (KEPT)', () => {
     for (let n = 1; n <= 6; n++) {
       await visit(page, `/learn/week/1/step/${n}`);
       await page.getByRole('button', { name: 'Mark step done' }).click();
-      await expect(page.getByRole('button', { name: /Mark step done|Undo/ })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: 'Undo', exact: true })).toBeVisible();
     }
     // The sixth step's mutation answers a toast and confetti (`toggleStep`'s effects), drawn by the shell's providers.
     await expect(page.locator('[role="status"], [role="alert"]').filter({ hasText: /\S/ }).first()).toBeVisible();
@@ -318,17 +318,19 @@ test.describe('learner parity: a week and the step player (KEPT)', () => {
 
   test('the steps: done, current, to do; Mark step done toggles @parity:E-16', async ({ browser }) => {
     const page = await openWorld(browser, '/learn/week/1/step/1');
+    // The button says what a click does (E-16: "Undo" once the step is done), so its label carries the
+    // state; a button whose name changes takes no `aria-pressed` as well.
     const mark = page.getByRole('button', { name: /^(Mark step done|Undo)$/ });
-    await expect(mark).toHaveAttribute('aria-pressed', 'false');
+    await expect(mark).toHaveAccessibleName('Mark step done');
     await mark.click();
-    await expect(mark).toHaveAttribute('aria-pressed', 'true');
+    await expect(mark).toHaveAccessibleName('Undo');
     await expect(
       page
         .getByRole('navigation', { name: 'Where the Money Goes steps' })
         .getByRole('link', { name: /^Step 1, Run Map Your Spend, done/ }),
     ).toBeVisible();
     await mark.click();
-    await expect(mark).toHaveAttribute('aria-pressed', 'false');
+    await expect(mark).toHaveAccessibleName('Mark step done');
     await page.context().close();
   });
 
