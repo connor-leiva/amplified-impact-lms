@@ -12,7 +12,7 @@
 //
 // Markup and the browser's wiring only: every string is the view-model's.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, MouseEvent, MutableRefObject } from 'react';
 import type { AIEmployee } from '@ai/core';
 import { Icon } from '../../components/Icon';
@@ -71,7 +71,9 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
 
   const patch = useCallback((p: Partial<ReplayUi>) => setUi((prev) => ({ ...prev, ...p })), []);
 
-  useEffect(() => {
+  // Layout effects, not passive ones: the engine and the seek handle the step's "Watch at" calls exist as
+  // soon as the player is drawn, so a click that comes right away is never dropped.
+  useLayoutEffect(() => {
     const e = engineFor(kind === 'hls' || kind === 'file' ? { kind, src } : null, m.dur, pos.current, video.current);
     engine.current = e;
     ticks.current = 0;
@@ -119,7 +121,7 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
     [dur, playsHere, patch],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!seekRef) return;
     seekRef.current = link ? null : seek;
     return () => {
