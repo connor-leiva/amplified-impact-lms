@@ -37,7 +37,9 @@ function jsonOf<T>(stdout: string, open: '{' | '['): T | null {
   return at < 0 ? null : (JSON.parse(lines.slice(at).join('\n')) as T);
 }
 
-const TAG = /@parity:(\S*)/g;
+// An ID is letters, digits and hyphens (`E-8`, `X-2`): punctuation after it (a closing quote or
+// bracket in the title) is not part of the tag.
+const TAG = /@parity:([A-Za-z0-9-]*)/g;
 const SEP = ' › ';
 
 /** Every `@parity:` value in a title, as written (the checker decides whether each is a known ID). */

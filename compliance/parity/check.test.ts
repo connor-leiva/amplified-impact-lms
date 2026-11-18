@@ -78,6 +78,7 @@ describe('tags', () => {
   it('reads every @parity: tag in a title', () => {
     assert.deepEqual(tagsOf('Join opens 15 minutes early @parity:S-2 @parity:D-2'), ['S-2', 'D-2']);
     assert.deepEqual(tagsOf('no tags here'), []);
+    assert.deepEqual(tagsOf('shows "Replay Processing @parity:E-8" (@parity:D-6)'), ['E-8', 'D-6']);
     assert.deepEqual(tagsOf('@parity:'), ['']);
   });
 });
