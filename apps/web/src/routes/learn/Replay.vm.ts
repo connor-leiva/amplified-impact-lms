@@ -16,6 +16,7 @@ import type { ReplaySource } from '../../components/replay/source';
 import type { ReplayUi, ReplayVM } from '../../components/replay/replay.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
 import { sessionPhase } from '@ai/core/learner';
+import { replayVisibleTo } from '@ai/core/scope';
 import { LABELS, joinNow } from './learn.vm';
 import type { JoinVM, WeekRow } from './learn.vm';
 
@@ -122,12 +123,20 @@ const ownSessions = (p: CoursePayload, week: number): CourseSession[] => p.sessi
 
 /**
  * What the week page draws under its header (D-183): its live session's Join, replay or "Replay
- * Processing". A locked week sends no content and so has no replay; Join still shows while one of its
- * sessions is on.
+ * Processing". A locked week sends no content; Join still shows while one of its sessions is on, and
+ * (D-187) a replay staff set Published shows in its preview as soon as it is ready, since the learner's
+ * snapshot then carries it. A locked week never says "Replay Processing".
  */
 export function weekLiveVM(p: CoursePayload, rows: readonly WeekRow[], who: ReplayWho, week: number, now: number): WeekSessionVM {
   const row = rows.find((r) => r.week === week);
-  return weekSessionVM(ownSessions(p, week), row && row.state !== 'locked' ? row.module : undefined, who, now);
+  const vm = weekSessionVM(ownSessions(p, week), row?.module, who, now);
+  if (row?.state !== 'locked' || !vm || vm.kind === 'join') return vm;
+  if (vm.kind !== 'replay') return null;
+  // The server already sends a locked week's replay only when it is Published (`scope.ts`); the same rule
+  // here keeps a snapshot that wasn't scoped (the fixture build's) from showing one early.
+  const m = row.module;
+  const sess = m?.session ? sessionFor(who.db, who.me?.cohortId ?? ACCELERATOR_COHORT_ID, m.session) : null;
+  return sess && replayVisibleTo(sess, { access: true, open: false }) ? vm : null;
 }
 
 /**

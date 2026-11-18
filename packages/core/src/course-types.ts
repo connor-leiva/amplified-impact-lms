@@ -200,6 +200,11 @@ export interface CourseIntro {
   holiday: string;
   /** How a learner joins a live session. Never a Zoom URL: only the join route hands that out. */
   join: { label: string; note: string; path: string };
+  /**
+   * D-187: the cohort community's address (an http or https link), set in the builder's Shared pages.
+   * Absent or empty, the learner portal shows no community link.
+   */
+  community?: string;
 }
 
 export interface CourseShared {

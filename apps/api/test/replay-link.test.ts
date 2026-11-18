@@ -1,6 +1,6 @@
 // D-183 over HTTP: a learner's snapshot carries the recording staff attach to a session (D-172's Attach
-// replay) only once it is published to them, never for another cohort, never for a locked week; the Zoom
-// link stays blank and staff see every link. Against a real Postgres seeded as production is, after the
+// replay) only once it is published to them, never for another cohort, never for a locked week unless
+// staff set it Published (D-187); the Zoom link stays blank and staff see every link. Against a real Postgres seeded as production is, after the
 // deploy's release plan; the buyer is made by the real provisioning path; the clock is FIXED_NOW.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
@@ -95,12 +95,32 @@ describe('the replay link a learner receives (D-183) @replay-link', () => {
     expect(JSON.stringify(theirs)).not.toContain(URL);
   });
 
-  it('never for a locked week, even with the replay ready', async () => {
+  it('never for a locked week while its replay waits for the week: After the week opens, or not set @parity:C-3', async () => {
     // Week 2's build is Dec 9; on Dec 5 the week is locked. A ready replay with a link, put straight in.
-    await handle.execute(sql.raw(`update sessions set replay = 'ready', replay_url = '${URL}' where id = 'dec26-s2'`));
-    expect((await sessions('staff')).find((s) => s.id === 'dec26-s2')!.replayUrl).toBe(URL);
+    for (const v of [null, 'after_open'] as const) {
+      await handle.execute(sql.raw(`update sessions set replay = 'ready', replay_url = '${URL}', replay_visibility = ${v === null ? 'null' : `'${v}'`} where id = 'dec26-s2'`));
+      expect((await sessions('staff')).find((s) => s.id === 'dec26-s2')!.replayUrl).toBe(URL);
+      const s = (await sessions('buyer')).find((x) => x.id === 'dec26-s2')!;
+      expect(s).not.toHaveProperty('replayUrl');
+      expect(s.replay).toBeNull();
+    }
+  });
+
+  it('D-187: a Published replay shows as soon as it is ready, even while its week is locked @parity:C-3 @parity:E-1', async () => {
+    await handle.execute(sql.raw(`update sessions set replay = 'ready', replay_url = '${URL}', replay_visibility = 'published' where id = 'dec26-s2'`));
     const s = (await sessions('buyer')).find((x) => x.id === 'dec26-s2')!;
-    expect(s).not.toHaveProperty('replayUrl');
-    expect(s.replay).toBeNull();
+    expect(s).toMatchObject({ replay: 'ready', replayUrl: URL, zoom: '' });
+    // Another cohort still gets nothing of it.
+    expect(JSON.stringify(await sessions('other'))).not.toContain(URL);
+  });
+
+  it('D-187: After the week opens shows once the week opens', async () => {
+    await handle.execute(sql.raw(`update sessions set replay = 'ready', replay_url = '${URL}', replay_visibility = 'after_open' where id = 'dec26-s2'`));
+    expect((await sessions('buyer')).find((x) => x.id === 'dec26-s2')).not.toHaveProperty('replayUrl');
+    // Dec 10: Week 2 opened at its build, Dec 9 at 12:00 PM MT.
+    await app.close();
+    at(MT('2026-12-10T10:00:00'));
+    app = await build({ logger: false });
+    expect((await sessions('buyer')).find((x) => x.id === 'dec26-s2')).toMatchObject({ replay: 'ready', replayUrl: URL });
   });
 });

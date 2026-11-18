@@ -7,10 +7,11 @@
 //
 //   /                          /learn
 //   /sessions                  /learn/schedule
-//   /employees/:id             /learn/week/:n for a course week's module (`accelerator-week-N`), else /learn
+//   /employees/:id             /learn/week/:n for a course week's module (`accelerator-week-N`), else that
+//                              AI Employee's own page, /learn/employees/:id (D-186)
 //   /team                      /learn/team (the Team Hub, D-182)
 //   /vault                     /learn/vault (the Resource Vault, D-182)
-//   /team-tier                 /learn (the prototype's upsell; no plan sells it, D-182)
+//   /team-tier                 /learn?plan=team, Home with the Team Plan window open (D-187)
 //   /course                    /learn
 //   /course/:week              /learn/week/:n (`/course/week-3` is Week 3), else /learn
 //   /skill-library             /learn/skills
@@ -25,7 +26,8 @@
 import { Navigate, useLocation, useParams } from 'react-router';
 import { ACCELERATOR_WEEKS, acceleratorModuleId } from '@ai/core/accelerator';
 import { weekFromParam } from '../course/Course.vm';
-import { learnHome, learnSchedule, learnSkill, learnSkills, learnTeam, learnVault, learnWeek } from './routes';
+import { learnEmployee, learnHome, learnSchedule, learnSkill, learnSkills, learnTeam, learnVault, learnWeek } from './routes';
+import { teamPlanHref } from './TeamPlan.vm';
 
 /**
  * A course week's page, from its module's id (`accelerator-week-3` is Week 3), or null for any other id.
@@ -49,18 +51,32 @@ export function learnerPathFor(pathname: string): string {
   if (p === '/sessions') return learnSchedule();
   if (p === '/team') return learnTeam();
   if (p === '/vault') return learnVault();
+  if (p === '/team-tier') return teamPlanHref();
   const emp = EMPLOYEE.exec(p);
-  if (emp) return weekOfModule(decoded(emp[1]!)) ?? learnHome();
+  if (emp) {
+    const id = decoded(emp[1]!);
+    if (id === null) return learnHome();
+    // A course week's page; a week id that is no week, Home; any other AI Employee, its own page (D-186),
+    // which sends an id it doesn't know Home too.
+    return weekOfModule(id) ?? (id.startsWith('accelerator-week-') ? learnHome() : learnEmployee(id));
+  }
   return learnHome();
 }
 
-const decoded = (s: string): string => {
+const decoded = (s: string): string | null => {
   try {
     return decodeURIComponent(s);
   } catch {
-    return s;
+    return null;
   }
 };
+
+/** `to` with the address's own query and fragment added, one query string even when `to` has its own. */
+export function withQuery(to: string, search: string, hash: string): string {
+  const extra = search.replace(/^\?/, '');
+  if (!extra) return `${to}${hash}`;
+  return `${to}${to.includes('?') ? '&' : '?'}${extra}${hash}`;
+}
 
 /** `/course` and `/course/:week`: the week's page for `week-N`, else Home. */
 export const coursePathFor = (week: string | undefined): string => {
@@ -74,7 +90,7 @@ export const libraryPathFor = (slug: string | undefined): string => (slug ? lear
 /** A redirect that keeps the address's query and fragment. */
 function Keep({ to }: { to: string }) {
   const { search, hash } = useLocation();
-  return <Navigate to={`${to}${search}${hash}`} replace />;
+  return <Navigate to={withQuery(to, search, hash)} replace />;
 }
 
 /** The route element for `/course` and `/course/:week`. */

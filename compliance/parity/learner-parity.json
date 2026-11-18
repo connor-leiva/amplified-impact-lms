@@ -99,11 +99,16 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
+      "status": "restored",
       "tests": [
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › the Team Plan window’s address (D-187) › /learn?plan=team opens it over Home; an item rides along; closing drops only its two parameters @parity:P-1 @parity:R-6",
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-6 @parity:E-22 Team Tier opens the Team Plan window; a non-course AI Employee its own page; one query string either way",
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
-        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone"
-      ]
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › an Agent tier learner at /learn?plan=team: the window, its one button sends requestUpgrade, and the Console’s Tiers has it @parity:P-1 @parity:R-6 @parity:A-7 @parity:C-13"
+      ],
+      "note": "D-187: `/team-tier` opens the Team Plan window (`/learn?plan=team`) for a course learner on the flip. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "R-7",
@@ -339,8 +344,43 @@
         "Insiders",
         "free"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › draws the root in the person’s theme while their portal is on screen, and the device’s after @parity:SH-5",
+        "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › keeps two people’s choices apart, and leaves the device’s own alone @parity:SH-5 @parity:SH-6",
+        "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › starts a person with no choice of their own from today’s portal’s, so a saved Dark draws the new portal dark @parity:SH-5",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › a Dark saved in today’s portal draws the new portal dark, the whole frame @parity:SH-5",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › takes what the API keeps for this person, and gives the device’s theme back as it goes @parity:SH-5",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › the account menu switches to Dark and back, and remembers it for this person @parity:SH-5",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › the dark page carries the brand’s reversed wordmark @parity:SH-5",
+        "apps/web/src/shell/learner/shell.vm.test.ts › the account menu’s Theme (D-185) › offers Light and Dark, each with its icon and word, the one in use checked @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Account at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Account at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Home at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Home at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Team Hub at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Team Hub at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a skill at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a skill at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a step at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a step at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a week at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › a week at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Schedule at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Schedule at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Schedule’s calendar at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Schedule’s calendar at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Skill library at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Skill library at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Vault at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the Vault at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the replay player at 1440, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › the replay player at 390, dark: accessible, nothing left light @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the shell’s Theme (D-185) @g9 › a Dark saved in today’s portal draws the new portal fully dark @parity:SH-5",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the shell’s Theme (D-185) @g9 › the account menu switches to Dark, the whole frame, and it stays for that person and not for another @parity:SH-5",
+        "compliance/tests/parity/http/prefs.spec.ts › learner parity: the shell’s Theme and sidebar, stored per person by the API (http mode) › a theme chosen in one browser is stored for that person and drawn in their next browser, not another person’s @parity:SH-5"
+      ],
+      "note": "D-185: Theme (Light/Dark) in the account menu, remembered per user in `users.prefs`. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "SH-6",
@@ -355,8 +395,16 @@
         "Insiders",
         "free"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › keeps two people’s choices apart, and leaves the device’s own alone @parity:SH-5 @parity:SH-6",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a desktop, Collapse sidebar makes it the rail and Expand sidebar brings it back, remembered @parity:SH-6 @parity:MO-3",
+        "apps/web/src/shell/learner/shell.vm.test.ts › the learner shell’s sidebar (D-185) › on a desktop, is what the person chose, with the toggle to the other @parity:SH-6 @parity:MO-3",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the desktop sidebar (D-185) @g9 › Collapse sidebar makes it the rail, Expand sidebar brings it back, remembered per person @parity:SH-6 @parity:MO-3",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the desktop sidebar (D-185) @g9 › the toggle has a label and a visible focus, in light and dark @parity:SH-6",
+        "compliance/tests/parity/http/prefs.spec.ts › learner parity: the shell’s Theme and sidebar, stored per person by the API (http mode) › the desktop sidebar collapsed in one browser is the rail in the person’s next one @parity:SH-6 @parity:MO-3"
+      ],
+      "note": "D-185: Collapse/Expand sidebar on desktop, remembered per user. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "SH-7",
@@ -387,8 +435,21 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › Utah Life: “Not included with Utah Life access”, no upsell and no button but Close @parity:SH-8 @parity:P-1",
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › a Team-only AI employee opens the window over Home, previewing it; the Team Hub too @parity:SH-8",
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › the Team Hub’s address, for an Agent tier learner @parity:SH-8",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what comes with the Team Plan sends an Agent Plan learner to the window (D-187) › a Team-only AI employee never becomes a page, nor the Team Hub, for an Agent tier learner @parity:SH-8",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › Utah Life, and any access group’s member: “Not included with {group} access”, no upsell, no button @parity:SH-8 @parity:P-1",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › an Agent Plan learner: a preview of the item, the builder’s words, and one button that asks @parity:SH-8 @parity:C-13",
+        "apps/web/src/routes/portal/Vault.teamPlan.test.tsx › the Vault’s Upgrade and the Team Plan window (D-187) › inside the learner shell: Upgrade opens the window about that item, and sends nothing itself @parity:SH-8 @parity:A-7",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Team-only AI employee opens the window over Home, previewing it; the Team Hub’s address too @parity:SH-8",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Utah Life member: “Not included with Utah Life access”, no upsell, no button, at 1440 @parity:SH-8 @parity:P-1",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Utah Life member: “Not included with Utah Life access”, no upsell, no button, at 390 @parity:SH-8 @parity:P-1",
+        "packages/core/test/data-steps.test.ts › the Team Plan window’s copy strings (D-187) › adds each missing key, keeps one staff changed, and runs once @parity:SH-8 @parity:P-1"
+      ],
+      "note": "D-187: the Team Plan window, reworded per Connor, for an Agent Plan learner opening a Team-gated item. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "SH-9",
@@ -681,8 +742,14 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › the Cohort Community link (D-187) › hidden when the builder has no link, or one that is not a web address @parity:D-10",
+        "apps/web/src/routes/learn/Home.vm.test.ts › the Cohort Community link (D-187) › links the builder’s address in a new tab, named by its site, never a member count @parity:D-10",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Cohort Community link (D-187) @g9 › Home links the address the builder set, in a new tab, with no member count; none without one @parity:D-10",
+        "packages/core/test/course-actions.test.ts › the cohort: release plan and shared pages (D-174) › D-187: the cohort community link is saved trimmed, refused unless it is a web address, and dropped when emptied @parity:D-10"
+      ],
+      "note": "D-187: the Cohort Community link from the cohort’s builder-edited `intro.community`, hidden when empty. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "D-11",
@@ -743,6 +810,8 @@
         "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5",
         "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › the module’s manifest with no length plays too; a page on another site draws its link @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › replay visibility in a locked week (D-187) › After the week opens, or not set: nothing in the locked week, the replay once it opens @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › replay visibility in a locked week (D-187) › Published: the locked week’s preview plays the replay as soon as it is ready @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
@@ -750,6 +819,10 @@
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: replay visibility in a locked week (D-187) @g9 › After the week opens: nothing in the locked week @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: replay visibility in a locked week (D-187) @g9 › Published: the locked week’s preview plays the replay as soon as it is ready @parity:E-1 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › D-187: Published shows as soon as the replay is ready, even in a week still locked by its date; After the week opens waits for the week @parity:E-1 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › D-187: a locked week’s Published replay is in the snapshot, its state and its link @parity:C-3 @parity:E-1",
         "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
       ]
     },
@@ -902,9 +975,11 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › a Notion file previews and has no Download and no link @parity:E-11",
         "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-11 @parity:A-9 a module file downloads through the gated files route, and previews",
         "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-11 @parity:A-9 the module’s files, each downloaded through the gated files route; a Notion template only previews",
-        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route"
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-11 a Notion file previews, with no Download and no link"
       ]
     },
     {
@@ -944,8 +1019,25 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › built: Mark as Deployed runs `markDeployed` @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › deployed: Pause runs `setRuntime` paused; the last output shows @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › not built yet: Not Deployed with its icon, and Mark as Deployed off @parity:E-14",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › paused: Resume runs `setRuntime` deployed; needing attention: the issue and Reconnect @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › before the steps are done: Not Deployed, Mark as Deployed off, and how many steps are left @parity:E-14",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › built: Mark as Deployed runs `markDeployed`, and the card says when it was built @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › deployed: Deployed with its icon, the platform’s Open, the last output, Run it and Pause @parity:E-14",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › needs attention: the issue, Reconnect, and the card marked for attention @parity:E-14",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › paused: Resume, and the current portal’s line @parity:E-14",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:A-6 needing attention: the issue, and Reconnect deploys it again",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:A-6 the card’s actions change its status: Mark as Deployed, Pause, Resume",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 1440: accessible, one h1, no sideways scroll",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 390: accessible, one h1, no sideways scroll, 44px targets",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/week/1 with the card at 1440: accessible, one h1, no sideways scroll",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/week/1 with the card at 390: accessible, one h1, no sideways scroll, 44px targets"
+      ],
+      "note": "D-186: the Your Deployment card on the hire’s page. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "E-15",
@@ -955,8 +1047,14 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › the Run dialog: a real dialog with the input, Run, the output and Copy All; it records the run @parity:E-15 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Run dialog (D-186) › opens on the demo input; Run shows the output, Run Again, Copy All, and what `recordRun` stores @parity:E-15",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-15 @parity:A-6 the Run dialog runs, shows the output and records the last run on the card",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-15 the Run dialog is accessible"
+      ],
+      "note": "D-186: the Run dialog, recording the last run. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "E-16",
@@ -968,9 +1066,15 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › draws its steps, kit and deployment card; Mark step done runs `toggleStep` @parity:E-22 @parity:E-16",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › the page: its header line, its steps with Mark step done and Undo, its resources through the files route @parity:E-22 @parity:E-16",
         "apps/web/src/routes/learn/Learn.test.tsx › the step player (D-177) › @parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back",
         "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-16 a done step’s button reads Undo, and the same toggle takes it back",
-        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the steps: done, current, to do; Mark step done toggles @parity:E-16"
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-16 an Agent tier course learner marks a step of a Team tier week done",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the steps: done, current, to do; Mark step done toggles @parity:E-16",
+        "packages/core/test/course-access.test.ts › canOpenModule (D-186) › a course week follows course access, whatever the tier @parity:E-16",
+        "packages/core/test/course-access.test.ts › the snapshot of an Agent tier learner (D-186) › with the course: each open week whole, not blanked @parity:E-16",
+        "packages/core/test/course-access.test.ts › toggleStep on a course week (D-186) › an Agent tier learner who bought the course marks a step done, and undoes it @parity:E-16"
       ]
     },
     {
@@ -1057,8 +1161,22 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › draws its steps, kit and deployment card; Mark step done runs `toggleStep` @parity:E-22 @parity:E-16",
+        "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › is listed in the sidebar’s AI employees group and on Home, and links its page @parity:E-22",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › an Agent tier learner: Team tier ones locked, a scheduled one opening, the rest by progress @parity:E-22",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › every published module that is not a course week, in the builder’s order @parity:E-22",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › the page: its header line, its steps with Mark step done and Undo, its resources through the files route @parity:E-22 @parity:E-16",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › the sidebar row and Home’s card link the page @parity:E-22",
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-6 @parity:E-22 Team Tier opens the Team Plan window; a non-course AI Employee its own page; one query string either way",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 1440: accessible, one h1, no sideways scroll",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 390: accessible, one h1, no sideways scroll, 44px targets",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/week/1 with the card at 1440: accessible, one h1, no sideways scroll",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/week/1 with the card at 390: accessible, one h1, no sideways scroll, 44px targets",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-22 a non-course AI Employee is in the sidebar, its page draws, and a step is marked done"
+      ],
+      "note": "D-186: non-course AI Employee pages at `/learn/employees/:id`. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "S-1",
@@ -1880,9 +1998,18 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "note": "Best call: the endpoints behind E-14 and E-15 (Your Deployment, the Run drawer), so it stands or falls with those proposed drops. Not on Connor’s list by ID.",
-      "tests": []
+      "status": "restored",
+      "note": "D-186: the card and dialog call `markDeployed`, `setRuntime` and `recordRun`. Restored on Connor’s call of Nov 18, 2026.",
+      "tests": [
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › built: Mark as Deployed runs `markDeployed` @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › deployed: Pause runs `setRuntime` paused; the last output shows @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › paused: Resume runs `setRuntime` deployed; needing attention: the issue and Reconnect @parity:E-14 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › the Run dialog: a real dialog with the input, Run, the output and Copy All; it records the run @parity:E-15 @parity:A-6",
+        "apps/web/src/routes/learn/Hire.vm.test.ts › the Your Deployment card (D-186) › built: Mark as Deployed runs `markDeployed`, and the card says when it was built @parity:E-14 @parity:A-6",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:A-6 needing attention: the issue, and Reconnect deploys it again",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:A-6 the card’s actions change its status: Mark as Deployed, Pause, Resume",
+        "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-15 @parity:A-6 the Run dialog runs, shows the output and records the last run on the card"
+      ]
     },
     {
       "id": "A-7",
@@ -1892,8 +2019,14 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › a vault item and the Team Hub preview themselves @parity:A-7",
+        "apps/web/src/routes/portal/Vault.teamPlan.test.tsx › the Vault’s Upgrade and the Team Plan window (D-187) › inside the learner shell: Upgrade opens the window about that item, and sends nothing itself @parity:SH-8 @parity:A-7",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › an Agent tier learner at /learn?plan=team: the window, its one button sends requestUpgrade, and the Console’s Tiers has it @parity:P-1 @parity:R-6 @parity:A-7 @parity:C-13"
+      ],
+      "note": "D-187: the window’s button sends `requestUpgrade`. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "A-8",
@@ -2325,6 +2458,8 @@
         "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3",
         "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › replay visibility in a locked week (D-187) › After the week opens, or not set: nothing in the locked week, the replay once it opens @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › replay visibility in a locked week (D-187) › Published: the locked week’s preview plays the replay as soon as it is ready @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
         "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
@@ -2332,9 +2467,14 @@
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
         "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: replay visibility in a locked week (D-187) @g9 › After the week opens: nothing in the locked week @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: replay visibility in a locked week (D-187) @g9 › Published: the locked week’s preview plays the replay as soon as it is ready @parity:E-1 @parity:C-3",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › attaching a replay (ready for learners) puts the player on the open week page @parity:C-3",
         "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › D-187: Published shows as soon as the replay is ready, even in a week still locked by its date; After the week opens waits for the week @parity:E-1 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › D-187: a locked week’s Published replay is in the snapshot, its state and its link @parity:C-3 @parity:E-1",
         "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › a learner sees the link once the replay is published, and not before; the Zoom link stays blank @parity:C-3 @parity:M-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › never for a locked week while its replay waits for the week (After the week opens, or not set): no replay and no link @parity:C-3",
         "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
       ]
     },
@@ -2486,8 +2626,13 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › an Agent Plan learner: a preview of the item, the builder’s words, and one button that asks @parity:SH-8 @parity:C-13",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › once they have asked: the asked line, and no second button @parity:C-13",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › an Agent tier learner at /learn?plan=team: the window, its one button sends requestUpgrade, and the Console’s Tiers has it @parity:P-1 @parity:R-6 @parity:A-7 @parity:C-13"
+      ],
+      "note": "D-187: the request shows in the Console’s Tiers request status. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "C-14",
@@ -2523,6 +2668,7 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › the Console’s Preview as Learner at 1440 (D-187) @g9 › Curriculum’s row eye takes a click from rest and lands on the preview @parity:C-15",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Preview as Learner: the week the Console opens shows the learner portal with the preview banner @parity:C-15"
       ]
     },
@@ -2837,8 +2983,18 @@
         "Insiders",
         "free"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a desktop, Collapse sidebar makes it the rail and Expand sidebar brings it back, remembered @parity:SH-6 @parity:MO-3",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a laptop, the rail is automatic and there is no toggle, whatever the person chose @parity:MO-3",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a phone, the sidebar is the drawer, never the rail @parity:MO-3",
+        "apps/web/src/shell/learner/shell.vm.test.ts › the learner shell’s sidebar (D-185) › is the drawer on a phone and the automatic rail on a laptop, with no toggle @parity:MO-3",
+        "apps/web/src/shell/learner/shell.vm.test.ts › the learner shell’s sidebar (D-185) › on a desktop, is what the person chose, with the toggle to the other @parity:SH-6 @parity:MO-3",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the desktop sidebar (D-185) @g9 › Collapse sidebar makes it the rail, Expand sidebar brings it back, remembered per person @parity:SH-6 @parity:MO-3",
+        "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2, the desktop sidebar (D-185) @g9 › at 1024 the rail is automatic, with no toggle, even for a person who chose the full sidebar @parity:MO-3",
+        "compliance/tests/parity/http/prefs.spec.ts › learner parity: the shell’s Theme and sidebar, stored per person by the API (http mode) › the desktop sidebar collapsed in one browser is the rail in the person’s next one @parity:SH-6 @parity:MO-3"
+      ],
+      "note": "D-185: the automatic rail at 768 to 1199px is kept; the desktop toggle is back. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "MO-4",
@@ -2887,8 +3043,19 @@
       "audience": [
         "Accelerator"
       ],
-      "status": "signed-off-drop",
-      "tests": []
+      "status": "restored",
+      "tests": [
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
+        "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › Utah Life: “Not included with Utah Life access”, no upsell and no button but Close @parity:SH-8 @parity:P-1",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › the Team Plan window’s address (D-187) › /learn?plan=team opens it over Home; an item rides along; closing drops only its two parameters @parity:P-1 @parity:R-6",
+        "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › Utah Life, and any access group’s member: “Not included with {group} access”, no upsell, no button @parity:SH-8 @parity:P-1",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Team tier learner (Alex) has the plan: no window @parity:P-1",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Utah Life member: “Not included with Utah Life access”, no upsell, no button, at 1440 @parity:SH-8 @parity:P-1",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › a Utah Life member: “Not included with Utah Life access”, no upsell, no button, at 390 @parity:SH-8 @parity:P-1",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › an Agent tier learner at /learn?plan=team: the window, its one button sends requestUpgrade, and the Console’s Tiers has it @parity:P-1 @parity:R-6 @parity:A-7 @parity:C-13",
+        "packages/core/test/data-steps.test.ts › the Team Plan window’s copy strings (D-187) › adds each missing key, keeps one staff changed, and runs once @parity:SH-8 @parity:P-1"
+      ],
+      "note": "D-187: the window replaces the sales page; one button requests the Team Plan. Restored on Connor’s call of Nov 18, 2026."
     },
     {
       "id": "P-2",

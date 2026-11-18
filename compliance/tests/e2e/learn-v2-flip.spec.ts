@@ -83,14 +83,14 @@ test.describe('a learner with the course: the learner portal @g4', () => {
       ['/', '/learn'],
       ['/sessions', '/learn/schedule'],
       ['/sessions?view=calendar#top', '/learn/schedule?view=calendar#top'],
-      ['/employees/marketing', '/learn'],
+      ['/employees/marketing', '/learn/employees/marketing'],
       ['/employees/accelerator-week-3', '/learn/week/3'],
       ['/course', '/learn'],
       ['/course/week-3', '/learn/week/3'],
       ['/skill-library', '/learn/skills'],
       ['/skill-library/content-strategist', '/learn/skills/content-strategist'],
       ['/vault', '/learn/vault'],
-      ['/team-tier', '/learn'],
+      ['/team-tier', '/learn?plan=team'],
     ];
     for (const [from, to] of table) {
       const { ctx, page } = await visit(browser, from);
@@ -126,8 +126,10 @@ test.describe('a learner with the course: the learner portal @g4', () => {
     await expect(owner.page.getByRole('button', { name: 'Invite Member' })).toBeVisible();
     await owner.ctx.close();
 
-    const upgrade = await open(browser, scenario({ role: 'owner', path: '/team-tier' }), 'app');
+    // D-187: Team Tier is the Team Plan window over Home, for an Agent tier learner.
+    const upgrade = await open(browser, scenario({ path: '/team-tier' }), 'app');
     await expect.poll(() => pathOf(upgrade.page.url())).toBe('/learn');
+    await expect(upgrade.page.getByRole('dialog')).toBeVisible();
     await upgrade.ctx.close();
   });
 

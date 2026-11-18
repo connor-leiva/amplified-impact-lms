@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
+import type { Learner } from '@ai/core';
 import { learnerOf, withLiveState } from '@ai/core/learner';
 
 import '../../styles/r2.css';
@@ -24,8 +25,16 @@ import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
 import { HUE, LABELS, barVM, hasTeamHub, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
+import { hireNav, hireOfPath, hireRows } from '../../routes/learn/Hire.vm';
 import { learnAccount, learnHome, learnSchedule, learnTeam } from '../../routes/learn/routes';
+import { useSkills } from '../../routes/learn/skills-data';
+import { TeamPlanWindow } from '../../routes/learn/TeamPlan';
+import { planItemOf, teamGateFor, teamPlanVM, withoutPlan } from '../../routes/learn/TeamPlan.vm';
+import { TeamPlanProvider } from '../../routes/learn/teamPlanContext';
+import type { PlanItem } from '../../routes/learn/teamPlanContext';
 import s from './LearnerShell.module.css';
+import { PHONE, sidebarVM, themeVM } from './shell.vm';
+import { useLearnerPrefs } from './useLearnerPrefs';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
 // (docs/design/learner-v2): the 244px sidebar (Home, Schedule, Skill library, Resource vault, the AI
@@ -49,8 +58,10 @@ import s from './LearnerShell.module.css';
 // until opened), a `header` holding `nav[aria-label="Breadcrumb"]` (visually hidden: the mockup's bar
 // draws none), `main`, `[role="dialog"]` and `data-drawer="open"` on the open drawer, `data-brand-slot` on
 // the wordmark, and `body[data-app-ready="true"]` once the snapshot, the viewer and the course are in.
-
-const PHONE = 768;
+//
+// D-185 restores two of the current portal's controls: the account menu's Theme (Light, Dark) and, on a
+// desktop (1200px and wider), Collapse sidebar / Expand sidebar, the collapsed form being the rail. Both
+// are remembered per person (`useLearnerPrefs.ts`). The laptop's rail (768 to 1199px) stays automatic.
 
 function Ring({ ratio }: { ratio: number }) {
   const c = 2 * Math.PI * 6;
@@ -70,15 +81,21 @@ interface SidebarProps {
   onClose?: () => void;
   closeRef?: Ref<HTMLButtonElement>;
   go: () => void;
+  /** D-185: drawn as the 64px rail (a laptop, or a desktop the person collapsed). */
+  rail?: boolean;
+  /** D-185: the desktop's Collapse sidebar / Expand sidebar, or none. */
+  toggle?: { label: string; onToggle: () => void } | null;
+  /** D-185: the brand's reversed wordmark, on the dark theme. */
+  dark?: boolean;
 }
 
-function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarProps) {
+function Sidebar({ nav, side, drawer = false, onClose, closeRef, go, rail = false, toggle = null, dark = false }: SidebarProps) {
   const [open, setOpen] = useState(true);
   return (
-    <aside aria-label={LABELS.primary} className={s.sb}>
+    <aside aria-label={LABELS.primary} className={s.sb} data-rail={rail ? 'true' : undefined}>
       <div className={s.top}>
         <Link className={s.wmw} to={nav.home.href} aria-label={LABELS.homeLink} onClick={go}>
-          <Wordmark />
+          <Wordmark reversed={dark} />
         </Link>
         {drawer ? (
           <>
@@ -140,7 +157,7 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarPr
               {open
                 ? nav.employees.rows.map((r) => (
                     <Link
-                      key={r.week}
+                      key={r.key}
                       className={`${s.ni} ${s.em}`}
                       to={r.href}
                       title={r.title}
@@ -152,6 +169,11 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarPr
                         <Icon name={r.icon} size={14} strokeWidth={1.9} />
                       </span>
                       <span className={s.lbl}>{r.label}</span>
+                      {r.locked ? (
+                        <span className={s.nl}>
+                          <Icon name="lvLock" size={12} strokeWidth={1.75} label={LABELS.locked} />
+                        </span>
+                      ) : null}
                       {r.status ? (
                         <span className={s.es} data-tone={r.status.kind === 'ring' ? 'ip' : r.status.kind === 'built' ? 'ok' : r.status.kind === 'open' ? 'open' : undefined}>
                           {r.status.kind === 'ring' ? <Ring ratio={r.status.ratio} /> : null}
@@ -171,6 +193,12 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarPr
           <Icon name="lvHelp" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.help.label}</span>
         </a>
+        {toggle ? (
+          <button type="button" className={`${s.ni} ${s.tog}`} title={toggle.label} aria-label={toggle.label} onClick={toggle.onToggle}>
+            <Icon name="panel" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{toggle.label}</span>
+          </button>
+        ) : null}
       </div>
     </aside>
   );
@@ -270,6 +298,14 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
   );
 }
 
+/** D-187: the Team Plan window, mounted only while it is open, so the library is asked only then. */
+function TeamPlan({ item, me, onClose }: { item: PlanItem; me: Learner | null; onClose: () => void }) {
+  const db = useDb();
+  const skills = useSkills();
+  const vm = teamPlanVM(item, db, me, skills);
+  return vm ? <TeamPlanWindow vm={vm} onClose={onClose} /> : null;
+}
+
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
@@ -282,6 +318,11 @@ function Frame() {
   const { toast } = useToaster();
   const vw = useViewportWidth();
   const phone = vw < PHONE;
+  // D-185: this person's theme and desktop sidebar.
+  const prefs = useLearnerPrefs(viewer);
+  const dark = prefs.theme === 'dark';
+  const form = sidebarVM(vw, prefs.sidebar);
+  const theme = themeVM(prefs.theme);
 
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const preview = viewer.preview ?? null;
@@ -296,7 +337,9 @@ function Frame() {
   );
   const payload = course.kind === 'ready' ? course.payload : null;
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
-  const nav = navVM(payload, rows, location.pathname);
+  // D-186: the non-course AI Employees, after the course's weeks in the AI employees group.
+  const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
+  const nav = navVM(payload, rows, location.pathname, hires.map((h) => hireNav(h, location.pathname)));
   const bar = barVM(payload, now);
   const side = sideVM(db, me, payload, location.pathname, now);
 
@@ -334,13 +377,41 @@ function Frame() {
   }, [toast]);
 
   const onWeek = weekOfPath(location.pathname);
-  const here = onWeek === null ? null : rows.find((r) => r.week === onWeek);
+  const onHire = hireOfPath(location.pathname);
+  const hire = onHire === null ? undefined : hires.find((h) => h.id === onHire);
+  const here = onWeek !== null ? rows.find((r) => r.week === onWeek) : hire ? { title: hire.name } : null;
   const ctx: LearnContext = { course, db, viewer, now };
 
+  // D-187: the Team Plan window. A screen opens it (`useTeamPlan`), or the address does (`?plan=team`, where
+  // today's `/team-tier` lands); a page that comes with the Team Plan sends an Agent Plan learner to it
+  // instead of drawing (`teamGateFor`). It asks the library for the builder's words and the learner's access
+  // groups only once it opens.
+  const [clicked, setClicked] = useState<PlanItem | null>(null);
+  const addressed = planItemOf(location.search);
+  const item = clicked ?? addressed;
+  const gate = teamGateFor(location.pathname, db, me);
+  const closePlan = useCallback(() => {
+    setClicked(null);
+    if (addressed) navigate({ pathname: location.pathname, search: withoutPlan(location.search), hash: location.hash }, { replace: true });
+  }, [addressed, location.hash, location.pathname, location.search, navigate]);
+  const openPlan = useCallback((x: PlanItem) => {
+    setDrawerOpen(false);
+    setClicked(x);
+  }, []);
+
   return (
-    <div className={s.frame} data-r2-scope="" data-learner-v2="">
+    <div className={s.frame} data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
       <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
-        {phone ? null : <Sidebar nav={nav} side={side} go={() => undefined} />}
+        {phone ? null : (
+          <Sidebar
+            nav={nav}
+            side={side}
+            go={() => undefined}
+            rail={form.form === 'rail'}
+            dark={dark}
+            toggle={form.toggle ? { label: form.toggle.label, onToggle: () => prefs.set({ sidebar: form.toggle!.next }) } : null}
+          />
+        )}
         <div className={s.mainc}>
           <header className={s.tb}>
             <div className={`${s.phOnly} ${s.phRow}`}>
@@ -355,7 +426,7 @@ function Frame() {
                 <Icon name="r2Menu" size={22} strokeWidth={1.75} />
               </button>
               <Link className={s.wmw} to={learnHome()} aria-label={LABELS.homeLink}>
-                <Wordmark />
+                <Wordmark reversed={dark} />
               </Link>
             </div>
             <NextSession bar={bar} now={now} />
@@ -375,6 +446,11 @@ function Frame() {
               items={[
                 { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
                 ...(hasTeamHub(db, me) ? [{ label: LABELS.teamHub, onSelect: () => navigate(learnTeam()) }] : []),
+                'separator',
+                {
+                  group: theme.label,
+                  items: theme.choices.map((c) => ({ label: c.label, icon: c.icon, checked: c.checked, onSelect: () => prefs.set({ theme: c.value }) })),
+                },
                 'separator',
                 { label: LABELS.signOut, onSelect: signOut },
               ]}
@@ -400,7 +476,7 @@ function Frame() {
             </div>
           ) : null}
           <main className={s.main} id="main">
-            <Outlet context={ctx} />
+            <TeamPlanProvider value={openPlan}>{gate ? <Navigate to={gate} replace /> : <Outlet context={ctx} />}</TeamPlanProvider>
           </main>
         </div>
       </div>
@@ -409,10 +485,12 @@ function Frame() {
         <>
           {drawerOpen ? <div className={s.scrim} onClick={closeDrawer} /> : null}
           <div ref={drawerRef} tabIndex={-1} className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
-            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
+            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} dark={dark} />
           </div>
         </>
       ) : null}
+
+      {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
     </div>
   );
 }

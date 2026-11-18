@@ -106,13 +106,16 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
     expect(await auditActions()).toEqual(['session.save', 'session.save']);
   });
 
-  it('the cohort’s release plan and what every week shares', { timeout: 120_000 }, async () => {
+  it('the cohort’s release plan and what every week shares, the community link included @parity:D-10', { timeout: 120_000 }, async () => {
     const co = (await loadDb()).cohorts[0]!;
     await ok('saveCohortPlan', { cohortId: 'dec26', name: co.name, cadence: 'Wednesday builds at 12:00 PM MT', previewOpens: { date: '2026-11-18', time: '12:00' }, defaultOpenTime: '12:00' });
     const shared = structuredClone(co.course!);
     shared.intro.sub = 'Hire, train and keep your AI employees.';
+    // D-187 (D-10): the cohort community's link, which the learner portal's Home opens.
+    shared.intro.community = 'https://www.skool.com/amplified-dec26';
     await ok('saveCohortCourse', { cohortId: 'dec26', course: shared });
     expect((await course()).course.intro.sub).toBe('Hire, train and keep your AI employees.');
+    expect((await course()).course.intro.community).toBe('https://www.skool.com/amplified-dec26');
     expect((await snapshot()).cohorts[0]).toMatchObject({ cadence: 'Wednesday builds at 12:00 PM MT', previewOpensAt: Date.parse('2026-11-18T12:00:00-07:00'), defaultOpenTime: '12:00' });
     expect(await auditActions()).toEqual(['cohort.save', 'cohort.course_save']);
   });

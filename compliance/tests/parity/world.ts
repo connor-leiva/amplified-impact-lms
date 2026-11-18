@@ -12,6 +12,7 @@ import { FREE_SKILLS, LAUNCH_RELEASE, SKILL_CATALOG } from '../../../packages/co
 import { GROK_TEMPLATES } from '../../../packages/core/src/grok-templates';
 import { planContentV2 } from '../../../packages/core/seed/content-v2';
 import { planCopyV1 } from '../../../packages/core/seed/copy-v1';
+import { planCopyV2 } from '../../../packages/core/seed/copy-v2';
 import { seedProduction } from '../../../packages/core/seed/curriculum';
 import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 
@@ -20,8 +21,9 @@ import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
  * build's portal and its Console read, so a Console action and a learner screen are about the same
  * cohort.
  *
- *   the course    the deployed seed (`seedProduction` plus the v2 content, copy and release plans), the
- *                 same database `GET /api/course` reads in production
+ *   the course    the deployed seed (`seedProduction` plus the v2 content, copy and release plans, and
+ *                 D-187's Team Plan copy strings), the same database `GET /api/course` reads in
+ *                 production
  *   the people    the fixture's three personas (`data/fixture.ts`): Jamie (`?as=agent`, Agent tier),
  *                 Alex (`?as=owner`, Team Owner) and staff `st1` (`?as=admin`, the seed's Owner), moved
  *                 into the course's cohort
@@ -68,10 +70,13 @@ export const ANNOUNCEMENT = {
 export const STORE_KEY = DB_KEY;
 
 const demo = seed('live');
-const prod = planContentV2(
-  planCopyV1(
-    planReleaseV1(seedProduction({ owner: { id: 'st1', name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }))
-      .db,
+// D-187: and the Team Plan window's copy strings, the deploy's fourth data step.
+const prod = planCopyV2(
+  planContentV2(
+    planCopyV1(
+      planReleaseV1(seedProduction({ owner: { id: 'st1', name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }))
+        .db,
+    ).db,
   ).db,
 ).db;
 
@@ -221,6 +226,8 @@ export function skillsAnswer(persona: LibraryPersona, opts: { welcome?: boolean 
         ? [{ id: UTAH.id, name: UTAH.name, skills: 30, welcome: opts.welcome ?? true, covers: ['agent', 'both'] }]
         : [],
     lockedLines: persona === 'utah' ? { [UTAH.id]: learnerCopy('locked.utah_life') } : {},
+    // D-187: the Team Plan window's words, which the API sends every learner (`plan.team.*`).
+    planCopy: Object.fromEntries((prod.copy ?? []).filter((c) => c.key.startsWith('plan.team.') && c.audience === 'learner').map((c) => [c.key, c.value])),
     paused: false,
     courseOpensAt: persona === 'buyer' ? OPENS : null,
     teamHub: persona === 'team-plan',

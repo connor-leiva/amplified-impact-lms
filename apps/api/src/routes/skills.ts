@@ -14,7 +14,7 @@
 // free skills). A learner on no account (a cohort learner from before the offer) opens the free skills.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, like } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
@@ -63,6 +63,19 @@ async function lockedLinesOf(groupIds: readonly string[]): Promise<Record<string
     if (row) out[id] = row.value;
   }
   return out;
+}
+
+/** D-187: the Team Plan window's copy strings, by key: every learner-facing string under `plan.team.`. */
+export const PLAN_COPY_PREFIX = 'plan.team.';
+
+/**
+ * D-187: the Team Plan window's words, from the builder's copy strings. Sent with the library's answer, which
+ * every learner reads (the course's answer reaches only a learner with the course), so the window says the
+ * same thing to anyone it opens for.
+ */
+async function planCopyOf(): Promise<Record<string, string>> {
+  const rows = await getDb().select().from(copyStrings).where(like(copyStrings.key, `${PLAN_COPY_PREFIX}%`));
+  return Object.fromEntries(rows.filter((r) => r.audience === 'learner' && r.key.startsWith(PLAN_COPY_PREFIX)).map((r) => [r.key, r.value]));
 }
 
 /**
@@ -175,6 +188,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // D-179: what each of those groups' locked skills read, from the builder's copy strings
       // (`locked.utah_life`), by group id. The learner portal v2's library draws it, with no upsell.
       lockedLines: await lockedLinesOf(access.groups.map((g) => g.id)),
+      // D-187: the Team Plan window's words (`plan.team.*`), as the builder sets them. The window offers
+      // the Team Plan only to a learner in no access group; a group's member reads the line above.
+      planCopy: await planCopyOf(),
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),

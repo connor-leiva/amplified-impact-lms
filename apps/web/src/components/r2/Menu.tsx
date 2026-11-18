@@ -28,6 +28,14 @@ export interface MenuItem {
   title?: string;
   onSelect: () => void;
 }
+/**
+ * D-185: a labelled set of choices, one of which is current (the learner account menu's Theme): a
+ * `role="group"` named by its visible label, its items `menuitemradio` with `aria-checked`.
+ */
+export interface MenuGroup {
+  group: string;
+  items: readonly MenuItem[];
+}
 export type MenuEntry = MenuItem | 'separator';
 
 export type MenuPlacement = 'below-right' | 'below-left' | 'above' | 'right';
@@ -45,7 +53,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuProps {
-  items: readonly MenuEntry[];
+  items: readonly (MenuEntry | MenuGroup)[];
   placement?: MenuPlacement;
   trigger: (t: MenuTrigger) => ReactNode;
   /** The menu's accessible name. */
@@ -93,6 +101,47 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
     list[next]?.focus();
   };
 
+  const item = (it: MenuItem, i: string, radio: boolean) => (
+    <button
+      key={`${i}:${it.label}`}
+      type="button"
+      role={radio ? 'menuitemradio' : 'menuitem'}
+      aria-checked={radio ? !!it.checked : undefined}
+      disabled={it.locked || it.disabled}
+      aria-disabled={it.unavailable ? true : undefined}
+      aria-label={it.unavailable ? it.label : undefined}
+      aria-describedby={it.unavailable ? `${id}-why${i}` : undefined}
+      title={it.title}
+      className={clsx(s.item, it.danger && s.danger, it.unavailable && s.off)}
+      onClick={() => {
+        if (it.unavailable) return;
+        close(false);
+        it.onSelect();
+      }}
+    >
+      {it.locked || it.unavailable ? (
+        <Icon name="r2Lock" size={16} strokeWidth={1.75} />
+      ) : it.icon ? (
+        <Icon name={it.icon} size={16} strokeWidth={1.75} />
+      ) : null}
+      {it.unavailable ? (
+        <span className={s.text}>
+          <span>{it.label}</span>
+          <span id={`${id}-why${i}`} className={s.why}>
+            {it.unavailable}
+          </span>
+        </span>
+      ) : (
+        it.label
+      )}
+      {it.checked ? (
+        <span className={s.check}>
+          <Icon name="r2Check" size={16} strokeWidth={1.75} />
+        </span>
+      ) : null}
+    </button>
+  );
+
   const t: MenuTrigger = {
     open,
     toggle: () => setOpen((o) => !o),
@@ -125,44 +174,15 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
           {items.map((it, i) =>
             it === 'separator' ? (
               <hr key={`sep-${i}`} className={s.sep} />
+            ) : 'group' in it ? (
+              <div key={`grp-${i}:${it.group}`} role="group" aria-labelledby={`${id}-g${i}`}>
+                <div id={`${id}-g${i}`} className={s.gh}>
+                  {it.group}
+                </div>
+                {it.items.map((x, j) => item(x, `${i}.${j}`, true))}
+              </div>
             ) : (
-              <button
-                key={`${i}:${it.label}`}
-                type="button"
-                role="menuitem"
-                disabled={it.locked || it.disabled}
-                aria-disabled={it.unavailable ? true : undefined}
-                aria-label={it.unavailable ? it.label : undefined}
-                aria-describedby={it.unavailable ? `${id}-why${i}` : undefined}
-                title={it.title}
-                className={clsx(s.item, it.danger && s.danger, it.unavailable && s.off)}
-                onClick={() => {
-                  if (it.unavailable) return;
-                  close(false);
-                  it.onSelect();
-                }}
-              >
-                {it.locked || it.unavailable ? (
-                  <Icon name="r2Lock" size={16} strokeWidth={1.75} />
-                ) : it.icon ? (
-                  <Icon name={it.icon} size={16} strokeWidth={1.75} />
-                ) : null}
-                {it.unavailable ? (
-                  <span className={s.text}>
-                    <span>{it.label}</span>
-                    <span id={`${id}-why${i}`} className={s.why}>
-                      {it.unavailable}
-                    </span>
-                  </span>
-                ) : (
-                  it.label
-                )}
-                {it.checked ? (
-                  <span className={s.check}>
-                    <Icon name="r2Check" size={16} strokeWidth={1.75} />
-                  </span>
-                ) : null}
-              </button>
+              item(it, String(i), false)
             ),
           )}
         </div>
