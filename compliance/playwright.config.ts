@@ -101,6 +101,11 @@ const httpServer = {
 const PHASE_SHIFTED = SCENARIOS.filter((s) => (s.phase ?? 'live') !== 'live').map((s) => s.id);
 
 /**
+ * D-182: no `@g5` scenario is left. The learner portal those scenarios compared with the reference was
+ * retired for the one at /learn, which has no golden in design-reference/, so this project runs nothing
+ * and `pnpm compliance:http` passes with no tests (`--pass-with-no-tests`). It stays, so a portal scenario
+ * that comes back is run in both modes again without new wiring.
+ *
  * `@g5` is the portal, which is the half of the checklist http mode covers: "Admin scenarios use
  * fixture parity plus the oracle tests above" (and D-018 says why — in http mode a cohort's
  * enrolment is the row count, so the admin numbers legitimately differ from the fixture's).
@@ -115,7 +120,9 @@ const parityHttp = {
   name: 'parity-http',
   testMatch: /parity\.spec\.ts/,
   grep: /@g5\b/,
-  grepInvert: new RegExp(`\\b(?:${PHASE_SHIFTED.join('|')})\\b`),
+  // With no phase-shifted scenario left (D-182 retired the portal's), there is nothing to leave out: an
+  // empty alternation would match every title and leave out everything.
+  ...(PHASE_SHIFTED.length ? { grepInvert: new RegExp(`\\b(?:${PHASE_SHIFTED.join('|')})\\b`) } : {}),
   // Read by `lib/prepare.ts`'s `appMode()`. Metadata rather than an environment variable because
   // `parity` and `parity-http` run in ONE process environment and are distinguishable only per
   // test; `test.info().project.metadata` is per test.

@@ -83,17 +83,19 @@ for (const mode of MODES) {
   }) => {
     const { ctx, page, url } = await tab(browser, mode, 'agent');
     const seen = await watch(ctx, page);
-    await page.goto(url('/'));
+    await page.goto(url('/learn'));
     await page.locator('[data-app-ready="true"]').waitFor();
     expect(seen.documents).toBe(1);
 
-    // The deploy: Sessions' files are gone for this document, and back once the tab has reloaded.
-    const missing = await removeFiles(page, 'Sessions', 'both', () => seen.documents === 1);
-    await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Sessions', exact: true }).click();
+    // The deploy: the Skill Library's files are gone for this document, and back once the tab has
+    // reloaded. (D-182: the learner portal's screen, where the first portal's Sessions was used.)
+    const missing = await removeFiles(page, 'Library', 'both', () => seen.documents === 1);
+    await page.locator('aside[aria-label="Primary"]').getByRole('link', { name: 'Skill library', exact: true }).click();
 
     await expect.poll(() => seen.documents).toBe(2);
     await page.locator('[data-app-ready="true"]').waitFor();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Sessions');
+    await expect(page).toHaveURL(/\/learn\/skills/);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Skill library');
     expect(missing.length).toBeGreaterThan(0);
     expect(seen.errorScreen).toBe(false);
     // Booted, so the guard is cleared and the next deploy can recover this tab too.
@@ -133,10 +135,10 @@ test('fixture: a deploy that is itself missing the file reloads once, then shows
 }) => {
   const { ctx, page, url } = await tab(browser, MODES[0]!, 'agent');
   const seen = await watch(ctx, page);
-  await page.goto(url('/'));
+  await page.goto(url('/learn'));
   await page.locator('[data-app-ready="true"]').waitFor();
-  await removeFiles(page, 'Sessions', 'js', () => true);
-  await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Sessions', exact: true }).click();
+  await removeFiles(page, 'Library', 'js', () => true);
+  await page.locator('aside[aria-label="Primary"]').getByRole('link', { name: 'Skill library', exact: true }).click();
 
   await expect.poll(() => seen.documents).toBe(2);
   await expect(page.getByText(ERROR_SCREEN)).toBeVisible();

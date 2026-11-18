@@ -8,6 +8,13 @@ import { APP_BASE } from '../../lib/prepare';
  * Both pages live in ONE browser context so they share localStorage — that is the channel the
  * fixture repository broadcasts over (a `storage` event), the same way the http repository will
  * broadcast over SSE in phase 07. Nothing here reloads to observe a change.
+ *
+ * D-182: the learner side of these checks was the first learner portal (the dashboard, the AI Employee
+ * page and its sidebar), drawn from the prototype's six AI Employees. The learner portal at /learn that
+ * replaced it reads the course from `GET /api/course`, which the fixture build has no API for, so a
+ * builder, session or announcement change in this build has no learner screen left to show up on. Each
+ * check keeps its admin half, unchanged; "learner progress shows up in admin", which needed the old AI
+ * Employee page's Mark Verified, retired with it.
  */
 const NOW = '2026-12-07T10:42:00-06:00';
 
@@ -30,9 +37,8 @@ const open = async (page: Page, path: string) => {
   await page.locator('[data-app-ready="true"]').waitFor();
 };
 
-test('publishing a new AI Employee appears in the portal without a reload @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(learner, '/?as=agent');
+test('publishing a new AI Employee says it is live in the learner portal @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
   await open(admin, '/admin/curriculum/new?as=admin');
 
   // D-160 R2-2: the R2 Module Builder. Name and Summary (the outcome line) edit in place; the outputs
@@ -49,7 +55,6 @@ test('publishing a new AI Employee appears in the portal without a reload @g6', 
   await admin.getByRole('menuitem', { name: 'Published' }).click();
 
   await expect(admin.getByText('Listing Coordinator AI Employee is live in the learner portal')).toBeVisible();
-  await expect(learner.getByText('Listing Coordinator AI Employee').first()).toBeVisible();
   await close();
 });
 
@@ -63,41 +68,21 @@ test('the builder blocks an incomplete draft with the exact messages @g6', async
   await close();
 });
 
-test('gating an AI Employee to Team only locks it for agents @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(learner, '/?as=agent');
+test('gating an AI Employee to Team only @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
   await open(admin, '/admin/curriculum?as=admin');
 
   // D-160 R2-2: the tier pill is a menu. The Database row is the third Agent + Team one.
+  const teamOnly = admin.getByRole('button', { name: 'Tier access: Team only' });
+  const before = await teamOnly.count();
   await admin.getByRole('button', { name: 'Tier access: Agent + Team' }).nth(2).click();
   await admin.getByRole('menuitem', { name: 'Team only' }).click();
-  await expect(
-    learner.locator('aside[aria-label="Primary"]').getByRole('button', { name: /Database/ }).getByTitle('Team tier'),
-  ).toBeVisible();
+  await expect(teamOnly).toHaveCount(before + 1);
   await close();
 });
 
-test('learner progress shows up in admin @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(admin, '/admin?as=admin');
-  await open(learner, '/employees/sales?as=agent');
-
-  // One step at a time, and each click must land before the next count. Counting straight after a
-  // click can still see the step just clicked, and then `.first().click()` waits for a button that
-  // the re-render has already removed: the test hung until its timeout about one run in three.
-  const verify = learner.getByRole('button', { name: 'Mark Verified' });
-  for (let left = await verify.count(); left > 0; left--) {
-    await verify.first().click();
-    await expect(verify).toHaveCount(left - 1);
-  }
-
-  await expect(admin.getByText(/Jamie Ortiz\s*built Sales AI Employee/)).toBeVisible();
-  await close();
-});
-
-test('go live, end, publish replay flows through to the portal @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(learner, '/?as=agent');
+test('go live, end, publish replay @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
   await open(admin, '/admin/cohorts?as=admin');
 
   // D-160 R2-2b: each step is in the session's "…" menu on the R2 Cohorts & Sessions screen.
@@ -106,16 +91,14 @@ test('go live, end, publish replay flows through to the portal @g6', async ({ br
     await admin.getByRole('menuitem', { name: label }).click();
   };
   await step('Go Live');
-  await expect(learner.getByText('Live Now').first()).toBeVisible();
   await step('End Session');
   await step('Publish Replay');
   await expect(admin.getByText('Session 3 replay published to learners')).toBeVisible();
   await close();
 });
 
-test('editing a session time moves the learner countdown @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(learner, '/?as=agent');
+test('editing a session time @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
   await open(admin, '/admin/cohorts?as=admin');
 
   // D-160 R2-2b: Edit session is in the session's "…" menu, and its time is MST (2:00 PM MST is 3:00 PM CT).
@@ -123,13 +106,12 @@ test('editing a session time moves the learner countdown @g6', async ({ browser 
   await admin.getByRole('menuitem', { name: 'Edit session' }).click();
   await admin.getByLabel('Start time (MST)').fill('14:00');
   await admin.getByRole('button', { name: 'Save session' }).click();
-  await expect(learner.getByText(/Wed, Dec 9 · 3:00 PM CT/).first()).toBeVisible();
+  await expect(admin.getByRole('row').filter({ hasText: 'Session 3 ·' })).toContainText('2:00 PM');
   await close();
 });
 
-test('a warning announcement reaches the learner as an alert banner @g6', async ({ browser }) => {
-  const { admin, learner, close } = await pair(browser);
-  await open(learner, '/?as=agent');
+test('a warning announcement is sent @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
   await open(admin, '/admin/announcements?as=admin');
 
   // D-160 R2-2b: the composer is the New announcement dialog.
@@ -140,7 +122,8 @@ test('a warning announcement reaches the learner as an alert banner @g6', async 
   await dialog.getByLabel('Severity').selectOption('warning');
   await dialog.getByRole('button', { name: 'Send now' }).click();
 
-  await expect(learner.getByRole('alert').getByText('Office hours moved to 2:00 PM')).toBeVisible();
+  await expect(admin.getByRole('dialog', { name: 'New announcement' })).toHaveCount(0);
+  await expect(admin.getByText('Office hours moved to 2:00 PM').first()).toBeVisible();
   await close();
 });
 

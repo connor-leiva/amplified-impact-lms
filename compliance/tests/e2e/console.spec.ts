@@ -193,7 +193,8 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
 
     for (const path of ['/admin/roles', '/admin/no-such-page']) {
       const learner = await openAt(browser, path, { persona: 'agent' });
-      await expect(learner.page).toHaveURL(/127\.0\.0\.1:\d+\/(\?|$)/);
+      // Home, which is the learner portal's since D-182.
+      await expect(learner.page).toHaveURL(/127\.0\.0\.1:\d+\/learn(\?|$)/);
       await learner.close();
     }
   });
