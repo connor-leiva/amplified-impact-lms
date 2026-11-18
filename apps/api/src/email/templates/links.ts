@@ -15,11 +15,7 @@
 // instead of thousands of emails whose only button goes nowhere. A silent empty href would reach
 // an inbox looking perfectly fine.
 
-/**
- * The routes the templates link to: the first learner portal's addresses. Since D-182 each redirects to
- * the learner portal's page for it (`apps/web/src/routes/learn/redirects.tsx`: `/` to /learn, `/sessions`
- * to /learn/schedule, `/team` to /learn/team), so emails already in inboxes keep working.
- */
+/** The routes the nine templates link to, exactly as `apps/web/src/shell/Breadcrumbs.tsx` maps them. */
 export const ROUTES = {
   dashboard: '/',
   sessions: '/sessions',
@@ -39,7 +35,7 @@ export const setPasswordPath = (token: string): string => `/set-password?token=$
 /** Phase 07 § 7.5: "`/invite/:token` verifies the token … and signs the user in". */
 export const invitePath = (token: string): string => `/invite/${encodeURIComponent(token)}`;
 
-/** The AI Employee page (`/employees/:id`); since D-182 a course week's goes to its week, /learn/week/:n. */
+/** The AI Employee page, which is where a replay and a build live (`/employees/:id`). */
 export const employeePath = (moduleId: string): string => `/employees/${encodeURIComponent(moduleId)}`;
 
 /** `http://` or `https://`, a host, and optionally a path prefix. Nothing else is a usable base. */

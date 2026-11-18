@@ -53,7 +53,7 @@ function setWidth(w: number) {
 }
 
 function at(path: string) {
-  const router = createMemoryRouter([...learnerRoutes(), { path: '/', element: <p>the portal</p> }, { path: '/account', element: <p>the password page</p> }], {
+  const router = createMemoryRouter([...learnerRoutes(true), { path: '/', element: <p>the portal</p> }, { path: '/account', element: <p>the password page</p> }], {
     initialEntries: [path],
   });
   render(<RouterProvider router={router} />);
@@ -145,6 +145,12 @@ describe('the Account page (D-178)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Account' })).toBeInTheDocument();
   });
 
+  it('flag off: /learn/account redirects to /', async () => {
+    const router = createMemoryRouter([...learnerRoutes(false), { path: '/', element: <p>the portal</p> }], { initialEntries: ['/learn/account'] });
+    render(<RouterProvider router={router} />);
+    expect(await screen.findByText('the portal')).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/');
+  });
 });
 
 describe('the reads (D-178)', () => {

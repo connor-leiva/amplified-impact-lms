@@ -1,0 +1,319 @@
+/* Ported from design-reference/Amplified Impact LMS.dc.html. Every value is the reference's.
+   The reference computes one `sb` object per render — position, z-index, transform, width, shadow
+   and brand padding — and spreads it into inline styles; those five branches are the
+   `[data-mode]` / `[data-open]` selectors here, in the reference's own order. */
+
+.shell {
+  display: flex;
+  /* D-162 3b: a masquerade's banner sits above the page, in flow; `--ai-masquerade-h` is its height
+     while one runs, and unset (0px) otherwise. */
+  height: calc(100vh - var(--ai-masquerade-h, 0px));
+  min-height: 480px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--fs-14);
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+/* The drawer scrim sits one layer under the drawer itself (69 vs 70). */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 69;
+  background: var(--bg-overlay);
+  animation: ai-fade 160ms ease-out;
+}
+
+/* ---- sidebar -------------------------------------------------------------------------------- */
+
+.sidebar {
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  transform: none;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 180ms ease;
+  flex: none;
+  width: 248px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--line-default);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.sidebar[data-mode='rail'] {
+  width: 64px;
+}
+
+.sidebar[data-mode='drawer'] {
+  position: fixed;
+  z-index: 70;
+  width: 280px;
+  transform: translateX(-105%);
+}
+
+.sidebar[data-mode='drawer'][data-open='true'] {
+  transform: none;
+  box-shadow: var(--shadow-pop);
+}
+
+/* 56px above 767px; 64px on a phone through lms.css's `data-phone="bar"` (D-156, scoped by D-160 R2-1a). */
+.brand {
+  height: 56px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line-default);
+}
+
+/* 64px rail − 2 × 18px = the 28px mark, centred. */
+.sidebar[data-mode='rail'] .brand {
+  padding: 0 18px;
+}
+
+/* 32px above 767px; 44px on a phone through `data-phone="bar-button"`. */
+.close {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.close:hover {
+  background: var(--nav-hover, var(--bg-hover));
+  color: var(--text-primary);
+}
+/* The prototype has no focus style on its chrome buttons; visible focus on every interactive
+   element is a non-negotiable (CLAUDE.md), at the SCREENS § 1.3 ring. */
+.close:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.context {
+  flex: none;
+  padding: 14px 20px 0;
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 14px between groups, 2px inside one. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groupLabel {
+  padding: 4px 10px;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.footer {
+  flex: none;
+  border-top: 1px solid var(--line-default);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  justify-content: flex-start;
+  outline: none;
+}
+
+/* The reference's `profJc`: centred once there is no name beside the avatar. */
+.sidebar[data-mode='rail'] .profile {
+  justify-content: center;
+}
+
+.profile:hover {
+  background: var(--nav-hover, var(--bg-hover));
+}
+
+/* 2px here, not 3: the reference gives this button its own focus ring. */
+.profile:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* The reference's profile avatar sets no line-height, so it inherits the shell's 1.45 (17.4px at
+   12px). `Avatar` sets `line-height: 1`, which the copy-and-typography fingerprint reads and
+   compares. Restored here, scoped two classes deep so it wins whatever order the stylesheets land
+   in; it computes to the same value once Avatar.module.css drops its own line-height. */
+.profile .avatar {
+  line-height: 1.45;
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.name {
+  font-size: var(--fs-14);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag {
+  font-size: var(--fs-12);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileChev {
+  color: var(--text-tertiary);
+}
+
+/* ---- header and main ------------------------------------------------------------------------ */
+
+.column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 56px above 767px; 64px on a phone through `data-phone="bar"`. */
+.header {
+  height: 56px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 var(--page-pad-x);
+  border-bottom: 1px solid var(--line-default);
+  background: var(--bg-canvas);
+}
+
+/* 34px above 767px; 44px on a phone through `data-phone="bar-button"`. */
+.menu {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  margin-left: -6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.menu:hover {
+  background: var(--bg-hover);
+}
+.menu:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* The only scroll container in the app. */
+/* A staff member's "Preview as learner" tab (D-138). Not in the reference: the only shell UI that
+   is not, and it never renders in fixture mode's parity scenarios. Tokens only. */
+.preview {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px var(--page-pad-x);
+  border-bottom: 1px solid var(--status-attention-line);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+
+.previewExit {
+  margin-left: auto;
+  color: var(--text-link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.previewExit:hover {
+  color: var(--text-link-hover);
+}
+
+.previewExit:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+}
+
+/* ---- the Locked Employee Preview overlay ---------------------------------------------------- */
+
+.lockedScrim {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: ai-fade 160ms ease-out;
+}
+
+.lockedBox {
+  width: min(520px, 100%);
+}

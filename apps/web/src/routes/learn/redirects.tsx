@@ -1,7 +1,9 @@
-// Where the first learner portal's addresses go now (D-182). The learner portal at /learn replaced the
-// dashboard, the AI Employee pages, Sessions, the course pages and the first Skill Library, so every old
-// learner address still works by sending its visitor to the new page that does the same job. Emails
-// already sent, reminders, bookmarks, www's links and the seed's own words keep landing somewhere real.
+// Where the first learner portal's addresses go for a learner with the course, with the learner portal's
+// flag on (D-182). The learner portal at /learn does for them what the dashboard, the AI Employee pages,
+// Sessions, the course pages and the first Skill Library did, so each old address sends them to the new
+// page that does the same job. Emails already sent, reminders, bookmarks, www's links and the seed's own
+// words keep landing somewhere real. A learner without the course, staff and a signed-out visitor never
+// come here: they keep the first portal (`audience.ts`, `gates/`), and with the flag off nobody does.
 //
 //   /                          /learn
 //   /sessions                  /learn/schedule
@@ -14,7 +16,8 @@
 //   /skill-library             /learn/skills
 //   /skill-library/:slug       /learn/skills/:slug
 //   anything else a learner    /learn
-//   meets in the old shell
+//   with the course meets in
+//   the old shell
 //
 // Each keeps the address's query and fragment (`?as=`, `?now=` and `?preview=` among them). PURE, apart
 // from the three small route components at the end, and none of it reads data.

@@ -6,6 +6,7 @@ import type { Db } from '@ai/core';
 import type { Viewer } from '../../data/repository';
 import type { CourseLoad } from './data';
 import type * as DataModule from './data';
+import { learnerV2Enabled } from './flag';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, learnState, liveState, prelaunchState } from './test/fixture';
 import type { LearnState } from './test/fixture';
@@ -46,7 +47,7 @@ function setWidth(w: number) {
 }
 
 function at(path: string) {
-  const router = createMemoryRouter([...learnerRoutes(), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
+  const router = createMemoryRouter([...learnerRoutes(true), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
   render(<RouterProvider router={router} />);
   return router;
 }
@@ -254,6 +255,30 @@ describe('the step player (D-177)', () => {
   });
 });
 
+
+describe('the flag (D-177)', () => {
+  it('is off unless set, on under vitest, and on in the fixture build', () => {
+    expect(learnerV2Enabled({})).toBe(false);
+    expect(learnerV2Enabled({ MODE: 'production' })).toBe(false);
+    expect(learnerV2Enabled({ MODE: 'fixture', VITE_LEARNER_V2: 'true' })).toBe(true);
+    expect(learnerV2Enabled({ MODE: 'test' })).toBe(true);
+    expect(learnerV2Enabled({ MODE: 'test', VITE_LEARNER_V2: 'false' })).toBe(false);
+    expect(learnerV2Enabled({ MODE: 'production', VITE_LEARNER_V2: 'yes' })).toBe(false);
+  });
+
+  it('off: every /learn address redirects to /, and no learner screen is registered', async () => {
+    const routes = learnerRoutes(false);
+    expect(routes).toHaveLength(1);
+    expect(routes[0]!.lazy).toBeUndefined();
+    for (const path of ['/learn', '/learn/week/0', '/learn/week/0/step/3', '/learn/anything']) {
+      const router = createMemoryRouter([...routes, { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
+      const { unmount } = render(<RouterProvider router={router} />);
+      expect(await screen.findByText('the portal')).toBeInTheDocument();
+      expect(router.state.location.pathname).toBe('/');
+      unmount();
+    }
+  });
+});
 
 describe('what the first portal had and the mockup draws no screen for (D-182)', () => {
   const onTeam = () => {

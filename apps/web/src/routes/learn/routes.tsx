@@ -1,7 +1,8 @@
 import { Navigate } from 'react-router';
 import type { RouteObject } from 'react-router';
 
-// The learner portal's addresses (D-177; every learner's portal since D-182), inside the learner shell.
+// The learner portal v2's addresses (D-177), siblings of `/` like /course and /skill-library, so nothing
+// about the current portal's shell, routes or goldens moves.
 //
 //   /learn                         Home (before launch, live build, between sessions; no cohort pieces
 //                                  for a learner whose plan has no course, Utah Life included)
@@ -18,9 +19,13 @@ import type { RouteObject } from 'react-router';
 //   /learn/vault                   the Resource Vault (D-182): the first portal's screen, inside this
 //                                  shell, where the nav's Resource vault opens it
 //
-// The first portal's learner addresses (`/`, `/sessions`, `/employees/:id`, `/course`, `/course/:week`,
-// `/skill-library`, `/skill-library/:slug`, `/team`, `/vault`, `/team-tier`) redirect here
-// (`redirects.ts`, D-182).
+// With the flag off there are no screens here at all: every /learn address redirects to /.
+//
+// With the flag on, the router routes by course access (D-182, `audience.ts`): a learner with the
+// course is sent here from the first portal's addresses (`redirects.tsx`), and a learner without it is
+// sent from here back to the first portal's page for the address (the Skill Library, the vault, the Team
+// Hub, `/account`), exactly as `main` serves them today. That is the `gate` option: the router passes it,
+// the screens' own tests leave it off.
 
 export const LEARN_ROOT = '/learn';
 export const learnHome = (): string => LEARN_ROOT;
@@ -33,11 +38,17 @@ export const learnAccount = (): string => `${LEARN_ROOT}/account`;
 export const learnTeam = (): string => `${LEARN_ROOT}/team`;
 export const learnVault = (): string => `${LEARN_ROOT}/vault`;
 
-export function learnerRoutes(): RouteObject[] {
+export interface LearnerRouteOptions {
+  /** Send a learner without the course back to the first portal (D-182, `gates/LearnGate.tsx`). */
+  gate?: boolean;
+}
+
+export function learnerRoutes(enabled: boolean, { gate = false }: LearnerRouteOptions = {}): RouteObject[] {
+  if (!enabled) return [{ path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
   return [
     {
       path: LEARN_ROOT,
-      lazy: () => import('../../shell/learner/LearnerShell'),
+      lazy: gate ? () => import('./gates/LearnGate') : () => import('../../shell/learner/LearnerShell'),
       children: [
         { index: true, lazy: () => import('./Home') },
         { path: 'week/:week', lazy: () => import('./Week') },

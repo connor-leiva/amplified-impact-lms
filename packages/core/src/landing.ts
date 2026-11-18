@@ -6,11 +6,11 @@
 // sign-in path lands them on the Skill Library straight away. Staff, and a learner with a portal, start
 // at `/` as before.
 //
-// D-182: both answers stay as they were, and the web app does the rest. `/` sends a learner to the
-// learner portal's Home (`/learn`) and staff to the Admin Console, before anything is drawn, and
-// `/skill-library` is the learner portal's Skill Library (`/learn/skills`) by a redirect. So a learner
-// with the course lands on /learn, one without it on the Skill Library, and the server's answers (which
-// masquerade's start and `apps/api/test/access-groups.test.ts` read too) don't move.
+// D-182: both answers stay as they are. With the learner portal's flag off (production today) the web app
+// serves them as `main` does. With it on, the web app routes by this same rule (`hasPortal`, the web's
+// `routes/learn/audience.ts`): `/` sends a learner with the course on to the learner portal (`/learn`),
+// and a learner without it lands on the standalone Skill Library at `/skill-library`, as today. The
+// server's answers (which masquerade's start and `apps/api/test/access-groups.test.ts` read too) don't move.
 
 import { scopeSnapshot } from './scope';
 import type { ViewerAccess } from './scope';
@@ -40,7 +40,7 @@ export function landingPath(db: Db, actor: Actor, access?: ViewerAccess): Landin
 export const safeLanding = (value: unknown): LandingPath =>
   (LANDING_PATHS as readonly unknown[]).includes(value) ? (value as LandingPath) : '/';
 
-/** A skill's page in the learner portal (D-179), where `/skill-library/<page>` redirects since D-182. */
+/** A skill's page in the learner portal (D-179), where `/skill-library/<page>` redirects a learner with the course (D-182). */
 const LEARN_SKILL_PREFIX = '/learn/skills/';
 
 /**

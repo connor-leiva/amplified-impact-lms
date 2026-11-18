@@ -32,9 +32,11 @@ import s from './LearnerShell.module.css';
 // one thing (the session live now, else the next live build, then the account), and on a phone a 56px
 // bar, a next-session strip and the sidebar as a drawer. No admin chrome.
 //
-// Built alongside the first learner portal behind a flag (D-177), and every learner's portal since D-182,
-// which retired the first one and its flag. It reads `GET /api/course`, the snapshot and the viewer, and
-// hands them to each screen through the outlet's context.
+// Built alongside the current learner portal (`../AppShell.tsx`, unchanged), behind the off-by-default
+// flag (`routes/learn/flag.ts`). With the flag on it is the portal of every learner whose plan opens the
+// course (D-182, `routes/learn/audience.ts`); everyone else keeps the first portal. It reads
+// `GET /api/course`, the snapshot and the viewer, and hands them to each screen through the outlet's
+// context.
 //
 // D-182 also gave it the first portal's pieces with no screen in the mockup, so that nothing a learner
 // could do there is lost: the Resource vault for every learner (the first portal kept it for a plan
