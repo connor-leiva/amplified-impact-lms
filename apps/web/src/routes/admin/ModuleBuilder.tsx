@@ -33,6 +33,8 @@ import {
   seedDraft,
 } from './ModuleBuilder.vm';
 import type { BuilderR2Step } from './ModuleBuilder.vm';
+import { DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
+import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 
 // Admin Module Builder `/admin/curriculum/:employeeId` and `/admin/curriculum/new` on the Admin
@@ -142,6 +144,10 @@ export function Component() {
 
   const d = st.draft;
   const vm = builderR2VM(db, d, { dirty: st.dirty, saved: !!st.key }, now);
+  // D-174: a course week gets the course's cards; an AI Employee is drawn as the R2 mockup draws it.
+  const week = isWeekDraft(d) ? d : null;
+  // D-174: what Save would be refused for, while staff type (the copy rules on what changed).
+  const issues = st.dirty ? draftIssues(db.modules.find((m) => m.id === d.id) ?? null, d) : [];
   const live = db.modules.some((m) => m.id === d.id && m.status === 'published');
 
   /** Preview as Learner: the published AI Employee as the learner its tier calls for (phase 06 § 6.4). */
@@ -214,6 +220,16 @@ export function Component() {
       {st.errors.length ? (
         <div role="alert" className={s.alert}>
           {st.errors.map((e) => (
+            <p key={e} className={k.p}>
+              {e}
+            </p>
+          ))}
+        </div>
+      ) : null}
+      {issues.length && !st.errors.length ? (
+        <div role="status" className={s.alert}>
+          <p className={k.p}>Fix these before you save:</p>
+          {issues.map((e) => (
             <p key={e} className={k.p}>
               {e}
             </p>
@@ -347,6 +363,7 @@ export function Component() {
               </div>
             ))}
           </Card>
+          {week ? <WeekCards db={db} draft={week} up={up} act={act} /> : null}
         </div>
         <Card title="Settings">
           <div className={clsx(k.col, s.kvs)}>
@@ -404,8 +421,16 @@ export function Component() {
                 },
                 {
                   label: 'Opens',
-                  value: vm.opens.muted ? <span className={k.mu}>{vm.opens.text}</span> : vm.opens.text,
+                  value:
+                    week && week.status === 'scheduled' && week.opens ? (
+                      mtWhen(week.opens)
+                    ) : vm.opens.muted ? (
+                      <span className={k.mu}>{vm.opens.text}</span>
+                    ) : (
+                      vm.opens.text
+                    ),
                 },
+                ...(week ? [{ label: 'Due', value: week.dueAt ? mtWhen(week.dueAt) : <span className={k.mu}>Not set</span> }] : []),
                 {
                   label: 'Skill guide',
                   value: vm.linked ? (
@@ -505,7 +530,53 @@ export function Component() {
               ))}
             </Sel>
           </label>
-          {d.status === 'scheduled' ? (
+          {week ? (
+            <>
+              {week.status === 'scheduled' ? (
+                <DateTime
+                  label="Opens"
+                  value={week.opens}
+                  onChange={(t) =>
+                    up((x) => {
+                      x.opens = t;
+                    })
+                  }
+                />
+              ) : null}
+              <DateTime
+                label="Due"
+                value={week.dueAt}
+                onChange={(t) =>
+                  up((x) => {
+                    if (t === null) delete x.dueAt;
+                    else x.dueAt = t;
+                  })
+                }
+              />
+              <label className={s.lab}>
+                Tone
+                <Sel
+                  className={k.full}
+                  value={week.tone ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    up((x) => {
+                      if (v) x.tone = v;
+                      else delete x.tone;
+                    });
+                  }}
+                >
+                  <option value="">Not set</option>
+                  {TONES.map((t) => (
+                    <option key={t} value={t}>
+                      {TONE_LABELS[t]}
+                    </option>
+                  ))}
+                </Sel>
+              </label>
+            </>
+          ) : null}
+          {d.status === 'scheduled' && !week ? (
             <label className={s.lab}>
               Opens (MST)
               <input
@@ -628,6 +699,16 @@ export function Component() {
               />
             </label>
           </div>
+          {week ? (
+            <StepWeekFields
+              step={step}
+              onChange={(fn) =>
+                up((x) => {
+                  fn(x.checklist[stepAt]!);
+                })
+              }
+            />
+          ) : null}
         </Modal>
       ) : null}
 
