@@ -153,7 +153,9 @@
   font-weight: 600;
   background: var(--av);
   border: 1.5px solid var(--bg-surface);
-  color: var(--text-primary);
+  /* D-185: the initials sit on the seat's own light avatar colour in both themes, so they take the ink, not
+     the theme's text colour (the same in light; on dark, 1.8:1 before). As Avatar.module.css draws them. */
+  color: var(--ink-900);
   cursor: pointer;
   outline: none;
 }
