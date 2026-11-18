@@ -31,14 +31,14 @@ describe('the Account page (D-178)', () => {
     });
   });
 
-  it('the seats: one of two in use, the operator’s invite still waiting, and Resend for the owner', () => {
+  it('the seats: one of two in use, the operator’s invite still waiting, and no Resend until a real one exists (D-178)', () => {
     expect(vmFor().seats).toEqual({
       label: 'Seats',
       used: 1,
       of: 'of 2 in use',
       segments: [true, false],
       note: 'Operator invite sent Nov 16, not accepted yet',
-      resend: { label: 'Resend invite', email: 'sam@example.com' },
+      resend: null,
     });
   });
 

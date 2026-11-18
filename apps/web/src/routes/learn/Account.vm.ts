@@ -136,8 +136,6 @@ const INVITEE: Record<Learner['role'], string> = {
   Agent: 'Agent',
 };
 
-/** Who may invite, and so resend: the same roles `inviteMember` lets in. */
-const INVITERS: readonly Learner['role'][] = ['Team Owner', 'Operations Lead'];
 
 const isPlanKind = (k: string): k is PlanKind => (PLAN_KINDS as readonly string[]).includes(k);
 
@@ -240,7 +238,10 @@ function seatsVM(db: Pick<Db, 'teams' | 'users'>, me: Learner | null): SeatsVM |
     of: `of ${team.seats} in use`,
     segments: Array.from({ length: team.seats }, (_, i) => i < used),
     note,
-    resend: one && one.email && INVITERS.includes(me.role) ? { label: ACCOUNT.resend, email: one.email } : null,
+    // No Resend invite yet: the API has no route that resends a team invite (Team Hub's button only
+    // confirms), and a page that says "resent" when nothing was sent misleads the owner. Hidden until the
+    // PM picks a real resend or none (D-178).
+    resend: null,
   };
 }
 

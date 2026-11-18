@@ -90,13 +90,10 @@ describe('the Account page (D-178)', () => {
     expect(screen.queryByRole('button', { name: /Save/ })).toBeNull();
   });
 
-  it('Resend invite confirms as Team Hub does, with no request of its own', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  it('shows the waiting invite but no Resend invite, since nothing would be sent (D-178)', async () => {
     at('/learn/account');
-    fireEvent.click(await screen.findByRole('button', { name: 'Resend invite' }));
-    expect(await screen.findByText('Invite resent to sam@example.com')).toBeInTheDocument();
-    expect(fetchSpy).not.toHaveBeenCalled();
-    fetchSpy.mockRestore();
+    expect(await screen.findByText('Operator invite sent Nov 16, not accepted yet')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Resend invite' })).toBeNull();
   });
 
   it('the profile reads only, and Change password goes to the password page', async () => {
