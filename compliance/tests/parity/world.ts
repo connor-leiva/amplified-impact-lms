@@ -318,7 +318,12 @@ export async function answerApi(
   await ctx.route('**/api/course', async (route: Route) => {
     if (audience === 'course') {
       const page = route.request().frame().page();
-      const db = await storedDb(page);
+      // A refetch can still be in flight when a test closes its tab: there is nothing left to answer.
+      const db = await storedDb(page).catch((e: unknown) => {
+        if (page.isClosed()) return null;
+        throw e;
+      });
+      if (!db) return;
       return route.fulfill({ json: courseAnswer(db, now, nowKey === 'prelaunch') });
     }
     if (audience === 'upcoming')
