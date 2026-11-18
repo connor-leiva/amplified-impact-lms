@@ -96,6 +96,23 @@ test.describe('learner portal v2, the week’s content and kit (D-184) @g9', () 
     await page.context().close();
   });
 
+  test('@parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title', async ({ browser }) => {
+    const page = await open(browser, '/learn/week/1', 1440);
+    const w = week1.course!;
+    await expect(page.locator('main')).toContainText(w.question);
+    await expect(page.locator('main')).toContainText(/From Session \d+ · /);
+    await expect(page.locator('main')).toContainText(/\d+ Min Build/);
+    const kit = page.getByRole('region', { name: 'Week 1 kit' });
+    await expect(kit).toContainText('Flagship');
+    await expect(kit.getByRole('link', { name: 'Download in Your Skill Library' })).toHaveAttribute('href', '/learn/skills');
+    await expect(page.getByRole('region', { name: 'Seat Card' })).toContainText(w.seatCard!.seat);
+    await expect(page.getByRole('region', { name: 'Playbook Card' })).toContainText(w.playbookCard!.play);
+    await expect(page).toHaveTitle(`Week 1 · ${w.title} · Amplified AI Accelerator`);
+    await page.getByRole('link', { name: /^Step 2,/ }).first().click();
+    await expect(page).toHaveTitle(new RegExp(`^Step 2 · .+ · Week 1 · ${w.title} · Amplified AI Accelerator$`));
+    await page.context().close();
+  });
+
   test('@parity:SH-7 the week and the step show a visible trail', async ({ browser }) => {
     const page = await open(browser, '/learn/week/1/step/2', 1440);
     const trail = page.locator('main').getByRole('list', { name: 'Breadcrumb' });

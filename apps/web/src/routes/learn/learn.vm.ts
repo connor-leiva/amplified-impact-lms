@@ -298,6 +298,8 @@ export interface KitRowVM {
   /** Where it goes: a Library page, or the gated files route. Null when there is nowhere yet. */
   href: string | null;
   external: boolean;
+  /** D-184: a week's skill's role ("Flagship") and Free, as the course page tags them. */
+  tags?: { label: string; tone?: 'done' }[];
 }
 
 const KIND_LABEL: Record<ResourceKind, string> = { file: 'File', prompt: 'Prompt', guide: 'Guide', replay: 'Replay', vault: 'File' };

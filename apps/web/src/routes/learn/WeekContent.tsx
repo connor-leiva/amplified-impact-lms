@@ -15,7 +15,7 @@ import type { StoredFileRef } from '../../data/repository';
 import type { DownloadVM } from '../course/Course.vm';
 import { LABELS } from './learn.vm';
 import { KIT } from './WeekContent.vm';
-import type { BuildKitVM, CodeLineVM, CrumbVM, KitFileVM, PartVM, SectionVM, WeekContentVM } from './WeekContent.vm';
+import type { BuildKitVM, CodeLineVM, CrumbVM, KitFileVM, PartVM, SectionVM, WeekContentVM, WeekMetaVM } from './WeekContent.vm';
 import { Tile } from './parts';
 import s from './Learn.module.css';
 import c from './WeekContent.module.css';
@@ -49,6 +49,50 @@ function saveText(name: string, text: string): void {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/** The tab's title while the page shows (X-2), and the one before it back after; nothing when null (the builder's preview). */
+export function useTabTitle(title: string | null): void {
+  useEffect(() => {
+    if (title === null) return;
+    const was = document.title;
+    document.title = title;
+    return () => {
+      document.title = was;
+    };
+  }, [title]);
+}
+
+/** The current portal's AI Employee header line (E-18), each part only when the week has it. */
+export function WeekMeta({ vm }: { vm: WeekMetaVM }) {
+  const parts = [
+    vm.session ? (
+      <span key="s" className={c.metaPart}>
+        {vm.session.label} ·{' '}
+        <Link className={c.metaLink} to={vm.session.href}>
+          {vm.session.title}
+        </Link>
+      </span>
+    ) : null,
+    vm.selfPaced ? <span key="p">{vm.selfPaced}</span> : null,
+    vm.build ? <span key="b">{vm.build}</span> : null,
+    vm.forWho ? <span key="f">{vm.forWho}</span> : null,
+  ].filter((x) => x !== null);
+  if (!parts.length) return null;
+  return (
+    <p className={c.meta}>
+      {parts.map((x, i) => (
+        <span key={i} className={c.metaPart}>
+          {i > 0 ? (
+            <span className={c.sep} aria-hidden="true">
+              ·
+            </span>
+          ) : null}
+          {x}
+        </span>
+      ))}
+    </p>
+  );
 }
 
 // --- the breadcrumb trail ----------------------------------------------------------------------------

@@ -46,6 +46,35 @@
   white-space: nowrap;
 }
 
+/* ---- the week header's line (the current portal's AI Employee header) -------------------------------- */
+
+.meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-size: var(--r2-fs-13);
+  line-height: var(--r2-lh-18);
+  color: var(--r2-f3);
+}
+.metaPart {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.metaLink {
+  font-weight: 500;
+  color: var(--r2-for);
+  border-radius: 4px;
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+}
+.metaLink:hover {
+  text-decoration-color: var(--r2-for);
+}
+
 /* ---- the week's sections --------------------------------------------------------------------------- */
 
 /* Two columns of cards, each card whole in its column; one column below 960px. */
@@ -262,6 +291,15 @@ button.dl:hover {
 @media (max-width: 767px) {
   .crumbs {
     display: none;
+  }
+  .meta {
+    line-height: 22px;
+  }
+  /* A link on the header's line is a 44px target on a phone, its line where it was. */
+  .metaLink {
+    display: inline-block;
+    padding: 11px 0;
+    margin: -11px 0;
   }
   .row {
     grid-template-columns: minmax(0, 1fr);

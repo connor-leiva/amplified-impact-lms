@@ -2,7 +2,7 @@
 // line, rendered for real through the learner portal's own routes and shell; only the data hooks and
 // `GET /api/course` are stood in for, with the course and snapshot the API would send.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
 import type { Db } from '@ai/core';
@@ -66,7 +66,8 @@ afterEach(() => setViewerZone(null));
 describe('the week page’s content (D-184)', () => {
   it('@parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading', async () => {
     at('/learn/week/0');
-    await screen.findByRole('heading', { level: 1, name: 'Foundations' });
+    // The first render of the file loads the lazy routes; give it the time Learn.test.tsx gives its first.
+    await screen.findByRole('heading', { level: 1, name: 'Foundations' }, { timeout: 5000 });
     const w = (state.course as { payload: { course: { weeks: { why?: string[]; homework?: { byWeekEnd: string[] } }[] } } }).payload.course.weeks[0]!;
     expect(screen.getByRole('region', { name: 'How It Works' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Why It Matters' })).toHaveTextContent(w.why![0]!);
@@ -93,6 +94,38 @@ describe('the week page’s content (D-184)', () => {
     const dl = screen.getByRole('region', { name: 'Downloads' });
     expect(within(dl).getByRole('button', { name: /Download the Use Log/ })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'How It Works' })).toBeNull();
+  });
+
+  it('@parity:K-5 @parity:K-15 a week’s question under its title, its skills tagged with their role and Free, the Library link, and its seat and playbook cards', async () => {
+    use(liveState());
+    at('/learn/week/1');
+    const h1 = await screen.findByRole('heading', { level: 1 });
+    const w = (state.course as { payload: { course: { weeks: { question: string; skills: { title: string }[]; seatCard?: { seat: string }; playbookCard?: { play: string } }[] } } }).payload.course.weeks[1]!;
+    expect(h1.closest('div')!.parentElement).toHaveTextContent(w.question);
+    const kit = screen.getByRole('region', { name: 'Week 1 kit' });
+    expect(within(kit).getByText(w.skills[0]!.title).parentElement).toHaveTextContent('Flagship');
+    expect(within(kit).getByRole('link', { name: 'Download in Your Skill Library' })).toHaveAttribute('href', '/learn/skills');
+    expect(screen.getByRole('region', { name: 'Seat Card' })).toHaveTextContent(w.seatCard!.seat);
+    expect(screen.getByRole('region', { name: 'Playbook Card' })).toHaveTextContent(w.playbookCard!.play);
+  });
+
+  it('@parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step', async () => {
+    use(liveState());
+    const before = document.title;
+    const router = at('/learn/week/1');
+    await screen.findByRole('heading', { level: 1 });
+    const w = (state.course as { payload: { course: { weeks: { title: string }[] }; sessions: { week: number; kind: string; n: number; title: string }[] } }).payload;
+    const s1 = w.sessions.find((s) => s.week === 1 && s.kind === 'build')!;
+    expect(screen.getByText(`From Session ${s1.n} ·`, { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: s1.title })).toHaveAttribute('href', '/learn/schedule');
+    expect(screen.getByText(/\d+ Min Build/)).toBeInTheDocument();
+    expect(document.title).toBe(`Week 1 · ${w.course.weeks[1]!.title} · Amplified AI Accelerator`);
+    fireEvent.click(screen.getAllByRole('link', { name: /^Step 2,/ })[0]!);
+    await waitFor(() => expect(document.title).toMatch(new RegExp(`^Step 2 · .+ · Week 1 · ${w.course.weeks[1]!.title} · Amplified AI Accelerator$`)));
+    expect(router.state.location.pathname).toBe('/learn/week/1/step/2');
+    // Leaving the course's pages gives the tab its own title back.
+    act(() => void router.navigate('/learn/schedule'));
+    await waitFor(() => expect(document.title).toBe(before));
   });
 
   it('@parity:SH-7 a visible trail above the week and the step: Home, the week, the step', async () => {

@@ -16,8 +16,8 @@ import type { Platform, StepVM } from './Step.vm';
 import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import { learnHome } from './routes';
-import { BuildKit, Crumbs, moduleFileUrl } from './WeekContent';
-import { buildKitVM, crumbsVM } from './WeekContent.vm';
+import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
+import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
@@ -46,9 +46,12 @@ interface StepMore {
   crumbs: CrumbVM[];
   kit: BuildKitVM | null;
   previewing: boolean;
+  /** The tab's title (X-2), or null in the builder's preview. */
+  title: string | null;
 }
 
 function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
+  useTabTitle(more.title);
   const mutate = useMutate();
   const [platform, setPlatform] = useState<Platform>(vm.tabs[0] ?? 'claude');
   const on = vm.tabs.includes(platform) ? platform : (vm.tabs[0] ?? 'claude');
@@ -201,6 +204,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     crumbs: crumbsVM(vm.back.label, vm.week, { n: step ?? 1, title: vm.title }),
     kit: buildKitVM(row?.module, moduleFileUrl),
     previewing: viewer.preview !== undefined,
+    title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
   };
   // A new step starts on its own first tab.
   return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} />;

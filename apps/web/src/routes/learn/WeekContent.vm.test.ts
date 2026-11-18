@@ -11,9 +11,10 @@ import { planCopyV1 } from '@ai/core/seed/copy-v1';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import type { CoursePayload } from '../course/Course.vm';
-import { COPY } from '../course/Course.vm';
-import { buildKitVM, codeLines, crumbsVM, weekContentVM } from './WeekContent.vm';
-import { hasTeamHub, sideVM } from './learn.vm';
+import { COPY, skillVM } from '../course/Course.vm';
+import { buildKitVM, codeLines, crumbsVM, tabTitle, weekContentVM } from './WeekContent.vm';
+import { hasTeamHub, sideVM, weekRows } from './learn.vm';
+import { weekVM } from './Week.vm';
 import { learner } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
@@ -33,7 +34,7 @@ describe('the week’s content (D-184)', () => {
   it('@parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order', () => {
     const p = payloadOf(deployed());
     open(p, 1).officeHours!.outputs = ['A spend map you trust.'];
-    expect(ids(p, 1)).toEqual(['why', 'who', 'live', 'office-hours', 'homework', 'evidence', 'rubric', 'readiness', 'media']);
+    expect(ids(p, 1)).toEqual(['why', 'who', 'live', 'office-hours', 'homework', 'evidence', 'rubric', 'readiness', 'media', 'seat', 'playbook']);
     const vm = weekContentVM(p, 1)!;
     const sec = (id: string) => vm.sections.find((x) => x.id === id)!;
     const w = open(p, 1);
@@ -102,19 +103,76 @@ describe('the week’s content (D-184)', () => {
     expect(after.parts).toContainEqual(expect.objectContaining({ kind: 'rows', heading: COPY.pilot }));
   });
 
-  it('@parity:K-15 a seat card and a playbook card show when the week carries them', () => {
-    const p = payloadOf(deployed());
-    Object.assign(open(p, 1), {
+  it('@parity:K-15 the seat card and the playbook card, as `GET /api/course` now sends them, each row the builder filled', () => {
+    const d = deployed();
+    const p = payloadOf(d);
+    const w = open(p, 1);
+    // The API's answer carries the week's cards (D-184), straight from the builder's data.
+    expect(w.seatCard).toEqual(d.modules.find((m) => m.id === 'accelerator-week-1')!.course!.seatCard);
+    expect(w.seatCard && w.playbookCard).toBeTruthy();
+    const vm = weekContentVM(p, 1)!;
+    expect(vm.sections.map((x) => x.id).slice(-2)).toEqual(['seat', 'playbook']);
+    const seat = vm.sections.find((x) => x.id === 'seat')!;
+    expect(seat.title).toBe('Seat Card');
+    expect((seat.parts[0] as { rows: { label: string; text: string }[] }).rows).toContainEqual({ label: 'Seat', text: w.seatCard!.seat });
+    const pb = vm.sections.find((x) => x.id === 'playbook')!;
+    expect(pb.title).toBe('Playbook Card');
+    expect((pb.parts[0] as { rows: { label: string; text: string }[] }).rows).toContainEqual({ label: 'Play', text: w.playbookCard!.play });
+    // A week without cards has no such section, and an empty row is left out.
+    expect(ids(p, 0)).not.toContain('seat');
+    Object.assign(w, {
       seatCard: { seat: 'Finance Analyst', reportsTo: 'The owner', runs: 'Weekly', pulls: 'The books', applies: 'The chart', produces: 'A spend map', tookOver: 'Categorizing', cantDo: 'Pay bills', firstRun: '' },
       playbookCard: { number: '4', question: 'Where does the money go?', play: 'Map it weekly.', signedOff: true },
     });
-    const vm = weekContentVM(p, 1)!;
-    const seat = vm.sections.find((x) => x.id === 'seat')!;
-    expect(seat.title).toBe('Seat Card');
-    // The empty First Run row is left out.
-    expect((seat.parts[0] as { rows: { label: string }[] }).rows.map((r) => r.label)).toEqual(['Seat', 'Reports To', 'Runs', 'Pulls', 'Applies', 'Produces', 'Took Over', 'Can’t Do']);
-    const pb = vm.sections.find((x) => x.id === 'playbook')!;
-    expect(pb).toMatchObject({ title: 'Playbook Card', meta: 'Signed Off', parts: [{ rows: [{ label: 'Number', text: '4' }, { label: 'Question', text: 'Where does the money go?' }, { label: 'Play', text: 'Map it weekly.' }] }] });
+    const again = weekContentVM(p, 1)!;
+    expect((again.sections.find((x) => x.id === 'seat')!.parts[0] as { rows: { label: string }[] }).rows.map((r) => r.label)).toEqual(['Seat', 'Reports To', 'Runs', 'Pulls', 'Applies', 'Produces', 'Took Over', 'Can’t Do']);
+    expect(again.sections.find((x) => x.id === 'playbook')).toMatchObject({ meta: 'Signed Off', parts: [{ rows: [{ label: 'Number', text: '4' }, { label: 'Question', text: 'Where does the money go?' }, { label: 'Play', text: 'Map it weekly.' }] }] });
+  });
+
+  it('the open week’s question, for under its title; none when it has none', () => {
+    const p = payloadOf(deployed());
+    expect(weekContentVM(p, 1)!.question).toBe(open(p, 1).question);
+    open(p, 1).question = '';
+    expect(weekContentVM(p, 1)!.question).toBeNull();
+  });
+
+  it('@parity:E-18 the header line: From Session N to the Schedule, or Self-Paced, the build minutes and who it’s for', () => {
+    const d = deployed();
+    const p = payloadOf(d);
+    const m1 = d.modules.find((m) => m.id === 'accelerator-week-1')!;
+    const s1 = p.sessions.find((s) => s.week === 1 && s.kind === 'build')!;
+    const mins = (w: number) => open(p, w).module.checklist.reduce((n, s) => n + s.mins, 0);
+    expect(weekContentVM(p, 1, m1)!.meta).toEqual({
+      session: { label: `From Session ${s1.n}`, title: s1.title, href: '/learn/schedule' },
+      selfPaced: null,
+      build: `${mins(1)} Min Build`,
+      forWho: `For ${m1.forWho}`,
+    });
+    // Week 0 has no live build: Self-Paced, as the current portal says of an AI Employee with no session.
+    expect(weekContentVM(p, 0)!.meta).toEqual({ session: null, selfPaced: 'Self-Paced', build: `${mins(0)} Min Build`, forWho: null });
+    // An empty value renders nothing.
+    open(p, 0).module.checklist.forEach((s) => (s.mins = 0));
+    expect(weekContentVM(p, 0, { forWho: '' })!.meta).toEqual({ session: null, selfPaced: 'Self-Paced', build: null, forWho: null });
+  });
+
+  it('@parity:X-2 the tab is named after the week, and a step after itself and its week, as the course page names it', () => {
+    expect(tabTitle(1, 'Where the Money Goes')).toBe('Week 1 · Where the Money Goes · Amplified AI Accelerator');
+    expect(tabTitle(1, 'Where the Money Goes', { n: 2, title: 'Answer the Flags' })).toBe('Step 2 · Answer the Flags · Week 1 · Where the Money Goes · Amplified AI Accelerator');
+  });
+
+  it('@parity:K-5 a week’s skills carry their role and Free, as the course page tags them, and the kit links the Skill Library', () => {
+    const d = deployed();
+    const p = payloadOf(d);
+    const rows = weekRows(p, d, null);
+    const vm = weekVM(p, rows, 1, LIVE, () => null);
+    if (vm.kind !== 'open') throw new Error('not open');
+    const w = open(p, 1);
+    const skills = vm.kit!.rows.filter((r) => r.key.startsWith('skill:'));
+    expect(skills.map((r) => r.tags)).toEqual(w.skills.map((k) => [{ label: skillVM(k, p.copy).role }, ...(k.free ? [{ label: 'Free', tone: 'done' }] : [])]));
+    expect(skills[0]!.tags![0]!.label).toBe('Flagship');
+    expect(vm.kit!.library).toEqual({ label: 'Download in Your Skill Library', href: '/learn/skills' });
+    // A kit item that isn't a skill has no tags.
+    expect(vm.kit!.rows.filter((r) => !r.key.startsWith('skill:')).every((r) => !r.tags)).toBe(true);
   });
 
   it('every field empty shows nothing: no section, no heading, no download', () => {
@@ -131,6 +189,8 @@ describe('the week’s content (D-184)', () => {
         homework: { byWeekEnd: [], assignment: [], acceptance: [], useEvidence: '' },
         media: [],
         materials: [],
+        seatCard: undefined,
+        playbookCard: undefined,
       });
     for (const w of p.course.weeks) blank(w as OpenCourseWeek);
     const empty: CohortCourse = {

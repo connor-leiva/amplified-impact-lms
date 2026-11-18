@@ -52,6 +52,11 @@
   text-wrap: pretty;
   margin: 0;
 }
+/* D-184: an open week's question under its title, as the course page shows it. */
+.q {
+  font-weight: 500;
+  color: var(--r2-ink);
+}
 .pk {
   display: flex;
   align-items: flex-start;
@@ -338,6 +343,13 @@ button.b {
 .pl[data-tone='done'] {
   background: var(--r2-okb);
   color: var(--r2-ok);
+}
+/* D-184: a week's skill's role and Free, under its name in the kit. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
 }
 .pl[data-tone='ip'] {
   background: var(--r2-infob);

@@ -12,13 +12,13 @@
 
 import { fmt } from '@ai/core';
 import type { AIEmployee, SkillFile } from '@ai/core';
-import type { LearnerCourseWeek } from '@ai/core/course';
+import type { LearnerCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { PlaybookCard, SeatCard } from '@ai/core/course-types';
 import { skillPreview } from '@ai/core/files';
 import { COPY, weekVM as courseWeekVM } from '../course/Course.vm';
 import type { CoursePayload, DownloadVM, Row } from '../course/Course.vm';
 import { LABELS } from './learn.vm';
-import { learnHome, learnWeek } from './routes';
+import { learnHome, learnSchedule, learnWeek } from './routes';
 import type { StoredFileRef } from '../../data/repository';
 
 /** The build kit's labels (the current portal's Build Kit, `EmployeeDetail.tsx`), and the content's few more. */
@@ -41,6 +41,13 @@ export const KIT = {
   playbookCard: 'Playbook Card',
   signedOff: 'Signed Off',
   weeks: 'Weeks',
+  // The current portal's AI Employee header (E-18).
+  fromSession: 'From Session',
+  selfPaced: 'Self-Paced',
+  minBuild: 'Min Build',
+  for: 'For',
+  // The tab's title, as the course page names it (X-2).
+  program: 'Amplified AI Accelerator',
 } as const;
 
 const SEAT_LABEL: Record<keyof SeatCard, string> = {
@@ -85,7 +92,19 @@ export interface PagerLinkVM {
   href: string;
 }
 
+/** The current portal's AI Employee header line (E-18): its session or Self-Paced, its build minutes, who it's for. */
+export interface WeekMetaVM {
+  /** "From Session 2" and the session's title, to the Schedule; null for a week with no live build. */
+  session: { label: string; title: string; href: string } | null;
+  selfPaced: string | null;
+  build: string | null;
+  forWho: string | null;
+}
+
 export interface WeekContentVM {
+  /** The week's question, under its title (the course page's), or null when it has none. */
+  question: string | null;
+  meta: WeekMetaVM;
   sections: SectionVM[];
   downloads: DownloadVM[];
   pager: { prev: PagerLinkVM | null; next: PagerLinkVM | null } | null;
@@ -112,8 +131,6 @@ function section(id: string, title: string, parts: (PartVM | null)[], meta: stri
   return { id, title, meta, parts: kept };
 }
 
-/** The builder's newer cards, which a week may carry. `GET /api/course` sends a week without them today (D-184). */
-type WithCards = LearnerCourseWeek & { seatCard?: SeatCard; playbookCard?: PlaybookCard };
 
 function seatSection(card: SeatCard | undefined): SectionVM | null {
   if (!card) return null;
@@ -134,13 +151,14 @@ function playbookSection(card: PlaybookCard | undefined): SectionVM | null {
  * Works (the course page's intro), and its last week the graduation and the after-the-course paths.
  * Null for a week that is locked or not in the course.
  */
-export function weekContentVM(p: CoursePayload, week: number): WeekContentVM | null {
+export function weekContentVM(p: CoursePayload, week: number, m?: Pick<AIEmployee, 'forWho'>): WeekContentVM | null {
   const v = courseWeekVM(p, week);
   if (!v) return null;
   const { course } = p;
   const weeks = course.weeks;
   const i = weeks.findIndex((w) => w.week === week);
-  const w = weeks[i] as WithCards;
+  // An open week: the course page's view-model answered for it.
+  const w = weeks[i] as OpenCourseWeek;
   const first = i === 0;
   const last = i === weeks.length - 1;
   const intro = course.intro;
@@ -216,7 +234,16 @@ export function weekContentVM(p: CoursePayload, week: number): WeekContentVM | n
   const prev = link(weeks[i - 1], COPY.previous);
   const next = link(weeks[i + 1], COPY.next);
 
-  return { sections, downloads: v.downloads, pager: prev || next ? { prev, next } : null };
+  const build = p.sessions.filter((s) => s.week === week && s.kind === 'build').sort((a, b) => a.start - b.start)[0];
+  const mins = w.module.checklist.reduce((n, s) => n + (s.mins || 0), 0);
+  const meta: WeekMetaVM = {
+    session: build ? { label: `${KIT.fromSession} ${build.n}`, title: build.title, href: learnSchedule() } : null,
+    selfPaced: build ? null : KIT.selfPaced,
+    build: mins > 0 ? `${mins} ${KIT.minBuild}` : null,
+    forWho: has(m?.forWho) ? `${KIT.for} ${m!.forWho}` : null,
+  };
+
+  return { question: has(v.question) ? v.question : null, meta, sections, downloads: v.downloads, pager: prev || next ? { prev, next } : null };
 }
 
 // --- the build kit: the Module Builder's system prompt, files and instructor notes ------------------
@@ -322,4 +349,11 @@ export function crumbsVM(weekTitle: string, week: number, step?: { n: number; ti
     { label: weekTitle, href: step ? learnWeek(week) : null },
     ...(step ? [{ label: `${LABELS.step} ${step.n} · ${step.title}`, href: null }] : []),
   ];
+}
+
+// --- the tab's title (X-2) --------------------------------------------------------------------------
+
+/** "Week 1 · Where the Money Goes · Amplified AI Accelerator", as the course page names its tab; a step's adds itself first. */
+export function tabTitle(week: number, weekTitle: string, step?: { n: number; title: string }): string {
+  return [step ? `${LABELS.step} ${step.n} · ${step.title}` : null, `${LABELS.week} ${week} · ${weekTitle}`, KIT.program].filter((x): x is string => !!x).join(' · ');
 }
