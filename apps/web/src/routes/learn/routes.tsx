@@ -11,6 +11,7 @@ import type { RouteObject } from 'react-router';
 //   /learn/skills                  the Skill Library (D-179)
 //   /learn/skills/:slug            a skill: its guided setup in the step player when it is open, else
 //                                  its locked preview (D-179)
+//   /learn/account                 the learner's Account page (D-178)
 //
 // With the flag off there are no screens here at all: every /learn address redirects to /.
 
@@ -20,6 +21,7 @@ export const learnWeek = (week: number): string => `${LEARN_ROOT}/week/${week}`;
 export const learnStep = (week: number, step: number): string => `${LEARN_ROOT}/week/${week}/step/${step}`;
 export const learnSkills = (): string => `${LEARN_ROOT}/skills`;
 export const learnSkill = (slug: string): string => `${LEARN_ROOT}/skills/${slug}`;
+export const learnAccount = (): string => `${LEARN_ROOT}/account`;
 
 export function learnerRoutes(enabled: boolean): RouteObject[] {
   if (!enabled) return [{ path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
@@ -33,6 +35,7 @@ export function learnerRoutes(enabled: boolean): RouteObject[] {
         { path: 'week/:week/step/:step', lazy: () => import('./Step') },
         { path: 'skills', lazy: () => import('./Library') },
         { path: 'skills/:slug', lazy: () => import('./Skill') },
+        { path: 'account', lazy: () => import('./Account') },
         { path: '*', element: <Navigate to={LEARN_ROOT} replace /> },
       ],
     },

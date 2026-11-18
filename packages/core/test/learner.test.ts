@@ -7,6 +7,8 @@ import type { OpenCourseWeek } from '../src/course';
 import {
   countWord,
   countdown,
+  dateYear,
+  dayYear,
   currentWeek,
   duration,
   firstName,
@@ -142,5 +144,23 @@ describe('the learner portal v2 logic (D-177)', () => {
     expect(partOfDay(Date.parse('2026-11-18T16:30:00Z'))).toBe('morning'); // 11:30 AM ET
     expect(partOfDay(Date.parse('2026-11-18T17:00:00Z'))).toBe('afternoon'); // noon ET
     expect(monthYear(Date.parse('2026-12-02T18:00:00Z'))).toBe('December 2026');
+  });
+
+  it('writes a day with its year in the viewer’s own zone (D-178)', () => {
+    setViewerZone('America/Denver');
+    const may4 = Date.parse('2027-05-04T18:00:00Z');
+    expect(dateYear(may4)).toBe('May 4, 2027');
+    expect(dayYear(may4)).toBe('Tue, May 4, 2027');
+    // 11:30 PM MT on Nov 11 is already Nov 12 in New York.
+    const late = Date.parse('2026-11-12T06:30:00Z');
+    expect(dateYear(late)).toBe('Nov 11, 2026');
+    setViewerZone('America/New_York');
+    expect(dateYear(late)).toBe('Nov 12, 2026');
+    // A date about money, in billing's zone: midnight Central on May 4 is still May 3 in Mountain.
+    setViewerZone('America/Denver');
+    const charge = Date.parse('2027-05-04T00:00:00-05:00');
+    expect(dayYear(charge)).toBe('Mon, May 3, 2027');
+    expect(dayYear(charge, 'America/Chicago')).toBe('Tue, May 4, 2027');
+    expect(dateYear(charge, 'America/Chicago')).toBe('May 4, 2027');
   });
 });
