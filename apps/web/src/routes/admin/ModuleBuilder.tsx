@@ -33,7 +33,7 @@ import {
   seedDraft,
 } from './ModuleBuilder.vm';
 import type { BuilderR2Step } from './ModuleBuilder.vm';
-import { DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
+import { CoursePreview, DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
 import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 
@@ -94,6 +94,7 @@ export function Component() {
   const [details, setDetails] = useState(false);
   const [stepAt, setStepAt] = useState<number | null>(null);
   const [removeAt, setRemoveAt] = useState<number | null>(null);
+  const [previewing, setPreviewing] = useState(false);
 
   // A brand-new draft just saved: `/new` must not reseed over it while the navigation is in flight.
   const savedNew = useRef<string | null>(null);
@@ -152,6 +153,11 @@ export function Component() {
 
   /** Preview as Learner: the published AI Employee as the learner its tier calls for (phase 06 § 6.4). */
   const preview = () => {
+    // D-174: a course week previews the learner's course page from the unsaved draft, in place.
+    if (week) {
+      setPreviewing(true);
+      return;
+    }
     if (!live) {
       toast('Publish first. Drafts are hidden from learners.', 'info');
       return;
@@ -711,6 +717,8 @@ export function Component() {
           ) : null}
         </Modal>
       ) : null}
+
+      {week && previewing ? <CoursePreview db={db} draft={week} phone={phone} onClose={() => setPreviewing(false)} /> : null}
 
       {/* D-172: Remove step asks first (Connor's request). The step leaves the draft; Save changes persists it. */}
       {removeAt !== null && d.checklist[removeAt] ? (

@@ -19,9 +19,7 @@
 // window, exactly as for the portal.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from '@ai/core/accelerator';
-import { courseFromSnapshot } from '@ai/core/course';
-import { moduleForSession, sessionKind, sessionWeek } from '@ai/core';
+import { courseFromSnapshot, courseSessions } from '@ai/core/course';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
@@ -51,14 +49,6 @@ export function registerCourseRoute(app: FastifyInstance): void {
     const snapshot = await loadDb(db);
     const course = courseFromSnapshot(snapshot);
     if (!course) return reply.code(503).send({ open: false, error: NOT_LOADED });
-    const sessions = snapshot.sessions
-      .filter((s) => s.cohortId === ACCELERATOR_COHORT_ID)
-      .filter((s) => {
-        const m = moduleForSession(snapshot, s);
-        return !!m && isAcceleratorModule(m.id);
-      })
-      .sort((a, b) => a.start - b.start)
-      .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
-    return reply.code(200).send({ open: true, preview: actor.kind === 'staff', course, sessions });
+    return reply.code(200).send({ open: true, preview: actor.kind === 'staff', course, sessions: courseSessions(snapshot) });
   });
 }

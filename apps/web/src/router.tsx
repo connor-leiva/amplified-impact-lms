@@ -71,6 +71,8 @@ const routes: RouteObject[] = [
       { path: 'admin', lazy: () => import('./routes/admin/Overview') },
       { path: 'admin/curriculum', lazy: () => import('./routes/admin/Curriculum') },
       // One route for both: `new` is the blank draft, anything else edits that AI Employee.
+      // D-174: the course's settings (release plan, shared pages, copy strings), before the builder's `:employeeId`.
+      { path: 'admin/curriculum/course', lazy: () => import('./routes/admin/CourseSettings') },
       { path: 'admin/curriculum/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
       { path: 'admin/cohorts', lazy: () => import('./routes/admin/Cohorts') },
       { path: 'admin/learners', lazy: () => import('./routes/admin/Learners') },

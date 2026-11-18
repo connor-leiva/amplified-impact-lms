@@ -15,10 +15,12 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
 import type { AgendaItem, ContentBlock, LockedCopy, PlaybookCard, SampleOutput, SeatCard } from '@ai/core/course-types';
-import { Button } from '../../components/r2/Button';
+import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm, Modal } from '../../components/r2/Modal';
-import { KV, Pill, Sel, TextArea, k } from '../../components/r2/kit';
+import { KV, Pill, Sel, Tabs, TextArea, k } from '../../components/r2/kit';
+import { COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { CourseBody } from '../course/Course';
 import type { useAct } from '../../data/hooks';
 import {
   BLOCK_LABELS,
@@ -27,12 +29,15 @@ import {
   RESOURCE_KIND_LABELS,
   SESSION_KIND_LABELS,
   VISIBILITY_LABELS,
+  PREVIEW_AS_LABELS,
   listItems,
   listText,
   moveBy,
   mtFrom,
   mtInputs,
   newBlock,
+  previewLoad,
+  previewWeek,
   removeAt,
   setAt,
   tableRows,
@@ -41,7 +46,7 @@ import {
   weekKit,
   weekSessions,
 } from './WeekBuilder.vm';
-import type { KitRow, WeekDraft, WeekSessionRow } from './WeekBuilder.vm';
+import type { KitRow, PreviewAs, WeekDraft, WeekSessionRow } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import w from './WeekBuilder.module.css';
 
@@ -330,9 +335,14 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
     <Card
       title={`Course page · Week ${c.week}`}
       right={
-        <Button kind="quiet" onClick={() => setOpen(true)}>
-          Edit
-        </Button>
+        <span className={clsx(k.row, k.nw)}>
+          <ButtonLink kind="quiet" to="/admin/curriculum/course">
+            Course settings
+          </ButtonLink>
+          <Button kind="quiet" onClick={() => setOpen(true)}>
+            Edit
+          </Button>
+        </span>
       }
     >
       <KV
@@ -944,3 +954,39 @@ function KitCard({ db, draft, act }: WeekCardsProps) {
 }
 
 export type { WeekDraft };
+
+// --- the live preview: the learner's course page, from the unsaved draft ---------------------------
+
+/**
+ * Preview as Learner, for a course week: the learner's course page drawn from the draft as it is now
+ * (nothing saved, nothing sent), as an owner, an operator, a Utah Life member and a buyer before
+ * launch. The page is the real one (`CourseBody`), given the draft instead of the API's answer.
+ */
+export function CoursePreview({ db, draft, phone, onClose }: { db: Db; draft: WeekDraft; phone: boolean; onClose: () => void }) {
+  const [as, setAs] = useState<PreviewAs>('owner');
+  const load = previewLoad(db, draft, as, COURSE_OPENS_AT);
+  return (
+    <Modal
+      title={`Preview · Week ${draft.course.week}`}
+      width={1100}
+      onClose={onClose}
+      foot={
+        <Button kind="primary" onClick={onClose}>
+          Done
+        </Button>
+      }
+    >
+      <Tabs
+        label="Preview as"
+        phone={phone}
+        value={as}
+        onChange={setAs}
+        tabs={(Object.keys(PREVIEW_AS_LABELS) as PreviewAs[]).map((id) => ({ id, label: PREVIEW_AS_LABELS[id] }))}
+      />
+      <p className={clsx(k.p, k.me)}>From the unsaved draft. Nothing here is saved or sent; learners see it after you save.</p>
+      <div className={w.preview} data-testid="course-preview">
+        <CourseBody load={load} week={previewWeek(draft)} />
+      </div>
+    </Modal>
+  );
+}

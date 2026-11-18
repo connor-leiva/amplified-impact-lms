@@ -6,6 +6,8 @@
 
 import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from './accelerator';
 import type { CourseContent, CourseWeek, ModuleCourse } from './course-types';
+import { moduleForSession, sessionKind, sessionWeek } from './sessions';
+import type { SessionKind } from './sessions';
 import type { AIEmployee, Db } from './types';
 
 /** A module that carries a course week. */
@@ -42,4 +44,30 @@ export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'>, cohortId
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!cohort?.course) return null;
   return { ...cohort.course, weeks: courseWeekModules(db).map(courseWeekOf) };
+}
+
+/** One session as `GET /api/course` sends it. Never a Zoom URL: only the join route hands that out. */
+export interface CourseSessionRow {
+  id: string;
+  n: number;
+  kind: SessionKind;
+  week: number;
+  title: string;
+  start: number;
+  mins: number;
+}
+
+/**
+ * The course's sessions, by start: the cohort's sessions that belong to one of the course's weeks.
+ * `GET /api/course` sends these, and the builder's live preview (D-174) renders them from the draft.
+ */
+export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID): CourseSessionRow[] {
+  return db.sessions
+    .filter((s) => s.cohortId === cohortId)
+    .filter((s) => {
+      const m = moduleForSession(db, s);
+      return !!m && isAcceleratorModule(m.id);
+    })
+    .sort((a, b) => a.start - b.start)
+    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
 }

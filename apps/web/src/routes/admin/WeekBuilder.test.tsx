@@ -2,13 +2,15 @@
 // draft lives in a small harness (the builder's own `up`: a structured clone, then the edit); Sessions
 // and Kit save at once, so their writes are checked on a mocked `act`.
 import { useState } from 'react';
+import { MemoryRouter } from 'react-router';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { AIEmployee, Db, Step } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import { seedProduction } from '@ai/core/seed/curriculum';
-import { StepWeekFields, WeekCards } from './WeekBuilder';
+import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
+import { COPY } from '../course/Course.vm';
 import { isWeekDraft } from './WeekBuilder.vm';
 import type { WeekDraft } from './WeekBuilder.vm';
 
@@ -32,7 +34,11 @@ function setup(n = 2) {
   if (!isWeekDraft(m)) throw new Error('not a week');
   const act = vi.fn(async () => ({}));
   let last: WeekDraft = m;
-  render(<Harness db={db} start={m} act={act} onDraft={(d) => (last = d)} />);
+  render(
+    <MemoryRouter>
+      <Harness db={db} start={m} act={act} onDraft={(d) => (last = d)} />
+    </MemoryRouter>,
+  );
   return { db, act, week: m, draft: () => last, user: userEvent.setup() };
 }
 
@@ -158,5 +164,26 @@ describe('a step’s course fields (D-174)', () => {
     // Cleared, a field leaves the step rather than staying as an empty string.
     await user.clear(screen.getByRole('textbox', { name: 'Who' }));
     expect('who' in last).toBe(false);
+  });
+});
+
+describe('the live preview from the unsaved draft (D-174)', () => {
+  it('draws the learner’s course page from the draft, as an owner, a Utah Life member and before launch', async () => {
+    const user = userEvent.setup();
+    const db = prod();
+    const draft = structuredClone(db.modules.find((x) => x.id === ACCELERATOR_MODULE_IDS[2])!);
+    if (!isWeekDraft(draft)) throw new Error('not a week');
+    draft.course.question = 'Which lead sources pay, today?';
+    render(<CoursePreview db={db} draft={draft} phone={false} onClose={() => {}} />);
+    const frame = screen.getByTestId('course-preview');
+    // Not saved anywhere: the db still says the old question, and the preview says the new one.
+    expect(db.modules.find((x) => x.id === draft.id)!.course!.question).not.toBe('Which lead sources pay, today?');
+    expect(frame).toHaveTextContent('Which lead sources pay, today?');
+    await user.click(screen.getByRole('tab', { name: 'Utah Life' }));
+    expect(frame).toHaveTextContent(COPY.locked);
+    expect(frame).not.toHaveTextContent('Which lead sources pay, today?');
+    await user.click(screen.getByRole('tab', { name: 'Before launch' }));
+    expect(frame).not.toHaveTextContent('Which lead sources pay, today?');
+    expect(within(frame).getByRole('link', { name: COPY.library })).toBeInTheDocument();
   });
 });

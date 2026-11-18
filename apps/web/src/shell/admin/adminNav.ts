@@ -305,8 +305,13 @@ export interface CrumbTrail {
  * whether or not the viewer's role shows that row: Denied keeps the page's place, as the mockup's does.
  * A record's page adds its name after the row's (the shell reads the name from the page).
  */
+/** D-174: Course settings, a page of the curriculum's own (not a row of the nav, so every cell keeps its sidebar). */
+export const COURSE_SETTINGS_PATH = '/admin/curriculum/course';
+
 export function crumbTrail(pathname: string): CrumbTrail | null {
   for (const g of R2_GROUPS) if (GROUP_HUBS[g]?.path === norm(pathname)) return { group: g, page: g, hub: true };
+  // Its trail is a record's: `Admin / Build / Curriculum / Course settings` (the page names itself).
+  if (norm(pathname) === COURSE_SETTINGS_PATH) return { group: 'Build', page: 'Curriculum', parent: '/admin/curriculum' };
   const id = activeRowId(pathname);
   if (!id) return null;
   const record = recordParent(norm(pathname)) !== null;

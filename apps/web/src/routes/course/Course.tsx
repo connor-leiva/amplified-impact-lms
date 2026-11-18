@@ -20,7 +20,7 @@ import s from './Course.module.css';
 /** A link that leaves learn opens in a new tab; a guided setup in learn (D-151) opens in this one. */
 const newTab = (href: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {});
 
-type Load =
+export type Load =
   | { kind: 'loading' }
   | { kind: 'ready'; payload: CoursePayload }
   | { kind: 'signed-out' }
@@ -414,6 +414,15 @@ export function Component() {
     if (view) document.title = view.kind === 'week' ? `${view.title} · Amplified AI Accelerator` : 'Amplified AI Accelerator';
   }, [view]);
 
+  return <CourseBody load={load} week={week} />;
+}
+
+/**
+ * The page for one state of the course, from what `GET /api/course` answered (or, in the builder's
+ * live preview, D-174, from the unsaved draft). Markup only, as before.
+ */
+export function CourseBody({ load, week }: { load: Load; week: string | undefined }) {
+  const view = useMemo(() => (load.kind === 'ready' ? courseView(load.payload, week) : null), [load, week]);
   return (
     <main className={s.page}>
       {load.kind === 'loading' ? (
