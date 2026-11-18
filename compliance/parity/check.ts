@@ -34,6 +34,11 @@ export interface ManifestEntry {
   status: (typeof STATUSES)[number];
   /** The branch expected to supply a restored entry's tests. */
   by?: string;
+  /**
+   * Set only on a row the inventory does not have: something today's portal does that this suite found
+   * (Connor's brief § 5, "add it to the manifest with a test"). Its ID is `X-<n>`; the value says where.
+   */
+  added?: string;
   note?: string;
   tests: string[];
 }
@@ -55,11 +60,20 @@ export interface Approval {
   line: number;
 }
 
-const APPROVAL = /^\s*(?:[-*]\s+)?([A-Z]{1,2}-\d+) — (.+?) — Approved by Connor Leiva on ([^,]+), "(.+)"\s*$/;
+/** Whose sign-off a drop needs (Connor's parity brief § 4: "An agent's or reviewer's OK is not Connor's sign-off"). */
+export const APPROVER = 'Connor Leiva';
+const approvalLine = (approver: string) =>
+  new RegExp(
+    `^\\s*(?:[-*]\\s+)?([A-Z]{1,2}-\\d+) — (.+?) — Approved by ${approver.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} on ([^,]+), "(.+)"\\s*$`,
+  );
 const HEADING = /^#{1,6}\s+(.*)$/;
 
-/** The approval lines in signed-off-drops.md, outside the "Pending Connor's sign-off" section. */
-export function parseApprovals(markdown: string): Map<string, Approval> {
+/**
+ * The approval lines in signed-off-drops.md, outside the "Pending Connor's sign-off" section. Only
+ * Connor's count; the unit tests pass a stand-in name so no fixture ever puts words in his mouth.
+ */
+export function parseApprovals(markdown: string, approver: string = APPROVER): Map<string, Approval> {
+  const APPROVAL = approvalLine(approver);
   const out = new Map<string, Approval>();
   let pending = false;
   let fence = false;
@@ -130,7 +144,14 @@ export function checkParity(input: CheckInput): Problem[] {
   // 1. coverage
   for (const id of input.inventory)
     if (!ids.has(id)) add('missing-from-manifest', id, 'in the inventory, not in learner-parity.json');
-  for (const id of ids) if (!inv.has(id)) add('not-in-inventory', id, 'in learner-parity.json, not in the inventory');
+  for (const e of entries) {
+    if (e.added !== undefined) {
+      if (inv.has(e.id)) add('malformed', e.id, 'marked `added`, but the inventory has this ID');
+      else if (!/^X-\d+$/.test(e.id)) add('malformed', e.id, 'a row the inventory does not have takes an X-<n> ID');
+      else if (!e.added.trim()) add('malformed', e.id, '`added` must say where today’s portal does it');
+    } else if (!inv.has(e.id))
+      add('not-in-inventory', e.id, 'in learner-parity.json, not in the inventory (a row it lacks is marked `added`)');
+  }
   const seen = new Set<string>();
   for (const e of entries) {
     if (seen.has(e.id)) add('malformed', e.id, 'listed twice');

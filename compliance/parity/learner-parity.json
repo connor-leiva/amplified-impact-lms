@@ -1,5 +1,5 @@
 {
-  "$comment": "The learner parity manifest (Connor’s parity brief § 3). One entry per row of portal-parity-inventory.md. `tests` is written by `pnpm parity:learner:sync` from the @parity:<ID> tags in test titles; do not edit it by hand. Every other field is reviewed by hand. `by` names the branch expected to supply a restored entry’s tests.",
+  "$comment": "The learner parity manifest (Connor’s parity brief § 3). One entry per row of portal-parity-inventory.md, in its order, then the rows this suite found that the inventory lacks (`added`, IDs X-<n>). `tests` is written by `pnpm parity:learner:sync` from the @parity:<ID> tags in test titles; do not edit it by hand. Every other field is reviewed by hand. `by` names the branch expected to supply a restored entry’s tests.",
   "inventory": "portal-parity-inventory.md",
   "entries": [
     {
@@ -28,7 +28,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /sessions shows the cohort’s sessions @parity:R-2"
+      ]
     },
     {
       "id": "R-3",
@@ -52,7 +54,9 @@
         "Team"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /team shows the Team Hub to a Team-tier owner @parity:R-4"
+      ]
     },
     {
       "id": "R-5",
@@ -68,7 +72,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /vault shows the Resource Vault @parity:R-5"
+      ]
     },
     {
       "id": "R-6",
@@ -124,7 +130,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /skill-library/:slug opens the skill’s guided setup @parity:R-9"
+      ]
     },
     {
       "id": "R-10",
@@ -140,7 +148,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › the sign-in, invite, forgot-password and set-password screens are unchanged @parity:R-10"
+      ]
     },
     {
       "id": "R-11",
@@ -156,7 +166,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /account is the password page, and the new Account page links to it @parity:R-11 @parity:AC-1"
+      ]
     },
     {
       "id": "R-12",
@@ -172,7 +184,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › an unknown learner address and a learner at /admin land on the learner’s Home @parity:R-12"
+      ]
     },
     {
       "id": "R-13",
@@ -181,7 +195,9 @@
       "kind": "route",
       "audience": [],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › staff at a learner address land in the Console @parity:R-13"
+      ]
     },
     {
       "id": "R-14",
@@ -197,7 +213,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › routing keeps the query and the fragment @parity:R-14"
+      ]
     },
     {
       "id": "SH-1",
@@ -213,7 +231,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the sidebar: Home, Schedule, Skill library, Resource vault, the AI employees group, Get help @parity:SH-1"
+      ]
     },
     {
       "id": "SH-2",
@@ -245,7 +265,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the account menu: Account and Sign out, plus Team Hub for the Team tier @parity:SH-3"
+      ]
     },
     {
       "id": "SH-4",
@@ -350,7 +372,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › staff previewing as a learner see the preview banner with Exit Preview @parity:SH-10"
+      ]
     },
     {
       "id": "SH-11",
@@ -366,7 +390,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the masquerade layer wraps the new shell: its banner, and a write is blocked @parity:SH-11"
+      ]
     },
     {
       "id": "SH-12",
@@ -382,7 +408,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › sign out posts to the auth route and leaves for sign-in; a failure says so @parity:A-16 @parity:SH-12"
+      ]
     },
     {
       "id": "SH-13",
@@ -398,7 +426,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › toasts and confetti: finishing a week’s last step celebrates @parity:SH-13"
+      ]
     },
     {
       "id": "SH-14",
@@ -414,7 +444,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › a screen whose files a deploy removed reloads the page once, then opens @parity:SH-14"
+      ]
     },
     {
       "id": "SH-15",
@@ -430,7 +462,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › Escape closes the account menu and the phone drawer @parity:SH-15"
+      ]
     },
     {
       "id": "SH-16",
@@ -510,7 +544,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
     },
     {
       "id": "D-6",
@@ -534,7 +570,9 @@
       ],
       "status": "n/a",
       "note": "The orientation video was a placeholder toast (N/A). The date half (a countdown to the next build) is KEPT and has a test.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › the hero counts down to the next live build, with its date @parity:D-7"
+      ]
     },
     {
       "id": "D-8",
@@ -545,7 +583,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
     },
     {
       "id": "D-9",
@@ -556,7 +596,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › the cohort card: office hours to the Schedule, support by email; Get help in the nav @parity:D-9"
+      ]
     },
     {
       "id": "D-10",
@@ -578,7 +620,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › Coming up: the next three sessions, Add all to calendar, and the way to the Schedule @parity:D-11 @parity:S-6"
+      ]
     },
     {
       "id": "D-12",
@@ -589,7 +633,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a paused two-pay course: Home says so and opens Manage Billing @parity:D-12 @parity:G-6"
+      ]
     },
     {
       "id": "D-13",
@@ -600,7 +646,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a course that failed to load says so @parity:D-13"
+      ]
     },
     {
       "id": "E-1",
@@ -743,7 +791,10 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a kit resource downloads from the resource files route @parity:A-10 @parity:E-12",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the week kit lists the week’s published files @parity:E-12"
+      ]
     },
     {
       "id": "E-13",
@@ -788,7 +839,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the steps: done, current, to do; Mark step done toggles @parity:E-16"
+      ]
     },
     {
       "id": "E-17",
@@ -824,7 +877,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › a locked week: its title, question, outcome, opening date and sessions, with Add all @parity:E-19 @parity:K-16"
+      ]
     },
     {
       "id": "E-20",
@@ -835,7 +890,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the step player’s Next and Previous, and the week page’s Continue @parity:E-20"
+      ]
     },
     {
       "id": "E-21",
@@ -870,7 +927,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › every session by week, and a month calendar @parity:S-1"
+      ]
     },
     {
       "id": "S-2",
@@ -917,7 +976,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › Add to calendar per session, and Add all as the .ics route @parity:S-5 @parity:A-17"
+      ]
     },
     {
       "id": "S-6",
@@ -928,7 +989,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › Coming up: the next three sessions, Add all to calendar, and the way to the Schedule @parity:D-11 @parity:S-6"
+      ]
     },
     {
       "id": "S-7",
@@ -951,7 +1014,9 @@
       ],
       "status": "kept",
       "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › the holiday break note, from the course @parity:S-8"
+      ]
     },
     {
       "id": "K-1",
@@ -1010,7 +1075,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the week’s steps open in the step player, and its skills link to the library @parity:K-5"
+      ]
     },
     {
       "id": "K-6",
@@ -1058,7 +1125,9 @@
       ],
       "status": "kept",
       "note": "Best call: CHANGED (restructured into Week 0’s v2 steps); the inventory could not verify every old item maps to a step. Kept, with a test that Week 0’s steps render; the mapping itself needs a content review.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › Week 0 (the old Before Week 1) is its eight steps @parity:K-9"
+      ]
     },
     {
       "id": "K-10",
@@ -1081,7 +1150,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
     },
     {
       "id": "K-12",
@@ -1140,7 +1211,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › a locked week: its title, question, outcome, opening date and sessions, with Add all @parity:E-19 @parity:K-16"
+      ]
     },
     {
       "id": "L-1",
@@ -1156,7 +1229,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › skills grouped by set, Start here, chips that filter, search @parity:L-1"
+      ]
     },
     {
       "id": "L-2",
@@ -1172,7 +1247,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an open skill’s downloads are on its page, from the skills route @parity:L-2 @parity:A-13"
+      ]
     },
     {
       "id": "L-3",
@@ -1188,7 +1265,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › locked skills: an access group reads its own line with no upsell; anyone else is offered the plans @parity:L-3"
+      ]
     },
     {
       "id": "L-4",
@@ -1204,7 +1283,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an upcoming skill says when it opens @parity:L-4"
+      ]
     },
     {
       "id": "L-5",
@@ -1221,7 +1302,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel’s Dismiss hides it and posts to the server @parity:L-5 @parity:A-14"
+      ]
     },
     {
       "id": "L-6",
@@ -1238,7 +1321,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
+      ]
     },
     {
       "id": "L-7",
@@ -1254,7 +1339,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the new Account page: plan, seats, billing, profile and what’s included @parity:AC-2 @parity:L-7"
+      ]
     },
     {
       "id": "L-8",
@@ -1270,7 +1357,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › a paused two-pay plan: the library says why its skills are locked @parity:L-8"
+      ]
     },
     {
       "id": "L-9",
@@ -1286,7 +1375,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › signed out: the library says it opens when you sign in, with Sign In @parity:L-9"
+      ]
     },
     {
       "id": "L-10",
@@ -1302,7 +1393,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › guided setup: the step rail, Next, the app tabs, copy chips @parity:L-10"
+      ]
     },
     {
       "id": "L-11",
@@ -1318,7 +1411,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › the guide remembers the step on this device @parity:L-11"
+      ]
     },
     {
       "id": "L-12",
@@ -1334,7 +1429,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a signed-out visit to a skill’s page goes to sign-in and keeps where it was going @parity:L-12"
+      ]
     },
     {
       "id": "T-1",
@@ -1359,7 +1456,9 @@
         "Team"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Team Hub: invite with its inline errors, and a member’s drawer @parity:T-2"
+      ]
     },
     {
       "id": "T-3",
@@ -1371,7 +1470,9 @@
         "Team"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › weekly-digest \"Open Team Hub\" lands on the Team Hub @parity:M-6 @parity:T-3"
+      ]
     },
     {
       "id": "V-1",
@@ -1387,7 +1488,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the Vault: filters, a download, a Team-only lock with its Upgrade @parity:V-1"
+      ]
     },
     {
       "id": "V-2",
@@ -1404,7 +1507,9 @@
       ],
       "status": "kept",
       "note": "Best call: CHANGED only before launch (the Vault is locked in the nav during the pre-launch preview, per D-175’s plan). Kept, with a test that it is a link once the course is open.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the Vault is in the nav once the course is open, and locked only before launch @parity:V-2"
+      ]
     },
     {
       "id": "AC-1",
@@ -1420,7 +1525,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /account is the password page, and the new Account page links to it @parity:R-11 @parity:AC-1"
+      ]
     },
     {
       "id": "AC-2",
@@ -1437,7 +1544,9 @@
       ],
       "status": "kept",
       "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the new Account page: plan, seats, billing, profile and what’s included @parity:AC-2 @parity:L-7"
+      ]
     },
     {
       "id": "AC-3",
@@ -1453,7 +1562,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Account offers no Resend invite @parity:AC-3"
+      ]
     },
     {
       "id": "A-1",
@@ -1469,7 +1580,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
     },
     {
       "id": "A-2",
@@ -1485,7 +1598,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
     },
     {
       "id": "A-3",
@@ -1502,7 +1617,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a `changed` event refetches the snapshot and the course @parity:A-3"
+      ]
     },
     {
       "id": "A-4",
@@ -1513,7 +1630,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Mark step done posts toggleStep @parity:A-4"
+      ]
     },
     {
       "id": "A-5",
@@ -1530,7 +1649,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Dismiss on Home’s announcement posts dismissAnnouncement @parity:A-5"
+      ]
     },
     {
       "id": "A-6",
@@ -1565,7 +1686,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Join inside the window asks the join route for the link @parity:A-8"
+      ]
     },
     {
       "id": "A-9",
@@ -1577,7 +1700,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9c-content",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a module file in the week kit downloads from the module files route @parity:A-9"
+      ]
     },
     {
       "id": "A-10",
@@ -1593,7 +1718,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a kit resource downloads from the resource files route @parity:A-10 @parity:E-12"
+      ]
     },
     {
       "id": "A-11",
@@ -1604,7 +1731,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
     },
     {
       "id": "A-12",
@@ -1620,7 +1749,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Manage billing opens the billing portal route @parity:A-12"
+      ]
     },
     {
       "id": "A-13",
@@ -1636,7 +1767,10 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the library and a guide read the skills routes; downloads use the skills download route @parity:A-13",
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an open skill’s downloads are on its page, from the skills route @parity:L-2 @parity:A-13"
+      ]
     },
     {
       "id": "A-14",
@@ -1648,7 +1782,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel’s Dismiss hides it and posts to the server @parity:L-5 @parity:A-14"
+      ]
     },
     {
       "id": "A-15",
@@ -1664,7 +1800,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the Account pages read the password route @parity:A-15"
+      ]
     },
     {
       "id": "A-16",
@@ -1680,7 +1818,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › sign out posts to the auth route and leaves for sign-in; a failure says so @parity:A-16 @parity:SH-12"
+      ]
     },
     {
       "id": "A-17",
@@ -1691,7 +1831,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › Add to calendar per session, and Add all as the .ics route @parity:S-5 @parity:A-17"
+      ]
     },
     {
       "id": "M-1",
@@ -1702,7 +1844,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-24h \"Open Sessions\" lands on the Schedule @parity:M-1"
+      ]
     },
     {
       "id": "M-2",
@@ -1714,7 +1858,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-1h \"Join Session\" lands on a working Join inside the window, and none outside it @parity:M-2"
+      ]
     },
     {
       "id": "M-3",
@@ -1726,7 +1872,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › replay-ready \"Watch Replay\" lands on a playable player @parity:M-3"
+      ]
     },
     {
       "id": "M-4",
@@ -1737,7 +1885,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › build-reminder \"Continue Build\" lands on the week’s steps @parity:M-4"
+      ]
     },
     {
       "id": "M-5",
@@ -1749,7 +1899,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › announcement: with an action it lands on the Schedule; without one, on Home with the banner @parity:M-5"
+      ]
     },
     {
       "id": "M-6",
@@ -1761,7 +1913,9 @@
         "Team"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › weekly-digest \"Open Team Hub\" lands on the Team Hub @parity:M-6 @parity:T-3"
+      ]
     },
     {
       "id": "M-7",
@@ -1777,7 +1931,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › a sign-in link with next lands on the guide, for a course learner and for Utah Life @parity:M-7"
+      ]
     },
     {
       "id": "M-8",
@@ -1793,7 +1949,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form; checkout success uses the same link @parity:M-8 @parity:M-10"
+      ]
     },
     {
       "id": "M-9",
@@ -1809,7 +1967,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › a team invite lands on the invite page, then the learner’s landing @parity:M-9"
+      ]
     },
     {
       "id": "M-10",
@@ -1825,7 +1985,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form; checkout success uses the same link @parity:M-8 @parity:M-10"
+      ]
     },
     {
       "id": "M-11",
@@ -1841,7 +2003,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › www’s links (/course, /skill-library, /sessions, /team) open a page that does the job @parity:M-11"
+      ]
     },
     {
       "id": "M-12",
@@ -1879,7 +2043,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2"
+      ]
     },
     {
       "id": "C-2",
@@ -1891,7 +2057,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2"
+      ]
     },
     {
       "id": "C-3",
@@ -1903,7 +2071,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › attaching a replay (ready for learners) puts the player on the open week page @parity:C-3"
+      ]
     },
     {
       "id": "C-4",
@@ -1915,7 +2085,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › editing a session’s time moves it on the open Schedule @parity:C-4"
+      ]
     },
     {
       "id": "C-5",
@@ -1927,7 +2099,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › publishing a week opens it in the open learner’s nav @parity:C-5"
+      ]
     },
     {
       "id": "C-6",
@@ -1944,7 +2118,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › an in-app announcement reaches the open Home @parity:C-6"
+      ]
     },
     {
       "id": "C-7",
@@ -1955,7 +2131,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › turning an automated reminder off stops its emails @parity:C-7"
+      ]
     },
     {
       "id": "C-8",
@@ -1971,7 +2149,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › hiding a Vault resource takes it off the open Vault @parity:C-8"
+      ]
     },
     {
       "id": "C-9",
@@ -2007,7 +2187,9 @@
         "Team"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › moving a learner to Team tier gives the open portal Team Hub @parity:C-11"
+      ]
     },
     {
       "id": "C-12",
@@ -2018,7 +2200,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › a nudge sends the build reminder, whose link lands on the week’s steps @parity:C-12"
+      ]
     },
     {
       "id": "C-13",
@@ -2045,7 +2229,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › a masquerade lands staff in the learner portal, with its banner @parity:C-14"
+      ]
     },
     {
       "id": "C-15",
@@ -2061,7 +2247,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Preview as Learner: the week the Console opens shows the learner portal with the preview banner @parity:C-15"
+      ]
     },
     {
       "id": "C-16",
@@ -2089,7 +2277,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the sign-in landing is the standalone Skill Library, with no sidebar @parity:U-1"
+      ]
     },
     {
       "id": "U-2",
@@ -2101,7 +2291,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › visiting / sends them to the Skill Library @parity:U-2"
+      ]
     },
     {
       "id": "U-3",
@@ -2113,7 +2305,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their nav: the library has none; in the shell, only the Skill Library and the Vault @parity:U-3",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
     },
     {
       "id": "U-4",
@@ -2125,7 +2320,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
+      ]
     },
     {
       "id": "U-5",
@@ -2137,7 +2334,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their Account is the password page only @parity:U-5"
+      ]
     },
     {
       "id": "U-6",
@@ -2149,7 +2348,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › locked skills say \"Not included with Utah Life access\", with no See Plans @parity:U-6"
+      ]
     },
     {
       "id": "U-7",
@@ -2161,7 +2362,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › downloads and Setup Guides on the list, and the old guide @parity:U-7"
+      ]
     },
     {
       "id": "G-1",
@@ -2174,7 +2377,9 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity, claude/learner-pr9c-content and claude/learner-pr10-flip (reworked #172)",
       "note": "Accelerator learners get the new portal; its MISSING pieces (top section items 2 to 11) are restored by the IDs they map to.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: an Accelerator learner gets the new portal, whole › Home, a week, a step, the Schedule, the library, the Vault, Account and (Team tier) Team Hub @parity:G-1"
+      ]
     },
     {
       "id": "G-2",
@@ -2186,7 +2391,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › team-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-2",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
     },
     {
       "id": "G-3",
@@ -2198,7 +2406,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › agent-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-3",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
     },
     {
       "id": "G-4",
@@ -2210,7 +2421,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › insiders: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-4",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
     },
     {
       "id": "G-5",
@@ -2222,7 +2436,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › free: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-5"
+      ]
     },
     {
       "id": "G-6",
@@ -2233,7 +2449,9 @@
         "Accelerator"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a paused two-pay course: Home says so and opens Manage Billing @parity:D-12 @parity:G-6"
+      ]
     },
     {
       "id": "G-7",
@@ -2261,7 +2479,9 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the phone drawer is a modal: focus moves in and stays, the page behind is inert, Escape returns focus @parity:MO-1"
+      ]
     },
     {
       "id": "MO-2",
@@ -2277,7 +2497,31 @@
         "free"
       ],
       "status": "kept",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › / (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /account (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /course (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /employees/accelerator-week-1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/account (course, owner) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/schedule (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/schedule?view=calendar (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/skills (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/skills/ai-brain-setup (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/1/step/1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/3 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /sessions (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /set-password?token=tok_set (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /sign-in (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library/ai-brain-setup (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library/ai-brain-setup (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /team (course, owner) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /vault (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /vault (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2"
+      ]
     },
     {
       "id": "MO-3",
@@ -2305,7 +2549,9 @@
       ],
       "status": "kept",
       "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the phone strip: the next live build, to the Schedule; while live, Live now and Join @parity:MO-4"
+      ]
     },
     {
       "id": "MO-5",
@@ -2317,7 +2563,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › Join is usable at 390 inside the window, on Home and the Schedule @parity:MO-5",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the replay player is usable at 390: play, seek back, captions, transcript @parity:MO-5"
+      ]
     },
     {
       "id": "P-1",
@@ -2345,6 +2594,36 @@
       ],
       "status": "n/a",
       "tests": []
+    },
+    {
+      "id": "X-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub's Export CSV button downloads the team's roster and build progress",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "added": "Not in the inventory's T-2. Today: apps/web/src/routes/portal/TeamHub.tsx:132 (Export CSV, generated in the browser); the new portal's Team Hub is the same component.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Team Hub’s Export CSV downloads the roster @parity:X-1"
+      ]
+    },
+    {
+      "id": "X-2",
+      "area": "Course page content",
+      "what": "The course pages name the browser tab after the week (\"Week N · <title> · Amplified AI Accelerator\")",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "unassigned (found by the parity suite; needs an owner, or Connor's call to drop it)",
+      "added": "Not in the inventory. Today: apps/web/src/routes/course/Course.tsx:477 sets document.title per week; no /learn screen sets one.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: found beyond the inventory › a course week’s page names the browser tab after the week @parity:X-2"
+      ]
     }
   ]
 }

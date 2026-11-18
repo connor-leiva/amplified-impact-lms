@@ -31,6 +31,8 @@ import {
 } from './check';
 import { syncManifest } from './sync';
 
+/** A stand-in approver: the fixtures never attribute words to Connor. */
+const TEST_APPROVER = 'Test Approver';
 const fixture = (name: string): string => readFileSync(join(PARITY_DIR, 'fixtures', name), 'utf8');
 const REPO = '/repo';
 
@@ -63,7 +65,10 @@ function clean(): CheckInput {
     },
     listing,
     results: listing.map((t) => ({ ...t, outcome: 'passed' as const })),
-    approvals: parseApprovals('SH-4 — the picker — Approved by Connor Leiva on 2026-11-17, "No time-zone picker."'),
+    approvals: parseApprovals(
+      'SH-4 — the picker — Approved by Test Approver on 2026-01-01, "Fixture words."',
+      TEST_APPROVER,
+    ),
   };
 }
 
@@ -130,19 +135,24 @@ describe('reading Playwright and vitest reports', () => {
 });
 
 describe('signed-off-drops.md', () => {
-  it('reads approval lines in Connor’s format, and nothing in the pending section or a code block', () => {
-    const a = parseApprovals(fixture('drops.md'));
+  it('reads approval lines in the format, by the approver, and nothing in the pending section or a code block', () => {
+    const a = parseApprovals(fixture('drops.md'), TEST_APPROVER);
     assert.deepEqual([...a.keys()].sort(), ['D-10', 'SH-4']);
     assert.deepEqual(a.get('SH-4'), {
       id: 'SH-4',
       lost: 'the time-zone picker',
-      date: '2026-11-17',
-      words: 'No time-zone picker.',
+      date: '2026-01-01',
+      words: 'Fixture words, not anyone’s approval.',
       line: 9,
     });
   });
-  it('an approval with empty words is not an approval', () => {
-    assert.equal(parseApprovals(fixture('drops.md')).has('E-15'), false);
+  it('an approval with empty words, or by anyone else, is not an approval', () => {
+    const a = parseApprovals(fixture('drops.md'), TEST_APPROVER);
+    assert.equal(a.has('E-15'), false);
+    assert.equal(a.has('C-13'), false);
+  });
+  it('by default only Connor Leiva’s approvals count', () => {
+    assert.equal(parseApprovals(fixture('drops.md')).size, 0);
   });
 });
 
@@ -155,6 +165,14 @@ describe('checkParity', () => {
     i.inventory = [...i.inventory, 'K-1'];
     i.manifest.entries.push(entry('Z-9', { status: 'n/a' }));
     assert.deepEqual(kinds(i).sort(), ['missing-from-manifest K-1', 'not-in-inventory Z-9']);
+  });
+  it('a row the inventory lacks is allowed only as `added`, with an X-<n> ID', () => {
+    const i = clean();
+    i.manifest.entries.push(entry('X-1', { added: 'TeamHub.tsx:132 Export CSV', tests: [], status: 'n/a' }));
+    assert.deepEqual(kinds(i), []);
+    i.manifest.entries.push(entry('R-2', { added: 'twice' }));
+    i.manifest.entries.push(entry('Q-1', { added: 'somewhere', status: 'n/a' }));
+    assert.deepEqual(kinds(i).sort(), ['malformed Q-1', 'malformed R-2', 'malformed R-2', 'stale-tests R-2']);
   });
   it('a tag naming an unknown ID', () => {
     const i = clean();
@@ -209,9 +227,10 @@ describe('checkParity', () => {
     const i = clean();
     i.approvals = parseApprovals(
       [
-        'SH-4 — the picker — Approved by Connor Leiva on 2026-11-17, "No time-zone picker."',
-        'R-1 — x — Approved by Connor Leiva on 2026-11-17, "y"',
+        'SH-4 — the picker — Approved by Test Approver on 2026-01-01, "Fixture words."',
+        'R-1 — x — Approved by Test Approver on 2026-01-01, "Fixture words."',
       ].join('\n'),
+      TEST_APPROVER,
     );
     assert.deepEqual(kinds(i), ['malformed R-1']);
   });
@@ -257,11 +276,15 @@ describe('the real files', () => {
     for (const r of rows) counts[r.status ?? 'none'] = (counts[r.status ?? 'none'] ?? 0) + 1;
     assert.deepEqual(counts, { KEPT: 77, MISSING: 52, CHANGED: 34, 'N/A': 8, New: 3, unverified: 2 });
   });
-  it('the manifest’s IDs are exactly the inventory’s, in its order', () => {
+  it('the manifest’s IDs are exactly the inventory’s, in its order, then the rows this suite added', () => {
+    const entries = readManifest(MANIFEST_FILE).entries;
     assert.deepEqual(
-      readManifest(MANIFEST_FILE).entries.map((e) => e.id),
+      entries.filter((e) => e.added === undefined).map((e) => e.id),
       inventoryIds(md),
     );
+    const added = entries.filter((e) => e.added !== undefined);
+    assert.deepEqual(entries.slice(entries.length - added.length), added);
+    for (const e of added) assert.match(e.id, /^X-\d+$/);
   });
   it('the manifest maps the inventory’s statuses as the brief says', () => {
     const m = readManifest(MANIFEST_FILE);

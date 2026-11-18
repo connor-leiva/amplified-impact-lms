@@ -56,6 +56,8 @@ export const S1 = 'dec26-s1';
 export const S2 = 'dec26-s2';
 export const WEEK1_MODULE = 'accelerator-week-1';
 export const REPLAY_URL = 'https://stream.example.test/dec26-s1/playlist.m3u8';
+export const MODULE_FILE = 'spend-map-config';
+export const KIT_RESOURCE = { id: 'parity-kit-1', title: 'Spend Map Worksheet' } as const;
 export const ANNOUNCEMENT = {
   id: 'parity-a1',
   title: 'Session 2 starts 30 minutes later',
@@ -90,11 +92,30 @@ export function worldDb(): Db {
       ? { ...s, replay: 'ready' as const, replayVisibility: 'published' as const, replayUrl: REPLAY_URL, attended: 3 }
       : s,
   );
-  db.modules = db.modules.map((m) => (m.id === WEEK1_MODULE ? ({ ...m, playbackUrl: REPLAY_URL } as typeof m) : m));
+  // Every course week open to both tiers, so each persona can build (the course itself is gated by plan, at
+  // `GET /api/course`; the fixture has no plans).
+  db.modules = db.modules.map((m) => ({
+    ...m,
+    tier: 'agent' as const,
+    ...(m.id === WEEK1_MODULE ? { playbackUrl: REPLAY_URL } : {}),
+  }));
+  // Week 1's module as the Module Builder fills it in (E-10, E-11): a system prompt with a variable, and one
+  // uploaded file, so a build kit that shows them has something to show.
+  db.modules = db.modules.map((m) =>
+    m.id === WEEK1_MODULE
+      ? {
+          ...m,
+          prompt: m.prompt || 'You map a real estate team’s spend for {{TEAM_NAME}}.',
+          files: [
+            ...m.files,
+            { name: MODULE_FILE, type: 'JSON' as const, size: '4 KB', desc: 'The spend map’s settings.', steps: [] },
+          ],
+        }
+      : m,
+  );
   db.announcements = [
     {
       id: ANNOUNCEMENT.id,
-      sessionId: S2,
       title: ANNOUNCEMENT.title,
       body: ANNOUNCEMENT.body,
       severity: 'warning',
@@ -108,6 +129,20 @@ export function worldDb(): Db {
     },
   ];
   db.dismissed = {};
+  // One published file in Week 1's kit (E-12), as the Module Builder attaches it.
+  const like = demo.resources[0]!;
+  db.resources.push({
+    ...like,
+    id: KIT_RESOURCE.id,
+    title: KIT_RESOURCE.title,
+    desc: 'The worksheet Week 1 fills in.',
+    tier: 'agent',
+    exec: false,
+    status: 'published',
+    module: WEEK1_MODULE,
+    kind: 'file',
+    visibility: 'published',
+  });
   return db;
 }
 
@@ -171,9 +206,15 @@ function stateOf(
 export const UTAH = { id: 'utah-life', name: 'Utah Life' } as const;
 
 export function skillsAnswer(persona: LibraryPersona, opts: { welcome?: boolean } = {}) {
-  const plan = { 'agent-plan': ['agent'], 'team-plan': ['team'], insiders: ['insiders'] } as Record<string, string[]>;
+  // A bought plan as `GET /api/skills` reports it (`kind`, `status`, `paidThrough`); an access group's grant is not one.
+  const kind: Partial<Record<LibraryPersona, string>> = {
+    buyer: 'cohort',
+    'agent-plan': 'agent_plan',
+    'team-plan': 'agents',
+    insiders: 'membership',
+  };
   return {
-    plans: plan[persona] ?? [],
+    plans: kind[persona] ? [{ kind: kind[persona], status: 'active', paidThrough: null }] : [],
     accessGroups:
       persona === 'utah'
         ? [{ id: UTAH.id, name: UTAH.name, skills: 30, welcome: opts.welcome ?? true, covers: ['agent', 'both'] }]
@@ -244,6 +285,8 @@ export const OPEN_GUIDE = 'ai-brain-setup';
 export type Persona = 'agent' | 'owner' | 'admin';
 /** Who the learner is to the API: a course buyer, or one of the no-course plans and groups. */
 export type Audience = 'course' | 'upcoming' | 'paused' | 'failed' | LibraryPersona;
+/** The audiences whose plan opens no course: Utah Life and every access-group-only or skills-only plan. */
+export const NO_COURSE: readonly Audience[] = ['utah', 'agent-plan', 'team-plan', 'insiders', 'free'];
 
 export interface WorldOptions {
   as?: Persona;
@@ -301,6 +344,13 @@ export async function answerApi(
       : audience;
   await ctx.route('**/api/skills', (r) => r.fulfill({ json: skillsAnswer(lib, opts) }));
   await ctx.route('**/api/skills/welcome/dismiss', (r) => r.fulfill({ json: { ok: true } }));
+  // The auth screens' reads: a set-password token that is good, a password already set, and a sign-in
+  // (or invite) link that verifies and sends the learner where the API would (`core/landing.ts`).
+  await ctx.route('**/api/auth/password/token', (r) => r.fulfill({ json: { ok: true, purpose: 'set' } }));
+  await ctx.route('**/api/auth/password', (r) => r.fulfill({ json: { hasPassword: true, changedAt: null } }));
+  await ctx.route('**/api/auth/verify', (r) =>
+    r.fulfill({ json: { ok: true, landing: lib === 'buyer' ? '/' : '/skill-library' } }),
+  );
   await ctx.route('**/api/skill-guides/*', (r) => {
     const slug = decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop() ?? '');
     const body = guideAnswer(lib, slug);
@@ -316,6 +366,10 @@ export async function worldContext(browser: Browser, o: WorldOptions = {}): Prom
     locale: 'en-US',
   });
   const db = worldDb();
+  // A learner whose plan opens no course gets no AI Employee in their snapshot: the API sends a learner
+  // only what their plan opens (`scopeSnapshot`, D-110), and that is how the portal tells them apart
+  // (`shell/navModel.ts` `hasPortal`, D-119).
+  if (NO_COURSE.includes(o.audience ?? 'course')) db.modules = [];
   o.edit?.(db);
   await ctx.addInitScript(
     ([key, value]) => {
