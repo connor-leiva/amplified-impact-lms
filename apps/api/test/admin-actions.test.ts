@@ -5,6 +5,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc } from 'drizzle-orm';
 import { addStep, removeStep, seedForDatabase } from '@ai/core';
+import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { auditLog } from '../src/db/schema';
@@ -121,6 +123,21 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     expect(JSON.parse(res.body)).toEqual({ error: 'Give all six build steps a title.' });
     expect((await loadDb()).modules.find((m) => m.id === 'sales')!.checklist).toHaveLength(6);
     expect(await auditRows()).toHaveLength(0);
+  });
+
+  it('saves a course week as the builder holds it, its words included, and keeps them (D-173)', async () => {
+    // The production seed: the nine weeks carry `kind`, `course` and Week 0's `dueAt`. The builder's
+    // draft is the stored row (`seedDraft`), so all of it comes back on Save.
+    await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
+    for (const id of [ACCELERATOR_MODULE_IDS[0]!, ACCELERATOR_MODULE_IDS[2]!]) {
+      const stored = (await loadDb()).modules.find((m) => m.id === id)!;
+      expect(stored.course, id).toBeDefined();
+      const res = await act(app, 'st_owner', 'saveBuilderModule', { draft: { ...structuredClone(stored), short: `${stored.short} (edited)` } });
+      expect(res.statusCode, `${id}: ${res.body}`).toBe(200);
+      const saved = (await loadDb()).modules.find((m) => m.id === id)!;
+      expect(saved).toEqual({ ...stored, short: `${stored.short} (edited)` });
+    }
+    expect((await auditRows()).map((r) => r.action)).toEqual(['module.save', 'module.save']);
   });
 });
 

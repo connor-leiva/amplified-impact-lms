@@ -317,6 +317,16 @@ describe('GET /api/health/curriculum (D-121, D-173): counts only, expected from 
     expect(body).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
   });
 
+  it('counts the weeks the course page shows: a copy made with Duplicate is not one of them', { timeout: 120_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
+    const before = await loadDb();
+    const after = structuredClone(before);
+    const week2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
+    after.modules.push({ ...structuredClone(week2), id: 'm_copy', name: `${week2.name} (copy)`, status: 'published' });
+    await persistDiff(handle, before, after);
+    expect(await status()).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
+  });
+
   it('says not ok, with the counts that are short, before the curriculum and after staff draft a week', { timeout: 180_000 }, async () => {
     await resetDatabase(seedForDatabase('live'));
     expect(await status()).toMatchObject({ ok: false, modules: 0, published: 0 });
