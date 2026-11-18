@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
+import type { AIEmployee, Learner } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { repo } from '../../data/boot';
 import { useLearn } from './data';
@@ -16,6 +17,7 @@ import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
 import { learnHome } from './routes';
 import { WeekLive } from './Live';
+import { DeployCard } from './Deploy';
 import { BuildKit, Crumbs, Downloads, WeekContent, WeekMeta, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle, weekContentVM } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM, WeekContentVM } from './WeekContent.vm';
@@ -32,6 +34,8 @@ interface WeekMore {
   previewing: boolean;
   /** The tab's title (X-2), or null in the builder's preview, which leaves the builder's alone. */
   title: string | null;
+  /** D-186: the week's module and this learner, for the Your Deployment card; null without a module. */
+  deploy: { m: AIEmployee; me: Learner | null; now: number } | null;
 }
 
 function Head({ vm, question, children }: { vm: OpenWeekVM | LockedWeekVM; question?: string | null; children: ReactNode }) {
@@ -51,7 +55,7 @@ function Head({ vm, question, children }: { vm: OpenWeekVM | LockedWeekVM; quest
 }
 
 function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
-  const side = !!(vm.kit || more.kit || more.content?.downloads.length);
+  const side = !!(more.deploy || vm.kit || more.kit || more.content?.downloads.length);
   useTabTitle(more.title);
   return (
     <div className={s.pg}>
@@ -140,6 +144,7 @@ function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
         </section>
         {side ? (
           <div className={s.col}>
+            {more.deploy ? <DeployCard m={more.deploy.m} me={more.deploy.me} now={more.deploy.now} /> : null}
             {vm.kit ? (
               <section className={s.cd} aria-labelledby="lv-kit-t">
                 <div className={s.cdh}>
@@ -238,6 +243,7 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
     kit: buildKitVM(mod, moduleFileUrl),
     previewing: viewer.preview !== undefined,
     title,
+    deploy: mod ? { m: mod, me, now } : null,
   };
   return <Open vm={vm} more={more} />;
 }

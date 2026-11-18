@@ -16,7 +16,8 @@ import type { DownloadVM } from '../course/Course.vm';
 import { LABELS } from './learn.vm';
 import { KIT } from './WeekContent.vm';
 import type { BuildKitVM, CodeLineVM, CrumbVM, KitFileVM, PartVM, SectionVM, WeekContentVM, WeekMetaVM } from './WeekContent.vm';
-import { Tile } from './parts';
+import { KitRows, Tile } from './parts';
+import type { KitRowVM } from './learn.vm';
 import s from './Learn.module.css';
 import c from './WeekContent.module.css';
 
@@ -290,15 +291,16 @@ type Open = { kind: 'prompt' } | { kind: 'file'; key: string } | null;
 /**
  * The week's build kit from the Module Builder: the system prompt (View, Copy and its variables), the
  * module's files (Preview, Download through the gated files route) and the instructor notes. `files` and
- * `notes` can be left out (the step player shows the prompt and the files only).
+ * `notes` can be left out (the step player shows the prompt and the files only). `more` (D-186) adds a
+ * non-course AI Employee's resources to the same card.
  */
-export function BuildKit({ vm, previewing, notes = true }: { vm: BuildKitVM; previewing: boolean; notes?: boolean }) {
+export function BuildKit({ vm, previewing, notes = true, more = [] }: { vm: BuildKitVM; previewing: boolean; notes?: boolean; more?: KitRowVM[] }) {
   const [open, setOpen] = useState<Open>(null);
   const file = open?.kind === 'file' ? vm.files.find((f) => f.key === open.key) : undefined;
   const btn = `${s.b} ${c.kb}`;
   return (
     <>
-      {vm.prompt || vm.files.length ? (
+      {vm.prompt || vm.files.length || more.length ? (
         <section className={s.cd} aria-labelledby="lv-bk-t">
           <div className={s.cdh}>
             <h2 className={`${s.h2} ${s.grow}`} id="lv-bk-t">
@@ -347,6 +349,8 @@ export function BuildKit({ vm, previewing, notes = true }: { vm: BuildKitVM; pre
               </div>
             </div>
           ))}
+          {/* D-186: a non-course AI Employee's own resources, as the current portal's Build Kit lists them. */}
+          {more.length ? <KitRows rows={more} /> : null}
         </section>
       ) : null}
 

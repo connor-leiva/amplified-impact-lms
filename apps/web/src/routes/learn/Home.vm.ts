@@ -16,6 +16,9 @@ import type { CourseLoad } from './data';
 import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle } from './learn.vm';
 import type { Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
 import { learnSchedule, learnSkills, learnStep } from './routes';
+import { HIRE } from './Hire.vm';
+import type { HireRow } from './Hire.vm';
+import { KIT } from './WeekContent.vm';
 
 /** D-183: the current portal's post-cohort block, in its Dashboard's own words. */
 export const POST = {
@@ -115,7 +118,10 @@ export type HeroVM =
   | { kind: 'opens'; right: HeroRightVM; welcome: { title: string; starts: string; support: string; email: string; href: string } };
 
 export interface CardVM {
-  week: number;
+  /** D-186: unique across the cards: a week's (`week:3`) or a non-course AI Employee's (`hire:<id>`). */
+  key: string;
+  /** The week, or null for a non-course AI Employee (D-186). */
+  week: number | null;
   title: string;
   line: string;
   icon: IconName;
@@ -241,6 +247,7 @@ function cards(rows: readonly WeekRow[], current: WeekRow | null, liveWeek: numb
             : { kind: 'text', text: LABELS.notStarted };
     const said = foot ? foot.text : r.state === 'locked' ? LABELS.locked : '';
     return {
+      key: `week:${r.week}`,
       week: r.week,
       title: r.title,
       line: r.outcome,
@@ -255,6 +262,38 @@ function cards(rows: readonly WeekRow[], current: WeekRow | null, liveWeek: numb
       weekLabel: `${LABELS.week} ${r.week}`,
     };
   });
+}
+
+/**
+ * D-186: a non-course AI Employee's card, after the course's weeks, as the current portal's Dashboard lists
+ * every AI Employee: its progress, Built, or when it opens; its live build's session or Self-Paced.
+ */
+export function hireCard(r: HireRow): CardVM {
+  const foot: CardVM['foot'] =
+    r.state === 'locked'
+      ? { kind: 'text', text: HIRE.teamTier }
+      : r.state === 'soon'
+        ? { kind: 'text', text: r.opensShort ?? HIRE.opens }
+        : r.state === 'built'
+          ? { kind: 'built', text: LABELS.built }
+          : r.state === 'in_progress'
+            ? { kind: 'bar', segs: Array.from({ length: r.total }, (_, i): Seg => (i < r.done ? 'd' : i === r.done ? 'c' : '')), text: `${r.done} of ${r.total}` }
+            : { kind: 'text', text: LABELS.notStarted };
+  return {
+    key: `hire:${r.id}`,
+    week: null,
+    title: r.name,
+    line: r.outcome,
+    icon: r.icon,
+    tone: r.tone,
+    href: r.href,
+    aria: `${r.name}, ${foot.text}`,
+    locked: r.state === 'locked',
+    current: false,
+    live: false,
+    foot,
+    weekLabel: r.module.session ? `${KIT.fromSession} ${r.module.session}` : KIT.selfPaced,
+  };
 }
 
 /** D-183: the announcement a learner's Home shows, by the current portal's rule (`inAppAnnouncement`). */
@@ -438,13 +477,17 @@ export function homeVM(
   name: string,
   now: number,
   db?: Pick<Db, 'announcements' | 'dismissed' | 'sessions'>,
+  hires: readonly HireRow[] = [],
 ): HomeVM {
   const hello = { greeting: greeting(name, now), banner: db ? bannerVM(db, me, now) : null, post: null, recent: null };
   if (load.kind === 'ready') {
     const cohort = cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
     const modules = rows.map((r) => r.module).filter((m): m is NonNullable<typeof m> => !!m);
     const post = postVM(load.payload, cohort, modules, now, rows);
-    return { ...hello, ...courseHome(load.payload, rows, cohort, now), post, recent: post ? null : recentVM(load.payload, rows, now) };
+    const home = courseHome(load.payload, rows, cohort, now);
+    // D-186: the non-course AI Employees' cards follow the course's weeks.
+    const employees = home.employees && hires.length ? { ...home.employees, cards: [...home.employees.cards, ...hires.map(hireCard)] } : home.employees;
+    return { ...hello, ...home, employees, post, recent: post ? null : recentVM(load.payload, rows, now) };
   }
   if (load.kind === 'paused') return { ...hello, ...NO_COURSE, lede: COURSE_COPY.paused, library: { note: COURSE_COPY.pausedNote, label: COURSE_COPY.billing, href: '/api/billing/portal' } };
   if (load.kind === 'failed') return { ...hello, ...NO_COURSE, lede: COURSE_COPY.failed, library: null };
