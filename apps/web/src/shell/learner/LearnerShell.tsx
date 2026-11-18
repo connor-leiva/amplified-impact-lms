@@ -86,7 +86,7 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
             <span className={s.lbl}>{nav.schedule.label}</span>
           </Link>
         ) : null}
-        <Link className={s.ni} to={nav.library.href} title={nav.library.label} onClick={go}>
+        <Link className={s.ni} to={nav.library.href} data-on={nav.library.active ? 'true' : undefined} aria-current={nav.library.active ? 'page' : undefined} title={nav.library.label} onClick={go}>
           <Icon name="lvGrid" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.library.label}</span>
         </Link>

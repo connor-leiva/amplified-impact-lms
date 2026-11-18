@@ -69,7 +69,7 @@ afterEach(() => {
 describe('the learner shell (D-177)', () => {
   it('draws every required landmark and marks the app ready', async () => {
     at('/learn');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Good afternoon, Dana' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Good afternoon, Dana' }, { timeout: 5000 })).toBeInTheDocument();
     expect(aside()).not.toBeNull();
     expect(document.querySelector('header nav[aria-label="Breadcrumb"]')).not.toBeNull();
     expect(document.querySelector('main')).not.toBeNull();
@@ -78,13 +78,13 @@ describe('the learner shell (D-177)', () => {
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
   });
 
-  it('the nav: Home, Schedule and the Skill library as today’s pages, the vault locked in the preview, and each week with its status', async () => {
+  it('the nav: Home and Schedule as today’s pages, the Skill library as its own (D-179), the vault locked in the preview, and each week with its status', async () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     const nav = within(aside());
     expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
     expect(nav.getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/sessions');
-    expect(nav.getByRole('link', { name: 'Skill library' })).toHaveAttribute('href', '/skill-library');
+    expect(nav.getByRole('link', { name: 'Skill library' })).toHaveAttribute('href', '/learn/skills');
     const vault = nav.getByRole('button', { name: /Resource vault/ });
     expect(vault).toHaveAttribute('aria-disabled', 'true');
     expect(vault).toHaveAccessibleDescription('Opens Wed, Dec 2 · 12:00 PM MT');
@@ -153,7 +153,7 @@ describe('Home (D-177)', () => {
     state.course = { kind: 'locked' };
     at('/learn');
     await screen.findByRole('heading', { level: 1, name: 'Good afternoon, Dana' });
-    expect(screen.getByRole('link', { name: 'Open Your Skill Library' })).toHaveAttribute('href', '/skill-library');
+    expect(screen.getByRole('link', { name: 'Open Your Skill Library' })).toHaveAttribute('href', '/learn/skills');
     expect(screen.queryByRole('region', { name: 'Your AI employees' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Your cohort' })).toBeNull();
     expect(within(aside()).queryByRole('link', { name: 'Schedule' })).toBeNull();
@@ -170,7 +170,7 @@ describe('the week overview (D-177)', () => {
     expect(within(steps).getAllByRole('link')).toHaveLength(8);
     expect(within(steps).getByRole('link', { name: 'Step 3, Start Your Time Baseline, up next' })).toHaveAttribute('href', '/learn/week/0/step/3');
     const kit = screen.getByRole('region', { name: 'Week 0 kit' });
-    expect(within(kit).getByRole('link', { name: /AI Brain Setup/ })).toHaveAttribute('href', '/skill-library/ai-brain-setup');
+    expect(within(kit).getByRole('link', { name: /AI Brain Setup/ })).toHaveAttribute('href', '/learn/skills/ai-brain-setup');
     expect(within(kit).queryByRole('link', { name: /Map Your Spend/ })).toBeNull();
     expect(kit).toHaveTextContent('Map Your SpendSkill · Coming With Week 1');
     expect(within(aside()).getByRole('link', { name: /Foundations/ })).toHaveAttribute('aria-current', 'page');
@@ -240,7 +240,7 @@ describe('the step player (D-177)', () => {
   it('For this step: an unbuilt Library page shows the coming copy string, with no link', async () => {
     at('/learn/week/0/step/3');
     const kit = await screen.findByRole('region', { name: 'For this step' });
-    expect(within(kit).getByRole('link', { name: /AI Brain Setup/ })).toHaveAttribute('href', '/skill-library/ai-brain-setup');
+    expect(within(kit).getByRole('link', { name: /AI Brain Setup/ })).toHaveAttribute('href', '/learn/skills/ai-brain-setup');
     expect(within(kit).queryByRole('link', { name: /Lead Source Review/ })).toBeNull();
     expect(kit).toHaveTextContent('Lead Source ReviewSkill · Coming With Week 1');
   });

@@ -96,7 +96,7 @@ describe('Home (D-177)', () => {
     for (const kind of ['locked', 'signed-out'] as const) {
       const vm = homeVM({ kind }, [], [], null, 'Pat Lee', PRELAUNCH_NOW);
       expect(vm).toMatchObject({ greeting: 'Good afternoon, Pat', hero: null, employees: null, comingUp: null, cohort: null });
-      expect(vm.library).toEqual({ note: COURSE_COPY.lockedNote, label: COURSE_COPY.library, href: '/skill-library' });
+      expect(vm.library).toEqual({ note: COURSE_COPY.lockedNote, label: COURSE_COPY.library, href: '/learn/skills' });
       expect(JSON.stringify(vm)).not.toMatch(/Accelerator/);
     }
   });

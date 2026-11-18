@@ -23,6 +23,8 @@
   /* The current step's row, and the segmented control's chosen side. */
   --lv-step-cur: #f5f8fd;
   --lv-sh-seg: 0 1px 2px rgba(21, 33, 29, 0.08), 0 0 0 1px var(--r2-line);
+  /* A chosen filter chip's count, on the ink chip (D-179). */
+  --lv-chip-count-on: rgba(255, 255, 255, 0.66);
   /* The live dot's pulse, from and to. */
   --lv-pulse-from: 0 0 0 0 rgba(46, 154, 99, 0.45);
   --lv-pulse-to: 0 0 0 6px rgba(46, 154, 99, 0);

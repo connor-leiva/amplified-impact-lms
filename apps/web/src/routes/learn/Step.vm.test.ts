@@ -61,7 +61,7 @@ describe('the step player (D-177)', () => {
     const vm = stepVM(st.payload, rows[0], 3, learner, st.now);
     if (vm.kind !== 'step') throw new Error('missing');
     expect(vm.forStep.map((r) => [r.title, r.href])).toEqual([
-      ['AI Brain Setup', '/skill-library/ai-brain-setup'],
+      ['AI Brain Setup', '/learn/skills/ai-brain-setup'],
       ['Map Your Spend', null],
       ['Lead Source Review', null],
     ]);
