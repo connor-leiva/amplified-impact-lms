@@ -26,7 +26,7 @@ import { staffActor } from '../console/guard';
 import { getDb } from '../db/client';
 import { loadDb, persistDiff } from '../db/io';
 import { clock, newIds } from '../lib/clock';
-import { builderDraft } from './schemas';
+import { builderDraft, cohortCourse } from './schemas';
 import { statusForMutationError } from './mutate';
 
 export const ADMIN_ACTIONS_PATH = '/api/admin/actions/:name';
@@ -54,12 +54,51 @@ const announcement = {
 export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActionArgs<K>> } = {
   duplicateModule: z.strictObject({ id }),
   saveBuilderModule: z.strictObject({ draft: builderDraft, status: moduleStatus.optional() }),
-  editResource: z.strictObject({ id, title: text(200), desc: text(1000), cat: text(100), tier, module: id.nullable() }),
+  editResource: z.strictObject({
+    id,
+    title: text(200),
+    desc: text(1000),
+    cat: text(100),
+    tier,
+    module: id.nullable(),
+    // D-174: a kit item's place in its week; absent from D-172's Edit details, which leaves it alone.
+    kit: z
+      .strictObject({
+        kind: z.enum(['file', 'prompt', 'guide', 'replay', 'vault']).nullable(),
+        stepId: id.nullable(),
+        visibility: z.enum(['hidden_until_open', 'open_in_preview', 'published', 'hidden']).nullable(),
+        platform: z.enum(['claude', 'chatgpt', 'both']).nullable(),
+      })
+      .optional(),
+  }),
   addSession: z.strictObject({ cohortId: id, title: text(200), date: text(10), time: text(5), mins: z.union([z.number(), text(6)]), zoom: text(2048) }),
   attachReplay: z.strictObject({ sessionId: id, url: text(4096) }),
   saveAnnouncementDraft: z.strictObject(announcement),
   updateAnnouncement: z.strictObject({ ...announcement, id, when: z.enum(['draft', 'now', 'later']) }),
   duplicateAnnouncement: z.strictObject({ id }),
+  // D-174: the curriculum builder.
+  saveSession: z.strictObject({
+    id: id.optional(),
+    cohortId: id,
+    moduleId: id.nullable(),
+    kind: z.enum(['live_build', 'office_hours', 'goal_planning', 'setup', 'other']),
+    title: text(200),
+    date: text(10),
+    time: text(5),
+    mins: z.union([z.number(), text(6)]),
+    zoom: text(2048),
+    replayVisibility: z.enum(['hidden', 'after_open', 'published']).nullable(),
+  }),
+  deleteSession: z.strictObject({ id }),
+  saveCohortPlan: z.strictObject({
+    cohortId: id,
+    name: text(200),
+    cadence: text(300),
+    previewOpens: z.strictObject({ date: text(10), time: text(5) }).nullable(),
+    defaultOpenTime: text(5),
+  }),
+  saveCohortCourse: z.strictObject({ cohortId: id, course: cohortCourse }),
+  saveCopyString: z.strictObject({ key: text(120), value: text(2000), audience: z.enum(['learner', 'staff']) }),
 };
 
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;

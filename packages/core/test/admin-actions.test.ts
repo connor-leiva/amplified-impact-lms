@@ -168,8 +168,12 @@ describe('Module Builder › Save (saveBuilderModule)', () => {
         steps: 7,
         files: sales.files.length,
         stepChanges: { added: 2, removed: 1, reordered: false },
+        // D-174: where the module changed, as paths (never values), and how many in all.
+        changed: expect.arrayContaining(['build', 'checklist', 'checklist[1].text']),
+        count: expect.any(Number),
       },
     });
+    expect((out.audit!.after as { changed: string[] }).changed.every((p) => p === 'build' || p.startsWith('checklist'))).toBe(true);
   });
 
   it('leaves learners’ progress alone when no step moved', () => {

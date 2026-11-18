@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`where a week’s strings are > lists what the seed itself breaks, so the PM can see it (it is main’s course, word for word) 1`] = `
+[
+  "cohort cadence time_zone",
+]
+`;

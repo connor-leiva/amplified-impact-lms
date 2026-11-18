@@ -116,6 +116,9 @@ const GROUP_LABELS: Record<string, string> = {
   announce: 'Announcements',
   // D-171: role changes, removals and invites on Staff & Roles.
   staff: 'Staff & Roles',
+  // D-174: the curriculum builder's cohort release plan and shared pages, and its copy strings.
+  cohort: 'Cohorts',
+  copy: 'Copy Strings',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

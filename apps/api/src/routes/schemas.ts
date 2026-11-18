@@ -143,6 +143,52 @@ const moduleCourse = z.strictObject({
   statusLabels: z.record(z.string(), z.string()).optional(),
 });
 
+// D-174: what every week shares (`Cohort.course`, a `CohortCourse`), as the builder saves it whole.
+const labelHint = z.strictObject({ label: z.string(), hint: z.string() });
+const labelText = z.strictObject({ label: z.string(), text: z.string() });
+export const cohortCourse = z.strictObject({
+  intro: z.strictObject({
+    title: z.string(),
+    sub: z.string(),
+    how: z.array(z.string()),
+    roles: z.strictObject({ owner: z.string(), operator: z.string() }),
+    scope: z.string(),
+    support: z.string(),
+    instructor: z.string(),
+    holiday: z.string(),
+    join: z.strictObject({ label: z.string(), note: z.string(), path: z.string() }),
+  }),
+  shared: z.strictObject({
+    liveBuildMins: z.number(),
+    officeHoursMins: z.number(),
+    officeHoursRules: z.array(z.string()),
+    issueForm: z.array(labelHint),
+    evidence: z.array(labelHint),
+    rubric: z.array(z.strictObject({ label: z.string(), meets: z.string() })),
+    rubricScale: z.array(z.strictObject({ score: z.union([z.literal(0), z.literal(1), z.literal(2)]), label: z.string() })),
+    rubricRules: z.array(z.string()),
+    readiness: z.array(z.strictObject({ gate: z.enum(['Green', 'Amber', 'Red']), text: z.string() })),
+    paths: z.array(labelText),
+    missedAWeek: z.string(),
+    estimateNote: z.string(),
+  }),
+  before: z.strictObject({
+    intake: z.array(z.string()),
+    orientation: z.strictObject({ minutes: z.number(), topics: z.array(z.string()), media: z.string() }),
+    dataPack: z.array(z.strictObject({ input: z.string(), preferred: z.string(), minimum: z.string() })),
+    practiceSetNote: z.string(),
+    safeSharing: z.array(z.string()),
+    lanes: z.array(labelText),
+  }),
+  after: z.strictObject({
+    graduation: z.array(z.string()),
+    graduationNote: z.string(),
+    paths: z.array(labelText),
+    noPaywall: z.string(),
+    pilotQuestions: z.array(labelText),
+  }),
+});
+
 const step = z.strictObject({
   id: z.string(),
   text: z.string(),

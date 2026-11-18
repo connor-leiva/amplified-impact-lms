@@ -34,5 +34,7 @@ export * from './console-ops';
 export * from './console-usage';
 export * from './console-health';
 export * from './admin-actions';
+export * from './course-rules';
+export * from './course-actions';
 export * from './console-staff';
 export * from './build-audit';
