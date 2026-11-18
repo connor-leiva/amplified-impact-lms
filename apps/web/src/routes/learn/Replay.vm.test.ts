@@ -44,7 +44,7 @@ describe('the week’s live session (D-183)', () => {
   });
 
   it('a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3', () => {
-    expect(live(published(), 1)).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1' });
+    expect(live(published(), 1)).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1', source: null });
     // No replay without a length, as the current portal decides it.
     expect(live(at(S1 + 2 * 86400_000, (d) => Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready' })), 1)).toBeNull();
   });
@@ -90,12 +90,44 @@ describe('the week’s live session (D-183)', () => {
     const rows = weekRows(x.payload, x.db, who(x).me);
     const m = x.db.modules.find((mm) => mm.id === 'accelerator-week-1')!;
     const step3 = stepLiveVM(x.payload, rows, who(x), 1, 2, x.now)!;
-    expect(step3.session).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1' });
+    expect(step3.session).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1', source: null });
     expect(step3.watch).toEqual({ label: 'Watch at 10:00', at: m.checklist[2]!.t });
     expect(m.checklist[2]!.t).toBe(600);
     expect(stepLiveVM(x.payload, rows, who(x), 0, 0, x.now)).toBeNull();
     // Before the replay: Join on the step inside the window, and no "Watch at".
     const y = at(S1 - 10 * MIN);
     expect(stepLiveVM(y.payload, weekRows(y.payload, y.db, who(y).me), who(y), 1, 0, y.now)).toMatchObject({ session: { kind: 'join' }, watch: null });
+  });
+});
+
+describe('the recording staff attach, played (D-183)', () => {
+  const attached = (url: string, extra: Record<string, unknown> = {}) => published((d) => Object.assign(sessionIn(d, 'dec26-s1'), { replayUrl: url, ...extra }));
+
+  it('a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3', () => {
+    const x = attached('https://cdn.example.com/week1.mp4');
+    expect(x.db.sessions.find((s) => s.id === 'dec26-s1')!.replayUrl).toBe('https://cdn.example.com/week1.mp4');
+    expect(live(x, 1)).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1', source: { kind: 'file', src: 'https://cdn.example.com/week1.mp4' } });
+    expect(live(attached('https://stream.example.com/week1.m3u8'), 1)).toMatchObject({ source: { kind: 'hls', src: 'https://stream.example.com/week1.m3u8' } });
+  });
+
+  it('a page on another site: the player offers it in a new tab, and a step gets no "Watch at" @parity:E-1 @parity:C-3', () => {
+    const x = attached('https://us02web.zoom.us/rec/share/abc');
+    expect(live(x, 1)).toMatchObject({ kind: 'replay', source: { kind: 'link', href: 'https://us02web.zoom.us/rec/share/abc' } });
+    const step = stepLiveVM(x.payload, weekRows(x.payload, x.db, who(x).me), who(x), 1, 2, x.now)!;
+    expect(step.watch).toBeNull();
+  });
+
+  it('the module’s own manifest wins, as on the AI Employee page', () => {
+    const x = published((d) => {
+      Object.assign(sessionIn(d, 'dec26-s1'), { replayUrl: 'https://zoom.us/rec/share/abc' });
+      Object.assign(d.modules.find((m) => m.id === 'accelerator-week-1')!, { playbackUrl: 'https://stream.example.com/m.m3u8' });
+    });
+    expect(live(x, 1)).toMatchObject({ source: { kind: 'hls', src: 'https://stream.example.com/m.m3u8' } });
+  });
+
+  it('a replay staff set Hidden: no link, and no player', () => {
+    const x = attached('https://cdn.example.com/week1.mp4', { replayVisibility: 'hidden' });
+    expect(x.db.sessions.find((s) => s.id === 'dec26-s1')).not.toHaveProperty('replayUrl');
+    expect(live(x, 1)).toBeNull();
   });
 });

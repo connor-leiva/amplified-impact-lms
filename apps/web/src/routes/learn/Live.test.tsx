@@ -150,6 +150,38 @@ describe('Go Live and End Session (D-183)', () => {
   });
 });
 
+describe('the recording staff attach (D-183)', () => {
+  const attach = (url: string) =>
+    use(
+      learnState(S1 + 2 * 86400_000, false, { 1: ['c1'] }, 15, (d) => {
+        Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready', replayUrl: url });
+        d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 4800;
+      }),
+    );
+
+  it('a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3', async () => {
+    attach('https://cdn.example.com/week1.mp4');
+    at('/learn/week/1');
+    const player = await screen.findByRole('region', { name: 'Session replay' }, { timeout: 5000 });
+    const video = player.querySelector('video')!;
+    expect(video).not.toBeNull();
+    expect(video.getAttribute('src')).toBe('https://cdn.example.com/week1.mp4');
+    expect(within(player).getByRole('button', { name: 'Play' })).toBeInTheDocument();
+  });
+
+  it('a page on another site: "Watch Replay" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3', async () => {
+    attach('https://us02web.zoom.us/rec/share/abc');
+    at('/learn/week/1');
+    const player = await screen.findByRole('region', { name: 'Session replay' }, { timeout: 5000 });
+    const link = within(player).getByRole('link', { name: 'Watch Replay' });
+    expect(link).toHaveAttribute('href', 'https://us02web.zoom.us/rec/share/abc');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener');
+    expect(within(player).queryByRole('slider')).toBeNull();
+    expect(player).toHaveTextContent('Chapters Follow the 6 Build Steps');
+  });
+});
+
 describe('a live-build step (D-183)', () => {
   it('the step player draws the replay, and "Watch at mm:ss" seeks it to the step’s chapter @parity:E-17 @parity:E-1', async () => {
     use(

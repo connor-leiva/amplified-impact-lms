@@ -183,7 +183,7 @@ describe('Home: Join, Go Live and the in-app announcement (D-183)', () => {
     expect(vm.banner.action.ics).toEqual([{ id: 'dec26-s1', title: 'Map Your Spend Live Build', start: Date.parse('2026-12-03T19:00:00Z'), end: Date.parse('2026-12-03T20:30:00Z') }]);
   });
 
-  it('after the cohort: "Your Cohort Wrapped", office hours to calendar, Rewatch Any Session @parity:D-6', () => {
+  it('after the cohort: "Your Cohort Wrapped", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3', () => {
     const END = Date.parse('2027-02-10T19:00:00Z');
     const vm = full(asShell(learnState(END, false, {}, 15)));
     expect(vm.post).toMatchObject({
@@ -196,6 +196,9 @@ describe('Home: Join, Go Live and the in-app announcement (D-183)', () => {
     });
     // While a session is still ahead, none.
     expect(full(at(PRELAUNCH_NOW)).post).toBeNull();
+    // With a replay published, Rewatch opens the latest one's week, where its player is.
+    const withReplay = full(asShell(learnState(END, false, {}, 15, (d) => Object.assign(sessionIn(d, 'dec26-s7'), { replay: 'ready' }))));
+    expect(withReplay.post!.rewatch).toEqual({ label: 'Rewatch Any Session', href: '/learn/week/7' });
   });
 
   it('for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3', () => {

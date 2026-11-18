@@ -4,6 +4,7 @@ import { expectAccessible } from '../../lib/a11y';
 // The course as the API sends it, built from the deployed seed. `compliance/` can't resolve `@ai/core`,
 // so these are relative; the seed's own imports are relative too.
 import { DB_KEY, DB_V } from '../../../packages/core/src/constants';
+import { attachReplay } from '../../../packages/core/src/admin-actions';
 import { courseFor, courseSessions } from '../../../packages/core/src/course';
 import type { Db } from '../../../packages/core/src/types';
 import { planContentV2 } from '../../../packages/core/seed/content-v2';
@@ -114,6 +115,17 @@ const liveDb = snapshot((d) => {
 });
 const LIVE_AT = Date.parse('2026-12-09T09:00:00-07:00');
 const REPLAY_AT = Date.parse('2026-12-05T10:00:00-07:00');
+/** D-183: staff attach a recording to Week 1's build in the Console (core's own Attach replay), after it ended. */
+const ATTACHED = 'https://media.example.test/replays/week-1.mp4';
+const ZOOM_SHARE = 'https://us02web.zoom.us/rec/share/week-one';
+const attached = (url: string) =>
+  snapshot((d) => {
+    const out = attachReplay(d, { kind: 'staff', staffId: d.staff[0]!.id }, { sessionId: 'dec26-s1', url }, { now: REPLAY_AT, id: (p: string) => `${p}1` });
+    if (out.error) throw new Error(out.error);
+    Object.assign(d, out.db);
+  });
+const fileDb = attached(ATTACHED);
+const zoomDb = attached(ZOOM_SHARE);
 const replayDb = snapshot((d) => {
   Object.assign(d.sessions.find((s) => s.id === 'dec26-s1')!, { replay: 'ready', attended: 12 });
   d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 4800;
@@ -199,6 +211,31 @@ test.describe('learner portal v2, the live session (D-183) @g9', () => {
     }
   });
 
+  test('a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: 'America/Denver' });
+    const page = await ctx.newPage();
+    await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [DB_KEY, fileDb] as const);
+    await page.route('**/api/course', (r) => r.fulfill({ json: course(REPLAY_AT, false) }));
+    await page.route(ATTACHED, (r) => r.fulfill({ status: 200, contentType: 'video/mp4', body: '' }));
+    await page.goto(`${APP_BASE}/learn/week/1?as=agent&now=${encodeURIComponent(iso(REPLAY_AT))}`);
+    await page.waitForSelector('body[data-app-ready="true"]');
+    const player = page.getByRole('region', { name: 'Session replay' });
+    await expect(player.locator('video')).toHaveAttribute('src', ATTACHED);
+    await expect(player.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+    await expectAccessible(page);
+    await ctx.close();
+  });
+
+  test('a recording on another site: "Watch Replay" opens it in a new tab @parity:E-1 @parity:C-3', async ({ browser }) => {
+    const page = await open(browser, '/learn/week/1', 1440, REPLAY_AT, course(REPLAY_AT, false), zoomDb);
+    const link = page.getByRole('region', { name: 'Session replay' }).getByRole('link', { name: 'Watch Replay' });
+    await expect(link).toHaveAttribute('href', ZOOM_SHARE);
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener');
+    await expectAccessible(page);
+    await page.context().close();
+  });
+
   const SCREENS = [
     { name: 'Home with the announcement and Join', path: '/learn', now: S1 - 15 * MIN, payload: pre, db: undefined },
     { name: 'the Schedule with Join', path: '/learn/schedule', now: S1 - 15 * MIN, payload: pre, db: undefined },
@@ -207,13 +244,14 @@ test.describe('learner portal v2, the live session (D-183) @g9', () => {
     { name: 'a week with its replay', path: '/learn/week/1', now: REPLAY_AT, payload: course(REPLAY_AT, false), db: replayDb },
     { name: 'a live-build step with its replay', path: '/learn/week/1/step/5', now: REPLAY_AT, payload: course(REPLAY_AT, false), db: replayDb },
     { name: 'the Schedule after a replay', path: '/learn/schedule', now: REPLAY_AT, payload: course(REPLAY_AT, false), db: replayDb },
+    { name: 'a week whose recording is on another site', path: '/learn/week/1', now: REPLAY_AT, payload: course(REPLAY_AT, false), db: zoomDb },
   ];
   for (const width of [1440, 390])
     for (const s of SCREENS)
       test(`${s.name} at ${width}: one h1, accessible, no sideways scroll${width < 768 ? ', 44px targets, 16px type @parity:MO-5' : ''}`, async ({ browser }) => {
         const page = await open(browser, s.path, width, s.now, s.payload, s.db);
         await expect(page.locator('h1')).toHaveCount(1);
-        if (s.path === '/learn/week/1') {
+        if (s.path === '/learn/week/1' && s.db !== zoomDb) {
           // The transcript panel open too.
           await page.getByRole('button', { name: 'Transcript' }).click();
         }

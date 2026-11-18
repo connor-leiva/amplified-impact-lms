@@ -56,7 +56,7 @@ function Session({ session, week, seekRef }: { session: WeekSessionVM; week: num
       </section>
     );
   const m = rows.find((r) => r.week === week)?.module;
-  return m ? <Replay key={m.id} who={who} m={m} now={now} seekRef={seekRef} /> : null;
+  return m ? <Replay key={m.id} who={who} m={m} now={now} seekRef={seekRef} source={session.source} /> : null;
 }
 
 /** The week page's live session, under its header. */

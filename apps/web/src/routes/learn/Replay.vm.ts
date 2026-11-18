@@ -9,7 +9,10 @@
 import { fmt, parseVtt } from '@ai/core';
 import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import type { AIEmployee, Db, Learner } from '@ai/core';
+import { replayUrl } from '../../components/replay/engine';
 import { replayVM } from '../../components/replay/replay.vm';
+import { replaySource } from '../../components/replay/source';
+import type { ReplaySource } from '../../components/replay/source';
 import type { ReplayUi, ReplayVM } from '../../components/replay/replay.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
 import { LABELS, joinNow } from './learn.vm';
@@ -31,6 +34,8 @@ export const REPLAY = {
   watchAt: 'Watch at',
   chaptersFollow: (n: number) => `Chapters Follow the ${n} Build Steps`,
   processing: 'Replay processing · usually within 2 hours',
+  // D-183: a recording on another site (Zoom, Vimeo, YouTube, Loom): today's portal's own words for it.
+  watchReplay: 'Watch Replay',
 } as const;
 
 /** A player that hasn't been touched: the start, paused, at 1×, captions on, the transcript closed. */
@@ -40,7 +45,12 @@ export const idleUi = (t = 0): ReplayUi => ({ t, playing: false, speed: 1, cc: t
 export type WeekSessionVM =
   | { kind: 'join'; join: JoinVM }
   | { kind: 'processing'; badge: string; title: string; when: string; note: string }
-  | { kind: 'replay'; moduleId: string }
+  /**
+   * The player. `source` is what it plays (D-183): the module's manifest, else the recording staff
+   * attached to the session (an HLS manifest or a video file plays here; any other page opens in a new
+   * tab), else nothing, and the player runs as today's AI Employee page does (the ticker).
+   */
+  | { kind: 'replay'; moduleId: string; source: ReplaySource }
   | null;
 
 /** The learner whose progress ticks the chapters, and the cohort whose session it is. */
@@ -81,7 +91,9 @@ export function weekSessionVM(own: readonly CourseSession[], m: AIEmployee | und
   if (join) return { kind: 'join', join };
   if (!m || !who) return null;
   const r = weekReplay(who, m, now, idleUi());
-  if (r.hasVid) return { kind: 'replay', moduleId: m.id };
+  // D-183: staff set this replay Hidden; learners don't get its link, and the player doesn't draw.
+  if (r.sess?.replayVisibility === 'hidden') return null;
+  if (r.hasVid) return { kind: 'replay', moduleId: m.id, source: replaySource(replayUrl(m), r.sess?.replayUrl) };
   if (r.sess && r.sst === 'processing') {
     const s = own.find((x) => x.id === r.sess!.id) ?? r.sess;
     return { kind: 'processing', badge: LABELS.replayProcessing, title: s.title, when: fmt.when(s.start), note: REPLAY.processing };
@@ -117,6 +129,7 @@ export function stepLiveVM(
   if (!ownSessions(p, week).some((s) => s.kind === 'build')) return null;
   const session = weekLiveVM(p, rows, who, week, now);
   const m = rows.find((r) => r.week === week)?.module;
-  const at = session?.kind === 'replay' && m ? weekReplay(who, m, now, idleUi()).watch[stepIndex] : null;
+  // A recording on another site can't be seeked from here, so it gets no "Watch at".
+  const at = session?.kind === 'replay' && session.source?.kind !== 'link' && m ? weekReplay(who, m, now, idleUi()).watch[stepIndex] : null;
   return { session, watch: typeof at === 'number' ? { label: `${REPLAY.watchAt} ${fmt.clock(at)}`, at } : null };
 }

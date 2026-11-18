@@ -124,6 +124,11 @@ export interface HlsEngineDeps {
   Hls?: HlsCtor | null;
   /** How to fetch hls.js. Defaults to the dynamic import. */
   loadHls?: () => Promise<HlsCtor | null>;
+  /**
+   * D-183: a video file (`.mp4`, `.webm`), not a manifest: the element plays `src` itself, and hls.js is
+   * never fetched. The held seek, the rate and a waiting `play()` work exactly as for HLS.
+   */
+  direct?: boolean;
 }
 
 /**
@@ -319,6 +324,10 @@ export class HlsEngine implements VideoEngine {
   }
 
   private attach(deps: HlsEngineDeps): void {
+    if (deps.direct) {
+      this.media.src = this.src;
+      return;
+    }
     // § 8.3 names hls.js as the player and native HLS as the fallback. The check runs in that order
     // with one shortcut: hls.js needs Media Source Extensions, which is exactly what the browsers
     // with native HLS (Safari, iOS) withhold — so when the element says it can play the manifest

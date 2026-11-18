@@ -1144,16 +1144,44 @@ button.b {
   cursor: pointer;
   overflow: hidden;
 }
+.rpv[data-media='true'] {
+  background: var(--r2-toast-bg);
+}
+.rpvid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.rpvLink {
+  cursor: default;
+  justify-content: center;
+  align-items: flex-start;
+}
+.rplink {
+  margin-top: 12px;
+}
+.rpchb[data-static='true'] {
+  cursor: default;
+}
+.rpchb[data-static='true']:hover {
+  background: var(--r2-sf);
+  border-color: var(--r2-line);
+}
 .rpk {
+  position: relative;
   font-size: var(--r2-fs-12);
   font-weight: 500;
   color: var(--r2-mint);
 }
 .rpt {
+  position: relative;
   font: 600 22px / 28px var(--r2-font);
   letter-spacing: -0.02em;
 }
 .rps {
+  position: relative;
   font-size: var(--r2-fs-13);
   line-height: 18px;
 }

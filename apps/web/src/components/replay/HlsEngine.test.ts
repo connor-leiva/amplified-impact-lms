@@ -531,6 +531,19 @@ describe('HlsEngine · destroy @g8', () => {
   });
 });
 
+describe('a video file, played by the element itself (D-183)', () => {
+  it('sets the element’s source, fetches no hls.js, and holds a seek until the metadata loads @parity:E-1', () => {
+    const media = new FakeMedia();
+    const loadHls = vi.fn(async () => null);
+    const e = new HlsEngine({ src: 'https://cdn.example.com/week1.mp4', dur: DUR, media, loadHls, direct: true });
+    expect(media.src).toBe('https://cdn.example.com/week1.mp4');
+    expect(loadHls).not.toHaveBeenCalled();
+    e.seek(90);
+    expect(e.position).toBe(90);
+    e.destroy();
+  });
+});
+
 describe('createVideoEngine · the engine follows the data source @g8', () => {
   /**
    * The factory reads `repo.source`, which `boot.ts` resolves once at module load, so each case

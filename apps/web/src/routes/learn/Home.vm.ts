@@ -148,7 +148,8 @@ export interface BannerVM {
 
 /**
  * D-183: the current portal's post-cohort block, once every session of the cohort is over: when it
- * wrapped, office hours that continue (the next one, with its calendar file), and Rewatch Any Session.
+ * wrapped, office hours that continue (the next one, with its calendar file), and Rewatch Any Session
+ * (the latest replay's week page, where its player is, else the Schedule).
  */
 export interface PostVM {
   kicker: string;
@@ -302,7 +303,7 @@ const PROCESSING_NOTE = 'Replay processing · usually within 2 hours';
  * The post-cohort block, by the current portal's rule: the cohort has started and no session is still
  * ahead or live. Its host is the first instructor a week names, else "your instructor".
  */
-export function postVM(p: CoursePayload, cohort: Cohort | undefined, modules: readonly { instructor?: string }[], now: number): PostVM | null {
+export function postVM(p: CoursePayload, cohort: Cohort | undefined, modules: readonly { instructor?: string }[], now: number, rows: readonly WeekRow[] = []): PostVM | null {
   if (!cohort || now <= cohort.start || !p.sessions.length) return null;
   if (p.sessions.some((s) => s.live || sessionEndsAt(s) > now)) return null;
   const oh = upcomingSessions(p.sessions, now, 'office_hours')[0] ?? null;
@@ -314,8 +315,17 @@ export function postVM(p: CoursePayload, cohort: Cohort | undefined, modules: re
     ics: oh ? [{ id: oh.id, title: oh.title, start: oh.start, end: sessionEndsAt(oh) }] : null,
     icsName: 'office-hours.ics',
     addLabel: POST.addOfficeHours,
-    rewatch: { label: POST.rewatch, href: learnSchedule() },
+    rewatch: { label: POST.rewatch, href: rewatchHref(p, rows, now) },
   };
+}
+
+/** Rewatch: the latest week whose live build's replay is published (its player), else the Schedule. */
+function rewatchHref(p: CoursePayload, rows: readonly WeekRow[], now: number): string {
+  const last = p.sessions
+    .filter((s) => s.kind === 'build' && sessionPhase(s, now) === 'replay')
+    .sort((a, b) => a.start - b.start)
+    .pop();
+  return (last && rows.find((r) => r.week === last.week && r.state !== 'locked')?.href) ?? learnSchedule();
 }
 
 function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort | undefined, now: number): Omit<HomeVM, 'greeting' | 'banner' | 'post' | 'recent'> {
@@ -433,7 +443,7 @@ export function homeVM(
   if (load.kind === 'ready') {
     const cohort = cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
     const modules = rows.map((r) => r.module).filter((m): m is NonNullable<typeof m> => !!m);
-    const post = postVM(load.payload, cohort, modules, now);
+    const post = postVM(load.payload, cohort, modules, now, rows);
     return { ...hello, ...courseHome(load.payload, rows, cohort, now), post, recent: post ? null : recentVM(load.payload, rows, now) };
   }
   if (load.kind === 'paused') return { ...hello, ...NO_COURSE, lede: COURSE_COPY.paused, library: { note: COURSE_COPY.pausedNote, label: COURSE_COPY.billing, href: '/api/billing/portal' } };
