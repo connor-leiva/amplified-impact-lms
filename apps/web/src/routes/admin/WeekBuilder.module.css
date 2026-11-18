@@ -64,6 +64,14 @@
   background: var(--r2-sub);
 }
 
+/* The live preview: the learner's course page, in a bordered frame that scrolls on its own. */
+.preview {
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  max-height: 70vh;
+  overflow: auto;
+}
+
 @media (max-width: 767px) {
   .row {
     flex-wrap: wrap;

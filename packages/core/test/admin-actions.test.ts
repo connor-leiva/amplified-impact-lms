@@ -320,14 +320,17 @@ describe('Cohorts & Sessions › Attach replay (attachReplay)', () => {
     });
   });
 
-  it('on a published replay it only records the link; learners never see it', () => {
+  it('on a published replay it only records the link; a learner who may open it receives it (D-183), never the Zoom link', () => {
     const db = fresh();
     const out = attachReplay(db, OWNER, { sessionId: 'dec26-s1', url: URL1 }, mkCtx());
     const s1 = out.db.sessions.find((s) => s.id === 'dec26-s1')!;
     expect(s1).toEqual({ ...db.sessions.find((s) => s.id === 'dec26-s1')!, replayUrl: URL1 });
     expect(out.db.activity).toBe(db.activity);
     const mine = scopeSnapshot(out.db, { kind: 'learner', userId: 'u_jamie' });
-    expect(mine.sessions.find((s) => s.id === 'dec26-s1')).not.toHaveProperty('replayUrl');
+    expect(mine.sessions.find((s) => s.id === 'dec26-s1')).toMatchObject({ replayUrl: URL1, zoom: '' });
+    // A session whose replay isn't published keeps it to staff (scope-replay.test.ts holds the rest).
+    const unpublished = { ...out.db, sessions: out.db.sessions.map((s) => (s.id === 'dec26-s1' ? { ...s, replay: 'processing' as const } : s)) };
+    expect(scopeSnapshot(unpublished, { kind: 'learner', userId: 'u_jamie' }).sessions.find((s) => s.id === 'dec26-s1')).not.toHaveProperty('replayUrl');
   });
 
   it('refuses a session that has not ended, a link that is not https, and a role without cohorts', () => {

@@ -21,7 +21,7 @@ export const HERO = {
   eyebrow: 'AI coaching, training and ready-to-run skills',
   /** The headline's three lines, as the mockup breaks them. */
   title: ['Your next', 'employee doesn’t', 'need a desk.'],
-  lead: 'We teach owners, ops leads and agents to put AI to work. You get live coaching plus ready-to-run skills that do real jobs in your business, in your voice. Built inside a 100-agent real estate team, for agents and teams like yours.',
+  lead: 'We teach owners, ops leads and agents to put AI to work. You get live coaching plus ready-to-run skills that do real jobs in your business, in your voice. Built inside a real estate team, for agents and teams like yours.',
   primary: { label: 'Get 5 Free Skills', href: '#free' },
   secondary: { label: 'See the Programs', href: '#programs' },
   kicker: 'AI employee',
@@ -109,7 +109,7 @@ export const SKILL = {
     tag: 'A chat',
     meta: 'New chat',
     you: 'You',
-    youSays: 'Okay, one more time. We’re a 100-agent team on Follow Up Boss, and I write short and warm…',
+    youSays: 'Okay, one more time. We’re a real estate team on Follow Up Boss, and I write short and warm…',
     ai: 'AI',
     aiSays: 'Happy to help! First, tell me a little about your business.',
     count: 12,
@@ -717,8 +717,8 @@ export const FOUNDERS = {
       role: 'Co-founder',
       name: 'Spring Bengtzen',
       tag: 'She runs a real business. Every skill gets tested there first.',
-      bio: 'Spring is the CEO of The Utah Life Real Estate Group, a 100-agent team closing 700+ homes a year. She uses these skills in her own company every day. AI runs her daily reports, most of her finance work and big parts of sales, recruiting and marketing. Her production is up 38% year over year, and she credits a big part of that to AI.',
-      facts: ['CEO, 100-agent team', '700+ homes a year', '20+ years in real estate', 'Founder of The Forum'],
+      bio: 'Spring is the CEO of The Utah Life Real Estate Group. She uses these skills in her own company every day. AI runs her daily reports, most of her finance work and big parts of sales, recruiting and marketing. Her production is up 38% year over year, and she credits a big part of that to AI.',
+      facts: ['CEO, The Utah Life Real Estate Group', '20+ years in real estate', 'Founder of The Forum'],
     },
   ],
   venn: {

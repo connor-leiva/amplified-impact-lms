@@ -167,6 +167,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
   // D-173: the curriculum builder's copy strings. A `Db` record (`Db.copy`), round-tripped by the codec.
   copyStrings: { table: 'copy_strings', columns: ['audience', 'key', 'value'] },
+  // D-175: which one-time data steps the deploy has run (release plan, copy strings). Not a `Db` record.
+  dataMigrations: { table: 'data_migrations', columns: ['id', 'ran_at', 'summary'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -375,6 +377,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['incidentEvents', 'at'],
   // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
   ['consoleFlags', 'updatedAt'],
+  // D-175: when the deploy ran a one-time data step, as `clock.now()` stamps it.
+  ['dataMigrations', 'ranAt'],
 ];
 
 /**
@@ -440,6 +444,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
   consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
   copyStrings: { unit: 'epoch-ms', why: 'D-173: no instant at all; a key, its words and who reads them' },
+  dataMigrations: { unit: 'epoch-ms', why: 'D-175: ran_at is clock.now() as the deploy ran the step' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)

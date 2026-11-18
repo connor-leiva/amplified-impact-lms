@@ -73,6 +73,15 @@ export type JoinTicket =
   /** `409 { error: 'Join opens 15 min before' }`: the window is not open yet. */
   | { kind: 'shut' };
 
+/**
+ * D-185: a person's own appearance choices in the learner portal v2, as the API keeps them per person
+ * (`users.prefs`, beside the zone). Either may be missing: the person has not chosen.
+ */
+export interface AppearancePrefs {
+  theme?: 'light' | 'dark';
+  sidebar?: 'full' | 'rail';
+}
+
 export interface LmsRepository {
   readonly source: 'fixture' | 'http';
   viewer(): Promise<Viewer>;
@@ -98,6 +107,13 @@ export interface LmsRepository {
   fileUrl(ref: StoredFileRef): string | null;
   /** The session's Zoom URL, resolved at click time (§ 8.4). */
   joinTicket(sessionId: string): Promise<JoinTicket>;
+  /**
+   * D-185: the signed-in person's stored appearance choices. http mode reads `GET /api/me`'s `prefs`
+   * afresh; fixture mode has no server and answers none (the device keeps them, `lib/prefs.ts`).
+   */
+  prefs(): Promise<AppearancePrefs>;
+  /** D-185: store one: http mode `PATCH /api/me/prefs`; fixture mode and a preview tab write nothing. */
+  savePrefs(patch: AppearancePrefs): Promise<void>;
 }
 
 export const isMutationName = (name: string): name is MutationName =>

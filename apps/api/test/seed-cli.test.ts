@@ -35,6 +35,8 @@ function fakeDeps(): SeedDeps & {
       calls.curriculum.push(opts);
       return 3;
     },
+    // D-175: the one-time data steps; none pending in these tests unless one says otherwise.
+    dataMigrations: async () => [],
     owner: async (_db, opts) => {
       calls.owner.push(opts);
       return 2;
@@ -242,6 +244,18 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(deps.calls.out[1]).toContain('0 rows changed');
     expect(deps.calls.out[2]).toContain('every edit made in the builder stays');
     expect(deps.calls.out.join('')).not.toMatch(/re-apply|overlay|overwrite them/i);
+  });
+
+  it('runs the one-time data steps after ensure and names every row it left for the PM (D-175) @g9', async () => {
+    const deps = fakeDeps();
+    deps.dataMigrations = async () => [
+      { id: '2026-11-17-release-plan', describe: 'the release plan', changed: 8, skipped: [{ id: 'accelerator-week-3', reason: 'its status or opening was changed in the builder (draft)' }] },
+    ];
+    await runSeed(['--curriculum', '--if-missing'], deps);
+    const out = deps.calls.out.join('');
+    expect(out).toContain('Ran 2026-11-17-release-plan: the release plan. 8 rows changed.');
+    expect(out).toContain('Left as it is: accelerator-week-3 (its status or opening was changed in the builder (draft)). Finish it in the builder.');
+    expect(deps.calls.closed).toBe(1);
   });
 
   it('the deploy runs, after the migrations, the curriculum if missing and the Library upload, and nothing that seeds learners @g9', async () => {

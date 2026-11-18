@@ -13,7 +13,7 @@ import sessionsV1 from './fixtures/curriculum-v1/sessions.json';
 import cohortV1 from './fixtures/curriculum-v1/cohort.json';
 import { PERMS, STAFF_ROLES, STEPS, ZERO_BASE, canAccess, moduleForSession, seed, seedForDatabase } from '../src/index';
 import { courseFromSnapshot } from '../src/course';
-import { curriculumSeed, ensureCurriculum, hasCurriculum, seedProduction } from '../seed/curriculum';
+import { SEED_COPY, curriculumSeed, ensureCurriculum, hasCurriculum, seedProduction } from '../seed/curriculum';
 import { ACCELERATOR_INSTRUCTOR } from '../seed/accelerator-v1';
 import type { Db } from '../src/index';
 import { ACCELERATOR_COHORT_ID, ACCELERATOR_MODULE_IDS, isAcceleratorModule } from '../src/accelerator';
@@ -192,7 +192,9 @@ describe('a fresh database and the seed are what main served (D-173)', () => {
     expect(db.sessions.filter((s) => s.kind === 'goal_planning').map((s) => s.id)).toEqual(['dec26-oh2', 'dec26-oh3']);
     expect(db.sessions.find((s) => s.id === 'dec26-oh5')).toMatchObject({ kind: 'office_hours', moduleId: 'accelerator-week-5' });
     expect(db.cohorts[0]).toMatchObject({ timezone: 'America/Denver', defaultOpenTime: '12:00' });
-    expect(db.copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }]);
+    // D-175 adds what a locked week says and the preview line to D-173's Utah Life line.
+    expect(db.copy).toEqual(SEED_COPY);
+    expect(db.copy![0]).toEqual({ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' });
   });
 });
 
@@ -296,6 +298,6 @@ describe('ensureCurriculum: insert what is missing, never overwrite (D-173)', ()
     db.copy = [{ key: 'home.countdown', value: 'Starts in {days} days', audience: 'learner' }];
     expect(ensureCurriculum(db).copy).toEqual(db.copy);
     delete db.copy;
-    expect(ensureCurriculum(db).copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }]);
+    expect(ensureCurriculum(db).copy).toEqual(SEED_COPY);
   });
 });

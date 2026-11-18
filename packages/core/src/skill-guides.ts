@@ -122,6 +122,25 @@ export interface GuidePrompts {
   groups: { label: string; items: string[] }[];
 }
 
+/**
+ * A skill's sample output (D-179): what www's page shows anyone under its "Made-Up Example", built from
+ * the made-up practice files. Public, so a locked skill's preview may show it too; never part of the
+ * setup. `body` says, in the page's own words, that it is made up.
+ */
+export type GuideSampleBlock =
+  | { h: string }
+  | { p: GuideInline[] }
+  | { items: string[] }
+  | { table: { caption: string; head: string[]; rows: string[][] } }
+  | { email: { subject: string; body: string[] } };
+
+export interface GuideSample {
+  title: string;
+  body: string;
+  note: string;
+  blocks: GuideSampleBlock[];
+}
+
 export interface SkillGuide {
   /** The www page's path without its slash, and the learn guide's: `/skill-library/<slug>`. */
   slug: string;
@@ -134,6 +153,8 @@ export interface SkillGuide {
   question: string | null;
   lanes: GuideLane[];
   prompts: GuidePrompts[];
+  /** Its sample output, when its page has one (D-179). */
+  sample?: GuideSample;
 }
 
 /** What every guide says the same way: the copy chip, the copy-and-open buttons, the step-by-step controls. */

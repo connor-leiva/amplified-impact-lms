@@ -9,27 +9,46 @@
 // unit-tested; times go through `fmt.*` (the viewer's zone first, the program's in parentheses).
 
 import { fmt } from '@ai/core';
+import type { SessionType } from '@ai/core';
 import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
 import { courseGuideHref } from '@ai/core/skill-guides';
-import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/course-types';
+import type { CourseSkill, SkillRole } from '@ai/core/course-types';
+import { isLockedWeek } from '@ai/core/course';
+import type { LearnerCourse, LockedCourseWeek } from '@ai/core/course';
+import { mountainWhen } from '@ai/core/release';
 import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
+import { ENTRIES } from '../../library/content';
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL. */
 export interface CourseSession {
   id: string;
   n: number;
   kind: 'build' | 'office_hours';
+  /** D-180: the builder's type (live build, office hours, goal planning, setup or other). */
+  type?: SessionType;
   week: number;
   title: string;
   start: number;
   mins: number;
+  /**
+   * D-183: the state the Console sets, which the learner portal v2's shell reads off the snapshot
+   * (`withLiveState`): Go Live, and the replay. `GET /api/course` never sends them.
+   */
+  live?: boolean;
+  replay?: 'processing' | 'ready' | null;
+  attended?: number | null;
 }
 
 export interface CoursePayload {
   open: true;
   preview: boolean;
-  course: CourseContent;
+  /** D-175: the learner is in the pre-launch preview (Week 0 open, the rest locked with their dates). */
+  prelaunch?: boolean;
+  /** D-175: each week open (whole) or locked (its place in the outline and when it opens). */
+  course: LearnerCourse;
   sessions: CourseSession[];
+  /** D-175: the learner-facing copy strings, by key: what a locked week says, the preview line. */
+  copy?: Record<string, string>;
 }
 
 export const COPY = {
@@ -115,8 +134,10 @@ export interface SkillVM {
   role: string;
   use: string;
   free: boolean;
-  /** The skill's Library page on www, with its guided setup. */
-  href: string;
+  /** The skill's Library page on www, with its guided setup; null while that page isn't built (D-176). */
+  href: string | null;
+  /** What shows instead of a link while the page isn't built: the `skill.coming` copy string, or null. */
+  pending: string | null;
 }
 
 export interface StepVM {
@@ -127,6 +148,8 @@ export interface StepVM {
    * skills, one per skill, each by its Library title after "Open a Guided Setup:".
    */
   links: { label: string; href: string }[];
+  /** D-176: the step names a Library page that isn't built yet: the `skill.coming` copy string, with no link. */
+  pending: string | null;
 }
 
 export interface Row {
@@ -204,7 +227,7 @@ export interface OverviewVM {
   scope: string;
   support: string;
   holiday: string;
-  weeks: { week: number; heading: string; question: string; href: string; flagship: string }[];
+  weeks: { week: number; heading: string; question: string; href: string; flagship: string; locked: boolean; opens: string | null }[];
   calendar: SessionLineVM[];
   before: {
     intake: readonly string[];
@@ -218,9 +241,36 @@ export interface OverviewVM {
   after: { graduation: readonly string[]; note: string; paths: Row[]; noPaywall: string; pilot: Row[] };
 }
 
+/** D-175: a week a learner can't open yet: where it sits, what it asks, when it opens. */
+export interface LockedWeekVM {
+  week: number;
+  heading: string;
+  question: string;
+  outcome: string;
+  /** "Opens Wed, Dec 9 · 12:00 PM MT" (the week's own locked copy, else the copy string), or the date alone. */
+  opens: string | null;
+  headline: string | null;
+  line: string | null;
+  prev: { label: string; href: string } | null;
+  next: { label: string; href: string } | null;
+}
+
 export type CourseView =
-  | { kind: 'overview'; preview: boolean; notFound: boolean; vm: OverviewVM }
-  | { kind: 'week'; preview: boolean; title: string; vm: WeekVM };
+  | { kind: 'overview'; preview: boolean; prelaunch: string | null; notFound: boolean; vm: OverviewVM }
+  | { kind: 'week'; preview: boolean; prelaunch: string | null; title: string; vm: WeekVM }
+  | { kind: 'locked'; preview: boolean; prelaunch: string | null; title: string; vm: LockedWeekVM };
+
+/**
+ * D-175: what a locked week says about its opening: its own locked copy's template (set in the builder)
+ * or the `locked.opens` copy string, `{date}` filled in Mountain Time; the date alone when neither says
+ * anything; nothing when no date is set.
+ */
+export function opensText(w: Pick<LockedCourseWeek, 'opensAt' | 'lockedCopy'>, copy: Record<string, string> | undefined): string | null {
+  if (w.opensAt === null) return null;
+  const date = mountainWhen(w.opensAt);
+  const template = w.lockedCopy?.opens ?? copy?.['locked.opens'];
+  return template && template.includes('{date}') ? template.replace('{date}', date) : date;
+}
 
 const mins = (n: number): string => `${n} Minutes`;
 const span = (from: number, to: number): string => `${from} to ${to} min`;
@@ -233,14 +283,21 @@ export const guideHref = (route: string): string => courseGuideHref(route, LIBRA
 /** Whether a course link leaves learn, and so opens in a new tab. */
 export const isExternal = (href: string): boolean => /^https?:\/\//.test(href);
 
-const skillVM = (s: CourseSkill): SkillVM => ({
-  title: s.title,
-  role: ROLE_LABEL[s.role],
-  use: s.use,
-  free: !!s.free,
+/**
+ * D-176: the Library pages that exist, by where a course link to each goes. A week can name a skill whose
+ * page isn't built yet (Map Your Spend, Lead Source Review); the course shows it with no link, never a
+ * dead one.
+ */
+const LIBRARY_HREFS: ReadonlySet<string> = new Set(ENTRIES.filter((e) => e.href).map((e) => guideHref(e.href!)));
+export const inLibrary = (route: string): boolean => LIBRARY_HREFS.has(guideHref(route));
+/** What a skill or step says instead of a link while its page isn't built: the `skill.coming` copy string. */
+const comingText = (copy: Record<string, string> | undefined): string | null => copy?.['skill.coming'] || null;
+
+export const skillVM = (s: CourseSkill, copy: Record<string, string> | undefined): SkillVM => {
   // A skill's guided setup in learn (D-151); a page that is not a skill is still on www.
-  href: guideHref(s.route),
-});
+  const href = inLibrary(s.route) ? guideHref(s.route) : null;
+  return { title: s.title, role: ROLE_LABEL[s.role], use: s.use, free: !!s.free, href, pending: href ? null : comingText(copy) };
+};
 
 /** `Week 3 · Live Build` or `Week 3 · Office Hours`, and the goal-planning title where it is one. */
 const sessionLine = (s: CourseSession): SessionLineVM => ({
@@ -264,7 +321,7 @@ const joinVM = (j: { label: string; note: string; path: string }): JoinVM => ({ 
 
 /** A setup step's guided-setup links: one plainly labeled, or several, each by its skill's Library title. */
 function setupLinks(step: { route?: string; also?: readonly string[] }, skills: readonly { title: string; route: string }[]): StepVM['links'] {
-  const routes = step.route ? [step.route, ...(step.also ?? [])] : [];
+  const routes = (step.route ? [step.route, ...(step.also ?? [])] : []).filter(inLibrary);
   if (routes.length === 1) return [{ label: COPY.guidedSetup, href: guideHref(routes[0]!) }];
   return routes.map((r) => ({ label: skills.find((k) => k.route === r)?.title ?? r, href: guideHref(r) }));
 }
@@ -278,7 +335,7 @@ export function weekFromParam(param: string | undefined): number | null {
 export function weekVM(p: CoursePayload, week: number): WeekVM | null {
   const { course } = p;
   const w = course.weeks.find((x) => x.week === week);
-  if (!w) return null;
+  if (!w || isLockedWeek(w)) return null;
   const build = p.sessions.find((s) => s.id === w.liveBuild?.sessionId) ?? null;
   const oh = p.sessions.find((s) => s.id === w.officeHours?.sessionId) ?? null;
   const shared = course.shared;
@@ -300,12 +357,13 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
       { label: COPY.roles.operator, text: w.time.operator },
     ],
     timeNote: shared.estimateNote,
-    skills: w.skills.map(skillVM),
+    skills: w.skills.map((k) => skillVM(k, p.copy)),
     libraryHref: SKILL_LIBRARY_PATH,
     setup: w.setup.map((step, k) => ({
       n: k + 1,
       text: step.text,
       links: setupLinks(step, w.skills),
+      pending: [step.route, ...(step.also ?? [])].some((r) => r !== undefined && !inLibrary(r)) ? comingText(p.copy) : null,
     })),
     live:
       w.liveBuild && build
@@ -350,7 +408,9 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     media: w.media,
     materials: w.materials,
     downloads: [
-      ...(w.week === 0 || w.week === 1 ? [WORKSHEET, PRACTICE] : []),
+      // D-176: the Week 1 worksheet and the practice set go with the cohort's practice set note: when the
+      // builder's Before page has none (the data pack and practice set retired), neither is offered.
+      ...((w.week === 0 || w.week === 1) && course.before.practiceSetNote ? [WORKSHEET, PRACTICE] : []),
       ...COURSE_TEMPLATES.filter((t) => t.weeks.includes(w.week)).map((t): DownloadVM => ({ label: t.label, name: t.file, content: templateCsv(t) })),
     ],
     prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
@@ -372,6 +432,8 @@ export function overviewVM(p: CoursePayload): OverviewVM {
     support: course.intro.support,
     holiday: course.intro.holiday,
     weeks: course.weeks.map((w) => {
+      if (isLockedWeek(w))
+        return { week: w.week, heading: `Week ${w.week} · ${w.title}`, question: w.question, href: coursePath(w.week), flagship: '', locked: true, opens: opensText(w, p.copy) };
       const lead = w.skills.filter((s) => s.role === 'flagship');
       return {
         week: w.week,
@@ -379,6 +441,8 @@ export function overviewVM(p: CoursePayload): OverviewVM {
         question: w.question,
         href: coursePath(w.week),
         flagship: (lead.length ? lead : w.skills).map((s) => s.title).join(', '),
+        locked: false,
+        opens: null,
       };
     }),
     calendar: p.sessions.slice().sort((a, b) => a.start - b.start).map(sessionLine),
@@ -393,7 +457,7 @@ export function overviewVM(p: CoursePayload): OverviewVM {
       practiceSetNote: course.before.practiceSetNote,
       safeSharing: course.before.safeSharing,
       lanes: course.before.lanes.map((l) => ({ label: l.label, text: l.text })),
-      downloads: [WORKSHEET, PRACTICE],
+      downloads: course.before.practiceSetNote ? [WORKSHEET, PRACTICE] : [],
     },
     after: {
       graduation: course.after.graduation,
@@ -405,13 +469,38 @@ export function overviewVM(p: CoursePayload): OverviewVM {
   };
 }
 
+/** D-175: a locked week's page, or null when the week is open or not in the course. */
+export function lockedWeekVM(p: CoursePayload, week: number): LockedWeekVM | null {
+  const weeks = p.course.weeks;
+  const w = weeks.find((x) => x.week === week);
+  if (!w || !isLockedWeek(w)) return null;
+  const i = weeks.indexOf(w);
+  const before = weeks[i - 1];
+  const after = weeks[i + 1];
+  return {
+    week: w.week,
+    heading: `Week ${w.week} · ${w.title}`,
+    question: w.question,
+    outcome: w.outcome,
+    opens: opensText(w, p.copy),
+    headline: w.lockedCopy?.headline || null,
+    line: w.lockedCopy?.line || null,
+    prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
+    next: after ? { label: `${COPY.next}: Week ${after.week}`, href: coursePath(after.week) } : null,
+  };
+}
+
 /** What `/course` or `/course/:week` shows for this payload. An unknown week falls back to the overview. */
 export function courseView(p: CoursePayload, param: string | undefined): CourseView {
+  // D-175: the pre-launch preview's line, as the copy string says it (nothing when it says nothing).
+  const prelaunch = p.prelaunch ? (p.copy?.['course.prelaunch'] ?? null) : null;
   if (param !== undefined) {
     const n = weekFromParam(param);
     const vm = n === null ? null : weekVM(p, n);
-    if (vm) return { kind: 'week', preview: p.preview, title: vm.heading, vm };
-    return { kind: 'overview', preview: p.preview, notFound: true, vm: overviewVM(p) };
+    if (vm) return { kind: 'week', preview: p.preview, prelaunch, title: vm.heading, vm };
+    const locked = n === null ? null : lockedWeekVM(p, n);
+    if (locked) return { kind: 'locked', preview: p.preview, prelaunch, title: locked.heading, vm: locked };
+    return { kind: 'overview', preview: p.preview, prelaunch, notFound: true, vm: overviewVM(p) };
   }
-  return { kind: 'overview', preview: p.preview, notFound: false, vm: overviewVM(p) };
+  return { kind: 'overview', preview: p.preview, prelaunch, notFound: false, vm: overviewVM(p) };
 }

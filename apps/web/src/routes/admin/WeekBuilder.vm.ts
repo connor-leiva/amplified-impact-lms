@@ -8,6 +8,8 @@
 import { COURSE_TZ, changedFields, copyIssues, issueLine, moduleCopyFields, zonedInputs, zonedInstant } from '@ai/core';
 import type { AIEmployee, Db, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, ReplayVisibility, Session, SessionType } from '@ai/core';
 import type { ContentBlock } from '@ai/core/course-types';
+import { courseFor, courseFromSnapshot, courseSessions } from '@ai/core/course';
+import type { Load } from '../course/Course';
 
 /** A course week's draft: a module of kind `week` that carries its words. */
 export type WeekDraft = AIEmployee & { kind: 'week'; course: NonNullable<AIEmployee['course']> };
@@ -170,3 +172,46 @@ export const tableRows = (text: string): string[][] =>
 /** A list as staff type it: one item per line. */
 export const listText = (items: readonly string[]): string => items.join('\n');
 export const listItems = (text: string): string[] => text.split('\n').map((l) => l.trim()).filter(Boolean);
+
+// --- the live preview of the learner pages, from the unsaved draft (PR 2c) ---------------------------
+
+/** Who the preview shows the course to. */
+export type PreviewAs = 'owner' | 'operator' | 'utah' | 'prelaunch';
+export const PREVIEW_AS_LABELS: Readonly<Record<PreviewAs, string>> = {
+  owner: 'Owner',
+  operator: 'Operator',
+  utah: 'Utah Life',
+  prelaunch: 'Before launch',
+};
+
+/** The snapshot as it would be if the draft were saved (a draft week shown as it would be published). */
+export function withDraft(db: Db, draft: WeekDraft): Db {
+  const shown: AIEmployee = draft.status === 'draft' ? { ...draft, status: 'published' } : draft;
+  return { ...db, modules: db.modules.map((m) => (m.id === draft.id ? shown : m)) };
+}
+
+/**
+ * What the course page would answer this viewer, from the draft. An owner and an operator get the
+ * course (the same page today; PR 5's learner pages show each their own work). A Utah Life member's
+ * plan doesn't include the course. Before launch, a buyer gets the welcome with the opening date.
+ */
+export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: number): Load {
+  if (as === 'utah') return { kind: 'locked' };
+  const next = withDraft(db, draft);
+  const copy = Object.fromEntries((next.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value]));
+  if (as === 'prelaunch') {
+    // D-175: once the cohort has a preview date, a buyer before launch is in the preview, as of that
+    // moment: Week 0 open, every week scheduled later locked with its date. With none, the welcome.
+    const at = next.cohorts.find((c) => c.id === 'dec26')?.previewOpensAt;
+    if (at === undefined) return { kind: 'upcoming', opensAt };
+    const preview = courseFor(next, at, { open: true, preview: true });
+    if (!preview) return { kind: 'failed' };
+    return { kind: 'ready', payload: { open: true, preview: false, prelaunch: true, course: preview, sessions: courseSessions(next), copy } };
+  }
+  const course = courseFromSnapshot(next);
+  if (!course) return { kind: 'failed' };
+  return { kind: 'ready', payload: { open: true, preview: false, course, sessions: courseSessions(next), copy } };
+}
+
+/** The course page's address for the draft's week. */
+export const previewWeek = (draft: WeekDraft): string => `week-${draft.course.week}`;
