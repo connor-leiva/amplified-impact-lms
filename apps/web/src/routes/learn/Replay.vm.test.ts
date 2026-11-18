@@ -213,6 +213,15 @@ describe('replay visibility in a locked week (D-187)', () => {
     expect(live(opened, 2)).toMatchObject({ kind: 'replay', moduleId: 'accelerator-week-2' });
   });
 
+  it('a snapshot that wasn’t scoped (the fixture build’s) still shows a locked week only its Published replay', () => {
+    for (const v of ['after_open', undefined] as const) {
+      const x = lockedWith({ replay: 'ready', ...(v ? { replayVisibility: v } : {}) });
+      // As the server would have sent it, had it not applied the rule.
+      Object.assign(sessionIn(x.db, 'dec26-s2'), { replay: 'ready', replayUrl: REC });
+      expect(live(x, 2)).toBeNull();
+    }
+  });
+
   it('Hidden: never; and a locked week never says Replay Processing', () => {
     expect(live(lockedWith({ replay: 'ready', replayVisibility: 'hidden' }), 2)).toBeNull();
     expect(live(lockedWith({ replay: 'processing', replayVisibility: 'published' }), 2)).toBeNull();

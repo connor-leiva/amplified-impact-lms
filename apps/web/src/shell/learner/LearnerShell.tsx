@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
+import type { Learner } from '@ai/core';
 import { learnerOf, withLiveState } from '@ai/core/learner';
 
 import '../../styles/r2.css';
@@ -267,6 +268,14 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
   );
 }
 
+/** D-187: the Team Plan window, mounted only while it is open, so the library is asked only then. */
+function TeamPlan({ item, me, onClose }: { item: PlanItem; me: Learner | null; onClose: () => void }) {
+  const db = useDb();
+  const skills = useSkills();
+  const vm = teamPlanVM(item, db, me, skills);
+  return vm ? <TeamPlanWindow vm={vm} onClose={onClose} /> : null;
+}
+
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
@@ -340,8 +349,6 @@ function Frame() {
   const [clicked, setClicked] = useState<PlanItem | null>(null);
   const addressed = planItemOf(location.search);
   const item = clicked ?? addressed;
-  const skills = useSkills(item !== null);
-  const plan = item ? teamPlanVM(item, db, me, skills) : null;
   const gate = teamGateFor(location.pathname, db, me);
   const closePlan = useCallback(() => {
     setClicked(null);
@@ -417,7 +424,7 @@ function Frame() {
         </>
       ) : null}
 
-      {plan ? <TeamPlanWindow vm={plan} onClose={closePlan} /> : null}
+      {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
     </div>
   );
 }

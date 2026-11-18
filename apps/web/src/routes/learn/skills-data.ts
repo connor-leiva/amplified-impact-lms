@@ -44,9 +44,8 @@ export async function fetchGuide(slug: string): Promise<Exclude<GuideLoad, { kin
 
 export const SKILLS_KEY = ['learn', 'skills'] as const;
 
-/** The library's answer. `enabled` false waits to ask (D-187: the Team Plan window asks only once it opens). */
-export function useSkills(enabled = true): SkillsLoad {
-  const q = useQuery({ queryKey: SKILLS_KEY, queryFn: fetchSkills, staleTime: Infinity, enabled });
+export function useSkills(): SkillsLoad {
+  const q = useQuery({ queryKey: SKILLS_KEY, queryFn: fetchSkills, staleTime: Infinity });
   return q.data ?? { kind: 'loading' };
 }
 
