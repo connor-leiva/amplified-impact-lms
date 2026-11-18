@@ -121,6 +121,26 @@ jobs:
       - if: failure()
         uses: actions/upload-artifact@v4
         with: { name: compliance-report, path: compliance/report }
+  # D-182: `pnpm parity:learner`, whose result on a commit is what lets a production build turn the learner
+  # portal's flag on. KEEP THE JOB'S ID: `parity-learner` is the check name the build guard reads from
+  # GitHub (apps/web/src/build/learner-parity-guard.ts), and a rename would make every flag-on build fail
+  # closed. It runs the learner portal's e2e against the flag-on fixture build and every parity scenario
+  # against its goldens on the flag-off build. Making it a REQUIRED check is a branch-protection setting.
+  parity-learner:
+    needs: quality
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      - run: pnpm parity:learner
+        env:
+          # As in `compliance` above: no database in this container, so no http-mode parity.
+          HTTP_PARITY: '0'
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: parity-learner-report, path: compliance/report }
+
   api: # Gate 7: the migration and (later) the oracle tests, against a real Postgres
     runs-on: ubuntu-latest
     services:
