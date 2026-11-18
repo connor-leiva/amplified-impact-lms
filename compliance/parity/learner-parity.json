@@ -100,6 +100,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
         "apps/web/src/routes/learn/TeamPlan.vm.test.ts › the Team Plan window’s address (D-187) › /learn?plan=team opens it over Home; an item rides along; closing drops only its two parameters @parity:P-1 @parity:R-6",
@@ -345,6 +346,7 @@
         "free"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9e-shell (D-185)",
       "tests": [
         "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › draws the root in the person’s theme while their portal is on screen, and the device’s after @parity:SH-5",
         "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › keeps two people’s choices apart, and leaves the device’s own alone @parity:SH-5 @parity:SH-6",
@@ -396,6 +398,7 @@
         "free"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9e-shell (D-185)",
       "tests": [
         "apps/web/src/lib/prefs.test.ts › prefs @g1 › the learner portal v2, per person (D-185) › keeps two people’s choices apart, and leaves the device’s own alone @parity:SH-5 @parity:SH-6",
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a desktop, Collapse sidebar makes it the rail and Expand sidebar brings it back, remembered @parity:SH-6 @parity:MO-3",
@@ -436,6 +439,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › Utah Life: “Not included with Utah Life access”, no upsell and no button but Close @parity:SH-8 @parity:P-1",
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › a Team-only AI employee opens the window over Home, previewing it; the Team Hub too @parity:SH-8",
@@ -743,6 +747,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/Home.vm.test.ts › the Cohort Community link (D-187) › hidden when the builder has no link, or one that is not a web address @parity:D-10",
         "apps/web/src/routes/learn/Home.vm.test.ts › the Cohort Community link (D-187) › links the builder’s address in a new tab, named by its site, never a member count @parity:D-10",
@@ -1020,6 +1025,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9f-hire (D-186)",
       "tests": [
         "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › built: Mark as Deployed runs `markDeployed` @parity:E-14 @parity:A-6",
         "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › deployed: Pause runs `setRuntime` paused; the last output shows @parity:E-14 @parity:A-6",
@@ -1048,6 +1054,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9f-hire (D-186)",
       "tests": [
         "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › the Run dialog: a real dialog with the input, Run, the output and Copy All; it records the run @parity:E-15 @parity:A-6",
         "apps/web/src/routes/learn/Hire.vm.test.ts › the Run dialog (D-186) › opens on the demo input; Run shows the output, Run Again, Copy All, and what `recordRun` stores @parity:E-15",
@@ -1162,6 +1169,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9f-hire (D-186)",
       "tests": [
         "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › draws its steps, kit and deployment card; Mark step done runs `toggleStep` @parity:E-22 @parity:E-16",
         "apps/web/src/routes/learn/Hire.test.tsx › a non-course AI Employee’s page (D-186, E-22) › is listed in the sidebar’s AI employees group and on Home, and links its page @parity:E-22",
@@ -1999,6 +2007,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9f-hire (D-186)",
       "note": "D-186: the card and dialog call `markDeployed`, `setRuntime` and `recordRun`. Restored on Connor’s call of Nov 18, 2026.",
       "tests": [
         "apps/web/src/routes/learn/Hire.test.tsx › the Your Deployment card on an open week’s page (D-186) › built: Mark as Deployed runs `markDeployed` @parity:E-14 @parity:A-6",
@@ -2020,6 +2029,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
         "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › a vault item and the Team Hub preview themselves @parity:A-7",
@@ -2627,6 +2637,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › an Agent Plan learner: a preview of the item, the builder’s words, and one button that asks @parity:SH-8 @parity:C-13",
         "apps/web/src/routes/learn/TeamPlan.vm.test.ts › what the window says (D-187) › once they have asked: the asked line, and no second button @parity:C-13",
@@ -2984,6 +2995,7 @@
         "free"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9e-shell (D-185)",
       "tests": [
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a desktop, Collapse sidebar makes it the rail and Expand sidebar brings it back, remembered @parity:SH-6 @parity:MO-3",
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s desktop sidebar (D-185) › on a laptop, the rail is automatic and there is no toggle, whatever the person chose @parity:MO-3",
@@ -3044,6 +3056,7 @@
         "Accelerator"
       ],
       "status": "restored",
+      "by": "claude/learner-pr9g-upsell (D-187)",
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › Utah Life: “Not included with Utah Life access”, no upsell and no button but Close @parity:SH-8 @parity:P-1",
@@ -3097,7 +3110,7 @@
         "Accelerator"
       ],
       "status": "restored",
-      "by": "unassigned (found by the parity suite; needs an owner, or Connor's call to drop it)",
+      "by": "claude/learner-pr9c-content",
       "added": "Not in the inventory. Today: apps/web/src/routes/course/Course.tsx:477 sets document.title per week; no /learn screen sets one.",
       "tests": [
         "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step",

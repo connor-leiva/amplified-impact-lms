@@ -303,9 +303,11 @@ describe('the real files', () => {
       'MO-3',
       'D-10',
       'E-22',
-      'SH-4',
+      'A-6',
     ])
-      assert.equal(status[id], 'signed-off-drop', id);
+      // Connor's call of Nov 18, 2026: every drop his brief proposed is restored (D-185 to D-187).
+      assert.equal(status[id], 'restored', id);
+    assert.equal(status['SH-4'], 'signed-off-drop');
     assert.equal(status['M-12'], 'n/a');
     assert.equal(status['E-21'], 'restored');
     for (const r of rows)
@@ -314,7 +316,7 @@ describe('the real files', () => {
     for (const e of m.entries)
       if (e.status === 'restored') assert.ok(e.by, `${e.id} names the branch that restores it`);
   });
-  it('signed-off-drops.md approves SH-4 alone, in Connor’s words; every other drop is pending', () => {
+  it('signed-off-drops.md approves SH-4 alone, in Connor’s words, the one drop there is', () => {
     const a = parseApprovals(readFileSync(DROPS_FILE, 'utf8'));
     assert.deepEqual([...a.keys()], ['SH-4']);
     assert.equal(a.get('SH-4')!.words, 'No time-zone picker.');
