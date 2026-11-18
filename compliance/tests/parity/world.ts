@@ -92,8 +92,9 @@ export function worldDb(): Db {
       ? { ...s, replay: 'ready' as const, replayVisibility: 'published' as const, replayUrl: REPLAY_URL, attended: 3 }
       : s,
   );
-  // Every course week open to both tiers, so each persona can build (the course itself is gated by plan, at
-  // `GET /api/course`; the fixture has no plans).
+  // Every course week open to both tiers. The deployed seed makes them Team only, and production's course
+  // buyers are Team tier (`billing/provision.ts` `ownerTier`); the fixture's Jamie is Agent tier, which the
+  // setLearnerTier test needs, so the weeks open to him as they open to a real buyer.
   db.modules = db.modules.map((m) => ({
     ...m,
     tier: 'agent' as const,
