@@ -528,6 +528,13 @@ button.b {
 
 /* ---- laptop: the 64px rail (768 to 1199px) ---------------------------------------------------------- */
 
+/* D-183: the bar's Google Calendar and Outlook links, where the bar has room for them. */
+@media (max-width: 1199px) {
+  .wideOnly {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1199px) {
   .sb {
     width: 64px;

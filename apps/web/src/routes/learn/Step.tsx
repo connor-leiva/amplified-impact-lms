@@ -16,6 +16,7 @@ import type { Platform, StepVM } from './Step.vm';
 import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import { learnHome } from './routes';
+import { StepLive } from './Live';
 import s from './Learn.module.css';
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
@@ -91,6 +92,7 @@ function Player({ vm }: { vm: StepVM }) {
             {vm.hint ? <p className={`${s.p} ${s.me}`}>{vm.hint}</p> : null}
           </div>
 
+          <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
           <section className={`${s.cd} ${s.hero} ${s.heroBlock}`} aria-labelledby="lv-do-t">
             <div className={s.cdh} style={{ flexWrap: 'wrap', rowGap: 10 }}>
               <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>

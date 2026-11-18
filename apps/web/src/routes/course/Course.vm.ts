@@ -30,6 +30,13 @@ export interface CourseSession {
   title: string;
   start: number;
   mins: number;
+  /**
+   * D-183: the state the Console sets, which the learner portal v2's shell reads off the snapshot
+   * (`withLiveState`): Go Live, and the replay. `GET /api/course` never sends them.
+   */
+  live?: boolean;
+  replay?: 'processing' | 'ready' | null;
+  attended?: number | null;
 }
 
 export interface CoursePayload {

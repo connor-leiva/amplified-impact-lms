@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
-import { learnerOf } from '@ai/core/learner';
+import { learnerOf, withLiveState } from '@ai/core/learner';
 
 import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
 import { Icon } from '../../components/Icon';
+import { calLinks } from '../../components/calendar-links';
 import { Menu } from '../../components/r2/Menu';
 import { useDialogA11y } from '../../components/primitives/Modal';
 import { ToasterProvider, useToaster } from '../../components/primitives/Toaster';
@@ -165,10 +166,16 @@ function NextSession({ bar, now }: { bar: BarVM; now: number }) {
   if (bar.kind === 'live') {
     return (
       <div className={`${s.tbn} ${s.dtOnly}`}>
-        <span className={s.st} aria-hidden="true">
-          <i />
-        </span>
-        <span className={s.liveK}>{LABELS.liveNow}</span>
+        {bar.state === 'live' ? (
+          <span className={s.st} aria-hidden="true">
+            <i />
+          </span>
+        ) : (
+          <span className={s.tbi}>
+            <Icon name="lvLive" size={14} strokeWidth={1.75} />
+          </span>
+        )}
+        <span className={bar.state === 'live' ? s.liveK : s.tbk}>{bar.badge}</span>
         <b className={s.el}>{bar.title}</b>
         <span className={s.mu}>{bar.started}</span>
         <button type="button" className={`${s.b} ${s.p}`} onClick={() => void join(bar.sessionId, () => toast(`Opening Zoom · ${bar.title}`, 'info'))}>
@@ -190,7 +197,23 @@ function NextSession({ bar, now }: { bar: BarVM; now: number }) {
         <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
         {LABELS.addToCalendar}
       </button>
+      {bar.ics[0] ? <BarCalLinks event={bar.ics[0]} /> : null}
     </div>
+  );
+}
+
+/** D-183: Google Calendar and Outlook beside the bar's .ics, as the current portal's calendar menu offers. */
+function BarCalLinks({ event }: { event: { title: string; start: number; end: number } }) {
+  const links = calLinks(event);
+  return (
+    <>
+      <a className={`${s.b} ${s.q} ${s.wideOnly}`} href={links.google} target="_blank" rel="noopener">
+        {LABELS.googleCalendar}
+      </a>
+      <a className={`${s.b} ${s.q} ${s.wideOnly}`} href={links.outlook} target="_blank" rel="noopener">
+        {LABELS.outlook}
+      </a>
+    </>
   );
 }
 
@@ -201,11 +224,15 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
   if (bar.kind === 'live') {
     return (
       <div className={s.tbs2} role="status">
-        <span className={s.st} aria-hidden="true">
-          <i />
-        </span>
+        {bar.state === 'live' ? (
+          <span className={s.st} aria-hidden="true">
+            <i />
+          </span>
+        ) : (
+          <Icon name="lvLive" size={18} strokeWidth={1.75} />
+        )}
         <span className={s.el}>
-          <b>{LABELS.liveNow}</b> · {bar.title}
+          <b>{bar.badge}</b> · {bar.title}
         </span>
         <button type="button" className={`${s.b} ${s.p}`} onClick={() => void join(bar.sessionId, () => toast(`Opening Zoom · ${bar.title}`, 'info'))}>
           {bar.joinLabel}
@@ -229,8 +256,10 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
-  const course = useCourse();
-  const now = useNow(30_000);
+  const loaded = useCourse();
+  // D-183: every 15 seconds, as the current portal's Sessions page ticks, so Join appears 15 minutes before
+  // a session starts without a reload.
+  const now = useNow(15_000);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToaster();
@@ -240,6 +269,13 @@ function Frame() {
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const staff = viewer.actor.kind === 'staff' ? (db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) ?? null) : null;
   const name = me?.name ?? staff?.name ?? '';
+  // D-183: the course's sessions carry the state the Console sets (Go Live, End Session, the replay), read
+  // off the snapshot, which refetches whenever the server says something changed (`/api/events`), as the
+  // current portal's does. Every screen gets the sessions this way, through the outlet's context.
+  const course = useMemo(
+    () => (loaded.kind === 'ready' ? { ...loaded, payload: { ...loaded.payload, sessions: withLiveState(loaded.payload.sessions, db) } } : loaded),
+    [loaded, db],
+  );
   const payload = course.kind === 'ready' ? course.payload : null;
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   const nav = navVM(payload, rows, location.pathname);

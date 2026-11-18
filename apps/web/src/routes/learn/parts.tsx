@@ -3,9 +3,13 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { IconName } from '@ai/core';
 import type { ContentBlock } from '@ai/core/course-types';
+import type { IcsEvent } from '@ai/core';
 import { Icon } from '../../components/Icon';
-import { HUE } from './learn.vm';
-import type { KitRowVM, Seg, SessionRowVM, Tone } from './learn.vm';
+import { calLinks } from '../../components/calendar-links';
+import { useToaster } from '../../components/primitives/Toaster';
+import { useJoin } from '../../data/join';
+import { HUE, LABELS } from './learn.vm';
+import type { JoinVM, KitRowVM, Seg, SessionRowVM, Tone } from './learn.vm';
 import { STEP } from './Step.vm';
 import s from './Learn.module.css';
 
@@ -50,6 +54,67 @@ export function LiveDot() {
     <span className={s.st} aria-hidden="true">
       <i />
     </span>
+  );
+}
+
+/**
+ * D-183: Join, through the join route inside its window (the current portal's `useJoin`); the fixture
+ * build toasts "Opening Zoom", as the portal does.
+ */
+export function JoinBtn({ sessionId, title, label, className }: { sessionId: string; title: string; label: string; className: string }) {
+  const join = useJoin();
+  const { toast } = useToaster();
+  return (
+    <button type="button" className={className} onClick={() => void join(sessionId, () => toast(`Opening Zoom · ${title}`, 'info'))}>
+      <Icon name="lvVideo" size={14} strokeWidth={1.75} />
+      {label}
+    </button>
+  );
+}
+
+/** D-183: the live badge ("Live now", with the pulsing dot) or "Starting soon", always with its words. */
+export function JoinBadge({ j }: { j: Pick<JoinVM, 'state' | 'badge'> }) {
+  return (
+    <span className={s.ost} data-tone={j.state === 'live' ? 'ok' : 'ip'}>
+      {j.state === 'live' ? <LiveDot /> : <Icon name="lvLive" size={13} strokeWidth={1.75} />}
+      {j.badge}
+    </span>
+  );
+}
+
+/**
+ * D-183: a session to join now, as a card's strip: the badge, the session's title and time, and Join. The
+ * Schedule draws one under the week a session belongs to; the week page draws one above its steps.
+ */
+export function JoinStrip({ j, compact = false }: { j: JoinVM; compact?: boolean }) {
+  return (
+    <div className={s.jst} data-state={j.state} role="group" aria-label={`${j.badge}: ${j.title}`}>
+      <JoinBadge j={j} />
+      <span className={`${s.colZ} ${s.grow}`}>
+        <span className={s.w5}>{j.title}</span>
+        <span className={s.me}>{j.meta}</span>
+      </span>
+      <JoinBtn sessionId={j.sessionId} title={j.title} label={compact ? LABELS.join : j.joinLabel} className={`${s.b} ${s.bp}`} />
+    </div>
+  );
+}
+
+/**
+ * D-183: beside a one-event .ics download, the current portal's other two ways in: Google Calendar and
+ * Outlook, each in a new tab, from the same builders (`components/calendar-links.ts`). Never a join link.
+ */
+export function CalLinks({ event, className }: { event: IcsEvent | undefined; className?: string }) {
+  if (!event) return null;
+  const links = calLinks({ title: event.title, start: event.start, end: event.end });
+  return (
+    <>
+      <a className={`${s.b} ${s.bq} ${className ?? ''}`} href={links.google} target="_blank" rel="noopener">
+        {LABELS.googleCalendar}
+      </a>
+      <a className={`${s.b} ${s.bq} ${className ?? ''}`} href={links.outlook} target="_blank" rel="noopener">
+        {LABELS.outlook}
+      </a>
+    </>
   );
 }
 

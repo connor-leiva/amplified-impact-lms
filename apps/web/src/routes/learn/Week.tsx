@@ -15,6 +15,7 @@ import { weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
 import { learnHome } from './routes';
+import { WeekLive } from './Live';
 import s from './Learn.module.css';
 
 const fileUrl = (id: string): string | null => repo.fileUrl({ kind: 'resource', id });
@@ -45,6 +46,7 @@ function Open({ vm }: { vm: OpenWeekVM }) {
           <span>{vm.pk}</span>
         </span>
       </Head>
+      <WeekLive week={vm.week} />
 
       <section className={`${s.cd} ${s.hero}`} aria-labelledby="lv-next-t">
         <div className={s.hl}>
@@ -143,6 +145,7 @@ function Locked({ vm, now }: { vm: LockedWeekVM; now: number }) {
           <span>{vm.pk}</span>
         </span>
       </Head>
+      <WeekLive week={vm.week} />
       <div className={s.gms}>
         <section className={`${s.cd} ${s.hero} ${s.heroBlock}`} aria-labelledby="lv-locked-t">
           <div className={s.emp}>

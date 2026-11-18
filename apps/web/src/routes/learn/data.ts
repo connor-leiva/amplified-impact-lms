@@ -9,7 +9,11 @@
 // Writes go through the portal's own mutation route: "Mark step done" is `toggleStep`, the checklist's.
 // The join route hands out a live session's Zoom link, inside its window, as for the portal.
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { isLockedWeek } from '@ai/core/course';
+import { repo } from '../../data/boot';
+import { clock } from '../../lib/clock';
 import { useOutletContext } from 'react-router';
 import type { Db } from '@ai/core';
 import type { CoursePayload } from '../course/Course.vm';
@@ -47,9 +51,39 @@ export async function fetchCourse(): Promise<CourseLoad> {
 
 export const COURSE_KEY = ['learn', 'course'] as const;
 
-/** The course, once per page load (the shell suspends until it has answered). */
+/**
+ * The course (the shell suspends until it has answered the first time).
+ *
+ * D-183: it stays as fresh as the snapshot. When the server says something changed (the event stream's
+ * `changed`, which already refetches the snapshot), the course is refetched too, so a session's new time,
+ * a week staff publish, a kit upload or a replay shows without a reload. And when a locked week's opening
+ * (or, before the preview, the course's) passes while the tab is open, it is refetched then, so the week
+ * opens on screen. A refetch keeps the page on screen while it runs.
+ */
 export function useCourse(): CourseLoad {
-  return useSuspenseQuery({ queryKey: COURSE_KEY, queryFn: fetchCourse, staleTime: Infinity }).data;
+  const qc = useQueryClient();
+  const load = useSuspenseQuery({ queryKey: COURSE_KEY, queryFn: fetchCourse, staleTime: Infinity }).data;
+  useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: COURSE_KEY })), [qc]);
+  const at = nextOpening(load, clock.now());
+  useEffect(() => {
+    if (at === null) return;
+    const id = setTimeout(() => void qc.invalidateQueries({ queryKey: COURSE_KEY }), Math.min(MAX_WAIT, Math.max(0, at - clock.now()) + 1000));
+    return () => clearTimeout(id);
+  }, [at, qc]);
+  return load;
+}
+
+/** setTimeout's ceiling (about 24.8 days); a later opening is waited for in steps. */
+const MAX_WAIT = 2_147_483_647;
+
+/** The next instant a locked week opens, after `now`, or null. */
+export function nextOpening(load: CourseLoad, now: number): number | null {
+  if (load.kind !== 'ready') return load.kind === 'upcoming' && load.opensAt > now ? load.opensAt : null;
+  const at = load.payload.course.weeks
+    .map((w) => (isLockedWeek(w) ? w.opensAt : null))
+    .filter((t): t is number => t !== null && t > now)
+    .sort((a, b) => a - b)[0];
+  return at ?? null;
 }
 
 /** What the shell hands every learner screen. */

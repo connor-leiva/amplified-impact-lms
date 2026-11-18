@@ -6,15 +6,37 @@
 // hero, no AI employees, nothing coming up and no cohort card.
 
 import { fmt } from '@ai/core';
-import type { Cohort, IconName, IcsEvent, Learner } from '@ai/core';
+import type { Cohort, Db, IconName, IcsEvent, Learner } from '@ai/core';
 import { ACCELERATOR_COHORT_ID, ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
-import { countWord, countdown, currentWeek, firstName, liveSessionAt, monthYear, partOfDay, sessionEndsAt, upcomingSessions } from '@ai/core/learner';
+import { countWord, countdown, currentWeek, firstName, inAppAnnouncement, joinableSession, monthYear, partOfDay, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
 import { COPY as COURSE_COPY } from '../course/Course.vm';
+import { PRE_LAUNCH, whenOf } from '../library/PreLaunch';
 import type { CoursePayload } from '../course/Course.vm';
 import type { CourseLoad } from './data';
 import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle } from './learn.vm';
 import type { Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
 import { learnSchedule, learnSkills, learnStep } from './routes';
+
+/** D-183: the current portal's post-cohort block, in its Dashboard's own words. */
+export const POST = {
+  wrapped: 'Your Cohort Wrapped on',
+  title: 'Office Hours Continue',
+  help: 'Drop-In Build Help with',
+  next: 'Next:',
+  tba: 'Schedule TBA',
+  host: 'your instructor',
+  addOfficeHours: 'Add Office Hours to Calendar',
+  rewatch: 'Rewatch Any Session',
+} as const;
+
+/** D-183: the in-app announcement's chrome, the current portal's banner's own words. */
+export const BANNER = {
+  open: 'Open',
+  dismiss: 'Dismiss',
+  session: 'Session',
+  movedTo: 'moved to',
+  updated: 'Calendar invite updated',
+} as const;
 
 export const HOME = {
   greeting: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening' },
@@ -66,6 +88,8 @@ export type HeroVM =
     }
   | {
       kind: 'live';
+      /** D-183: live now (Go Live, or under way), or inside its 15-minute join window. */
+      state: 'live' | 'ready';
       tile: { icon: IconName; tone: Tone };
       eyebrow: string;
       title: string;
@@ -84,8 +108,11 @@ export type HeroVM =
       addLabel: string;
       right: HeroRightVM;
     }
-  /** Bought, before the course opens to them: how long until it does. */
-  | { kind: 'opens'; right: HeroRightVM };
+  /**
+   * Bought, before the course opens to them: how long until it does, and (D-183) the pre-launch welcome
+   * the current portal shows them on /course and the Skill Library, beside it.
+   */
+  | { kind: 'opens'; right: HeroRightVM; welcome: { title: string; starts: string; support: string; email: string; href: string } };
 
 export interface CardVM {
   week: number;
@@ -103,8 +130,54 @@ export interface CardVM {
   weekLabel: string;
 }
 
+/**
+ * D-183: the in-app announcement, as the current portal's Dashboard banner shows it: warning or info, its
+ * title (a moved session's title re-read from the session, so it never goes stale), its body, when it was
+ * sent, its action (the updated calendar invite for a moved session, else the Schedule) and Dismiss.
+ */
+export interface BannerVM {
+  id: string;
+  severity: 'info' | 'warning';
+  title: string;
+  body: string;
+  when: string;
+  abs: string;
+  action: { label: string; kind: 'calendar'; ics: IcsEvent[]; name: string; toast: string } | { label: string; kind: 'nav'; href: string } | null;
+  dismiss: string;
+}
+
+/**
+ * D-183: the current portal's post-cohort block, once every session of the cohort is over: when it
+ * wrapped, office hours that continue (the next one, with its calendar file), and Rewatch Any Session.
+ */
+export interface PostVM {
+  kicker: string;
+  title: string;
+  meta: string;
+  ics: IcsEvent[] | null;
+  icsName: string;
+  addLabel: string;
+  rewatch: { label: string; href: string };
+}
+
+/**
+ * D-183: the current portal's Session Card after a session, for 12 hours: "Replay Ready" with Watch Replay,
+ * or "Session Ended" with the replay processing and Open the Build Kit. Both open the week's page, where
+ * the player and the kit are.
+ */
+export interface RecentVM {
+  state: 'replay' | 'processing';
+  badge: string;
+  title: string;
+  note: string;
+  action: { label: string; href: string };
+}
+
 export interface HomeVM {
   greeting: string;
+  banner: BannerVM | null;
+  post: PostVM | null;
+  recent: RecentVM | null;
   lede: string | null;
   hero: HeroVM | null;
   employees: { heading: string; meta: string | null; schedule: { label: string; href: string }; cards: CardVM[] } | null;
@@ -183,9 +256,73 @@ function cards(rows: readonly WeekRow[], current: WeekRow | null, liveWeek: numb
   });
 }
 
-function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort | undefined, now: number): Omit<HomeVM, 'greeting'> {
-  const live = liveSessionAt(p.sessions, now);
-  const nextBuild = upcomingSessions(p.sessions, now, 'build')[0] ?? null;
+/** D-183: the announcement a learner's Home shows, by the current portal's rule (`inAppAnnouncement`). */
+export function bannerVM(db: Pick<Db, 'announcements' | 'dismissed' | 'sessions'>, me: Learner | null, now: number): BannerVM | null {
+  if (!me) return null;
+  const raw = inAppAnnouncement(db, me);
+  if (!raw) return null;
+  const moved = raw.sessionId ? (db.sessions.find((x) => x.id === raw.sessionId) ?? null) : null;
+  const label = raw.action ? raw.actionLabel || BANNER.open : '';
+  return {
+    id: raw.id,
+    severity: raw.severity || 'info',
+    title: moved ? `${BANNER.session} ${moved.n} ${BANNER.movedTo} ${fmt.dayPlain(moved.start)} · ${fmt.time(moved.start)}` : raw.title,
+    body: raw.body || '',
+    when: fmt.ago(raw.at, now),
+    abs: fmt.abs(raw.at),
+    action: !label
+      ? null
+      : raw.action === 'calendar' && moved
+        ? { label, kind: 'calendar', ics: [{ id: moved.id, title: moved.title, start: moved.start, end: sessionEndsAt(moved) }], name: `session-${moved.n}.ics`, toast: BANNER.updated }
+        : { label, kind: 'nav', href: learnSchedule() },
+    dismiss: BANNER.dismiss,
+  };
+}
+
+const RECENT_MS = 12 * 3600_000;
+
+/** The last live build that ended in the past 12 hours (and isn't live again), by the current portal's rule. */
+export function recentVM(p: CoursePayload, rows: readonly WeekRow[], now: number): RecentVM | null {
+  const s = p.sessions
+    .filter((x) => x.kind === 'build' && !x.live && sessionEndsAt(x) <= now && now - sessionEndsAt(x) < RECENT_MS)
+    .sort((a, b) => a.start - b.start)
+    .pop();
+  if (!s) return null;
+  const href = rows.find((r) => r.week === s.week)?.href ?? learnSchedule();
+  return sessionPhase(s, now) === 'replay'
+    ? { state: 'replay', badge: LABELS.replayReady, title: s.title, note: REPLAY_NOTE, action: { label: LABELS.watchReplay, href } }
+    : { state: 'processing', badge: LABELS.sessionEnded, title: s.title, note: PROCESSING_NOTE, action: { label: LABELS.openKit, href } };
+}
+
+/** The current portal's Session Card notes. */
+const REPLAY_NOTE = 'Chapters and a searchable transcript are up.';
+const PROCESSING_NOTE = 'Replay processing · usually within 2 hours';
+
+/**
+ * The post-cohort block, by the current portal's rule: the cohort has started and no session is still
+ * ahead or live. Its host is the first instructor a week names, else "your instructor".
+ */
+export function postVM(p: CoursePayload, cohort: Cohort | undefined, modules: readonly { instructor?: string }[], now: number): PostVM | null {
+  if (!cohort || now <= cohort.start || !p.sessions.length) return null;
+  if (p.sessions.some((s) => s.live || sessionEndsAt(s) > now)) return null;
+  const oh = upcomingSessions(p.sessions, now, 'office_hours')[0] ?? null;
+  const host = modules.find((m) => m.instructor)?.instructor || POST.host;
+  return {
+    kicker: `${POST.wrapped} ${fmt.date(cohort.end)}`,
+    title: POST.title,
+    meta: `${POST.help} ${host} · ${POST.next} ${oh ? `${fmt.day(oh.start)} · ${fmt.time(oh.start)}` : POST.tba}`,
+    ics: oh ? [{ id: oh.id, title: oh.title, start: oh.start, end: sessionEndsAt(oh) }] : null,
+    icsName: 'office-hours.ics',
+    addLabel: POST.addOfficeHours,
+    rewatch: { label: POST.rewatch, href: learnSchedule() },
+  };
+}
+
+function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort | undefined, now: number): Omit<HomeVM, 'greeting' | 'banner' | 'post' | 'recent'> {
+  // D-183: the session to join now: live (Go Live, or under way), else inside its 15-minute window.
+  const live = joinableSession(p.sessions, now);
+  const liveState = live && sessionPhase(live, now) === 'live' ? 'live' : 'ready';
+  const nextBuild = upcomingSessions(p.sessions, now, 'build').find((s) => !s.live) ?? null;
   const cur = currentWeek(rows);
   const step = cur?.steps.find((s) => s.current) ?? null;
 
@@ -196,14 +333,18 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
     const parts = countParts(ends, now, false);
     hero = {
       kind: 'live',
+      state: liveState,
       tile: { icon: row?.icon ?? 'lvLive', tone: row?.tone ?? 'forest' },
-      eyebrow: `${LABELS.liveNow} · ${LABELS.week} ${live.week}`,
+      eyebrow: `${liveState === 'live' ? LABELS.liveNow : LABELS.startingSoon} · ${LABELS.week} ${live.week}`,
       title: live.title,
       meta: `${fmt.time(live.start)} · ${LABELS.zoom}`,
       sessionId: live.id,
       joinLabel: live.kind === 'build' ? LABELS.joinBuild : LABELS.join,
       open: row && row.state !== 'locked' ? { label: `${LABELS.open} ${row.title}`, href: row.href } : null,
-      right: { label: HOME.timeLeft, icon: 'r2Jobs', parts, aria: partsAria(parts), foot: `${HOME.ends} ${fmt.time(ends)}. ${HOME.replayAfter}` },
+      right:
+        liveState === 'live'
+          ? { label: HOME.timeLeft, icon: 'r2Jobs', parts, aria: partsAria(parts), foot: `${HOME.ends} ${fmt.time(ends)}. ${HOME.replayAfter}` }
+          : goesLive(live.start, now),
     };
   } else if (cur && step && cur.open) {
     hero = {
@@ -233,7 +374,9 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
   }
 
   const built = rows.filter((r) => r.state === 'built').length;
-  const coming = upcomingSessions(p.sessions, now).slice(0, 3);
+  const coming = upcomingSessions(p.sessions, now)
+    .filter((s) => !s.live)
+    .slice(0, 3);
   const oh = upcomingSessions(p.sessions, now, 'office_hours')[0] ?? null;
   const enrolled = cohort?.enrolled ?? 0;
 
@@ -245,7 +388,7 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
       heading: HOME.employees,
       meta: built > 0 ? `${built} ${HOME.built}` : null,
       schedule: { label: LABELS.schedule, href: learnSchedule() },
-      cards: cards(rows, cur, live ? live.week : null),
+      cards: cards(rows, cur, live && liveState === 'live' ? live.week : null),
     },
     comingUp: coming.length
       ? { heading: HOME.comingUp, rows: coming.map(sessionRow), add: { label: addLabel(coming.length), ics: icsEvents(coming) } }
@@ -263,7 +406,7 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
 }
 
 /** Home without the course: the greeting, and the Skill Library their plan opens. No cohort pieces. */
-const NO_COURSE: Omit<HomeVM, 'greeting'> = {
+const NO_COURSE: Omit<HomeVM, 'greeting' | 'banner' | 'post' | 'recent'> = {
   lede: null,
   hero: null,
   employees: null,
@@ -273,16 +416,31 @@ const NO_COURSE: Omit<HomeVM, 'greeting'> = {
   library: { note: COURSE_COPY.lockedNote, label: COURSE_COPY.library, href: learnSkills() },
 };
 
-export function homeVM(load: CourseLoad, rows: readonly WeekRow[], cohorts: readonly Cohort[], me: Learner | null, name: string, now: number): HomeVM {
-  const hello = greeting(name, now);
+/**
+ * Home. `db` is the learner's snapshot, for the in-app announcement (D-183); without it no banner is drawn.
+ * Every learner sees their announcement, with the course or without it, as on the current portal.
+ */
+export function homeVM(
+  load: CourseLoad,
+  rows: readonly WeekRow[],
+  cohorts: readonly Cohort[],
+  me: Learner | null,
+  name: string,
+  now: number,
+  db?: Pick<Db, 'announcements' | 'dismissed' | 'sessions'>,
+): HomeVM {
+  const hello = { greeting: greeting(name, now), banner: db ? bannerVM(db, me, now) : null, post: null, recent: null };
   if (load.kind === 'ready') {
     const cohort = cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
-    return { greeting: hello, ...courseHome(load.payload, rows, cohort, now) };
+    const modules = rows.map((r) => r.module).filter((m): m is NonNullable<typeof m> => !!m);
+    const post = postVM(load.payload, cohort, modules, now);
+    return { ...hello, ...courseHome(load.payload, rows, cohort, now), post, recent: post ? null : recentVM(load.payload, rows, now) };
   }
-  if (load.kind === 'paused') return { greeting: hello, ...NO_COURSE, lede: COURSE_COPY.paused, library: { note: COURSE_COPY.pausedNote, label: COURSE_COPY.billing, href: '/api/billing/portal' } };
-  if (load.kind === 'failed') return { greeting: hello, ...NO_COURSE, lede: COURSE_COPY.failed, library: null };
+  if (load.kind === 'paused') return { ...hello, ...NO_COURSE, lede: COURSE_COPY.paused, library: { note: COURSE_COPY.pausedNote, label: COURSE_COPY.billing, href: '/api/billing/portal' } };
+  if (load.kind === 'failed') return { ...hello, ...NO_COURSE, lede: COURSE_COPY.failed, library: null };
   if (load.kind === 'upcoming') {
-    return { greeting: hello, ...NO_COURSE, library: null, hero: { kind: 'opens', right: goesLive(load.opensAt, now) } };
+    const welcome = { title: PRE_LAUNCH.title, starts: PRE_LAUNCH.starts(whenOf(load.opensAt)), support: PRE_LAUNCH.support, email: ACCELERATOR_SUPPORT_EMAIL, href: SUPPORT_HREF };
+    return { ...hello, ...NO_COURSE, library: null, hero: { kind: 'opens', right: goesLive(load.opensAt, now), welcome } };
   }
-  return { greeting: hello, ...NO_COURSE };
+  return { ...hello, ...NO_COURSE };
 }
