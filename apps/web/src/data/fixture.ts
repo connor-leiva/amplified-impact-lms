@@ -116,6 +116,11 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     async joinTicket() {
       return { kind: 'simulated' };
     },
+    // D-185: no server keeps a person's appearance here; the device does (`lib/prefs.ts`, by user id).
+    async prefs() {
+      return {};
+    },
+    async savePrefs() {},
     subscribe(f) {
       listeners.add(f);
       return () => {

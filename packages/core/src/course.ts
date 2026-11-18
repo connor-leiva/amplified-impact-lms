@@ -10,7 +10,7 @@ import { kitVisible, weekOpenFor } from './release';
 import type { CourseEntry } from './release';
 import { moduleForSession, sessionKind, sessionWeek } from './sessions';
 import type { SessionKind } from './sessions';
-import type { AIEmployee, Db, ResourceKind, ResourcePlatform } from './types';
+import type { AIEmployee, Db, ResourceKind, ResourcePlatform, Session, SessionType } from './types';
 
 /** A module that carries a course week. */
 export type WeekModule = AIEmployee & { kind: 'week'; course: ModuleCourse };
@@ -25,9 +25,14 @@ export function courseWeekModules(db: Pick<Db, 'modules'>): WeekModule[] {
     .sort((a, b) => a.course.week - b.course.week);
 }
 
-/** One week as the course page renders it: the module's words, plus the portal fields the page shows. */
+/**
+ * One week as the course page renders it: the module's words, plus the portal fields the page shows.
+ * D-184: the seat card and the playbook card go with it (the learner portal's week page draws them); they
+ * are course words like the rest of the week, so they reach a learner only inside an open week of this
+ * gated answer, never in a locked week's stub (`lockedWeekOf`) or the snapshot (D-173).
+ */
 export function courseWeekOf(m: WeekModule): CourseWeek {
-  const { promise: _p, flagship: _f, tools: _t, seatCard: _s, playbookCard: _pb, sampleOutput: _so, lockedCopy: _l, statusLabels: _sl, ...week } = m.course;
+  const { promise: _p, flagship: _f, tools: _t, sampleOutput: _so, lockedCopy: _l, statusLabels: _sl, ...week } = m.course;
   return {
     ...week,
     module: {
@@ -120,6 +125,11 @@ export interface CourseSessionRow {
   id: string;
   n: number;
   kind: SessionKind;
+  /**
+   * D-180: the builder's type for the session (live build, office hours, goal planning, setup or other),
+   * or, for a row from before the builder set one, live build or office hours off its id.
+   */
+  type: SessionType;
   week: number;
   title: string;
   start: number;
@@ -138,5 +148,10 @@ export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID)
       return !!m && isAcceleratorModule(m.id);
     })
     .sort((a, b) => a.start - b.start)
-    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
+    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), type: sessionType(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
+}
+
+/** D-180: a session's type, as the builder set it, else live build or office hours off its id. */
+export function sessionType(s: Pick<Session, 'id' | 'kind'>): SessionType {
+  return s.kind ?? (sessionKind(s) === 'build' ? 'live_build' : 'office_hours');
 }

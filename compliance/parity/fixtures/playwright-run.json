@@ -1,0 +1,48 @@
+{
+  "config": { "rootDir": "/repo/compliance/tests" },
+  "suites": [
+    {
+      "title": "parity/deep-links.spec.ts",
+      "file": "parity/deep-links.spec.ts",
+      "specs": [
+        {
+          "title": "session-24h lands on the Schedule @parity:M-1",
+          "tests": [{ "projectName": "parity-learner", "status": "expected", "results": [{ "status": "passed" }] }]
+        }
+      ],
+      "suites": [
+        {
+          "title": "replays @parity:E-1",
+          "file": "parity/deep-links.spec.ts",
+          "specs": [
+            {
+              "title": "the player plays @parity:M-3",
+              "tests": [{ "projectName": "parity-learner", "status": "unexpected", "results": [{ "status": "failed" }] }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/learn-v2.spec.ts",
+      "file": "e2e/learn-v2.spec.ts",
+      "specs": [
+        {
+          "title": "untagged test",
+          "tests": [{ "projectName": "e2e", "status": "expected", "results": [{ "status": "passed" }] }]
+        },
+        {
+          "title": "two projects, one skipped @parity:R-2",
+          "tests": [
+            { "projectName": "e2e", "status": "skipped", "results": [] },
+            { "projectName": "parity-learner", "status": "expected", "results": [{ "status": "passed" }] }
+          ]
+        },
+        {
+          "title": "skipped everywhere @parity:R-4",
+          "tests": [{ "projectName": "e2e", "status": "skipped", "results": [{ "status": "skipped" }] }]
+        }
+      ]
+    }
+  ]
+}

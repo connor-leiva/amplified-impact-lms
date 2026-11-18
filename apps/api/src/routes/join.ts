@@ -97,7 +97,7 @@
 // traffic ever concentrates (134 learners clicking inside the same minute), the fix is a
 // `sessions`+`modules`+`users` read through the same codec, not a second decoder.
 
-import { canAccess, joinMode, moduleForSession } from '@ai/core';
+import { canOpenModule, joinMode, moduleForSession } from '@ai/core';
 import { isAcceleratorModule } from '@ai/core/accelerator';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { requireSession, viewerOrThrow } from '../auth';
@@ -154,7 +154,8 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // is in this cohort, so the cohort check above cannot catch it. The same 404 as another
       // cohort's session, because the snapshot leaves these sessions out for this viewer entirely.
       const owner = moduleForSession(db, session);
-      if (owner && isAcceleratorModule(owner.id) && !(await acceleratorAccess(getDb(), me.id, clock.now()))) {
+      const course = owner && isAcceleratorModule(owner.id) ? await acceleratorAccess(getDb(), me.id, clock.now()) : undefined;
+      if (course === false) {
         return reply.code(404).send({ error: `No session ${id}` });
       }
 
@@ -167,8 +168,10 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // `null` module — a session with no published AI Employee behind it — is OPEN to everyone in
       // the cohort, which is `accessibleSessions`'s own `!m || canAccess(u, m)`. Diverging here
       // would make the portal list a session this route then refuses.
+      // D-186: a course week's build follows course access (checked just above), not the tier, so an Agent
+      // tier learner who bought the course joins it; every other session's module follows the tier.
       const employee = moduleForSession(db, session);
-      if (employee && !canAccess(me, employee)) {
+      if (employee && !canOpenModule(me, employee, course)) {
         return reply.code(403).send({ error: TIER_REQUIRED });
       }
 

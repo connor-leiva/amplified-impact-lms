@@ -78,12 +78,12 @@ describe('the learner shell (D-177)', () => {
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
   });
 
-  it('the nav: Home and Schedule as today’s pages, the Skill library as its own (D-179), the vault locked in the preview, and each week with its status', async () => {
+  it('the nav: Home, Schedule (D-180) and the Skill library (D-179) as their own pages, the vault locked in the preview, and each week with its status', async () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     const nav = within(aside());
     expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
-    expect(nav.getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/sessions');
+    expect(nav.getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/learn/schedule');
     expect(nav.getByRole('link', { name: 'Skill library' })).toHaveAttribute('href', '/learn/skills');
     const vault = nav.getByRole('button', { name: /Resource vault/ });
     expect(vault).toHaveAttribute('aria-disabled', 'true');
@@ -110,14 +110,21 @@ describe('the learner shell (D-177)', () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     expect(document.querySelector('[role="dialog"][data-drawer="open"]')).toBeNull();
-    expect(screen.getByRole('link', { name: /Next live build/ })).toHaveAttribute('href', '/sessions');
+    expect(screen.getByRole('link', { name: /Next live build/ })).toHaveAttribute('href', '/learn/schedule');
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
     const drawer = document.querySelector<HTMLElement>('[role="dialog"][data-drawer="open"]')!;
     expect(drawer).toHaveAttribute('aria-modal', 'true');
     expect(drawer.querySelector('aside[aria-label="Primary"]')).not.toBeNull();
     await waitFor(() => expect(within(drawer).getByRole('button', { name: 'Close menu' })).toHaveFocus());
-    fireEvent.keyDown(window, { key: 'Escape' });
+    // D-181: a modal drawer. The page behind it is inert, and Tab and Shift+Tab stay inside it.
+    expect(document.querySelector('main')!.closest('[inert]')).not.toBeNull();
+    fireEvent.keyDown(document.activeElement!, { key: 'Tab', shiftKey: true });
+    expect(drawer.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document.activeElement!, { key: 'Tab' });
+    expect(drawer.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
     expect(document.querySelector('[data-drawer="open"]')).toBeNull();
+    expect(document.querySelector('main')!.closest('[inert]')).toBeNull();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Open menu' })).toHaveFocus());
   });
 });
@@ -159,6 +166,8 @@ describe('Home (D-177)', () => {
     expect(within(aside()).queryByRole('link', { name: 'Schedule' })).toBeNull();
     expect(within(aside()).queryByRole('button', { name: /AI employees/ })).toBeNull();
     expect(screen.getByRole('banner')).not.toHaveTextContent('Next live build');
+    // D-182: the Resource vault stays theirs, as the first portal kept it (D-119).
+    expect(within(aside()).getByRole('link', { name: 'Resource vault' })).toHaveAttribute('href', '/learn/vault');
   });
 });
 
@@ -212,16 +221,20 @@ describe('the step player (D-177)', () => {
   it('Mark step done writes through the portal’s own toggleStep, for this step’s id', async () => {
     at('/learn/week/0/step/4');
     const mark = await screen.findByRole('button', { name: 'Mark step done' });
-    expect(mark).toHaveAttribute('aria-pressed', 'false');
+    expect(mark).not.toHaveAttribute('data-done');
     fireEvent.click(mark);
     await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c4' }));
     expect(screen.getByRole('link', { name: /Previous/ })).toHaveAttribute('href', '/learn/week/0/step/3');
     expect(screen.getByRole('link', { name: /Next step/ })).toHaveAttribute('href', '/learn/week/0/step/5');
   });
 
-  it('a step already done shows pressed; staff can’t mark one', async () => {
+  it('@parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back', async () => {
     at('/learn/week/0/step/1');
-    expect(await screen.findByRole('button', { name: 'Mark step done' })).toHaveAttribute('aria-pressed', 'true');
+    const undo = await screen.findByRole('button', { name: 'Undo' });
+    expect(undo).toHaveAttribute('data-done', 'true');
+    expect(screen.queryByRole('button', { name: 'Mark step done' })).toBeNull();
+    fireEvent.click(undo);
+    await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c1' }));
   });
 
   it('a copy block has a copy button that puts its text on the clipboard', async () => {
@@ -246,6 +259,7 @@ describe('the step player (D-177)', () => {
   });
 });
 
+
 describe('the flag (D-177)', () => {
   it('is off unless set, on under vitest, and on in the fixture build', () => {
     expect(learnerV2Enabled({})).toBe(false);
@@ -267,5 +281,59 @@ describe('the flag (D-177)', () => {
       expect(router.state.location.pathname).toBe('/');
       unmount();
     }
+  });
+});
+
+describe('what the first portal had and the mockup draws no screen for (D-182)', () => {
+  const onTeam = () => {
+    const team = { id: 't-dana', name: 'Ross Realty Team', ownerId: LEARNER_ID, seats: 2 };
+    state.db = { ...state.db, teams: [...state.db.teams, team], users: state.db.users.map((u) => (u.id === LEARNER_ID ? { ...u, teamId: team.id } : u)) };
+  };
+  const openMenu = async () => {
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Your account' }));
+  };
+
+  it('@parity:SH-3 @parity:G-1 the account menu opens the Team Hub for a Team tier learner on a team, inside this shell', async () => {
+    onTeam();
+    const router = at('/learn');
+    await openMenu();
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Team Hub' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/team'));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Team Hub' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Invite Member' })).toBeInTheDocument();
+    expect(aside()).not.toBeNull();
+  });
+
+  it('@parity:SH-3 no Team Hub without a team: no menu item, and its address goes Home', async () => {
+    at('/learn');
+    await openMenu();
+    expect(await screen.findByRole('menuitem', { name: 'Account' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Team Hub' })).toBeNull();
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    const router = at('/learn/team');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn'));
+  });
+
+  it('the Resource vault opens inside this shell, marked in the nav, once the preview is over', async () => {
+    use(liveState());
+    at('/learn/vault');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Resource & Compliance Vault' })).toBeInTheDocument();
+    expect(within(aside()).getByRole('link', { name: 'Resource vault' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('@parity:SH-10 a staff member’s preview tab says so, with Exit Preview (D-138)', async () => {
+    state.viewer = { ...state.viewer, preview: 'agent' };
+    at('/learn');
+    const line = (await screen.findByText('Previewing as Agent.')).closest<HTMLElement>('[role="status"]')!;
+    expect(line).not.toBeNull();
+    expect(within(line).getByRole('link', { name: 'Exit Preview' })).toHaveAttribute('href', '/admin/curriculum');
+  });
+
+  it('no demo controls outside a fixture demo, and no preview line for a learner', async () => {
+    at('/learn');
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('group', { name: 'Demo controls' })).toBeNull();
+    expect(screen.queryByText(/Previewing as/)).toBeNull();
   });
 });
