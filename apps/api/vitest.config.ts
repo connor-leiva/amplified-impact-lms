@@ -6,6 +6,12 @@ export default defineConfig({
     // The subpath alias must come first: '@ai/core/mutations' resolves to the module file, while
     // bare '@ai/core' resolves to the barrel. Same ordering as apps/web and the two vite configs.
     alias: [
+      // D-173: the one-time seed lives outside src/ (packages/core/seed). Tests and the seed CLI may
+      // import it; runtime code may not (the copy guard test and ESLint), and no bundler alias exists.
+      {
+        find: /^@ai\/core\/seed\/(.*)$/,
+        replacement: fileURLToPath(new URL('../../packages/core/seed/$1.ts', import.meta.url)),
+      },
       {
         find: /^@ai\/core\/(.*)$/,
         replacement: fileURLToPath(new URL('../../packages/core/src/$1.ts', import.meta.url)),

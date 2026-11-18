@@ -32,6 +32,7 @@ import type {
   ActivityEvent,
   Announcement,
   Cohort,
+  CopyString,
   Db,
   Learner,
   PermKey,
@@ -63,7 +64,8 @@ export type TableName =
   | 'tiers'
   | 'requests'
   | 'permissions'
-  | 'activity';
+  | 'activity'
+  | 'copyStrings';
 
 export type Rows = Record<TableName, Row[]>;
 
@@ -83,6 +85,7 @@ export const KEYS: Record<TableName, readonly string[]> = {
   requests: ['id'],
   permissions: ['role', 'perm'],
   activity: ['id'],
+  copyStrings: ['key'],
 };
 
 /**
@@ -129,6 +132,7 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
     { by: 'perm', dir: 'asc' },
   ],
   activity: [{ by: 't', dir: 'desc' }],
+  copyStrings: [{ by: 'key', dir: 'asc' }],
 };
 
 /**
@@ -154,8 +158,8 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence'],
-  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course'],
+  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility'],
   modules: [
     'id',
     'name',
@@ -182,9 +186,13 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'resources',
     'checklist',
     'runDemo',
+    'kind',
+    'dueAt',
+    'tone',
+    'course',
   ],
   progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
-  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq', 'moduleId'],
+  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq', 'moduleId', 'kind', 'stepId', 'visibility', 'platform'],
   announcements: [
     'id',
     'sessionId',
@@ -205,6 +213,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
   requests: ['id', 'userId', 'name', 'email', 'source', 'at', 'status'],
   permissions: ['role', 'perm', 'allowed'],
   activity: ['id', 't', 'who', 'what', 'tone'],
+  copyStrings: ['key', 'value', 'audience'],
 };
 
 // ---------------------------------------------------------------------------
@@ -296,6 +305,10 @@ const cohortRow = (c: Cohort): Row => ({
   status: c.status,
   capacity: c.capacity,
   cadence: c.cadence,
+  previewOpensAt: col(c.previewOpensAt),
+  timezone: col(c.timezone),
+  defaultOpenTime: col(c.defaultOpenTime),
+  course: col(c.course),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -312,6 +325,9 @@ const sessionRow = (s: Session): Row => ({
   views: s.views,
   movedFrom: col(s.movedFrom),
   replayUrl: col(s.replayUrl),
+  kind: col(s.kind),
+  moduleId: col(s.moduleId),
+  replayVisibility: col(s.replayVisibility),
 });
 
 const moduleRow = (m: AIEmployee): Row => ({
@@ -340,6 +356,10 @@ const moduleRow = (m: AIEmployee): Row => ({
   resources: m.resources,
   checklist: m.checklist,
   runDemo: col(m.runDemo),
+  kind: col(m.kind),
+  dueAt: col(m.dueAt),
+  tone: col(m.tone),
+  course: col(m.course),
 });
 
 /** `storageKey` is absent on purpose — see the header. */
@@ -357,6 +377,10 @@ const resourceRow = (r: Resource, seq: number): Row => ({
   status: r.status,
   seq,
   moduleId: col(r.module),
+  kind: col(r.kind),
+  stepId: col(r.stepId),
+  visibility: col(r.visibility),
+  platform: col(r.platform),
 });
 
 /**
@@ -427,6 +451,7 @@ export function toRows(db: Db): Rows {
     })),
     permissions,
     activity: db.activity.map((e) => ({ id: e.id, t: e.t, who: e.who, what: e.what, tone: e.tone })),
+    copyStrings: (db.copy ?? []).map((c) => ({ key: c.key, value: c.value, audience: c.audience })),
   };
 }
 
@@ -514,7 +539,7 @@ export function fromRows(rows: Rows): Db {
           enrolled: enrolled.get(str(r.id)) ?? 0,
           cadence: str(r.cadence),
         },
-        { weeks: r.weeks },
+        { weeks: r.weeks, previewOpensAt: r.previewOpensAt, timezone: r.timezone, defaultOpenTime: r.defaultOpenTime, course: r.course },
       ),
     ),
     sessions: rows.sessions.map((r) =>
@@ -532,7 +557,7 @@ export function fromRows(rows: Rows): Db {
           replay: r.replay as Session['replay'],
           views: num(r.views),
         },
-        { movedFrom: r.movedFrom, replayUrl: r.replayUrl },
+        { movedFrom: r.movedFrom, replayUrl: r.replayUrl, kind: r.kind, moduleId: r.moduleId, replayVisibility: r.replayVisibility },
       ),
     ),
     modules: rows.modules.map((r) =>
@@ -563,7 +588,7 @@ export function fromRows(rows: Rows): Db {
           resources: r.resources as AIEmployee['resources'],
           checklist: r.checklist as AIEmployee['checklist'],
         },
-        { runDemo: r.runDemo },
+        { runDemo: r.runDemo, kind: r.kind, dueAt: r.dueAt, tone: r.tone, course: r.course },
       ),
     ),
     users,
@@ -585,7 +610,7 @@ export function fromRows(rows: Rows): Db {
           exec: r.exec as boolean,
           status: r.status as Resource['status'],
         },
-        { module: r.moduleId },
+        { module: r.moduleId, kind: r.kind, stepId: r.stepId, visibility: r.visibility, platform: r.platform },
       ),
     ),
     announcements: rows.announcements.map((r) =>
@@ -643,6 +668,8 @@ export function fromRows(rows: Rows): Db {
         tone: r.tone as ActivityEvent['tone'],
       }),
     ),
+    // D-173: absent when there are none, so every fixture (which has no copy strings) round-trips.
+    ...(rows.copyStrings.length ? { copy: rows.copyStrings.map((r): CopyString => ({ key: str(r.key), value: str(r.value), audience: str(r.audience) })) } : {}),
   };
 }
 

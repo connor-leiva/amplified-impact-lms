@@ -9,7 +9,10 @@
 // The clock is § 7.7's FIXED_NOW, set per case. Every instant is written with its Central offset.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { seedForDatabase, seedProduction } from '@ai/core';
+import { seedForDatabase } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
+// What main served before the course moved into the database (D-173), written from main's code.
+import courseV1 from '../../../packages/core/test/fixtures/curriculum-v1/course.json';
 import type { Db, Learner } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS, isAcceleratorModule, libraryHref } from '@ai/core/accelerator';
 import { build } from '../src/app';
@@ -156,6 +159,9 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
     expect(snap.modules.map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
     expect(snap.modules.every((m) => m.checklist.length === 6 && m.notes.length > 0)).toBe(true);
     expect(snap.sessions).toHaveLength(16);
+    // D-173: the course's words reach a learner only through /api/course, never the snapshot.
+    expect(snap.cohorts.filter((c) => 'course' in c)).toEqual([]);
+    expect(snap.modules.filter((m) => 'course' in m)).toEqual([]);
   });
 
   it('can join Week 1’s build once the course opens at its start, with no invented Zoom link', async () => {
@@ -181,6 +187,8 @@ describe('anyone else cannot open the course', () => {
     const snap = (await get('/api/snapshot', who)).json() as Db;
     expect(snap.modules.filter((m) => isAcceleratorModule(m.id))).toEqual([]);
     expect(snap.sessions).toEqual([]);
+    // D-173: the words every week shares are the cohort's data now, and stay out of the snapshot too.
+    expect(snap.cohorts.filter((c) => 'course' in c)).toEqual([]);
   });
 
   it.each(['insiders', 'teamPlan', 'noPlan'])('%s: an Accelerator session is the same 404 as one that does not exist', async (who) => {
@@ -239,14 +247,88 @@ describe('anyone else cannot open the course', () => {
   });
 });
 
-describe('the curriculum on a database that is already live (db:curriculum)', () => {
+describe('the seat card and the playbook card (D-184): inside an open week of the gated answer, and nowhere else', () => {
+  const SEAT = { seat: 'Spend Analyst', reportsTo: 'The owner', runs: 'Every Monday at seven', pulls: 'The books', applies: 'The chart', produces: 'A spend map', tookOver: 'The month-end tally', cantDo: 'Pay a bill or move money' };
+  const PLAYBOOK = { number: '4', question: 'Where does the money go, line by line?', play: 'Map every dollar to the chart weekly.', signedOff: true };
+  const LOCKED_SEAT = { ...SEAT, runs: 'Only on the locked week', cantDo: 'Leave the locked week' };
+  const LOCKED_PLAYBOOK = { ...PLAYBOOK, play: 'A play only the locked week has.' };
+  const words = [LOCKED_SEAT.runs, LOCKED_SEAT.cantDo, LOCKED_PLAYBOOK.play];
+  const all = [SEAT.runs, PLAYBOOK.play, ...words];
+
+  /** Week 1 with its cards, open; Week 2 with its own, scheduled to open long after the course does. */
+  async function withCards<T>(run: () => Promise<T>): Promise<T> {
+    const before = await loadDb();
+    const after = structuredClone(before);
+    const w1 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!;
+    const w2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
+    Object.assign(w1.course!, { seatCard: SEAT, playbookCard: PLAYBOOK });
+    Object.assign(w2.course!, { seatCard: LOCKED_SEAT, playbookCard: LOCKED_PLAYBOOK });
+    Object.assign(w2, { status: 'scheduled', opens: Date.parse('2027-03-01T12:00:00-06:00') });
+    await persistDiff(handle, before, after);
+    try {
+      return await run();
+    } finally {
+      await persistDiff(handle, after, before);
+    }
+  }
+
+  it('@parity:K-15 a buyer gets an open week’s cards, and none of a locked week’s', async () => {
+    await withCards(async () => {
+      for (const who of ['full', 'operator']) {
+        const res = await get('/api/course', who);
+        expect(res.statusCode).toBe(200);
+        const weeks = (res.json() as { course: { weeks: { week: number; locked?: boolean; seatCard?: unknown; playbookCard?: unknown }[] } }).course.weeks;
+        expect(weeks[1]).toMatchObject({ seatCard: SEAT, playbookCard: PLAYBOOK });
+        expect(weeks[2]!.locked).toBe(true);
+        expect('seatCard' in weeks[2]! || 'playbookCard' in weeks[2]!).toBe(false);
+        for (const w of words) expect(res.body, who).not.toContain(w);
+      }
+    });
+  });
+
+  it('@parity:K-15 a plan without the course, a buyer before the course opens, and every snapshot get none of them', async () => {
+    await withCards(async () => {
+      for (const who of ['insiders', 'teamPlan', 'noPlan']) {
+        const res = await get('/api/course', who);
+        expect(res.statusCode).toBe(403);
+        for (const w of all) expect(res.body, who).not.toContain(w);
+      }
+      at(BEFORE_HOLD);
+      const held = await get('/api/course', 'full');
+      expect(held.statusCode).toBe(403);
+      for (const w of all) expect(held.body).not.toContain(w);
+      at(AFTER_HOLD);
+      for (const who of ['full', 'operator', 'insiders', 'noPlan']) {
+        const snap = await get('/api/snapshot', who);
+        for (const w of all) expect(snap.body, who).not.toContain(w);
+      }
+    });
+  });
+
+  it('@parity:K-15 staff (the builder’s preview) see every week’s cards', async () => {
+    await withCards(async () => {
+      const weeks = ((await get('/api/course', 'staff')).json() as { course: { weeks: { seatCard?: unknown; playbookCard?: unknown }[] } }).course.weeks;
+      expect(weeks[1]).toMatchObject({ seatCard: SEAT, playbookCard: PLAYBOOK });
+      expect(weeks[2]).toMatchObject({ seatCard: LOCKED_SEAT, playbookCard: LOCKED_PLAYBOOK });
+    });
+  });
+});
+
+const OWNER = { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' };
+
+describe('the curriculum on a database that is already live (db:curriculum:ensure, D-173)', () => {
   it('writes nothing to a database that already carries it, buyers and all', async () => {
     const before = await loadDb();
     expect(await applyCurriculum(handle)).toBe(0);
     expect(await loadDb()).toEqual(before);
   });
 
-  it('upserts the course into the old launch database without touching a single learner, then stops changing', async () => {
+  it('serves the course main served, field for field, from the database the seed made', async () => {
+    const res = await get('/api/course', 'full');
+    expect((res.json() as { course: unknown }).course).toEqual(courseV1);
+  });
+
+  it('inserts the course into the old launch database, touching no learner and none of the prototype, then stops changing', { timeout: 180_000 }, async () => {
     // The demo database stands in for production after the old launch seed and some sales: learners,
     // teams, progress and the prototype's six modules on cohort dec26.
     await resetDatabase(seedForDatabase('live'));
@@ -257,60 +339,38 @@ describe('the curriculum on a database that is already live (db:curriculum)', ()
     expect(after.teams).toEqual(before.teams);
     expect(after.staff).toEqual(before.staff);
     expect(after.modules.filter((m) => isAcceleratorModule(m.id)).map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
-    expect(after.modules.filter((m) => !isAcceleratorModule(m.id)).every((m) => m.status === 'draft')).toBe(true);
+    // Nothing that was already there is overwritten: the prototype's modules stay exactly as they were.
+    expect(after.modules.filter((m) => !isAcceleratorModule(m.id))).toEqual(before.modules);
     expect(after.sessions.filter((s) => s.cohortId === 'dec26')).toHaveLength(16);
+    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
     expect(await applyCurriculum(handle)).toBe(0);
   });
-});
 
-describe('the deploy’s curriculum step (db:curriculum:ensure, --if-missing)', () => {
-  it('applies the course to the old launch database exactly as db:curriculum does, then writes 0 rows', async () => {
-    await resetDatabase(seedForDatabase('live'));
-    const before = await loadDb();
-    expect(await applyCurriculum(handle, { ifMissing: true })).toBeGreaterThan(0);
-    const once = await loadDb();
-    expect(once.users).toEqual(before.users); // learners and every one of their progress rows
-    expect(once.teams).toEqual(before.teams);
-    expect(once.staff).toEqual(before.staff);
-    expect(once.modules.filter((m) => isAcceleratorModule(m.id)).map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
-
-    // The same database through the full overlay lands in the same place.
-    await resetDatabase(seedForDatabase('live'));
-    await applyCurriculum(handle);
-    expect(await loadDb()).toEqual(once);
-
-    // And again, and again: nothing.
-    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
-    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
-    expect(await loadDb()).toEqual(once);
-  });
-
-  it('keeps what staff changed since, where the full overlay would undo it', async () => {
-    await resetDatabase(seedForDatabase('live'));
-    await applyCurriculum(handle);
-    // Staff move Week 3's build a day and give it a Zoom link, and retitle Week 5's AI Employee.
+  it('keeps a builder edit to a module and a session through two runs (the brief’s acceptance)', { timeout: 180_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
+    // Staff move Week 3's build a day, give it a Zoom link and a new title, and edit Week 5's name and question.
     const live = await loadDb();
     const edited = structuredClone(live);
     const s3 = edited.sessions.find((s) => s.id === 'dec26-s3')!;
     s3.start += 24 * 3600e3;
     s3.zoom = 'https://example.test/j/123';
+    s3.title = 'Monthly Numbers Live Build';
     const w5 = edited.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[5])!;
     w5.name = 'Edited by staff';
+    w5.course = { ...w5.course!, question: 'Edited by staff?' };
+    // And Week 8, unpublished and deleted as a draft (the builder's Delete Draft): it must not come back.
+    edited.modules = edited.modules.filter((m) => m.id !== ACCELERATOR_MODULE_IDS[8]);
     await persistDiff(handle, live, edited);
     const staffEdited = await loadDb();
+    expect(staffEdited.modules.some((m) => m.id === ACCELERATOR_MODULE_IDS[8])).toBe(false);
 
     expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
+    expect(await applyCurriculum(handle)).toBe(0);
     expect(await loadDb()).toEqual(staffEdited);
-
-    // Why the deploy does not run the full overlay: it puts the session back and drops its link.
-    expect(await applyCurriculum(handle)).toBeGreaterThan(0);
-    const reverted = await loadDb();
-    expect(reverted.sessions.find((s) => s.id === 'dec26-s3')).toMatchObject({ start: live.sessions.find((s) => s.id === 'dec26-s3')!.start, zoom: '' });
-    expect(reverted.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[5])!.name).not.toBe('Edited by staff');
   });
 });
 
-describe('GET /api/health/curriculum (D-121): counts only, no session', () => {
+describe('GET /api/health/curriculum (D-121, D-173): counts only, expected from the cohort’s own data', () => {
   const status = async () => {
     const res = await app.inject({ method: 'GET', url: '/api/health/curriculum' });
     expect(res.statusCode).toBe(200);
@@ -318,22 +378,40 @@ describe('GET /api/health/curriculum (D-121): counts only, no session', () => {
     return res.json() as Record<string, unknown>;
   };
 
-  it('says ok on a database with the curriculum, and says nothing but counts', async () => {
-    await resetDatabase(seedForDatabase('live'));
-    await applyCurriculum(handle);
+  it('says ok on a database with the curriculum, and says nothing but counts', { timeout: 120_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
     const body = await status();
     expect(body).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
   });
 
-  it('says not ok, with the counts that are short, before the curriculum and after staff draft a week', async () => {
+  it('counts the weeks the course page shows: a copy made with Duplicate is not one of them', { timeout: 120_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
+    const before = await loadDb();
+    const after = structuredClone(before);
+    const week2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
+    after.modules.push({ ...structuredClone(week2), id: 'm_copy', name: `${week2.name} (copy)`, status: 'published' });
+    await persistDiff(handle, before, after);
+    expect(await status()).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
+  });
+
+  it('says not ok, with the counts that are short, before the curriculum and after staff draft a week', { timeout: 180_000 }, async () => {
     await resetDatabase(seedForDatabase('live'));
     expect(await status()).toMatchObject({ ok: false, modules: 0, published: 0 });
-    await applyCurriculum(handle);
+    await resetDatabase(seedProduction({ owner: OWNER }));
     const before = await loadDb();
     const after = structuredClone(before);
     after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])!.status = 'draft';
     await persistDiff(handle, before, after);
     expect(await status()).toMatchObject({ ok: false, modules: 9, published: 8, sessions: 16 });
+  });
+
+  it('expects what the cohort says: a cohort of nine weeks expects ten week modules', { timeout: 120_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
+    const before = await loadDb();
+    const after = structuredClone(before);
+    after.cohorts.find((c) => c.id === 'dec26')!.weeks = 9;
+    await persistDiff(handle, before, after);
+    expect(await status()).toMatchObject({ ok: false, modules: 9, expected: { modules: 10, sessions: 16 } });
   });
 });
 

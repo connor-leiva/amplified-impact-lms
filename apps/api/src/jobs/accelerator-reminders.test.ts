@@ -2,7 +2,7 @@
 // tier rule cannot keep an Amplified Insiders or Team Plan buyer from being reminded of a course they
 // did not buy. The scheduler hands `dueWork` the learners whose plan opens it, and only they hear.
 import { describe, expect, it } from 'vitest';
-import { seedProduction } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import type { Db, Learner } from '@ai/core';
 import { SUBJECTS } from '../email/subjects';
 import { NO_KEYS, NO_ZONES, dueWork } from './due';

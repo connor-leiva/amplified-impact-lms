@@ -3,8 +3,8 @@ import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
-import { acceleratorSessions } from '@ai/core/accelerator';
-import { courseContent } from '@ai/core/accelerator-content';
+import { acceleratorSessions } from '@ai/core/seed/accelerator-v1';
+import { courseContent } from '@ai/core/seed/accelerator-v1';
 import Course from './Course';
 import { COPY } from './Course.vm';
 
@@ -104,5 +104,37 @@ describe('the course screen', () => {
     at('/course');
     expect(await screen.findByText(COPY.signedOut)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: COPY.signIn })).toHaveAttribute('href', '/sign-in');
+  });
+});
+
+describe('the pre-launch preview and locked weeks (D-175)', () => {
+  const preview = {
+    ...payload,
+    prelaunch: true,
+    copy: { 'locked.opens': 'Opens {date}', 'course.prelaunch': 'Pre-launch preview line.' },
+    course: {
+      ...payload.course,
+      weeks: payload.course.weeks.map((w) =>
+        w.week === 0 ? w : { week: w.week, title: w.title, question: w.question, outcome: w.module.outcome, opensAt: Date.parse('2026-12-09T19:00:00Z'), locked: true },
+      ),
+    },
+  };
+
+  it('lists a locked week with a lock and when it opens, and says the preview line', async () => {
+    fetchMock.mockResolvedValue(answer(200, preview));
+    at('/course');
+    expect(await screen.findByText('Pre-launch preview line.')).toBeInTheDocument();
+    expect(screen.getAllByText('Opens Wed, Dec 9 · 12:00 PM MT').length).toBe(8);
+    expect(screen.getAllByLabelText('Locked').length).toBe(8);
+  });
+
+  it('draws a locked week’s page with its question and opening, and none of an open week’s sections', async () => {
+    fetchMock.mockResolvedValue(answer(200, preview));
+    at('/course/week-2');
+    const heading = await screen.findByRole('heading', { level: 1 });
+    expect(heading.textContent).toMatch(/^Week 2 · /);
+    expect(screen.getByText('Opens Wed, Dec 9 · 12:00 PM MT')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: COPY.calendar })).toBeNull();
+    expect(screen.getByRole('link', { name: /Week 1/ })).toHaveAttribute('href', '/course/week-1');
   });
 });

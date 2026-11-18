@@ -158,11 +158,26 @@ Owner. No learners, teams, requests or activity.
 can no longer run as it is (D-106 lists this as open).
 
 **The curriculum does not depend on it.** Every deploy's pre-deploy command runs, after the
-migrations, `pnpm --filter @ai/api db:curriculum:ensure`: it applies the AI Accelerator's
-curriculum (cohort `dec26`, its sixteen sessions and the nine course modules; the prototype's six
-AI Employees become drafts) to a database that has **none** of it, and on every later deploy writes
-**0 rows**. It never touches users, teams, progress or staff. The Owner, the price list and the
-reminder toggles still come only from `db:seed:prod`.
+migrations, `pnpm --filter @ai/api db:curriculum:ensure`. It makes sure the AI Accelerator's
+curriculum is there (cohort `dec26`, its sixteen sessions, the nine course modules and the copy
+strings) and **never overwrites it** (D-173). A database that has never had the course gets it whole
+from the one-time seed (`packages/core/seed/`); one that has it gets no new course row, so a week
+deleted in the builder stays deleted. A row that exists keeps every value it has. The one thing it
+adds to an existing row is a column D-173 introduced (a module's course words, a session's kind)
+while that column is still empty, so the first deploy with D-173 gives production's rows their words
+and every later deploy writes **0 rows**. It never touches users, teams, progress or staff. The
+Owner, the price list and the reminder toggles still come only from `db:seed:prod`.
+
+**Right after ensure, the same command runs each one-time data step once (D-175).** The first two are
+Connor's Nov 17 release plan (Week 0 due Mon, Nov 30, and Weeks 1 to 8 Scheduled at their live builds,
+12:00 PM MT) and D-175's copy strings (what a locked week says, the pre-launch preview's line). A step
+changes only rows still as the seed left them; a row staff already changed is left alone, and the
+deploy log says `Left as it is: <id> (...). Finish it in the builder.` Each change is an audit row
+(`curriculum.migrate`), and `data_migrations` records each step so it never runs twice.
+
+**The pre-launch preview opens only when its date is set**, in the console: Build › Curriculum › a
+course week › Course settings › Release plan › Preview opens. Until then there is no preview, and
+Week 0 opens with Week 1 at the first live build.
 
 **The Owner comes with the deploy too (D-129).** Next, the pre-deploy command runs
 `pnpm --filter @ai/api db:owner:ensure`. It adds the console's Owner, `DEPLOY_OWNER` in
@@ -203,14 +218,11 @@ pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure &
 file together. The third step is the Owner (above). The last step is the Library upload (section 8,
 step 3), which needs the bucket.
 
-The deploy never re-applies the curriculum over a live course, because the full overlay rewrites
-every course row: a session staff moved goes back to its old time and loses its Zoom link,
-attendance and replay, and a module edited in the Module Builder reverts. To change the course on a
-live database on purpose (a new week, a fixed step), run it by hand and expect exactly that:
-
-```bash
-pnpm --filter @ai/api db:curriculum
-```
+**The course is changed in the curriculum builder, never by a script (D-173).** The database is
+the course's source of truth; each builder save is audited. There is no overwrite path left:
+`pnpm --filter @ai/api db:curriculum` (by hand) now does exactly what the deploy's
+`db:curriculum:ensure` does, inserting only what is missing, so running it can't move a session back
+to its old time, drop its Zoom link, attendance or replay, or revert a module edited in the builder.
 
 The owner flags have **no defaults and are never read from the environment** — they name the only
 account that can sign in, and a value inherited from a shell is how production ends up owned by an

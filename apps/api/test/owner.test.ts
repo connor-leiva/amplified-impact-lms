@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
-import { seedProduction } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import type { Db, Learner } from '@ai/core';
 import { addOwner, DEPLOY_OWNER, ensureOwner, OwnerRefused } from '../src/db/seed';
 import type { Database } from '../src/db/client';

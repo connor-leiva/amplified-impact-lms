@@ -5,6 +5,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc } from 'drizzle-orm';
 import { addStep, removeStep, seedForDatabase } from '@ai/core';
+import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { auditLog } from '../src/db/schema';
@@ -122,6 +124,21 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     expect((await loadDb()).modules.find((m) => m.id === 'sales')!.checklist).toHaveLength(6);
     expect(await auditRows()).toHaveLength(0);
   });
+
+  it('saves a course week as the builder holds it, its words included, and keeps them (D-173)', async () => {
+    // The production seed: the nine weeks carry `kind`, `course` and Week 0's `dueAt`. The builder's
+    // draft is the stored row (`seedDraft`), so all of it comes back on Save.
+    await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
+    for (const id of [ACCELERATOR_MODULE_IDS[0]!, ACCELERATOR_MODULE_IDS[2]!]) {
+      const stored = (await loadDb()).modules.find((m) => m.id === id)!;
+      expect(stored.course, id).toBeDefined();
+      const res = await act(app, 'st_owner', 'saveBuilderModule', { draft: { ...structuredClone(stored), short: `${stored.short} (edited)` } });
+      expect(res.statusCode, `${id}: ${res.body}`).toBe(200);
+      const saved = (await loadDb()).modules.find((m) => m.id === id)!;
+      expect(saved).toEqual({ ...stored, short: `${stored.short} (edited)` });
+    }
+    expect((await auditRows()).map((r) => r.action)).toEqual(['module.save', 'module.save']);
+  });
 });
 
 describe('Resource Vault › Edit details, and Attached to @admin-actions', () => {
@@ -160,14 +177,16 @@ describe('Cohorts & Sessions › Add session and Attach replay @admin-actions', 
     expect(JSON.parse(bad.body)).toEqual({ error: 'Pick a date and a start time.' });
   });
 
-  it('attaches a replay link to a past session; a learner’s snapshot never carries it', async () => {
+  it('attaches a replay link to a past session; a learner’s snapshot carries it once published to them (D-183)', async () => {
     const url = 'https://example.com/replays/session-1';
     const res = await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s1', url });
     expect(res.statusCode).toBe(200);
     expect((await loadDb()).sessions.find((s) => s.id === 'dec26-s1')!.replayUrl).toBe(url);
     expect((await auditRows())[0]).toMatchObject({ action: 'session.replay_attach', targetId: 'dec26-s1', after: { replay: 'ready', replayUrl: url } });
+    // D-183: Attach replay publishes it, so a learner who may open its AI Employee receives the link (never
+    // the Zoom link); before D-183 nothing learner-facing read it. replay-link.test.ts holds the rest.
     const snap = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie: await app.signInAs('u_jamie') } });
-    expect(snap.body).not.toContain(url);
+    expect((snap.json() as { sessions: { id: string; replayUrl?: string; zoom: string }[] }).sessions.find((s) => s.id === 'dec26-s1')).toMatchObject({ replayUrl: url, zoom: '' });
     expect((await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s5', url })).statusCode).toBe(422);
     expect((await act(app, 'st3', 'attachReplay', { sessionId: 'dec26-s1', url })).statusCode).toBe(403);
   });

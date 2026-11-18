@@ -408,10 +408,12 @@ describe('the account page', () => {
   it('lets a signed-in user with no password set one, then needs the current one to change it', async () => {
     const cookie = await app.signInAs('u_jamie');
     const other = await app.signInAs('u_jamie');
-    expect((await app.inject({ method: 'GET', url: '/api/auth/password', headers: { cookie } })).json()).toEqual({ hasPassword: false });
+    expect((await app.inject({ method: 'GET', url: '/api/auth/password', headers: { cookie } })).json()).toEqual({ hasPassword: false, changedAt: null });
 
     expect((await post('/api/auth/password/change', { password: PASSWORD }, cookie)).statusCode).toBe(200);
-    expect((await app.inject({ method: 'GET', url: '/api/auth/password', headers: { cookie } })).json()).toEqual({ hasPassword: true });
+    // D-178: when it was set, for the learner Account page's "Last changed" line; never the hash.
+    const set = (await app.inject({ method: 'GET', url: '/api/auth/password', headers: { cookie } })).json();
+    expect(set).toEqual({ hasPassword: true, changedAt: expect.any(Number) });
     // The session that changed it stays; the other one ends.
     expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie } })).statusCode).toBe(200);
     expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: other } })).statusCode).toBe(401);

@@ -2,6 +2,7 @@
 // The prototype's internal field names (`dur`, `short`, `dl`, `opens`, `last`, `forWho`) are kept
 // exactly: the goldens and the differential tests rely on the shape.
 import type { IconName } from './icons';
+import type { CohortCourse, ModuleCourse, StepPaths } from './course-types';
 
 export type Tier = 'agent' | 'team';
 export type Phase = 'week0' | 'live' | 'post';
@@ -15,7 +16,15 @@ export type PermKey = 'curriculum' | 'publish' | 'cohorts' | 'viewLearners' | 's
 
 /** What a step asks of the learner, as the R2 Module Builder's Type column draws it (D-160 R2-2). Optional: display only. */
 export type StepKind = 'Watch' | 'Read' | 'Build' | 'Check' | 'Ship';
-export interface Step { id: string; text: string; ch: string; mins: number; t: number; hint: string; kind?: StepKind } // t = replay seconds
+/**
+ * One step. `t` = replay seconds. The optional fields after `kind` are the curriculum builder's
+ * (D-173): who does it, its time as a label ("20 min, over two weeks"), when it is done, its Claude
+ * and ChatGPT paths, the Library skill it launches, and whether a preview learner may open it.
+ */
+export interface Step {
+  id: string; text: string; ch: string; mins: number; t: number; hint: string; kind?: StepKind;
+  who?: string; timeLabel?: string; doneWhen?: string; paths?: StepPaths; linkedSkill?: string; openInPreview?: boolean;
+}
 export interface SkillFile { name: string; type: 'JSON' | 'YAML' | 'Notion'; size: string; desc: string; steps: string[] }
 export interface ModuleResource { name: string; type: string; size: string }
 
@@ -27,7 +36,14 @@ export interface AIEmployee {
   dur: number; instructor: string; transcript: [number, string][]; notes: string; prompt: string;
   files: SkillFile[]; resources: ModuleResource[]; checklist: Step[];   // checklist.length === 6
   runDemo?: { input: string; sections: [string, string][] };
+  /**
+   * The curriculum builder's fields (D-173), all optional so the prototype's AI Employees stay as
+   * they are. `kind` is `week` for a course week; absent reads as an AI Employee. `dueAt` is when a
+   * week is due (epoch ms). `tone` is the icon tile's tone. `course` is the week's words.
+   */
+  kind?: ModuleKind; dueAt?: number; tone?: string; course?: ModuleCourse;
 }
+export type ModuleKind = 'week' | 'skill';
 
 export interface Progress {
   steps: string[]; builtAt: number | null; deployedAt: number | null; runtime: Runtime | null;
@@ -41,9 +57,34 @@ export interface Learner {
 }
 
 export interface Team { id: string; name: string; ownerId: string; seats: number }
-export interface Cohort { id: string; name: string; start: number; end: number; weeks?: number; status: 'draft' | 'enrolling' | 'live' | 'completed'; capacity: number; enrolled: number; cadence: string }
-export interface Session { id: string; cohortId: string; n: number; title: string; start: number; mins: number; zoom: string; live: boolean; attended: number | null; replay: null | 'processing' | 'ready'; views: number; movedFrom?: number; /** The recording a past session's Attach replay records (D-172). Optional; staff-only: learners' snapshots drop it. */ replayUrl?: string }
-export interface Resource { id: string; title: string; desc: string; cat: string; type: string; tier: Tier; size: string; dl: number; updated: number; exec: boolean; status: 'published' | 'hidden'; /** The AI Employee it is attached to, by id (the Vault's Attached to; set by Edit details since D-172). Optional. */ module?: string }
+export interface Cohort {
+  id: string; name: string; start: number; end: number; weeks?: number; status: 'draft' | 'enrolling' | 'live' | 'completed'; capacity: number; enrolled: number; cadence: string;
+  /**
+   * The release plan (D-173), all optional: when the pre-launch preview opens (epoch ms), the zone
+   * the cohort's times are written in (absent reads as `America/Denver`), the default open time of
+   * day (`HH:MM`, absent reads as `12:00`), and what every week of the course shares.
+   */
+  previewOpensAt?: number; timezone?: string; defaultOpenTime?: string; course?: CohortCourse;
+}
+/** What a session is, as the builder sets it (D-173). `sessionKind()` still reads build or office hours off the id. */
+export type SessionType = 'live_build' | 'office_hours' | 'goal_planning' | 'setup' | 'other';
+/** Who sees a session's replay. */
+export type ReplayVisibility = 'hidden' | 'after_open' | 'published';
+export interface Session {
+  id: string; cohortId: string; n: number; title: string; start: number; mins: number; zoom: string; live: boolean; attended: number | null; replay: null | 'processing' | 'ready'; views: number; movedFrom?: number; /** The recording a past session's Attach replay records (D-172). Optional; staff-only: learners' snapshots drop it. */ replayUrl?: string;
+  /** The builder's (D-173): what kind of session, the week module it belongs to, who sees its replay. */
+  kind?: SessionType; moduleId?: string; replayVisibility?: ReplayVisibility;
+}
+export type ResourceKind = 'file' | 'prompt' | 'guide' | 'replay' | 'vault';
+export type ResourceVisibility = 'hidden_until_open' | 'open_in_preview' | 'published' | 'hidden';
+export type ResourcePlatform = 'claude' | 'chatgpt' | 'both';
+export interface Resource {
+  id: string; title: string; desc: string; cat: string; type: string; tier: Tier; size: string; dl: number; updated: number; exec: boolean; status: 'published' | 'hidden'; /** The AI Employee it is attached to, by id (the Vault's Attached to; set by Edit details since D-172). Optional. */ module?: string;
+  /** The builder's (D-173): what it is, the step it belongs to, who may see it and when, and its platform. */
+  kind?: ResourceKind; stepId?: string; visibility?: ResourceVisibility; platform?: ResourcePlatform;
+}
+/** A piece of learner-facing copy the builder edits (D-173), e.g. `locked.utah_life`. */
+export interface CopyString { key: string; value: string; audience: string }
 export interface Announcement { id: string; sessionId?: string; title: string; body: string; severity: 'info' | 'warning'; action: 'calendar' | 'sessions' | null; actionLabel: string; audience: 'all' | 'agent' | 'team' | 'owners'; channels: ('inapp' | 'email')[]; /** `draft` (D-160 R2-2) is never sent: learners see `sent` only. */ status: 'sent' | 'scheduled' | 'draft'; at: number; opens: number | null }
 export interface Reminder { id: string; label: string; channel: string; on: boolean }
 export interface TierDef { id: Tier; name: string; price: number; seats: number; blurb: string; features: string[] }
@@ -59,5 +100,7 @@ export interface Db {
   resources: Resource[]; announcements: Announcement[]; dismissed: Record<string, 1>; reminders: Reminder[];
   tiers: TierDef[]; requests: UpgradeRequest[]; staff: Staff[]; perms: Record<StaffRole, Record<PermKey, 0 | 1>>;
   base: Baseline; activity: ActivityEvent[];
+  /** The builder's copy strings (D-173). Optional: absent when there are none, as in every fixture. */
+  copy?: CopyString[];
 }
 export const ZERO_BASE: Baseline = { learners: 0, agent: 0, teamSeats: 0, teams: 0, mod: {}, daily: [0] };

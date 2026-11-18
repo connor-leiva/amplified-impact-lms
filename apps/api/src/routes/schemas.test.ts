@@ -10,7 +10,8 @@ import { describe, it, expect } from 'vitest';
 import { ICONS, PERMS, STAFF_ROLES, seedForDatabase } from '@ai/core';
 import type { MutationName } from '@ai/core';
 import * as M from '@ai/core/mutations';
-import { SCHEMAS, schemaFor } from './schemas';
+import { SCHEMAS, builderDraft, schemaFor } from './schemas';
+import { curriculumSeed } from '@ai/core/seed/curriculum';
 
 const db = seedForDatabase('live');
 const learner = db.users[0]!;
@@ -170,6 +171,52 @@ describe('§7.3 the shapes worth checking individually @g7', () => {
     expect(SCHEMAS.saveModule.safeParse({ draft: without ?? stripped }).success).toBe(true);
     // And every module in the seed, so the nested schema is not fitted to one of them.
     for (const m of db.modules) expect(SCHEMAS.saveModule.safeParse({ draft: m }).success, m.id).toBe(true);
+  });
+
+  it('saveModule and the builder’s audited save take a course week’s whole draft, words and all, and keep every field (D-173) @g7', () => {
+    // The Module Builder saves the module it holds (`seedDraft` is a structuredClone of the stored row),
+    // so a week's `kind`, `dueAt` and `course` arrive on every save. Rejected, the builder could not save
+    // a course week; dropped, a save would wipe the week's words.
+    const weeks = curriculumSeed().modules;
+    expect(weeks).toHaveLength(9);
+    for (const m of weeks) {
+      expect(m.course, m.id).toBeDefined();
+      const viaMutate = SCHEMAS.saveModule.safeParse({ draft: m });
+      expect(viaMutate.success, m.id).toBe(true);
+      expect(viaMutate.data?.draft, m.id).toEqual(m);
+      const viaBuilder = builderDraft.safeParse(m);
+      expect(viaBuilder.success, m.id).toBe(true);
+      expect(viaBuilder.data, m.id).toEqual(m);
+    }
+    // A step with every per-step field the builder edits, and a card of each kind.
+    const week = structuredClone(weeks[2]!);
+    week.checklist[0] = {
+      ...week.checklist[0]!,
+      who: 'Operator',
+      timeLabel: 'About 20 min',
+      doneWhen: 'The brief runs on yesterday’s data.',
+      linkedSkill: 'morning-brief',
+      openInPreview: true,
+      paths: {
+        claude: { blocks: [{ type: 'text', text: 'Open a new project.' }, { type: 'copy', label: 'Prompt', text: 'You are…' }] },
+        chatgpt: { blocks: [{ type: 'list', items: ['One', 'Two'] }, { type: 'table', head: ['A', 'B'], rows: [['1', '2']] }] },
+      },
+    };
+    week.course = {
+      ...week.course!,
+      promise: 'A brief every morning.',
+      seatCard: { seat: 'Ops', reportsTo: 'Owner', runs: 'Daily', pulls: 'CRM', applies: 'Rules', produces: 'A brief', tookOver: 'Inbox triage', cantDo: 'Send email' },
+      playbookCard: { number: '2', question: 'Who owns the next action?', play: 'Assign it.', signedOff: false },
+      sampleOutput: { title: 'Sample brief', madeUpLabel: 'Made-up data', blocks: [{ type: 'text', text: 'Three items.' }] },
+      lockedCopy: { headline: 'Opens soon', line: 'Week 2 opens on {date}.', opens: 'Opens {date}' },
+      statusLabels: { not_started: 'Not hired yet' },
+    };
+    expect(builderDraft.parse(week)).toEqual(week);
+    // Still strict inside the words: an unknown key or a wrong type is a 400, not a silent drop.
+    expect(builderDraft.safeParse({ ...week, course: { ...week.course, extra: 1 } }).success).toBe(false);
+    expect(builderDraft.safeParse({ ...week, course: { ...week.course, week: 'two' } }).success).toBe(false);
+    expect(builderDraft.safeParse({ ...week, kind: 'lesson' }).success).toBe(false);
+    expect(builderDraft.safeParse({ ...week, checklist: [{ ...week.checklist[0]!, paths: { claude: { blocks: [{ type: 'video', url: 'x' }] } } }] }).success).toBe(false);
   });
 
   it('saveModule rejects a draft missing a field core will read @g7', () => {

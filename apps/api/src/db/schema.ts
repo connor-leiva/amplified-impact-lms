@@ -44,13 +44,28 @@ export const users = pgTable('users', {
   reminded: ts('reminded'), nudged: ts('nudged'),
   // staff fields
   staffRole: text('staff_role', { enum: ['Owner', 'Admin', 'Instructor', 'Content Editor', 'Support'] }),
-  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark' }>().default({}),
+  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark'; sidebar?: 'full' | 'rail' }>().default({}),
   seq: integer('seq').notNull().default(0),
 });
 export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7), seq: integer('seq').notNull().default(0) });
-export const cohorts = pgTable('cohorts', { id: text('id').primaryKey(), name: text('name').notNull(), start: ts('start').notNull(), end: ts('end').notNull(), weeks: integer('weeks'), status: text('status').notNull(), capacity: integer('capacity').notNull(), cadence: text('cadence').notNull() });
+// D-173 (the curriculum builder): every new column on `cohorts`, `sessions`, `modules` and `resources`
+// is nullable with no default, so a row written before them (and every fixture) reads back exactly as
+// it was: the codec turns a null into an absent key. Closed lists are CHECKed, null allowed.
+export const cohorts = pgTable('cohorts', {
+  id: text('id').primaryKey(), name: text('name').notNull(), start: ts('start').notNull(), end: ts('end').notNull(), weeks: integer('weeks'), status: text('status').notNull(), capacity: integer('capacity').notNull(), cadence: text('cadence').notNull(),
+  previewOpensAt: ts('preview_opens_at'), timezone: text('timezone'), defaultOpenTime: text('default_open_time'), course: jsonb('course'),
+}, (t) => [
+  check('cohorts_default_open_time', sql`${t.defaultOpenTime} is null or ${t.defaultOpenTime} ~ '^[0-2][0-9]:[0-5][0-9]$'`),
+]);
 // D-172: `replay_url`, the recording a past session's Attach replay records (nullable; nothing learner-facing reads it yet).
-export const sessions = pgTable('sessions', { id: text('id').primaryKey(), cohortId: text('cohort_id').notNull(), n: integer('n').notNull(), title: text('title').notNull(), start: ts('start').notNull(), mins: integer('mins').notNull(), zoom: text('zoom').notNull(), live: boolean('live').notNull().default(false), attended: integer('attended'), replay: text('replay'), views: integer('views').notNull().default(0), movedFrom: ts('moved_from'), replayUrl: text('replay_url') });
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(), cohortId: text('cohort_id').notNull(), n: integer('n').notNull(), title: text('title').notNull(), start: ts('start').notNull(), mins: integer('mins').notNull(), zoom: text('zoom').notNull(), live: boolean('live').notNull().default(false), attended: integer('attended'), replay: text('replay'), views: integer('views').notNull().default(0), movedFrom: ts('moved_from'), replayUrl: text('replay_url'),
+  kind: text('kind'), moduleId: text('module_id'), replayVisibility: text('replay_visibility'),
+}, (t) => [
+  // `SessionType` and `ReplayVisibility` in `@ai/core` types.ts, typed out because drizzle-kit reads this file on its own.
+  check('sessions_kind', sql`${t.kind} is null or ${t.kind} in ('live_build', 'office_hours', 'goal_planning', 'setup', 'other')`),
+  check('sessions_replay_visibility', sql`${t.replayVisibility} is null or ${t.replayVisibility} in ('hidden', 'after_open', 'published')`),
+]);
 export const modules = pgTable('modules', {
   id: text('id').primaryKey(), name: text('name').notNull(), short: text('short').notNull(), tier: tier('tier').notNull(), icon: text('icon').notNull(),
   forWho: text('for_who').notNull(), headline: text('headline').notNull(), outcome: text('outcome').notNull(), outputs: jsonb('outputs').$type<string[]>().notNull(),
@@ -58,13 +73,31 @@ export const modules = pgTable('modules', {
   status: moduleStatus('status').notNull(), opens: ts('opens'), order: integer('order').notNull(), dur: integer('dur').notNull().default(0),
   instructor: text('instructor').notNull(), transcript: jsonb('transcript').$type<[number, string][]>().notNull(), notes: text('notes').notNull(),
   prompt: text('prompt').notNull(), files: jsonb('files').notNull(), resources: jsonb('resources').notNull(), checklist: jsonb('checklist').notNull(), runDemo: jsonb('run_demo'),
-});
+  kind: text('kind'), dueAt: ts('due_at'), tone: text('tone'), course: jsonb('course'),
+}, (t) => [
+  check('modules_kind', sql`${t.kind} is null or ${t.kind} in ('week', 'skill')`),
+]);
 export const progress = pgTable('progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(),
   steps: jsonb('steps').$type<string[]>().notNull(), builtAt: ts('built_at'), deployedAt: ts('deployed_at'), runtime: text('runtime'), issue: text('issue'), lastRun: jsonb('last_run'),
 }, (t) => [primaryKey({ columns: [t.userId, t.moduleId] })]);
 // D-172: `module_id`, the AI Employee a resource is attached to (the Vault's "Attached to"; nullable, no foreign key, so deleting a draft leaves "—").
-export const resources = pgTable('resources', { id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0), moduleId: text('module_id') });
+export const resources = pgTable('resources', {
+  id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0), moduleId: text('module_id'),
+  kind: text('kind'), stepId: text('step_id'), visibility: text('visibility'), platform: text('platform'),
+}, (t) => [
+  // `ResourceKind`, `ResourceVisibility` and `ResourcePlatform` in `@ai/core` types.ts.
+  check('resources_kind', sql`${t.kind} is null or ${t.kind} in ('file', 'prompt', 'guide', 'replay', 'vault')`),
+  check('resources_visibility', sql`${t.visibility} is null or ${t.visibility} in ('hidden_until_open', 'open_in_preview', 'published', 'hidden')`),
+  check('resources_platform', sql`${t.platform} is null or ${t.platform} in ('claude', 'chatgpt', 'both')`),
+]);
+// D-173: learner-facing copy the builder edits, by key (`locked.utah_life`, `locked.opens`, ...). A `Db`
+// record (`Db.copy`), so it round-trips through the codec and the mutate route like any other.
+export const copyStrings = pgTable('copy_strings', { key: text('key').primaryKey(), value: text('value').notNull(), audience: text('audience').notNull() });
+// D-175: one-time data steps the deploy's curriculum ensure runs (a release plan, a content load), each
+// once, by id: a row here means it ran, with what it changed and what it left for the PM. Not part of a
+// snapshot; read and written only by `db/data-migrations.ts`.
+export const dataMigrations = pgTable('data_migrations', { id: text('id').primaryKey(), ranAt: ts('ran_at').notNull(), summary: jsonb('summary').notNull() });
 export const announcements = pgTable('announcements', { id: text('id').primaryKey(), sessionId: text('session_id'), title: text('title').notNull(), body: text('body').notNull(), severity: text('severity').notNull(), action: text('action'), actionLabel: text('action_label').notNull(), audience: text('audience').notNull(), channels: jsonb('channels').$type<string[]>().notNull(), status: text('status').notNull(), at: ts('at').notNull(), opens: integer('opens_pct') });
 export const dismissals = pgTable('dismissals', { userId: text('user_id').notNull(), announcementId: text('announcement_id').notNull() }, (t) => [primaryKey({ columns: [t.userId, t.announcementId] })]);
 export const reminders = pgTable('reminders', { id: text('id').primaryKey(), label: text('label').notNull(), channel: text('channel').notNull(), on: boolean('on').notNull() });

@@ -217,3 +217,12 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(crumbTrail('/admin/jobs')).toEqual({ group: 'Operations', page: 'Scheduled Jobs' });
   });
 });
+
+describe('Course settings’ place (D-174)', () => {
+  it('is a page of Curriculum’s, with no row of its own, so the sidebar every cell draws is unchanged', () => {
+    expect(crumbTrail('/admin/curriculum/course')).toEqual({ group: 'Build', page: 'Curriculum', parent: '/admin/curriculum' });
+    expect(R2_NAV.flatMap(([, rows]) => rows).some((r) => r.path === '/admin/curriculum/course')).toBe(false);
+    // Every AI Employee and week the builder edits keeps its own trail.
+    expect(crumbTrail('/admin/curriculum/accelerator-week-2')).toEqual(crumbTrail('/admin/curriculum/m1'));
+  });
+});

@@ -1,7 +1,9 @@
 import type { Db } from '@ai/core';
+import { safeNext } from '@ai/core/landing';
 import type {
   AdminActionArgs,
   AdminActionName,
+  AppearancePrefs,
   JoinTicket,
   LmsRepository,
   MutationArgs,
@@ -25,10 +27,20 @@ import type {
  * `replace` (D-152): Back from /sign-in does not return to the page that was just turned away.
  */
 export const navigation = {
-  toSignIn: () => location.replace('/sign-in'),
+  toSignIn: () => location.replace(signInFor(location.pathname)),
   /** A masquerade's end (D-162 3b): a full page load to where the API sends staff back. */
   assign: (url: string) => location.assign(url),
 };
+
+/**
+ * The sign-in address a 401 goes to. On a skill's page (D-182: `/learn/skills/<page>`, where www's
+ * `/skill-library/<page>` links redirect), it brings the visitor back there once signed in, as the first
+ * guide page did itself (D-151); `safeNext` is the one check, so it is never anywhere else.
+ */
+export function signInFor(pathname: string): string {
+  const next = safeNext(pathname);
+  return next ? `/sign-in?next=${encodeURIComponent(next)}` : '/sign-in';
+}
 
 // ---- A masquerade's two refusals (D-162 3b, spec § 6 Web) ----------------------------------------
 //
@@ -102,10 +114,20 @@ async function parse(res: Response, attempt: string | null = null): Promise<unkn
  * who uploaded it, so neither can be trusted to be path-safe: an un-encoded `/` or `..` in a file
  * name would silently address a different route.
  */
-const fileRoute = (ref: StoredFileRef): string =>
+export const fileRoute = (ref: StoredFileRef): string =>
   ref.kind === 'resource'
     ? `/api/files/resource/${encodeURIComponent(ref.id)}`
     : `/api/files/module/${encodeURIComponent(ref.moduleId)}/${encodeURIComponent(ref.fileName)}`;
+
+/** D-185: only the two appearance fields, and only their known values, go to or come from the API. */
+export function appearanceOf(value: unknown): AppearancePrefs {
+  if (!value || typeof value !== 'object') return {};
+  const raw = value as Record<string, unknown>;
+  const out: AppearancePrefs = {};
+  if (raw.theme === 'light' || raw.theme === 'dark') out.theme = raw.theme;
+  if (raw.sidebar === 'full' || raw.sidebar === 'rail') out.sidebar = raw.sidebar;
+  return out;
+}
 
 export function createHttpRepository(): LmsRepository {
   const listeners = new Set<() => void>();
@@ -128,6 +150,19 @@ export function createHttpRepository(): LmsRepository {
         .then(parse)
         .then((b) => (b as { viewer: Viewer }).viewer),
     snapshot: () => fetch('/api/snapshot', { credentials: 'include' }).then(parse) as Promise<Db>,
+    // D-185: the person's own theme and sidebar, read afresh (another device may have changed them).
+    prefs: () =>
+      fetch('/api/me', { credentials: 'include' })
+        .then(parse)
+        .then((b) => appearanceOf((b as { prefs?: unknown }).prefs)),
+    savePrefs: async (patch: AppearancePrefs) => {
+      await fetch('/api/me/prefs', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(appearanceOf(patch)),
+      }).then((res) => parse(res, 'PATCH /api/me/prefs'));
+    },
     run: <K extends MutationName>(name: K, args: MutationArgs<K>) =>
       fetch(`/api/mutate/${name}`, {
         method: 'POST',

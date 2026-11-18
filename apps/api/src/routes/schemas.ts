@@ -54,6 +54,143 @@ const iconName = z.custom<IconName>(
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
 const isoTime = z.string().regex(/^\d{2}:\d{2}$/, 'Expected HH:MM');
 
+// --- D-173: the course's shapes (`packages/core/src/course-types.ts`) ---------------------------
+//
+// A course week's module carries its words (`course`) and its steps carry the builder's per-step
+// fields. The Module Builder saves the whole draft it holds, so these must be accepted, and checked,
+// on every save: without them a week's draft is a 400 (strict objects), and without `course` a save
+// would replace the module without its words.
+
+const skillRole = z.enum(['flagship', 'supporting', 'optional', 'pilot', 'alternative']);
+const courseSkill = z.strictObject({ title: z.string(), route: z.string(), role: skillRole, use: z.string(), free: z.boolean().optional() });
+const setupStep = z.strictObject({ text: z.string(), route: z.string().optional(), also: z.array(z.string()).optional() });
+const agendaItem = z.strictObject({ from: z.number(), to: z.number(), activity: z.string(), why: z.string() });
+const liveBuildPage = z.strictObject({
+  sessionId: z.string(),
+  agenda: z.array(agendaItem),
+  lesson: z.string(),
+  exercise: z.string(),
+  required: z.string(),
+  advanced: z.string(),
+  ownerApproval: z.string(),
+  workingAtEnd: z.array(z.string()),
+});
+const officeHoursPage = z.strictObject({
+  sessionId: z.string(),
+  title: z.string(),
+  note: z.string(),
+  format: z.array(agendaItem).nullable(),
+  outputs: z.array(z.string()).optional(),
+});
+const homework = z.strictObject({
+  byWeekEnd: z.array(z.string()),
+  assignment: z.array(z.string()),
+  acceptance: z.array(z.string()),
+  useEvidence: z.string(),
+});
+const contentBlock = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('text'), text: z.string() }),
+  z.strictObject({ type: z.literal('copy'), label: z.string().optional(), text: z.string() }),
+  z.strictObject({ type: z.literal('list'), items: z.array(z.string()) }),
+  z.strictObject({ type: z.literal('table'), head: z.array(z.string()).optional(), rows: z.array(z.array(z.string())) }),
+]);
+const stepPath = z.strictObject({ blocks: z.array(contentBlock) });
+const stepPaths = z.strictObject({ claude: stepPath.optional(), chatgpt: stepPath.optional() });
+const seatCard = z.strictObject({
+  seat: z.string(),
+  reportsTo: z.string(),
+  runs: z.string(),
+  pulls: z.string(),
+  applies: z.string(),
+  produces: z.string(),
+  tookOver: z.string(),
+  cantDo: z.string(),
+  firstRun: z.string().optional(),
+});
+const playbookCard = z.strictObject({
+  name: z.string().optional(),
+  number: z.string(),
+  question: z.string(),
+  play: z.string(),
+  source: z.string().optional(),
+  signedOff: z.boolean(),
+});
+const sampleOutput = z.strictObject({ title: z.string(), madeUpLabel: z.string(), blocks: z.array(contentBlock) });
+const lockedCopy = z.strictObject({ headline: z.string(), line: z.string(), opens: z.string() });
+/** A week's words (`AIEmployee.course`, a `ModuleCourse`). */
+const moduleCourse = z.strictObject({
+  week: z.number().int().min(0),
+  title: z.string(),
+  question: z.string(),
+  why: z.array(z.string()),
+  owner: z.string(),
+  operator: z.string(),
+  time: z.strictObject({ owner: z.string(), operator: z.string() }),
+  skills: z.array(courseSkill),
+  setup: z.array(setupStep),
+  liveBuild: liveBuildPage.nullable(),
+  officeHours: officeHoursPage.nullable(),
+  homework,
+  media: z.array(z.string()),
+  materials: z.array(z.string()),
+  promise: z.string().optional(),
+  flagship: z.string().optional(),
+  tools: z.array(z.string()).optional(),
+  seatCard: seatCard.optional(),
+  playbookCard: playbookCard.optional(),
+  sampleOutput: sampleOutput.optional(),
+  lockedCopy: lockedCopy.optional(),
+  statusLabels: z.record(z.string(), z.string()).optional(),
+});
+
+// D-174: what every week shares (`Cohort.course`, a `CohortCourse`), as the builder saves it whole.
+const labelHint = z.strictObject({ label: z.string(), hint: z.string() });
+const labelText = z.strictObject({ label: z.string(), text: z.string() });
+export const cohortCourse = z.strictObject({
+  intro: z.strictObject({
+    title: z.string(),
+    sub: z.string(),
+    how: z.array(z.string()),
+    roles: z.strictObject({ owner: z.string(), operator: z.string() }),
+    scope: z.string(),
+    support: z.string(),
+    instructor: z.string(),
+    holiday: z.string(),
+    join: z.strictObject({ label: z.string(), note: z.string(), path: z.string() }),
+    // D-187: the cohort community's link; the action checks it is an http or https address.
+    community: z.string().max(2048).optional(),
+  }),
+  shared: z.strictObject({
+    liveBuildMins: z.number(),
+    officeHoursMins: z.number(),
+    officeHoursRules: z.array(z.string()),
+    issueForm: z.array(labelHint),
+    evidence: z.array(labelHint),
+    rubric: z.array(z.strictObject({ label: z.string(), meets: z.string() })),
+    rubricScale: z.array(z.strictObject({ score: z.union([z.literal(0), z.literal(1), z.literal(2)]), label: z.string() })),
+    rubricRules: z.array(z.string()),
+    readiness: z.array(z.strictObject({ gate: z.enum(['Green', 'Amber', 'Red']), text: z.string() })),
+    paths: z.array(labelText),
+    missedAWeek: z.string(),
+    estimateNote: z.string(),
+  }),
+  before: z.strictObject({
+    intake: z.array(z.string()),
+    orientation: z.strictObject({ minutes: z.number(), topics: z.array(z.string()), media: z.string() }),
+    dataPack: z.array(z.strictObject({ input: z.string(), preferred: z.string(), minimum: z.string() })),
+    practiceSetNote: z.string(),
+    safeSharing: z.array(z.string()),
+    lanes: z.array(labelText),
+  }),
+  after: z.strictObject({
+    graduation: z.array(z.string()),
+    graduationNote: z.string(),
+    paths: z.array(labelText),
+    noPaywall: z.string(),
+    pilotQuestions: z.array(labelText),
+  }),
+});
+
 const step = z.strictObject({
   id: z.string(),
   text: z.string(),
@@ -61,6 +198,13 @@ const step = z.strictObject({
   mins: z.number(),
   t: z.number(),
   hint: z.string(),
+  // D-173: the builder's per-step fields, each optional, so an AI Employee's steps are unchanged.
+  who: z.string().optional(),
+  timeLabel: z.string().optional(),
+  doneWhen: z.string().optional(),
+  paths: stepPaths.optional(),
+  linkedSkill: z.string().optional(),
+  openInPreview: z.boolean().optional(),
 });
 
 const skillFile = z.strictObject({
@@ -105,6 +249,11 @@ const draft = z.strictObject({
   runDemo: z
     .strictObject({ input: z.string(), sections: z.array(z.tuple([z.string(), z.string()])) })
     .optional(),
+  // D-173: a course week's own fields, each optional, so an AI Employee's draft is unchanged.
+  kind: z.enum(['week', 'skill']).optional(),
+  dueAt: z.number().optional(),
+  tone: z.string().optional(),
+  course: moduleCourse.optional(),
 });
 
 /**
