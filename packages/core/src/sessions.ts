@@ -39,14 +39,21 @@ export const sessionFor = (db: Db, cohortId: string, n: number): Session | null 
   db.sessions.find((s) => s.cohortId === cohortId && s.n === n) || null;
 
 /** An office hour belongs to its week's AI Employee; a build to the one whose `session` is its `n`. */
-export const moduleForSession = (db: Db, s: Session): AIEmployee | null =>
+export const moduleForSession = (db: Pick<Db, 'modules'>, s: Pick<Session, 'id' | 'n'>): AIEmployee | null =>
   db.modules.find((m) => m.session === sessionWeek(s) && m.status !== 'draft') || null;
 
-export const sessionEnd = (s: Session): number => s.start + s.mins * 60000;
+export const sessionEnd = (s: Pick<Session, 'start' | 'mins'>): number => s.start + s.mins * 60000;
+
+/**
+ * What the lifecycle reads of a session: its times, and the state the Console sets (Go Live's `live`, the
+ * replay). Optional so a session from `GET /api/course`, which carries times only, reads as one nobody has
+ * started or replayed (D-183). A type, not a change: every `Session` is one.
+ */
+export type SessionTiming = Pick<Session, 'start' | 'mins'> & Partial<Pick<Session, 'live' | 'replay'>>;
 
 // ---------- Lifecycle ----------
 /** `forceLive` is the States-sheet override; it stays optional, exactly as in the reference. */
-export const sessionState = (s: Session | null | undefined, now: number, forceLive?: boolean) => {
+export const sessionState = (s: SessionTiming | null | undefined, now: number, forceLive?: boolean) => {
   if (!s) return 'none' as const;
   if (s.live || forceLive) return 'live' as const;
   if (now < s.start) return 'upcoming' as const;
@@ -68,7 +75,7 @@ export const accessibleSessions = (db: Db, u: Learner | null | undefined): Sessi
 export const nextSession = (db: Db, u: Learner | null | undefined, now: number): Session | null =>
   accessibleSessions(db, u).find((s) => s.live || sessionEnd(s) > now) || null;
 
-export const joinMode = (s: Session | null | undefined, now: number) => {
+export const joinMode = (s: SessionTiming | null | undefined, now: number) => {
   if (!s) return 'disabled' as const;
   const st = sessionState(s, now);
   if (st === 'live') return 'live' as const;

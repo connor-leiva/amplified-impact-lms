@@ -23,7 +23,9 @@ import { EXEC_CATEGORIES } from './constants';
 import { MutationError, publishReplay, saveModule } from './mutations';
 import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
-import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, Session, Step, Tier } from './types';
+import { changedFields, copyIssues, diffSummary, issueLine, moduleCopyFields } from './course-rules';
+import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
+import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
 
 /** The one audit row a write owes: what, on which thing, and before and after where it applies. */
 export interface AdminAudit {
@@ -157,6 +159,13 @@ const moduleSummary = (m: AIEmployee) => ({
  */
 export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; status?: ModuleStatus }, c: Ctx): AdminOutcome {
   const stored = db.modules.find((m) => m.id === args.draft.id) ?? null;
+  // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
+  // never refuses it. Checked before `saveModule`, so a refusal writes nothing.
+  const issues = copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(args.draft)));
+  if (issues.length) {
+    requirePerm(db, a, 'curriculum');
+    return { db, error: issues.map(issueLine).join('\n') };
+  }
   const out = saveModule(db, a, args, c);
   if (out.error) return out;
   const saved = out.db.modules.find((m) => m.id === args.draft.id)!;
@@ -182,7 +191,8 @@ export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; s
       action: 'module.save',
       target: { type: 'module', id: saved.id, label: saved.name },
       before: stored ? moduleSummary(stored) : null,
-      after: { ...moduleSummary(saved), stepChanges: stepChanges(stored?.checklist ?? [], draftSteps) },
+      // D-174: the field-diff summary, where the module changed (paths only, never values).
+      after: { ...moduleSummary(saved), stepChanges: stepChanges(stored?.checklist ?? [], draftSteps), ...diffSummary(stored ?? {}, saved) },
     },
   };
 }
@@ -211,17 +221,32 @@ const resourceSummary = (db: Db, r: Resource) => ({
  * are `uploadResource`'s: a title is required, and an executive category is always Team only. The
  * file, its size and its opens are not touched.
  */
+/** D-174: a kit item's place in its week: what it is, the step it belongs to, who sees it and when, its platform. */
+export interface ResourceKit {
+  kind: ResourceKind | null;
+  stepId: string | null;
+  visibility: ResourceVisibility | null;
+  platform: ResourcePlatform | null;
+}
+
+export const kitOf = (r: Resource): ResourceKit => ({ kind: r.kind ?? null, stepId: r.stepId ?? null, visibility: r.visibility ?? null, platform: r.platform ?? null });
+
 export function editResource(
   db: Db,
   a: Actor,
-  args: { id: string; title: string; desc: string; cat: string; tier: Tier; module: string | null },
+  args: { id: string; title: string; desc: string; cat: string; tier: Tier; module: string | null; kit?: ResourceKit },
   _c: Ctx,
 ): AdminOutcome {
   requirePerm(db, a, 'curriculum');
   const r = resourceOf(db, args.id);
   const title = (args.title || '').trim();
   if (!title) return { db, error: 'Add a title.' };
-  if (args.module !== null) moduleOf(db, args.module);
+  const attached = args.module !== null ? moduleOf(db, args.module) : null;
+  // D-174: a kit item's step is a step of the week it is attached to.
+  if (args.kit?.stepId) {
+    if (!attached) return { db, error: 'Attach it to a week before you pick a step.' };
+    if (!attached.checklist.some((x) => x.id === args.kit!.stepId)) throw new MutationError('invalid', `No step ${args.kit.stepId} in ${attached.id}`);
+  }
   const exec = EXEC_CATEGORIES.includes(args.cat);
   const next = produce(db, (d) => {
     const x = d.resources.find((y) => y.id === r.id)!;
@@ -232,6 +257,13 @@ export function editResource(
     x.tier = exec ? 'team' : args.tier;
     if (args.module === null) delete x.module;
     else x.module = args.module;
+    if (args.kit) {
+      for (const k of ['kind', 'stepId', 'visibility', 'platform'] as const) {
+        const v = args.kit[k];
+        if (v === null) delete x[k];
+        else (x as Record<string, unknown>)[k] = v;
+      }
+    }
   });
   const after = next.resources.find((y) => y.id === r.id)!;
   return {
@@ -240,8 +272,8 @@ export function editResource(
     audit: {
       action: 'vault.edit',
       target: { type: 'resource', id: r.id, label: title },
-      before: resourceSummary(db, r),
-      after: { ...resourceSummary(next, after), descChanged: after.desc !== r.desc },
+      before: { ...resourceSummary(db, r), ...(args.kit ? { kit: kitOf(r) } : {}) },
+      after: { ...resourceSummary(next, after), descChanged: after.desc !== r.desc, ...(args.kit ? { kit: kitOf(after) } : {}) },
     },
   };
 }
@@ -493,6 +525,12 @@ export const ADMIN_ACTIONS = {
   saveAnnouncementDraft,
   updateAnnouncement,
   duplicateAnnouncement,
+  // D-174: the curriculum builder (`course-actions.ts`).
+  saveSession,
+  deleteSession,
+  saveCohortPlan,
+  saveCohortCourse,
+  saveCopyString,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

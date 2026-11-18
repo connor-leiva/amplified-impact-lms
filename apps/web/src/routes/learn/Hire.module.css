@@ -1,0 +1,201 @@
+/* D-186: the hire's page in the learner portal v2: the Your Deployment card, its Run dialog and the non-course
+   AI Employee's steps. Built from the learner pages' own surfaces (Learn.module.css's `.cd`, `.cdh`, `.cdb`,
+   `.cdf`, `.li`, `.b`), so these rules only lay them out. Tokens only: R2's (styles/r2.css) and the learner
+   frame's (styles/learner-v2.css), so the dark theme applies to them as to every learner screen. */
+
+/* ---- the card ------------------------------------------------------------------------------------- */
+
+.card[data-attention='true'] {
+  border-color: var(--r2-warn-line);
+}
+
+/* The runtime status: an icon and a word, never colour alone. */
+.rt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: var(--r2-pl);
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: var(--r2-m);
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--r2-sub);
+  color: var(--r2-f2);
+}
+.rt[data-tone='ok'] {
+  background: var(--r2-okb);
+  color: var(--r2-ok);
+}
+.rt[data-tone='warn'] {
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+}
+
+.pt {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--r2-sub);
+  color: var(--r2-f2);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.body:empty {
+  display: none;
+}
+
+.issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--r2-warn-line);
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+}
+.issue > svg {
+  flex: none;
+  margin-top: 3px;
+}
+
+.last {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lastHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lastBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  background: var(--r2-sub);
+  min-width: 0;
+}
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.act {
+  flex: none;
+}
+.grow {
+  flex: 1 1 auto;
+}
+
+/* ---- the Run dialog ------------------------------------------------------------------------------------ */
+
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+.in {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  font: 400 var(--r2-fs-13) / var(--r2-lh-18) var(--r2-font);
+}
+.in:focus-visible {
+  outline: 2px solid var(--r2-focus);
+  outline-offset: 1px;
+}
+.working {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.spin {
+  animation: lv-spin 900ms linear infinite;
+}
+@keyframes lv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.out {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.outRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  background: var(--r2-sub);
+}
+.outLabel {
+  font-size: var(--r2-fs-12);
+  font-weight: 600;
+  color: var(--r2-f2);
+}
+.pre {
+  white-space: pre-line;
+}
+
+/* ---- the non-course AI Employee's steps (E-22) ---------------------------------------------------------- */
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  flex-wrap: wrap;
+}
+.stepBtn {
+  flex: none;
+  margin-left: auto;
+}
+.stepBtn[data-done='true'] {
+  color: var(--r2-f2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .act,
+  .stepBtn {
+    min-height: 44px;
+  }
+  .stepBtn {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}

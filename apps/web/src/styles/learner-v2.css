@@ -1,0 +1,133 @@
+/* The learner portal v2's own tokens (D-177): the few values the signed-off learner mockup
+   (docs/design/learner-v2, its "LEARNER pieces") writes that the admin R2 system has no token for.
+   Everything else the learner frame draws comes from styles/r2.css, whose tokens the frame reads through
+   `data-r2-scope` (the generic R2 scope, not the admin shell's `data-r2-shell`).
+
+   SCOPED TO THE LEARNER FRAME: every token is set on `[data-learner-v2]`, the attribute the learner shell
+   puts on its root, so no other screen can read one. Component CSS modules use these as `var(--lv-…)` and
+   never a raw colour (scripts/check-css-colors.mjs). Values are the mockup's, verbatim. */
+
+[data-learner-v2] {
+  /* The control text size (the mockup's `--ctl`): the body size less 1px on a desk, 16px on a phone. */
+  --lv-ctl: 13px;
+  /* Sidebar and drawer widths. */
+  --lv-sidebar: 244px;
+  --lv-drawer: 320px;
+  /* The hero card's lift, an object card's hover, the current card's blue outline and the live card's green. */
+  --lv-sh-hero: 0 1px 2px rgba(21, 33, 29, 0.04), 0 12px 32px -18px rgba(21, 33, 29, 0.18);
+  --lv-sh-lift: 0 4px 14px -6px rgba(21, 33, 29, 0.14);
+  --lv-cur-line: rgba(59, 116, 214, 0.45);
+  --lv-cur-ring: 0 0 0 3px rgba(59, 116, 214, 0.08);
+  --lv-live-line: rgba(46, 154, 99, 0.45);
+  --lv-live-ring: 0 0 0 3px rgba(46, 154, 99, 0.08);
+  /* The current step's row, and the segmented control's chosen side. */
+  --lv-step-cur: #f5f8fd;
+  --lv-sh-seg: 0 1px 2px rgba(21, 33, 29, 0.08), 0 0 0 1px var(--r2-line);
+  /* A chosen filter chip's count, on the ink chip (D-179). */
+  --lv-chip-count-on: rgba(255, 255, 255, 0.66);
+  /* The live dot's pulse, from and to. */
+  --lv-pulse-from: 0 0 0 0 rgba(46, 154, 99, 0.45);
+  --lv-pulse-to: 0 0 0 6px rgba(46, 154, 99, 0);
+  /* D-180, the Schedule: the current week's row, and the calendar legend's live-build and office-hours rings. */
+  --lv-row-now: #f5f9f7;
+  --lv-leg-build: inset 0 0 0 1px rgba(31, 77, 64, 0.25);
+  --lv-leg-oh: inset 0 0 0 1px rgba(43, 88, 168, 0.25);
+}
+
+@media (max-width: 767px) {
+  [data-learner-v2] {
+    --lv-ctl: 16px;
+  }
+}
+
+/* D-185: the dark theme. The learner shell marks its frame `data-lv-theme` with the person's theme and puts
+   the same on the root (`data-theme`, which turns tokens.css's dark values on), so every R2 and learner
+   colour the frame reads is redefined here from the design tokens' dark values: no raw colour. Sizes,
+   type and radii are unchanged. Only the shell's own frame turns: the curriculum builder's preview of a
+   week (`routes/learn/Preview.tsx`) has no `data-lv-theme`, and today's portal draws its own dark theme. */
+:root[data-theme='dark'] [data-learner-v2][data-lv-theme='dark'] {
+  /* Ink, lines and surfaces */
+  --r2-ink: var(--text-primary);
+  --r2-f2: var(--text-secondary);
+  --r2-f3: var(--text-tertiary);
+  --r2-line: var(--line-default);
+  --r2-line2: var(--line-strong);
+  --r2-line-hover: var(--action-secondary-line);
+  --r2-bg: var(--bg-canvas);
+  --r2-sf: var(--bg-surface);
+  --r2-hov: var(--bg-hover);
+  --r2-sub: var(--bg-raised);
+  /* The primary: dark's mint, with ink on it */
+  --r2-for: var(--action-primary);
+  --r2-forh: var(--action-primary-hover);
+  /* On the primary (a solid tile, the replay's kicker) it must read, so it is the ink the primary carries. */
+  --r2-mint: var(--action-on-primary);
+  --r2-tint: var(--action-primary-tint);
+  --r2-on-for: var(--action-on-primary);
+  /* Status sets: text, soft background and line */
+  --r2-ok: var(--status-success-text);
+  --r2-okb: var(--status-success-bg);
+  --r2-info: var(--status-progress-text);
+  --r2-infob: var(--status-progress-bg);
+  --r2-bad: var(--status-attention-text);
+  --r2-badb: var(--status-attention-bg);
+  --r2-warn: var(--access-locked-text);
+  --r2-warnb: var(--access-locked-bg);
+  --r2-bad-line: var(--status-attention-line);
+  --r2-warn-line: var(--access-locked-line);
+  /* Dots and bars */
+  --r2-dot-ok: var(--status-success);
+  --r2-dot-info: var(--status-progress);
+  --r2-dot-bad: var(--status-attention);
+  --r2-dot-warn: var(--access-locked);
+  --r2-dot-off: var(--status-neutral);
+  --r2-bar: var(--status-success);
+  --r2-bar2: var(--status-progress);
+  --r2-bar-hot: var(--access-locked);
+  --r2-bar-full: var(--status-neutral);
+  /* Tables, loading, the toast */
+  --r2-row-selected: var(--bg-selected);
+  --r2-grip: var(--text-tertiary);
+  --r2-skeleton: var(--bg-sunken);
+  --r2-skeleton-shine: var(--bg-raised);
+  --r2-not-started: var(--track);
+  --r2-toast-bg: var(--bg-inverse);
+  --r2-toast-ink: var(--text-inverse);
+  /* Shadows, the scrim and focus */
+  --r2-sh-card: var(--shadow-xs);
+  --r2-sh-button: var(--shadow-xs);
+  --r2-sh-pop: var(--shadow-pop);
+  --r2-sh-toast: var(--shadow-pop);
+  --r2-sh-modal: var(--shadow-pop);
+  --r2-sh-lift: var(--shadow-card);
+  --r2-scrim: var(--bg-overlay);
+  --r2-focus: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--action-primary);
+  --r2-focus-input: 0 0 0 3px var(--focus-ring);
+
+  /* The learner portal's own */
+  --lv-sh-hero: var(--shadow-card);
+  --lv-sh-lift: var(--shadow-card);
+  --lv-cur-line: var(--status-progress-line);
+  --lv-cur-ring: 0 0 0 3px var(--status-progress-bg);
+  --lv-live-line: var(--status-success-line);
+  --lv-live-ring: 0 0 0 3px var(--status-success-bg);
+  --lv-step-cur: var(--bg-raised);
+  --lv-sh-seg: 0 0 0 1px var(--line-default);
+  --lv-chip-count-on: var(--text-inverse);
+  --lv-pulse-from: 0 0 0 0 var(--status-success-line);
+  --lv-pulse-to: 0 0 0 6px transparent;
+  --lv-row-now: var(--bg-raised);
+  --lv-leg-build: inset 0 0 0 1px var(--action-primary-line);
+  --lv-leg-oh: inset 0 0 0 1px var(--status-progress-line);
+}
+
+/* D-185: the replay's video stays a dark picture on the dark theme, as it is on the light one: its poster
+   is the poster surface, with the light ink on it, the replay chip on a raised surface and the kicker in the
+   primary. The same tokens, read by the same rules (`[data-replay]`, `[data-media]` are the player's own). */
+:root[data-theme='dark'] [data-lv-theme='dark'] [data-replay] [data-media='true'] {
+  --r2-toast-bg: var(--bg-poster);
+  --r2-toast-ink: var(--text-primary);
+  --r2-on-for: var(--text-primary);
+  --r2-forh: var(--bg-raised);
+  --r2-mint: var(--action-primary);
+}

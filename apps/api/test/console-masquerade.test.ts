@@ -663,7 +663,7 @@ describe('The signed cookie @console', () => {
     const [row] = await rowsOf();
     const jamie = await app.signInAs('u_rosa');
     const signed = browser.jar.get(MASQUERADE_COOKIE)!;
-    for (const msq of [row!.id, `${row!.id}.forged-signature`, signed.replace(/.$/, (c) => (c === 'A' ? 'B' : 'A'))]) {
+    for (const msq of [row!.id, `${row!.id}.forged-signature`, signed.replace(/(.)(.)$/, (_m, c: string, last: string) => (c === 'A' ? 'B' : 'A') + last)]) {
       const cookie = `${jamie}; ${MASQUERADE_COOKIE}=${msq}`;
       const write = await app.inject({ method: 'PATCH', url: '/api/me/prefs', headers: { cookie, 'content-type': 'application/json' }, payload: { theme: 'dark' } });
       expect(write.statusCode, msq).toBe(200);

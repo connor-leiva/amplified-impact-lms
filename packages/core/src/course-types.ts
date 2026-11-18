@@ -200,6 +200,11 @@ export interface CourseIntro {
   holiday: string;
   /** How a learner joins a live session. Never a Zoom URL: only the join route hands that out. */
   join: { label: string; note: string; path: string };
+  /**
+   * D-187: the cohort community's address (an http or https link), set in the builder's Shared pages.
+   * Absent or empty, the learner portal shows no community link.
+   */
+  community?: string;
 }
 
 export interface CourseShared {
@@ -244,8 +249,11 @@ export interface CohortCourse {
 
 // --- what `GET /api/course` sends -----------------------------------------------------------------
 
-/** A week as the course page renders it: the module's course, plus the AI Employee fields it shows. */
-export interface CourseWeek extends Omit<ModuleCourse, 'promise' | 'flagship' | 'tools' | 'seatCard' | 'playbookCard' | 'sampleOutput' | 'lockedCopy' | 'statusLabels'> {
+/**
+ * A week as the course page renders it: the module's course, plus the AI Employee fields it shows. D-184:
+ * with its seat card and playbook card, when the week has them (the learner portal's week page draws them).
+ */
+export interface CourseWeek extends Omit<ModuleCourse, 'promise' | 'flagship' | 'tools' | 'sampleOutput' | 'lockedCopy' | 'statusLabels'> {
   /** The AI Employee this week is in the portal: its icon, platform, outputs and steps. */
   module: {
     icon: IconName;

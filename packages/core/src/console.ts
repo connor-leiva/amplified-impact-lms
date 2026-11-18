@@ -203,6 +203,15 @@ export const AUDIT_ACTIONS = [
   'module.unpublish',
   'module.delete',
   'vault.remove',
+  // D-174: the curriculum builder's writes (`course-actions.ts`): a week's sessions, the cohort's
+  // release plan and shared course pages, and the copy strings.
+  'session.save',
+  'session.delete',
+  'cohort.save',
+  'cohort.course_save',
+  'copy.save',
+  // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
+  'curriculum.migrate',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

@@ -11,10 +11,13 @@
 // and `GET /api/course`.
 
 import { eq, inArray } from 'drizzle-orm';
-import { acceleratorOpen, acceleratorPaused, acceleratorUpcoming } from '@ai/core/accelerator';
+import { ACCELERATOR_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming } from '@ai/core/accelerator';
 import type { AcceleratorPlan } from '@ai/core/accelerator';
+import { courseEntry, courseUpcoming } from '@ai/core/release';
+import type { CourseEntry } from '@ai/core/release';
+import type { Cohort, ViewerAccess } from '@ai/core';
 import type { Database } from '../db/client';
-import { accounts, plans, users } from '../db/schema';
+import { accounts, cohorts, plans, users } from '../db/schema';
 
 type Reader = Pick<Database, 'select'>;
 
@@ -70,4 +73,28 @@ export async function acceleratorLearnerIds(db: Reader, now: number): Promise<Se
   if (!teams.size) return new Set();
   const learners = await db.select({ id: users.id, teamId: users.teamId }).from(users).where(eq(users.kind, 'learner'));
   return new Set(learners.filter((u) => u.teamId !== null && teams.has(u.teamId)).map((u) => u.id));
+}
+
+// --- D-175: the course's release plan, from data -------------------------------------------------
+
+/** The cohort's release plan as gating reads it: when the pre-launch preview opens, or nothing (none). */
+export async function releaseOf(db: Reader): Promise<Pick<Cohort, 'previewOpensAt'>> {
+  const [row] = await db.select({ previewOpensAt: cohorts.previewOpensAt }).from(cohorts).where(eq(cohorts.id, ACCELERATOR_COHORT_ID)).limit(1);
+  return row?.previewOpensAt === null || row?.previewOpensAt === undefined ? {} : { previewOpensAt: Number(row.previewOpensAt) };
+}
+
+/** Whether this learner may enter the course at `now`, and whether that is the pre-launch preview. */
+export async function courseEntryFor(db: Reader, userId: string, now: number): Promise<CourseEntry> {
+  return courseEntry(await plansForLearner(db, userId), now, await releaseOf(db));
+}
+
+/** When the course (or its preview) opens for a buyer who can't enter it yet, or null. */
+export async function courseUpcomingFor(db: Reader, userId: string, now: number): Promise<number | null> {
+  return courseUpcoming(await plansForLearner(db, userId), now, await releaseOf(db));
+}
+
+/** What `scopeSnapshot` needs to know about this learner and the course at `now`. */
+export async function viewerAccessFor(db: Reader, userId: string, now: number): Promise<ViewerAccess> {
+  const entry = await courseEntryFor(db, userId, now);
+  return { accelerator: entry.open, at: now, preview: entry.preview };
 }

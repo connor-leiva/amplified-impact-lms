@@ -8,8 +8,8 @@ import type { AdminActionArgs, AdminActionName, MutationArgs, MutationName, Muta
 import { useToaster } from '../components/primitives/Toaster';
 import { useConfetti } from '../shell/Confetti';
 
-const DB_KEY = ['db'] as const;
-const VIEWER_KEY = ['viewer'] as const;
+export const DB_KEY = ['db'] as const;
+export const VIEWER_KEY = ['viewer'] as const;
 
 /** The role-scoped snapshot. Refetched whenever the repository says something changed. */
 export function useDb(): Db {

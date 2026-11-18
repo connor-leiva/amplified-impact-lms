@@ -18,6 +18,9 @@ import { COHORT_ONE } from './offer';
 /** The platform's production cohort: cohort one, `COHORT_ONE.id` in offer.ts. */
 export const ACCELERATOR_COHORT_ID = 'dec26';
 
+/** A plan without the course asking for it: `GET /api/course`'s 403, and (D-186) a course week's step. */
+export const NOT_IN_PLAN = 'The AI Accelerator isn’t in your plan.';
+
 /** Where learners write for help (the PM's brief). */
 export const ACCELERATOR_SUPPORT_EMAIL = 'support@amplifiedimpact.io';
 

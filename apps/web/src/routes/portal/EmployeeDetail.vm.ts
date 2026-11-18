@@ -17,23 +17,28 @@ import {
   progressOf,
   runtimeOf,
   sessionEvent,
-  sessionFor,
-  sessionState,
   skillPreview,
 } from '@ai/core';
-import type { AIEmployee, Db, IconName, Learner, RuntimeState, Session, SkillFile } from '@ai/core';
+import type { AIEmployee, Db, IconName, Learner, RuntimeState, SkillFile } from '@ai/core';
 // Type-only: the shape of a stored file is the repository seam's, and nothing in `data/` is
 // imported at runtime, so this file stays pure.
 import type { StoredFileRef } from '../../data/repository';
+import type { Speed } from '../../components/replay/engine';
+import { replayVM } from '../../components/replay/replay.vm';
+import type { ChapterVM, TranscriptLineVM } from '../../components/replay/replay.vm';
 
 // ---------------------------------------------------------------------------
 // Screen state
 // ---------------------------------------------------------------------------
 
-export type Speed = 1 | 1.25 | 1.5 | 2;
-
-/** The reference's `cycleSpeed` list. The label is `speed + '×'`. */
-export const SPEEDS: readonly Speed[] = [1, 1.25, 1.5, 2];
+// D-183: the player's speeds, its engine interface and the fixture engine moved to
+// `components/replay/engine.ts`, so the learner portal v2's week page plays a replay through the same
+// engines. Re-exported here unchanged, so this screen and its tests read them where they always have.
+export { SPEEDS, TICK_MS, TICK_SEC, TickerEngine, replayUrl } from '../../components/replay/engine';
+export type { Speed, VideoEngine } from '../../components/replay/engine';
+// D-183: the player, its chapters and its transcript are decided in `components/replay/replay.vm.ts`, which
+// the learner portal v2's week page uses too. This screen builds its player from it, unchanged.
+export type { ChapterVM, TranscriptLineVM, TranscriptPartVM } from '../../components/replay/replay.vm';
 
 export type DrawerRef = { kind: 'prompt' } | { kind: 'file'; i: number } | { kind: 'run' };
 
@@ -85,109 +90,6 @@ export const moduleReset = (m: AIEmployee, t = 0): Partial<EmployeeDetailUi> => 
   runState: 'idle',
   drawer: null,
 });
-
-// ---------------------------------------------------------------------------
-// The player
-// ---------------------------------------------------------------------------
-
-/**
- * Phase 08 § 8.3. The screen drives playback only through this, so phase 08 can swap `TickerEngine`
- * for `HlsEngine` (a hidden `<video>` behind hls.js) without touching the poster, the controls, the
- * captions or the chapter rail — that chrome stays ours (SCREENS § 3.2).
- *
- * `HlsEngine` lives in `HlsEngine.ts` and is chosen by `createVideoEngine`, because it is all DOM
- * and this file is pure.
- */
-export interface VideoEngine {
-  play(): void;
-  pause(): void;
-  seek(t: number): void;
-  setRate(r: Speed): void;
-  onTime(cb: (t: number) => void): () => void;
-  onEnded(cb: () => void): () => void;
-  /**
-   * Release anything the engine holds outside itself. Optional because `TickerEngine` holds
-   * nothing: the screen already clears its interval with `pause()` and drops its subscriptions.
-   * `HlsEngine` has MSE buffers, a segment loader and element listeners to let go of (§ 8.3).
-   */
-  destroy?(): void;
-}
-
-/** The reference's `setInterval(() => this.tick(), 250)` and its `s.t + 0.25 * s.speed`. */
-export const TICK_MS = 250;
-export const TICK_SEC = 0.25;
-
-/**
- * The fixture engine (phase 05 § 5.2): it advances `t` by 0.25 s × rate every 250 ms while playing
- * and stops at `dur`, which is exactly what the prototype does, so a replay can be compared
- * deterministically. It holds no React state and reads no clock.
- */
-export class TickerEngine implements VideoEngine {
-  private t: number;
-  private rate: Speed = 1;
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private readonly time = new Set<(t: number) => void>();
-  private readonly ended = new Set<() => void>();
-
-  constructor(
-    private readonly dur: number,
-    t = 0,
-  ) {
-    this.t = Math.max(0, Math.min(dur, t));
-  }
-
-  play(): void {
-    if (this.timer !== null || this.dur <= 0 || this.t >= this.dur) return;
-    this.timer = setInterval(() => this.tick(), TICK_MS);
-  }
-
-  pause(): void {
-    if (this.timer === null) return;
-    clearInterval(this.timer);
-    this.timer = null;
-  }
-
-  seek(t: number): void {
-    this.t = Math.max(0, Math.min(this.dur, t));
-    this.emit();
-  }
-
-  setRate(r: Speed): void {
-    this.rate = r;
-  }
-
-  onTime(cb: (t: number) => void): () => void {
-    this.time.add(cb);
-    return () => {
-      this.time.delete(cb);
-    };
-  }
-
-  onEnded(cb: () => void): () => void {
-    this.ended.add(cb);
-    return () => {
-      this.ended.delete(cb);
-    };
-  }
-
-  /** The current playhead. The screen mirrors it into `ui.t`; this is the engine's own copy. */
-  get position(): number {
-    return this.t;
-  }
-
-  private emit(): void {
-    for (const cb of [...this.time]) cb(this.t);
-  }
-
-  private tick(): void {
-    this.t = Math.min(this.dur, this.t + TICK_SEC * this.rate);
-    this.emit();
-    if (this.t >= this.dur) {
-      this.pause();
-      for (const cb of [...this.ended]) cb();
-    }
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Side effects the component performs. The VM resolves the payloads; the component owns the DOM.
@@ -275,31 +177,6 @@ export interface PlayerVM {
   join: VmAction;
   /** The session `.ics`, or null when there is no session to add. */
   cal: VmAction | null;
-}
-
-export interface ChapterVM {
-  n: number;
-  t: string;
-  label: string;
-  done: boolean;
-  /** Seek-bar marker position, e.g. `8.56%`. */
-  left: string;
-  active: boolean;
-  tip: string;
-  /** Seconds to seek to, or null without a replay. */
-  seek: number | null;
-}
-
-export interface TranscriptPartVM {
-  s: string;
-  hit: boolean;
-}
-
-export interface TranscriptLineVM {
-  t: string;
-  at: number;
-  current: boolean;
-  parts: TranscriptPartVM[];
 }
 
 export type AssetVM =
@@ -454,21 +331,6 @@ const ext = (f: SkillFile): string => (f.type === 'Notion' ? '.md' : '');
 
 const fileMime = (f: SkillFile): string => (f.type === 'JSON' ? 'application/json' : 'text/yaml');
 
-/**
- * § 8.3's HLS manifest for this replay, or `''` when there is none.
- *
- * The manifest is stored by `publishReplay({ playbackUrl, durationSec, transcriptVtt? })`. That
- * signature change belongs with the admin route that calls it and is deferred, so no `AIEmployee`
- * carries a `playbackUrl` yet and this answers `''` everywhere today — and permanently in fixture
- * mode, where the prototype has no video host at all. Read through a widening cast rather than by
- * adding the field to `packages/core/src/types.ts`, which keeps this sprint additive: the HLS path
- * goes live the moment the column exists, with no further change on the web side.
- */
-export const replayUrl = (m: AIEmployee): string => {
-  const url = (m as AIEmployee & { playbackUrl?: unknown }).playbackUrl;
-  return typeof url === 'string' ? url : '';
-};
-
 /** The reference's `getFile`: a Notion template opens, everything else downloads. */
 function getFile(f: SkillFile, m: AIEmployee): VmAction {
   if (f.type === 'Notion') return { kind: 'toast', msg: `Opening “${f.name}” in Notion`, tone: 'info' };
@@ -522,8 +384,9 @@ export function employeeDetailVM(
         : 'Deploys after all 6 steps are verified',
   };
 
-  const sess: Session | null = m.session ? sessionFor(db, user.cohortId, m.session) : null;
-  const sst = sess ? sessionState(sess, now) : 'none';
+  // D-183: the player, chapters and transcript, from the shared replay view-model.
+  const r = replayVM(db, user.cohortId, p.steps, m, now, ui);
+  const { sess, sst, hasVid } = r;
   const meta: MetaVM = {
     hasSession: !!sess,
     selfPaced: !sess,
@@ -532,30 +395,11 @@ export function employeeDetailVM(
   };
 
   // ---- player -------------------------------------------------------------------------------
-  const { t, playing, speed, cc, q } = ui;
-  const hasVid = !!m.dur && (sst === 'replay' || (!sess && !!m.dur));
   const steps = m.checklist;
-  const cur = steps.filter((s) => s.t <= t).pop();
-  const capLine = m.transcript.filter((x) => x[0] <= t && t - x[0] < 30).pop();
   const jm = sess ? joinMode(sess, now) : 'disabled';
 
   const v: PlayerVM = {
-    has: hasVid,
-    none: !hasVid,
-    n: sess ? sess.n : '–',
-    title: sess ? sess.title : m.name,
-    sub: `${m.name} · with ${m.instructor}`,
-    pct: hasVid ? `${((t / m.dur) * 100).toFixed(2)}%` : '0%',
-    tNow: Math.floor(t),
-    time: fmt.clock(t),
-    total: fmt.clock(m.dur || 0),
-    chapter: hasVid && cur ? `Step ${steps.indexOf(cur) + 1} · ${cur.ch}` : '',
-    playIcon: playing ? 'pause' : 'play',
-    playTitle: playing ? 'Pause' : 'Play',
-    showBigPlay: hasVid && !playing,
-    caption: cc && playing && capLine ? capLine[1] : '',
-    cc,
-    speedLabel: `${speed}×`,
+    ...r.player,
     noneWhen: sess
       ? sst === 'live'
         ? 'Live now'
@@ -581,46 +425,8 @@ export function employeeDetailVM(
       : null,
   };
 
-  const rail: ChapterVM[] = steps.map((s, i) => {
-    const done = p.steps.includes(s.id);
-    const active = hasVid && !!cur && cur.id === s.id;
-    return {
-      n: i + 1,
-      t: fmt.clock(s.t),
-      label: s.ch,
-      done,
-      left: `${((s.t / (m.dur || 1)) * 100).toFixed(2)}%`,
-      active,
-      tip: hasVid ? `Jump to ${fmt.clock(s.t)} · ${s.text}` : s.text,
-      seek: hasVid ? s.t : null,
-    };
-  });
-
-  // ---- transcript ---------------------------------------------------------------------------
-  const esc = q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = esc ? new RegExp(`(${esc})`, 'ig') : null;
-  const reT = esc ? new RegExp(esc, 'i') : null;
-  let hits = 0;
-  const lines: TranscriptLineVM[] = m.transcript
-    .filter((x) => !reT || reT.test(x[1]))
-    .map((x) => {
-      const parts: TranscriptPartVM[] = re
-        ? x[1]
-            .split(re)
-            .filter(Boolean)
-            .map((s) => {
-              const hit = s.toLowerCase() === q.trim().toLowerCase();
-              if (hit) hits++;
-              return { s, hit };
-            })
-        : [{ s: x[1], hit: false }];
-      return {
-        t: fmt.clock(x[0]),
-        at: x[0],
-        current: hasVid && !!capLine && capLine[0] === x[0],
-        parts,
-      };
-    });
+  const rail: ChapterVM[] = r.rail;
+  const lines: TranscriptLineVM[] = r.lines;
 
   // ---- build kit ----------------------------------------------------------------------------
   const vars = [...new Set((m.prompt.match(/\{\{[A-Z_]+\}\}/g) ?? []).map((x) => x.replace(/[{}]/g, '')))];
@@ -845,15 +651,13 @@ export function employeeDetailVM(
       : null,
     v,
     rail,
-    railTitle: hasVid ? 'Chapters' : 'Session Agenda',
-    trOpen: ui.transcript && hasVid,
-    trOn: ui.transcript,
+    railTitle: r.railTitle,
+    trOpen: r.trOpen,
+    trOn: r.trOn,
     lines,
-    qCount: re ? `${hits} match${hits === 1 ? '' : 'es'}` : `${m.transcript.length} lines`,
-    noTranscript: !m.transcript.length || (!!re && !lines.length),
-    noTranscriptMsg: m.transcript.length
-      ? 'No matches in this transcript.'
-      : 'The searchable transcript posts with the replay.',
+    qCount: r.qCount,
+    noTranscript: r.noTranscript,
+    noTranscriptMsg: r.noTranscriptMsg,
     ck,
     dp,
     run,

@@ -19,7 +19,22 @@ export type AppMode = 'fixture' | 'http';
 // bound only to IPv4 and one bound only to IPv6 can both "own" the same port and which one you
 // reach depends on the client. Being explicit removes that ambiguity.
 export const REF_PORT = Number(process.env.REF_PORT ?? 4400);
-export const APP_PORT = Number(process.env.APP_PORT ?? 4173);
+
+/**
+ * Which fixture build this run is against (D-182). The learner portal's flag (`VITE_LEARNER_V2`) is read
+ * at build time, so the two states are two builds:
+ *
+ * - **Flag off** (the default, `pnpm compliance` and `pnpm e2e`): `dist-fixture` on 4173, the first portal
+ *   at `/` exactly as production serves it today. Every parity scenario and its goldens run here.
+ * - **Flag on** (`LEARNER_V2=1`, `pnpm e2e:learn`): `dist-fixture-v2` on 4174, the learner portal at /learn
+ *   for a learner with the course and every first-portal address of theirs redirected. The `learn-v2*`
+ *   specs run here, and nothing else does.
+ *
+ * Two runs rather than one because the specs read one `APP_BASE` each, at import; a separate run moves
+ * no spec. A flag-on run never starts the http-mode API (that build is the flag-off production build).
+ */
+export const LEARNER_V2_RUN = process.env.LEARNER_V2 === '1';
+export const APP_PORT = Number(process.env.APP_PORT ?? (LEARNER_V2_RUN ? 4174 : 4173));
 export const REF_BASE = `http://127.0.0.1:${REF_PORT}`;
 export const APP_BASE = process.env.APP_URL ?? `http://127.0.0.1:${APP_PORT}`;
 
@@ -53,6 +68,7 @@ export const HTTP_BASE = `http://127.0.0.1:${HTTP_PORT}`;
  * back in one run.
  */
 export const HTTP_PARITY: boolean =
+  !LEARNER_V2_RUN &&
   !process.env.APP_URL &&
   !process.env.REFERENCE_ONLY &&
   process.env.HTTP_PARITY !== '0' &&
@@ -211,7 +227,7 @@ async function settle(page: Page, target: Target, mode: AppMode = 'fixture') {
  * Infinite animations (`ai-skeleton`, `ai-pulse`) are excluded — they never finish by design, and
  * `screenshot({ animations: 'disabled' })` resets them to their first frame anyway.
  */
-async function settleAnimations(page: Page) {
+export async function settleAnimations(page: Page) {
   await page
     .waitForFunction(
       () =>
