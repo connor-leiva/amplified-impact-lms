@@ -91,6 +91,7 @@ vi.mock('./Library', () => page('learn library'));
 vi.mock('./Skill', () => page('learn skill'));
 vi.mock('./Account', () => page('learn account'));
 vi.mock('./Team', () => page('learn team hub'));
+vi.mock('./Hire', () => page('learn hire'));
 
 const { firstPortalPathFor, isCourseLearner, probeAudience } = await import('./audience');
 
@@ -158,7 +159,7 @@ const FLAG_ON: Row[] = [
   // A learner with the course: the learner portal, every first-portal address redirected, query and hash kept.
   ['course', '/', '/learn', 'learn home'],
   ['course', '/sessions?view=calendar#top', '/learn/schedule?view=calendar#top', 'learn schedule'],
-  ['course', '/employees/marketing', '/learn', 'learn home'],
+  ['course', '/employees/marketing', '/learn/employees/marketing', 'learn hire'],
   ['course', '/employees/accelerator-week-3?preview=agent', '/learn/week/3?preview=agent', 'learn week'],
   ['course', '/course', '/learn', 'learn home'],
   ['course', '/course/week-3', '/learn/week/3', 'learn week'],
@@ -166,7 +167,7 @@ const FLAG_ON: Row[] = [
   ['course', '/skill-library/tc-file-audit#download', '/learn/skills/tc-file-audit#download', 'learn skill'],
   ['course', '/team', '/learn/team', 'learn team hub'],
   ['course', '/vault', '/learn/vault', 'vault'],
-  ['course', '/team-tier', '/learn', 'learn home'],
+  ['course', '/team-tier', '/learn?plan=team', 'learn home'],
   ['course', '/admin/tiers', '/learn', 'learn home'],
   ['course', '/nowhere', '/learn', 'learn home'],
   ['course', '/learn/account', '/learn/account', 'learn account'],
