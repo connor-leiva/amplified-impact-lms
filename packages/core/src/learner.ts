@@ -148,3 +148,14 @@ export const countWord = (n: number): string => WORDS[n] ?? String(n);
 /** "December 2026": the month and year of `t` in the viewer's zone. */
 export const monthYear = (t: number): string =>
   new Intl.DateTimeFormat('en-US', { timeZone: viewerZone(), month: 'long', year: 'numeric' }).format(new Date(t));
+
+/**
+ * "Nov 12, 2026": the day of `t`, with its year (D-178, Account), in the viewer's zone unless another is
+ * named (a date about money is said in billing's zone, `BILLING_TZ`, as the offer pages say it).
+ */
+export const dateYear = (t: number, zone: string = viewerZone()): string =>
+  new Intl.DateTimeFormat('en-US', { timeZone: zone, month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(t));
+
+/** "Tue, May 4, 2027": the weekday, day and year of `t` (D-178), in the viewer's zone unless another is named. */
+export const dayYear = (t: number, zone: string = viewerZone()): string =>
+  new Intl.DateTimeFormat('en-US', { timeZone: zone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(t));

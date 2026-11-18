@@ -20,7 +20,7 @@ import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
 import { HUE, LABELS, barVM, navVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM } from '../../routes/learn/learn.vm';
-import { learnHome } from '../../routes/learn/routes';
+import { learnAccount, learnHome } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
@@ -319,7 +319,7 @@ function Frame() {
             <Menu
               label={LABELS.account}
               items={[
-                { label: LABELS.accountPage, onSelect: () => navigate('/account') },
+                { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
                 'separator',
                 { label: LABELS.signOut, onSelect: signOut },
               ]}
