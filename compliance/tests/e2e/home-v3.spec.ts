@@ -291,9 +291,9 @@ for (const theme of THEMES) {
     await page.clock.setFixedTime(BEFORE_DEADLINE);
     await open(page, theme, 1280, { motion: true, offer: 'hangs' });
     expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
-    // Still so once each section has arrived: S12's ring has counted its builds in, 0 to 8.
+    // Still so once each section has arrived: S12's ring has counted its hires in, 0 to 7.
     for (const cls of ['pg', 'wed']) await page.locator(`section.${cls}`).scrollIntoViewIfNeeded();
-    await expect(page.locator('section.wed [data-v3-built]')).toHaveText('8');
+    await expect(page.locator('section.wed [data-v3-built]')).toHaveText('7');
     expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
     await expect(seatLines(page)).toHaveText([
       '18 days left · 15 of 15 founding seats',
