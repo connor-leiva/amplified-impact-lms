@@ -40,6 +40,22 @@ export interface ReplayPlayerVM {
   caption: string;
   cc: boolean;
   speedLabel: string;
+  /**
+   * D-183: a real recording whose length isn't known yet (it loads with the media's metadata): the seek
+   * bar is indeterminate and the times read "--:--", not 0:00.
+   */
+  indeterminate: boolean;
+}
+
+/**
+ * D-183: what the learner portal v2 adds. `source`: there is a real recording to play (the session's
+ * attached link or the module's manifest), so the player draws whatever the module's length says, as long
+ * as the replay is published. `dur`: the recording's length, once its metadata has loaded. Today's page
+ * passes neither, and everything it draws is as before.
+ */
+export interface ReplayOpts {
+  source?: boolean;
+  dur?: number;
 }
 
 export interface ChapterVM {
@@ -92,13 +108,18 @@ export interface ReplayVM {
  * `replay`: not live, ended, and `replay` is `ready`), or, with no session at all, when the module has a
  * walkthrough's length. Exactly the rule the current portal's AI Employee page has always used.
  */
-export function replayVM(db: Db, cohortId: string, done: readonly string[], m: AIEmployee, now: number, ui: ReplayUi): ReplayVM {
+export function replayVM(db: Db, cohortId: string, done: readonly string[], m: AIEmployee, now: number, ui: ReplayUi, opts: ReplayOpts = {}): ReplayVM {
   const sess: Session | null = m.session ? sessionFor(db, cohortId, m.session) : null;
   const sst = sess ? sessionState(sess, now) : 'none';
 
   // ---- player -------------------------------------------------------------------------------
   const { t, playing, speed, cc, q } = ui;
-  const hasVid = !!m.dur && (sst === 'replay' || (!sess && !!m.dur));
+  const dur = opts.dur && opts.dur > 0 ? opts.dur : m.dur || 0;
+  const playable = !!opts.source || !!dur;
+  const hasVid = playable && (sst === 'replay' || (!sess && playable));
+  // The chapters, "Watch at" and the seek bar need a length: the module's, or the recording's once known.
+  const durKnown = dur > 0;
+  const unknown = hasVid && !durKnown;
   const steps = m.checklist;
   const cur = steps.filter((s) => s.t <= t).pop();
   const capLine = m.transcript.filter((x) => x[0] <= t && t - x[0] < 30).pop();
@@ -109,10 +130,10 @@ export function replayVM(db: Db, cohortId: string, done: readonly string[], m: A
     n: sess ? sess.n : '–',
     title: sess ? sess.title : m.name,
     sub: `${m.name} · with ${m.instructor}`,
-    pct: hasVid ? `${((t / m.dur) * 100).toFixed(2)}%` : '0%',
+    pct: hasVid && durKnown ? `${((t / dur) * 100).toFixed(2)}%` : '0%',
     tNow: Math.floor(t),
-    time: fmt.clock(t),
-    total: fmt.clock(m.dur || 0),
+    time: unknown ? '--:--' : fmt.clock(t),
+    total: unknown ? '--:--' : fmt.clock(dur),
     chapter: hasVid && cur ? `Step ${steps.indexOf(cur) + 1} · ${cur.ch}` : '',
     playIcon: playing ? 'pause' : 'play',
     playTitle: playing ? 'Pause' : 'Play',
@@ -120,20 +141,22 @@ export function replayVM(db: Db, cohortId: string, done: readonly string[], m: A
     caption: cc && playing && capLine ? capLine[1] : '',
     cc,
     speedLabel: `${speed}×`,
+    indeterminate: unknown,
   };
 
   const rail: ChapterVM[] = steps.map((s, i) => {
     const isDone = done.includes(s.id);
     const active = hasVid && !!cur && cur.id === s.id;
+    const seekable = hasVid && durKnown;
     return {
       n: i + 1,
       t: fmt.clock(s.t),
       label: s.ch,
       done: isDone,
-      left: `${((s.t / (m.dur || 1)) * 100).toFixed(2)}%`,
+      left: `${((s.t / (dur || 1)) * 100).toFixed(2)}%`,
       active,
-      tip: hasVid ? `Jump to ${fmt.clock(s.t)} · ${s.text}` : s.text,
-      seek: hasVid ? s.t : null,
+      tip: seekable ? `Jump to ${fmt.clock(s.t)} · ${s.text}` : s.text,
+      seek: seekable ? s.t : null,
     };
   });
 
@@ -176,6 +199,6 @@ export function replayVM(db: Db, cohortId: string, done: readonly string[], m: A
     qCount: re ? `${hits} match${hits === 1 ? '' : 'es'}` : `${m.transcript.length} lines`,
     noTranscript: !m.transcript.length || (!!re && !lines.length),
     noTranscriptMsg: m.transcript.length ? 'No matches in this transcript.' : 'The searchable transcript posts with the replay.',
-    watch: steps.map((s) => (hasVid ? s.t : null)),
+    watch: steps.map((s) => (hasVid && durKnown ? s.t : null)),
   };
 }

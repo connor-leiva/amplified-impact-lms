@@ -44,12 +44,20 @@ const reducedMotion = (): boolean => {
  * play (no link, or a page on another site), today's page's choice (`createVideoEngine`: the ticker).
  */
 function engineFor(source: ReplaySource, dur: number, t: number, media: HTMLVideoElement | null): VideoEngine {
-  if (media && (source?.kind === 'hls' || source?.kind === 'file')) return new HlsEngine({ src: source.src, dur, t, media, direct: source.kind === 'file' });
+  // With no length from the module, the recording's own is learned from its metadata.
+  if (media && (source?.kind === 'hls' || source?.kind === 'file'))
+    return new HlsEngine({ src: source.src, dur, t, media, direct: source.kind === 'file', learnDuration: true });
   return createVideoEngine({ dur, t });
 }
 
 export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho; m: AIEmployee; now: number; seekRef?: SeekRef; source?: ReplaySource }) {
-  const [ui, setUi] = useState<ReplayUi>(() => idleUi(Math.min(loadPos(m.id), m.dur || 0)));
+  const playsHere = source?.kind === 'hls' || source?.kind === 'file';
+  // A saved position: within the module's length, or, while a real recording's is still loading, as saved
+  // (the element bounds it once it knows).
+  const [ui, setUi] = useState<ReplayUi>(() => idleUi(m.dur ? Math.min(loadPos(m.id), m.dur) : playsHere ? loadPos(m.id) : 0));
+  /** The recording's own length, once its metadata has loaded (D-183). */
+  const [mediaDur, setMediaDur] = useState(0);
+  const dur = m.dur || mediaDur;
   const engine = useRef<VideoEngine | null>(null);
   const root = useRef<HTMLElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
@@ -72,10 +80,12 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
       if (++ticks.current % SAVE_EVERY === 0) savePos(m.id, t);
     });
     const offEnded = e.onEnded(() => patch({ playing: false }));
+    const offDur = e.onDuration?.((d) => setMediaDur(d));
     return () => {
       e.pause();
       offTime();
       offEnded();
+      offDur?.();
       e.destroy?.();
       engine.current = null;
     };
@@ -98,15 +108,15 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
   const seek = useCallback(
     (t: number, play = false) => {
       const e = engine.current;
-      if (!e || !m.dur) return;
-      const next = Math.max(0, Math.min(m.dur, t));
+      if (!e || (!dur && !playsHere)) return;
+      const next = dur ? Math.max(0, Math.min(dur, t)) : Math.max(0, t);
       e.seek(next);
       patch(play ? { t: next, playing: true } : { t: next });
       if (!play) return;
       e.play();
       root.current?.scrollIntoView?.({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
     },
-    [m.dur, patch],
+    [dur, playsHere, patch],
   );
 
   useEffect(() => {
@@ -117,13 +127,13 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
     };
   }, [seekRef, seek, link]);
 
-  const r = weekReplay(who, m, now, ui);
+  const r = weekReplay(who, m, now, ui, mediaDur);
   const v = r.player;
 
   const toggle = () => {
     const e = engine.current;
-    if (!e || !m.dur) return;
-    const atEnd = ui.t >= m.dur;
+    if (!e || (!dur && !playsHere)) return;
+    const atEnd = dur > 0 && ui.t >= dur;
     const next = !ui.playing;
     if (atEnd) e.seek(0);
     if (next) e.play();
@@ -133,7 +143,7 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
 
   const onBar = (e: MouseEvent<HTMLDivElement>) => {
     const box = e.currentTarget.getBoundingClientRect();
-    if (box.width > 0) seek(((e.clientX - box.left) / box.width) * m.dur);
+    if (box.width > 0 && dur) seek(((e.clientX - box.left) / box.width) * dur);
   };
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'ArrowLeft') seek(ui.t - 10);
@@ -192,25 +202,32 @@ export function Replay({ who, m, now, seekRef, source = null }: { who: ReplayWho
           </div>
 
           <div className={s.rpc}>
-            <div
-              className={s.rpseek}
-              role="slider"
-              tabIndex={0}
-              aria-label={REPLAY.seek}
-              aria-valuemin={0}
-              aria-valuemax={m.dur}
-              aria-valuenow={v.tNow}
-              aria-valuetext={`${v.time} / ${v.total}`}
-              onClick={onBar}
-              onKeyDown={onKey}
-            >
-              <span className={s.rprail} />
-              <span className={s.rpfill} style={{ '--pct': v.pct } as CSSProperties} />
-              {r.rail.map((c) => (
-                <span key={c.n} title={c.label} className={s.rpmk} data-done={c.done ? 'true' : undefined} style={{ '--left': c.left } as CSSProperties} />
-              ))}
-              <span className={s.rpthumb} style={{ '--pct': v.pct } as CSSProperties} />
-            </div>
+            {v.indeterminate ? (
+              // The recording's length is still loading: an indeterminate bar, the times "--:--".
+              <div className={`${s.rpseek} ${s.rpwait}`} role="progressbar" aria-label={REPLAY.seek}>
+                <span className={s.rprail} />
+              </div>
+            ) : (
+              <div
+                className={s.rpseek}
+                role="slider"
+                tabIndex={0}
+                aria-label={REPLAY.seek}
+                aria-valuemin={0}
+                aria-valuemax={dur}
+                aria-valuenow={v.tNow}
+                aria-valuetext={`${v.time} / ${v.total}`}
+                onClick={onBar}
+                onKeyDown={onKey}
+              >
+                <span className={s.rprail} />
+                <span className={s.rpfill} style={{ '--pct': v.pct } as CSSProperties} />
+                {r.rail.map((c) => (
+                  <span key={c.n} title={c.label} className={s.rpmk} data-done={c.done ? 'true' : undefined} style={{ '--left': c.left } as CSSProperties} />
+                ))}
+                <span className={s.rpthumb} style={{ '--pct': v.pct } as CSSProperties} />
+              </div>
+            )}
             <div className={s.rprow}>
               <button type="button" className={`${s.b} ${s.bp} ${s.rpib}`} aria-label={v.playTitle} onClick={toggle}>
                 <Icon name={v.playIcon} size={16} filled />

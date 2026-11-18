@@ -30,6 +30,8 @@ const HAVE_METADATA = 1;
  */
 export interface MediaLike {
   currentTime: number;
+  /** D-183: the recording's length once its metadata has loaded (NaN or 0 before). Read only to learn it. */
+  duration?: number;
   playbackRate: number;
   readyState: number;
   src: string;
@@ -111,8 +113,16 @@ function start(media: MediaLike): void {
 export interface HlsEngineDeps {
   /** The HLS manifest (`.m3u8`) `publishReplay` stored for this replay. */
   src: string;
-  /** The replay length in seconds, from the snapshot, so the playhead clamps as the ticker's does. */
+  /**
+   * The replay length in seconds, from the snapshot, so the playhead clamps as the ticker's does.
+   */
   dur: number;
+  /**
+   * D-183: with `dur` 0, the length isn't known yet (an attached recording, which the snapshot gives no
+   * length): learn it from the element's metadata (`loadedmetadata`, `durationchange`), tell `onDuration`
+   * listeners, and play meanwhile. Without it, a 0 length still means nothing to play, as before.
+   */
+  learnDuration?: boolean;
   /** The saved playback position (SCREENS § 3.2). Applied once the manifest has loaded. */
   t?: number;
   /** The element to drive. One is created and owned here when this is not given. */
@@ -142,7 +152,10 @@ export interface HlsEngineDeps {
  */
 export class HlsEngine implements VideoEngine {
   private readonly src: string;
-  private readonly dur: number;
+  private dur: number;
+  /** D-183: constructed without a length; it is read from the element once known. */
+  private readonly learnsDuration: boolean;
+  private readonly durations = new Set<(d: number) => void>();
   private readonly media: MediaLike;
   /** Set only when this engine created the element, and therefore may remove it. */
   private readonly owned: HTMLVideoElement | null;
@@ -161,6 +174,7 @@ export class HlsEngine implements VideoEngine {
   constructor(deps: HlsEngineDeps) {
     this.src = deps.src;
     this.dur = Math.max(0, deps.dur);
+    this.learnsDuration = !!deps.learnDuration && this.dur <= 0;
     // A real `<video>` satisfies `MediaLike`; `created` is non-null exactly when `deps.media` is not.
     const created = deps.media ? null : createHiddenVideo();
     this.media = deps.media ?? created!;
@@ -174,6 +188,7 @@ export class HlsEngine implements VideoEngine {
       for (const cb of [...this.ended]) cb();
     });
     this.on('loadedmetadata', () => this.ready());
+    this.on('durationchange', () => this.readDuration());
 
     this.attach(deps);
     // An injected element may already be past `loadedmetadata`, in which case that event will never
@@ -184,8 +199,9 @@ export class HlsEngine implements VideoEngine {
   // ---- VideoEngine ---------------------------------------------------------------------------
 
   play(): void {
-    // Mirrors `TickerEngine`: an AI Employee with no replay has nothing to play.
-    if (this.dur <= 0 || this.dead) return;
+    // Mirrors `TickerEngine`: an AI Employee with no replay has nothing to play. (A recording whose length
+    // is still being learned does: D-183.)
+    if ((this.dur <= 0 && !this.learnsDuration) || this.dead) return;
     if (!this.loaded()) {
       this.wantPlay = true;
       return;
@@ -239,6 +255,14 @@ export class HlsEngine implements VideoEngine {
     };
   }
 
+  /** D-183: the recording's length, once the element knows it (only for an engine built without one). */
+  onDuration(cb: (d: number) => void): () => void {
+    this.durations.add(cb);
+    return () => {
+      this.durations.delete(cb);
+    };
+  }
+
   /** The current playhead. The pending position is the truth until the element accepts it. */
   get position(): number {
     return this.pending !== null ? this.pending : this.clamp(this.media.currentTime || 0);
@@ -258,6 +282,7 @@ export class HlsEngine implements VideoEngine {
     this.bound.length = 0;
     this.time.clear();
     this.ended.clear();
+    this.durations.clear();
     this.hls?.destroy();
     this.hls = null;
     if (this.owned) {
@@ -275,7 +300,18 @@ export class HlsEngine implements VideoEngine {
 
   private clamp(t: number): number {
     if (!Number.isFinite(t)) return 0;
+    // A length still being learned (D-183) bounds nothing yet but zero.
+    if (this.learnsDuration && this.dur <= 0) return Math.max(0, t);
     return Math.max(0, Math.min(this.dur, t));
+  }
+
+  /** D-183: take the element's length, once it has one, for an engine built without one. */
+  private readDuration(): void {
+    if (!this.learnsDuration) return;
+    const d = this.media.duration;
+    if (typeof d !== 'number' || !Number.isFinite(d) || d <= 0 || d === this.dur) return;
+    this.dur = d;
+    for (const cb of [...this.durations]) cb(d);
   }
 
   private loaded(): boolean {
@@ -306,6 +342,7 @@ export class HlsEngine implements VideoEngine {
    * re-apply cannot be deleted silently again.
    */
   private ready(): void {
+    this.readDuration();
     try {
       this.media.playbackRate = this.rate;
     } catch {

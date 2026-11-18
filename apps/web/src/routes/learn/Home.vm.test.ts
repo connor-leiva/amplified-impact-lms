@@ -183,7 +183,7 @@ describe('Home: Join, Go Live and the in-app announcement (D-183)', () => {
     expect(vm.banner.action.ics).toEqual([{ id: 'dec26-s1', title: 'Map Your Spend Live Build', start: Date.parse('2026-12-03T19:00:00Z'), end: Date.parse('2026-12-03T20:30:00Z') }]);
   });
 
-  it('after the cohort: "Your Cohort Wrapped", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3', () => {
+  it('after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3', () => {
     const END = Date.parse('2027-02-10T19:00:00Z');
     const vm = full(asShell(learnState(END, false, {}, 15)));
     expect(vm.post).toMatchObject({

@@ -34,7 +34,7 @@ describe('the week’s live session (D-183)', () => {
     expect(live(at(S1 - 3 * 3600_000, (d) => (sessionIn(d, 'dec26-s1').live = true)), 1)).toMatchObject({ kind: 'join', join: { state: 'live' } });
   });
 
-  it('End Session ends it: no Join, the "Replay Processing" state until a replay is published @parity:C-2 @parity:E-8', () => {
+  it('End Session ends it: no Join, the “Replay Processing” state until a replay is published @parity:C-2 @parity:E-8', () => {
     // Ended 20 minutes in, an hour before its scheduled end: no longer live.
     const ended = at(S1 + 20 * MIN, (d) => {
       const s = sessionIn(d, 'dec26-s1');
@@ -85,7 +85,7 @@ describe('the week’s live session (D-183)', () => {
     expect(withTranscript({ ...m, transcriptVtt: 'not a vtt' } as typeof m).transcript).toEqual([]);
   });
 
-  it('a live-build step: the player and "Watch at mm:ss" for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1', () => {
+  it('a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1', () => {
     const x = published();
     const rows = weekRows(x.payload, x.db, who(x).me);
     const m = x.db.modules.find((mm) => mm.id === 'accelerator-week-1')!;
@@ -110,7 +110,7 @@ describe('the recording staff attach, played (D-183)', () => {
     expect(live(attached('https://stream.example.com/week1.m3u8'), 1)).toMatchObject({ source: { kind: 'hls', src: 'https://stream.example.com/week1.m3u8' } });
   });
 
-  it('a page on another site: the player offers it in a new tab, and a step gets no "Watch at" @parity:E-1 @parity:C-3', () => {
+  it('a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3', () => {
     const x = attached('https://us02web.zoom.us/rec/share/abc');
     expect(live(x, 1)).toMatchObject({ kind: 'replay', source: { kind: 'link', href: 'https://us02web.zoom.us/rec/share/abc' } });
     const step = stepLiveVM(x.payload, weekRows(x.payload, x.db, who(x).me), who(x), 1, 2, x.now)!;
@@ -129,5 +129,57 @@ describe('the recording staff attach, played (D-183)', () => {
     const x = attached('https://cdn.example.com/week1.mp4', { replayVisibility: 'hidden' });
     expect(x.db.sessions.find((s) => s.id === 'dec26-s1')).not.toHaveProperty('replayUrl');
     expect(live(x, 1)).toBeNull();
+  });
+});
+
+// D-183: production's attached recording carries no module length (Attach replay sets only the session's
+// link and its replay ready), so the player must draw from the recording itself.
+describe('a real recording with no module length (D-183)', () => {
+  const noDur = (url: string) =>
+    at(S1 + 2 * 86400_000, (d) => {
+      Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready', replayUrl: url });
+      d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 0;
+    });
+
+  it('draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5', () => {
+    const x = noDur('https://stream.example.com/week1.m3u8');
+    expect(live(x, 1)).toEqual({ kind: 'replay', moduleId: 'accelerator-week-1', source: { kind: 'hls', src: 'https://stream.example.com/week1.m3u8' } });
+    const m = x.db.modules.find((mm) => mm.id === 'accelerator-week-1')!;
+    // Until the metadata loads: an indeterminate bar, "--:--", and no chapters to seek or "Watch at".
+    const waiting = weekReplay(who(x), m, x.now, idleUi());
+    expect(waiting.hasVid).toBe(true);
+    expect(waiting.player).toMatchObject({ has: true, indeterminate: true, time: '--:--', total: '--:--', pct: '0%' });
+    expect(waiting.rail.every((c) => c.seek === null)).toBe(true);
+    expect(waiting.watch.every((w) => w === null)).toBe(true);
+    // Once the recording says how long it is: the times, the bar, the chapters and "Watch at".
+    const known = weekReplay(who(x), m, x.now, idleUi(600), 4800);
+    expect(known.player).toMatchObject({ indeterminate: false, time: '10:00', total: '1:20:00', pct: '12.50%' });
+    expect(known.rail.map((c) => c.seek)).toEqual(m.checklist.map((st) => st.t));
+    expect(known.watch).toEqual(m.checklist.map((st) => st.t));
+  });
+
+  it('the module’s manifest with no length plays too; a page on another site draws its link @parity:E-1', () => {
+    const x = published((d) => {
+      d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 0;
+      Object.assign(d.modules.find((m) => m.id === 'accelerator-week-1')!, { playbackUrl: 'https://stream.example.com/m.m3u8' });
+    });
+    expect(live(x, 1)).toMatchObject({ kind: 'replay', source: { kind: 'hls' } });
+    expect(live(noDur('https://us02web.zoom.us/rec/share/abc'), 1)).toMatchObject({ kind: 'replay', source: { kind: 'link' } });
+  });
+
+  it('with nothing real to play, the ticker keeps today’s rule: no length, no player', () => {
+    const x = at(S1 + 2 * 86400_000, (d) => {
+      Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready' });
+      d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 0;
+    });
+    expect(live(x, 1)).toBeNull();
+  });
+
+  it('an unpublished recording still draws nothing (the link isn’t sent)', () => {
+    const x = at(S1 + 2 * 86400_000, (d) => {
+      Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'processing', replayUrl: 'https://stream.example.com/week1.m3u8' });
+      d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 0;
+    });
+    expect(live(x, 1)).toMatchObject({ kind: 'processing' });
   });
 });

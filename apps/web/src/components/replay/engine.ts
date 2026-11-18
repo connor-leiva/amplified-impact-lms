@@ -26,6 +26,8 @@ export interface VideoEngine {
   setRate(r: Speed): void;
   onTime(cb: (t: number) => void): () => void;
   onEnded(cb: () => void): () => void;
+  /** D-183: the recording's length once the media knows it; only an engine built without one offers this. */
+  onDuration?(cb: (d: number) => void): () => void;
   /**
    * Release anything the engine holds outside itself. Optional because `TickerEngine` holds
    * nothing: the screen already clears its interval with `pause()` and drops its subscriptions.

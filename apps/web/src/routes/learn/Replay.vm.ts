@@ -6,7 +6,7 @@
 // PURE. The words are the current portal's own (its AI Employee page and Sessions page), and the course's
 // (the session's title) from the API.
 
-import { fmt, parseVtt } from '@ai/core';
+import { fmt, parseVtt, sessionFor } from '@ai/core';
 import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import type { AIEmployee, Db, Learner } from '@ai/core';
 import { replayUrl } from '../../components/replay/engine';
@@ -15,6 +15,7 @@ import { replaySource } from '../../components/replay/source';
 import type { ReplaySource } from '../../components/replay/source';
 import type { ReplayUi, ReplayVM } from '../../components/replay/replay.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
+import { sessionPhase } from '@ai/core/learner';
 import { LABELS, joinNow } from './learn.vm';
 import type { JoinVM, WeekRow } from './learn.vm';
 
@@ -75,10 +76,25 @@ export function withTranscript(m: AIEmployee): AIEmployee {
   }
 }
 
-/** The replay of a week's module for this learner (or for staff, with no progress), at `ui`. */
-export function weekReplay(who: ReplayWho, m: AIEmployee, now: number, ui: ReplayUi): ReplayVM {
+/**
+ * What the week's replay plays (D-183): the module's manifest, else the recording staff attached to its
+ * live build, which the learner's snapshot carries once it is published to them (`learnerReplayUrl`).
+ */
+export function weekSource(who: ReplayWho, m: AIEmployee): ReplaySource {
   const cohortId = who.me?.cohortId ?? ACCELERATOR_COHORT_ID;
-  return replayVM(who.db, cohortId, who.me?.progress?.[m.id]?.steps ?? [], withTranscript(m), now, ui);
+  const sess = m.session ? sessionFor(who.db, cohortId, m.session) : null;
+  return replaySource(replayUrl(m), sess?.replayUrl);
+}
+
+/**
+ * The replay of a week's module for this learner (or for staff, with no progress), at `ui`. With a real
+ * recording to play, the player draws whatever the module's length says (D-183); `dur` is the recording's
+ * own length once its metadata has loaded, until when the seek bar is indeterminate and the chapters wait.
+ */
+export function weekReplay(who: ReplayWho, m: AIEmployee, now: number, ui: ReplayUi, dur?: number): ReplayVM {
+  const cohortId = who.me?.cohortId ?? ACCELERATOR_COHORT_ID;
+  const source = weekSource(who, m);
+  return replayVM(who.db, cohortId, who.me?.progress?.[m.id]?.steps ?? [], withTranscript(m), now, ui, { source: !!source, ...(dur ? { dur } : {}) });
 }
 
 /**
@@ -93,11 +109,11 @@ export function weekSessionVM(own: readonly CourseSession[], m: AIEmployee | und
   const r = weekReplay(who, m, now, idleUi());
   // D-183: staff set this replay Hidden; learners don't get its link, and the player doesn't draw.
   if (r.sess?.replayVisibility === 'hidden') return null;
-  if (r.hasVid) return { kind: 'replay', moduleId: m.id, source: replaySource(replayUrl(m), r.sess?.replayUrl) };
-  if (r.sess && r.sst === 'processing') {
-    const s = own.find((x) => x.id === r.sess!.id) ?? r.sess;
+  if (r.hasVid) return { kind: 'replay', moduleId: m.id, source: weekSource(who, m) };
+  // Ended (by its times, or by End Session, read as the join route reads it), its replay not up yet.
+  const s = r.sess ? (own.find((x) => x.id === r.sess!.id) ?? r.sess) : null;
+  if (s && (r.sst === 'processing' || sessionPhase(s, now) === 'processing'))
     return { kind: 'processing', badge: LABELS.replayProcessing, title: s.title, when: fmt.when(s.start), note: REPLAY.processing };
-  }
   return null;
 }
 

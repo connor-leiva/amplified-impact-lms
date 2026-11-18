@@ -169,7 +169,7 @@ describe('the recording staff attach (D-183)', () => {
     expect(within(player).getByRole('button', { name: 'Play' })).toBeInTheDocument();
   });
 
-  it('a page on another site: "Watch Replay" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3', async () => {
+  it('a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3', async () => {
     attach('https://us02web.zoom.us/rec/share/abc');
     at('/learn/week/1');
     const player = await screen.findByRole('region', { name: 'Session replay' }, { timeout: 5000 });
@@ -182,8 +182,29 @@ describe('the recording staff attach (D-183)', () => {
   });
 });
 
+describe('the replay’s saved position (D-183)', () => {
+  it('resumes where the learner left off, and saves the position on page hide, under today’s key @parity:E-7', async () => {
+    use(
+      learnState(S1 + 2 * 86400_000, false, { 1: ['c1'] }, 15, (d) => {
+        Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready' });
+        d.modules.find((m) => m.id === 'accelerator-week-1')!.dur = 4800;
+      }),
+    );
+    localStorage.setItem('ai-lms-pos-accelerator-week-1', '600');
+    at('/learn/week/1');
+    const player = await screen.findByRole('region', { name: 'Session replay' }, { timeout: 5000 });
+    expect(player).toHaveTextContent('10:00 / 1:20:00');
+    const seek = within(player).getByRole('slider', { name: 'Seek' });
+    fireEvent.keyDown(seek, { key: 'ArrowRight' });
+    expect(seek).toHaveAttribute('aria-valuenow', '610');
+    window.dispatchEvent(new Event('pagehide'));
+    expect(localStorage.getItem('ai-lms-pos-accelerator-week-1')).toBe('610');
+    localStorage.removeItem('ai-lms-pos-accelerator-week-1');
+  });
+});
+
 describe('a live-build step (D-183)', () => {
-  it('the step player draws the replay, and "Watch at mm:ss" seeks it to the step’s chapter @parity:E-17 @parity:E-1', async () => {
+  it('the step player draws the replay, and “Watch at mm:ss” seeks it to the step’s chapter @parity:E-17 @parity:E-1', async () => {
     use(
       learnState(S1 + 2 * 86400_000, false, { 1: ['c1'] }, 15, (d) => {
         Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready' });

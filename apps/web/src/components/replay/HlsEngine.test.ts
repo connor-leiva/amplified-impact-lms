@@ -544,6 +544,39 @@ describe('a video file, played by the element itself (D-183)', () => {
   });
 });
 
+describe('a recording whose length the snapshot doesn’t give (D-183)', () => {
+  it('learns the length from the element’s metadata, tells its listener, and plays before it is known @parity:E-1 @parity:MO-5', () => {
+    const media = new FakeMedia();
+    const e = new HlsEngine({ src: 'https://cdn.example.com/week1.mp4', dur: 0, media, direct: true, learnDuration: true });
+    const seen: number[] = [];
+    e.onDuration((d) => seen.push(d));
+    e.play(); // held until the metadata loads, not dropped
+    e.seek(120); // nothing bounds it yet but zero
+    expect(e.position).toBe(120);
+    (media as unknown as { duration: number }).duration = 4512.5;
+    media.loadMetadata();
+    expect(seen).toEqual([4512.5]);
+    expect(media.played).toBe(1);
+    e.seek(99_999);
+    expect(e.position).toBe(4512.5);
+    e.destroy();
+  });
+
+  it('an engine built with a length keeps it, whatever the element says (today’s page)', () => {
+    const media = new FakeMedia();
+    const e = new HlsEngine({ src: SRC, dur: DUR, media, Hls });
+    const seen: number[] = [];
+    e.onDuration((d) => seen.push(d));
+    (media as unknown as { duration: number }).duration = 10;
+    media.loadMetadata();
+    media.emit('durationchange');
+    expect(seen).toEqual([]);
+    e.seek(99_999);
+    expect(e.position).toBe(DUR);
+    e.destroy();
+  });
+});
+
 describe('createVideoEngine · the engine follows the data source @g8', () => {
   /**
    * The factory reads `repo.source`, which `boot.ts` resolves once at module load, so each case

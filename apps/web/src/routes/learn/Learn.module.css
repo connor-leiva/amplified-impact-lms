@@ -1252,6 +1252,35 @@ button.b {
   width: var(--pct);
   background: var(--r2-for);
 }
+.rpwait {
+  cursor: default;
+  overflow: hidden;
+}
+.rpwait::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 30%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--r2-line2);
+  animation: rpwait 1.4s ease-in-out infinite;
+}
+@keyframes rpwait {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(340%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rpwait::after {
+    animation: none;
+    width: 100%;
+  }
+}
 .rpmk {
   position: absolute;
   top: 6px;
@@ -1736,6 +1765,9 @@ button.b {
   }
   .rpmk {
     top: 18px;
+  }
+  .rpwait::after {
+    top: 20px;
   }
   .rpthumb {
     top: 16px;
