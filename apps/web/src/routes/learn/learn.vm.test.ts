@@ -116,6 +116,6 @@ describe('the learner shell’s view-model (D-177)', () => {
 
   it('keeps its chrome to the mockup’s generic labels', () => {
     expect(Object.values(LABELS).every((l) => l.length < 30)).toBe(true);
-    expect(Object.values(LABELS).join(' ')).not.toMatch(/—/);
+    expect(Object.values(LABELS).join(' ')).not.toMatch(/\u2014/);
   });
 });
