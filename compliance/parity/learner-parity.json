@@ -497,7 +497,13 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the moved-session banner re-reads its title from the session; Update Calendar is the updated .ics @parity:D-1",
+        "apps/web/src/routes/learn/Live.test.tsx › the in-app announcement on Home (D-183) › Home banner: shows it, Open Sessions goes to the Schedule, Dismiss calls dismissAnnouncement @parity:D-1 @parity:A-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the in-app announcement (the demo’s moved session) shows on Home, with Update Calendar and Dismiss @parity:D-1 @parity:A-5",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › picks the in-app announcement as the current portal does: sent, in-app, the audience, not dismissed @parity:D-1 @parity:C-6"
+      ]
     },
     {
       "id": "D-2",
@@ -509,7 +515,14 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home hero Join enabled at start-15m, absent at start-16m @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join absent at start-16m: the step hero, the next build, Add to calendar with Google Calendar and Outlook @parity:D-2 @parity:D-3",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join enabled at start-15m on the Home hero and the top bar (Starting soon) @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › week page Join from start-15m (absent at start-16m), live from the start @parity:E-9 @parity:D-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
+      ]
     },
     {
       "id": "D-3",
@@ -521,7 +534,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join absent at start-16m: the step hero, the next build, Add to calendar with Google Calendar and Outlook @parity:D-2 @parity:D-3"
+      ]
     },
     {
       "id": "D-4",
@@ -533,7 +548,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3"
+      ]
     },
     {
       "id": "D-5",
@@ -558,7 +575,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: \\\"Your Cohort Wrapped\\\", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3"
+      ]
     },
     {
       "id": "D-7",
@@ -660,7 +679,22 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/components/replay/HlsEngine.test.ts › a video file, played by the element itself (D-183) › sets the element’s source, fetches no hls.js, and holds a seek until the metadata loads @parity:E-1",
+        "apps/web/src/components/replay/source.test.ts › the replay link, classified (D-183) › plays an HLS manifest and a video file; offers any other page as a link @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and \\\"Watch at mm:ss\\\" seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: \\\"Watch Replay\\\" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no \\\"Watch at\\\" @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and \\\"Watch at mm:ss\\\" for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
+      ]
     },
     {
       "id": "E-2",
@@ -672,7 +706,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
     },
     {
       "id": "E-3",
@@ -684,7 +722,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6"
+      ]
     },
     {
       "id": "E-4",
@@ -696,7 +737,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the transcript: searchable, a line seeks; from the stored WebVTT when there is one @parity:E-5 @parity:E-4"
+      ]
     },
     {
       "id": "E-5",
@@ -708,7 +753,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the transcript: searchable, a line seeks; from the stored WebVTT when there is one @parity:E-5 @parity:E-4"
+      ]
     },
     {
       "id": "E-6",
@@ -720,7 +768,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6"
+      ]
     },
     {
       "id": "E-7",
@@ -744,7 +795,9 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the \\\"Replay Processing\\\" state until a replay is published @parity:C-2 @parity:E-8"
+      ]
     },
     {
       "id": "E-9",
@@ -756,7 +809,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › Go Live hours before the start: Live now and Join on the week page and the top bar @parity:C-1 @parity:E-9",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › week page Join from start-15m (absent at start-16m), live from the start @parity:E-9 @parity:D-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a session set live (Go Live, hours early) shows Live now and Join on its week, the top bar and Home @parity:C-1 @parity:E-9"
+      ]
     },
     {
       "id": "E-10",
@@ -853,7 +910,12 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and \\\"Watch at mm:ss\\\" seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and \\\"Watch at mm:ss\\\" for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
     },
     {
       "id": "E-18",
@@ -941,7 +1003,14 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule Join enabled at start-15m on the hero and the row @parity:S-2 @parity:M-2",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule at start-16m: the next row’s Join is off, described by “Opens 15 Min Before” @parity:S-2",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › Schedule Join enabled on the hero and the row at start-15m; at start-16m the next row’s Join is off with “Opens 15 Min Before” @parity:S-2 @parity:A-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the Schedule (D-180) › at a live build, the Schedule hero is the live build itself, with Live now and Join (D-183) @parity:S-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
+      ]
     },
     {
       "id": "S-3",
@@ -953,7 +1022,11 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
     },
     {
       "id": "S-4",
@@ -965,7 +1038,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
     },
     {
       "id": "S-5",
@@ -1188,7 +1264,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › before the course opens: the pre-launch welcome beside the countdown @parity:K-14 @parity:G-7",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › before the course opens: the pre-launch welcome beside the countdown on Home, accessible at 1440 and 390 @parity:K-14 @parity:G-7"
+      ]
     },
     {
       "id": "K-15",
@@ -1618,6 +1697,7 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when the event stream says something changed @parity:A-3 @parity:C-4",
         "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a `changed` event refetches the snapshot and the course @parity:A-3"
       ]
     },
@@ -1650,6 +1730,8 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › the in-app announcement on Home (D-183) › Home banner: shows it, Open Sessions goes to the Schedule, Dismiss calls dismissAnnouncement @parity:D-1 @parity:A-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the in-app announcement (the demo’s moved session) shows on Home, with Update Calendar and Dismiss @parity:D-1 @parity:A-5",
         "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Dismiss on Home’s announcement posts dismissAnnouncement @parity:A-5"
       ]
     },
@@ -1687,7 +1769,12 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Join inside the window asks the join route for the link @parity:A-8"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home hero Join enabled at start-15m, absent at start-16m @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join enabled at start-15m on the Home hero and the top bar (Starting soon) @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › Schedule Join enabled on the hero and the row at start-15m; at start-16m the next row’s Join is off with “Opens 15 Min Before” @parity:S-2 @parity:A-8",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Join inside the window asks the join route for the link @parity:A-8",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
       ]
     },
     {
@@ -1859,6 +1946,9 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule Join enabled at start-15m on the hero and the row @parity:S-2 @parity:M-2",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the 1-hour reminder lands on its session: within the hour it is the Schedule hero, whatever its type, and Join opens there at start-15m @parity:M-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
         "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-1h \"Join Session\" lands on a working Join inside the window, and none outside it @parity:M-2"
       ]
     },
@@ -1873,7 +1963,14 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › replay-ready \"Watch Replay\" lands on a playable player @parity:M-3"
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › replay-ready \"Watch Replay\" lands on a playable player @parity:M-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › a learner sees the link once the replay is published, and not before; the Zoom link stays blank @parity:C-3 @parity:M-3"
       ]
     },
     {
@@ -1900,6 +1997,7 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
         "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › announcement: with an action it lands on the Schedule; without one, on Home with the banner @parity:M-5"
       ]
     },
@@ -2044,7 +2142,13 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2",
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › Go Live hours before the start: Live now and Join on the week page and the top bar @parity:C-1 @parity:E-9",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › Go Live hours early shows Live now and Join on the week @parity:C-1",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a session set live (Go Live, hours early) shows Live now and Join on its week, the top bar and Home @parity:C-1 @parity:E-9",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3"
       ]
     },
     {
@@ -2058,7 +2162,11 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the \\\"Replay Processing\\\" state until a replay is published @parity:C-2 @parity:E-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3"
       ]
     },
     {
@@ -2072,7 +2180,21 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › attaching a replay (ready for learners) puts the player on the open week page @parity:C-3"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: \\\"Your Cohort Wrapped\\\", office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3",
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: \\\"Watch Replay\\\" in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no \\\"Watch at\\\" @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › attaching a replay (ready for learners) puts the player on the open week page @parity:C-3",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › a learner sees the link once the replay is published, and not before; the Zoom link stays blank @parity:C-3 @parity:M-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
       ]
     },
     {
@@ -2086,6 +2208,7 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when the event stream says something changed @parity:A-3 @parity:C-4",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › editing a session’s time moves it on the open Schedule @parity:C-4"
       ]
     },
@@ -2100,6 +2223,8 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › finds the next locked week’s opening, or the course’s own before the preview @parity:C-5",
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when a locked week opens with the tab open @parity:C-5",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › publishing a week opens it in the open learner’s nav @parity:C-5"
       ]
     },
@@ -2119,7 +2244,9 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
-        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › an in-app announcement reaches the open Home @parity:C-6"
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › an in-app announcement reaches the open Home @parity:C-6",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › picks the in-app announcement as the current portal does: sent, in-app, the audience, not dismissed @parity:D-1 @parity:C-6"
       ]
     },
     {
@@ -2463,7 +2590,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › before the course opens: the pre-launch welcome beside the countdown @parity:K-14 @parity:G-7",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › before the course opens: the pre-launch welcome beside the countdown on Home, accessible at 1440 and 390 @parity:K-14 @parity:G-7"
+      ]
     },
     {
       "id": "MO-1",
@@ -2564,6 +2694,14 @@
       "status": "restored",
       "by": "claude/learner-pr9b-parity",
       "tests": [
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Home with the announcement and Join at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live week at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live-build step with its replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a week whose recording is on another site at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a week with its replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule after a replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule with Join at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule with the next row’s hint at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
         "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › Join is usable at 390 inside the window, on Home and the Schedule @parity:MO-5",
         "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the replay player is usable at 390: play, seek back, captions, transcript @parity:MO-5"
       ]

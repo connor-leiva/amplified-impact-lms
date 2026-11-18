@@ -188,7 +188,9 @@ export function listVitest(pkg: string, files: string[]): VitestListed[] {
   if (!files.length) return [];
   const run = spawnSync(
     process.execPath,
-    [vitestCli(pkg), 'list', '--json', ...files.map((f) => relative(join(ROOT, pkg), f))],
+    // `--json` LAST: given a value it is an output path, and vitest would write the listing over the first
+    // test file named after it.
+    [vitestCli(pkg), 'list', ...files.map((f) => relative(join(ROOT, pkg), f)), '--json'],
     { cwd: join(ROOT, pkg), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
   );
   if (run.status !== 0) throw new Error(`vitest list in ${pkg} failed (${run.status}):\n${run.stderr}`);
