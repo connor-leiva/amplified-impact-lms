@@ -54,7 +54,8 @@ export default tseslint.config(
     // test (apps/api/test/copy-guard.test.ts) also checks that no seed string is written into runtime.
     files: ['apps/web/src/**/*.{ts,tsx}', 'apps/api/src/**/*.ts', 'packages/core/src/**/*.ts'],
     // The seed CLI and its one-time data steps (D-175) are deploy-time tooling, never the server's runtime.
-    ignores: ['**/*.test.{ts,tsx}', 'apps/api/src/db/seed.ts', 'apps/api/src/db/data-migrations.ts', 'apps/web/src/test-setup.ts'],
+    // A `test/` folder holds a test's own data (D-177's learner fixture), as the copy guard reads it.
+    ignores: ['**/*.test.{ts,tsx}', '**/test/**', 'apps/api/src/db/seed.ts', 'apps/api/src/db/data-migrations.ts', 'apps/web/src/test-setup.ts'],
     rules: {
       'no-restricted-imports': [
         'error',

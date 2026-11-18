@@ -3,6 +3,8 @@ import type { RouteObject } from 'react-router';
 import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
 import { withStaleChunkRecovery } from './lib/StaleChunkBoundary';
 import { MasqueradeRoot } from './shell/MasqueradeRoot';
+import { learnerV2Enabled } from './routes/learn/flag';
+import { learnerRoutes } from './routes/learn/routes';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
@@ -58,6 +60,9 @@ const routes: RouteObject[] = [
   // The CRM sync log (D-134): the Owner and Admins only, net-new and outside the shell for the same
   // reason. A static path, so it ranks above the shell's `admin` children and its catch-all.
   { path: '/admin/crm-sync', lazy: () => import('./routes/crm/CrmSync') },
+  // The learner portal v2 (D-177): its own shell, Home, the week overview and the step player, behind a
+  // build-time flag that is off by default (`routes/learn/flag.ts`). Off, every /learn address goes to /.
+  ...learnerRoutes(learnerV2Enabled()),
   {
     path: '/',
     lazy: () => import('./shell/AppShell'),

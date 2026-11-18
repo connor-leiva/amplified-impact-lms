@@ -1,0 +1,35 @@
+/* The learner portal v2's own tokens (D-177): the few values the signed-off learner mockup
+   (docs/design/learner-v2, its "LEARNER pieces") writes that the admin R2 system has no token for.
+   Everything else the learner frame draws comes from styles/r2.css, whose tokens the frame reads through
+   `data-r2-scope` (the generic R2 scope, not the admin shell's `data-r2-shell`).
+
+   SCOPED TO THE LEARNER FRAME: every token is set on `[data-learner-v2]`, the attribute the learner shell
+   puts on its root, so no other screen can read one. Component CSS modules use these as `var(--lv-…)` and
+   never a raw colour (scripts/check-css-colors.mjs). Values are the mockup's, verbatim. */
+
+[data-learner-v2] {
+  /* The control text size (the mockup's `--ctl`): the body size less 1px on a desk, 16px on a phone. */
+  --lv-ctl: 13px;
+  /* Sidebar and drawer widths. */
+  --lv-sidebar: 244px;
+  --lv-drawer: 320px;
+  /* The hero card's lift, an object card's hover, the current card's blue outline and the live card's green. */
+  --lv-sh-hero: 0 1px 2px rgba(21, 33, 29, 0.04), 0 12px 32px -18px rgba(21, 33, 29, 0.18);
+  --lv-sh-lift: 0 4px 14px -6px rgba(21, 33, 29, 0.14);
+  --lv-cur-line: rgba(59, 116, 214, 0.45);
+  --lv-cur-ring: 0 0 0 3px rgba(59, 116, 214, 0.08);
+  --lv-live-line: rgba(46, 154, 99, 0.45);
+  --lv-live-ring: 0 0 0 3px rgba(46, 154, 99, 0.08);
+  /* The current step's row, and the segmented control's chosen side. */
+  --lv-step-cur: #f5f8fd;
+  --lv-sh-seg: 0 1px 2px rgba(21, 33, 29, 0.08), 0 0 0 1px var(--r2-line);
+  /* The live dot's pulse, from and to. */
+  --lv-pulse-from: 0 0 0 0 rgba(46, 154, 99, 0.45);
+  --lv-pulse-to: 0 0 0 6px rgba(46, 154, 99, 0);
+}
+
+@media (max-width: 767px) {
+  [data-learner-v2] {
+    --lv-ctl: 16px;
+  }
+}
