@@ -1,0 +1,729 @@
+/* The learner shell of the learner portal v2 (D-177), ported rule by rule from the signed-off mockup's
+   stylesheet (docs/design/learner-v2, the same in every artboard): `.ax`, `.shell`, `.sb`, `.sb-top`,
+   `.wmw`, `.nav`, `.ng`, `.grp`, `.ni`, `.ni.em`, `.es`, `.ring`, `.rsep`, `.sb-ft`, `.mainc`, `.tb`,
+   `.tbn`, `.avb`, `.av`, `.tbs2`, `.main`, `.scrim` and `.drw`, with the controls the bar uses (`.b`,
+   `.ib`, `.st`) and the nav's 22px tiles. The mockup builds the learner frame on the admin R2 system,
+   so its values are R2's tokens (styles/r2.css, read through `data-r2-scope`) and the few learner ones
+   (styles/learner-v2.css). Tokens only; sizes and radii are the mockup's px. */
+
+/* `.ax`: the frame. The page scrolls on the document, as the mockup's does: the sidebar and the bar stick. */
+.frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--r2-bg);
+  color: var(--r2-ink);
+  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
+  -webkit-font-smoothing: antialiased;
+  hyphens: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.frame :where(a) {
+  color: inherit;
+  text-decoration: none;
+}
+/* A visible focus on everything, over any control's own shadow, as the mockup's `.ax :focus-visible`
+   outranks its single-class rules. */
+.frame.frame :focus-visible {
+  outline: none;
+  box-shadow: var(--r2-focus);
+}
+
+.shell {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ---- the sidebar (`.sb`) ------------------------------------------------------------------------ */
+
+.sb {
+  width: var(--lv-sidebar);
+  flex: none;
+  background: var(--r2-sf);
+  border-right: 1px solid var(--r2-line);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: flex-start;
+  z-index: 5;
+}
+.top {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex: none;
+}
+.wmw {
+  display: block;
+  overflow: hidden;
+  flex: none;
+  border-radius: 4px;
+}
+.spacer {
+  flex: 1;
+}
+/* D-184: the cohort line under the wordmark (the current portal's context line). */
+.ctx {
+  margin: -6px 0 8px;
+  padding: 0 16px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+  flex: none;
+}
+
+.nav {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* A group header (`.ng`). The mockup's `.ax button { font: inherit; color: inherit; margin: 0 }`
+   outranks its single-class rules, so a button row draws in the body's size, weight 400 and the text
+   colour, with no margin, as here; a link row keeps its own. */
+.ng {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  flex: none;
+}
+.ng:hover {
+  color: var(--r2-ink);
+  background: var(--r2-hov);
+}
+.ng svg {
+  transition: transform 0.15s;
+}
+.ng[aria-expanded='true'] svg {
+  transform: rotate(90deg);
+}
+.ngc {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.grp {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* A row (`.ni`). */
+.ni {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: var(--r2-c);
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  font-size: var(--lv-ctl);
+  font-weight: 500;
+  color: var(--r2-f2);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  flex: none;
+}
+.ni:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.ni[data-on='true'] {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+/* A button row (the locked vault) takes the body's type, as the mockup's cascade draws it. */
+button.ni {
+  font-size: inherit;
+  font-weight: 400;
+  color: inherit;
+}
+.ni[aria-disabled='true'] {
+  cursor: default;
+}
+.lbl {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nl {
+  margin-left: auto;
+  color: var(--r2-f3);
+  display: flex;
+}
+/* D-185: the desktop's Collapse sidebar / Expand sidebar, drawn as the link rows are (not the body's
+   type a button row otherwise takes). */
+button.ni.tog {
+  font-size: var(--lv-ctl);
+  font-weight: 500;
+  color: var(--r2-f2);
+}
+button.ni.tog:hover {
+  color: var(--r2-ink);
+}
+
+/* An AI employee in the nav, with its own tile and its status (LEARNER). */
+.em {
+  gap: 8px;
+  padding: 0 6px 0 4px;
+}
+.es {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--r2-fs-12);
+  letter-spacing: -0.01em;
+  font-weight: 500;
+  color: var(--r2-f3);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+  white-space: nowrap;
+}
+.es[data-tone='ip'] {
+  color: var(--r2-info);
+}
+.es[data-tone='ok'] {
+  color: var(--r2-ok);
+}
+.es[data-tone='open'] {
+  color: var(--r2-f2);
+}
+.ring {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  transform: rotate(-90deg);
+}
+.ring circle {
+  fill: none;
+  stroke-width: 2.6;
+}
+.ringTrack {
+  stroke: var(--r2-line);
+}
+.ringValue {
+  stroke: var(--r2-dot-info);
+  stroke-linecap: round;
+}
+.rsep {
+  display: none;
+  height: 1px;
+  background: var(--r2-line);
+  margin: 8px 4px;
+  flex: none;
+}
+
+/* The nav's 22px tiles, one topic colour each (`.tile.t22`, `.c-*`). */
+.tile {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+.tile[data-hue='info'] {
+  background: var(--r2-infob);
+  color: var(--r2-info);
+}
+.tile[data-hue='warn'] {
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+}
+.tile[data-hue='bad'] {
+  background: var(--r2-badb);
+  color: var(--r2-bad);
+}
+.tile[data-hue='ok'] {
+  background: var(--r2-okb);
+  color: var(--r2-ok);
+}
+.tile[data-hue='solid'] {
+  background: var(--r2-for);
+  color: var(--r2-mint);
+}
+
+.foot {
+  border-top: 1px solid var(--r2-line);
+  padding: 8px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+
+/* ---- the main column and its bar (`.mainc`, `.tb`) ------------------------------------------------ */
+
+.mainc {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tb {
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 var(--r2-pad);
+  border-bottom: 1px solid var(--r2-line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--r2-bg);
+}
+.phOnly {
+  display: none;
+}
+.phRow {
+  flex: 1 1 0%;
+  min-width: 0;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* The bar says one thing, the next session, then the account (LEARNER). */
+.tbn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: var(--r2-fs-13);
+  color: var(--r2-f2);
+  white-space: nowrap;
+}
+.tbi {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.tbk {
+  color: var(--r2-f3);
+}
+.tbn b {
+  font-weight: 500;
+  color: var(--r2-ink);
+}
+.mu {
+  color: var(--r2-f3);
+}
+.liveK {
+  color: var(--r2-ok);
+  font-weight: 500;
+}
+.el {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tbn .b {
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--r2-fs-12);
+}
+
+/* The account button (`.avb`) and its avatar (`.av`). */
+.avb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 6px 0 4px;
+  border: 0;
+  background: none;
+  border-radius: 999px;
+  cursor: pointer;
+  flex: none;
+}
+.avb:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.av {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  font-size: var(--r2-fs-11);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.chv {
+  display: flex;
+}
+
+/* The phone's next-session strip (`.tbs2`). */
+.tbs2 {
+  display: none;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* D-182: a staff member's "Preview as learner" line (D-138), under the bar, as the first portal's shell
+   drew it, in R2's attention colours. */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--r2-warn-line);
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+  font-weight: 600;
+}
+.frame :where(a).previewExit {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ---- controls the bar uses (`.b`, `.ib`, `.st`) --------------------------------------------------- */
+
+.b {
+  height: var(--r2-c);
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--r2-line2);
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  font-weight: 500;
+  font-size: var(--lv-ctl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--r2-sh-button);
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.b:hover {
+  background: var(--r2-hov);
+  border-color: var(--r2-line-hover);
+}
+/* A <button class="b"> takes the body's type and colour, as the mockup's cascade draws it. */
+button.b {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+.b.p {
+  background: var(--r2-for);
+  border-color: var(--r2-for);
+  color: var(--r2-on-for);
+}
+.b.p:hover {
+  background: var(--r2-forh);
+  border-color: var(--r2-for);
+}
+.b.q {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  color: var(--r2-f2);
+}
+.b.q:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+  border-color: transparent;
+}
+.ib {
+  width: var(--r2-c);
+  height: var(--r2-c);
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+  padding: 0;
+}
+.ib:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+/* The live dot (`.st.ok.live`). */
+.st {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.st i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--r2-dot-ok);
+  flex: none;
+  animation: live 1.8s ease-out infinite;
+}
+@keyframes live {
+  0% {
+    box-shadow: var(--lv-pulse-from);
+  }
+  100% {
+    box-shadow: var(--lv-pulse-to);
+  }
+}
+
+/* ---- the phone drawer (`.scrim`, `.drw`) ----------------------------------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--r2-scrim);
+  z-index: 40;
+}
+.drw {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--lv-drawer);
+  max-width: 88%;
+  z-index: 41;
+  display: flex;
+  animation: drw 0.18s ease-out;
+}
+.drw[hidden] {
+  display: none;
+}
+.drw .sb {
+  width: 100%;
+  height: 100%;
+  position: static;
+  align-self: stretch;
+}
+.drw .top {
+  height: 56px;
+  padding: 0 8px 0 16px;
+}
+@keyframes drw {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Visually hidden, still read: the breadcrumb, which the mockup's bar does not draw. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- laptop: the 64px rail (768 to 1199px) ---------------------------------------------------------- */
+
+/* D-183: the bar's Google Calendar and Outlook links, where the bar has room for them. */
+@media (max-width: 1199px) {
+  .wideOnly {
+    display: none;
+  }
+}
+
+/* The rail's form, on the sidebar the shell marks `data-rail`: from 768 to 1199px always (the laptop's
+   automatic rail), and on a desktop when the person collapses it (D-185). The drawer never is one. */
+.sb[data-rail='true'] {
+  width: 64px;
+}
+.sb[data-rail='true'] .top {
+  justify-content: center;
+  padding: 0;
+}
+.sb[data-rail='true'] .wmw {
+  width: 11px;
+}
+.sb[data-rail='true'] .lbl,
+.sb[data-rail='true'] .ctx,
+.sb[data-rail='true'] .es,
+.sb[data-rail='true'] .nl,
+.sb[data-rail='true'] .ng,
+.sb[data-rail='true'] .ngc {
+  display: none;
+}
+.sb[data-rail='true'] .rsep {
+  display: block;
+}
+.sb[data-rail='true'] .nav {
+  padding: 4px 12px 16px;
+  gap: 4px;
+}
+.sb[data-rail='true'] .ni {
+  justify-content: center;
+  padding: 0;
+  height: 36px;
+}
+
+/* ---- phone: the sidebar becomes a drawer from a 56px bar, and the next session gets its own strip ---- */
+
+@media (max-width: 767px) {
+  .shell > .sb {
+    display: none;
+  }
+  .tb {
+    height: 56px;
+    padding: 0 8px;
+    gap: 4px;
+    background: var(--r2-sf);
+  }
+  /* The wordmark's link is a 44px tap target; the wordmark itself stays 22px tall. */
+  .wmw {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .dtOnly {
+    display: none;
+  }
+  .phOnly {
+    display: flex;
+  }
+  .avb {
+    height: 44px;
+    width: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+  .avb .av {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  .chv {
+    display: none;
+  }
+  .tbs2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 6px 8px 6px 16px;
+    background: var(--r2-sf);
+    border-bottom: 1px solid var(--r2-line);
+    color: var(--r2-f2);
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .tbs2 .el {
+    flex: 1;
+  }
+  .tbs2 b {
+    font-weight: 500;
+    color: var(--r2-ink);
+  }
+  .tbs2 .b {
+    height: 40px;
+    min-height: 44px;
+  }
+  .ng {
+    height: 44px;
+    font-size: 16px;
+  }
+  .es {
+    font-size: 16px;
+  }
+  .ring {
+    width: 14px;
+    height: 14px;
+  }
+  .b {
+    font-size: 16px;
+    padding: 0 16px;
+  }
+  .drw .ni {
+    height: 44px;
+    font-size: 16px;
+    gap: 12px;
+  }
+  .drw .em {
+    padding-left: 6px;
+  }
+  .drw .tile {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drw,
+  .st i,
+  .ng svg {
+    animation: none;
+    transition: none;
+  }
+}
+@media (max-width: 767px) {
+  .drw .tile svg {
+    width: 17px;
+    height: 17px;
+  }
+  .es svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* D-182: the preview line's phone gutter. */
+@media (max-width: 767px) {
+  .preview {
+    padding: 0 16px;
+  }
+}

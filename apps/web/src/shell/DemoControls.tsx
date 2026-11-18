@@ -44,6 +44,9 @@ function labelOf<T>(options: readonly SegmentedOption<T>[], value: T): string {
 function reloadWith(param: 'as' | 'phase', value: string): void {
   const url = new URL(window.location.href);
   url.searchParams.set(param, value);
+  // D-182: the learner portal (/learn) has no staff screen, so View As Admin from it opens the Console.
+  // A learner persona from the Console needs nothing here: every `/admin` address sends a learner to /learn.
+  if (param === 'as' && value === 'admin' && /^\/learn(\/|$)/.test(url.pathname)) url.pathname = '/admin';
   window.location.assign(url.toString());
 }
 

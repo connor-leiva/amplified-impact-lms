@@ -44,7 +44,7 @@ export const users = pgTable('users', {
   reminded: ts('reminded'), nudged: ts('nudged'),
   // staff fields
   staffRole: text('staff_role', { enum: ['Owner', 'Admin', 'Instructor', 'Content Editor', 'Support'] }),
-  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark' }>().default({}),
+  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark'; sidebar?: 'full' | 'rail' }>().default({}),
   seq: integer('seq').notNull().default(0),
 });
 export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7), seq: integer('seq').notNull().default(0) });

@@ -20,8 +20,8 @@
 
 import { ACCELERATOR_OPTIONS, acceleratorOpen, acceleratorUpcoming, isAcceleratorModule, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';
-import { isOpen } from './status';
-import type { AIEmployee, Cohort, Resource } from './types';
+import { canAccess, isOpen } from './status';
+import type { AIEmployee, Cohort, Learner, Resource } from './types';
 
 /** Whether a learner may enter the course now, and whether that is the pre-launch preview. */
 export interface CourseEntry {
@@ -58,6 +58,20 @@ export function courseUpcoming(plans: readonly AcceleratorPlan[], now: number, c
 
 /** Whether a week is open to a learner with this entry: published, or scheduled and past its opening. */
 export const weekOpenFor = (m: Pick<AIEmployee, 'status' | 'opens'>, now: number, entry: CourseEntry): boolean => entry.open && isOpen(m, now);
+
+/**
+ * D-186: whether a learner may open a module (its steps, Mark step done, its files, its live build).
+ *
+ *   - A COURSE WEEK (`accelerator-week-N`) follows course access, which the plan decides (D-110), never the
+ *     tier: the seed makes the weeks Team tier, and an Agent tier learner who bought the course must open
+ *     them as a Team tier buyer does, while a plan without the course stays shut out whatever its tier.
+ *     `course` is that answer where the caller knows it (the API reads it from the plan). Where it does
+ *     not (the fixture build, whose snapshot carries a course week only for a learner in the course), a
+ *     course week the learner has is open.
+ *   - Every other module follows the tier, as before (`canAccess`).
+ */
+export const canOpenModule = (u: Pick<Learner, 'tier'> | null | undefined, m: Pick<AIEmployee, 'id' | 'tier'>, course?: boolean): boolean =>
+  isAcceleratorModule(m.id) ? (course ?? true) : canAccess(u, m);
 
 /**
  * Whether a learner sees a vault resource, by the week it is attached to. One attached to no course week

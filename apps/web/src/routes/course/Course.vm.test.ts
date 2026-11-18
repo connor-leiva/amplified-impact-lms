@@ -6,6 +6,7 @@ import { isLockedWeek } from '@ai/core/course';
 import { LIBRARY_ROUTES_PENDING_MERGE } from '@ai/core/accelerator';
 import { acceleratorSessions } from '@ai/core/seed/accelerator-v1';
 import { courseContent } from '@ai/core/seed/accelerator-v1';
+import { WEEKS_0_3 } from '@ai/core/seed/weeks-0-3-v2';
 import { ENTRIES } from '../../library/content';
 import { COPY, courseView, guideHref, isExternal, overviewVM, weekFromParam, weekVM } from './Course.vm';
 import type { CoursePayload, WeekVM } from './Course.vm';
@@ -106,7 +107,7 @@ describe('every week’s page', () => {
     const w1 = weekVM(payload(), 1)!;
     expect(w1.setup.map((s) => s.n)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(w1.setup[0]!.links).toEqual([{ label: 'Open the Guided Setup', href: '/skill-library/lead-source-roi' }]);
-    expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: '/skill-library/lead-source-roi' });
+    expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: '/skill-library/lead-source-roi', pending: null });
     expect(w1.libraryHref).toBe('/skill-library');
     expect(w1.downloads.map((d) => d.name)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv', 'use-log.csv']);
     expect(w1.downloads[0]!.content.split('\n')[0]).toMatch(/^"Source","Period","Spend \(\$\)"/);
@@ -166,6 +167,10 @@ describe('every flagship href exists in the Library catalog', () => {
     const missing: string[] = [];
     for (const w of weeks()) {
       for (const k of w.skills) {
+        if (k.href === null) {
+          missing.push(`${w.heading}: ${k.title} (no Library page)`);
+          continue;
+        }
         if (pending.has(k.href)) continue;
         if (!library.has(k.href)) missing.push(`${w.heading}: ${k.href}`);
         else expect(k.title, k.href).toBe(library.get(k.href));
@@ -250,5 +255,46 @@ describe('locked weeks and the pre-launch preview (D-175)', () => {
     expect(courseView(preview(), 'week-0')).toMatchObject({ kind: 'week', prelaunch: 'Pre-launch preview line.' });
     expect(courseView(preview(), undefined)).toMatchObject({ kind: 'overview', prelaunch: 'Pre-launch preview line.' });
     expect(courseView(payload(), undefined)).toMatchObject({ kind: 'overview', prelaunch: null });
+  });
+});
+
+describe('the new Weeks 0 to 3, with Library pages still to come (D-176)', () => {
+  /** The course after the content step: Weeks 0 to 3 new, the data pack and practice set retired. */
+  const v2 = (copy: Record<string, string> = { 'skill.coming': 'Coming With Week 1' }): CoursePayload => {
+    const base = payload();
+    const course = structuredClone(base.course);
+    course.weeks = [...structuredClone(WEEKS_0_3), ...course.weeks.slice(4)];
+    course.before = { ...course.before, dataPack: [], practiceSetNote: '' };
+    return { ...base, course, copy };
+  };
+
+  it('shows a skill whose Library page isn’t built with the copy string and no link', () => {
+    const w1 = weekVM(v2(), 1)!;
+    expect(w1.heading).toBe('Week 1 · Where the Money Goes');
+    expect(w1.skills).toEqual([{ title: 'Map Your Spend', role: 'Flagship', use: expect.any(String), free: false, href: null, pending: 'Coming With Week 1' }]);
+    expect(w1.setup[0]).toEqual({ n: 1, text: 'Run Map Your Spend on the last 12 full months', links: [], pending: 'Coming With Week 1' });
+    expect(w1.setup[1]!.pending).toBeNull();
+  });
+
+  it('links the pages that exist and marks the ones that don’t, on Week 0', () => {
+    const w0 = weekVM(v2(), 0)!;
+    expect(w0.skills.map((k) => [k.title, k.href, k.pending])).toEqual([
+      ['AI Brain Setup', guideHref('/ai-brain-setup'), null],
+      ['Map Your Spend', null, 'Coming With Week 1'],
+      ['Lead Source Review', null, 'Coming With Week 1'],
+    ]);
+    expect(w0.setup).toHaveLength(8);
+    expect(w0.setup[4]!.links).toEqual([{ label: 'Open the Guided Setup', href: guideHref('/ai-brain-setup') }]);
+  });
+
+  it('says nothing in place of the link when the copy string is gone', () => {
+    expect(weekVM(v2({}), 2)!.skills[0]).toMatchObject({ href: null, pending: null });
+  });
+
+  it('offers no worksheet or practice set once the cohort’s practice set note is empty', () => {
+    expect(weekVM(v2(), 0)!.downloads).toEqual([]);
+    expect(weekVM(v2(), 1)!.downloads.map((d) => d.name)).toEqual(['use-log.csv']);
+    expect(overviewVM(v2()).before.downloads).toEqual([]);
+    expect(overviewVM(v2()).before.dataPack).toEqual([]);
   });
 });

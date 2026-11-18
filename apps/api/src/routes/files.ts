@@ -413,10 +413,13 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       if (!employee) return reply.code(404).send({ error: NOT_FOUND });
       // D-175: a course week's files open with the week, for a learner who may enter the course (the
       // snapshot carries a locked week with no files at all). Every other AI Employee is as before.
-      if (isAcceleratorModule(employee.id) && !weekOpenFor(employee, clock.now(), await courseEntryFor(getDb(), me.id, clock.now()))) {
+      const week = isAcceleratorModule(employee.id);
+      if (week && !weekOpenFor(employee, clock.now(), await courseEntryFor(getDb(), me.id, clock.now()))) {
         return reply.code(404).send({ error: NOT_FOUND });
       }
-      if (!accessFor(me, employee)) return reply.code(403).send({ error: TIER_REFUSED });
+      // D-186: an open course week's files follow course access (the check above), not the tier; every
+      // other AI Employee's follow the tier, as before.
+      if (!week && !accessFor(me, employee)) return reply.code(403).send({ error: TIER_REFUSED });
       if (!declaresFile(employee, fileName)) return reply.code(404).send({ error: NOT_FOUND });
 
       let key: string;

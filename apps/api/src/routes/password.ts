@@ -8,7 +8,7 @@
 //   POST /api/auth/password/token     { token }    → 200 { ok, purpose } or 400 { error }; spends nothing
 //   POST /api/auth/password/set       { token, password }     → 200 { ok } + cookie
 //   POST /api/auth/password/checkout  { checkout, password }  → 200 { ok } + cookie (the welcome page's button)
-//   GET  /api/auth/password           (signed in) → { hasPassword }
+//   GET  /api/auth/password           (signed in) → { hasPassword, changedAt } (changedAt: epoch ms or null, D-178)
 //   POST /api/auth/password/change    (signed in) { current?, password } → 200 { ok }
 //
 // NO ACCOUNT ENUMERATION ANYWHERE. `forgot` answers 200 before it reads a row, and the email goes
@@ -323,7 +323,13 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
 
   app.get('/api/auth/password', { preHandler: requireSession }, async (req) => {
     const viewer = viewerOrThrow(req);
-    return { hasPassword: (await passwordHashOf(getDb(), viewer.user.id)) !== null };
+    // D-178: when it was last set, for the learner Account page's "Last changed" line. Never the hash.
+    const [row] = await getDb()
+      .select({ updatedAt: userPasswords.updatedAt })
+      .from(userPasswords)
+      .where(eq(userPasswords.userId, viewer.user.id))
+      .limit(1);
+    return { hasPassword: row !== undefined, changedAt: row ? row.updatedAt.getTime() : null };
   });
 
   app.post(

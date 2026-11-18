@@ -16,6 +16,8 @@ import type { App } from '../src/app';
 import { provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import { provisionOrder } from '../src/billing/provision';
 import { applyDataMigrations, DATA_MIGRATIONS } from '../src/db/data-migrations';
+import { ACCELERATOR_WEEKS_CONTENT } from '@ai/core/seed/accelerator-v1';
+import { WEEK0_STEPS } from '@ai/core/seed/weeks-0-3-v2';
 import { persistDiff } from '../src/db/io';
 import { accessGroups, auditLog, dataMigrations, orders, plans, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
@@ -235,12 +237,16 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
     expect(reports.map((r) => [r.id, r.changed, r.skipped.length])).toEqual([
       [DATA_MIGRATIONS[0]!.id, 9, 0],
       [DATA_MIGRATIONS[1]!.id, 2, 0],
+      // D-176: Weeks 0 to 3, four session titles, two Friday office hours, the Before page, one copy string.
+      [DATA_MIGRATIONS[2]!.id, 12, 0],
+      // D-187: the Team Plan window's five copy strings.
+      [DATA_MIGRATIONS[3]!.id, 5, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
-    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life']);
+    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(11).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(28).fill('curriculum.migrate'));
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });
     expect((await handle.select().from(dataMigrations)).map((r) => r.id)).toEqual(DATA_MIGRATIONS.map((s) => s.id));
     // Again: nothing to run, nothing written.
@@ -258,5 +264,39 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
     expect(release!.skipped).toEqual([{ id: ACCELERATOR_MODULE_IDS[6], reason: 'its status or opening was changed in the builder (draft)' }]);
     expect((await loadDb()).modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[6])!.status).toBe('draft');
     await released();
+  });
+
+  it('loads the new Weeks 0 to 3 field for field, and the builder changes them after with no deploy (D-176)', { timeout: 180_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
+    await applyDataMigrations(handle, IN_PREVIEW);
+    // The reset dropped every sign-in, so staff signs in again.
+    const staff = await app.signInAs('st_owner');
+    const asStaff = () => app.inject({ method: 'GET', url: '/api/course', headers: { cookie: staff } });
+    try {
+      const body = (await asStaff()).json() as { course: LearnerCourse; sessions: { id: string; title: string; start: number }[]; copy: Record<string, string> };
+      const weeks = body.course.weeks as unknown as { week: number; title: string; question: string; module: { checklist: { ch: string }[] } }[];
+      expect(weeks.slice(0, 4).map((w) => w.title)).toEqual(['Foundations', 'Where the Money Goes', 'Leads That Pay', 'Numbers on the 5th']);
+      expect(weeks[0]!.module.checklist.map((s) => s.ch)).toEqual(WEEK0_STEPS.map((s) => s.step));
+      expect(weeks[4]!.title).toBe(ACCELERATOR_WEEKS_CONTENT[4]!.title);
+      expect(body.copy['skill.coming']).toBe('Coming With Week 1');
+      expect(body.sessions.find((x) => x.id === 'dec26-fri-oh2')).toMatchObject({ title: 'Lead Source Review Office Hours', start: Date.parse('2026-12-11T19:00:00Z') });
+      expect(body.sessions.find((x) => x.id === 'dec26-s1')!.title).toBe('Map Your Spend Live Build');
+
+      // The brief's acceptance: the content can be changed afterward in the builder.
+      const w1 = (await loadDb()).modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!;
+      const draft = structuredClone(w1);
+      draft.course!.question = 'Where does our money go this year?';
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/admin/actions/saveBuilderModule',
+        headers: { cookie: staff, 'content-type': 'application/json' },
+        payload: JSON.stringify({ draft, status: w1.status }),
+      });
+      expect(res.statusCode, res.body).toBe(200);
+      const again = (await asStaff()).json() as { course: { weeks: { week: number; question: string }[] } };
+      expect(again.course.weeks[1]!.question).toBe('Where does our money go this year?');
+    } finally {
+      await released();
+    }
   });
 });

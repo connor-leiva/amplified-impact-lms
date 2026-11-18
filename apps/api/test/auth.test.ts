@@ -772,6 +772,20 @@ describe('PATCH /api/me/prefs @g7', () => {
     expect((me.json() as { prefs: unknown }).prefs).toEqual({});
   });
 
+  it('stores the learner portal’s sidebar beside the theme, per person (D-185)', async () => {
+    const jamie = await app.signInAs('u_jamie');
+    const alex = await app.signInAs('u_alex');
+    await patch({ theme: 'dark' }, { cookie: jamie });
+    expect((await patch({ sidebar: 'rail' }, { cookie: jamie })).json()).toEqual({
+      prefs: { theme: 'dark', sidebar: 'rail' },
+    });
+    const me = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: jamie } });
+    expect((me.json() as { prefs: unknown }).prefs).toEqual({ theme: 'dark', sidebar: 'rail' });
+    const other = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: alex } });
+    expect((other.json() as { prefs: unknown }).prefs).toEqual({});
+    expect((await patch({ sidebar: 'hidden' }, { cookie: jamie })).statusCode).toBe(400);
+  });
+
   it('refuses an unknown key and an unknown theme', async () => {
     const cookie = await app.signInAs('u_jamie');
     expect((await patch({ accent: 'pine' }, { cookie })).statusCode).toBe(400);
