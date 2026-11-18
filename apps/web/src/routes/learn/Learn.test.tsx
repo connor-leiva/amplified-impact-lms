@@ -221,16 +221,20 @@ describe('the step player (D-177)', () => {
   it('Mark step done writes through the portal’s own toggleStep, for this step’s id', async () => {
     at('/learn/week/0/step/4');
     const mark = await screen.findByRole('button', { name: 'Mark step done' });
-    expect(mark).toHaveAttribute('aria-pressed', 'false');
+    expect(mark).not.toHaveAttribute('data-done');
     fireEvent.click(mark);
     await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c4' }));
     expect(screen.getByRole('link', { name: /Previous/ })).toHaveAttribute('href', '/learn/week/0/step/3');
     expect(screen.getByRole('link', { name: /Next step/ })).toHaveAttribute('href', '/learn/week/0/step/5');
   });
 
-  it('a step already done shows pressed; staff can’t mark one', async () => {
+  it('@parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back', async () => {
     at('/learn/week/0/step/1');
-    expect(await screen.findByRole('button', { name: 'Mark step done' })).toHaveAttribute('aria-pressed', 'true');
+    const undo = await screen.findByRole('button', { name: 'Undo' });
+    expect(undo).toHaveAttribute('data-done', 'true');
+    expect(screen.queryByRole('button', { name: 'Mark step done' })).toBeNull();
+    fireEvent.click(undo);
+    await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c1' }));
   });
 
   it('a copy block has a copy button that puts its text on the clipboard', async () => {

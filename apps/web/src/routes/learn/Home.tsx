@@ -2,18 +2,19 @@
 // Markup only: every string and every time is computed in Home.vm.ts. One hero per page.
 
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
 import { useToaster } from '../../components/primitives/Toaster';
+import { useMutate } from '../../data/hooks';
 import { useJoin } from '../../data/join';
 import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { LABELS, weekRows } from './learn.vm';
 import { homeVM } from './Home.vm';
 import { learnSchedule } from './routes';
-import type { CardVM, HeroRightVM, HeroVM, HomeVM } from './Home.vm';
-import { Go, LiveDot, Mbar, Prog, SessionRows, Tile, nStyle } from './parts';
+import type { BannerVM, CardVM, HeroRightVM, HeroVM, HomeVM, PostVM, RecentVM } from './Home.vm';
+import { CalLinks, Go, LiveDot, Mbar, Prog, SessionRows, Tile, nStyle } from './parts';
 import s from './Learn.module.css';
 
 function Right({ r }: { r: HeroRightVM }) {
@@ -36,12 +37,72 @@ function Right({ r }: { r: HeroRightVM }) {
   );
 }
 
+/**
+ * D-183: the in-app announcement, as the current portal's Dashboard banner: a warning is an `alert` (a
+ * session moved), an info a `status`. The icon and the words carry the meaning, never colour alone.
+ */
+function Banner({ b, now }: { b: BannerVM; now: number }) {
+  const mutate = useMutate();
+  const navigate = useNavigate();
+  const { toast } = useToaster();
+  const warn = b.severity === 'warning';
+  return (
+    <div className={`${s.cd} ${s.ban}`} role={warn ? 'alert' : 'status'} data-severity={b.severity}>
+      <span className={s.bani} aria-hidden="true">
+        <Icon name={warn ? 'alert' : 'megaphone'} size={17} strokeWidth={1.8} />
+      </span>
+      <div className={`${s.colZ} ${s.grow}`}>
+        <span className={s.bant}>
+          <span className={s.w5}>{b.title}</span>
+          <span className={s.me} title={b.abs}>
+            {b.when}
+          </span>
+        </span>
+        {b.body ? <span className={s.s2}>{b.body}</span> : null}
+      </div>
+      {b.action ? (
+        <button
+          type="button"
+          className={`${s.b} ${warn ? s.bp : ''}`}
+          onClick={() => {
+            const a = b.action!;
+            if (a.kind === 'nav') navigate(a.href);
+            else {
+              saveIcs(a.ics, now, a.name);
+              toast(a.toast, 'success');
+            }
+          }}
+        >
+          {b.action.label}
+        </button>
+      ) : null}
+      <button type="button" className={`${s.b} ${s.bq} ${s.bx}`} aria-label={b.dismiss} title={b.dismiss} onClick={() => void mutate('dismissAnnouncement', { id: b.id })}>
+        <Icon name="r2X" size={15} strokeWidth={2} />
+      </button>
+    </div>
+  );
+}
+
 function Hero({ hero, now }: { hero: HeroVM; now: number }) {
   const join = useJoin();
   const { toast } = useToaster();
   if (hero.kind === 'opens')
     return (
-      <section className={`${s.cd} ${s.hero} ${s.heroOne}`} aria-label={hero.right.label}>
+      <section className={`${s.cd} ${s.hero}`} aria-labelledby="lv-pre-t">
+        {/* D-183: the current portal's pre-launch welcome, beside the countdown. */}
+        <div className={s.hl} data-pre-launch="">
+          <h2 className={s.ht} id="lv-pre-t">
+            {hero.welcome.title}
+          </h2>
+          <p className={`${s.p} ${s.s2}`}>{hero.welcome.starts}</p>
+          <p className={`${s.p} ${s.s2}`}>
+            {hero.welcome.support}{' '}
+            <a className={s.txl} href={hero.welcome.href}>
+              {hero.welcome.email}
+            </a>
+            .
+          </p>
+        </div>
         <Right r={hero.right} />
       </section>
     );
@@ -61,7 +122,7 @@ function Hero({ hero, now }: { hero: HeroVM; now: number }) {
             <Tile icon={hero.tile.icon} tone={hero.tile.tone} size={44} />
             <div className={s.colZ}>
               <span className={s.eyb}>
-                {hero.kind === 'live' ? <LiveDot /> : null}
+                {hero.kind !== 'live' ? null : hero.state === 'live' ? <LiveDot /> : <Icon name="lvLive" size={14} strokeWidth={1.75} />}
                 {hero.eyebrow}
               </span>
               <h2 className={s.ht} id="lv-next-t">
@@ -108,14 +169,67 @@ function Hero({ hero, now }: { hero: HeroVM; now: number }) {
               ) : null}
             </>
           ) : (
-            <button type="button" className={`${s.b} ${s.bp}`} onClick={() => saveIcs(hero.ics, now)}>
-              <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
-              {hero.addLabel}
-            </button>
+            <>
+              <button type="button" className={`${s.b} ${s.bp}`} onClick={() => saveIcs(hero.ics, now)}>
+                <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
+                {hero.addLabel}
+              </button>
+              <CalLinks event={hero.ics[0]} />
+            </>
           )}
         </div>
       </div>
       {hero.right ? <Right r={hero.right} /> : null}
+    </section>
+  );
+}
+
+/** D-183: the current portal's post-cohort block: office hours continue, and every replay to rewatch. */
+function Post({ p, now }: { p: PostVM; now: number }) {
+  return (
+    <section className={`${s.cd} ${s.jst}`} aria-labelledby="lv-post-t">
+      <div className={`${s.colZ} ${s.grow}`}>
+        <span className={s.eyb}>{p.kicker}</span>
+        <h2 className={s.h2} id="lv-post-t">
+          {p.title}
+        </h2>
+        <span className={s.me}>{p.meta}</span>
+      </div>
+      <div className={s.row}>
+        {p.ics ? (
+          <>
+            <button type="button" className={`${s.b} ${s.bp}`} onClick={() => saveIcs(p.ics!, now, p.icsName)}>
+              <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
+              {p.addLabel}
+            </button>
+            <CalLinks event={p.ics[0]} />
+          </>
+        ) : null}
+        <Link className={s.b} to={p.rewatch.href}>
+          <Icon name="play" size={12} filled />
+          {p.rewatch.label}
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/** D-183: the session that just ended: its replay to watch, or its kit while the replay processes. */
+function Recent({ r }: { r: RecentVM }) {
+  return (
+    <section className={`${s.cd} ${s.jst}`} aria-label={r.badge}>
+      <span className={s.ost} data-tone={r.state === 'replay' ? 'ok' : undefined}>
+        <Icon name={r.state === 'replay' ? 'r2Check' : 'clock'} size={13} strokeWidth={2} />
+        {r.badge}
+      </span>
+      <span className={`${s.colZ} ${s.grow}`}>
+        <span className={s.w5}>{r.title}</span>
+        <span className={s.me}>{r.note}</span>
+      </span>
+      <Link className={`${s.b} ${r.state === 'replay' ? s.bp : ''}`} to={r.action.href}>
+        {r.state === 'replay' ? <Icon name="play" size={12} filled /> : null}
+        {r.action.label}
+      </Link>
     </section>
   );
 }
@@ -171,7 +285,13 @@ function Body({ vm, now }: { vm: HomeVM; now: number }) {
         </div>
       </div>
 
+      {vm.banner ? <Banner b={vm.banner} now={now} /> : null}
+
       {vm.hero ? <Hero hero={vm.hero} now={now} /> : null}
+
+      {vm.post ? <Post p={vm.post} now={now} /> : null}
+
+      {vm.recent ? <Recent r={vm.recent} /> : null}
 
       {vm.library ? (
         <section className={`${s.cd} ${s.cdb}`} aria-label={vm.library.label}>
@@ -273,7 +393,7 @@ export function Component() {
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const staff = viewer.actor.kind === 'staff' ? db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) : undefined;
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
-  const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now);
+  const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now, db);
   return <Body vm={vm} now={now} />;
 }
 

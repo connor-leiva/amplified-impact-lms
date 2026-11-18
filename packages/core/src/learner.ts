@@ -11,11 +11,13 @@
 // two up by position, and only while each step's words agree, so a step is never ticked under the
 // wrong id.
 
-import { acceleratorModuleId } from './accelerator';
+import { acceleratorModuleId, isAcceleratorModule } from './accelerator';
 import { isLockedWeek } from './course';
 import type { CourseSessionRow, LearnerCourseWeek, OpenCourseWeek } from './course';
+import { joinMode, moduleForSession, sessionState } from './sessions';
+import type { SessionTiming } from './sessions';
 import { viewerZone } from './time';
-import type { AIEmployee, Db, Learner, Progress, Step } from './types';
+import type { AIEmployee, Announcement, Db, Learner, Progress, Session, Step } from './types';
 
 /** One step of an open week, as the learner screens use it. */
 export interface LearnerStep {
@@ -94,9 +96,104 @@ export function currentWeek<W extends { state: WeekState }>(weeks: readonly W[])
 
 export const sessionEndsAt = (s: Pick<CourseSessionRow, 'start' | 'mins'>): number => s.start + s.mins * 60_000;
 
-/** The session running now, if one is. */
-export const liveSessionAt = <S extends Pick<CourseSessionRow, 'start' | 'mins'>>(sessions: readonly S[], now: number): S | null =>
-  sessions.find((s) => s.start <= now && now < sessionEndsAt(s)) ?? null;
+/**
+ * The session live now, by the current portal's rule (`sessionState`): staff pressed Go Live (D-183, even
+ * before its start), or it is between its start and its end and nobody has pressed End Session (which
+ * moves its start back so it reads as ended). A session with no Console state reads by its times alone.
+ */
+export const liveSessionAt = <S extends SessionTiming>(sessions: readonly S[], now: number): S | null =>
+  sessions.find((s) => learnerSessionState(s, now) === 'live') ?? null;
+
+/**
+ * `sessionState`, with End Session read off the session itself. End Session moves the start back so the
+ * session ends at the server's clock (`start = now - mins`) and marks its replay processing; a browser
+ * whose clock runs a few seconds behind (or that hasn't ticked yet) would still read it as under way by its
+ * times. A session that isn't live, has a replay state, and whose times say it is running has been ended
+ * by staff: it reads as ended at once, as the join route (on the server's clock) already answers.
+ */
+export function learnerSessionState(s: SessionTiming, now: number): ReturnType<typeof sessionState> {
+  const st = sessionState(s, now);
+  if (st === 'live' && !s.live && s.replay) return s.replay === 'ready' ? 'replay' : 'processing';
+  return st;
+}
+
+// --- the Console's live state and the join window (D-183) -----------------------------------------
+
+/** What the Console sets on a session that `GET /api/course` doesn't send: Go Live, End Session, the replay. */
+export interface LiveState {
+  live?: boolean;
+  replay?: Session['replay'];
+  /** How many attended live, once End Session records it. */
+  attended?: number | null;
+}
+
+/**
+ * The course's sessions with the state the Console sets, read off the learner's snapshot by id: Go Live
+ * (`live`), the start and length End Session leaves (it moves the start back so the session reads as
+ * ended), its attendance, and the replay (`processing`, or `ready` once published). Only a snapshot session the course
+ * itself would list counts: one whose week module is a course week, the rule `courseSessions` uses. The
+ * snapshot refetches on every change the server announces, so a Console press reaches an open page
+ * without a reload, as it does in the current portal. A session the snapshot doesn't carry keeps the
+ * course's times and reads as not started by staff, with no replay.
+ */
+export function withLiveState<S extends Pick<CourseSessionRow, 'id' | 'start' | 'mins'>>(sessions: readonly S[], db: Pick<Db, 'sessions' | 'modules'>): (S & LiveState)[] {
+  const own = new Map<string, Session>();
+  for (const x of db.sessions) {
+    const m = moduleForSession(db, x);
+    if (m && isAcceleratorModule(m.id)) own.set(x.id, x);
+  }
+  return sessions.map((s) => {
+    const x = own.get(s.id);
+    return x ? { ...s, start: x.start, mins: x.mins, live: x.live, replay: x.replay, attended: x.attended } : s;
+  });
+}
+
+/**
+ * Where a session is, by the current portal's rule: still to come, inside its join window (`ready`: 15
+ * minutes before its start, `joinMode`), live, ended with its replay processing, or with its replay
+ * published (`replay`).
+ */
+export type SessionPhase = 'upcoming' | 'ready' | 'live' | 'processing' | 'replay';
+
+export function sessionPhase(s: SessionTiming, now: number): SessionPhase {
+  const st = learnerSessionState(s, now);
+  if (st === 'upcoming') return joinMode(s, now) === 'ready' ? 'ready' : 'upcoming';
+  return st === 'none' ? 'upcoming' : st;
+}
+
+/**
+ * Whether Join shows: from 15 minutes before the start until the session ends or staff end it, and from
+ * the moment staff press Go Live. The same rule the join route enforces (`joinMode`), so a Join a learner
+ * sees is one the server answers.
+ */
+export const canJoin = (s: SessionTiming, now: number): boolean => {
+  const phase = sessionPhase(s, now);
+  return phase === 'live' || phase === 'ready';
+};
+
+/** The session to join now: the live one, else the soonest inside its join window, else null. */
+export function joinableSession<S extends SessionTiming>(sessions: readonly S[], now: number): S | null {
+  return (
+    liveSessionAt(sessions, now) ??
+    sessions
+      .filter((s) => sessionPhase(s, now) === 'ready')
+      .slice()
+      .sort((a, b) => a.start - b.start)[0] ??
+    null
+  );
+}
+
+// --- in-app announcements (D-183) -------------------------------------------------------------------
+
+/**
+ * The announcement a learner's Home shows, by the current portal's rule (its Dashboard banner): the first
+ * one, newest first as they are stored, that was sent, on the in-app channel, for this learner's audience
+ * (everyone, their tier, or Team Owners), and that they haven't dismissed.
+ */
+export function inAppAnnouncement(db: Pick<Db, 'announcements' | 'dismissed'>, user: Pick<Learner, 'id' | 'tier' | 'role'>): Announcement | null {
+  const aud = (a: Announcement): boolean => a.audience === 'all' || a.audience === user.tier || (a.audience === 'owners' && user.role === 'Team Owner');
+  return db.announcements.find((x) => x.status === 'sent' && x.channels.includes('inapp') && aud(x) && !(db.dismissed ?? {})[`${user.id}:${x.id}`]) ?? null;
+}
 
 /** The sessions still to come, soonest first, optionally of one kind. */
 export function upcomingSessions<S extends Pick<CourseSessionRow, 'start' | 'kind'>>(sessions: readonly S[], now: number, kind?: S['kind']): S[] {

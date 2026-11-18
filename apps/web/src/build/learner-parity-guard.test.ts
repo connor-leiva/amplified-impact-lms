@@ -64,6 +64,8 @@ describe('which builds are guarded', () => {
     // The compliance suite's flag-on fixture build (`build:fixture:v2`) is what parity:learner itself runs.
     expect(guardApplies('fixture', { VITE_LEARNER_V2: 'true', VITE_DATA_SOURCE: 'fixture' })).toBe(false);
     expect(guardApplies('fixture', { VITE_LEARNER_V2: 'true', VITE_DATA_SOURCE: 'http' })).toBe(true);
+    // The parity suite's request-capture build (http data, never deployed).
+    expect(guardApplies('parity', { VITE_LEARNER_V2: 'true', VITE_DATA_SOURCE: 'http' })).toBe(false);
   });
 
   it('reads the commit from Railway, then GitHub Actions, then git; anything else is no commit', () => {

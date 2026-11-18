@@ -1,0 +1,2867 @@
+{
+  "$comment": "The learner parity manifest (Connor’s parity brief § 3). One entry per row of portal-parity-inventory.md, in its order, then the rows this suite found that the inventory lacks (`added`, IDs X-<n>). `tests` is written by `pnpm parity:learner:sync` from the @parity:<ID> tags in test titles; do not edit it by hand. Every other field is reviewed by hand. `by` names the branch expected to supply a restored entry’s tests.",
+  "inventory": "portal-parity-inventory.md",
+  "entries": [
+    {
+      "id": "R-1",
+      "area": "Routes and pages",
+      "what": "`/` Dashboard (learners with a course); no-course learners are sent to `/skill-library` (D-119)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-2",
+      "area": "Routes and pages",
+      "what": "`/sessions`",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /sessions shows the cohort’s sessions @parity:R-2"
+      ]
+    },
+    {
+      "id": "R-3",
+      "area": "Routes and pages",
+      "what": "`/employees/:id` (AI Employee workspace)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-4",
+      "area": "Routes and pages",
+      "what": "`/team` Team Hub (Team tier)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /team shows the Team Hub to a Team-tier owner @parity:R-4"
+      ]
+    },
+    {
+      "id": "R-5",
+      "area": "Routes and pages",
+      "what": "`/vault` Resource Vault",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /vault shows the Resource Vault @parity:R-5"
+      ]
+    },
+    {
+      "id": "R-6",
+      "area": "Routes and pages",
+      "what": "`/team-tier` upsell page",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "R-7",
+      "area": "Routes and pages",
+      "what": "`/course`, `/course/:week` (course pages, outside the shell)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-8",
+      "area": "Routes and pages",
+      "what": "`/skill-library` (standalone library)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-9",
+      "area": "Routes and pages",
+      "what": "`/skill-library/:slug` (guided setup)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /skill-library/:slug opens the skill’s guided setup @parity:R-9"
+      ]
+    },
+    {
+      "id": "R-10",
+      "area": "Routes and pages",
+      "what": "`/sign-in`, `/login`, `/invite/:token`, `/forgot-password`, `/set-password`",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › the sign-in, invite, forgot-password and set-password screens are unchanged @parity:R-10"
+      ]
+    },
+    {
+      "id": "R-11",
+      "area": "Routes and pages",
+      "what": "`/account` (password set/change page)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /account is the password page, and the new Account page links to it @parity:R-11 @parity:AC-1"
+      ]
+    },
+    {
+      "id": "R-12",
+      "area": "Routes and pages",
+      "what": "Unknown learner paths → `/`; learner at `/admin*` → `/`",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › an unknown learner address and a learner at /admin land on the learner’s Home @parity:R-12"
+      ]
+    },
+    {
+      "id": "R-13",
+      "area": "Routes and pages",
+      "what": "Staff at a learner path → `/admin`",
+      "kind": "route",
+      "audience": [],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › staff at a learner address land in the Console @parity:R-13"
+      ]
+    },
+    {
+      "id": "R-14",
+      "area": "Routes and pages",
+      "what": "Query and fragment (`?as=`, `?preview=`, `?now=`) kept through routing",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › routing keeps the query and the fragment @parity:R-14"
+      ]
+    },
+    {
+      "id": "SH-1",
+      "area": "Shell / chrome",
+      "what": "Sidebar: Dashboard, Sessions, Course, the AI Employees group (count badge, collapsible, per-module build token), Team Hub, Resource Vault",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the sidebar: Home, Schedule, Skill library, Resource vault, the AI employees group, Get help @parity:SH-1"
+      ]
+    },
+    {
+      "id": "SH-2",
+      "area": "Shell / chrome",
+      "what": "No-course learner sidebar: Skill Library, Team Hub, Vault",
+      "kind": "route",
+      "audience": [
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "SH-3",
+      "area": "Shell / chrome",
+      "what": "Profile menu: name and email, Sign Out",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the account menu: Account and Sign out, plus Team Hub for the Team tier @parity:SH-3"
+      ]
+    },
+    {
+      "id": "SH-4",
+      "area": "Shell / chrome",
+      "what": "Time-zone picker (Auto plus zones; \"Session Times Show as …\")",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "note": "Already approved by Connor (\"no time-zone picker\").",
+      "tests": []
+    },
+    {
+      "id": "SH-5",
+      "area": "Shell / chrome",
+      "what": "Light/Dark theme switch",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-6",
+      "area": "Shell / chrome",
+      "what": "Collapse/Expand Sidebar (rail) toggle, remembered",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-7",
+      "area": "Shell / chrome",
+      "what": "Visible breadcrumbs in the header",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:SH-7 a visible trail above the week and the step: Home, the week, the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:SH-7 Home, the week, and the step on a step",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:SH-7 the week and the step show a visible trail"
+      ]
+    },
+    {
+      "id": "SH-8",
+      "area": "Shell / chrome",
+      "what": "Locked AI Employee Preview modal (from nav, cards, guarded URLs) → CTA to `/team-tier`",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-9",
+      "area": "Shell / chrome",
+      "what": "Cohort context line under the logo (`cohortLine`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:SH-9 the cohort line under the wordmark",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:SH-9 the cohort line for a learner in the course, and none without the course",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:SH-9 the cohort line is in the sidebar"
+      ]
+    },
+    {
+      "id": "SH-10",
+      "area": "Shell / chrome",
+      "what": "Staff \"Preview as learner\" banner with Exit Preview",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › staff previewing as a learner see the preview banner with Exit Preview @parity:SH-10"
+      ]
+    },
+    {
+      "id": "SH-11",
+      "area": "Shell / chrome",
+      "what": "Masquerade layer, banner and write-blocking (wraps every route)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the masquerade layer wraps the new shell: its banner, and a write is blocked @parity:SH-11"
+      ]
+    },
+    {
+      "id": "SH-12",
+      "area": "Shell / chrome",
+      "what": "Sign out (real, with a failure toast)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › sign out posts to the auth route and leaves for sign-in; a failure says so @parity:A-16 @parity:SH-12"
+      ]
+    },
+    {
+      "id": "SH-13",
+      "area": "Shell / chrome",
+      "what": "Toasts and confetti (step 6 builds)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › toasts and confetti: finishing a week’s last step celebrates @parity:SH-13"
+      ]
+    },
+    {
+      "id": "SH-14",
+      "area": "Shell / chrome",
+      "what": "Stale-chunk recovery",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › a screen whose files a deploy removed reloads the page once, then opens @parity:SH-14"
+      ]
+    },
+    {
+      "id": "SH-15",
+      "area": "Shell / chrome",
+      "what": "Escape closes drawer, menus and modals",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › Escape closes the account menu and the phone drawer @parity:SH-15"
+      ]
+    },
+    {
+      "id": "SH-16",
+      "area": "Shell / chrome",
+      "what": "Demo controls (fixture build only)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "D-1",
+      "area": "Dashboard / Home",
+      "what": "Announcement banner: severity, title, body, time, action button (Update Calendar → .ics / Open Sessions), Dismiss (`dismissAnnouncement`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the moved-session banner re-reads its title from the session; Update Calendar is the updated .ics @parity:D-1",
+        "apps/web/src/routes/learn/Live.test.tsx › the in-app announcement on Home (D-183) › Home banner: shows it, Open Sessions goes to the Schedule, Dismiss calls dismissAnnouncement @parity:D-1 @parity:A-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the in-app announcement (the demo’s moved session) shows on Home, with Update Calendar and Dismiss @parity:D-1 @parity:A-5",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › picks the in-app announcement as the current portal does: sent, in-app, the audience, not dismissed @parity:D-1 @parity:C-6"
+      ]
+    },
+    {
+      "id": "D-2",
+      "area": "Dashboard / Home",
+      "what": "Session card: countdown, Join (live 15 min early) via `GET /api/sessions/:id/join`",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home hero Join enabled at start-15m, absent at start-16m @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join absent at start-16m: the step hero, the next build, Add to calendar with Google Calendar and Outlook @parity:D-2 @parity:D-3",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join enabled at start-15m on the Home hero and the top bar (Starting soon) @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › week page Join from start-15m (absent at start-16m), live from the start @parity:E-9 @parity:D-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
+      ]
+    },
+    {
+      "id": "D-3",
+      "area": "Dashboard / Home",
+      "what": "Add to calendar: Google Calendar (new tab), Outlook (new tab), Apple/Other (.ics)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join absent at start-16m: the step hero, the next build, Add to calendar with Google Calendar and Outlook @parity:D-2 @parity:D-3"
+      ]
+    },
+    {
+      "id": "D-4",
+      "area": "Dashboard / Home",
+      "what": "Session card \"Watch Replay\" and \"Open the Build Kit\"",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3"
+      ]
+    },
+    {
+      "id": "D-5",
+      "area": "Dashboard / Home",
+      "what": "Progress: \"N of M AI Employees Built\", segmented bar, legend with build tokens, \"Next Up\" button, locked note",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
+    },
+    {
+      "id": "D-6",
+      "area": "Dashboard / Home",
+      "what": "Post-cohort block: \"Your Cohort Wrapped on …\", Add Office Hours to Calendar, Rewatch Any Session",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3"
+      ]
+    },
+    {
+      "id": "D-7",
+      "area": "Dashboard / Home",
+      "what": "\"Your First Build Is Session 1 on …\" plus \"Watch the 5-Min Orientation\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "n/a",
+      "note": "The orientation video was a placeholder toast (N/A). The date half (a countdown to the next build) is KEPT and has a test.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › the hero counts down to the next live build, with its date @parity:D-7"
+      ]
+    },
+    {
+      "id": "D-8",
+      "area": "Dashboard / Home",
+      "what": "\"Your AI Employees\" card grid (open, locked, soon, build state)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
+    },
+    {
+      "id": "D-9",
+      "area": "Dashboard / Home",
+      "what": "Quick Links: Technical Support (mailto support), Office Hours (next time)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › the cohort card: office hours to the Schedule, support by email; Get help in the nav @parity:D-9"
+      ]
+    },
+    {
+      "id": "D-10",
+      "area": "Dashboard / Home",
+      "what": "Quick Link \"Cohort Community\" (148 members…)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "D-11",
+      "area": "Dashboard / Home",
+      "what": "Cohort Schedule side list plus \"All Sessions\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › Coming up: the next three sessions, Add all to calendar, and the way to the Schedule @parity:D-11 @parity:S-6"
+      ]
+    },
+    {
+      "id": "D-12",
+      "area": "Dashboard / Home",
+      "what": "Two-pay paused state → Manage Billing",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a paused two-pay course: Home says so and opens Manage Billing @parity:D-12 @parity:G-6"
+      ]
+    },
+    {
+      "id": "D-13",
+      "area": "Dashboard / Home",
+      "what": "Course \"failed to load\" state",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a course that failed to load says so @parity:D-13"
+      ]
+    },
+    {
+      "id": "E-1",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Session replay player (HLS via `playbackUrl`), poster, play/pause, big play",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/components/replay/HlsEngine.test.ts › a recording whose length the snapshot doesn’t give (D-183) › learns the length from the element’s metadata, tells its listener, and plays before it is known @parity:E-1 @parity:MO-5",
+        "apps/web/src/components/replay/HlsEngine.test.ts › a video file, played by the element itself (D-183) › sets the element’s source, fetches no hls.js, and holds a seek until the metadata loads @parity:E-1",
+        "apps/web/src/components/replay/source.test.ts › the replay link, classified (D-183) › plays an HLS manifest and a video file; offers any other page as a link @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and “Watch at mm:ss” seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › the module’s manifest with no length plays too; a page on another site draws its link @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
+      ]
+    },
+    {
+      "id": "E-2",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Seek bar, back 10s, time / total, current chapter",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
+    },
+    {
+      "id": "E-3",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Playback speed cycle",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6"
+      ]
+    },
+    {
+      "id": "E-4",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Captions toggle (CC) from VTT",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the transcript: searchable, a line seeks; from the stored WebVTT when there is one @parity:E-5 @parity:E-4"
+      ]
+    },
+    {
+      "id": "E-5",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Transcript panel: search box, match count, click a line to seek",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the transcript: searchable, a line seeks; from the stored WebVTT when there is one @parity:E-5 @parity:E-4"
+      ]
+    },
+    {
+      "id": "E-6",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Chapter rail (one per build step, with check marks)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › the player: time and total, chapters per build step with ticks, speed, captions @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-6"
+      ]
+    },
+    {
+      "id": "E-7",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Resume position saved per module (localStorage, on pagehide)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › the replay’s saved position (D-183) › resumes where the learner left off, and saves the position on page hide, under today’s key @parity:E-7"
+      ]
+    },
+    {
+      "id": "E-8",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Replay processing\" / no-replay states under the poster",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the “Replay Processing” state until a replay is published @parity:C-2 @parity:E-8"
+      ]
+    },
+    {
+      "id": "E-9",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Join button on the week workspace poster (15-min window) plus Add to Calendar",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › Go Live hours before the start: Live now and Join on the week page and the top bar @parity:C-1 @parity:E-9",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › week page Join from start-15m (absent at start-16m), live from the start @parity:E-9 @parity:D-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a session set live (Go Live, hours early) shows Live now and Join on its week, the top bar and Home @parity:C-1 @parity:E-9"
+      ]
+    },
+    {
+      "id": "E-10",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: system prompt card, View (code drawer, line numbers), Copy (2s \"Copied\"), prompt stats, variables",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 @parity:E-13 the system prompt with View and Copy, its variables, and the instructor notes",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 the step player shows the week’s prompt in its kit",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-10 @parity:C-10 the system prompt: its stats, its text to view and copy, and its variables",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-10 @parity:C-10 the kit’s system prompt copies to the clipboard, and opens to view"
+      ]
+    },
+    {
+      "id": "E-11",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: module files, Preview (drawer), Download (`/api/files/module/:id/:file`); Notion opens",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-11 @parity:A-9 a module file downloads through the gated files route, and previews",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-11 @parity:A-9 the module’s files, each downloaded through the gated files route; a Notion template only previews",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route"
+      ]
+    },
+    {
+      "id": "E-12",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: linked Vault resources with Download",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a kit resource downloads from the resource files route @parity:A-10 @parity:E-12",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the week kit lists the week’s published files @parity:E-12"
+      ]
+    },
+    {
+      "id": "E-13",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Instructor notes card (avatar, name, notes)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-10 @parity:E-13 the system prompt with View and Copy, its variables, and the instructor notes",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-13 the instructor notes, with who wrote them"
+      ]
+    },
+    {
+      "id": "E-14",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Your Deployment\": runtime status token, platform, Open link, issue, last run, Mark as Deployed / Resume / Reconnect, Pause",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "E-15",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Run drawer: input textarea, Run, Copy all, output, records the last run (`recordRun`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "E-16",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build checklist: steps with number, text, hint, \"About N min\", per-step assets (copy or view prompt, file), Mark / undo (`toggleStep`), verified token",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "apps/web/src/routes/learn/Learn.test.tsx › the step player (D-177) › @parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-16 a done step’s button reads Undo, and the same toggle takes it back",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the steps: done, current, to do; Mark step done toggles @parity:E-16"
+      ]
+    },
+    {
+      "id": "E-17",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Per-step \"Watch at mm:ss\" (seeks the replay)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › a live-build step (D-183) › the step player draws the replay, and “Watch at mm:ss” seeks it to the step’s chapter @parity:E-17 @parity:E-1",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a live-build step: the player and “Watch at mm:ss” for its own chapter; a self-paced week has none @parity:E-17 @parity:E-1",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
+    },
+    {
+      "id": "E-18",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Header: name, runtime token, outcome, \"From Session N\" link to Sessions, Self-Paced, build minutes, for whom",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "note": "Best call: CHANGED and not named in Connor’s § 2. The week header’s outcome, time and owner/operator lines come with the week content on claude/learner-pr9c-content. The runtime token goes with E-14.",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:E-18 the header line: From Session N to the Schedule, or Self-Paced, the build minutes and who it’s for",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title"
+      ]
+    },
+    {
+      "id": "E-19",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Opens …\" soon state for a scheduled module",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › a locked week: its title, question, outcome, opening date and sessions, with Add all @parity:E-19 @parity:K-16"
+      ]
+    },
+    {
+      "id": "E-20",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Next Up button to the next AI Employee",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the step player’s Next and Previous, and the week page’s Continue @parity:E-20"
+      ]
+    },
+    {
+      "id": "E-21",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Preview tab: stored download says \"Preview only\"",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "note": "Unverified in the inventory; restored by claude/learner-pr9c-content (the staff \"Preview only\" behavior on module files).",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-21 in a staff member’s preview tab a module file says Preview only, and opens nothing",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-21 in a staff member’s preview tab a module file says Preview only"
+      ]
+    },
+    {
+      "id": "E-22",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Non-course AI Employee pages (any module not `accelerator-week-N`)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "S-1",
+      "area": "Sessions → Schedule",
+      "what": "List of every cohort session, with status tokens",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › every session by week, and a month calendar @parity:S-1"
+      ]
+    },
+    {
+      "id": "S-2",
+      "area": "Sessions → Schedule",
+      "what": "Join per session (live 15 min early)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule Join enabled at start-15m on the hero and the row @parity:S-2 @parity:M-2",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule at start-16m: the next row’s Join is off, described by “Opens 15 Min Before” @parity:S-2",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › Schedule Join enabled on the hero and the row at start-15m; at start-16m the next row’s Join is off with “Opens 15 Min Before” @parity:S-2 @parity:A-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the Schedule (D-180) › at a live build, the Schedule hero is the live build itself, with Live now and Join (D-183) @parity:S-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
+      ]
+    },
+    {
+      "id": "S-3",
+      "area": "Sessions → Schedule",
+      "what": "Status tokens: Live Now, Next Up, Scheduled, Replay Processing, Replay Ready",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
+    },
+    {
+      "id": "S-4",
+      "area": "Sessions → Schedule",
+      "what": "\"Watch Replay\" per past session",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4"
+      ]
+    },
+    {
+      "id": "S-5",
+      "area": "Sessions → Schedule",
+      "what": "Add to Calendar per session; \"Add all\" (.ics)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › Add to calendar per session, and Add all as the .ics route @parity:S-5 @parity:A-17"
+      ]
+    },
+    {
+      "id": "S-6",
+      "area": "Sessions → Schedule",
+      "what": "Office-hours calendar download",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › Coming up: the next three sessions, Add all to calendar, and the way to the Schedule @parity:D-11 @parity:S-6"
+      ]
+    },
+    {
+      "id": "S-7",
+      "area": "Sessions → Schedule",
+      "what": "Locked session \"Preview\" (opens the Locked preview)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "S-8",
+      "area": "Sessions → Schedule",
+      "what": "Holiday-break note",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › the holiday break note, from the course @parity:S-8"
+      ]
+    },
+    {
+      "id": "K-1",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Live Build: when, minutes, Join link (`intro.join`), agenda table, lesson and case, live exercise, required outcome, advanced option, owner approval, \"working at the end of class\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-2",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Office Hours page: title, note, Join link, format, \"You Leave With\" (outputs)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-3",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Homework: Implemented by Week's End, Before the Next Session (assignment), Acceptance Test (checkpoint), Adopted Means",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-4",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Why It Matters; Who Does What (owner/operator); Time This Week (owner/operator)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-5",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "This Week's Skills (role: flagship/supporting/optional/pilot), Setup Order with guided-setup links",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-5 @parity:K-15 a week’s question under its title, its skills tagged with their role and Free, the Library link, and its seat and playbook cards",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-5 a week’s skills carry their role and Free, as the course page tags them, and the kit links the Skill Library",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › the week’s steps open in the step player, and its skills link to the library @parity:K-5"
+      ]
+    },
+    {
+      "id": "K-6",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Course Materials list; Media list",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-7",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Evidence packet, Rubric (and scale and rules), Readiness gates, Issue form",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-8",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "How It Works intro, roles, scope, support, instructor",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-8 the open week shows what the builder edits, each section under its own heading",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-8 @parity:K-10 How It Works on the course’s first week, the graduation and after-the-course paths on its last"
+      ]
+    },
+    {
+      "id": "K-9",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Before Week 1: intake, orientation, data pack (preferred / minimum), practice set, safe sharing, three ways to connect data",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "Best call: CHANGED (restructured into Week 0’s v2 steps); the inventory could not verify every old item maps to a step. Kept, with a test that Week 0’s steps render; the mapping itself needs a content review.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › Week 0 (the old Before Week 1) is its eight steps @parity:K-9"
+      ]
+    },
+    {
+      "id": "K-10",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "After Week 8: Graduation, Agent Pilot Review",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-8 @parity:K-10 How It Works on the course’s first week, the graduation and after-the-course paths on its last"
+      ]
+    },
+    {
+      "id": "K-11",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "The weeks overview with each week's question, flagship and opens date; Calendar section",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › progress: the hero’s Continue step with its bar, a card per week with its state, the nav’s status @parity:D-5 @parity:D-8 @parity:K-11"
+      ]
+    },
+    {
+      "id": "K-12",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Previous / Next week links",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-12 Previous and Next week, each to its own week page",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 @parity:K-12 the week page shows a seeded week’s content"
+      ]
+    },
+    {
+      "id": "K-13",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Downloads made in the browser: Week 1 worksheet CSV, practice set CSV, per-week templates (`COURSE_TEMPLATES`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-1 @parity:K-2 @parity:K-7 @parity:K-13 a week in the course: its live build, office hours, rubric and its CSV download",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s downloads (D-184) › @parity:K-13 the per-week templates on their weeks; the worksheet and practice set only while the practice set note is set",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-13 the CSV downloads appear on their week, and nowhere else"
+      ]
+    },
+    {
+      "id": "K-14",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Pre-launch welcome panel (`PreLaunch`) on `/course` and the library",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › before the course opens: the pre-launch welcome beside the countdown @parity:K-14 @parity:G-7",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › before the course opens: the pre-launch welcome beside the countdown on Home, accessible at 1440 and 390 @parity:K-14 @parity:G-7"
+      ]
+    },
+    {
+      "id": "K-15",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "New v2 fields Seat card and Playbook card (builder-editable)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:K-5 @parity:K-15 a week’s question under its title, its skills tagged with their role and Free, the Library link, and its seat and playbook cards",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:K-15 the seat card and the playbook card, as `GET /api/course` now sends them, each row the builder filled",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 a learner’s snapshot never carries them, open week or not, course or no course",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 a locked week sends neither: its stub is the outline’s, and none of a card’s words are in the answer",
+        "packages/core/test/course-cards.test.ts › the seat card and the playbook card in the course (D-184) › @parity:K-15 an open week carries its seat card and playbook card, exactly as the builder saved them"
+      ]
+    },
+    {
+      "id": "K-16",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Locked week shows title, question, outcome, opens date, its sessions (D-175)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: a week and the step player (KEPT) › a locked week: its title, question, outcome, opening date and sessions, with Add all @parity:E-19 @parity:K-16"
+      ]
+    },
+    {
+      "id": "L-1",
+      "area": "Skill Library and guided setup",
+      "what": "Skills grouped by set, each with title, Free badge, lead, summary",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › skills grouped by set, Start here, chips that filter, search @parity:L-1"
+      ]
+    },
+    {
+      "id": "L-2",
+      "area": "Skill Library and guided setup",
+      "what": "Open skill: per-file Download buttons on the list (`/api/skills/:id/download/:kind`) plus Setup Guide",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an open skill’s downloads are on its page, from the skills route @parity:L-2 @parity:A-13"
+      ]
+    },
+    {
+      "id": "L-3",
+      "area": "Skill Library and guided setup",
+      "what": "Locked skill: \"Not included with {group} access\" (no upsell for a group member) / locked; Preview link; See plans (non-group only)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › locked skills: an access group reads its own line with no upsell; anyone else is offered the plans @parity:L-3"
+      ]
+    },
+    {
+      "id": "L-4",
+      "area": "Skill Library and guided setup",
+      "what": "Upcoming skill: \"Opens {date}\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an upcoming skill says when it opens @parity:L-4"
+      ]
+    },
+    {
+      "id": "L-5",
+      "area": "Skill Library and guided setup",
+      "what": "Access-group welcome panel (\"Welcome, Utah Life\", N skills, \"start with X and Y\" links, Dismiss via `POST /api/skills/welcome/dismiss`, kept per account)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel’s Dismiss hides it and posts to the server @parity:L-5 @parity:A-14"
+      ]
+    },
+    {
+      "id": "L-6",
+      "area": "Skill Library and guided setup",
+      "what": "Header line \"Included with your {group} access\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
+      ]
+    },
+    {
+      "id": "L-7",
+      "area": "Skill Library and guided setup",
+      "what": "Header buttons: AI Accelerator (`/course`), Team Hub (`/team`, not for group-only), Manage Billing (not for group-only)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the new Account page: plan, seats, billing, profile and what’s included @parity:AC-2 @parity:L-7"
+      ]
+    },
+    {
+      "id": "L-8",
+      "area": "Skill Library and guided setup",
+      "what": "Paused (two-pay) note on the library",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › a paused two-pay plan: the library says why its skills are locked @parity:L-8"
+      ]
+    },
+    {
+      "id": "L-9",
+      "area": "Skill Library and guided setup",
+      "what": "Signed-out: \"opens when you sign in\" plus Sign In",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › signed out: the library says it opens when you sign in, with Sign In @parity:L-9"
+      ]
+    },
+    {
+      "id": "L-10",
+      "area": "Skill Library and guided setup",
+      "what": "Guided setup: lanes (Claude / ChatGPT / Grok), step rail, prev/next/restart, copy chip, copy block, Copy & Open, step file download/link, prompts section",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › guided setup: the step rail, Next, the app tabs, copy chips @parity:L-10"
+      ]
+    },
+    {
+      "id": "L-11",
+      "area": "Skill Library and guided setup",
+      "what": "Guide remembers your step per lane on this device",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › the guide remembers the step on this device @parity:L-11"
+      ]
+    },
+    {
+      "id": "L-12",
+      "area": "Skill Library and guided setup",
+      "what": "Signed-out guide → `/sign-in?next=/skill-library/<page>`, back after sign-in",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a signed-out visit to a skill’s page goes to sign-in and keeps where it was going @parity:L-12"
+      ]
+    },
+    {
+      "id": "T-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub in the sidebar for Team tier",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, linking today’s page",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 no Team Hub for an Agent tier learner",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, never for an Agent tier one",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:T-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one"
+      ]
+    },
+    {
+      "id": "T-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub actions: invite (four inline errors), remind/nudge (\"Resend Invite\"/\"Send Reminder\"), change role, remove, member drawer",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Team Hub: invite with its inline errors, and a member’s drawer @parity:T-2"
+      ]
+    },
+    {
+      "id": "T-3",
+      "area": "Team Hub, Vault, Account",
+      "what": "Weekly digest email \"Open Team Hub\" → `/team`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › weekly-digest \"Open Team Hub\" lands on the Team Hub @parity:M-6 @parity:T-3"
+      ]
+    },
+    {
+      "id": "V-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Vault: list, filters, download (`downloadResource`, `/api/files/resource/:id`), Team-only lock, \"Request\" upgrade (`requestUpgrade`), Executive Build Vault request",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the Vault: filters, a download, a Team-only lock with its Upgrade @parity:V-1"
+      ]
+    },
+    {
+      "id": "V-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "Vault reachable for every learner",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "note": "Best call: CHANGED only before launch (the Vault is locked in the nav during the pre-launch preview, per D-175’s plan). Kept, with a test that it is a link once the course is open.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the Vault is in the nav once the course is open, and locked only before launch @parity:V-2"
+      ]
+    },
+    {
+      "id": "AC-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "`/account`: set or change password",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /account is the password page, and the new Account page links to it @parity:R-11 @parity:AC-1"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "(new) `/learn/account`: profile (read-only name/email/role), plan, seats, billing link, included items",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › the new Account page: plan, seats, billing, profile and what’s included @parity:AC-2 @parity:L-7"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "area": "Team Hub, Vault, Account",
+      "what": "Resend invite (Account)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Account offers no Resend invite @parity:AC-3"
+      ]
+    },
+    {
+      "id": "A-1",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/me`, used today by every screen (`useViewer`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
+    },
+    {
+      "id": "A-2",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/snapshot`, used today by every portal screen (`useDb`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
+    },
+    {
+      "id": "A-3",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/events` (SSE \"changed\" → refetch snapshot), used today by `data/http.ts:112-122`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when the event stream says something changed @parity:A-3 @parity:C-4",
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a `changed` event refetches the snapshot and the course @parity:A-3"
+      ]
+    },
+    {
+      "id": "A-4",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/toggleStep`, used today by `EmployeeDetail.tsx:601,610`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Mark step done posts toggleStep @parity:A-4"
+      ]
+    },
+    {
+      "id": "A-5",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/dismissAnnouncement`, used today by `Dashboard.tsx:115`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › the in-app announcement on Home (D-183) › Home banner: shows it, Open Sessions goes to the Schedule, Dismiss calls dismissAnnouncement @parity:D-1 @parity:A-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the in-app announcement (the demo’s moved session) shows on Home, with Update Calendar and Dismiss @parity:D-1 @parity:A-5",
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Dismiss on Home’s announcement posts dismissAnnouncement @parity:A-5"
+      ]
+    },
+    {
+      "id": "A-6",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/markDeployed`, `setRuntime`, `recordRun`, used today by `EmployeeDetail.tsx:256-266,689`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "note": "Best call: the endpoints behind E-14 and E-15 (Your Deployment, the Run drawer), so it stands or falls with those proposed drops. Not on Connor’s list by ID.",
+      "tests": []
+    },
+    {
+      "id": "A-7",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/requestUpgrade` (Team tier page), used today by `TeamTier.tsx:30`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "A-8",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/sessions/:id/join`, used today by Dashboard, Sessions, EmployeeDetail (`data/join.ts`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home hero Join enabled at start-15m, absent at start-16m @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Join enabled at start-15m on the Home hero and the top bar (Starting soon) @parity:D-2 @parity:A-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › Schedule Join enabled on the hero and the row at start-15m; at start-16m the next row’s Join is off with “Opens 15 Min Before” @parity:S-2 @parity:A-8",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Join inside the window asks the join route for the link @parity:A-8",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8"
+      ]
+    },
+    {
+      "id": "A-9",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/files/module/:moduleId/:file`, used today by `EmployeeDetail.vm.ts:486,663`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the build kit (D-184) › @parity:E-11 @parity:A-9 a module file downloads through the gated files route, and previews",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-11 @parity:A-9 the module’s files, each downloaded through the gated files route; a Notion template only previews",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-11 @parity:A-9 a module file’s Download asks the gated files route",
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a module file in the week kit downloads from the module files route @parity:A-9"
+      ]
+    },
+    {
+      "id": "A-10",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/files/resource/:id`, used today by Vault, EmployeeDetail resources",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a kit resource downloads from the resource files route @parity:A-10 @parity:E-12"
+      ]
+    },
+    {
+      "id": "A-11",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/course`, used today by `Course.tsx:35`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11"
+      ]
+    },
+    {
+      "id": "A-12",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/billing/portal` (Stripe portal; returns to `/skill-library`), used today by library, course paused",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › Manage billing opens the billing portal route @parity:A-12"
+      ]
+    },
+    {
+      "id": "A-13",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/skills`, `GET /api/skills/:id/download/:kind`, `GET /api/skill-guides/:slug`, used today by SkillLibrary, SkillGuide",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the library and a guide read the skills routes; downloads use the skills download route @parity:A-13",
+        "compliance/tests/parity/kept-library.spec.ts › learner parity: the Skill Library (KEPT) › an open skill’s downloads are on its page, from the skills route @parity:L-2 @parity:A-13"
+      ]
+    },
+    {
+      "id": "A-14",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/skills/welcome/dismiss`, used today by `SkillLibrary.tsx:250`",
+      "kind": "api",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel’s Dismiss hides it and posts to the server @parity:L-5 @parity:A-14"
+      ]
+    },
+    {
+      "id": "A-15",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/auth/password`, `POST /api/auth/password/change`, used today by `/account`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › the Account pages read the password route @parity:A-15"
+      ]
+    },
+    {
+      "id": "A-16",
+      "area": "API endpoints the learner web app calls",
+      "what": "`/api/auth/*` sign-in, request, verify, google, forgot, set, sign-out, used today by auth screens",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › sign out posts to the auth route and leaves for sign-in; a failure says so @parity:A-16 @parity:SH-12"
+      ]
+    },
+    {
+      "id": "A-17",
+      "area": "API endpoints the learner web app calls",
+      "what": "Calendar .ics route (`SCHEDULE_ICS_PATH`, offer-calendar), used today by,",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › Add to calendar per session, and Add all as the .ics route @parity:S-5 @parity:A-17"
+      ]
+    },
+    {
+      "id": "M-1",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Session 24h \"Open Sessions\": links to `/sessions` (`session-24h.tsx:19`, `session-reminder.tsx:36`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-24h \"Open Sessions\" lands on the Schedule @parity:M-1"
+      ]
+    },
+    {
+      "id": "M-2",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Session 1h \"Join Session\": links to `/sessions` (`session-1h.tsx:18`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Join, 15 minutes early (D-183) › Schedule Join enabled at start-15m on the hero and the row @parity:S-2 @parity:M-2",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the 1-hour reminder lands on its session: within the hour it is the Schedule hero, whatever its type, and Join opens there at start-15m @parity:M-2",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Join enabled at start-15m on Home, the top bar and the Schedule; at start-16m absent, the next row off with “Opens 15 Min Before” @parity:D-2 @parity:S-2 @parity:A-8 @parity:M-2",
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-1h \"Join Session\" lands on a working Join inside the window, and none outside it @parity:M-2"
+      ]
+    },
+    {
+      "id": "M-3",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Replay ready \"Watch Replay\": links to `/employees/:moduleId` (`replay-ready.tsx:33`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › a published replay on the week page: play/pause, seek with arrow keys, back 10s, speed, captions, transcript, chapters with ticks and Watch at @parity:E-1 @parity:E-2 @parity:E-3 @parity:E-4 @parity:E-5 @parity:E-6 @parity:E-17 @parity:M-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › replay-ready \"Watch Replay\" lands on a playable player @parity:M-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › a learner sees the link once the replay is published, and not before; the Zoom link stays blank @parity:C-3 @parity:M-3"
+      ]
+    },
+    {
+      "id": "M-4",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Build reminder (\"N of 6 steps\"): links to `/employees/:moduleId` (`build-reminder.tsx:46`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › build-reminder \"Continue Build\" lands on the week’s steps @parity:M-4"
+      ]
+    },
+    {
+      "id": "M-5",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Announcement email CTA: links to `/sessions` if it has an action, else `/` (`announcement.tsx:47`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › announcement: with an action it lands on the Schedule; without one, on Home with the banner @parity:M-5"
+      ]
+    },
+    {
+      "id": "M-6",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Weekly digest \"Open Team Hub\": links to `/team` (`weekly-digest.tsx:44`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › weekly-digest \"Open Team Hub\" lands on the Team Hub @parity:M-6 @parity:T-3"
+      ]
+    },
+    {
+      "id": "M-7",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Sign-in link (with optional `next=/skill-library/<page>`): links to `links.ts` `signInPath`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › a sign-in link with next lands on the guide, for a course learner and for Utah Life @parity:M-7"
+      ]
+    },
+    {
+      "id": "M-8",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Set password / Reset password: links to `/set-password?token=`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form @parity:M-8"
+      ]
+    },
+    {
+      "id": "M-9",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Team invite \"Accept Invite\": links to `/invite/:token`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › a team invite lands on the invite page, then the learner’s landing @parity:M-9"
+      ]
+    },
+    {
+      "id": "M-10",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Checkout success → set password: links to `api/routes/offer.ts:381`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › checkout success’s set-password link lands on the set-password form @parity:M-10"
+      ]
+    },
+    {
+      "id": "M-11",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "www links (`/course`, `/skill-library`, `/sessions`, `/team`): links to `apps/web/*` www pages",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › www’s links (/course, /skill-library, /sessions, /team) open a page that does the job @parity:M-11"
+      ]
+    },
+    {
+      "id": "M-12",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "GHL workflow emails (Connor's GHL, not in this repo): links to unknown",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "note": "Unverified: GHL workflow emails live in Connor’s GHL, not in this repository, so no test here can follow their links.",
+      "tests": []
+    },
+    {
+      "id": "M-13",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Staff invite \"Open Admin Console\": links to `/invite/:token`",
+      "kind": "deep-link",
+      "audience": [],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "C-1",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → Go Live (`goLive`, `core/mutations.ts:721`): Join turns on for the cohort (before the start time if pressed early); live badges (`api/routes/join.ts:78-79` honors `live`)",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2",
+        "apps/web/src/routes/learn/Live.test.tsx › Go Live and End Session (D-183) › Go Live hours before the start: Live now and Join on the week page and the top bar @parity:C-1 @parity:E-9",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › Go Live hours early shows Live now and Join on the week @parity:C-1",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a session set live (Go Live, hours early) shows Live now and Join on its week, the top bar and Home @parity:C-1 @parity:E-9",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3"
+      ]
+    },
+    {
+      "id": "C-2",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → End Session (`endSession`, `:741`): session reads as ended; Join off; replay pending",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › End Session ends it: no Join, the “Replay Processing” state until a replay is published @parity:C-2 @parity:E-8",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Go Live shows Live now and Join early; End Session takes them away @parity:C-1 @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › End Session takes Live now and Join away at once, even on a browser clock a few seconds behind the server’s @parity:C-2",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3"
+      ]
+    },
+    {
+      "id": "C-3",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → Publish Replay / attach replay (`publishReplay :763`, `attachReplay` admin action): Replay Ready token, Watch Replay, player, replay email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3",
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a page on another site: “Watch Replay” in a new tab, the chapters kept, no seek controls @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Live.test.tsx › the recording staff attach (D-183) › a video file plays in the week page’s player: its video element has the recording as its source @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a page on another site: the player offers it in a new tab, and a step gets no “Watch at” @parity:E-1 @parity:C-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the recording staff attach, played (D-183) › a video file or an HLS manifest plays in the player; the link reaches the learner through the snapshot @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › the week’s live session (D-183) › a published replay puts the player on the week page @parity:E-1 @parity:C-3 @parity:M-3",
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › Join, Go Live and the past sessions on the Schedule (D-183) › a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording attached in the Console plays on the week page: its video element gets the source @parity:E-1 @parity:C-3 @parity:M-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a recording on another site: \"Watch Replay\" opens it in a new tab @parity:E-1 @parity:C-3",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › an ended session with its replay published: the week page’s player plays, Watch at seeks, the Schedule says Replay Ready with Watch Replay @parity:E-1 @parity:E-2 @parity:E-17 @parity:C-3 @parity:M-3 @parity:S-3 @parity:S-4",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › attaching a replay (ready for learners) puts the player on the open week page @parity:C-3",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › a learner sees the link once the replay is published, and not before; the Zoom link stays blank @parity:C-3 @parity:M-3",
+        "packages/core/test/scope-replay.test.ts › the replay link a learner receives (D-183) › the rule: ready, and its visibility allows it, in a week the learner can open @parity:E-1 @parity:C-3"
+      ]
+    },
+    {
+      "id": "C-4",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → edit session (date, time, minutes, Zoom) (`updateSession :780`), add session: the snapshot updates live via SSE",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when the event stream says something changed @parity:A-3 @parity:C-4",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › editing a session’s time moves it on the open Schedule @parity:C-4"
+      ]
+    },
+    {
+      "id": "C-5",
+      "area": "Console actions that change what learners see",
+      "what": "Curriculum → publish/unpublish, schedule opens, week unlock dates (course builder): the portal reflects it live",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › finds the next locked week’s opening, or the course’s own before the preview @parity:C-5",
+        "apps/web/src/routes/learn/data.test.ts › the course’s freshness (D-183) › refetches the course when a locked week opens with the tab open @parity:C-5",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › publishing a week opens it in the open learner’s nav @parity:C-5"
+      ]
+    },
+    {
+      "id": "C-6",
+      "area": "Console actions that change what learners see",
+      "what": "Announcements → send / schedule / update / duplicate (`sendAnnouncement :930`, admin actions): Dashboard banner for the audience plus optional email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5",
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › an in-app announcement reaches the open Home @parity:C-6",
+        "packages/core/test/learner.test.ts › the join window, the live state and the replay (D-183) › picks the in-app announcement as the current portal does: sent, in-app, the audience, not dismissed @parity:D-1 @parity:C-6"
+      ]
+    },
+    {
+      "id": "C-7",
+      "area": "Console actions that change what learners see",
+      "what": "Announcements → automated reminders on/off (`toggleReminder :998`): controls the M-* emails",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › turning an automated reminder off stops its emails @parity:C-7"
+      ]
+    },
+    {
+      "id": "C-8",
+      "area": "Console actions that change what learners see",
+      "what": "Vault → upload, edit, access tier, publish/hide, delete: Vault plus EmployeeDetail kit",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › hiding a Vault resource takes it off the open Vault @parity:C-8"
+      ]
+    },
+    {
+      "id": "C-9",
+      "area": "Console actions that change what learners see",
+      "what": "Curriculum builder: edit week content (why, homework, agenda, lesson, materials, media, seat card, playbook card) plus live preview: old course page showed them",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/admin/WeekBuilder.test.tsx › the live preview from the unsaved draft (D-174, D-184) › @parity:C-9 draws the learner portal’s week page and step player from the draft: an unsaved edit shows, as an owner, a Utah Life member and before launch",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:C-9 the builder’s live preview draws the learner portal’s week page and step player, and never leaves the builder"
+      ]
+    },
+    {
+      "id": "C-10",
+      "area": "Console actions that change what learners see",
+      "what": "Module Builder: system prompt, files, notes, steps: EmployeeDetail kit, notes, checklist",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the build kit (D-184) › @parity:E-10 @parity:C-10 the system prompt: its stats, its text to view and copy, and its variables",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:E-10 @parity:C-10 the kit’s system prompt copies to the clipboard, and opens to view"
+      ]
+    },
+    {
+      "id": "C-11",
+      "area": "Console actions that change what learners see",
+      "what": "Learners → set tier (`setLearnerTier`): Team Hub visibility, locked modules",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › moving a learner to Team tier gives the open portal Team Hub @parity:C-11"
+      ]
+    },
+    {
+      "id": "C-12",
+      "area": "Console actions that change what learners see",
+      "what": "Learners → nudge (`nudgeLearners :493`): build-reminder email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › a nudge sends the build reminder, whose link lands on the week’s steps @parity:C-12"
+      ]
+    },
+    {
+      "id": "C-13",
+      "area": "Console actions that change what learners see",
+      "what": "Tiers → request status (`setRequestStatus`): Team tier upgrade flow",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "C-14",
+      "area": "Console actions that change what learners see",
+      "what": "Masquerade start, extend, end: lands as the learner (landing path), banner, writes blocked",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › a masquerade lands staff in the learner portal, with its banner @parity:C-14"
+      ]
+    },
+    {
+      "id": "C-15",
+      "area": "Console actions that change what learners see",
+      "what": "Preview as learner (D-138): banner plus read-only",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Preview as Learner: the week the Console opens shows the learner portal with the preview banner @parity:C-15"
+      ]
+    },
+    {
+      "id": "C-16",
+      "area": "Console actions that change what learners see",
+      "what": "Console flags: none found that switch learner screens (`VITE_LEARNER_V2` was build-time only and #172 deletes it)",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "U-1",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life (verified @liveutah.com; Agent Plan skills; `api/billing/access-groups.ts`), sign-in landing: `/skill-library`: standalone page, no sidebar (`core/landing.ts`,…",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the sign-in landing is the standalone Skill Library, with no sidebar @parity:U-1"
+      ]
+    },
+    {
+      "id": "U-2",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life visiting `/`: redirected to the Skill Library (`navModel.ts:97-100`)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › visiting / sends them to the Skill Library @parity:U-2"
+      ]
+    },
+    {
+      "id": "U-3",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life nav: the library page has no sidebar; inside the old shell (`/vault`): Skill Library, Vault (`navModel.ts:232-240`)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their nav: the library has none; in the shell, only the Skill Library and the Vault @parity:U-3",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
+    },
+    {
+      "id": "U-4",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life welcome panel and \"Included with your Utah Life access\" line: `SkillLibrary.tsx:205-258,371-376`",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
+      ]
+    },
+    {
+      "id": "U-5",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life Account page: only `/account` (password)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their Account is the password page only @parity:U-5"
+      ]
+    },
+    {
+      "id": "U-6",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life locked skills say \"Not included with Utah Life access\", no upsell: `SkillLibrary.tsx:302`; `offersPlans`",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › locked skills say \"Not included with Utah Life access\", with no See Plans @parity:U-6"
+      ]
+    },
+    {
+      "id": "U-7",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life downloads and guided setups: list buttons plus guide",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › downloads and Setup Guides on the list, and the old guide @parity:U-7"
+      ]
+    },
+    {
+      "id": "G-1",
+      "area": "Access groups: what each sees",
+      "what": "Accelerator (course buyers and teammates): Dashboard, Sessions, Course, AI Employees, Vault, Team Hub (team tier)",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity, claude/learner-pr9c-content and claude/learner-pr10-flip (reworked #172)",
+      "note": "Accelerator learners get the new portal; its MISSING pieces (top section items 2 to 11) are restored by the IDs they map to.",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: an Accelerator learner gets the new portal, whole › Home, a week, a step, the Schedule, the library, the Vault, Account and (Team tier) Team Hub @parity:G-1"
+      ]
+    },
+    {
+      "id": "G-2",
+      "area": "Access groups: what each sees",
+      "what": "Team Plan (no course, Team tier): Skill Library page plus Team Hub plus Vault (D-119)",
+      "kind": "access-group",
+      "audience": [
+        "Team"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › team-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-2",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
+    },
+    {
+      "id": "G-3",
+      "area": "Access groups: what each sees",
+      "what": "Agent Plan (no course): Skill Library page plus Vault",
+      "kind": "access-group",
+      "audience": [
+        "Agent"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › agent-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-3",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
+    },
+    {
+      "id": "G-4",
+      "area": "Access groups: what each sees",
+      "what": "Insiders: Skill Library page plus Vault",
+      "kind": "access-group",
+      "audience": [
+        "Insiders"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › insiders: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-4",
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+      ]
+    },
+    {
+      "id": "G-5",
+      "area": "Access groups: what each sees",
+      "what": "Free / no plan (signed-in, free skills): Skill Library page (free open, rest locked with See plans)",
+      "kind": "access-group",
+      "audience": [
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": [
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › free: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-5"
+      ]
+    },
+    {
+      "id": "G-6",
+      "area": "Access groups: what each sees",
+      "what": "Two-pay paused: course paused panel plus billing; library paused note",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Home (KEPT) › a paused two-pay course: Home says so and opens Manage Billing @parity:D-12 @parity:G-6"
+      ]
+    },
+    {
+      "id": "G-7",
+      "area": "Access groups: what each sees",
+      "what": "Bought, before the preview opens: PreLaunch panel",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/routes/learn/Home.vm.test.ts › Home: Join, Go Live and the in-app announcement (D-183) › before the course opens: the pre-launch welcome beside the countdown @parity:K-14 @parity:G-7",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › before the course opens: the pre-launch welcome beside the countdown on Home, accessible at 1440 and 390 @parity:K-14 @parity:G-7"
+      ]
+    },
+    {
+      "id": "MO-1",
+      "area": "Mobile behaviors",
+      "what": "Under 768px: sidebar becomes a drawer with scrim, Close button, menu button, wordmark in the top bar",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the phone drawer is a modal: focus moves in and stays, the page behind is inert, Escape returns focus @parity:MO-1"
+      ]
+    },
+    {
+      "id": "MO-2",
+      "area": "Mobile behaviors",
+      "what": "16px text floor, 44px targets, no sideways scroll (CI `@lms-mobile`)",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › / (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /account (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /course (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /employees/accelerator-week-1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/account (course, owner) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/schedule (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/schedule?view=calendar (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/skills (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/skills/ai-brain-setup (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/1/step/1 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /learn/week/3 (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /sessions (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /set-password?token=tok_set (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /sign-in (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library/ai-brain-setup (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /skill-library/ai-brain-setup (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /team (course, owner) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /vault (course, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › /vault (utah, agent) at 390, 768 and 1024: no sideways scroll; on a phone, 16px text and 44px targets @parity:MO-2"
+      ]
+    },
+    {
+      "id": "MO-3",
+      "area": "Mobile behaviors",
+      "what": "768px and up: full sidebar or rail (user toggle)",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "MO-4",
+      "area": "Mobile behaviors",
+      "what": "Phone: next-session strip",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": [
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the phone strip: the next live build, to the Schedule; while live, Live now and Join @parity:MO-4"
+      ]
+    },
+    {
+      "id": "MO-5",
+      "area": "Mobile behaviors",
+      "what": "Phone: replay player, transcript and checklist on the workspace",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": [
+        "apps/web/src/components/replay/HlsEngine.test.ts › a recording whose length the snapshot doesn’t give (D-183) › learns the length from the element’s metadata, tells its listener, and plays before it is known @parity:E-1 @parity:MO-5",
+        "apps/web/src/routes/learn/Replay.vm.test.ts › a real recording with no module length (D-183) › draws the player and its video for an attached recording, whatever the module’s length says @parity:E-1 @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › Home with the announcement and Join at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live week at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a live-build step with its replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a week whose recording is on another site at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › a week with its replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule after a replay at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule with Join at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/e2e/learn-v2-live.spec.ts › learner portal v2, the live session (D-183) @g9 › the Schedule with the next row’s hint at 390: one h1, accessible, no sideways scroll, 44px targets, 16px type @parity:MO-5",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › Join is usable at 390 inside the window, on Home and the Schedule @parity:MO-5",
+        "compliance/tests/parity/mobile.spec.ts › learner parity: mobile › the replay player is usable at 390: play, seek back, captions, transcript @parity:MO-5"
+      ]
+    },
+    {
+      "id": "P-1",
+      "area": "Misc / prototype-only",
+      "what": "`/team-tier` Team tier sales page plus \"Request a consultation\" (`TeamTier.tsx:30`)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "P-2",
+      "area": "Misc / prototype-only",
+      "what": "Demo controls, `/__states`, `/__tokens`",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "X-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub's Export CSV button downloads the team's roster and build progress",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "added": "Not in the inventory's T-2. Today: apps/web/src/routes/portal/TeamHub.tsx:132 (Export CSV, generated in the browser); the new portal's Team Hub is the same component.",
+      "tests": [
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: Team Hub, the Vault and Account (KEPT) › Team Hub’s Export CSV downloads the roster @parity:X-1"
+      ]
+    },
+    {
+      "id": "X-2",
+      "area": "Course page content",
+      "what": "The course pages name the browser tab after the week (\"Week N · <title> · Amplified AI Accelerator\")",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "unassigned (found by the parity suite; needs an owner, or Connor's call to drop it)",
+      "added": "Not in the inventory. Today: apps/web/src/routes/course/Course.tsx:477 sets document.title per week; no /learn screen sets one.",
+      "tests": [
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:E-18 @parity:X-2 the week header’s line, and the tab named after the week and then the step",
+        "apps/web/src/routes/learn/WeekContent.vm.test.ts › the week’s content (D-184) › @parity:X-2 the tab is named after the week, and a step after itself and its week, as the course page names it",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:K-5 @parity:K-15 @parity:E-18 @parity:X-2 the week’s question, header line, tagged skills, seat and playbook cards, and the tab’s title",
+        "compliance/tests/parity/kept-shell.spec.ts › learner parity: found beyond the inventory › a course week’s page names the browser tab after the week @parity:X-2"
+      ]
+    }
+  ]
+}

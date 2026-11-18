@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
-import { learnerOf } from '@ai/core/learner';
+import { learnerOf, withLiveState } from '@ai/core/learner';
 
 import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
 import { Icon } from '../../components/Icon';
+import { calLinks } from '../../components/calendar-links';
 import { Menu } from '../../components/r2/Menu';
 import { useDialogA11y } from '../../components/primitives/Modal';
 import { ToasterProvider, useToaster } from '../../components/primitives/Toaster';
@@ -21,8 +22,8 @@ import { Wordmark } from '../admin/Wordmark';
 import { useCourse } from '../../routes/learn/data';
 import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
-import { HUE, LABELS, barVM, hasTeamHub, navVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
-import type { BarVM, NavVM } from '../../routes/learn/learn.vm';
+import { HUE, LABELS, barVM, hasTeamHub, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
+import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
 import { learnAccount, learnHome, learnSchedule, learnTeam } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
 
@@ -63,13 +64,15 @@ function Ring({ ratio }: { ratio: number }) {
 
 interface SidebarProps {
   nav: NavVM;
+  /** D-184: Team Hub (Team tier) and the cohort line. */
+  side: SideVM;
   drawer?: boolean;
   onClose?: () => void;
   closeRef?: Ref<HTMLButtonElement>;
   go: () => void;
 }
 
-function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
+function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarProps) {
   const [open, setOpen] = useState(true);
   return (
     <aside aria-label={LABELS.primary} className={s.sb}>
@@ -86,6 +89,7 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           </>
         ) : null}
       </div>
+      {side.cohortLine ? <p className={s.ctx}>{side.cohortLine}</p> : null}
       <nav className={s.nav} aria-label={LABELS.learner}>
         <Link className={s.ni} to={nav.home.href} data-on={nav.home.active ? 'true' : undefined} aria-current={nav.home.active ? 'page' : undefined} title={nav.home.label} onClick={go}>
           <Icon name="lvHome" size={16} strokeWidth={1.75} />
@@ -101,6 +105,12 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           <Icon name="lvGrid" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.library.label}</span>
         </Link>
+        {side.teamHub ? (
+          <Link className={s.ni} to={side.teamHub.href} data-on={side.teamHub.active ? 'true' : undefined} aria-current={side.teamHub.active ? 'page' : undefined} title={side.teamHub.label} onClick={go}>
+            <Icon name="r2Learners" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{side.teamHub.label}</span>
+          </Link>
+        ) : null}
         {nav.vault.locked ? (
           <button type="button" className={s.ni} title={nav.vault.label} aria-disabled="true" aria-describedby="lv-vault-opens">
             <Icon name="r2Vault" size={16} strokeWidth={1.75} />
@@ -173,10 +183,16 @@ function NextSession({ bar, now }: { bar: BarVM; now: number }) {
   if (bar.kind === 'live') {
     return (
       <div className={`${s.tbn} ${s.dtOnly}`}>
-        <span className={s.st} aria-hidden="true">
-          <i />
-        </span>
-        <span className={s.liveK}>{LABELS.liveNow}</span>
+        {bar.state === 'live' ? (
+          <span className={s.st} aria-hidden="true">
+            <i />
+          </span>
+        ) : (
+          <span className={s.tbi}>
+            <Icon name="lvLive" size={14} strokeWidth={1.75} />
+          </span>
+        )}
+        <span className={bar.state === 'live' ? s.liveK : s.tbk}>{bar.badge}</span>
         <b className={s.el}>{bar.title}</b>
         <span className={s.mu}>{bar.started}</span>
         <button type="button" className={`${s.b} ${s.p}`} onClick={() => void join(bar.sessionId, () => toast(`Opening Zoom · ${bar.title}`, 'info'))}>
@@ -198,7 +214,23 @@ function NextSession({ bar, now }: { bar: BarVM; now: number }) {
         <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
         {LABELS.addToCalendar}
       </button>
+      {bar.ics[0] ? <BarCalLinks event={bar.ics[0]} /> : null}
     </div>
+  );
+}
+
+/** D-183: Google Calendar and Outlook beside the bar's .ics, as the current portal's calendar menu offers. */
+function BarCalLinks({ event }: { event: { title: string; start: number; end: number } }) {
+  const links = calLinks(event);
+  return (
+    <>
+      <a className={`${s.b} ${s.q} ${s.wideOnly}`} href={links.google} target="_blank" rel="noopener">
+        {LABELS.googleCalendar}
+      </a>
+      <a className={`${s.b} ${s.q} ${s.wideOnly}`} href={links.outlook} target="_blank" rel="noopener">
+        {LABELS.outlook}
+      </a>
+    </>
   );
 }
 
@@ -209,11 +241,15 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
   if (bar.kind === 'live') {
     return (
       <div className={s.tbs2} role="status">
-        <span className={s.st} aria-hidden="true">
-          <i />
-        </span>
+        {bar.state === 'live' ? (
+          <span className={s.st} aria-hidden="true">
+            <i />
+          </span>
+        ) : (
+          <Icon name="lvLive" size={18} strokeWidth={1.75} />
+        )}
         <span className={s.el}>
-          <b>{LABELS.liveNow}</b> · {bar.title}
+          <b>{bar.badge}</b> · {bar.title}
         </span>
         <button type="button" className={`${s.b} ${s.p}`} onClick={() => void join(bar.sessionId, () => toast(`Opening Zoom · ${bar.title}`, 'info'))}>
           {bar.joinLabel}
@@ -237,8 +273,10 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
-  const course = useCourse();
-  const now = useNow(30_000);
+  const loaded = useCourse();
+  // D-183: every 15 seconds, as the current portal's Sessions page ticks, so Join appears 15 minutes before
+  // a session starts without a reload.
+  const now = useNow(15_000);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToaster();
@@ -249,10 +287,18 @@ function Frame() {
   const preview = viewer.preview ?? null;
   const staff = viewer.actor.kind === 'staff' ? (db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) ?? null) : null;
   const name = me?.name ?? staff?.name ?? '';
+  // D-183: the course's sessions carry the state the Console sets (Go Live, End Session, the replay), read
+  // off the snapshot, which refetches whenever the server says something changed (`/api/events`), as the
+  // current portal's does. Every screen gets the sessions this way, through the outlet's context.
+  const course = useMemo(
+    () => (loaded.kind === 'ready' ? { ...loaded, payload: { ...loaded.payload, sessions: withLiveState(loaded.payload.sessions, db) } } : loaded),
+    [loaded, db],
+  );
   const payload = course.kind === 'ready' ? course.payload : null;
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   const nav = navVM(payload, rows, location.pathname);
   const bar = barVM(payload, now);
+  const side = sideVM(db, me, payload, location.pathname, now);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement | null>(null);
@@ -294,7 +340,7 @@ function Frame() {
   return (
     <div className={s.frame} data-r2-scope="" data-learner-v2="">
       <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
-        {phone ? null : <Sidebar nav={nav} go={() => undefined} />}
+        {phone ? null : <Sidebar nav={nav} side={side} go={() => undefined} />}
         <div className={s.mainc}>
           <header className={s.tb}>
             <div className={`${s.phOnly} ${s.phRow}`}>
@@ -363,7 +409,7 @@ function Frame() {
         <>
           {drawerOpen ? <div className={s.scrim} onClick={closeDrawer} /> : null}
           <div ref={drawerRef} tabIndex={-1} className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
-            <Sidebar nav={nav} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
+            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
           </div>
         </>
       ) : null}

@@ -121,13 +121,20 @@ jobs:
       - if: failure()
         uses: actions/upload-artifact@v4
         with: { name: compliance-report, path: compliance/report }
-  # D-182: `pnpm parity:learner`, whose result on a commit is what lets a production build turn the learner
-  # portal's flag on. KEEP THE JOB'S ID: `parity-learner` is the check name the build guard reads from
-  # GitHub (apps/web/src/build/learner-parity-guard.ts), and a rename would make every flag-on build fail
-  # closed. It runs the learner portal's e2e against the flag-on fixture build and every parity scenario
-  # against its goldens on the flag-off build. Making it a REQUIRED check is a branch-protection setting.
+  # The learner parity suite (Connor's parity brief § 3): every test tagged @parity:<ID>, then the meta-test
+  # over compliance/parity/learner-parity.json. Built and served as the `compliance` job builds and serves
+  # the app (the fixture build, plus the suite's own http-mode build, both started by
+  # compliance/parity/learner.config.ts). Its exit code is what the flip's build guard relies on.
+  #
+  # NO `needs:`, on purpose. GitHub reports a job skipped because a job it needs failed as a success to
+  # branch protection, so a red `quality` would turn this required check green without running it.
+  # Making it required is a branch-protection setting on GitHub, not something this file can do.
+  #
+  # D-182: KEEP THE JOB'S ID. `parity-learner` is the check name the build guard reads from GitHub
+  # (apps/web/src/build/learner-parity-guard.ts): a production build with VITE_LEARNER_V2=true goes on only
+  # when this job succeeded on its commit, and a rename would make every flag-on build fail closed. The
+  # suite runs against what ships, the flag-on build; today's portal keeps its parity in `compliance`.
   parity-learner:
-    needs: quality
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
@@ -135,11 +142,12 @@ jobs:
       - run: corepack enable && pnpm i --frozen-lockfile
       - run: pnpm parity:learner
         env:
-          # As in `compliance` above: no database in this container, so no http-mode parity.
+          # As in `compliance`: this job has no Postgres, so http parity against the real API stays off.
+          # The suite's http-mode specs answer /api/* themselves (compliance/tests/parity/http/).
           HTTP_PARITY: '0'
-      - if: failure()
+      - if: always()
         uses: actions/upload-artifact@v4
-        with: { name: parity-learner-report, path: compliance/report }
+        with: { name: parity-learner-results, path: compliance/parity/results, retention-days: 14 }
 
   api: # Gate 7: the migration and (later) the oracle tests, against a real Postgres
     runs-on: ubuntu-latest

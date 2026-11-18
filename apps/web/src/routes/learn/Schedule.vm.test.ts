@@ -5,7 +5,7 @@ import { learnerOf } from '@ai/core/learner';
 import { weekRows } from './learn.vm';
 import { scheduleVM, typeOf, viewOf } from './Schedule.vm';
 import type { BreakItemVM, CalBreakVM, CalEventVM, ScheduleView, WeekItemVM } from './Schedule.vm';
-import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
+import { LEARNER_ID, PRELAUNCH_NOW, asShell, learnState, liveState, prelaunchState, sessionIn } from './test/fixture';
 import type { LearnState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
@@ -68,10 +68,13 @@ describe('the Schedule (D-180)', () => {
     ]);
   });
 
-  it('at a live build, the hero is the build after it', () => {
+  it('at a live build, the Schedule hero is the live build itself, with Live now and Join (D-183) @parity:S-2', () => {
     expect(schedule(liveState()).hero).toMatchObject({
-      eyebrow: 'Next · Week 3 · Live build',
-      title: 'Monthly Numbers Live Build',
+      eyebrow: 'Live now · Week 2 · Live build',
+      eyebrowTail: 'Week 2 · Live build',
+      title: 'Lead Source Review Live Build',
+      join: { state: 'live', badge: 'Live now', sessionId: 'dec26-s2', joinLabel: 'Join the live build' },
+      right: { label: 'Time left' },
     });
   });
 });
@@ -232,6 +235,7 @@ describe('the calendar view (D-180)', () => {
       title: 'Map Your Spend Live Build',
       meta: 'Week 1 · 12:00 PM MT (1:00 PM CT) · 1 hr 30 min',
       href: '/learn/week/1',
+      join: null,
     });
     expect(cal.agenda[0]!.items[8]).toMatchObject({ kind: 'break', title: 'Holiday break' });
   });
@@ -241,5 +245,76 @@ describe('the calendar view (D-180)', () => {
     const vm = schedule(prelaunchState(), 'calendar');
     expect(vm.hero!.meta).toContain('2:00 PM ET (1:00 PM CT)');
     expect(vm.calendar.agenda[0]!.items[0]).toMatchObject({ meta: 'Week 1 · 2:00 PM ET (1:00 PM CT) · 1 hr 30 min' });
+  });
+});
+
+// D-183: Join from 15 minutes before, the 1-hour reminder's landing, Go Live and End Session, past states.
+describe('Join, Go Live and the past sessions on the Schedule (D-183)', () => {
+  const S1 = Date.parse('2026-12-02T19:00:00Z');
+  const MIN = 60_000;
+  const at = (now: number, edit?: Parameters<typeof learnState>[4]) => asShell(learnState(now, true, { 0: ['c1', 'c2'] }, 15, edit));
+  const week1 = (vm: ReturnType<typeof schedule>) => weekItems(vm).find((w) => w.week === 1)!;
+
+  it('Schedule Join enabled on the hero and the row at start-15m; at start-16m the next row’s Join is off with “Opens 15 Min Before” @parity:S-2 @parity:A-8', () => {
+    const off = schedule(at(S1 - 16 * MIN));
+    expect(off.hero!.join).toBeNull();
+    expect(off.hero!.meta).toContain('Join opens 15 minutes before');
+    expect(week1(off).join).toBeNull();
+    // The next row before its window: Join drawn off, with the current portal's hint.
+    expect(week1(off).soon).toEqual({ title: 'Map Your Spend Live Build', meta: '12:00 PM MT (1:00 PM CT) · Zoom', label: 'Join', hint: 'Opens 15 Min Before' });
+
+    const on = schedule(at(S1 - 15 * MIN));
+    expect(on.hero).toMatchObject({ eyebrow: 'Starting soon · Week 1 · Live build', join: { state: 'ready', badge: 'Starting soon', sessionId: 'dec26-s1' } });
+    expect(on.hero!.meta).not.toContain('Join opens');
+    expect(week1(on).join).toMatchObject({ state: 'ready', sessionId: 'dec26-s1' });
+    expect(week1(on).soon).toBeNull();
+    expect(schedule(at(S1 - 15 * MIN), 'calendar').calendar.agenda[0]!.items[0]).toMatchObject({ join: { state: 'ready' } });
+  });
+
+  it('the 1-hour reminder lands on its session: within the hour it is the Schedule hero, whatever its type, and Join opens there at start-15m @parity:M-2', () => {
+    const OH1 = Date.parse('2026-12-03T19:00:00Z');
+    expect(schedule(at(OH1 - 61 * MIN)).hero!.title).toBe('Lead Source Review Live Build');
+    expect(schedule(at(OH1 - 60 * MIN)).hero).toMatchObject({ title: 'Map Your Spend Office Hours', join: null });
+    expect(schedule(at(OH1 - 10 * MIN)).hero).toMatchObject({ title: 'Map Your Spend Office Hours', join: { state: 'ready', joinLabel: 'Join' } });
+  });
+
+  it('the Schedule follows Go Live hours early (Live now, Join) and End Session (Join gone, Replay Processing, attendance) @parity:C-1 @parity:C-2 @parity:S-3', () => {
+    const early = S1 - 3 * 3600_000;
+    const live = schedule(at(early, (d) => (sessionIn(d, 'dec26-s1').live = true)));
+    expect(live.hero).toMatchObject({ join: { state: 'live', badge: 'Live now' }, eyebrow: 'Live now · Week 1 · Live build' });
+    expect(week1(live).join).toMatchObject({ state: 'live' });
+    expect(week1(live).now).toBe(true);
+
+    const ended = schedule(
+      at(early + 30 * MIN, (d) => {
+        const s = sessionIn(d, 'dec26-s1');
+        Object.assign(s, { live: false, start: early + 30 * MIN - s.mins * MIN, replay: 'processing', attended: 12 });
+      }),
+    );
+    expect(ended.hero!.join).toBeNull();
+    expect(week1(ended).join).toBeNull();
+    expect(week1(ended).lines[0]).toMatchObject({ badge: { tone: 'neutral', label: 'Replay Processing' }, extra: '12 attended live' });
+  });
+
+  it('a published replay reads Replay Ready with Watch Replay to the week’s player; an office hour’s Recording Posted @parity:S-3 @parity:S-4 @parity:C-3', () => {
+    const vm = schedule(
+      at(Date.parse('2026-12-05T19:00:00Z'), (d) => {
+        Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready', attended: 14 });
+        Object.assign(sessionIn(d, 'dec26-oh1'), { replay: 'ready' });
+      }),
+    );
+    const lines = week1(vm).lines;
+    expect(lines[0]).toMatchObject({ badge: { tone: 'ok', label: 'Replay Ready' }, extra: '14 attended live' });
+    expect(lines[1]).toMatchObject({ badge: { tone: 'ok', label: 'Recording Posted' }, extra: null });
+    // The current portal's "Watch Replay": the week's page, where the player is.
+    expect(week1(vm).watch).toEqual({ label: 'Watch Replay', href: '/learn/week/1', title: 'Map Your Spend Live Build' });
+    expect(weekItems(vm).find((w) => w.week === 2)!.watch).toBeNull();
+    // Nothing on a session still to come.
+    expect(weekItems(vm).find((w) => w.week === 2)!.lines.every((l) => l.badge === null && l.extra === null)).toBe(true);
+  });
+
+  it('draws no past state before the course has run', () => {
+    expect(weekItems(schedule(prelaunchState())).flatMap((w) => w.lines).every((l) => l.badge === null)).toBe(true);
+    expect(PRELAUNCH_NOW).toBeLessThan(S1);
   });
 });

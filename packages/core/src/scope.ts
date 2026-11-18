@@ -40,10 +40,33 @@ const redactModule = (m: AIEmployee): AIEmployee => {
   return { ...rest, prompt: '', files: [], transcript: [] };
 };
 
-/** Phase 08 reveals the join URL through a route that checks the join window. */
-// D-172: a replay link is staff's record of where a recording is; nothing learner-facing reads it, so it
-// stays out of a learner's snapshot (with the join URL).
-const redactSession = ({ replayUrl: _replay, ...s }: Session): Session => ({ ...s, zoom: '' });
+/**
+ * D-183: the recording staff attached to a session (D-172's Attach replay), when it is published to this
+ * learner, else null. Published means the replay is `ready` (Attach replay and Publish Replay both set it)
+ * and the session's replay visibility (D-173, the Week Builder's "Replay": Hidden, After the week opens,
+ * Published, or not set) lets them see it:
+ *   - `hidden`: never, to any learner;
+ *   - `after_open`: once the session's week is open for them;
+ *   - `published`, or not set: as soon as the replay is ready (today's rule, which the portal has always
+ *     used for "Replay Ready").
+ * `weekOpen` is false for a week the learner can't open (locked by its date, or not in their tier).
+ */
+export function learnerReplayUrl(s: Pick<Session, 'replay' | 'replayUrl' | 'replayVisibility'>, weekOpen: boolean): string | null {
+  if (!s.replayUrl || s.replay !== 'ready' || !weekOpen) return null;
+  if (s.replayVisibility === 'hidden') return null;
+  return s.replayUrl;
+}
+
+/**
+ * Phase 08 reveals the join URL through a route that checks the join window. D-172's replay link is staff's
+ * record of where a recording is; it stays out of a learner's snapshot (with the join URL) unless D-183's
+ * rule above says that learner may watch it.
+ */
+const redactSession = (session: Session, weekOpen = false): Session => {
+  const { replayUrl: _replay, ...s } = session;
+  const url = learnerReplayUrl(session, weekOpen);
+  return { ...s, zoom: '', ...(url ? { replayUrl: url } : {}) };
+};
 
 /**
  * D-173: the course's words (a cohort's `course`, a week module's `course`) reach a learner only
@@ -179,7 +202,10 @@ function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resour
     modules: modules.map((m) => (locked.has(m.id) ? lockedWeekModule(m) : m)),
     sessions: sessions.map((s) => {
       const m = moduleForSession(db, s);
-      return m && locked.has(m.id) ? { ...s, replay: null, views: 0 } : s;
+      if (!(m && locked.has(m.id))) return s;
+      // A locked week's session: no replay, and so (D-183) never its link.
+      const { replayUrl: _url, ...rest } = s;
+      return { ...rest, replay: null, views: 0 };
     }),
     resources: resources.filter((r) => kitVisible(r, !!r.module && !locked.has(r.module), preview)),
   };
@@ -205,8 +231,15 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   const showEmail = seesTeamEmails(me);
   const mine = `${me.id}:`;
 
-  // Their own cohort's sessions only, with the join URL withheld.
-  let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map(redactSession);
+  // Their own cohort's sessions only, with the join URL withheld, and a replay's link only when it is
+  // published to them (D-183): its week module (if any) is one they can open, now.
+  const weekOpen = (s: Session): boolean => {
+    const m = moduleForSession(db, s);
+    if (!m) return true;
+    if (!canAccess(me, m)) return false;
+    return access?.at === undefined || !isAcceleratorModule(m.id) || isOpen(m, access.at);
+  };
+  let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map((s) => redactSession(s, weekOpen(s)));
   // Published and scheduled modules; a draft never appears. Blanked where `canAccess` is false.
   let modules = visibleModules(db)
     .map((m) => (canAccess(me, m) ? m : redactModule(m)))

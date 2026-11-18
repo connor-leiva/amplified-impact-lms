@@ -10,16 +10,16 @@
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
-import { fmt } from '@ai/core';
+import { cohortLine, fmt } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseKitItem, LearnerCourseWeek, LockedCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { CourseSkill } from '@ai/core/course-types';
-import { duration, liveSessionAt, progressOn, sessionEndsAt, stepCount, upcomingSessions, weekModuleOf, weekState, weekSteps } from '@ai/core/learner';
+import { duration, joinableSession, progressOn, sessionEndsAt, sessionPhase, stepCount, upcomingSessions, weekModuleOf, weekState, weekSteps } from '@ai/core/learner';
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
-import { learnHome, learnSchedule, learnSkill, learnSkills, learnStep, learnVault, learnWeek } from './routes';
+import { learnHome, learnSchedule, learnSkill, learnSkills, learnStep, learnTeam, learnVault, learnWeek } from './routes';
 
 /** Generic chrome, from the mockup. Never a week's, step's or session's words. */
 export const LABELS = {
@@ -43,6 +43,20 @@ export const LABELS = {
   primary: 'Primary',
   nextBuild: 'Next live build',
   liveNow: 'Live now',
+  // D-183: a session inside its join window, before it starts (the current portal's "Starting Soon").
+  startingSoon: 'Starting soon',
+  // D-183: the current portal's own words, as its Sessions page and Join Button write them.
+  joinHint: 'Opens 15 Min Before',
+  replayReady: 'Replay Ready',
+  replayProcessing: 'Replay Processing',
+  recordingPosted: 'Recording Posted',
+  watchReplay: 'Watch Replay',
+  openKit: 'Open the Build Kit',
+  sessionEnded: 'Session Ended',
+  // D-183: the current portal's calendar menu's own names for its two links.
+  googleCalendar: 'Google Calendar',
+  outlook: 'Outlook',
+  attendedLive: 'attended live',
   started: 'Started',
   join: 'Join',
   joinBuild: 'Join the live build',
@@ -286,17 +300,69 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
   };
 }
 
+// --- Join (D-183) ------------------------------------------------------------------------------------
+
+/**
+ * A session a learner can join now, as every learner screen draws it: live (staff pressed Go Live, or it
+ * is under way) with the live badge, or starting soon (inside its 15-minute window). One rule for the
+ * shell, Home, the Schedule and the week page: core's `sessionPhase`, the join route's own window.
+ */
+export interface JoinVM {
+  sessionId: string;
+  state: 'live' | 'ready';
+  /** "Live now" or "Starting soon". */
+  badge: string;
+  title: string;
+  week: number;
+  /** "12:00 PM MT (1:00 PM CT) · Zoom". */
+  meta: string;
+  /** "Join the live build" for a build, else "Join". */
+  joinLabel: string;
+}
+
+export function joinVM(s: CourseSession | null | undefined, now: number): JoinVM | null {
+  if (!s) return null;
+  const phase = sessionPhase(s, now);
+  if (phase !== 'live' && phase !== 'ready') return null;
+  return {
+    sessionId: s.id,
+    state: phase,
+    badge: phase === 'live' ? LABELS.liveNow : LABELS.startingSoon,
+    title: s.title,
+    week: s.week,
+    meta: `${fmt.time(s.start)} · ${LABELS.zoom}`,
+    joinLabel: s.kind === 'build' ? LABELS.joinBuild : LABELS.join,
+  };
+}
+
+/** The first of these sessions a learner can join now, as a `JoinVM`. */
+export const joinNow = (sessions: readonly CourseSession[], now: number): JoinVM | null => joinVM(joinableSession(sessions, now), now);
+
 export type BarVM =
-  | { kind: 'live'; sessionId: string; title: string; started: string; joinLabel: string; week: number }
+  | { kind: 'live'; state: 'live' | 'ready'; badge: string; sessionId: string; title: string; started: string; joinLabel: string; week: number }
   | { kind: 'next'; sessionId: string; title: string; when: string; ics: IcsEvent[] }
   | { kind: 'none' };
 
-/** The top bar's one thing: the session live now, else the next live build, else nothing. */
+/**
+ * The top bar's one thing: the session to join now (live, or inside its 15-minute window, D-183), else the
+ * next live build, else nothing.
+ */
 export function barVM(p: CoursePayload | null, now: number): BarVM {
   if (!p) return { kind: 'none' };
-  const live = liveSessionAt(p.sessions, now);
-  if (live) return { kind: 'live', sessionId: live.id, title: live.title, started: `${LABELS.started} ${fmt.time(live.start)}`, joinLabel: LABELS.join, week: live.week };
-  const next = upcomingSessions(p.sessions, now, 'build')[0];
+  const live = joinableSession(p.sessions, now);
+  const j = joinVM(live, now);
+  if (live && j)
+    return {
+      kind: 'live',
+      state: j.state,
+      badge: j.badge,
+      sessionId: live.id,
+      title: live.title,
+      started: j.state === 'live' ? `${LABELS.started} ${fmt.time(live.start)}` : fmt.time(live.start),
+      joinLabel: LABELS.join,
+      week: live.week,
+    };
+  const next = upcomingSessions(p.sessions, now, 'build').find((s) => !s.live);
   if (!next) return { kind: 'none' };
   return { kind: 'next', sessionId: next.id, title: next.title, when: fmt.when(next.start), ics: icsEvents([next]) };
 }
@@ -311,6 +377,8 @@ export interface KitRowVM {
   /** Where it goes: a Library page, or the gated files route. Null when there is nowhere yet. */
   href: string | null;
   external: boolean;
+  /** D-184: a week's skill's role ("Flagship") and Free, as the course page tags them. */
+  tags?: { label: string; tone?: 'done' }[];
 }
 
 const KIND_LABEL: Record<ResourceKind, string> = { file: 'File', prompt: 'Prompt', guide: 'Guide', replay: 'Replay', vault: 'File' };
@@ -386,3 +454,33 @@ export function helpVM(p: CoursePayload, now: number): HelpVM {
 
 /** The step player's address for a week's step (1-based). */
 export const stepHref = learnStep;
+
+// --- D-184: the sidebar's Team Hub and cohort line -------------------------------------------------
+
+/** The sidebar's Team Hub label, the current portal's own. */
+export const TEAM_HUB_LABEL = 'Team Hub';
+/**
+ * Where Team Hub opens: the Team Hub inside the learner portal (D-182, `/learn/team`), the same screen as
+ * the current portal's `/team`, which a learner with the course is redirected from when the flag is on.
+ * `hasTeamHub` (above) is the rule, shared with the account menu.
+ */
+export const TEAM_HUB_HREF = learnTeam();
+
+export interface SideVM {
+  /** Team Hub, for a Team tier learner on a team (T-1); null for anyone else. */
+  teamHub: { label: string; href: string; active: boolean } | null;
+  /** The cohort line under the wordmark (SH-9): "December 2026 Cohort · Week 2 of 9"; null without a course. */
+  cohortLine: string | null;
+}
+
+/**
+ * The sidebar's Team Hub entry and cohort line. The cohort line is the current portal's (`cohortLine`, from
+ * the learner's cohort and its sessions in the snapshot), shown, as there, only to a learner in the course.
+ */
+export function sideVM(db: Pick<Db, 'teams' | 'cohorts' | 'sessions'>, me: Learner | null, p: CoursePayload | null, pathname: string, now: number): SideVM {
+  const cohort = me && p ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
+  return {
+    teamHub: hasTeamHub(db, me) ? { label: TEAM_HUB_LABEL, href: TEAM_HUB_HREF, active: pathname === TEAM_HUB_HREF } : null,
+    cohortLine: cohort ? cohortLine(cohort, now, db.sessions) : null,
+  };
+}

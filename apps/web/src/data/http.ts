@@ -113,7 +113,7 @@ async function parse(res: Response, attempt: string | null = null): Promise<unkn
  * who uploaded it, so neither can be trusted to be path-safe: an un-encoded `/` or `..` in a file
  * name would silently address a different route.
  */
-const fileRoute = (ref: StoredFileRef): string =>
+export const fileRoute = (ref: StoredFileRef): string =>
   ref.kind === 'resource'
     ? `/api/files/resource/${encodeURIComponent(ref.id)}`
     : `/api/files/module/${encodeURIComponent(ref.moduleId)}/${encodeURIComponent(ref.fileName)}`;

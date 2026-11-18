@@ -18,7 +18,7 @@ import { learnHome } from './routes';
 import { scheduleVM, viewOf } from './Schedule.vm';
 import type { AgendaGroupVM, GroupVM, HeroVM, MonthVM, ScheduleVM, WeekItemVM } from './Schedule.vm';
 import type { DateTileVM } from './learn.vm';
-import { Tile } from './parts';
+import { CalLinks, JoinBadge, JoinBtn, JoinStrip, Tile } from './parts';
 import l from './Learn.module.css';
 import s from './Schedule.module.css';
 
@@ -38,7 +38,10 @@ function Hero({ hero, now }: { hero: HeroVM; now: number }) {
         <div className={`${l.row} ${l.nw}`} style={{ gap: 16 }}>
           <DateTile t={hero.tile} lg on />
           <div className={l.colZ} style={{ minWidth: 0 }}>
-            <span className={l.eyb}>{hero.eyebrow}</span>
+            <span className={l.eyb}>
+              {hero.join ? <JoinBadge j={hero.join} /> : null}
+              {hero.join ? `· ${hero.eyebrowTail}` : hero.eyebrow}
+            </span>
             <h2 className={l.ht} id="lv-sch-next">
               {hero.title}
             </h2>
@@ -46,10 +49,17 @@ function Hero({ hero, now }: { hero: HeroVM; now: number }) {
         </div>
         <span className={l.dl}>{hero.meta}</span>
         <div className={l.hb}>
-          <button type="button" className={`${l.b} ${l.bp}`} onClick={() => saveIcs(hero.ics, now)}>
-            <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
-            {hero.addLabel}
-          </button>
+          {hero.join ? (
+            <JoinBtn sessionId={hero.join.sessionId} title={hero.join.title} label={hero.join.joinLabel} className={`${l.b} ${l.bp}`} />
+          ) : (
+            <>
+              <button type="button" className={`${l.b} ${l.bp}`} onClick={() => saveIcs(hero.ics, now)}>
+                <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
+                {hero.addLabel}
+              </button>
+              <CalLinks event={hero.ics[0]} />
+            </>
+          )}
           {hero.see ? (
             <Link className={`${l.b} ${l.bq}`} to={hero.see.href}>
               {hero.see.label}
@@ -76,7 +86,65 @@ function Hero({ hero, now }: { hero: HeroVM; now: number }) {
   );
 }
 
+/**
+ * D-183: under a week's row, Join for its session that can be joined now, or, for the next session before
+ * its window, Join drawn off with the current portal's hint. Beside the row's link, never inside it.
+ */
+function RowJoin({ w }: { w: WeekItemVM }) {
+  if (w.join)
+    return (
+      <div className={s.wrj} data-now={w.now ? 'true' : undefined}>
+        <JoinStrip j={w.join} compact />
+      </div>
+    );
+  if (w.watch)
+    return (
+      <div className={s.wrj} data-now={w.now ? 'true' : undefined}>
+        <div className={l.jst}>
+          <span className={l.ost} data-tone="ok">
+            <Icon name="r2Check" size={13} strokeWidth={2.2} />
+            {LABELS.replayReady}
+          </span>
+          <span className={`${l.w5} ${l.grow}`}>{w.watch.title}</span>
+          <Link className={`${l.b} ${l.bq}`} to={w.watch.href} aria-label={`${w.watch.label}: ${w.watch.title}`}>
+            <Icon name="play" size={12} filled />
+            {w.watch.label}
+          </Link>
+        </div>
+      </div>
+    );
+  if (!w.soon) return null;
+  return (
+    <div className={s.wrj} data-now={w.now ? 'true' : undefined}>
+      <div className={l.jst} role="group" aria-label={w.soon.title}>
+        <span className={`${l.colZ} ${l.grow}`}>
+          <span className={l.w5}>{w.soon.title}</span>
+          <span className={l.me}>{w.soon.meta}</span>
+        </span>
+        <span className={s.jsh}>
+          <button type="button" className={`${l.b} ${s.joff}`} aria-disabled="true" aria-describedby={`lv-hint-${w.key}`} title={w.soon.hint}>
+            <Icon name="lvVideo" size={14} strokeWidth={1.75} />
+            {w.soon.label}
+          </button>
+          <span className={l.me} id={`lv-hint-${w.key}`}>
+            {w.soon.hint}
+          </span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function WeekRowLink({ w }: { w: WeekItemVM }) {
+  return (
+    <>
+      <WeekRowBody w={w} />
+      <RowJoin w={w} />
+    </>
+  );
+}
+
+function WeekRowBody({ w }: { w: WeekItemVM }) {
   return (
     <Link className={s.wr} to={w.href} aria-label={w.aria} data-now={w.now ? 'true' : undefined}>
       <DateTile t={w.tile} lg on={w.now} />
@@ -102,7 +170,19 @@ function WeekRowLink({ w }: { w: WeekItemVM }) {
         {w.lines.map((x) => (
           <span key={x.key}>
             <i data-dot={x.dot} />
-            <span>{x.text}</span>
+            <span>
+              {x.text}
+              {x.badge ? (
+                <>
+                  {' '}
+                  <span className={s.lb} data-tone={x.badge.tone}>
+                    <Icon name={x.badge.tone === 'ok' ? 'r2Check' : 'clock'} size={11} strokeWidth={2.2} />
+                    {x.badge.label}
+                  </span>
+                </>
+              ) : null}
+              {x.extra ? <span className={s.lx}> · {x.extra}</span> : null}
+            </span>
           </span>
         ))}
       </span>
@@ -252,13 +332,20 @@ function Agenda({ label, groups }: { label: string; groups: AgendaGroupVM[] }) {
           <div className={`${s.mth} ${i === 0 ? s.first : ''}`}>{g.label}</div>
           {g.items.map((it) =>
             it.kind === 'session' ? (
-              <Link key={it.id} className={`${l.li} ${s.ali}`} to={it.href} style={{ gap: 12 }}>
-                <DateTile t={it.tile} />
-                <div className={`${l.colZ} ${l.grow}`} style={{ minWidth: 0 }}>
-                  <span className={l.w5}>{it.title}</span>
-                  <span className={l.me}>{it.meta}</span>
-                </div>
-              </Link>
+              <Fragment key={it.id}>
+                <Link className={`${l.li} ${s.ali}`} to={it.href} style={{ gap: 12 }}>
+                  <DateTile t={it.tile} />
+                  <div className={`${l.colZ} ${l.grow}`} style={{ minWidth: 0 }}>
+                    <span className={l.w5}>{it.title}</span>
+                    <span className={l.me}>{it.meta}</span>
+                  </div>
+                </Link>
+                {it.join ? (
+                  <div className={s.wrj}>
+                    <JoinStrip j={it.join} compact />
+                  </div>
+                ) : null}
+              </Fragment>
             ) : (
               <div key={it.key} className={`${l.li} ${s.abrk}`} style={{ gap: 12 }}>
                 <span className={s.brkt}>

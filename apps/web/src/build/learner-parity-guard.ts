@@ -22,8 +22,8 @@
 //      rate limit of 60 an hour; so is an answer with no run yet, for up to 5 minutes, and a rate limit or a
 //      network error. Then it fails: the guard fails closed.
 //
-// With the flag off, or in the fixture build the compliance suite runs (`--mode fixture` with the fixture
-// data source), nothing is asked and nothing changes.
+// With the flag off, in the fixture build the compliance suite runs (`--mode fixture` with the fixture data
+// source), or in the parity suite's request-capture build (`--mode parity`), nothing is asked.
 
 import { execFileSync } from 'node:child_process';
 import type { Plugin } from 'vite';
@@ -43,9 +43,14 @@ export const POLL_MS = MINUTE;
 
 type Env = Record<string, string | undefined>;
 
-/** Whether this build is guarded: the flag is on, and it is not the compliance suite's fixture build. */
+/**
+ * Whether this build is guarded: the flag is on, and it is not one of the test builds that are never
+ * deployed: the compliance suite's fixture build (`--mode fixture` with the fixture data source) and the
+ * parity suite's request-capture build (`--mode parity`, `compliance/parity/learner.config.ts`).
+ */
 export function guardApplies(mode: string, env: Env): boolean {
   if (env.VITE_LEARNER_V2 !== 'true') return false;
+  if (mode === 'parity') return false;
   return !(mode === 'fixture' && env.VITE_DATA_SOURCE === 'fixture');
 }
 
