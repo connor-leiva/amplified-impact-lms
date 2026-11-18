@@ -183,3 +183,38 @@ describe('a real recording with no module length (D-183)', () => {
     expect(live(x, 1)).toMatchObject({ kind: 'processing' });
   });
 });
+
+// D-187 (Connor's answer 1): "After the week opens" replays stay hidden until the week opens; "Published"
+// shows as soon as it is ready, even in a week still locked by its date (here Week 2 opens a week after
+// its build).
+describe('replay visibility in a locked week (D-187)', () => {
+  const S2 = Date.parse('2026-12-09T19:00:00Z');
+  const DEC10 = S2 + 30 * 3600_000;
+  const REC = 'https://stream.example.test/dec26-s2/playlist.m3u8';
+  const lockedWith = (x: Record<string, unknown>) =>
+    at(DEC10, (d) => {
+      d.modules.find((m) => m.id === 'accelerator-week-2')!.opens = S2 + 7 * 86400_000;
+      Object.assign(sessionIn(d, 'dec26-s2'), { replayUrl: REC, ...x });
+    });
+
+  it('Published: the locked week’s preview plays the replay as soon as it is ready @parity:E-1 @parity:C-3', () => {
+    const x = lockedWith({ replay: 'ready', replayVisibility: 'published' });
+    expect(weekRows(x.payload, x.db, who(x).me).find((r) => r.week === 2)!.state).toBe('locked');
+    expect(live(x, 2)).toMatchObject({ kind: 'replay', moduleId: 'accelerator-week-2', source: { kind: 'hls', src: REC } });
+  });
+
+  it('After the week opens, or not set: nothing in the locked week, the replay once it opens @parity:E-1 @parity:C-3', () => {
+    expect(live(lockedWith({ replay: 'ready', replayVisibility: 'after_open' }), 2)).toBeNull();
+    expect(live(lockedWith({ replay: 'ready' }), 2)).toBeNull();
+    const opened = at(S2 + 8 * 86400_000 + 6 * 3600_000, (d) => {
+      d.modules.find((m) => m.id === 'accelerator-week-2')!.opens = S2 + 7 * 86400_000;
+      Object.assign(sessionIn(d, 'dec26-s2'), { replayUrl: REC, replay: 'ready', replayVisibility: 'after_open' });
+    });
+    expect(live(opened, 2)).toMatchObject({ kind: 'replay', moduleId: 'accelerator-week-2' });
+  });
+
+  it('Hidden: never; and a locked week never says Replay Processing', () => {
+    expect(live(lockedWith({ replay: 'ready', replayVisibility: 'hidden' }), 2)).toBeNull();
+    expect(live(lockedWith({ replay: 'processing', replayVisibility: 'published' }), 2)).toBeNull();
+  });
+});

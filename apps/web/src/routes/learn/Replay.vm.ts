@@ -122,12 +122,15 @@ const ownSessions = (p: CoursePayload, week: number): CourseSession[] => p.sessi
 
 /**
  * What the week page draws under its header (D-183): its live session's Join, replay or "Replay
- * Processing". A locked week sends no content and so has no replay; Join still shows while one of its
- * sessions is on.
+ * Processing". A locked week sends no content; Join still shows while one of its sessions is on, and
+ * (D-187) a replay staff set Published shows in its preview as soon as it is ready, since the learner's
+ * snapshot then carries it. A locked week never says "Replay Processing".
  */
 export function weekLiveVM(p: CoursePayload, rows: readonly WeekRow[], who: ReplayWho, week: number, now: number): WeekSessionVM {
   const row = rows.find((r) => r.week === week);
-  return weekSessionVM(ownSessions(p, week), row && row.state !== 'locked' ? row.module : undefined, who, now);
+  const vm = weekSessionVM(ownSessions(p, week), row?.module, who, now);
+  if (row?.state === 'locked' && vm?.kind === 'processing') return null;
+  return vm;
 }
 
 /**
