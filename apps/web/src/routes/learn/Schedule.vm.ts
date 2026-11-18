@@ -13,7 +13,7 @@
 
 import { fmt } from '@ai/core';
 import type { Cohort, IconName, IcsEvent, SessionType } from '@ai/core';
-import { countWord, currentWeek, duration, liveSessionAt, upcomingSessions } from '@ai/core/learner';
+import { countWord, currentWeek, duration, joinableSession, liveSessionAt, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
 import {
   SCHEDULE_ICS_PATH,
   buildBreaks,
@@ -28,10 +28,10 @@ import {
 } from '@ai/core/schedule';
 import type { ScheduleBreak } from '@ai/core/schedule';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
-import { countParts, partsAria } from './Home.vm';
+import { HOME, countParts, partsAria } from './Home.vm';
 import type { HeroRightVM } from './Home.vm';
-import { LABELS, dateTile, icsEvents } from './learn.vm';
-import type { DateTileVM, Tone, WeekRow } from './learn.vm';
+import { LABELS, dateTile, icsEvents, joinVM } from './learn.vm';
+import type { DateTileVM, JoinVM, Tone, WeekRow } from './learn.vm';
 import { learnSchedule, learnWeek } from './routes';
 
 /** Generic chrome, from the mockup. Never a week's or a session's words. */
@@ -85,16 +85,28 @@ const dotOf = (s: Pick<CourseSession, 'kind' | 'type'>): Dot => (typeOf(s) === '
  * What a week's row calls a session: its type for a live build or office hours ("Live build · Wed,
  * Dec 2"); its own title for any other type, which says more than the type does.
  */
+// The session's own title, open week or locked, as the current portal's Sessions page names it (inventory
+// R-2, S-1), and its type in words, never by the dot's colour alone: a title that already says it ("Map
+// Your Spend Live Build") stands alone, any other gets the type first ("Live build · Kickoff"), none is
+// the type.
 const lineLabel = (s: CourseSession): string => {
   const t = typeOf(s);
-  return t === 'live_build' || t === 'office_hours' ? SCHEDULE.type[t] : s.title;
+  if (t !== 'live_build' && t !== 'office_hours') return s.title;
+  const type = SCHEDULE.type[t];
+  const title = s.title?.trim() ?? '';
+  if (!title) return type;
+  return title.toLowerCase().includes(type.toLowerCase()) ? title : `${type} · ${title}`;
 };
 
 // --- the view-model -------------------------------------------------------------------------------
 
 export interface HeroVM {
   tile: DateTileVM;
+  /** D-183: Join, with the live badge or "Starting soon", while the hero's session can be joined. */
+  join: JoinVM | null;
   eyebrow: string;
+  /** The eyebrow after its lead ("Week 2 · Live build"), drawn after the live badge while Join shows. */
+  eyebrowTail: string;
   title: string;
   meta: string;
   ics: IcsEvent[];
@@ -118,8 +130,30 @@ export interface WeekItemVM {
   title: string;
   pill: { tone: 'open' | 'ip' | 'done'; label: string } | null;
   line: string;
-  lines: { key: string; dot: Dot; text: string }[];
+  lines: SessionLineVM[];
   locked: boolean;
+  /** D-183: Join, for a session of the week that can be joined now. */
+  join: JoinVM | null;
+  /**
+   * D-183: the next session, before its window: Join drawn off, with the current portal's hint ("Opens 15
+   * Min Before"), as its Sessions page draws the next row.
+   */
+  soon: { title: string; meta: string; label: string; hint: string } | null;
+  /** D-183: the current portal's "Watch Replay" for a live build whose replay is published: the week's player. */
+  watch: { label: string; href: string; title: string } | null;
+}
+
+/**
+ * A session's line in its week's row, and the state the current portal's Sessions page gives a past one:
+ * a live build's replay (Replay Ready or Replay Processing) and how many attended live, any other
+ * session's "Recording Posted" once its replay is up.
+ */
+export interface SessionLineVM {
+  key: string;
+  dot: Dot;
+  text: string;
+  badge: { tone: 'ok' | 'neutral'; label: string } | null;
+  extra: string | null;
 }
 
 export interface BreakItemVM {
@@ -174,6 +208,8 @@ export interface AgendaSessionVM {
   title: string;
   meta: string;
   href: string;
+  /** D-183: Join, while the session can be joined. */
+  join: JoinVM | null;
 }
 
 export interface AgendaGroupVM {
@@ -239,14 +275,29 @@ const pillOf = (r: WeekRow): WeekItemVM['pill'] =>
         ? { tone: 'ip', label: LABELS.inProgress }
         : { tone: 'open', label: LABELS.open };
 
-function weekItem(r: WeekRow, own: readonly CourseSession[], nowWeek: number | null): WeekItemVM {
+/** D-183: a past session's state, as the current portal's Sessions page writes it. */
+function pastState(s: CourseSession, now: number): Pick<SessionLineVM, 'badge' | 'extra'> {
+  const phase = sessionPhase(s, now);
+  if (typeOf(s) !== 'live_build')
+    return { badge: phase === 'replay' ? { tone: 'ok', label: LABELS.recordingPosted } : null, extra: null };
+  const past = phase === 'replay' || phase === 'processing';
+  return {
+    badge: phase === 'replay' ? { tone: 'ok', label: LABELS.replayReady } : phase === 'processing' ? { tone: 'neutral', label: LABELS.replayProcessing } : null,
+    extra: past && s.attended ? `${fmt.num(s.attended)} ${LABELS.attendedLive}` : null,
+  };
+}
+
+function weekItem(r: WeekRow, own: readonly CourseSession[], nowWeek: number | null, now: number, next: CourseSession | null): WeekItemVM {
   const anchor = own.find((s) => typeOf(s) === 'live_build') ?? own[0] ?? null;
   const pill = pillOf(r);
-  const lines: WeekItemVM['lines'] = own.length
-    ? own.map((s) => ({ key: s.id, dot: dotOf(s), text: `${lineLabel(s)} · ${fmt.day(s.start)}` }))
+  const join = own.map((s) => joinVM(s, now)).find((j): j is JoinVM => !!j) ?? null;
+  const replayed = own.find((s) => typeOf(s) === 'live_build' && sessionPhase(s, now) === 'replay') ?? null;
+  const mine = next && !join && own.some((s) => s.id === next.id) && sessionPhase(next, now) === 'upcoming' ? next : null;
+  const lines: SessionLineVM[] = own.length
+    ? own.map((s) => ({ key: s.id, dot: dotOf(s), text: `${lineLabel(s)} · ${fmt.day(s.start)}`, ...pastState(s, now) }))
     : [
         ...(r.module?.dueAt
-          ? [{ key: 'due', dot: 'build' as const, text: `${SCHEDULE.selfPacedDue} ${fmt.day(r.module.dueAt)}` }]
+          ? [{ key: 'due', dot: 'build' as const, text: `${SCHEDULE.selfPacedDue} ${fmt.day(r.module.dueAt)}`, badge: null, extra: null }]
           : []),
         ...(r.open
           ? [
@@ -254,6 +305,8 @@ function weekItem(r: WeekRow, own: readonly CourseSession[], nowWeek: number | n
                 key: 'time',
                 dot: 'oh' as const,
                 text: `${SCHEDULE.owner} ${inline(r.open.time.owner)} · ${SCHEDULE.operator} ${inline(r.open.time.operator)}`,
+                badge: null,
+                extra: null,
               },
             ]
           : []),
@@ -283,23 +336,50 @@ function weekItem(r: WeekRow, own: readonly CourseSession[], nowWeek: number | n
         : r.outcome,
     lines,
     locked: r.state === 'locked',
+    join,
+    soon: mine ? { title: mine.title, meta: `${fmt.time(mine.start)} · ${LABELS.zoom}`, label: LABELS.join, hint: LABELS.joinHint } : null,
+    watch: replayed && r.state !== 'locked' ? { label: LABELS.watchReplay, href: r.href, title: replayed.title } : null,
   };
 }
 
+const HOUR = 3600_000;
+
+/**
+ * The session the hero shows (D-183): the one to join now (live, or inside its 15-minute window), else one
+ * starting within the hour (the 1-hour reminder's, so the reminder's link lands on it and its Join appears
+ * here when the window opens), else the next live build, else the next session.
+ */
+export function heroSession(sessions: readonly CourseSession[], now: number): CourseSession | null {
+  const ahead = upcomingSessions(sessions, now).filter((s) => !s.live);
+  return (
+    joinableSession(sessions, now) ??
+    ahead.find((s) => s.start - now <= HOUR) ??
+    ahead.find((s) => s.kind === 'build') ??
+    ahead[0] ??
+    null
+  );
+}
+
 function hero(p: CoursePayload, rows: readonly WeekRow[], now: number): HeroVM | null {
-  const next = upcomingSessions(p.sessions, now, 'build')[0] ?? upcomingSessions(p.sessions, now)[0] ?? null;
+  const next = heroSession(p.sessions, now);
   if (!next) return null;
   const row = rows.find((r) => r.week === next.week);
-  const parts = countParts(next.start, now, true);
+  const join = joinVM(next, now);
+  const live = join?.state === 'live';
+  const parts = countParts(live ? sessionEndsAt(next) : next.start, now, true);
+  const lead = join ? join.badge : SCHEDULE.next;
+  const tail = `${LABELS.week} ${next.week} · ${SCHEDULE.type[typeOf(next)]}`;
   return {
     tile: dateTile(next.start),
-    eyebrow: `${SCHEDULE.next} · ${LABELS.week} ${next.week} · ${SCHEDULE.type[typeOf(next)]}`,
+    join,
+    eyebrow: `${lead} · ${tail}`,
+    eyebrowTail: tail,
     title: next.title,
-    meta: [fmt.day(next.start), fmt.time(next.start), duration(next.mins), LABELS.zoom, SCHEDULE.joinOpens].join(' · '),
+    meta: [fmt.day(next.start), fmt.time(next.start), duration(next.mins), LABELS.zoom, ...(join ? [] : [SCHEDULE.joinOpens])].join(' · '),
     ics: icsEvents([next]),
     addLabel: LABELS.addToCalendar,
     see: row ? { label: SCHEDULE.seeBuild, href: row.href } : null,
-    right: { label: SCHEDULE.startsIn, icon: 'r2Jobs', parts, aria: partsAria(parts), foot: '' },
+    right: { label: live ? HOME.timeLeft : SCHEDULE.startsIn, icon: 'r2Jobs', parts, aria: partsAria(parts), foot: '' },
   };
 }
 
@@ -310,7 +390,11 @@ function weeksView(
   breaks: readonly ScheduleBreak[],
   note: ReturnType<typeof holidayNote>,
   nowWeek: number | null,
+  now: number,
 ): ScheduleVM['weeks'] {
+  // The current portal's "next" row: the first session not yet over (or live). Its Join shows off, with
+  // its hint, until its window opens.
+  const next = [...p.sessions].sort((a, b) => a.start - b.start).find((s) => s.live || sessionEndsAt(s) > now) ?? null;
   const byWeek = new Map<number, CourseSession[]>();
   for (const s of [...p.sessions].sort((a, b) => a.start - b.start))
     byWeek.set(s.week, [...(byWeek.get(s.week) ?? []), s]);
@@ -319,7 +403,7 @@ function weeksView(
   const dated: { at: number; item: WeekItemVM | BreakItemVM }[] = [];
   for (const r of rows) {
     const own = byWeek.get(r.week) ?? [];
-    const item = weekItem(r, own, nowWeek);
+    const item = weekItem(r, own, nowWeek, now, next);
     if (!own.length) selfPaced.push(item);
     else dated.push({ at: (own.find((s) => typeOf(s) === 'live_build') ?? own[0]!).start, item });
   }
@@ -402,6 +486,7 @@ function calendarView(
       title: s.title,
       meta: sessionMeta(s),
       href: learnWeek(s.week),
+      join: joinVM(s, now),
     },
   }));
   breaks.forEach((b, i) =>
@@ -457,7 +542,7 @@ export function scheduleVM(
     },
     addAll: p.sessions.length ? { label: LABELS.addAll, href: SCHEDULE_ICS_PATH } : null,
     hero: hero(p, rows, now),
-    weeks: weeksView(p, rows, breaks, note, nowWeek),
+    weeks: weeksView(p, rows, breaks, note, nowWeek, now),
     calendar: calendarView(p, breaks, note, now),
   };
 }

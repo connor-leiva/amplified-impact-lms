@@ -263,6 +263,7 @@ function Curriculum() {
         filtered={filtered}
         onMove={filtered ? undefined : (a, b) => void move(a, b)}
         actionsWidth="104px"
+        quickInline
         empty={{
           icon: 'r2Curriculum',
           title: 'No AI Employees yet',

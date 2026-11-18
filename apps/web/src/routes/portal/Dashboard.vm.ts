@@ -30,8 +30,9 @@ import {
   visibleModules,
 } from '@ai/core';
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
+import { inAppAnnouncement } from '@ai/core/learner';
+import { calLinks } from '../../components/calendar-links';
 import type {
-  Announcement,
   BuildState,
   CardVM,
   Db,
@@ -174,13 +175,6 @@ export interface DashboardUi {
 const OFFICE_HOURS_ZOOM = 'https://zoom.us/j/8841299001';
 const OFFICE_HOURS_TITLE = 'Amplified Impact office hours';
 
-/** The UTC basic format a Google Calendar template link wants. */
-const gcalStamp = (t: number): string =>
-  new Date(t)
-    .toISOString()
-    .replace(/[-:]/g, '')
-    .replace(/\.\d{3}/, '');
-
 /**
  * The next Wednesday 11:00 AM CT at or after `now`. Ported literally from the reference's IIFE,
  * including the fixed 6-hour offset it uses to read a Central date out of a UTC string.
@@ -265,11 +259,8 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
         .replace(/, ([^,]*)$/, ' and $1')} Included`;
 
   // ---- the banner: first match in seed order, which is newest first ---------------------------
-  const aud = (a: Announcement): boolean =>
-    a.audience === 'all' || a.audience === user.tier || (a.audience === 'owners' && user.role === 'Team Owner');
-  const raw = db.announcements.find(
-    (x) => x.status === 'sent' && x.channels.includes('inapp') && aud(x) && !(db.dismissed ?? {})[`${user.id}:${x.id}`],
-  );
+  // D-183: the rule lives in core, so the learner portal v2's Home shows exactly the same one.
+  const raw = inAppAnnouncement(db, user);
 
   let ann: DashboardAnn | null = null;
   if (raw) {
@@ -495,8 +486,8 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
     cal:
       card && s && event
         ? {
-            google: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${gcalStamp(event.start)}/${gcalStamp(event.end)}&details=${encodeURIComponent(event.url)}`,
-            outlook: `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(event.title)}&startdt=${new Date(event.start).toISOString()}&enddt=${new Date(event.end).toISOString()}&body=${encodeURIComponent(event.url)}`,
+            // D-183: the builders moved to `components/calendar-links.ts`, unchanged.
+            ...calLinks(event),
             ics: {
               name: `session-${s.n}.ics`,
               content: ics([event], now),

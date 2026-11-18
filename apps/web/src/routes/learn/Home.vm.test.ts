@@ -5,7 +5,7 @@ import { learnerOf } from '@ai/core/learner';
 import { COPY as COURSE_COPY } from '../course/Course.vm';
 import { greeting, homeVM } from './Home.vm';
 import { weekRows } from './learn.vm';
-import { LEARNER_ID, PRELAUNCH_NOW, learnState, liveState, prelaunchState } from './test/fixture';
+import { LEARNER_ID, PRELAUNCH_NOW, asShell, learnState, liveState, prelaunchState, sessionIn } from './test/fixture';
 import type { LearnState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
@@ -61,7 +61,7 @@ describe('Home (D-177)', () => {
     expect(vm.cohort).toMatchObject({
       month: 'December 2026',
       stats: [{ figure: '15', label: 'in your cohort' }],
-      officeHours: { title: 'Map Your Spend Office Hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)' },
+      officeHours: { title: 'Map Your Spend Office Hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' },
       support: { address: 'support@amplifiedimpact.io', href: 'mailto:support@amplifiedimpact.io' },
     });
     // No enrolment, no tile: a count the API can't vouch for is not drawn.
@@ -106,5 +106,159 @@ describe('Home (D-177)', () => {
     expect(homeVM({ kind: 'failed' }, [], [], null, 'Pat Lee', PRELAUNCH_NOW)).toMatchObject({ lede: COURSE_COPY.failed, library: null });
     const up = homeVM({ kind: 'upcoming', opensAt: Date.parse('2026-12-02T19:00:00Z') }, [], [], null, 'Pat Lee', PRELAUNCH_NOW);
     expect(up.hero).toMatchObject({ kind: 'opens', right: { label: 'Goes live in', foot: 'Wed, Dec 2 · 12:00 PM MT (1:00 PM CT)' } });
+  });
+});
+
+// D-183: Join from 15 minutes before, Go Live and End Session, and the in-app announcement.
+describe('Home: Join, Go Live and the in-app announcement (D-183)', () => {
+  const S1 = Date.parse('2026-12-02T19:00:00Z');
+  const MIN = 60_000;
+  const at = (now: number, edit?: Parameters<typeof learnState>[4]) => asShell(learnState(now, true, { 0: ['c1', 'c2'] }, 15, edit));
+  const full = (st: LearnState) => {
+    const me = learnerOf(st.db, LEARNER_ID);
+    return homeVM({ kind: 'ready', payload: st.payload }, weekRows(st.payload, st.db, me), st.db.cohorts, me, me!.name, st.now, st.db);
+  };
+
+  it('Home hero Join enabled at start-15m, absent at start-16m @parity:D-2 @parity:A-8', () => {
+    expect(home(at(S1 - 16 * MIN)).hero).toMatchObject({ kind: 'step' });
+    const vm = home(at(S1 - 15 * MIN));
+    expect(vm.hero).toMatchObject({ kind: 'live', state: 'ready', eyebrow: 'Starting soon · Week 1', sessionId: 'dec26-s1', joinLabel: 'Join the live build', right: { label: 'Goes live in' } });
+    // Not live yet, so no card is marked live.
+    expect(vm.employees!.cards.some((c) => c.live)).toBe(false);
+  });
+
+  it('Home follows Go Live hours early (Live now, Join) and End Session (gone) @parity:C-1 @parity:C-2', () => {
+    const early = S1 - 3 * 3600_000;
+    const live = home(at(early, (d) => (sessionIn(d, 'dec26-s1').live = true)));
+    expect(live.hero).toMatchObject({ kind: 'live', state: 'live', eyebrow: 'Live now · Week 1' });
+    expect(live.employees!.cards.filter((c) => c.live).map((c) => c.week)).toEqual([1]);
+    expect(live.comingUp!.rows.map((r) => r.id)).not.toContain('dec26-s1');
+    const ended = home(
+      at(early + 20 * MIN, (d) => {
+        const s = sessionIn(d, 'dec26-s1');
+        Object.assign(s, { live: false, start: early + 20 * MIN - s.mins * MIN, replay: 'processing' });
+      }),
+    );
+    expect(ended.hero).toMatchObject({ kind: 'step' });
+  });
+
+  it('the in-app announcement for the learner’s audience: severity, title, body, time, Open Sessions action; none once dismissed @parity:D-1 @parity:C-6 @parity:M-5', () => {
+    const ann = (d: Parameters<NonNullable<Parameters<typeof learnState>[4]>>[0], dismissed = false) => {
+      d.announcements = [
+        { id: 'e1', title: 'By email only', body: '', severity: 'info', action: null, actionLabel: '', audience: 'all', channels: ['email'], status: 'sent', at: PRELAUNCH_NOW - 3600_000, opens: null },
+        { id: 'n1', title: 'Office hours are open', body: 'Bring your questions.', severity: 'info', action: 'sessions', actionLabel: 'See the schedule', audience: 'all', channels: ['inapp'], status: 'sent', at: PRELAUNCH_NOW - 2 * 3600_000, opens: null },
+      ];
+      d.dismissed = dismissed ? { [`${LEARNER_ID}:n1`]: 1 } : {};
+    };
+    const vm = full(at(PRELAUNCH_NOW, (d) => ann(d)));
+    expect(vm.banner).toMatchObject({
+      id: 'n1',
+      severity: 'info',
+      title: 'Office hours are open',
+      body: 'Bring your questions.',
+      when: '2 hours ago',
+      action: { label: 'See the schedule', kind: 'nav', href: '/learn/schedule' },
+      dismiss: 'Dismiss',
+    });
+    expect(full(at(PRELAUNCH_NOW, (d) => ann(d, true))).banner).toBeNull();
+    // Without the snapshot handed in, no banner (the view-model's other callers).
+    expect(home(at(PRELAUNCH_NOW, (d) => ann(d))).banner).toBeNull();
+  });
+
+  it('the moved-session banner re-reads its title from the session; Update Calendar is the updated .ics @parity:D-1', () => {
+    const vm = full(
+      at(PRELAUNCH_NOW, (d) => {
+        d.announcements = [
+          { id: 'm1', sessionId: 'dec26-s1', title: 'Old words', body: '', severity: 'warning', action: 'calendar', actionLabel: 'Update Calendar', audience: 'all', channels: ['inapp', 'email'], status: 'sent', at: PRELAUNCH_NOW - 60_000, opens: null },
+        ];
+        sessionIn(d, 'dec26-s1').start = Date.parse('2026-12-03T19:00:00Z');
+      }),
+    );
+    expect(vm.banner).toMatchObject({
+      severity: 'warning',
+      title: 'Session 1 moved to Thu Dec 3 · 12:00 PM MT (1:00 PM CT)',
+      action: { kind: 'calendar', label: 'Update Calendar', name: 'session-1.ics', toast: 'Calendar invite updated' },
+    });
+    if (vm.banner?.action?.kind !== 'calendar') throw new Error('no calendar action');
+    expect(vm.banner.action.ics).toEqual([{ id: 'dec26-s1', title: 'Map Your Spend Live Build', start: Date.parse('2026-12-03T19:00:00Z'), end: Date.parse('2026-12-03T20:30:00Z') }]);
+  });
+
+  it('after the cohort: “Your Cohort Wrapped”, office hours to calendar, Rewatch Any Session to the latest replay @parity:D-6 @parity:C-3', () => {
+    const END = Date.parse('2027-02-10T19:00:00Z');
+    const vm = full(asShell(learnState(END, false, {}, 15)));
+    expect(vm.post).toMatchObject({
+      kicker: expect.stringMatching(/^Your Cohort Wrapped on /),
+      title: 'Office Hours Continue',
+      meta: expect.stringMatching(/^Drop-In Build Help with .+ · Next: Schedule TBA$/),
+      ics: null,
+      addLabel: 'Add Office Hours to Calendar',
+      rewatch: { label: 'Rewatch Any Session', href: '/learn/schedule' },
+    });
+    // While a session is still ahead, none.
+    expect(full(at(PRELAUNCH_NOW)).post).toBeNull();
+    // With a replay published, Rewatch opens the latest one's week, where its player is.
+    const withReplay = full(asShell(learnState(END, false, {}, 15, (d) => Object.assign(sessionIn(d, 'dec26-s7'), { replay: 'ready' }))));
+    expect(withReplay.post!.rewatch).toEqual({ label: 'Rewatch Any Session', href: '/learn/week/7' });
+  });
+
+  it('for 12 hours after a build: Replay Ready with Watch Replay, or Session Ended with Open the Build Kit @parity:D-4 @parity:C-3', () => {
+    const S1END = S1 + 90 * MIN;
+    const processing = full(at(S1END + 60 * MIN, (d) => Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'processing' })));
+    expect(processing.recent).toEqual({
+      state: 'processing',
+      badge: 'Session Ended',
+      title: 'Map Your Spend Live Build',
+      note: 'Replay processing · usually within 2 hours',
+      action: { label: 'Open the Build Kit', href: '/learn/week/1' },
+    });
+    const ready = full(at(S1END + 3 * 3600_000, (d) => Object.assign(sessionIn(d, 'dec26-s1'), { replay: 'ready' })));
+    expect(ready.recent).toMatchObject({ state: 'replay', badge: 'Replay Ready', action: { label: 'Watch Replay', href: '/learn/week/1' } });
+    expect(full(at(S1END + 13 * 3600_000)).recent).toBeNull();
+  });
+
+  it('before the course opens: the pre-launch welcome beside the countdown @parity:K-14 @parity:G-7', () => {
+    const up = homeVM({ kind: 'upcoming', opensAt: Date.parse('2026-12-02T19:00:00Z') }, [], [], null, 'Pat Lee', PRELAUNCH_NOW);
+    expect(up.hero).toMatchObject({
+      kind: 'opens',
+      right: { label: 'Goes live in' },
+      welcome: {
+        title: 'You’re in the Amplified AI Accelerator.',
+        starts: 'Live sessions start Wednesday, Dec 2, at 12:00 PM MT (1:00 PM CT). Your course and your skills open then.',
+        support: 'Questions? Email',
+        email: 'support@amplifiedimpact.io',
+      },
+    });
+  });
+
+  it('shows the announcement on Home without the course too', () => {
+    const st = at(PRELAUNCH_NOW, (d) => {
+      d.announcements = [{ id: 'n2', title: 'For everyone', body: '', severity: 'info', action: null, actionLabel: '', audience: 'all', channels: ['inapp'], status: 'sent', at: PRELAUNCH_NOW, opens: null }];
+    });
+    const me = learnerOf(st.db, LEARNER_ID);
+    expect(homeVM({ kind: 'locked' }, [], [], me, 'Dana Ross', PRELAUNCH_NOW, st.db).banner).toMatchObject({ title: 'For everyone', action: null });
+  });
+});
+
+// D-187 (D-10): today's Dashboard quick link "Cohort Community" used prototype figures. The new Home's cohort
+// card links the address staff set in the builder's Shared pages, and hides the link when there is none.
+describe('the Cohort Community link (D-187)', () => {
+  const withCommunity = (url: string | undefined) =>
+    learnState(PRELAUNCH_NOW, true, {}, 15, (d) => {
+      const intro = d.cohorts.find((c) => c.id === 'dec26')!.course!.intro;
+      if (url === undefined) delete intro.community;
+      else intro.community = url;
+    });
+
+  it('links the builder’s address in a new tab, named by its site, never a member count @parity:D-10', () => {
+    const vm = home(withCommunity('https://www.skool.com/amplified-dec26'));
+    expect(vm.cohort!.community).toEqual({ label: 'Cohort Community', host: 'skool.com', href: 'https://www.skool.com/amplified-dec26' });
+    expect(JSON.stringify(vm.cohort)).not.toMatch(/members|new posts/);
+  });
+
+  it('hidden when the builder has no link, or one that is not a web address @parity:D-10', () => {
+    expect(home(withCommunity(undefined)).cohort!.community).toBeNull();
+    expect(home(withCommunity('')).cohort!.community).toBeNull();
+    expect(home(withCommunity('javascript:alert(1)')).cohort!.community).toBeNull();
+    expect(home(withCommunity('/community')).cohort!.community).toBeNull();
   });
 });

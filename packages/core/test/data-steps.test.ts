@@ -5,6 +5,8 @@ import { ACCELERATOR_MODULE_IDS } from '../src/accelerator';
 import type { Db } from '../src/types';
 import { WEEK0_DUE_AT } from '../seed/accelerator-v1';
 import { COPY_V1_KEYS, planCopyV1 } from '../seed/copy-v1';
+import { COPY_V2, TEAM_PLAN_COPY, planCopyV2 } from '../seed/copy-v2';
+import { copyIssues } from '../src/course-rules';
 import { SEED_COPY, seedProduction } from '../seed/curriculum';
 import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan-v1';
 
@@ -83,5 +85,31 @@ describe('the copy strings D-175 adds', () => {
     expect(out.changes).toEqual([{ target: { type: 'copy', id: 'course.prelaunch', label: 'course.prelaunch' }, before: null, after: { audience: 'learner', length: SEED_COPY[2]!.value.length } }]);
     expect(planCopyV1(out.db).changes).toEqual([]);
     expect(COPY_V1_KEYS).toEqual(['locked.opens', 'course.prelaunch']);
+  });
+});
+
+// D-187: the Team Plan window's words, as copy strings the builder edits.
+describe('the Team Plan window’s copy strings (D-187)', () => {
+  it('adds each missing key, keeps one staff changed, and runs once @parity:SH-8 @parity:P-1', () => {
+    const db = prod();
+    db.copy = [...(db.copy ?? []), { key: 'plan.team.ask', value: 'Ask Us', audience: 'learner' }];
+    const out = planCopyV2(db);
+    expect(out.db.copy!.find((c) => c.key === 'plan.team.ask')!.value).toBe('Ask Us');
+    expect(out.changes.map((c) => c.target.id)).toEqual(['plan.team.title', 'plan.team.lead', 'plan.team.solo', 'plan.team.asked']);
+    expect(planCopyV2(out.db).changes).toEqual([]);
+    expect(planCopyV2(out.db).db).toBe(out.db);
+    expect(COPY_V2).toBe('2026-11-18-team-plan-copy');
+  });
+
+  it('says what Connor asked for, every key a learner string under plan.team., and passes the copy rules', () => {
+    const v = Object.fromEntries(TEAM_PLAN_COPY.map((c) => [c.key, c.value]));
+    expect(v['plan.team.title']).toMatch(/comes with the Team Plan/);
+    expect(v['plan.team.lead']).toMatch(/team lead can add/);
+    expect(v['plan.team.solo']).toMatch(/Solo agent\? Ask us/);
+    for (const c of TEAM_PLAN_COPY) {
+      expect(c.key.startsWith('plan.team.')).toBe(true);
+      expect(c.audience).toBe('learner');
+      expect(copyIssues([{ path: c.key, label: c.key, text: c.value }])).toEqual([]);
+    }
   });
 });

@@ -5,6 +5,7 @@ import { Input, Select } from '../../components/primitives/Field';
 import { saveStoredFile } from '../../data/files';
 import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
 import { masqueradeActive } from '../../data/masquerade';
+import { useTeamPlan } from '../learn/teamPlanContext';
 import { vaultVM } from './Vault.vm';
 import type { VaultRow, VaultTabId } from './Vault.vm';
 import s from './Vault.module.css';
@@ -18,6 +19,10 @@ import s from './Vault.module.css';
 //
 // D-162 3b: during a masquerade the download count (`downloadResource`, a POST) is a write, which the
 // server refuses, so the file is fetched straight away and nothing is counted. Outside one, unchanged.
+//
+// D-187: drawn inside the learner portal's shell (D-182), a Team-only item's Upgrade and the executive
+// tab's request open the shell's Team Plan window, whose one button sends `requestUpgrade`. In the first
+// portal's shell nothing provides the window and both send the request straight away, as before.
 
 /** The reference's `act.download`: a Blob, a synthetic anchor click, then a delayed revoke. */
 function saveFile(name: string, body: string, mime: string): void {
@@ -65,10 +70,12 @@ export function Component() {
     [setParams],
   );
 
+  const teamPlan = useTeamPlan();
   const onRow = useCallback(
     async (r: VaultRow) => {
       setError('');
       if (r.locked) {
+        if (teamPlan) return teamPlan({ kind: 'resource', id: r.id });
         const out = await mutate('requestUpgrade', { source: `Resource Vault · ${r.title}` });
         if (out.error) setError(out.error);
         return;
@@ -85,14 +92,15 @@ export function Component() {
       if (r.notion) return; // a Notion template opens in Notion; there is no file either way
       if (!saveStoredFile({ kind: 'resource', id: r.id })) saveFile(r.file.name, r.file.body, r.file.mime);
     },
-    [mutate],
+    [mutate, teamPlan],
   );
 
   const onRequest = useCallback(async () => {
     setError('');
+    if (teamPlan) return teamPlan({ kind: 'plan' });
     const out = await mutate('requestUpgrade', { source: 'Executive Build Vault' });
     if (out.error) setError(out.error);
-  }, [mutate]);
+  }, [mutate, teamPlan]);
 
   const actor = viewer.actor;
   const user = actor.kind === 'learner' ? db.users.find((u) => u.id === actor.userId) : undefined;

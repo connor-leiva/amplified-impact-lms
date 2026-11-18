@@ -67,6 +67,15 @@
 .spacer {
   flex: 1;
 }
+/* D-184: the cohort line under the wordmark (the current portal's context line). */
+.ctx {
+  margin: -6px 0 8px;
+  padding: 0 16px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+  flex: none;
+}
 
 .nav {
   flex: 1;
@@ -161,6 +170,17 @@ button.ni {
   color: var(--r2-f3);
   display: flex;
 }
+/* D-185: the desktop's Collapse sidebar / Expand sidebar, drawn as the link rows are (not the body's
+   type a button row otherwise takes). */
+button.ni.tog {
+  font-size: var(--lv-ctl);
+  font-weight: 500;
+  color: var(--r2-f2);
+}
+button.ni.tog:hover {
+  color: var(--r2-ink);
+}
+
 /* An AI employee in the nav, with its own tile and its status (LEARNER). */
 .em {
   gap: 8px;
@@ -379,6 +399,29 @@ button.ni {
   min-width: 0;
 }
 
+/* D-182: a staff member's "Preview as learner" line (D-138), under the bar, as the first portal's shell
+   drew it, in R2's attention colours. */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--r2-warn-line);
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+  font-weight: 600;
+}
+.frame :where(a).previewExit {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---- controls the bar uses (`.b`, `.ib`, `.st`) --------------------------------------------------- */
 
 .b {
@@ -528,36 +571,44 @@ button.b {
 
 /* ---- laptop: the 64px rail (768 to 1199px) ---------------------------------------------------------- */
 
-@media (min-width: 768px) and (max-width: 1199px) {
-  .sb {
-    width: 64px;
-  }
-  .sb .top {
-    justify-content: center;
-    padding: 0;
-  }
-  .sb .wmw {
-    width: 11px;
-  }
-  .sb .lbl,
-  .sb .es,
-  .sb .nl,
-  .sb .ng,
-  .sb .ngc {
+/* D-183: the bar's Google Calendar and Outlook links, where the bar has room for them. */
+@media (max-width: 1199px) {
+  .wideOnly {
     display: none;
   }
-  .sb .rsep {
-    display: block;
-  }
-  .sb .nav {
-    padding: 4px 12px 16px;
-    gap: 4px;
-  }
-  .sb .ni {
-    justify-content: center;
-    padding: 0;
-    height: 36px;
-  }
+}
+
+/* The rail's form, on the sidebar the shell marks `data-rail`: from 768 to 1199px always (the laptop's
+   automatic rail), and on a desktop when the person collapses it (D-185). The drawer never is one. */
+.sb[data-rail='true'] {
+  width: 64px;
+}
+.sb[data-rail='true'] .top {
+  justify-content: center;
+  padding: 0;
+}
+.sb[data-rail='true'] .wmw {
+  width: 11px;
+}
+.sb[data-rail='true'] .lbl,
+.sb[data-rail='true'] .ctx,
+.sb[data-rail='true'] .es,
+.sb[data-rail='true'] .nl,
+.sb[data-rail='true'] .ng,
+.sb[data-rail='true'] .ngc {
+  display: none;
+}
+.sb[data-rail='true'] .rsep {
+  display: block;
+}
+.sb[data-rail='true'] .nav {
+  padding: 4px 12px 16px;
+  gap: 4px;
+}
+.sb[data-rail='true'] .ni {
+  justify-content: center;
+  padding: 0;
+  height: 36px;
 }
 
 /* ---- phone: the sidebar becomes a drawer from a 56px bar, and the next session gets its own strip ---- */
@@ -667,5 +718,12 @@ button.b {
   .es svg {
     width: 14px;
     height: 14px;
+  }
+}
+
+/* D-182: the preview line's phone gutter. */
+@media (max-width: 767px) {
+  .preview {
+    padding: 0 16px;
   }
 }

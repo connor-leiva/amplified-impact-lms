@@ -115,9 +115,9 @@ describe('the Schedule (D-180)', () => {
     expect(rows[0]).toHaveTextContent('In progress');
     expect(rows[0]).toHaveTextContent('Self-paced, due Mon, Nov 30');
     expect(rows[2]).toHaveAccessibleName('Week 2, Leads That Pay, opens Wed, Dec 9');
-    expect(rows[2]).toHaveTextContent('Live build · Wed, Dec 9');
+    expect(rows[2]).toHaveTextContent('Lead Source Review Live Build · Wed, Dec 9');
     expect(rows[2]).toHaveTextContent('Goal-Planning Session 1 and Office Hours · Thu, Dec 10');
-    expect(rows[2]).toHaveTextContent('Office hours · Fri, Dec 11');
+    expect(rows[2]).toHaveTextContent('Lead Source Review Office Hours · Fri, Dec 11');
     expect(within(rows[2]!).getByRole('img', { name: 'Locked' })).toBeInTheDocument();
     expect(within(rows[0]!).queryByRole('img', { name: 'Locked' })).toBeNull();
     const note = within(list).getByRole('note');
