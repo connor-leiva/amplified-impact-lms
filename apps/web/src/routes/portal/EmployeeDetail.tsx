@@ -16,7 +16,8 @@ import { useJoin } from '../../data/join';
 import { PREVIEW_ONLY } from '../../data/preview';
 import { employeeDetailVM, initialUi, moduleReset, replayUrl, SPEEDS } from './EmployeeDetail.vm';
 import type { AssetVM, DrawerRef, EmployeeDetailUi, Speed, VideoEngine, VmAction } from './EmployeeDetail.vm';
-import { createVideoEngine } from './HlsEngine';
+import { createVideoEngine } from '../../components/replay/HlsEngine';
+import { SAVE_EVERY, loadPos, savePos } from '../../components/replay/position';
 import s from './EmployeeDetail.module.css';
 
 // Employee detail `/employees/:employeeId`. Ported from design-reference/Portal Workspace.dc.html.
@@ -31,25 +32,6 @@ import s from './EmployeeDetail.module.css';
 // Phase 08 adds three production swaps, all of them behind the repository seam so that fixture mode
 // is untouched: the engine comes from `createVideoEngine` (§ 8.3), a stored file is fetched from the
 // bucket rather than serialised (§ 8.2), and Join resolves its URL from the server (§ 8.4).
-
-/** `localStorage['ai-lms-pos-' + id]`, the prototype's playback position (SCREENS § 3.2). */
-const posKey = (id: string) => `ai-lms-pos-${id}`;
-
-function loadPos(id: string): number {
-  try {
-    return Number(localStorage.getItem(posKey(id))) || 0;
-  } catch {
-    return 0; // private mode, blocked storage — start from the top
-  }
-}
-
-function savePos(id: string, t: number): void {
-  try {
-    localStorage.setItem(posKey(id), String(Math.floor(t)));
-  } catch {
-    /* best-effort, exactly as the prototype treats it */
-  }
-}
 
 /** The reference's `act.download`: a Blob, a synthetic anchor click, then the toast. */
 function saveFile(name: string, content: string, mime: string): void {
@@ -66,9 +48,6 @@ function saveFile(name: string, content: string, mime: string): void {
     /* Download blocked. The reference toasts regardless, so the confirmation still appears. */
   }
 }
-
-/** Every tick is 250 ms, so 20 of them is the 5 s the position-save interval asks for. */
-const SAVE_EVERY = 20;
 
 /** The playhead jump also brings the player back into view when the page is scrolled away. */
 const SCROLL_BACK_AT = 120;

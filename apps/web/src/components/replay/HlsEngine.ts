@@ -1,10 +1,11 @@
 import { repo } from '../../data/boot';
-import { TickerEngine } from './EmployeeDetail.vm';
-import type { Speed, VideoEngine } from './EmployeeDetail.vm';
+import { TickerEngine } from './engine';
+import type { Speed, VideoEngine } from './engine';
 
-// Phase 08 § 8.3 — the production video engine.
+// Phase 08 § 8.3 — the production video engine. Moved here from `routes/portal/` unchanged (D-183), so the
+// current portal's AI Employee page and the learner portal v2's week page share it.
 //
-// `EmployeeDetail.vm.ts` owns the `VideoEngine` interface and `TickerEngine`, the fixture engine
+// `engine.ts` owns the `VideoEngine` interface and `TickerEngine`, the fixture engine
 // that advances 0.25 s × rate every 250 ms exactly as the prototype does. This file adds the other
 // implementation: a real HLS stream, behind the SAME interface, so the poster, the play button, the
 // seek bar, the speed chip, the captions and the chapter rail stay OUR UI (SCREENS § 3.2) and the

@@ -3,7 +3,7 @@ import { HlsEngine } from './HlsEngine';
 import type { HlsCtor, HlsLike, MediaLike } from './HlsEngine';
 // Type-only: the factory cases below import `TickerEngine` from a fresh module registry, so the
 // value this name would bind is the wrong one for an `instanceof` check.
-import type { TickerEngine } from './EmployeeDetail.vm';
+import type { TickerEngine } from './engine';
 
 // Phase 08 § 8.3. The production engine, measured through the same `VideoEngine` interface the
 // screen uses, so anything these tests prove is something `EmployeeDetail` can rely on without
@@ -541,7 +541,7 @@ describe('createVideoEngine · the engine follows the data source @g8', () => {
     vi.stubEnv('VITE_DATA_SOURCE', source);
     return {
       ...(await import('./HlsEngine')),
-      vm: await import('./EmployeeDetail.vm'),
+      vm: await import('./engine'),
     };
   };
 
