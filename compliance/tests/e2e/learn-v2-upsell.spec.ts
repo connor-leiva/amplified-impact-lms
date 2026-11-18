@@ -118,12 +118,16 @@ test.describe('learner portal v2: the Team Plan window (D-187) @g9', () => {
   for (const width of [1440, 390])
     test(`a Utah Life member: “Not included with Utah Life access”, no upsell, no button, at ${width} @parity:SH-8 @parity:P-1`, async ({ browser }) => {
       const page = await learner(browser, '/learn?plan=team', { audience: 'utah', width });
+      // Their group's own line, and never the Team Plan's words or a button that asks. In the learner
+      // portal that is the window with Close alone; with the flip's routing by course access (#172) a
+      // member never reaches /learn and lands on today's Skill Library, which says the same.
+      await expect(page.getByText(UTAH_LINE).first()).toBeVisible();
+      for (const w of [W.title, W.lead, W.solo, W.ask]) await expect(page.locator('body')).not.toContainText(w);
       const dialog = page.getByRole('dialog');
-      await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText(UTAH_LINE);
-      for (const w of [W.title, W.lead, W.solo, W.ask]) await expect(dialog).not.toContainText(w);
-      await expect(dialog.getByRole('button')).toHaveCount(1);
-      await expect(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
+      if (await dialog.count()) {
+        await expect(dialog.getByRole('button')).toHaveCount(1);
+        await expect(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
+      }
       await expectAccessible(page);
       expect((await storedDb(page)).requests.filter((q) => q.userId === 'u_jamie')).toEqual([]);
       await page.context().close();
