@@ -146,15 +146,24 @@ test.describe('learner parity: email deep links', () => {
     await plain.context().close();
   });
 
-  test('set-password and reset links land on the set-password form; checkout success uses the same link @parity:M-8 @parity:M-10', async ({
-    browser,
-  }) => {
+  test('set-password and reset links land on the set-password form @parity:M-8', async ({ browser }) => {
     const page = await tab(browser);
     for (const name of ['set-password', 'reset-password']) {
       await land(page, name);
       await expect(page.getByRole('heading', { level: 1 }), name).toBeVisible();
       await expect(page.getByLabel(/Password/).first(), name).toBeVisible();
     }
+    await page.context().close();
+  });
+
+  test('checkout success’s set-password link lands on the set-password form @parity:M-10', async ({ browser }) => {
+    // Not an email: `apps/api/src/routes/offer.ts` hands the buyer `/set-password?checkout=<session>` after
+    // Stripe's checkout. The form posts to /api/auth/password/checkout.
+    const page = await tab(browser);
+    await page.goto(fixtureUrl('/set-password?checkout=cs_test_parity'));
+    await page.waitForSelector('body[data-app-ready="true"]');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByLabel(/Password/).first()).toBeVisible();
     await page.context().close();
   });
 

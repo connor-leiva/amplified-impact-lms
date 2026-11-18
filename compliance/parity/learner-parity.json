@@ -1950,7 +1950,7 @@
       ],
       "status": "kept",
       "tests": [
-        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form; checkout success uses the same link @parity:M-8 @parity:M-10"
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form @parity:M-8"
       ]
     },
     {
@@ -1986,7 +1986,7 @@
       ],
       "status": "kept",
       "tests": [
-        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › set-password and reset links land on the set-password form; checkout success uses the same link @parity:M-8 @parity:M-10"
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › checkout success’s set-password link lands on the set-password form @parity:M-10"
       ]
     },
     {
