@@ -43,6 +43,14 @@ describe('safeLanding', () => {
 });
 
 describe('safeNext (D-151)', () => {
+  it('passes a skill’s page in the learner portal too (D-182), by the same pages', () => {
+    expect(safeNext('/learn/skills/appointment-follow-up')).toBe('/learn/skills/appointment-follow-up');
+    expect(safeNext('/learn/skills/content-strategist')).toBe('/learn/skills/content-strategist');
+    for (const bad of ['/learn/skills', '/learn/skills/', '/learn/skills/not-a-skill', '/learn/skills/../admin', '/learn/skills/perfect-week/x', '/learn', '/learn/week/1']) {
+      expect(safeNext(bad), bad).toBeNull();
+    }
+  });
+
   it('passes a guided setup in learn, and nothing else', () => {
     expect(safeNext('/skill-library/appointment-follow-up')).toBe('/skill-library/appointment-follow-up');
     expect(safeNext('/skill-library/content-strategist')).toBe('/skill-library/content-strategist');

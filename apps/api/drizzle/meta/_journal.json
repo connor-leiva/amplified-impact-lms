@@ -176,6 +176,13 @@
       "when": 1794970615014,
       "tag": "0024_curriculum_builder",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794987039780,
+      "tag": "0025_release_plan_data_migrations",
+      "breakpoints": true
     }
   ]
 }

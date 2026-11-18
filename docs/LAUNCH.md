@@ -168,6 +168,17 @@ while that column is still empty, so the first deploy with D-173 gives productio
 and every later deploy writes **0 rows**. It never touches users, teams, progress or staff. The
 Owner, the price list and the reminder toggles still come only from `db:seed:prod`.
 
+**Right after ensure, the same command runs each one-time data step once (D-175).** The first two are
+Connor's Nov 17 release plan (Week 0 due Mon, Nov 30, and Weeks 1 to 8 Scheduled at their live builds,
+12:00 PM MT) and D-175's copy strings (what a locked week says, the pre-launch preview's line). A step
+changes only rows still as the seed left them; a row staff already changed is left alone, and the
+deploy log says `Left as it is: <id> (...). Finish it in the builder.` Each change is an audit row
+(`curriculum.migrate`), and `data_migrations` records each step so it never runs twice.
+
+**The pre-launch preview opens only when its date is set**, in the console: Build › Curriculum › a
+course week › Course settings › Release plan › Preview opens. Until then there is no preview, and
+Week 0 opens with Week 1 at the first live build.
+
 **The Owner comes with the deploy too (D-129).** Next, the pre-deploy command runs
 `pnpm --filter @ai/api db:owner:ensure`. It adds the console's Owner, `DEPLOY_OWNER` in
 `apps/api/src/db/seed.ts` (Connor Leiva, `connor@springb.com`), and the staff role matrix if that

@@ -44,7 +44,7 @@ export const users = pgTable('users', {
   reminded: ts('reminded'), nudged: ts('nudged'),
   // staff fields
   staffRole: text('staff_role', { enum: ['Owner', 'Admin', 'Instructor', 'Content Editor', 'Support'] }),
-  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark' }>().default({}),
+  prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark'; sidebar?: 'full' | 'rail' }>().default({}),
   seq: integer('seq').notNull().default(0),
 });
 export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7), seq: integer('seq').notNull().default(0) });
@@ -94,6 +94,10 @@ export const resources = pgTable('resources', {
 // D-173: learner-facing copy the builder edits, by key (`locked.utah_life`, `locked.opens`, ...). A `Db`
 // record (`Db.copy`), so it round-trips through the codec and the mutate route like any other.
 export const copyStrings = pgTable('copy_strings', { key: text('key').primaryKey(), value: text('value').notNull(), audience: text('audience').notNull() });
+// D-175: one-time data steps the deploy's curriculum ensure runs (a release plan, a content load), each
+// once, by id: a row here means it ran, with what it changed and what it left for the PM. Not part of a
+// snapshot; read and written only by `db/data-migrations.ts`.
+export const dataMigrations = pgTable('data_migrations', { id: text('id').primaryKey(), ranAt: ts('ran_at').notNull(), summary: jsonb('summary').notNull() });
 export const announcements = pgTable('announcements', { id: text('id').primaryKey(), sessionId: text('session_id'), title: text('title').notNull(), body: text('body').notNull(), severity: text('severity').notNull(), action: text('action'), actionLabel: text('action_label').notNull(), audience: text('audience').notNull(), channels: jsonb('channels').$type<string[]>().notNull(), status: text('status').notNull(), at: ts('at').notNull(), opens: integer('opens_pct') });
 export const dismissals = pgTable('dismissals', { userId: text('user_id').notNull(), announcementId: text('announcement_id').notNull() }, (t) => [primaryKey({ columns: [t.userId, t.announcementId] })]);
 export const reminders = pgTable('reminders', { id: text('id').primaryKey(), label: text('label').notNull(), channel: text('channel').notNull(), on: boolean('on').notNull() });

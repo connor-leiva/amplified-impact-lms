@@ -5,5 +5,5 @@
     "module": "ESNext",
     "moduleResolution": "Bundler"
   },
-  "include": ["lib/**/*", "tests/**/*", "playwright.config.ts", "admin-r2.config.ts"]
+  "include": ["lib/**/*", "tests/**/*", "parity/**/*.ts", "playwright.config.ts", "admin-r2.config.ts"]
 }

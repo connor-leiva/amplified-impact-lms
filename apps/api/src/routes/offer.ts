@@ -29,7 +29,7 @@
 // it in the same minute, D-028), `Referrer-Policy: same-origin` so a plain form post carries a real
 // Origin, `noindex` in the page itself. Unlike them, `no-store`: the page holds live prices.
 
-import { BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL, calendarFiles } from './offer-calendar';
+import { BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL, SCHEDULE_ICS_PATH, calendarFiles } from './offer-calendar';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/client';
@@ -341,6 +341,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
   for (const [path, pick] of [
     [BUILDS_ICS_PATH, 'builds'],
     [OFFICE_HOURS_ICS_PATH, 'officeHours'],
+    [SCHEDULE_ICS_PATH, 'schedule'],
   ] as const) {
     app.get(path, { config: { rateLimit: false } }, async (_req, reply): Promise<FastifyReply> => {
       if (!options.database) return reply.code(404).send({ error: 'Not found' });

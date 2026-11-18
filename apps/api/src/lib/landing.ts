@@ -8,10 +8,11 @@ import type { LandingPath } from '@ai/core/landing';
 import type { UserRow } from '../auth';
 import type { Database } from '../db/client';
 import { loadDb } from '../db/io';
-import { acceleratorAccess } from './course-access';
+import { viewerAccessFor } from './course-access';
 
 export async function landingFor(db: Database, user: Pick<UserRow, 'id' | 'kind'>, now: number): Promise<LandingPath> {
   if (user.kind !== 'learner') return '/';
-  const access = { accelerator: await acceleratorAccess(db, user.id, now) };
+  // D-175: the same access the snapshot answers with, the course's preview and weeks included.
+  const access = await viewerAccessFor(db, user.id, now);
   return landingPath(await loadDb(db), { kind: 'learner', userId: user.id }, access);
 }

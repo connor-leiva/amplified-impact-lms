@@ -8,7 +8,7 @@ AI COACHING, TRAINING AND READY-TO-RUN SKILLS
 Your next
 employee doesn’t
 need a desk.
-We teach owners, ops leads and agents to put AI to work. You get live coaching plus ready-to-run skills that do real jobs in your business, in your voice. Built inside a 100-agent real estate team, for agents and teams like yours.
+We teach owners, ops leads and agents to put AI to work. You get live coaching plus ready-to-run skills that do real jobs in your business, in your voice. Built inside a real estate team, for agents and teams like yours.
 Get 5 Free Skills
 See the Programs
 AI EMPLOYEE
@@ -58,7 +58,7 @@ A skill fixes that. You set it up once. It learns your voice, your numbers and y
 A CHAT
 NEW CHAT
 YOU
-Okay, one more time. We’re a 100-agent team on Follow Up Boss, and I write short and warm…
+Okay, one more time. We’re a real estate team on Follow Up Boss, and I write short and warm…
 AI
 Happy to help! First, tell me a little about your business.
 12
@@ -578,9 +578,8 @@ SB
 CO-FOUNDER
 Spring Bengtzen
 She runs a real business. Every skill gets tested there first.
-Spring is the CEO of The Utah Life Real Estate Group, a 100-agent team closing 700+ homes a year. She uses these skills in her own company every day. AI runs her daily reports, most of her finance work and big parts of sales, recruiting and marketing. Her production is up 38% year over year, and she credits a big part of that to AI.
-CEO, 100-AGENT TEAM
-700+ HOMES A YEAR
+Spring is the CEO of The Utah Life Real Estate Group. She uses these skills in her own company every day. AI runs her daily reports, most of her finance work and big parts of sales, recruiting and marketing. Her production is up 38% year over year, and she credits a big part of that to AI.
+CEO, THE UTAH LIFE REAL ESTATE GROUP
 20+ YEARS IN REAL ESTATE
 FOUNDER OF THE FORUM
 Spring

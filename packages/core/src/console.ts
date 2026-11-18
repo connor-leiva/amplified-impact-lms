@@ -210,6 +210,8 @@ export const AUDIT_ACTIONS = [
   'cohort.save',
   'cohort.course_save',
   'copy.save',
+  // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
+  'curriculum.migrate',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
