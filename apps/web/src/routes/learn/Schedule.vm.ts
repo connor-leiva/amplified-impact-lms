@@ -85,9 +85,17 @@ const dotOf = (s: Pick<CourseSession, 'kind' | 'type'>): Dot => (typeOf(s) === '
  * What a week's row calls a session: its type for a live build or office hours ("Live build · Wed,
  * Dec 2"); its own title for any other type, which says more than the type does.
  */
+// The session's own title, open week or locked, as the current portal's Sessions page names it (inventory
+// R-2, S-1), and its type in words, never by the dot's colour alone: a title that already says it ("Map
+// Your Spend Live Build") stands alone, any other gets the type first ("Live build · Kickoff"), none is
+// the type.
 const lineLabel = (s: CourseSession): string => {
   const t = typeOf(s);
-  return t === 'live_build' || t === 'office_hours' ? SCHEDULE.type[t] : s.title;
+  if (t !== 'live_build' && t !== 'office_hours') return s.title;
+  const type = SCHEDULE.type[t];
+  const title = s.title?.trim() ?? '';
+  if (!title) return type;
+  return title.toLowerCase().includes(type.toLowerCase()) ? title : `${type} · ${title}`;
 };
 
 // --- the view-model -------------------------------------------------------------------------------

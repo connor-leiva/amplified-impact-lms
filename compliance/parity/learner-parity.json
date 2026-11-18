@@ -29,6 +29,7 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the weeks view (D-180) › lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /sessions shows the cohort’s sessions @parity:R-2"
       ]
     },
@@ -1024,6 +1025,7 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the weeks view (D-180) › lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › every session by week, and a month calendar @parity:S-1"
       ]
     },

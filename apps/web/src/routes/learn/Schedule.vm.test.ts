@@ -122,18 +122,21 @@ describe('the weeks view (D-180)', () => {
     });
   });
 
-  it('lists every session of a week, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour', () => {
+  it('lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2', () => {
     const items = weekItems(schedule(prelaunchState()));
+    // Each session by its own title, as the current portal's Sessions page names it (R-2, S-1).
     expect(items[1]!.lines.map((x) => [x.key, x.dot, x.text])).toEqual([
-      ['dec26-s1', 'build', 'Live build · Wed, Dec 2'],
-      ['dec26-oh1', 'oh', 'Office hours · Thu, Dec 3'],
+      ['dec26-s1', 'build', 'Map Your Spend Live Build · Wed, Dec 2'],
+      ['dec26-oh1', 'oh', 'Map Your Spend Office Hours · Thu, Dec 3'],
     ]);
     expect(items[2]!.lines.map((x) => [x.key, x.dot, x.text])).toEqual([
-      ['dec26-s2', 'build', 'Live build · Wed, Dec 9'],
+      ['dec26-s2', 'build', 'Lead Source Review Live Build · Wed, Dec 9'],
       ['dec26-oh2', 'oh', 'Goal-Planning Session 1 and Office Hours · Thu, Dec 10'],
-      ['dec26-fri-oh2', 'oh', 'Office hours · Fri, Dec 11'],
+      ['dec26-fri-oh2', 'oh', 'Lead Source Review Office Hours · Fri, Dec 11'],
     ]);
     expect(items[3]!.lines.map((x) => x.key)).toEqual(['dec26-s3', 'dec26-oh3', 'dec26-fri-oh3']);
+    // A locked week names its sessions too, as the current Sessions page does.
+    expect(items[3]!.lines[0]!.text).toBe('Monthly Numbers Live Build · Wed, Dec 16');
   });
 
   it('says the holiday break in the cohort’s words, and in the skipped days when it has none', () => {
