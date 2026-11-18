@@ -290,7 +290,7 @@ describe('what the first portal had and the mockup draws no screen for (D-182)',
     fireEvent.click(screen.getByRole('button', { name: 'Your account' }));
   };
 
-  it('the account menu opens the Team Hub for a Team tier learner on a team, inside this shell', async () => {
+  it('@parity:SH-3 @parity:G-1 the account menu opens the Team Hub for a Team tier learner on a team, inside this shell', async () => {
     onTeam();
     const router = at('/learn');
     await openMenu();
@@ -301,7 +301,7 @@ describe('what the first portal had and the mockup draws no screen for (D-182)',
     expect(aside()).not.toBeNull();
   });
 
-  it('no Team Hub without a team: no menu item, and its address goes Home', async () => {
+  it('@parity:SH-3 no Team Hub without a team: no menu item, and its address goes Home', async () => {
     at('/learn');
     await openMenu();
     expect(await screen.findByRole('menuitem', { name: 'Account' })).toBeInTheDocument();
@@ -318,7 +318,7 @@ describe('what the first portal had and the mockup draws no screen for (D-182)',
     expect(within(aside()).getByRole('link', { name: 'Resource vault' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('a staff member’s preview tab says so, with Exit Preview (D-138)', async () => {
+  it('@parity:SH-10 a staff member’s preview tab says so, with Exit Preview (D-138)', async () => {
     state.viewer = { ...state.viewer, preview: 'agent' };
     at('/learn');
     const line = (await screen.findByText('Previewing as Agent.')).closest<HTMLElement>('[role="status"]')!;

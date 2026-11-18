@@ -55,11 +55,13 @@ const noCourse = (() => {
 })();
 
 /** An address in the fixture build, as a persona, with the course answered; `withoutCourse` for a plan without it. */
-async function visit(browser: Browser, path: string, opts: { as?: 'agent' | 'owner' | 'admin'; withoutCourse?: boolean } = {}) {
+async function visit(browser: Browser, path: string, opts: { as?: 'agent' | 'owner' | 'admin'; withoutCourse?: boolean; skills?: unknown } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: 'America/Denver' });
   if (opts.withoutCourse) await ctx.addInitScript(([k, v]) => localStorage.setItem(k, v), [DB_KEY, noCourse] as const);
   const page = await ctx.newPage();
   await page.route('**/api/course', (r) => r.fulfill({ json: course }));
+  // The first Skill Library's own read (`GET /api/skills`), which the fixture build has no API for.
+  if (opts.skills) await page.route('**/api/skills', (r) => r.fulfill({ json: opts.skills }));
   // The harness's own `as` and `now` join the address's query, ahead of its fragment.
   const [where, hash = ''] = path.split('#');
   await page.goto(`${APP_BASE}${where}${where!.includes('?') ? '&' : '?'}as=${opts.as ?? 'agent'}&now=${encodeURIComponent(NOW)}${hash ? `#${hash}` : ''}`);
@@ -113,7 +115,7 @@ test.describe('a learner with the course: the learner portal @g4', () => {
     }
   });
 
-  test('@parity:R-4 @parity:R-6 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone', async ({ browser }) => {
+  test('@parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone', async ({ browser }) => {
     const agent = await open(browser, scenario({ path: '/team' }), 'app');
     await expect.poll(() => pathOf(agent.page.url())).toBe('/learn');
     await agent.ctx.close();
@@ -127,6 +129,23 @@ test.describe('a learner with the course: the learner portal @g4', () => {
     const upgrade = await open(browser, scenario({ role: 'owner', path: '/team-tier' }), 'app');
     await expect.poll(() => pathOf(upgrade.page.url())).toBe('/learn');
     await upgrade.ctx.close();
+  });
+
+  test('@parity:SH-3 @parity:G-1 a Team tier owner reaches the Team Hub from the account menu, inside the learner shell', async ({ browser }) => {
+    const { ctx, page } = await open(browser, scenario({ role: 'owner', path: '/learn' }), 'app');
+    await page.getByRole('button', { name: 'Your account' }).click();
+    await page.getByRole('menuitem', { name: 'Team Hub' }).click();
+    await expect.poll(() => pathOf(page.url())).toBe('/learn/team');
+    await expect(page.getByRole('heading', { level: 1, name: 'Team Hub' })).toBeVisible();
+    await expect(page.locator('[data-learner-v2] aside[aria-label="Primary"]')).toHaveCount(1);
+    await ctx.close();
+
+    // An Agent tier learner has no Team Hub in the menu.
+    const agent = await open(browser, scenario({ path: '/learn' }), 'app');
+    await agent.page.getByRole('button', { name: 'Your account' }).click();
+    await expect(agent.page.getByRole('menuitem', { name: 'Account' })).toBeVisible();
+    await expect(agent.page.getByRole('menuitem', { name: 'Team Hub' })).toHaveCount(0);
+    await agent.ctx.close();
   });
 
   test('@parity:R-11 the password page stays where it is', async ({ browser }) => {
@@ -148,6 +167,39 @@ test.describe('a learner without the course: today’s portal, unchanged @g4', (
       await expect(page.locator('aside[aria-label="Primary"]'), from).toHaveCount(0);
       await ctx.close();
     }
+  });
+
+  test('@parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell', async ({ browser }) => {
+    // `GET /api/skills` as it answers an access group's member with no plan of their own (D-148, D-150).
+    const skills = {
+      plans: [],
+      teamHub: false,
+      paused: false,
+      courseOpensAt: null,
+      accessGroups: [{ id: 'utah-life', name: 'Utah Life', skills: 1, welcome: true, covers: ['agent'] }],
+      skills: [
+        { id: 'content-strategist', title: 'Content Strategist', summary: 'A month of posts.', sets: 'agent', free: false, releasedAt: 0, state: 'open', files: ['claude', 'chatgpt'] },
+        { id: 'commission-tie-out', title: 'Commission Tie-Out', summary: 'Every check matched.', sets: 'owner_ops', free: false, releasedAt: 0, state: 'locked', files: [] },
+      ],
+    };
+    const { ctx, page } = await visit(browser, '/', { withoutCourse: true, skills });
+    await expect.poll(() => pathOf(page.url())).toBe('/skill-library');
+    await expect(page.locator('[data-learner-v2]')).toHaveCount(0);
+    // The header's line, in main's words (`SkillLibrary.tsx`'s `COPY.included`).
+    await expect(page.getByText('Included with your Utah Life team', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Download for Claude' })).toHaveAttribute('href', '/api/skills/content-strategist/download/claude');
+    await expect(page.getByRole('link', { name: 'Setup Guide' }).first()).toBeVisible();
+    // A locked skill says it is not included with their group, with no upsell.
+    await expect(page.getByText('Not included with Utah Life access', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    // The welcome, and its Dismiss posting to the server.
+    const welcome = page.getByRole('heading', { level: 2, name: 'Welcome, Utah Life' });
+    await expect(welcome).toBeVisible();
+    const dismissed = page.waitForRequest((r) => r.method() === 'POST' && new URL(r.url()).pathname === '/api/skills/welcome/dismiss');
+    await page.getByRole('button', { name: 'Dismiss' }).click();
+    await dismissed;
+    await expect(welcome).toHaveCount(0);
+    await ctx.close();
   });
 
   test('@parity:R-9 @parity:U-7 a skill’s address is the first guide page, from either address, fragment kept', async ({ browser }) => {

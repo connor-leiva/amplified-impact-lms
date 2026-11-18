@@ -22,12 +22,12 @@ describe('where each old address goes', () => {
     ['/nowhere', '/learn'],
   ])('%s → %s', (from, to) => expect(learnerPathFor(from)).toBe(to));
 
-  it('a course week’s module by its id, and nothing else', () => {
+  it('@parity:R-3 a course week’s module by its id, and nothing else', () => {
     expect(weekOfModule('accelerator-week-3')).toBe('/learn/week/3');
     expect(weekOfModule('sales')).toBeNull();
   });
 
-  it('the course pages: a week by its `week-N`, anything else Home', () => {
+  it('@parity:R-7 the course pages: a week by its `week-N`, anything else Home', () => {
     expect(coursePathFor(undefined)).toBe('/learn');
     expect(coursePathFor('week-3')).toBe('/learn/week/3');
     expect(coursePathFor('week-0')).toBe('/learn/week/0');
@@ -35,7 +35,7 @@ describe('where each old address goes', () => {
     expect(coursePathFor('week-x')).toBe('/learn');
   });
 
-  it('the Skill Library and a skill, by the same slug', () => {
+  it('@parity:R-8 @parity:R-9 the Skill Library and a skill, by the same slug', () => {
     expect(libraryPathFor(undefined)).toBe('/learn/skills');
     expect(libraryPathFor('appointment-follow-up')).toBe('/learn/skills/appointment-follow-up');
   });

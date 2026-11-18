@@ -141,7 +141,7 @@ describe('HttpRepository @g7', () => {
     expect(assign).toHaveBeenCalledTimes(1);
   });
 
-  it('from a skill’s page, the sign-in brings them back to it; from anywhere else, plain sign-in (D-182)', () => {
+  it('@parity:L-12 from a skill’s page, the sign-in brings them back to it; from anywhere else, plain sign-in (D-182)', () => {
     expect(signInFor('/learn/skills/appointment-follow-up')).toBe('/sign-in?next=%2Flearn%2Fskills%2Fappointment-follow-up');
     expect(signInFor('/skill-library/appointment-follow-up')).toBe('/sign-in?next=%2Fskill-library%2Fappointment-follow-up');
     for (const p of ['/learn', '/learn/skills', '/learn/skills/not-a-skill', '/learn/week/1', '/admin', '/']) expect(signInFor(p), p).toBe('/sign-in');

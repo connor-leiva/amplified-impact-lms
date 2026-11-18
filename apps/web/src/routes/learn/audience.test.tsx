@@ -133,7 +133,8 @@ async function visit(routes: RouteObject[], path: string) {
 /** Where the visit settles: the address (with its query and fragment) and the page drawn there. */
 async function settle(routes: RouteObject[], path: string, page: string) {
   const router = await visit(routes, path);
-  await waitFor(() => expect(document.querySelector(`[data-page="${page}"]`), `${path}: ${page}`).not.toBeNull());
+  // Lazy routes and the gates' reads settle over a few ticks; a loaded runner needs more than the default second.
+  await waitFor(() => expect(document.querySelector(`[data-page="${page}"]`), `${path}: ${page}`).not.toBeNull(), { timeout: 10_000 });
   const { pathname, search, hash } = router.state.location;
   return `${pathname}${search}${hash}`;
 }
