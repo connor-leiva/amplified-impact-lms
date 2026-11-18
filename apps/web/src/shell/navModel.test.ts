@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
+import { blankModule, phaseNow, seed, setViewerZone } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import type { Db, Learner } from '@ai/core';
 import { SKILL_LIBRARY_PATH, consoleNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
 

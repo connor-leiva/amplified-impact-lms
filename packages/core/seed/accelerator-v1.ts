@@ -1,132 +1,141 @@
-// The Amplified AI Accelerator's words: Week 0 and the eight weeks (DECISIONS.md D-110).
+// SEED, NOT RUNTIME (D-173). The Amplified AI Accelerator's first copy: its words (Week 0 and the eight
+// weeks, D-110), its calendar and cohort one, exactly as the code held them before the curriculum
+// builder. They reach the database once, through `db:curriculum:ensure` (seed/curriculum.ts), which
+// inserts only what is missing; from then on the builder is the source of truth and nothing here is
+// read at runtime. Runtime code may not import this file (the copy guard test and ESLint enforce it).
 //
-// CONNECTING MATERIAL ONLY. Every week piggybacks on the Library: its skills are the Library's own
-// pages (`apps/web/src/library/content.ts` ENTRIES), linked by their Library title and route, and their
-// guided setups and copy-to-clipboard prompts stay on those pages. What is written here is what the
-// Library does not have: the operating question, why it matters, who does what, the order to open the
-// setups in, the live-build and office-hours pages, the homework, the evidence packet and the rubric.
-// The source is the PM's course plan (docs/COURSE-PLAN.txt), which is final; the calendar is
-// `accelerator.ts`.
-//
-// HOUSE RULES for every learner-facing string here: Spring's voice (contractions, short sentences), no
-// em dashes, no prices, no income or results promises, no invented numbers. Time budgets are
-// estimates. Media are placeholders until a real recording exists.
-//
-// SERVED, NOT BUNDLED. The API sends these words to a buyer whose plan opens the course
-// (`GET /api/course`). The web app never imports this file outside its tests, so the course is not
-// readable in the public JavaScript bundle.
+// Moved verbatim from packages/core/src/accelerator.ts (the calendar) and accelerator-content.ts (the
+// words); the shapes are in src/course-types.ts. HOUSE RULES for every learner-facing string: Spring's
+// voice, no em dashes, no prices, no income or results promises, no invented numbers.
 
 import {
-  ACCELERATOR_INSTRUCTOR,
+  ACCELERATOR_COHORT_ID,
   ACCELERATOR_SUPPORT_EMAIL,
-  BUILD_MINS,
-  OFFICE_HOURS_MINS,
+  LIBRARY_ORIGIN,
   acceleratorModuleId,
   buildSessionId,
   coursePath,
-  LIBRARY_ORIGIN,
+  officeHoursN,
   officeHoursSessionId,
-} from './accelerator';
-import { courseGuideUrl } from './skill-guides';
-import type { IconName } from './icons';
-import type { AIEmployee, Step } from './types';
+} from '../src/accelerator';
+import { courseGuideUrl } from '../src/skill-guides';
+import type { AgendaItem, CourseContent, CourseIntro, CourseSkill, CourseWeek, OfficeHoursPage, RubricDimension } from '../src/course-types';
+import type { AIEmployee, Cohort, Session, Step } from '../src/types';
 
-// --- shapes ----------------------------------------------------------------------------------------
+export type { CourseSkill };
 
-export type SkillRole = 'flagship' | 'supporting' | 'optional' | 'pilot' | 'alternative';
+// --- the calendar (from accelerator.ts) ------------------------------------------------------------
 
-/** A Library item, by its Library title and route. Never a new skill. */
-export interface CourseSkill {
-  title: string;
-  route: string;
-  role: SkillRole;
-  /** What it does for this week, in one line. */
-  use: string;
-  /** Free to everyone, as the Library has it. */
-  free?: boolean;
+/** A bare `YYYY-MM-DDTHH:MM` read as Central Time. December to February is CST. */
+const CT = (s: string): number => Date.parse(`${s}:00-06:00`);
+
+/** Who teaches cohort one. Never the prototype's invented instructor. */
+export const ACCELERATOR_INSTRUCTOR = 'Connor Leiva';
+
+/** The program's name, as `PLAN_NAMES.cohort` prints it. */
+export const ACCELERATOR_NAME = 'Amplified AI Accelerator';
+
+/** Live builds: Wednesday, 1:00 PM Central, 90 minutes. */
+export const BUILD_MINS = 90;
+/** Office hours and the goal-planning sessions: Thursday, 1:00 PM Central, 60 minutes. */
+export const OFFICE_HOURS_MINS = 60;
+/** The session time, said in the program's zone. Screens say it through `fmt.*`. */
+export const SESSION_TIME_CT = '13:00';
+
+/** No session on these days: the holiday break (the brief: "nothing on Dec 23 or Dec 30"). */
+export const HOLIDAY_SKIPS: string[] = ['2026-12-23', '2026-12-24', '2026-12-30', '2026-12-31'];
+
+/** Week 0 is due before the first build. */
+export const WEEK0_DUE_AT = CT('2026-12-02T13:00');
+
+export interface CalendarWeek {
+  week: number;
+  /** The Wednesday build, `YYYY-MM-DD`, Central. */
+  build: string;
+  /** The Thursday office hour (or goal-planning session), `YYYY-MM-DD`, Central. */
+  thursday: string;
+  /** The Thursday session's title. */
+  thursdayTitle: string;
+  /** The build's title: the week's flagship, then "Live Build". */
+  buildTitle: string;
 }
 
 /**
- * One numbered setup step. `route` opens that Library item's guided setup. A step that names more
- * than one of the week's skills ("open X, Y or Z") links each of them: `route` for the first,
- * `also` for the rest, in the order the step names them.
+ * The locked calendar, one row per week. Week 0 is async and has no row: it opens with the invite
+ * hold and is due before Dec 2.
  */
-export interface SetupStep {
-  text: string;
-  route?: string;
-  also?: readonly string[];
+export const ACCELERATOR_CALENDAR: CalendarWeek[] = [
+  { week: 1, build: '2026-12-02', thursday: '2026-12-03', buildTitle: 'Lead-Source ROI Live Build', thursdayTitle: 'Lead-Source ROI Office Hours' },
+  { week: 2, build: '2026-12-09', thursday: '2026-12-10', buildTitle: 'Morning Brief Live Build', thursdayTitle: 'Goal-Planning Session 1 and Office Hours' },
+  { week: 3, build: '2026-12-16', thursday: '2026-12-17', buildTitle: 'L10 Meeting Prep Live Build', thursdayTitle: 'Goal-Planning Session 2 and Office Hours' },
+  { week: 4, build: '2027-01-06', thursday: '2027-01-07', buildTitle: 'FUB Pipeline Review Live Build', thursdayTitle: 'FUB Pipeline Review Office Hours' },
+  { week: 5, build: '2027-01-13', thursday: '2027-01-14', buildTitle: 'Agent 1:1 Prep Live Build', thursdayTitle: 'Agent 1:1 Prep Office Hours' },
+  { week: 6, build: '2027-01-20', thursday: '2027-01-21', buildTitle: 'Team Playbook Builder Live Build', thursdayTitle: 'Team Playbook Builder Office Hours' },
+  { week: 7, build: '2027-01-27', thursday: '2027-01-28', buildTitle: 'New Agent Onboarding Plan Live Build', thursdayTitle: 'New Agent Onboarding Plan Office Hours' },
+  { week: 8, build: '2027-02-03', thursday: '2027-02-04', buildTitle: 'Cohort-End Review Live Build', thursdayTitle: 'Cohort-End Review Office Hours' },
+];
+
+/** The Thursdays that are goal-planning sessions rather than plain office hours (Dec 10 and Dec 17). */
+export const GOAL_PLANNING_WEEKS: number[] = [2, 3];
+
+/**
+ * The sixteen sessions: eight builds and eight Thursdays, in date order. No Zoom URL is invented:
+ * `zoom` is empty until staff set the real link (the course page says "Join in Sessions"), and the
+ * join route reads an empty URL as shut.
+ */
+export function acceleratorSessions(): Session[] {
+  const out: Session[] = [];
+  for (const w of ACCELERATOR_CALENDAR) {
+    out.push({
+      id: buildSessionId(w.week),
+      cohortId: ACCELERATOR_COHORT_ID,
+      n: w.week,
+      title: w.buildTitle,
+      start: CT(`${w.build}T${SESSION_TIME_CT}`),
+      mins: BUILD_MINS,
+      zoom: '',
+      live: false,
+      attended: null,
+      replay: null,
+      views: 0,
+    });
+    out.push({
+      id: officeHoursSessionId(w.week),
+      cohortId: ACCELERATOR_COHORT_ID,
+      n: officeHoursN(w.week),
+      title: w.thursdayTitle,
+      start: CT(`${w.thursday}T${SESSION_TIME_CT}`),
+      mins: OFFICE_HOURS_MINS,
+      zoom: '',
+      live: false,
+      attended: null,
+      replay: null,
+      views: 0,
+    });
+  }
+  return out.sort((a, b) => a.start - b.start);
 }
 
-export interface AgendaItem {
-  from: number;
-  to: number;
-  activity: string;
-  why: string;
-}
-
-export interface LiveBuildPage {
-  sessionId: string;
-  agenda: readonly AgendaItem[];
-  lesson: string;
-  exercise: string;
-  /** The one required outcome. */
-  required: string;
-  /** The harder option, for the same outcome. */
-  advanced: string;
-  /** The owner approves a real run in class. */
-  ownerApproval: string;
-  /** Working at the end of class. */
-  workingAtEnd: readonly string[];
-}
-
-export interface OfficeHoursPage {
-  sessionId: string;
-  title: string;
-  /** What the hour is for, beyond the standard format. */
-  note: string;
-  format: readonly AgendaItem[] | null;
-  /** For a goal-planning session: what you leave with. */
-  outputs?: readonly string[];
-}
-
-export interface Homework {
-  /** Implemented by week's end. */
-  byWeekEnd: readonly string[];
-  /** The between-session assignment. */
-  assignment: readonly string[];
-  /** The acceptance test. */
-  acceptance: readonly string[];
-  /** What "adopted" needs beyond a passing rubric. */
-  useEvidence: string;
-}
-
-export interface CourseWeek {
-  week: number;
-  title: string;
-  question: string;
-  why: readonly string[];
-  owner: string;
-  operator: string;
-  time: { owner: string; operator: string };
-  skills: readonly CourseSkill[];
-  setup: readonly SetupStep[];
-  liveBuild: LiveBuildPage | null;
-  officeHours: OfficeHoursPage | null;
-  homework: Homework;
-  /** Clearly marked placeholders. Nothing here is a recording yet. */
-  media: readonly string[];
-  /** Course material shipped with the week, by name. */
-  materials: readonly string[];
-  /** The AI Employee this week is in the portal: its icon, platform, outputs and six steps. */
-  module: {
-    icon: IconName;
-    platform: string;
-    runLabel: string;
-    outcome: string;
-    outputs: readonly [string, string, string];
-    checklist: readonly Omit<Step, 'id'>[];
+/**
+ * Cohort one. It starts with the first build and ends when the Feb 4 office hour does. 15 seats, the
+ * offer's `COHORT_SEATS`; `enrolled` is derived from the learner rows, so it starts at zero.
+ */
+export function acceleratorCohort(): Cohort {
+  const last = ACCELERATOR_CALENDAR[ACCELERATOR_CALENDAR.length - 1]!;
+  return {
+    id: ACCELERATOR_COHORT_ID,
+    name: `${ACCELERATOR_NAME} · December 2026`,
+    start: CT(`${ACCELERATOR_CALENDAR[0]!.build}T${SESSION_TIME_CT}`),
+    end: CT(`${last.thursday}T${SESSION_TIME_CT}`) + OFFICE_HOURS_MINS * 60_000,
+    weeks: 8,
+    status: 'enrolling',
+    capacity: 15,
+    enrolled: 0,
+    cadence: 'Wed builds and Thu office hours · 1:00 PM CT',
   };
 }
+
+// --- the words (from accelerator-content.ts) -------------------------------------------------------
 
 // --- shared across every week -----------------------------------------------------------------------
 
@@ -135,7 +144,7 @@ export const ESTIMATE_NOTE = 'These are planning estimates, not guarantees.';
 const WEEK_TIME = { owner: 'About 2 to 2.5 hours, including the 90-minute build and real use.', operator: 'About 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them.' };
 
 /** The 90-minute live build, weeks 1 to 7. */
-export const LIVE_BUILD_AGENDA: readonly AgendaItem[] = [
+export const LIVE_BUILD_AGENDA: AgendaItem[] = [
   { from: 0, to: 10, activity: 'Review last week’s use and one failure', why: 'Using it matters more than showing up.' },
   { from: 10, to: 25, activity: 'Business lesson and decision case', why: 'Why this workflow matters, and where your judgment comes in.' },
   { from: 25, to: 35, activity: 'Demo the minimum working version', why: 'You see the target without it eating the session.' },
@@ -146,7 +155,7 @@ export const LIVE_BUILD_AGENDA: readonly AgendaItem[] = [
 ];
 
 /** Week 8's 90 minutes: no demo, mostly decisions. */
-export const WEEK8_AGENDA: readonly AgendaItem[] = [
+export const WEEK8_AGENDA: AgendaItem[] = [
   { from: 0, to: 10, activity: 'Results review', why: 'What got used, what got accepted, what broke.' },
   { from: 10, to: 30, activity: 'Assemble the review packet', why: 'Your logs and outputs, in one place.' },
   { from: 30, to: 55, activity: 'Owner and operator decisions', why: 'Keep, fix or retire each workflow.' },
@@ -156,13 +165,13 @@ export const WEEK8_AGENDA: readonly AgendaItem[] = [
 ];
 
 /** The 60-minute office hour. */
-export const OFFICE_HOURS_FORMAT: readonly AgendaItem[] = [
+export const OFFICE_HOURS_FORMAT: AgendaItem[] = [
   { from: 0, to: 10, activity: 'Patterns from submitted issues', why: 'Fixes that help the whole room.' },
   { from: 10, to: 50, activity: 'Four pre-triaged cases, about ten minutes each', why: 'Common blockers first. Access rotates.' },
   { from: 50, to: 60, activity: 'Retest, commit and update the shared support log', why: 'Leave with a fix you’ve checked.' },
 ];
 
-export const OFFICE_HOURS_RULES: readonly string[] = [
+export const OFFICE_HOURS_RULES: string[] = [
   'Office hours are optional. Come when you’re stuck.',
   'Not everyone gets a hot seat every week. Common blockers come first, and access rotates.',
   'Every team gets its rubric result whether or not it comes.',
@@ -170,7 +179,7 @@ export const OFFICE_HOURS_RULES: readonly string[] = [
 ];
 
 /** The short issue form. Submit it before the hour so nobody spends 20 minutes finding the problem. */
-export const ISSUE_FORM_FIELDS: readonly { label: string; hint: string }[] = [
+export const ISSUE_FORM_FIELDS: { label: string; hint: string }[] = [
   { label: 'Expected Result', hint: 'What you expected the skill to give you.' },
   { label: 'Actual Result', hint: 'What it actually gave you.' },
   { label: 'Redacted Input', hint: 'The input, with client and employee details removed.' },
@@ -179,7 +188,7 @@ export const ISSUE_FORM_FIELDS: readonly { label: string; hint: string }[] = [
 ];
 
 /** The weekly evidence packet. Small on purpose, so you keep doing it. */
-export const EVIDENCE_PACKET: readonly { label: string; hint: string }[] = [
+export const EVIDENCE_PACKET: { label: string; hint: string }[] = [
   { label: 'Skill and Version Link', hint: 'A link to the skill and the version you ran.' },
   { label: 'One Redacted Output', hint: 'One real output, with client and employee details removed.' },
   { label: 'Test Checklist', hint: 'Normal, missing and misleading inputs, and what happened on each.' },
@@ -187,13 +196,9 @@ export const EVIDENCE_PACKET: readonly { label: string; hint: string }[] = [
   { label: 'Three-Sentence Account', hint: 'The action you took because of it. A two-minute recording works too.' },
 ];
 
-export interface RubricDimension {
-  label: string;
-  meets: string;
-}
 
 /** Scored 0, 1 or 2 on each. */
-export const RUBRIC: readonly RubricDimension[] = [
+export const RUBRIC: RubricDimension[] = [
   { label: 'Business Fit', meets: 'Solves a named operating problem and informs an action.' },
   { label: 'Evidence Quality', meets: 'Required facts trace to inputs. Missing information is visible.' },
   { label: 'Output Quality', meets: 'Meets your team’s actual acceptance standard.' },
@@ -201,19 +206,19 @@ export const RUBRIC: readonly RubricDimension[] = [
   { label: 'Repeatability', meets: 'A named maintainer can rerun it at the agreed trigger.' },
 ];
 
-export const RUBRIC_SCALE: readonly { score: 0 | 1 | 2; label: string }[] = [
+export const RUBRIC_SCALE: { score: 0 | 1 | 2; label: string }[] = [
   { score: 0, label: 'Not demonstrated' },
   { score: 1, label: 'Needs correction' },
   { score: 2, label: 'Meets standard' },
 ];
 
-export const RUBRIC_RULES: readonly string[] = [
+export const RUBRIC_RULES: string[] = [
   'Tested: 8 or more out of 10, with no zero in Evidence Quality or Control.',
   'Adopted: tested, plus this week’s use evidence. No score stands in for actual use.',
 ];
 
 /** Rubric totals, worked out the one way. `tested` needs 8 of 10 and no zero in evidence or control. */
-export function rubricResult(scores: readonly (0 | 1 | 2)[]): { total: number; tested: boolean } {
+export function rubricResult(scores: (0 | 1 | 2)[]): { total: number; tested: boolean } {
   if (scores.length !== RUBRIC.length) throw new Error(`rubricResult: expected ${RUBRIC.length} scores`);
   const total = scores.reduce<number>((a, s) => a + s, 0);
   const evidence = scores[RUBRIC.findIndex((d) => d.label === 'Evidence Quality')]!;
@@ -221,13 +226,13 @@ export function rubricResult(scores: readonly (0 | 1 | 2)[]): { total: number; t
   return { total, tested: total >= 8 && evidence > 0 && control > 0 };
 }
 
-export const READINESS: readonly { gate: 'Green' | 'Amber' | 'Red'; text: string }[] = [
+export const READINESS: { gate: 'Green' | 'Amber' | 'Red'; text: string }[] = [
   { gate: 'Green', text: 'Accounts work, permissions are confirmed, your operator is named and the minimum data is there. Build on your own data.' },
   { gate: 'Amber', text: 'Accounts work, but a data gap remains. Build on the practice set while a named person fixes the gap, then rerun on your real data. Until you do, the week shows “data repair required.”' },
   { gate: 'Red', text: 'No authorized access, no maintainer, or no time to implement. Sort it out before the start, or defer. Don’t let it become an open-ended support problem.' },
 ];
 
-export const PATHS_IN_CLASS: readonly { label: string; text: string }[] = [
+export const PATHS_IN_CLASS: { label: string; text: string }[] = [
   { label: 'Core Path', text: 'The preconfigured skill, an annotated input example, a minimum-data build, and one reviewed real-world use.' },
   { label: 'Advanced Path', text: 'The same outcome, plus a harder reconciliation, an edge-case test or a safely scoped connection. Not a second curriculum.' },
   { label: 'Owner Requirement', text: 'Explain one financial or operating conclusion and approve an action. Your operator can’t do this part for you.' },
@@ -238,7 +243,7 @@ export const MISSED_A_WEEK = 'Missed a week? Do the core path first: the preconf
 
 // --- before Week 1 ---------------------------------------------------------------------------------
 
-export const INTAKE_FIELDS: readonly string[] = [
+export const INTAKE_FIELDS: string[] = [
   'Team size',
   'Your operator, or that the owner holds both roles',
   'Your CRM, and whether you use Sisu',
@@ -249,7 +254,7 @@ export const INTAKE_FIELDS: readonly string[] = [
   'Known access restrictions',
 ];
 
-export const ORIENTATION: { minutes: number; topics: readonly string[]; media: string } = {
+export const ORIENTATION: { minutes: number; topics: string[]; media: string } = {
   minutes: 30,
   topics: [
     'How each week works: one question, one flagship skill, one required output.',
@@ -261,7 +266,7 @@ export const ORIENTATION: { minutes: number; topics: readonly string[]; media: s
 };
 
 /** Usable data, not perfect data. The minimum is a fine place to start. */
-export const DATA_PACK: readonly { input: string; preferred: string; minimum: string }[] = [
+export const DATA_PACK: { input: string; preferred: string; minimum: string }[] = [
   { input: 'Production', preferred: 'The prior 12 months, plus your current pipeline.', minimum: 'The last 90 days, labeled provisional.' },
   { input: 'Accounting', preferred: 'Monthly P&L for the prior 12 months, with the reporting basis noted.', minimum: 'Your latest closed monthly P&L and known spend for the sources in scope.' },
   { input: 'Lead Sources', preferred: 'Spend, created leads and closings by source, with source IDs and dates.', minimum: 'Your three largest identifiable sources, plus an “unknown” bucket.' },
@@ -274,7 +279,7 @@ export const DATA_PACK: readonly { input: string; preferred: string; minimum: st
 export const PRACTICE_SET_NOTE =
   'The practice set is synthetic. The numbers are made up for practice and aren’t a benchmark. One input is missing on purpose, so you can see the worksheet say “unknown” instead of $0.';
 
-export const SAFE_SHARING: readonly string[] = [
+export const SAFE_SHARING: string[] = [
   'Redact client and employee details before anything leaves your private folder.',
   'Never upload tax IDs, bank details, identity documents, full transaction files or unrelated personnel records.',
   'Keep your originals. Send the program only redacted evidence.',
@@ -284,7 +289,7 @@ export const SAFE_SHARING: readonly string[] = [
   'We won’t use your testimonial, logo, screenshot, numbers or recording publicly without your specific permission.',
 ];
 
-export const LANES: readonly { label: string; text: string }[] = [
+export const LANES: { label: string; text: string }[] = [
   { label: 'Connected', text: 'An authorized connector you’ve tested. Start read-only. Turn on writes only where a person reviews them.' },
   { label: 'Exported', text: 'CSV or Excel reports and controlled uploads. The default, and a perfectly good finished build.' },
   { label: 'Manual Minimum', text: 'A checked form or a small extract. Same standards. Just don’t call it automated.' },
@@ -293,7 +298,7 @@ export const LANES: readonly { label: string; text: string }[] = [
 // --- after Week 8 ----------------------------------------------------------------------------------
 
 /** An operating standard, not a guarantee. */
-export const GRADUATION: readonly string[] = [
+export const GRADUATION: string[] = [
   'Four core routines in use, each with at least three real cycles: daily prioritization, the weekly numbers review, weekly decision-to-task follow-through and the pipeline exception review.',
   'One checked economics review: a completed baseline, a documented data-quality check, and at least one source decision or a justified decision to collect more data.',
   'One coaching example and one delegation example, in real use with a team member.',
@@ -304,7 +309,7 @@ export const GRADUATION: readonly string[] = [
 export const GRADUATION_NOTE =
   'This is an operating standard, not a promise about results. Attendance and implementation are reported separately. You can come to every session and still be “not yet implemented,” and that’s useful to know.';
 
-export const WEEK8_PATHS: readonly { label: string; text: string }[] = [
+export const WEEK8_PATHS: { label: string; text: string }[] = [
   { label: 'Lead It Yourselves', text: 'Leave with a 30-day internal rollout plan, the pilot skill, a practice agenda and a scorecard. It’s a real option, and it works without buying anything else.' },
   { label: 'Get Guided Help', text: 'The Amplified Agent Plan or the Amplified Team Plan runs practice and feedback with your agents. Ask us about the next intake. Any later charges are spelled out before you decide.' },
   { label: 'Defer', text: 'Keep your owner routines running and revisit agent rollout after you’ve fixed capacity, quality or data issues.' },
@@ -326,7 +331,7 @@ const officeHours = (week: number, title: string, note = 'Bring the issue form. 
 
 const OWNER_APPROVAL = 'The owner reviews and approves one real run during class, even if the operator did the setup. Delegate the maintenance, not the understanding.';
 
-export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
+export const ACCELERATOR_WEEKS_CONTENT: CourseWeek[] = [
   {
     week: 0,
     title: 'Get Ready',
@@ -973,7 +978,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
 ];
 
 /** The pilot questions owners answer in Week 8. */
-export const PILOT_QUESTIONS: readonly { label: string; text: string }[] = [
+export const PILOT_QUESTIONS: { label: string; text: string }[] = [
   { label: 'Usefulness', text: 'Did the workflow improve a task that matters?' },
   { label: 'Adoption', text: 'Did agents use it when the task came up, without being chased?' },
   { label: 'Quality', text: 'What still needed correcting or coaching?' },
@@ -982,7 +987,7 @@ export const PILOT_QUESTIONS: readonly { label: string; text: string }[] = [
 ];
 
 /** The course's front page. */
-export const COURSE_INTRO = {
+export const COURSE_INTRO: CourseIntro = {
   title: 'Amplified AI Accelerator',
   sub: 'Eight weeks of installing finished, real estate workflows in your own business, with your operator beside you.',
   how: [
@@ -1005,11 +1010,11 @@ export const COURSE_INTRO = {
    * session, and only the join route hands it out, inside that window.
    */
   join: { label: 'Join in Sessions', note: 'opens 15 min before', path: '/sessions' },
-} as const;
+};
 
 // --- the portal's AI Employees -----------------------------------------------------------------------
 
-const ids6 = (steps: readonly Omit<Step, 'id'>[]): Step[] => steps.map((s, i) => ({ id: `c${i + 1}`, ...s }));
+const ids6 = (steps: Omit<Step, 'id'>[]): Step[] => steps.map((s, i) => ({ id: `c${i + 1}`, ...s }));
 
 /**
  * The course as the portal's nine AI Employees: Week 0 (self-paced) and Weeks 1 to 8, each tied to its
@@ -1064,7 +1069,7 @@ export function acceleratorModules(instructor: string = ACCELERATOR_INSTRUCTOR):
 }
 
 /** The course, as `GET /api/course` sends it to a buyer whose plan opens it. */
-export function courseContent() {
+export function courseContent(): CourseContent {
   return {
     intro: COURSE_INTRO,
     weeks: ACCELERATOR_WEEKS_CONTENT,
@@ -1100,4 +1105,3 @@ export function courseContent() {
   };
 }
 
-export type CourseContent = ReturnType<typeof courseContent>;

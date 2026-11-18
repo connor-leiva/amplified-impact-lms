@@ -13,7 +13,6 @@ export * from './files';
 export * from './tiers';
 export * from './seats';
 export * from './seed';
-export * from './seed-production';
 export * from './can';
 export * from './scope';
 export * from './vtt';

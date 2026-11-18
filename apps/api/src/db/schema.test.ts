@@ -60,11 +60,11 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
   users: { table: 'users', columns: ['cohort_id', 'email', 'id', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
-  cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'end', 'id', 'name', 'start', 'status', 'weeks'] },
-  sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'live', 'mins', 'moved_from', 'n', 'replay', 'replay_url', 'start', 'title', 'views', 'zoom'] },
-  modules: { table: 'modules', columns: ['build', 'checklist', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'transcript'] },
+  cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'course', 'default_open_time', 'end', 'id', 'name', 'preview_opens_at', 'start', 'status', 'timezone', 'weeks'] },
+  sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'start', 'title', 'views', 'zoom'] },
+  modules: { table: 'modules', columns: ['build', 'checklist', 'course', 'due_at', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'kind', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'tone', 'transcript'] },
   progress: { table: 'progress', columns: ['built_at', 'deployed_at', 'issue', 'last_run', 'module_id', 'runtime', 'steps', 'user_id'] },
-  resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'id', 'module_id', 'seq', 'size', 'status', 'storage_key', 'tier', 'title', 'type', 'updated'] },
+  resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
   reminders: { table: 'reminders', columns: ['channel', 'id', 'label', 'on'] },
@@ -165,6 +165,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
   // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
   consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
+  // D-173: the curriculum builder's copy strings. A `Db` record (`Db.copy`), round-tripped by the codec.
+  copyStrings: { table: 'copy_strings', columns: ['audience', 'key', 'value'] },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -317,6 +319,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['cohorts', 'start'], ['cohorts', 'end'],
   ['sessions', 'start'], ['sessions', 'movedFrom'],
   ['modules', 'opens'],
+  // D-173: a week's due time, and when the cohort's pre-launch preview opens.
+  ['modules', 'dueAt'],
+  ['cohorts', 'previewOpensAt'],
   ['progress', 'builtAt'], ['progress', 'deployedAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
@@ -434,6 +439,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
   consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
+  copyStrings: { unit: 'epoch-ms', why: 'D-173: no instant at all; a key, its words and who reads them' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)

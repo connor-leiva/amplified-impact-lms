@@ -11,7 +11,7 @@
 import { fmt } from '@ai/core';
 import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
 import { courseGuideHref } from '@ai/core/skill-guides';
-import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/accelerator-content';
+import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/course-types';
 import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL. */

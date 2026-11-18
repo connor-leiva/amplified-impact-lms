@@ -7,9 +7,12 @@
 //   403 { open: false, error }             any other learner: no plan, or a plan that is not the course
 //   401                                    not signed in (`requireSession`)
 //
-// The course's words live in `@ai/core/accelerator-content` and reach the browser only through this
-// route, so the course is not readable in the public JavaScript bundle. Week 0 and all eight weeks
-// open together (no drip); the live sessions keep their own date-gated join window.
+// The course's words live in the database (D-173: the cohort's `course` and each week module's) and
+// reach the browser only through this route, so the course is not readable in the public JavaScript
+// bundle. Week 0 and all eight weeks open together (no drip); the live sessions keep their own
+// date-gated join window.
+//
+//   503 { open: false, error }             the database holds no course yet (the seed hasn't run)
 //
 // `sessions` are the cohort's sessions as the database holds them, so a session staff move shows its
 // new time on the course page too. Never the Zoom URL: that comes only from the join route, inside its
@@ -17,7 +20,7 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from '@ai/core/accelerator';
-import { courseContent } from '@ai/core/accelerator-content';
+import { courseFromSnapshot } from '@ai/core/course';
 import { moduleForSession, sessionKind, sessionWeek } from '@ai/core';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
@@ -31,6 +34,8 @@ export const NOT_IN_PLAN = 'The AI Accelerator isn’t in your plan.';
 export const PAUSED = 'Your AI Accelerator is paused until your payment goes through.';
 /** D-153: bought, and opening at the first live build. */
 export const NOT_YET = 'Your AI Accelerator opens at the first live build.';
+/** D-173: the course is data, and this database holds none yet. */
+export const NOT_LOADED = 'The AI Accelerator’s course isn’t loaded yet.';
 
 export function registerCourseRoute(app: FastifyInstance): void {
   app.get(COURSE_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
@@ -44,6 +49,8 @@ export function registerCourseRoute(app: FastifyInstance): void {
       return reply.code(403).send({ open: false, error: NOT_IN_PLAN });
     }
     const snapshot = await loadDb(db);
+    const course = courseFromSnapshot(snapshot);
+    if (!course) return reply.code(503).send({ open: false, error: NOT_LOADED });
     const sessions = snapshot.sessions
       .filter((s) => s.cohortId === ACCELERATOR_COHORT_ID)
       .filter((s) => {
@@ -52,6 +59,6 @@ export function registerCourseRoute(app: FastifyInstance): void {
       })
       .sort((a, b) => a.start - b.start)
       .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
-    return reply.code(200).send({ open: true, preview: actor.kind === 'staff', course: courseContent(), sessions });
+    return reply.code(200).send({ open: true, preview: actor.kind === 'staff', course, sessions });
   });
 }

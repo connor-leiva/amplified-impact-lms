@@ -3,8 +3,8 @@ import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
-import { acceleratorSessions } from '@ai/core/accelerator';
-import { courseContent } from '@ai/core/accelerator-content';
+import { acceleratorSessions } from '@ai/core/seed/accelerator-v1';
+import { courseContent } from '@ai/core/seed/accelerator-v1';
 import Course from './Course';
 import { COPY } from './Course.vm';
 

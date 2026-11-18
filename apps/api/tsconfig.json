@@ -13,6 +13,7 @@
     "lib": ["ES2023", "DOM"],
     "paths": {
       "@ai/core": ["../../packages/core/src/index.ts"],
+      "@ai/core/seed/*": ["../../packages/core/seed/*"],
       "@ai/core/*": ["../../packages/core/src/*"]
     }
   },

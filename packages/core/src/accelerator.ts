@@ -1,154 +1,39 @@
 // The Amplified AI Accelerator, cohort one, as the platform's `dec26` cohort (DECISIONS.md D-110).
 //
-// THIS FILE IS THE CALENDAR AND THE RULES, NOT THE WORDS. The course's words (each week's intro,
-// setup order, live-build page, office-hours page, homework, evidence packet and rubric) are in
-// `accelerator-content.ts`; the Week 1 calculation worksheet is `worksheet.ts`. This file holds what
-// a test can pin exactly: the session dates and times, the ids, which plans open the course, and the
-// Library routes the course links to.
-//
-// THE CALENDAR IS LOCKED (the PM's brief, Connor): builds on Wednesdays at 1:00 PM Central for 90
-// minutes, office hours on Thursdays at 1:00 PM Central for 60 minutes, nothing on Dec 23 or Dec 30.
-// Dec 10 and Dec 17 are the two goal-planning sessions, each with a short office-hours segment.
-// Every date here is in CST (UTC-6): the cohort ends Feb 4, a month before daylight time starts.
+// THE RULES AND THE IDS, NOT THE WORDS OR THE CALENDAR (D-173). The course's words and its calendar
+// (session dates, titles and times) are data: the database holds them, the curriculum builder edits
+// them, and their first copy is the one-time seed in `packages/core/seed/accelerator-v1.ts`, which
+// runtime code never imports. This file holds what code needs to find and gate the course: the cohort
+// and module ids, the session id series, which plans open the course, and the Library paths.
 //
 // TWO SERIES IN ONE COHORT. `moduleForSession` matches a module's `session` to a session's `n`, so a
 // build's `n` is its week (1 to 8) and is unique. The office hours are a second series: ids
 // `dec26-oh1` to `dec26-oh8` and `n` = 100 + week, which no module's `session` ever names. The week an
-// office hour belongs to is read off its id (`sessionWeek` in sessions.ts), so the series needs no new
-// column and no migration.
+// office hour belongs to is read off its id (`sessionWeek` in sessions.ts).
 //
-// Pure: no clock, no random source. Every instant is a `Date.parse` of a literal.
+// Pure: no clock, no random source.
 
 import { COHORT_ONE } from './offer';
-import type { Cohort, Session } from './types';
-
-/** A bare `YYYY-MM-DDTHH:MM` read as Central Time. December to February is CST. */
-const CT = (s: string): number => Date.parse(`${s}:00-06:00`);
 
 /** The platform's production cohort: cohort one, `COHORT_ONE.id` in offer.ts. */
 export const ACCELERATOR_COHORT_ID = 'dec26';
 
-/** Who teaches cohort one. Never the prototype's invented instructor. */
-export const ACCELERATOR_INSTRUCTOR = 'Connor Leiva';
-
-/** The program's name, as `PLAN_NAMES.cohort` prints it. */
-export const ACCELERATOR_NAME = 'Amplified AI Accelerator';
-
 /** Where learners write for help (the PM's brief). */
 export const ACCELERATOR_SUPPORT_EMAIL = 'support@amplifiedimpact.io';
-
-/** Live builds: Wednesday, 1:00 PM Central, 90 minutes. */
-export const BUILD_MINS = 90;
-/** Office hours and the goal-planning sessions: Thursday, 1:00 PM Central, 60 minutes. */
-export const OFFICE_HOURS_MINS = 60;
-/** The session time, said in the program's zone. Screens say it through `fmt.*`. */
-export const SESSION_TIME_CT = '13:00';
-
-/** No session on these days: the holiday break (the brief: "nothing on Dec 23 or Dec 30"). */
-export const HOLIDAY_SKIPS: readonly string[] = ['2026-12-23', '2026-12-24', '2026-12-30', '2026-12-31'];
 
 /**
  * When the course opens, Week 0 and all eight weeks at once: the first live build, Wednesday, Dec 2,
  * 2026, 1:00 PM Central (12:00 PM Mountain), `COHORT_ONE.firstBuildAt` (D-153, Connor, 2026-11-13:
  * logins go out now, and nothing paid opens until the sessions start). It used to be the Nov 16 invite
- * hold; it no longer follows `INVITES_FROM` in any way.
+ * hold; it no longer follows `INVITES_FROM` in any way. Billing's date (offer.ts), not course content:
+ * D-173 leaves it here until the pre-launch gating reads each week's open time from the database.
  */
 export const COURSE_OPENS_AT = COHORT_ONE.firstBuildAt;
-
-/** Week 0 is due before the first build. */
-export const WEEK0_DUE_AT = CT('2026-12-02T13:00');
-
-export interface CalendarWeek {
-  week: number;
-  /** The Wednesday build, `YYYY-MM-DD`, Central. */
-  build: string;
-  /** The Thursday office hour (or goal-planning session), `YYYY-MM-DD`, Central. */
-  thursday: string;
-  /** The Thursday session's title. */
-  thursdayTitle: string;
-  /** The build's title: the week's flagship, then "Live Build". */
-  buildTitle: string;
-}
-
-/**
- * The locked calendar, one row per week. Week 0 is async and has no row: it opens with the invite
- * hold and is due before Dec 2.
- */
-export const ACCELERATOR_CALENDAR: readonly CalendarWeek[] = [
-  { week: 1, build: '2026-12-02', thursday: '2026-12-03', buildTitle: 'Lead-Source ROI Live Build', thursdayTitle: 'Lead-Source ROI Office Hours' },
-  { week: 2, build: '2026-12-09', thursday: '2026-12-10', buildTitle: 'Morning Brief Live Build', thursdayTitle: 'Goal-Planning Session 1 and Office Hours' },
-  { week: 3, build: '2026-12-16', thursday: '2026-12-17', buildTitle: 'L10 Meeting Prep Live Build', thursdayTitle: 'Goal-Planning Session 2 and Office Hours' },
-  { week: 4, build: '2027-01-06', thursday: '2027-01-07', buildTitle: 'FUB Pipeline Review Live Build', thursdayTitle: 'FUB Pipeline Review Office Hours' },
-  { week: 5, build: '2027-01-13', thursday: '2027-01-14', buildTitle: 'Agent 1:1 Prep Live Build', thursdayTitle: 'Agent 1:1 Prep Office Hours' },
-  { week: 6, build: '2027-01-20', thursday: '2027-01-21', buildTitle: 'Team Playbook Builder Live Build', thursdayTitle: 'Team Playbook Builder Office Hours' },
-  { week: 7, build: '2027-01-27', thursday: '2027-01-28', buildTitle: 'New Agent Onboarding Plan Live Build', thursdayTitle: 'New Agent Onboarding Plan Office Hours' },
-  { week: 8, build: '2027-02-03', thursday: '2027-02-04', buildTitle: 'Cohort-End Review Live Build', thursdayTitle: 'Cohort-End Review Office Hours' },
-];
-
-/** The Thursdays that are goal-planning sessions rather than plain office hours (Dec 10 and Dec 17). */
-export const GOAL_PLANNING_WEEKS: readonly number[] = [2, 3];
 
 export const buildSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-s${week}`;
 export const officeHoursSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-oh${week}`;
 /** An office hour's `n`: a second series, never equal to a module's `session` (1 to 8). */
 export const officeHoursN = (week: number): number => 100 + week;
-
-/**
- * The sixteen sessions: eight builds and eight Thursdays, in date order. No Zoom URL is invented:
- * `zoom` is empty until staff set the real link (the course page says "Join in Sessions"), and the
- * join route reads an empty URL as shut.
- */
-export function acceleratorSessions(): Session[] {
-  const out: Session[] = [];
-  for (const w of ACCELERATOR_CALENDAR) {
-    out.push({
-      id: buildSessionId(w.week),
-      cohortId: ACCELERATOR_COHORT_ID,
-      n: w.week,
-      title: w.buildTitle,
-      start: CT(`${w.build}T${SESSION_TIME_CT}`),
-      mins: BUILD_MINS,
-      zoom: '',
-      live: false,
-      attended: null,
-      replay: null,
-      views: 0,
-    });
-    out.push({
-      id: officeHoursSessionId(w.week),
-      cohortId: ACCELERATOR_COHORT_ID,
-      n: officeHoursN(w.week),
-      title: w.thursdayTitle,
-      start: CT(`${w.thursday}T${SESSION_TIME_CT}`),
-      mins: OFFICE_HOURS_MINS,
-      zoom: '',
-      live: false,
-      attended: null,
-      replay: null,
-      views: 0,
-    });
-  }
-  return out.sort((a, b) => a.start - b.start);
-}
-
-/**
- * Cohort one. It starts with the first build and ends when the Feb 4 office hour does. 15 seats, the
- * offer's `COHORT_SEATS`; `enrolled` is derived from the learner rows, so it starts at zero.
- */
-export function acceleratorCohort(): Cohort {
-  const last = ACCELERATOR_CALENDAR[ACCELERATOR_CALENDAR.length - 1]!;
-  return {
-    id: ACCELERATOR_COHORT_ID,
-    name: `${ACCELERATOR_NAME} · December 2026`,
-    start: CT(`${ACCELERATOR_CALENDAR[0]!.build}T${SESSION_TIME_CT}`),
-    end: CT(`${last.thursday}T${SESSION_TIME_CT}`) + OFFICE_HOURS_MINS * 60_000,
-    weeks: 8,
-    status: 'enrolling',
-    capacity: 15,
-    enrolled: 0,
-    cadence: 'Wed builds and Thu office hours · 1:00 PM CT',
-  };
-}
 
 // --- the modules' ids ------------------------------------------------------------------------------
 

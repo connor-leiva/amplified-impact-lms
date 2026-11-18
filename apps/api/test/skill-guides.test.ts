@@ -8,8 +8,9 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { eq, sql } from 'drizzle-orm';
-import { seedForDatabase, seedProduction } from '@ai/core';
-import { acceleratorModules } from '@ai/core/accelerator-content';
+import { seedForDatabase } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
+import { acceleratorModules } from '@ai/core/seed/accelerator-v1';
 import type { SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
 import { build } from '../src/app';
 import type { App } from '../src/app';

@@ -169,6 +169,13 @@
       "when": 1794919460401,
       "tag": "0023_resource_module_session_replay",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794970615014,
+      "tag": "0024_curriculum_builder",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,19 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
+const ICON_PATHS = [
+  { name: 'lucide-react', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+  { name: 'react-icons', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+  { name: 'phosphor-react', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+  { name: 'react-feather', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+];
+const STYLE_PATTERNS = [
+  { group: ['@heroicons/*'], message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+  { group: ['@tabler/icons*'], message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
+  { group: ['tailwindcss', 'tailwindcss/*'], message: 'No Tailwind. Styling is CSS Modules over tokens.css.' },
+  { group: ['styled-components', '@emotion/*'], message: 'No CSS-in-JS runtime. Styling is CSS Modules over tokens.css.' },
+];
+
 export default tseslint.config(
   {
     ignores: [
@@ -32,20 +45,26 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      'no-restricted-imports': ['error', { paths: ICON_PATHS, patterns: STYLE_PATTERNS }],
+    },
+  },
+  {
+    // D-173: course content is data. Runtime code (web, API and core) may not import the one-time
+    // seed (packages/core/seed) or the old content modules; tests and the seed CLI may. The copy guard
+    // test (apps/api/test/copy-guard.test.ts) also checks that no seed string is written into runtime.
+    files: ['apps/web/src/**/*.{ts,tsx}', 'apps/api/src/**/*.ts', 'packages/core/src/**/*.ts'],
+    ignores: ['**/*.test.{ts,tsx}', 'apps/api/src/db/seed.ts', 'apps/web/src/test-setup.ts'],
+    rules: {
       'no-restricted-imports': [
         'error',
         {
-          paths: [
-            { name: 'lucide-react', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-            { name: 'react-icons', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-            { name: 'phosphor-react', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-            { name: 'react-feather', message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-          ],
+          paths: ICON_PATHS,
           patterns: [
-            { group: ['@heroicons/*'], message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-            { group: ['@tabler/icons*'], message: 'Icons come only from ICONS in @ai/core through <Icon>.' },
-            { group: ['tailwindcss', 'tailwindcss/*'], message: 'No Tailwind. Styling is CSS Modules over tokens.css.' },
-            { group: ['styled-components', '@emotion/*'], message: 'No CSS-in-JS runtime. Styling is CSS Modules over tokens.css.' },
+            ...STYLE_PATTERNS,
+            {
+              group: ['@ai/core/seed/*', '**/core/seed/*', '../seed/*', '**/accelerator-content', '**/weeks-0-3', '**/weeks-0-3.ts'],
+              message: 'D-173: course content is data. Runtime code reads it from the database; the seed is for db:curriculum:ensure and tests only.',
+            },
           ],
         },
       ],

@@ -16,6 +16,7 @@ import type { Actor } from '@ai/core/mutations';
 import * as schema from './schema';
 import { COLUMNS_OWNED, KEYS, ORDER, diffSnapshot, fromRows, toRows } from './codec';
 import type { Rows, TableName } from './codec';
+import { seedProduction } from '@ai/core/seed/curriculum';
 
 const PHASES = ['week0', 'live', 'post'] as const;
 
@@ -220,14 +221,15 @@ describe('§7.3 columns a snapshot must not clobber @g7', () => {
     for (const r of rows.resources) expect('storageKey' in r).toBe(false);
   });
 
-  /** Nothing is dismissed in the live seed, so that table has no row to inspect from it. */
-  const EMPTY_IN_SEED: readonly TableName[] = ['dismissals'];
+  /** Nothing is dismissed in the live seed, and it has no copy strings (D-173), so those tables have no row to inspect from it. */
+  const EMPTY_IN_SEED: readonly TableName[] = ['dismissals', 'copyStrings'];
 
   it('every row carries exactly the columns COLUMNS_OWNED declares @g7', () => {
     // The guard the point above depends on: the caller sets only the keys a row carries, so this
     // list is the authority on which columns a snapshot write may touch.
     const dismissing = structuredClone(seedForDatabase('live'));
     dismissing.dismissed[`${dismissing.users[0]!.id}:${dismissing.announcements[0]!.id}`] = 1;
+    dismissing.copy = [{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }];
     const all = toRows(dismissing);
 
     for (const table of Object.keys(COLUMNS_OWNED) as TableName[]) {
@@ -483,5 +485,26 @@ describe('§7.3 diffRows @g7', () => {
     expect(Object.keys(KEYS).sort()).toEqual(Object.keys(rows).sort());
     expect(Object.keys(ORDER).sort()).toEqual(Object.keys(rows).sort());
     expect(Object.keys(COLUMNS_OWNED).sort()).toEqual(Object.keys(rows).sort());
+  });
+});
+
+describe('D-173: the curriculum builder\'s fields round-trip', () => {
+  const prod = (): Db => seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+
+  it('carries every new column and the copy strings through toRows and fromRows unchanged', () => {
+    const db = prod();
+    db.sessions[0]!.replayVisibility = 'after_open';
+    db.modules[1]!.tone = 'teal';
+    db.cohorts[0]!.previewOpensAt = Date.parse('2026-11-18T19:00:00Z');
+    db.resources.push({ id: 'r_kit', title: 'Ready Check prompt', desc: '', cat: 'Week 0', type: 'Prompt', tier: 'team', size: '1 KB', dl: 0, updated: 0, exec: false, status: 'published', module: 'accelerator-week-0', kind: 'prompt', stepId: 'c8', visibility: 'open_in_preview', platform: 'chatgpt' });
+    expect(roundTrip(db)).toEqual(db);
+    expect(diffSnapshot(db, roundTrip(db))).toEqual([]);
+  });
+
+  it('writes the new columns as null when a record has none, so a fixture still reads back exactly', () => {
+    const rows = toRows(seed('live'));
+    expect(rows.copyStrings).toEqual([]);
+    for (const r of rows.modules) expect([r.kind, r.dueAt, r.tone, r.course]).toEqual([null, null, null, null]);
+    expect('copy' in roundTrip(seed('live'))).toBe(false);
   });
 });

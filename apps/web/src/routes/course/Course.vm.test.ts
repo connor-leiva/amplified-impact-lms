@@ -2,8 +2,9 @@
 // builds it, from `@ai/core`'s course and calendar, so the screen is tested against the real words.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
-import { LIBRARY_ROUTES_PENDING_MERGE, acceleratorSessions } from '@ai/core/accelerator';
-import { courseContent } from '@ai/core/accelerator-content';
+import { LIBRARY_ROUTES_PENDING_MERGE } from '@ai/core/accelerator';
+import { acceleratorSessions } from '@ai/core/seed/accelerator-v1';
+import { courseContent } from '@ai/core/seed/accelerator-v1';
 import { ENTRIES } from '../../library/content';
 import { COPY, courseView, guideHref, isExternal, overviewVM, weekFromParam, weekVM } from './Course.vm';
 import type { CoursePayload, WeekVM } from './Course.vm';

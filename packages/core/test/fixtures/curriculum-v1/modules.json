@@ -1,0 +1,713 @@
+[
+  {
+    "id": "accelerator-week-0",
+    "name": "Week 0 · Get Ready",
+    "short": "Week 0",
+    "tier": "team",
+    "icon": "listChecks",
+    "forWho": "team owners and their operators",
+    "headline": "Are we ready to start on our own data?",
+    "outcome": "Your accounts, operator, baseline and data pack, ready before the first build on Dec 2.",
+    "outputs": [
+      "Intake in and operator named",
+      "AI Brain set up and time baseline recorded",
+      "Readiness gate checked on the practice set"
+    ],
+    "platform": "Claude or ChatGPT",
+    "runLabel": "Run on the Practice Set",
+    "build": 150,
+    "session": null,
+    "status": "published",
+    "opens": null,
+    "order": 1,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "Week 1 goes fastest when your accounts work, your operator is named and your data is in one place. None of this is hard. It just has to happen before Dec 2, not during the first build. Owner: Name your operator, fill in the intake and set up your own AI Brain. Protect a weekly time for the operating review. Operator: Check access, gather the data pack, set up the working folder and run the readiness exercise. Time: owner about 45 to 60 minutes. Operator about 2 to 3 hours, when your data is easy to reach. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-0.",
+    "prompt": "# Week 0 · Get Ready\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- AI Brain Setup: https://learn.amplifiedimpact.io/skill-library/ai-brain-setup\n- Sounds Like You: Your AI Voice Profile: https://www.amplifiedimpact.io/voice-profile\n- Team AI Brain: https://learn.amplifiedimpact.io/skill-library/team-ai-brain\n\nThe full week is at /course/week-0.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Fill in the intake and name your operator",
+        "ch": "Fill In the Intake",
+        "mins": 10,
+        "t": 0,
+        "hint": "Your intake form arrives with your welcome email."
+      },
+      {
+        "id": "c2",
+        "text": "Watch the orientation",
+        "ch": "Watch the Orientation",
+        "mins": 30,
+        "t": 0,
+        "hint": "About 30 minutes."
+      },
+      {
+        "id": "c3",
+        "text": "Open AI Brain Setup and finish its guided setup",
+        "ch": "Set Up Your AI Brain",
+        "mins": 30,
+        "t": 0,
+        "hint": "It’s free. The prompts stay on its Library page."
+      },
+      {
+        "id": "c4",
+        "text": "Record your time baseline with The Ops Time Audit",
+        "ch": "Record Your Baseline",
+        "mins": 20,
+        "t": 0,
+        "hint": "Report prep, meeting prep, follow-up admin and one agent task."
+      },
+      {
+        "id": "c5",
+        "text": "Gather the data pack",
+        "ch": "Gather the Data Pack",
+        "mins": 45,
+        "t": 0,
+        "hint": "Usable data, not perfect data. The minimum is fine."
+      },
+      {
+        "id": "c6",
+        "text": "Run the readiness exercise on the practice set",
+        "ch": "Run the Readiness Check",
+        "mins": 15,
+        "t": 0,
+        "hint": "Find the input that’s missing on purpose."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-1",
+    "name": "Week 1 · Know the Business",
+    "short": "Week 1",
+    "tier": "team",
+    "icon": "dollar",
+    "forWho": "team owners and their operators",
+    "headline": "What are we paying for leads, and what can we trust?",
+    "outcome": "A checked view of what your leads cost by source, with every unknown named.",
+    "outputs": [
+      "Production totals tied to their source report",
+      "A worksheet for at least one source, unknowns named",
+      "One decision or a dated data-repair assignment"
+    ],
+    "platform": "Grok Bot",
+    "runLabel": "Run on Your Numbers",
+    "build": 50,
+    "session": 1,
+    "status": "published",
+    "opens": null,
+    "order": 2,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "Before you change spend or push agents, you need to tell production, revenue, acquisition cost, contribution and data uncertainty apart. We start with checked spend and lead counts, then go only as far as the data supports. Owner: Review the exceptions at a fixed weekly time. Decide what you can conclude, what you can’t yet, and what you’d need to know. Operator: Refresh the weekly numbers view and fill in the worksheet. Refresh source economics monthly, after the books close. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-1.",
+    "prompt": "# Week 1 · Know the Business\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- Lead-Source ROI: https://learn.amplifiedimpact.io/skill-library/lead-source-roi\n\nThe full week is at /course/week-1.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open Lead-Source ROI and finish its guided setup",
+        "ch": "Set Up Lead-Source ROI",
+        "mins": 15,
+        "t": 2100,
+        "hint": "Follow the setup on its Library page. The prompts stay there."
+      },
+      {
+        "id": "c2",
+        "text": "Load one period of spend, leads and closings for your three largest sources",
+        "ch": "Load Your Inputs",
+        "mins": 10,
+        "t": 2520,
+        "hint": "Your last closed month. Label anything provisional."
+      },
+      {
+        "id": "c3",
+        "text": "Fill in the Week 1 worksheet for at least one usable source",
+        "ch": "Run the Worksheet",
+        "mins": 10,
+        "t": 3000,
+        "hint": "The worksheet does the math. Missing inputs stay unknown."
+      },
+      {
+        "id": "c4",
+        "text": "Test a normal input and tie the totals to your production report",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test a missing input and confirm it shows as unknown, not zero",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test a misleading input, then have the owner approve one real run",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-2",
+    "name": "Week 2 · Own the Day",
+    "short": "Week 2",
+    "tier": "team",
+    "icon": "sun",
+    "forWho": "team owners and their operators",
+    "headline": "What needs attention, and who owns the next action?",
+    "outcome": "A ten-minute morning brief where every action has an owner, a date and a source.",
+    "outputs": [
+      "A saved brief and one checked run",
+      "One task destination, no duplicate board",
+      "Five uses and one reconciled meeting-to-task run"
+    ],
+    "platform": "Your AI workspace",
+    "runLabel": "Run on This Morning",
+    "build": 45,
+    "session": 2,
+    "status": "published",
+    "opens": null,
+    "order": 3,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "The goal isn’t a prettier summary. It’s fewer commitments with nobody’s name on them. You get one consistent way to decide what deserves your attention each morning. Owner: Review the brief for ten minutes. Accept only tasks with a named owner, a due date and a definition of done. Operator: Refresh the inputs at a fixed time: the Week 1 numbers view, the task list and one authorized meeting or email thread. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-2.",
+    "prompt": "# Week 2 · Own the Day\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- Morning Brief: https://learn.amplifiedimpact.io/skill-library/morning-brief\n\nThe full week is at /course/week-2.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open Morning Brief and finish its guided setup",
+        "ch": "Set Up Morning Brief",
+        "mins": 15,
+        "t": 2100,
+        "hint": "The prompts stay on its Library page."
+      },
+      {
+        "id": "c2",
+        "text": "Connect one authorized meeting or email thread with Task Sync Starter Kit",
+        "ch": "Add One Input",
+        "mins": 10,
+        "t": 2520,
+        "hint": "One thread first, not the whole inbox."
+      },
+      {
+        "id": "c3",
+        "text": "Pick your one task destination",
+        "ch": "Pick a Destination",
+        "mins": 5,
+        "t": 3120,
+        "hint": "The one you already use. Manual paste counts."
+      },
+      {
+        "id": "c4",
+        "text": "Test a normal morning: three priorities, each traced to an input",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test “someone should follow up” and check it flags the missing owner and date",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test a conflicting input, then have the owner approve one real brief",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-3",
+    "name": "Week 3 · Turn Insight into a Decision",
+    "short": "Week 3",
+    "tier": "team",
+    "icon": "target",
+    "forWho": "team owners and their operators",
+    "headline": "What should we solve this week?",
+    "outcome": "A meeting packet that ends in a recorded decision, with an owner and a date.",
+    "outputs": [
+      "A usable agenda and one evidence-backed issue",
+      "A decision log, “no action” decisions included",
+      "One real meeting with owned follow-through"
+    ],
+    "platform": "Claude or ChatGPT",
+    "runLabel": "Run on This Week’s Meeting",
+    "build": 45,
+    "session": 3,
+    "status": "published",
+    "opens": null,
+    "order": 4,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "A report is only worth something if it changes a decision or a behavior. This should shorten your meeting prep and sharpen the issues you discuss. It shouldn’t add a meeting. Owner: Pick the highest-priority issue and make the call. AI can help frame options. It doesn’t make the decision. Operator: Prepare the packet the day before your existing leadership meeting, from the Week 1 numbers, the Week 2 commitments and the issue list. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-3.",
+    "prompt": "# Week 3 · Turn Insight into a Decision\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- L10 Meeting Prep: https://learn.amplifiedimpact.io/skill-library/l10-meeting-prep\n\nThe full week is at /course/week-3.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open L10 Meeting Prep and finish its guided setup",
+        "ch": "Set Up L10 Meeting Prep",
+        "mins": 15,
+        "t": 2100,
+        "hint": "Not on EOS? Use the weekly leadership meeting labels."
+      },
+      {
+        "id": "c2",
+        "text": "Bring in your Week 1 numbers and Week 2 commitments",
+        "ch": "Load Your Inputs",
+        "mins": 5,
+        "t": 2700,
+        "hint": ""
+      },
+      {
+        "id": "c3",
+        "text": "Write one issue with its evidence, impact and the decision needed",
+        "ch": "Write One Issue",
+        "mins": 10,
+        "t": 3000,
+        "hint": "Facts first. Causes are a guess until you check them."
+      },
+      {
+        "id": "c4",
+        "text": "Test a normal week: one issue, its evidence and a clear decision",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test an issue with no evidence and check it asks instead of guessing",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test the flawed “agents need to work harder” issue, then have the owner approve the packet",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-4",
+    "name": "Week 4 · Protect the Pipeline",
+    "short": "Week 4",
+    "tier": "team",
+    "icon": "filter",
+    "forWho": "team owners and their operators",
+    "headline": "Where is execution slipping?",
+    "outcome": "A ranked list of where deals are slipping, each with a record reference and a next step.",
+    "outputs": [
+      "A ranked exception list with record references",
+      "A disposition and an owner for the top five",
+      "A rerun showing what’s still open"
+    ],
+    "platform": "Claude or ChatGPT",
+    "runLabel": "Run on Your Pipeline",
+    "build": 45,
+    "session": 4,
+    "status": "published",
+    "opens": null,
+    "order": 5,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "The point is to send attention to the gaps, not to restate every record in your CRM. A missing update isn’t the same as a stalled deal. The review has to tell them apart. Owner: Before your pipeline review, confirm the exceptions with the responsible agents and record a next action for each. Operator: Run the review before your existing pipeline meeting. Start with active deals and one small priority segment. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-4.",
+    "prompt": "# Week 4 · Protect the Pipeline\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- FUB Pipeline Review: https://learn.amplifiedimpact.io/skill-library/fub-pipeline-review\n\nThe full week is at /course/week-4.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open FUB Pipeline Review and finish its guided setup",
+        "ch": "Set Up FUB Pipeline Review",
+        "mins": 15,
+        "t": 2100,
+        "hint": "The prompts stay on its Library page."
+      },
+      {
+        "id": "c2",
+        "text": "Export your active deals and one small priority segment",
+        "ch": "Load Your Pipeline",
+        "mins": 10,
+        "t": 2520,
+        "hint": "Not the whole database."
+      },
+      {
+        "id": "c3",
+        "text": "Rank the exceptions and propose a next step for each",
+        "ch": "Rank the Exceptions",
+        "mins": 5,
+        "t": 3120,
+        "hint": ""
+      },
+      {
+        "id": "c4",
+        "text": "Test your active deals and check every date traces to a record",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test a deal with a missing date and check it isn’t reported as an event",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test two similar names and conflicting dates, then have the owner approve one real run",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "It has to stop and ask. The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-5",
+    "name": "Week 5 · Coach from Evidence",
+    "short": "Week 5",
+    "tier": "team",
+    "icon": "users",
+    "forWho": "team owners and their operators",
+    "headline": "What behavior should change for this agent?",
+    "outcome": "A coaching packet that keeps facts, hypotheses and questions apart, and one agreed behavior to change.",
+    "outputs": [
+      "One checked packet and three diagnostic questions",
+      "One proposed behavior experiment",
+      "Two real conversations with follow-up dates"
+    ],
+    "platform": "Claude or ChatGPT",
+    "runLabel": "Run on One Agent",
+    "build": 45,
+    "session": 5,
+    "status": "published",
+    "opens": null,
+    "order": 6,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "Missing activity, weak conversion, a bad process and incomplete tracking all look alike on a scorecard. Coaching depends on telling them apart. AI helps you prepare a better conversation. It doesn’t judge people. Owner: Before the 1:1, verify the numbers. In it, ask about context, agree on one behavior to change and set the next review date. Operator: Prepare the packet from agreed activity definitions, production context, prior commitments and the agent’s own perspective. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-5.",
+    "prompt": "# Week 5 · Coach from Evidence\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- Agent 1:1 Prep: https://learn.amplifiedimpact.io/skill-library/agent-1on1-prep\n\nThe full week is at /course/week-5.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open Agent 1:1 Prep and finish its guided setup",
+        "ch": "Set Up Agent 1:1 Prep",
+        "mins": 15,
+        "t": 2100,
+        "hint": "The prompts stay on its Library page."
+      },
+      {
+        "id": "c2",
+        "text": "Agree on the activity definitions and load one agent’s numbers",
+        "ch": "Load One Agent",
+        "mins": 10,
+        "t": 2520,
+        "hint": ""
+      },
+      {
+        "id": "c3",
+        "text": "Draft three diagnostic questions and one behavior experiment",
+        "ch": "Draft the Questions",
+        "mins": 5,
+        "t": 3120,
+        "hint": ""
+      },
+      {
+        "id": "c4",
+        "text": "Test one agent’s packet: facts, hypotheses and questions kept apart",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test missing activity data and check it says so",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test two agents with similar closings and different activity, then have the owner approve the packet",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-6",
+    "name": "Week 6 · Delegate an Outcome",
+    "short": "Week 6",
+    "tier": "team",
+    "icon": "briefcase",
+    "forWho": "team owners and their operators",
+    "headline": "What work can leave the owner’s desk without lowering standards?",
+    "outcome": "One recurring deliverable off the owner’s desk, with a responsibility card and a review checklist.",
+    "outputs": [
+      "A responsibility card from your playbook",
+      "A tested first draft and a review checklist",
+      "One real cycle accepted by the owner"
+    ],
+    "platform": "Claude",
+    "runLabel": "Run on One Deliverable",
+    "build": 45,
+    "session": 6,
+    "status": "published",
+    "opens": null,
+    "order": 7,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "A task that says “handle this” doesn’t define quality or who decides. AI can draft the work. A person still owns the result and knows when to escalate. Owner: Define the outcome, the boundaries and the acceptance standard. Then accept or return the first cycle against the checklist. Operator: Run it, or hand it to the team member who now owns it. Check the draft and submit it through your existing approval process. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-6.",
+    "prompt": "# Week 6 · Delegate an Outcome\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- Team Playbook Builder: https://learn.amplifiedimpact.io/skill-library/team-playbook-builder\n\nThe full week is at /course/week-6.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open Team Playbook Builder and finish its guided setup",
+        "ch": "Set Up Team Playbook Builder",
+        "mins": 15,
+        "t": 2100,
+        "hint": "The prompts stay on its Library page."
+      },
+      {
+        "id": "c2",
+        "text": "Write one responsibility card: outcome, boundaries, acceptance standard, approval authority",
+        "ch": "Write the Card",
+        "mins": 10,
+        "t": 2520,
+        "hint": ""
+      },
+      {
+        "id": "c3",
+        "text": "Draft the first deliverable with Inbox and Meeting Follow-Through",
+        "ch": "Draft the Deliverable",
+        "mins": 5,
+        "t": 3120,
+        "hint": ""
+      },
+      {
+        "id": "c4",
+        "text": "Test the card on one real deliverable",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test a missing input and check the draft flags it",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test a request that includes information it must leave out, then have the owner accept or return the draft",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-7",
+    "name": "Week 7 · Make the Workflow Repeatable",
+    "short": "Week 7",
+    "tier": "team",
+    "icon": "userPlus",
+    "forWho": "team owners and their operators",
+    "headline": "Can our operator adapt and run the next workflow without the instructor?",
+    "outcome": "A versioned onboarding skill your operator can explain, test and repair without the instructor.",
+    "outputs": [
+      "A versioned skill with three passing tests",
+      "A runbook a second person can follow",
+      "A handoff, or “tested and ready” if there’s no hire yet"
+    ],
+    "platform": "Your AI workspace",
+    "runLabel": "Run on a New Hire",
+    "build": 45,
+    "session": 7,
+    "status": "published",
+    "opens": null,
+    "order": 8,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "This is how you scale what feels unscalable: write down how your team brings someone up to standard, and keep the human coaching and decisions. It’s also the independence test. Your team should be able to explain it, test it and fix it without us. Owner: Supply the approved role, standards and resources. Review the plan and assign every checkpoint to a real person. Operator: Adapt the supplied plan, run the three tests, write the runbook and hand it to a second person to rerun. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-7.",
+    "prompt": "# Week 7 · Make the Workflow Repeatable\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- New Agent Onboarding Plan: https://learn.amplifiedimpact.io/skill-library/new-agent-onboarding-plan\n\nThe full week is at /course/week-7.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Open New Agent Onboarding Plan and finish its guided setup",
+        "ch": "Set Up the Onboarding Plan",
+        "mins": 15,
+        "t": 2100,
+        "hint": "Recruiting instead? Use Recruiting Prep."
+      },
+      {
+        "id": "c2",
+        "text": "Adapt it to your standards and the first 30 days",
+        "ch": "Adapt the First 30 Days",
+        "mins": 10,
+        "t": 2520,
+        "hint": ""
+      },
+      {
+        "id": "c3",
+        "text": "Write the runbook: trigger, required data, judgment points, repair steps",
+        "ch": "Write the Runbook",
+        "mins": 5,
+        "t": 3120,
+        "hint": ""
+      },
+      {
+        "id": "c4",
+        "text": "Test normal inputs for one role",
+        "ch": "Normal Test",
+        "mins": 5,
+        "t": 3600,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Test missing inputs and check it fails safely",
+        "ch": "Missing-Input Test",
+        "mins": 5,
+        "t": 3900,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Test a misleading or conflicting input, then have a second person rerun it",
+        "ch": "Misleading-Input Test",
+        "mins": 5,
+        "t": 4200,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  },
+  {
+    "id": "accelerator-week-8",
+    "name": "Week 8 · Sustain and Expand",
+    "short": "Week 8",
+    "tier": "team",
+    "icon": "trend",
+    "forWho": "team owners and their operators",
+    "headline": "What stays, what stops, and what should agents adopt next?",
+    "outcome": "A cohort-end review: what stays, what stops, and a 90-day plan your team runs without us.",
+    "outputs": [
+      "An evidence-backed scorecard",
+      "Keep, fix or retire for each workflow",
+      "A 90-day plan and an agent go or no-go"
+    ],
+    "platform": "Your Week 1 to 7 skills",
+    "runLabel": "Run on Your Logs",
+    "build": 45,
+    "session": 8,
+    "status": "published",
+    "opens": null,
+    "order": 9,
+    "dur": 0,
+    "instructor": "Connor Leiva",
+    "transcript": [],
+    "notes": "This week keeps the work from fading once the cohort ends. It’s also where you decide what not to scale. That’s just as useful. Owner: Make the keep, fix or retire call on each workflow, sign the 90-day plan and make a real go or no-go on agent rollout. Operator: Gather the logs and outputs from Weeks 1 to 7, rerun the Week 1 numbers on the same definitions and assemble the review. Time: owner about 2 to 2.5 hours, including the 90-minute build and real use. Operator about 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them. These are planning estimates, not guarantees. The full week, with the live build, office hours, homework, evidence packet and rubric, is at /course/week-8.",
+    "prompt": "# Week 8 · Sustain and Expand\nThe prompts for this week stay in the Library, not here.\nOpen each guided setup and copy the prompts from there:\n- Lead-Source ROI: https://learn.amplifiedimpact.io/skill-library/lead-source-roi\n- FUB Pipeline Review: https://learn.amplifiedimpact.io/skill-library/fub-pipeline-review\n\nThe full week is at /course/week-8.",
+    "files": [],
+    "resources": [],
+    "checklist": [
+      {
+        "id": "c1",
+        "text": "Gather your run logs and outputs from Weeks 1 to 7",
+        "ch": "Gather Your Logs",
+        "mins": 10,
+        "t": 600,
+        "hint": ""
+      },
+      {
+        "id": "c2",
+        "text": "Rerun Lead-Source ROI and FUB Pipeline Review on your Week 1 definitions",
+        "ch": "Rerun the Numbers",
+        "mins": 10,
+        "t": 900,
+        "hint": "Same definitions, or the comparison isn’t fair."
+      },
+      {
+        "id": "c3",
+        "text": "Fill in keep, fix or retire for each workflow",
+        "ch": "Keep, Fix or Retire",
+        "mins": 10,
+        "t": 1800,
+        "hint": ""
+      },
+      {
+        "id": "c4",
+        "text": "Label every benefit claim measured, estimated or unverified",
+        "ch": "Label the Claims",
+        "mins": 5,
+        "t": 2700,
+        "hint": ""
+      },
+      {
+        "id": "c5",
+        "text": "Make the agent rollout call: go or no-go",
+        "ch": "Decide on Rollout",
+        "mins": 5,
+        "t": 4500,
+        "hint": ""
+      },
+      {
+        "id": "c6",
+        "text": "Have the owner sign the 90-day plan and the next four weekly reviews",
+        "ch": "Commit to 90 Days",
+        "mins": 5,
+        "t": 5100,
+        "hint": "The owner signs off in class."
+      }
+    ]
+  }
+]

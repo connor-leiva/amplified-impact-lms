@@ -1,8 +1,17 @@
 // The welcome page's calendar files (Ampy's offer-pages brief, Nov 11) and the tokens that link them.
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { BUILDS_ICS, BUILDS_ICS_URL, OFFICE_HOURS_ICS, OFFICE_HOURS_ICS_URL } from '../src/routes/offer-calendar';
+import { BUILDS_ICS_URL, OFFICE_HOURS_ICS_URL, buildsIcs, chicagoStamp, officeHoursIcs } from '../src/routes/offer-calendar';
+import { curriculumSeed } from '@ai/core/seed/curriculum';
 import { welcomeValues } from '../src/routes/offer';
 import { readOfferConfig } from '../src/billing/config';
+
+// The files are built from the cohort's sessions as the database holds them (D-173); these are the
+// seed's, which is what a database the seed made holds until staff edit a session.
+const SEEDED = curriculumSeed();
+const INSTRUCTOR = new Map(SEEDED.modules.map((m) => [m.id, m.instructor]));
+const BUILDS_ICS = buildsIcs(SEEDED.sessions, (s) => INSTRUCTOR.get(s.moduleId!));
+const OFFICE_HOURS_ICS = officeHoursIcs(SEEDED.sessions);
 
 /** RFC 5545 unfolding: a CRLF followed by one space joins the next line on. */
 const unfold = (ics: string): string[] => ics.replace(/\r\n /g, '').split('\r\n').filter(Boolean);
@@ -85,6 +94,27 @@ describe('both files', () => {
       expect(new Set(uids).size).toBe(8);
       expect(uids.every((u) => u!.endsWith('@amplifiedimpact.io'))).toBe(true);
     }
+  });
+});
+
+describe('the files are the sessions the database holds (D-173)', () => {
+  // Captured from main's served files, whose every line ends in CRLF (RFC 5545). The repository stores
+  // text with LF (.gitattributes: `* text=auto eol=lf`), so the CRLF is put back here; a bare LF in the
+  // served file would still fail the comparison.
+  const fixture = (name: string): string =>
+    readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8').replace(/\r?\n/g, '\r\n');
+
+  it('are byte for byte the files main served before the move, from the seeded sessions', () => {
+    expect(BUILDS_ICS).toBe(fixture('builds-v1.ics'));
+    expect(OFFICE_HOURS_ICS).toBe(fixture('office-hours-v1.ics'));
+  });
+
+  it('follow a session staff move, and name its new title', () => {
+    const moved = SEEDED.sessions.map((s) => (s.id === 'dec26-s2' ? { ...s, start: s.start + 86_400_000, title: 'Leads That Pay Live Build' } : s));
+    const ev = events(buildsIcs(moved, () => undefined));
+    const week2 = ev.find((e) => e.UID === 'accelerator-build-week2-dec26@amplifiedimpact.io')!;
+    expect(week2['DTSTART;TZID=America/Chicago']).toBe(chicagoStamp(SEEDED.sessions.find((s) => s.id === 'dec26-s2')!.start + 86_400_000));
+    expect(week2.SUMMARY).toBe('Amplified AI Accelerator Live Build\\, Week 2: Leads That Pay');
   });
 });
 

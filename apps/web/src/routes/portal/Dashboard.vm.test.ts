@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
+import { phaseNow, seed, setViewerZone } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import type { Db, Learner } from '@ai/core';
 import { cardAction, dashboardVM, INSTRUCTOR_FALLBACK, nextWednesday } from './Dashboard.vm';
 

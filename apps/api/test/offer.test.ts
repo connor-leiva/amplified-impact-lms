@@ -9,7 +9,9 @@
 // refund. Its sessions are shaped from the links' metadata contract (D-104, D-106), not from Stripe
 // sandbox fixtures, which the repository does not have.
 
-import { BUILDS_ICS, OFFICE_HOURS_ICS } from '../src/routes/offer-calendar';
+import { buildsIcs, officeHoursIcs } from '../src/routes/offer-calendar';
+import { curriculumSeed } from '@ai/core/seed/curriculum';
+import { applyCurriculum } from '../src/db/seed';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
@@ -847,9 +849,13 @@ describe('www routing (D-075, D-051)', () => {
       expect([slash.statusCode, slash.headers.location], page).toEqual([302, page]);
     }
     // The welcome page's calendar files are real `text/calendar` responses on www; a lookalike is not.
+    // They are the cohort's sessions as the database holds them (D-173), so the curriculum goes in first.
+    await applyCurriculum(await db());
+    const seeded = curriculumSeed();
+    const instructor = new Map(seeded.modules.map((m) => [m.id, m.instructor]));
     for (const [url, body] of [
-      ['/calendar/builds.ics', BUILDS_ICS],
-      ['/calendar/office-hours.ics', OFFICE_HOURS_ICS],
+      ['/calendar/builds.ics', buildsIcs(seeded.sessions, (s) => instructor.get(s.moduleId!))],
+      ['/calendar/office-hours.ics', officeHoursIcs(seeded.sessions)],
     ] as const) {
       const res = await get(url);
       expect([res.statusCode, res.headers['content-type'], res.body], url).toEqual([200, 'text/calendar; charset=utf-8', body]);

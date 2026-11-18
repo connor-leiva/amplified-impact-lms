@@ -28,10 +28,11 @@
 // ---------------------------------------------------------------------------------------------
 // WHAT IS NOT HERE
 // ---------------------------------------------------------------------------------------------
-// `seedProduction()` itself. § 9.5 puts it in `@ai/core` and it is already there, pure and tested
-// (`packages/core/src/seed-production.ts`). Its loader half is `seedForLaunch` below, which is the
-// same three lines as `seedLive` because there is nothing different about writing it. What is
-// missing is a CLI for it, and that is deliberate — see `seedForLaunch`.
+// `seedProduction()` itself. § 9.5 puts it in `@ai/core`, and since D-173 it lives with the rest of
+// the one-time seed, pure and tested (`packages/core/seed/curriculum.ts`, imported as
+// `@ai/core/seed/curriculum`, which runtime code may not import). Its loader half is `seedForLaunch`
+// below, which is the same three lines as `seedLive` because there is nothing different about
+// writing it. What is missing is a CLI for it, and that is deliberate — see `seedForLaunch`.
 //
 // `SEED_WITH_BASELINE=1`, which the Gate 7 checklist mentions in passing. There is no table for
 // `db.base`, so the flag can only mean materialising the demo's ~134 unmodelled learners as real
@@ -39,9 +40,10 @@
 
 import { pathToFileURL } from 'node:url';
 import { sql } from 'drizzle-orm';
-import { applyAccelerator, seedForDatabase, seedProduction } from '@ai/core';
-import type { Db, ProductionSeedOptions } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { seedForDatabase } from '@ai/core';
+import type { Db } from '@ai/core';
+import { ensureCurriculum, seedProduction } from '@ai/core/seed/curriculum';
+import type { ProductionSeedOptions } from '@ai/core/seed/curriculum';
 import { close, databaseNameOf, getDb, readDatabaseUrl } from './client';
 import type { Database } from './client';
 import { diffSnapshot } from './codec';
@@ -137,41 +139,38 @@ export const seedForLaunch = (
 ): Promise<number> => seedSnapshot(db, seedProduction(opts), env);
 
 /**
- * `--if-missing` is the deploy's form (.railway/railway.ts, after `db:migrate`): it applies the
- * curriculum to a database that has NONE of it, and otherwise writes nothing.
- *
- * Why not the full overlay on every deploy: it rewrites every course row but the few fields it keeps.
- * A session staff moved in Cohorts & Sessions would go back to its old time and lose its Zoom link,
- * attendance and replay (`keepSessionState` keeps them only on an unmoved session), and a module
- * edited in the Module Builder, or set to draft, would revert to the code's copy, files and status.
- * So the deploy makes sure the curriculum is there; changing it on a live database stays a deliberate
- * `db:curriculum`, run by hand.
+ * `--curriculum` (the deploy's `db:curriculum:ensure`, after `db:migrate`) makes sure the curriculum
+ * is there and never overwrites it (D-173). The old full overlay rewrote every course row but the few
+ * fields it kept: a session staff moved went back to its old time, and a module edited in the Module
+ * Builder, or set to draft, reverted to the code's copy. That path is gone. Changing the course on a
+ * live database means editing it in the curriculum builder, where each save is audited.
  */
 export interface CurriculumOptions {
   instructor?: string;
+  /**
+   * Accepted for the deploy's `db:curriculum:ensure` and changes nothing: since D-173 every run is
+   * insert-missing only, with or without it. There is no overwrite path left to opt out of.
+   */
   ifMissing?: boolean;
 }
 
-/** Any of the nine course modules, in any status: the curriculum has been applied here before. */
-export const hasCurriculum = (db: Db): boolean => db.modules.some((m) => isAcceleratorModule(m.id));
-
 /**
- * The Amplified AI Accelerator's curriculum, applied to a database that is already live (D-110).
+ * The Amplified AI Accelerator's curriculum, made sure of in a database that may be live (D-110, D-173).
  *
  * The launch seed refuses a database with users in it, and every paid order writes its buyer into
  * `users` the moment it is provisioned, so once sales start the launch seed can no longer carry the
- * course. This can: it loads the snapshot, runs `applyAccelerator` (core, pure, idempotent: cohort
- * `dec26`, its sixteen sessions and the nine course modules upserted, the prototype's modules drafted,
- * nothing else touched) and writes only the difference, under the same advisory lock every mutation
- * takes, in one transaction. Run twice, the second run writes nothing. Returns the number of rows
- * written or deleted, so the CLI can say "0 changes" when the curriculum is already current.
+ * course. This can: it loads the snapshot, runs `ensureCurriculum` (core seed, pure: a database that
+ * has never had the course gets every seed row it lacks, one that has it gets no new course row, and
+ * an existing row only gains D-173's new columns while they are empty, so a builder edit is never
+ * replaced and nothing staff deleted comes back) and writes only the difference, under the same
+ * advisory lock every mutation takes, in one transaction. Run twice, the second run writes nothing.
+ * Returns the number of rows written, so the CLI can say "0 changes" when the curriculum is already there.
  */
 export async function applyCurriculum(db: Database, opts: CurriculumOptions = {}): Promise<number> {
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(42)`);
     const before = await loadDb(tx);
-    if (opts.ifMissing && hasCurriculum(before)) return 0;
-    const after = applyAccelerator(before, opts.instructor === undefined ? {} : { instructor: opts.instructor });
+    const after = ensureCurriculum(before, opts.instructor === undefined ? {} : { instructor: opts.instructor });
     const changes = diffSnapshot(before, after).length;
     await persistDiff(tx, before, after);
     return changes;
@@ -304,12 +303,14 @@ const USAGE = [
   '',
   '  tsx src/db/seed.ts --curriculum [--instructor "Full Name"] [--if-missing]',
   '',
-  '  --curriculum applies the Amplified AI Accelerator to a database that is already live (D-110):',
-  '  cohort dec26, its sixteen sessions and the nine course modules, upserted. Users, teams,',
-  '  progress and staff are not touched. Safe to run twice.',
+  '  --curriculum makes sure the Amplified AI Accelerator is in a database that may be live (D-110,',
+  '  D-173): cohort dec26, its sessions, the nine course modules and the copy strings, put in once.',
+  '  An existing row is never overwritten (it only gains columns D-173 added while they are empty),',
+  '  and a week or session staff deleted is not put back. Users, teams, progress and staff are not',
+  '  touched. Safe to run any number of times.',
   '',
-  '  --if-missing applies it only to a database that has none of it, and otherwise writes nothing,',
-  '  so staff edits to the course survive. The deploy runs this form (db:curriculum:ensure).',
+  '  --if-missing is accepted and changes nothing: every run is insert-missing. The deploy runs',
+  '  db:curriculum:ensure. To change the course, edit it in the curriculum builder.',
   '',
   '  tsx src/db/seed.ts --owner --owner-name "Full Name" --owner-email name@example.com',
   '',
@@ -450,11 +451,10 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
   const db = deps.db();
   try {
     if (parsed.mode === 'curriculum') {
-      const ifMissing = parsed.opts.ifMissing === true;
-      deps.write(`Applying the Amplified AI Accelerator curriculum to ${name}${ifMissing ? ' if it has none' : ''}.\n`);
+      deps.write(`Making sure the Amplified AI Accelerator curriculum is in ${name}. Existing rows are never overwritten.\n`);
       const changes = await deps.curriculum(db, parsed.opts);
       deps.write(`${changes} rows changed. Users, teams, progress and staff were not touched.\n`);
-      if (ifMissing && changes === 0) deps.write('The curriculum is already here, so staff edits to it stay. To re-apply it over them, run db:curriculum.\n');
+      if (changes === 0) deps.write('The curriculum is already here, so every edit made in the builder stays.\n');
       return;
     }
     if (parsed.mode === 'owner') {

@@ -7,9 +7,16 @@
 // plausible domain, and `remindMembers` and `nudgeLearners` send real email to whatever is in the
 // users table.
 import { describe, it, expect } from 'vitest';
-import { PERMS, STAFF_ROLES, STEPS, ZERO_BASE, canAccess, moduleForSession, seed, seedForDatabase, seedProduction, applyAccelerator } from '../src/index';
+import courseV1 from './fixtures/curriculum-v1/course.json';
+import modulesV1 from './fixtures/curriculum-v1/modules.json';
+import sessionsV1 from './fixtures/curriculum-v1/sessions.json';
+import cohortV1 from './fixtures/curriculum-v1/cohort.json';
+import { PERMS, STAFF_ROLES, STEPS, ZERO_BASE, canAccess, moduleForSession, seed, seedForDatabase } from '../src/index';
+import { courseFromSnapshot } from '../src/course';
+import { curriculumSeed, ensureCurriculum, hasCurriculum, seedProduction } from '../seed/curriculum';
+import { ACCELERATOR_INSTRUCTOR } from '../seed/accelerator-v1';
 import type { Db } from '../src/index';
-import { ACCELERATOR_COHORT_ID, ACCELERATOR_INSTRUCTOR, ACCELERATOR_MODULE_IDS, isAcceleratorModule } from '../src/accelerator';
+import { ACCELERATOR_COHORT_ID, ACCELERATOR_MODULE_IDS, isAcceleratorModule } from '../src/accelerator';
 
 const OWNER = { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' };
 const prod = (): Db => seedProduction({ owner: OWNER });
@@ -154,75 +161,141 @@ describe('§9.5 seedProduction @g9', () => {
   });
 });
 
-describe('applyAccelerator: the curriculum on a database that is already live (D-110)', () => {
-  // The demo database stands in for a live one: it has learners, teams, progress, staff, resources and
-  // the prototype's six modules on the same `dec26` cohort, which is exactly what the old launch seed
-  // left in production plus what sales have provisioned since.
+
+// --- D-173: the curriculum is data, and the seed never overwrites it -------------------------------
+
+const FIXTURES: Record<string, unknown> = { 'course.json': courseV1, 'modules.json': modulesV1, 'sessions.json': sessionsV1, 'cohort.json': cohortV1 };
+const fixture = (name: string): unknown => FIXTURES[name];
+/** A record without D-173's new columns: what main's code produced. */
+const without = <T extends object>(o: T, keys: readonly string[]): Partial<T> =>
+  Object.fromEntries(Object.entries(o).filter(([k]) => !keys.includes(k))) as Partial<T>;
+
+describe('a fresh database and the seed are what main served (D-173)', () => {
+  // The fixtures were written from main's code (courseContent, acceleratorModules, acceleratorSessions,
+  // acceleratorCohort) before the words moved into the seed, so this is the move's proof of no change.
+  it('serves the same course, week for week, field for field', () => {
+    expect(courseFromSnapshot(prod())).toEqual(fixture('course.json'));
+  });
+
+  it('holds the same nine modules, sixteen sessions and cohort, plus only the new columns', () => {
+    const db = prod();
+    expect(db.modules.map((m) => without(m, ['kind', 'dueAt', 'course']))).toEqual(fixture('modules.json'));
+    expect(db.sessions.map((s) => without(s, ['kind', 'moduleId']))).toEqual(fixture('sessions.json'));
+    expect(without(db.cohorts[0]!, ['timezone', 'defaultOpenTime', 'course'])).toEqual(fixture('cohort.json'));
+  });
+
+  it('marks the nine as weeks, ties each session to its week, and starts the release plan in Mountain time at noon', () => {
+    const db = prod();
+    expect(db.modules.every((m) => m.kind === 'week' && m.course?.week === Number(m.id.replace('accelerator-week-', '')))).toBe(true);
+    expect(db.modules.find((m) => m.id === 'accelerator-week-0')!.dueAt).toBe(Date.parse('2026-12-02T13:00:00-06:00'));
+    expect(db.sessions.filter((s) => s.kind === 'live_build')).toHaveLength(8);
+    expect(db.sessions.filter((s) => s.kind === 'goal_planning').map((s) => s.id)).toEqual(['dec26-oh2', 'dec26-oh3']);
+    expect(db.sessions.find((s) => s.id === 'dec26-oh5')).toMatchObject({ kind: 'office_hours', moduleId: 'accelerator-week-5' });
+    expect(db.cohorts[0]).toMatchObject({ timezone: 'America/Denver', defaultOpenTime: '12:00' });
+    expect(db.copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }]);
+  });
+});
+
+describe('ensureCurriculum: insert what is missing, never overwrite (D-173)', () => {
+  // The demo database stands in for a live one: learners, teams, progress, staff, resources and the
+  // prototype's six modules on the same `dec26` cohort.
   const live = (): Db => seed('live');
 
   it('leaves every learner, team, progress row, staff member and resource exactly as it was', () => {
     const before = live();
-    const after = applyAccelerator(before);
-    for (const k of ['users', 'teams', 'staff', 'resources', 'announcements', 'requests', 'activity', 'dismissed', 'reminders', 'perms'] as const) {
+    const after = ensureCurriculum(before);
+    for (const k of ['users', 'teams', 'staff', 'resources', 'announcements', 'requests', 'activity', 'dismissed', 'reminders', 'perms', 'tiers'] as const) {
       expect(after[k], k).toEqual(before[k]);
     }
   });
 
-  it('is idempotent: a second run changes nothing', () => {
-    const once = applyAccelerator(live());
-    expect(applyAccelerator(once)).toEqual(once);
-  });
-
-  it('never mutates its input', () => {
+  it('is idempotent and never mutates its input', () => {
     const before = live();
     const copy = structuredClone(before);
-    applyAccelerator(before);
+    const once = ensureCurriculum(before);
     expect(before).toEqual(copy);
+    expect(ensureCurriculum(once)).toEqual(once);
   });
 
-  it('turns cohort dec26 into cohort one and leaves the other cohorts alone', () => {
+  it('keeps an existing cohort, session and module exactly, adding only the new columns where empty', () => {
     const before = live();
-    const after = applyAccelerator(before);
+    const after = ensureCurriculum(before);
     const co = after.cohorts.find((c) => c.id === 'dec26')!;
-    expect(co).toMatchObject({ weeks: 8, capacity: 15, cadence: 'Wed builds and Thu office hours · 1:00 PM CT' });
-    // Staff's status is kept.
-    expect(co.status).toBe(before.cohorts.find((c) => c.id === 'dec26')!.status);
-    expect(after.cohorts.filter((c) => c.id !== 'dec26')).toEqual(before.cohorts.filter((c) => c.id !== 'dec26'));
-    expect(after.sessions.filter((s) => s.cohortId !== 'dec26')).toEqual(before.sessions.filter((s) => s.cohortId !== 'dec26'));
-  });
-
-  it('drafts the prototype modules and drops their invented Zoom links and prices', () => {
-    const after = applyAccelerator(live());
-    for (const m of after.modules.filter((x) => !isAcceleratorModule(x.id))) {
-      expect(m.status).toBe('draft');
-      expect(m.session).toBeNull();
+    expect(without(co, ['timezone', 'defaultOpenTime', 'course'])).toEqual(before.cohorts.find((c) => c.id === 'dec26'));
+    for (const s of before.sessions) {
+      expect(without(after.sessions.find((x) => x.id === s.id)!, ['kind', 'moduleId']), s.id).toEqual(s);
     }
-    for (const s of after.sessions.filter((x) => x.cohortId === 'dec26')) {
-      expect(s.zoom).toBe('');
-      // A reused id at a new time is a new session: none of the prototype's attendance carries over.
-      expect(s.attended).toBeNull();
-      expect(s.replay).toBeNull();
-    }
-    expect(after.tiers).toEqual([]);
+    // The prototype's modules are left alone: no longer drafted, no session taken away.
+    for (const m of before.modules) expect(after.modules.find((x) => x.id === m.id), m.id).toEqual(m);
+    // The nine weeks were missing, so they are inserted.
+    expect(after.modules.filter((m) => isAcceleratorModule(m.id))).toHaveLength(9);
   });
 
-  it('keeps what staff set since: a real Zoom link, a recording, a tier price they changed', () => {
-    const once = applyAccelerator(live());
-    once.sessions.find((s) => s.id === 'dec26-s1')!.zoom = 'https://example.test/real-room';
-    once.sessions.find((s) => s.id === 'dec26-s1')!.replay = 'ready';
-    const wk1 = once.modules.find((m) => m.id === 'accelerator-week-1')!;
-    wk1.dur = 5400;
-    wk1.transcript = [[0, 'Welcome in.']];
-    once.tiers = [{ id: 'team', name: 'Team', price: 1, seats: 2, blurb: '', features: [] }];
-    const twice = applyAccelerator(once);
-    expect(twice.sessions.find((s) => s.id === 'dec26-s1')).toMatchObject({ zoom: 'https://example.test/real-room', replay: 'ready' });
-    expect(twice.modules.find((m) => m.id === 'accelerator-week-1')).toMatchObject({ dur: 5400, transcript: [[0, 'Welcome in.']] });
-    expect(twice.tiers).toHaveLength(1);
+  it('keeps a builder edit to a module and a session through two runs (the brief\'s acceptance)', () => {
+    const db = prod();
+    const wk2 = db.modules.find((m) => m.id === 'accelerator-week-2')!;
+    wk2.headline = 'Which lead sources pay, and is every lead worked?';
+    wk2.course = { ...wk2.course!, question: 'Which lead sources pay, and is every lead worked?' };
+    wk2.checklist = wk2.checklist.slice(0, 4);
+    const s3 = db.sessions.find((s) => s.id === 'dec26-s3')!;
+    s3.start += 86_400_000;
+    s3.title = 'Monthly Numbers Live Build';
+    s3.kind = 'other';
+    const edited = structuredClone(db);
+    expect(ensureCurriculum(ensureCurriculum(db))).toEqual(edited);
   });
 
-  it('restores the curriculum text if a course module drifted', () => {
-    const once = applyAccelerator(live());
-    once.modules.find((m) => m.id === 'accelerator-week-2')!.headline = 'edited';
-    expect(applyAccelerator(once)).toEqual(applyAccelerator(live()));
+  it('never brings back a week or session staff deleted: the course is here, so it adds no course row', () => {
+    const db = prod();
+    // Week 8 unpublished, then deleted as a draft in the builder; an office hour gone with it.
+    db.modules = db.modules.filter((m) => m.id !== 'accelerator-week-8');
+    db.sessions = db.sessions.filter((s) => s.id !== 'dec26-oh8');
+    const edited = structuredClone(db);
+    expect(ensureCurriculum(ensureCurriculum(db))).toEqual(edited);
+    expect(hasCurriculum(db)).toBe(true);
+  });
+
+  it('gives a database that has never had the course every seed row it lacks, whole', () => {
+    const before = live();
+    expect(hasCurriculum(before)).toBe(false);
+    const after = ensureCurriculum(before);
+    const seeded = curriculumSeed();
+    for (const m of seeded.modules) expect(after.modules.find((x) => x.id === m.id), m.id).toEqual(m);
+    const had = new Set(before.sessions.map((s) => s.id));
+    for (const s of seeded.sessions.filter((x) => !had.has(x.id))) expect(after.sessions.find((x) => x.id === s.id), s.id).toEqual(s);
+    expect(hasCurriculum(after)).toBe(true);
+  });
+
+  it('gives a row from before the builder its words, and keeps the edit it already had', () => {
+    const db = prod();
+    const wk1 = db.modules.find((m) => m.id === 'accelerator-week-1')!;
+    delete wk1.kind;
+    delete wk1.course;
+    wk1.headline = 'An edit made in the old Module Builder.';
+    const s1 = db.sessions.find((s) => s.id === 'dec26-s1')!;
+    delete s1.kind;
+    delete s1.moduleId;
+    delete db.cohorts[0]!.course;
+    const after = ensureCurriculum(db);
+    const filled = after.modules.find((m) => m.id === 'accelerator-week-1')!;
+    expect(filled.headline).toBe('An edit made in the old Module Builder.');
+    expect(filled.kind).toBe('week');
+    expect(filled.course).toEqual(prod().modules.find((m) => m.id === 'accelerator-week-1')!.course);
+    expect(after.sessions.find((s) => s.id === 'dec26-s1')).toMatchObject({ kind: 'live_build', moduleId: 'accelerator-week-1' });
+    expect(after.cohorts[0]!.course).toEqual(prod().cohorts[0]!.course);
+  });
+
+  it('keeps a copy string staff changed', () => {
+    const db = prod();
+    db.copy = [{ key: 'locked.utah_life', value: 'Edited.', audience: 'learner' }];
+    expect(ensureCurriculum(db).copy).toEqual([{ key: 'locked.utah_life', value: 'Edited.', audience: 'learner' }]);
+  });
+
+  it('puts the copy strings into an empty table only, so one staff removed stays removed', () => {
+    const db = prod();
+    db.copy = [{ key: 'home.countdown', value: 'Starts in {days} days', audience: 'learner' }];
+    expect(ensureCurriculum(db).copy).toEqual(db.copy);
+    delete db.copy;
+    expect(ensureCurriculum(db).copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }]);
   });
 });

@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./mutations": "./src/mutations.ts",
     "./scope": "./src/scope.ts",
+    "./seed/*": "./seed/*.ts",
     "./*": "./src/*.ts"
   },
   "scripts": {

@@ -18,7 +18,7 @@ import { moduleForSession } from './sessions';
 import { canAccess, visibleModules } from './status';
 import { ZERO_BASE } from './types';
 import type { Actor } from './mutations';
-import type { AIEmployee, Announcement, Db, Learner, Resource, Session } from './types';
+import type { AIEmployee, Announcement, Cohort, Db, Learner, Resource, Session } from './types';
 
 /** A storage key is a backend column (§7.2 `resources.storage_key`), never part of a snapshot. */
 type StoredResource = Resource & { storageKey?: unknown };
@@ -43,6 +43,16 @@ const redactModule = (m: AIEmployee): AIEmployee => {
 // D-172: a replay link is staff's record of where a recording is; nothing learner-facing reads it, so it
 // stays out of a learner's snapshot (with the join URL).
 const redactSession = ({ replayUrl: _replay, ...s }: Session): Session => ({ ...s, zoom: '' });
+
+/**
+ * D-173: the course's words (a cohort's `course`, a week module's `course`) reach a learner only
+ * through `GET /api/course`, which applies the course gate (D-110, D-143, D-153). A learner's
+ * snapshot never carries them, so moving the words from code into the database opens no second door:
+ * a buyer before the first live build, a Utah Life member or any other plan reads none of them here,
+ * and a buyer reads them where they always have. Staff (the curriculum builder) see every word.
+ */
+const cohortForLearner = ({ course: _course, ...c }: Cohort): Cohort => c;
+const moduleForLearner = ({ course: _course, ...m }: AIEmployee): AIEmployee => m;
 
 const redactResource = (r: Resource): Resource => {
   const copy: StoredResource = { ...r };
@@ -145,7 +155,9 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   // Their own cohort's sessions only, with the join URL withheld.
   let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map(redactSession);
   // Published and scheduled modules; a draft never appears. Blanked where `canAccess` is false.
-  let modules = visibleModules(db).map((m) => (canAccess(me, m) ? m : redactModule(m)));
+  let modules = visibleModules(db)
+    .map((m) => (canAccess(me, m) ? m : redactModule(m)))
+    .map(moduleForLearner);
   // The AI Accelerator, only for a plan that opens it (D-110). Dropped, not redacted: a redacted
   // module keeps its notes and checklist, which here are the course itself.
   if (access && !access.accelerator) ({ modules, sessions } = withoutAccelerator(db, modules, sessions));
@@ -153,7 +165,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   return {
     v: db.v,
     phase: db.phase,
-    cohorts: db.cohorts,
+    cohorts: db.cohorts.map(cohortForLearner),
     sessions,
     modules,
     // Themselves, plus their team's roster. An Agent-tier learner with no team sees only themselves.

@@ -1,0 +1,98 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Amplified Impact//Calendars//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Amplified AI Accelerator Live Builds
+X-WR-TIMEZONE:America/Chicago
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+TZNAME:CDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+TZNAME:CST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:accelerator-build-week1-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20261202T130000
+DTEND;TZID=America/Chicago:20261202T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 1: Lead-Source ROI
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week2-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20261209T130000
+DTEND;TZID=America/Chicago:20261209T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 2: Morning Brief
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week3-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20261216T130000
+DTEND;TZID=America/Chicago:20261216T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 3: L10 Meeting Prep
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week4-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20270106T130000
+DTEND;TZID=America/Chicago:20270106T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 4: FUB Pipeline Review
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week5-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20270113T130000
+DTEND;TZID=America/Chicago:20270113T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 5: Agent 1:1 Prep
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week6-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20270120T130000
+DTEND;TZID=America/Chicago:20270120T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 6: Team Playbook Builder
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week7-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20270127T130000
+DTEND;TZID=America/Chicago:20270127T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 7: New Agent Onboarding 
+ Plan
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+BEGIN:VEVENT
+UID:accelerator-build-week8-dec26@amplifiedimpact.io
+DTSTAMP:20261111T150000Z
+DTSTART;TZID=America/Chicago:20270203T130000
+DTEND;TZID=America/Chicago:20270203T143000
+SUMMARY:Amplified AI Accelerator Live Build\, Week 8: Cohort-End Review
+DESCRIPTION:90 minute live build with Connor Leiva. The join link comes by 
+ email and will also be in the LMS at learn.amplifiedimpact.io.
+END:VEVENT
+END:VCALENDAR

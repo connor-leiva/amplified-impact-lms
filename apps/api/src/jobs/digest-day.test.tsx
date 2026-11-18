@@ -2,7 +2,8 @@
 // Wednesdays, so its owners' digest names Wednesday; the prototype's cohorts keep Thursday.
 import { describe, expect, it } from 'vitest';
 import { render } from '@react-email/render';
-import { seed, seedProduction } from '@ai/core';
+import { seed } from '@ai/core';
+import { seedProduction } from '@ai/core/seed/curriculum';
 import type { Learner } from '@ai/core';
 import { digestDay } from './due';
 import { WeeklyDigestEmail } from '../email/templates/weekly-digest';

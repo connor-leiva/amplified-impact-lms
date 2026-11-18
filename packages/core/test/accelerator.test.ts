@@ -10,7 +10,6 @@ import {
   moduleForSession,
   scopeSnapshot,
   seed,
-  seedProduction,
   sessionEvent,
   sessionFor,
   sessionKind,
@@ -19,20 +18,21 @@ import {
 } from '../src/index';
 import type { Db } from '../src/index';
 import {
-  ACCELERATOR_CALENDAR,
   ACCELERATOR_MODULE_IDS,
   COURSE_OPENS_AT,
   LIBRARY_ROUTES_PENDING_MERGE,
-  WEEK0_DUE_AT,
-  acceleratorCohort,
   acceleratorOpen,
   acceleratorPaused,
   acceleratorUpcoming,
   pausedForPayment,
-  acceleratorSessions,
   isAcceleratorModule,
 } from '../src/accelerator';
+import { seedProduction } from '../seed/curriculum';
 import {
+  ACCELERATOR_CALENDAR,
+  WEEK0_DUE_AT,
+  acceleratorCohort,
+  acceleratorSessions,
   ACCELERATOR_WEEKS_CONTENT,
   EVIDENCE_PACKET,
   ISSUE_FORM_FIELDS,
@@ -43,7 +43,7 @@ import {
   acceleratorModules,
   courseContent,
   rubricResult,
-} from '../src/accelerator-content';
+} from '../seed/accelerator-v1';
 import { COHORT_ONE, DEFAULT_INVITES_FROM } from '../src/offer';
 
 const CT = (s: string) => Date.parse(`${s}-06:00`);
@@ -299,6 +299,32 @@ describe('the snapshot, scoped by plan', () => {
     expect(snap.modules.filter((m) => isAcceleratorModule(m.id))).toEqual([]);
     expect(snap.sessions).toEqual([]);
     expect(JSON.stringify(snap)).not.toContain('What are we paying for leads');
+  });
+
+  it('never carries the course’s words to a learner, whatever the plan: only the gated course route does (D-173)', () => {
+    const full = db();
+    const words = full.cohorts[0]!.course!;
+    expect(full.modules.filter((m) => m.course)).toHaveLength(9);
+    for (const access of [{ accelerator: true }, { accelerator: false }, undefined]) {
+      for (const userId of ['u_buyer', 'u_insider']) {
+        const snap = scopeSnapshot(full, { kind: 'learner', userId }, access);
+        expect(snap.cohorts.map((c) => 'course' in c)).toEqual([false]);
+        expect(snap.modules.filter((m) => 'course' in m)).toEqual([]);
+        // Words only the course holds (a week's own columns, such as its question, were already in a
+        // buyer's snapshot before D-173 and still are).
+        const week3 = full.modules[3]!.course!;
+        const json = JSON.stringify(snap);
+        for (const said of [words.intro.sub, words.after.noPaywall, words.shared.missedAWeek, week3.homework.useEvidence, week3.liveBuild!.lesson]) expect(json).not.toContain(said);
+      }
+    }
+    // The rest of a buyer's course is as it was: the nine weeks, their steps and notes, the release plan.
+    const buyer = scopeSnapshot(full, { kind: 'learner', userId: 'u_buyer' }, { accelerator: true });
+    expect(buyer.modules.map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
+    expect(buyer.cohorts[0]).toMatchObject({ id: 'dec26', timezone: 'America/Denver', defaultOpenTime: '12:00' });
+    // Staff, who edit it in the curriculum builder, see every word.
+    const staff = scopeSnapshot(full, { kind: 'staff', staffId: 'st_owner' });
+    expect(staff.cohorts[0]!.course).toEqual(words);
+    expect(staff.modules.filter((m) => m.course)).toHaveLength(9);
   });
 
   it('changes nothing for the demo, which has no course, nor for a caller that passes no access', () => {
