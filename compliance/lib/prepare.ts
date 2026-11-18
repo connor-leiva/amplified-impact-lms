@@ -211,7 +211,7 @@ async function settle(page: Page, target: Target, mode: AppMode = 'fixture') {
  * Infinite animations (`ai-skeleton`, `ai-pulse`) are excluded — they never finish by design, and
  * `screenshot({ animations: 'disabled' })` resets them to their first frame anyway.
  */
-async function settleAnimations(page: Page) {
+export async function settleAnimations(page: Page) {
   await page
     .waitForFunction(
       () =>

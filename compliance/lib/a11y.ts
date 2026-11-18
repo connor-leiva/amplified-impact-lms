@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
+import { settleAnimations } from './prepare';
 
 /**
  * Accessibility gate: zero serious or critical axe violations, except for defects the reference
@@ -56,6 +57,9 @@ const KNOWN_CONTRAST_DEFECTS: KnownContrastDefect[] = [
 const norm = (c: string | undefined) => (c ?? '').trim().toLowerCase();
 
 export async function expectAccessible(page: Page) {
+  // Contrast is measured on the frame axe sees, so a screen still fading in (the sign-in card's 1.2s
+  // `v2-rise`) reads as low contrast on a loaded runner. Measure the settled screen, as parity does.
+  await settleAnimations(page);
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   const serious = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
 
