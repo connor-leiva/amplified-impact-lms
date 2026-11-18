@@ -34,6 +34,7 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the weeks view (D-180) › lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2",
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /sessions shows the cohort’s sessions @parity:R-2"
       ]
@@ -1069,6 +1070,7 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Schedule.vm.test.ts › the weeks view (D-180) › lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: the Schedule (KEPT) › every session by week, and a month calendar @parity:S-1"
       ]
     },
