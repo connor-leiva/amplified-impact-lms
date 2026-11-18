@@ -10,7 +10,7 @@
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
-import { fmt } from '@ai/core';
+import { cohortLine, fmt } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseKitItem, LearnerCourseWeek, LockedCourseWeek, OpenCourseWeek } from '@ai/core/course';
@@ -364,6 +364,8 @@ export interface KitRowVM {
   /** Where it goes: a Library page, or the gated files route. Null when there is nowhere yet. */
   href: string | null;
   external: boolean;
+  /** D-184: a week's skill's role ("Flagship") and Free, as the course page tags them. */
+  tags?: { label: string; tone?: 'done' }[];
 }
 
 const KIND_LABEL: Record<ResourceKind, string> = { file: 'File', prompt: 'Prompt', guide: 'Guide', replay: 'Replay', vault: 'File' };
@@ -439,3 +441,36 @@ export function helpVM(p: CoursePayload, now: number): HelpVM {
 
 /** The step player's address for a week's step (1-based). */
 export const stepHref = learnStep;
+
+// --- D-184: the sidebar's Team Hub and cohort line -------------------------------------------------
+
+/** The sidebar's Team Hub label, the current portal's own. */
+export const TEAM_HUB_LABEL = 'Team Hub';
+/** Where Team Hub opens: the current portal's page (`/team`), until the flip moves it into the learner portal. */
+export const TEAM_HUB_HREF = '/team';
+
+/**
+ * Whether this learner has a Team Hub: a Team tier learner on a team, the first portal's rule (D-119, the
+ * same check D-182 uses for the account menu).
+ */
+export const hasTeamHub = (db: Pick<Db, 'teams'>, me: Pick<Learner, 'tier' | 'teamId'> | null): boolean =>
+  !!me && me.tier === 'team' && me.teamId !== null && db.teams.some((t) => t.id === me.teamId);
+
+export interface SideVM {
+  /** Team Hub, for a Team tier learner on a team (T-1); null for anyone else. */
+  teamHub: { label: string; href: string; active: boolean } | null;
+  /** The cohort line under the wordmark (SH-9): "December 2026 Cohort · Week 2 of 9"; null without a course. */
+  cohortLine: string | null;
+}
+
+/**
+ * The sidebar's Team Hub entry and cohort line. The cohort line is the current portal's (`cohortLine`, from
+ * the learner's cohort and its sessions in the snapshot), shown, as there, only to a learner in the course.
+ */
+export function sideVM(db: Pick<Db, 'teams' | 'cohorts' | 'sessions'>, me: Learner | null, p: CoursePayload | null, pathname: string, now: number): SideVM {
+  const cohort = me && p ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
+  return {
+    teamHub: hasTeamHub(db, me) ? { label: TEAM_HUB_LABEL, href: TEAM_HUB_HREF, active: pathname === TEAM_HUB_HREF } : null,
+    cohortLine: cohort ? cohortLine(cohort, now, db.sessions) : null,
+  };
+}

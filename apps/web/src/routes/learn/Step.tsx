@@ -17,6 +17,9 @@ import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import { learnHome } from './routes';
 import { StepLive } from './Live';
+import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
+import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
+import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
@@ -39,7 +42,17 @@ function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Plat
   );
 }
 
-function Player({ vm }: { vm: StepVM }) {
+/** D-184: what the step player draws beyond the step: the trail and the week's build kit (its prompt and files). */
+interface StepMore {
+  crumbs: CrumbVM[];
+  kit: BuildKitVM | null;
+  previewing: boolean;
+  /** The tab's title (X-2), or null in the builder's preview. */
+  title: string | null;
+}
+
+function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
+  useTabTitle(more.title);
   const mutate = useMutate();
   const [platform, setPlatform] = useState<Platform>(vm.tabs[0] ?? 'claude');
   const on = vm.tabs.includes(platform) ? platform : (vm.tabs[0] ?? 'claude');
@@ -58,6 +71,7 @@ function Player({ vm }: { vm: StepVM }) {
 
   return (
     <div className={s.pg}>
+      <Crumbs crumbs={more.crumbs} />
       <Link className={s.back} to={vm.back.href}>
         <Icon name="r2Back" size={14} strokeWidth={1.75} />
         {vm.back.label}
@@ -123,12 +137,12 @@ function Player({ vm }: { vm: StepVM }) {
               <button
                 type="button"
                 className={`${s.b} ${s.bp} ${s.done} ${s.markDone}`}
-                aria-pressed={vm.mark.done}
+                data-done={vm.mark.done ? 'true' : undefined}
                 disabled={vm.mark.disabled || busy}
                 onClick={() => void mark()}
               >
-                <Icon name="r2Check" size={14} strokeWidth={2.2} />
-                {STEP.markDone}
+                <Icon name={vm.mark.done ? 'reset' : 'r2Check'} size={14} strokeWidth={vm.mark.done ? 1.9 : 2.2} />
+                {vm.mark.done ? STEP.undo : STEP.markDone}
               </button>
             </div>
           </section>
@@ -145,6 +159,7 @@ function Player({ vm }: { vm: StepVM }) {
               <KitRows rows={vm.forStep} />
             </section>
           ) : null}
+          {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} /> : null}
           <section className={s.cd} aria-labelledby="lv-help-t">
             <div className={s.cdh}>
               <h2 className={s.h2} id="lv-help-t">
@@ -174,17 +189,32 @@ function Player({ vm }: { vm: StepVM }) {
   );
 }
 
-export function Component() {
+/**
+ * D-184: the step player from what the shell hands every screen (`useLearn`), for one step. The curriculum
+ * builder's live preview draws it too, inside a `LearnProvider` with the unsaved draft's course; there
+ * (`preview`) a step it can't show draws nothing rather than moving the builder's page.
+ */
+export function StepPage({ week, step, preview = false }: { week: number | null; step: number | null; preview?: boolean }) {
   const { course, db, viewer, now } = useLearn();
-  const params = useParams();
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
-  if (course.kind !== 'ready') return <Navigate to={learnHome()} replace />;
-  const week = weekParam(params.week);
-  const vm = stepVM(course.payload, rows.find((r) => r.week === week), stepParam(params.step), viewer.actor, now);
-  if (vm.kind === 'missing') return <Navigate to={vm.href} replace />;
+  if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
+  const row = rows.find((r) => r.week === week);
+  const vm = stepVM(course.payload, row, step, viewer.actor, now);
+  if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
+  const more: StepMore = {
+    crumbs: crumbsVM(vm.back.label, vm.week, { n: step ?? 1, title: vm.title }),
+    kit: buildKitVM(row?.module, moduleFileUrl),
+    previewing: viewer.preview !== undefined,
+    title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
+  };
   // A new step starts on its own first tab.
-  return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} />;
+  return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} />;
+}
+
+export function Component() {
+  const params = useParams();
+  return <StepPage week={weekParam(params.week)} step={stepParam(params.step)} />;
 }
 
 export default Component;

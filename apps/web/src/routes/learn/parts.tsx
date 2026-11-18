@@ -178,6 +178,15 @@ export function KitRows({ rows }: { rows: KitRowVM[] }) {
             <div className={`${s.colZ} ${s.grow}`}>
               <span className={s.w5}>{r.title}</span>
               <span className={s.me}>{r.meta}</span>
+              {r.tags?.length ? (
+                <span className={s.tags}>
+                  {r.tags.map((t) => (
+                    <span key={t.label} className={s.pl} data-tone={t.tone}>
+                      {t.label}
+                    </span>
+                  ))}
+                </span>
+              ) : null}
             </div>
             {r.href ? (
               <span className={s.mu}>

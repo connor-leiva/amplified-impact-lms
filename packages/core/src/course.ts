@@ -25,9 +25,14 @@ export function courseWeekModules(db: Pick<Db, 'modules'>): WeekModule[] {
     .sort((a, b) => a.course.week - b.course.week);
 }
 
-/** One week as the course page renders it: the module's words, plus the portal fields the page shows. */
+/**
+ * One week as the course page renders it: the module's words, plus the portal fields the page shows.
+ * D-184: the seat card and the playbook card go with it (the learner portal's week page draws them); they
+ * are course words like the rest of the week, so they reach a learner only inside an open week of this
+ * gated answer, never in a locked week's stub (`lockedWeekOf`) or the snapshot (D-173).
+ */
 export function courseWeekOf(m: WeekModule): CourseWeek {
-  const { promise: _p, flagship: _f, tools: _t, seatCard: _s, playbookCard: _pb, sampleOutput: _so, lockedCopy: _l, statusLabels: _sl, ...week } = m.course;
+  const { promise: _p, flagship: _f, tools: _t, sampleOutput: _so, lockedCopy: _l, statusLabels: _sl, ...week } = m.course;
   return {
     ...week,
     module: {

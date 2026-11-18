@@ -9,7 +9,7 @@
 // Writes go through the portal's own mutation route: "Mark step done" is `toggleStep`, the checklist's.
 // The join route hands out a live session's Zoom link, inside its window, as for the portal.
 
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { isLockedWeek } from '@ai/core/course';
 import { repo } from '../../data/boot';
@@ -94,4 +94,16 @@ export interface LearnContext {
   now: number;
 }
 
-export const useLearn = (): LearnContext => useOutletContext<LearnContext>();
+/**
+ * D-184: what a learner screen reads when it is drawn outside the shell: the curriculum builder's live
+ * preview hands the week page and the step player the unsaved draft's course this way, so it previews
+ * exactly what a learner sees. Inside the shell nothing provides it and the outlet's context answers.
+ */
+const LearnOverride = createContext<LearnContext | null>(null);
+export const LearnProvider = LearnOverride.Provider;
+
+export function useLearn(): LearnContext {
+  const override = useContext(LearnOverride);
+  const outlet = useOutletContext<LearnContext>();
+  return override ?? outlet;
+}

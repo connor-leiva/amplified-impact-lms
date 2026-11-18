@@ -16,11 +16,25 @@ import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
 import { learnHome } from './routes';
 import { WeekLive } from './Live';
+import { BuildKit, Crumbs, Downloads, WeekContent, WeekMeta, moduleFileUrl, useTabTitle } from './WeekContent';
+import { buildKitVM, crumbsVM, tabTitle, weekContentVM } from './WeekContent.vm';
+import type { BuildKitVM, CrumbVM, WeekContentVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
 const fileUrl = (id: string): string | null => repo.fileUrl({ kind: 'resource', id });
 
-function Head({ vm, children }: { vm: OpenWeekVM | LockedWeekVM; children: ReactNode }) {
+/** D-184: what an open week draws beyond its overview: the trail, its content, its build kit and downloads. */
+interface WeekMore {
+  crumbs: CrumbVM[];
+  content: WeekContentVM | null;
+  kit: BuildKitVM | null;
+  /** A staff member's preview tab (D-138): a stored file says "Preview only". */
+  previewing: boolean;
+  /** The tab's title (X-2), or null in the builder's preview, which leaves the builder's alone. */
+  title: string | null;
+}
+
+function Head({ vm, question, children }: { vm: OpenWeekVM | LockedWeekVM; question?: string | null; children: ReactNode }) {
   return (
     <div className={s.phd}>
       <div className={s.pht}>
@@ -28,6 +42,7 @@ function Head({ vm, children }: { vm: OpenWeekVM | LockedWeekVM; children: React
           <Tile icon={vm.tile.icon} tone={vm.tile.tone} size={52} />
           <h1 className={s.h0}>{vm.title}</h1>
         </div>
+        {question ? <p className={`${s.lede} ${s.q}`}>{question}</p> : null}
         <p className={s.lede}>{vm.lede}</p>
         {children}
       </div>
@@ -35,16 +50,20 @@ function Head({ vm, children }: { vm: OpenWeekVM | LockedWeekVM; children: React
   );
 }
 
-function Open({ vm }: { vm: OpenWeekVM }) {
+function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
+  const side = !!(vm.kit || more.kit || more.content?.downloads.length);
+  useTabTitle(more.title);
   return (
     <div className={s.pg}>
-      <Head vm={vm}>
+      <Crumbs crumbs={more.crumbs} />
+      <Head vm={vm} question={more.content?.question}>
         <span className={s.pk}>
           <span className={s.pl} data-tone={vm.pill.tone}>
             {vm.pill.label}
           </span>
           <span>{vm.pk}</span>
         </span>
+        {more.content ? <WeekMeta vm={more.content.meta} /> : null}
       </Head>
       <WeekLive week={vm.week} />
 
@@ -119,26 +138,41 @@ function Open({ vm }: { vm: OpenWeekVM }) {
             </Link>
           ))}
         </section>
-        {vm.kit ? (
+        {side ? (
           <div className={s.col}>
-            <section className={s.cd} aria-labelledby="lv-kit-t">
-              <div className={s.cdh}>
-                <h2 className={`${s.h2} ${s.grow}`} id="lv-kit-t">
-                  {vm.kit.heading}
-                </h2>
-              </div>
-              <KitRows rows={vm.kit.rows} />
-            </section>
+            {vm.kit ? (
+              <section className={s.cd} aria-labelledby="lv-kit-t">
+                <div className={s.cdh}>
+                  <h2 className={`${s.h2} ${s.grow}`} id="lv-kit-t">
+                    {vm.kit.heading}
+                  </h2>
+                </div>
+                <KitRows rows={vm.kit.rows} />
+                {vm.kit.library ? (
+                  <div className={s.cdf}>
+                    <Link className={`${s.b} ${s.bi}`} to={vm.kit.library.href}>
+                      <Icon name="r2Download" size={14} strokeWidth={1.75} />
+                      {vm.kit.library.label}
+                    </Link>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+            {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} /> : null}
+            {more.content ? <Downloads items={more.content.downloads} /> : null}
           </div>
         ) : null}
       </div>
+      {more.content ? <WeekContent vm={more.content} /> : null}
     </div>
   );
 }
 
-function Locked({ vm, now }: { vm: LockedWeekVM; now: number }) {
+function Locked({ vm, now, crumbs, title }: { vm: LockedWeekVM; now: number; crumbs: CrumbVM[]; title: string | null }) {
+  useTabTitle(title);
   return (
     <div className={s.pg}>
+      <Crumbs crumbs={crumbs} />
       <Head vm={vm}>
         <span className={s.pk}>
           <Icon name="lvLock" size={14} strokeWidth={1.75} />
@@ -182,15 +216,35 @@ function Locked({ vm, now }: { vm: LockedWeekVM; now: number }) {
   );
 }
 
-export function Component() {
+/**
+ * D-184: a week's page from what the shell hands every screen (`useLearn`), for one week. The curriculum
+ * builder's live preview draws it too, inside a `LearnProvider` with the unsaved draft's course, and then
+ * (`preview`) a week it can't show draws nothing rather than moving the builder's page.
+ */
+export function WeekPage({ week, preview = false }: { week: number | null; preview?: boolean }) {
   const { course, db, viewer, now } = useLearn();
-  const params = useParams();
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
-  if (course.kind !== 'ready') return <Navigate to={learnHome()} replace />;
-  const vm = weekVM(course.payload, rows, weekParam(params.week), now, fileUrl);
-  if (vm.kind === 'missing') return <Navigate to={vm.href} replace />;
-  return vm.kind === 'open' ? <Open vm={vm} /> : <Locked vm={vm} now={now} />;
+  if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
+  const vm = weekVM(course.payload, rows, week, now, fileUrl);
+  if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
+  const crumbs = crumbsVM(vm.title, vm.week);
+  const title = preview ? null : tabTitle(vm.week, vm.title);
+  if (vm.kind === 'locked') return <Locked vm={vm} now={now} crumbs={crumbs} title={title} />;
+  const mod = rows.find((r) => r.week === vm.week)?.module;
+  const more: WeekMore = {
+    crumbs,
+    content: weekContentVM(course.payload, vm.week, mod),
+    kit: buildKitVM(mod, moduleFileUrl),
+    previewing: viewer.preview !== undefined,
+    title,
+  };
+  return <Open vm={vm} more={more} />;
+}
+
+export function Component() {
+  const params = useParams();
+  return <WeekPage week={weekParam(params.week)} />;
 }
 
 export default Component;
