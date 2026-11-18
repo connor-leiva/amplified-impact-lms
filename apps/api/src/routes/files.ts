@@ -143,7 +143,8 @@
 // hand it to the next viewer on a shared machine. `app.ts`'s `scrubUrl` is the other half of the
 // same rule, for the log.
 
-import { can, canAccess, visibleModules } from '@ai/core';
+import { can, canAccess, kitVisible, visibleModules, weekOpenFor } from '@ai/core';
+import { isAcceleratorModule } from '@ai/core/accelerator';
 import type { AIEmployee, Db, Learner, Resource } from '@ai/core';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -152,6 +153,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { resources as resourceTable } from '../db/schema';
 import { clock } from '../lib/clock';
+import { courseEntryFor } from '../lib/course-access';
 import {
   StorageKeyError,
   checkUpload,
@@ -355,6 +357,14 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       if (!resource || (!staff && resource.status !== 'published')) {
         return reply.code(404).send({ error: NOT_FOUND });
       }
+      // D-175: a kit item (a vault row attached to a course week) follows its week, by its visibility,
+      // exactly as the learner's snapshot does: one they can't see yet is a 404, as a hidden row is.
+      if (me && resource.module && isAcceleratorModule(resource.module)) {
+        const now = clock.now();
+        const entry = await courseEntryFor(getDb(), me.id, now);
+        const week = db.modules.find((m) => m.id === resource.module);
+        if (!kitVisible(resource, !!week && weekOpenFor(week, now, entry), entry.preview)) return reply.code(404).send({ error: NOT_FOUND });
+      }
       if (me && !accessFor(me, resource)) return reply.code(403).send({ error: TIER_REFUSED });
 
       // The stored key first, `resources/<id>` only when the column is NULL — header rule 1.
@@ -401,6 +411,11 @@ export function registerFilesRoutes(app: FastifyInstance): void {
 
       const employee = visibleModules(db).find((m) => m.id === moduleId);
       if (!employee) return reply.code(404).send({ error: NOT_FOUND });
+      // D-175: a course week's files open with the week, for a learner who may enter the course (the
+      // snapshot carries a locked week with no files at all). Every other AI Employee is as before.
+      if (isAcceleratorModule(employee.id) && !weekOpenFor(employee, clock.now(), await courseEntryFor(getDb(), me.id, clock.now()))) {
+        return reply.code(404).send({ error: NOT_FOUND });
+      }
       if (!accessFor(me, employee)) return reply.code(403).send({ error: TIER_REFUSED });
       if (!declaresFile(employee, fileName)) return reply.code(404).send({ error: NOT_FOUND });
 

@@ -119,6 +119,8 @@ const GROUP_LABELS: Record<string, string> = {
   // D-174: the curriculum builder's cohort release plan and shared pages, and its copy strings.
   cohort: 'Cohorts',
   copy: 'Copy Strings',
+  // D-175: the deploy's one-time data steps on the course (the release plan).
+  curriculum: 'Curriculum',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

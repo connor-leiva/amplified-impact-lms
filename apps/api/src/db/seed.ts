@@ -43,6 +43,8 @@ import { sql } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
 import type { Db } from '@ai/core';
 import { ensureCurriculum, seedProduction } from '@ai/core/seed/curriculum';
+import { applyDataMigrations } from './data-migrations';
+import type { DataMigrationReport } from './data-migrations';
 import type { ProductionSeedOptions } from '@ai/core/seed/curriculum';
 import { close, databaseNameOf, getDb, readDatabaseUrl } from './client';
 import type { Database } from './client';
@@ -424,6 +426,8 @@ export interface SeedDeps {
   live: (db: Database) => Promise<number>;
   launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
   curriculum: (db: Database, opts: CurriculumOptions) => Promise<number>;
+  /** D-175: the one-time data steps, run after ensure on every deploy (each runs once). */
+  dataMigrations: (db: Database) => Promise<DataMigrationReport[]>;
   owner: (db: Database, opts: { owner: { name: string; email: string } }) => Promise<number>;
   ownerEnsure: (db: Database) => Promise<OwnerEnsureOutcome>;
   close: () => Promise<void>;
@@ -436,6 +440,7 @@ const REAL: SeedDeps = {
   live: (db) => seedLive(db),
   launch: (db, opts) => seedForLaunch(db, opts),
   curriculum: (db, opts) => applyCurriculum(db, opts),
+  dataMigrations: (db) => applyDataMigrations(db, Date.now()),
   owner: (db, opts) => addOwner(db, opts),
   ownerEnsure: (db) => ensureOwner(db),
   close,
@@ -455,6 +460,11 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
       const changes = await deps.curriculum(db, parsed.opts);
       deps.write(`${changes} rows changed. Users, teams, progress and staff were not touched.\n`);
       if (changes === 0) deps.write('The curriculum is already here, so every edit made in the builder stays.\n');
+      // D-175: the one-time data steps, each once. A row staff changed is left for the PM, by name.
+      for (const r of await deps.dataMigrations(db)) {
+        deps.write(`Ran ${r.id}: ${r.describe}. ${r.changed} rows changed.\n`);
+        for (const sk of r.skipped) deps.write(`  Left as it is: ${sk.id} (${sk.reason}). Finish it in the builder.\n`);
+      }
       return;
     }
     if (parsed.mode === 'owner') {

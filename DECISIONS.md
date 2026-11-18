@@ -5918,3 +5918,84 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - **The live preview:** for a course week, "Preview as Learner" (which opens a published AI Employee's portal page in a new tab) opens the learner's course page in place, drawn from the unsaved draft, as an **Owner**, an **Operator**, a **Utah Life** member and a buyer **Before launch**. It is the real page (`CourseBody`, split out of `Course.tsx` so the route and the preview share it), given the draft instead of the API's answer: the owner and the operator see the course with the draft's week as it would be saved (the same page for both today; PR 5's learner pages show each their own work); Utah Life sees "not in your plan"; before launch, the welcome with the opening day. Nothing is saved or sent.
   - `courseSessions` (core) is the course's sessions as `GET /api/course` sends them, shared by the route and the preview; the route's answer is unchanged.
   - **Tests:** web `CourseSettings.test.tsx` (the release plan saved in Mountain Time; the shared pages saved whole, only once changed, with a refusal shown; the copy strings listed, Utah Life's included, and one edited by key; a database with no course), `WeekBuilder.test.tsx` (the preview draws the draft, unsaved, as an owner, as a Utah Life member and before launch), `adminNav.test.ts` (Course settings' trail, and no new nav row).
+
+## D-175 · The course opens on its own dates, from data: the pre-launch preview, weekly releases, and the server as the gate (learner build, PR 3)
+
+**Date:** 2026-11-18
+**Approved by:** Connor, Nov 17, 2026, in the Week 0 brief's "What Connor Decided":
+- (1) Week 0 opens now as a pre-launch preview for everyone who has bought the AI Accelerator, due Mon, Nov 30, 2026 at 12:00 PM MT.
+- (2) Everything else is visible but locked, each item with its unlock date.
+- (3) Guides, vault files and replays stay hidden, and the server enforces it. The one exception is the Week 0 kit, which opens with Week 0 for a preview learner.
+- (4) Weekly releases: each week opens at the start of its live build, 12:00 PM MT (Week 1 Dec 2, Week 2 Dec 9, Week 3 Dec 16, Week 4 Jan 6, Week 5 Jan 13, Week 6 Jan 20, Week 7 Jan 27, Week 8 Feb 3).
+- (8) Utah Life doesn't change.
+
+The learner build brief's PR 3 adds: "every date and flag comes from the database". The PM's note: keep the Nov 30 due date. Points 5 to 7 (the new Weeks 0 to 3, Week 0's eight steps, Claude and ChatGPT) are PR 4's. CLAUDE.md says this file only grows with explicit human approval, and this is it.
+**Number:** D-174 is PR 2's; D-175 was free on `main` and on every remote branch.
+**Status:** on a pull request, `claude/learner-pr3-gating`, stacked on PR 2c. **It supersedes D-153 in part.** "Week 0 and all eight weeks open together on Dec 2" becomes a pre-launch preview, from the date Course settings gives it, and weekly releases. Login emails, the plans' `starts_at` (migration 0014) and the Library's gating stay as D-153 set them.
+
+- **Logic in code, every date from data** (`packages/core/src/release.ts`):
+  - **Entry:** a learner may enter the course once it opens for their plan (D-153's `acceleratorOpen`: the first live build and the plan's own start). Before that, they may enter once the cohort's pre-launch preview opens (`cohorts.preview_opens_at`), with a live plan: bought in full or in two payments, not ended, not paused for a payment (D-143). The preview ignores the plan's `startsAt`.
+  - **A week** is open to a learner who may enter when the builder says so: Published (open now), or Scheduled and past its Opens. That is `isOpen`, the builder's own rule. A draft isn't in the course.
+  - **A kit item** (a vault row attached to a course week) follows its week by its visibility:
+    - `hidden`: never.
+    - `published`: always.
+    - `open_in_preview`: once its week opens or the preview does.
+    - `hidden_until_open`, or none set: once its week opens.
+- **Off until the data says so.** With no preview date and every week Published (the seed), entry is D-153's exactly, and every week opens with the course. Deploying this changes nothing by itself.
+- **Connor's dates go in by a one-time, audited data step** (`packages/core/seed/release-plan-v1.ts`, run by `apps/api/src/db/data-migrations.ts`):
+  - It sets Week 0 due Nov 30 at 12:00 PM MT, and each of Weeks 1 to 8 to Scheduled at its live build, 12:00 PM MT.
+  - It changes only rows still as the seed left them: a week Published with no Opens, and Week 0's seed due date. A row staff already changed is left as it is and named for the PM in the deploy log and in the step's summary.
+  - Each change writes one audit row: the system, action `curriculum.migrate`, before and after.
+  - A new table, `data_migrations` (migration 0025, additive), records that the step ran, so it runs once. PR 4's content migration uses the same frame.
+  - The steps run inside `db:curriculum:ensure`, right after ensure, so the deploy command (set by hand in Railway) is unchanged.
+- **The preview's date is the PM's.** The Week 0 brief lists "`WEEK0_OPENS_AT`: the deploy date, or Connor picks one" as an open item, so the step doesn't set it. It is set in Course settings → Release plan → "Preview opens".
+  - Until it is set there is no preview, and Week 0 opens with Week 1 on Dec 2, as D-153 had it.
+  - Set it once PR 4 is in if buyers should meet the new Week 0 rather than today's.
+- **The server is the gate:**
+  - `GET /api/course` gives an open week whole, with its kit (ids and titles only; files come through the gated route).
+  - A locked week comes as the outline shows it: title, question, outcome, when it opens, and its locked copy if the builder set any. None of its content is sent.
+  - The response says whether this is the pre-launch preview (`prelaunch`), and carries the learner-facing copy strings.
+  - Its 403s are as before: paused (D-143), not yet (now naming the preview's date when there is one), and not in the plan. Staff see every week whole.
+  - **A learner's snapshot** carries a locked week as a stub: Scheduled at its opening, with its name, icon and outcome and none of its content (no steps but those marked open in the preview, no prompt, notes, transcript, files, outputs or demo).
+  - **Sessions** of a locked week have no replay, and **kit items** show only as visibility allows. For a learner whose plan doesn't hold the course, vault rows attached to a course week drop unless published.
+  - **The file routes** answer a kit item that isn't visible yet, and a locked week's skill files, with the same 404 as a hidden row.
+  - **The sign-in landing** reads the same access, so a preview learner lands on the portal.
+- **Unchanged:**
+  - `acceleratorOpen` and `acceleratorLearnerIds`, so the scheduler's reminders and digests reach nobody before Dec 2, as before (tested). No email moves.
+  - The join route: the first build's join window still opens 15 minutes before the course does, D-153's known gap.
+  - The Library and its release dates (the Library doesn't drip), `access.ts`, billing and every protected file.
+  - Utah Life (`access-groups.test.ts` untouched and green), and Amplified Insiders, the Team Plan and the Agent Plan.
+- **Copy for locked states is data**, as the brief says. Two copy strings are added:
+  - `locked.opens` ("Opens {date}", the date filled in Mountain Time).
+  - `course.prelaunch` (the preview's line).
+  - They are seeded for a new database. A second one-time step adds them to a database that already has its copy strings, inserting only missing keys.
+  - A week's own locked copy, from the builder, comes first.
+  - The builder's locked-copy card no longer prefills "Opens {date}", so the copy guard holds.
+- **The course page:**
+  - A locked week is listed with a lock and when it opens. Its page shows its question, its opening and the way to the weeks either side, and nothing else.
+  - The preview's line shows on every page during the preview.
+  - The builder's live preview (D-174 2c) shows the real preview on its "Before launch" tab once the cohort has a preview date.
+- **The banned homepage line is removed** (the brief's PR 3; `apps/web/src/home/v3/content.ts` and `docs/design/home-v3/copy.md`):
+  - Spring's bio no longer says "a 100-agent team closing 700+ homes a year".
+  - Her facts are "CEO, The Utah Life Real Estate Group", "20+ years in real estate" and "Founder of The Forum".
+  - The lead and the example chat no longer call the team "100-agent".
+  - A test holds the page to it.
+  - **Not removed, and Connor's call:** the proof line "Built inside The Utah Life Real Estate Group / 100 agents, 700+ homes a year". The site rule puts it next to every free and buy button, the hero's figures read from it, and the proof tests pin it as the site's own words. The brief's test also names "700+ homes", which only that line now carries.
+- **Tests:**
+  - **Core:**
+    - `release.test.ts`: entry with and without a preview date; paused, ended and other plans; each week at its live build, locked at 11:59 AM MT and open at noon, Jan 6 too; a builder move; staff; the kit's visibility; the snapshot's stubs.
+    - `data-steps.test.ts`: Connor's dates; only the seed's values; staff's rows left and named; a no-op the second time; the copy strings.
+  - **API** `release.test.ts`, through Postgres:
+    - the preview's 403 before its date
+    - Week 0 whole and the rest locked, with nothing of a locked week in the body
+    - the snapshot's stubs
+    - Insiders, the Team Plan, a Utah Life agent and a learner with no plan get nothing of the course: no preview, no week in the snapshot, no kit item
+    - the Week 0 kit downloads and Week 1's doesn't
+    - nobody on the scheduler's list before Dec 2
+    - Week 1 at its live build and Week 4 on Jan 6
+    - D-143's pause
+    - the brief's acceptance: Week 1's opening moved in the builder moves when it opens, with no deploy
+    - the data steps run once, audited, leaving a staff-changed week
+  - **Web:**
+    - `Course.vm.test.ts` and `Course.test.tsx`: locked rows and pages, the copy order, the preview line.
+    - `banned-line.test.ts`: the homepage.

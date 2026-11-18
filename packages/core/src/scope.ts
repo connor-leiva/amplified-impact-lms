@@ -13,9 +13,10 @@
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
 import { isAcceleratorModule } from './accelerator';
+import { kitVisible } from './release';
 import { can } from './can';
 import { moduleForSession } from './sessions';
-import { canAccess, visibleModules } from './status';
+import { canAccess, isOpen, visibleModules } from './status';
 import { ZERO_BASE } from './types';
 import type { Actor } from './mutations';
 import type { AIEmployee, Announcement, Cohort, Db, Learner, Resource, Session } from './types';
@@ -130,6 +131,58 @@ const denyAll = (db: Db): Db => ({
  */
 export interface ViewerAccess {
   accelerator: boolean;
+  /**
+   * D-175: the moment the route answers for. With it, a learner who may enter the course (accelerator)
+   * sees each week open or locked by its own opening (the builder's Status and Opens); without it, every
+   * week the learner may see is open, as before.
+   */
+  at?: number;
+  /** D-175: the entry is the pre-launch preview (a kit item marked open in the preview shows). */
+  preview?: boolean;
+}
+
+/**
+ * D-175: a week a learner can't open yet, as their snapshot carries it: what the outline and its card
+ * show (name, icon, outcome, its place), Scheduled at its opening, and none of its content: no steps but
+ * those marked open in the preview (without their hints), no prompt, notes, transcript, files, outputs
+ * or demo. Every blanked field keeps its declared type (invariant 2).
+ */
+const lockedWeekModule = (m: AIEmployee): AIEmployee => {
+  const { runDemo: _runDemo, ...rest } = m;
+  return {
+    ...rest,
+    status: 'scheduled',
+    headline: '',
+    forWho: '',
+    outputs: [],
+    platform: '',
+    runLabel: '',
+    dur: 0,
+    instructor: '',
+    transcript: [],
+    notes: '',
+    prompt: '',
+    files: [],
+    resources: [],
+    checklist: m.checklist.filter((st) => st.openInPreview).map((st) => ({ ...st, hint: '' })),
+  };
+};
+
+/**
+ * D-175: the course for a learner who may enter it, at `at`: each course week open (whole) or locked
+ * (a stub), the sessions of a locked week without a replay, and the vault items attached to a week only
+ * as their visibility allows.
+ */
+function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resources: Resource[], at: number, preview: boolean) {
+  const locked = new Set(db.modules.filter((m) => isAcceleratorModule(m.id) && !isOpen(m, at)).map((m) => m.id));
+  return {
+    modules: modules.map((m) => (locked.has(m.id) ? lockedWeekModule(m) : m)),
+    sessions: sessions.map((s) => {
+      const m = moduleForSession(db, s);
+      return m && locked.has(m.id) ? { ...s, replay: null, views: 0 } : s;
+    }),
+    resources: resources.filter((r) => kitVisible(r, !!r.module && !locked.has(r.module), preview)),
+  };
 }
 
 /** Drop the course for a learner whose plan does not open it: its modules and the sessions behind them. */
@@ -158,9 +211,17 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   let modules = visibleModules(db)
     .map((m) => (canAccess(me, m) ? m : redactModule(m)))
     .map(moduleForLearner);
+  let resources = db.resources.filter((r) => r.status === 'published').map(redactResource);
   // The AI Accelerator, only for a plan that opens it (D-110). Dropped, not redacted: a redacted
-  // module keeps its notes and checklist, which here are the course itself.
-  if (access && !access.accelerator) ({ modules, sessions } = withoutAccelerator(db, modules, sessions));
+  // module keeps its notes and checklist, which here are the course itself. A vault item attached to
+  // one of its weeks goes with it unless it is published to everyone (D-175).
+  if (access && !access.accelerator) {
+    ({ modules, sessions } = withoutAccelerator(db, modules, sessions));
+    resources = resources.filter((r) => kitVisible(r, false, false));
+  } else if (access && access.at !== undefined) {
+    // D-175: in the course, each week opens on its own date (the builder's Status and Opens).
+    ({ modules, sessions, resources } = withReleases(db, modules, sessions, resources, access.at, !!access.preview));
+  }
 
   return {
     v: db.v,
@@ -173,7 +234,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
       .filter((u) => u.id === me.id || (teamId !== null && u.teamId === teamId))
       .map((u) => (u.id === me.id ? u : redactTeammate(u, showEmail))),
     teams: db.teams.filter((t) => teamId !== null && t.id === teamId),
-    resources: db.resources.filter((r) => r.status === 'published').map(redactResource),
+    resources,
     announcements: db.announcements.filter((a) => forAudience(a, me)),
     dismissed: Object.fromEntries(Object.entries(db.dismissed ?? {}).filter(([k]) => k.startsWith(mine))),
     reminders: db.reminders,

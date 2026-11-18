@@ -2,6 +2,7 @@
 // builds it, from `@ai/core`'s course and calendar, so the screen is tested against the real words.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
+import { isLockedWeek } from '@ai/core/course';
 import { LIBRARY_ROUTES_PENDING_MERGE } from '@ai/core/accelerator';
 import { acceleratorSessions } from '@ai/core/seed/accelerator-v1';
 import { courseContent } from '@ai/core/seed/accelerator-v1';
@@ -203,5 +204,51 @@ describe('the route', () => {
   it('writes no em dash anywhere it renders', () => {
     const all = JSON.stringify([overviewVM(payload()), weeks(), COPY]);
     expect(all).not.toContain('\u2014');
+  });
+});
+
+describe('locked weeks and the pre-launch preview (D-175)', () => {
+  /** What the API answers a preview learner: Week 0 whole, the rest as the outline shows them. */
+  const preview = (): CoursePayload => {
+    const full = payload();
+    const opens = [0, Date.parse('2026-12-02T19:00:00Z'), Date.parse('2026-12-09T19:00:00Z')];
+    return {
+      ...full,
+      prelaunch: true,
+      copy: { 'locked.opens': 'Opens {date}', 'course.prelaunch': 'Pre-launch preview line.' },
+      course: {
+        ...full.course,
+        weeks: full.course.weeks.map((w) =>
+          w.week === 0 || isLockedWeek(w) ? w : { week: w.week, title: w.title, question: w.question, outcome: w.module.outcome, opensAt: opens[w.week] ?? null, locked: true as const },
+        ),
+      },
+    };
+  };
+
+  it('lists a locked week with when it opens, in Mountain Time, from the copy string', () => {
+    const vm = overviewVM(preview());
+    expect(vm.weeks[0]).toMatchObject({ locked: false, opens: null });
+    expect(vm.weeks[1]).toMatchObject({ locked: true, opens: 'Opens Wed, Dec 2 · 12:00 PM MT', flagship: '' });
+    expect(vm.weeks[2]!.opens).toBe('Opens Wed, Dec 9 · 12:00 PM MT');
+    // No date set: nothing to say about when.
+    expect(vm.weeks[5]).toMatchObject({ locked: true, opens: null });
+  });
+
+  it('says a week’s own locked copy first, then the copy string, then the date alone', () => {
+    const p = preview();
+    const w1 = p.course.weeks[1] as Extract<CoursePayload['course']['weeks'][number], { locked: true }>;
+    w1.lockedCopy = { headline: 'Leads That Pay is locked', line: 'It opens with its live build.', opens: 'Unlocks {date}' };
+    expect(courseView(p, 'week-1')).toMatchObject({
+      kind: 'locked',
+      prelaunch: 'Pre-launch preview line.',
+      vm: { heading: `Week 1 · ${w1.title}`, opens: 'Unlocks Wed, Dec 2 · 12:00 PM MT', headline: 'Leads That Pay is locked', line: 'It opens with its live build.', prev: { href: '/course/week-0' } },
+    });
+    expect(overviewVM({ ...p, copy: {} }).weeks[2]!.opens).toBe('Wed, Dec 9 · 12:00 PM MT');
+  });
+
+  it('opens Week 0 as a week, and carries the preview line on every page only in the preview', () => {
+    expect(courseView(preview(), 'week-0')).toMatchObject({ kind: 'week', prelaunch: 'Pre-launch preview line.' });
+    expect(courseView(preview(), undefined)).toMatchObject({ kind: 'overview', prelaunch: 'Pre-launch preview line.' });
+    expect(courseView(payload(), undefined)).toMatchObject({ kind: 'overview', prelaunch: null });
   });
 });

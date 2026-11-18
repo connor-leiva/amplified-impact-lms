@@ -5,10 +5,12 @@
 // `GET /api/course` has always sent, so the course page renders exactly as before. No words here.
 
 import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from './accelerator';
-import type { CourseContent, CourseWeek, ModuleCourse } from './course-types';
+import type { CohortCourse, CourseContent, CourseWeek, LockedCopy, ModuleCourse } from './course-types';
+import { kitVisible, weekOpenFor } from './release';
+import type { CourseEntry } from './release';
 import { moduleForSession, sessionKind, sessionWeek } from './sessions';
 import type { SessionKind } from './sessions';
-import type { AIEmployee, Db } from './types';
+import type { AIEmployee, Db, ResourceKind, ResourcePlatform } from './types';
 
 /** A module that carries a course week. */
 export type WeekModule = AIEmployee & { kind: 'week'; course: ModuleCourse };
@@ -44,6 +46,73 @@ export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'>, cohortId
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!cohort?.course) return null;
   return { ...cohort.course, weeks: courseWeekModules(db).map(courseWeekOf) };
+}
+
+// --- what a learner gets (D-175): open weeks whole, locked weeks as the outline shows them --------
+
+/** A week a learner can't open yet: its place in the outline and when it opens. None of its content. */
+export interface LockedCourseWeek {
+  week: number;
+  title: string;
+  question: string;
+  outcome: string;
+  /** When it opens (a scheduled week's Opens), or null when no date is set. */
+  opensAt: number | null;
+  /** What the builder says a locked week says (its `{date}` filled by the page), when it says anything. */
+  lockedCopy?: LockedCopy;
+  locked: true;
+}
+
+/** A kit item of an open week, as the course lists it. Downloaded through the gated files route, never a link here. */
+export interface CourseKitItem {
+  id: string;
+  title: string;
+  kind: ResourceKind | null;
+  platform: ResourcePlatform | null;
+  stepId: string | null;
+}
+
+/** An open week, with its kit when it has one. */
+export type OpenCourseWeek = CourseWeek & { kit?: CourseKitItem[] };
+export type LearnerCourseWeek = OpenCourseWeek | LockedCourseWeek;
+
+/** The course as one viewer may see it: what every week shares, then each week open or locked. */
+export interface LearnerCourse extends CohortCourse {
+  weeks: LearnerCourseWeek[];
+}
+
+export const isLockedWeek = (w: LearnerCourseWeek): w is LockedCourseWeek => (w as LockedCourseWeek).locked === true;
+
+const lockedWeekOf = (m: WeekModule): LockedCourseWeek => ({
+  week: m.course.week,
+  title: m.course.title,
+  question: m.course.question,
+  outcome: m.outcome,
+  opensAt: m.status === 'scheduled' ? m.opens : null,
+  ...(m.course.lockedCopy ? { lockedCopy: m.course.lockedCopy } : {}),
+  locked: true,
+});
+
+/**
+ * The course for one viewer, or null when the database holds none. Staff (`'staff'`) see every week
+ * whole, as the builder's preview does. A learner sees each week open or locked by their entry and the
+ * week's own opening (`weekOpenFor`), and an open week's kit by its visibility (`kitVisible`). Locked
+ * weeks carry no content; the response itself is the gate.
+ */
+export function courseFor(db: Pick<Db, 'cohorts' | 'modules' | 'resources'>, now: number, viewer: CourseEntry | 'staff', cohortId: string = ACCELERATOR_COHORT_ID): LearnerCourse | null {
+  const cohort = db.cohorts.find((c) => c.id === cohortId);
+  if (!cohort?.course) return null;
+  const staff = viewer === 'staff';
+  const weeks = courseWeekModules(db).map((m): LearnerCourseWeek => {
+    const open = staff || weekOpenFor(m, now, viewer);
+    if (!open) return lockedWeekOf(m);
+    const kit = db.resources
+      .filter((r) => r.module === m.id && r.status === 'published' && (staff || kitVisible(r, true, viewer.preview)))
+      .map((r): CourseKitItem => ({ id: r.id, title: r.title, kind: r.kind ?? null, platform: r.platform ?? null, stepId: r.stepId ?? null }));
+    const week = courseWeekOf(m);
+    return kit.length ? { ...week, kit } : week;
+  });
+  return { ...cohort.course, weeks };
 }
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL: only the join route hands that out. */

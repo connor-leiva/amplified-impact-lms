@@ -14,7 +14,7 @@ import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from '../library/PreLaunch';
 import { COPY, courseView, isExternal } from './Course.vm';
-import type { CoursePayload, DownloadVM, OverviewVM, Row, WeekVM } from './Course.vm';
+import type { CoursePayload, DownloadVM, LockedWeekVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
 
 /** A link that leaves learn opens in a new tab; a guided setup in learn (D-151) opens in this one. */
@@ -127,9 +127,11 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
           {vm.weeks.map((w) => (
             <li key={w.week} className={s.card}>
               <a className={s.cardLink} href={w.href}>
-                <span className={s.cardTitle}>{w.heading}</span>
+                <span className={s.cardTitle}>
+                  {w.locked ? <Icon name="lock" size={14} label="Locked" /> : null} {w.heading}
+                </span>
                 <span className={s.cardQuestion}>{w.question}</span>
-                <span className={s.cardMeta}>{w.flagship}</span>
+                <span className={s.cardMeta}>{w.locked ? w.opens : w.flagship}</span>
               </a>
             </li>
           ))}
@@ -192,6 +194,49 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
       </Section>
 
       <p className={s.note}>{vm.support}</p>
+    </>
+  );
+}
+
+/** D-175: a week the learner can't open yet: where it sits, what it asks, when it opens. Nothing more. */
+function LockedWeek({ vm }: { vm: LockedWeekVM }) {
+  return (
+    <>
+      <header className={s.head}>
+        <BrandSlot kind="lockup" />
+        <a className={s.back} href="/course">
+          <Icon name="chevL" size={14} />
+          {COPY.allWeeks}
+        </a>
+        <h1 className={s.h1}>{vm.heading}</h1>
+        <p className={s.question}>{vm.question}</p>
+      </header>
+      <section className={s.section} aria-label={vm.heading}>
+        {vm.headline ? <h2 className={s.h2}>{vm.headline}</h2> : null}
+        {vm.line ? <p>{vm.line}</p> : null}
+        {vm.outcome ? <p className={s.note}>{vm.outcome}</p> : null}
+        {vm.opens ? (
+          <p className={s.opens}>
+            <Icon name="lock" size={16} /> {vm.opens}
+          </p>
+        ) : null}
+      </section>
+      <nav className={s.pager} aria-label="Weeks">
+        {vm.prev ? (
+          <a className={s.secondary} href={vm.prev.href}>
+            <Icon name="arrowR" size={14} className={s.flip} />
+            {vm.prev.label}
+          </a>
+        ) : (
+          <span />
+        )}
+        {vm.next ? (
+          <a className={s.primary} href={vm.next.href}>
+            {vm.next.label}
+            <Icon name="arrowR" size={14} />
+          </a>
+        ) : null}
+      </nav>
     </>
   );
 }
@@ -474,7 +519,14 @@ export function CourseBody({ load, week }: { load: Load; week: string | undefine
       ) : view ? (
         <>
           {view.preview ? <p className={s.previewTag}>{COPY.preview}</p> : null}
-          {view.kind === 'week' ? <Week vm={view.vm} /> : <Overview vm={view.vm} notFound={view.notFound} />}
+          {view.prelaunch ? <p className={s.prelaunch}>{view.prelaunch}</p> : null}
+          {view.kind === 'week' ? (
+            <Week vm={view.vm} />
+          ) : view.kind === 'locked' ? (
+            <LockedWeek vm={view.vm} />
+          ) : (
+            <Overview vm={view.vm} notFound={view.notFound} />
+          )}
         </>
       ) : null}
     </main>

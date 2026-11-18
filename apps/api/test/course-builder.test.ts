@@ -8,7 +8,7 @@ import { MODULE_ICONS } from '@ai/core';
 import type { Db } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import type { CourseContent } from '@ai/core/course-types';
-import { seedProduction } from '@ai/core/seed/curriculum';
+import { SEED_COPY, seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { auditLog } from '../src/db/schema';
@@ -120,7 +120,10 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
   it('a copy string, the Utah Life line included', { timeout: 120_000 }, async () => {
     await ok('saveCopyString', { key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' });
     await ok('saveCopyString', { key: 'schedule.subtitle', value: 'Every live session, in Mountain Time.', audience: 'learner' });
+    // By key, with the two strings D-175 seeds (a locked week's opening, the preview line) as they were.
     expect((await snapshot()).copy).toEqual([
+      SEED_COPY.find((c) => c.key === 'course.prelaunch'),
+      SEED_COPY.find((c) => c.key === 'locked.opens'),
       { key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' },
       { key: 'schedule.subtitle', value: 'Every live session, in Mountain Time.', audience: 'learner' },
     ]);

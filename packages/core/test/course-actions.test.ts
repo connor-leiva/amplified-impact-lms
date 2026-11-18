@@ -177,10 +177,11 @@ describe('copy strings (D-174)', () => {
   it('changes Utah Life’s lock line and adds a new key, each audited without its text', () => {
     const db = prod();
     const out = saveCopyString(db, OWNER, { key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' }, mkCtx());
-    expect(out.db.copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' }]);
+    expect(out.db.copy!.find((c) => c.key === 'locked.utah_life')).toEqual({ key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' });
+    expect(out.db.copy!.map((c) => c.key)).toEqual(db.copy!.map((c) => c.key));
     expect(out.audit).toMatchObject({ action: 'copy.save', target: { id: 'locked.utah_life' }, before: { audience: 'learner', length: 34 }, after: { length: 39, changed: ['value'] } });
     const added = saveCopyString(out.db, EDITOR, { key: 'schedule.subtitle', value: 'Every live session, in Mountain Time.', audience: 'learner' }, mkCtx());
-    expect(added.db.copy!.map((c) => c.key)).toEqual(['locked.utah_life', 'schedule.subtitle']);
+    expect(added.db.copy!.map((c) => c.key)).toEqual([...db.copy!.map((c) => c.key), 'schedule.subtitle']);
   });
 
   it('refuses a bad key, an empty value, an em dash; Support may not', () => {

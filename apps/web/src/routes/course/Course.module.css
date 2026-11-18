@@ -104,6 +104,25 @@
   font-size: 16px;
   line-height: 1.6;
 }
+/* D-175: the pre-launch preview's line, and a locked week's opening. */
+.prelaunch {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--status-progress-line);
+  border-radius: 6px;
+  background: var(--status-progress-bg);
+  color: var(--status-progress-text);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.opens {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
 .note {
   color: var(--look-ink-secondary);
 }

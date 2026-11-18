@@ -567,7 +567,8 @@ const EMPTY: { [K in CardKey]: NonNullable<WeekDraft['course'][K]> } = {
   seatCard: { seat: '', reportsTo: '', runs: '', pulls: '', applies: '', produces: '', tookOver: '', cantDo: '' },
   playbookCard: { number: '', question: '', play: '', signedOff: false },
   sampleOutput: { title: '', madeUpLabel: 'Made-up data', blocks: [] },
-  lockedCopy: { headline: '', line: '', opens: 'Opens {date}' },
+  // The opening line starts empty: until it says something, the `locked.opens` copy string speaks (D-175).
+  lockedCopy: { headline: '', line: '', opens: '' },
   statusLabels: {},
 };
 
@@ -709,8 +710,8 @@ function LockedFields({ card, set }: { card: LockedCopy; set: (fn: (c: LockedCop
     <>
       <Line label="Headline" value={card.headline} onChange={(v) => set((c) => (c.headline = v))} />
       <Para label="Line" value={card.line} onChange={(v) => set((c) => (c.line = v))} />
-      <Line label="Opens" value={card.opens} hint="Opens {date}" onChange={(v) => set((c) => (c.opens = v))} />
-      <p className={clsx(k.p, k.me)}>{'{date}'} becomes the week’s opening day and time, in Mountain Time.</p>
+      <Line label="Opens" value={card.opens} onChange={(v) => set((c) => (c.opens = v))} />
+      <p className={clsx(k.p, k.me)}>Write {'{date}'} where the week’s opening day and time go (Mountain Time). Leave it empty to use the course’s own line (Course settings, locked.opens).</p>
     </>
   );
 }

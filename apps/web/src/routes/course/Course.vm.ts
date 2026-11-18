@@ -11,7 +11,10 @@
 import { fmt } from '@ai/core';
 import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
 import { courseGuideHref } from '@ai/core/skill-guides';
-import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/course-types';
+import type { CourseSkill, SkillRole } from '@ai/core/course-types';
+import { isLockedWeek } from '@ai/core/course';
+import type { LearnerCourse, LockedCourseWeek } from '@ai/core/course';
+import { mountainWhen } from '@ai/core/release';
 import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL. */
@@ -28,8 +31,13 @@ export interface CourseSession {
 export interface CoursePayload {
   open: true;
   preview: boolean;
-  course: CourseContent;
+  /** D-175: the learner is in the pre-launch preview (Week 0 open, the rest locked with their dates). */
+  prelaunch?: boolean;
+  /** D-175: each week open (whole) or locked (its place in the outline and when it opens). */
+  course: LearnerCourse;
   sessions: CourseSession[];
+  /** D-175: the learner-facing copy strings, by key: what a locked week says, the preview line. */
+  copy?: Record<string, string>;
 }
 
 export const COPY = {
@@ -204,7 +212,7 @@ export interface OverviewVM {
   scope: string;
   support: string;
   holiday: string;
-  weeks: { week: number; heading: string; question: string; href: string; flagship: string }[];
+  weeks: { week: number; heading: string; question: string; href: string; flagship: string; locked: boolean; opens: string | null }[];
   calendar: SessionLineVM[];
   before: {
     intake: readonly string[];
@@ -218,9 +226,36 @@ export interface OverviewVM {
   after: { graduation: readonly string[]; note: string; paths: Row[]; noPaywall: string; pilot: Row[] };
 }
 
+/** D-175: a week a learner can't open yet: where it sits, what it asks, when it opens. */
+export interface LockedWeekVM {
+  week: number;
+  heading: string;
+  question: string;
+  outcome: string;
+  /** "Opens Wed, Dec 9 · 12:00 PM MT" (the week's own locked copy, else the copy string), or the date alone. */
+  opens: string | null;
+  headline: string | null;
+  line: string | null;
+  prev: { label: string; href: string } | null;
+  next: { label: string; href: string } | null;
+}
+
 export type CourseView =
-  | { kind: 'overview'; preview: boolean; notFound: boolean; vm: OverviewVM }
-  | { kind: 'week'; preview: boolean; title: string; vm: WeekVM };
+  | { kind: 'overview'; preview: boolean; prelaunch: string | null; notFound: boolean; vm: OverviewVM }
+  | { kind: 'week'; preview: boolean; prelaunch: string | null; title: string; vm: WeekVM }
+  | { kind: 'locked'; preview: boolean; prelaunch: string | null; title: string; vm: LockedWeekVM };
+
+/**
+ * D-175: what a locked week says about its opening: its own locked copy's template (set in the builder)
+ * or the `locked.opens` copy string, `{date}` filled in Mountain Time; the date alone when neither says
+ * anything; nothing when no date is set.
+ */
+export function opensText(w: Pick<LockedCourseWeek, 'opensAt' | 'lockedCopy'>, copy: Record<string, string> | undefined): string | null {
+  if (w.opensAt === null) return null;
+  const date = mountainWhen(w.opensAt);
+  const template = w.lockedCopy?.opens ?? copy?.['locked.opens'];
+  return template && template.includes('{date}') ? template.replace('{date}', date) : date;
+}
 
 const mins = (n: number): string => `${n} Minutes`;
 const span = (from: number, to: number): string => `${from} to ${to} min`;
@@ -278,7 +313,7 @@ export function weekFromParam(param: string | undefined): number | null {
 export function weekVM(p: CoursePayload, week: number): WeekVM | null {
   const { course } = p;
   const w = course.weeks.find((x) => x.week === week);
-  if (!w) return null;
+  if (!w || isLockedWeek(w)) return null;
   const build = p.sessions.find((s) => s.id === w.liveBuild?.sessionId) ?? null;
   const oh = p.sessions.find((s) => s.id === w.officeHours?.sessionId) ?? null;
   const shared = course.shared;
@@ -372,6 +407,8 @@ export function overviewVM(p: CoursePayload): OverviewVM {
     support: course.intro.support,
     holiday: course.intro.holiday,
     weeks: course.weeks.map((w) => {
+      if (isLockedWeek(w))
+        return { week: w.week, heading: `Week ${w.week} · ${w.title}`, question: w.question, href: coursePath(w.week), flagship: '', locked: true, opens: opensText(w, p.copy) };
       const lead = w.skills.filter((s) => s.role === 'flagship');
       return {
         week: w.week,
@@ -379,6 +416,8 @@ export function overviewVM(p: CoursePayload): OverviewVM {
         question: w.question,
         href: coursePath(w.week),
         flagship: (lead.length ? lead : w.skills).map((s) => s.title).join(', '),
+        locked: false,
+        opens: null,
       };
     }),
     calendar: p.sessions.slice().sort((a, b) => a.start - b.start).map(sessionLine),
@@ -405,13 +444,38 @@ export function overviewVM(p: CoursePayload): OverviewVM {
   };
 }
 
+/** D-175: a locked week's page, or null when the week is open or not in the course. */
+export function lockedWeekVM(p: CoursePayload, week: number): LockedWeekVM | null {
+  const weeks = p.course.weeks;
+  const w = weeks.find((x) => x.week === week);
+  if (!w || !isLockedWeek(w)) return null;
+  const i = weeks.indexOf(w);
+  const before = weeks[i - 1];
+  const after = weeks[i + 1];
+  return {
+    week: w.week,
+    heading: `Week ${w.week} · ${w.title}`,
+    question: w.question,
+    outcome: w.outcome,
+    opens: opensText(w, p.copy),
+    headline: w.lockedCopy?.headline || null,
+    line: w.lockedCopy?.line || null,
+    prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
+    next: after ? { label: `${COPY.next}: Week ${after.week}`, href: coursePath(after.week) } : null,
+  };
+}
+
 /** What `/course` or `/course/:week` shows for this payload. An unknown week falls back to the overview. */
 export function courseView(p: CoursePayload, param: string | undefined): CourseView {
+  // D-175: the pre-launch preview's line, as the copy string says it (nothing when it says nothing).
+  const prelaunch = p.prelaunch ? (p.copy?.['course.prelaunch'] ?? null) : null;
   if (param !== undefined) {
     const n = weekFromParam(param);
     const vm = n === null ? null : weekVM(p, n);
-    if (vm) return { kind: 'week', preview: p.preview, title: vm.heading, vm };
-    return { kind: 'overview', preview: p.preview, notFound: true, vm: overviewVM(p) };
+    if (vm) return { kind: 'week', preview: p.preview, prelaunch, title: vm.heading, vm };
+    const locked = n === null ? null : lockedWeekVM(p, n);
+    if (locked) return { kind: 'locked', preview: p.preview, prelaunch, title: locked.heading, vm: locked };
+    return { kind: 'overview', preview: p.preview, prelaunch, notFound: true, vm: overviewVM(p) };
   }
-  return { kind: 'overview', preview: p.preview, notFound: false, vm: overviewVM(p) };
+  return { kind: 'overview', preview: p.preview, prelaunch, notFound: false, vm: overviewVM(p) };
 }

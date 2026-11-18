@@ -1,16 +1,19 @@
 // GET /api/course: the Amplified AI Accelerator's pages, for a plan that opens them (D-110).
 //
-//   200 { open: true, course, sessions }   an AI Accelerator buyer or their teammate, or staff (preview)
+//   200 { open: true, prelaunch, course, sessions }  an AI Accelerator buyer or their teammate, in the
+//                                          course or its pre-launch preview, or staff (preview: true)
 //   403 { open: false, paused, error }     a two-pay buyer whose second payment failed, until it's paid (D-143)
-//   403 { open: false, upcoming, opensAt, error }  a buyer before the first live build (D-153): the screen
-//                                          shows the pre-launch welcome, and the course opens at `opensAt`
+//   403 { open: false, upcoming, opensAt, error }  a buyer before the preview (or, with none, the first
+//                                          live build, D-153): the screen shows the pre-launch welcome
 //   403 { open: false, error }             any other learner: no plan, or a plan that is not the course
 //   401                                    not signed in (`requireSession`)
 //
 // The course's words live in the database (D-173: the cohort's `course` and each week module's) and
 // reach the browser only through this route, so the course is not readable in the public JavaScript
-// bundle. Week 0 and all eight weeks open together (no drip); the live sessions keep their own
-// date-gated join window.
+// bundle. D-175: each week opens on its own date, from data (Published, or Scheduled with its Opens,
+// in the Module Builder): an open week comes whole, with its kit; a locked one comes as the outline
+// shows it (title, question, outcome, when it opens) and nothing else. Staff see every week whole. The
+// live sessions keep their own date-gated join window.
 //
 //   503 { open: false, error }             the database holds no course yet (the seed hasn't run)
 //
@@ -19,11 +22,14 @@
 // window, exactly as for the portal.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { courseFromSnapshot, courseSessions } from '@ai/core/course';
+import { acceleratorPaused } from '@ai/core/accelerator';
+import { courseFor, courseSessions } from '@ai/core/course';
+import { courseEntry, courseUpcoming } from '@ai/core/release';
+import type { CourseEntry } from '@ai/core/release';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { acceleratorAccess, acceleratorPausedFor, acceleratorUpcomingFor } from '../lib/course-access';
+import { plansForLearner, releaseOf } from '../lib/course-access';
 import { clock } from '../lib/clock';
 
 export const COURSE_PATH = '/api/course';
@@ -40,15 +46,33 @@ export function registerCourseRoute(app: FastifyInstance): void {
     const { actor } = viewerOrThrow(req);
     const db = getDb();
     reply.header('cache-control', 'no-store');
-    if (actor.kind === 'learner' && !(await acceleratorAccess(db, actor.userId, clock.now()))) {
-      if (await acceleratorPausedFor(db, actor.userId, clock.now())) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
-      const opensAt = await acceleratorUpcomingFor(db, actor.userId, clock.now());
-      if (opensAt !== null) return reply.code(403).send({ open: false, upcoming: true, opensAt, error: NOT_YET });
-      return reply.code(403).send({ open: false, error: NOT_IN_PLAN });
+    const now = clock.now();
+    let entry: CourseEntry | 'staff' = 'staff';
+    if (actor.kind === 'learner') {
+      // D-175: a learner enters the course when it opens for their plan (D-153), or before that once the
+      // cohort's pre-launch preview opens. Each week then opens on its own date.
+      const plans = await plansForLearner(db, actor.userId);
+      const release = await releaseOf(db);
+      entry = courseEntry(plans, now, release);
+      if (!entry.open) {
+        if (acceleratorPaused(plans, now)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
+        const opensAt = courseUpcoming(plans, now, release);
+        if (opensAt !== null) return reply.code(403).send({ open: false, upcoming: true, opensAt, error: NOT_YET });
+        return reply.code(403).send({ open: false, error: NOT_IN_PLAN });
+      }
     }
     const snapshot = await loadDb(db);
-    const course = courseFromSnapshot(snapshot);
+    const course = courseFor(snapshot, now, entry);
     if (!course) return reply.code(503).send({ open: false, error: NOT_LOADED });
-    return reply.code(200).send({ open: true, preview: actor.kind === 'staff', course, sessions: courseSessions(snapshot) });
+    return reply.code(200).send({
+      open: true,
+      preview: entry === 'staff',
+      // D-175: the learner is in the pre-launch preview (Week 0 open, the rest locked with their dates).
+      prelaunch: entry !== 'staff' && entry.preview,
+      course,
+      sessions: courseSessions(snapshot),
+      // D-175: the learner-facing copy strings the page needs (what a locked week says, the preview line).
+      copy: Object.fromEntries((snapshot.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value])),
+    });
   });
 }
