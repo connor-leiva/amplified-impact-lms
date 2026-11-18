@@ -61,7 +61,7 @@ describe('Home (D-177)', () => {
     expect(vm.cohort).toMatchObject({
       month: 'December 2026',
       stats: [{ figure: '15', label: 'in your cohort' }],
-      officeHours: { title: 'Map Your Spend Office Hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)' },
+      officeHours: { title: 'Map Your Spend Office Hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' },
       support: { address: 'support@amplifiedimpact.io', href: 'mailto:support@amplifiedimpact.io' },
     });
     // No enrolment, no tile: a count the API can't vouch for is not drawn.

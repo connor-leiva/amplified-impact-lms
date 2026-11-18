@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { render, screen, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
 import SkillLibrary from './SkillLibrary';
-import Course from '../course/Course';
+import { CourseBody } from '../course/Course';
 import { COPY as COURSE_COPY } from '../course/Course.vm';
 import { PRE_LAUNCH, whenOf } from './PreLaunch';
 
@@ -58,16 +58,14 @@ describe('the pre-launch welcome (D-153)', () => {
     expect(document.querySelector('[data-pre-launch]')).toBeNull();
   });
 
-  it('greets the same buyer on /course instead of "not in your plan", and leads back to the library', async () => {
-    fetchMock.mockResolvedValue(answer(403, { open: false, upcoming: true, opensAt: FIRST_BUILD, error: 'x' }));
+  it('greets the same buyer on the course page instead of "not in your plan", and leads back to the library', () => {
+    // The course page's body, as the API's 403 `upcoming` answer draws it (its address redirects since D-182).
     render(
-      <MemoryRouter initialEntries={['/course']}>
-        <Routes>
-          <Route path="/course" element={<Course />} />
-        </Routes>
+      <MemoryRouter>
+        <CourseBody load={{ kind: 'upcoming', opensAt: FIRST_BUILD }} week={undefined} />
       </MemoryRouter>,
     );
-    const panel = await screen.findByRole('region', { name: PRE_LAUNCH.title });
+    const panel = screen.getByRole('region', { name: PRE_LAUNCH.title });
     expect(within(panel).getByText(PRE_LAUNCH.starts(whenOf(FIRST_BUILD)))).toBeInTheDocument();
     expect(screen.queryByText(COURSE_COPY.locked)).toBeNull();
     expect(screen.getByRole('link', { name: COURSE_COPY.library })).toHaveAttribute('href', '/skill-library');

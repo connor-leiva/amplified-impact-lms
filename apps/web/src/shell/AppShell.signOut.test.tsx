@@ -10,13 +10,13 @@ import type { Db } from '@ai/core';
 import type { Viewer } from '../data/repository';
 import { SIGN_OUT_FAILED, SIGN_OUT_ROUTE, leave, onSignOut, resetSignOutForTests } from '../data/session';
 
-// D-152: the shell's Sign Out (the profile menu's last item, in the Admin Console and the learner
-// portal, on the sidebar and in the phone's drawer) signs out for real. The prototype's handler only
+// D-152: the shell's Sign Out (the profile menu's last item, in the Admin Console, on the sidebar and in
+// the phone's drawer) signs out for real. Since D-182 this shell is the Admin Console's alone; the learner
+// portal's account menu signs out the same way (`routes/learn/Learn.test.tsx`). The prototype's handler only
 // toasted that it was a demo, and Connor stayed signed in (2026-11-13, an iPhone, the Owner).
 // The shell is rendered for real; only the data hooks are stood in for.
 
 const OWNER: Viewer = { actor: { kind: 'staff', staffId: 'st1' }, role: 'admin' };
-const JAMIE: Viewer = { actor: { kind: 'learner', userId: 'u_jamie' }, role: 'agent' };
 const state: { db: Db; viewer: Viewer } = { db: seed('live'), viewer: OWNER };
 
 vi.mock('../data/hooks', () => ({
@@ -40,7 +40,6 @@ function renderAt(path: string) {
         path: '/',
         element: <AppShell />,
         children: [
-          { index: true, element: <p>the dashboard</p> },
           { path: 'admin', element: <p>the admin overview</p> },
         ],
       },
@@ -96,24 +95,6 @@ describe('Sign Out in the shell (D-152)', () => {
     // No demo toast, ever.
     expect(screen.queryByText(/\(demo\)/)).toBeNull();
     expect(screen.queryByText(/signed out/i)).toBeNull();
-  });
-
-  it('in the learner portal on a phone, from the drawer, does the same', async () => {
-    state.viewer = JAMIE;
-    const width = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
-    try {
-      renderAt('/');
-      expect(document.querySelector('aside[aria-label="Primary"]')?.getAttribute('data-mode')).toBe('drawer');
-      fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
-      openProfile();
-      fireEvent.click(screen.getByRole('button', { name: 'Sign Out' }));
-      await waitFor(() => expect(toSignIn).toHaveBeenCalledTimes(1));
-      expect(fetchMock).toHaveBeenCalledWith(SIGN_OUT_ROUTE, expect.objectContaining({ method: 'POST', credentials: 'include' }));
-      expect(screen.queryByText(/\(demo\)/)).toBeNull();
-    } finally {
-      Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
-    }
   });
 
   it('says so and stays put when the server did not end the session, and a second try works', async () => {

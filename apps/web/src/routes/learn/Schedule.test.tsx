@@ -50,7 +50,7 @@ function setWidth(w: number) {
 }
 
 function at(path: string) {
-  const router = createMemoryRouter([...learnerRoutes(true), { path: '/', element: <p>the portal</p> }], {
+  const router = createMemoryRouter([...learnerRoutes(), { path: '/', element: <p>the portal</p> }], {
     initialEntries: [path],
   });
   render(<RouterProvider router={router} />);
@@ -176,14 +176,5 @@ describe('the Schedule (D-180)', () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     expect(within(main()).getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/learn/schedule');
-  });
-
-  it('flag off: /learn/schedule redirects to /, as every /learn address does', async () => {
-    const router = createMemoryRouter([...learnerRoutes(false), { path: '/', element: <p>the portal</p> }], {
-      initialEntries: ['/learn/schedule?view=calendar'],
-    });
-    render(<RouterProvider router={router} />);
-    expect(await screen.findByText('the portal')).toBeInTheDocument();
-    expect(router.state.location.pathname).toBe('/');
   });
 });

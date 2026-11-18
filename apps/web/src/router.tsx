@@ -3,7 +3,6 @@ import type { RouteObject } from 'react-router';
 import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
 import { withStaleChunkRecovery } from './lib/StaleChunkBoundary';
 import { MasqueradeRoot } from './shell/MasqueradeRoot';
-import { learnerV2Enabled } from './routes/learn/flag';
 import { learnerRoutes } from './routes/learn/routes';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
@@ -50,29 +49,25 @@ const routes: RouteObject[] = [
   { path: '/forgot-password', lazy: () => import('./routes/auth/ForgotPassword') },
   { path: '/set-password', lazy: () => import('./routes/auth/SetPassword') },
   { path: '/account', lazy: () => import('./routes/auth/Account') },
-  // The skill library (D-079): net-new, outside the shell like the two above, so no portal golden moves.
-  { path: '/skill-library', lazy: () => import('./routes/library/SkillLibrary') },
-  // Each skill's guided setup (D-151), behind sign-in: outside the shell, like the library it opens from.
-  { path: '/skill-library/:slug', lazy: () => import('./routes/library/SkillGuide') },
-  // The AI Accelerator's pages (D-110): net-new and outside the shell for the same reason.
-  { path: '/course', lazy: () => import('./routes/course/Course') },
-  { path: '/course/:week', lazy: () => import('./routes/course/Course') },
+  // D-182: the first Skill Library (D-079), each skill's guided setup (D-151) and the AI Accelerator's pages
+  // (D-110) are the learner portal's now (/learn/skills, /learn/skills/:slug, /learn and its weeks). Their
+  // addresses stay, as redirects, because www, emails, the seed's words and bookmarks link them.
+  { path: '/skill-library', lazy: () => import('./routes/learn/redirects').then((m) => ({ Component: m.LibraryRedirect })) },
+  { path: '/skill-library/:slug', lazy: () => import('./routes/learn/redirects').then((m) => ({ Component: m.LibraryRedirect })) },
+  { path: '/course', lazy: () => import('./routes/learn/redirects').then((m) => ({ Component: m.CourseRedirect })) },
+  { path: '/course/:week', lazy: () => import('./routes/learn/redirects').then((m) => ({ Component: m.CourseRedirect })) },
   // The CRM sync log (D-134): the Owner and Admins only, net-new and outside the shell for the same
   // reason. A static path, so it ranks above the shell's `admin` children and its catch-all.
   { path: '/admin/crm-sync', lazy: () => import('./routes/crm/CrmSync') },
-  // The learner portal v2 (D-177): its own shell, Home, the week overview and the step player, behind a
-  // build-time flag that is off by default (`routes/learn/flag.ts`). Off, every /learn address goes to /.
-  ...learnerRoutes(learnerV2Enabled()),
+  // The learner portal (D-177), every learner's portal since D-182: its own shell and screens at /learn.
+  ...learnerRoutes(),
   {
     path: '/',
     lazy: () => import('./shell/AppShell'),
+    // D-182: the shell is the Admin Console's, for staff. A learner who arrives at any address here (`/`,
+    // `/sessions`, `/employees/:id`, `/team`, `/vault`, `/team-tier`, the first portal's) is sent to its
+    // learner portal page by `AppShell`, before anything is drawn (`routes/learn/redirects.tsx`).
     children: [
-      { index: true, lazy: () => import('./routes/portal/Dashboard') },
-      { path: 'sessions', lazy: () => import('./routes/portal/Sessions') },
-      { path: 'employees/:employeeId', lazy: () => import('./routes/portal/EmployeeDetail') },
-      { path: 'team', lazy: () => import('./routes/portal/TeamHub') },
-      { path: 'vault', lazy: () => import('./routes/portal/Vault') },
-      { path: 'team-tier', lazy: () => import('./routes/portal/TeamTier') },
       { path: 'admin', lazy: () => import('./routes/admin/Overview') },
       { path: 'admin/curriculum', lazy: () => import('./routes/admin/Curriculum') },
       // One route for both: `new` is the blank draft, anything else edits that AI Employee.
@@ -123,7 +118,10 @@ const routes: RouteObject[] = [
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
       // other unknown address still goes home through the `*` below.
       { path: 'admin/*', lazy: () => import('./routes/console/NotFound') },
-      { path: '*', element: <Navigate to="/" replace /> },
+      // Drawn only for staff (a learner here is sent to the learner portal by `AppShell` before any child
+      // renders, D-182): any other address is the Console's home. Straight there, not by way of `/`,
+      // which would race the admin shell's own bounce.
+      { path: '*', element: <Navigate to="/admin" replace /> },
     ],
   },
 ];

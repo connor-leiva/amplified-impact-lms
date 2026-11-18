@@ -42,6 +42,7 @@ function renderAt(path: string) {
           { path: 'sessions', element: <p>the sessions</p> },
         ],
       },
+      { path: '/learn/*', element: <p>the learner portal</p> },
     ],
     { initialEntries: [path] },
   );
@@ -202,10 +203,11 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(aside()).toHaveAttribute('data-mode', 'rail');
   });
 
-  it('leaves the learner shell to learners', async () => {
+  it('leaves learners to the learner portal (D-182)', async () => {
     state.viewer = { actor: { kind: 'learner', userId: 'u_jamie' }, role: 'agent' };
-    renderAt('/sessions');
-    expect(await screen.findByText('the sessions')).toBeInTheDocument();
+    const router = renderAt('/sessions');
+    expect(await screen.findByText('the learner portal')).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/learn/schedule');
     expect(document.querySelector('[data-r2-shell]')).toBeNull();
   });
 });

@@ -12,16 +12,18 @@ import { useDialogA11y } from '../../components/primitives/Modal';
 import { ToasterProvider, useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
 import { useJoin } from '../../data/join';
+import { EXIT_PREVIEW_TO, PREVIEW_LABEL } from '../../data/preview';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
 import { ConfettiProvider } from '../Confetti';
+import { DemoControls } from '../DemoControls';
 import { useAppReady, useViewportWidth } from '../hooks';
 import { Wordmark } from '../admin/Wordmark';
 import { useCourse } from '../../routes/learn/data';
 import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
-import { HUE, LABELS, barVM, navVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
+import { HUE, LABELS, barVM, hasTeamHub, navVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM } from '../../routes/learn/learn.vm';
-import { learnAccount, learnHome } from '../../routes/learn/routes';
+import { learnAccount, learnHome, learnSchedule, learnTeam } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
@@ -30,9 +32,15 @@ import s from './LearnerShell.module.css';
 // one thing (the session live now, else the next live build, then the account), and on a phone a 56px
 // bar, a next-session strip and the sidebar as a drawer. No admin chrome.
 //
-// Built alongside the current learner portal (`../AppShell.tsx`, unchanged), behind the off-by-default
-// flag (`routes/learn/flag.ts`). It reads `GET /api/course`, the snapshot and the viewer, and hands them
-// to each screen through the outlet's context.
+// Built alongside the first learner portal behind a flag (D-177), and every learner's portal since D-182,
+// which retired the first one and its flag. It reads `GET /api/course`, the snapshot and the viewer, and
+// hands them to each screen through the outlet's context.
+//
+// D-182 also gave it the first portal's pieces with no screen in the mockup, so that nothing a learner
+// could do there is lost: the Resource vault for every learner (the first portal kept it for a plan
+// without the course, D-119), the account menu's Team Hub for a Team tier learner (the one place an owner
+// invites a teammate), a staff member's "Preview as learner" line (D-138), and in the fixture build only,
+// the demo controls (CLAUDE.md; never in http mode, where `DemoControls` draws nothing).
 //
 // REQUIRED LANDMARKS (CLAUDE.md): `aside[aria-label="Primary"]` (on a phone it is in the drawer, hidden
 // until opened), a `header` holding `nav[aria-label="Breadcrumb"]` (visually hidden: the mockup's bar
@@ -91,25 +99,23 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           <Icon name="lvGrid" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.library.label}</span>
         </Link>
-        {nav.cohort ? (
-          nav.vault.locked ? (
-            <button type="button" className={s.ni} title={nav.vault.label} aria-disabled="true" aria-describedby="lv-vault-opens">
-              <Icon name="r2Vault" size={16} strokeWidth={1.75} />
-              <span className={s.lbl}>{nav.vault.label}</span>
-              <span className={s.nl} title={nav.vault.title ?? undefined}>
-                <Icon name="lvLock" size={12} strokeWidth={1.75} label={LABELS.locked} />
-              </span>
-              <span id="lv-vault-opens" className={s.srOnly}>
-                {nav.vault.title ?? LABELS.locked}
-              </span>
-            </button>
-          ) : (
-            <Link className={s.ni} to={nav.vault.href} title={nav.vault.label} onClick={go}>
-              <Icon name="r2Vault" size={16} strokeWidth={1.75} />
-              <span className={s.lbl}>{nav.vault.label}</span>
-            </Link>
-          )
-        ) : null}
+        {nav.vault.locked ? (
+          <button type="button" className={s.ni} title={nav.vault.label} aria-disabled="true" aria-describedby="lv-vault-opens">
+            <Icon name="r2Vault" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{nav.vault.label}</span>
+            <span className={s.nl} title={nav.vault.title ?? undefined}>
+              <Icon name="lvLock" size={12} strokeWidth={1.75} label={LABELS.locked} />
+            </span>
+            <span id="lv-vault-opens" className={s.srOnly}>
+              {nav.vault.title ?? LABELS.locked}
+            </span>
+          </button>
+        ) : (
+          <Link className={s.ni} to={nav.vault.href} data-on={nav.vault.active ? 'true' : undefined} aria-current={nav.vault.active ? 'page' : undefined} title={nav.vault.label} onClick={go}>
+            <Icon name="r2Vault" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{nav.vault.label}</span>
+          </Link>
+        )}
         {nav.employees ? (
           <>
             <div className={s.rsep} aria-hidden="true" />
@@ -214,7 +220,7 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
     );
   }
   return (
-    <Link className={s.tbs2} to="/sessions">
+    <Link className={s.tbs2} to={learnSchedule()}>
       <Icon name="lvLive" size={18} strokeWidth={1.75} />
       <span className={s.el}>
         <b>{LABELS.nextBuild}</b> · {bar.when}
@@ -238,6 +244,7 @@ function Frame() {
   const phone = vw < PHONE;
 
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
+  const preview = viewer.preview ?? null;
   const staff = viewer.actor.kind === 'staff' ? (db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) ?? null) : null;
   const name = me?.name ?? staff?.name ?? '';
   const payload = course.kind === 'ready' ? course.payload : null;
@@ -305,6 +312,7 @@ function Frame() {
             </div>
             <NextSession bar={bar} now={now} />
             <span className={`${s.spacer} ${s.dtOnly}`} />
+            {phone ? null : <DemoControls vw={vw} />}
             <nav aria-label={LABELS.breadcrumb} className={s.srOnly}>
               <Link to={learnHome()}>{LABELS.home}</Link>
               {here ? (
@@ -318,6 +326,7 @@ function Frame() {
               label={LABELS.account}
               items={[
                 { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
+                ...(hasTeamHub(db, me) ? [{ label: LABELS.teamHub, onSelect: () => navigate(learnTeam()) }] : []),
                 'separator',
                 { label: LABELS.signOut, onSelect: signOut },
               ]}
@@ -332,6 +341,16 @@ function Frame() {
             />
           </header>
           {phone ? <PhoneStrip bar={bar} /> : null}
+          {preview ? (
+            // A staff member's "Preview as learner" tab (D-138), as the first portal's shell said it. A plain
+            // link, not the router: the preview is read at boot, so leaving it is a fresh load of the Console.
+            <div className={s.preview} role="status">
+              <span>Previewing as {PREVIEW_LABEL[preview]}.</span>
+              <a className={s.previewExit} href={EXIT_PREVIEW_TO}>
+                Exit Preview
+              </a>
+            </div>
+          ) : null}
           <main className={s.main} id="main">
             <Outlet context={ctx} />
           </main>

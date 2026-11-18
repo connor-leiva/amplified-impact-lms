@@ -50,8 +50,8 @@ function as(payload: SkillsPayload, course: CourseLoad = { kind: 'ready', payloa
   state.course = course;
 }
 
-function at(path: string, enabled = true) {
-  const router = createMemoryRouter([...learnerRoutes(enabled), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
+function at(path: string) {
+  const router = createMemoryRouter([...learnerRoutes(), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
   render(<RouterProvider router={router} />);
   return router;
 }
@@ -110,12 +110,6 @@ describe('the Skill Library (D-179)', () => {
     expect(screen.getByRole('link', { name: 'Sign In' })).toHaveAttribute('href', '/sign-in');
   });
 
-  it('redirects to / when the flag is off', async () => {
-    at('/learn/skills', false);
-    expect(await screen.findByText('the portal')).toBeInTheDocument();
-    at('/learn/skills/tc-file-audit', false);
-    expect((await screen.findAllByText('the portal')).length).toBeGreaterThan(0);
-  });
 });
 
 describe('a skill’s page (D-179)', () => {

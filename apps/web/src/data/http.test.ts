@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { BLOCKED_MESSAGE, MASQUERADE_BLOCKED_EVENT, createHttpRepository, masqueradeRefusal, navigation, sitePath } from './http';
+import { BLOCKED_MESSAGE, MASQUERADE_BLOCKED_EVENT, createHttpRepository, masqueradeRefusal, navigation, signInFor, sitePath } from './http';
 
 // Phase 07 § 7.6. The API does not exist yet, which is exactly why this suite matters: it is the
 // contract the endpoints have to satisfy, written down before they are built. Every assertion here
@@ -139,6 +139,12 @@ describe('HttpRepository @g7', () => {
 
     await expect(createHttpRepository().snapshot()).rejects.toThrow('Not signed in');
     expect(assign).toHaveBeenCalledTimes(1);
+  });
+
+  it('from a skill’s page, the sign-in brings them back to it; from anywhere else, plain sign-in (D-182)', () => {
+    expect(signInFor('/learn/skills/appointment-follow-up')).toBe('/sign-in?next=%2Flearn%2Fskills%2Fappointment-follow-up');
+    expect(signInFor('/skill-library/appointment-follow-up')).toBe('/sign-in?next=%2Fskill-library%2Fappointment-follow-up');
+    for (const p of ['/learn', '/learn/skills', '/learn/skills/not-a-skill', '/learn/week/1', '/admin', '/']) expect(signInFor(p), p).toBe('/sign-in');
   });
 
   it('any other error throws, with the server message when there is one', async () => {

@@ -1,15 +1,15 @@
-// /course and /course/week-N: the Amplified AI Accelerator (DECISIONS.md D-110).
+// The AI Accelerator's course page (DECISIONS.md D-110) as one piece, `CourseBody`: the overview, a week
+// and a locked week, from what `GET /api/course` answers.
 //
-// Net-new, like /skill-library (D-079): outside the shell, so no portal golden moves, and reached by
-// its URL (each course AI Employee's notes and prompt panel name it). It reads `GET /api/course`,
-// which answers the course only to a plan that opens it. In the fixture build there is no API, so it
-// says the course opens when you sign in.
+// D-182: the page's own addresses, /course and /course/week-N, retired with the first learner portal:
+// they redirect to /learn and its weeks (`routes/learn/redirects.tsx`). What stays is the body, because
+// the curriculum builder's live preview (D-174, D-175, `routes/admin/WeekBuilder.tsx`) renders it from
+// the unsaved draft.
 //
 // Markup only: every string and every time is computed in Course.vm.ts.
 
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { useParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from '../library/PreLaunch';
@@ -29,25 +29,6 @@ export type Load =
   /** D-153: bought, and opening at the first live build. */
   | { kind: 'upcoming'; opensAt: number }
   | { kind: 'failed' };
-
-export async function loadCourse(): Promise<Load> {
-  try {
-    const res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
-    if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
-    if (res.status === 403) {
-      // D-143: paused until a payment goes through, which says something different from "not in your plan".
-      const body = (await res.json().catch(() => null)) as { paused?: unknown; upcoming?: unknown; opensAt?: unknown } | null;
-      if (body?.paused === true) return { kind: 'paused' };
-      // D-153: not "not in your plan" to someone who bought it: when it opens, and the welcome.
-      if (body?.upcoming === true && typeof body.opensAt === 'number') return { kind: 'upcoming', opensAt: body.opensAt };
-      return { kind: 'locked' };
-    }
-    if (!res.ok) return { kind: 'failed' };
-    return { kind: 'ready', payload: (await res.json()) as CoursePayload };
-  } catch {
-    return { kind: 'signed-out' };
-  }
-}
 
 function save(d: DownloadVM): void {
   const url = URL.createObjectURL(new Blob([d.content], { type: 'text/csv' }));
@@ -453,36 +434,9 @@ function Week({ vm }: { vm: WeekVM }) {
   );
 }
 
-export function Component() {
-  const { week } = useParams();
-  const [load, setLoad] = useState<Load>({ kind: 'loading' });
-
-  useEffect(() => {
-    let alive = true;
-    void loadCourse().then((next) => {
-      if (alive) setLoad(next);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  // Outside `AppShell`, so this route marks the body ready itself, as /skill-library does.
-  useEffect(() => {
-    if (load.kind !== 'loading') document.body.dataset.appReady = 'true';
-  }, [load.kind]);
-
-  const view = useMemo(() => (load.kind === 'ready' ? courseView(load.payload, week) : null), [load, week]);
-  useEffect(() => {
-    if (view) document.title = view.kind === 'week' ? `${view.title} · Amplified AI Accelerator` : 'Amplified AI Accelerator';
-  }, [view]);
-
-  return <CourseBody load={load} week={week} />;
-}
-
 /**
- * The page for one state of the course, from what `GET /api/course` answered (or, in the builder's
- * live preview, D-174, from the unsaved draft). Markup only, as before.
+ * The page for one state of the course, from what `GET /api/course` answers, as the builder's live
+ * preview (D-174) gives it from the unsaved draft. Markup only, as before.
  */
 export function CourseBody({ load, week }: { load: Load; week: string | undefined }) {
   const view = useMemo(() => (load.kind === 'ready' ? courseView(load.payload, week) : null), [load, week]);
@@ -551,4 +505,3 @@ export function CourseBody({ load, week }: { load: Load; week: string | undefine
   );
 }
 
-export default Component;

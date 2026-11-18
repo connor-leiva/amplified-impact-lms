@@ -6,7 +6,6 @@ import type { Db } from '@ai/core';
 import type { Viewer } from '../../data/repository';
 import type { CourseLoad } from './data';
 import type * as DataModule from './data';
-import { learnerV2Enabled } from './flag';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, learnState, liveState, prelaunchState } from './test/fixture';
 import type { LearnState } from './test/fixture';
@@ -47,7 +46,7 @@ function setWidth(w: number) {
 }
 
 function at(path: string) {
-  const router = createMemoryRouter([...learnerRoutes(true), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
+  const router = createMemoryRouter([...learnerRoutes(), { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
   render(<RouterProvider router={router} />);
   return router;
 }
@@ -110,7 +109,7 @@ describe('the learner shell (D-177)', () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     expect(document.querySelector('[role="dialog"][data-drawer="open"]')).toBeNull();
-    expect(screen.getByRole('link', { name: /Next live build/ })).toHaveAttribute('href', '/sessions');
+    expect(screen.getByRole('link', { name: /Next live build/ })).toHaveAttribute('href', '/learn/schedule');
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
     const drawer = document.querySelector<HTMLElement>('[role="dialog"][data-drawer="open"]')!;
     expect(drawer).toHaveAttribute('aria-modal', 'true');
@@ -166,6 +165,8 @@ describe('Home (D-177)', () => {
     expect(within(aside()).queryByRole('link', { name: 'Schedule' })).toBeNull();
     expect(within(aside()).queryByRole('button', { name: /AI employees/ })).toBeNull();
     expect(screen.getByRole('banner')).not.toHaveTextContent('Next live build');
+    // D-182: the Resource vault stays theirs, as the first portal kept it (D-119).
+    expect(within(aside()).getByRole('link', { name: 'Resource vault' })).toHaveAttribute('href', '/learn/vault');
   });
 });
 
@@ -253,26 +254,57 @@ describe('the step player (D-177)', () => {
   });
 });
 
-describe('the flag (D-177)', () => {
-  it('is off unless set, on under vitest, and on in the fixture build', () => {
-    expect(learnerV2Enabled({})).toBe(false);
-    expect(learnerV2Enabled({ MODE: 'production' })).toBe(false);
-    expect(learnerV2Enabled({ MODE: 'fixture', VITE_LEARNER_V2: 'true' })).toBe(true);
-    expect(learnerV2Enabled({ MODE: 'test' })).toBe(true);
-    expect(learnerV2Enabled({ MODE: 'test', VITE_LEARNER_V2: 'false' })).toBe(false);
-    expect(learnerV2Enabled({ MODE: 'production', VITE_LEARNER_V2: 'yes' })).toBe(false);
+
+describe('what the first portal had and the mockup draws no screen for (D-182)', () => {
+  const onTeam = () => {
+    const team = { id: 't-dana', name: 'Ross Realty Team', ownerId: LEARNER_ID, seats: 2 };
+    state.db = { ...state.db, teams: [...state.db.teams, team], users: state.db.users.map((u) => (u.id === LEARNER_ID ? { ...u, teamId: team.id } : u)) };
+  };
+  const openMenu = async () => {
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Your account' }));
+  };
+
+  it('the account menu opens the Team Hub for a Team tier learner on a team, inside this shell', async () => {
+    onTeam();
+    const router = at('/learn');
+    await openMenu();
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Team Hub' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/team'));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Team Hub' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Invite Member' })).toBeInTheDocument();
+    expect(aside()).not.toBeNull();
   });
 
-  it('off: every /learn address redirects to /, and no learner screen is registered', async () => {
-    const routes = learnerRoutes(false);
-    expect(routes).toHaveLength(1);
-    expect(routes[0]!.lazy).toBeUndefined();
-    for (const path of ['/learn', '/learn/week/0', '/learn/week/0/step/3', '/learn/anything']) {
-      const router = createMemoryRouter([...routes, { path: '/', element: <p>the portal</p> }], { initialEntries: [path] });
-      const { unmount } = render(<RouterProvider router={router} />);
-      expect(await screen.findByText('the portal')).toBeInTheDocument();
-      expect(router.state.location.pathname).toBe('/');
-      unmount();
-    }
+  it('no Team Hub without a team: no menu item, and its address goes Home', async () => {
+    at('/learn');
+    await openMenu();
+    expect(await screen.findByRole('menuitem', { name: 'Account' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Team Hub' })).toBeNull();
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    const router = at('/learn/team');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn'));
+  });
+
+  it('the Resource vault opens inside this shell, marked in the nav, once the preview is over', async () => {
+    use(liveState());
+    at('/learn/vault');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Resource & Compliance Vault' })).toBeInTheDocument();
+    expect(within(aside()).getByRole('link', { name: 'Resource vault' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('a staff member’s preview tab says so, with Exit Preview (D-138)', async () => {
+    state.viewer = { ...state.viewer, preview: 'agent' };
+    at('/learn');
+    const line = (await screen.findByText('Previewing as Agent.')).closest<HTMLElement>('[role="status"]')!;
+    expect(line).not.toBeNull();
+    expect(within(line).getByRole('link', { name: 'Exit Preview' })).toHaveAttribute('href', '/admin/curriculum');
+  });
+
+  it('no demo controls outside a fixture demo, and no preview line for a learner', async () => {
+    at('/learn');
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('group', { name: 'Demo controls' })).toBeNull();
+    expect(screen.queryByText(/Previewing as/)).toBeNull();
   });
 });

@@ -255,7 +255,7 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
       month: cohort ? monthYear(cohort.start) : null,
       // Real counts only: the cohort's enrolment is its learners' rows (D-018). Nothing else is drawn.
       stats: enrolled > 0 ? [{ figure: fmt.num(enrolled), label: HOME.inCohort }] : [],
-      officeHours: oh ? { title: oh.title, meta: fmt.when(oh.start), href: '/sessions' } : null,
+      officeHours: oh ? { title: oh.title, meta: fmt.when(oh.start), href: learnSchedule() } : null,
       support: { label: HOME.questions, address: ACCELERATOR_SUPPORT_EMAIL, href: SUPPORT_HREF },
     },
     library: null,

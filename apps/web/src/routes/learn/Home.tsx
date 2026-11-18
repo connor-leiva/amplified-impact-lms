@@ -11,6 +11,7 @@ import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { LABELS, weekRows } from './learn.vm';
 import { homeVM } from './Home.vm';
+import { learnSchedule } from './routes';
 import type { CardVM, HeroRightVM, HeroVM, HomeVM } from './Home.vm';
 import { Go, LiveDot, Mbar, Prog, SessionRows, Tile, nStyle } from './parts';
 import s from './Learn.module.css';
@@ -217,7 +218,7 @@ function Body({ vm, now }: { vm: HomeVM; now: number }) {
                   </button>
                 ) : null}
               </div>
-              <SessionRows rows={vm.comingUp.rows} link="/sessions" />
+              <SessionRows rows={vm.comingUp.rows} link={learnSchedule()} />
             </section>
           ) : null}
           {vm.cohort ? (

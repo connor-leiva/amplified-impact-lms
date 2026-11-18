@@ -1,8 +1,7 @@
 import { Navigate } from 'react-router';
 import type { RouteObject } from 'react-router';
 
-// The learner portal v2's addresses (D-177), siblings of `/` like /course and /skill-library, so nothing
-// about the current portal's shell, routes or goldens moves.
+// The learner portal's addresses (D-177; every learner's portal since D-182), inside the learner shell.
 //
 //   /learn                         Home (before launch, live build, between sessions; no cohort pieces
 //                                  for a learner whose plan has no course, Utah Life included)
@@ -13,8 +12,15 @@ import type { RouteObject } from 'react-router';
 //   /learn/skills/:slug            a skill: its guided setup in the step player when it is open, else
 //                                  its locked preview (D-179)
 //   /learn/account                 the learner's Account page (D-178)
+//   /learn/team                    the Team Hub, for a Team tier learner (D-182): the first portal's
+//                                  screen, inside this shell, because it is the one place an owner
+//                                  invites a teammate
+//   /learn/vault                   the Resource Vault (D-182): the first portal's screen, inside this
+//                                  shell, where the nav's Resource vault opens it
 //
-// With the flag off there are no screens here at all: every /learn address redirects to /.
+// The first portal's learner addresses (`/`, `/sessions`, `/employees/:id`, `/course`, `/course/:week`,
+// `/skill-library`, `/skill-library/:slug`, `/team`, `/vault`, `/team-tier`) redirect here
+// (`redirects.ts`, D-182).
 
 export const LEARN_ROOT = '/learn';
 export const learnHome = (): string => LEARN_ROOT;
@@ -24,9 +30,10 @@ export const learnSchedule = (view?: 'calendar'): string => `${LEARN_ROOT}/sched
 export const learnSkills = (): string => `${LEARN_ROOT}/skills`;
 export const learnSkill = (slug: string): string => `${LEARN_ROOT}/skills/${slug}`;
 export const learnAccount = (): string => `${LEARN_ROOT}/account`;
+export const learnTeam = (): string => `${LEARN_ROOT}/team`;
+export const learnVault = (): string => `${LEARN_ROOT}/vault`;
 
-export function learnerRoutes(enabled: boolean): RouteObject[] {
-  if (!enabled) return [{ path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
+export function learnerRoutes(): RouteObject[] {
   return [
     {
       path: LEARN_ROOT,
@@ -39,6 +46,8 @@ export function learnerRoutes(enabled: boolean): RouteObject[] {
         { path: 'skills', lazy: () => import('./Library') },
         { path: 'skills/:slug', lazy: () => import('./Skill') },
         { path: 'account', lazy: () => import('./Account') },
+        { path: 'team', lazy: () => import('./Team') },
+        { path: 'vault', lazy: () => import('../portal/Vault') },
         { path: '*', element: <Navigate to={LEARN_ROOT} replace /> },
       ],
     },

@@ -379,6 +379,29 @@ button.ni {
   min-width: 0;
 }
 
+/* D-182: a staff member's "Preview as learner" line (D-138), under the bar, as the first portal's shell
+   drew it, in R2's attention colours. */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--r2-warn-line);
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+  font-weight: 600;
+}
+.frame :where(a).previewExit {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---- controls the bar uses (`.b`, `.ib`, `.st`) --------------------------------------------------- */
 
 .b {
@@ -667,5 +690,12 @@ button.b {
   .es svg {
     width: 14px;
     height: 14px;
+  }
+}
+
+/* D-182: the preview line's phone gutter. */
+@media (max-width: 767px) {
+  .preview {
+    padding: 0 16px;
   }
 }
