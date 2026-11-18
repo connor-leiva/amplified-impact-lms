@@ -15,9 +15,9 @@
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { isGuidedPage, skillGuidePath } from '@ai/core/skill-guides';
-import type { GuideAction, GuideFile, GuideInline, GuideLane, GuidePrompts, GuideStep, SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
+import type { GuideAction, GuideFile, GuideInline, GuideLane, GuidePrompts, GuideSample, GuideSampleBlock, GuideStep, SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
 import { GUIDES, isGuided, SHARED, SITE } from './content';
-import type { Guide, Inline, SetupStep } from './content';
+import type { Guide, Inline, SampleBlock, SetupStep } from './content';
 
 export { isGuided };
 
@@ -93,6 +93,25 @@ function lanesOf(guide: Guide): GuideLane[] {
   ];
 }
 
+/** A sample's piece as learn draws it: the same words, with links placed as a step's are. */
+function sampleBlockOut(b: SampleBlock): GuideSampleBlock {
+  if ('h' in b) return { h: b.h };
+  if ('p' in b) return { p: inlinesOut(b.p) };
+  if ('items' in b) return { items: [...b.items] };
+  if ('table' in b) return { table: { caption: b.table.caption, head: [...b.table.head], rows: b.table.rows.map((r) => [...r]) } };
+  return { email: { subject: b.email.subject, body: [...b.email.body] } };
+}
+
+/**
+ * D-179: the page's sample output, which www shows anyone, for learn's locked preview. Its first
+ * `sample` section, or none: a page without one has no sample, and learn draws none.
+ */
+function sampleOf(guide: Guide): GuideSample | undefined {
+  const s = guide.sections.find((x) => x.kind === 'sample');
+  if (!s || s.kind !== 'sample') return undefined;
+  return { title: s.title, body: s.body, note: s.note, blocks: s.blocks.map(sampleBlockOut) };
+}
+
 /** One guided page's full setup, as learn shows it. */
 export function exportGuide(guide: Guide): SkillGuide {
   if (!isGuided(guide)) throw new Error(`${guide.slug} has no skill or Grok Bot template, so no guided setup.`);
@@ -100,6 +119,7 @@ export function exportGuide(guide: Guide): SkillGuide {
     s.kind === 'prompts' ? [{ heading: s.heading, body: s.body, groups: s.groups.map((g) => ({ label: g.label, items: [...g.items] })) }] : [],
   );
   const lanes = lanesOf(guide);
+  const sample = sampleOf(guide);
   return {
     slug: guide.slug,
     skill: idOf(guide),
@@ -108,6 +128,7 @@ export function exportGuide(guide: Guide): SkillGuide {
     question: lanes.length > 1 ? (guide.download.chatgpt?.question ?? null) : null,
     lanes,
     prompts,
+    ...(sample ? { sample } : {}),
   };
 }
 

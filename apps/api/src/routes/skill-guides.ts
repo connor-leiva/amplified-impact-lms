@@ -5,7 +5,7 @@
 // THE GATE. Signed in (401 otherwise), a learner (403 for staff, as the skill library is), and the
 // skill library's one access rule (`stateFor`, from `routes/skills.ts`: `canOpenSkill`, and a Sales
 // Agent never opens an owner-and-ops skill). The answer always carries what www shows anyone (the
-// title, the steps' titles, the state, and what a locked row says); `guide`, the full setup with every
+// title, the steps' titles, the sample output, the state, and what a locked row says); `guide`, the full setup with every
 // step's words, its buttons, the words to paste and the downloads, is there ONLY when the state is
 // `open`. A free skill opens for any learner, so a free account is enough; a paid one needs its plan.
 //
@@ -69,6 +69,8 @@ export function registerSkillGuideRoutes(app: FastifyInstance, { guides }: Skill
       paidPlans: access.paidPlans.length > 0,
       // What www shows anyone: each lane's step titles.
       preview: previewOf(guide),
+      // D-179: its sample output, made up and public on www, for the locked preview; null when the page has none.
+      sample: guide.sample ?? null,
       // The setup itself, for a learner who can open the skill, and nobody else.
       guide: open ? guide : null,
       ui: open ? guides.ui : null,

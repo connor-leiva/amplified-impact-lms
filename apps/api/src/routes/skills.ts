@@ -18,7 +18,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
-import { accounts, dismissals, plans, skills, users } from '../db/schema';
+import { accounts, copyStrings, dismissals, plans, skills, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
 import { acceleratorUpcoming, pausedForPayment } from '@ai/core/accelerator';
@@ -45,6 +45,25 @@ const welcomeBody = z.strictObject({ group: z.string().min(1).max(64) });
 const NOT_FOUND = 'Not found';
 
 export type SkillRow = typeof skills.$inferSelect;
+
+/**
+ * D-179: the copy string an access group's locked skills read, by the group's id: `utah-life` reads
+ * `locked.utah_life` ("Not included with Utah Life access"), a builder-edited string (D-173).
+ */
+export const lockedCopyKey = (groupId: string): string => `locked.${groupId.replace(/-/g, '_')}`;
+
+/** Each of the viewer's groups' locked line, from the builder's copy strings; a group with none is left out. */
+async function lockedLinesOf(groupIds: readonly string[]): Promise<Record<string, string>> {
+  if (!groupIds.length) return {};
+  const keys = groupIds.map(lockedCopyKey);
+  const rows = await getDb().select().from(copyStrings).where(inArray(copyStrings.key, keys));
+  const out: Record<string, string> = {};
+  for (const id of groupIds) {
+    const row = rows.find((r) => r.key === lockedCopyKey(id) && r.audience === 'learner');
+    if (row) out[id] = row.value;
+  }
+  return out;
+}
 
 /**
  * The learner, their role, and the plans the access rule reads: their account's (bought), and any an
@@ -153,6 +172,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // Only active groups (`groupAccessOf`: unexpired, address verified), in a fixed order (name, then
       // id), each with the sets its grant covers, so a locked row can name the group that applies.
       accessGroups: groupsView(access, rows, now, hidden),
+      // D-179: what each of those groups' locked skills read, from the builder's copy strings
+      // (`locked.utah_life`), by group id. The learner portal v2's library draws it, with no upsell.
+      lockedLines: await lockedLinesOf(access.groups.map((g) => g.id)),
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),

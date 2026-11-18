@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { eq, sql } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
-import { seedProduction } from '@ai/core/seed/curriculum';
+import { SEED_COPY, seedProduction } from '@ai/core/seed/curriculum';
 import { acceleratorModules } from '@ai/core/seed/accelerator-v1';
 import type { SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
 import { build } from '../src/app';
@@ -17,7 +17,7 @@ import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
 import { provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import type { Database } from '../src/db/client';
-import { accessGroups, ai101Waitlist, modules, skills, users } from '../src/db/schema';
+import { accessGroups, ai101Waitlist, copyStrings, modules, skills, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
 import { registerStaticFiles } from '../src/static';
@@ -63,7 +63,11 @@ const GUIDES: SkillGuidesFile = {
   },
   guides: {
     'appointment-follow-up': guideFor('appointment-follow-up', 'appointment-follow-up', 'Appointment Follow-Up', 'SECRET-AFU'),
-    'team-pnl-review': guideFor('team-pnl-review', 'team-pnl-review', 'Team P&L Review', 'SECRET-PNL'),
+    // D-179: a sample output, as www shows anyone (made up, and never part of the setup).
+    'team-pnl-review': {
+      ...guideFor('team-pnl-review', 'team-pnl-review', 'Team P&L Review', 'SECRET-PNL'),
+      sample: { title: 'Team P&L Review: Example Team', body: 'From the made-up practice file.', note: 'Made-up example. Shortened.', blocks: [{ h: 'Bottom line' }, { p: ['Margins held.'] }] },
+    },
     'perfect-week': guideFor('perfect-week', 'perfect-week', 'Perfect Week', 'SECRET-PW'),
   },
 };
@@ -215,6 +219,29 @@ describe('a Utah Life member (D-148, D-151)', () => {
   it('opens an owner-and-ops guide too for a learner whose grant covers it', async () => {
     const cookie = await member('owner@liveutah.com', [{ id: 'insiders-team', name: 'Insiders Team', plan: 'membership' }]);
     expect((await guide('team-pnl-review', cookie)).json().state).toBe('open');
+  });
+});
+
+describe('the learner portal v2’s Skill Library (D-179)', () => {
+  const UTAH_LINE = SEED_COPY.find((c) => c.key === 'locked.utah_life')!;
+  const skillsOf = async (cookie: string) => (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json() as { lockedLines: Record<string, string> };
+
+  it('answers a locked skill’s sample output, which www shows anyone, and still none of its setup', async () => {
+    const cookie = await member('preview@liveutah.com', [UTAH]);
+    const res = await guide('team-pnl-review', cookie);
+    expect(res.json()).toMatchObject({ state: 'locked', guide: null, ui: null, sample: GUIDES.guides['team-pnl-review']!.sample });
+    expect(res.body).not.toMatch(SECRET);
+    // A page with no sample answers null: learn draws nothing in its place.
+    expect((await guide('appointment-follow-up', cookie)).json().sample).toBeNull();
+  });
+
+  it('answers each access group’s locked line from the builder’s copy string, and nothing for anyone else', async () => {
+    await db.insert(copyStrings).values(UTAH_LINE).onConflictDoNothing();
+    expect((await skillsOf(await member('lines@liveutah.com', [UTAH]))).lockedLines).toEqual({ 'utah-life': 'Not included with Utah Life access' });
+    expect((await skillsOf(await learner())).lockedLines).toEqual({});
+    // The builder's edit is what the screen reads.
+    await db.update(copyStrings).set({ value: 'Not part of your Utah Life access' }).where(eq(copyStrings.key, 'locked.utah_life'));
+    expect((await skillsOf(await member('edited@liveutah.com', [UTAH]))).lockedLines).toEqual({ 'utah-life': 'Not part of your Utah Life access' });
   });
 });
 

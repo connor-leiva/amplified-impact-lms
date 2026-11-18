@@ -49,7 +49,7 @@ describe('the week overview (D-177)', () => {
     if (vm.kind !== 'open') throw new Error('not open');
     expect(vm.kit!.heading).toBe('Week 0 kit');
     expect(vm.kit!.rows.map((r) => [r.title, r.href, r.meta])).toEqual([
-      ['AI Brain Setup', '/skill-library/ai-brain-setup', 'Skill · Open now'],
+      ['AI Brain Setup', '/learn/skills/ai-brain-setup', 'Skill · Open now'],
       ['Map Your Spend', null, 'Skill · Coming With Week 1'],
       ['Lead Source Review', null, 'Skill · Coming With Week 1'],
     ]);

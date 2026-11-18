@@ -9,7 +9,7 @@
 // (the viewer's zone first, the program's in parentheses); a locked week's opening reads the course's
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
-import { ACCELERATOR_SUPPORT_EMAIL, SKILL_LIBRARY_PATH } from '@ai/core/accelerator';
+import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import { fmt } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
@@ -19,7 +19,7 @@ import { duration, liveSessionAt, progressOn, sessionEndsAt, stepCount, upcoming
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
-import { learnHome, learnSchedule, learnStep, learnWeek } from './routes';
+import { learnHome, learnSchedule, learnSkill, learnSkills, learnStep, learnWeek } from './routes';
 
 /** Generic chrome, from the mockup. Never a week's, step's or session's words. */
 export const LABELS = {
@@ -212,7 +212,7 @@ export interface NavVM {
   cohort: boolean;
   home: { label: string; href: string; active: boolean };
   schedule: { label: string; href: string; active: boolean };
-  library: { label: string; href: string };
+  library: { label: string; href: string; active: boolean };
   /** The vault: a link, or locked (with when it opens) during the pre-launch preview. */
   vault: { label: string; href: string; locked: boolean; title: string | null };
   employees: { label: string; count: number; rows: NavEmployeeVM[] } | null;
@@ -239,7 +239,7 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
     cohort: p !== null,
     home: { label: LABELS.home, href: learnHome(), active: pathname === learnHome() || pathname === `${learnHome()}/` },
     schedule: { label: LABELS.schedule, href: learnSchedule(), active: pathname === learnSchedule() },
-    library: { label: LABELS.library, href: SKILL_LIBRARY_PATH },
+    library: { label: LABELS.library, href: learnSkills(), active: pathname === learnSkills() || pathname.startsWith(`${learnSkills()}/`) },
     vault: { label: LABELS.vault, href: '/vault', locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p) : null },
     employees: p
       ? {
@@ -306,10 +306,17 @@ const KIND_ICON: Record<ResourceKind, IconName> = { file: 'file', prompt: 'lvCop
 /** The Library route a step links, as a course route ("map-your-spend" → "/map-your-spend"). */
 const asRoute = (r: string): string => (r.startsWith('/') ? r : `/${r}`);
 
+/** `/skill-library/<page>` (the current portal's guide) as the learner portal's `/learn/skills/<page>`; any other address as it is. */
+const asLearn = (href: string): string => {
+  const m = /^\/skill-library\/([a-z0-9-]+)$/.exec(href);
+  return m ? learnSkill(m[1]!) : href;
+};
+
 /** A Library skill's row: its guided setup when its page exists, else the `skill.coming` copy string and no link. */
 export function skillRow(k: Pick<CourseSkill, 'title' | 'route'>, copy: Record<string, string> | undefined, suffix?: string): KitRowVM {
   const route = asRoute(k.route);
-  const href = inLibrary(route) ? guideHref(route) : null;
+  // D-179: a guided setup opens in the learner portal's own Skill Library, in the step player.
+  const href = inLibrary(route) ? asLearn(guideHref(route)) : null;
   const status = href ? LABELS.openNow : (copy?.['skill.coming'] ?? null);
   return {
     key: `skill:${route}`,

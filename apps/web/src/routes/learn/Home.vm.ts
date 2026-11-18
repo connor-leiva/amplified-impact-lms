@@ -7,14 +7,14 @@
 
 import { fmt } from '@ai/core';
 import type { Cohort, IconName, IcsEvent, Learner } from '@ai/core';
-import { ACCELERATOR_COHORT_ID, ACCELERATOR_SUPPORT_EMAIL, SKILL_LIBRARY_PATH } from '@ai/core/accelerator';
+import { ACCELERATOR_COHORT_ID, ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import { countWord, countdown, currentWeek, firstName, liveSessionAt, monthYear, partOfDay, sessionEndsAt, upcomingSessions } from '@ai/core/learner';
 import { COPY as COURSE_COPY } from '../course/Course.vm';
 import type { CoursePayload } from '../course/Course.vm';
 import type { CourseLoad } from './data';
 import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle } from './learn.vm';
 import type { Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
-import { learnSchedule, learnStep } from './routes';
+import { learnSchedule, learnSkills, learnStep } from './routes';
 
 export const HOME = {
   greeting: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening' },
@@ -269,7 +269,8 @@ const NO_COURSE: Omit<HomeVM, 'greeting'> = {
   employees: null,
   comingUp: null,
   cohort: null,
-  library: { note: COURSE_COPY.lockedNote, label: COURSE_COPY.library, href: SKILL_LIBRARY_PATH },
+  // D-179: the learner portal's own Skill Library.
+  library: { note: COURSE_COPY.lockedNote, label: COURSE_COPY.library, href: learnSkills() },
 };
 
 export function homeVM(load: CourseLoad, rows: readonly WeekRow[], cohorts: readonly Cohort[], me: Learner | null, name: string, now: number): HomeVM {

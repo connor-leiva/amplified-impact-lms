@@ -145,6 +145,9 @@ export const ICONS = {
   lvInvite: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M19 8v6M16 11h6",
   lvCopy: "M9 9h11v11H9zM5 15H4V4h11v1",
   lvInfo: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01",
+  // Account (D-178): Manage billing's external arrow and the password row's key, verbatim from artboard 8.
+  lvExternal: "M14 4h6v6M20 4l-9 9M18 14v6H4V6h6",
+  lvKey: "M14.5 4a5.5 5.5 0 1 1-5.2 7.3L4 16.6V20h3.4v-2.2h2.2v-2.2h2.2l1.4-1.4A5.5 5.5 0 0 1 14.5 4zM16 8h.01",
 } as const;
 
 export type IconName = keyof typeof ICONS;
