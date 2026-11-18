@@ -1,0 +1,97 @@
+/* The learner Account page (D-178), artboard 8 of the signed-off mockup: the pieces Learn.module.css
+   doesn't already port (the seats bar and its smaller count, the profile's form, the included list).
+   Rule by rule from the mockup's stylesheet (`.seats`, `.cdn.sm`, `.frm`, `.lab`, `.in`, `.hint`); tokens
+   only, R2's (styles/r2.css) and the learner frame's (styles/learner-v2.css). Sizes are the mockup's. */
+
+/* The seats count: `.cdn.sm b`. */
+.sm b {
+  font-size: 36px;
+  line-height: 40px;
+  letter-spacing: -0.03em;
+}
+
+/* One bar per seat, filled while someone who has joined holds it. */
+.seats {
+  display: flex;
+  gap: 6px;
+}
+.seats i {
+  width: 36px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--r2-line);
+}
+.seats i[data-u='true'] {
+  background: var(--r2-dot-ok);
+}
+
+/* The profile's fields: two columns on a desk, one on a phone. */
+.frm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: var(--lv-ctl);
+}
+.in {
+  height: var(--r2-c);
+  padding: 0 10px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  background: var(--r2-sf);
+  width: 100%;
+  font: inherit;
+  font-weight: 400;
+  font-size: var(--r2-t);
+  color: inherit;
+  margin: 0;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+/* Read only, as the mockup draws its Role field: nothing here saves a change. */
+.in[readonly] {
+  background: var(--r2-hov);
+  color: var(--r2-f2);
+}
+/* Over the frame's own focus ring (`.frame.frame :focus-visible`), as the mockup's input rule outranks it. */
+.in.in.in:focus-visible {
+  border-color: var(--r2-for);
+  box-shadow: var(--r2-focus-input);
+}
+.hint {
+  font-weight: 400;
+}
+
+/* What's included: a check and a line each. */
+.inc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inc li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.ck {
+  display: flex;
+  color: var(--r2-ok);
+  padding-top: 2px;
+  flex: none;
+}
+
+@media (max-width: 767px) {
+  .sm b {
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .frm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
