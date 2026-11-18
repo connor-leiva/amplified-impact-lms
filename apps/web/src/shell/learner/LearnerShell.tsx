@@ -8,6 +8,7 @@ import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/r2/Menu';
+import { useDialogA11y } from '../../components/primitives/Modal';
 import { ToasterProvider, useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
 import { useJoin } from '../../data/join';
@@ -247,7 +248,13 @@ function Frame() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   const wasOpen = useRef(false);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  // The drawer is a modal dialog (D-181): Escape closes it and Tab stays inside it, through the dialogs'
+  // shared hook; the page behind it is inert while it is open. Focus goes to Close and, on closing,
+  // back to the menu button that opened it.
+  useDialogA11y(drawerRef, drawerOpen, closeDrawer);
   useEffect(() => {
     if (drawerOpen) closeRef.current?.focus();
     else if (wasOpen.current) menuRef.current?.focus();
@@ -256,14 +263,6 @@ function Frame() {
   useEffect(() => {
     if (!phone) setDrawerOpen(false);
   }, [phone]);
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setDrawerOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [drawerOpen]);
 
   // A new page starts at the top, as the mockup's links do.
   useEffect(() => {
@@ -273,7 +272,6 @@ function Frame() {
 
   useAppReady();
 
-  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const signOut = useCallback(() => {
     void endSession().then((ok) => {
       if (!ok) toast(SIGN_OUT_FAILED, 'warn');
@@ -286,7 +284,7 @@ function Frame() {
 
   return (
     <div className={s.frame} data-r2-scope="" data-learner-v2="">
-      <div className={s.shell}>
+      <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
         {phone ? null : <Sidebar nav={nav} go={() => undefined} />}
         <div className={s.mainc}>
           <header className={s.tb}>
@@ -343,7 +341,7 @@ function Frame() {
       {phone ? (
         <>
           {drawerOpen ? <div className={s.scrim} onClick={closeDrawer} /> : null}
-          <div className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
+          <div ref={drawerRef} tabIndex={-1} className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
             <Sidebar nav={nav} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
           </div>
         </>

@@ -116,8 +116,15 @@ describe('the learner shell (D-177)', () => {
     expect(drawer).toHaveAttribute('aria-modal', 'true');
     expect(drawer.querySelector('aside[aria-label="Primary"]')).not.toBeNull();
     await waitFor(() => expect(within(drawer).getByRole('button', { name: 'Close menu' })).toHaveFocus());
-    fireEvent.keyDown(window, { key: 'Escape' });
+    // D-181: a modal drawer. The page behind it is inert, and Tab and Shift+Tab stay inside it.
+    expect(document.querySelector('main')!.closest('[inert]')).not.toBeNull();
+    fireEvent.keyDown(document.activeElement!, { key: 'Tab', shiftKey: true });
+    expect(drawer.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document.activeElement!, { key: 'Tab' });
+    expect(drawer.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
     expect(document.querySelector('[data-drawer="open"]')).toBeNull();
+    expect(document.querySelector('main')!.closest('[inert]')).toBeNull();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Open menu' })).toHaveFocus());
   });
 });

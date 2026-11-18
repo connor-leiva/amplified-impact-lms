@@ -1103,6 +1103,13 @@ button.b {
     padding: 24px 16px 56px;
     gap: 20px;
   }
+  /* A text link on a line of its own (the cohort card's support address) is a 44px tap target on a
+     phone (D-181); the negative margin keeps its 24px line exactly where the mockup draws it. */
+  .colZ > .txl {
+    display: block;
+    padding: 10px 0;
+    margin: -10px 0;
+  }
   .h0 {
     font-size: 32px;
     line-height: 38px;
