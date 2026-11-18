@@ -1,14 +1,14 @@
 /* /about. DECISIONS.md D-117; the v2 mockup's AboutPage.
 
    THE KIT (`../kit/kit.css`): tokens, type, header, footer, the proof section, portraits and the close.
-   This file is the page's own: the hero's pair of portraits, the rings beside "Why we built this", and
+   This file is the page's own: the hero's photo of the two of them, the rings beside "Why we built this", and
    Spring's and Connor's cards. The mockup's rules in its order, with Spring's 16px floor (D-107).
 
    COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
 
 @import '../kit/kit.css';
 
-/* --- Hero: the live words, and the two portraits -------------------------------------------------- */
+/* --- Hero: the live words, and the photo of the two of them ---------------------------------------- */
 
 .aiw .ab-hero {
   min-height: max(100vh, 800px);
@@ -49,29 +49,22 @@
   font-size: clamp(42px, 5.2vw, 76px);
   line-height: 0.98;
 }
-.aiw .ab-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6%;
-  align-items: start;
-}
 .aiw .ab-fig {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin: 0;
   animation: aiw-fade-up 1.2s var(--ease) both;
-}
-.aiw .ab-fig-1 {
   animation-delay: 0.45s;
   transform: translateY(calc(var(--p, 0) * -60px));
 }
-.aiw .ab-fig-2 {
-  margin-top: 112px;
-  animation-delay: 0.6s;
-  transform: translateY(calc(var(--p, 0) * -150px));
-}
+/* Spring on the left and Connor on the right, as they stand in the photo. */
 .aiw .ab-fig figcaption {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6%;
+}
+.aiw .ab-cap {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -283,17 +276,19 @@
     gap: 48px;
   }
   .aiw .ab-hero-copy,
-  .aiw .ab-fig-1,
-  .aiw .ab-fig-2 {
+  .aiw .ab-fig {
     transform: none;
     opacity: 1;
   }
-  .aiw .ab-pair {
+  .aiw .ab-fig {
     max-width: 560px;
-    gap: 16px;
   }
-  .aiw .ab-fig-2 {
-    margin-top: 40px;
+  /* The kit caps a portrait at 220px here; the photo of the two of them takes its whole column. */
+  .aiw .ab-fig .portrait {
+    max-width: none;
+  }
+  .aiw .ab-fig figcaption {
+    gap: 16px;
   }
 }
 /* On a phone the labels can't fit at 16px, so the rings stand alone; the list beside them says it all. */

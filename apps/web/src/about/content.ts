@@ -29,6 +29,14 @@ export const ABOUT_PHOTOS = {
   connor: { src: '/img/team/connor-leiva.jpg', width: 1000, height: 1000, alt: 'Connor Leiva' },
 } as const;
 
+/** The hero's photo: the two of them on stage together, Spring on the left and Connor on the right. */
+export const ABOUT_HERO_PHOTO = {
+  src: '/img/team/spring-and-connor.jpg',
+  width: 1000,
+  height: 1250,
+  alt: 'Spring Bengtzen and Connor Leiva on stage together',
+} as const;
+
 /** The overnight brief's bios. Spring's has its one "Forum" phrase cut; Connor's is verbatim. */
 export const BIOS = {
   spring: {

@@ -13,7 +13,17 @@ import { siteHead } from '../site/render';
 import { ripple } from '../kit/icons';
 import { button, closeCta, eyebrow, headline, pad2, proofSection } from '../kit/parts';
 import { kitFooter, kitHeader, kitSkip } from '../kit/render';
-import { ABOUT_END, ABOUT_HERO, ABOUT_META, ABOUT_PHOTOS, BIOS, STORY, V2_RINGS, WHY } from './content';
+import {
+  ABOUT_END,
+  ABOUT_HERO,
+  ABOUT_HERO_PHOTO,
+  ABOUT_META,
+  ABOUT_PHOTOS,
+  BIOS,
+  STORY,
+  V2_RINGS,
+  WHY,
+} from './content';
 
 export function renderAboutHead(): string {
   return siteHead(ABOUT_META);
@@ -26,15 +36,14 @@ const PEOPLE: readonly Who[] = ['spring', 'connor'];
 const actions = () =>
   `${button(ABOUT_END.primary, FREE_SKILLS_HREF)}${button(ABOUT_END.secondary, '/pricing', { variant: 'link' })}`;
 
-/** The hero: the live words beside the mockup's pair of portraits, each captioned with its live role. */
+/** The hero: the live words beside one photo of the two of them, captioned with each name and live role. */
 function hero(): string {
   const h = ABOUT_HERO;
-  const figs = PEOPLE.map(
-    (k, i) =>
-      `<figure class="ab-fig ab-fig-${i + 1}"><div class="portrait">${photoTag(ABOUT_PHOTOS[k], 'portrait-img', true)}</div><figcaption><span class="ab-cap-name">${esc(
-        BIOS[k].name,
-      )}</span><span class="mono ab-cap-role">${esc(BIOS[k].role)}</span></figcaption></figure>`,
+  const caps = PEOPLE.map(
+    (k) =>
+      `<span class="ab-cap"><span class="ab-cap-name">${esc(BIOS[k].name)}</span><span class="mono ab-cap-role">${esc(BIOS[k].role)}</span></span>`,
   ).join('');
+  const fig = `<figure class="ab-fig"><div class="portrait">${photoTag(ABOUT_HERO_PHOTO, 'portrait-img', true)}</div><figcaption>${caps}</figcaption></figure>`;
   return [
     `<section class="sec ab-hero about-hero" aria-labelledby="about-title" data-scroll="exit">`,
     `<div class="ab-ripple" aria-hidden="true">${ripple(900, { intro: true, center: false })}</div>`,
@@ -45,7 +54,7 @@ function hero(): string {
     `<p class="lead section-lede fade-1">${esc(h.lede)}</p>`,
     `<div class="actions fade-2">${actions()}</div>`,
     `</div>`,
-    `<div class="ab-pair">${figs}</div>`,
+    fig,
     `</div>`,
     `</section>`,
   ].join('\n');
