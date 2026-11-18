@@ -5999,3 +5999,28 @@ The learner build brief's PR 3 adds: "every date and flag comes from the databas
   - **Web:**
     - `Course.vm.test.ts` and `Course.test.tsx`: locked rows and pages, the copy order, the preview line.
     - `banned-line.test.ts`: the homepage.
+
+## D-176 · The new Weeks 0 to 3 go in through the seed and a one-time, audited content step (learner build, PR 4)
+
+**Date:** 2026-11-18
+**Approved by:** Connor, Nov 17, 2026, in the Week 0 brief's "What Connor Decided", the points D-175 left to PR 4:
+- (5) New Weeks 0 to 3 content and the new weekly loop: Weeks 1 to 3 use the spec's run-of-show (The Question, Live Reads, Hire Lab, Commit) with its checkpoint as homework acceptance. Build titles: Map Your Spend, Lead Source Review, Monthly Numbers. Weeks 4 to 8 keep their content.
+- (6) Week 0 has the spec's 8 steps, with Who, Time and Done When on each. Owner about 1 hr 30 min, operator about 2 hr 15 min. The Practice Set, the data pack and the Week 1 practice worksheet retire for the cohort: stop linking them from the course, don't delete the files.
+- (7) Every week's platform reads "Claude or ChatGPT."
+- The Week 0 brief's "Decision (Connor, Nov 17, 2026): Dec 10 and Dec 17 sessions": keep the goal-planning sessions on Thu, Dec 10 and Thu, Dec 17; move Week 2 and Week 3 office hours to Fri, Dec 11 and Fri, Dec 18, 12:00 to 1:00 PM MT.
+
+The learner build brief's PR 4 adds: convert `weeks-0-3.ts` into seed data, apply it with a one-time, audited content migration that writes only rows still exactly as the old seed left them, and show an unbuilt Library page's skill as "Coming With Week 1" with no link. CLAUDE.md says this file only grows with explicit human approval, and this is it.
+**Number:** D-175 is PR 3's; D-176 was free on `main` and on every remote branch.
+**Status:** on a pull request, stacked on PR 3.
+
+- **The content is seed data** (`packages/core/seed/weeks-0-3-v2.ts`): the spec's words in the repo's own shapes, with the handoff's ADJUSTED and DRAFT tags kept on their lines so the PM can find each one. Besides the weeks' words and steps it carries the builder's newer cards: each week's promise, flagship and tools, and Weeks 1 to 3's seat card and playbook card. Week 0's step 3 carries the six-task baseline, step 4 the Claude Path and the ChatGPT Path, step 6 the stack card, and Week 3's step 4 the Finance Analyst prompt for each platform, as the step's paths. Runtime code may not import it (the copy guard holds its strings too).
+- **A one-time step writes it** (`packages/core/seed/content-v2.ts`, id `2026-11-17-weeks-0-3`, run by the deploy's curriculum ensure after the release plan):
+  - Weeks 0 to 3: a week's words (its name, question, steps, outputs, course pages and cards) are replaced only while every one of them is still the seed's. Its status, Opens, due date, order and session are not touched. Step ids stay `c1`, `c2` and on, so progress keeps its shape; Week 0 gains `c7` and `c8`.
+  - The sessions: Weeks 1 to 3's build titles and Week 1's Thursday office hour title, each only while it is still the seed's. Week 2 and 3's office hours are new rows on Fri, Dec 11 and Fri, Dec 18, 12:00 PM MT for 60 minutes (`dec26-fri-oh2`, `dec26-fri-oh3`, `n` 202 and 203), and each week's page names its Friday session. The Thursday goal-planning sessions stay exactly as they are.
+  - The cohort's Before page: its data pack and practice set note are emptied while they are still the seed's. The course page hides those two sections when they're empty, and offers the Week 1 worksheet and practice set downloads only while the practice set note says something. The files and the Library downloads stay.
+  - One copy string, `skill.coming`, "Coming With Week 1".
+  - Anything staff already changed is left as it is and named for the PM. One audit row per change (`curriculum.migrate`, actor: system).
+- **No dead links.** The course page links a skill or a setup step only to a page the Library has (its catalog, `ENTRIES`). Map Your Spend and Lead Source Review aren't built yet, so they show the `skill.coming` copy string with no link, and the week's prompt pointer says the same in words. When a page is built, its link appears with no change here. `LIBRARY_ROUTES_PENDING_MERGE` stays empty.
+- **The copy guard's allowlist** gains "Connect Your Data": the course page's Before heading, "Three Ways to Connect Your Data", shares those words with Week 0's sixth step.
+
+**Not decided here, for the PM:** Week 0's name ("Foundations", the spec and the handoff's default, or "Get Ready"); the Week 0 setup session's date; the Week 0 kit's files (the two cohort skill files, the Ready Check prompt and the test hire prompt, each for Claude and ChatGPT), which aren't in the repo and go in through the builder's kit with `open_in_preview`; Weeks 1 and 2's playbook questions, which the spec marks for Connor to confirm; the cohort's cadence line ("Wed builds and Thu office hours · 1:00 PM CT"), which now has two Friday office hours and no MT; and the readiness gate's Amber line, which still mentions the practice set.

@@ -161,20 +161,28 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
         </h3>
         <Bullets items={vm.before.orientation.topics} />
         <p className={s.placeholder}>{vm.before.orientation.media}</p>
-        <h3 className={s.h3}>{COPY.dataPack}</h3>
-        <dl className={s.rows}>
-          {vm.before.dataPack.map((d) => (
-            <div key={d.input} className={s.row}>
-              <dt className={s.rowLabel}>{d.input}</dt>
-              <dd className={s.rowText}>
-                <strong>{COPY.preferred}:</strong> {d.preferred} <strong>{COPY.minimum}:</strong> {d.minimum}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <h3 className={s.h3}>{COPY.practiceSet}</h3>
-        <p className={s.text}>{vm.before.practiceSetNote}</p>
-        <Downloads items={vm.before.downloads} />
+        {vm.before.dataPack.length ? (
+          <>
+            <h3 className={s.h3}>{COPY.dataPack}</h3>
+            <dl className={s.rows}>
+              {vm.before.dataPack.map((d) => (
+                <div key={d.input} className={s.row}>
+                  <dt className={s.rowLabel}>{d.input}</dt>
+                  <dd className={s.rowText}>
+                    <strong>{COPY.preferred}:</strong> {d.preferred} <strong>{COPY.minimum}:</strong> {d.minimum}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        ) : null}
+        {vm.before.practiceSetNote ? (
+          <>
+            <h3 className={s.h3}>{COPY.practiceSet}</h3>
+            <p className={s.text}>{vm.before.practiceSetNote}</p>
+            <Downloads items={vm.before.downloads} />
+          </>
+        ) : null}
         <h3 className={s.h3}>{COPY.safeSharing}</h3>
         <Bullets items={vm.before.safeSharing} />
         <h3 className={s.h3}>{COPY.lanes}</h3>
@@ -277,10 +285,14 @@ function Week({ vm }: { vm: WeekVM }) {
                 </span>
                 <span className={s.text}>{k.use}</span>
               </div>
-              <a className={s.secondary} href={k.href} {...newTab(k.href)}>
-                <Icon name="listChecks" size={16} />
-                {COPY.guidedSetup}
-              </a>
+              {k.href ? (
+                <a className={s.secondary} href={k.href} {...newTab(k.href)}>
+                  <Icon name="listChecks" size={16} />
+                  {COPY.guidedSetup}
+                </a>
+              ) : k.pending ? (
+                <span className={s.tag}>{k.pending}</span>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -318,6 +330,12 @@ function Week({ vm }: { vm: WeekVM }) {
                         </a>
                       </Fragment>
                     ))}
+                  </>
+                ) : null}
+                {step.pending ? (
+                  <>
+                    {' '}
+                    <span className={s.tag}>{step.pending}</span>
                   </>
                 ) : null}
               </span>

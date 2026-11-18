@@ -16,6 +16,7 @@ import { isLockedWeek } from '@ai/core/course';
 import type { LearnerCourse, LockedCourseWeek } from '@ai/core/course';
 import { mountainWhen } from '@ai/core/release';
 import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
+import { ENTRIES } from '../../library/content';
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL. */
 export interface CourseSession {
@@ -123,8 +124,10 @@ export interface SkillVM {
   role: string;
   use: string;
   free: boolean;
-  /** The skill's Library page on www, with its guided setup. */
-  href: string;
+  /** The skill's Library page on www, with its guided setup; null while that page isn't built (D-176). */
+  href: string | null;
+  /** What shows instead of a link while the page isn't built: the `skill.coming` copy string, or null. */
+  pending: string | null;
 }
 
 export interface StepVM {
@@ -135,6 +138,8 @@ export interface StepVM {
    * skills, one per skill, each by its Library title after "Open a Guided Setup:".
    */
   links: { label: string; href: string }[];
+  /** D-176: the step names a Library page that isn't built yet: the `skill.coming` copy string, with no link. */
+  pending: string | null;
 }
 
 export interface Row {
@@ -268,14 +273,21 @@ export const guideHref = (route: string): string => courseGuideHref(route, LIBRA
 /** Whether a course link leaves learn, and so opens in a new tab. */
 export const isExternal = (href: string): boolean => /^https?:\/\//.test(href);
 
-const skillVM = (s: CourseSkill): SkillVM => ({
-  title: s.title,
-  role: ROLE_LABEL[s.role],
-  use: s.use,
-  free: !!s.free,
+/**
+ * D-176: the Library pages that exist, by where a course link to each goes. A week can name a skill whose
+ * page isn't built yet (Map Your Spend, Lead Source Review); the course shows it with no link, never a
+ * dead one.
+ */
+const LIBRARY_HREFS: ReadonlySet<string> = new Set(ENTRIES.filter((e) => e.href).map((e) => guideHref(e.href!)));
+export const inLibrary = (route: string): boolean => LIBRARY_HREFS.has(guideHref(route));
+/** What a skill or step says instead of a link while its page isn't built: the `skill.coming` copy string. */
+const comingText = (copy: Record<string, string> | undefined): string | null => copy?.['skill.coming'] || null;
+
+const skillVM = (s: CourseSkill, copy: Record<string, string> | undefined): SkillVM => {
   // A skill's guided setup in learn (D-151); a page that is not a skill is still on www.
-  href: guideHref(s.route),
-});
+  const href = inLibrary(s.route) ? guideHref(s.route) : null;
+  return { title: s.title, role: ROLE_LABEL[s.role], use: s.use, free: !!s.free, href, pending: href ? null : comingText(copy) };
+};
 
 /** `Week 3 · Live Build` or `Week 3 · Office Hours`, and the goal-planning title where it is one. */
 const sessionLine = (s: CourseSession): SessionLineVM => ({
@@ -299,7 +311,7 @@ const joinVM = (j: { label: string; note: string; path: string }): JoinVM => ({ 
 
 /** A setup step's guided-setup links: one plainly labeled, or several, each by its skill's Library title. */
 function setupLinks(step: { route?: string; also?: readonly string[] }, skills: readonly { title: string; route: string }[]): StepVM['links'] {
-  const routes = step.route ? [step.route, ...(step.also ?? [])] : [];
+  const routes = (step.route ? [step.route, ...(step.also ?? [])] : []).filter(inLibrary);
   if (routes.length === 1) return [{ label: COPY.guidedSetup, href: guideHref(routes[0]!) }];
   return routes.map((r) => ({ label: skills.find((k) => k.route === r)?.title ?? r, href: guideHref(r) }));
 }
@@ -335,12 +347,13 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
       { label: COPY.roles.operator, text: w.time.operator },
     ],
     timeNote: shared.estimateNote,
-    skills: w.skills.map(skillVM),
+    skills: w.skills.map((k) => skillVM(k, p.copy)),
     libraryHref: SKILL_LIBRARY_PATH,
     setup: w.setup.map((step, k) => ({
       n: k + 1,
       text: step.text,
       links: setupLinks(step, w.skills),
+      pending: [step.route, ...(step.also ?? [])].some((r) => r !== undefined && !inLibrary(r)) ? comingText(p.copy) : null,
     })),
     live:
       w.liveBuild && build
@@ -385,7 +398,9 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     media: w.media,
     materials: w.materials,
     downloads: [
-      ...(w.week === 0 || w.week === 1 ? [WORKSHEET, PRACTICE] : []),
+      // D-176: the Week 1 worksheet and the practice set go with the cohort's practice set note: when the
+      // builder's Before page has none (the data pack and practice set retired), neither is offered.
+      ...((w.week === 0 || w.week === 1) && course.before.practiceSetNote ? [WORKSHEET, PRACTICE] : []),
       ...COURSE_TEMPLATES.filter((t) => t.weeks.includes(w.week)).map((t): DownloadVM => ({ label: t.label, name: t.file, content: templateCsv(t) })),
     ],
     prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
@@ -432,7 +447,7 @@ export function overviewVM(p: CoursePayload): OverviewVM {
       practiceSetNote: course.before.practiceSetNote,
       safeSharing: course.before.safeSharing,
       lanes: course.before.lanes.map((l) => ({ label: l.label, text: l.text })),
-      downloads: [WORKSHEET, PRACTICE],
+      downloads: course.before.practiceSetNote ? [WORKSHEET, PRACTICE] : [],
     },
     after: {
       graduation: course.after.graduation,
