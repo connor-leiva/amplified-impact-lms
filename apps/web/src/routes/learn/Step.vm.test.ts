@@ -61,11 +61,11 @@ describe('the step player (D-177)', () => {
     const vm = stepVM(st.payload, rows[0], 3, learner, st.now);
     if (vm.kind !== 'step') throw new Error('missing');
     expect(vm.forStep.map((r) => [r.title, r.href])).toEqual([
-      ['AI Brain Setup', '/skill-library/ai-brain-setup'],
+      ['AI Brain Setup', '/learn/skills/ai-brain-setup'],
       ['Map Your Spend', null],
       ['Lead Source Review', null],
     ]);
-    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)' });
+    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' });
   });
 
   it('a step’s linked skill alone, when the step names one', () => {

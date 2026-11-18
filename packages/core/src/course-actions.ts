@@ -256,14 +256,35 @@ export function saveCohortCourse(db: Db, a: Actor, args: { cohortId: string; cou
   const co = cohortOf(db, args.cohortId);
   const copy = refuseCopy(cohortCopyFields({ name: co.name, cadence: co.cadence, ...(co.course ? { course: co.course } : {}) }), cohortCopyFields({ name: co.name, cadence: co.cadence, course: args.course }));
   if (copy) return { db, error: copy };
+  // D-187: the community link, trimmed, an http or https address, or left out when empty.
+  const community = (args.course.intro.community ?? '').trim();
+  if (community && !communityUrl(community)) return { db, error: 'A community link is a web address that starts with https://.' };
+  const course = structuredClone(args.course);
+  if (community) course.intro.community = community;
+  else delete course.intro.community;
   const next = produce(db, (d) => {
-    d.cohorts.find((y) => y.id === co.id)!.course = structuredClone(args.course);
+    d.cohorts.find((y) => y.id === co.id)!.course = course;
   });
   return {
     db: next,
     toast: { msg: 'Course pages saved', tone: 'success' },
-    audit: { action: 'cohort.course_save', target: { type: 'cohort', id: co.id, label: co.name }, after: diffSummary(co.course ?? {}, args.course) },
+    audit: { action: 'cohort.course_save', target: { type: 'cohort', id: co.id, label: co.name }, after: diffSummary(co.course ?? {}, course) },
   };
+}
+
+/**
+ * D-187: a cohort community link as the learner portal may open it: an absolute http or https address,
+ * normalised, or null for anything else (an empty value, a relative path, a `javascript:` or `mailto:`).
+ */
+export function communityUrl(raw: string | undefined): string | null {
+  const v = (raw ?? '').trim();
+  if (!v) return null;
+  try {
+    const u = new URL(v);
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : null;
+  } catch {
+    return null;
+  }
 }
 
 // ================================================================================================

@@ -15,9 +15,9 @@ describe('icons @g1', () => {
     expect(Object.keys(r2)).toHaveLength(45);
   });
   // Verbatim against the learner mockup's artboards: apps/web/src/routes/learn/icons.test.ts, which reads them.
-  it('adds the learner v2 mockup’s 11 chrome glyphs as lv* (D-177)', () => {
-    expect(Object.keys(lv)).toHaveLength(11);
-    expect(Object.keys(ICONS)).toHaveLength(137);
+  it('adds the learner v2 mockup’s 13 chrome glyphs as lv* (D-177, D-178)', () => {
+    expect(Object.keys(lv)).toHaveLength(13);
+    expect(Object.keys(ICONS)).toHaveLength(139);
   });
   it('every module icon exists in the set', () => {
     for (const name of MODULE_ICONS) expect(ICONS[name]).toBeTruthy();

@@ -239,12 +239,14 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       [DATA_MIGRATIONS[1]!.id, 2, 0],
       // D-176: Weeks 0 to 3, four session titles, two Friday office hours, the Before page, one copy string.
       [DATA_MIGRATIONS[2]!.id, 12, 0],
+      // D-187: the Team Plan window's five copy strings.
+      [DATA_MIGRATIONS[3]!.id, 5, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
-    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'skill.coming']);
+    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(23).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(28).fill('curriculum.migrate'));
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });
     expect((await handle.select().from(dataMigrations)).map((r) => r.id)).toEqual(DATA_MIGRATIONS.map((s) => s.id));
     // Again: nothing to run, nothing written.

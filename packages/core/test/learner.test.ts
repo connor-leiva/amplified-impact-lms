@@ -7,9 +7,14 @@ import type { OpenCourseWeek } from '../src/course';
 import {
   countWord,
   countdown,
+  dateYear,
+  dayYear,
   currentWeek,
   duration,
+  canJoin,
   firstName,
+  inAppAnnouncement,
+  joinableSession,
   learnerOf,
   liveSessionAt,
   minutesInAll,
@@ -17,12 +22,16 @@ import {
   monthYear,
   partOfDay,
   progressOn,
+  sessionPhase,
   stepCount,
   upcomingSessions,
   weekModuleOf,
   weekState,
   weekSteps,
+  withLiveState,
 } from '../src/learner';
+import { endSession, goLive, publishReplay } from '../src/mutations';
+import type { Announcement } from '../src/types';
 import { setViewerZone } from '../src/time';
 import type { Db, Learner } from '../src/types';
 import { planContentV2 } from '../seed/content-v2';
@@ -142,5 +151,134 @@ describe('the learner portal v2 logic (D-177)', () => {
     expect(partOfDay(Date.parse('2026-11-18T16:30:00Z'))).toBe('morning'); // 11:30 AM ET
     expect(partOfDay(Date.parse('2026-11-18T17:00:00Z'))).toBe('afternoon'); // noon ET
     expect(monthYear(Date.parse('2026-12-02T18:00:00Z'))).toBe('December 2026');
+  });
+
+  it('writes a day with its year in the viewer’s own zone (D-178)', () => {
+    setViewerZone('America/Denver');
+    const may4 = Date.parse('2027-05-04T18:00:00Z');
+    expect(dateYear(may4)).toBe('May 4, 2027');
+    expect(dayYear(may4)).toBe('Tue, May 4, 2027');
+    // 11:30 PM MT on Nov 11 is already Nov 12 in New York.
+    const late = Date.parse('2026-11-12T06:30:00Z');
+    expect(dateYear(late)).toBe('Nov 11, 2026');
+    setViewerZone('America/New_York');
+    expect(dateYear(late)).toBe('Nov 12, 2026');
+    // A date about money, in billing's zone: midnight Central on May 4 is still May 3 in Mountain.
+    setViewerZone('America/Denver');
+    const charge = Date.parse('2027-05-04T00:00:00-05:00');
+    expect(dayYear(charge)).toBe('Mon, May 3, 2027');
+    expect(dayYear(charge, 'America/Chicago')).toBe('Tue, May 4, 2027');
+    expect(dateYear(charge, 'America/Chicago')).toBe('May 4, 2027');
+  });
+});
+
+// D-183: the current portal's join window, Go Live / End Session and the replay, for the learner portal v2.
+describe('the join window, the live state and the replay (D-183)', () => {
+  const MIN = 60_000;
+  const STAFF = { kind: 'staff', staffId: '' } as const;
+  const base = deployed();
+  const staffId = base.staff[0]!.id;
+  const actor = { ...STAFF, staffId };
+  const ctx = (now: number) => ({ now, id: (p: string) => `${p}x` });
+  const build2 = () => courseSessions(base).find((s) => s.id === 'dec26-s2')!;
+
+  it('Join enabled from start-15m to the end, absent at start-16m and once ended (joinMode, as the join route) @parity:D-2 @parity:S-2 @parity:A-8', () => {
+    const s = build2();
+    expect(sessionPhase(s, s.start - 16 * MIN)).toBe('upcoming');
+    expect(canJoin(s, s.start - 16 * MIN)).toBe(false);
+    expect(sessionPhase(s, s.start - 15 * MIN - 1)).toBe('upcoming');
+    expect(sessionPhase(s, s.start - 15 * MIN)).toBe('ready');
+    expect(canJoin(s, s.start - 15 * MIN)).toBe(true);
+    expect(sessionPhase(s, s.start - 1)).toBe('ready');
+    expect(sessionPhase(s, s.start)).toBe('live');
+    expect(sessionPhase(s, s.start + s.mins * MIN - 1)).toBe('live');
+    // Ended by its own times, nobody published a replay: the current portal's "Replay Processing".
+    expect(sessionPhase(s, s.start + s.mins * MIN)).toBe('processing');
+    expect(canJoin(s, s.start + s.mins * MIN)).toBe(false);
+  });
+
+  it('live state follows Go Live, End Session and Publish Replay from the snapshot, by id @parity:C-1 @parity:C-2 @parity:C-3', () => {
+    const s = build2();
+    const early = s.start - 2 * 3600_000;
+    // Go Live two hours early: live, with Join, on every screen that reads the merged sessions.
+    const live = goLive(base, actor, { sessionId: s.id }, ctx(early)).db;
+    const merged = withLiveState(courseSessions(base), live);
+    const m2 = merged.find((x) => x.id === s.id)!;
+    expect(m2.live).toBe(true);
+    expect(sessionPhase(m2, early)).toBe('live');
+    expect(liveSessionAt(merged, early)?.id).toBe(s.id);
+    expect(joinableSession(merged, early)?.id).toBe(s.id);
+    // End Session moves the start back, so it reads as ended even before its scheduled end.
+    const ended = endSession(live, actor, { sessionId: s.id }, ctx(early + 30 * MIN)).db;
+    const e2 = withLiveState(courseSessions(base), ended).find((x) => x.id === s.id)!;
+    expect(e2.live).toBe(false);
+    expect(sessionPhase(e2, early + 30 * MIN)).toBe('processing');
+    expect(joinableSession([e2], early + 30 * MIN)).toBeNull();
+    // Publish Replay: the replay.
+    const pub = publishReplay(ended, actor, { sessionId: s.id }, ctx(early + 40 * MIN)).db;
+    const p2 = withLiveState(courseSessions(base), pub).find((x) => x.id === s.id)!;
+    expect(sessionPhase(p2, early + 40 * MIN)).toBe('replay');
+  });
+
+  it('End Session takes Live now and Join away at once, even on a browser clock a few seconds behind the server’s @parity:C-2', () => {
+    const s = build2();
+    const early = s.start - 5 * 86400_000;
+    const live = goLive(base, actor, { sessionId: s.id }, ctx(early)).db;
+    // Staff end it at the server's clock T; the learner's page reads it at T minus 3 seconds.
+    const T = early + 2 * 3600_000;
+    const ended = endSession(live, actor, { sessionId: s.id }, ctx(T)).db;
+    const e2 = withLiveState(courseSessions(base), ended).find((x) => x.id === s.id)!;
+    expect(sessionPhase(e2, T - 3000)).toBe('processing');
+    expect(canJoin(e2, T - 3000)).toBe(false);
+    expect(liveSessionAt([e2], T - 3000)).toBeNull();
+    expect(joinableSession([e2], T - 3000)).toBeNull();
+    // A session under way by its own times, with no Console state, is still live.
+    expect(sessionPhase(s, s.start + 60_000)).toBe('live');
+  });
+
+  it('reads the snapshot only for a session the course itself lists (its week module is a course week)', () => {
+    const course = courseSessions(base);
+    const other = { ...base, sessions: base.sessions.map((x) => ({ ...x, live: true })), modules: base.modules.filter((m) => !m.id.startsWith('accelerator-week-')) };
+    const merged = withLiveState(course, other);
+    expect(merged.every((x) => x.live === undefined)).toBe(true);
+    expect(merged.map((x) => x.start)).toEqual(course.map((x) => x.start));
+  });
+
+  it('prefers the live session to one inside its window, and the soonest of those', () => {
+    const s = build2();
+    const oh = courseSessions(base).find((x) => x.id === 'dec26-oh2')!;
+    const now = s.start - 10 * MIN;
+    expect(joinableSession([oh, s], now)?.id).toBe(s.id);
+    expect(joinableSession([{ ...oh, live: true }, s], now)?.id).toBe(oh.id);
+    expect(joinableSession([s], s.start - 20 * MIN)).toBeNull();
+  });
+
+  it('picks the in-app announcement as the current portal does: sent, in-app, the audience, not dismissed @parity:D-1 @parity:C-6', () => {
+    const a = (id: string, x: Partial<Announcement>): Announcement => ({
+      id,
+      title: id,
+      body: '',
+      severity: 'info',
+      action: null,
+      actionLabel: '',
+      audience: 'all',
+      channels: ['inapp'],
+      status: 'sent',
+      at: 0,
+      opens: null,
+      ...x,
+    });
+    const me = learner([]);
+    const list = [
+      a('email', { channels: ['email'] }),
+      a('draft', { status: 'draft' }),
+      a('agents', { audience: 'agent' }),
+      a('owners', { audience: 'owners' }),
+      a('all', {}),
+    ];
+    expect(inAppAnnouncement({ announcements: list, dismissed: {} }, me)?.id).toBe('owners');
+    expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1 } }, me)?.id).toBe('all');
+    expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1 } }, { ...me, role: 'Operations Lead' })?.id).toBe('all');
+    expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1, 'u1:all': 1 } }, me)).toBeNull();
   });
 });

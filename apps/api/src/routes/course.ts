@@ -22,7 +22,7 @@
 // window, exactly as for the portal.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { acceleratorPaused } from '@ai/core/accelerator';
+import { NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
 import { courseFor, courseSessions } from '@ai/core/course';
 import { courseEntry, courseUpcoming } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
@@ -33,7 +33,8 @@ import { plansForLearner, releaseOf } from '../lib/course-access';
 import { clock } from '../lib/clock';
 
 export const COURSE_PATH = '/api/course';
-export const NOT_IN_PLAN = 'The AI Accelerator isn’t in your plan.';
+// D-186: core's, so a course week's step a plan without the course asks for is refused in the same words.
+export { NOT_IN_PLAN };
 /** D-143: closed only until the second of two payments goes through. */
 export const PAUSED = 'Your AI Accelerator is paused until your payment goes through.';
 /** D-153: bought, and opening at the first live build. */

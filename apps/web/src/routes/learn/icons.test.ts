@@ -20,8 +20,8 @@ const paths = new Set(
 describe('the learner v2 glyphs (D-177)', () => {
   const lv = Object.entries(ICONS).filter(([k]) => /^lv[A-Z]/.test(k));
 
-  it('has the mockup’s eleven', () => {
-    expect(lv.map(([k]) => k)).toEqual(['lvHome', 'lvGrid', 'lvLock', 'lvHelp', 'lvLive', 'lvCalAdd', 'lvArrow', 'lvVideo', 'lvInvite', 'lvCopy', 'lvInfo']);
+  it('has the mockup’s thirteen (D-178 adds Account’s two)', () => {
+    expect(lv.map(([k]) => k)).toEqual(['lvHome', 'lvGrid', 'lvLock', 'lvHelp', 'lvLive', 'lvCalAdd', 'lvArrow', 'lvVideo', 'lvInvite', 'lvCopy', 'lvInfo', 'lvExternal', 'lvKey']);
   });
 
   it('draws each one exactly as the artboards do', () => {

@@ -101,7 +101,10 @@ describe('Change role… (D-172) @console', () => {
     expect(body(admin)).toMatchObject({ code: 'console_forbidden' });
     expect((await auditRows()).map((r) => r.action)).toEqual(['console.access_denied']);
     const pv = body<StaffChangePreview>(await post('st1', CONSOLE_PATHS.staffPreview, { kind: 'role', id: 'st2', role: 'Support' }));
-    const tampered = pv.confirmToken.replace(/.$/, (c) => (c === 'A' ? 'B' : 'A'));
+    // Change the second-to-last character, not the last: the last base64url character of a 32-byte
+    // signature carries two bits the decoder ignores, so swapping it for A or B could leave the signature
+    // valid (about one run in twenty).
+    const tampered = pv.confirmToken.replace(/(.)(.)$/, (_m, c: string, last: string) => (c === 'A' ? 'B' : 'A') + last);
     expect(body(await post('st1', CONSOLE_PATHS.staff, { confirmToken: tampered }))).toMatchObject({ code: 'confirm_invalid' });
     expect(body(await post('st1', CONSOLE_PATHS.staff, { confirmToken: 42 }))).toMatchObject({ code: 'confirm_invalid' });
     process.env.FIXED_NOW = new Date(NOW + 300_001).toISOString();

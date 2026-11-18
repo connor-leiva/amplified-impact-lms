@@ -1,0 +1,12 @@
+{
+  "testResults": [
+    {
+      "name": "/repo/apps/web/src/routes/learn/Week.vm.test.ts",
+      "assertionResults": [
+        { "title": "renders every field @parity:K-1", "ancestorTitles": ["weekVM"], "status": "passed" },
+        { "title": "not tagged", "ancestorTitles": ["weekVM"], "status": "passed" },
+        { "title": "an empty field renders nothing @parity:K-2", "ancestorTitles": ["weekVM"], "status": "failed" }
+      ]
+    }
+  ]
+}
