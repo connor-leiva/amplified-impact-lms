@@ -44,11 +44,11 @@ describe('the page', () => {
   });
 
   it('runs in Spring’s order: hero, who, the weeks, how it runs and what you get, proof, Spring and Connor, price, questions', () => {
-    expect($$('h1').map(text)).toEqual(['8 weeks. 8 skills. Built live with us.']);
+    expect($$('h1').map(text)).toEqual(['8 weeks. 7 AI employees. Built live with us.']);
     expect($$('main h2').map(text)).toEqual([
       'Who it’s for',
       'Who it’s not for',
-      'One skill a week',
+      'One hire a week',
       'How it runs',
       'What you get',
       'The Utah Life Real Estate Group',
@@ -65,8 +65,8 @@ describe('the page', () => {
 
 describe('the hero', () => {
   it('says the first build’s date and time, with the proof line', () => {
-    expect(text($('.first'))).toBe('First build: Wednesday, December 2 at 1:00 PM Central.');
-    expect(TB_HERO.first).toContain('1:00 PM Central');
+    expect(text($('.first'))).toBe('First build: Wednesday, December 2 at 12:00 PM MT.');
+    expect(TB_HERO.first).toContain('12:00 PM MT');
     expect([text($('.tb-hero .proof-line span')), text($('.tb-hero .proof-line strong'))]).toEqual([
       HOME.proof.label,
       HOME.proof.figure,
@@ -113,9 +113,11 @@ describe('the hero', () => {
 });
 
 describe('who it’s for', () => {
-  it('names Follow Up Boss, the owner and ops lead pair with their time estimates, and the waitlist', () => {
+  it('names the hands-off tools, the approval line, the owner and ops lead pair with their time estimates, and the waitlist', () => {
     const who = $('.who')!;
-    expect(text(who)).toContain('Team owners and ops leads on Follow Up Boss.');
+    expect(text(who)).toContain('Teams on Sisu, QuickBooks Online and Google run hands-off.');
+    expect(text(who)).toContain('nothing sends until someone approves it.');
+    expect(text(who)).not.toContain('Follow Up Boss');
     expect(text(who)).toContain(
       'about 2 to 2.5 hours a week, with an ops lead at about 3 to 4. Those are our estimates.',
     );
@@ -123,7 +125,7 @@ describe('who it’s for', () => {
   });
 });
 
-describe('the weeks: the course brief’s map, not the draft list', () => {
+describe('the weeks: the Nov 17 build spec’s map', () => {
   const weeks = $$('.week');
 
   it('are week 0 and the eight builds, on the locked Wednesdays, with nothing on December 23 or 30', () => {
@@ -161,22 +163,33 @@ describe('the weeks: the course brief’s map, not the draft list', () => {
 
   it('carry each week’s operating question and flagship, by its Library title', () => {
     expect(weeks.map((w) => text($('.week-skills', w)).replace(/ New$/, ''))).toEqual([
-      'AI Brain Setup, Sounds Like You: Your AI Voice Profile, Team AI Brain',
-      'Lead-Source ROI',
-      'Morning Brief',
-      'L10 Meeting Prep',
-      'FUB Pipeline Review',
-      'Agent 1:1 Prep',
-      'Team Playbook Builder',
-      'New Agent Onboarding Plan',
-      '',
+      'AI Brain Setup, Ready Check',
+      'Map Your Spend',
+      'Lead Source Review',
+      'Meeting Manager',
+      'Recruit P&L',
+      'New Agent Onboarding',
+      'Coaching Packet',
+      'Post Check',
+      'AI Org Chart Review',
     ]);
-    expect(text($('.week-q', weeks[1]))).toBe('What are we paying for leads, and what can we trust?');
-    expect(text($('.week-q', weeks[8]))).toBe('What stays, what stops, and what should agents adopt next?');
-    expect(text($('.week-support', weeks[0]))).toBe('With The Ops Time Audit');
+    expect(text($('.week-q', weeks[1]))).toBe('Where does our money go, and is it the right amount?');
+    expect(text($('.week-q', weeks[8]))).toBe('Which hires stay, and what do I hire next?');
+    // The seven hires, one a week from Week 1 to 7, and Week 8 hires no one.
+    expect(weeks.slice(1, 8).map((w) => /^The hire: ([^.]+)\./.exec(text($('.week-note', w)))?.[1])).toEqual([
+      'Finance Analyst',
+      'Lead Desk Monitor',
+      'Meeting Manager',
+      'Recruiting Coordinator',
+      'Onboarding Coordinator',
+      '1:1 Prep',
+      'Marketing Coordinator',
+    ]);
+    expect(text($('.week-note', weeks[8]))).toMatch(/^No new hire\./);
+    expect($('.week-support', weeks[0])).toBeNull();
   });
 
-  it('links every skill on the map to its Library page, Morning Brief and New Agent Onboarding Plan included', () => {
+  it('links every skill on the map that has a Library page, and names the new ones with the New tag', () => {
     for (const w of WEEKS.items) {
       for (const slug of [...w.skills, ...(w.support ?? [])]) {
         const entry = libraryEntry(slug);
@@ -218,10 +231,13 @@ describe('the proof next to the buy buttons', () => {
 });
 
 describe('how it runs and what you get', () => {
-  it('says the locked calendar: Wednesday builds and Thursday office hours at 1:00 PM Central, 90 and 60 minutes', () => {
+  it('says the locked calendar: Wednesday builds and Thursday office hours at 12:00 PM MT, 90 and 60 minutes, and the two rules', () => {
     const how = text($('.how-list'));
-    expect(how).toContain('Wednesdays at 1:00 PM Central, 90 minutes.');
-    expect(how).toContain('Thursdays at 1:00 PM Central, 60 minutes.');
+    expect(how).toContain('Wednesdays at 12:00 PM MT, 90 minutes.');
+    expect(how).toContain('Thursdays at 12:00 PM MT, 60 minutes.');
+    expect(how).toContain('Sisu, QuickBooks Online and Google run hands-off.');
+    expect(how).toContain('They never change your CRM or your books. Nothing sends until someone approves it.');
+    expect(how).not.toMatch(/Central/);
     expect(how).toContain('Thursday, December 10');
     expect(how).toContain('Thursday, December 17');
   });
@@ -241,7 +257,7 @@ describe('how it runs and what you get', () => {
     const cal = $('.cal')!;
     expect(cal.getAttribute('aria-hidden')).toBe('true');
     expect($$('.cal-ev-t', cal).map(text)).toEqual(['Live builds', 'Office hours']);
-    // Wednesday from 1 PM for 1.5 hours, Thursday from 1 PM for 1 hour (11 AM is row 0).
+    // Wednesday from 12 PM MT for 1.5 hours, Thursday from 12 PM MT for 1 hour (10 AM is row 0).
     expect($$('.cal-ev', cal).map((e) => e.getAttribute('style'))).toEqual([
       '--c:2;--s:2;--l:1.5;--ei:0',
       '--c:3;--s:2;--l:1;--ei:1',
@@ -286,7 +302,7 @@ describe('Spring and Connor, and the questions', () => {
 
   it('answers the questions a team owner asks, pointing to the agreement for refunds', () => {
     expect($$('.faq summary').map(text)).toEqual(TB_FAQ.items.map((f) => f.q));
-    expect($$('.faq-list a').map((a) => a.getAttribute('href'))).toEqual(['/offer#waitlist', '/agreement']);
+    expect($$('.faq-list a').map((a) => a.getAttribute('href'))).toEqual(['/agreement']);
     // Beside them, the site's live contact line.
     expect(text($('.faq-aside'))).toBe('Questions? Write to support@amplifiedimpact.io.');
   });

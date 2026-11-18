@@ -308,9 +308,9 @@ describe('S10, S13, S14: the Library and the people', () => {
 });
 
 describe('S12, S15, S16', () => {
-  it('settles the ring on 8 of 8 with every week lit: never a part (brief § 5, C15)', () => {
+  it('settles the ring on 7 of 7 with every week lit: never a part (brief § 5, C15)', () => {
     const s = sec(prod, 'wed')!;
-    expect(text(s.querySelector('[data-v3-built]'))).toBe('8');
+    expect(text(s.querySelector('[data-v3-built]'))).toBe('7');
     expect(s.querySelector('.wed-ring-fg')?.getAttribute('style')).toBe('--k:1');
     expect([...s.querySelectorAll('.wed-row')].every((r) => r.classList.contains('is-on'))).toBe(true);
   });

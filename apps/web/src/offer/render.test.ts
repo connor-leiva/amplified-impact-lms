@@ -203,7 +203,7 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
 
   it('prices the Accelerator at $7,500 founding, or 2 payments of $3,750, then $9,997, with its dates', () => {
     const c = card('cohort');
-    for (const s of ['$7,500 founding price', 'Or 2 payments of $3,750.', '$9,997', '15 founding seats', 'Follow Up Boss', 'Wednesday, December 2.', 'February 3', 'December 23 or 30', 'Tuesday, May 4, 2027', '$197 a month', '90 minutes', '60 minutes']) {
+    for (const s of ['$7,500 founding price', 'Or 2 payments of $3,750.', '$9,997', '15 founding seats', 'Seven AI employees built with you, at least five running by Feb 3', 'Sisu, QuickBooks Online and Google', 'Wednesday, December 2.', 'February 3', 'December 23 or 30', 'Tuesday, May 4, 2027', '$197 a month', '90 minutes', '60 minutes']) {
       expect(c, s).toContain(s);
     }
   });

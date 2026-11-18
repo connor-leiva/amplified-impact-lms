@@ -76,6 +76,7 @@ export const COMPARE = {
       label: 'Skills included',
       cells: ['Every owner, ops and agent skill', 'Every agent skill', 'Every agent skill, for each agent', 'Every owner and ops skill, plus 2 new a month'],
     },
+    { label: 'AI employees built with you', cells: ['7, with at least 5 running by Feb 3', false, false, false] },
     {
       label: 'Live training',
       cells: ['8 live builds, 90 minutes, Wednesdays', 'Weekly, starting the week of January 4', 'Weekly, starting the week of January 4', false],
@@ -109,7 +110,7 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
       // only, and the Grok Bot templates in Grok Bot. A test holds "most" to the cards.
       a: [
         'Most skills run in Claude or ChatGPT, so you need one of them. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. The Grok Bot templates run in Grok Bot.',
-        'Every skill page says which tools it works in.',
+        'Every skill page says which tools it works in. The Amplified AI Accelerator’s hires run in Claude.',
       ],
     },
     {
@@ -136,8 +137,7 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'Do I need Follow Up Boss?',
-      a: ['Only for the Amplified AI Accelerator. We build on Follow Up Boss. On another CRM? Join the waitlist and we’ll tell you when that changes.'],
-      link: { label: 'Join the Waitlist', href: '/offer#waitlist' },
+      a: ['No. The Amplified AI Accelerator runs hands-off on Sisu, QuickBooks Online and Google. For anything else, you drop in an export. It takes a few minutes a month.'],
     },
     {
       q: 'What’s the refund policy?',

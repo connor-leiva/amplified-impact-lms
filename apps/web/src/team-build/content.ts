@@ -11,6 +11,11 @@
 // 60 minutes, nothing on December 23 or 30), the owner and ops lead pairing and its time estimates,
 // and "graduation is an operating standard, not a guarantee".
 //
+// NOV 17, 2026: the week map, the seven hires, the times (12:00 PM MT) and the two rules in `WHO` and
+// `HOW` are Connor's build spec ("Forum AI Owner Implementation Cohort: Build Spec"), which replaces the
+// course brief's map. Follow Up Boss is no longer required: Sisu, QuickBooks Online and Google run
+// hands-off, and anything else drops an export.
+//
 // What the card says (price, what you get) is /offer's (`OFFERS.cohort`, D-105); the proof line and
 // Spring and Connor are the homepage's. Spring reviews these words before they go live.
 //
@@ -23,15 +28,15 @@ import type { Faq } from '../site/offers-content';
 export const TEAM_BUILD_META = {
   title: 'Amplified AI Accelerator · Amplified Impact',
   description:
-    'For team owners and ops leads on Follow Up Boss. 8 weeks. 8 skills. Built live with us, from Wednesday, December 2. $7,500 founding price.',
+    'For team owners and ops leads. Seven AI employees built live with us, at least five running by Feb 3. From Wednesday, December 2. $7,500 founding price.',
   path: '/team-build',
 } as const;
 
 export const TB_HERO = {
   eyebrow: 'Amplified AI Accelerator',
-  title: '8 weeks. 8 skills. Built live with us.',
-  lede: 'Bring your ops lead. Each Wednesday we set up one skill on your own business, live, and you put it to work that week.',
-  first: 'First build: Wednesday, December 2 at 1:00 PM Central.',
+  title: '8 weeks. 7 AI employees. Built live with us.',
+  lede: 'Bring your ops lead. Each Wednesday we build one AI employee on your own business, live. It runs on a schedule and posts its work to your desk. At least five are running by Feb 3.',
+  first: 'First build: Wednesday, December 2 at 12:00 PM MT.',
 } as const;
 
 /** The buy block's own lines, beside /offer's price and buttons. The countdown and seats are filled per request. */
@@ -44,15 +49,19 @@ export const BUY = {
 export const WHO = {
   heading: 'Who it’s for',
   forItems: [
-    'Team owners and ops leads on Follow Up Boss.',
+    'Team owners and ops leads.',
+    'Teams on Sisu, QuickBooks Online and Google run hands-off. For anything else, you drop in an export. It takes a few minutes a month.',
     'Teams that come as two: the owner, who decides, and the ops lead, who runs it. One person can be both.',
     'Owners who can give it about 2 to 2.5 hours a week, with an ops lead at about 3 to 4. Those are our estimates.',
   ],
   notHeading: 'Who it’s not for',
-  notItems: ['Teams not on Follow Up Boss yet.', 'Anyone who wants it built for them. We build together, as a group.'],
-  waitlistBefore: 'Not on Follow Up Boss? ',
+  notItems: [
+    'Anyone who wants hires that send on their own. Ours draft, and nothing sends until someone approves it.',
+    'Anyone who wants it built for them. We build together, as a group.',
+  ],
+  waitlistBefore: 'Missed a seat? ',
   waitlistLink: 'Join the waitlist',
-  waitlistAfter: '. You’ll hear first when that changes.',
+  waitlistAfter: '. You’ll hear first when the next cohort opens.',
 } as const;
 
 /**
@@ -77,8 +86,8 @@ export interface Week {
 }
 
 export const WEEKS = {
-  heading: 'One skill a week',
-  lede: 'Week 0 gets you ready. Then one skill a week, each one built on the last. Every week answers one question about your business.',
+  heading: 'One hire a week',
+  lede: 'Week 0 sets up the office. Then one AI employee a week, built on your own numbers. Every week answers one question about your business. Week 8 is your org chart review.',
   weekLabel: 'Week',
   supportLabel: 'With',
   newTag: 'New',
@@ -86,50 +95,106 @@ export const WEEKS = {
   items: [
     {
       n: 0,
-      date: 'Before December 2',
-      title: 'Get ready',
-      skills: ['ai-brain-setup', 'voice-profile', 'team-ai-brain'],
-      support: ['ops-time-audit'],
-      note: 'Set up your AI, your voice and your team’s, on your own time. Then a 30-minute orientation.',
+      date: 'Due December 2',
+      title: 'Set Up the Office',
+      question: 'Is our setup ready to hire?',
+      skills: ['ai-brain-setup', 'ready-check'],
+      note: 'Claude set up, your data connected, write tools blocked and a test hire that posts to your desk with nobody there. Plus a 30-minute orientation.',
     },
-    { n: 1, date: 'Wednesday, December 2', title: 'Know the business', question: 'What are we paying for leads, and what can we trust?', skills: ['lead-source-roi'] },
-    { n: 2, date: 'Wednesday, December 9', title: 'Own the day', question: 'What needs attention, and who owns the next action?', skills: ['morning-brief'] },
-    { n: 3, date: 'Wednesday, December 16', title: 'Turn insight into a decision', question: 'What should we solve this week?', skills: ['l10-meeting-prep'] },
-    { n: 4, date: 'Wednesday, January 6', title: 'Protect the pipeline', question: 'Where is execution slipping?', skills: ['fub-pipeline-review'] },
-    { n: 5, date: 'Wednesday, January 13', title: 'Coach from evidence', question: 'What behavior should change for this agent?', skills: ['agent-1on1-prep'] },
+    {
+      n: 1,
+      date: 'Wednesday, December 2',
+      title: 'Where the Money Goes',
+      question: 'Where does our money go, and is it the right amount?',
+      skills: ['map-your-spend'],
+      note: 'The hire: Finance Analyst. Runs monthly, after the books close, and posts last month’s numbers to the Owner Desk.',
+    },
+    {
+      n: 2,
+      date: 'Wednesday, December 9',
+      title: 'Leads That Pay',
+      question: 'Which lead sources pay, and is every lead worked?',
+      skills: ['lead-source-review'],
+      note: 'The hire: Lead Desk Monitor. Checks which new leads were worked to standard and posts each agent’s follow-up list to the Team Board.',
+    },
+    {
+      n: 3,
+      date: 'Wednesday, December 16',
+      title: 'Run the Week',
+      question: 'Does our week start on time and end with every task owned?',
+      skills: ['meeting-manager'],
+      note: 'The hire: Meeting Manager. Posts the Monday scoreboard before anyone asks, then a recap where every task has an owner and a date.',
+    },
+    {
+      n: 4,
+      date: 'Wednesday, January 6',
+      title: 'Recruit With Their P&L',
+      question: 'Why would a top producer join us, and can I prove it with their own numbers?',
+      skills: ['recruit-pnl'],
+      note: 'The hire: Recruiting Coordinator. Preps every recruit appointment. Follow-ups to recruits send only after someone approves them.',
+    },
+    {
+      n: 5,
+      date: 'Wednesday, January 13',
+      title: 'Onboard Every New Agent',
+      question: 'Is every new agent set up and on pace?',
+      skills: ['new-agent-onboarding'],
+      note: 'The hire: Onboarding Coordinator. Shows you every Monday which new agents are set up and on pace.',
+    },
     {
       n: 6,
       date: 'Wednesday, January 20',
-      title: 'Delegate an outcome',
-      question: 'What work can leave the owner’s desk without lowering standards?',
-      skills: ['team-playbook-builder'],
+      title: 'Coach Off the Scorecard',
+      question: 'What does each agent need from me this week?',
+      skills: ['coaching-packet'],
+      note: 'The hire: 1:1 Prep. Puts a one-page packet on your desk before every 1:1: the number, the question and the play.',
     },
     {
       n: 7,
       date: 'Wednesday, January 27',
-      title: 'Make the workflow repeatable',
-      question: 'Can your ops lead adapt and run the next workflow without us?',
-      skills: ['new-agent-onboarding-plan'],
+      title: 'Every Post Checked',
+      question: 'Can our posts go out right without me checking every one?',
+      skills: ['post-check'],
+      note: 'The hire: Marketing Coordinator. Checks every post your VA makes against your standards before it goes up, and hands the VA a fix list.',
     },
     {
       n: 8,
       date: 'Wednesday, February 3',
-      title: 'Sustain and expand',
-      question: 'What stays, what stops, and what should agents adopt next?',
-      skills: [],
-      note: 'Your cohort-end review: keep, fix or retire each workflow, and a 90-day plan.',
+      title: 'Your AI Org Chart',
+      question: 'Which hires stay, and what do I hire next?',
+      skills: ['ai-org-chart-review'],
+      note: 'No new hire. Re-time each task a hire took over, keep, fix or let go each one, and pick your next hire for a 90-day plan.',
     },
   ] as readonly Week[],
 } as const;
 
-/** New Library items the map names before they merge: none now (D-108 and D-109 are in the Library). */
-export const NEW_SKILLS: Readonly<Record<string, string>> = {};
+/**
+ * The Nov 17 build spec's flagship skills that are not Library cards (yet): each shows by name with the
+ * New tag, no link. Take one out the day its Library card lands (a test fails until you do).
+ */
+export const NEW_SKILLS: Readonly<Record<string, string>> = {
+  'ready-check': 'Ready Check',
+  'map-your-spend': 'Map Your Spend',
+  'lead-source-review': 'Lead Source Review',
+  'meeting-manager': 'Meeting Manager',
+  'recruit-pnl': 'Recruit P&L',
+  'new-agent-onboarding': 'New Agent Onboarding',
+  'coaching-packet': 'Coaching Packet',
+  'post-check': 'Post Check',
+  'ai-org-chart-review': 'AI Org Chart Review',
+};
 
 export const HOW = {
   heading: 'How it runs',
   items: [
-    { title: 'Live builds', body: 'Wednesdays at 1:00 PM Central, 90 minutes. One outcome each week, plus a harder option if you want it.' },
-    { title: 'Office hours', body: 'Thursdays at 1:00 PM Central, 60 minutes. Bring a real file and get unstuck.' },
+    { title: 'Live builds', body: 'Wednesdays at 12:00 PM MT, 90 minutes. Connor reads three or four teams’ reports live against his standard. Then everyone builds the week’s hire together.' },
+    { title: 'Office hours', body: 'Thursdays at 12:00 PM MT, 60 minutes. Bring a real file and get unstuck.' },
+    // The Nov 17 build spec's rules 1 and 2, which it says to state on the offer page.
+    { title: 'Your tools', body: 'Sisu, QuickBooks Online and Google run hands-off. For anything else, you drop in an export. It takes a few minutes a month.' },
+    {
+      title: 'What hires do',
+      body: 'They read, draft and post to your desk. They never change your CRM or your books. Nothing sends until someone approves it.',
+    },
     { title: 'Goal planning', body: 'Thursday, December 10: a year-end AI goal planning Zoom. Thursday, December 17: a second one, with your agents invited.' },
     // Spring: "recordings in the library" (the offer-pages brief, Nov 11).
     { title: 'Recordings', body: 'Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week.' },
@@ -156,8 +221,7 @@ export const TB_FAQ: { heading: string; items: readonly Faq[] } = {
   items: [
     {
       q: 'Do I need Follow Up Boss?',
-      a: ['Yes. We build on Follow Up Boss. On another CRM? Join the waitlist and we’ll tell you when that changes.'],
-      link: { label: 'Join the Waitlist', href: '/offer#waitlist' },
+      a: ['No. Sisu, QuickBooks Online and Google run hands-off. For anything else, you drop in an export. It takes a few minutes a month.'],
     },
     {
       q: 'Who should come?',
@@ -173,7 +237,7 @@ export const TB_FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'Do I need Claude or ChatGPT?',
-      a: ['Yes, one of them. Some weeks also use a Grok Bot template. Every skill page says which tools it works in.'],
+      a: ['The hires run in Claude, on a paid plan. The skill library also works in ChatGPT.'],
     },
     {
       q: 'What happens after week 8?',
@@ -199,5 +263,5 @@ export const TB_FAQ: { heading: string; items: readonly Faq[] } = {
  */
 export const V2_DRAWINGS = {
   hours: { title: 'Hours a week', note: 'Our estimates', owner: 'Owner', ops: 'Ops lead', unit: 'hours' },
-  week: { title: 'A normal week', zone: 'Central time', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['11 AM', '12 PM', '1 PM', '2 PM', '3 PM'] },
+  week: { title: 'A normal week', zone: 'Mountain time', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['10 AM', '11 AM', '12 PM', '1 PM', '2 PM'] },
 } as const;

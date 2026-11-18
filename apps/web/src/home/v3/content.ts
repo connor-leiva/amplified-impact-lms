@@ -50,10 +50,10 @@ export const HERO = {
         ['Reports to', 'You'],
         ['Sounds like', 'You, on a good day'],
         ['Shift', 'Every new lead'],
-        ['Sends', 'After your yes'],
+        ['Sends', 'Only after someone approves them'],
       ],
       readyAt: 'New lead at 9:12 PM',
-      ready: ['First reply drafted, in your voice', 'Call opener ready for the morning', '2 follow-ups lined up', 'Nothing sent without your yes'],
+      ready: ['First reply drafted, in your voice', 'Call opener ready for the morning', '2 follow-ups drafted', 'Nothing goes out until someone approves it'],
     },
     {
       key: 'ops',
@@ -67,7 +67,7 @@ export const HERO = {
         ['Rounding', 'Never'],
       ],
       readyAt: 'After today’s closing',
-      ready: ['Deposit matched to the CDA', 'Split and cap checked', 'Fees tied out', '1 difference flagged for you'],
+      ready: ['Deposit checked against the CDA', 'Split and cap checked', 'Fees checked', '1 difference flagged for you'],
     },
   ] as const satisfies readonly Badge[],
   /** The stat strip's labels, under the proof line's two figures and the Library's count. */
@@ -529,15 +529,16 @@ export const PROGRAMS = {
       short: 'AI Accelerator',
       who: 'Team owners and ops leads',
       href: '/team-build',
-      text: 'Every Wednesday for eight weeks, you and your ops lead get on a live call with us. We build one skill together, on your real business. By the end, eight jobs run without you. Then you keep going, with new skills and office hours for 90 days after your last build.',
+      text: 'Every Wednesday for eight weeks, you and your ops lead get on a live call with us. We build one AI employee together, on your real business. Seven get built. At least five are running by Feb 3. Then you keep going, with new skills and office hours for 90 days after your last build.',
       list: [
+        'Seven AI employees built with you, at least five running by Feb 3',
         '8 live builds, 90 minutes each',
         'Every owner, ops and agent skill',
         'Weekly office hours: a live Q&A, ask us anything',
         'New skills and office hours for 90 days after your last build',
         'Every build recorded, so a missed week isn’t a lost week',
       ],
-      best: 'Best if you want it done right, done fast, and done with a coach in the room. Needs Follow Up Boss.',
+      best: 'Best if you want it done right, done fast, and done with a coach in the room. Sisu, QuickBooks Online and Google run hands-off. Anything else, you drop in an export.',
       note: 'founding price',
       /** The figures go in from /pricing's sources: "2 payments of $3,750. Then $9,997. Ends Nov 30." */
       after: (twoPay: string, then: string, ends: string) =>
@@ -621,23 +622,23 @@ export const PROGRAMS = {
  */
 export const TIMELINE = {
   eyebrow: (starts: string) => `Amplified AI Accelerator · Starts ${starts}`,
-  title: 'Eight Wednesdays. Eight AI employees.',
-  intro: 'Each week we build one skill live, on your real business, in Follow Up Boss. You leave every session with something that works on Thursday. Then the support keeps going: new skills and office hours for 90 days after your last build.',
-  built: 'of 8 built',
-  builds: 8,
+  title: 'Eight Wednesdays. Seven AI employees.',
+  intro: 'Each week we build one AI employee live, on your real business. It runs on a schedule, reads your numbers and posts its work to your desk. At least five are running by Feb 3. Then the support keeps going: new skills and office hours for 90 days after your last build.',
+  built: 'of 7 hired',
+  builds: 7,
   cta: 'Claim a Founding Seat',
   more: { label: 'See the Accelerator', href: '/team-build' },
   weekLabel: (n: number) => `Week ${n}`,
   weeks: [
-    { n: 0, name: 'Setup', text: 'Your AI Brain, your voice profile and a Team AI Brain, plus a 30-minute orientation.' },
-    { n: 1, name: 'Lead-Source ROI', text: 'What every lead source really costs you, and which numbers you can trust.' },
-    { n: 2, name: 'Morning Brief', text: 'One page every morning. What needs you today and who owns the next step.' },
-    { n: 3, name: 'L10 Meeting Prep', text: 'Your scorecard checked and a short list of problems to solve, before anyone sits down.' },
-    { n: 4, name: 'FUB Pipeline Review', text: 'Where follow-through is slipping in your pipeline, and what to decide this week.' },
-    { n: 5, name: 'Agent 1:1 Prep', text: 'Coaching prep built on what each agent actually did, not what they remember doing.' },
-    { n: 6, name: 'Team Playbook Builder', text: 'Your SOPs turned into a playbook, so work leaves your desk and your standards stay.' },
-    { n: 7, name: 'New Agent Onboarding Plan', text: 'Standards, checkpoints and a dated first 30 days for every new hire.' },
-    { n: 8, name: 'Sustain and Expand', text: 'Keep, fix or retire each workflow, then leave with your 90-day plan.' },
+    { n: 0, name: 'Set Up the Office', text: 'Claude set up, your data connected, write tools blocked and a test hire that runs on its own.' },
+    { n: 1, name: 'Finance Analyst', text: 'Where your money goes, on Connor’s Standard Chart. Then last month’s numbers on your desk after the books close.' },
+    { n: 2, name: 'Lead Desk Monitor', text: 'Which lead sources pay, and which new leads were worked to standard.' },
+    { n: 3, name: 'Meeting Manager', text: 'The Monday scoreboard posted before anyone asks, and a recap where every task has an owner.' },
+    { n: 4, name: 'Recruiting Coordinator', text: 'The P&L a top producer can’t show you, and prep for every recruit appointment.' },
+    { n: 5, name: 'Onboarding Coordinator', text: 'Every new agent’s setup checklist and ramp, checked every Monday.' },
+    { n: 6, name: '1:1 Prep', text: 'A one-page packet before every 1:1: the number, the question and the play.' },
+    { n: 7, name: 'Marketing Coordinator', text: 'Every post your VA makes, checked against your standards before it goes up.' },
+    { n: 8, name: 'Your AI Org Chart', text: 'No new hire. Keep, fix or let go each one, then pick your next hire for a 90-day plan.' },
   ],
   /** The holiday break, between weeks 3 and 4. */
   pause: { label: 'Break', date: 'Dec 23, 30', text: 'No builds or office hours over the holidays.' },
@@ -648,7 +649,7 @@ export const TIMELINE = {
     text: (price: string, from: string) =>
       `New skills and office hours for 90 days after your last build. Then Amplified Insiders at ${price} a month, from ${from}, until you cancel.`,
   },
-  meta: ['Builds Wed 2:00 PM ET (1:00 PM CT), 90 minutes', 'Office hours Thu 2:00 PM ET (1:00 PM CT)', 'No builds Dec 23 or 30'],
+  meta: ['Builds Wed 12:00 PM MT, 90 minutes', 'Office hours Thu 12:00 PM MT', 'No builds Dec 23 or 30'],
 } as const;
 
 /** S13, Library favorites (`section.fav`, #library): four columns, by Library slug, the mockup's line for each. */
@@ -737,14 +738,14 @@ export const QUESTIONS = {
   aside: 'Still wondering about something? Email us and a real person will answer.',
   items: [
     { q: 'I’m not techy. Can I really do this?', a: ['Yes. If you can send an email, you can run a skill. Every skill comes with a short setup guide, and weekly office hours are there if you get stuck.'] },
-    { q: 'Is my client data safe?', a: ['Your data stays in your own AI account and your own tools. Skills read and draft. Nothing sends, and nothing changes in your CRM, until you approve it.'] },
+    { q: 'Is my client data safe?', a: ['Your data stays in your own AI account and your own tools. Skills read and draft. They never change your CRM or your books. Nothing sends until someone approves it.'] },
     { q: 'Will my agents actually use it?', a: ['That’s what the Team Plan is for. We teach them live every week, every class is recorded, and you can see who’s using it and how much.'] },
     {
       q: 'Do I need Claude or ChatGPT?',
-      a: ['Yes, one of them. Most skills work in either. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. Every skill tells you what it needs.'],
+      a: ['Yes, one of them. Most skills work in either. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. Every skill tells you what it needs. The Accelerator’s hires run in Claude.'],
     },
     { q: 'What if I miss a week?', a: ['Every build and class is recorded in the Academy. Watch it when you can, then bring your questions to office hours.'] },
-    { q: 'Do I need Follow Up Boss?', a: ['Only for the Accelerator, because we build on your real Follow Up Boss data. Everything else works with any CRM.'] },
+    { q: 'Do I need Follow Up Boss?', a: ['No. The Accelerator runs hands-off on Sisu, QuickBooks Online and Google. For anything else, you drop in an export. It takes a few minutes a month. Everything else works with any CRM.'] },
     {
       q: 'Which program should I pick?',
       a: [

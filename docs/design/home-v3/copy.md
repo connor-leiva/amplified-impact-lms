@@ -39,8 +39,8 @@ HOMES THAT TEAM CLOSES A YEAR
 SKILLS, GUIDES AND TEMPLATES
 ```
 **Hero badge tabs (auto-rotate, Owners shown above):**
-- Agents: Speed to Lead Reply · For agents · Reports to: You · Sounds like: You, on a good day · Shift: Every new lead · Sends: After your yes · New lead at 9:12 PM: First reply drafted, in your voice / Call opener ready for the morning / 2 follow-ups lined up / Nothing sent without your yes
-- Ops: Commission Tie-Out · For ops leads · Reports to: Your ops lead · Desk: Not needed · Shift: Every closing · Rounding: Never · After today’s closing: Deposit matched to the CDA / Split and cap checked / Fees tied out / 1 difference flagged for you
+- Agents: Speed to Lead Reply · For agents · Reports to: You · Sounds like: You, on a good day · Shift: Every new lead · Sends: Only after someone approves them · New lead at 9:12 PM: First reply drafted, in your voice / Call opener ready for the morning / 2 follow-ups drafted / Nothing goes out until someone approves it
+- Ops: Commission Tie-Out · For ops leads · Reports to: Your ops lead · Desk: Not needed · Shift: Every closing · Rounding: Never · After today’s closing: Deposit checked against the CDA / Split and cap checked / Fees checked / 1 difference flagged for you
 
 ## S2 Video  (`section.vid`, theme: dark)
 **Connor, Nov 13:** the recording is in. The heading below stays. The frame is his morning task sync (`/media/morning-task-sync.mp4`, poster `/media/morning-task-sync.webp`): controls, inline, no autoplay. The mockup's video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") stay off the page, and so does the "Coming soon" note. The caption under the frame is the line below the heading.
@@ -387,13 +387,14 @@ WE BUILD IT WITH YOU
 TEAM OWNERS AND OPS LEADS
 DETAILS
 Amplified AI Accelerator
-Every Wednesday for eight weeks, you and your ops lead get on a live call with us. We build one skill together, on your real business. By the end, eight jobs run without you. Then you keep going, with new skills and office hours for 90 days after your last build.
+Every Wednesday for eight weeks, you and your ops lead get on a live call with us. We build one AI employee together, on your real business. Seven get built. At least five are running by Feb 3. Then you keep going, with new skills and office hours for 90 days after your last build.
+Seven AI employees built with you, at least five running by Feb 3
 8 live builds, 90 minutes each
 Every owner, ops and agent skill
 Weekly office hours: a live Q&A, ask us anything
 New skills and office hours for 90 days after your last build
 Every build recorded, so a missed week isn’t a lost week
-Best if you want it done right, done fast, and done with a coach in the room. Needs Follow Up Boss.
+Best if you want it done right, done fast, and done with a coach in the room. Sisu, QuickBooks Online and Google run hands-off. Anything else, you drop in an export.
 $7,500
 FOUNDING PRICE
 For an owner and an ops lead, or 2 payments of $3,750. Then $9,997. Ends Nov 30.
@@ -459,58 +460,58 @@ Compare Every Program
 ## S12 Accelerator timeline  (`section.wed`, theme: light)
 ```
 AMPLIFIED AI ACCELERATOR · STARTS DEC 2
-Eight Wednesdays. Eight AI employees.
-Each week we build one skill live, on your real business, in Follow Up Boss. You leave every session with something that works on Thursday. Then the support keeps going: new skills and office hours for 90 days after your last build.
+Eight Wednesdays. Seven AI employees.
+Each week we build one AI employee live, on your real business. It runs on a schedule, reads your numbers and posts its work to your desk. At least five are running by Feb 3. Then the support keeps going: new skills and office hours for 90 days after your last build.
 0
-OF 8 BUILT
+OF 7 HIRED
 18 days left · 15 of 15 founding seats left
 Claim a Founding Seat
 See the Accelerator
 WEEK 0
-BEFORE DEC 2
-Setup
-Your AI Brain, your voice profile and a Team AI Brain, plus a 30-minute orientation.
+DUE DEC 2
+Set Up the Office
+Claude set up, your data connected, write tools blocked and a test hire that runs on its own.
 WEEK 1
 DEC 2
-Lead-Source ROI
-What every lead source really costs you, and which numbers you can trust.
+Finance Analyst
+Where your money goes, on Connor’s Standard Chart. Then last month’s numbers on your desk after the books close.
 WEEK 2
 DEC 9
-Morning Brief
-One page every morning. What needs you today and who owns the next step.
+Lead Desk Monitor
+Which lead sources pay, and which new leads were worked to standard.
 WEEK 3
 DEC 16
-L10 Meeting Prep
-Your scorecard checked and a short list of problems to solve, before anyone sits down.
+Meeting Manager
+The Monday scoreboard posted before anyone asks, and a recap where every task has an owner.
 BREAK
 DEC 23, 30
 No builds or office hours over the holidays.
 WEEK 4
 JAN 6
-FUB Pipeline Review
-Where follow-through is slipping in your pipeline, and what to decide this week.
+Recruiting Coordinator
+The P&L a top producer can’t show you, and prep for every recruit appointment.
 WEEK 5
 JAN 13
-Agent 1:1 Prep
-Coaching prep built on what each agent actually did, not what they remember doing.
+Onboarding Coordinator
+Every new agent’s setup checklist and ramp, checked every Monday.
 WEEK 6
 JAN 20
-Team Playbook Builder
-Your SOPs turned into a playbook, so work leaves your desk and your standards stay.
+1:1 Prep
+A one-page packet before every 1:1: the number, the question and the play.
 WEEK 7
 JAN 27
-New Agent Onboarding Plan
-Standards, checkpoints and a dated first 30 days for every new hire.
+Marketing Coordinator
+Every post your VA makes, checked against your standards before it goes up.
 WEEK 8
 FEB 3
-Sustain and Expand
-Keep, fix or retire each workflow, then leave with your 90-day plan.
+Your AI Org Chart
+No new hire. Keep, fix or let go each one, then pick your next hire for a 90-day plan.
 AFTER
 90 DAYS
 Keep building
 New skills and office hours for 90 days after your last build. Then Amplified Insiders at $197 a month, from May 4, 2027, until you cancel.
-BUILDS WED 2:00 PM ET (1:00 PM CT), 90 MINUTES
-OFFICE HOURS THU 2:00 PM ET (1:00 PM CT)
+BUILDS WED 12:00 PM MT, 90 MINUTES
+OFFICE HOURS THU 12:00 PM MT
 NO BUILDS DEC 23 OR 30
 ```
 
@@ -617,11 +618,11 @@ Can I cancel?
 ```
 **Answers (accordion, collapsed by default):**
 01 Yes. If you can send an email, you can run a skill. Every skill comes with a short setup guide, and weekly office hours are there if you get stuck.
-02 Your data stays in your own AI account and your own tools. Skills read and draft. Nothing sends, and nothing changes in your CRM, until you approve it.
+02 Your data stays in your own AI account and your own tools. Skills read and draft. They never change your CRM or your books. Nothing sends until someone approves it.
 03 That’s what the Team Plan is for. We teach them live every week, every class is recorded, and you can see who’s using it and how much.
-04 Yes, one of them. Most skills work in either. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. Every skill tells you what it needs.
+04 Yes, one of them. Most skills work in either. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. Every skill tells you what it needs. The Accelerator’s hires run in Claude.
 05 Every build and class is recorded in the Academy. Watch it when you can, then bring your questions to office hours.
-06 Only for the Accelerator, because we build on your real Follow Up Boss data. Everything else works with any CRM.
+06 No. The Accelerator runs hands-off on Sisu, QuickBooks Online and Google. For anything else, you drop in an export. It takes a few minutes a month. Everything else works with any CRM.
 07 Want it built with you, live? The Accelerator. Want to build it yourself? Insiders. Want your agents trained for you? The Team Plan. Just you, as an agent? The Agent Plan. Still not sure? Start with the 5 free skills. [link: Compare Every Program]
 08 The Agent Plan cancels anytime. Insiders monthly has a 3-month minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.
 

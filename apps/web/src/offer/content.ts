@@ -104,8 +104,9 @@ export interface PairedOfferCopy extends Omit<OfferCopy, 'button' | 'more'> {
 
 export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardPlan, 'cohort'>, OfferCopy>> = {
   cohort: {
-    forWho: 'Team owners and ops leads on Follow Up Boss.',
+    forWho: 'Team owners and ops leads.',
     lines: [
+      'Seven AI employees built with you, at least five running by Feb 3',
       'Both skill sets: owner and ops, and agent',
       '8 live builds, 90 minutes each',
       'Weekly office hours, 60 minutes',
@@ -218,8 +219,8 @@ export const EVERY_CARD = {
 
 /** One card's own note under its button. */
 export const NOTES = {
-  /** The Accelerator: Follow Up Boss only; everyone else joins the waitlist. */
-  fubBefore: 'Requires Follow Up Boss. On another CRM? ',
+  /** The Accelerator: the build spec's one hands-off stack (Nov 17), then the waitlist for a missed seat. */
+  fubBefore: 'Sisu, QuickBooks Online and Google run hands-off. Anything else, you drop in an export. Missed a seat? ',
   fubLink: 'Join the waitlist',
   /** The Team Plan over 40 agents: no cart, a conversation. */
   bigTeamBefore: 'Over 40 agents? ',
@@ -242,7 +243,7 @@ export const AFTER = {
 
 export const WAITLIST = {
   heading: 'Join the waitlist',
-  body: 'The Amplified AI Accelerator requires Follow Up Boss. On another CRM, or missed a seat or a founding price? Join the waitlist. You’ll hear first when the next one opens.',
+  body: 'Missed an Amplified AI Accelerator seat or a founding price? Join the waitlist. You’ll hear first when the next one opens.',
   firstName: 'First Name',
   email: 'Email',
   submit: 'Join the Waitlist',
