@@ -220,6 +220,22 @@ describe('the join window, the live state and the replay (D-183)', () => {
     expect(sessionPhase(p2, early + 40 * MIN)).toBe('replay');
   });
 
+  it('End Session takes Live now and Join away at once, even on a browser clock a few seconds behind the server’s @parity:C-2', () => {
+    const s = build2();
+    const early = s.start - 5 * 86400_000;
+    const live = goLive(base, actor, { sessionId: s.id }, ctx(early)).db;
+    // Staff end it at the server's clock T; the learner's page reads it at T minus 3 seconds.
+    const T = early + 2 * 3600_000;
+    const ended = endSession(live, actor, { sessionId: s.id }, ctx(T)).db;
+    const e2 = withLiveState(courseSessions(base), ended).find((x) => x.id === s.id)!;
+    expect(sessionPhase(e2, T - 3000)).toBe('processing');
+    expect(canJoin(e2, T - 3000)).toBe(false);
+    expect(liveSessionAt([e2], T - 3000)).toBeNull();
+    expect(joinableSession([e2], T - 3000)).toBeNull();
+    // A session under way by its own times, with no Console state, is still live.
+    expect(sessionPhase(s, s.start + 60_000)).toBe('live');
+  });
+
   it('reads the snapshot only for a session the course itself lists (its week module is a course week)', () => {
     const course = courseSessions(base);
     const other = { ...base, sessions: base.sessions.map((x) => ({ ...x, live: true })), modules: base.modules.filter((m) => !m.id.startsWith('accelerator-week-')) };

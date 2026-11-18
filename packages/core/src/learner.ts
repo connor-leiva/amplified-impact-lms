@@ -102,7 +102,20 @@ export const sessionEndsAt = (s: Pick<CourseSessionRow, 'start' | 'mins'>): numb
  * moves its start back so it reads as ended). A session with no Console state reads by its times alone.
  */
 export const liveSessionAt = <S extends SessionTiming>(sessions: readonly S[], now: number): S | null =>
-  sessions.find((s) => sessionState(s, now) === 'live') ?? null;
+  sessions.find((s) => learnerSessionState(s, now) === 'live') ?? null;
+
+/**
+ * `sessionState`, with End Session read off the session itself. End Session moves the start back so the
+ * session ends at the server's clock (`start = now - mins`) and marks its replay processing; a browser
+ * whose clock runs a few seconds behind (or that hasn't ticked yet) would still read it as under way by its
+ * times. A session that isn't live, has a replay state, and whose times say it is running has been ended
+ * by staff: it reads as ended at once, as the join route (on the server's clock) already answers.
+ */
+export function learnerSessionState(s: SessionTiming, now: number): ReturnType<typeof sessionState> {
+  const st = sessionState(s, now);
+  if (st === 'live' && !s.live && s.replay) return s.replay === 'ready' ? 'replay' : 'processing';
+  return st;
+}
 
 // --- the Console's live state and the join window (D-183) -----------------------------------------
 
@@ -143,7 +156,7 @@ export function withLiveState<S extends Pick<CourseSessionRow, 'id' | 'start' | 
 export type SessionPhase = 'upcoming' | 'ready' | 'live' | 'processing' | 'replay';
 
 export function sessionPhase(s: SessionTiming, now: number): SessionPhase {
-  const st = sessionState(s, now);
+  const st = learnerSessionState(s, now);
   if (st === 'upcoming') return joinMode(s, now) === 'ready' ? 'ready' : 'upcoming';
   return st === 'none' ? 'upcoming' : st;
 }
@@ -153,7 +166,10 @@ export function sessionPhase(s: SessionTiming, now: number): SessionPhase {
  * the moment staff press Go Live. The same rule the join route enforces (`joinMode`), so a Join a learner
  * sees is one the server answers.
  */
-export const canJoin = (s: SessionTiming, now: number): boolean => joinMode(s, now) !== 'disabled';
+export const canJoin = (s: SessionTiming, now: number): boolean => {
+  const phase = sessionPhase(s, now);
+  return phase === 'live' || phase === 'ready';
+};
 
 /** The session to join now: the live one, else the soonest inside its join window, else null. */
 export function joinableSession<S extends SessionTiming>(sessions: readonly S[], now: number): S | null {
