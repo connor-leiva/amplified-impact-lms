@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TOKEN_PATTERN } from '@ai/core/offer';
 import { HOME } from '../home/content';
-import { ABOUT_PHOTOS, BIOS, STORY, V2_RINGS, WHY } from './content';
+import { ABOUT_HERO_PHOTO, ABOUT_PHOTOS, BIOS, STORY, V2_RINGS, WHY } from './content';
 import { renderAboutBody, renderAboutHead, renderBody, renderHead, splitLead } from './render';
 
 // /about (D-117), on the parsed DOM: Spring and Connor by their own photos and the brief's bios, the
@@ -52,14 +52,13 @@ describe('/about', () => {
     expect([...html.matchAll(TOKEN_PATTERN)]).toEqual([]);
   });
 
-  it('opens on the live words and the two of them, each captioned with their full live role', () => {
+  it('opens on the live words and one photo of the two of them, captioned with each full live role', () => {
     expect(text(doc.querySelector('h1'))).toBe('We build AI into our own businesses first. Then we teach it.');
-    expect($$('.ab-hero .ab-fig img').map((i) => [i.getAttribute('src'), i.getAttribute('alt')])).toEqual(SRCS);
+    expect($$('.ab-hero .ab-fig img').map((i) => [i.getAttribute('src'), i.getAttribute('alt')])).toEqual([
+      [ABOUT_HERO_PHOTO.src, 'Spring Bengtzen and Connor Leiva on stage together'],
+    ]);
     expect(
-      $$('.ab-fig figcaption').map((f) => [
-        text(f.querySelector('.ab-cap-name')),
-        text(f.querySelector('.ab-cap-role')),
-      ]),
+      $$('.ab-fig .ab-cap').map((f) => [text(f.querySelector('.ab-cap-name')), text(f.querySelector('.ab-cap-role'))]),
     ).toEqual([
       ['Spring Bengtzen', ROLES[0]],
       ['Connor Leiva', ROLES[1]],
@@ -73,13 +72,15 @@ describe('/about', () => {
   it('puts Spring first and Connor second, each in their own photo from this site, never initials', () => {
     expect($$('.bio h3').map(text)).toEqual(['Spring Bengtzen', 'Connor Leiva']);
     expect($$('.bio img').map((i) => [i.getAttribute('src'), i.getAttribute('alt')])).toEqual(SRCS);
-    for (const p of Object.values(ABOUT_PHOTOS)) {
+    for (const p of [...Object.values(ABOUT_PHOTOS), ABOUT_HERO_PHOTO]) {
       const file = readFileSync(resolve(HERE, `../../public${p.src}`));
       expect([file[0], file[1]], p.src).toEqual([0xff, 0xd8]);
     }
     expect($$('.bio-role').map(text)).toEqual(ROLES);
-    // Every image on the page is one of their two photos.
-    expect(new Set($$('main img').map((i) => i.getAttribute('src')))).toEqual(new Set(SRCS.map(([s]) => s)));
+    // Every image on the page is one of their own photos: the two of them together, then one each.
+    expect(new Set($$('main img').map((i) => i.getAttribute('src')))).toEqual(
+      new Set([ABOUT_HERO_PHOTO.src, ...SRCS.map(([s]) => s)]),
+    );
     expect(html).not.toMatch(/initials|>SB<|>CL</);
   });
 
