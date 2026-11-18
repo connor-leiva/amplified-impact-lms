@@ -79,6 +79,12 @@ export interface TableProps<R> {
   primary?: (r: R) => ReactNode;
   /** The actions track (the mockup's `aw`): 32px by default. */
   actionsWidth?: string;
+  /**
+   * D-187: the hover actions sit in the actions track's own room, before the primary control and the
+   * "…", instead of floating over the column before it (the mockup's overlay). For a table whose
+   * `actionsWidth` leaves room for them, so they cover no other cell and can be clicked from rest.
+   */
+  quickInline?: boolean;
   /** A card head: the title and what sits at its right (R2-2). */
   title?: string;
   right?: ReactNode;
@@ -103,6 +109,7 @@ export function Table<R>({
   quick,
   primary,
   actionsWidth,
+  quickInline,
   title,
   right,
   card,
@@ -430,7 +437,7 @@ export function Table<R>({
               {hasActions ? (
                 <div role="cell" className={k.ra}>
                   {quick ? (
-                    <span className={k.hv}>
+                    <span className={clsx(k.hv, quickInline && k.hvIn)}>
                       {quick(r).map((q) => (
                         <button
                           key={q.label}

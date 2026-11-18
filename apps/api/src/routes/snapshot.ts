@@ -40,13 +40,14 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
-import { acceleratorAccess } from '../lib/course-access';
+import { viewerAccessFor } from '../lib/course-access';
 
 export function registerSnapshotRoute(app: FastifyInstance): void {
   app.get('/api/snapshot', { preHandler: requireSession }, async (req): Promise<Db> => {
     const { actor } = viewerOrThrow(req);
     const db = getDb();
-    const access = actor.kind === 'learner' ? { accelerator: await acceleratorAccess(db, actor.userId, clock.now()) } : undefined;
+    // D-175: the course opens to a learner on its own dates (the preview, each week's opening).
+    const access = actor.kind === 'learner' ? await viewerAccessFor(db, actor.userId, clock.now()) : undefined;
     return scopeSnapshot(await loadDb(db), actor, access);
   });
 }

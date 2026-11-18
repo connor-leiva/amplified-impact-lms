@@ -16,6 +16,10 @@ export const UI_LABELS: readonly { text: string; why: string }[] = [
     text: 'opens 15 min before',
     why: 'How a live session’s Join behaves (`JOIN_WINDOW_SHUT` in the join route, and the portal’s join note). The course intro repeats the rule.',
   },
+  {
+    text: 'Connect Your Data',
+    why: 'Part of the course page’s Before heading, “Three Ways to Connect Your Data” (the lanes section, chrome since D-110). D-176’s Week 0 names its sixth step the same words; the step itself still comes from the database.',
+  },
 ];
 
 /** The allowlisted strings alone. */

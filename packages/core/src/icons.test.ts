@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ICONS, MODULE_ICONS } from './icons';
 import { ref } from '../test/oracle';
 
-const lms = Object.fromEntries(Object.entries(ICONS).filter(([k]) => !k.startsWith('r2')));
+const lms = Object.fromEntries(Object.entries(ICONS).filter(([k]) => !k.startsWith('r2') && !/^lv[A-Z]/.test(k)));
+const lv = Object.fromEntries(Object.entries(ICONS).filter(([k]) => /^lv[A-Z]/.test(k)));
 const r2 = Object.fromEntries(Object.entries(ICONS).filter(([k]) => k.startsWith('r2')));
 
 describe('icons @g1', () => {
@@ -12,7 +13,11 @@ describe('icons @g1', () => {
   // Verbatim against the mockup's `P` map: apps/web/src/styles/r2-tokens.test.ts, which can read it.
   it('adds the R2 mockup’s 45 as r2* (D-160 R2-1b)', () => {
     expect(Object.keys(r2)).toHaveLength(45);
-    expect(Object.keys(ICONS)).toHaveLength(126);
+  });
+  // Verbatim against the learner mockup's artboards: apps/web/src/routes/learn/icons.test.ts, which reads them.
+  it('adds the learner v2 mockup’s 13 chrome glyphs as lv* (D-177, D-178)', () => {
+    expect(Object.keys(lv)).toHaveLength(13);
+    expect(Object.keys(ICONS)).toHaveLength(139);
   });
   it('every module icon exists in the set', () => {
     for (const name of MODULE_ICONS) expect(ICONS[name]).toBeTruthy();

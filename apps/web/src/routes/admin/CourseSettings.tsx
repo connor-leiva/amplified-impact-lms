@@ -175,6 +175,8 @@ function SharedPages({ cohortId, initial }: { cohortId: string; initial: CohortC
         <Area label="The operator’s role" value={c.intro.roles.operator} onChange={(v) => up((x) => (x.intro.roles.operator = v))} />
         <Area label="Scope" value={c.intro.scope} onChange={(v) => up((x) => (x.intro.scope = v))} />
         <Area label="Support" value={c.intro.support} onChange={(v) => up((x) => (x.intro.support = v))} />
+        {/* D-187: the learner portal's Cohort Community link, on Home. Empty hides it. */}
+        <Field label="Community link" type="url" hint="https://" value={c.intro.community ?? ''} onChange={(v) => up((x) => (x.intro.community = v))} />
         <Field label="Instructor" value={c.intro.instructor} onChange={(v) => up((x) => (x.intro.instructor = v))} />
         <Area label="Holiday note" value={c.intro.holiday} onChange={(v) => up((x) => (x.intro.holiday = v))} />
         <Field label="Join label" value={c.intro.join.label} onChange={(v) => up((x) => (x.intro.join.label = v))} />

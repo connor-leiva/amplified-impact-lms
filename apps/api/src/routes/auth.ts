@@ -4,7 +4,7 @@
 //   POST   /api/auth/verify     {token}  → 200 {ok:true, team} + the ai_sid cookie, or 400
 //   POST   /api/auth/sign-out            → 200 {ok:true}, idempotent
 //   GET    /api/me                       → { viewer: { actor, role }, prefs }
-//   PATCH  /api/me/prefs        {tz?, theme?}
+//   PATCH  /api/me/prefs        {tz?, theme?, sidebar?}
 //
 // The policy is in `../auth/` — tokens, sessions, the cookie's attributes, the role. This file is
 // the HTTP surface over it: status codes, bodies, rate limits, and what the web app's two sign-in
@@ -91,7 +91,8 @@ export const AUTH_REQUEST_IP_MAX = 30;
 const requestBody = z.strictObject({ email: z.string(), next: z.string().max(200).optional() });
 const verifyBody = z.strictObject({ token: z.string() });
 /**
- * § 7.5's `PATCH /api/me/prefs {tz?, theme?}`.
+ * § 7.5's `PATCH /api/me/prefs {tz?, theme?}`, with D-185's `sidebar?` (the learner portal v2's desktop
+ * sidebar, full or the rail), stored in the same `users.prefs` column, so no migration.
  *
  * `tz` is nullable so the viewer can go back to "use the program zone"; `theme` is not, because
  * there is no third state — the pre-paint script in `index.html` reads `'dark'` or falls back to
@@ -101,6 +102,7 @@ const verifyBody = z.strictObject({ token: z.string() });
 const prefsBody = z.strictObject({
   tz: z.string().nullable().optional(),
   theme: z.enum(['light', 'dark']).optional(),
+  sidebar: z.enum(['full', 'rail']).optional(),
 });
 
 /**
@@ -386,9 +388,9 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     const viewer = viewerOrThrow(req);
     const parsed = prefsBody.safeParse(req.body);
     if (!parsed.success) {
-      return reply.code(400).send({ error: 'Expected a JSON body of { tz?, theme? }.' });
+      return reply.code(400).send({ error: 'Expected a JSON body of { tz?, theme?, sidebar? }.' });
     }
-    const { tz, theme } = parsed.data;
+    const { tz, theme, sidebar } = parsed.data;
     if (typeof tz === 'string' && !isTimeZone(tz)) {
       return reply.code(422).send({ error: `${tz} is not a time zone this server recognizes.` });
     }
@@ -397,6 +399,7 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     const patch: ViewerPrefs = {};
     if (tz !== undefined) patch.tz = tz;
     if (theme !== undefined) patch.theme = theme;
+    if (sidebar !== undefined) patch.sidebar = sidebar;
     // Re-read rather than trusting the copy `requireSession` loaded: two tabs can patch different
     // keys within a request of each other, and merging onto a stale row loses one of them.
     const fresh = await userById(db, viewer.user.id);

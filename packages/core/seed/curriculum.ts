@@ -49,8 +49,16 @@ export const CURRICULUM_SEED = 'accelerator-v1';
 export const SEED_TIMEZONE = 'America/Denver';
 export const SEED_OPEN_TIME = '12:00';
 
-/** The copy strings the builder starts with. Utah Life's lock line is exactly D-150's words. */
-export const SEED_COPY: readonly CopyString[] = [{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }];
+/**
+ * The copy strings the builder starts with. Utah Life's lock line is exactly D-150's words. D-175 adds
+ * what a locked week says by default (`locked.opens`, its `{date}` filled by the page; a week's own
+ * locked copy, set in the builder, comes first) and the course's pre-launch preview line.
+ */
+export const SEED_COPY: readonly CopyString[] = [
+  { key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' },
+  { key: 'locked.opens', value: 'Opens {date}', audience: 'learner' },
+  { key: 'course.prelaunch', value: 'Pre-launch preview: Week 0 is open now, and each week opens on the date shown.', audience: 'learner' },
+];
 
 /** What a seeded session is: a build, a goal-planning Thursday (Dec 10 and Dec 17) or plain office hours. */
 export function seedSessionType(s: Pick<Session, 'id' | 'n'>): SessionType {

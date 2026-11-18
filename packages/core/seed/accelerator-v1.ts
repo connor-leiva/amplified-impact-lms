@@ -141,7 +141,7 @@ export function acceleratorCohort(): Cohort {
 
 export const ESTIMATE_NOTE = 'These are planning estimates, not guarantees.';
 
-const WEEK_TIME = { owner: 'About 2 to 2.5 hours, including the 90-minute build and real use.', operator: 'About 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them.' };
+export const WEEK_TIME = { owner: 'About 2 to 2.5 hours, including the 90-minute build and real use.', operator: 'About 3 to 4 hours, including the build, practice, refreshing inputs and office hours if you need them.' };
 
 /** The 90-minute live build, weeks 1 to 7. */
 export const LIVE_BUILD_AGENDA: AgendaItem[] = [
@@ -329,7 +329,7 @@ const officeHours = (week: number, title: string, note = 'Bring the issue form. 
   format: OFFICE_HOURS_FORMAT,
 });
 
-const OWNER_APPROVAL = 'The owner reviews and approves one real run during class, even if the operator did the setup. Delegate the maintenance, not the understanding.';
+export const OWNER_APPROVAL = 'The owner reviews and approves one real run during class, even if the operator did the setup. Delegate the maintenance, not the understanding.';
 
 export const ACCELERATOR_WEEKS_CONTENT: CourseWeek[] = [
   {
@@ -1026,46 +1026,53 @@ const ids6 = (steps: Omit<Step, 'id'>[]): Step[] => steps.map((s, i) => ({ id: `
  * every Accelerator buyer's account is; who may open the course at all is `acceleratorOpen`.
  */
 export function acceleratorModules(instructor: string = ACCELERATOR_INSTRUCTOR): AIEmployee[] {
-  return ACCELERATOR_WEEKS_CONTENT.map((w): AIEmployee => {
-    const checklist = ids6(w.module.checklist);
-    // Week 8 has no flagship of its own: it reruns earlier weeks' skills, so it points at those.
-    const flagships = w.skills.some((s) => s.role === 'flagship') ? w.skills.filter((s) => s.role === 'flagship') : w.skills;
-    const lines = [
-      `# Week ${w.week} · ${w.title}`,
-      'The prompts for this week stay in the Library, not here.',
-      'Open each guided setup and copy the prompts from there:',
-      // A skill's guided setup is in learn (D-151); a page that is not a skill is still on www.
-      ...flagships.map((s) => `- ${s.title}: ${courseGuideUrl(s.route, LIBRARY_ORIGIN)}`),
-      '',
-      `The full week is at ${coursePath(w.week)}.`,
-    ];
-    return {
-      id: acceleratorModuleId(w.week),
-      name: `Week ${w.week} · ${w.title}`,
-      short: `Week ${w.week}`,
-      tier: 'team',
-      icon: w.module.icon,
-      forWho: 'team owners and their operators',
-      headline: w.question,
-      outcome: w.module.outcome,
-      outputs: [...w.module.outputs],
-      platform: w.module.platform,
-      runLabel: w.module.runLabel,
-      build: checklist.reduce((a, s) => a + s.mins, 0),
-      session: w.week === 0 ? null : w.week,
-      status: 'published',
-      opens: null,
-      order: w.week + 1,
-      dur: 0,
-      instructor,
-      transcript: [],
-      notes: `${w.why.join(' ')} Owner: ${w.owner} Operator: ${w.operator} Time: owner ${w.time.owner.charAt(0).toLowerCase()}${w.time.owner.slice(1)} Operator ${w.time.operator.charAt(0).toLowerCase()}${w.time.operator.slice(1)} ${ESTIMATE_NOTE} The full week, with the live build, office hours, homework, evidence packet and rubric, is at ${coursePath(w.week)}.`,
-      prompt: lines.join('\n'),
-      files: [],
-      resources: [],
-      checklist,
-    };
-  });
+  return ACCELERATOR_WEEKS_CONTENT.map((w) => weekModule(w, instructor));
+}
+
+/**
+ * One week as its AI Employee row. Shared with the Weeks 0 to 3 content step (D-176, `weeks-0-3-v2.ts`),
+ * so a week it rewrites gets its name, notes and prompt pointer the way the seed writes them. A
+ * checklist keeps the ids `c1`, `c2` and on, so learner progress (`steps: ['c1', …]`) survives.
+ */
+export function weekModule(w: CourseWeek, instructor: string = ACCELERATOR_INSTRUCTOR): AIEmployee {
+  const checklist = ids6(w.module.checklist);
+  // Week 8 has no flagship of its own: it reruns earlier weeks' skills, so it points at those.
+  const flagships = w.skills.some((s) => s.role === 'flagship') ? w.skills.filter((s) => s.role === 'flagship') : w.skills;
+  const lines = [
+    `# Week ${w.week} · ${w.title}`,
+    'The prompts for this week stay in the Library, not here.',
+    'Open each guided setup and copy the prompts from there:',
+    // A skill's guided setup is in learn (D-151); a page that is not a skill is still on www.
+    ...flagships.map((s) => `- ${s.title}: ${courseGuideUrl(s.route, LIBRARY_ORIGIN)}`),
+    '',
+    `The full week is at ${coursePath(w.week)}.`,
+  ];
+  return {
+    id: acceleratorModuleId(w.week),
+    name: `Week ${w.week} · ${w.title}`,
+    short: `Week ${w.week}`,
+    tier: 'team',
+    icon: w.module.icon,
+    forWho: 'team owners and their operators',
+    headline: w.question,
+    outcome: w.module.outcome,
+    outputs: [...w.module.outputs],
+    platform: w.module.platform,
+    runLabel: w.module.runLabel,
+    build: checklist.reduce((a, s) => a + s.mins, 0),
+    session: w.week === 0 ? null : w.week,
+    status: 'published',
+    opens: null,
+    order: w.week + 1,
+    dur: 0,
+    instructor,
+    transcript: [],
+    notes: `${w.why.join(' ')} Owner: ${w.owner} Operator: ${w.operator} Time: owner ${w.time.owner.charAt(0).toLowerCase()}${w.time.owner.slice(1)} Operator ${w.time.operator.charAt(0).toLowerCase()}${w.time.operator.slice(1)} ${ESTIMATE_NOTE} The full week, with the live build, office hours, homework, evidence packet and rubric, is at ${coursePath(w.week)}.`,
+    prompt: lines.join('\n'),
+    files: [],
+    resources: [],
+    checklist,
+  };
 }
 
 /** The course, as `GET /api/course` sends it to a buyer whose plan opens it. */

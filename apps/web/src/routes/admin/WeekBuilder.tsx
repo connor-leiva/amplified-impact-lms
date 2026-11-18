@@ -21,6 +21,8 @@ import { Confirm, Modal } from '../../components/r2/Modal';
 import { KV, Pill, Sel, Tabs, TextArea, k } from '../../components/r2/kit';
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
+import { LearnerWeekPreview } from '../learn/Preview';
+import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
   BLOCK_LABELS,
@@ -45,6 +47,7 @@ import {
   unattached,
   weekKit,
   weekSessions,
+  withDraft,
 } from './WeekBuilder.vm';
 import type { KitRow, PreviewAs, WeekDraft, WeekSessionRow } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
@@ -567,7 +570,8 @@ const EMPTY: { [K in CardKey]: NonNullable<WeekDraft['course'][K]> } = {
   seatCard: { seat: '', reportsTo: '', runs: '', pulls: '', applies: '', produces: '', tookOver: '', cantDo: '' },
   playbookCard: { number: '', question: '', play: '', signedOff: false },
   sampleOutput: { title: '', madeUpLabel: 'Made-up data', blocks: [] },
-  lockedCopy: { headline: '', line: '', opens: 'Opens {date}' },
+  // The opening line starts empty: until it says something, the `locked.opens` copy string speaks (D-175).
+  lockedCopy: { headline: '', line: '', opens: '' },
   statusLabels: {},
 };
 
@@ -709,8 +713,8 @@ function LockedFields({ card, set }: { card: LockedCopy; set: (fn: (c: LockedCop
     <>
       <Line label="Headline" value={card.headline} onChange={(v) => set((c) => (c.headline = v))} />
       <Para label="Line" value={card.line} onChange={(v) => set((c) => (c.line = v))} />
-      <Line label="Opens" value={card.opens} hint="Opens {date}" onChange={(v) => set((c) => (c.opens = v))} />
-      <p className={clsx(k.p, k.me)}>{'{date}'} becomes the week’s opening day and time, in Mountain Time.</p>
+      <Line label="Opens" value={card.opens} onChange={(v) => set((c) => (c.opens = v))} />
+      <p className={clsx(k.p, k.me)}>Write {'{date}'} where the week’s opening day and time go (Mountain Time). Leave it empty to use the course’s own line (Course settings, locked.opens).</p>
     </>
   );
 }
@@ -955,15 +959,17 @@ function KitCard({ db, draft, act }: WeekCardsProps) {
 
 export type { WeekDraft };
 
-// --- the live preview: the learner's course page, from the unsaved draft ---------------------------
+// --- the live preview: the learner's week page, from the unsaved draft -----------------------------
 
 /**
- * Preview as Learner, for a course week: the learner's course page drawn from the draft as it is now
- * (nothing saved, nothing sent), as an owner, an operator, a Utah Life member and a buyer before
- * launch. The page is the real one (`CourseBody`), given the draft instead of the API's answer.
+ * Preview as Learner, for a course week: the learner portal's week page and step player (D-184) drawn
+ * from the draft as it is now (nothing saved, nothing sent), as an owner, an operator, a Utah Life member
+ * and a buyer before launch. The pages are the real ones, given the draft instead of the API's answer; a
+ * plan without the course and a buyer before the preview still see the course page's own words for it.
  */
 export function CoursePreview({ db, draft, phone, onClose }: { db: Db; draft: WeekDraft; phone: boolean; onClose: () => void }) {
   const [as, setAs] = useState<PreviewAs>('owner');
+  const now = useNow(30_000);
   const load = previewLoad(db, draft, as, COURSE_OPENS_AT);
   return (
     <Modal
@@ -985,7 +991,11 @@ export function CoursePreview({ db, draft, phone, onClose }: { db: Db; draft: We
       />
       <p className={clsx(k.p, k.me)}>From the unsaved draft. Nothing here is saved or sent; learners see it after you save.</p>
       <div className={w.preview} data-testid="course-preview">
-        <CourseBody load={load} week={previewWeek(draft)} />
+        {load.kind === 'ready' ? (
+          <LearnerWeekPreview key={as} payload={load.payload} db={withDraft(db, draft)} week={draft.course.week} now={now} />
+        ) : (
+          <CourseBody load={load} week={previewWeek(draft)} />
+        )}
       </div>
     </Modal>
   );

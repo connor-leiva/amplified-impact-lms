@@ -9,6 +9,7 @@ import {
   deleteSession,
   editResource,
   saveBuilderModule,
+  communityUrl,
   saveCohortCourse,
   saveCohortPlan,
   saveCopyString,
@@ -171,16 +172,37 @@ describe('the cohort: release plan and shared pages (D-174)', () => {
     expect(out.audit).toEqual({ action: 'cohort.course_save', target: { type: 'cohort', id: 'dec26', label: db.cohorts[0]!.name }, after: { changed: ['intro.sub'], count: 1 } });
     forbidden(() => saveCohortCourse(prod(), SUPPORT, { cohortId: 'dec26', course }, mkCtx()));
   });
+
+  it('D-187: the cohort community link is saved trimmed, refused unless it is a web address, and dropped when emptied @parity:D-10', () => {
+    const db = prod();
+    const course = structuredClone(db.cohorts[0]!.course!);
+    course.intro.community = '  https://www.skool.com/amplified-dec26 ';
+    const out = saveCohortCourse(db, OWNER, { cohortId: 'dec26', course }, mkCtx());
+    expect(out.error).toBeUndefined();
+    expect(out.db.cohorts[0]!.course!.intro.community).toBe('https://www.skool.com/amplified-dec26');
+    expect(out.audit?.after).toEqual({ changed: ['intro.community'], count: 1 });
+    for (const bad of ['javascript:alert(1)', 'skool.com/amplified', 'mailto:help@example.com']) {
+      course.intro.community = bad;
+      expect(saveCohortCourse(out.db, OWNER, { cohortId: 'dec26', course }, mkCtx()).error).toBe('A community link is a web address that starts with https://.');
+    }
+    course.intro.community = '';
+    const cleared = saveCohortCourse(out.db, OWNER, { cohortId: 'dec26', course }, mkCtx());
+    expect(cleared.db.cohorts[0]!.course!.intro).not.toHaveProperty('community');
+    expect(communityUrl('https://example.com/c')).toBe('https://example.com/c');
+    expect(communityUrl('ftp://example.com')).toBeNull();
+    expect(communityUrl(undefined)).toBeNull();
+  });
 });
 
 describe('copy strings (D-174)', () => {
   it('changes Utah Life’s lock line and adds a new key, each audited without its text', () => {
     const db = prod();
     const out = saveCopyString(db, OWNER, { key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' }, mkCtx());
-    expect(out.db.copy).toEqual([{ key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' }]);
+    expect(out.db.copy!.find((c) => c.key === 'locked.utah_life')).toEqual({ key: 'locked.utah_life', value: 'Not included with your Utah Life access', audience: 'learner' });
+    expect(out.db.copy!.map((c) => c.key)).toEqual(db.copy!.map((c) => c.key));
     expect(out.audit).toMatchObject({ action: 'copy.save', target: { id: 'locked.utah_life' }, before: { audience: 'learner', length: 34 }, after: { length: 39, changed: ['value'] } });
     const added = saveCopyString(out.db, EDITOR, { key: 'schedule.subtitle', value: 'Every live session, in Mountain Time.', audience: 'learner' }, mkCtx());
-    expect(added.db.copy!.map((c) => c.key)).toEqual(['locked.utah_life', 'schedule.subtitle']);
+    expect(added.db.copy!.map((c) => c.key)).toEqual([...db.copy!.map((c) => c.key), 'schedule.subtitle']);
   });
 
   it('refuses a bad key, an empty value, an em dash; Support may not', () => {

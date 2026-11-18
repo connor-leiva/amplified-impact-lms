@@ -20,6 +20,8 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/dist/**',
       '**/dist-fixture/**',
+      // D-182: the flag-on fixture build (`build:fixture:v2`).
+      '**/dist-fixture-v2/**',
       'design-reference/**',
       'handoff-starter/**',
       // Design handoffs kept verbatim for reference (the mockup's own markup, styles and script).
@@ -53,7 +55,9 @@ export default tseslint.config(
     // seed (packages/core/seed) or the old content modules; tests and the seed CLI may. The copy guard
     // test (apps/api/test/copy-guard.test.ts) also checks that no seed string is written into runtime.
     files: ['apps/web/src/**/*.{ts,tsx}', 'apps/api/src/**/*.ts', 'packages/core/src/**/*.ts'],
-    ignores: ['**/*.test.{ts,tsx}', 'apps/api/src/db/seed.ts', 'apps/web/src/test-setup.ts'],
+    // The seed CLI and its one-time data steps (D-175) are deploy-time tooling, never the server's runtime.
+    // A `test/` folder holds a test's own data (D-177's learner fixture), as the copy guard reads it.
+    ignores: ['**/*.test.{ts,tsx}', '**/test/**', 'apps/api/src/db/seed.ts', 'apps/api/src/db/data-migrations.ts', 'apps/web/src/test-setup.ts'],
     rules: {
       'no-restricted-imports': [
         'error',

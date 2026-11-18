@@ -14,7 +14,7 @@ import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from '../library/PreLaunch';
 import { COPY, courseView, isExternal } from './Course.vm';
-import type { CoursePayload, DownloadVM, OverviewVM, Row, WeekVM } from './Course.vm';
+import type { CoursePayload, DownloadVM, LockedWeekVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
 
 /** A link that leaves learn opens in a new tab; a guided setup in learn (D-151) opens in this one. */
@@ -127,9 +127,11 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
           {vm.weeks.map((w) => (
             <li key={w.week} className={s.card}>
               <a className={s.cardLink} href={w.href}>
-                <span className={s.cardTitle}>{w.heading}</span>
+                <span className={s.cardTitle}>
+                  {w.locked ? <Icon name="lock" size={14} label="Locked" /> : null} {w.heading}
+                </span>
                 <span className={s.cardQuestion}>{w.question}</span>
-                <span className={s.cardMeta}>{w.flagship}</span>
+                <span className={s.cardMeta}>{w.locked ? w.opens : w.flagship}</span>
               </a>
             </li>
           ))}
@@ -159,20 +161,28 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
         </h3>
         <Bullets items={vm.before.orientation.topics} />
         <p className={s.placeholder}>{vm.before.orientation.media}</p>
-        <h3 className={s.h3}>{COPY.dataPack}</h3>
-        <dl className={s.rows}>
-          {vm.before.dataPack.map((d) => (
-            <div key={d.input} className={s.row}>
-              <dt className={s.rowLabel}>{d.input}</dt>
-              <dd className={s.rowText}>
-                <strong>{COPY.preferred}:</strong> {d.preferred} <strong>{COPY.minimum}:</strong> {d.minimum}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <h3 className={s.h3}>{COPY.practiceSet}</h3>
-        <p className={s.text}>{vm.before.practiceSetNote}</p>
-        <Downloads items={vm.before.downloads} />
+        {vm.before.dataPack.length ? (
+          <>
+            <h3 className={s.h3}>{COPY.dataPack}</h3>
+            <dl className={s.rows}>
+              {vm.before.dataPack.map((d) => (
+                <div key={d.input} className={s.row}>
+                  <dt className={s.rowLabel}>{d.input}</dt>
+                  <dd className={s.rowText}>
+                    <strong>{COPY.preferred}:</strong> {d.preferred} <strong>{COPY.minimum}:</strong> {d.minimum}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        ) : null}
+        {vm.before.practiceSetNote ? (
+          <>
+            <h3 className={s.h3}>{COPY.practiceSet}</h3>
+            <p className={s.text}>{vm.before.practiceSetNote}</p>
+            <Downloads items={vm.before.downloads} />
+          </>
+        ) : null}
         <h3 className={s.h3}>{COPY.safeSharing}</h3>
         <Bullets items={vm.before.safeSharing} />
         <h3 className={s.h3}>{COPY.lanes}</h3>
@@ -192,6 +202,49 @@ function Overview({ vm, notFound }: { vm: OverviewVM; notFound: boolean }) {
       </Section>
 
       <p className={s.note}>{vm.support}</p>
+    </>
+  );
+}
+
+/** D-175: a week the learner can't open yet: where it sits, what it asks, when it opens. Nothing more. */
+function LockedWeek({ vm }: { vm: LockedWeekVM }) {
+  return (
+    <>
+      <header className={s.head}>
+        <BrandSlot kind="lockup" />
+        <a className={s.back} href="/course">
+          <Icon name="chevL" size={14} />
+          {COPY.allWeeks}
+        </a>
+        <h1 className={s.h1}>{vm.heading}</h1>
+        <p className={s.question}>{vm.question}</p>
+      </header>
+      <section className={s.section} aria-label={vm.heading}>
+        {vm.headline ? <h2 className={s.h2}>{vm.headline}</h2> : null}
+        {vm.line ? <p>{vm.line}</p> : null}
+        {vm.outcome ? <p className={s.note}>{vm.outcome}</p> : null}
+        {vm.opens ? (
+          <p className={s.opens}>
+            <Icon name="lock" size={16} /> {vm.opens}
+          </p>
+        ) : null}
+      </section>
+      <nav className={s.pager} aria-label="Weeks">
+        {vm.prev ? (
+          <a className={s.secondary} href={vm.prev.href}>
+            <Icon name="arrowR" size={14} className={s.flip} />
+            {vm.prev.label}
+          </a>
+        ) : (
+          <span />
+        )}
+        {vm.next ? (
+          <a className={s.primary} href={vm.next.href}>
+            {vm.next.label}
+            <Icon name="arrowR" size={14} />
+          </a>
+        ) : null}
+      </nav>
     </>
   );
 }
@@ -232,10 +285,14 @@ function Week({ vm }: { vm: WeekVM }) {
                 </span>
                 <span className={s.text}>{k.use}</span>
               </div>
-              <a className={s.secondary} href={k.href} {...newTab(k.href)}>
-                <Icon name="listChecks" size={16} />
-                {COPY.guidedSetup}
-              </a>
+              {k.href ? (
+                <a className={s.secondary} href={k.href} {...newTab(k.href)}>
+                  <Icon name="listChecks" size={16} />
+                  {COPY.guidedSetup}
+                </a>
+              ) : k.pending ? (
+                <span className={s.tag}>{k.pending}</span>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -273,6 +330,12 @@ function Week({ vm }: { vm: WeekVM }) {
                         </a>
                       </Fragment>
                     ))}
+                  </>
+                ) : null}
+                {step.pending ? (
+                  <>
+                    {' '}
+                    <span className={s.tag}>{step.pending}</span>
                   </>
                 ) : null}
               </span>
@@ -474,7 +537,14 @@ export function CourseBody({ load, week }: { load: Load; week: string | undefine
       ) : view ? (
         <>
           {view.preview ? <p className={s.previewTag}>{COPY.preview}</p> : null}
-          {view.kind === 'week' ? <Week vm={view.vm} /> : <Overview vm={view.vm} notFound={view.notFound} />}
+          {view.prelaunch ? <p className={s.prelaunch}>{view.prelaunch}</p> : null}
+          {view.kind === 'week' ? (
+            <Week vm={view.vm} />
+          ) : view.kind === 'locked' ? (
+            <LockedWeek vm={view.vm} />
+          ) : (
+            <Overview vm={view.vm} notFound={view.notFound} />
+          )}
         </>
       ) : null}
     </main>

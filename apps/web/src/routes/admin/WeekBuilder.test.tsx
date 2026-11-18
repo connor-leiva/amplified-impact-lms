@@ -3,6 +3,7 @@
 // and Kit save at once, so their writes are checked on a mocked `act`.
 import { useState } from 'react';
 import { MemoryRouter } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -167,23 +168,38 @@ describe('a step’s course fields (D-174)', () => {
   });
 });
 
-describe('the live preview from the unsaved draft (D-174)', () => {
-  it('draws the learner’s course page from the draft, as an owner, a Utah Life member and before launch', async () => {
+describe('the live preview from the unsaved draft (D-174, D-184)', () => {
+  it('@parity:C-9 draws the learner portal’s week page and step player from the draft: an unsaved edit shows, as an owner, a Utah Life member and before launch', async () => {
     const user = userEvent.setup();
     const db = prod();
     const draft = structuredClone(db.modules.find((x) => x.id === ACCELERATOR_MODULE_IDS[2])!);
     if (!isWeekDraft(draft)) throw new Error('not a week');
-    draft.course.question = 'Which lead sources pay, today?';
-    render(<CoursePreview db={db} draft={draft} phone={false} onClose={() => {}} />);
+    draft.course.why = ['A draft reason only the preview has seen.'];
+    draft.course.liveBuild!.lesson = 'A draft lesson for the preview alone.';
+    draft.prompt = 'You are the draft analyst for {{TEAM_NAME}}.';
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CoursePreview db={db} draft={draft} phone={false} onClose={() => {}} />
+      </QueryClientProvider>,
+    );
     const frame = screen.getByTestId('course-preview');
-    // Not saved anywhere: the db still says the old question, and the preview says the new one.
-    expect(db.modules.find((x) => x.id === draft.id)!.course!.question).not.toBe('Which lead sources pay, today?');
-    expect(frame).toHaveTextContent('Which lead sources pay, today?');
+    // Not saved anywhere: the db still says the old words, and the preview, the learner portal's own week
+    // page (D-184), says the new ones.
+    expect(db.modules.find((x) => x.id === draft.id)!.course!.why).not.toContain('A draft reason only the preview has seen.');
+    expect(frame.querySelector('[data-learner-v2]')).not.toBeNull();
+    expect(within(frame).getByRole('heading', { level: 1, name: draft.course.title })).toBeInTheDocument();
+    expect(within(frame).getByRole('region', { name: COPY.why })).toHaveTextContent('A draft reason only the preview has seen.');
+    expect(within(frame).getByRole('region', { name: COPY.liveBuild })).toHaveTextContent('A draft lesson for the preview alone.');
+    expect(within(frame).getByRole('region', { name: 'Build Kit' })).toHaveTextContent('TEAM_NAME');
+    // A step row moves the preview to the step player, not the builder's page; staff can't mark it done.
+    await user.click(within(frame).getAllByRole('link', { name: /^Step 1,/ })[0]!);
+    expect(within(frame).getByRole('heading', { level: 1, name: draft.checklist[0]!.ch || draft.checklist[0]!.text })).toBeInTheDocument();
+    expect(within(frame).getByRole('button', { name: 'Mark step done' })).toBeDisabled();
     await user.click(screen.getByRole('tab', { name: 'Utah Life' }));
     expect(frame).toHaveTextContent(COPY.locked);
-    expect(frame).not.toHaveTextContent('Which lead sources pay, today?');
+    expect(frame).not.toHaveTextContent('A draft reason only the preview has seen.');
     await user.click(screen.getByRole('tab', { name: 'Before launch' }));
-    expect(frame).not.toHaveTextContent('Which lead sources pay, today?');
+    expect(frame).not.toHaveTextContent('A draft reason only the preview has seen.');
     expect(within(frame).getByRole('link', { name: COPY.library })).toBeInTheDocument();
   });
 });
