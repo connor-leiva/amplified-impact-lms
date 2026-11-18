@@ -16,7 +16,9 @@
 import { produce } from 'immer';
 import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
-import { buildOf, canAccess, isOpen, progressOf, runtimeOf } from './status';
+import { NOT_IN_PLAN, isAcceleratorModule } from './accelerator';
+import { canOpenModule } from './release';
+import { buildOf, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
 import { seatCaps } from './seats';
 import { downgradeUser, upgradeUser } from './tiers';
@@ -48,6 +50,13 @@ import type {
 export interface Ctx {
   now: number;
   id: (prefix: string) => string;
+  /**
+   * D-186: whether the acting learner's plan opens the course right now (D-110), where the caller knows
+   * it: the API reads it from the plan for every learner's write. A course week's steps follow it, not
+   * the tier (`canOpenModule`). Absent (the fixture build, the oracle), a course week the learner has is
+   * open, as their snapshot carries one only when they are in the course.
+   */
+  course?: boolean;
 }
 
 export type Actor = { kind: 'learner'; userId: string } | { kind: 'staff'; staffId: string };
@@ -219,7 +228,8 @@ export function dismissAnnouncement(db: Db, a: Actor, args: { id: string }, _c: 
 export function toggleStep(db: Db, a: Actor, args: { moduleId: string; stepId: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);
   const m = moduleOf(db, args.moduleId);
-  if (!canAccess(u, m)) throw new MutationError('forbidden', 'Team tier required');
+  // D-186: a course week follows course access, every other module the tier.
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
   if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   const p = progressOf(u, m);
   if (p.deployedAt && p.steps.includes(args.stepId))
@@ -251,7 +261,7 @@ export function toggleStep(db: Db, a: Actor, args: { moduleId: string; stepId: s
     ? {
         db: next,
         toast: {
-          msg: `${m.name} is built. Deploy it from the card on the right.`,
+          msg: `${m.name} is built. Deploy it from the Your Deployment card.`,
           tone: 'success',
         },
         effects: [{ type: 'confetti' }],

@@ -22,6 +22,7 @@ import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
 import { HUE, LABELS, barVM, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
+import { hireNav, hireOfPath, hireRows } from '../../routes/learn/Hire.vm';
 import { learnAccount, learnHome } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
@@ -142,7 +143,7 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go, rail = fals
               {open
                 ? nav.employees.rows.map((r) => (
                     <Link
-                      key={r.week}
+                      key={r.key}
                       className={`${s.ni} ${s.em}`}
                       to={r.href}
                       title={r.title}
@@ -154,6 +155,11 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go, rail = fals
                         <Icon name={r.icon} size={14} strokeWidth={1.9} />
                       </span>
                       <span className={s.lbl}>{r.label}</span>
+                      {r.locked ? (
+                        <span className={s.nl}>
+                          <Icon name="lvLock" size={12} strokeWidth={1.75} label={LABELS.locked} />
+                        </span>
+                      ) : null}
                       {r.status ? (
                         <span className={s.es} data-tone={r.status.kind === 'ring' ? 'ip' : r.status.kind === 'built' ? 'ok' : r.status.kind === 'open' ? 'open' : undefined}>
                           {r.status.kind === 'ring' ? <Ring ratio={r.status.ratio} /> : null}
@@ -308,7 +314,9 @@ function Frame() {
   );
   const payload = course.kind === 'ready' ? course.payload : null;
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
-  const nav = navVM(payload, rows, location.pathname);
+  // D-186: the non-course AI Employees, after the course's weeks in the AI employees group.
+  const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
+  const nav = navVM(payload, rows, location.pathname, hires.map((h) => hireNav(h, location.pathname)));
   const bar = barVM(payload, now);
   const side = sideVM(db, me, payload, location.pathname, now);
 
@@ -346,7 +354,9 @@ function Frame() {
   }, [toast]);
 
   const onWeek = weekOfPath(location.pathname);
-  const here = onWeek === null ? null : rows.find((r) => r.week === onWeek);
+  const onHire = hireOfPath(location.pathname);
+  const hire = onHire === null ? undefined : hires.find((h) => h.id === onHire);
+  const here = onWeek !== null ? rows.find((r) => r.week === onWeek) : hire ? { title: hire.name } : null;
   const ctx: LearnContext = { course, db, viewer, now };
 
   return (

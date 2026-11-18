@@ -13,6 +13,8 @@ import type { RouteObject } from 'react-router';
 //   /learn/skills/:slug            a skill: its guided setup in the step player when it is open, else
 //                                  its locked preview (D-179)
 //   /learn/account                 the learner's Account page (D-178)
+//   /learn/employees/:id           a non-course AI Employee's page (D-186): any published module that
+//                                  isn't a course week, with its steps, kit and Your Deployment card
 //
 // With the flag off there are no screens here at all: every /learn address redirects to /.
 
@@ -24,6 +26,7 @@ export const learnSchedule = (view?: 'calendar'): string => `${LEARN_ROOT}/sched
 export const learnSkills = (): string => `${LEARN_ROOT}/skills`;
 export const learnSkill = (slug: string): string => `${LEARN_ROOT}/skills/${slug}`;
 export const learnAccount = (): string => `${LEARN_ROOT}/account`;
+export const learnEmployee = (id: string): string => `${LEARN_ROOT}/employees/${encodeURIComponent(id)}`;
 
 export function learnerRoutes(enabled: boolean): RouteObject[] {
   if (!enabled) return [{ path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
@@ -39,6 +42,7 @@ export function learnerRoutes(enabled: boolean): RouteObject[] {
         { path: 'skills', lazy: () => import('./Library') },
         { path: 'skills/:slug', lazy: () => import('./Skill') },
         { path: 'account', lazy: () => import('./Account') },
+        { path: 'employees/:id', lazy: () => import('./Hire') },
         { path: '*', element: <Navigate to={LEARN_ROOT} replace /> },
       ],
     },

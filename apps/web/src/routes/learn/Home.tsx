@@ -12,6 +12,7 @@ import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { LABELS, weekRows } from './learn.vm';
 import { homeVM } from './Home.vm';
+import { hireRows } from './Hire.vm';
 import type { BannerVM, CardVM, HeroRightVM, HeroVM, HomeVM, PostVM, RecentVM } from './Home.vm';
 import { CalLinks, Go, LiveDot, Mbar, Prog, SessionRows, Tile, nStyle } from './parts';
 import s from './Learn.module.css';
@@ -316,7 +317,7 @@ function Body({ vm, now }: { vm: HomeVM; now: number }) {
           </div>
           <div className={s.ocg}>
             {vm.employees.cards.map((c) => (
-              <Card key={c.week} c={c} />
+              <Card key={c.key} c={c} />
             ))}
           </div>
         </section>
@@ -392,7 +393,8 @@ export function Component() {
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const staff = viewer.actor.kind === 'staff' ? db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) : undefined;
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
-  const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now, db);
+  const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
+  const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now, db, hires);
   return <Body vm={vm} now={now} />;
 }
 

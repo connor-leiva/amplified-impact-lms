@@ -211,7 +211,10 @@ export const addLabel = (n: number): string => (n === 1 ? LABELS.addToCalendar :
 // --- the shell: the nav and the top bar -------------------------------------------------------------
 
 export interface NavEmployeeVM {
-  week: number;
+  /** D-186: unique across the group: a week's (`week:3`) or a non-course AI Employee's (`hire:<id>`). */
+  key: string;
+  /** The week, or null for a non-course AI Employee (D-186). */
+  week: number | null;
   label: string;
   title: string;
   href: string;
@@ -219,6 +222,8 @@ export interface NavEmployeeVM {
   tone: Tone;
   active: boolean;
   status: { kind: 'ring'; text: string; ratio: number } | { kind: 'built'; text: string } | { kind: 'open'; text: string } | { kind: 'opens'; text: string } | null;
+  /** D-186: a non-course AI Employee outside the learner's tier, drawn with a lock. */
+  locked?: boolean;
 }
 
 export interface NavVM {
@@ -247,7 +252,11 @@ function vaultOpens(p: CoursePayload): string | null {
   return next ? opensText(next, p.copy) : null;
 }
 
-export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathname: string): NavVM {
+/**
+ * The shell's nav. D-186: `hires` are the non-course AI Employees' rows (`Hire.vm.ts` `hireNav`), listed in
+ * the AI employees group after the course's weeks, for a learner in the course.
+ */
+export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathname: string, hires: readonly NavEmployeeVM[] = []): NavVM {
   const on = weekOfPath(pathname);
   return {
     cohort: p !== null,
@@ -258,8 +267,8 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
     employees: p
       ? {
           label: LABELS.employees,
-          count: rows.length,
-          rows: rows.map((r): NavEmployeeVM => {
+          count: rows.length + hires.length,
+          rows: [...rows.map((r): NavEmployeeVM => {
             const status: NavEmployeeVM['status'] =
               r.state === 'locked'
                 ? r.opensShort
@@ -271,6 +280,7 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
                     ? { kind: 'ring', text: `${r.done} of ${r.total}`, ratio: r.total ? r.done / r.total : 0 }
                     : { kind: 'open', text: LABELS.notStarted };
             return {
+              key: `week:${r.week}`,
               week: r.week,
               label: r.title,
               title: status ? `${r.title} · ${status.text}` : r.title,
@@ -280,7 +290,7 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
               active: on === r.week,
               status,
             };
-          }),
+          }), ...hires],
         }
       : null,
     help: { label: LABELS.help, href: SUPPORT_HREF },

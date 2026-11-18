@@ -13,10 +13,10 @@
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
 import { isAcceleratorModule } from './accelerator';
-import { kitVisible } from './release';
+import { canOpenModule, kitVisible } from './release';
 import { can } from './can';
 import { moduleForSession } from './sessions';
-import { canAccess, isOpen, visibleModules } from './status';
+import { isOpen, visibleModules } from './status';
 import { ZERO_BASE } from './types';
 import type { Actor } from './mutations';
 import type { AIEmployee, Announcement, Cohort, Db, Learner, Resource, Session } from './types';
@@ -236,13 +236,14 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   const weekOpen = (s: Session): boolean => {
     const m = moduleForSession(db, s);
     if (!m) return true;
-    if (!canAccess(me, m)) return false;
+    if (!canOpenModule(me, m, access?.accelerator)) return false;
     return access?.at === undefined || !isAcceleratorModule(m.id) || isOpen(m, access.at);
   };
   let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map((s) => redactSession(s, weekOpen(s)));
-  // Published and scheduled modules; a draft never appears. Blanked where `canAccess` is false.
+  // Published and scheduled modules; a draft never appears. Blanked where the learner may not open it:
+  // the tier decides, except for a course week, which follows course access (D-186, `canOpenModule`).
   let modules = visibleModules(db)
-    .map((m) => (canAccess(me, m) ? m : redactModule(m)))
+    .map((m) => (canOpenModule(me, m, access?.accelerator) ? m : redactModule(m)))
     .map(moduleForLearner);
   let resources = db.resources.filter((r) => r.status === 'published').map(redactResource);
   // The AI Accelerator, only for a plan that opens it (D-110). Dropped, not redacted: a redacted
