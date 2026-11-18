@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { eq, sql } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { ensureCurriculum } from '@ai/core/seed/curriculum';
 import type { SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
 import { build } from '../src/app';
 import type { App } from '../src/app';
@@ -71,7 +72,9 @@ afterAll(() => {
 });
 beforeEach(async () => {
   process.env.FIXED_NOW = new Date(TONIGHT).toISOString();
-  await resetDatabase(seedForDatabase('live'));
+  // D-173: the course is data, so the database holds it as production's does (the deploy's ensure);
+  // without it the course route answers 503 "not loaded" rather than opening at the build.
+  await resetDatabase(ensureCurriculum(seedForDatabase('live')));
   await db.insert(skills).values([
     { id: 'appointment-follow-up', title: 'Appointment Follow-Up', sets: 'agent', releasedAt: TONIGHT - 10 * DAY, files: { claude: 'afu.zip' } },
     { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: TONIGHT - 10 * DAY, files: { claude: 'pnl.zip' } },

@@ -225,7 +225,19 @@ beforeEach(async () => {
   process.env.APP_URL = 'https://learn.amplifiedimpact.io';
   resetOutbox();
   await resetDatabase();
+  courseLoaded = false;
 });
+
+/**
+ * D-173: the course is data, so a test that opens it puts it in the database first, as production's
+ * deploy does (ensure: insert-missing, idempotent). Once per test, before the first course request.
+ */
+let courseLoaded = false;
+async function withCourse(): Promise<void> {
+  if (courseLoaded) return;
+  await applyCurriculum(await db());
+  courseLoaded = true;
+}
 afterEach(async () => {
   await app?.close();
   delete process.env.FIXED_NOW;
@@ -595,6 +607,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
 
   // D-143: what the buyer and their teammates can open, around a failed second payment.
   async function twoPayView(email = 'pat@example.com') {
+    await withCourse();
     const [owner] = await (await db()).select().from(users).where(eq(users.email, email));
     const cookie = await app.signInAs(owner!.id);
     const course = await app.inject({ method: 'GET', url: '/api/course', headers: { cookie } });
@@ -1497,6 +1510,7 @@ describe('payment paths outside the per-offer block', () => {
       db: await db(),
     });
   const courseFor = async (email = 'pat@example.com') => {
+    await withCourse();
     const [owner] = await (await db()).select().from(users).where(eq(users.email, email));
     const cookie = await app.signInAs(owner!.id);
     return app.inject({ method: 'GET', url: '/api/course', headers: { cookie } });
