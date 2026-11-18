@@ -177,14 +177,16 @@ describe('Cohorts & Sessions › Add session and Attach replay @admin-actions', 
     expect(JSON.parse(bad.body)).toEqual({ error: 'Pick a date and a start time.' });
   });
 
-  it('attaches a replay link to a past session; a learner’s snapshot never carries it', async () => {
+  it('attaches a replay link to a past session; a learner’s snapshot carries it once published to them (D-183)', async () => {
     const url = 'https://example.com/replays/session-1';
     const res = await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s1', url });
     expect(res.statusCode).toBe(200);
     expect((await loadDb()).sessions.find((s) => s.id === 'dec26-s1')!.replayUrl).toBe(url);
     expect((await auditRows())[0]).toMatchObject({ action: 'session.replay_attach', targetId: 'dec26-s1', after: { replay: 'ready', replayUrl: url } });
+    // D-183: Attach replay publishes it, so a learner who may open its AI Employee receives the link (never
+    // the Zoom link); before D-183 nothing learner-facing read it. replay-link.test.ts holds the rest.
     const snap = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie: await app.signInAs('u_jamie') } });
-    expect(snap.body).not.toContain(url);
+    expect((snap.json() as { sessions: { id: string; replayUrl?: string; zoom: string }[] }).sessions.find((s) => s.id === 'dec26-s1')).toMatchObject({ replayUrl: url, zoom: '' });
     expect((await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s5', url })).statusCode).toBe(422);
     expect((await act(app, 'st3', 'attachReplay', { sessionId: 'dec26-s1', url })).statusCode).toBe(403);
   });

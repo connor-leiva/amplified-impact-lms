@@ -96,6 +96,8 @@ export interface SkillsPayload {
   paused?: boolean;
   /** D-179: each access group's locked line, from the builder's copy strings, by group id. */
   lockedLines?: Record<string, string>;
+  /** D-187: the Team Plan window's words (`plan.team.*`), from the builder's copy strings. */
+  planCopy?: Record<string, string>;
 }
 
 /** What `GET /api/skill-guides/:slug` answers. */

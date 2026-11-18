@@ -130,5 +130,14 @@ export function withPreview(inner: LmsRepository, as: PreviewAs): LmsRepository 
       if (await isStaff()) return { kind: 'preview' };
       return inner.joinTicket(sessionId);
     },
+    // D-185: the tab's learner is not a person, so nothing is read for it or stored for it; the device
+    // keeps the tab's choice, under the preview learner's id.
+    async prefs() {
+      return (await isStaff()) ? {} : inner.prefs();
+    },
+    async savePrefs(patch) {
+      if (await isStaff()) return;
+      return inner.savePrefs(patch);
+    },
   };
 }

@@ -30,6 +30,13 @@ export interface CourseSession {
   title: string;
   start: number;
   mins: number;
+  /**
+   * D-183: the state the Console sets, which the learner portal v2's shell reads off the snapshot
+   * (`withLiveState`): Go Live, and the replay. `GET /api/course` never sends them.
+   */
+  live?: boolean;
+  replay?: 'processing' | 'ready' | null;
+  attended?: number | null;
 }
 
 export interface CoursePayload {
@@ -286,7 +293,7 @@ export const inLibrary = (route: string): boolean => LIBRARY_HREFS.has(guideHref
 /** What a skill or step says instead of a link while its page isn't built: the `skill.coming` copy string. */
 const comingText = (copy: Record<string, string> | undefined): string | null => copy?.['skill.coming'] || null;
 
-const skillVM = (s: CourseSkill, copy: Record<string, string> | undefined): SkillVM => {
+export const skillVM = (s: CourseSkill, copy: Record<string, string> | undefined): SkillVM => {
   // A skill's guided setup in learn (D-151); a page that is not a skill is still on www.
   const href = inLibrary(s.route) ? guideHref(s.route) : null;
   return { title: s.title, role: ROLE_LABEL[s.role], use: s.use, free: !!s.free, href, pending: href ? null : comingText(copy) };

@@ -389,6 +389,44 @@ div.abrk {
 
 /* ---- breakpoints ---------------------------------------------------------------------------------- */
 
+/* D-183: Join under a week's row (or a session's, on the phone's list), and the next session's Join drawn
+   off with its hint; a past session's replay badge and attendance on its line. */
+.wrj {
+  border-bottom: 1px solid var(--r2-line);
+  padding-left: 74px;
+}
+.wrj[data-now='true'] {
+  background: var(--lv-row-now);
+}
+.wrj > div {
+  padding-top: 0;
+}
+.jsh {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.joff.joff {
+  background: var(--r2-sub);
+  border-color: var(--r2-line);
+  color: var(--r2-f3);
+  cursor: not-allowed;
+}
+.lb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--r2-f3);
+}
+.lb[data-tone='ok'] {
+  color: var(--r2-ok);
+}
+.lx {
+  color: var(--r2-f3);
+}
+
 @media (min-width: 768px) and (max-width: 1199px) {
   .wr {
     grid-template-columns: 56px minmax(0, 1fr) 250px;
@@ -470,5 +508,19 @@ div.abrk {
   }
   .calPh {
     display: block;
+  }
+}
+
+/* D-183: Join under a row on a phone. */
+@media (max-width: 767px) {
+  .wrj {
+    padding-left: 0;
+  }
+  .wrj > div {
+    padding-top: 12px;
+  }
+  .jsh {
+    width: 100%;
+    flex-wrap: wrap;
   }
 }

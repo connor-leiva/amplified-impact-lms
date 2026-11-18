@@ -52,6 +52,11 @@
   text-wrap: pretty;
   margin: 0;
 }
+/* D-184: an open week's question under its title, as the course page shows it. */
+.q {
+  font-weight: 500;
+  color: var(--r2-ink);
+}
 .pk {
   display: flex;
   align-items: flex-start;
@@ -338,6 +343,13 @@ button.b {
 .pl[data-tone='done'] {
   background: var(--r2-okb);
   color: var(--r2-ok);
+}
+/* D-184: a week's skill's role and Free, under its name in the kit. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
 }
 .pl[data-tone='ip'] {
   background: var(--r2-infob);
@@ -1048,16 +1060,391 @@ button.b {
 .done {
   margin-left: auto;
 }
-.markDone[aria-pressed='true'] {
+.markDone[data-done='true'] {
   background: var(--r2-sf);
   border-color: var(--r2-line2);
   color: var(--r2-ok);
 }
-.markDone[aria-pressed='true']:hover {
+.markDone[data-done='true']:hover {
   background: var(--r2-hov);
 }
 
 /* ---- breakpoints ---------------------------------------------------------------------------------- */
+
+/* ---- D-183: the current portal's live session, replay and announcement, in the learner frame's look --- */
+
+/* The in-app announcement: a card, its icon and words carrying the severity (never colour alone). */
+.ban {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px 14px 20px;
+}
+.ban[data-severity='warning'] {
+  background: var(--r2-warnb);
+  border-color: var(--r2-warn-line);
+}
+.bani {
+  display: flex;
+  margin-top: 1px;
+  color: var(--r2-info);
+}
+.ban[data-severity='warning'] .bani {
+  color: var(--r2-warn);
+}
+.bant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+.ban .b {
+  flex: none;
+}
+.bx {
+  width: var(--r2-c);
+  padding: 0;
+  margin: 0 -6px 0 -4px;
+}
+
+/* Join: the strip (badge, session, Join), in its own card on the week page and under a week's row on the
+   Schedule. A live one wears the live card's green outline. */
+.jst {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 14px 20px;
+}
+.jcd[data-state='live'] {
+  border-color: var(--lv-live-line);
+  box-shadow: var(--lv-live-ring);
+}
+
+/* A live-build step's "Watch at", above its player. */
+.wat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: var(--r2-fs-13);
+  line-height: 24px;
+}
+.rpwat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: var(--r2-fs-12);
+  font-weight: 500;
+  color: var(--r2-for);
+}
+
+/* The replay player. */
+.rpv {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+  width: 100%;
+  background: var(--r2-for);
+  color: var(--r2-on-for);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 24px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.rpv[data-media='true'] {
+  background: var(--r2-toast-bg);
+}
+.rpvid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.rpvLink {
+  cursor: default;
+  justify-content: center;
+  align-items: flex-start;
+}
+.rplink {
+  margin-top: 12px;
+}
+.rpchb[data-static='true'] {
+  cursor: default;
+}
+.rpchb[data-static='true']:hover {
+  background: var(--r2-sf);
+  border-color: var(--r2-line);
+}
+.rpk {
+  position: relative;
+  font-size: var(--r2-fs-12);
+  font-weight: 500;
+  color: var(--r2-mint);
+}
+.rpt {
+  position: relative;
+  font: 600 22px / 28px var(--r2-font);
+  letter-spacing: -0.02em;
+}
+.rps {
+  position: relative;
+  font-size: var(--r2-fs-13);
+  line-height: 18px;
+}
+.rpchip {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--r2-forh);
+  font-size: var(--r2-fs-12);
+  font-weight: 500;
+}
+.rpbig {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: var(--r2-sf);
+  color: var(--r2-for);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rpcap {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--r2-toast-bg);
+  color: var(--r2-toast-ink);
+  font-size: var(--r2-fs-13);
+  line-height: 18px;
+  text-align: center;
+}
+.rpc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--r2-line);
+}
+.rpseek {
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.rprail,
+.rpfill {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  height: 4px;
+  border-radius: 2px;
+}
+.rprail {
+  right: 0;
+  background: var(--r2-sub);
+}
+.rpfill {
+  width: var(--pct);
+  background: var(--r2-for);
+}
+.rpwait {
+  cursor: default;
+  overflow: hidden;
+}
+.rpwait::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 30%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--r2-line2);
+  animation: rpwait 1.4s ease-in-out infinite;
+}
+@keyframes rpwait {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(340%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rpwait::after {
+    animation: none;
+    width: 100%;
+  }
+}
+.rpmk {
+  position: absolute;
+  top: 6px;
+  left: var(--left);
+  width: 2px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--r2-line2);
+}
+.rpmk[data-done='true'] {
+  background: var(--r2-dot-ok);
+}
+.rpthumb {
+  position: absolute;
+  top: 4px;
+  left: var(--pct);
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--r2-for);
+  box-shadow: 0 0 0 2px var(--r2-sf);
+}
+.rprow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rpib {
+  width: var(--r2-c);
+  padding: 0;
+}
+.b[aria-pressed='true'] {
+  background: var(--r2-tint);
+  border-color: var(--r2-for);
+  color: var(--r2-for);
+}
+.rptime {
+  font-size: var(--r2-fs-13);
+  white-space: nowrap;
+}
+.rptr {
+  border-bottom: 1px solid var(--r2-line);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.rptrh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--r2-line);
+}
+.rpq {
+  flex: 1 1 0%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--r2-c);
+  padding: 0 10px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  color: var(--r2-f3);
+}
+.rpq input {
+  flex: 1 1 0%;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--r2-ink);
+  outline: none;
+}
+.rpq:focus-within {
+  box-shadow: var(--r2-focus-input);
+  border-color: var(--r2-for);
+}
+.rptre {
+  padding: 12px 20px;
+}
+.rpline {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+  padding: 8px 20px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.rpline:hover {
+  background: var(--r2-hov);
+}
+.rpline[data-current='true'] {
+  background: var(--r2-tint);
+}
+.rphit {
+  background: var(--r2-warnb);
+  color: var(--r2-ink);
+  border-radius: 2px;
+}
+.rpch {
+  padding: 14px 20px 18px;
+}
+.rpchh {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+.rpchg {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.rpchb {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  background: var(--r2-sf);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+.rpchb:hover {
+  background: var(--r2-hov);
+  border-color: var(--r2-line-hover);
+}
+.rpchb[data-active='true'] {
+  border-color: var(--r2-for);
+  background: var(--r2-tint);
+}
+.rpcht {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--r2-fs-12);
+}
+.rpcht svg {
+  color: var(--r2-ok);
+}
 
 @media (min-width: 768px) and (max-width: 1199px) {
   .gms {
@@ -1102,6 +1489,13 @@ button.b {
   .pg {
     padding: 24px 16px 56px;
     gap: 20px;
+  }
+  /* A text link on a line of its own (the cohort card's support address) is a 44px tap target on a
+     phone (D-181); the negative margin keeps its 24px line exactly where the mockup draws it. */
+  .colZ > .txl {
+    display: block;
+    padding: 10px 0;
+    margin: -10px 0;
   }
   .h0 {
     font-size: 32px;
@@ -1342,5 +1736,75 @@ button.b {
   .oc,
   .b .ar {
     transition: none;
+  }
+}
+
+/* D-183: the live session, replay and announcement on a phone: 44px targets, nothing sideways. */
+@media (max-width: 767px) {
+  .ban {
+    padding: 12px 12px 12px 16px;
+    flex-wrap: wrap;
+  }
+  .bx {
+    width: 44px;
+    margin: -8px -6px -8px 0;
+  }
+  .jst {
+    padding: 12px 16px;
+  }
+  .jst > .b {
+    width: 100%;
+  }
+  .wat {
+    min-height: 44px;
+  }
+  .rpv {
+    padding: 16px;
+  }
+  .rpt {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  .rpc {
+    padding: 12px 16px;
+  }
+  .rpseek {
+    height: 44px;
+  }
+  .rprail,
+  .rpfill {
+    top: 20px;
+  }
+  .rpmk {
+    top: 18px;
+  }
+  .rpwait::after {
+    top: 20px;
+  }
+  .rpthumb {
+    top: 16px;
+  }
+  .rpib {
+    width: 44px;
+  }
+  .rptrh,
+  .rptre {
+    padding: 12px 16px;
+  }
+  .rpq {
+    height: 44px;
+  }
+  .rpline {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+  .rpch {
+    padding: 12px 16px 16px;
+  }
+  .rpchg {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rpchb {
+    min-height: 44px;
   }
 }

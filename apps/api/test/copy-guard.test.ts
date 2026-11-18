@@ -24,6 +24,7 @@ import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { curriculumSeed } from '@ai/core/seed/curriculum';
 import { SKILL_COMING } from '@ai/core/seed/content-v2';
+import { TEAM_PLAN_COPY } from '@ai/core/seed/copy-v2';
 import { weekModuleV2 } from '@ai/core/seed/weeks-0-3-v2';
 import { UI_LABEL_TEXTS } from '@ai/core/ui-labels';
 
@@ -72,6 +73,8 @@ function seedStrings(): Set<string> {
   // D-176: the new Weeks 0 to 3 and the copy string the content step writes are course words too.
   walk([0, 1, 2, 3].map((n) => weekModuleV2(n as 0 | 1 | 2 | 3)), '', '');
   walk([SKILL_COMING], '', '');
+  // D-187: the Team Plan window's copy strings are the builder's to edit, so no runtime file may hold them.
+  walk(TEAM_PLAN_COPY, '', '');
   return out;
 }
 

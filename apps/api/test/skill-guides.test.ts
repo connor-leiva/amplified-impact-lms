@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { eq, sql } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
+import { TEAM_PLAN_COPY } from '@ai/core/seed/copy-v2';
 import { SEED_COPY, seedProduction } from '@ai/core/seed/curriculum';
 import { acceleratorModules } from '@ai/core/seed/accelerator-v1';
 import type { SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
@@ -242,6 +243,17 @@ describe('the learner portal v2’s Skill Library (D-179)', () => {
     // The builder's edit is what the screen reads.
     await db.update(copyStrings).set({ value: 'Not part of your Utah Life access' }).where(eq(copyStrings.key, 'locked.utah_life'));
     expect((await skillsOf(await member('edited@liveutah.com', [UTAH]))).lockedLines).toEqual({ 'utah-life': 'Not part of your Utah Life access' });
+  });
+
+  it('D-187: answers the Team Plan window’s words from the builder’s copy strings, to every learner, as edited @parity:SH-8 @parity:P-1', async () => {
+    await db.insert(copyStrings).values([...TEAM_PLAN_COPY, { key: 'plan.team_other', value: 'Not the window’s', audience: 'learner' }, { key: 'plan.team.staff_note', value: 'Staff only', audience: 'staff' }]).onConflictDoNothing();
+    const words = Object.fromEntries(TEAM_PLAN_COPY.map((c) => [c.key, c.value]));
+    const planCopyOf = async (cookie: string) => ((await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json() as { planCopy: Record<string, string> }).planCopy;
+    // A learner with no group, and a Utah Life member (whose window shows their group's line instead).
+    expect(await planCopyOf(await learner())).toEqual(words);
+    expect(await planCopyOf(await member('plan@liveutah.com', [UTAH]))).toEqual(words);
+    await db.update(copyStrings).set({ value: 'Ask Us About the Team Plan' }).where(eq(copyStrings.key, 'plan.team.ask'));
+    expect((await planCopyOf(await learner()))['plan.team.ask']).toBe('Ask Us About the Team Plan');
   });
 });
 

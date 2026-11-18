@@ -247,6 +247,73 @@ describe('anyone else cannot open the course', () => {
   });
 });
 
+describe('the seat card and the playbook card (D-184): inside an open week of the gated answer, and nowhere else', () => {
+  const SEAT = { seat: 'Spend Analyst', reportsTo: 'The owner', runs: 'Every Monday at seven', pulls: 'The books', applies: 'The chart', produces: 'A spend map', tookOver: 'The month-end tally', cantDo: 'Pay a bill or move money' };
+  const PLAYBOOK = { number: '4', question: 'Where does the money go, line by line?', play: 'Map every dollar to the chart weekly.', signedOff: true };
+  const LOCKED_SEAT = { ...SEAT, runs: 'Only on the locked week', cantDo: 'Leave the locked week' };
+  const LOCKED_PLAYBOOK = { ...PLAYBOOK, play: 'A play only the locked week has.' };
+  const words = [LOCKED_SEAT.runs, LOCKED_SEAT.cantDo, LOCKED_PLAYBOOK.play];
+  const all = [SEAT.runs, PLAYBOOK.play, ...words];
+
+  /** Week 1 with its cards, open; Week 2 with its own, scheduled to open long after the course does. */
+  async function withCards<T>(run: () => Promise<T>): Promise<T> {
+    const before = await loadDb();
+    const after = structuredClone(before);
+    const w1 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!;
+    const w2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
+    Object.assign(w1.course!, { seatCard: SEAT, playbookCard: PLAYBOOK });
+    Object.assign(w2.course!, { seatCard: LOCKED_SEAT, playbookCard: LOCKED_PLAYBOOK });
+    Object.assign(w2, { status: 'scheduled', opens: Date.parse('2027-03-01T12:00:00-06:00') });
+    await persistDiff(handle, before, after);
+    try {
+      return await run();
+    } finally {
+      await persistDiff(handle, after, before);
+    }
+  }
+
+  it('@parity:K-15 a buyer gets an open week’s cards, and none of a locked week’s', async () => {
+    await withCards(async () => {
+      for (const who of ['full', 'operator']) {
+        const res = await get('/api/course', who);
+        expect(res.statusCode).toBe(200);
+        const weeks = (res.json() as { course: { weeks: { week: number; locked?: boolean; seatCard?: unknown; playbookCard?: unknown }[] } }).course.weeks;
+        expect(weeks[1]).toMatchObject({ seatCard: SEAT, playbookCard: PLAYBOOK });
+        expect(weeks[2]!.locked).toBe(true);
+        expect('seatCard' in weeks[2]! || 'playbookCard' in weeks[2]!).toBe(false);
+        for (const w of words) expect(res.body, who).not.toContain(w);
+      }
+    });
+  });
+
+  it('@parity:K-15 a plan without the course, a buyer before the course opens, and every snapshot get none of them', async () => {
+    await withCards(async () => {
+      for (const who of ['insiders', 'teamPlan', 'noPlan']) {
+        const res = await get('/api/course', who);
+        expect(res.statusCode).toBe(403);
+        for (const w of all) expect(res.body, who).not.toContain(w);
+      }
+      at(BEFORE_HOLD);
+      const held = await get('/api/course', 'full');
+      expect(held.statusCode).toBe(403);
+      for (const w of all) expect(held.body).not.toContain(w);
+      at(AFTER_HOLD);
+      for (const who of ['full', 'operator', 'insiders', 'noPlan']) {
+        const snap = await get('/api/snapshot', who);
+        for (const w of all) expect(snap.body, who).not.toContain(w);
+      }
+    });
+  });
+
+  it('@parity:K-15 staff (the builder’s preview) see every week’s cards', async () => {
+    await withCards(async () => {
+      const weeks = ((await get('/api/course', 'staff')).json() as { course: { weeks: { seatCard?: unknown; playbookCard?: unknown }[] } }).course.weeks;
+      expect(weeks[1]).toMatchObject({ seatCard: SEAT, playbookCard: PLAYBOOK });
+      expect(weeks[2]).toMatchObject({ seatCard: LOCKED_SEAT, playbookCard: LOCKED_PLAYBOOK });
+    });
+  });
+});
+
 const OWNER = { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' };
 
 describe('the curriculum on a database that is already live (db:curriculum:ensure, D-173)', () => {

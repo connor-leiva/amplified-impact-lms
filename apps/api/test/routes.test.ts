@@ -271,7 +271,7 @@ describe('POST /api/mutate/:name @g7', () => {
     // Core's exact copy, curly apostrophes and all, straight through: the route neither writes nor
     // rewords a toast, so CLAUDE.md's "copy is exact" rule has one implementation, in `@ai/core`.
     expect(res.json()).toEqual({
-      toast: { msg: 'Sales AI Employee is built. Deploy it from the card on the right.', tone: 'success' },
+      toast: { msg: 'Sales AI Employee is built. Deploy it from the Your Deployment card.', tone: 'success' },
       effects: [{ type: 'confetti' }],
     });
   });

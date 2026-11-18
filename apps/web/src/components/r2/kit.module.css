@@ -874,3 +874,13 @@
     height: 44px;
   }
 }
+/* D-187: `quickInline`. The hover actions take the actions track's own room, in the row's flow before
+   the primary control and the "…", instead of floating over the column before the track (Curriculum's
+   Deployed percent lay over its eye at 1440 and took its click). Shown on hover or focus as before,
+   with the same fade behind them; on top of the row's cells, so they take a click from rest too. Where
+   the track can't hold them beside a primary control they overflow to the left, as the overlay did. */
+.hv.hvIn {
+  position: static;
+  transform: none;
+  pointer-events: auto;
+}
