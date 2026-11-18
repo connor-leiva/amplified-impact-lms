@@ -259,8 +259,9 @@ test.describe('staff, preview and masquerade @g6', () => {
   });
 
   test('@parity:SH-10 staff with the flag see the learner portal as an Agent, under the preview line', async ({ browser }) => {
+    // D-186: an AI Employee that isn't a course week has its own page, so its preview opens there.
     const { ctx, page } = await go(browser, '/employees/sales?preview=agent');
-    await expect.poll(() => pathOf(page.url())).toBe('/learn');
+    await expect.poll(() => pathOf(page.url())).toMatch(/^\/learn(\/employees\/sales)?$/);
     expect(new URL(page.url()).searchParams.get('preview')).toBe('agent');
     await expect(page.getByRole('status').filter({ hasText: 'Previewing as Agent.' })).toBeVisible();
     await expect(page.locator('[data-learner-v2] aside[aria-label="Primary"]')).toHaveCount(1);
@@ -270,7 +271,7 @@ test.describe('staff, preview and masquerade @g6', () => {
 
   test('@parity:SH-10 a Team Owner preview says so, and Exit Preview goes back to the Curriculum page', async ({ browser }) => {
     const { ctx, page } = await go(browser, '/employees/finance?preview=owner');
-    await expect.poll(() => pathOf(page.url())).toBe('/learn');
+    await expect.poll(() => pathOf(page.url())).toMatch(/^\/learn(\/employees\/finance)?$/);
     await expect(page.getByRole('status').filter({ hasText: 'Previewing as Team Owner.' })).toBeVisible();
     await page.getByRole('link', { name: 'Exit Preview' }).click();
     await expect(page).toHaveURL(/\/admin\/curriculum$/);
@@ -285,8 +286,19 @@ test.describe('staff, preview and masquerade @g6', () => {
     const n = await upgrade.count();
     expect(n).toBeGreaterThan(0);
     await upgrade.first().click();
-    await expect(page.getByText('Preview only', { exact: true }).first()).toBeVisible();
+    // D-187: in the learner shell, Upgrade opens the Team Plan window, which writes nothing by itself (its
+    // one ask needs the plan's words from /api/skills, which this fixture leaves unanswered). Close it.
+    const window = page.getByRole('dialog');
+    await expect(window).toBeVisible();
+    await window.getByRole('button', { name: 'Close' }).click();
+    await expect(window).toHaveCount(0);
     await expect(upgrade).toHaveCount(n);
+    // A real write in a preview, Dismiss on Home's announcement (`dismissAnnouncement`), is refused before
+    // any request, and the banner stays.
+    await page.goto(page.url().replace(/\/learn\/vault/, '/learn'));
+    await page.getByRole('alert').getByRole('button', { name: 'Dismiss' }).click();
+    await expect(page.getByText('Preview only', { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('alert').getByRole('button', { name: 'Dismiss' })).toBeVisible();
     await ctx.close();
   });
 
