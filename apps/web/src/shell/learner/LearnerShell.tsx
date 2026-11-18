@@ -24,6 +24,8 @@ import { HUE, LABELS, barVM, navVM, sideVM, weekOfPath, weekRows } from '../../r
 import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
 import { learnAccount, learnHome } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
+import { PHONE, sidebarVM, themeVM } from './shell.vm';
+import { useLearnerPrefs } from './useLearnerPrefs';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
 // (docs/design/learner-v2): the 244px sidebar (Home, Schedule, Skill library, Resource vault, the AI
@@ -39,8 +41,10 @@ import s from './LearnerShell.module.css';
 // until opened), a `header` holding `nav[aria-label="Breadcrumb"]` (visually hidden: the mockup's bar
 // draws none), `main`, `[role="dialog"]` and `data-drawer="open"` on the open drawer, `data-brand-slot` on
 // the wordmark, and `body[data-app-ready="true"]` once the snapshot, the viewer and the course are in.
-
-const PHONE = 768;
+//
+// D-185 restores two of the current portal's controls: the account menu's Theme (Light, Dark) and, on a
+// desktop (1200px and wider), Collapse sidebar / Expand sidebar, the collapsed form being the rail. Both
+// are remembered per person (`useLearnerPrefs.ts`). The laptop's rail (768 to 1199px) stays automatic.
 
 function Ring({ ratio }: { ratio: number }) {
   const c = 2 * Math.PI * 6;
@@ -60,15 +64,21 @@ interface SidebarProps {
   onClose?: () => void;
   closeRef?: Ref<HTMLButtonElement>;
   go: () => void;
+  /** D-185: drawn as the 64px rail (a laptop, or a desktop the person collapsed). */
+  rail?: boolean;
+  /** D-185: the desktop's Collapse sidebar / Expand sidebar, or none. */
+  toggle?: { label: string; onToggle: () => void } | null;
+  /** D-185: the brand's reversed wordmark, on the dark theme. */
+  dark?: boolean;
 }
 
-function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarProps) {
+function Sidebar({ nav, side, drawer = false, onClose, closeRef, go, rail = false, toggle = null, dark = false }: SidebarProps) {
   const [open, setOpen] = useState(true);
   return (
-    <aside aria-label={LABELS.primary} className={s.sb}>
+    <aside aria-label={LABELS.primary} className={s.sb} data-rail={rail ? 'true' : undefined}>
       <div className={s.top}>
         <Link className={s.wmw} to={nav.home.href} aria-label={LABELS.homeLink} onClick={go}>
-          <Wordmark />
+          <Wordmark reversed={dark} />
         </Link>
         {drawer ? (
           <>
@@ -163,6 +173,12 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarPr
           <Icon name="lvHelp" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.help.label}</span>
         </a>
+        {toggle ? (
+          <button type="button" className={`${s.ni} ${s.tog}`} title={toggle.label} aria-label={toggle.label} onClick={toggle.onToggle}>
+            <Icon name="panel" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{toggle.label}</span>
+          </button>
+        ) : null}
       </div>
     </aside>
   );
@@ -274,6 +290,11 @@ function Frame() {
   const { toast } = useToaster();
   const vw = useViewportWidth();
   const phone = vw < PHONE;
+  // D-185: this person's theme and desktop sidebar.
+  const prefs = useLearnerPrefs(viewer);
+  const dark = prefs.theme === 'dark';
+  const form = sidebarVM(vw, prefs.sidebar);
+  const theme = themeVM(prefs.theme);
 
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const staff = viewer.actor.kind === 'staff' ? (db.staff.find((x) => viewer.actor.kind === 'staff' && x.id === viewer.actor.staffId) ?? null) : null;
@@ -329,9 +350,18 @@ function Frame() {
   const ctx: LearnContext = { course, db, viewer, now };
 
   return (
-    <div className={s.frame} data-r2-scope="" data-learner-v2="">
+    <div className={s.frame} data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
       <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
-        {phone ? null : <Sidebar nav={nav} side={side} go={() => undefined} />}
+        {phone ? null : (
+          <Sidebar
+            nav={nav}
+            side={side}
+            go={() => undefined}
+            rail={form.form === 'rail'}
+            dark={dark}
+            toggle={form.toggle ? { label: form.toggle.label, onToggle: () => prefs.set({ sidebar: form.toggle!.next }) } : null}
+          />
+        )}
         <div className={s.mainc}>
           <header className={s.tb}>
             <div className={`${s.phOnly} ${s.phRow}`}>
@@ -346,7 +376,7 @@ function Frame() {
                 <Icon name="r2Menu" size={22} strokeWidth={1.75} />
               </button>
               <Link className={s.wmw} to={learnHome()} aria-label={LABELS.homeLink}>
-                <Wordmark />
+                <Wordmark reversed={dark} />
               </Link>
             </div>
             <NextSession bar={bar} now={now} />
@@ -364,6 +394,11 @@ function Frame() {
               label={LABELS.account}
               items={[
                 { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
+                'separator',
+                {
+                  group: theme.label,
+                  items: theme.choices.map((c) => ({ label: c.label, icon: c.icon, checked: c.checked, onSelect: () => prefs.set({ theme: c.value }) })),
+                },
                 'separator',
                 { label: LABELS.signOut, onSelect: signOut },
               ]}
@@ -388,7 +423,7 @@ function Frame() {
         <>
           {drawerOpen ? <div className={s.scrim} onClick={closeDrawer} /> : null}
           <div ref={drawerRef} tabIndex={-1} className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
-            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
+            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} dark={dark} />
           </div>
         </>
       ) : null}
