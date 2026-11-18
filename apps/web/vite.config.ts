@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => ({
   // /ai101's calendar file is an API route outside /api (D-032), so it is proxied by name.
   server: {
     port: 5173,
-    proxy: { '/api': 'http://127.0.0.1:3000', '/ai101/carousel-sprint.ics': 'http://127.0.0.1:3000' },
+    proxy: { '/api': 'http://127.0.0.1:3000', '/ai101/carousel-sprint.ics': 'http://127.0.0.1:3000', '/calendar/schedule.ics': 'http://127.0.0.1:3000' },
   },
   // The compliance suite's target. strictPort so a port already in use fails loudly instead of
   // silently sliding to the next one; APP_PORT lets a developer dodge a local collision.

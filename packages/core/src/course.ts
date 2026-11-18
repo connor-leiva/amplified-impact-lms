@@ -10,7 +10,7 @@ import { kitVisible, weekOpenFor } from './release';
 import type { CourseEntry } from './release';
 import { moduleForSession, sessionKind, sessionWeek } from './sessions';
 import type { SessionKind } from './sessions';
-import type { AIEmployee, Db, ResourceKind, ResourcePlatform } from './types';
+import type { AIEmployee, Db, ResourceKind, ResourcePlatform, Session, SessionType } from './types';
 
 /** A module that carries a course week. */
 export type WeekModule = AIEmployee & { kind: 'week'; course: ModuleCourse };
@@ -120,6 +120,11 @@ export interface CourseSessionRow {
   id: string;
   n: number;
   kind: SessionKind;
+  /**
+   * D-180: the builder's type for the session (live build, office hours, goal planning, setup or other),
+   * or, for a row from before the builder set one, live build or office hours off its id.
+   */
+  type: SessionType;
   week: number;
   title: string;
   start: number;
@@ -138,5 +143,10 @@ export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID)
       return !!m && isAcceleratorModule(m.id);
     })
     .sort((a, b) => a.start - b.start)
-    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
+    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), type: sessionType(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
+}
+
+/** D-180: a session's type, as the builder set it, else live build or office hours off its id. */
+export function sessionType(s: Pick<Session, 'id' | 'kind'>): SessionType {
+  return s.kind ?? (sessionKind(s) === 'build' ? 'live_build' : 'office_hours');
 }

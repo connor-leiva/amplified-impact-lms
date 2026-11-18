@@ -78,12 +78,12 @@ describe('the learner shell (D-177)', () => {
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
   });
 
-  it('the nav: Home, Schedule and the Skill library as today’s pages, the vault locked in the preview, and each week with its status', async () => {
+  it('the nav: Home, Schedule (D-180) and the Skill library, the vault locked in the preview, and each week with its status', async () => {
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
     const nav = within(aside());
     expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
-    expect(nav.getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/sessions');
+    expect(nav.getByRole('link', { name: 'Schedule' })).toHaveAttribute('href', '/learn/schedule');
     expect(nav.getByRole('link', { name: 'Skill library' })).toHaveAttribute('href', '/skill-library');
     const vault = nav.getByRole('button', { name: /Resource vault/ });
     expect(vault).toHaveAttribute('aria-disabled', 'true');

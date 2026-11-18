@@ -19,7 +19,7 @@ import { duration, liveSessionAt, progressOn, sessionEndsAt, stepCount, upcoming
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
-import { learnHome, learnStep, learnWeek } from './routes';
+import { learnHome, learnSchedule, learnStep, learnWeek } from './routes';
 
 /** Generic chrome, from the mockup. Never a week's, step's or session's words. */
 export const LABELS = {
@@ -211,7 +211,7 @@ export interface NavVM {
   /** False for a learner whose plan has no course: no Schedule, vault or AI employees (cohort pieces). */
   cohort: boolean;
   home: { label: string; href: string; active: boolean };
-  schedule: { label: string; href: string };
+  schedule: { label: string; href: string; active: boolean };
   library: { label: string; href: string };
   /** The vault: a link, or locked (with when it opens) during the pre-launch preview. */
   vault: { label: string; href: string; locked: boolean; title: string | null };
@@ -238,7 +238,7 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
   return {
     cohort: p !== null,
     home: { label: LABELS.home, href: learnHome(), active: pathname === learnHome() || pathname === `${learnHome()}/` },
-    schedule: { label: LABELS.schedule, href: '/sessions' },
+    schedule: { label: LABELS.schedule, href: learnSchedule(), active: pathname === learnSchedule() },
     library: { label: LABELS.library, href: SKILL_LIBRARY_PATH },
     vault: { label: LABELS.vault, href: '/vault', locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p) : null },
     employees: p

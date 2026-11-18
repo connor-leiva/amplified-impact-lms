@@ -14,7 +14,7 @@ import type { CoursePayload } from '../course/Course.vm';
 import type { CourseLoad } from './data';
 import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle } from './learn.vm';
 import type { Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
-import { learnStep } from './routes';
+import { learnSchedule, learnStep } from './routes';
 
 export const HOME = {
   greeting: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening' },
@@ -127,7 +127,7 @@ export const greeting = (name: string, now: number): string => {
   return first ? `${hello}, ${first}` : hello;
 };
 
-function countParts(at: number, now: number, withDays: boolean): CountPart[] {
+export function countParts(at: number, now: number, withDays: boolean): CountPart[] {
   const c = countdown(at, now);
   if (withDays && c.days > 0)
     return [
@@ -144,7 +144,7 @@ function countParts(at: number, now: number, withDays: boolean): CountPart[] {
     : [{ n: c.minutes, unit: HOME.units.min }];
 }
 
-const partsAria = (parts: CountPart[]): string => parts.map((x) => `${x.n} ${x.unit}`).join(', ');
+export const partsAria = (parts: CountPart[]): string => parts.map((x) => `${x.n} ${x.unit}`).join(', ');
 
 /** The hero's right side before a live build: how long until it goes live, and when. */
 function goesLive(at: number, now: number): HeroRightVM {
@@ -244,7 +244,7 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
     employees: {
       heading: HOME.employees,
       meta: built > 0 ? `${built} ${HOME.built}` : null,
-      schedule: { label: LABELS.schedule, href: '/sessions' },
+      schedule: { label: LABELS.schedule, href: learnSchedule() },
       cards: cards(rows, cur, live ? live.week : null),
     },
     comingUp: coming.length

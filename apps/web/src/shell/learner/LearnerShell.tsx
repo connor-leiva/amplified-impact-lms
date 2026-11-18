@@ -81,7 +81,7 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           <span className={s.lbl}>{nav.home.label}</span>
         </Link>
         {nav.cohort ? (
-          <Link className={s.ni} to={nav.schedule.href} title={nav.schedule.label} onClick={go}>
+          <Link className={s.ni} to={nav.schedule.href} data-on={nav.schedule.active ? 'true' : undefined} aria-current={nav.schedule.active ? 'page' : undefined} title={nav.schedule.label} onClick={go}>
             <Icon name="r2Cohorts" size={16} strokeWidth={1.75} />
             <span className={s.lbl}>{nav.schedule.label}</span>
           </Link>

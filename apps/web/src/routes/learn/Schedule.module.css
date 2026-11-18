@@ -1,0 +1,474 @@
+/* The learner portal v2's Schedule (D-180), ported rule by rule from the signed-off mockup's stylesheet
+   (docs/design/learner-v2, artboards 10 to 13): the view switch (`.seg` with links), the date tile
+   (`.dt`, `.dt.lg`, `.dt.on`), the weeks list (`.wkl`, `.mth`, `.wr`, `.brkt`), the month grid
+   (`.calg`, `.calh`, `.cald`, `.ev`, `.leg`) and the phone's session list (`.cal-ph`). The page's
+   surfaces, buttons, hero and type are Learn.module.css's. Tokens only: R2's (styles/r2.css) and the
+   learner frame's own (styles/learner-v2.css). Sizes and radii are the mockup's. */
+
+.pha {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ---- the view switch: weeks or calendar ----------------------------------------------------------- */
+
+.seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--r2-sub);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+}
+.seg a {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--r2-f2);
+  font-weight: 500;
+  font-size: var(--lv-ctl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    box-shadow 0.12s;
+}
+.seg a:hover {
+  color: var(--r2-ink);
+}
+.seg a[aria-current='page'] {
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  box-shadow: var(--lv-sh-seg);
+}
+
+/* ---- the date tile -------------------------------------------------------------------------------- */
+
+.dt {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  background: var(--r2-sf);
+}
+.dw {
+  font-size: var(--r2-fs-11);
+  line-height: 14px;
+  color: var(--r2-f3);
+  font-weight: 500;
+}
+.dd {
+  font-size: 16px;
+  line-height: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.dt.on {
+  border-color: var(--r2-for);
+  background: var(--r2-tint);
+}
+.dt.on .dw,
+.dt.on .dd {
+  color: var(--r2-for);
+}
+.dt.lg {
+  width: 56px;
+  height: 60px;
+  border-radius: 10px;
+}
+.dt.lg .dw {
+  font-size: var(--r2-fs-12);
+  line-height: 16px;
+}
+.dt.lg .dd {
+  font-size: 22px;
+  line-height: 26px;
+}
+
+/* ---- the weeks ------------------------------------------------------------------------------------ */
+
+.wkl {
+  overflow: hidden;
+}
+.mth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px 10px;
+  border-top: 1px solid var(--r2-line);
+  font-size: var(--r2-fs-12);
+  font-weight: 600;
+  color: var(--r2-f3);
+}
+.mth.first {
+  border-top: 0;
+}
+.mth > span {
+  font-weight: 400;
+}
+.wr {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 300px;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 48px 14px 20px;
+  border-top: 1px solid var(--r2-line);
+  color: var(--r2-ink);
+  text-align: left;
+  width: 100%;
+  background: none;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.mth + .wr {
+  border-top: 0;
+}
+a.wr:hover {
+  background: var(--r2-hov);
+}
+.wr[data-now='true'] {
+  background: var(--lv-row-now);
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.tw {
+  display: flex;
+  flex: none;
+}
+.wt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wt b {
+  font-weight: 600;
+  font-size: var(--r2-fs-15);
+  line-height: 22px;
+}
+.ses {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--r2-fs-12);
+  line-height: 17px;
+  color: var(--r2-f2);
+  min-width: 0;
+}
+.ses > span {
+  display: grid;
+  grid-template-columns: 6px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  white-space: nowrap;
+}
+/* A session line too long for the column (a goal-planning session's own title) wraps rather than run
+   under the lock; the mockup's short lines never need to. */
+.ses > span > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.ses i {
+  width: 6px;
+  height: 6px;
+  /* Centred on the first line, as the mockup's one-line rows centre it. */
+  margin-top: 5.5px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--r2-for);
+}
+.ses i[data-dot='oh'] {
+  background: var(--r2-bar2);
+}
+.cnr {
+  position: absolute;
+  top: 50%;
+  margin-top: -7px;
+  right: 20px;
+  color: var(--r2-f3);
+  display: flex;
+}
+.wr.brk {
+  cursor: default;
+  color: var(--r2-f2);
+}
+.brkt {
+  width: 56px;
+  height: 60px;
+  flex: none;
+  border-radius: 10px;
+  border: 1px dashed var(--r2-line2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--r2-f3);
+}
+
+/* ---- the month ------------------------------------------------------------------------------------ */
+
+.calDt {
+  overflow: hidden;
+}
+.calg {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+/* A row of the grid is a row to a screen reader and nothing to the layout. */
+.calr {
+  display: contents;
+}
+.calh {
+  padding: 8px 10px;
+  font-size: var(--r2-fs-12);
+  font-weight: 500;
+  color: var(--r2-f3);
+  border-bottom: 1px solid var(--r2-line);
+}
+.cald {
+  min-height: 112px;
+  padding: 8px;
+  border-right: 1px solid var(--r2-line);
+  border-bottom: 1px solid var(--r2-line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.cald:last-child {
+  border-right: 0;
+}
+.cald[data-out='true'] {
+  background: var(--r2-hov);
+}
+.cald[data-last='true'] {
+  border-bottom: 0;
+}
+.dn {
+  font-size: var(--r2-fs-12);
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--r2-f3);
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.cald[data-today='true'] .dn {
+  background: var(--r2-for);
+  color: var(--r2-on-for);
+}
+.ev {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: var(--r2-fs-12);
+  line-height: 16px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  text-align: left;
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+  min-width: 0;
+}
+.ev b {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev[data-dot='oh'] {
+  background: var(--r2-infob);
+  color: var(--r2-info);
+}
+.ev.evBrk {
+  background: transparent;
+  border: 1px dashed var(--r2-line2);
+  color: var(--r2-f2);
+  cursor: default;
+}
+a.ev:hover {
+  filter: brightness(0.97);
+}
+.leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--r2-fs-12);
+  color: var(--r2-f2);
+}
+.leg i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--r2-tint);
+  box-shadow: var(--lv-leg-build);
+}
+.leg i[data-dot='oh'] {
+  background: var(--r2-infob);
+  box-shadow: var(--lv-leg-oh);
+}
+.legLast {
+  margin-right: 8px;
+}
+.ib {
+  width: var(--r2-c);
+  height: var(--r2-c);
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  color: var(--r2-f2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+}
+.ib:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.ib:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ib:disabled:hover {
+  background: none;
+  color: var(--r2-f2);
+}
+
+/* ---- the phone's list of every session ------------------------------------------------------------ */
+
+.calPh {
+  display: none;
+}
+/* The list's rows keep their tile beside their words on a phone (Learn.module.css's `.li` wraps there). */
+a.ali,
+div.abrk {
+  flex-wrap: nowrap;
+}
+div.abrk {
+  color: var(--r2-f2);
+}
+.abrk > div {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.abrk .brkt {
+  width: 52px;
+  height: 52px;
+}
+
+/* ---- breakpoints ---------------------------------------------------------------------------------- */
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .wr {
+    grid-template-columns: 56px minmax(0, 1fr) 250px;
+  }
+}
+
+@media (max-width: 767px) {
+  .seg {
+    display: flex;
+    width: 100%;
+  }
+  .seg a {
+    flex: 1;
+    height: 44px;
+  }
+  .dt {
+    width: 52px;
+    height: 52px;
+  }
+  .dw {
+    line-height: 20px;
+  }
+  .dd {
+    font-size: 18px;
+    line-height: 22px;
+  }
+  .dt.lg {
+    width: 60px;
+    height: 64px;
+  }
+  .dt.lg .dw {
+    line-height: 20px;
+  }
+  .dt.lg .dd {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  .mth {
+    padding: 16px 16px 8px;
+  }
+  .wr {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 4px 14px;
+    padding: 16px 44px 16px 16px;
+    align-items: start;
+  }
+  .who {
+    gap: 10px;
+  }
+  .tw {
+    display: none;
+  }
+  .wt b {
+    font-size: 17px;
+    line-height: 24px;
+  }
+  .ses {
+    grid-column: 2;
+    line-height: 22px;
+    text-align: left;
+  }
+  .ses > span {
+    white-space: normal;
+  }
+  .ses i {
+    margin-top: 8px;
+  }
+  .cnr {
+    top: 18px;
+    margin-top: 0;
+    right: 16px;
+  }
+  .cnr svg {
+    width: 16px;
+    height: 16px;
+  }
+  .calDt {
+    display: none;
+  }
+  .calPh {
+    display: block;
+  }
+}

@@ -33,7 +33,7 @@ describe('the learner shell’s view-model (D-177)', () => {
     const nav = navVM(payload, rows, '/learn/week/0/step/3');
     expect(nav.cohort).toBe(true);
     expect(nav.home).toEqual({ label: 'Home', href: '/learn', active: false });
-    expect(nav.schedule.href).toBe('/sessions');
+    expect(nav.schedule.href).toBe('/learn/schedule');
     expect(nav.library.href).toBe('/skill-library');
     expect(nav.vault).toEqual({ label: 'Resource vault', href: '/vault', locked: true, title: 'Opens Wed, Dec 2 · 12:00 PM MT' });
     expect(nav.employees!.count).toBe(9);

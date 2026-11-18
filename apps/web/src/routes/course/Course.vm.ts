@@ -9,6 +9,7 @@
 // unit-tested; times go through `fmt.*` (the viewer's zone first, the program's in parentheses).
 
 import { fmt } from '@ai/core';
+import type { SessionType } from '@ai/core';
 import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
 import { courseGuideHref } from '@ai/core/skill-guides';
 import type { CourseSkill, SkillRole } from '@ai/core/course-types';
@@ -23,6 +24,8 @@ export interface CourseSession {
   id: string;
   n: number;
   kind: 'build' | 'office_hours';
+  /** D-180: the builder's type (live build, office hours, goal planning, setup or other). */
+  type?: SessionType;
   week: number;
   title: string;
   start: number;
