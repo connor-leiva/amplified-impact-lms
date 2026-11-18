@@ -370,6 +370,18 @@ function Body({ vm, now }: { vm: HomeVM; now: number }) {
                   </span>
                 </Link>
               ) : null}
+              {vm.cohort.community ? (
+                <a className={s.li} href={vm.cohort.community.href} target="_blank" rel="noopener" style={{ gap: 12 }}>
+                  <Tile icon="chat" tone="amber" size={28} />
+                  <div className={`${s.colZ} ${s.grow}`}>
+                    <span className={s.w5}>{vm.cohort.community.label}</span>
+                    <span className={s.me}>{vm.cohort.community.host}</span>
+                  </div>
+                  <span className={s.mu}>
+                    <Icon name="lvExternal" size={14} strokeWidth={1.75} />
+                  </span>
+                </a>
+              ) : null}
               <div className={s.li} style={{ gap: 12 }}>
                 <Tile icon="r2Email" tone="forest" size={28} />
                 <div className={s.colZ} style={{ flex: '1 1 200px' }}>
