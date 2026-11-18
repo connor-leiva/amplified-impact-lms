@@ -1,0 +1,2350 @@
+{
+  "$comment": "The learner parity manifest (Connor’s parity brief § 3). One entry per row of portal-parity-inventory.md. `tests` is written by `pnpm parity:learner:sync` from the @parity:<ID> tags in test titles; do not edit it by hand. Every other field is reviewed by hand. `by` names the branch expected to supply a restored entry’s tests.",
+  "inventory": "portal-parity-inventory.md",
+  "entries": [
+    {
+      "id": "R-1",
+      "area": "Routes and pages",
+      "what": "`/` Dashboard (learners with a course); no-course learners are sent to `/skill-library` (D-119)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-2",
+      "area": "Routes and pages",
+      "what": "`/sessions`",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-3",
+      "area": "Routes and pages",
+      "what": "`/employees/:id` (AI Employee workspace)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-4",
+      "area": "Routes and pages",
+      "what": "`/team` Team Hub (Team tier)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-5",
+      "area": "Routes and pages",
+      "what": "`/vault` Resource Vault",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-6",
+      "area": "Routes and pages",
+      "what": "`/team-tier` upsell page",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "R-7",
+      "area": "Routes and pages",
+      "what": "`/course`, `/course/:week` (course pages, outside the shell)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-8",
+      "area": "Routes and pages",
+      "what": "`/skill-library` (standalone library)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "R-9",
+      "area": "Routes and pages",
+      "what": "`/skill-library/:slug` (guided setup)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-10",
+      "area": "Routes and pages",
+      "what": "`/sign-in`, `/login`, `/invite/:token`, `/forgot-password`, `/set-password`",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-11",
+      "area": "Routes and pages",
+      "what": "`/account` (password set/change page)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-12",
+      "area": "Routes and pages",
+      "what": "Unknown learner paths → `/`; learner at `/admin*` → `/`",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-13",
+      "area": "Routes and pages",
+      "what": "Staff at a learner path → `/admin`",
+      "kind": "route",
+      "audience": [],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "R-14",
+      "area": "Routes and pages",
+      "what": "Query and fragment (`?as=`, `?preview=`, `?now=`) kept through routing",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-1",
+      "area": "Shell / chrome",
+      "what": "Sidebar: Dashboard, Sessions, Course, the AI Employees group (count badge, collapsible, per-module build token), Team Hub, Resource Vault",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-2",
+      "area": "Shell / chrome",
+      "what": "No-course learner sidebar: Skill Library, Team Hub, Vault",
+      "kind": "route",
+      "audience": [
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "SH-3",
+      "area": "Shell / chrome",
+      "what": "Profile menu: name and email, Sign Out",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-4",
+      "area": "Shell / chrome",
+      "what": "Time-zone picker (Auto plus zones; \"Session Times Show as …\")",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "note": "Already approved by Connor (\"no time-zone picker\").",
+      "tests": []
+    },
+    {
+      "id": "SH-5",
+      "area": "Shell / chrome",
+      "what": "Light/Dark theme switch",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-6",
+      "area": "Shell / chrome",
+      "what": "Collapse/Expand Sidebar (rail) toggle, remembered",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-7",
+      "area": "Shell / chrome",
+      "what": "Visible breadcrumbs in the header",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "SH-8",
+      "area": "Shell / chrome",
+      "what": "Locked AI Employee Preview modal (from nav, cards, guarded URLs) → CTA to `/team-tier`",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "SH-9",
+      "area": "Shell / chrome",
+      "what": "Cohort context line under the logo (`cohortLine`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "SH-10",
+      "area": "Shell / chrome",
+      "what": "Staff \"Preview as learner\" banner with Exit Preview",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-11",
+      "area": "Shell / chrome",
+      "what": "Masquerade layer, banner and write-blocking (wraps every route)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-12",
+      "area": "Shell / chrome",
+      "what": "Sign out (real, with a failure toast)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-13",
+      "area": "Shell / chrome",
+      "what": "Toasts and confetti (step 6 builds)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-14",
+      "area": "Shell / chrome",
+      "what": "Stale-chunk recovery",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-15",
+      "area": "Shell / chrome",
+      "what": "Escape closes drawer, menus and modals",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "SH-16",
+      "area": "Shell / chrome",
+      "what": "Demo controls (fixture build only)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "D-1",
+      "area": "Dashboard / Home",
+      "what": "Announcement banner: severity, title, body, time, action button (Update Calendar → .ics / Open Sessions), Dismiss (`dismissAnnouncement`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "D-2",
+      "area": "Dashboard / Home",
+      "what": "Session card: countdown, Join (live 15 min early) via `GET /api/sessions/:id/join`",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "D-3",
+      "area": "Dashboard / Home",
+      "what": "Add to calendar: Google Calendar (new tab), Outlook (new tab), Apple/Other (.ics)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "D-4",
+      "area": "Dashboard / Home",
+      "what": "Session card \"Watch Replay\" and \"Open the Build Kit\"",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "D-5",
+      "area": "Dashboard / Home",
+      "what": "Progress: \"N of M AI Employees Built\", segmented bar, legend with build tokens, \"Next Up\" button, locked note",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "D-6",
+      "area": "Dashboard / Home",
+      "what": "Post-cohort block: \"Your Cohort Wrapped on …\", Add Office Hours to Calendar, Rewatch Any Session",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "D-7",
+      "area": "Dashboard / Home",
+      "what": "\"Your First Build Is Session 1 on …\" plus \"Watch the 5-Min Orientation\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "n/a",
+      "note": "The orientation video was a placeholder toast (N/A). The date half (a countdown to the next build) is KEPT and has a test.",
+      "tests": []
+    },
+    {
+      "id": "D-8",
+      "area": "Dashboard / Home",
+      "what": "\"Your AI Employees\" card grid (open, locked, soon, build state)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "D-9",
+      "area": "Dashboard / Home",
+      "what": "Quick Links: Technical Support (mailto support), Office Hours (next time)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "D-10",
+      "area": "Dashboard / Home",
+      "what": "Quick Link \"Cohort Community\" (148 members…)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "D-11",
+      "area": "Dashboard / Home",
+      "what": "Cohort Schedule side list plus \"All Sessions\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "D-12",
+      "area": "Dashboard / Home",
+      "what": "Two-pay paused state → Manage Billing",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "D-13",
+      "area": "Dashboard / Home",
+      "what": "Course \"failed to load\" state",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "E-1",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Session replay player (HLS via `playbackUrl`), poster, play/pause, big play",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-2",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Seek bar, back 10s, time / total, current chapter",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-3",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Playback speed cycle",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-4",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Captions toggle (CC) from VTT",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-5",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Transcript panel: search box, match count, click a line to seek",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-6",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Chapter rail (one per build step, with check marks)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-7",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Resume position saved per module (localStorage, on pagehide)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-8",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Replay processing\" / no-replay states under the poster",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-9",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Join button on the week workspace poster (15-min window) plus Add to Calendar",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-10",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: system prompt card, View (code drawer, line numbers), Copy (2s \"Copied\"), prompt stats, variables",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "E-11",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: module files, Preview (drawer), Download (`/api/files/module/:id/:file`); Notion opens",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "E-12",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build Kit: linked Vault resources with Download",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "E-13",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Instructor notes card (avatar, name, notes)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "E-14",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Your Deployment\": runtime status token, platform, Open link, issue, last run, Mark as Deployed / Resume / Reconnect, Pause",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "E-15",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Run drawer: input textarea, Run, Copy all, output, records the last run (`recordRun`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "E-16",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Build checklist: steps with number, text, hint, \"About N min\", per-step assets (copy or view prompt, file), Mark / undo (`toggleStep`), verified token",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "E-17",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Per-step \"Watch at mm:ss\" (seeks the replay)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "E-18",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Header: name, runtime token, outcome, \"From Session N\" link to Sessions, Self-Paced, build minutes, for whom",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "note": "Best call: CHANGED and not named in Connor’s § 2. The week header’s outcome, time and owner/operator lines come with the week content on claude/learner-pr9c-content. The runtime token goes with E-14.",
+      "tests": []
+    },
+    {
+      "id": "E-19",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "\"Opens …\" soon state for a scheduled module",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "E-20",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Next Up button to the next AI Employee",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "E-21",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Preview tab: stored download says \"Preview only\"",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "note": "Unverified in the inventory; restored by claude/learner-pr9c-content (the staff \"Preview only\" behavior on module files).",
+      "tests": []
+    },
+    {
+      "id": "E-22",
+      "area": "AI Employee workspace (`/employees/:id`) → week page and step player",
+      "what": "Non-course AI Employee pages (any module not `accelerator-week-N`)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "S-1",
+      "area": "Sessions → Schedule",
+      "what": "List of every cohort session, with status tokens",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "S-2",
+      "area": "Sessions → Schedule",
+      "what": "Join per session (live 15 min early)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "S-3",
+      "area": "Sessions → Schedule",
+      "what": "Status tokens: Live Now, Next Up, Scheduled, Replay Processing, Replay Ready",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "S-4",
+      "area": "Sessions → Schedule",
+      "what": "\"Watch Replay\" per past session",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "S-5",
+      "area": "Sessions → Schedule",
+      "what": "Add to Calendar per session; \"Add all\" (.ics)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "S-6",
+      "area": "Sessions → Schedule",
+      "what": "Office-hours calendar download",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "S-7",
+      "area": "Sessions → Schedule",
+      "what": "Locked session \"Preview\" (opens the Locked preview)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "S-8",
+      "area": "Sessions → Schedule",
+      "what": "Holiday-break note",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": []
+    },
+    {
+      "id": "K-1",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Live Build: when, minutes, Join link (`intro.join`), agenda table, lesson and case, live exercise, required outcome, advanced option, owner approval, \"working at the end of class\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-2",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Office Hours page: title, note, Join link, format, \"You Leave With\" (outputs)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-3",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Homework: Implemented by Week's End, Before the Next Session (assignment), Acceptance Test (checkpoint), Adopted Means",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-4",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Why It Matters; Who Does What (owner/operator); Time This Week (owner/operator)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-5",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "This Week's Skills (role: flagship/supporting/optional/pilot), Setup Order with guided-setup links",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "K-6",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Course Materials list; Media list",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-7",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Evidence packet, Rubric (and scale and rules), Readiness gates, Issue form",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-8",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "How It Works intro, roles, scope, support, instructor",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-9",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Before Week 1: intake, orientation, data pack (preferred / minimum), practice set, safe sharing, three ways to connect data",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "Best call: CHANGED (restructured into Week 0’s v2 steps); the inventory could not verify every old item maps to a step. Kept, with a test that Week 0’s steps render; the mapping itself needs a content review.",
+      "tests": []
+    },
+    {
+      "id": "K-10",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "After Week 8: Graduation, Agent Pilot Review",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-11",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "The weeks overview with each week's question, flagship and opens date; Calendar section",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "K-12",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Previous / Next week links",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-13",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Downloads made in the browser: Week 1 worksheet CSV, practice set CSV, per-week templates (`COURSE_TEMPLATES`)",
+      "kind": "action",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-14",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Pre-launch welcome panel (`PreLaunch`) on `/course` and the library",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "K-15",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "New v2 fields Seat card and Playbook card (builder-editable)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "K-16",
+      "area": "Course page content (`/course`, `/course/week-N`) → week page and step player",
+      "what": "Locked week shows title, question, outcome, opens date, its sessions (D-175)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-1",
+      "area": "Skill Library and guided setup",
+      "what": "Skills grouped by set, each with title, Free badge, lead, summary",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-2",
+      "area": "Skill Library and guided setup",
+      "what": "Open skill: per-file Download buttons on the list (`/api/skills/:id/download/:kind`) plus Setup Guide",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-3",
+      "area": "Skill Library and guided setup",
+      "what": "Locked skill: \"Not included with {group} access\" (no upsell for a group member) / locked; Preview link; See plans (non-group only)",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-4",
+      "area": "Skill Library and guided setup",
+      "what": "Upcoming skill: \"Opens {date}\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-5",
+      "area": "Skill Library and guided setup",
+      "what": "Access-group welcome panel (\"Welcome, Utah Life\", N skills, \"start with X and Y\" links, Dismiss via `POST /api/skills/welcome/dismiss`, kept per account)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "L-6",
+      "area": "Skill Library and guided setup",
+      "what": "Header line \"Included with your {group} access\"",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "L-7",
+      "area": "Skill Library and guided setup",
+      "what": "Header buttons: AI Accelerator (`/course`), Team Hub (`/team`, not for group-only), Manage Billing (not for group-only)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-8",
+      "area": "Skill Library and guided setup",
+      "what": "Paused (two-pay) note on the library",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-9",
+      "area": "Skill Library and guided setup",
+      "what": "Signed-out: \"opens when you sign in\" plus Sign In",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-10",
+      "area": "Skill Library and guided setup",
+      "what": "Guided setup: lanes (Claude / ChatGPT / Grok), step rail, prev/next/restart, copy chip, copy block, Copy & Open, step file download/link, prompts section",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-11",
+      "area": "Skill Library and guided setup",
+      "what": "Guide remembers your step per lane on this device",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "L-12",
+      "area": "Skill Library and guided setup",
+      "what": "Signed-out guide → `/sign-in?next=/skill-library/<page>`, back after sign-in",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "T-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub in the sidebar for Team tier",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "T-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "Team Hub actions: invite (four inline errors), remind/nudge (\"Resend Invite\"/\"Send Reminder\"), change role, remove, member drawer",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "T-3",
+      "area": "Team Hub, Vault, Account",
+      "what": "Weekly digest email \"Open Team Hub\" → `/team`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "V-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "Vault: list, filters, download (`downloadResource`, `/api/files/resource/:id`), Team-only lock, \"Request\" upgrade (`requestUpgrade`), Executive Build Vault request",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "V-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "Vault reachable for every learner",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "note": "Best call: CHANGED only before launch (the Vault is locked in the nav during the pre-launch preview, per D-175’s plan). Kept, with a test that it is a link once the course is open.",
+      "tests": []
+    },
+    {
+      "id": "AC-1",
+      "area": "Team Hub, Vault, Account",
+      "what": "`/account`: set or change password",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "AC-2",
+      "area": "Team Hub, Vault, Account",
+      "what": "(new) `/learn/account`: profile (read-only name/email/role), plan, seats, billing link, included items",
+      "kind": "route",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": []
+    },
+    {
+      "id": "AC-3",
+      "area": "Team Hub, Vault, Account",
+      "what": "Resend invite (Account)",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-1",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/me`, used today by every screen (`useViewer`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-2",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/snapshot`, used today by every portal screen (`useDb`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-3",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/events` (SSE \"changed\" → refetch snapshot), used today by `data/http.ts:112-122`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "A-4",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/toggleStep`, used today by `EmployeeDetail.tsx:601,610`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-5",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/dismissAnnouncement`, used today by `Dashboard.tsx:115`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "A-6",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/markDeployed`, `setRuntime`, `recordRun`, used today by `EmployeeDetail.tsx:256-266,689`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "note": "Best call: the endpoints behind E-14 and E-15 (Your Deployment, the Run drawer), so it stands or falls with those proposed drops. Not on Connor’s list by ID.",
+      "tests": []
+    },
+    {
+      "id": "A-7",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/mutate/requestUpgrade` (Team tier page), used today by `TeamTier.tsx:30`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "A-8",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/sessions/:id/join`, used today by Dashboard, Sessions, EmployeeDetail (`data/join.ts`)",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "A-9",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/files/module/:moduleId/:file`, used today by `EmployeeDetail.vm.ts:486,663`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "A-10",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/files/resource/:id`, used today by Vault, EmployeeDetail resources",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-11",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/course`, used today by `Course.tsx:35`",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-12",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/billing/portal` (Stripe portal; returns to `/skill-library`), used today by library, course paused",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-13",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/skills`, `GET /api/skills/:id/download/:kind`, `GET /api/skill-guides/:slug`, used today by SkillLibrary, SkillGuide",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-14",
+      "area": "API endpoints the learner web app calls",
+      "what": "`POST /api/skills/welcome/dismiss`, used today by `SkillLibrary.tsx:250`",
+      "kind": "api",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "A-15",
+      "area": "API endpoints the learner web app calls",
+      "what": "`GET /api/auth/password`, `POST /api/auth/password/change`, used today by `/account`",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-16",
+      "area": "API endpoints the learner web app calls",
+      "what": "`/api/auth/*` sign-in, request, verify, google, forgot, set, sign-out, used today by auth screens",
+      "kind": "api",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "A-17",
+      "area": "API endpoints the learner web app calls",
+      "what": "Calendar .ics route (`SCHEDULE_ICS_PATH`, offer-calendar), used today by,",
+      "kind": "api",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-1",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Session 24h \"Open Sessions\": links to `/sessions` (`session-24h.tsx:19`, `session-reminder.tsx:36`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-2",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Session 1h \"Join Session\": links to `/sessions` (`session-1h.tsx:18`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "M-3",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Replay ready \"Watch Replay\": links to `/employees/:moduleId` (`replay-ready.tsx:33`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "M-4",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Build reminder (\"N of 6 steps\"): links to `/employees/:moduleId` (`build-reminder.tsx:46`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-5",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Announcement email CTA: links to `/sessions` if it has an action, else `/` (`announcement.tsx:47`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "M-6",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Weekly digest \"Open Team Hub\": links to `/team` (`weekly-digest.tsx:44`)",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-7",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Sign-in link (with optional `next=/skill-library/<page>`): links to `links.ts` `signInPath`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-8",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Set password / Reset password: links to `/set-password?token=`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-9",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Team invite \"Accept Invite\": links to `/invite/:token`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-10",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Checkout success → set password: links to `api/routes/offer.ts:381`",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-11",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "www links (`/course`, `/skill-library`, `/sessions`, `/team`): links to `apps/web/*` www pages",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "M-12",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "GHL workflow emails (Connor's GHL, not in this repo): links to unknown",
+      "kind": "deep-link",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "note": "Unverified: GHL workflow emails live in Connor’s GHL, not in this repository, so no test here can follow their links.",
+      "tests": []
+    },
+    {
+      "id": "M-13",
+      "area": "Emails, reminders and deep links into the portal",
+      "what": "Staff invite \"Open Admin Console\": links to `/invite/:token`",
+      "kind": "deep-link",
+      "audience": [],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "C-1",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → Go Live (`goLive`, `core/mutations.ts:721`): Join turns on for the cohort (before the start time if pressed early); live badges (`api/routes/join.ts:78-79` honors `live`)",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-2",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → End Session (`endSession`, `:741`): session reads as ended; Join off; replay pending",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-3",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → Publish Replay / attach replay (`publishReplay :763`, `attachReplay` admin action): Replay Ready token, Watch Replay, player, replay email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-4",
+      "area": "Console actions that change what learners see",
+      "what": "Cohorts → edit session (date, time, minutes, Zoom) (`updateSession :780`), add session: the snapshot updates live via SSE",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-5",
+      "area": "Console actions that change what learners see",
+      "what": "Curriculum → publish/unpublish, schedule opens, week unlock dates (course builder): the portal reflects it live",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-6",
+      "area": "Console actions that change what learners see",
+      "what": "Announcements → send / schedule / update / duplicate (`sendAnnouncement :930`, admin actions): Dashboard banner for the audience plus optional email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "C-7",
+      "area": "Console actions that change what learners see",
+      "what": "Announcements → automated reminders on/off (`toggleReminder :998`): controls the M-* emails",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-8",
+      "area": "Console actions that change what learners see",
+      "what": "Vault → upload, edit, access tier, publish/hide, delete: Vault plus EmployeeDetail kit",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-9",
+      "area": "Console actions that change what learners see",
+      "what": "Curriculum builder: edit week content (why, homework, agenda, lesson, materials, media, seat card, playbook card) plus live preview: old course page showed them",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "C-10",
+      "area": "Console actions that change what learners see",
+      "what": "Module Builder: system prompt, files, notes, steps: EmployeeDetail kit, notes, checklist",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9c-content",
+      "tests": []
+    },
+    {
+      "id": "C-11",
+      "area": "Console actions that change what learners see",
+      "what": "Learners → set tier (`setLearnerTier`): Team Hub visibility, locked modules",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-12",
+      "area": "Console actions that change what learners see",
+      "what": "Learners → nudge (`nudgeLearners :493`): build-reminder email",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-13",
+      "area": "Console actions that change what learners see",
+      "what": "Tiers → request status (`setRequestStatus`): Team tier upgrade flow",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "C-14",
+      "area": "Console actions that change what learners see",
+      "what": "Masquerade start, extend, end: lands as the learner (landing path), banner, writes blocked",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-15",
+      "area": "Console actions that change what learners see",
+      "what": "Preview as learner (D-138): banner plus read-only",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "C-16",
+      "area": "Console actions that change what learners see",
+      "what": "Console flags: none found that switch learner screens (`VITE_LEARNER_V2` was build-time only and #172 deletes it)",
+      "kind": "console-effect",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    },
+    {
+      "id": "U-1",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life (verified @liveutah.com; Agent Plan skills; `api/billing/access-groups.ts`), sign-in landing: `/skill-library`: standalone page, no sidebar (`core/landing.ts`,…",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-2",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life visiting `/`: redirected to the Skill Library (`navModel.ts:97-100`)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-3",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life nav: the library page has no sidebar; inside the old shell (`/vault`): Skill Library, Vault (`navModel.ts:232-240`)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-4",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life welcome panel and \"Included with your Utah Life access\" line: `SkillLibrary.tsx:205-258,371-376`",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-5",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life Account page: only `/account` (password)",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-6",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life locked skills say \"Not included with Utah Life access\", no upsell: `SkillLibrary.tsx:302`; `offersPlans`",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "U-7",
+      "area": "Access groups: what each sees",
+      "what": "Utah Life downloads and guided setups: list buttons plus guide",
+      "kind": "access-group",
+      "audience": [
+        "Utah Life"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "G-1",
+      "area": "Access groups: what each sees",
+      "what": "Accelerator (course buyers and teammates): Dashboard, Sessions, Course, AI Employees, Vault, Team Hub (team tier)",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity, claude/learner-pr9c-content and claude/learner-pr10-flip (reworked #172)",
+      "note": "Accelerator learners get the new portal; its MISSING pieces (top section items 2 to 11) are restored by the IDs they map to.",
+      "tests": []
+    },
+    {
+      "id": "G-2",
+      "area": "Access groups: what each sees",
+      "what": "Team Plan (no course, Team tier): Skill Library page plus Team Hub plus Vault (D-119)",
+      "kind": "access-group",
+      "audience": [
+        "Team"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "G-3",
+      "area": "Access groups: what each sees",
+      "what": "Agent Plan (no course): Skill Library page plus Vault",
+      "kind": "access-group",
+      "audience": [
+        "Agent"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "G-4",
+      "area": "Access groups: what each sees",
+      "what": "Insiders: Skill Library page plus Vault",
+      "kind": "access-group",
+      "audience": [
+        "Insiders"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "G-5",
+      "area": "Access groups: what each sees",
+      "what": "Free / no plan (signed-in, free skills): Skill Library page (free open, rest locked with See plans)",
+      "kind": "access-group",
+      "audience": [
+        "free"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr10-flip (reworked #172)",
+      "tests": []
+    },
+    {
+      "id": "G-6",
+      "area": "Access groups: what each sees",
+      "what": "Two-pay paused: course paused panel plus billing; library paused note",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "G-7",
+      "area": "Access groups: what each sees",
+      "what": "Bought, before the preview opens: PreLaunch panel",
+      "kind": "access-group",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "MO-1",
+      "area": "Mobile behaviors",
+      "what": "Under 768px: sidebar becomes a drawer with scrim, Close button, menu button, wordmark in the top bar",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "MO-2",
+      "area": "Mobile behaviors",
+      "what": "16px text floor, 44px targets, no sideways scroll (CI `@lms-mobile`)",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "kept",
+      "tests": []
+    },
+    {
+      "id": "MO-3",
+      "area": "Mobile behaviors",
+      "what": "768px and up: full sidebar or rail (user toggle)",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "MO-4",
+      "area": "Mobile behaviors",
+      "what": "Phone: next-session strip",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "kept",
+      "note": "New in v2 (no old counterpart). Kept, with a test, so it stays.",
+      "tests": []
+    },
+    {
+      "id": "MO-5",
+      "area": "Mobile behaviors",
+      "what": "Phone: replay player, transcript and checklist on the workspace",
+      "kind": "mobile",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "restored",
+      "by": "claude/learner-pr9b-parity",
+      "tests": []
+    },
+    {
+      "id": "P-1",
+      "area": "Misc / prototype-only",
+      "what": "`/team-tier` Team tier sales page plus \"Request a consultation\" (`TeamTier.tsx:30`)",
+      "kind": "route",
+      "audience": [
+        "Accelerator"
+      ],
+      "status": "signed-off-drop",
+      "tests": []
+    },
+    {
+      "id": "P-2",
+      "area": "Misc / prototype-only",
+      "what": "Demo controls, `/__states`, `/__tokens`",
+      "kind": "action",
+      "audience": [
+        "Accelerator",
+        "Team",
+        "Agent",
+        "Utah Life",
+        "Insiders",
+        "free"
+      ],
+      "status": "n/a",
+      "tests": []
+    }
+  ]
+}
