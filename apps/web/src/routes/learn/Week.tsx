@@ -15,9 +15,21 @@ import { weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
 import { learnHome } from './routes';
+import { BuildKit, Crumbs, Downloads, WeekContent, moduleFileUrl } from './WeekContent';
+import { buildKitVM, crumbsVM, weekContentVM } from './WeekContent.vm';
+import type { BuildKitVM, CrumbVM, WeekContentVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
 const fileUrl = (id: string): string | null => repo.fileUrl({ kind: 'resource', id });
+
+/** D-184: what an open week draws beyond its overview: the trail, its content, its build kit and downloads. */
+interface WeekMore {
+  crumbs: CrumbVM[];
+  content: WeekContentVM | null;
+  kit: BuildKitVM | null;
+  /** A staff member's preview tab (D-138): a stored file says "Preview only". */
+  previewing: boolean;
+}
 
 function Head({ vm, children }: { vm: OpenWeekVM | LockedWeekVM; children: ReactNode }) {
   return (
@@ -34,9 +46,11 @@ function Head({ vm, children }: { vm: OpenWeekVM | LockedWeekVM; children: React
   );
 }
 
-function Open({ vm }: { vm: OpenWeekVM }) {
+function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
+  const side = !!(vm.kit || more.kit || more.content?.downloads.length);
   return (
     <div className={s.pg}>
+      <Crumbs crumbs={more.crumbs} />
       <Head vm={vm}>
         <span className={s.pk}>
           <span className={s.pl} data-tone={vm.pill.tone}>
@@ -117,26 +131,32 @@ function Open({ vm }: { vm: OpenWeekVM }) {
             </Link>
           ))}
         </section>
-        {vm.kit ? (
+        {side ? (
           <div className={s.col}>
-            <section className={s.cd} aria-labelledby="lv-kit-t">
-              <div className={s.cdh}>
-                <h2 className={`${s.h2} ${s.grow}`} id="lv-kit-t">
-                  {vm.kit.heading}
-                </h2>
-              </div>
-              <KitRows rows={vm.kit.rows} />
-            </section>
+            {vm.kit ? (
+              <section className={s.cd} aria-labelledby="lv-kit-t">
+                <div className={s.cdh}>
+                  <h2 className={`${s.h2} ${s.grow}`} id="lv-kit-t">
+                    {vm.kit.heading}
+                  </h2>
+                </div>
+                <KitRows rows={vm.kit.rows} />
+              </section>
+            ) : null}
+            {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} /> : null}
+            {more.content ? <Downloads items={more.content.downloads} /> : null}
           </div>
         ) : null}
       </div>
+      {more.content ? <WeekContent vm={more.content} /> : null}
     </div>
   );
 }
 
-function Locked({ vm, now }: { vm: LockedWeekVM; now: number }) {
+function Locked({ vm, now, crumbs }: { vm: LockedWeekVM; now: number; crumbs: CrumbVM[] }) {
   return (
     <div className={s.pg}>
+      <Crumbs crumbs={crumbs} />
       <Head vm={vm}>
         <span className={s.pk}>
           <Icon name="lvLock" size={14} strokeWidth={1.75} />
@@ -179,15 +199,32 @@ function Locked({ vm, now }: { vm: LockedWeekVM; now: number }) {
   );
 }
 
-export function Component() {
+/**
+ * D-184: a week's page from what the shell hands every screen (`useLearn`), for one week. The curriculum
+ * builder's live preview draws it too, inside a `LearnProvider` with the unsaved draft's course, and then
+ * (`preview`) a week it can't show draws nothing rather than moving the builder's page.
+ */
+export function WeekPage({ week, preview = false }: { week: number | null; preview?: boolean }) {
   const { course, db, viewer, now } = useLearn();
-  const params = useParams();
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
-  if (course.kind !== 'ready') return <Navigate to={learnHome()} replace />;
-  const vm = weekVM(course.payload, rows, weekParam(params.week), now, fileUrl);
-  if (vm.kind === 'missing') return <Navigate to={vm.href} replace />;
-  return vm.kind === 'open' ? <Open vm={vm} /> : <Locked vm={vm} now={now} />;
+  if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
+  const vm = weekVM(course.payload, rows, week, now, fileUrl);
+  if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
+  const crumbs = crumbsVM(vm.title, vm.week);
+  if (vm.kind === 'locked') return <Locked vm={vm} now={now} crumbs={crumbs} />;
+  const more: WeekMore = {
+    crumbs,
+    content: weekContentVM(course.payload, vm.week),
+    kit: buildKitVM(rows.find((r) => r.week === vm.week)?.module, moduleFileUrl),
+    previewing: viewer.preview !== undefined,
+  };
+  return <Open vm={vm} more={more} />;
+}
+
+export function Component() {
+  const params = useParams();
+  return <WeekPage week={weekParam(params.week)} />;
 }
 
 export default Component;

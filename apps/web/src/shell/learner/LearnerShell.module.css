@@ -67,6 +67,15 @@
 .spacer {
   flex: 1;
 }
+/* D-184: the cohort line under the wordmark (the current portal's context line). */
+.ctx {
+  margin: -6px 0 8px;
+  padding: 0 16px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+  flex: none;
+}
 
 .nav {
   flex: 1;
@@ -540,6 +549,7 @@ button.b {
     width: 11px;
   }
   .sb .lbl,
+  .sb .ctx,
   .sb .es,
   .sb .nl,
   .sb .ng,

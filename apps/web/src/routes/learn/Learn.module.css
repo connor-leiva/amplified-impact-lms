@@ -1048,12 +1048,12 @@ button.b {
 .done {
   margin-left: auto;
 }
-.markDone[aria-pressed='true'] {
+.markDone[data-done='true'] {
   background: var(--r2-sf);
   border-color: var(--r2-line2);
   color: var(--r2-ok);
 }
-.markDone[aria-pressed='true']:hover {
+.markDone[data-done='true']:hover {
   background: var(--r2-hov);
 }
 

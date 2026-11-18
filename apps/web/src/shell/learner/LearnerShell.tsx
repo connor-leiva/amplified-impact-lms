@@ -19,8 +19,8 @@ import { Wordmark } from '../admin/Wordmark';
 import { useCourse } from '../../routes/learn/data';
 import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
-import { HUE, LABELS, barVM, navVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
-import type { BarVM, NavVM } from '../../routes/learn/learn.vm';
+import { HUE, LABELS, barVM, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
+import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
 import { learnAccount, learnHome } from '../../routes/learn/routes';
 import s from './LearnerShell.module.css';
 
@@ -53,13 +53,15 @@ function Ring({ ratio }: { ratio: number }) {
 
 interface SidebarProps {
   nav: NavVM;
+  /** D-184: Team Hub (Team tier) and the cohort line. */
+  side: SideVM;
   drawer?: boolean;
   onClose?: () => void;
   closeRef?: Ref<HTMLButtonElement>;
   go: () => void;
 }
 
-function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
+function Sidebar({ nav, side, drawer = false, onClose, closeRef, go }: SidebarProps) {
   const [open, setOpen] = useState(true);
   return (
     <aside aria-label={LABELS.primary} className={s.sb}>
@@ -76,6 +78,7 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           </>
         ) : null}
       </div>
+      {side.cohortLine ? <p className={s.ctx}>{side.cohortLine}</p> : null}
       <nav className={s.nav} aria-label={LABELS.learner}>
         <Link className={s.ni} to={nav.home.href} data-on={nav.home.active ? 'true' : undefined} aria-current={nav.home.active ? 'page' : undefined} title={nav.home.label} onClick={go}>
           <Icon name="lvHome" size={16} strokeWidth={1.75} />
@@ -91,6 +94,12 @@ function Sidebar({ nav, drawer = false, onClose, closeRef, go }: SidebarProps) {
           <Icon name="lvGrid" size={16} strokeWidth={1.75} />
           <span className={s.lbl}>{nav.library.label}</span>
         </Link>
+        {side.teamHub ? (
+          <Link className={s.ni} to={side.teamHub.href} data-on={side.teamHub.active ? 'true' : undefined} aria-current={side.teamHub.active ? 'page' : undefined} title={side.teamHub.label} onClick={go}>
+            <Icon name="r2Learners" size={16} strokeWidth={1.75} />
+            <span className={s.lbl}>{side.teamHub.label}</span>
+          </Link>
+        ) : null}
         {nav.cohort ? (
           nav.vault.locked ? (
             <button type="button" className={s.ni} title={nav.vault.label} aria-disabled="true" aria-describedby="lv-vault-opens">
@@ -244,6 +253,7 @@ function Frame() {
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   const nav = navVM(payload, rows, location.pathname);
   const bar = barVM(payload, now);
+  const side = sideVM(db, me, payload, location.pathname, now);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement | null>(null);
@@ -285,7 +295,7 @@ function Frame() {
   return (
     <div className={s.frame} data-r2-scope="" data-learner-v2="">
       <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
-        {phone ? null : <Sidebar nav={nav} go={() => undefined} />}
+        {phone ? null : <Sidebar nav={nav} side={side} go={() => undefined} />}
         <div className={s.mainc}>
           <header className={s.tb}>
             <div className={`${s.phOnly} ${s.phRow}`}>
@@ -342,7 +352,7 @@ function Frame() {
         <>
           {drawerOpen ? <div className={s.scrim} onClick={closeDrawer} /> : null}
           <div ref={drawerRef} tabIndex={-1} className={s.drw} hidden={!drawerOpen} role="dialog" aria-modal="true" aria-label={LABELS.menu} data-drawer={drawerOpen ? 'open' : undefined}>
-            <Sidebar nav={nav} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
+            <Sidebar nav={nav} side={side} drawer onClose={closeDrawer} closeRef={closeRef} go={closeDrawer} />
           </div>
         </>
       ) : null}
