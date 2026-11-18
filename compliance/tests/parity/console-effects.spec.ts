@@ -50,7 +50,15 @@ async function pair(
   const learner = await ctx.newPage();
   await visit(learner, learnerPath, o.as ?? 'agent', now);
   const admin = await ctx.newPage();
-  return { admin, learner, close: () => ctx.close() };
+  return {
+    admin,
+    learner,
+    // The open tabs refetch on every change; let any request still in flight go before closing.
+    close: async () => {
+      await ctx.unrouteAll({ behavior: 'ignoreErrors' });
+      await ctx.close();
+    },
+  };
 }
 
 async function console_(p: Pair, path: string, now: NowKey = 'week1'): Promise<void> {
