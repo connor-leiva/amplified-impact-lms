@@ -238,3 +238,27 @@ describe('Home: Join, Go Live and the in-app announcement (D-183)', () => {
     expect(homeVM({ kind: 'locked' }, [], [], me, 'Dana Ross', PRELAUNCH_NOW, st.db).banner).toMatchObject({ title: 'For everyone', action: null });
   });
 });
+
+// D-187 (D-10): today's Dashboard quick link "Cohort Community" used prototype figures. The new Home's cohort
+// card links the address staff set in the builder's Shared pages, and hides the link when there is none.
+describe('the Cohort Community link (D-187)', () => {
+  const withCommunity = (url: string | undefined) =>
+    learnState(PRELAUNCH_NOW, true, {}, 15, (d) => {
+      const intro = d.cohorts.find((c) => c.id === 'dec26')!.course!.intro;
+      if (url === undefined) delete intro.community;
+      else intro.community = url;
+    });
+
+  it('links the builder’s address in a new tab, named by its site, never a member count @parity:D-10', () => {
+    const vm = home(withCommunity('https://www.skool.com/amplified-dec26'));
+    expect(vm.cohort!.community).toEqual({ label: 'Cohort Community', host: 'skool.com', href: 'https://www.skool.com/amplified-dec26' });
+    expect(JSON.stringify(vm.cohort)).not.toMatch(/members|new posts/);
+  });
+
+  it('hidden when the builder has no link, or one that is not a web address @parity:D-10', () => {
+    expect(home(withCommunity(undefined)).cohort!.community).toBeNull();
+    expect(home(withCommunity('')).cohort!.community).toBeNull();
+    expect(home(withCommunity('javascript:alert(1)')).cohort!.community).toBeNull();
+    expect(home(withCommunity('/community')).cohort!.community).toBeNull();
+  });
+});

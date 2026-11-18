@@ -5,7 +5,7 @@
 // A learner whose plan has no course (Utah Life among them) gets Home without the cohort pieces: no
 // hero, no AI employees, nothing coming up and no cohort card.
 
-import { fmt } from '@ai/core';
+import { communityUrl, fmt } from '@ai/core';
 import type { Cohort, Db, IconName, IcsEvent, Learner } from '@ai/core';
 import { ACCELERATOR_COHORT_ID, ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import { countWord, countdown, currentWeek, firstName, inAppAnnouncement, joinableSession, monthYear, partOfDay, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
@@ -57,6 +57,8 @@ export const HOME = {
   cohort: 'Your cohort',
   inCohort: 'in your cohort',
   questions: 'Questions? Email support',
+  // D-187: today's Dashboard quick link's own name (D-10), now to the address the builder sets.
+  community: 'Cohort Community',
   units: { days: 'days', hrs: 'hrs', hr: 'hr', min: 'min' },
 } as const;
 
@@ -194,6 +196,8 @@ export interface HomeVM {
     month: string | null;
     stats: { figure: string; label: string }[];
     officeHours: { title: string; meta: string; href: string } | null;
+    /** D-187: the cohort community, from the builder's Shared pages; null when it has no link. */
+    community: { label: string; host: string; href: string } | null;
     support: { label: string; address: string; href: string };
   } | null;
   /** Home without the course: a way to the Skill Library, and why there is no course to show. */
@@ -448,10 +452,22 @@ function courseHome(p: CoursePayload, rows: readonly WeekRow[], cohort: Cohort |
       // Real counts only: the cohort's enrolment is its learners' rows (D-018). Nothing else is drawn.
       stats: enrolled > 0 ? [{ figure: fmt.num(enrolled), label: HOME.inCohort }] : [],
       officeHours: oh ? { title: oh.title, meta: fmt.when(oh.start), href: '/sessions' } : null,
+      community: communityVM(p),
       support: { label: HOME.questions, address: ACCELERATOR_SUPPORT_EMAIL, href: SUPPORT_HREF },
     },
     library: null,
   };
+}
+
+/**
+ * D-187 (D-10): the Cohort Community link, to the address staff set in the builder's Shared pages
+ * (`intro.community`); its line is the address's own site, never a member count. Null without a link,
+ * or with one that isn't an http or https address.
+ */
+export function communityVM(p: CoursePayload): { label: string; host: string; href: string } | null {
+  const href = communityUrl(p.course.intro.community);
+  if (!href) return null;
+  return { label: HOME.community, host: new URL(href).host.replace(/^www\./, ''), href };
 }
 
 /** Home without the course: the greeting, and the Skill Library their plan opens. No cohort pieces. */

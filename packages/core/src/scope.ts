@@ -19,7 +19,7 @@ import { moduleForSession } from './sessions';
 import { isOpen, visibleModules } from './status';
 import { ZERO_BASE } from './types';
 import type { Actor } from './mutations';
-import type { AIEmployee, Announcement, Cohort, Db, Learner, Resource, Session } from './types';
+import type { AIEmployee, Announcement, Cohort, Db, Learner, ReplayVisibility, Resource, Session } from './types';
 
 /** A storage key is a backend column (§7.2 `resources.storage_key`), never part of a snapshot. */
 type StoredResource = Resource & { storageKey?: unknown };
@@ -41,20 +41,46 @@ const redactModule = (m: AIEmployee): AIEmployee => {
 };
 
 /**
- * D-183: the recording staff attached to a session (D-172's Attach replay), when it is published to this
- * learner, else null. Published means the replay is `ready` (Attach replay and Publish Replay both set it)
- * and the session's replay visibility (D-173, the Week Builder's "Replay": Hidden, After the week opens,
- * Published, or not set) lets them see it:
+ * D-187: what an unset replay visibility means. The Week Builder shows a new session's "Replay" as "Not
+ * set", with no default named, so an unset session behaves as it always has: no replay in a week the
+ * learner can't open yet, and the replay once the week is open (After the week opens). Staff choose
+ * Published to show a replay before its week opens.
+ */
+export const DEFAULT_REPLAY_VISIBILITY: ReplayVisibility = 'after_open';
+
+/** D-187: where a session's week stands for one learner. */
+export interface ReplayWeek {
+  /** Their plan and their tier open the week's module at all (a locked-by-date week still counts). */
+  access: boolean;
+  /** The week is open for them now (not locked by its date). */
+  open: boolean;
+}
+
+/**
+ * D-183, D-187: whether a session's replay is published to this learner. The replay is `ready` (Attach
+ * replay and Publish Replay both set it), the week is in their plan or course access, and the session's
+ * replay visibility (D-173, the Week Builder's "Replay") allows it:
  *   - `hidden`: never, to any learner;
  *   - `after_open`: once the session's week is open for them;
- *   - `published`, or not set: as soon as the replay is ready (today's rule, which the portal has always
- *     used for "Replay Ready").
- * `weekOpen` is false for a week the learner can't open (locked by its date, or not in their tier).
+ *   - `published`: as soon as the replay is ready, even while its week is still locked by its date;
+ *   - not set: `DEFAULT_REPLAY_VISIBILITY` (After the week opens).
+ * Never outside the learner's plan, course or tier: `access` false is always no.
  */
-export function learnerReplayUrl(s: Pick<Session, 'replay' | 'replayUrl' | 'replayVisibility'>, weekOpen: boolean): string | null {
-  if (!s.replayUrl || s.replay !== 'ready' || !weekOpen) return null;
-  if (s.replayVisibility === 'hidden') return null;
-  return s.replayUrl;
+export function replayVisibleTo(s: Pick<Session, 'replay' | 'replayVisibility'>, w: ReplayWeek): boolean {
+  if (s.replay !== 'ready' || !w.access) return false;
+  const v = s.replayVisibility ?? DEFAULT_REPLAY_VISIBILITY;
+  if (v === 'hidden') return false;
+  if (v === 'published') return true;
+  return w.open;
+}
+
+/**
+ * D-183: the recording staff attached to a session (D-172's Attach replay), when it is published to this
+ * learner (`replayVisibleTo`), else null.
+ */
+export function learnerReplayUrl(s: Pick<Session, 'replay' | 'replayUrl' | 'replayVisibility'>, w: ReplayWeek): string | null {
+  if (!s.replayUrl) return null;
+  return replayVisibleTo(s, w) ? s.replayUrl : null;
 }
 
 /**
@@ -62,9 +88,9 @@ export function learnerReplayUrl(s: Pick<Session, 'replay' | 'replayUrl' | 'repl
  * record of where a recording is; it stays out of a learner's snapshot (with the join URL) unless D-183's
  * rule above says that learner may watch it.
  */
-const redactSession = (session: Session, weekOpen = false): Session => {
+const redactSession = (session: Session, w: ReplayWeek = { access: false, open: false }): Session => {
   const { replayUrl: _replay, ...s } = session;
-  const url = learnerReplayUrl(session, weekOpen);
+  const url = learnerReplayUrl(session, w);
   return { ...s, zoom: '', ...(url ? { replayUrl: url } : {}) };
 };
 
@@ -194,15 +220,18 @@ const lockedWeekModule = (m: AIEmployee): AIEmployee => {
 /**
  * D-175: the course for a learner who may enter it, at `at`: each course week open (whole) or locked
  * (a stub), the sessions of a locked week without a replay, and the vault items attached to a week only
- * as their visibility allows.
+ * as their visibility allows. D-187: a locked week's session keeps its replay when staff published it
+ * (`replayVisibleTo` with the week not open: Published only); `inPlan` says whether the learner's tier
+ * opens the session's week at all.
  */
-function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resources: Resource[], at: number, preview: boolean) {
+function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resources: Resource[], at: number, preview: boolean, inPlan: (s: Session) => boolean) {
   const locked = new Set(db.modules.filter((m) => isAcceleratorModule(m.id) && !isOpen(m, at)).map((m) => m.id));
   return {
     modules: modules.map((m) => (locked.has(m.id) ? lockedWeekModule(m) : m)),
     sessions: sessions.map((s) => {
       const m = moduleForSession(db, s);
       if (!(m && locked.has(m.id))) return s;
+      if (replayVisibleTo(s, { access: inPlan(s), open: false })) return s;
       // A locked week's session: no replay, and so (D-183) never its link.
       const { replayUrl: _url, ...rest } = s;
       return { ...rest, replay: null, views: 0 };
@@ -232,14 +261,21 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   const mine = `${me.id}:`;
 
   // Their own cohort's sessions only, with the join URL withheld, and a replay's link only when it is
-  // published to them (D-183): its week module (if any) is one they can open, now.
-  const weekOpen = (s: Session): boolean => {
+  // published to them (D-183, D-187): its week module (if any) is in their tier and their plan, and is
+  // open now, unless staff published the replay ahead of the week.
+  const inPlan = (s: Session): boolean => {
     const m = moduleForSession(db, s);
     if (!m) return true;
-    if (!canOpenModule(me, m, access?.accelerator)) return false;
-    return access?.at === undefined || !isAcceleratorModule(m.id) || isOpen(m, access.at);
+    // The tier decides, except for a course week, which follows course access (D-186, `canOpenModule`,
+    // which also shuts a course week to a plan without the course).
+    return canOpenModule(me, m, access?.accelerator);
   };
-  let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map((s) => redactSession(s, weekOpen(s)));
+  const replayWeek = (s: Session): ReplayWeek => {
+    const m = moduleForSession(db, s);
+    const open = !m || access?.at === undefined || !isAcceleratorModule(m.id) || isOpen(m, access.at);
+    return { access: inPlan(s), open };
+  };
+  let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map((s) => redactSession(s, replayWeek(s)));
   // Published and scheduled modules; a draft never appears. Blanked where the learner may not open it:
   // the tier decides, except for a course week, which follows course access (D-186, `canOpenModule`).
   let modules = visibleModules(db)
@@ -254,7 +290,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
     resources = resources.filter((r) => kitVisible(r, false, false));
   } else if (access && access.at !== undefined) {
     // D-175: in the course, each week opens on its own date (the builder's Status and Opens).
-    ({ modules, sessions, resources } = withReleases(db, modules, sessions, resources, access.at, !!access.preview));
+    ({ modules, sessions, resources } = withReleases(db, modules, sessions, resources, access.at, !!access.preview, inPlan));
   }
 
   return {
