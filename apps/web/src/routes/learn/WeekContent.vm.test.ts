@@ -315,7 +315,8 @@ describe('the trail and the sidebar (D-184)', () => {
     expect(hasTeamHub(d, { ...owner, teamId: null })).toBe(false);
     expect(hasTeamHub(d, agent)).toBe(false);
     expect(hasTeamHub(d, null)).toBe(false);
-    expect(sideVM(d, owner, null, '/team', LIVE).teamHub).toEqual({ label: 'Team Hub', href: '/team', active: true });
+    // D-182: the Team Hub inside the learner portal, where `/team` sends a learner with the course.
+    expect(sideVM(d, owner, null, '/learn/team', LIVE).teamHub).toEqual({ label: 'Team Hub', href: '/learn/team', active: true });
     expect(sideVM(d, agent, null, '/learn', LIVE).teamHub).toBeNull();
   });
 

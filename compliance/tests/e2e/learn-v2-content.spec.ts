@@ -175,9 +175,14 @@ test.describe('learner portal v2, the week’s content and kit (D-184) @g9', () 
     await page.context().close();
   });
 
-  test('@parity:T-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one', async ({ browser }) => {
+  test('@parity:T-1 @parity:G-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one', async ({ browser }) => {
     const owner = await open(browser, '/learn', 1440, 'owner');
-    await expect(owner.locator('aside[aria-label="Primary"]').getByRole('link', { name: 'Team Hub' })).toHaveAttribute('href', '/team');
+    // D-182: the Team Hub inside the learner portal, where `/team` sends a learner with the course.
+    const link = owner.locator('aside[aria-label="Primary"]').getByRole('link', { name: 'Team Hub' });
+    await expect(link).toHaveAttribute('href', '/learn/team');
+    await link.click();
+    await expect(owner).toHaveURL(/\/learn\/team(\?|$)/);
+    await expect(owner.getByRole('heading', { level: 1, name: 'Team Hub' })).toBeVisible();
     await owner.context().close();
     const agent = await open(browser, '/learn', 1440, 'agent');
     await expect(agent.locator('aside[aria-label="Primary"]').getByRole('link', { name: 'Team Hub' })).toHaveCount(0);

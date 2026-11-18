@@ -65,7 +65,7 @@ describe('the step player (D-177)', () => {
       ['Map Your Spend', null],
       ['Lead Source Review', null],
     ]);
-    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)' });
+    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' });
   });
 
   it('a step’s linked skill alone, when the step names one', () => {

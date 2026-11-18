@@ -129,6 +129,11 @@ jobs:
   # NO `needs:`, on purpose. GitHub reports a job skipped because a job it needs failed as a success to
   # branch protection, so a red `quality` would turn this required check green without running it.
   # Making it required is a branch-protection setting on GitHub, not something this file can do.
+  #
+  # D-182: KEEP THE JOB'S ID. `parity-learner` is the check name the build guard reads from GitHub
+  # (apps/web/src/build/learner-parity-guard.ts): a production build with VITE_LEARNER_V2=true goes on only
+  # when this job succeeded on its commit, and a rename would make every flag-on build fail closed. The
+  # suite runs against what ships, the flag-on build; today's portal keeps its parity in `compliance`.
   parity-learner:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.63.0-noble

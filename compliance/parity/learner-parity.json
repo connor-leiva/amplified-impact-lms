@@ -17,7 +17,12 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag off, the router is #171’s (D-177) › @parity:R-1 %s at %s settles on %s (%s)",
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag on, the router routes by course access (D-182) › @parity:R-1 @parity:R-14 @parity:U-1 %s at %s settles on %s (%s)",
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag on, the router routes by course access (D-182) › @parity:R-1 @parity:SH-2 a learner without the course never sees the learner shell, and one with it never sees the first portal’s",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page"
+      ]
     },
     {
       "id": "R-2",
@@ -30,6 +35,7 @@
       "status": "kept",
       "tests": [
         "apps/web/src/routes/learn/Schedule.vm.test.ts › the weeks view (D-180) › lists every session of a week by its own title, of any type: Weeks 2 and 3 have a goal-planning Thursday and a Friday office hour @parity:S-1 @parity:R-2",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /sessions shows the cohort’s sessions @parity:R-2"
       ]
     },
@@ -43,7 +49,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-3 a course week’s module by its id, and nothing else",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page"
+      ]
     },
     {
       "id": "R-4",
@@ -56,6 +65,9 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-4 @parity:G-2 a Team Plan owner’s Team Hub is the first portal’s, from either address",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /team shows the Team Hub to a Team-tier owner @parity:R-4"
       ]
     },
@@ -74,6 +86,8 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-5 @parity:U-3 @parity:SH-2 the vault is the first portal’s, in its own shell, from either address",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /vault shows the Resource Vault @parity:R-5"
       ]
     },
@@ -90,6 +104,9 @@
       "tests": [
         "apps/web/src/routes/learn/TeamPlan.test.tsx › the Team Plan window (D-187) › /learn?plan=team opens it over Home: the builder’s words and one button, which sends requestUpgrade @parity:P-1 @parity:R-6 @parity:A-7",
         "apps/web/src/routes/learn/TeamPlan.vm.test.ts › the Team Plan window’s address (D-187) › /learn?plan=team opens it over Home; an item rides along; closing drops only its two parameters @parity:P-1 @parity:R-6",
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-6 @parity:E-22 Team Tier opens the Team Plan window; a non-course AI Employee its own page; one query string either way",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone",
         "compliance/tests/e2e/learn-v2-upsell.spec.ts › learner portal v2: the Team Plan window (D-187) @g9 › an Agent tier learner at /learn?plan=team: the window, its one button sends requestUpgrade, and the Console’s Tiers has it @parity:P-1 @parity:R-6 @parity:A-7 @parity:C-13"
       ],
       "note": "D-187: `/team-tier` opens the Team Plan window (`/learn?plan=team`) for a course learner on the flip. Restored on Connor’s call of Nov 18, 2026."
@@ -104,7 +121,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-7 the course pages: a week by its `week-N`, anything else Home",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page"
+      ]
     },
     {
       "id": "R-8",
@@ -121,7 +141,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-8 @parity:R-9 the Skill Library and a skill, by the same slug",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page"
+      ]
     },
     {
       "id": "R-9",
@@ -138,6 +161,9 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-8 @parity:R-9 the Skill Library and a skill, by the same slug",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-9 @parity:U-7 a skill’s address is the first guide page, from either address, fragment kept",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /skill-library/:slug opens the skill’s guided setup @parity:R-9"
       ]
     },
@@ -174,6 +200,8 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-11 the password page stays where it is",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-5 @parity:R-11 their account is the password page, as today",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › /account is the password page, and the new Account page links to it @parity:R-11 @parity:AC-1"
       ]
     },
@@ -192,6 +220,7 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-12 @parity:R-13 admins cannot reach portal routes and learners cannot reach admin",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › an unknown learner address and a learner at /admin land on the learner’s Home @parity:R-12"
       ]
     },
@@ -203,6 +232,8 @@
       "audience": [],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-12 @parity:R-13 admins cannot reach portal routes and learners cannot reach admin",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:R-13 staff without the preview flag are still sent to the Admin Console",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › staff at a learner address land in the Console @parity:R-13"
       ]
     },
@@ -221,6 +252,8 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag on, the router routes by course access (D-182) › @parity:R-1 @parity:R-14 @parity:U-1 %s at %s settles on %s (%s)",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-1 @parity:R-2 @parity:R-3 @parity:R-4 @parity:R-5 @parity:R-6 @parity:R-7 @parity:R-8 @parity:R-9 @parity:R-14 every first-portal address lands on its learner portal page",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: routes (KEPT) › routing keeps the query and the fragment @parity:R-14"
       ]
     },
@@ -256,7 +289,10 @@
       ],
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
-      "tests": []
+      "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag on, the router routes by course access (D-182) › @parity:R-1 @parity:SH-2 a learner without the course never sees the learner shell, and one with it never sees the first portal’s",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-5 @parity:U-3 @parity:SH-2 the vault is the first portal’s, in its own shell, from either address"
+      ]
     },
     {
       "id": "SH-3",
@@ -273,6 +309,9 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Learn.test.tsx › what the first portal had and the mockup draws no screen for (D-182) › @parity:SH-3 @parity:G-1 the account menu opens the Team Hub for a Team tier learner on a team, inside this shell",
+        "apps/web/src/routes/learn/Learn.test.tsx › what the first portal had and the mockup draws no screen for (D-182) › @parity:SH-3 no Team Hub without a team: no menu item, and its address goes Home",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:SH-3 @parity:G-1 a Team tier owner reaches the Team Hub from the account menu, inside the learner shell",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the account menu: Account and Sign out, plus Team Hub for the Team tier @parity:SH-3"
       ]
     },
@@ -447,6 +486,10 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/routes/learn/Learn.test.tsx › what the first portal had and the mockup draws no screen for (D-182) › @parity:SH-10 a staff member’s preview tab says so, with Exit Preview (D-138)",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:SH-10 a Team Owner preview says so, and Exit Preview goes back to the Curriculum page",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:SH-10 every change in a preview is refused with Preview only, and nothing changes",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:SH-10 staff with the flag see the learner portal as an Agent, under the preview line",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › staff previewing as a learner see the preview banner with Exit Preview @parity:SH-10"
       ]
     },
@@ -465,6 +508,8 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:C-14 @parity:SH-11 a masquerade starts where the learner lands, with the banner, and Exit comes back",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:SH-11 the masquerade banner shows over the learner portal’s pages",
         "compliance/tests/parity/kept-shell.spec.ts › learner parity: the shell (KEPT) › the masquerade layer wraps the new shell: its banner, and a write is blocked @parity:SH-11"
       ]
     },
@@ -1132,6 +1177,7 @@
         "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › every published module that is not a course week, in the builder’s order @parity:E-22",
         "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › the page: its header line, its steps with Mark step done and Undo, its resources through the files route @parity:E-22 @parity:E-16",
         "apps/web/src/routes/learn/Hire.vm.test.ts › the non-course AI Employees (D-186, E-22) › the sidebar row and Home’s card link the page @parity:E-22",
+        "apps/web/src/routes/learn/redirects.test.tsx › where each old address goes › @parity:R-6 @parity:E-22 Team Tier opens the Team Plan window; a non-course AI Employee its own page; one query string either way",
         "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 1440: accessible, one h1, no sideways scroll",
         "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/employees/marketing with the card at 390: accessible, one h1, no sideways scroll, 44px targets",
         "compliance/tests/e2e/learn-v2-hire.spec.ts › learner portal v2, the hire’s page (D-186) @g9 › @parity:E-14 @parity:E-22 /learn/week/1 with the card at 1440: accessible, one h1, no sideways scroll",
@@ -1589,6 +1635,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel’s Dismiss hides it and posts to the server @parity:L-5 @parity:A-14"
       ]
     },
@@ -1608,6 +1656,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
       ]
     },
@@ -1716,6 +1766,7 @@
       ],
       "status": "kept",
       "tests": [
+        "apps/web/src/data/http.test.ts › HttpRepository @g7 › @parity:L-12 from a skill’s page, the sign-in brings them back to it; from anywhere else, plain sign-in (D-182)",
         "compliance/tests/parity/http/api.spec.ts › learner parity: the API the new screens call (http mode) › a signed-out visit to a skill’s page goes to sign-in and keeps where it was going @parity:L-12"
       ]
     },
@@ -1731,10 +1782,10 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "tests": [
-        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, linking today’s page",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 @parity:G-1 Team Hub for a Team tier learner on a team, linking its page in the learner portal (D-182)",
         "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 no Team Hub for an Agent tier learner",
         "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:T-1 Team Hub for a Team tier learner on a team, never for an Agent tier one",
-        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:T-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one"
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:T-1 @parity:G-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one"
       ]
     },
     {
@@ -2609,6 +2660,7 @@
       ],
       "status": "kept",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › staff, preview and masquerade @g6 › @parity:C-14 @parity:SH-11 a masquerade starts where the learner lands, with the banner, and Exit comes back",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › a masquerade lands staff in the learner portal, with its banner @parity:C-14"
       ]
     },
@@ -2658,6 +2710,9 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › the audience (D-182) › @parity:U-1 is the course for a learner with an AI Employee in their snapshot, and nobody else",
+        "apps/web/src/routes/learn/audience.test.tsx › with the flag on, the router routes by course access (D-182) › @parity:R-1 @parity:R-14 @parity:U-1 %s at %s settles on %s (%s)",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the sign-in landing is the standalone Skill Library, with no sidebar @parity:U-1"
       ]
     },
@@ -2672,6 +2727,7 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › visiting / sends them to the Skill Library @parity:U-2"
       ]
     },
@@ -2686,6 +2742,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › the audience (D-182) › @parity:U-3 @parity:U-5 sends a learner without the course from each /learn address to the first portal’s page for it",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-5 @parity:U-3 @parity:SH-2 the vault is the first portal’s, in its own shell, from either address",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their nav: the library has none; in the shell, only the Skill Library and the Vault @parity:U-3",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
@@ -2701,6 +2759,7 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › the welcome panel and the \"Included with your Utah Life team\" line @parity:U-4 @parity:L-6"
       ]
     },
@@ -2715,6 +2774,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › the audience (D-182) › @parity:U-3 @parity:U-5 sends a learner without the course from each /learn address to the first portal’s page for it",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-5 @parity:R-11 their account is the password page, as today",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their Account is the password page only @parity:U-5"
       ]
     },
@@ -2729,6 +2790,7 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › locked skills say \"Not included with Utah Life access\", with no See Plans @parity:U-6"
       ]
     },
@@ -2743,6 +2805,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-9 @parity:U-7 a skill’s address is the first guide page, from either address, fragment kept",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-4 @parity:U-6 @parity:L-5 @parity:L-6 @parity:U-7 a Utah Life member’s Skill Library is today’s: the welcome and its Dismiss, the team line, the downloads and guides, no upsell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › downloads and Setup Guides on the list, and the old guide @parity:U-7"
       ]
     },
@@ -2758,6 +2822,11 @@
       "by": "claude/learner-pr9b-parity, claude/learner-pr9c-content and claude/learner-pr10-flip (reworked #172)",
       "note": "Accelerator learners get the new portal; its MISSING pieces (top section items 2 to 11) are restored by the IDs they map to.",
       "tests": [
+        "apps/web/src/routes/learn/Learn.test.tsx › what the first portal had and the mockup draws no screen for (D-182) › @parity:SH-3 @parity:G-1 the account menu opens the Team Hub for a Team tier learner on a team, inside this shell",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the sidebar (D-184) › @parity:T-1 @parity:G-1 Team Hub for a Team tier learner on a team, linking its page in the learner portal (D-182)",
+        "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:T-1 @parity:G-1 Team Hub is in the sidebar for a Team tier learner, and not for an Agent tier one",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:R-4 @parity:R-6 @parity:G-1 the Team Hub is a Team tier learner’s; an Agent tier learner goes Home, and Team Tier is gone",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner with the course: the learner portal @g4 › @parity:SH-3 @parity:G-1 a Team tier owner reaches the Team Hub from the account menu, inside the learner shell",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: an Accelerator learner gets the new portal, whole › Home, a week, a step, the Schedule, the library, the Vault, Account and (Team tier) Team Hub @parity:G-1"
       ]
     },
@@ -2772,6 +2841,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-4 @parity:G-2 a Team Plan owner’s Team Hub is the first portal’s, from either address",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › team-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-2",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
@@ -2787,6 +2858,7 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › agent-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-3",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
@@ -2802,6 +2874,7 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › insiders: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-4",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
@@ -2817,6 +2890,8 @@
       "status": "restored",
       "by": "claude/learner-pr10-flip (reworked #172)",
       "tests": [
+        "apps/web/src/routes/learn/audience.test.tsx › the audience (D-182) › @parity:G-5 reads the session quietly in http mode: signed out is the first portal, with no snapshot read",
+        "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › free: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-5"
       ]
     },

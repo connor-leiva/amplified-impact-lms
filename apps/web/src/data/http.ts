@@ -1,4 +1,5 @@
 import type { Db } from '@ai/core';
+import { safeNext } from '@ai/core/landing';
 import type {
   AdminActionArgs,
   AdminActionName,
@@ -26,10 +27,20 @@ import type {
  * `replace` (D-152): Back from /sign-in does not return to the page that was just turned away.
  */
 export const navigation = {
-  toSignIn: () => location.replace('/sign-in'),
+  toSignIn: () => location.replace(signInFor(location.pathname)),
   /** A masquerade's end (D-162 3b): a full page load to where the API sends staff back. */
   assign: (url: string) => location.assign(url),
 };
+
+/**
+ * The sign-in address a 401 goes to. On a skill's page (D-182: `/learn/skills/<page>`, where www's
+ * `/skill-library/<page>` links redirect), it brings the visitor back there once signed in, as the first
+ * guide page did itself (D-151); `safeNext` is the one check, so it is never anywhere else.
+ */
+export function signInFor(pathname: string): string {
+  const next = safeNext(pathname);
+  return next ? `/sign-in?next=${encodeURIComponent(next)}` : '/sign-in';
+}
 
 // ---- A masquerade's two refusals (D-162 3b, spec § 6 Web) ----------------------------------------
 //

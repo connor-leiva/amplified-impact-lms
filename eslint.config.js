@@ -20,6 +20,8 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/dist/**',
       '**/dist-fixture/**',
+      // D-182: the flag-on fixture build (`build:fixture:v2`).
+      '**/dist-fixture-v2/**',
       'design-reference/**',
       'handoff-starter/**',
       // Design handoffs kept verbatim for reference (the mockup's own markup, styles and script).

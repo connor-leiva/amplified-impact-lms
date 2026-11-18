@@ -197,14 +197,14 @@ describe('the build kit (D-184)', () => {
 });
 
 describe('the sidebar (D-184)', () => {
-  it('@parity:T-1 Team Hub for a Team tier learner on a team, linking today’s page', async () => {
+  it('@parity:T-1 @parity:G-1 Team Hub for a Team tier learner on a team, linking its page in the learner portal (D-182)', async () => {
     const st = prelaunchState();
     st.db.teams.push({ id: 't1', name: 'Ross Team', ownerId: LEARNER_ID, seats: 5 });
     st.db.users.find((u) => u.id === LEARNER_ID)!.teamId = 't1';
     use(st);
     at('/learn');
     await screen.findByRole('heading', { level: 1 });
-    expect(within(aside()).getByRole('link', { name: 'Team Hub' })).toHaveAttribute('href', '/team');
+    expect(within(aside()).getByRole('link', { name: 'Team Hub' })).toHaveAttribute('href', '/learn/team');
   });
 
   it('@parity:T-1 no Team Hub for an Agent tier learner', async () => {

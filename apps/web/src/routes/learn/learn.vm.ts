@@ -19,7 +19,7 @@ import { duration, joinableSession, progressOn, sessionEndsAt, sessionPhase, ste
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
-import { learnHome, learnSchedule, learnSkill, learnSkills, learnStep, learnWeek } from './routes';
+import { learnHome, learnSchedule, learnSkill, learnSkills, learnStep, learnTeam, learnVault, learnWeek } from './routes';
 
 /** Generic chrome, from the mockup. Never a week's, step's or session's words. */
 export const LABELS = {
@@ -34,6 +34,8 @@ export const LABELS = {
   menu: 'Menu',
   account: 'Your account',
   accountPage: 'Account',
+  /** D-182: the account menu's way to the Team Hub, for a Team tier learner (the first portal's label). */
+  teamHub: 'Team Hub',
   signOut: 'Sign out',
   homeLink: 'Amplified Impact, Home',
   breadcrumb: 'Breadcrumb',
@@ -227,18 +229,29 @@ export interface NavEmployeeVM {
 }
 
 export interface NavVM {
-  /** False for a learner whose plan has no course: no Schedule, vault or AI employees (cohort pieces). */
+  /** False for a learner whose plan has no course: no Schedule or AI employees (cohort pieces). */
   cohort: boolean;
   home: { label: string; href: string; active: boolean };
   schedule: { label: string; href: string; active: boolean };
   library: { label: string; href: string; active: boolean };
-  /** The vault: a link, or locked (with when it opens) during the pre-launch preview. */
-  vault: { label: string; href: string; locked: boolean; title: string | null };
+  /**
+   * The vault: a link, or locked (with when it opens) during the pre-launch preview. Every learner's,
+   * with the course or without it (D-182): the first portal kept it for a plan without the course (D-119),
+   * and it is the one place a vault file downloads.
+   */
+  vault: { label: string; href: string; locked: boolean; title: string | null; active: boolean };
   employees: { label: string; count: number; rows: NavEmployeeVM[] } | null;
   help: { label: string; href: string };
 }
 
 export const SUPPORT_HREF = `mailto:${ACCELERATOR_SUPPORT_EMAIL}`;
+
+/**
+ * Whether this learner has a Team Hub (D-182): a Team tier learner on a team, the first portal's rule
+ * (D-119). The account menu offers it, and `/learn/team` opens for them alone.
+ */
+export const hasTeamHub = (db: Pick<Db, 'teams'>, me: Pick<Learner, 'tier' | 'teamId'> | null): boolean =>
+  !!me && me.tier === 'team' && me.teamId !== null && db.teams.some((t) => t.id === me.teamId);
 
 /** The week a path is on, or null: `/learn/week/3` and `/learn/week/3/step/2` are both on Week 3. */
 export function weekOfPath(pathname: string): number | null {
@@ -263,7 +276,7 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
     home: { label: LABELS.home, href: learnHome(), active: pathname === learnHome() || pathname === `${learnHome()}/` },
     schedule: { label: LABELS.schedule, href: learnSchedule(), active: pathname === learnSchedule() },
     library: { label: LABELS.library, href: learnSkills(), active: pathname === learnSkills() || pathname.startsWith(`${learnSkills()}/`) },
-    vault: { label: LABELS.vault, href: '/vault', locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p) : null },
+    vault: { label: LABELS.vault, href: learnVault(), locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p) : null, active: pathname === learnVault() },
     employees: p
       ? {
           label: LABELS.employees,
@@ -445,7 +458,7 @@ export function helpVM(p: CoursePayload, now: number): HelpVM {
   const oh = upcomingSessions(p.sessions, now, 'office_hours')[0];
   return {
     email: { label: LABELS.emailSupport, address: ACCELERATOR_SUPPORT_EMAIL, href: SUPPORT_HREF },
-    officeHours: oh ? { label: LABELS.officeHours, meta: fmt.when(oh.start), href: '/sessions' } : null,
+    officeHours: oh ? { label: LABELS.officeHours, meta: fmt.when(oh.start), href: learnSchedule() } : null,
   };
 }
 
@@ -456,15 +469,12 @@ export const stepHref = learnStep;
 
 /** The sidebar's Team Hub label, the current portal's own. */
 export const TEAM_HUB_LABEL = 'Team Hub';
-/** Where Team Hub opens: the current portal's page (`/team`), until the flip moves it into the learner portal. */
-export const TEAM_HUB_HREF = '/team';
-
 /**
- * Whether this learner has a Team Hub: a Team tier learner on a team, the first portal's rule (D-119, the
- * same check D-182 uses for the account menu).
+ * Where Team Hub opens: the Team Hub inside the learner portal (D-182, `/learn/team`), the same screen as
+ * the current portal's `/team`, which a learner with the course is redirected from when the flag is on.
+ * `hasTeamHub` (above) is the rule, shared with the account menu.
  */
-export const hasTeamHub = (db: Pick<Db, 'teams'>, me: Pick<Learner, 'tier' | 'teamId'> | null): boolean =>
-  !!me && me.tier === 'team' && me.teamId !== null && db.teams.some((t) => t.id === me.teamId);
+export const TEAM_HUB_HREF = learnTeam();
 
 export interface SideVM {
   /** Team Hub, for a Team tier learner on a team (T-1); null for anyone else. */

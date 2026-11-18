@@ -1,6 +1,9 @@
+// First, before the main config is evaluated: the suite runs on the flag-on build (D-182, `learner-env.ts`).
+import './learner-env';
 import { defineConfig, type PlaywrightTestConfig } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import base from '../playwright.config';
+import { LEARNER_V2_RUN } from '../lib/prepare';
 
 /**
  * `pnpm parity:learner`'s Playwright config (Connor's parity brief § 3): every test whose title carries
@@ -10,9 +13,10 @@ import base from '../playwright.config';
  * they do under `pnpm e2e` / `pnpm compliance`, against the same servers:
  *
  *   1. Its projects are the main config's test projects (every one but `reference` and `harness`, which
- *      capture and drive the prototype), so a project another branch adds (a flag-off fixture build, say)
- *      is picked up without editing this file, plus two of its own:
- *        `parity-learner`       the suite's fixture specs (`tests/parity/*.spec.ts`), on the fixture build
+ *      capture and drive the prototype), so a project another branch adds is picked up without editing this
+ *      file. D-182: the main config is evaluated with `LEARNER_V2=1` (`learner-env.ts`), so they are its
+ *      flag-on run's (`e2e-learn`, on `dist-fixture-v2`). Plus two of its own:
+ *        `parity-learner`       the suite's fixture specs (`tests/parity/*.spec.ts`), on the flag-on fixture build
  *        `parity-learner-http`  the suite's request-capture specs (`tests/parity/http/*.spec.ts`), on the
  *                               SAME screens built in http mode (`VITE_DATA_SOURCE=http`, the flag on),
  *                               every `/api/*` answered by the test, so the test can see which endpoints
@@ -25,6 +29,10 @@ import base from '../playwright.config';
  * takes precedence over a config-level one, so `run.ts` passes `--grep @parity:` on the command line,
  * which Playwright ANDs with every project's own.
  */
+
+// D-182: the suite proves what ships, so it runs only against the flag-on build. With routing by course
+// access, a learner without the course still gets today's pages there (`routes/learn/audience.ts`).
+if (!LEARNER_V2_RUN) throw new Error('learner.config.ts: the learner parity suite runs on the flag-on build (LEARNER_V2=1, set by learner-env.ts).');
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -43,7 +51,9 @@ const inherited = (base.projects ?? []).filter((p) => !CAPTURE_ONLY.has(p.name ?
  */
 const HTTP_BUILD = `${HERE}dist`;
 const learnerHttpServer = {
-  command: `pnpm --filter @ai/web exec vite build --outDir ${HTTP_BUILD} --emptyOutDir && pnpm --filter @ai/web exec vite preview --outDir ${HTTP_BUILD} --port ${LEARNER_HTTP_PORT} --strictPort`,
+  // `--mode parity`: a test build that is never deployed, so the flag's build guard (D-182,
+  // `apps/web/src/build/learner-parity-guard.ts`) stands aside for it, as for the fixture builds.
+  command: `pnpm --filter @ai/web exec vite build --mode parity --outDir ${HTTP_BUILD} --emptyOutDir && pnpm --filter @ai/web exec vite preview --outDir ${HTTP_BUILD} --port ${LEARNER_HTTP_PORT} --strictPort`,
   cwd: ROOT,
   url: LEARNER_HTTP_BASE,
   reuseExistingServer: !process.env.CI,

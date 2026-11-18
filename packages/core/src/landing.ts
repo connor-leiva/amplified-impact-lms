@@ -1,11 +1,16 @@
 // Where a signed-in viewer starts (D-119, D-150).
 //
 // A learner whose plan opens no AI Employee (Amplified Insiders, the Team Plan, the Agent Plan, an
-// access group's member such as Utah Life) has no cohort portal: their page is the Skill Library.
-// The portal already sends them there from any cohort screen (`noPortalRedirect` in the web's
-// `shell/navModel.ts`); this is the same rule, `visibleModules` of their scoped snapshot, worked out
-// by the server at sign-in so every sign-in path lands them on the Skill Library straight away
-// instead of on `/` first. Staff, and a learner with a portal, start at `/` as before.
+// access group's member such as Utah Life) has no cohort portal: their page is the Skill Library. This
+// is the rule `visibleModules` of their scoped snapshot, worked out by the server at sign-in so every
+// sign-in path lands them on the Skill Library straight away. Staff, and a learner with a portal, start
+// at `/` as before.
+//
+// D-182: both answers stay as they are. With the learner portal's flag off (production today) the web app
+// serves them as `main` does. With it on, the web app routes by this same rule (`hasPortal`, the web's
+// `routes/learn/audience.ts`): `/` sends a learner with the course on to the learner portal (`/learn`),
+// and a learner without it lands on the standalone Skill Library at `/skill-library`, as today. The
+// server's answers (which masquerade's start and `apps/api/test/access-groups.test.ts` read too) don't move.
 
 import { scopeSnapshot } from './scope';
 import type { ViewerAccess } from './scope';
@@ -35,13 +40,20 @@ export function landingPath(db: Db, actor: Actor, access?: ViewerAccess): Landin
 export const safeLanding = (value: unknown): LandingPath =>
   (LANDING_PATHS as readonly unknown[]).includes(value) ? (value as LandingPath) : '/';
 
+/** A skill's page in the learner portal (D-179), where `/skill-library/<page>` redirects a learner with the course (D-182). */
+const LEARN_SKILL_PREFIX = '/learn/skills/';
+
 /**
- * Where to go after signing in, when a page asked (D-151): a skill's guided setup in learn,
- * `/skill-library/<page>`, for a page that has one. Anything else is null, and the sign-in lands where
- * `landingPath` says. Checked on the server (the emailed link, Google) and in the browser alike.
+ * Where to go after signing in, when a page asked (D-151): a skill's guided setup in learn, for a page
+ * that has one, at its first address `/skill-library/<page>` (which www and the emailed links use) or at
+ * the learner portal's `/learn/skills/<page>` (D-182: a signed-out visitor there is sent to sign in and
+ * back). Anything else is null, and the sign-in lands where `landingPath` says. Checked on the server
+ * (the emailed link, Google) and in the browser alike.
  */
 export function safeNext(value: unknown): string | null {
-  if (typeof value !== 'string' || !value.startsWith(SKILL_GUIDE_PREFIX)) return null;
-  const page = value.slice(SKILL_GUIDE_PREFIX.length);
-  return isGuidedPage(page) ? `${SKILL_GUIDE_PREFIX}${page}` : null;
+  if (typeof value !== 'string') return null;
+  const prefix = [SKILL_GUIDE_PREFIX, LEARN_SKILL_PREFIX].find((p) => value.startsWith(p));
+  if (!prefix) return null;
+  const page = value.slice(prefix.length);
+  return isGuidedPage(page) ? `${prefix}${page}` : null;
 }
