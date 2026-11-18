@@ -1,5 +1,6 @@
 // GENERATED from reference/lms-data.js ICONS. Custom Amplified Impact set. The `r2*` entries at the end
-// are the Admin redesign R2 mockup's set (D-160), added by hand, path data verbatim from its JSX.
+// are the Admin redesign R2 mockup's set (D-160), added by hand, path data verbatim from its JSX; the
+// `lv*` entries after them are the learner v2 mockup's chrome glyphs (D-177), likewise.
 // Render in a 24×24 viewBox: fill none, stroke currentColor, stroke-width 1.8, round caps and joins.
 export const ICONS = {
   grid: "M6 3.5H8A2.5 2.5 0 0 1 10.5 6V8A2.5 2.5 0 0 1 8 10.5H6A2.5 2.5 0 0 1 3.5 8V6A2.5 2.5 0 0 1 6 3.5Z M6 13.5H8A2.5 2.5 0 0 1 10.5 16V18A2.5 2.5 0 0 1 8 20.5H6A2.5 2.5 0 0 1 3.5 18V16A2.5 2.5 0 0 1 6 13.5Z M16 13.5H18A2.5 2.5 0 0 1 20.5 16V18A2.5 2.5 0 0 1 18 20.5H16A2.5 2.5 0 0 1 13.5 18V16A2.5 2.5 0 0 1 16 13.5Z M20.39 6.7A3.4 3.4 0 1 1 17.3 3.61 M19.4 4.6h.01",
@@ -131,6 +132,19 @@ export const ICONS = {
   r2File: "M6 3h8l4 4v14H6zM14 3v4h4",
   r2Play: "M7 5l12 7-12 7V5z",
   r2Refresh: "M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4",
+  // Learner portal v2 (D-177): the signed-off learner mockup's own chrome glyphs, path data verbatim from
+  // docs/design/learner-v2 (its lock's two paths, body and shackle, as one).
+  lvHome: "M3 10.5L12 4l9 6.5M5.5 9v11h4.5v-6h4v6h4.5V9",
+  lvGrid: "M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z",
+  lvLock: "M6 11h12v9H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11",
+  lvHelp: "M4 5h16v11H9l-5 4V5z",
+  lvLive: "M12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.4 9.4 0 0 1 0-13.2M18.6 5.4a9.4 9.4 0 0 1 0 13.2",
+  lvCalAdd: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M12 13v5M9.5 15.5h5",
+  lvArrow: "M5 12h14M13 6l6 6-6 6",
+  lvVideo: "M3 7h12v10H3zM15 10.5l6-3.5v10l-6-3.5",
+  lvInvite: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M19 8v6M16 11h6",
+  lvCopy: "M9 9h11v11H9zM5 15H4V4h11v1",
+  lvInfo: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01",
 } as const;
 
 export type IconName = keyof typeof ICONS;
