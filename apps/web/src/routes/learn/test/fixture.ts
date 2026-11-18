@@ -4,6 +4,7 @@
 
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { courseFor, courseSessions } from '@ai/core/course';
+import { withLiveState } from '@ai/core/learner';
 import { scopeSnapshot } from '@ai/core/scope';
 import type { Db, Learner } from '@ai/core';
 import { planContentV2 } from '@ai/core/seed/content-v2';
@@ -50,10 +51,12 @@ export interface LearnState {
 }
 
 /** The course and the snapshot for a learner at `now`, in the preview or in the course itself. */
-export function learnState(now: number, preview: boolean, progress: Record<number, string[]>, enrolled = 15): LearnState {
+export function learnState(now: number, preview: boolean, progress: Record<number, string[]>, enrolled = 15, edit?: (d: Db) => void): LearnState {
   const d = deployed();
   d.users.push(learner(progress));
   d.cohorts[0]!.enrolled = enrolled;
+  // D-183: what staff did in the Console (Go Live, End Session, Publish Replay), before the snapshot is cut.
+  edit?.(d);
   const course = courseFor(d, now, { open: true, preview })!;
   const payload: CoursePayload = {
     open: true,
@@ -70,3 +73,9 @@ export function learnState(now: number, preview: boolean, progress: Record<numbe
 export const prelaunchState = (): LearnState => learnState(PRELAUNCH_NOW, true, { 0: ['c1', 'c2'] });
 export const liveState = (): LearnState =>
   learnState(LIVE_NOW, false, { 0: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'], 1: ['c1', 'c2', 'c3', 'c4', 'c5'] });
+
+/** D-183: the course as the shell hands it to every screen: its sessions carry the snapshot's live state. */
+export const asShell = (st: LearnState): LearnState => ({ ...st, payload: { ...st.payload, sessions: withLiveState(st.payload.sessions, st.db) } });
+
+/** D-183: a session of the deployed seed, by id, from a snapshot under construction. */
+export const sessionIn = (d: Db, id: string) => d.sessions.find((s) => s.id === id)!;

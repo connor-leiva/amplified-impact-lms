@@ -33,9 +33,9 @@ describe('the learner shell’s view-model (D-177)', () => {
     const nav = navVM(payload, rows, '/learn/week/0/step/3');
     expect(nav.cohort).toBe(true);
     expect(nav.home).toEqual({ label: 'Home', href: '/learn', active: false });
-    expect(nav.schedule.href).toBe('/sessions');
-    expect(nav.library.href).toBe('/skill-library');
-    expect(nav.vault).toEqual({ label: 'Resource vault', href: '/vault', locked: true, title: 'Opens Wed, Dec 2 · 12:00 PM MT' });
+    expect(nav.schedule.href).toBe('/learn/schedule');
+    expect(nav.library.href).toBe('/learn/skills');
+    expect(nav.vault).toEqual({ label: 'Resource vault', href: '/learn/vault', locked: true, title: 'Opens Wed, Dec 2 · 12:00 PM MT', active: false });
     expect(nav.employees!.count).toBe(9);
     expect(nav.employees!.rows[0]).toMatchObject({ label: 'Foundations', active: true, status: { kind: 'ring', text: '2 of 8', ratio: 0.25 }, title: 'Foundations · 2 of 8' });
     expect(nav.employees!.rows[2]).toMatchObject({ label: 'Leads That Pay', active: false, status: { kind: 'opens', text: 'Opens Dec 9' } });
@@ -60,6 +60,9 @@ describe('the learner shell’s view-model (D-177)', () => {
     expect(nav.cohort).toBe(false);
     expect(nav.employees).toBeNull();
     expect(nav.vault.locked).toBe(false);
+    // D-182: the vault is every learner's, and the current page on its own address.
+    expect(nav.vault.href).toBe('/learn/vault');
+    expect(navVM(null, [], '/learn/vault').vault.active).toBe(true);
   });
 
   it('says one thing in the top bar: the next live build, the session live now, or nothing', () => {
@@ -101,7 +104,7 @@ describe('the learner shell’s view-model (D-177)', () => {
 
   it('links a skill only to a Library page that exists, and says the coming copy string otherwise (D-176)', () => {
     const copy = { 'skill.coming': 'Coming With Week 1' };
-    expect(skillRow({ title: 'AI Brain Setup', route: '/ai-brain-setup' }, copy)).toMatchObject({ href: '/skill-library/ai-brain-setup', meta: 'Skill · Open now' });
+    expect(skillRow({ title: 'AI Brain Setup', route: '/ai-brain-setup' }, copy)).toMatchObject({ href: '/learn/skills/ai-brain-setup', meta: 'Skill · Open now' });
     expect(skillRow({ title: 'Map Your Spend', route: 'map-your-spend' }, copy)).toMatchObject({ href: null, meta: 'Skill · Coming With Week 1' });
     expect(skillRow({ title: 'Map Your Spend', route: '/map-your-spend' }, undefined)).toMatchObject({ href: null, meta: 'Skill' });
   });

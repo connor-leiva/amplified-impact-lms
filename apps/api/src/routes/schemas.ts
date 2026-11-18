@@ -157,6 +157,8 @@ export const cohortCourse = z.strictObject({
     instructor: z.string(),
     holiday: z.string(),
     join: z.strictObject({ label: z.string(), note: z.string(), path: z.string() }),
+    // D-187: the cohort community's link; the action checks it is an http or https address.
+    community: z.string().max(2048).optional(),
   }),
   shared: z.strictObject({
     liveBuildMins: z.number(),

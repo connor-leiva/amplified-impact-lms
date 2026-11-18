@@ -147,10 +147,11 @@ describe('2 · toggleStep @g2', () => {
       cur = out.db;
     }
 
-    // The required case, verbatim from the Gate 2 checklist.
+    // The required case, from the Gate 2 checklist. D-186 names the card instead of its place ("on the
+    // right"): in the learner portal v2 the toast shows on the step player, which has no such card.
     expect(out.effects).toEqual([{ type: 'confetti' }]);
     expect(out.toast).toEqual({
-      msg: 'Sales AI Employee is built. Deploy it from the card on the right.',
+      msg: 'Sales AI Employee is built. Deploy it from the Your Deployment card.',
       tone: 'success',
     });
     const p = userIn(cur, 'u_jamie').progress['sales']!;

@@ -1,6 +1,19 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { viewerZone } from '@ai/core';
-import { PREFS_KEY, loadPrefs, savePrefs, applyPrefs, bootPrefs, loadNavGroups, saveNavGroups } from './prefs';
+import {
+  PREFS_KEY,
+  loadPrefs,
+  savePrefs,
+  applyPrefs,
+  bootPrefs,
+  loadNavGroups,
+  saveNavGroups,
+  learnerSidebar,
+  learnerTheme,
+  loadLearnerPrefs,
+  saveLearnerPrefs,
+  setLearnerScope,
+} from './prefs';
 
 describe('prefs @g1', () => {
   const root = () => document.documentElement;
@@ -38,7 +51,6 @@ describe('prefs @g1', () => {
     applyPrefs({});
     expect(root().dataset.theme).toBe('light');
   });
-
 
   it('pushes the time zone into core, and null means Auto', () => {
     applyPrefs({ tz: 'America/New_York' });
@@ -90,6 +102,61 @@ describe('prefs @g1', () => {
       localStorage.setItem(PREFS_KEY, JSON.stringify({ navGroups: { st1: { Access: 'yes', Build: false }, st2: 7 } }));
       expect(loadNavGroups('st1')).toEqual({ Build: false });
       expect(loadNavGroups('st2')).toEqual({});
+    });
+  });
+
+  // D-185: the learner portal v2's theme and sidebar, per person on this device.
+  describe('the learner portal v2, per person (D-185)', () => {
+    afterEach(() => setLearnerScope(null));
+
+    it('keeps two people’s choices apart, and leaves the device’s own alone @parity:SH-5 @parity:SH-6', () => {
+      savePrefs({ theme: 'light', sidebar: 'full', tz: 'America/Denver' });
+      saveLearnerPrefs('u_jamie', { theme: 'dark' });
+      saveLearnerPrefs('u_jamie', { sidebar: 'rail' });
+      saveLearnerPrefs('u_alex', { theme: 'light' });
+      expect(loadLearnerPrefs('u_jamie')).toEqual({ theme: 'dark', sidebar: 'rail' });
+      expect(loadLearnerPrefs('u_alex')).toEqual({ theme: 'light' });
+      expect(learnerTheme('u_jamie')).toBe('dark');
+      expect(learnerSidebar('u_jamie')).toBe('rail');
+      expect(learnerTheme('u_sam')).toBe('light');
+      expect(learnerSidebar('u_sam')).toBe('full');
+      expect(loadPrefs()).toMatchObject({ theme: 'light', sidebar: 'full', tz: 'America/Denver' });
+    });
+
+    it('starts a person with no choice of their own from today’s portal’s, so a saved Dark draws the new portal dark @parity:SH-5', () => {
+      savePrefs({ theme: 'dark', sidebar: 'rail' });
+      expect(learnerTheme('u_jamie')).toBe('dark');
+      expect(learnerSidebar('u_jamie')).toBe('rail');
+      saveLearnerPrefs('u_jamie', { theme: 'light', sidebar: 'full' });
+      expect(learnerTheme('u_jamie')).toBe('light');
+      expect(learnerSidebar('u_jamie')).toBe('full');
+    });
+
+    it('draws the root in the person’s theme while their portal is on screen, and the device’s after @parity:SH-5', () => {
+      savePrefs({ theme: 'light' });
+      saveLearnerPrefs('u_jamie', { theme: 'dark' });
+      expect(root().dataset.theme).toBe('light');
+      setLearnerScope('u_jamie');
+      expect(root().dataset.theme).toBe('dark');
+      // Any later write (a zone, say) keeps the person's theme on the root while they are in scope.
+      savePrefs({ tz: 'America/Chicago' });
+      expect(root().dataset.theme).toBe('dark');
+      setLearnerScope('u_alex');
+      expect(root().dataset.theme).toBe('light');
+      setLearnerScope(null);
+      expect(root().dataset.theme).toBe('light');
+    });
+
+    it('ignores anything stored that is not one of the two values', () => {
+      localStorage.setItem(
+        PREFS_KEY,
+        JSON.stringify({ learner: { u_jamie: { theme: 'Dark', sidebar: 'rail', x: 1 }, u_alex: 7 } }),
+      );
+      expect(loadLearnerPrefs('u_jamie')).toEqual({ sidebar: 'rail' });
+      expect(loadLearnerPrefs('u_alex')).toEqual({});
+      expect(saveLearnerPrefs('u_jamie', { theme: 'midnight' as 'dark' }).learner?.u_jamie).toEqual({
+        sidebar: 'rail',
+      });
     });
   });
 });

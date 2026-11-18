@@ -20,6 +20,8 @@ export const STEP = {
   previous: 'Previous',
   next: 'Next step',
   markDone: 'Mark step done',
+  /** D-184: a done step's button, which toggles it back (the current portal's "click to undo"). */
+  undo: 'Undo',
   forStep: 'For this step',
   stillStuck: 'Still stuck?',
   yourAi: 'Your AI',

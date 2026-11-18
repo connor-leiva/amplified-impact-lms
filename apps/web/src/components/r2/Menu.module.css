@@ -86,6 +86,13 @@
   font-size: var(--r2-m);
   line-height: var(--r2-ml);
 }
+/* D-185: a group's label (the learner account menu's Theme), in the meta size and the third ink. */
+.gh {
+  padding: 6px 10px 2px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+}
 .sep {
   border: 0;
   border-top: 1px solid var(--r2-line);

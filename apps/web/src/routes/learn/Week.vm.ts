@@ -9,11 +9,11 @@
 import { fmt } from '@ai/core';
 import type { IconName, IcsEvent } from '@ai/core';
 import { countWord, duration, minutesInAll, minutesLeft, upcomingSessions } from '@ai/core/learner';
-import { opensText } from '../course/Course.vm';
+import { COPY, opensText, skillVM } from '../course/Course.vm';
 import type { CoursePayload } from '../course/Course.vm';
 import { LABELS, addLabel, icsEvents, kitRow, segments, sessionRow, skillRow, stepMeta, stepOfSkill, stepRowMeta, stepTitle } from './learn.vm';
 import type { KitRowVM, Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
-import { learnHome, learnStep } from './routes';
+import { learnHome, learnSkills, learnStep } from './routes';
 
 export const WEEK = {
   stepsDone: 'Steps done',
@@ -57,7 +57,8 @@ export interface OpenWeekVM {
     | { kind: 'built'; eyebrow: string; title: string };
   right: { label: string; done: number; total: number; ofTotal: string; segs: Seg[]; aria: string; foot: string | null };
   steps: { heading: string; meta: string; rows: StepRowVM[] };
-  kit: { heading: string; rows: KitRowVM[] } | null;
+  /** D-184: the week's skills (each with its role and Free, as the course page tags them) and its kit items, and the Library's link. */
+  kit: { heading: string; rows: KitRowVM[]; library: { label: string; href: string } | null } | null;
 }
 
 export interface LockedWeekVM {
@@ -96,7 +97,10 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
   const due = r.module?.dueAt;
   const left = minutesLeft(r.steps);
   const footParts = [left > 0 ? `${WEEK.about} ${duration(left)} ${WEEK.left}` : null, due ? `${WEEK.due.toLowerCase()} ${fmt.date(due)}` : null].filter((x): x is string => !!x);
-  const skillRows = w.skills.map((k) => skillRow(k, p.copy, stepOfSkill(k.route, r.steps)));
+  const skillRows = w.skills.map((k): KitRowVM => {
+    const v = skillVM(k, p.copy);
+    return { ...skillRow(k, p.copy, stepOfSkill(k.route, r.steps)), tags: [{ label: v.role }, ...(v.free ? [{ label: COPY.free, tone: 'done' as const }] : [])] };
+  });
   const kitRows = (w.kit ?? []).map((k) => kitRow(k, r.steps, fileUrl));
   const rows = [...skillRows, ...kitRows];
   return {
@@ -143,7 +147,7 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
         };
       }),
     },
-    kit: rows.length ? { heading: `${LABELS.week} ${r.week} ${WEEK.kit}`, rows } : null,
+    kit: rows.length ? { heading: `${LABELS.week} ${r.week} ${WEEK.kit}`, rows, library: skillRows.length ? { label: COPY.download, href: learnSkills() } : null } : null,
   };
 }
 

@@ -105,6 +105,25 @@ describe('the export, one guide per guided page (D-151)', () => {
     }
   });
 
+  it('carries each page’s sample output, which www shows anyone, only where the page has one, saying it is made up (D-179)', () => {
+    for (const g of GUIDED) {
+      const src = g.sections.find((x) => x.kind === 'sample');
+      const out = file.guides[g.slug]!.sample;
+      if (!src || src.kind !== 'sample') {
+        expect(out, g.slug).toBeUndefined();
+        continue;
+      }
+      expect(out, g.slug).toMatchObject({ title: src.title, body: src.body, note: src.note });
+      expect(out!.blocks, g.slug).toHaveLength(src.blocks.length);
+      // In its own words: learn labels it "Made-up data" as well, and draws it only where it is.
+      expect(`${out!.body} ${out!.note}`, g.slug).toMatch(/made[- ]up|example data/i);
+      // Public on www, so nothing of the setup rides along with it.
+      const words = JSON.stringify(out);
+      for (const secret of secretsOf(file.guides[g.slug]!)) expect(words.includes(secret), `${g.slug}: ${secret.slice(0, 40)}`).toBe(false);
+    }
+    expect(Object.values(file.guides).filter((x) => x.sample).length).toBeGreaterThan(40);
+  });
+
   it('says the same as the preview www shows: the steps’ titles', () => {
     const g = file.guides['appointment-follow-up']!;
     expect(previewOf(g).lanes.map((l) => l.steps)).toEqual(g.lanes.map((l) => l.steps.map((s) => s.title)));

@@ -1,8 +1,11 @@
 // The welcome page's calendar files (Ampy's offer-pages brief, Nov 11) and the tokens that link them.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { BUILDS_ICS_URL, OFFICE_HOURS_ICS_URL, buildsIcs, chicagoStamp, officeHoursIcs } from '../src/routes/offer-calendar';
-import { curriculumSeed } from '@ai/core/seed/curriculum';
+import { BUILDS_ICS_URL, OFFICE_HOURS_ICS_URL, buildsIcs, chicagoStamp, officeHoursIcs, scheduleIcs } from '../src/routes/offer-calendar';
+import { planContentV2 } from '@ai/core/seed/content-v2';
+import { planCopyV1 } from '@ai/core/seed/copy-v1';
+import { planReleaseV1 } from '@ai/core/seed/release-plan-v1';
+import { curriculumSeed, seedProduction } from '@ai/core/seed/curriculum';
 import { welcomeValues } from '../src/routes/offer';
 import { readOfferConfig } from '../src/billing/config';
 
@@ -115,6 +118,36 @@ describe('the files are the sessions the database holds (D-173)', () => {
     const week2 = ev.find((e) => e.UID === 'accelerator-build-week2-dec26@amplifiedimpact.io')!;
     expect(week2['DTSTART;TZID=America/Chicago']).toBe(chicagoStamp(SEEDED.sessions.find((s) => s.id === 'dec26-s2')!.start + 86_400_000));
     expect(week2.SUMMARY).toBe('Amplified AI Accelerator Live Build\\, Week 2: Leads That Pay');
+  });
+});
+
+describe('the learner Schedule’s file (/calendar/schedule.ics, D-180)', () => {
+  // The deployed sessions: the seed's sixteen plus Week 2 and 3's Friday office hours (D-176).
+  const deployed = planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db.sessions;
+  const all = events(scheduleIcs(deployed, (s) => INSTRUCTOR.get(s.moduleId!)));
+
+  it('holds every build and every other session, in date order, written exactly as the two files write them', () => {
+    expect(all).toHaveLength(18);
+    const starts = all.map((e) => e['DTSTART;TZID=America/Chicago']!);
+    expect([...starts].sort()).toEqual(starts);
+    const both = [...events(buildsIcs(deployed, (s) => INSTRUCTOR.get(s.moduleId!))), ...events(officeHoursIcs(deployed))];
+    expect([...all].sort((a, b) => a.UID!.localeCompare(b.UID!))).toEqual([...both].sort((a, b) => a.UID!.localeCompare(b.UID!)));
+    expect(starts).toContain('20261211T130000');
+    expect(starts).toContain('20261218T130000');
+  });
+
+  it('gives every event its own UID: the Friday office hours no longer share their week’s Thursday UID', () => {
+    const uids = all.map((e) => e.UID);
+    expect(new Set(uids).size).toBe(18);
+    expect(uids).toContain('office-hours-dec26-fri-oh2@amplifiedimpact.io');
+    expect(uids).toContain('office-hours-week2-dec26@amplifiedimpact.io');
+    expect(new Set(events(officeHoursIcs(deployed)).map((e) => e.UID)).size).toBe(10);
+  });
+
+  it('skips the holidays and carries no join link', () => {
+    const ics = scheduleIcs(deployed);
+    expect(ics).not.toMatch(/2026122[34]|2026123[01]/);
+    expect(ics).not.toMatch(/zoom|meet\.google|TBA|https?:\/\//i);
   });
 });
 

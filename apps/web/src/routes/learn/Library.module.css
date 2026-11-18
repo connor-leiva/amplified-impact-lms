@@ -1,0 +1,603 @@
+/* The learner portal v2's Skill Library (D-179): the library and a locked skill's preview, ported rule by
+   rule from the signed-off mockup's LEARNER pieces (docs/design/learner-v2, artboards 16 to 19): Start
+   here (`.start`, `.feat`, `.sm`, `.smg`, `.snip`), the filter chips (`.chips`, `.chip`), the group head
+   with its one lock line (`.sgh`, `.opn`), the search field (`.srchf`), the phone's clipped groups and
+   "Show all" (`.clip`, `.morebtn`), and the sample of what a skill produces (`.doc` and its parts). The
+   shared surfaces, cards and tiles are Learn.module.css's. Tokens only: R2's and the learner frame's.
+   Sizes and radii are the mockup's. */
+
+.pha {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.srchf {
+  position: relative;
+  width: 280px;
+  max-width: 100%;
+  display: block;
+}
+.srchf > svg {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  margin-top: -8px;
+  color: var(--r2-f3);
+  pointer-events: none;
+}
+.in {
+  height: 36px;
+  padding: 0 10px 0 34px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  background: var(--r2-sf);
+  width: 100%;
+  font: inherit;
+  font-size: var(--r2-t);
+  color: var(--r2-ink);
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+.in:hover {
+  border-color: var(--r2-line-hover);
+}
+.in::placeholder {
+  color: var(--r2-f3);
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.note > svg {
+  margin-top: 3px;
+  flex: none;
+  color: var(--r2-f3);
+}
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px 0;
+  color: var(--r2-f2);
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Start here: the open skills, larger, in a bento ------------------------------------------------ */
+
+.start {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.feat {
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  text-align: left;
+  color: var(--r2-ink);
+  width: 100%;
+  min-width: 0;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+.feat .top + div > span:first-child {
+  font: 600 20px / 26px var(--r2-font);
+  letter-spacing: -0.015em;
+  padding-right: 0;
+}
+.sm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  text-align: left;
+  color: var(--r2-ink);
+  width: 100%;
+  min-width: 0;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+.feat:hover,
+.sm:hover {
+  border-color: var(--r2-line2);
+  box-shadow: var(--lv-sh-lift);
+}
+.sm > span:nth-child(2) {
+  padding-right: 0;
+}
+.smMeta {
+  margin-top: auto;
+  padding-top: 4px;
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.top > span:last-child:not(:first-child) {
+  margin-left: auto;
+}
+.snip {
+  font: 400 var(--r2-fs-12) / 18px var(--r2-font-mono);
+  color: var(--r2-f2);
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.snip b {
+  font-weight: 500;
+  color: var(--r2-ink);
+}
+.snipText {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.smg {
+  display: contents;
+}
+
+/* ---- filter chips: they wrap on a desk, and scroll edge to edge on a phone, never wrapping ---------- */
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.chip {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--r2-line2);
+  background: var(--r2-sf);
+  color: var(--r2-f2);
+  font: inherit;
+  font-size: var(--r2-fs-13);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: none;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+}
+.chip:hover {
+  border-color: var(--r2-line-hover);
+  color: var(--r2-ink);
+}
+.chip[aria-pressed='true'] {
+  background: var(--r2-ink);
+  border-color: var(--r2-ink);
+  color: var(--r2-on-for);
+}
+.cc {
+  font-variant-numeric: tabular-nums;
+  color: var(--r2-f3);
+}
+.chip[aria-pressed='true'] .cc {
+  color: var(--lv-chip-count-on);
+}
+.dotc {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--r2-for);
+}
+.dotc[data-hue='info'] {
+  background: var(--r2-dot-info);
+}
+.dotc[data-hue='warn'] {
+  background: var(--r2-dot-warn);
+}
+.dotc[data-hue='bad'] {
+  background: var(--r2-dot-bad);
+}
+.dotc[data-hue='ok'] {
+  background: var(--r2-dot-ok);
+}
+
+/* ---- a library group's head: one "Opens" line for the whole group -------------------------------- */
+
+.sgh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+}
+.sgh h2 {
+  font: 600 17px / 24px var(--r2-font);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.opn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--r2-fs-13);
+  font-weight: 500;
+  color: var(--r2-f2);
+}
+.opn > svg {
+  color: var(--r2-f3);
+}
+.oc {
+  text-decoration: none;
+}
+.morebtn.morebtn {
+  display: none;
+}
+
+/* ---- a sample of what it produces: a small document, labelled as made up -------------------------- */
+
+.doc {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.docb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--r2-line);
+  background: var(--r2-hov);
+  font-size: var(--r2-fs-12);
+  line-height: 16px;
+  color: var(--r2-f3);
+  flex-wrap: wrap;
+}
+.docb b {
+  font-weight: 600;
+  color: var(--r2-f2);
+}
+.doci {
+  padding: 24px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.doct {
+  font: 600 20px / 26px var(--r2-font);
+  letter-spacing: -0.015em;
+  color: var(--r2-ink);
+}
+.docs {
+  font-size: var(--r2-fs-13);
+  color: var(--r2-f3);
+  margin-top: 2px;
+}
+.doch {
+  font-size: var(--r2-fs-12);
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--r2-f3);
+  margin-bottom: -12px;
+}
+.docp {
+  margin: 0;
+  font-size: var(--r2-t);
+  line-height: 22px;
+  color: var(--r2-ink);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+.fl {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fl li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+  font-size: var(--r2-t);
+  line-height: 21px;
+}
+.fl li > svg {
+  margin-top: 4px;
+  color: var(--r2-warn);
+}
+.dtb {
+  border: 1px solid var(--r2-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dtr {
+  display: grid;
+  gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--r2-line);
+  font-size: var(--r2-fs-13);
+  line-height: 18px;
+  align-items: baseline;
+}
+.dtr:last-child {
+  border-bottom: 0;
+}
+.dth {
+  background: var(--r2-hov);
+  font-size: var(--r2-fs-12);
+  font-weight: 500;
+  color: var(--r2-f3);
+  padding: 7px 14px;
+}
+.dtr > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--r2-line);
+  border-radius: 10px;
+}
+.docn {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--r2-fs-13);
+  line-height: 20px;
+  color: var(--r2-f2);
+}
+.docn > svg {
+  margin-top: 3px;
+  color: var(--r2-f3);
+  flex: none;
+}
+.sep {
+  color: var(--r2-f3);
+}
+.side {
+  display: grid;
+  grid-template-columns: minmax(0, 340px);
+  gap: 16px;
+}
+.plans {
+  align-self: flex-start;
+}
+
+/* ---- the guided setup in the step player: its rail and stepper are buttons ------------------------ */
+
+.rlb {
+  background: none;
+  font: inherit;
+  font-size: var(--lv-ctl);
+}
+.stepper button {
+  height: var(--r2-c);
+  border-radius: 8px;
+  border: 1px solid var(--r2-line);
+  background: var(--r2-sf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: inherit;
+  font-size: var(--lv-ctl);
+  font-weight: 500;
+  color: var(--r2-f2);
+  cursor: pointer;
+}
+.stepper button[data-on='true'] {
+  border-color: var(--r2-for);
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+.stepper button svg {
+  color: var(--r2-dot-ok);
+}
+.act,
+.copyOpen {
+  align-self: flex-start;
+}
+
+/* ---- breakpoints ---------------------------------------------------------------------------------- */
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .start {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .feat {
+    grid-row: auto;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .pha {
+    width: 100%;
+  }
+  .srchf {
+    width: 100%;
+  }
+  .in {
+    height: 48px;
+  }
+  .start {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .feat {
+    grid-row: auto;
+    padding: 18px 16px;
+  }
+  .sm {
+    padding: 16px;
+  }
+  .snip {
+    line-height: 22px;
+  }
+  .smg {
+    display: flex;
+    flex-direction: column;
+    background: var(--r2-sf);
+    border: 1px solid var(--r2-line);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--r2-sh-card);
+  }
+  .smg .sm {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 2px;
+    border: 0;
+    border-bottom: 1px solid var(--r2-line);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
+  }
+  .smg .sm:last-child {
+    border-bottom: 0;
+  }
+  .smg .sm .top {
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+  .smg .sm .top > span:last-child:not(:first-child) {
+    display: none;
+  }
+  .smg .sm > *:not(.top) {
+    grid-column: 2;
+  }
+  .smg .smMeta {
+    margin-top: 4px;
+    padding-top: 0;
+  }
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 2px 16px;
+    scrollbar-width: none;
+    scroll-padding: 0 16px;
+  }
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+  .chip {
+    height: 44px;
+    padding: 0 16px;
+  }
+  .sgh h2 {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .opn {
+    margin-left: 0;
+    width: 100%;
+  }
+  .opn > svg {
+    width: 16px;
+    height: 16px;
+  }
+  .clip > [data-more='true'] {
+    display: none;
+  }
+  .clip > :nth-child(3) {
+    border-bottom: 0;
+  }
+  .morebtn.morebtn {
+    display: flex;
+    width: 100%;
+  }
+  .docb {
+    padding: 12px 16px;
+    line-height: 22px;
+  }
+  .docb .sep {
+    display: none;
+  }
+  .docb > span:last-child {
+    flex-basis: 100%;
+  }
+  .doci {
+    padding: 18px 16px 20px;
+    gap: 16px;
+  }
+  .docs,
+  .doch,
+  .docn {
+    line-height: 22px;
+  }
+  .docp,
+  .fl li {
+    line-height: 24px;
+  }
+  .dtr {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 2px;
+    padding: 10px 14px;
+    line-height: 22px;
+  }
+  .dth {
+    display: none;
+  }
+  .dtr > span:first-child {
+    font-weight: 600;
+  }
+  .dtr > span[data-h]:not(:first-child)::before {
+    content: attr(data-h) ': ';
+    color: var(--r2-f3);
+    font-weight: 400;
+  }
+  .side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stepper button {
+    height: 44px;
+  }
+  .act,
+  .copyOpen {
+    align-self: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+  .feat,
+  .sm,
+  .chip,
+  .in {
+    transition: none;
+  }
+}
