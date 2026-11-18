@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
-import { REF_BASE, APP_BASE, HTTP_BASE, HTTP_PARITY, HTTP_PORT } from './lib/prepare';
+import { REF_BASE, APP_BASE, APP_PORT, HTTP_BASE, HTTP_PARITY, HTTP_PORT, LEARNER_V2_RUN } from './lib/prepare';
 import { PHASE_NOW, SCENARIOS } from './lib/scenarios';
 
 // The reference prototype is the test oracle. `capture` and `harness` only need it;
@@ -14,11 +14,16 @@ const referenceServer = {
   url: `${REF_BASE}/lms-data.js`,
   reuseExistingServer: !process.env.CI,
 };
+// D-182: the learner portal's flag is a build-time switch, so its two states are two fixture builds
+// (`lib/prepare.ts`, `LEARNER_V2_RUN`). The default run serves the flag-off build on 4173, where every
+// parity scenario compares the first portal with its goldens; `LEARNER_V2=1` (`pnpm e2e:learn`) serves the
+// flag-on build on 4174, where the `learn-v2*` specs run. `APP_PORT` reaches `vite preview` through the env.
 const appServer = {
-  command: 'pnpm --filter @ai/web preview:fixture',
+  command: LEARNER_V2_RUN ? 'pnpm --filter @ai/web preview:fixture:v2' : 'pnpm --filter @ai/web preview:fixture',
   url: APP_BASE,
   reuseExistingServer: !process.env.CI,
   timeout: 180_000,
+  env: { APP_PORT: String(APP_PORT) },
 };
 const needsApp = !process.env.APP_URL && !process.env.REFERENCE_ONLY;
 
@@ -101,11 +106,6 @@ const httpServer = {
 const PHASE_SHIFTED = SCENARIOS.filter((s) => (s.phase ?? 'live') !== 'live').map((s) => s.id);
 
 /**
- * D-182: no `@g5` scenario is left. The learner portal those scenarios compared with the reference was
- * retired for the one at /learn, which has no golden in design-reference/, so this project runs nothing
- * and `pnpm compliance:http` passes with no tests (`--pass-with-no-tests`). It stays, so a portal scenario
- * that comes back is run in both modes again without new wiring.
- *
  * `@g5` is the portal, which is the half of the checklist http mode covers: "Admin scenarios use
  * fixture parity plus the oracle tests above" (and D-018 says why — in http mode a cohort's
  * enrolment is the row count, so the admin numbers legitimately differ from the fixture's).
@@ -120,14 +120,21 @@ const parityHttp = {
   name: 'parity-http',
   testMatch: /parity\.spec\.ts/,
   grep: /@g5\b/,
-  // With no phase-shifted scenario left (D-182 retired the portal's), there is nothing to leave out: an
-  // empty alternation would match every title and leave out everything.
-  ...(PHASE_SHIFTED.length ? { grepInvert: new RegExp(`\\b(?:${PHASE_SHIFTED.join('|')})\\b`) } : {}),
+  grepInvert: new RegExp(`\\b(?:${PHASE_SHIFTED.join('|')})\\b`),
   // Read by `lib/prepare.ts`'s `appMode()`. Metadata rather than an environment variable because
   // `parity` and `parity-http` run in ONE process environment and are distinguishable only per
   // test; `test.info().project.metadata` is per test.
   metadata: { mode: 'http' },
 };
+
+/** The learner portal's specs (D-177 to D-182): `compliance/tests/e2e/learn-v2*.spec.ts`. */
+const LEARN_V2_SPECS = /e2e\/learn-v2[^/]*\.spec\.ts$/;
+
+/**
+ * D-182: the flag-on run's one project, against `dist-fixture-v2` (`LEARNER_V2=1`, `pnpm e2e:learn`).
+ * Every parity scenario stays on the flag-off build, where the first portal they compare is.
+ */
+const learnerV2E2e = { name: 'e2e-learn', testMatch: LEARN_V2_SPECS };
 
 // Deterministic rasterization. Without these, Chromium's text anti-aliasing varies between runs
 // (subpixel LCD filtering and CPU-dependent Skia paths), so a second capture of the same reference
@@ -160,7 +167,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'report' }]],
   use: { launchOptions: { args: DETERMINISTIC_RENDER } },
   expect: { toMatchSnapshot: { maxDiffPixelRatio: 0.01, threshold: 0.15 } },
-  projects: [
+  projects: LEARNER_V2_RUN ? [learnerV2E2e] : [
     { name: 'reference', testMatch: /capture\.spec\.ts/ },
     { name: 'harness', testMatch: /harness\.spec\.ts/ },
     ...(HTTP_PARITY ? [parityHttp] : []),
@@ -178,7 +185,8 @@ export default defineConfig({
       // `scripts/gate.mjs` now runs `pnpm compliance:http` as its own step from gate 7 onwards, so
       // both suites run and both report, and neither can silence the other.
     },
-    { name: 'e2e', testMatch: /e2e\/.*\.spec\.ts/ },
+    // D-182: every e2e spec but the learner portal's, which need the flag-on build (`e2e-learn` below).
+    { name: 'e2e', testMatch: /e2e\/.*\.spec\.ts/, testIgnore: [/admin-r2-parity\.spec\.ts$/, LEARN_V2_SPECS] },
   ],
   webServer: [
     referenceServer,

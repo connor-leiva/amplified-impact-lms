@@ -323,7 +323,7 @@ test('an unknown address is answered exactly like a known one @g7', async () => 
   await page.close();
 });
 
-test('jamie@ortizhomes.com gets one link, it lands on the learner portal, and the second click says so @g7', async () => {
+test('jamie@ortizhomes.com gets one link, it lands on `/`, and the second click says so @g7', async () => {
   test.skip(
     !HAS_TEST_ROUTES,
     'Needs the local http-mode server: /api/test/outbox exists only when NODE_ENV is exactly "test". Run `GATE=7 pnpm e2e --grep @g7` or set HTTP_PARITY=1.',
@@ -370,18 +370,18 @@ test('jamie@ortizhomes.com gets one link, it lands on the learner portal, and th
   const link = new RegExp(`${HTTP_BASE}/sign-in\\?token=[A-Za-z0-9\\-._~%]+`).exec(html)?.[0];
   expect(link, `no ${HTTP_BASE}/sign-in?token=… link in the email. Body began: ${html.slice(0, 300)}`).toBeTruthy();
 
-  // ---- clicking it lands on `/`, which is the learner portal's Home since D-182 -------------------
+  // ---- clicking it lands on `/` ---------------------------------------------------------------
   await page.goto(link!);
-  // `SignIn.tsx` navigates with `replace`, so the spent token is not left in the history; `/` then
-  // replaces itself with /learn.
-  await expect(page).toHaveURL(`${HTTP_BASE}/learn`);
+  // `SignIn.tsx` navigates with `replace`, so the spent token is not left in the history.
+  await expect(page).toHaveURL(`${HTTP_BASE}/`);
   await page.locator('[data-app-ready="true"]').waitFor();
-  // Home, as Jamie: the shell's own landmark plus the signed-in learner's name in the greeting.
-  // Asserting the name and not just the landmark is what distinguishes "Home rendered" from "Home
-  // rendered for somebody", and from a silent bounce back to /sign-in, which is what a 401 on
-  // `/api/snapshot` would produce (`data/http.ts` → `location.replace('/sign-in')`).
-  await expect(page.locator('aside[aria-label="Primary"]')).toBeVisible();
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Jamie');
+  // The dashboard, as Jamie: the shell's own landmark plus the signed-in learner's name. Asserting
+  // the name and not just the landmark is what distinguishes "the dashboard rendered" from "the
+  // dashboard rendered for somebody" — and from a silent bounce back to /sign-in, which is what a
+  // 401 on `/api/snapshot` would produce (`data/http.ts` → `location.assign('/sign-in')`).
+  const sidebar = page.locator('aside[aria-label="Primary"]');
+  await expect(sidebar).toBeVisible();
+  await expect(sidebar.getByText('Jamie Ortiz')).toBeVisible();
 
   // ---- clicking it again shows § 7.5's single-use copy ----------------------------------------
   // A second page with the cookies cleared, so this is the LINK being spent rather than a

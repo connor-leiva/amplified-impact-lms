@@ -93,8 +93,7 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
     await page.getByRole('button', { name: 'Masquerade…' }).click();
     await page.getByRole('textbox', { name: 'Reason' }).fill(reason);
     await page.getByRole('button', { name: 'Start 15-minute session' }).click();
-    // The learner's landing (`/`), which sends a learner to the learner portal since D-182.
-    await expect(page).toHaveURL(`${APP_BASE}/learn`);
+    await expect(page).toHaveURL(`${APP_BASE}/`);
     await expect(banner(page)).toContainText('Masquerading as Elena Vargas · Northshore Group');
     await expect(banner(page)).toContainText(`Reason: ${reason} All writes are blocked.`);
     await expect(banner(page).getByRole('timer', { name: 'Time remaining' })).toHaveText('15:00 left');
@@ -181,11 +180,11 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
   });
 
   for (const width of [320, 390, 1280]) {
-    test(`the banner on two learner pages and on the paused Console at ${width}px, nothing sideways @lms-mobile`, async ({ browser }) => {
+    test(`the banner on a learner page, outside the shell and on the paused Console at ${width}px, nothing sideways @lms-mobile`, async ({ browser }) => {
       const phone = width < 768;
       for (const [path, persona] of [
-        ['/learn?masquerade=demo', 'agent'],
-        ['/learn/skills?masquerade=demo', 'agent'],
+        ['/?masquerade=demo', 'agent'],
+        ['/course?masquerade=demo', 'agent'],
         ['/admin/workspaces?masquerade=demo', 'admin'],
       ] as const) {
         const { page, close } = await openAt(browser, path, { width, persona });
@@ -217,7 +216,7 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
   }
 
   test('Extend asks for a new reason and adds 15 minutes; at the cap it is "Max 60 min"', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/learn?masquerade=demo', { persona: 'agent' });
+    const { page, close } = await openAt(browser, '/?masquerade=demo', { persona: 'agent' });
     await banner(page).getByRole('button', { name: 'Extend 15 min' }).click();
     const dialog = page.getByRole('dialog', { name: 'Extend masquerade by 15 minutes' });
     await expect(dialog.getByRole('button', { name: 'Extend 15 minutes' })).toBeDisabled();
@@ -229,7 +228,7 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
     await expect(banner(page)).toContainText('Reason: Still checking the Session 2 replay. All writes are blocked.');
     await close();
 
-    const capped = await openAt(browser, '/learn?masquerade=max', { persona: 'agent' });
+    const capped = await openAt(browser, '/?masquerade=max', { persona: 'agent' });
     const max = banner(capped.page).getByRole('button', { name: 'Max 60 min' });
     await expect(max).toBeDisabled();
     await expect(max).toHaveAttribute('title', '60-minute maximum reached');
@@ -237,7 +236,7 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
   });
 
   test('a refused write opens "Blocked while masquerading"; Exit ends the session', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/learn/vault?masquerade=demo', { persona: 'agent' });
+    const { page, close } = await openAt(browser, '/vault?masquerade=demo', { persona: 'agent' });
     await page.getByRole('button', { name: 'Upgrade' }).first().click();
     const dialog = page.getByRole('dialog', { name: 'Blocked while masquerading' });
     await expect(dialog).toContainText('POST /api/mutate/requestUpgrade');
@@ -274,7 +273,7 @@ test.describe('Masquerade against the real API (D-162 3b) @g9 @console', () => {
     await expect(banner(page)).toContainText('Masquerading as Jamie Ortiz', { timeout: 15_000 });
     await expect(banner(page).getByRole('timer')).toHaveText(/^1[45]:\d\d left$/);
 
-    await page.goto(`${HTTP_BASE}/learn/vault`);
+    await page.goto(`${HTTP_BASE}/vault`);
     await page.getByRole('button', { name: 'Upgrade' }).first().click();
     const dialog = page.getByRole('dialog', { name: 'Blocked while masquerading' });
     await expect(dialog).toContainText('POST /api/mutate/requestUpgrade');

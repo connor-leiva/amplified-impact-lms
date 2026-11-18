@@ -32,17 +32,14 @@ const WIDTHS = [320, 375, 390, 430, 768, 1024, 1280, 1440] as const;
 const PHONE_BELOW = 768;
 const NOW = '2026-12-07T10:42:00-06:00';
 
-/**
- * Every LMS route the fixture build serves, with the persona that reaches it. D-182: the first learner
- * portal's routes (`/`, `/sessions`, `/employees/:id`, `/team-tier`, `/course`, `/skill-library`) redirect
- * to the learner portal now; its Home, the Team Hub and the vault inside its shell, and its Skill Library
- * are here in their place (its other screens need the course, which the fixture build has no API for:
- * `learn-v2-phone.spec.ts` walks them with it).
- */
+/** Every LMS route the fixture build serves, with the persona that reaches it. */
 const ROUTES: readonly [Persona, string][] = [
-  ['agent', '/learn'],
-  ['agent', '/learn/vault'],
-  ['owner', '/learn/team'],
+  ['agent', '/'],
+  ['agent', '/sessions'],
+  ['agent', '/employees/marketing'],
+  ['agent', '/vault'],
+  ['agent', '/team-tier'],
+  ['owner', '/team'],
   ['admin', '/admin'],
   ['admin', '/admin/curriculum'],
   ['admin', '/admin/curriculum/marketing'],
@@ -75,7 +72,7 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/masquerade'],
   ['admin', '/admin/masquerade/learner-view'],
   ['admin', '/admin/workspaces?masquerade=demo'],
-  ['agent', '/learn?masquerade=demo'],
+  ['agent', '/?masquerade=demo'],
   // Billing on R2 (D-163): the Summary, a list, and "Stripe isn't connected".
   ['admin', '/admin/billing'],
   ['admin', '/admin/billing/invoices'],
@@ -107,8 +104,9 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/health?console-state=empty'],
   ['admin', '/admin/health?console-sample=off'],
   ['admin', '/admin/build'],
-  ['agent', '/learn/skills'],
-  ['agent', '/learn/skills/perfect-week'],
+  ['agent', '/course'],
+  ['agent', '/skill-library'],
+  ['agent', '/skill-library/perfect-week'],
   ['agent', '/sign-in'],
   ['agent', '/forgot-password'],
   ['agent', '/set-password'],
@@ -144,9 +142,6 @@ async function findings(page: Page): Promise<{ overflow: string[]; font: string[
         const cs = getComputedStyle(e);
         if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false;
         if (e.getAttribute('aria-hidden') === 'true' || (e as HTMLElement).inert) return false;
-        // Visually hidden (`clip: rect(0 0 0 0)` in a 1px box), as `learn-v2-phone.spec.ts` reads it: the
-        // learner shell's breadcrumb (D-177), which the mockup does not draw, is read and never tapped.
-        if (cs.position === 'absolute' && cs.overflow === 'hidden' && parseFloat(cs.width) <= 1 && parseFloat(cs.height) <= 1) return false;
       }
       const r = el.getBoundingClientRect();
       return r.width > 0 && r.height > 0 && r.right > 0 && r.left < innerWidth;
