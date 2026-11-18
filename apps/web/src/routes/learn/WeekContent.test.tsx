@@ -119,7 +119,8 @@ describe('the week page’s content (D-184)', () => {
     expect(screen.getByText(`From Session ${s1.n} ·`, { exact: false })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: s1.title })).toHaveAttribute('href', '/learn/schedule');
     expect(screen.getByText(/\d+ Min Build/)).toBeInTheDocument();
-    expect(document.title).toBe(`Week 1 · ${w.course.weeks[1]!.title} · Amplified AI Accelerator`);
+    // The tab title is set in an effect from the week's data, which can land after the heading draws.
+    await waitFor(() => expect(document.title).toBe(`Week 1 · ${w.course.weeks[1]!.title} · Amplified AI Accelerator`));
     fireEvent.click(screen.getAllByRole('link', { name: /^Step 2,/ })[0]!);
     await waitFor(() => expect(document.title).toMatch(new RegExp(`^Step 2 · .+ · Week 1 · ${w.course.weeks[1]!.title} · Amplified AI Accelerator$`)));
     expect(router.state.location.pathname).toBe('/learn/week/1/step/2');
