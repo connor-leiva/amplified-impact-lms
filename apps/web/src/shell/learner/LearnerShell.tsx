@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
 import { learnerOf, withLiveState } from '@ai/core/learner';
 
@@ -23,6 +23,11 @@ import { saveIcs } from '../../routes/learn/ics';
 import { HUE, LABELS, barVM, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
 import { learnAccount, learnHome } from '../../routes/learn/routes';
+import { useSkills } from '../../routes/learn/skills-data';
+import { TeamPlanWindow } from '../../routes/learn/TeamPlan';
+import { planItemOf, teamGateFor, teamPlanVM, withoutPlan } from '../../routes/learn/TeamPlan.vm';
+import { TeamPlanProvider } from '../../routes/learn/teamPlanContext';
+import type { PlanItem } from '../../routes/learn/teamPlanContext';
 import s from './LearnerShell.module.css';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
@@ -328,6 +333,25 @@ function Frame() {
   const here = onWeek === null ? null : rows.find((r) => r.week === onWeek);
   const ctx: LearnContext = { course, db, viewer, now };
 
+  // D-187: the Team Plan window. A screen opens it (`useTeamPlan`), or the address does (`?plan=team`, where
+  // today's `/team-tier` lands); a page that comes with the Team Plan sends an Agent Plan learner to it
+  // instead of drawing (`teamGateFor`). It asks the library for the builder's words and the learner's access
+  // groups only once it opens.
+  const [clicked, setClicked] = useState<PlanItem | null>(null);
+  const addressed = planItemOf(location.search);
+  const item = clicked ?? addressed;
+  const skills = useSkills(item !== null);
+  const plan = item ? teamPlanVM(item, db, me, skills) : null;
+  const gate = teamGateFor(location.pathname, db, me);
+  const closePlan = useCallback(() => {
+    setClicked(null);
+    if (addressed) navigate({ pathname: location.pathname, search: withoutPlan(location.search), hash: location.hash }, { replace: true });
+  }, [addressed, location.hash, location.pathname, location.search, navigate]);
+  const openPlan = useCallback((x: PlanItem) => {
+    setDrawerOpen(false);
+    setClicked(x);
+  }, []);
+
   return (
     <div className={s.frame} data-r2-scope="" data-learner-v2="">
       <div className={s.shell} inert={phone && drawerOpen ? true : undefined}>
@@ -379,7 +403,7 @@ function Frame() {
           </header>
           {phone ? <PhoneStrip bar={bar} /> : null}
           <main className={s.main} id="main">
-            <Outlet context={ctx} />
+            <TeamPlanProvider value={openPlan}>{gate ? <Navigate to={gate} replace /> : <Outlet context={ctx} />}</TeamPlanProvider>
           </main>
         </div>
       </div>
@@ -392,6 +416,8 @@ function Frame() {
           </div>
         </>
       ) : null}
+
+      {plan ? <TeamPlanWindow vm={plan} onClose={closePlan} /> : null}
     </div>
   );
 }
