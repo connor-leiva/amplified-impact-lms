@@ -86,7 +86,7 @@ function styled(node: ReactNode, marks: readonly RichMark[]): ReactNode {
   let out = node;
   if (marks.some((m) => m.type === 'bold')) out = <strong>{out}</strong>;
   if (marks.some((m) => m.type === 'italic')) out = <em>{out}</em>;
-  const style = marks.find((m) => m.type === 'textStyle')?.attrs;
+  const style = marks.filter((m) => m.type === 'textStyle').reduce<NonNullable<RichMark['attrs']>>((acc, m) => ({ ...acc, ...m.attrs }), {});
   if (style?.color || style?.fontFamily || style?.fontSize) {
     out = (
       <span

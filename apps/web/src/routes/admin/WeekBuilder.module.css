@@ -70,7 +70,6 @@
   border: 1px solid var(--r2-line);
   border-radius: 8px;
   background: var(--r2-sf);
-  overflow: hidden;
 }
 .btool {
   display: flex;
@@ -81,10 +80,10 @@
   background: var(--r2-bg);
   flex-wrap: nowrap;
   min-height: 45px;
-  overflow-x: auto;
+  overflow: visible;
 }
 @media (max-width: 767px) {
-  .btool { flex-wrap: wrap; overflow-x: visible; }
+  .btool { flex-wrap: wrap; }
 }
 .btool select {
   height: 32px;
@@ -145,12 +144,48 @@
   padding: 0 6px;
   flex: none;
 }
+.slot { position: relative; display: inline-flex; }
+.pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--r2-sf);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  box-shadow: var(--r2-sh-pop);
+}
+.letter { display: inline-grid; justify-items: center; line-height: 1; font-weight: 700; }
+.bar { display: block; width: 14px; height: 3px; margin-top: 2px; border-radius: 1px; }
+.marker {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px 2px 2px 0;
+  background: var(--r2-mint);
+  transform: rotate(-24deg);
+}
+.plus {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--r2-sf);
+  font-weight: 700;
+  background: conic-gradient(from 0deg, var(--r2-bad), var(--r2-warn), var(--r2-mint), var(--r2-energy), var(--r2-for), var(--r2-info), var(--r2-bad));
+}
+.plus input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .prose { padding: 12px 14px; min-height: 96px; }
 .prose :global(.ProseMirror) {
   outline: none;
   min-height: 72px;
-  font: 400 16px / 1.6 var(--r2-font);
-  color: var(--r2-ink);
+  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
+  color: var(--r2-f2);
 }
 .prose :global(.ProseMirror p) { margin: 0; }
 .prose :global(.ProseMirror p + p) { margin-top: 8px; }

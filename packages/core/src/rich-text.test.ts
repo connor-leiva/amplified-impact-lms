@@ -35,7 +35,27 @@ describe('rich text', () => {
 
   it('stores a styled doc and skips a plain one-line paragraph', () => {
     expect(stripRich(doc)).toBe('Your operator reads it.');
-    expect(storedRich(doc)?.content[0]?.content?.[1]?.marks).toHaveLength(2);
+    expect(storedRich(doc)?.content[0]?.content?.[1]?.marks).toEqual([
+      { type: 'bold' },
+      { type: 'textStyle', attrs: { color: 'var(--r2-for)', fontFamily: 'Georgia, serif' } },
+    ]);
+    const split = sanitizeRich({
+      type: 'doc',
+      content: [{
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'operator',
+          marks: [
+            { type: 'textStyle', attrs: { fontFamily: 'Georgia, serif' } },
+            { type: 'textStyle', attrs: { color: 'var(--r2-for)' } },
+          ],
+        }],
+      }],
+    });
+    expect(split?.content[0]?.content?.[0]?.marks).toEqual([
+      { type: 'textStyle', attrs: { fontFamily: 'Georgia, serif', color: 'var(--r2-for)' } },
+    ]);
     expect(storedRich({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] }] })).toBeUndefined();
   });
 

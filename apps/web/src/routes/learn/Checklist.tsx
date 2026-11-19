@@ -58,9 +58,15 @@ function Callout({ c }: { c: CalloutVM }) {
       <span className={s.coIc} aria-hidden="true">
         <Icon name={icon} size={14} strokeWidth={1.8} />
       </span>
-      <div className={s.coCopy}>
-        <strong>{c.label}</strong> {c.rich ? <RichTextView doc={c.rich} spans={c.spans} /> : <Marked text={c.text} spans={c.spans} />}
-      </div>
+      {c.rich ? (
+        <div className={s.coCopy}>
+          <strong>{c.label}</strong> <RichTextView doc={c.rich} spans={c.spans} />
+        </div>
+      ) : (
+        <p>
+          <strong>{c.label}</strong> <Marked text={c.text} spans={c.spans} />
+        </p>
+      )}
     </div>
   );
 }

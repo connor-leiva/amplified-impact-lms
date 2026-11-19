@@ -82,6 +82,17 @@ const okSize = (v: unknown): string | undefined => {
   return n >= 8 && n <= 96 ? `${n}px` : undefined;
 };
 
+/** Color and font share one text-style mark, so neither one drops the other. */
+function mergeStyle(marks: RichMark[]): RichMark[] {
+  const attrs: NonNullable<RichMark['attrs']> = {};
+  const rest: RichMark[] = [];
+  for (const mark of marks) {
+    if (mark.type === 'textStyle') Object.assign(attrs, mark.attrs);
+    else rest.push(mark);
+  }
+  return Object.keys(attrs).length ? [...rest, { type: 'textStyle', attrs }] : rest;
+}
+
 function cleanMark(mark: RichMark): RichMark | undefined {
   if (mark.type === 'bold' || mark.type === 'italic') return { type: mark.type };
   if (mark.type === 'highlight') {
@@ -115,9 +126,10 @@ export function sanitizeRich(value: unknown): RichText | undefined {
         if (!node || typeof node !== 'object' || (node as { type?: unknown }).type !== 'text') continue;
         const raw = (node as { text?: unknown }).text;
         if (typeof raw !== 'string' || !raw) continue;
-        const marks = Array.isArray((node as { marks?: unknown }).marks)
+        const cleaned = Array.isArray((node as { marks?: unknown }).marks)
           ? ((node as { marks: RichMark[] }).marks.map(cleanMark).filter((m): m is RichMark => !!m))
           : [];
+        const marks = mergeStyle(cleaned);
         text.push(marks.length ? { type: 'text', text: raw, marks } : { type: 'text', text: raw });
       }
       if (text.length) paragraph.content = text;
