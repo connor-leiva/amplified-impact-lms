@@ -103,16 +103,11 @@ describe('chapters, transcript and watched time (D-191)', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, text: async () => vtt })));
     render(<VideoView block={CHAPTERED} />);
     fireEvent.click(screen.getByRole('button', { name: 'Show transcript' }));
-    const dialog = screen.getByRole('dialog', { name: 'Transcript' });
-    expect(dialog).toHaveAttribute('data-drawer', 'open');
-    await waitFor(() => expect(screen.getByRole('button', { name: /Welcome in/ })).toBeInTheDocument());
-    const close = screen.getByRole('button', { name: 'Close' });
-    const cue = screen.getByRole('button', { name: /Welcome in/ });
-    cue.focus();
-    fireEvent.keyDown(dialog, { key: 'Tab' });
-    expect(document.activeElement).toBe(close);
-    fireEvent.keyDown(dialog, { key: 'Escape' });
+    const panel = screen.getByRole('region', { name: 'Transcript' });
     expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(screen.getByRole('button', { name: /Welcome in/ })).toBeInTheDocument());
+    fireEvent.keyDown(panel, { key: 'Escape' });
+    expect(screen.queryByRole('region', { name: 'Transcript' })).toBeNull();
     vi.unstubAllGlobals();
   });
 

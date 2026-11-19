@@ -64,6 +64,7 @@ export const STEP = {
   /** D-191: the video block's own chrome. */
   chapters: 'Chapters',
   showTranscript: 'Show transcript',
+  hideTranscript: 'Hide transcript',
   transcript: 'Transcript',
   draftVideo: 'Draft video · narration coming',
   transcriptMissing: 'The transcript didn’t load.',

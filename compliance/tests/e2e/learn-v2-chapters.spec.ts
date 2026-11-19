@@ -106,11 +106,10 @@ for (const width of [1440, 390])
       await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(0.5);
       await expect(chapter).toHaveAttribute('aria-current', 'true');
       await page.getByRole('button', { name: 'Show transcript' }).click();
-      const dialog = page.getByRole('dialog', { name: 'Transcript' });
-      await expect(dialog).toHaveAttribute('data-drawer', 'open');
-      await expect(dialog.getByRole('button', { name: /Welcome in/ })).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(dialog).toHaveCount(0);
+      const panel = page.getByRole('region', { name: 'Transcript' });
+      await expect(panel.getByRole('button', { name: /Welcome in/ })).toBeVisible();
+      await page.getByRole('button', { name: 'Hide transcript' }).click();
+      await expect(panel).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
       await expectAccessible(page);
       await page.context().close();

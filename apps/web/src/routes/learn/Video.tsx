@@ -21,8 +21,6 @@ import {
 } from '@ai/core';
 import type { CaptionCue, WatchedSpan } from '@ai/core';
 import { Icon } from '../../components/Icon';
-import { useDialog } from '../../components/r2/Modal';
-import d from '../../components/r2/Drawer.module.css';
 import { courseVideoUrl } from '../../data/files';
 import { HlsEngine } from '../../components/replay/HlsEngine';
 import { videoBlockSource } from '../../components/replay/source';
@@ -213,38 +211,33 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
   return (
     <figure className={s.vfig}>
       {block.draft ? <p className={s.vdraft}>{STEP.draftVideo}</p> : null}
+      {player}
       {chapters.length ? (
-        <div className={s.vstage}>
-          {player}
-          <ol className={s.vchaps} aria-label={STEP.chapters}>
-            {chapters.map((c, i) => (
-              <li key={`${c.t}-${i}`}>
-                <button type="button" className={s.vchap} aria-current={i === active ? 'true' : undefined} onClick={() => seek(c.t)}>
-                  <span className={s.vtime}>{fmt.clock(c.t)}</span>
-                  <span>{c.label}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ) : (
-        player
-      )}
+        <ol className={s.vchaps} aria-label={STEP.chapters}>
+          {chapters.map((c, i) => (
+            <li key={`${c.t}-${i}`}>
+              <button type="button" className={s.vchap} aria-current={i === active ? 'true' : undefined} onClick={() => seek(c.t)}>
+                <span className={s.vtime}>{fmt.clock(c.t)}</span>
+                <span>{c.label}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      ) : null}
       {block.transcript ? (
-        <button type="button" className={`${s.b} ${s.bq} ${s.bi} ${s.vscript}`} onClick={() => setOpen(true)}>
-          {STEP.showTranscript}
+        <button type="button" className={`${s.b} ${s.bq} ${s.bi} ${s.vscript}`} aria-expanded={open} aria-controls={`step-transcript-${videoKey}`} onClick={() => setOpen((v) => !v)}>
+          {open ? STEP.hideTranscript : STEP.showTranscript}
         </button>
       ) : null}
-      {title ? <figcaption className={s.me}>{title}</figcaption> : null}
       {open && block.transcript ? (
-        <TranscriptDrawer src={courseVideoUrl(block.transcript.upload)} time={time} onSeek={seek} onClose={() => setOpen(false)} />
+        <TranscriptPanel id={`step-transcript-${videoKey}`} src={courseVideoUrl(block.transcript.upload)} time={time} onSeek={seek} onClose={() => setOpen(false)} />
       ) : null}
+      {title ? <figcaption className={s.me}>{title}</figcaption> : null}
     </figure>
   );
 }
 
-function TranscriptDrawer({ src, time, onSeek, onClose }: { src: string; time: number; onSeek: (t: number) => void; onClose: () => void }) {
-  const { ref, onKeyDown } = useDialog(onClose);
+function TranscriptPanel({ id, src, time, onSeek, onClose }: { id: string; src: string; time: number; onSeek: (t: number) => void; onClose: () => void }) {
   const [cues, setCues] = useState<CaptionCue[] | null>(null);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -268,32 +261,15 @@ function TranscriptDrawer({ src, time, onSeek, onClose }: { src: string; time: n
   }, [src]);
   const active = cues ? activeCueIndex(cues, time) : -1;
   return (
-    <div
-      className={d.scrim}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div ref={ref} className={d.panel} role="dialog" aria-modal="true" aria-label={STEP.transcript} data-drawer="open" style={{ width: 'min(440px, 100%)' }} onKeyDown={onKeyDown}>
-        <div className={d.head}>
-          <div className={d.titles}>
-            <h2 className={d.title}>{STEP.transcript}</h2>
-          </div>
-          <button type="button" className={d.close} aria-label="Close" onClick={onClose}>
-            <Icon name="r2X" size={16} strokeWidth={1.75} />
-          </button>
-        </div>
-        <div className={d.body}>
-          {cues === null && !error ? <p role="status">{STEP.loading}</p> : null}
-          {error ? <p role="alert">{error}</p> : null}
-          {cues?.map((c, i) => (
-            <button key={`${c.start}-${i}`} type="button" className={s.vcue} aria-current={i === active ? 'true' : undefined} onClick={() => onSeek(c.start)}>
-              <span className={s.vtime}>{fmt.clock(c.start)}</span>
-              <span>{c.text}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+    <div id={id} className={s.vpanel} role="region" aria-label={STEP.transcript} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      {cues === null && !error ? <p role="status">{STEP.loading}</p> : null}
+      {error ? <p role="alert">{error}</p> : null}
+      {cues?.map((c, i) => (
+        <button key={`${c.start}-${i}`} type="button" className={s.vcue} aria-current={i === active ? 'true' : undefined} onClick={() => onSeek(c.start)}>
+          <span className={s.vtime}>{fmt.clock(c.start)}</span>
+          <span>{c.text}</span>
+        </button>
+      ))}
     </div>
   );
 }
