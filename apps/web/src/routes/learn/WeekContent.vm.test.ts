@@ -89,6 +89,21 @@ describe('the week’s content (D-184)', () => {
     ]);
   });
 
+  it('D-188: puts a week’s Media videos after its lines, each to play inline', () => {
+    const d = deployed();
+    const m = d.modules.find((x) => x.course?.week === 1)!;
+    const video = { type: 'video' as const, source: { url: 'https://cdn.example.test/recap.m3u8' }, title: 'Recap' };
+    m.course!.media = [...m.course!.media, video];
+    const p = payloadOf(d);
+    const w = open(p, 1);
+    const media = weekContentVM(p, 1)!.sections.find((x) => x.id === 'media')!;
+    expect(media.parts).toEqual([
+      { kind: 'list', heading: null, items: w.media.filter((x) => typeof x === 'string') },
+      { kind: 'videos', videos: [video] },
+      { kind: 'list', heading: COPY.materials, items: w.materials },
+    ]);
+  });
+
   it('@parity:K-8 @parity:K-10 How It Works on the course’s first week, the graduation and after-the-course paths on its last', () => {
     const p = payloadOf(deployed());
     expect(ids(p, 0)[0]).toBe('how');

@@ -88,6 +88,7 @@ import type { GoogleConfig } from './auth/google';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
 import { registerFilesRoutes } from './routes/files';
+import { bucketOrigin } from './storage';
 import { registerJoinRoute } from './routes/join';
 import { registerMutateRoute } from './routes/mutate';
 import { registerAdminActionsRoute } from './routes/admin-actions';
@@ -334,6 +335,8 @@ export function cspDirectives(
   // D-155: GA4 and the Meta Pixel, only on a www page that loads `/analytics.js` (the hook in
   // `build()` applies it per response). The learn app, the admin console and the API never get them.
   const tags = (name: keyof typeof ANALYTICS_CSP): string[] => (analytics ? [...ANALYTICS_CSP[name]] : []);
+  const origin = bucketOrigin(env);
+  const bucket = origin ? [origin] : [];
   return {
     'default-src': ["'self'"],
     'script-src': ["'self'", ...inlineHashes, ...tags('script-src')],
@@ -342,7 +345,10 @@ export function cspDirectives(
     'style-src': ["'self'", "'unsafe-inline'"],
     'img-src': ["'self'", 'data:', ...video, ...tags('img-src')],
     'media-src': ["'self'", 'blob:', ...video],
-    'connect-src': ["'self'", ...tags('connect-src')],
+    // D-188: the Console's Vault and the Week Builder PUT a file straight to the bucket from the browser
+    // (a presigned URL from `POST /api/files/upload-url`), so its origin, read from the storage config
+    // (`S3_ENDPOINT`, `S3_BUCKET`, `S3_URL_STYLE`), is allowed here. Never hardcoded; none without a bucket.
+    'connect-src': ["'self'", ...bucket, ...tags('connect-src')],
     // § 9.4: "Self-hosted fonts mean no Google domains." helmet's default here is
     // `'self' https: data:`; the `https:` is what would have let a Google domain back in. `data:`
     // is allowed (D-137): fonts inlined into a stylesheet as data URLs were blocked, which filled the

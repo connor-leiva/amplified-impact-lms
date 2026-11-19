@@ -1140,6 +1140,29 @@ button.b {
   color: var(--r2-for);
 }
 
+/* D-188: a course video block (a step's path, a week's Media): the browser's own player, full width. */
+.vfig {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.vplay {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+  border-radius: 8px;
+  background: var(--r2-for);
+}
+.vlink {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
 /* The replay player. */
 .rpv {
   position: relative;

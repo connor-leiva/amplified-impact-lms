@@ -284,3 +284,28 @@ export function attachOptions(db: Db): { value: string; label: string }[] {
 
 /** Whether a category forces Team only (the executive vault), as `editResource` and `uploadResource` decide. */
 export const forcesTeam = (cat: string): boolean => EXEC_CATEGORIES.includes(cat);
+
+// ================================================================================================
+// D-188: real uploads. Add resource's drop zone and "…" › Replace file put a file in the bucket
+// (`files.ts` › `uploadFile`), then save its key through `publishVaultFile` / `replaceVaultFile`.
+// ================================================================================================
+
+/** Replace file's dialog: its title, its action and what its zone says. */
+export const REPLACE_COPY = {
+  title: 'Replace file',
+  cta: 'Replace file',
+  label: 'Drop a File or Click to Browse',
+  sub: 'JSON, PDF, Markdown, ZIP, MP4, Excel or CSV · up to 25 MB, 500 MB for an mp4',
+  ready: 'Ready to replace · click to choose another',
+  keeps: 'The title, access and opens stay as they are.',
+} as const;
+
+/** A drop zone while a file is going up: its name, and how far it has got. */
+export const uploadingDrop = (name: string, progress: string): { label: string; sub: string; ready: boolean } => ({ label: name, sub: progress, ready: false });
+
+/** Replace file's zone: what it says before a file, while one goes up, and once it is ready. */
+export function replaceDrop(file: string | null, progress: string | null): { label: string; sub: string; ready: boolean } {
+  if (file && progress) return uploadingDrop(file, progress);
+  if (file) return { label: file, sub: REPLACE_COPY.ready, ready: true };
+  return { label: REPLACE_COPY.label, sub: REPLACE_COPY.sub, ready: false };
+}

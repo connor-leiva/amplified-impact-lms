@@ -212,6 +212,9 @@ export const AUDIT_ACTIONS = [
   'copy.save',
   // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
   'curriculum.migrate',
+  // D-188: the Vault's real uploads: Publish to Vault with a file, and Replace file.
+  'vault.upload',
+  'vault.replace',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

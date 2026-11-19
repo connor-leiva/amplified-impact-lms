@@ -88,9 +88,43 @@ export type ContentBlock =
   | { type: 'list'; items: string[] }
   | { type: 'table'; head?: string[]; rows: string[][] };
 
+// --- D-188: a video, in a step's paths and in a week's Media ----------------------------------------
+
+/** A video file staff uploaded to the bucket: its key (minted by `POST /api/files/upload-url`), name, size and type. */
+export interface VideoUpload {
+  upload: string;
+  name: string;
+  /** Bytes. */
+  size: number;
+  type: 'video/mp4';
+}
+
+/** A video somewhere else, by its http(s) address: an `.mp4` or `.m3u8` plays inline, any other page opens in a new tab. */
+export interface VideoLink {
+  url: string;
+}
+
+/**
+ * D-188: a video block. Its source is an uploaded mp4 (played from the API, same-origin) or a link. The
+ * optional title is shown with it and follows the copy rules like any other learner-facing string.
+ */
+export interface VideoBlock {
+  type: 'video';
+  source: VideoUpload | VideoLink;
+  title?: string;
+}
+
+/** What a step's path is made of: the content blocks, and (D-188) a video. */
+export type PathBlock = ContentBlock | VideoBlock;
+
+/** One item of a week's Media: a line of text, as before, or (D-188) a video. */
+export type MediaItem = string | VideoBlock;
+
+export const isVideoUpload = (s: VideoBlock['source']): s is VideoUpload => typeof (s as VideoUpload).upload === 'string';
+
 /** One platform's way through a step. */
 export interface StepPath {
-  blocks: ContentBlock[];
+  blocks: PathBlock[];
 }
 
 /** A step's Claude path and ChatGPT path. Either may be absent; a step with neither has no tabs. */
@@ -157,8 +191,8 @@ export interface ModuleCourse {
   liveBuild: LiveBuildPage | null;
   officeHours: OfficeHoursPage | null;
   homework: Homework;
-  /** Clearly marked placeholders until a real recording exists. */
-  media: string[];
+  /** Clearly marked placeholders until a real recording exists, and (D-188) videos. */
+  media: MediaItem[];
   /** Course material shipped with the week, by name. */
   materials: string[];
   promise?: string;

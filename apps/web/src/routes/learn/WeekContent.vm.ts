@@ -13,7 +13,7 @@
 import { fmt } from '@ai/core';
 import type { AIEmployee, SkillFile } from '@ai/core';
 import type { LearnerCourseWeek, OpenCourseWeek } from '@ai/core/course';
-import type { PlaybookCard, SeatCard } from '@ai/core/course-types';
+import type { PlaybookCard, SeatCard, VideoBlock } from '@ai/core/course-types';
 import { skillPreview } from '@ai/core/files';
 import { COPY, weekVM as courseWeekVM } from '../course/Course.vm';
 import type { CoursePayload, DownloadVM, Row } from '../course/Course.vm';
@@ -75,6 +75,8 @@ const PLAYBOOK_LABEL: Record<'name' | 'number' | 'question' | 'play' | 'source',
 export type PartVM =
   | { kind: 'rows'; heading: string | null; rows: Row[] }
   | { kind: 'list'; heading: string | null; items: string[] }
+  /** D-188: a week's Media videos, each played inline (or a link to watch it). */
+  | { kind: 'videos'; videos: VideoBlock[] }
   | { kind: 'text'; text: string; note: boolean };
 
 export interface SectionVM {
@@ -123,6 +125,7 @@ const listPart = (heading: string | null, items: readonly string[] | undefined):
   return i.length ? { kind: 'list', heading, items: i } : null;
 };
 const textPart = (text: string | null | undefined, note = false): PartVM | null => (has(text) ? { kind: 'text', text, note } : null);
+const videosPart = (videos: VideoBlock[]): PartVM | null => (videos.length ? { kind: 'videos', videos } : null);
 
 function section(id: string, title: string, parts: (PartVM | null)[], meta: string | null = null): SectionVM | null {
   const kept = parts.filter((p): p is PartVM => p !== null);
@@ -222,7 +225,11 @@ export function weekContentVM(p: CoursePayload, week: number, m?: Pick<AIEmploye
     section('evidence', COPY.evidence, [rowsPart(null, v.evidence)]),
     section('rubric', COPY.rubric, [rowsOf(v.rubric.dimensions).length ? textPart(v.rubric.scale, true) : null, rowsPart(null, v.rubric.dimensions), listPart(null, v.rubric.rules)]),
     section('readiness', COPY.readiness, [rowsPart(null, v.readiness)]),
-    section('media', COPY.media, [listPart(null, v.media), listPart(COPY.materials, v.materials)]),
+    section('media', COPY.media, [
+      listPart(null, v.media.filter((m): m is string => typeof m === 'string')),
+      videosPart(v.media.filter((m): m is VideoBlock => typeof m !== 'string')),
+      listPart(COPY.materials, v.materials),
+    ]),
     seatSection(w.seatCard),
     playbookSection(w.playbookCard),
     last ? section('graduation', COPY.graduation, [listPart(null, after.graduation), textPart(after.graduationNote, true)]) : null,

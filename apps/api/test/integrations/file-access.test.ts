@@ -64,24 +64,20 @@ import type { App } from '../../src/app';
 import { vaultFileName } from '../../src/routes/files';
 import {
   ALLOWED_UPLOAD_TYPES,
-  GET_EXPIRES_IN,
   MAX_UPLOAD_BYTES,
   PUT_EXPIRES_IN,
   resetS3,
 } from '../../src/storage';
+import { startFakeBucket } from '../fake-bucket';
+import type { FakeBucket } from '../fake-bucket';
 import { loadDb, resetDatabase, testDatabase } from '../helpers';
 
 /** Gate 8's instant. Every seeded AI Employee except `operations` is published at it. */
 const NOW_ISO = '2026-12-08T13:00:00-06:00';
 
-/** A Railway-shaped environment, with the dotted bucket name `storage.test.ts` uses. */
-const S3_ENV = {
-  S3_REGION: 'auto',
-  S3_ENDPOINT: 'https://bucket-production-a1b2.up.railway.app',
-  S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000',
-  S3_SECRET_ACCESS_KEY: 'test-only-hmac-key-material-0000000000',
-  S3_BUCKET: 'ai-lms.production',
-} as const;
+/** D-188: the download streams from the bucket now, so it reads from an in-memory one (`../fake-bucket.ts`). */
+let bucket: FakeBucket;
+let S3_ENV: FakeBucket['env'];
 
 const S3_KEYS = ['S3_REGION', 'S3_ENDPOINT', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET'] as const;
 
@@ -96,6 +92,9 @@ let savedEnv: Record<string, string | undefined> = {};
 
 beforeAll(async () => {
   await testDatabase();
+  bucket = await startFakeBucket();
+  bucket.anyKey = true;
+  S3_ENV = bucket.env;
 });
 
 beforeEach(async () => {
@@ -119,8 +118,9 @@ afterEach(async () => {
   resetS3();
 });
 
-afterAll(() => {
+afterAll(async () => {
   delete process.env.FIXED_NOW;
+  await bucket?.close();
 });
 
 // --- helpers --------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ const downloadsOf = async (id: string): Promise<number> => {
 
 // --------------------------------------------------------------------------------------------------
 
-describe('Gate 8 · a Team-tier download is refused for Jamie and presigned for Alex @g8', () => {
+describe('Gate 8 · a Team-tier download is refused for Jamie and served to Alex @g8', () => {
   it('both halves of Jamie’s click refuse it, with the same sentence, and nothing is counted @g8', async () => {
     const jamie = await app.signInAs('u_jamie');
     const db = await loadDb();
@@ -197,7 +197,7 @@ describe('Gate 8 · a Team-tier download is refused for Jamie and presigned for 
     expect(refusedRoute.json()).toEqual(refusedMutation.json());
   });
 
-  it('Alex gets a 302 to a presigned GET whose X-Amz-Expires is ≤ 300, and the route counts nothing @g8', async () => {
+  it('Alex gets the file, streamed on this origin (D-188), and the route counts nothing @g8', async () => {
     const alex = await app.signInAs('u_alex');
     const db = await loadDb();
     const resource = teamResource(db);
@@ -212,47 +212,28 @@ describe('Gate 8 · a Team-tier download is refused for Jamie and presigned for 
 
     // The click's second request.
     const res = await download(resource.id, alex);
-    expect(res.statusCode, res.body).toBe(302);
+    // D-188: the object is streamed on the app's origin, no longer a 302 to a presigned GET, so the
+    // CSP's `media-src 'self'` holds and nothing the viewer is sent points at the bucket.
+    expect(res.statusCode, res.body).toBe(200);
+    expect(res.headers.location).toBeUndefined();
     // Failure 2 in the header: EXACTLY ONE of the two halves writes the counter. § 8.2's sentence
     // would have made this `before + 2`, and the number is rendered in three screens.
     expect(await downloadsOf(resource.id)).toBe(before + 1);
 
-    // A presigned URL is a bearer credential for the object for the next 300 seconds; a cacheable
-    // redirect would put it in the back/forward cache and in any intermediary that caches one.
-    expect(res.headers['cache-control']).toBe('no-store');
+    // Decided for one signed-in viewer: no shared cache may keep it.
+    expect(res.headers['cache-control']).toBe('private, max-age=300');
 
-    const location = res.headers.location;
-    expect(typeof location).toBe('string');
-    const url = new URL(String(location));
-
-    // Gate 8's own clause, read as the inequality it is written as — and then pinned to the exact
-    // value, because `storage.ts` clamps rather than defaults (`boundedExpiresIn`) and "≤ 300"
-    // would also be satisfied by a URL that expired instantly.
-    const expires = Number(url.searchParams.get('X-Amz-Expires'));
-    expect(expires).toBeLessThanOrEqual(300);
-    expect(expires).toBe(GET_EXPIRES_IN);
-
-    // A real signature over a real canonical request: 64 lower-case hex, i.e. HMAC-SHA256.
-    expect(url.searchParams.get('X-Amz-Signature')).toMatch(/^[0-9a-f]{64}$/);
-    expect(url.searchParams.get('X-Amz-Algorithm')).toBe('AWS4-HMAC-SHA256');
-
-    // Path-style addressing (`forcePathStyle: true` in § 8.2's snippet), against the configured
-    // endpoint: `<endpoint>/<bucket>/<key>`. A dotted bucket name is the case that would otherwise
-    // be hoisted into the host and break TLS.
-    expect(url.origin).toBe(new URL(S3_ENV.S3_ENDPOINT).origin);
-    expect(url.pathname).toBe(`/${S3_ENV.S3_BUCKET}/resources/${resource.id}`);
+    // The object the row names, read from the configured bucket: `<endpoint>/<bucket>/<key>`.
+    const read = bucket.requests.filter((r) => r.method === 'GET').at(-1)!;
+    expect(read.key).toBe(`resources/${resource.id}`);
+    expect(res.body).toBe(`object:resources/${resource.id}`);
 
     // The name the browser saves under. `vaultFileName` reproduces `Vault.vm.ts`'s own derivation
     // so a viewer who switches data sources does not see their downloads change name — the whole
-    // premise Gate 7 rides on, that the backend is invisible. Signed, so the holder of the URL
-    // cannot turn the attachment into an inline render.
-    const disposition = url.searchParams.get('response-content-disposition');
+    // premise Gate 7 rides on, that the backend is invisible.
+    const disposition = String(res.headers['content-disposition']);
     expect(disposition).toContain('attachment;');
     expect(disposition).toContain(`filename="${vaultFileName(resource)}"`);
-    // `host` is signed, so the URL cannot be replayed against another endpoint. The disposition is
-    // a signed QUERY parameter rather than a signed header, which is why it is not in this list and
-    // why the holder of the URL still cannot change it.
-    expect(url.searchParams.get('X-Amz-SignedHeaders')).toContain('host');
   });
 });
 
@@ -275,7 +256,7 @@ describe('Gate 8 · upload-url refuses 26 MB and text/html with 422 @g8', () => 
     expect(res.json()).not.toHaveProperty('key');
   });
 
-  it('refuses text/html, naming the four types § 8.2 allows @g8', async () => {
+  it('refuses text/html, naming every allowed type @g8', async () => {
     const cookie = await app.signInAs(CURATOR);
     const res = await uploadUrl(cookie, { contentType: 'text/html', size: 1024 });
 

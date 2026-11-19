@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { IconName } from '@ai/core';
-import type { ContentBlock } from '@ai/core/course-types';
+import type { PathBlock, VideoBlock } from '@ai/core/course-types';
 import type { IcsEvent } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useJoin } from '../../data/join';
+import { courseVideoUrl } from '../../data/files';
+import { HlsEngine } from '../../components/replay/HlsEngine';
+import { videoBlockSource } from '../../components/replay/source';
 import { HUE, LABELS } from './learn.vm';
 import type { JoinVM, KitRowVM, Seg, SessionRowVM, Tone } from './learn.vm';
 import { STEP } from './Step.vm';
@@ -250,13 +253,20 @@ export function columnTemplate(head: readonly string[] | undefined, rows: readon
 
 /**
  * A step's path, block by block: a list's items as numbered steps, a paragraph, a copy block with its
- * button, and a table (its first column as the row's name, as the mockup's "where it goes" table).
+ * button, a table (its first column as the row's name, as the mockup's "where it goes" table), and
+ * (D-188) a video.
  */
-export function Blocks({ blocks }: { blocks: ContentBlock[] }) {
+export function Blocks({ blocks }: { blocks: PathBlock[] }) {
   let n = 0;
   return (
     <>
       {blocks.map((b, i) => {
+        if (b.type === 'video')
+          return (
+            <div key={i} className={s.blk}>
+              <VideoView block={b} />
+            </div>
+          );
         if (b.type === 'list')
           return b.items.map((item, j) => {
             n += 1;
@@ -314,5 +324,44 @@ export function Blocks({ blocks }: { blocks: ContentBlock[] }) {
         );
       })}
     </>
+  );
+}
+
+/**
+ * D-188: a course video block (a step's path, a week's Media). What it plays is `videoBlockSource`: an
+ * uploaded mp4 from its same-origin API address, or an `.m3u8` / `.mp4` link, in a `<video>` with the
+ * browser's own controls (play, seek, keyboard), driven by `HlsEngine` as the replay player drives
+ * its element (`direct` for a file, hls.js or native HLS for a manifest). Any other link is a "Watch"
+ * link that opens in a new tab. No chapters or transcript. The title, when there is one, is the
+ * video's name and its caption.
+ */
+export function VideoView({ block }: { block: VideoBlock }) {
+  const source = videoBlockSource(block, courseVideoUrl);
+  const video = useRef<HTMLVideoElement | null>(null);
+  const kind = source?.kind ?? null;
+  const src = source && source.kind !== 'link' ? source.src : '';
+  useLayoutEffect(() => {
+    const el = video.current;
+    if (!el || !src || (kind !== 'file' && kind !== 'hls')) return;
+    const engine = new HlsEngine({ src, dur: 0, t: 0, media: el, direct: kind === 'file', learnDuration: true });
+    return () => engine.destroy();
+  }, [src, kind]);
+  if (!source) return null;
+  const title = block.title?.trim() || null;
+  if (source.kind === 'link')
+    return (
+      <div className={s.vlink}>
+        {title ? <span className={s.w5}>{title}</span> : null}
+        <a className={`${s.b} ${s.bq} ${s.bi}`} href={source.href} target="_blank" rel="noopener noreferrer" aria-label={title ? `${STEP.watch} ${title}` : undefined}>
+          <Icon name="r2Play" size={14} strokeWidth={1.75} />
+          {STEP.watch}
+        </a>
+      </div>
+    );
+  return (
+    <figure className={s.vfig}>
+      <video ref={video} className={s.vplay} controls playsInline preload="metadata" aria-label={title ?? STEP.video} data-video-block="" />
+      {title ? <figcaption className={s.me}>{title}</figcaption> : null}
+    </figure>
   );
 }

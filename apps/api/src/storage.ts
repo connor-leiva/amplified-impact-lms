@@ -98,9 +98,12 @@
 //    `boundedExpiresIn` makes the bound structural. Both failures are invisible in a green suite,
 //    which is why each has a test that names the mechanism it is guarding.
 
-import { S3Client, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { MAX_FILE_BYTES, MAX_VIDEO_BYTES, UPLOAD_POLICY, UPLOAD_TYPES, nameMatchesType } from '@ai/core/uploads';
+import type { UploadType } from '@ai/core/uploads';
 import { randomUUID } from 'node:crypto';
+import type { Readable } from 'node:stream';
 
 // --- constants ---------------------------------------------------------------------------------
 
@@ -130,20 +133,21 @@ export const PUT_EXPIRES_IN = 600;
  * legible rather than mysterious — and the drop zone's `up to 25 MB` copy (SCREENS § vault) is
  * unchanged either way, since the copy is the reference's and not ours to edit.
  */
-export const MAX_UPLOAD_BYTES = 25 * 1000 * 1000;
+export const MAX_UPLOAD_BYTES = MAX_FILE_BYTES;
 
 /**
- * § 8.2's allow-list, verbatim and in its order. `as const` so `AllowedContentType` is the union
- * of these four literals rather than `string`.
+ * D-188: an mp4's cap, 500 decimal MB, and video only. Every other type keeps `MAX_UPLOAD_BYTES`. The
+ * caps live in `@ai/core/uploads` (`UPLOAD_POLICY`), so the Vault and the Week Builder say the same.
  */
-export const ALLOWED_UPLOAD_TYPES = [
-  'application/json',
-  'application/pdf',
-  'text/markdown',
-  'application/zip',
-] as const;
+export const MAX_VIDEO_UPLOAD_BYTES = MAX_VIDEO_BYTES;
 
-export type AllowedContentType = (typeof ALLOWED_UPLOAD_TYPES)[number];
+/**
+ * § 8.2's allow-list, in its order, then D-188's three: `video/mp4`, `.xlsx` and `.csv`. Read from
+ * `@ai/core/uploads` so the browser and this guard can't disagree.
+ */
+export const ALLOWED_UPLOAD_TYPES: readonly UploadType[] = UPLOAD_TYPES;
+
+export type AllowedContentType = UploadType;
 
 /**
  * The extension `uploadKey` gives each allowed type.
@@ -158,6 +162,9 @@ const UPLOAD_EXTENSIONS: { readonly [K in AllowedContentType]: string } = {
   'application/pdf': 'pdf',
   'text/markdown': 'md',
   'application/zip': 'zip',
+  'video/mp4': 'mp4',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+  'text/csv': 'csv',
 };
 
 // --- errors ------------------------------------------------------------------------------------
@@ -609,7 +616,7 @@ const rfc8187 = (s: string): string =>
  * A name that sanitises away to nothing becomes `download`, because `filename=""` makes a browser
  * invent a name from the URL, and the URL path here is a UUID.
  */
-export function contentDisposition(filename: unknown): string {
+export function contentDisposition(filename: unknown, disposition: 'attachment' | 'inline' = 'attachment'): string {
   // `LONE_SURROGATE` before anything else: it is the one class of input that makes `rfc8187`
   // THROW rather than produce a bad value, and a throw here is an unmapped 500 on a Download.
   const raw =
@@ -625,7 +632,7 @@ export function contentDisposition(filename: unknown): string {
     .slice(0, MAX_FILENAME_CHARS);
   const safe = ascii === '' ? 'download' : ascii;
   const starred = raw.trim() === '' ? 'download' : raw.trim();
-  return `attachment; filename="${safe}"; filename*=UTF-8''${rfc8187(starred)}`;
+  return `${disposition}; filename="${safe}"; filename*=UTF-8''${rfc8187(starred)}`;
 }
 
 // --- the upload guard --------------------------------------------------------------------------
@@ -634,6 +641,11 @@ export function contentDisposition(filename: unknown): string {
 export interface UploadRequest {
   contentType: unknown;
   size: unknown;
+  /**
+   * D-188: the file's own name, when the caller sends it (the Vault and the Week Builder always do).
+   * Its extension must name the declared type, so `report.html` can't go up as `text/csv`.
+   */
+  name?: unknown;
 }
 
 /**
@@ -671,14 +683,16 @@ const refuse = (error: string): UploadRefused => ({ ok: false, status: 422, erro
  * size is a client that computed it rather than read it, and a 0-byte PUT succeeds and leaves an
  * empty object that `uploadResource` would then publish as a downloadable file.
  */
-export function checkUpload({ contentType, size }: UploadRequest): UploadCheck {
+export function checkUpload({ contentType, size, name }: UploadRequest): UploadCheck {
   if (typeof size !== 'number' || !Number.isFinite(size)) {
     return refuse(`"size" must be a number of bytes, got ${JSON.stringify(size)}`);
   }
   if (!Number.isInteger(size)) return refuse(`"size" must be a whole number of bytes, got ${size}`);
   if (size <= 0) return refuse(`"size" must be at least 1 byte, got ${size}`);
-  if (size > MAX_UPLOAD_BYTES) {
-    return refuse(`"size" is ${size} bytes; the limit is ${MAX_UPLOAD_BYTES} bytes (25 MB)`);
+  // The largest cap of all (a video's) first, so a size no type allows is refused before the type is
+  // read; then the type's own cap below, once the type is known (D-188: 500 MB for video only).
+  if (size > MAX_VIDEO_UPLOAD_BYTES) {
+    return refuse(`"size" is ${size} bytes; the limit is ${MAX_UPLOAD_BYTES} bytes (25 MB), or ${MAX_VIDEO_UPLOAD_BYTES} bytes (500 MB) for video/mp4`);
   }
 
   if (typeof contentType !== 'string') {
@@ -694,6 +708,21 @@ export function checkUpload({ contentType, size }: UploadRequest): UploadCheck {
       `"contentType" ${JSON.stringify(contentType)} is not allowed. ` +
         `Send exactly one of: ${ALLOWED_UPLOAD_TYPES.join(', ')}`,
     );
+  }
+
+  const cap = UPLOAD_POLICY[allowed].max;
+  if (size > cap) {
+    return refuse(`"size" is ${size} bytes; the limit is ${cap} bytes (${cap / 1_000_000} MB)${allowed === 'video/mp4' ? '' : ` for ${allowed}`}`);
+  }
+
+  // D-188: the declared type and the file's extension must agree, when the name is sent.
+  if (name !== undefined) {
+    if (typeof name !== 'string' || name.trim() === '' || !nameMatchesType(name.trim(), allowed)) {
+      return refuse(
+        `"name" ${JSON.stringify(name)} does not match "contentType" ${allowed}. ` +
+          `Its extension must be one of: ${UPLOAD_POLICY[allowed].ext.map((e) => `.${e}`).join(', ')}`,
+      );
+    }
   }
 
   return { ok: true, contentType: allowed, size };
@@ -833,4 +862,127 @@ export async function presignPut(
       signableHeaders: new Set(['content-type']),
     },
   );
+}
+
+// --- D-188: reading an object back, same-origin --------------------------------------------------
+//
+// Downloads, module files and course videos used to answer 302 to a presigned GET on the bucket's
+// own origin. A `<video>` can't play from there under the CSP's `media-src 'self'`, so the API now
+// reads the object and streams it on its own origin, passing an HTTP Range through so a video can
+// seek. Nothing here decides who may read what: the routes in `routes/files.ts` do, before they call
+// this, exactly as they did before they presigned.
+
+/** An object that isn't in the bucket: a 404 for the routes, the same one as any other missing file. */
+export class ObjectMissingError extends Error {
+  readonly name = 'ObjectMissingError';
+}
+
+/** A Range the object can't satisfy: a 416 for the routes, with the object's size when it is known. */
+export class RangeNotSatisfiableError extends Error {
+  readonly name = 'RangeNotSatisfiableError';
+  constructor(readonly size: number | null) {
+    super('Range not satisfiable');
+  }
+}
+
+/**
+ * A request's `Range`, if it is one this API passes on: a single `bytes=` range (`a-b`, `a-` or `-n`).
+ * Anything else (several ranges, another unit, a malformed value) is ignored and the whole object is
+ * sent, which RFC 9110 allows a server to do with any Range it does not support.
+ */
+export function singleByteRange(header: unknown): string | undefined {
+  if (typeof header !== 'string') return undefined;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(header.trim());
+  if (!m || (m[1] === '' && m[2] === '')) return undefined;
+  if (m[1] !== '' && m[2] !== '' && Number(m[2]) < Number(m[1])) return undefined;
+  return `bytes=${m[1]}-${m[2]}`;
+}
+
+/** One object read back: a 200 (the whole object) or a 206 (the range asked for), as a stream. */
+export interface ObjectRead {
+  status: 200 | 206;
+  body: Readable;
+  contentType: string | undefined;
+  contentLength: number | undefined;
+  /** `bytes a-b/size`, on a 206. */
+  contentRange: string | undefined;
+  etag: string | undefined;
+  lastModified: Date | undefined;
+}
+
+const statusOf = (err: unknown): number | undefined => (err as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
+const missing = (err: unknown): boolean => {
+  const name = (err as { name?: string })?.name;
+  return name === 'NoSuchKey' || name === 'NotFound' || statusOf(err) === 404;
+};
+
+/** The object's size and type, or `ObjectMissingError`. Read before a vault row takes a key (D-188). */
+export async function headObject(key: string): Promise<{ size: number; contentType: string | undefined }> {
+  const { client, config } = s3();
+  try {
+    const out = await client.send(new HeadObjectCommand({ Bucket: config.bucket, Key: requireKey(key) }));
+    return { size: out.ContentLength ?? 0, contentType: out.ContentType };
+  } catch (err) {
+    if (missing(err)) throw new ObjectMissingError(key);
+    throw err;
+  }
+}
+
+/**
+ * Read an object, or the one byte range of it a `<video>` asked for (`range`, from `singleByteRange`).
+ * Throws `StorageKeyError` for a key no builder would make, `ObjectMissingError` for one the bucket
+ * doesn't hold, `RangeNotSatisfiableError` for a range past its end, and `StorageConfigError` when the
+ * bucket isn't configured. The caller must consume or destroy `body`.
+ */
+export async function getObject(key: string, range?: string): Promise<ObjectRead> {
+  const { client, config } = s3();
+  const Key = requireKey(key);
+  try {
+    const out = await client.send(new GetObjectCommand({ Bucket: config.bucket, Key, ...(range ? { Range: range } : {}) }));
+    const partial = out.ContentRange !== undefined && out.ContentRange !== '';
+    return {
+      status: partial ? 206 : 200,
+      body: out.Body as Readable,
+      contentType: out.ContentType,
+      contentLength: out.ContentLength,
+      contentRange: partial ? out.ContentRange : undefined,
+      etag: out.ETag,
+      lastModified: out.LastModified,
+    };
+  } catch (err) {
+    if (missing(err)) throw new ObjectMissingError(key);
+    if (statusOf(err) === 416 || (err as { name?: string })?.name === 'InvalidRange') {
+      const size = await headObject(key).then(
+        (h) => h.size,
+        () => null,
+      );
+      throw new RangeNotSatisfiableError(size);
+    }
+    throw err;
+  }
+}
+
+/**
+ * D-188: the origin the browser PUTs to, for the CSP's `connect-src`, from the same variables the
+ * client is built from. Path style (the default) is the endpoint's own origin; virtual style puts the
+ * bucket in the host, unless its name has a dot (the SDK then addresses it in the path, see `s3()`).
+ * With no endpoint, AWS S3's regional host. Null when storage isn't configured, so a deploy without a
+ * bucket gets no extra origin, and never a guess.
+ */
+export function bucketOrigin(env: EnvLike = process.env): string | null {
+  let config: S3Config;
+  try {
+    config = readS3Config(env);
+  } catch {
+    return null;
+  }
+  let base: URL;
+  try {
+    base = new URL(config.endpoint ?? `https://s3.${config.region}.amazonaws.com`);
+  } catch {
+    return null;
+  }
+  if (base.protocol !== 'https:' && base.protocol !== 'http:') return null;
+  if (config.urlStyle === 'virtual' && !config.bucket.includes('.')) base.hostname = `${config.bucket}.${base.hostname}`;
+  return base.origin;
 }

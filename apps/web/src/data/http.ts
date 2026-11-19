@@ -10,8 +10,10 @@ import type {
   MutationName,
   MutationResult,
   StoredFileRef,
+  UploadResult,
   Viewer,
 } from './repository';
+import { UPLOAD_COPY, checkFile, putFile } from './upload';
 
 /**
  * The production data source. Phase 07 builds the API behind it; the interface is already fixed,
@@ -178,10 +180,28 @@ export function createHttpRepository(): LmsRepository {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(args),
       }).then((res) => parse(res, `POST /api/admin/actions/${name}`)) as Promise<MutationResult>,
-    // § 8.2: the browser navigates here and the route 302-redirects to a presigned GET. The URL is
+    // § 8.2: the browser navigates here and the route streams the file (D-188; it used to 302). The URL is
     // returned rather than fetched, because the redirect has to be followed by the browser itself
     // for the download to land in the downloads tray.
     fileUrl: fileRoute,
+    // D-188: the upload route mints the key and a presigned PUT; the browser sends the file straight to
+    // the bucket. A refusal at either step is said, never turned into a success.
+    async upload(file: File, onProgress?: (fraction: number) => void): Promise<UploadResult> {
+      const check = checkFile(file);
+      if (!check.ok) return check;
+      const res = await fetch('/api/files/upload-url', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ contentType: check.type, size: file.size, name: file.name }),
+      });
+      const body = (await parse(res, 'POST /api/files/upload-url')) as { key?: string; url?: string; error?: string };
+      if (!res.ok || typeof body.key !== 'string' || typeof body.url !== 'string') return { ok: false, error: UPLOAD_COPY.failed };
+      onProgress?.(0);
+      if (!(await putFile(body.url, file, check.type, onProgress))) return { ok: false, error: UPLOAD_COPY.failed };
+      onProgress?.(1);
+      return { ok: true, file: { key: body.key, name: file.name, size: file.size, type: check.type } };
+    },
     async joinTicket(sessionId: string): Promise<JoinTicket> {
       const res = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/join`, {
         credentials: 'include',

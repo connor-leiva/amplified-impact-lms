@@ -126,6 +126,11 @@ export function withPreview(inner: LmsRepository, as: PreviewAs): LmsRepository 
     },
     subscribe: (onChange) => inner.subscribe(onChange),
     fileUrl: (ref) => inner.fileUrl(ref),
+    // D-188: a preview tab writes nothing, so it puts nothing in the bucket either.
+    async upload(file, onProgress) {
+      if (await isStaff()) return { ok: false, error: PREVIEW_ONLY };
+      return inner.upload(file, onProgress);
+    },
     async joinTicket(sessionId: string): Promise<JoinTicket> {
       if (await isStaff()) return { kind: 'preview' };
       return inner.joinTicket(sessionId);

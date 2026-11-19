@@ -13,6 +13,7 @@ import { seedProduction } from '@ai/core/seed/curriculum';
 import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
 import { COPY } from '../course/Course.vm';
 import { isWeekDraft } from './WeekBuilder.vm';
+import { repo } from '../../data/boot';
 import type { WeekDraft } from './WeekBuilder.vm';
 
 const prod = (): Db => seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
@@ -165,6 +166,86 @@ describe('a step’s course fields (D-174)', () => {
     // Cleared, a field leaves the step rather than staying as an empty string.
     await user.clear(screen.getByRole('textbox', { name: 'Who' }));
     expect('who' in last).toBe(false);
+  });
+});
+
+describe('a video block in a step’s paths and the week’s Media (D-188)', () => {
+  function StepHarness({ start, onStep }: { start: Step; onStep: (s: Step) => void }) {
+    const [st, setSt] = useState(start);
+    return (
+      <StepWeekFields
+        step={st}
+        onChange={(fn) =>
+          setSt((prev) => {
+            const next = structuredClone(prev);
+            fn(next);
+            onStep(next);
+            return next;
+          })
+        }
+      />
+    );
+  }
+
+  it('adds a link video and an uploaded mp4 (through the repository), titles, reorders and removes them', async () => {
+    const user = userEvent.setup();
+    // The repository's upload (http: the upload route, then the browser's PUT; fixture: recorded) is
+    // its own suite's subject (`data/http.test.ts`, `data/preview.test.ts`); here it answers a key.
+    const upload = vi.spyOn(repo, 'upload').mockImplementation(async (f: File) => ({ ok: true, file: { key: 'uploads/2026/12/aaaaaaaa-bbbb-4ccc-8ddd-000000000001.mp4', name: f.name, size: f.size, type: 'video/mp4' } }));
+    let last: Step = { id: 'c1', text: 'Watch the walkthrough', ch: '', mins: 10, t: 0, hint: '' };
+    render(<StepHarness start={last} onStep={(x) => (last = x)} />);
+    // A link, in the ChatGPT path.
+    await user.selectOptions(screen.getByRole('combobox', { name: 'ChatGPT path: kind of block to add' }), 'video');
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[1]!);
+    await user.type(screen.getByRole('textbox', { name: 'Block 1 link' }), 'https://www.loom.com/share/abc');
+    await user.type(screen.getByRole('textbox', { name: 'Block 1 title' }), 'Walkthrough');
+    expect(last.paths!.chatgpt!.blocks).toEqual([{ type: 'video', source: { url: 'https://www.loom.com/share/abc' }, title: 'Walkthrough' }]);
+    // An upload, in the Claude path: mp4 only, said inline otherwise.
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Claude path: kind of block to add' }), 'video');
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
+    const claude = screen.getByRole('group', { name: 'Claude path' });
+    await user.click(within(claude).getByRole('radio', { name: 'Upload an mp4' }));
+    expect(within(claude).getByText('No file yet.')).toBeInTheDocument();
+    const input = claude.querySelector<HTMLInputElement>('input[type=file]')!;
+    expect(input.accept).toBe('.mp4');
+    await userEvent.setup({ applyAccept: false }).upload(input, new File(['x'], 'notes.pdf', { type: 'application/pdf' }));
+    expect(await within(claude).findByRole('alert')).toHaveTextContent('Choose an mp4 file.');
+    await user.upload(input, new File([new Uint8Array(2048)], 'Build.mp4', { type: 'video/mp4' }));
+    expect(await within(claude).findByText('Build.mp4 · 2 KB')).toBeInTheDocument();
+    const up = last.paths!.claude!.blocks[0]!;
+    expect(up).toMatchObject({ type: 'video', source: { name: 'Build.mp4', size: 2048, type: 'video/mp4' } });
+    expect((up as { source: { upload: string } }).source.upload).toBe('uploads/2026/12/aaaaaaaa-bbbb-4ccc-8ddd-000000000001.mp4');
+    // The pdf never reached the repository; the mp4 did, once.
+    expect(upload).toHaveBeenCalledTimes(1);
+    upload.mockRestore();
+    // Reorder and remove, as any block.
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Claude path: kind of block to add' }), 'text');
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
+    await user.click(screen.getByRole('button', { name: 'Move Claude path block 2 up' }));
+    expect(last.paths!.claude!.blocks.map((b) => b.type)).toEqual(['text', 'video']);
+    await user.click(screen.getByRole('button', { name: 'Remove Claude path block 2' }));
+    expect(last.paths!.claude!.blocks.map((b) => b.type)).toEqual(['text']);
+  });
+
+  it('keeps a sample output to its content blocks: no video there', async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole('button', { name: 'Edit Sample output' }));
+    const kinds = within(screen.getByRole('dialog', { name: 'Sample output' })).getByRole('combobox', { name: 'Sample: kind of block to add' });
+    expect(within(kinds).getAllByRole('option').map((o) => o.textContent)).toEqual(['Paragraph', 'Copy box', 'List', 'Table']);
+  });
+
+  it('adds a video to the week’s Media after its lines, which stay as they were', async () => {
+    const { week, draft, user } = setup();
+    await user.click(screen.getAllByRole('button', { name: 'Edit' })[0]!);
+    const dialog = screen.getByRole('dialog', { name: `Course page · Week ${week.course.week}` });
+    const videos = within(dialog).getByRole('group', { name: 'Media videos' });
+    await user.click(within(videos).getByRole('button', { name: 'Add block' }));
+    await user.type(within(videos).getByRole('textbox', { name: 'Block 1 link' }), 'https://cdn.example.test/recap.m3u8');
+    expect(draft().course.media).toEqual([...week.course.media, { type: 'video', source: { url: 'https://cdn.example.test/recap.m3u8' } }]);
+    // Editing the lines keeps the video after them.
+    await user.type(within(dialog).getByRole('textbox', { name: /^Media/ }), '{End}{Enter}Slides');
+    expect(draft().course.media.at(-1)).toEqual({ type: 'video', source: { url: 'https://cdn.example.test/recap.m3u8' } });
+    expect(draft().course.media).toContain('Slides');
   });
 });
 

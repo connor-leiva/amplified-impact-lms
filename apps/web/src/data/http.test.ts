@@ -362,3 +362,75 @@ describe('HttpRepository · a masquerade (D-162 3b) @g9', () => {
     expect([sitePath('/admin'), sitePath('//evil.example'), sitePath('/\\evil'), sitePath(null)]).toEqual(['/admin', '/', '/', '/']);
   });
 });
+
+// D-188: an upload is two steps, the upload route then the browser's PUT, and only both succeeding is a success.
+describe('HttpRepository · upload (D-188)', () => {
+  const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  let puts: { url: string; type: string | null; body: unknown }[];
+  let putStatus: number;
+
+  class FakeXhr {
+    status = 0;
+    url = '';
+    headers: Record<string, string> = {};
+    upload: { onprogress: ((e: { lengthComputable: boolean; loaded: number; total: number }) => void) | null } = { onprogress: null };
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    onabort: (() => void) | null = null;
+    open(_method: string, url: string) {
+      this.url = url;
+    }
+    setRequestHeader(k: string, v: string) {
+      this.headers[k] = v;
+    }
+    send(body: unknown) {
+      puts.push({ url: this.url, type: this.headers['content-type'] ?? null, body });
+      this.upload.onprogress?.({ lengthComputable: true, loaded: 5, total: 10 });
+      this.status = putStatus;
+      if (putStatus === 0) this.onerror?.();
+      else this.onload?.();
+    }
+  }
+
+  beforeEach(() => {
+    puts = [];
+    putStatus = 200;
+    vi.stubGlobal('XMLHttpRequest', FakeXhr);
+  });
+
+  const file = (name: string, size = 10, type = '') => new File([new Uint8Array(size)], name, { type });
+
+  it('asks the upload route for a URL by the type the name gives, then PUTs the file with that type', async () => {
+    fetchMock.mockImplementation(async () => json(200, { key: 'uploads/2026/12/aaaaaaaa-bbbb-cccc.xlsx', url: 'https://bucket.example/b/k?sig=1' }));
+    const progress: number[] = [];
+    // Windows calls a spreadsheet by another name; the signed type is read from the extension.
+    const out = await createHttpRepository().upload(file('Pipeline.xlsx', 10, 'application/vnd.ms-excel'), (p) => progress.push(p));
+
+    expect(out).toEqual({ ok: true, file: { key: 'uploads/2026/12/aaaaaaaa-bbbb-cccc.xlsx', name: 'Pipeline.xlsx', size: 10, type: XLSX } });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/files/upload-url');
+    expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
+    expect(JSON.parse(String(init.body))).toEqual({ contentType: XLSX, size: 10, name: 'Pipeline.xlsx' });
+    expect(puts).toEqual([{ url: 'https://bucket.example/b/k?sig=1', type: XLSX, body: expect.any(File) }]);
+    expect(progress).toEqual([0, 0.5, 1]);
+  });
+
+  it('says the route’s refusal, and never PUTs', async () => {
+    fetchMock.mockImplementation(async () => json(422, { error: '"size" is too big' }));
+    expect(await createHttpRepository().upload(file('a.csv'))).toEqual({ ok: false, error: 'The upload didn’t finish. Try again.' });
+    expect(puts).toEqual([]);
+  });
+
+  it('is never a success when the bucket refuses the PUT, or the network drops it', async () => {
+    fetchMock.mockImplementation(async () => json(200, { key: 'uploads/2026/12/aaaaaaaa-bbbb-cccc.csv', url: 'https://bucket.example/x' }));
+    putStatus = 403;
+    expect(await createHttpRepository().upload(file('a.csv'))).toEqual({ ok: false, error: 'The upload didn’t finish. Try again.' });
+    putStatus = 0;
+    expect(await createHttpRepository().upload(file('a.csv'))).toEqual({ ok: false, error: 'The upload didn’t finish. Try again.' });
+  });
+
+  it('refuses a file the API would refuse before asking it anything', async () => {
+    expect(await createHttpRepository().upload(file('page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

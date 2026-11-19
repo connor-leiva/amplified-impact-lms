@@ -20,10 +20,11 @@ import { adminDay, fromAdminLocal } from './admin-build';
 import { requirePerm } from './can';
 import type { AuditAction } from './console';
 import { EXEC_CATEGORIES } from './constants';
-import { MutationError, publishReplay, saveModule } from './mutations';
+import { MutationError, publishReplay, saveModule, uploadResource } from './mutations';
+import { UPLOAD_POLICY, fileSizeLabel, isUploadKey, isUploadType, nameMatchesType } from './uploads';
 import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
-import { changedFields, copyIssues, diffSummary, issueLine, moduleCopyFields } from './course-rules';
+import { changedFields, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
 
@@ -35,9 +36,22 @@ export interface AdminAudit {
   after?: unknown;
 }
 
+/**
+ * D-188: a stored file the write put on a vault row. `Db` never holds a storage key (§ 7.4 strips it from
+ * every snapshot and `codec.ts` leaves it out), so the API writes it to `resources.storage_key` and
+ * `resources.file_name` itself, in the same transaction, and records the key it replaced in the audit
+ * row. The fixture build has no bucket and ignores it.
+ */
+export interface AdminStorageWrite {
+  resourceId: string;
+  key: string;
+  fileName: string;
+}
+
 /** A mutation's outcome, plus its audit row when it wrote something. */
 export interface AdminOutcome extends Outcome {
   audit?: AdminAudit;
+  storage?: AdminStorageWrite;
 }
 
 const moduleOf = (db: Db, id: string): AIEmployee => {
@@ -162,9 +176,11 @@ export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; s
   // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
   // never refuses it. Checked before `saveModule`, so a refusal writes nothing.
   const issues = copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(args.draft)));
-  if (issues.length) {
+  // D-188: a video block plays an uploaded mp4 or an http(s) link, and nothing else.
+  const videos = videoIssues(args.draft);
+  if (issues.length || videos.length) {
     requirePerm(db, a, 'curriculum');
-    return { db, error: issues.map(issueLine).join('\n') };
+    return { db, error: [...issues.map(issueLine), ...videos].join('\n') };
   }
   const out = saveModule(db, a, args, c);
   if (out.error) return out;
@@ -275,6 +291,91 @@ export function editResource(
       before: { ...resourceSummary(db, r), ...(args.kit ? { kit: kitOf(r) } : {}) },
       after: { ...resourceSummary(next, after), descChanged: after.desc !== r.desc, ...(args.kit ? { kit: kitOf(after) } : {}) },
     },
+  };
+}
+
+// ================================================================================================
+// D-188 · Resource Vault › Publish to Vault and Replace file, with a real upload
+// ================================================================================================
+//
+// The browser asks `POST /api/files/upload-url` for a key and a presigned PUT, puts the file in the
+// bucket, then runs one of these with the key and the file's real name, size and type. The row's
+// words and rules are `uploadResource`'s (core's reference mutation, which is called unchanged); what is
+// new is the real size and the stored file, which the API saves on the row (`storage`) and audits.
+
+/** The file a browser put in the bucket: the key the upload route minted, and its name, size and type. */
+export interface VaultFile {
+  key: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
+/** What a vault write refuses a file with, inline. */
+export const VAULT_FILE_ERROR = 'Upload the file again, then save.';
+
+const fileOk = (f: VaultFile): boolean =>
+  isUploadKey(f.key) && isUploadType(f.type) && nameMatchesType(f.name, f.type) && f.name.trim() !== '' && Number.isInteger(f.size) && f.size > 0 && f.size <= UPLOAD_POLICY[f.type].max;
+
+// The object's key is recorded as `object`: the audit log drops any field whose name says "key" (spec
+// § 7.8's secret rule), and a storage key is a place in the bucket, not a secret.
+const fileSummary = (f: VaultFile) => ({ name: f.name, size: f.size, type: f.type, object: f.key });
+
+/**
+ * Add resource › Publish to Vault, with the file uploaded: `uploadResource` (its title and executive
+ * rules, its toast and activity line, unchanged), the row's size from the real file, and the stored file
+ * on the row. Audited `vault.upload`.
+ */
+export function publishVaultFile(
+  db: Db,
+  a: Actor,
+  args: { title: string; desc: string; cat: string; type: string; tier: Tier; file: VaultFile },
+  c: Ctx,
+): AdminOutcome {
+  requirePerm(db, a, 'curriculum');
+  if (!fileOk(args.file)) return { db, error: VAULT_FILE_ERROR };
+  const out = uploadResource(db, a, { title: args.title, desc: args.desc, cat: args.cat, type: args.type, tier: args.tier, file: args.file.name }, c);
+  if (out.error) return out;
+  const added = out.db.resources[0]!;
+  const next = produce(out.db, (d) => {
+    d.resources[0]!.size = fileSizeLabel(args.file.size);
+  });
+  return {
+    ...out,
+    db: next,
+    audit: {
+      action: 'vault.upload',
+      target: { type: 'resource', id: added.id, label: added.title },
+      after: { ...resourceSummary(next, next.resources[0]!), type: added.type, status: added.status, file: fileSummary(args.file) },
+    },
+    storage: { resourceId: added.id, key: args.file.key, fileName: args.file.name },
+  };
+}
+
+/**
+ * A row's "…" › Replace file: the stored file swapped for the one just uploaded, the size and the
+ * Updated day with it. The title, words, tier, attachment and opens stay. The old object is left in the
+ * bucket, and the API records its key in the audit row (`vault.replace`).
+ */
+export function replaceVaultFile(db: Db, a: Actor, args: { id: string; file: VaultFile }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'curriculum');
+  const r = resourceOf(db, args.id);
+  if (!fileOk(args.file)) return { db, error: VAULT_FILE_ERROR };
+  const next = produce(db, (d) => {
+    const x = d.resources.find((y) => y.id === r.id)!;
+    x.size = fileSizeLabel(args.file.size);
+    x.updated = c.now;
+  });
+  return {
+    db: next,
+    toast: { msg: 'File replaced', tone: 'success' },
+    audit: {
+      action: 'vault.replace',
+      target: { type: 'resource', id: r.id, label: r.title },
+      before: { size: r.size },
+      after: { size: fileSizeLabel(args.file.size), file: fileSummary(args.file) },
+    },
+    storage: { resourceId: r.id, key: args.file.key, fileName: args.file.name },
   };
 }
 
@@ -520,6 +621,9 @@ export const ADMIN_ACTIONS = {
   duplicateModule,
   saveBuilderModule,
   editResource,
+  // D-188: the Vault's real uploads.
+  publishVaultFile,
+  replaceVaultFile,
   addSession,
   attachReplay,
   saveAnnouncementDraft,

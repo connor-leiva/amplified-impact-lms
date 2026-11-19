@@ -26,6 +26,9 @@ import {
   ALLOWED_UPLOAD_TYPES,
   GET_EXPIRES_IN,
   MAX_UPLOAD_BYTES,
+  MAX_VIDEO_UPLOAD_BYTES,
+  bucketOrigin,
+  singleByteRange,
   PUT_EXPIRES_IN,
   StorageConfigError,
   StorageKeyError,
@@ -672,7 +675,7 @@ describe('§ 8.2 upload guard @g8', () => {
     for (const t of ALLOWED_UPLOAD_TYPES) expect(result.error).toContain(t);
   });
 
-  it('accepts each of § 8.2’s four types at exactly 25 MB', () => {
+  it('accepts each allowed type at exactly 25 MB', () => {
     for (const type of ALLOWED_UPLOAD_TYPES) {
       const result = checkUpload({ contentType: type, size: MAX_UPLOAD_BYTES });
       expect(result.ok, type).toBe(true);
@@ -680,13 +683,69 @@ describe('§ 8.2 upload guard @g8', () => {
       expect(result.contentType, type).toBe(type);
       expect(result.size, type).toBe(MAX_UPLOAD_BYTES);
     }
-    // All four, not three and a typo.
+    // § 8.2's four, then D-188's three, not six and a typo.
     expect(ALLOWED_UPLOAD_TYPES).toEqual([
       'application/json',
       'application/pdf',
       'text/markdown',
       'application/zip',
+      'video/mp4',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv',
     ]);
+  });
+
+  // D-188: video/mp4, .xlsx and .csv; 500 MB for video only.
+  it('caps video/mp4 at 500 decimal MB, and only video', () => {
+    expect(MAX_VIDEO_UPLOAD_BYTES).toBe(500_000_000);
+    const at = checkUpload({ contentType: 'video/mp4', size: MAX_VIDEO_UPLOAD_BYTES });
+    expect(at.ok).toBe(true);
+    const over = checkUpload({ contentType: 'video/mp4', size: MAX_VIDEO_UPLOAD_BYTES + 1 });
+    expect(over.ok).toBe(false);
+    if (!over.ok) {
+      expect(over.status).toBe(422);
+      expect(over.error).toContain('500 MB');
+    }
+    // Every other type keeps 25 MB: one byte over is refused, however far under the video cap.
+    for (const type of ALLOWED_UPLOAD_TYPES.filter((t) => t !== 'video/mp4')) {
+      expect(checkUpload({ contentType: type, size: MAX_UPLOAD_BYTES }).ok, type).toBe(true);
+      const big = checkUpload({ contentType: type, size: MAX_UPLOAD_BYTES + 1 });
+      expect(big.ok, type).toBe(false);
+      if (!big.ok) expect(big.error, type).toContain('25 MB');
+    }
+    // Over every cap: refused before the type is read.
+    expect(checkUpload({ contentType: 'video/mp4', size: 2_000_000_000 }).ok).toBe(false);
+  });
+
+  it('accepts a spreadsheet and a CSV by their exact types', () => {
+    for (const [type, name] of [
+      ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Pipeline.xlsx'],
+      ['text/csv', 'leads.csv'],
+      ['video/mp4', 'Week 1 walkthrough.mp4'],
+    ] as const) {
+      const result = checkUpload({ contentType: type, size: 2048, name });
+      expect(result.ok, type).toBe(true);
+    }
+    // Windows calls a CSV this, and it is not what the URL is signed for.
+    expect(checkUpload({ contentType: 'application/vnd.ms-excel', size: 2048 }).ok).toBe(false);
+  });
+
+  it('refuses a name whose extension does not name the declared type', () => {
+    for (const [contentType, name] of [
+      ['text/csv', 'page.html'],
+      ['video/mp4', 'clip.mov'],
+      ['application/pdf', 'guide.pdf.exe'],
+      ['text/markdown', 'notes'],
+      ['text/csv', ''],
+      ['text/csv', 42],
+    ] as const) {
+      const result = checkUpload({ contentType, size: 2048, name });
+      expect(result.ok, `${contentType} ${String(name)}`).toBe(false);
+      if (!result.ok) expect(result.status).toBe(422);
+    }
+    expect(checkUpload({ contentType: 'text/markdown', size: 10, name: 'Notes.MARKDOWN' }).ok).toBe(true);
+    // No name at all: § 8.2's body, accepted as before.
+    expect(checkUpload({ contentType: 'text/csv', size: 10 }).ok).toBe(true);
   });
 
   it('refuses a size that is not a whole positive number of bytes', () => {
@@ -1004,6 +1063,9 @@ describe('§ 8.2 uploadKey @g8', () => {
       'application/pdf': 'pdf',
       'text/markdown': 'md',
       'application/zip': 'zip',
+      'video/mp4': 'mp4',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+      'text/csv': 'csv',
     };
     for (const type of ALLOWED_UPLOAD_TYPES) {
       expect(uploadKey(type, { now: AT.getTime(), token: 'aaaaaaaa-bbbb-cccc' })).toBe(
@@ -1040,5 +1102,49 @@ describe('§ 8.2 uploadKey @g8', () => {
       StorageKeyError,
     );
     expect(() => uploadKey('text/html' as AllowedContentType)).toThrow(StorageKeyError);
+  });
+});
+
+// =================================================================================================
+// D-188: reading back, and the bucket's origin for the CSP
+// =================================================================================================
+
+describe('D-188 a Range the routes pass on', () => {
+  it('keeps one bytes range and drops anything else', () => {
+    expect(singleByteRange('bytes=0-')).toBe('bytes=0-');
+    expect(singleByteRange('bytes=100-199')).toBe('bytes=100-199');
+    expect(singleByteRange('bytes=-500')).toBe('bytes=-500');
+    expect(singleByteRange(' bytes=5-9 ')).toBe('bytes=5-9');
+    for (const h of [undefined, '', 'bytes=-', 'bytes=9-5', 'bytes=0-1,5-9', 'items=0-1', 'bytes=a-b', ['bytes=0-1']]) {
+      expect(singleByteRange(h), JSON.stringify(h)).toBeUndefined();
+    }
+  });
+});
+
+describe('D-188 the bucket origin connect-src allows', () => {
+  const base = { S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000', S3_SECRET_ACCESS_KEY: 'x', S3_BUCKET: 'ailms-production' };
+  it('is the endpoint’s origin in path style, with no path, query or credential', () => {
+    expect(bucketOrigin({ ...base, S3_ENDPOINT: 'https://storage.railway.app/some/path' })).toBe('https://storage.railway.app');
+  });
+  it('puts a dotless bucket in the host in virtual style, and keeps a dotted one in the path', () => {
+    expect(bucketOrigin({ ...base, S3_ENDPOINT: 'https://storage.railway.app', S3_URL_STYLE: 'virtual' })).toBe('https://ailms-production.storage.railway.app');
+    expect(bucketOrigin({ ...base, S3_BUCKET: 'ai-lms.production', S3_ENDPOINT: 'https://storage.railway.app', S3_URL_STYLE: 'virtual' })).toBe('https://storage.railway.app');
+  });
+  it('is AWS S3’s regional host with no endpoint', () => {
+    expect(bucketOrigin({ ...base, S3_REGION: 'us-east-2' })).toBe('https://s3.us-east-2.amazonaws.com');
+  });
+  it('is null when storage is not configured, so no origin is guessed', () => {
+    expect(bucketOrigin({})).toBeNull();
+    expect(bucketOrigin({ ...base, S3_ENDPOINT: 'not a url' })).toBeNull();
+    expect(bucketOrigin({ ...base, S3_ENDPOINT: 'ftp://storage.example' })).toBeNull();
+  });
+});
+
+describe('D-188 an inline Content-Disposition', () => {
+  it('says inline for a video, with the same escaping as an attachment', () => {
+    expect(contentDisposition('Week 1 "walkthrough".mp4', 'inline')).toBe(
+      `inline; filename="Week 1 walkthrough.mp4"; filename*=UTF-8''Week%201%20%22walkthrough%22.mp4`,
+    );
+    expect(contentDisposition('a.pdf')).toMatch(/^attachment; /);
   });
 });

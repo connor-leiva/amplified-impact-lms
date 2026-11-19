@@ -15,9 +15,10 @@
 // spec § 7). It sends nothing: no action here has an email effect. A masquerade refuses it with every
 // other write (D-162's global block refuses every POST but Extend, Exit and Sign Out).
 
-import { ADMIN_ACTIONS, MutationError, isAdminActionName } from '@ai/core';
-import type { Actor, AdminActionArgs, AdminActionName, AdminOutcome, Ctx, Db } from '@ai/core';
-import { sql } from 'drizzle-orm';
+import { ADMIN_ACTIONS, MutationError, VAULT_FILE_ERROR, isAdminActionName } from '@ai/core';
+import type { Actor, AdminActionArgs, AdminActionName, AdminOutcome, Ctx, Db, VaultFile } from '@ai/core';
+import { UPLOAD_KEY } from '@ai/core/uploads';
+import { eq, sql } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
@@ -25,6 +26,8 @@ import { audit } from '../console/audit';
 import { staffActor } from '../console/guard';
 import { getDb } from '../db/client';
 import { loadDb, persistDiff } from '../db/io';
+import { resources as resourceTable } from '../db/schema';
+import { ObjectMissingError, headObject } from '../storage';
 import { clock, newIds } from '../lib/clock';
 import { builderDraft, cohortCourse } from './schemas';
 import { statusForMutationError } from './mutate';
@@ -50,6 +53,9 @@ const announcement = {
   at: text(16).optional(),
 };
 
+/** D-188: the file a browser put in the bucket, as the Vault sends it. Its key is one the upload route mints. */
+const vaultFile = z.strictObject({ key: z.string().regex(UPLOAD_KEY), name: text(200).min(1), size: z.number().int().positive(), type: text(120) });
+
 /** One strict schema per action; `tsc` proves each one's output is that action's argument type. */
 export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActionArgs<K>> } = {
   duplicateModule: z.strictObject({ id }),
@@ -71,6 +77,9 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
       })
       .optional(),
   }),
+  // D-188: Publish to Vault and Replace file, with a real upload.
+  publishVaultFile: z.strictObject({ title: text(200), desc: text(1000), cat: text(100), type: text(100), tier, file: vaultFile }),
+  replaceVaultFile: z.strictObject({ id, file: vaultFile }),
   addSession: z.strictObject({ cohortId: id, title: text(200), date: text(10), time: text(5), mins: z.union([z.number(), text(6)]), zoom: text(2048) }),
   attachReplay: z.strictObject({ sessionId: id, url: text(4096) }),
   saveAnnouncementDraft: z.strictObject(announcement),
@@ -126,6 +135,11 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
       }
 
       const viewer = viewerOrThrow(req);
+      // D-188: a vault row takes a stored file only once the bucket holds it, at the size and type the
+      // browser declared: the presigned PUT can't bind its size (storage.ts, decision 3), so this does.
+      // Read before the lock; the action itself still checks who may (a refusal below writes nothing).
+      const file = (parsed.data as { file?: VaultFile }).file;
+      if (file && !(await storedAsDeclared(file))) return reply.code(422).send({ error: VAULT_FILE_ERROR });
       const now = clock.now();
       const ids = newIds();
       let committed: Committed;
@@ -137,9 +151,26 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
           const out = ACTIONS[name](before, viewer.actor, parsed.data as never, { now, id: ids });
           if (out.error) return { ok: false, status: 422, body: { error: out.error } };
           await persistDiff(tx, before, out.db);
+          // D-188: the stored file goes on the row here, beside the snapshot's columns (which never hold
+          // it), and the key it replaces goes in the audit row. The old object stays in the bucket.
+          let auditBefore = out.audit?.before;
+          if (out.storage) {
+            const [prev] = await tx
+              .select({ storageKey: resourceTable.storageKey, fileName: resourceTable.fileName })
+              .from(resourceTable)
+              .where(eq(resourceTable.id, out.storage.resourceId))
+              .limit(1);
+            await tx
+              .update(resourceTable)
+              .set({ storageKey: out.storage.key, fileName: out.storage.fileName })
+              .where(eq(resourceTable.id, out.storage.resourceId));
+            if (auditBefore !== undefined && auditBefore !== null && typeof auditBefore === 'object') {
+              auditBefore = { ...(auditBefore as Record<string, unknown>), file: { object: prev?.storageKey ?? null, name: prev?.fileName ?? null } };
+            }
+          }
           const actor = staffActor(viewer);
           if (out.audit && actor) {
-            await audit(req, { action: out.audit.action, outcome: 'ok', actor, target: out.audit.target, before: out.audit.before, after: out.audit.after }, tx);
+            await audit(req, { action: out.audit.action, outcome: 'ok', actor, target: out.audit.target, before: auditBefore, after: out.audit.after }, tx);
           }
           return { ok: true, body: out.toast ? { toast: out.toast } : {} };
         });
@@ -152,4 +183,18 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
       return reply.code(200).send(committed.body);
     },
   );
+}
+
+/**
+ * D-188: whether the bucket holds `file.key` at the size and type the browser declared. A missing object
+ * (the PUT never finished) or a mismatch is a refusal; an unconfigured bucket is the operator's 500.
+ */
+async function storedAsDeclared(file: VaultFile): Promise<boolean> {
+  try {
+    const head = await headObject(file.key);
+    return head.size === file.size && (head.contentType === undefined || head.contentType === file.type);
+  } catch (err) {
+    if (err instanceof ObjectMissingError) return false;
+    throw err;
+  }
 }
