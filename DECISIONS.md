@@ -6570,3 +6570,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** Mark step done stays off for staff. No course text, no schema, no migration. Goldens, tolerances and masks are untouched.
 
 **Blast radius.** A learner's checklist still saves through the same route. A course step with no checklist is unchanged.
+
+---
+
+## D-195 · The Start Here card on Week 0
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 18, 2026, verbatim: "Yes, build and ship it live in small pieces without waiting for my review, quick check after each." This is 4b of the Week 0 v2 package.
+**Number:** D-194 is the staff preview checks. D-195 was free.
+
+- **The card lives on the week** (`ModuleCourse.startHere`): a title, a subtitle, a line, a hint, and an owner total and an operator total. No step list is stored. The rows are the week's own steps: number, title, who, and time. Course page in the week builder edits the words. A save checks the copy rules on those six strings.
+- **The seed is insert-only.** Data step `2026-11-18-start-here` sets the design's card on accelerator-week-0 only when that week has no Start Here. An existing card, including one staff cleared and replaced, is left alone. No new table and no SQL migration. `0028_video_progress` stays the last migration.
+- **Where it shows.** On the week page, under the title and before the hero, when the week has a card. On step 1, an open collapsible card after the step's own heading. Each row shows this viewer's checklist status: done, in progress, waiting, or not started. The first step that is not done is marked current, with weight and a bar as well as the word. A week with no card is drawn as before.
+- **Not in this change.** The role filter, icon-rail labels, the mini player, playback speed, task timers, the intake form, the stack card form, hide and collapse, the path default, and operator progress. No golden, tolerance or mask.
+
+**Blast radius.** The parity fixture does not run this data step, so its week and step pages do not gain the card. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.

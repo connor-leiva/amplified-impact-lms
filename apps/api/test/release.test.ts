@@ -253,13 +253,16 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       [DATA_MIGRATIONS[4]!.id, 1, 0],
       // D-193: the Accelerator glossary, one cohort course.
       [DATA_MIGRATIONS[5]!.id, 1, 0],
+      // D-195: Week 0's Start Here card.
+      [DATA_MIGRATIONS[6]!.id, 1, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
     expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(30).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(31).fill('curriculum.migrate'));
     expect(after.cohorts.find((c) => c.id === 'dec26')!.course!.glossary).toHaveLength(31);
+    expect(after.modules.find((m) => m.id === 'accelerator-week-0')!.course!.startHere?.title).toBe('Start Here: Week 0');
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });
     expect((await handle.select().from(dataMigrations)).map((r) => r.id)).toEqual(DATA_MIGRATIONS.map((s) => s.id));
     // Again: nothing to run, nothing written.

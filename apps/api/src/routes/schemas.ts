@@ -226,6 +226,14 @@ const moduleCourse = z.strictObject({
   sampleOutput: sampleOutput.optional(),
   lockedCopy: lockedCopy.optional(),
   statusLabels: z.record(z.string(), z.string()).optional(),
+  // D-195: the Start Here card's words. The step rows are the week's steps.
+  startHere: z.strictObject({
+    title: z.string().max(200),
+    sub: z.string().max(300),
+    line: z.string().max(1000),
+    hint: z.string().max(500),
+    totals: z.strictObject({ owner: z.string().max(80), operator: z.string().max(80) }),
+  }).optional(),
 });
 
 // D-193: one glossary term. The id, the step and the underline are checked again on save.

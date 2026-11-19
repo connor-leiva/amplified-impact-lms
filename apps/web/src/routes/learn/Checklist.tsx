@@ -10,7 +10,9 @@ import { Blocks, CalLinks, VideoView } from './parts';
 import type { VideoWatch } from './Video';
 import { saveIcs } from './ics';
 import { KnowCard, Marked } from './Glossary';
+import { StartHereCard } from './StartHere';
 import { LABELS } from './learn.vm';
+import type { StartHereVM } from './Week.vm';
 import { PLATFORM_LABEL, STEP } from './Step.vm';
 import type { AccordionVM, CalloutVM, CheckActionVM, CheckItemVM, ChecklistLayoutVM, PillVM, StepVM } from './Step.vm';
 import s from './Checklist.module.css';
@@ -316,6 +318,7 @@ export function ChecklistPlayer({
   onPlay,
   watch,
   onLocalToggle,
+  startHere,
 }: {
   vm: StepVM;
   layout: ChecklistLayoutVM;
@@ -325,6 +328,8 @@ export function ChecklistPlayer({
   watch?: VideoWatch;
   /** D-194: staff. Flip the box in memory and do not write. */
   onLocalToggle?: (itemId: string) => void;
+  /** D-195: step 1's card, after the step's own heading. */
+  startHere?: StartHereVM;
 }) {
   const mutate = useMutate();
   const [busy, setBusy] = useState(false);
@@ -518,6 +523,8 @@ export function ChecklistPlayer({
           </div>
         ) : null}
       </header>
+
+      {startHere ? <StartHereCard card={startHere} collapsible /> : null}
 
       {layout.videos.length ? (
         <section id="step-watch" aria-labelledby="step-watch-h">

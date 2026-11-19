@@ -317,6 +317,20 @@ export interface ModuleCourse {
   lockedCopy?: LockedCopy;
   /** The hire's status labels, by state (e.g. `not_started` → "Not hired yet"). */
   statusLabels?: Readonly<Record<string, string>>;
+  /**
+   * D-195: the Start Here card. The step rows are the week's own steps, not a second copy.
+   * Absent until staff or the seed set it.
+   */
+  startHere?: StartHere;
+}
+
+/** D-195: the words of a week's Start Here card. The step list is not stored here. */
+export interface StartHere {
+  title: string;
+  sub: string;
+  line: string;
+  hint: string;
+  totals: { owner: string; operator: string };
 }
 
 // --- what every week shares (`Cohort.course`) -------------------------------------------------------

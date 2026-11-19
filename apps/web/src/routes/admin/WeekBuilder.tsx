@@ -855,6 +855,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           { label: 'Promise', value: c.promise ?? <span className={k.mu}>Not set</span> },
           { label: 'Owner time', value: c.time.owner },
           { label: 'Operator time', value: c.time.operator },
+          { label: 'Start Here', value: c.startHere?.title ?? <span className={k.mu}>Not set</span> },
         ]}
       />
       {open ? (
@@ -918,6 +919,25 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           <Lines label="Materials" items={c.materials} onChange={(v) => set((x) => (x.materials = v))} />
           <Lines label="Media" items={mediaLines(c.media)} onChange={(v) => set((x) => (x.media = [...v, ...mediaVideos(x.media)]))} />
           <Blocks label={VIDEO_LABELS.mediaVideos} kinds={VIDEO_KINDS} blocks={mediaVideos(c.media)} onChange={(b) => set((x) => (x.media = [...mediaLines(x.media), ...(b as VideoBlock[])]))} />
+          {c.startHere ? (
+            <>
+              <Line label="Start here title" value={c.startHere.title} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, title: v }))} />
+              <Line label="Start here subtitle" value={c.startHere.sub} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, sub: v }))} />
+              <Para label="Start here line" value={c.startHere.line} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, line: v }))} />
+              <Para label="Start here hint" value={c.startHere.hint} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, hint: v }))} />
+              <div className={clsx(k.row, k.nw)}>
+                <span className={k.sp}>
+                  <Line label="Owner total" value={c.startHere.totals.owner} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, totals: { ...x.startHere!.totals, owner: v } }))} />
+                </span>
+                <span className={k.sp}>
+                  <Line label="Operator total" value={c.startHere.totals.operator} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, totals: { ...x.startHere!.totals, operator: v } }))} />
+                </span>
+              </div>
+              <Button kind="quiet" onClick={() => set((x) => { delete x.startHere; })}>Remove Start Here</Button>
+            </>
+          ) : (
+            <Button kind="quiet" onClick={() => set((x) => { x.startHere = { title: '', sub: '', line: '', hint: '', totals: { owner: '', operator: '' } }; })}>Add Start Here</Button>
+          )}
         </Modal>
       ) : null}
     </Card>

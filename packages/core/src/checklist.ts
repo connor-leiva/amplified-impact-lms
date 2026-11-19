@@ -117,6 +117,21 @@ export function localWatch(
   return { checks: list, video };
 }
 
+export type StepCheckStatus = 'done' | 'progress' | 'waiting' | 'idle';
+
+/**
+ * One step's checklist status (D-190, used by the Start Here card in D-195). Done wins. Any checked
+ * box, including one task of a sub-check item, is in progress. A step with nothing checked that is
+ * waiting on another step is waiting. Otherwise it has not been started.
+ */
+export function stepChecklistStatus(done: boolean, blocks: readonly PathBlock[], anyChecked: boolean, isChecked: (itemId: string) => boolean, isWaiting: (b: CheckBlock) => boolean): StepCheckStatus {
+  if (done) return 'done';
+  const items = blocks.filter(isCheck);
+  if (anyChecked || items.some((b) => itemChecked(b, isChecked))) return 'progress';
+  if (items.some((b) => isWaiting(b))) return 'waiting';
+  return 'idle';
+}
+
 /** An item with sub-checks is checked when every sub-check is. Any other item is its own row. */
 export function itemChecked(b: CheckBlock, checked: (itemId: string) => boolean): boolean {
   const subs = b.subchecks ?? [];
