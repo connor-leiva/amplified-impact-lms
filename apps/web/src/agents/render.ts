@@ -185,14 +185,16 @@ function rotation(): string {
 /** Office hours, with the hour drawn on a clock: its day, start and length are the body's own words. */
 function officeHours(): string {
   const o = OFFICE_HOURS;
-  const m = /^Every (\w+day), (\d+):(\d\d) PM (\w+), (\d+) minutes/.exec(o.body);
+  // The first zone is the clock's; a second one after a slash ("12:00 PM MT / 1:00pm CT") is the body's alone.
+  const m = /^Every (\w+day), (\d+):(\d\d) PM (\w+)(?: \/ [^,]+)?, (\d+) minutes/.exec(o.body);
   if (!m)
     throw new Error('OFFICE_HOURS no longer reads "Every <Day>, H:MM PM <Zone>, N minutes". Fix src/agents/render.ts.');
   const [, day, hh, mm, zone, minutes] = m;
-  const end = Number(hh) + Number(minutes) / 60;
+  const end = Number(hh) + Number(mm) / 60 + Number(minutes) / 60;
   const endH = Math.floor(end);
   const endM = Math.round((end - endH) * 60);
-  const time = `${hh}:${mm} to ${endH}:${String(endM).padStart(2, '0')} PM`;
+  // On a 12-hour clock: 12:00 plus an hour is 1:00, not 13:00.
+  const time = `${hh}:${mm} to ${endH % 12 || 12}:${String(endM).padStart(2, '0')} PM`;
   const ticks = Array.from(
     { length: 12 },
     (_, i) =>

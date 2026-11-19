@@ -315,15 +315,17 @@ function calendar(): string {
   const d = V2_DRAWINGS.week;
   const slot = (title: string) => {
     const item = HOW.items.find((i) => i.title === title);
-    const m = item && /^(\w+)days at (\d+):(\d\d) PM Central, (\d+) minutes/.exec(item.body);
+    const m = item && /^(\w+)days at (\d+):(\d\d) PM MT, (\d+) minutes/.exec(item.body);
     if (!item || !m)
       throw new Error(
-        `HOW no longer says when "${title}" runs as "<Day>s at H:MM PM Central, N minutes". Fix src/team-build/render.ts.`,
+        `HOW no longer says when "${title}" runs as "<Day>s at H:MM PM MT, N minutes". Fix src/team-build/render.ts.`,
       );
     const col = d.days.findIndex((day) => m[1]!.startsWith(day));
-    const start = Number(m[2]) + 12 + Number(m[3]) / 60;
+    const start = (Number(m[2]) % 12) + 12 + Number(m[3]) / 60;
+    // The axis's first hour ("10 AM"), so a row is hours after it.
+    const first = Number(/^(\d+)/.exec(d.times[0]!)![1]);
     // Where and how long: the times are the axis's, so the drawing adds no words of its own.
-    return { title: item.title, col, row: start - 11, length: Number(m[4]) / 60 };
+    return { title: item.title, col, row: start - first, length: Number(m[4]) / 60 };
   };
   const events = [slot('Live builds'), slot('Office hours')]
     .map(

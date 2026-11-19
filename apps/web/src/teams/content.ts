@@ -91,7 +91,7 @@ export const AGENTS_GET = {
     'A short recorded starter path for their first week',
     'One live training a week, 60 minutes',
     // The office hours' hour is the course's (the offer-pages brief, Nov 11). The training's stays open.
-    'Weekly office hours, Thursdays at 1:00 PM Central, 60 minutes',
+    'Weekly office hours, Thursdays at 12:00 PM MT / 1:00pm CT, 60 minutes',
   ],
   rotationLabel: 'The live training changes topic each week of the month:',
   // Spring's plan, "How each program runs". [OPEN: the training's day and time.]

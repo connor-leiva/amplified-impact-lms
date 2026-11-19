@@ -55,10 +55,10 @@ export const HOME = {
     cards: [
       {
         name: 'Amplified AI Accelerator',
-        forWho: 'Team owners and ops leads on Follow Up Boss',
+        forWho: 'Team owners and ops leads',
         amount: '$7,500',
         unit: 'founding price',
-        line: '8 weeks. 8 skills. Built live with us. Starts Wednesday, December 2.',
+        line: '8 weeks. 7 AI employees. Built live with us. Starts Wednesday, December 2.',
         button: { label: 'See the Accelerator', href: '/team-build' },
       },
       {

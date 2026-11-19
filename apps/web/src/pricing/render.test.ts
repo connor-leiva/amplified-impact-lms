@@ -327,7 +327,7 @@ describe('the four cards', () => {
     const team = $('#team-plan')!;
     expect(text($('.deadline.founding-open', team))).toBe('Founding prices end %%founding-closes%%.');
     for (const a of $$('a.act-closed, a.act-soldout')) expect(a.getAttribute('href')).toBe(WAITLIST_HREF);
-    expect(text($('#accelerator .note'))).toBe('Requires Follow Up Boss. On another CRM? Join the waitlist.');
+    expect(text($('#accelerator .note'))).toBe('Sisu, QuickBooks Online and Google run hands-off. Anything else, you drop in an export. Missed a seat? Join the waitlist.');
     expect($('#team-plan .note a')?.getAttribute('href')).toBe('%%team-call%%');
   });
 });
@@ -335,10 +335,11 @@ describe('the four cards', () => {
 describe('the comparison table', () => {
   const table = $('.compare-table')!;
 
-  it('has a column per program and Spring’s eight rows', () => {
+  it('has a column per program and its nine rows', () => {
     expect($$('thead th', table).slice(1).map(text)).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
     expect($$('tbody th', table).map(text)).toEqual([
       'Skills included',
+      'AI employees built with you',
       'Live training',
       'Office hours',
       'Owner view',

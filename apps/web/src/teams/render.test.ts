@@ -130,7 +130,7 @@ describe('what agents and the owner get, and how agents join', () => {
   it('gives an agent on a team exactly what the Amplified Agent Plan gives a solo agent', () => {
     expect(AGENTS_GET.lines.slice(0, 1)).toEqual(AGENT_PLAN.lines.slice(0, 1));
     expect(text($('.gets'))).toContain('The same as the Amplified Agent Plan.');
-    expect(text($('.gets'))).toContain('Weekly office hours, Thursdays at 1:00 PM Central, 60 minutes');
+    expect(text($('.gets'))).toContain('Weekly office hours, Thursdays at 12:00 PM MT / 1:00pm CT, 60 minutes');
     expect($$('.rotation li').map(text)).toEqual([
       'Week 1: Leads and follow-up',
       'Week 2: Listings',

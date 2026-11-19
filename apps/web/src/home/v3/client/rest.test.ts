@@ -237,7 +237,7 @@ describe('S9, the calculator', () => {
 });
 
 describe('S12’s ring', () => {
-  it('counts the builds in from 0 to 8, week by week, as it arrives, and ends on 8', () => {
+  it('counts the hires in from 0 to 7, week by week, as it arrives, and ends on 7', () => {
     vi.useFakeTimers();
     const seen: IntersectionObserverCallback[] = [];
     vi.stubGlobal(
@@ -259,16 +259,16 @@ describe('S12’s ring', () => {
     vi.advanceTimersByTime(160 * 4);
     expect(Number(sec.querySelector('[data-v3-built]')?.textContent)).toBeGreaterThan(0);
     vi.advanceTimersByTime(160 * 10);
-    expect(sec.querySelector('[data-v3-built]')?.textContent).toBe('8');
+    expect(sec.querySelector('[data-v3-built]')?.textContent).toBe('7');
     expect([...sec.querySelectorAll('.wed-row')].every((r) => r.classList.contains('is-on'))).toBe(true);
   });
 
-  it('stays at 8 of 8 on a phone or under reduced motion', () => {
+  it('stays at 7 of 7 on a phone or under reduced motion', () => {
     for (const m of [{ wide: false }, { reduce: true }]) {
       window.matchMedia = media(m);
       mount();
       initTimeline($('[data-v3-wed]'));
-      expect($('[data-v3-built]').textContent).toBe('8');
+      expect($('[data-v3-built]').textContent).toBe('7');
     }
   });
 });
