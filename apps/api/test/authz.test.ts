@@ -629,6 +629,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
+  // D-196: the team's intake. Signed in, then the owner and the operator.
+  { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // The CRM sync log (D-134): signed in, then the Owner and Admins only.
   { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/crm-sync/retry', methods: 'POST', guard: 'session' },
@@ -644,6 +646,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // and search. Signed in, then by capability (`test/console-authz.test.ts`).
   { path: '/api/console/workspaces', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/workspaces/:teamId', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/workspaces/:teamId/intake', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId/password-reset', methods: 'POST', guard: 'session' },
@@ -1167,6 +1170,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // Admin Console PR 2 (D-158).
           '/api/console/workspaces': () => app.inject({ method: 'GET', url: '/api/console/workspaces' }),
           '/api/console/workspaces/:teamId': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline' }),
+          '/api/console/workspaces/:teamId/intake': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/intake' }),
+          '/api/intake': () => app.inject({ method: 'GET', url: '/api/intake' }),
           '/api/console/users': () => app.inject({ method: 'GET', url: '/api/console/users' }),
           '/api/console/users/:userId': () => app.inject({ method: 'GET', url: '/api/console/users/u_jamie' }),
           '/api/console/users/:userId/password-reset': () =>
@@ -1488,8 +1493,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the incidents' six (D-167), 72 with the flag, env, integrations, deploys and DB health's six
     // (D-168), 74 with System Health and the Skills list (D-169), 75 with the audited Build actions
     // (D-172), 77 with Invite staff and Change role…'s two (D-172), and 78 with a course week's
-    // uploaded video (D-188).
-    expect(EXECUTED.unauthenticated).toBe(78);
+    // uploaded video (D-188), and 80 with the intake's two routes (D-196).
+    expect(EXECUTED.unauthenticated).toBe(80);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1509,7 +1514,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // and + 2 for Invite staff and Change role… (D-172). And + 1 for a course week's uploaded video
     // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
     // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
-    // saveVideoProgress, counted the same way.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2);
+    // saveVideoProgress, counted the same way. And + 2 for the intake routes (D-196), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2);
   });
 });

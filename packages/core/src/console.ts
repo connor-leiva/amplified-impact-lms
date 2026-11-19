@@ -215,6 +215,8 @@ export const AUDIT_ACTIONS = [
   // D-188: the Vault's real uploads: Publish to Vault with a file, and Replace file.
   'vault.upload',
   'vault.replace',
+  // D-196: a staff member opened a team's intake on the workspace page.
+  'intake.read',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
