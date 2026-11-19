@@ -1,7 +1,9 @@
 // D-190: checklist items, the gate, dependencies and the progress count.
 import { describe, expect, it } from 'vitest';
-import { gateRemaining, itemChecked, orderGroups, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck, checklistIssueLines, titleWords } from '../src/checklist';
-import type { CheckBlock, PathBlock } from '../src/course-types';
+import { gateRemaining, itemChecked, localToggle, localWatch, orderGroups, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck, checklistIssueLines, titleWords } from '../src/checklist';
+import type { LocalChecks } from '../src/checklist';
+import type { CheckBlock, PathBlock, VideoBlock } from '../src/course-types';
+import type { Step } from '../src/types';
 import { checklistIssues, moduleCopyFields, changedFields, copyIssues } from '../src/course-rules';
 import { curriculumSeed } from '../seed/curriculum';
 import type { AIEmployee } from '../src/types';
@@ -92,5 +94,38 @@ describe('checklist blocks (D-190)', () => {
     expect(issues.map((i) => i.rule)).toContain('time_zone');
     draft.checklist[0]!.paths = { claude: { blocks: [check('a'), check('a')] } };
     expect(checklistIssues(draft).join('\n')).toMatch(/already used/);
+  });
+});
+
+describe('staff preview checks stay in memory (D-194)', () => {
+  const empty: LocalChecks = { checks: [], video: [] };
+  const video: VideoBlock = { type: 'video', id: 'w0-02', source: { url: 'https://cdn.example.test/w.mp4' } };
+  const step = (id: string, paths: Step['paths']): Step => ({ id, text: '', ch: '', mins: 1, t: 0, hint: '', paths });
+
+  it('toggles a mark on and off, and a checked dependency is no longer waiting', () => {
+    const on = localToggle(empty, { moduleId: 'accelerator-week-0', stepId: 'c6', itemId: 's6-google' }, 10);
+    expect(on.checks).toEqual([{ moduleId: 'accelerator-week-0', stepId: 'c6', itemId: 's6-google', checked: true, auto: false, checkedAt: 10 }]);
+    const off = localToggle(on, { moduleId: 'accelerator-week-0', stepId: 'c6', itemId: 's6-google' }, 11);
+    expect(off.checks[0]).toMatchObject({ checked: false, auto: false });
+    expect(off.checks[0]).not.toHaveProperty('checkedAt');
+    const waiting = (checks: LocalChecks) => waitingOn(['step:6:s6-google'], (n, itemId) => checks.checks.some((c) => c.checked && c.stepId === `c${n}` && c.itemId === itemId));
+    expect(waiting(empty)).toBe(6);
+    expect(waiting(on)).toBeNull();
+  });
+
+  it('checks a video item once when the watch crosses 90%, and not again', () => {
+    const steps: Step[] = [step('c2', { claude: { blocks: [video, check('s2-watch', { title: 'Watch the video', auto: { video: true, at: 0.9 } })] } })];
+    const args = { moduleId: 'sales', videoId: 'w0-02' };
+    const early = localWatch(empty, steps, { ...args, maxPct: 0.4, lastPositionS: 12 }, 1);
+    expect(early.checks).toEqual([]);
+    expect(early.video[0]).toMatchObject({ maxPct: 0.4, lastPositionS: 12 });
+    const lower = localWatch(early, steps, { ...args, maxPct: 0.2, lastPositionS: 30 }, 2);
+    expect(lower.video[0]).toMatchObject({ maxPct: 0.4, lastPositionS: 30 });
+    const crossed = localWatch(lower, steps, { ...args, maxPct: 0.91, lastPositionS: 40 }, 3);
+    expect(crossed.checks[0]).toMatchObject({ stepId: 'c2', itemId: 's2-watch', checked: true, auto: true });
+    const again = localWatch(crossed, steps, { ...args, maxPct: 0.99, lastPositionS: 50 }, 4);
+    expect(again.checks).toHaveLength(1);
+    expect(again.checks[0]).toMatchObject({ checked: true, auto: true });
+    expect(localWatch(empty, steps, { ...args, maxPct: 2, lastPositionS: 1 }, 5)).toBe(empty);
   });
 });

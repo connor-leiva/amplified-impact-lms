@@ -3,6 +3,8 @@
 // yet (a later change). An item is never addressed by its number.
 
 import type { AccordionBlock, CalloutBlock, CheckBlock, ContentBlock, PathBlock, VideoBlock } from './course-types';
+import type { ChecklistMark, Step, VideoProgress } from './types';
+import { autoTargets, crossesWatch } from './video';
 
 const ITEM_ID = /^[A-Za-z0-9_-]+$/;
 const CROSS = /^step:(\d+):([A-Za-z0-9_-]+)$/;
@@ -50,6 +52,69 @@ export function waitingOn(dependsOn: readonly string[] | undefined, satisfied: (
     if (d && d.cross && !satisfied(d.stepN, d.itemId)) return d.stepN;
   }
   return null;
+}
+
+/** Checks held in the browser for a staff preview (D-194). Nothing here is written. */
+export interface LocalChecks {
+  checks: ChecklistMark[];
+  video: VideoProgress[];
+}
+
+const byMark = (a: ChecklistMark, b: ChecklistMark): number =>
+  a.moduleId.localeCompare(b.moduleId) || a.stepId.localeCompare(b.stepId) || a.itemId.localeCompare(b.itemId);
+
+/**
+ * D-194: flip one checklist mark in memory. The same row the learner mutation stores, including a
+ * sub-check id (`item:sub`). A staff preview uses this and does not call that mutation.
+ */
+export function localToggle(draft: LocalChecks, mark: { moduleId: string; stepId: string; itemId: string }, now: number): LocalChecks {
+  const list = draft.checks.map((c) => ({ ...c }));
+  const i = list.findIndex((x) => x.moduleId === mark.moduleId && x.stepId === mark.stepId && x.itemId === mark.itemId);
+  const checked = i < 0 || !list[i]!.checked;
+  const row: ChecklistMark = {
+    moduleId: mark.moduleId,
+    stepId: mark.stepId,
+    itemId: mark.itemId,
+    checked,
+    auto: false,
+    ...(checked ? { checkedAt: now } : {}),
+  };
+  if (i >= 0) list[i] = row;
+  else list.push(row);
+  list.sort(byMark);
+  return { checks: list, video: draft.video };
+}
+
+/**
+ * D-194: remember a video's place in memory, and check the items whose line it just crossed.
+ * Same rule as `saveVideoProgress`: `maxPct` only rises, and a crossing checks each item once.
+ * A bad portion is ignored. A staff preview uses this and does not call that mutation.
+ */
+export function localWatch(
+  draft: LocalChecks,
+  steps: readonly Step[],
+  args: { moduleId: string; videoId: string; maxPct: number; lastPositionS: number },
+  now: number,
+): LocalChecks {
+  if (!args.videoId.trim() || args.videoId.length > 300) return draft;
+  if (!Number.isFinite(args.maxPct) || args.maxPct < 0 || args.maxPct > 1) return draft;
+  if (!Number.isFinite(args.lastPositionS) || args.lastPositionS < 0 || args.lastPositionS > 86_400) return draft;
+  const prevPct = draft.video.find((p) => p.moduleId === args.moduleId && p.videoId === args.videoId)?.maxPct ?? 0;
+  const maxPct = Math.max(prevPct, args.maxPct);
+  const due = autoTargets(steps, args.videoId).filter((t) => crossesWatch(prevPct, maxPct, t.at));
+  const video = draft.video.filter((p) => !(p.moduleId === args.moduleId && p.videoId === args.videoId));
+  video.push({ moduleId: args.moduleId, videoId: args.videoId, maxPct, lastPositionS: args.lastPositionS, updatedAt: now });
+  video.sort((a, b) => a.moduleId.localeCompare(b.moduleId) || a.videoId.localeCompare(b.videoId));
+  const list = draft.checks.map((c) => ({ ...c }));
+  for (const t of due) {
+    const i = list.findIndex((x) => x.moduleId === args.moduleId && x.stepId === t.stepId && x.itemId === t.itemId);
+    if (i >= 0 && list[i]!.checked) continue;
+    const mark: ChecklistMark = { moduleId: args.moduleId, stepId: t.stepId, itemId: t.itemId, checked: true, auto: true, checkedAt: now };
+    if (i >= 0) list[i] = mark;
+    else list.push(mark);
+  }
+  list.sort(byMark);
+  return { checks: list, video };
 }
 
 /** An item with sub-checks is checked when every sub-check is. Any other item is its own row. */

@@ -6555,3 +6555,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not in this change.** Start Here, the role filter, icon-rail labels, the mini player, playback speed, task timers, the intake form, the stack card form, hide and collapse, the path default, and operator progress. No golden, tolerance or mask. No secret.
 
 **Blast radius.** A course with no glossary is unchanged, including Utah Life, Agent Plan, Team Plan and Insiders screens, and every non-course screen. The parity fixture does not run this data step, so its step pages do not gain underlines.
+
+---
+
+## D-194 · Staff preview checks stay in the browser
+
+**Date:** 2026-11-19
+**Approved by:** the follow-up after #183: Connor is staff, and Preview as Learner would not let him mark a Week 0 checklist item. Fix that as its own change. A real learner whose toggle is refused must see the box go back and a short error.
+**Number:** D-193 is the last on `main`. D-194 was free.
+
+- **Root cause.** `toggleChecklistItem` is a learner action. The builder's Preview as Learner, and any staff account on a course step, is a staff actor, so the mutation refuses with "That action is for learners." The checklist ignored that result, and the box never moved.
+- **Staff.** Checking an item, including one a video crosses at 90% and one another item is waiting on, flips in this tab only. Nothing is written. The learner mutation is unchanged. A line under Your Checklist reads "Preview: Checks Aren’t Saved". Leaving the week drops the ticks.
+- **A learner.** The box moves as soon as it is clicked. If the toggle is refused or fails, it goes back and a short line appears under Your Checklist. A saved toggle still has no extra line.
+- **Not changed.** Mark step done stays off for staff. No course text, no schema, no migration. Goldens, tolerances and masks are untouched.
+
+**Blast radius.** A learner's checklist still saves through the same route. A course step with no checklist is unchanged.
