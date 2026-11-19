@@ -41,6 +41,7 @@ export async function enqueueLogins(db: Database, now: number): Promise<number> 
     select u.id, ${now}
       from ${users} u
      where u.kind = 'learner'
+       and u.is_test = false
        and (u.status = 'active' or exists (select 1 from ${authSessions} s where s.user_id = u.id and s.impersonating is null))
     on conflict (user_id) do nothing
     returning user_id`)) as unknown as { user_id: string }[];

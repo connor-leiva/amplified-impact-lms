@@ -13,7 +13,7 @@
 import { eq, inArray } from 'drizzle-orm';
 import { ACCELERATOR_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming } from '@ai/core/accelerator';
 import type { AcceleratorPlan } from '@ai/core/accelerator';
-import { courseEntry, courseUpcoming } from '@ai/core/release';
+import { courseEntry, courseUpcoming, liveCoursePlan } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
 import type { Cohort, ViewerAccess } from '@ai/core';
 import type { Database } from '../db/client';
@@ -83,9 +83,23 @@ export async function releaseOf(db: Reader): Promise<Pick<Cohort, 'previewOpensA
   return row?.previewOpensAt === null || row?.previewOpensAt === undefined ? {} : { previewOpensAt: Number(row.previewOpensAt) };
 }
 
+/**
+ * D-201: early access is a test account's own flag. It does nothing unless `is_test` is set too,
+ * and nothing a learner can write sets either column.
+ */
+export async function earlyAccessOf(db: Reader, userId: string): Promise<boolean> {
+  const [row] = await db.select({ isTest: users.isTest, earlyAccess: users.earlyAccess }).from(users).where(eq(users.id, userId)).limit(1);
+  return row?.isTest === true && row.earlyAccess === true;
+}
+
 /** Whether this learner may enter the course at `now`, and whether that is the pre-launch preview. */
 export async function courseEntryFor(db: Reader, userId: string, now: number): Promise<CourseEntry> {
-  return courseEntry(await plansForLearner(db, userId), now, await releaseOf(db));
+  const plans = await plansForLearner(db, userId);
+  const release = await releaseOf(db);
+  // Before the preview and before the course's own opening, a test account with early access is
+  // already in, on the same live plan a buyer holds. Everyone else keeps the dates.
+  if ((await earlyAccessOf(db, userId)) && liveCoursePlan(plans)) return { open: true, preview: false, early: true };
+  return courseEntry(plans, now, release);
 }
 
 /** When the course (or its preview) opens for a buyer who can't enter it yet, or null. */
@@ -96,5 +110,5 @@ export async function courseUpcomingFor(db: Reader, userId: string, now: number)
 /** What `scopeSnapshot` needs to know about this learner and the course at `now`. */
 export async function viewerAccessFor(db: Reader, userId: string, now: number): Promise<ViewerAccess> {
   const entry = await courseEntryFor(db, userId, now);
-  return { accelerator: entry.open, at: now, preview: entry.preview };
+  return { accelerator: entry.open, at: now, preview: entry.preview, ...(entry.early ? { early: true } : {}) };
 }

@@ -176,19 +176,29 @@ changes only rows still as the seed left them; a row staff already changed is le
 deploy log says `Left as it is: <id> (...). Finish it in the builder.` Each change is an audit row
 (`curriculum.migrate`), and `data_migrations` records each step so it never runs twice.
 
-**A test learner, when three variables are set (D-200).** The same `db:curriculum:ensure` command
-then runs one more step. It reads `SEED_TEST_MEMBER_EMAIL`, `SEED_TEST_MEMBER_PASSWORD`, and
-optional `SEED_TEST_MEMBER_NAME` (default "Connor Test") from the **web** service, which is the
-service the API runs as. If the email or the password is unset, the step writes nothing and logs
-nothing, and a later deploy can still create the account. If no user has that email, it creates
-one verified learner the way a verified access-group address gets an account
-(`createGroupMember`, the insert behind `provisionGroupMember`, then `recordVerified`), sets the
-password the way Set Password does, and writes one audit row (`user.seed`, actor
+**A test learner, when its variables are set (D-200, D-201).** The same `db:curriculum:ensure`
+command then runs one more step. It reads `SEED_TEST_MEMBER_EMAIL`, `SEED_TEST_MEMBER_PASSWORD`,
+optional `SEED_TEST_MEMBER_NAME` (default "Connor Test") and optional `SEED_TEST_MEMBER_KIND` from
+the **web** service, which is the service the API runs as. If the email or the password is unset
+or empty, the step writes nothing and logs nothing. Kind unset is a Utah Life learner.
+`accelerator` is an Accelerator learner.
+
+With the kind unset, and no user with that email, it creates one verified learner the way a
+verified access-group address gets an account (`createGroupMember`, then `recordVerified`), sets
+the password the way Set Password does, and writes one audit row (`user.seed`, actor
 `system:seed-test-member`, the email only). The learner is not staff. Utah Life follows from the
-address's domain the same way it does for any other verified member of that domain: the step does
-not insert a group, an order, a plan or a payment, and it does not send email or sync to
-GoHighLevel or Stripe. If a user with that email already exists, it logs one line that it was
-skipped and writes nothing. The log never contains the address or the password.
+address's domain. It does not insert an order or a plan, and it does not send email or sync to
+GoHighLevel or Stripe. If a user with that email already exists, it logs one line and writes nothing.
+
+With `SEED_TEST_MEMBER_KIND=accelerator` the address does not have to be on a group's domain. The
+step writes the account, the paid order and the plan a full Accelerator purchase writes, with no
+Stripe id and no amount, then flags the user `is_test` and `early_access` (migration
+`0031_test_accounts`). The seat count, the cohort's enrollment number, the Tiers revenue line and
+the Accelerator's collected total leave the account out. Early access opens the course and its
+weeks before Preview opens and before each week's date. Checks and Mark step done save, because
+the account is a learner. Nothing is emailed and nothing is copied to GoHighLevel. If that address
+already has a user, a later deploy only fills in a missing flag or enrollment and does not change
+the password. The log never contains the address or the password.
 
 Set the variables on **web**, then redeploy. Railway runs the pre-deploy command on a deploy,
 before the new process starts, so a restart of the deployment that is already running does not

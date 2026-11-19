@@ -4,18 +4,23 @@
 import { randomBytes } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
+import { seedProduction } from '@ai/core/seed/curriculum';
+import { toggleChecklistItem, toggleStep } from '@ai/core/mutations';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { SESSION_COOKIE, verifyPassword } from '../src/auth';
 import { GROUP_FOREVER, groupAccessOf } from '../src/billing/access-groups';
+import { cohortSeatsSold } from '../src/billing/provision';
 import type { Database } from '../src/db/client';
 import { readSeedTestMember, seedTestMember, seedTestMemberLine, SEED_TEST_MEMBER_ACTOR } from '../src/db/seed-test-member';
-import { accessGroups, auditLog, emailVerifications, userPasswords, users } from '../src/db/schema';
+import { accessGroups, accounts, auditLog, emailVerifications, orders, plans, userPasswords, users } from '../src/db/schema';
+import { courseEntryFor } from '../src/lib/course-access';
+import { enqueueLogins } from '../src/jobs/ghl-logins';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-11-19T12:00:00-07:00');
-const VARS = ['SEED_TEST_MEMBER_EMAIL', 'SEED_TEST_MEMBER_PASSWORD', 'SEED_TEST_MEMBER_NAME'] as const;
+const VARS = ['SEED_TEST_MEMBER_EMAIL', 'SEED_TEST_MEMBER_PASSWORD', 'SEED_TEST_MEMBER_NAME', 'SEED_TEST_MEMBER_KIND'] as const;
 
 let db: Database;
 let app: App;
@@ -141,6 +146,7 @@ describe('readSeedTestMember', () => {
       email,
       password,
       name: 'Connor Test',
+      kind: 'utah',
     });
     const named = readSeedTestMember({
       SEED_TEST_MEMBER_EMAIL: email,
@@ -280,5 +286,106 @@ describe('seedTestMember', () => {
     expect(out).toEqual({ status: 'skipped', reason: 'password' });
     expect(seedTestMemberLine(out)).not.toContain(tooShort);
     expect(await counts()).toEqual(before);
+  });
+
+  it('an Accelerator learner is enrolled like a buyer, holds early access, and is not a seat', async () => {
+    const email = `accel.${randomBytes(8).toString('hex')}@example.test`;
+    const password = randomBytes(24).toString('base64url');
+    process.env.SEED_TEST_MEMBER_EMAIL = email;
+    process.env.SEED_TEST_MEMBER_PASSWORD = password;
+    process.env.SEED_TEST_MEMBER_KIND = 'accelerator';
+
+    const watch = watchOutput();
+    const out = await seedTestMember(db);
+    const logged = watch.read() + (seedTestMemberLine(out) ?? '');
+    watch.stop();
+
+    expect(out).toEqual({ status: 'created', kind: 'accelerator' });
+    expect(logged).not.toContain(password);
+    expect(logged).not.toContain(email);
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    expect(user).toMatchObject({ kind: 'learner', tier: 'team', role: 'Team Owner', status: 'active', staffRole: null, isTest: true, earlyAccess: true, cohortId: 'dec26' });
+    expect((await loadDb()).staff).toEqual([]);
+    const [plan] = await db.select().from(plans);
+    expect(plan).toMatchObject({ kind: 'cohort', option: 'full', status: 'active' });
+    const [order] = await db.select().from(orders);
+    expect(order).toMatchObject({ status: 'paid', plan: 'cohort', option: 'full', stripeSessionId: null, stripeCustomerId: null, amountTotal: null });
+    const [account] = await db.select().from(accounts);
+    expect(account?.inviteSentAt).not.toBeNull();
+    expect(account?.stripeCustomerId).toBeNull();
+    expect(await db.select().from(emailVerifications)).toEqual([expect.objectContaining({ email })]);
+    expect(await cohortSeatsSold(db)).toBe(0);
+    expect(await enqueueLogins(db, NOW)).toBe(0);
+    expect(outboxFor({})).toEqual([]);
+    const audits = await db.select().from(auditLog);
+    expect(JSON.stringify(audits)).not.toContain(password);
+    expect(audits[0]?.after).toEqual({ email, kind: 'accelerator' });
+    expect(await courseEntryFor(db, user!.id, NOW)).toEqual({ open: true, preview: false, early: true });
+
+    const login = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { email, password } });
+    expect(login.statusCode).toBe(200);
+    const course = await app.inject({ method: 'GET', url: '/api/course', headers: { cookie: cookieOf(login.headers['set-cookie']) } });
+    expect(course.statusCode).not.toBe(403);
+
+    const once = await counts();
+    const hash = (await db.select().from(userPasswords))[0]!.hash;
+    const againWatch = watchOutput();
+    const again = await seedTestMember(db);
+    const againLogged = againWatch.read() + (seedTestMemberLine(again) ?? '');
+    againWatch.stop();
+    expect(again).toEqual({ status: 'unchanged' });
+    expect(againLogged).not.toContain(password);
+    expect(againLogged).not.toContain(email);
+    expect(await counts()).toEqual(once);
+    expect((await db.select().from(userPasswords))[0]!.hash).toBe(hash);
+    expect(await db.select().from(auditLog)).toHaveLength(1);
+
+    // A real buyer beside them still counts.
+    await db.insert(users).values({ id: 'u_buyer', email: 'buyer@example.test', name: 'Buyer', kind: 'learner', tier: 'team', role: 'Team Owner', status: 'active', seq: 1 });
+    await db.insert(accounts).values({ id: 'acct_buyer', teamId: 't_buyer', ownerUserId: 'u_buyer', ownerEmail: 'buyer@example.test', name: 'Buyer', createdAt: NOW });
+    await db.insert(orders).values({ id: 'ord_buyer', plan: 'cohort', option: 'full', origin: 'payment_link', status: 'paid', email: 'buyer@example.test', paymentsMade: 1, amountTotal: 750000, accountId: 'acct_buyer', createdAt: NOW });
+    await db.insert(plans).values({ id: 'plan_buyer', accountId: 'acct_buyer', kind: 'cohort', option: 'full', seats: 2, status: 'active', startsAt: NOW, orderId: 'ord_buyer', createdAt: NOW });
+    expect(await cohortSeatsSold(db)).toBe(1);
+  });
+
+  it('an address that already has a user gains the Accelerator flag and enrollment, and not a new password', async () => {
+    const email = `kept.${randomBytes(6).toString('hex')}@example.test`;
+    const password = randomBytes(18).toString('base64url');
+    await db.insert(users).values({ id: 'u_kept', email, name: 'Kept Name', kind: 'learner', tier: 'agent', role: 'Agent', status: 'invited', seq: 0 });
+    process.env.SEED_TEST_MEMBER_EMAIL = email;
+    process.env.SEED_TEST_MEMBER_PASSWORD = password;
+    process.env.SEED_TEST_MEMBER_KIND = 'accelerator';
+    const out = await seedTestMember(db);
+    expect(out).toEqual({ status: 'ensured' });
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    expect(user).toMatchObject({ name: 'Kept Name', status: 'invited', isTest: true, earlyAccess: true });
+    expect(await db.select().from(userPasswords)).toEqual([]);
+    expect(await db.select().from(plans)).toHaveLength(1);
+    expect(await cohortSeatsSold(db)).toBe(0);
+    expect(JSON.stringify(await db.select().from(auditLog))).not.toContain(password);
+  });
+});
+
+function cookieOf(setCookie: string | string[] | undefined): string {
+  return (Array.isArray(setCookie) ? setCookie.join('\n') : (setCookie ?? '')).split('\n').find((line) => line.startsWith(`${SESSION_COOKIE}=`))!.split(';')[0]!;
+}
+
+describe('early access opens a week before its date and a check saves', () => {
+  it('Mark step done and a checklist tick write for an early learner and not for anyone else', () => {
+    const snap = seedProduction({ owner: { name: 'Owner', email: 'owner@example.test' } });
+    const week = snap.modules.find((m) => m.id === 'accelerator-week-1')!;
+    week.status = 'scheduled';
+    week.opens = NOW + 86_400_000;
+    snap.users.push({ id: 'u_early', name: 'Early', email: 'early@example.test', tier: 'team', role: 'Team Owner', teamId: 't1', cohortId: 'dec26', joined: NOW, last: null, status: 'active', progress: {} });
+    const learner = snap.users[0]!;
+    const stepId = week.checklist[0]!.id;
+    const args = { moduleId: week.id, stepId };
+    const blocked = toggleStep(snap, { kind: 'learner', userId: learner.id }, args, { now: NOW, id: () => 'n', course: true });
+    expect(blocked.db).toBe(snap);
+    const done = toggleStep(snap, { kind: 'learner', userId: learner.id }, args, { now: NOW, id: () => 'n', course: true, early: true });
+    expect(done.db).not.toBe(snap);
+    expect(done.db.users.find((u) => u.id === learner.id)?.progress[week.id]?.steps).toContain(stepId);
+    const ticked = toggleChecklistItem(snap, { kind: 'learner', userId: learner.id }, { ...args, itemId: 'box' }, { now: NOW, id: () => 'n', course: true, early: true });
+    expect(ticked.db.users.find((u) => u.id === learner.id)?.checks?.some((c) => c.itemId === 'box' && c.checked)).toBe(true);
   });
 });

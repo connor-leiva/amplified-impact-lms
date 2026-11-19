@@ -59,6 +59,12 @@ export interface Ctx {
    * open, as their snapshot carries one only when they are in the course.
    */
   course?: boolean;
+  /**
+   * D-201: this learner is a test account with early access. Course weeks are open before their
+   * dates, so a check and Mark step done save. The API sets it from the user's row. A learner
+   * cannot pass it.
+   */
+  early?: boolean;
 }
 
 export type Actor = { kind: 'learner'; userId: string } | { kind: 'staff'; staffId: string };
@@ -211,6 +217,9 @@ const nameFromEmail = (email: string): string =>
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** A course week is open on its date, or before that for a test account's early access (D-201). */
+const moduleOpen = (m: AIEmployee, c: Ctx): boolean => (c.early === true && isAcceleratorModule(m.id) && m.status !== 'draft') || isOpen(m, c.now);
+
 // ---------------------------------------------------------------------------
 // 1-7 · Learner portal: dashboard, workspace, upgrade, vault
 // ---------------------------------------------------------------------------
@@ -232,7 +241,7 @@ export function toggleStep(db: Db, a: Actor, args: { moduleId: string; stepId: s
   const m = moduleOf(db, args.moduleId);
   // D-186: a course week follows course access, every other module the tier.
   if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
-  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   const p = progressOf(u, m);
   if (p.deployedAt && p.steps.includes(args.stepId))
     return {
@@ -285,7 +294,7 @@ export function toggleChecklistItem(db: Db, a: Actor, args: { moduleId: string; 
   const u = learnerOf(db, a);
   const m = moduleOf(db, args.moduleId);
   if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
-  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   if (!m.checklist.some((s) => s.id === args.stepId)) throw new MutationError('invalid', 'That step is not on this week.');
   if (!CHECK_ITEM.test(args.itemId)) throw new MutationError('invalid', 'That item is not on this step.');
   const next = produce(db, (d) => {
@@ -328,7 +337,7 @@ export function setPref(db: Db, a: Actor, args: { key: string; value: string }, 
     const moduleId = args.key.split(':')[1]!;
     const m = moduleOf(db, moduleId);
     if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
-    if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+    if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   }
   const next = produce(db, (d) => {
     const du = d.users.find((x) => x.id === u.id)!;
@@ -362,7 +371,7 @@ export function saveVideoProgress(
   const u = learnerOf(db, a);
   const m = moduleOf(db, args.moduleId);
   if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
-  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   if (!args.videoId.trim() || args.videoId.length > 300) throw new MutationError('invalid', 'That video is not on this week.');
   if (!Number.isFinite(args.maxPct) || args.maxPct < 0 || args.maxPct > 1) throw new MutationError('invalid', 'That progress is not a portion of the video.');
   if (!Number.isFinite(args.lastPositionS) || args.lastPositionS < 0 || args.lastPositionS > 86_400) {

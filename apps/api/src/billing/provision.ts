@@ -222,11 +222,23 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
  * AI Accelerator seats sold: cohort plans not ended (a refund ends one and frees its seat). Paid in
  * full or after the first of two payments, both links count toward the same 15 (D-104).
  */
+/**
+ * A cohort plan that counts as a seat (D-201). A seeded test account's plan is the same shape as a
+ * buyer's and is left out here, so it is left out of every count that calls `cohortSeatsSold` and
+ * of the Accelerator's collected and scheduled totals, which use this same filter.
+ */
+export const countedCohortSeat = and(
+  eq(plans.kind, 'cohort'),
+  ne(plans.status, 'ended'),
+  sql`not exists (
+    select 1 from ${accounts} a
+    join ${users} u on u.id = a.owner_user_id
+    where a.id = ${plans.accountId} and u.is_test
+  )`,
+);
+
 export async function cohortSeatsSold(db: Pick<Database, 'select'>): Promise<number> {
-  const [{ n }] = (await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(plans)
-    .where(and(eq(plans.kind, 'cohort'), ne(plans.status, 'ended')))) as [{ n: number }];
+  const [{ n }] = (await db.select({ n: sql<number>`count(*)::int` }).from(plans).where(countedCohortSeat)) as [{ n: number }];
   return n;
 }
 

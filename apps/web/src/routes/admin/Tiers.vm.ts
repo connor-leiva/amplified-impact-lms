@@ -122,11 +122,13 @@ const ORDER: Record<UpgradeRequest['status'], number> = { new: 0, contacted: 1, 
 
 export function tiersVM(db: Db, now: number): TiersVM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited');
+  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
 
-  // The two figures every price on this screen is multiplied by.
+  // The two figures every price on this screen is multiplied by. A seeded test account's team is
+  // left out, so its price is not multiplied into the revenue line (D-201).
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
-  const teamN = B.teams + db.teams.length;
+  const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
+  const teamN = B.teams + db.teams.filter((t) => !testOwners.has(t.ownerId)).length;
 
   const priceOf = (id: Tier): number => db.tiers.find((t) => t.id === id)?.price ?? 0;
 
@@ -273,17 +275,19 @@ const R2_REQUEST_STATUS: Record<UpgradeRequest['status'], RequestR2Row['status']
 
 export function tiersR2VM(db: Db): TiersR2VM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited');
+  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const teamTiers = db.tiers.filter((t) => t.id === 'team').sort((a, b) => a.seats - b.seats);
 
   /** The teams a Team Tier card counts: every team, or with several sizes, the teams of its size. */
   const teamsFor = (seats: number): number => {
-    if (teamTiers.length <= 1) return B.teams + db.teams.length;
+    const teams = db.teams.filter((t) => !testOwners.has(t.ownerId));
+    if (teamTiers.length <= 1) return B.teams + teams.length;
     const i = teamTiers.findIndex((t) => t.seats === seats);
     const below = i > 0 ? teamTiers[i - 1]!.seats : 0;
     const last = i === teamTiers.length - 1;
-    return (i === 0 ? B.teams : 0) + db.teams.filter((t) => t.seats > below && (last || t.seats <= seats)).length;
+    return (i === 0 ? B.teams : 0) + teams.filter((t) => t.seats > below && (last || t.seats <= seats)).length;
   };
 
   const cards = db.tiers.map((t): TierR2Card => {

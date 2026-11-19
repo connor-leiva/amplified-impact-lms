@@ -22,7 +22,7 @@
 // `stripe_permission_missing` naming it. Stripe failing otherwise: 502 `stripe_unavailable`.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, eq, inArray, ne } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
@@ -58,7 +58,7 @@ import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
 import { requireSession } from '../auth';
 import type { PriceCache } from '../billing/prices';
-import { cohortSeatsSold } from '../billing/provision';
+import { cohortSeatsSold, countedCohortSeat } from '../billing/provision';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, auditLog, orders, plans, teams, users } from '../db/schema';
@@ -172,7 +172,7 @@ export async function acceleratorFromDb(db: Database, opensAt: number = COURSE_O
     .select({ option: plans.option, paymentsMade: orders.paymentsMade, amountTotal: orders.amountTotal })
     .from(plans)
     .leftJoin(orders, eq(orders.id, plans.orderId))
-    .where(and(eq(plans.kind, 'cohort'), ne(plans.status, 'ended')));
+    .where(countedCohortSeat);
   return acceleratorFigures(
     seats.map((s) => ({ option: s.option, paymentsMade: s.paymentsMade ?? 0, amountTotal: s.amountTotal })),
     sold,

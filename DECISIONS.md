@@ -6678,3 +6678,19 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** Which skills open or download. The welcome panel's words. No migration, no new copy key, no golden, no tolerance, no mask. The standalone library has no golden.
 
 **Blast radius.** A learner whose plan holds every set sees the same order, open, as before. A locked row for a group member still says the group's line and offers no plan. The portal library is untouched.
+
+---
+
+## D-202 · A second test learner, in the Accelerator, who is not a sold seat
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, Nov 19, 2026: seed a second test account, an Accelerator course learner, on the same env-driven step as D-200. It must not count as a sold seat, and it must see the course before the dates, as a learner.
+**Number:** D-201 is the Skill Library order. D-202 was free.
+
+- **Kind.** `SEED_TEST_MEMBER_KIND=accelerator`. Unset, the step is still the Utah Life learner from D-200. The address does not have to be on an access group's domain.
+- **Enrollment.** The account, a paid order and a cohort plan, the same rows a full Accelerator purchase writes (`provisionOwner`, then the account, order and plan `provisionOrder` writes), with no Stripe id, no amount, no email and no GoHighLevel copy. The password is set only when the user is new, by `finishPasswordSet`. A later deploy on an address that already has a user fills in a missing flag or enrollment and does not change the password.
+- **Not a seat.** Migration `0031_test_accounts` adds `users.is_test` and `users.early_access`, both default false. `is_test` is left out of `cohortSeatsSold` (the marketing seat line, `/api/offer`, the Console health tile, the billing summary's "of 15", and the Payment Link cap), of the Accelerator's collected and scheduled totals, of the cohort's enrollment number, of the Overview and Cohorts learner totals, of the Learners count, and of the Tiers license and team counts that the revenue line multiplies. The GoHighLevel order sync and the login sync skip the account. MRR is Stripe's own subscription list; this account has no Stripe customer, so it is not there.
+- **Early access.** `early_access` opens the course and its non-draft weeks before Preview opens and before each week's date, only while `is_test` is also set. The learner's checks and Mark step done save. Staff preview is unchanged. No learner route can set either flag. The seed is what sets them.
+- **Not changed.** No new screen. Goldens, tolerances and masks are untouched.
+
+**Blast radius.** With the kind unset, D-200 is unchanged. A real buyer's dates and the 15-seat count are unchanged. A draft week stays out of the course.

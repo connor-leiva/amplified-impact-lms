@@ -148,7 +148,7 @@ const deployedBefore = (users: Learner[], before: number): number =>
 
 export function overviewVM(db: Db, now: number): OverviewVM {
   const B: Baseline = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited');
+  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
   const mods = sortedModules(db).filter((m) => m.status !== 'draft');
 
   const teamSeats = B.teamSeats + users.filter((u) => u.tier === 'team').length;
@@ -404,7 +404,7 @@ const FEED_TONE: Record<OverviewFeedRow['tone'], 'ok' | 'warn' | 'info'> = { suc
 
 export function overviewR2VM(db: Db, now: number): OverviewR2VM {
   const B: Baseline = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited');
+  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
   const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? db.cohorts[0] ?? null;
   const started = !!cohort && now >= cohort.start;
 

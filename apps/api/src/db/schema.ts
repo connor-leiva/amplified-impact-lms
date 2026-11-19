@@ -49,6 +49,10 @@ export const users = pgTable('users', {
   staffRole: text('staff_role', { enum: ['Owner', 'Admin', 'Instructor', 'Content Editor', 'Support'] }),
   prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark'; sidebar?: 'full' | 'rail' }>().default({}),
   seq: integer('seq').notNull().default(0),
+  // D-201: a seeded test account. Not a snapshot field. Left out of seat, enrollment and revenue
+  // counts. `early_access` opens the course before its dates, and only while `is_test` is set.
+  isTest: boolean('is_test').notNull().default(false),
+  earlyAccess: boolean('early_access').notNull().default(false),
 });
 export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7), seq: integer('seq').notNull().default(0) });
 // D-173 (the curriculum builder): every new column on `cohorts`, `sessions`, `modules` and `resources`

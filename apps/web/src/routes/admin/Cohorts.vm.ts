@@ -118,7 +118,7 @@ export const sessionForm = (s: Session): SessionForm => ({
 
 export function cohortsVM(db: Db, now: number, selectedId: string): CohortsVM {
   // phase 06 § 6.2. `db.base` first, always — the aggregate learners are not in `db.users`.
-  const learners = db.base.learners + db.users.filter((u) => u.status !== 'invited').length;
+  const learners = db.base.learners + db.users.filter((u) => u.status !== 'invited' && u.test !== true).length;
 
   const co = db.cohorts.find((x) => x.id === selectedId) ?? db.cohorts[0] ?? null;
 

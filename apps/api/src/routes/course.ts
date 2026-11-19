@@ -24,12 +24,12 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
 import { courseFor, courseSessions } from '@ai/core/course';
-import { courseEntry, courseUpcoming } from '@ai/core/release';
+import { courseUpcoming } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { plansForLearner, releaseOf } from '../lib/course-access';
+import { courseEntryFor, plansForLearner, releaseOf } from '../lib/course-access';
 import { clock } from '../lib/clock';
 
 export const COURSE_PATH = '/api/course';
@@ -54,7 +54,8 @@ export function registerCourseRoute(app: FastifyInstance): void {
       // cohort's pre-launch preview opens. Each week then opens on its own date.
       const plans = await plansForLearner(db, actor.userId);
       const release = await releaseOf(db);
-      entry = courseEntry(plans, now, release);
+      // D-201: a test account's early access is part of this entry, so weeks open before their dates.
+      entry = await courseEntryFor(db, actor.userId, now);
       if (!entry.open) {
         if (acceleratorPaused(plans, now)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
         const opensAt = courseUpcoming(plans, now, release);
