@@ -223,7 +223,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
  * full or after the first of two payments, both links count toward the same 15 (D-104).
  */
 /**
- * A cohort plan that counts as a seat (D-201). A seeded test account's plan is the same shape as a
+ * A cohort plan that counts as a seat (D-202). A seeded test account's plan is the same shape as a
  * buyer's and is left out here, so it is left out of every count that calls `cohortSeatsSold` and
  * of the Accelerator's collected and scheduled totals, which use this same filter.
  */

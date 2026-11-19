@@ -7,7 +7,7 @@
 // writes nothing and can still run on a later deploy; an address that already has a user, it leaves
 // that user alone.
 //
-// `SEED_TEST_MEMBER_KIND=accelerator` (D-201) is the other account: the same account, order and plan a
+// `SEED_TEST_MEMBER_KIND=accelerator` (D-202) is the other account: the same account, order and plan a
 // paid Accelerator purchase writes, with no Stripe id, no amount, no email and no GoHighLevel copy.
 // `users.is_test` keeps it out of the seat, enrollment and revenue counts. `users.early_access` opens
 // the course before its dates. An address that already has a user keeps its password.

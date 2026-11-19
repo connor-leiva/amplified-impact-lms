@@ -87,7 +87,7 @@ export interface Learner {
   /** D-191. Absent until this learner watches a course video. */
   videoProgress?: VideoProgress[];
   /**
-   * D-201: a seeded test account. Absent on everyone else, so a fixture snapshot is unchanged.
+   * D-202: a seeded test account. Absent on everyone else, so a fixture snapshot is unchanged.
    * Left out of seat, enrollment and revenue counts. Not something a learner can set.
    */
   test?: true;

@@ -60,7 +60,7 @@ export interface Ctx {
    */
   course?: boolean;
   /**
-   * D-201: this learner is a test account with early access. Course weeks are open before their
+   * D-202: this learner is a test account with early access. Course weeks are open before their
    * dates, so a check and Mark step done save. The API sets it from the user's row. A learner
    * cannot pass it.
    */
@@ -217,7 +217,7 @@ const nameFromEmail = (email: string): string =>
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** A course week is open on its date, or before that for a test account's early access (D-201). */
+/** A course week is open on its date, or before that for a test account's early access (D-202). */
 const moduleOpen = (m: AIEmployee, c: Ctx): boolean => (c.early === true && isAcceleratorModule(m.id) && m.status !== 'draft') || isOpen(m, c.now);
 
 // ---------------------------------------------------------------------------

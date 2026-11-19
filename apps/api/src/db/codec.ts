@@ -603,7 +603,7 @@ export function fromRows(rows: Rows): Db {
           checks: checksByUser.get(str(r.id)),
           coursePrefs: prefsByUser.get(str(r.id)),
           videoProgress: videoByUser.get(str(r.id)),
-          // D-201: only a seeded test account carries it, so every other snapshot stays as it was.
+          // D-202: only a seeded test account carries it, so every other snapshot stays as it was.
           test: r.isTest === true ? true : undefined,
         },
       ),
@@ -620,7 +620,7 @@ export function fromRows(rows: Rows): Db {
     }));
 
   // Derived, per § 7.2: the number of learners whose cohort it is. A seeded test account is enrolled
-  // for real and is left out of the number (D-201).
+  // for real and is left out of the number (D-202).
   const enrolled = new Map<string, number>();
   for (const u of users) if (!u.test) enrolled.set(u.cohortId, (enrolled.get(u.cohortId) ?? 0) + 1);
 

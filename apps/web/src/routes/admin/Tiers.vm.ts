@@ -125,7 +125,7 @@ export function tiersVM(db: Db, now: number): TiersVM {
   const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
 
   // The two figures every price on this screen is multiplied by. A seeded test account's team is
-  // left out, so its price is not multiplied into the revenue line (D-201).
+  // left out, so its price is not multiplied into the revenue line (D-202).
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
   const teamN = B.teams + db.teams.filter((t) => !testOwners.has(t.ownerId)).length;

@@ -176,7 +176,7 @@ changes only rows still as the seed left them; a row staff already changed is le
 deploy log says `Left as it is: <id> (...). Finish it in the builder.` Each change is an audit row
 (`curriculum.migrate`), and `data_migrations` records each step so it never runs twice.
 
-**A test learner, when its variables are set (D-200, D-201).** The same `db:curriculum:ensure`
+**A test learner, when its variables are set (D-200, D-202).** The same `db:curriculum:ensure`
 command then runs one more step. It reads `SEED_TEST_MEMBER_EMAIL`, `SEED_TEST_MEMBER_PASSWORD`,
 optional `SEED_TEST_MEMBER_NAME` (default "Connor Test") and optional `SEED_TEST_MEMBER_KIND` from
 the **web** service, which is the service the API runs as. If the email or the password is unset

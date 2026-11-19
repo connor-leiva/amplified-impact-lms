@@ -84,7 +84,7 @@ export async function releaseOf(db: Reader): Promise<Pick<Cohort, 'previewOpensA
 }
 
 /**
- * D-201: early access is a test account's own flag. It does nothing unless `is_test` is set too,
+ * D-202: early access is a test account's own flag. It does nothing unless `is_test` is set too,
  * and nothing a learner can write sets either column.
  */
 export async function earlyAccessOf(db: Reader, userId: string): Promise<boolean> {

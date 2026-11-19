@@ -28,7 +28,7 @@ export interface CourseEntry {
   open: boolean;
   preview: boolean;
   /**
-   * D-201: this learner is a test account with early access. The course and its weeks are open
+   * D-202: this learner is a test account with early access. The course and its weeks are open
    * before the preview and before each week's date. Absent means the dates apply, as they do for
    * every real learner.
    */
@@ -64,13 +64,13 @@ export function courseUpcoming(plans: readonly AcceleratorPlan[], now: number, c
 
 /**
  * Whether a week is open to a learner with this entry: published, or scheduled and past its opening.
- * Early access (a test account, D-201) opens every week that is in the course, before its date.
+ * Early access (a test account, D-202) opens every week that is in the course, before its date.
  * A draft stays out, as it does for everyone else.
  */
 export const weekOpenFor = (m: Pick<AIEmployee, 'status' | 'opens'>, now: number, entry: CourseEntry): boolean =>
   entry.open && (entry.early ? m.status !== 'draft' : isOpen(m, now));
 
-/** D-201: a seeded test account is left out of enrollment counts. Absent on every other learner. */
+/** D-202: a seeded test account is left out of enrollment counts. Absent on every other learner. */
 export const countsTowardEnrollment = (u: { test?: true }): boolean => u.test !== true;
 
 /**

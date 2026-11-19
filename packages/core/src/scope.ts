@@ -195,7 +195,7 @@ export interface ViewerAccess {
   /** D-175: the entry is the pre-launch preview (a kit item marked open in the preview shows). */
   preview?: boolean;
   /**
-   * D-201: a test account with early access. Course weeks are open before their dates. The
+   * D-202: a test account with early access. Course weeks are open before their dates. The
    * database row stays scheduled; only this viewer's snapshot is open.
    */
   early?: boolean;
@@ -300,7 +300,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
     ({ modules, sessions } = withoutAccelerator(db, modules, sessions));
     resources = resources.filter((r) => kitVisible(r, false, false));
   } else if (access?.early) {
-    // D-201: the dates stay on the row. This viewer's copy of a scheduled week reads as open,
+    // D-202: the dates stay on the row. This viewer's copy of a scheduled week reads as open,
     // which is what the screens ask (`isOpen`) before they draw Mark step done.
     modules = modules.map((m) => (isAcceleratorModule(m.id) && m.status === 'scheduled' ? { ...m, status: 'published' } : m));
   } else if (access && access.at !== undefined) {

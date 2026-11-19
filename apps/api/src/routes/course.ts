@@ -54,7 +54,7 @@ export function registerCourseRoute(app: FastifyInstance): void {
       // cohort's pre-launch preview opens. Each week then opens on its own date.
       const plans = await plansForLearner(db, actor.userId);
       const release = await releaseOf(db);
-      // D-201: a test account's early access is part of this entry, so weeks open before their dates.
+      // D-202: a test account's early access is part of this entry, so weeks open before their dates.
       entry = await courseEntryFor(db, actor.userId, now);
       if (!entry.open) {
         if (acceleratorPaused(plans, now)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
