@@ -247,10 +247,16 @@ function Item({
           <div className={s.acts}>
             {item.action ? <Action action={item.action} /> : null}
             {item.playSeconds !== null && item.playLabel ? (
-              <button type="button" className={`${l.b} ${l.bi}`} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
+              <button type="button" className={`${l.b} ${l.bi} ${s.act}`} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
                 <Icon name="r2Play" size={14} strokeWidth={1.75} />
                 {item.playLabel}
               </button>
+            ) : null}
+            {item.autoLabel ? (
+              <span className={s.auto}>
+                <Icon name="r2Check" size={14} strokeWidth={2.2} />
+                {item.autoLabel}
+              </span>
             ) : null}
           </div>
         ) : null}

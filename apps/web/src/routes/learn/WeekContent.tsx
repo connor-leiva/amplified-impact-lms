@@ -303,7 +303,7 @@ type Open = { kind: 'prompt' } | { kind: 'file'; key: string } | null;
  * `notes` can be left out (the step player shows the prompt and the files only). `more` (D-186) adds a
  * non-course AI Employee's resources to the same card.
  */
-export function BuildKit({ vm, previewing, notes = true, more = [] }: { vm: BuildKitVM; previewing: boolean; notes?: boolean; more?: KitRowVM[] }) {
+export function BuildKit({ vm, previewing, notes = true, more = [], heading = KIT.buildKit, headingClass, tile = 28 }: { vm: BuildKitVM; previewing: boolean; notes?: boolean; more?: KitRowVM[]; heading?: string; headingClass?: string; tile?: 28 | 32 }) {
   const [open, setOpen] = useState<Open>(null);
   const file = open?.kind === 'file' ? vm.files.find((f) => f.key === open.key) : undefined;
   const btn = `${s.b} ${c.kb}`;
@@ -312,13 +312,13 @@ export function BuildKit({ vm, previewing, notes = true, more = [] }: { vm: Buil
       {vm.prompt || vm.files.length || more.length ? (
         <section className={s.cd} aria-labelledby="lv-bk-t">
           <div className={s.cdh}>
-            <h2 className={`${s.h2} ${s.grow}`} id="lv-bk-t">
-              {KIT.buildKit}
+            <h2 className={headingClass ?? `${s.h2} ${s.grow}`} id="lv-bk-t">
+              {heading}
             </h2>
           </div>
           {vm.prompt ? (
             <div className={`${s.li} ${c.kli}`}>
-              <Tile icon="lvKey" tone="forest" size={28} />
+              <Tile icon="lvKey" tone="forest" size={tile} />
               <div className={`${s.colZ} ${s.grow}`}>
                 <span className={s.w5}>{vm.prompt.title}</span>
                 <span className={s.me}>{vm.prompt.stats}</span>
@@ -344,7 +344,7 @@ export function BuildKit({ vm, previewing, notes = true, more = [] }: { vm: Buil
           ) : null}
           {vm.files.map((f) => (
             <div key={f.key} className={`${s.li} ${c.kli}`}>
-              <Tile icon="file" tone="forest" size={28} />
+              <Tile icon="file" tone="forest" size={tile} />
               <div className={`${s.colZ} ${s.grow}`}>
                 <span className={`${s.w5} ${c.fn}`}>{f.name}</span>
                 <span className={s.me}>{f.meta}</span>

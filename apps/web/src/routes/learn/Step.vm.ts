@@ -7,6 +7,7 @@
 // so "Mark step done" writes through the portal's own `toggleStep`.
 
 import { fmt, mountainWhen } from '@ai/core';
+import { watchThreshold } from '@ai/core/video';
 import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, GlossaryTerm, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
@@ -61,6 +62,7 @@ export const STEP = {
   download: 'Download',
   downloaded: 'Downloaded',
   playAt: 'Play from',
+  checksItself: 'Checks itself at',
   /** D-191: the video block's own chrome. */
   chapters: 'Chapters',
   scrollChaptersLeft: 'Scroll chapters left',
@@ -202,6 +204,8 @@ export interface CheckItemVM {
   playSeconds: number | null;
   /** The video id, when the item names one. Absent means the first video on the path. */
   playVideo: string | null;
+  /** Set when the item checks itself once its video is watched to a fraction. */
+  autoLabel: string | null;
   action: CheckActionVM | null;
   subchecks: CheckSubVM[];
   callouts: CalloutVM[];
@@ -430,6 +434,7 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     playLabel: b.playAt ? `${STEP.playAt} ${fmt.clock(b.playAt.t)}` : null,
     playSeconds: b.playAt ? b.playAt.t : null,
     playVideo: b.playAt?.video ?? null,
+    autoLabel: b.auto ? `${STEP.checksItself} ${Math.round(watchThreshold(b.auto.at) * 100)}%` : null,
     action: actionVM(b.action, kit, fileUrl, sessions),
     subchecks: subs,
     callouts: shown.map(calloutVM),

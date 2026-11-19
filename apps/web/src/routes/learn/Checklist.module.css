@@ -239,6 +239,7 @@
 .item {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
+  align-items: start;
   gap: 8px;
   background: var(--r2-sf);
   border: 1px solid var(--r2-line);
@@ -252,9 +253,13 @@
 .item[data-wait='true'] {
   opacity: 0.6;
 }
+.boxBtn {
+  margin-top: -10px;
+}
 .boxBtn,
 .sub {
   flex: none;
+  align-self: start;
   min-width: 44px;
   min-height: 44px;
   display: grid;
@@ -404,9 +409,26 @@
 .acts {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   margin-top: 12px;
+}
+.act {
+  height: 32px;
+  padding: 0 12px;
+  background: var(--r2-sf);
+  border-color: var(--r2-line);
+  font-size: 14px;
+}
+.auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--r2-f2);
 }
 .copy {
   display: flex;
@@ -661,7 +683,7 @@
 }
 .rail {
   position: sticky;
-  top: 24px;
+  top: 76px;
   display: flex;
   flex-direction: column;
   gap: 16px;

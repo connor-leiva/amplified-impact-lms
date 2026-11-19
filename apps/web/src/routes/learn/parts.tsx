@@ -20,9 +20,9 @@ import s from './Learn.module.css';
 // The pieces the learner portal v2's pages share (D-177). Markup only: every string is the caller's
 // view-model's.
 
-const SIZE: Record<28 | 36 | 44 | 52, string> = { 28: s.t28!, 36: s.t36!, 44: s.t44!, 52: s.t52! };
+const SIZE: Record<28 | 32 | 36 | 44 | 52, string> = { 28: s.t28!, 32: s.t32!, 36: s.t36!, 44: s.t44!, 52: s.t52! };
 
-export function Tile({ icon, tone, size }: { icon: IconName; tone: Tone; size: 28 | 36 | 44 | 52 }) {
+export function Tile({ icon, tone, size }: { icon: IconName; tone: Tone; size: 28 | 32 | 36 | 44 | 52 }) {
   return (
     <span className={`${s.tile} ${SIZE[size]}`} data-hue={HUE[tone]} aria-hidden="true">
       <Icon name={icon} size={18} strokeWidth={size === 52 ? 1.7 : 1.8} />

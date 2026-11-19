@@ -285,8 +285,8 @@ function Chapters({ chapters, active, onSeek }: { chapters: { t: number; label: 
   const measure = () => {
     const el = row.current;
     if (!el) return;
-    const max = el.scrollWidth - el.clientWidth - 1;
-    setEdges({ left: el.scrollLeft > 1, right: el.scrollLeft < max });
+    const max = el.scrollWidth - el.clientWidth;
+    setEdges({ left: el.scrollLeft > 8, right: max - el.scrollLeft > 8 });
   };
   useLayoutEffect(() => {
     measure();
@@ -303,10 +303,17 @@ function Chapters({ chapters, active, onSeek }: { chapters: { t: number; label: 
   useEffect(() => {
     const el = row.current;
     const chip = el?.querySelector<HTMLElement>('[aria-current="true"]');
-    if (!el || !chip) return;
-    if (typeof el.scrollTo !== 'function') return;
+    if (!el || !chip || typeof el.scrollTo !== 'function') return;
+    if (active <= 0) {
+      if (el.scrollLeft > 0) el.scrollTo({ left: 0, behavior: 'auto' });
+      return;
+    }
+    const rowBox = el.getBoundingClientRect();
+    const chipBox = chip.getBoundingClientRect();
+    if (chipBox.left >= rowBox.left - 1 && chipBox.right <= rowBox.right + 1) return;
     const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollTo({ left: chip.offsetLeft - el.clientWidth / 2 + chip.offsetWidth / 2, behavior: reduce ? 'auto' : 'smooth' });
+    const delta = chipBox.left - rowBox.left - (el.clientWidth - chipBox.width) / 2;
+    el.scrollTo({ left: Math.max(0, el.scrollLeft + delta), behavior: reduce ? 'auto' : 'smooth' });
   }, [active]);
   const nudge = (dir: number) => {
     const el = row.current;

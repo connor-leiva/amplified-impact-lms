@@ -495,6 +495,11 @@ button.b {
   height: 28px;
   border-radius: 7px;
 }
+.t32 {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
 .t28 svg {
   width: 16px;
   height: 16px;
@@ -954,6 +959,16 @@ button.b {
   grid-template-columns: minmax(0, 1fr) 288px;
   gap: 32px;
 }
+.pgStep {
+  max-width: 1280px;
+  container-type: inline-size;
+  container-name: step;
+}
+@container step (max-width: 1100px) {
+  .wz[data-v2='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .railH {
   font-family: var(--r2-font-mono);
   font-size: 13px;
@@ -967,6 +982,11 @@ button.b {
   border-bottom: 0;
   min-height: 0;
   padding: 16px 16px 4px;
+}
+.stepAside button {
+  background: var(--r2-sf);
+  border-color: var(--r2-line);
+  height: 32px;
 }
 .wz[data-v2='true'] > aside {
   display: flex;
@@ -1426,7 +1446,7 @@ button.b {
 }
 .hsBtn[data-side='prev'] { left: 0; }
 .hsBtn[data-side='next'] { right: 0; }
-.hsBtn[hidden] { display: none; }
+.hsBtn[hidden] { display: none !important; }
 .fadeL {
   mask: linear-gradient(90deg, transparent, var(--r2-ink) 44px);
 }
