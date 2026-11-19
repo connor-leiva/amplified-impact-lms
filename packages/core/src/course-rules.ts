@@ -18,6 +18,7 @@
 // by `copyIssues` for the builder to show, not to refuse.
 
 import type { AIEmployee, Cohort, CopyString } from './types';
+import { checklistIssueLines } from './checklist';
 import type { CohortCourse, MediaItem, ModuleCourse, PathBlock, VideoBlock } from './course-types';
 import { isVideoUpload } from './course-types';
 
@@ -111,9 +112,30 @@ function blockFields(out: CopyField[], path: string, label: string, blocks: read
       push(out, `${p}.label`, l, b.label, hire);
       push(out, `${p}.text`, l, b.text, hire);
     } else if (b.type === 'list') pushAll(out, `${p}.items`, `${l}, item`, b.items, hire);
-    else {
+    else if (b.type === 'table') {
       pushAll(out, `${p}.head`, `${l}, heading`, b.head, hire);
       b.rows.forEach((r, j) => pushAll(out, `${p}.rows[${j}]`, `${l}, row ${j + 1}, cell`, r, hire));
+    } else if (b.type === 'check') {
+      // D-190: every learner-facing string on a checklist item. Ids, routes and kit ids are not copy.
+      push(out, `${p}.title`, `${l}, checklist`, b.title, hire);
+      push(out, `${p}.detail`, `${l}, detail`, b.detail, hire);
+      push(out, `${p}.collapsedNote`, `${l}, collapsed note`, b.collapsedNote, hire);
+      pushAll(out, `${p}.clickPath`, `${l}, click path`, b.clickPath, hire);
+      for (const sub of b.subchecks ?? []) push(out, `${p}.subchecks.${sub.id}`, `${l}, task`, sub.label, hire);
+      const a = b.action;
+      if (a?.type === 'copy') {
+        push(out, `${p}.action.label`, `${l}, button`, a.label, hire);
+        push(out, `${p}.action.text`, `${l}, text to copy`, a.text, hire);
+      } else if (a?.type === 'invite') push(out, `${p}.action.label`, `${l}, button`, a.label, hire);
+      else if (a?.type === 'link') push(out, `${p}.action.label`, `${l}, button`, a.label, hire);
+      else if (a?.type === 'form') push(out, `${p}.action.label`, `${l}, button`, a.label, hire);
+    } else if (b.type === 'callout') push(out, `${p}.text`, `${l}, callout`, b.text, hire);
+    else {
+      push(out, `${p}.title`, `${l}, reference`, b.title, hire);
+      pushAll(out, `${p}.body`, `${l}, paragraph`, b.body, hire);
+      pushAll(out, `${p}.table.head`, `${l}, heading`, b.table?.head, hire);
+      (b.table?.rows ?? []).forEach((r, j) => pushAll(out, `${p}.table.rows[${j}]`, `${l}, row ${j + 1}, cell`, r, hire));
+      push(out, `${p}.link.label`, `${l}, link`, b.link?.label, hire);
     }
   });
 }
@@ -341,6 +363,9 @@ export function moduleVideos(m: AIEmployee): { path: string; label: string; bloc
 
 /** The lines a save is refused with for a video whose source isn't usable ("Step 2, Claude path, block 1: …"). */
 export const videoIssues = (m: AIEmployee): string[] => moduleVideos(m).filter((v) => !videoSourceOk(v.block)).map((v) => `${v.label}: ${VIDEO_SOURCE_MESSAGE}`);
+
+/** D-190: a checklist item's id, its dependencies and its link, on top of the copy rules. */
+export const checklistIssues = (m: AIEmployee): string[] => checklistIssueLines(m.checklist);
 
 /** A copy string as a field. */
 export const copyStringField = (c: CopyString): CopyField => ({ path: `copy.${c.key}`, label: c.key, text: c.value });

@@ -80,6 +80,8 @@ const TABLES: Record<TableName, PgTable> = {
   sessions: schema.sessions,
   modules: schema.modules,
   progress: schema.progress,
+  checklistState: schema.checklistState,
+  learnerPrefs: schema.learnerPrefs,
   resources: schema.resources,
   announcements: schema.announcements,
   dismissals: schema.dismissals,

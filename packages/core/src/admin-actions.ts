@@ -24,7 +24,7 @@ import { MutationError, publishReplay, saveModule, uploadResource } from './muta
 import { UPLOAD_POLICY, fileSizeLabel, isUploadKey, isUploadType, nameMatchesType } from './uploads';
 import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
-import { changedFields, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
+import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
 
@@ -178,9 +178,11 @@ export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; s
   const issues = copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(args.draft)));
   // D-188: a video block plays an uploaded mp4 or an http(s) link, and nothing else.
   const videos = videoIssues(args.draft);
-  if (issues.length || videos.length) {
+  // D-190: checklist ids, same-step dependencies and links. Copy rules already cover the words.
+  const checks = checklistIssues(args.draft);
+  if (issues.length || videos.length || checks.length) {
     requirePerm(db, a, 'curriculum');
-    return { db, error: [...issues.map(issueLine), ...videos].join('\n') };
+    return { db, error: [...issues.map(issueLine), ...videos, ...checks].join('\n') };
   }
   const out = saveModule(db, a, args, c);
   if (out.error) return out;

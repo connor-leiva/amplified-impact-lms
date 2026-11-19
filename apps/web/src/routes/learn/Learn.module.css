@@ -905,6 +905,15 @@ button.b {
   gap: 24px;
   align-items: start;
 }
+/* D-190: a checklist week has no left step rail. The on-this-page rail sits in the aside. */
+.wz[data-v2='true'] {
+  grid-template-columns: minmax(0, 1fr) 280px;
+}
+@media (max-width: 959px) {
+  .wz[data-v2='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .rl {
   position: sticky;
   top: 76px;

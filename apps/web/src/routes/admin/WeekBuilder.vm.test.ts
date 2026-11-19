@@ -108,7 +108,8 @@ describe('a video block in the builder (D-188)', () => {
 
   it('offers video in a step’s paths and the Media videos, never in a sample output', () => {
     expect(BLOCK_LABELS.video).toBe('Video');
-    expect(PATH_KINDS).toEqual(['text', 'copy', 'list', 'table', 'video']);
+    expect(BLOCK_LABELS.check).toBe('Checklist item');
+    expect(PATH_KINDS).toEqual(['text', 'copy', 'list', 'table', 'video', 'check', 'callout', 'accordion']);
     expect(CONTENT_KINDS).not.toContain('video');
     expect(VIDEO_KINDS).toEqual(['video']);
   });

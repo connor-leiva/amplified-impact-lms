@@ -133,6 +133,28 @@ describe('a course week’s steps follow course access, not the tier (D-186)', (
     expect((await join('agentPlan', 'dec26-nope')).statusCode).toBe(404);
   });
 
+  it('a checklist check follows course access, and a staff session cannot write one (D-190)', async () => {
+    const ok = await mutate('agentBuyer', 'toggleChecklistItem', { moduleId: WEEK1, stepId: firstStep, itemId: 'item-1' });
+    expect(ok.statusCode).toBe(200);
+    const buyer = (await loadDb()).users.find((u) => u.id === ids.get('agentBuyer'));
+    expect(buyer?.checks).toEqual([expect.objectContaining({ moduleId: WEEK1, stepId: firstStep, itemId: 'item-1', checked: true, auto: false })]);
+    const snap = await snapshot('agentBuyer');
+    expect(snap.users.find((u) => u.id === ids.get('agentBuyer'))?.checks?.[0]?.itemId).toBe('item-1');
+
+    const shut = await mutate('agentPlan', 'toggleChecklistItem', { moduleId: WEEK1, stepId: firstStep, itemId: 'item-1' });
+    expect(shut.statusCode).toBe(403);
+
+    const staff = await app.signInAs('st_owner');
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/mutate/toggleChecklistItem',
+      payload: { moduleId: WEEK1, stepId: firstStep, itemId: 'item-1' },
+      headers: { cookie: staff, origin: ORIGIN, 'content-type': 'application/json' },
+    });
+    expect(preview.statusCode).toBe(403);
+    expect(preview.json()).toMatchObject({ error: 'That action is for learners.' });
+  });
+
   it('an Agent Plan learner without the course can neither see a week nor mark its step', async () => {
     const snap = await snapshot('agentPlan');
     expect(snap.modules.filter((m) => isAcceleratorModule(m.id))).toEqual([]);

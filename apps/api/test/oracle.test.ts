@@ -156,6 +156,9 @@ const CASES: readonly Case[] = [
   // The checklist's own row, verbatim: Jamie is three of six steps into `sales`, which is published
   // and open at NOW, so the fourth lands and `builtAt` stays null.
   { name: 'toggleStep', as: 'u_jamie', args: { moduleId: 'sales', stepId: 'c4' } },
+  // D-190: Jamie checks one item on the open sales build, and remembers one accordion.
+  { name: 'toggleChecklistItem', as: 'u_jamie', args: { moduleId: 'sales', stepId: 'c4', itemId: 'item-1' } },
+  { name: 'setPref', as: 'u_jamie', args: { key: 'acc:sales:c4:0', value: '1' } },
   // The sixth step. `builtAt`, the `built …` activity row, the toast and the only confetti in the
   // catalog. Michael is four of six on `marketing`, so `pre` checks the fifth.
   {
@@ -413,7 +416,7 @@ describe('API ⇔ core oracle @g7', () => {
     // get a row, a schema or a route — the same thing `schemas.test.ts` pins.
     expect(callable).toContain('MutationError');
     const mutations = callable.filter((k) => k !== 'MutationError').sort();
-    expect(mutations).toHaveLength(37);
+    expect(mutations).toHaveLength(39);
     expect([...new Set(CASES.map((c) => c.name))].sort()).toEqual(mutations);
   });
 

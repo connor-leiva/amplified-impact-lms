@@ -34,7 +34,7 @@ import {
 } from './ModuleBuilder.vm';
 import type { BuilderR2Step } from './ModuleBuilder.vm';
 import { CoursePreview, DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
-import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen } from './WeekBuilder.vm';
+import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen, weekKit, weekSessions } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 
 // Admin Module Builder `/admin/curriculum/:employeeId` and `/admin/curriculum/new` on the Admin
@@ -708,6 +708,14 @@ export function Component() {
           {week ? (
             <StepWeekFields
               step={step}
+              picks={
+                week
+                  ? {
+                      kit: weekKit(db, week).map((item) => ({ id: item.id, title: item.title })),
+                      sessions: weekSessions(db, week).map((item) => ({ id: item.id, title: item.title })),
+                    }
+                  : undefined
+              }
               onChange={(fn) =>
                 up((x) => {
                   fn(x.checklist[stepAt]!);

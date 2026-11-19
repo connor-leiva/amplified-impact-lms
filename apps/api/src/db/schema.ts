@@ -8,6 +8,8 @@
 //
 // Three `Db` fields have no column here, by design:
 //   - `Learner.progress`   lives in the `progress` table, keyed by (user_id, module_id)
+//   - `Learner.checks`     lives in `checklist_state` (D-190)
+//   - `Learner.coursePrefs` lives in `learner_prefs` (D-190)
 //   - `Cohort.enrolled`    is derived (count of users in the cohort), not stored
 //   - `Db.dismissed`       lives in the `dismissals` table; § 7.3 rebuilds it as "userId:annId"
 // `Db.v`, `Db.phase` and `Db.base` are snapshot-level metadata, not persisted rows: the API always
@@ -81,6 +83,17 @@ export const progress = pgTable('progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(),
   steps: jsonb('steps').$type<string[]>().notNull(), builtAt: ts('built_at'), deployedAt: ts('deployed_at'), runtime: text('runtime'), issue: text('issue'), lastRun: jsonb('last_run'),
 }, (t) => [primaryKey({ columns: [t.userId, t.moduleId] })]);
+// D-190: one checklist box per learner, week, step and item. A sub-check's item_id is `<itemId>:<subId>`.
+// Epoch ms, like `progress`, so core reads a number. Not a snapshot of anyone but the viewer (scope.ts).
+export const checklistState = pgTable('checklist_state', {
+  userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), stepId: text('step_id').notNull(), itemId: text('item_id').notNull(),
+  checked: boolean('checked').notNull(), checkedAt: ts('checked_at'), auto: boolean('auto').notNull().default(false),
+}, (t) => [primaryKey({ columns: [t.userId, t.moduleId, t.stepId, t.itemId] })]);
+// D-190: accordion open state now (`acc:<moduleId>:<stepId>:<index>`), the path tab later. Distinct from
+// `users.prefs` (timezone and theme), which a snapshot never carries.
+export const learnerPrefs = pgTable('learner_prefs', {
+  userId: text('user_id').notNull(), key: text('key').notNull(), value: text('value').notNull(), updatedAt: ts('updated_at').notNull(),
+}, (t) => [primaryKey({ columns: [t.userId, t.key] })]);
 // D-172: `module_id`, the AI Employee a resource is attached to (the Vault's "Attached to"; nullable, no foreign key, so deleting a draft leaves "—").
 export const resources = pgTable('resources', {
   id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0), moduleId: text('module_id'),

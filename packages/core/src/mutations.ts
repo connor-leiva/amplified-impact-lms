@@ -269,6 +269,70 @@ export function toggleStep(db: Db, a: Actor, args: { moduleId: string; stepId: s
     : { db: next };
 }
 
+/** A checklist item id, or a sub-check stored as `<itemId>:<subId>`. */
+const CHECK_ITEM = /^[A-Za-z0-9_-]+(?::[A-Za-z0-9_-]+)?$/;
+/** An accordion's remembered open state: `acc:<moduleId>:<stepId>:<index>`. */
+const PREF_KEY = /^acc:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+:\d{1,4}$/;
+
+/**
+ * D-190: check or un-check one checklist item for this learner. Same door as `toggleStep`: a learner,
+ * the week open, course access for a course week. Staff, a preview and a masquerade never get here
+ * (a staff actor is refused; a masquerade is refused before the mutation runs). Not audited.
+ */
+export function toggleChecklistItem(db: Db, a: Actor, args: { moduleId: string; stepId: string; itemId: string }, c: Ctx): Outcome {
+  const u = learnerOf(db, a);
+  const m = moduleOf(db, args.moduleId);
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!m.checklist.some((s) => s.id === args.stepId)) throw new MutationError('invalid', 'That step is not on this week.');
+  if (!CHECK_ITEM.test(args.itemId)) throw new MutationError('invalid', 'That item is not on this step.');
+  const next = produce(db, (d) => {
+    const du = d.users.find((x) => x.id === u.id)!;
+    const list = du.checks ? [...du.checks] : [];
+    const i = list.findIndex((x) => x.moduleId === args.moduleId && x.stepId === args.stepId && x.itemId === args.itemId);
+    const checked = i < 0 || !list[i]!.checked;
+    const row = {
+      moduleId: args.moduleId,
+      stepId: args.stepId,
+      itemId: args.itemId,
+      checked,
+      auto: false,
+      ...(checked ? { checkedAt: c.now } : {}),
+    };
+    if (i >= 0) list[i] = row;
+    else list.push(row);
+    list.sort((x, y) => x.moduleId.localeCompare(y.moduleId) || x.stepId.localeCompare(y.stepId) || x.itemId.localeCompare(y.itemId));
+    du.checks = list;
+  });
+  return { db: next };
+}
+
+/**
+ * D-190: remember one accordion (open or closed) for this learner. The key is `acc:<moduleId>:<stepId>:<index>`
+ * and the value is `1` or `0`. Same door as `toggleStep`. Not audited.
+ */
+export function setPref(db: Db, a: Actor, args: { key: string; value: string }, c: Ctx): Outcome {
+  const u = learnerOf(db, a);
+  if (!PREF_KEY.test(args.key) || (args.value !== '0' && args.value !== '1')) {
+    throw new MutationError('invalid', 'That preference is not one this page stores.');
+  }
+  const moduleId = args.key.split(':')[1]!;
+  const m = moduleOf(db, moduleId);
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  const next = produce(db, (d) => {
+    const du = d.users.find((x) => x.id === u.id)!;
+    const list = du.coursePrefs ? [...du.coursePrefs] : [];
+    const i = list.findIndex((x) => x.key === args.key);
+    const row = { key: args.key, value: args.value, updatedAt: c.now };
+    if (i >= 0) list[i] = row;
+    else list.push(row);
+    list.sort((x, y) => (x.key < y.key ? -1 : x.key > y.key ? 1 : 0));
+    du.coursePrefs = list;
+  });
+  return { db: next };
+}
+
 /** 3 · Portal Workspace: "Mark as Deployed", available once all 6 steps are verified. */
 export function markDeployed(db: Db, a: Actor, args: { moduleId: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);

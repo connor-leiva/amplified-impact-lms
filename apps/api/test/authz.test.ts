@@ -301,6 +301,8 @@ const LEARNER_ALLOWED: { as: string; case: Case }[] = [
   { as: 'u_jamie', case: mutationCase('dismissAnnouncement', 'dismissAnnouncement', { id: 'a1' }) },
   // A Team-tier learner on a Team-tier module, which is the pair for Jamie's 403 below.
   { as: 'u_alex', case: mutationCase('toggleStep', 'toggleStep', { moduleId: 'meetings', stepId: 'c1' }) },
+  { as: 'u_alex', case: mutationCase('toggleChecklistItem', 'toggleChecklistItem', { moduleId: 'meetings', stepId: 'c1', itemId: 'item-1' }) },
+  { as: 'u_alex', case: mutationCase('setPref', 'setPref', { key: 'acc:meetings:c1:0', value: '1' }) },
   // Jamie's `marketing` is built and deployed, so `buildOf` is `verified` and the deploy is allowed.
   { as: 'u_jamie', case: mutationCase('markDeployed', 'markDeployed', { moduleId: 'marketing' }) },
   { as: 'u_jamie', case: mutationCase('setRuntime', 'setRuntime', { moduleId: 'marketing', runtime: 'paused' }) },
@@ -822,7 +824,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         .filter((k) => typeof (M as Record<string, unknown>)[k] === 'function' && k !== 'MutationError')
         .sort();
       expect(exported).toEqual(catalog);
-      expect(catalog).toHaveLength(37);
+      expect(catalog).toHaveLength(39);
     });
 
     it('derives staff-or-learner and the permission conjunction from core itself @g7', async () => {
@@ -995,7 +997,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           }
         }
         expect(failures.join('\n')).toBe('');
-        expect(EXECUTED.learnerAllowed).toBe(11);
+        expect(EXECUTED.learnerAllowed).toBe(13);
       },
       180_000,
     );
@@ -1022,7 +1024,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           }
         }
         expect(failures.join('\n')).toBe('');
-        expect(EXECUTED.staffOnLearner).toBe(11);
+        expect(EXECUTED.staffOnLearner).toBe(13);
       },
       180_000,
     );
@@ -1469,8 +1471,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     expect(EXECUTED.matrix).toBe(STAFF_CASES.length * STAFF_ROLES.length);
     expect(EXECUTED.matrix).toBe(135);
     expect(EXECUTED.learnerDenied).toBe(10);
-    expect(EXECUTED.learnerAllowed).toBe(11);
-    expect(EXECUTED.staffOnLearner).toBe(11);
+    expect(EXECUTED.learnerAllowed).toBe(13);
+    expect(EXECUTED.staffOnLearner).toBe(13);
     // 11, not 7: phase 08 added four session-guarded routes (the two file downloads, upload-url and
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
@@ -1504,7 +1506,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // integrations, deploys and DB health's (D-168), + 2 for System Health and the Skills list (D-169),
     // probed unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated,
     // and + 2 for Invite staff and Change role… (D-172). And + 1 for a course week's uploaded video
-    // (D-188), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1);
+    // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
+    // counted once as the entitled learner and once as a staff session.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4);
   });
 });

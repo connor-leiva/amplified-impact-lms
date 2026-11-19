@@ -14,6 +14,7 @@ import { useLearn } from './data';
 import { weekRows } from './learn.vm';
 import { PLATFORM_LABEL, STEP, asideRows, stepParam, stepVM } from './Step.vm';
 import type { Platform, StepVM } from './Step.vm';
+import { ChecklistPills, ChecklistPlayer, ChecklistRail, playAt } from './Checklist';
 import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import { learnHome } from './routes';
@@ -70,6 +71,83 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
       setBusy(false);
     }
   };
+
+  if (vm.pills) {
+    const layout = vm.layouts?.[on];
+    return (
+      <div className={s.pg}>
+        <Crumbs crumbs={more.crumbs} />
+        <Link className={s.back} to={vm.back.href}>
+          <Icon name="r2Back" size={14} strokeWidth={1.75} />
+          {vm.back.label}
+        </Link>
+        <ChecklistPills vm={vm} />
+        <div className={s.wz} data-v2="true">
+          <div className={s.col} style={{ gap: 20 }}>
+            <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
+            {layout ? (
+              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} />
+            ) : (
+              <>
+                <div className={s.pht} style={{ gap: 8 }}>
+                  <span className={s.pk}>{vm.eyebrow}</span>
+                  <h1 className={s.h0}>{vm.title}</h1>
+                  {vm.lede ? <p className={s.lede}>{vm.lede}</p> : null}
+                  {vm.meta ? <span className={s.dl}>{vm.meta}</span> : null}
+                </div>
+                <section className={`${s.cd} ${s.hero} ${s.heroBlock}`} aria-labelledby="lv-do-t">
+                  <div className={s.cdh} style={{ flexWrap: 'wrap', rowGap: 10 }}>
+                    <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>{STEP.doThis}</h2>
+                    {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
+                  </div>
+                  {blocks.length ? <Blocks key={on} blocks={blocks} /> : <div className={s.blk}><p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p></div>}
+                  <div className={s.actb}>
+                    <button type="button" className={`${s.b} ${s.bp} ${s.done} ${s.markDone}`} data-done={vm.mark.done ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
+                      <Icon name={vm.mark.done ? 'reset' : 'r2Check'} size={14} strokeWidth={vm.mark.done ? 1.9 : 2.2} />
+                      {vm.mark.done ? STEP.undo : STEP.markDone}
+                    </button>
+                  </div>
+                </section>
+              </>
+            )}
+          </div>
+          <aside className={s.col} aria-label={STEP.kit}>
+            {layout ? <ChecklistRail layout={layout} /> : null}
+            {forStep.length ? (
+              <section className={s.cd} aria-labelledby="lv-skit-t">
+                <div className={s.cdh}>
+                  <h2 className={s.h2} id="lv-skit-t">{STEP.forStep}</h2>
+                </div>
+                <KitRows rows={forStep} />
+              </section>
+            ) : null}
+            {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} /> : null}
+            <section className={s.cd} aria-labelledby="lv-help-t">
+              <div className={s.cdh}>
+                <h2 className={s.h2} id="lv-help-t">{STEP.stillStuck}</h2>
+              </div>
+              <Go className={s.li!} href={vm.help.email.href}>
+                <Tile icon="r2Email" tone="forest" size={28} />
+                <div className={`${s.colZ} ${s.grow}`}>
+                  <span className={s.w5}>{vm.help.email.label}</span>
+                  <span className={`${s.me} ${s.el}`}>{vm.help.email.address}</span>
+                </div>
+              </Go>
+              {vm.help.officeHours ? (
+                <Go className={s.li!} href={vm.help.officeHours.href}>
+                  <Tile icon="lvLive" tone="blue" size={28} />
+                  <div className={`${s.colZ} ${s.grow}`}>
+                    <span className={s.w5}>{vm.help.officeHours.label}</span>
+                    <span className={s.me}>{vm.help.officeHours.meta}</span>
+                  </div>
+                </Go>
+              ) : null}
+            </section>
+          </aside>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={s.pg}>
@@ -202,7 +280,11 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
-  const vm = stepVM(course.payload, row, step, viewer.actor, now, { fileUrl: (id) => repo.fileUrl({ kind: 'resource', id }) });
+  const vm = stepVM(course.payload, row, step, viewer.actor, now, {
+    fileUrl: (id) => repo.fileUrl({ kind: 'resource', id }),
+    checks: me?.checks,
+    prefs: me?.coursePrefs,
+  });
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const more: StepMore = {
     crumbs: crumbsVM(vm.back.label, vm.week, { n: step ?? 1, title: vm.title }),

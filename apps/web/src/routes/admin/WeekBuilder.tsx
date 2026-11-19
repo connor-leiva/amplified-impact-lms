@@ -14,7 +14,8 @@
 import { useId, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
-import type { AgendaItem, ContentBlock, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
+import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
+import { titleWords } from '@ai/core/checklist';
 import { isVideoUpload } from '@ai/core/course-types';
 import { fileSizeLabel, uploadAccept } from '@ai/core/uploads';
 import { uploadFile } from '../../data/files';
@@ -29,11 +30,15 @@ import { LearnerWeekPreview } from '../learn/Preview';
 import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
+  ACTION_KINDS,
   BLOCK_LABELS,
+  CALLOUT_KINDS,
+  CHECK_ROLES,
   CONTENT_KINDS,
   PATH_KINDS,
   VIDEO_KINDS,
   VIDEO_LABELS,
+  nextCheckId,
   mediaLines,
   mediaVideos,
   PLATFORM_LABELS,
@@ -189,16 +194,25 @@ function Row({
  * A list of blocks: a step's Claude or ChatGPT path (every kind, D-188's video too), a sample output
  * (the content kinds), or a week's Media videos (video only). Add, edit, reorder and remove.
  */
+export interface BlockPicks {
+  kit: { id: string; title: string }[];
+  sessions: { id: string; title: string }[];
+  /** Checklist ids already used on this step, so a new item does not reuse one. */
+  ids: string[];
+}
+
 export function Blocks({
   label,
   blocks,
   onChange,
   kinds = CONTENT_KINDS,
+  picks,
 }: {
   label: string;
   blocks: readonly PathBlock[];
   onChange: (b: PathBlock[]) => void;
   kinds?: readonly PathBlock['type'][];
+  picks?: BlockPicks;
 }) {
   const [add, setAdd] = useState<PathBlock['type']>(kinds[0] ?? 'text');
   const set = (i: number, b: PathBlock) => onChange(setAt(blocks, i, b));
@@ -232,6 +246,9 @@ export function Blocks({
             </>
           ) : null}
           {b.type === 'video' ? <VideoFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'check' ? <CheckFields n={i + 1} block={b} picks={picks} ids={blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'callout' ? <CalloutFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'accordion' ? <AccordionFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
         </div>
       ))}
       <div className={clsx(k.row, w.adder)}>
@@ -244,7 +261,14 @@ export function Blocks({
             ))}
           </Sel>
         ) : null}
-        <Button kind="quiet" icon="r2Plus" onClick={() => onChange([...blocks, newBlock(add)])}>
+        <Button
+          kind="quiet"
+          icon="r2Plus"
+          onClick={() => {
+            const block = newBlock(add);
+            onChange([...blocks, block.type === 'check' ? { ...block, id: nextCheckId([...(picks?.ids ?? []), ...blocks.flatMap((b) => (b.type === 'check' ? [b.id] : []))]) } : block]);
+          }}
+        >
           Add block
         </Button>
       </div>
@@ -319,6 +343,177 @@ function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onC
   );
 }
 
+function CheckFields({ n, block, picks, ids, onChange }: { n: number; block: CheckBlock; picks?: BlockPicks; ids: string[]; onChange: (b: CheckBlock) => void }) {
+  const words = titleWords(block.title);
+  const setAction = (type: string) => {
+    const action: CheckAction | undefined =
+      type === 'download' ? { type: 'download', kitItemIds: [] }
+      : type === 'copy' ? { type: 'copy', label: 'Copy prompt', text: '' }
+      : type === 'invite' ? { type: 'invite', label: 'Invite your operator' }
+      : type === 'calendar' ? { type: 'calendar', sessionId: picks?.sessions[0]?.id ?? '' }
+      : type === 'link' ? { type: 'link', label: 'Open', href: '' }
+      : type === 'form' ? { type: 'form', formId: 'intake', label: 'Open the form' }
+      : type === 'card' ? { type: 'card', terms: [] }
+      : undefined;
+    onChange(action ? { ...block, action } : { ...block, action: undefined });
+  };
+  const others = [...new Set([...(picks?.ids ?? []), ...ids])].filter((id) => id && id !== block.id);
+  const cross = (block.dependsOn ?? []).filter((d) => d.startsWith('step:'));
+  const same = new Set((block.dependsOn ?? []).filter((d) => !d.startsWith('step:')));
+  const setDepends = (nextSame: Set<string>, nextCross: string[]) => {
+    const dependsOn = [...nextSame, ...nextCross];
+    onChange(dependsOn.length ? { ...block, dependsOn } : { ...block, dependsOn: undefined });
+  };
+  return (
+    <>
+      <Line label={`Block ${n} id`} value={block.id} hint="Unique on this step. Don’t reuse an id you removed." onChange={(id) => onChange({ ...block, id })} />
+      <Line label={`Block ${n} title`} value={block.title} hint={words > 8 ? `${words} words. Aim for 8 or fewer.` : '8 words or fewer.'} onChange={(title) => onChange({ ...block, title })} />
+      <Para label={`Block ${n} detail`} value={block.detail ?? ''} hint="Optional. One line under the title." onChange={(v) => onChange(v.trim() ? { ...block, detail: v } : { ...block, detail: undefined })} />
+      <label className={s.lab}>
+        Role
+        <Sel aria-label={`Block ${n} role`} value={block.role ?? ''} onChange={(e) => onChange({ ...block, role: (e.target.value || undefined) as CheckBlock['role'] })}>
+          {CHECK_ROLES.map(([value, label]) => (
+            <option key={value || 'none'} value={value}>{label}</option>
+          ))}
+        </Sel>
+      </label>
+      <label className={clsx(k.row, k.nw, w.check)}>
+        <input type="checkbox" checked={!!block.optional} onChange={(e) => onChange({ ...block, optional: e.target.checked || undefined })} />
+        Optional. A learner can mark the step done without it.
+      </label>
+      <Lines label={`Block ${n} click path`} items={block.clickPath ?? []} onChange={(clickPath) => onChange(clickPath.length ? { ...block, clickPath } : { ...block, clickPath: undefined })} />
+      <Line label={`Block ${n} play at`} value={block.playAt ? String(block.playAt.t) : ''} hint="Seconds into this path’s video. Blank for none." onChange={(v) => onChange(v.trim() && Number.isFinite(Number(v)) ? { ...block, playAt: { t: Math.max(0, Math.round(Number(v))) } } : { ...block, playAt: undefined })} />
+      <Lines label={`Block ${n} tasks`} items={(block.subchecks ?? []).map((sub) => `${sub.id} | ${sub.label}`)} onChange={(lines) => {
+        const subchecks = lines.map((line) => {
+          const [id, ...rest] = line.split('|');
+          return { id: (id ?? '').trim(), label: rest.join('|').trim() || (id ?? '').trim() };
+        }).filter((sub) => sub.id);
+        onChange(subchecks.length ? { ...block, subchecks } : { ...block, subchecks: undefined });
+      }} />
+      <p className={clsx(k.me, w.hint)}>One task per line, id | label. The item is checked when every task is.</p>
+      <fieldset className={w.blocks}>
+        <legend className={w.legend}>Depends on</legend>
+        {others.map((id) => (
+          <label key={id} className={clsx(k.row, k.nw, w.check)}>
+            <input
+              type="checkbox"
+              checked={same.has(id)}
+              onChange={(e) => {
+                const next = new Set(same);
+                if (e.target.checked) next.add(id);
+                else next.delete(id);
+                setDepends(next, cross);
+              }}
+            />
+            {id}
+          </label>
+        ))}
+        <Line label={`Block ${n} other steps`} value={cross.join('\n')} hint="One step:N:id per line, like step:6:s6-google." onChange={(v) => setDepends(same, v.split('\n').map((l) => l.trim()).filter(Boolean))} />
+      </fieldset>
+      <label className={s.lab}>
+        Button
+        <Sel aria-label={`Block ${n} button`} value={block.action?.type ?? ''} onChange={(e) => setAction(e.target.value)}>
+          {ACTION_KINDS.map(([value, label]) => (
+            <option key={value || 'none'} value={value}>{label}</option>
+          ))}
+        </Sel>
+      </label>
+      {block.action?.type === 'download' ? (
+        <fieldset className={w.blocks}>
+          <legend className={w.legend}>Week kit</legend>
+          {(picks?.kit ?? []).length === 0 ? <p className={clsx(k.p, k.mu)}>This week has no kit items yet.</p> : null}
+          {(picks?.kit ?? []).map((item) => (
+            <label key={item.id} className={clsx(k.row, k.nw, w.check)}>
+              <input
+                type="checkbox"
+                checked={block.action?.type === 'download' && block.action.kitItemIds.includes(item.id)}
+                onChange={(e) => {
+                  if (block.action?.type !== 'download') return;
+                  const kitItemIds = e.target.checked ? [...block.action.kitItemIds, item.id] : block.action.kitItemIds.filter((id) => id !== item.id);
+                  onChange({ ...block, action: { type: 'download', kitItemIds } });
+                }}
+              />
+              {item.title}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      {block.action?.type === 'copy' ? (
+        <>
+          <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'copy' && onChange({ ...block, action: { ...block.action, label } })} />
+          <Para label={`Block ${n} text to copy`} value={block.action.text} rows={4} onChange={(text) => block.action?.type === 'copy' && onChange({ ...block, action: { ...block.action, text } })} />
+        </>
+      ) : null}
+      {block.action?.type === 'invite' ? <Line label={`Block ${n} button label`} value={block.action.label ?? ''} onChange={(label) => onChange({ ...block, action: { type: 'invite', ...(label.trim() ? { label } : {}) } })} /> : null}
+      {block.action?.type === 'calendar' ? (
+        <label className={s.lab}>
+          Session
+          <Sel aria-label={`Block ${n} session`} value={block.action.sessionId} onChange={(e) => onChange({ ...block, action: { type: 'calendar', sessionId: e.target.value } })}>
+            <option value="">Choose a session</option>
+            {(picks?.sessions ?? []).map((session) => (
+              <option key={session.id} value={session.id}>{session.title}</option>
+            ))}
+          </Sel>
+        </label>
+      ) : null}
+      {block.action?.type === 'link' ? (
+        <>
+          <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'link' && onChange({ ...block, action: { ...block.action, label } })} />
+          <Line label={`Block ${n} link`} value={block.action.href} hint="A route like /learn/team, mailto: or https://" onChange={(href) => block.action?.type === 'link' && onChange({ ...block, action: { ...block.action, href } })} />
+        </>
+      ) : null}
+      {block.action?.type === 'form' ? (
+        <>
+          <label className={s.lab}>
+            Form
+            <Sel aria-label={`Block ${n} form`} value={block.action.formId} onChange={(e) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, formId: e.target.value as 'intake' | 'stack-card' } })}>
+              <option value="intake">Intake</option>
+              <option value="stack-card">Stack card</option>
+            </Sel>
+          </label>
+          <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
+          <p className={clsx(k.me, w.hint)}>Saved now. The form itself is a later change, so learners see no button yet.</p>
+        </>
+      ) : null}
+      {block.action?.type === 'card' ? (
+        <>
+          <Lines label={`Block ${n} terms`} items={block.action.terms} onChange={(terms) => onChange({ ...block, action: { type: 'card', terms } })} />
+          <p className={clsx(k.me, w.hint)}>Saved now. The glossary card is a later change, so learners see nothing yet.</p>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+function CalloutFields({ n, block, onChange }: { n: number; block: CalloutBlock; onChange: (b: CalloutBlock) => void }) {
+  return (
+    <>
+      <label className={s.lab}>
+        Kind
+        <Sel aria-label={`Block ${n} kind`} value={block.kind} onChange={(e) => onChange({ ...block, kind: e.target.value as CalloutBlock['kind'] })}>
+          {CALLOUT_KINDS.map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </Sel>
+      </label>
+      <Para label={`Block ${n} text`} value={block.text} onChange={(text) => onChange({ ...block, text })} />
+    </>
+  );
+}
+
+function AccordionFields({ n, block, onChange }: { n: number; block: AccordionBlock; onChange: (b: AccordionBlock) => void }) {
+  return (
+    <>
+      <Line label={`Block ${n} title`} value={block.title} onChange={(title) => onChange({ ...block, title })} />
+      <Lines label={`Block ${n} paragraphs`} items={block.body} onChange={(body) => onChange({ ...block, body })} />
+      <HeadField label={`Block ${n} table headings`} head={block.table?.head ?? []} onChange={(head) => onChange({ ...block, table: head.length || (block.table?.rows?.length ?? 0) ? { ...(head.length ? { head } : {}), rows: block.table?.rows ?? [] } : undefined })} />
+      <TableRowsField label={`Block ${n} table rows`} rows={block.table?.rows ?? []} onChange={(rows) => onChange({ ...block, table: rows.length || (block.table?.head?.length ?? 0) ? { ...(block.table?.head?.length ? { head: [...block.table.head] } : {}), rows } : undefined })} />
+      <Line label={`Block ${n} link label`} value={block.link?.label ?? ''} onChange={(label) => onChange({ ...block, link: label.trim() || block.link?.href ? { label, href: block.link?.href ?? '' } : undefined })} />
+      <Line label={`Block ${n} link`} value={block.link?.href ?? ''} hint="A route, mailto or https://" onChange={(href) => onChange({ ...block, link: href.trim() || block.link?.label ? { label: block.link?.label ?? '', href } : undefined })} />
+    </>
+  );
+}
+
 /** A table's headings as staff type them, cells split by "|": kept as typed, read on each change. */
 function HeadField({ label, head, onChange }: { label: string; head: readonly string[]; onChange: (h: string[]) => void }) {
   const [text, setText] = useState(head.join(' | '));
@@ -358,8 +553,11 @@ function TableRowsField({ label, rows, onChange }: { label: string; rows: readon
 
 // --- a step's course fields ------------------------------------------------------------------------
 
+const checkIds = (step: Step): string[] =>
+  [...(step.paths?.claude?.blocks ?? []), ...(step.paths?.chatgpt?.blocks ?? [])].flatMap((b) => (b.type === 'check' ? [b.id] : []));
+
 /** The step dialog's course fields, for a week's step. */
-export function StepWeekFields({ step, onChange }: { step: Step; onChange: (fn: (st: Step) => void) => void }) {
+export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange: (fn: (st: Step) => void) => void; picks?: Omit<BlockPicks, 'ids'> }) {
   const opt = (v: string): string | undefined => (v.trim() ? v : undefined);
   const setOpt = <K extends 'who' | 'timeLabel' | 'doneWhen' | 'linkedSkill'>(key: K, v: string) =>
     onChange((st) => {
@@ -396,8 +594,8 @@ export function StepWeekFields({ step, onChange }: { step: Step; onChange: (fn: 
         />
         Open in the pre-launch preview
       </label>
-      <Blocks label="Claude path" kinds={PATH_KINDS} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
-      <Blocks label="ChatGPT path" kinds={PATH_KINDS} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
+      <Blocks label="Claude path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step) }} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
+      <Blocks label="ChatGPT path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step) }} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
     </>
   );
 }

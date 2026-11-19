@@ -298,6 +298,8 @@ export function Blocks({ blocks }: { blocks: PathBlock[] }) {
               <CopyBlock text={b.text} label={b.label} />
             </div>
           );
+        // D-190: checklist, callout and accordion blocks draw in the one-step layout, not here.
+        if (b.type !== 'table') return null;
         const cols = Math.max(b.head?.length ?? 0, ...b.rows.map((r) => r.length));
         const rowClass = `${s.wrr} ${cols === 2 ? s.wrr2 : ''}`;
         // Wider columns for longer words, the same on every row so the columns line up.

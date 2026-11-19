@@ -50,10 +50,40 @@ export interface Progress {
   issue?: string; lastRun?: { at: number; title: string; preview: string };
 }
 
+/**
+ * One checklist box for one learner (D-190). A sub-check is stored as `itemId` = `<itemId>:<subId>`.
+ * Absent on a learner who has never checked one, so every existing snapshot stays as it is.
+ */
+export interface ChecklistMark {
+  moduleId: string;
+  stepId: string;
+  itemId: string;
+  checked: boolean;
+  /** Epoch ms. Absent when the box is unchecked. */
+  checkedAt?: number;
+  /** True when a later change checked it from the video. A hand check is false. */
+  auto: boolean;
+}
+
+/**
+ * One remembered choice on the course step page (D-190): an accordion (`acc:<moduleId>:<stepId>:<index>`).
+ * Not `users.prefs`, which is the viewer's timezone and theme and is never part of a snapshot.
+ */
+export interface CoursePref {
+  key: string;
+  value: string;
+  /** Epoch ms. */
+  updatedAt: number;
+}
+
 export interface Learner {
   id: string; name: string; email: string; tier: Tier; role: LearnerRole; teamId: string | null;
   cohortId: string; joined: number; last: number | null; status: 'active' | 'invited';
   progress: Record<string, Progress>; reminded?: number; nudged?: number;
+  /** D-190. Absent until this learner checks an item. */
+  checks?: ChecklistMark[];
+  /** D-190. Absent until this learner opens an accordion. */
+  coursePrefs?: CoursePref[];
 }
 
 export interface Team { id: string; name: string; ownerId: string; seats: number }
