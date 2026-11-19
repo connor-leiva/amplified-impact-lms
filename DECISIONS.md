@@ -6678,7 +6678,6 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** Which skills open or download. The welcome panel's words. No migration, no new copy key, no golden, no tolerance, no mask. The standalone library has no golden.
 
 **Blast radius.** A learner whose plan holds every set sees the same order, open, as before. A locked row for a group member still says the group's line and offers no plan. The portal library is untouched.
-
 ---
 
 ## D-202 · A second test learner, in the Accelerator, who is not a sold seat
@@ -6694,3 +6693,19 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No new screen. Goldens, tolerances and masks are untouched.
 
 **Blast radius.** With the kind unset, D-200 is unchanged. A real buyer's dates and the 15-seat count are unchanged. A draft week stays out of the course.
+
+---
+
+## D-203 · Bone page ground, and a hover underline that stays on text links
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026, 12:55 PM CT: ship the Week 0 polish live in small pieces, speed over exhaustive testing, and keep CI green including parity-learner.
+**Number:** D-202 is the Accelerator test learner, now on `main`. D-203 was free.
+
+- **The underline.** `a:hover` in the generated reset (global.css, from every `design-reference/*.dc.html` helmet) is one pseudo-class plus an element. A component's `text-decoration: none` is one class. On hover the generated rule won, so nav rows, pills, and button-links picked up an underline and, where they had not set a hover color, the link color. The hover half of that rule is now `a:where(:hover)` for the color (specificity of the element alone, so any class color wins) and `a:not([class]):hover` for the underline. A classed link keeps the decoration its own rule sets, including a text link that is meant to be underlined. An `<a>` with no class still underlines on hover. Resting color and decoration are unchanged, so the golden fingerprints do not move.
+- **Buttons.** `styles/polish.css` loads after that reset. A button or `[role="button"]` that has no stronger hover gains a 1px forest outline. Focus-visible draws a 2px forest outline, offset 2px. A component rule with two classes, and the learner frame's own focus ring, still win. Reduced motion drops transitions on those controls.
+- **The ground.** `--r2-bg` in `r2.css` stays `#f4f2ec`, the admin mockup's value (`r2-tokens.test.ts` compares every token). `styles/polish.css` sets `--r2-bg` to bone `#f1f0eb` on a light `[data-learner-v2]` or `[data-r2-shell]`, and paints the document the same color so overscroll matches. The selectors start at `html`, not `:root`, so the token comparison (`tokens.spec.ts`) still sees the reference's 92 properties. A dark theme does not match that rule. Dark mode still sets `--r2-bg` to `--bg-canvas` on the learner frame. `--bg-canvas` in tokens.css is unchanged, so the flag-off golden portal still reads it. `/skill-library` already sits on `--look-bone`, which is the same hex, and its layout is unchanged.
+- **Contrast, light, on `#f1f0eb`.** Forest `#1f4d40` is 8.39:1. Ink `#15211d` is 14.52:1. Secondary `#46524d` is 7.15:1. Tertiary `#5f6a64` is 4.93:1. White on forest is 9.57:1. Energy `#1f8a5c` on bone is 3.80:1, so it stays a check fill and a bar, not small text (the same call as D-190). Dark pairs are the ones already shipping.
+- **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. Skill Library markup and section order are untouched.
+
+**Blast radius.** A flag-off screen at rest still matches its golden. A dark learner frame keeps the dark palette. www pages inline global.css from the same helmet, so their hover underline moves with this rule and their ground does not.
