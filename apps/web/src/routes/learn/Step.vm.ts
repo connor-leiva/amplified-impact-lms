@@ -53,6 +53,9 @@ export const STEP = {
   onThisPage: 'On This Page',
   checklist: 'Checklist',
   stepDone: 'Step done',
+  /** The line under Mark step done once the step is done and another step follows. */
+  niceWork: 'Nice work. Step',
+  isNext: 'is next.',
   week: 'Week',
   nextKicker: 'Next',
   tip: 'Tip',
@@ -484,7 +487,9 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
     }),
     gate: {
       locked,
-      reason: locked ? (remaining === 1 ? `${STEP.checkOff} ${STEP.oneMore}` : `${STEP.checkOff} ${remaining} ${STEP.moreToGo}`) : null,
+      reason: locked
+        ? (remaining === 1 ? `${STEP.checkOff} ${STEP.oneMore}` : `${STEP.checkOff} ${remaining} ${STEP.moreToGo}`)
+        : (ctx.done && ctx.next ? `${STEP.niceWork} ${ctx.n + 1} ${STEP.isNext}` : null),
     },
     next: ctx.next,
     due: ctx.dueAt !== null ? `${STEP.due} ${dueLine(ctx.dueAt)}` : null,

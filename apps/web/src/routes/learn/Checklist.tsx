@@ -161,11 +161,9 @@ function Action({ action }: { action: CheckActionVM }) {
 function Box({ checked }: { checked: boolean }) {
   return (
     <span className={s.box} data-on={checked ? 'true' : undefined} aria-hidden="true">
-      {checked ? (
-        <svg viewBox="0 0 16 16" className={s.tick}>
-          <path d="M3.5 8.5l3 3 6-7" />
-        </svg>
-      ) : null}
+      <svg viewBox="0 0 16 16" className={s.tick}>
+        <path pathLength={20} d="M3.5 8.5l3 3 6-7" />
+      </svg>
     </span>
   );
 }
@@ -315,16 +313,6 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
         ) : null}
       </div>
     </details>
-  );
-}
-
-/** Reduced motion only: a static line. The motion is the one ring on the button. */
-function DoneBanner({ on }: { on: boolean }) {
-  if (!on) return null;
-  return (
-    <div className={s.celebrate} aria-hidden="true">
-      <span className={s.banner}>{STEP.stepDone}</span>
-    </div>
   );
 }
 
@@ -608,7 +596,9 @@ export function ChecklistPlayer({
       <div className={s.foot}>
         <div className={s.mark}>
           <button type="button" className={`${l.b} ${l.bp} ${l.bi} ${s.markBtn}`} data-done={vm.mark.done ? 'true' : undefined} data-ring={celebrating ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
-            <Icon name="r2Check" size={16} strokeWidth={2.2} />
+            <svg className={s.ck} width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path pathLength={20} d="M3.5 8.5l3 3 6-7" />
+            </svg>
             {vm.mark.done ? STEP.stepDone : STEP.markDone}
           </button>
           {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
@@ -617,10 +607,9 @@ export function ChecklistPlayer({
               {STEP.undo}
             </button>
           ) : null}
-          <DoneBanner on={celebrating && vm.mark.done} />
         </div>
         {layout.next ? (
-          <Link className={s.next} to={layout.next.href} aria-label={`${STEP.next}: ${layout.next.title}`}>
+          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined} aria-label={`${STEP.next}: ${layout.next.title}`}>
             <span className={s.nextK}>{STEP.nextKicker}</span>
             <span className={s.nextT}>{layout.next.title}</span>
             {layout.next.meta ? <span className={s.nextM}>{layout.next.meta}</span> : null}

@@ -300,22 +300,28 @@
 .boxBtn:hover .box[data-on='true'] {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--r2-for) 6%, transparent);
 }
+.boxBtn:active .box {
+  transform: scale(0.9);
+}
 .item[data-pop='true'] .box[data-on='true'] {
   animation: checkPop 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .tick {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2.4;
+  stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 24;
-  stroke-dashoffset: 0;
 }
-.item[data-pop='true'] .tick {
-  animation: draw 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+.tick path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 240ms cubic-bezier(0.2, 0.7, 0.2, 1) 60ms;
+}
+.box[data-on='true'] .tick path {
+  stroke-dashoffset: 0;
 }
 .titleRow {
   display: flex;
@@ -621,7 +627,7 @@
     box-shadow 200ms ease-out;
 }
 .next:hover {
-  background: var(--r2-forh);
+  background: color-mix(in srgb, var(--r2-for) 95%, var(--r2-sf));
   transform: translateY(-2px);
   box-shadow: var(--r2-sh-pop);
   color: var(--r2-on-for);
@@ -668,6 +674,10 @@
   background: var(--r2-mint);
   transition: width 200ms ease-out;
 }
+.next[data-done='true'] .nextBar {
+  width: 64px;
+  transition-duration: 450ms;
+}
 .nextAr {
   position: absolute;
   right: 24px;
@@ -680,6 +690,13 @@
   place-items: center;
   background: color-mix(in srgb, var(--r2-on-for) 10%, transparent);
   color: var(--r2-on-for);
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    background-color 200ms ease-out;
+}
+.next:hover .nextAr {
+  transform: translateX(3px);
+  background: color-mix(in srgb, var(--r2-on-for) 16%, transparent);
 }
 .rail {
   position: sticky;
@@ -818,6 +835,30 @@
 }
 .dot[data-c='for'] { background: var(--r2-for); }
 .dot[data-c='energy'] { background: var(--r2-energy); }
+.ck {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ck path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 0;
+}
+.mark .markBtn[data-done='true'],
+.mark .markBtn[data-done='true']:hover {
+  background: color-mix(in oklch, var(--r2-mint) 22%, transparent);
+  color: var(--r2-for);
+  border-color: color-mix(in srgb, var(--r2-for) 18%, transparent);
+  box-shadow: none;
+}
+.mark .markBtn[data-done='true']:hover {
+  background: color-mix(in oklch, var(--r2-mint) 32%, var(--r2-sf));
+}
+.markBtn[data-done='true'] .ck path {
+  animation: draw 280ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms both;
+}
 .mark button[data-ring='true'] {
   position: relative;
 }
@@ -827,7 +868,8 @@
   inset: -1px;
   border-radius: inherit;
   border: 2px solid var(--r2-energy);
-  animation: ring 600ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  opacity: 0;
+  animation: ring 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   pointer-events: none;
 }
 
@@ -837,7 +879,7 @@
   100% { transform: scale(1); }
 }
 @keyframes draw {
-  from { stroke-dashoffset: 24; }
+  from { stroke-dashoffset: 20; }
   to { stroke-dashoffset: 0; }
 }
 @keyframes strike {
@@ -849,8 +891,8 @@
   to { transform: translate(var(--r), 72px); opacity: 0; }
 }
 @keyframes ring {
-  from { transform: scale(0.6); opacity: 0.9; }
-  to { transform: scale(1.35); opacity: 0; }
+  0% { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.18, 1.5); }
 }
 
 @media (max-width: 720px) {
@@ -888,9 +930,13 @@
   }
   .next:hover,
   .next:active,
+  .next:hover .nextAr,
+  .mark .markBtn:hover,
+  .mark .markBtn:active,
   .pill:hover,
   .jumps a:hover,
-  .rail li a:hover {
+  .rail li a:hover,
+  .boxBtn:active .box {
     transform: none;
   }
   .dot { display: none; }
@@ -902,5 +948,5 @@
     color: var(--r2-for);
   }
   .celebrate { position: static; }
-  .mark button[data-ring='true']::after { content: none; }
+  .mark button[data-ring='true']::after { display: none; }
 }

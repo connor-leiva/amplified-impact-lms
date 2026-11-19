@@ -6775,3 +6775,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. A step that is not the checklist layout keeps its own player.
 
 **Blast radius.** The parity fixture’s steps do not use this layout, so those goldens stay. A checklist week, including Week 0 once its paths have checks, draws this page.
+
+---
+
+## D-208 · Step completion motion from the polish mockup
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: piece 4 follows `design-reference/week0-polish/step-2.html`, not a prose rewrite.
+**Number:** D-207 is the mockup fidelity pass. D-208 was free.
+
+- **Ring.** Marking the step done plays one energy ring on that button: opacity 0.85 at scale 1, fading out to scale 1.18 by 1.5, over 600ms. It plays once.
+- **Check.** The checklist box and the Mark step done mark draw the check. The path is always in the box; checking it runs the stroke from empty to drawn.
+- **Done.** The button leaves the forest fill for a mint wash and forest text. The line under it reads `Nice work. Step N is next.` The next card's mint bar grows, and its arrow moves 3px right on hover.
+- **Reduced motion.** The ring is not drawn. Hover does not lift or move the arrow. The colour change and the drawn check remain.
+- **Not changed.** The footer stays Mark step done beside the forest next card. No course copy, schema, or golden change.
