@@ -1421,8 +1421,14 @@ button.b {
   justify-content: center;
   align-items: flex-start;
 }
-.rplink {
+/* On the forest replay panel the secondary bone fill can sit under inherited light type.
+   Keep this one on the surface with ink, which clears contrast. */
+.rpv .b.rplink,
+.rpv .b.rplink:hover {
   margin-top: 12px;
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  border-color: var(--r2-line2);
 }
 .rpchb[data-static='true'] {
   cursor: default;
