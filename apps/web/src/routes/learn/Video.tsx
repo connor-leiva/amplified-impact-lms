@@ -36,7 +36,7 @@ export interface VideoWatch {
 
 const GAP_S = 1.25;
 
-export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWatch }) {
+export function VideoView({ block, watch, onDuration }: { block: VideoBlock; watch?: VideoWatch; onDuration?: (seconds: number) => void }) {
   const source = videoBlockSource(block, courseVideoUrl);
   const video = useRef<HTMLVideoElement | null>(null);
   const [failed, setFailed] = useState(false);
@@ -185,7 +185,10 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
       preload="metadata"
       onLoadedMetadata={(e) => {
         const d = e.currentTarget.duration;
-        setDuration(Number.isFinite(d) && d > 0 ? d : null);
+        if (Number.isFinite(d) && d > 0) {
+          setDuration(d);
+          onDuration?.(d);
+        } else setDuration(null);
       }}
       aria-label={title ?? STEP.video}
       data-video-block=""

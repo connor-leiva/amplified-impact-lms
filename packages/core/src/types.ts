@@ -24,6 +24,8 @@ export type StepKind = 'Watch' | 'Read' | 'Build' | 'Check' | 'Ship';
 export interface Step {
   id: string; text: string; ch: string; mins: number; t: number; hint: string; kind?: StepKind;
   who?: string; timeLabel?: string; doneWhen?: string; paths?: StepPaths; linkedSkill?: string; openInPreview?: boolean;
+  /** The paragraph under the step title. Absent on a step that has none. */
+  goal?: string;
 }
 export interface SkillFile { name: string; type: 'JSON' | 'YAML' | 'Notion'; size: string; desc: string; steps: string[] }
 export interface ModuleResource { name: string; type: string; size: string }

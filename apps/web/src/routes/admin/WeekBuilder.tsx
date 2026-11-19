@@ -782,7 +782,7 @@ const checkIds = (step: Step): string[] =>
 /** The step dialog's course fields, for a week's step. */
 export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange: (fn: (st: Step) => void) => void; picks?: Omit<BlockPicks, 'ids'> }) {
   const opt = (v: string): string | undefined => (v.trim() ? v : undefined);
-  const setOpt = <K extends 'who' | 'timeLabel' | 'doneWhen' | 'linkedSkill'>(key: K, v: string) =>
+  const setOpt = <K extends 'who' | 'timeLabel' | 'doneWhen' | 'goal' | 'linkedSkill'>(key: K, v: string) =>
     onChange((st) => {
       const x = opt(v);
       if (x === undefined) delete st[key];
@@ -802,6 +802,7 @@ export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange
       <Line label="Who" value={step.who ?? ''} hint="Owner, Operator, Each of you" onChange={(v) => setOpt('who', v)} />
       <Line label="Time" value={step.timeLabel ?? ''} hint="20 min" onChange={(v) => setOpt('timeLabel', v)} />
       <Para label="Done when" value={step.doneWhen ?? ''} onChange={(v) => setOpt('doneWhen', v)} />
+      <Para label="Goal" value={step.goal ?? ''} hint="The paragraph under the step title." onChange={(v) => setOpt('goal', v)} />
       <Line label="Linked skill" value={step.linkedSkill ?? ''} hint="The Library route, like map-your-spend. Separate more than one with commas." onChange={(v) => setOpt('linkedSkill', v)} />
       <label className={clsx(k.row, k.nw, w.check)}>
         <input

@@ -4,7 +4,7 @@ import { setViewerZone } from '@ai/core';
 import { learnerOf } from '@ai/core/learner';
 import type { PathBlock } from '@ai/core/course-types';
 import { weekRows } from './learn.vm';
-import { stepParam, stepVM } from './Step.vm';
+import { stepParam, stepVM, watchLength } from './Step.vm';
 import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
@@ -30,6 +30,16 @@ describe('the step player (D-177)', () => {
     expect(vm.doneWhen).toMatch(/^Done when: Paid plan/);
     expect(vm.paths.claude![0]).toMatchObject({ type: 'list', items: expect.arrayContaining(['A paid Claude plan']) });
     expect(vm.paths.chatgpt![0]).toMatchObject({ type: 'list', items: expect.arrayContaining(['A paid ChatGPT plan']) });
+  });
+
+  it('step 2’s goal is the paragraph under the title, and a video length reads in minutes and seconds', () => {
+    const vm = stepVM(st.payload, rows[0], 2, learner, st.now);
+    if (vm.kind !== 'step') throw new Error('missing');
+    expect(vm.title).toBe('Watch the Orientation');
+    expect(vm.lede).toBe('The goal of this step is that both of you know how a week runs and what an AI hire is before we start building. Watch it together if you can.');
+    expect(watchLength(7 * 60 + 49)).toBe('7 min 49 s');
+    expect(watchLength(120)).toBe('2 min');
+    expect(watchLength(2)).toBe('2 s');
   });
 
   it('a step with no paths has no tabs', () => {

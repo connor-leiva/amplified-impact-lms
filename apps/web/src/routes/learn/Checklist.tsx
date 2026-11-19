@@ -13,7 +13,7 @@ import { KnowCard, Marked } from './Glossary';
 import { StartHereCard } from './StartHere';
 import { LABELS } from './learn.vm';
 import type { StartHereVM } from './Week.vm';
-import { PLATFORM_LABEL, STEP } from './Step.vm';
+import { PLATFORM_LABEL, STEP, watchLength } from './Step.vm';
 import type { AccordionVM, CalloutVM, CheckActionVM, CheckItemVM, ChecklistLayoutVM, PillVM, StepVM } from './Step.vm';
 import s from './Checklist.module.css';
 import l from './Learn.module.css';
@@ -161,11 +161,9 @@ function Action({ action }: { action: CheckActionVM }) {
 function Box({ checked }: { checked: boolean }) {
   return (
     <span className={s.box} data-on={checked ? 'true' : undefined} aria-hidden="true">
-      {checked ? (
-        <svg viewBox="0 0 16 16" className={s.tick}>
-          <path d="M3.5 8.5l3 3 6-7" />
-        </svg>
-      ) : null}
+      <svg viewBox="0 0 16 16" className={s.tick}>
+        <path pathLength={20} d="M3.5 8.5l3 3 6-7" />
+      </svg>
     </span>
   );
 }
@@ -248,7 +246,7 @@ function Item({
             {item.action ? <Action action={item.action} /> : null}
             {item.playSeconds !== null && item.playLabel ? (
               <button type="button" className={`${l.b} ${l.bi} ${s.act}`} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
-                <Icon name="r2Play" size={14} strokeWidth={1.75} />
+                <Icon name="play" size={14} filled />
                 {item.playLabel}
               </button>
             ) : null}
@@ -318,16 +316,6 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
   );
 }
 
-/** Reduced motion only: a static line. The motion is the one ring on the button. */
-function DoneBanner({ on }: { on: boolean }) {
-  if (!on) return null;
-  return (
-    <div className={s.celebrate} aria-hidden="true">
-      <span className={s.banner}>{STEP.stepDone}</span>
-    </div>
-  );
-}
-
 /** The step, when its open path is a checklist. */
 export function ChecklistPlayer({
   vm,
@@ -358,6 +346,7 @@ export function ChecklistPlayer({
   const [confirm, setConfirm] = useState<{ ids: string[]; stepN: number } | null>(null);
   const [undo, setUndo] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [watchLen, setWatchLen] = useState<number | null>(null);
   const titleId = useId();
   const pops = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => {
@@ -522,7 +511,7 @@ export function ChecklistPlayer({
     void mutate('setPref', { key, value: open ? '1' : '0' });
   };
 
-  const pct = layout.progress.total ? Math.round((layout.progress.done / layout.progress.total) * 100) : 0;
+  const pct = layout.progress.total ? layout.progress.done / layout.progress.total : 0;
 
   return (
     <div className={s.main}>
@@ -531,9 +520,11 @@ export function ChecklistPlayer({
         <h1 className={l.h0}>{vm.title}</h1>
         {vm.lede ? <p className={s.purpose}>{vm.lede}</p> : null}
         <div className={s.hrow}>
-          {layout.time ? <span className={s.hc}>{layout.time}</span> : null}
-          {layout.role ? <span className={s.hc}>{layout.role}</span> : null}
-          {layout.countdown ? <span className={s.hc}>{layout.countdown}</span> : null}
+          <div className={s.meta}>
+            {layout.time ? <span className={s.hc}><Icon name="r2Clock" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.time}</span> : null}
+            {layout.role ? <span className={s.hc}><Icon name="r2People" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.role}</span> : null}
+            {layout.due ? <span className={s.hc}><Icon name="r2Cal" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.due}</span> : null}
+          </div>
           {vm.tabs.length > 1 ? (
             <span
               className={l.seg}
@@ -558,7 +549,7 @@ export function ChecklistPlayer({
         {layout.progress.total ? (
           <div className={s.barWrap}>
             <div className={s.bar} role="progressbar" aria-valuemin={0} aria-valuemax={layout.progress.total} aria-valuenow={layout.progress.done} aria-label={layout.progress.label}>
-              <i style={{ width: `${pct}%` }} />
+              <i style={{ ['--pct' as string]: String(pct) }} />
             </div>
             <p className={s.barL}>{layout.progress.label}</p>
           </div>
@@ -569,9 +560,12 @@ export function ChecklistPlayer({
 
       {layout.videos.length ? (
         <section id="step-watch" aria-labelledby="step-watch-h">
-          <h2 id="step-watch-h">{STEP.watch}</h2>
+          <h2 id="step-watch-h">
+            {STEP.watch}
+            {watchLen != null ? <small>{watchLength(watchLen)}</small> : null}
+          </h2>
           {layout.videos.map((block, i) => (
-            <VideoView key={i} block={block} watch={watch} />
+            <VideoView key={i} block={block} watch={watch} onDuration={i === 0 ? setWatchLen : undefined} />
           ))}
         </section>
       ) : null}
@@ -608,19 +602,20 @@ export function ChecklistPlayer({
       <div className={s.foot}>
         <div className={s.mark}>
           <button type="button" className={`${l.b} ${l.bp} ${l.bi} ${s.markBtn}`} data-done={vm.mark.done ? 'true' : undefined} data-ring={celebrating ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
-            <Icon name="r2Check" size={16} strokeWidth={2.2} />
+            <svg className={s.ck} width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path pathLength={20} d="M3.5 8.5l3 3 6-7" />
+            </svg>
             {vm.mark.done ? STEP.stepDone : STEP.markDone}
           </button>
           {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
           {vm.mark.done && undo ? (
-            <button type="button" className={`${l.b} ${l.bq}`} onClick={() => void mark()}>
+            <button type="button" className={`${l.b} ${s.undo}`} onClick={() => void mark()}>
               {STEP.undo}
             </button>
           ) : null}
-          <DoneBanner on={celebrating && vm.mark.done} />
         </div>
         {layout.next ? (
-          <Link className={s.next} to={layout.next.href} aria-label={`${STEP.next}: ${layout.next.title}`}>
+          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined} aria-label={`${STEP.next}: ${layout.next.title}`}>
             <span className={s.nextK}>{STEP.nextKicker}</span>
             <span className={s.nextT}>{layout.next.title}</span>
             {layout.next.meta ? <span className={s.nextM}>{layout.next.meta}</span> : null}
