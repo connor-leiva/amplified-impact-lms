@@ -333,4 +333,39 @@ describe('the live preview from the unsaved draft (D-174, D-184)', () => {
     expect(within(frame).getByRole('region', { name: 'Build Kit' })).toBeInTheDocument();
     expect(within(frame).getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
   });
+
+  it('an owner’s preview of Step 1 shows a checklist Download from the kit and an Invite link (D-191)', async () => {
+    const user = userEvent.setup();
+    const db = planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db;
+    const mod = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
+    const step1 = mod.checklist[0]!;
+    step1.paths = {
+      claude: {
+        blocks: [
+          { type: 'check', id: 's1-intake', title: 'Fill in your intake', action: { type: 'download', kitItemIds: ['intake-form'] } },
+          { type: 'check', id: 's1-invite', title: 'Bring your operator in', action: { type: 'invite', label: 'Invite your operator' } },
+          { type: 'check', id: 's1-stack', title: 'Fill in your stack card', action: { type: 'download', kitItemIds: ['stack-card'] } },
+        ],
+      },
+    };
+    const file = (id: string, title: string): Resource => ({
+      id, title, desc: '', cat: 'Files', type: 'PDF', tier: 'agent', size: '1 KB', dl: 0, updated: 0, exec: false, status: 'published',
+      module: mod.id, kind: 'file', stepId: step1.id, visibility: 'open_in_preview', platform: 'both',
+    });
+    db.resources.push(file('intake-form', 'Week 0 Intake Form'), file('stack-card', 'Week 0 Stack Card'));
+    const draft = structuredClone(mod);
+    if (!isWeekDraft(draft)) throw new Error('not a week');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CoursePreview db={db} draft={draft} phone={false} onClose={() => {}} />
+      </QueryClientProvider>,
+    );
+    const frame = screen.getByTestId('course-preview');
+    await user.click(within(frame).getAllByRole('link', { name: /^Step 1,/ })[0]!);
+    const intake = within(frame).getAllByRole('link', { name: 'Week 0 Intake Form' });
+    const stack = within(frame).getAllByRole('link', { name: 'Week 0 Stack Card' });
+    expect(intake.some((el) => el.getAttribute('href') === '/api/files/resource/intake-form')).toBe(true);
+    expect(stack.some((el) => el.getAttribute('href') === '/api/files/resource/stack-card')).toBe(true);
+    expect(within(frame).getByRole('link', { name: 'Invite your operator' })).toHaveAttribute('href', '/learn/team');
+  });
 });

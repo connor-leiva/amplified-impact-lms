@@ -217,4 +217,47 @@ describe('Preview as Learner includes a step’s kit (D-192)', () => {
     expect(vm.layouts?.claude?.items.map((item) => item.title)).toContain('Download the workbooks');
     expect(vm.forStep.map((r) => r.title)).toEqual(['Spend workbook', 'Source workbook']);
   });
+
+  it('a learner’s step 1 resolves Download from the course kit, and Invite does not need the kit', () => {
+    const db = deployed();
+    const mod = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
+    const step1 = mod.checklist[0]!;
+    step1.paths = {
+      claude: {
+        blocks: [
+          { type: 'check', id: 's1-intake', title: 'Fill in your intake', action: { type: 'download', kitItemIds: ['intake-form'] } },
+          { type: 'check', id: 's1-invite', title: 'Bring your operator in', action: { type: 'invite', label: 'Invite your operator' } },
+          { type: 'check', id: 's1-stack', title: 'Fill in your stack card', action: { type: 'download', kitItemIds: ['stack-card'] } },
+        ],
+      },
+    };
+    const file = (id: string, title: string): Resource => ({
+      id, title, desc: '', cat: 'Files', type: 'PDF', tier: 'agent', size: '1 KB', dl: 0, updated: 0, exec: false, status: 'published',
+      module: mod.id, kind: 'file', stepId: step1.id, visibility: 'open_in_preview', platform: 'both',
+    });
+    db.resources.push(file('intake-form', 'Week 0 Intake Form'), file('stack-card', 'Week 0 Stack Card'));
+    const course = courseFor(db, NOW, { open: true, preview: false })!;
+    const payload = { open: true as const, preview: false, course, sessions: [], copy: {} };
+    const row = weekRows(payload, db, null).find((r) => r.week === 0);
+    const vm = stepVM(payload, row, 1, { kind: 'learner', userId: 'u-dana' }, NOW, { fileUrl: (id) => `/api/files/resource/${id}` });
+    if (vm.kind !== 'step' || !vm.layouts?.claude) throw new Error('missing layout');
+    const byId = new Map(vm.layouts.claude.items.map((item) => [item.id, item.action]));
+    expect(byId.get('s1-intake')).toEqual({ type: 'download', files: [{ id: 'intake-form', title: 'Week 0 Intake Form', href: '/api/files/resource/intake-form' }] });
+    expect(byId.get('s1-stack')).toEqual({ type: 'download', files: [{ id: 'stack-card', title: 'Week 0 Stack Card', href: '/api/files/resource/stack-card' }] });
+    expect(byId.get('s1-invite')).toEqual({ type: 'invite', label: 'Invite your operator', href: '/learn/team' });
+    const draft = structuredClone(mod);
+    if (!isWeekDraft(draft)) throw new Error('not a week');
+    const owner = previewLoad(db, draft, 'owner', 0);
+    if (owner.kind !== 'ready') throw new Error('preview did not open');
+    const previewVm = stepVM(
+      { open: true, preview: false, course: owner.payload.course, sessions: [], copy: {} },
+      weekRows({ open: true, preview: false, course: owner.payload.course, sessions: [], copy: {} }, withDraft(db, draft), null).find((r) => r.week === 0),
+      1,
+      { kind: 'staff', staffId: 'preview' },
+      NOW,
+      { fileUrl: (id) => `/api/files/resource/${id}` },
+    );
+    if (previewVm.kind !== 'step' || !previewVm.layouts?.claude) throw new Error('preview layout missing');
+    expect(previewVm.layouts.claude.items.map((item) => item.action)).toEqual(vm.layouts.claude.items.map((item) => item.action));
+  });
 });
