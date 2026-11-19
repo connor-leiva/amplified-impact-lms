@@ -6604,11 +6604,26 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 ---
 
-## D-197 · iPhone Safari shows a course video’s poster
+## D-197 · The stack card form
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical. This is the stack card that follows it.
+**Number:** D-196 is the intake. D-197 was free.
+
+- **The words live on the week** (`stackCard`): the four source names and their green and yellow lines, from the step 1 table, plus a made-up Northline Realty example labeled Made up. Seeded insert-only when Week 0 has none. Migration `0030_team_stack_card` holds one row per team.
+- **Prefill.** Books takes the accounting answer, Closings takes Sisu, Leads takes the CRM, and Email is green when the team is on Google and yellow when it is not.
+- **Send Back** sets `sent_at` and checks the step 1 stack card item for every teammate. It sends no email. A password or an account number is refused, with "Never a password." Staff read the card on the workspace page, and that read is `stack.read`.
+- **Not in this change.** Hide and collapse, the path default, operator progress, and the week-complete overlay.
+
+**Blast radius.** A week with no stack card is unchanged. Nothing is sent outside the portal.
+
+---
+
+## D-198 · iPhone Safari shows a course video’s poster
 
 **Date:** 2026-11-19
 **Approved by:** Connor Leiva, Nov 19, 2026, 8:54 AM CT: on learn.amplifiedimpact.io, `/learn/week/0/step/2` in iPhone Safari, the Week 0 Orientation video (block id w0-02) shows a blank gray box and a play button, with no poster. Chapters render. Staff had uploaded a 1920×1080 jpg poster for each of the six video blocks (w0-02, w0-02-g, w0-04a, w0-04b, w0-05a, w0-05b) in the builder and saved.
-**Number:** D-196 is the Week 0 intake on `main`. D-197 was free.
+**Number:** D-197 is the stack card form on `main`. D-198 was free.
 
 - **Root cause.** The poster is saved. The Zod block keeps it, `courseFor` sends the video block whole (the poster key rides with the chapters), and the player sets `<video poster>` to `/api/files/course/<key>`. That is the same same-origin route the transcript track uses, streamed inline, not a presigned bucket URL. `img-src 'self'` allows it. iOS Safari does not paint that attribute: the element has `preload="metadata"`, and `HlsEngine` assigns `src` in a layout effect, so `src` is not in the markup. Once the media load starts, iOS drops the poster frame and shows its gray start-playback surface and play button until a frame is decoded. Desktop keeps the poster. The chapters are HTML, so they were never affected.
 - **The fix.** When a block has a poster, the player also draws it as an `<img>` (object-fit cover, alt the video title) over the element and under a play button. The image uses that same course-file URL. The image and the button go away once playback starts. The `poster` attribute stays. A block with no poster is the player it was.

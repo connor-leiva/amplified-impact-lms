@@ -99,6 +99,13 @@ export const learnerPrefs = pgTable('learner_prefs', {
 // enforces it). Double precision, not `real`: postgres `real` is float4 and cannot round-trip 0.9,
 // the threshold Week 0 checks at. `updated_at` is epoch ms, like every other learner instant.
 // D-196: one intake per team. Not a Db field. Answers never leave the portal.
+export const teamStackCard = pgTable('team_stack_card', {
+  teamId: text('team_id').primaryKey(),
+  rows: jsonb('rows').$type<{ source: string; tool: string; plan: 'green' | 'yellow'; who: string }[]>().notNull(),
+  sentAt: ts('sent_at'),
+  updatedAt: ts('updated_at').notNull(),
+  updatedBy: text('updated_by').notNull(),
+});
 export const teamIntake = pgTable('team_intake', {
   teamId: text('team_id').primaryKey(),
   answers: jsonb('answers').$type<Record<string, string | string[]>>().notNull(),

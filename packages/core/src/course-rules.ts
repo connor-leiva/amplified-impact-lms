@@ -20,6 +20,7 @@
 import type { AIEmployee, Cohort, CopyString } from './types';
 import { checklistIssueLines } from './checklist';
 import { intakeCopy } from './intake';
+import { stackCopy } from './stack';
 import type { CohortCourse, MediaItem, ModuleCourse, PathBlock, VideoBlock } from './course-types';
 import { isVideoUpload } from './course-types';
 import { chapterProblems } from './video';
@@ -176,6 +177,7 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
     push(out, 'course.startHere.totals.operator', 'Start here operator total', c.startHere.totals.operator);
   }
   for (const field of intakeCopy(c.intake)) push(out, field.path, field.label, field.text);
+  for (const field of stackCopy(c.stackCard)) push(out, field.path, field.label, field.text);
   c.skills.forEach((s, i) => push(out, `course.skills[${i}].use`, `Skill ${i + 1}, use`, s.use));
   c.setup.forEach((s, i) => push(out, `course.setup[${i}].text`, `Setup step ${i + 1}`, s.text));
   if (c.liveBuild) {

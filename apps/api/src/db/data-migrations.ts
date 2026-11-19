@@ -17,6 +17,7 @@ import { COPY_V2, planCopyV2 } from '@ai/core/seed/copy-v2';
 import { COPY_V3, planCopyV3 } from '@ai/core/seed/copy-v3';
 import { GLOSSARY_V1, planGlossaryV1 } from '@ai/core/seed/glossary-v1';
 import { INTAKE_V1, planIntakeV1 } from '@ai/core/seed/intake-v1';
+import { STACK_V1, planStackV1 } from '@ai/core/seed/stack-v1';
 import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
@@ -73,6 +74,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: INTAKE_V1,
     describe: 'Week 0 intake, set only when that week has none (D-196)',
     plan: planIntakeV1,
+  },
+  {
+    id: STACK_V1,
+    describe: 'Week 0 stack card, set only when that week has none (D-197)',
+    plan: planStackV1,
   },
 ];
 

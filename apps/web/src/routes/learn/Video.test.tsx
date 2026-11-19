@@ -161,7 +161,7 @@ const WITH_POSTER: VideoBlock = {
   poster: { upload: POSTER_KEY, name: 'orientation.jpg', size: 78_000, type: 'image/jpeg' },
 };
 
-describe('the poster image (D-197)', () => {
+describe('the poster image (D-198)', () => {
   it('the learner payload includes a poster URL when one is set', () => {
     const st = learnState(LIVE_NOW, false, {}, 15, (d) => {
       const mod = d.modules.find((m) => m.id === acceleratorModuleId(0));

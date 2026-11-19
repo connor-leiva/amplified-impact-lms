@@ -151,6 +151,7 @@ export interface ConsoleApi {
   workspace(teamId: string): Promise<WorkspaceDetail>;
   /** D-196: a team's intake. The read is audited. */
   teamIntake(teamId: string): Promise<{ answers: Record<string, string | string[]>; updatedAt: number | null; submittedAt: number | null }>;
+  teamStack(teamId: string): Promise<{ rows: { source: string; tool: string; plan: 'green' | 'yellow'; who: string }[]; sentAt: number | null }>;
   users(filters: UserFilters, cursor?: string | null): Promise<ConsolePage<ConsoleUserRow>>;
   user(userId: string): Promise<ConsoleUserDetail>;
   notes(targetType: StaffNoteTarget, targetId: string): Promise<StaffNote[]>;
@@ -346,6 +347,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
     workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
     teamIntake: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/intake`)),
+    teamStack: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/stack`)),
     users: async (f, cursor) => json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind }, cursor)}`)),
     user: async (userId) => json<ConsoleUserDetail>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}`)),
     notes: async (targetType, targetId) =>

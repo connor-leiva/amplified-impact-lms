@@ -2,7 +2,7 @@
 // those renders the same player D-188 did. Progress is reported by the caller; this file does not
 // know whether the viewer may write.
 //
-// D-197: iOS Safari does not paint the poster attribute once `src` is assigned with
+// D-198: iOS Safari does not paint the poster attribute once `src` is assigned with
 // `preload="metadata"` (HlsEngine sets `src` in the layout effect, so it is not in the markup). The
 // element shows a gray box and the play button. The same course-file URL is also an `<img>` over the
 // element, under the play button, until playback starts. The attribute stays for every other browser.
@@ -44,7 +44,7 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
   const [failed, setFailed] = useState(false);
   const [time, setTime] = useState(0);
   const [open, setOpen] = useState(false);
-  /** D-197: which source has started. The poster image stays up until this matches. */
+  /** D-198: which source has started. The poster image stays up until this matches. */
   const [playingGate, setPlayingGate] = useState<string | null>(null);
   const kind = source?.kind ?? null;
   const src = source && source.kind !== 'link' ? source.src : '';
