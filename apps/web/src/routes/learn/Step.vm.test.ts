@@ -142,11 +142,28 @@ describe('the step player (D-177)', () => {
     expect(layout?.items[1]?.waiting).toBe(6);
     expect(layout?.gate.reason).toBe('Check off 2 more to mark this step done.');
     expect(layout?.accordions[0]?.open).toBe(false);
-    expect(layout?.countdown).toMatch(/MT/);
+    expect(layout?.countdown).toMatch(/12:00 PM MT/);
+    expect(layout?.due).toBe('Due Mon, Nov 30, 12:00 PM MT');
     const open = stepVM(p, row, 3, learner, st.now, { prefs: [{ key: 'acc:accelerator-week-0:c3:0', value: '1', updatedAt: st.now }] });
     expect(open.kind === 'step' && open.layouts?.claude?.accordions[0]?.open).toBe(true);
     const staff = stepVM(p, row, 3, { kind: 'staff', staffId: 's1' }, st.now);
     expect(staff.kind === 'step' && staff.layouts?.claude?.gate).toEqual({ locked: false, reason: null });
+  });
+
+  it('the due chip stays 12:00 PM MT when the viewer is not in Mountain time', () => {
+    setViewerZone('America/Chicago');
+    const p = structuredClone(st.payload);
+    const week = p.course.weeks[0] as { module: { checklist: { paths?: { claude?: { blocks: PathBlock[] } } }[] } };
+    week.module.checklist[2]!.paths = {
+      claude: { blocks: [{ type: 'check', id: 's3-seven', title: 'Time seven tasks', subchecks: [{ id: 's3-t1', label: 'One' }] }] },
+    };
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0];
+    const vm = stepVM(p, row, 3, learner, st.now);
+    if (vm.kind !== 'step') throw new Error('missing');
+    expect(vm.layouts?.claude?.due).toBe('Due Mon, Nov 30, 12:00 PM MT');
+    expect(vm.layouts?.claude?.countdown).toContain('12:00 PM MT');
+    expect(vm.layouts?.claude?.due).not.toMatch(/CT|ET|PT/);
+    expect(vm.layouts?.claude?.countdown).not.toMatch(/CT|ET|PT/);
   });
 
   it('a locked week or a step that isn’t there goes to the week', () => {
