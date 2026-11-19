@@ -520,9 +520,11 @@ export function ChecklistPlayer({
         <h1 className={l.h0}>{vm.title}</h1>
         {vm.lede ? <p className={s.purpose}>{vm.lede}</p> : null}
         <div className={s.hrow}>
-          {layout.time ? <span className={s.hc}>{layout.time}</span> : null}
-          {layout.role ? <span className={s.hc}>{layout.role}</span> : null}
-          {layout.countdown ? <span className={s.hc}>{layout.countdown}</span> : null}
+          <div className={s.meta}>
+            {layout.time ? <span className={s.hc}><Icon name="r2Clock" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.time}</span> : null}
+            {layout.role ? <span className={s.hc}><Icon name="r2People" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.role}</span> : null}
+            {layout.due ? <span className={s.hc}><Icon name="r2Cal" size={14} strokeWidth={2} color="var(--r2-for)" />{layout.due}</span> : null}
+          </div>
           {vm.tabs.length > 1 ? (
             <span
               className={l.seg}

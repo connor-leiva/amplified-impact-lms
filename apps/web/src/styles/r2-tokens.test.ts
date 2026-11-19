@@ -84,6 +84,6 @@ describe('the R2 tokens (D-160 R2-1b)', () => {
     );
     expect(p).toHaveLength(45);
     for (const [name, d] of p) expect((ICONS as Record<string, string>)[name], name).toBe(d);
-    expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(45);
+    expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(48);
   });
 });

@@ -155,11 +155,21 @@
 }
 .eb {
   margin: 0;
+  font-family: var(--r2-font-mono);
   font-size: var(--r2-fs-13);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--r2-for);
+}
+.head h1 {
+  margin: 4px 0 0;
+  font-size: 39px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: wrap;
 }
 .head {
   display: flex;
@@ -179,16 +189,29 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  margin-top: 8px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 .hc {
-  background: var(--r2-sf);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
   border-radius: 999px;
-  padding: 5px 12px;
+  background: var(--r2-sf);
+  border: 1px solid color-mix(in srgb, var(--r2-ink) 12%, transparent);
   font-size: var(--r2-fs-13);
   font-weight: 500;
+  line-height: 1;
   color: var(--r2-ink);
 }
-.hrow > :last-child[role='radiogroup'] {
+.hrow > [role='radiogroup'] {
   margin-left: auto;
 }
 .barWrap {

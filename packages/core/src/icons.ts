@@ -131,6 +131,10 @@ export const ICONS = {
   r2Down: "M12 5v14M6 13l6 6 6-6",
   r2File: "M6 3h8l4 4v14H6zM14 3v4h4",
   r2Play: "M7 5l12 7-12 7V5z",
+  // Week 0 step header chips, path data from design-reference/week0-polish/step-2.html.
+  r2Clock: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0M12 7v5l3 2",
+  r2People: "M12.5 8a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M2.5 20c.8-3.4 3.4-5.5 6.5-5.5s5.7 2.1 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2",
+  r2Cal: "M5.5 5H18.5A2 2 0 0 1 20.5 7V18A2 2 0 0 1 18.5 20H5.5A2 2 0 0 1 3.5 18V7A2 2 0 0 1 5.5 5zM3.5 10h17M8 3v4M16 3v4",
   r2Refresh: "M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4",
   // Learner portal v2 (D-177): the signed-off learner mockup's own chrome glyphs, path data verbatim from
   // docs/design/learner-v2 (its lock's two paths, body and shackle, as one).
