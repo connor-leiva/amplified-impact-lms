@@ -470,10 +470,20 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
     onChange(action ? { ...block, action } : { ...block, action: undefined });
   };
   const others = [...new Set([...(picks?.ids ?? []), ...ids])].filter((id) => id && id !== block.id);
-  const cross = (block.dependsOn ?? []).filter((d) => d.startsWith('step:'));
-  const same = new Set((block.dependsOn ?? []).filter((d) => !d.startsWith('step:')));
-  const setDepends = (nextSame: Set<string>, nextCross: string[]) => {
-    const dependsOn = [...nextSame, ...nextCross];
+  const stepIds = new Set(others);
+  // One `step:N:id` per line. The text stays here while it is typed. A value drawn only from lines
+  // that already start with `step:` clears on the first character and stores that character as a
+  // same-step tick, then the next character, and so on. A tick is a checkbox for an id on this step.
+  const [otherText, setOtherText] = useState(() =>
+    (block.dependsOn ?? []).filter((d) => d.startsWith('step:') || !stepIds.has(d)).join('\n'),
+  );
+  const typed = new Set(listItems(otherText));
+  const same = new Set((block.dependsOn ?? []).filter((d) => stepIds.has(d) && !typed.has(d)));
+  const setDepends = (nextSame: Set<string>, text: string) => {
+    const lines = listItems(text);
+    const owned = new Set(lines);
+    const ticks = [...nextSame].filter((id) => stepIds.has(id) && !owned.has(id));
+    const dependsOn = [...ticks, ...lines];
     onChange(dependsOn.length ? { ...block, dependsOn } : { ...block, dependsOn: undefined });
   };
   return (
@@ -558,13 +568,26 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
                 const next = new Set(same);
                 if (e.target.checked) next.add(id);
                 else next.delete(id);
-                setDepends(next, cross);
+                setDepends(next, otherText);
               }}
             />
             {id}
           </label>
         ))}
-        <Line label={`Block ${n} other steps`} value={cross.join('\n')} hint="One step:N:id per line, like step:6:s6-google." onChange={(v) => setDepends(same, v.split('\n').map((l) => l.trim()).filter(Boolean))} />
+        <label className={s.lab}>
+          Block {n} other steps
+          <TextArea
+            rows={3}
+            aria-label={`Block ${n} other steps`}
+            value={otherText}
+            onChange={(e) => {
+              const text = e.target.value;
+              setOtherText(text);
+              setDepends(same, text);
+            }}
+          />
+          <span className={clsx(k.me, w.hint)}>One step:N:id per line, like step:6:s6-google.</span>
+        </label>
       </fieldset>
       <label className={s.lab}>
         Button
