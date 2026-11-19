@@ -209,10 +209,21 @@
 a.li {
   width: 100%;
   cursor: pointer;
-  transition: background 0.1s;
+  transition:
+    background 0.12s,
+    transform 0.12s,
+    box-shadow 0.12s;
 }
 a.li:hover {
-  background: var(--r2-hov);
+  background: var(--r2-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
+}
+a.li .mu {
+  transition: transform 0.12s;
+}
+a.li:hover .mu {
+  transform: translateX(3px);
 }
 .txl {
   color: var(--r2-for);
@@ -238,12 +249,15 @@ a.li:hover {
 
 /* ---- controls ------------------------------------------------------------------------------------ */
 
+/* D-205. Secondary is bone with the second line and the small shadow (sh-1).
+   Hover lifts 1px onto the larger shadow (sh-2). Press scales to .97.
+   Focus draws the ring on top of whichever shadow is showing. */
 .b {
   height: var(--r2-c);
   padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--r2-line2);
-  background: var(--r2-sf);
+  background: var(--r2-bg);
   color: var(--r2-ink);
   font-weight: 500;
   font-size: var(--lv-ctl);
@@ -256,14 +270,25 @@ a.li:hover {
   box-shadow: var(--r2-sh-button);
   transition:
     background 0.12s,
-    border-color 0.12s;
+    border-color 0.12s,
+    box-shadow 0.12s,
+    transform 0.12s;
 }
 .b:hover {
-  background: var(--r2-hov);
-  border-color: var(--r2-line-hover);
+  background: var(--r2-bg);
+  border-color: var(--r2-line2);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
 }
 .b:active {
-  transform: translateY(0.5px);
+  transform: scale(0.97);
+}
+:global([data-learner-v2][data-learner-v2]) .b:focus-visible {
+  outline: none;
+  box-shadow: var(--r2-sh-button), var(--r2-focus);
+}
+:global([data-learner-v2][data-learner-v2]) .b:hover:focus-visible {
+  box-shadow: var(--lv-sh-lift), var(--r2-focus);
 }
 /* A <button class="b"> takes its parent's type and colour, as the mockup's cascade
    (`.ax button { font: inherit; color: inherit }`) draws it; a link styled as one keeps `.b`'s own. */
@@ -282,7 +307,10 @@ button.b {
 }
 .b.bp:hover {
   background: var(--r2-forh);
-  border-color: var(--r2-for);
+  border-color: var(--r2-forh);
+  color: var(--r2-on-for);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
 }
 .b.bq {
   border-color: transparent;
@@ -291,13 +319,19 @@ button.b {
   color: var(--r2-f2);
 }
 .b.bq:hover {
-  background: var(--r2-sub);
+  background: var(--r2-bg);
   color: var(--r2-ink);
   border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
 }
-.b:disabled {
+.b:disabled,
+.b:disabled:hover,
+.b:disabled:active {
   opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 .b .ar {
   transition: transform 0.12s;
@@ -434,8 +468,9 @@ button.b {
   color: var(--r2-f2);
 }
 .back:hover {
-  background: var(--r2-sub);
+  background: var(--r2-bg);
   color: var(--r2-ink);
+  transform: translateY(-1px);
 }
 
 /* ---- tinted tiles: one icon, one topic colour ---------------------------------------------------- */
@@ -854,10 +889,19 @@ button.b {
   border-bottom: 0;
 }
 .stp:hover {
-  background: var(--r2-hov);
+  background: var(--r2-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
+  position: relative;
+  z-index: 1;
 }
 .stp[data-cur='true'] {
-  background: var(--lv-step-cur);
+  background: var(--r2-bg);
+  box-shadow: inset 0 0 0 2px var(--r2-for), 0 0 0 4px color-mix(in srgb, var(--r2-for) 6%, transparent);
+}
+.stp[data-cur='true']:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 2px var(--r2-for), 0 0 0 4px color-mix(in srgb, var(--r2-for) 6%, transparent), var(--lv-sh-lift);
 }
 .sx {
   display: flex;
@@ -1269,6 +1313,10 @@ button.b {
   font-size: var(--r2-fs-13);
   line-height: 1.35;
   cursor: pointer;
+}
+.vchap:hover,
+.vcue:hover {
+  background: var(--r2-bg);
 }
 .vchap[aria-current='true'] {
   border-left-color: var(--r2-for);
@@ -1936,8 +1984,24 @@ button.b {
     animation: none;
   }
   .oc,
-  .b .ar {
+  .b,
+  .b .ar,
+  .back,
+  .stp,
+  a.li,
+  a.li .mu {
     transition: none;
+  }
+  .b:hover,
+  .b:active,
+  .b.bp:hover,
+  .b.bq:hover,
+  .back:hover,
+  .stp:hover,
+  .stp[data-cur='true']:hover,
+  a.li:hover,
+  a.li:hover .mu {
+    transform: none;
   }
 }
 

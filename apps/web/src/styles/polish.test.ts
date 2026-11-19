@@ -17,7 +17,9 @@ describe('Week 0 polish, the ground and the hover underline (D-203)', () => {
     const dark = readFileSync('src/styles/learner-v2.css', 'utf8');
     expect(dark).toContain('--r2-bg: var(--bg-canvas)');
 
-    expect(polish).toMatch(/button:focus-visible/);
-    expect(polish).toMatch(/prefers-reduced-motion:\s*reduce/);
+    const learn = readFileSync('src/routes/learn/Learn.module.css', 'utf8');
+    expect(learn).toContain('translateY(-1px)');
+    expect(learn).toContain('scale(0.97)');
+    expect(learn).toMatch(/prefers-reduced-motion:\s*reduce/);
   });
 });

@@ -429,7 +429,7 @@ button.ni.tog:hover {
   padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--r2-line2);
-  background: var(--r2-sf);
+  background: var(--r2-bg);
   color: var(--r2-ink);
   font-weight: 500;
   font-size: var(--lv-ctl);
@@ -442,11 +442,24 @@ button.ni.tog:hover {
   box-shadow: var(--r2-sh-button);
   transition:
     background 0.12s,
-    border-color 0.12s;
+    border-color 0.12s,
+    box-shadow 0.12s,
+    transform 0.12s;
 }
 .b:hover {
-  background: var(--r2-hov);
-  border-color: var(--r2-line-hover);
+  background: var(--r2-bg);
+  border-color: var(--r2-line2);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
+}
+.b:active {
+  transform: scale(0.97);
+}
+.frame.frame .b:focus-visible {
+  box-shadow: var(--r2-sh-button), var(--r2-focus);
+}
+.frame.frame .b:hover:focus-visible {
+  box-shadow: var(--lv-sh-lift), var(--r2-focus);
 }
 /* A <button class="b"> takes the body's type and colour, as the mockup's cascade draws it. */
 button.b {
@@ -461,7 +474,10 @@ button.b {
 }
 .b.p:hover {
   background: var(--r2-forh);
-  border-color: var(--r2-for);
+  border-color: var(--r2-forh);
+  color: var(--r2-on-for);
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
 }
 .b.q {
   border-color: transparent;
@@ -470,9 +486,15 @@ button.b {
   color: var(--r2-f2);
 }
 .b.q:hover {
-  background: var(--r2-sub);
+  background: var(--r2-bg);
   color: var(--r2-ink);
   border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: var(--lv-sh-lift);
+}
+.b:disabled,
+.b:disabled:hover {
+  transform: none;
 }
 .ib {
   width: var(--r2-c);
@@ -705,9 +727,16 @@ button.b {
 @media (prefers-reduced-motion: reduce) {
   .drw,
   .st i,
-  .ng svg {
+  .ng svg,
+  .b {
     animation: none;
     transition: none;
+  }
+  .b:hover,
+  .b:active,
+  .b.p:hover,
+  .b.q:hover {
+    transform: none;
   }
 }
 @media (max-width: 767px) {

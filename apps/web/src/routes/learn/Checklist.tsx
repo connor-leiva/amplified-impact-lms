@@ -489,8 +489,23 @@ export function ChecklistPlayer({
     else void writeMany([item.id]);
   };
 
+  const focusFirstOpen = () => {
+    const box = document.querySelector<HTMLElement>('#step-checklist [role="checkbox"][aria-checked="false"]');
+    if (!box) return;
+    try {
+      box.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'center' });
+    } catch {
+      /* jsdom has no scroll. */
+    }
+    box.focus();
+  };
+
   const mark = async () => {
-    if (!vm.mark.stepId || vm.mark.disabled || layout.gate.locked || busy) return;
+    if (!vm.mark.stepId || vm.mark.disabled || busy) return;
+    if (layout.gate.locked) {
+      focusFirstOpen();
+      return;
+    }
     setBusy(true);
     try {
       await mutate('toggleStep', { moduleId: vm.mark.moduleId, stepId: vm.mark.stepId });
@@ -584,7 +599,7 @@ export function ChecklistPlayer({
 
       <div className={s.foot}>
         <div className={s.mark}>
-          <button type="button" className={`${l.b} ${l.bp} ${l.bi}`} data-done={vm.mark.done ? 'true' : undefined} disabled={vm.mark.disabled || layout.gate.locked || busy} onClick={() => void mark()}>
+          <button type="button" className={`${l.b} ${l.bp} ${l.bi}`} data-done={vm.mark.done ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
             <Icon name={vm.mark.done ? 'r2Check' : 'r2Check'} size={14} strokeWidth={2.2} />
             {vm.mark.done ? STEP.stepDone : STEP.markDone}
           </button>
@@ -597,10 +612,10 @@ export function ChecklistPlayer({
           <Confetti on={celebrating && vm.mark.done} />
         </div>
         {layout.next ? (
-          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined}>
-            <span className={s.nextK}>{STEP.nextKicker}</span>
+          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined} aria-label={`${STEP.next}: ${layout.next.title}`}>
+            <span className={s.nextK}>{STEP.next}</span>
             <span className={s.nextT}>{layout.next.title}</span>
-            {layout.next.meta ? <span className={s.nextM}>{layout.next.meta}</span> : null}
+            <Icon name="arrowR" size={16} strokeWidth={1.75} />
           </Link>
         ) : null}
       </div>
