@@ -62,7 +62,7 @@ describe('the step player (D-177)', () => {
     const vm = stepVM(st.payload, rows[0], 3, learner, st.now);
     if (vm.kind !== 'step') throw new Error('missing');
     expect(vm.forStep).toEqual([]);
-    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' });
+    expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT', href: '/learn/schedule' });
   });
 
   it('a step’s linked Library skill alone, and a comma list drops a skill whose page is not built', () => {

@@ -10,7 +10,7 @@
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
-import { cohortLine, fmt } from '@ai/core';
+import { cohortLine, fmt, mountainWhen } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseKitItem, LearnerCourseWeek, LockedCourseWeek, OpenCourseWeek } from '@ai/core/course';
@@ -498,7 +498,7 @@ export function helpVM(p: CoursePayload, now: number): HelpVM {
   const oh = upcomingSessions(p.sessions, now, 'office_hours')[0];
   return {
     email: { label: LABELS.emailSupport, address: ACCELERATOR_SUPPORT_EMAIL, href: SUPPORT_HREF },
-    officeHours: oh ? { label: LABELS.officeHours, meta: fmt.when(oh.start), href: learnSchedule() } : null,
+    officeHours: oh ? { label: LABELS.officeHours, meta: mountainWhen(oh.start), href: learnSchedule() } : null,
   };
 }
 

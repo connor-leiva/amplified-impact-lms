@@ -102,7 +102,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
   if (vm.pills) {
     const layout = vm.layouts?.[on];
     return withGlossary(vm, (
-      <div className={s.pg}>
+      <div className={`${s.pg} ${vm.pills ? s.pgStep : ''}`}>
         <Crumbs crumbs={more.crumbs} />
         <Link className={s.back} to={vm.back.href}>
           <Icon name="r2Back" size={14} strokeWidth={1.75} />
@@ -139,23 +139,23 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
               </>
             )}
           </div>
-          <aside className={s.col} aria-label={STEP.kit}>
+          <aside className={`${s.col} ${s.stepAside}`} aria-label={STEP.kit}>
             {layout ? <ChecklistRail layout={layout} /> : null}
             {forStep.length ? (
               <section className={s.cd} aria-labelledby="lv-skit-t">
                 <div className={s.cdh}>
-                  <h2 className={s.h2} id="lv-skit-t">{STEP.forStep}</h2>
+                  <h2 className={s.railH} id="lv-skit-t">{STEP.forStep}</h2>
                 </div>
                 <KitRows rows={forStep} />
               </section>
             ) : null}
-            {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} /> : null}
+            {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} heading={STEP.forStep} headingClass={s.railH} tile={32} /> : null}
             <section className={s.cd} aria-labelledby="lv-help-t">
               <div className={s.cdh}>
-                <h2 className={s.h2} id="lv-help-t">{STEP.stillStuck}</h2>
+                <h2 className={s.railH} id="lv-help-t">{STEP.stillStuck}</h2>
               </div>
               <Go className={s.li!} href={vm.help.email.href}>
-                <Tile icon="r2Email" tone="forest" size={28} />
+                <Tile icon="r2Email" tone="forest" size={32} />
                 <div className={`${s.colZ} ${s.grow}`}>
                   <span className={s.w5}>{vm.help.email.label}</span>
                   <span className={`${s.me} ${s.el}`}>{vm.help.email.address}</span>
@@ -164,7 +164,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
               </Go>
               {vm.help.officeHours ? (
                 <Go className={s.li!} href={vm.help.officeHours.href}>
-                  <Tile icon="lvLive" tone="blue" size={28} />
+                  <Tile icon="lvLive" tone="forest" size={32} />
                   <div className={`${s.colZ} ${s.grow}`}>
                     <span className={s.w5}>{vm.help.officeHours.label}</span>
                     <span className={s.me}>{vm.help.officeHours.meta}</span>

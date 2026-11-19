@@ -6753,3 +6753,25 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** A video with no chapters and no transcript. No course copy, no schema, no migration. No golden, tolerance, or mask.
 
 **Blast radius.** The parity fixture's videos have no chapters, so those screens do not gain a scroller. Utah Life, Agent Plan, Team Plan, and Insiders screens outside the course are unchanged.
+
+---
+
+## D-207 · Week 0 step page matches the v3 polish mockup
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: `design-reference/week0-polish/step-2.html` is the visual source of truth for the Week 0 step. Port its CSS and structure. Behavior and safety stay with the app.
+**Number:** D-206 is the full-width video. D-207 was free.
+
+- **Chapters.** A mono kicker reads `Chapters · N`. Each chapter is one pill: the label, and the time in Geist Mono. The current pill is forest with a mint time. Arrows scroll the row when it overflows, and hide on a phone.
+- **Transcript.** Show and Hide keep a lines icon and a chevron. Copy transcript sits on that row while the panel is open. Cues are a paragraph with the time in a mono column. The current cue has a forest-green left bar and full ink. The current sentence has a mint wash. Other cues stay dim.
+- **Checklist.** Each row is its own card with a line border. A tip that follows an item is its own row between the cards, with a forest left bar. The box is 22px with a forest border and a 4px forest halo at 6% on hover. `Each of you` is a bone tag. Row actions are the secondary button. A play label reads `Play from` and the time.
+- **Reference.** The accordion is one bordered card. The summary is a row with a chevron.
+- **Footer.** Mark step done and the next step sit side by side. Mark step done stays the forest button. The next step is a forest card: a mono `Next`, the step title, its meta line, a mint bar, and an arrow. One energy ring plays when the step is marked done. Reduced motion draws no ring. The confetti dots are gone.
+- **Poster.** Before playback, a forest pill sits at the bottom right: a mint play disc, `Play` plus the title with a leading `Watch` swapped for `Play`, and the duration once the file reports it. The frame is the full column at 16:9. The rail stays beside the column while the content box is at least 880px, enough for a narrowed column plus the 288px rail. The mockup's 1100px breakpoint is a viewport with no app sidebar, so a 1280 window keeps the rail beside and the column shrinks. Below 880px the rail stacks.
+- **Rail time.** Office hours on this page uses `mountainWhen`, so it always reads Mountain Time (`Thu, Dec 3 · 12:00 PM MT`). The next office hours after the fixture clock is Dec 10, which is the seed, not the formatter.
+- **Rail.** On this page, the checklist mirror, For this step, and Still stuck are separate cards. Headings are mono caps. The current On this page link has a forest left bar.
+- **Step circles.** The circles pack to the left. They do not spread across the row.
+- **Reference files.** The mockup HTML, poster, and transcript live in `design-reference/week0-polish/`. The mockup fonts are not added: the app and `design-reference/fonts/` already ship Geist and Geist Mono.
+- **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. A step that is not the checklist layout keeps its own player.
+
+**Blast radius.** The parity fixture’s steps do not use this layout, so those goldens stay. A checklist week, including Week 0 once its paths have checks, draws this page.
