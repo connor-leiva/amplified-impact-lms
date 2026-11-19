@@ -52,10 +52,21 @@ const KEY = {
   week0Media: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000002.mp4',
   week1Step: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000003.mp4',
   nowhere: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000004.mp4',
+  poster: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000005.jpg',
+  transcript: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000006.vtt',
+  lockedPoster: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000007.jpg',
+  stray: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000008.jpg',
 } as const;
 const VIDEO = Buffer.from(Array.from({ length: 1000 }, (_, i) => i % 256));
+const POSTER = Buffer.from('poster');
+const VTT = Buffer.from('WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nHello\n');
 
-const video = (key: string, name: string): VideoBlock => ({ type: 'video', source: { upload: key, name, size: VIDEO.length, type: 'video/mp4' }, title: 'Watch this first' });
+const video = (key: string, name: string, extra: Pick<VideoBlock, 'poster' | 'transcript'> = {}): VideoBlock => ({
+  type: 'video',
+  source: { upload: key, name, size: VIDEO.length, type: 'video/mp4' },
+  title: 'Watch this first',
+  ...extra,
+});
 
 let handle: Database;
 let bucket: FakeBucket;
@@ -76,9 +87,28 @@ async function setUp(): Promise<void> {
   db.cohorts[0]!.previewOpensAt = PREVIEW;
   const w0 = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
   const w1 = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!;
-  w0.checklist[0]!.paths = { ...(w0.checklist[0]!.paths ?? {}), claude: { blocks: [...(w0.checklist[0]!.paths?.claude?.blocks ?? []), video(KEY.week0Step, 'Week 0 setup.mp4')] } };
+  w0.checklist[0]!.paths = {
+    ...(w0.checklist[0]!.paths ?? {}),
+    claude: {
+      blocks: [
+        ...(w0.checklist[0]!.paths?.claude?.blocks ?? []),
+        video(KEY.week0Step, 'Week 0 setup.mp4', {
+          poster: { upload: KEY.poster, name: 'Week 0 poster.jpg', size: POSTER.length, type: 'image/jpeg' },
+          transcript: { upload: KEY.transcript, name: 'Week 0.vtt', size: VTT.length, type: 'text/vtt' },
+        }),
+      ],
+    },
+  };
   w0.course!.media = [...w0.course!.media, video(KEY.week0Media, 'Orientation.mp4')];
-  w1.checklist[0]!.paths = { chatgpt: { blocks: [video(KEY.week1Step, 'Week 1 build.mp4')] } };
+  w1.checklist[0]!.paths = {
+    chatgpt: {
+      blocks: [
+        video(KEY.week1Step, 'Week 1 build.mp4', {
+          poster: { upload: KEY.lockedPoster, name: 'Week 1 poster.jpg', size: POSTER.length, type: 'image/jpeg' },
+        }),
+      ],
+    },
+  };
   db.users.push(NO_PLAN);
   await resetDatabase(db);
   for (const buyer of Object.keys(BUYERS) as Buyer[]) {
@@ -118,7 +148,11 @@ beforeEach(async () => {
   bucket.anyKey = false;
   bucket.objects.clear();
   bucket.requests.length = 0;
-  for (const k of Object.values(KEY)) bucket.put(k, VIDEO, 'video/mp4');
+  for (const k of [KEY.week0Step, KEY.week0Media, KEY.week1Step, KEY.nowhere]) bucket.put(k, VIDEO, 'video/mp4');
+  bucket.put(KEY.poster, POSTER, 'image/jpeg');
+  bucket.put(KEY.lockedPoster, POSTER, 'image/jpeg');
+  bucket.put(KEY.stray, POSTER, 'image/jpeg');
+  bucket.put(KEY.transcript, VTT, 'text/vtt');
   Object.assign(process.env, bucket.env);
   resetS3();
   app = await build({ logger: false });
@@ -140,6 +174,9 @@ describe('POST /api/files/upload-url, D-188’s types and caps', () => {
       [XLSX, 'Pipeline.xlsx', 'xlsx'],
       ['text/csv', 'leads.csv', 'csv'],
       ['application/pdf', 'guide.pdf', 'pdf'],
+      ['image/jpeg', 'poster.jpg', 'jpg'],
+      ['image/jpeg', 'poster.jpeg', 'jpg'],
+      ['text/vtt', 'captions.vtt', 'vtt'],
     ] as const) {
       const res = await post('/api/files/upload-url', 'staff', { contentType, size: 2048, name });
       expect(res.statusCode, `${contentType}: ${res.body}`).toBe(200);
@@ -166,6 +203,10 @@ describe('POST /api/files/upload-url, D-188’s types and caps', () => {
     const res = await post('/api/files/upload-url', 'staff', { contentType: 'text/csv', size: 10, name: 'page.html' });
     expect(res.statusCode).toBe(422);
     expect(res.json()).not.toHaveProperty('url');
+    expect((await post('/api/files/upload-url', 'staff', { contentType: 'image/jpeg', size: 10, name: 'poster.png' })).statusCode).toBe(422);
+    expect((await post('/api/files/upload-url', 'staff', { contentType: 'text/vtt', size: 10, name: 'notes.txt' })).statusCode).toBe(422);
+    expect((await post('/api/files/upload-url', 'staff', { contentType: 'image/jpeg', size: MAX_UPLOAD_BYTES, name: 'poster.jpg' })).statusCode).toBe(200);
+    expect((await post('/api/files/upload-url', 'staff', { contentType: 'text/vtt', size: MAX_UPLOAD_BYTES + 1, name: 'captions.vtt' })).statusCode).toBe(422);
   });
 
   it('still refuses a learner', async () => {
@@ -399,6 +440,36 @@ describe('GET /api/files/course/<key>: a course week’s video, by the week’s 
       expect((await get(courseVideo(KEY.week1Step), 'staff')).statusCode).toBe(200);
     } finally {
       await handle.update(modules).set({ status: 'scheduled' }).where(eq(modules.id, ACCELERATOR_MODULE_IDS[1]!));
+    }
+  });
+
+  it('serves a block’s poster and transcript to a learner who can open the week, and 404s otherwise', async () => {
+    const poster = await get(courseVideo(KEY.poster), 'full');
+    expect(poster.statusCode).toBe(200);
+    expect(poster.headers['content-type']).toBe('image/jpeg');
+    expect(poster.headers['content-disposition']).toContain('inline');
+    expect(poster.headers['content-disposition']).toContain('Week 0 poster.jpg');
+    const vtt = await get(courseVideo(KEY.transcript), 'full');
+    expect(vtt.statusCode).toBe(200);
+    expect(vtt.headers['content-type']).toBe('text/vtt');
+    expect(vtt.rawPayload.equals(VTT)).toBe(true);
+    expect((await get(courseVideo(KEY.lockedPoster), 'full')).statusCode).toBe(404);
+    expect((await get(courseVideo(KEY.nowhere), 'full')).statusCode).toBe(404);
+
+    const [src] = await handle.select().from(modules).where(eq(modules.id, ACCELERATOR_MODULE_IDS[0]!));
+    await handle.insert(modules).values({
+      ...src!,
+      id: 'not-a-course',
+      kind: 'skill',
+      course: null,
+      name: 'Not a course',
+      checklist: [{ id: 'c1', text: 'x', ch: '', mins: 1, t: 0, hint: '', paths: { claude: { blocks: [video(KEY.stray, 'Nope.jpg')] } } }],
+    });
+    try {
+      expect((await get(courseVideo(KEY.stray), 'full')).statusCode).toBe(404);
+      expect((await get(courseVideo(KEY.stray), 'staff')).statusCode).toBe(404);
+    } finally {
+      await handle.delete(modules).where(eq(modules.id, 'not-a-course'));
     }
   });
 

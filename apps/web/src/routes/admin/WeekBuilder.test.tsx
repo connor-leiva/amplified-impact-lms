@@ -199,14 +199,14 @@ describe('a video block in a step’s paths and the week’s Media (D-188)', () 
     await user.click(screen.getAllByRole('button', { name: 'Add block' })[1]!);
     await user.type(screen.getByRole('textbox', { name: 'Block 1 link' }), 'https://www.loom.com/share/abc');
     await user.type(screen.getByRole('textbox', { name: 'Block 1 title' }), 'Walkthrough');
-    expect(last.paths!.chatgpt!.blocks).toEqual([{ type: 'video', source: { url: 'https://www.loom.com/share/abc' }, title: 'Walkthrough' }]);
+    expect(last.paths!.chatgpt!.blocks).toEqual([{ type: 'video', id: 'v1', source: { url: 'https://www.loom.com/share/abc' }, title: 'Walkthrough' }]);
     // An upload, in the Claude path: mp4 only, said inline otherwise.
     await user.selectOptions(screen.getByRole('combobox', { name: 'Claude path: kind of block to add' }), 'video');
     await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
     const claude = screen.getByRole('group', { name: 'Claude path' });
     await user.click(within(claude).getByRole('radio', { name: 'Upload an mp4' }));
     expect(within(claude).getByText('No file yet.')).toBeInTheDocument();
-    const input = claude.querySelector<HTMLInputElement>('input[type=file]')!;
+    const input = claude.querySelector<HTMLInputElement>('input[type=file][accept=".mp4"]')!;
     expect(input.accept).toBe('.mp4');
     await userEvent.setup({ applyAccept: false }).upload(input, new File(['x'], 'notes.pdf', { type: 'application/pdf' }));
     expect(await within(claude).findByRole('alert')).toHaveTextContent('Choose an mp4 file.');
@@ -241,10 +241,10 @@ describe('a video block in a step’s paths and the week’s Media (D-188)', () 
     const videos = within(dialog).getByRole('group', { name: 'Media videos' });
     await user.click(within(videos).getByRole('button', { name: 'Add block' }));
     await user.type(within(videos).getByRole('textbox', { name: 'Block 1 link' }), 'https://cdn.example.test/recap.m3u8');
-    expect(draft().course.media).toEqual([...week.course.media, { type: 'video', source: { url: 'https://cdn.example.test/recap.m3u8' } }]);
+    expect(draft().course.media).toEqual([...week.course.media, { type: 'video', id: 'v1', source: { url: 'https://cdn.example.test/recap.m3u8' } }]);
     // Editing the lines keeps the video after them.
     await user.type(within(dialog).getByRole('textbox', { name: /^Media/ }), '{End}{Enter}Slides');
-    expect(draft().course.media.at(-1)).toEqual({ type: 'video', source: { url: 'https://cdn.example.test/recap.m3u8' } });
+    expect(draft().course.media.at(-1)).toEqual({ type: 'video', id: 'v1', source: { url: 'https://cdn.example.test/recap.m3u8' } });
     expect(draft().course.media).toContain('Slides');
   });
 });

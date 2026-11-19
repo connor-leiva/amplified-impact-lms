@@ -54,6 +54,13 @@ export const STEP = {
   download: 'Download',
   downloaded: 'Downloaded',
   playAt: 'Play at',
+  /** D-191: the video block's own chrome. */
+  chapters: 'Chapters',
+  showTranscript: 'Show transcript',
+  transcript: 'Transcript',
+  draftVideo: 'Draft video · narration coming',
+  transcriptMissing: 'The transcript didn’t load.',
+  loading: 'Loading.',
   waiting: 'Waiting on Step',
   checkAnyway: 'Check it off',
   notNow: 'Not now',
@@ -118,6 +125,8 @@ export interface StepVM {
    */
   pills?: PillVM[];
   layouts?: Partial<Record<Platform, ChecklistLayoutVM>>;
+  /** D-191: this learner’s place in this week’s videos. Absent until they have watched one, so a step with none keeps its keys. */
+  videoProgress?: { videoId: string; maxPct: number; lastPositionS: number }[];
 }
 
 export interface PillVM {
@@ -160,6 +169,8 @@ export interface CheckItemVM {
   clickPath: string[];
   playLabel: string | null;
   playSeconds: number | null;
+  /** The video id, when the item names one. Absent means the first video on the path. */
+  playVideo: string | null;
   action: CheckActionVM | null;
   subchecks: CheckSubVM[];
   callouts: CalloutVM[];
@@ -206,6 +217,8 @@ export interface StepVMOptions {
   /** This learner’s checklist boxes and accordion memory. Omit them and every box is unchecked. */
   checks?: readonly ChecklistMark[];
   prefs?: readonly CoursePref[];
+  /** This learner’s place in the week’s videos. Omit it and nothing resumes. */
+  videoProgress?: readonly { videoId: string; maxPct: number; lastPositionS: number; moduleId: string }[];
 }
 
 export type StepPageVM = StepVM | { kind: 'missing'; href: string };
@@ -259,7 +272,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
   const paths = pathsOf(s.step.paths);
   const tabs = ORDER.filter((k) => paths[k]);
   const aside = asideOf(w, r.steps, s, p.copy, opts?.fileUrl ?? (() => null));
-  return {
+  const base: StepVM = {
     kind: 'step',
     week: r.week,
     back: { label: r.title, href: learnWeek(r.week) },
@@ -286,6 +299,10 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     help: helpVM(p, now),
     ...checklistOf(p, r, s, actor, now, opts),
   };
+  const watched = (opts?.videoProgress ?? [])
+    .filter((row) => row.moduleId === acceleratorModuleId(r.week))
+    .map(({ videoId, maxPct, lastPositionS }) => ({ videoId, maxPct, lastPositionS }));
+  return watched.length ? { ...base, videoProgress: watched } : base;
 }
 
 const DAY = 86_400_000;
@@ -335,6 +352,7 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     clickPath: b.clickPath ?? [],
     playLabel: b.playAt ? `${STEP.playAt} ${fmt.clock(b.playAt.t)}` : null,
     playSeconds: b.playAt ? b.playAt.t : null,
+    playVideo: b.playAt?.video ?? null,
     action: actionVM(b.action, kit, fileUrl, sessions),
     subchecks: subs,
     callouts: callouts.map(calloutVM),

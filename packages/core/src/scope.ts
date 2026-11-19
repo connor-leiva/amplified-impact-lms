@@ -122,9 +122,10 @@ const redactResource = (r: Resource): Resource => {
  * Email is the one field role-gated within the team, per § 7.4.
  */
 const redactTeammate = (u: Learner, showEmail: boolean): Learner => {
-  // D-190: checklist boxes and accordion memory are the viewer's own. Teammates keep build progress
-  // (Team Hub) and lose these. The keys stay absent, as they are on every learner who has none.
-  const { checks: _checks, coursePrefs: _prefs, ...rest } = u;
+  // D-190: checklist boxes and accordion memory are the viewer's own. D-191: so is how far they
+  // watched a video. Teammates keep build progress (Team Hub) and lose these. The keys stay absent,
+  // as they are on every learner who has none.
+  const { checks: _checks, coursePrefs: _prefs, videoProgress: _video, ...rest } = u;
   return {
     ...rest,
     email: showEmail ? u.email : '',

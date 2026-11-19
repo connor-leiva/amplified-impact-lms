@@ -142,8 +142,9 @@ export const MAX_UPLOAD_BYTES = MAX_FILE_BYTES;
 export const MAX_VIDEO_UPLOAD_BYTES = MAX_VIDEO_BYTES;
 
 /**
- * § 8.2's allow-list, in its order, then D-188's three: `video/mp4`, `.xlsx` and `.csv`. Read from
- * `@ai/core/uploads` so the browser and this guard can't disagree.
+ * § 8.2's allow-list, in its order, then D-188's three (`video/mp4`, `.xlsx`, `.csv`) and D-191's
+ * poster and transcript (`image/jpeg`, `text/vtt`). Read from `@ai/core/uploads` so the browser
+ * and this guard can't disagree.
  */
 export const ALLOWED_UPLOAD_TYPES: readonly UploadType[] = UPLOAD_TYPES;
 
@@ -165,6 +166,8 @@ const UPLOAD_EXTENSIONS: { readonly [K in AllowedContentType]: string } = {
   'video/mp4': 'mp4',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
   'text/csv': 'csv',
+  'image/jpeg': 'jpg',
+  'text/vtt': 'vtt',
 };
 
 // --- errors ------------------------------------------------------------------------------------

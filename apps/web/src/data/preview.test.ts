@@ -176,7 +176,7 @@ describe('uploads in a preview tab and in fixture mode (D-188)', () => {
       expect(progress).toEqual([1]);
       expect(fetchSpy).not.toHaveBeenCalled();
       // A file the API would refuse is refused here too.
-      expect(await createFixtureRepository('admin', 'live').upload(new File(['x'], 'page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.' });
+      expect(await createFixtureRepository('admin', 'live').upload(new File(['x'], 'page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel, CSV, JPG or VTT file.' });
     } finally {
       vi.unstubAllGlobals();
     }

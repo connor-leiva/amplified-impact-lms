@@ -84,6 +84,16 @@ export const VIDEO_LABELS = {
   title: 'Title',
   titleHint: 'Optional, shown with the video',
   mediaVideos: 'Media videos',
+  id: 'Id',
+  idHint: 'Stable on this week, like w0-04a. Used to resume and to check items.',
+  poster: 'Upload poster (jpg)',
+  posterAnother: 'Choose another poster',
+  transcript: 'Upload transcript (vtt)',
+  transcriptAnother: 'Choose another transcript',
+  removeFile: 'Remove',
+  draft: 'Draft video · narration coming',
+  chapters: 'Chapters',
+  chaptersHint: 'One per line: 0:47 | Open Settings | item-1',
 } as const;
 
 /** A week's Media split as the builder edits it: its lines, then its videos (D-188). */
@@ -187,6 +197,14 @@ export function moveBy<T>(list: readonly T[], i: number, by: -1 | 1): T[] {
 }
 
 /** D-190: the next checklist id that is not already on this step. Staff can edit it. Don’t reuse one you removed. */
+/** D-191: a suggested video id that is not already used in this list. Staff can edit it. */
+export function nextVideoId(taken: readonly string[]): string {
+  const used = new Set(taken);
+  let n = 1;
+  while (used.has(`v${n}`)) n += 1;
+  return `v${n}`;
+}
+
 export function nextCheckId(taken: readonly string[]): string {
   const used = new Set(taken);
   let n = 1;

@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { useMutate } from '../../data/hooks';
 import { Blocks, CalLinks, VideoView } from './parts';
+import type { VideoWatch } from './Video';
 import { saveIcs } from './ics';
 import { LABELS } from './learn.vm';
 import { PLATFORM_LABEL, STEP } from './Step.vm';
@@ -160,7 +161,7 @@ function Item({
   item: CheckItemVM;
   pop: boolean;
   onItem: (item: CheckItemVM, subId: string | null) => void;
-  onPlay: (t: number) => void;
+  onPlay: (t: number, videoId?: string | null) => void;
 }) {
   const mixed = item.subchecks.length > 0 && item.subchecks.some((s) => s.checked) && !item.checked;
   return (
@@ -199,7 +200,7 @@ function Item({
           <div className={s.acts}>
             {item.action ? <Action action={item.action} /> : null}
             {item.playSeconds !== null && item.playLabel ? (
-              <button type="button" className={s.play} onClick={() => onPlay(item.playSeconds!)}>
+              <button type="button" className={s.play} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
                 <Icon name="r2Play" size={12} strokeWidth={1.75} />
                 {item.playLabel}
               </button>
@@ -284,12 +285,14 @@ export function ChecklistPlayer({
   platform,
   setPlatform,
   onPlay,
+  watch,
 }: {
   vm: StepVM;
   layout: ChecklistLayoutVM;
   platform: StepVM['tabs'][number];
   setPlatform: (p: StepVM['tabs'][number]) => void;
-  onPlay: (seconds: number) => void;
+  onPlay: (seconds: number, videoId?: string | null) => void;
+  watch?: VideoWatch;
 }) {
   const mutate = useMutate();
   const [busy, setBusy] = useState(false);
@@ -299,6 +302,7 @@ export function ChecklistPlayer({
   const [celebrating, setCelebrating] = useState(false);
   const titleId = useId();
   const wasDone = useRef(vm.mark.done);
+  const wasChecked = useRef(layout.items.filter((item) => item.checked).map((item) => item.id).join(','));
 
   useEffect(() => {
     if (vm.mark.done && !wasDone.current) {
@@ -312,6 +316,17 @@ export function ChecklistPlayer({
     if (!vm.mark.done) setCelebrating(false);
     return undefined;
   }, [vm.mark.done]);
+
+  useEffect(() => {
+    const prev = new Set(wasChecked.current.split(',').filter(Boolean));
+    const now = layout.items.filter((item) => item.checked);
+    wasChecked.current = now.map((item) => item.id).join(',');
+    const fresh = now.find((item) => !prev.has(item.id));
+    if (!fresh) return undefined;
+    setPop(fresh.id);
+    const t = setTimeout(() => setPop((cur) => (cur === fresh.id ? null : cur)), reduceMotion() ? 0 : 220);
+    return () => clearTimeout(t);
+  }, [layout.items]);
 
   const write = async (itemId: string) => {
     if (!vm.mark.stepId) return;
@@ -408,7 +423,7 @@ export function ChecklistPlayer({
         <section id="step-watch" aria-labelledby="step-watch-h">
           <h2 id="step-watch-h">{STEP.watch}</h2>
           {layout.videos.map((block, i) => (
-            <VideoView key={i} block={block} />
+            <VideoView key={i} block={block} watch={watch} />
           ))}
         </section>
       ) : null}
@@ -512,11 +527,14 @@ export function ChecklistPills({ vm }: { vm: StepVM }) {
   return <Pills pills={vm.pills} label={vm.railLabel} />;
 }
 
-/** Seek the step's video and bring it into view. */
-export function playAt(seconds: number): void {
-  const video = document.querySelector<HTMLVideoElement>('[data-video-block]');
+/** Seek this path's video and bring it into view. `videoId` picks one when the path has several; otherwise the first. */
+export function playAt(seconds: number, videoId?: string | null): void {
+  const named = videoId ? document.querySelector<HTMLVideoElement>(`[data-video-block][data-video-id="${CSS.escape(videoId)}"]`) : null;
+  const video = named ?? document.querySelector<HTMLVideoElement>('[data-video-block]');
   const reduce = reduceMotion();
   if (!video) return;
   video.currentTime = seconds;
+  const played = video.play?.();
+  void played?.catch(() => undefined);
   video.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
 }

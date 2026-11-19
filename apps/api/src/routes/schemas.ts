@@ -18,7 +18,7 @@
 // authorization-matrix tests in Gate 7 cover that.
 import { z } from 'zod';
 import { ICONS, PERMS, STAFF_ROLES, VIDEO_URL_MAX } from '@ai/core';
-import { MAX_VIDEO_BYTES, UPLOAD_KEY } from '@ai/core/uploads';
+import { MAX_FILE_BYTES, MAX_VIDEO_BYTES, UPLOAD_KEY } from '@ai/core/uploads';
 import type { IconName, PermKey, StaffRole } from '@ai/core';
 import type { MutationArgs, MutationName } from '@ai/core';
 
@@ -98,6 +98,17 @@ const contentBlock = z.discriminatedUnion('type', [
 // D-188: a video, in a step's paths and in a week's Media. Its source is an uploaded mp4 (a key the
 // upload route minted, with the file's name, size and type) or a link. The link's scheme (http or https
 // only) is checked by `saveBuilderModule`, which refuses a bad one inline as it does a copy rule.
+const blockId = z.string().min(1).max(80).regex(/^[A-Za-z0-9_-]+$/);
+const videoFile = {
+  upload: z.string().regex(UPLOAD_KEY),
+  name: z.string().min(1).max(200),
+  size: z.number().int().positive().max(MAX_FILE_BYTES),
+};
+const videoChapter = z.strictObject({
+  t: z.number().min(0).max(86400),
+  label: z.string().min(1).max(200),
+  item: blockId.optional(),
+});
 const videoBlock = z.strictObject({
   type: z.literal('video'),
   source: z.union([
@@ -110,6 +121,20 @@ const videoBlock = z.strictObject({
     z.strictObject({ url: z.string().min(1).max(VIDEO_URL_MAX) }),
   ]),
   title: z.string().max(300).optional(),
+  // D-191: all optional, so a video saved before them still parses.
+  id: blockId.optional(),
+  poster: z.strictObject({ ...videoFile, type: z.literal('image/jpeg') }).optional(),
+  transcript: z.strictObject({ ...videoFile, type: z.literal('text/vtt') }).optional(),
+  chapters: z.array(videoChapter).max(80).optional(),
+  draft: z.boolean().optional(),
+}).superRefine((block, ctx) => {
+  const chapters = block.chapters ?? [];
+  for (let i = 1; i < chapters.length; i++) {
+    if (chapters[i]!.t < chapters[i - 1]!.t) {
+      ctx.addIssue({ code: 'custom', message: 'Chapters go in time order.', path: ['chapters', i, 't'] });
+      break;
+    }
+  }
 });
 const checkId = z.string().min(1).max(80).regex(/^[A-Za-z0-9_-]+$/);
 const checkCond = z.strictObject({ field: z.string().min(1).max(80), equals: z.string().max(200) });
@@ -132,13 +157,13 @@ const checkBlock = z.strictObject({
   role: z.enum(['owner', 'operator', 'each', '']).optional(),
   action: checkAction.optional(),
   clickPath: z.array(z.string().max(80)).max(12).optional(),
-  playAt: z.strictObject({ t: z.number().int().min(0).max(86400) }).optional(),
+  playAt: z.strictObject({ t: z.number().min(0).max(86400), video: blockId.optional() }).optional(),
   dependsOn: z.array(z.string().min(1).max(120)).max(20).optional(),
   hideIf: checkCond.optional(),
   collapseIf: checkCond.optional(),
   collapsedNote: z.string().max(400).optional(),
   optional: z.boolean().optional(),
-  auto: z.strictObject({ video: z.literal(true), at: z.number().min(0).max(100) }).optional(),
+  auto: z.strictObject({ video: z.literal(true), at: z.number().min(0).max(100), id: blockId.optional() }).optional(),
   subchecks: z.array(z.strictObject({ id: checkId, label: z.string().max(200) })).max(24).optional(),
 });
 const calloutBlock = z.strictObject({
@@ -337,6 +362,12 @@ export const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> } = {
   toggleStep: z.strictObject({ moduleId: id, stepId: id }),
   toggleChecklistItem: z.strictObject({ moduleId: id, stepId: id, itemId: z.string().min(1).max(161) }),
   setPref: z.strictObject({ key: z.string().min(1).max(200), value: z.string().max(8) }),
+  saveVideoProgress: z.strictObject({
+    moduleId: id,
+    videoId: z.string().min(1).max(300),
+    maxPct: z.number().min(0).max(1),
+    lastPositionS: z.number().min(0).max(86400),
+  }),
   markDeployed: z.strictObject({ moduleId: id }),
   setRuntime: z.strictObject({ moduleId: id, runtime }),
   recordRun: z.strictObject({ moduleId: id, title: z.string(), preview: z.string() }),

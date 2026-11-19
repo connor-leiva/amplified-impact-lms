@@ -430,7 +430,7 @@ describe('HttpRepository · upload (D-188)', () => {
   });
 
   it('refuses a file the API would refuse before asking it anything', async () => {
-    expect(await createHttpRepository().upload(file('page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.' });
+    expect(await createHttpRepository().upload(file('page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel, CSV, JPG or VTT file.' });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -130,15 +130,22 @@ export interface CheckBlock {
   role?: CheckRole;
   action?: CheckAction;
   clickPath?: string[];
-  /** Seconds into the step's video. */
-  playAt?: { t: number };
+  /**
+   * Seconds into this path's video. `video` names which one when the path has more than one
+   * (the block's id). Absent means the first video on the path.
+   */
+  playAt?: { t: number; video?: string };
   dependsOn?: string[];
   hideIf?: CheckCond;
   collapseIf?: CheckCond;
   collapsedNote?: string;
   optional?: boolean;
-  /** Stored for a later change that checks the item when the video reaches this percent. Until then it is a normal checkbox. */
-  auto?: { video: true; at: number };
+  /**
+   * D-191: the item checks itself when this path's video has been watched to `at`.
+   * `at` is a fraction (0.9) or a percent (90). `id` names the video when the path has more than one;
+   * absent means the first video on the path.
+   */
+  auto?: { video: true; at: number; id?: string };
   subchecks?: CheckSub[];
 }
 
@@ -174,14 +181,47 @@ export interface VideoLink {
   url: string;
 }
 
+/** D-191: a poster image staff uploaded for a video block. Jpeg only, through the same upload route. */
+export interface VideoPoster {
+  upload: string;
+  name: string;
+  /** Bytes. */
+  size: number;
+  type: 'image/jpeg';
+}
+
+/** D-191: a WebVTT transcript staff uploaded for a video block. */
+export interface VideoTranscript {
+  upload: string;
+  name: string;
+  /** Bytes. */
+  size: number;
+  type: 'text/vtt';
+}
+
+/** D-191: one chapter. `t` is seconds from the start. `item` is a checklist item id on the same step. */
+export interface VideoChapter {
+  t: number;
+  label: string;
+  item?: string;
+}
+
 /**
  * D-188: a video block. Its source is an uploaded mp4 (played from the API, same-origin) or a link. The
  * optional title is shown with it and follows the copy rules like any other learner-facing string.
+ * D-191: poster, chapters, transcript and the draft badge are optional, so a block without them is
+ * unchanged. Staff set each one in the Week Builder. `id` is stable on the week (resume and auto-check).
  */
 export interface VideoBlock {
   type: 'video';
   source: VideoUpload | VideoLink;
   title?: string;
+  id?: string;
+  poster?: VideoPoster;
+  transcript?: VideoTranscript;
+  chapters?: VideoChapter[];
+  /** Shows the badge "Draft video · narration coming". */
+  draft?: boolean;
 }
 
 /** What a step's path is made of: the content blocks, (D-188) a video, and (D-190) checklist, callout and accordion blocks. */

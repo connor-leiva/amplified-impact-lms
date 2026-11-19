@@ -21,6 +21,7 @@ import type { AIEmployee, Cohort, CopyString } from './types';
 import { checklistIssueLines } from './checklist';
 import type { CohortCourse, MediaItem, ModuleCourse, PathBlock, VideoBlock } from './course-types';
 import { isVideoUpload } from './course-types';
+import { chapterProblems } from './video';
 
 export type CopyRule = 'em_dash' | 'banned_line' | 'hire_claim' | 'time_zone';
 
@@ -107,7 +108,11 @@ function blockFields(out: CopyField[], path: string, label: string, blocks: read
     const l = `${label}, block ${i + 1}`;
     if (b.type === 'text') push(out, `${p}.text`, l, b.text, hire);
     // D-188: a video's title is learner-facing copy; its source is an address, not copy.
-    else if (b.type === 'video') push(out, `${p}.title`, l, b.title, hire);
+    // D-191: chapter labels are too. Times and checklist ids are not copy.
+    else if (b.type === 'video') {
+      push(out, `${p}.title`, l, b.title, hire);
+      (b.chapters ?? []).forEach((c, j) => push(out, `${p}.chapters[${j}].label`, `${l}, chapter ${j + 1}`, c.label, hire));
+    }
     else if (b.type === 'copy') {
       push(out, `${p}.label`, l, b.label, hire);
       push(out, `${p}.text`, l, b.text, hire);
@@ -144,7 +149,10 @@ function blockFields(out: CopyField[], path: string, label: string, blocks: read
 function mediaFields(out: CopyField[], media: readonly MediaItem[]): void {
   media.forEach((m, i) => {
     if (typeof m === 'string') push(out, `course.media[${i}]`, `Media ${i + 1}`, m);
-    else push(out, `course.media[${i}].title`, `Media ${i + 1}`, m.title);
+    else {
+      push(out, `course.media[${i}].title`, `Media ${i + 1}`, m.title);
+      (m.chapters ?? []).forEach((c, j) => push(out, `course.media[${i}].chapters[${j}].label`, `Media ${i + 1}, chapter ${j + 1}`, c.label));
+    }
   });
 }
 
@@ -361,8 +369,39 @@ export function moduleVideos(m: AIEmployee): { path: string; label: string; bloc
   return out;
 }
 
-/** The lines a save is refused with for a video whose source isn't usable ("Step 2, Claude path, block 1: …"). */
-export const videoIssues = (m: AIEmployee): string[] => moduleVideos(m).filter((v) => !videoSourceOk(v.block)).map((v) => `${v.label}: ${VIDEO_SOURCE_MESSAGE}`);
+/** Checklist ids on one step, both paths, so a chapter can name an item on either. */
+function stepItemIds(m: AIEmployee, index: number): string[] {
+  const step = m.checklist[index];
+  if (!step) return [];
+  const ids: string[] = [];
+  for (const which of ['claude', 'chatgpt'] as const) {
+    for (const b of step.paths?.[which]?.blocks ?? []) if (b.type === 'check') ids.push(b.id);
+  }
+  return ids;
+}
+
+/**
+ * The lines a save is refused with for a video: a source that isn't usable, a repeated id, or a
+ * chapter that is out of order or names an item the step does not have ("Step 2, Claude path, block 1: …").
+ */
+export function videoIssues(m: AIEmployee): string[] {
+  const videos = moduleVideos(m);
+  const out: string[] = [];
+  const seen = new Map<string, string>();
+  for (const v of videos) {
+    if (!videoSourceOk(v.block)) out.push(`${v.label}: ${VIDEO_SOURCE_MESSAGE}`);
+    const id = v.block.id?.trim();
+    if (id) {
+      const prev = seen.get(id);
+      if (prev) out.push(`${v.label}: ${id} is already used (${prev}).`);
+      else seen.set(id, v.label);
+    }
+    const step = /^checklist\[(\d+)\]/.exec(v.path);
+    const items = step ? stepItemIds(m, Number(step[1])) : null;
+    for (const problem of chapterProblems(v.block, items)) out.push(`${v.label}: ${problem}`);
+  }
+  return out;
+}
 
 /** D-190: a checklist item's id, its dependencies and its link, on top of the copy rules. */
 export const checklistIssues = (m: AIEmployee): string[] => checklistIssueLines(m.checklist);

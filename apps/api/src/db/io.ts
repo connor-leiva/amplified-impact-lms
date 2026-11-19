@@ -82,6 +82,7 @@ const TABLES: Record<TableName, PgTable> = {
   progress: schema.progress,
   checklistState: schema.checklistState,
   learnerPrefs: schema.learnerPrefs,
+  videoProgress: schema.videoProgress,
   resources: schema.resources,
   announcements: schema.announcements,
   dismissals: schema.dismissals,

@@ -12,7 +12,7 @@ import type { UploadType } from '@ai/core/uploads';
 
 /** What an upload says. Sentence case, no em dash (the builder's copy rules). */
 export const UPLOAD_COPY = {
-  notAllowed: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.',
+  notAllowed: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel, CSV, JPG or VTT file.',
   notVideo: 'Choose an mp4 file.',
   tooBig: 'That file is over 25 MB.',
   videoTooBig: 'That video is over 500 MB.',

@@ -36,6 +36,7 @@ import type {
   CopyString,
   CoursePref,
   Db,
+  VideoProgress,
   Learner,
   PermKey,
   Progress,
@@ -61,6 +62,7 @@ export type TableName =
   | 'progress'
   | 'checklistState'
   | 'learnerPrefs'
+  | 'videoProgress'
   | 'resources'
   | 'announcements'
   | 'dismissals'
@@ -83,6 +85,7 @@ export const KEYS: Record<TableName, readonly string[]> = {
   progress: ['userId', 'moduleId'],
   checklistState: ['userId', 'moduleId', 'stepId', 'itemId'],
   learnerPrefs: ['userId', 'key'],
+  videoProgress: ['userId', 'moduleId', 'videoId'],
   resources: ['id'],
   announcements: ['id'],
   dismissals: ['userId', 'announcementId'],
@@ -133,6 +136,11 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
   learnerPrefs: [
     { by: 'userId', dir: 'asc' },
     { by: 'key', dir: 'asc' },
+  ],
+  videoProgress: [
+    { by: 'userId', dir: 'asc' },
+    { by: 'moduleId', dir: 'asc' },
+    { by: 'videoId', dir: 'asc' },
   ],
   resources: [{ by: 'seq', dir: 'asc' }],
   announcements: [{ by: 'at', dir: 'desc' }],
@@ -210,6 +218,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
   progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
   checklistState: ['userId', 'moduleId', 'stepId', 'itemId', 'checked', 'checkedAt', 'auto'],
   learnerPrefs: ['userId', 'key', 'value', 'updatedAt'],
+  videoProgress: ['userId', 'moduleId', 'videoId', 'maxPct', 'lastPositionS', 'updatedAt'],
   resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq', 'moduleId', 'kind', 'stepId', 'visibility', 'platform'],
   announcements: [
     'id',
@@ -437,14 +446,25 @@ const prefRow = (userId: string, p: CoursePref): Row => ({
   updatedAt: p.updatedAt,
 });
 
+const videoRow = (userId: string, p: VideoProgress): Row => ({
+  userId,
+  moduleId: p.moduleId,
+  videoId: p.videoId,
+  maxPct: p.maxPct,
+  lastPositionS: p.lastPositionS,
+  updatedAt: p.updatedAt,
+});
+
 export function toRows(db: Db): Rows {
   const progress: Row[] = [];
   const checklistState: Row[] = [];
   const learnerPrefs: Row[] = [];
+  const videoProgress: Row[] = [];
   for (const u of db.users) {
     for (const [moduleId, p] of Object.entries(u.progress)) progress.push(progressRow(u.id, moduleId, p));
     for (const c of u.checks ?? []) checklistState.push(checklistRow(u.id, c));
     for (const p of u.coursePrefs ?? []) learnerPrefs.push(prefRow(u.id, p));
+    for (const p of u.videoProgress ?? []) videoProgress.push(videoRow(u.id, p));
   }
 
   const dismissals: Row[] = [];
@@ -469,6 +489,7 @@ export function toRows(db: Db): Rows {
     progress,
     checklistState,
     learnerPrefs,
+    videoProgress,
     resources: db.resources.map(resourceRow),
     announcements: db.announcements.map(announcementRow),
     dismissals,
@@ -545,6 +566,19 @@ export function fromRows(rows: Rows): Db {
     list.push({ key: str(r.key), value: str(r.value), updatedAt: num(r.updatedAt) });
     prefsByUser.set(id, list);
   }
+  const videoByUser = new Map<string, VideoProgress[]>();
+  for (const r of rows.videoProgress) {
+    const id = str(r.userId);
+    const list = videoByUser.get(id) ?? [];
+    list.push({
+      moduleId: str(r.moduleId),
+      videoId: str(r.videoId),
+      maxPct: num(r.maxPct),
+      lastPositionS: num(r.lastPositionS),
+      updatedAt: num(r.updatedAt),
+    });
+    videoByUser.set(id, list);
+  }
 
   const users: Learner[] = rows.users
     .filter((r) => r.kind === 'learner')
@@ -563,7 +597,7 @@ export function fromRows(rows: Rows): Db {
           status: r.status as Learner['status'],
           progress: progressByUser.get(str(r.id)) ?? {},
         },
-        { reminded: r.reminded, nudged: r.nudged, checks: checksByUser.get(str(r.id)), coursePrefs: prefsByUser.get(str(r.id)) },
+        { reminded: r.reminded, nudged: r.nudged, checks: checksByUser.get(str(r.id)), coursePrefs: prefsByUser.get(str(r.id)), videoProgress: videoByUser.get(str(r.id)) },
       ),
     );
 

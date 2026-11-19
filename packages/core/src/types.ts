@@ -84,6 +84,22 @@ export interface Learner {
   checks?: ChecklistMark[];
   /** D-190. Absent until this learner opens an accordion. */
   coursePrefs?: CoursePref[];
+  /** D-191. Absent until this learner watches a course video. */
+  videoProgress?: VideoProgress[];
+}
+
+/**
+ * How far one learner has watched one course video (D-191). `maxPct` only ever rises.
+ * `videoId` is the block's id, or its upload key when it has none. Times are epoch ms.
+ */
+export interface VideoProgress {
+  moduleId: string;
+  videoId: string;
+  /** 0 to 1, from seconds actually watched, not the furthest seek. */
+  maxPct: number;
+  lastPositionS: number;
+  /** Epoch ms. */
+  updatedAt: number;
 }
 
 export interface Team { id: string; name: string; ownerId: string; seats: number }
