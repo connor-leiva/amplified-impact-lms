@@ -112,7 +112,7 @@ export type CheckAction =
   | { type: 'invite'; label?: string }
   | { type: 'calendar'; sessionId: string }
   | { type: 'link'; label: string; href: string }
-  | { type: 'form'; formId: 'intake' | 'stack-card'; label: string }
+  | { type: 'form'; formId: 'intake' | 'stack-card'; label: string; itemId?: string }
   | { type: 'card'; terms: string[] };
 
 /** One line under a checklist item that has sub-checks (step 3's tasks). The item is checked when all are. */
@@ -322,6 +322,33 @@ export interface ModuleCourse {
    * Absent until staff or the seed set it.
    */
   startHere?: StartHere;
+  /**
+   * D-196: the week's intake form. Questions are course content. Absent until staff or the seed set it.
+   * The opening line is optional and sits above the sections.
+   */
+  intake?: CourseIntake;
+}
+
+/** D-196: one intake question. `choice` and `multi` carry `options`. */
+export interface IntakeQuestion {
+  id: string;
+  label: string;
+  help?: string;
+  kind: 'short' | 'long' | 'choice' | 'multi';
+  options?: string[];
+}
+
+/** D-196: one group of questions. */
+export interface IntakeSection {
+  title: string;
+  intro?: string;
+  questions: IntakeQuestion[];
+}
+
+/** D-196: a week's intake. Answers are not stored here. */
+export interface CourseIntake {
+  intro?: string;
+  sections: IntakeSection[];
 }
 
 /** D-195: the words of a week's Start Here card. The step list is not stored here. */

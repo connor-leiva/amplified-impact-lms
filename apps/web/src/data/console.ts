@@ -149,6 +149,8 @@ export interface ConsoleApi {
   // PR 2 (D-158): workspaces, users, staff notes, the password reset and the users export.
   workspaces(filters: WorkspaceFilters, cursor?: string | null): Promise<ConsolePage<WorkspaceRow>>;
   workspace(teamId: string): Promise<WorkspaceDetail>;
+  /** D-196: a team's intake. The read is audited. */
+  teamIntake(teamId: string): Promise<{ answers: Record<string, string | string[]>; updatedAt: number | null; submittedAt: number | null }>;
   users(filters: UserFilters, cursor?: string | null): Promise<ConsolePage<ConsoleUserRow>>;
   user(userId: string): Promise<ConsoleUserDetail>;
   notes(targetType: StaffNoteTarget, targetId: string): Promise<StaffNote[]>;
@@ -343,6 +345,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     workspaces: async (f, cursor) =>
       json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
     workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
+    teamIntake: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/intake`)),
     users: async (f, cursor) => json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind }, cursor)}`)),
     user: async (userId) => json<ConsoleUserDetail>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}`)),
     notes: async (targetType, targetId) =>

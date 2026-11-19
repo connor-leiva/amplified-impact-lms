@@ -98,6 +98,14 @@ export const learnerPrefs = pgTable('learner_prefs', {
 // D-191: how far one learner has watched one course video. `max_pct` only rises (the mutation
 // enforces it). Double precision, not `real`: postgres `real` is float4 and cannot round-trip 0.9,
 // the threshold Week 0 checks at. `updated_at` is epoch ms, like every other learner instant.
+// D-196: one intake per team. Not a Db field. Answers never leave the portal.
+export const teamIntake = pgTable('team_intake', {
+  teamId: text('team_id').primaryKey(),
+  answers: jsonb('answers').$type<Record<string, string | string[]>>().notNull(),
+  updatedAt: ts('updated_at').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  submittedAt: ts('submitted_at'),
+});
 export const videoProgress = pgTable('video_progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),
   maxPct: doublePrecision('max_pct').notNull(), lastPositionS: doublePrecision('last_position_s').notNull(), updatedAt: ts('updated_at').notNull(),

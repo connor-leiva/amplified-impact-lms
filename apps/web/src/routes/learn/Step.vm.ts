@@ -20,7 +20,7 @@ import { inLibrary } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
 import { LABELS, helpVM, icsEvents, kitRow, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
 import type { HelpVM, KitRowVM, WeekRow } from './learn.vm';
-import { learnStep, learnTeam, learnWeek } from './routes';
+import { learnIntake, learnStep, learnTeam, learnWeek } from './routes';
 import { startHereCard } from './Week.vm';
 import type { StartHereVM } from './Week.vm';
 
@@ -43,7 +43,7 @@ export const STEP = {
   /** D-188: a video block's name when it has no title, and the link that opens one on another site. */
   video: 'Video',
   watch: 'Watch',
-  /** D-196: the name of the button on a poster. The replay player's play button uses the same word. */
+  /** D-197: the name of the button on a poster. The replay player's play button uses the same word. */
   play: 'Play',
   /** D-190: the one-step layout. Chrome, not a week’s words. */
   yourChecklist: 'Your Checklist',
@@ -372,7 +372,11 @@ function calloutVM(b: CalloutBlock): CalloutVM {
 }
 
 function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckActionVM | null {
-  if (!action || action.type === 'form' || action.type === 'card') return null;
+  if (!action || action.type === 'card') return null;
+  if (action.type === 'form') {
+    if (action.formId !== 'intake') return null;
+    return { type: 'link', label: action.label || 'Open the form', href: learnIntake() };
+  }
   if (action.type === 'download') {
     const files = action.kitItemIds.flatMap((id) => {
       const item = kit.find((k) => k.id === id);

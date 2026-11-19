@@ -121,6 +121,8 @@ const GROUP_LABELS: Record<string, string> = {
   copy: 'Copy Strings',
   // D-175: the deploy's one-time data steps on the course (the release plan).
   curriculum: 'Curriculum',
+  // D-196: a staff member opened a team's intake.
+  intake: 'Intake',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

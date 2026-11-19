@@ -28,6 +28,7 @@ import { KV, Pill, Sel, Tabs, TextArea, k } from '../../components/r2/kit';
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
 import { LearnerWeekPreview } from '../learn/Preview';
+import { IntakeCard } from './IntakeCard';
 import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
@@ -653,7 +654,7 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
             </Sel>
           </label>
           <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
-          <p className={clsx(k.me, w.hint)}>Saved now. The form itself is a later change, so learners see no button yet.</p>
+          <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint="The checklist item a submit checks. Blank uses this item." onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
         </>
       ) : null}
       {block.action?.type === 'card' ? (
@@ -821,6 +822,7 @@ export function WeekCards(props: WeekCardsProps) {
   return (
     <>
       <CoursePageCard {...props} />
+      <IntakeCard {...props} />
       <AgendaCard {...props} which="liveBuild" />
       <AgendaCard {...props} which="officeHours" />
       <HireCardsCard {...props} />

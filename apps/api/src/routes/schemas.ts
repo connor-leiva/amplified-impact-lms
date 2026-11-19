@@ -144,7 +144,7 @@ const checkAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('invite'), label: z.string().max(80).optional() }),
   z.strictObject({ type: z.literal('calendar'), sessionId: z.string().min(1).max(80) }),
   z.strictObject({ type: z.literal('link'), label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }),
-  z.strictObject({ type: z.literal('form'), formId: z.enum(['intake', 'stack-card']), label: z.string().max(80) }),
+  z.strictObject({ type: z.literal('form'), formId: z.enum(['intake', 'stack-card']), label: z.string().max(80), itemId: z.string().max(80).optional() }),
   z.strictObject({ type: z.literal('card'), terms: z.array(z.string().max(80)).max(24) }),
 ]);
 // D-190: a checklist item, a callout and an accordion. Ids and links are checked again on save
@@ -233,6 +233,21 @@ const moduleCourse = z.strictObject({
     line: z.string().max(1000),
     hint: z.string().max(500),
     totals: z.strictObject({ owner: z.string().max(80), operator: z.string().max(80) }),
+  }).optional(),
+  // D-196: the intake's questions. Answers are not on the course.
+  intake: z.strictObject({
+    intro: z.string().max(2000).optional(),
+    sections: z.array(z.strictObject({
+      title: z.string().max(200),
+      intro: z.string().max(2000).optional(),
+      questions: z.array(z.strictObject({
+        id: z.string().min(1).max(80),
+        label: z.string().max(500),
+        help: z.string().max(1000).optional(),
+        kind: z.enum(['short', 'long', 'choice', 'multi']),
+        options: z.array(z.string().max(200)).max(20).optional(),
+      })).max(40),
+    })).max(12),
   }).optional(),
 });
 

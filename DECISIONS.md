@@ -6588,11 +6588,27 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 ---
 
-## D-196 · iPhone Safari shows a course video’s poster
+## D-196 · Week 0 intake, in the portal, autosaved
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical.
+**Number:** D-195 is the Start Here card. D-196 was free.
+
+- **The questions live on Week 0's course** (`intake`), optional. An opening line, then sections of questions. Staff edit them on the Week 0 Intake card. A save checks the copy rules. The builder warns before operator, ai, plan or google is removed, because a later change reads those ids.
+- **The seed is insert-only.** The repo had topic names and no question form, so data step `2026-11-19-intake` sets the 20 design questions on accelerator-week-0 only when that week has no intake. No overwrite.
+- **Answers live in `team_intake`** (migration `0029_team_intake`): one row per team, jsonb answers, updated_at, updated_by, and a nullable submitted_at. The Team Owner and the Operations Lead read and edit it. Staff read it from the workspace page under workspaces.read, and that read writes `intake.read`. Saving and submitting stay in the portal. Nothing is sent to GHL, Stripe or anywhere else.
+- **The form.** A checklist form action for the intake opens `/learn/week/0/intake`. It autosaves and shows the time through fmt, in Mountain Time when the viewer is there. Submit sets submitted_at and checks the step 1 intake item for every member of the team. Staff can name that item on the action. Answers stay editable after submit. A staff preview writes nothing.
+- **Not in this change.** The stack card, hide and collapse, the path default, operator progress, and the week-complete overlay. The welcome email is unchanged.
+
+**Blast radius.** A week with no intake is unchanged, so the parity fixture does not gain a form. Utah Life and the non-course screens are unchanged.
+
+---
+
+## D-197 · iPhone Safari shows a course video’s poster
 
 **Date:** 2026-11-19
 **Approved by:** Connor Leiva, Nov 19, 2026, 8:54 AM CT: on learn.amplifiedimpact.io, `/learn/week/0/step/2` in iPhone Safari, the Week 0 Orientation video (block id w0-02) shows a blank gray box and a play button, with no poster. Chapters render. Staff had uploaded a 1920×1080 jpg poster for each of the six video blocks (w0-02, w0-02-g, w0-04a, w0-04b, w0-05a, w0-05b) in the builder and saved.
-**Number:** D-195 is the last on `main`. D-196 was free.
+**Number:** D-196 is the Week 0 intake on `main`. D-197 was free.
 
 - **Root cause.** The poster is saved. The Zod block keeps it, `courseFor` sends the video block whole (the poster key rides with the chapters), and the player sets `<video poster>` to `/api/files/course/<key>`. That is the same same-origin route the transcript track uses, streamed inline, not a presigned bucket URL. `img-src 'self'` allows it. iOS Safari does not paint that attribute: the element has `preload="metadata"`, and `HlsEngine` assigns `src` in a layout effect, so `src` is not in the markup. Once the media load starts, iOS drops the poster frame and shows its gray start-playback surface and play button until a frame is decoded. Desktop keeps the poster. The chapters are HTML, so they were never affected.
 - **The fix.** When a block has a poster, the player also draws it as an `<img>` (object-fit cover, alt the video title) over the element and under a play button. The image uses that same course-file URL. The image and the button go away once playback starts. The `poster` attribute stays. A block with no poster is the player it was.

@@ -1174,7 +1174,7 @@ button.b {
   border-radius: 8px;
   background: var(--r2-for);
 }
-/* D-196: the poster image sits over the element and under the play button until playback starts.
+/* D-197: the poster image sits over the element and under the play button until playback starts.
    iOS Safari does not paint the poster attribute, so the image is what the phone shows. */
 .vframe {
   position: relative;
