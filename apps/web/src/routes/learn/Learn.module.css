@@ -964,7 +964,11 @@ button.b {
   container-type: inline-size;
   container-name: step;
 }
-@container step (max-width: 1100px) {
+/* Side by side while the content box can hold a column plus the 288px rail.
+   880px is that box, not the mockup's 1100px viewport: the app sidebar is already outside it.
+   Below 880px the rail stacks. At a 1280 window the box is wider than 880, so the column shrinks
+   and the rail stays beside it. */
+@container step (max-width: 879px) {
   .wz[data-v2='true'] {
     grid-template-columns: minmax(0, 1fr);
   }
