@@ -971,7 +971,7 @@ button.b {
 }
 .railH {
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1335,7 +1335,7 @@ button.b {
 }
 .vgo small {
   font-family: var(--r2-font-mono);
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 500;
   color: var(--r2-mint);
 }
@@ -1400,7 +1400,7 @@ button.b {
 }
 .chapLabel {
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.06em;
@@ -1469,7 +1469,7 @@ button.b {
   color: var(--r2-ink);
   text-align: left;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -1478,7 +1478,7 @@ button.b {
 }
 .vchap time {
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   color: var(--r2-f2);
 }
@@ -1517,7 +1517,7 @@ button.b {
 .vcopy {
   margin-left: auto;
   height: 32px;
-  font-size: 14px;
+  font-size: var(--fs-14);
 }
 .vpanel {
   height: 296px;
@@ -1549,7 +1549,7 @@ button.b {
 }
 .vcue time {
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   line-height: 1.6;
   color: var(--r2-f3);

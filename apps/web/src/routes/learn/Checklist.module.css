@@ -86,7 +86,7 @@
   background: color-mix(in srgb, var(--r2-on-for) 16%, transparent);
   color: var(--r2-on-for);
   box-shadow: none;
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
 }
 .pillT {
   display: none;
@@ -346,7 +346,7 @@
   display: inline-flex;
   align-items: center;
   height: 24px;
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   color: var(--r2-for);
   background: var(--r2-bg);
@@ -418,14 +418,14 @@
   padding: 0 12px;
   background: var(--r2-sf);
   border-color: var(--r2-line);
-  font-size: 14px;
+  font-size: var(--fs-14);
 }
 .auto {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-left: 4px;
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   line-height: 1;
   color: var(--r2-f2);
@@ -639,7 +639,7 @@
 }
 .nextK {
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -654,7 +654,7 @@
   margin: 0;
 }
 .nextM {
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 400;
   color: var(--r2-on-for);
   margin: 0;
@@ -697,7 +697,7 @@
 .rail h3 {
   margin: 4px 8px 12px;
   font-family: var(--r2-font-mono);
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -713,7 +713,7 @@
 .rail li a {
   color: var(--r2-ink);
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fs-14);
   line-height: 1.3;
   text-decoration: none;
   min-height: 36px;
