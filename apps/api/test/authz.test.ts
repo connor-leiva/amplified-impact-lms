@@ -1508,7 +1508,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated,
     // and + 2 for Invite staff and Change role… (D-172). And + 1 for a course week's uploaded video
     // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
-    // counted once as the entitled learner and once as a staff session.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4);
+    // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
+    // saveVideoProgress, counted the same way.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2);
   });
 });
