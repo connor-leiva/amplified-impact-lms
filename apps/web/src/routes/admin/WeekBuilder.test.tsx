@@ -7,9 +7,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import type { AIEmployee, Db, Step } from '@ai/core';
+import type { AIEmployee, Db, Resource, Step } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import { seedProduction } from '@ai/core/seed/curriculum';
+import { planContentV2 } from '@ai/core/seed/content-v2';
+import { planCopyV1 } from '@ai/core/seed/copy-v1';
+import { planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
 import { COPY } from '../course/Course.vm';
 import { isWeekDraft } from './WeekBuilder.vm';
@@ -282,5 +285,52 @@ describe('the live preview from the unsaved draft (D-174, D-184)', () => {
     await user.click(screen.getByRole('tab', { name: 'Before launch' }));
     expect(frame).not.toHaveTextContent('A draft reason only the preview has seen.');
     expect(within(frame).getByRole('link', { name: COPY.library })).toBeInTheDocument();
+  });
+
+  it('an owner’s preview of Step 4 shows the zips placed on that step in For this step (D-192)', async () => {
+    const user = userEvent.setup();
+    const db = planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db;
+    const mod = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
+    const step4 = mod.checklist[3]!;
+    step4.linkedSkill = 'map-your-spend, lead-source-review';
+    const zip = (id: string, title: string, stepId: string, platform: 'both' | 'chatgpt' | 'claude'): Resource => ({
+      id,
+      title,
+      desc: '',
+      cat: 'Files',
+      type: 'ZIP',
+      tier: 'agent',
+      size: '1 KB',
+      dl: 0,
+      updated: 0,
+      exec: false,
+      status: 'published',
+      module: mod.id,
+      kind: 'file',
+      stepId,
+      visibility: 'open_in_preview',
+      platform,
+    });
+    db.resources.push(zip('zip-spend', 'Spend workbook', step4.id, 'both'), zip('zip-gpt', 'ChatGPT only workbook', step4.id, 'chatgpt'), zip('zip-other', 'Another step workbook', mod.checklist[4]!.id, 'both'));
+    const draft = structuredClone(mod);
+    if (!isWeekDraft(draft)) throw new Error('not a week');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CoursePreview db={db} draft={draft} phone={false} onClose={() => {}} />
+      </QueryClientProvider>,
+    );
+    const frame = screen.getByTestId('course-preview');
+    await user.click(within(frame).getAllByRole('link', { name: /^Step 4,/ })[0]!);
+    const panel = within(frame).getByRole('region', { name: 'For this step' });
+    expect(panel).toHaveTextContent('Spend workbook');
+    expect(panel).not.toHaveTextContent('ChatGPT only workbook');
+    expect(panel).not.toHaveTextContent('Another step workbook');
+    expect(panel).not.toHaveTextContent('Skill ·');
+    await user.click(within(frame).getByRole('radio', { name: 'ChatGPT' }));
+    const after = within(frame).getByRole('region', { name: 'For this step' });
+    expect(after).toHaveTextContent('Spend workbook');
+    expect(after).toHaveTextContent('ChatGPT only workbook');
+    expect(within(frame).getByRole('region', { name: 'Build Kit' })).toBeInTheDocument();
+    expect(within(frame).getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
   });
 });

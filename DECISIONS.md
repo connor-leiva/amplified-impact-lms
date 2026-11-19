@@ -6525,3 +6525,15 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Where this differs from a literal reading.** The two progress numbers are `double precision`, not postgres `real`: `real` is float4 and cannot round-trip 0.9. `updated_at` is epoch milliseconds, like every other learner instant, not a timestamp. Nothing is seeded. The design package's chapter times and files are entered in the builder, and an insert that wrote them would overwrite a later edit only if it were not insert-only. There is no insert, so there is nothing to overwrite. Held, and not built: mini player, playback speed, role filter, icon-rail labels, task timers. Small text on the chapter row and the draft badge uses forest, the same contrast call as D-190 (energy on bone is about 3.8:1).
 
 **Blast radius.** A video block with none of the new fields is unchanged. Screens outside the course step page are unchanged. No golden, tolerance, or mask. No secret. No audit row for the learner's own progress.
+
+---
+
+## D-192 · The builder’s Preview as Learner shows a step’s kit in “For this step”
+
+**Date:** 2026-11-19
+**Approved by:** the follow-up on #176, verbatim in substance: the live Preview as Learner modal for Week 0 Step 4 showed no “For this step” panel after Linked skill was saved and two kit zips were placed on Step 4 with “Open in the preview”. Fix it so learners see those downloads in the live portal and in the admin preview.
+**Number:** D-191 shipped in PR #179 (video chapters). This preview-kit entry was D-191 on the previous rebase and is D-192 now.
+
+- **Root cause.** The live course answer (`courseFor`, `GET /api/course`) already attaches a week’s kit, and a learner with Week 0 open sees an “Open in the preview” item. The builder’s Owner and Operator preview used `courseFromSnapshot`, which reassembles the week’s words and never attaches kit. “For this step” then had only linked skills whose Library page exists. Map Your Spend and Lead Source Review are not in the Library, so the panel was empty. The Week kit’s “In Step 4” label does not read kit, which is why that line still showed.
+- **The fix.** That preview now attaches the same kit a learner sees once the week is open (`kitVisible` with the week open), including “Open in the preview”, and still leaves a Hidden item out. The step player, including the one-step layout (D-190), lists those items in “For this step”, filtered by the path tab, and still omits a linked skill whose page is not built.
+- **Not changed.** No course text, no schema, no migration. A learner’s `GET /api/course` was already correct. Utah Life’s preview stays the locked line. Goldens, tolerances and masks are untouched.

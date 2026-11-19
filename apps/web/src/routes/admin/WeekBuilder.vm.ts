@@ -5,10 +5,12 @@
 // An AI Employee (no `kind`) never reaches these: the builder draws exactly what the R2 mockup draws
 // for it, so the enforced `builder` cells (the demo's m1) keep their numbers.
 
-import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, moduleCopyFields, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
+import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, kitVisible, moduleCopyFields, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
 import type { AIEmployee, Db, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, ReplayVisibility, Session, SessionType } from '@ai/core';
-import type { ContentBlock, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
+import { acceleratorModuleId } from '@ai/core/accelerator';
+import type { ContentBlock, CourseContent, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
 import { courseFor, courseFromSnapshot, courseSessions } from '@ai/core/course';
+import type { CourseKitItem } from '@ai/core/course';
 import type { Load } from '../course/Course';
 
 /** A course week's draft: a module of kind `week` that carries its words. */
@@ -278,6 +280,25 @@ export function withDraft(db: Db, draft: WeekDraft): Db {
 }
 
 /**
+ * Kit on a week the preview shows whole. `courseFromSnapshot` is the ungated course (staff can read a
+ * week that has not opened yet) and it never carried kit. A learner who can open the week gets the
+ * items `kitVisible` allows then, including "Open in the preview". The preview uses that same rule,
+ * so the step player’s "For this step" matches the live portal (D-192). The one-step layout reads the same rows.
+ */
+function withOpenWeekKit(db: Db, course: CourseContent): CourseContent {
+  return {
+    ...course,
+    weeks: course.weeks.map((w) => {
+      const id = acceleratorModuleId(w.week);
+      const kit: CourseKitItem[] = db.resources
+        .filter((r) => r.module === id && r.status === 'published' && kitVisible(r, true, false))
+        .map((r) => ({ id: r.id, title: r.title, kind: r.kind ?? null, platform: r.platform ?? null, stepId: r.stepId ?? null }));
+      return kit.length ? { ...w, kit } : w;
+    }),
+  };
+}
+
+/**
  * What the course page would answer this viewer, from the draft. An owner and an operator get the
  * course (the same page today; PR 5's learner pages show each their own work). A Utah Life member's
  * plan doesn't include the course. Before launch, a buyer gets the welcome with the opening date.
@@ -297,7 +318,7 @@ export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: nu
   }
   const course = courseFromSnapshot(next);
   if (!course) return { kind: 'failed' };
-  return { kind: 'ready', payload: { open: true, preview: false, course, sessions: courseSessions(next), copy } };
+  return { kind: 'ready', payload: { open: true, preview: false, course: withOpenWeekKit(next, course), sessions: courseSessions(next), copy } };
 }
 
 /** The course page's address for the draft's week. */
