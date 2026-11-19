@@ -43,3 +43,4 @@ apps/api/src/email/tokens.ts linguist-generated
 # normalization would make a fresh checkout differ from the ZIP built from it.
 skills/**/practice/** -text
 skills/**/evals/files/** -text
+*.mp4 binary

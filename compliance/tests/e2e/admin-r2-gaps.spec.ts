@@ -130,8 +130,8 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
     await row.getByRole('button', { name: 'More actions' }).click();
     const menu = page.getByRole('menu');
     await expect(menu.getByRole('menuitem')).toHaveText(['Edit details', 'Replace file', 'Give Agent + Team access', 'Hide from learners', 'Remove from vault']);
-    await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toBeDisabled();
-    await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toHaveAttribute('title', 'Not available yet');
+    // D-188: Replace file works now (a real upload); `vault-upload.spec.ts` drives it.
+    await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toBeEnabled();
     await expectAccessible(page);
     await menu.getByRole('menuitem', { name: 'Edit details' }).click();
     const dialog = page.getByRole('dialog', { name: 'Edit details' });
