@@ -1,4 +1,4 @@
-/* D-202. The live frames paint bone. --r2-bg in r2.css stays the admin mockup's
+/* D-203. The live frames paint bone. --r2-bg in r2.css stays the admin mockup's
    #f4f2ec (r2-tokens.test.ts). This wins on a light frame; dark mode does not
    match, and learner-v2.css sets --r2-bg back to the dark canvas. */
 

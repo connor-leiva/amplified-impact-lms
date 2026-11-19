@@ -1,7 +1,7 @@
 import './styles/fonts';
 import './styles/tokens.css';
 import './styles/global.css';
-import './styles/polish.css'; // D-202: button hover and focus, after the generated link rule
+import './styles/polish.css'; // D-203: button hover and focus, after the generated link rule
 import './styles/lms.css'; // D-156: the LMS's type and tap targets, never www's
 
 import { StrictMode, Suspense } from 'react';
