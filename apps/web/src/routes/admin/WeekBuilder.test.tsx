@@ -334,7 +334,7 @@ describe('the live preview from the unsaved draft (D-174, D-184)', () => {
     expect(within(frame).getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
   });
 
-  it('an owner’s preview of Step 1 shows a checklist Download from the kit and an Invite link (D-191)', async () => {
+  it('an owner’s preview of Step 1 shows a checklist Download from the kit and an Invite link (D-192)', async () => {
     const user = userEvent.setup();
     const db = planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db;
     const mod = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
