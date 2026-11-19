@@ -64,7 +64,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'start', 'title', 'views', 'zoom'] },
   modules: { table: 'modules', columns: ['build', 'checklist', 'course', 'due_at', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'kind', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'tone', 'transcript'] },
   progress: { table: 'progress', columns: ['built_at', 'deployed_at', 'issue', 'last_run', 'module_id', 'runtime', 'steps', 'user_id'] },
-  resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
+  resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
   reminders: { table: 'reminders', columns: ['channel', 'id', 'label', 'on'] },

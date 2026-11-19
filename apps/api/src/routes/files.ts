@@ -8,6 +8,14 @@
 //   POST /api/files/upload-url {contentType, size}  "staff with `curriculum` only … returns
 //                                                    `{ key, url }`"
 //
+// D-188 CHANGES HOW THE TWO DOWNLOAD ROUTES ANSWER, NOT WHO THEY ANSWER. They no longer 302 to a
+// presigned GET on the bucket's origin: they read the object and stream it on this origin
+// (`sendObject`: Range, `Content-Type`, `Content-Length`, `Content-Disposition`, a private
+// `Cache-Control`), so the CSP's `media-src 'self'` holds for a video and nothing a viewer is sent
+// points at the bucket. Every access rule below is as it was. D-188 adds a third download route,
+// `GET /api/files/course/<key>`, for a course week's uploaded video (its rules are on the handler).
+// Where this header still says "302" or "presign" of a download, read "stream".
+//
 // `storage.ts` is the policy half and it is already built and tested: the presigners, the 25 MB /
 // four-type upload guard, the three key builders, and `contentDisposition`. Nothing here restates a
 // limit or re-derives a key. This file is the HTTP half — who may ask, which object their ask names,
@@ -129,7 +137,9 @@
 //   500  S3 is not configured              `StorageConfigError`, the operator's fault, not the
 //                                          caller's — rethrown so `app.ts` logs it and answers
 //                                          `{ error: 'Something went wrong.' }`
-//   302  here is your presigned URL        `Location`, plus `Cache-Control: no-store`
+//   200  here is the file                  D-188: streamed from the bucket on this origin
+//   206  here is the range you asked for   D-188: a `<video>` seeking, with `Content-Range`
+//   416  that range is past the end        D-188: `Content-Range: bytes */<size>`
 //
 // 403 WHERE THE OBJECT IS VISIBLE, 404 WHERE IT IS NOT. Gate 8 requires the tier refusal to be a
 // 403 ("Downloading a Team-tier resource as Jamie returns 403"), and that leaks nothing: Jamie's
@@ -155,15 +165,24 @@ import { resources as resourceTable } from '../db/schema';
 import { clock } from '../lib/clock';
 import { courseEntryFor } from '../lib/course-access';
 import {
+  ObjectMissingError,
+  RangeNotSatisfiableError,
   StorageKeyError,
   checkUpload,
+  contentDisposition,
+  getObject,
+  headObject,
   moduleFileKey,
-  presignGet,
   presignPut,
   resourceKey,
+  singleByteRange,
   uploadKey,
 } from '../storage';
 import type { UploadRequest } from '../storage';
+import { courseFor, isWeekModule } from '@ai/core/course';
+import { isVideoUpload } from '@ai/core/course-types';
+import type { MediaItem, PathBlock, VideoUpload } from '@ai/core/course-types';
+import { isUploadKey } from '@ai/core/uploads';
 
 // --- the copy, which is core's own ---------------------------------------------------------------
 //
@@ -216,11 +235,7 @@ export function vaultFileName(r: Pick<Resource, 'title' | 'type'>): string {
   // `Vault.vm.ts` › `fileOf`, verbatim: the two JSON-ish types, then the PDF guide, then markdown
   // for everything else (`Prompt pack`, `Notion template`).
   const ext =
-    r.type === 'Workflow JSON' || r.type === 'Claude Project'
-      ? '.json'
-      : r.type === 'PDF guide'
-        ? '.pdf'
-        : '.md';
+    r.type === 'Workflow JSON' || r.type === 'Claude Project' ? '.json' : r.type === 'PDF guide' ? '.pdf' : '.md';
   return r.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + ext;
 }
 
@@ -303,28 +318,120 @@ async function storedKeyOf(id: string): Promise<string | null> {
   return row?.storageKey ?? null;
 }
 
+/** D-188: `resources.file_name` for one row, the stored file's name as uploaded, or null. Never in a snapshot, like the key. */
+async function storedFileNameOf(id: string): Promise<string | null> {
+  const [row] = await getDb()
+    .select({ fileName: resourceTable.fileName })
+    .from(resourceTable)
+    .where(eq(resourceTable.id, id))
+    .limit(1);
+  return row?.fileName ?? null;
+}
+
+/** D-188: a course video, addressed by its upload key: `/api/files/course/uploads/<YYYY>/<MM>/<token>.mp4`. */
+export const COURSE_VIDEO_ROUTE = '/api/files/course/uploads/:yyyy/:mm/:file';
+
 // --- the routes ----------------------------------------------------------------------------------
 
-/** § 8.2's 302, with the credential made uncacheable. See the header on `no-store`. */
-const redirectTo = (reply: FastifyReply, url: string): FastifyReply =>
-  reply.header('cache-control', 'no-store').redirect(url, 302);
+/**
+ * D-188: how long a browser may keep what these routes send. `private` because every answer here was
+ * decided for one signed-in viewer (no shared cache may keep it); five minutes so a `<video>` that seeks
+ * back over what it already fetched, or a second click on Download, needn't ask again, while an access
+ * change (a week closed, a row hidden) reaches the same browser soon after.
+ */
+export const FILE_CACHE_CONTROL = 'private, max-age=300';
 
 /**
- * `presignGet`, with `StorageKeyError` mapped to this file's one 404.
+ * D-188: the object, streamed on this origin (no longer a 302 to a presigned GET on the bucket's), so the
+ * CSP's `media-src 'self'` holds for a video and a download never leaves the app's origin.
  *
- * `StorageConfigError` is NOT caught: a missing `S3_BUCKET` is the operator's problem and must
- * surface as a logged 500 rather than as "no such file", which would send whoever is debugging it
- * looking for a missing row. `app.ts`'s error handler does the logging and the fixed body.
+ *   - A single `Range: bytes=…` is passed to the bucket: 206 with `Content-Range`; past the end, 416
+ *     with `Content-Range: bytes *\/<size>`. `Accept-Ranges: bytes` on every answer, so `<video>` seeks.
+ *   - `Content-Type` and `Content-Length` are the object's own; `ETag` and `Last-Modified` too.
+ *   - `Content-Disposition`: `attachment` with the file's name for a download, `inline` for a video.
+ *   - A key no builder would make, or one the bucket doesn't hold, is this file's one 404.
+ *
+ * `StorageConfigError` is NOT caught: a missing `S3_BUCKET` is the operator's problem and must surface
+ * as a logged 500 rather than as "no such file", which would send whoever is debugging it looking for a
+ * missing row. `app.ts`'s error handler does the logging and the fixed body.
  */
-async function presignOr404(reply: FastifyReply, key: string, filename: string): Promise<FastifyReply> {
-  let url: string;
+async function sendObject(
+  req: FastifyRequest,
+  reply: FastifyReply,
+  key: string,
+  filename: string,
+  disposition: 'attachment' | 'inline' = 'attachment',
+): Promise<FastifyReply> {
+  // A HEAD asks the bucket for the headers only: a GET piped into a HEAD response would read the whole
+  // object (500 MB for a video) to throw it away.
+  if (req.method === 'HEAD') {
+    let head;
+    try {
+      head = await headObject(key);
+    } catch (err) {
+      if (err instanceof StorageKeyError || err instanceof ObjectMissingError)
+        return reply.code(404).send({ error: NOT_FOUND });
+      throw err;
+    }
+    return reply
+      .code(200)
+      .header('content-type', head.contentType ?? 'application/octet-stream')
+      .header('content-length', String(head.size))
+      .header('content-disposition', contentDisposition(filename, disposition))
+      .header('accept-ranges', 'bytes')
+      .header('cache-control', FILE_CACHE_CONTROL)
+      .send();
+  }
+  let obj;
   try {
-    url = await presignGet(key, filename);
+    obj = await getObject(key, singleByteRange(req.headers.range));
   } catch (err) {
-    if (err instanceof StorageKeyError) return reply.code(404).send({ error: NOT_FOUND });
+    if (err instanceof StorageKeyError || err instanceof ObjectMissingError)
+      return reply.code(404).send({ error: NOT_FOUND });
+    if (err instanceof RangeNotSatisfiableError) {
+      reply.header('accept-ranges', 'bytes').header('cache-control', 'no-store');
+      if (err.size !== null) reply.header('content-range', `bytes */${err.size}`);
+      return reply.code(416).send({ error: 'Range not satisfiable' });
+    }
     throw err;
   }
-  return redirectTo(reply, url);
+  reply
+    .code(obj.status)
+    .header('content-type', obj.contentType ?? 'application/octet-stream')
+    .header('content-disposition', contentDisposition(filename, disposition))
+    .header('accept-ranges', 'bytes')
+    .header('cache-control', FILE_CACHE_CONTROL);
+  if (obj.contentLength !== undefined) reply.header('content-length', String(obj.contentLength));
+  if (obj.contentRange) reply.header('content-range', obj.contentRange);
+  if (obj.etag) reply.header('etag', obj.etag);
+  if (obj.lastModified) reply.header('last-modified', obj.lastModified.toUTCString());
+  return reply.send(obj.body);
+}
+
+// --- D-188: a course video's key, found in what the viewer may open ------------------------------
+
+/** The uploaded video in a step's path blocks or a week's Media whose key is `key`, if any. */
+function uploadIn(items: readonly (PathBlock | MediaItem)[] | undefined, key: string): VideoUpload | null {
+  for (const b of items ?? []) {
+    if (typeof b !== 'string' && b.type === 'video' && isVideoUpload(b.source) && b.source.upload === key)
+      return b.source;
+  }
+  return null;
+}
+
+/** The uploaded video `key` names in one week's steps (Claude and ChatGPT paths) or its Media. */
+function uploadInWeek(
+  week: {
+    media: readonly MediaItem[];
+    checklist: readonly { paths?: { claude?: { blocks: PathBlock[] }; chatgpt?: { blocks: PathBlock[] } } }[];
+  },
+  key: string,
+): VideoUpload | null {
+  for (const st of week.checklist) {
+    const hit = uploadIn(st.paths?.claude?.blocks, key) ?? uploadIn(st.paths?.chatgpt?.blocks, key);
+    if (hit) return hit;
+  }
+  return uploadIn(week.media, key);
 }
 
 export function registerFilesRoutes(app: FastifyInstance): void {
@@ -340,10 +447,12 @@ export function registerFilesRoutes(app: FastifyInstance): void {
    *      Jamie returns 403." Safe to be specific here: the row is in Jamie's snapshot and the vault
    *      draws it with a lock, so the status code adds nothing he did not have.
    */
-  app.get<{ Params: { id: string } }>(
-    '/api/files/resource/:id',
-    { preHandler: requireSession },
-    async (req, reply): Promise<FastifyReply> => {
+  // D-188: GET and an explicit HEAD (`exposeHeadRoute`'s HEAD would drain the stream to throw it away).
+  app.route<{ Params: { id: string } }>({
+    method: ['GET', 'HEAD'],
+    url: '/api/files/resource/:id',
+    preHandler: requireSession,
+    handler: async (req, reply): Promise<FastifyReply> => {
       const db = await loadDb(getDb());
       const me = learnerFor(db, req);
       // D-172: the admin Resource Vault's hover Download. Staff who may edit the vault (the `curriculum`
@@ -363,7 +472,8 @@ export function registerFilesRoutes(app: FastifyInstance): void {
         const now = clock.now();
         const entry = await courseEntryFor(getDb(), me.id, now);
         const week = db.modules.find((m) => m.id === resource.module);
-        if (!kitVisible(resource, !!week && weekOpenFor(week, now, entry), entry.preview)) return reply.code(404).send({ error: NOT_FOUND });
+        if (!kitVisible(resource, !!week && weekOpenFor(week, now, entry), entry.preview))
+          return reply.code(404).send({ error: NOT_FOUND });
       }
       if (me && !accessFor(me, resource)) return reply.code(403).send({ error: TIER_REFUSED });
 
@@ -380,9 +490,10 @@ export function registerFilesRoutes(app: FastifyInstance): void {
         if (err instanceof StorageKeyError) return reply.code(404).send({ error: NOT_FOUND });
         throw err;
       }
-      return presignOr404(reply, key, vaultFileName(resource));
+      // D-188: the file's own name as uploaded, when the row has one; else the name fixture mode saves.
+      return sendObject(req, reply, key, (await storedFileNameOf(resource.id)) ?? vaultFileName(resource));
     },
-  );
+  });
 
   /**
    * § 8.2: `GET /api/files/module/:moduleId/:fileName` — "the same check, for skill files and
@@ -400,10 +511,11 @@ export function registerFilesRoutes(app: FastifyInstance): void {
    * refusing them here would be a rule no other half of the product has — and it would break the
    * build kit of the `operations` AI Employee for anyone who opened its page early.
    */
-  app.get<{ Params: { moduleId: string; fileName: string } }>(
-    '/api/files/module/:moduleId/:fileName',
-    { preHandler: requireSession },
-    async (req, reply): Promise<FastifyReply> => {
+  app.route<{ Params: { moduleId: string; fileName: string } }>({
+    method: ['GET', 'HEAD'],
+    url: '/api/files/module/:moduleId/:fileName',
+    preHandler: requireSession,
+    handler: async (req, reply): Promise<FastifyReply> => {
       const { moduleId, fileName } = req.params;
       const db = await loadDb(getDb());
       const me = learnerFor(db, req);
@@ -432,9 +544,55 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       // `:fileName` IS the name the browser saves under, and it is the one string on these routes
       // that reaches `Content-Disposition` as itself. `contentDisposition` inside `presignGet` is
       // what keeps a `"` in an admin-typed skill-file name from closing the quoted parameter.
-      return presignOr404(reply, key, fileName);
+      return sendObject(req, reply, key, fileName);
     },
-  );
+  });
+
+  /**
+   * D-188: `GET /api/files/course/<key>` (`COURSE_VIDEO_ROUTE`), an uploaded video of a course week (a step's Claude or ChatGPT
+   * path, or the week's Media), played inline by the learner portal's `<video>`.
+   *
+   *   - The key must be one the upload route mints (`uploads/…`), and it must be in a video block of a
+   *     week this viewer may open. Never an arbitrary key: anything else is this file's one 404.
+   *   - A learner: the weeks `GET /api/course` would hand them whole (`courseFor` with their entry,
+   *     the same call, so the two can't disagree): their plan opens the course or its preview
+   *     (`courseEntryFor`), and the week is open to them (`weekOpenFor`, its release). A locked week's
+   *     video is a 404, as its content is absent from their course.
+   *   - Staff: every course week, drafts too, as the builder's live preview shows them (staff see every
+   *     week whole on `GET /api/course`).
+   */
+  app.route<{ Params: { yyyy: string; mm: string; file: string } }>({
+    method: ['GET', 'HEAD'],
+    url: COURSE_VIDEO_ROUTE,
+    preHandler: requireSession,
+    handler: async (req, reply): Promise<FastifyReply> => {
+      // The route's own shape is the upload key's (`uploads/<YYYY>/<MM>/<token>.<ext>`), so no other
+      // prefix can even be named here; the full key is then held to `isUploadKey`.
+      const key = `uploads/${req.params.yyyy}/${req.params.mm}/${req.params.file}`;
+      if (!isUploadKey(key)) return reply.code(404).send({ error: NOT_FOUND });
+      const { actor } = viewerOrThrow(req);
+      const db = await loadDb(getDb());
+      let found: VideoUpload | null = null;
+      if (actor.kind === 'learner') {
+        const now = clock.now();
+        const entry = await courseEntryFor(getDb(), actor.userId, now);
+        if (entry.open) {
+          for (const w of courseFor(db, now, entry)?.weeks ?? []) {
+            if ('locked' in w) continue;
+            found = uploadInWeek({ media: w.media, checklist: w.module.checklist }, key);
+            if (found) break;
+          }
+        }
+      } else {
+        for (const m of db.modules.filter((x) => isWeekModule(x) && isAcceleratorModule(x.id))) {
+          found = uploadInWeek({ media: m.course?.media ?? [], checklist: m.checklist }, key);
+          if (found) break;
+        }
+      }
+      if (!found) return reply.code(404).send({ error: NOT_FOUND });
+      return sendObject(req, reply, key, found.name, 'inline');
+    },
+  });
 
   /**
    * § 8.2: `POST /api/files/upload-url {contentType, size}` — "staff with `curriculum` only".

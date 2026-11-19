@@ -39,3 +39,4 @@ export * from './course-actions';
 export * from './release';
 export * from './console-staff';
 export * from './build-audit';
+export * from './uploads';

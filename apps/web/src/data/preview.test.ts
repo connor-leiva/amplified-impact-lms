@@ -153,3 +153,41 @@ describe('withPreview', () => {
     expect(r.error).toBeUndefined();
   });
 });
+
+// D-188: a preview tab puts nothing in the bucket; fixture mode records a file without sending it.
+describe('uploads in a preview tab and in fixture mode (D-188)', () => {
+  const file = () => new File([new Uint8Array(10)], 'Week 1.mp4', { type: 'video/mp4' });
+
+  it('refuses an upload in a staff preview tab, as it refuses every write', async () => {
+    const inner = createFixtureRepository('admin', 'live');
+    const upload = vi.spyOn(inner, 'upload');
+    expect(await withPreview(inner, 'owner').upload(file())).toEqual({ ok: false, error: PREVIEW_ONLY });
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('records the file in fixture mode with a key of the upload route’s shape, and sends nothing', async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    try {
+      const progress: number[] = [];
+      const out = await createFixtureRepository('admin', 'live').upload(file(), (p) => progress.push(p));
+      expect(out).toMatchObject({ ok: true, file: { name: 'Week 1.mp4', size: 10, type: 'video/mp4' } });
+      if (out.ok) expect(out.file.key).toMatch(/^uploads\/\d{4}\/\d{2}\/[0-9a-f-]{36}\.mp4$/);
+      expect(progress).toEqual([1]);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      // A file the API would refuse is refused here too.
+      expect(await createFixtureRepository('admin', 'live').upload(new File(['x'], 'page.html'))).toEqual({ ok: false, error: 'Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.' });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('runs the Vault’s upload actions in the browser, with no stored key in what the screen gets', async () => {
+    const repo = createFixtureRepository('admin', 'live');
+    const up = await repo.upload(new File([new Uint8Array(2048)], 'leads.csv'));
+    if (!up.ok) throw new Error(up.error);
+    const out = await repo.act('publishVaultFile', { title: 'Lead list', desc: '', cat: 'Lead Generation Scripts', type: 'Prompt pack', tier: 'agent', file: up.file });
+    expect(out).toEqual({ toast: { msg: 'Lead list published to the vault', tone: 'success' } });
+    expect((await repo.snapshot()).resources[0]).toMatchObject({ title: 'Lead list', size: '2 KB' });
+  });
+});

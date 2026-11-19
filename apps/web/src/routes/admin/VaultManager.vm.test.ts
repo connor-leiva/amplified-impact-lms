@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { ZERO_BASE, phaseNow, seed, setViewerZone } from '@ai/core';
 import type { Db, Resource, Tier } from '@ai/core';
-import { blankUploadForm, vaultManagerVM, vaultR2VM } from './VaultManager.vm';
+import { REPLACE_COPY, blankUploadForm, replaceDrop, uploadingDrop, vaultManagerVM, vaultR2VM } from './VaultManager.vm';
 import { parityDb } from '../../data/parity-r2-db';
 import { VAULT } from '../../data/parity-r2';
 import type { VaultManagerUi, VaultManagerVM, VaultTabId, VaultUploadForm } from './VaultManager.vm';
@@ -282,5 +282,14 @@ describe('vaultR2VM (D-160 R2-2b)', () => {
     );
     expect(vm.rows.filter((r) => r.exec)).toHaveLength(db.resources.filter((r) => r.exec).length);
     expect(vm.types[0]).toBe('All types');
+  });
+});
+
+describe('D-188: the zones of a real upload', () => {
+  it('says how far a file has got, then that it is ready to replace', () => {
+    expect(uploadingDrop('Leads.csv', 'Uploading 40%')).toEqual({ label: 'Leads.csv', sub: 'Uploading 40%', ready: false });
+    expect(replaceDrop(null, null)).toEqual({ label: REPLACE_COPY.label, sub: REPLACE_COPY.sub, ready: false });
+    expect(replaceDrop('Leads.csv', 'Uploading 40%')).toEqual({ label: 'Leads.csv', sub: 'Uploading 40%', ready: false });
+    expect(replaceDrop('Leads.csv', null)).toEqual({ label: 'Leads.csv', sub: 'Ready to replace · click to choose another', ready: true });
   });
 });

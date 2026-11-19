@@ -11,10 +11,14 @@
 //
 // Every word shown here is the draft's or the database's; this file holds labels only (D-173's guard).
 
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
-import type { AgendaItem, ContentBlock, LockedCopy, PlaybookCard, SampleOutput, SeatCard } from '@ai/core/course-types';
+import type { AgendaItem, ContentBlock, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
+import { isVideoUpload } from '@ai/core/course-types';
+import { fileSizeLabel, uploadAccept } from '@ai/core/uploads';
+import { uploadFile } from '../../data/files';
+import { UPLOAD_COPY } from '../../data/upload';
 import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm, Modal } from '../../components/r2/Modal';
@@ -26,6 +30,12 @@ import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
   BLOCK_LABELS,
+  CONTENT_KINDS,
+  PATH_KINDS,
+  VIDEO_KINDS,
+  VIDEO_LABELS,
+  mediaLines,
+  mediaVideos,
   PLATFORM_LABELS,
   REPLAY_LABELS,
   RESOURCE_KIND_LABELS,
@@ -175,9 +185,23 @@ function Row({
 
 // --- blocks: a step's Claude and ChatGPT paths, a sample output ------------------------------------
 
-export function Blocks({ label, blocks, onChange }: { label: string; blocks: readonly ContentBlock[]; onChange: (b: ContentBlock[]) => void }) {
-  const [add, setAdd] = useState<ContentBlock['type']>('text');
-  const set = (i: number, b: ContentBlock) => onChange(setAt(blocks, i, b));
+/**
+ * A list of blocks: a step's Claude or ChatGPT path (every kind, D-188's video too), a sample output
+ * (the content kinds), or a week's Media videos (video only). Add, edit, reorder and remove.
+ */
+export function Blocks({
+  label,
+  blocks,
+  onChange,
+  kinds = CONTENT_KINDS,
+}: {
+  label: string;
+  blocks: readonly PathBlock[];
+  onChange: (b: PathBlock[]) => void;
+  kinds?: readonly PathBlock['type'][];
+}) {
+  const [add, setAdd] = useState<PathBlock['type']>(kinds[0] ?? 'text');
+  const set = (i: number, b: PathBlock) => onChange(setAt(blocks, i, b));
   return (
     <fieldset className={w.blocks}>
       <legend className={w.legend}>{label}</legend>
@@ -207,21 +231,91 @@ export function Blocks({ label, blocks, onChange }: { label: string; blocks: rea
               <TableRowsField label={`Block ${i + 1} rows`} rows={b.rows} onChange={(rows) => set(i, { ...b, rows })} />
             </>
           ) : null}
+          {b.type === 'video' ? <VideoFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
         </div>
       ))}
       <div className={clsx(k.row, w.adder)}>
-        <Sel className={w.grow} aria-label={`${label}: kind of block to add`} value={add} onChange={(e) => setAdd(e.target.value as ContentBlock['type'])}>
-          {(Object.keys(BLOCK_LABELS) as ContentBlock['type'][]).map((t) => (
-            <option key={t} value={t}>
-              {BLOCK_LABELS[t]}
-            </option>
-          ))}
-        </Sel>
+        {kinds.length > 1 ? (
+          <Sel className={w.grow} aria-label={`${label}: kind of block to add`} value={add} onChange={(e) => setAdd(e.target.value as PathBlock['type'])}>
+            {kinds.map((t) => (
+              <option key={t} value={t}>
+                {BLOCK_LABELS[t]}
+              </option>
+            ))}
+          </Sel>
+        ) : null}
         <Button kind="quiet" icon="r2Plus" onClick={() => onChange([...blocks, newBlock(add)])}>
           Add block
         </Button>
       </div>
     </fieldset>
+  );
+}
+
+/**
+ * D-188: a video block's source and title. A link (http or https; the save refuses anything else), or
+ * an mp4 uploaded through `POST /api/files/upload-url` straight to the bucket (fixture mode records it
+ * without sending it), with its progress and any refusal said here. The save runs the copy rules on
+ * the title.
+ */
+function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onChange: (b: VideoBlock) => void }) {
+  const uploaded = isVideoUpload(block.source) ? block.source : null;
+  const [mode, setMode] = useState<'link' | 'upload'>(uploaded ? 'upload' : 'link');
+  const [progress, setProgress] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const input = useRef<HTMLInputElement | null>(null);
+  const group = useId();
+  const withTitle = (src: VideoBlock['source']): VideoBlock => (block.title !== undefined ? { type: 'video', source: src, title: block.title } : { type: 'video', source: src });
+  const pick = async (file: File | undefined) => {
+    if (!file) return;
+    setError('');
+    setProgress(0);
+    const out = await uploadFile(file, setProgress, true);
+    setProgress(null);
+    if (input.current) input.current.value = '';
+    if (!out.ok) setError(out.error);
+    else onChange(withTitle({ upload: out.file.key, name: out.file.name, size: out.file.size, type: 'video/mp4' }));
+  };
+  return (
+    <>
+      <div className={clsx(k.row, k.nw)} role="radiogroup" aria-label={`Block ${n} ${VIDEO_LABELS.source.toLowerCase()}`}>
+        <label className={clsx(k.row, k.nw, w.check)}>
+          <input type="radio" name={group} checked={mode === 'link'} onChange={() => setMode('link')} />
+          {VIDEO_LABELS.link}
+        </label>
+        <label className={clsx(k.row, k.nw, w.check)}>
+          <input type="radio" name={group} checked={mode === 'upload'} onChange={() => setMode('upload')} />
+          {VIDEO_LABELS.upload}
+        </label>
+      </div>
+      {mode === 'link' ? (
+        <Line label={`Block ${n} link`} value={uploaded ? '' : (block.source as { url: string }).url} hint={VIDEO_LABELS.linkHint} onChange={(url) => onChange(withTitle({ url }))} />
+      ) : (
+        <div className={clsx(k.row, w.adder)}>
+          <span className={clsx(k.sp, uploaded ? undefined : k.mu)}>{uploaded ? `${uploaded.name} · ${fileSizeLabel(uploaded.size)}` : VIDEO_LABELS.noFile}</span>
+          <input ref={input} type="file" accept={uploadAccept(true)} hidden aria-label={`Block ${n} ${VIDEO_LABELS.upload.toLowerCase()}`} onChange={(e) => void pick(e.target.files?.[0])} />
+          <Button kind="quiet" disabled={progress !== null} onClick={() => input.current?.click()}>
+            {uploaded ? VIDEO_LABELS.chooseAnother : VIDEO_LABELS.choose}
+          </Button>
+        </div>
+      )}
+      {progress !== null ? (
+        <p role="status" className={clsx(k.p, k.me)}>
+          {UPLOAD_COPY.progress(progress)}
+        </p>
+      ) : null}
+      {error ? (
+        <div role="alert" className={s.alert}>
+          <p className={k.p}>{error}</p>
+        </div>
+      ) : null}
+      <Line
+        label={`Block ${n} ${VIDEO_LABELS.title.toLowerCase()}`}
+        value={block.title ?? ''}
+        hint={VIDEO_LABELS.titleHint}
+        onChange={(v) => onChange(v.trim() ? { ...block, title: v } : { type: 'video', source: block.source })}
+      />
+    </>
   );
 }
 
@@ -274,7 +368,7 @@ export function StepWeekFields({ step, onChange }: { step: Step; onChange: (fn: 
       else st[key] = x;
     });
   const paths = step.paths ?? {};
-  const setPath = (which: 'claude' | 'chatgpt', blocks: ContentBlock[]) =>
+  const setPath = (which: 'claude' | 'chatgpt', blocks: PathBlock[]) =>
     onChange((st) => {
       const next = { ...(st.paths ?? {}) };
       if (blocks.length) next[which] = { blocks };
@@ -302,8 +396,8 @@ export function StepWeekFields({ step, onChange }: { step: Step; onChange: (fn: 
         />
         Open in the pre-launch preview
       </label>
-      <Blocks label="Claude path" blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
-      <Blocks label="ChatGPT path" blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
+      <Blocks label="Claude path" kinds={PATH_KINDS} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
+      <Blocks label="ChatGPT path" kinds={PATH_KINDS} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
     </>
   );
 }
@@ -416,7 +510,8 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           <Lines label="Checkpoint" items={c.homework.acceptance} onChange={(v) => set((x) => (x.homework.acceptance = v))} />
           <Para label="Use evidence" value={c.homework.useEvidence} onChange={(v) => set((x) => (x.homework.useEvidence = v))} />
           <Lines label="Materials" items={c.materials} onChange={(v) => set((x) => (x.materials = v))} />
-          <Lines label="Media" items={c.media} onChange={(v) => set((x) => (x.media = v))} />
+          <Lines label="Media" items={mediaLines(c.media)} onChange={(v) => set((x) => (x.media = [...v, ...mediaVideos(x.media)]))} />
+          <Blocks label={VIDEO_LABELS.mediaVideos} kinds={VIDEO_KINDS} blocks={mediaVideos(c.media)} onChange={(b) => set((x) => (x.media = [...mediaLines(x.media), ...(b as VideoBlock[])]))} />
         </Modal>
       ) : null}
     </Card>
@@ -703,7 +798,7 @@ function SampleFields({ card, set }: { card: SampleOutput; set: (fn: (c: SampleO
     <>
       <Line label="Title" value={card.title} onChange={(v) => set((c) => (c.title = v))} />
       <Line label="Made-up label" value={card.madeUpLabel} hint="Made-up data" onChange={(v) => set((c) => (c.madeUpLabel = v))} />
-      <Blocks label="Sample" blocks={card.blocks} onChange={(b) => set((c) => (c.blocks = b))} />
+      <Blocks label="Sample" blocks={card.blocks} onChange={(b) => set((c) => (c.blocks = b as ContentBlock[]))} />
     </>
   );
 }

@@ -13,6 +13,7 @@ import { useParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from '../library/PreLaunch';
+import { VideoView } from '../learn/parts';
 import { COPY, courseView, isExternal } from './Course.vm';
 import type { CoursePayload, DownloadVM, LockedWeekVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
@@ -420,11 +421,16 @@ function Week({ vm }: { vm: WeekVM }) {
       </Section>
 
       <Section id="media" title={COPY.media}>
-        {vm.media.map((m) => (
-          <p key={m} className={s.placeholder}>
-            {m}
-          </p>
-        ))}
+        {vm.media.map((m, i) =>
+          typeof m === 'string' ? (
+            <p key={`${i}:${m}`} className={s.placeholder}>
+              {m}
+            </p>
+          ) : (
+            // D-188: a video, played as the learner portal plays one.
+            <VideoView key={i} block={m} />
+          ),
+        )}
         {vm.materials.length ? (
           <>
             <h3 className={s.h3}>{COPY.materials}</h3>

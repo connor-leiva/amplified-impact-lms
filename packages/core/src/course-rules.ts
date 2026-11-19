@@ -18,7 +18,8 @@
 // by `copyIssues` for the builder to show, not to refuse.
 
 import type { AIEmployee, Cohort, CopyString } from './types';
-import type { CohortCourse, ContentBlock, ModuleCourse } from './course-types';
+import type { CohortCourse, MediaItem, ModuleCourse, PathBlock, VideoBlock } from './course-types';
+import { isVideoUpload } from './course-types';
 
 export type CopyRule = 'em_dash' | 'banned_line' | 'hire_claim' | 'time_zone';
 
@@ -99,11 +100,13 @@ const push = (out: CopyField[], path: string, label: string, text: string | unde
 const pushAll = (out: CopyField[], path: string, label: string, list: readonly string[] | undefined, hire = false): void =>
   (list ?? []).forEach((t, i) => push(out, `${path}[${i}]`, `${label} ${i + 1}`, t, hire));
 
-function blockFields(out: CopyField[], path: string, label: string, blocks: readonly ContentBlock[] | undefined, hire = false): void {
+function blockFields(out: CopyField[], path: string, label: string, blocks: readonly PathBlock[] | undefined, hire = false): void {
   (blocks ?? []).forEach((b, i) => {
     const p = `${path}[${i}]`;
     const l = `${label}, block ${i + 1}`;
     if (b.type === 'text') push(out, `${p}.text`, l, b.text, hire);
+    // D-188: a video's title is learner-facing copy; its source is an address, not copy.
+    else if (b.type === 'video') push(out, `${p}.title`, l, b.title, hire);
     else if (b.type === 'copy') {
       push(out, `${p}.label`, l, b.label, hire);
       push(out, `${p}.text`, l, b.text, hire);
@@ -112,6 +115,14 @@ function blockFields(out: CopyField[], path: string, label: string, blocks: read
       pushAll(out, `${p}.head`, `${l}, heading`, b.head, hire);
       b.rows.forEach((r, j) => pushAll(out, `${p}.rows[${j}]`, `${l}, row ${j + 1}, cell`, r, hire));
     }
+  });
+}
+
+/** A week's Media: a line at `course.media[i]`, as before, and (D-188) a video's title at `course.media[i].title`. */
+function mediaFields(out: CopyField[], media: readonly MediaItem[]): void {
+  media.forEach((m, i) => {
+    if (typeof m === 'string') push(out, `course.media[${i}]`, `Media ${i + 1}`, m);
+    else push(out, `course.media[${i}].title`, `Media ${i + 1}`, m.title);
   });
 }
 
@@ -153,7 +164,7 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
   pushAll(out, 'course.homework.assignment', 'Assignment', c.homework.assignment);
   pushAll(out, 'course.homework.acceptance', 'Checkpoint', c.homework.acceptance);
   push(out, 'course.homework.useEvidence', 'Use evidence', c.homework.useEvidence);
-  pushAll(out, 'course.media', 'Media', c.media);
+  mediaFields(out, c.media);
   pushAll(out, 'course.materials', 'Material', c.materials);
   // The builder's cards.
   push(out, 'course.promise', 'Promise', c.promise, true);
@@ -286,6 +297,50 @@ export function cohortCopyFields(c: Pick<Cohort, 'name' | 'cadence' | 'course'>)
   });
   return out;
 }
+
+// --- D-188: a video block's source ----------------------------------------------------------------
+
+/** Longest video address a block keeps: the same bound as a session's replay link. */
+export const VIDEO_URL_MAX = 2048;
+
+export const VIDEO_SOURCE_MESSAGE = 'Use an http or https link for a video, or upload an mp4.';
+
+/** Whether an address is an http(s) URL, the only kind a video link may be. */
+export function isHttpUrl(raw: string): boolean {
+  if (raw.length > VIDEO_URL_MAX) return false;
+  try {
+    const u = new URL(raw.trim());
+    return u.protocol === 'https:' || u.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+/** Whether a video block's source is usable: an uploaded mp4 with its key, or an http(s) link. */
+export function videoSourceOk(b: VideoBlock): boolean {
+  const src = b.source;
+  if (isVideoUpload(src)) return src.upload.trim() !== '' && src.type === 'video/mp4';
+  return typeof src.url === 'string' && isHttpUrl(src.url);
+}
+
+/** Every video in a module, with where it is and what the builder calls it (its paths, then its week's Media). */
+export function moduleVideos(m: AIEmployee): { path: string; label: string; block: VideoBlock }[] {
+  const out: { path: string; label: string; block: VideoBlock }[] = [];
+  m.checklist.forEach((s, i) => {
+    for (const which of ['claude', 'chatgpt'] as const) {
+      (s.paths?.[which]?.blocks ?? []).forEach((b, j) => {
+        if (b.type === 'video') out.push({ path: `checklist[${i}].paths.${which}.blocks[${j}]`, label: `Step ${i + 1}, ${which === 'claude' ? 'Claude' : 'ChatGPT'} path, block ${j + 1}`, block: b });
+      });
+    }
+  });
+  (m.course?.media ?? []).forEach((x, i) => {
+    if (typeof x !== 'string') out.push({ path: `course.media[${i}]`, label: `Media ${i + 1}`, block: x });
+  });
+  return out;
+}
+
+/** The lines a save is refused with for a video whose source isn't usable ("Step 2, Claude path, block 1: …"). */
+export const videoIssues = (m: AIEmployee): string[] => moduleVideos(m).filter((v) => !videoSourceOk(v.block)).map((v) => `${v.label}: ${VIDEO_SOURCE_MESSAGE}`);
 
 /** A copy string as a field. */
 export const copyStringField = (c: CopyString): CopyField => ({ path: `copy.${c.key}`, label: c.key, text: c.value });

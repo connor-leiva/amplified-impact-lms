@@ -702,6 +702,34 @@ describe('§ 9.4 · the Content-Security-Policy @g7', () => {
     expect(withHost['img-src']).toEqual(["'self'", 'data:', 'https://*.videodelivery.net']);
     expect(withHost['media-src']).toEqual(["'self'", 'blob:', 'https://*.videodelivery.net']);
   });
+
+  // D-188: the Vault and the Week Builder PUT a file straight to the bucket from the browser.
+  it('allows the bucket’s origin in connect-src, from the storage config, and nothing without one', async () => {
+    const S3 = { S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000', S3_SECRET_ACCESS_KEY: 'x', S3_BUCKET: 'ailms-production', S3_ENDPOINT: 'https://storage.railway.app' };
+    expect(cspDirectives([], {} as NodeJS.ProcessEnv)['connect-src']).toEqual(["'self'"]);
+    expect(cspDirectives([], S3 as NodeJS.ProcessEnv)['connect-src']).toEqual(["'self'", 'https://storage.railway.app']);
+    expect(cspDirectives([], { ...S3, S3_URL_STYLE: 'virtual' } as NodeJS.ProcessEnv)['connect-src']).toEqual(["'self'", 'https://ailms-production.storage.railway.app']);
+    // A half-set config (no bucket) adds nothing rather than a guess.
+    expect(cspDirectives([], { S3_ENDPOINT: 'https://storage.railway.app' } as NodeJS.ProcessEnv)['connect-src']).toEqual(["'self'"]);
+    // media-src is unchanged: videos are streamed same-origin (`/api/files/...`), never from the bucket.
+    expect(cspDirectives([], S3 as NodeJS.ProcessEnv)['media-src']).toEqual(["'self'", 'blob:']);
+
+    // And on a response, from the API's own environment.
+    const saved = Object.fromEntries(Object.keys(S3).map((k) => [k, process.env[k]]));
+    Object.assign(process.env, S3);
+    const served = await build({ logger: false });
+    try {
+      const csp = String((await served.inject({ method: 'GET', url: '/api/health' })).headers['content-security-policy']);
+      expect(csp).toContain("connect-src 'self' https://storage.railway.app");
+      expect(csp).toContain("media-src 'self' blob:;");
+    } finally {
+      await served.close();
+      for (const [k, v] of Object.entries(saved)) {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      }
+    }
+  });
 });
 
 describe('§ 9.4 · the global rate limit @g7', () => {

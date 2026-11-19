@@ -50,6 +50,17 @@
 // service's `TZ`. `FIXED_NOW` is an instant with an explicit offset, so the expected `2026/12` is
 // the same on America/Chicago and on a UTC runner. Run both ways regardless; see the report.
 
+// ------------------------------------------------------------------------------------------------
+// D-188: THE DOWNLOADS ARE STREAMED NOW, NOT REDIRECTED
+// ------------------------------------------------------------------------------------------------
+// The two download routes read the object and stream it on the app's origin (so the CSP's
+// `media-src 'self'` holds), where they used to 302 to a presigned GET. Every access assertion below
+// is as it was; where a test read the key out of a 302's `Location`, it now reads which key the route
+// asked the bucket for (`fake-bucket.ts`, an in-memory S3 on 127.0.0.1), and the name it read from the
+// URL's `response-content-disposition` it reads from the response's own `Content-Disposition`. The
+// presigned PUT of `upload-url` is unchanged and still asserted on its real URL. The new behaviour
+// (Range, headers, the Vault's upload flow, course videos) is `files-stream.test.ts`.
+
 import { describe, it, expect, afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { MutationError, canAccess, seedForDatabase } from '@ai/core';
@@ -59,7 +70,9 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import { resources as resourceTable } from '../src/db/schema';
 import { declaresFile, moduleResourceFileName, vaultFileName } from '../src/routes/files';
-import { GET_EXPIRES_IN, PUT_EXPIRES_IN, resetS3 } from '../src/storage';
+import { PUT_EXPIRES_IN, resetS3 } from '../src/storage';
+import { startFakeBucket } from './fake-bucket';
+import type { FakeBucket } from './fake-bucket';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 
 /**
@@ -68,14 +81,9 @@ import { loadDb, resetDatabase, testDatabase } from './helpers';
  */
 const NOW = '2026-12-08T13:00:00-06:00';
 
-/** A Railway-shaped environment. Dotted bucket name, as `storage.test.ts` uses — see its header. */
-const S3_ENV = {
-  S3_REGION: 'auto',
-  S3_ENDPOINT: 'https://bucket-production-a1b2.up.railway.app',
-  S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000',
-  S3_SECRET_ACCESS_KEY: 'test-only-hmac-key-material-0000000000',
-  S3_BUCKET: 'ai-lms.production',
-} as const;
+/** D-188: the bucket the routes read from, in memory on 127.0.0.1 (`fake-bucket.ts`). */
+let bucket: FakeBucket;
+let S3_ENV: FakeBucket['env'];
 
 const S3_KEYS = ['S3_REGION', 'S3_ENDPOINT', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET'] as const;
 
@@ -84,10 +92,15 @@ let savedEnv: Record<string, string | undefined> = {};
 
 beforeAll(async () => {
   await testDatabase();
+  bucket = await startFakeBucket();
+  S3_ENV = bucket.env;
 });
 
 beforeEach(async () => {
   process.env.FIXED_NOW = NOW;
+  // The seed's rows have no object behind them; for these suites every key answers.
+  bucket.anyKey = true;
+  bucket.requests.length = 0;
   savedEnv = {};
   for (const k of S3_KEYS) {
     savedEnv[k] = process.env[k];
@@ -108,8 +121,9 @@ afterEach(async () => {
   resetS3();
 });
 
-afterAll(() => {
+afterAll(async () => {
   delete process.env.FIXED_NOW;
+  await bucket?.close();
 });
 
 // --- helpers -------------------------------------------------------------------------------------
@@ -144,12 +158,16 @@ const q = (url: string, name: string): string | null => new URL(url).searchParam
 /** What `app.inject` resolves to. Named so the two helpers below do not each re-derive it. */
 type Injected = Awaited<ReturnType<typeof getAs>>;
 
-/** The `Location` of a 302, with the status asserted first so a failure names the status not the URL. */
-function locationOf(res: Injected): string {
-  expect(res.statusCode).toBe(302);
-  const location = res.headers.location;
-  expect(typeof location).toBe('string');
-  return location as string;
+/**
+ * D-188: the key a 200 streamed, read from the bucket's own log (the last GET), with the status
+ * asserted first so a failure names the status, not the key. Where a test once read a 302's Location.
+ */
+function servedKey(res: Injected): string {
+  expect(res.statusCode).toBe(200);
+  expect(res.headers.location).toBeUndefined();
+  const get = bucket.requests.filter((r) => r.method === 'GET').at(-1);
+  expect(get).toBeDefined();
+  return get!.key;
 }
 
 /** The object key a presigned URL addresses, read back out of its path. */
@@ -193,33 +211,27 @@ describe("GET /api/files/resource/:id · Gate 8's two lines @g8", () => {
     expect(res.headers.location).toBeUndefined();
   });
 
-  it('redirects a Team-tier learner to a presigned URL that expires in at most 300 s', async () => {
-    const url = locationOf(await getAs(resourceUrl('r9'), await app.signInAs('u_alex')));
+  it('streams a Team-tier resource to a Team-tier learner, on this origin (D-188)', async () => {
+    // Gate 8's second line asked for a 302 to a presigned URL; D-188 streams the object instead, so
+    // nothing the viewer is sent points at the bucket and the CSP's `media-src 'self'` holds.
+    const res = await getAs(resourceUrl('r9'), await app.signInAs('u_alex'));
 
-    expect(Number(q(url, 'X-Amz-Expires'))).toBeLessThanOrEqual(300);
-    // Pinned exactly as well as bounded: `<= 300` also passes for a 1-second URL, which would be a
-    // download that fails on a slow connection and would look like a bucket problem.
-    expect(q(url, 'X-Amz-Expires')).toBe(String(GET_EXPIRES_IN));
-    expect(new URL(url).origin).toBe(S3_ENV.S3_ENDPOINT);
-    expect(keyOf(url)).toBe('resources/r9');
-    expect(q(url, 'X-Amz-Signature')).toMatch(/^[0-9a-f]{64}$/);
+    expect(servedKey(res)).toBe('resources/r9');
+    expect(res.body).toBe('object:resources/r9');
+    expect(res.headers['accept-ranges']).toBe('bytes');
   });
 
-  it('redirects an Agent-tier learner to an Agent-tier resource', async () => {
+  it('streams an Agent-tier resource to an Agent-tier learner', async () => {
     // The positive control for the test above: a 403 for everything would also satisfy it.
-    const url = locationOf(await getAs(resourceUrl('r4'), await app.signInAs('u_jamie')));
-
-    expect(keyOf(url)).toBe('resources/r4');
+    expect(servedKey(await getAs(resourceUrl('r4'), await app.signInAs('u_jamie')))).toBe('resources/r4');
   });
 
-  it('makes the redirect uncacheable, because the URL is a bearer credential', async () => {
-    // Anyone holding the Location can fetch the object for 300 s with no cookie. A cacheable 302
-    // puts that in the back/forward cache and in any intermediary that caches redirects, which is
-    // how the next person on a shared machine gets it.
+  it('keeps the download private to the viewer', async () => {
+    // The answer was decided for one signed-in viewer, so no shared cache may keep it (D-188).
     const res = await getAs(resourceUrl('r4'), await app.signInAs('u_jamie'));
 
-    expect(res.statusCode).toBe(302);
-    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['cache-control']).toBe('private, max-age=300');
   });
 });
 
@@ -262,7 +274,7 @@ describe('the 403 comes from the same source of truth the portal uses @g8', () =
 
       // The route.
       const res = await getAs(resourceUrl(resourceId), await app.signInAs(user));
-      expect(res.statusCode).toBe(allowed ? 302 : 403);
+      expect(res.statusCode).toBe(allowed ? 200 : 403);
     });
   }
 
@@ -285,13 +297,13 @@ describe('the 403 comes from the same source of truth the portal uses @g8', () =
 
     const before = resource(await loadDb(), 'r4').dl;
     const ok = await getAs(resourceUrl('r4'), owner);
-    expect(ok.statusCode).toBe(302);
-    expect(ok.headers['cache-control']).toBe('no-store');
+    expect(ok.statusCode).toBe(200);
+    expect(ok.headers['cache-control']).toBe('private, max-age=300');
     expect(resource(await loadDb(), 'r4').dl).toBe(before);
     // A hidden row: 404 for a learner, there for the vault's editor.
     await (await testDatabase()).update(resourceTable).set({ status: 'hidden' }).where(eq(resourceTable.id, 'r1'));
     expect((await getAs(resourceUrl('r1'), await app.signInAs('u_jamie'))).statusCode).toBe(404);
-    expect((await getAs(resourceUrl('r1'), owner)).statusCode).toBe(302);
+    expect((await getAs(resourceUrl('r1'), owner)).statusCode).toBe(200);
     expect((await getAs(resourceUrl('nope'), owner)).statusCode).toBe(404);
   });
 });
@@ -312,7 +324,7 @@ describe('the download route does not count the download @g8', () => {
     // a followed 302 can produce) and this route presigns and checks access.
     const before = resource(await loadDb(), 'r4').dl;
 
-    expect((await getAs(resourceUrl('r4'), await app.signInAs('u_jamie'))).statusCode).toBe(302);
+    expect((await getAs(resourceUrl('r4'), await app.signInAs('u_jamie'))).statusCode).toBe(200);
 
     expect(resource(await loadDb(), 'r4').dl).toBe(before);
   });
@@ -331,7 +343,7 @@ describe('the download route does not count the download @g8', () => {
       headers: { cookie, 'content-type': 'application/json' },
     });
     expect(mutated.statusCode).toBe(200);
-    expect((await getAs(resourceUrl('r4'), cookie)).statusCode).toBe(302);
+    expect((await getAs(resourceUrl('r4'), cookie)).statusCode).toBe(200);
 
     expect(resource(await loadDb(), 'r4').dl).toBe(before + 1);
   });
@@ -356,9 +368,7 @@ describe('GET /api/files/resource/:id · naming the object @g8', () => {
     const stored = 'uploads/2026/12/0f9c1e42-aaaa-4bbb-8ccc-1234567890ab.pdf';
     await db.update(resourceTable).set({ storageKey: stored }).where(eq(resourceTable.id, 'r4'));
 
-    const url = locationOf(await getAs(resourceUrl('r4'), await app.signInAs('u_jamie')));
-
-    expect(keyOf(url)).toBe(stored);
+    expect(servedKey(await getAs(resourceUrl('r4'), await app.signInAs('u_jamie')))).toBe(stored);
   });
 
   it('404s a row whose stored key is blank, rather than signing the bucket root', async () => {
@@ -431,10 +441,9 @@ describe('GET /api/files/resource/:id · naming the object @g8', () => {
     ];
 
     for (const [id, name] of expected) {
-      const url = locationOf(await getAs(resourceUrl(id), cookie));
-      expect(q(url, 'response-content-disposition')).toBe(
-        `attachment; filename="${name}"; filename*=UTF-8''${name}`,
-      );
+      const res = await getAs(resourceUrl(id), cookie);
+      expect(res.statusCode).toBe(200);
+      expect(res.headers['content-disposition']).toBe(`attachment; filename="${name}"; filename*=UTF-8''${name}`);
     }
   });
 });
@@ -444,30 +453,27 @@ describe('GET /api/files/resource/:id · naming the object @g8', () => {
 // ================================================================================================
 
 describe('GET /api/files/module/:moduleId/:fileName @g8', () => {
-  it('redirects a declared skill file', async () => {
+  it('streams a declared skill file', async () => {
     await seeded();
 
-    const url = locationOf(
-      await getAs(moduleUrl('marketing', 'listing-launch-packet.skill.json'), await app.signInAs('u_jamie')),
-    );
+    const res = await getAs(moduleUrl('marketing', 'listing-launch-packet.skill.json'), await app.signInAs('u_jamie'));
 
-    expect(keyOf(url)).toBe('modules/marketing/listing-launch-packet.skill.json');
-    expect(q(url, 'X-Amz-Expires')).toBe(String(GET_EXPIRES_IN));
-    expect(q(url, 'response-content-disposition')).toBe(
+    expect(servedKey(res)).toBe('modules/marketing/listing-launch-packet.skill.json');
+    expect(res.headers['content-disposition']).toBe(
       'attachment; filename="listing-launch-packet.skill.json"; ' +
         "filename*=UTF-8''listing-launch-packet.skill.json",
     );
   });
 
-  it('redirects a per-employee resource, under the name EmployeeDetail.vm.ts derives', async () => {
+  it('streams a per-employee resource, under the name EmployeeDetail.vm.ts derives', async () => {
     // `EmployeeDetail.vm.ts` turns the admin-typed title `Session 1 Slides` into
     // `session-1-slides.pdf` and sends that as `:fileName`. The server has to reproduce the
     // derivation or every per-employee download 404s — a feature that silently does not work.
     await seeded();
 
-    const url = locationOf(await getAs(moduleUrl('marketing', 'session-1-slides.pdf'), await app.signInAs('u_jamie')));
-
-    expect(keyOf(url)).toBe('modules/marketing/session-1-slides.pdf');
+    expect(servedKey(await getAs(moduleUrl('marketing', 'session-1-slides.pdf'), await app.signInAs('u_jamie')))).toBe(
+      'modules/marketing/session-1-slides.pdf',
+    );
   });
 
   it('applies the same tier rule as the vault route', async () => {
@@ -482,7 +488,7 @@ describe('GET /api/files/module/:moduleId/:fileName @g8', () => {
     expect(refused.json()).toEqual({ error: 'Team tier required' });
 
     const allowed = await getAs(moduleUrl('meetings', file), await app.signInAs('u_alex'));
-    expect(allowed.statusCode).toBe(302);
+    expect(allowed.statusCode).toBe(200);
   });
 
   it('404s a file the AI Employee does not declare', async () => {
@@ -534,11 +540,9 @@ describe('GET /api/files/module/:moduleId/:fileName @g8', () => {
     // 2026-12-14, six days after this suite's FIXED_NOW — so `isOpen(m, now)` is false here.
     await seeded();
 
-    const url = locationOf(
-      await getAs(moduleUrl('operations', 'c2c-timeline.skill.json'), await app.signInAs('u_alex')),
+    expect(servedKey(await getAs(moduleUrl('operations', 'c2c-timeline.skill.json'), await app.signInAs('u_alex')))).toBe(
+      'modules/operations/c2c-timeline.skill.json',
     );
-
-    expect(keyOf(url)).toBe('modules/operations/c2c-timeline.skill.json');
   });
 });
 
@@ -562,8 +566,9 @@ describe('a file name cannot break out of Content-Disposition @g8', () => {
     // browser. `contentDisposition` emits two parameters instead; this asserts both.
     await withSkillFileNamed('say-"hi".skill.json');
 
-    const url = locationOf(await getAs(moduleUrl('marketing', 'say-"hi".skill.json'), await app.signInAs('u_jamie')));
-    const disposition = q(url, 'response-content-disposition')!;
+    const res = await getAs(moduleUrl('marketing', 'say-"hi".skill.json'), await app.signInAs('u_jamie'));
+    const key = servedKey(res);
+    const disposition = String(res.headers['content-disposition']);
 
     expect(disposition).toBe('attachment; filename="say-hi.skill.json"; filename*=UTF-8\'\'say-%22hi%22.skill.json');
     // The structural property, stated independently of the exact string above: exactly two quote
@@ -572,7 +577,7 @@ describe('a file name cannot break out of Content-Disposition @g8', () => {
     // The key still carries the real name, encoded once by the SDK — the quote is a legal S3 key
     // character, so this is a download that works rather than one that was sanitised into a
     // different object.
-    expect(keyOf(url)).toBe('modules/marketing/say-"hi".skill.json');
+    expect(key).toBe('modules/marketing/say-"hi".skill.json');
   });
 
   it('404s a name carrying a newline instead of signing anything', async () => {
@@ -583,7 +588,7 @@ describe('a file name cannot break out of Content-Disposition @g8', () => {
     // The 404 is defended TWICE and the test holds while either layer stands, which was measured
     // rather than assumed: replacing `moduleFileKey` with string concatenation still answers 404,
     // because `presignGet` runs `requireKey` over the whole key (`storage.ts` decision 6), and
-    // removing only `presignOr404`'s mapping still answers 404 because `moduleFileKey` throws
+    // removing only `sendObject`'s mapping still answers 404 because `moduleFileKey` throws
     // first. It takes removing both to produce the 500 this asserts against.
     //
     // A NUL is NOT in this list, and the reason is worth writing down: Postgres refuses it in a
@@ -626,8 +631,9 @@ describe('the per-employee resource key is not injective — D-022 @g8', () => {
     expect(moduleResourceFileName({ name: 'Session 1 Slides', type: 'PDF' })).toBe('session-1-slides.pdf');
     expect(moduleResourceFileName({ name: 'Session 1: Slides', type: 'PDF' })).toBe('session-1-slides.pdf');
 
-    const url = locationOf(await getAs(moduleUrl('marketing', 'session-1-slides.pdf'), await app.signInAs('u_jamie')));
-    expect(keyOf(url)).toBe('modules/marketing/session-1-slides.pdf');
+    expect(servedKey(await getAs(moduleUrl('marketing', 'session-1-slides.pdf'), await app.signInAs('u_jamie')))).toBe(
+      'modules/marketing/session-1-slides.pdf',
+    );
   });
 });
 

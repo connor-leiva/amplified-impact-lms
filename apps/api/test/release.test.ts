@@ -24,6 +24,8 @@ import type { Database } from '../src/db/client';
 import { acceleratorLearnerIds } from '../src/lib/course-access';
 import { NOT_IN_PLAN, NOT_YET, PAUSED } from '../src/routes/course';
 import { resetS3 } from '../src/storage';
+import { startFakeBucket } from './fake-bucket';
+import type { FakeBucket } from './fake-bucket';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 
 const MT = (iso: string): number => Date.parse(`${iso}-07:00`);
@@ -44,7 +46,9 @@ const BUYERS = {
 type Buyer = keyof typeof BUYERS;
 
 const NO_PLAN: Learner = { id: 'u_noplan', name: 'No Plan', email: 'noplan@example.test', tier: 'team', role: 'Team Owner', teamId: null, cohortId: 'dec26', joined: BOUGHT, last: null, status: 'active', progress: {} };
-const S3_ENV = { S3_REGION: 'auto', S3_ENDPOINT: 'https://bucket-production-a1b2.up.railway.app', S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000', S3_SECRET_ACCESS_KEY: 'test-only-hmac-key-material-0000000000', S3_BUCKET: 'ai-lms.production' } as const;
+/** D-188: the file routes stream from the bucket now, so they read from an in-memory one (`fake-bucket.ts`). */
+let bucket: FakeBucket;
+let S3_ENV: FakeBucket['env'];
 
 let handle: Database;
 let app: App;
@@ -87,12 +91,16 @@ async function released(): Promise<void> {
 
 beforeAll(async () => {
   at(IN_PREVIEW);
+  bucket = await startFakeBucket();
+  bucket.anyKey = true;
+  S3_ENV = bucket.env;
   handle = await testDatabase();
   await released();
 });
-afterAll(() => {
+afterAll(async () => {
   delete process.env.FIXED_NOW;
   for (const k of Object.keys(S3_ENV)) delete process.env[k];
+  await bucket?.close();
 });
 beforeEach(async () => {
   at(IN_PREVIEW);
@@ -153,7 +161,7 @@ describe('the pre-launch preview, from the cohort’s date (D-175) @release', ()
   });
 
   it('serves the Week 0 kit to a preview learner and refuses Week 1’s, and every kit item to anyone else', { timeout: 120_000 }, async () => {
-    expect((await get('/api/files/resource/r_week0_prompt', 'full')).statusCode).toBe(302);
+    expect((await get('/api/files/resource/r_week0_prompt', 'full')).statusCode).toBe(200);
     expect((await get('/api/files/resource/r_week1_prompt', 'full')).statusCode).toBe(404);
     for (const who of ['insiders', 'utahLife', 'noPlan']) expect((await get('/api/files/resource/r_week0_prompt', who)).statusCode, who).toBe(404);
   });
@@ -217,7 +225,7 @@ describe('the weekly releases (D-175) @release', () => {
       expect(weeksOf((await course('full')).json())[1]).toBe('1:locked');
       at(opens);
       expect(weeksOf((await course('full')).json())[1]).toBe('1:open');
-      expect((await get('/api/files/resource/r_week1_prompt', 'full')).statusCode).toBe(302);
+      expect((await get('/api/files/resource/r_week1_prompt', 'full')).statusCode).toBe(200);
     } finally {
       const now = await loadDb();
       const restored = structuredClone(now);

@@ -3,7 +3,8 @@ import type { Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { MutationError } from '@ai/core';
 import { clock } from '../lib/clock';
-import type { AdminActionArgs, AdminActionName, LmsRepository, MutationArgs, MutationName, MutationResult, Viewer } from './repository';
+import type { AdminActionArgs, AdminActionName, LmsRepository, MutationArgs, MutationName, MutationResult, UploadResult, Viewer } from './repository';
+import { checkFile, fixtureUploadKey } from './upload';
 
 /**
  * The prototype, in the browser.
@@ -73,6 +74,8 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     const { db: _next, ...rest } = out;
     // An action's audit row is the server's to write; the screens get the toast and the error.
     delete (rest as { audit?: unknown }).audit;
+    // D-188: and so is a stored file's key on its row (there is no bucket here).
+    delete (rest as { storage?: unknown }).storage;
     return rest;
   };
 
@@ -109,6 +112,15 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     // regression against the captured golden, not a feature.
     fileUrl() {
       return null;
+    },
+    // D-188: there is no bucket here. The file is checked as the API would check it and recorded with a
+    // key of the upload route's shape; nothing is sent anywhere. The screen saves that key through the
+    // same audited action as in http mode, so the demo shows the row the real upload would make.
+    async upload(file: File, onProgress?: (fraction: number) => void): Promise<UploadResult> {
+      const check = checkFile(file);
+      if (!check.ok) return check;
+      onProgress?.(1);
+      return { ok: true, file: { key: fixtureUploadKey(check.type, clock.now()), name: file.name, size: file.size, type: check.type } };
     },
     // Phase 08 § 8.4. There is no `/api/sessions/:id/join` to ask, and the prototype's Zoom URL is
     // already in the snapshot, so the screen keeps the `Opening Zoom · …` toast the reference

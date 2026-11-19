@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import type { DragEvent } from 'react';
 import clsx from 'clsx';
 import type { Tier } from '@ai/core';
 import { Icon } from '../../components/Icon';
@@ -10,11 +11,17 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Find, PageHead, Pill, Sel, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
-import { saveStoredFile } from '../../data/files';
+import { saveStoredFile, uploadFile } from '../../data/files';
+import type { UploadedFile } from '../../data/repository';
+import { UPLOAD_COPY } from '../../data/upload';
+import { uploadAccept } from '@ai/core/uploads';
 import { useAct, useDb, useMutate } from '../../data/hooks';
 import {
+  REPLACE_COPY,
   attachOptions,
   blankUploadForm,
+  replaceDrop,
+  uploadingDrop,
   forcesTeam,
   vaultEditArgs,
   vaultEditForm,
@@ -37,8 +44,13 @@ import s from './VaultManager.module.css';
 //   - D-172: the row's hover Download (the mockup's quick action; on a phone, the "…"): the stored file
 //     through `/api/files/resource/:id` (staff with `curriculum`, uncounted), the reference's stand-in
 //     Blob in the fixture build. "…" › Edit details: title, description, category, tier access and
-//     Attached to (`editResource`, audited `vault.edit`). "…" › Replace file is drawn and disabled:
-//     the app has no real upload path yet (D-022), so a replacement would record bytes that never moved.
+//     Attached to (`editResource`, audited `vault.edit`).
+//   - D-188: real uploads. Add resource's drop zone (a click, or a file dropped on it) and "…" › Replace
+//     file put the file in the bucket (`files.ts` › `uploadFile`: `POST /api/files/upload-url`, then the
+//     browser's PUT; fixture mode records it without sending it), with its progress in the zone, then
+//     save its key on the row: `publishVaultFile` (audited `vault.upload`) and `replaceVaultFile`
+//     (audited `vault.replace`, the old key in its row). With no file, Publish to Vault is the reference's
+//     `uploadResource` as before, so its inline refusals are unchanged.
 
 const CATEGORIES: readonly [string, string][] = [
   ['MLS & Fair Housing Compliance', 'MLS & Fair Housing Compliance'],
@@ -72,6 +84,49 @@ export function Component() {
   const [err, setErr] = useState('');
   const [remove, setRemove] = useState<VaultR2Row | null>(null);
   const up = vaultManagerVM(db, { tab: 'all', form, err });
+  // D-188: the file Add resource uploaded, and how far one is (null when none is going up).
+  const [stored, setStored] = useState<UploadedFile | null>(null);
+  const [addProgress, setAddProgress] = useState<{ name: string; at: number } | null>(null);
+  const addInput = useRef<HTMLInputElement | null>(null);
+  const [replace, setReplace] = useState<{ row: VaultR2Row; file: UploadedFile | null; progress: { name: string; at: number } | null; err: string } | null>(null);
+  const replaceInput = useRef<HTMLInputElement | null>(null);
+
+  const pickForAdd = useCallback(async (file: File | undefined) => {
+    if (!file) return;
+    setErr('');
+    setAddProgress({ name: file.name, at: 0 });
+    const out = await uploadFile(file, (at) => setAddProgress({ name: file.name, at }));
+    setAddProgress(null);
+    if (addInput.current) addInput.current.value = '';
+    if (!out.ok) {
+      setErr(out.error);
+      return;
+    }
+    setStored(out.file);
+    setForm((f) => ({ ...f, file: out.file.name }));
+  }, []);
+
+  const pickForReplace = useCallback(async (file: File | undefined) => {
+    if (!file) return;
+    setReplace((r) => (r ? { ...r, err: '', progress: { name: file.name, at: 0 } } : r));
+    const out = await uploadFile(file, (at) => setReplace((r) => (r ? { ...r, progress: { name: file.name, at } } : r)));
+    if (replaceInput.current) replaceInput.current.value = '';
+    setReplace((r) => (r ? (out.ok ? { ...r, file: out.file, progress: null } : { ...r, progress: null, err: out.error }) : r));
+  }, []);
+
+  const saveReplace = async () => {
+    if (!replace?.file) return;
+    const { key, name, size, type } = replace.file;
+    const out = await act('replaceVaultFile', { id: replace.row.id, file: { key, name, size, type } });
+    if (out.error) setReplace((r) => (r ? { ...r, err: out.error! } : r));
+    else setReplace(null);
+  };
+
+  /** A file dropped on a zone, as a click on it would pick one. */
+  const onDrop = (pick: (f: File | undefined) => Promise<void>) => (e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    void pick(e.dataTransfer.files?.[0]);
+  };
 
   const setField = useCallback((patch: Partial<VaultUploadForm>) => {
     setForm((f) => ({ ...f, ...patch }));
@@ -86,22 +141,21 @@ export function Component() {
   );
 
   const publish = useCallback(async () => {
-    const out = await mutate('uploadResource', {
-      title: form.title,
-      desc: form.desc,
-      cat: form.cat,
-      type: form.type,
-      tier: form.tier,
-      file: form.file,
-    });
+    // D-188: with an uploaded file, the audited `publishVaultFile` saves its key on the row; with none,
+    // the reference's `uploadResource` answers exactly as before ("Attach a file first.").
+    const args = { title: form.title, desc: form.desc, cat: form.cat, type: form.type, tier: form.tier };
+    const out = stored
+      ? await act('publishVaultFile', { ...args, file: { key: stored.key, name: stored.name, size: stored.size, type: stored.type } })
+      : await mutate('uploadResource', { ...args, file: form.file });
     if (out.error) {
       setErr(out.error);
       return;
     }
     setOpen(false);
     setForm(blankUploadForm());
+    setStored(null);
     setErr('');
-  }, [form, mutate]);
+  }, [act, form, mutate, stored]);
 
   /** The hover Download: the stored file in http mode, the stand-in Blob in the fixture build. */
   const download = useCallback(
@@ -175,7 +229,7 @@ export function Component() {
 
   const menu = (r: VaultR2Row): MenuEntry[] => [
     { label: 'Edit details', onSelect: () => openEdit(r.id) },
-    { label: 'Replace file', disabled: true, title: 'Not available yet', onSelect: () => {} },
+    { label: 'Replace file', onSelect: () => setReplace({ row: r, file: null, progress: null, err: '' }) },
     {
       label: r.tier === 'team' ? 'Give Agent + Team access' : 'Make Team only',
       onSelect: () => void run('setResourceTier', r.id),
@@ -202,6 +256,7 @@ export function Component() {
             icon="r2Plus"
             onClick={() => {
               setForm(blankUploadForm());
+              setStored(null);
               setErr('');
               setOpen(true);
             }}
@@ -246,16 +301,28 @@ export function Component() {
             </>
           }
         >
-          <button
-            type="button"
-            className={s.drop}
-            data-ready={up.drop.ready ? 'true' : undefined}
-            onClick={() => setForm((f) => ({ ...f, file: up.drop.nextFile }))}
-          >
-            <Icon name={up.drop.ready ? 'r2Check' : 'r2Download'} size={18} strokeWidth={1.75} />
-            <span className={k.w5}>{up.drop.label}</span>
-            <span className={k.me}>{up.drop.sub}</span>
-          </button>
+          {(() => {
+            const zone = addProgress ? uploadingDrop(addProgress.name, UPLOAD_COPY.progress(addProgress.at)) : up.drop;
+            return (
+              <button
+                type="button"
+                className={s.drop}
+                data-ready={zone.ready ? 'true' : undefined}
+                aria-busy={addProgress ? 'true' : undefined}
+                disabled={!!addProgress}
+                onClick={() => addInput.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={onDrop(pickForAdd)}
+              >
+                <Icon name={zone.ready ? 'r2Check' : 'r2Download'} size={18} strokeWidth={1.75} />
+                <span className={k.w5}>{zone.label}</span>
+                <span className={k.me} role={addProgress ? 'status' : undefined}>
+                  {zone.sub}
+                </span>
+              </button>
+            );
+          })()}
+          <input ref={addInput} type="file" hidden accept={uploadAccept()} aria-label="Add resource file" onChange={(e) => void pickForAdd(e.target.files?.[0])} />
           <label className={s.lab}>
             Title
             <input
@@ -376,6 +443,51 @@ export function Component() {
           {edit.err ? (
             <p role="alert" className={clsx(k.p, s.err)}>
               {edit.err}
+            </p>
+          ) : null}
+        </Modal>
+      ) : null}
+
+      {replace ? (
+        <Modal
+          title={REPLACE_COPY.title}
+          onClose={() => setReplace(null)}
+          foot={
+            <>
+              <Button onClick={() => setReplace(null)}>Cancel</Button>
+              <Button kind="primary" disabled={!replace.file || !!replace.progress} onClick={() => void saveReplace()}>
+                {REPLACE_COPY.cta}
+              </Button>
+            </>
+          }
+        >
+          <p className={clsx(k.p, k.w5)}>{replace.row.title}</p>
+          {(() => {
+            const zone = replaceDrop(replace.progress?.name ?? replace.file?.name ?? null, replace.progress ? UPLOAD_COPY.progress(replace.progress.at) : null);
+            return (
+              <button
+                type="button"
+                className={s.drop}
+                data-ready={zone.ready ? 'true' : undefined}
+                aria-busy={replace.progress ? 'true' : undefined}
+                disabled={!!replace.progress}
+                onClick={() => replaceInput.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={onDrop(pickForReplace)}
+              >
+                <Icon name={zone.ready ? 'r2Check' : 'r2Download'} size={18} strokeWidth={1.75} />
+                <span className={k.w5}>{zone.label}</span>
+                <span className={k.me} role={replace.progress ? 'status' : undefined}>
+                  {zone.sub}
+                </span>
+              </button>
+            );
+          })()}
+          <input ref={replaceInput} type="file" hidden accept={uploadAccept()} aria-label="Replacement file" onChange={(e) => void pickForReplace(e.target.files?.[0])} />
+          <p className={clsx(k.p, k.me)}>{REPLACE_COPY.keeps}</p>
+          {replace.err ? (
+            <p role="alert" className={clsx(k.p, s.err)}>
+              {replace.err}
             </p>
           ) : null}
         </Modal>

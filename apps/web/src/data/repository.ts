@@ -1,6 +1,7 @@
 import type { AdminActionArgs, AdminActionName, Db, MutationArgs, MutationName, Outcome } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import * as M from '@ai/core/mutations';
+import type { UploadType } from '@ai/core/uploads';
 
 /**
  * The one seam between the screens and where the data lives.
@@ -82,6 +83,21 @@ export interface AppearancePrefs {
   sidebar?: 'full' | 'rail';
 }
 
+// ---------------------------------------------------------------------------------------------
+// D-188 · uploads
+// ---------------------------------------------------------------------------------------------
+
+/** A file put in the bucket: the key the upload route minted, and the file's name, size and type. */
+export interface UploadedFile {
+  key: string;
+  name: string;
+  size: number;
+  type: UploadType;
+}
+
+/** An upload's end: the stored file, or what to tell the person (never a success that didn't happen). */
+export type UploadResult = { ok: true; file: UploadedFile } | { ok: false; error: string };
+
 export interface LmsRepository {
   readonly source: 'fixture' | 'http';
   viewer(): Promise<Viewer>;
@@ -99,12 +115,19 @@ export interface LmsRepository {
   /**
    * Where a stored file lives, or `null` when the caller must produce the bytes itself (§ 8.2).
    *
-   * http mode answers with one of the two `/api/files/...` routes, which 302-redirect to a
-   * presigned GET. Fixture mode answers `null`, because the prototype has no bucket, and the
+   * http mode answers with one of the two `/api/files/...` routes, which stream the object on this
+   * origin (D-188; they used to 302 to a presigned GET). Fixture mode answers `null`, because the prototype has no bucket, and the
    * screens then write the Blob they always wrote. Synchronous on purpose: a download has to leave
    * the click that asked for it or a popup blocker eats it.
    */
   fileUrl(ref: StoredFileRef): string | null;
+  /**
+   * D-188: put a file in the bucket. http mode asks `POST /api/files/upload-url` for a key and a
+   * presigned PUT, then PUTs the file to it from the browser (`onProgress` from 0 to 1). Fixture mode has
+   * no bucket: it checks the file as the API would and hands back a key without sending anything. A
+   * staff preview tab refuses it. The caller then saves the key through an audited action.
+   */
+  upload(file: File, onProgress?: (fraction: number) => void): Promise<UploadResult>;
   /** The session's Zoom URL, resolved at click time (§ 8.4). */
   joinTicket(sessionId: string): Promise<JoinTicket>;
   /**

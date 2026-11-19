@@ -9,6 +9,9 @@
 //     the player offers "Watch Replay" in a new tab;
 //   - anything that isn't an http(s) address is ignored, so no other scheme ever becomes a link.
 
+import { isVideoUpload } from '@ai/core/course-types';
+import type { VideoBlock } from '@ai/core/course-types';
+
 export type ReplaySource = { kind: 'hls'; src: string } | { kind: 'file'; src: string } | { kind: 'link'; href: string } | null;
 
 const parse = (raw: string): URL | null => {
@@ -38,4 +41,14 @@ export function replaySource(playbackUrl: string | null | undefined, sessionUrl:
     if (u) return classifyReplayUrl(playbackUrl)?.kind === 'file' ? { kind: 'file', src: u.href } : { kind: 'hls', src: u.href };
   }
   return classifyReplayUrl(sessionUrl);
+}
+
+/**
+ * D-188: what a course video block plays. An uploaded mp4 is a file at its same-origin API address
+ * (`uploadUrl`, `/api/files/course/<key>`, or this tab's own copy right after an upload); a link is
+ * classified like a replay's: `.m3u8` and `.mp4` play inline, any other page is a link to open.
+ */
+export function videoBlockSource(block: VideoBlock, uploadUrl: (key: string) => string): ReplaySource {
+  if (isVideoUpload(block.source)) return { kind: 'file', src: uploadUrl(block.source.upload) };
+  return classifyReplayUrl(block.source.url);
 }

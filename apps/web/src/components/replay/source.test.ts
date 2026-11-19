@@ -1,6 +1,6 @@
 // D-183: how the player reads a replay's link.
 import { describe, expect, it } from 'vitest';
-import { classifyReplayUrl, replaySource } from './source';
+import { classifyReplayUrl, replaySource, videoBlockSource } from './source';
 
 describe('the replay link, classified (D-183)', () => {
   it('plays an HLS manifest and a video file; offers any other page as a link @parity:E-1', () => {
@@ -30,5 +30,21 @@ describe('the replay link, classified (D-183)', () => {
     expect(replaySource('', 'https://cdn.example.com/a.mp4')).toEqual({ kind: 'file', src: 'https://cdn.example.com/a.mp4' });
     expect(replaySource('javascript:alert(1)', undefined)).toBeNull();
     expect(replaySource('', undefined)).toBeNull();
+  });
+});
+
+describe('a course video block, classified (D-188)', () => {
+  const url = (key: string) => `/api/files/course/${key}`;
+  it('plays an uploaded mp4 from its same-origin address', () => {
+    expect(videoBlockSource({ type: 'video', source: { upload: 'uploads/2026/12/aaaaaaaa-bbbb.mp4', name: 'a.mp4', size: 1, type: 'video/mp4' } }, url)).toEqual({
+      kind: 'file',
+      src: '/api/files/course/uploads/2026/12/aaaaaaaa-bbbb.mp4',
+    });
+  });
+  it('plays an .m3u8 or .mp4 link inline, and opens any other page', () => {
+    expect(videoBlockSource({ type: 'video', source: { url: 'https://cdn.example.com/w1.m3u8' } }, url)).toEqual({ kind: 'hls', src: 'https://cdn.example.com/w1.m3u8' });
+    expect(videoBlockSource({ type: 'video', source: { url: 'https://cdn.example.com/w1.mp4' } }, url)).toEqual({ kind: 'file', src: 'https://cdn.example.com/w1.mp4' });
+    expect(videoBlockSource({ type: 'video', source: { url: 'https://www.loom.com/share/abc' } }, url)).toEqual({ kind: 'link', href: 'https://www.loom.com/share/abc' });
+    expect(videoBlockSource({ type: 'video', source: { url: 'javascript:alert(1)' } }, url)).toBeNull();
   });
 });

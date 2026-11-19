@@ -3,6 +3,12 @@ import { seedProduction } from '@ai/core/seed/curriculum';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import type { Db } from '@ai/core';
 import {
+  BLOCK_LABELS,
+  CONTENT_KINDS,
+  PATH_KINDS,
+  VIDEO_KINDS,
+  mediaLines,
+  mediaVideos,
   draftIssues,
   isWeekDraft,
   listItems,
@@ -86,5 +92,30 @@ describe('the week builder’s view-model (D-174)', () => {
     expect(tableText([['a', 'b']])).toBe('a | b');
     expect(newBlock('copy')).toEqual({ type: 'copy', label: '', text: '' });
     expect(newBlock('table')).toEqual({ type: 'table', rows: [] });
+  });
+});
+
+describe('a video block in the builder (D-188)', () => {
+  it('starts a new video as an empty link, which the save refuses until it is one', () => {
+    expect(newBlock('video')).toEqual({ type: 'video', source: { url: '' } });
+    const stored = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }).modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
+    const draft = structuredClone(stored);
+    draft.checklist[0]!.paths = { claude: { blocks: [newBlock('video')] } };
+    expect(draftIssues(stored, draft)).toEqual(['Step 1, Claude path, block 1: Use an http or https link for a video, or upload an mp4.']);
+    draft.checklist[0]!.paths = { claude: { blocks: [{ type: 'video', source: { url: 'https://youtu.be/x' } }] } };
+    expect(draftIssues(stored, draft)).toEqual([]);
+  });
+
+  it('offers video in a step’s paths and the Media videos, never in a sample output', () => {
+    expect(BLOCK_LABELS.video).toBe('Video');
+    expect(PATH_KINDS).toEqual(['text', 'copy', 'list', 'table', 'video']);
+    expect(CONTENT_KINDS).not.toContain('video');
+    expect(VIDEO_KINDS).toEqual(['video']);
+  });
+
+  it('splits Media into its lines and its videos, in order', () => {
+    const v = { type: 'video' as const, source: { url: 'https://x.test/a.mp4' } };
+    expect(mediaLines(['a', v, 'b'])).toEqual(['a', 'b']);
+    expect(mediaVideos(['a', v, 'b'])).toEqual([v]);
   });
 });

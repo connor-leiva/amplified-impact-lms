@@ -17,7 +17,8 @@
 // this actor may send it is `can()` and `requirePerm()` inside the mutation, and the oracle and
 // authorization-matrix tests in Gate 7 cover that.
 import { z } from 'zod';
-import { ICONS, PERMS, STAFF_ROLES } from '@ai/core';
+import { ICONS, PERMS, STAFF_ROLES, VIDEO_URL_MAX } from '@ai/core';
+import { MAX_VIDEO_BYTES, UPLOAD_KEY } from '@ai/core/uploads';
 import type { IconName, PermKey, StaffRole } from '@ai/core';
 import type { MutationArgs, MutationName } from '@ai/core';
 
@@ -94,7 +95,24 @@ const contentBlock = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('list'), items: z.array(z.string()) }),
   z.strictObject({ type: z.literal('table'), head: z.array(z.string()).optional(), rows: z.array(z.array(z.string())) }),
 ]);
-const stepPath = z.strictObject({ blocks: z.array(contentBlock) });
+// D-188: a video, in a step's paths and in a week's Media. Its source is an uploaded mp4 (a key the
+// upload route minted, with the file's name, size and type) or a link. The link's scheme (http or https
+// only) is checked by `saveBuilderModule`, which refuses a bad one inline as it does a copy rule.
+const videoBlock = z.strictObject({
+  type: z.literal('video'),
+  source: z.union([
+    z.strictObject({
+      upload: z.string().regex(UPLOAD_KEY),
+      name: z.string().min(1).max(200),
+      size: z.number().int().positive().max(MAX_VIDEO_BYTES),
+      type: z.literal('video/mp4'),
+    }),
+    z.strictObject({ url: z.string().min(1).max(VIDEO_URL_MAX) }),
+  ]),
+  title: z.string().max(300).optional(),
+});
+const pathBlock = z.union([contentBlock, videoBlock]);
+const stepPath = z.strictObject({ blocks: z.array(pathBlock) });
 const stepPaths = z.strictObject({ claude: stepPath.optional(), chatgpt: stepPath.optional() });
 const seatCard = z.strictObject({
   seat: z.string(),
@@ -131,7 +149,7 @@ const moduleCourse = z.strictObject({
   liveBuild: liveBuildPage.nullable(),
   officeHours: officeHoursPage.nullable(),
   homework,
-  media: z.array(z.string()),
+  media: z.array(z.union([z.string(), videoBlock])),
   materials: z.array(z.string()),
   promise: z.string().optional(),
   flagship: z.string().optional(),

@@ -7,7 +7,7 @@
 // isn't built shows the `skill.coming` copy string with no link (D-176).
 
 import type { Actor } from '@ai/core/mutations';
-import type { ContentBlock, StepPaths } from '@ai/core/course-types';
+import type { PathBlock, StepPaths } from '@ai/core/course-types';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CoursePayload } from '../course/Course.vm';
 import { LABELS, helpVM, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
@@ -30,6 +30,9 @@ export const STEP = {
   steps: 'steps',
   of: 'of',
   kit: 'This step’s kit',
+  /** D-188: a video block's name when it has no title, and the link that opens one on another site. */
+  video: 'Video',
+  watch: 'Watch',
 } as const;
 
 export type Platform = 'claude' | 'chatgpt';
@@ -58,7 +61,7 @@ export interface StepVM {
   hint: string | null;
   /** The platforms the step has a path for, in order, and each one's blocks. None: no tabs. */
   tabs: Platform[];
-  paths: Partial<Record<Platform, ContentBlock[]>>;
+  paths: Partial<Record<Platform, PathBlock[]>>;
   prev: string | null;
   next: string | null;
   mark: { moduleId: string; stepId: string | null; done: boolean; disabled: boolean };
@@ -69,8 +72,8 @@ export interface StepVM {
 export type StepPageVM = StepVM | { kind: 'missing'; href: string };
 
 const ORDER: readonly Platform[] = ['claude', 'chatgpt'];
-const pathsOf = (p: StepPaths | undefined): Partial<Record<Platform, ContentBlock[]>> => {
-  const out: Partial<Record<Platform, ContentBlock[]>> = {};
+const pathsOf = (p: StepPaths | undefined): Partial<Record<Platform, PathBlock[]>> => {
+  const out: Partial<Record<Platform, PathBlock[]>> = {};
   for (const k of ORDER) if (p?.[k]?.blocks.length) out[k] = p[k]!.blocks;
   return out;
 };

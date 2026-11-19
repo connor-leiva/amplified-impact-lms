@@ -84,6 +84,9 @@ export const progress = pgTable('progress', {
 // D-172: `module_id`, the AI Employee a resource is attached to (the Vault's "Attached to"; nullable, no foreign key, so deleting a draft leaves "—").
 export const resources = pgTable('resources', {
   id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0), moduleId: text('module_id'),
+  // D-188: the stored file's own name (what it was called when uploaded), for its download. Like
+  // `storage_key`, never in a snapshot: the upload actions write it beside the snapshot's columns.
+  fileName: text('file_name'),
   kind: text('kind'), stepId: text('step_id'), visibility: text('visibility'), platform: text('platform'),
 }, (t) => [
   // `ResourceKind`, `ResourceVisibility` and `ResourcePlatform` in `@ai/core` types.ts.

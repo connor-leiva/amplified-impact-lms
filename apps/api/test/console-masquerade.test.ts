@@ -20,6 +20,8 @@ import { startScheduler } from '../src/jobs/scheduler';
 import { readOfferConfig } from '../src/billing/config';
 import { stripeVerifier } from '../src/billing/stripe';
 import { resetS3 } from '../src/storage';
+import { startFakeBucket } from './fake-bucket';
+import type { FakeBucket } from './fake-bucket';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -104,16 +106,15 @@ const signedEvent = (id: string) => {
   return { payload, header: new Stripe('sk_test_x').webhooks.generateTestHeaderString({ payload, secret: WEBHOOK_SECRET }) };
 };
 
-const S3_ENV = {
-  S3_REGION: 'auto',
-  S3_ENDPOINT: 'https://bucket-production-a1b2.up.railway.app',
-  S3_ACCESS_KEY_ID: 'AKIAEXAMPLEONLY00000',
-  S3_SECRET_ACCESS_KEY: 'test-only-hmac-key-material-0000000000',
-  S3_BUCKET: 'ai-lms.production',
-} as const;
+/** D-188: the file routes stream from the bucket now, so they read from an in-memory one (`fake-bucket.ts`). */
+let bucket: FakeBucket;
+let S3_ENV: FakeBucket['env'];
 
 beforeAll(async () => {
   await testDatabase();
+  bucket = await startFakeBucket();
+  bucket.anyKey = true;
+  S3_ENV = bucket.env;
 });
 beforeEach(async () => {
   at(NOW);
@@ -128,10 +129,11 @@ afterEach(async () => {
   await settleEmails();
   await app?.close();
 });
-afterAll(() => {
+afterAll(async () => {
   delete process.env.FIXED_NOW;
   for (const k of Object.keys(S3_ENV)) delete process.env[k];
   resetS3();
+  await bucket?.close();
 });
 
 describe('Start (spec § 6) @console', () => {
@@ -616,10 +618,10 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
         expect(res.statusCode, `${method} ${url}`).toBe(403);
       }
     }
-    // A download is a read: the presigned 302, and the Vault's counter does not move.
+    // A download is a read: the file (D-188: streamed, no longer a presigned 302), and the Vault's counter does not move.
     const [r1] = await (await db()).select().from(resources).where(eq(resources.id, 'r1'));
     const dl = await browser.send('GET', '/api/files/resource/r1');
-    expect(dl.statusCode).toBe(302);
+    expect(dl.statusCode).toBe(200);
     // The counter is the client's mutation, which is a write, and refused.
     expect((await browser.send('POST', '/api/mutate/downloadResource', { id: 'r1' })).statusCode).toBe(403);
     expect((await (await db()).select().from(resources).where(eq(resources.id, 'r1')))[0]!.dl).toBe(r1!.dl);

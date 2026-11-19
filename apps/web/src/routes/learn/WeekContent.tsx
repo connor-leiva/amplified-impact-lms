@@ -16,7 +16,7 @@ import type { DownloadVM } from '../course/Course.vm';
 import { LABELS } from './learn.vm';
 import { KIT } from './WeekContent.vm';
 import type { BuildKitVM, CodeLineVM, CrumbVM, KitFileVM, PartVM, SectionVM, WeekContentVM, WeekMetaVM } from './WeekContent.vm';
-import { KitRows, Tile } from './parts';
+import { KitRows, Tile, VideoView } from './parts';
 import type { KitRowVM } from './learn.vm';
 import s from './Learn.module.css';
 import c from './WeekContent.module.css';
@@ -128,6 +128,15 @@ export function Crumbs({ crumbs }: { crumbs: CrumbVM[] }) {
 
 function Part({ part }: { part: PartVM }) {
   if (part.kind === 'text') return <p className={`${s.p} ${part.note ? s.me : s.s2}`}>{part.text}</p>;
+  // D-188: the week's Media videos.
+  if (part.kind === 'videos')
+    return (
+      <div className={c.part}>
+        {part.videos.map((v, i) => (
+          <VideoView key={i} block={v} />
+        ))}
+      </div>
+    );
   return (
     <div className={c.part}>
       {part.heading ? <h3 className={c.h3}>{part.heading}</h3> : null}

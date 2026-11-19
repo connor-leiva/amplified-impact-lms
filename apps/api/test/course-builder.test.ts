@@ -155,6 +155,38 @@ describe('the copy rules hold on the server too @course-builder', () => {
     expect(await auditActions()).toEqual([]);
   });
 
+  // D-188: a video block in a step's Claude and ChatGPT paths and in the week's Media.
+  it('saves a video block, uploaded or a link, in both paths and in Media, and the course sends it', { timeout: 120_000 }, async () => {
+    const draft = structuredClone((await loadDb()).modules.find((m) => m.id === W2)!);
+    const upload = { type: 'video' as const, source: { upload: 'uploads/2026/11/aaaaaaaa-0000-4000-8000-000000000001.mp4', name: 'Week 2 build.mp4', size: 1000, type: 'video/mp4' as const }, title: 'Watch the build' };
+    const link = { type: 'video' as const, source: { url: 'https://www.youtube.com/watch?v=abc' } };
+    draft.checklist[0]!.paths = { claude: { blocks: [{ type: 'text', text: 'First, watch.' }, upload] }, chatgpt: { blocks: [link] } };
+    draft.course!.media = [...draft.course!.media, { type: 'video', source: { url: 'https://cdn.example.test/w2.m3u8' }, title: 'Recap' }];
+    await ok('saveBuilderModule', { draft });
+    const week = (await course()).course.weeks.find((w) => w.week === 2)!;
+    expect(week.module.checklist[0]!.paths).toEqual({ claude: { blocks: [{ type: 'text', text: 'First, watch.' }, upload] }, chatgpt: { blocks: [link] } });
+    expect(week.media.at(-1)).toEqual({ type: 'video', source: { url: 'https://cdn.example.test/w2.m3u8' }, title: 'Recap' });
+    expect((await auditActions()).at(-1)).toBe('module.save');
+  });
+
+  it('refuses a video that isn’t an http(s) link, and a title that breaks a copy rule, inline; nothing written', { timeout: 120_000 }, async () => {
+    const before = await loadDb();
+    const draft = structuredClone(before.modules.find((m) => m.id === W2)!);
+    draft.checklist[1]!.paths = { claude: { blocks: [{ type: 'video', source: { url: 'javascript:alert(1)' } }] } };
+    let res = await act('saveBuilderModule', { draft });
+    expect(res.statusCode).toBe(422);
+    expect(res.json()).toEqual({ error: 'Step 2, Claude path, block 1: Use an http or https link for a video, or upload an mp4.' });
+    draft.checklist[1]!.paths = { claude: { blocks: [{ type: 'video', source: { url: 'https://example.test/a.mp4' }, title: 'Watch this—now' }] } };
+    res = await act('saveBuilderModule', { draft });
+    expect(res.statusCode).toBe(422);
+    expect(res.json()).toEqual({ error: 'Step 2, Claude path, block 1: Use a comma, a colon or a period instead of an em dash.' });
+    expect(await loadDb()).toEqual(before);
+    expect(await auditActions()).toEqual([]);
+    // An upload whose key the upload route would never mint is a 400, not a save.
+    draft.checklist[1]!.paths = { claude: { blocks: [{ type: 'video', source: { upload: 'modules/marketing/x.mp4', name: 'x.mp4', size: 1, type: 'video/mp4' } }] } };
+    expect((await act('saveBuilderModule', { draft })).statusCode).toBe(400);
+  });
+
   it('a malformed body is a 400 before anything runs', { timeout: 120_000 }, async () => {
     const res = await act('saveSession', { cohortId: 'dec26', moduleId: W2, kind: 'webinar', title: 'x', date: '2026-12-11', time: '12:00', mins: 60, zoom: '', replayVisibility: null });
     expect(res.statusCode).toBe(400);

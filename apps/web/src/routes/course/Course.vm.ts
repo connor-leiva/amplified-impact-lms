@@ -12,7 +12,7 @@ import { fmt } from '@ai/core';
 import type { SessionType } from '@ai/core';
 import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
 import { courseGuideHref } from '@ai/core/skill-guides';
-import type { CourseSkill, SkillRole } from '@ai/core/course-types';
+import type { CourseSkill, MediaItem, SkillRole } from '@ai/core/course-types';
 import { isLockedWeek } from '@ai/core/course';
 import type { LearnerCourse, LockedCourseWeek } from '@ai/core/course';
 import { mountainWhen } from '@ai/core/release';
@@ -212,7 +212,8 @@ export interface WeekVM {
   rubric: { dimensions: Row[]; scale: string; rules: readonly string[] };
   readiness: Row[];
   missedAWeek: string;
-  media: readonly string[];
+  /** The week's Media: its lines, and (D-188) its videos. */
+  media: readonly MediaItem[];
   materials: readonly string[];
   downloads: DownloadVM[];
   prev: { label: string; href: string } | null;

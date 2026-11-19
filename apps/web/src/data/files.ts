@@ -1,5 +1,7 @@
+import { VIDEO_MP4 } from '@ai/core/uploads';
 import { repo } from './boot';
-import type { StoredFileRef } from './repository';
+import type { StoredFileRef, UploadResult } from './repository';
+import { checkFile, courseVideoRoute } from './upload';
 
 /**
  * Phase 08 § 8.2, the browser half: hand a STORED file to the viewer.
@@ -7,7 +9,8 @@ import type { StoredFileRef } from './repository';
  * The prototype's Download buttons build a Blob behind a synthetic anchor, and in fixture mode they
  * still do — that behaviour is what the 55 parity scenarios and the 25 e2e behaviours measure, so
  * it cannot move. In http mode the bytes live in the Railway Storage Bucket instead, and the only
- * way to them is a route that checks the viewer's tier and 302-redirects to a presigned GET.
+ * way to them is a route that checks the viewer's tier and streams the object on this origin (D-188;
+ * it used to 302 to a presigned GET on the bucket's).
  *
  * `saveStoredFile` is the whole difference, kept in one function so that no screen has to ask which
  * data source it is on. A screen says "save this stored file, and here is the Blob to fall back
@@ -24,12 +27,12 @@ export function saveStoredFile(ref: StoredFileRef): boolean {
 
   try {
     // A plain same-origin navigation, which is what § 8.2 asks for ("navigate to these routes").
-    // The route answers 302 to a presigned URL carrying `Content-Disposition: attachment`, so the
+    // The route streams the file with `Content-Disposition: attachment` (D-188), so the
     // browser saves the file and leaves this page where it is — the SPA survives the click.
     //
-    // Deliberately no `download` attribute: it is ignored the moment the redirect lands on another
-    // origin, and the presigned URL's `ResponseContentDisposition` already names the file. `rel`
-    // is set anyway so that a future `target` on this anchor cannot hand the bucket an opener.
+    // Deliberately no `download` attribute: the response's own `Content-Disposition` names the file
+    // (the name it was uploaded with, D-188). `rel` is set anyway so that a future `target` on this
+    // anchor cannot hand anything an opener.
     const a = document.createElement('a');
     a.href = url;
     a.rel = 'noopener';
@@ -41,4 +44,31 @@ export function saveStoredFile(ref: StoredFileRef): boolean {
        body the caller holds is the prototype's placeholder, not the file the viewer asked for. */
   }
   return true;
+}
+
+// --- D-188: uploads, and a course video's address -----------------------------------------------
+
+/** Files uploaded in this tab, by key: the builder's preview plays them before the week is saved. */
+const local = new Map<string, string>();
+
+/** Where a course video plays from: this tab's own copy of a file it just uploaded, else the API (same-origin). */
+export const courseVideoUrl = (key: string): string => local.get(key) ?? courseVideoRoute(key);
+
+/**
+ * Upload one file through the repository (`upload.ts` says what a file may be). A video is remembered
+ * in this tab (an object URL of the file itself, no copy) so the builder's live preview can play it
+ * before the week is saved.
+ */
+export async function uploadFile(file: File, onProgress?: (fraction: number) => void, videoOnly = false): Promise<UploadResult> {
+  const check = checkFile(file, videoOnly);
+  if (!check.ok) return check;
+  const out = await repo.upload(file, onProgress);
+  if (out.ok && out.file.type === VIDEO_MP4) {
+    try {
+      local.set(out.file.key, URL.createObjectURL(file));
+    } catch {
+      /* no object URLs here: the preview plays it from the API once saved */
+    }
+  }
+  return out;
 }
