@@ -327,6 +327,29 @@ export interface ModuleCourse {
    * The opening line is optional and sits above the sections.
    */
   intake?: CourseIntake;
+  /** D-197: the stack card's words. A team's rows are not stored here. */
+  stackCard?: StackCardContent;
+}
+
+export interface StackSource {
+  id: string;
+  name: string;
+  green: string;
+  yellow: string;
+}
+
+export interface StackExampleRow {
+  source: string;
+  tool: string;
+  plan: 'green' | 'yellow';
+  who: string;
+}
+
+export interface StackCardContent {
+  sources: StackSource[];
+  exampleLabel: string;
+  exampleTeam: string;
+  example: StackExampleRow[];
 }
 
 /** D-196: one intake question. `choice` and `multi` carry `options`. */

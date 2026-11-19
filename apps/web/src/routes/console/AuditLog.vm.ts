@@ -123,6 +123,7 @@ const GROUP_LABELS: Record<string, string> = {
   curriculum: 'Curriculum',
   // D-196: a staff member opened a team's intake.
   intake: 'Intake',
+  stack: 'Stack Card',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

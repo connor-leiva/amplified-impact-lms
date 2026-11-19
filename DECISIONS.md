@@ -6601,3 +6601,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not in this change.** The stack card, hide and collapse, the path default, operator progress, and the week-complete overlay. The welcome email is unchanged.
 
 **Blast radius.** A week with no intake is unchanged, so the parity fixture does not gain a form. Utah Life and the non-course screens are unchanged.
+
+---
+
+## D-197 · The stack card form
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical. This is the stack card that follows it.
+**Number:** D-196 is the intake. D-197 was free.
+
+- **The words live on the week** (`stackCard`): the four source names and their green and yellow lines, from the step 1 table, plus a made-up Northline Realty example labeled Made up. Seeded insert-only when Week 0 has none. Migration `0030_team_stack_card` holds one row per team.
+- **Prefill.** Books takes the accounting answer, Closings takes Sisu, Leads takes the CRM, and Email is green when the team is on Google and yellow when it is not.
+- **Send Back** sets `sent_at` and checks the step 1 stack card item for every teammate. It sends no email. A password or an account number is refused, with "Never a password." Staff read the card on the workspace page, and that read is `stack.read`.
+- **Not in this change.** Hide and collapse, the path default, operator progress, and the week-complete overlay.
+
+**Blast radius.** A week with no stack card is unchanged. Nothing is sent outside the portal.

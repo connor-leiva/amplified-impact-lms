@@ -217,6 +217,8 @@ export const AUDIT_ACTIONS = [
   'vault.replace',
   // D-196: a staff member opened a team's intake on the workspace page.
   'intake.read',
+  // D-197: a staff member opened a team's stack card.
+  'stack.read',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

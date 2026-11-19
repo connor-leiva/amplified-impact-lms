@@ -189,6 +189,18 @@ export function Component() {
         }
       >
         {intake ? <pre className={k.mo}>{intake}</pre> : <span className={k.mu}>Not loaded</span>}
+        <Button
+          kind="quiet"
+          onClick={() => {
+            if (!api) return;
+            api.teamStack(teamId).then(
+              (row) => setIntake(row.rows.map((r) => `${r.source}: ${r.tool} (${r.plan})`).join('\n') || 'No stack card yet.'),
+              () => setIntake('Could not load the stack card.'),
+            );
+          }}
+        >
+          View stack card
+        </Button>
       </Card>
       <Facts
         items={[
