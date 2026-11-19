@@ -6,7 +6,7 @@
 // items placed on this step (D-189). The learner's progress and the step's id come from the snapshot,
 // so "Mark step done" writes through the portal's own `toggleStep`.
 
-import { fmt } from '@ai/core';
+import { fmt, mountainWhen } from '@ai/core';
 import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
@@ -307,8 +307,14 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
 
 const DAY = 86_400_000;
 
+/**
+ * A course due instant, always Mountain Time with "MT". `fmt.time` follows the viewer's zone and,
+ * when that zone shares a clock with the program zone (Central), drops Mountain entirely
+ * ("1:00 PM CT"). The course rule is the same one `mountainWhen` uses for a week's opening.
+ */
 function dueLine(dueAt: number): string {
-  return `${fmt.day(dueAt)}, ${fmt.time(dueAt)}`;
+  const [day, time] = mountainWhen(dueAt).split(' · ');
+  return `${day}, ${time}`;
 }
 
 function countdown(dueAt: number, now: number): string {
