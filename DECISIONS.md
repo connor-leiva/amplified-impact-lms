@@ -6709,3 +6709,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. Skill Library markup and section order are untouched.
 
 **Blast radius.** A flag-off screen at rest still matches its golden. A dark learner frame keeps the dark palette. www pages inline global.css from the same helmet, so their hover underline moves with this rule and their ground does not.
+
+---
+
+## D-204 · Week 0 step rail: compact circles
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026, 12:55 PM CT: ship the Week 0 polish live in small pieces, speed over exhaustive testing, and keep CI green including parity-learner.
+**Number:** D-203 is the bone ground. D-204 was free.
+
+- **The rail.** On a week that already draws the one-step layout, the step links are one row. No sideways scroll, no edge fade, no arrows. Each link stays the same route. The target is 44px. The mark is a 32px circle.
+- **States.** The current step is a forest pill with its number and its name. A done step that is not current is an energy circle with a check. Every other step is a bone circle, a forest outline, and its number. Hover and focus show the step name (and the operator line, when there is one) in a tooltip. Each link keeps an `aria-label`. At 640px and narrower the current pill shows only its number.
+- **The operator line** stays in the link, clipped to one pixel, so it is still in the page. It is also in the tooltip and the accessible name.
+- **Not changed.** Weeks without a checklist item. The links. No course copy, no schema, no migration. No golden, tolerance, or mask.
+
+**Blast radius.** A step page that does not use the one-step layout is unchanged, including the parity fixture. Utah Life, Agent Plan, Team Plan, and Insiders screens outside the course step are unchanged.
