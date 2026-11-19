@@ -144,7 +144,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
             {forStep.length ? (
               <section className={s.cd} aria-labelledby="lv-skit-t">
                 <div className={s.cdh}>
-                  <h2 className={s.h2} id="lv-skit-t">{STEP.forStep}</h2>
+                  <h2 className={s.railH} id="lv-skit-t">{STEP.forStep}</h2>
                 </div>
                 <KitRows rows={forStep} />
               </section>
@@ -152,7 +152,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
             {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} /> : null}
             <section className={s.cd} aria-labelledby="lv-help-t">
               <div className={s.cdh}>
-                <h2 className={s.h2} id="lv-help-t">{STEP.stillStuck}</h2>
+                <h2 className={s.railH} id="lv-help-t">{STEP.stillStuck}</h2>
               </div>
               <Go className={s.li!} href={vm.help.email.href}>
                 <Tile icon="r2Email" tone="forest" size={28} />

@@ -1,8 +1,8 @@
 // The one-step layout (D-190), drawn only when the open path has a checklist item. Markup from
 // ChecklistLayoutVM. A week without one never reaches this file.
 
-import { useEffect, useId, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEvent } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { useMutate } from '../../data/hooks';
@@ -117,7 +117,7 @@ function Action({ action }: { action: CheckActionVM }) {
       <span className={s.acts}>
         {action.files.map((f) =>
           f.href ? (
-            <a key={f.id} className={`${l.b} ${l.bq} ${l.bi}`} href={f.href} onClick={flashDl}>
+            <a key={f.id} className={`${l.b} ${l.bi}`} href={f.href} onClick={flashDl}>
               <Icon name="r2Download" size={14} strokeWidth={1.75} />
               {downloaded ? STEP.downloaded : f.title}
             </a>
@@ -139,17 +139,17 @@ function Action({ action }: { action: CheckActionVM }) {
   if (action.type === 'link') {
     const outer = /^https?:\/\//.test(action.href) || action.href.startsWith('mailto:');
     return outer ? (
-      <a className={`${l.b} ${l.bq} ${l.bi}`} href={action.href} {...(/^https?:/.test(action.href) ? { target: '_blank', rel: 'noopener' } : {})}>
+      <a className={`${l.b} ${l.bi}`} href={action.href} {...(/^https?:/.test(action.href) ? { target: '_blank', rel: 'noopener' } : {})}>
         {action.label}
       </a>
     ) : (
-      <Link className={`${l.b} ${l.bq} ${l.bi}`} to={action.href}>{action.label}</Link>
+      <Link className={`${l.b} ${l.bi}`} to={action.href}>{action.label}</Link>
     );
   }
   if (!action.event) return null;
   return (
     <span className={s.acts}>
-        <button type="button" className={`${l.b} ${l.bq} ${l.bi}`} onClick={() => saveIcs([action.event!], Date.now(), 'amplified-impact-session.ics')}>
+        <button type="button" className={`${l.b} ${l.bi}`} onClick={() => saveIcs([action.event!], Date.now(), 'amplified-impact-session.ics')}>
         <Icon name="lvCalAdd" size={14} strokeWidth={1.75} />
         {LABELS.addToCalendar}
       </button>
@@ -247,16 +247,13 @@ function Item({
           <div className={s.acts}>
             {item.action ? <Action action={item.action} /> : null}
             {item.playSeconds !== null && item.playLabel ? (
-              <button type="button" className={s.play} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
-                <Icon name="r2Play" size={12} strokeWidth={1.75} />
+              <button type="button" className={`${l.b} ${l.bi}`} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
+                <Icon name="r2Play" size={14} strokeWidth={1.75} />
                 {item.playLabel}
               </button>
             ) : null}
           </div>
         ) : null}
-        {item.callouts.map((c, i) => (
-          <Callout key={i} c={c} />
-        ))}
       </div>
     </li>
   );
@@ -271,7 +268,10 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
         if (e.currentTarget.open !== row.open) onToggle(row.prefKey, e.currentTarget.open);
       }}
     >
-      <summary>{row.title}</summary>
+      <summary>
+        {row.title}
+        <Icon name="r2Chevd" size={18} strokeWidth={2} className={s.accChevron} />
+      </summary>
       <div className={s.accBody}>
         {row.body.map((p, i) => (
           <p key={i}>{p}</p>
@@ -312,15 +312,12 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
   );
 }
 
-function Confetti({ on }: { on: boolean }) {
+/** Reduced motion only: a static line. The motion is the one ring on the button. */
+function DoneBanner({ on }: { on: boolean }) {
   if (!on) return null;
-  const dots = Array.from({ length: 24 }, (_, i) => i);
   return (
     <div className={s.celebrate} aria-hidden="true">
       <span className={s.banner}>{STEP.stepDone}</span>
-      {dots.map((i) => (
-        <i key={i} className={s.dot} data-c={i % 2 === 0 ? 'for' : 'energy'} style={{ '--x': `${(i * 37) % 100}%`, '--d': `${(i % 8) * 40}ms`, '--r': `${(i % 5) * 18 - 36}px` } as CSSProperties} />
-      ))}
     </div>
   );
 }
@@ -582,7 +579,12 @@ export function ChecklistPlayer({
         ))}
         <ol className={s.list}>
           {shown.map((item) => (
-            <Item key={item.id} item={item} pop={pop === item.id} onItem={onItem} onPlay={onPlay} />
+            <Fragment key={item.id}>
+              <Item item={item} pop={pop === item.id} onItem={onItem} onPlay={onPlay} />
+              {item.callouts.map((c, i) => (
+                <li key={`${item.id}-c${i}`} className={s.callRow}><Callout c={c} /></li>
+              ))}
+            </Fragment>
           ))}
         </ol>
         {layout.extras.length ? <Blocks blocks={layout.extras} marks={layout.extraMarks} /> : null}
@@ -599,23 +601,25 @@ export function ChecklistPlayer({
 
       <div className={s.foot}>
         <div className={s.mark}>
-          <button type="button" className={`${l.b} ${l.bp} ${l.bi}`} data-done={vm.mark.done ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
-            <Icon name={vm.mark.done ? 'r2Check' : 'r2Check'} size={14} strokeWidth={2.2} />
+          <button type="button" className={`${l.b} ${l.bp} ${l.bi} ${s.markBtn}`} data-done={vm.mark.done ? 'true' : undefined} data-ring={celebrating ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
+            <Icon name="r2Check" size={16} strokeWidth={2.2} />
             {vm.mark.done ? STEP.stepDone : STEP.markDone}
           </button>
+          {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
           {vm.mark.done && undo ? (
             <button type="button" className={`${l.b} ${l.bq}`} onClick={() => void mark()}>
               {STEP.undo}
             </button>
           ) : null}
-          {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
-          <Confetti on={celebrating && vm.mark.done} />
+          <DoneBanner on={celebrating && vm.mark.done} />
         </div>
         {layout.next ? (
-          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined} aria-label={`${STEP.next}: ${layout.next.title}`}>
-            <span className={s.nextK}>{STEP.next}</span>
+          <Link className={s.next} to={layout.next.href} aria-label={`${STEP.next}: ${layout.next.title}`}>
+            <span className={s.nextK}>{STEP.nextKicker}</span>
             <span className={s.nextT}>{layout.next.title}</span>
-            <Icon name="arrowR" size={16} strokeWidth={1.75} />
+            {layout.next.meta ? <span className={s.nextM}>{layout.next.meta}</span> : null}
+            <span className={s.nextBar} aria-hidden="true" />
+            <span className={s.nextAr} aria-hidden="true"><Icon name="arrowR" size={20} strokeWidth={1.75} /></span>
           </Link>
         ) : null}
       </div>
@@ -637,34 +641,52 @@ export function ChecklistPlayer({
 }
 
 export function ChecklistRail({ layout }: { layout: ChecklistLayoutVM }) {
+  const [current, setCurrent] = useState(layout.jumps[0]?.id ?? '');
+  useEffect(() => {
+    const ids = layout.jumps.map((j) => j.id);
+    if (!ids.length || typeof IntersectionObserver === 'undefined') return undefined;
+    const seen = new Map<string, number>();
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) seen.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+      const top = ids.find((id) => (seen.get(id) ?? 0) > 0);
+      if (top) setCurrent(top);
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, [layout.jumps]);
   return (
     <div className={s.rail}>
-      {layout.jumps.length ? (
-        <>
-          <h3>{STEP.onThisPage}</h3>
-          <div className={s.jumps}>
-            {layout.jumps.map((j) => (
-              <a key={j.id} href={`#${j.id}`}>{j.label}</a>
-            ))}
-          </div>
-        </>
-      ) : null}
-      {layout.items.length ? (
-        <>
-          <h3>{STEP.checklist}</h3>
-          <ul>
-            {layout.items.map((item) => (
-              <li key={item.id} data-checked={item.checked ? 'true' : undefined}>
-                <a href={`#${item.id}`}>
-                  <span className={s.mini} aria-hidden="true" />
-                  {item.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : null}
-      {layout.due ? <p className={s.due}><strong>{layout.due}</strong></p> : null}
+      <nav className={s.railCard} aria-label={STEP.onThisPage}>
+        {layout.jumps.length ? (
+          <>
+            <h3>{STEP.onThisPage}</h3>
+            <div className={s.jumps}>
+              {layout.jumps.map((j) => (
+                <a key={j.id} href={`#${j.id}`} aria-current={j.id === current ? 'true' : undefined}>{j.label}</a>
+              ))}
+            </div>
+          </>
+        ) : null}
+        {layout.items.length ? (
+          <>
+            <h3>{STEP.checklist}</h3>
+            <ul>
+              {layout.items.map((item) => (
+                <li key={item.id} data-checked={item.checked ? 'true' : undefined}>
+                  <a href={`#${item.id}`}>
+                    <span className={s.mini} aria-hidden="true" />
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {layout.due ? <p className={s.due}><strong>{layout.due}</strong></p> : null}
+      </nav>
     </div>
   );
 }
