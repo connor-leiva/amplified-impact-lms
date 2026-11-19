@@ -64,6 +64,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.pillNote {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--r2-fs-12);
+  font-weight: 600;
+  color: var(--r2-f2);
+}
 
 .main {
   display: flex;
@@ -258,6 +267,12 @@
   margin: 3px 0 0;
   color: var(--r2-f2);
   font-size: var(--r2-t);
+  line-height: var(--r2-tl);
+}
+.opNote {
+  margin: 4px 0 0;
+  color: var(--r2-f2);
+  font-size: var(--r2-fs-13);
   line-height: var(--r2-tl);
 }
 .subs {

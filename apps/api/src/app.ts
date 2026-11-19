@@ -107,6 +107,7 @@ import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import { registerIntakeRoute } from './routes/intake';
+import { registerPersonalizeRoute } from './routes/personalize';
 import { registerStackRoute } from './routes/stack';
 import type { OfferPages } from './routes/offer';
 import { keyMode, readOfferConfig } from './billing/config';
@@ -681,6 +682,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerCourseRoute(app);
     registerIntakeRoute(app);
     registerStackRoute(app);
+    registerPersonalizeRoute(app);
     // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
     registerCurriculumStatusRoute(app);
     // Whether a Skill Library download link resolves, as counts and a status code (D-122): open.

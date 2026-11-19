@@ -196,6 +196,36 @@ describe('the step player (D-177)', () => {
     expect(vm.pathMarks?.claude?.[0]?.some((span) => span.kind === 'term' && span.id === 'desk')).toBe(false);
   });
 
+  it('D-198: hides, collapses, defaults the path, and shows the operator count', () => {
+    const p = structuredClone(st.payload);
+    const week = p.course.weeks[0] as { module: { checklist: { paths?: { claude?: { blocks: PathBlock[] }; chatgpt?: { blocks: PathBlock[] } } }[] } };
+    const blocks: PathBlock[] = [
+      { type: 'check', id: 's1-invite', title: 'Invite your operator', hideIf: { field: 'operator', equals: 'both' } },
+      { type: 'check', id: 's1-plan', title: 'Choose a plan', collapseIf: { field: 'plan', equals: 'Claude Team' }, collapsedNote: 'Your team plan covers this.' },
+      { type: 'check', id: 's1-accept', title: 'Accept the invite', role: 'operator' },
+      { type: 'callout', kind: 'heads_up', text: 'Not on Google.', showIf: { field: 'google', equals: 'No' } },
+    ];
+    week.module.checklist[0]!.paths = { claude: { blocks }, chatgpt: { blocks } };
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0]!;
+    const stepId = row.steps[0]?.id ?? '';
+    const intake = { operator: "I'm both", ai: 'ChatGPT', plan: 'Claude Team', google: 'No' };
+    const vm = stepVM(p, row, 1, learner, st.now, { intake, operator: { name: 'Jordan', byStep: { [stepId]: { done: 3, total: 6 } } } });
+    if (vm.kind !== 'step') throw new Error('missing');
+    expect(vm.pathDefault).toBe('chatgpt');
+    expect(vm.layouts?.chatgpt?.items.map((item) => item.title)).not.toContain('Invite your operator');
+    expect(vm.layouts?.chatgpt?.items.find((item) => item.id === 's1-plan')).toMatchObject({ detail: 'Your team plan covers this.', checked: true });
+    expect(vm.layouts?.chatgpt?.items.find((item) => item.id === 's1-accept')?.note).toBe('Jordan: 3 of 6');
+    expect(vm.layouts?.chatgpt?.items.find((item) => item.id === 's1-accept')?.callouts.map((c) => c.text)).toContain('Not on Google.');
+    expect(vm.pills?.[0]?.note).toBe('Jordan: 3 of 6');
+    const remembered = stepVM(p, row, 1, learner, st.now, { intake, prefs: [{ key: 'path', value: 'claude', updatedAt: st.now }] });
+    expect(remembered.kind === 'step' && remembered.pathDefault).toBe('claude');
+    const plain = stepVM(p, row, 1, learner, st.now);
+    expect(plain.kind === 'step' && plain.layouts?.claude?.items.map((item) => item.title)).toContain('Invite your operator');
+    expect(plain.kind === 'step' && plain.pathDefault).toBeUndefined();
+    const unknown = stepVM(p, row, 1, learner, st.now, { intake: { missing: 'Yes' } });
+    expect(unknown.kind === 'step' && unknown.layouts?.claude?.items.map((item) => item.title)).toContain('Invite your operator');
+  });
+
   it('a locked week or a step that isn’t there goes to the week', () => {
     expect(stepVM(st.payload, rows[2], 1, learner, st.now)).toEqual({ kind: 'missing', href: '/learn/week/2' });
     expect(stepVM(st.payload, rows[0], 99, learner, st.now)).toEqual({ kind: 'missing', href: '/learn/week/0' });

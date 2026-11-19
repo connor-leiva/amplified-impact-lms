@@ -24,12 +24,20 @@ export function weekHasCheck(steps: readonly { paths?: { claude?: { blocks: Path
 export const titleWords = (title: string): number => title.trim().split(/\s+/).filter(Boolean).length;
 
 /**
- * Whether a stored condition hides or collapses the item. Always false until personalization ships,
- * so every item stays visible and open.
+ * D-198: a stored condition against the team's intake. No intake, or a field the intake does not
+ * have, does nothing. `both` also matches "I'm both".
  */
-export const conditionMet = (_cond: { field: string; equals: string } | undefined): boolean => false;
+export function conditionMet(cond: { field: string; equals: string } | undefined, answers?: Readonly<Record<string, string | string[]>>): boolean {
+  if (!cond || !answers || !(cond.field in answers)) return false;
+  const value = answers[cond.field];
+  if (typeof value !== 'string') return false;
+  const want = cond.equals.trim().toLowerCase();
+  const got = value.trim().toLowerCase();
+  if (want === 'both') return got === 'both' || got === "i'm both";
+  return got === want;
+}
 
-export const checkVisible = (b: CheckBlock): boolean => !conditionMet(b.hideIf);
+export const checkVisible = (b: CheckBlock, answers?: Readonly<Record<string, string | string[]>>): boolean => !conditionMet(b.hideIf, answers);
 
 /** `step:6:s6-google` is another step's item. Anything else is an id on this step. */
 export function parseDepend(raw: string): { cross: false; itemId: string } | { cross: true; stepN: number; itemId: string } | null {
@@ -150,22 +158,22 @@ export interface CheckCounts {
  * The progress bar. A path with a sub-check item counts that item's tasks (the first such item).
  * Otherwise it counts visible checklist items. Hidden items are out; optional items stay in the count.
  */
-export function progressCounts(blocks: readonly PathBlock[], checked: (itemId: string) => boolean): CheckCounts {
-  const items = blocks.filter(isCheck).filter(checkVisible);
+export function progressCounts(blocks: readonly PathBlock[], checked: (itemId: string) => boolean, answers?: Readonly<Record<string, string | string[]>>): CheckCounts {
+  const items = blocks.filter(isCheck).filter((b) => checkVisible(b, answers));
   const tasks = items.find((b) => (b.subchecks?.length ?? 0) > 0);
   if (tasks) {
     const subs = tasks.subchecks ?? [];
     return { done: subs.filter((s) => checked(`${tasks.id}:${s.id}`)).length, total: subs.length, tasks: true };
   }
-  return { done: items.filter((b) => itemChecked(b, checked)).length, total: items.length, tasks: false };
+  return { done: items.filter((b) => conditionMet(b.collapseIf, answers) || itemChecked(b, checked)).length, total: items.length, tasks: false };
 }
 
 /**
  * How many visible, non-optional items are still unchecked. A waiting item counts once it is checked.
  * Auto items count the same way until video progress checks them. Staff preview does not use this.
  */
-export function gateRemaining(blocks: readonly PathBlock[], checked: (itemId: string) => boolean): number {
-  return blocks.filter(isCheck).filter(checkVisible).filter((b) => !b.optional && !itemChecked(b, checked)).length;
+export function gateRemaining(blocks: readonly PathBlock[], checked: (itemId: string) => boolean, answers?: Readonly<Record<string, string | string[]>>): number {
+  return blocks.filter(isCheck).filter((b) => checkVisible(b, answers)).filter((b) => !b.optional && !conditionMet(b.collapseIf, answers) && !itemChecked(b, checked)).length;
 }
 
 export interface CheckGroup {

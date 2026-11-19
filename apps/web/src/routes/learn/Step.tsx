@@ -3,14 +3,16 @@
 // the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
+import { acceleratorModuleId } from '@ai/core/accelerator';
 import { localToggle, localWatch } from '@ai/core/checklist';
+import { mayEditIntake } from '@ai/core/intake';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
-import { repo } from '../../data/boot';
+import { isFixture, repo } from '../../data/boot';
 import { useMutate } from '../../data/hooks';
 import { useLearn } from './data';
 import { weekRows } from './learn.vm';
@@ -66,7 +68,14 @@ function withGlossary(vm: StepVM, page: ReactNode) {
 function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } }) {
   useTabTitle(more.title);
   const mutate = useMutate();
-  const [platform, setPlatform] = useState<Platform>(vm.tabs[0] ?? 'claude');
+  const [picked, setPicked] = useState<Platform | null>(null);
+  const preferred = vm.pathDefault && vm.tabs.includes(vm.pathDefault) ? vm.pathDefault : (vm.tabs[0] ?? 'claude');
+  const platform = picked ?? preferred;
+  const choose = (next: Platform) => {
+    setPicked(next);
+    if (local || isFixture || vm.mark.disabled) return;
+    void mutate('setPref', { key: 'path', value: next });
+  };
   const on = vm.tabs.includes(platform) ? platform : (vm.tabs[0] ?? 'claude');
   const blocks = vm.paths[on] ?? [];
   const forStep = asideRows(vm.aside, vm.tabs.length ? on : null);
@@ -104,7 +113,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
           <div className={s.col} style={{ gap: 20 }}>
             <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
             {layout ? (
-              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} onLocalToggle={local?.toggle} startHere={vm.startHere} />
+              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={choose} onPlay={playAt} watch={watch} onLocalToggle={local?.toggle} startHere={vm.startHere} />
             ) : (
               <>
                 <div className={s.pht} style={{ gap: 8 }}>
@@ -117,7 +126,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                 <section className={`${s.cd} ${s.hero} ${s.heroBlock}`} aria-labelledby="lv-do-t">
                   <div className={s.cdh} style={{ flexWrap: 'wrap', rowGap: 10 }}>
                     <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>{STEP.doThis}</h2>
-                    {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
+                    {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={choose} /> : null}
                   </div>
                   {blocks.length ? <Blocks key={on} blocks={blocks} marks={vm.pathMarks?.[on]} /> : <div className={s.blk}><p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p></div>}
                   <div className={s.actb}>
@@ -211,7 +220,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
               <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>
                 {STEP.doThis}
               </h2>
-              {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
+              {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={choose} /> : null}
             </div>
             {blocks.length ? (
               <Blocks key={on} blocks={blocks} watch={watch} marks={vm.pathMarks?.[on]} />
@@ -303,6 +312,43 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     setDraft(null);
   }
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
+  const [intake, setIntake] = useState<Readonly<Record<string, string | string[]>> | undefined>();
+  const [operator, setOperator] = useState<{ name: string; byStep: Record<string, { done: number; total: number }> } | undefined>();
+  useEffect(() => {
+    if (isFixture || staff || preview || week === null || !me || !mayEditIntake(me.role)) return;
+    let stop = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/intake', { credentials: 'include' });
+        if (!res.ok) return;
+        const body = (await res.json()) as { answers?: Record<string, string | string[]>; preview?: boolean };
+        if (!stop && body.answers && !body.preview) setIntake(body.answers);
+      } catch {
+        /* no intake leaves every item where the course put it */
+      }
+      if (me.role !== 'Team Owner') return;
+      try {
+        const res = await fetch('/api/personalize', { credentials: 'include' });
+        if (!res.ok) return;
+        const body = (await res.json()) as { name?: string | null; steps?: { moduleId: string; stepId: string; done: number; total: number }[] };
+        if (stop || !body.name) return;
+        const byStep: Record<string, { done: number; total: number }> = {};
+        const moduleId = acceleratorModuleId(week);
+        for (const row of body.steps ?? []) {
+          if (row.moduleId !== moduleId) continue;
+          byStep[row.stepId] = { done: row.done, total: row.total };
+        }
+        setOperator({ name: body.name, byStep });
+      } catch {
+        /* the count stays off when it cannot be read */
+      }
+    };
+    void load();
+    if (week === 0) void fetch('/api/personalize', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: '{}' }).catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [staff, preview, week, me]);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
@@ -311,6 +357,8 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     checks: staff ? (draft?.checks ?? []) : me?.checks,
     prefs: me?.coursePrefs,
     videoProgress: staff ? (draft?.video ?? []) : me?.videoProgress,
+    ...(intake ? { intake } : {}),
+    ...(operator ? { operator } : {}),
   });
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const local = staff
