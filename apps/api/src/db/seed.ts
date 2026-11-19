@@ -45,6 +45,8 @@ import type { Db } from '@ai/core';
 import { ensureCurriculum, seedProduction } from '@ai/core/seed/curriculum';
 import { applyDataMigrations } from './data-migrations';
 import type { DataMigrationReport } from './data-migrations';
+import { seedTestMember, seedTestMemberLine } from './seed-test-member';
+import type { SeedTestMemberOutcome } from './seed-test-member';
 import type { ProductionSeedOptions } from '@ai/core/seed/curriculum';
 import { close, databaseNameOf, getDb, readDatabaseUrl } from './client';
 import type { Database } from './client';
@@ -428,6 +430,8 @@ export interface SeedDeps {
   curriculum: (db: Database, opts: CurriculumOptions) => Promise<number>;
   /** D-175: the one-time data steps, run after ensure on every deploy (each runs once). */
   dataMigrations: (db: Database) => Promise<DataMigrationReport[]>;
+  /** D-200: one learner, when the test-member variables are set. Unset, it writes nothing. */
+  seedTestMember: (db: Database) => Promise<SeedTestMemberOutcome>;
   owner: (db: Database, opts: { owner: { name: string; email: string } }) => Promise<number>;
   ownerEnsure: (db: Database) => Promise<OwnerEnsureOutcome>;
   close: () => Promise<void>;
@@ -441,6 +445,7 @@ const REAL: SeedDeps = {
   launch: (db, opts) => seedForLaunch(db, opts),
   curriculum: (db, opts) => applyCurriculum(db, opts),
   dataMigrations: (db) => applyDataMigrations(db, Date.now()),
+  seedTestMember: (db) => seedTestMember(db),
   owner: (db, opts) => addOwner(db, opts),
   ownerEnsure: (db) => ensureOwner(db),
   close,
@@ -465,6 +470,10 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
         deps.write(`Ran ${r.id}: ${r.describe}. ${r.changed} rows changed.\n`);
         for (const sk of r.skipped) deps.write(`  Left as it is: ${sk.id} (${sk.reason}). Finish it in the builder.\n`);
       }
+      // D-200: the same command, every deploy. Unset variables write nothing and log nothing, so a
+      // deploy before the variables exist is unchanged. The line never carries the address or the password.
+      const memberLine = seedTestMemberLine(await deps.seedTestMember(db));
+      if (memberLine) deps.write(memberLine);
       return;
     }
     if (parsed.mode === 'owner') {

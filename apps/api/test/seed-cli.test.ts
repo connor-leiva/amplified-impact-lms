@@ -17,9 +17,9 @@ import type { Database } from '../src/db/client';
 
 /** Substituted collaborators. No connection is opened and no row is written. */
 function fakeDeps(): SeedDeps & {
-  calls: { live: number; launch: unknown[]; curriculum: unknown[]; owner: unknown[]; ownerEnsure: number; closed: number; named: number; out: string[] };
+  calls: { live: number; launch: unknown[]; curriculum: unknown[]; owner: unknown[]; ownerEnsure: number; seedTestMember: number; closed: number; named: number; out: string[] };
 } {
-  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], owner: [] as unknown[], ownerEnsure: 0, closed: 0, named: 0, out: [] as string[] };
+  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], owner: [] as unknown[], ownerEnsure: 0, seedTestMember: 0, closed: 0, named: 0, out: [] as string[] };
   return {
     calls,
     db: () => ({}) as Database,
@@ -37,6 +37,11 @@ function fakeDeps(): SeedDeps & {
     },
     // D-175: the one-time data steps; none pending in these tests unless one says otherwise.
     dataMigrations: async () => [],
+    // D-200: unset, unless a test says the variables are set.
+    seedTestMember: async () => {
+      calls.seedTestMember += 1;
+      return { status: 'absent' };
+    },
     owner: async (_db, opts) => {
       calls.owner.push(opts);
       return 2;
@@ -256,6 +261,29 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(out).toContain('Ran 2026-11-17-release-plan: the release plan. 8 rows changed.');
     expect(out).toContain('Left as it is: accelerator-week-3 (its status or opening was changed in the builder (draft)). Finish it in the builder.');
     expect(deps.calls.closed).toBe(1);
+    expect(deps.calls.seedTestMember).toBe(1);
+  });
+
+  it('runs the test member after the data steps, and logs its line only when there is one (D-200) @g9', async () => {
+    const quiet = fakeDeps();
+    await runSeed(['--curriculum', '--if-missing'], quiet);
+    expect(quiet.calls.seedTestMember).toBe(1);
+    expect(quiet.calls.out.join('')).not.toContain('Test member');
+
+    const skipped = fakeDeps();
+    skipped.seedTestMember = async () => {
+      skipped.calls.seedTestMember += 1;
+      return { status: 'skipped', reason: 'exists' };
+    };
+    await runSeed(['--curriculum', '--if-missing'], skipped);
+    const line = skipped.calls.out.at(-1) ?? '';
+    expect(line).toContain('Test member: skipped');
+    expect(line).toContain('already exists');
+    expect(line).not.toMatch(/@|password/i);
+
+    const owner = fakeDeps();
+    await runSeed(['--owner-ensure'], owner);
+    expect(owner.calls.seedTestMember).toBe(0);
   });
 
   it('the deploy runs, after the migrations, the curriculum if missing and the Library upload, and nothing that seeds learners @g9', async () => {

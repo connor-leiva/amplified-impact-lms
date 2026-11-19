@@ -89,8 +89,12 @@ export function redactAuditPayload(value: unknown): unknown {
   return clean;
 }
 
-/** Who acted: a staff member (with their role at the time), or the system itself. */
-export type AuditActor = { source: 'staff'; userId: string; role: string | null } | { source: 'system' };
+/**
+ * Who acted: a staff member (with their role at the time), or the system itself. A system actor may
+ * name which step it was (`role`), which `actor_source` cannot hold: that column is only `staff` or
+ * `system`.
+ */
+export type AuditActor = { source: 'staff'; userId: string; role: string | null } | { source: 'system'; role?: string | null };
 
 export interface AuditInput {
   /**
@@ -145,7 +149,7 @@ export async function audit(req: FastifyRequest | null, input: AuditInput, db: A
       ...(input.id !== undefined ? { id: input.id } : {}),
       at: clock.now(),
       actorUserId: input.actor.source === 'staff' ? input.actor.userId : null,
-      actorRole: input.actor.source === 'staff' ? input.actor.role : null,
+      actorRole: input.actor.role ?? null,
       actorSource: input.actor.source,
       masqueradeSessionId: input.masqueradeSessionId ?? null,
       action: input.action,

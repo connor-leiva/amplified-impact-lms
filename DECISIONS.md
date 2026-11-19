@@ -6647,3 +6647,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **No new table.** Path and the overlay use the existing `learner_prefs` table. `0030_team_stack_card` stays the last migration.
 
 **Blast radius.** With no intake, items, callouts and the path tab stay as they were, so the parity fixture does not move. The overlay is off in fixture mode. Utah Life and the non-course screens are unchanged. Nothing is sent outside the portal.
+
+---
+
+## D-200 · One test learner, created on deploy when its variables are set
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, Nov 19, 2026: one real member account in production, so he can see exactly what agents see. The address has no inbox, so nothing may email it. No UI.
+**Number:** D-199 is the Week 0 personalization. D-200 was free.
+
+- **Where it runs.** `db:curriculum:ensure`, the pre-deploy step that already runs on every deploy, after the one-time data steps. It is not a `data_migrations` row: those record themselves the first time they run, and an unset variable on that first deploy would mean the account was never created. Unset, this step writes nothing and stays able to run later. The pre-deploy command string does not change, so a redeploy after the variables are set on the web service is what runs it. A restart of the current deployment does not.
+- **What it writes, once.** A learner, made by `createGroupMember` (the insert `provisionGroupMember` already uses: Agent tier, owner of a team of one, not staff), then `recordVerified`, then `finishPasswordSet` (the set-password route's own hash and the move from invited to active). No staff row, no email, no GoHighLevel sync, no Stripe call, no order, no plan, no payment. Utah Life is the domain grant that verified address already gets. The name defaults to "Connor Test".
+- **A second run writes nothing.** An address that already has a user is left as it is, including its password, and the deploy log says the step was skipped. The log never contains the address or the password. One audit row (`user.seed`) records the address and the actor `system:seed-test-member` (`actor_source` stays `system`, which is all that column allows). Remove the variables after the account exists.
+- **Not changed.** No migration, no screen, no golden, no tolerance, no mask.
+
+**Blast radius.** With the variables unset, a deploy writes what it wrote before. A verified member of an access-group domain is created by the same functions as before.

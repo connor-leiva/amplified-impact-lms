@@ -25,6 +25,7 @@ import { eq, sql } from 'drizzle-orm';
 import { provisionOwner } from '@ai/core';
 import type { Database } from '../db/client';
 import { loadDb, persistDiff } from '../db/io';
+import type { Queryable } from '../db/io';
 import { accessGroupMembers, accessGroups, emailVerifications } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import type { PlanAccess } from './access';
@@ -121,20 +122,31 @@ export async function groupAccessOf(db: Database, email: string, now: number): P
 
 const lock = (tx: { execute: Database['execute'] }) => tx.execute(sql`select pg_advisory_xact_lock(42)`);
 
+/** A transaction the group-member insert can run inside. The pool's own transaction is one. */
+type GroupWriter = Queryable & { execute: Database['execute'] };
+
+/**
+ * The account a group member gets, written on the caller's transaction: the owner of a team of one,
+ * Agent tier, in cohort one, `invited` until they sign in (`provisionOwner`, the same call
+ * `provisionGroupMember` makes). No account, order or plan row, and no email. `name` empty is how a
+ * self-serve sign-up is stored: the address stands in until they have another. Returns the user id,
+ * or null when core refuses (a staff address, or someone already on another owner's team).
+ */
+export async function createGroupMember(tx: GroupWriter, email: string, now: number, name = ''): Promise<string | null> {
+  const address = normalizeAddress(email);
+  await lock(tx);
+  const before = await loadDb(tx);
+  const owner = provisionOwner(before, { email: address, name, teamName: '', seats: 1, tier: 'agent', cohortId: COHORT_ONE.id }, { now, id: randomIds() });
+  if (!owner.ok) return null;
+  if (owner.db !== before) await persistDiff(tx, before, owner.db);
+  return owner.userId;
+}
+
 /**
  * An account for a group member who has none, made the way an Agent Plan buyer's is (`provisionOrder`):
- * the owner of a team of one, Agent tier, in cohort one, `invited` until they sign in. No account,
- * order or plan row, and no email. Under the same lock as every mutation. Returns the user id, or null
- * when core refuses (a staff address, or someone already on another owner's team).
+ * `createGroupMember` under the same lock as every mutation. Returns the user id, or null when core
+ * refuses (a staff address, or someone already on another owner's team).
  */
-export async function provisionGroupMember(db: Database, email: string, now: number): Promise<string | null> {
-  const address = normalizeAddress(email);
-  return db.transaction(async (tx) => {
-    await lock(tx);
-    const before = await loadDb(tx);
-    const owner = provisionOwner(before, { email: address, name: '', teamName: '', seats: 1, tier: 'agent', cohortId: COHORT_ONE.id }, { now, id: randomIds() });
-    if (!owner.ok) return null;
-    if (owner.db !== before) await persistDiff(tx, before, owner.db);
-    return owner.userId;
-  });
+export async function provisionGroupMember(db: Database, email: string, now: number, name = ''): Promise<string | null> {
+  return db.transaction(async (tx) => createGroupMember(tx, email, now, name));
 }
