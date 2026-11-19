@@ -108,6 +108,13 @@
   }
 }
 
+.hl {
+  background: color-mix(in oklch, var(--r2-mint) 22%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tip,
   .term,

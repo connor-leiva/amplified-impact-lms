@@ -101,6 +101,20 @@
 .s2 {
   color: var(--r2-f2);
 }
+/* A styled paragraph. Unset, it keeps the sentence it always had. A phone never goes under 16px. */
+.rt {
+  font-size: var(--rt-size, inherit);
+}
+.rt[data-font='sans'] { font-family: var(--r2-font); }
+.rt[data-font='mono'] { font-family: var(--r2-font-mono); }
+.rt[data-color='ink'] { color: var(--r2-ink); }
+.rt[data-color='muted'] { color: color-mix(in srgb, var(--r2-ink) 68%, transparent); }
+.rt[data-color='forest'] { color: var(--r2-for); }
+.rt[data-color='energy'] { color: var(--r2-energy); }
+.rt[data-color='mint'] { color: var(--r2-mint); }
+@media (max-width: 767px) {
+  .rt { font-size: max(16px, var(--rt-size, 16px)); }
+}
 .me {
   font-size: var(--r2-m);
   line-height: var(--r2-ml);

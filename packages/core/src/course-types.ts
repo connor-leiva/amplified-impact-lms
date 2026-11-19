@@ -8,6 +8,7 @@
 // the `CourseContent` the course page renders.
 
 import type { IconName } from './icons';
+import type { TextLook } from './text-look';
 import type { Step } from './types';
 
 export type SkillRole = 'flagship' | 'supporting' | 'optional' | 'pilot' | 'alternative';
@@ -83,7 +84,7 @@ export interface Homework {
 
 /** A paragraph, a copy-to-clipboard block, a list or a table: the pieces a step or a sample output is made of. */
 export type ContentBlock =
-  | { type: 'text'; text: string }
+  | { type: 'text'; text: string; look?: TextLook }
   | { type: 'copy'; label?: string; text: string }
   | { type: 'list'; items: string[] }
   | { type: 'table'; head?: string[]; rows: string[][] };

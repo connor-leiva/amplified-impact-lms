@@ -89,8 +89,14 @@ const homework = z.strictObject({
   acceptance: z.array(z.string()),
   useEvidence: z.string(),
 });
+const textLook = z.strictObject({
+  color: z.union([z.enum(['ink', 'muted', 'forest', 'energy', 'mint']), z.string().regex(/^#[0-9a-fA-F]{6}$/)]).optional(),
+  font: z.enum(['sans', 'mono']).optional(),
+  size: z.union([z.literal(16), z.literal(18), z.literal(20), z.literal(25), z.literal(31)]).optional(),
+  highlight: z.array(z.strictObject({ start: z.number().int().min(0), end: z.number().int().min(0) })).max(40).optional(),
+});
 const contentBlock = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('text'), text: z.string() }),
+  z.strictObject({ type: z.literal('text'), text: z.string(), look: textLook.optional() }),
   z.strictObject({ type: z.literal('copy'), label: z.string().optional(), text: z.string() }),
   z.strictObject({ type: z.literal('list'), items: z.array(z.string()) }),
   z.strictObject({ type: z.literal('table'), head: z.array(z.string()).optional(), rows: z.array(z.array(z.string())) }),

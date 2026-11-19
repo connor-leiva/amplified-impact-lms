@@ -6,6 +6,8 @@ import { createContext, useContext, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { GlossaryTerm } from '@ai/core/course-types';
 import type { GlossarySpan } from '@ai/core/glossary';
+import { textRuns } from '@ai/core/text-look';
+import type { TextRange } from '@ai/core/text-look';
 import { Icon } from '../../components/Icon';
 import { useDialog } from '../../components/r2/Modal';
 import d from '../../components/r2/Drawer.module.css';
@@ -64,18 +66,19 @@ function TermMark({ text, id }: { text: string; id: string }) {
   );
 }
 
-/** A string, with its first-use terms underlined. No spans: the text, unchanged. */
-export function Marked({ text, spans }: { text: string; spans?: readonly GlossarySpan[] }) {
-  if (!spans?.some((span) => span.kind === 'term')) return text;
+/** A string, with its first-use terms underlined and any highlight washed. No spans and no highlight: the text, unchanged. */
+export function Marked({ text, spans, highlights }: { text: string; spans?: readonly GlossarySpan[]; highlights?: readonly TextRange[] }) {
+  if (!spans?.some((span) => span.kind === 'term') && !highlights?.length) return text;
   return (
     <>
-      {spans.map((span, i) =>
-        span.kind === 'term' ? (
-          <TermMark key={`${span.id}:${i}`} text={span.text} id={span.id} />
+      {textRuns(text, spans, highlights).map((run, i) => {
+        const body = run.termId ? <TermMark text={run.text} id={run.termId} /> : run.text;
+        return run.highlight ? (
+          <mark key={i} className={s.hl}>{body}</mark>
         ) : (
-          <span key={i}>{span.text}</span>
-        ),
-      )}
+          <span key={i}>{body}</span>
+        );
+      })}
     </>
   );
 }

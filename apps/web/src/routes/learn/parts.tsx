@@ -3,7 +3,9 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { IconName } from '@ai/core';
 import type { PathBlock } from '@ai/core/course-types';
+import { isTextColor } from '@ai/core/text-look';
 import type { GlossarySpan } from '@ai/core/glossary';
+import type { TextLook } from '@ai/core/text-look';
 import type { IcsEvent } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
@@ -256,6 +258,22 @@ export function columnTemplate(head: readonly string[] | undefined, rows: readon
   return widths.map((w) => `minmax(${floor}, ${w}fr)`).join(' ');
 }
 
+/** A paragraph, styled the same in the builder preview and on the learner page. No look: the sentence as it was. */
+export function TextParagraph({ text, spans, look }: { text: string; spans?: readonly GlossarySpan[]; look?: TextLook }) {
+  if (!look) return <p className={`${s.p} ${s.s2}`}><Marked text={text} spans={spans} /></p>;
+  const brand = look.color && isTextColor(look.color) ? look.color : undefined;
+  const custom = look.color && !brand ? look.color : undefined;
+  const style: CSSProperties = {
+    ...(look.size ? { ['--rt-size' as string]: `${look.size}px` } : {}),
+    ...(custom ? { color: custom } : {}),
+  };
+  return (
+    <p className={`${s.p} ${s.rt} ${brand || custom ? '' : s.s2}`} data-font={look.font} data-color={brand} style={style}>
+      <Marked text={text} spans={spans} highlights={look.highlight} />
+    </p>
+  );
+}
+
 /**
  * A step's path, block by block: a list's items as numbered steps, a paragraph, a copy block with its
  * button, a table (its first column as the row's name, as the mockup's "where it goes" table), and
@@ -289,7 +307,7 @@ export function Blocks({ blocks, watch, marks }: { blocks: PathBlock[]; watch?: 
         if (b.type === 'text')
           return (
             <div key={i} className={s.blk}>
-              <p className={`${s.p} ${s.s2}`}><Marked text={b.text} spans={marks?.[i]} /></p>
+              <TextParagraph text={b.text} spans={marks?.[i]} look={b.look} />
             </div>
           );
         if (b.type === 'copy')

@@ -29,6 +29,7 @@ import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
 import { LearnerWeekPreview } from '../learn/Preview';
 import { IntakeCard } from './IntakeCard';
+import { TextBlock } from './TextBlock';
 import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
@@ -236,7 +237,7 @@ export function Blocks({
               Remove
             </Button>
           </div>
-          {b.type === 'text' ? <Para label={`Block ${i + 1}`} value={b.text} onChange={(text) => set(i, { ...b, text })} /> : null}
+          {b.type === 'text' ? <TextBlock label={`${label} block ${i + 1}`} block={b} onChange={(next) => set(i, next)} /> : null}
           {b.type === 'copy' ? (
             <>
               <Line label={`Block ${i + 1} label`} value={b.label ?? ''} hint="Optional, like Prompt" onChange={(v) => set(i, v ? { ...b, label: v } : { type: 'copy', text: b.text })} />

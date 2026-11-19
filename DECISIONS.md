@@ -6792,3 +6792,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Halo.** A checkbox hover sets the box border to forest and `box-shadow: 0 0 0 4px` of forest at 6%.
 - **Reduced motion.** The ring is not drawn. Hover does not lift or move the arrow. The colour change and the drawn check remain.
 - **Not changed.** The footer stays Mark step done beside the forest next card. No course copy, schema, or golden change.
+
+---
+
+## D-209 · Rich text on a step paragraph
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: piece 5, rich text in the Week Builder.
+**Number:** D-208 is the completion motion. D-209 was free.
+
+- **Stored on the block.** A text block may carry `look`: a brand color or a custom `#rrggbb`, Geist or Geist Mono, a size (16, 18, 20, 25 or 31), and highlight ranges in the plain text. Absent, the paragraph is the one it was.
+- **One renderer.** The builder’s live preview and the learner page draw `TextParagraph`. A phone floors the size at 16px. Glossary terms keep their offsets, including inside a highlight.
+- **Toolbar.** Ported from the polish mockup’s builder: font and size selects, brand swatches then a custom picker, and the highlight button. The preview sits beside the field and stacks under 900px.
+- **Not a migration.** The look lives in the module’s checklist JSON. Existing blocks have no look, so they render unchanged. No golden, tolerance, or mask change.
+
