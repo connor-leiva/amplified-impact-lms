@@ -115,6 +115,17 @@ test.describe('learner parity: Utah Life keeps today’s portal', () => {
 
   test('locked skills say "Not included with Utah Life access", with no See Plans @parity:U-6', async ({ browser }) => {
     const page = await openWorld(browser, '/skill-library', { audience: 'utah' });
+    // Their skills come first. Owner skills sit at the bottom, closed, with a computed count (D-201).
+    const headings = (await page.getByRole('heading', { level: 2 }).allTextContents()).map((t) => t.replace(/\s+/g, ' ').trim());
+    const agentAt = headings.findIndex((h) => h.startsWith('Agent Skills'));
+    const ownerAt = headings.findIndex((h) => h.startsWith('Owner and Operations Skills'));
+    expect(agentAt).toBeGreaterThanOrEqual(0);
+    expect(ownerAt).toBeGreaterThan(agentAt);
+    const toggle = page.getByRole('button', { name: /Owner and Operations Skills/ });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(toggle).toContainText(/Skills, Not Included With Utah Life Access/);
+    await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await toggle.click();
     await expect(page.getByText(`Not included with ${UTAH.name} access`).first()).toBeVisible();
     expect(learnerCopy('locked.utah_life')).toBe(`Not included with ${UTAH.name} access`);
     await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
@@ -190,7 +201,12 @@ test.describe('learner parity: every no-course plan keeps today’s portal', () 
       await expect(page.getByRole('link', { name: 'Open Team Hub' })).toHaveCount(plan.teamHub ? 1 : 0);
       await expect(page.getByRole('link', { name: 'Manage Billing' })).toHaveAttribute('href', '/api/billing/portal');
       await expect(page.getByRole('link', { name: 'Open the AI Accelerator' })).toHaveCount(0);
-      if (plan.seePlans) await expect(page.getByRole('link', { name: 'See Plans' }).first()).toBeVisible();
+      if (plan.seePlans) {
+        // An Agent Plan member's owner skills are closed until opened (D-201). A free account has no such section.
+        const toggle = page.getByRole('button', { name: /Owner and Operations Skills/ });
+        if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
+        await expect(page.getByRole('link', { name: 'See Plans' }).first()).toBeVisible();
+      }
       await page.goto(fixtureUrl('/vault', plan.as));
       await page.waitForSelector('body[data-app-ready="true"]');
       await expect(h1(page)).toHaveText('Resource & Compliance Vault');

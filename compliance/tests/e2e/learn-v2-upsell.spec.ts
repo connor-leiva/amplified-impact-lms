@@ -121,6 +121,11 @@ test.describe('learner portal v2: the Team Plan window (D-187) @g9', () => {
       // Their group's own line, and never the Team Plan's words or a button that asks. In the learner
       // portal that is the window with Close alone; with the flip's routing by course access (#172) a
       // member never reaches /learn and lands on today's Skill Library, which says the same.
+      // On the Skill Library the owner section starts closed (D-201). The line is the rows inside it.
+      const ownerToggle = page.getByRole('button', { name: /Owner and Operations Skills/ });
+      if ((await ownerToggle.count()) > 0 && (await page.getByText(UTAH_LINE).count()) > 0 && !(await page.getByText(UTAH_LINE).first().isVisible())) {
+        await ownerToggle.click();
+      }
       await expect(page.getByText(UTAH_LINE).first()).toBeVisible();
       for (const w of [W.title, W.lead, W.solo, W.ask]) await expect(page.locator('body')).not.toContainText(w);
       const dialog = page.getByRole('dialog');
