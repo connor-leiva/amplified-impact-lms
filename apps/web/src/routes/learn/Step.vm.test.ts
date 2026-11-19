@@ -2,9 +2,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone } from '@ai/core';
 import { learnerOf } from '@ai/core/learner';
+import type { PathBlock } from '@ai/core/course-types';
 import { weekRows } from './learn.vm';
 import { stepParam, stepVM } from './Step.vm';
-import { LEARNER_ID, prelaunchState } from './test/fixture';
+import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
 afterEach(() => setViewerZone(null));
@@ -104,6 +105,48 @@ describe('the step player (D-177)', () => {
     // The first tab is the default, so a caller that names no tab sees the Claude rows.
     const first = stepVM(p, row, 4, learner, st.now, { fileUrl });
     expect(first.kind === 'step' && first.forStep.map((r) => r.title)).toEqual(claude.forStep.map((r) => r.title));
+  });
+
+  it('a week without a checklist item keeps today’s view-model, key for key (D-190)', () => {
+    const live = liveState();
+    const week = weekRows(live.payload, live.db, learnerOf(live.db, LEARNER_ID)).find((r) => r.week === 1);
+    const vm = stepVM(live.payload, week, 1, learner, live.now);
+    if (vm.kind !== 'step') throw new Error('missing');
+    expect(Object.keys(vm).sort()).toEqual(
+      ['aside', 'back', 'doneWhen', 'eyebrow', 'forStep', 'help', 'hint', 'kind', 'lede', 'mark', 'meta', 'next', 'paths', 'prev', 'rail', 'railLabel', 'tabs', 'title', 'week'].sort(),
+    );
+    expect('pills' in vm).toBe(false);
+    expect('layouts' in vm).toBe(false);
+  });
+
+  it('a checklist path builds the one-step layout, the gate and a sub-check count (D-190)', () => {
+    const p = structuredClone(st.payload);
+    const week = p.course.weeks[0] as { module: { checklist: { paths?: { claude?: { blocks: PathBlock[] } } }[] } };
+    const blocks: PathBlock[] = [
+      { type: 'check', id: 's3-seven', title: 'Time seven tasks', subchecks: [{ id: 's3-t1', label: 'One' }, { id: 's3-t2', label: 'Two' }], role: 'owner' },
+      { type: 'callout', kind: 'tip', text: 'Time each one once.' },
+      { type: 'check', id: 's3-wait', title: 'Wait for the drive', dependsOn: ['step:6:s6-google'] },
+      { type: 'accordion', title: 'Why we time per occurrence', body: ['One line.'] },
+    ];
+    week.module.checklist[2]!.paths = { claude: { blocks } };
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0];
+    const vm = stepVM(p, row, 3, learner, st.now, {
+      checks: [{ moduleId: 'accelerator-week-0', stepId: 'c3', itemId: 's3-seven:s3-t1', checked: true, auto: false }],
+    });
+    if (vm.kind !== 'step') throw new Error('missing');
+    expect(vm.pills?.map((pill) => pill.status)[2]).toBe('progress');
+    const layout = vm.layouts?.claude;
+    expect(layout?.progress).toEqual({ done: 1, total: 2, label: '1 of 2 tasks timed' });
+    expect(layout?.items.map((item) => item.title)).toEqual(['Time seven tasks', 'Wait for the drive']);
+    expect(layout?.items[0]?.callouts[0]?.label).toBe('Tip');
+    expect(layout?.items[1]?.waiting).toBe(6);
+    expect(layout?.gate.reason).toBe('Check off 2 more to mark this step done.');
+    expect(layout?.accordions[0]?.open).toBe(false);
+    expect(layout?.countdown).toMatch(/MT/);
+    const open = stepVM(p, row, 3, learner, st.now, { prefs: [{ key: 'acc:accelerator-week-0:c3:0', value: '1', updatedAt: st.now }] });
+    expect(open.kind === 'step' && open.layouts?.claude?.accordions[0]?.open).toBe(true);
+    const staff = stepVM(p, row, 3, { kind: 'staff', staffId: 's1' }, st.now);
+    expect(staff.kind === 'step' && staff.layouts?.claude?.gate).toEqual({ locked: false, reason: null });
   });
 
   it('a locked week or a step that isn’t there goes to the week', () => {

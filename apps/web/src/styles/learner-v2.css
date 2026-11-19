@@ -64,6 +64,9 @@
   --r2-mint: var(--action-on-primary);
   --r2-tint: var(--action-primary-tint);
   --r2-on-for: var(--action-on-primary);
+  /* D-190: the check fill in the dark theme is the primary, whose ink already clears contrast. */
+  --r2-energy: var(--action-primary);
+  --r2-on-energy: var(--action-on-primary);
   /* Status sets: text, soft background and line */
   --r2-ok: var(--status-success-text);
   --r2-okb: var(--status-success-bg);

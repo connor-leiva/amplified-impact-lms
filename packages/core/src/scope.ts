@@ -121,19 +121,24 @@ const redactResource = (r: Resource): Resource => {
  *
  * Email is the one field role-gated within the team, per § 7.4.
  */
-const redactTeammate = (u: Learner, showEmail: boolean): Learner => ({
-  ...u,
-  email: showEmail ? u.email : '',
+const redactTeammate = (u: Learner, showEmail: boolean): Learner => {
+  // D-190: checklist boxes and accordion memory are the viewer's own. Teammates keep build progress
+  // (Team Hub) and lose these. The keys stay absent, as they are on every learner who has none.
+  const { checks: _checks, coursePrefs: _prefs, ...rest } = u;
+  return {
+    ...rest,
+    email: showEmail ? u.email : '',
   // Build state yes, run output no. Team Hub reads `steps`, `builtAt`, `deployedAt` and `runtime`
   // through buildOf/statusOf/runtimeOf; nothing on that screen shows `lastRun`, which is the text an
   // AI Employee produced from this person's own data. It stays with them.
   progress: Object.fromEntries(
     Object.entries(u.progress).map(([id, p]) => {
-      const { lastRun: _lastRun, ...rest } = p;
-      return [id, rest];
+      const { lastRun: _lastRun, ...kept } = p;
+      return [id, kept];
     }),
   ),
-});
+  };
+};
 
 /** Only a Team Owner or an Operations Lead sees the rest of the roster's email addresses. */
 const seesTeamEmails = (me: Learner): boolean => me.role === 'Team Owner' || me.role === 'Operations Lead';

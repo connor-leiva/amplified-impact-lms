@@ -88,6 +88,76 @@ export type ContentBlock =
   | { type: 'list'; items: string[] }
   | { type: 'table'; head?: string[]; rows: string[][] };
 
+// --- D-190: a checklist step (Week 0 v2). Editable in the builder; nothing here is course copy. ------
+
+/** Who a checklist item is for. Empty means no role tag. The words Owner, Operator and Each of you are chrome. */
+export type CheckRole = 'owner' | 'operator' | 'each' | '';
+
+/**
+ * A condition the builder can store now. Personalization (hide and collapse) is evaluated in a later
+ * change; until then every condition is false.
+ */
+export interface CheckCond {
+  field: string;
+  equals: string;
+}
+
+/** What a checklist item's button does. `form` and `card` are stored now and drawn by a later change. */
+export type CheckAction =
+  | { type: 'download'; kitItemIds: string[] }
+  | { type: 'copy'; label: string; text: string }
+  | { type: 'invite'; label?: string }
+  | { type: 'calendar'; sessionId: string }
+  | { type: 'link'; label: string; href: string }
+  | { type: 'form'; formId: 'intake' | 'stack-card'; label: string }
+  | { type: 'card'; terms: string[] };
+
+/** One line under a checklist item that has sub-checks (step 3's tasks). The item is checked when all are. */
+export interface CheckSub {
+  id: string;
+  label: string;
+}
+
+/**
+ * One checklist item. `id` is unique on the step and is never a number: nothing refers to an item by
+ * its place in the list (B1). `dependsOn` may name another item on this step, or `step:N:item-id`.
+ */
+export interface CheckBlock {
+  type: 'check';
+  id: string;
+  title: string;
+  detail?: string;
+  role?: CheckRole;
+  action?: CheckAction;
+  clickPath?: string[];
+  /** Seconds into the step's video. */
+  playAt?: { t: number };
+  dependsOn?: string[];
+  hideIf?: CheckCond;
+  collapseIf?: CheckCond;
+  collapsedNote?: string;
+  optional?: boolean;
+  /** Stored for a later change that checks the item when the video reaches this percent. Until then it is a normal checkbox. */
+  auto?: { video: true; at: number };
+  subchecks?: CheckSub[];
+}
+
+/** A note anchored to the checklist item above it. `kind` picks the label: Tip, Heads up, Doing it yourself? */
+export interface CalloutBlock {
+  type: 'callout';
+  kind: 'tip' | 'heads_up' | 'diy';
+  text: string;
+}
+
+/** A reference row, closed until the learner opens it. The open state is remembered per learner. */
+export interface AccordionBlock {
+  type: 'accordion';
+  title: string;
+  body: string[];
+  table?: { head?: string[]; rows: string[][] };
+  link?: { label: string; href: string };
+}
+
 // --- D-188: a video, in a step's paths and in a week's Media ----------------------------------------
 
 /** A video file staff uploaded to the bucket: its key (minted by `POST /api/files/upload-url`), name, size and type. */
@@ -114,8 +184,8 @@ export interface VideoBlock {
   title?: string;
 }
 
-/** What a step's path is made of: the content blocks, and (D-188) a video. */
-export type PathBlock = ContentBlock | VideoBlock;
+/** What a step's path is made of: the content blocks, (D-188) a video, and (D-190) checklist, callout and accordion blocks. */
+export type PathBlock = ContentBlock | VideoBlock | CheckBlock | CalloutBlock | AccordionBlock;
 
 /** One item of a week's Media: a line of text, as before, or (D-188) a video. */
 export type MediaItem = string | VideoBlock;

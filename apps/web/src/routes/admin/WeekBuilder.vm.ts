@@ -5,7 +5,7 @@
 // An AI Employee (no `kind`) never reaches these: the builder draws exactly what the R2 mockup draws
 // for it, so the enforced `builder` cells (the demo's m1) keep their numbers.
 
-import { COURSE_TZ, changedFields, copyIssues, issueLine, moduleCopyFields, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
+import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, moduleCopyFields, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
 import type { AIEmployee, Db, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, ReplayVisibility, Session, SessionType } from '@ai/core';
 import type { ContentBlock, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
 import { courseFor, courseFromSnapshot, courseSessions } from '@ai/core/course';
@@ -55,12 +55,21 @@ export const TONE_LABELS: Readonly<Record<(typeof TONES)[number], string>> = {
   solid: 'Solid',
 };
 
-/** The block kinds a step's path or a sample output is made of, and (D-188) a video. */
-export const BLOCK_LABELS: Readonly<Record<PathBlock['type'], string>> = { text: 'Paragraph', copy: 'Copy box', list: 'List', table: 'Table', video: 'Video' };
+/** The block kinds a step's path or a sample output is made of, (D-188) a video, and (D-190) a checklist step. */
+export const BLOCK_LABELS: Readonly<Record<PathBlock['type'], string>> = {
+  text: 'Paragraph',
+  copy: 'Copy box',
+  list: 'List',
+  table: 'Table',
+  video: 'Video',
+  check: 'Checklist item',
+  callout: 'Callout',
+  accordion: 'Accordion',
+};
 
-/** A sample output's kinds (no video); a step path's (D-188: with video); the week's Media videos. */
+/** A sample output's kinds (no video); a step path's (D-188: with video, D-190: with checklist blocks); the week's Media videos. */
 export const CONTENT_KINDS: readonly ContentBlock['type'][] = ['text', 'copy', 'list', 'table'];
-export const PATH_KINDS: readonly PathBlock['type'][] = [...CONTENT_KINDS, 'video'];
+export const PATH_KINDS: readonly PathBlock['type'][] = [...CONTENT_KINDS, 'video', 'check', 'callout', 'accordion'];
 export const VIDEO_KINDS: readonly PathBlock['type'][] = ['video'];
 
 /** D-188: a video block's fields in the builder. */
@@ -162,7 +171,7 @@ export const unattached = (db: Pick<Db, 'resources'>): Resource[] => db.resource
 /** What this draft would be refused for on Save: the copy rules on every string it changed. */
 export function draftIssues(stored: AIEmployee | null, draft: AIEmployee): string[] {
   // D-188: and a video whose source isn't an uploaded mp4 or an http(s) link, as the save refuses it.
-  return [...copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(draft))).map(issueLine), ...videoIssues(draft)];
+  return [...copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(draft))).map(issueLine), ...videoIssues(draft), ...checklistIssues(draft)];
 }
 
 // --- small list edits ------------------------------------------------------------------------------
@@ -177,13 +186,48 @@ export function moveBy<T>(list: readonly T[], i: number, by: -1 | 1): T[] {
   return out;
 }
 
+/** D-190: the next checklist id that is not already on this step. Staff can edit it. Don’t reuse one you removed. */
+export function nextCheckId(taken: readonly string[]): string {
+  const used = new Set(taken);
+  let n = 1;
+  while (used.has(`item-${n}`)) n += 1;
+  return `item-${n}`;
+}
+
+export const CHECK_ROLES = [
+  ['', 'No role tag'],
+  ['owner', 'Owner'],
+  ['operator', 'Operator'],
+  ['each', 'Each of you'],
+] as const;
+
+export const CALLOUT_KINDS = [
+  ['tip', 'Tip'],
+  ['heads_up', 'Heads up'],
+  ['diy', 'Doing it yourself?'],
+] as const;
+
+export const ACTION_KINDS = [
+  ['', 'No button'],
+  ['download', 'Download'],
+  ['copy', 'Copy'],
+  ['invite', 'Invite'],
+  ['calendar', 'Add to calendar'],
+  ['link', 'Link'],
+  ['form', 'Form (later)'],
+  ['card', 'Card (later)'],
+] as const;
+
 /** A new block of a kind, empty. */
 export function newBlock(type: PathBlock['type']): PathBlock {
   if (type === 'video') return { type, source: { url: '' } };
   if (type === 'text') return { type, text: '' };
   if (type === 'copy') return { type, label: '', text: '' };
   if (type === 'list') return { type, items: [''] };
-  return { type, rows: [] };
+  if (type === 'table') return { type, rows: [] };
+  if (type === 'check') return { type, id: '', title: '' };
+  if (type === 'callout') return { type, kind: 'tip', text: '' };
+  return { type: 'accordion', title: '', body: [''] };
 }
 
 /** A table's cells as staff type them: a line per row, cells split by "|". */

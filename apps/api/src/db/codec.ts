@@ -32,7 +32,9 @@ import type {
   ActivityEvent,
   Announcement,
   Cohort,
+  ChecklistMark,
   CopyString,
+  CoursePref,
   Db,
   Learner,
   PermKey,
@@ -57,6 +59,8 @@ export type TableName =
   | 'sessions'
   | 'modules'
   | 'progress'
+  | 'checklistState'
+  | 'learnerPrefs'
   | 'resources'
   | 'announcements'
   | 'dismissals'
@@ -77,6 +81,8 @@ export const KEYS: Record<TableName, readonly string[]> = {
   sessions: ['id'],
   modules: ['id'],
   progress: ['userId', 'moduleId'],
+  checklistState: ['userId', 'moduleId', 'stepId', 'itemId'],
+  learnerPrefs: ['userId', 'key'],
   resources: ['id'],
   announcements: ['id'],
   dismissals: ['userId', 'announcementId'],
@@ -117,6 +123,16 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
   progress: [
     { by: 'userId', dir: 'asc' },
     { by: 'moduleId', dir: 'asc' },
+  ],
+  checklistState: [
+    { by: 'userId', dir: 'asc' },
+    { by: 'moduleId', dir: 'asc' },
+    { by: 'stepId', dir: 'asc' },
+    { by: 'itemId', dir: 'asc' },
+  ],
+  learnerPrefs: [
+    { by: 'userId', dir: 'asc' },
+    { by: 'key', dir: 'asc' },
   ],
   resources: [{ by: 'seq', dir: 'asc' }],
   announcements: [{ by: 'at', dir: 'desc' }],
@@ -192,6 +208,8 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'course',
   ],
   progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
+  checklistState: ['userId', 'moduleId', 'stepId', 'itemId', 'checked', 'checkedAt', 'auto'],
+  learnerPrefs: ['userId', 'key', 'value', 'updatedAt'],
   resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq', 'moduleId', 'kind', 'stepId', 'visibility', 'platform'],
   announcements: [
     'id',
@@ -402,10 +420,31 @@ const announcementRow = (a: Announcement): Row => ({
   opens: a.opens === null ? null : Math.round(a.opens * 100),
 });
 
+const checklistRow = (userId: string, c: ChecklistMark): Row => ({
+  userId,
+  moduleId: c.moduleId,
+  stepId: c.stepId,
+  itemId: c.itemId,
+  checked: c.checked,
+  checkedAt: col(c.checkedAt),
+  auto: c.auto,
+});
+
+const prefRow = (userId: string, p: CoursePref): Row => ({
+  userId,
+  key: p.key,
+  value: p.value,
+  updatedAt: p.updatedAt,
+});
+
 export function toRows(db: Db): Rows {
   const progress: Row[] = [];
+  const checklistState: Row[] = [];
+  const learnerPrefs: Row[] = [];
   for (const u of db.users) {
     for (const [moduleId, p] of Object.entries(u.progress)) progress.push(progressRow(u.id, moduleId, p));
+    for (const c of u.checks ?? []) checklistState.push(checklistRow(u.id, c));
+    for (const p of u.coursePrefs ?? []) learnerPrefs.push(prefRow(u.id, p));
   }
 
   const dismissals: Row[] = [];
@@ -428,6 +467,8 @@ export function toRows(db: Db): Rows {
     sessions: db.sessions.map(sessionRow),
     modules: db.modules.map(moduleRow),
     progress,
+    checklistState,
+    learnerPrefs,
     resources: db.resources.map(resourceRow),
     announcements: db.announcements.map(announcementRow),
     dismissals,
@@ -479,6 +520,32 @@ export function fromRows(rows: Rows): Db {
     progressByUser.set(str(r.userId), forUser);
   }
 
+  const checksByUser = new Map<string, ChecklistMark[]>();
+  for (const r of rows.checklistState) {
+    const id = str(r.userId);
+    const list = checksByUser.get(id) ?? [];
+    list.push(
+      withOptional<ChecklistMark>(
+        {
+          moduleId: str(r.moduleId),
+          stepId: str(r.stepId),
+          itemId: str(r.itemId),
+          checked: r.checked as boolean,
+          auto: r.auto as boolean,
+        },
+        { checkedAt: r.checkedAt },
+      ),
+    );
+    checksByUser.set(id, list);
+  }
+  const prefsByUser = new Map<string, CoursePref[]>();
+  for (const r of rows.learnerPrefs) {
+    const id = str(r.userId);
+    const list = prefsByUser.get(id) ?? [];
+    list.push({ key: str(r.key), value: str(r.value), updatedAt: num(r.updatedAt) });
+    prefsByUser.set(id, list);
+  }
+
   const users: Learner[] = rows.users
     .filter((r) => r.kind === 'learner')
     .map((r) =>
@@ -496,7 +563,7 @@ export function fromRows(rows: Rows): Db {
           status: r.status as Learner['status'],
           progress: progressByUser.get(str(r.id)) ?? {},
         },
-        { reminded: r.reminded, nudged: r.nudged },
+        { reminded: r.reminded, nudged: r.nudged, checks: checksByUser.get(str(r.id)), coursePrefs: prefsByUser.get(str(r.id)) },
       ),
     );
 

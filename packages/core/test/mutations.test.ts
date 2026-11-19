@@ -1701,6 +1701,8 @@ describe('determinism @g2', () => {
 const ROWS: readonly string[] = [
   'dismissAnnouncement', // 1
   'toggleStep', // 2
+  'toggleChecklistItem', // 2b
+  'setPref', // 2c
   'markDeployed', // 3
   'setRuntime', // 4
   'recordRun', // 5
@@ -1740,8 +1742,8 @@ const ROWS: readonly string[] = [
 
 describe('catalog coverage @g2', () => {
   it('the 37-row catalog is fully exported and callable @g2', () => {
-    expect(ROWS).toHaveLength(37);
-    expect(new Set(ROWS).size).toBe(37);
+    expect(ROWS).toHaveLength(39);
+    expect(new Set(ROWS).size).toBe(39);
     const mod = M as unknown as Record<string, unknown>;
     const missing = ROWS.filter((n) => typeof mod[n] !== 'function');
     expect(missing, 'mutations dropped by the port').toEqual([]);

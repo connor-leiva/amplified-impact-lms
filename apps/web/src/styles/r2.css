@@ -67,6 +67,9 @@
   /* Wordmark (the brand file's own ink and tittle) */
   --r2-wm-ink: #0a0d0c;
   --r2-wm-tittle: #1f8a5c;
+  /* D-190: the brand's energy. Text that must clear 4.5:1 uses forest instead (energy on bone is 3.8:1). */
+  --r2-energy: var(--r2-wm-tittle);
+  --r2-on-energy: var(--r2-on-for);
   /* Tables and loading: row selected, drag grip, skeleton shimmer, the funnel's "not started" key */
   --r2-row-selected: #f3f8f5;
   --r2-grip: #a9b0ab;

@@ -6,16 +6,19 @@
 // items placed on this step (D-189). The learner's progress and the step's id come from the snapshot,
 // so "Mark step done" writes through the portal's own `toggleStep`.
 
+import { fmt } from '@ai/core';
+import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
-import type { PathBlock, StepPaths } from '@ai/core/course-types';
+import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import { acceleratorModuleId } from '@ai/core/accelerator';
+import { checkVisible, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
 import type { LearnerStep } from '@ai/core/learner';
 import { inLibrary } from '../course/Course.vm';
-import type { CoursePayload } from '../course/Course.vm';
-import { LABELS, helpVM, kitRow, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
+import type { CoursePayload, CourseSession } from '../course/Course.vm';
+import { LABELS, helpVM, icsEvents, kitRow, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
 import type { HelpVM, KitRowVM, WeekRow } from './learn.vm';
-import { learnStep, learnWeek } from './routes';
+import { learnStep, learnTeam, learnWeek } from './routes';
 
 export const STEP = {
   doThis: 'Do this',
@@ -36,7 +39,40 @@ export const STEP = {
   /** D-188: a video block's name when it has no title, and the link that opens one on another site. */
   video: 'Video',
   watch: 'Watch',
+  /** D-190: the one-step layout. Chrome, not a week’s words. */
+  yourChecklist: 'Your Checklist',
+  reference: 'Reference',
+  onThisPage: 'On This Page',
+  checklist: 'Checklist',
+  stepDone: 'Step done',
+  week: 'Week',
+  nextKicker: 'Next',
+  tip: 'Tip',
+  headsUp: 'Heads up',
+  diy: 'Doing it yourself?',
+  invite: 'Invite',
+  download: 'Download',
+  downloaded: 'Downloaded',
+  playAt: 'Play at',
+  waiting: 'Waiting on Step',
+  checkAnyway: 'Check it off',
+  notNow: 'Not now',
+  show: 'Show',
+  tasksTimed: 'tasks timed',
+  checkedWord: 'checked',
+  dayLeft: 'day left',
+  daysLeft: 'days left',
+  due: 'Due',
+  moreToGo: 'more to mark this step done.',
+  checkOff: 'Check off',
+  oneMore: '1 more to mark this step done.',
+  notStarted: 'not started',
+  inProgress: 'in progress',
+  waitingStatus: 'waiting',
 } as const;
+
+const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'Operator', each: 'Each of you' };
+const CALLOUT_LABEL = { tip: STEP.tip, heads_up: STEP.headsUp, diy: STEP.diy } as const;
 
 export type Platform = 'claude' | 'chatgpt';
 export const PLATFORM_LABEL: Record<Platform, string> = { claude: 'Claude', chatgpt: 'ChatGPT' };
@@ -76,6 +112,85 @@ export interface StepVM {
   /** The same rows, so the player can swap kit items when the path tab changes. */
   aside: StepAside;
   help: HelpVM;
+  /**
+   * D-190: set only when this week has a checklist item on some step. Other weeks omit both, so the
+   * step player’s view-model stays the one it had.
+   */
+  pills?: PillVM[];
+  layouts?: Partial<Record<Platform, ChecklistLayoutVM>>;
+}
+
+export interface PillVM {
+  n: number;
+  title: string;
+  status: 'done' | 'progress' | 'waiting' | 'idle';
+  on: boolean;
+  href: string;
+  aria: string;
+}
+
+export interface CheckSubVM {
+  id: string;
+  label: string;
+  checked: boolean;
+}
+
+export interface CalloutVM {
+  kind: CalloutBlock['kind'];
+  label: string;
+  text: string;
+}
+
+export type CheckActionVM =
+  | { type: 'download'; files: { id: string; title: string; href: string | null }[] }
+  | { type: 'copy'; label: string; text: string }
+  | { type: 'invite'; label: string; href: string }
+  | { type: 'calendar'; event: IcsEvent | null }
+  | { type: 'link'; label: string; href: string };
+
+export interface CheckItemVM {
+  id: string;
+  title: string;
+  detail: string | null;
+  role: string | null;
+  checked: boolean;
+  /** The step number this item is waiting on, when a cross-step dependency is not checked yet. */
+  waiting: number | null;
+  optional: boolean;
+  clickPath: string[];
+  playLabel: string | null;
+  playSeconds: number | null;
+  action: CheckActionVM | null;
+  subchecks: CheckSubVM[];
+  callouts: CalloutVM[];
+}
+
+export interface AccordionVM {
+  index: number;
+  title: string;
+  body: string[];
+  table: { head?: string[]; rows: string[][] } | null;
+  link: { label: string; href: string } | null;
+  open: boolean;
+  prefKey: string;
+}
+
+export interface ChecklistLayoutVM {
+  eyebrow: string;
+  time: string | null;
+  role: string | null;
+  progress: { done: number; total: number; label: string };
+  countdown: string | null;
+  videos: VideoBlock[];
+  leading: CalloutVM[];
+  items: CheckItemVM[];
+  extras: ContentBlock[];
+  accordions: AccordionVM[];
+  /** Staff preview never gates. A learner who still has items left cannot mark the step done. */
+  gate: { locked: boolean; reason: string | null };
+  next: { href: string; title: string; meta: string } | null;
+  due: string | null;
+  jumps: { id: string; label: string }[];
 }
 
 /** Kit items on this step, kept with the platform the builder set, so a tab can filter them. */
@@ -88,6 +203,9 @@ export interface StepVMOptions {
   fileUrl?: (id: string) => string | null;
   /** The path tab to filter kit items by. Omit it for the step's first tab, or null when it has none. */
   tab?: Platform | null;
+  /** This learner’s checklist boxes and accordion memory. Omit them and every box is unchecked. */
+  checks?: readonly ChecklistMark[];
+  prefs?: readonly CoursePref[];
 }
 
 export type StepPageVM = StepVM | { kind: 'missing'; href: string };
@@ -166,5 +284,192 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     forStep: asideRows(aside, chosenTab(tabs, opts)),
     aside,
     help: helpVM(p, now),
+    ...checklistOf(p, r, s, actor, now, opts),
   };
+}
+
+const DAY = 86_400_000;
+
+function dueLine(dueAt: number): string {
+  return `${fmt.day(dueAt)}, ${fmt.time(dueAt)}`;
+}
+
+function countdown(dueAt: number, now: number): string {
+  const when = dueLine(dueAt);
+  const days = Math.ceil((dueAt - now) / DAY);
+  if (days <= 0) return `${STEP.due} · ${when}`;
+  if (days === 1) return `1 ${STEP.dayLeft} · ${when}`;
+  return `${days} ${STEP.daysLeft} · ${when}`;
+}
+
+function calloutVM(b: CalloutBlock): CalloutVM {
+  return { kind: b.kind, label: CALLOUT_LABEL[b.kind], text: b.text };
+}
+
+function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckActionVM | null {
+  if (!action || action.type === 'form' || action.type === 'card') return null;
+  if (action.type === 'download') {
+    const files = action.kitItemIds.flatMap((id) => {
+      const item = kit.find((k) => k.id === id);
+      return item ? [{ id, title: item.title, href: fileUrl(id) }] : [];
+    });
+    return files.length ? { type: 'download', files } : null;
+  }
+  if (action.type === 'copy') return { type: 'copy', label: action.label || STEP.copy, text: action.text };
+  if (action.type === 'invite') return { type: 'invite', label: action.label || STEP.invite, href: learnTeam() };
+  if (action.type === 'link') return { type: 'link', label: action.label, href: action.href };
+  const session = sessions.find((x) => x.id === action.sessionId);
+  return { type: 'calendar', event: session ? (icsEvents([session])[0] ?? null) : null };
+}
+
+function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckItemVM {
+  const subs = (b.subchecks ?? []).map((sub) => ({ id: sub.id, label: sub.label, checked: isOn(stepId, `${b.id}:${sub.id}`) }));
+  return {
+    id: b.id,
+    title: b.title,
+    detail: b.detail ?? null,
+    role: b.role ? (ROLE_LABEL[b.role] ?? null) : null,
+    checked: itemChecked(b, (itemId) => isOn(stepId, itemId)),
+    waiting: waiting(b),
+    optional: !!b.optional,
+    clickPath: b.clickPath ?? [],
+    playLabel: b.playAt ? `${STEP.playAt} ${fmt.clock(b.playAt.t)}` : null,
+    playSeconds: b.playAt ? b.playAt.t : null,
+    action: actionVM(b.action, kit, fileUrl, sessions),
+    subchecks: subs,
+    callouts: callouts.map(calloutVM),
+  };
+}
+
+function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayoutVM {
+  const regions = pathRegions(blocks);
+  const counts = progressCounts(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId));
+  const remaining = gateRemaining(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId));
+  const locked = !ctx.staff && !ctx.done && remaining > 0;
+  const jumps: { id: string; label: string }[] = [];
+  if (regions.videos.length) jumps.push({ id: 'step-watch', label: STEP.watch });
+  if (regions.groups.length || regions.leading.length) jumps.push({ id: 'step-checklist', label: STEP.yourChecklist });
+  if (regions.accordions.length) jumps.push({ id: 'step-reference', label: STEP.reference });
+  const tasks = counts.tasks;
+  return {
+    eyebrow: `${STEP.week} ${ctx.week} · ${LABELS.step} ${ctx.n}`,
+    time: ctx.time,
+    role: ctx.who,
+    progress: {
+      done: counts.done,
+      total: counts.total,
+      label: tasks ? `${counts.done} ${STEP.of} ${counts.total} ${STEP.tasksTimed}` : `${counts.done} ${STEP.of} ${counts.total} ${STEP.checkedWord}`,
+    },
+    countdown: tasks && ctx.dueAt !== null ? countdown(ctx.dueAt, ctx.now) : null,
+    videos: regions.videos,
+    leading: regions.leading.map(calloutVM),
+    items: regions.groups.filter((g) => checkVisible(g.item)).map((g) => itemVM(g.item, g.callouts, ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions)),
+    extras: regions.extras,
+    accordions: regions.accordions.map((b, index) => {
+      const prefKey = `acc:${ctx.moduleId}:${ctx.stepId}:${index}`;
+      return {
+        index,
+        title: b.title,
+        body: b.body,
+        table: b.table ?? null,
+        link: b.link ?? null,
+        open: ctx.prefs.some((p) => p.key === prefKey && p.value === '1'),
+        prefKey,
+      };
+    }),
+    gate: {
+      locked,
+      reason: locked ? (remaining === 1 ? `${STEP.checkOff} ${STEP.oneMore}` : `${STEP.checkOff} ${remaining} ${STEP.moreToGo}`) : null,
+    },
+    next: ctx.next,
+    due: ctx.dueAt !== null ? `${STEP.due} ${dueLine(ctx.dueAt)}` : null,
+    jumps,
+  };
+}
+
+interface LayoutCtx {
+  week: number;
+  n: number;
+  moduleId: string;
+  stepId: string;
+  time: string | null;
+  who: string | null;
+  done: boolean;
+  staff: boolean;
+  now: number;
+  dueAt: number | null;
+  isOn: (stepId: string, itemId: string) => boolean;
+  waiting: (b: CheckBlock) => number | null;
+  kit: readonly CourseKitItem[];
+  fileUrl: (id: string) => string | null;
+  sessions: readonly CourseSession[];
+  prefs: readonly CoursePref[];
+  next: { href: string; title: string; meta: string } | null;
+}
+
+/**
+ * The one-step layout, only when this week has a checklist item somewhere. A week without one gets
+ * nothing added, so the view-model matches the one the step player already had.
+ */
+function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor, now: number, opts?: StepVMOptions): { pills: PillVM[]; layouts: Partial<Record<Platform, ChecklistLayoutVM>> } | Record<string, never> {
+  if (!r.open || !weekHasCheck(r.steps.map((x) => x.step))) return {};
+  const moduleId = acceleratorModuleId(r.week);
+  const checks = opts?.checks ?? [];
+  const isOn = (stepId: string, itemId: string): boolean => checks.some((c) => c.moduleId === moduleId && c.stepId === stepId && c.itemId === itemId && c.checked);
+  const blocksOf = (step: LearnerStep): PathBlock[] => [...(step.step.paths?.claude?.blocks ?? []), ...(step.step.paths?.chatgpt?.blocks ?? [])];
+  const hasItem = (step: LearnerStep, itemId: string): boolean =>
+    blocksOf(step).some((b) => b.type === 'check' && (b.id === itemId || (b.subchecks ?? []).some((sub) => sub.id === itemId)));
+  const waitingOf = (b: CheckBlock): number | null =>
+    waitingOn(b.dependsOn, (stepN, itemId) => {
+      const other = r.steps[stepN - 1];
+      if (!other?.id || !hasItem(other, itemId)) return false;
+      return isOn(other.id, itemId);
+    });
+  const statusOf = (step: LearnerStep): PillVM['status'] => {
+    if (step.done) return 'done';
+    const items = blocksOf(step).filter((b): b is CheckBlock => b.type === 'check');
+    const touched = !!step.id && checks.some((c) => c.moduleId === moduleId && c.stepId === step.id && c.checked);
+    if (touched || items.some((b) => itemChecked(b, (itemId) => (step.id ? isOn(step.id, itemId) : false)))) return 'progress';
+    if (step.id && items.some((b) => waitingOf(b) !== null)) return 'waiting';
+    return 'idle';
+  };
+  const said: Record<PillVM['status'], string> = { done: LABELS.done.toLowerCase(), progress: STEP.inProgress, waiting: STEP.waitingStatus, idle: STEP.notStarted };
+  const pills: PillVM[] = r.steps.map((x) => ({
+    n: x.n,
+    title: stepTitle(x),
+    status: statusOf(x),
+    on: x.n === s.n,
+    href: learnStep(r.week, x.n),
+    aria: `${LABELS.step} ${x.n}, ${stepTitle(x)}, ${said[statusOf(x)]}`,
+  }));
+  const fileUrl = opts?.fileUrl ?? (() => null);
+  const nextStep = r.steps[s.n];
+  const next = nextStep
+    ? { href: learnStep(r.week, nextStep.n), title: `${LABELS.step} ${nextStep.n} · ${stepTitle(nextStep)}`, meta: [nextStep.step.who, nextStep.step.timeLabel].filter((x): x is string => !!x).join(' · ') }
+    : null;
+  const ctxBase = {
+    week: r.week,
+    n: s.n,
+    moduleId,
+    stepId: s.id ?? '',
+    time: s.step.timeLabel ?? null,
+    who: s.step.who ?? null,
+    done: s.done,
+    staff: actor.kind !== 'learner',
+    now,
+    dueAt: r.module?.dueAt ?? null,
+    isOn,
+    waiting: waitingOf,
+    kit: r.open.kit ?? [],
+    fileUrl,
+    sessions: p.sessions,
+    prefs: opts?.prefs ?? [],
+    next,
+  };
+  const layouts: Partial<Record<Platform, ChecklistLayoutVM>> = {};
+  for (const k of ORDER) {
+    const blocks = s.step.paths?.[k]?.blocks;
+    if (pathHasCheck(blocks)) layouts[k] = layoutFor(blocks!, ctxBase);
+  }
+  return { pills, layouts };
 }

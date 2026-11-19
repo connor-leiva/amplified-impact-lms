@@ -111,7 +111,49 @@ const videoBlock = z.strictObject({
   ]),
   title: z.string().max(300).optional(),
 });
-const pathBlock = z.union([contentBlock, videoBlock]);
+const checkId = z.string().min(1).max(80).regex(/^[A-Za-z0-9_-]+$/);
+const checkCond = z.strictObject({ field: z.string().min(1).max(80), equals: z.string().max(200) });
+const checkAction = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('download'), kitItemIds: z.array(z.string().min(1).max(80)).max(12) }),
+  z.strictObject({ type: z.literal('copy'), label: z.string().max(80), text: z.string().max(8000) }),
+  z.strictObject({ type: z.literal('invite'), label: z.string().max(80).optional() }),
+  z.strictObject({ type: z.literal('calendar'), sessionId: z.string().min(1).max(80) }),
+  z.strictObject({ type: z.literal('link'), label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }),
+  z.strictObject({ type: z.literal('form'), formId: z.enum(['intake', 'stack-card']), label: z.string().max(80) }),
+  z.strictObject({ type: z.literal('card'), terms: z.array(z.string().max(80)).max(24) }),
+]);
+// D-190: a checklist item, a callout and an accordion. Ids and links are checked again on save
+// (`checklistIssues`); the copy rules cover every string a learner reads.
+const checkBlock = z.strictObject({
+  type: z.literal('check'),
+  id: checkId,
+  title: z.string().max(200),
+  detail: z.string().max(2000).optional(),
+  role: z.enum(['owner', 'operator', 'each', '']).optional(),
+  action: checkAction.optional(),
+  clickPath: z.array(z.string().max(80)).max(12).optional(),
+  playAt: z.strictObject({ t: z.number().int().min(0).max(86400) }).optional(),
+  dependsOn: z.array(z.string().min(1).max(120)).max(20).optional(),
+  hideIf: checkCond.optional(),
+  collapseIf: checkCond.optional(),
+  collapsedNote: z.string().max(400).optional(),
+  optional: z.boolean().optional(),
+  auto: z.strictObject({ video: z.literal(true), at: z.number().min(0).max(100) }).optional(),
+  subchecks: z.array(z.strictObject({ id: checkId, label: z.string().max(200) })).max(24).optional(),
+});
+const calloutBlock = z.strictObject({
+  type: z.literal('callout'),
+  kind: z.enum(['tip', 'heads_up', 'diy']),
+  text: z.string().max(4000),
+});
+const accordionBlock = z.strictObject({
+  type: z.literal('accordion'),
+  title: z.string().max(200),
+  body: z.array(z.string().max(4000)).max(40),
+  table: z.strictObject({ head: z.array(z.string().max(200)).max(12).optional(), rows: z.array(z.array(z.string().max(2000)).max(12)).max(40) }).optional(),
+  link: z.strictObject({ label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }).optional(),
+});
+const pathBlock = z.union([contentBlock, videoBlock, checkBlock, calloutBlock, accordionBlock]);
 const stepPath = z.strictObject({ blocks: z.array(pathBlock) });
 const stepPaths = z.strictObject({ claude: stepPath.optional(), chatgpt: stepPath.optional() });
 const seatCard = z.strictObject({
@@ -293,6 +335,8 @@ export const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> } = {
   // Learner
   dismissAnnouncement: z.strictObject({ id }),
   toggleStep: z.strictObject({ moduleId: id, stepId: id }),
+  toggleChecklistItem: z.strictObject({ moduleId: id, stepId: id, itemId: z.string().min(1).max(161) }),
+  setPref: z.strictObject({ key: z.string().min(1).max(200), value: z.string().max(8) }),
   markDeployed: z.strictObject({ moduleId: id }),
   setRuntime: z.strictObject({ moduleId: id, runtime }),
   recordRun: z.strictObject({ moduleId: id, title: z.string(), preview: z.string() }),
