@@ -218,6 +218,13 @@
       "when": 1795400000000,
       "tag": "0030_team_stack_card",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1795500000000,
+      "tag": "0031_test_accounts",
+      "breakpoints": true
     }
   ]
 }

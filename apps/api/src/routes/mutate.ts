@@ -284,8 +284,12 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
           }
           // D-186: a learner's write carries whether their plan opens the course now, the snapshot's own
           // answer (`viewerAccessFor`), so a course week's step follows course access, not the tier.
-          const course = actor.kind === 'learner' ? (await viewerAccessFor(tx, actor.userId, now)).accelerator : undefined;
-          const out = mutation(before, actor, parsed.data as never, { now, id, ...(course === undefined ? {} : { course }) });
+          const access = actor.kind === 'learner' ? await viewerAccessFor(tx, actor.userId, now) : undefined;
+          const out = mutation(before, actor, parsed.data as never, {
+            now,
+            id,
+            ...(access === undefined ? {} : { course: access.accelerator, ...(access.early ? { early: true } : {}) }),
+          });
           // `{ db, error }` with the db untouched: validation the UI renders inline. Nothing was
           // written, so there is nothing to roll back and the transaction may commit empty.
           if (out.error) return { ok: false, status: 422, body: { error: out.error } };

@@ -46,6 +46,10 @@ describe('entering the course (D-175)', () => {
     expect(weekOpenFor({ status: 'scheduled', opens: WEEK_OPENS_V1[1]! }, WEEK_OPENS_V1[1]! - 1, preview)).toBe(false);
     expect(weekOpenFor({ status: 'scheduled', opens: WEEK_OPENS_V1[1]! }, WEEK_OPENS_V1[1]!, preview)).toBe(true);
     expect(weekOpenFor({ status: 'published', opens: null }, PREVIEW, CLOSED)).toBe(false);
+    // D-202: early access opens a scheduled week before its date, and still leaves a draft out.
+    expect(weekOpenFor({ status: 'scheduled', opens: WEEK_OPENS_V1[1]! }, WEEK_OPENS_V1[1]! - 1, { open: true, preview: false, early: true })).toBe(true);
+    expect(weekOpenFor({ status: 'draft', opens: null }, PREVIEW, { open: true, preview: false, early: true })).toBe(false);
+    expect(weekOpenFor({ status: 'scheduled', opens: WEEK_OPENS_V1[1]! }, WEEK_OPENS_V1[1]! - 1, { open: false, preview: false, early: true })).toBe(false);
   });
 
   it('shows a kit item by its week and its visibility; a vault item on no course week is the vault’s', () => {

@@ -342,6 +342,13 @@ export function ChecklistPlayer({
   const [undo, setUndo] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
   const titleId = useId();
+  const pops = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => {
+    for (const t of pops.current) clearTimeout(t);
+  }, []);
+  const flashPop = (itemId: string) => {
+    pops.current.push(setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220));
+  };
   const wasDone = useRef(vm.mark.done);
   const wasChecked = useRef(layout.items.filter((item) => item.checked).map((item) => item.id).join(','));
 
@@ -417,7 +424,7 @@ export function ChecklistPlayer({
     setPending((cur) => ({ ...cur, [itemId]: !(itemId in cur ? cur[itemId]! : serverOn(itemId)) }));
     if (onLocalToggle) {
       onLocalToggle(itemId);
-      setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
+      flashPop(itemId);
       return;
     }
     let error: string = STEP.checkFailed;
@@ -425,7 +432,7 @@ export function ChecklistPlayer({
       const r = await mutate('toggleChecklistItem', { moduleId: vm.mark.moduleId, stepId: vm.mark.stepId, itemId });
       // A saved toggle has no toast. A toast here is a refusal (the week is not open) and the box did not change.
       if (!r.error && !r.toast) {
-        setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
+        flashPop(itemId);
         return;
       }
       error = r.error || r.toast?.msg || STEP.checkFailed;
@@ -434,7 +441,7 @@ export function ChecklistPlayer({
     }
     dropPending(itemId);
     setFault(error);
-    setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
+    flashPop(itemId);
   };
 
   const writeMany = async (ids: string[]) => {

@@ -401,7 +401,7 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
   });
 
   return {
-    learnersCount: base.learners + db.users.length,
+    learnersCount: base.learners + db.users.filter((u) => u.test !== true).length,
     teamsCount: base.teams + db.teams.length,
     started: !!cohort && now >= cohort.start,
     rows,

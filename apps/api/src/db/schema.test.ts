@@ -58,7 +58,7 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 // ---------------------------------------------------------------------------
 
 const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
-  users: { table: 'users', columns: ['cohort_id', 'email', 'id', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
+  users: { table: 'users', columns: ['cohort_id', 'early_access', 'email', 'id', 'is_test', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
   cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'course', 'default_open_time', 'end', 'id', 'name', 'preview_opens_at', 'start', 'status', 'timezone', 'weeks'] },
   sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'start', 'title', 'views', 'zoom'] },

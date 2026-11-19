@@ -65,6 +65,7 @@ export default defineRailway((ctx) => {
     //      (`--if-missing`: once there, staff edits to the course stay; db:seed:prod cannot load it
     //      once a buyer exists, D-110). When SEED_TEST_MEMBER_EMAIL and SEED_TEST_MEMBER_PASSWORD
     //      are set on this service, the same command also creates one test learner (D-200).
+    //      SEED_TEST_MEMBER_KIND=accelerator makes that learner an Accelerator buyer instead (D-202).
     //      Unset, it writes nothing, and this string stays as it is;
     //   3. the console's Owner (D-129): `DEPLOY_OWNER` added if this database has no Owner, nothing
     //      written if it is already the Owner, and logged and skipped (exit 0) if a different Owner

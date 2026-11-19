@@ -61,6 +61,11 @@ export async function claimDueOrders(db: Database, now: number, batch: number = 
         where ${dueWhere(stamp)}
           and status <> 'pending'
           and email is not null
+          and not exists (
+            select 1 from accounts a
+            join users u on u.id = a.owner_user_id
+            where a.id = account_id and u.is_test
+          )
           and (ghl_next_attempt_at is null or ghl_next_attempt_at <= ${now})
         order by created_at, id
         limit ${batch}
