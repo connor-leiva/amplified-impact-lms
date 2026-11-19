@@ -165,8 +165,9 @@ from the one-time seed (`packages/core/seed/`); one that has it gets no new cour
 deleted in the builder stays deleted. A row that exists keeps every value it has. The one thing it
 adds to an existing row is a column D-173 introduced (a module's course words, a session's kind)
 while that column is still empty, so the first deploy with D-173 gives production's rows their words
-and every later deploy writes **0 rows**. It never touches users, teams, progress or staff. The
-Owner, the price list and the reminder toggles still come only from `db:seed:prod`.
+and every later deploy writes **0 rows**. The curriculum write never touches users, teams, progress
+or staff. The one learner this same command can add is the test member below, and only when its
+variables are set. The Owner, the price list and the reminder toggles still come only from `db:seed:prod`.
 
 **Right after ensure, the same command runs each one-time data step once (D-175).** The first two are
 Connor's Nov 17 release plan (Week 0 due Mon, Nov 30, and Weeks 1 to 8 Scheduled at their live builds,
@@ -174,6 +175,25 @@ Connor's Nov 17 release plan (Week 0 due Mon, Nov 30, and Weeks 1 to 8 Scheduled
 changes only rows still as the seed left them; a row staff already changed is left alone, and the
 deploy log says `Left as it is: <id> (...). Finish it in the builder.` Each change is an audit row
 (`curriculum.migrate`), and `data_migrations` records each step so it never runs twice.
+
+**A test learner, when three variables are set (D-200).** The same `db:curriculum:ensure` command
+then runs one more step. It reads `SEED_TEST_MEMBER_EMAIL`, `SEED_TEST_MEMBER_PASSWORD`, and
+optional `SEED_TEST_MEMBER_NAME` (default "Connor Test") from the **web** service, which is the
+service the API runs as. If the email or the password is unset, the step writes nothing and logs
+nothing, and a later deploy can still create the account. If no user has that email, it creates
+one verified learner the way a verified access-group address gets an account
+(`createGroupMember`, the insert behind `provisionGroupMember`, then `recordVerified`), sets the
+password the way Set Password does, and writes one audit row (`user.seed`, actor
+`system:seed-test-member`, the email only). The learner is not staff. Utah Life follows from the
+address's domain the same way it does for any other verified member of that domain: the step does
+not insert a group, an order, a plan or a payment, and it does not send email or sync to
+GoHighLevel or Stripe. If a user with that email already exists, it logs one line that it was
+skipped and writes nothing. The log never contains the address or the password.
+
+Set the variables on **web**, then redeploy. Railway runs the pre-deploy command on a deploy,
+before the new process starts, so a restart of the deployment that is already running does not
+run the step. The pre-deploy command string does not change. After the account exists, remove the
+variables. The next deploy then writes nothing.
 
 **The pre-launch preview opens only when its date is set**, in the console: Build › Curriculum › a
 course week › Course settings › Release plan › Preview opens. Until then there is no preview, and

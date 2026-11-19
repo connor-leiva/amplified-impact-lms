@@ -138,7 +138,7 @@ export async function issuePasswordLink(email: string): Promise<void> {
  * reset link for the address is spent, and the address's failures are cleared. Returns whether a
  * `users` row changed, so the caller can tell open clients to refetch.
  */
-async function finishPasswordSet(db: Database, user: UserRow, password: string | null, now: number, keepSession: string | null): Promise<boolean> {
+export async function finishPasswordSet(db: Database, user: UserRow, password: string | null, now: number, keepSession: string | null): Promise<boolean> {
   // `null`: the caller has already stored it (the welcome page's first-write-wins insert).
   if (password !== null) await storePassword(db, user.id, password, now);
   let activated = false;

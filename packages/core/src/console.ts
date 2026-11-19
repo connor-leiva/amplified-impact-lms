@@ -219,6 +219,8 @@ export const AUDIT_ACTIONS = [
   'intake.read',
   // D-197: a staff member opened a team's stack card.
   'stack.read',
+  // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.
+  'user.seed',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

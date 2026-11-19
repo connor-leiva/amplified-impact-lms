@@ -116,7 +116,7 @@ export async function userById(db: Database, id: string): Promise<UserRow | null
  * There is no index on `lower(email)` — the table is one row per seat sold, and this runs twice per
  * sign-in. If `users` ever grows past a sequential scan being free, that index is the fix.
  */
-export async function userByEmail(db: Database, email: string): Promise<UserRow | null> {
+export async function userByEmail(db: Pick<Database, 'select'>, email: string): Promise<UserRow | null> {
   const [row] = await db
     .select()
     .from(users)
