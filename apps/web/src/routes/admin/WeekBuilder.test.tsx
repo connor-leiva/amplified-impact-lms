@@ -8,6 +8,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { AIEmployee, Db, Step } from '@ai/core';
+import { checklistIssueLines } from '@ai/core/checklist';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
@@ -166,6 +167,23 @@ describe('a step’s course fields (D-174)', () => {
     // Cleared, a field leaves the step rather than staying as an empty string.
     await user.clear(screen.getByRole('textbox', { name: 'Who' }));
     expect('who' in last).toBe(false);
+  });
+
+  it('keeps other-step dependencies as one trimmed line each, including a step that is not converted yet', async () => {
+    const user = userEvent.setup();
+    let last: Step = { id: 'c1', text: 'Get your AI ready', ch: '', mins: 20, t: 0, hint: '' };
+    render(<StepHarness start={last} onStep={(s) => (last = s)} />);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Claude path: kind of block to add' }), 'check');
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
+    await user.click(screen.getByRole('checkbox', { name: 'item-2' }));
+    const field = screen.getByRole('textbox', { name: 'Block 1 other steps' });
+    await user.type(field, '  step:6:s6-google{Enter}{Enter}step:7:s7-drive  ');
+    const block = last.paths!.claude!.blocks[0]!;
+    expect(block).toMatchObject({ type: 'check', id: 'item-1', dependsOn: ['item-2', 'step:6:s6-google', 'step:7:s7-drive'] });
+    expect(field).toHaveValue('  step:6:s6-google\n\nstep:7:s7-drive  ');
+    // Step 6 is not a checklist yet. The line is still a cross-step dependency, and save is not refused.
+    expect(checklistIssueLines([last])).toEqual([]);
   });
 });
 
