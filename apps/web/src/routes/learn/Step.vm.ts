@@ -30,6 +30,8 @@ export const STEP = {
   doneWhen: 'Done when:',
   previous: 'Previous',
   next: 'Next step',
+  /** D-207: the checklist footer's centered control. The old step player keeps "Next step". */
+  continue: 'Continue',
   markDone: 'Mark step done',
   /** D-184: a done step's button, which toggles it back (the current portal's "click to undo"). */
   undo: 'Undo',

@@ -2,7 +2,7 @@
 // ChecklistLayoutVM. A week without one never reaches this file.
 
 import { useEffect, useId, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEvent } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { useMutate } from '../../data/hooks';
@@ -312,15 +312,12 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
   );
 }
 
-function Confetti({ on }: { on: boolean }) {
+/** Reduced motion only: a static line. The motion is the one ring on the button. */
+function DoneBanner({ on }: { on: boolean }) {
   if (!on) return null;
-  const dots = Array.from({ length: 24 }, (_, i) => i);
   return (
     <div className={s.celebrate} aria-hidden="true">
       <span className={s.banner}>{STEP.stepDone}</span>
-      {dots.map((i) => (
-        <i key={i} className={s.dot} data-c={i % 2 === 0 ? 'for' : 'energy'} style={{ '--x': `${(i * 37) % 100}%`, '--d': `${(i % 8) * 40}ms`, '--r': `${(i % 5) * 18 - 36}px` } as CSSProperties} />
-      ))}
     </div>
   );
 }
@@ -599,7 +596,7 @@ export function ChecklistPlayer({
 
       <div className={s.foot}>
         <div className={s.mark}>
-          <button type="button" className={`${l.b} ${l.bp} ${l.bi}`} data-done={vm.mark.done ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
+          <button type="button" className={`${l.b} ${l.bp} ${l.bi}`} data-done={vm.mark.done ? 'true' : undefined} data-ring={celebrating ? 'true' : undefined} data-locked={layout.gate.locked ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
             <Icon name={vm.mark.done ? 'r2Check' : 'r2Check'} size={14} strokeWidth={2.2} />
             {vm.mark.done ? STEP.stepDone : STEP.markDone}
           </button>
@@ -609,13 +606,13 @@ export function ChecklistPlayer({
             </button>
           ) : null}
           {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
-          <Confetti on={celebrating && vm.mark.done} />
+          <DoneBanner on={celebrating && vm.mark.done} />
         </div>
         {layout.next ? (
-          <Link className={s.next} to={layout.next.href} data-done={vm.mark.done ? 'true' : undefined} aria-label={`${STEP.next}: ${layout.next.title}`}>
-            <span className={s.nextK}>{STEP.next}</span>
+          <Link className={s.next} to={layout.next.href} aria-label={`${STEP.continue}: ${layout.next.title}`}>
+            <span>{STEP.continue}</span>
             <span className={s.nextT}>{layout.next.title}</span>
-            <Icon name="arrowR" size={16} strokeWidth={1.75} />
+            <Icon name="arrowR" size={16} strokeWidth={1.75} className={s.nextAr} />
           </Link>
         ) : null}
       </div>

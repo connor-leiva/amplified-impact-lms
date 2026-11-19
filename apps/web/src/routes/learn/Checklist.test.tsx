@@ -59,6 +59,7 @@ describe('the checklist step (D-190)', () => {
     fireEvent.click(mark);
     expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Time seven tasks' }));
     expect(screen.getByText('Check off 2 more to mark this step done.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Continue:/ })).toBeInTheDocument();
     expect(screen.getByText('Because each one is its own.')).toBeVisible();
   });
 

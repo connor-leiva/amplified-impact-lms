@@ -6753,3 +6753,19 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** A video with no chapters and no transcript. No course copy, no schema, no migration. No golden, tolerance, or mask.
 
 **Blast radius.** The parity fixture's videos have no chapters, so those screens do not gain a scroller. Utah Life, Agent Plan, Team Plan, and Insiders screens outside the course are unchanged.
+
+---
+
+## D-207 · Continue, and one energy ring when a step is done
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026, 12:55 PM CT: ship the Week 0 polish live in small pieces. He confirmed #194, #195 and #196 live and asked for piece 4: the Continue arrow, a single completion ring, and anything in that section #195 had not finished. Also to check that the checkbox hover halo from #195 actually shows.
+**Number:** D-206 is the video column. D-207 was free.
+
+- **Continue.** The checklist footer's centered control says Continue, names the next step, and nudges its arrow on hover. The older step player still says Next step. That label is what the parity tests click.
+- **One ring.** Marking the step done plays a single energy ring on that button, once, and the ring ends clear. The checklist's confetti dots are gone. The shell's own confetti, from finishing a week that is not this layout, is unchanged. Reduced motion draws no ring. The check still appears at once, and a static Step done line stays for that setting.
+- **The checkbox halo.** The forest border was painting. The 4px halo was forest at 6% alpha, which on the white card did not read. It is now a 4px ring of the forest tint (`--r2-tint`), outside the same 2px forest border. Dark mode uses that token's dark value.
+- **Already on main, and not repeated here.** Mark step done stays forest when locked, and a locked click focuses the first unchecked item. The check draws when motion is allowed. Those shipped in #195.
+- **Not in this change.** No course copy, no schema, no migration. No golden, tolerance, or mask. The week-done overlay is unchanged.
+
+**Blast radius.** A step that is not the checklist layout is unchanged. Utah Life, Agent Plan, Team Plan, and Insiders screens outside that layout are unchanged.
