@@ -180,10 +180,12 @@
   background: conic-gradient(from 0deg, var(--r2-bad), var(--r2-warn), var(--r2-mint), var(--r2-energy), var(--r2-for), var(--r2-info), var(--r2-bad));
 }
 .plus input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.prose { padding: 12px 14px; min-height: 96px; }
+.prose { min-height: 96px; }
 .prose :global(.ProseMirror) {
   outline: none;
-  min-height: 72px;
+  box-sizing: border-box;
+  min-height: 96px;
+  padding: 12px 14px;
   font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
   color: var(--r2-f2);
 }
