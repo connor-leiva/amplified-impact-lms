@@ -247,6 +247,7 @@ const WRITES = new Set<RouteName>([
   'incidentAck',
   'incidentResolve',
   'incidentNote',
+  'workspaceIntake',
   'flagFlip',
   'integrationCheck',
 ]);
