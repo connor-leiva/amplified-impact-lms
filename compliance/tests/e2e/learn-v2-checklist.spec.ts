@@ -55,7 +55,9 @@ test.describe('a checklist step (D-190)', () => {
     await expect(page.getByRole('heading', { name: 'Your Checklist' })).toBeVisible();
     await expect(page.getByText('Tip')).toBeVisible();
     const mark = page.getByRole('button', { name: 'Mark step done' });
-    await expect(mark).toBeDisabled();
+    await expect(mark).toBeEnabled();
+    await mark.click();
+    await expect(page.getByRole('button', { name: 'Step done' })).toHaveCount(0);
     await expect(page.getByText('Check off 2 more to mark this step done.')).toBeVisible();
 
     await page.getByRole('checkbox', { name: 'Watch the video' }).click();

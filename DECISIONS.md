@@ -6724,3 +6724,18 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** Weeks without a checklist item. The links. No course copy, no schema, no migration. No golden, tolerance, or mask.
 
 **Blast radius.** A step page that does not use the one-step layout is unchanged, including the parity fixture. Utah Life, Agent Plan, Team Plan, and Insiders screens outside the course step are unchanged.
+
+---
+
+## D-205 · Button hover, the spot list, and Mark step done
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026, 12:55 PM CT: ship the Week 0 polish live in small pieces. He followed up the same day: the hovers from D-203 looked unchanged, because that change only removed the global underline and drew a 1px outline.
+**Number:** D-204 is the compact step rail. D-205 was free.
+
+- **The button.** A secondary `.b` rests on bone with the second line (`--r2-line2`) and the small shadow. Hover lifts it 1px onto the larger shadow. Press scales it to 0.97. A primary hover is the forest hover color, with the same lift. A ghost hover fills with bone and lifts. Focus draws the existing ring on top of the shadow that hover or rest is using. Disabled does not lift. The 1px outline from D-203 is gone. The same states are on the shell's buttons.
+- **The spots.** Week overview step rows (the numbered list) fill with bone and lift. The current row keeps a 2px forest inset and a 4px forest halo at 6%. On this page and checklist links do the same ghost hover. Still stuck rows lift and nudge their arrow. Chapter rows and transcript cues fill with bone. A checkbox hover takes a forest border and that 4px halo. An accordion summary fills with bone. Kit View and Copy are the secondary button. Back is the ghost. Continue step N stays the primary, so it takes the forest hover. Dark mode uses the same tokens, which already flip.
+- **Mark step done.** It stays forest when the checklist is not finished, and it is not disabled for that. Clicking it then scrolls to and focuses the first unchecked box. Staff stay disabled. The next step is a centered Next step control with an arrow, not the wide forest card. The check draws and the energy ring on step done are unchanged, and reduced motion removes the lift, the scale, the draw and the ring.
+- **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. `/skill-library` layout is untouched.
+
+**Blast radius.** Resting pixels of the flag-off golden portal do not move: these rules are on the learner frame. A dark frame keeps the dark palette.

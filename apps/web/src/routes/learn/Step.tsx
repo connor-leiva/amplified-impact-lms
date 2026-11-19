@@ -160,6 +160,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                   <span className={s.w5}>{vm.help.email.label}</span>
                   <span className={`${s.me} ${s.el}`}>{vm.help.email.address}</span>
                 </div>
+                <span className={s.mu} aria-hidden="true"><Icon name="arrowR" size={14} strokeWidth={1.75} /></span>
               </Go>
               {vm.help.officeHours ? (
                 <Go className={s.li!} href={vm.help.officeHours.href}>
@@ -168,6 +169,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                     <span className={s.w5}>{vm.help.officeHours.label}</span>
                     <span className={s.me}>{vm.help.officeHours.meta}</span>
                   </div>
+                  <span className={s.mu} aria-hidden="true"><Icon name="arrowR" size={14} strokeWidth={1.75} /></span>
                 </Go>
               ) : null}
             </section>
@@ -280,6 +282,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                 <span className={s.w5}>{vm.help.email.label}</span>
                 <span className={`${s.me} ${s.el}`}>{vm.help.email.address}</span>
               </div>
+              <span className={s.mu} aria-hidden="true"><Icon name="arrowR" size={14} strokeWidth={1.75} /></span>
             </Go>
             {vm.help.officeHours ? (
               <Go className={s.li!} href={vm.help.officeHours.href}>
@@ -288,6 +291,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                   <span className={s.w5}>{vm.help.officeHours.label}</span>
                   <span className={s.me}>{vm.help.officeHours.meta}</span>
                 </div>
+                <span className={s.mu} aria-hidden="true"><Icon name="arrowR" size={14} strokeWidth={1.75} /></span>
               </Go>
             ) : null}
           </section>

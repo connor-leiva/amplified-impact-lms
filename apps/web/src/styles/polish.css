@@ -14,27 +14,5 @@ html:not([data-theme='dark']) [data-r2-shell] {
   --r2-bg: #f1f0eb;
 }
 
-/* Hover and focus for controls the generated stylesheet does not cover.
-   A component rule with two classes still wins. The hover is an outline,
-   so a one-class button keeps its fill. */
-
-button:not(:disabled):hover,
-[role='button']:hover:not([aria-disabled='true']) {
-  outline: 1px solid var(--action-primary);
-  outline-offset: 1px;
-}
-
-button:focus-visible,
-[role='button']:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--action-primary);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  button,
-  [role='button'],
-  a {
-    transition: none;
-  }
-}
+/* D-205 replaces the 1px outline from D-203. Button hover, press and focus live on
+   `.b` in the learner styles, where a variant can keep its fill. */

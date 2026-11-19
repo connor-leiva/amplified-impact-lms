@@ -53,7 +53,11 @@ describe('the checklist step (D-190)', () => {
     expect(screen.getByRole('checkbox', { name: 'Time seven tasks' })).toBeInTheDocument();
     expect(screen.getByText('Heads up')).toBeInTheDocument();
     expect(screen.getByText(/Waiting on Step 6/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Mark step done' })).toBeDisabled();
+    const mark = screen.getByRole('button', { name: 'Mark step done' });
+    expect(mark).toBeEnabled();
+    expect(mark).toHaveAttribute('data-locked', 'true');
+    fireEvent.click(mark);
+    expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Time seven tasks' }));
     expect(screen.getByText('Check off 2 more to mark this step done.')).toBeInTheDocument();
     expect(screen.getByText('Because each one is its own.')).toBeVisible();
   });
