@@ -20,6 +20,14 @@ export const UI_LABELS: readonly { text: string; why: string }[] = [
     text: 'Connect Your Data',
     why: 'Part of the course page’s Before heading, “Three Ways to Connect Your Data” (the lanes section, chrome since D-110). D-176’s Week 0 names its sixth step the same words; the step itself still comes from the database.',
   },
+  {
+    text: 'Office hours',
+    why: 'The session-type label (the Schedule, the step player’s help row, the builder). D-193’s glossary uses the same two words for the term. The term’s short and long lines are not in this list.',
+  },
+  {
+    text: 'your operator',
+    why: 'The builder’s default Invite button reads “Invite your operator” (D-190). D-193’s Operator term has that phrase as an alias. The alias’s meaning still comes from the glossary, not from this label.',
+  },
 ];
 
 /** The allowlisted strings alone. */

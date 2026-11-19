@@ -14,6 +14,7 @@
 import { produce } from 'immer';
 import { requirePerm } from './can';
 import type { CohortCourse } from './course-types';
+import { glossaryIssues, normalizeGlossary } from './glossary';
 import { changedFields, cohortCopyFields, copyIssues, copyStringField, diffSummary, issueLine } from './course-rules';
 import type { CopyField } from './course-rules';
 import { MutationError } from './mutations';
@@ -254,14 +255,26 @@ export function saveCohortPlan(
 export function saveCohortCourse(db: Db, a: Actor, args: { cohortId: string; course: CohortCourse }, _c: Ctx): AdminOutcome {
   requirePerm(db, a, 'curriculum');
   const co = cohortOf(db, args.cohortId);
-  const copy = refuseCopy(cohortCopyFields({ name: co.name, cadence: co.cadence, ...(co.course ? { course: co.course } : {}) }), cohortCopyFields({ name: co.name, cadence: co.cadence, course: args.course }));
-  if (copy) return { db, error: copy };
   // D-187: the community link, trimmed, an http or https address, or left out when empty.
   const community = (args.course.intro.community ?? '').trim();
   if (community && !communityUrl(community)) return { db, error: 'A community link is a web address that starts with https://.' };
   const course = structuredClone(args.course);
   if (community) course.intro.community = community;
   else delete course.intro.community;
+  // D-193: a missing glossary keeps the one already stored, so a save from before this field existed
+  // cannot wipe it. An empty list clears it. Staff edits are checked, then stored trimmed.
+  if (args.course.glossary === undefined) {
+    if (co.course?.glossary) course.glossary = structuredClone(co.course.glossary);
+    else delete course.glossary;
+  } else {
+    const cleaned = normalizeGlossary(args.course.glossary);
+    const problems = glossaryIssues(cleaned);
+    if (problems.length) return { db, error: problems.join('\n') };
+    if (cleaned.length) course.glossary = cleaned;
+    else delete course.glossary;
+  }
+  const copy = refuseCopy(cohortCopyFields({ name: co.name, cadence: co.cadence, ...(co.course ? { course: co.course } : {}) }), cohortCopyFields({ name: co.name, cadence: co.cadence, course }));
+  if (copy) return { db, error: copy };
   const next = produce(db, (d) => {
     d.cohorts.find((y) => y.id === co.id)!.course = course;
   });

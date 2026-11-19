@@ -166,6 +166,36 @@ describe('the step player (D-177)', () => {
     expect(vm.layouts?.claude?.countdown).not.toMatch(/CT|ET|PT/);
   });
 
+  it('D-193: underlines the first use on the page, and a card skips an id that is not in the glossary', () => {
+    const p = structuredClone(st.payload);
+    p.course.glossary = [
+      { id: 'owner', term: 'Owner', short: 'The team leader.', long: 'The team leader who decides.', aliases: [], firstStep: 1 },
+      { id: 'desk', term: 'Desk', short: 'One person.', long: 'The one person a hire reports to.', aliases: [], firstStep: 4 },
+    ];
+    const week = p.course.weeks[0] as { module: { checklist: { paths?: { claude?: { blocks: PathBlock[] } } }[] } };
+    week.module.checklist[0]!.paths = {
+      claude: {
+        blocks: [
+          { type: 'text', text: 'The owner keeps the desk page.' },
+          { type: 'copy', text: 'The owner pastes this.' },
+          { type: 'check', id: 'know', title: 'Know these', action: { type: 'card', terms: ['owner', 'missing', 'desk'] } },
+          { type: 'callout', kind: 'tip', text: 'Ask the owner once.' },
+        ],
+      },
+    };
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0];
+    const vm = stepVM(p, row, 1, learner, st.now);
+    if (vm.kind !== 'step') throw new Error('missing');
+    const layout = vm.layouts?.claude;
+    // The card lists both ids. The callout is drawn before the paragraph, so it takes the first "owner".
+    expect(layout?.items[0]?.card?.map((t) => t.id)).toEqual(['owner', 'desk']);
+    expect(layout?.items[0]?.callouts[0]?.spans?.some((span) => span.kind === 'term' && span.id === 'owner')).toBe(true);
+    expect(layout?.extraMarks?.[0]).toBeUndefined();
+    expect(layout?.extraMarks?.[1]).toBeUndefined();
+    expect(vm.pathMarks?.claude?.[0]?.some((span) => span.kind === 'term' && span.id === 'owner')).toBe(true);
+    expect(vm.pathMarks?.claude?.[0]?.some((span) => span.kind === 'term' && span.id === 'desk')).toBe(false);
+  });
+
   it('a locked week or a step that isn’t there goes to the week', () => {
     expect(stepVM(st.payload, rows[2], 1, learner, st.now)).toEqual({ kind: 'missing', href: '/learn/week/2' });
     expect(stepVM(st.payload, rows[0], 99, learner, st.now)).toEqual({ kind: 'missing', href: '/learn/week/0' });

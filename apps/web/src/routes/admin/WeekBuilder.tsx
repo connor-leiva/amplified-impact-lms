@@ -201,6 +201,8 @@ export interface BlockPicks {
   sessions: { id: string; title: string }[];
   /** Checklist ids already used on this step, so a new item does not reuse one. */
   ids: string[];
+  /** D-193: glossary terms the Card action can list, from Course settings. */
+  glossary?: { id: string; term: string }[];
 }
 
 export function Blocks({
@@ -655,10 +657,37 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
         </>
       ) : null}
       {block.action?.type === 'card' ? (
-        <>
-          <Lines label={`Block ${n} terms`} items={block.action.terms} onChange={(terms) => onChange({ ...block, action: { type: 'card', terms } })} />
-          <p className={clsx(k.me, w.hint)}>Saved now. The glossary card is a later change, so learners see nothing yet.</p>
-        </>
+        <fieldset className={w.blocks}>
+          <legend className={w.legend}>Glossary terms</legend>
+          {(picks?.glossary ?? []).length === 0 ? <p className={clsx(k.p, k.mu)}>Add terms in Course settings. An id that is not there is skipped on the page.</p> : null}
+          {(picks?.glossary ?? []).map((term) => (
+            <label key={term.id} className={clsx(k.row, k.nw, w.check)}>
+              <input
+                type="checkbox"
+                checked={block.action?.type === 'card' && block.action.terms.includes(term.id)}
+                onChange={(e) => {
+                  if (block.action?.type !== 'card') return;
+                  const terms = e.target.checked ? [...block.action.terms, term.id] : block.action.terms.filter((id) => id !== term.id);
+                  onChange({ ...block, action: { type: 'card', terms } });
+                }}
+              />
+              {term.term}
+            </label>
+          ))}
+          {block.action.terms.filter((id) => !(picks?.glossary ?? []).some((term) => term.id === id)).map((id) => (
+            <label key={id} className={clsx(k.row, k.nw, w.check)}>
+              <input
+                type="checkbox"
+                checked
+                onChange={() => {
+                  if (block.action?.type !== 'card') return;
+                  onChange({ ...block, action: { type: 'card', terms: block.action.terms.filter((x) => x !== id) } });
+                }}
+              />
+              {id}
+            </label>
+          ))}
+        </fieldset>
       ) : null}
     </>
   );
@@ -773,8 +802,8 @@ export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange
         />
         Open in the pre-launch preview
       </label>
-      <Blocks label="Claude path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step) }} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
-      <Blocks label="ChatGPT path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step) }} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
+      <Blocks label="Claude path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [] }} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
+      <Blocks label="ChatGPT path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [] }} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
     </>
   );
 }

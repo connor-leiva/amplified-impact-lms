@@ -192,6 +192,24 @@ describe('the cohort: release plan and shared pages (D-174)', () => {
     expect(communityUrl('ftp://example.com')).toBeNull();
     expect(communityUrl(undefined)).toBeNull();
   });
+
+  it('D-193: saves a glossary, keeps one a save omits, clears an empty list, and refuses a bad term', () => {
+    const db = prod();
+    const course = structuredClone(db.cohorts[0]!.course!);
+    course.glossary = [{ id: 'owner', term: ' Owner ', short: 'The team leader.', long: 'The team leader who decides.', aliases: [' '], firstStep: 1 }];
+    const out = saveCohortCourse(db, OWNER, { cohortId: 'dec26', course }, mkCtx());
+    expect(out.error).toBeUndefined();
+    expect(out.db.cohorts[0]!.course!.glossary).toEqual([{ id: 'owner', term: 'Owner', short: 'The team leader.', long: 'The team leader who decides.', aliases: [], firstStep: 1 }]);
+    const again = structuredClone(out.db.cohorts[0]!.course!);
+    delete again.glossary;
+    expect(saveCohortCourse(out.db, OWNER, { cohortId: 'dec26', course: again }, mkCtx()).db.cohorts[0]!.course!.glossary).toHaveLength(1);
+    again.glossary = [];
+    expect(saveCohortCourse(out.db, OWNER, { cohortId: 'dec26', course: again }, mkCtx()).db.cohorts[0]!.course!.glossary).toBeUndefined();
+    course.glossary = [{ id: 'Owner', term: 'Owner', short: 'Short.', long: 'Long.', aliases: [] }];
+    expect(saveCohortCourse(db, OWNER, { cohortId: 'dec26', course }, mkCtx()).error).toMatch(/lower-case id/);
+    course.glossary = [{ id: 'owner', term: 'Owner—today', short: 'Short.', long: 'Long.', aliases: [] }];
+    expect(saveCohortCourse(db, OWNER, { cohortId: 'dec26', course }, mkCtx()).error).toMatch(/em dash/);
+  });
 });
 
 describe('copy strings (D-174)', () => {

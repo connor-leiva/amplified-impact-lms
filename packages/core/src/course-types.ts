@@ -102,7 +102,10 @@ export interface CheckCond {
   equals: string;
 }
 
-/** What a checklist item's button does. `form` and `card` are stored now and drawn by a later change. */
+/**
+ * What a checklist item's button does. `form` is stored now and drawn by a later change.
+ * `card` lists glossary terms (D-193). Its title is the checklist item's title.
+ */
 export type CheckAction =
   | { type: 'download'; kitItemIds: string[] }
   | { type: 'copy'; label: string; text: string }
@@ -383,12 +386,28 @@ export interface CourseAfter {
   pilotQuestions: LabelText[];
 }
 
+/**
+ * D-193: one glossary term. `firstStep` is the first step number that may underline it (absent means
+ * every step). `underline` false turns the underline off; absent means on. The words are course copy.
+ */
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  short: string;
+  long: string;
+  aliases: string[];
+  firstStep?: number;
+  underline?: boolean;
+}
+
 /** What the cohort holds for the whole course (`Cohort.course`). */
 export interface CohortCourse {
   intro: CourseIntro;
   shared: CourseShared;
   before: CourseBefore;
   after: CourseAfter;
+  /** D-193: terms the step pages underline, and a checklist Card lists. Absent until one is set. */
+  glossary?: GlossaryTerm[];
 }
 
 // --- what `GET /api/course` sends -----------------------------------------------------------------

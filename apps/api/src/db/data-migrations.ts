@@ -15,6 +15,7 @@ import { CONTENT_V2, planContentV2 } from '@ai/core/seed/content-v2';
 import { COPY_V1, planCopyV1 } from '@ai/core/seed/copy-v1';
 import { COPY_V2, planCopyV2 } from '@ai/core/seed/copy-v2';
 import { COPY_V3, planCopyV3 } from '@ai/core/seed/copy-v3';
+import { GLOSSARY_V1, planGlossaryV1 } from '@ai/core/seed/glossary-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { audit } from '../console/audit';
@@ -55,6 +56,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: COPY_V3,
     describe: 'The Week kit label for a skill a step links before its Library page exists (D-189)',
     plan: planCopyV3,
+  },
+  {
+    id: GLOSSARY_V1,
+    describe: 'The Accelerator glossary, set only when the course has none (D-193)',
+    plan: planGlossaryV1,
   },
 ];
 
