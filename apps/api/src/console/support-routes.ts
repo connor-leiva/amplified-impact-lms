@@ -45,6 +45,7 @@ import { users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { issuePasswordLink } from '../routes/password';
 import { readTeamIntake } from '../routes/intake';
+import { readTeamStack } from '../routes/stack';
 import { audit } from './audit';
 import { consoleAllows, consoleError, requireConsole, staffActor } from './guard';
 import { createNote, deleteNote, listNotes, noteTargetLabel } from './notes';
@@ -57,6 +58,7 @@ export const SUPPORT_PATHS = {
   workspaces: '/api/console/workspaces',
   workspace: '/api/console/workspaces/:teamId',
   workspaceIntake: '/api/console/workspaces/:teamId/intake',
+  workspaceStack: '/api/console/workspaces/:teamId/stack',
   users: '/api/console/users',
   user: '/api/console/users/:userId',
   passwordReset: '/api/console/users/:userId/password-reset',
@@ -175,6 +177,15 @@ export function registerSupportRoutes(scope: FastifyInstance): void {
     const actor = staffActor(viewerOrThrow(req));
     if (!ID.test(id) || !actor) return consoleError(reply, 'not_found');
     const row = await readTeamIntake(req, id, actor);
+    if (!row) return consoleError(reply, 'not_found');
+    return reply.send(row);
+  });
+
+  scope.get(SUPPORT_PATHS.workspaceStack, { ...read, preHandler: [requireSession, requireConsole('workspaces.read')] }, async (req, reply): Promise<FastifyReply> => {
+    const id = paramOf(req, 'teamId');
+    const actor = staffActor(viewerOrThrow(req));
+    if (!ID.test(id) || !actor) return consoleError(reply, 'not_found');
+    const row = await readTeamStack(req, id, actor);
     if (!row) return consoleError(reply, 'not_found');
     return reply.send(row);
   });

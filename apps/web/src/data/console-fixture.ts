@@ -452,6 +452,13 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         record('intake.read', { type: 'team', id: teamId, label: 'Intake' }, null);
         return { answers: {}, updatedAt: null, submittedAt: null };
       }),
+    teamStack: (teamId) =>
+      settle(() => {
+        need('workspaces.read');
+        if (!fixtureWorkspace(records, teamId)) throw notFound();
+        record('stack.read', { type: 'team', id: teamId, label: 'Stack card' }, null);
+        return { rows: [], sentAt: null };
+      }),
     users: (filters, cursor) =>
       settle(() => {
         need('users.read');

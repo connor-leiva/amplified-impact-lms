@@ -249,6 +249,22 @@ const moduleCourse = z.strictObject({
       })).max(40),
     })).max(12),
   }).optional(),
+  stackCard: z.strictObject({
+    sources: z.array(z.strictObject({
+      id: z.string().min(1).max(40),
+      name: z.string().max(120),
+      green: z.string().max(500),
+      yellow: z.string().max(500),
+    })).max(8),
+    exampleLabel: z.string().max(80),
+    exampleTeam: z.string().max(120),
+    example: z.array(z.strictObject({
+      source: z.string().max(120),
+      tool: z.string().max(200),
+      plan: z.enum(['green', 'yellow']),
+      who: z.string().max(200),
+    })).max(8),
+  }).optional(),
 });
 
 // D-193: one glossary term. The id, the step and the underline are checked again on save.

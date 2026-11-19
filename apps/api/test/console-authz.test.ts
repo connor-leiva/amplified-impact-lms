@@ -29,6 +29,7 @@ type RouteName =
   | 'workspaces'
   | 'workspace'
   | 'workspaceIntake'
+  | 'workspaceStack'
   | 'users'
   | 'user'
   | 'passwordReset'
@@ -111,6 +112,7 @@ const ROUTES: Record<RouteName, Route> = {
   workspaces: { path: CONSOLE_PATHS.workspaces, url: CONSOLE_PATHS.workspaces, method: 'GET', route: `GET ${CONSOLE_PATHS.workspaces}` },
   workspace: { path: CONSOLE_PATHS.workspace, url: '/api/console/workspaces/northline', method: 'GET', route: `GET ${CONSOLE_PATHS.workspace}` },
   workspaceIntake: { path: CONSOLE_PATHS.workspaceIntake, url: '/api/console/workspaces/northline/intake', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceIntake}` },
+  workspaceStack: { path: CONSOLE_PATHS.workspaceStack, url: '/api/console/workspaces/northline/stack', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceStack}` },
   users: { path: CONSOLE_PATHS.users, url: CONSOLE_PATHS.users, method: 'GET', route: `GET ${CONSOLE_PATHS.users}` },
   user: { path: CONSOLE_PATHS.user, url: '/api/console/users/u_jamie', method: 'GET', route: `GET ${CONSOLE_PATHS.user}` },
   passwordReset: { path: CONSOLE_PATHS.passwordReset, url: '/api/console/users/u_jamie/password-reset', method: 'POST', route: `POST ${CONSOLE_PATHS.passwordReset}` },
@@ -248,6 +250,7 @@ const WRITES = new Set<RouteName>([
   'incidentResolve',
   'incidentNote',
   'workspaceIntake',
+  'workspaceStack',
   'flagFlip',
   'integrationCheck',
 ]);
@@ -284,6 +287,7 @@ const ALL = (v: number) => ({
   workspaces: v,
   workspace: v,
   workspaceIntake: v,
+  workspaceStack: v,
   users: v,
   user: v,
   passwordReset: v,
