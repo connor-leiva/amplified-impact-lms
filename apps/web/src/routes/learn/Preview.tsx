@@ -17,6 +17,7 @@ import { LearnProvider } from './data';
 import type { LearnContext } from './data';
 import { StepPage } from './Step';
 import { WeekPage } from './Week';
+import { learnTeam } from './routes';
 import c from './WeekContent.module.css';
 
 /** Staff, previewing: nothing is written ("Mark step done" is off for anyone but a learner). */
@@ -34,9 +35,16 @@ export function LearnerWeekPreview({ payload, db, week, now }: { payload: Course
   const onClickCapture = (e: MouseEvent<HTMLDivElement>) => {
     const a = (e.target as HTMLElement).closest('a');
     if (!a || !e.currentTarget.contains(a)) return;
-    e.preventDefault();
-    const to = previewTarget(a.getAttribute('href'));
-    if (to && to.week === week) setStep(to.step);
+    const href = a.getAttribute('href');
+    const to = previewTarget(href);
+    // A step or the week stays inside the preview. A kit download is a real file link and is left alone.
+    if (to && to.week === week) {
+      e.preventDefault();
+      setStep(to.step);
+      return;
+    }
+    // Invite opens Team Hub. The link stays visible; following it would leave the builder.
+    if (href === learnTeam()) e.preventDefault();
   };
   // The pages draw router links; outside a router (a test of the builder alone) they get one of their own.
   const routed = useInRouterContext();
