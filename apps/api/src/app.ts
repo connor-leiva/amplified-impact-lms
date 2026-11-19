@@ -106,6 +106,7 @@ import type { ConsoleDeps } from './console/routes';
 import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
+import { registerIntakeRoute } from './routes/intake';
 import type { OfferPages } from './routes/offer';
 import { keyMode, readOfferConfig } from './billing/config';
 import { cachedConsoleStripe, consoleStripeClient, probeStripeScopes, scopedConsoleStripe } from './console/stripe-read';
@@ -677,6 +678,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerBillingRoutes(app, { stripe: offerStripe, config: offerConfig });
     // The AI Accelerator's pages (D-110): signed in, and only for a plan that opens the course.
     registerCourseRoute(app);
+    registerIntakeRoute(app);
     // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
     registerCurriculumStatusRoute(app);
     // Whether a Skill Library download link resolves, as counts and a status code (D-122): open.

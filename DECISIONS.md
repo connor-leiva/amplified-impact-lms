@@ -6585,3 +6585,19 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not in this change.** The role filter, icon-rail labels, the mini player, playback speed, task timers, the intake form, the stack card form, hide and collapse, the path default, and operator progress. No golden, tolerance or mask.
 
 **Blast radius.** The parity fixture does not run this data step, so its week and step pages do not gain the card. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.
+
+---
+
+## D-196 · Week 0 intake, in the portal, autosaved
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical.
+**Number:** D-195 is the Start Here card. D-196 was free.
+
+- **The questions live on Week 0's course** (`intake`), optional. An opening line, then sections of questions. Staff edit them on the Week 0 Intake card. A save checks the copy rules. The builder warns before operator, ai, plan or google is removed, because a later change reads those ids.
+- **The seed is insert-only.** The repo had topic names and no question form, so data step `2026-11-19-intake` sets the 20 design questions on accelerator-week-0 only when that week has no intake. No overwrite.
+- **Answers live in `team_intake`** (migration `0029_team_intake`): one row per team, jsonb answers, updated_at, updated_by, and a nullable submitted_at. The Team Owner and the Operations Lead read and edit it. Staff read it from the workspace page under workspaces.read, and that read writes `intake.read`. Saving and submitting stay in the portal. Nothing is sent to GHL, Stripe or anywhere else.
+- **The form.** A checklist form action for the intake opens `/learn/week/0/intake`. It autosaves and shows the time through fmt, in Mountain Time when the viewer is there. Submit sets submitted_at and checks the step 1 intake item for every member of the team. Staff can name that item on the action. Answers stay editable after submit. A staff preview writes nothing.
+- **Not in this change.** The stack card, hide and collapse, the path default, operator progress, and the week-complete overlay. The welcome email is unchanged.
+
+**Blast radius.** A week with no intake is unchanged, so the parity fixture does not gain a form. Utah Life and the non-course screens are unchanged.

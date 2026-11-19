@@ -33,6 +33,7 @@ export const LEARN_ROOT = '/learn';
 export const learnHome = (): string => LEARN_ROOT;
 export const learnWeek = (week: number): string => `${LEARN_ROOT}/week/${week}`;
 export const learnStep = (week: number, step: number): string => `${LEARN_ROOT}/week/${week}/step/${step}`;
+export const learnIntake = (): string => `${LEARN_ROOT}/week/0/intake`;
 export const learnSchedule = (view?: 'calendar'): string => `${LEARN_ROOT}/schedule${view ? `?view=${view}` : ''}`;
 export const learnSkills = (): string => `${LEARN_ROOT}/skills`;
 export const learnSkill = (slug: string): string => `${LEARN_ROOT}/skills/${slug}`;
@@ -56,6 +57,7 @@ export function learnerRoutes(enabled: boolean, { gate = false }: LearnerRouteOp
         { index: true, lazy: () => import('./Home') },
         { path: 'week/:week', lazy: () => import('./Week') },
         { path: 'week/:week/step/:step', lazy: () => import('./Step') },
+        { path: 'week/:week/intake', lazy: () => import('./Intake') },
         { path: 'schedule', lazy: () => import('./Schedule') },
         { path: 'skills', lazy: () => import('./Library') },
         { path: 'skills/:slug', lazy: () => import('./Skill') },

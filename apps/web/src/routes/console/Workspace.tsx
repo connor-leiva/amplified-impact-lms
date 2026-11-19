@@ -53,6 +53,7 @@ export function Component() {
   const [tab, setTab] = useState<WorkspaceTab>('members');
   const [notes, setNotes] = useState<StaffNote[]>([]);
   const [draft, setDraft] = useState('');
+  const [intake, setIntake] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
   useRecordCrumb(vm?.title ?? null);
@@ -170,6 +171,25 @@ export function Component() {
           ) : undefined
         }
       />
+      <Card
+        title="Intake"
+        right={
+          <Button
+            kind="quiet"
+            onClick={() => {
+              if (!api) return;
+              api.teamIntake(teamId).then(
+                (row) => setIntake(JSON.stringify(row.answers, null, 2) || 'No answers yet.'),
+                () => setIntake('Could not load the intake.'),
+              );
+            }}
+          >
+            View intake
+          </Button>
+        }
+      >
+        {intake ? <pre className={k.mo}>{intake}</pre> : <span className={k.mu}>Not loaded</span>}
+      </Card>
       <Facts
         items={[
           { label: C.facts.id, value: <span className={k.mo}>{vm.facts.id}</span> },

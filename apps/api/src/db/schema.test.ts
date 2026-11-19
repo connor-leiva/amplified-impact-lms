@@ -69,6 +69,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   learnerPrefs: { table: 'learner_prefs', columns: ['key', 'updated_at', 'user_id', 'value'] },
   // D-191: how far a learner has watched one course video. Epoch ms, like progress.
   videoProgress: { table: 'video_progress', columns: ['last_position_s', 'max_pct', 'module_id', 'updated_at', 'user_id', 'video_id'] },
+  // D-196: one intake per team. Not a Db record.
+  teamIntake: { table: 'team_intake', columns: ['answers', 'submitted_at', 'team_id', 'updated_at', 'updated_by'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
@@ -333,6 +335,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['checklistState', 'checkedAt'],
   ['learnerPrefs', 'updatedAt'],
   ['videoProgress', 'updatedAt'],
+  ['teamIntake', 'updatedAt'],
+  ['teamIntake', 'submittedAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
   ['requests', 'at'],
@@ -416,6 +420,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   checklistState: { unit: 'epoch-ms', why: 'D-190: ChecklistMark.checkedAt is clock.now() as written by toggleChecklistItem, and fmt never reads a Date' },
   learnerPrefs: { unit: 'epoch-ms', why: 'D-190: CoursePref.updatedAt is clock.now() as written by setPref' },
   videoProgress: { unit: 'epoch-ms', why: 'D-191: VideoProgress.updatedAt is clock.now() as written by saveVideoProgress, and fmt never reads a Date' },
+  teamIntake: { unit: 'epoch-ms', why: 'D-196: updated_at and submitted_at are clock.now(), and the Saved line is fmt.time' },
   resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
   announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
   dismissals: { unit: 'epoch-ms', why: 'no instant' },
