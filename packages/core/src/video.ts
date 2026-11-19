@@ -55,7 +55,7 @@ export interface ChapterParse {
 }
 
 /**
- * One chapter per line: `0:47 | Map Your Spend self-test | s4c-mys`.
+ * One chapter per line: `0:47 | Open Settings | item-1`.
  * The item id is optional. Lines must be in time order.
  */
 export function parseChapters(text: string): ChapterParse {
@@ -65,7 +65,7 @@ export function parseChapters(text: string): ChapterParse {
   for (let i = 0; i < lines.length; i++) {
     const parts = lines[i]!.split('|').map((p) => p.trim());
     const where = `Line ${i + 1}`;
-    if (parts.length < 2 || !parts[1]) return { chapters: [], error: `${where}: use time | label, like 0:47 | Map Your Spend self-test.` };
+    if (parts.length < 2 || !parts[1]) return { chapters: [], error: `${where}: use time | label, like 0:47 | Open Settings.` };
     const t = parseClock(parts[0] ?? '');
     if (t === null) return { chapters: [], error: `${where}: "${parts[0]}" is not a time.` };
     if (t < prev) return { chapters: [], error: `${where}: chapters go in time order.` };

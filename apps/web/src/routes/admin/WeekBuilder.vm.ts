@@ -93,7 +93,7 @@ export const VIDEO_LABELS = {
   removeFile: 'Remove',
   draft: 'Draft video · narration coming',
   chapters: 'Chapters',
-  chaptersHint: 'One per line: 0:47 | Map Your Spend self-test | s4c-mys',
+  chaptersHint: 'One per line: 0:47 | Open Settings | item-1',
 } as const;
 
 /** A week's Media split as the builder edits it: its lines, then its videos (D-188). */
