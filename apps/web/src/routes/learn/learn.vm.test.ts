@@ -1,8 +1,8 @@
 // D-177: the learner shell's view-model: the week rows, the nav, the top bar, kit and skill rows.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone } from '@ai/core';
-import { learnerOf } from '@ai/core/learner';
-import { LABELS, barVM, dateTile, kitRow, navVM, sessionRow, skillRow, stepMeta, stepText, stepTitle, toneOf, weekOfPath, weekRows } from './learn.vm';
+import { learnerOf, type LearnerStep } from '@ai/core/learner';
+import { LABELS, barVM, dateTile, kitRow, linkedRoutes, navVM, sessionRow, skillRow, stepMeta, stepOfSkill, stepText, stepTitle, toneOf, weekOfPath, weekRows } from './learn.vm';
 import { LEARNER_ID, LIVE_NOW, PRELAUNCH_NOW, liveState, prelaunchState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
@@ -107,6 +107,49 @@ describe('the learner shell’s view-model (D-177)', () => {
     expect(skillRow({ title: 'AI Brain Setup', route: '/ai-brain-setup' }, copy)).toMatchObject({ href: '/learn/skills/ai-brain-setup', meta: 'Skill · Open now' });
     expect(skillRow({ title: 'Map Your Spend', route: 'map-your-spend' }, copy)).toMatchObject({ href: null, meta: 'Skill · Coming With Week 1' });
     expect(skillRow({ title: 'Map Your Spend', route: '/map-your-spend' }, undefined)).toMatchObject({ href: null, meta: 'Skill' });
+  });
+
+  it('parses one Linked skill or a comma list, and a single route matches as before (D-189)', () => {
+    expect(linkedRoutes('map-your-spend')).toEqual(['/map-your-spend']);
+    expect(linkedRoutes('/map-your-spend')).toEqual(['/map-your-spend']);
+    expect(linkedRoutes(' map-your-spend, lead-source-review, , map-your-spend ')).toEqual(['/map-your-spend', '/lead-source-review']);
+    expect(linkedRoutes(undefined)).toEqual([]);
+    expect(linkedRoutes('   ')).toEqual([]);
+    const step = (n: number, linkedSkill: string): LearnerStep => ({
+      index: n - 1,
+      n,
+      id: `c${n}`,
+      step: { text: 't', ch: 'c', mins: 0, t: 0, hint: '', linkedSkill },
+      done: false,
+      current: false,
+    });
+    const steps = [step(4, 'map-your-spend, lead-source-review'), step(2, 'ai-brain-setup')];
+    expect(stepOfSkill('map-your-spend', steps)?.n).toBe(4);
+    expect(stepOfSkill('/lead-source-review', steps)?.n).toBe(4);
+    expect(stepOfSkill('ai-brain-setup', steps)?.n).toBe(2);
+    expect(stepOfSkill('morning-brief', steps)).toBeUndefined();
+  });
+
+  it('a skill row prefers an open Library page, then the step that links it, then the coming line (D-189)', () => {
+    const step = (n: number, linkedSkill: string): LearnerStep => ({
+      index: n - 1,
+      n,
+      id: `c${n}`,
+      step: { text: 't', ch: 'c', mins: 0, t: 0, hint: '', linkedSkill },
+      done: false,
+      current: false,
+    });
+    const place = { week: 0, steps: [step(4, 'map-your-spend, lead-source-review'), step(2, 'ai-brain-setup')] };
+    const copy = { 'skill.coming': 'Coming With Week 1', 'skill.in_step': 'In Step {n}' };
+    // (a) a page that exists stays Open now, even when a step also links it.
+    expect(skillRow({ title: 'AI Brain Setup', route: 'ai-brain-setup' }, copy, place)).toMatchObject({ href: '/learn/skills/ai-brain-setup', meta: 'Skill · Open now' });
+    // (b) no page, and a step in this week links it.
+    expect(skillRow({ title: 'Map Your Spend', route: 'map-your-spend' }, copy, place)).toMatchObject({ href: '/learn/week/0/step/4', meta: 'Skill · In Step 4' });
+    expect(skillRow({ title: 'Lead Source Review', route: '/lead-source-review' }, copy, place)).toMatchObject({ href: '/learn/week/0/step/4', meta: 'Skill · In Step 4' });
+    // (c) nothing in this week links it.
+    expect(skillRow({ title: 'Other', route: 'not-a-real-page' }, copy, place)).toMatchObject({ href: null, meta: 'Skill · Coming With Week 1' });
+    // The copy string is missing: the same as (c), no link, even though a step links it.
+    expect(skillRow({ title: 'Map Your Spend', route: 'map-your-spend' }, { 'skill.coming': 'Coming With Week 1' }, place)).toMatchObject({ href: null, meta: 'Skill · Coming With Week 1' });
   });
 
   it('downloads a kit item through the gated files route, with its step', () => {

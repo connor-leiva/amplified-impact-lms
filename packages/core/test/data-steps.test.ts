@@ -6,6 +6,7 @@ import type { Db } from '../src/types';
 import { WEEK0_DUE_AT } from '../seed/accelerator-v1';
 import { COPY_V1_KEYS, planCopyV1 } from '../seed/copy-v1';
 import { COPY_V2, TEAM_PLAN_COPY, planCopyV2 } from '../seed/copy-v2';
+import { COPY_V3, SKILL_IN_STEP, planCopyV3 } from '../seed/copy-v3';
 import { copyIssues } from '../src/course-rules';
 import { SEED_COPY, seedProduction } from '../seed/curriculum';
 import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan-v1';
@@ -111,5 +112,31 @@ describe('the Team Plan window’s copy strings (D-187)', () => {
       expect(c.audience).toBe('learner');
       expect(copyIssues([{ path: c.key, label: c.key, text: c.value }])).toEqual([]);
     }
+  });
+});
+
+// D-189: "In Step {n}", the Week kit's label for a skill a step links before its page exists.
+describe('the In Step copy string (D-189)', () => {
+  it('inserts skill.in_step when it is missing, and never overwrites a value staff already set', () => {
+    const db = prod();
+    expect(db.copy!.some((c) => c.key === 'skill.in_step')).toBe(false);
+    const first = planCopyV3(db);
+    expect(first.changes).toEqual([{ target: { type: 'copy', id: 'skill.in_step', label: 'skill.in_step' }, before: null, after: { audience: 'learner', length: SKILL_IN_STEP.value.length } }]);
+    expect(first.db.copy!.find((c) => c.key === 'skill.in_step')).toEqual(SKILL_IN_STEP);
+    expect(planCopyV3(first.db).changes).toEqual([]);
+    expect(planCopyV3(first.db).db).toBe(first.db);
+    // Staff edited the words. A later plan leaves them, and does not write a second row.
+    const edited = structuredClone(first.db);
+    edited.copy!.find((c) => c.key === 'skill.in_step')!.value = 'During step {n}';
+    const kept = planCopyV3(edited);
+    expect(kept.changes).toEqual([]);
+    expect(kept.db).toBe(edited);
+    expect(kept.db.copy!.find((c) => c.key === 'skill.in_step')!.value).toBe('During step {n}');
+    expect(COPY_V3).toBe('2026-11-19-skill-in-step-copy');
+  });
+
+  it('is one learner string, and passes the copy rules', () => {
+    expect(SKILL_IN_STEP).toMatchObject({ key: 'skill.in_step', value: 'In Step {n}', audience: 'learner' });
+    expect(copyIssues([{ path: SKILL_IN_STEP.key, label: SKILL_IN_STEP.key, text: SKILL_IN_STEP.value }])).toEqual([]);
   });
 });

@@ -245,10 +245,14 @@ export function CopyBlock({ text, label }: { text: string; label?: string }) {
   );
 }
 
-/** A table's columns, each as wide as its longest cell asks (within limits), as `fr` shares. */
-export function columnTemplate(head: readonly string[] | undefined, rows: readonly (readonly string[])[], cols: number): string {
+/**
+ * A table's columns, each as wide as its longest cell asks (within limits), as `fr` shares.
+ * `floor` is the track's minimum (D-189): step tables use `7rem` so a narrow column cannot shrink
+ * to nothing. Skill sample tables pass `0`, the floor they have always had.
+ */
+export function columnTemplate(head: readonly string[] | undefined, rows: readonly (readonly string[])[], cols: number, floor = '7rem'): string {
   const widths = Array.from({ length: cols }, (_, c) => Math.min(40, Math.max(3, ...[head?.[c] ?? '', ...rows.map((r) => r[c] ?? '')].map((x) => x.length))));
-  return widths.map((w) => `minmax(0, ${w}fr)`).join(' ');
+  return widths.map((w) => `minmax(${floor}, ${w}fr)`).join(' ');
 }
 
 /**

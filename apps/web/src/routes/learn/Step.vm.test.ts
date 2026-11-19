@@ -57,23 +57,53 @@ describe('the step player (D-177)', () => {
     expect(vm.rail[0]).toMatchObject({ label: 'Fill In Your Intake and Name Your Operator', href: '/learn/week/0/step/1', aria: 'Step 1, Fill In Your Intake and Name Your Operator, done' });
   });
 
-  it('For this step: the week’s skills, an unbuilt Library page as the coming copy string with no link; help with office hours', () => {
+  it('For this step is empty when the step links nothing and has no kit item; help still names office hours (D-189)', () => {
     const vm = stepVM(st.payload, rows[0], 3, learner, st.now);
     if (vm.kind !== 'step') throw new Error('missing');
-    expect(vm.forStep.map((r) => [r.title, r.href])).toEqual([
-      ['AI Brain Setup', '/learn/skills/ai-brain-setup'],
-      ['Map Your Spend', null],
-      ['Lead Source Review', null],
-    ]);
+    expect(vm.forStep).toEqual([]);
     expect(vm.help.officeHours).toMatchObject({ label: 'Office hours', meta: 'Thu, Dec 3 · 12:00 PM MT (1:00 PM CT)', href: '/learn/schedule' });
   });
 
-  it('a step’s linked skill alone, when the step names one', () => {
+  it('a step’s linked Library skill alone, and a comma list drops a skill whose page is not built', () => {
     const p = structuredClone(st.payload);
     const w = p.course.weeks[0] as { module: { checklist: { linkedSkill?: string }[] } };
     w.module.checklist[4]!.linkedSkill = 'ai-brain-setup';
-    const vm = stepVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0], 5, learner, st.now);
-    expect(vm.kind === 'step' && vm.forStep.map((r) => r.title)).toEqual(['AI Brain Setup']);
+    const one = stepVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0], 5, learner, st.now);
+    expect(one.kind === 'step' && one.forStep.map((r) => [r.title, r.href, r.meta])).toEqual([['AI Brain Setup', '/learn/skills/ai-brain-setup', 'Skill · Open now']]);
+    w.module.checklist[4]!.linkedSkill = 'ai-brain-setup, map-your-spend';
+    const both = stepVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0], 5, learner, st.now);
+    expect(both.kind === 'step' && both.forStep.map((r) => r.title)).toEqual(['AI Brain Setup']);
+  });
+
+  it('For this step adds kit items placed on this step, filtered by the path tab (D-189)', () => {
+    const p = structuredClone(st.payload);
+    const w = p.course.weeks[0] as {
+      kit?: { id: string; title: string; kind: 'file' | null; platform: 'claude' | 'chatgpt' | 'both' | null; stepId: string | null }[];
+      module: { checklist: { linkedSkill?: string }[] };
+    };
+    w.module.checklist[3]!.linkedSkill = 'ai-brain-setup, map-your-spend';
+    w.kit = [
+      { id: 'a', title: 'Claude zip', kind: 'file', platform: 'claude', stepId: 'c4' },
+      { id: 'b', title: 'ChatGPT zip', kind: 'file', platform: 'chatgpt', stepId: 'c4' },
+      { id: 'c', title: 'Both zip', kind: 'file', platform: 'both', stepId: 'c4' },
+      { id: 'd', title: 'Either zip', kind: 'file', platform: null, stepId: 'c4' },
+      { id: 'e', title: 'Other step', kind: 'file', platform: null, stepId: 'c5' },
+    ];
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0];
+    const fileUrl = (id: string) => `/api/files/resource/${id}`;
+    const claude = stepVM(p, row, 4, learner, st.now, { fileUrl, tab: 'claude' });
+    const gpt = stepVM(p, row, 4, learner, st.now, { fileUrl, tab: 'chatgpt' });
+    if (claude.kind !== 'step' || gpt.kind !== 'step') throw new Error('missing');
+    expect(claude.forStep.map((r) => [r.title, r.href, r.meta])).toEqual([
+      ['AI Brain Setup', '/learn/skills/ai-brain-setup', 'Skill · Open now'],
+      ['Claude zip', '/api/files/resource/a', 'File · Step 4'],
+      ['Both zip', '/api/files/resource/c', 'File · Step 4'],
+      ['Either zip', '/api/files/resource/d', 'File · Step 4'],
+    ]);
+    expect(gpt.forStep.map((r) => r.title)).toEqual(['AI Brain Setup', 'ChatGPT zip', 'Both zip', 'Either zip']);
+    // The first tab is the default, so a caller that names no tab sees the Claude rows.
+    const first = stepVM(p, row, 4, learner, st.now, { fileUrl });
+    expect(first.kind === 'step' && first.forStep.map((r) => r.title)).toEqual(claude.forStep.map((r) => r.title));
   });
 
   it('a locked week or a step that isn’t there goes to the week', () => {

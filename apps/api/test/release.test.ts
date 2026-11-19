@@ -249,16 +249,26 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       [DATA_MIGRATIONS[2]!.id, 12, 0],
       // D-187: the Team Plan window's five copy strings.
       [DATA_MIGRATIONS[3]!.id, 5, 0],
+      // D-189: the In Step label, one copy string.
+      [DATA_MIGRATIONS[4]!.id, 1, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
-    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming']);
+    expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(28).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(29).fill('curriculum.migrate'));
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });
     expect((await handle.select().from(dataMigrations)).map((r) => r.id)).toEqual(DATA_MIGRATIONS.map((s) => s.id));
     // Again: nothing to run, nothing written.
     expect(await applyDataMigrations(handle, IN_PREVIEW)).toEqual([]);
+    expect(await loadDb()).toEqual(after);
+    // Staff removed the new label after the step ran. The step's id is recorded, so it is not put back.
+    const stripped = structuredClone(after);
+    stripped.copy = after.copy!.filter((c) => c.key !== 'skill.in_step');
+    await persistDiff(handle, after, stripped);
+    expect(await applyDataMigrations(handle, IN_PREVIEW)).toEqual([]);
+    expect((await loadDb()).copy!.some((c) => c.key === 'skill.in_step')).toBe(false);
+    await persistDiff(handle, await loadDb(), after);
     expect(await loadDb()).toEqual(after);
     // Put the shared fixture back for anything after this file's last test.
     await released();
@@ -287,6 +297,7 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       expect(weeks[0]!.module.checklist.map((s) => s.ch)).toEqual(WEEK0_STEPS.map((s) => s.step));
       expect(weeks[4]!.title).toBe(ACCELERATOR_WEEKS_CONTENT[4]!.title);
       expect(body.copy['skill.coming']).toBe('Coming With Week 1');
+      expect(body.copy['skill.in_step']).toBe('In Step {n}');
       expect(body.sessions.find((x) => x.id === 'dec26-fri-oh2')).toMatchObject({ title: 'Lead Source Review Office Hours', start: Date.parse('2026-12-11T19:00:00Z') });
       expect(body.sessions.find((x) => x.id === 'dec26-s1')!.title).toBe('Map Your Spend Live Build');
 

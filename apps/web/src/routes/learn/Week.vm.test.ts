@@ -55,6 +55,31 @@ describe('the week overview (D-177)', () => {
     ]);
   });
 
+  it('a skill a step links, with no Library page, reads In Step N and opens that step (D-189)', () => {
+    const p = structuredClone(st.payload);
+    p.copy = { ...(p.copy ?? {}), 'skill.in_step': 'In Step {n}' };
+    const w = p.course.weeks[0] as { module: { checklist: { linkedSkill?: string }[] } };
+    w.module.checklist[3]!.linkedSkill = 'map-your-spend, lead-source-review';
+    const vm = weekVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID)), 0, st.now, files);
+    if (vm.kind !== 'open') throw new Error('not open');
+    expect(vm.kit!.rows.map((r) => [r.title, r.href, r.meta])).toEqual([
+      ['AI Brain Setup', '/learn/skills/ai-brain-setup', 'Skill · Open now'],
+      ['Map Your Spend', '/learn/week/0/step/4', 'Skill · In Step 4'],
+      ['Lead Source Review', '/learn/week/0/step/4', 'Skill · In Step 4'],
+    ]);
+  });
+
+  it('without the In Step copy string, a linked skill still reads Coming With Week 1 and does not link', () => {
+    const p = structuredClone(st.payload);
+    p.copy = { ...(p.copy ?? {}) };
+    delete p.copy['skill.in_step'];
+    const w = p.course.weeks[0] as { module: { checklist: { linkedSkill?: string }[] } };
+    w.module.checklist[3]!.linkedSkill = 'map-your-spend';
+    const vm = weekVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID)), 0, st.now, files);
+    if (vm.kind !== 'open') throw new Error('not open');
+    expect(vm.kit!.rows.find((r) => r.title === 'Map Your Spend')).toMatchObject({ href: null, meta: 'Skill · Coming With Week 1' });
+  });
+
   it('a locked week: its stub alone (title, outcome, question, when it opens) and its sessions', () => {
     const vm = weekVM(st.payload, rows, 2, st.now, files);
     if (vm.kind !== 'locked') throw new Error('not locked');

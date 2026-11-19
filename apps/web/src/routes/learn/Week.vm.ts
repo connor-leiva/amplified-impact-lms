@@ -11,7 +11,7 @@ import type { IconName, IcsEvent } from '@ai/core';
 import { countWord, duration, minutesInAll, minutesLeft, upcomingSessions } from '@ai/core/learner';
 import { COPY, opensText, skillVM } from '../course/Course.vm';
 import type { CoursePayload } from '../course/Course.vm';
-import { LABELS, addLabel, icsEvents, kitRow, segments, sessionRow, skillRow, stepMeta, stepOfSkill, stepRowMeta, stepTitle } from './learn.vm';
+import { LABELS, addLabel, icsEvents, kitRow, segments, sessionRow, skillRow, stepMeta, stepRowMeta, stepTitle } from './learn.vm';
 import type { KitRowVM, Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
 import { learnHome, learnSkills, learnStep } from './routes';
 
@@ -99,7 +99,7 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
   const footParts = [left > 0 ? `${WEEK.about} ${duration(left)} ${WEEK.left}` : null, due ? `${WEEK.due.toLowerCase()} ${fmt.date(due)}` : null].filter((x): x is string => !!x);
   const skillRows = w.skills.map((k): KitRowVM => {
     const v = skillVM(k, p.copy);
-    return { ...skillRow(k, p.copy, stepOfSkill(k.route, r.steps)), tags: [{ label: v.role }, ...(v.free ? [{ label: COPY.free, tone: 'done' as const }] : [])] };
+    return { ...skillRow(k, p.copy, { week: r.week, steps: r.steps }), tags: [{ label: v.role }, ...(v.free ? [{ label: COPY.free, tone: 'done' as const }] : [])] };
   });
   const kitRows = (w.kit ?? []).map((k) => kitRow(k, r.steps, fileUrl));
   const rows = [...skillRows, ...kitRows];
