@@ -6537,3 +6537,21 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Root cause.** The live course answer (`courseFor`, `GET /api/course`) already attaches a week’s kit, and a learner with Week 0 open sees an “Open in the preview” item. The builder’s Owner and Operator preview used `courseFromSnapshot`, which reassembles the week’s words and never attaches kit. “For this step” then had only linked skills whose Library page exists. Map Your Spend and Lead Source Review are not in the Library, so the panel was empty. The Week kit’s “In Step 4” label does not read kit, which is why that line still showed.
 - **The fix.** That preview now attaches the same kit a learner sees once the week is open (`kitVisible` with the week open), including “Open in the preview”, and still leaves a Hidden item out. The step player, including the one-step layout (D-190), lists those items in “For this step”, filtered by the path tab, and still omits a linked skill whose page is not built. A checklist Download button resolves against that same kit (the file’s title and its gated route). Invite stays visible and does not leave the builder.
 - **Not changed.** No course text, no schema, no migration. A learner’s `GET /api/course` was already correct. Utah Life’s preview stays the locked line. Goldens, tolerances and masks are untouched.
+
+
+---
+
+## D-193 · Glossary terms, the term drawer, and the Know These card
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 18, 2026, verbatim: "Yes, build and ship it live in small pieces without waiting for my review, quick check after each." This is 4a of the Week 0 v2 package. The design's 31 terms are the seed. Staff can edit every one of them.
+**Number:** D-192 is the last on `main`. D-193 was free.
+**Status:** on `cursor/glossary-know-these-51f7`, off `main`.
+
+- **The glossary lives on the cohort course** (`CohortCourse.glossary`), optional, so a course without one is unchanged. Each term is an id, the term, a short line, a long line, aliases, an optional first step, and an underline switch that is on when it is absent. Course settings (`/admin/curriculum/course`) edits the list: add, edit, reorder, remove. A save checks the copy rules on the term, the short line, the long line and each alias, and refuses a bad or repeated id, a blank meaning, or a first step that is not a step number. A save that omits the field keeps the glossary already stored. An empty list clears it.
+- **The seed is insert-only.** Data step `2026-11-18-glossary` sets the design's terms on the Accelerator cohort's course only when that course has no glossary. An empty list counts as set, so a clear is not restored. It does not touch any other cohort. No new table and no SQL migration: the words are a field on the course JSON the builder already saves. `0028_video_progress` stays the last migration.
+- **On a course step page, the first use of a term or an alias** (whole word, case-insensitive) in a paragraph, a checklist title, a checklist detail or a callout gets a dotted underline. A longer phrase wins when two could overlap. Copy boxes, prompts, the first column of a table, links and headings are not searched. A term whose first step is after this step is not underlined, and a term with the underline switched off is not underlined. Hover and focus show the short line. A tap pins it. "More in the glossary" opens a drawer with the long line (`data-drawer="open"`, focus trapped, Escape closes). The fixture has no glossary, so a step that has none is drawn as before.
+- **A checklist Card** lists the glossary ids it names, each with its short line. The card's title is the checklist item's title. An id that is not in the glossary is skipped. The builder's Card action picks the ids from Course settings. A form button is still stored and still draws nothing.
+- **Not in this change.** Start Here, the role filter, icon-rail labels, the mini player, playback speed, task timers, the intake form, the stack card form, hide and collapse, the path default, and operator progress. No golden, tolerance or mask. No secret.
+
+**Blast radius.** A course with no glossary is unchanged, including Utah Life, Agent Plan, Team Plan and Insiders screens, and every non-course screen. The parity fixture does not run this data step, so its step pages do not gain underlines.

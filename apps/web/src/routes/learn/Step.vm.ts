@@ -9,7 +9,9 @@
 import { fmt, mountainWhen } from '@ai/core';
 import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
-import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
+import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, GlossaryTerm, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
+import { cardTerms, markSequence } from '@ai/core/glossary';
+import type { GlossarySpan } from '@ai/core/glossary';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { checkVisible, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
@@ -76,6 +78,8 @@ export const STEP = {
   notStarted: 'not started',
   inProgress: 'in progress',
   waitingStatus: 'waiting',
+  /** D-193: the glossary tooltip's way into the drawer. Chrome, not a term. */
+  moreGlossary: 'More in the glossary',
 } as const;
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'Operator', each: 'Each of you' };
@@ -127,6 +131,12 @@ export interface StepVM {
   layouts?: Partial<Record<Platform, ChecklistLayoutVM>>;
   /** D-191: this learner’s place in this week’s videos. Absent until they have watched one, so a step with none keeps its keys. */
   videoProgress?: { videoId: string; maxPct: number; lastPositionS: number }[];
+  /**
+   * D-193: the course glossary, and the first use of each term in each path's paragraphs.
+   * Absent when the course has no glossary, so a step without one keeps the keys it had.
+   */
+  glossary?: GlossaryTerm[];
+  pathMarks?: Partial<Record<Platform, (GlossarySpan[] | undefined)[]>>;
 }
 
 export interface PillVM {
@@ -148,6 +158,8 @@ export interface CalloutVM {
   kind: CalloutBlock['kind'];
   label: string;
   text: string;
+  /** D-193: set only when this callout holds the first use of a term. */
+  spans?: GlossarySpan[];
 }
 
 export type CheckActionVM =
@@ -174,6 +186,11 @@ export interface CheckItemVM {
   action: CheckActionVM | null;
   subchecks: CheckSubVM[];
   callouts: CalloutVM[];
+  /** D-193: set only when this title or detail holds the first use of a term. */
+  titleSpans?: GlossarySpan[];
+  detailSpans?: GlossarySpan[];
+  /** D-193: the Know These card. Missing ids are already dropped. Absent when there is nothing to list. */
+  card?: { id: string; term: string; short: string }[];
 }
 
 export interface AccordionVM {
@@ -202,6 +219,8 @@ export interface ChecklistLayoutVM {
   next: { href: string; title: string; meta: string } | null;
   due: string | null;
   jumps: { id: string; label: string }[];
+  /** D-193: first-use marks for `extras`, aligned with that list. Absent when the course has no glossary. */
+  extraMarks?: (GlossarySpan[] | undefined)[];
 }
 
 /** Kit items on this step, kept with the platform the builder set, so a tab can filter them. */
@@ -297,12 +316,24 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     forStep: asideRows(aside, chosenTab(tabs, opts)),
     aside,
     help: helpVM(p, now),
-    ...checklistOf(p, r, s, actor, now, opts),
+    ...checklistOf(p, r, s, actor, now, opts, p.course.glossary),
   };
+  const glossary = p.course.glossary?.length ? p.course.glossary : undefined;
+  const withGlossary: StepVM = glossary ? { ...base, glossary, pathMarks: pathMarksOf(paths, glossary, s.n) } : base;
   const watched = (opts?.videoProgress ?? [])
     .filter((row) => row.moduleId === acceleratorModuleId(r.week))
     .map(({ videoId, maxPct, lastPositionS }) => ({ videoId, maxPct, lastPositionS }));
-  return watched.length ? { ...base, videoProgress: watched } : base;
+  return watched.length ? { ...withGlossary, videoProgress: watched } : withGlossary;
+}
+
+/** First use in each path's paragraphs. Other blocks are not a surface, so their slot stays empty. */
+function pathMarksOf(paths: Partial<Record<Platform, PathBlock[]>>, glossary: readonly GlossaryTerm[], step: number): Partial<Record<Platform, (GlossarySpan[] | undefined)[]>> {
+  const out: Partial<Record<Platform, (GlossarySpan[] | undefined)[]>> = {};
+  for (const k of ORDER) {
+    const blocks = paths[k];
+    if (blocks) out[k] = markSequence(blocks.map((b) => (b.type === 'text' ? b.text : null)), glossary, step);
+  }
+  return out;
 }
 
 const DAY = 86_400_000;
@@ -345,8 +376,9 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
   return { type: 'calendar', event: session ? (icsEvents([session])[0] ?? null) : null };
 }
 
-function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckItemVM {
+function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[], glossary: readonly GlossaryTerm[] | undefined): CheckItemVM {
   const subs = (b.subchecks ?? []).map((sub) => ({ id: sub.id, label: sub.label, checked: isOn(stepId, `${b.id}:${sub.id}`) }));
+  const listed = b.action?.type === 'card' ? cardTerms(b.action.terms, glossary) : [];
   return {
     id: b.id,
     title: b.title,
@@ -362,6 +394,7 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     action: actionVM(b.action, kit, fileUrl, sessions),
     subchecks: subs,
     callouts: callouts.map(calloutVM),
+    ...(listed.length ? { card: listed } : {}),
   };
 }
 
@@ -375,6 +408,9 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
   if (regions.groups.length || regions.leading.length) jumps.push({ id: 'step-checklist', label: STEP.yourChecklist });
   if (regions.accordions.length) jumps.push({ id: 'step-reference', label: STEP.reference });
   const tasks = counts.tasks;
+  const leading = regions.leading.map(calloutVM);
+  const items = regions.groups.filter((g) => checkVisible(g.item)).map((g) => itemVM(g.item, g.callouts, ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions, ctx.glossary));
+  const extraMarks = applyGlossary(leading, items, regions.extras, ctx.glossary, ctx.n);
   return {
     eyebrow: `${STEP.week} ${ctx.week} · ${LABELS.step} ${ctx.n}`,
     time: ctx.time,
@@ -386,8 +422,8 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
     },
     countdown: tasks && ctx.dueAt !== null ? countdown(ctx.dueAt, ctx.now) : null,
     videos: regions.videos,
-    leading: regions.leading.map(calloutVM),
-    items: regions.groups.filter((g) => checkVisible(g.item)).map((g) => itemVM(g.item, g.callouts, ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions)),
+    leading,
+    items,
     extras: regions.extras,
     accordions: regions.accordions.map((b, index) => {
       const prefKey = `acc:${ctx.moduleId}:${ctx.stepId}:${index}`;
@@ -408,7 +444,42 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
     next: ctx.next,
     due: ctx.dueAt !== null ? `${STEP.due} ${dueLine(ctx.dueAt)}` : null,
     jumps,
+    ...(extraMarks ? { extraMarks } : {}),
   };
+}
+
+/**
+ * First use across the checklist page, in the order it is drawn: leading callouts, then each item's
+ * title, detail and callouts, then paragraph extras. A copy box, a list, a table and a heading are
+ * not surfaces. Returns the extra marks only when the course has a glossary.
+ */
+function applyGlossary(leading: CalloutVM[], items: CheckItemVM[], extras: readonly ContentBlock[], glossary: readonly GlossaryTerm[] | undefined, step: number): (GlossarySpan[] | undefined)[] | undefined {
+  if (!glossary?.length) return undefined;
+  const texts: (string | null)[] = [];
+  for (const c of leading) texts.push(c.text);
+  for (const item of items) {
+    texts.push(item.title);
+    texts.push(item.detail);
+    for (const c of item.callouts) texts.push(c.text);
+  }
+  for (const b of extras) texts.push(b.type === 'text' ? b.text : null);
+  const marks = markSequence(texts, glossary, step);
+  let i = 0;
+  for (const c of leading) {
+    const spans = marks[i++];
+    if (spans) c.spans = spans;
+  }
+  for (const item of items) {
+    const title = marks[i++];
+    const detail = marks[i++];
+    if (title) item.titleSpans = title;
+    if (detail) item.detailSpans = detail;
+    for (const c of item.callouts) {
+      const spans = marks[i++];
+      if (spans) c.spans = spans;
+    }
+  }
+  return extras.map(() => marks[i++]);
 }
 
 interface LayoutCtx {
@@ -429,13 +500,14 @@ interface LayoutCtx {
   sessions: readonly CourseSession[];
   prefs: readonly CoursePref[];
   next: { href: string; title: string; meta: string } | null;
+  glossary?: readonly GlossaryTerm[];
 }
 
 /**
  * The one-step layout, only when this week has a checklist item somewhere. A week without one gets
  * nothing added, so the view-model matches the one the step player already had.
  */
-function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor, now: number, opts?: StepVMOptions): { pills: PillVM[]; layouts: Partial<Record<Platform, ChecklistLayoutVM>> } | Record<string, never> {
+function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor, now: number, opts: StepVMOptions | undefined, glossary: readonly GlossaryTerm[] | undefined): { pills: PillVM[]; layouts: Partial<Record<Platform, ChecklistLayoutVM>> } | Record<string, never> {
   if (!r.open || !weekHasCheck(r.steps.map((x) => x.step))) return {};
   const moduleId = acceleratorModuleId(r.week);
   const checks = opts?.checks ?? [];
@@ -489,6 +561,7 @@ function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor,
     sessions: p.sessions,
     prefs: opts?.prefs ?? [],
     next,
+    ...(glossary?.length ? { glossary } : {}),
   };
   const layouts: Partial<Record<Platform, ChecklistLayoutVM>> = {};
   for (const k of ORDER) {

@@ -228,6 +228,17 @@ const moduleCourse = z.strictObject({
   statusLabels: z.record(z.string(), z.string()).optional(),
 });
 
+// D-193: one glossary term. The id, the step and the underline are checked again on save.
+const glossaryTerm = z.strictObject({
+  id: z.string().min(1).max(80),
+  term: z.string().max(200),
+  short: z.string().max(1000),
+  long: z.string().max(4000),
+  aliases: z.array(z.string().max(200)).max(20),
+  firstStep: z.number().optional(),
+  underline: z.boolean().optional(),
+});
+
 // D-174: what every week shares (`Cohort.course`, a `CohortCourse`), as the builder saves it whole.
 const labelHint = z.strictObject({ label: z.string(), hint: z.string() });
 const labelText = z.strictObject({ label: z.string(), text: z.string() });
@@ -274,6 +285,7 @@ export const cohortCourse = z.strictObject({
     noPaywall: z.string(),
     pilotQuestions: z.array(labelText),
   }),
+  glossary: z.array(glossaryTerm).max(80).optional(),
 });
 
 const step = z.strictObject({

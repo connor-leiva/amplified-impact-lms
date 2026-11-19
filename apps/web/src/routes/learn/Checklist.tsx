@@ -9,6 +9,7 @@ import { useMutate } from '../../data/hooks';
 import { Blocks, CalLinks, VideoView } from './parts';
 import type { VideoWatch } from './Video';
 import { saveIcs } from './ics';
+import { KnowCard, Marked } from './Glossary';
 import { LABELS } from './learn.vm';
 import { PLATFORM_LABEL, STEP } from './Step.vm';
 import type { AccordionVM, CalloutVM, CheckActionVM, CheckItemVM, ChecklistLayoutVM, PillVM, StepVM } from './Step.vm';
@@ -41,7 +42,7 @@ function Callout({ c }: { c: CalloutVM }) {
         <Icon name={icon} size={14} strokeWidth={1.8} />
       </span>
       <p>
-        <strong>{c.label}</strong> {c.text}
+        <strong>{c.label}</strong> <Marked text={c.text} spans={c.spans} />
       </p>
     </div>
   );
@@ -177,12 +178,29 @@ function Item({
         <Box checked={item.checked} />
       </button>
       <div className={s.body}>
-        <div className={s.titleRow}>
-          <span className={s.title}>{item.title}</span>
-          {item.role ? <span className={s.role}>{item.role}</span> : null}
-          {item.waiting !== null && !item.checked ? <span className={s.wait}>{STEP.waiting} {item.waiting}</span> : null}
-        </div>
-        {item.detail ? <p className={s.detail}>{item.detail}</p> : null}
+        {item.card?.length ? (
+          <KnowCard
+            titleId={`${item.id}-title`}
+            title={item.title}
+            spans={item.titleSpans}
+            titleClass={s.title!}
+            rowClass={s.titleRow!}
+            chips={
+              <>
+                {item.role ? <span className={s.role}>{item.role}</span> : null}
+                {item.waiting !== null && !item.checked ? <span className={s.wait}>{STEP.waiting} {item.waiting}</span> : null}
+              </>
+            }
+            terms={item.card}
+          />
+        ) : (
+          <div className={s.titleRow}>
+            <span className={s.title}><Marked text={item.title} spans={item.titleSpans} /></span>
+            {item.role ? <span className={s.role}>{item.role}</span> : null}
+            {item.waiting !== null && !item.checked ? <span className={s.wait}>{STEP.waiting} {item.waiting}</span> : null}
+          </div>
+        )}
+        {item.detail ? <p className={s.detail}><Marked text={item.detail} spans={item.detailSpans} /></p> : null}
         {item.subchecks.length ? (
           <ul className={s.subs}>
             {item.subchecks.map((sub) => (
@@ -438,7 +456,7 @@ export function ChecklistPlayer({
             <Item key={item.id} item={item} pop={pop === item.id} onItem={onItem} onPlay={onPlay} />
           ))}
         </ol>
-        {layout.extras.length ? <Blocks blocks={layout.extras} /> : null}
+        {layout.extras.length ? <Blocks blocks={layout.extras} marks={layout.extraMarks} /> : null}
       </section>
 
       {layout.accordions.length ? (

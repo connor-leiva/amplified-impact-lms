@@ -325,6 +325,14 @@ export function cohortCopyFields(c: Pick<Cohort, 'name' | 'cadence' | 'course'>)
     push(out, `course.after.pilotQuestions[${i}].label`, `Pilot question ${i + 1}`, x.label);
     push(out, `course.after.pilotQuestions[${i}].text`, `Pilot question ${i + 1}, text`, x.text);
   });
+  // D-193: a glossary term's words. The id, the step number and the underline switch are not copy.
+  (cc.glossary ?? []).forEach((t, i) => {
+    const label = `Glossary ${i + 1}`;
+    push(out, `course.glossary[${i}].term`, label, t.term);
+    push(out, `course.glossary[${i}].short`, `${label}, short`, t.short);
+    push(out, `course.glossary[${i}].long`, `${label}, long`, t.long);
+    t.aliases.forEach((alias, j) => push(out, `course.glossary[${i}].aliases[${j}]`, `${label}, alias ${j + 1}`, alias));
+  });
   return out;
 }
 

@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { IconName } from '@ai/core';
 import type { PathBlock } from '@ai/core/course-types';
+import type { GlossarySpan } from '@ai/core/glossary';
 import type { IcsEvent } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
@@ -12,6 +13,7 @@ import { VideoView } from './Video';
 import type { VideoWatch } from './Video';
 import { HUE, LABELS } from './learn.vm';
 import type { JoinVM, KitRowVM, Seg, SessionRowVM, Tone } from './learn.vm';
+import { Marked } from './Glossary';
 import { STEP } from './Step.vm';
 import s from './Learn.module.css';
 
@@ -259,7 +261,7 @@ export function columnTemplate(head: readonly string[] | undefined, rows: readon
  * button, a table (its first column as the row's name, as the mockup's "where it goes" table), and
  * (D-188) a video.
  */
-export function Blocks({ blocks, watch }: { blocks: PathBlock[]; watch?: VideoWatch }) {
+export function Blocks({ blocks, watch, marks }: { blocks: PathBlock[]; watch?: VideoWatch; marks?: readonly (GlossarySpan[] | undefined)[] }) {
   let n = 0;
   return (
     <>
@@ -287,7 +289,7 @@ export function Blocks({ blocks, watch }: { blocks: PathBlock[]; watch?: VideoWa
         if (b.type === 'text')
           return (
             <div key={i} className={s.blk}>
-              <p className={`${s.p} ${s.s2}`}>{b.text}</p>
+              <p className={`${s.p} ${s.s2}`}><Marked text={b.text} spans={marks?.[i]} /></p>
             </div>
           );
         if (b.type === 'copy')

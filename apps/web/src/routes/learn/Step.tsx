@@ -4,7 +4,7 @@
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
 import { useCallback, useMemo, useState } from 'react';
-import type { CSSProperties, KeyboardEvent } from 'react';
+import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
@@ -16,6 +16,7 @@ import { PLATFORM_LABEL, STEP, asideRows, stepParam, stepVM } from './Step.vm';
 import type { Platform, StepVM } from './Step.vm';
 import { ChecklistPills, ChecklistPlayer, ChecklistRail, playAt } from './Checklist';
 import { weekParam } from './Week.vm';
+import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome } from './routes';
@@ -54,6 +55,11 @@ interface StepMore {
   title: string | null;
 }
 
+function withGlossary(vm: StepVM, page: ReactNode) {
+  if (!vm.glossary?.length) return page;
+  return <GlossaryProvider terms={vm.glossary}>{page}</GlossaryProvider>;
+}
+
 function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
   useTabTitle(more.title);
   const mutate = useMutate();
@@ -83,7 +89,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
 
   if (vm.pills) {
     const layout = vm.layouts?.[on];
-    return (
+    return withGlossary(vm, (
       <div className={s.pg}>
         <Crumbs crumbs={more.crumbs} />
         <Link className={s.back} to={vm.back.href}>
@@ -109,7 +115,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
                     <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>{STEP.doThis}</h2>
                     {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
                   </div>
-                  {blocks.length ? <Blocks key={on} blocks={blocks} /> : <div className={s.blk}><p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p></div>}
+                  {blocks.length ? <Blocks key={on} blocks={blocks} marks={vm.pathMarks?.[on]} /> : <div className={s.blk}><p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p></div>}
                   <div className={s.actb}>
                     <button type="button" className={`${s.b} ${s.bp} ${s.done} ${s.markDone}`} data-done={vm.mark.done ? 'true' : undefined} disabled={vm.mark.disabled || busy} onClick={() => void mark()}>
                       <Icon name={vm.mark.done ? 'reset' : 'r2Check'} size={14} strokeWidth={vm.mark.done ? 1.9 : 2.2} />
@@ -155,10 +161,10 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
           </aside>
         </div>
       </div>
-    );
+    ));
   }
 
-  return (
+  return withGlossary(vm, (
     <div className={s.pg}>
       <Crumbs crumbs={more.crumbs} />
       <Link className={s.back} to={vm.back.href}>
@@ -204,7 +210,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
               {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
             </div>
             {blocks.length ? (
-              <Blocks key={on} blocks={blocks} watch={watch} />
+              <Blocks key={on} blocks={blocks} watch={watch} marks={vm.pathMarks?.[on]} />
             ) : (
               <div className={s.blk}>
                 <p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p>
@@ -275,7 +281,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
         </aside>
       </div>
     </div>
-  );
+  ));
 }
 
 /**

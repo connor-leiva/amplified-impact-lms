@@ -235,7 +235,7 @@ export const ACTION_KINDS = [
   ['calendar', 'Add to calendar'],
   ['link', 'Link'],
   ['form', 'Form (later)'],
-  ['card', 'Card (later)'],
+  ['card', 'Card'],
 ] as const;
 
 /** A new block of a kind, empty. */

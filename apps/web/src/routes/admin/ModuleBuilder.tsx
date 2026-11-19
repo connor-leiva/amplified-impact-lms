@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useBlocker, useNavigate, useParams } from 'react-router';
 import clsx from 'clsx';
 import { MODULE_ICONS, addStep, duplicateStep, removeStep } from '@ai/core';
+import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import type { AIEmployee, Db, ModuleStatus } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
@@ -713,6 +714,7 @@ export function Component() {
                   ? {
                       kit: weekKit(db, week).map((item) => ({ id: item.id, title: item.title })),
                       sessions: weekSessions(db, week).map((item) => ({ id: item.id, title: item.title })),
+                      glossary: (db.cohorts.find((c) => c.id === ACCELERATOR_COHORT_ID)?.course?.glossary ?? []).map((t) => ({ id: t.id, term: t.term })),
                     }
                   : undefined
               }

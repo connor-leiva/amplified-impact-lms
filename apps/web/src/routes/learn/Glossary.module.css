@@ -1,0 +1,117 @@
+/* D-193: a glossary term's underline, its tooltip, and the Know These card. Tokens only.
+   The underline is the text's own ink, so it clears the same contrast the sentence does.
+   The tooltip uses the toast pair, which is redefined in the dark theme. No motion. */
+
+.wrap {
+  position: relative;
+  display: inline;
+}
+.term {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  border-radius: 2px;
+}
+.tip {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 4px);
+  left: 0;
+  visibility: hidden;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--r2-toast-bg);
+  color: var(--r2-toast-ink);
+  border-radius: 10px;
+  box-shadow: var(--r2-sh-pop);
+  font: 400 var(--r2-m) / var(--r2-ml) var(--r2-font);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.wrap:hover .tip,
+.wrap:focus-within .tip,
+.wrap[data-open='true'] .tip {
+  visibility: visible;
+}
+.more {
+  min-height: 32px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.know {
+  margin-top: 8px;
+  border: 1px solid var(--r2-line);
+  background: var(--r2-sub);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.knowTitle {
+  margin: 0;
+}
+.defs {
+  margin: 10px 0 0;
+}
+.def {
+  margin: 0 0 10px;
+}
+.def:last-child {
+  margin-bottom: 0;
+}
+.def dt {
+  font-weight: 600;
+  color: var(--r2-ink);
+}
+.def dd {
+  margin: 2px 0 0;
+  color: var(--r2-f2);
+}
+
+@media (max-width: 639px) {
+  .term {
+    display: inline-block;
+    min-height: 44px;
+    padding: 12px 2px;
+    margin: -12px 0;
+    vertical-align: middle;
+  }
+  .more {
+    min-height: 44px;
+  }
+  .tip {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    top: auto;
+    width: auto;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip,
+  .term,
+  .more {
+    transition: none;
+  }
+}

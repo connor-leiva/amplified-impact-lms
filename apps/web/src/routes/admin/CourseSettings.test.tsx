@@ -81,6 +81,23 @@ describe('Course settings (D-174)', () => {
     expect(act).toHaveBeenCalledWith('saveCopyString', { key: 'locked.utah_life', value: 'Not part of your Utah Life access', audience: 'learner' });
   });
 
+  it('D-193: adds a glossary term and saves it with the shared pages', async () => {
+    const { act, user } = show();
+    await user.click(screen.getByRole('button', { name: 'Add term' }));
+    await user.clear(screen.getByRole('textbox', { name: 'Id' }));
+    await user.type(screen.getByRole('textbox', { name: 'Id' }), 'owner');
+    await user.type(screen.getByRole('textbox', { name: 'Term' }), 'Owner');
+    await user.type(screen.getByRole('textbox', { name: 'Short' }), 'The team leader.');
+    await user.type(screen.getByRole('textbox', { name: 'Long' }), 'The team leader who decides.');
+    await user.click(screen.getByRole('checkbox', { name: 'Underline on pages' }));
+    await user.click(screen.getByRole('button', { name: 'Save pages' }));
+    expect(act).toHaveBeenCalledWith('saveCohortCourse', expect.objectContaining({
+      course: expect.objectContaining({
+        glossary: [expect.objectContaining({ id: 'owner', term: 'Owner', short: 'The team leader.', long: 'The team leader who decides.', underline: false })],
+      }),
+    }));
+  });
+
   it('says so when the database holds no course', () => {
     const db = prod();
     db.cohorts = [];

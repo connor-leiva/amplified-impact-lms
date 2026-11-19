@@ -26,6 +26,7 @@ import { curriculumSeed } from '@ai/core/seed/curriculum';
 import { SKILL_COMING } from '@ai/core/seed/content-v2';
 import { TEAM_PLAN_COPY } from '@ai/core/seed/copy-v2';
 import { SKILL_IN_STEP } from '@ai/core/seed/copy-v3';
+import { ACCELERATOR_GLOSSARY } from '@ai/core/seed/glossary-v1';
 import { weekModuleV2 } from '@ai/core/seed/weeks-0-3-v2';
 import { UI_LABEL_TEXTS } from '@ai/core/ui-labels';
 
@@ -78,6 +79,8 @@ function seedStrings(): Set<string> {
   walk(TEAM_PLAN_COPY, '', '');
   // D-189: the Week kit's "In Step {n}" label. The same rule, even while the value is under the length floor.
   walk([SKILL_IN_STEP], '', '');
+  // D-193: the Accelerator glossary. A term, a short line, a long line or an alias may not sit in runtime code.
+  walk(ACCELERATOR_GLOSSARY, '', '');
   return out;
 }
 

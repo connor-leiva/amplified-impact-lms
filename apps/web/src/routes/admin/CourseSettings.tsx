@@ -14,7 +14,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import type { CopyString } from '@ai/core';
-import type { CohortCourse } from '@ai/core/course-types';
+import type { CohortCourse, GlossaryTerm } from '@ai/core/course-types';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Modal } from '../../components/r2/Modal';
@@ -24,7 +24,7 @@ import { useAct, useDb } from '../../data/hooks';
 import { useRecordCrumb } from '../../shell/admin/chrome';
 import { copyRows, courseCohort, hintPairs, pairsText, planArgs, planForm, textPairs } from './CourseSettings.vm';
 import type { PlanForm } from './CourseSettings.vm';
-import { listItems, listText } from './WeekBuilder.vm';
+import { listItems, listText, moveBy, removeAt } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import w from './WeekBuilder.module.css';
 
@@ -150,6 +150,7 @@ function SharedPages({ cohortId, initial }: { cohortId: string; initial: CohortC
   const [evidence, setEvidence] = useState(pairsText(initial.shared.evidence));
   const [afterPaths, setAfterPaths] = useState(pairsText(initial.after.paths));
   return (
+    <>
     <Card
       title="Shared pages"
       right={
@@ -250,6 +251,96 @@ function SharedPages({ cohortId, initial }: { cohortId: string; initial: CohortC
         />
         <Area label="No paywall" value={c.after.noPaywall} onChange={(v) => up((x) => (x.after.noPaywall = v))} />
         <p className={clsx(k.p, k.me)}>The rubric, readiness gates, data pack, lanes and pilot questions keep their seeded rows here; PR 4’s new weeks bring their own.</p>
+      </div>
+    </Card>
+    <GlossaryEditor
+      terms={c.glossary ?? []}
+      onChange={(glossary) => up((x) => {
+        x.glossary = glossary;
+      })}
+    />
+    </>
+  );
+}
+
+function blankTerm(taken: readonly string[]): GlossaryTerm {
+  let n = 1;
+  while (taken.includes(`term-${n}`)) n += 1;
+  return { id: `term-${n}`, term: '', short: '', long: '', aliases: [] };
+}
+
+function GlossaryEditor({ terms, onChange }: { terms: GlossaryTerm[]; onChange: (terms: GlossaryTerm[]) => void }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const setAt = (i: number, term: GlossaryTerm) => onChange(terms.map((t, j) => (j === i ? term : t)));
+  return (
+    <Card title="Glossary">
+      <div className={k.col}>
+        <p className={clsx(k.p, k.me)}>Terms a step page can underline. Save pages stores them with the shared pages.</p>
+        {terms.length === 0 ? <p className={clsx(k.p, k.mu)}>No terms yet.</p> : null}
+        {terms.map((t, i) => (
+          <div key={i} className={k.col}>
+            <div className={clsx(k.row, k.nw)}>
+              <span className={k.sp}>{t.term || 'New term'}</span>
+              <Button kind="quiet" icon="r2Up" aria-label={`Move glossary term ${i + 1} up`} onClick={() => onChange(moveBy(terms, i, -1))} />
+              <Button kind="quiet" icon="r2Down" aria-label={`Move glossary term ${i + 1} down`} onClick={() => onChange(moveBy(terms, i, 1))} />
+              <Button kind="quiet" aria-label={`${open === i ? 'Close' : 'Edit'} glossary term ${i + 1}`} onClick={() => setOpen(open === i ? null : i)}>
+                {open === i ? 'Close' : 'Edit'}
+              </Button>
+              <Button kind="quiet" aria-label={`Remove glossary term ${i + 1}`} onClick={() => { onChange(removeAt(terms, i)); setOpen(null); }}>
+                Remove
+              </Button>
+            </div>
+            {open === i ? (
+              <>
+                <Field label="Id" value={t.id} onChange={(id) => setAt(i, { ...t, id })} />
+                <Field label="Term" value={t.term} onChange={(term) => setAt(i, { ...t, term })} />
+                <Area label="Short" value={t.short} onChange={(short) => setAt(i, { ...t, short })} />
+                <Area label="Long" value={t.long} rows={4} onChange={(long) => setAt(i, { ...t, long })} />
+                <Area
+                  label="Aliases"
+                  value={t.aliases.join('\n')}
+                  note="One per line. A whole word or phrase."
+                  onChange={(v) => setAt(i, { ...t, aliases: v.split('\n').map((line) => line.trim()).filter(Boolean) })}
+                />
+                <Field
+                  label="First step"
+                  value={t.firstStep === undefined ? '' : String(t.firstStep)}
+                  hint="Blank underlines it on every step."
+                  onChange={(v) => {
+                    const n = Number(v);
+                    const next = { ...t };
+                    if (v.trim() && Number.isInteger(n)) next.firstStep = n;
+                    else delete next.firstStep;
+                    setAt(i, next);
+                  }}
+                />
+                <label className={clsx(k.row, k.nw, w.check)}>
+                  <input
+                    type="checkbox"
+                    checked={t.underline !== false}
+                    onChange={(e) => {
+                      const next = { ...t };
+                      if (e.target.checked) delete next.underline;
+                      else next.underline = false;
+                      setAt(i, next);
+                    }}
+                  />
+                  Underline on pages
+                </label>
+              </>
+            ) : null}
+          </div>
+        ))}
+        <Button
+          kind="quiet"
+          icon="r2Plus"
+          onClick={() => {
+            onChange([...terms, blankTerm(terms.map((t) => t.id))]);
+            setOpen(terms.length);
+          }}
+        >
+          Add term
+        </Button>
       </div>
     </Card>
   );
