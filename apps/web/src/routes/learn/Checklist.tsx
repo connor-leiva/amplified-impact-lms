@@ -24,15 +24,29 @@ const reduceMotion = (): boolean => typeof matchMedia === 'function' && matchMed
 function Pills({ pills, label }: { pills: PillVM[]; label: string }) {
   return (
     <nav className={s.pills} aria-label={label}>
-      {pills.map((p) => (
-        <Link key={p.n} className={s.pill} to={p.href} data-status={p.status} data-on={p.on ? 'true' : undefined} aria-current={p.on ? 'step' : undefined} aria-label={p.aria} title={p.title}>
-          <span className={s.pillN} aria-hidden="true">
-            {p.status === 'done' ? <Icon name="r2Check" size={12} strokeWidth={2.4} /> : p.n}
-          </span>
-          <span className={s.pillT}>{p.title}</span>
-          {p.note ? <span className={s.pillNote}>{p.note}</span> : null}
-        </Link>
-      ))}
+      {pills.map((p) => {
+        const tip = p.note ? `${p.title}. ${p.note}` : p.title;
+        const current = p.on;
+        return (
+          <Link
+            key={p.n}
+            className={s.pill}
+            to={p.href}
+            data-status={p.status}
+            data-on={current ? 'true' : undefined}
+            aria-current={current ? 'step' : undefined}
+            aria-label={p.note ? `${p.aria}. ${p.note}` : p.aria}
+            title={tip}
+          >
+            <span className={s.pillN} aria-hidden="true">
+              {p.status === 'done' && !current ? <Icon name="r2Check" size={14} strokeWidth={2.4} /> : p.n}
+            </span>
+            <span className={s.pillT}>{p.title}</span>
+            <span className={s.tip} role="tooltip">{tip}</span>
+            {p.note ? <span className={s.pillNote}>{p.note}</span> : null}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

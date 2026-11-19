@@ -1,7 +1,7 @@
 // D-190: the one-step layout renders a checklist item, its callout, a waiting row, the gate and a remembered accordion.
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
 import type { PathBlock } from '@ai/core/course-types';
@@ -9,7 +9,7 @@ import { learnerOf } from '@ai/core/learner';
 import { weekRows } from './learn.vm';
 import { stepVM } from './Step.vm';
 import type { ChecklistLayoutVM, StepVM } from './Step.vm';
-import { ChecklistPlayer } from './Checklist';
+import { ChecklistPills, ChecklistPlayer } from './Checklist';
 import { LEARNER_ID, prelaunchState } from './test/fixture';
 
 const mutate = vi.fn(async () => ({}));
@@ -70,6 +70,24 @@ describe('the checklist step (D-190)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Check it off' }));
     expect(mutate).toHaveBeenCalledWith('toggleChecklistItem', expect.objectContaining({ itemId: 's3-wait' }));
     expect(screen.getByText('Why we time per occurrence').closest('details')).toHaveAttribute('open');
+  });
+
+  it('draws compact step circles, a forest pill for the current step, and a name on each link', () => {
+    const { vm } = model();
+    render(
+      <MemoryRouter>
+        <ChecklistPills vm={vm} />
+      </MemoryRouter>,
+    );
+    const nav = screen.getByRole('navigation', { name: vm.railLabel });
+    const links = within(nav).getAllByRole('link');
+    expect(links.length).toBeGreaterThan(1);
+    const current = links.find((a) => a.getAttribute('aria-current') === 'step');
+    expect(current).toBeTruthy();
+    expect(current).toHaveAttribute('data-on', 'true');
+    expect(current!.querySelector('[role="tooltip"]')?.textContent).toBeTruthy();
+    for (const a of links) expect(a.getAttribute('aria-label')).toMatch(/Step /);
+    expect(nav.querySelector('[class*="fade"]')).toBeNull();
   });
 
   it('reduced motion is an instant change and a static Step done banner', () => {
