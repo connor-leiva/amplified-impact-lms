@@ -40,3 +40,4 @@ export * from './release';
 export * from './console-staff';
 export * from './build-audit';
 export * from './uploads';
+export * from './video';

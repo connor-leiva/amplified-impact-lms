@@ -31,6 +31,7 @@ const VALID: { [K in MutationName]: unknown } = {
   toggleStep: { moduleId: mod.id, stepId: mod.checklist[0]!.id },
   toggleChecklistItem: { moduleId: mod.id, stepId: mod.checklist[0]!.id, itemId: 'item-1' },
   setPref: { key: `acc:${mod.id}:${mod.checklist[0]!.id}:0`, value: '1' },
+  saveVideoProgress: { moduleId: mod.id, videoId: 'intro', maxPct: 0.25, lastPositionS: 12 },
   markDeployed: { moduleId: mod.id },
   setRuntime: { moduleId: mod.id, runtime: 'needs_attention' },
   recordRun: { moduleId: mod.id, title: 'Nightly follow-ups', preview: '14 replies drafted' },
@@ -95,7 +96,7 @@ describe('§7.3 mutation request schemas @g7', () => {
     const callable = Object.keys(M).filter((k) => typeof (M as Record<string, unknown>)[k] === 'function');
     expect(callable).toContain('MutationError');
     expect(names.sort()).toEqual(callable.filter((k) => k !== 'MutationError').sort());
-    expect(names).toHaveLength(39);
+    expect(names).toHaveLength(40);
   });
 
   it('accepts the payload each screen actually sends @g7', () => {

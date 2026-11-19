@@ -16,6 +16,7 @@ import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
 import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
 import { titleWords } from '@ai/core/checklist';
+import { chapterText, parseChapters } from '@ai/core';
 import { isVideoUpload } from '@ai/core/course-types';
 import { fileSizeLabel, uploadAccept } from '@ai/core/uploads';
 import { uploadFile } from '../../data/files';
@@ -39,6 +40,7 @@ import {
   VIDEO_KINDS,
   VIDEO_LABELS,
   nextCheckId,
+  nextVideoId,
   mediaLines,
   mediaVideos,
   PLATFORM_LABELS,
@@ -245,8 +247,17 @@ export function Blocks({
               <TableRowsField label={`Block ${i + 1} rows`} rows={b.rows} onChange={(rows) => set(i, { ...b, rows })} />
             </>
           ) : null}
-          {b.type === 'video' ? <VideoFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
-          {b.type === 'check' ? <CheckFields n={i + 1} block={b} picks={picks} ids={blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'video' ? <VideoFields n={i + 1} block={b} ids={[...new Set([...(picks?.ids ?? []), ...blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))])]} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'check' ? (
+            <CheckFields
+              n={i + 1}
+              block={b}
+              picks={picks}
+              ids={blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))}
+              videos={blocks.flatMap((x) => (x.type === 'video' && x.id ? [{ id: x.id, label: x.title?.trim() || x.id }] : []))}
+              onChange={(v) => set(i, v)}
+            />
+          ) : null}
           {b.type === 'callout' ? <CalloutFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
           {b.type === 'accordion' ? <AccordionFields n={i + 1} block={b} onChange={(v) => set(i, v)} /> : null}
         </div>
@@ -266,7 +277,11 @@ export function Blocks({
           icon="r2Plus"
           onClick={() => {
             const block = newBlock(add);
-            onChange([...blocks, block.type === 'check' ? { ...block, id: nextCheckId([...(picks?.ids ?? []), ...blocks.flatMap((b) => (b.type === 'check' ? [b.id] : []))]) } : block]);
+            const withId =
+              block.type === 'check' ? { ...block, id: nextCheckId([...(picks?.ids ?? []), ...blocks.flatMap((b) => (b.type === 'check' ? [b.id] : []))]) }
+              : block.type === 'video' ? { ...block, id: nextVideoId(blocks.flatMap((b) => (b.type === 'video' && b.id ? [b.id] : []))) }
+              : block;
+            onChange([...blocks, withId]);
           }}
         >
           Add block
@@ -282,14 +297,16 @@ export function Blocks({
  * without sending it), with its progress and any refusal said here. The save runs the copy rules on
  * the title.
  */
-function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onChange: (b: VideoBlock) => void }) {
+function VideoFields({ n, block, ids, onChange }: { n: number; block: VideoBlock; ids: string[]; onChange: (b: VideoBlock) => void }) {
   const uploaded = isVideoUpload(block.source) ? block.source : null;
   const [mode, setMode] = useState<'link' | 'upload'>(uploaded ? 'upload' : 'link');
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState('');
   const input = useRef<HTMLInputElement | null>(null);
+  const posterInput = useRef<HTMLInputElement | null>(null);
+  const transcriptInput = useRef<HTMLInputElement | null>(null);
   const group = useId();
-  const withTitle = (src: VideoBlock['source']): VideoBlock => (block.title !== undefined ? { type: 'video', source: src, title: block.title } : { type: 'video', source: src });
+  const setSource = (source: VideoBlock['source']) => onChange({ ...block, source });
   const pick = async (file: File | undefined) => {
     if (!file) return;
     setError('');
@@ -298,10 +315,39 @@ function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onC
     setProgress(null);
     if (input.current) input.current.value = '';
     if (!out.ok) setError(out.error);
-    else onChange(withTitle({ upload: out.file.key, name: out.file.name, size: out.file.size, type: 'video/mp4' }));
+    else onChange({ ...block, source: { upload: out.file.key, name: out.file.name, size: out.file.size, type: 'video/mp4' } });
+  };
+  const pickSide = async (file: File | undefined, kind: 'poster' | 'transcript') => {
+    if (!file) return;
+    setError('');
+    setProgress(0);
+    const out = await uploadFile(file, setProgress);
+    setProgress(null);
+    const el = kind === 'poster' ? posterInput.current : transcriptInput.current;
+    if (el) el.value = '';
+    if (!out.ok) {
+      setError(out.error);
+      return;
+    }
+    if (kind === 'poster' && out.file.type !== 'image/jpeg') {
+      setError('Choose a jpg.');
+      return;
+    }
+    if (kind === 'transcript' && out.file.type !== 'text/vtt') {
+      setError('Choose a vtt file.');
+      return;
+    }
+    if (kind === 'poster') onChange({ ...block, poster: { upload: out.file.key, name: out.file.name, size: out.file.size, type: 'image/jpeg' } });
+    else onChange({ ...block, transcript: { upload: out.file.key, name: out.file.name, size: out.file.size, type: 'text/vtt' } });
+  };
+  const without = (key: 'title' | 'poster' | 'transcript' | 'id'): VideoBlock => {
+    const next = { ...block };
+    delete next[key];
+    return next;
   };
   return (
     <>
+      <Line label={`Block ${n} ${VIDEO_LABELS.id.toLowerCase()}`} value={block.id ?? ''} hint={VIDEO_LABELS.idHint} onChange={(v) => onChange(v.trim() ? { ...block, id: v.trim() } : without('id'))} />
       <div className={clsx(k.row, k.nw)} role="radiogroup" aria-label={`Block ${n} ${VIDEO_LABELS.source.toLowerCase()}`}>
         <label className={clsx(k.row, k.nw, w.check)}>
           <input type="radio" name={group} checked={mode === 'link'} onChange={() => setMode('link')} />
@@ -313,16 +359,46 @@ function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onC
         </label>
       </div>
       {mode === 'link' ? (
-        <Line label={`Block ${n} link`} value={uploaded ? '' : (block.source as { url: string }).url} hint={VIDEO_LABELS.linkHint} onChange={(url) => onChange(withTitle({ url }))} />
+        <Line label={`Block ${n} link`} value={uploaded ? '' : (block.source as { url: string }).url} hint={VIDEO_LABELS.linkHint} onChange={(url) => setSource({ url })} />
       ) : (
         <div className={clsx(k.row, w.adder)}>
           <span className={clsx(k.sp, uploaded ? undefined : k.mu)}>{uploaded ? `${uploaded.name} · ${fileSizeLabel(uploaded.size)}` : VIDEO_LABELS.noFile}</span>
-          <input ref={input} type="file" accept={uploadAccept(true)} hidden aria-label={`Block ${n} ${VIDEO_LABELS.upload.toLowerCase()}`} onChange={(e) => void pick(e.target.files?.[0])} />
           <Button kind="quiet" disabled={progress !== null} onClick={() => input.current?.click()}>
             {uploaded ? VIDEO_LABELS.chooseAnother : VIDEO_LABELS.choose}
           </Button>
         </div>
       )}
+      <div className={clsx(k.row, w.adder)}>
+        <span className={clsx(k.sp, block.poster ? undefined : k.mu)}>{block.poster ? `${block.poster.name} · ${fileSizeLabel(block.poster.size)}` : 'No poster yet.'}</span>
+        <Button kind="quiet" disabled={progress !== null} onClick={() => posterInput.current?.click()}>
+          {block.poster ? VIDEO_LABELS.posterAnother : VIDEO_LABELS.poster}
+        </Button>
+        {block.poster ? (
+          <Button kind="quiet" onClick={() => onChange(without('poster'))}>
+            {VIDEO_LABELS.removeFile}
+          </Button>
+        ) : null}
+      </div>
+      <div className={clsx(k.row, w.adder)}>
+        <span className={clsx(k.sp, block.transcript ? undefined : k.mu)}>{block.transcript ? `${block.transcript.name} · ${fileSizeLabel(block.transcript.size)}` : 'No transcript yet.'}</span>
+        <Button kind="quiet" disabled={progress !== null} onClick={() => transcriptInput.current?.click()}>
+          {block.transcript ? VIDEO_LABELS.transcriptAnother : VIDEO_LABELS.transcript}
+        </Button>
+        {block.transcript ? (
+          <Button kind="quiet" onClick={() => onChange(without('transcript'))}>
+            {VIDEO_LABELS.removeFile}
+          </Button>
+        ) : null}
+      </div>
+      {/* The mp4 input stays last so the builder’s file test, which takes the last input, still finds it. */}
+      <input ref={posterInput} type="file" accept=".jpg,.jpeg" hidden aria-label={`Block ${n} upload poster`} onChange={(e) => void pickSide(e.target.files?.[0], 'poster')} />
+      <input ref={transcriptInput} type="file" accept=".vtt" hidden aria-label={`Block ${n} upload transcript`} onChange={(e) => void pickSide(e.target.files?.[0], 'transcript')} />
+      {mode === 'upload' ? <input ref={input} type="file" accept={uploadAccept(true)} hidden aria-label={`Block ${n} ${VIDEO_LABELS.upload.toLowerCase()}`} onChange={(e) => void pick(e.target.files?.[0])} /> : null}
+      <label className={clsx(k.row, k.nw, w.check)}>
+        <input type="checkbox" checked={!!block.draft} onChange={(e) => onChange(e.target.checked ? { ...block, draft: true } : { ...block, draft: undefined })} />
+        {VIDEO_LABELS.draft}
+      </label>
+      <ChaptersField n={n} chapters={block.chapters ?? []} ids={ids} onChange={(chapters) => onChange(chapters?.length ? { ...block, chapters } : { ...block, chapters: undefined })} />
       {progress !== null ? (
         <p role="status" className={clsx(k.p, k.me)}>
           {UPLOAD_COPY.progress(progress)}
@@ -337,13 +413,49 @@ function VideoFields({ n, block, onChange }: { n: number; block: VideoBlock; onC
         label={`Block ${n} ${VIDEO_LABELS.title.toLowerCase()}`}
         value={block.title ?? ''}
         hint={VIDEO_LABELS.titleHint}
-        onChange={(v) => onChange(v.trim() ? { ...block, title: v } : { type: 'video', source: block.source })}
+        onChange={(v) => onChange(v.trim() ? { ...block, title: v } : without('title'))}
       />
     </>
   );
 }
 
-function CheckFields({ n, block, picks, ids, onChange }: { n: number; block: CheckBlock; picks?: BlockPicks; ids: string[]; onChange: (b: CheckBlock) => void }) {
+function ChaptersField({ n, chapters, ids, onChange }: { n: number; chapters: VideoBlock['chapters']; ids: string[]; onChange: (c: VideoBlock['chapters']) => void }) {
+  const [text, setText] = useState(chapterText(chapters ?? []));
+  const parsed = parseChapters(text);
+  const apply = (next: string) => {
+    setText(next);
+    const result = parseChapters(next);
+    if (!result.error) onChange(result.chapters.length ? result.chapters : undefined);
+  };
+  const setItem = (index: number, item: string) => {
+    const next = parsed.chapters.map((c, i) => (i === index ? (item ? { ...c, item } : { t: c.t, label: c.label }) : c));
+    apply(chapterText(next));
+  };
+  return (
+    <div className={s.lab}>
+      <span>{`Block ${n} ${VIDEO_LABELS.chapters.toLowerCase()}`}</span>
+      <TextArea rows={4} aria-label={`Block ${n} ${VIDEO_LABELS.chapters.toLowerCase()}`} value={text} onChange={(e) => apply(e.target.value)} />
+      <span className={clsx(k.me, w.hint)}>{VIDEO_LABELS.chaptersHint}</span>
+      {parsed.error ? (
+        <span role="alert" className={k.p}>{parsed.error}</span>
+      ) : null}
+      {parsed.error ? null : parsed.chapters.map((c, i) => (
+        <span key={`${c.t}-${i}`} className={clsx(k.row, w.adder)}>
+          <span className={k.sp}>{c.label}</span>
+          <Sel aria-label={`Block ${n} chapter ${i + 1} item`} value={c.item ?? ''} onChange={(e) => setItem(i, e.target.value)}>
+            <option value="">No checklist item</option>
+            {ids.map((id) => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+            {c.item && !ids.includes(c.item) ? <option value={c.item}>{c.item}</option> : null}
+          </Sel>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; block: CheckBlock; picks?: BlockPicks; ids: string[]; videos: { id: string; label: string }[]; onChange: (b: CheckBlock) => void }) {
   const words = titleWords(block.title);
   const setAction = (type: string) => {
     const action: CheckAction | undefined =
@@ -382,7 +494,51 @@ function CheckFields({ n, block, picks, ids, onChange }: { n: number; block: Che
         Optional. A learner can mark the step done without it.
       </label>
       <Lines label={`Block ${n} click path`} items={block.clickPath ?? []} onChange={(clickPath) => onChange(clickPath.length ? { ...block, clickPath } : { ...block, clickPath: undefined })} />
-      <Line label={`Block ${n} play at`} value={block.playAt ? String(block.playAt.t) : ''} hint="Seconds into this path’s video. Blank for none." onChange={(v) => onChange(v.trim() && Number.isFinite(Number(v)) ? { ...block, playAt: { t: Math.max(0, Math.round(Number(v))) } } : { ...block, playAt: undefined })} />
+      <Line label={`Block ${n} play at`} value={block.playAt ? String(block.playAt.t) : ''} hint="Seconds into this path’s video. Blank for none." onChange={(v) => {
+        const n = Number(v);
+        if (!v.trim() || !Number.isFinite(n)) onChange({ ...block, playAt: undefined });
+        else onChange({ ...block, playAt: { t: Math.max(0, Math.round(n * 10) / 10), ...(block.playAt?.video ? { video: block.playAt.video } : {}) } });
+      }} />
+      <label className={clsx(k.row, k.nw, w.check)}>
+        <input
+          type="checkbox"
+          checked={!!block.auto}
+          onChange={(e) => onChange(e.target.checked ? { ...block, auto: { video: true, at: block.auto?.at ?? 90, ...(block.auto?.id ? { id: block.auto.id } : {}) } } : { ...block, auto: undefined })}
+        />
+        Checks itself once the video is watched
+      </label>
+      {block.auto ? (
+        <Line
+          label={`Block ${n} watched percent`}
+          value={String(block.auto.at > 1 ? block.auto.at : Math.round(block.auto.at * 100))}
+          hint="90 is most of the video. 0.9 means the same."
+          onChange={(v) => {
+            const at = Number(v);
+            if (!Number.isFinite(at)) return;
+            onChange({ ...block, auto: { video: true, at, ...(block.auto?.id ? { id: block.auto.id } : {}) } });
+          }}
+        />
+      ) : null}
+      {videos.length > 1 && (block.playAt || block.auto) ? (
+        <label className={s.lab}>
+          Video
+          <Sel
+            aria-label={`Block ${n} video`}
+            value={block.playAt?.video ?? block.auto?.id ?? ''}
+            onChange={(e) => {
+              const id = e.target.value || undefined;
+              const playAt = block.playAt ? { t: block.playAt.t, ...(id ? { video: id } : {}) } : undefined;
+              const auto = block.auto ? { video: true as const, at: block.auto.at, ...(id ? { id } : {}) } : undefined;
+              onChange({ ...block, ...(playAt ? { playAt } : {}), ...(auto ? { auto } : {}) });
+            }}
+          >
+            <option value="">First video on this path</option>
+            {videos.map((v) => (
+              <option key={v.id} value={v.id}>{v.label}</option>
+            ))}
+          </Sel>
+        </label>
+      ) : null}
       <Lines label={`Block ${n} tasks`} items={(block.subchecks ?? []).map((sub) => `${sub.id} | ${sub.label}`)} onChange={(lines) => {
         const subchecks = lines.map((line) => {
           const [id, ...rest] = line.split('|');

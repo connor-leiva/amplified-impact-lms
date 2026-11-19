@@ -295,7 +295,7 @@ export const REPLACE_COPY = {
   title: 'Replace file',
   cta: 'Replace file',
   label: 'Drop a File or Click to Browse',
-  sub: 'JSON, PDF, Markdown, ZIP, MP4, Excel or CSV · up to 25 MB, 500 MB for an mp4',
+  sub: 'JSON, PDF, Markdown, ZIP, MP4, Excel, CSV, JPG or VTT · up to 25 MB, 500 MB for an mp4',
   ready: 'Ready to replace · click to choose another',
   keeps: 'The title, access and opens stay as they are.',
 } as const;

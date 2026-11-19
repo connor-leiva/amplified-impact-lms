@@ -159,6 +159,8 @@ const CASES: readonly Case[] = [
   // D-190: Jamie checks one item on the open sales build, and remembers one accordion.
   { name: 'toggleChecklistItem', as: 'u_jamie', args: { moduleId: 'sales', stepId: 'c4', itemId: 'item-1' } },
   { name: 'setPref', as: 'u_jamie', args: { key: 'acc:sales:c4:0', value: '1' } },
+  // D-191: Jamie's place in a video. sales is open, so the row is written. Nothing is checked: the step has no auto item.
+  { name: 'saveVideoProgress', as: 'u_jamie', args: { moduleId: 'sales', videoId: 'intro', maxPct: 0.25, lastPositionS: 12 } },
   // The sixth step. `builtAt`, the `built …` activity row, the toast and the only confetti in the
   // catalog. Michael is four of six on `marketing`, so `pre` checks the fifth.
   {
@@ -416,7 +418,7 @@ describe('API ⇔ core oracle @g7', () => {
     // get a row, a schema or a route — the same thing `schemas.test.ts` pins.
     expect(callable).toContain('MutationError');
     const mutations = callable.filter((k) => k !== 'MutationError').sort();
-    expect(mutations).toHaveLength(39);
+    expect(mutations).toHaveLength(40);
     expect([...new Set(CASES.map((c) => c.name))].sort()).toEqual(mutations);
   });
 

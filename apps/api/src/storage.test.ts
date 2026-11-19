@@ -692,6 +692,8 @@ describe('§ 8.2 upload guard @g8', () => {
       'video/mp4',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/csv',
+      'image/jpeg',
+      'text/vtt',
     ]);
   });
 
@@ -1066,6 +1068,8 @@ describe('§ 8.2 uploadKey @g8', () => {
       'video/mp4': 'mp4',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
       'text/csv': 'csv',
+      'image/jpeg': 'jpg',
+      'text/vtt': 'vtt',
     };
     for (const type of ALLOWED_UPLOAD_TYPES) {
       expect(uploadKey(type, { now: AT.getTime(), token: 'aaaaaaaa-bbbb-cccc' })).toBe(

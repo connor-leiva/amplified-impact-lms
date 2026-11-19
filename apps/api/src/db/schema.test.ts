@@ -67,6 +67,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-190: a learner's checklist boxes and accordion memory. Epoch ms, like progress.
   checklistState: { table: 'checklist_state', columns: ['auto', 'checked', 'checked_at', 'item_id', 'module_id', 'step_id', 'user_id'] },
   learnerPrefs: { table: 'learner_prefs', columns: ['key', 'updated_at', 'user_id', 'value'] },
+  // D-191: how far a learner has watched one course video. Epoch ms, like progress.
+  videoProgress: { table: 'video_progress', columns: ['last_position_s', 'max_pct', 'module_id', 'updated_at', 'user_id', 'video_id'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
@@ -330,6 +332,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['progress', 'builtAt'], ['progress', 'deployedAt'],
   ['checklistState', 'checkedAt'],
   ['learnerPrefs', 'updatedAt'],
+  ['videoProgress', 'updatedAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
   ['requests', 'at'],
@@ -412,6 +415,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   progress: { unit: 'epoch-ms', why: 'Progress.builtAt/deployedAt, read by statusOf and runtimeOf' },
   checklistState: { unit: 'epoch-ms', why: 'D-190: ChecklistMark.checkedAt is clock.now() as written by toggleChecklistItem, and fmt never reads a Date' },
   learnerPrefs: { unit: 'epoch-ms', why: 'D-190: CoursePref.updatedAt is clock.now() as written by setPref' },
+  videoProgress: { unit: 'epoch-ms', why: 'D-191: VideoProgress.updatedAt is clock.now() as written by saveVideoProgress, and fmt never reads a Date' },
   resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
   announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
   dismissals: { unit: 'epoch-ms', why: 'no instant' },
@@ -597,6 +601,7 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   progress: ['user_id', 'module_id'],
   checklistState: ['user_id', 'module_id', 'step_id', 'item_id'],
   learnerPrefs: ['user_id', 'key'],
+  videoProgress: ['user_id', 'module_id', 'video_id'],
   dismissals: ['user_id', 'announcement_id'],
   permissions: ['role', 'perm'],
   // § 8.5 asks for "a unique `(job, key)`" on job_runs. The pair IS the primary key rather than a

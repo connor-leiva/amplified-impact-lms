@@ -49,6 +49,9 @@ describe('what may be uploaded (D-188)', () => {
     expect(uploadTypeFor('leads.csv')).toBe('text/csv');
     expect(uploadTypeFor('Week 1.mp4')).toBe('video/mp4');
     expect(uploadTypeFor('notes.markdown')).toBe('text/markdown');
+    expect(uploadTypeFor('poster.JPG')).toBe('image/jpeg');
+    expect(uploadTypeFor('poster.jpeg')).toBe('image/jpeg');
+    expect(uploadTypeFor('captions.vtt')).toBe('text/vtt');
     expect(uploadTypeFor('page.html')).toBeNull();
     expect(uploadTypeFor('noextension')).toBeNull();
     expect(extensionOf('.hidden')).toBe('');
@@ -70,7 +73,7 @@ describe('what may be uploaded (D-188)', () => {
 
   it('says what a picker accepts', () => {
     expect(uploadAccept(true)).toBe('.mp4');
-    expect(uploadAccept()).toBe('.json,.pdf,.md,.markdown,.zip,.mp4,.xlsx,.csv');
+    expect(uploadAccept()).toBe('.json,.pdf,.md,.markdown,.zip,.mp4,.xlsx,.csv,.jpg,.jpeg,.vtt');
   });
 
   it('knows a key the upload route mints, and nothing else', () => {

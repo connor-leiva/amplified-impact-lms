@@ -10,6 +10,7 @@
 //   - `Learner.progress`   lives in the `progress` table, keyed by (user_id, module_id)
 //   - `Learner.checks`     lives in `checklist_state` (D-190)
 //   - `Learner.coursePrefs` lives in `learner_prefs` (D-190)
+//   - `Learner.videoProgress` lives in `video_progress` (D-191)
 //   - `Cohort.enrolled`    is derived (count of users in the cohort), not stored
 //   - `Db.dismissed`       lives in the `dismissals` table; § 7.3 rebuilds it as "userId:annId"
 // `Db.v`, `Db.phase` and `Db.base` are snapshot-level metadata, not persisted rows: the API always
@@ -17,7 +18,7 @@
 // Four tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
 // `auth_sessions` (§ 7.5), `job_runs` (§ 8.5, the scheduler's idempotence ledger) and
 // `ai101_waitlist` (the public /ai101 page's sign-ups, DECISIONS.md D-028).
-import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, bigserial, uniqueIndex, index, check } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, bigserial, uniqueIndex, index, check, doublePrecision } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
@@ -94,6 +95,13 @@ export const checklistState = pgTable('checklist_state', {
 export const learnerPrefs = pgTable('learner_prefs', {
   userId: text('user_id').notNull(), key: text('key').notNull(), value: text('value').notNull(), updatedAt: ts('updated_at').notNull(),
 }, (t) => [primaryKey({ columns: [t.userId, t.key] })]);
+// D-191: how far one learner has watched one course video. `max_pct` only rises (the mutation
+// enforces it). Double precision, not `real`: postgres `real` is float4 and cannot round-trip 0.9,
+// the threshold Week 0 checks at. `updated_at` is epoch ms, like every other learner instant.
+export const videoProgress = pgTable('video_progress', {
+  userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),
+  maxPct: doublePrecision('max_pct').notNull(), lastPositionS: doublePrecision('last_position_s').notNull(), updatedAt: ts('updated_at').notNull(),
+}, (t) => [primaryKey({ columns: [t.userId, t.moduleId, t.videoId] })]);
 // D-172: `module_id`, the AI Employee a resource is attached to (the Vault's "Attached to"; nullable, no foreign key, so deleting a draft leaves "—").
 export const resources = pgTable('resources', {
   id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0), moduleId: text('module_id'),

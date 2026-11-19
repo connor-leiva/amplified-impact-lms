@@ -3,7 +3,7 @@
 // the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
@@ -17,6 +17,7 @@ import type { Platform, StepVM } from './Step.vm';
 import { ChecklistPills, ChecklistPlayer, ChecklistRail, playAt } from './Checklist';
 import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
+import type { VideoWatch } from './Video';
 import { learnHome } from './routes';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
@@ -61,6 +62,14 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
   const blocks = vm.paths[on] ?? [];
   const forStep = asideRows(vm.aside, vm.tabs.length ? on : null);
   const [busy, setBusy] = useState(false);
+  const saveProgress = useCallback(
+    (p: { videoId: string; maxPct: number; lastPositionS: number }) => {
+      if (vm.mark.disabled || !vm.mark.stepId) return;
+      void mutate('saveVideoProgress', { moduleId: vm.mark.moduleId, videoId: p.videoId, maxPct: p.maxPct, lastPositionS: p.lastPositionS });
+    },
+    [mutate, vm.mark.disabled, vm.mark.moduleId, vm.mark.stepId],
+  );
+  const watch: VideoWatch = { progress: vm.videoProgress ?? [], onSave: vm.mark.disabled ? undefined : saveProgress };
 
   const mark = async () => {
     if (!vm.mark.stepId || busy) return;
@@ -86,7 +95,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
           <div className={s.col} style={{ gap: 20 }}>
             <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
             {layout ? (
-              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} />
+              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} />
             ) : (
               <>
                 <div className={s.pht} style={{ gap: 8 }}>
@@ -195,7 +204,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
               {vm.tabs.length > 1 ? <Tabs tabs={vm.tabs} on={on} set={setPlatform} /> : null}
             </div>
             {blocks.length ? (
-              <Blocks key={on} blocks={blocks} />
+              <Blocks key={on} blocks={blocks} watch={watch} />
             ) : (
               <div className={s.blk}>
                 <p className={`${s.p} ${s.s2}`}>{vm.doneWhen ?? vm.lede ?? vm.title}</p>
@@ -284,6 +293,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     fileUrl: (id) => repo.fileUrl({ kind: 'resource', id }),
     checks: me?.checks,
     prefs: me?.coursePrefs,
+    videoProgress: me?.videoProgress,
   });
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const more: StepMore = {

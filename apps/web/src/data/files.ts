@@ -1,4 +1,5 @@
 import { VIDEO_MP4 } from '@ai/core/uploads';
+import type { UploadType } from '@ai/core/uploads';
 import { repo } from './boot';
 import type { StoredFileRef, UploadResult } from './repository';
 import { checkFile, courseVideoRoute } from './upload';
@@ -63,7 +64,8 @@ export async function uploadFile(file: File, onProgress?: (fraction: number) => 
   const check = checkFile(file, videoOnly);
   if (!check.ok) return check;
   const out = await repo.upload(file, onProgress);
-  if (out.ok && out.file.type === VIDEO_MP4) {
+  const previewable: readonly UploadType[] = [VIDEO_MP4, 'image/jpeg', 'text/vtt'];
+  if (out.ok && previewable.includes(out.file.type)) {
     try {
       local.set(out.file.key, URL.createObjectURL(file));
     } catch {

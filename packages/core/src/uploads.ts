@@ -17,7 +17,7 @@ export const MAX_VIDEO_BYTES = 500 * 1000 * 1000;
 
 export const VIDEO_MP4 = 'video/mp4';
 
-/** Each allowed type, in order: § 8.2's four, then D-188's video, spreadsheet and CSV. */
+/** Each allowed type, in order: § 8.2's four, then D-188's video, spreadsheet and CSV, then D-191's poster and transcript. */
 export const UPLOAD_POLICY = {
   'application/json': { ext: ['json'], max: MAX_FILE_BYTES },
   'application/pdf': { ext: ['pdf'], max: MAX_FILE_BYTES },
@@ -26,6 +26,8 @@ export const UPLOAD_POLICY = {
   'video/mp4': { ext: ['mp4'], max: MAX_VIDEO_BYTES },
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': { ext: ['xlsx'], max: MAX_FILE_BYTES },
   'text/csv': { ext: ['csv'], max: MAX_FILE_BYTES },
+  'image/jpeg': { ext: ['jpg', 'jpeg'], max: MAX_FILE_BYTES },
+  'text/vtt': { ext: ['vtt'], max: MAX_FILE_BYTES },
 } as const satisfies Record<string, { ext: readonly string[]; max: number }>;
 
 export type UploadType = keyof typeof UPLOAD_POLICY;

@@ -155,6 +155,26 @@ describe('a course week’s steps follow course access, not the tier (D-186)', (
     expect(preview.json()).toMatchObject({ error: 'That action is for learners.' });
   });
 
+  it('saves video progress without ever lowering the watched share (D-191)', async () => {
+    const first = await mutate('agentBuyer', 'saveVideoProgress', { moduleId: WEEK1, videoId: 'w0-02', maxPct: 0.5, lastPositionS: 12 });
+    expect(first.statusCode).toBe(200);
+    const lower = await mutate('agentBuyer', 'saveVideoProgress', { moduleId: WEEK1, videoId: 'w0-02', maxPct: 0.25, lastPositionS: 30 });
+    expect(lower.statusCode).toBe(200);
+    const row = (await loadDb()).users.find((u) => u.id === ids.get('agentBuyer'))!.videoProgress;
+    expect(row).toEqual([expect.objectContaining({ moduleId: WEEK1, videoId: 'w0-02', maxPct: 0.5, lastPositionS: 30 })]);
+    const seen = await snapshot('agentBuyer');
+    expect(seen.users.find((u) => u.id === ids.get('agentBuyer'))?.videoProgress?.[0]?.maxPct).toBe(0.5);
+    expect((await mutate('agentPlan', 'saveVideoProgress', { moduleId: WEEK1, videoId: 'w0-02', maxPct: 0.5, lastPositionS: 1 })).statusCode).toBe(403);
+    const staff = await app.signInAs('st_owner');
+    const refused = await app.inject({
+      method: 'POST',
+      url: '/api/mutate/saveVideoProgress',
+      payload: { moduleId: WEEK1, videoId: 'w0-02', maxPct: 1, lastPositionS: 1 },
+      headers: { cookie: staff, origin: ORIGIN, 'content-type': 'application/json' },
+    });
+    expect(refused.statusCode).toBe(403);
+  });
+
   it('an Agent Plan learner without the course can neither see a week nor mark its step', async () => {
     const snap = await snapshot('agentPlan');
     expect(snap.modules.filter((m) => isAcceleratorModule(m.id))).toEqual([]);

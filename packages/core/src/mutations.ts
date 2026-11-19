@@ -20,6 +20,7 @@ import { NOT_IN_PLAN, isAcceleratorModule } from './accelerator';
 import { canOpenModule } from './release';
 import { buildOf, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
+import { autoTargets, crossesWatch } from './video';
 import { seatCaps } from './seats';
 import { downgradeUser, upgradeUser } from './tiers';
 import type {
@@ -29,6 +30,7 @@ import type {
   Db,
   Learner,
   LearnerRole,
+  VideoProgress,
   ModuleStatus,
   PermKey,
   Reminder,
@@ -331,6 +333,61 @@ export function setPref(db: Db, a: Actor, args: { key: string; value: string }, 
     du.coursePrefs = list;
   });
   return { db: next };
+}
+
+/** What the learner reads once, the first time a video checks its items. */
+export const WATCHED_TOAST = 'Watched. Checked off for you.';
+
+/**
+ * D-191: remember how much of one course video this learner has watched, and where they left it.
+ * `maxPct` only ever rises. The first time it reaches an item's `auto.at`, that item is checked
+ * with `auto: true` and the toast is said once. An item the learner then unticks stays unticked
+ * until this video's progress is gone and the threshold is crossed again. Same door as `toggleStep`.
+ * Not audited. Staff, a preview and a masquerade never get here.
+ */
+export function saveVideoProgress(
+  db: Db,
+  a: Actor,
+  args: { moduleId: string; videoId: string; maxPct: number; lastPositionS: number },
+  c: Ctx,
+): Outcome {
+  const u = learnerOf(db, a);
+  const m = moduleOf(db, args.moduleId);
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!args.videoId.trim() || args.videoId.length > 300) throw new MutationError('invalid', 'That video is not on this week.');
+  if (!Number.isFinite(args.maxPct) || args.maxPct < 0 || args.maxPct > 1) throw new MutationError('invalid', 'That progress is not a portion of the video.');
+  if (!Number.isFinite(args.lastPositionS) || args.lastPositionS < 0 || args.lastPositionS > 86_400) {
+    throw new MutationError('invalid', 'That position is not on the video.');
+  }
+  const prevPct = u.videoProgress?.find((p) => p.moduleId === args.moduleId && p.videoId === args.videoId)?.maxPct ?? 0;
+  const maxPct = Math.max(prevPct, args.maxPct);
+  const due = autoTargets(m.checklist, args.videoId).filter((t) => crossesWatch(prevPct, maxPct, t.at));
+  let checked = false;
+  const next = produce(db, (d) => {
+    const du = d.users.find((x) => x.id === u.id)!;
+    const progress: VideoProgress[] = du.videoProgress ? [...du.videoProgress] : [];
+    const row: VideoProgress = { moduleId: args.moduleId, videoId: args.videoId, maxPct, lastPositionS: args.lastPositionS, updatedAt: c.now };
+    const at = progress.findIndex((p) => p.moduleId === args.moduleId && p.videoId === args.videoId);
+    if (at >= 0) progress[at] = row;
+    else progress.push(row);
+    progress.sort((x, y) => x.moduleId.localeCompare(y.moduleId) || x.videoId.localeCompare(y.videoId));
+    du.videoProgress = progress;
+    if (!due.length) return;
+    const list = du.checks ? [...du.checks] : [];
+    for (const t of due) {
+      const i = list.findIndex((x) => x.moduleId === args.moduleId && x.stepId === t.stepId && x.itemId === t.itemId);
+      if (i >= 0 && list[i]!.checked) continue;
+      const mark = { moduleId: args.moduleId, stepId: t.stepId, itemId: t.itemId, checked: true, auto: true, checkedAt: c.now };
+      if (i >= 0) list[i] = mark;
+      else list.push(mark);
+      checked = true;
+    }
+    if (!checked) return;
+    list.sort((x, y) => x.moduleId.localeCompare(y.moduleId) || x.stepId.localeCompare(y.stepId) || x.itemId.localeCompare(y.itemId));
+    du.checks = list;
+  });
+  return checked ? { db: next, toast: { msg: WATCHED_TOAST, tone: 'success' } } : { db: next };
 }
 
 /** 3 · Portal Workspace: "Mark as Deployed", available once all 6 steps are verified. */

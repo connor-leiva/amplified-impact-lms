@@ -52,7 +52,7 @@ test.describe('the Resource Vault’s real uploads (D-188) @g9 @r2', () => {
     await page.getByRole('button', { name: 'Add resource' }).click();
     const dialog = page.getByRole('dialog', { name: 'Add resource' });
     await dialog.locator('input[type=file]').setInputFiles({ name: 'page.html', mimeType: 'text/html', buffer: Buffer.from('<p>x</p>') });
-    await expect(dialog.getByRole('alert')).toHaveText('Choose a JSON, PDF, Markdown, ZIP, MP4, Excel or CSV file.');
+    await expect(dialog.getByRole('alert')).toHaveText('Choose a JSON, PDF, Markdown, ZIP, MP4, Excel, CSV, JPG or VTT file.');
     await close();
   });
 

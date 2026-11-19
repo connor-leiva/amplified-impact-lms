@@ -181,7 +181,7 @@ import {
 import type { UploadRequest } from '../storage';
 import { courseFor, isWeekModule } from '@ai/core/course';
 import { isVideoUpload } from '@ai/core/course-types';
-import type { MediaItem, PathBlock, VideoUpload } from '@ai/core/course-types';
+import type { MediaItem, PathBlock } from '@ai/core/course-types';
 import { isUploadKey } from '@ai/core/uploads';
 
 // --- the copy, which is core's own ---------------------------------------------------------------
@@ -410,23 +410,28 @@ async function sendObject(
 
 // --- D-188: a course video's key, found in what the viewer may open ------------------------------
 
-/** The uploaded video in a step's path blocks or a week's Media whose key is `key`, if any. */
-function uploadIn(items: readonly (PathBlock | MediaItem)[] | undefined, key: string): VideoUpload | null {
+/**
+ * A file a video block names: the mp4 itself, or (D-191) its poster or its transcript.
+ * The same viewer rules serve all three. The name is what `Content-Disposition` quotes.
+ */
+function uploadIn(items: readonly (PathBlock | MediaItem)[] | undefined, key: string): { name: string } | null {
   for (const b of items ?? []) {
-    if (typeof b !== 'string' && b.type === 'video' && isVideoUpload(b.source) && b.source.upload === key)
-      return b.source;
+    if (typeof b === 'string' || b.type !== 'video') continue;
+    if (isVideoUpload(b.source) && b.source.upload === key) return { name: b.source.name };
+    if (b.poster?.upload === key) return { name: b.poster.name };
+    if (b.transcript?.upload === key) return { name: b.transcript.name };
   }
   return null;
 }
 
-/** The uploaded video `key` names in one week's steps (Claude and ChatGPT paths) or its Media. */
+/** The uploaded file `key` names in one week's steps (Claude and ChatGPT paths) or its Media. */
 function uploadInWeek(
   week: {
     media: readonly MediaItem[];
     checklist: readonly { paths?: { claude?: { blocks: PathBlock[] }; chatgpt?: { blocks: PathBlock[] } } }[];
   },
   key: string,
-): VideoUpload | null {
+): { name: string } | null {
   for (const st of week.checklist) {
     const hit = uploadIn(st.paths?.claude?.blocks, key) ?? uploadIn(st.paths?.chatgpt?.blocks, key);
     if (hit) return hit;
@@ -572,7 +577,7 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       if (!isUploadKey(key)) return reply.code(404).send({ error: NOT_FOUND });
       const { actor } = viewerOrThrow(req);
       const db = await loadDb(getDb());
-      let found: VideoUpload | null = null;
+      let found: { name: string } | null = null;
       if (actor.kind === 'learner') {
         const now = clock.now();
         const entry = await courseEntryFor(getDb(), actor.userId, now);
