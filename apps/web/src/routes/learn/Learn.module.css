@@ -1174,6 +1174,50 @@ button.b {
   border-radius: 8px;
   background: var(--r2-for);
 }
+/* D-196: the poster image sits over the element and under the play button until playback starts.
+   iOS Safari does not paint the poster attribute, so the image is what the phone shows. */
+.vframe {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.vposter {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  pointer-events: none;
+}
+.vhit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--r2-for);
+  cursor: pointer;
+}
+.vgo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--r2-sf);
+  color: var(--r2-for);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vhit:focus-visible {
+  outline: 2px solid var(--r2-for);
+  outline-offset: 2px;
+}
 .vlink {
   display: flex;
   align-items: center;

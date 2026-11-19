@@ -6585,3 +6585,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not in this change.** The role filter, icon-rail labels, the mini player, playback speed, task timers, the intake form, the stack card form, hide and collapse, the path default, and operator progress. No golden, tolerance or mask.
 
 **Blast radius.** The parity fixture does not run this data step, so its week and step pages do not gain the card. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.
+
+---
+
+## D-196 · iPhone Safari shows a course video’s poster
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, Nov 19, 2026, 8:54 AM CT: on learn.amplifiedimpact.io, `/learn/week/0/step/2` in iPhone Safari, the Week 0 Orientation video (block id w0-02) shows a blank gray box and a play button, with no poster. Chapters render. Staff had uploaded a 1920×1080 jpg poster for each of the six video blocks (w0-02, w0-02-g, w0-04a, w0-04b, w0-05a, w0-05b) in the builder and saved.
+**Number:** D-195 is the last on `main`. D-196 was free.
+
+- **Root cause.** The poster is saved. The Zod block keeps it, `courseFor` sends the video block whole (the poster key rides with the chapters), and the player sets `<video poster>` to `/api/files/course/<key>`. That is the same same-origin route the transcript track uses, streamed inline, not a presigned bucket URL. `img-src 'self'` allows it. iOS Safari does not paint that attribute: the element has `preload="metadata"`, and `HlsEngine` assigns `src` in a layout effect, so `src` is not in the markup. Once the media load starts, iOS drops the poster frame and shows its gray start-playback surface and play button until a frame is decoded. Desktop keeps the poster. The chapters are HTML, so they were never affected.
+- **The fix.** When a block has a poster, the player also draws it as an `<img>` (object-fit cover, alt the video title) over the element and under a play button. The image uses that same course-file URL. The image and the button go away once playback starts. The `poster` attribute stays. A block with no poster is the player it was.
+- **Not changed.** No schema, no migration, no new upload field. Staff do not re-upload. The six posters already stored are the ones the page asks for. Goldens, tolerances and masks are untouched.
+
+**Blast radius.** A video block with no poster is unchanged. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.

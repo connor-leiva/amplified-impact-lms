@@ -43,6 +43,8 @@ export const STEP = {
   /** D-188: a video block's name when it has no title, and the link that opens one on another site. */
   video: 'Video',
   watch: 'Watch',
+  /** D-196: the name of the button on a poster. The replay player's play button uses the same word. */
+  play: 'Play',
   /** D-190: the one-step layout. Chrome, not a week’s words. */
   yourChecklist: 'Your Checklist',
   reference: 'Reference',

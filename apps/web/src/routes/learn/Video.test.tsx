@@ -3,8 +3,13 @@
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { acceleratorModuleId } from '@ai/core/accelerator';
+import { isLockedWeek } from '@ai/core/course';
+import type { OpenCourseWeek } from '@ai/core/course';
 import type { PathBlock, VideoBlock } from '@ai/core/course-types';
+import { courseVideoUrl } from '../../data/files';
 import { Blocks, VideoView } from './parts';
+import { LIVE_NOW, learnState } from './test/fixture';
 
 const UPLOAD: VideoBlock = { type: 'video', source: { upload: 'uploads/2026/12/aaaaaaaa-bbbb-4ccc-8ddd-000000000001.mp4', name: 'Build.mp4', size: 10, type: 'video/mp4' }, title: 'Watch the build' };
 
@@ -145,5 +150,58 @@ describe('chapters, transcript and watched time (D-191)', () => {
   it('drops chapter motion when the reader asks for less motion', () => {
     const css = readFileSync('src/routes/learn/Learn.module.css', 'utf8');
     expect(css).toMatch(/prefers-reduced-motion:\s*reduce[\s\S]*\.vchap/);
+  });
+});
+
+const POSTER_KEY = 'uploads/2026/11/aaaaaaaa-bbbb-4ccc-8ddd-0000000000bb.jpg';
+const WITH_POSTER: VideoBlock = {
+  ...UPLOAD,
+  id: 'w0-02',
+  title: 'Week 0 Orientation',
+  poster: { upload: POSTER_KEY, name: 'orientation.jpg', size: 78_000, type: 'image/jpeg' },
+};
+
+describe('the poster image (D-196)', () => {
+  it('the learner payload includes a poster URL when one is set', () => {
+    const st = learnState(LIVE_NOW, false, {}, 15, (d) => {
+      const mod = d.modules.find((m) => m.id === acceleratorModuleId(0));
+      if (!mod) throw new Error('no week 0');
+      mod.checklist[1]!.paths = { claude: { blocks: [WITH_POSTER] } };
+    });
+    const week = st.payload.course.weeks.find((w) => w.week === 0);
+    if (!week || isLockedWeek(week)) throw new Error('week 0 is closed');
+    const block = (week as OpenCourseWeek).module.checklist[1]!.paths?.claude?.blocks[0];
+    expect(block).toMatchObject({ type: 'video', id: 'w0-02', poster: WITH_POSTER.poster });
+    if (!block || block.type !== 'video' || !block.poster) throw new Error('poster missing');
+    expect(courseVideoUrl(block.poster.upload)).toBe(`/api/files/course/${POSTER_KEY}`);
+  });
+
+  it('renders the poster image behind the play button, and keeps the poster attribute', () => {
+    const { container } = render(<VideoView block={WITH_POSTER} />);
+    const url = `/api/files/course/${POSTER_KEY}`;
+    const video = container.querySelector('video')!;
+    expect(video).toHaveAttribute('poster', url);
+    expect(video).toHaveAttribute('preload', 'metadata');
+    const img = screen.getByRole('img', { name: 'Week 0 Orientation' });
+    expect(img).toHaveAttribute('src', url);
+    const button = screen.getByRole('button', { name: 'Play Week 0 Orientation' });
+    expect(img.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const css = readFileSync('src/routes/learn/Learn.module.css', 'utf8');
+    expect(css).toMatch(/\.vposter\s*\{[^}]*object-fit:\s*cover/);
+    const play = vi.fn(() => Promise.resolve());
+    video.play = play;
+    fireEvent.click(button);
+    expect(play).toHaveBeenCalled();
+    fireEvent.play(video);
+    expect(screen.queryByRole('img', { name: 'Week 0 Orientation' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Play Week 0 Orientation' })).toBeNull();
+    expect(container.querySelector('video')).toHaveAttribute('poster', url);
+  });
+
+  it('draws no poster image when the block has none', () => {
+    const { container } = render(<VideoView block={UPLOAD} />);
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('video')).not.toHaveAttribute('poster');
+    expect(container.querySelector('.vframe, [class*="vframe"]')).toBeNull();
   });
 });

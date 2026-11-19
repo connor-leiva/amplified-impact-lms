@@ -1,6 +1,11 @@
 // D-191: a course video with its poster, chapters, transcript and resume. A block that has none of
 // those renders the same player D-188 did. Progress is reported by the caller; this file does not
 // know whether the viewer may write.
+//
+// D-196: iOS Safari does not paint the poster attribute once `src` is assigned with
+// `preload="metadata"` (HlsEngine sets `src` in the layout effect, so it is not in the markup). The
+// element shows a gray box and the play button. The same course-file URL is also an `<img>` over the
+// element, under the play button, until playback starts. The attribute stays for every other browser.
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { fmt } from '@ai/core';
@@ -39,6 +44,8 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
   const [failed, setFailed] = useState(false);
   const [time, setTime] = useState(0);
   const [open, setOpen] = useState(false);
+  /** D-196: which source has started. The poster image stays up until this matches. */
+  const [playingGate, setPlayingGate] = useState<string | null>(null);
   const kind = source?.kind ?? null;
   const src = source && source.kind !== 'link' ? source.src : '';
   const onSave = watch?.onSave;
@@ -80,6 +87,7 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
     const onPlay = () => {
       playing = true;
       last = el.currentTime;
+      setPlayingGate(`${id}\0${src}`);
     };
     const onPause = () => {
       sample();
@@ -160,8 +168,14 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
     const played = el.play?.();
     void played?.catch(() => undefined);
   };
+  const play = () => {
+    const el = video.current;
+    if (!el) return;
+    const played = el.play?.();
+    void played?.catch(() => undefined);
+  };
 
-  const player = (
+  const videoEl = (
     <video
       ref={video}
       className={s.vplay}
@@ -175,6 +189,25 @@ export function VideoView({ block, watch }: { block: VideoBlock; watch?: VideoWa
     >
       {block.transcript ? <track kind="captions" srcLang="en" label="English" src={courseVideoUrl(block.transcript.upload)} /> : null}
     </video>
+  );
+  // The frame stays mounted once there is a poster, so hiding the image does not remount the video.
+  const started = playingGate === `${videoKey}\0${src}`;
+  const player = poster ? (
+    <div className={s.vframe}>
+      {videoEl}
+      {started ? null : (
+        <>
+          <img className={s.vposter} src={poster} alt={title ?? STEP.video} />
+          <button type="button" className={s.vhit} aria-label={title ? `${STEP.play} ${title}` : STEP.play} onClick={play}>
+            <span className={s.vgo} aria-hidden="true">
+              <Icon name="play" size={22} filled />
+            </span>
+          </button>
+        </>
+      )}
+    </div>
+  ) : (
+    videoEl
   );
 
   return (
