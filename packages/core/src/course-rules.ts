@@ -165,6 +165,15 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
   push(out, 'course.operator', 'Operator line', c.operator);
   push(out, 'course.time.owner', 'Owner time', c.time.owner);
   push(out, 'course.time.operator', 'Operator time', c.time.operator);
+  // D-195: the Start Here card. Step rows are the week's steps, not copy stored here.
+  if (c.startHere) {
+    push(out, 'course.startHere.title', 'Start here title', c.startHere.title);
+    push(out, 'course.startHere.sub', 'Start here subtitle', c.startHere.sub);
+    push(out, 'course.startHere.line', 'Start here line', c.startHere.line);
+    push(out, 'course.startHere.hint', 'Start here hint', c.startHere.hint);
+    push(out, 'course.startHere.totals.owner', 'Start here owner total', c.startHere.totals.owner);
+    push(out, 'course.startHere.totals.operator', 'Start here operator total', c.startHere.totals.operator);
+  }
   c.skills.forEach((s, i) => push(out, `course.skills[${i}].use`, `Skill ${i + 1}, use`, s.use));
   c.setup.forEach((s, i) => push(out, `course.setup[${i}].text`, `Setup step ${i + 1}`, s.text));
   if (c.liveBuild) {

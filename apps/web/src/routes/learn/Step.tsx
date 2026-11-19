@@ -17,6 +17,7 @@ import { weekRows } from './learn.vm';
 import { PLATFORM_LABEL, STEP, asideRows, stepParam, stepVM } from './Step.vm';
 import type { Platform, StepVM } from './Step.vm';
 import { ChecklistPills, ChecklistPlayer, ChecklistRail, playAt } from './Checklist';
+import { StartHereCard } from './StartHere';
 import { weekParam } from './Week.vm';
 import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
@@ -103,7 +104,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
           <div className={s.col} style={{ gap: 20 }}>
             <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
             {layout ? (
-              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} onLocalToggle={local?.toggle} />
+              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} onLocalToggle={local?.toggle} startHere={vm.startHere} />
             ) : (
               <>
                 <div className={s.pht} style={{ gap: 8 }}>
@@ -112,6 +113,7 @@ function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { tog
                   {vm.lede ? <p className={s.lede}>{vm.lede}</p> : null}
                   {vm.meta ? <span className={s.dl}>{vm.meta}</span> : null}
                 </div>
+                {vm.startHere ? <StartHereCard card={vm.startHere} collapsible /> : null}
                 <section className={`${s.cd} ${s.hero} ${s.heroBlock}`} aria-labelledby="lv-do-t">
                   <div className={s.cdh} style={{ flexWrap: 'wrap', rowGap: 10 }}>
                     <h2 className={s.h2} id="lv-do-t" style={{ flex: '1 1 auto' }}>{STEP.doThis}</h2>

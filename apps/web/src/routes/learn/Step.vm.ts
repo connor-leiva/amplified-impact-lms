@@ -21,6 +21,8 @@ import type { CoursePayload, CourseSession } from '../course/Course.vm';
 import { LABELS, helpVM, icsEvents, kitRow, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
 import type { HelpVM, KitRowVM, WeekRow } from './learn.vm';
 import { learnStep, learnTeam, learnWeek } from './routes';
+import { startHereCard } from './Week.vm';
+import type { StartHereVM } from './Week.vm';
 
 export const STEP = {
   doThis: 'Do this',
@@ -141,6 +143,8 @@ export interface StepVM {
    */
   glossary?: GlossaryTerm[];
   pathMarks?: Partial<Record<Platform, (GlossarySpan[] | undefined)[]>>;
+  /** D-195: step 1 only, and only when the week has a Start Here card. */
+  startHere?: StartHereVM;
 }
 
 export interface PillVM {
@@ -321,6 +325,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     aside,
     help: helpVM(p, now),
     ...checklistOf(p, r, s, actor, now, opts, p.course.glossary),
+    ...(s.n === 1 && w.startHere ? { startHere: startHereCard(w.startHere, r, opts?.checks ?? []) } : {}),
   };
   const glossary = p.course.glossary?.length ? p.course.glossary : undefined;
   const withGlossary: StepVM = glossary ? { ...base, glossary, pathMarks: pathMarksOf(paths, glossary, s.n) } : base;

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone } from '@ai/core';
 import { learnerOf } from '@ai/core/learner';
 import { weekRows } from './learn.vm';
+import { stepVM } from './Step.vm';
 import { stepsHeading, weekParam, weekVM } from './Week.vm';
 import { LEARNER_ID, prelaunchState } from './test/fixture';
 
@@ -103,6 +104,26 @@ describe('the week overview (D-177)', () => {
     w.lockedCopy = { headline: 'Two more weeks', line: 'Finish Week 0 first.', opens: 'Unlocks {date}' };
     const vm = weekVM(p, weekRows(p, st.db, learnerOf(st.db, LEARNER_ID)), 2, st.now, files);
     expect(vm).toMatchObject({ kind: 'locked', headline: 'Two more weeks', line: 'Finish Week 0 first.', question: 'Which lead sources pay, and is every lead worked?', pk: 'Unlocks Wed, Dec 9 · 12:00 PM MT · Week 2' });
+  });
+
+  it('D-195: Start Here rows are the week’s steps, and the first one not done is current', () => {
+    const p = structuredClone(st.payload);
+    const card = { title: 'Card', sub: 'Sub', line: 'A line.', hint: 'A hint.', totals: { owner: 'A', operator: 'B' } };
+    (p.course.weeks[0] as { startHere?: typeof card }).startHere = card;
+    const checks = [{ moduleId: 'accelerator-week-0', stepId: 'c3', itemId: 's3', checked: true, auto: false as const }];
+    const next = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID));
+    const vm = weekVM(p, next, 0, st.now, files, checks);
+    if (vm.kind !== 'open' || !vm.startHere) throw new Error('no card');
+    expect(vm.startHere.title).toBe('Card');
+    expect(vm.startHere.owner).toBe('A');
+    expect(vm.startHere.rows.map((r) => r.n)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(vm.startHere.rows[0]).toMatchObject({ status: 'done', label: 'done', current: false });
+    expect(vm.startHere.rows[2]).toMatchObject({ status: 'progress', label: 'in progress', current: true });
+    expect(vm.startHere.rows[3]).toMatchObject({ status: 'idle', label: 'not started', current: false });
+    const step = stepVM(p, next[0], 1, { kind: 'learner', userId: LEARNER_ID }, st.now, { checks });
+    expect(step.kind === 'step' && step.startHere?.rows[2]?.current).toBe(true);
+    const later = stepVM(p, next[0], 2, { kind: 'learner', userId: LEARNER_ID }, st.now, { checks });
+    expect(later.kind === 'step' && later.startHere).toBeUndefined();
   });
 
   it('a week that isn’t in the course goes back home', () => {

@@ -7,8 +7,12 @@
 // the sessions the course lists for it. Nothing of a locked week's content is fetched or drawn.
 
 import { fmt } from '@ai/core';
-import type { IconName, IcsEvent } from '@ai/core';
+import type { ChecklistMark, IconName, IcsEvent } from '@ai/core';
+import { acceleratorModuleId } from '@ai/core/accelerator';
+import { isCheck, stepChecklistStatus, waitingOn } from '@ai/core/checklist';
+import type { CheckBlock, PathBlock, StartHere } from '@ai/core/course-types';
 import { countWord, duration, minutesInAll, minutesLeft, upcomingSessions } from '@ai/core/learner';
+import type { LearnerStep } from '@ai/core/learner';
 import { COPY, opensText, skillVM } from '../course/Course.vm';
 import type { CoursePayload } from '../course/Course.vm';
 import { LABELS, addLabel, icsEvents, kitRow, segments, sessionRow, skillRow, stepMeta, stepRowMeta, stepTitle } from './learn.vm';
@@ -30,6 +34,8 @@ export const WEEK = {
   buildLive: 'Build it live',
   leaveWith: 'You’ll leave with',
   notFound: 'There’s no such week.',
+  /** D-195: a Start Here row that is waiting on another step. */
+  waiting: 'waiting',
 } as const;
 
 export type Pill = { tone: 'ip' | 'done' | 'open'; label: string };
@@ -59,6 +65,29 @@ export interface OpenWeekVM {
   steps: { heading: string; meta: string; rows: StepRowVM[] };
   /** D-184: the week's skills (each with its role and Free, as the course page tags them) and its kit items, and the Library's link. */
   kit: { heading: string; rows: KitRowVM[]; library: { label: string; href: string } | null } | null;
+  /** D-195: set only when this week has a Start Here card. */
+  startHere?: StartHereVM;
+}
+
+export interface StartHereRowVM {
+  n: number;
+  title: string;
+  meta: string;
+  status: 'done' | 'progress' | 'waiting' | 'idle';
+  label: string;
+  href: string;
+  /** The first step that is not done. */
+  current: boolean;
+}
+
+export interface StartHereVM {
+  title: string;
+  sub: string;
+  line: string;
+  hint: string;
+  owner: string;
+  operator: string;
+  rows: StartHereRowVM[];
 }
 
 export interface LockedWeekVM {
@@ -90,7 +119,45 @@ export const stepsHeading = (n: number): string => {
   return `${w.charAt(0).toUpperCase()}${w.slice(1)} ${n === 1 ? WEEK.step : WEEK.steps}`;
 };
 
-function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string | null): OpenWeekVM {
+const blocksOf = (step: LearnerStep): PathBlock[] => [...(step.step.paths?.claude?.blocks ?? []), ...(step.step.paths?.chatgpt?.blocks ?? [])];
+
+const SAID: Record<StartHereRowVM['status'], string> = {
+  done: LABELS.done.toLowerCase(),
+  progress: LABELS.inProgress.toLowerCase(),
+  waiting: WEEK.waiting,
+  idle: LABELS.notStarted.toLowerCase(),
+};
+
+/** D-195: the card's rows are this week's steps. The first one that is not done is the current row. */
+export function startHereCard(card: StartHere, r: WeekRow, checks: readonly ChecklistMark[]): StartHereVM {
+  const moduleId = acceleratorModuleId(r.week);
+  const isOn = (stepId: string, itemId: string): boolean => checks.some((c) => c.moduleId === moduleId && c.stepId === stepId && c.itemId === itemId && c.checked);
+  const rows = r.steps.map((s): StartHereRowVM => {
+    const blocks = blocksOf(s);
+    const anyChecked = !!s.id && checks.some((c) => c.moduleId === moduleId && c.stepId === s.id && c.checked);
+    const waiting = (b: CheckBlock): boolean =>
+      waitingOn(b.dependsOn, (stepN, itemId) => {
+        const other = r.steps[stepN - 1];
+        return !!other?.id && blocksOf(other).some((x) => isCheck(x) && (x.id === itemId || (x.subchecks ?? []).some((sub) => sub.id === itemId))) && isOn(other.id, itemId);
+      }) !== null;
+    const status = stepChecklistStatus(s.done, blocks, anyChecked, (itemId) => (s.id ? isOn(s.id, itemId) : false), waiting);
+    const time = s.step.timeLabel || (s.step.mins > 0 ? duration(s.step.mins) : '');
+    return {
+      n: s.n,
+      title: stepTitle(s),
+      meta: [s.step.who, time].filter((x): x is string => !!x).join(' · '),
+      status,
+      label: SAID[status],
+      href: learnStep(r.week, s.n),
+      current: false,
+    };
+  });
+  const next = rows.find((row) => row.status !== 'done');
+  if (next) next.current = true;
+  return { title: card.title, sub: card.sub, line: card.line, hint: card.hint, owner: card.totals.owner, operator: card.totals.operator, rows };
+}
+
+function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string | null, checks: readonly ChecklistMark[]): OpenWeekVM {
   const w = r.open!;
   const platform = w.module.platform || null;
   const step = r.steps.find((s) => s.current) ?? null;
@@ -148,6 +215,7 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
       }),
     },
     kit: rows.length ? { heading: `${LABELS.week} ${r.week} ${WEEK.kit}`, rows, library: skillRows.length ? { label: COPY.download, href: learnSkills() } : null } : null,
+    ...(w.startHere ? { startHere: startHereCard(w.startHere, r, checks) } : {}),
   };
 }
 
@@ -178,8 +246,8 @@ export function weekParam(param: string | undefined): number | null {
   return /^\d{1,2}$/.test(param ?? '') ? Number(param) : null;
 }
 
-export function weekVM(p: CoursePayload, rows: readonly WeekRow[], week: number | null, now: number, fileUrl: (id: string) => string | null): WeekVM {
+export function weekVM(p: CoursePayload, rows: readonly WeekRow[], week: number | null, now: number, fileUrl: (id: string) => string | null, checks: readonly ChecklistMark[] = []): WeekVM {
   const r = week === null ? undefined : rows.find((x) => x.week === week);
   if (!r) return { kind: 'missing', text: WEEK.notFound, href: learnHome() };
-  return r.state === 'locked' ? lockedWeek(p, r, now) : openWeek(p, r, fileUrl);
+  return r.state === 'locked' ? lockedWeek(p, r, now) : openWeek(p, r, fileUrl, checks);
 }

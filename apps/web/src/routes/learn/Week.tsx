@@ -12,6 +12,7 @@ import { repo } from '../../data/boot';
 import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { weekRows } from './learn.vm';
+import { StartHereCard } from './StartHere';
 import { weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
@@ -69,6 +70,7 @@ function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
         </span>
         {more.content ? <WeekMeta vm={more.content.meta} /> : null}
       </Head>
+      {vm.startHere ? <StartHereCard card={vm.startHere} /> : null}
       <WeekLive week={vm.week} />
 
       <section className={`${s.cd} ${s.hero}`} aria-labelledby="lv-next-t">
@@ -231,7 +233,7 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
-  const vm = weekVM(course.payload, rows, week, now, fileUrl);
+  const vm = weekVM(course.payload, rows, week, now, fileUrl, me?.checks ?? []);
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const crumbs = crumbsVM(vm.title, vm.week);
   const title = preview ? null : tabTitle(vm.week, vm.title);

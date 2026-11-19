@@ -1,0 +1,90 @@
+/* D-195: the Start Here card. Tokens only. The current step is heavier and has a bar, not color alone. */
+
+.card {
+  background: var(--r2-sf);
+  border: 1px solid var(--r2-line);
+  border-radius: 14px;
+  padding: 16px 18px 8px;
+  color: var(--r2-ink);
+}
+.title,
+.sum {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--r2-ink);
+}
+.sum {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+.sum::-webkit-details-marker {
+  display: none;
+}
+.sum:focus-visible,
+.row:focus-visible {
+  outline: none;
+  box-shadow: var(--r2-focus);
+}
+.sub,
+.line,
+.hint,
+.totals {
+  margin: 8px 0 0;
+  font-size: var(--r2-t);
+  line-height: var(--r2-tl);
+}
+.sub,
+.totals {
+  color: var(--r2-f2);
+}
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.rows {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 8px 8px 10px;
+  border-top: 1px solid var(--r2-line);
+  color: var(--r2-ink);
+  text-decoration: none;
+}
+.row[data-current='true'] {
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--r2-ink);
+}
+.name {
+  display: block;
+}
+.meta,
+.status {
+  font-size: var(--r2-fs-13);
+  line-height: var(--r2-lh-18);
+  font-weight: 400;
+  color: var(--r2-f2);
+}
+.row[data-current='true'] .status {
+  font-weight: 700;
+  color: var(--r2-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .sum {
+    transition: none;
+  }
+}
