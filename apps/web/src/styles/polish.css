@@ -2,13 +2,15 @@
    #f4f2ec (r2-tokens.test.ts). This wins on a light frame; dark mode does not
    match, and learner-v2.css sets --r2-bg back to the dark canvas. */
 
-:root:not([data-theme='dark']):has([data-learner-v2]),
-:root:not([data-theme='dark']):has([data-r2-shell]) {
+/* Selectors start with html, not :root. compliance/tests/e2e/tokens.spec.ts
+   reads every :root custom property and compares it to the reference. */
+html:not([data-theme='dark']):has([data-learner-v2]),
+html:not([data-theme='dark']):has([data-r2-shell]) {
   background: #f1f0eb;
 }
 
-:root:not([data-theme='dark']) [data-learner-v2],
-:root:not([data-theme='dark']) [data-r2-shell] {
+html:not([data-theme='dark']) [data-learner-v2],
+html:not([data-theme='dark']) [data-r2-shell] {
   --r2-bg: #f1f0eb;
 }
 
