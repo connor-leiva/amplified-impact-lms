@@ -267,6 +267,7 @@ export function moduleCopyFields(m: AIEmployee): CopyField[] {
     push(out, `${p}.who`, `${l}, who`, s.who);
     push(out, `${p}.timeLabel`, `${l}, time`, s.timeLabel);
     push(out, `${p}.doneWhen`, `${l}, done when`, s.doneWhen);
+    push(out, `${p}.goal`, `${l}, goal`, s.goal);
     blockFields(out, `${p}.paths.claude.blocks`, `${l}, Claude path`, s.paths?.claude?.blocks);
     blockFields(out, `${p}.paths.chatgpt.blocks`, `${l}, ChatGPT path`, s.paths?.chatgpt?.blocks);
   });

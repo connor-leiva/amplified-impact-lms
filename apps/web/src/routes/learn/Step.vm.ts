@@ -103,6 +103,16 @@ export const STEP = {
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'Operator', each: 'Each of you' };
 const CALLOUT_LABEL = { tip: STEP.tip, heads_up: STEP.headsUp, diy: STEP.diy } as const;
 
+/** A video's length beside Watch: "7 min 49 s", "2 min", or "8 s". */
+export function watchLength(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  if (m === 0) return `${sec} s`;
+  if (sec === 0) return `${m} min`;
+  return `${m} min ${sec} s`;
+}
+
 export type Platform = 'claude' | 'chatgpt';
 export const PLATFORM_LABEL: Record<Platform, string> = { claude: 'Claude', chatgpt: 'ChatGPT' };
 
@@ -335,7 +345,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     }),
     eyebrow: `${LABELS.step} ${s.n} ${STEP.of} ${r.total}`,
     title: stepTitle(s),
-    lede: stepText(s),
+    lede: s.step.goal?.trim() || stepText(s),
     meta: stepMeta(s, w.module.platform || null),
     doneWhen: s.step.doneWhen ? `${STEP.doneWhen} ${s.step.doneWhen}` : null,
     // An older week's tip, when the step has no Who or Time of its own (the new weeks' hint repeats them).

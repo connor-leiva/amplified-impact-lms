@@ -13,7 +13,7 @@ import { KnowCard, Marked } from './Glossary';
 import { StartHereCard } from './StartHere';
 import { LABELS } from './learn.vm';
 import type { StartHereVM } from './Week.vm';
-import { PLATFORM_LABEL, STEP } from './Step.vm';
+import { PLATFORM_LABEL, STEP, watchLength } from './Step.vm';
 import type { AccordionVM, CalloutVM, CheckActionVM, CheckItemVM, ChecklistLayoutVM, PillVM, StepVM } from './Step.vm';
 import s from './Checklist.module.css';
 import l from './Learn.module.css';
@@ -246,7 +246,7 @@ function Item({
             {item.action ? <Action action={item.action} /> : null}
             {item.playSeconds !== null && item.playLabel ? (
               <button type="button" className={`${l.b} ${l.bi} ${s.act}`} onClick={() => onPlay(item.playSeconds!, item.playVideo)}>
-                <Icon name="r2Play" size={14} strokeWidth={1.75} />
+                <Icon name="play" size={14} filled />
                 {item.playLabel}
               </button>
             ) : null}
@@ -346,6 +346,7 @@ export function ChecklistPlayer({
   const [confirm, setConfirm] = useState<{ ids: string[]; stepN: number } | null>(null);
   const [undo, setUndo] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [watchLen, setWatchLen] = useState<number | null>(null);
   const titleId = useId();
   const pops = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => {
@@ -510,7 +511,7 @@ export function ChecklistPlayer({
     void mutate('setPref', { key, value: open ? '1' : '0' });
   };
 
-  const pct = layout.progress.total ? Math.round((layout.progress.done / layout.progress.total) * 100) : 0;
+  const pct = layout.progress.total ? layout.progress.done / layout.progress.total : 0;
 
   return (
     <div className={s.main}>
@@ -546,7 +547,7 @@ export function ChecklistPlayer({
         {layout.progress.total ? (
           <div className={s.barWrap}>
             <div className={s.bar} role="progressbar" aria-valuemin={0} aria-valuemax={layout.progress.total} aria-valuenow={layout.progress.done} aria-label={layout.progress.label}>
-              <i style={{ width: `${pct}%` }} />
+              <i style={{ ['--pct' as string]: String(pct) }} />
             </div>
             <p className={s.barL}>{layout.progress.label}</p>
           </div>
@@ -557,9 +558,12 @@ export function ChecklistPlayer({
 
       {layout.videos.length ? (
         <section id="step-watch" aria-labelledby="step-watch-h">
-          <h2 id="step-watch-h">{STEP.watch}</h2>
+          <h2 id="step-watch-h">
+            {STEP.watch}
+            {watchLen != null ? <small>{watchLength(watchLen)}</small> : null}
+          </h2>
           {layout.videos.map((block, i) => (
-            <VideoView key={i} block={block} watch={watch} />
+            <VideoView key={i} block={block} watch={watch} onDuration={i === 0 ? setWatchLen : undefined} />
           ))}
         </section>
       ) : null}
@@ -603,7 +607,7 @@ export function ChecklistPlayer({
           </button>
           {layout.gate.reason ? <p className={s.why}>{layout.gate.reason}</p> : null}
           {vm.mark.done && undo ? (
-            <button type="button" className={`${l.b} ${l.bq}`} onClick={() => void mark()}>
+            <button type="button" className={`${l.b} ${s.undo}`} onClick={() => void mark()}>
               {STEP.undo}
             </button>
           ) : null}

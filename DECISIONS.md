@@ -6786,6 +6786,9 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 - **Ring.** Marking the step done plays one energy ring on that button: opacity 0.85 at scale 1, fading out to scale 1.18 by 1.5, over 600ms. It plays once.
 - **Check.** The checklist box and the Mark step done mark draw the check. The path is always in the box; checking it runs the stroke from empty to drawn.
-- **Done.** The button leaves the forest fill for a mint wash and forest text. The line under it reads `Nice work. Step N is next.` The next card's mint bar grows, and its arrow moves 3px right on hover.
+- **Done.** The button leaves the forest fill for a mint wash and forest text. The line under it reads `Nice work. Step N is next.` Undo is weight 500 in forest. The next card's mint bar grows, and its arrow moves 3px right on hover.
+- **Header.** The goal is a step field, edited in the Week Builder, and step 2's seed carries the mockup sentence. Under the chips, a 6px track and a right-aligned `N of M checked` share one row. `Watch` carries the video's length once the file reports it (`7 min 49 s`).
+- **Play.** The checklist `Play from` mark is the solid play glyph.
+- **Halo.** A checkbox hover sets the box border to forest and `box-shadow: 0 0 0 4px` of forest at 6%.
 - **Reduced motion.** The ring is not drawn. Hover does not lift or move the arrow. The colour change and the drawn check remain.
 - **Not changed.** The footer stays Mark step done beside the forest next card. No course copy, schema, or golden change.

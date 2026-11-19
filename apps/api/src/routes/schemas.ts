@@ -339,6 +339,7 @@ const step = z.strictObject({
   who: z.string().optional(),
   timeLabel: z.string().optional(),
   doneWhen: z.string().optional(),
+  goal: z.string().optional(),
   paths: stepPaths.optional(),
   linkedSkill: z.string().optional(),
   openInPreview: z.boolean().optional(),

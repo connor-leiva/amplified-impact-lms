@@ -406,7 +406,10 @@ export const WEEKS_0_3: readonly CourseWeek[] = [
       // Eight steps, the spec's. Times are the spec's; Who, Time and Done When ride on each step too.
       checklist: WEEK0_STEPS.map((s) => {
         const paths = week0Paths(s.n);
-        return S(s.doneWhen, s.step, parseInt(s.time, 10), 0, `${s.who}. ${s.time}.`, { who: s.who, timeLabel: s.time, doneWhen: s.doneWhen, ...(paths ? { paths } : {}) });
+        const goal = s.n === 2
+          ? 'The goal of this step is that both of you know how a week runs and what an AI hire is before we start building. Watch it together if you can.'
+          : undefined;
+        return S(s.doneWhen, s.step, parseInt(s.time, 10), 0, `${s.who}. ${s.time}.`, { who: s.who, timeLabel: s.time, doneWhen: s.doneWhen, ...(goal ? { goal } : {}), ...(paths ? { paths } : {}) });
       }),
     },
   },
