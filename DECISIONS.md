@@ -6739,3 +6739,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No course copy, no schema, no migration. No golden, tolerance, or mask. `/skill-library` layout is untouched.
 
 **Blast radius.** Resting pixels of the flag-off golden portal do not move: these rules are on the learner frame. A dark frame keeps the dark palette.
+
+---
+
+## D-206 · Course video fills the column, chapters scroll under it, transcript is inline
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026, 12:55 PM CT: ship the Week 0 polish live in small pieces, speed over exhaustive testing, and keep CI green including parity-learner.
+**Number:** D-205 is the button hover. D-206 was free.
+
+- **The player.** A course video is the full width of the column at 16:9. The poster image and play button over it (D-198) stay. Chapters are a sideways scroller directly under the video at every width. The current chapter is marked with weight and a forest border, not color alone.
+- **The transcript.** Show transcript opens a 240px panel under the chapters. Hide transcript, or Escape while the panel is focused, collapses it. It is not a drawer. A cue still seeks. The captions track is unchanged.
+- **Not changed.** A video with no chapters and no transcript. No course copy, no schema, no migration. No golden, tolerance, or mask.
+
+**Blast radius.** The parity fixture's videos have no chapters, so those screens do not gain a scroller. Utah Life, Agent Plan, Team Plan, and Insiders screens outside the course are unchanged.
