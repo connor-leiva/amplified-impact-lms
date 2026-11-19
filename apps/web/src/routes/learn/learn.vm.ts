@@ -397,23 +397,60 @@ const KIND_ICON: Record<ResourceKind, IconName> = { file: 'file', prompt: 'lvCop
 /** The Library route a step links, as a course route ("map-your-spend" → "/map-your-spend"). */
 const asRoute = (r: string): string => (r.startsWith('/') ? r : `/${r}`);
 
+/**
+ * The Library routes in a step's Linked skill field (D-189). Commas separate them; each piece is
+ * trimmed, empties drop, and each is normalized with `asRoute`. A single route is that one route.
+ * Duplicates drop. The stored value stays one string: no schema change.
+ */
+export function linkedRoutes(raw: string | undefined): string[] {
+  if (!raw) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of raw.split(',')) {
+    const t = part.trim();
+    if (!t) continue;
+    const route = asRoute(t);
+    if (seen.has(route)) continue;
+    seen.add(route);
+    out.push(route);
+  }
+  return out;
+}
+
 /** `/skill-library/<page>` (the current portal's guide) as the learner portal's `/learn/skills/<page>`; any other address as it is. */
 const asLearn = (href: string): string => {
   const m = /^\/skill-library\/([a-z0-9-]+)$/.exec(href);
   return m ? learnSkill(m[1]!) : href;
 };
 
-/** A Library skill's row: its guided setup when its page exists, else the `skill.coming` copy string and no link. */
-export function skillRow(k: Pick<CourseSkill, 'title' | 'route'>, copy: Record<string, string> | undefined, suffix?: string): KitRowVM {
+/** The week whose steps a skill row is drawn against, so a linked skill can point at its step. */
+export interface SkillPlace {
+  week: number;
+  steps: readonly LearnerStep[];
+}
+
+/**
+ * A Library skill's row (D-189), in this order:
+ * (a) its Library page exists → "Open now", linking that page;
+ * (b) else a step in this week links it, and the `skill.in_step` copy string is set → "In Step {n}",
+ *     linking that step's page (never a Library page `inLibrary` says is not there);
+ * (c) else the `skill.coming` copy string, with no link. Also (c) when a step links it but
+ *     `skill.in_step` is missing: the same as today, no link.
+ */
+export function skillRow(k: Pick<CourseSkill, 'title' | 'route'>, copy: Record<string, string> | undefined, place?: SkillPlace): KitRowVM {
   const route = asRoute(k.route);
   // D-179: a guided setup opens in the learner portal's own Skill Library, in the step player.
-  const href = inLibrary(route) ? asLearn(guideHref(route)) : null;
-  const status = href ? LABELS.openNow : (copy?.['skill.coming'] ?? null);
+  const libraryHref = inLibrary(route) ? asLearn(guideHref(route)) : null;
+  const linked = !libraryHref && place ? stepOfSkill(route, place.steps) : undefined;
+  const template = linked ? copy?.['skill.in_step'] : undefined;
+  const inStep = linked && template ? template.replaceAll('{n}', String(linked.n)) : null;
+  const href = libraryHref ?? (inStep && place && linked ? learnStep(place.week, linked.n) : null);
+  const status = libraryHref ? LABELS.openNow : (inStep ?? copy?.['skill.coming'] ?? null);
   return {
     key: `skill:${route}`,
     icon: 'book',
     title: k.title,
-    meta: [LABELS.skill, suffix ?? status].filter((x): x is string => !!x).join(' · '),
+    meta: [LABELS.skill, status].filter((x): x is string => !!x).join(' · '),
     href,
     external: !!href && /^https?:\/\//.test(href),
   };
@@ -433,19 +470,22 @@ export function kitRow(item: CourseKitItem, steps: readonly LearnerStep[], fileU
   };
 }
 
-/** The step a skill route belongs to in this week, by the step's linked skill: "Step 5", or none. */
-export function stepOfSkill(route: string, steps: readonly LearnerStep[]): string | undefined {
+/** The step in this week whose Linked skill names this route, if one does. The first match wins. */
+export function stepOfSkill(route: string, steps: readonly LearnerStep[]): LearnerStep | undefined {
   const r = asRoute(route);
-  const s = steps.find((x) => x.step.linkedSkill && asRoute(x.step.linkedSkill) === r);
-  return s ? `${LABELS.step} ${s.n}` : undefined;
+  return steps.find((x) => linkedRoutes(x.step.linkedSkill).includes(r));
 }
 
-/** The week's Library skills that a step links (by its linked skill), else every skill of the week. */
+/**
+ * The Library skills a step links, in the order its Linked skill field names them (D-189). A route
+ * the week also lists keeps that skill's title; any other route keeps its slug. None, when the step
+ * links nothing: the step page no longer repeats every skill of the week.
+ */
 export function skillsForStep(week: OpenCourseWeek, s: LearnerStep): Pick<CourseSkill, 'title' | 'route'>[] {
-  const linked = s.step.linkedSkill ? asRoute(s.step.linkedSkill) : null;
-  if (!linked) return week.skills;
-  const own = week.skills.find((k) => asRoute(k.route) === linked);
-  return [own ?? { title: linked.slice(1), route: linked }];
+  return linkedRoutes(s.step.linkedSkill).map((route) => {
+    const own = week.skills.find((k) => asRoute(k.route) === route);
+    return own ?? { title: route.slice(1), route };
+  });
 }
 
 export interface HelpVM {

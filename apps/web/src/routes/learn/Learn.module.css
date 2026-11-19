@@ -1022,7 +1022,10 @@ button.b {
 .where {
   border: 1px solid var(--r2-line);
   border-radius: 10px;
-  overflow: hidden;
+  /* A table wider than the column scrolls inside the card. The scrollport clips to the radius. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 .wrr {
   display: grid;
@@ -1033,7 +1036,7 @@ button.b {
   align-items: start;
 }
 .wrr2 {
-  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+  grid-template-columns: minmax(7rem, 200px) minmax(0, 1fr);
 }
 .wrr:last-child {
   border-bottom: 0;
@@ -1048,6 +1051,12 @@ button.b {
 .wrr > span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.wrr > span[role='columnheader'] {
+  min-width: min-content;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
 }
 .actb {
   display: flex;

@@ -14,6 +14,7 @@ import type { Db } from '@ai/core';
 import { CONTENT_V2, planContentV2 } from '@ai/core/seed/content-v2';
 import { COPY_V1, planCopyV1 } from '@ai/core/seed/copy-v1';
 import { COPY_V2, planCopyV2 } from '@ai/core/seed/copy-v2';
+import { COPY_V3, planCopyV3 } from '@ai/core/seed/copy-v3';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { audit } from '../console/audit';
@@ -49,6 +50,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: COPY_V2,
     describe: 'Connor’s Nov 18 Team Plan window: its words as copy strings the builder edits (D-187)',
     plan: planCopyV2,
+  },
+  {
+    id: COPY_V3,
+    describe: 'The Week kit label for a skill a step links before its Library page exists (D-189)',
+    plan: planCopyV3,
   },
 ];
 

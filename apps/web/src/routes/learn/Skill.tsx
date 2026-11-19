@@ -68,7 +68,7 @@ function SampleBlock({ b }: { b: GuideSampleBlock }) {
   if ('table' in b) {
     const t = b.table;
     const cols = Math.max(t.head.length, ...t.rows.map((r) => r.length));
-    const grid = { gridTemplateColumns: columnTemplate(t.head, t.rows, cols) } as CSSProperties;
+    const grid = { gridTemplateColumns: columnTemplate(t.head, t.rows, cols, '0') } as CSSProperties;
     return (
       <div className={l.dtb} role="table" aria-label={t.caption}>
         <div className={`${l.dtr} ${l.dth}`} role="row" style={grid}>

@@ -381,7 +381,7 @@ export function StepWeekFields({ step, onChange }: { step: Step; onChange: (fn: 
       <Line label="Who" value={step.who ?? ''} hint="Owner, Operator, Each of you" onChange={(v) => setOpt('who', v)} />
       <Line label="Time" value={step.timeLabel ?? ''} hint="20 min" onChange={(v) => setOpt('timeLabel', v)} />
       <Para label="Done when" value={step.doneWhen ?? ''} onChange={(v) => setOpt('doneWhen', v)} />
-      <Line label="Linked skill" value={step.linkedSkill ?? ''} hint="The Library route, like map-your-spend" onChange={(v) => setOpt('linkedSkill', v)} />
+      <Line label="Linked skill" value={step.linkedSkill ?? ''} hint="The Library route, like map-your-spend. Separate more than one with commas." onChange={(v) => setOpt('linkedSkill', v)} />
       <label className={clsx(k.row, k.nw, w.check)}>
         <input
           type="checkbox"

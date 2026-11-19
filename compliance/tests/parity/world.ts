@@ -13,6 +13,7 @@ import { GROK_TEMPLATES } from '../../../packages/core/src/grok-templates';
 import { planContentV2 } from '../../../packages/core/seed/content-v2';
 import { planCopyV1 } from '../../../packages/core/seed/copy-v1';
 import { planCopyV2 } from '../../../packages/core/seed/copy-v2';
+import { planCopyV3 } from '../../../packages/core/seed/copy-v3';
 import { seedProduction } from '../../../packages/core/seed/curriculum';
 import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 
@@ -22,7 +23,7 @@ import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
  * cohort.
  *
  *   the course    the deployed seed (`seedProduction` plus the v2 content, copy and release plans, and
- *                 D-187's Team Plan copy strings), the same database `GET /api/course` reads in
+ *                 D-187's Team Plan copy strings and D-189's In Step label), the same database `GET /api/course` reads in
  *                 production
  *   the people    the fixture's three personas (`data/fixture.ts`): Jamie (`?as=agent`, Agent tier),
  *                 Alex (`?as=owner`, Team Owner) and staff `st1` (`?as=admin`, the seed's Owner), moved
@@ -70,12 +71,14 @@ export const ANNOUNCEMENT = {
 export const STORE_KEY = DB_KEY;
 
 const demo = seed('live');
-// D-187: and the Team Plan window's copy strings, the deploy's fourth data step.
-const prod = planCopyV2(
-  planContentV2(
-    planCopyV1(
-      planReleaseV1(seedProduction({ owner: { id: 'st1', name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }))
-        .db,
+// D-187: the Team Plan window's copy strings, then D-189's In Step label. The deploy runs both.
+const prod = planCopyV3(
+  planCopyV2(
+    planContentV2(
+      planCopyV1(
+        planReleaseV1(seedProduction({ owner: { id: 'st1', name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }))
+          .db,
+      ).db,
     ).db,
   ).db,
 ).db;

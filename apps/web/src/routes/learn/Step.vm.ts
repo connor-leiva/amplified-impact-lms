@@ -1,16 +1,19 @@
 // /learn/week/:week/step/:step, the step player (D-177): artboards 08/09 of the learner mockup.
 //
 // PURE. A step renders from `GET /api/course`: its name, what it asks, who does it, its time, its
-// done-when line and its Claude and ChatGPT paths (`StepPaths`: text, copy, list and table blocks), and
-// the week's Library skills for "For this step". The learner's progress and the step's id come from the
-// snapshot, so "Mark step done" writes through the portal's own `toggleStep`. A skill whose Library page
-// isn't built shows the `skill.coming` copy string with no link (D-176).
+// done-when line and its Claude and ChatGPT paths (`StepPaths`: text, copy, list and table blocks).
+// "For this step" is only this step's linked Library skills whose page exists, plus the week's kit
+// items placed on this step (D-189). The learner's progress and the step's id come from the snapshot,
+// so "Mark step done" writes through the portal's own `toggleStep`.
 
 import type { Actor } from '@ai/core/mutations';
 import type { PathBlock, StepPaths } from '@ai/core/course-types';
+import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import { acceleratorModuleId } from '@ai/core/accelerator';
+import type { LearnerStep } from '@ai/core/learner';
+import { inLibrary } from '../course/Course.vm';
 import type { CoursePayload } from '../course/Course.vm';
-import { LABELS, helpVM, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
+import { LABELS, helpVM, kitRow, skillRow, skillsForStep, stepMeta, stepText, stepTitle } from './learn.vm';
 import type { HelpVM, KitRowVM, WeekRow } from './learn.vm';
 import { learnStep, learnWeek } from './routes';
 
@@ -65,8 +68,26 @@ export interface StepVM {
   prev: string | null;
   next: string | null;
   mark: { moduleId: string; stepId: string | null; done: boolean; disabled: boolean };
+  /**
+   * "For this step" at `tab` (the first path when the caller names none): linked skills whose Library
+   * page exists, then kit items placed on this step that match the tab. Empty hides the section.
+   */
   forStep: KitRowVM[];
+  /** The same rows, so the player can swap kit items when the path tab changes. */
+  aside: StepAside;
   help: HelpVM;
+}
+
+/** Kit items on this step, kept with the platform the builder set, so a tab can filter them. */
+export interface StepAside {
+  skills: KitRowVM[];
+  kit: { platform: CourseKitItem['platform']; row: KitRowVM }[];
+}
+
+export interface StepVMOptions {
+  fileUrl?: (id: string) => string | null;
+  /** The path tab to filter kit items by. Omit it for the step's first tab, or null when it has none. */
+  tab?: Platform | null;
 }
 
 export type StepPageVM = StepVM | { kind: 'missing'; href: string };
@@ -83,13 +104,43 @@ export function stepParam(param: string | undefined): number | null {
   return /^\d{1,2}$/.test(param ?? '') && Number(param) > 0 ? Number(param) : null;
 }
 
-export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | null, actor: Actor, now: number): StepPageVM {
+/**
+ * A kit item belongs on the open path tab when its platform is unset or both, or equals the tab.
+ * A step with no path tabs has no tab to filter by, so every item placed on it stays (D-189).
+ */
+export function kitOnTab(platform: CourseKitItem['platform'], tab: Platform | null): boolean {
+  if (platform === null || platform === 'both' || tab === null) return true;
+  return platform === tab;
+}
+
+/** "For this step" for one path tab: linked skills with a Library page, then this step's kit items. */
+export function asideRows(aside: StepAside, tab: Platform | null): KitRowVM[] {
+  return [...aside.skills, ...aside.kit.filter((k) => kitOnTab(k.platform, tab)).map((k) => k.row)];
+}
+
+function asideOf(w: OpenCourseWeek, steps: readonly LearnerStep[], s: LearnerStep, copy: Record<string, string> | undefined, fileUrl: (id: string) => string | null): StepAside {
+  const skills = skillsForStep(w, s)
+    .filter((k) => inLibrary(k.route))
+    .map((k) => skillRow(k, copy));
+  const kit = (w.kit ?? [])
+    .filter((item) => s.id !== null && item.stepId === s.id)
+    .map((item) => ({ platform: item.platform, row: kitRow(item, steps, fileUrl) }));
+  return { skills, kit };
+}
+
+function chosenTab(tabs: readonly Platform[], opts?: StepVMOptions): Platform | null {
+  if (opts && 'tab' in opts) return opts.tab ?? null;
+  return tabs[0] ?? null;
+}
+
+export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | null, actor: Actor, now: number, opts?: StepVMOptions): StepPageVM {
   if (!r || !r.open || n === null) return { kind: 'missing', href: r ? learnWeek(r.week) : learnWeek(0) };
   const s = r.steps[n - 1];
   if (!s) return { kind: 'missing', href: learnWeek(r.week) };
   const w = r.open;
   const paths = pathsOf(s.step.paths);
   const tabs = ORDER.filter((k) => paths[k]);
+  const aside = asideOf(w, r.steps, s, p.copy, opts?.fileUrl ?? (() => null));
   return {
     kind: 'step',
     week: r.week,
@@ -112,7 +163,8 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     prev: s.n > 1 ? learnStep(r.week, s.n - 1) : null,
     next: s.n < r.total ? learnStep(r.week, s.n + 1) : null,
     mark: { moduleId: acceleratorModuleId(r.week), stepId: s.id, done: s.done, disabled: s.id === null || actor.kind !== 'learner' },
-    forStep: skillsForStep(w, s).map((k) => skillRow(k, p.copy)),
+    forStep: asideRows(aside, chosenTab(tabs, opts)),
+    aside,
     help: helpVM(p, now),
   };
 }

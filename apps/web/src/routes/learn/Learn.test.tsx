@@ -250,12 +250,11 @@ describe('the step player (D-177)', () => {
     expect(await within(copy).findByText('Copied')).toBeInTheDocument();
   });
 
-  it('For this step: an unbuilt Library page shows the coming copy string, with no link', async () => {
+  it('For this step is hidden when the step links no Library page and has no kit item (D-189)', async () => {
     at('/learn/week/0/step/3');
-    const kit = await screen.findByRole('region', { name: 'For this step' });
-    expect(within(kit).getByRole('link', { name: /AI Brain Setup/ })).toHaveAttribute('href', '/learn/skills/ai-brain-setup');
-    expect(within(kit).queryByRole('link', { name: /Lead Source Review/ })).toBeNull();
-    expect(kit).toHaveTextContent('Lead Source ReviewSkill · Coming With Week 1');
+    await screen.findByRole('heading', { level: 1, name: 'Start Your Time Baseline' });
+    expect(screen.queryByRole('region', { name: 'For this step' })).toBeNull();
+    expect(screen.getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
   });
 });
 

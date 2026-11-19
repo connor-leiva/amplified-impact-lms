@@ -1,17 +1,18 @@
 // /learn/week/:week/step/:step (D-177): the step player, the learner mockup's artboards 08/09. Claude
 // and ChatGPT tabs from the step's own paths, a copy button on every copy block, "Mark step done" through
-// the portal's own `toggleStep`, and "For this step" with the step's Library skill (or the week's).
-// Markup only: every string is computed in Step.vm.ts.
+// the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
+// Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
 import { useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
+import { repo } from '../../data/boot';
 import { useMutate } from '../../data/hooks';
 import { useLearn } from './data';
 import { weekRows } from './learn.vm';
-import { PLATFORM_LABEL, STEP, stepParam, stepVM } from './Step.vm';
+import { PLATFORM_LABEL, STEP, asideRows, stepParam, stepVM } from './Step.vm';
 import type { Platform, StepVM } from './Step.vm';
 import { weekParam } from './Week.vm';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
@@ -57,6 +58,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
   const [platform, setPlatform] = useState<Platform>(vm.tabs[0] ?? 'claude');
   const on = vm.tabs.includes(platform) ? platform : (vm.tabs[0] ?? 'claude');
   const blocks = vm.paths[on] ?? [];
+  const forStep = asideRows(vm.aside, vm.tabs.length ? on : null);
   const [busy, setBusy] = useState(false);
 
   const mark = async () => {
@@ -149,14 +151,14 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
         </div>
 
         <aside className={s.col} aria-label={STEP.kit}>
-          {vm.forStep.length ? (
+          {forStep.length ? (
             <section className={s.cd} aria-labelledby="lv-skit-t">
               <div className={s.cdh}>
                 <h2 className={s.h2} id="lv-skit-t">
                   {STEP.forStep}
                 </h2>
               </div>
-              <KitRows rows={vm.forStep} />
+              <KitRows rows={forStep} />
             </section>
           ) : null}
           {more.kit ? <BuildKit vm={more.kit} previewing={more.previewing} notes={false} /> : null}
@@ -200,7 +202,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
-  const vm = stepVM(course.payload, row, step, viewer.actor, now);
+  const vm = stepVM(course.payload, row, step, viewer.actor, now, { fileUrl: (id) => repo.fileUrl({ kind: 'resource', id }) });
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const more: StepMore = {
     crumbs: crumbsVM(vm.back.label, vm.week, { n: step ?? 1, title: vm.title }),
