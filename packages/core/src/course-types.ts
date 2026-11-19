@@ -157,6 +157,8 @@ export interface CalloutBlock {
   type: 'callout';
   kind: 'tip' | 'heads_up' | 'diy';
   text: string;
+  /** D-199: show this callout only when the team's intake matches. No intake: it still shows. */
+  showIf?: CheckCond;
 }
 
 /** A reference row, closed until the learner opens it. The open state is remembered per learner. */

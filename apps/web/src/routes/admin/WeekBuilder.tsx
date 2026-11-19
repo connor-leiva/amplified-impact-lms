@@ -690,6 +690,19 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
           ))}
         </fieldset>
       ) : null}
+      <CondFields n={n} label="Hide If" cond={block.hideIf} onChange={(hideIf) => onChange({ ...block, hideIf })} />
+      <CondFields n={n} label="Collapse If" cond={block.collapseIf} onChange={(collapseIf) => onChange({ ...block, collapseIf })} />
+      <Line label={`Block ${n} Collapsed Note`} value={block.collapsedNote ?? ''} onChange={(collapsedNote) => onChange({ ...block, collapsedNote: collapsedNote.trim() ? collapsedNote : undefined })} />
+    </>
+  );
+}
+
+function CondFields({ n, label, cond, onChange }: { n: number; label: string; cond?: { field: string; equals: string }; onChange: (cond?: { field: string; equals: string }) => void }) {
+  const write = (field: string, equals: string) => onChange(field.trim() || equals.trim() ? { field, equals } : undefined);
+  return (
+    <>
+      <Line label={`Block ${n} ${label} Field`} value={cond?.field ?? ''} hint="An intake question id, such as operator, plan or google." onChange={(field) => write(field, cond?.equals ?? '')} />
+      <Line label={`Block ${n} ${label} Equals`} value={cond?.equals ?? ''} hint="both matches I'm both." onChange={(equals) => write(cond?.field ?? '', equals)} />
     </>
   );
 }
@@ -706,6 +719,7 @@ function CalloutFields({ n, block, onChange }: { n: number; block: CalloutBlock;
         </Sel>
       </label>
       <Para label={`Block ${n} text`} value={block.text} onChange={(text) => onChange({ ...block, text })} />
+      <CondFields n={n} label="Show If" cond={block.showIf} onChange={(showIf) => onChange({ ...block, showIf })} />
     </>
   );
 }

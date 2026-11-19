@@ -6630,3 +6630,20 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No schema, no migration, no new upload field. Staff do not re-upload. The six posters already stored are the ones the page asks for. Goldens, tolerances and masks are untouched.
 
 **Blast radius.** A video block with no poster is unchanged. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.
+
+---
+
+## D-199 · Personalization, the path, operator progress, Week 0 done
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical. This is the last of that set.
+**Number:** D-198 is the iPhone poster. D-199 was free.
+
+- **Conditions.** A checklist item's hideIf and collapseIf, and a callout's showIf, are read against the team's intake. `operator` equals `both` also matches "I'm both". A matching collapse shows the collapsed note and the item is pre-checked. No intake, or a field the intake does not have, changes nothing and raises nothing. Staff set the conditions in the week builder. Step numbers are not hardcoded.
+- **Path.** The path tab opens on the intake's AI. Once a learner switches, `learner_prefs` key `path` remembers it, and that choice wins. Staff preview does not write it.
+- **Operator progress.** On Operator items and on the step pills, the owner sees a read-only line such as "Jordan: 3 of 6" from the operator on the same team. Another team's member sees nothing.
+- **Accept.** `s1-accept` checks itself for the team once an Operations Lead is on the roster. A team plan that matches collapseIf is checked the same way. Staff preview writes neither.
+- **Week 0 done.** The first time every step of Week 0 is done, a learner sees one forest overlay: the wordmark ring ripples three times, "Week 0 done. You're at the starting line." appears, then Continue. It is remembered with `learner_prefs` key `week0-done`. Reduced motion gets a static banner. Staff preview does not write it.
+- **No new table.** Path and the overlay use the existing `learner_prefs` table. `0030_team_stack_card` stays the last migration.
+
+**Blast radius.** With no intake, items, callouts and the path tab stay as they were, so the parity fixture does not move. The overlay is off in fixture mode. Utah Life and the non-course screens are unchanged. Nothing is sent outside the portal.

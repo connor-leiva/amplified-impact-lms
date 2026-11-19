@@ -632,6 +632,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   { path: '/api/stack', methods: 'GET, HEAD, PUT', guard: 'session' },
+  // D-199: intake conditions and the operator's count. Signed in, then the owner and the operator.
+  { path: '/api/personalize', methods: 'GET, HEAD, POST', guard: 'session' },
   // The CRM sync log (D-134): signed in, then the Owner and Admins only.
   { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/crm-sync/retry', methods: 'POST', guard: 'session' },
@@ -1176,6 +1178,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/intake': () => app.inject({ method: 'GET', url: '/api/intake' }),
           '/api/console/workspaces/:teamId/stack': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/stack' }),
           '/api/stack': () => app.inject({ method: 'GET', url: '/api/stack' }),
+          '/api/personalize': () => app.inject({ method: 'GET', url: '/api/personalize' }),
           '/api/console/users': () => app.inject({ method: 'GET', url: '/api/console/users' }),
           '/api/console/users/:userId': () => app.inject({ method: 'GET', url: '/api/console/users/u_jamie' }),
           '/api/console/users/:userId/password-reset': () =>
@@ -1498,7 +1501,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-168), 74 with System Health and the Skills list (D-169), 75 with the audited Build actions
     // (D-172), 77 with Invite staff and Change role…'s two (D-172), and 78 with a course week's
     // uploaded video (D-188), and 80 with the intake's two routes (D-196).
-    expect(EXECUTED.unauthenticated).toBe(82);
+    expect(EXECUTED.unauthenticated).toBe(83);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1519,6 +1522,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
     // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
     // saveVideoProgress, counted the same way. And + 2 for the intake routes (D-196), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2);
+    // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199).
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1);
   });
 });

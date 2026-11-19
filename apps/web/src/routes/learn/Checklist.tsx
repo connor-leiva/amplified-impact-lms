@@ -30,6 +30,7 @@ function Pills({ pills, label }: { pills: PillVM[]; label: string }) {
             {p.status === 'done' ? <Icon name="r2Check" size={12} strokeWidth={2.4} /> : p.n}
           </span>
           <span className={s.pillT}>{p.title}</span>
+          {p.note ? <span className={s.pillNote}>{p.note}</span> : null}
         </Link>
       ))}
     </nav>
@@ -214,6 +215,7 @@ function Item({
           </div>
         )}
         {item.detail ? <p className={s.detail}><Marked text={item.detail} spans={item.detailSpans} /></p> : null}
+        {item.note ? <p className={s.opNote}>{item.note}</p> : null}
         {item.subchecks.length ? (
           <ul className={s.subs}>
             {item.subchecks.map((sub) => (

@@ -170,6 +170,7 @@ const calloutBlock = z.strictObject({
   type: z.literal('callout'),
   kind: z.enum(['tip', 'heads_up', 'diy']),
   text: z.string().max(4000),
+  showIf: checkCond.optional(),
 });
 const accordionBlock = z.strictObject({
   type: z.literal('accordion'),

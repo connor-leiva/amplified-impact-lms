@@ -2,17 +2,18 @@
 // preview, artboards 14/15. Markup only: every string and every time is computed in Week.vm.ts. A
 // locked week draws its stub alone; nothing of its content is fetched or rendered.
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import type { AIEmployee, Learner } from '@ai/core';
 import { Icon } from '../../components/Icon';
-import { repo } from '../../data/boot';
+import { isFixture, repo } from '../../data/boot';
 import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { weekRows } from './learn.vm';
 import { StartHereCard } from './StartHere';
+import { WeekDone } from './WeekDone';
 import { weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
@@ -37,6 +38,9 @@ interface WeekMore {
   title: string | null;
   /** D-186: the week's module and this learner, for the Your Deployment card; null without a module. */
   deploy: { m: AIEmployee; me: Learner | null; now: number } | null;
+  /** D-199: the one-time Week 0 finish. Staff and fixture mode leave it off. */
+  celebrate: boolean;
+  onCelebrate: () => void;
 }
 
 function Head({ vm, question, children }: { vm: OpenWeekVM | LockedWeekVM; question?: string | null; children: ReactNode }) {
@@ -60,6 +64,7 @@ function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
   useTabTitle(more.title);
   return (
     <div className={s.pg}>
+      {more.celebrate ? <WeekDone onDone={more.onCelebrate} /> : null}
       <Crumbs crumbs={more.crumbs} />
       <Head vm={vm} question={more.content?.question}>
         <span className={s.pk}>
@@ -230,6 +235,7 @@ function Locked({ vm, now, crumbs, title }: { vm: LockedWeekVM; now: number; cru
  */
 export function WeekPage({ week, preview = false }: { week: number | null; preview?: boolean }) {
   const { course, db, viewer, now } = useLearn();
+  const [hid, setHid] = useState(false);
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
@@ -246,6 +252,8 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
     previewing: viewer.preview !== undefined,
     title,
     deploy: mod ? { m: mod, me, now } : null,
+    celebrate: !hid && !isFixture && !preview && viewer.actor.kind === 'learner' && vm.week === 0 && vm.right.total > 0 && vm.right.done === vm.right.total && !me?.coursePrefs?.some((p) => p.key === 'week0-done'),
+    onCelebrate: () => setHid(true),
   };
   return <Open vm={vm} more={more} />;
 }

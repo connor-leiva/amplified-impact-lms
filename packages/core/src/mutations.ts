@@ -315,13 +315,21 @@ export function toggleChecklistItem(db: Db, a: Actor, args: { moduleId: string; 
  */
 export function setPref(db: Db, a: Actor, args: { key: string; value: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);
-  if (!PREF_KEY.test(args.key) || (args.value !== '0' && args.value !== '1')) {
+  const path = args.key === 'path';
+  const weekDone = args.key === 'week0-done';
+  if (path) {
+    if (args.value !== 'claude' && args.value !== 'chatgpt') throw new MutationError('invalid', 'That preference is not one this page stores.');
+  } else if (weekDone) {
+    if (args.value !== '1') throw new MutationError('invalid', 'That preference is not one this page stores.');
+  } else if (!PREF_KEY.test(args.key) || (args.value !== '0' && args.value !== '1')) {
     throw new MutationError('invalid', 'That preference is not one this page stores.');
   }
-  const moduleId = args.key.split(':')[1]!;
-  const m = moduleOf(db, moduleId);
-  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
-  if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  if (!path && !weekDone) {
+    const moduleId = args.key.split(':')[1]!;
+    const m = moduleOf(db, moduleId);
+    if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+    if (!isOpen(m, c.now)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
+  }
   const next = produce(db, (d) => {
     const du = d.users.find((x) => x.id === u.id)!;
     const list = du.coursePrefs ? [...du.coursePrefs] : [];

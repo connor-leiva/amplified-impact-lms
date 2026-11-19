@@ -14,7 +14,8 @@ import { cardTerms, markSequence } from '@ai/core/glossary';
 import type { GlossarySpan } from '@ai/core/glossary';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import { acceleratorModuleId } from '@ai/core/accelerator';
-import { checkVisible, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
+import { checkVisible, conditionMet, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
+import { pathFromAnswers } from '@ai/core/personalize';
 import type { LearnerStep } from '@ai/core/learner';
 import { inLibrary } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
@@ -147,6 +148,8 @@ export interface StepVM {
   pathMarks?: Partial<Record<Platform, (GlossarySpan[] | undefined)[]>>;
   /** D-195: step 1 only, and only when the week has a Start Here card. */
   startHere?: StartHereVM;
+  /** D-199: the path tab to open. A saved choice, or the intake's AI. Absent leaves the first tab. */
+  pathDefault?: Platform;
 }
 
 export interface PillVM {
@@ -156,6 +159,8 @@ export interface PillVM {
   on: boolean;
   href: string;
   aria: string;
+  /** D-199: the operator's count on this step, for the owner. Read-only. */
+  note?: string;
 }
 
 export interface CheckSubVM {
@@ -201,6 +206,8 @@ export interface CheckItemVM {
   detailSpans?: GlossarySpan[];
   /** D-193: the Know These card. Missing ids are already dropped. Absent when there is nothing to list. */
   card?: { id: string; term: string; short: string }[];
+  /** D-199: the operator's count, on an Operator item. Read-only. */
+  note?: string;
 }
 
 export interface AccordionVM {
@@ -248,6 +255,10 @@ export interface StepVMOptions {
   prefs?: readonly CoursePref[];
   /** This learner’s place in the week’s videos. Omit it and nothing resumes. */
   videoProgress?: readonly { videoId: string; maxPct: number; lastPositionS: number; moduleId: string }[];
+  /** D-199: the team's intake answers, when this viewer may see them. */
+  intake?: Readonly<Record<string, string | string[]>>;
+  /** D-199: the operator's checklist count per step, for the owner. Read-only. */
+  operator?: { name: string; byStep: Readonly<Record<string, { done: number; total: number }>> } | null;
 }
 
 export type StepPageVM = StepVM | { kind: 'missing'; href: string };
@@ -328,6 +339,11 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     help: helpVM(p, now),
     ...checklistOf(p, r, s, actor, now, opts, p.course.glossary),
     ...(s.n === 1 && w.startHere ? { startHere: startHereCard(w.startHere, r, opts?.checks ?? []) } : {}),
+    ...(() => {
+      const saved = opts?.prefs?.find((p) => p.key === 'path')?.value;
+      const preferred = pathFromAnswers(opts?.intake?.ai, saved);
+      return preferred && tabs.includes(preferred) ? { pathDefault: preferred } : {};
+    })(),
   };
   const glossary = p.course.glossary?.length ? p.course.glossary : undefined;
   const withGlossary: StepVM = glossary ? { ...base, glossary, pathMarks: pathMarksOf(paths, glossary, s.n) } : base;
@@ -391,15 +407,19 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
   return { type: 'calendar', event: session ? (icsEvents([session])[0] ?? null) : null };
 }
 
-function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[], glossary: readonly GlossaryTerm[] | undefined): CheckItemVM {
+function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[], glossary: readonly GlossaryTerm[] | undefined, answers?: Readonly<Record<string, string | string[]>>, operatorNote?: string): CheckItemVM {
   const subs = (b.subchecks ?? []).map((sub) => ({ id: sub.id, label: sub.label, checked: isOn(stepId, `${b.id}:${sub.id}`) }));
   const listed = b.action?.type === 'card' ? cardTerms(b.action.terms, glossary) : [];
+  const folded = conditionMet(b.collapseIf, answers);
+  const shown = callouts.filter((c) => !c.showIf || !answers || conditionMet(c.showIf, answers));
+  const note = b.role === 'operator' && operatorNote ? operatorNote : undefined;
   return {
     id: b.id,
     title: b.title,
-    detail: b.detail ?? null,
+    detail: folded ? (b.collapsedNote ?? b.detail ?? null) : (b.detail ?? null),
     role: b.role ? (ROLE_LABEL[b.role] ?? null) : null,
-    checked: itemChecked(b, (itemId) => isOn(stepId, itemId)),
+    checked: folded || itemChecked(b, (itemId) => isOn(stepId, itemId)),
+    ...(note ? { note } : {}),
     waiting: waiting(b),
     optional: !!b.optional,
     clickPath: b.clickPath ?? [],
@@ -408,23 +428,24 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     playVideo: b.playAt?.video ?? null,
     action: actionVM(b.action, kit, fileUrl, sessions),
     subchecks: subs,
-    callouts: callouts.map(calloutVM),
+    callouts: shown.map(calloutVM),
     ...(listed.length ? { card: listed } : {}),
   };
 }
 
 function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayoutVM {
   const regions = pathRegions(blocks);
-  const counts = progressCounts(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId));
-  const remaining = gateRemaining(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId));
+  const counts = progressCounts(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId), ctx.answers);
+  const remaining = gateRemaining(blocks, (itemId) => ctx.isOn(ctx.stepId, itemId), ctx.answers);
   const locked = !ctx.staff && !ctx.done && remaining > 0;
   const jumps: { id: string; label: string }[] = [];
   if (regions.videos.length) jumps.push({ id: 'step-watch', label: STEP.watch });
   if (regions.groups.length || regions.leading.length) jumps.push({ id: 'step-checklist', label: STEP.yourChecklist });
   if (regions.accordions.length) jumps.push({ id: 'step-reference', label: STEP.reference });
   const tasks = counts.tasks;
-  const leading = regions.leading.map(calloutVM);
-  const items = regions.groups.filter((g) => checkVisible(g.item)).map((g) => itemVM(g.item, g.callouts, ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions, ctx.glossary));
+  const shows = (c: CalloutBlock): boolean => !c.showIf || !ctx.answers || conditionMet(c.showIf, ctx.answers);
+  const leading = regions.leading.filter(shows).map(calloutVM);
+  const items = regions.groups.filter((g) => checkVisible(g.item, ctx.answers)).map((g) => itemVM(g.item, g.callouts.filter(shows), ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions, ctx.glossary, ctx.answers, ctx.operatorNote));
   const extraMarks = applyGlossary(leading, items, regions.extras, ctx.glossary, ctx.n);
   return {
     eyebrow: `${STEP.week} ${ctx.week} · ${LABELS.step} ${ctx.n}`,
@@ -516,6 +537,8 @@ interface LayoutCtx {
   prefs: readonly CoursePref[];
   next: { href: string; title: string; meta: string } | null;
   glossary?: readonly GlossaryTerm[];
+  answers?: Readonly<Record<string, string | string[]>>;
+  operatorNote?: string;
 }
 
 /**
@@ -545,14 +568,24 @@ function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor,
     return 'idle';
   };
   const said: Record<PillVM['status'], string> = { done: LABELS.done.toLowerCase(), progress: STEP.inProgress, waiting: STEP.waitingStatus, idle: STEP.notStarted };
-  const pills: PillVM[] = r.steps.map((x) => ({
-    n: x.n,
-    title: stepTitle(x),
-    status: statusOf(x),
-    on: x.n === s.n,
-    href: learnStep(r.week, x.n),
-    aria: `${LABELS.step} ${x.n}, ${stepTitle(x)}, ${said[statusOf(x)]}`,
-  }));
+  const lineFor = (stepId: string | null): string | undefined => {
+    if (!opts?.operator || !stepId) return undefined;
+    const row = opts.operator.byStep[stepId];
+    if (!row || row.total < 1) return undefined;
+    return `${opts.operator.name}: ${row.done} of ${row.total}`;
+  };
+  const pills: PillVM[] = r.steps.map((x) => {
+    const note = lineFor(x.id);
+    return {
+      n: x.n,
+      title: stepTitle(x),
+      status: statusOf(x),
+      on: x.n === s.n,
+      href: learnStep(r.week, x.n),
+      aria: `${LABELS.step} ${x.n}, ${stepTitle(x)}, ${said[statusOf(x)]}`,
+      ...(note ? { note } : {}),
+    };
+  });
   const fileUrl = opts?.fileUrl ?? (() => null);
   const nextStep = r.steps[s.n];
   const next = nextStep
@@ -577,6 +610,8 @@ function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor,
     prefs: opts?.prefs ?? [],
     next,
     ...(glossary?.length ? { glossary } : {}),
+    ...(opts?.intake ? { answers: opts.intake } : {}),
+    ...(lineFor(s.id) ? { operatorNote: lineFor(s.id) } : {}),
   };
   const layouts: Partial<Record<Platform, ChecklistLayoutVM>> = {};
   for (const k of ORDER) {
