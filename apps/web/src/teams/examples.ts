@@ -49,7 +49,7 @@ export const JOIN_PANELS = {
     meta: 'Training starts',
     events: [
       ['Live training', 'Weekly · 60 minutes'],
-      ['Office hours', 'Thursdays · 1:00 PM Central'],
+      ['Office hours', 'Thursdays · 12:00 PM MT / 1:00pm CT'],
     ] as readonly (readonly [string, string])[],
   },
 } as const;

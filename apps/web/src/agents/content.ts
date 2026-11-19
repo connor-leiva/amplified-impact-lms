@@ -57,9 +57,9 @@ export const ROTATION = {
 
 export const OFFICE_HOURS = {
   heading: 'Office hours',
-  // The office hours' hour is the course's (1:00 PM Central). The weekly training's day and time stay
+  // The office hours' hour is the course's (12:00 PM MT / 1:00pm CT). The weekly training's day and time stay
   // open: "Weekly, starting the week of January 4." (the offer-pages brief, Nov 11).
-  body: 'Every Thursday, 1:00 PM Central, 60 minutes. Drop in with a real file and get help.',
+  body: 'Every Thursday, 12:00 PM MT / 1:00pm CT, 60 minutes. Drop in with a real file and get help.',
   recorded: 'Every session is recorded, so you’re never behind.',
 } as const;
 

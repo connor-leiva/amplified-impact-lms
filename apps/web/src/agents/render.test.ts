@@ -134,12 +134,15 @@ describe('the first week and the rotation', () => {
 });
 
 describe('office hours', () => {
-  it('say Thursday at 1:00 PM Central, 60 minutes, and that every session is recorded', () => {
+  it('say Thursday at 12:00 PM MT / 1:00pm CT, 60 minutes, and that every session is recorded', () => {
     const oh = $('#oh-title')!.parentElement!;
     expect($$('.section-lede', oh).map(text)).toEqual([
-      'Every Thursday, 1:00 PM Central, 60 minutes. Drop in with a real file and get help.',
+      'Every Thursday, 12:00 PM MT / 1:00pm CT, 60 minutes. Drop in with a real file and get help.',
       'Every session is recorded, so you’re never behind.',
     ]);
+    // The clock draws the first zone's hour, on a 12-hour clock: noon to 1:00, Mountain.
+    expect(text($('.clock-t'))).toBe('12:00 to 1:00 PM');
+    expect($$('.clock-label .mono').map(text)).toEqual(['Thursday', 'MT']);
   });
 
   it('leave the weekly training’s day and time open', () => {
