@@ -8,7 +8,20 @@ import { SKILL_CATALOG } from '@ai/core/skills';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import SkillLibrary, { COPY, START_WITH, groupForSkill, groupOnly, leadOf, offersPlans } from './SkillLibrary';
+import SkillLibrary, {
+  COPY,
+  SECTION_PREF_KEY,
+  START_WITH,
+  fileActionClass,
+  groupForSkill,
+  groupOnly,
+  leadOf,
+  lockedCountLine,
+  offersPlans,
+  readSectionOpen,
+  sectionDisclosure,
+  sectionOrder,
+} from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
 import { ENTRIES, LEAD } from '../../library/content';
 
@@ -37,6 +50,7 @@ const answer = (status: number, body: unknown) => ({ ok: status < 400, status, j
 
 beforeEach(() => {
   delete document.body.dataset.appReady;
+  localStorage.clear();
   fetchMock = vi.fn();
   vi.stubGlobal('fetch', fetchMock);
 });
@@ -55,8 +69,19 @@ describe('the skill library screen', () => {
     );
     render(<SkillLibrary />, { wrapper: MemoryRouter });
     const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
-    expect(within(owner).getByRole('link', { name: COPY.files.claude })).toHaveAttribute('href', '/api/skills/team-pnl-review/download/claude');
-    expect(within(owner).getByRole('link', { name: COPY.files.practice })).toBeInTheDocument();
+    const claude = within(owner).getByRole('link', { name: COPY.files.claude });
+    const chatgpt = within(owner).getByRole('link', { name: COPY.files.chatgpt });
+    expect(claude).toHaveAttribute('href', '/api/skills/team-pnl-review/download/claude');
+    expect(chatgpt).toHaveAttribute('href', '/api/skills/team-pnl-review/download/chatgpt');
+    // Claude and ChatGPT are the same action (D-201): one class, the kit's primary, not first-file-wins.
+    expect(claude.className).toBe(chatgpt.className);
+    expect(claude.className).toMatch(/primary/);
+    expect(fileActionClass('claude')).toBe(fileActionClass('chatgpt'));
+    expect(fileActionClass('grok')).toBe('primary');
+    const practice = within(owner).getByRole('link', { name: COPY.files.practice });
+    expect(practice).toBeInTheDocument();
+    expect(practice.className).toMatch(/secondary/);
+    expect(practice.className).not.toMatch(/primary/);
 
     // Beside the downloads, the skill's guided setup, here in learn, in this tab (D-151).
     const guide = within(owner).getByRole('link', { name: GUIDE });
@@ -123,6 +148,7 @@ describe('the skill library screen', () => {
     const link = await screen.findByRole('link', { name: COPY.files.grok });
     expect(link).toHaveAttribute('href', '/api/skills/month-end-close/download/grok');
     expect(COPY.files.grok).toBe('Download for Grok Bot');
+    expect(link.className).toMatch(/primary/);
     expect(screen.getByRole('link', { name: GUIDE })).toHaveAttribute('href', '/skill-library/month-end-close');
   });
 
@@ -296,8 +322,12 @@ describe('the skill library screen', () => {
       );
       render(<SkillLibrary />, { wrapper: MemoryRouter });
       const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
+      // Both sets are locked for this member, so each is closed until they open it (D-201).
+      await userEvent.click(within(owner).getByRole('button', { name: /Owner and Operations Skills/ }));
       expect(within(owner).getByText('Not included with Utah Life access')).toBeInTheDocument();
-      expect(within(screen.getByRole('region', { name: COPY.sets.agent })).getByText('Not included with Acme Brokerage access')).toBeInTheDocument();
+      const agentRegion = screen.getByRole('region', { name: COPY.sets.agent });
+      await userEvent.click(within(agentRegion).getByRole('button', { name: /Agent Skills/ }));
+      expect(within(agentRegion).getByText('Not included with Acme Brokerage access')).toBeInTheDocument();
     });
 
     it('keeps "Not in your plan." and See Plans for everyone else', async () => {
@@ -331,7 +361,11 @@ describe('the skill library screen', () => {
       skill({ id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', state: 'locked' }),
     ];
     const member = (over: Record<string, unknown> = {}) =>
-      answer(200, { plans: [], accessGroups: [{ id: 'utah-life', name: 'Utah Life', skills: 25, welcome: true, ...over }], skills: TRAINING });
+      answer(200, {
+        plans: [],
+        accessGroups: [{ id: 'utah-life', name: 'Utah Life', skills: 25, welcome: true, covers: ['agent', 'both'], ...over }],
+        skills: TRAINING,
+      });
 
     it('greets the group, counts its skills from the API, and links the two to start with to their Setup Guides', async () => {
       fetchMock.mockResolvedValue(member());
@@ -349,9 +383,11 @@ describe('the skill library screen', () => {
       expect(first).not.toHaveAttribute('target');
       expect(within(panel).getByRole('link', { name: 'Repair Request Response' })).toHaveAttribute('href', '/skill-library/repair-request-response');
       expect(START_WITH['utah-life']).toEqual(['appointment-follow-up', 'repair-request-response']);
-      // At the top: before the first set of skills.
-      const first_set = screen.getByRole('region', { name: COPY.sets.owner_ops });
-      expect(panel.compareDocumentPosition(first_set) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      // At the top, before the skills their access holds. Owner skills sit below those (D-201).
+      const agent = screen.getByRole('region', { name: COPY.sets.agent });
+      const owner = screen.getByRole('region', { name: COPY.sets.owner_ops });
+      expect(panel.compareDocumentPosition(agent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(agent.compareDocumentPosition(owner) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
     it('takes the count from the group’s grant, whatever it is: never a number typed into the page', async () => {
@@ -428,5 +464,146 @@ describe('the skill library screen', () => {
     render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: COPY.course })).toBeNull();
+  });
+
+  describe('included skills first, and the locked section closed (D-201)', () => {
+    const UTAH = [{ id: 'utah-life', name: 'Utah Life', covers: ['agent', 'both'] as ('agent' | 'both')[], welcome: false }];
+    const rows = [
+      skill({ id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', state: 'locked' }),
+      skill({ id: 'inbox-meeting-follow-through', title: 'Inbox and Meeting Follow-Through', sets: 'owner_ops', state: 'open', free: true, files: ['claude'] }),
+      skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'open', files: ['claude', 'chatgpt'] }),
+      skill({ id: 'perfect-week', title: 'Perfect Week', sets: 'both', state: 'open', free: true, files: ['claude'] }),
+    ];
+
+    it('puts Agent Skills and Skills for Everyone above Owner and Operations, and closes that section', async () => {
+      expect(lockedCountLine(12, 'Not included with Utah Life access')).toBe('12 Skills, Not Included With Utah Life Access');
+      expect(lockedCountLine(1, 'Not included with Utah Life access')).toBe('1 Skill, Not Included With Utah Life Access');
+      expect(lockedCountLine(2, COPY.locked)).toBe('2 Skills, Not In Your Plan');
+      expect(sectionOrder(rows, { groups: UTAH, plans: [] })).toEqual(['agent', 'both', 'owner_ops']);
+      expect(sectionDisclosure('owner_ops', rows, { groups: UTAH, plans: [] })).toBe(true);
+      expect(sectionDisclosure('agent', rows, { groups: UTAH, plans: [] })).toBe(false);
+
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: rows }));
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
+      const headings = (await screen.findAllByRole('heading', { level: 2 })).map((h) => h.textContent?.replace(/\s+/g, ' ').trim());
+      expect(headings[0]).toBe('Agent Skills');
+      expect(headings[1]).toBe('Skills for Everyone');
+      // The free owner skill does not count, and does not keep the section open.
+      expect(headings[2]).toBe('Owner and Operations Skills 1 Skill, Not Included With Utah Life Access');
+
+      const owner = screen.getByRole('region', { name: COPY.sets.owner_ops });
+      const toggle = within(owner).getByRole('button', { name: /Owner and Operations Skills/ });
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(toggle).toHaveAttribute('aria-controls', 'set-panel-owner_ops');
+      // Closed: the rows are in the DOM with the hidden attribute (the stylesheet sets display: none).
+      expect(owner.querySelector('ul')).toHaveAttribute('hidden');
+      expect(within(owner).queryByRole('link', { name: COPY.seePlans })).toBeNull();
+      expect(owner.textContent).not.toMatch(/See Plans|Upgrade|Agent Plan|—/);
+
+      toggle.focus();
+      await userEvent.keyboard('{Enter}');
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      expect(owner.querySelector('ul')).not.toHaveAttribute('hidden');
+      expect(within(owner).getByText('Not included with Utah Life access')).toBeInTheDocument();
+      expect(within(owner).getByRole('link', { name: COPY.files.claude })).toHaveAttribute('href', '/api/skills/inbox-meeting-follow-through/download/claude');
+      expect(within(owner).queryByRole('link', { name: COPY.seePlans })).toBeNull();
+
+      await userEvent.keyboard(' ');
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(readSectionOpen('owner_ops')).toBe(false);
+      expect(JSON.parse(localStorage.getItem(SECTION_PREF_KEY)!)).toEqual({ owner_ops: false });
+    });
+
+    it('remembers the section open for the next visit, in this browser', async () => {
+      localStorage.setItem(SECTION_PREF_KEY, JSON.stringify({ owner_ops: true, agent: false }));
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: rows }));
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
+      const toggle = await screen.findByRole('button', { name: /Owner and Operations Skills/ });
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByText('Not included with Utah Life access')).toBeInTheDocument();
+    });
+
+    it('follows a builder edit of the locked line, on the rows and in the count', async () => {
+      fetchMock.mockResolvedValue(
+        answer(200, {
+          plans: [],
+          accessGroups: UTAH,
+          lockedLines: { 'utah-life': 'Not part of your Utah Life access' },
+          skills: [rows[0]!, rows[2]!],
+        }),
+      );
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
+      const toggle = await screen.findByRole('button', { name: /Owner and Operations Skills/ });
+      expect(toggle).toHaveTextContent('1 Skill, Not Part Of Your Utah Life Access');
+      await userEvent.click(toggle);
+      expect(screen.getByText('Not part of your Utah Life access')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
+    });
+
+    it('does the same for an Agent Plan member, and keeps See Plans on the locked rows', async () => {
+      const agentRows = [
+        skill({ id: 'team-pnl-review', sets: 'owner_ops', state: 'locked' }),
+        skill({ id: 'l10-meeting-prep', title: 'L10 Meeting Prep', sets: 'owner_ops', state: 'locked' }),
+        skill({
+          id: 'offer-strategy',
+          title: 'Offer Strategy',
+          sets: 'agent',
+          state: 'upcoming',
+          opensAt: Date.parse('2027-01-04T00:00:00-06:00'),
+          releasedAt: Date.parse('2026-11-01T00:00:00-05:00'),
+        }),
+      ];
+      expect(sectionOrder(agentRows, { groups: [], plans: [{ kind: 'agent_plan' }] })).toEqual(['agent', 'owner_ops']);
+      fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agent_plan', status: 'trialing' }], skills: agentRows }));
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
+      const headings = (await screen.findAllByRole('heading', { level: 2 })).map((h) => h.textContent?.replace(/\s+/g, ' ').trim());
+      expect(headings[0]).toBe('Agent Skills');
+      expect(headings[1]).toContain('2 Skills, Not In Your Plan');
+      expect(screen.queryByRole('button', { name: /Agent Skills/ })).toBeNull();
+      await userEvent.click(screen.getByRole('button', { name: /Owner and Operations Skills/ }));
+      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
+      expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
+    });
+
+    it('leaves a Team Plan, and a page with no coverage to read, in today’s order and open', async () => {
+      const mixed = [skill({ state: 'locked' }), skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'open' })];
+      expect(sectionOrder(mixed, { groups: [], plans: [{ kind: 'agents' }] })).toEqual(['owner_ops', 'agent']);
+      fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], skills: mixed }));
+      const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
+      const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
+      const agent = screen.getByRole('region', { name: COPY.sets.agent });
+      expect(owner.compareDocumentPosition(agent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(owner).queryByRole('button')).toBeNull();
+      expect(within(owner).getByText(COPY.locked)).toBeInTheDocument();
+      unmount();
+
+      // No covers and no plan kind: do not guess, and do not hide the rows.
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: [{ id: 'utah-life', name: 'Utah Life' }], skills: [skill({ state: 'locked' })] }));
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
+      expect(await screen.findByText('Not included with Utah Life access')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Owner and Operations Skills/ })).toBeNull();
+    });
+
+    it('paints both platform buttons with the kit’s primary colours, in light and in dark', () => {
+      const primary = /\n\.primary \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(primary).toMatch(/background: var\(--look-action\)/);
+      expect(primary).toMatch(/color: var\(--look-on-action\)/);
+      expect(primary).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
+      const skillPrimary = /\.skill \.primary \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(skillPrimary).toMatch(/flex: 1 1 0/);
+      expect(skillPrimary).toMatch(/white-space: nowrap/);
+      const count = /\.disclosureCount \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(count).toMatch(/font-size: 16px/);
+      expect(count).toMatch(/color: var\(--look-ink-secondary\)/);
+      expect(count).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
+      const button = /\.disclosure \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(button).toMatch(/min-height: 44px/);
+      expect(CSS).toMatch(/\.list\[hidden\] \{[^}]*display: none/);
+      const look = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../styles/look.module.css'), 'utf8');
+      expect(look).toMatch(/--look-action: var\(--look-near-black\)/);
+      expect(look).toMatch(/--look-on-action: var\(--look-bone\)/);
+      expect(look).toMatch(/--look-action: var\(--look-mint\)/);
+      expect(look).toMatch(/--look-on-action: var\(--look-near-black\)/);
+    });
   });
 });

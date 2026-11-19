@@ -6662,3 +6662,19 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Not changed.** No migration, no screen, no golden, no tolerance, no mask.
 
 **Blast radius.** With the variables unset, a deploy writes what it wrote before. A verified member of an access-group domain is created by the same functions as before.
+
+---
+
+## D-201 · Skill Library leads with the skills a member holds
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, Nov 19, 2026, after Utah Life agents were confused in a live training: the Skill Library at `/skill-library` led with owner skills, and the Claude download was the only solid button, so agents thought that was the only choice.
+**Number:** D-200 is the test learner. D-201 was free.
+
+- **Who.** An access-group member (Utah Life and any other group) and an Agent Plan member. A Team Plan, Insiders, the AI Accelerator and a free account keep today's order. The learner portal library at `/learn/skills` is unchanged.
+- **Order.** Sections their access holds come first, in today's order (Owner and Operations, then Agent, then Everyone). A section goes to the bottom when they hold none of its paid skills. A group grant's `covers`, or a bought plan's sets (`PLAN_SETS`, with `both` open whenever the plan opens a set), decides that. A free skill stays in its section and stays downloadable. It does not count as held, so Inbox and Meeting Follow-Through does not keep Owner and Operations at the top for Utah Life.
+- **The bottom section is a disclosure.** A button, `aria-expanded`, Enter and Space. Closed when they hold none of it, unless this browser has opened or closed it before (`localStorage` key `ai-skill-library-sections`). The course portal's `learner_prefs` is not this page's: the library stands outside that shell. The heading keeps its title. Beside it, a computed count and the locked line in Title Case: "12 Skills, Not Included With Utah Life Access". The line is the builder's `locked.<group>` string when there is one (`locked.utah_life`), otherwise "Not included with {group} access". An Agent Plan member with no group reads "Not in your plan." the same way, as "Not In Your Plan". No new upsell, and no See Plans, for a group member. See Plans stays on an Agent Plan member's locked rows.
+- **The downloads.** On each open skill, Download for Claude and Download for ChatGPT use the same primary button (the kit's `--look-action` and `--look-on-action`, which already flip for light and dark). Download for Grok Bot keeps those words and uses that same button when a skill has the file. Practice Files and Setup Guide stay outlined.
+- **Not changed.** Which skills open or download. The welcome panel's words. No migration, no new copy key, no golden, no tolerance, no mask. The standalone library has no golden.
+
+**Blast radius.** A learner whose plan holds every set sees the same order, open, as before. A locked row for a group member still says the group's line and offers no plan. The portal library is untouched.

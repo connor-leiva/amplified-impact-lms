@@ -62,12 +62,52 @@
   font-weight: 500;
   letter-spacing: -0.02em;
 }
+/* D-201: a section this member's access does not hold. The whole heading is the control: Title Case
+   title, the computed count, and a chevron. 44px tall, the kit's focus ring, no colour of its own. */
+.disclosure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.disclosureTitle {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.disclosureCount {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--look-ink-secondary);
+}
+.disclosure svg {
+  margin-left: auto;
+  color: var(--look-ink);
+}
 .list {
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
+}
+/* `.list` sets display, which would otherwise beat the hidden attribute and leave a closed section open. */
+.list[hidden] {
+  display: none;
 }
 /* A skill: a hairline row, its words first and its buttons under them, so four 16px buttons never
    squeeze the name. */
@@ -157,6 +197,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+}
+/* D-201: Claude and ChatGPT (and a Grok Bot file, when the skill has one) are the same action.
+   Same class as the kit's primary, so the same size, weight and the same light and dark colours.
+   They share the row equally and stack to the same width when the row is too narrow for both. */
+.skill .primary {
+  flex: 1 1 0;
+  min-width: max-content;
+  white-space: nowrap;
 }
 /* The kit's buttons: 48px, 16px Geist 500, 6px radius, a 2px lift on hover. The primary is the
    theme's action (near-black in light, mint in dark); the secondary is outlined. */

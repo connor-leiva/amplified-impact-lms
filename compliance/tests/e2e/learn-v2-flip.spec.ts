@@ -191,7 +191,10 @@ test.describe('a learner without the course: today’s portal, unchanged @g4', (
     await expect(page.getByText('Included with your Utah Life team', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Download for Claude' })).toHaveAttribute('href', '/api/skills/content-strategist/download/claude');
     await expect(page.getByRole('link', { name: 'Setup Guide' }).first()).toBeVisible();
-    // A locked skill says it is not included with their group, with no upsell.
+    // A locked skill says it is not included with their group, with no upsell. The owner section
+    // starts closed (D-201); the line is on the rows inside it.
+    const ownerToggle = page.getByRole('button', { name: /Owner and Operations Skills/ });
+    if ((await ownerToggle.count()) > 0 && (await ownerToggle.getAttribute('aria-expanded')) === 'false') await ownerToggle.click();
     await expect(page.getByText('Not included with Utah Life access', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
     // The welcome, and its Dismiss posting to the server.
