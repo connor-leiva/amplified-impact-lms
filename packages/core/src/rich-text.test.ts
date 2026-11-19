@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { GlossarySpan } from './glossary';
 import { paintRich, sanitizeRich, storedRich, stripRich } from './rich-text';
+import type { RichText } from './rich-text';
 
-const doc = {
+const doc: RichText = {
   type: 'doc',
   content: [{
     type: 'paragraph',
