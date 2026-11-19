@@ -8,7 +8,6 @@ import { cleanIntakeAnswers, intakeCheckTarget, mayEditIntake } from '@ai/core/i
 import type { IntakeAnswers } from '@ai/core/intake';
 import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
-import { staffActor } from '../console/guard';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { checklistState, teamIntake, teams, users } from '../db/schema';
@@ -92,7 +91,11 @@ export function registerIntakeRoute(app: FastifyInstance): void {
 }
 
 /** Staff read of a team's intake. The caller has already passed workspaces.read. Writes one audit row. */
-export async function readTeamIntake(req: Parameters<typeof audit>[0], teamId: string, actor: NonNullable<ReturnType<typeof staffActor>>): Promise<{ answers: IntakeAnswers; updatedAt: number | null; submittedAt: number | null } | null> {
+export async function readTeamIntake(
+  req: Parameters<typeof audit>[0],
+  teamId: string,
+  actor: { source: 'staff'; userId: string; role: string | null },
+): Promise<{ answers: IntakeAnswers; updatedAt: number | null; submittedAt: number | null } | null> {
   const [team] = await getDb().select({ id: teams.id }).from(teams).where(eq(teams.id, teamId));
   const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
   if (!team && !row) return null;

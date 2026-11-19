@@ -28,6 +28,7 @@ type RouteName =
   | 'roles'
   | 'workspaces'
   | 'workspace'
+  | 'workspaceIntake'
   | 'users'
   | 'user'
   | 'passwordReset'
@@ -109,6 +110,7 @@ const ROUTES: Record<RouteName, Route> = {
   // PR 2 (D-158).
   workspaces: { path: CONSOLE_PATHS.workspaces, url: CONSOLE_PATHS.workspaces, method: 'GET', route: `GET ${CONSOLE_PATHS.workspaces}` },
   workspace: { path: CONSOLE_PATHS.workspace, url: '/api/console/workspaces/northline', method: 'GET', route: `GET ${CONSOLE_PATHS.workspace}` },
+  workspaceIntake: { path: CONSOLE_PATHS.workspaceIntake, url: '/api/console/workspaces/northline/intake', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceIntake}` },
   users: { path: CONSOLE_PATHS.users, url: CONSOLE_PATHS.users, method: 'GET', route: `GET ${CONSOLE_PATHS.users}` },
   user: { path: CONSOLE_PATHS.user, url: '/api/console/users/u_jamie', method: 'GET', route: `GET ${CONSOLE_PATHS.user}` },
   passwordReset: { path: CONSOLE_PATHS.passwordReset, url: '/api/console/users/u_jamie/password-reset', method: 'POST', route: `POST ${CONSOLE_PATHS.passwordReset}` },
@@ -280,6 +282,7 @@ const ACT = (v: number) => Object.fromEntries(ACTIONS.map((a) => [a, v])) as Rec
 const ALL = (v: number) => ({
   workspaces: v,
   workspace: v,
+  workspaceIntake: v,
   users: v,
   user: v,
   passwordReset: v,

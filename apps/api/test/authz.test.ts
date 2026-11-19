@@ -629,6 +629,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
+  // D-196: the team's intake. Signed in, then the owner and the operator.
+  { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // The CRM sync log (D-134): signed in, then the Owner and Admins only.
   { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/crm-sync/retry', methods: 'POST', guard: 'session' },
@@ -644,6 +646,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // and search. Signed in, then by capability (`test/console-authz.test.ts`).
   { path: '/api/console/workspaces', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/workspaces/:teamId', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/workspaces/:teamId/intake', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId/password-reset', methods: 'POST', guard: 'session' },
@@ -1167,6 +1170,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // Admin Console PR 2 (D-158).
           '/api/console/workspaces': () => app.inject({ method: 'GET', url: '/api/console/workspaces' }),
           '/api/console/workspaces/:teamId': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline' }),
+          '/api/console/workspaces/:teamId/intake': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/intake' }),
+          '/api/intake': () => app.inject({ method: 'GET', url: '/api/intake' }),
           '/api/console/users': () => app.inject({ method: 'GET', url: '/api/console/users' }),
           '/api/console/users/:userId': () => app.inject({ method: 'GET', url: '/api/console/users/u_jamie' }),
           '/api/console/users/:userId/password-reset': () =>
