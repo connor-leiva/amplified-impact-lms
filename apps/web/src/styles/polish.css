@@ -1,0 +1,40 @@
+/* D-203. The live frames paint bone. --r2-bg in r2.css stays the admin mockup's
+   #f4f2ec (r2-tokens.test.ts). This wins on a light frame; dark mode does not
+   match, and learner-v2.css sets --r2-bg back to the dark canvas. */
+
+/* Selectors start with html, not :root. compliance/tests/e2e/tokens.spec.ts
+   reads every :root custom property and compares it to the reference. */
+html:not([data-theme='dark']):has([data-learner-v2]),
+html:not([data-theme='dark']):has([data-r2-shell]) {
+  background: #f1f0eb;
+}
+
+html:not([data-theme='dark']) [data-learner-v2],
+html:not([data-theme='dark']) [data-r2-shell] {
+  --r2-bg: #f1f0eb;
+}
+
+/* Hover and focus for controls the generated stylesheet does not cover.
+   A component rule with two classes still wins. The hover is an outline,
+   so a one-class button keeps its fill. */
+
+button:not(:disabled):hover,
+[role='button']:hover:not([aria-disabled='true']) {
+  outline: 1px solid var(--action-primary);
+  outline-offset: 1px;
+}
+
+button:focus-visible,
+[role='button']:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  [role='button'],
+  a {
+    transition: none;
+  }
+}
