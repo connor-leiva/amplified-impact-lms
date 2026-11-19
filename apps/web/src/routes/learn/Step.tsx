@@ -6,6 +6,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
+import type { LocalChecks } from '@ai/core/checklist';
+import { localToggle, localWatch } from '@ai/core/checklist';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
 import { repo } from '../../data/boot';
@@ -60,7 +62,7 @@ function withGlossary(vm: StepVM, page: ReactNode) {
   return <GlossaryProvider terms={vm.glossary}>{page}</GlossaryProvider>;
 }
 
-function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
+function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } }) {
   useTabTitle(more.title);
   const mutate = useMutate();
   const [platform, setPlatform] = useState<Platform>(vm.tabs[0] ?? 'claude');
@@ -75,7 +77,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
     },
     [mutate, vm.mark.disabled, vm.mark.moduleId, vm.mark.stepId],
   );
-  const watch: VideoWatch = { progress: vm.videoProgress ?? [], onSave: vm.mark.disabled ? undefined : saveProgress };
+  const watch: VideoWatch = { progress: vm.videoProgress ?? [], onSave: local?.watch ?? (vm.mark.disabled ? undefined : saveProgress) };
 
   const mark = async () => {
     if (!vm.mark.stepId || busy) return;
@@ -101,7 +103,7 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
           <div className={s.col} style={{ gap: 20 }}>
             <StepLive week={vm.week} step={vm.rail.find((r) => r.on)?.n ?? 1} />
             {layout ? (
-              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} />
+              <ChecklistPlayer vm={vm} layout={layout} platform={on} setPlatform={setPlatform} onPlay={playAt} watch={watch} onLocalToggle={local?.toggle} />
             ) : (
               <>
                 <div className={s.pht} style={{ gap: 8 }}>
@@ -291,17 +293,37 @@ function Player({ vm, more }: { vm: StepVM; more: StepMore }) {
  */
 export function StepPage({ week, step, preview = false }: { week: number | null; step: number | null; preview?: boolean }) {
   const { course, db, viewer, now } = useLearn();
+  const staff = viewer.actor.kind === 'staff';
+  const [draft, setDraft] = useState<LocalChecks | null>(null);
+  const [draftWeek, setDraftWeek] = useState(week);
+  if (draftWeek !== week) {
+    setDraftWeek(week);
+    setDraft(null);
+  }
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
   const vm = stepVM(course.payload, row, step, viewer.actor, now, {
     fileUrl: (id) => repo.fileUrl({ kind: 'resource', id }),
-    checks: me?.checks,
+    checks: staff ? (draft?.checks ?? []) : me?.checks,
     prefs: me?.coursePrefs,
-    videoProgress: me?.videoProgress,
+    videoProgress: staff ? (draft?.video ?? []) : me?.videoProgress,
   });
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
+  const local = staff
+    ? {
+        toggle: (itemId: string) => {
+          if (!vm.mark.stepId) return;
+          const stepId = vm.mark.stepId;
+          setDraft((d) => localToggle(d ?? { checks: [], video: [] }, { moduleId: vm.mark.moduleId, stepId, itemId }, now));
+        },
+        watch: (p: { videoId: string; maxPct: number; lastPositionS: number }) => {
+          const steps = (row?.steps ?? []).flatMap((s) => (s.id ? [{ ...s.step, id: s.id }] : []));
+          setDraft((d) => localWatch(d ?? { checks: [], video: [] }, steps, { moduleId: vm.mark.moduleId, ...p }, now));
+        },
+      }
+    : undefined;
   const more: StepMore = {
     crumbs: crumbsVM(vm.back.label, vm.week, { n: step ?? 1, title: vm.title }),
     kit: buildKitVM(row?.module, moduleFileUrl),
@@ -309,7 +331,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
   };
   // A new step starts on its own first tab.
-  return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} />;
+  return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} local={local} />;
 }
 
 export function Component() {

@@ -133,6 +133,18 @@
   color: var(--r2-ink);
 }
 
+.previewNote,
+.checkError {
+  margin: -6px 0 12px;
+  font-size: var(--r2-fs-13);
+  line-height: var(--r2-lh-18);
+}
+.previewNote {
+  color: var(--r2-f2);
+}
+.checkError {
+  color: var(--r2-for);
+}
 .list {
   list-style: none;
   margin: 0;

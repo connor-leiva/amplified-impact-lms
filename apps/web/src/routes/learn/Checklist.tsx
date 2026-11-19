@@ -153,6 +153,17 @@ function Box({ checked }: { checked: boolean }) {
   );
 }
 
+/** A toggle that has not settled yet, laid over the server's row. */
+function overlayItem(item: CheckItemVM, pending: Readonly<Record<string, boolean>>): CheckItemVM {
+  if (!Object.keys(pending).length) return item;
+  const subchecks = item.subchecks.map((sub) => {
+    const key = `${item.id}:${sub.id}`;
+    return key in pending ? { ...sub, checked: pending[key]! } : sub;
+  });
+  const checked = item.subchecks.length ? subchecks.every((sub) => sub.checked) : item.id in pending ? pending[item.id]! : item.checked;
+  return checked === item.checked && subchecks.every((sub, i) => sub.checked === item.subchecks[i]?.checked) ? item : { ...item, checked, subchecks };
+}
+
 function Item({
   item,
   pop,
@@ -304,6 +315,7 @@ export function ChecklistPlayer({
   setPlatform,
   onPlay,
   watch,
+  onLocalToggle,
 }: {
   vm: StepVM;
   layout: ChecklistLayoutVM;
@@ -311,10 +323,14 @@ export function ChecklistPlayer({
   setPlatform: (p: StepVM['tabs'][number]) => void;
   onPlay: (seconds: number, videoId?: string | null) => void;
   watch?: VideoWatch;
+  /** D-194: staff. Flip the box in memory and do not write. */
+  onLocalToggle?: (itemId: string) => void;
 }) {
   const mutate = useMutate();
   const [busy, setBusy] = useState(false);
   const [pop, setPop] = useState<string | null>(null);
+  const [pending, setPending] = useState<Record<string, boolean>>({});
+  const [fault, setFault] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ ids: string[]; stepN: number } | null>(null);
   const [undo, setUndo] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -346,15 +362,81 @@ export function ChecklistPlayer({
     return () => clearTimeout(t);
   }, [layout.items]);
 
+  useEffect(() => {
+    setPending((cur) => {
+      if (!Object.keys(cur).length) return cur;
+      const next = { ...cur };
+      let changed = false;
+      for (const item of layout.items) {
+        if (item.id in next && next[item.id] === item.checked) {
+          delete next[item.id];
+          changed = true;
+        }
+        for (const sub of item.subchecks) {
+          const key = `${item.id}:${sub.id}`;
+          if (key in next && next[key] === sub.checked) {
+            delete next[key];
+            changed = true;
+          }
+        }
+      }
+      return changed ? next : cur;
+    });
+  }, [layout.items]);
+
+  const shown = layout.items.map((item) => overlayItem(item, pending));
+
+  const serverOn = (itemId: string): boolean => {
+    for (const item of layout.items) {
+      if (item.id === itemId) return item.checked;
+      for (const sub of item.subchecks) if (`${item.id}:${sub.id}` === itemId) return sub.checked;
+    }
+    return false;
+  };
+
+  const dropPending = (itemId: string) => {
+    setPending((cur) => {
+      if (!(itemId in cur)) return cur;
+      const next = { ...cur };
+      delete next[itemId];
+      return next;
+    });
+  };
+
   const write = async (itemId: string) => {
     if (!vm.mark.stepId) return;
     setPop(itemId);
-    await mutate('toggleChecklistItem', { moduleId: vm.mark.moduleId, stepId: vm.mark.stepId, itemId });
+    setFault(null);
+    setPending((cur) => ({ ...cur, [itemId]: !(itemId in cur ? cur[itemId]! : serverOn(itemId)) }));
+    if (onLocalToggle) {
+      onLocalToggle(itemId);
+      setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
+      return;
+    }
+    let error: string = STEP.checkFailed;
+    try {
+      const r = await mutate('toggleChecklistItem', { moduleId: vm.mark.moduleId, stepId: vm.mark.stepId, itemId });
+      // A saved toggle has no toast. A toast here is a refusal (the week is not open) and the box did not change.
+      if (!r.error && !r.toast) {
+        setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
+        return;
+      }
+      error = r.error || r.toast?.msg || STEP.checkFailed;
+    } catch {
+      error = STEP.checkFailed;
+    }
+    dropPending(itemId);
+    setFault(error);
     setTimeout(() => setPop((cur) => (cur === itemId ? null : cur)), 220);
   };
 
   const writeMany = async (ids: string[]) => {
     if (!ids.length || busy) return;
+    // A staff preview flips in memory. There is no request to wait on, so a second click is not locked out.
+    if (onLocalToggle) {
+      for (const id of ids) write(id);
+      return;
+    }
     setBusy(true);
     try {
       for (const id of ids) await write(id);
@@ -448,11 +530,13 @@ export function ChecklistPlayer({
 
       <section id="step-checklist" aria-labelledby="step-check-h">
         <h2 id="step-check-h">{STEP.yourChecklist}</h2>
+        {onLocalToggle ? <p className={s.previewNote}>{STEP.previewChecks}</p> : null}
+        {fault ? <p className={s.checkError} role="alert">{fault}</p> : null}
         {layout.leading.map((c, i) => (
           <Callout key={i} c={c} />
         ))}
         <ol className={s.list}>
-          {layout.items.map((item) => (
+          {shown.map((item) => (
             <Item key={item.id} item={item} pop={pop === item.id} onItem={onItem} onPlay={onPlay} />
           ))}
         </ol>

@@ -80,6 +80,10 @@ export const STEP = {
   waitingStatus: 'waiting',
   /** D-193: the glossary tooltip's way into the drawer. Chrome, not a term. */
   moreGlossary: 'More in the glossary',
+  /** D-194: staff preview. The boxes move; nothing is saved. */
+  previewChecks: 'Preview: Checks Aren’t Saved',
+  /** D-194: a learner toggle that the server refused. */
+  checkFailed: 'That check didn’t save.',
 } as const;
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'Operator', each: 'Each of you' };
