@@ -1,4 +1,4 @@
-// D-198: personalization stays on the caller's team, and staff cannot write it.
+// D-199: personalization stays on the caller's team, and staff cannot write it.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { and, eq } from 'drizzle-orm';
 import { seedProduction } from '@ai/core/seed/curriculum';
@@ -50,7 +50,7 @@ afterAll(async () => {
   await app?.close();
 });
 
-describe('personalization (D-198)', () => {
+describe('personalization (D-199)', () => {
   it('checks the team that asked, and shows that team’s operator only', async () => {
     const a = await app.signInAs('own-a');
     const b = await app.signInAs('own-b');

@@ -90,6 +90,10 @@ for (const width of [1440, 390])
       await expect(page.getByText('Draft video · narration coming')).toBeVisible();
       const video = page.locator('video[data-video-block]');
       await expect(video).toHaveAttribute('poster', `/api/files/course/${POSTER}`);
+      const still = page.getByRole('img', { name: 'Watch the orientation' });
+      await expect(still).toBeVisible();
+      await expect(still).toHaveAttribute('src', `/api/files/course/${POSTER}`);
+      await expect(page.getByRole('button', { name: 'Play Watch the orientation' })).toBeVisible();
       await video.evaluate(
         (v: HTMLVideoElement) =>
           new Promise<void>((resolve) => {

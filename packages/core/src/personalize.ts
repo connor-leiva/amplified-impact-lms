@@ -1,4 +1,4 @@
-// D-198: what the team's intake does to a week. No intake, or a field the intake does not
+// D-199: what the team's intake does to a week. No intake, or a field the intake does not
 // have, changes nothing. The rules are the course's own hideIf, collapseIf and showIf.
 
 import { conditionMet } from './checklist';

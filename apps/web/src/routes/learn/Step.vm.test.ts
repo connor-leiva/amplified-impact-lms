@@ -196,7 +196,7 @@ describe('the step player (D-177)', () => {
     expect(vm.pathMarks?.claude?.[0]?.some((span) => span.kind === 'term' && span.id === 'desk')).toBe(false);
   });
 
-  it('D-198: hides, collapses, defaults the path, and shows the operator count', () => {
+  it('D-199: hides, collapses, defaults the path, and shows the operator count', () => {
     const p = structuredClone(st.payload);
     const week = p.course.weeks[0] as { module: { checklist: { paths?: { claude?: { blocks: PathBlock[] }; chatgpt?: { blocks: PathBlock[] } } }[] } };
     const blocks: PathBlock[] = [

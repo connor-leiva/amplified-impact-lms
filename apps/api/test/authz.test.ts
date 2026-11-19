@@ -632,7 +632,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   { path: '/api/stack', methods: 'GET, HEAD, PUT', guard: 'session' },
-  // D-198: intake conditions and the operator's count. Signed in, then the owner and the operator.
+  // D-199: intake conditions and the operator's count. Signed in, then the owner and the operator.
   { path: '/api/personalize', methods: 'GET, HEAD, POST', guard: 'session' },
   // The CRM sync log (D-134): signed in, then the Owner and Admins only.
   { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
@@ -1522,7 +1522,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
     // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
     // saveVideoProgress, counted the same way. And + 2 for the intake routes (D-196), probed unauthenticated.
-    // The last + 2 is the stack card (D-197). And + 1 for personalization (D-198).
+    // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199).
     expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1);
   });
 });

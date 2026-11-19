@@ -1,4 +1,4 @@
-// D-198: the team's intake applied to the course. Reading the operator's count writes nothing.
+// D-199: the team's intake applied to the course. Reading the operator's count writes nothing.
 // Applying checks writes only checklist rows for that team. Nothing is sent.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';

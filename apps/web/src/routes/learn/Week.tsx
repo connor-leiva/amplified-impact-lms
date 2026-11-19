@@ -38,7 +38,7 @@ interface WeekMore {
   title: string | null;
   /** D-186: the week's module and this learner, for the Your Deployment card; null without a module. */
   deploy: { m: AIEmployee; me: Learner | null; now: number } | null;
-  /** D-198: the one-time Week 0 finish. Staff and fixture mode leave it off. */
+  /** D-199: the one-time Week 0 finish. Staff and fixture mode leave it off. */
   celebrate: boolean;
   onCelebrate: () => void;
 }

@@ -1,4 +1,4 @@
-// D-198: the first time a learner finishes Week 0. One overlay, then a preference so it does not return.
+// D-199: the first time a learner finishes Week 0. One overlay, then a preference so it does not return.
 // Reduced motion gets a static banner. Staff preview never mounts this, so it never writes.
 
 import { useEffect, useState } from 'react';

@@ -6619,11 +6619,25 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 ---
 
-## D-198 · Personalization, the path, operator progress, Week 0 done
+## D-198 · iPhone Safari shows a course video’s poster
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva, Nov 19, 2026, 8:54 AM CT: on learn.amplifiedimpact.io, `/learn/week/0/step/2` in iPhone Safari, the Week 0 Orientation video (block id w0-02) shows a blank gray box and a play button, with no poster. Chapters render. Staff had uploaded a 1920×1080 jpg poster for each of the six video blocks (w0-02, w0-02-g, w0-04a, w0-04b, w0-05a, w0-05b) in the builder and saved.
+**Number:** D-197 is the stack card form on `main`. D-198 was free.
+
+- **Root cause.** The poster is saved. The Zod block keeps it, `courseFor` sends the video block whole (the poster key rides with the chapters), and the player sets `<video poster>` to `/api/files/course/<key>`. That is the same same-origin route the transcript track uses, streamed inline, not a presigned bucket URL. `img-src 'self'` allows it. iOS Safari does not paint that attribute: the element has `preload="metadata"`, and `HlsEngine` assigns `src` in a layout effect, so `src` is not in the markup. Once the media load starts, iOS drops the poster frame and shows its gray start-playback surface and play button until a frame is decoded. Desktop keeps the poster. The chapters are HTML, so they were never affected.
+- **The fix.** When a block has a poster, the player also draws it as an `<img>` (object-fit cover, alt the video title) over the element and under a play button. The image uses that same course-file URL. The image and the button go away once playback starts. The `poster` attribute stays. A block with no poster is the player it was.
+- **Not changed.** No schema, no migration, no new upload field. Staff do not re-upload. The six posters already stored are the ones the page asks for. Goldens, tolerances and masks are untouched.
+
+**Blast radius.** A video block with no poster is unchanged. Utah Life, Agent Plan, Team Plan and Insiders screens outside the course are unchanged.
+
+---
+
+## D-199 · Personalization, the path, operator progress, Week 0 done
 
 **Date:** 2026-11-19
 **Approved by:** Connor Leiva, 8:43 AM CT, Nov 19, 2026: the portal intake is canonical. This is the last of that set.
-**Number:** D-197 is the stack card. D-198 was free.
+**Number:** D-198 is the iPhone poster. D-199 was free.
 
 - **Conditions.** A checklist item's hideIf and collapseIf, and a callout's showIf, are read against the team's intake. `operator` equals `both` also matches "I'm both". A matching collapse shows the collapsed note and the item is pre-checked. No intake, or a field the intake does not have, changes nothing and raises nothing. Staff set the conditions in the week builder. Step numbers are not hardcoded.
 - **Path.** The path tab opens on the intake's AI. Once a learner switches, `learner_prefs` key `path` remembers it, and that choice wins. Staff preview does not write it.
@@ -6633,4 +6647,3 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **No new table.** Path and the overlay use the existing `learner_prefs` table. `0030_team_stack_card` stays the last migration.
 
 **Blast radius.** With no intake, items, callouts and the path tab stay as they were, so the parity fixture does not move. The overlay is off in fixture mode. Utah Life and the non-course screens are unchanged. Nothing is sent outside the portal.
-

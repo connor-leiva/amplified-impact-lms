@@ -44,6 +44,8 @@ export const STEP = {
   /** D-188: a video block's name when it has no title, and the link that opens one on another site. */
   video: 'Video',
   watch: 'Watch',
+  /** D-198: the name of the button on a poster. The replay player's play button uses the same word. */
+  play: 'Play',
   /** D-190: the one-step layout. Chrome, not a week’s words. */
   yourChecklist: 'Your Checklist',
   reference: 'Reference',
@@ -146,7 +148,7 @@ export interface StepVM {
   pathMarks?: Partial<Record<Platform, (GlossarySpan[] | undefined)[]>>;
   /** D-195: step 1 only, and only when the week has a Start Here card. */
   startHere?: StartHereVM;
-  /** D-198: the path tab to open. A saved choice, or the intake's AI. Absent leaves the first tab. */
+  /** D-199: the path tab to open. A saved choice, or the intake's AI. Absent leaves the first tab. */
   pathDefault?: Platform;
 }
 
@@ -157,7 +159,7 @@ export interface PillVM {
   on: boolean;
   href: string;
   aria: string;
-  /** D-198: the operator's count on this step, for the owner. Read-only. */
+  /** D-199: the operator's count on this step, for the owner. Read-only. */
   note?: string;
 }
 
@@ -204,7 +206,7 @@ export interface CheckItemVM {
   detailSpans?: GlossarySpan[];
   /** D-193: the Know These card. Missing ids are already dropped. Absent when there is nothing to list. */
   card?: { id: string; term: string; short: string }[];
-  /** D-198: the operator's count, on an Operator item. Read-only. */
+  /** D-199: the operator's count, on an Operator item. Read-only. */
   note?: string;
 }
 
@@ -253,9 +255,9 @@ export interface StepVMOptions {
   prefs?: readonly CoursePref[];
   /** This learner’s place in the week’s videos. Omit it and nothing resumes. */
   videoProgress?: readonly { videoId: string; maxPct: number; lastPositionS: number; moduleId: string }[];
-  /** D-198: the team's intake answers, when this viewer may see them. */
+  /** D-199: the team's intake answers, when this viewer may see them. */
   intake?: Readonly<Record<string, string | string[]>>;
-  /** D-198: the operator's checklist count per step, for the owner. Read-only. */
+  /** D-199: the operator's checklist count per step, for the owner. Read-only. */
   operator?: { name: string; byStep: Readonly<Record<string, { done: number; total: number }>> } | null;
 }
 

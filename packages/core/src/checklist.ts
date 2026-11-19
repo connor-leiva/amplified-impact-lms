@@ -24,7 +24,7 @@ export function weekHasCheck(steps: readonly { paths?: { claude?: { blocks: Path
 export const titleWords = (title: string): number => title.trim().split(/\s+/).filter(Boolean).length;
 
 /**
- * D-198: a stored condition against the team's intake. No intake, or a field the intake does not
+ * D-199: a stored condition against the team's intake. No intake, or a field the intake does not
  * have, does nothing. `both` also matches "I'm both".
  */
 export function conditionMet(cond: { field: string; equals: string } | undefined, answers?: Readonly<Record<string, string | string[]>>): boolean {

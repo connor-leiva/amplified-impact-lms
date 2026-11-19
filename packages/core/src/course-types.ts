@@ -157,7 +157,7 @@ export interface CalloutBlock {
   type: 'callout';
   kind: 'tip' | 'heads_up' | 'diy';
   text: string;
-  /** D-198: show this callout only when the team's intake matches. No intake: it still shows. */
+  /** D-199: show this callout only when the team's intake matches. No intake: it still shows. */
   showIf?: CheckCond;
 }
 

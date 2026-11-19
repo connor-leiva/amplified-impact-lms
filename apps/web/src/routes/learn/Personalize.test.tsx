@@ -1,4 +1,4 @@
-// D-198: the step page applies the intake, remembers a path, and shows the operator's count as text.
+// D-199: the step page applies the intake, remembers a path, and shows the operator's count as text.
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -65,7 +65,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('personalization on the step (D-198)', () => {
+describe('personalization on the step (D-199)', () => {
   it('hides and collapses from the intake, then remembers a path the learner picks', async () => {
     page(false);
     await waitFor(() => expect(screen.queryByText('Invite your operator')).not.toBeInTheDocument());
@@ -94,7 +94,7 @@ describe('personalization on the step (D-198)', () => {
   });
 });
 
-describe('Week 0 done (D-198)', () => {
+describe('Week 0 done (D-199)', () => {
   it('uses a static banner when motion is reduced, and writes the preference once', () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), addEventListener: () => undefined, removeEventListener: () => undefined }));
     const css = readFileSync('src/routes/learn/WeekDone.module.css', 'utf8');

@@ -10,7 +10,7 @@ const answers = {
   google: 'No',
 };
 
-describe('intake conditions (D-198)', () => {
+describe('intake conditions (D-199)', () => {
   it('hides when the operator is both, and leaves an unknown field alone', () => {
     expect(conditionMet({ field: 'operator', equals: 'both' }, answers)).toBe(true);
     expect(conditionMet({ field: 'operator', equals: 'both' }, { operator: 'both' })).toBe(true);
