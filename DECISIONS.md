@@ -6795,14 +6795,14 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 ---
 
-## D-209 · Rich text on a step paragraph
+## D-209 · Rich text in the Week Builder
 
 **Date:** 2026-11-19
-**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: piece 5, rich text in the Week Builder.
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: piece 5 is full formatting, not block presets. POLISH-SPEC.md line 226 replaces the presets-only section.
 **Number:** D-208 is the completion motion. D-209 was free.
 
-- **Stored on the block.** A text block may carry `look`: a brand color or a custom `#rrggbb`, Geist or Geist Mono, a size (16, 18, 20, 25 or 31), and highlight ranges in the plain text. Absent, the paragraph is the one it was.
-- **One renderer.** The builder’s live preview and the learner page draw `TextParagraph`. A phone floors the size at 16px. Glossary terms keep their offsets, including inside a highlight.
-- **Toolbar.** Ported from the polish mockup’s builder: font and size selects, brand swatches then a custom picker, and the highlight button. The preview sits beside the field and stacks under 900px.
-- **Not a migration.** The look lives in the module’s checklist JSON. Existing blocks have no look, so they render unchanged. No golden, tolerance, or mask change.
+- **Editor.** Paragraphs, callouts, accordion bodies and checklist detail use one rich-text field. The field shows the styling. The toolbar is one row on a desktop window: font (Geist and Geist Mono, then Georgia, Palatino, Times New Roman, Arial, Verdana, Courier New), size presets plus a custom number, brand color swatches then a custom picker, highlight swatches then a custom highlight, bold and italic.
+- **Stored as JSON.** `rich` (or `detailRich` / `bodyRich`) is a sanitized document: paragraphs, text, bold, italic, text style and highlight. The plain string stays beside it and is what the copy rules and the glossary read. A field with no document renders that string as before.
+- **Phone.** A chosen size under 16px draws at 16px on a phone. Glossary terms keep their place inside styled words.
+- **Not a migration.** The document lives in the module’s checklist JSON. No golden, tolerance, or mask change.
 

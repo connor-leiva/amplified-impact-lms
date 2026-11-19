@@ -64,18 +64,13 @@
   background: var(--r2-sub);
 }
 
-/* The paragraph toolbar, from the polish mockup's builder. Tokens stand in for its raw colors. */
-.builder {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.bfield {
+/* The rich-text field. The toolbar is one row at a desktop window and wraps on a phone. */
+.editor {
+  width: 100%;
   border: 1px solid var(--r2-line);
   border-radius: 8px;
   background: var(--r2-sf);
   overflow: hidden;
-  min-width: 0;
 }
 .btool {
   display: flex;
@@ -84,8 +79,12 @@
   padding: 6px;
   border-bottom: 1px solid var(--r2-line);
   background: var(--r2-bg);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-height: 45px;
+  overflow-x: auto;
+}
+@media (max-width: 767px) {
+  .btool { flex-wrap: wrap; overflow-x: visible; }
 }
 .btool select {
   height: 32px;
@@ -134,30 +133,27 @@
 .swatch[data-c='mint'] { background: var(--r2-mint); }
 .swatch[aria-pressed='true'] { outline: 2px solid var(--r2-for); outline-offset: 2px; }
 .swatch:focus-visible { outline: 2px solid var(--r2-for); outline-offset: 2px; }
-.picker { width: 32px; height: 32px; padding: 0; border: 0; background: transparent; cursor: pointer; }
-.barea {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  border: 0;
-  padding: 12px 14px;
-  min-height: 160px;
-  resize: vertical;
-  font: 400 var(--r2-t) / 1.6 var(--r2-font-mono);
-  color: color-mix(in srgb, var(--r2-ink) 85%, transparent);
-  background: transparent;
-}
-.previewK {
-  font: 500 var(--r2-fs-13) var(--r2-font-mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--r2-f2);
+.picker { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; flex: none; }
+.sizeN {
+  width: 52px;
+  height: 32px;
+  border: 1px solid var(--r2-line);
+  border-radius: 6px;
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  font: 500 var(--r2-fs-13) var(--r2-font);
   padding: 0 6px;
+  flex: none;
 }
-.bprev { padding: 16px 18px; }
-@media (max-width: 900px) {
-  .builder { grid-template-columns: 1fr; }
+.prose { padding: 12px 14px; min-height: 96px; }
+.prose :global(.ProseMirror) {
+  outline: none;
+  min-height: 72px;
+  font: 400 16px / 1.6 var(--r2-font);
+  color: var(--r2-ink);
 }
+.prose :global(.ProseMirror p) { margin: 0; }
+.prose :global(.ProseMirror p + p) { margin-top: 8px; }
 
 /* The live preview: the learner's course page, in a bordered frame that scrolls on its own. */
 .preview {

@@ -539,8 +539,13 @@
   background: var(--r2-sub);
   color: var(--r2-ink);
 }
-.co p {
+.co p,
+.coCopy {
   margin: 0;
+}
+.co .rich,
+.co .rich p {
+  display: inline;
 }
 .co strong {
   font-weight: 700;

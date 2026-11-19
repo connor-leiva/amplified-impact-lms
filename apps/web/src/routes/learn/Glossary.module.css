@@ -114,6 +114,12 @@
   border-radius: 2px;
   padding: 0 2px;
 }
+.rich p { margin: 0; }
+.rich p + p { margin-top: 8px; }
+.rich [data-size] { font-size: var(--rt-size); }
+@media (max-width: 767px) {
+  .rich [data-size] { font-size: max(16px, var(--rt-size, 16px)); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .tip,
