@@ -51,6 +51,9 @@ test.describe('learner parity: the Skill Library (KEPT)', () => {
     browser,
   }) => {
     const utah = await openWorld(browser, '/learn/skills', { audience: 'utah' });
+    // A member without the course lands on the standalone library, whose owner section starts closed (D-201).
+    const toggle = utah.getByRole('button', { name: /Owner and Operations Skills/ });
+    if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
     await expect(utah.getByText(learnerCopy('locked.utah_life'), { exact: true }).first()).toBeVisible();
     await expect(utah.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
     await utah.context().close();
