@@ -299,10 +299,15 @@ button.dl:hover {
     line-height: 22px;
   }
   /* A link on the header's line is a 44px target on a phone, its line where it was. */
+  /* A 44px tap target that keeps its place in the line. The hairline is an underline here, not the border:
+     a border would draw at the bottom of the padded box, under the next line of the meta. */
   .metaLink {
     display: inline-block;
     padding: 11px 0;
     margin: -11px 0;
+    border-bottom: 0;
+    text-decoration: underline 1px var(--r2-line2);
+    text-underline-offset: 4px;
   }
   .row {
     grid-template-columns: minmax(0, 1fr);

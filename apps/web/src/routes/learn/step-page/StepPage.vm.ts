@@ -227,7 +227,10 @@ export function stepPageStep(vm: StepVM, layout: ChecklistLayoutVM | undefined, 
   const extraMarks = [...rest.map(() => undefined), ...(layout?.extraMarks ?? (layout?.extras ?? []).map(() => undefined))];
   const leading = layout?.leading.length && nodes ? nodes.callouts(layout.leading.map((c) => calloutOf(c, nodes))) : undefined;
   const extras = extraBlocks.length && nodes ? nodes.blocks(extraBlocks, extraMarks) : undefined;
-  const blocks = !layout && nodes ? nodes.blocks(vm.paths[tab ?? 'claude'] ?? Object.values(vm.paths)[0] ?? [], vm.pathMarks?.[tab ?? 'claude']) : undefined;
+  // A step with no checklist draws its path's blocks under "Do this". A step staff haven't written yet has none:
+  // then there is no section, and no jump to it (no empty heading).
+  const pathBlocks = vm.paths[tab ?? 'claude'] ?? Object.values(vm.paths)[0] ?? [];
+  const blocks = !layout && nodes && pathBlocks.length ? nodes.blocks(pathBlocks, vm.pathMarks?.[tab ?? 'claude']) : undefined;
   const help: SpHelp[] = [
     { icon: 'mail', title: vm.help.email.label, meta: vm.help.email.address, href: vm.help.email.href },
     ...(vm.help.officeHours ? [{ icon: 'radio' as const, title: vm.help.officeHours.label, meta: vm.help.officeHours.meta, href: vm.help.officeHours.href }] : []),
@@ -236,7 +239,7 @@ export function stepPageStep(vm: StepVM, layout: ChecklistLayoutVM | undefined, 
     ? layout.jumps
         .map((j) => { const id = JUMP_ID[j.id] ?? j.id; return { id, label: JUMP_LABEL[id] ?? j.label }; })
         .filter((j) => j.id !== 'watch' || !!video)
-    : [{ id: 'checklist', label: V6_MORE.doThis }];
+    : blocks ? [{ id: 'checklist', label: V6_MORE.doThis }] : [];
   if (layout && !video && !jumps.some((j) => j.id === 'checklist') && (leading || extras)) jumps.unshift({ id: 'checklist', label: V6_LABELS.yourChecklist });
   return {
     week: vm.week,

@@ -125,6 +125,12 @@ describe('the v6 step page’s props (D-210)', () => {
     expect(plain.next).toMatchObject({ n: 4, title: 'Get Your AI Ready' });
     expect(plain.jumps).toEqual([{ id: 'checklist', label: 'Do this' }]);
     expect(plain.doneWhen).toMatch(/^Done when: /);
+    // A step staff haven't written yet (no blocks on either path): no "Do this" section and no jump to it.
+    const empty = stepPageStep({ ...s3, paths: {} } as StepVM, undefined, kit, media, handlers);
+    expect(empty.items).toEqual([]);
+    expect(empty.blocks).toBeUndefined();
+    expect(empty.jumps).toEqual([]);
+    expect(empty.next).toMatchObject({ n: 4 });
   });
 
   it('the shell and the route ask one rule, on for everyone unless a build turns it off', () => {

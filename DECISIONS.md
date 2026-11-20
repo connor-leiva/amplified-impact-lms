@@ -7180,3 +7180,25 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - `WeekContent.sync.test.ts` now excuses only the status labels.
   - The D-173 move tests compare the seed with main's fixture minus the two retired fields. The fixtures themselves are unchanged.
 
+## D-222 · Three fixes from a page-by-page look at every learner page
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-221: every learner page on the step page's rules.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Number:** D-221 is the builder's kit skills and stack card.
+
+I captured all 18 learner pages at 1440 and 390 (the system check's own states) and looked at each one, beyond what the automated checks measure. Three things were wrong. Each is fixed, and nothing else changes.
+
+- **A step staff haven't written yet.** A step with no checklist and no blocks drew an empty "Do this" heading. Its "On this page" card listed a jump to that empty section, and nothing else.
+  - **Now:** that step shows its header, Mark step done, its Next card and Still stuck?.
+  - The "Do this" section and its jump appear once the step has content.
+  - The "On this page" card appears only when it has something to list: a jump, a checklist or a due line.
+  - **Production:** written steps are unchanged. Week 0 step 2 already has its video, so it draws as before.
+- **A non-course AI employee's progress card.** "Steps done" sat in the left half of a two-column hero, with an empty right half. It now uses the one-column hero, as Home's and Account's single cards do.
+- **Two hairline links on a phone.** These were the meta line's session link (Week, AI employee) and the cohort card's support address. Each is padded to a 44px tap target, so its bottom border drew at the bottom of the padded box, under the next line.
+  - **Now:** on a phone the hairline is an underline in the same colour, so it stays under the words.
+  - The step page's own inline links are unchanged. They are exempt from the tap size as links in running text.
+- **Checks.**
+  - `StepPage.vm.test.ts` covers the unwritten step: no blocks, no jumps, and its Next card stays.
+  - The system check's comparison reads the underline's colour exactly as it read the border's.
+
