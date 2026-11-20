@@ -20,6 +20,7 @@ import type { App } from '../src/app';
 import { provisionOrder } from '../src/billing/provision';
 import { applyCurriculum } from '../src/db/seed';
 import { persistDiff } from '../src/db/io';
+import { DATA_MIGRATIONS, applyDataMigrations } from '../src/db/data-migrations';
 import { orders, plans, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
 import { NOT_IN_PLAN, NOT_YET } from '../src/routes/course';
@@ -128,7 +129,7 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
     const body = res.json() as {
       open: boolean;
       preview: boolean;
-      course: { weeks: { week: number; skills: { role: string; route: string }[]; setup: { route?: string }[] }[]; shared: { rubric: unknown[]; evidence: unknown[] } };
+      course: { weeks: { week: number; skills: { role: string; route: string; use?: string }[]; setup?: unknown }[]; shared: { rubric: unknown[]; evidence: unknown[] } };
       sessions: { id: string; kind: string; week: number; start: number; mins: number }[];
     };
     expect(body.open).toBe(true);
@@ -138,9 +139,11 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
       const flagships = w.skills.filter((s) => s.role === 'flagship');
       const leads = flagships.length ? flagships : w.skills;
       expect(leads.length, `week ${w.week}`).toBeGreaterThan(0);
-      // Every flagship has a numbered setup step that opens its guided setup on the Library page.
+      // Every flagship's kit row opens its guided setup on the Library page. D-221: the old setup order that
+      // also listed it is retired, and neither it nor a skill's use line is sent.
+      expect(w.setup, `week ${w.week}`).toBeUndefined();
       for (const s of leads) {
-        expect(w.setup.some((step) => step.route === s.route), `week ${w.week} ${s.route}`).toBe(true);
+        expect(s.use, `week ${w.week} ${s.route}`).toBeUndefined();
         expect(libraryHref(s.route)).toMatch(/^https:\/\/www\.amplifiedimpact\.io\/[a-z0-9-]+$/);
       }
     }
@@ -325,7 +328,10 @@ describe('the curriculum on a database that is already live (db:curriculum:ensur
 
   it('serves the course main served, field for field, from the database the seed made', async () => {
     const res = await get('/api/course', 'full');
-    expect((res.json() as { course: unknown }).course).toEqual(courseV1);
+    // D-221: but for the old setup order and each kit skill's use line, which the seed no longer writes.
+    const main = courseV1 as unknown as { weeks: { setup?: unknown; skills: { use?: unknown }[] }[] };
+    const retired = { ...main, weeks: main.weeks.map(({ setup: _s, ...w }) => ({ ...w, skills: w.skills.map(({ use: _u, ...k }) => k) })) };
+    expect((res.json() as { course: unknown }).course).toEqual(retired);
   });
 
   it('inserts the course into the old launch database, touching no learner and none of the prototype, then stops changing', { timeout: 180_000 }, async () => {
@@ -381,7 +387,7 @@ describe('GET /api/health/curriculum (D-121, D-173): counts only, expected from 
   it('says ok on a database with the curriculum, and says nothing but counts', { timeout: 120_000 }, async () => {
     await resetDatabase(seedProduction({ owner: OWNER }));
     const body = await status();
-    expect(body).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
+    expect(body).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 }, steps: 0, retired: 0 });
   });
 
   it('counts the weeks the course page shows: a copy made with Duplicate is not one of them', { timeout: 120_000 }, async () => {
@@ -391,7 +397,7 @@ describe('GET /api/health/curriculum (D-121, D-173): counts only, expected from 
     const week2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!;
     after.modules.push({ ...structuredClone(week2), id: 'm_copy', name: `${week2.name} (copy)`, status: 'published' });
     await persistDiff(handle, before, after);
-    expect(await status()).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
+    expect(await status()).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 }, steps: 0, retired: 0 });
   });
 
   it('says not ok, with the counts that are short, before the curriculum and after staff draft a week', { timeout: 180_000 }, async () => {
@@ -403,6 +409,23 @@ describe('GET /api/health/curriculum (D-121, D-173): counts only, expected from 
     after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])!.status = 'draft';
     await persistDiff(handle, before, after);
     expect(await status()).toMatchObject({ ok: false, modules: 9, published: 8, sessions: 16 });
+  });
+
+  it('counts the data steps that ran and the weeks that still hold a retired field (D-221)', { timeout: 180_000 }, async () => {
+    await resetDatabase(seedProduction({ owner: OWNER }));
+    const before = await loadDb();
+    const after = structuredClone(before);
+    // As production held the weeks before the D-220 and D-221 steps: a promise, a setup order, a use line.
+    after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!.course!.promise = 'A second copy of the outcome.';
+    after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!.course!.setup = [{ text: 'Open the kit.' }];
+    const w2 = after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[2])!.course!;
+    w2.skills = w2.skills.map((k) => ({ ...k, use: 'What it does.' }));
+    await persistDiff(handle, before, after);
+    expect(await status()).toMatchObject({ ok: true, steps: 0, retired: 3 });
+    const reports = await applyDataMigrations(handle, Date.now());
+    // (The release plan among them schedules Weeks 1 to 8, so `published` and `ok` change too: not this test's.)
+    expect(await status()).toMatchObject({ steps: DATA_MIGRATIONS.length, retired: 0 });
+    expect(reports.map((r) => r.id)).toEqual(DATA_MIGRATIONS.map((m) => m.id));
   });
 
   it('expects what the cohort says: a cohort of nine weeks expects ten week modules', { timeout: 120_000 }, async () => {

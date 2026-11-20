@@ -27,6 +27,7 @@
 import { ACCELERATOR_COHORT_ID, acceleratorModuleId, isAcceleratorModule } from '../src/accelerator';
 import { DB_V } from '../src/constants';
 import type { CohortCourse, ModuleCourse } from '../src/course-types';
+import { courseWithoutRetired } from '../src/course-retired';
 import { seed } from '../src/seed';
 import { sessionKind, sessionWeek } from '../src/sessions';
 import { ZERO_BASE } from '../src/types';
@@ -85,7 +86,8 @@ export function curriculumSeed(opts: { instructor?: string } = {}): CurriculumSe
   );
   const modules = acceleratorModules(instructor).map((m, i): AIEmployee => {
     const { module: _portal, ...words } = ACCELERATOR_WEEKS_CONTENT[i]!;
-    const course: ModuleCourse = words;
+    // D-220, D-221: the seed writes no retired field (no promise, setup order or kit skill use line).
+    const course: ModuleCourse = courseWithoutRetired(words);
     return { ...m, kind: 'week', ...(words.week === 0 ? { dueAt: WEEK0_DUE_AT } : {}), course };
   });
   // A deep copy, so nothing that leaves here shares an array with the seed's constants.

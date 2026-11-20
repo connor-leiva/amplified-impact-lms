@@ -7140,3 +7140,43 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - `WeekContent.sync.test.ts` no longer lists the promise as a field learners don't see. What it still lists:
     - the status labels, which Home and the sidebar draw;
     - the two old fields that parity K-5 replaced. The builder doesn't offer them.
+
+## D-221 · Every week field a learner sees is edited in the builder: kit skills and the stack card; two unshown fields retired
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-220: everything in the builder reaches learners, and nothing in the tool is seeded in code.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Number:** D-220 is the retired promise.
+
+- **The audit.** I checked every field of a week's course against the builder.
+  - **Two fields learners see had no editor.** Only the seed could set them:
+    - `course.skills`: the kit's skill rows, each with its title, Library page, role and Free. The week page's kit draws them, a step's aside draws a skill it links, and a built week's run button opens the flagship.
+    - `course.stackCard`: Week 0's stack page. Its sources, what green and yellow mean for each, and the made-up example team.
+  - **Two fields no learner page draws.** Only the old course page drew them, and since the learner v2 flag `/course` redirects to `/learn`. Nothing edited them either:
+    - `course.setup`: the old Setup Order, which the week's steps replaced (parity K-5);
+    - `course.skills[].use`: a skill's one-line use. Learners read the skill's own Library page.
+  - **Everything else has an editor.** That covers the cohort's course pages and glossary (Course Settings), the copy strings (Course Settings) and every other week field. The status labels are the only week words not drawn on the week page: Home and the sidebar draw them (D-217).
+- **Now.**
+  - **Kit skills card** in the Week Builder: add, edit, move and remove a skill, setting its title, Library route, role (the week page's own tag words) and Free. It saves with the module.
+  - **Week 0 Stack Card** in the Week Builder, beside the Week 0 Intake (D-196), which it is modelled on. It edits each source's id, name, green and yellow, the example label and team, and each example row's source, tool, plan and who.
+  - **The two unshown fields are retired, as D-220 retired the promise:**
+    - The seed writes neither.
+    - A builder save drops them.
+    - The one-time data step `2026-11-20-unshown-course-fields` clears them from stored weeks, one audit row each.
+    - Their keys stay in the types and the API schema, optional and marked retired.
+    - The old course page, if the flag were ever off, skips an absent use line and an empty setup list.
+  - **The copy rules** check a kit skill's title (new and editable), and no longer the retired fields.
+  - **Confirming a deploy:** `GET /api/health/curriculum` (D-121) adds two counts, still counts only.
+    - `steps`: how many one-time data steps have run.
+    - `retired`: how many course weeks still hold a retired field.
+
+    After this deploy, production should answer `steps: 11` and `retired: 0`.
+- **Checks.**
+  - `WeekKit.sync.test.tsx` drives both editors as staff do, then draws the learner's page from the draft:
+    - **skills:** the week page's kit shows the new skill's title, role and Free tags, and a removed skill leaves it;
+    - **stack card:** every text field's marker shows on the stack page, the example included.
+  - `course-builder.test.ts` saves both through the real admin route. `GET /api/course` then returns them exactly.
+  - `data-steps.test.ts` covers the new step: it clears both fields, keeps every other word (a promise included, which is D-220's to clear), and does nothing the second time.
+  - `WeekContent.sync.test.ts` now excuses only the status labels.
+  - The D-173 move tests compare the seed with main's fixture minus the two retired fields. The fixtures themselves are unchanged.
+

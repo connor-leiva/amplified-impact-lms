@@ -22,8 +22,6 @@ const NOT_WORDS = new Set(['id', 'kind', 'href', 'url', 'upload', 'type', 'sessi
 const NOT_DRAWN: readonly [RegExp, string][] = [
   // D-217: status labels name the week's state on Home and in the sidebar (checked below), not on the week page.
   [/^course\.statusLabels\./, 'Home’s week cards and the sidebar read them (the next test)'],
-  [/^course\.setup\[\d+\]\.(text|route)$/, 'the old Setup Order: the week’s steps replace it (parity K-5)'],
-  [/^course\.skills\[\d+\]\.use$/, 'a kit row shows the skill, its role and Free; the skill page carries its use (parity K-5)'],
 ];
 
 describe('the builder and the week page are one source (D-213)', () => {
