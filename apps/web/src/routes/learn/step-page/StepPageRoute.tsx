@@ -2,11 +2,13 @@
 // portal's own mutations behind onCheck and onStepDone, and the course video on HlsEngine with the watch
 // progress VideoView keeps (D-191). The page itself is ../StepPage.tsx, ported from the handoff unchanged.
 //
-// The brand's motion stylesheet loads first, then the page's tokens and styles, all global (HANDOFF §4.5).
+// The brand's motion stylesheet loads first, then the page's tokens and styles, all global (HANDOFF §4.5), then
+// the counter to the one LMS-wide rule that would reach into the page (step-page.lms.css).
 
 import '../../../components/motion/ai-motion.css';
 import './step-page.tokens.css';
 import './step-page.css';
+import './step-page.lms.css';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { mergeSpans, parseCaptionCues, resumeAt, videoIdOf, watchedFraction } from '@ai/core';
