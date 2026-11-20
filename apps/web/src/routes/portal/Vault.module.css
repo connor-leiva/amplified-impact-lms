@@ -431,3 +431,37 @@ select.typeSelect {
   justify-content: center;
   font-variant-numeric: tabular-nums;
 }
+
+/* D-213: inside the learner frame this page takes the step page's system (D-210, D-211): its title, its
+   purpose line, 14px cards with the small forest shadow, and blocks that rise in order on arrival. Today's
+   portal (and its goldens) keep the reference's page. */
+:global([data-learner-v2]) .h1 {
+  font-size: 39px;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+:global([data-learner-v2]) .sub {
+  font-size: 20px;
+  line-height: 1.45;
+  max-width: 65ch;
+}
+:global([data-learner-v2]) .page > * {
+  animation: aim-rise var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+}
+:global([data-learner-v2]) .page > :nth-child(2) { animation-delay: calc(1 * var(--aim-stagger)); }
+:global([data-learner-v2]) .page > :nth-child(3) { animation-delay: calc(2 * var(--aim-stagger)); }
+:global([data-learner-v2]) .page > :nth-child(4) { animation-delay: calc(3 * var(--aim-stagger)); }
+:global([data-learner-v2]) .page > :nth-child(n + 5) { animation-delay: calc(4 * var(--aim-stagger)); }
+@media (prefers-reduced-motion: reduce) {
+  :global([data-learner-v2]) .page > * {
+    animation: none;
+  }
+}
+:global([data-learner-v2]) .list,
+:global([data-learner-v2]) .nothingYet {
+  border-radius: 14px;
+}
+:global([data-learner-v2]) .list {
+  box-shadow: var(--shadow-xs);
+}
