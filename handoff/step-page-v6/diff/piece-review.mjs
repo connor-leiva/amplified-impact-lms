@@ -155,6 +155,9 @@ async function load(pg, url, isTarget, first) {
   await pg.evaluate(() => document.fonts.ready);
   await addFixtures(pg);
   await wait(pg, 1200);
+  // A reload can restore the old scroll position, which moves the scroll-spy; every state starts at the top.
+  await rest(pg);
+  await wait(pg, SETTLE);
 }
 async function rest(pg) {
   await pg.mouse.move(0, 0);
