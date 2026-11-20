@@ -14,7 +14,7 @@ import { saveIcs } from './ics';
 import { weekRows } from './learn.vm';
 import { StartHereCard } from './StartHere';
 import { WeekDone } from './WeekDone';
-import { weekParam, weekVM } from './Week.vm';
+import { WEEK, weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
 import { learnHome } from './routes';
@@ -101,7 +101,36 @@ function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
                 </Link>
               </div>
             </>
-          ) : null}
+          ) : (
+            <>
+              {/* D-218: what the week built, and the action to use it. */}
+              {vm.hero.outputs.length ? (
+                <ul className={`${s.ul} ${s.s2}`} aria-label={WEEK.built}>
+                  {vm.hero.outputs.map((o, i) => (
+                    <li key={i} className={s.row}>
+                      <Icon name="r2Check" size={14} strokeWidth={1.75} />
+                      <span>{o}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {vm.hero.cta ? (
+                <div className={s.hb}>
+                  {vm.hero.cta.external ? (
+                    <a className={`${s.b} ${s.bp}`} href={vm.hero.cta.href} target="_blank" rel="noreferrer">
+                      {vm.hero.cta.label}
+                      <Icon name="lvArrow" size={14} strokeWidth={1.75} className={s.ar} />
+                    </a>
+                  ) : (
+                    <Link className={`${s.b} ${s.bp}`} to={vm.hero.cta.href}>
+                      {vm.hero.cta.label}
+                      <Icon name="lvArrow" size={14} strokeWidth={1.75} className={s.ar} />
+                    </Link>
+                  )}
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
         <div className={s.hr}>
           <span className={s.eyb}>

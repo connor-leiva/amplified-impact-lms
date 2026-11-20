@@ -155,5 +155,19 @@ describe('the builder’s week cards reach the learner’s week page (D-214)', (
     const rows = weekRows(st.payload, st.db, me);
     expect(JSON.stringify(navVM(st.payload, rows, '/learn'))).toContain('ZLnotL');
   });
+
+  it('a week’s outputs and run label (Edit details) reach the week once it is built (D-218)', () => {
+    const steps = deployed().modules.find((m) => m.id === WEEK_ID)!.checklist.map((x) => x.id);
+    const st = learnState(LIVE_NOW, false, { 0: ['c1'], 2: steps }, 15, (d) => {
+      const m = d.modules.find((x) => x.id === WEEK_ID)!;
+      m.outputs = ['ZOoneO', 'ZOtwoO', 'ZOthreeO'];
+      m.runLabel = 'ZOrunO';
+    });
+    const me = learnerOf(st.db, LEARNER_ID);
+    const rows = weekRows(st.payload, st.db, me);
+    const vm = weekVM(st.payload, rows, 2, LIVE_NOW, () => null, []);
+    if (vm.kind !== 'open') throw new Error('not open');
+    expect(vm.hero).toMatchObject({ kind: 'built', outputs: ['ZOoneO', 'ZOtwoO', 'ZOthreeO'], cta: { label: 'ZOrunO' } });
+  });
 });
 

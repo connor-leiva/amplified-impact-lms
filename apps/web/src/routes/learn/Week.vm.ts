@@ -36,6 +36,8 @@ export const WEEK = {
   notFound: 'There’s no such week.',
   /** D-195: a Start Here row that is waiting on another step. */
   waiting: 'waiting',
+  /** D-218: a built week's outputs, named for screen readers. */
+  built: 'What it built',
 } as const;
 
 export type Pill = { tone: 'ip' | 'done' | 'open'; label: string };
@@ -60,7 +62,11 @@ export interface OpenWeekVM {
   pk: string;
   hero:
     | { kind: 'step'; eyebrow: string; title: string; meta: string; doneWhen: string | null; cta: { label: string; href: string } }
-    | { kind: 'built'; eyebrow: string; title: string };
+    /**
+     * D-218: a week whose steps are all done: what it built (the module's outputs, the builder's week details)
+     * and the action to use it, the module's run label, opening the week's flagship skill.
+     */
+    | { kind: 'built'; eyebrow: string; title: string; outputs: string[]; cta: { label: string; href: string; external: boolean } | null };
   right: { label: string; done: number; total: number; ofTotal: string; segs: Seg[]; aria: string; foot: string | null };
   steps: { heading: string; meta: string; rows: StepRowVM[] };
   /** D-184: the week's skills (each with its role and Free, as the course page tags them) and its kit items, and the Library's link. */
@@ -157,6 +163,18 @@ export function startHereCard(card: StartHere, r: WeekRow, checks: readonly Chec
   return { title: card.title, sub: card.sub, line: card.line, hint: card.hint, owner: card.totals.owner, operator: card.totals.operator, rows };
 }
 
+/**
+ * D-218: a built week's action: its run label, to its flagship skill's page, else any of its skills' pages,
+ * else the Skill library (where the kit sends a skill without a page of its own).
+ */
+function runCta(w: NonNullable<WeekRow['open']>, skills: readonly KitRowVM[]): { label: string; href: string; external: boolean } | null {
+  const label = w.module.runLabel?.trim();
+  if (!label || !w.skills.length) return null;
+  const flagship = w.skills.findIndex((k, i) => k.role === 'flagship' && !!skills[i]?.href);
+  const row = flagship >= 0 ? skills[flagship] : skills.find((k) => !!k.href);
+  return row?.href ? { label, href: row.href, external: row.external } : { label, href: learnSkills(), external: false };
+}
+
 function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string | null, checks: readonly ChecklistMark[]): OpenWeekVM {
   const w = r.open!;
   const platform = w.module.platform || null;
@@ -187,7 +205,7 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
           doneWhen: step.step.doneWhen ? `${WEEK.doneWhen} ${step.step.doneWhen}` : null,
           cta: { label: `${WEEK.continueStep} ${step.n}`, href: learnStep(r.week, step.n) },
         }
-      : { kind: 'built', eyebrow: LABELS.built, title: r.title },
+      : { kind: 'built', eyebrow: LABELS.built, title: r.title, outputs: w.module.outputs.filter((o) => o.trim() !== ''), cta: runCta(w, skillRows) },
     right: {
       label: WEEK.stepsDone,
       done: r.done,
