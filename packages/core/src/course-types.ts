@@ -8,6 +8,7 @@
 // the `CourseContent` the course page renders.
 
 import type { IconName } from './icons';
+import type { RichText } from './rich-text';
 import type { Step } from './types';
 
 export type SkillRole = 'flagship' | 'supporting' | 'optional' | 'pilot' | 'alternative';
@@ -83,7 +84,7 @@ export interface Homework {
 
 /** A paragraph, a copy-to-clipboard block, a list or a table: the pieces a step or a sample output is made of. */
 export type ContentBlock =
-  | { type: 'text'; text: string }
+  | { type: 'text'; text: string; rich?: RichText }
   | { type: 'copy'; label?: string; text: string }
   | { type: 'list'; items: string[] }
   | { type: 'table'; head?: string[]; rows: string[][] };
@@ -130,6 +131,8 @@ export interface CheckBlock {
   id: string;
   title: string;
   detail?: string;
+  /** Inline formatting for `detail`. Absent: the string renders as plain text. */
+  detailRich?: RichText;
   role?: CheckRole;
   action?: CheckAction;
   clickPath?: string[];
@@ -157,6 +160,8 @@ export interface CalloutBlock {
   type: 'callout';
   kind: 'tip' | 'heads_up' | 'diy';
   text: string;
+  /** Inline formatting for `text`. Absent: the string renders as plain text. */
+  rich?: RichText;
   /** D-199: show this callout only when the team's intake matches. No intake: it still shows. */
   showIf?: CheckCond;
 }
@@ -166,6 +171,8 @@ export interface AccordionBlock {
   type: 'accordion';
   title: string;
   body: string[];
+  /** Inline formatting for `body`. Absent: each string renders as its own paragraph. */
+  bodyRich?: RichText;
   table?: { head?: string[]; rows: string[][] };
   link?: { label: string; href: string };
 }

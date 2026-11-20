@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import type { IconName } from '@ai/core';
 import type { PathBlock } from '@ai/core/course-types';
 import type { GlossarySpan } from '@ai/core/glossary';
+import type { RichText } from '@ai/core/rich-text';
 import type { IcsEvent } from '@ai/core';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
@@ -13,7 +14,7 @@ import { VideoView } from './Video';
 import type { VideoWatch } from './Video';
 import { HUE, LABELS } from './learn.vm';
 import type { JoinVM, KitRowVM, Seg, SessionRowVM, Tone } from './learn.vm';
-import { Marked } from './Glossary';
+import { Marked, RichTextView } from './Glossary';
 import { STEP } from './Step.vm';
 import s from './Learn.module.css';
 
@@ -256,6 +257,12 @@ export function columnTemplate(head: readonly string[] | undefined, rows: readon
   return widths.map((w) => `minmax(${floor}, ${w}fr)`).join(' ');
 }
 
+/** A paragraph. A stored document draws here; a plain string is the sentence it always was. */
+export function TextParagraph({ text, spans, rich }: { text: string; spans?: readonly GlossarySpan[]; rich?: RichText }) {
+  if (rich) return <div className={`${s.p} ${s.s2}`}><RichTextView doc={rich} spans={spans} /></div>;
+  return <p className={`${s.p} ${s.s2}`}><Marked text={text} spans={spans} /></p>;
+}
+
 /**
  * A step's path, block by block: a list's items as numbered steps, a paragraph, a copy block with its
  * button, a table (its first column as the row's name, as the mockup's "where it goes" table), and
@@ -289,7 +296,7 @@ export function Blocks({ blocks, watch, marks }: { blocks: PathBlock[]; watch?: 
         if (b.type === 'text')
           return (
             <div key={i} className={s.blk}>
-              <p className={`${s.p} ${s.s2}`}><Marked text={b.text} spans={marks?.[i]} /></p>
+              <TextParagraph text={b.text} spans={marks?.[i]} rich={b.rich} />
             </div>
           );
         if (b.type === 'copy')

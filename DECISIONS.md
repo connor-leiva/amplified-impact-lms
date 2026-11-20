@@ -6792,3 +6792,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Halo.** A checkbox hover sets the box border to forest and `box-shadow: 0 0 0 4px` of forest at 6%.
 - **Reduced motion.** The ring is not drawn. Hover does not lift or move the arrow. The colour change and the drawn check remain.
 - **Not changed.** The footer stays Mark step done beside the forest next card. No course copy, schema, or golden change.
+
+---
+
+## D-209 · Rich text in the Week Builder
+
+**Date:** 2026-11-19
+**Approved by:** Connor Leiva (repository owner), Nov 19, 2026: piece 5 is full formatting, not block presets. POLISH-SPEC.md line 226 replaces the presets-only section.
+**Number:** D-208 is the completion motion. D-209 was free.
+
+- **Editor.** Paragraphs, callouts, accordion bodies and checklist detail use one rich-text field. The field's own type is the learner step paragraph (Geist, `--r2-t` / `--r2-tl`, `--r2-f2`), so an unstyled word matches the learner page. The toolbar is one row on a desktop window: font and size selects show the selection (Geist and the paragraph size when nothing else is set), a text-color control and a highlight control each open a popover (brand swatches, then a rainbow custom swatch), bold, italic and clear formatting.
+- **Stored as JSON.** `rich` (or `detailRich` / `bodyRich`) is a sanitized document: paragraphs, text, bold, italic, text style and highlight. The plain string stays beside it and is what the copy rules and the glossary read. A field with no document renders that string as before.
+- **Phone.** A chosen size under 16px draws at 16px on a phone. Glossary terms keep their place inside styled words.
+- **Not a migration.** The document lives in the module’s checklist JSON. No golden, tolerance, or mask change.
+

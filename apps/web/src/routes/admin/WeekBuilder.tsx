@@ -29,6 +29,8 @@ import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
 import { LearnerWeekPreview } from '../learn/Preview';
 import { IntakeCard } from './IntakeCard';
+import { TextBlock } from './TextBlock';
+import { RichField } from './RichField';
 import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
@@ -236,7 +238,7 @@ export function Blocks({
               Remove
             </Button>
           </div>
-          {b.type === 'text' ? <Para label={`Block ${i + 1}`} value={b.text} onChange={(text) => set(i, { ...b, text })} /> : null}
+          {b.type === 'text' ? <TextBlock label={`${label} block ${i + 1}`} block={b} onChange={(next) => set(i, next)} /> : null}
           {b.type === 'copy' ? (
             <>
               <Line label={`Block ${i + 1} label`} value={b.label ?? ''} hint="Optional, like Prompt" onChange={(v) => set(i, v ? { ...b, label: v } : { type: 'copy', text: b.text })} />
@@ -493,7 +495,14 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
     <>
       <Line label={`Block ${n} id`} value={block.id} hint="Unique on this step. Don’t reuse an id you removed." onChange={(id) => onChange({ ...block, id })} />
       <Line label={`Block ${n} title`} value={block.title} hint={words > 8 ? `${words} words. Aim for 8 or fewer.` : '8 words or fewer.'} onChange={(title) => onChange({ ...block, title })} />
-      <Para label={`Block ${n} detail`} value={block.detail ?? ''} hint="Optional. One line under the title." onChange={(v) => onChange(v.trim() ? { ...block, detail: v } : { ...block, detail: undefined })} />
+      <RichField label={`Block ${n} detail`} plain={block.detail ?? ''} rich={block.detailRich} onChange={(text, rich) => {
+        const next = { ...block };
+        if (text.trim()) next.detail = text;
+        else delete next.detail;
+        if (rich) next.detailRich = rich;
+        else delete next.detailRich;
+        onChange(next);
+      }} />
       <label className={s.lab}>
         Role
         <Sel aria-label={`Block ${n} role`} value={block.role ?? ''} onChange={(e) => onChange({ ...block, role: (e.target.value || undefined) as CheckBlock['role'] })}>
@@ -718,7 +727,12 @@ function CalloutFields({ n, block, onChange }: { n: number; block: CalloutBlock;
           ))}
         </Sel>
       </label>
-      <Para label={`Block ${n} text`} value={block.text} onChange={(text) => onChange({ ...block, text })} />
+      <RichField label={`Block ${n} text`} plain={block.text} rich={block.rich} onChange={(text, rich) => {
+        const next = { ...block, text };
+        if (rich) next.rich = rich;
+        else delete next.rich;
+        onChange(next);
+      }} />
       <CondFields n={n} label="Show If" cond={block.showIf} onChange={(showIf) => onChange({ ...block, showIf })} />
     </>
   );
@@ -728,7 +742,12 @@ function AccordionFields({ n, block, onChange }: { n: number; block: AccordionBl
   return (
     <>
       <Line label={`Block ${n} title`} value={block.title} onChange={(title) => onChange({ ...block, title })} />
-      <Lines label={`Block ${n} paragraphs`} items={block.body} onChange={(body) => onChange({ ...block, body })} />
+      <RichField label={`Block ${n} paragraphs`} plain={block.body.join('\n')} rich={block.bodyRich} onChange={(text, rich) => {
+        const next = { ...block, body: text.length ? text.split('\n') : [] };
+        if (rich) next.bodyRich = rich;
+        else delete next.bodyRich;
+        onChange(next);
+      }} />
       <HeadField label={`Block ${n} table headings`} head={block.table?.head ?? []} onChange={(head) => onChange({ ...block, table: head.length || (block.table?.rows?.length ?? 0) ? { ...(head.length ? { head } : {}), rows: block.table?.rows ?? [] } : undefined })} />
       <TableRowsField label={`Block ${n} table rows`} rows={block.table?.rows ?? []} onChange={(rows) => onChange({ ...block, table: rows.length || (block.table?.head?.length ?? 0) ? { ...(block.table?.head?.length ? { head: [...block.table.head] } : {}), rows } : undefined })} />
       <Line label={`Block ${n} link label`} value={block.link?.label ?? ''} onChange={(label) => onChange({ ...block, link: label.trim() || block.link?.href ? { label, href: block.link?.href ?? '' } : undefined })} />

@@ -11,6 +11,7 @@ import { watchThreshold } from '@ai/core/video';
 import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, GlossaryTerm, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
+import type { RichText } from '@ai/core/rich-text';
 import { cardTerms, markSequence } from '@ai/core/glossary';
 import type { GlossarySpan } from '@ai/core/glossary';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
@@ -192,6 +193,7 @@ export interface CalloutVM {
   kind: CalloutBlock['kind'];
   label: string;
   text: string;
+  rich?: RichText;
   /** D-193: set only when this callout holds the first use of a term. */
   spans?: GlossarySpan[];
 }
@@ -207,6 +209,7 @@ export interface CheckItemVM {
   id: string;
   title: string;
   detail: string | null;
+  detailRich?: RichText;
   role: string | null;
   checked: boolean;
   /** The step number this item is waiting on, when a cross-step dependency is not checked yet. */
@@ -235,6 +238,7 @@ export interface AccordionVM {
   index: number;
   title: string;
   body: string[];
+  bodyRich?: RichText;
   table: { head?: string[]; rows: string[][] } | null;
   link: { label: string; href: string } | null;
   open: boolean;
@@ -405,7 +409,7 @@ function countdown(dueAt: number, now: number): string {
 }
 
 function calloutVM(b: CalloutBlock): CalloutVM {
-  return { kind: b.kind, label: CALLOUT_LABEL[b.kind], text: b.text };
+  return { kind: b.kind, label: CALLOUT_LABEL[b.kind], text: b.text, ...(b.rich ? { rich: b.rich } : {}) };
 }
 
 function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckActionVM | null {
@@ -438,6 +442,7 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     id: b.id,
     title: b.title,
     detail: folded ? (b.collapsedNote ?? b.detail ?? null) : (b.detail ?? null),
+    ...(!folded && b.detailRich ? { detailRich: b.detailRich } : {}),
     role: b.role ? (ROLE_LABEL[b.role] ?? null) : null,
     checked: folded || itemChecked(b, (itemId) => isOn(stepId, itemId)),
     ...(note ? { note } : {}),
@@ -489,6 +494,7 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
         index,
         title: b.title,
         body: b.body,
+        ...(b.bodyRich ? { bodyRich: b.bodyRich } : {}),
         table: b.table ?? null,
         link: b.link ?? null,
         open: ctx.prefs.some((p) => p.key === prefKey && p.value === '1'),

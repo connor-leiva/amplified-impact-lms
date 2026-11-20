@@ -6,6 +6,8 @@ import { createContext, useContext, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { GlossaryTerm } from '@ai/core/course-types';
 import type { GlossarySpan } from '@ai/core/glossary';
+import { paintRich } from '@ai/core/rich-text';
+import type { RichMark, RichText } from '@ai/core/rich-text';
 import { Icon } from '../../components/Icon';
 import { useDialog } from '../../components/r2/Modal';
 import d from '../../components/r2/Drawer.module.css';
@@ -77,6 +79,45 @@ export function Marked({ text, spans }: { text: string; spans?: readonly Glossar
         ),
       )}
     </>
+  );
+}
+
+function styled(node: ReactNode, marks: readonly RichMark[]): ReactNode {
+  let out = node;
+  if (marks.some((m) => m.type === 'bold')) out = <strong>{out}</strong>;
+  if (marks.some((m) => m.type === 'italic')) out = <em>{out}</em>;
+  const style = marks.filter((m) => m.type === 'textStyle').reduce<NonNullable<RichMark['attrs']>>((acc, m) => ({ ...acc, ...m.attrs }), {});
+  if (style?.color || style?.fontFamily || style?.fontSize) {
+    out = (
+      <span
+        data-size={style.fontSize ? '' : undefined}
+        style={{
+          ...(style.color ? { color: style.color } : {}),
+          ...(style.fontFamily ? { fontFamily: style.fontFamily } : {}),
+          ...(style.fontSize ? { ['--rt-size' as string]: style.fontSize } : {}),
+        }}
+      >
+        {out}
+      </span>
+    );
+  }
+  const wash = marks.find((m) => m.type === 'highlight')?.attrs?.color;
+  if (marks.some((m) => m.type === 'highlight')) out = <mark className={s.hl} style={wash ? { background: wash } : undefined}>{out}</mark>;
+  return out;
+}
+
+/** A stored document. A plain string never comes here. Glossary terms keep their offsets in the stripped text. */
+export function RichTextView({ doc, spans }: { doc: RichText; spans?: readonly GlossarySpan[] }) {
+  return (
+    <div className={s.rich}>
+      {paintRich(doc, spans).map((line, i) => (
+        <p key={i}>
+          {line.map((run, j) => (
+            <span key={j}>{styled(run.termId ? <TermMark text={run.text} id={run.termId} /> : run.text, run.marks)}</span>
+          ))}
+        </p>
+      ))}
+    </div>
   );
 }
 

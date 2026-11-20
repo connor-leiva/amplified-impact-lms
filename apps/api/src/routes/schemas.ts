@@ -89,8 +89,21 @@ const homework = z.strictObject({
   acceptance: z.array(z.string()),
   useEvidence: z.string(),
 });
+const richMark = z.union([
+  z.strictObject({ type: z.literal('bold') }),
+  z.strictObject({ type: z.literal('italic') }),
+  z.strictObject({ type: z.literal('textStyle'), attrs: z.strictObject({ color: z.string().max(120).optional(), fontFamily: z.string().max(80).optional(), fontSize: z.string().max(8).optional() }).optional() }),
+  z.strictObject({ type: z.literal('highlight'), attrs: z.strictObject({ color: z.string().max(160).optional() }).optional() }),
+]);
+const richText = z.strictObject({
+  type: z.literal('doc'),
+  content: z.array(z.strictObject({
+    type: z.literal('paragraph'),
+    content: z.array(z.strictObject({ type: z.literal('text'), text: z.string().max(4000), marks: z.array(richMark).max(8).optional() })).max(80).optional(),
+  })).max(40),
+});
 const contentBlock = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('text'), text: z.string() }),
+  z.strictObject({ type: z.literal('text'), text: z.string(), rich: richText.optional() }),
   z.strictObject({ type: z.literal('copy'), label: z.string().optional(), text: z.string() }),
   z.strictObject({ type: z.literal('list'), items: z.array(z.string()) }),
   z.strictObject({ type: z.literal('table'), head: z.array(z.string()).optional(), rows: z.array(z.array(z.string())) }),
@@ -154,6 +167,7 @@ const checkBlock = z.strictObject({
   id: checkId,
   title: z.string().max(200),
   detail: z.string().max(2000).optional(),
+  detailRich: richText.optional(),
   role: z.enum(['owner', 'operator', 'each', '']).optional(),
   action: checkAction.optional(),
   clickPath: z.array(z.string().max(80)).max(12).optional(),
@@ -170,12 +184,14 @@ const calloutBlock = z.strictObject({
   type: z.literal('callout'),
   kind: z.enum(['tip', 'heads_up', 'diy']),
   text: z.string().max(4000),
+  rich: richText.optional(),
   showIf: checkCond.optional(),
 });
 const accordionBlock = z.strictObject({
   type: z.literal('accordion'),
   title: z.string().max(200),
   body: z.array(z.string().max(4000)).max(40),
+  bodyRich: richText.optional(),
   table: z.strictObject({ head: z.array(z.string().max(200)).max(12).optional(), rows: z.array(z.array(z.string().max(2000)).max(12)).max(40) }).optional(),
   link: z.strictObject({ label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }).optional(),
 });

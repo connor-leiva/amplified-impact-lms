@@ -9,7 +9,7 @@ import { useMutate } from '../../data/hooks';
 import { Blocks, CalLinks, VideoView } from './parts';
 import type { VideoWatch } from './Video';
 import { saveIcs } from './ics';
-import { KnowCard, Marked } from './Glossary';
+import { KnowCard, Marked, RichTextView } from './Glossary';
 import { StartHereCard } from './StartHere';
 import { LABELS } from './learn.vm';
 import type { StartHereVM } from './Week.vm';
@@ -58,9 +58,15 @@ function Callout({ c }: { c: CalloutVM }) {
       <span className={s.coIc} aria-hidden="true">
         <Icon name={icon} size={14} strokeWidth={1.8} />
       </span>
-      <p>
-        <strong>{c.label}</strong> <Marked text={c.text} spans={c.spans} />
-      </p>
+      {c.rich ? (
+        <div className={s.coCopy}>
+          <strong>{c.label}</strong> <RichTextView doc={c.rich} spans={c.spans} />
+        </div>
+      ) : (
+        <p>
+          <strong>{c.label}</strong> <Marked text={c.text} spans={c.spans} />
+        </p>
+      )}
     </div>
   );
 }
@@ -226,7 +232,7 @@ function Item({
             {item.waiting !== null && !item.checked ? <span className={s.wait}>{STEP.waiting} {item.waiting}</span> : null}
           </div>
         )}
-        {item.detail ? <p className={s.detail}><Marked text={item.detail} spans={item.detailSpans} /></p> : null}
+        {item.detail ? <div className={s.detail}>{item.detailRich ? <RichTextView doc={item.detailRich} spans={item.detailSpans} /> : <Marked text={item.detail} spans={item.detailSpans} />}</div> : null}
         {item.note ? <p className={s.opNote}>{item.note}</p> : null}
         {item.subchecks.length ? (
           <ul className={s.subs}>
@@ -277,7 +283,7 @@ function Accordion({ row, onToggle }: { row: AccordionVM; onToggle: (key: string
         <Icon name="r2Chevd" size={18} strokeWidth={2} className={s.accChevron} />
       </summary>
       <div className={s.accBody}>
-        {row.body.map((p, i) => (
+        {row.bodyRich ? <RichTextView doc={row.bodyRich} /> : row.body.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
         {row.table ? (

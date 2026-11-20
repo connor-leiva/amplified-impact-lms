@@ -642,6 +642,7 @@ export function Component() {
       {step && stepAt !== null ? (
         <Modal
           title={`Step ${stepAt + 1}`}
+          width={880}
           onClose={() => setStepAt(null)}
           foot={
             <Button kind="primary" onClick={() => setStepAt(null)}>
