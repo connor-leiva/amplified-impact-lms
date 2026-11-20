@@ -7,6 +7,9 @@ import { learnerOf, withLiveState } from '@ai/core/learner';
 
 import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
+// D-214: the brand's motion tokens and rise (Amplified Impact Motion v1), for every page in the learner frame,
+// not only the step page: the pages' rises, presses and transitions read them.
+import '../../components/motion/ai-motion.css';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
 import { Menu } from '../../components/r2/Menu';

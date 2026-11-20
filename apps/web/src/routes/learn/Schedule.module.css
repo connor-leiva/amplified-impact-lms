@@ -14,21 +14,23 @@
 
 /* ---- the view switch: weeks or calendar ----------------------------------------------------------- */
 
+/* D-214: Weeks or Calendar, as the step page's segmented control (D-210): a pill on the surface with a
+   hairline; the chosen view is forest. */
 .seg {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 2px;
-  background: var(--r2-sub);
+  background: var(--r2-sf);
   border: 1px solid var(--r2-line);
-  border-radius: 8px;
+  border-radius: 999px;
 }
 .seg a {
   height: 28px;
   padding: 0 12px;
   border: 0;
-  border-radius: 6px;
-  background: none;
+  border-radius: 999px;
+  background: transparent;
   color: var(--r2-f2);
   font-weight: 500;
   font-size: var(--lv-ctl);
@@ -39,17 +41,24 @@
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background var(--aim-dur-quick) var(--aim-ease),
-    color var(--aim-dur-quick) var(--aim-ease),
-    box-shadow var(--aim-dur-quick) var(--aim-ease);
+    transform var(--aim-dur-spring) var(--aim-ease-spring),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
 }
-.seg a:hover {
-  color: var(--r2-ink);
+@media (hover: hover) {
+  .seg a:not([aria-current='page']):hover {
+    background: var(--r2-bg);
+    color: var(--r2-ink);
+  }
+}
+.seg a:active {
+  transform: scale(0.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
 }
 .seg a[aria-current='page'] {
-  background: var(--r2-sf);
-  color: var(--r2-ink);
-  box-shadow: var(--lv-sh-seg);
+  background: var(--r2-for);
+  color: var(--r2-on-for);
 }
 
 /* ---- the date tile -------------------------------------------------------------------------------- */

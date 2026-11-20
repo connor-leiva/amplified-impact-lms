@@ -265,7 +265,21 @@ export async function resetDatabase(snapshot?: Db): Promise<void> {
   await settleEmails();
   await settleObserved();
   const names = ALL_TABLES.map((t) => `"${t}"`).join(', ');
-  await db.execute(sql.raw(`truncate table ${names} restart identity cascade`));
+  // A read the last test's app started can outlive the test: Health answers a source that runs past its
+  // timeout as unavailable and leaves the query running (console-health.test.ts). The TRUNCATE then locks
+  // its tables one by one while that read holds one and waits for another, and Postgres breaks the
+  // deadlock (40P01) by aborting the TRUNCATE. The read finishes on its own, so the reset is tried again.
+  const truncate = sql.raw(`truncate table ${names} restart identity cascade`);
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await db.execute(truncate);
+      break;
+    } catch (e) {
+      const err = e as { code?: string; cause?: { code?: string } };
+      if ((err.code ?? err.cause?.code) !== '40P01' || attempt >= 5) throw e;
+      await new Promise((r) => setTimeout(r, 100 * attempt));
+    }
+  }
   if (snapshot) await db.transaction(async (tx) => void (await insertSnapshot(tx, snapshot)));
 }
 

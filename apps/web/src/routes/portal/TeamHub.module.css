@@ -881,3 +881,12 @@
   font-size: var(--lv-btn-fs);
   font-weight: 500;
 }
+
+/* The brand's rise (ai-motion.css `aim-rise`), declared here too: a CSS module localizes the animation names it
+   uses, so the page's blocks name this module's copy. Same frames as the brand file. */
+@keyframes aim-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--aim-rise));
+  }
+}
