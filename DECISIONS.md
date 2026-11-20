@@ -7090,3 +7090,20 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Why there.** The hero is where a week says what to do next. Once the steps are done, that means using what was built. The outputs are what the week produces, so the built card is the one place they don't repeat the homework list, which is about getting there.
 - **The builder.** A week's Edit details offers Output 1 to 3 and the Run button label again, as it does for an AI Employee.
 - **Result.** With D-212, D-214 and D-217, every field the builder offers for a week reaches a learner page. `WeekBuilder.sync.test.tsx` checks the outputs and the run label on a built week.
+
+## D-219 · More of the step page compared on every learner page: section headings, links, segmented controls
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-218.
+**Number:** D-218 is the built week's outputs and run label.
+
+- **The comparison (D-216) now also covers:**
+  - **section headings outside a card:** typeface, weight, letter spacing, ink;
+  - **underlined inline text links:** colour, weight, the line under them;
+  - **every segmented control's chosen side:** fill, ink, pill shape.
+
+  Each is measured on the step page first. Its inline link is the step page's own `a.inline`, placed in its text for the measurement. Each must match on all 18 learner pages at 1440 and 390.
+- **What it found, now fixed.**
+  - **Section headings** shrank to 20px on a phone. They stay the step page's 650 25px at every width, as the step page's do.
+  - **Text links** were underlined in mint. They now take the step page's link style: forest 500 over a 20% hairline that firms to forest on hover. That covers a card's text link (`.txl`) and a week's or AI employee's header link (`.metaLink`). The hover underline of a link button (`.lk`) and of a breadcrumb is forest too.
+- **Result.** 38 checks pass: 36 rule checks and 2 component comparisons, which now cover primary and secondary buttons, cards, titles, eyebrows, section headings, links and segmented controls.
