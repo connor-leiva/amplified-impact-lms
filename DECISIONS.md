@@ -6813,6 +6813,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 - First: port the v6 brand-motion step page from its handoff (`handoff/step-page-v6/`), JSX to TSX only, behind a feature flag, and prove it with the handoff's pixel diffs.
 - Later that day: ship it to production for the seeded test account only, keeping every default below.
 - That night: carry the rules that shaped `/learn/week/0/step/2` to every learner page and to the curriculum builder, with nothing seeded in code, and decide the details consistently with past guidance in order to ship.
@@ -6871,6 +6872,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the rules that shaped `/learn/week/0/step/2` (D-210) apply to every page of the learner side, with the admin console left out, and that details be decided consistently with past guidance in order to ship.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-210 is the v6 step page.
 
 - **What it is.** The learner portal (D-177) keeps its layouts, words and behaviour. It takes the step page's system: its colours, its one button system, its headings and eyebrow, its step circles and its brand motion (Amplified Impact Motion v1). It applies to every page in the learner frame and to the curriculum builder's preview of a week, which shares the frame's tokens:
@@ -6923,6 +6925,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the step page's configuration (how steps are set up, how they flow, how they are formatted) carry over to the curriculum builder, so that everything stays in sync and nothing in the tool is seeded in code. He also asked that details be decided consistently with past guidance in order to ship.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-211 is the step page's system on every learner page.
 
 - **One source.** Every word a step shows on the v6 page (D-210) comes from a field the curriculum builder edits:
@@ -6948,6 +6951,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 and D-212: every learner page, and the builder in sync.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-212 is the builder and the step page as one source.
 
 - **The shared pages and primitives.** The Vault and Team Hub are today's portal pages, drawn inside the learner frame. So are the shared Button, dialogs, drawers, toasts and status tokens. They read the design tokens (`tokens.css`), not R2's, so D-211 did not reach them. In the light theme, those tokens now take the same v6 values inside the learner frame (`styles/learner-v2.css`):
@@ -6972,10 +6976,11 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-213: every learner page on the step page's rules, and the builder fully in sync, with nothing seeded in code.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-213 is the Vault, Team Hub and shared primitives.
 
 - **The builder offers only what learners read.** A field that changed nothing anyone sees is either wired to the learner pages or no longer offered.
-  - **The Course page card's Promise is now Outcome.** It edits the line learners read under the week's question (the module's outcome, which the seed fills from the promise) and keeps the promise equal to it.
+  - **The Course page card's Promise is now Outcome.** It edits the line learners read under the week's question (the module's outcome, which the seed fills from the promise) and keeps the promise equal to it. *D-220 retires the promise: the outcome is the one copy.*
   - **Flagship and Tools are no longer offered.** Nothing read them: the week's flagship is the kit skill whose role is Flagship.
   - **Hire cards offer Seat card, Playbook card and Locked copy.** The week page shows the first two, and a locked week shows the third. A week's Sample output and Status labels stay on the module, but no learner page reads them, so the builder no longer offers them.
   - **A week's Edit details no longer offers Output 1 to 3 or the Run button label.** Those are an AI Employee's: its hire page reads them, but no page of a course week does.
@@ -7014,6 +7019,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-214.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-214 is the builder sync and the first page-by-page check.
 
 - **The motion now runs on every learner page.** It used to run only on the step page.
@@ -7036,6 +7042,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-215.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-215 is the brand motion on every page and the wider page-by-page check.
 
 - **The comparison.** `learn-v2-system.spec.ts` now measures the step page first (Week 0, step 4), at 1440 and at 390. It then requires every component on all 18 learner pages to compute to the same values as the step page's:
@@ -7055,6 +7062,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that everything the builder holds reach learners, and that details be decided consistently with past guidance. The open week already shows what the builder edits, each section under its own heading (parity K-3, D-184), so these fields are drawn the same way instead of being left out of the builder.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-216 is the component comparison.
 
 - **Flagship and Tools** (the builder's Course page card) are back in the builder. They form the week page's **Tools** section, after Who Does What: a Flagship row, then the tools as a list.
@@ -7064,7 +7072,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - a copy box as a labelled row;
   - a table as the step page draws one (Geist Mono caps headings in forest on bone, a hairline frame, the first column in ink at 600).
 - **Status labels** (Hire cards) are back. They name a week's state in the builder's words on Home's week cards and in the sidebar, by key: `not_started` and `built`. A key left empty keeps the portal's own words ("Not started", "Built"), and an in-progress week keeps its count. The builder's hint says which keys are read.
-- **The promise** is still edited as the week's Outcome (D-214), the line learners read under the question.
+- **The promise** is still edited as the week's Outcome (D-214), the line learners read under the question. *D-220 retires it as a stored value.*
 - **Outputs 1 to 3 and the Run button label** stay off a week's details.
   - They are an AI Employee's fields: its hire page reads them, and the builder still offers them there.
   - A week's outputs repeat its own "Implemented by Week's End" homework lines, word for word in every seeded week. A section of them would say the same three lines twice on one page.
@@ -7081,6 +7089,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-217. He asked that every builder field reach learners, and that decisions not wait for his approval.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-217 is the week fields wired to the learner pages.
 
 - **Where they go.** Once every step of a week is done, the week page's hero is its built card: the "Built" eyebrow and the week's title. It now holds the last two fields from the builder's week details:
@@ -7095,6 +7104,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 **Date:** 2026-11-20
 **Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-218.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
 **Number:** D-218 is the built week's outputs and run label.
 
 - **The comparison (D-216) now also covers:**
@@ -7107,3 +7117,26 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **Section headings** shrank to 20px on a phone. They stay the step page's 650 25px at every width, as the step page's do.
   - **Text links** were underlined in mint. They now take the step page's link style: forest 500 over a 20% hairline that firms to forest on hover. That covers a card's text link (`.txl`) and a week's or AI employee's header link (`.metaLink`). The hover underline of a link button (`.lk`) and of a breadcrumb is forest too.
 - **Result.** 38 checks pass: 36 rule checks and 2 component comparisons, which now cover primary and secondary buttons, cards, titles, eyebrows, section headings, links and segmented controls.
+
+## D-220 · The promise retired: a week's outcome is its one line
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-219: everything in the builder reaches learners, and nothing in the tool is seeded in code.
+**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Number:** D-219 is the wider component comparison.
+
+- **What was wrong.** The first content seed kept each week's spec promise in `course.promise`, a second copy of the week's outcome line. Learners read only the outcome. The builder never showed the promise on its own: D-214's Outcome line overwrote it. So one seeded value was stored but never drawn or edited. Week 0's promise was not its outcome, and nobody could see or change it.
+- **Now.**
+  - The outcome (`module.outcome`) is the one line. It is the line under the week's question and the Summary in the module builder, and learners read it.
+  - The seed writes no promise. The builder's Outcome edits only the outcome. A builder save (`saveBuilderModule`) drops a promise an older draft still carries. The copy rules check the outcome, which they already did, and no longer a promise.
+  - **Production data:** the one-time data step `2026-11-20-promise-retired` clears the promise from every stored week, one audit row each.
+    - No outcome changes. Week 0 keeps the outcome learners already see.
+    - A week staff edited had its promise rewritten to match its outcome, so nothing is lost.
+  - The `promise` key stays in the type and the API schema, marked retired, so an older draft still parses.
+- **Checks.**
+  - `data-steps.test.ts` covers the step: it clears every stored promise, leaves each outcome as it was, and does nothing the second time.
+  - `WeekBuilder.test.tsx` checks that the Outcome writes no promise.
+  - `course-builder.test.ts` checks that a save drops one.
+  - `WeekContent.sync.test.ts` no longer lists the promise as a field learners don't see. What it still lists:
+    - the status labels, which Home and the sidebar draw;
+    - the two old fields that parity K-5 replaced. The builder doesn't offer them.

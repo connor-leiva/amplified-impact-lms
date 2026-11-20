@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -11,6 +11,7 @@ import { learnerRoutes } from './routes';
 import type { LearnState } from './test/fixture';
 import { UTAH_LINE } from './test/library-fixture';
 import { PLAN_COPY, TEAM_MODULE, groupSkills, offerSkills, planState } from './test/plan-fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-187: the Team Plan window, rendered for real through the learner routes and shell: opened by its address
 // (where `/team-tier` lands), by a page that comes with the Team Plan, and never offered to an access group's
@@ -53,6 +54,9 @@ function at(path: string) {
   render(<RouterProvider router={router} />);
   return router;
 }
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');

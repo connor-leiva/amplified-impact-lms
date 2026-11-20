@@ -1,7 +1,7 @@
 // D-184: the open week's content, build kit, downloads and trail, and the sidebar's Team Hub and cohort
 // line, rendered for real through the learner portal's own routes and shell; only the data hooks and
 // `GET /api/course` are stood in for, with the course and snapshot the API would send.
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -13,6 +13,7 @@ import type * as ToasterModule from '../../components/primitives/Toaster';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
 import type { LearnState } from './test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 const state: { db: Db; viewer: Viewer; now: number; course: CourseLoad } = {
   db: prelaunchState().db,
@@ -53,6 +54,9 @@ function at(path: string) {
 
 const aside = () => document.querySelector<HTMLElement>('aside[aria-label="Primary"]')!;
 const week0 = () => state.db.modules.find((m) => m.id === 'accelerator-week-0')!;
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');

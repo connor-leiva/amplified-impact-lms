@@ -561,11 +561,13 @@ export const WEEKS_0_3: readonly CourseWeek[] = [
   },
 ];
 
-/** The builder's newer cards for each week: the spec's promise, flagship, tools, and Weeks 1 to 3's seat and playbook cards. */
-function cardsOf(n: 0 | 1 | 2 | 3): Pick<ModuleCourse, 'promise' | 'flagship' | 'tools' | 'seatCard' | 'playbookCard'> {
+/**
+ * The builder's newer cards for each week: the spec's flagship, tools, and Weeks 1 to 3's seat and playbook cards.
+ * D-220: the spec's promise is the week's outcome line (`module.outcome`, which learners read), never a second copy.
+ */
+function cardsOf(n: 0 | 1 | 2 | 3): Pick<ModuleCourse, 'flagship' | 'tools' | 'seatCard' | 'playbookCard'> {
   const c = card(n);
   return {
-    promise: c.promise,
     flagship: c.flagship,
     tools: [...c.tools],
     ...(n === 0 ? {} : { seatCard: { ...SEAT_CARDS[n] }, playbookCard: { ...PLAYBOOKS[n] } }),

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -11,6 +11,7 @@ import type { SkillsPayload } from './Library.vm';
 import { learnerRoutes } from './routes';
 import { prelaunchState } from './test/fixture';
 import { UTAH_LINE, answerOf, buyerSkills, utahSkills } from './test/library-fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-179: the Skill Library and a skill's page, rendered for real through the learner routes and shell;
 // only the data hooks are stood in for, with the catalog as `GET /api/skills` answers it.
@@ -55,6 +56,9 @@ function at(path: string, enabled = true) {
   render(<RouterProvider router={router} />);
   return router;
 }
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');

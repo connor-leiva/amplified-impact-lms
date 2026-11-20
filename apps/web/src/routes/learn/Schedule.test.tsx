@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -10,6 +10,7 @@ import type * as IcsModule from './ics';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
 import type { LearnState } from './test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-180: the Schedule, rendered for real through the learner routes and shell; only the data hooks and
 // `GET /api/course` are stood in for, with the course and snapshot the API would send (the deployed seed).
@@ -59,6 +60,9 @@ function at(path: string) {
 
 const aside = () => document.querySelector<HTMLElement>('aside[aria-label="Primary"]')!;
 const main = () => document.querySelector<HTMLElement>('main')!;
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');
