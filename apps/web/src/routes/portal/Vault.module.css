@@ -465,3 +465,12 @@ select.typeSelect {
 :global([data-learner-v2]) .list {
   box-shadow: var(--shadow-xs);
 }
+
+/* The brand's rise (ai-motion.css `aim-rise`), declared here too: a CSS module localizes the animation names it
+   uses, so the page's blocks name this module's copy. Same frames as the brand file. */
+@keyframes aim-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--aim-rise));
+  }
+}

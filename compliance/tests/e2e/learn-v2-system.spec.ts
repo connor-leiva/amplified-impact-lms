@@ -54,6 +54,8 @@ const buyerSkills = {
   courseOpensAt: OPENS,
   teamHub: false,
   skills: catalog.map((s) => ({ id: s.id, title: s.title, summary: s.summary, sets: s.sets, free: FREE_SKILLS.includes(s.id), releasedAt: LAUNCH_RELEASE, ...stateOf(s.id), files: s.files })),
+  // The Team Plan window's words, as staff write them in Course settings (the window draws only these).
+  planCopy: { 'plan.team.title': 'Bring your whole team', 'plan.team.lead': 'Every seat builds the same hires.', 'plan.team.ask': 'Ask about the Team Plan' },
 };
 const ownerSkills = {
   plans: [{ kind: 'cohort', status: 'active', paidThrough: COHORT_ONE_LIVE_UNTIL }],
@@ -203,8 +205,65 @@ function systemFindings(page: Page, phone: boolean) {
       if (radius <= 10 || r.width < 240 || r.height < 64 || !seen(el)) continue;
       if (radius !== 14 && radius < 100) out.push(`card ${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]} radius ${radius}px, not 14px`);
     }
+    // Section headings above a grid (an h2 that is not inside a card) are the step page's section heading.
+    const inCard = (el: Element) => {
+      for (let e: Element | null = el.parentElement; e && e !== document.body; e = e.parentElement) {
+        const c = getComputedStyle(e);
+        if (c.backgroundColor === 'rgb(255, 255, 255)' && c.borderTopStyle !== 'none' && c.borderTopWidth !== '0px') return true;
+        if (c.backgroundColor === 'rgb(31, 77, 64)') return true; // a forest panel (the Next card, a hero)
+      }
+      return false;
+    };
+    for (const h2 of document.querySelectorAll('main h2, [data-step-page] h2')) {
+      if (!seen(h2) || inCard(h2) || h2.closest('[role="dialog"]')) continue;
+      const c = getComputedStyle(h2);
+      if (c.fontSize !== (phone && !h2.closest('[data-step-page]') ? '20px' : '25px') || c.fontWeight !== '650') out.push(`section heading "${(h2.textContent ?? '').trim().slice(0, 32)}" is ${c.fontWeight} ${c.fontSize}`);
+    }
+    // The line right under the title is the purpose line: 20px on a desk (18px on a phone), secondary ink.
+    if (h1) {
+      const head = h1.closest('header, [class*="pht"], [class*="header"], [class*="head"]') ?? h1.parentElement!;
+      const lede = [...head.querySelectorAll('p')].find((p) => seen(p) && p.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_PRECEDING);
+      if (lede) {
+        const c = getComputedStyle(lede);
+        const want = phone ? ['18px', '20px'] : ['20px'];
+        if (!want.includes(c.fontSize)) out.push(`purpose line "${(lede.textContent ?? '').trim().slice(0, 32)}" is ${c.fontSize}`);
+      }
+    }
+    // A segmented control (Claude or ChatGPT, Weeks or Calendar): the chosen side is forest.
+    for (const radio of document.querySelectorAll('[role="radiogroup"] [role="radio"][aria-checked="true"], nav [aria-current="page"]')) {
+      if (radio.closest('aside, header')) continue; // the shell's own navigation
+      if (!seen(radio) || radio.closest('[role="menu"], [role="dialog"]')) continue;
+      const c = getComputedStyle(radio);
+      if (c.backgroundColor !== 'rgb(31, 77, 64)') out.push(`chosen path "${(radio.textContent ?? '').trim()}" is ${c.backgroundColor}, not forest`);
+    }
     return [...new Set(out)];
   }, phone);
+}
+
+/** The page arrives as the step page does: its blocks rise in (brand v1), unless reduced motion is asked for. */
+function riseFindings(page: Page) {
+  return page.evaluate(() => {
+    const h1 = document.querySelector('h1');
+    if (!h1) return ['no h1'];
+    for (let e: Element | null = h1; e && e !== document.body; e = e.parentElement) if (getComputedStyle(e).animationName.includes('aim-rise')) return [];
+    return ['the page’s blocks do not rise in on arrival'];
+  });
+}
+
+/** Keyboard focus is visible on the first control in the page (an outline or a ring). */
+async function focusFindings(page: Page) {
+  const control = page.locator('main button:visible, main a[href]:visible, [data-step-page] button:visible').first();
+  if (!(await control.count())) return [];
+  await control.focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  return page.evaluate(() => {
+    const el = document.activeElement as HTMLElement | null;
+    if (!el || el === document.body) return [];
+    const c = getComputedStyle(el);
+    const ring = (c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 2) || /\d+px \d+px 0px \d+px|0px 0px 0px [1-9]/.test(c.boxShadow);
+    return ring ? [] : [`focus on "${(el.textContent ?? '').trim().slice(0, 32)}" draws no ring`];
+  });
 }
 
 test.describe('the step page’s rules on every learner page (D-214) @g9', () => {
@@ -213,6 +272,10 @@ test.describe('the step page’s rules on every learner page (D-214) @g9', () =>
       test(`${screen.name} at ${width}`, async ({ browser }) => {
         const page = await open(browser, screen, width, 'reduce');
         expect(await systemFindings(page, width < 768)).toEqual([]);
+        expect(await focusFindings(page)).toEqual([]);
         await page.context().close();
+        const moving = await open(browser, screen, width, 'no-preference');
+        expect(await riseFindings(moving)).toEqual([]);
+        await moving.context().close();
       });
 });

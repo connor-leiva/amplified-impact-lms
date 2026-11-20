@@ -7003,3 +7003,25 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **The shell's own buttons:** these took the body's weight and pressed to .97. They now use Geist 500 and the brand press (.96, spring back).
 
   `polish.test.ts` now also checks that no learner stylesheet lifts on hover.
+
+## D-215 · The brand motion on every learner page, and the wider page-by-page check
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-214.
+**Number:** D-214 is the builder sync and the first page-by-page check.
+
+- **The motion now runs on every learner page.** It used to run only on the step page.
+  - **Why it didn't.** The brand's motion file (`ai-motion.css`, byte for byte) loaded only with the step page, so on every other page its tokens (`--aim-ease`, `--aim-dur-*`, `--aim-rise`, `--aim-stagger`) were undefined. Every rise, press and transition written with them fell back to none. And a CSS module renames the animation names it uses, so the blocks' `aim-rise` pointed at a keyframe that did not exist.
+  - **The fix.** The learner shell, and the builder's preview of a week, load the brand file. Learn, Vault and Team Hub each declare the brand's rise frames for their own blocks. The frames are the same as the brand file's.
+  - **What's unaffected.** Today's portal and the `/__tokens` page never load the learner shell, so the token check is unchanged.
+- **Weeks or Calendar on the Schedule** is the step page's segmented control: a surface pill with a hairline, and the chosen view in forest.
+- **On a phone, an announcement's action sits under its words.** Dismiss stays on the first line, so the words are no longer squeezed beside the button.
+- **The page-by-page check (`learn-v2-system.spec.ts`) asserts more of the step page's rules on all 18 pages at 1440 and 390.** It now also checks:
+  - **section headings outside a card:** 650 25px (20px on a phone outside the step page);
+  - **the line under the title:** the purpose line, 20px (18 to 20px on a phone);
+  - **segmented controls:** the chosen side of every one (Claude/ChatGPT, Weeks/Calendar) is forest;
+  - **keyboard focus:** it draws a visible ring;
+  - **arrival:** the page's blocks rise in, unless motion is reduced.
+
+  The Team Plan window is checked with words staff wrote in Course settings, because the window draws nothing of its own. All 36 checks pass.
+- **Reviewed by eye.** Every one of the 18 pages was screenshot at both widths and reviewed against the step page.

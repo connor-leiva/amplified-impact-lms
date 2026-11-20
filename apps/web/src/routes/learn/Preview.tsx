@@ -9,6 +9,9 @@ import { MemoryRouter, useInRouterContext } from 'react-router';
 import type { Db } from '@ai/core';
 import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
+// D-214: the brand's motion tokens and rise (Amplified Impact Motion v1), for every page in the learner frame,
+// not only the step page: the pages' rises, presses and transitions read them.
+import '../../components/motion/ai-motion.css';
 import { ToasterProvider } from '../../components/primitives/Toaster';
 import type { Viewer } from '../../data/repository';
 import { ConfettiProvider } from '../../shell/Confetti';
