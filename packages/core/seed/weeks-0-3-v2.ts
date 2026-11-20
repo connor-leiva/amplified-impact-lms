@@ -18,6 +18,7 @@
 
 import { ACCELERATOR_COHORT_ID, LIBRARY_ORIGIN, acceleratorModuleId, buildSessionId } from '../src/accelerator';
 import type { AgendaItem, CourseWeek, ModuleCourse, PlaybookCard, SeatCard } from '../src/course-types';
+import { courseWithoutRetired } from '../src/course-retired';
 import { courseGuideUrl } from '../src/skill-guides';
 import type { AIEmployee, Session, Step } from '../src/types';
 import { ACCELERATOR_INSTRUCTOR, OFFICE_HOURS_FORMAT, OFFICE_HOURS_MINS, OWNER_APPROVAL, WEEK_TIME, weekModule } from './accelerator-v1';
@@ -589,7 +590,7 @@ export function weekModuleV2(n: 0 | 1 | 2 | 3, instructor: string = ACCELERATOR_
       return pending ? `- ${pending.title}: coming with Week 1, in the Library` : line;
     })
     .join('\n');
-  return structuredClone({ ...m, prompt, kind: 'week' as const, course: { ...words, ...cardsOf(n) } });
+  return structuredClone({ ...m, prompt, kind: 'week' as const, course: courseWithoutRetired({ ...words, ...cardsOf(n) }) });
 }
 
 /** The ids the step writes. */

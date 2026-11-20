@@ -11,6 +11,8 @@ import { copyIssues } from '../src/course-rules';
 import { SEED_COPY, seedProduction } from '../seed/curriculum';
 import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan-v1';
 import { PROMISE_V1, planPromiseV1 } from '../seed/promise-v1';
+import { UNSHOWN_V1, planUnshownV1 } from '../seed/unshown-v1';
+import { courseWithoutRetired, hasRetired } from '../src/course-retired';
 import { weekModuleV2 } from '../seed/weeks-0-3-v2';
 
 const prod = (): Db => seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
@@ -175,5 +177,49 @@ describe('the retired promise (D-220)', () => {
     expect(again.changes).toEqual([]);
     expect(again.db).toBe(out.db);
     expect(PROMISE_V1).toBe('2026-11-20-promise-retired');
+  });
+});
+
+// D-221: the old setup order and a kit skill's use line, which no learner page draws, are cleared; nothing else.
+describe('the unshown course fields (D-221)', () => {
+  it('today’s seed writes neither, nor a promise: every week is free of retired fields', () => {
+    for (const m of prod().modules) expect(hasRetired(m.course!), m.id).toBe(false);
+    for (const n of [0, 1, 2, 3] as const) expect(hasRetired(weekModuleV2(n).course!)).toBe(false);
+  });
+
+  it('clears both from every week that still has them, keeps every other word, and is a no-op the second time', () => {
+    const db = prod();
+    // As production stored the weeks: each with a setup order and a use line on each kit skill, one with a promise.
+    const stored = structuredClone(db);
+    stored.modules.forEach((m, i) => {
+      if (!m.course) return;
+      m.course.setup = [{ text: `Open the week ${i} kit.`, route: '/map-your-spend' }];
+      m.course.skills = m.course.skills.map((k) => ({ ...k, use: `What ${k.title} does.` }));
+      if (i === 0) m.course.promise = 'A promise this step leaves to D-220.';
+    });
+    const out = planUnshownV1(stored);
+    expect(out.skipped).toEqual([]);
+    expect(out.changes.map((c) => c.target.id)).toEqual(stored.modules.filter((m) => m.course).map((m) => m.id));
+    expect(out.changes[0]!.after).toEqual({ setup: null, skillUses: 0 });
+    for (const m of out.db.modules) {
+      const before = stored.modules.find((x) => x.id === m.id)!;
+      expect(m.course!.setup).toBeUndefined();
+      expect(m.course!.skills.every((k) => k.use === undefined)).toBe(true);
+      // Everything else is as it was, the promise included (its own step clears it).
+      const { setup: _s, ...rest } = before.course!;
+      expect(m.course).toEqual({ ...rest, skills: rest.skills.map(({ use: _u, ...k }) => k) });
+    }
+    expect(out.db.modules[0]!.course!.promise).toBe('A promise this step leaves to D-220.');
+    const again = planUnshownV1(out.db);
+    expect(again.changes).toEqual([]);
+    expect(again.db).toBe(out.db);
+    expect(UNSHOWN_V1).toBe('2026-11-20-unshown-course-fields');
+  });
+
+  it('courseWithoutRetired drops the promise, the setup order and each use line, and returns a clean course as is', () => {
+    const c = prod().modules[1]!.course!;
+    expect(courseWithoutRetired(c)).toBe(c);
+    const dirty = { ...c, promise: 'x', setup: [{ text: 'y' }], skills: c.skills.map((k) => ({ ...k, use: 'z' })) };
+    expect(courseWithoutRetired(dirty)).toEqual(c);
   });
 });

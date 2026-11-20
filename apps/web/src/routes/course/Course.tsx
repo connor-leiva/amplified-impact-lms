@@ -284,7 +284,7 @@ function Week({ vm }: { vm: WeekVM }) {
                   <span className={s.tag}>{k.role}</span>
                   {k.free ? <span className={s.badge}>{COPY.free}</span> : null}
                 </span>
-                <span className={s.text}>{k.use}</span>
+                {k.use ? <span className={s.text}>{k.use}</span> : null}
               </div>
               {k.href ? (
                 <a className={s.secondary} href={k.href} {...newTab(k.href)}>
@@ -306,43 +306,45 @@ function Week({ vm }: { vm: WeekVM }) {
       </Section>
 
       <Section id="setup" title={COPY.setup}>
-        <ol className={s.steps}>
-          {vm.setup.map((step) => (
-            <li key={step.n} className={s.step}>
-              <span className={s.stepN}>{step.n}</span>
-              <span className={s.stepText}>
-                {step.text}
-                {step.links.length === 1 ? (
-                  <>
-                    {' '}
-                    <a href={step.links[0]!.href} {...newTab(step.links[0]!.href)}>
-                      {step.links[0]!.label}
-                    </a>
-                  </>
-                ) : step.links.length > 1 ? (
-                  <>
-                    {' '}
-                    {COPY.guidedSetups}{' '}
-                    {step.links.map((l, i) => (
-                      <Fragment key={l.href}>
-                        {i ? ' · ' : ''}
-                        <a href={l.href} {...newTab(l.href)}>
-                          {l.label}
-                        </a>
-                      </Fragment>
-                    ))}
-                  </>
-                ) : null}
-                {step.pending ? (
-                  <>
-                    {' '}
-                    <span className={s.tag}>{step.pending}</span>
-                  </>
-                ) : null}
-              </span>
-            </li>
-          ))}
-        </ol>
+        {vm.setup.length > 0 ? (
+          <ol className={s.steps}>
+            {vm.setup.map((step) => (
+              <li key={step.n} className={s.step}>
+                <span className={s.stepN}>{step.n}</span>
+                <span className={s.stepText}>
+                  {step.text}
+                  {step.links.length === 1 ? (
+                    <>
+                      {' '}
+                      <a href={step.links[0]!.href} {...newTab(step.links[0]!.href)}>
+                        {step.links[0]!.label}
+                      </a>
+                    </>
+                  ) : step.links.length > 1 ? (
+                    <>
+                      {' '}
+                      {COPY.guidedSetups}{' '}
+                      {step.links.map((l, i) => (
+                        <Fragment key={l.href}>
+                          {i ? ' · ' : ''}
+                          <a href={l.href} {...newTab(l.href)}>
+                            {l.label}
+                          </a>
+                        </Fragment>
+                      ))}
+                    </>
+                  ) : null}
+                  {step.pending ? (
+                    <>
+                      {' '}
+                      <span className={s.tag}>{step.pending}</span>
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : null}
         <Downloads items={vm.downloads} />
       </Section>
 

@@ -19,6 +19,7 @@ import { GLOSSARY_V1, planGlossaryV1 } from '@ai/core/seed/glossary-v1';
 import { INTAKE_V1, planIntakeV1 } from '@ai/core/seed/intake-v1';
 import { STACK_V1, planStackV1 } from '@ai/core/seed/stack-v1';
 import { PROMISE_V1, planPromiseV1 } from '@ai/core/seed/promise-v1';
+import { UNSHOWN_V1, planUnshownV1 } from '@ai/core/seed/unshown-v1';
 import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
@@ -85,6 +86,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: PROMISE_V1,
     describe: 'The retired promise, a second copy of each week’s outcome that nothing showed, cleared (D-220)',
     plan: planPromiseV1,
+  },
+  {
+    id: UNSHOWN_V1,
+    describe: 'The old setup order and each kit skill’s use line, which no learner page draws, cleared (D-221)',
+    plan: planUnshownV1,
   },
 ];
 

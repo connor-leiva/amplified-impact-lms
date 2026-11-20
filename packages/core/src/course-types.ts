@@ -18,8 +18,12 @@ export interface CourseSkill {
   title: string;
   route: string;
   role: SkillRole;
-  /** What it does for this week, in one line. */
-  use: string;
+  /**
+   * D-221: retired. The first seed's one line on what the skill does this week. Only the old course page drew
+   * it, and that page no longer reaches learners (they read the skill's own Library page). Nothing writes it;
+   * a builder save drops it, and `2026-11-20-unshown-course-fields` cleared it from stored weeks.
+   */
+  use?: string;
   /** Free to everyone, as the Library has it. */
   free?: boolean;
 }
@@ -309,7 +313,11 @@ export interface ModuleCourse {
   operator: string;
   time: { owner: string; operator: string };
   skills: CourseSkill[];
-  setup: SetupStep[];
+  /**
+   * D-221: retired. The old course page's Setup Order. The week's steps replaced it (parity K-5), and that page
+   * no longer reaches learners. Nothing writes it; a builder save drops it, and a data step cleared it.
+   */
+  setup?: SetupStep[];
   liveBuild: LiveBuildPage | null;
   officeHours: OfficeHoursPage | null;
   homework: Homework;

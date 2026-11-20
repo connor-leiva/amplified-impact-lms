@@ -121,7 +121,8 @@ export const COPY = {
   notFound: 'There’s no such week. Here’s the whole course.',
 } as const;
 
-const ROLE_LABEL: Record<SkillRole, string> = {
+/** A kit skill's role, as the week page tags it. The builder's Kit skills card offers the same words (D-221). */
+export const ROLE_LABEL: Readonly<Record<SkillRole, string>> = {
   flagship: 'Flagship',
   supporting: 'Supporting',
   optional: 'Optional Extension',
@@ -297,7 +298,7 @@ const comingText = (copy: Record<string, string> | undefined): string | null => 
 export const skillVM = (s: CourseSkill, copy: Record<string, string> | undefined): SkillVM => {
   // A skill's guided setup in learn (D-151); a page that is not a skill is still on www.
   const href = inLibrary(s.route) ? guideHref(s.route) : null;
-  return { title: s.title, role: ROLE_LABEL[s.role], use: s.use, free: !!s.free, href, pending: href ? null : comingText(copy) };
+  return { title: s.title, role: ROLE_LABEL[s.role], use: s.use ?? '', free: !!s.free, href, pending: href ? null : comingText(copy) };
 };
 
 /** `Week 3 · Live Build` or `Week 3 · Office Hours`, and the goal-planning title where it is one. */
@@ -360,7 +361,8 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     timeNote: shared.estimateNote,
     skills: w.skills.map((k) => skillVM(k, p.copy)),
     libraryHref: SKILL_LIBRARY_PATH,
-    setup: w.setup.map((step, k) => ({
+    // D-221: the setup order is retired; a week stored before the step that cleared it may still carry one.
+    setup: (w.setup ?? []).map((step, k) => ({
       n: k + 1,
       text: step.text,
       links: setupLinks(step, w.skills),

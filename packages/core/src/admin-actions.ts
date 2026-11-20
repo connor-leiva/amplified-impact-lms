@@ -24,6 +24,7 @@ import { MutationError, publishReplay, saveModule, uploadResource } from './muta
 import { UPLOAD_POLICY, fileSizeLabel, isUploadKey, isUploadType, nameMatchesType } from './uploads';
 import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
+import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
@@ -172,8 +173,10 @@ const moduleSummary = (m: AIEmployee) => ({
  * `c{n}`), then one `module.save` audit row. Nothing else of a learner's progress is touched.
  */
 export function saveBuilderModule(db: Db, a: Actor, given: { draft: AIEmployee; status?: ModuleStatus }, c: Ctx): AdminOutcome {
-  // D-220: the retired promise (a second copy of the outcome learners read) is dropped, never stored again.
-  const args = given.draft.course?.promise === undefined ? given : { ...given, draft: withoutPromise(given.draft) };
+  // D-220, D-221: the retired course fields (the promise, the old setup order, a kit skill's use line) are
+  // dropped, never stored again.
+  const draft = withoutRetired(given.draft);
+  const args = draft === given.draft ? given : { ...given, draft };
   const stored = db.modules.find((m) => m.id === args.draft.id) ?? null;
   // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
   // never refuses it. Checked before `saveModule`, so a refusal writes nothing.

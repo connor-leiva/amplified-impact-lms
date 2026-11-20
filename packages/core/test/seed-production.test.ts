@@ -174,7 +174,11 @@ describe('a fresh database and the seed are what main served (D-173)', () => {
   // The fixtures were written from main's code (courseContent, acceleratorModules, acceleratorSessions,
   // acceleratorCohort) before the words moved into the seed, so this is the move's proof of no change.
   it('serves the same course, week for week, field for field', () => {
-    expect(courseFromSnapshot(prod())).toEqual(fixture('course.json'));
+    // D-221: the seed no longer writes the old setup order or a kit skill's use line, which no learner page
+    // draws. Every other field is main's, word for word.
+    const main = fixture('course.json') as { weeks: { setup?: unknown; skills: { use?: unknown }[] }[] };
+    const retired = { ...main, weeks: main.weeks.map(({ setup: _s, ...w }) => ({ ...w, skills: w.skills.map(({ use: _u, ...k }) => k) })) };
+    expect(courseFromSnapshot(prod())).toEqual(retired);
   });
 
   it('holds the same nine modules, sixteen sessions and cohort, plus only the new columns', () => {

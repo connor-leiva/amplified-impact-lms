@@ -14,7 +14,7 @@
 import { useId, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
-import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
+import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, CourseSkill, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, SkillRole, VideoBlock } from '@ai/core/course-types';
 import { titleWords } from '@ai/core/checklist';
 import { chapterText, parseChapters } from '@ai/core';
 import { isVideoUpload } from '@ai/core/course-types';
@@ -27,8 +27,10 @@ import { Confirm, Modal } from '../../components/r2/Modal';
 import { KV, Pill, Sel, Tabs, TextArea, k } from '../../components/r2/kit';
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
+import { ROLE_LABEL } from '../course/Course.vm';
 import { LearnerWeekPreview } from '../learn/Preview';
 import { IntakeCard } from './IntakeCard';
+import { StackCard } from './StackCard';
 import { TextBlock } from './TextBlock';
 import { RichField } from './RichField';
 import { useNow } from '../../data/hooks';
@@ -862,10 +864,12 @@ export function WeekCards(props: WeekCardsProps) {
     <>
       <CoursePageCard {...props} />
       <IntakeCard {...props} />
+      <StackCard {...props} />
       <AgendaCard {...props} which="liveBuild" />
       <AgendaCard {...props} which="officeHours" />
       <HireCardsCard {...props} />
       <WeekSessionsCard {...props} />
+      <SkillsCard {...props} />
       <KitCard {...props} />
     </>
   );
@@ -1421,6 +1425,87 @@ function WeekSessionsCard({ db, draft, act }: WeekCardsProps) {
           onConfirm={() => void act('deleteSession', { id: del.id })}
           onClose={() => setDel(null)}
         />
+      ) : null}
+    </Card>
+  );
+}
+
+// --- the week's kit skills (saved with the module) ------------------------------------------------
+
+/**
+ * D-221: the Library skills a week's kit lists. The week page tags each with its role and Free, a step that
+ * links one shows it in its aside, and a built week's run button opens the flagship's page.
+ */
+function SkillsCard({ draft, up }: WeekCardsProps) {
+  const [at, setOpenAt] = useState<number | null>(null);
+  const rows = draft.course.skills;
+  const setRows = (next: CourseSkill[]) =>
+    up((d) => {
+      d.course!.skills = next;
+    });
+  const row = at !== null ? rows[at] : undefined;
+  return (
+    <Card
+      title={`Kit skills · ${rows.length}`}
+      pad={false}
+      right={
+        <Button
+          kind="quiet"
+          icon="r2Plus"
+          onClick={() => {
+            setRows([...rows, { title: '', route: '', role: 'supporting' }]);
+            setOpenAt(rows.length);
+          }}
+        >
+          Add skill
+        </Button>
+      }
+    >
+      {rows.length === 0 ? <p className={clsx(k.p, k.mu, w.pad)}>No skills in this week’s kit yet.</p> : null}
+      {rows.map((x, i) => (
+        <Row
+          key={i}
+          label={`kit skill ${i + 1}`}
+          onEdit={() => setOpenAt(i)}
+          movable
+          onUp={i > 0 ? () => setRows(moveBy(rows, i, -1)) : undefined}
+          onDown={i < rows.length - 1 ? () => setRows(moveBy(rows, i, 1)) : undefined}
+          onRemove={() => setRows(removeAt(rows, i))}
+        >
+          <b>{x.title || 'Untitled'}</b>
+          <span className={clsx(k.me, w.sub)}>{[ROLE_LABEL[x.role], x.free ? 'Free' : null, x.route || null].filter(Boolean).join(' · ')}</span>
+        </Row>
+      ))}
+      {row && at !== null ? (
+        <Modal
+          title={`Kit skill ${at + 1}`}
+          onClose={() => setOpenAt(null)}
+          foot={
+            <Button kind="primary" onClick={() => setOpenAt(null)}>
+              Done
+            </Button>
+          }
+        >
+          <Line label="Skill title" value={row.title} onChange={(v) => setRows(setAt(rows, at, { ...row, title: v }))} />
+          <Line
+            label="Library route"
+            value={row.route}
+            hint="The skill’s Library page, like /map-your-spend. A page not built yet shows as coming."
+            onChange={(v) => setRows(setAt(rows, at, { ...row, route: v.trim() }))}
+          />
+          <Choice<SkillRole> label="Role" value={row.role} options={ROLE_LABEL} onChange={(v) => v && setRows(setAt(rows, at, { ...row, role: v }))} />
+          <label className={clsx(k.row, k.nw, w.check)}>
+            <input
+              type="checkbox"
+              checked={!!row.free}
+              onChange={(e) => {
+                const { free: _f, ...rest } = row;
+                setRows(setAt(rows, at, e.target.checked ? { ...rest, free: true } : rest));
+              }}
+            />
+            Free
+          </label>
+        </Modal>
       ) : null}
     </Card>
   );

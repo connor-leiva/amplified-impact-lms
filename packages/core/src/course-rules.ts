@@ -178,8 +178,8 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
   }
   for (const field of intakeCopy(c.intake)) push(out, field.path, field.label, field.text);
   for (const field of stackCopy(c.stackCard)) push(out, field.path, field.label, field.text);
-  c.skills.forEach((s, i) => push(out, `course.skills[${i}].use`, `Skill ${i + 1}, use`, s.use));
-  c.setup.forEach((s, i) => push(out, `course.setup[${i}].text`, `Setup step ${i + 1}`, s.text));
+  // D-221: a kit skill's title, as the week page and a step's aside show it.
+  c.skills.forEach((s, i) => push(out, `course.skills[${i}].title`, `Kit skill ${i + 1}`, s.title));
   if (c.liveBuild) {
     const lb = c.liveBuild;
     lb.agenda.forEach((a, i) => {

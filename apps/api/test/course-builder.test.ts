@@ -67,6 +67,9 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
     draft.checklist[0]!.paths = { claude: { blocks: [{ type: 'copy', label: 'Prompt', text: 'Read my lead source export.' }] }, chatgpt: { blocks: [{ type: 'text', text: 'Open a new chat.' }] } };
     draft.checklist[0]!.openInPreview = true;
     draft.course!.promise = 'Know which sources pay.';
+    // D-221: an older draft's retired setup order and use lines go too.
+    draft.course!.setup = [{ text: 'Open the kit.' }];
+    draft.course!.skills = draft.course!.skills.map((k) => ({ ...k, use: 'What it does.' }));
     draft.course!.seatCard = { seat: 'Lead Desk Monitor', reportsTo: 'Owner', runs: 'Every Monday', pulls: 'Lead sources', applies: 'Your rules', produces: 'A source report', tookOver: 'The Monday tally', cantDo: 'Send email or post anywhere' };
     draft.course!.playbookCard = { number: '2', question: 'Which sources pay?', play: 'Cut the bottom source.', signedOff: true };
     draft.course!.sampleOutput = { title: 'Source report', madeUpLabel: 'Made-up data', blocks: [{ type: 'table', head: ['Source', 'Cost per closing'], rows: [['Zillow', '$4,100']] }] };
@@ -86,7 +89,29 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
     expect(m).toMatchObject({ name: 'Leads That Pay', icon, tone: 'violet', dueAt: draft.dueAt });
     // D-220: the retired promise an older draft still carries is dropped on save; the outcome is the one copy.
     expect(m.course!.promise).toBeUndefined();
+    expect(m.course!.setup).toBeUndefined();
+    expect(m.course!.skills.every((k) => k.use === undefined)).toBe(true);
     expect(m.course).toMatchObject({ seatCard: draft.course!.seatCard, playbookCard: draft.course!.playbookCard, sampleOutput: draft.course!.sampleOutput, lockedCopy: draft.course!.lockedCopy, statusLabels: draft.course!.statusLabels });
+    expect(await auditActions()).toEqual(['module.save']);
+  });
+
+  it('a week’s kit skills and Week 0’s stack card (D-221)', { timeout: 180_000 }, async () => {
+    const W0 = ACCELERATOR_MODULE_IDS[0]!;
+    const draft = structuredClone((await loadDb()).modules.find((m) => m.id === W0)!);
+    draft.course!.skills = [
+      { title: 'Lead Source Review', route: '/lead-source-review', role: 'flagship', free: true },
+      { title: 'AI Brain Setup', route: '/ai-brain-setup', role: 'supporting' },
+    ];
+    draft.course!.stackCard = {
+      sources: [{ id: 'books', name: 'Books', green: 'Read-only export', yellow: 'A CSV each month' }],
+      exampleLabel: 'Made up',
+      exampleTeam: 'Northline Realty',
+      example: [{ source: 'Books', tool: 'QuickBooks Online', plan: 'green', who: 'The bookkeeper' }],
+    };
+    await ok('saveBuilderModule', { draft });
+    const week = (await course()).course.weeks.find((w) => w.week === 0)!;
+    expect(week.skills).toEqual(draft.course!.skills);
+    expect((week as { stackCard?: unknown }).stackCard).toEqual(draft.course!.stackCard);
     expect(await auditActions()).toEqual(['module.save']);
   });
 

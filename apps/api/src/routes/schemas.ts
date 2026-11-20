@@ -63,7 +63,8 @@ const isoTime = z.string().regex(/^\d{2}:\d{2}$/, 'Expected HH:MM');
 // would replace the module without its words.
 
 const skillRole = z.enum(['flagship', 'supporting', 'optional', 'pilot', 'alternative']);
-const courseSkill = z.strictObject({ title: z.string(), route: z.string(), role: skillRole, use: z.string(), free: z.boolean().optional() });
+// D-221: `use` is retired (an older draft may still carry it; a save drops it).
+const courseSkill = z.strictObject({ title: z.string(), route: z.string(), role: skillRole, use: z.string().optional(), free: z.boolean().optional() });
 const setupStep = z.strictObject({ text: z.string(), route: z.string().optional(), also: z.array(z.string()).optional() });
 const agendaItem = z.strictObject({ from: z.number(), to: z.number(), activity: z.string(), why: z.string() });
 const liveBuildPage = z.strictObject({
@@ -229,7 +230,7 @@ const moduleCourse = z.strictObject({
   operator: z.string(),
   time: z.strictObject({ owner: z.string(), operator: z.string() }),
   skills: z.array(courseSkill),
-  setup: z.array(setupStep),
+  setup: z.array(setupStep).optional(), // D-221: retired; a save drops it
   liveBuild: liveBuildPage.nullable(),
   officeHours: officeHoursPage.nullable(),
   homework,

@@ -12,13 +12,18 @@
 //
 // Not `/api/health` itself: that is Railway's healthcheck and deliberately touches nothing, so a slow
 // database can never fail a deploy through it.
+//
+// D-221: two more counts, so a deploy's one-time data steps can be confirmed from outside too: how many have
+// run (rows of `data_migrations`, ids only, never their reports), and how many course weeks still hold a
+// field those steps retire (the promise, the old setup order, a kit skill's use line). Still counts only.
 
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from '@ai/core/accelerator';
+import { hasRetired } from '@ai/core/course-retired';
 import type { ModuleCourse } from '@ai/core/course-types';
 import { getDb } from '../db/client';
-import { cohorts, modules, sessions } from '../db/schema';
+import { cohorts, dataMigrations, modules, sessions } from '../db/schema';
 
 export const CURRICULUM_STATUS_PATH = '/api/health/curriculum';
 
@@ -32,6 +37,10 @@ export interface CurriculumStatus {
   /** Of the sessions the weeks' pages name, how many exist in cohort `dec26`. */
   sessions: number;
   expected: { modules: number; sessions: number };
+  /** D-221: how many one-time data steps have run on this database. */
+  steps: number;
+  /** D-221: how many of the course's weeks still hold a retired field. 0 once the steps have run. */
+  retired: number;
 }
 
 /** The session ids a week's live-build and office-hours pages name. */
@@ -40,10 +49,11 @@ const namedSessions = (course: ModuleCourse | null): string[] =>
 
 export async function curriculumStatus(): Promise<CurriculumStatus> {
   const db = getDb();
-  const [cohortRows, weekRows, sessionRows] = await Promise.all([
+  const [cohortRows, weekRows, sessionRows, stepRows] = await Promise.all([
     db.select({ id: cohorts.id, weeks: cohorts.weeks }).from(cohorts).where(eq(cohorts.id, ACCELERATOR_COHORT_ID)),
     db.select({ id: modules.id, status: modules.status, course: modules.course }).from(modules).where(eq(modules.kind, 'week')),
     db.select({ id: sessions.id }).from(sessions).where(eq(sessions.cohortId, ACCELERATOR_COHORT_ID)),
+    db.select({ id: dataMigrations.id }).from(dataMigrations),
   ]);
   // The weeks the course page shows (`courseWeekModules`): the course's own modules. A copy made with
   // the builder's Duplicate carries `kind: 'week'` too, but it is not in the course, so it is not counted.
@@ -61,6 +71,8 @@ export async function curriculumStatus(): Promise<CurriculumStatus> {
     published,
     sessions: sessionsFound,
     expected,
+    steps: stepRows.length,
+    retired: moduleRows.filter((m) => m.course && hasRetired(m.course as ModuleCourse)).length,
   };
 }
 
