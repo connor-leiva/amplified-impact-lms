@@ -25,7 +25,7 @@ import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome, learnStep } from './routes';
-import { STEP_PAGE_V6, v6StepAt } from './step-page/v6';
+import { v6StepAt } from './step-page/v6';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
@@ -33,7 +33,9 @@ import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
 /** D-210: the v6 step page, in its own chunk with its stylesheets, built only with VITE_STEP_PAGE_V6=true. */
-const StepPageV6 = STEP_PAGE_V6 ? lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute }))) : null;
+// Read straight off import.meta.env so a build without the flag folds this to null and drops the chunk.
+const StepPageV6 =
+  import.meta.env.VITE_STEP_PAGE_V6 === 'true' ? lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute }))) : null;
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {

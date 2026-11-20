@@ -7,7 +7,7 @@
 //   node diff/piece-review.mjs --target <url> --storage-state <auth.json>
 //        [--reset "<command>"]   run before the target loads and after every state that writes (ticks a box,
 //                                marks the step done); required for a deployed page, never a real buyer
-//        [--widths 1280,390] [--pieces back,pills] [--out results/pieces/] [--chrome /usr/bin/google-chrome]
+//        [--widths 1280,390] [--pieces back,pills] [--out results/pieces/] [--port 4181] [--chrome /usr/bin/google-chrome]
 //
 // Hover states are skipped at 640 px and under (phones have no hover), as test A does. The review-only fixtures
 // (MOCKUP bar, Text styles link and section) are added to the target first (fixtures.mjs), so both pages line up.
@@ -24,7 +24,7 @@ import { addFixtures } from './fixtures.mjs';
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
 const here = fileURLToPath(new URL('.', import.meta.url));
 const OUT = arg('out', here + '../results/pieces/');
-const PORT = 4181;
+const PORT = Number(arg('port', 4181));
 let srv = null;
 let target = arg('target'), reference = arg('reference');
 if (!target || !reference) srv = await serve(PORT);
