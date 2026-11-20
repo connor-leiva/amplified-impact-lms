@@ -38,12 +38,46 @@ function useSpyMarker(navRef: RefObject<HTMLElement | null>, spy: string | null)
   return { style, live };
 }
 
+/**
+ * D-223: where the sticky rail pins. A rail that fits keeps the CSS's top (24px). A taller one pins by its bottom
+ * instead (a negative top), so the end of the main column never pushes it up: before this, opening a Reference
+ * row at the foot of the page lengthened the column and the rail snapped back down. Measured again whenever the
+ * rail's height or the window changes; below 1100px the rail is static and this top does nothing.
+ */
+function useRailTop(railRef: RefObject<HTMLElement | null>): number | undefined {
+  const [top, setTop] = useState<number | undefined>(undefined);
+  useLayoutEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const place = () => {
+      const grid = rail.parentElement;
+      const page = rail.closest('.page') ?? grid;
+      if (!grid || !page) return;
+      // The room under the grid at the page's end (its bottom padding): the rail stays clear of it.
+      const below = Math.max(0, page.getBoundingClientRect().bottom - grid.getBoundingClientRect().bottom);
+      const fit = Math.floor(window.innerHeight - rail.offsetHeight - below);
+      setTop(fit >= 24 ? undefined : fit);
+    };
+    place();
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
+    ro?.observe(rail);
+    window.addEventListener('resize', place);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', place);
+    };
+  }, [railRef]);
+  return top;
+}
+
 export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: string | null; checked: Record<string, boolean>; labels: SpLabels }) {
   const noop = (href: string) => (href === '#' ? (e: MouseEvent) => e.preventDefault() : undefined);
   const navRef = useRef<HTMLElement | null>(null);
+  const railRef = useRef<HTMLElement | null>(null);
   const marker = useSpyMarker(navRef, spy);
+  const railTop = useRailTop(railRef);
   return (
-    <aside className="rail" aria-label="On this step">
+    <aside className="rail" aria-label="On this step" ref={railRef} style={railTop === undefined ? undefined : { top: railTop }}>
       {/* A step with nothing to jump to, no checklist and no due line has no "On this page" card. */}
       {step.jumps.length > 0 || step.items.length > 0 || step.due ? (
       <nav className="card aim-rise" style={{ '--i': 2 } as MotionStyle} aria-label={labels.onThisPage} ref={navRef}>

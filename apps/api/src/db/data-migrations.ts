@@ -20,6 +20,7 @@ import { INTAKE_V1, planIntakeV1 } from '@ai/core/seed/intake-v1';
 import { STACK_V1, planStackV1 } from '@ai/core/seed/stack-v1';
 import { PROMISE_V1, planPromiseV1 } from '@ai/core/seed/promise-v1';
 import { UNSHOWN_V1, planUnshownV1 } from '@ai/core/seed/unshown-v1';
+import { FIVE_WORDS_V1, planFiveWordsV1 } from '@ai/core/seed/five-words-v1';
 import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
@@ -91,6 +92,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: UNSHOWN_V1,
     describe: 'The old setup order and each kit skill’s use line, which no learner page draws, cleared (D-221)',
     plan: planUnshownV1,
+  },
+  {
+    id: FIVE_WORDS_V1,
+    describe: 'Week 0 step 2: Know these five words opens its definitions in the task, not in a table under it (D-223)',
+    plan: planFiveWordsV1,
   },
 ];
 
