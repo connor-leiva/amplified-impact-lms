@@ -279,3 +279,85 @@ test.describe('the step page’s rules on every learner page (D-214) @g9', () =>
         await moving.context().close();
       });
 });
+
+/**
+ * D-216: each learner page's components compared with the step page's own. The step page (Week 0, step 4) is
+ * measured first; every primary button, secondary button, card, title and eyebrow on every other page must
+ * compute to the same type, colour, radius, border and shadow as the step page's.
+ */
+type Fingerprint = Record<string, Record<string, string>>;
+function fingerprints(page: Page) {
+  return page.evaluate(() => {
+    const seen = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return false;
+      for (let e: Element | null = el; e; e = e.parentElement) {
+        const cs = getComputedStyle(e);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false;
+      }
+      return true;
+    };
+    const family = (cs: CSSStyleDeclaration) => cs.fontFamily.split(',')[0]!.replace(/["']/g, '').trim();
+    const out: { kind: string; name: string; style: Record<string, string> }[] = [];
+    const root = document.querySelector('[data-step-page]') ?? document.querySelector('main') ?? document.body;
+    for (const el of root.querySelectorAll('button, a')) {
+      if (!seen(el) || el.closest('[aria-hidden="true"], header, aside, [role="radiogroup"], nav')) continue;
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      const text = (el.textContent ?? '').trim();
+      if (!text || r.height < 36 || r.height > 64 || el.matches('[aria-current], [aria-pressed], [role="tab"]')) continue;
+      const name = text.slice(0, 32);
+      if (cs.backgroundColor === 'rgb(31, 77, 64)')
+        out.push({ kind: 'primary', name, style: { family: family(cs), weight: cs.fontWeight, color: cs.color, radius: cs.borderTopLeftRadius } });
+      else if (cs.backgroundColor === 'rgb(255, 255, 255)' && cs.borderTopStyle === 'solid' && parseFloat(cs.borderTopLeftRadius) === 8)
+        out.push({ kind: 'secondary', name, style: { family: family(cs), weight: cs.fontWeight, color: cs.color, border: cs.borderTopColor } });
+    }
+    for (const el of root.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+      if (cs.backgroundColor !== 'rgb(255, 255, 255)' || cs.borderTopStyle === 'none' || cs.borderTopWidth === '0px') continue;
+      const r = el.getBoundingClientRect();
+      if (parseFloat(cs.borderTopLeftRadius) <= 10 || r.width < 240 || r.height < 64 || !seen(el) || el.matches('button, a, input, textarea, select')) continue;
+      out.push({ kind: 'card', name: `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`, style: { radius: cs.borderTopLeftRadius, border: `${cs.borderTopWidth} ${cs.borderTopColor}` } });
+    }
+    const h1 = [...document.querySelectorAll('h1')].find(seen);
+    if (h1) {
+      const cs = getComputedStyle(h1);
+      out.push({ kind: 'title', name: 'h1', style: { family: family(cs), weight: cs.fontWeight, size: cs.fontSize, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing, color: cs.color } });
+    }
+    for (const el of root.querySelectorAll('p, span, div')) {
+      const cs = getComputedStyle(el);
+      if (cs.textTransform !== 'uppercase' || !/mono/i.test(cs.fontFamily) || !seen(el) || !(el.textContent ?? '').trim()) continue;
+      // A label on a forest panel (the step page's Next card) is the on-forest variant, by design.
+      let onForest = false;
+      for (let e: Element | null = el; e && !onForest; e = e.parentElement) onForest = getComputedStyle(e).backgroundColor === 'rgb(31, 77, 64)';
+      if (onForest) continue;
+      if ([...el.children].some((c) => getComputedStyle(c).textTransform === 'uppercase')) continue;
+      out.push({ kind: 'eyebrow', name: (el.textContent ?? '').trim().slice(0, 24), style: { family: family(cs), weight: cs.fontWeight, letterSpacing: cs.letterSpacing, color: cs.color } });
+    }
+    return out;
+  });
+}
+
+test.describe('every learner page’s components match the step page’s (D-216) @g9', () => {
+  for (const width of [1440, 390])
+    test(`at ${width}`, async ({ browser }) => {
+      test.setTimeout(240000);
+      const stepPage = await open(browser, { name: 'the step page', path: '/learn/week/0/step/4' }, width, 'reduce');
+      const ref: Fingerprint = {};
+      for (const f of await fingerprints(stepPage)) ref[f.kind] ??= f.style;
+      await stepPage.context().close();
+      // The step page itself has a primary, a card, its title and eyebrows; a secondary is read from its Copy box.
+      expect(Object.keys(ref).sort()).toEqual(expect.arrayContaining(['card', 'eyebrow', 'primary', 'title']));
+      const drift: string[] = [];
+      for (const screen of PAGES) {
+        const page = await open(browser, screen, width, 'reduce');
+        for (const f of await fingerprints(page)) {
+          const want = ref[f.kind];
+          if (!want) continue;
+          for (const [k, v] of Object.entries(want)) if (f.style[k] !== v) drift.push(`${screen.name}: ${f.kind} "${f.name}" ${k} is ${f.style[k]}, the step page's is ${v}`);
+        }
+        await page.context().close();
+      }
+      expect([...new Set(drift)]).toEqual([]);
+    });
+});

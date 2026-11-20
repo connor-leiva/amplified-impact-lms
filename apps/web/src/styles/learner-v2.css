@@ -56,6 +56,8 @@
   --r2-bg: #f1f0eb;
   --r2-hov: rgb(31 77 64 / 0.06);
   --r2-forh: color-mix(in oklch, #1f4d40 86%, #0a0d0c);
+  /* D-216: the ink on forest is the step page's (--sp-on-forest), not pure white. */
+  --r2-on-for: #f5f5f2;
   --r2-sh-card: 0 2px 4px rgb(31 77 64 / 0.06);
   --r2-sh-button: 0 2px 4px rgb(31 77 64 / 0.06);
   --r2-sh-lift: 0 8px 16px rgb(31 77 64 / 0.08);
