@@ -181,16 +181,18 @@
 }
 .plus input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .prose { min-height: 96px; }
+/* D-212: the field draws what the learner reads: the v6 step page's long-step paragraph (step-page.css
+   `.prose p`): Geist 16px / 1.5 in ink, 16px between paragraphs. */
 .prose :global(.ProseMirror) {
   outline: none;
   box-sizing: border-box;
   min-height: 96px;
   padding: 12px 14px;
-  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
-  color: var(--r2-f2);
+  font: 400 16px / 1.5 var(--r2-font);
+  color: var(--r2-ink);
 }
 .prose :global(.ProseMirror p) { margin: 0; }
-.prose :global(.ProseMirror p + p) { margin-top: 8px; }
+.prose :global(.ProseMirror p + p) { margin-top: 16px; }
 
 /* The live preview: the learner's course page, in a bordered frame that scrolls on its own. */
 .preview {

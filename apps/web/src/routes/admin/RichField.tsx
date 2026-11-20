@@ -1,4 +1,4 @@
-// The Week Builder's editor (D-209). The field itself shows the styling, in the same type as a
+// The Week Builder's editor (D-209). The field itself shows the styling, in the same type as a v6
 // learner step paragraph. What it stores is sanitized JSON; the plain string is what the copy rules read.
 
 import { useEffect, useRef, useState } from 'react';
