@@ -162,6 +162,10 @@ async function rest(pg) {
   await wait(pg, 400);
 }
 async function shotOf(pg, sel, run) {
+  // Scrolled into view and settled first: the scroll-spy and the springs answer a scroll a frame or more later
+  // (React re-renders after the observer fires), so a shot taken during the scroll would catch them mid-way.
+  await pg.locator(sel).first().scrollIntoViewIfNeeded();
+  await wait(pg, SETTLE);
   const undo = run ? await run(pg) : null;
   const buf = await pg.locator(sel).first().screenshot({ animations: 'disabled', caret: 'hide' });
   if (typeof undo === 'function') await undo();
