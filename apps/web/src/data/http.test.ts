@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { BLOCKED_MESSAGE, MASQUERADE_BLOCKED_EVENT, createHttpRepository, masqueradeRefusal, navigation, signInFor, sitePath } from './http';
+import { BLOCKED_MESSAGE, CHANGED_EVERY_MS, CHANGED_SETTLE_MS, MASQUERADE_BLOCKED_EVENT, RateLimitedError, WRITE_RETRY_MAX_MS, createHttpRepository, masqueradeRefusal, navigation, signInFor, sitePath } from './http';
 
 // Phase 07 § 7.6. The API does not exist yet, which is exactly why this suite matters: it is the
 // contract the endpoints have to satisfy, written down before they are built. Every assertion here
@@ -27,8 +27,10 @@ let streamThrows: Error | null = null;
 let streams: FakeEventSource[] = [];
 
 class FakeEventSource {
+  static readonly CLOSED = 2;
   private readonly listeners = new Map<string, Set<() => void>>();
   closed = false;
+  readyState = 0;
 
   constructor(readonly url: string) {
     if (streamThrows) throw streamThrows;
@@ -161,6 +163,7 @@ describe('HttpRepository @g7', () => {
   });
 
   it('opens one event stream however many screens subscribe', () => {
+    vi.useFakeTimers();
     const repo = createHttpRepository();
     const a = vi.fn();
     const b = vi.fn();
@@ -172,21 +175,25 @@ describe('HttpRepository @g7', () => {
     expect(live()[0]?.url).toBe('/api/events');
 
     // One `changed` event reaches every subscriber: the admin console and the learner's portal
-    // refetch from the same commit.
+    // refetch from the same commit (D-224: once the burst settles).
     live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS);
     expect(a).toHaveBeenCalledTimes(1);
     expect(b).toHaveBeenCalledTimes(1);
 
     offA();
     live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_EVERY_MS);
     expect(a).toHaveBeenCalledTimes(1);
     expect(b).toHaveBeenCalledTimes(2);
 
     offB();
     expect(live()).toHaveLength(0);
+    vi.useRealTimers();
   });
 
   it('reopens the stream when a screen subscribes again', () => {
+    vi.useFakeTimers();
     const repo = createHttpRepository();
     const f = vi.fn();
 
@@ -196,7 +203,89 @@ describe('HttpRepository @g7', () => {
     repo.subscribe(f);
     expect(live()).toHaveLength(1);
     live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS);
     expect(f).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  // D-224: the server sends `changed` to every tab after every commit by anyone. A burst is one refresh, and the
+  // stream never refreshes a page more than once per CHANGED_EVERY_MS, so a busy live build can't spend a
+  // learner's per-minute budget (§ 9.4) on other people's checks.
+  it('turns a burst of changes into one refresh, and at most one per window', () => {
+    vi.useFakeTimers();
+    const repo = createHttpRepository();
+    const f = vi.fn();
+    repo.subscribe(f);
+    for (let i = 0; i < 30; i++) live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS);
+    expect(f).toHaveBeenCalledTimes(1);
+    // More commits right after: held to the end of the window, then one refresh for all of them.
+    for (let i = 0; i < 30; i++) live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_EVERY_MS - CHANGED_SETTLE_MS - 1);
+    expect(f).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS + 1);
+    expect(f).toHaveBeenCalledTimes(2);
+    // A minute of nonstop commits is at most twelve refreshes.
+    for (let t = 0; t < 60_000; t += 100) { live()[0]?.emit('changed'); vi.advanceTimersByTime(100); }
+    expect(f.mock.calls.length).toBeLessThanOrEqual(2 + 60_000 / CHANGED_EVERY_MS + 1);
+    vi.useRealTimers();
+  });
+
+  it('lets the echo of its own write wait for the next window (the write refetches itself)', async () => {
+    vi.useFakeTimers();
+    const repo = createHttpRepository();
+    const f = vi.fn();
+    repo.subscribe(f);
+    fetchMock.mockResolvedValueOnce(json(200, {}));
+    await repo.run('toggleChecklistItem' as never, {} as never);
+    live()[0]?.emit('changed');
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS);
+    expect(f).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(CHANGED_EVERY_MS);
+    expect(f).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('reopens a stream the server refused, later, and catches up once it is back', () => {
+    vi.useFakeTimers();
+    const repo = createHttpRepository();
+    const f = vi.fn();
+    repo.subscribe(f);
+    const first = live()[0]!;
+    first.readyState = FakeEventSource.CLOSED;
+    first.closed = true;
+    first.emit('error');
+    expect(live()).toHaveLength(0);
+    vi.advanceTimersByTime(15_000);
+    expect(live()).toHaveLength(1);
+    live()[0]?.emit('open');
+    vi.advanceTimersByTime(CHANGED_SETTLE_MS);
+    expect(f).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('retries a write once after a 429, waiting the time the limiter names', async () => {
+    vi.useFakeTimers();
+    const repo = createHttpRepository();
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Rate limit exceeded, retry in 2 seconds' }), { status: 429, headers: { 'retry-after': '2', 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(json(200, { ok: true }));
+    const done = repo.run('toggleChecklistItem' as never, {} as never);
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(done).resolves.toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
+  it('throws a RateLimitedError for a read the limiter refused, carrying its wait', async () => {
+    const repo = createHttpRepository();
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Rate limit exceeded, retry in 13 seconds' }), { status: 429, headers: { 'retry-after': '13', 'content-type': 'application/json' } }));
+    const err = await repo.snapshot().catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(RateLimitedError);
+    expect((err as RateLimitedError).retryAfterMs).toBe(13_000);
+    expect(WRITE_RETRY_MAX_MS).toBe(20_000);
   });
 
   it('survives a runtime that will not give it a stream', () => {

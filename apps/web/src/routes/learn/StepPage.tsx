@@ -168,10 +168,21 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
 
   // scroll-spy for On this page
   const spyIds = useMemo(() => step.jumps.map((j) => j.id), [step.jumps]);
+  // D-224: a click on a jump marks it at once (the observer would wait for the section to cross its band), and at
+  // the very bottom of the page the last section is the current one, since a short last section (Reference) can
+  // never scroll up into the band. A click holds its mark until the scroll it started settles.
+  const held = useRef<number>(0);
+  const jump = useCallback((id: string) => { held.current = Date.now() + 900; setSpy(id); }, []);
   useEffect(() => {
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) setSpy(e.target.id); }), { rootMargin: '-30% 0px -60% 0px' });
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && Date.now() > held.current) setSpy(e.target.id); }), { rootMargin: '-30% 0px -60% 0px' });
     spyIds.forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
-    return () => io.disconnect();
+    const last = spyIds[spyIds.length - 1];
+    const atEnd = () => {
+      if (!last || Date.now() <= held.current) return;
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) setSpy(last);
+    };
+    window.addEventListener('scroll', atEnd, { passive: true });
+    return () => { io.disconnect(); window.removeEventListener('scroll', atEnd); };
   }, [spyIds]);
 
   return (
@@ -205,7 +216,7 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
             </div>
             <p className="sr" aria-live="polite" id="live">{live}</p>
           </main>
-          <Sidebar step={step} spy={spy} checked={shown} labels={labels} />
+          <Sidebar step={step} spy={spy} checked={shown} labels={labels} onJump={jump} />
         </div>
       </div>
       {confirm && confirm.waiting != null && (

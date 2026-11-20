@@ -14,7 +14,9 @@ export const VIEWER_KEY = ['viewer'] as const;
 /** The role-scoped snapshot. Refetched whenever the repository says something changed. */
 export function useDb(): Db {
   const qc = useQueryClient();
-  useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: DB_KEY })), [qc]);
+  // D-224: every screen that reads the snapshot subscribes; `cancelRefetch: false` makes them all join one refetch
+  // instead of each cancelling the last and starting its own (three snapshot requests per change, measured).
+  useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: DB_KEY }, { cancelRefetch: false })), [qc]);
   return useSuspenseQuery({ queryKey: DB_KEY, queryFn: () => repo.snapshot(), staleTime: Infinity }).data;
 }
 
@@ -40,7 +42,7 @@ export function useMutate() {
       if (r.error) return r; // forms render this inline; nothing changed
       if (r.toast) toast(r.toast.msg, r.toast.tone);
       if (r.effects?.some((e) => e.type === 'confetti')) celebrate();
-      await qc.invalidateQueries({ queryKey: DB_KEY });
+      await qc.invalidateQueries({ queryKey: DB_KEY }, { cancelRefetch: false });
       return r;
     },
     [qc, toast, celebrate],
@@ -60,7 +62,7 @@ export function useAct() {
       if (r.error === PREVIEW_ONLY) toast(PREVIEW_ONLY, 'info');
       if (r.error) return r;
       if (r.toast) toast(r.toast.msg, r.toast.tone);
-      await qc.invalidateQueries({ queryKey: DB_KEY });
+      await qc.invalidateQueries({ queryKey: DB_KEY }, { cancelRefetch: false });
       return r;
     },
     [qc, toast],
