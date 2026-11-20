@@ -7031,3 +7031,22 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
   The Team Plan window is checked with words staff wrote in Course settings, because the window draws nothing of its own. All 36 checks pass.
 - **Reviewed by eye.** Every one of the 18 pages was screenshot at both widths and reviewed against the step page.
+
+## D-216 · Every learner page's components compared with the step page's own
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-215.
+**Number:** D-215 is the brand motion on every page and the wider page-by-page check.
+
+- **The comparison.** `learn-v2-system.spec.ts` now measures the step page first (Week 0, step 4), at 1440 and at 390. It then requires every component on all 18 learner pages to compute to the same values as the step page's:
+  - **primary buttons:** typeface, weight, text colour and radius;
+  - **secondary buttons:** typeface, weight, text colour and hairline;
+  - **cards:** radius and hairline;
+  - **the title:** typeface, weight, size, line height, letter spacing and ink;
+  - **eyebrows:** typeface, weight, letter spacing and colour.
+
+  A label on a forest panel is the step page's on-forest variant (its Next card), so it is left out.
+- **What it found, now fixed.**
+  - **The ink on a forest button** was pure white. The step page's is `#f5f5f2` (`--sp-on-forest`), and the learner frame's `--r2-on-for` now takes it.
+  - **The hero card's hairline** (Home, the week, Schedule, Account, a skill) was the 20% line. It is the step page's 12% card hairline now, and the hero keeps its larger lift.
+- **Result.** 38 checks pass: 36 for the rules (D-214, D-215) and 2 for this comparison.

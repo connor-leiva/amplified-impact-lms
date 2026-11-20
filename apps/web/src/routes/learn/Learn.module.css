@@ -587,7 +587,8 @@ button.b,
   display: grid;
   grid-template-columns: minmax(0, 1fr) 380px;
   overflow: hidden;
-  border-color: var(--r2-line2);
+  /* D-216: the step page's card hairline (12%); the hero keeps its larger lift. */
+  border-color: var(--r2-line);
   box-shadow: var(--lv-sh-hero);
 }
 .heroOne {

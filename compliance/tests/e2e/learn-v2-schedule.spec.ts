@@ -1,5 +1,5 @@
 import { test, expect, type Browser, type Page } from '@playwright/test';
-import { APP_BASE } from '../../lib/prepare';
+import { APP_BASE, settleAnimations } from '../../lib/prepare';
 import { expectAccessible } from '../../lib/a11y';
 // The course as the API sends it, built from the deployed seed. `compliance/` can't resolve `@ai/core`,
 // so these are relative; the seed's own imports are relative too.
@@ -86,6 +86,8 @@ test.describe('learner portal v2: the Schedule (D-180) @g9', () => {
 
   test('phone tap targets: the view switch is 44px tall', async ({ browser }) => {
     const page = await open(browser, '/learn/schedule', 390);
+    // D-215: the page's blocks rise in on arrival; measure the switch at rest, not mid-rise.
+    await settleAnimations(page);
     for (const name of ['Weeks', 'Calendar']) {
       const box = await page.getByRole('navigation', { name: 'View' }).getByRole('link', { name }).boundingBox();
       expect(box!.height).toBeGreaterThanOrEqual(44);
