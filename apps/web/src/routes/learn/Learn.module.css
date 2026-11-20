@@ -1990,6 +1990,10 @@ button.b,
     display: block;
     padding: 10px 0;
     margin: -10px 0;
+    /* The hairline as an underline, so it stays under the address, not 10px below it at the box's edge. */
+    border-bottom: 0;
+    text-decoration: underline 1px var(--r2-line2);
+    text-underline-offset: 4px;
   }
   .lede {
     font-size: 18px;

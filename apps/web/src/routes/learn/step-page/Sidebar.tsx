@@ -44,6 +44,8 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
   const marker = useSpyMarker(navRef, spy);
   return (
     <aside className="rail" aria-label="On this step">
+      {/* A step with nothing to jump to, no checklist and no due line has no "On this page" card. */}
+      {step.jumps.length > 0 || step.items.length > 0 || step.due ? (
       <nav className="card aim-rise" style={{ '--i': 2 } as MotionStyle} aria-label={labels.onThisPage} ref={navRef}>
         <h3>{labels.onThisPage}</h3>
         {step.jumps.map((j) => (
@@ -64,6 +66,7 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
         )}
         {step.due && <p className="due">{step.due}</p>}
       </nav>
+      ) : null}
       {step.forStep?.length > 0 && (
         <section className="card aim-rise" style={{ '--i': 3 } as MotionStyle} aria-label={labels.forStep}>
           <h3>{labels.forStep}</h3>

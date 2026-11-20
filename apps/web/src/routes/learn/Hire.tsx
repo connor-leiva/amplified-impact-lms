@@ -102,7 +102,8 @@ function Open({ vm }: { vm: OpenHireVM }) {
         </div>
       </div>
       {session?.kind === 'replay' ? <Replay key={m.id} who={{ db, me }} m={m} now={now} source={session.source} /> : null}
-      <section className={`${s.cd} ${s.hero}`} aria-label={vm.progress.label}>
+      {/* One cell, so the one-column hero (as Home's and Account's single cards): no empty second column. */}
+      <section className={`${s.cd} ${s.hero} ${s.heroOne}`} aria-label={vm.progress.label}>
         <div className={s.hr}>
           <span className={s.eyb}>
             <Icon name="r2Check" size={14} strokeWidth={1.75} />
