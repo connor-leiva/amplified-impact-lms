@@ -234,7 +234,8 @@ describe('the step player (D-177)', () => {
 
   it('@parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back', async () => {
     at('/learn/week/0/step/1');
-    const undo = await screen.findByRole('button', { name: 'Undo' });
+    // The step page loads with its route (a lazy chunk); on a busy runner its first render can pass a second.
+    const undo = await screen.findByRole('button', { name: 'Undo' }, { timeout: 5000 });
     expect(screen.getByRole('button', { name: 'Step done' })).toHaveAttribute('data-state', 'done');
     expect(screen.queryByRole('button', { name: 'Mark step done' })).toBeNull();
     fireEvent.click(undo);

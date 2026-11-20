@@ -242,18 +242,21 @@ a.li .mu {
     transform: translateX(3px);
   }
 }
+/* D-219: the step page's inline link (step-page.css `a.inline`): forest, Geist 500, a 20% hairline under it
+   that firms to forest on hover (a colour change only). */
 .txl {
   color: var(--r2-for);
   font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--r2-mint);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-  border-radius: 4px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--r2-line2);
+  border-radius: 0;
   align-self: flex-start;
+  transition: border-color var(--aim-dur-quick) var(--aim-ease);
 }
-.txl:hover {
-  text-decoration-color: var(--r2-for);
+@media (hover: hover) {
+  .txl:hover {
+    border-bottom-color: var(--r2-for);
+  }
 }
 .emp {
   padding: 40px 24px;
@@ -375,7 +378,8 @@ button.b,
 }
 .lk:hover {
   text-decoration: underline;
-  text-decoration-color: var(--r2-mint);
+  /* D-219: the step page's link line, not mint. */
+  text-decoration-color: var(--r2-for);
   text-underline-offset: 3px;
 }
 
@@ -2079,10 +2083,6 @@ button.b,
   }
   .hb .b {
     flex: 1 1 auto;
-  }
-  .sech h2 {
-    font-size: 20px;
-    line-height: 26px;
   }
   .ocg {
     grid-template-columns: minmax(0, 1fr);

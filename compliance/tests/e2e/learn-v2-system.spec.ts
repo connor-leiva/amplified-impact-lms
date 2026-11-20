@@ -217,7 +217,7 @@ function systemFindings(page: Page, phone: boolean) {
     for (const h2 of document.querySelectorAll('main h2, [data-step-page] h2')) {
       if (!seen(h2) || inCard(h2) || h2.closest('[role="dialog"]')) continue;
       const c = getComputedStyle(h2);
-      if (c.fontSize !== (phone && !h2.closest('[data-step-page]') ? '20px' : '25px') || c.fontWeight !== '650') out.push(`section heading "${(h2.textContent ?? '').trim().slice(0, 32)}" is ${c.fontWeight} ${c.fontSize}`);
+      if (c.fontSize !== '25px' || c.fontWeight !== '650') out.push(`section heading "${(h2.textContent ?? '').trim().slice(0, 32)}" is ${c.fontWeight} ${c.fontSize}`);
     }
     // The line right under the title is the purpose line: 20px on a desk (18px on a phone), secondary ink.
     if (h1) {
@@ -324,6 +324,35 @@ function fingerprints(page: Page) {
       const cs = getComputedStyle(h1);
       out.push({ kind: 'title', name: 'h1', style: { family: family(cs), weight: cs.fontWeight, size: cs.fontSize, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing, color: cs.color } });
     }
+    // Section headings: an h2 not inside a card (the step page's .sec-h).
+    const inCard = (el: Element) => {
+      for (let e: Element | null = el.parentElement; e && e !== document.body; e = e.parentElement) {
+        const c = getComputedStyle(e);
+        if ((c.backgroundColor === 'rgb(255, 255, 255)' && c.borderTopStyle !== 'none' && c.borderTopWidth !== '0px') || c.backgroundColor === 'rgb(31, 77, 64)' || e.matches('[role="dialog"]')) return true;
+      }
+      return false;
+    };
+    for (const h2 of root.querySelectorAll('h2')) {
+      if (!seen(h2) || inCard(h2)) continue;
+      const cs = getComputedStyle(h2);
+      out.push({ kind: 'section', name: (h2.textContent ?? '').trim().slice(0, 24), style: { family: family(cs), weight: cs.fontWeight, letterSpacing: cs.letterSpacing, color: cs.color } });
+    }
+    // Underlined text links (a link with no fill and a line under its words): colour, weight and that line.
+    for (const a of root.querySelectorAll('a[href]')) {
+      const cs = getComputedStyle(a);
+      if (!seen(a) || a.closest('nav, ol[aria-label="Breadcrumb"], [role="menu"]') || !(a.textContent ?? '').trim()) continue;
+      if (cs.display !== 'inline' || cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.borderTopStyle !== 'none') continue; // a row link's divider is not an underline
+      const border = cs.borderBottomStyle === 'solid' && parseFloat(cs.borderBottomWidth) > 0;
+      if (!border && !cs.textDecorationLine.includes('underline')) continue;
+      out.push({ kind: 'link', name: (a.textContent ?? '').trim().slice(0, 24), style: { color: cs.color, weight: cs.fontWeight, line: border ? cs.borderBottomColor : cs.textDecorationColor } });
+    }
+    // A segmented control's chosen side (Claude or ChatGPT, Weeks or Calendar).
+    for (const on of root.querySelectorAll('[role="radiogroup"] [role="radio"][aria-checked="true"], nav [aria-current="page"]')) {
+      const chrome = on.closest('aside, header');
+      if (!seen(on) || (chrome && !chrome.closest('[data-step-page]'))) continue; // the shell's own navigation
+      const cs = getComputedStyle(on);
+      out.push({ kind: 'segment', name: (on.textContent ?? '').trim().slice(0, 24), style: { background: cs.backgroundColor, color: cs.color, radius: parseFloat(cs.borderTopLeftRadius) >= 100 ? 'pill' : cs.borderTopLeftRadius } });
+    }
     for (const el of root.querySelectorAll('p, span, div')) {
       const cs = getComputedStyle(el);
       if (cs.textTransform !== 'uppercase' || !/mono/i.test(cs.fontFamily) || !seen(el) || !(el.textContent ?? '').trim()) continue;
@@ -343,11 +372,18 @@ test.describe('every learner page’s components match the step page’s (D-216)
     test(`at ${width}`, async ({ browser }) => {
       test.setTimeout(240000);
       const stepPage = await open(browser, { name: 'the step page', path: '/learn/week/0/step/4' }, width, 'reduce');
+      // The step page's own inline link (`a.inline`, as its Reference rows and long-step text draw one), placed
+      // in its text so it is measured with the step page's own styles.
+      await stepPage.evaluate(() => {
+        const p = document.createElement('p');
+        p.innerHTML = '<a class="inline" href="#ref">Reference link</a>';
+        document.querySelector('[data-step-page] main')?.append(p);
+      });
       const ref: Fingerprint = {};
       for (const f of await fingerprints(stepPage)) ref[f.kind] ??= f.style;
       await stepPage.context().close();
       // The step page itself has a primary, a card, its title and eyebrows; a secondary is read from its Copy box.
-      expect(Object.keys(ref).sort()).toEqual(expect.arrayContaining(['card', 'eyebrow', 'primary', 'title']));
+      expect(Object.keys(ref).sort()).toEqual(expect.arrayContaining(['card', 'eyebrow', 'link', 'primary', 'section', 'segment', 'title']));
       const drift: string[] = [];
       for (const screen of PAGES) {
         const page = await open(browser, screen, width, 'reduce');
