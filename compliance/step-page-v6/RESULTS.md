@@ -46,8 +46,8 @@ checklist, Reference, footer, sidebar). Each is shot in each of its states (rest
 scrolled, open, checked, all checked, locked, clicked while locked, done) at 1280, 1100, 900, 720, 640 and 390 px:
 274 element shots. Hover states are skipped at 640 px and under.
 
-- **The tool itself:** the handoff's own harness against the mockup gives **274 / 274 at 0 differing pixels**
-  (strict 0 too).
+- **The tool itself:** the handoff's own harness against the mockup gives **274 / 274 at 0 differing pixels**.
+  Under the strict count, 263 are 0 and 11 differ by 3 to 57 pixels (step rail and checklist anti-aliasing).
 - **The LMS against the mockup:** **273 / 274 at 0 differing pixels.** The one exception reproduces on a rerun:
 
 | State | Differing px | What it is |
@@ -55,6 +55,6 @@ scrolled, open, checked, all checked, locked, clicked while locked, done) at 128
 | `1100-video-focus-visible-play` | 2 (strict 485) | The top-left and top-right corner pixels of the play pill's 2px focus ring, anti-aliased darker. The pill's geometry is the same to the thousandth of a pixel in the LMS, the harness and the mockup (`766.875, y.594, 277.125 × 56`). The same state passes at 1280 and 900, and the harness passes it with a real video loaded. Cause not found. |
 
 Under the strict count (threshold 0), the LMS's video frame differs by up to 14 levels in every state (295 to 1,418
-pixels), and nowhere else. The harness is strict 0. The only real difference in that box is that the LMS serves the
+pixels). The harness's video frame is strict 0 in all 22 of its states. The only real difference in that box is that the LMS serves the
 poster and video through `/api/files/course/…` and attaches the video with HlsEngine. That is the likely source,
 not yet proven.
