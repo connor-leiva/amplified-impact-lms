@@ -32,6 +32,7 @@ import { TeamPlanWindow } from '../../routes/learn/TeamPlan';
 import { planItemOf, teamGateFor, teamPlanVM, withoutPlan } from '../../routes/learn/TeamPlan.vm';
 import { TeamPlanProvider } from '../../routes/learn/teamPlanContext';
 import type { PlanItem } from '../../routes/learn/teamPlanContext';
+import { v6StepAt } from '../../routes/learn/step-page/v6';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
 import { useLearnerPrefs } from './useLearnerPrefs';
@@ -398,6 +399,19 @@ function Frame() {
     setDrawerOpen(false);
     setClicked(x);
   }, []);
+
+  // D-210: a step that draws the v6 step page has no app chrome (no sidebar, top bar or drawer). The step
+  // route asks the same rule (`v6StepAt`), so the two always agree; with VITE_STEP_PAGE_V6 off it is never true.
+  if (!gate && v6StepAt(location.pathname, payload, rows, viewer.actor, me, now)) {
+    return (
+      <>
+        <TeamPlanProvider value={openPlan}>
+          <Outlet context={ctx} />
+        </TeamPlanProvider>
+        {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
+      </>
+    );
+  }
 
   return (
     <div className={s.frame} data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>

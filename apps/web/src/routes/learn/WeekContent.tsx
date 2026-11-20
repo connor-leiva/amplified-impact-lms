@@ -303,6 +303,31 @@ type Open = { kind: 'prompt' } | { kind: 'file'; key: string } | null;
  * `notes` can be left out (the step player shows the prompt and the files only). `more` (D-186) adds a
  * non-course AI Employee's resources to the same card.
  */
+/** The system prompt's window: the prompt, with Download and Copy. The v6 step page's View opens it too. */
+export function PromptModal({ prompt, onClose }: { prompt: NonNullable<BuildKitVM['prompt']>; onClose: () => void }) {
+  return (
+    <Modal
+      title={prompt.title}
+      width={760}
+      onClose={onClose}
+      foot={
+        <>
+          <button type="button" className={`${s.b} ${c.kb}`} onClick={() => saveText(prompt.fileName, prompt.text)}>
+            <Icon name="r2Download" size={14} strokeWidth={1.75} />
+            {KIT.download}
+          </button>
+          <CopyButton text={prompt.text} label={`${KIT.copy}: ${prompt.title}`} className={`${s.b} ${s.bp} ${c.kb}`} />
+        </>
+      }
+    >
+      <p className={`${s.p} ${s.me}`}>
+        {prompt.desc} · {prompt.stats}
+      </p>
+      <Code lines={prompt.lines} />
+    </Modal>
+  );
+}
+
 export function BuildKit({ vm, previewing, notes = true, more = [], heading = KIT.buildKit, headingClass, tile = 28 }: { vm: BuildKitVM; previewing: boolean; notes?: boolean; more?: KitRowVM[]; heading?: string; headingClass?: string; tile?: 28 | 32 }) {
   const [open, setOpen] = useState<Open>(null);
   const file = open?.kind === 'file' ? vm.files.find((f) => f.key === open.key) : undefined;
@@ -384,27 +409,7 @@ export function BuildKit({ vm, previewing, notes = true, more = [], heading = KI
         </section>
       ) : null}
 
-      {open?.kind === 'prompt' && vm.prompt ? (
-        <Modal
-          title={vm.prompt.title}
-          width={760}
-          onClose={() => setOpen(null)}
-          foot={
-            <>
-              <button type="button" className={btn} onClick={() => saveText(vm.prompt!.fileName, vm.prompt!.text)}>
-                <Icon name="r2Download" size={14} strokeWidth={1.75} />
-                {KIT.download}
-              </button>
-              <CopyButton text={vm.prompt.text} label={`${KIT.copy}: ${vm.prompt.title}`} className={`${s.b} ${s.bp} ${c.kb}`} />
-            </>
-          }
-        >
-          <p className={`${s.p} ${s.me}`}>
-            {vm.prompt.desc} · {vm.prompt.stats}
-          </p>
-          <Code lines={vm.prompt.lines} />
-        </Modal>
-      ) : null}
+      {open?.kind === 'prompt' && vm.prompt ? <PromptModal prompt={vm.prompt} onClose={() => setOpen(null)} /> : null}
       {file ? (
         <Modal
           title={file.name}

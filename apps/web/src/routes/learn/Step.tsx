@@ -3,7 +3,7 @@
 // the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
@@ -24,12 +24,16 @@ import { weekParam } from './Week.vm';
 import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
-import { learnHome } from './routes';
+import { learnHome, learnStep } from './routes';
+import { STEP_PAGE_V6, v6StepAt } from './step-page/v6';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
+
+/** D-210: the v6 step page, in its own chunk with its stylesheets, built only with VITE_STEP_PAGE_V6=true. */
+const StepPageV6 = STEP_PAGE_V6 ? lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute }))) : null;
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -384,6 +388,14 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     previewing: viewer.preview !== undefined,
     title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
   };
+  // D-210: with the flag on, a step the v6 page draws in full renders it, chrome-free (the shell asks the same rule).
+  if (StepPageV6 && !preview && step !== null && v6StepAt(learnStep(vm.week, step), course.payload, rows, viewer.actor, me, now)) {
+    return (
+      <Suspense fallback={null}>
+        <StepPageV6 key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />
+      </Suspense>
+    );
+  }
   // A new step starts on its own first tab.
   return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} local={local} />;
 }
