@@ -12,6 +12,9 @@ import { SEED_COPY, seedProduction } from '../seed/curriculum';
 import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan-v1';
 import { PROMISE_V1, planPromiseV1 } from '../seed/promise-v1';
 import { UNSHOWN_V1, planUnshownV1 } from '../seed/unshown-v1';
+import { FIVE_WORDS_V1, planFiveWordsV1 } from '../seed/five-words-v1';
+import { planGlossaryV1 } from '../seed/glossary-v1';
+import type { PathBlock } from '../src/course-types';
 import { courseWithoutRetired, hasRetired } from '../src/course-retired';
 import { weekModuleV2 } from '../seed/weeks-0-3-v2';
 
@@ -223,3 +226,62 @@ describe('the unshown course fields (D-221)', () => {
     expect(courseWithoutRetired(dirty)).toEqual(c);
   });
 });
+
+// D-223: Week 0 step 2's five words open inside the task (the Card action), not in a table under the checklist.
+describe('the five words in the task (D-223)', () => {
+  /** Week 0 step 2 as production holds it: the item, then "Know These 5" and its table, then the Reference rows. */
+  const asBuilt = (): PathBlock[] => [
+    { type: 'check', id: 's2-watch', title: 'Watch the video' },
+    { type: 'check', id: 's2-words', title: 'Know these five words', role: 'each', detail: 'Skill, AI hire, seat card, guardrails and the AI Office. They’re in the table below.' },
+    { type: 'check', id: 's2-rhythm', title: 'Save the first live build', role: 'each' },
+    { type: 'text', text: 'Know These 5' },
+    { type: 'table', head: ['Word', 'What it means'], rows: [['Skill', 'A playbook.'], ['AI hire', 'A skill on a schedule.'], ['Seat card', 'A job description.'], ['Guardrails', 'Read and draft only.'], ['AI Office', 'A folder.']] },
+    { type: 'accordion', title: 'About This Step', body: ['One.'] },
+    { type: 'accordion', title: 'How a Week Runs', body: ['Two.'] },
+  ];
+  const withStep2 = (blocks: () => PathBlock[]) => {
+    const db = planGlossaryV1(prod()).db;
+    const w0 = db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!;
+    w0.checklist[1]!.paths = { claude: { blocks: blocks() }, chatgpt: { blocks: blocks() } };
+    return db;
+  };
+
+  it('gives the item the Card action with the five glossary terms, trims its detail, and drops the table and its line', () => {
+    const before = withStep2(asBuilt);
+    const out = planFiveWordsV1(before);
+    expect(out.skipped).toEqual([]);
+    expect(out.changes).toHaveLength(1);
+    const step = out.db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!.checklist[1]!;
+    for (const path of [step.paths!.claude!, step.paths!.chatgpt!]) {
+      expect(path.blocks.map((b) => b.type)).toEqual(['check', 'check', 'check', 'accordion', 'accordion']);
+      expect(path.blocks[1]).toEqual({
+        type: 'check', id: 's2-words', title: 'Know these five words', role: 'each',
+        detail: 'Skill, AI hire, seat card, guardrails and the AI Office.',
+        action: { type: 'card', terms: ['skill', 'ai-hire', 'seat-card', 'guardrails', 'ai-office'] },
+      });
+      // Everything else is as staff built it.
+      expect(path.blocks[0]).toEqual(asBuilt()[0]);
+      expect(path.blocks.slice(3)).toEqual(asBuilt().slice(5));
+    }
+    // The other steps and weeks are untouched.
+    const others = (db: typeof before) => db.modules.map((m) => (m.id === ACCELERATOR_MODULE_IDS[0] ? m.checklist.filter((_, i) => i !== 1) : m));
+    expect(others(out.db)).toEqual(others(before));
+    // Done once: run again, it finds nothing to do and says so.
+    const again = planFiveWordsV1(out.db);
+    expect(again.changes).toEqual([]);
+    expect(again.db).toBe(out.db);
+    expect(again.skipped[0]!.reason).toMatch(/already changed in the builder/);
+    expect(FIVE_WORDS_V1).toBe('2026-11-20-five-words-card');
+  });
+
+  it('leaves an item staff already gave an action, and a week without the glossary', () => {
+    const acted = withStep2(() => asBuilt().map((b) => (b.type === 'check' && b.id === 's2-words' ? { ...b, action: { type: 'link', label: 'Ask us', href: 'mailto:x@y.z' } } : b)));
+    expect(planFiveWordsV1(acted).changes).toEqual([]);
+    const bare = structuredClone(withStep2(asBuilt));
+    bare.cohorts.forEach((c) => { if (c.course) delete c.course.glossary; });
+    const out = planFiveWordsV1(bare);
+    expect(out.changes).toEqual([]);
+    expect(out.skipped[0]!.reason).toMatch(/glossary/);
+  });
+});
+

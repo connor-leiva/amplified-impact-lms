@@ -262,6 +262,8 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       [DATA_MIGRATIONS[9]!.id, 0, 0],
       // D-221: likewise no setup order or use line in today's seed (production had them on every week).
       [DATA_MIGRATIONS[10]!.id, 0, 0],
+      // D-223: the seed's Week 0 has no five-words table (staff built it in production), so this names why it skipped.
+      [DATA_MIGRATIONS[11]!.id, 0, 1],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });

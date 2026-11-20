@@ -7189,3 +7189,31 @@ I captured all 18 learner pages at 1440 and 390 (the system check's own states) 
   - `StepPage.vm.test.ts` covers the unwritten step: no blocks, no jumps, and its Next card stays.
   - The system check's comparison reads the underline's colour exactly as it read the border's.
 
+## D-223 · Step page polish: Reference rows spaced, a tall rail that holds still, the five words in the task
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, in this session. He sent screenshots of `/learn/week/0/step/2` with three asks:
+- "The reference accordions need spaced better."
+- "When they are opened, it doesn't just open that it actually makes the entire site move (the stuff in the right side of the page)."
+- "I want the Know These 5 Words section to open up the definitions in the task like the mockup shows, NOT have them look below."
+**Number:** D-222 is the page-by-page fixes.
+
+- **Reference rows.** Two or more now sit 12px apart, the checklist rows' gap. The mockup draws a single row; Week 0 step 2 has two (About This Step, How a Week Runs), and they touched.
+- **The rail that moved.**
+  - **Cause:** the rail is sticky at 24px from the top. When it is taller than the room beside the main column's end, scrolling to the foot of the page let that end push the rail up. Here it moved 39px. Opening a Reference row lengthened the column and the rail snapped back down.
+  - **Now:** a rail that fits keeps its 24px top. A taller one pins by its bottom edge instead (`useRailTop` in `Sidebar.tsx`), so the column's end never pushes it and a row opens with nothing else moving.
+  - **Scope:** it is measured again when the rail or the window changes size, and below 1100px the rail is static as before.
+  - **Check:** checked in a browser with motion on. Sampling the rail every 60ms while a row opens, it no longer moves (before the fix it jumped 39px).
+- **The five words.**
+  - **Before:** production's Week 0 step 2 listed them in a separate table under the checklist ("Know These 5"), and the item said "They're in the table below."
+  - **Now:** the item opens them inside the task, as the v6 mockup does ("Open the five words" / "Hide the five words"). This is the builder's own Card action on a checklist item (D-193), with the five glossary terms: Skill, AI hire, Seat card, Guardrails, AI Office. The glossary's words for each are the table's.
+  - **Production:** the one-time data step `2026-11-20-five-words-card` makes that edit on the stored week, in both paths:
+    - the Card action with the five terms;
+    - the detail without "They're in the table below.";
+    - the table and its "Know These 5" line removed.
+  - **Safeguards:** it changes nothing, and says why, when the item already has an action, the table isn't there, or the glossary lacks any of the five. Later edits are the builder's.
+- **Checks.**
+  - `data-steps.test.ts` covers the step: the edit in both paths, every other block and step untouched, nothing the second time, and the skip cases.
+  - In a browser, the step opens the five words in the task and no table stays below.
+  - The deploy's data steps go from 11 to 12 on `GET /api/health/curriculum`.
+
