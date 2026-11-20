@@ -9,6 +9,7 @@ import '../../../components/motion/ai-motion.css';
 import './step-page.tokens.css';
 import './step-page.css';
 import './step-page.lms.css';
+import './step-page.more.css';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { mergeSpans, parseCaptionCues, resumeAt, videoIdOf, watchedFraction } from '@ai/core';
@@ -17,8 +18,9 @@ import { HlsEngine } from '../../../components/replay/HlsEngine';
 import { videoBlockSource } from '../../../components/replay/source';
 import { courseVideoUrl } from '../../../data/files';
 import { useMutate } from '../../../data/hooks';
+import { isFixture } from '../../../data/boot';
 import { saveIcs } from '../ics';
-import type { StepVM } from '../Step.vm';
+import type { Platform, StepVM } from '../Step.vm';
 import { StepPage } from '../StepPage';
 import type { VideoWatch } from '../Video';
 import { PromptModal, useTabTitle } from '../WeekContent';
@@ -39,17 +41,32 @@ export interface StepPageRouteProps {
 }
 
 export function StepPageRoute(props: StepPageRouteProps) {
+  const { vm, local } = props;
+  const mutate = useMutate();
   // A write the server refused draws the page again from the server's state.
   const [epoch, setEpoch] = useState(0);
   const refused = useCallback(() => setEpoch((e) => e + 1), []);
-  return <LiveStepPage key={epoch} {...props} refused={refused} />;
+  // The open path: the learner's last choice (the `path` pref), else the step's first, as the step player chooses.
+  const [picked, setPicked] = useState<Platform | null>(null);
+  const preferred = vm.pathDefault && vm.tabs.includes(vm.pathDefault) ? vm.pathDefault : (vm.tabs[0] ?? 'claude');
+  const want = picked ?? preferred;
+  const on: Platform = vm.layouts?.[want] ? want : ((vm.tabs.find((t) => vm.layouts?.[t]) ?? 'claude') as Platform);
+  const choose = useCallback(
+    (next: Platform) => {
+      setPicked(next);
+      if (local || isFixture || vm.mark.disabled) return;
+      void mutate('setPref', { key: 'path', value: next });
+    },
+    [local, mutate, vm.mark.disabled],
+  );
+  // A new path is a new checklist: the page starts again from that path's server state.
+  return <LiveStepPage key={`${epoch}:${on}`} {...props} on={on} choose={choose} refused={refused} />;
 }
 
-function LiveStepPage({ vm, kit, title, local, refused }: StepPageRouteProps & { refused: () => void }) {
+function LiveStepPage({ vm, kit, title, local, refused, on, choose }: StepPageRouteProps & { refused: () => void; on: Platform; choose: (p: Platform) => void }) {
   useTabTitle(title);
   const mutate = useMutate();
   const navigate = useNavigate();
-  const on = vm.tabs[0] ?? 'claude';
   const layout = vm.layouts![on]!;
   const block = layout.videos[0];
   const source = block ? videoBlockSource(block, courseVideoUrl) : null;
@@ -221,7 +238,7 @@ function LiveStepPage({ vm, kit, title, local, refused }: StepPageRouteProps & {
     return () => document.removeEventListener('click', onClick);
   }, [navigate]);
 
-  const step = stepPageStep(vm, layout, kit, { duration, cues, poster, captions }, {
+  const step = stepPageStep(vm, layout, kit, { duration, cues, poster, captions, on, choose }, {
     onCalendar: (item) => {
       if (item.action?.type === 'calendar' && item.action.event) saveIcs([item.action.event], Date.now(), 'amplified-impact-session.ics');
     },

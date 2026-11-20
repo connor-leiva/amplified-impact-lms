@@ -82,7 +82,6 @@ describe('the v6 step page’s props (D-210)', () => {
     const layout = vm.layouts!.claude!;
     const kit = buildKitVM(rows[0]?.module, () => null);
     expect(v6Gap(vm, layout, kit, [], 'link')).toBe('video link');
-    expect(v6Gap({ ...vm, tabs: ['claude', 'chatgpt'] }, layout, kit, [], 'file')).toBe('path tabs');
     expect(v6Gap(vm, { ...layout, extras: [{ type: 'text', text: 'More.' }] }, kit, [], 'file')).toBe('extra content');
     const wait = { ...layout, items: layout.items.map((it, i) => (i === 0 ? { ...it, waiting: 1 } : it)) };
     expect(v6Gap(vm, wait, kit, [], 'file')).toBe('waiting item');
@@ -123,6 +122,24 @@ describe('the v6 step page’s props (D-210)', () => {
     tellTestAccount('/learn/week/0/step/2', p, rows, learner, tester, PRELAUNCH_NOW);
     expect(said).toEqual(["[v6 step page] /learn/week/0/step/3 keeps today's player: not a checklist step."]);
     info.mockRestore();
+  });
+
+  it('a step with a Claude path and a ChatGPT path draws both, as a switch in the header', () => {
+    const { p, rows } = mockupState();
+    const weeks = p.course.weeks as unknown as Weeks;
+    const step2 = weeks[0]!.module.checklist[1]! as { paths?: { claude?: { blocks: PathBlock[] }; chatgpt?: { blocks: PathBlock[] } } };
+    step2.paths = { claude: step2.paths!.claude!, chatgpt: { blocks: structuredClone(step2.paths!.claude!.blocks) } };
+    const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;
+    expect(vm.tabs).toEqual(['claude', 'chatgpt']);
+    expect(v6Draws(vm, rows[0])).toBe(true);
+    const picked: string[] = [];
+    const kit = buildKitVM(rows[0]?.module, () => null);
+    const step = stepPageStep(vm, vm.layouts!.chatgpt!, kit, { duration: null, cues: [], poster: undefined, captions: undefined, on: 'chatgpt', choose: (t) => void picked.push(t) }, { onCalendar: () => undefined, onViewPrompt: () => undefined });
+    expect(step.tabs).toEqual([{ id: 'claude', label: 'Claude' }, { id: 'chatgpt', label: 'ChatGPT' }]);
+    expect(step.tab).toBe('chatgpt');
+    expect(step.tabsLabel).toBe('Your AI');
+    step.onTab?.('claude');
+    expect(picked).toEqual(['claude']);
   });
 
   it('reads the checks-itself fraction off the item’s label', () => {

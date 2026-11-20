@@ -1,0 +1,12 @@
+/* D-210: pieces the v6 mockup did not draw, built only from its own tokens and patterns (step-page.tokens.css,
+   ai-motion.css): the same sizes, radii, borders, type and motion as the mockup's neighbouring pieces. Loaded after
+   step-page.css. */
+
+/* The step's paths (Claude, ChatGPT): a segmented control that sits in the tag row and matches a tag's height. */
+.seg{display:inline-flex;align-items:center;gap:2px;height:28px;padding:2px;border-radius:var(--sp-r-pill);background:var(--sp-surface);border:var(--sp-border)}
+.seg button{height:22px;padding:0 10px;border:0;border-radius:var(--sp-r-pill);background:transparent;font:500 13px/1 var(--sp-font);color:var(--sp-ink-2);cursor:pointer;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.seg button[aria-checked="true"]{background:var(--sp-forest);color:var(--sp-on-forest)}
+@media (hover:hover){.seg button:not([aria-checked="true"]):is(:hover,.is-hover){background:var(--sp-bone);color:var(--sp-black)}}
+.seg button:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.seg button:focus-visible{outline:2px solid var(--sp-forest);outline-offset:2px}
