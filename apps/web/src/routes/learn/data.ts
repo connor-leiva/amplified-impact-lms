@@ -18,6 +18,7 @@ import { useOutletContext } from 'react-router';
 import type { Db } from '@ai/core';
 import type { CoursePayload } from '../course/Course.vm';
 import type { Viewer } from '../../data/repository';
+import { rateLimited } from '../../data/http';
 
 /** What `GET /api/course` answered, as the screens tell it apart. */
 export type CourseLoad =
@@ -33,8 +34,16 @@ export type CourseLoad =
   | { kind: 'failed' };
 
 export async function fetchCourse(): Promise<CourseLoad> {
+  let res: Response;
   try {
-    const res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
+    res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
+  } catch {
+    return { kind: 'signed-out' };
+  }
+  // D-224: a 429 is thrown, not answered as 'failed': a refetch then keeps the course on screen (a 'failed'
+  // replaced it, and the step page sent the learner Home), and React Query asks again after `retry-after`.
+  if (res.status === 429) throw await rateLimited(res);
+  try {
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (res.status === 403) {
       const body = (await res.json().catch(() => null)) as { paused?: unknown; upcoming?: unknown; opensAt?: unknown } | null;
@@ -63,7 +72,7 @@ export const COURSE_KEY = ['learn', 'course'] as const;
 export function useCourse(): CourseLoad {
   const qc = useQueryClient();
   const load = useSuspenseQuery({ queryKey: COURSE_KEY, queryFn: fetchCourse, staleTime: Infinity }).data;
-  useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: COURSE_KEY })), [qc]);
+  useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: COURSE_KEY }, { cancelRefetch: false })), [qc]);
   const at = nextOpening(load, clock.now());
   useEffect(() => {
     if (at === null) return;

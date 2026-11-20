@@ -96,7 +96,53 @@ const bodyOf = (res: Response): Promise<unknown> =>
 /** What a blocked write says, inline, where a form shows its errors. */
 export const BLOCKED_MESSAGE = 'Blocked while masquerading. Exit to continue.';
 
+/**
+ * D-224: the API answered 429 (§ 9.4's per-session limit). Thrown, never returned as data, so a refetch keeps
+ * what the page already shows and React Query waits `retryAfterMs` (the limiter's own `retry-after`) before it
+ * asks again (`main.tsx`). A page that has nothing yet waits too, instead of crashing into the error screen.
+ */
+export class RateLimitedError extends Error {
+  readonly retryAfterMs: number;
+  constructor(message: string, retryAfterMs: number) {
+    super(message);
+    this.name = 'RateLimitedError';
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
+/** The wait a 429 names: `retry-after` in seconds (the limiter's header), else 5 s; never under 1 s. */
+export function retryAfterMs(res: Response): number {
+  const s = Number(res.headers.get('retry-after'));
+  return Number.isFinite(s) && s > 0 ? Math.max(1000, s * 1000) : 5000;
+}
+
+/** A 429's error, from its response. */
+export async function rateLimited(res: Response): Promise<RateLimitedError> {
+  const body = (await res.json().catch(() => ({}))) as { error?: string };
+  return new RateLimitedError(body.error ?? 'Too many requests', retryAfterMs(res));
+}
+
+/** The longest a write waits on a 429 before its one retry. Past this it reports the refusal instead. */
+export const WRITE_RETRY_MAX_MS = 20_000;
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * One write, retried once after a 429. The limiter refuses before the route runs, so a 429 changed nothing
+ * and asking again is safe (a toggle cannot toggle twice). A check that hit the limit therefore saves a few
+ * seconds late instead of saying "That check didn't save."
+ */
+export async function sendWrite(send: () => Promise<Response>): Promise<Response> {
+  const res = await send();
+  if (res.status !== 429) return res;
+  const wait = retryAfterMs(res);
+  if (wait > WRITE_RETRY_MAX_MS) return res;
+  await sleep(wait);
+  return send();
+}
+
 async function parse(res: Response, attempt: string | null = null): Promise<unknown> {
+  if (res.status === 429) throw await rateLimited(res);
   if (res.status === 401) {
     navigation.toSignIn();
     throw new Error('Not signed in');
@@ -131,15 +177,60 @@ export function appearanceOf(value: unknown): AppearancePrefs {
   return out;
 }
 
+/**
+ * D-224: how often the event stream may make a page refetch. The server sends `changed` to every open tab after
+ * every commit by anyone (§ 7.6), so during a live build each learner's tab heard every other learner's check
+ * and refetched its snapshot and course each time: a few busy minutes spent the whole 100-a-minute budget
+ * (§ 9.4), and then checks failed to save and pages failed to load. Now a burst of `changed` is one refresh,
+ * at most one per this many ms; the learner's own changes still show at once (each write refetches itself).
+ */
+export const CHANGED_EVERY_MS = 5000;
+/** The first refresh after a quiet spell waits this long, so a burst of commits is one refresh. */
+export const CHANGED_SETTLE_MS = 300;
+/** A stream the server refused (a 429 or 503) is reopened after this long, doubling up to the cap. */
+const STREAM_RETRY_MS = 15_000;
+const STREAM_RETRY_MAX_MS = 120_000;
+
 export function createHttpRepository(): LmsRepository {
   const listeners = new Set<() => void>();
   let events: EventSource | null = null;
+  let pending: ReturnType<typeof setTimeout> | null = null;
+  let lastRefresh = 0;
+  let streamRetry = STREAM_RETRY_MS;
+
+  const notify = () => {
+    pending = null;
+    lastRefresh = Date.now();
+    listeners.forEach((f) => f());
+  };
+  /** A `changed` from the stream: one refresh per burst, and none sooner than CHANGED_EVERY_MS after the last. */
+  const onChanged = () => {
+    if (pending) return;
+    pending = setTimeout(notify, Math.max(CHANGED_SETTLE_MS, lastRefresh + CHANGED_EVERY_MS - Date.now()));
+  };
 
   const ensureStream = () => {
     if (events) return;
     try {
-      events = new EventSource('/api/events');
-      events.addEventListener('changed', () => listeners.forEach((f) => f()));
+      const stream = new EventSource('/api/events');
+      events = stream;
+      let opened = false;
+      stream.addEventListener('changed', onChanged);
+      stream.addEventListener('open', () => {
+        // A stream that comes back may have missed a commit while it was down: catch up once.
+        if (opened || streamRetry !== STREAM_RETRY_MS) onChanged();
+        opened = true;
+        streamRetry = STREAM_RETRY_MS;
+      });
+      stream.addEventListener('error', () => {
+        // The browser reconnects a dropped stream itself (CONNECTING). A refused one (a 429 or 503 answer) is
+        // CLOSED for good, which left the tab without updates: open it again later, backing off.
+        if (stream.readyState !== EventSource.CLOSED || events !== stream) return;
+        events = null;
+        const wait = streamRetry;
+        streamRetry = Math.min(STREAM_RETRY_MAX_MS, streamRetry * 2);
+        setTimeout(() => { if (listeners.size) ensureStream(); }, wait);
+      });
     } catch {
       /* no stream: the UI still refetches after each mutation */
     }
@@ -166,12 +257,21 @@ export function createHttpRepository(): LmsRepository {
       }).then((res) => parse(res, 'PATCH /api/me/prefs'));
     },
     run: <K extends MutationName>(name: K, args: MutationArgs<K>) =>
-      fetch(`/api/mutate/${name}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(args),
-      }).then((res) => parse(res, `POST /api/mutate/${name}`)) as Promise<MutationResult>,
+      sendWrite(() =>
+        fetch(`/api/mutate/${name}`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(args),
+        }),
+      )
+        .then((res) => parse(res, `POST /api/mutate/${name}`))
+        .then((r) => {
+          // The caller refetches after its own write (`useMutate`), so the stream's echo of this commit can
+          // wait for the next window rather than refetch again straight away.
+          lastRefresh = Date.now();
+          return r;
+        }) as Promise<MutationResult>,
     // D-172: an audited Build action; a masquerade's refusal resolves as the mutation's does.
     act: <K extends AdminActionName>(name: K, args: AdminActionArgs<K>) =>
       fetch(`/api/admin/actions/${name}`, {

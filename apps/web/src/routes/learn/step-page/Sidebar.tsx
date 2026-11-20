@@ -70,7 +70,20 @@ function useRailTop(railRef: RefObject<HTMLElement | null>): number | undefined 
   return top;
 }
 
-export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: string | null; checked: Record<string, boolean>; labels: SpLabels }) {
+/**
+ * D-224: a checklist row in the rail goes to its own item, not the top of the checklist (Connor: the rail's links
+ * didn't scroll right). The item is brought to the middle of the screen and its box takes the focus, so a keyboard
+ * user lands where a mouse user looks. The link keeps `#checklist` for a reader with no script.
+ */
+function goToItem(e: MouseEvent, id: string): void {
+  const item = document.querySelector<HTMLElement>(`#checklist .item[data-id="${CSS.escape(id)}"]`);
+  if (!item) return;
+  e.preventDefault();
+  item.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  item.querySelector<HTMLElement>('.box-btn')?.focus({ preventScroll: true });
+}
+
+export function Sidebar({ step, spy, checked, labels, onJump }: { step: SpStep; spy: string | null; checked: Record<string, boolean>; labels: SpLabels; onJump?: (id: string) => void }) {
   const noop = (href: string) => (href === '#' ? (e: MouseEvent) => e.preventDefault() : undefined);
   const navRef = useRef<HTMLElement | null>(null);
   const railRef = useRef<HTMLElement | null>(null);
@@ -83,7 +96,7 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
       <nav className="card aim-rise" style={{ '--i': 2 } as MotionStyle} aria-label={labels.onThisPage} ref={navRef}>
         <h3>{labels.onThisPage}</h3>
         {step.jumps.map((j) => (
-          <a key={j.id} className="rail-link" href={'#' + j.id} data-spy={j.id} aria-current={spy === j.id ? 'true' : undefined}>{j.label}</a>
+          <a key={j.id} className="rail-link" href={'#' + j.id} data-spy={j.id} aria-current={spy === j.id ? 'true' : undefined} onClick={() => onJump?.(j.id)}>{j.label}</a>
         ))}
         <span className={'spy-mark' + (marker.live ? ' live' : '')} style={marker.style} aria-hidden="true" />
         {step.items.length > 0 && (
@@ -91,7 +104,7 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
             <h3 style={{ marginTop: 20 }}>{labels.checklist}</h3>
             <div className="rail-list" id="rail-list">
               {step.items.map((it) => (
-                <a key={it.id} className={'rail-link' + (checked[it.id] ? ' done' : '')} href="#checklist" data-for={it.id}>
+                <a key={it.id} className={'rail-link' + (checked[it.id] ? ' done' : '')} href="#checklist" data-for={it.id} onClick={(e) => { goToItem(e, it.id); onJump?.('checklist'); }}>
                   <span className={'mini' + (checked[it.id] ? ' on' : '')}><BoxCheck size={10} /></span>{it.title}
                 </a>
               ))}

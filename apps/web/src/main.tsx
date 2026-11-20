@@ -13,6 +13,7 @@ import { bootPrefs } from './lib/prefs';
 import { isFixture } from './data/boot'; // chooses the data source before anything renders
 import { guardRestoredPages, onSignOut } from './data/session';
 import { installStaleChunkRecovery, routerDestination } from './lib/stale-chunk';
+import { RateLimitedError } from './data/http';
 
 // D-170: a tab opened before a deploy reloads once when a screen's file is gone, instead of showing
 // "Unexpected Application Error!" (`lib/stale-chunk.ts`), and lands on the screen it was opening.
@@ -24,9 +25,16 @@ bootPrefs();
 
 // The snapshot is the app's single server state. It never goes stale on its own: the repository
 // pushes changes (cross-tab storage in fixture mode, SSE in http mode) and the hook invalidates.
+// D-224: a 429 is retried up to three times after the wait the limiter names (`RateLimitedError`), so a busy
+// minute delays a page instead of crashing it; anything else is retried once, as before.
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: Infinity, refetchOnWindowFocus: false, retry: 1 },
+    queries: {
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      retry: (failures, error) => (error instanceof RateLimitedError ? failures < 3 : failures < 1),
+      retryDelay: (attempt, error) => (error instanceof RateLimitedError ? Math.min(error.retryAfterMs, 30_000) : Math.min(1000 * 2 ** attempt, 30_000)),
+    },
   },
 });
 

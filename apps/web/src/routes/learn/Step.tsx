@@ -321,8 +321,13 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const [intake, setIntake] = useState<Readonly<Record<string, string | string[]>> | undefined>();
   const [operator, setOperator] = useState<{ name: string; byStep: Record<string, { done: number; total: number }> } | undefined>();
+  // D-224: keyed on who the learner is, not the learner object. `learnerOf` makes a new object on every snapshot
+  // refetch, so each check re-read the intake and the operator count and re-sent personalization: three more
+  // requests per check, which helped spend § 9.4's per-minute budget.
+  const meId = me?.id ?? null;
+  const meRole = me?.role ?? null;
   useEffect(() => {
-    if (isFixture || staff || preview || week === null || !me || !mayEditIntake(me.role)) return;
+    if (isFixture || staff || preview || week === null || !meId || !meRole || !mayEditIntake(meRole)) return;
     let stop = false;
     const load = async () => {
       try {
@@ -333,7 +338,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
       } catch {
         /* no intake leaves every item where the course put it */
       }
-      if (me.role !== 'Team Owner') return;
+      if (meRole !== 'Team Owner') return;
       try {
         const res = await fetch('/api/personalize', { credentials: 'include' });
         if (!res.ok) return;
@@ -355,7 +360,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     return () => {
       stop = true;
     };
-  }, [staff, preview, week, me]);
+  }, [staff, preview, week, meId, meRole]);
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);

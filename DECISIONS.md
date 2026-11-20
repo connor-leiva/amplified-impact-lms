@@ -7217,3 +7217,46 @@ I captured all 18 learner pages at 1440 and 390 (the system check's own states) 
   - In a browser, the step opens the five words in the task and no table stays below.
   - The deploy's data steps go from 11 to 12 on `GET /api/health/curriculum`.
 
+## D-224 · Checks that save, a page that never crashes on a busy minute, and a rail that goes where it says
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, in this session. He reported, with screenshots of production's `/learn/week/0/step/6`:
+- "Checkmarks not saving" ("That check didn't save.");
+- "things not scrolling right when I click on the right hand side little navigation bar";
+- "this application error sometimes": an Unexpected Application Error page reading "Rate limit exceeded, retry in 13 seconds".
+**Number:** D-223 is the step page polish.
+
+- **Cause (measured).** The API allows 100 requests a minute per session (§ 9.4). The portal spent that budget three ways:
+  - **Everyone's commits reached every tab.** The server sends `changed` to every open tab after every commit by anyone (§ 7.6), and each tab refetched its snapshot and its course every time. During a live build each learner's tab heard every other learner's checks.
+  - **One check cost 8 requests:**
+    - the write itself;
+    - 3 snapshot refetches (every screen that reads the snapshot invalidated it, and each cancelled the refetch before it and started its own);
+    - the course;
+    - the intake;
+    - personalization, read and re-sent (2 requests). The step page keyed those reads on the learner object, which is new on every refetch.
+  - **What the refusals did:**
+    - A refused write showed "That check didn't save."
+    - A refused first load had nothing to show, so it crashed into the error page.
+    - A refused course refetch replaced the course with "failed", so the step page sent the learner Home.
+- **Now (client only; the server, its limit and § 7.6's broadcast are unchanged).**
+  - **Stream batching:** `changed` from the stream is one refresh per burst, at most one per 5 s (`CHANGED_EVERY_MS`). The learner's own changes still show at once, because each write refetches itself and the echo of their own commit waits for the next window.
+  - **Shared refetch:** every subscriber joins one refetch (`cancelRefetch: false`).
+  - **Intake and personalization** load once per step page, keyed on the learner's id and role.
+  - **Refused reads:** a 429 is a `RateLimitedError` carrying the limiter's `retry-after`. Reads retry up to 3 times after that wait, so a page waits instead of crashing. A refused course refetch keeps the course on screen.
+  - **Refused writes:** a write the limiter refused is sent once more after the wait, if that wait is 20 s or less. The limiter refuses before the route runs, so the retry cannot double a toggle.
+  - **Event stream:** if the server refuses it (429 or 503), it is reopened after 15 s, backing off to 2 minutes, and catches up once it is back. Before, the browser gave up on it for good.
+- **The rail.**
+  - A checklist row goes to its own item: the item comes to the middle of the screen and its box takes the focus. Every row used to go to the top of the checklist.
+  - A click on On This Page marks that section at once. At the bottom of the page the last section (Reference) is the current one. A short last section can never scroll into the observer's band, so the mark never moved there.
+- **Measured** in a browser against a local API and database seeded as production, as the Accelerator test learner:
+
+  | What | Before | After |
+  |---|---|---|
+  | One check | 8 requests | 2–3 requests |
+  | 60 commits by another session in 30 s | a refetch round per commit | 7 snapshot and 7 course requests |
+  | First snapshot and course answered 429 | crash | page loads after the wait |
+  | A check answered 429 once | "didn't save" | saves after the wait, no error |
+  | Last rail row | top of the checklist | its item, focused |
+  | Reference | not marked | marked on click |
+- **Tests.** `http.test.ts` covers the stream (one refresh per burst, at most one per window, the own write's echo waiting, a refused stream reopened) and 429 handling (a read's `RateLimitedError` with its wait, a write retried once after it).
+
