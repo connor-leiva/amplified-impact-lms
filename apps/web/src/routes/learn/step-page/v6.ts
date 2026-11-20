@@ -13,10 +13,10 @@ import { isVideoUpload } from '@ai/core/course-types';
 import type { CoursePayload } from '../../course/Course.vm';
 import { classifyReplayUrl } from '../../../components/replay/source';
 import type { WeekRow } from '../learn.vm';
-import { asideRows, stepVM } from '../Step.vm';
-import type { StepPageVM, StepVM } from '../Step.vm';
+import { PLATFORM_LABEL, asideRows, stepVM } from '../Step.vm';
+import type { Platform, StepPageVM, StepVM } from '../Step.vm';
 import { buildKitVM } from '../WeekContent.vm';
-import { v6Gap } from './StepPage.vm';
+import { v6Gaps } from './StepPage.vm';
 
 export interface StepPageFlagEnv {
   VITE_STEP_PAGE_V6?: string;
@@ -34,14 +34,25 @@ export function stepOfPath(pathname: string): { week: number; step: number } | n
   return m ? { week: Number(m[1]), step: Number(m[2]) } : null;
 }
 
-/** Why a built step keeps today's player, or null when it draws as the v6 page. */
+/** Every reason a built step keeps today's player, across all of its paths (empty: it draws as the v6 page). */
+export function v6Whys(vm: StepPageVM, row: WeekRow | undefined): string[] {
+  if (vm.kind !== 'step') return ['no such step'];
+  if (!vm.pills || !Object.keys(vm.layouts ?? {}).length) return ['not a checklist step'];
+  const kit = buildKitVM(row?.module, () => null);
+  const paths: (Platform | null)[] = vm.tabs.length ? vm.tabs : [null];
+  const out = new Set<string>();
+  for (const on of paths) {
+    const layout = vm.layouts?.[on ?? 'claude'] ?? (on === null ? Object.values(vm.layouts ?? {})[0] : undefined);
+    const block = layout?.videos[0];
+    const kind = !block ? null : isVideoUpload(block.source) ? 'file' : (classifyReplayUrl(block.source.url)?.kind ?? 'link');
+    for (const why of v6Gaps(vm, layout, kit, asideRows(vm.aside, on), kind)) out.add(vm.tabs.length > 1 && on ? `${why} (${PLATFORM_LABEL[on]})` : why);
+  }
+  return [...out];
+}
+
+/** Why a built step keeps today's player (the first reason), or null when it draws as the v6 page. */
 export function v6Why(vm: StepPageVM, row: WeekRow | undefined): string | null {
-  if (vm.kind !== 'step') return 'no such step';
-  const on = vm.tabs[0] ?? 'claude';
-  const layout = vm.layouts?.[on];
-  const block = layout?.videos[0];
-  const kind = !block ? null : isVideoUpload(block.source) ? 'file' : (classifyReplayUrl(block.source.url)?.kind ?? 'link');
-  return v6Gap(vm, layout, buildKitVM(row?.module, () => null), asideRows(vm.aside, vm.tabs.length ? on : null), kind);
+  return v6Whys(vm, row)[0] ?? null;
 }
 
 /** Whether a built step view-model draws as the v6 page. */
@@ -54,14 +65,14 @@ export function v6On(me: Pick<Learner, 'test'> | null, flag: boolean = STEP_PAGE
   return flag || me?.test === true;
 }
 
-/** The step at `pathname` for this viewer, with why it keeps today's player (null: it draws the v6 page). */
-function whyAt(pathname: string, payload: CoursePayload | null, rows: readonly WeekRow[], actor: Actor, me: Learner | null, now: number): string | null {
-  if (!payload) return 'no course';
+/** The step at `pathname` for this viewer: every reason it keeps today's player (empty: it draws the v6 page). */
+function whysAt(pathname: string, payload: CoursePayload | null, rows: readonly WeekRow[], actor: Actor, me: Learner | null, now: number): string[] {
+  if (!payload) return ['no course'];
   const at = stepOfPath(pathname);
-  if (!at) return 'not a step';
+  if (!at) return ['not a step'];
   const row = rows.find((r) => r.week === at.week);
   const vm = stepVM(payload, row, at.step, actor, now, { checks: me?.checks, prefs: me?.coursePrefs, videoProgress: me?.videoProgress });
-  return v6Why(vm, row);
+  return v6Whys(vm, row);
 }
 
 /** Whether the step at `pathname` draws the v6 page for this viewer. */
@@ -75,7 +86,7 @@ export function v6StepAt(
   enabled: boolean = v6On(me),
 ): boolean {
   if (!enabled) return false;
-  return whyAt(pathname, payload, rows, actor, me, now) === null;
+  return whysAt(pathname, payload, rows, actor, me, now).length === 0;
 }
 
 const told = new Set<string>();
@@ -85,7 +96,8 @@ const told = new Set<string>();
  */
 export function tellTestAccount(pathname: string, payload: CoursePayload | null, rows: readonly WeekRow[], actor: Actor, me: Learner | null, now: number): void {
   if (me?.test !== true) return;
-  const why = whyAt(pathname, payload, rows, actor, me, now);
+  const whys = whysAt(pathname, payload, rows, actor, me, now);
+  const why = whys.join('; ');
   if (!why || told.has(`${pathname}\0${why}`)) return;
   told.add(`${pathname}\0${why}`);
   console.info(`[v6 step page] ${pathname} keeps today's player: ${why}.`);

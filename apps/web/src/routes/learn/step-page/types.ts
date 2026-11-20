@@ -131,6 +131,11 @@ export interface SpStep {
   jumps: { id: string; label: string }[];
   forStep: SpForStep[];
   help: SpHelp[];
+  /** The step's paths (Claude, ChatGPT) when it has more than one, the open one, and how to switch. */
+  tabs?: { id: string; label: string }[];
+  tab?: string;
+  tabsLabel?: string;
+  onTab?: (id: string) => void;
 }
 
 /** The chrome words, as the mockup prints them. */

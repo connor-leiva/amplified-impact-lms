@@ -8,8 +8,8 @@
 
 import type { BuildKitVM } from '../WeekContent.vm';
 import type { KitRowVM } from '../learn.vm';
-import type { ChecklistLayoutVM, CheckItemVM, StepVM } from '../Step.vm';
-import { watchLength } from '../Step.vm';
+import type { ChecklistLayoutVM, CheckItemVM, Platform, StepVM } from '../Step.vm';
+import { PLATFORM_LABEL, STEP, watchLength } from '../Step.vm';
 import { clock } from './motion';
 import type { SpAction, SpCue, SpForStep, SpHelp, SpItem, SpLabels, SpStep, SpVideo } from './types';
 
@@ -64,6 +64,46 @@ const JUMP_ID: Record<string, string> = { 'step-watch': 'watch', 'step-checklist
 const JUMP_LABEL: Record<string, string> = { watch: V6_LABELS.watch, checklist: V6_LABELS.yourChecklist, reference: V6_LABELS.reference };
 
 /** Why a step stays on today's player, or null when the v6 page draws every piece of it. */
+export function v6Gaps(
+  vm: StepVM,
+  layout: ChecklistLayoutVM | undefined,
+  kit: BuildKitVM | null,
+  forStep: readonly KitRowVM[],
+  videoKind: 'file' | 'hls' | 'link' | null,
+): string[] {
+  if (!vm.pills || !layout) return ['not a checklist step'];
+  const out = new Set<string>();
+  const add = (why: string) => out.add(why);
+  if (vm.startHere) add('Start Here card');
+  if (layout.leading.length) add('leading callout');
+  if (layout.extras.length) add('extra content');
+  if (layout.videos.length > 1) add('more than one video');
+  const block = layout.videos[0];
+  if (block) {
+    if (videoKind !== 'file' && videoKind !== 'hls') add('video link');
+    if (block.draft) add('draft video');
+    if (!block.chapters?.length) add('video without chapters');
+    if (!block.transcript) add('video without a transcript');
+  }
+  if (layout.accordions.some((a) => a.table || a.link)) add('accordion table or link');
+  if (forStep.length) add('linked skill or kit row');
+  if (kit && (kit.files.length || (kit.prompt && kit.prompt.vars.length))) add('build kit files or fill-ins');
+  for (const item of layout.items) {
+    if (item.waiting !== null) add('waiting item');
+    if (item.optional) add('optional item');
+    // <StepPage> draws sub-checks but passes no handler for them, so a step with sub-checks keeps today's player.
+    if (item.subchecks.length) add('sub-checks');
+    if (item.note) add('operator count');
+    if (item.clickPath.length) add('click path');
+    if (item.action && item.action.type !== 'calendar' && item.action.type !== 'link') add(`${item.action.type} action`);
+    if (item.action && item.playLabel) add('two actions on one item');
+    if (item.action?.type === 'calendar' && !item.action.event) add('calendar without an event');
+    if (item.card?.length && (item.action || item.playLabel)) add('two actions on one item');
+  }
+  return [...out];
+}
+
+/** Why a step's layout keeps today's player (the first reason), or null when the v6 page draws all of it. */
 export function v6Gap(
   vm: StepVM,
   layout: ChecklistLayoutVM | undefined,
@@ -71,35 +111,7 @@ export function v6Gap(
   forStep: readonly KitRowVM[],
   videoKind: 'file' | 'hls' | 'link' | null,
 ): string | null {
-  if (!vm.pills || !layout) return 'not a checklist step';
-  if (vm.tabs.length > 1) return 'path tabs';
-  if (vm.startHere) return 'Start Here card';
-  if (layout.leading.length) return 'leading callout';
-  if (layout.extras.length) return 'extra content';
-  if (layout.videos.length > 1) return 'more than one video';
-  const block = layout.videos[0];
-  if (block) {
-    if (videoKind !== 'file' && videoKind !== 'hls') return 'video link';
-    if (block.draft) return 'draft video';
-    if (!block.chapters?.length) return 'video without chapters';
-    if (!block.transcript) return 'video without a transcript';
-  }
-  if (layout.accordions.some((a) => a.table || a.link)) return 'accordion table or link';
-  if (forStep.length) return 'linked skill or kit row';
-  if (kit && (kit.files.length || (kit.prompt && kit.prompt.vars.length))) return 'build kit files or fill-ins';
-  for (const item of layout.items) {
-    if (item.waiting !== null) return 'waiting item';
-    if (item.optional) return 'optional item';
-    // <StepPage> draws sub-checks but passes no handler for them, so a step with sub-checks keeps today's player.
-    if (item.subchecks.length) return 'sub-checks';
-    if (item.note) return 'operator count';
-    if (item.clickPath.length) return 'click path';
-    if (item.action && item.action.type !== 'calendar' && item.action.type !== 'link') return `${item.action.type} action`;
-    if (item.action && item.playLabel) return 'two actions on one item';
-    if (item.action?.type === 'calendar' && !item.action.event) return 'calendar without an event';
-    if (item.card?.length && (item.action || item.playLabel)) return 'two actions on one item';
-  }
-  return null;
+  return v6Gaps(vm, layout, kit, forStep, videoKind)[0] ?? null;
 }
 
 function actionOf(item: CheckItemVM, onCalendar: (item: CheckItemVM) => void): SpAction | null {
@@ -127,6 +139,9 @@ export interface V6Media {
   cues: SpCue[];
   poster: string | undefined;
   captions: string | undefined;
+  /** The open path, and how to switch it (absent: the step's first path). */
+  on?: Platform;
+  choose?: (p: Platform) => void;
 }
 
 export interface V6Handlers {
@@ -204,5 +219,8 @@ export function stepPageStep(vm: StepVM, layout: ChecklistLayoutVM, kit: BuildKi
     }),
     forStep,
     help,
+    ...(vm.tabs.length > 1
+      ? { tabs: vm.tabs.map((t) => ({ id: t, label: PLATFORM_LABEL[t] })), tab: media.on ?? vm.tabs[0]!, tabsLabel: STEP.yourAi, onTab: (id: string) => media.choose?.(id as Platform) }
+      : {}),
   };
 }
