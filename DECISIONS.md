@@ -6967,3 +6967,39 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **Office hours' course title:** the week shows the session's own title.
 
   With `StepPage.sync.test.ts` (D-212), the step and the week are both enforced.
+
+## D-214 · Every builder field reaches learners, and every learner page is checked against the step page's rules
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-213: every learner page on the step page's rules, and the builder fully in sync, with nothing seeded in code.
+**Number:** D-213 is the Vault, Team Hub and shared primitives.
+
+- **The builder offers only what learners read.** A field that changed nothing anyone sees is either wired to the learner pages or no longer offered.
+  - **The Course page card's Promise is now Outcome.** It edits the line learners read under the week's question (the module's outcome, which the seed fills from the promise) and keeps the promise equal to it.
+  - **Flagship and Tools are no longer offered.** Nothing read them: the week's flagship is the kit skill whose role is Flagship.
+  - **Hire cards offer Seat card, Playbook card and Locked copy.** The week page shows the first two, and a locked week shows the third. A week's Sample output and Status labels stay on the module, but no learner page reads them, so the builder no longer offers them.
+  - **A week's Edit details no longer offers Output 1 to 3 or the Run button label.** Those are an AI Employee's: its hire page reads them, but no page of a course week does.
+  - **The office hours page's title now reaches learners.** The week page used the session's title. It now uses the page's own title, else the session's, as the live build does.
+  - The data is kept, and there is no migration.
+- **The builder is driven, not assumed.** `WeekBuilder.sync.test.tsx` opens every week card's editor in the real builder (Course page, Live build page, Office hours page, Seat card, Playbook card, Locked copy) and fills every text field with a marker. Every marker must reach the learner's week page, or the locked week for its copy. The week's own details (name, summary, platform, instructor notes, system prompt) reach the week page, its build kit and its steps. The step's fields are `StepPage.sync.test.ts` (D-212).
+- **Every learner page is checked.** `learn-v2-system.spec.ts` opens 18 learner pages at 1440 and 390:
+  - **Home:** before launch and at a live build.
+  - **Weeks:** Week 0, an open week, a locked week.
+  - **Steps:** three steps on the v6 page.
+  - **Schedule:** weeks and calendar.
+  - **Skill library and skills:** the Skill Library, an open skill, a locked skill.
+  - **Other pages:** Account, Team Hub, the Vault, an AI employee, the Team Plan window.
+
+  Each page must meet the step page's rules:
+  - the bone canvas;
+  - the step page's title (650 39px, in ink);
+  - filled primary buttons at the one button system's size and weight (Geist 500; 40px on a desk, 32px for the shell's bar buttons, 44px on a phone; 8px radius);
+  - white cards at the 14px radius.
+
+  All 36 pass.
+- **What the check found, now fixed.**
+  - **Hero and Schedule actions:** these were 36px. R2's primary control height is 40px in the learner frame (48px on a phone).
+  - **Team Hub's Export and Invite:** these were 36px at weight 600. They are now the system's.
+  - **The shell's own buttons:** these took the body's weight and pressed to .97. They now use Geist 500 and the brand press (.96, spring back).
+
+  `polish.test.ts` now also checks that no learner stylesheet lifts on hover.

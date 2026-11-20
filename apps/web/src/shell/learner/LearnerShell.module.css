@@ -450,8 +450,11 @@ button.ni.tog:hover {
   background: var(--r2-bg);
   border-color: var(--r2-line2);
 }
+/* D-214: the brand press (step page): squeeze to .96 in 90ms, spring back on release. */
 .b:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
 }
 .frame.frame .b:focus-visible {
   box-shadow: var(--r2-sh-button), var(--r2-focus);
@@ -459,10 +462,11 @@ button.ni.tog:hover {
 .frame.frame .b:hover:focus-visible {
   box-shadow: var(--lv-sh-lift), var(--r2-focus);
 }
-/* A <button class="b"> takes the body's type and colour, as the mockup's cascade draws it. */
+/* A <button class="b"> takes the body's size and colour, as the mockup's cascade draws it. D-214: its label is
+   Geist 500, as every button in the step page's one button system is. */
 button.b {
   font-size: inherit;
-  font-weight: inherit;
+  font-weight: 500;
   color: inherit;
 }
 .b.p {

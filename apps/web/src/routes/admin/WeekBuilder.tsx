@@ -893,7 +893,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
         rows={[
           { label: 'Title', value: c.title },
           { label: 'Question', value: c.question },
-          { label: 'Promise', value: c.promise ?? <span className={k.mu}>Not set</span> },
+          { label: 'Outcome', value: draft.outcome || <span className={k.mu}>Not set</span> },
           { label: 'Owner time', value: c.time.owner },
           { label: 'Operator time', value: c.time.operator },
           { label: 'Start Here', value: c.startHere?.title ?? <span className={k.mu}>Not set</span> },
@@ -912,13 +912,17 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
         >
           <Line label="Week title" value={c.title} onChange={(v) => set((x) => (x.title = v))} />
           <Line label="Question" value={c.question} onChange={(v) => set((x) => (x.question = v))} />
+          {/* D-214: the line under the week's question is the week's outcome (the learner pages read it; the
+              seed writes the course's promise into it). The builder edits that one line, and keeps the promise
+              the same so the copy rules read one value. */}
           <Line
-            label="Promise"
-            value={c.promise ?? ''}
+            label="Outcome"
+            value={draft.outcome}
             onChange={(v) =>
-              set((x) => {
-                if (v.trim()) x.promise = v;
-                else delete x.promise;
+              up((d) => {
+                d.outcome = v;
+                if (v.trim()) d.course!.promise = v;
+                else delete d.course!.promise;
               })
             }
           />
@@ -933,26 +937,8 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
               <Line label="Operator time" value={c.time.operator} onChange={(v) => set((x) => (x.time.operator = v))} />
             </span>
           </div>
-          <Line
-            label="Flagship"
-            value={c.flagship ?? ''}
-            onChange={(v) =>
-              set((x) => {
-                if (v.trim()) x.flagship = v;
-                else delete x.flagship;
-              })
-            }
-          />
-          <Lines
-            label="Tools"
-            items={c.tools ?? []}
-            onChange={(v) =>
-              set((x) => {
-                if (v.length) x.tools = v;
-                else delete x.tools;
-              })
-            }
-          />
+          {/* D-214: no Flagship or Tools fields. Nothing a learner sees reads them: the week's flagship is the kit
+              skill whose role is Flagship (Kit, below), and the learner pages list no tools. */}
           <Lines label="By week’s end" items={c.homework.byWeekEnd} onChange={(v) => set((x) => (x.homework.byWeekEnd = v))} />
           <Lines label="Assignment" items={c.homework.assignment} onChange={(v) => set((x) => (x.homework.assignment = v))} />
           <Lines label="Checkpoint" items={c.homework.acceptance} onChange={(v) => set((x) => (x.homework.acceptance = v))} />
@@ -1137,13 +1123,20 @@ const EMPTY: { [K in CardKey]: NonNullable<WeekDraft['course'][K]> } = {
   statusLabels: {},
 };
 
+/**
+ * D-214: the cards a learner sees: the seat and playbook cards on the week page, and a locked week's copy. A
+ * week's sample output and status labels are kept on the module but not offered here: no learner page reads
+ * them, so editing them would change nothing anyone sees.
+ */
+const SHOWN_CARDS: readonly CardKey[] = ['seatCard', 'playbookCard', 'lockedCopy'];
+
 function HireCardsCard({ draft, up }: WeekCardsProps) {
   const [open, setOpen] = useState<CardKey | null>(null);
   const [drop, setDrop] = useState<CardKey | null>(null);
   const c = draft.course;
   return (
     <Card title="Hire cards" pad={false}>
-      {(Object.keys(CARD_LABELS) as CardKey[]).map((key) => {
+      {SHOWN_CARDS.map((key) => {
         const has = c[key] !== undefined;
         return (
           <Row key={key} label={CARD_LABELS[key]} onEdit={() => {

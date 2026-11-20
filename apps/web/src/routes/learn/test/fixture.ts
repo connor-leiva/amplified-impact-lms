@@ -22,7 +22,7 @@ export const LIVE_NOW = Date.parse('2026-12-09T19:05:00Z');
 export const LEARNER_ID = 'u-dana';
 
 let base: Db | null = null;
-const deployed = (): Db => {
+export const deployed = (): Db => {
   base ??= planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db;
   return structuredClone(base);
 };

@@ -872,3 +872,12 @@
   border-radius: 14px;
   box-shadow: var(--shadow-xs);
 }
+/* D-214: the header's Export and Invite are the one button system's inside the learner frame: 40px (44px on a
+   phone), Geist 500 at the button size. */
+:global([data-learner-v2]) .export,
+:global([data-learner-v2]) .invite {
+  height: var(--lv-btn);
+  padding: 0 16px;
+  font-size: var(--lv-btn-fs);
+  font-weight: 500;
+}

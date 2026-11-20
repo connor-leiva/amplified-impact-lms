@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('Week 0 polish, the ground and the hover underline (D-203)', () => {
@@ -24,4 +24,17 @@ describe('Week 0 polish, the ground and the hover underline (D-203)', () => {
     expect(learn).toContain('scale(0.96)');
     expect(learn).toMatch(/prefers-reduced-motion:\s*reduce/);
   });
+
+  it('no learner stylesheet lifts on hover (D-214: hover changes colour only, as on the step page)', () => {
+    const dirs = ['src/routes/learn', 'src/shell/learner'];
+    const files = dirs.flatMap((d) => readdirSync(d).filter((f) => f.endsWith('.module.css')).map((f) => `${d}/${f}`));
+    expect(files.length).toBeGreaterThan(8);
+    const lifts: string[] = [];
+    for (const f of files) {
+      const css = readFileSync(f, 'utf8');
+      for (const m of css.matchAll(/([^{}]*:hover[^{}]*)\{([^{}]*)\}/g)) if (/translateY\(-/.test(m[2]!)) lifts.push(`${f}: ${m[1]!.trim()}`);
+    }
+    expect(lifts).toEqual([]);
+  });
 });
+
