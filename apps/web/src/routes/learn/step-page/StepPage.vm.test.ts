@@ -1,7 +1,7 @@
 // D-210: the v6 step page's props from the real loader. Week 0 step 2, entered as the mockup draws it
 // (test/mockup-step2.ts), must map to the handoff's own sample props (handoff/step-page-v6/src/sample-data.js),
 // word for word: that is what makes the live page render the mockup.
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { setViewerZone } from '@ai/core';
@@ -14,7 +14,7 @@ import type { StepVM } from '../Step.vm';
 import { buildKitVM } from '../WeekContent.vm';
 import { LEARNER_ID, PRELAUNCH_NOW, learnState } from '../test/fixture';
 import { V6_LABELS, autoAtOf, stepPageStep, v6Gap } from './StepPage.vm';
-import { stepOfPath, stepPageV6Enabled, v6Draws, v6StepAt } from './v6';
+import { stepOfPath, stepPageV6Enabled, tellTestAccount, v6Draws, v6On, v6StepAt } from './v6';
 import { MOCKUP_PROMPT, MOCKUP_STEP4_BLOCKS, MOCKUP_STEP5_BLOCKS, mockupStep2Blocks } from './test/mockup-step2';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,6 +103,26 @@ describe('the v6 step page’s props (D-210)', () => {
     expect(stepPageV6Enabled({})).toBe(false);
     expect(stepPageV6Enabled({ VITE_STEP_PAGE_V6: 'false' })).toBe(false);
     expect(stepPageV6Enabled({ VITE_STEP_PAGE_V6: 'true' })).toBe(true);
+  });
+
+  it('with the build flag off, only the seeded test account sees it, and only it is told why a step does not', () => {
+    const { p, rows, me } = mockupState();
+    const tester = { ...me!, test: true as const };
+    expect(v6On(null, false)).toBe(false);
+    expect(v6On(me, false)).toBe(false);
+    expect(v6On(tester, false)).toBe(true);
+    expect(v6On(me, true)).toBe(true);
+    expect(v6StepAt('/learn/week/0/step/2', p, rows, learner, tester, PRELAUNCH_NOW, v6On(tester, false))).toBe(true);
+    expect(v6StepAt('/learn/week/0/step/2', p, rows, learner, me, PRELAUNCH_NOW, v6On(me, false))).toBe(false);
+    const said: string[] = [];
+    const info = vi.spyOn(console, 'info').mockImplementation((m: string) => void said.push(m));
+    tellTestAccount('/learn/week/0/step/3', p, rows, learner, me, PRELAUNCH_NOW);
+    expect(said).toEqual([]);
+    tellTestAccount('/learn/week/0/step/3', p, rows, learner, tester, PRELAUNCH_NOW);
+    tellTestAccount('/learn/week/0/step/3', p, rows, learner, tester, PRELAUNCH_NOW);
+    tellTestAccount('/learn/week/0/step/2', p, rows, learner, tester, PRELAUNCH_NOW);
+    expect(said).toEqual(["[v6 step page] /learn/week/0/step/3 keeps today's player: not a checklist step."]);
+    info.mockRestore();
   });
 
   it('reads the checks-itself fraction off the item’s label', () => {

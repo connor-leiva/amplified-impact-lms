@@ -25,17 +25,15 @@ import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome, learnStep } from './routes';
-import { v6StepAt } from './step-page/v6';
+import { tellTestAccount, v6StepAt } from './step-page/v6';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
-/** D-210: the v6 step page, in its own chunk with its stylesheets, built only with VITE_STEP_PAGE_V6=true. */
-// Read straight off import.meta.env so a build without the flag folds this to null and drops the chunk.
-const StepPageV6 =
-  import.meta.env.VITE_STEP_PAGE_V6 === 'true' ? lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute }))) : null;
+/** D-210: the v6 step page, in its own chunk with its stylesheets, loaded only when a step draws it (`v6StepAt`). */
+const StepPageV6 = lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute })));
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -390,14 +388,17 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     previewing: viewer.preview !== undefined,
     title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
   };
-  // D-210: with the flag on, a step the v6 page draws in full renders it, chrome-free (the shell asks the same rule).
-  if (StepPageV6 && !preview && step !== null && v6StepAt(learnStep(vm.week, step), course.payload, rows, viewer.actor, me, now)) {
+  // D-210: for a viewer who may see it (the build flag, or the seeded test account), a step the v6 page draws in
+  // full renders it, chrome-free (the shell asks the same rule). The test account is told when a step does not.
+  const path = step !== null ? learnStep(vm.week, step) : null;
+  if (!preview && path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
     return (
       <Suspense fallback={null}>
         <StepPageV6 key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />
       </Suspense>
     );
   }
+  if (!preview && path) tellTestAccount(path, course.payload, rows, viewer.actor, me, now);
   // A new step starts on its own first tab.
   return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} local={local} />;
 }
