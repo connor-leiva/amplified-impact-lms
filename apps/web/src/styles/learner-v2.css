@@ -79,6 +79,32 @@
   }
 }
 
+/* D-213: the design tokens (tokens.css) inside the learner frame, in the light theme, take the same v6 values,
+   so the pages and primitives the learner frame shares with today's portal (the Vault, Team Hub, buttons,
+   dialogs, drawers, toasts, status tokens) draw in the step page's system too. Only inside the frame: today's
+   portal and its goldens read tokens.css unchanged, and Dark keeps tokens.css's dark values. */
+:root:not([data-theme='dark']) [data-learner-v2] {
+  --text-primary: #0a0d0c;
+  --text-secondary: rgb(10 13 12 / 0.68);
+  --text-tertiary: rgb(10 13 12 / 0.6);
+  --text-link: #1f4d40;
+  --line-subtle: rgb(10 13 12 / 0.08);
+  --line-default: rgb(10 13 12 / 0.12);
+  --line-strong: rgb(10 13 12 / 0.2);
+  --bg-canvas: #f1f0eb;
+  --bg-sunken: #f1f0eb;
+  --bg-hover: rgb(31 77 64 / 0.06);
+  --action-primary: #1f4d40;
+  --action-primary-hover: color-mix(in oklch, #1f4d40 86%, #0a0d0c);
+  --action-on-primary: #f5f5f2;
+  --action-primary-tint: rgb(31 77 64 / 0.06);
+  --action-primary-line: rgb(31 77 64 / 0.18);
+  --action-secondary-line: rgb(10 13 12 / 0.12);
+  --shadow-xs: 0 2px 4px rgb(31 77 64 / 0.06);
+  --shadow-card: 0 8px 16px rgb(31 77 64 / 0.08);
+  --shadow-pop: 0 16px 32px rgb(31 77 64 / 0.1);
+}
+
 /* D-185: the dark theme. The learner shell marks its frame `data-lv-theme` with the person's theme and puts
    the same on the root (`data-theme`, which turns tokens.css's dark values on), so every R2 and learner
    colour the frame reads is redefined here from the design tokens' dark values: no raw colour. Sizes,

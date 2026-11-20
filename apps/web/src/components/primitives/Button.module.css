@@ -101,3 +101,43 @@
   border-color: var(--line-default);
   cursor: not-allowed;
 }
+
+/* D-213: inside the learner frame, the step page's one button system (D-210, D-211): 40px (44px on a phone),
+   Geist 500 at the button size, hover a colour change only (a secondary's outline firms to ink, the ghost is
+   forest with a tint), press .96 and spring back. Today's portal keeps the reference's buttons. */
+:global([data-learner-v2]) .btn {
+  font-weight: 500;
+  transition:
+    transform var(--aim-dur-spring) var(--aim-ease-spring),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
+}
+:global([data-learner-v2]) .btn:active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
+}
+:global([data-learner-v2]) .md,
+:global([data-learner-v2]) .lg {
+  height: var(--lv-btn);
+  padding: 0 16px;
+  font-size: var(--lv-btn-fs);
+}
+:global([data-learner-v2]) .secondary:hover {
+  background: var(--action-secondary);
+  border-color: var(--text-primary);
+}
+:global([data-learner-v2]) .ghost {
+  color: var(--action-primary);
+}
+:global([data-learner-v2]) .ghost:hover {
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+}
+@media (prefers-reduced-motion: reduce) {
+  :global([data-learner-v2]) .btn {
+    transition: none;
+  }
+}
+

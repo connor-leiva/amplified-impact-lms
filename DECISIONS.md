@@ -6943,3 +6943,27 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **The editor's type.** The Week Builder's rich text field (D-209) draws the v6 page's long-step paragraph, as a learner reads it: Geist 16px / 1.5 in ink, with 16px between paragraphs. It was R2's smaller secondary body text.
 - **The live preview.** The builder previews a step with the v6 page itself (D-210). It previews a week in the learner frame, so it carries the same system as the learner pages (D-211).
 - **Not changed.** No schema or migration, and no course content: nothing is seeded to make a step look like the mockup. The mockup's Week 0 step 2 is entered through the builder, like any step.
+
+## D-213 · The rest of the learner frame on the step page's system, and the week page's sync guard
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 and D-212: every learner page, and the builder in sync.
+**Number:** D-212 is the builder and the step page as one source.
+
+- **The shared pages and primitives.** The Vault and Team Hub are today's portal pages, drawn inside the learner frame. So are the shared Button, dialogs, drawers, toasts and status tokens. They read the design tokens (`tokens.css`), not R2's, so D-211 did not reach them. In the light theme, those tokens now take the same v6 values inside the learner frame (`styles/learner-v2.css`):
+  - bone canvas and sunken surfaces;
+  - ink at 100%, 68% and 60%;
+  - hairlines at 8%, 12% and 20%;
+  - forest primary, hover, tint and line;
+  - the forest shadows.
+- **What that covers.** Inside the frame:
+  - **Buttons:** the one button system (40px, 44px on a phone; Geist 500; secondary outline firms to ink; forest ghost; press .96).
+  - **The Vault and Team Hub:** the step page's title and purpose line, 14px cards with the small forest shadow, and blocks that rise on arrival (reduced motion lands them).
+- **Today's portal is untouched.** Every rule is scoped to `[data-learner-v2]`, so today's portal, the `/__states` sheet and their goldens read the reference's values as before. Dark keeps tokens.css's dark values.
+- **The week page's sync guard.** `WeekContent.sync.test.ts` fills every word the builder writes into a week's course page with a marker. Each marker must reach the week page, or be named with the reason it is not drawn:
+  - **Promise, flagship and tools:** AI Employee portal fields, stripped from the learner answer.
+  - **The old Setup Order:** the week's steps replace it.
+  - **A kit skill's "use" line:** its skill page carries it.
+  - **Office hours' course title:** the week shows the session's own title.
+
+  With `StepPage.sync.test.ts` (D-212), the step and the week are both enforced.
