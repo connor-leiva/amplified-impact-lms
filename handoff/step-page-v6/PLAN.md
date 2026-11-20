@@ -112,23 +112,34 @@ Locally:
 
 `diff/piece-review.mjs` as you specify. I'll write it once I have the rest of Phase 3 (Q1).
 
-## Open questions (blocking)
-1. **The prompt was cut off** in Phase 3 C ("`#pills-hs`: at the start (right arrow and fade), scrolled"). I need the rest of C's pieces and states, D, E, and anything after.
-2. **Scope.** The opening says the whole LMS should be refined with these elements: this page, then the rest of the setup builder's pages, then the rest of the LMS. The hard rules say to touch only the step route, its components, its CSS, the two brand files and the route's layout. Recommendation: this branch does the step route only. All eight Week 0 steps render through the same `StepPage`, so they update together where their content is covered (Q3). The wider LMS refinement comes in follow-up PRs once this one passes. Confirm?
-3. **Content the mockup never draws.** Other Week 0 steps use things step 2 doesn't have:
-   - the Claude / ChatGPT path tabs;
-   - step 1's Start Here card;
-   - `StepLive`;
-   - download, copy and invite actions;
-   - sub-checks, waiting and optional items;
-   - leading callouts, extra content blocks, multiple videos, accordion tables and links, rich text;
-   - glossary underlines in titles;
-   - the operator's count;
-   - the build kit.
+## Decisions taken while building (defaults: confirm or change)
+The message arrived cut off in Phase 3 C, and nothing in HANDOFF §4 was missing, so I built on these defaults rather than stopping.
 
-   The rules forbid styling from description. Recommendation: with the flag on, a step uses v6 only when every piece of its content is something the v6 components draw; any other step keeps today's player. Each extra piece then gets designed in `mockup/step-2.html` first.
-4. **Landmarks.** The repo's CLAUDE.md requires `aside[aria-label="Primary"]`, a `header` with `nav[aria-label="Breadcrumb"]`, and `main` on every page. The v6 page has `main`, a `header` without a breadcrumb `nav`, and an aside labelled "On this step". The chrome-free route also drops the shell's bar, so a staff preview loses its "Previewing as…" line. Recommendation: allow the exception for this route, with a DECISIONS entry. Confirm?
-5. **The 90 % auto-check.** v6 checks "Watch the video" on the client when the playhead passes 90 %, so seeking to the end would check it. The LMS rule (D-191, `saveVideoProgress`) checks it when 90 % of the video has actually been watched. Recommendation: keep the server's rule. The page shows the check when the server's auto-check comes back, which is a behaviour change only, with no pixel difference. Or follow v6 exactly?
-6. **The deployed preview and its session.** `<PREVIEW_URL>` and `<AUTH_JSON>` are placeholders. I can't deploy or set Railway variables. Who deploys the flagged preview (an environment with `VITE_STEP_PAGE_V6=true` and the D-202 test learner's variables)? Who gives me the test learner's saved session? And how do I reset that learner on the preview before each run? There's no learner-side mutation that clears video progress. Recommendation: a one-line SQL reset that you or Railway runs, kept as a script in this folder.
-7. **Exemptions CI will need.** If `lms-type-floor` (16 px phone floor) or eslint or `tsc` reject the verbatim CSS or the brand `.tsx`, I'll add file-scoped exemptions and record them in DECISIONS. I won't change the files. OK?
-8. **The handoff folder in the repo.** Commit `handoff/step-page-v6/` (about 13 MB: 8.6 MB of frames and a 1.8 MB mp4, without `node_modules` and the harness build) so CI and others can re-run the tests? Or keep it outside the repo?
+1. **The rest of Phase 3 (C, D, E).** I don't have it. C is `diff/piece-review.mjs`: every piece × state × the six widths, at 0 differing pixels. Its pieces and states go beyond the two the message listed. D and E are not done.
+2. **Scope.** This branch does the step route only, as the hard rules say. Every Week 0 step whose content the mockup draws uses the v6 page. The rest of the LMS waits for follow-up PRs.
+3. **Content the mockup never draws.** A step keeps today's player when it has any of these: path tabs, Start Here, download, copy or invite actions, waiting, optional or sub-checked items, extras, a second video, an accordion table or link, linked skills or kit rows, kit files or fill-ins (`v6Gap`, unit-tested).
+   - Glossary underlines and rich-text formatting are drawn as plain text.
+   - The operator's count and `StepLive` are not shown on a v6 step.
+   - The builder's live preview keeps today's player.
+4. **Landmarks, icons, type floor.** These follow the handoff on this route only (D-210):
+   - no shell aside or breadcrumb;
+   - the mockup's own sprite;
+   - 13 to 15 px phone text and the mockup's button sizes, with `step-page.lms.css` countering lms.css's 44 px phone minimums inside `[data-step-page]`.
+5. **Auto-check at 90 %.** The v6 rule is ported as is: the box checks when the playhead passes 90 %. The server's D-191 watched-fraction rule still runs too.
+6. **Labels.** The chrome words are the mockup's (`V6_LABELS`, tested equal to `sampleLabels`). Where words were missing, they are generated from the data:
+   - "Week 0 steps" for the rail's label;
+   - "Open the five words" / "Hide the five words" from the card's count;
+   - the play pill's words from the video block's title;
+   - "System prompt" for the kit row.
+7. **Exemptions.**
+   - tsc reads a generated declaration file for the unchanged brand `.tsx`, through the `@brand/ai-motion` alias.
+   - The source's `eslint-disable` comments for an absent plugin are dropped.
+   - Nothing else needed one: lms-type-floor and check-css-colors don't scan global stylesheets.
+8. **The handoff folder** is committed without `node_modules` and the harness build.
+
+## Still needed from you
+- **The deployed preview.** Its URL and someone to deploy it, with `VITE_LEARNER_V2=true` and `VITE_STEP_PAGE_V6=true` at build time and the D-202 test learner's variables.
+- **Week 0 step 2 on that preview,** entered as `apps/web/src/routes/learn/step-page/test/mockup-step2.ts` has it. In particular, the video block's title is the pill's words, "Play the orientation".
+- **A way to run `compliance/step-page-v6/reset.sql`** against the preview's database.
+
+With those, the three commands in `compliance/step-page-v6/README.md` run as they do locally.
