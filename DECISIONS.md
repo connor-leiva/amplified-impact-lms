@@ -6866,3 +6866,80 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **Not drawn.** The optional chip, as on the old player.
 - **Mutations.** Each box and Mark step done go through the portal's own `toggleChecklistItem` and `toggleStep`. These toggle, so a call is sent only when the wanted state differs from the last one asked for. A refused write draws the page again from the server, in place, with the refusal in an alert above the checklist. The video keeps HlsEngine, resume and the watched spans that D-191's auto-check reads.
 - **Not changed.** No schema, migration or course copy. No golden, tolerance or mask.
+
+## D-211 · The step page's system on every learner page
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the rules that shaped `/learn/week/0/step/2` (D-210) apply to every page of the learner side, with the admin console left out, and that details be decided consistently with past guidance in order to ship.
+**Number:** D-210 is the v6 step page.
+
+- **What it is.** The learner portal (D-177) keeps its layouts, words and behaviour. It takes the step page's system: its colours, its one button system, its headings and eyebrow, its step circles and its brand motion (Amplified Impact Motion v1). It applies to every page in the learner frame and to the curriculum builder's preview of a week, which shares the frame's tokens:
+  - Home;
+  - the week (open and locked);
+  - Schedule;
+  - the Skill library and a skill;
+  - Account and Team;
+  - the Vault;
+  - an AI employee;
+  - the shell itself.
+- **Colour.** In the light theme, R2's tokens in the learner frame take the v6 mockup's values (`styles/learner-v2.css`, verbatim from `step-page.tokens.css`):
+  - bone canvas `#f1f0eb`;
+  - ink `#0a0d0c`, at 68% and 60% for secondary and tertiary text;
+  - hairlines at 12% and 20% ink;
+  - a forest hover;
+  - forest-tinted shadows.
+
+  The current week, step or card is outlined in forest, not blue. Status colours (Open, In progress, Done, the live dot) are unchanged. Dark (D-185) redefines every one of these from the design tokens, as before.
+- **Buttons (supersedes D-205's hover and press).** One button system:
+  - 40px tall (44px on a phone), 8px radius, Geist 500 at 15px (16px on a phone).
+  - Primary is forest.
+  - Secondary is the surface with a hairline that firms to ink on hover.
+  - Quiet is the ghost: forest text on nothing, tinted on hover.
+  - Hover changes colour only; nothing lifts and no hover shadow appears.
+  - Press squeezes to .96 in 90 ms and springs back.
+  - Arrows nudge 3px.
+  - Row links (`a.li`) and step rows lose their lift too.
+- **Type.**
+  - The page title is the step page's (650, 39px, 1.15).
+  - The line under it is the purpose line (20px, 1.45, 65ch; 18px on a phone).
+  - Section headings above a grid are the step page's section heading (650, 25px).
+  - Eyebrows are Geist Mono caps in forest, at .06em.
+  - The phone floor (D-156) holds.
+- **Shapes and steps.**
+  - Cards take the 14px radius.
+  - The segmented control (Claude / ChatGPT) is the step page's pill, with the chosen side in forest.
+  - Step numbers are the rail's circles: done is energy, current is forest, to do is bone.
+- **Motion.**
+  - A page's blocks rise in order when it arrives (14px, 45 ms apart, on the brand spring).
+  - Transitions use the brand curve and durations.
+  - Reduced motion lands everything on its final frame.
+- **Not changed.**
+  - No markup, copy, route or behaviour.
+  - No golden: the parity goldens cover today's portal, whose stylesheets are untouched.
+  - No tolerance or mask.
+  - The admin console is untouched (its `[data-r2-shell]` tokens are not the learner frame's).
+
+## D-212 · The curriculum builder and the step page are one source
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the step page's configuration (how steps are set up, how they flow, how they are formatted) carry over to the curriculum builder, so that everything stays in sync and nothing in the tool is seeded in code. He also asked that details be decided consistently with past guidance in order to ship.
+**Number:** D-211 is the step page's system on every learner page.
+
+- **One source.** Every word a step shows on the v6 page (D-210) comes from a field the curriculum builder edits:
+  - **The step:** title, goal, time, who and done-when.
+  - **The week:** its due date, system prompt and kit files.
+  - **Path blocks:**
+    - videos, with their title, poster, transcript, chapters and draft flag;
+    - checklist items, with their detail, role, action, click path, sub-tasks, conditions, auto-check and play-at;
+    - callouts, text, lists, copy blocks and tables;
+    - Reference rows, with their body, table and link.
+
+  The page's own words are chrome (button and section labels), not course content. `StepPage.sync.test.ts` enforces this:
+  - every builder field filled with a marker reaches the page as typed;
+  - an empty step shows chrome only;
+  - the builder's step title is the learner's title on every step of a week.
+- **The step title (fixed).** On a course week, the learner page shows a step's `ch` (`stepTitle`: `ch || text`), where the seeded weeks keep the title. Until now, the builder's "Step N title" edited `text`, which on those weeks is the done-when sentence. Retitling a step in the builder therefore never reached learners. On a week, that box now edits `ch`. An AI Employee's step keeps editing `text`.
+- **A new video's id (fixed).** Adding a video to a path now takes an id unused anywhere in the week, across both paths and every step. Before, adding a video to the ChatGPT path and then to the Claude path gave both "v1", and the save refused it (`videoIssues`).
+- **The editor's type.** The Week Builder's rich text field (D-209) draws the v6 page's long-step paragraph, as a learner reads it: Geist 16px / 1.5 in ink, with 16px between paragraphs. It was R2's smaller secondary body text.
+- **The live preview.** The builder previews a step with the v6 page itself (D-210). It previews a week in the learner frame, so it carries the same system as the learner pages (D-211).
+- **Not changed.** No schema or migration, and no course content: nothing is seeded to make a step look like the mockup. The mockup's Week 0 step 2 is entered through the builder, like any step.

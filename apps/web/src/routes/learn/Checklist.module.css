@@ -703,7 +703,6 @@
 }
 .next:hover {
   background: color-mix(in srgb, var(--r2-for) 95%, var(--r2-sf));
-  transform: translateY(-2px);
   box-shadow: var(--r2-sh-pop);
   color: var(--r2-on-for);
   text-decoration: none;

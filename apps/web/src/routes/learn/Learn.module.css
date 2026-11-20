@@ -16,6 +16,23 @@
   flex-direction: column;
   gap: 24px;
 }
+/* D-211: blocks rise in order when the page arrives (brand v1: 14px, 45ms apart), as the step page's do. Reduced
+   motion lands them on their final frame. */
+.pg > * {
+  animation: aim-rise var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+  animation-delay: calc(var(--i, 0) * var(--aim-stagger));
+}
+.pg > :nth-child(2) { --i: 1; }
+.pg > :nth-child(3) { --i: 2; }
+.pg > :nth-child(4) { --i: 3; }
+.pg > :nth-child(5) { --i: 4; }
+.pg > :nth-child(6) { --i: 5; }
+.pg > :nth-child(n + 7) { --i: 6; }
+@media (prefers-reduced-motion: reduce) {
+  .pg > * {
+    animation: none;
+  }
+}
 .phd {
   display: flex;
   gap: 16px 24px;
@@ -37,18 +54,19 @@
   gap: 16px;
   min-width: 0;
 }
+/* D-211: the step page's title (.h1) and purpose line (.purpose). */
 .h0 {
-  font: 600 36px / 44px var(--r2-font);
-  letter-spacing: -0.03em;
+  font: 650 39px / 1.15 var(--r2-font);
+  letter-spacing: -0.015em;
   margin: 0;
   color: var(--r2-ink);
   text-wrap: balance;
 }
 .lede {
-  font-size: var(--r2-fs-15);
-  line-height: 22px;
+  font-size: 20px;
+  line-height: 1.45;
   color: var(--r2-f2);
-  max-width: 640px;
+  max-width: 65ch;
   text-wrap: pretty;
   margin: 0;
 }
@@ -172,7 +190,8 @@
 .cd {
   background: var(--r2-sf);
   border: 1px solid var(--r2-line);
-  border-radius: 12px;
+  /* D-211: the step page's large radius. */
+  border-radius: 14px;
   box-shadow: var(--r2-sh-card);
   min-width: 0;
 }
@@ -206,24 +225,22 @@
 .li:last-child {
   border-bottom: 0;
 }
+/* D-211: a row link's hover is a colour change and its arrow's nudge (brand v1): nothing lifts. */
 a.li {
   width: 100%;
   cursor: pointer;
-  transition:
-    background 0.12s,
-    transform 0.12s,
-    box-shadow 0.12s;
-}
-a.li:hover {
-  background: var(--r2-bg);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
+  transition: background-color var(--aim-dur-quick) var(--aim-ease);
 }
 a.li .mu {
-  transition: transform 0.12s;
+  transition: transform var(--aim-dur-spring) var(--aim-ease-spring);
 }
-a.li:hover .mu {
-  transform: translateX(3px);
+@media (hover: hover) {
+  a.li:hover {
+    background: var(--r2-hov);
+  }
+  a.li:hover .mu {
+    transform: translateX(3px);
+  }
 }
 .txl {
   color: var(--r2-for);
@@ -249,81 +266,82 @@ a.li:hover .mu {
 
 /* ---- controls ------------------------------------------------------------------------------------ */
 
-/* D-205. Secondary is bone with the second line and the small shadow (sh-1).
-   Hover lifts 1px onto the larger shadow (sh-2). Press scales to .97.
-   Focus draws the ring on top of whichever shadow is showing. */
+/* D-211 (was D-205): the step page's one button system (D-210, brand motion v1). 40px, 8px radius, Geist 500
+   at the control size; 44px on a phone. Primary is forest; secondary is the surface with a hairline that firms
+   to ink on hover; quiet is the ghost, forest on nothing, tinted on hover. Hover changes colour only: nothing
+   lifts. Press squeezes to .96 in 90ms and springs back. Focus draws the ring on the resting shadow. */
 .b {
-  height: var(--r2-c);
-  padding: 0 12px;
+  height: var(--lv-btn);
+  padding: 0 16px;
   border-radius: 8px;
-  border: 1px solid var(--r2-line2);
-  background: var(--r2-bg);
+  border: 1px solid var(--r2-line);
+  background: var(--r2-sf);
   color: var(--r2-ink);
   font-weight: 500;
-  font-size: var(--lv-ctl);
+  font-size: var(--lv-btn-fs);
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: var(--r2-sh-button);
+  text-decoration: none;
+  box-shadow: none;
   transition:
-    background 0.12s,
-    border-color 0.12s,
-    box-shadow 0.12s,
-    transform 0.12s;
+    transform var(--aim-dur-spring) var(--aim-ease-spring),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
 }
-.b:hover {
-  background: var(--r2-bg);
-  border-color: var(--r2-line2);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
+@media (hover: hover) {
+  .b:hover {
+    border-color: var(--r2-line-hover);
+  }
 }
 .b:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
 }
 :global([data-learner-v2][data-learner-v2]) .b:focus-visible {
   outline: none;
-  box-shadow: var(--r2-sh-button), var(--r2-focus);
+  box-shadow: var(--r2-focus);
 }
-:global([data-learner-v2][data-learner-v2]) .b:hover:focus-visible {
-  box-shadow: var(--lv-sh-lift), var(--r2-focus);
-}
-/* A <button class="b"> takes its parent's type and colour, as the mockup's cascade
-   (`.ax button { font: inherit; color: inherit }`) draws it; a link styled as one keeps `.b`'s own. */
+/* A <button class="b"> takes the control type, as a link styled as one does. */
 button.b,
 .b.bi {
-  font-size: inherit;
-  font-weight: inherit;
-}
-button.b {
-  color: inherit;
+  font-size: var(--lv-btn-fs);
+  font-weight: 500;
 }
 .b.bp {
   background: var(--r2-for);
   border-color: var(--r2-for);
   color: var(--r2-on-for);
+  box-shadow: var(--r2-sh-button);
 }
-.b.bp:hover {
-  background: var(--r2-forh);
-  border-color: var(--r2-forh);
-  color: var(--r2-on-for);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
+@media (hover: hover) {
+  .b.bp:hover {
+    background: var(--r2-forh);
+    border-color: var(--r2-forh);
+    color: var(--r2-on-for);
+  }
+}
+:global([data-learner-v2][data-learner-v2]) .b.bp:focus-visible {
+  box-shadow: var(--r2-sh-button), var(--r2-focus);
 }
 .b.bq {
   border-color: transparent;
-  background: none;
+  background: transparent;
   box-shadow: none;
-  color: var(--r2-f2);
+  color: var(--r2-for);
 }
-.b.bq:hover {
-  background: var(--r2-bg);
-  color: var(--r2-ink);
-  border-color: transparent;
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
+@media (hover: hover) {
+  .b.bq:hover {
+    background: var(--lv-ghost-hover);
+    color: var(--r2-for);
+    border-color: transparent;
+  }
 }
 .b:disabled,
 .b:disabled:hover,
@@ -334,10 +352,12 @@ button.b {
   box-shadow: none;
 }
 .b .ar {
-  transition: transform 0.12s;
+  transition: transform var(--aim-dur-spring) var(--aim-ease-spring);
 }
-.b:hover .ar {
-  transform: translateX(2px);
+@media (hover: hover) {
+  .b:hover .ar {
+    transform: translateX(3px);
+  }
 }
 .lk {
   border: 0;
@@ -414,22 +434,23 @@ button.b {
   }
 }
 
-/* Segmented control: Claude or ChatGPT. */
+/* Segmented control: Claude or ChatGPT. D-211: the step page's paths control (D-210): a pill on the surface with
+   a hairline; the chosen side is forest. */
 .seg {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 2px;
-  background: var(--r2-sub);
+  background: var(--r2-sf);
   border: 1px solid var(--r2-line);
-  border-radius: 8px;
+  border-radius: 999px;
 }
 .seg button {
   height: 28px;
   padding: 0 12px;
   border: 0;
-  border-radius: 6px;
-  background: none;
+  border-radius: 999px;
+  background: transparent;
   color: var(--r2-f2);
   font-weight: 500;
   font-size: var(--lv-ctl);
@@ -440,17 +461,24 @@ button.b {
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background 0.12s,
-    color 0.12s,
-    box-shadow 0.12s;
+    transform var(--aim-dur-spring) var(--aim-ease-spring),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
 }
-.seg button:hover {
-  color: var(--r2-ink);
+@media (hover: hover) {
+  .seg button:not([aria-checked='true']):hover {
+    background: var(--r2-bg);
+    color: var(--r2-ink);
+  }
+}
+.seg button:active {
+  transform: scale(0.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
 }
 .seg button[aria-checked='true'] {
-  background: var(--r2-sf);
-  color: var(--r2-ink);
-  box-shadow: var(--lv-sh-seg);
+  background: var(--r2-for);
+  color: var(--r2-on-for);
 }
 
 /* Back link, for a page under a page. */
@@ -467,10 +495,11 @@ button.b {
   font-weight: 500;
   color: var(--r2-f2);
 }
-.back:hover {
-  background: var(--r2-bg);
-  color: var(--r2-ink);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .back:hover {
+    background: var(--lv-ghost-hover);
+    color: var(--r2-ink);
+  }
 }
 
 /* ---- tinted tiles: one icon, one topic colour ---------------------------------------------------- */
@@ -587,16 +616,18 @@ button.b {
 .heroOne .hr {
   border-left: 0;
 }
+/* D-211: the step page's eyebrow: Geist Mono 500, caps, .06em, forest. */
 .eyb {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--r2-fs-13);
-  font-weight: 500;
-  color: var(--r2-f2);
+  font: 500 var(--r2-fs-13) / 1.2 var(--r2-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--r2-for);
 }
 .eyb > svg {
-  color: var(--r2-f3);
+  color: var(--r2-for);
 }
 .ht {
   font: 600 24px / 30px var(--r2-font);
@@ -700,7 +731,8 @@ button.b {
   flex-wrap: wrap;
 }
 .sech h2 {
-  font: 600 17px / 24px var(--r2-font);
+  /* D-211: the step page's section heading (.sec-h). */
+  font: 650 25px / 1.2 var(--r2-font);
   letter-spacing: -0.01em;
   margin: 0;
 }
@@ -725,7 +757,7 @@ button.b {
   padding: 16px 16px 15px;
   background: var(--r2-sf);
   border: 1px solid var(--r2-line);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: var(--r2-sh-card);
   color: var(--r2-ink);
   text-align: left;
@@ -733,13 +765,12 @@ button.b {
   width: 100%;
   cursor: pointer;
   transition:
-    border-color 0.12s,
-    box-shadow 0.12s,
-    transform 0.12s;
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease),
+    transform var(--aim-dur-quick) var(--aim-ease);
 }
 .oc:hover {
   border-color: var(--r2-line2);
-  box-shadow: var(--lv-sh-lift);
 }
 .oc .tile {
   grid-row: 1 / span 3;
@@ -887,7 +918,7 @@ button.b {
   width: 100%;
   text-align: left;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background var(--aim-dur-quick) var(--aim-ease);
   color: var(--r2-ink);
 }
 .stp:last-child {
@@ -895,8 +926,6 @@ button.b {
 }
 .stp:hover {
   background: var(--r2-bg);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
   position: relative;
   z-index: 1;
 }
@@ -905,7 +934,6 @@ button.b {
   box-shadow: inset 0 0 0 2px var(--r2-for), 0 0 0 4px color-mix(in srgb, var(--r2-for) 6%, transparent);
 }
 .stp[data-cur='true']:hover {
-  transform: translateY(-1px);
   box-shadow: inset 0 0 0 2px var(--r2-for), 0 0 0 4px color-mix(in srgb, var(--r2-for) 6%, transparent), var(--lv-sh-lift);
 }
 .sx {
@@ -926,19 +954,20 @@ button.b {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+/* D-211: the step rail's number circles (D-210): done is energy with its check, current is forest, to do
+   is bone with ink. */
 .sti[data-s='done'] {
-  background: var(--r2-dot-ok);
-  color: var(--r2-on-for);
+  background: var(--r2-energy);
+  color: var(--r2-on-energy);
 }
 .sti[data-s='current'] {
-  background: var(--r2-sf);
-  color: var(--r2-info);
-  box-shadow: inset 0 0 0 2px var(--r2-dot-info);
+  background: var(--r2-for);
+  color: var(--r2-on-for);
 }
 .sti[data-s='todo'] {
-  background: var(--r2-sf);
-  color: var(--r2-f3);
-  box-shadow: inset 0 0 0 1.5px var(--r2-line2);
+  background: var(--r2-bg);
+  color: var(--r2-ink);
+  box-shadow: inset 0 0 0 1px var(--r2-line);
 }
 .stiS {
   width: 22px;
@@ -1118,7 +1147,7 @@ button.b {
 }
 .where {
   border: 1px solid var(--r2-line);
-  border-radius: 10px;
+  border-radius: 14px;
   /* A table wider than the column scrolls inside the card. The scrollport clips to the radius. */
   overflow-x: auto;
   overflow-y: hidden;
@@ -1344,7 +1373,6 @@ button.b {
   color: var(--r2-mint);
 }
 .vhit:hover .vgo {
-  transform: translateY(-1px);
   background: var(--r2-forh);
 }
 .vhit:active .vgo {
@@ -1489,8 +1517,6 @@ button.b {
 .vchap:hover {
   background: var(--r2-bg);
   border-color: var(--r2-line2);
-  transform: translateY(-1px);
-  box-shadow: var(--r2-sh-button);
 }
 .vchap[aria-current='true'] {
   background: var(--r2-for);
@@ -1960,13 +1986,8 @@ button.b {
     padding: 10px 0;
     margin: -10px 0;
   }
-  .h0 {
-    font-size: 32px;
-    line-height: 38px;
-    letter-spacing: -0.025em;
-  }
   .lede {
-    line-height: 24px;
+    font-size: 18px;
   }
   .pk {
     line-height: 22px;
@@ -2067,7 +2088,7 @@ button.b {
     gap: 0;
     background: var(--r2-sf);
     border: 1px solid var(--r2-line);
-    border-radius: 12px;
+    border-radius: 14px;
     box-shadow: var(--r2-sh-card);
     overflow: hidden;
   }

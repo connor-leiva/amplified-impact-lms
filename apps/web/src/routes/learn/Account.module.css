@@ -51,8 +51,8 @@
   color: inherit;
   margin: 0;
   transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease);
 }
 /* Read only, as the mockup draws its Role field: nothing here saves a change. */
 .in[readonly] {

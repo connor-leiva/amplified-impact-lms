@@ -108,7 +108,7 @@
   background: var(--r2-hov);
 }
 .ng svg {
-  transition: transform 0.15s;
+  transition: transform var(--aim-dur-quick) var(--aim-ease);
 }
 .ng[aria-expanded='true'] svg {
   transform: rotate(90deg);
@@ -441,16 +441,14 @@ button.ni.tog:hover {
   white-space: nowrap;
   box-shadow: var(--r2-sh-button);
   transition:
-    background 0.12s,
-    border-color 0.12s,
-    box-shadow 0.12s,
-    transform 0.12s;
+    background var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease),
+    transform var(--aim-dur-quick) var(--aim-ease);
 }
 .b:hover {
   background: var(--r2-bg);
   border-color: var(--r2-line2);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
 }
 .b:active {
   transform: scale(0.97);
@@ -476,8 +474,6 @@ button.b {
   background: var(--r2-forh);
   border-color: var(--r2-forh);
   color: var(--r2-on-for);
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
 }
 .b.q {
   border-color: transparent;
@@ -489,8 +485,6 @@ button.b {
   background: var(--r2-bg);
   color: var(--r2-ink);
   border-color: transparent;
-  transform: translateY(-1px);
-  box-shadow: var(--lv-sh-lift);
 }
 .b:disabled,
 .b:disabled:hover {

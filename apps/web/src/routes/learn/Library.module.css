@@ -37,8 +37,8 @@
   font-size: var(--r2-t);
   color: var(--r2-ink);
   transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease);
 }
 .in:hover {
   border-color: var(--r2-line-hover);
@@ -92,8 +92,8 @@
   width: 100%;
   min-width: 0;
   transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease);
 }
 .feat .top + div > span:first-child {
   font: 600 20px / 26px var(--r2-font);
@@ -110,13 +110,12 @@
   width: 100%;
   min-width: 0;
   transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease);
 }
 .feat:hover,
 .sm:hover {
   border-color: var(--r2-line2);
-  box-shadow: var(--lv-sh-lift);
 }
 .sm > span:nth-child(2) {
   padding-right: 0;
@@ -184,9 +183,9 @@
   white-space: nowrap;
   flex: none;
   transition:
-    background 0.12s,
-    border-color 0.12s,
-    color 0.12s;
+    background var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
 }
 .chip:hover {
   border-color: var(--r2-line-hover);
@@ -234,7 +233,8 @@
   padding-top: 12px;
 }
 .sgh h2 {
-  font: 600 17px / 24px var(--r2-font);
+  /* D-211: the step page's section heading (.sec-h). */
+  font: 650 25px / 1.2 var(--r2-font);
   letter-spacing: -0.01em;
   margin: 0;
 }
@@ -366,7 +366,7 @@
   gap: 8px;
   padding: 12px 14px;
   border: 1px solid var(--r2-line);
-  border-radius: 10px;
+  border-radius: 14px;
 }
 .docn {
   margin: 0;
@@ -469,7 +469,7 @@
     flex-direction: column;
     background: var(--r2-sf);
     border: 1px solid var(--r2-line);
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
     box-shadow: var(--r2-sh-card);
   }
