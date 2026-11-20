@@ -66,7 +66,9 @@ function serve(route: Route): Promise<void> {
 }
 
 async function open(browser: Browser, width: number, theme: 'light' | 'dark'): Promise<Page> {
-  const page = await browser.newPage({ viewport: { width, height: width < 768 ? 844 : 900 }, timezoneId: 'America/Denver' });
+  // A context of its own: axe (expectAccessible) refuses a page opened with browser.newPage().
+  const ctx = await browser.newContext({ viewport: { width, height: width < 768 ? 844 : 900 }, timezoneId: 'America/Denver' });
+  const page = await ctx.newPage();
   await page.addInitScript(
     ([key, db, mode]) => {
       localStorage.setItem(key, db);

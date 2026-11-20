@@ -206,6 +206,9 @@ export interface BlockPicks {
   ids: string[];
   /** D-193: glossary terms the Card action can list, from Course settings. */
   glossary?: { id: string; term: string }[];
+  /** Video ids already used anywhere in this week (both paths of every step): a video's id is unique per week
+   *  (course-rules `videoIssues`), so a new one does not reuse one. */
+  videoIds?: string[];
 }
 
 export function Blocks({
@@ -284,7 +287,7 @@ export function Blocks({
             const block = newBlock(add);
             const withId =
               block.type === 'check' ? { ...block, id: nextCheckId([...(picks?.ids ?? []), ...blocks.flatMap((b) => (b.type === 'check' ? [b.id] : []))]) }
-              : block.type === 'video' ? { ...block, id: nextVideoId(blocks.flatMap((b) => (b.type === 'video' && b.id ? [b.id] : []))) }
+              : block.type === 'video' ? { ...block, id: nextVideoId([...(picks?.videoIds ?? []), ...blocks.flatMap((b) => (b.type === 'video' && b.id ? [b.id] : []))]) }
               : block;
             onChange([...blocks, withId]);
           }}
@@ -800,6 +803,8 @@ const checkIds = (step: Step): string[] =>
 
 /** The step dialog's course fields, for a week's step. */
 export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange: (fn: (st: Step) => void) => void; picks?: Omit<BlockPicks, 'ids'> }) {
+  // Both paths' videos count, with the rest of the week's: the Claude and ChatGPT paths share one id space.
+  const videoIds = [...new Set([...(picks?.videoIds ?? []), ...(['claude', 'chatgpt'] as const).flatMap((which) => (step.paths?.[which]?.blocks ?? []).flatMap((b) => (b.type === 'video' && b.id ? [b.id] : [])))])];
   const opt = (v: string): string | undefined => (v.trim() ? v : undefined);
   const setOpt = <K extends 'who' | 'timeLabel' | 'doneWhen' | 'goal' | 'linkedSkill'>(key: K, v: string) =>
     onChange((st) => {
@@ -837,8 +842,8 @@ export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange
         />
         Open in the pre-launch preview
       </label>
-      <Blocks label="Claude path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [] }} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
-      <Blocks label="ChatGPT path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [] }} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
+      <Blocks label="Claude path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [], videoIds }} blocks={paths.claude?.blocks ?? []} onChange={(b) => setPath('claude', b)} />
+      <Blocks label="ChatGPT path" kinds={PATH_KINDS} picks={{ kit: picks?.kit ?? [], sessions: picks?.sessions ?? [], ids: checkIds(step), glossary: picks?.glossary ?? [], videoIds }} blocks={paths.chatgpt?.blocks ?? []} onChange={(b) => setPath('chatgpt', b)} />
     </>
   );
 }
