@@ -27,6 +27,8 @@ export default defineConfig(({ mode }) => ({
     // The subpath alias must come first: '@ai/core/mutations' resolves to the module file, while
     // bare '@ai/core' resolves to the barrel.
     alias: [
+      // The brand's motion file, bundled as it ships (tsc reads its declaration file: see ai-motion.d.ts).
+      { find: '@brand/ai-motion', replacement: fileURLToPath(new URL('./src/components/motion/ai-motion.tsx', import.meta.url)) },
       {
         find: /^@ai\/core\/(.*)$/,
         replacement: fileURLToPath(new URL('../../packages/core/src/$1.ts', import.meta.url)),
