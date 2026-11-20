@@ -6981,6 +6981,12 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **A week's Edit details no longer offers Output 1 to 3 or the Run button label.** Those are an AI Employee's: its hire page reads them, but no page of a course week does.
   - **The office hours page's title now reaches learners.** The week page used the session's title. It now uses the page's own title, else the session's, as the live build does.
   - The data is kept, and there is no migration.
+  - **Checked against the signed-off learner design** (`docs/design/learner-v2`, 22 screens at 1440 and 390):
+    - No screen has a place for a week's sample output, tools, flagship line, status labels, outputs or run label.
+    - Its only "made-up data" is a kit file row ("Practice set"), which the kit already draws from the week's files.
+    - Its statuses are the portal's own (Not started, In progress, Built).
+
+    Drawing the six fields would add UI the design does not have (CLAUDE.md), so the builder stops offering them instead.
 - **The builder is driven, not assumed.** `WeekBuilder.sync.test.tsx` opens every week card's editor in the real builder (Course page, Live build page, Office hours page, Seat card, Playbook card, Locked copy) and fills every text field with a marker. Every marker must reach the learner's week page, or the locked week for its copy. The week's own details (name, summary, platform, instructor notes, system prompt) reach the week page, its build kit and its steps. The step's fields are `StepPage.sync.test.ts` (D-212).
 - **Every learner page is checked.** `learn-v2-system.spec.ts` opens 18 learner pages at 1440 and 390:
   - **Home:** before launch and at a live build.
