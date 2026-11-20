@@ -1,0 +1,2340 @@
+{
+  "when": "2026-11-20T03:33:38.439Z",
+  "video": "reference/interaction-demo.mp4",
+  "limits": {
+    "edge": {
+      "sigma": 1.6,
+      "thr": 22,
+      "maxRegion": 120
+    },
+    "tone": {
+      "sigma": 4,
+      "thr": 7,
+      "maxRegion": 150
+    }
+  },
+  "report": [
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "01-top",
+      "pass": true,
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 116,
+        "worstBox": [
+          35,
+          198,
+          69,
+          206
+        ],
+        "hotPixels": 426
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "02-top-hover-step-4",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            801,
+            89,
+            1001,
+            153
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the pill or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 117,
+        "worstBox": [
+          35,
+          199,
+          69,
+          206
+        ],
+        "hotPixels": 427
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "03-watch-hover-play",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            586,
+            283,
+            944,
+            420
+          ]
+        ],
+        "why": "brand v1: the play pill no longer lifts, grows or deepens its shadow; its label rolls"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 74,
+        "worstBox": [
+          63,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "04-chapter-hover-0-15",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            166,
+            432,
+            369,
+            497
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the chip or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 77,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 119
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "05-chapter-hover-next",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 124
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "06-chapters-page-2",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "07-chapters-page-3",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "08-chapters-page-3-rest",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "09-chapter-3-31-playing",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "10-hover-show-transcript",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "11-transcript-open",
+      "pass": true,
+      "edge": {
+        "worstRegion": 12,
+        "worstBox": [
+          1031,
+          553,
+          1037,
+          556
+        ],
+        "hotPixels": 72
+      },
+      "tone": {
+        "worstRegion": 48,
+        "worstBox": [
+          654,
+          797,
+          677,
+          800
+        ],
+        "hotPixels": 258
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "12-transcript-scrolled",
+      "pass": true,
+      "edge": {
+        "worstRegion": 30,
+        "worstBox": [
+          62,
+          606,
+          84,
+          609
+        ],
+        "hotPixels": 118
+      },
+      "tone": {
+        "worstRegion": 85,
+        "worstBox": [
+          62,
+          604,
+          83,
+          610
+        ],
+        "hotPixels": 144
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "13-checklist",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 141
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "14-hover-open-words",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            376,
+            289,
+            441
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "15-checked-words",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "16-checked-live-build",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "17-hover-ask-us",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            657,
+            202,
+            722
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "18-checked-questions",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "19-checked-all",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "20-footer-ready",
+      "pass": true,
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 147
+      },
+      "tone": {
+        "worstRegion": 95,
+        "worstBox": [
+          104,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 276
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "21-hover-mark",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            128,
+            432,
+            376,
+            529
+          ]
+        ],
+        "why": "brand 01: no lift or bigger shadow; the label rolls"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 97,
+        "worstBox": [
+          103,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 279
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "22-step-done",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand 03: Step done shows the mark (dot in ring) instead of a check"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 443
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "23-hover-next-card",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            460,
+            392,
+            956,
+            620
+          ],
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand v1: the Next card no longer lifts; Step done shows the mark"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 441
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/mockup/step-2.html",
+      "tag": "mockup",
+      "state": "24-top-final",
+      "pass": true,
+      "edge": {
+        "worstRegion": 45,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 314
+      },
+      "tone": {
+        "worstRegion": 93,
+        "worstBox": [
+          35,
+          199,
+          68,
+          206
+        ],
+        "hotPixels": 407
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "01-top",
+      "pass": true,
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 116,
+        "worstBox": [
+          35,
+          198,
+          69,
+          206
+        ],
+        "hotPixels": 426
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "02-top-hover-step-4",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            801,
+            89,
+            1001,
+            153
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the pill or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 117,
+        "worstBox": [
+          35,
+          199,
+          69,
+          206
+        ],
+        "hotPixels": 427
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "03-watch-hover-play",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            586,
+            283,
+            944,
+            420
+          ]
+        ],
+        "why": "brand v1: the play pill no longer lifts, grows or deepens its shadow; its label rolls"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 74,
+        "worstBox": [
+          63,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "04-chapter-hover-0-15",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            166,
+            432,
+            369,
+            497
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the chip or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 77,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 119
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "05-chapter-hover-next",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 124
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "06-chapters-page-2",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "07-chapters-page-3",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "08-chapters-page-3-rest",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "09-chapter-3-31-playing",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "10-hover-show-transcript",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "11-transcript-open",
+      "pass": true,
+      "edge": {
+        "worstRegion": 12,
+        "worstBox": [
+          1031,
+          553,
+          1037,
+          556
+        ],
+        "hotPixels": 72
+      },
+      "tone": {
+        "worstRegion": 48,
+        "worstBox": [
+          654,
+          797,
+          677,
+          800
+        ],
+        "hotPixels": 258
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "12-transcript-scrolled",
+      "pass": true,
+      "edge": {
+        "worstRegion": 30,
+        "worstBox": [
+          62,
+          606,
+          84,
+          609
+        ],
+        "hotPixels": 118
+      },
+      "tone": {
+        "worstRegion": 85,
+        "worstBox": [
+          62,
+          604,
+          83,
+          610
+        ],
+        "hotPixels": 144
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "13-checklist",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 141
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "14-hover-open-words",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            376,
+            289,
+            441
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "15-checked-words",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "16-checked-live-build",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "17-hover-ask-us",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            657,
+            202,
+            722
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "18-checked-questions",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "19-checked-all",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "20-footer-ready",
+      "pass": true,
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 147
+      },
+      "tone": {
+        "worstRegion": 95,
+        "worstBox": [
+          104,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 276
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "21-hover-mark",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            128,
+            432,
+            376,
+            529
+          ]
+        ],
+        "why": "brand 01: no lift or bigger shadow; the label rolls"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 97,
+        "worstBox": [
+          103,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 279
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "22-step-done",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand 03: Step done shows the mark (dot in ring) instead of a check"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 443
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "23-hover-next-card",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            460,
+            392,
+            956,
+            620
+          ],
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand v1: the Next card no longer lifts; Step done shows the mark"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 441
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/",
+      "tag": "harness",
+      "state": "24-top-final",
+      "pass": true,
+      "edge": {
+        "worstRegion": 45,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 314
+      },
+      "tone": {
+        "worstRegion": 93,
+        "worstBox": [
+          35,
+          199,
+          68,
+          206
+        ],
+        "hotPixels": 407
+      },
+      "fixtures": []
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "01-top",
+      "pass": true,
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 116,
+        "worstBox": [
+          35,
+          198,
+          69,
+          206
+        ],
+        "hotPixels": 426
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "02-top-hover-step-4",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            801,
+            89,
+            1001,
+            153
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the pill or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 47,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 311
+      },
+      "tone": {
+        "worstRegion": 117,
+        "worstBox": [
+          35,
+          199,
+          69,
+          206
+        ],
+        "hotPixels": 427
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "03-watch-hover-play",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            586,
+            283,
+            944,
+            420
+          ]
+        ],
+        "why": "brand v1: the play pill no longer lifts, grows or deepens its shadow; its label rolls"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 74,
+        "worstBox": [
+          63,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "04-chapter-hover-0-15",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            166,
+            432,
+            369,
+            497
+          ]
+        ],
+        "why": "brand v1: hover no longer lifts the chip or adds a shadow"
+      },
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 77,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 119
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "05-chapter-hover-next",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 124
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "06-chapters-page-2",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 116
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "07-chapters-page-3",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "08-chapters-page-3-rest",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 76,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 123
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "09-chapter-3-31-playing",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "10-hover-show-transcript",
+      "pass": true,
+      "edge": {
+        "worstRegion": 31,
+        "worstBox": [
+          62,
+          602,
+          84,
+          605
+        ],
+        "hotPixels": 80
+      },
+      "tone": {
+        "worstRegion": 75,
+        "worstBox": [
+          62,
+          600,
+          83,
+          606
+        ],
+        "hotPixels": 115
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "11-transcript-open",
+      "pass": true,
+      "edge": {
+        "worstRegion": 12,
+        "worstBox": [
+          1031,
+          553,
+          1037,
+          556
+        ],
+        "hotPixels": 72
+      },
+      "tone": {
+        "worstRegion": 48,
+        "worstBox": [
+          654,
+          797,
+          677,
+          800
+        ],
+        "hotPixels": 258
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "12-transcript-scrolled",
+      "pass": true,
+      "edge": {
+        "worstRegion": 30,
+        "worstBox": [
+          62,
+          606,
+          84,
+          609
+        ],
+        "hotPixels": 118
+      },
+      "tone": {
+        "worstRegion": 85,
+        "worstBox": [
+          62,
+          604,
+          83,
+          610
+        ],
+        "hotPixels": 144
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "13-checklist",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 141
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "14-hover-open-words",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            376,
+            289,
+            441
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "15-checked-words",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "16-checked-live-build",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "17-hover-ask-us",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            77,
+            657,
+            202,
+            722
+          ]
+        ],
+        "why": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+      },
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "18-checked-questions",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "19-checked-all",
+      "pass": true,
+      "edge": {
+        "worstRegion": 32,
+        "worstBox": [
+          62,
+          69,
+          84,
+          72
+        ],
+        "hotPixels": 143
+      },
+      "tone": {
+        "worstRegion": 99,
+        "worstBox": [
+          61,
+          67,
+          83,
+          73
+        ],
+        "hotPixels": 207
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "20-footer-ready",
+      "pass": true,
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 147
+      },
+      "tone": {
+        "worstRegion": 95,
+        "worstBox": [
+          104,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 276
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "21-hover-mark",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            128,
+            432,
+            376,
+            529
+          ]
+        ],
+        "why": "brand 01: no lift or bigger shadow; the label rolls"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          707,
+          125,
+          710
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 97,
+        "worstBox": [
+          103,
+          704,
+          125,
+          712
+        ],
+        "hotPixels": 279
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "22-step-done",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand 03: Step done shows the mark (dot in ring) instead of a check"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 443
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "23-hover-next-card",
+      "pass": true,
+      "brandMasks": {
+        "boxes": [
+          [
+            460,
+            392,
+            956,
+            620
+          ],
+          [
+            140,
+            433,
+            364,
+            506
+          ]
+        ],
+        "why": "brand v1: the Next card no longer lifts; Step done shows the mark"
+      },
+      "edge": {
+        "worstRegion": 25,
+        "worstBox": [
+          108,
+          726,
+          125,
+          729
+        ],
+        "hotPixels": 146
+      },
+      "tone": {
+        "worstRegion": 98,
+        "worstBox": [
+          103,
+          723,
+          125,
+          731
+        ],
+        "hotPixels": 441
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    },
+    {
+      "target": "http://localhost:4180/harness/?lms",
+      "tag": "lms-sim",
+      "state": "24-top-final",
+      "pass": true,
+      "edge": {
+        "worstRegion": 45,
+        "worstBox": [
+          274,
+          199,
+          281,
+          209
+        ],
+        "hotPixels": 314
+      },
+      "tone": {
+        "worstRegion": 93,
+        "worstBox": [
+          35,
+          199,
+          68,
+          206
+        ],
+        "hotPixels": 407
+      },
+      "fixtures": [
+        "mock-flag",
+        "styles-link",
+        "review-section"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2585 @@
+diff -ruN v5/diff/fixtures.mjs v6/diff/fixtures.mjs
+--- v5/diff/fixtures.mjs	2026-11-19 21:29:03.144553669 -0600
++++ v6/diff/fixtures.mjs	2026-11-19 21:29:03.204653842 -0600
+@@ -9,11 +9,11 @@
+ const cut = (start, end) => { const a = MOCKUP.indexOf(start); const b = MOCKUP.indexOf(end, a) + end.length; if (a < 0 || b < end.length) throw new Error('fixture not found: ' + start); return MOCKUP.slice(a, b); };
+ 
+ // The mockup's inline styles use its own token names (var(--s5)); the step page's CSS names them --sp-* (step-page.tokens.css).
+-const tokenized = (html) => html.replace(/var\(--(?!sp-)([a-z0-9-]+)\)/g, 'var(--sp-$1)');
++const tokenized = (html) => html.replace(/var\(--(?!sp-|aim-)([a-z0-9-]+)\)/g, 'var(--sp-$1)');
+ export const FIXTURES = {
+   flag: tokenized(cut('<div class="mock-flag">', '</div>')),
+   link: tokenized(cut('<a class="rail-link" href="#styles"', '</a>')),
+-  review: tokenized(cut('<section class="review" id="styles"', '</section>')),
++  review: tokenized(cut('<section class="review', '</section>')),
+ };
+ 
+ /** Adds the missing review-only fixtures to the page. Returns the list of what it added. */
+diff -ruN v5/diff/pixel-diff.mjs v6/diff/pixel-diff.mjs
+--- v5/diff/pixel-diff.mjs	2026-11-19 21:29:03.144399978 -0600
++++ v6/diff/pixel-diff.mjs	2026-11-19 21:29:03.204628499 -0600
+@@ -5,6 +5,7 @@
+ //   node diff/pixel-diff.mjs --target https://learn.amplifiedimpact.io/learn/week/0/step/2
+ //        [--storage-state auth.json]               # a deployed page vs the mockup (acceptance test)
+ //   options: --selector .page (element shot instead of full page)  --reference URL  --out results/  --chrome /usr/bin/google-chrome  --states default,hover-rail
++//   14 states: 8 at 1280 and 390 wide, 6 hover states at 1280 only (22 checks).
+ //
+ // The target must keep the mockup's ids and classes (#pills .stp[data-n], #next, #ttoggle, .box-btn, #mark),
+ // which <StepPage> does. A deployed page gets the mockup's review-only fixtures added first (diff/fixtures.mjs),
+@@ -30,17 +31,29 @@
+ const selector = arg('selector'); // e.g. '.page' to compare only the step page's own box (both pages have it)
+ const VIEWPORTS = [{ name: 'desktop-1280', width: 1280, height: 800 }, { name: 'phone-390', width: 390, height: 844 }];
+ const wait = (pg, ms) => pg.waitForTimeout(ms);
++// Springs settle in 560 ms, so every hover and click waits 800 ms before the shot (and the shot fast-forwards anything left).
++const SETTLE = 800;
++const into = (pg, sel) => pg.evaluate((s) => { const h = document.documentElement; h.style.scrollBehavior = 'auto'; document.querySelector(s).scrollIntoView({ block: 'center' }); h.style.scrollBehavior = ''; }, sel);
++const checkAll = async (pg) => { for (const b of await pg.$$('.item .box-btn')) { await b.click(); await wait(pg, 120); } await wait(pg, SETTLE); };
++// full: full-page shot, scrolled back to the top first.  view: the viewport as it is (hover states, so the pointer stays put).
++// desktop: skipped at 390 px (phones have no hover).
+ const STATES = {
+-  default: async () => {},
+-  // desktop: the pointer on step 4, as in the video (reference/frames/02-top-hover-step-4.png); phones have no hover, so the Next card
+-  'hover-rail': async (pg, vp) => { if (vp.width > 640) { await pg.hover('#pills .stp[data-n="4"]'); await wait(pg, 400); } else { await pg.hover('#next'); await wait(pg, 400); } },
+-  'hover-next': async (pg) => { await pg.hover('#next'); await wait(pg, 400); },
+-  'transcript-open': async (pg) => { await pg.click('#ttoggle'); await wait(pg, 800); await pg.mouse.move(0, 0); },
+-  'mark-locked': async (pg) => { await pg.click('#mark', { force: true }); await wait(pg, 1200); },
+-  'step-done': async (pg) => {
+-    for (const b of await pg.$$('.item .box-btn')) { await b.click(); await wait(pg, 120); }
+-    await pg.click('#mark'); await wait(pg, 1600); await pg.mouse.move(0, 0); await wait(pg, 300);
+-  },
++  default: { full: true, run: async () => {} },
++  // desktop: the pointer on step 4, as in the video (reference/frames/02-top-hover-step-4.png); phones: the Next card
++  'hover-rail': { full: true, run: async (pg, vp) => { await pg.hover(vp.width > 640 ? '#pills .stp[data-n="4"]' : '#next'); await wait(pg, SETTLE); } },
++  'hover-next': { full: true, run: async (pg) => { await pg.hover('#next'); await wait(pg, SETTLE); } },
++  'transcript-open': { full: true, run: async (pg) => { await pg.click('#ttoggle'); await wait(pg, SETTLE); await pg.mouse.move(0, 0); await wait(pg, SETTLE); } },
++  'mark-locked': { full: true, run: async (pg) => { await pg.click('#mark', { force: true }); await wait(pg, 1200); } },
++  'step-done': { full: true, run: async (pg) => { await checkAll(pg); await pg.click('#mark'); await wait(pg, 1600); await pg.mouse.move(0, 0); await wait(pg, SETTLE); } },
++  // v6: the brand-motion hover looks (label rolled, outline to ink, no lift) and the spaced Reference accordion
++  'hover-play': { desktop: true, run: async (pg) => { await into(pg, '#vframe'); await pg.hover('#vplay .vgo'); await wait(pg, SETTLE); } },
++  'hover-chip': { desktop: true, run: async (pg) => { await into(pg, '#chaps-hs'); await pg.hover('#chaps .chip:nth-child(2)'); await wait(pg, SETTLE); } },
++  'hover-arrow': { desktop: true, run: async (pg) => { await into(pg, '#chaps-hs'); await pg.hover('#chaps-hs .hs-next'); await wait(pg, SETTLE); } },
++  'hover-secondary': { desktop: true, run: async (pg) => { await into(pg, '#know-btn'); await pg.hover('#know-btn'); await wait(pg, SETTLE); } },
++  'hover-mark': { desktop: true, run: async (pg) => { await checkAll(pg); await into(pg, '#mark'); await pg.hover('#mark'); await wait(pg, SETTLE); } },
++  'hover-done': { desktop: true, run: async (pg) => { await checkAll(pg); await into(pg, '#mark'); await pg.click('#mark'); await wait(pg, 1400); } },
++  'acc-open-hover': { run: async (pg) => { await into(pg, '#reference'); await pg.click('#reference summary'); await wait(pg, SETTLE); await pg.hover('#reference summary'); await wait(pg, SETTLE); } },
++  'know-open': { full: true, run: async (pg) => { await pg.click('#know-btn'); await wait(pg, 1200); await pg.mouse.move(0, 0); await wait(pg, SETTLE); } },
+ };
+ const only = arg('states')?.split(',');
+ const browser = await chromium.launch({ executablePath: arg('chrome', '/usr/bin/google-chrome'), args: ['--font-render-hinting=none', '--disable-lcd-text', '--hide-scrollbars'] });
+@@ -56,12 +69,13 @@
+   await pg.reload({ waitUntil: 'load' });
+   await pg.evaluate(() => document.fonts.ready);
+   await addFixtures(pg); // review-only MOCKUP bar, styles link and section, only if the page lacks them (a deployed page)
+-  await wait(pg, 800);
+-  await STATES[state](pg, vp);
+-  if (!state.startsWith('hover')) { await pg.evaluate(() => window.scrollTo(0, 0)); await wait(pg, 400); }
++  await wait(pg, 1200);   // the page's arrival rise (560 ms + 6 x 45 ms stagger) is over
++  const st = STATES[state];
++  await st.run(pg, vp);
++  if (st.full) { await pg.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); }); await wait(pg, 400); }
+   const buf = selector
+     ? await pg.locator(selector).first().screenshot({ animations: 'disabled', caret: 'hide' })
+-    : await pg.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide' });
++    : await pg.screenshot({ fullPage: !!st.full, animations: 'disabled', caret: 'hide' });
+   await ctx.close();
+   return PNG.sync.read(buf);
+ }
+@@ -72,6 +86,7 @@
+ }
+ for (const vp of VIEWPORTS) for (const state of Object.keys(STATES)) {
+   if (only && !only.includes(state)) continue;
++  if (STATES[state].desktop && vp.width <= 640) continue;
+   const a = await shot(target, vp, state, true), b = await shot(reference, vp, state, false);
+   const w = Math.max(a.width, b.width), h = Math.max(a.height, b.height);
+   const A = pad(a, w, h), B = pad(b, w, h), D = new PNG({ width: w, height: h });
+diff -ruN v5/diff/video-parity.mjs v6/diff/video-parity.mjs
+--- v5/diff/video-parity.mjs	2026-11-19 21:29:03.144611349 -0600
++++ v6/diff/video-parity.mjs	2026-11-19 21:29:03.204662257 -0600
+@@ -8,7 +8,8 @@
+ // The target needs the mockup's ids and classes (StepPage keeps them) and the test learner at the recorded
+ // state: step 1 done, step 5 waiting, nothing checked on step 2, no video progress. Review-only fixtures
+ // (MOCKUP bar, "Text styles (review)" link and section) are added to the target if it lacks them; see fixtures.mjs.
+-// The playing video is masked (it is course media, not UI). Exit code 0 only if every state passes.
++// The playing video is masked (it is course media, not UI), and so is each element whose look Amplified Impact Motion v1
++// changes on purpose (brandMask in states.json; test A checks those against the mockup). Exit code 0 only if every state passes.
+ import { chromium } from 'playwright-core';
+ import { PNG } from 'pngjs';
+ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+@@ -40,12 +41,12 @@
+       case 'scroll':
+         await pg.evaluate((y) => { const h = document.documentElement, b = h.style.scrollBehavior; h.style.scrollBehavior = 'auto'; window.scrollTo(0, y); h.style.scrollBehavior = b; }, s.y);
+         await wait(pg, 150); break;
+-      case 'move': await pg.mouse.move(s.x, s.y); mouse.x = s.x; mouse.y = s.y; await wait(pg, 450); break;
++      case 'move': await pg.mouse.move(s.x, s.y); mouse.x = s.x; mouse.y = s.y; await wait(pg, 800); break;
+       case 'click': await pg.mouse.click(s.x, s.y); mouse.x = s.x; mouse.y = s.y; break;
+       case 'wait': await wait(pg, s.ms); break;
+       case 'js': await pg.evaluate(s.code); break;
+       case 'pauseVideo': await pg.evaluate(() => document.getElementById('video')?.pause()); break;
+-      case 'nudge': if (mouse.x != null) { await pg.mouse.move(mouse.x + 1, mouse.y); await pg.mouse.move(mouse.x, mouse.y); await wait(pg, 450); } break;
++      case 'nudge': if (mouse.x != null) { await pg.mouse.move(mouse.x + 1, mouse.y); await pg.mouse.move(mouse.x, mouse.y); await wait(pg, 800); } break;
+       case 'clickChapter': {
+         await pg.evaluate((i) => { const r = document.getElementById('chaps'), c = r.children[i]; r.style.scrollBehavior = 'auto'; r.scrollLeft = c.offsetLeft - r.clientWidth / 2 + c.offsetWidth / 2; r.style.scrollBehavior = ''; }, s.index);
+         await wait(pg, 200);
+@@ -77,22 +78,28 @@
+     await pg.reload({ waitUntil: 'load' });
+     await pg.evaluate(() => document.fonts.ready);
+     const added = await addFixtures(pg);
+-    await wait(pg, 600);
++    await wait(pg, 1200);   // the page's arrival rise (brand .aim-rise, about 0.8 s) is over, as in the recording's first frames
+     const mouse = { x: null, y: null };
+     // the recording starts at the very top; a reload can restore a 1 px scroll (Chrome scroll restoration on React pages)
+     await run(pg, [{ do: 'scroll', y: 0 }, ...st.steps], mouse);
+     await wait(pg, 300);
+-    const shot = PNG.sync.read(await pg.screenshot({ caret: 'hide' }));
++    // elements whose look the brand motion changes on purpose: left out here, checked against the mockup by test A
++    const brandMasks = [];
++    for (const m of st.brandMask ?? []) {
++      const bb = await pg.locator(m.sel).first().boundingBox();
++      if (bb) brandMasks.push([Math.floor(bb.x - m.pad), Math.floor(bb.y - m.pad), Math.ceil(bb.x + bb.width + m.pad), Math.ceil(bb.y + bb.height + m.pad)]);
++    }
++    const shot = PNG.sync.read(await pg.screenshot({ caret: 'hide', animations: 'disabled' }));
+     await ctx.close();
+     const frame = PNG.sync.read(readFileSync(root + `reference/frames/${st.id}.png`));
+-    const r = compareToFrame(frame, shot, st.mask ?? []);
++    const r = compareToFrame(frame, shot, [...(st.mask ?? []), ...brandMasks]);
+     writeFileSync(`${OUT}${tag}-${st.id}.png`, PNG.sync.write(sideBySide(frame, shot, r.heat)));
+     allPass &&= r.pass;
+-    report.push({ target, tag, state: st.id, pass: r.pass, edge: { worstRegion: r.edge.worstRegion, worstBox: r.edge.worstBox, hotPixels: r.edge.hotPixels }, tone: { worstRegion: r.tone.worstRegion, worstBox: r.tone.worstBox, hotPixels: r.tone.hotPixels }, fixtures: added });
+-    console.log(`  ${r.pass ? 'pass' : 'FAIL'}  ${st.id.padEnd(28)} edge worst ${String(r.edge.worstRegion).padStart(5)} px  tone worst ${String(r.tone.worstRegion).padStart(5)} px${r.pass ? '' : `   at edge ${JSON.stringify(r.edge.worstBox)} tone ${JSON.stringify(r.tone.worstBox)}`}`);
++    report.push({ target, tag, state: st.id, pass: r.pass, brandMasks: brandMasks.length ? { boxes: brandMasks, why: st.brandWhy } : undefined, edge: { worstRegion: r.edge.worstRegion, worstBox: r.edge.worstBox, hotPixels: r.edge.hotPixels }, tone: { worstRegion: r.tone.worstRegion, worstBox: r.tone.worstBox, hotPixels: r.tone.hotPixels }, fixtures: added });
++    console.log(`  ${r.pass ? 'pass' : 'FAIL'}${brandMasks.length ? '*' : ' '} ${st.id.padEnd(28)} edge worst ${String(r.edge.worstRegion).padStart(5)} px  tone worst ${String(r.tone.worstRegion).padStart(5)} px${r.pass ? '' : `   at edge ${JSON.stringify(r.edge.worstBox)} tone ${JSON.stringify(r.tone.worstBox)}`}`);
+   }
+ }
+ writeFileSync(`${OUT}report.json`, JSON.stringify({ when: new Date().toISOString(), video: spec.video, limits: LIMITS, report }, null, 2));
+ await browser.close(); srv?.close();
+-console.log(allPass ? '\nPASS: every state matches the video' : '\nFAIL: see results/video/*.png (frame | target | heat: red = edges, orange = tone)');
++console.log(allPass ? '\nPASS: every state matches the video (* = brand-motion element masked, see reference/states.json)' : '\nFAIL: see results/video/*.png (frame | target | heat: red = edges, orange = tone)');
+ process.exit(allPass ? 0 : 1);
+diff -ruN v5/harness/main.jsx v6/harness/main.jsx
+--- v5/harness/main.jsx	2026-11-19 21:29:03.144335070 -0600
++++ v6/harness/main.jsx	2026-11-19 21:29:03.204588653 -0600
+@@ -1,6 +1,7 @@
+ import { createRoot } from 'react-dom/client';
+ import { StepPage } from '../src/StepPage.jsx';
+ import { sampleLabels, sampleStep } from '../src/sample-data.js';
++import '../src/motion/ai-motion.css';   // Amplified Impact Motion v1 (brand file, unchanged), loaded first like in the mockup
+ import '../src/step-page.tokens.css';
+ import '../src/step-page.css';
+ 
+diff -ruN v5/mockup/step-2.html v6/mockup/step-2.html
+--- v5/mockup/step-2.html	2026-11-19 21:29:03.144887460 -0600
++++ v6/mockup/step-2.html	2026-11-19 21:29:03.204950198 -0600
+@@ -1,11 +1,13 @@
+ <!doctype html>
+-<!-- v5: the v3 polish mockup exactly as recorded in interaction-demo.mp4. Source of truth for the step page.
++<!-- v6: the page as recorded in interaction-demo.mp4 (v5), moving by Amplified Impact Motion v1 (ai-motion.css),
++     with the Reference accordion spaced from its header. Source of truth for the step page.
+      The black MOCKUP bar and the "Text styles for long steps" section are for review only and are not shipped. -->
+ <html lang="en">
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+-<title>Week 0 · Step 2 · Watch the Orientation (v5 mockup, matches interaction-demo.mp4)</title>
++<title>Week 0 · Step 2 · Watch the Orientation (v6 mockup: the video, with brand motion)</title>
++<link rel="stylesheet" href="ai-motion.css">
+ <style>
+ @font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
+ @font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
+@@ -29,8 +31,7 @@
+   --sh-sm:0 2px 4px rgb(31 77 64 / .06);
+   --sh-md:0 8px 16px rgb(31 77 64 / .08);
+   --sh-lg:0 16px 32px rgb(31 77 64 / .10);
+-  --ease-out:cubic-bezier(.2,.7,.2,1);
+-  --t-press:150ms; --t-ui:200ms; --t-reveal:450ms;
++  /* motion: --aim-* tokens from ai-motion.css (Amplified Impact Motion v1) */
+   --font:'Geist',ui-sans-serif,system-ui,sans-serif;
+   --mono:'Geist Mono',ui-monospace,monospace;
+   interpolate-size:allow-keywords;
+@@ -56,7 +57,7 @@
+ /* 4. one button system */
+ .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);height:40px;padding:0 var(--s3);
+   border-radius:var(--r-md);border:1px solid transparent;font:500 15px/1 var(--font);text-decoration:none;cursor:pointer;white-space:nowrap;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .btn svg{flex:none}
+ .btn-primary{background:var(--forest);color:var(--on-forest);box-shadow:var(--sh-sm)}
+ .btn-accent{background:var(--energy-bright);color:var(--black);box-shadow:var(--sh-sm)}
+@@ -65,28 +66,33 @@
+ .btn-lg{height:48px;padding:0 var(--s4);font-size:16px}
+ .btn-sm{height:32px;padding:0 12px;font-size:14px}
+ .btn-arrow{padding-right:12px}
+-.btn .arrow{transition:transform var(--t-ui) var(--ease-out)}
++.btn .arrow{transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
++/* brand 01/02: hover rolls the label (.aim-roll) and changes colour; nothing lifts. The roll box is 6px taller than the
++   line so descenders aren't clipped, with -3px margins so the label sits exactly where it did. */
++.btn .aim-roll,.vgo .aim-roll{line-height:calc(1em + 6px);margin-block:-3px}
+ @media (hover:hover){
+-  .btn:is(:hover,.is-hover){transform:translateY(-1px);box-shadow:var(--sh-md);text-decoration:none}
++  .btn:is(:hover,.is-hover){text-decoration:none}
+   .btn-primary:is(:hover,.is-hover){background:var(--forest-hover)}
+   .btn-accent:is(:hover,.is-hover){background:var(--bright-hover)}
+-  .btn-secondary:is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2);box-shadow:var(--sh-sm)}
+-  .btn-ghost:is(:hover,.is-hover){background:var(--tint-forest);box-shadow:none;transform:none}
++  .btn-secondary:is(:hover,.is-hover){border-color:var(--black)}
++  .btn-ghost:is(:hover,.is-hover){background:var(--tint-forest)}
+   :is(.btn,.card-link):is(:hover,.is-hover) .arrow{transform:translateX(3px)}
+ }
+-.btn:is(:active,.is-active){transform:scale(.97);box-shadow:var(--sh-sm)}
++/* brand press: squeeze in 90 ms on the system curve, spring back on release */
++.btn:where(:not([aria-disabled="true"])):is(:active,.is-active){transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .btn:is(:active,.is-active) .arrow{transform:translateX(1px)}
+-.btn-ghost:is(:active,.is-active){box-shadow:none}
+ :is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn,.acc summary):focus-visible,
+ :is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn).is-focus{outline:2px solid var(--forest);outline-offset:2px}
+ .chip[aria-current="true"]:focus-visible,
+ .btn[aria-disabled="true"]{cursor:pointer}
+ .icon-btn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:var(--border);color:var(--forest);cursor:pointer;box-shadow:var(--sh-sm);padding:0;
+-  transition:background-color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out,opacity var(--t-ui) ease-out}
+-@media (hover:hover){.icon-btn:is(:hover,.is-hover){background:var(--bone);box-shadow:var(--sh-md)}}
+-.icon-btn:active{transform:scale(.94)}
+-.prose a,a.inline{color:var(--forest);font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;transition:text-decoration-thickness 150ms ease-out}
+-.prose a:hover,a.inline:hover,a.inline.is-hover{text-decoration-thickness:2px}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),opacity var(--aim-dur-quick) var(--aim-ease)}
++@media (hover:hover){.icon-btn:is(:hover,.is-hover){background:var(--bone)}}
++.icon-btn:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.prose a,a.inline{position:relative;color:var(--forest);font-weight:500;text-decoration:none;border-bottom:1px solid var(--line-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
++.prose a::after,a.inline::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--aim-dur-move) var(--aim-ease)}
++@media (hover:hover){.prose a:hover::after,a.inline:is(:hover,.is-hover)::after{transform:none;transform-origin:0 50%}}
++.prose a:focus-visible::after,a.inline:focus-visible::after{transform:none;transform-origin:0 50%}
+ .prose a:focus-visible,a.inline:focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-radius:2px}
+ .back{display:inline-flex;margin-left:-8px;height:32px;padding:0 10px 0 6px;font-size:14px;color:var(--black)}
+ 
+@@ -110,23 +116,22 @@
+ .steps{margin:8px 0 0}
+ .stp{position:relative;display:inline-flex;align-items:center;gap:var(--s2);height:40px;padding:0 var(--s3) 0 var(--s2);border-radius:var(--r-pill);
+   border:var(--border);background:var(--surface);color:var(--black);font:500 14px/1 var(--font);text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .stp-n{position:relative;display:grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;background:var(--bone);color:var(--black);
+-  font:600 13px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;transition:background-color 150ms ease-out,color 150ms ease-out}
++  font:600 13px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .stp-n>span{display:block}
+ .stp[data-s="done"] .stp-n{background:var(--energy);color:#fff}
+ .stp[data-s="waiting"] .stp-n{background:transparent;border:1px dashed rgb(10 13 12 / .45)}
+ .stp[aria-current="step"]{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
+ .stp[aria-current="step"] .stp-n{background:rgb(245 245 242 / .16);color:var(--on-forest)}
+ .stp[aria-current="step"][data-s="done"] .stp-n{background:var(--energy-bright);color:var(--forest)}
+-.stp .stp-n .swap{position:absolute;inset:0;display:grid;place-items:center;transition:opacity 180ms ease-out,filter 180ms ease-out,transform 180ms var(--ease-out)}
+-.stp .stp-n .swap.out{opacity:0;filter:blur(4px);transform:scale(.6)}
++.stp .stp-n .draw path{stroke-dasharray:1 1;animation:aim-draw var(--aim-dur-base) var(--aim-ease) 70ms backwards}  /* step marked done: the check draws (lesson tier) */
+ @media (hover:hover){
+-  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2);transform:translateY(-1px);box-shadow:var(--sh-sm)}
++  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2)}
+   .stp:not([aria-current="step"]):not([data-s="done"]):is(:hover,.is-hover) .stp-n{background:var(--surface)}
+   .stp[aria-current="step"]:is(:hover,.is-hover){background:var(--forest-hover)}
+ }
+-.stp:active{transform:scale(.97)}
++.stp:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .stp:focus-visible,.stp.is-focus{outline:2px solid var(--forest);outline-offset:2px}
+ 
+ /* header */
+@@ -139,7 +144,7 @@
+ .tag svg{color:var(--forest)}
+ .prog{margin-top:var(--s3);display:flex;align-items:center;gap:var(--s3)}
+ .prog-track{flex:1;height:6px;border-radius:var(--r-pill);background:rgb(10 13 12 / .08);overflow:hidden}
+-.prog-fill{height:100%;background:var(--energy);border-radius:inherit;transform:scaleX(var(--pct,0));transform-origin:left;transition:transform var(--t-reveal) var(--ease-out)}
++.prog-fill{height:100%;background:var(--energy);border-radius:inherit;transform:scaleX(var(--pct,0));transform-origin:left;transition:transform var(--aim-dur-fill) var(--aim-ease)}
+ .prog-l{font:500 14px/1 var(--font);color:var(--ink-2);min-width:96px;text-align:right}
+ .sec-h{font:650 25px/1.2 var(--font);letter-spacing:-.01em;margin-bottom:var(--s3);display:flex;align-items:baseline;gap:var(--s2)}
+ .sec-h small{font:500 14px/1 var(--font);color:var(--ink-2);letter-spacing:0}
+@@ -152,15 +157,18 @@
+ .vposter{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+ .vhit{position:absolute;inset:0;border:0;padding:0 24px 24px 0;background:transparent;display:flex;align-items:flex-end;justify-content:flex-end;cursor:pointer}
+ .vgo{display:inline-flex;align-items:center;gap:12px;height:56px;padding:0 22px 0 8px;border-radius:var(--r-pill);background:var(--forest);color:var(--on-forest);box-shadow:var(--sh-md);font:600 16px/1 var(--font);
+-  transition:transform var(--t-ui) var(--ease-out),box-shadow var(--t-ui) var(--ease-out)}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
+ .vgo i{width:40px;height:40px;border-radius:50%;background:var(--energy-bright);color:var(--forest);display:grid;place-items:center}
+ .vgo i svg{translate:2px 0}
+ .vgo small{font:500 14px/1 var(--mono);color:var(--energy-bright)}
+-@media (hover:hover){.vhit:is(:hover,.is-hover) .vgo{transform:translateY(-1px) scale(1.02);background:var(--forest-hover);box-shadow:var(--sh-lg)}}
+-.vhit:active .vgo{transform:scale(.97)}
++@media (hover:hover){.vhit:is(:hover,.is-hover) .vgo{background:var(--forest-hover)}}
++.vhit:active .vgo{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .vhit:focus-visible{outline:none}.vhit:focus-visible .vgo{outline:2px solid var(--forest);outline-offset:3px}
+ .vdur{position:absolute;right:16px;bottom:16px;height:28px;padding:0 10px;border-radius:var(--r-pill);background:rgb(10 13 12 / .72);color:var(--on-forest);font:500 13px/28px var(--mono)}
+ .vframe.started .vposter,.vframe.started .vhit{display:none}
++/* the one loader: a hairline sweep along the bottom of the frame while the video buffers */
++.vbuf{position:absolute;left:0;right:0;bottom:0;z-index:3;color:var(--energy-bright);opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
++.vframe.buffering .vbuf{opacity:1;transition-delay:90ms}
+ 
+ /* 2. chapters */
+ .chapters{margin-top:var(--s3)}
+@@ -168,52 +176,52 @@
+ .label{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+ .chip{position:relative;display:inline-flex;align-items:center;gap:var(--s2);height:40px;padding:0 var(--s3);border-radius:var(--r-pill);
+   border:var(--border);background:var(--surface);color:var(--black);font:500 14px/1 var(--font);cursor:pointer;overflow:hidden;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out}
+-.chip time{font:500 13px/1 var(--mono);color:var(--ink-2);transition:color 150ms ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
++.chip time{font:500 13px/1 var(--mono);color:var(--ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+ .chip[aria-current="true"]{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
+ .chip[aria-current="true"] time{color:var(--energy-bright)}
+ .chip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--energy-bright);transform:scaleX(var(--p,0));transform-origin:left;opacity:0}
+ .chip[aria-current="true"]::after{opacity:1}
+-@media (hover:hover){.chip:not([aria-current="true"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2);transform:translateY(-1px);box-shadow:var(--sh-sm)}
++@media (hover:hover){.chip:not([aria-current="true"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2)}
+   .chip[aria-current="true"]:is(:hover,.is-hover){background:var(--forest-hover)}}
+-.chip:active{transform:scale(.97)}
++.chip:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ 
+ /* 3. transcript */
+ .tbar{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s3)}
+ .tbar .grow{flex:1}
+-.chev{transition:transform var(--t-ui) var(--ease-out)}
++.chev{transition:transform var(--aim-dur-base) var(--aim-ease)}
+ [aria-expanded="true"] .chev{transform:rotate(180deg)}
+-.tpanel{position:relative;block-size:0;overflow:hidden;transition:block-size 180ms ease-in,margin-top 180ms ease-in;margin-top:0}
+-.tpanel.open{block-size:296px;margin-top:var(--s2);transition:block-size 240ms var(--ease-out),margin-top 240ms var(--ease-out)}
++.tpanel{position:relative;block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),margin-top var(--aim-dur-exit) var(--aim-ease-exit);margin-top:0}
++.tpanel.open{block-size:296px;margin-top:var(--s2);transition:block-size var(--aim-dur-move) var(--aim-ease),margin-top var(--aim-dur-move) var(--aim-ease)}
+ .tscroll{height:296px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:var(--border);border-radius:var(--r-lg);padding:var(--s3);
+   -webkit-mask:linear-gradient(180deg,transparent,#000 20px calc(100% - 20px),transparent);mask:linear-gradient(180deg,transparent,#000 20px calc(100% - 20px),transparent);
+   scrollbar-width:thin;scrollbar-color:rgb(10 13 12 / .25) transparent}
+ .cue{display:grid;grid-template-columns:52px minmax(0,1fr);gap:var(--s3);width:100%;text-align:left;border:0;background:transparent;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;
+-  font:400 16px/1.6 var(--font);color:rgb(10 13 12 / .78);transition:background-color 150ms ease-out,color 150ms ease-out,box-shadow 150ms ease-out}
++  font:400 16px/1.6 var(--font);color:rgb(10 13 12 / .78);transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+ .cue>span{max-width:var(--measure)}
+ .cue time{font:500 13px/1.6 var(--mono);color:var(--ink-3);padding-top:2px}
+-.cue span.c{border-radius:3px;transition:background-color 150ms ease-out;box-decoration-break:clone;-webkit-box-decoration-break:clone}
++.cue span.c{border-radius:3px;transition:background-color var(--aim-dur-quick) var(--aim-ease);box-decoration-break:clone;-webkit-box-decoration-break:clone}
+ @media (hover:hover){.cue:is(:hover,.is-hover){background:var(--bone);color:var(--black)}}
+ .cue[aria-current="true"]{background:var(--tint-forest);box-shadow:inset 2px 0 var(--energy);color:var(--black)}
+ .cue[aria-current="true"] time{color:var(--forest)}
+ .cue span.c.now{background:var(--tint-bright)}
+-.tback{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:3;opacity:0;pointer-events:none;transition:opacity var(--t-ui) ease-out,transform var(--t-ui) var(--ease-out),box-shadow var(--t-ui) var(--ease-out),background-color 150ms;transform:translateY(4px)}
+-.tback.show{opacity:1;pointer-events:auto;transform:none;box-shadow:var(--sh-md)}
++.tback{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:3;opacity:0;pointer-events:none;transform:translateY(var(--aim-rise));
++  transition:opacity var(--aim-dur-exit) var(--aim-ease-exit),transform var(--aim-dur-exit) var(--aim-ease-exit),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
++.tback.show{opacity:1;pointer-events:auto;transform:none;box-shadow:var(--sh-md);
++  transition:opacity var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ 
+ /* 8. checklist */
+ .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+-.item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:var(--s2);padding:var(--s3) var(--s4) var(--s3) var(--s2);background:var(--surface);border:var(--border);border-radius:var(--r-lg);
+-  transition:background-color 600ms ease-out}
+-.item.flash{background:color-mix(in oklch,var(--energy-bright) 20%,white);transition:none}
++.item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:var(--s2);padding:var(--s3) var(--s4) var(--s3) var(--s2);background:var(--surface);border:var(--border);border-radius:var(--r-lg)}
+ .box-btn{width:44px;height:44px;margin-top:-10px;display:grid;place-items:center;border:0;background:transparent;padding:0;cursor:pointer;border-radius:var(--r-md)}
+ .check-box{inline-size:22px;block-size:22px;border-radius:6px;border:1.5px solid rgb(10 13 12 / .35);display:grid;place-items:center;background:var(--surface);
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,transform var(--t-press) ease-out,box-shadow var(--t-ui) var(--ease-out)}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+ @media (hover:hover){.box-btn:is(:hover,.is-hover) .check-box{border-color:var(--forest);box-shadow:0 0 0 4px var(--tint-forest)}}
+-.box-btn:active .check-box{transform:scale(.9)}
+-.check-box path{stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset 240ms var(--ease-out) 60ms}
++.box-btn:active .check-box{transform:scale(.84);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.check-box path{stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+ [aria-checked="true"] .check-box{background:var(--energy);border-color:var(--energy)}
+-[aria-checked="true"] .check-box path{stroke-dashoffset:0}
+-.item-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);font:600 17px/1.35 var(--font);transition:color var(--t-ui) ease-out}
++[aria-checked="true"] .check-box path{stroke-dashoffset:0;transition-delay:70ms}
++.item-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);font:600 17px/1.35 var(--font);transition:color var(--aim-dur-base) var(--aim-ease)}
+ .role{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--bone);font:500 13px/1 var(--font);color:var(--forest)}
+ .item-detail{color:var(--ink-2);font-size:15px;margin-top:4px;max-width:var(--measure)}
+ .item-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin-top:12px}
+@@ -231,45 +239,46 @@
+ .callout.diy{background:var(--surface);border:var(--border);box-shadow:inset 3px 0 var(--black)}
+ .callout.diy svg{color:var(--black)}
+ .acc{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+-.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);cursor:pointer;font:600 17px/1.3 var(--font);transition:background-color 150ms ease-out}
++.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);cursor:pointer;font:600 17px/1.3 var(--font);transition:background-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+ .acc summary::-webkit-details-marker{display:none}
+ @media (hover:hover){.acc summary:hover{background:var(--bone)}}
+ .acc summary .chev{color:var(--forest)}
+ .acc[open] summary .chev{transform:rotate(180deg)}
+-.acc::details-content{block-size:0;overflow:hidden;transition:block-size 240ms var(--ease-out),content-visibility 240ms allow-discrete}
+-.acc[open]::details-content{block-size:auto}
+-.acc ol{margin:0;padding:0 var(--s4) var(--s4) calc(var(--s4) + 18px);display:grid;gap:10px;max-width:calc(var(--measure) + 48px);color:rgb(10 13 12 / .85)}
++.acc[open] summary{box-shadow:inset 0 -1px var(--line)}
++.acc::details-content{block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),content-visibility var(--aim-dur-exit) allow-discrete}
++.acc[open]::details-content{block-size:auto;transition:block-size var(--aim-dur-move) var(--aim-ease),content-visibility var(--aim-dur-move) allow-discrete}
++.acc ol{margin:0;padding:var(--s3) var(--s4) var(--s4) calc(var(--s4) + 18px);display:grid;gap:10px;max-width:calc(var(--measure) + 48px);color:rgb(10 13 12 / .85)}
+ 
+ /* 9 + 7 footer */
+ .foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);align-items:stretch}
+ @media (max-width:720px){.foot{grid-template-columns:1fr}}
+ .mark-card{position:relative;display:grid;place-items:center;align-content:center;gap:10px;text-align:center;padding:var(--s4);background:var(--surface);border:var(--border);border-radius:var(--r-lg);min-height:152px}
+-.why{font-size:14px;color:var(--ink-2);transition:color var(--t-ui) ease-out}
++.why{font-size:14px;color:var(--ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
++.why.msg{animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+ .why.nudge{color:var(--forest);font-weight:600}
+ .mark-btn{position:relative;min-width:200px}
+-.mark-btn .lbl{display:inline-flex;align-items:center;gap:var(--s2);transition:opacity 150ms ease-out,filter 150ms ease-out}
+-.mark-btn .lbl.out{opacity:0;filter:blur(4px)}
++/* brand 03: idle -> done. The label rolls up and out, the done layer rises, the dot lands and the ring draws once.
++   Layers share one grid cell so the width never jumps. */
++.mark-btn.aim-async{display:inline-grid;place-items:center}
++.mark-btn .aim-async__label{gap:var(--s2)}
++.mark-btn .aim-async__done{--aim-mark:currentColor}
+ .mark-btn.is-done{background:var(--tint-bright);color:var(--forest);box-shadow:none;border-color:rgb(31 77 64 / .18)}
+ @media (hover:hover){.mark-btn.is-done:is(:hover,.is-hover){background:color-mix(in oklch,var(--energy-bright) 32%,white)}}
+-.mark-btn .ck path{stroke-dasharray:20;stroke-dashoffset:0}
+-.mark-btn.is-done .ck path{animation:draw 280ms var(--ease-out) 120ms both}
+-.mark-btn::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid var(--energy);opacity:0;pointer-events:none}
+-.mark-btn.ring::after{animation:ring 600ms var(--ease-out) both}
+-.done-row{display:flex;gap:var(--s2);align-items:center}
++.done-row{display:flex;gap:var(--s2);align-items:center;animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+ .done-row[hidden]{display:none}
+ .card-link{position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:var(--s4) 80px var(--s4) var(--s4);border-radius:var(--r-lg);text-decoration:none;
+-  transition:background-color var(--t-ui) ease-out,transform var(--t-ui) var(--ease-out),box-shadow var(--t-ui) var(--ease-out)}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+ .next{background:var(--forest);color:var(--on-forest);min-height:152px}
+ .next .k{font:500 13px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--energy-bright)}
+ .next .t{font:650 20px/1.3 var(--font)}
+ .next .m{font-size:14px;color:rgb(245 245 242 / .82)}
+-.next .bar{display:block;height:2px;width:40px;background:var(--energy-bright);margin-top:10px;border-radius:2px;transition:width var(--t-ui) var(--ease-out)}
++.next .bar{display:block;height:2px;width:40px;background:var(--energy-bright);margin-top:10px;border-radius:2px;transition:width var(--aim-dur-move) var(--aim-ease)}
+ .next .arrow{position:absolute;right:var(--s4);top:50%;margin-top:-20px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgb(245 245 242 / .1);color:var(--on-forest);
+-  transition:transform var(--t-ui) var(--ease-out),background-color var(--t-ui) ease-out}
+-@media (hover:hover){.next:is(:hover,.is-hover){background:var(--forest-lift);transform:translateY(-2px);box-shadow:var(--sh-md)}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
++@media (hover:hover){.next:is(:hover,.is-hover){background:var(--forest-lift)}
+   .next:is(:hover,.is-hover) .bar{width:64px} .next:is(:hover,.is-hover) .arrow{background:rgb(245 245 242 / .16)}}
+-.next:active{transform:scale(.99)}
+-.next.cue-next .bar{width:64px;transition-duration:var(--t-reveal)}
++.next:active{transform:scale(.99);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.next.cue-next .bar{width:64px}
+ .next:focus-visible,.next.is-focus{outline:2px solid var(--forest);outline-offset:3px}
+ 
+ /* rail */
+@@ -277,12 +286,16 @@
+ .card{background:var(--surface);border:var(--border);border-radius:var(--r-lg);padding:var(--s3)}
+ .card h3{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin:4px 8px 12px}
+ .rail-link{display:flex;align-items:center;gap:10px;min-height:36px;padding:6px 10px;border-radius:var(--r-md);text-decoration:none;color:var(--black);font:500 14px/1.3 var(--font);
+-  transition:background-color 150ms ease-out,color 150ms ease-out,box-shadow 150ms ease-out}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ @media (hover:hover){.rail-link:is(:hover,.is-hover){background:var(--tint-forest);color:var(--forest)}}
+-.rail-link[aria-current="true"]{box-shadow:inset 2px 0 var(--forest);color:var(--forest);background:var(--tint-forest);border-radius:0 var(--r-md) var(--r-md) 0}
+-.mini{width:14px;height:14px;border-radius:4px;border:1.5px solid rgb(10 13 12 / .35);flex:none;display:grid;place-items:center;transition:background-color 150ms,border-color 150ms}
++.rail-link[aria-current="true"]{color:var(--forest);background:var(--tint-forest);border-radius:0 var(--r-md) var(--r-md) 0}
++/* brand 10: one marker springs to the current section instead of each link drawing its own stripe */
++.rail nav.card{position:relative}
++.spy-mark{position:absolute;top:0;left:0;width:2px;height:var(--h,0px);background:var(--forest);transform:translate(var(--x,0px),var(--y,0px));pointer-events:none}
++.spy-mark.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),height var(--aim-dur-spring) var(--aim-ease-spring)}
++.mini{width:14px;height:14px;border-radius:4px;border:1.5px solid rgb(10 13 12 / .35);flex:none;display:grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ .mini.on{background:var(--energy);border-color:var(--energy)}
+-.mini svg path{stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset 220ms var(--ease-out)}
++.mini svg path{stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+ .mini.on svg path{stroke-dashoffset:0}
+ .rail-list .rail-link.done{color:rgb(10 13 12 / .6)}
+ .due{margin:12px 8px 4px;padding:12px;border-radius:var(--r-md);background:var(--bone);font:600 14px/1.3 var(--font)}
+@@ -334,7 +347,7 @@
+ .bfield{border:var(--border);border-radius:var(--r-md);background:var(--surface);overflow:hidden}
+ .btool{display:flex;align-items:center;gap:4px;padding:6px;border-bottom:var(--border);background:var(--bone);flex-wrap:wrap;min-height:45px}
+ .btool select{height:32px;border:var(--border);border-radius:6px;background:var(--surface);font:500 13px var(--font);padding:0 8px;margin-right:4px}
+-.tb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font:600 14px/1 var(--font);color:var(--black);display:inline-grid;place-items:center;transition:background-color 150ms,border-color 150ms}
++.tb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font:600 14px/1 var(--font);color:var(--black);display:inline-grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ @media (hover:hover){.tb:hover{background:var(--surface);border-color:var(--line)}}
+ .tb:focus-visible{outline:2px solid var(--forest);outline-offset:1px}
+ .tb[aria-pressed="true"]{background:var(--surface);border-color:var(--line-2)}
+@@ -343,16 +356,12 @@
+ .bprev{padding:16px 18px;font-size:15px;line-height:1.55}
+ .gallery{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:var(--s3);padding:var(--s4);background:var(--surface);border:var(--border);border-radius:var(--r-lg)}
+ 
+-@keyframes draw{from{stroke-dashoffset:20}to{stroke-dashoffset:0}}
+-@keyframes ring{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.18,1.5)}}
+ 
+-/* prefers-reduced-motion: keep colour/fill/opacity feedback, drop movement */
++/* prefers-reduced-motion: keep colour/fill/opacity feedback, drop movement. .aim-reduced on any ancestor does the same (ai-motion.css). */
+ @media (prefers-reduced-motion:reduce){
+   html{scroll-behavior:auto}
+   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+-  .btn:hover,.chip:hover,.next:hover,.btn.is-hover,.next.is-hover,.chip.is-hover{transform:none!important}
+   :is(.btn,.card-link):hover .arrow{transform:none!important}
+-  .mark-btn.ring::after{display:none}
+ }
+ 
+ @media (max-width:640px){.vhit{padding:0 12px 12px 0}.vgo{height:44px;padding:0 14px 0 6px;font-size:14px;gap:8px}.vgo i{width:32px;height:32px}.vgo small,.vgo .vt{display:none}.vgo{padding:0 6px}.mock-flag span+span{display:none}}
+@@ -390,9 +399,9 @@
+ <div class="mock-flag"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · Week 0 · Step 2 · v3 polish pass · not live</span><span>Geist · forest · energy · energy-bright · bone · black</span></div>
+ 
+ <div class="page">
+-  <a class="btn btn-ghost back" href="#" onclick="return false"><svg width="16" height="16"><use href="#i-left"/></svg>Foundations</a>
++  <a class="btn btn-ghost back aim-rise" style="--i:0" href="#" onclick="return false"><svg width="16" height="16"><use href="#i-left"/></svg>Foundations</a>
+ 
+-  <div class="hs steps" id="pills-hs">
++  <div class="hs steps aim-rise" style="--i:0" id="pills-hs">
+     <button class="icon-btn hs-prev" type="button" aria-label="Scroll steps left" hidden><svg width="16" height="16"><use href="#i-left"/></svg></button>
+     <nav class="hs-row" id="pills" aria-label="Week 0 steps"></nav>
+     <button class="icon-btn hs-next" type="button" aria-label="Scroll steps right" hidden><svg width="16" height="16"><use href="#i-right"/></svg></button>
+@@ -400,7 +409,7 @@
+ 
+   <div class="grid">
+     <main class="main">
+-      <header class="head">
++      <header class="head aim-rise" style="--i:1">
+         <p class="eyebrow">Week 0 · Step 2</p>
+         <h1 class="h1">Watch the Orientation</h1>
+         <p class="purpose">The goal of this step is that both of you know how a week runs and what an AI hire is before we start building. Watch it together if you can.</p>
+@@ -415,7 +424,7 @@
+         </div>
+       </header>
+ 
+-      <section id="watch" aria-labelledby="watch-h">
++      <section id="watch" class="aim-rise" style="--i:2" aria-labelledby="watch-h">
+         <h2 class="sec-h" id="watch-h">Watch <small>7 min 49 s</small></h2>
+         <div class="vframe" id="vframe">
+           <video id="video" controls playsinline preload="metadata" poster="media/w0-02-orientation-narrated-v5-poster.jpg" aria-label="Orientation video">
+@@ -423,7 +432,8 @@
+             <track kind="captions" srclang="en" label="English" src="media/w0-02-orientation-narrated-v5.vtt">
+           </video>
+           <img class="vposter" src="media/w0-02-orientation-narrated-v5-poster.jpg" alt="">
+-          <button class="vhit" type="button" id="vplay" aria-label="Play Watch the Orientation"><span class="vgo"><i><svg width="20" height="20"><use href="#i-play"/></svg></i><span class="vt">Play the orientation</span><small>7:49</small></span></button>
++          <span class="vbuf aim-sweep" aria-hidden="true"></span>
++          <button class="vhit" type="button" id="vplay" aria-label="Play Watch the Orientation"><span class="vgo"><i><svg width="20" height="20"><use href="#i-play"/></svg></i><span class="vt aim-roll"><span>Play the orientation</span><span aria-hidden="true">Play the orientation</span></span><small>7:49</small></span></button>
+         </div>
+ 
+         <div class="chapters">
+@@ -444,11 +454,11 @@
+         </div>
+         <div class="tpanel" id="tpanel" role="region" aria-label="Transcript" inert>
+           <div class="tscroll" id="tscroll" tabindex="0"></div>
+-          <button class="btn btn-secondary btn-sm tback" type="button" id="tback"><svg width="14" height="14"><use href="#i-down"/></svg>Back to current</button>
++          <button class="btn btn-secondary btn-sm tback" type="button" id="tback"><svg width="14" height="14"><use href="#i-down"/></svg><span class="aim-roll"><span>Back to current</span><span aria-hidden="true">Back to current</span></span></button>
+         </div>
+       </section>
+ 
+-      <section id="checklist" aria-labelledby="check-h">
++      <section id="checklist" class="aim-rise" style="--i:3" aria-labelledby="check-h">
+         <h2 class="sec-h" id="check-h">Your checklist</h2>
+         <ol class="list" id="list">
+           <li class="item" data-id="s2-watch">
+@@ -457,7 +467,7 @@
+               <div class="item-title">Watch the video</div>
+               <p class="item-detail">It checks itself off once you’ve watched most of it.</p>
+               <div class="item-acts">
+-                <button class="btn btn-secondary btn-sm" type="button" data-seek="0"><svg width="14" height="14"><use href="#i-play"/></svg>Play from 0:00</button>
++                <button class="btn btn-secondary btn-sm" type="button" data-seek="0"><svg width="14" height="14"><use href="#i-play"/></svg><span class="aim-roll"><span>Play from 0:00</span><span aria-hidden="true">Play from 0:00</span></span></button>
+                 <span class="auto"><svg width="14" height="14"><use href="#i-check"/></svg>Checks itself at 90%</span>
+               </div>
+             </div>
+@@ -469,14 +479,14 @@
+               <div class="item-title">Know these five words <span class="role">Each of you</span></div>
+               <p class="item-detail">Skill, AI hire, seat card, guardrails and the AI Office.</p>
+               <div class="item-acts">
+-                <button class="btn btn-secondary btn-sm" type="button" id="know-btn" aria-expanded="false" aria-controls="know"><svg width="14" height="14"><use href="#i-book"/></svg><span>Open the five words</span></button>
++                <button class="btn btn-secondary btn-sm" type="button" id="know-btn" aria-expanded="false" aria-controls="know"><svg width="14" height="14"><use href="#i-book"/></svg><span class="aim-roll"><span>Open the five words</span><span aria-hidden="true">Open the five words</span></span></button>
+               </div>
+               <dl class="know" id="know" hidden>
+-                <div><dt>Skill</dt><dd>A playbook we load into your AI.</dd></div>
+-                <div><dt>AI hire</dt><dd>A skill that runs on a schedule and leaves a draft on one person’s desk.</dd></div>
+-                <div><dt>Seat card</dt><dd>A hire’s job description.</dd></div>
+-                <div><dt>Guardrails</dt><dd>The settings that keep your hires read and draft only.</dd></div>
+-                <div><dt>AI Office</dt><dd>A folder in your Google Drive where your hires read and save their work.</dd></div>
++                <div class="aim-rise" style="--i:0"><dt>Skill</dt><dd>A playbook we load into your AI.</dd></div>
++                <div class="aim-rise" style="--i:1"><dt>AI hire</dt><dd>A skill that runs on a schedule and leaves a draft on one person’s desk.</dd></div>
++                <div class="aim-rise" style="--i:2"><dt>Seat card</dt><dd>A hire’s job description.</dd></div>
++                <div class="aim-rise" style="--i:3"><dt>Guardrails</dt><dd>The settings that keep your hires read and draft only.</dd></div>
++                <div class="aim-rise" style="--i:4"><dt>AI Office</dt><dd>A folder in your Google Drive where your hires read and save their work.</dd></div>
+               </dl>
+             </div>
+           </li>
+@@ -485,7 +495,7 @@
+             <div>
+               <div class="item-title">Save the first live build <span class="role">Each of you</span></div>
+               <p class="item-detail">Wed, Dec 2, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.</p>
+-              <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-calplus"/></svg>Add to calendar</button></div>
++              <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-calplus"/></svg><span class="aim-roll"><span>Add to calendar</span><span aria-hidden="true">Add to calendar</span></span></button></div>
+             </div>
+           </li>
+           <li class="item" data-id="s2-questions">
+@@ -493,13 +503,13 @@
+             <div>
+               <div class="item-title">Write down your questions <span class="role">Each of you</span></div>
+               <p class="item-detail">Bring them to office hours, or send them to us now.</p>
+-              <div class="item-acts"><a class="btn btn-secondary btn-sm btn-arrow" href="#" onclick="return false">Ask us<svg class="arrow" width="14" height="14"><use href="#i-arrow"/></svg></a></div>
++              <div class="item-acts"><a class="btn btn-secondary btn-sm btn-arrow" href="#" onclick="return false"><span class="aim-roll"><span>Ask us</span><span aria-hidden="true">Ask us</span></span><svg class="arrow" width="14" height="14"><use href="#i-arrow"/></svg></a></div>
+             </div>
+           </li>
+         </ol>
+       </section>
+ 
+-      <section id="reference" aria-labelledby="ref-h">
++      <section id="reference" class="aim-rise" style="--i:4" aria-labelledby="ref-h">
+         <h2 class="sec-h" id="ref-h">Reference</h2>
+         <details class="acc">
+           <summary>How a week runs <svg class="chev" width="18" height="18"><use href="#i-chev"/></svg></summary>
+@@ -513,10 +523,11 @@
+         </details>
+       </section>
+ 
+-      <div class="foot" id="foot">
++      <div class="foot aim-rise" style="--i:5" id="foot">
+         <div class="mark-card">
+-          <button class="btn btn-primary btn-lg mark-btn" type="button" id="mark" aria-disabled="true" aria-describedby="why">
+-            <span class="lbl" id="mark-lbl"><svg class="ck" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg><span>Mark step done</span></span>
++          <button class="btn btn-primary btn-lg mark-btn aim-async" type="button" id="mark" data-state="idle" aria-disabled="true" aria-describedby="why">
++            <span class="aim-async__label" id="mark-lbl"><svg class="ck" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg><span class="aim-roll"><span>Mark step done</span><span aria-hidden="true">Mark step done</span></span></span>
++            <span class="aim-async__done" aria-hidden="true"><svg class="aim-mark" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle class="aim-mark__ring" cx="11" cy="11" r="9.5" pathLength="1"/><circle class="aim-mark__dot" cx="11" cy="11" r="4"/></svg>Step done</span>
+           </button>
+           <p class="why" id="why">Check off 4 more to mark this step done.</p>
+           <div class="done-row" id="done-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="undo">Undo</button></div>
+@@ -531,7 +542,7 @@
+       </div>
+       <p class="sr" aria-live="polite" id="live"></p>
+ 
+-      <section class="review" id="styles" aria-labelledby="styles-h">
++      <section class="review aim-rise" style="--i:6" id="styles" aria-labelledby="styles-h">
+         <span class="review-flag">For Connor’s review · not learner copy</span>
+         <h2 class="sec-h" id="styles-h">Text styles for long steps</h2>
+         <article class="prose">
+@@ -557,7 +568,7 @@
+             <div class="dont"><h4><svg width="16" height="16"><use href="#i-x"/></svg>Don’t</h4><ul><li>Give a hire send or edit access</li><li>Skip the owner’s read</li><li>Change the seat card after it’s signed</li></ul></div>
+           </div>
+           <div class="rt-banner">The checkpoint closes the week: <span>signed seat card, first-run screenshot, minutes taken over.</span></div>
+-          <div class="copyblock"><header><span>Prompt · paste into your AI</span><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span>Copy</span></button></header>
++          <div class="copyblock"><header><span>Prompt · paste into your AI</span><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span class="aim-roll"><span>Copy</span><span aria-hidden="true">Copy</span></span></button></header>
+ <pre>Run the Map Your Spend skill on last month’s numbers.
+ Read only. Draft the summary for the owner, and don’t send it.</pre></div>
+           <div class="stylekey" aria-label="Style names">
+@@ -591,9 +602,9 @@
+ 
+         <h3 class="sec-h" style="margin-top:var(--s5);font-size:20px">Buttons: hover, press and focus</h3>
+         <div class="gallery" id="gallery">
+-          <button class="btn btn-primary" type="button">Primary</button>
+-          <a class="btn btn-accent btn-arrow" href="#" onclick="return false" id="continue">Continue step 3<svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+-          <button class="btn btn-secondary" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg>Secondary</button>
++          <button class="btn btn-primary" type="button"><span class="aim-roll"><span>Primary</span><span aria-hidden="true">Primary</span></span></button>
++          <a class="btn btn-accent btn-arrow" href="#" onclick="return false" id="continue"><span class="aim-roll"><span>Continue step 3</span><span aria-hidden="true">Continue step 3</span></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
++          <button class="btn btn-secondary" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg><span class="aim-roll"><span>Secondary</span><span aria-hidden="true">Secondary</span></span></button>
+           <button class="btn btn-ghost" type="button">Ghost</button>
+           <a class="inline" href="#" onclick="return false">Inline link</a>
+         </div>
+@@ -601,24 +612,25 @@
+     </main>
+ 
+     <aside class="rail" aria-label="On this step">
+-      <nav class="card" aria-label="On this page">
++      <nav class="card aim-rise" style="--i:2" aria-label="On this page">
+         <h3>On this page</h3>
+         <a class="rail-link" href="#watch" data-spy="watch" aria-current="true">Watch</a>
+         <a class="rail-link" href="#checklist" data-spy="checklist">Your checklist</a>
+         <a class="rail-link" href="#reference" data-spy="reference">Reference</a>
+         <a class="rail-link" href="#styles" data-spy="styles">Text styles (review)</a>
++        <span class="spy-mark" aria-hidden="true"></span>
+         <h3 style="margin-top:20px">Checklist</h3>
+         <div class="rail-list" id="rail-list"></div>
+         <p class="due">Due Mon, Nov 30, 12:00 PM MT</p>
+       </nav>
+-      <section class="card" aria-label="For this step">
++      <section class="card aim-rise" style="--i:3" aria-label="For this step">
+         <h3>For this step</h3>
+         <div class="res"><span class="res-ic"><svg width="16" height="16"><use href="#i-key"/></svg></span>
+           <div><b>System prompt</b><small>6 lines · about 63 tokens</small>
+-            <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg>View</button><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span>Copy</span></button></div>
++            <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg><span class="aim-roll"><span>View</span><span aria-hidden="true">View</span></span></button><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span class="aim-roll"><span>Copy</span><span aria-hidden="true">Copy</span></span></button></div>
+           </div></div>
+       </section>
+-      <section class="card" aria-label="Still stuck">
++      <section class="card aim-rise" style="--i:4" aria-label="Still stuck">
+         <h3>Still stuck?</h3>
+         <a class="card-link li" href="#" onclick="return false"><span class="res-ic"><svg width="16" height="16"><use href="#i-mail"/></svg></span><span><b>Email support</b><small>support@amplifiedimpact.io</small></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+         <a class="card-link li" href="#" onclick="return false"><span class="res-ic"><svg width="16" height="16"><use href="#i-radio"/></svg></span><span><b>Office hours</b><small>Thu, Dec 3 · 12:00 PM MT</small></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+@@ -639,10 +651,22 @@
+   {n:6,t:'Connect Your Data',s:'up'},
+   {n:7,t:'Lock the Guardrails',s:'up'},
+   {n:8,t:'Run the Ready Check and Your Test Hire',s:'up'}];
+-const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
++/* Amplified Impact Motion v1: reduced motion is the OS setting or .aim-reduced on any ancestor (isReducedMotion in ai-motion.tsx) */
++const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches || !!document.body?.closest('.aim-reduced');
++/* the system curve as a function, for numbers that count with a filling bar (cubicBezier + useCountUp in ai-motion.tsx) */
++function cubicBezier(x1, y1, x2, y2){ const cx1 = 3*x1, bx = 3*(x2-x1)-cx1, ax = 1-cx1-bx, cy1 = 3*y1, by = 3*(y2-y1)-cy1, ay = 1-cy1-by;
++  const sx = t => ((ax*t+bx)*t+cx1)*t, sy = t => ((ay*t+by)*t+cy1)*t, dx = t => (3*ax*t+2*bx)*t+cx1;
++  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 8; i++){ const e = sx(t)-x; if (Math.abs(e) < 1e-5) break; const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= e/d; } return sy(Math.min(1, Math.max(0, t))); }; }
++const easeBrand = cubicBezier(.2, .7, .2, 1);
++let countRun = 0;
++function countUp(from, to, ms, draw){ const run = ++countRun; if (from === to || reduce()){ draw(to); return; } const t0 = performance.now();
++  const step = now => { if (run !== countRun) return; const p = Math.min(1, (now - t0)/ms); draw(from + (to - from)*easeBrand(p)); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
++const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
++const setRoll = (el, text) => { const r = el.querySelectorAll('.aim-roll > span'); if (r.length) r.forEach(x => x.textContent = text); else el.querySelector('span').textContent = text; };
+ const beh = () => reduce() ? 'auto' : 'smooth';
+ const clock = t => { t = Math.floor(t); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+ const CHECK = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
++const CHECK_DRAW = '<svg class="draw" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M3.5 8.5l3 3 6-7"/></svg>';
+ const $ = id => document.getElementById(id);
+ 
+ /* the one horizontal scroller: snap, edge fades, arrows, follow-without-fighting */
+@@ -693,9 +717,13 @@
+ const chaps = scroller($('chaps-hs'));
+ const chipEls = [...chapRow.children];
+ const start = () => vframe.classList.add('started');
+-function seek(t, play){ video.currentTime = t; tick(t, true); if (play){ start(); video.play().catch(()=>{}); } }
+-$('vplay').onclick = () => { start(); video.play().catch(()=>{}); video.focus(); };
++const buffering = on => vframe.classList.toggle('buffering', on);
++const play = () => { buffering(true); video.play().catch(() => buffering(false)); };
++function seek(t, playIt){ video.currentTime = t; tick(t, true); if (playIt){ start(); play(); } }
++$('vplay').onclick = () => { start(); play(); video.focus(); };
+ video.addEventListener('play', start);
++video.addEventListener('waiting', () => buffering(true));
++['playing','pause','ended','error'].forEach(e => video.addEventListener(e, () => buffering(false)));
+ document.querySelectorAll('[data-seek]').forEach(b => b.onclick = () => { seek(+b.dataset.seek, true); $('watch').scrollIntoView({behavior:beh()}); });
+ 
+ let activeChap = -1, activeGroup = -1, activeCue = -1;
+@@ -763,13 +791,13 @@
+ 
+ function flashCopy(btn, text){
+   navigator.clipboard?.writeText(text).catch(()=>{});
+-  const l = btn.querySelector('span'); const old = l.textContent; l.textContent = 'Copied'; setTimeout(() => l.textContent = old, 1400);
++  const r = btn.querySelector('.aim-roll > span') || btn.querySelector('span'); const old = r.textContent; setRoll(btn, 'Copied'); setTimeout(() => setRoll(btn, old), 1400);
+ }
+ tcopy.onclick = () => flashCopy(tcopy, CUES.map(c=>c.text).join(' '));
+ document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => flashCopy(b, b.closest('.copyblock')?.querySelector('pre')?.textContent || 'System prompt'));
+ 
+ const knowBtn = $('know-btn'), know = $('know');
+-knowBtn.onclick = () => { const o = know.hidden; know.hidden = !o; knowBtn.setAttribute('aria-expanded', o); knowBtn.querySelector('span').textContent = o ? 'Hide the five words' : 'Open the five words'; };
++knowBtn.onclick = () => { const o = know.hidden; know.hidden = !o; knowBtn.setAttribute('aria-expanded', o); setRoll(knowBtn, o ? 'Hide the five words' : 'Open the five words'); };
+ 
+ /* checklist, progress, step-complete moment */
+ const items = [...document.querySelectorAll('.item')];
+@@ -787,45 +815,41 @@
+   if ((b.getAttribute('aria-checked') === 'true') === on) return;
+   b.setAttribute('aria-checked', on); it.classList.toggle('done', on);
+   const r = railList.querySelector(`[data-for="${it.dataset.id}"]`); r.classList.toggle('done', on); r.querySelector('.mini').classList.toggle('on', on);
+-  if (on){ it.classList.add('flash'); requestAnimationFrame(() => requestAnimationFrame(() => it.classList.remove('flash'))); }
+   if (!on && stepDone) setStep(false);
+   refresh();
+ }
+ const mark = $('mark'), why = $('why'), live = $('live');
++let shownN = 0;
++const say = text => { if (why.textContent !== text){ why.textContent = text; restart(why, 'msg'); } };
+ function refresh(){
+   const n = items.filter(i => i.classList.contains('done')).length, left = items.length - n;
+   $('prog-fill').style.setProperty('--pct', n/items.length);
+   $('prog').setAttribute('aria-valuenow', n);
+-  $('prog-l').textContent = `${n} of ${items.length} checked`;
++  countUp(shownN, n, 720, v => { shownN = v; $('prog-l').textContent = `${Math.round(v)} of ${items.length} checked`; });
+   if (!stepDone){
+     mark.setAttribute('aria-disabled', left ? 'true' : 'false');
+     why.classList.remove('nudge');
+-    why.textContent = left ? `Check off ${left} more to mark this step done.` : 'All 4 checked. You’re ready to mark this step done.';
++    say(left ? `Check off ${left} more to mark this step done.` : 'All 4 checked. You’re ready to mark this step done.');
+   }
+ }
+-function swapLabel(html){
+-  const l = $('mark-lbl'); l.classList.add('out');
+-  setTimeout(() => { l.innerHTML = html; l.classList.remove('out'); }, reduce() ? 0 : 150);
+-}
+ const pill2 = pillsRow.querySelector('[data-n="2"] .stp-n');
+-const CK = w => `<svg class="ck" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg>`;
++const markLabel = $('mark-lbl'), markDone = mark.querySelector('.aim-async__done');
+ function setStep(on){
+   stepDone = on;
+   mark.classList.toggle('is-done', on);
++  mark.dataset.state = on ? 'done' : 'idle';             /* brand 03: the CSS plays the roll, the rise, the dot and the ring */
++  markLabel.setAttribute('aria-hidden', on ? 'true' : 'false'); markDone.setAttribute('aria-hidden', on ? 'false' : 'true');
+   $('done-row').hidden = !on;
+   const nextCard = $('next');
+   if (on){
+-    swapLabel(`${CK(2.4)}<span>Step done</span>`);
+-    why.classList.remove('nudge'); why.textContent = 'Nice work. Step 3 is next.';
+-    mark.classList.remove('ring'); void mark.offsetWidth; mark.classList.add('ring');
++    why.classList.remove('nudge'); say('Nice work. Step 3 is next.');
+     pill2.closest('.stp').dataset.s = 'done';
+-    pill2.innerHTML = `<span class="swap out">${CHECK}</span>`; requestAnimationFrame(() => requestAnimationFrame(() => pill2.firstChild.classList.remove('out')));
++    pill2.innerHTML = CHECK_DRAW;                         /* the check draws (lesson tier) */
+     nextCard.classList.add('cue-next');
+     live.textContent = 'Step 2 marked done. Next: Step 3, Start Your Time Baseline.';
+   } else {
+-    swapLabel(`${CK(2.2)}<span>Mark step done</span>`);
+     pill2.closest('.stp').dataset.s = 'current'; pill2.innerHTML = '<span>2</span>';
+-    nextCard.classList.remove('cue-next'); mark.classList.remove('ring');
++    nextCard.classList.remove('cue-next');
+     live.textContent = 'Step 2 is no longer marked done.';
+   }
+   refresh();
+@@ -844,12 +868,17 @@
+ 
+ /* scroll-spy on the rail */
+ const spy = [...document.querySelectorAll('[data-spy]')];
+-const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) spy.forEach(a => a.dataset.spy === e.target.id ? a.setAttribute('aria-current','true') : a.removeAttribute('aria-current')); }), {rootMargin:'-30% 0px -60% 0px'});
++const spyMark = document.querySelector('.spy-mark');
++function placeSpy(){ const a = spy.find(x => x.getAttribute('aria-current') === 'true'); if (!a) return;
++  spyMark.style.setProperty('--x', a.offsetLeft + 'px'); spyMark.style.setProperty('--y', a.offsetTop + 'px'); spyMark.style.setProperty('--h', a.offsetHeight + 'px'); }
++placeSpy(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { placeSpy(); requestAnimationFrame(() => requestAnimationFrame(() => spyMark.classList.add('live'))); });
++new ResizeObserver(placeSpy).observe(spyMark.parentElement);
++const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ spy.forEach(a => a.dataset.spy === e.target.id ? a.setAttribute('aria-current','true') : a.removeAttribute('aria-current')); placeSpy(); } }), {rootMargin:'-30% 0px -60% 0px'});
+ ['watch','checklist','reference','styles'].forEach(id => io.observe($(id)));
+ 
+ try { if (localStorage.getItem('w0s2-transcript') === '1') setTranscript(true); } catch(e){}
+ tick(0, 'instant');
+-refresh();
++refresh(); why.classList.remove('msg');
+ window.__mock = {setChecked, items, setStep, setTranscript, seek, tick, chaps, pills};
+ 
+ </script>
+diff -ruN v5/package.json v6/package.json
+--- v5/package.json	2026-11-19 21:29:03.141531026 -0600
++++ v6/package.json	2026-11-19 21:29:03.203631516 -0600
+@@ -1,5 +1,5 @@
+ {
+-  "name": "step-page-video-parity-handoff",
++  "name": "step-page-brand-motion-handoff",
+   "private": true,
+   "type": "module",
+   "scripts": {
+@@ -9,7 +9,8 @@
+     "video-parity": "node diff/video-parity.mjs",
+     "css": "node tools/make-css.mjs",
+     "sample": "node tools/make-sample.mjs",
+-    "frames": "node tools/extract-frames.mjs"
++    "frames": "node tools/extract-frames.mjs",
++    "review": "node tools/make-review.mjs"
+   },
+   "dependencies": {
+     "esbuild": "^0.28.2",
+diff -ruN v5/reference/states.json v6/reference/states.json
+--- v5/reference/states.json	2026-11-19 21:29:09.575923304 -0600
++++ v6/reference/states.json	2026-11-19 21:29:09.579629306 -0600
+@@ -1,58 +1,802 @@
+ {
+   "video": "reference/interaction-demo.mp4",
+-  "viewport": { "width": 1280, "height": 800, "deviceScaleFactor": 1 },
+-  "about": "Frame numbers are ffmpeg frame indexes from 0 (t = n / 25 s). Every steady moment of interaction-demo.mp4, as the steps a person takes from a fresh load (1280x800). Each state's reference image (frames/<id>.png) is the average of the listed video frames, which are identical apart from compression noise. 'mask' is the playing video (course media, not UI), which is not compared. Coordinates are viewport pixels, read off the video. The mouse stays where the recording left it, because hover states are part of the frames.",
++  "viewport": {
++    "width": 1280,
++    "height": 800,
++    "deviceScaleFactor": 1
++  },
++  "about": "Frame numbers are ffmpeg frame indexes from 0 (t = n / 25 s). Every steady moment of interaction-demo.mp4, as the steps a person takes from a fresh load (1280x800). Each state's reference image (frames/<id>.png) is the average of the listed video frames, which are identical apart from compression noise. 'mask' is the playing video (course media, not UI), which is not compared. Coordinates are viewport pixels, read off the video. The mouse stays where the recording left it, because hover states are part of the frames. v6: 'brandMask' lists the elements whose look Amplified Impact Motion v1 changes on purpose (hover lifts gone, label rolls, outline to ink, the async done mark). They're left out of the video comparison and checked against the mockup in test A instead (states hover-rail, hover-play, hover-chip, hover-secondary, hover-mark, hover-done, hover-next).",
+   "states": [
+-    { "id": "01-top", "frames": [1, 19], "what": "Top of the page on load. Labeled step pills, step 1 done, step 2 current, step 5 waiting.",
+-      "steps": [] },
+-    { "id": "02-top-hover-step-4", "frames": [43, 51], "what": "Pointer on step 4: bone fill, darker border, 1 px lift, white number circle.",
+-      "steps": [ { "do": "move", "x": 900, "y": 121 } ] },
+-    { "id": "03-watch-hover-play", "frames": [70, 89], "what": "Scrolled to the player. Pointer on the poster: the play pill lifts and darkens.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "move", "x": 760, "y": 351 } ] },
+-    { "id": "04-chapter-hover-0-15", "frames": [98, 105], "what": "Pointer on the 0:15 chapter chip.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "move", "x": 267, "y": 465 } ] },
+-    { "id": "05-chapter-hover-next", "frames": [132, 133], "what": "Pointer on the chapters' right arrow.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "move", "x": 911, "y": 465 } ] },
+-    { "id": "06-chapters-page-2", "frames": [146, 155], "what": "After one click on the right arrow (snapped, left arrow and fade appear).",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "07-chapters-page-3", "frames": [169, 178], "what": "After a second click on the right arrow.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "08-chapters-page-3-rest", "frames": [187, 192], "what": "Same, pointer off the row.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 }, { "do": "move", "x": 1279, "y": 799 } ] },
+-    { "id": "09-chapter-3-31-playing", "frames": [211, 254], "mask": [[32, 0, 928, 405]], "what": "Clicked the 3:31 chapter: chip turns forest (pointer still on it), row centers it, the video plays.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 }, { "do": "click", "x": 911, "y": 465 }, { "do": "wait", "ms": 900 },
+-                 { "do": "js", "code": "(()=>{const r=document.getElementById('chaps'),c=r.children[6];r.style.scrollBehavior='auto';r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.offsetWidth/2;r.style.scrollBehavior='';})()" },
+-                 { "do": "wait", "ms": 200 }, { "do": "click", "x": 510, "y": 465 }, { "do": "pauseVideo" }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "10-hover-show-transcript", "frames": [262, 265], "mask": [[32, 0, 928, 405]], "what": "Pointer on Show transcript (ghost button tint).",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "clickChapter", "index": 6 }, { "do": "move", "x": 128, "y": 525 } ] },
+-    { "id": "11-transcript-open", "frames": [274, 280], "mask": [[32, 0, 928, 405]], "what": "Transcript open: 296 px panel, the 3:14 row current, the spoken phrase highlighted.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "clickChapter", "index": 6 }, { "do": "click", "x": 128, "y": 525 }, { "do": "wait", "ms": 700 } ] },
+-    { "id": "12-transcript-scrolled", "frames": [289, 299], "mask": [[32, 0, 928, 105]], "what": "Page scrolled down to the transcript; the pointer now rests on a transcript row.",
+-      "steps": [ { "do": "scroll", "y": 581 }, { "do": "clickChapter", "index": 6 }, { "do": "click", "x": 128, "y": 525 }, { "do": "wait", "ms": 700 }, { "do": "scroll", "y": 881 }, { "do": "nudge" } ] },
+-    { "id": "13-checklist", "frames": [365, 394], "what": "Scrolled to Your checklist (On this page follows).",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "move", "x": 128, "y": 525 } ] },
+-    { "id": "14-hover-open-words", "frames": [400, 409], "what": "Pointer on Open the five words.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "move", "x": 182, "y": 407 } ] },
+-    { "id": "15-checked-words", "frames": [439, 453], "what": "Checked Know these five words (the box keeps its hover halo).",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "click", "x": 63, "y": 342 }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "16-checked-live-build", "frames": [471, 480], "what": "Checked Save the first live build.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "click", "x": 63, "y": 342 }, { "do": "wait", "ms": 700 }, { "do": "click", "x": 63, "y": 482 }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "17-hover-ask-us", "frames": [484, 492], "what": "Pointer on Ask us (arrow nudges).",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "click", "x": 63, "y": 342 }, { "do": "wait", "ms": 700 }, { "do": "click", "x": 63, "y": 482 }, { "do": "wait", "ms": 700 }, { "do": "move", "x": 138, "y": 689 } ] },
+-    { "id": "18-checked-questions", "frames": [517, 528], "what": "Checked Write down your questions.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "click", "x": 63, "y": 342 }, { "do": "wait", "ms": 700 }, { "do": "click", "x": 63, "y": 482 }, { "do": "wait", "ms": 700 }, { "do": "click", "x": 63, "y": 623 }, { "do": "wait", "ms": 900 } ] },
+-    { "id": "19-checked-all", "frames": [545, 546], "what": "Checked Watch the video: 4 of 4.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" } ] },
+-    { "id": "20-footer-ready", "frames": [561, 588], "what": "Scrolled to the footer: Mark step done is ready; the pointer rests on the last box.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" }, { "do": "scroll", "y": 1918 }, { "do": "nudge" } ] },
+-    { "id": "21-hover-mark", "frames": [595, 600], "what": "Pointer on Mark step done.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" }, { "do": "scroll", "y": 1918 }, { "do": "move", "x": 252, "y": 481 } ] },
+-    { "id": "22-step-done", "frames": [611, 634], "what": "Marked done: label swaps to Step done, energy ring, Undo, Next card cue.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" }, { "do": "scroll", "y": 1918 }, { "do": "click", "x": 252, "y": 481 }, { "do": "wait", "ms": 1000 } ] },
+-    { "id": "23-hover-next-card", "frames": [651, 669], "what": "Pointer on the Next card: lifts, bar grows, arrow nudges.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" }, { "do": "scroll", "y": 1918 }, { "do": "click", "x": 252, "y": 481 }, { "do": "wait", "ms": 1000 }, { "do": "move", "x": 708, "y": 496 } ] },
+-    { "id": "24-top-final", "frames": [694, 723], "mask": [[32, 481, 928, 800]], "what": "Back at the top: 4 of 4 checked, step 2 shows its check.",
+-      "steps": [ { "do": "openTranscriptAt331" }, { "do": "scroll", "y": 1418 }, { "do": "checkAll" }, { "do": "scroll", "y": 1918 }, { "do": "click", "x": 252, "y": 481 }, { "do": "wait", "ms": 1000 }, { "do": "move", "x": 708, "y": 496 }, { "do": "scroll", "y": 0 }, { "do": "nudge" } ] }
++    {
++      "id": "01-top",
++      "frames": [
++        1,
++        19
++      ],
++      "what": "Top of the page on load. Labeled step pills, step 1 done, step 2 current, step 5 waiting.",
++      "steps": []
++    },
++    {
++      "id": "02-top-hover-step-4",
++      "frames": [
++        43,
++        51
++      ],
++      "what": "Pointer on step 4: bone fill, darker border, 1 px lift, white number circle.",
++      "steps": [
++        {
++          "do": "move",
++          "x": 900,
++          "y": 121
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#pills .stp[data-n=\"4\"]",
++          "pad": 12
++        }
++      ],
++      "brandWhy": "brand v1: hover no longer lifts the pill or adds a shadow"
++    },
++    {
++      "id": "03-watch-hover-play",
++      "frames": [
++        70,
++        89
++      ],
++      "what": "Scrolled to the player. Pointer on the poster: the play pill lifts and darkens.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "move",
++          "x": 760,
++          "y": 351
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#vplay .vgo",
++          "pad": 40
++        }
++      ],
++      "brandWhy": "brand v1: the play pill no longer lifts, grows or deepens its shadow; its label rolls"
++    },
++    {
++      "id": "04-chapter-hover-0-15",
++      "frames": [
++        98,
++        105
++      ],
++      "what": "Pointer on the 0:15 chapter chip.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "move",
++          "x": 267,
++          "y": 465
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#chaps .chip:nth-child(2)",
++          "pad": 12
++        }
++      ],
++      "brandWhy": "brand v1: hover no longer lifts the chip or adds a shadow"
++    },
++    {
++      "id": "05-chapter-hover-next",
++      "frames": [
++        132,
++        133
++      ],
++      "what": "Pointer on the chapters' right arrow.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "move",
++          "x": 911,
++          "y": 465
++        }
++      ]
++    },
++    {
++      "id": "06-chapters-page-2",
++      "frames": [
++        146,
++        155
++      ],
++      "what": "After one click on the right arrow (snapped, left arrow and fade appear).",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "07-chapters-page-3",
++      "frames": [
++        169,
++        178
++      ],
++      "what": "After a second click on the right arrow.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "08-chapters-page-3-rest",
++      "frames": [
++        187,
++        192
++      ],
++      "what": "Same, pointer off the row.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        },
++        {
++          "do": "move",
++          "x": 1279,
++          "y": 799
++        }
++      ]
++    },
++    {
++      "id": "09-chapter-3-31-playing",
++      "frames": [
++        211,
++        254
++      ],
++      "mask": [
++        [
++          32,
++          0,
++          928,
++          405
++        ]
++      ],
++      "what": "Clicked the 3:31 chapter: chip turns forest (pointer still on it), row centers it, the video plays.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        },
++        {
++          "do": "click",
++          "x": 911,
++          "y": 465
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        },
++        {
++          "do": "js",
++          "code": "(()=>{const r=document.getElementById('chaps'),c=r.children[6];r.style.scrollBehavior='auto';r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.offsetWidth/2;r.style.scrollBehavior='';})()"
++        },
++        {
++          "do": "wait",
++          "ms": 200
++        },
++        {
++          "do": "click",
++          "x": 510,
++          "y": 465
++        },
++        {
++          "do": "pauseVideo"
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "10-hover-show-transcript",
++      "frames": [
++        262,
++        265
++      ],
++      "mask": [
++        [
++          32,
++          0,
++          928,
++          405
++        ]
++      ],
++      "what": "Pointer on Show transcript (ghost button tint).",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "clickChapter",
++          "index": 6
++        },
++        {
++          "do": "move",
++          "x": 128,
++          "y": 525
++        }
++      ]
++    },
++    {
++      "id": "11-transcript-open",
++      "frames": [
++        274,
++        280
++      ],
++      "mask": [
++        [
++          32,
++          0,
++          928,
++          405
++        ]
++      ],
++      "what": "Transcript open: 296 px panel, the 3:14 row current, the spoken phrase highlighted.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "clickChapter",
++          "index": 6
++        },
++        {
++          "do": "click",
++          "x": 128,
++          "y": 525
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        }
++      ]
++    },
++    {
++      "id": "12-transcript-scrolled",
++      "frames": [
++        289,
++        299
++      ],
++      "mask": [
++        [
++          32,
++          0,
++          928,
++          105
++        ]
++      ],
++      "what": "Page scrolled down to the transcript; the pointer now rests on a transcript row.",
++      "steps": [
++        {
++          "do": "scroll",
++          "y": 581
++        },
++        {
++          "do": "clickChapter",
++          "index": 6
++        },
++        {
++          "do": "click",
++          "x": 128,
++          "y": 525
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "scroll",
++          "y": 881
++        },
++        {
++          "do": "nudge"
++        }
++      ]
++    },
++    {
++      "id": "13-checklist",
++      "frames": [
++        365,
++        394
++      ],
++      "what": "Scrolled to Your checklist (On this page follows).",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "move",
++          "x": 128,
++          "y": 525
++        }
++      ]
++    },
++    {
++      "id": "14-hover-open-words",
++      "frames": [
++        400,
++        409
++      ],
++      "what": "Pointer on Open the five words.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "move",
++          "x": 182,
++          "y": 407
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#know-btn",
++          "pad": 16
++        }
++      ],
++      "brandWhy": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
++    },
++    {
++      "id": "15-checked-words",
++      "frames": [
++        439,
++        453
++      ],
++      "what": "Checked Know these five words (the box keeps its hover halo).",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 342
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "16-checked-live-build",
++      "frames": [
++        471,
++        480
++      ],
++      "what": "Checked Save the first live build.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 342
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 482
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "17-hover-ask-us",
++      "frames": [
++        484,
++        492
++      ],
++      "what": "Pointer on Ask us (arrow nudges).",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 342
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 482
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "move",
++          "x": 138,
++          "y": 689
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": ".item[data-id=\"s2-questions\"] .item-acts .btn",
++          "pad": 16
++        }
++      ],
++      "brandWhy": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
++    },
++    {
++      "id": "18-checked-questions",
++      "frames": [
++        517,
++        528
++      ],
++      "what": "Checked Write down your questions.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 342
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 482
++        },
++        {
++          "do": "wait",
++          "ms": 700
++        },
++        {
++          "do": "click",
++          "x": 63,
++          "y": 623
++        },
++        {
++          "do": "wait",
++          "ms": 900
++        }
++      ]
++    },
++    {
++      "id": "19-checked-all",
++      "frames": [
++        545,
++        546
++      ],
++      "what": "Checked Watch the video: 4 of 4.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        }
++      ]
++    },
++    {
++      "id": "20-footer-ready",
++      "frames": [
++        561,
++        588
++      ],
++      "what": "Scrolled to the footer: Mark step done is ready; the pointer rests on the last box.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        },
++        {
++          "do": "scroll",
++          "y": 1918
++        },
++        {
++          "do": "nudge"
++        }
++      ]
++    },
++    {
++      "id": "21-hover-mark",
++      "frames": [
++        595,
++        600
++      ],
++      "what": "Pointer on Mark step done.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        },
++        {
++          "do": "scroll",
++          "y": 1918
++        },
++        {
++          "do": "move",
++          "x": 252,
++          "y": 481
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#mark",
++          "pad": 24
++        }
++      ],
++      "brandWhy": "brand 01: no lift or bigger shadow; the label rolls"
++    },
++    {
++      "id": "22-step-done",
++      "frames": [
++        611,
++        634
++      ],
++      "what": "Marked done: label swaps to Step done, energy ring, Undo, Next card cue.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        },
++        {
++          "do": "scroll",
++          "y": 1918
++        },
++        {
++          "do": "click",
++          "x": 252,
++          "y": 481
++        },
++        {
++          "do": "wait",
++          "ms": 1000
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#mark",
++          "pad": 12
++        }
++      ],
++      "brandWhy": "brand 03: Step done shows the mark (dot in ring) instead of a check"
++    },
++    {
++      "id": "23-hover-next-card",
++      "frames": [
++        651,
++        669
++      ],
++      "what": "Pointer on the Next card: lifts, bar grows, arrow nudges.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        },
++        {
++          "do": "scroll",
++          "y": 1918
++        },
++        {
++          "do": "click",
++          "x": 252,
++          "y": 481
++        },
++        {
++          "do": "wait",
++          "ms": 1000
++        },
++        {
++          "do": "move",
++          "x": 708,
++          "y": 496
++        }
++      ],
++      "brandMask": [
++        {
++          "sel": "#next",
++          "pad": 28
++        },
++        {
++          "sel": "#mark",
++          "pad": 12
++        }
++      ],
++      "brandWhy": "brand v1: the Next card no longer lifts; Step done shows the mark"
++    },
++    {
++      "id": "24-top-final",
++      "frames": [
++        694,
++        723
++      ],
++      "mask": [
++        [
++          32,
++          481,
++          928,
++          800
++        ]
++      ],
++      "what": "Back at the top: 4 of 4 checked, step 2 shows its check.",
++      "steps": [
++        {
++          "do": "openTranscriptAt331"
++        },
++        {
++          "do": "scroll",
++          "y": 1418
++        },
++        {
++          "do": "checkAll"
++        },
++        {
++          "do": "scroll",
++          "y": 1918
++        },
++        {
++          "do": "click",
++          "x": 252,
++          "y": 481
++        },
++        {
++          "do": "wait",
++          "ms": 1000
++        },
++        {
++          "do": "move",
++          "x": 708,
++          "y": 496
++        },
++        {
++          "do": "scroll",
++          "y": 0
++        },
++        {
++          "do": "nudge"
++        }
++      ]
++    }
+   ],
+   "macros": {
+     "clickChapter": "scroll the chapter row so chip <index> is centered, click it, pause the video, wait 900 ms",
+diff -ruN v5/src/StepPage.jsx v6/src/StepPage.jsx
+--- v5/src/StepPage.jsx	2026-11-19 21:29:03.141739083 -0600
++++ v6/src/StepPage.jsx	2026-11-19 21:29:03.203883203 -0600
+@@ -1,5 +1,5 @@
+-// <StepPage>: the Week 0 step player, pixel-identical to the v5 mockup (mockup/step-2.html), which matches
+-// the recorded interaction demo (reference/interaction-demo.mp4) frame for frame.
++// <StepPage>: the Week 0 step player, pixel-identical to the v6 mockup (mockup/step-2.html): the page recorded in
++// reference/interaction-demo.mp4, moving by Amplified Impact Motion v1 (src/motion/ai-motion.css + .tsx, unchanged).
+ //
+ // Structure and class names are the mockup's, one for one, so step-page.css (the mockup's CSS,
+ // tokenized) styles it exactly. All words come from props: `step` (the step's content) and
+@@ -26,7 +26,7 @@
+ import { MarkDone, NextCard } from './components/StepFooter.jsx';
+ import { Sidebar } from './components/Sidebar.jsx';
+ import { MockFlag, ReviewSection } from './components/ReviewSection.jsx';
+-import { afterPaint, scrollBehavior } from './components/motion.js';
++import { scrollBehavior } from './components/motion.js';
+ 
+ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress, videoRef: outerVideoRef, mockFlag = false, review = false, railPhone }) {
+   const items = step.items;
+@@ -34,12 +34,11 @@
+     const m = {}; items.forEach((it) => { m[it.id] = checks?.[it.id] ?? !!it.checked; }); return m;
+   });
+   const [stepDone, setStepDoneState] = useState(!!step.stepDone);
+-  const [ring, setRing] = useState(false);
+   const [nudge, setNudge] = useState(false);
+-  const [flash, setFlash] = useState(null);
+   const [live, setLive] = useState('');
+   const [tick, setTick] = useState({ t: 0, force: 'instant' });
+   const [started, setStarted] = useState(false);
++  const [buffering, setBuffering] = useState(false);
+   const [spy, setSpy] = useState(step.jumps[0]?.id ?? null);
+   const innerVideoRef = useRef(null);
+   const videoRef = outerVideoRef ?? innerVideoRef;
+@@ -52,10 +51,8 @@
+ 
+   const setStep = useCallback((on) => {
+     setStepDoneState(on); doneRef.current = on;
+-    setRing(false);
+     if (on) {
+       setNudge(false);
+-      afterPaint(() => setRing(true)); // remove + re-add, so the ring replays
+       setLive(`Step ${step.n} marked done.${step.next ? ` Next: Step ${step.next.n}, ${step.next.title}.` : ''}`);
+     } else {
+       setLive(`Step ${step.n} is no longer marked done.`);
+@@ -66,7 +63,6 @@
+   const setItem = useCallback((id, on) => {
+     setChecked((c) => {
+       if (!!c[id] === on) return c;
+-      if (on) { setFlash(id); afterPaint(() => setFlash((f) => (f === id ? null : f))); }
+       if (!on && doneRef.current) setStep(false);
+       onCheck?.(id, on);
+       return { ...c, [id]: on };
+@@ -103,13 +99,20 @@
+     const tu = () => { onTime(v.currentTime, false); onProgress?.({ videoId: video.id, t: v.currentTime, duration: v.duration }); };
+     const sk = () => onTime(v.currentTime, true);
+     const pl = () => setStarted(true);
+-    v.addEventListener('timeupdate', tu); v.addEventListener('seeked', sk); v.addEventListener('play', pl);
+-    return () => { v.removeEventListener('timeupdate', tu); v.removeEventListener('seeked', sk); v.removeEventListener('play', pl); };
++    const wait = () => setBuffering(true), go = () => setBuffering(false);
++    v.addEventListener('timeupdate', tu); v.addEventListener('seeked', sk); v.addEventListener('play', pl); v.addEventListener('waiting', wait);
++    ['playing', 'pause', 'ended', 'error'].forEach((e) => v.addEventListener(e, go));
++    return () => {
++      v.removeEventListener('timeupdate', tu); v.removeEventListener('seeked', sk); v.removeEventListener('play', pl); v.removeEventListener('waiting', wait);
++      ['playing', 'pause', 'ended', 'error'].forEach((e) => v.removeEventListener(e, go));
++    };
+   }, [onTime, onProgress, video, videoRef]);
+-  const seek = (t, play) => {
++  // play: the hairline sweep runs until the video is actually playing (or the play fails)
++  const play = () => { setStarted(true); setBuffering(true); videoRef.current?.play().catch(() => setBuffering(false)); };
++  const seek = (t, andPlay) => {
+     const v = videoRef.current; if (v) v.currentTime = t;
+     onTime(t, true);
+-    if (play) { setStarted(true); v?.play().catch(() => {}); }
++    if (andPlay) play();
+   };
+   const playFrom = (t) => { seek(t, true); document.getElementById('watch')?.scrollIntoView({ behavior: scrollBehavior() }); };
+ 
+@@ -132,14 +135,14 @@
+           <main className="main">
+             <StepHeader step={step} done={n} total={items.length} labels={labels} />
+             {video && (
+-              <VideoPlayer video={video} labels={labels} videoRef={videoRef} tick={tick} started={started}
+-                onStart={() => setStarted(true)} onSeek={seek} transcriptKey={`w${step.week}s${step.n}-transcript`} />
++              <VideoPlayer video={video} labels={labels} videoRef={videoRef} tick={tick} started={started} buffering={buffering}
++                onPlay={play} onSeek={seek} transcriptKey={`w${step.week}s${step.n}-transcript`} />
+             )}
+-            <Checklist items={items} checked={checked} flash={flash} boxRefs={boxRefs} title={labels.yourChecklist}
++            <Checklist items={items} checked={checked} boxRefs={boxRefs} title={labels.yourChecklist}
+               onToggle={setItem} onPlay={playFrom} />
+             <Reference accordions={step.accordions} title={labels.reference} />
+-            <div className="foot" id="foot">
+-              <MarkDone done={stepDone} locked={locked} why={why} nudge={nudge} ring={ring} onMark={onMark} onUndo={() => setStep(false)} labels={labels} />
++            <div className="foot aim-rise" style={{ '--i': 5 }} id="foot">
++              <MarkDone done={stepDone} locked={locked} why={why} nudge={nudge} onMark={onMark} onUndo={() => setStep(false)} labels={labels} />
+               <NextCard next={step.next} cue={stepDone} labels={labels} />
+             </div>
+             <p className="sr" aria-live="polite" id="live">{live}</p>
+diff -ruN v5/src/components/Checklist.jsx v6/src/components/Checklist.jsx
+--- v5/src/components/Checklist.jsx	2026-11-19 21:29:03.142622531 -0600
++++ v6/src/components/Checklist.jsx	2026-11-19 21:29:03.203836591 -0600
+@@ -1,8 +1,11 @@
+-// The checklist: 44px tap box whose check draws itself (stroke-dashoffset 20 -> 0), a forest
+-// halo on hover, a light energy-bright flash on check, done titles at 60% ink, role chips,
+-// per-item actions, sub-checks, a Know These card, and callouts as their own list rows.
++// The checklist: 44px tap box, a forest halo on hover, done titles at 60% ink, role chips, per-item actions,
++// sub-checks, a Know These card, and callouts as their own list rows.
++// Motion (Amplified Impact Motion v1, 11 lesson check): the box squeezes to .84 on press and springs back, the check
++// draws over 240 ms after 70 ms, the title settles in 240 ms. No flash. Secondary buttons roll their labels; the
++// five words rise in order when opened; the section rises in with the page (--i 3).
+ import { forwardRef, useState } from 'react';
+ import { BoxCheck, Icon } from './Icons.jsx';
++import { RollLabel } from '../motion/ai-motion';
+ 
+ const CALLOUT_ICON = { tip: 'info', heads_up: 'alert', diy: 'user' };
+ 
+@@ -18,11 +21,11 @@
+     <>
+       <div className="item-acts">
+         <button className="btn btn-secondary btn-sm" type="button" id="know-btn" aria-expanded={open ? 'true' : 'false'} aria-controls="know" onClick={() => setOpen(!open)}>
+-          <Icon name="book" size={14} /><span>{open ? action.closeLabel : action.openLabel}</span>
++          <Icon name="book" size={14} /><RollLabel>{open ? action.closeLabel : action.openLabel}</RollLabel>
+         </button>
+       </div>
+       <dl className="know" id="know" hidden={!open}>
+-        {card.map((k) => <div key={k.id}><dt>{k.term}</dt><dd>{k.short}</dd></div>)}
++        {card.map((k, i) => <div key={k.id} className="aim-rise" style={{ '--i': i }}><dt>{k.term}</dt><dd>{k.short}</dd></div>)}
+       </dl>
+     </>
+   );
+@@ -35,18 +38,18 @@
+   if (a.type === 'play') {
+     return (
+       <div className="item-acts">
+-        <button className="btn btn-secondary btn-sm" type="button" data-seek={a.seconds} onClick={() => onPlay(a.seconds)}><Icon name="play" size={14} />{a.label}</button>
++        <button className="btn btn-secondary btn-sm" type="button" data-seek={a.seconds} onClick={() => onPlay(a.seconds)}><Icon name="play" size={14} /><RollLabel>{a.label}</RollLabel></button>
+         {item.autoLabel && <span className="auto"><Icon name="check" size={14} />{item.autoLabel}</span>}
+       </div>
+     );
+   }
+   if (a.type === 'calendar') {
+-    return <div className="item-acts"><button className="btn btn-secondary btn-sm" type="button" onClick={a.onClick}><Icon name="calplus" size={14} />{a.label}</button></div>;
++    return <div className="item-acts"><button className="btn btn-secondary btn-sm" type="button" onClick={a.onClick}><Icon name="calplus" size={14} /><RollLabel>{a.label}</RollLabel></button></div>;
+   }
+   if (a.type === 'link') {
+     return (
+       <div className="item-acts"><a className="btn btn-secondary btn-sm btn-arrow" href={a.href} onClick={a.href === '#' ? (e) => e.preventDefault() : undefined}>
+-        {a.label}<svg className="arrow" width="14" height="14"><use href="#i-arrow" /></svg></a></div>
++        <RollLabel>{a.label}</RollLabel><svg className="arrow" width="14" height="14"><use href="#i-arrow" /></svg></a></div>
+     );
+   }
+   return null;
+@@ -67,9 +70,9 @@
+   );
+ }
+ 
+-export const CheckItem = forwardRef(function CheckItem({ item, checked, flash, onToggle, onPlay, onSub }, boxRef) {
++export const CheckItem = forwardRef(function CheckItem({ item, checked, onToggle, onPlay, onSub }, boxRef) {
+   return (
+-    <li className={'item' + (checked ? ' done' : '') + (flash ? ' flash' : '')} data-id={item.id}>
++    <li className={'item' + (checked ? ' done' : '')} data-id={item.id}>
+       <button ref={boxRef} className="box-btn" type="button" role="checkbox" aria-checked={checked ? 'true' : 'false'} aria-label={item.title} onClick={() => onToggle(!checked)}>
+         <span className="check-box"><BoxCheck /></span>
+       </button>
+@@ -83,13 +86,13 @@
+   );
+ });
+ 
+-export function Checklist({ items, checked, flash, boxRefs, onToggle, onPlay, onSub, title }) {
++export function Checklist({ items, checked, boxRefs, onToggle, onPlay, onSub, title }) {
+   return (
+-    <section id="checklist" aria-labelledby="check-h">
++    <section id="checklist" className="aim-rise" style={{ '--i': 3 }} aria-labelledby="check-h">
+       <h2 className="sec-h" id="check-h">{title}</h2>
+       <ol className="list" id="list">
+         {items.map((it) => [
+-          <CheckItem key={it.id} item={it} checked={!!checked[it.id]} flash={flash === it.id} ref={(el) => { boxRefs.current[it.id] = el; }}
++          <CheckItem key={it.id} item={it} checked={!!checked[it.id]} ref={(el) => { boxRefs.current[it.id] = el; }}
+             onToggle={(on) => onToggle(it.id, on)} onPlay={onPlay} onSub={onSub} />,
+           ...(it.callouts ?? []).map((c, k) => <li key={it.id + '-c' + k} style={{ listStyle: 'none' }}><Callout c={c} /></li>),
+         ])}
+diff -ruN v5/src/components/Reference.jsx v6/src/components/Reference.jsx
+--- v5/src/components/Reference.jsx	2026-11-19 21:29:03.142358451 -0600
++++ v6/src/components/Reference.jsx	2026-11-19 21:29:03.203802092 -0600
+@@ -1,10 +1,12 @@
+ // Reference accordions (native <details>, animated with ::details-content).
++// v6: an open header gets a hairline and the list sits 16px under it (no more text against the hover fill).
++// Motion: opens over 380 ms on the system curve, closes in 200 ms on the exit curve; rises in with the page (--i 4).
+ import { Icon } from './Icons.jsx';
+ 
+ export function Reference({ accordions, title }) {
+   if (!accordions?.length) return null;
+   return (
+-    <section id="reference" aria-labelledby="ref-h">
++    <section id="reference" className="aim-rise" style={{ '--i': 4 }} aria-labelledby="ref-h">
+       <h2 className="sec-h" id="ref-h">{title}</h2>
+       {accordions.map((a) => (
+         <details className="acc" key={a.index} open={a.open || undefined}>
+diff -ruN v5/src/components/ReviewSection.jsx v6/src/components/ReviewSection.jsx
+--- v5/src/components/ReviewSection.jsx	2026-11-19 21:29:03.142252947 -0600
++++ v6/src/components/ReviewSection.jsx	2026-11-19 21:29:03.203791467 -0600
+@@ -1,9 +1,9 @@
+-// MOCKUP-ONLY. The "Text styles for long steps" review block, the Week Builder preview and the
+-// button gallery from the v3 mockup, kept verbatim so the harness can be diffed against the
+-// mockup's full page. Do NOT ship this to learners: in the LMS the real content comes from the
+-// Tiptap rich text (#200) and these styles live in step-page.css as .rt-* classes.
+-const HTML = "      <section class=\"review\" id=\"styles\" aria-labelledby=\"styles-h\">\n        <span class=\"review-flag\">For Connor\u2019s review \u00b7 not learner copy</span>\n        <h2 class=\"sec-h\" id=\"styles-h\">Text styles for long steps</h2>\n        <article class=\"prose\">\n          <p class=\"rt-label\">Reference \u00b7 How a week runs</p>\n          <h2 class=\"rt-h2\">Every week has the same rhythm</h2>\n          <p class=\"rt-lead\">One skill a week, one live build on Wednesday, and one hire that starts working the next morning.</p>\n          <p>Your <span class=\"rt-term\">operator</span> runs that week\u2019s <span class=\"rt-term\">skill</span> before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don\u2019t need to understand every line yet.</i> The goal is that <mark class=\"rt-hl\">both of you show up Wednesday with the findings open</mark>. Week 1\u2019s skill is <code class=\"rt-code\">Map Your Spend</code>, and you can <a href=\"#\" onclick=\"return false\">see what it reads</a> before you run it.</p>\n          <div class=\"cos\">\n            <div class=\"callout tip\"><svg width=\"18\" height=\"18\"><use href=\"#i-info\"/></svg><p><strong>Tip</strong>Block 30 minutes on Tuesday afternoon for the owner\u2019s read. It\u2019s the part that makes Wednesday fast.</p></div>\n            <div class=\"callout heads_up\"><svg width=\"18\" height=\"18\"><use href=\"#i-alert\"/></svg><p><strong>Heads up</strong>Hires read and draft only. Nothing sends, and nothing changes your books or your CRM.</p></div>\n            <div class=\"callout diy\"><svg width=\"18\" height=\"18\"><use href=\"#i-user\"/></svg><p><strong>Doing it yourself?</strong>If the owner is also the operator, do both reads in one sitting.</p></div>\n          </div>\n          <h3 class=\"rt-h3\">The live build, step by step</h3>\n          <ol class=\"rt-steps\">\n            <li><span><b>The question</b>What this week\u2019s hire should take off someone\u2019s desk.</span></li>\n            <li><span><b>Live reads</b>We run the skill together and read what it finds.</span></li>\n            <li><span><b>The hire lab</b>Your operator builds the hire while we watch.</span></li>\n            <li><span><b>The commit</b>The owner signs the seat card.</span></li>\n          </ol>\n          <blockquote class=\"rt-quote\">\u201cA hire is a skill that runs on a schedule and leaves a draft on one person\u2019s desk.\u201d<cite>The definition we use all course</cite></blockquote>\n          <div class=\"rt-two\">\n            <div class=\"do\"><h4><svg width=\"16\" height=\"16\"><use href=\"#i-check\"/></svg>Do</h4><ul><li>Run the skill before Wednesday</li><li>Bring the findings to the build</li><li>Sign the seat card the same day</li></ul></div>\n            <div class=\"dont\"><h4><svg width=\"16\" height=\"16\"><use href=\"#i-x\"/></svg>Don\u2019t</h4><ul><li>Give a hire send or edit access</li><li>Skip the owner\u2019s read</li><li>Change the seat card after it\u2019s signed</li></ul></div>\n          </div>\n          <div class=\"rt-banner\">The checkpoint closes the week: <span>signed seat card, first-run screenshot, minutes taken over.</span></div>\n          <div class=\"copyblock\"><header><span>Prompt \u00b7 paste into your AI</span><button class=\"btn btn-secondary btn-sm\" type=\"button\" data-copy><svg width=\"14\" height=\"14\"><use href=\"#i-copy\"/></svg><span>Copy</span></button></header>\n<pre>Run the Map Your Spend skill on last month\u2019s numbers.\nRead only. Draft the summary for the owner, and don\u2019t send it.</pre></div>\n          <div class=\"stylekey\" aria-label=\"Style names\">\n            <div><b>Lead</b>20 px intro line</div><div><b>Heading \u00b7 Subheading</b>31 / 25 px</div><div><b>Label</b>Geist Mono caps, forest</div>\n            <div><b>Bold \u00b7 Italic</b>600 \u00b7 italic</div><div><b>Highlight</b>energy-bright wash</div><div><b>Key term</b>forest, 600</div>\n            <div><b>Code</b>Geist Mono on bone</div><div><b>Link</b>forest, underlined</div><div><b>Callouts</b>Tip \u00b7 Heads up \u00b7 Doing it yourself</div>\n            <div><b>Quote</b>20 px forest, energy rule</div><div><b>Do \u00b7 Don\u2019t</b>two columns</div><div><b>Banner</b>forest fill, one per step</div>\n          </div>\n        </article>\n\n        <h3 class=\"sec-h\" style=\"margin-top:var(--sp-s5);font-size:20px\">What admins see in the Week Builder</h3>\n        <div class=\"builder\">\n          <div class=\"bfield\">\n            <div class=\"btool\" role=\"toolbar\" aria-label=\"Text styles\">\n              <select aria-label=\"Block style\"><option>Paragraph</option><option>Lead</option><option>Heading</option><option>Subheading</option><option>Label</option><option>Quote</option><option>Banner</option></select>\n              <button class=\"tb\" type=\"button\" aria-label=\"Bold\" aria-pressed=\"true\"><b>B</b></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Italic\"><i style=\"font-family:Georgia,serif\">I</i></button>\n              <span class=\"tsep\"></span>\n              <button class=\"tb\" type=\"button\" aria-label=\"Highlight\"><mark class=\"rt-hl\" style=\"font-weight:600\">H</mark></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Key term\"><span class=\"rt-term\">Term</span></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Code\"><code style=\"font:600 12px var(--sp-mono)\">{ }</code></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Link\"><svg width=\"16\" height=\"16\"><use href=\"#i-link\"/></svg></button>\n            </div>\n<div class=\"barea\">Your operator runs that week\u2019s skill before the live build, **by Tuesday night**, and the owner reads what it finds. _You don\u2019t need to understand every line yet._ The goal is that ==both of you show up Wednesday with the findings open==. Week 1\u2019s skill is `Map Your Spend`.</div>\n          </div>\n          <div class=\"bfield\">\n            <div class=\"btool\"><span class=\"label\" style=\"padding:0 6px\">Live preview</span></div>\n            <div class=\"bprev\">Your <span class=\"rt-term\">operator</span> runs that week\u2019s skill before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don\u2019t need to understand every line yet.</i> The goal is that <mark class=\"rt-hl\">both of you show up Wednesday with the findings open</mark>. Week 1\u2019s skill is <code class=\"rt-code\">Map Your Spend</code>.</div>\n          </div>\n        </div>\n\n        <h3 class=\"sec-h\" style=\"margin-top:var(--sp-s5);font-size:20px\">Buttons: hover, press and focus</h3>\n        <div class=\"gallery\" id=\"gallery\">\n          <button class=\"btn btn-primary\" type=\"button\">Primary</button>\n          <a class=\"btn btn-accent btn-arrow\" href=\"#\" onclick=\"return false\" id=\"continue\">Continue step 3<svg class=\"arrow\" width=\"16\" height=\"16\"><use href=\"#i-arrow\"/></svg></a>\n          <button class=\"btn btn-secondary\" type=\"button\"><svg width=\"14\" height=\"14\"><use href=\"#i-eye\"/></svg>Secondary</button>\n          <button class=\"btn btn-ghost\" type=\"button\">Ghost</button>\n          <a class=\"inline\" href=\"#\" onclick=\"return false\">Inline link</a>\n        </div>\n      </section>\n";
+-const FLAG = "<div class=\"mock-flag\"><span><b>MOCKUP</b> \u00b7 learn.amplifiedimpact.io \u00b7 Week 0 \u00b7 Step 2 \u00b7 v3 polish pass \u00b7 not live</span><span>Geist \u00b7 forest \u00b7 energy \u00b7 energy-bright \u00b7 bone \u00b7 black</span></div>";
++// MOCKUP-ONLY. GENERATED by tools/make-review.mjs from mockup/step-2.html: the black MOCKUP bar and the
++// "Text styles for long steps" review block, Week Builder preview and button gallery, kept verbatim so the harness
++// can be diffed against the mockup's full page. Do NOT ship this to learners: in the LMS the real content comes
++// from the Tiptap rich text (#200) and these styles live in step-page.css as .rt-* classes.
++const HTML = "<section class=\"review aim-rise\" style=\"--i:6\" id=\"styles\" aria-labelledby=\"styles-h\">\n        <span class=\"review-flag\">For Connor’s review · not learner copy</span>\n        <h2 class=\"sec-h\" id=\"styles-h\">Text styles for long steps</h2>\n        <article class=\"prose\">\n          <p class=\"rt-label\">Reference · How a week runs</p>\n          <h2 class=\"rt-h2\">Every week has the same rhythm</h2>\n          <p class=\"rt-lead\">One skill a week, one live build on Wednesday, and one hire that starts working the next morning.</p>\n          <p>Your <span class=\"rt-term\">operator</span> runs that week’s <span class=\"rt-term\">skill</span> before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don’t need to understand every line yet.</i> The goal is that <mark class=\"rt-hl\">both of you show up Wednesday with the findings open</mark>. Week 1’s skill is <code class=\"rt-code\">Map Your Spend</code>, and you can <a href=\"#\" onclick=\"return false\">see what it reads</a> before you run it.</p>\n          <div class=\"cos\">\n            <div class=\"callout tip\"><svg width=\"18\" height=\"18\"><use href=\"#i-info\"/></svg><p><strong>Tip</strong>Block 30 minutes on Tuesday afternoon for the owner’s read. It’s the part that makes Wednesday fast.</p></div>\n            <div class=\"callout heads_up\"><svg width=\"18\" height=\"18\"><use href=\"#i-alert\"/></svg><p><strong>Heads up</strong>Hires read and draft only. Nothing sends, and nothing changes your books or your CRM.</p></div>\n            <div class=\"callout diy\"><svg width=\"18\" height=\"18\"><use href=\"#i-user\"/></svg><p><strong>Doing it yourself?</strong>If the owner is also the operator, do both reads in one sitting.</p></div>\n          </div>\n          <h3 class=\"rt-h3\">The live build, step by step</h3>\n          <ol class=\"rt-steps\">\n            <li><span><b>The question</b>What this week’s hire should take off someone’s desk.</span></li>\n            <li><span><b>Live reads</b>We run the skill together and read what it finds.</span></li>\n            <li><span><b>The hire lab</b>Your operator builds the hire while we watch.</span></li>\n            <li><span><b>The commit</b>The owner signs the seat card.</span></li>\n          </ol>\n          <blockquote class=\"rt-quote\">“A hire is a skill that runs on a schedule and leaves a draft on one person’s desk.”<cite>The definition we use all course</cite></blockquote>\n          <div class=\"rt-two\">\n            <div class=\"do\"><h4><svg width=\"16\" height=\"16\"><use href=\"#i-check\"/></svg>Do</h4><ul><li>Run the skill before Wednesday</li><li>Bring the findings to the build</li><li>Sign the seat card the same day</li></ul></div>\n            <div class=\"dont\"><h4><svg width=\"16\" height=\"16\"><use href=\"#i-x\"/></svg>Don’t</h4><ul><li>Give a hire send or edit access</li><li>Skip the owner’s read</li><li>Change the seat card after it’s signed</li></ul></div>\n          </div>\n          <div class=\"rt-banner\">The checkpoint closes the week: <span>signed seat card, first-run screenshot, minutes taken over.</span></div>\n          <div class=\"copyblock\"><header><span>Prompt · paste into your AI</span><button class=\"btn btn-secondary btn-sm\" type=\"button\" data-copy><svg width=\"14\" height=\"14\"><use href=\"#i-copy\"/></svg><span class=\"aim-roll\"><span>Copy</span><span aria-hidden=\"true\">Copy</span></span></button></header>\n<pre>Run the Map Your Spend skill on last month’s numbers.\nRead only. Draft the summary for the owner, and don’t send it.</pre></div>\n          <div class=\"stylekey\" aria-label=\"Style names\">\n            <div><b>Lead</b>20 px intro line</div><div><b>Heading · Subheading</b>31 / 25 px</div><div><b>Label</b>Geist Mono caps, forest</div>\n            <div><b>Bold · Italic</b>600 · italic</div><div><b>Highlight</b>energy-bright wash</div><div><b>Key term</b>forest, 600</div>\n            <div><b>Code</b>Geist Mono on bone</div><div><b>Link</b>forest, underlined</div><div><b>Callouts</b>Tip · Heads up · Doing it yourself</div>\n            <div><b>Quote</b>20 px forest, energy rule</div><div><b>Do · Don’t</b>two columns</div><div><b>Banner</b>forest fill, one per step</div>\n          </div>\n        </article>\n\n        <h3 class=\"sec-h\" style=\"margin-top:var(--sp-s5);font-size:20px\">What admins see in the Week Builder</h3>\n        <div class=\"builder\">\n          <div class=\"bfield\">\n            <div class=\"btool\" role=\"toolbar\" aria-label=\"Text styles\">\n              <select aria-label=\"Block style\"><option>Paragraph</option><option>Lead</option><option>Heading</option><option>Subheading</option><option>Label</option><option>Quote</option><option>Banner</option></select>\n              <button class=\"tb\" type=\"button\" aria-label=\"Bold\" aria-pressed=\"true\"><b>B</b></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Italic\"><i style=\"font-family:Georgia,serif\">I</i></button>\n              <span class=\"tsep\"></span>\n              <button class=\"tb\" type=\"button\" aria-label=\"Highlight\"><mark class=\"rt-hl\" style=\"font-weight:600\">H</mark></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Key term\"><span class=\"rt-term\">Term</span></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Code\"><code style=\"font:600 12px var(--sp-mono)\">{ }</code></button>\n              <button class=\"tb\" type=\"button\" aria-label=\"Link\"><svg width=\"16\" height=\"16\"><use href=\"#i-link\"/></svg></button>\n            </div>\n<div class=\"barea\">Your operator runs that week’s skill before the live build, **by Tuesday night**, and the owner reads what it finds. _You don’t need to understand every line yet._ The goal is that ==both of you show up Wednesday with the findings open==. Week 1’s skill is `Map Your Spend`.</div>\n          </div>\n          <div class=\"bfield\">\n            <div class=\"btool\"><span class=\"label\" style=\"padding:0 6px\">Live preview</span></div>\n            <div class=\"bprev\">Your <span class=\"rt-term\">operator</span> runs that week’s skill before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don’t need to understand every line yet.</i> The goal is that <mark class=\"rt-hl\">both of you show up Wednesday with the findings open</mark>. Week 1’s skill is <code class=\"rt-code\">Map Your Spend</code>.</div>\n          </div>\n        </div>\n\n        <h3 class=\"sec-h\" style=\"margin-top:var(--sp-s5);font-size:20px\">Buttons: hover, press and focus</h3>\n        <div class=\"gallery\" id=\"gallery\">\n          <button class=\"btn btn-primary\" type=\"button\"><span class=\"aim-roll\"><span>Primary</span><span aria-hidden=\"true\">Primary</span></span></button>\n          <a class=\"btn btn-accent btn-arrow\" href=\"#\" onclick=\"return false\" id=\"continue\"><span class=\"aim-roll\"><span>Continue step 3</span><span aria-hidden=\"true\">Continue step 3</span></span><svg class=\"arrow\" width=\"16\" height=\"16\"><use href=\"#i-arrow\"/></svg></a>\n          <button class=\"btn btn-secondary\" type=\"button\"><svg width=\"14\" height=\"14\"><use href=\"#i-eye\"/></svg><span class=\"aim-roll\"><span>Secondary</span><span aria-hidden=\"true\">Secondary</span></span></button>\n          <button class=\"btn btn-ghost\" type=\"button\">Ghost</button>\n          <a class=\"inline\" href=\"#\" onclick=\"return false\">Inline link</a>\n        </div>\n      </section>";
++const FLAG = "<div class=\"mock-flag\"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · Week 0 · Step 2 · v3 polish pass · not live</span><span>Geist · forest · energy · energy-bright · bone · black</span></div>";
+ 
+ export function MockFlag() {
+   return <div style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: FLAG }} />;
+@@ -14,7 +14,9 @@
+     const b = e.target.closest('[data-copy]'); if (!b) return;
+     const text = b.closest('.copyblock')?.querySelector('pre')?.textContent || '';
+     navigator.clipboard?.writeText(text).catch(() => {});
+-    const l = b.querySelector('span'); const old = l.textContent; l.textContent = 'Copied'; setTimeout(() => { l.textContent = old; }, 1400);
++    const spans = [...b.querySelectorAll('.aim-roll > span')];
++    const old = spans[0].textContent; spans.forEach((s) => { s.textContent = 'Copied'; });
++    setTimeout(() => spans.forEach((s) => { s.textContent = old; }), 1400);
+   };
+   // display:contents keeps the wrapper out of layout, so .main's flex gap sees the <section> itself.
+   return <div style={{ display: 'contents' }} onClick={onClick} dangerouslySetInnerHTML={{ __html: HTML }} />;
+diff -ruN v5/src/components/Sidebar.jsx v6/src/components/Sidebar.jsx
+--- v5/src/components/Sidebar.jsx	2026-11-19 21:29:03.142307279 -0600
++++ v6/src/components/Sidebar.jsx	2026-11-19 21:29:03.203873855 -0600
+@@ -1,27 +1,52 @@
+ // The right rail: On This Page (scroll-spy), the checklist mirror with mini checks, the due line,
+ // For This Step (kit rows with View / Copy) and Still Stuck (email + office hours).
+-import { useState } from 'react';
++// Motion (Amplified Impact Motion v1): one marker springs to the current section (brand 10, the nav marker);
++// View and Copy roll their labels; mini checks draw in 240 ms; the cards rise in with the page (--i 2, 3, 4).
++import { useLayoutEffect, useRef, useState } from 'react';
+ import { BoxCheck, Icon } from './Icons.jsx';
++import { RollLabel } from '../motion/ai-motion';
+ 
+ function CopyButton({ text, labels }) {
+   const [copied, setCopied] = useState(false);
+   return (
+     <button className="btn btn-secondary btn-sm" type="button" data-copy
+       onClick={() => { navigator.clipboard?.writeText(text).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 1400); }}>
+-      <Icon name="copy" size={14} /><span>{copied ? labels.copied : labels.copy}</span>
++      <Icon name="copy" size={14} /><RollLabel>{copied ? labels.copied : labels.copy}</RollLabel>
+     </button>
+   );
+ }
+ 
++/** Measures the current section's link (aria-current="true") for the .spy-mark marker, like useMarker in
++ *  ai-motion.tsx (which looks for aria-current="page"). Transitions switch on after the first placement. */
++function useSpyMarker(navRef, spy) {
++  const [style, setStyle] = useState({});
++  const [live, setLive] = useState(false);
++  useLayoutEffect(() => {
++    const nav = navRef.current; if (!nav) return undefined;
++    const place = () => {
++      const a = nav.querySelector('a[data-spy][aria-current="true"]'); if (!a) return;
++      setStyle({ '--x': `${a.offsetLeft}px`, '--y': `${a.offsetTop}px`, '--h': `${a.offsetHeight}px` });
++    };
++    place();
++    const ro = new ResizeObserver(place); ro.observe(nav);
++    document.fonts?.ready.then(() => { place(); requestAnimationFrame(() => requestAnimationFrame(() => setLive(true))); });
++    return () => ro.disconnect();
++  }, [navRef, spy]);
++  return { style, live };
++}
++
+ export function Sidebar({ step, spy, checked, labels }) {
+   const noop = (href) => (href === '#' ? (e) => e.preventDefault() : undefined);
++  const navRef = useRef(null);
++  const marker = useSpyMarker(navRef, spy);
+   return (
+     <aside className="rail" aria-label="On this step">
+-      <nav className="card" aria-label={labels.onThisPage}>
++      <nav className="card aim-rise" style={{ '--i': 2 }} aria-label={labels.onThisPage} ref={navRef}>
+         <h3>{labels.onThisPage}</h3>
+         {step.jumps.map((j) => (
+           <a key={j.id} className="rail-link" href={'#' + j.id} data-spy={j.id} aria-current={spy === j.id ? 'true' : undefined}>{j.label}</a>
+         ))}
++        <span className={'spy-mark' + (marker.live ? ' live' : '')} style={marker.style} aria-hidden="true" />
+         <h3 style={{ marginTop: 20 }}>{labels.checklist}</h3>
+         <div className="rail-list" id="rail-list">
+           {step.items.map((it) => (
+@@ -33,13 +58,13 @@
+         {step.due && <p className="due">{step.due}</p>}
+       </nav>
+       {step.forStep?.length > 0 && (
+-        <section className="card" aria-label={labels.forStep}>
++        <section className="card aim-rise" style={{ '--i': 3 }} aria-label={labels.forStep}>
+           <h3>{labels.forStep}</h3>
+           {step.forStep.map((r) => (
+             <div className="res" key={r.id}><span className="res-ic"><Icon name={r.icon} /></span>
+               <div><b>{r.title}</b><small>{r.meta}</small>
+                 <div className="item-acts">
+-                  {r.view && <button className="btn btn-secondary btn-sm" type="button" onClick={r.onView}><Icon name="eye" size={14} />{labels.view}</button>}
++                  {r.view && <button className="btn btn-secondary btn-sm" type="button" onClick={r.onView}><Icon name="eye" size={14} /><RollLabel>{labels.view}</RollLabel></button>}
+                   {r.copyText != null && <CopyButton text={r.copyText} labels={labels} />}
+                 </div>
+               </div></div>
+@@ -47,7 +72,7 @@
+         </section>
+       )}
+       {step.help?.length > 0 && (
+-        <section className="card" aria-label="Still stuck">
++        <section className="card aim-rise" style={{ '--i': 4 }} aria-label="Still stuck">
+           <h3>{labels.stillStuck}</h3>
+           {step.help.map((h) => (
+             <a key={h.title} className="card-link li" href={h.href} onClick={noop(h.href)}>
+diff -ruN v5/src/components/StepFooter.jsx v6/src/components/StepFooter.jsx
+--- v5/src/components/StepFooter.jsx	2026-11-19 21:29:03.142569546 -0600
++++ v6/src/components/StepFooter.jsx	2026-11-19 21:29:03.203775701 -0600
+@@ -1,30 +1,32 @@
+-// Mark step done (centered card; stays forest while locked and, when clicked, explains and jumps
+-// to the first unchecked item), the single 600ms energy ring on completion, Undo, and the Next
+-// card whose bar grows and whose centered arrow slides on hover.
+-import { useEffect, useRef, useState } from 'react';
++// Mark step done (centered card; stays forest while locked and, when clicked, explains and jumps to the first
++// unchecked item), Undo, and the Next card.
++// Motion (Amplified Impact Motion v1):
++//   Mark step done is the brand's async button (03), idle -> done: the label rolls up and out, the done layer rises,
++//   the dot lands and the ring draws once. Layers share one grid cell so the width never jumps. The hover rolls the label.
++//   The "why" line and the Undo row arrive as messages (aim-msg-in, 240 ms).
++//   The Next card's fill lightens on hover, its bar grows like an underline (380 ms), its arrow nudges on the spring.
++import { useEffect, useRef } from 'react';
+ import { Icon, MarkCheck } from './Icons.jsx';
+-import { reduceMotion } from './motion.js';
++import { RollLabel, SignalMark } from '../motion/ai-motion';
+ 
+-export function MarkDone({ done, locked, why, nudge, ring, onMark, onUndo, labels }) {
+-  // The label blurs out for 150ms, then the new label (with its drawn check) blurs in.
+-  const [shown, setShown] = useState(done);
+-  const [out, setOut] = useState(false);
+-  const first = useRef(true);
+-  useEffect(() => {
+-    if (first.current) { first.current = false; return undefined; }
+-    setOut(true);
+-    const id = setTimeout(() => { setShown(done); setOut(false); }, reduceMotion() ? 0 : 150);
+-    return () => clearTimeout(id);
+-  }, [done]);
++export function MarkDone({ done, locked, why, nudge, onMark, onUndo, labels }) {
++  // The why line plays its arrival whenever its words change (not on first render, as in the mockup).
++  const changed = useRef(false);
++  const lastWhy = useRef(why);
++  useEffect(() => { if (lastWhy.current !== why) { changed.current = true; lastWhy.current = why; } }, [why]);
++  const animate = changed.current || lastWhy.current !== why;
+   return (
+     <div className="mark-card">
+-      <button className={'btn btn-primary btn-lg mark-btn' + (done ? ' is-done' : '') + (ring ? ' ring' : '')} type="button" id="mark"
+-        aria-disabled={done ? (locked ? 'true' : 'false') : locked ? 'true' : 'false'} aria-describedby="why" onClick={onMark}>
+-        <span className={'lbl' + (out ? ' out' : '')} id="mark-lbl">
+-          {shown ? <><MarkCheck weight="2.4" /><span>{labels.stepDone}</span></> : <><MarkCheck weight="2.2" /><span>{labels.markDone}</span></>}
++      <button className={'btn btn-primary btn-lg mark-btn aim-async' + (done ? ' is-done' : '')} type="button" id="mark" data-state={done ? 'done' : 'idle'}
++        aria-disabled={locked ? 'true' : 'false'} aria-describedby="why" onClick={onMark}>
++        <span className="aim-async__label" id="mark-lbl" aria-hidden={done ? 'true' : 'false'}>
++          <MarkCheck weight="2.2" /><RollLabel>{labels.markDone}</RollLabel>
++        </span>
++        <span className="aim-async__done" aria-hidden={done ? 'false' : 'true'}>
++          <SignalMark />{labels.stepDone}
+         </span>
+       </button>
+-      <p className={'why' + (nudge ? ' nudge' : '')} id="why">{why}</p>
++      <p key={why} className={'why' + (animate ? ' msg' : '') + (nudge ? ' nudge' : '')} id="why">{why}</p>
+       <div className="done-row" id="done-row" hidden={!done}><button className="btn btn-ghost btn-sm" type="button" id="undo" onClick={onUndo}>{labels.undo}</button></div>
+     </div>
+   );
+diff -ruN v5/src/components/StepHeader.jsx v6/src/components/StepHeader.jsx
+--- v5/src/components/StepHeader.jsx	2026-11-19 21:29:03.142184771 -0600
++++ v6/src/components/StepHeader.jsx	2026-11-19 21:29:03.203864077 -0600
+@@ -1,17 +1,21 @@
+ // Back link, eyebrow, title, goal line, the three tags and the checklist progress row.
++// Motion: the header rises in with the page (--i 1); the bar fills on the system curve over 720 ms
++// while "N of 4 checked" counts with it (useCountUp, brand 12).
+ import { Icon } from './Icons.jsx';
++import { useCountUp } from '../motion/ai-motion';
+ 
+ export function BackLink({ back }) {
+   return (
+-    <a className="btn btn-ghost back" href={back.href} onClick={back.href === '#' ? (e) => e.preventDefault() : undefined}>
++    <a className="btn btn-ghost back aim-rise" style={{ '--i': 0 }} href={back.href} onClick={back.href === '#' ? (e) => e.preventDefault() : undefined}>
+       <Icon name="left" />{back.label}
+     </a>
+   );
+ }
+ 
+ export function StepHeader({ step, done, total, labels }) {
++  const shown = useCountUp(done, 720);
+   return (
+-    <header className="head">
++    <header className="head aim-rise" style={{ '--i': 1 }}>
+       <p className="eyebrow">{step.eyebrow}</p>
+       <h1 className="h1">{step.title}</h1>
+       {step.lede && <p className="purpose">{step.lede}</p>}
+@@ -24,7 +28,7 @@
+         <div className="prog-track" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label={labels.checkProgress} id="prog">
+           <div className="prog-fill" id="prog-fill" style={{ '--pct': done / total }} />
+         </div>
+-        <span className="prog-l" id="prog-l">{`${done} ${labels.of} ${total} ${labels.checked}`}</span>
++        <span className="prog-l" id="prog-l">{`${Math.round(shown)} ${labels.of} ${total} ${labels.checked}`}</span>
+       </div>
+     </header>
+   );
+diff -ruN v5/src/components/StepRail.jsx v6/src/components/StepRail.jsx
+--- v5/src/components/StepRail.jsx	2026-11-19 21:29:03.142083417 -0600
++++ v6/src/components/StepRail.jsx	2026-11-19 21:29:03.203856226 -0600
+@@ -1,13 +1,14 @@
+ // Step rail, as recorded in interaction-demo.mp4: every step is a labeled 40px pill (number circle + title)
+ // in the shared horizontal scroller (.hs: snap, 44px/24px edge fades, arrows only on a side with more).
+ //   done     -> energy circle with a white check
+-//   current  -> forest pill, translucent number circle (energy-bright circle with a check once the step is marked done)
++//   current  -> forest pill, translucent number circle (energy-bright circle once the step is marked done)
+ //   upcoming -> bone number circle
+ //   waiting  -> dashed number circle
++// Motion (Amplified Impact Motion v1): hover is a colour change, press squeezes and springs back, and when the
++// current step is marked done its check draws (lesson tier). The rail rises in with the page (--i 0).
+ // The current step is brought into view on load (no visible change for steps 1 to 3).
+-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
++import { useLayoutEffect, useRef } from 'react';
+ import { Icon, PillCheck } from './Icons.jsx';
+-import { afterPaint } from './motion.js';
+ import { useHScroller } from './useHScroller.js';
+ 
+ /** PillVM.status -> the mockup's data-s. */
+@@ -20,16 +21,20 @@
+ const ariaOf = (p) =>
+   `Step ${p.n}, ${p.title}${p.on ? ', current step' : p.status === 'done' ? ', done' : p.status === 'waiting' ? ', waiting on another step' : ''}`;
+ 
++/** The check that draws when the current step is marked done (pathLength 1, brand aim-draw). */
++function DrawCheck() {
++  return (
++    <svg className="draw" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
++      <path pathLength="1" d="M3.5 8.5l3 3 6-7" />
++    </svg>
++  );
++}
++
+ function CurrentNumber({ n, done }) {
+-  // The mockup swaps the number for a check with a blur-scale (".swap.out" -> ".swap") when the step is marked done.
+-  const first = useRef(true);
+-  const [out, setOut] = useState(false);
+-  useEffect(() => {
+-    if (first.current) { first.current = false; return; }
+-    if (done) { setOut(true); afterPaint(() => setOut(false)); }
+-  }, [done]);
+-  if (!done) return <span>{n}</span>;
+-  return <span className={'swap' + (out ? ' out' : '')}><PillCheck /></span>;
++  // Done on load: the plain check (nothing to animate). Marked done here: the drawing check.
++  const doneAtLoad = useRef(done);
++  if (!done) { doneAtLoad.current = false; return <span>{n}</span>; }
++  return doneAtLoad.current ? <PillCheck /> : <DrawCheck />;
+ }
+ 
+ export function StepRail({ pills, label, currentDone, scrollLeftLabel = 'Scroll steps left', scrollRightLabel = 'Scroll steps right' }) {
+@@ -42,7 +47,7 @@
+   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+ 
+   return (
+-    <div className="hs steps" id="pills-hs">
++    <div className="hs steps aim-rise" style={{ '--i': 0 }} id="pills-hs">
+       <button className="icon-btn hs-prev" type="button" aria-label={scrollLeftLabel} hidden={!hs.fadeL} onClick={hs.prev}><Icon name="left" /></button>
+       <nav className={'hs-row' + (hs.fadeR ? ' fade-r' : '') + (hs.fadeL ? ' fade-l' : '')} id="pills" aria-label={label} ref={hs.row}>
+         {pills.map((p) => {
+diff -ruN v5/src/components/VideoPlayer.jsx v6/src/components/VideoPlayer.jsx
+--- v5/src/components/VideoPlayer.jsx	2026-11-19 21:29:03.142466454 -0600
++++ v6/src/components/VideoPlayer.jsx	2026-11-19 21:29:03.203818398 -0600
+@@ -5,8 +5,13 @@
+ // In the LMS, keep HlsEngine (components/replay/HlsEngine) for the source: render this <video>
+ // and let HlsEngine attach to `videoRef`. Chapters and cues come from VideoBlock.chapters and the
+ // parsed VTT (parseCaptionCues in @ai/core).
++//
++// Motion (Amplified Impact Motion v1): the play pill's label rolls on hover and the pill squeezes on press; while
++// the video buffers, the hairline sweep (the one loader) runs along the bottom of the frame; the transcript opens
++// over 380 ms on the system curve and closes in 200 ms on the exit curve; Back to current rises in on the spring.
+ import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+ import { Icon } from './Icons.jsx';
++import { RollLabel } from '../motion/ai-motion';
+ import { clock, scrollBehavior } from './motion.js';
+ import { useHScroller } from './useHScroller.js';
+ 
+@@ -24,7 +29,7 @@
+ export const activeChapter = (chapters, t) => { let ci = 0; chapters.forEach((c, i) => { if (t >= c.t - 0.05) ci = i; }); return ci; };
+ export const activeCue = (cues, t) => { let cu = -1; for (let i = 0; i < cues.length; i++) { if (t >= cues[i].s - 0.05) cu = i; else break; } return cu; };
+ 
+-export function VideoPlayer({ video, labels, videoRef, tick, started, onStart, onSeek, transcriptKey, sectionTitle = labels.watch }) {
++export function VideoPlayer({ video, labels, videoRef, tick, started, buffering, onPlay, onSeek, transcriptKey, sectionTitle = labels.watch }) {
+   const { t, force } = tick;
+   const { chapters, cues } = video;
+   const dur = videoRef.current?.duration || video.durationS;
+@@ -90,17 +95,18 @@
+   };
+ 
+   return (
+-    <section id="watch" aria-labelledby="watch-h">
++    <section id="watch" className="aim-rise" style={{ '--i': 2 }} aria-labelledby="watch-h">
+       <h2 className="sec-h" id="watch-h">{sectionTitle} <small>{video.sectionLength}</small></h2>
+-      <div className={'vframe' + (started ? ' started' : '')} id="vframe">
++      <div className={'vframe' + (started ? ' started' : '') + (buffering ? ' buffering' : '')} id="vframe">
+         <video ref={videoRef} id="video" controls playsInline preload="metadata" poster={video.poster} aria-label={video.ariaLabel ?? 'Orientation video'}>
+           {video.src && <source src={video.src} type={video.type} />}
+           {video.captions && <track kind="captions" srcLang="en" label="English" src={video.captions} />}
+         </video>
+         <img className="vposter" src={video.poster} alt="" />
++        <span className="vbuf aim-sweep" aria-hidden="true" />
+         <button className="vhit" type="button" id="vplay" aria-label={`Play ${video.title}`}
+-          onClick={() => { onStart(); videoRef.current?.play().catch(() => {}); videoRef.current?.focus(); }}>
+-          <span className="vgo"><i><Icon name="play" size={20} /></i><span className="vt">{video.playLabel}</span><small>{video.clock}</small></span>
++          onClick={() => { onPlay(); videoRef.current?.focus(); }}>
++          <span className="vgo"><i><Icon name="play" size={20} /></i><span className="vt aim-roll"><span>{video.playLabel}</span><span aria-hidden="true">{video.playLabel}</span></span><small>{video.clock}</small></span>
+         </button>
+       </div>
+ 
+@@ -145,7 +151,7 @@
+         </div>
+         <button className={'btn btn-secondary btn-sm tback' + (showBack ? ' show' : '')} type="button" id="tback"
+           onClick={() => { userUntil.current = 0; follow(rowRefs.current[Math.max(0, agRef.current)], true); }}>
+-          <Icon name="down" size={14} />{labels.backToCurrent}
++          <Icon name="down" size={14} /><RollLabel>{labels.backToCurrent}</RollLabel>
+         </button>
+       </div>
+     </section>
+diff -ruN v5/src/components/motion.js v6/src/components/motion.js
+--- v5/src/components/motion.js	2026-11-19 21:29:03.142408032 -0600
++++ v6/src/components/motion.js	2026-11-19 21:29:03.203809816 -0600
+@@ -1,6 +1,11 @@
+-export const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
++// Reduced motion follows the brand: the OS setting, or .aim-reduced on any ancestor (isReducedMotion in ai-motion.tsx).
++import { isReducedMotion } from '../motion/ai-motion';
++
++export const reduceMotion = () => isReducedMotion();
+ export const scrollBehavior = () => (reduceMotion() ? 'auto' : 'smooth');
+ /** 0:00 style clock, as the mockup prints chapter and cue times. */
+ export const clock = (t) => { t = Math.floor(t); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+-/** Two animation frames: lets the browser paint a "before" class so the transition runs. */
++/** Two animation frames: lets the browser paint a "before" state so a transition runs. */
+ export const afterPaint = (fn) => requestAnimationFrame(() => requestAnimationFrame(fn));
++/** The rise-in for content arriving in order (brand .aim-rise): className and style for block i. */
++export const rise = (i) => ({ className: 'aim-rise', style: { '--i': i } });
+diff -ruN v5/src/step-page.css v6/src/step-page.css
+--- v5/src/step-page.css	2026-11-19 21:29:03.141588926 -0600
++++ v6/src/step-page.css	2026-11-19 21:29:03.203712546 -0600
+@@ -23,7 +23,7 @@
+ /* 4. one button system */
+ .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-s2);height:40px;padding:0 var(--sp-s3);
+   border-radius:var(--sp-r-md);border:1px solid transparent;font:500 15px/1 var(--sp-font);text-decoration:none;cursor:pointer;white-space:nowrap;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .btn svg{flex:none}
+ .btn-primary{background:var(--sp-forest);color:var(--sp-on-forest);box-shadow:var(--sp-sh-sm)}
+ .btn-accent{background:var(--sp-energy-bright);color:var(--sp-black);box-shadow:var(--sp-sh-sm)}
+@@ -32,28 +32,33 @@
+ .btn-lg{height:48px;padding:0 var(--sp-s4);font-size:16px}
+ .btn-sm{height:32px;padding:0 12px;font-size:14px}
+ .btn-arrow{padding-right:12px}
+-.btn .arrow{transition:transform var(--sp-t-ui) var(--sp-ease-out)}
++.btn .arrow{transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
++/* brand 01/02: hover rolls the label (.aim-roll) and changes colour; nothing lifts. The roll box is 6px taller than the
++   line so descenders aren't clipped, with -3px margins so the label sits exactly where it did. */
++.btn .aim-roll,.vgo .aim-roll{line-height:calc(1em + 6px);margin-block:-3px}
+ @media (hover:hover){
+-  .btn:is(:hover,.is-hover){transform:translateY(-1px);box-shadow:var(--sp-sh-md);text-decoration:none}
++  .btn:is(:hover,.is-hover){text-decoration:none}
+   .btn-primary:is(:hover,.is-hover){background:var(--sp-forest-hover)}
+   .btn-accent:is(:hover,.is-hover){background:var(--sp-bright-hover)}
+-  .btn-secondary:is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2);box-shadow:var(--sp-sh-sm)}
+-  .btn-ghost:is(:hover,.is-hover){background:var(--sp-tint-forest);box-shadow:none;transform:none}
++  .btn-secondary:is(:hover,.is-hover){border-color:var(--sp-black)}
++  .btn-ghost:is(:hover,.is-hover){background:var(--sp-tint-forest)}
+   :is(.btn,.card-link):is(:hover,.is-hover) .arrow{transform:translateX(3px)}
+ }
+-.btn:is(:active,.is-active){transform:scale(.97);box-shadow:var(--sp-sh-sm)}
++/* brand press: squeeze in 90 ms on the system curve, spring back on release */
++.btn:where(:not([aria-disabled="true"])):is(:active,.is-active){transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .btn:is(:active,.is-active) .arrow{transform:translateX(1px)}
+-.btn-ghost:is(:active,.is-active){box-shadow:none}
+ :is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn,.acc summary):focus-visible,
+ :is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn).is-focus{outline:2px solid var(--sp-forest);outline-offset:2px}
+ .chip[aria-current="true"]:focus-visible,
+ .btn[aria-disabled="true"]{cursor:pointer}
+ .icon-btn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--sp-surface);border:var(--sp-border);color:var(--sp-forest);cursor:pointer;box-shadow:var(--sp-sh-sm);padding:0;
+-  transition:background-color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out,opacity var(--sp-t-ui) ease-out}
+-@media (hover:hover){.icon-btn:is(:hover,.is-hover){background:var(--sp-bone);box-shadow:var(--sp-sh-md)}}
+-.icon-btn:active{transform:scale(.94)}
+-.prose a,a.inline{color:var(--sp-forest);font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;transition:text-decoration-thickness 150ms ease-out}
+-.prose a:hover,a.inline:hover,a.inline.is-hover{text-decoration-thickness:2px}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),opacity var(--aim-dur-quick) var(--aim-ease)}
++@media (hover:hover){.icon-btn:is(:hover,.is-hover){background:var(--sp-bone)}}
++.icon-btn:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.prose a,a.inline{position:relative;color:var(--sp-forest);font-weight:500;text-decoration:none;border-bottom:1px solid var(--sp-line-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
++.prose a::after,a.inline::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--aim-dur-move) var(--aim-ease)}
++@media (hover:hover){.prose a:hover::after,a.inline:is(:hover,.is-hover)::after{transform:none;transform-origin:0 50%}}
++.prose a:focus-visible::after,a.inline:focus-visible::after{transform:none;transform-origin:0 50%}
+ .prose a:focus-visible,a.inline:focus-visible{outline:2px solid var(--sp-forest);outline-offset:2px;border-radius:2px}
+ .back{display:inline-flex;margin-left:-8px;height:32px;padding:0 10px 0 6px;font-size:14px;color:var(--sp-black)}
+ 
+@@ -77,23 +82,22 @@
+ .steps{margin:8px 0 0}
+ .stp{position:relative;display:inline-flex;align-items:center;gap:var(--sp-s2);height:40px;padding:0 var(--sp-s3) 0 var(--sp-s2);border-radius:var(--sp-r-pill);
+   border:var(--sp-border);background:var(--sp-surface);color:var(--sp-black);font:500 14px/1 var(--sp-font);text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .stp-n{position:relative;display:grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;background:var(--sp-bone);color:var(--sp-black);
+-  font:600 13px/1 var(--sp-font);font-variant-numeric:tabular-nums lining-nums;transition:background-color 150ms ease-out,color 150ms ease-out}
++  font:600 13px/1 var(--sp-font);font-variant-numeric:tabular-nums lining-nums;transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ .stp-n>span{display:block}
+ .stp[data-s="done"] .stp-n{background:var(--sp-energy);color:var(--sp-white)}
+ .stp[data-s="waiting"] .stp-n{background:transparent;border:1px dashed var(--sp-ink-45)}
+ .stp[aria-current="step"]{background:var(--sp-forest);border-color:var(--sp-forest);color:var(--sp-on-forest)}
+ .stp[aria-current="step"] .stp-n{background:var(--sp-on-forest-16);color:var(--sp-on-forest)}
+ .stp[aria-current="step"][data-s="done"] .stp-n{background:var(--sp-energy-bright);color:var(--sp-forest)}
+-.stp .stp-n .swap{position:absolute;inset:0;display:grid;place-items:center;transition:opacity 180ms ease-out,filter 180ms ease-out,transform 180ms var(--sp-ease-out)}
+-.stp .stp-n .swap.out{opacity:0;filter:blur(4px);transform:scale(.6)}
++.stp .stp-n .draw path{stroke-dasharray:1 1;animation:aim-draw var(--aim-dur-base) var(--aim-ease) 70ms backwards}  /* step marked done: the check draws (lesson tier) */
+ @media (hover:hover){
+-  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2);transform:translateY(-1px);box-shadow:var(--sp-sh-sm)}
++  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2)}
+   .stp:not([aria-current="step"]):not([data-s="done"]):is(:hover,.is-hover) .stp-n{background:var(--sp-surface)}
+   .stp[aria-current="step"]:is(:hover,.is-hover){background:var(--sp-forest-hover)}
+ }
+-.stp:active{transform:scale(.97)}
++.stp:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .stp:focus-visible,.stp.is-focus{outline:2px solid var(--sp-forest);outline-offset:2px}
+ 
+ /* header */
+@@ -106,7 +110,7 @@
+ .tag svg{color:var(--sp-forest)}
+ .prog{margin-top:var(--sp-s3);display:flex;align-items:center;gap:var(--sp-s3)}
+ .prog-track{flex:1;height:6px;border-radius:var(--sp-r-pill);background:var(--sp-ink-08);overflow:hidden}
+-.prog-fill{height:100%;background:var(--sp-energy);border-radius:inherit;transform:scaleX(var(--pct,0));transform-origin:left;transition:transform var(--sp-t-reveal) var(--sp-ease-out)}
++.prog-fill{height:100%;background:var(--sp-energy);border-radius:inherit;transform:scaleX(var(--pct,0));transform-origin:left;transition:transform var(--aim-dur-fill) var(--aim-ease)}
+ .prog-l{font:500 14px/1 var(--sp-font);color:var(--sp-ink-2);min-width:96px;text-align:right}
+ .sec-h{font:650 25px/1.2 var(--sp-font);letter-spacing:-.01em;margin-bottom:var(--sp-s3);display:flex;align-items:baseline;gap:var(--sp-s2)}
+ .sec-h small{font:500 14px/1 var(--sp-font);color:var(--sp-ink-2);letter-spacing:0}
+@@ -119,15 +123,18 @@
+ .vposter{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+ .vhit{position:absolute;inset:0;border:0;padding:0 24px 24px 0;background:transparent;display:flex;align-items:flex-end;justify-content:flex-end;cursor:pointer}
+ .vgo{display:inline-flex;align-items:center;gap:12px;height:56px;padding:0 22px 0 8px;border-radius:var(--sp-r-pill);background:var(--sp-forest);color:var(--sp-on-forest);box-shadow:var(--sp-sh-md);font:600 16px/1 var(--sp-font);
+-  transition:transform var(--sp-t-ui) var(--sp-ease-out),box-shadow var(--sp-t-ui) var(--sp-ease-out)}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
+ .vgo i{width:40px;height:40px;border-radius:50%;background:var(--sp-energy-bright);color:var(--sp-forest);display:grid;place-items:center}
+ .vgo i svg{translate:2px 0}
+ .vgo small{font:500 14px/1 var(--sp-mono);color:var(--sp-energy-bright)}
+-@media (hover:hover){.vhit:is(:hover,.is-hover) .vgo{transform:translateY(-1px) scale(1.02);background:var(--sp-forest-hover);box-shadow:var(--sp-sh-lg)}}
+-.vhit:active .vgo{transform:scale(.97)}
++@media (hover:hover){.vhit:is(:hover,.is-hover) .vgo{background:var(--sp-forest-hover)}}
++.vhit:active .vgo{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ .vhit:focus-visible{outline:none}.vhit:focus-visible .vgo{outline:2px solid var(--sp-forest);outline-offset:3px}
+ .vdur{position:absolute;right:16px;bottom:16px;height:28px;padding:0 10px;border-radius:var(--sp-r-pill);background:var(--sp-ink-72);color:var(--sp-on-forest);font:500 13px/28px var(--sp-mono)}
+ .vframe.started .vposter,.vframe.started .vhit{display:none}
++/* the one loader: a hairline sweep along the bottom of the frame while the video buffers */
++.vbuf{position:absolute;left:0;right:0;bottom:0;z-index:3;color:var(--sp-energy-bright);opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
++.vframe.buffering .vbuf{opacity:1;transition-delay:90ms}
+ 
+ /* 2. chapters */
+ .chapters{margin-top:var(--sp-s3)}
+@@ -135,52 +142,52 @@
+ .label{font:500 13px/1 var(--sp-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--sp-ink-2)}
+ .chip{position:relative;display:inline-flex;align-items:center;gap:var(--sp-s2);height:40px;padding:0 var(--sp-s3);border-radius:var(--sp-r-pill);
+   border:var(--sp-border);background:var(--sp-surface);color:var(--sp-black);font:500 14px/1 var(--sp-font);cursor:pointer;overflow:hidden;
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out}
+-.chip time{font:500 13px/1 var(--sp-mono);color:var(--sp-ink-2);transition:color 150ms ease-out}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
++.chip time{font:500 13px/1 var(--sp-mono);color:var(--sp-ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+ .chip[aria-current="true"]{background:var(--sp-forest);border-color:var(--sp-forest);color:var(--sp-on-forest)}
+ .chip[aria-current="true"] time{color:var(--sp-energy-bright)}
+ .chip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--sp-energy-bright);transform:scaleX(var(--p,0));transform-origin:left;opacity:0}
+ .chip[aria-current="true"]::after{opacity:1}
+-@media (hover:hover){.chip:not([aria-current="true"]):is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2);transform:translateY(-1px);box-shadow:var(--sp-sh-sm)}
++@media (hover:hover){.chip:not([aria-current="true"]):is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2)}
+   .chip[aria-current="true"]:is(:hover,.is-hover){background:var(--sp-forest-hover)}}
+-.chip:active{transform:scale(.97)}
++.chip:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+ 
+ /* 3. transcript */
+ .tbar{display:flex;align-items:center;gap:var(--sp-s2);margin-top:var(--sp-s3)}
+ .tbar .grow{flex:1}
+-.chev{transition:transform var(--sp-t-ui) var(--sp-ease-out)}
++.chev{transition:transform var(--aim-dur-base) var(--aim-ease)}
+ [aria-expanded="true"] .chev{transform:rotate(180deg)}
+-.tpanel{position:relative;block-size:0;overflow:hidden;transition:block-size 180ms ease-in,margin-top 180ms ease-in;margin-top:0}
+-.tpanel.open{block-size:296px;margin-top:var(--sp-s2);transition:block-size 240ms var(--sp-ease-out),margin-top 240ms var(--sp-ease-out)}
++.tpanel{position:relative;block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),margin-top var(--aim-dur-exit) var(--aim-ease-exit);margin-top:0}
++.tpanel.open{block-size:296px;margin-top:var(--sp-s2);transition:block-size var(--aim-dur-move) var(--aim-ease),margin-top var(--aim-dur-move) var(--aim-ease)}
+ .tscroll{height:296px;overflow-y:auto;overscroll-behavior:contain;background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);padding:var(--sp-s3);
+   -webkit-mask:linear-gradient(180deg,transparent,var(--sp-mask) 20px calc(100% - 20px),transparent);mask:linear-gradient(180deg,transparent,var(--sp-mask) 20px calc(100% - 20px),transparent);
+   scrollbar-width:thin;scrollbar-color:var(--sp-ink-25) transparent}
+ .cue{display:grid;grid-template-columns:52px minmax(0,1fr);gap:var(--sp-s3);width:100%;text-align:left;border:0;background:transparent;padding:10px 12px;border-radius:var(--sp-r-md);cursor:pointer;
+-  font:400 16px/1.6 var(--sp-font);color:var(--sp-ink-78);transition:background-color 150ms ease-out,color 150ms ease-out,box-shadow 150ms ease-out}
++  font:400 16px/1.6 var(--sp-font);color:var(--sp-ink-78);transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+ .cue>span{max-width:var(--sp-measure)}
+ .cue time{font:500 13px/1.6 var(--sp-mono);color:var(--sp-ink-3);padding-top:2px}
+-.cue span.c{border-radius:3px;transition:background-color 150ms ease-out;box-decoration-break:clone;-webkit-box-decoration-break:clone}
++.cue span.c{border-radius:3px;transition:background-color var(--aim-dur-quick) var(--aim-ease);box-decoration-break:clone;-webkit-box-decoration-break:clone}
+ @media (hover:hover){.cue:is(:hover,.is-hover){background:var(--sp-bone);color:var(--sp-black)}}
+ .cue[aria-current="true"]{background:var(--sp-tint-forest);box-shadow:inset 2px 0 var(--sp-energy);color:var(--sp-black)}
+ .cue[aria-current="true"] time{color:var(--sp-forest)}
+ .cue span.c.now{background:var(--sp-tint-bright)}
+-.tback{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:3;opacity:0;pointer-events:none;transition:opacity var(--sp-t-ui) ease-out,transform var(--sp-t-ui) var(--sp-ease-out),box-shadow var(--sp-t-ui) var(--sp-ease-out),background-color 150ms;transform:translateY(4px)}
+-.tback.show{opacity:1;pointer-events:auto;transform:none;box-shadow:var(--sp-sh-md)}
++.tback{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:3;opacity:0;pointer-events:none;transform:translateY(var(--aim-rise));
++  transition:opacity var(--aim-dur-exit) var(--aim-ease-exit),transform var(--aim-dur-exit) var(--aim-ease-exit),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
++.tback.show{opacity:1;pointer-events:auto;transform:none;box-shadow:var(--sp-sh-md);
++  transition:opacity var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ 
+ /* 8. checklist */
+ .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+-.item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:var(--sp-s2);padding:var(--sp-s3) var(--sp-s4) var(--sp-s3) var(--sp-s2);background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);
+-  transition:background-color 600ms ease-out}
+-.item.flash{background:color-mix(in oklch,var(--sp-energy-bright) 20%,var(--sp-white));transition:none}
++.item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:var(--sp-s2);padding:var(--sp-s3) var(--sp-s4) var(--sp-s3) var(--sp-s2);background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg)}
+ .box-btn{width:44px;height:44px;margin-top:-10px;display:grid;place-items:center;border:0;background:transparent;padding:0;cursor:pointer;border-radius:var(--sp-r-md)}
+ .check-box{inline-size:22px;block-size:22px;border-radius:6px;border:1.5px solid var(--sp-ink-35);display:grid;place-items:center;background:var(--sp-surface);
+-  transition:background-color 150ms ease-out,border-color 150ms ease-out,transform var(--sp-t-press) ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out)}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+ @media (hover:hover){.box-btn:is(:hover,.is-hover) .check-box{border-color:var(--sp-forest);box-shadow:0 0 0 4px var(--sp-tint-forest)}}
+-.box-btn:active .check-box{transform:scale(.9)}
+-.check-box path{stroke:var(--sp-white);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset 240ms var(--sp-ease-out) 60ms}
++.box-btn:active .check-box{transform:scale(.84);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.check-box path{stroke:var(--sp-white);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+ [aria-checked="true"] .check-box{background:var(--sp-energy);border-color:var(--sp-energy)}
+-[aria-checked="true"] .check-box path{stroke-dashoffset:0}
+-.item-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s2);font:600 17px/1.35 var(--sp-font);transition:color var(--sp-t-ui) ease-out}
++[aria-checked="true"] .check-box path{stroke-dashoffset:0;transition-delay:70ms}
++.item-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s2);font:600 17px/1.35 var(--sp-font);transition:color var(--aim-dur-base) var(--aim-ease)}
+ .role{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:var(--sp-r-pill);background:var(--sp-bone);font:500 13px/1 var(--sp-font);color:var(--sp-forest)}
+ .item-detail{color:var(--sp-ink-2);font-size:15px;margin-top:4px;max-width:var(--sp-measure)}
+ .item-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s2);margin-top:12px}
+@@ -198,45 +205,46 @@
+ .callout.diy{background:var(--sp-surface);border:var(--sp-border);box-shadow:inset 3px 0 var(--sp-black)}
+ .callout.diy svg{color:var(--sp-black)}
+ .acc{background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);overflow:hidden}
+-.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-s3);padding:var(--sp-s3) var(--sp-s4);cursor:pointer;font:600 17px/1.3 var(--sp-font);transition:background-color 150ms ease-out}
++.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-s3);padding:var(--sp-s3) var(--sp-s4);cursor:pointer;font:600 17px/1.3 var(--sp-font);transition:background-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+ .acc summary::-webkit-details-marker{display:none}
+ @media (hover:hover){.acc summary:hover{background:var(--sp-bone)}}
+ .acc summary .chev{color:var(--sp-forest)}
+ .acc[open] summary .chev{transform:rotate(180deg)}
+-.acc::details-content{block-size:0;overflow:hidden;transition:block-size 240ms var(--sp-ease-out),content-visibility 240ms allow-discrete}
+-.acc[open]::details-content{block-size:auto}
+-.acc ol{margin:0;padding:0 var(--sp-s4) var(--sp-s4) calc(var(--sp-s4) + 18px);display:grid;gap:10px;max-width:calc(var(--sp-measure) + 48px);color:var(--sp-ink-85)}
++.acc[open] summary{box-shadow:inset 0 -1px var(--sp-line)}
++.acc::details-content{block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),content-visibility var(--aim-dur-exit) allow-discrete}
++.acc[open]::details-content{block-size:auto;transition:block-size var(--aim-dur-move) var(--aim-ease),content-visibility var(--aim-dur-move) allow-discrete}
++.acc ol{margin:0;padding:var(--sp-s3) var(--sp-s4) var(--sp-s4) calc(var(--sp-s4) + 18px);display:grid;gap:10px;max-width:calc(var(--sp-measure) + 48px);color:var(--sp-ink-85)}
+ 
+ /* 9 + 7 footer */
+ .foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-s3);align-items:stretch}
+ @media (max-width:720px){.foot{grid-template-columns:1fr}}
+ .mark-card{position:relative;display:grid;place-items:center;align-content:center;gap:10px;text-align:center;padding:var(--sp-s4);background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);min-height:152px}
+-.why{font-size:14px;color:var(--sp-ink-2);transition:color var(--sp-t-ui) ease-out}
++.why{font-size:14px;color:var(--sp-ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
++.why.msg{animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+ .why.nudge{color:var(--sp-forest);font-weight:600}
+ .mark-btn{position:relative;min-width:200px}
+-.mark-btn .lbl{display:inline-flex;align-items:center;gap:var(--sp-s2);transition:opacity 150ms ease-out,filter 150ms ease-out}
+-.mark-btn .lbl.out{opacity:0;filter:blur(4px)}
++/* brand 03: idle -> done. The label rolls up and out, the done layer rises, the dot lands and the ring draws once.
++   Layers share one grid cell so the width never jumps. */
++.mark-btn.aim-async{display:inline-grid;place-items:center}
++.mark-btn .aim-async__label{gap:var(--sp-s2)}
++.mark-btn .aim-async__done{--aim-mark:currentColor}
+ .mark-btn.is-done{background:var(--sp-tint-bright);color:var(--sp-forest);box-shadow:none;border-color:var(--sp-forest-18)}
+ @media (hover:hover){.mark-btn.is-done:is(:hover,.is-hover){background:color-mix(in oklch,var(--sp-energy-bright) 32%,var(--sp-white))}}
+-.mark-btn .ck path{stroke-dasharray:20;stroke-dashoffset:0}
+-.mark-btn.is-done .ck path{animation:draw 280ms var(--sp-ease-out) 120ms both}
+-.mark-btn::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid var(--sp-energy);opacity:0;pointer-events:none}
+-.mark-btn.ring::after{animation:ring 600ms var(--sp-ease-out) both}
+-.done-row{display:flex;gap:var(--sp-s2);align-items:center}
++.done-row{display:flex;gap:var(--sp-s2);align-items:center;animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+ .done-row[hidden]{display:none}
+ .card-link{position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:var(--sp-s4) 80px var(--sp-s4) var(--sp-s4);border-radius:var(--sp-r-lg);text-decoration:none;
+-  transition:background-color var(--sp-t-ui) ease-out,transform var(--sp-t-ui) var(--sp-ease-out),box-shadow var(--sp-t-ui) var(--sp-ease-out)}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+ .next{background:var(--sp-forest);color:var(--sp-on-forest);min-height:152px}
+ .next .k{font:500 13px/1 var(--sp-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--sp-energy-bright)}
+ .next .t{font:650 20px/1.3 var(--sp-font)}
+ .next .m{font-size:14px;color:var(--sp-on-forest-82)}
+-.next .bar{display:block;height:2px;width:40px;background:var(--sp-energy-bright);margin-top:10px;border-radius:2px;transition:width var(--sp-t-ui) var(--sp-ease-out)}
++.next .bar{display:block;height:2px;width:40px;background:var(--sp-energy-bright);margin-top:10px;border-radius:2px;transition:width var(--aim-dur-move) var(--aim-ease)}
+ .next .arrow{position:absolute;right:var(--sp-s4);top:50%;margin-top:-20px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--sp-on-forest-10);color:var(--sp-on-forest);
+-  transition:transform var(--sp-t-ui) var(--sp-ease-out),background-color var(--sp-t-ui) ease-out}
+-@media (hover:hover){.next:is(:hover,.is-hover){background:var(--sp-forest-lift);transform:translateY(-2px);box-shadow:var(--sp-sh-md)}
++  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
++@media (hover:hover){.next:is(:hover,.is-hover){background:var(--sp-forest-lift)}
+   .next:is(:hover,.is-hover) .bar{width:64px} .next:is(:hover,.is-hover) .arrow{background:var(--sp-on-forest-16)}}
+-.next:active{transform:scale(.99)}
+-.next.cue-next .bar{width:64px;transition-duration:var(--sp-t-reveal)}
++.next:active{transform:scale(.99);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
++.next.cue-next .bar{width:64px}
+ .next:focus-visible,.next.is-focus{outline:2px solid var(--sp-forest);outline-offset:3px}
+ 
+ /* rail */
+@@ -244,12 +252,16 @@
+ .card{background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);padding:var(--sp-s3)}
+ .card h3{font:500 13px/1 var(--sp-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--sp-ink-2);margin:4px 8px 12px}
+ .rail-link{display:flex;align-items:center;gap:10px;min-height:36px;padding:6px 10px;border-radius:var(--sp-r-md);text-decoration:none;color:var(--sp-black);font:500 14px/1.3 var(--sp-font);
+-  transition:background-color 150ms ease-out,color 150ms ease-out,box-shadow 150ms ease-out}
++  transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+ @media (hover:hover){.rail-link:is(:hover,.is-hover){background:var(--sp-tint-forest);color:var(--sp-forest)}}
+-.rail-link[aria-current="true"]{box-shadow:inset 2px 0 var(--sp-forest);color:var(--sp-forest);background:var(--sp-tint-forest);border-radius:0 var(--sp-r-md) var(--sp-r-md) 0}
+-.mini{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--sp-ink-35);flex:none;display:grid;place-items:center;transition:background-color 150ms,border-color 150ms}
++.rail-link[aria-current="true"]{color:var(--sp-forest);background:var(--sp-tint-forest);border-radius:0 var(--sp-r-md) var(--sp-r-md) 0}
++/* brand 10: one marker springs to the current section instead of each link drawing its own stripe */
++.rail nav.card{position:relative}
++.spy-mark{position:absolute;top:0;left:0;width:2px;height:var(--h,0px);background:var(--sp-forest);transform:translate(var(--x,0px),var(--y,0px));pointer-events:none}
++.spy-mark.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),height var(--aim-dur-spring) var(--aim-ease-spring)}
++.mini{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--sp-ink-35);flex:none;display:grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ .mini.on{background:var(--sp-energy);border-color:var(--sp-energy)}
+-.mini svg path{stroke:var(--sp-white);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset 220ms var(--sp-ease-out)}
++.mini svg path{stroke:var(--sp-white);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+ .mini.on svg path{stroke-dashoffset:0}
+ .rail-list .rail-link.done{color:var(--sp-ink-3)}
+ .due{margin:12px 8px 4px;padding:12px;border-radius:var(--sp-r-md);background:var(--sp-bone);font:600 14px/1.3 var(--sp-font)}
+@@ -301,7 +313,7 @@
+ .bfield{border:var(--sp-border);border-radius:var(--sp-r-md);background:var(--sp-surface);overflow:hidden}
+ .btool{display:flex;align-items:center;gap:4px;padding:6px;border-bottom:var(--sp-border);background:var(--sp-bone);flex-wrap:wrap;min-height:45px}
+ .btool select{height:32px;border:var(--sp-border);border-radius:6px;background:var(--sp-surface);font:500 13px var(--sp-font);padding:0 8px;margin-right:4px}
+-.tb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font:600 14px/1 var(--sp-font);color:var(--sp-black);display:inline-grid;place-items:center;transition:background-color 150ms,border-color 150ms}
++.tb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font:600 14px/1 var(--sp-font);color:var(--sp-black);display:inline-grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+ @media (hover:hover){.tb:hover{background:var(--sp-surface);border-color:var(--sp-line)}}
+ .tb:focus-visible{outline:2px solid var(--sp-forest);outline-offset:1px}
+ .tb[aria-pressed="true"]{background:var(--sp-surface);border-color:var(--sp-line-2)}
+@@ -310,16 +322,12 @@
+ .bprev{padding:16px 18px;font-size:15px;line-height:1.55}
+ .gallery{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:var(--sp-s3);padding:var(--sp-s4);background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg)}
+ 
+-@keyframes draw{from{stroke-dashoffset:20}to{stroke-dashoffset:0}}
+-@keyframes ring{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.18,1.5)}}
+ 
+-/* prefers-reduced-motion: keep colour/fill/opacity feedback, drop movement */
++/* prefers-reduced-motion: keep colour/fill/opacity feedback, drop movement. .aim-reduced on any ancestor does the same (ai-motion.css). */
+ @media (prefers-reduced-motion:reduce){
+   html:has([data-step-page]){scroll-behavior:auto}
+   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+-  .btn:hover,.chip:hover,.next:hover,.btn.is-hover,.next.is-hover,.chip.is-hover{transform:none!important}
+   :is(.btn,.card-link):hover .arrow{transform:none!important}
+-  .mark-btn.ring::after{display:none}
+ }
+ 
+ @media (max-width:640px){.vhit{padding:0 12px 12px 0}.vgo{height:44px;padding:0 14px 0 6px;font-size:14px;gap:8px}.vgo i{width:32px;height:32px}.vgo small,.vgo .vt{display:none}.vgo{padding:0 6px}.mock-flag span+span{display:none}}
+diff -ruN v5/src/step-page.tokens.css v6/src/step-page.tokens.css
+--- v5/src/step-page.tokens.css	2026-11-19 21:29:03.141693051 -0600
++++ v6/src/step-page.tokens.css	2026-11-19 21:29:03.203729420 -0600
+@@ -21,8 +21,7 @@
+   --sp-sh-sm:0 2px 4px rgb(31 77 64 / .06);
+   --sp-sh-md:0 8px 16px rgb(31 77 64 / .08);
+   --sp-sh-lg:0 16px 32px rgb(31 77 64 / .10);
+-  --sp-ease-out:cubic-bezier(.2,.7,.2,1);
+-  --sp-t-press:150ms; --sp-t-ui:200ms; --sp-t-reveal:450ms;
++  /* motion: --aim-* tokens from ai-motion.css (Amplified Impact Motion v1) */
+   --sp-font:'Geist',ui-sans-serif,system-ui,sans-serif;
+   --sp-mono:'Geist Mono',ui-monospace,monospace;
+ 
+diff -ruN v5/tools/make-review.mjs v6/tools/make-review.mjs
+--- v5/tools/make-review.mjs	1969-12-31 18:00:00.000000000 -0600
++++ v6/tools/make-review.mjs	2026-11-19 21:29:03.204683479 -0600
+@@ -0,0 +1,35 @@
++// Builds src/components/ReviewSection.jsx (MOCKUP-ONLY) from the mockup's own MOCKUP bar and "Text styles" section,
++// so the harness renders them byte for byte. Inline styles get the step page's token names (var(--s5) -> var(--sp-s5)).
++//   node tools/make-review.mjs
++import { readFileSync, writeFileSync } from 'node:fs';
++const H = readFileSync(new URL('../mockup/step-2.html', import.meta.url), 'utf8');
++const cut = (start, end) => { const a = H.indexOf(start); const b = H.indexOf(end, a) + end.length; if (a < 0) throw new Error('missing ' + start); return H.slice(a, b); };
++const tokenized = (html) => html.replace(/var\(--(?!sp-|aim-)([a-z0-9-]+)\)/g, 'var(--sp-$1)');
++const FLAG = tokenized(cut('<div class="mock-flag">', '</div>'));
++const HTML = tokenized(cut('<section class="review', '</section>'));
++const src = `// MOCKUP-ONLY. GENERATED by tools/make-review.mjs from mockup/step-2.html: the black MOCKUP bar and the
++// "Text styles for long steps" review block, Week Builder preview and button gallery, kept verbatim so the harness
++// can be diffed against the mockup's full page. Do NOT ship this to learners: in the LMS the real content comes
++// from the Tiptap rich text (#200) and these styles live in step-page.css as .rt-* classes.
++const HTML = ${JSON.stringify(HTML)};
++const FLAG = ${JSON.stringify(FLAG)};
++
++export function MockFlag() {
++  return <div style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: FLAG }} />;
++}
++
++export function ReviewSection() {
++  const onClick = (e) => {
++    const b = e.target.closest('[data-copy]'); if (!b) return;
++    const text = b.closest('.copyblock')?.querySelector('pre')?.textContent || '';
++    navigator.clipboard?.writeText(text).catch(() => {});
++    const spans = [...b.querySelectorAll('.aim-roll > span')];
++    const old = spans[0].textContent; spans.forEach((s) => { s.textContent = 'Copied'; });
++    setTimeout(() => spans.forEach((s) => { s.textContent = old; }), 1400);
++  };
++  // display:contents keeps the wrapper out of layout, so .main's flex gap sees the <section> itself.
++  return <div style={{ display: 'contents' }} onClick={onClick} dangerouslySetInnerHTML={{ __html: HTML }} />;
++}
++`;
++writeFileSync(new URL('../src/components/ReviewSection.jsx', import.meta.url), src);
++console.log('ReviewSection.jsx: section', HTML.length, 'chars, flag', FLAG.length);

@@ -1,0 +1,4 @@
+node_modules/
+# Build output of `npm run build` (the harness bundle).
+harness/public/app.js
+harness/public/app.css

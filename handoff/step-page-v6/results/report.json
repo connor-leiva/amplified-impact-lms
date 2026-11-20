@@ -1,0 +1,404 @@
+{
+  "target": "http://localhost:4179/harness/",
+  "reference": "http://localhost:4179/mockup/step-2.html",
+  "when": "2026-11-20T03:22:58.367Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1280",
+      "state": "default",
+      "size": {
+        "target": [
+          1280,
+          4564
+        ],
+        "reference": [
+          1280,
+          4564
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 57,
+      "strictPct": 0.001
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-rail",
+      "size": {
+        "target": [
+          1280,
+          4564
+        ],
+        "reference": [
+          1280,
+          4564
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 30,
+      "strictPct": 0.0005
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-next",
+      "size": {
+        "target": [
+          1280,
+          4564
+        ],
+        "reference": [
+          1280,
+          4564
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "transcript-open",
+      "size": {
+        "target": [
+          1280,
+          4868
+        ],
+        "reference": [
+          1280,
+          4868
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "mark-locked",
+      "size": {
+        "target": [
+          1280,
+          4564
+        ],
+        "reference": [
+          1280,
+          4564
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "step-done",
+      "size": {
+        "target": [
+          1280,
+          4583
+        ],
+        "reference": [
+          1280,
+          4583
+        ]
+      },
+      "diffPixels": 174,
+      "pct": 0.003,
+      "strictPixels": 383,
+      "strictPct": 0.0065
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-play",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-chip",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-arrow",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-secondary",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-mark",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "hover-done",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "acc-open-hover",
+      "size": {
+        "target": [
+          1280,
+          800
+        ],
+        "reference": [
+          1280,
+          800
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1280",
+      "state": "know-open",
+      "size": {
+        "target": [
+          1280,
+          4815
+        ],
+        "reference": [
+          1280,
+          4815
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "default",
+      "size": {
+        "target": [
+          390,
+          7591
+        ],
+        "reference": [
+          390,
+          7591
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "hover-rail",
+      "size": {
+        "target": [
+          390,
+          7591
+        ],
+        "reference": [
+          390,
+          7591
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "hover-next",
+      "size": {
+        "target": [
+          390,
+          7591
+        ],
+        "reference": [
+          390,
+          7591
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "transcript-open",
+      "size": {
+        "target": [
+          390,
+          7895
+        ],
+        "reference": [
+          390,
+          7895
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "mark-locked",
+      "size": {
+        "target": [
+          390,
+          7591
+        ],
+        "reference": [
+          390,
+          7591
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 57,
+      "strictPct": 0.0019
+    },
+    {
+      "viewport": "phone-390",
+      "state": "step-done",
+      "size": {
+        "target": [
+          390,
+          7610
+        ],
+        "reference": [
+          390,
+          7610
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "acc-open-hover",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "know-open",
+      "size": {
+        "target": [
+          390,
+          8134
+        ],
+        "reference": [
+          390,
+          8134
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    }
+  ]
+}

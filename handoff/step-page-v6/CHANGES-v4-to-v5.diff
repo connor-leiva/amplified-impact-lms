@@ -1,0 +1,803 @@
+diff -ruN v4/diff/compare.mjs v5/diff/compare.mjs
+--- v4/diff/compare.mjs	1969-12-31 18:00:00.000000000 -0600
++++ v5/diff/compare.mjs	2026-11-19 20:08:46.621050004 -0600
+@@ -0,0 +1,104 @@
++// Video-tolerant image comparison. The reference frames come from an H.264 screen recording, so a
++// byte-for-byte diff is meaningless (compression noise on every text edge). Two blurred metrics are used:
++//
++//   edge  Gaussian blur σ1.6, |Δluma| > 22   -> anything moved, resized, missing or extra (an element 1-2 px off shows up)
++//   tone  Gaussian blur σ4,   |Δluma| > 7    -> a fill or tint that is different (hover states, halos, highlights)
++//
++// Each metric's hot pixels are grouped into regions (3 px dilation). A state passes when no region is
++// bigger than the limit. Limits were calibrated on the v5 mockup against all 24 video states: its worst
++// region is 53 px (edge) and 72 px (tone), all of it text antialiasing. A wrong hover state is 200+ px,
++// a wrong rail is thousands.
++import { PNG } from 'pngjs';
++
++const asPng = (x) => (x && x.data && x.width ? x : PNG.sync.read(x));
++
++export const LIMITS = { edge: { sigma: 1.6, thr: 22, maxRegion: 120 }, tone: { sigma: 4, thr: 7, maxRegion: 150 } };
++
++function luma(png) {
++  const { width: w, height: h, data } = png; const out = new Float32Array(w * h);
++  for (let i = 0, p = 0; i < out.length; i++, p += 4) out[i] = (data[p] * 299 + data[p + 1] * 587 + data[p + 2] * 114) / 1000;
++  return out;
++}
++
++function blur(src, w, h, sigma) {
++  const r = Math.ceil(sigma * 3), k = new Float32Array(2 * r + 1);
++  let sum = 0; for (let i = -r; i <= r; i++) { k[i + r] = Math.exp(-(i * i) / (2 * sigma * sigma)); sum += k[i + r]; }
++  for (let i = 0; i < k.length; i++) k[i] /= sum;
++  const tmp = new Float32Array(w * h), out = new Float32Array(w * h);
++  for (let y = 0; y < h; y++) {
++    const row = y * w;
++    for (let x = 0; x < w; x++) {
++      let acc = 0;
++      for (let i = -r; i <= r; i++) { const xx = x + i < 0 ? 0 : x + i >= w ? w - 1 : x + i; acc += src[row + xx] * k[i + r]; }
++      tmp[row + x] = acc;
++    }
++  }
++  for (let y = 0; y < h; y++) {
++    for (let x = 0; x < w; x++) {
++      let acc = 0;
++      for (let i = -r; i <= r; i++) { const yy = y + i < 0 ? 0 : y + i >= h ? h - 1 : y + i; acc += tmp[yy * w + x] * k[i + r]; }
++      out[y * w + x] = acc;
++    }
++  }
++  return out;
++}
++
++function regions(hot, w, h, dilate = 3) {
++  // dilate (box), then label 4-connected components; a region's area counts only its undilated hot pixels
++  const dil = new Uint8Array(w * h);
++  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
++    if (!hot[y * w + x]) continue;
++    for (let yy = Math.max(0, y - dilate); yy <= Math.min(h - 1, y + dilate); yy++)
++      for (let xx = Math.max(0, x - dilate); xx <= Math.min(w - 1, x + dilate); xx++) dil[yy * w + xx] = 1;
++  }
++  const lab = new Int32Array(w * h); const out = []; const stack = new Int32Array(w * h);
++  let id = 0;
++  for (let s = 0; s < w * h; s++) {
++    if (!dil[s] || lab[s]) continue;
++    id++; let sp = 0; stack[sp++] = s; lab[s] = id;
++    let area = 0, x0 = w, y0 = h, x1 = 0, y1 = 0;
++    while (sp) {
++      const p = stack[--sp]; const x = p % w, y = (p - x) / w;
++      if (hot[p]) { area++; if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; }
++      const nb = [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, y > 0 ? p - w : -1, y < h - 1 ? p + w : -1];
++      for (const q of nb) if (q >= 0 && dil[q] && !lab[q]) { lab[q] = id; stack[sp++] = q; }
++    }
++    if (area) out.push({ area, box: [x0, y0, x1 + 1, y1 + 1] });
++  }
++  return out.sort((a, b) => b.area - a.area);
++}
++
++/**
++ * Compare a target screenshot with a reference video frame (both PNG buffers or PNG objects, same size).
++ * masks: [[x0,y0,x1,y1], ...] areas to ignore (the playing video). Returns per-metric results and a heat image.
++ */
++export function compareToFrame(frame, target, masks = []) {
++  const A = asPng(frame), B = asPng(target);
++  if (A.width !== B.width || A.height !== B.height) throw new Error(`size mismatch: frame ${A.width}x${A.height}, target ${B.width}x${B.height}`);
++  const w = A.width, h = A.height, la = luma(A), lb = luma(B);
++  const ignore = new Uint8Array(w * h);
++  for (const [x0, y0, x1, y1] of masks) {
++    for (let y = Math.max(0, y0 - 8); y < Math.min(h, y1 + 8); y++) for (let x = Math.max(0, x0 - 8); x < Math.min(w, x1 + 8); x++) ignore[y * w + x] = 1;
++  }
++  const res = {}; const heat = new PNG({ width: w, height: h });
++  for (let i = 0, p = 0; i < w * h; i++, p += 4) { const v = Math.min(255, la[i] * 0.35 + 160); heat.data[p] = heat.data[p + 1] = heat.data[p + 2] = v; heat.data[p + 3] = 255; if (ignore[i]) { heat.data[p] = 200; heat.data[p + 1] = 220; heat.data[p + 2] = 255; } }
++  for (const [name, L] of Object.entries(LIMITS)) {
++    const ba = blur(la, w, h, L.sigma), bb = blur(lb, w, h, L.sigma);
++    const hot = new Uint8Array(w * h); let n = 0;
++    for (let i = 0; i < w * h; i++) if (!ignore[i] && Math.abs(ba[i] - bb[i]) > L.thr) { hot[i] = 1; n++; }
++    const regs = regions(hot, w, h);
++    const worst = regs[0]?.area ?? 0;
++    res[name] = { hotPixels: n, worstRegion: worst, worstBox: regs[0]?.box ?? null, regions: regs.slice(0, 8), pass: worst <= L.maxRegion };
++    for (let i = 0, p = 0; i < w * h; i++, p += 4) if (hot[i]) { if (name === 'edge') { heat.data[p] = 255; heat.data[p + 1] = 0; heat.data[p + 2] = 0; } else if (heat.data[p + 1] !== 0) { heat.data[p] = 255; heat.data[p + 1] = 150; heat.data[p + 2] = 0; } }
++  }
++  return { ...res, pass: res.edge.pass && res.tone.pass, heat };
++}
++
++/** frame | target | heat, side by side, for people. */
++export function sideBySide(frame, target, heat) {
++  const A = asPng(frame), B = asPng(target);
++  const w = A.width, h = A.height, out = new PNG({ width: w * 3 + 16, height: h });
++  out.data.fill(255);
++  PNG.bitblt(A, out, 0, 0, w, h, 0, 0); PNG.bitblt(B, out, 0, 0, w, h, w + 8, 0); PNG.bitblt(heat, out, 0, 0, w, h, 2 * w + 16, 0);
++  return out;
++}
+diff -ruN v4/diff/fixtures.mjs v5/diff/fixtures.mjs
+--- v4/diff/fixtures.mjs	1969-12-31 18:00:00.000000000 -0600
++++ v5/diff/fixtures.mjs	2026-11-19 20:08:46.621061506 -0600
+@@ -0,0 +1,35 @@
++// Review-only fixtures. interaction-demo.mp4 was recorded on the mockup, which carries three things the LMS
++// must NOT ship: the black MOCKUP bar, the "Text styles (review)" link in On this page, and the
++// "Text styles for long steps" section under the footer. To compare a deployed page with the video (or with
++// the mockup), the test adds the same three things to the target page first, copied from mockup/step-2.html.
++// Everything else on the page must then line up on its own. Nothing is added if the page already has them.
++import { readFileSync } from 'node:fs';
++
++const MOCKUP = readFileSync(new URL('../mockup/step-2.html', import.meta.url), 'utf8');
++const cut = (start, end) => { const a = MOCKUP.indexOf(start); const b = MOCKUP.indexOf(end, a) + end.length; if (a < 0 || b < end.length) throw new Error('fixture not found: ' + start); return MOCKUP.slice(a, b); };
++
++// The mockup's inline styles use its own token names (var(--s5)); the step page's CSS names them --sp-* (step-page.tokens.css).
++const tokenized = (html) => html.replace(/var\(--(?!sp-)([a-z0-9-]+)\)/g, 'var(--sp-$1)');
++export const FIXTURES = {
++  flag: tokenized(cut('<div class="mock-flag">', '</div>')),
++  link: tokenized(cut('<a class="rail-link" href="#styles"', '</a>')),
++  review: tokenized(cut('<section class="review" id="styles"', '</section>')),
++};
++
++/** Adds the missing review-only fixtures to the page. Returns the list of what it added. */
++export async function addFixtures(page) {
++  return page.evaluate(({ flag, link, review }) => {
++    const added = [];
++    const pageBox = document.querySelector('.page');
++    if (!document.querySelector('.mock-flag') && pageBox) { pageBox.insertAdjacentHTML('beforebegin', flag); added.push('mock-flag'); }
++    if (!document.querySelector('.rail a[href="#styles"]')) {
++      const ref = document.querySelector('.rail nav.card a[href="#reference"]');
++      if (ref) { ref.insertAdjacentHTML('afterend', link); added.push('styles-link'); }
++    }
++    if (!document.getElementById('styles')) {
++      const after = document.getElementById('live') || document.getElementById('foot');
++      if (after) { after.insertAdjacentHTML('afterend', review); added.push('review-section'); }
++    }
++    return added;
++  }, FIXTURES);
++}
+diff -ruN v4/diff/pixel-diff.mjs v5/diff/pixel-diff.mjs
+--- v4/diff/pixel-diff.mjs	2026-11-19 20:08:46.618690700 -0600
++++ v5/diff/pixel-diff.mjs	2026-11-19 20:08:46.621036231 -0600
+@@ -7,13 +7,15 @@
+ //   options: --selector .page (element shot instead of full page)  --reference URL  --out results/  --chrome /usr/bin/google-chrome  --states default,hover-rail
+ //
+ // The target must keep the mockup's ids and classes (#pills .stp[data-n], #next, #ttoggle, .box-btn, #mark),
+-// which <StepPage> does. Writes results/<viewport>-<state>-{target,reference,diff}.png and results/report.json.
++// which <StepPage> does. A deployed page gets the mockup's review-only fixtures added first (diff/fixtures.mjs),
++// so the whole page can be compared without building a second reference. Writes results/<viewport>-<state>-{target,reference,diff}.png and results/report.json.
+ import { chromium } from 'playwright-core';
+ import pixelmatch from 'pixelmatch';
+ import { PNG } from 'pngjs';
+ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+ import { fileURLToPath } from 'node:url';
+ import { serve } from '../harness/serve.mjs';
++import { addFixtures } from './fixtures.mjs';
+ 
+ const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
+ const here = fileURLToPath(new URL('.', import.meta.url));
+@@ -30,6 +32,7 @@
+ const wait = (pg, ms) => pg.waitForTimeout(ms);
+ const STATES = {
+   default: async () => {},
++  // desktop: the pointer on step 4, as in the video (reference/frames/02-top-hover-step-4.png); phones have no hover, so the Next card
+   'hover-rail': async (pg, vp) => { if (vp.width > 640) { await pg.hover('#pills .stp[data-n="4"]'); await wait(pg, 400); } else { await pg.hover('#next'); await wait(pg, 400); } },
+   'hover-next': async (pg) => { await pg.hover('#next'); await wait(pg, 400); },
+   'transcript-open': async (pg) => { await pg.click('#ttoggle'); await wait(pg, 800); await pg.mouse.move(0, 0); },
+@@ -52,6 +55,7 @@
+   await pg.evaluate(() => { try { localStorage.clear(); } catch { /* */ } });
+   await pg.reload({ waitUntil: 'load' });
+   await pg.evaluate(() => document.fonts.ready);
++  await addFixtures(pg); // review-only MOCKUP bar, styles link and section, only if the page lacks them (a deployed page)
+   await wait(pg, 800);
+   await STATES[state](pg, vp);
+   if (!state.startsWith('hover')) { await pg.evaluate(() => window.scrollTo(0, 0)); await wait(pg, 400); }
+diff -ruN v4/diff/video-parity.mjs v5/diff/video-parity.mjs
+--- v4/diff/video-parity.mjs	1969-12-31 18:00:00.000000000 -0600
++++ v5/diff/video-parity.mjs	2026-11-19 20:08:46.621073525 -0600
+@@ -0,0 +1,98 @@
++// Video parity: replays every steady moment of reference/interaction-demo.mp4 (reference/states.json) on a
++// target page and compares the screen with the matching video frame (reference/frames/<state>.png).
++//
++//   node diff/video-parity.mjs                         # the mockup AND the harness (served locally)
++//   node diff/video-parity.mjs --target https://learn.amplifiedimpact.io/learn/week/0/step/2 --storage-state auth.json
++//   options: --states 01-top,22-step-done   --local mockup,harness,lms   --out results/video/   --chrome /usr/bin/google-chrome
++//
++// The target needs the mockup's ids and classes (StepPage keeps them) and the test learner at the recorded
++// state: step 1 done, step 5 waiting, nothing checked on step 2, no video progress. Review-only fixtures
++// (MOCKUP bar, "Text styles (review)" link and section) are added to the target if it lacks them; see fixtures.mjs.
++// The playing video is masked (it is course media, not UI). Exit code 0 only if every state passes.
++import { chromium } from 'playwright-core';
++import { PNG } from 'pngjs';
++import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
++import { fileURLToPath } from 'node:url';
++import { serve } from '../harness/serve.mjs';
++import { compareToFrame, sideBySide, LIMITS } from './compare.mjs';
++import { addFixtures } from './fixtures.mjs';
++
++const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
++const root = fileURLToPath(new URL('..', import.meta.url));
++const spec = JSON.parse(readFileSync(root + 'reference/states.json', 'utf8'));
++const OUT = arg('out', root + 'results/video/');
++const PORT = 4180;
++const only = arg('states')?.split(',');
++let srv = null;
++let targets = arg('target') ? [arg('target')] : null;
++if (!targets) {
++  srv = await serve(PORT);
++  const local = { mockup: `http://localhost:${PORT}/mockup/step-2.html`, harness: `http://localhost:${PORT}/harness/`, lms: `http://localhost:${PORT}/harness/?lms` };
++  targets = (arg('local', 'mockup,harness')).split(',').map((k) => local[k]);
++}
++const storage = arg('storage-state');
++const browser = await chromium.launch({ executablePath: arg('chrome', '/usr/bin/google-chrome'), args: ['--font-render-hinting=none', '--disable-lcd-text', '--hide-scrollbars', '--autoplay-policy=no-user-gesture-required'] });
++const wait = (pg, ms) => pg.waitForTimeout(ms);
++
++async function run(pg, steps, mouse) {
++  for (const s of steps) {
++    switch (s.do) {
++      case 'scroll':
++        await pg.evaluate((y) => { const h = document.documentElement, b = h.style.scrollBehavior; h.style.scrollBehavior = 'auto'; window.scrollTo(0, y); h.style.scrollBehavior = b; }, s.y);
++        await wait(pg, 150); break;
++      case 'move': await pg.mouse.move(s.x, s.y); mouse.x = s.x; mouse.y = s.y; await wait(pg, 450); break;
++      case 'click': await pg.mouse.click(s.x, s.y); mouse.x = s.x; mouse.y = s.y; break;
++      case 'wait': await wait(pg, s.ms); break;
++      case 'js': await pg.evaluate(s.code); break;
++      case 'pauseVideo': await pg.evaluate(() => document.getElementById('video')?.pause()); break;
++      case 'nudge': if (mouse.x != null) { await pg.mouse.move(mouse.x + 1, mouse.y); await pg.mouse.move(mouse.x, mouse.y); await wait(pg, 450); } break;
++      case 'clickChapter': {
++        await pg.evaluate((i) => { const r = document.getElementById('chaps'), c = r.children[i]; r.style.scrollBehavior = 'auto'; r.scrollLeft = c.offsetLeft - r.clientWidth / 2 + c.offsetWidth / 2; r.style.scrollBehavior = ''; }, s.index);
++        await wait(pg, 200);
++        const bb = await pg.locator('#chaps .chip').nth(s.index).boundingBox();
++        await run(pg, [{ do: 'click', x: Math.round(bb.x + bb.width / 2), y: Math.round(bb.y + bb.height / 2) }, { do: 'pauseVideo' }, { do: 'wait', ms: 900 }], mouse);
++        break;
++      }
++      case 'openTranscriptAt331':
++        await run(pg, [{ do: 'scroll', y: 581 }, { do: 'clickChapter', index: 6 }, { do: 'click', x: 128, y: 525 }, { do: 'wait', ms: 700 }], mouse); break;
++      case 'checkAll':
++        for (const y of [342, 482, 623, 135]) { await pg.mouse.click(63, y); mouse.x = 63; mouse.y = y; await wait(pg, 700); }
++        await wait(pg, 200); break;
++      default: throw new Error('unknown step ' + s.do);
++    }
++  }
++}
++
++mkdirSync(OUT, { recursive: true });
++const report = []; let allPass = true;
++for (const target of targets) {
++  const tag = target.includes('/harness/?lms') ? 'lms-sim' : target.includes('/harness') ? 'harness' : target.includes('/mockup') ? 'mockup' : 'target';
++  console.log(`\n${tag}: ${target}`);
++  for (const st of spec.states) {
++    if (only && !only.includes(st.id)) continue;
++    const ctx = await browser.newContext({ viewport: { width: spec.viewport.width, height: spec.viewport.height }, deviceScaleFactor: 1, reducedMotion: 'no-preference', ...(storage && tag === 'target' ? { storageState: storage } : {}) });
++    const pg = await ctx.newPage();
++    await pg.goto(target, { waitUntil: 'load' });
++    await pg.evaluate(() => { try { localStorage.clear(); } catch { /* */ } });
++    await pg.reload({ waitUntil: 'load' });
++    await pg.evaluate(() => document.fonts.ready);
++    const added = await addFixtures(pg);
++    await wait(pg, 600);
++    const mouse = { x: null, y: null };
++    // the recording starts at the very top; a reload can restore a 1 px scroll (Chrome scroll restoration on React pages)
++    await run(pg, [{ do: 'scroll', y: 0 }, ...st.steps], mouse);
++    await wait(pg, 300);
++    const shot = PNG.sync.read(await pg.screenshot({ caret: 'hide' }));
++    await ctx.close();
++    const frame = PNG.sync.read(readFileSync(root + `reference/frames/${st.id}.png`));
++    const r = compareToFrame(frame, shot, st.mask ?? []);
++    writeFileSync(`${OUT}${tag}-${st.id}.png`, PNG.sync.write(sideBySide(frame, shot, r.heat)));
++    allPass &&= r.pass;
++    report.push({ target, tag, state: st.id, pass: r.pass, edge: { worstRegion: r.edge.worstRegion, worstBox: r.edge.worstBox, hotPixels: r.edge.hotPixels }, tone: { worstRegion: r.tone.worstRegion, worstBox: r.tone.worstBox, hotPixels: r.tone.hotPixels }, fixtures: added });
++    console.log(`  ${r.pass ? 'pass' : 'FAIL'}  ${st.id.padEnd(28)} edge worst ${String(r.edge.worstRegion).padStart(5)} px  tone worst ${String(r.tone.worstRegion).padStart(5)} px${r.pass ? '' : `   at edge ${JSON.stringify(r.edge.worstBox)} tone ${JSON.stringify(r.tone.worstBox)}`}`);
++  }
++}
++writeFileSync(`${OUT}report.json`, JSON.stringify({ when: new Date().toISOString(), video: spec.video, limits: LIMITS, report }, null, 2));
++await browser.close(); srv?.close();
++console.log(allPass ? '\nPASS: every state matches the video' : '\nFAIL: see results/video/*.png (frame | target | heat: red = edges, orange = tone)');
++process.exit(allPass ? 0 : 1);
+diff -ruN v4/harness/main.jsx v5/harness/main.jsx
+--- v4/harness/main.jsx	2026-11-19 20:08:46.618182331 -0600
++++ v5/harness/main.jsx	2026-11-19 20:08:46.621013949 -0600
+@@ -4,6 +4,12 @@
+ import '../src/step-page.tokens.css';
+ import '../src/step-page.css';
+ 
++// /harness/       the mockup's page, review-only parts included (what the tests compare against the video)
++// /harness/?lms   what the LMS ships: no MOCKUP bar, no "Text styles" link or section. The tests add those back
++//                 themselves (diff/fixtures.mjs), so this is how a deployed page will be tested.
++const lms = new URLSearchParams(location.search).has('lms');
++const step = lms ? { ...sampleStep, jumps: sampleStep.jumps.filter((j) => j.id !== 'styles') } : sampleStep;
++
+ createRoot(document.getElementById('root')).render(
+-  <StepPage step={sampleStep} labels={sampleLabels} mockFlag review />,
++  <StepPage step={step} labels={sampleLabels} mockFlag={!lms} review={!lms} />,
+ );
+diff -ruN v4/harness/public/index.html v5/harness/public/index.html
+--- v4/harness/public/index.html	2026-11-19 20:08:46.618526698 -0600
++++ v5/harness/public/index.html	2026-11-19 20:08:46.620831675 -0600
+@@ -3,7 +3,7 @@
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+-<title>Week 0 · Step 2 · Watch the Orientation (v4 JSX harness)</title>
++<title>Week 0 · Step 2 · Watch the Orientation (v5 JSX harness)</title>
+ <link rel="stylesheet" href="fonts.css">
+ <link rel="stylesheet" href="app.css">
+ </head>
+diff -ruN v4/mockup/step-2.html v5/mockup/step-2.html
+--- v4/mockup/step-2.html	2026-11-19 20:08:46.618766407 -0600
++++ v5/mockup/step-2.html	2026-11-19 20:08:46.621141676 -0600
+@@ -1,9 +1,11 @@
+ <!doctype html>
++<!-- v5: the v3 polish mockup exactly as recorded in interaction-demo.mp4. Source of truth for the step page.
++     The black MOCKUP bar and the "Text styles for long steps" section are for review only and are not shipped. -->
+ <html lang="en">
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+-<title>Week 0 · Step 2 · Watch the Orientation (v3 polish mockup)</title>
++<title>Week 0 · Step 2 · Watch the Orientation (v5 mockup, matches interaction-demo.mp4)</title>
+ <style>
+ @font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
+ @font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
+@@ -102,38 +104,30 @@
+ .hs .icon-btn[hidden]{display:grid;opacity:0;pointer-events:none}
+ @media (hover:none),(max-width:640px){.hs .icon-btn{display:none!important}.hs{--fade:24px}}
+ 
+-/* 5. step rail: compact circles (current = full pill) */
+-.steps{display:flex;align-items:center;gap:0;margin:8px 0 0;padding:0;min-width:0}
+-.stp{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:44px;height:44px;text-decoration:none;color:var(--forest);-webkit-tap-highlight-color:transparent}
+-.stp-v{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);block-size:32px;min-inline-size:32px;border-radius:var(--r-pill);
+-  font:600 14px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;
+-  transition:background-color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out}
+-.stp[data-s="up"] .stp-v,.stp[data-s="waiting"] .stp-v{background:var(--bone);color:var(--forest);box-shadow:inset 0 0 0 1.5px var(--forest)}
+-.stp[data-s="waiting"] .stp-v{box-shadow:inset 0 0 0 1.5px var(--forest)}
+-.stp[data-s="done"] .stp-v{background:var(--energy);color:#fff}
+-.stp[aria-current="step"]{min-width:0;flex:0 1 auto}
+-.stp[aria-current="step"] .stp-v{background:var(--forest);color:var(--on-forest);padding:0 var(--s3) 0 var(--s2);gap:var(--s2);min-inline-size:0;max-inline-size:100%}
+-.stp-n{display:grid;place-items:center;inline-size:24px;block-size:24px;border-radius:50%;background:rgb(245 245 242 / .16);flex:none;position:relative;font:600 13px/1 var(--font)}
++/* 5. step rail: labeled pills in the one horizontal scroller (as in interaction-demo.mp4).
++   Every step is a 40px pill: number circle + title. Done = energy circle with a check. Current = forest pill.
++   Upcoming = bone circle. Waiting = dashed circle. Arrows and edge fades come from .hs (section 6). */
++.steps{margin:8px 0 0}
++.stp{position:relative;display:inline-flex;align-items:center;gap:var(--s2);height:40px;padding:0 var(--s3) 0 var(--s2);border-radius:var(--r-pill);
++  border:var(--border);background:var(--surface);color:var(--black);font:500 14px/1 var(--font);text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;
++  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--t-ui) var(--ease-out),transform var(--t-press) ease-out}
++.stp-n{position:relative;display:grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;background:var(--bone);color:var(--black);
++  font:600 13px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;transition:background-color 150ms ease-out,color 150ms ease-out}
+ .stp-n>span{display:block}
++.stp[data-s="done"] .stp-n{background:var(--energy);color:#fff}
++.stp[data-s="waiting"] .stp-n{background:transparent;border:1px dashed rgb(10 13 12 / .45)}
++.stp[aria-current="step"]{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
++.stp[aria-current="step"] .stp-n{background:rgb(245 245 242 / .16);color:var(--on-forest)}
+ .stp[aria-current="step"][data-s="done"] .stp-n{background:var(--energy-bright);color:var(--forest)}
+-.stp-t{font:500 14px/1 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+ .stp .stp-n .swap{position:absolute;inset:0;display:grid;place-items:center;transition:opacity 180ms ease-out,filter 180ms ease-out,transform 180ms var(--ease-out)}
+ .stp .stp-n .swap.out{opacity:0;filter:blur(4px);transform:scale(.6)}
+-.stp:focus-visible{outline:none}
+-.stp:focus-visible .stp-v,.stp.is-focus .stp-v{outline:2px solid var(--forest);outline-offset:2px}
+-/* tooltip */
+-.stp[data-tip]:not([aria-current="step"])::after{content:attr(data-tip);position:absolute;top:calc(100% - 2px);left:50%;translate:-50% 0;z-index:5;
+-  background:var(--black);color:var(--on-forest);font:500 13px/1.3 var(--font);padding:7px 10px;border-radius:var(--r-md);white-space:nowrap;
+-  opacity:0;pointer-events:none;transform:translateY(-3px);transition:opacity 150ms ease-out,transform 150ms var(--ease-out);box-shadow:var(--sh-md)}
+-.stp[data-tip]:is(:focus-visible,.is-hover,.is-focus)::after{opacity:1;transform:none}
+-@media (hover:hover){.stp[data-tip]:hover::after{opacity:1;transform:none}
+-  .stp:not([aria-current="step"]):hover .stp-v{transform:translateY(-1px);box-shadow:inset 0 0 0 1.5px var(--forest),var(--sh-sm)}
+-  .stp[data-s="done"]:hover .stp-v{box-shadow:var(--sh-sm);background:color-mix(in oklch,var(--energy) 88%,var(--black))}}
+-.stp.is-hover:not([aria-current="step"]) .stp-v{transform:translateY(-1px)}
+-.stp:active .stp-v{transform:scale(.95)}
+-.stp:nth-last-child(-n+3)::after{left:auto;right:0;translate:0 0}
+-.stp::after{max-width:min(260px,calc(100vw - 32px));white-space:normal!important;inline-size:max-content}
+-@media (max-width:640px){.stp{min-width:40px}.stp-t{font-size:14px}}
++@media (hover:hover){
++  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2);transform:translateY(-1px);box-shadow:var(--sh-sm)}
++  .stp:not([aria-current="step"]):not([data-s="done"]):is(:hover,.is-hover) .stp-n{background:var(--surface)}
++  .stp[aria-current="step"]:is(:hover,.is-hover){background:var(--forest-hover)}
++}
++.stp:active{transform:scale(.97)}
++.stp:focus-visible,.stp.is-focus{outline:2px solid var(--forest);outline-offset:2px}
+ 
+ /* header */
+ .head{display:flex;flex-direction:column;gap:var(--s2);max-width:760px}
+@@ -362,7 +356,6 @@
+ }
+ 
+ @media (max-width:640px){.vhit{padding:0 12px 12px 0}.vgo{height:44px;padding:0 14px 0 6px;font-size:14px;gap:8px}.vgo i{width:32px;height:32px}.vgo small,.vgo .vt{display:none}.vgo{padding:0 6px}.mock-flag span+span{display:none}}
+-@media (hover:none),(max-width:640px){.stp[data-tip]:not(:focus-visible):not(.is-focus):not(.is-hover)::after{display:none}}
+ 
+ </style>
+ </head>
+@@ -399,7 +392,11 @@
+ <div class="page">
+   <a class="btn btn-ghost back" href="#" onclick="return false"><svg width="16" height="16"><use href="#i-left"/></svg>Foundations</a>
+ 
+-  <nav class="steps" id="pills" aria-label="Week 0 steps"></nav>
++  <div class="hs steps" id="pills-hs">
++    <button class="icon-btn hs-prev" type="button" aria-label="Scroll steps left" hidden><svg width="16" height="16"><use href="#i-left"/></svg></button>
++    <nav class="hs-row" id="pills" aria-label="Week 0 steps"></nav>
++    <button class="icon-btn hs-next" type="button" aria-label="Scroll steps right" hidden><svg width="16" height="16"><use href="#i-right"/></svg></button>
++  </div>
+ 
+   <div class="grid">
+     <main class="main">
+@@ -669,19 +666,19 @@
+       row.scrollTo({left: el.offsetLeft - row.clientWidth/2 + el.offsetWidth/2, behavior: force==='instant' ? 'auto' : beh()}); } };
+ }
+ 
+-/* step pills */
++/* step pills: every step labeled, in the shared horizontal scroller; the current step is brought into view */
+ const pillsRow = $('pills');
+ STEPS.forEach(st => {
+   const a = document.createElement('a');
+   a.className = 'stp'; a.href = '#'; a.onclick = () => false;
+-  a.dataset.s = st.s; a.dataset.n = st.n; a.dataset.tip = `${st.n}. ${st.t}`;
++  a.dataset.s = st.s; a.dataset.n = st.n;
+   if (st.s === 'current') a.setAttribute('aria-current','step');
+   a.setAttribute('aria-label', `Step ${st.n}, ${st.t}${st.s==='done'?', done':st.s==='waiting'?', waiting on another step':st.s==='current'?', current step':''}`);
+-  a.innerHTML = st.s==='current' ? `<span class="stp-v"><span class="stp-n" aria-hidden="true"><span>${st.n}</span></span><span class="stp-t">${st.t}</span></span>`
+-    : `<span class="stp-v" aria-hidden="true">${st.s==='done'?CHECK:st.n}</span>`;
++  a.innerHTML = `<span class="stp-n" aria-hidden="true">${st.s==='done' ? CHECK : `<span>${st.n}</span>`}</span><span class="stp-t">${st.t}</span>`;
+   pillsRow.append(a);
+ });
+-const pills = {};
++const pills = scroller($('pills-hs'));
++(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => pills.center(pillsRow.querySelector('[aria-current="step"]'), 'instant'));
+ 
+ /* video + chapters */
+ const video = $('video'), vframe = $('vframe'), chapRow = $('chaps');
+diff -ruN v4/package.json v5/package.json
+--- v4/package.json	2026-11-19 20:08:46.617844736 -0600
++++ v5/package.json	2026-11-19 20:08:46.620343305 -0600
+@@ -1,11 +1,15 @@
+ {
+-  "name": "step-page-pixel-handoff",
++  "name": "step-page-video-parity-handoff",
+   "private": true,
+   "type": "module",
+   "scripts": {
+     "build": "node harness/build.mjs",
+     "serve": "node harness/serve.mjs",
+-    "diff": "node diff/pixel-diff.mjs"
++    "diff": "node diff/pixel-diff.mjs",
++    "video-parity": "node diff/video-parity.mjs",
++    "css": "node tools/make-css.mjs",
++    "sample": "node tools/make-sample.mjs",
++    "frames": "node tools/extract-frames.mjs"
+   },
+   "dependencies": {
+     "esbuild": "^0.28.2",
+diff -ruN v4/src/StepPage.jsx v5/src/StepPage.jsx
+--- v4/src/StepPage.jsx	2026-11-19 20:08:46.617918714 -0600
++++ v5/src/StepPage.jsx	2026-11-19 20:08:46.620395806 -0600
+@@ -1,4 +1,5 @@
+-// <StepPage>: the Week 0 step player, pixel-identical to the v3 polish mockup (mockup/step-2.html).
++// <StepPage>: the Week 0 step player, pixel-identical to the v5 mockup (mockup/step-2.html), which matches
++// the recorded interaction demo (reference/interaction-demo.mp4) frame for frame.
+ //
+ // Structure and class names are the mockup's, one for one, so step-page.css (the mockup's CSS,
+ // tokenized) styles it exactly. All words come from props: `step` (the step's content) and
+@@ -14,7 +15,7 @@
+ //   videoRef     optional ref, so HlsEngine can attach the HLS source to the <video>
+ //   mockFlag     render the mockup's black "MOCKUP" bar (harness only)
+ //   review       render the mockup's text-style review section (harness only)
+-//   railPhone    'number' = optional phone rail (current pill shows its number only at <=640px). Off = mockup.
++//   railPhone    'number' = optional phone rail (current pill shows its number only at <=640px). Off = mockup and video.
+ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ import { IconSprite } from './components/Icons.jsx';
+ import { StepRail } from './components/StepRail.jsx';
+@@ -126,7 +127,7 @@
+       {mockFlag && <MockFlag />}
+       <div className="page">
+         <BackLink back={step.back} />
+-        <StepRail pills={step.pills} label={step.railLabel} currentDone={stepDone} />
++        <StepRail pills={step.pills} label={step.railLabel} currentDone={stepDone} scrollLeftLabel={labels.scrollStepsLeft} scrollRightLabel={labels.scrollStepsRight} />
+         <div className="grid">
+           <main className="main">
+             <StepHeader step={step} done={n} total={items.length} labels={labels} />
+diff -ruN v4/src/components/StepRail.jsx v5/src/components/StepRail.jsx
+--- v4/src/components/StepRail.jsx	2026-11-19 20:08:46.618105627 -0600
++++ v5/src/components/StepRail.jsx	2026-11-19 20:08:46.620443630 -0600
+@@ -1,9 +1,14 @@
+-// Step rail: compact circles. Only the current step is a full forest pill (number + title);
+-// done steps are energy check circles, upcoming are bone number circles with a forest ring.
+-// Every circle has a tooltip (data-tip, CSS ::after) and a full aria-label.
+-import { useEffect, useRef, useState } from 'react';
+-import { PillCheck } from './Icons.jsx';
++// Step rail, as recorded in interaction-demo.mp4: every step is a labeled 40px pill (number circle + title)
++// in the shared horizontal scroller (.hs: snap, 44px/24px edge fades, arrows only on a side with more).
++//   done     -> energy circle with a white check
++//   current  -> forest pill, translucent number circle (energy-bright circle with a check once the step is marked done)
++//   upcoming -> bone number circle
++//   waiting  -> dashed number circle
++// The current step is brought into view on load (no visible change for steps 1 to 3).
++import { useEffect, useLayoutEffect, useRef, useState } from 'react';
++import { Icon, PillCheck } from './Icons.jsx';
+ import { afterPaint } from './motion.js';
++import { useHScroller } from './useHScroller.js';
+ 
+ /** PillVM.status -> the mockup's data-s. */
+ const dataS = (p, currentDone) => {
+@@ -11,8 +16,9 @@
+   return p.status === 'done' ? 'done' : p.status === 'waiting' ? 'waiting' : 'up';
+ };
+ 
+-const ariaOf = (p, s) =>
+-  `Step ${p.n}, ${p.title}${s === 'done' && !p.on ? ', done' : s === 'waiting' ? ', waiting on another step' : p.on ? ', current step' : ''}`;
++/** The mockup's aria-label, fixed at load. */
++const ariaOf = (p) =>
++  `Step ${p.n}, ${p.title}${p.on ? ', current step' : p.status === 'done' ? ', done' : p.status === 'waiting' ? ', waiting on another step' : ''}`;
+ 
+ function CurrentNumber({ n, done }) {
+   // The mockup swaps the number for a check with a blur-scale (".swap.out" -> ".swap") when the step is marked done.
+@@ -26,27 +32,34 @@
+   return <span className={'swap' + (out ? ' out' : '')}><PillCheck /></span>;
+ }
+ 
+-export function StepRail({ pills, label, currentDone }) {
++export function StepRail({ pills, label, currentDone, scrollLeftLabel = 'Scroll steps left', scrollRightLabel = 'Scroll steps right' }) {
++  const hs = useHScroller();
++  const currentRef = useRef(null);
++  useLayoutEffect(() => {
++    const go = () => hs.center(currentRef.current, 'instant');
++    go();
++    document.fonts?.ready.then(go);
++  }, []); // eslint-disable-line react-hooks/exhaustive-deps
++
+   return (
+-    <nav className="steps" id="pills" aria-label={label}>
+-      {pills.map((p) => {
+-        const s = dataS(p, currentDone);
+-        // The mockup's aria-label is fixed at load; a current step reads ", current step".
+-        const aria = p.on ? `Step ${p.n}, ${p.title}, current step` : ariaOf(p, s);
+-        return (
+-          <a key={p.n} className="stp" href={p.href} onClick={p.href === '#' ? (e) => e.preventDefault() : undefined}
+-            data-s={s} data-n={p.n} data-tip={`${p.n}. ${p.title}`} aria-current={p.on ? 'step' : undefined} aria-label={aria}>
+-            {p.on ? (
+-              <span className="stp-v">
+-                <span className="stp-n" aria-hidden="true"><CurrentNumber n={p.n} done={currentDone} /></span>
+-                <span className="stp-t">{p.title}</span>
++    <div className="hs steps" id="pills-hs">
++      <button className="icon-btn hs-prev" type="button" aria-label={scrollLeftLabel} hidden={!hs.fadeL} onClick={hs.prev}><Icon name="left" /></button>
++      <nav className={'hs-row' + (hs.fadeR ? ' fade-r' : '') + (hs.fadeL ? ' fade-l' : '')} id="pills" aria-label={label} ref={hs.row}>
++        {pills.map((p) => {
++          const s = dataS(p, currentDone);
++          return (
++            <a key={p.n} ref={p.on ? currentRef : undefined} className="stp" href={p.href}
++              onClick={p.href === '#' ? (e) => e.preventDefault() : undefined}
++              data-s={s} data-n={p.n} aria-current={p.on ? 'step' : undefined} aria-label={ariaOf(p)}>
++              <span className="stp-n" aria-hidden="true">
++                {p.on ? <CurrentNumber n={p.n} done={currentDone} /> : s === 'done' ? <PillCheck /> : <span>{p.n}</span>}
+               </span>
+-            ) : (
+-              <span className="stp-v" aria-hidden="true">{s === 'done' ? <PillCheck /> : p.n}</span>
+-            )}
+-          </a>
+-        );
+-      })}
+-    </nav>
++              <span className="stp-t">{p.title}</span>
++            </a>
++          );
++        })}
++      </nav>
++      <button className="icon-btn hs-next" type="button" aria-label={scrollRightLabel} hidden={!hs.fadeR} onClick={hs.next}><Icon name="right" /></button>
++    </div>
+   );
+ }
+diff -ruN v4/src/sample-data.js v5/src/sample-data.js
+--- v4/src/sample-data.js	2026-11-19 20:08:46.617930671 -0600
++++ v5/src/sample-data.js	2026-11-19 20:08:46.620407326 -0600
+@@ -1,4 +1,4 @@
+-// Sample props for <StepPage>, built from the v3 polish mockup (mockup/step-2.html), word for word.
++// Sample props for <StepPage>, built from the mockup (mockup/step-2.html), word for word.
+ // Shapes follow the LMS view-models in apps/web/src/routes/learn/Step.vm.ts (StepVM, PillVM,
+ // ChecklistLayoutVM, CheckItemVM, CalloutVM, AccordionVM) so the real loader can fill them directly.
+ import { chapters, cues } from './sample-cues.js';
+@@ -122,6 +122,8 @@
+   chapters: 'Chapters',
+   scrollLeft: 'Scroll chapters left',
+   scrollRight: 'Scroll chapters right',
++  scrollStepsLeft: 'Scroll steps left',
++  scrollStepsRight: 'Scroll steps right',
+   showTranscript: 'Show transcript',
+   hideTranscript: 'Hide transcript',
+   copyTranscript: 'Copy transcript',
+diff -ruN v4/src/step-page.css v5/src/step-page.css
+--- v4/src/step-page.css	2026-11-19 20:08:46.617886627 -0600
++++ v5/src/step-page.css	2026-11-19 20:08:46.620364946 -0600
+@@ -1,4 +1,4 @@
+-/* Step page styles (v4 pixel handoff). GENERATED by tools/make-css.mjs from the v3 polish mockup (_build/a.css).
++/* Step page styles (v5 video-parity handoff). GENERATED by tools/make-css.mjs from mockup/step-2.html.
+    Every rule and value is the mockup's; colours are only var(--sp-*) from step-page.tokens.css.
+    The mockup's html/body rules are kept as written (html{} and body{} at the top) so the page renders identically. */
+ :where([data-step-page]),:where([data-step-page]) *{box-sizing:border-box}
+@@ -71,38 +71,30 @@
+ .hs .icon-btn[hidden]{display:grid;opacity:0;pointer-events:none}
+ @media (hover:none),(max-width:640px){.hs .icon-btn{display:none!important}.hs{--fade:24px}}
+ 
+-/* 5. step rail: compact circles (current = full pill) */
+-.steps{display:flex;align-items:center;gap:0;margin:8px 0 0;padding:0;min-width:0}
+-.stp{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:44px;height:44px;text-decoration:none;color:var(--sp-forest);-webkit-tap-highlight-color:transparent}
+-.stp-v{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-s2);block-size:32px;min-inline-size:32px;border-radius:var(--sp-r-pill);
+-  font:600 14px/1 var(--sp-font);font-variant-numeric:tabular-nums lining-nums;
+-  transition:background-color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out}
+-.stp[data-s="up"] .stp-v,.stp[data-s="waiting"] .stp-v{background:var(--sp-bone);color:var(--sp-forest);box-shadow:inset 0 0 0 1.5px var(--sp-forest)}
+-.stp[data-s="waiting"] .stp-v{box-shadow:inset 0 0 0 1.5px var(--sp-forest)}
+-.stp[data-s="done"] .stp-v{background:var(--sp-energy);color:var(--sp-white)}
+-.stp[aria-current="step"]{min-width:0;flex:0 1 auto}
+-.stp[aria-current="step"] .stp-v{background:var(--sp-forest);color:var(--sp-on-forest);padding:0 var(--sp-s3) 0 var(--sp-s2);gap:var(--sp-s2);min-inline-size:0;max-inline-size:100%}
+-.stp-n{display:grid;place-items:center;inline-size:24px;block-size:24px;border-radius:50%;background:var(--sp-on-forest-16);flex:none;position:relative;font:600 13px/1 var(--sp-font)}
++/* 5. step rail: labeled pills in the one horizontal scroller (as in interaction-demo.mp4).
++   Every step is a 40px pill: number circle + title. Done = energy circle with a check. Current = forest pill.
++   Upcoming = bone circle. Waiting = dashed circle. Arrows and edge fades come from .hs (section 6). */
++.steps{margin:8px 0 0}
++.stp{position:relative;display:inline-flex;align-items:center;gap:var(--sp-s2);height:40px;padding:0 var(--sp-s3) 0 var(--sp-s2);border-radius:var(--sp-r-pill);
++  border:var(--sp-border);background:var(--sp-surface);color:var(--sp-black);font:500 14px/1 var(--sp-font);text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;
++  transition:background-color 150ms ease-out,border-color 150ms ease-out,color 150ms ease-out,box-shadow var(--sp-t-ui) var(--sp-ease-out),transform var(--sp-t-press) ease-out}
++.stp-n{position:relative;display:grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;background:var(--sp-bone);color:var(--sp-black);
++  font:600 13px/1 var(--sp-font);font-variant-numeric:tabular-nums lining-nums;transition:background-color 150ms ease-out,color 150ms ease-out}
+ .stp-n>span{display:block}
++.stp[data-s="done"] .stp-n{background:var(--sp-energy);color:var(--sp-white)}
++.stp[data-s="waiting"] .stp-n{background:transparent;border:1px dashed var(--sp-ink-45)}
++.stp[aria-current="step"]{background:var(--sp-forest);border-color:var(--sp-forest);color:var(--sp-on-forest)}
++.stp[aria-current="step"] .stp-n{background:var(--sp-on-forest-16);color:var(--sp-on-forest)}
+ .stp[aria-current="step"][data-s="done"] .stp-n{background:var(--sp-energy-bright);color:var(--sp-forest)}
+-.stp-t{font:500 14px/1 var(--sp-font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+ .stp .stp-n .swap{position:absolute;inset:0;display:grid;place-items:center;transition:opacity 180ms ease-out,filter 180ms ease-out,transform 180ms var(--sp-ease-out)}
+ .stp .stp-n .swap.out{opacity:0;filter:blur(4px);transform:scale(.6)}
+-.stp:focus-visible{outline:none}
+-.stp:focus-visible .stp-v,.stp.is-focus .stp-v{outline:2px solid var(--sp-forest);outline-offset:2px}
+-/* tooltip */
+-.stp[data-tip]:not([aria-current="step"])::after{content:attr(data-tip);position:absolute;top:calc(100% - 2px);left:50%;translate:-50% 0;z-index:5;
+-  background:var(--sp-black);color:var(--sp-on-forest);font:500 13px/1.3 var(--sp-font);padding:7px 10px;border-radius:var(--sp-r-md);white-space:nowrap;
+-  opacity:0;pointer-events:none;transform:translateY(-3px);transition:opacity 150ms ease-out,transform 150ms var(--sp-ease-out);box-shadow:var(--sp-sh-md)}
+-.stp[data-tip]:is(:focus-visible,.is-hover,.is-focus)::after{opacity:1;transform:none}
+-@media (hover:hover){.stp[data-tip]:hover::after{opacity:1;transform:none}
+-  .stp:not([aria-current="step"]):hover .stp-v{transform:translateY(-1px);box-shadow:inset 0 0 0 1.5px var(--sp-forest),var(--sp-sh-sm)}
+-  .stp[data-s="done"]:hover .stp-v{box-shadow:var(--sp-sh-sm);background:color-mix(in oklch,var(--sp-energy) 88%,var(--sp-black))}}
+-.stp.is-hover:not([aria-current="step"]) .stp-v{transform:translateY(-1px)}
+-.stp:active .stp-v{transform:scale(.95)}
+-.stp:nth-last-child(-n+3)::after{left:auto;right:0;translate:0 0}
+-.stp::after{max-width:min(260px,calc(100vw - 32px));white-space:normal!important;inline-size:max-content}
+-@media (max-width:640px){.stp{min-width:40px}.stp-t{font-size:14px}}
++@media (hover:hover){
++  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--sp-bone);border-color:var(--sp-line-2);transform:translateY(-1px);box-shadow:var(--sp-sh-sm)}
++  .stp:not([aria-current="step"]):not([data-s="done"]):is(:hover,.is-hover) .stp-n{background:var(--sp-surface)}
++  .stp[aria-current="step"]:is(:hover,.is-hover){background:var(--sp-forest-hover)}
++}
++.stp:active{transform:scale(.97)}
++.stp:focus-visible,.stp.is-focus{outline:2px solid var(--sp-forest);outline-offset:2px}
+ 
+ /* header */
+ .head{display:flex;flex-direction:column;gap:var(--sp-s2);max-width:760px}
+@@ -331,12 +323,11 @@
+ }
+ 
+ @media (max-width:640px){.vhit{padding:0 12px 12px 0}.vgo{height:44px;padding:0 14px 0 6px;font-size:14px;gap:8px}.vgo i{width:32px;height:32px}.vgo small,.vgo .vt{display:none}.vgo{padding:0 6px}.mock-flag span+span{display:none}}
+-@media (hover:none),(max-width:640px){.stp[data-tip]:not(:focus-visible):not(.is-focus):not(.is-hover)::after{display:none}}
+ 
+-/* OPTIONAL, OFF by default: Connor's Nov 19 phone-rail note (POLISH-SPEC "Phone rail"): at 640px and
+-   narrower the current pill shows only its number. It is NOT in the mockup, so it only applies when
+-   <StepPage railPhone="number"> sets data-rail-phone="number". Turning it on changes phone-390 pixels. */
++/* OPTIONAL, OFF by default: Connor's Nov 19 phone-rail note: at 640px and narrower the current pill shows
++   only its number. It is NOT in the mockup or the video, so it only applies when <StepPage railPhone="number">
++   sets data-rail-phone="number". Turning it on changes phone-390 pixels. */
+ @media (max-width:640px){
+   [data-rail-phone="number"] .stp[aria-current="step"] .stp-t{display:none}
+-  [data-rail-phone="number"] .stp[aria-current="step"] .stp-v{padding:0 var(--sp-s1);gap:0}
++  [data-rail-phone="number"] .stp[aria-current="step"]{padding:0 7px}
+ }
+diff -ruN v4/src/step-page.tokens.css v5/src/step-page.tokens.css
+--- v4/src/step-page.tokens.css	2026-11-19 20:08:46.617906411 -0600
++++ v5/src/step-page.tokens.css	2026-11-19 20:08:46.620386497 -0600
+@@ -1,4 +1,4 @@
+-/* Step page tokens (v4 pixel handoff). GENERATED by tools/make-css.mjs from the v3 polish mockup (_build/a.css).
++/* Step page tokens (v5 video-parity handoff). GENERATED by tools/make-css.mjs from mockup/step-2.html.
+    Values are the mockup's, verbatim. Names carry --sp- because --ink, --line, --s1 etc. already mean other things in the LMS.
+    Where the LMS already has a byte-identical shared token (styles/r2.css) it is used first, with the mockup value as fallback.
+    Global stylesheet (not a module): scripts/check-css-colors.mjs only scans *.module.css, so raw values may live here. */
+@@ -30,6 +30,7 @@
+   --sp-ink-82:rgb(10 13 12 / .82);
+   --sp-ink-78:rgb(10 13 12 / .78);
+   --sp-ink-72:rgb(10 13 12 / .72);
++  --sp-ink-45:rgb(10 13 12 / .45);
+   --sp-ink-35:rgb(10 13 12 / .35);
+   --sp-ink-25:rgb(10 13 12 / .25);
+   --sp-ink-08:rgb(10 13 12 / .08);
+diff -ruN v4/tools/extract-frames.mjs v5/tools/extract-frames.mjs
+--- v4/tools/extract-frames.mjs	1969-12-31 18:00:00.000000000 -0600
++++ v5/tools/extract-frames.mjs	2026-11-19 20:08:46.621120558 -0600
+@@ -0,0 +1,30 @@
++// Rebuilds reference/frames/<state>.png from reference/interaction-demo.mp4 (needs ffmpeg on PATH).
++// Each reference image is the per-pixel average of the state's frame range in reference/states.json; those frames
++// are the same picture apart from compression noise, so the average is a cleaner reference than any one frame.
++//   node tools/extract-frames.mjs
++import { execFileSync } from 'node:child_process';
++import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { PNG } from 'pngjs';
++
++const root = new URL('..', import.meta.url).pathname;
++const spec = JSON.parse(readFileSync(join(root, 'reference/states.json'), 'utf8'));
++const video = join(root, spec.video);
++const tmp = mkdtempSync(join(tmpdir(), 'frames-'));
++execFileSync('ffmpeg', ['-v', 'error', '-i', video, join(tmp, 'f_%04d.png')]);   // f_0001.png is frame 0
++const files = readdirSync(tmp).filter((f) => f.endsWith('.png')).sort();
++mkdirSync(join(root, 'reference/frames'), { recursive: true });
++for (const s of spec.states) {
++  const [a, b] = s.frames; let acc = null, w = 0, h = 0;
++  for (let i = a; i <= b; i++) {
++    const png = PNG.sync.read(readFileSync(join(tmp, files[i])));
++    if (!acc) { w = png.width; h = png.height; acc = new Float64Array(w * h * 4); }
++    for (let k = 0; k < acc.length; k++) acc[k] += png.data[k];
++  }
++  const out = new PNG({ width: w, height: h }); const n = b - a + 1;
++  for (let k = 0; k < acc.length; k++) out.data[k] = Math.round(acc[k] / n);
++  writeFileSync(join(root, 'reference/frames', s.id + '.png'), PNG.sync.write(out));
++  console.log(`${s.id.padEnd(28)} frames ${a}-${b} (t=${(a / 25).toFixed(2)}-${(b / 25).toFixed(2)} s)`);
++}
++rmSync(tmp, { recursive: true, force: true });
+diff -ruN v4/tools/make-css.mjs v5/tools/make-css.mjs
+--- v4/tools/make-css.mjs	2026-11-19 20:08:46.618730074 -0600
++++ v5/tools/make-css.mjs	2026-11-19 20:08:46.621108493 -0600
+@@ -1,7 +1,9 @@
+-// Generates src/step-page.tokens.css and src/step-page.css from the v3 mockup's a.css.
++// Generates src/step-page.tokens.css and src/step-page.css from the mockup's own <style> block
++// (mockup/step-2.html, the v5 mockup that matches interaction-demo.mp4). `node tools/make-css.mjs`
+ // Values are copied verbatim; only names change (--x -> --sp-x) and raw colours in rules become tokens.
+ import { readFileSync, writeFileSync } from 'node:fs';
+-const A = readFileSync(new URL('../../v3-polish/_build/a.css', import.meta.url), 'utf8');
++const HTML = readFileSync(new URL('../mockup/step-2.html', import.meta.url), 'utf8');
++const A = HTML.slice(HTML.indexOf('<style>') + 7, HTML.indexOf('</style>')).replace(/^\n/, '');
+ const rootStart = A.indexOf(':root{'), rootEnd = A.indexOf('\n}', rootStart) + 2;
+ const root = A.slice(rootStart + 6, rootEnd - 2);
+ let rules = A.slice(rootEnd);
+@@ -12,14 +14,14 @@
+ // raw colours in rules -> new tokens (order matters: longest first)
+ const RAW = [
+   ['rgb(10 13 12 / .85)', 'ink-85'], ['rgb(10 13 12 / .82)', 'ink-82'], ['rgb(10 13 12 / .78)', 'ink-78'],
+-  ['rgb(10 13 12 / .72)', 'ink-72'], ['rgb(10 13 12 / .6)', 'ink-3'], ['rgb(10 13 12 / .35)', 'ink-35'],
++  ['rgb(10 13 12 / .72)', 'ink-72'], ['rgb(10 13 12 / .6)', 'ink-3'], ['rgb(10 13 12 / .45)', 'ink-45'], ['rgb(10 13 12 / .35)', 'ink-35'],
+   ['rgb(10 13 12 / .25)', 'ink-25'], ['rgb(10 13 12 / .2)', 'line-2'], ['rgb(10 13 12 / .08)', 'ink-08'],
+   ['rgb(31 77 64 / .18)', 'forest-18'], ['rgb(245 245 242 / .16)', 'on-forest-16'],
+   ['rgb(245 245 242 / .82)', 'on-forest-82'], ['rgb(245 245 242 / .1)', 'on-forest-10'],
+   ['#fff', 'white'], ['#000', 'mask'],
+ ];
+ const extra = { 'ink-85':'rgb(10 13 12 / .85)','ink-82':'rgb(10 13 12 / .82)','ink-78':'rgb(10 13 12 / .78)','ink-72':'rgb(10 13 12 / .72)',
+-  'ink-35':'rgb(10 13 12 / .35)','ink-25':'rgb(10 13 12 / .25)','ink-08':'rgb(10 13 12 / .08)','forest-18':'rgb(31 77 64 / .18)',
++  'ink-45':'rgb(10 13 12 / .45)','ink-35':'rgb(10 13 12 / .35)','ink-25':'rgb(10 13 12 / .25)','ink-08':'rgb(10 13 12 / .08)','forest-18':'rgb(31 77 64 / .18)',
+   'on-forest-16':'rgb(245 245 242 / .16)','on-forest-82':'rgb(245 245 242 / .82)','on-forest-10':'rgb(245 245 242 / .1)',
+   white:'#fff', mask:'#000 /* mask alpha only, never painted */' };
+ rules = ren(rules);
+@@ -45,7 +47,7 @@
+   return `--sp-${n}:${v};`;
+ })).join('\n');
+ const extraLines = Object.entries(extra).map(([k, v]) => `  --sp-${k}:${v};`).join('\n');
+-const tok = `/* Step page tokens (v4 pixel handoff). GENERATED by tools/make-css.mjs from the v3 polish mockup (_build/a.css).
++const tok = `/* Step page tokens (v5 video-parity handoff). GENERATED by tools/make-css.mjs from mockup/step-2.html.
+    Values are the mockup's, verbatim. Names carry --sp- because --ink, --line, --s1 etc. already mean other things in the LMS.
+    Where the LMS already has a byte-identical shared token (styles/r2.css) it is used first, with the mockup value as fallback.
+    Global stylesheet (not a module): scripts/check-css-colors.mjs only scans *.module.css, so raw values may live here. */
+@@ -56,17 +58,17 @@
+ :root{interpolate-size:allow-keywords}
+ `;
+ writeFileSync(new URL('../src/step-page.tokens.css', import.meta.url), tok);
+-const css = `/* Step page styles (v4 pixel handoff). GENERATED by tools/make-css.mjs from the v3 polish mockup (_build/a.css).
++const css = `/* Step page styles (v5 video-parity handoff). GENERATED by tools/make-css.mjs from mockup/step-2.html.
+    Every rule and value is the mockup's; colours are only var(--sp-*) from step-page.tokens.css.
+    The mockup's html/body rules are kept as written (html{} and body{} at the top) so the page renders identically. */
+ ${rules.trim()}
+ 
+-/* OPTIONAL, OFF by default: Connor's Nov 19 phone-rail note (POLISH-SPEC "Phone rail"): at 640px and
+-   narrower the current pill shows only its number. It is NOT in the mockup, so it only applies when
+-   <StepPage railPhone="number"> sets data-rail-phone="number". Turning it on changes phone-390 pixels. */
++/* OPTIONAL, OFF by default: Connor's Nov 19 phone-rail note: at 640px and narrower the current pill shows
++   only its number. It is NOT in the mockup or the video, so it only applies when <StepPage railPhone="number">
++   sets data-rail-phone="number". Turning it on changes phone-390 pixels. */
+ @media (max-width:640px){
+   [data-rail-phone="number"] .stp[aria-current="step"] .stp-t{display:none}
+-  [data-rail-phone="number"] .stp[aria-current="step"] .stp-v{padding:0 var(--sp-s1);gap:0}
++  [data-rail-phone="number"] .stp[aria-current="step"]{padding:0 7px}
+ }
+ `;
+ writeFileSync(new URL('../src/step-page.css', import.meta.url), css);
+diff -ruN v4/tools/make-sample.mjs v5/tools/make-sample.mjs
+--- v4/tools/make-sample.mjs	2026-11-19 20:08:46.618718217 -0600
++++ v5/tools/make-sample.mjs	2026-11-19 20:08:46.621097276 -0600
+@@ -1,6 +1,6 @@
+ // Builds src/sample-data.js from the mockup's own content (step-2.html), so the harness renders the same words.
+ import { readFileSync, writeFileSync } from 'node:fs';
+-const H = readFileSync(new URL('../../v3-polish/mockup/step-2.html', import.meta.url), 'utf8');
++const H = readFileSync(new URL('../mockup/step-2.html', import.meta.url), 'utf8');
+ const grab = n => JSON.parse(H.match(new RegExp(`const ${n} = (\\[.*?\\]);\\n`))[1]);
+ const un = s => s.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+ const chapters = grab('CHAPTERS').map(c => ({ t: c.t, label: un(c.label) }));
