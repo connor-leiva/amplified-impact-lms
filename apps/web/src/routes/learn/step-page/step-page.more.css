@@ -10,3 +10,49 @@
 @media (hover:hover){.seg button:not([aria-checked="true"]):is(:hover,.is-hover){background:var(--sp-bone);color:var(--sp-black)}}
 .seg button:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
 .seg button:focus-visible{outline:2px solid var(--sp-forest);outline-offset:2px}
+
+/* Checklist notes: a staff preview's line and a refused write's reason sit above the list, in the item detail's type. */
+.sp-note,.sp-fault{margin:0 0 var(--sp-s3);font:400 14px/1.5 var(--sp-font);color:var(--sp-ink-2)}
+.sp-fault{display:flex;gap:var(--sp-s2);align-items:baseline;padding:10px var(--sp-s3);border-radius:var(--sp-r-md);border:1px solid var(--sp-line-2);background:var(--sp-surface);color:var(--sp-black)}
+
+/* Checklist rows beyond the mockup's four: chips are role chips; a waiting item's chip and box are dimmer until its
+   step is done; a click path is a row of tags; the operator's count is a mono label; a copy action is the inline
+   cousin of the copy block. */
+.role.wait{background:transparent;border:1px dashed var(--sp-ink-45);color:var(--sp-ink-2)}
+.item[data-wait="true"] .check-box{border-style:dashed}
+.clickpath{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.clickpath>span{display:inline-flex;align-items:center;gap:6px}
+.clickpath .sep{color:var(--sp-ink-45);font:500 14px/1 var(--sp-font)}
+.item-note{margin:8px 0 0;font:500 13px/1 var(--sp-mono);letter-spacing:.02em;color:var(--sp-forest)}
+.copyline{display:flex;align-items:center;gap:var(--sp-s2);margin-top:12px;padding:6px 6px 6px var(--sp-s3);border:var(--sp-border);border-radius:var(--sp-r-md);background:var(--sp-bone);max-width:var(--sp-measure)}
+.copyline code{flex:1;min-width:0;font:400 14px/1.5 var(--sp-mono);color:var(--sp-black);white-space:pre-wrap;overflow-wrap:anywhere}
+.item-detail p{margin:0}
+.leading{display:grid;gap:12px;margin-bottom:12px}
+
+/* A path's content blocks: the mockup's long-step article, one per run of blocks, and its table. */
+.xblocks{display:grid;gap:12px;margin-top:12px}
+.xblocks .prose>:last-child{margin-bottom:0}
+.prose ol.rt-steps:last-child,.prose .copyblock:last-child,.prose .rt-table:last-child{margin-bottom:0}
+.rt-table{max-width:none;overflow-x:auto;margin:0 0 var(--sp-s3);border:var(--sp-border);border-radius:var(--sp-r-md)}
+.rt-table table{width:100%;border-collapse:collapse;font-size:15px}
+.rt-table th{text-align:left;font:500 13px/1.2 var(--sp-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--sp-forest);background:var(--sp-bone);padding:10px var(--sp-s3)}
+.rt-table td{padding:10px var(--sp-s3);border-top:var(--sp-border);vertical-align:top;color:var(--sp-ink-85)}
+.rt-table td:first-child{font-weight:600;color:var(--sp-black)}
+.xvideo{border-radius:var(--sp-r-lg);overflow:hidden}
+
+/* Reference rows that carry rich text, a table or a link. */
+.acc-body{padding:var(--sp-s3) var(--sp-s4) var(--sp-s4);max-width:calc(var(--sp-measure) + 48px);color:var(--sp-ink-85)}
+.acc-body p{margin:0 0 10px}.acc-body p:last-child{margin-bottom:0}
+.acc .rt-table{margin:0 var(--sp-s4) var(--sp-s4)}
+.acc-link{margin:0;padding:0 var(--sp-s4) var(--sp-s4)}
+
+/* "For this step": a row's tags and its prompt's fill-ins. */
+.res-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.res-vars{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--sp-ink-2)}
+
+/* The waiting confirm: a card like the Mark step done card, over a scrim. */
+.sp-scrim{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:var(--sp-s3);background:var(--aim-scrim)}
+.sp-dialog{width:min(440px,100%);display:grid;gap:var(--sp-s2);padding:var(--sp-s4);background:var(--sp-surface);border:var(--sp-border);border-radius:var(--sp-r-lg);box-shadow:var(--sp-sh-lg)}
+.sp-dialog .sec-h{margin-bottom:0;font-size:20px}
+.sp-dialog p{color:var(--sp-ink-2)}
+.sp-dialog .item-acts{justify-content:flex-end}

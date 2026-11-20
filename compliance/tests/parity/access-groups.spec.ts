@@ -164,7 +164,9 @@ test.describe('learner parity: an Accelerator learner gets the new portal, whole
       await page.goto(fixtureUrl(path, 'owner'));
       await page.waitForSelector('body[data-app-ready="true"]');
       await expect(h1(page), path).toHaveText(heading);
-      await expect(sidebar(page), path).toBeVisible();
+      // D-210: a step is the v6 page, drawn without the sidebar; its way out is the back link to its week.
+      if (path.includes('/step/')) await expect(page.locator('[data-step-page] a.back'), path).toHaveAttribute('href', '/learn/week/1');
+      else await expect(sidebar(page), path).toBeVisible();
     }
     await sidebar(page).getByRole('link', { name: 'Resource vault' }).click();
     await page.waitForSelector('body[data-app-ready="true"]');

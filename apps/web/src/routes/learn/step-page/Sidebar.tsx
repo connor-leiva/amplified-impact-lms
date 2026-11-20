@@ -50,14 +50,18 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
           <a key={j.id} className="rail-link" href={'#' + j.id} data-spy={j.id} aria-current={spy === j.id ? 'true' : undefined}>{j.label}</a>
         ))}
         <span className={'spy-mark' + (marker.live ? ' live' : '')} style={marker.style} aria-hidden="true" />
-        <h3 style={{ marginTop: 20 }}>{labels.checklist}</h3>
-        <div className="rail-list" id="rail-list">
-          {step.items.map((it) => (
-            <a key={it.id} className={'rail-link' + (checked[it.id] ? ' done' : '')} href="#checklist" data-for={it.id}>
-              <span className={'mini' + (checked[it.id] ? ' on' : '')}><BoxCheck size={10} /></span>{it.title}
-            </a>
-          ))}
-        </div>
+        {step.items.length > 0 && (
+          <>
+            <h3 style={{ marginTop: 20 }}>{labels.checklist}</h3>
+            <div className="rail-list" id="rail-list">
+              {step.items.map((it) => (
+                <a key={it.id} className={'rail-link' + (checked[it.id] ? ' done' : '')} href="#checklist" data-for={it.id}>
+                  <span className={'mini' + (checked[it.id] ? ' on' : '')}><BoxCheck size={10} /></span>{it.title}
+                </a>
+              ))}
+            </div>
+          </>
+        )}
         {step.due && <p className="due">{step.due}</p>}
       </nav>
       {step.forStep?.length > 0 && (
@@ -66,8 +70,13 @@ export function Sidebar({ step, spy, checked, labels }: { step: SpStep; spy: str
           {step.forStep.map((r) => (
             <div className="res" key={r.id}><span className="res-ic"><Icon name={r.icon} /></span>
               <div><b>{r.title}</b><small>{r.meta}</small>
+                {r.tags?.length ? <div className="res-tags">{r.tags.map((t) => <span key={t} className="role">{t}</span>)}</div> : null}
+                {r.vars?.length ? <div className="res-vars"><span>{labels.fillIn ?? 'Fill in'}</span>{r.vars.map((v) => <code key={v} className="rt-code">{v}</code>)}</div> : null}
                 <div className="item-acts">
-                  {r.view && <button className="btn btn-secondary btn-sm" type="button" onClick={r.onView}><Icon name="eye" size={14} /><RollLabel>{labels.view}</RollLabel></button>}
+                  {r.view && (r.href
+                    ? <a className="btn btn-secondary btn-sm" href={r.href} {...(/^https?:/.test(r.href) ? { target: '_blank', rel: 'noopener' } : {})}><Icon name="eye" size={14} /><RollLabel>{labels.view}</RollLabel></a>
+                    : <button className="btn btn-secondary btn-sm" type="button" onClick={r.onView}><Icon name="eye" size={14} /><RollLabel>{labels.view}</RollLabel></button>)}
+                  {r.download?.href && <a className="btn btn-secondary btn-sm" href={r.download.href}><Icon name="down" size={14} /><RollLabel>{labels.download ?? 'Download'}</RollLabel></a>}
                   {r.copyText != null && <CopyButton text={r.copyText} labels={labels} />}
                 </div>
               </div></div>

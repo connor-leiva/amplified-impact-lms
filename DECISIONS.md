@@ -6809,20 +6809,60 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 
 ---
 
-## D-210 · The v6 step page (brand motion), ported behind a flag
+## D-210 · The v6 step page (brand motion), on every step
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026: port the v6 brand-motion step page from its handoff (`handoff/step-page-v6/`), JSX to TSX only, behind a feature flag, and prove it with the handoff's pixel diffs. Don't turn it on for learners. Later the same day: ship it to production for the seeded test account only, and keep every default below.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026.
+- First: port the v6 brand-motion step page from its handoff (`handoff/step-page-v6/`), JSX to TSX only, behind a feature flag, and prove it with the handoff's pixel diffs.
+- Later that day: ship it to production for the seeded test account only, keeping every default below.
+- That night: carry the rules that shaped `/learn/week/0/step/2` to every learner page and to the curriculum builder, with nothing seeded in code, and decide the details consistently with past guidance in order to ship.
+
 **Number:** D-209 is rich text in the Week Builder. D-210 was free.
 
-- **Sources.** The handoff's reference video and frames, then the brand files (`ai-motion.css`, `ai-motion.tsx`), then `mockup/step-2.html`, then its `src/`. The port keeps the source's class names, ids, DOM order and CSS values. Its two stylesheets and the brand's two files ship byte for byte (sha256-tested).
-- **Who sees it.** With `VITE_STEP_PAGE_V6=true` at build time, every viewer. Unset (production and the fixture builds), only the seeded test account (D-202, `Learner.test`), so the owner can look at it live. Every other learner keeps today's player. The page's chunk and stylesheets load only when a step draws it. On a step that keeps today's player, the test account's browser console says why, once per step.
-- **Where it draws.** A step draws the v6 page only when every piece of its content is something the mockup draws: one video with chapters and a transcript, plain checklist items (play, Know These card, calendar, link), tip callouts under items, Reference accordions without a table or link, and the week's system prompt. A step with path tabs, Start Here, a download, copy or invite action, a waiting, optional or sub-checked item, extra content, a second video or a kit file keeps today's player (`v6Gap`). The builder's live preview keeps today's player.
-- **No app chrome.** On a step that draws the v6 page, the learner shell renders the page alone: no sidebar, top bar, drawer or preview bar. The shell and the step route ask one rule (`v6StepAt`).
+- **Sources.** In priority order:
+  1. the handoff's reference video and frames;
+  2. the brand files (`ai-motion.css`, `ai-motion.tsx`);
+  3. `mockup/step-2.html`, including its "Text styles for long steps";
+  4. the handoff's `src/`.
+
+  The port keeps the source's class names, ids, DOM order and CSS values. Its two stylesheets and the brand's two files ship byte for byte (sha256-tested).
+- **Who sees it.** Every learner, on every step. The build flag `VITE_STEP_PAGE_V6=false` turns it off. With it off, only the seeded test account (D-202, `Learner.test`) sees it.
+- **Where it draws.** Every step, whatever it holds. The mockup's pieces draw as the mockup draws them. What the mockup has no piece for is drawn from its own parts:
+  - **Path tabs** (Claude / ChatGPT) are one segmented control in the header's tag row. It is a radio group, and the arrow keys move between paths. The choice is remembered as the learner's path preference.
+  - **Item variants:**
+    - A download is the secondary button with the download icon.
+    - A copy action is a copy line.
+    - An invite is the arrow link.
+    - A waiting item has a dashed box, a "Waiting on Step N" chip and a confirm before it checks.
+    - A sub-checked item has small boxes under its detail; it reads "mixed" until every box is checked.
+    - A click path is a row of tags.
+    - A note sits under the detail.
+  - **A step with no checklist** draws its content under "Do this" in the mockup's long-step styles:
+    - paragraphs and rich text in `.prose`;
+    - lists as `.rt-steps`;
+    - copy blocks as `.copyblock`;
+    - tables as `.rt-table`.
+
+    A video in the content is the course player, between articles.
+  - **The step's own content:**
+    - Start Here and the live-session card sit above the video.
+    - A second video, and a layout's extras, follow the checklist.
+    - A Reference row can carry rich text, a table and a link, and its open state is remembered.
+  - **"For this step"** lists the week's system prompt (with its variables) and the step's kit files. Each file has its role tags, View and Download.
+  - **The builder's live preview** draws the v6 page, with Mark step done disabled and the staff preview note above the checklist.
+- **No app chrome.** On a step, the learner shell renders the page alone: no sidebar, top bar, drawer or preview bar. The masquerade banner and the team plan still wrap it. The frame keeps `data-learner-v2` and the learner's theme, so Dark (D-185) applies. The shell and the step route ask one rule (`v6StepAt`).
 - **Exceptions on this route, by the handoff.**
   - **Landmarks.** The page has its own `main`, a `header` without a breadcrumb `nav`, and an aside labelled "On this step", not the shell's `aside[aria-label="Primary"]`.
   - **Icons.** The page uses the mockup's own sprite (`step-page/Icons.tsx`), not `ICONS` through `<Icon>`.
-  - **Colour and type.** The two stylesheets are global, not modules. They hold the mockup's raw values, scoped to `[data-step-page]`, and some 13 to 15px phone text (HANDOFF §8.4).
+  - **Colour and type.** The stylesheets are global, not modules. They hold the mockup's raw values, scoped to `[data-step-page]`.
+    - Below 768px, `step-page.phone.css` lifts every text the mockup sets at 13 to 15px to 16px, and every control to 44px (48px for the primary button). This is the D-156 phone floor.
+    - In Dark, `step-page.dark.css` redefines every `--sp-*` colour from the design tokens' dark values.
   - **Copy.** The chrome words are the mockup's: sentence case, as in the video.
-- **Mutations.** Each box and Mark step done go through the portal's own `toggleChecklistItem` and `toggleStep`. These toggle, so a call is sent only when the wanted state differs from the last one asked for. A refused write draws the page again from the server. The video keeps HlsEngine, resume and the watched spans that D-191's auto-check reads.
-- **Not changed.** No schema, migration or course copy. No golden, tolerance or mask. With the flag off, every screen is as before for everyone but the test account.
+- **Parity (the old player's contract), kept on the new page:**
+  - **SH-7.** The step's trail is its back link to the week. The week page keeps the breadcrumb.
+  - **SH-11 and G-1.** The sidebar is checked on the week page. On the step, the back link and the masquerade banner are checked.
+  - **E-16.** The step rail is named for the week ("Where the Money Goes steps"). The current pill's name adds ", done" once the step is marked done.
+  - **E-20.** "Previous" is the step before, on the rail. The page draws no Previous button because the mockup has none.
+  - **Not drawn.** The optional chip, as on the old player.
+- **Mutations.** Each box and Mark step done go through the portal's own `toggleChecklistItem` and `toggleStep`. These toggle, so a call is sent only when the wanted state differs from the last one asked for. A refused write draws the page again from the server, in place, with the refusal in an alert above the checklist. The video keeps HlsEngine, resume and the watched spans that D-191's auto-check reads.
+- **Not changed.** No schema, migration or course copy. No golden, tolerance or mask.

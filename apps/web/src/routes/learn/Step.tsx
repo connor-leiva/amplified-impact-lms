@@ -3,7 +3,7 @@
 // the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
@@ -25,15 +25,14 @@ import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome, learnStep } from './routes';
-import { tellTestAccount, v6StepAt } from './step-page/v6';
+import { v6StepAt } from './step-page/v6';
+import { StepPageRoute } from './step-page/StepPageRoute';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM } from './WeekContent.vm';
 import s from './Learn.module.css';
 
-/** D-210: the v6 step page, in its own chunk with its stylesheets, loaded only when a step draws it (`v6StepAt`). */
-const StepPageV6 = lazy(() => import('./step-page/StepPageRoute').then((m) => ({ default: m.StepPageRoute })));
 
 function Tabs({ tabs, on, set }: { tabs: Platform[]; on: Platform; set: (p: Platform) => void }) {
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -388,17 +387,12 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     previewing: viewer.preview !== undefined,
     title: preview ? null : tabTitle(vm.week, vm.back.label, { n: step ?? 1, title: vm.title }),
   };
-  // D-210: for a viewer who may see it (the build flag, or the seeded test account), a step the v6 page draws in
-  // full renders it, chrome-free (the shell asks the same rule). The test account is told when a step does not.
+  // D-210: every step draws the v6 page, chrome-free (the shell asks the same rule), and the builder's live
+  // preview draws the same page, so a step looks the same where it is built and where it is taken.
   const path = step !== null ? learnStep(vm.week, step) : null;
-  if (!preview && path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
-    return (
-      <Suspense fallback={null}>
-        <StepPageV6 key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />
-      </Suspense>
-    );
+  if (path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
+    return <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />;
   }
-  if (!preview && path) tellTestAccount(path, course.payload, rows, viewer.actor, me, now);
   // A new step starts on its own first tab.
   return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} local={local} />;
 }

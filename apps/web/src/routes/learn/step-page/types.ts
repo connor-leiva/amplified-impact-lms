@@ -1,5 +1,8 @@
 // The props of <StepPage> (v6), typed from the handoff's sample-data.js (handoff/step-page-v6/src/sample-data.js),
 // which follows the LMS view-models in ../Step.vm.ts. StepPage.vm.ts fills them from the real loader.
+// D-210: the optional fields carry what the mockup did not draw (a path's extra content, every item action,
+// sub-checks, waiting and optional items, accordion tables and links, kit rows and files, a step with no checklist).
+import type { ReactNode } from 'react';
 
 /** One of the mockup's sprite icons (Icons.tsx). */
 export type SpIcon =
@@ -49,13 +52,18 @@ export interface SpCallout {
   kind: 'tip' | 'heads_up' | 'diy';
   label: string;
   text: string;
+  /** Rich text or glossary marks, drawn in place of `text`. */
+  node?: ReactNode;
 }
 
 export type SpAction =
-  | { type: 'play'; label: string; seconds: number }
+  | { type: 'play'; label: string; seconds: number; video?: string | null }
   | { type: 'card'; openLabel: string; closeLabel: string }
   | { type: 'calendar'; label: string; onClick?: () => void }
-  | { type: 'link'; label: string; href: string };
+  | { type: 'link'; label: string; href: string }
+  | { type: 'download'; files: { id: string; title: string; href: string | null }[] }
+  | { type: 'copy'; label: string; text: string }
+  | { type: 'invite'; label: string; href: string };
 
 export interface SpSubcheck {
   id: string;
@@ -70,10 +78,22 @@ export interface SpItem {
   detail: string | null;
   checked: boolean;
   action: SpAction | null;
+  /** A second action beside the first (a play button next to a download, say). */
+  extra?: SpAction | null;
   autoLabel?: string | null;
   card?: { id: string; term: string; short: string }[];
   subchecks: SpSubcheck[];
   callouts: SpCallout[];
+  /** Rich text or glossary marks, drawn in place of `title` / `detail`. */
+  titleNode?: ReactNode;
+  detailNode?: ReactNode;
+  /** The step number this item waits on, while that step's item is not checked. */
+  waiting?: number | null;
+  optional?: boolean;
+  /** Where to click, in order ("Settings", "Capabilities"). */
+  clickPath?: string[];
+  /** The operator's count, read-only. */
+  note?: string;
 }
 
 export interface SpAccordion {
@@ -81,6 +101,9 @@ export interface SpAccordion {
   title: string;
   open: boolean;
   body: string[];
+  bodyNode?: ReactNode;
+  table?: { head?: string[]; rows: string[][] } | null;
+  link?: { label: string; href: string } | null;
 }
 
 export interface SpLink {
@@ -103,6 +126,13 @@ export interface SpForStep {
   view: boolean;
   onView?: () => void;
   copyText: string | null;
+  /** A row that opens somewhere (a Library page, a file): View goes there. */
+  href?: string | null;
+  /** A row that downloads (a kit file): its Download button. */
+  download?: { label: string; href: string | null } | null;
+  /** The prompt's fill-ins ({{TEAM_NAME}}), shown under the row. */
+  vars?: string[];
+  tags?: string[];
 }
 
 export interface SpHelp {
@@ -136,6 +166,19 @@ export interface SpStep {
   tab?: string;
   tabsLabel?: string;
   onTab?: (id: string) => void;
+  /** Drawn above Watch: the live session, step 1's Start Here card, the path's leading callouts. */
+  lead?: ReactNode;
+  /** Drawn at the top of the checklist: the path's leading callouts. */
+  leading?: ReactNode;
+  /** Drawn under the checklist: the path's other content (paragraphs, lists, tables, copy blocks, more videos). */
+  extras?: ReactNode;
+  /** A step with no checklist: its content, under a "Do this" heading, and the line under Mark step done. */
+  blocks?: ReactNode;
+  doneWhen?: string | null;
+  /** A Reference row opened or closed (remembered per learner). */
+  onAccordion?: (index: number, open: boolean) => void;
+  /** Mark step done can't be used here (staff, a preview). */
+  markDisabled?: boolean;
 }
 
 /** The chrome words, as the mockup prints them. */
@@ -167,4 +210,13 @@ export interface SpLabels {
   checkProgress: string;
   checked: string;
   of: string;
+  doThis?: string;
+  download?: string;
+  downloaded?: string;
+  waiting?: string;
+  checkAnyway?: string;
+  notNow?: string;
+  optional?: string;
+  fillIn?: string;
+  open?: string;
 }

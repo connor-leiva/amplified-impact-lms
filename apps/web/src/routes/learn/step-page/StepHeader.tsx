@@ -63,12 +63,12 @@ export function StepHeader({ step, done, total, labels }: { step: SpStep; done: 
         ))}
         <PathTabs step={step} />
       </div>
-      <div className="prog">
+      {total > 0 && <div className="prog">
         <div className="prog-track" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label={labels.checkProgress} id="prog">
-          <div className="prog-fill" id="prog-fill" style={{ '--pct': done / total } as MotionStyle} />
+          <div className="prog-fill" id="prog-fill" style={{ '--pct': total ? done / total : 0 } as MotionStyle} />
         </div>
         <span className="prog-l" id="prog-l">{`${Math.round(shown)} ${labels.of} ${total} ${labels.checked}`}</span>
-      </div>
+      </div>}
     </header>
   );
 }
