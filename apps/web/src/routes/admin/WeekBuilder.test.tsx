@@ -348,8 +348,9 @@ describe('the live preview from the unsaved draft (D-174, D-184)', () => {
     const after = within(frame).getByRole('region', { name: 'For this step' });
     expect(after).toHaveTextContent('Spend workbook');
     expect(after).toHaveTextContent('ChatGPT only workbook');
-    expect(within(frame).getByRole('region', { name: 'Build Kit' })).toBeInTheDocument();
-    expect(within(frame).getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
+    // D-210: on the v6 step page the week's kit sits in "For this step", and "Still stuck" is its own card.
+    expect(after).toHaveTextContent('System prompt');
+    expect(within(frame).getByRole('region', { name: 'Still stuck' })).toBeInTheDocument();
   });
 
   it('an owner’s preview of Step 1 shows a checklist Download from the kit and an Invite link (D-192)', async () => {

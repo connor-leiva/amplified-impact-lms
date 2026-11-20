@@ -208,7 +208,10 @@ describe('the step player (D-177)', () => {
   it('Claude and ChatGPT tabs from the step’s own paths', async () => {
     at('/learn/week/0/step/4');
     expect(await screen.findByRole('heading', { level: 1, name: 'Get Your AI Ready' })).toBeInTheDocument();
-    expect(screen.getByText('20 min · Claude or ChatGPT · Operator')).toBeInTheDocument();
+    // D-210: the v6 header's tags carry the step's time and who.
+    const head = document.querySelector('header.head')!;
+    expect(head).toHaveTextContent('20 min');
+    expect(head).toHaveTextContent('Operator');
     const tabs = screen.getByRole('radiogroup', { name: 'Your AI' });
     expect(within(tabs).getByRole('radio', { name: 'Claude' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText('A paid Claude plan')).toBeInTheDocument();
@@ -221,17 +224,18 @@ describe('the step player (D-177)', () => {
   it('Mark step done writes through the portal’s own toggleStep, for this step’s id', async () => {
     at('/learn/week/0/step/4');
     const mark = await screen.findByRole('button', { name: 'Mark step done' });
-    expect(mark).not.toHaveAttribute('data-done');
+    expect(mark).toHaveAttribute('data-state', 'idle');
     fireEvent.click(mark);
     await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c4' }));
-    expect(screen.getByRole('link', { name: /Previous/ })).toHaveAttribute('href', '/learn/week/0/step/3');
-    expect(screen.getByRole('link', { name: /Next step/ })).toHaveAttribute('href', '/learn/week/0/step/5');
+    // D-210: the v6 page goes back with the rail and the back link, and on with the Next card.
+    expect(screen.getByRole('link', { name: /Step 3, Start Your Time Baseline/ })).toHaveAttribute('href', '/learn/week/0/step/3');
+    expect(screen.getByRole('link', { name: /Step 5 · Set Up Your AI Brain/ })).toHaveAttribute('href', '/learn/week/0/step/5');
   });
 
   it('@parity:E-16 a step already done reads Undo (D-184), and the same toggle takes it back', async () => {
     at('/learn/week/0/step/1');
     const undo = await screen.findByRole('button', { name: 'Undo' });
-    expect(undo).toHaveAttribute('data-done', 'true');
+    expect(screen.getByRole('button', { name: 'Step done' })).toHaveAttribute('data-state', 'done');
     expect(screen.queryByRole('button', { name: 'Mark step done' })).toBeNull();
     fireEvent.click(undo);
     await waitFor(() => expect(mutate).toHaveBeenCalledWith('toggleStep', { moduleId: 'accelerator-week-0', stepId: 'c1' }));
@@ -247,14 +251,17 @@ describe('the step player (D-177)', () => {
     fireEvent.click(copy);
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
     expect(String((writeText.mock.calls[0] as unknown[])[0]).length).toBeGreaterThan(40);
-    expect(await within(copy).findByText('Copied')).toBeInTheDocument();
+    expect((await within(copy).findAllByText('Copied')).length).toBeGreaterThan(0);
   });
 
-  it('For this step is hidden when the step links no Library page and has no kit item (D-189)', async () => {
+  it('For this step lists no Library page or kit item when the step links none (D-189); the week’s prompt stays (D-210)', async () => {
     at('/learn/week/0/step/3');
     await screen.findByRole('heading', { level: 1, name: 'Start Your Time Baseline' });
-    expect(screen.queryByRole('region', { name: 'For this step' })).toBeNull();
-    expect(screen.getByRole('region', { name: 'Still stuck?' })).toBeInTheDocument();
+    // D-210: the v6 card "For this step" carries the week's system prompt, as the mockup draws it, and nothing else here.
+    const card = screen.getByRole('region', { name: 'For this step' });
+    expect(card).toHaveTextContent('System prompt');
+    expect(within(card).queryAllByRole('link')).toHaveLength(0);
+    expect(screen.getByRole('region', { name: 'Still stuck' })).toBeInTheDocument();
   });
 });
 

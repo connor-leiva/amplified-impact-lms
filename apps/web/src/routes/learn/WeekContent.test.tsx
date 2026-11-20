@@ -129,17 +129,18 @@ describe('the week page’s content (D-184)', () => {
     await waitFor(() => expect(document.title).toBe(before));
   });
 
-  it('@parity:SH-7 a visible trail above the week and the step: Home, the week, the step', async () => {
+  it('@parity:SH-7 a visible way up from the step: the v6 back link to the week (D-210), and the week’s own trail', async () => {
     const router = at('/learn/week/0/step/3');
     await screen.findByRole('heading', { level: 1, name: 'Start Your Time Baseline' });
-    const main = document.querySelector('main')!;
-    const trail = within(main).getByRole('list', { name: 'Breadcrumb' });
-    expect(within(trail).getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/learn');
-    expect(within(trail).getByRole('link', { name: 'Foundations' })).toHaveAttribute('href', '/learn/week/0');
-    expect(trail).toHaveTextContent('Step 3 · Start Your Time Baseline');
-    fireEvent.click(within(trail).getByRole('link', { name: 'Foundations' }));
+    // D-210: the step page has no app chrome (HANDOFF §4.7); its trail up is the back link to the week.
+    const back = document.querySelector<HTMLAnchorElement>('[data-step-page] a.back')!;
+    expect(back).toHaveTextContent('Foundations');
+    expect(back).toHaveAttribute('href', '/learn/week/0');
+    fireEvent.click(back);
     await screen.findByRole('heading', { level: 1, name: 'Foundations' });
     expect(router.state.location.pathname).toBe('/learn/week/0');
+    const trail = within(document.querySelector('main')!).getByRole('list', { name: 'Breadcrumb' });
+    expect(within(trail).getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/learn');
   });
 });
 
@@ -192,7 +193,8 @@ describe('the build kit (D-184)', () => {
     week0().prompt = 'You set up the AI.';
     at('/learn/week/0/step/4');
     await screen.findByRole('heading', { level: 1, name: 'Get Your AI Ready' });
-    expect(within(screen.getByRole('complementary', { name: 'This step’s kit' })).getByRole('region', { name: 'Build Kit' })).toHaveTextContent('System Prompt');
+    // D-210: the v6 page's "For this step" card carries the week's system prompt.
+    expect(within(screen.getByRole('complementary', { name: 'On this step' })).getByRole('region', { name: 'For this step' })).toHaveTextContent('System prompt');
   });
 });
 

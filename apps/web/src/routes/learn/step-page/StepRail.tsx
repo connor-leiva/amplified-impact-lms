@@ -19,9 +19,9 @@ const dataS = (p: SpPill, currentDone: boolean) => {
   return p.status === 'done' ? 'done' : p.status === 'waiting' ? 'waiting' : 'up';
 };
 
-/** The mockup's aria-label, fixed at load. */
-const ariaOf = (p: SpPill) =>
-  `Step ${p.n}, ${p.title}${p.on ? ', current step' : p.status === 'done' ? ', done' : p.status === 'waiting' ? ', waiting on another step' : ''}`;
+/** The mockup's aria-label. D-210: the current step says ", done" once it is marked done, as the old player's rail did (E-16). */
+const ariaOf = (p: SpPill, currentDone: boolean) =>
+  `Step ${p.n}, ${p.title}${p.on ? (currentDone ? ', done, current step' : ', current step') : p.status === 'done' ? ', done' : p.status === 'waiting' ? ', waiting on another step' : ''}`;
 
 /** The check that draws when the current step is marked done (pathLength 1, brand aim-draw). */
 function DrawCheck() {
@@ -59,7 +59,7 @@ export function StepRail({ pills, label, currentDone, scrollLeftLabel = 'Scroll 
           return (
             <a key={p.n} ref={p.on ? currentRef : undefined} className="stp" href={p.href}
               onClick={p.href === '#' ? (e) => e.preventDefault() : undefined}
-              data-s={s} data-n={p.n} aria-current={p.on ? 'step' : undefined} aria-label={ariaOf(p)}>
+              data-s={s} data-n={p.n} aria-current={p.on ? 'step' : undefined} aria-label={ariaOf(p, currentDone)}>
               <span className="stp-n" aria-hidden="true">
                 {p.on ? <CurrentNumber n={p.n} done={currentDone} /> : s === 'done' ? <PillCheck /> : <span>{p.n}</span>}
               </span>

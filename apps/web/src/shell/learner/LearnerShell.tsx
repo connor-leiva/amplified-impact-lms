@@ -403,13 +403,14 @@ function Frame() {
   // D-210: a step that draws the v6 step page has no app chrome (no sidebar, top bar or drawer). The step
   // route asks the same rule (`v6StepAt`), so the two always agree; with VITE_STEP_PAGE_V6 off it is never true.
   if (!gate && v6StepAt(location.pathname, payload, rows, viewer.actor, me, now)) {
+    // The frame stays (its tokens and the person's theme, D-185); only the sidebar, top bar and drawer go.
     return (
-      <>
+      <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
         <TeamPlanProvider value={openPlan}>
           <Outlet context={ctx} />
         </TeamPlanProvider>
         {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
-      </>
+      </div>
     );
   }
 

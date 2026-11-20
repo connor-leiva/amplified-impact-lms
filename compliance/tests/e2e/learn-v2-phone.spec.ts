@@ -267,18 +267,16 @@ test.describe('learner portal v2, the phone pass (D-181) @g9', () => {
     await page.context().close();
   });
 
-  test('the step player’s actions at 390: Mark step done across the top, then Previous and Next step', async ({ browser }) => {
+  test('the step player’s actions at 390: Mark step done across the top, then the next step', async ({ browser }) => {
     const page = await open(browser, SCREENS[3]!, 390);
     const done = page.getByRole('button', { name: 'Mark step done' });
-    const prev = page.getByRole('link', { name: 'Previous' });
+    // D-210: the v6 page's Next card; the step before is on the step rail.
     const next = page.getByRole('link', { name: 'Next step' });
-    const [d, p, n] = await Promise.all([done.boundingBox(), prev.boundingBox(), next.boundingBox()]);
-    expect(d && p && n).toBeTruthy();
-    // The artboard's `.actb` at 390: Mark step done full width and 48px tall, above the two links.
+    const [d, n] = await Promise.all([done.boundingBox(), next.boundingBox()]);
+    expect(d && n).toBeTruthy();
+    // Mark step done 48px tall (the v6 mockup's phone width, centred in its card), above the Next card.
     expect(d!.height).toBeGreaterThanOrEqual(48);
-    expect(d!.width).toBeGreaterThan(300);
-    expect(p!.y).toBeGreaterThan(d!.y + d!.height - 1);
-    expect(Math.abs(p!.y - n!.y)).toBeLessThan(2);
+    expect(n!.y).toBeGreaterThan(d!.y + d!.height - 1);
     await page.context().close();
   });
 });

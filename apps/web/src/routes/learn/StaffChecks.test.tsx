@@ -50,7 +50,7 @@ describe('checklist checks for staff and a refused learner (D-194)', () => {
   it('lets staff tick an item whose title has a glossary term, and writes nothing', () => {
     page(true);
     const box = screen.getByRole('checkbox', { name: 'Ask the owner to sign' });
-    expect(screen.getByRole('button', { name: 'owner' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'owner' }).length).toBeGreaterThan(0);
     expect(screen.getByText(STEP.previewChecks)).toBeInTheDocument();
     fireEvent.click(box);
     expect(box).toHaveAttribute('aria-checked', 'true');

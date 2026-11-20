@@ -123,7 +123,8 @@ describe('the step player (D-177)', () => {
     const vm = stepVM(live.payload, week, 1, learner, live.now);
     if (vm.kind !== 'step') throw new Error('missing');
     expect(Object.keys(vm).sort()).toEqual(
-      ['aside', 'back', 'doneWhen', 'eyebrow', 'forStep', 'help', 'hint', 'kind', 'lede', 'mark', 'meta', 'next', 'paths', 'prev', 'rail', 'railLabel', 'tabs', 'title', 'week'].sort(),
+      // D-210: n, time, who, due and nextCard, which the v6 page's header and Next card read on every step.
+      ['aside', 'back', 'doneWhen', 'due', 'eyebrow', 'forStep', 'help', 'hint', 'kind', 'lede', 'mark', 'meta', 'n', 'next', 'nextCard', 'paths', 'prev', 'rail', 'railLabel', 'tabs', 'time', 'title', 'week', 'who'].sort(),
     );
     expect('pills' in vm).toBe(false);
     expect('layouts' in vm).toBe(false);

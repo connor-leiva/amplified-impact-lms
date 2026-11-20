@@ -425,7 +425,7 @@
       "status": "restored",
       "by": "claude/learner-pr9c-content",
       "tests": [
-        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:SH-7 a visible trail above the week and the step: Home, the week, the step",
+        "apps/web/src/routes/learn/WeekContent.test.tsx › the week page’s content (D-184) › @parity:SH-7 a visible way up from the step: the v6 back link to the week (D-210), and the week’s own trail",
         "apps/web/src/routes/learn/WeekContent.vm.test.ts › the trail and the sidebar (D-184) › @parity:SH-7 Home, the week, and the step on a step",
         "compliance/tests/e2e/learn-v2-content.spec.ts › learner portal v2, the week’s content and kit (D-184) @g9 › @parity:SH-7 the week and the step show a visible trail"
       ]

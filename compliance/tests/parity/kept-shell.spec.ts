@@ -168,9 +168,12 @@ test.describe('learner parity: the shell (KEPT)', () => {
   test('the masquerade layer wraps the new shell: its banner, and a write is blocked @parity:SH-11', async ({
     browser,
   }) => {
-    const page = await openWorld(browser, '/learn/week/1/step/1?masquerade=demo');
+    const page = await openWorld(browser, '/learn/week/1?masquerade=demo');
     await expect(page.getByRole('region', { name: 'Masquerade session' })).toBeVisible();
     await expect(sidebar(page)).toBeVisible();
+    // D-210: the step is the v6 page, drawn without the sidebar; the masquerade banner still wraps it.
+    await visit(page, '/learn/week/1/step/1?masquerade=demo');
+    await expect(page.getByRole('region', { name: 'Masquerade session' })).toBeVisible();
     await page.getByRole('button', { name: 'Mark step done' }).click();
     await expect(page.getByRole('dialog', { name: 'Blocked while masquerading' })).toBeVisible();
     await page.context().close();
@@ -359,7 +362,8 @@ test.describe('learner parity: a week and the step player (KEPT)', () => {
     await page.getByRole('link', { name: 'Next step' }).click();
     await expect(page).toHaveURL(/\/learn\/week\/1\/step\/2/);
     await expect(h1(page)).toHaveText('Answer the Flags');
-    await page.getByRole('link', { name: 'Previous', exact: true }).click();
+    // D-210: the v6 page has no Previous button: every step is a link on its step rail, so the step before is one there.
+    await page.getByRole('navigation', { name: 'Where the Money Goes steps' }).getByRole('link', { name: /^Step 1,/ }).click();
     await expect(page).toHaveURL(/\/learn\/week\/1\/step\/1/);
     await visit(page, '/learn/week/1');
     await expect(page.getByRole('link', { name: 'Continue step 1' })).toHaveAttribute('href', '/learn/week/1/step/1');

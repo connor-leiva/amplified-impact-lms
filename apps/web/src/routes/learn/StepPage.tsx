@@ -23,12 +23,12 @@ import { StepRail } from './step-page/StepRail';
 import { BackLink, StepHeader } from './step-page/StepHeader';
 import { VideoPlayer } from './step-page/VideoPlayer';
 import type { VideoTick } from './step-page/VideoPlayer';
-import { Checklist } from './step-page/Checklist';
+import { Checklist, WaitConfirm } from './step-page/Checklist';
 import { Reference } from './step-page/Reference';
 import { MarkDone, NextCard } from './step-page/StepFooter';
 import { Sidebar } from './step-page/Sidebar';
 import { scrollBehavior } from './step-page/motion';
-import type { SpLabels, SpStep } from './step-page/types';
+import type { SpItem, SpLabels, SpStep } from './step-page/types';
 
 export interface StepPageProps {
   step: SpStep;
@@ -39,14 +39,30 @@ export interface StepPageProps {
   onProgress?: (p: { videoId: string; t: number; duration: number }) => void;
   videoRef?: RefObject<HTMLVideoElement | null>;
   railPhone?: 'number';
+  /** D-210: changes when a write was refused, so the boxes go back to the server's state. */
+  sync?: number;
 }
 
-export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress, videoRef: outerVideoRef, railPhone }: StepPageProps) {
+export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress, videoRef: outerVideoRef, railPhone, sync = 0 }: StepPageProps) {
   const items = step.items;
-  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
-    const m: Record<string, boolean> = {}; items.forEach((it) => { m[it.id] = checks?.[it.id] ?? !!it.checked; }); return m;
-  });
+  // D-210: a sub-check is its own box (`<item>:<sub>`); an item with sub-checks is checked when all of them are.
+  const fromServer = () => {
+    const m: Record<string, boolean> = {};
+    items.forEach((it) => { m[it.id] = checks?.[it.id] ?? !!it.checked; it.subchecks.forEach((sub) => { m[`${it.id}:${sub.id}`] = !!sub.checked; }); });
+    return m;
+  };
+  const [checked, setChecked] = useState<Record<string, boolean>>(fromServer);
+  const [confirm, setConfirm] = useState<SpItem | null>(null);
   const [stepDone, setStepDoneState] = useState(!!step.stepDone);
+  // D-210: another path, or a write the server refused (`sync`), starts the boxes again from the server's state,
+  // in place, so focus and the page's position stay where they are.
+  const [seen, setSeen] = useState({ tab: step.tab, sync });
+  if (seen.tab !== step.tab || seen.sync !== sync) {
+    setSeen({ tab: step.tab, sync });
+    setChecked(fromServer());
+    setStepDoneState(!!step.stepDone);
+    setConfirm(null);
+  }
   const [nudge, setNudge] = useState(false);
   const [live, setLive] = useState('');
   const [tick, setTick] = useState<VideoTick>({ t: 0, force: 'instant' });
@@ -58,7 +74,11 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
   const boxRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const doneRef = useRef(stepDone); doneRef.current = stepDone;
 
-  const n = items.filter((it) => checked[it.id]).length;
+  const itemOn = useCallback((it: SpItem, c: Record<string, boolean>) => (it.subchecks.length ? it.subchecks.every((sub) => c[`${it.id}:${sub.id}`]) : !!c[it.id]), []);
+  const shown = useMemo(() => {
+    const m: Record<string, boolean> = { ...checked }; items.forEach((it) => { m[it.id] = itemOn(it, checked); }); return m;
+  }, [checked, items, itemOn]);
+  const n = items.filter((it) => shown[it.id]).length;
   const left = items.length - n;
   const locked = left > 0;
 
@@ -73,7 +93,8 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
     onStepDone?.(on);
   }, [step, onStepDone]);
 
-  const setItem = useCallback((id: string, on: boolean) => {
+  /** One box: an item, or a sub-check (`<item>:<sub>`). */
+  const setBox = useCallback((id: string, on: boolean) => {
     setChecked((c) => {
       if (!!c[id] === on) return c;
       if (!on && doneRef.current) setStep(false);
@@ -82,16 +103,25 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
     });
     setNudge(false);
   }, [onCheck, setStep]);
+  /** An item's box: all of its sub-checks when it has them. Checking an item that waits on another step asks first. */
+  const setItem = useCallback((id: string, on: boolean, asked = false) => {
+    const it = items.find((x) => x.id === id);
+    if (!it) return;
+    if (on && !asked && it.waiting != null) { setConfirm(it); return; }
+    if (it.subchecks.length) it.subchecks.forEach((sub) => setBox(`${id}:${sub.id}`, on));
+    else setBox(id, on);
+  }, [items, setBox]);
 
   const why = stepDone
     ? (step.next ? `Nice work. Step ${step.next.n} is next.` : 'Nice work.')
+    : !items.length ? (step.doneWhen ?? '')
     : left ? `Check off ${left} more to mark this step done.` : `All ${items.length} checked. You’re ready to mark this step done.`;
 
   const onMark = () => {
     if (stepDone) return;
     if (locked) {
       setNudge(true);
-      const first = items.find((it) => !checked[it.id]);
+      const first = items.find((it) => !shown[it.id]);
       const box = first && boxRefs.current[first.id];
       box?.closest('.item')?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
       box?.focus({ preventScroll: true });
@@ -105,7 +135,7 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
   const onTime = useCallback((t: number, force: VideoTick['force']) => {
     setTick({ t, force });
     const dur = videoRef.current?.duration || video?.durationS;
-    if (video?.autoCheckItem && dur && t / dur >= (video.autoAt ?? 0.9)) setItem(video.autoCheckItem, true);
+    if (video?.autoCheckItem && dur && t / dur >= (video.autoAt ?? 0.9)) setItem(video.autoCheckItem, true, true);
   }, [video, setItem, videoRef]);
   useEffect(() => {
     const v = videoRef.current; if (!v) return undefined;
@@ -127,7 +157,14 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
     onTime(t, true);
     if (andPlay) play();
   };
-  const playFrom = (t: number) => { seek(t, true); document.getElementById('watch')?.scrollIntoView({ behavior: scrollBehavior() }); };
+  const playFrom = (t: number, videoId?: string | null) => {
+    // A play mark for another video on the path plays that one (D-191), where it is.
+    if (videoId && videoId !== video?.id) {
+      const other = document.querySelector<HTMLVideoElement>(`[data-video-block][data-video-id="${CSS.escape(videoId)}"]`);
+      if (other) { other.currentTime = t; void other.play?.().catch(() => undefined); other.scrollIntoView({ behavior: scrollBehavior(), block: 'center' }); return; }
+    }
+    seek(t, true); document.getElementById('watch')?.scrollIntoView({ behavior: scrollBehavior() });
+  };
 
   // scroll-spy for On this page
   const spyIds = useMemo(() => step.jumps.map((j) => j.id), [step.jumps]);
@@ -146,22 +183,36 @@ export function StepPage({ step, labels, checks, onCheck, onStepDone, onProgress
         <div className="grid">
           <main className="main">
             <StepHeader step={step} done={n} total={items.length} labels={labels} />
+            {step.lead}
             {video && (
               <VideoPlayer video={video} labels={labels} videoRef={videoRef} tick={tick} started={started} buffering={buffering}
                 onPlay={play} onSeek={seek} transcriptKey={`w${step.week}s${step.n}-transcript`} />
             )}
-            <Checklist items={items} checked={checked} boxRefs={boxRefs} title={labels.yourChecklist}
-              onToggle={setItem} onPlay={playFrom} />
-            <Reference accordions={step.accordions} title={labels.reference} />
+            {items.length > 0 ? (
+              <Checklist items={items} checked={shown} boxRefs={boxRefs} title={labels.yourChecklist}
+                onToggle={(id, on) => setItem(id, on)} onPlay={playFrom} onSub={(itemId, subId, on) => setBox(`${itemId}:${subId}`, on)}
+                labels={labels} leading={step.leading} extras={step.extras} />
+            ) : step.blocks || step.leading || step.extras ? (
+              <section id="checklist" className="aim-rise" style={{ '--i': 3 } as MotionStyle} aria-labelledby="check-h">
+                <h2 className="sec-h" id="check-h">{labels.doThis ?? 'Do this'}</h2>
+                {step.leading}{step.blocks}{step.extras}
+              </section>
+            ) : null}
+            <Reference accordions={step.accordions} title={labels.reference} onToggle={step.onAccordion} />
             <div className="foot aim-rise" style={{ '--i': 5 } as MotionStyle} id="foot">
-              <MarkDone done={stepDone} locked={locked} why={why} nudge={nudge} onMark={onMark} onUndo={() => setStep(false)} labels={labels} />
+              <MarkDone done={stepDone} locked={locked} why={why} nudge={nudge} onMark={onMark} onUndo={() => setStep(false)} labels={labels} disabled={!!step.markDisabled} />
               <NextCard next={step.next} cue={stepDone} labels={labels} />
             </div>
             <p className="sr" aria-live="polite" id="live">{live}</p>
           </main>
-          <Sidebar step={step} spy={spy} checked={checked} labels={labels} />
+          <Sidebar step={step} spy={spy} checked={shown} labels={labels} />
         </div>
       </div>
+      {confirm && confirm.waiting != null && (
+        <WaitConfirm step={confirm.waiting} labels={labels}
+          onYes={() => { const id = confirm.id; setConfirm(null); setItem(id, true, true); }}
+          onNo={() => { const id = confirm.id; setConfirm(null); boxRefs.current[id]?.focus(); }} />
+      )}
     </div>
   );
 }

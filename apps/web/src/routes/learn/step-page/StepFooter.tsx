@@ -10,8 +10,10 @@ import { RollLabel, SignalMark } from '@brand/ai-motion';
 import { Icon, MarkCheck } from './Icons';
 import type { SpLabels, SpNext } from './types';
 
-export function MarkDone({ done, locked, why, nudge, onMark, onUndo, labels }: {
+export function MarkDone({ done, locked, why, nudge, onMark, onUndo, labels, disabled = false }: {
   done: boolean; locked: boolean; why: string; nudge: boolean; onMark: () => void; onUndo: () => void; labels: SpLabels;
+  /** D-210: staff and a builder preview can't mark a step done (the step player's `mark.disabled`). */
+  disabled?: boolean;
 }) {
   // The why line plays its arrival whenever its words change (not on first render, as in the mockup).
   const changed = useRef(false);
@@ -21,7 +23,7 @@ export function MarkDone({ done, locked, why, nudge, onMark, onUndo, labels }: {
   return (
     <div className="mark-card">
       <button className={'btn btn-primary btn-lg mark-btn aim-async' + (done ? ' is-done' : '')} type="button" id="mark" data-state={done ? 'done' : 'idle'}
-        aria-disabled={locked ? 'true' : 'false'} aria-describedby="why" onClick={onMark}>
+        aria-disabled={locked ? 'true' : 'false'} aria-describedby="why" onClick={onMark} disabled={disabled || undefined}>
         <span className="aim-async__label" id="mark-lbl" aria-hidden={done ? 'true' : 'false'}>
           <MarkCheck weight="2.2" /><RollLabel>{labels.markDone}</RollLabel>
         </span>
@@ -30,7 +32,7 @@ export function MarkDone({ done, locked, why, nudge, onMark, onUndo, labels }: {
         </span>
       </button>
       <p key={why} className={'why' + (animate ? ' msg' : '') + (nudge ? ' nudge' : '')} id="why">{why}</p>
-      <div className="done-row" id="done-row" hidden={!done}><button className="btn btn-ghost btn-sm" type="button" id="undo" onClick={onUndo}>{labels.undo}</button></div>
+      <div className="done-row" id="done-row" hidden={!done}><button className="btn btn-ghost btn-sm" type="button" id="undo" onClick={onUndo} disabled={disabled || undefined}>{labels.undo}</button></div>
     </div>
   );
 }

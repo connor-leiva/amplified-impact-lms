@@ -32,3 +32,23 @@ setViewerZone(PROGRAM_TZ);
 beforeEach(() => {
   setViewerZone(PROGRAM_TZ);
 });
+
+// D-210: the v6 step page measures and observes the page (the scroll-spy, the scrollers' edge fades, the marker)
+// with browser APIs jsdom does not have. In a unit test nothing scrolls or resizes, so these stand in as no-ops;
+// what they drive is checked in the browser suites (compliance/, handoff/step-page-v6/diff/).
+class NoopObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): [] { return []; }
+}
+const g = globalThis as Record<string, unknown>;
+if (typeof g.IntersectionObserver === 'undefined') g.IntersectionObserver = NoopObserver;
+if (typeof g.ResizeObserver === 'undefined') g.ResizeObserver = NoopObserver;
+if (typeof Element !== 'undefined') {
+  const proto = Element.prototype as unknown as Record<string, unknown>;
+  for (const name of ['scrollTo', 'scrollBy', 'scrollIntoView']) if (typeof proto[name] !== 'function') proto[name] = function noop() {};
+}
+if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
+  window.matchMedia = ((query: string) => ({ matches: false, media: query, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => false })) as typeof window.matchMedia;
+}

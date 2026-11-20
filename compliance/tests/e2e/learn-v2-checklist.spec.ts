@@ -41,7 +41,15 @@ function snapshot(): Db {
 async function open(browser: Browser, width: number): Promise<Page> {
   const ctx = await browser.newContext({ viewport: { width, height: width < 768 ? 844 : 900 }, timezoneId: 'America/Denver', colorScheme: 'light' });
   const page = await ctx.newPage();
-  await page.addInitScript(([key, db]) => localStorage.setItem(key, db), [DB_KEY, JSON.stringify(snapshot())] as const);
+  // Seeded once per tab, so a reload keeps what the page stored (the remembered accordion).
+  await page.addInitScript(
+    ([key, db]) => {
+      if (sessionStorage.getItem('seeded')) return;
+      localStorage.setItem(key, db);
+      sessionStorage.setItem('seeded', '1');
+    },
+    [DB_KEY, JSON.stringify(snapshot())] as const,
+  );
   await page.route('**/api/course', (r) => r.fulfill({ json: course }));
   await page.goto(`${APP_BASE}/learn/week/0/step/4?as=agent&now=${encodeURIComponent(LIVE)}`);
   await page.waitForSelector('body[data-app-ready="true"]');
@@ -54,17 +62,20 @@ test.describe('a checklist step (D-190)', () => {
     const page = await open(browser, 1440);
     await expect(page.getByRole('heading', { name: 'Your Checklist' })).toBeVisible();
     await expect(page.getByText('Tip')).toBeVisible();
+    // D-210: the v6 page's Mark step done is locked (aria-disabled) until every item is checked; a click still
+    // lands, and says what is left.
     const mark = page.getByRole('button', { name: 'Mark step done' });
-    await expect(mark).toBeEnabled();
-    await mark.click();
-    await expect(page.getByRole('button', { name: 'Step done' })).toHaveCount(0);
+    await expect(mark).toHaveAttribute('aria-disabled', 'true');
+    // aria-disabled, not disabled: the click is real (Playwright waits for "enabled" unless forced).
+    await mark.click({ force: true });
+    await expect(page.getByRole('button', { name: 'Step done', exact: true })).toHaveCount(0);
     await expect(page.getByText('Check off 2 more to mark this step done.')).toBeVisible();
 
     await page.getByRole('checkbox', { name: 'Watch the video' }).click();
     await page.getByRole('checkbox', { name: 'Download the skills' }).click();
-    await expect(mark).toBeEnabled();
+    await expect(mark).toHaveAttribute('aria-disabled', 'false');
     await mark.click();
-    await expect(page.getByRole('button', { name: 'Step done' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Step done', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Undo' }).click();
     await expect(page.getByRole('button', { name: 'Mark step done' })).toBeVisible();
 
@@ -75,8 +86,13 @@ test.describe('a checklist step (D-190)', () => {
     await expect(page.getByText('A paid plan, and both skills on.')).toBeVisible();
     await expectAccessible(page);
 
+    // The step page has no account menu (D-210: no app chrome), so Dark is chosen on the week page.
+    await page.goto(`${APP_BASE}/learn/week/0?as=agent&now=${encodeURIComponent(LIVE)}`);
+    await page.waitForSelector('body[data-app-ready="true"]');
     await page.getByRole('button', { name: 'Your account' }).click();
-    await page.getByRole('radio', { name: 'Dark' }).click();
+    await page.getByRole('menuitemradio', { name: 'Dark' }).click();
+    await page.goto(`${APP_BASE}/learn/week/0/step/4?as=agent&now=${encodeURIComponent(LIVE)}`);
+    await page.waitForSelector('body[data-app-ready="true"]');
     await expect(page.locator('[data-learner-v2]')).toHaveAttribute('data-lv-theme', 'dark');
     await expectAccessible(page);
 

@@ -1,0 +1,42 @@
+/* D-210 with D-185: the v6 step page in the learner's Dark theme. Every colour token the page reads is redefined from
+   the design tokens' dark values (tokens.css, turned on by the root's data-theme), exactly as styles/learner-v2.css
+   redefines R2's for the rest of the portal: no raw colour. Sizes, type, radii and motion are unchanged. The
+   curriculum builder's preview has no data-lv-theme, so it stays light. */
+:root[data-theme='dark']:has([data-lv-theme='dark'] [data-step-page]),
+:root[data-theme='dark'] [data-learner-v2][data-lv-theme='dark'] [data-step-page] {
+  --sp-forest: var(--action-primary);
+  --sp-energy: var(--action-primary);
+  /* On the primary (the Next card's kicker, the play disc, a done step's circle) it must read: the primary's ink. */
+  --sp-energy-bright: var(--action-on-primary);
+  --sp-bone: var(--bg-canvas);
+  --sp-black: var(--text-primary);
+  --sp-on-forest: var(--action-on-primary);
+  --sp-surface: var(--bg-surface);
+  --sp-forest-hover: var(--action-primary-hover);
+  --sp-bright-hover: var(--action-primary-hover);
+  --sp-forest-lift: var(--action-primary-hover);
+  --sp-tint-bright: var(--action-primary-tint);
+  --sp-tint-forest: var(--action-primary-tint);
+  --sp-ink-2: var(--text-secondary);
+  --sp-ink-3: var(--text-tertiary);
+  --sp-line: var(--line-default);
+  --sp-line-2: var(--line-strong);
+  --sp-ink-85: var(--text-primary);
+  --sp-ink-82: var(--text-primary);
+  --sp-ink-78: var(--text-secondary);
+  --sp-ink-72: var(--text-secondary);
+  --sp-ink-45: var(--text-tertiary);
+  --sp-ink-35: var(--line-strong);
+  --sp-ink-25: var(--line-strong);
+  --sp-ink-08: var(--line-subtle);
+  --sp-forest-18: var(--action-primary-line);
+  --sp-on-forest-16: color-mix(in oklch, var(--action-on-primary) 16%, transparent);
+  --sp-on-forest-82: color-mix(in oklch, var(--action-on-primary) 82%, transparent);
+  --sp-on-forest-10: color-mix(in oklch, var(--action-on-primary) 10%, transparent);
+  --sp-white: var(--action-on-primary);
+  --sp-sh-sm: var(--shadow-xs);
+  --sp-sh-md: var(--shadow-card);
+  --sp-sh-lg: var(--shadow-pop);
+}
+/* The video stays a dark picture on the dark theme, as the replay does (learner-v2.css). */
+:root[data-theme='dark'] [data-lv-theme='dark'] [data-step-page] :is(.vframe.started, .vframe video) { background: var(--bg-poster); }

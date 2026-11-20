@@ -114,11 +114,18 @@ test.describe('learner portal v2, the week’s content and kit (D-184) @g9', () 
   });
 
   test('@parity:SH-7 the week and the step show a visible trail', async ({ browser }) => {
-    const page = await open(browser, '/learn/week/1/step/2', 1440);
+    // D-210: the week keeps its trail; the step is the v6 page, drawn without the portal's chrome, and its trail is
+    // the back link to its week above the step rail.
+    const page = await open(browser, '/learn/week/1', 1440);
     const trail = page.locator('main').getByRole('list', { name: 'Breadcrumb' });
     await expect(trail).toBeVisible();
     await expect(trail.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/learn');
-    await trail.getByRole('link', { name: week1.course!.title }).click();
+    await page.goto(`${APP_BASE}/learn/week/1/step/2?as=agent&now=${encodeURIComponent(LIVE)}`);
+    await page.waitForSelector('body[data-app-ready="true"]');
+    const back = page.locator('[data-step-page] a.back');
+    await expect(back).toBeVisible();
+    await expect(back).toHaveText(week1.course!.title);
+    await back.click();
     await expect(page).toHaveURL(/\/learn\/week\/1\?|\/learn\/week\/1$/);
     await page.context().close();
   });

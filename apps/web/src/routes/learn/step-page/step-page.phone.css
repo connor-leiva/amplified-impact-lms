@@ -1,0 +1,17 @@
+/* D-210 with D-156: the LMS's phone floor on the v6 step page. On a phone (767px and under) no text is under 16px,
+   every link, button, radio and checkbox is at least 44px square, and a primary button is 48px tall, as every other
+   learner screen is held to (compliance/tests/parity/mobile-checks.ts). The selectors are every rule of
+   step-page.css and step-page.more.css whose type is under 16px (HANDOFF §8.4); above 767px the mockup's sizes stand. */
+@media (max-width:767px){
+[data-step-page] :is(
+  .auto,.back,.btn,.btn-sm,.callout,.card h3,.chip,.chip time,
+  .clickpath .sep,.copyblock header,.copyblock pre,.copyline code,.cue time,.due,.eyebrow,.item-detail,
+  .item-note,.know div,.label,.li b,.li small,.next .k,.next .m,.prog-l,
+  .rail-link,.res b,.res small,.res-vars,.role,.rt-label,.rt-quote cite,.rt-table table,
+  .rt-table th,.rt-two h4,.rt-two ul,.sec-h small,.seg button,.sp-fault,.sp-note,.stp,
+  .stp-n,.tag,.vdur,.vgo,.vgo small,.why
+){font-size:16px}
+[data-step-page] :is(a[href]:not(.inline),button,[role=radio],[role=checkbox]){min-height:44px;min-width:44px}
+[data-step-page] .btn-primary{min-height:48px}
+[data-step-page] .seg{height:auto}
+}

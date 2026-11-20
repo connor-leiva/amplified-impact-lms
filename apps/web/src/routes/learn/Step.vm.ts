@@ -129,6 +129,12 @@ export interface RailStepVM {
 export interface StepVM {
   kind: 'step';
   week: number;
+  /** D-210: the step's number, and the header's tags and Next card, for every step (checklist or not). */
+  n: number;
+  time: string | null;
+  who: string | null;
+  due: string | null;
+  nextCard: { n: number; href: string; title: string; meta: string } | null;
   back: { label: string; href: string };
   railLabel: string;
   rail: RailStepVM[];
@@ -337,9 +343,17 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
   const paths = pathsOf(s.step.paths);
   const tabs = ORDER.filter((k) => paths[k]);
   const aside = asideOf(w, r.steps, s, p.copy, opts?.fileUrl ?? (() => null));
+  const following = r.steps[s.n];
   const base: StepVM = {
     kind: 'step',
     week: r.week,
+    n: s.n,
+    time: s.step.timeLabel ?? null,
+    who: s.step.who ?? null,
+    due: r.module?.dueAt != null ? `${STEP.due} ${dueLine(r.module.dueAt)}` : null,
+    nextCard: following
+      ? { n: following.n, href: learnStep(r.week, following.n), title: stepTitle(following), meta: [following.step.who, following.step.timeLabel].filter((x): x is string => !!x).join(' · ') }
+      : null,
     back: { label: r.title, href: learnWeek(r.week) },
     railLabel: `${r.title} ${STEP.steps}`,
     rail: r.steps.map((x) => {
