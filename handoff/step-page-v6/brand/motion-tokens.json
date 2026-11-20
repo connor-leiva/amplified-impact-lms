@@ -1,0 +1,119 @@
+{
+  "name": "Amplified Impact Web · Motion",
+  "version": 1,
+  "meta": {
+    "source": "Amplified Impact Motion v1, November 2026. Extends the Motion section of the Amplified Impact Web system: one curve, the logo intro at 220, 480 and 900 ms, once per view, never loop the ring, and the final frame for reduced motion."
+  },
+  "motion": {
+    "note": "An element's normal styles are its final frame; keyframes only say where it starts. Springs are CSS linear() curves with a cubic-bezier fallback. Code: ai-motion.css and ai-motion.tsx.",
+    "tokens": [
+      {
+        "name": "aim-ease",
+        "value": "cubic-bezier(.2, .7, .2, 1)",
+        "usage": "The system's curve. Arrivals, fills and state changes."
+      },
+      {
+        "name": "aim-ease-exit",
+        "value": "cubic-bezier(.4, 0, 1, 1)",
+        "usage": "Anything leaving: starts slow and gathers speed."
+      },
+      {
+        "name": "aim-ease-spring",
+        "value": "linear(0, 0.011, 0.041, 0.087, 0.143, 0.208, 0.278, 0.351, 0.425, 0.497, 0.567, 0.634, 0.696, 0.754, 0.807, 0.854, 0.895, 0.932, 0.963, 0.989, 1.011, 1.029, 1.043, 1.053, 1.06, 1.065, 1.067, 1.068, 1.067, 1.065, 1.062, 1.058, 1.053, 1.048, 1.043, 1.038, 1.033, 1.029, 1.024, 1.02, 1.016, 1.013, 1.009, 1.007, 1.004, 1.002, 1)",
+        "fallback": "cubic-bezier(.3, 1.3, .6, 1)",
+        "usage": "Travel with a 7% overshoot: label rolls, presses, panels, toasts, rises."
+      },
+      {
+        "name": "aim-ease-land",
+        "value": "linear(0, 0.015, 0.058, 0.12, 0.198, 0.286, 0.379, 0.473, 0.567, 0.656, 0.74, 0.816, 0.884, 0.943, 0.993, 1.034, 1.066, 1.091, 1.109, 1.12, 1.125, 1.126, 1.123, 1.117, 1.108, 1.098, 1.086, 1.074, 1.063, 1.051, 1.04, 1.03, 1.02, 1.012, 1.005, 0.999, 0.995, 0.992, 0.991, 0.991, 0.992, 0.993, 0.995, 0.997, 0.998, 0.999, 1)",
+        "fallback": "cubic-bezier(.3, 1.6, .55, 1)",
+        "usage": "The dot landing, with the logo intro's slight overshoot (12%)."
+      },
+      {
+        "name": "aim-dur-press",
+        "value": "90ms",
+        "usage": "A press going down."
+      },
+      {
+        "name": "aim-dur-quick",
+        "value": "160ms",
+        "usage": "Color, border and opacity changes."
+      },
+      {
+        "name": "aim-dur-exit",
+        "value": "200ms",
+        "usage": "Anything leaving: drawers, toasts, panels."
+      },
+      {
+        "name": "aim-dur-base",
+        "value": "240ms",
+        "usage": "Small moves and line draws: checks, messages."
+      },
+      {
+        "name": "aim-dur-move",
+        "value": "380ms",
+        "usage": "Scrims and underlines."
+      },
+      {
+        "name": "aim-dur-land",
+        "value": "400ms",
+        "usage": "The dot landing."
+      },
+      {
+        "name": "aim-dur-draw",
+        "value": "420ms",
+        "usage": "A ring drawing out."
+      },
+      {
+        "name": "aim-dur-spring",
+        "value": "560ms",
+        "usage": "Springs settling: rolls, presses, drawers, toasts, rises."
+      },
+      {
+        "name": "aim-dur-fill",
+        "value": "720ms",
+        "usage": "Progress filling, and figures counting with it."
+      },
+      {
+        "name": "aim-dur-brand",
+        "value": "900ms",
+        "usage": "The logo intro, the ripple and completion moments. Once per view."
+      },
+      {
+        "name": "aim-dur-sweep",
+        "value": "1200ms",
+        "usage": "One pass of the hairline sweep, the only loader."
+      },
+      {
+        "name": "aim-rise",
+        "value": "14px",
+        "usage": "How far content travels as it arrives."
+      },
+      {
+        "name": "aim-stagger",
+        "value": "45ms",
+        "usage": "The gap between items arriving in order."
+      }
+    ]
+  },
+  "color": {
+    "tokens": [
+      {
+        "name": "aim-action-hover",
+        "value": {
+          "dark": "#93debb",
+          "light": "{forest}"
+        },
+        "usage": "Primary button fill on hover. Dark: Energy Bright lifted toward ink, Black label 13:1. Light: Forest, Bone label 8.4:1."
+      },
+      {
+        "name": "aim-scrim",
+        "value": {
+          "dark": "rgb(10 13 12 / .72)",
+          "light": "rgb(10 13 12 / .32)"
+        },
+        "usage": "Black over the page behind an open drawer. Flat, no blur."
+      }
+    ]
+  }
+}

@@ -1,0 +1,145 @@
+# PLAN: porting the v6 step page into the LMS
+
+Branch `claude/step-page-v6` (worktree `/home/user/wt-v6`), off `origin/main` `4afdb6d8`. Nothing is built yet.
+This plan comes from Phase 0 and Phase 1. The open questions are at the end.
+
+## Phase 0 result (no LMS changes)
+- **Chrome:** `/usr/bin/google-chrome` is Chrome for Testing **153.0.8010.12**, the same major version as `results/`. Node 22.23.
+- **Test A** (`npm run diff`, harness vs mockup): **22 / 22 pass, worst 0.003 %**. Identical to `results/report.json`.
+- **Test B** (`npm run video-parity -- --local mockup,harness,lms`): **72 / 72 pass**. Every state's edge and tone numbers are identical to `results/VIDEO-PARITY.md`.
+- **The one 404 in both runs** is `mockup/media/w0-02-orientation-narrated-v5.mp4`, which HANDOFF §8.9 says isn't in the package. Both pages miss it the same way, and the playing video is masked.
+- **No environment fixes** were needed.
+
+## Phase 1 recon: HANDOFF §4 and §5 against the repo (`apps/web/src`)
+| §4 item | In the repo | As described? |
+|---|---|---|
+| `routes/learn/Step.tsx` › `Player`, `vm.pills` branch | Yes, lines 102 to 180. It also draws `Crumbs`, `StepLive`, `StartHereCard`, the Claude / ChatGPT tabs (`layouts[on]`), "For this step", `BuildKit` and Still stuck. | Yes. It holds more than the mockup draws (see Q3). |
+| Non-checklist branch | Yes, lines 182 to 301 | Kept untouched |
+| `routes/learn/Checklist.tsx`: `ChecklistPlayer`, `ChecklistRail`, `ChecklistPills`, `playAt` | Yes (`playAt` at line 707). Mutations at 444 (`toggleChecklistItem`), 509 (`toggleStep`) and 517 (`setPref` for accordions). | Yes |
+| `Glossary.tsx`: `KnowCard`, `Marked`, `RichTextView` | Yes | Yes |
+| `routes/learn/Video.tsx` › `VideoView`, `HlsEngine` | `VideoView` at line 39. `HlsEngine` lives in `components/replay/HlsEngine.ts` and Video.tsx imports it. | Yes |
+| `videoBlockSource`, `courseVideoUrl`, `parseCaptionCues`, `resumeAt`, `mergeSpans`, `watchedFraction` | `components/replay/source.ts`, `data/files.ts`, `packages/core/src/video.ts` | Yes |
+| `Step.vm.ts` (`STEP`, `PillVM`, `CheckItemVM`, `ChecklistLayoutVM`, `AccordionVM`) | Yes. `PillVM.status` is the same `done / progress / waiting / idle`. | Yes |
+| `styles/global.css`, `styles/r2.css`, `styles/geist.css` | Yes | Yes |
+| `compliance/tests/e2e/tokens.spec.ts` | Yes. It asserts the exact `:root` token count against the reference (92). | Yes (see 2.2) |
+| Learner shell layout for this route | `shell/learner/LearnerShell.tsx`. The step route is a child of it and gets its data through `<Outlet context>`. | Yes. A chrome-free mode is needed (2.4). |
+| Feature flag mechanism | Build-time `VITE_*` flags, as `routes/learn/flag.ts` (D-177) did | Yes |
+| Server rendering | None. It's a Vite SPA (no `renderToString` or `hydrateRoot`). | `useLayoutEffect` is safe. There is no first-paint server render, so no isomorphic hook is needed. |
+
+### Checksums
+- **Fonts:** the LMS serves byte-identical Geist and Geist Mono (`home/fonts/*.woff2` = `mockup/fonts/*.woff2` = `design-reference/fonts/*.woff2`, sha256 `19f9c925…` and `684ad5b5…`).
+- **Brand files:** `ai-motion.css` and `ai-motion.tsx` **don't exist** in the repo yet. The package's copies in `brand/`, `src/motion/` and `mockup/` all match HANDOFF §3 (`25f4fbfb…` and `c1b8b25b…`).
+
+### Test learner (#190)
+- PR #190 is the seeded test member (D-200). D-202 added the Accelerator kind (`SEED_TEST_MEMBER_KIND=accelerator`): `users.is_test` and `early_access` open Week 0 before its dates.
+- `db:curriculum:ensure` creates it on deploy from environment variables.
+
+### Data
+- The real Week 0 step 2 checklist (four items, chapters, transcript, poster) **isn't in this repo's seed**. It was entered in production through the Week Builder.
+- Locally, test A needs step-2 data equal to the mockup's words. I'll write a local fixture from `src/sample-data.js` and `sample-cues.js`, test data only.
+- On the deployed preview, production's step 2 must match the mockup word for word. Any mismatch there is a data fix in the builder, not code.
+
+## Phase 2: files I'll add or change
+All new step-page code sits under `apps/web/src/routes/learn/step-page/`, except the two brand files.
+
+### 2.1 Brand motion files (byte-identical, checksum-tested)
+- `apps/web/src/components/motion/ai-motion.css` and `ai-motion.tsx`, copied from `src/motion/`.
+- A unit test asserts both sha256 values from HANDOFF §3, so nobody can edit them.
+- Lint, typecheck and the CSS colour check must leave them unchanged. If eslint or `tsc` flag the brand `.tsx`, the fix is a scoped override in the eslint and tsconfig settings for that one file, never an edit.
+
+### 2.2 Tokens and CSS
+- `routes/learn/step-page/step-page.tokens.css` and `step-page.css`, verbatim, imported as **global** stylesheets (not modules).
+- They load once from the step route, after `ai-motion.css`.
+- `tokens.spec.ts`: `ai-motion.css` sets `--aim-*` on `:root`. If the spec sees them, I add them to its reference list, as HANDOFF §4.1 says. I won't move them into `[data-step-page]`.
+- `scripts/check-css-colors.mjs` only scans `*.module.css` and the www folders, so the two global files aren't caught. `lms-type-floor` (the 16 px phone floor, D-156) may flag `step-page.css`: HANDOFF §8.4 notes 13 to 15 px phone text. If it does, the fix is a scoped exemption for this file, recorded in DECISIONS, not a CSS change (Q7).
+
+### 2.3 Components (JSX to TSX only: same class names, ids, DOM order and CSS)
+`StepPage.tsx` (beside `Step.tsx`, as HANDOFF §4.2 says), and in `step-page/`:
+- `StepRail.tsx`, `StepHeader.tsx` (with `BackLink`), `VideoPlayer.tsx`, `Checklist.tsx`, `Reference.tsx`
+- `StepFooter.tsx` (`MarkDone`, `NextCard`), `Sidebar.tsx`, `Icons.tsx`, `motion.ts`, `useHScroller.ts`
+
+Not shipped: `ReviewSection.jsx` (`MockFlag`, `ReviewSection`), the `mockFlag` and `review` props, and the `styles` jump. The tests add these back themselves (`diff/fixtures.mjs`). `sample-data.js` and `sample-cues.js` go to test fixtures only.
+
+### 2.4 The route without app chrome, behind the flag
+- **Flag:** a new build-time `VITE_STEP_PAGE_V6`.
+  - It's off by default and stays off in `.env.fixture`, so every existing test and golden is unchanged.
+  - A separate flag-on fixture build serves the parity tests locally.
+  - The deployed preview sets it. Production doesn't.
+- **`Step.tsx` › `Player`:** with the flag on and `vm.pills` set, render `<StepPageV6 …mapped props>` instead of today's pills branch. The non-checklist branch is untouched.
+- **`LearnerShell.tsx`:** with the flag on and the route being a checklist step, render only `<Outlet context={ctx}/>`, with no sidebar, top bar or drawer.
+  - The decision comes from a pure helper in `Step.vm.ts`: does this week have checklist steps? That's the same test that sets `vm.pills`.
+  - The data context is unchanged. `MasqueradeRoot` still wraps it.
+  - The staff "Previewing as…" bar lives in the shell's top bar, so it would disappear on this route (Q4).
+
+### 2.5 Props ← real loaders (HANDOFF §5)
+`layout = vm.layouts[on]`, where `on` is the current path tab.
+
+| v6 prop | From |
+|---|---|
+| `week`, `n` | `vm.week`, the current pill's `n` |
+| `back`, `railLabel`, `pills[]` | `vm.back`, `vm.railLabel`, `vm.pills` (`PillVM`: same status words; `on`, `href`, `title`) |
+| `eyebrow`, `title`, `lede` | `vm.eyebrow`, `vm.title`, `vm.lede` |
+| `tags[]` | `[{clock, layout.time}, {users, layout.role}, {cal, layout.due}]`, skipping any that are null |
+| `video` | `layout.videos[0]`: `id`, `title`, `poster`, `chapters`, `durationS`, `sectionLength` / `clock` (`watchLength`), `playLabel`, `cues` (`parseCaptionCues`), src through `videoBlockSource` / `courseVideoUrl`, and `autoCheckItem` / `autoAt` from the item with an `autoLabel` |
+| `items[]` | `layout.items`. `action` maps to `play` (`playLabel`, `playSeconds`), `card` (`card` terms), `calendar` (`IcsEvent`) or `link`. Callouts carry over. |
+| `accordions[]` | `layout.accordions` (`index`, `title`, `body`, `open`) |
+| `stepDone`, `next`, `due` | `vm.mark.done`, `layout.next`, `layout.due` |
+| `jumps[]` | `layout.jumps`, without `styles` |
+| `forStep[]` | `asideRows(vm.aside, on)`, mapped to `{ id, icon, title, meta, view, copyText }` |
+| `help[]` | `vm.help.email` (icon `mail`), `vm.help.officeHours` (icon `radio`) |
+| `labels` | `STEP` plus `scrollStepsLeft` "Scroll steps left" and `scrollStepsRight` "Scroll steps right". Any label the mockup has and `STEP` lacks is added to `STEP` with the mockup's exact words. |
+| `checks` | `{ [item.id]: item.checked }` |
+
+### 2.6 Mutations and video
+- **`onCheck(id, on)`:**
+  - For a learner, it calls the existing `toggleChecklistItem` only when the server's state differs (the mutation toggles). A staff preview uses the existing local toggle.
+  - `useMutate`'s toast and snapshot refetch handle a failure, so a refused write resets the box.
+- **`onStepDone(on)`:** the UI first, then `toggleStep` when `vm.mark.done !== on`.
+- **Video:**
+  - `VideoPlayer` renders `<video ref={videoRef} id="video">`.
+  - A hook ports the engine part of `VideoView` unchanged: `HlsEngine` attaches to that element; `resumeAt`; and the watched-span tracking (`mergeSpans`, `watchedFraction`) feeding `saveVideoProgress`.
+  - HLS `waiting` and `playing` drive the buffering sweep through the events `StepPage` already listens to.
+- **Transcript:** its open state stays under `localStorage['w{week}s{n}-transcript']`.
+
+## Phase 3 and the order of work
+Phase 2 follows your order: brand files, then tokens and CSS, StepRail, StepHeader, VideoPlayer, Checklist, Reference, StepFooter, Sidebar, and finally StepPage and the route. After each piece I commit, then run that piece's checks.
+
+Locally:
+- the flag-on fixture build with the step-2 fixture;
+- the test learner seeded into local Postgres with D-202's kind, so http mode has a real session;
+- a reset script that puts that learner at step 1 done, step 5 waiting, nothing checked on step 2 and no video progress, before every run;
+- the storage state from a real password sign-in.
+
+`diff/piece-review.mjs` as you specify. I'll write it once I have the rest of Phase 3 (Q1).
+
+## Decisions taken while building (defaults: confirm or change)
+The message arrived cut off in Phase 3 C, and nothing in HANDOFF §4 was missing, so I built on these defaults rather than stopping.
+
+1. **The rest of Phase 3 (C, D, E).** I don't have it. C is `diff/piece-review.mjs`: every piece × state × the six widths, at 0 differing pixels. Its pieces and states go beyond the two the message listed. D and E are not done.
+2. **Scope.** This branch does the step route only, as the hard rules say. Every Week 0 step whose content the mockup draws uses the v6 page. The rest of the LMS waits for follow-up PRs.
+3. **Content the mockup never draws.** A step keeps today's player when it has any of these: path tabs, Start Here, download, copy or invite actions, waiting, optional or sub-checked items, extras, a second video, an accordion table or link, linked skills or kit rows, kit files or fill-ins (`v6Gap`, unit-tested).
+   - Glossary underlines and rich-text formatting are drawn as plain text.
+   - The operator's count and `StepLive` are not shown on a v6 step.
+   - The builder's live preview keeps today's player.
+4. **Landmarks, icons, type floor.** These follow the handoff on this route only (D-210):
+   - no shell aside or breadcrumb;
+   - the mockup's own sprite;
+   - 13 to 15 px phone text and the mockup's button sizes, with `step-page.lms.css` countering lms.css's 44 px phone minimums inside `[data-step-page]`.
+5. **Auto-check at 90 %.** The v6 rule is ported as is: the box checks when the playhead passes 90 %. The server's D-191 watched-fraction rule still runs too.
+6. **Labels.** The chrome words are the mockup's (`V6_LABELS`, tested equal to `sampleLabels`). Where words were missing, they are generated from the data:
+   - "Week 0 steps" for the rail's label;
+   - "Open the five words" / "Hide the five words" from the card's count;
+   - the play pill's words from the video block's title;
+   - "System prompt" for the kit row.
+7. **Exemptions.**
+   - tsc reads a generated declaration file for the unchanged brand `.tsx`, through the `@brand/ai-motion` alias.
+   - The source's `eslint-disable` comments for an absent plugin are dropped.
+   - Nothing else needed one: lms-type-floor and check-css-colors don't scan global stylesheets.
+8. **The handoff folder** is committed without `node_modules` and the harness build.
+
+## Still needed from you
+- **The deployed preview.** Its URL and someone to deploy it, with `VITE_LEARNER_V2=true` and `VITE_STEP_PAGE_V6=true` at build time and the D-202 test learner's variables.
+- **Week 0 step 2 on that preview,** entered as `apps/web/src/routes/learn/step-page/test/mockup-step2.ts` has it. In particular, the video block's title is the pill's words, "Play the orientation".
+- **A way to run `compliance/step-page-v6/reset.sql`** against the preview's database.
+
+With those, the three commands in `compliance/step-page-v6/README.md` run as they do locally.

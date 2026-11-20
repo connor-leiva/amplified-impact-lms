@@ -24,6 +24,8 @@ export default tseslint.config(
       '**/dist-fixture-v2/**',
       'design-reference/**',
       'handoff-starter/**',
+      // The v6 step page's design handoff (D-210), kept verbatim: its mockup, harness and diff tools.
+      'handoff/**',
       // Design handoffs kept verbatim for reference (the mockup's own markup, styles and script).
       'docs/design/**/handoff/**',
       'compliance/goldens/**',

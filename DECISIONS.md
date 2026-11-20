@@ -6806,3 +6806,23 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 - **Phone.** A chosen size under 16px draws at 16px on a phone. Glossary terms keep their place inside styled words.
 - **Not a migration.** The document lives in the module’s checklist JSON. No golden, tolerance, or mask change.
 
+
+---
+
+## D-210 · The v6 step page (brand motion), ported behind a flag
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026: port the v6 brand-motion step page from its handoff (`handoff/step-page-v6/`), JSX to TSX only, behind a feature flag, and prove it with the handoff's pixel diffs. Don't turn it on for learners. Later the same day: ship it to production for the seeded test account only, and keep every default below.
+**Number:** D-209 is rich text in the Week Builder. D-210 was free.
+
+- **Sources.** The handoff's reference video and frames, then the brand files (`ai-motion.css`, `ai-motion.tsx`), then `mockup/step-2.html`, then its `src/`. The port keeps the source's class names, ids, DOM order and CSS values. Its two stylesheets and the brand's two files ship byte for byte (sha256-tested).
+- **Who sees it.** With `VITE_STEP_PAGE_V6=true` at build time, every viewer. Unset (production and the fixture builds), only the seeded test account (D-202, `Learner.test`), so the owner can look at it live. Every other learner keeps today's player. The page's chunk and stylesheets load only when a step draws it. On a step that keeps today's player, the test account's browser console says why, once per step.
+- **Where it draws.** A step draws the v6 page only when every piece of its content is something the mockup draws: one video with chapters and a transcript, plain checklist items (play, Know These card, calendar, link), tip callouts under items, Reference accordions without a table or link, and the week's system prompt. A step with path tabs, Start Here, a download, copy or invite action, a waiting, optional or sub-checked item, extra content, a second video or a kit file keeps today's player (`v6Gap`). The builder's live preview keeps today's player.
+- **No app chrome.** On a step that draws the v6 page, the learner shell renders the page alone: no sidebar, top bar, drawer or preview bar. The shell and the step route ask one rule (`v6StepAt`).
+- **Exceptions on this route, by the handoff.**
+  - **Landmarks.** The page has its own `main`, a `header` without a breadcrumb `nav`, and an aside labelled "On this step", not the shell's `aside[aria-label="Primary"]`.
+  - **Icons.** The page uses the mockup's own sprite (`step-page/Icons.tsx`), not `ICONS` through `<Icon>`.
+  - **Colour and type.** The two stylesheets are global, not modules. They hold the mockup's raw values, scoped to `[data-step-page]`, and some 13 to 15px phone text (HANDOFF §8.4).
+  - **Copy.** The chrome words are the mockup's: sentence case, as in the video.
+- **Mutations.** Each box and Mark step done go through the portal's own `toggleChecklistItem` and `toggleStep`. These toggle, so a call is sent only when the wanted state differs from the last one asked for. A refused write draws the page again from the server. The video keeps HlsEngine, resume and the watched spans that D-191's auto-check reads.
+- **Not changed.** No schema, migration or course copy. No golden, tolerance or mask. With the flag off, every screen is as before for everyone but the test account.

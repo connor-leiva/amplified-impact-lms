@@ -1,0 +1,395 @@
+WEBVTT
+
+NOTE Auto transcript of Connor's narration in w0-02-orientation-narrated-v5.mp4 (faster-whisper medium.en), lightly cleaned. Read it through before publishing.
+
+1
+00:00:05.440 --> 00:00:11.400
+Hi team. Welcome to step 2 of our initial setup. I'd like for you to watch this with your operator,
+
+2
+00:00:11.400 --> 00:00:15.840
+which is the teammate who sets all of this up and runs it alongside you. The goal for
+
+3
+00:00:15.840 --> 00:00:20.200
+us in this session is that we get every team at the same starting line before we
+
+4
+00:00:20.200 --> 00:00:25.320
+actually start building. Which means your AI is set up and connected to all of your
+
+5
+00:00:25.320 --> 00:00:30.040
+other tech tools, that anything that could send or change things without your approval
+
+6
+00:00:30.040 --> 00:00:36.040
+gets blocked from the start, that we do one practice hire, test the hire and ensure
+
+7
+00:00:36.040 --> 00:00:42.160
+that it can run on its own, and then lastly that all six tasks get timed out so we know
+
+8
+00:00:42.160 --> 00:00:46.560
+your benchmark for how much time you're spending on these tasks we're about to replace.
+
+9
+00:00:46.560 --> 00:00:50.760
+To make sure that we are ready for our December 2nd start date, I would love for
+
+10
+00:00:50.760 --> 00:00:56.920
+this initial setup to all be completed by Monday, November 30th. There are 8 steps
+
+11
+00:00:56.920 --> 00:01:02.760
+in this foundations course, and you are now on number 2. A few of these steps belong
+
+12
+00:01:02.760 --> 00:01:08.000
+to the owner, the primary person who purchased this course, like filling in the intake
+
+13
+00:01:08.000 --> 00:01:14.460
+form and timing out the six tasks, and then your operator, your supporter, is going
+
+14
+00:01:14.460 --> 00:01:19.600
+to take the setup steps, which means getting your AI ready, connecting your data, and
+
+15
+00:01:19.640 --> 00:01:25.280
+then putting the safety settings in place. And then the AI brain step, where we teach
+
+16
+00:01:25.280 --> 00:01:31.120
+your AI about who you are, what your business is, is one that each of you will do.
+
+17
+00:01:31.120 --> 00:01:37.280
+So let's start with how a week in this course is going to run. Every week we follow
+
+18
+00:01:37.280 --> 00:01:42.920
+the same exact loop so that you always know what's coming. Before the live builds,
+
+19
+00:01:42.920 --> 00:01:49.120
+by Tuesday night, your operator will run that week's skill. A skill is just a playbook
+
+20
+00:01:49.160 --> 00:01:55.960
+that we're going to load into your AI tool, and the owner reads what it finds or produces.
+
+21
+00:01:55.960 --> 00:02:00.680
+On Wednesday we're going to do the live build together. After the build, the first
+
+22
+00:02:00.680 --> 00:02:07.020
+run of your new AI hire is going to land in your platform, and I'll explain what
+
+23
+00:02:07.020 --> 00:02:12.600
+a hire is in just a minute. And then on Thursday we're going to hold office hours.
+
+24
+00:02:12.600 --> 00:02:18.440
+And then we wrap up the week with the checkpoint before the next build begins.
+
+25
+00:02:18.440 --> 00:02:23.520
+The live build on Wednesday is going to be 90 minutes, and here is how I plan on using
+
+26
+00:02:23.520 --> 00:02:28.240
+that time with y'all. For the first 10 minutes, we look at the question for the
+
+27
+00:02:28.240 --> 00:02:32.040
+week that we're trying to answer, which is, what is the number that we're focused
+
+28
+00:02:32.040 --> 00:02:37.840
+on and why does it matter this month? Then I will read three or four of your reports
+
+29
+00:02:37.840 --> 00:02:43.400
+live so that we can digest what it's telling you. And then we're going to move into the
+
+30
+00:02:43.400 --> 00:02:49.000
+hire lab, where we build the actual hire together. And then we close every
+
+31
+00:02:49.000 --> 00:02:53.760
+week with the commit, which is the task that the hire actually takes over and
+
+32
+00:02:53.760 --> 00:03:00.360
+who it essentially reports to. After the build, your hire's first run is going to
+
+33
+00:03:00.360 --> 00:03:06.080
+land, and then the owner is going to sign off on what it produces. On Thursday,
+
+34
+00:03:06.080 --> 00:03:09.640
+like I said, we hold office hours, which is where I'm going to support you
+
+35
+00:03:09.640 --> 00:03:14.000
+guys in getting your setup unstuck if anything isn't working correctly for you.
+
+36
+00:03:14.000 --> 00:03:18.000
+And then the checkpoint is how we confirm that the week is actually done
+
+37
+00:03:18.000 --> 00:03:21.080
+and that we've found success in what we wanted to accomplish for those
+
+38
+00:03:21.080 --> 00:03:26.680
+seven days. That means the signed seat card, a screenshot of that first run, and
+
+39
+00:03:26.680 --> 00:03:29.760
+then the minutes that the hire took over and the time that it's saving
+
+40
+00:03:29.760 --> 00:03:35.080
+you. I hope all of that is making sense. Now I want to share with you a
+
+41
+00:03:35.080 --> 00:03:41.440
+little bit about what we mean by a hire. When we say an AI hire or an AI employee,
+
+42
+00:03:41.440 --> 00:03:46.240
+we use those interchangeably, we mean a skill that runs on a schedule and
+
+43
+00:03:46.240 --> 00:03:50.720
+leaves a draft on one person's desk. The skill is the playbook that it
+
+44
+00:03:50.720 --> 00:03:55.360
+actually follows. It's SOP. The schedule is when it runs, and we're
+
+45
+00:03:55.360 --> 00:04:00.520
+going to set all of our run times in your local time. The draft is what it
+
+46
+00:04:00.520 --> 00:04:04.800
+produces, what it writes for you, and it's always something for you to check
+
+47
+00:04:04.840 --> 00:04:10.400
+before anything gets sent or anything goes to another person. And the desk is
+
+48
+00:04:10.400 --> 00:04:15.600
+the one person who that employee actually reports into. So just like
+
+49
+00:04:15.600 --> 00:04:20.880
+anyone that we would bring into a team, every hire gets a job description and
+
+50
+00:04:20.880 --> 00:04:25.640
+we call that a seat card in our terminology. It lists the hire's name,
+
+51
+00:04:25.640 --> 00:04:31.560
+who it reports to, when it runs, what it reads, the playbook and SOP that it
+
+52
+00:04:31.560 --> 00:04:36.080
+uses, what it actually produces for you, the task that it took over, what it
+
+53
+00:04:36.080 --> 00:04:41.520
+can't or shouldn't do, and its first run. So here is a real example from
+
+54
+00:04:41.520 --> 00:04:45.280
+week two, so you can see what this is going to look like. This is called
+
+55
+00:04:45.280 --> 00:04:50.720
+the lead desk monitor, and it reports to your team leader, whoever is
+
+56
+00:04:50.720 --> 00:04:54.880
+responsible for production, and it runs every weekday morning at 7am local
+
+57
+00:04:54.880 --> 00:05:00.920
+time. It leaves a list of missed leads as a Gmail draft, and it never
+
+58
+00:05:00.920 --> 00:05:05.920
+includes a client name or anything, and it can't call, text, reassign or
+
+59
+00:05:05.920 --> 00:05:12.080
+update a lead. Now let's talk about why we time the six tasks that we're
+
+60
+00:05:12.080 --> 00:05:17.480
+about to create in this course before we actually begin building their
+
+61
+00:05:17.480 --> 00:05:22.200
+replacement. Each hire that we build should be taking over one of those
+
+62
+00:05:22.200 --> 00:05:27.360
+tasks, from getting last month's numbers in front of the team owner to
+
+63
+00:05:27.360 --> 00:05:31.400
+building out the weekly meeting scorecard and recap. That is why we
+
+64
+00:05:31.400 --> 00:05:35.320
+need you to time each one in terms of how long it takes you now and
+
+65
+00:05:35.320 --> 00:05:39.920
+mark whether or not it is done, and today you'll actually mark it as
+
+66
+00:05:39.920 --> 00:05:44.320
+not done. This becomes your time baseline, and it's what we'll
+
+67
+00:05:44.320 --> 00:05:47.640
+measure each hire against, it's what I'll measure my own success
+
+68
+00:05:47.640 --> 00:05:51.000
+against, and it's what I'll measure your own performance in the course
+
+69
+00:05:51.000 --> 00:05:53.840
+against to make sure that you got out of it what you signed up for.
+
+70
+00:05:54.840 --> 00:05:58.840
+Lastly, let's talk about how we keep all of this safe. We call that
+
+71
+00:05:58.840 --> 00:06:02.280
+read and draft only. That's the frame that we are using for that.
+
+72
+00:06:02.280 --> 00:06:05.520
+So our hires, our new AI employees, can read your tools, but
+
+73
+00:06:05.520 --> 00:06:09.600
+anything that can send or change something in your system, like
+
+74
+00:06:09.600 --> 00:06:13.600
+sending an email or editing your QuickBooks gets blocked. We call
+
+75
+00:06:13.600 --> 00:06:16.960
+those write tools. That's not what we're producing. The only
+
+76
+00:06:16.960 --> 00:06:20.640
+exceptions are saving drafts and saving files to your AI office,
+
+77
+00:06:20.640 --> 00:06:23.360
+which I'll show you here at the end of our first session here.
+
+78
+00:06:24.080 --> 00:06:28.200
+On Claude, we're going to block those things from writing one tool
+
+79
+00:06:28.200 --> 00:06:31.760
+at a time. And then on ChatGBT, we actually turn off what the
+
+80
+00:06:31.760 --> 00:06:34.800
+plugins let us and we add one line to your instructions that
+
+81
+00:06:34.800 --> 00:06:40.160
+covers the rest. This is how your instructions for the financial
+
+82
+00:06:40.160 --> 00:06:44.960
+analyst end. It clearly states for it, you are to read only,
+
+83
+00:06:45.000 --> 00:06:50.080
+never change the books, never send. And every seat card spells
+
+84
+00:06:50.080 --> 00:06:53.080
+out that same type of thing of what the hire can't do. And
+
+85
+00:06:53.080 --> 00:06:55.920
+those limits are what we're going to consider our guardrails.
+
+86
+00:06:56.560 --> 00:07:01.040
+So the moral of the story is that the hire is going to draft
+
+87
+00:07:01.080 --> 00:07:06.200
+the actual output and then the owner is going to decide on if
+
+88
+00:07:06.200 --> 00:07:10.720
+this meets the standard that you all are are carrying. All
+
+89
+00:07:10.720 --> 00:07:13.240
+of this is going to live in what we call the AI office that
+
+90
+00:07:13.240 --> 00:07:16.160
+I mentioned, which is a folder in your Google Drive.
+
+91
+00:07:16.640 --> 00:07:19.480
+Your hires are going to read from it and save to it and
+
+92
+00:07:19.480 --> 00:07:22.440
+any exports you pull from other tools are going to go into
+
+93
+00:07:22.440 --> 00:07:26.520
+its inbox folder as well. So that's how a week is going to
+
+94
+00:07:26.520 --> 00:07:29.200
+run and what a hire is and just some context around how
+
+95
+00:07:29.200 --> 00:07:32.200
+this is going to flow. If anything comes up, please don't
+
+96
+00:07:32.200 --> 00:07:35.840
+hesitate to reach out to me. Next, we're going to get
+
+97
+00:07:35.840 --> 00:07:39.840
+your time baseline started so we know how many hours this
+
+98
+00:07:39.880 --> 00:07:41.640
+entire experience is meant to save you.

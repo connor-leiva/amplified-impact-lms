@@ -1,0 +1,550 @@
+/* ==========================================================================
+   Amplified Impact Motion · ai-motion.css · v1
+   A CSS-first motion layer for the Amplified Impact Web design system.
+
+   Load it after the system's tokens and components/bundle.css. Every color,
+   space and radius comes from the system's tokens; this file adds motion
+   tokens (--aim-*) and two theme values the system doesn't have yet.
+
+   One rule runs through the file: an element's normal styles are its final
+   frame, and keyframes only say where it starts. With motion reduced, every
+   animation jumps to its end and the screen is complete at rest.
+   ========================================================================== */
+
+/* @section tokens */
+:root {
+  /* Curves */
+  --aim-ease: cubic-bezier(.2, .7, .2, 1);          /* the system's curve: arrivals and state changes */
+  --aim-ease-exit: cubic-bezier(.4, 0, 1, 1);        /* leaving: gathers speed and goes */
+  --aim-ease-spring: cubic-bezier(.3, 1.3, .6, 1);   /* travel, 7% overshoot (fallback; real spring below) */
+  --aim-ease-land: cubic-bezier(.3, 1.6, .55, 1);    /* the dot landing, 12% overshoot (fallback) */
+
+  /* Durations */
+  --aim-dur-press: 90ms;     /* a press going down */
+  --aim-dur-quick: 160ms;    /* color, border and opacity */
+  --aim-dur-base: 240ms;     /* small moves and line draws */
+  --aim-dur-move: 380ms;     /* scrims and underlines */
+  --aim-dur-exit: 200ms;     /* anything leaving */
+  --aim-dur-land: 400ms;     /* the dot landing */
+  --aim-dur-draw: 420ms;     /* a ring drawing out */
+  --aim-dur-spring: 560ms;   /* springs settling: rolls, presses, panels, rises */
+  --aim-dur-fill: 720ms;     /* progress filling */
+  --aim-dur-brand: 900ms;    /* logo intro, ripple, completions */
+  --aim-dur-sweep: 1200ms;   /* one pass of a loader */
+
+  /* Distance and rhythm */
+  --aim-rise: 14px;          /* how far content travels in */
+  --aim-stagger: 45ms;       /* between items arriving in order */
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --aim-ease-spring: linear(0, 0.011, 0.041, 0.087, 0.143, 0.208, 0.278, 0.351, 0.425, 0.497, 0.567, 0.634, 0.696, 0.754, 0.807, 0.854, 0.895, 0.932, 0.963, 0.989, 1.011, 1.029, 1.043, 1.053, 1.06, 1.065, 1.067, 1.068, 1.067, 1.065, 1.062, 1.058, 1.053, 1.048, 1.043, 1.038, 1.033, 1.029, 1.024, 1.02, 1.016, 1.013, 1.009, 1.007, 1.004, 1.002, 1);
+    --aim-ease-land: linear(0, 0.015, 0.058, 0.12, 0.198, 0.286, 0.379, 0.473, 0.567, 0.656, 0.74, 0.816, 0.884, 0.943, 0.993, 1.034, 1.066, 1.091, 1.109, 1.12, 1.125, 1.126, 1.123, 1.117, 1.108, 1.098, 1.086, 1.074, 1.063, 1.051, 1.04, 1.03, 1.02, 1.012, 1.005, 0.999, 0.995, 0.992, 0.991, 0.991, 0.992, 0.993, 0.995, 0.997, 0.998, 0.999, 1);
+  }
+}
+
+/* Two theme values the system doesn't have yet */
+:root, [data-theme="dark"] {
+  --aim-action-hover: #93debb;          /* Energy Bright lifted toward ink; Black label stays 13:1 */
+  --aim-scrim: rgb(10 13 12 / .72);     /* Black over the page behind a drawer */
+}
+[data-theme="light"] {
+  --aim-action-hover: #1f4d40;          /* Forest; Bone label stays 8.4:1 */
+  --aim-scrim: rgb(10 13 12 / .32);
+}
+/* @end */
+
+/* @section reduced */
+/* Reduced motion: everything jumps to its final frame, loops stop at rest.
+   Put .aim-reduced on <html> or any ancestor to honor an in-app "Reduce motion" setting. */
+@media (prefers-reduced-motion: reduce) {
+  :where([class*="aim-"], [class*="aim-"] *, [class*="aim-"]::before, [class*="aim-"]::after, [class*="aim-"] *::before, [class*="aim-"] *::after) {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
+}
+.aim-reduced, .aim-reduced *, .aim-reduced *::before, .aim-reduced *::after {
+  animation-duration: 1ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  transition-delay: 0s !important;
+}
+/* @end */
+
+/* @section foundations */
+@keyframes aim-fade { from { opacity: 0; } }
+@keyframes aim-fade-out { to { opacity: 0; } }
+@keyframes aim-rise { from { opacity: 0; transform: translateY(var(--aim-rise)); } }
+@keyframes aim-in-x { from { opacity: 0; transform: translateX(var(--aim-rise)); } }
+@keyframes aim-land { from { opacity: 0; transform: translateY(-150%) scale(.5); } 30% { opacity: 1; } }
+@keyframes aim-draw { from { stroke-dashoffset: 1; } }
+@keyframes aim-ring-out { from { opacity: 0; transform: scale(.3); } }
+@keyframes aim-wave { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(3.2); } }
+@keyframes aim-shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+/* Rise: content arriving in order. Give each block style="--i: 0", "--i: 1"… */
+.aim-rise {
+  animation: aim-rise var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+  animation-delay: calc(var(--i, 0) * var(--aim-stagger));
+}
+
+/* The mark: the brand's dot inside a ring, the same geometry as the Eyebrow mark.
+   The ring needs pathLength="1" so it can draw. */
+.aim-mark { display: block; flex: none; overflow: visible; }
+.aim-mark__ring {
+  fill: none; stroke: var(--aim-mark, var(--signal)); stroke-width: 1.5;
+  stroke-dasharray: 1 1;
+  transform: rotate(-90deg); transform-box: fill-box; transform-origin: center;
+}
+.aim-mark__dot { fill: var(--aim-mark, var(--signal)); transform-box: fill-box; transform-origin: center; }
+.aim-mark__wave {
+  fill: none; stroke: var(--aim-mark, var(--signal)); stroke-width: 1.5; vector-effect: non-scaling-stroke;
+  opacity: 0; transform-box: fill-box; transform-origin: center;
+}
+/* .aim-mark--play lands the dot, then draws the ring, every time it mounts */
+.aim-mark--play .aim-mark__dot { animation: aim-land var(--aim-dur-land) var(--aim-ease-land) backwards; }
+.aim-mark--play .aim-mark__ring { animation: aim-draw var(--aim-dur-draw) var(--aim-ease) 180ms backwards; }
+
+/* Hairline sweep: the one loader. A short segment runs along a hairline.
+   It takes currentColor; set --aim-track to change the track. At rest it sits centered. */
+.aim-sweep {
+  --aim-seg: .34;
+  position: relative; display: block; height: 2px; overflow: hidden;
+  background: var(--aim-track, color-mix(in srgb, currentColor 22%, transparent));
+}
+.aim-sweep::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+  width: calc(var(--aim-seg) * 100%); background: currentColor;
+  transform: translateX(calc((1 / var(--aim-seg) - 1) * 50%));
+  animation: aim-sweep var(--aim-dur-sweep) infinite;
+}
+@keyframes aim-sweep {
+  0%   { transform: translateX(-100%) scaleX(.5); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  50%  { transform: translateX(calc((1 / var(--aim-seg) - 1) * 50%)) scaleX(1.25); animation-timing-function: cubic-bezier(0, .55, .45, 1); }
+  100% { transform: translateX(calc(100% / var(--aim-seg))) scaleX(.5); }
+}
+/* @end */
+
+/* @section 01 */
+/* Primary button: hover rolls the label and warms the fill; press squeezes, release springs back.
+   .aim-press works on any .aiw-btn. .aim-roll needs the label twice, the copy aria-hidden. */
+.aim-press {
+  transition:
+    transform var(--aim-dur-spring) var(--aim-ease-spring),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease);
+}
+.aim-press:active:where(:not(:disabled, [aria-disabled="true"], [aria-busy="true"])) {
+  transform: scale(.96);
+  transition-duration: var(--aim-dur-press);
+  transition-timing-function: var(--aim-ease);
+}
+
+.aim-roll { display: inline-grid; overflow: hidden; }
+.aim-roll > * { grid-area: 1 / 1; transition: transform var(--aim-dur-spring) var(--aim-ease-spring); }
+.aim-roll > * + * { transform: translateY(110%); }
+@media (hover: hover) {
+  :is(a, button):where(:not(:disabled, [aria-busy="true"])):hover .aim-roll > :first-child { transform: translateY(-110%); }
+  :is(a, button):where(:not(:disabled, [aria-busy="true"])):hover .aim-roll > * + * { transform: none; }
+  .aiw-btn--primary.aim-press:where(:not(:disabled, [aria-busy="true"])):hover { background-color: var(--aim-action-hover); }
+}
+:is(a, button):focus-visible .aim-roll > :first-child { transform: translateY(-110%); }
+:is(a, button):focus-visible .aim-roll > * + * { transform: none; }
+/* @end */
+
+/* @section 02 */
+/* Secondary button: the outline firms to ink while the label rolls (uses .aim-press and .aim-roll).
+   Text link: an accent line draws in from the left over the outline, then leaves to the right. */
+@media (hover: hover) {
+  .aiw-btn--secondary.aim-press:hover { border-color: var(--ink); }
+}
+.aim-link { position: relative; transition: color var(--aim-dur-quick) var(--aim-ease); }
+.aim-link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: currentColor;
+  transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform var(--aim-dur-move) var(--aim-ease);
+}
+@media (hover: hover) {
+  .aim-link:hover { color: var(--accent); border-bottom-color: var(--outline); }
+  .aim-link:hover::after { transform: none; transform-origin: 0 50%; }
+}
+.aim-link:focus-visible::after { transform: none; transform-origin: 0 50%; }
+/* @end */
+
+/* @section 03 */
+/* Async button: idle → busy → done, or error. The layers share one grid cell so the width
+   never jumps. Busy shows the hairline sweep; done lands the dot and draws the ring once. */
+.aim-async { display: inline-grid; place-items: center; }
+.aim-async.aiw-btn--full { display: grid; }
+.aim-async > * { grid-area: 1 / 1; }
+.aiw-btn--primary { --aim-mark: var(--on-action); }
+.aim-async__label,
+.aim-async__done {
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: transform var(--aim-dur-spring) var(--aim-ease-spring), opacity var(--aim-dur-quick) var(--aim-ease);
+}
+.aim-async__done { opacity: 0; transform: translateY(80%); }
+.aim-async__done .aim-mark { width: 18px; height: 18px; }
+.aim-async > .aim-sweep { width: 56px; opacity: 0; transition: opacity var(--aim-dur-quick) var(--aim-ease); }
+
+.aim-async:is([data-state="busy"], [data-state="done"]) .aim-async__label { opacity: 0; transform: translateY(-80%); }
+.aim-async[data-state="busy"] > .aim-sweep { opacity: 1; transition-delay: 90ms; }
+.aim-async[data-state="done"] .aim-async__done { opacity: 1; transform: none; }
+.aim-async[data-state="done"] .aim-mark__dot { animation: aim-land var(--aim-dur-land) var(--aim-ease-land) 60ms backwards; }
+.aim-async[data-state="done"] .aim-mark__ring { animation: aim-draw var(--aim-dur-draw) var(--aim-ease) 240ms backwards; }
+.aim-async[data-state="error"] { animation: aim-shake 420ms var(--aim-ease); }
+/* @end */
+
+/* @section 04 */
+/* Page loader: rides the header's own hairline. Place .aim-bar inside the header
+   (the system's .aiw-header is position: relative). Sweep while unknown, fill when known. */
+.aim-bar {
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  color: var(--ink); pointer-events: none;
+}
+.aim-bar > .aim-sweep { --aim-track: transparent; --aim-seg: .22; height: 100%; }
+.aim-bar__fill {
+  position: absolute; inset: 0; background: currentColor;
+  transform: scaleX(var(--aim-progress, 0)); transform-origin: 0 50%;
+  transition: transform var(--aim-dur-fill) var(--aim-ease), opacity var(--aim-dur-base) var(--aim-ease);
+}
+.aim-bar[data-state="done"] .aim-bar__fill { animation: aim-bar-done 640ms var(--aim-ease) forwards; }
+@keyframes aim-bar-done {
+  0%   { transform: scaleX(var(--aim-progress, 0)); }
+  55%  { transform: none; opacity: 1; }
+  100% { transform: none; opacity: 0; }
+}
+/* @end */
+
+/* @section 05 */
+/* Drawer: slides in from the right on a spring; it is drawn wider than it shows (--aim-overdraw)
+   so the overshoot never opens a gap at the edge. Contents follow in order (.aim-in, --i). */
+.aim-drawer { --aim-overdraw: 40px; position: fixed; inset: 0; z-index: 60; }
+.aim-drawer__scrim {
+  position: absolute; inset: 0; background: var(--aim-scrim);
+  animation: aim-fade var(--aim-dur-move) var(--aim-ease) backwards;
+}
+.aim-drawer__panel {
+  position: absolute; top: 0; bottom: 0; right: calc(-1 * var(--aim-overdraw));
+  box-sizing: content-box; width: min(440px, 100% - 40px); padding-right: var(--aim-overdraw);
+  display: flex; flex-direction: column;
+  background: var(--surface-raised); border-left: 1px solid var(--line); color: var(--ink);
+  outline: none;
+  animation: aim-drawer-in var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+}
+@keyframes aim-drawer-in { from { transform: translateX(100%); } }
+@keyframes aim-drawer-out { to { transform: translateX(100%); } }
+.aim-drawer[data-state="closing"] .aim-drawer__scrim { animation: aim-fade-out var(--aim-dur-exit) var(--aim-ease-exit) forwards; }
+.aim-drawer[data-state="closing"] .aim-drawer__panel { animation: aim-drawer-out var(--aim-dur-exit) var(--aim-ease-exit) forwards; }
+
+.aim-drawer__head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-16, 16px);
+  padding: var(--space-28, 28px) var(--space-28, 28px) var(--space-20, 20px); border-bottom: 1px solid var(--line);
+}
+.aim-drawer__body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-8, 8px) var(--space-28, 28px) var(--space-28, 28px); }
+.aim-drawer__close {
+  flex: none; padding: 4px 0; border: 0; background: none; cursor: pointer;
+  font: 400 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-secondary);
+  transition: color var(--aim-dur-quick) var(--aim-ease);
+}
+.aim-drawer__close:hover { color: var(--ink); }
+.aim-drawer__close:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.aim-drawer .aim-in {
+  animation: aim-in-x var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+  animation-delay: calc(140ms + var(--i, 0) * var(--aim-stagger));
+}
+.aim-drawer[data-state="closing"] .aim-in { animation: none; }
+/* @end */
+
+/* @section 06 */
+/* Toast: rises in on a spring, the dot lands and the ring draws, a hairline timer runs out.
+   Hover or focus pauses it. It leaves faster than it came. */
+.aim-toasts {
+  position: fixed; z-index: 70; display: grid; gap: 12px; justify-items: end;
+  right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+.aim-toast {
+  position: relative; overflow: hidden; box-sizing: border-box;
+  display: flex; align-items: center; gap: 14px; width: min(380px, 100vw - 48px);
+  padding: 16px 18px 18px; background: var(--surface-raised); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-panel, 8px);
+  animation: aim-toast-in var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+}
+@keyframes aim-toast-in { from { opacity: 0; transform: translateY(24px) scale(.98); } }
+.aim-toast .aim-mark__dot { animation: aim-land var(--aim-dur-land) var(--aim-ease-land) 140ms backwards; }
+.aim-toast .aim-mark__ring { animation: aim-draw var(--aim-dur-draw) var(--aim-ease) 320ms backwards; }
+.aim-toast__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.aim-toast__title { margin: 0; font-size: 15px; line-height: 1.4; font-weight: 500; }
+.aim-toast__meta { margin: 0; font: 400 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+.aim-toast__timer {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--ink);
+  transform: scaleX(0); transform-origin: 0 50%;
+  animation: aim-timer var(--aim-toast-ms, 5000ms) linear backwards;
+}
+@keyframes aim-timer { from { transform: none; } }
+.aim-toast:is(:hover, :focus-within) .aim-toast__timer { animation-play-state: paused; }
+.aim-toast[data-state="closing"] { animation: aim-toast-out var(--aim-dur-exit) var(--aim-ease-exit) forwards; }
+@keyframes aim-toast-out { to { opacity: 0; transform: translateY(12px); } }
+/* @end */
+
+/* @section 07 */
+/* Text field: on focus the ring tightens in from 7px to 2px and the border firms to ink.
+   Error shakes and darkens the border (the system's rule). Valid draws a check. */
+.aim-field .aiw-field__label { transition: color var(--aim-dur-quick) var(--aim-ease); }
+.aim-field:focus-within .aiw-field__label { color: var(--ink); }
+.aim-field .aiw-field__input {
+  outline: 2px solid transparent; outline-offset: 7px;
+  transition:
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    outline-color var(--aim-dur-quick) var(--aim-ease),
+    outline-offset var(--aim-dur-spring) var(--aim-ease-spring);
+}
+.aim-field .aiw-field__input:focus { border-color: var(--ink); }
+.aim-field .aiw-field__input:focus-visible { outline-color: var(--focus-ring); outline-offset: 2px; }
+.aim-field__box { position: relative; }
+.aim-field__box .aiw-field__input { padding-right: 44px; }
+.aim-field__check {
+  position: absolute; top: 50%; right: 14px; width: 18px; height: 18px; margin-top: -9px;
+  fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1 1; opacity: 0; pointer-events: none;
+}
+.aim-field[data-state="valid"] .aim-field__check { opacity: 1; animation: aim-draw var(--aim-dur-base) var(--aim-ease) 60ms backwards; }
+.aim-field[data-state="error"] .aiw-field__input { border-color: var(--ink); animation: aim-shake 420ms var(--aim-ease); }
+.aim-field :is(.aiw-field__msg--error, .aim-field__msg--valid) { animation: aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards; }
+@keyframes aim-msg-in { from { opacity: 0; transform: translateY(-4px); } }
+/* @end */
+
+/* @section 08 */
+/* Logo intro, as the system specifies: letters in place; the dot lands at 220 ms with a slight
+   overshoot; the ring draws out from it at 480 ms; at rest by 900 ms. Add .aim-intro to a parent
+   of a Wordmark or Monogram. The splash then lifts away and the sign-in rises in (.aim-rise),
+   while the quiet ripple behind it grows once (.aim-grow). */
+.aim-intro :is(.aiw-wordmark__dot, .aiw-monogram__dot) {
+  transform-box: fill-box; transform-origin: center;
+  animation: aim-land var(--aim-dur-land) var(--aim-ease-land) 220ms backwards;
+}
+.aim-intro :is(.aiw-wordmark__ring, .aiw-monogram__ring) {
+  transform-box: fill-box; transform-origin: center;
+  animation: aim-ring-out var(--aim-dur-draw) var(--aim-ease) 480ms backwards;
+}
+.aim-splash {
+  position: fixed; inset: 0; z-index: 80; display: grid; place-items: center;
+  background: var(--surface); color: var(--ink);
+}
+.aim-splash[data-state="closing"] { animation: aim-fade-out var(--aim-dur-move) var(--aim-ease-exit) forwards; }
+.aim-splash[data-state="closing"] .aim-intro { animation: aim-lift-out var(--aim-dur-move) var(--aim-ease-exit) forwards; }
+@keyframes aim-lift-out { to { opacity: 0; transform: translateY(-16px); } }
+
+/* The ripple grows out from its center once, over 900 ms. Works on the full and quiet Ripple. */
+.aim-grow .aiw-ripple__dot { transform-box: fill-box; transform-origin: center; animation: aim-land var(--aim-dur-land) var(--aim-ease-land) backwards; }
+.aim-grow .aiw-ripple__center { transform-box: fill-box; transform-origin: center; animation: aim-ring-out var(--aim-dur-draw) var(--aim-ease) 140ms backwards; }
+.aim-grow .aiw-ripple__ring {
+  transform-box: view-box; transform-origin: 50% 50%;
+  animation: aim-grow calc(var(--aim-dur-brand) - 250ms) var(--aim-ease) backwards;
+}
+.aim-grow .aiw-ripple__ring--2 { animation-delay: 50ms; }
+.aim-grow .aiw-ripple__ring--3 { animation-delay: 100ms; }
+.aim-grow .aiw-ripple__ring--4 { animation-delay: 150ms; }
+.aim-grow .aiw-ripple__ring--5 { animation-delay: 200ms; }
+.aim-grow .aiw-ripple__ring--6 { animation-delay: 250ms; }
+@keyframes aim-grow { from { opacity: 0; transform: scale(.1); } }
+/* @end */
+
+/* @section 09 */
+/* Skeleton: flat placeholders in the hairline color. No shimmer and no gradient; the header's
+   hairline sweep (04) says the page is loading. Real content settles in with .aim-rise. */
+.aim-skel { display: block; height: 12px; border-radius: 4px; background: var(--line); }
+.aim-skel--title { height: 28px; width: 62%; }
+.aim-skel--figure { height: 34px; width: 46%; }
+.aim-skel--short { width: 40%; }
+.aim-skel--block { height: 100%; min-height: 72px; border-radius: var(--radius-panel, 8px); }
+/* @end */
+
+/* @section 10 */
+/* Sidebar nav: the sidebar's own hairline carries a marker that springs to the active item,
+   and the active icon's dot lands in signal. Hover nudges the label forward. */
+.aim-nav { position: relative; border-right: 1px solid var(--line); }
+.aim-nav__list { list-style: none; margin: 0; padding: 8px 0; display: grid; gap: 2px; }
+.aim-nav__link { padding: 10px 20px 10px 16px; font-size: 15px; line-height: 1.4; }
+.aim-nav__link:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+.aim-nav__marker {
+  position: absolute; top: 0; right: -1px; width: 2px; height: var(--aim-h, 0); background: var(--ink);
+  transform: translateY(var(--aim-y, 0));
+  transition: transform var(--aim-dur-spring) var(--aim-ease-spring), height var(--aim-dur-spring) var(--aim-ease-spring);
+}
+.aim-nav__link {
+  display: flex; align-items: center; gap: 12px; color: var(--ink-secondary); text-decoration: none;
+  transition: color var(--aim-dur-quick) var(--aim-ease);
+}
+.aim-nav__link .aiw-icon path { transition: fill var(--aim-dur-quick) var(--aim-ease); }
+.aim-nav__label { transition: transform var(--aim-dur-spring) var(--aim-ease-spring); }
+@media (hover: hover) {
+  .aim-nav__link:hover { color: var(--ink); }
+  .aim-nav__link:hover .aim-nav__label { transform: translateX(3px); }
+}
+.aim-nav__link[aria-current="page"] { color: var(--ink); }
+.aim-nav__link[aria-current="page"] :is(.aiw-icon__dot, .aiw-icon path[style*="--signal"]) {
+  transform-box: fill-box; transform-origin: center;
+  animation: aim-land var(--aim-dur-land) var(--aim-ease-land) 120ms backwards;
+}
+/* @end */
+
+/* @section 11 */
+/* Lesson checkbox (completion, small tier): press squeezes the box, the check draws, the title
+   settles back, and the status rolls from minutes to Done as the dot lands. */
+.aim-lesson { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; cursor: pointer; }
+.aim-check { display: grid; flex: none; }
+.aim-check > * { grid-area: 1 / 1; }
+.aim-check input {
+  appearance: none; margin: 0; width: 22px; height: 22px; box-sizing: border-box; cursor: pointer;
+  border: 1.5px solid var(--line-control); border-radius: var(--radius-control, 6px); background: transparent;
+  transition:
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    transform var(--aim-dur-spring) var(--aim-ease-spring);
+}
+.aim-check input:active { transform: scale(.84); transition-duration: var(--aim-dur-press); transition-timing-function: var(--aim-ease); }
+.aim-check input:checked { background-color: var(--ink); border-color: var(--ink); }
+.aim-check input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.aim-check svg { width: 22px; height: 22px; pointer-events: none; fill: none; stroke: var(--surface); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.aim-check path { stroke-dasharray: 1 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--aim-dur-base) var(--aim-ease); }
+.aim-check input:checked + svg path { stroke-dashoffset: 0; transition-delay: 70ms; }
+
+.aim-lesson__title { transition: color var(--aim-dur-base) var(--aim-ease); }
+.aim-lesson:has(input:checked) .aim-lesson__title { color: var(--ink-secondary); }
+.aim-lesson__status {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 400 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted);
+}
+.aim-lesson__dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--signal);
+  opacity: 0; transform: translateY(-10px) scale(.4);
+  transition: opacity var(--aim-dur-quick) var(--aim-ease), transform var(--aim-dur-land) var(--aim-ease-land);
+}
+.aim-lesson:has(input:checked) .aim-lesson__dot { opacity: 1; transform: none; transition-delay: 220ms; }
+.aim-lesson:has(input:checked) .aim-roll > :first-child { transform: translateY(-110%); transition-delay: 120ms; }
+.aim-lesson:has(input:checked) .aim-roll > * + * { transform: none; transition-delay: 120ms; }
+/* @end */
+
+/* @section 12 */
+/* Progress: the bar fills on the system's curve while the figure counts up with it
+   (useCountUp). The program track has one segment per week. */
+.aim-progress { display: grid; gap: 12px; }
+.aim-progress__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.aim-progress__num { font-variant-numeric: tabular-nums; }
+.aim-progress__track { position: relative; height: 4px; overflow: hidden; background: var(--line); }
+.aim-progress__fill {
+  position: absolute; inset: 0; background: var(--ink);
+  transform: scaleX(var(--aim-value, 0)); transform-origin: 0 50%;
+  transition: transform var(--aim-dur-fill) var(--aim-ease);
+}
+.aim-weeks { display: grid; grid-template-columns: repeat(var(--aim-weeks, 8), minmax(0, 1fr)); gap: 4px; }
+.aim-weeks > * { position: relative; height: 4px; overflow: hidden; background: var(--line); }
+.aim-weeks > *::after {
+  content: ""; position: absolute; inset: 0; background: var(--ink);
+  transform: scaleX(var(--aim-value, 0)); transform-origin: 0 50%;
+  transition: transform var(--aim-dur-fill) var(--aim-ease);
+}
+/* @end */
+
+/* @section 13 */
+/* Completion, tiered. Lesson: the check (11). Module: the mark lands and sends one ring out.
+   Program: the full ripple grows once (.aim-grow, 08) and rests as the brand ripple. */
+.aim-complete .aim-mark__dot { animation: aim-land var(--aim-dur-land) var(--aim-ease-land) backwards; }
+.aim-complete .aim-mark__ring { animation: aim-draw var(--aim-dur-draw) var(--aim-ease) 180ms backwards; }
+.aim-complete .aim-mark__wave { animation: aim-wave var(--aim-dur-brand) var(--aim-ease) 380ms; }
+/* @end */
+
+/* @section 14 */
+/* Notification: the bell's dot lands in signal and sends one ring out, once. It never loops:
+   a ring that repeats would read as noise. The panel unfolds from the bell. */
+.aim-bell {
+  position: relative; display: inline-grid; place-items: center; padding: 8px; margin: -8px;
+  border: 0; border-radius: var(--radius-control, 6px); background: none; color: var(--ink); cursor: pointer;
+}
+.aim-bell:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.aim-bell > * { grid-area: 1 / 1; }
+.aim-bell__fx { overflow: visible; pointer-events: none; }
+.aim-bell__wave {
+  fill: none; stroke: var(--signal); stroke-width: 1.25; vector-effect: non-scaling-stroke;
+  opacity: 0; transform-box: fill-box; transform-origin: center;
+}
+.aim-bell[data-new="true"] :is(.aiw-icon__dot, .aiw-icon path[style*="--signal"]) {
+  transform-box: fill-box; transform-origin: center;
+  animation: aim-land var(--aim-dur-land) var(--aim-ease-land) backwards;
+}
+.aim-bell[data-new="true"] .aim-bell__wave { animation: aim-wave var(--aim-dur-brand) var(--aim-ease) 260ms; }
+
+.aim-pop { transform-origin: 100% 0; animation: aim-pop var(--aim-dur-spring) var(--aim-ease-spring) backwards; }
+@keyframes aim-pop { from { opacity: 0; transform: translateY(-6px) scale(.96); } }
+.aim-pop[data-state="closing"] { animation: aim-pop-out var(--aim-dur-exit) var(--aim-ease-exit) forwards; }
+@keyframes aim-pop-out { to { opacity: 0; transform: translateY(-4px) scale(.98); } }
+/* @end */
+
+/* @section 15 */
+/* AI Employee working: a Geist Mono status that rolls to each new step, a block caret, and the
+   hairline sweep under it. When the run ends, the sweep gives way to the mark (dot, then ring). */
+.aim-run { display: grid; gap: 12px; color: var(--ink); }
+.aim-status {
+  margin: 0; display: flex; align-items: center; gap: 10px; min-width: 0;
+  font: 400 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-secondary);
+}
+.aim-status__line { display: inline-grid; overflow: hidden; min-width: 0; }
+.aim-status__line > * { grid-area: 1 / 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: aim-status-in var(--aim-dur-spring) var(--aim-ease-spring) backwards; }
+@keyframes aim-status-in { from { opacity: 0; transform: translateY(110%); } }
+.aim-status__caret { flex: none; width: .6em; height: 1.15em; margin-left: -6px; background: currentColor; animation: aim-blink 1s steps(1) infinite; }
+@keyframes aim-blink { 50% { opacity: 0; } }
+.aim-status[data-state="done"] { color: var(--accent); }
+.aim-status[data-state="done"] .aim-status__caret { display: none; }
+.aim-run > .aim-sweep { transition: opacity var(--aim-dur-quick) var(--aim-ease); }
+.aim-run[data-state="done"] > .aim-sweep { opacity: 0; }
+/* @end */
+
+/* @section 16 */
+/* Upload: drag over firms the border, lifts the icon and lights its dot. Each file arrives in
+   order with its own hairline that fills; done draws a check. */
+.aim-drop {
+  display: grid; justify-items: center; gap: 10px; padding: 28px 24px; text-align: center;
+  border: 1px solid var(--line-control); border-radius: var(--radius-panel, 8px); color: var(--ink-secondary);
+  transition:
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    background-color var(--aim-dur-quick) var(--aim-ease),
+    transform var(--aim-dur-spring) var(--aim-ease-spring);
+}
+.aim-drop .aiw-icon { color: var(--ink); transition: transform var(--aim-dur-spring) var(--aim-ease-spring); }
+.aim-drop[data-drag="true"] { border-color: var(--ink); background-color: var(--surface-raised); transform: scale(1.015); }
+.aim-drop[data-drag="true"] .aiw-icon { transform: translateY(-4px); }
+.aim-drop[data-drag="true"] .aiw-icon__dot { fill: var(--signal); }
+
+.aim-file {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 16px; padding: 14px 0;
+  animation: aim-rise var(--aim-dur-spring) var(--aim-ease-spring) backwards;
+  animation-delay: calc(var(--i, 0) * var(--aim-stagger));
+}
+.aim-file__bar { grid-column: 1 / -1; position: relative; height: 2px; overflow: hidden; background: var(--line); transition: opacity var(--aim-dur-base) var(--aim-ease) 280ms; }
+.aim-file__bar::after {
+  content: ""; position: absolute; inset: 0; background: var(--ink);
+  transform: scaleX(var(--aim-value, 0)); transform-origin: 0 50%;
+  transition: transform 300ms var(--aim-ease);
+}
+.aim-file[data-state="done"] .aim-file__bar { opacity: 0; }
+.aim-file__state {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 400 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.aim-file__check { width: 16px; height: 16px; fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1; }
+.aim-file[data-state="done"] .aim-file__check { animation: aim-draw var(--aim-dur-base) var(--aim-ease) backwards; }
+/* @end */

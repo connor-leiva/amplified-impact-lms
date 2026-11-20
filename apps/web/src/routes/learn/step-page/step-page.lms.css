@@ -1,0 +1,10 @@
+/* D-210: the one LMS-wide rule that reaches into the v6 step page. styles/lms.css (D-156) gives every button,
+   select, textarea and text input a 44px minimum height on a phone (767px and under), and buttons a 44px minimum
+   width; the mockup has no such rule, so on this page they go back to the browser's own minimums. Each selector
+   here has the same specificity as its lms.css twin and loads after it, so it wins there, and the page's own
+   rules (step-page.css, a class or more) still win over it. styles/global.css's rules are already countered
+   inside [data-step-page] by step-page.css (HANDOFF §4.6). */
+@media (max-width:767px){
+:where([data-step-page]) button,:where([data-step-page]) select,:where([data-step-page]) textarea,:where([data-step-page]) input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:auto}
+:where([data-step-page]) button{min-width:auto}
+}

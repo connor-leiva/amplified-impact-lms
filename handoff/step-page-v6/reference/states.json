@@ -1,0 +1,808 @@
+{
+  "video": "reference/interaction-demo.mp4",
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "about": "Frame numbers are ffmpeg frame indexes from 0 (t = n / 25 s). Every steady moment of interaction-demo.mp4, as the steps a person takes from a fresh load (1280x800). Each state's reference image (frames/<id>.png) is the average of the listed video frames, which are identical apart from compression noise. 'mask' is the playing video (course media, not UI), which is not compared. Coordinates are viewport pixels, read off the video. The mouse stays where the recording left it, because hover states are part of the frames. v6: 'brandMask' lists the elements whose look Amplified Impact Motion v1 changes on purpose (hover lifts gone, label rolls, outline to ink, the async done mark). They're left out of the video comparison and checked against the mockup in test A instead (states hover-rail, hover-play, hover-chip, hover-secondary, hover-mark, hover-done, hover-next).",
+  "states": [
+    {
+      "id": "01-top",
+      "frames": [
+        1,
+        19
+      ],
+      "what": "Top of the page on load. Labeled step pills, step 1 done, step 2 current, step 5 waiting.",
+      "steps": []
+    },
+    {
+      "id": "02-top-hover-step-4",
+      "frames": [
+        43,
+        51
+      ],
+      "what": "Pointer on step 4: bone fill, darker border, 1 px lift, white number circle.",
+      "steps": [
+        {
+          "do": "move",
+          "x": 900,
+          "y": 121
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#pills .stp[data-n=\"4\"]",
+          "pad": 12
+        }
+      ],
+      "brandWhy": "brand v1: hover no longer lifts the pill or adds a shadow"
+    },
+    {
+      "id": "03-watch-hover-play",
+      "frames": [
+        70,
+        89
+      ],
+      "what": "Scrolled to the player. Pointer on the poster: the play pill lifts and darkens.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "move",
+          "x": 760,
+          "y": 351
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#vplay .vgo",
+          "pad": 40
+        }
+      ],
+      "brandWhy": "brand v1: the play pill no longer lifts, grows or deepens its shadow; its label rolls"
+    },
+    {
+      "id": "04-chapter-hover-0-15",
+      "frames": [
+        98,
+        105
+      ],
+      "what": "Pointer on the 0:15 chapter chip.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "move",
+          "x": 267,
+          "y": 465
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#chaps .chip:nth-child(2)",
+          "pad": 12
+        }
+      ],
+      "brandWhy": "brand v1: hover no longer lifts the chip or adds a shadow"
+    },
+    {
+      "id": "05-chapter-hover-next",
+      "frames": [
+        132,
+        133
+      ],
+      "what": "Pointer on the chapters' right arrow.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "move",
+          "x": 911,
+          "y": 465
+        }
+      ]
+    },
+    {
+      "id": "06-chapters-page-2",
+      "frames": [
+        146,
+        155
+      ],
+      "what": "After one click on the right arrow (snapped, left arrow and fade appear).",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "07-chapters-page-3",
+      "frames": [
+        169,
+        178
+      ],
+      "what": "After a second click on the right arrow.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "08-chapters-page-3-rest",
+      "frames": [
+        187,
+        192
+      ],
+      "what": "Same, pointer off the row.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        },
+        {
+          "do": "move",
+          "x": 1279,
+          "y": 799
+        }
+      ]
+    },
+    {
+      "id": "09-chapter-3-31-playing",
+      "frames": [
+        211,
+        254
+      ],
+      "mask": [
+        [
+          32,
+          0,
+          928,
+          405
+        ]
+      ],
+      "what": "Clicked the 3:31 chapter: chip turns forest (pointer still on it), row centers it, the video plays.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        },
+        {
+          "do": "click",
+          "x": 911,
+          "y": 465
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        },
+        {
+          "do": "js",
+          "code": "(()=>{const r=document.getElementById('chaps'),c=r.children[6];r.style.scrollBehavior='auto';r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.offsetWidth/2;r.style.scrollBehavior='';})()"
+        },
+        {
+          "do": "wait",
+          "ms": 200
+        },
+        {
+          "do": "click",
+          "x": 510,
+          "y": 465
+        },
+        {
+          "do": "pauseVideo"
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "10-hover-show-transcript",
+      "frames": [
+        262,
+        265
+      ],
+      "mask": [
+        [
+          32,
+          0,
+          928,
+          405
+        ]
+      ],
+      "what": "Pointer on Show transcript (ghost button tint).",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "clickChapter",
+          "index": 6
+        },
+        {
+          "do": "move",
+          "x": 128,
+          "y": 525
+        }
+      ]
+    },
+    {
+      "id": "11-transcript-open",
+      "frames": [
+        274,
+        280
+      ],
+      "mask": [
+        [
+          32,
+          0,
+          928,
+          405
+        ]
+      ],
+      "what": "Transcript open: 296 px panel, the 3:14 row current, the spoken phrase highlighted.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "clickChapter",
+          "index": 6
+        },
+        {
+          "do": "click",
+          "x": 128,
+          "y": 525
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        }
+      ]
+    },
+    {
+      "id": "12-transcript-scrolled",
+      "frames": [
+        289,
+        299
+      ],
+      "mask": [
+        [
+          32,
+          0,
+          928,
+          105
+        ]
+      ],
+      "what": "Page scrolled down to the transcript; the pointer now rests on a transcript row.",
+      "steps": [
+        {
+          "do": "scroll",
+          "y": 581
+        },
+        {
+          "do": "clickChapter",
+          "index": 6
+        },
+        {
+          "do": "click",
+          "x": 128,
+          "y": 525
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "scroll",
+          "y": 881
+        },
+        {
+          "do": "nudge"
+        }
+      ]
+    },
+    {
+      "id": "13-checklist",
+      "frames": [
+        365,
+        394
+      ],
+      "what": "Scrolled to Your checklist (On this page follows).",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "move",
+          "x": 128,
+          "y": 525
+        }
+      ]
+    },
+    {
+      "id": "14-hover-open-words",
+      "frames": [
+        400,
+        409
+      ],
+      "what": "Pointer on Open the five words.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "move",
+          "x": 182,
+          "y": 407
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#know-btn",
+          "pad": 16
+        }
+      ],
+      "brandWhy": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+    },
+    {
+      "id": "15-checked-words",
+      "frames": [
+        439,
+        453
+      ],
+      "what": "Checked Know these five words (the box keeps its hover halo).",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 342
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "16-checked-live-build",
+      "frames": [
+        471,
+        480
+      ],
+      "what": "Checked Save the first live build.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 342
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 482
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "17-hover-ask-us",
+      "frames": [
+        484,
+        492
+      ],
+      "what": "Pointer on Ask us (arrow nudges).",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 342
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 482
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "move",
+          "x": 138,
+          "y": 689
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": ".item[data-id=\"s2-questions\"] .item-acts .btn",
+          "pad": 16
+        }
+      ],
+      "brandWhy": "brand 02: the outline firms to ink (no bone fill, no lift); the label rolls"
+    },
+    {
+      "id": "18-checked-questions",
+      "frames": [
+        517,
+        528
+      ],
+      "what": "Checked Write down your questions.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 342
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 482
+        },
+        {
+          "do": "wait",
+          "ms": 700
+        },
+        {
+          "do": "click",
+          "x": 63,
+          "y": 623
+        },
+        {
+          "do": "wait",
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "19-checked-all",
+      "frames": [
+        545,
+        546
+      ],
+      "what": "Checked Watch the video: 4 of 4.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        }
+      ]
+    },
+    {
+      "id": "20-footer-ready",
+      "frames": [
+        561,
+        588
+      ],
+      "what": "Scrolled to the footer: Mark step done is ready; the pointer rests on the last box.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        },
+        {
+          "do": "scroll",
+          "y": 1918
+        },
+        {
+          "do": "nudge"
+        }
+      ]
+    },
+    {
+      "id": "21-hover-mark",
+      "frames": [
+        595,
+        600
+      ],
+      "what": "Pointer on Mark step done.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        },
+        {
+          "do": "scroll",
+          "y": 1918
+        },
+        {
+          "do": "move",
+          "x": 252,
+          "y": 481
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#mark",
+          "pad": 24
+        }
+      ],
+      "brandWhy": "brand 01: no lift or bigger shadow; the label rolls"
+    },
+    {
+      "id": "22-step-done",
+      "frames": [
+        611,
+        634
+      ],
+      "what": "Marked done: label swaps to Step done, energy ring, Undo, Next card cue.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        },
+        {
+          "do": "scroll",
+          "y": 1918
+        },
+        {
+          "do": "click",
+          "x": 252,
+          "y": 481
+        },
+        {
+          "do": "wait",
+          "ms": 1000
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#mark",
+          "pad": 12
+        }
+      ],
+      "brandWhy": "brand 03: Step done shows the mark (dot in ring) instead of a check"
+    },
+    {
+      "id": "23-hover-next-card",
+      "frames": [
+        651,
+        669
+      ],
+      "what": "Pointer on the Next card: lifts, bar grows, arrow nudges.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        },
+        {
+          "do": "scroll",
+          "y": 1918
+        },
+        {
+          "do": "click",
+          "x": 252,
+          "y": 481
+        },
+        {
+          "do": "wait",
+          "ms": 1000
+        },
+        {
+          "do": "move",
+          "x": 708,
+          "y": 496
+        }
+      ],
+      "brandMask": [
+        {
+          "sel": "#next",
+          "pad": 28
+        },
+        {
+          "sel": "#mark",
+          "pad": 12
+        }
+      ],
+      "brandWhy": "brand v1: the Next card no longer lifts; Step done shows the mark"
+    },
+    {
+      "id": "24-top-final",
+      "frames": [
+        694,
+        723
+      ],
+      "mask": [
+        [
+          32,
+          481,
+          928,
+          800
+        ]
+      ],
+      "what": "Back at the top: 4 of 4 checked, step 2 shows its check.",
+      "steps": [
+        {
+          "do": "openTranscriptAt331"
+        },
+        {
+          "do": "scroll",
+          "y": 1418
+        },
+        {
+          "do": "checkAll"
+        },
+        {
+          "do": "scroll",
+          "y": 1918
+        },
+        {
+          "do": "click",
+          "x": 252,
+          "y": 481
+        },
+        {
+          "do": "wait",
+          "ms": 1000
+        },
+        {
+          "do": "move",
+          "x": 708,
+          "y": 496
+        },
+        {
+          "do": "scroll",
+          "y": 0
+        },
+        {
+          "do": "nudge"
+        }
+      ]
+    }
+  ],
+  "macros": {
+    "clickChapter": "scroll the chapter row so chip <index> is centered, click it, pause the video, wait 900 ms",
+    "openTranscriptAt331": "at scroll 581: clickChapter 6, then click Show transcript (128,525), wait 700 ms",
+    "checkAll": "click the four boxes at (63,342), (63,482), (63,623), (63,135), 700 ms apart, then wait 900 ms",
+    "nudge": "move the pointer 1 px and back, so hover follows the scrolled page as it did in the recording",
+    "pauseVideo": "document.getElementById('video').pause(), so the time (and the transcript highlight) stays at the chapter start"
+  }
+}

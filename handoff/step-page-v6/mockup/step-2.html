@@ -1,0 +1,886 @@
+<!doctype html>
+<!-- v6: the page as recorded in interaction-demo.mp4 (v5), moving by Amplified Impact Motion v1 (ai-motion.css),
+     with the Reference accordion spaced from its header. Source of truth for the step page.
+     The black MOCKUP bar and the "Text styles for long steps" section are for review only and are not shipped. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 0 · Step 2 · Watch the Orientation (v6 mockup: the video, with brand motion)</title>
+<link rel="stylesheet" href="ai-motion.css">
+<style>
+@font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
+@font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
+
+/* ============ 0. Tokens (Polish recs, mapped to r2 names in POLISH-SPEC.md) ============ */
+:root{
+  --forest:#1f4d40; --energy:#1f8a5c; --energy-bright:#6fd3a5;
+  --bone:#f1f0eb; --black:#0a0d0c; --on-forest:#f5f5f2; --surface:#fff;
+  --forest-hover:color-mix(in oklch, var(--forest) 86%, var(--black));
+  --bright-hover:color-mix(in oklch, var(--energy-bright) 82%, var(--energy));
+  --forest-lift:color-mix(in srgb, var(--forest) 95%, white);  /* 95%, not 92%: keeps energy-bright kicker >= 4.5:1 */
+  --tint-bright:color-mix(in oklch, var(--energy-bright) 22%, transparent);
+  --tint-forest:rgb(31 77 64 / .06);
+  --ink-2:rgb(10 13 12 / .68);
+  --ink-3:rgb(10 13 12 / .6);
+  --line:rgb(10 13 12 / .12); --line-2:rgb(10 13 12 / .2);
+  --border:1px solid var(--line);
+  --s1:4px; --s2:8px; --s3:16px; --s4:24px; --s5:32px; --s6:48px; --s7:64px;
+  --measure:65ch;
+  --r-sm:4px; --r-md:8px; --r-lg:14px; --r-pill:999px;
+  --sh-sm:0 2px 4px rgb(31 77 64 / .06);
+  --sh-md:0 8px 16px rgb(31 77 64 / .08);
+  --sh-lg:0 16px 32px rgb(31 77 64 / .10);
+  /* motion: --aim-* tokens from ai-motion.css (Amplified Impact Motion v1) */
+  --font:'Geist',ui-sans-serif,system-ui,sans-serif;
+  --mono:'Geist Mono',ui-monospace,monospace;
+  interpolate-size:allow-keywords;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bone);color:var(--black);font:400 16px/1.5 var(--font);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit}
+a{color:inherit}
+svg{display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mock-flag{flex-wrap:wrap;background:var(--black);color:var(--on-forest);font:500 13px/1 var(--mono);letter-spacing:.02em;padding:10px 24px;display:flex;gap:16px;justify-content:space-between}
+.mock-flag b{color:var(--energy-bright);font-weight:600}
+
+/* layout */
+.page{max-width:1280px;margin:0 auto;padding:var(--s4) var(--s5) var(--s7)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:var(--s5);align-items:start;margin-top:var(--s4)}
+.main{display:flex;flex-direction:column;gap:var(--s6);min-width:0}
+@media (max-width:1100px){.grid{grid-template-columns:minmax(0,1fr)}.rail{position:static!important}}
+@media (max-width:640px){.page{padding:var(--s3) var(--s3) var(--s6)}}
+
+/* 4. one button system */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);height:40px;padding:0 var(--s3);
+  border-radius:var(--r-md);border:1px solid transparent;font:500 15px/1 var(--font);text-decoration:none;cursor:pointer;white-space:nowrap;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.btn svg{flex:none}
+.btn-primary{background:var(--forest);color:var(--on-forest);box-shadow:var(--sh-sm)}
+.btn-accent{background:var(--energy-bright);color:var(--black);box-shadow:var(--sh-sm)}
+.btn-secondary{background:var(--surface);color:var(--black);border-color:var(--line)}
+.btn-ghost{background:transparent;color:var(--forest)}
+.btn-lg{height:48px;padding:0 var(--s4);font-size:16px}
+.btn-sm{height:32px;padding:0 12px;font-size:14px}
+.btn-arrow{padding-right:12px}
+.btn .arrow{transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
+/* brand 01/02: hover rolls the label (.aim-roll) and changes colour; nothing lifts. The roll box is 6px taller than the
+   line so descenders aren't clipped, with -3px margins so the label sits exactly where it did. */
+.btn .aim-roll,.vgo .aim-roll{line-height:calc(1em + 6px);margin-block:-3px}
+@media (hover:hover){
+  .btn:is(:hover,.is-hover){text-decoration:none}
+  .btn-primary:is(:hover,.is-hover){background:var(--forest-hover)}
+  .btn-accent:is(:hover,.is-hover){background:var(--bright-hover)}
+  .btn-secondary:is(:hover,.is-hover){border-color:var(--black)}
+  .btn-ghost:is(:hover,.is-hover){background:var(--tint-forest)}
+  :is(.btn,.card-link):is(:hover,.is-hover) .arrow{transform:translateX(3px)}
+}
+/* brand press: squeeze in 90 ms on the system curve, spring back on release */
+.btn:where(:not([aria-disabled="true"])):is(:active,.is-active){transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.btn:is(:active,.is-active) .arrow{transform:translateX(1px)}
+:is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn,.acc summary):focus-visible,
+:is(.btn,.chip,.card-link,.cue,.rail-link,.icon-btn,.box-btn).is-focus{outline:2px solid var(--forest);outline-offset:2px}
+.chip[aria-current="true"]:focus-visible,
+.btn[aria-disabled="true"]{cursor:pointer}
+.icon-btn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:var(--border);color:var(--forest);cursor:pointer;box-shadow:var(--sh-sm);padding:0;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),opacity var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.icon-btn:is(:hover,.is-hover){background:var(--bone)}}
+.icon-btn:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.prose a,a.inline{position:relative;color:var(--forest);font-weight:500;text-decoration:none;border-bottom:1px solid var(--line-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+.prose a::after,a.inline::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--aim-dur-move) var(--aim-ease)}
+@media (hover:hover){.prose a:hover::after,a.inline:is(:hover,.is-hover)::after{transform:none;transform-origin:0 50%}}
+.prose a:focus-visible::after,a.inline:focus-visible::after{transform:none;transform-origin:0 50%}
+.prose a:focus-visible,a.inline:focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-radius:2px}
+.back{display:inline-flex;margin-left:-8px;height:32px;padding:0 10px 0 6px;font-size:14px;color:var(--black)}
+
+/* 6. one horizontal scroller */
+.hs{position:relative;--fade:44px}
+.hs-row{display:flex;gap:var(--s2);overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--fade);padding:4px;
+  scrollbar-width:none;overscroll-behavior-x:contain}
+.hs-row::-webkit-scrollbar{display:none}
+.hs-row>*{flex:none;scroll-snap-align:start}
+.hs-row.fade-r{-webkit-mask:linear-gradient(90deg,#000 calc(100% - var(--fade)),transparent);mask:linear-gradient(90deg,#000 calc(100% - var(--fade)),transparent)}
+.hs-row.fade-l{-webkit-mask:linear-gradient(90deg,transparent,#000 var(--fade));mask:linear-gradient(90deg,transparent,#000 var(--fade))}
+.hs-row.fade-l.fade-r{-webkit-mask:linear-gradient(90deg,transparent,#000 var(--fade) calc(100% - var(--fade)),transparent);mask:linear-gradient(90deg,transparent,#000 var(--fade) calc(100% - var(--fade)),transparent)}
+.hs .icon-btn{position:absolute;top:50%;translate:0 -50%;z-index:2}
+.hs .hs-prev{left:0}.hs .hs-next{right:0}
+.hs .icon-btn[hidden]{display:grid;opacity:0;pointer-events:none}
+@media (hover:none),(max-width:640px){.hs .icon-btn{display:none!important}.hs{--fade:24px}}
+
+/* 5. step rail: labeled pills in the one horizontal scroller (as in interaction-demo.mp4).
+   Every step is a 40px pill: number circle + title. Done = energy circle with a check. Current = forest pill.
+   Upcoming = bone circle. Waiting = dashed circle. Arrows and edge fades come from .hs (section 6). */
+.steps{margin:8px 0 0}
+.stp{position:relative;display:inline-flex;align-items:center;gap:var(--s2);height:40px;padding:0 var(--s3) 0 var(--s2);border-radius:var(--r-pill);
+  border:var(--border);background:var(--surface);color:var(--black);font:500 14px/1 var(--font);text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.stp-n{position:relative;display:grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;background:var(--bone);color:var(--black);
+  font:600 13px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.stp-n>span{display:block}
+.stp[data-s="done"] .stp-n{background:var(--energy);color:#fff}
+.stp[data-s="waiting"] .stp-n{background:transparent;border:1px dashed rgb(10 13 12 / .45)}
+.stp[aria-current="step"]{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
+.stp[aria-current="step"] .stp-n{background:rgb(245 245 242 / .16);color:var(--on-forest)}
+.stp[aria-current="step"][data-s="done"] .stp-n{background:var(--energy-bright);color:var(--forest)}
+.stp .stp-n .draw path{stroke-dasharray:1 1;animation:aim-draw var(--aim-dur-base) var(--aim-ease) 70ms backwards}  /* step marked done: the check draws (lesson tier) */
+@media (hover:hover){
+  .stp:not([aria-current="step"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2)}
+  .stp:not([aria-current="step"]):not([data-s="done"]):is(:hover,.is-hover) .stp-n{background:var(--surface)}
+  .stp[aria-current="step"]:is(:hover,.is-hover){background:var(--forest-hover)}
+}
+.stp:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.stp:focus-visible,.stp.is-focus{outline:2px solid var(--forest);outline-offset:2px}
+
+/* header */
+.head{display:flex;flex-direction:column;gap:var(--s2);max-width:760px}
+.eyebrow{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--forest)}
+.h1{font:650 39px/1.15 var(--font);letter-spacing:-.015em;margin-top:var(--s1)}
+.purpose{font-size:20px;line-height:1.45;color:var(--ink-2);max-width:var(--measure)}
+.meta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s2)}
+.tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:var(--r-pill);background:var(--surface);border:var(--border);font:500 13px/1 var(--font);color:var(--black)}
+.tag svg{color:var(--forest)}
+.prog{margin-top:var(--s3);display:flex;align-items:center;gap:var(--s3)}
+.prog-track{flex:1;height:6px;border-radius:var(--r-pill);background:rgb(10 13 12 / .08);overflow:hidden}
+.prog-fill{height:100%;background:var(--energy);border-radius:inherit;transform:scaleX(var(--pct,0));transform-origin:left;transition:transform var(--aim-dur-fill) var(--aim-ease)}
+.prog-l{font:500 14px/1 var(--font);color:var(--ink-2);min-width:96px;text-align:right}
+.sec-h{font:650 25px/1.2 var(--font);letter-spacing:-.01em;margin-bottom:var(--s3);display:flex;align-items:baseline;gap:var(--s2)}
+.sec-h small{font:500 14px/1 var(--font);color:var(--ink-2);letter-spacing:0}
+
+/* 1. video */
+.vframe{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;background:var(--bone);isolation:isolate}
+.vframe::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--line);pointer-events:none;z-index:4}
+.vframe.started{background:var(--black)}
+.vframe video{position:absolute;inset:0;width:100%;height:100%;display:block;background:var(--black)}
+.vposter{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vhit{position:absolute;inset:0;border:0;padding:0 24px 24px 0;background:transparent;display:flex;align-items:flex-end;justify-content:flex-end;cursor:pointer}
+.vgo{display:inline-flex;align-items:center;gap:12px;height:56px;padding:0 22px 0 8px;border-radius:var(--r-pill);background:var(--forest);color:var(--on-forest);box-shadow:var(--sh-md);font:600 16px/1 var(--font);
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
+.vgo i{width:40px;height:40px;border-radius:50%;background:var(--energy-bright);color:var(--forest);display:grid;place-items:center}
+.vgo i svg{translate:2px 0}
+.vgo small{font:500 14px/1 var(--mono);color:var(--energy-bright)}
+@media (hover:hover){.vhit:is(:hover,.is-hover) .vgo{background:var(--forest-hover)}}
+.vhit:active .vgo{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.vhit:focus-visible{outline:none}.vhit:focus-visible .vgo{outline:2px solid var(--forest);outline-offset:3px}
+.vdur{position:absolute;right:16px;bottom:16px;height:28px;padding:0 10px;border-radius:var(--r-pill);background:rgb(10 13 12 / .72);color:var(--on-forest);font:500 13px/28px var(--mono)}
+.vframe.started .vposter,.vframe.started .vhit{display:none}
+/* the one loader: a hairline sweep along the bottom of the frame while the video buffers */
+.vbuf{position:absolute;left:0;right:0;bottom:0;z-index:3;color:var(--energy-bright);opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.vframe.buffering .vbuf{opacity:1;transition-delay:90ms}
+
+/* 2. chapters */
+.chapters{margin-top:var(--s3)}
+.chap-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s2)}
+.label{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.chip{position:relative;display:inline-flex;align-items:center;gap:var(--s2);height:40px;padding:0 var(--s3);border-radius:var(--r-pill);
+  border:var(--border);background:var(--surface);color:var(--black);font:500 14px/1 var(--font);cursor:pointer;overflow:hidden;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.chip time{font:500 13px/1 var(--mono);color:var(--ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+.chip[aria-current="true"]{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
+.chip[aria-current="true"] time{color:var(--energy-bright)}
+.chip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--energy-bright);transform:scaleX(var(--p,0));transform-origin:left;opacity:0}
+.chip[aria-current="true"]::after{opacity:1}
+@media (hover:hover){.chip:not([aria-current="true"]):is(:hover,.is-hover){background:var(--bone);border-color:var(--line-2)}
+  .chip[aria-current="true"]:is(:hover,.is-hover){background:var(--forest-hover)}}
+.chip:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+
+/* 3. transcript */
+.tbar{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s3)}
+.tbar .grow{flex:1}
+.chev{transition:transform var(--aim-dur-base) var(--aim-ease)}
+[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.tpanel{position:relative;block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),margin-top var(--aim-dur-exit) var(--aim-ease-exit);margin-top:0}
+.tpanel.open{block-size:296px;margin-top:var(--s2);transition:block-size var(--aim-dur-move) var(--aim-ease),margin-top var(--aim-dur-move) var(--aim-ease)}
+.tscroll{height:296px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:var(--border);border-radius:var(--r-lg);padding:var(--s3);
+  -webkit-mask:linear-gradient(180deg,transparent,#000 20px calc(100% - 20px),transparent);mask:linear-gradient(180deg,transparent,#000 20px calc(100% - 20px),transparent);
+  scrollbar-width:thin;scrollbar-color:rgb(10 13 12 / .25) transparent}
+.cue{display:grid;grid-template-columns:52px minmax(0,1fr);gap:var(--s3);width:100%;text-align:left;border:0;background:transparent;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;
+  font:400 16px/1.6 var(--font);color:rgb(10 13 12 / .78);transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+.cue>span{max-width:var(--measure)}
+.cue time{font:500 13px/1.6 var(--mono);color:var(--ink-3);padding-top:2px}
+.cue span.c{border-radius:3px;transition:background-color var(--aim-dur-quick) var(--aim-ease);box-decoration-break:clone;-webkit-box-decoration-break:clone}
+@media (hover:hover){.cue:is(:hover,.is-hover){background:var(--bone);color:var(--black)}}
+.cue[aria-current="true"]{background:var(--tint-forest);box-shadow:inset 2px 0 var(--energy);color:var(--black)}
+.cue[aria-current="true"] time{color:var(--forest)}
+.cue span.c.now{background:var(--tint-bright)}
+.tback{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:3;opacity:0;pointer-events:none;transform:translateY(var(--aim-rise));
+  transition:opacity var(--aim-dur-exit) var(--aim-ease-exit),transform var(--aim-dur-exit) var(--aim-ease-exit),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+.tback.show{opacity:1;pointer-events:auto;transform:none;box-shadow:var(--sh-md);
+  transition:opacity var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+
+/* 8. checklist */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:var(--s2);padding:var(--s3) var(--s4) var(--s3) var(--s2);background:var(--surface);border:var(--border);border-radius:var(--r-lg)}
+.box-btn{width:44px;height:44px;margin-top:-10px;display:grid;place-items:center;border:0;background:transparent;padding:0;cursor:pointer;border-radius:var(--r-md)}
+.check-box{inline-size:22px;block-size:22px;border-radius:6px;border:1.5px solid rgb(10 13 12 / .35);display:grid;place-items:center;background:var(--surface);
+  transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+@media (hover:hover){.box-btn:is(:hover,.is-hover) .check-box{border-color:var(--forest);box-shadow:0 0 0 4px var(--tint-forest)}}
+.box-btn:active .check-box{transform:scale(.84);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.check-box path{stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+[aria-checked="true"] .check-box{background:var(--energy);border-color:var(--energy)}
+[aria-checked="true"] .check-box path{stroke-dashoffset:0;transition-delay:70ms}
+.item-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);font:600 17px/1.35 var(--font);transition:color var(--aim-dur-base) var(--aim-ease)}
+.role{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--bone);font:500 13px/1 var(--font);color:var(--forest)}
+.item-detail{color:var(--ink-2);font-size:15px;margin-top:4px;max-width:var(--measure)}
+.item-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin-top:12px}
+.item.done .item-title{color:rgb(10 13 12 / .6)}
+.auto{display:inline-flex;align-items:center;gap:6px;font:500 13px/1 var(--font);color:var(--ink-2);margin-left:4px}
+.know{display:grid;margin:12px 0 0;border-top:var(--border)}
+.know[hidden]{display:none}
+.know div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:var(--s3);padding:12px 0;border-bottom:var(--border);font-size:15px}
+.know dt{font-weight:600;color:var(--forest)} .know dd{margin:0;color:var(--ink-2)}
+.callout{display:grid;grid-template-columns:20px minmax(0,1fr);gap:12px;padding:var(--s3) var(--s4);border-radius:var(--r-md);background:color-mix(in oklch,var(--forest) 7%,white);box-shadow:inset 3px 0 var(--forest);font-size:15px;line-height:1.55}
+.callout svg{color:var(--forest);margin-top:2px}
+.callout strong{font-weight:650;margin-right:4px}
+.callout.heads_up{background:color-mix(in oklch,var(--energy-bright) 14%,white);box-shadow:inset 3px 0 var(--energy)}
+.callout.heads_up svg{color:var(--energy)}
+.callout.diy{background:var(--surface);border:var(--border);box-shadow:inset 3px 0 var(--black)}
+.callout.diy svg{color:var(--black)}
+.acc{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);cursor:pointer;font:600 17px/1.3 var(--font);transition:background-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+.acc summary::-webkit-details-marker{display:none}
+@media (hover:hover){.acc summary:hover{background:var(--bone)}}
+.acc summary .chev{color:var(--forest)}
+.acc[open] summary .chev{transform:rotate(180deg)}
+.acc[open] summary{box-shadow:inset 0 -1px var(--line)}
+.acc::details-content{block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),content-visibility var(--aim-dur-exit) allow-discrete}
+.acc[open]::details-content{block-size:auto;transition:block-size var(--aim-dur-move) var(--aim-ease),content-visibility var(--aim-dur-move) allow-discrete}
+.acc ol{margin:0;padding:var(--s3) var(--s4) var(--s4) calc(var(--s4) + 18px);display:grid;gap:10px;max-width:calc(var(--measure) + 48px);color:rgb(10 13 12 / .85)}
+
+/* 9 + 7 footer */
+.foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);align-items:stretch}
+@media (max-width:720px){.foot{grid-template-columns:1fr}}
+.mark-card{position:relative;display:grid;place-items:center;align-content:center;gap:10px;text-align:center;padding:var(--s4);background:var(--surface);border:var(--border);border-radius:var(--r-lg);min-height:152px}
+.why{font-size:14px;color:var(--ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+.why.msg{animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+.why.nudge{color:var(--forest);font-weight:600}
+.mark-btn{position:relative;min-width:200px}
+/* brand 03: idle -> done. The label rolls up and out, the done layer rises, the dot lands and the ring draws once.
+   Layers share one grid cell so the width never jumps. */
+.mark-btn.aim-async{display:inline-grid;place-items:center}
+.mark-btn .aim-async__label{gap:var(--s2)}
+.mark-btn .aim-async__done{--aim-mark:currentColor}
+.mark-btn.is-done{background:var(--tint-bright);color:var(--forest);box-shadow:none;border-color:rgb(31 77 64 / .18)}
+@media (hover:hover){.mark-btn.is-done:is(:hover,.is-hover){background:color-mix(in oklch,var(--energy-bright) 32%,white)}}
+.done-row{display:flex;gap:var(--s2);align-items:center;animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+.done-row[hidden]{display:none}
+.card-link{position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:var(--s4) 80px var(--s4) var(--s4);border-radius:var(--r-lg);text-decoration:none;
+  transition:background-color var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+.next{background:var(--forest);color:var(--on-forest);min-height:152px}
+.next .k{font:500 13px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--energy-bright)}
+.next .t{font:650 20px/1.3 var(--font)}
+.next .m{font-size:14px;color:rgb(245 245 242 / .82)}
+.next .bar{display:block;height:2px;width:40px;background:var(--energy-bright);margin-top:10px;border-radius:2px;transition:width var(--aim-dur-move) var(--aim-ease)}
+.next .arrow{position:absolute;right:var(--s4);top:50%;margin-top:-20px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgb(245 245 242 / .1);color:var(--on-forest);
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.next:is(:hover,.is-hover){background:var(--forest-lift)}
+  .next:is(:hover,.is-hover) .bar{width:64px} .next:is(:hover,.is-hover) .arrow{background:rgb(245 245 242 / .16)}}
+.next:active{transform:scale(.99);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.next.cue-next .bar{width:64px}
+.next:focus-visible,.next.is-focus{outline:2px solid var(--forest);outline-offset:3px}
+
+/* rail */
+.rail{position:sticky;top:24px;display:flex;flex-direction:column;gap:var(--s3)}
+.card{background:var(--surface);border:var(--border);border-radius:var(--r-lg);padding:var(--s3)}
+.card h3{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin:4px 8px 12px}
+.rail-link{display:flex;align-items:center;gap:10px;min-height:36px;padding:6px 10px;border-radius:var(--r-md);text-decoration:none;color:var(--black);font:500 14px/1.3 var(--font);
+  transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.rail-link:is(:hover,.is-hover){background:var(--tint-forest);color:var(--forest)}}
+.rail-link[aria-current="true"]{color:var(--forest);background:var(--tint-forest);border-radius:0 var(--r-md) var(--r-md) 0}
+/* brand 10: one marker springs to the current section instead of each link drawing its own stripe */
+.rail nav.card{position:relative}
+.spy-mark{position:absolute;top:0;left:0;width:2px;height:var(--h,0px);background:var(--forest);transform:translate(var(--x,0px),var(--y,0px));pointer-events:none}
+.spy-mark.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),height var(--aim-dur-spring) var(--aim-ease-spring)}
+.mini{width:14px;height:14px;border-radius:4px;border:1.5px solid rgb(10 13 12 / .35);flex:none;display:grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+.mini.on{background:var(--energy);border-color:var(--energy)}
+.mini svg path{stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--aim-dur-base) var(--aim-ease)}
+.mini.on svg path{stroke-dashoffset:0}
+.rail-list .rail-link.done{color:rgb(10 13 12 / .6)}
+.due{margin:12px 8px 4px;padding:12px;border-radius:var(--r-md);background:var(--bone);font:600 14px/1.3 var(--font)}
+.res{display:flex;gap:12px;align-items:flex-start;padding:8px}
+.res-ic{width:32px;height:32px;border-radius:var(--r-md);background:var(--tint-forest);color:var(--forest);display:grid;place-items:center;flex:none}
+.res b{font-weight:600;font-size:15px}.res small{display:block;color:var(--ink-2);font-size:13px;margin-top:2px}
+.res .item-acts{margin-top:10px}
+.rail .card-link.li{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:10px 8px;border-radius:var(--r-md);color:var(--black)}
+@media (hover:hover){.rail .card-link.li:is(:hover,.is-hover){background:var(--bone)}}
+.rail .card-link.li .arrow{position:static;margin-left:auto;color:var(--forest)}
+.li b{font-size:15px;font-weight:600}.li small{display:block;color:var(--ink-2);font-size:13px;margin-top:2px}
+
+/* 10. text styles */
+.review{border-top:2px dashed rgb(10 13 12 / .2);padding-top:var(--s5)}
+.review-flag{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:var(--r-pill);background:var(--black);color:var(--on-forest);font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-bottom:var(--s3)}
+.prose{background:var(--surface);border:var(--border);border-radius:var(--r-lg);padding:var(--s5) var(--s5) var(--s4)}
+.prose>*{max-width:var(--measure)}
+.prose p{margin:0 0 var(--s3)}
+.rt-lead{font-size:20px;line-height:1.5;color:rgb(10 13 12 / .82)}
+.rt-h2{font:650 31px/1.15 var(--font);letter-spacing:-.015em;margin:0 0 var(--s3)}
+.rt-h3{font:650 25px/1.2 var(--font);letter-spacing:-.01em;margin:var(--s6) 0 var(--s3)}
+.rt-label{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--forest);margin:0 0 var(--s2)}
+.rt-term{color:var(--forest);font-weight:600}
+mark.rt-hl{background:var(--tint-bright);color:inherit;border-radius:2px;padding:0 2px}
+code.rt-code{font:500 .88em/1 var(--mono);background:var(--bone);padding:3px 6px;border-radius:var(--r-sm)}
+.rt-quote{margin:var(--s4) 0;padding:4px 0 4px var(--s4);box-shadow:inset 3px 0 var(--energy);font:500 20px/1.45 var(--font);color:var(--forest)}
+.rt-quote cite{display:block;font:400 14px/1.4 var(--font);color:var(--ink-2);margin-top:8px;font-style:normal}
+.rt-steps{list-style:none;counter-reset:s;padding:0;margin:0 0 var(--s4);display:grid;gap:12px}
+.rt-steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start}
+.rt-steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--forest);color:var(--on-forest);display:grid;place-items:center;font:600 13px/1 var(--font)}
+.rt-steps li b{display:block;font-weight:600}
+.rt-two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin:var(--s4) 0;max-width:none!important}
+.rt-two>div{padding:var(--s3) var(--s4);border-radius:var(--r-md);border:var(--border)}
+.rt-two h4{margin:0 0 8px;display:flex;align-items:center;gap:8px;font:600 15px/1.2 var(--font)}
+.rt-two ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;color:rgb(10 13 12 / .85)}
+.rt-two .do h4{color:var(--forest)}
+.rt-two .do{background:var(--tint-forest);border-color:transparent}
+.rt-banner{max-width:none!important;background:var(--forest);color:var(--on-forest);border-radius:var(--r-md);padding:var(--s4);margin:var(--s4) 0;font:600 20px/1.4 var(--font)}
+.rt-banner span{color:var(--energy-bright)}
+.copyblock{max-width:none!important;border:var(--border);border-radius:var(--r-md);overflow:hidden;margin:var(--s4) 0}
+.copyblock header{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--bone);font:500 13px/1 var(--mono);color:var(--ink-2)}
+.copyblock pre{margin:0;padding:var(--s3);font:400 14px/1.6 var(--mono);white-space:pre-wrap;color:var(--black)}
+.cos{display:grid;gap:12px;margin:var(--s4) 0;max-width:none!important}
+.stylekey{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:var(--s4);max-width:none!important}
+.stylekey div{border:var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--ink-2)}
+.stylekey div b{display:block;color:var(--black);font-size:14px;margin-bottom:2px}
+.builder{margin-top:var(--s3);display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+@media (max-width:900px){.builder,.rt-two{grid-template-columns:1fr}}
+.bfield{border:var(--border);border-radius:var(--r-md);background:var(--surface);overflow:hidden}
+.btool{display:flex;align-items:center;gap:4px;padding:6px;border-bottom:var(--border);background:var(--bone);flex-wrap:wrap;min-height:45px}
+.btool select{height:32px;border:var(--border);border-radius:6px;background:var(--surface);font:500 13px var(--font);padding:0 8px;margin-right:4px}
+.tb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font:600 14px/1 var(--font);color:var(--black);display:inline-grid;place-items:center;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.tb:hover{background:var(--surface);border-color:var(--line)}}
+.tb:focus-visible{outline:2px solid var(--forest);outline-offset:1px}
+.tb[aria-pressed="true"]{background:var(--surface);border-color:var(--line-2)}
+.tsep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.barea{padding:12px 14px;font:400 14px/1.6 var(--mono);white-space:pre-wrap;min-height:160px;color:rgb(10 13 12 / .85)}
+.bprev{padding:16px 18px;font-size:15px;line-height:1.55}
+.gallery{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:var(--s3);padding:var(--s4);background:var(--surface);border:var(--border);border-radius:var(--r-lg)}
+
+
+/* prefers-reduced-motion: keep colour/fill/opacity feedback, drop movement. .aim-reduced on any ancestor does the same (ai-motion.css). */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  :is(.btn,.card-link):hover .arrow{transform:none!important}
+}
+
+@media (max-width:640px){.vhit{padding:0 12px 12px 0}.vgo{height:44px;padding:0 14px 0 6px;font-size:14px;gap:8px}.vgo i{width:32px;height:32px}.vgo small,.vgo .vt{display:none}.vgo{padding:0 6px}.mock-flag span+span{display:none}}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" fill="currentColor"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.4 3.4-5.5 6.5-5.5s5.7 2.1 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.4 3.6-5.5 7-5.5s6.2 2.1 7 5.5"/></g></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="i-calplus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></g></symbol>
+    <symbol id="i-lines" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></g></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h11a3 3 0 013 3v11H7a3 3 0 01-3-3z"/><path d="M8 9h6M8 13h4"/></g></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></g></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17v.5"/></g></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/></g></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></g></symbol>
+    <symbol id="i-radio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 000 8.4M16.2 7.8a6 6 0 010 8.4M5 5a10 10 0 000 14M19 5a10 10 0 010 14"/></g></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1"/></g></symbol>
+  </defs>
+</svg>
+<div class="mock-flag"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · Week 0 · Step 2 · v3 polish pass · not live</span><span>Geist · forest · energy · energy-bright · bone · black</span></div>
+
+<div class="page">
+  <a class="btn btn-ghost back aim-rise" style="--i:0" href="#" onclick="return false"><svg width="16" height="16"><use href="#i-left"/></svg>Foundations</a>
+
+  <div class="hs steps aim-rise" style="--i:0" id="pills-hs">
+    <button class="icon-btn hs-prev" type="button" aria-label="Scroll steps left" hidden><svg width="16" height="16"><use href="#i-left"/></svg></button>
+    <nav class="hs-row" id="pills" aria-label="Week 0 steps"></nav>
+    <button class="icon-btn hs-next" type="button" aria-label="Scroll steps right" hidden><svg width="16" height="16"><use href="#i-right"/></svg></button>
+  </div>
+
+  <div class="grid">
+    <main class="main">
+      <header class="head aim-rise" style="--i:1">
+        <p class="eyebrow">Week 0 · Step 2</p>
+        <h1 class="h1">Watch the Orientation</h1>
+        <p class="purpose">The goal of this step is that both of you know how a week runs and what an AI hire is before we start building. Watch it together if you can.</p>
+        <div class="meta">
+          <span class="tag"><svg width="14" height="14"><use href="#i-clock"/></svg>30 min</span>
+          <span class="tag"><svg width="14" height="14"><use href="#i-users"/></svg>Owner and operator</span>
+          <span class="tag"><svg width="14" height="14"><use href="#i-cal"/></svg>Due Mon, Nov 30, 12:00 PM MT</span>
+        </div>
+        <div class="prog">
+          <div class="prog-track" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-label="Checklist progress" id="prog"><div class="prog-fill" id="prog-fill"></div></div>
+          <span class="prog-l" id="prog-l">0 of 4 checked</span>
+        </div>
+      </header>
+
+      <section id="watch" class="aim-rise" style="--i:2" aria-labelledby="watch-h">
+        <h2 class="sec-h" id="watch-h">Watch <small>7 min 49 s</small></h2>
+        <div class="vframe" id="vframe">
+          <video id="video" controls playsinline preload="metadata" poster="media/w0-02-orientation-narrated-v5-poster.jpg" aria-label="Orientation video">
+            <source src="media/w0-02-orientation-narrated-v5.mp4" type="video/mp4">
+            <track kind="captions" srclang="en" label="English" src="media/w0-02-orientation-narrated-v5.vtt">
+          </video>
+          <img class="vposter" src="media/w0-02-orientation-narrated-v5-poster.jpg" alt="">
+          <span class="vbuf aim-sweep" aria-hidden="true"></span>
+          <button class="vhit" type="button" id="vplay" aria-label="Play Watch the Orientation"><span class="vgo"><i><svg width="20" height="20"><use href="#i-play"/></svg></i><span class="vt aim-roll"><span>Play the orientation</span><span aria-hidden="true">Play the orientation</span></span><small>7:49</small></span></button>
+        </div>
+
+        <div class="chapters">
+          <div class="chap-head"><span class="label" id="chap-l">Chapters · 13</span></div>
+          <div class="hs" id="chaps-hs">
+            <button class="icon-btn hs-prev" type="button" aria-label="Scroll chapters left" hidden><svg width="16" height="16"><use href="#i-left"/></svg></button>
+            <div class="hs-row" id="chaps" role="list" aria-labelledby="chap-l"></div>
+            <button class="icon-btn hs-next" type="button" aria-label="Scroll chapters right" hidden><svg width="16" height="16"><use href="#i-right"/></svg></button>
+          </div>
+        </div>
+
+        <div class="tbar">
+          <button class="btn btn-ghost" type="button" id="ttoggle" aria-expanded="false" aria-controls="tpanel">
+            <svg width="16" height="16"><use href="#i-lines"/></svg><span id="tlabel">Show transcript</span><svg class="chev" width="16" height="16"><use href="#i-chev"/></svg>
+          </button>
+          <span class="grow"></span>
+          <button class="btn btn-ghost btn-sm" type="button" id="tcopy" hidden><svg width="14" height="14"><use href="#i-copy"/></svg><span>Copy transcript</span></button>
+        </div>
+        <div class="tpanel" id="tpanel" role="region" aria-label="Transcript" inert>
+          <div class="tscroll" id="tscroll" tabindex="0"></div>
+          <button class="btn btn-secondary btn-sm tback" type="button" id="tback"><svg width="14" height="14"><use href="#i-down"/></svg><span class="aim-roll"><span>Back to current</span><span aria-hidden="true">Back to current</span></span></button>
+        </div>
+      </section>
+
+      <section id="checklist" class="aim-rise" style="--i:3" aria-labelledby="check-h">
+        <h2 class="sec-h" id="check-h">Your checklist</h2>
+        <ol class="list" id="list">
+          <li class="item" data-id="s2-watch">
+            <button class="box-btn" type="button" role="checkbox" aria-checked="false" aria-label="Watch the video"><span class="check-box"><svg width="14" height="14" viewBox="0 0 16 16"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+            <div>
+              <div class="item-title">Watch the video</div>
+              <p class="item-detail">It checks itself off once you’ve watched most of it.</p>
+              <div class="item-acts">
+                <button class="btn btn-secondary btn-sm" type="button" data-seek="0"><svg width="14" height="14"><use href="#i-play"/></svg><span class="aim-roll"><span>Play from 0:00</span><span aria-hidden="true">Play from 0:00</span></span></button>
+                <span class="auto"><svg width="14" height="14"><use href="#i-check"/></svg>Checks itself at 90%</span>
+              </div>
+            </div>
+          </li>
+          <li style="list-style:none"><div class="callout tip"><svg width="18" height="18"><use href="#i-info"/></svg><p><strong>Tip</strong>Short on time? The chapters let you jump to how a week runs and what an AI hire is.</p></div></li>
+          <li class="item" data-id="s2-words">
+            <button class="box-btn" type="button" role="checkbox" aria-checked="false" aria-label="Know these five words"><span class="check-box"><svg width="14" height="14" viewBox="0 0 16 16"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+            <div>
+              <div class="item-title">Know these five words <span class="role">Each of you</span></div>
+              <p class="item-detail">Skill, AI hire, seat card, guardrails and the AI Office.</p>
+              <div class="item-acts">
+                <button class="btn btn-secondary btn-sm" type="button" id="know-btn" aria-expanded="false" aria-controls="know"><svg width="14" height="14"><use href="#i-book"/></svg><span class="aim-roll"><span>Open the five words</span><span aria-hidden="true">Open the five words</span></span></button>
+              </div>
+              <dl class="know" id="know" hidden>
+                <div class="aim-rise" style="--i:0"><dt>Skill</dt><dd>A playbook we load into your AI.</dd></div>
+                <div class="aim-rise" style="--i:1"><dt>AI hire</dt><dd>A skill that runs on a schedule and leaves a draft on one person’s desk.</dd></div>
+                <div class="aim-rise" style="--i:2"><dt>Seat card</dt><dd>A hire’s job description.</dd></div>
+                <div class="aim-rise" style="--i:3"><dt>Guardrails</dt><dd>The settings that keep your hires read and draft only.</dd></div>
+                <div class="aim-rise" style="--i:4"><dt>AI Office</dt><dd>A folder in your Google Drive where your hires read and save their work.</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="item" data-id="s2-rhythm">
+            <button class="box-btn" type="button" role="checkbox" aria-checked="false" aria-label="Save the first live build"><span class="check-box"><svg width="14" height="14" viewBox="0 0 16 16"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+            <div>
+              <div class="item-title">Save the first live build <span class="role">Each of you</span></div>
+              <p class="item-detail">Wed, Dec 2, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.</p>
+              <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-calplus"/></svg><span class="aim-roll"><span>Add to calendar</span><span aria-hidden="true">Add to calendar</span></span></button></div>
+            </div>
+          </li>
+          <li class="item" data-id="s2-questions">
+            <button class="box-btn" type="button" role="checkbox" aria-checked="false" aria-label="Write down your questions"><span class="check-box"><svg width="14" height="14" viewBox="0 0 16 16"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+            <div>
+              <div class="item-title">Write down your questions <span class="role">Each of you</span></div>
+              <p class="item-detail">Bring them to office hours, or send them to us now.</p>
+              <div class="item-acts"><a class="btn btn-secondary btn-sm btn-arrow" href="#" onclick="return false"><span class="aim-roll"><span>Ask us</span><span aria-hidden="true">Ask us</span></span><svg class="arrow" width="14" height="14"><use href="#i-arrow"/></svg></a></div>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="reference" class="aim-rise" style="--i:4" aria-labelledby="ref-h">
+        <h2 class="sec-h" id="ref-h">Reference</h2>
+        <details class="acc">
+          <summary>How a week runs <svg class="chev" width="18" height="18"><use href="#i-chev"/></svg></summary>
+          <ol>
+            <li>Before the live build, by Tuesday night, your operator runs that week’s skill and the owner reads what it finds.</li>
+            <li>Wednesday is the live build, 90 minutes, 12:00 to 1:30 PM MT: the question, live reads, the hire lab and the commit.</li>
+            <li>After the build, your hire’s first run lands and the owner signs its seat card.</li>
+            <li>Office hours follow the live build, 60 minutes, to get any setup unstuck.</li>
+            <li>The checkpoint closes the week: the signed seat card, a screenshot of the first run and the minutes the hire took over.</li>
+          </ol>
+        </details>
+      </section>
+
+      <div class="foot aim-rise" style="--i:5" id="foot">
+        <div class="mark-card">
+          <button class="btn btn-primary btn-lg mark-btn aim-async" type="button" id="mark" data-state="idle" aria-disabled="true" aria-describedby="why">
+            <span class="aim-async__label" id="mark-lbl"><svg class="ck" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg><span class="aim-roll"><span>Mark step done</span><span aria-hidden="true">Mark step done</span></span></span>
+            <span class="aim-async__done" aria-hidden="true"><svg class="aim-mark" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle class="aim-mark__ring" cx="11" cy="11" r="9.5" pathLength="1"/><circle class="aim-mark__dot" cx="11" cy="11" r="4"/></svg>Step done</span>
+          </button>
+          <p class="why" id="why">Check off 4 more to mark this step done.</p>
+          <div class="done-row" id="done-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="undo">Undo</button></div>
+        </div>
+        <a class="card-link next" id="next" href="#" onclick="return false">
+          <span class="k">Next</span>
+          <span class="t">Step 3 · Start Your Time Baseline</span>
+          <span class="m">Owner · 20 min, over two weeks</span>
+          <span class="bar"></span>
+          <span class="arrow" aria-hidden="true"><svg width="20" height="20"><use href="#i-arrow"/></svg></span>
+        </a>
+      </div>
+      <p class="sr" aria-live="polite" id="live"></p>
+
+      <section class="review aim-rise" style="--i:6" id="styles" aria-labelledby="styles-h">
+        <span class="review-flag">For Connor’s review · not learner copy</span>
+        <h2 class="sec-h" id="styles-h">Text styles for long steps</h2>
+        <article class="prose">
+          <p class="rt-label">Reference · How a week runs</p>
+          <h2 class="rt-h2">Every week has the same rhythm</h2>
+          <p class="rt-lead">One skill a week, one live build on Wednesday, and one hire that starts working the next morning.</p>
+          <p>Your <span class="rt-term">operator</span> runs that week’s <span class="rt-term">skill</span> before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don’t need to understand every line yet.</i> The goal is that <mark class="rt-hl">both of you show up Wednesday with the findings open</mark>. Week 1’s skill is <code class="rt-code">Map Your Spend</code>, and you can <a href="#" onclick="return false">see what it reads</a> before you run it.</p>
+          <div class="cos">
+            <div class="callout tip"><svg width="18" height="18"><use href="#i-info"/></svg><p><strong>Tip</strong>Block 30 minutes on Tuesday afternoon for the owner’s read. It’s the part that makes Wednesday fast.</p></div>
+            <div class="callout heads_up"><svg width="18" height="18"><use href="#i-alert"/></svg><p><strong>Heads up</strong>Hires read and draft only. Nothing sends, and nothing changes your books or your CRM.</p></div>
+            <div class="callout diy"><svg width="18" height="18"><use href="#i-user"/></svg><p><strong>Doing it yourself?</strong>If the owner is also the operator, do both reads in one sitting.</p></div>
+          </div>
+          <h3 class="rt-h3">The live build, step by step</h3>
+          <ol class="rt-steps">
+            <li><span><b>The question</b>What this week’s hire should take off someone’s desk.</span></li>
+            <li><span><b>Live reads</b>We run the skill together and read what it finds.</span></li>
+            <li><span><b>The hire lab</b>Your operator builds the hire while we watch.</span></li>
+            <li><span><b>The commit</b>The owner signs the seat card.</span></li>
+          </ol>
+          <blockquote class="rt-quote">“A hire is a skill that runs on a schedule and leaves a draft on one person’s desk.”<cite>The definition we use all course</cite></blockquote>
+          <div class="rt-two">
+            <div class="do"><h4><svg width="16" height="16"><use href="#i-check"/></svg>Do</h4><ul><li>Run the skill before Wednesday</li><li>Bring the findings to the build</li><li>Sign the seat card the same day</li></ul></div>
+            <div class="dont"><h4><svg width="16" height="16"><use href="#i-x"/></svg>Don’t</h4><ul><li>Give a hire send or edit access</li><li>Skip the owner’s read</li><li>Change the seat card after it’s signed</li></ul></div>
+          </div>
+          <div class="rt-banner">The checkpoint closes the week: <span>signed seat card, first-run screenshot, minutes taken over.</span></div>
+          <div class="copyblock"><header><span>Prompt · paste into your AI</span><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span class="aim-roll"><span>Copy</span><span aria-hidden="true">Copy</span></span></button></header>
+<pre>Run the Map Your Spend skill on last month’s numbers.
+Read only. Draft the summary for the owner, and don’t send it.</pre></div>
+          <div class="stylekey" aria-label="Style names">
+            <div><b>Lead</b>20 px intro line</div><div><b>Heading · Subheading</b>31 / 25 px</div><div><b>Label</b>Geist Mono caps, forest</div>
+            <div><b>Bold · Italic</b>600 · italic</div><div><b>Highlight</b>energy-bright wash</div><div><b>Key term</b>forest, 600</div>
+            <div><b>Code</b>Geist Mono on bone</div><div><b>Link</b>forest, underlined</div><div><b>Callouts</b>Tip · Heads up · Doing it yourself</div>
+            <div><b>Quote</b>20 px forest, energy rule</div><div><b>Do · Don’t</b>two columns</div><div><b>Banner</b>forest fill, one per step</div>
+          </div>
+        </article>
+
+        <h3 class="sec-h" style="margin-top:var(--s5);font-size:20px">What admins see in the Week Builder</h3>
+        <div class="builder">
+          <div class="bfield">
+            <div class="btool" role="toolbar" aria-label="Text styles">
+              <select aria-label="Block style"><option>Paragraph</option><option>Lead</option><option>Heading</option><option>Subheading</option><option>Label</option><option>Quote</option><option>Banner</option></select>
+              <button class="tb" type="button" aria-label="Bold" aria-pressed="true"><b>B</b></button>
+              <button class="tb" type="button" aria-label="Italic"><i style="font-family:Georgia,serif">I</i></button>
+              <span class="tsep"></span>
+              <button class="tb" type="button" aria-label="Highlight"><mark class="rt-hl" style="font-weight:600">H</mark></button>
+              <button class="tb" type="button" aria-label="Key term"><span class="rt-term">Term</span></button>
+              <button class="tb" type="button" aria-label="Code"><code style="font:600 12px var(--mono)">{ }</code></button>
+              <button class="tb" type="button" aria-label="Link"><svg width="16" height="16"><use href="#i-link"/></svg></button>
+            </div>
+<div class="barea">Your operator runs that week’s skill before the live build, **by Tuesday night**, and the owner reads what it finds. _You don’t need to understand every line yet._ The goal is that ==both of you show up Wednesday with the findings open==. Week 1’s skill is `Map Your Spend`.</div>
+          </div>
+          <div class="bfield">
+            <div class="btool"><span class="label" style="padding:0 6px">Live preview</span></div>
+            <div class="bprev">Your <span class="rt-term">operator</span> runs that week’s skill before the live build, <b>by Tuesday night</b>, and the owner reads what it finds. <i>You don’t need to understand every line yet.</i> The goal is that <mark class="rt-hl">both of you show up Wednesday with the findings open</mark>. Week 1’s skill is <code class="rt-code">Map Your Spend</code>.</div>
+          </div>
+        </div>
+
+        <h3 class="sec-h" style="margin-top:var(--s5);font-size:20px">Buttons: hover, press and focus</h3>
+        <div class="gallery" id="gallery">
+          <button class="btn btn-primary" type="button"><span class="aim-roll"><span>Primary</span><span aria-hidden="true">Primary</span></span></button>
+          <a class="btn btn-accent btn-arrow" href="#" onclick="return false" id="continue"><span class="aim-roll"><span>Continue step 3</span><span aria-hidden="true">Continue step 3</span></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+          <button class="btn btn-secondary" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg><span class="aim-roll"><span>Secondary</span><span aria-hidden="true">Secondary</span></span></button>
+          <button class="btn btn-ghost" type="button">Ghost</button>
+          <a class="inline" href="#" onclick="return false">Inline link</a>
+        </div>
+      </section>
+    </main>
+
+    <aside class="rail" aria-label="On this step">
+      <nav class="card aim-rise" style="--i:2" aria-label="On this page">
+        <h3>On this page</h3>
+        <a class="rail-link" href="#watch" data-spy="watch" aria-current="true">Watch</a>
+        <a class="rail-link" href="#checklist" data-spy="checklist">Your checklist</a>
+        <a class="rail-link" href="#reference" data-spy="reference">Reference</a>
+        <a class="rail-link" href="#styles" data-spy="styles">Text styles (review)</a>
+        <span class="spy-mark" aria-hidden="true"></span>
+        <h3 style="margin-top:20px">Checklist</h3>
+        <div class="rail-list" id="rail-list"></div>
+        <p class="due">Due Mon, Nov 30, 12:00 PM MT</p>
+      </nav>
+      <section class="card aim-rise" style="--i:3" aria-label="For this step">
+        <h3>For this step</h3>
+        <div class="res"><span class="res-ic"><svg width="16" height="16"><use href="#i-key"/></svg></span>
+          <div><b>System prompt</b><small>6 lines · about 63 tokens</small>
+            <div class="item-acts"><button class="btn btn-secondary btn-sm" type="button"><svg width="14" height="14"><use href="#i-eye"/></svg><span class="aim-roll"><span>View</span><span aria-hidden="true">View</span></span></button><button class="btn btn-secondary btn-sm" type="button" data-copy><svg width="14" height="14"><use href="#i-copy"/></svg><span class="aim-roll"><span>Copy</span><span aria-hidden="true">Copy</span></span></button></div>
+          </div></div>
+      </section>
+      <section class="card aim-rise" style="--i:4" aria-label="Still stuck">
+        <h3>Still stuck?</h3>
+        <a class="card-link li" href="#" onclick="return false"><span class="res-ic"><svg width="16" height="16"><use href="#i-mail"/></svg></span><span><b>Email support</b><small>support@amplifiedimpact.io</small></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+        <a class="card-link li" href="#" onclick="return false"><span class="res-ic"><svg width="16" height="16"><use href="#i-radio"/></svg></span><span><b>Office hours</b><small>Thu, Dec 3 · 12:00 PM MT</small></span><svg class="arrow" width="16" height="16"><use href="#i-arrow"/></svg></a>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+const CHAPTERS = [{"t": 0.0, "label": "Welcome"}, {"t": 15.27, "label": "The starting line"}, {"t": 55.2, "label": "The eight steps"}, {"t": 90.93, "label": "How a week runs"}, {"t": 138.1, "label": "The live build"}, {"t": 177.4, "label": "After the build"}, {"t": 211.13, "label": "What an AI hire is"}, {"t": 255.13, "label": "The seat card"}, {"t": 279.63, "label": "A real seat card"}, {"t": 307.93, "label": "The seven tasks we time"}, {"t": 354.97, "label": "Read and draft only"}, {"t": 430.07, "label": "The AI Office"}, {"t": 444.87, "label": "What’s next"}];
+const CUES = [{"s": 5.44, "e": 11.4, "text": "Hi team. Welcome to step 2 of our initial setup. I&#x27;d like for you to watch this with your operator,"}, {"s": 11.4, "e": 15.84, "text": "which is the teammate who sets all of this up and runs it alongside you. The goal for"}, {"s": 15.84, "e": 20.2, "text": "us in this session is that we get every team at the same starting line before we"}, {"s": 20.2, "e": 25.32, "text": "actually start building. Which means your AI is set up and connected to all of your"}, {"s": 25.32, "e": 30.04, "text": "other tech tools, that anything that could send or change things without your approval"}, {"s": 30.04, "e": 36.04, "text": "gets blocked from the start, that we do one practice hire, test the hire and ensure"}, {"s": 36.04, "e": 42.16, "text": "that it can run on its own, and then lastly that all six tasks get timed out so we know"}, {"s": 42.16, "e": 46.56, "text": "your benchmark for how much time you&#x27;re spending on these tasks we&#x27;re about to replace."}, {"s": 46.56, "e": 50.76, "text": "To make sure that we are ready for our December 2nd start date, I would love for"}, {"s": 50.76, "e": 56.92, "text": "this initial setup to all be completed by Monday, November 30th. There are 8 steps"}, {"s": 56.92, "e": 62.76, "text": "in this foundations course, and you are now on number 2. A few of these steps belong"}, {"s": 62.76, "e": 68.0, "text": "to the owner, the primary person who purchased this course, like filling in the intake"}, {"s": 68.0, "e": 74.46, "text": "form and timing out the six tasks, and then your operator, your supporter, is going"}, {"s": 74.46, "e": 79.6, "text": "to take the setup steps, which means getting your AI ready, connecting your data, and"}, {"s": 79.64, "e": 85.28, "text": "then putting the safety settings in place. And then the AI brain step, where we teach"}, {"s": 85.28, "e": 91.12, "text": "your AI about who you are, what your business is, is one that each of you will do."}, {"s": 91.12, "e": 97.28, "text": "So let&#x27;s start with how a week in this course is going to run. Every week we follow"}, {"s": 97.28, "e": 102.92, "text": "the same exact loop so that you always know what&#x27;s coming. Before the live builds,"}, {"s": 102.92, "e": 109.12, "text": "by Tuesday night, your operator will run that week&#x27;s skill. A skill is just a playbook"}, {"s": 109.16, "e": 115.96, "text": "that we&#x27;re going to load into your AI tool, and the owner reads what it finds or produces."}, {"s": 115.96, "e": 120.68, "text": "On Wednesday we&#x27;re going to do the live build together. After the build, the first"}, {"s": 120.68, "e": 127.02, "text": "run of your new AI hire is going to land in your platform, and I&#x27;ll explain what"}, {"s": 127.02, "e": 132.6, "text": "a hire is in just a minute. And then on Thursday we&#x27;re going to hold office hours."}, {"s": 132.6, "e": 138.44, "text": "And then we wrap up the week with the checkpoint before the next build begins."}, {"s": 138.44, "e": 143.52, "text": "The live build on Wednesday is going to be 90 minutes, and here is how I plan on using"}, {"s": 143.52, "e": 148.24, "text": "that time with y&#x27;all. For the first 10 minutes, we look at the question for the"}, {"s": 148.24, "e": 152.04, "text": "week that we&#x27;re trying to answer, which is, what is the number that we&#x27;re focused"}, {"s": 152.04, "e": 157.84, "text": "on and why does it matter this month? Then I will read three or four of your reports"}, {"s": 157.84, "e": 163.4, "text": "live so that we can digest what it&#x27;s telling you. And then we&#x27;re going to move into the"}, {"s": 163.4, "e": 169.0, "text": "hire lab, where we build the actual hire together. And then we close every"}, {"s": 169.0, "e": 173.76, "text": "week with the commit, which is the task that the hire actually takes over and"}, {"s": 173.76, "e": 180.36, "text": "who it essentially reports to. After the build, your hire&#x27;s first run is going to"}, {"s": 180.36, "e": 186.08, "text": "land, and then the owner is going to sign off on what it produces. On Thursday,"}, {"s": 186.08, "e": 189.64, "text": "like I said, we hold office hours, which is where I&#x27;m going to support you"}, {"s": 189.64, "e": 194.0, "text": "guys in getting your setup unstuck if anything isn&#x27;t working correctly for you."}, {"s": 194.0, "e": 198.0, "text": "And then the checkpoint is how we confirm that the week is actually done"}, {"s": 198.0, "e": 201.08, "text": "and that we&#x27;ve found success in what we wanted to accomplish for those"}, {"s": 201.08, "e": 206.68, "text": "seven days. That means the signed seat card, a screenshot of that first run, and"}, {"s": 206.68, "e": 209.76, "text": "then the minutes that the hire took over and the time that it&#x27;s saving"}, {"s": 209.76, "e": 215.08, "text": "you. I hope all of that is making sense. Now I want to share with you a"}, {"s": 215.08, "e": 221.44, "text": "little bit about what we mean by a hire. When we say an AI hire or an AI employee,"}, {"s": 221.44, "e": 226.24, "text": "we use those interchangeably, we mean a skill that runs on a schedule and"}, {"s": 226.24, "e": 230.72, "text": "leaves a draft on one person&#x27;s desk. The skill is the playbook that it"}, {"s": 230.72, "e": 235.36, "text": "actually follows. It&#x27;s SOP. The schedule is when it runs, and we&#x27;re"}, {"s": 235.36, "e": 240.52, "text": "going to set all of our run times in your local time. The draft is what it"}, {"s": 240.52, "e": 244.8, "text": "produces, what it writes for you, and it&#x27;s always something for you to check"}, {"s": 244.84, "e": 250.4, "text": "before anything gets sent or anything goes to another person. And the desk is"}, {"s": 250.4, "e": 255.6, "text": "the one person who that employee actually reports into. So just like"}, {"s": 255.6, "e": 260.88, "text": "anyone that we would bring into a team, every hire gets a job description and"}, {"s": 260.88, "e": 265.64, "text": "we call that a seat card in our terminology. It lists the hire&#x27;s name,"}, {"s": 265.64, "e": 271.56, "text": "who it reports to, when it runs, what it reads, the playbook and SOP that it"}, {"s": 271.56, "e": 276.08, "text": "uses, what it actually produces for you, the task that it took over, what it"}, {"s": 276.08, "e": 281.52, "text": "can&#x27;t or shouldn&#x27;t do, and its first run. So here is a real example from"}, {"s": 281.52, "e": 285.28, "text": "week two, so you can see what this is going to look like. This is called"}, {"s": 285.28, "e": 290.72, "text": "the lead desk monitor, and it reports to your team leader, whoever is"}, {"s": 290.72, "e": 294.88, "text": "responsible for production, and it runs every weekday morning at 7am local"}, {"s": 294.88, "e": 300.92, "text": "time. It leaves a list of missed leads as a Gmail draft, and it never"}, {"s": 300.92, "e": 305.92, "text": "includes a client name or anything, and it can&#x27;t call, text, reassign or"}, {"s": 305.92, "e": 312.08, "text": "update a lead. Now let&#x27;s talk about why we time the six tasks that we&#x27;re"}, {"s": 312.08, "e": 317.48, "text": "about to create in this course before we actually begin building their"}, {"s": 317.48, "e": 322.2, "text": "replacement. Each hire that we build should be taking over one of those"}, {"s": 322.2, "e": 327.36, "text": "tasks, from getting last month&#x27;s numbers in front of the team owner to"}, {"s": 327.36, "e": 331.4, "text": "building out the weekly meeting scorecard and recap. That is why we"}, {"s": 331.4, "e": 335.32, "text": "need you to time each one in terms of how long it takes you now and"}, {"s": 335.32, "e": 339.92, "text": "mark whether or not it is done, and today you&#x27;ll actually mark it as"}, {"s": 339.92, "e": 344.32, "text": "not done. This becomes your time baseline, and it&#x27;s what we&#x27;ll"}, {"s": 344.32, "e": 347.64, "text": "measure each hire against, it&#x27;s what I&#x27;ll measure my own success"}, {"s": 347.64, "e": 351.0, "text": "against, and it&#x27;s what I&#x27;ll measure your own performance in the course"}, {"s": 351.0, "e": 353.84, "text": "against to make sure that you got out of it what you signed up for."}, {"s": 354.84, "e": 358.84, "text": "Lastly, let&#x27;s talk about how we keep all of this safe. We call that"}, {"s": 358.84, "e": 362.28, "text": "read and draft only. That&#x27;s the frame that we are using for that."}, {"s": 362.28, "e": 365.52, "text": "So our hires, our new AI employees, can read your tools, but"}, {"s": 365.52, "e": 369.6, "text": "anything that can send or change something in your system, like"}, {"s": 369.6, "e": 373.6, "text": "sending an email or editing your QuickBooks gets blocked. We call"}, {"s": 373.6, "e": 376.96, "text": "those write tools. That&#x27;s not what we&#x27;re producing. The only"}, {"s": 376.96, "e": 380.64, "text": "exceptions are saving drafts and saving files to your AI office,"}, {"s": 380.64, "e": 383.36, "text": "which I&#x27;ll show you here at the end of our first session here."}, {"s": 384.08, "e": 388.2, "text": "On Claude, we&#x27;re going to block those things from writing one tool"}, {"s": 388.2, "e": 391.76, "text": "at a time. And then on ChatGBT, we actually turn off what the"}, {"s": 391.76, "e": 394.8, "text": "plugins let us and we add one line to your instructions that"}, {"s": 394.8, "e": 400.16, "text": "covers the rest. This is how your instructions for the financial"}, {"s": 400.16, "e": 404.96, "text": "analyst end. It clearly states for it, you are to read only,"}, {"s": 405.0, "e": 410.08, "text": "never change the books, never send. And every seat card spells"}, {"s": 410.08, "e": 413.08, "text": "out that same type of thing of what the hire can&#x27;t do. And"}, {"s": 413.08, "e": 415.92, "text": "those limits are what we&#x27;re going to consider our guardrails."}, {"s": 416.56, "e": 421.04, "text": "So the moral of the story is that the hire is going to draft"}, {"s": 421.08, "e": 426.2, "text": "the actual output and then the owner is going to decide on if"}, {"s": 426.2, "e": 430.72, "text": "this meets the standard that you all are are carrying. All"}, {"s": 430.72, "e": 433.24, "text": "of this is going to live in what we call the AI office that"}, {"s": 433.24, "e": 436.16, "text": "I mentioned, which is a folder in your Google Drive."}, {"s": 436.64, "e": 439.48, "text": "Your hires are going to read from it and save to it and"}, {"s": 439.48, "e": 442.44, "text": "any exports you pull from other tools are going to go into"}, {"s": 442.44, "e": 446.52, "text": "its inbox folder as well. So that&#x27;s how a week is going to"}, {"s": 446.52, "e": 449.2, "text": "run and what a hire is and just some context around how"}, {"s": 449.2, "e": 452.2, "text": "this is going to flow. If anything comes up, please don&#x27;t"}, {"s": 452.2, "e": 455.84, "text": "hesitate to reach out to me. Next, we&#x27;re going to get"}, {"s": 455.84, "e": 459.84, "text": "your time baseline started so we know how many hours this"}, {"s": 459.88, "e": 461.64, "text": "entire experience is meant to save you."}];
+const STEPS = [
+  {n:1,t:'Fill In Your Intake and Name Your Operator',s:'done'},
+  {n:2,t:'Watch the Orientation',s:'current'},
+  {n:3,t:'Start Your Time Baseline',s:'up'},
+  {n:4,t:'Get Your AI Ready',s:'up'},
+  {n:5,t:'Set Up Your AI Brain',s:'waiting'},
+  {n:6,t:'Connect Your Data',s:'up'},
+  {n:7,t:'Lock the Guardrails',s:'up'},
+  {n:8,t:'Run the Ready Check and Your Test Hire',s:'up'}];
+/* Amplified Impact Motion v1: reduced motion is the OS setting or .aim-reduced on any ancestor (isReducedMotion in ai-motion.tsx) */
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches || !!document.body?.closest('.aim-reduced');
+/* the system curve as a function, for numbers that count with a filling bar (cubicBezier + useCountUp in ai-motion.tsx) */
+function cubicBezier(x1, y1, x2, y2){ const cx1 = 3*x1, bx = 3*(x2-x1)-cx1, ax = 1-cx1-bx, cy1 = 3*y1, by = 3*(y2-y1)-cy1, ay = 1-cy1-by;
+  const sx = t => ((ax*t+bx)*t+cx1)*t, sy = t => ((ay*t+by)*t+cy1)*t, dx = t => (3*ax*t+2*bx)*t+cx1;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 8; i++){ const e = sx(t)-x; if (Math.abs(e) < 1e-5) break; const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= e/d; } return sy(Math.min(1, Math.max(0, t))); }; }
+const easeBrand = cubicBezier(.2, .7, .2, 1);
+let countRun = 0;
+function countUp(from, to, ms, draw){ const run = ++countRun; if (from === to || reduce()){ draw(to); return; } const t0 = performance.now();
+  const step = now => { if (run !== countRun) return; const p = Math.min(1, (now - t0)/ms); draw(from + (to - from)*easeBrand(p)); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+const setRoll = (el, text) => { const r = el.querySelectorAll('.aim-roll > span'); if (r.length) r.forEach(x => x.textContent = text); else el.querySelector('span').textContent = text; };
+const beh = () => reduce() ? 'auto' : 'smooth';
+const clock = t => { t = Math.floor(t); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+const CHECK = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+const CHECK_DRAW = '<svg class="draw" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M3.5 8.5l3 3 6-7"/></svg>';
+const $ = id => document.getElementById(id);
+
+/* the one horizontal scroller: snap, edge fades, arrows, follow-without-fighting */
+function scroller(hs){
+  const row = hs.querySelector('.hs-row'), prev = hs.querySelector('.hs-prev'), next = hs.querySelector('.hs-next');
+  let userUntil = 0;
+  const update = () => {
+    const max = row.scrollWidth - row.clientWidth - 1;
+    const l = row.scrollLeft > 1, r = row.scrollLeft < max;
+    row.classList.toggle('fade-l', l); row.classList.toggle('fade-r', r);
+    prev.hidden = !l; next.hidden = !r;
+  };
+  row.addEventListener('scroll', update, {passive:true});
+  ['wheel','touchstart','pointerdown'].forEach(e => row.addEventListener(e, () => userUntil = Date.now() + 3000, {passive:true}));
+  prev.onclick = () => { userUntil = Date.now()+3000; row.scrollBy({left:-row.clientWidth*.8, behavior:beh()}); };
+  next.onclick = () => { userUntil = Date.now()+3000; row.scrollBy({left: row.clientWidth*.8, behavior:beh()}); };
+  new ResizeObserver(update).observe(row);
+  update();
+  return { row, update,
+    center(el, force){ if (!force && Date.now() < userUntil) return;
+      row.scrollTo({left: el.offsetLeft - row.clientWidth/2 + el.offsetWidth/2, behavior: force==='instant' ? 'auto' : beh()}); } };
+}
+
+/* step pills: every step labeled, in the shared horizontal scroller; the current step is brought into view */
+const pillsRow = $('pills');
+STEPS.forEach(st => {
+  const a = document.createElement('a');
+  a.className = 'stp'; a.href = '#'; a.onclick = () => false;
+  a.dataset.s = st.s; a.dataset.n = st.n;
+  if (st.s === 'current') a.setAttribute('aria-current','step');
+  a.setAttribute('aria-label', `Step ${st.n}, ${st.t}${st.s==='done'?', done':st.s==='waiting'?', waiting on another step':st.s==='current'?', current step':''}`);
+  a.innerHTML = `<span class="stp-n" aria-hidden="true">${st.s==='done' ? CHECK : `<span>${st.n}</span>`}</span><span class="stp-t">${st.t}</span>`;
+  pillsRow.append(a);
+});
+const pills = scroller($('pills-hs'));
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => pills.center(pillsRow.querySelector('[aria-current="step"]'), 'instant'));
+
+/* video + chapters */
+const video = $('video'), vframe = $('vframe'), chapRow = $('chaps');
+CHAPTERS.forEach(c => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.setAttribute('role','listitem');
+  b.innerHTML = `<time>${clock(c.t)}</time><span>${c.label}</span>`;
+  b.setAttribute('aria-label', `${c.label}, ${clock(c.t)}`);
+  b.onclick = () => seek(c.t, true);
+  chapRow.append(b);
+});
+const chaps = scroller($('chaps-hs'));
+const chipEls = [...chapRow.children];
+const start = () => vframe.classList.add('started');
+const buffering = on => vframe.classList.toggle('buffering', on);
+const play = () => { buffering(true); video.play().catch(() => buffering(false)); };
+function seek(t, playIt){ video.currentTime = t; tick(t, true); if (playIt){ start(); play(); } }
+$('vplay').onclick = () => { start(); play(); video.focus(); };
+video.addEventListener('play', start);
+video.addEventListener('waiting', () => buffering(true));
+['playing','pause','ended','error'].forEach(e => video.addEventListener(e, () => buffering(false)));
+document.querySelectorAll('[data-seek]').forEach(b => b.onclick = () => { seek(+b.dataset.seek, true); $('watch').scrollIntoView({behavior:beh()}); });
+
+let activeChap = -1, activeGroup = -1, activeCue = -1;
+function tick(t, force){
+  const dur = video.duration || 468.87;
+  let ci = 0; CHAPTERS.forEach((c,i) => { if (t >= c.t - .05) ci = i; });
+  const end = (CHAPTERS[ci+1]?.t ?? dur);
+  chipEls[ci].style.setProperty('--p', Math.min(1, Math.max(0, (t - CHAPTERS[ci].t) / (end - CHAPTERS[ci].t))));
+  if (ci !== activeChap){
+    chipEls.forEach(el => el.removeAttribute('aria-current'));
+    chipEls[ci].setAttribute('aria-current','true');
+    activeChap = ci; chaps.center(chipEls[ci], force);
+  }
+  let cu = -1; for (let i=0;i<CUES.length;i++){ if (t >= CUES[i].s - .05) cu = i; else break; }
+  if (cu !== activeCue){
+    document.querySelectorAll('.cue span.c.now').forEach(e => e.classList.remove('now'));
+    activeCue = cu;
+    if (cu >= 0){
+      const sp = $('c'+cu); sp.classList.add('now');
+      const g = +sp.dataset.g;
+      if (g !== activeGroup){
+        document.querySelectorAll('.cue[aria-current]').forEach(e => e.removeAttribute('aria-current'));
+        const row = $('g'+g); row.setAttribute('aria-current','true');
+        activeGroup = g; follow(row, force);
+      }
+    }
+  }
+  if (dur && t / dur >= .9) setChecked(items[0], true);
+}
+video.addEventListener('timeupdate', () => tick(video.currentTime));
+video.addEventListener('seeked', () => tick(video.currentTime, true));
+
+/* inline transcript: groups of cues into readable rows, each cue a seekable span */
+const tscroll = $('tscroll'), tpanel = $('tpanel'), tback = $('tback');
+const groups = []; { let g = [];
+  CUES.forEach((c,i) => { g.push(i); const endS = /[.?!]["”]?$/.test(c.text.trim()); const span = CUES[i].e - CUES[g[0]].s;
+    if ((endS && span > 10) || span > 42 || i === CUES.length-1){ groups.push(g); g = []; } }); }
+groups.forEach((g,gi) => {
+  const b = document.createElement('button'); b.type='button'; b.className='cue'; b.id='g'+gi;
+  b.innerHTML = `<time>${clock(CUES[g[0]].s)}</time><span>${g.map(i => `<span class="c" id="c${i}" data-g="${gi}">${CUES[i].text}</span>`).join(' ')}</span>`;
+  b.onclick = e => { const sp = e.target.closest('span.c'); seek(sp ? CUES[+sp.id.slice(1)].s : CUES[g[0]].s, true); };
+  tscroll.append(b);
+});
+let tUserUntil = 0, programmatic = false;
+function follow(row, force){
+  if (!tpanel.classList.contains('open')) return;
+  if (!force && Date.now() < tUserUntil){ tback.classList.add('show'); return; }
+  programmatic = true;
+  tscroll.scrollTo({top: row.offsetTop - tscroll.clientHeight/3, behavior: force==='instant'?'auto':beh()});
+  setTimeout(() => programmatic = false, 500);
+  tback.classList.remove('show');
+}
+['wheel','touchstart','pointerdown','keydown'].forEach(e => tscroll.addEventListener(e, () => { tUserUntil = Date.now()+4000; }, {passive:true}));
+tscroll.addEventListener('scroll', () => { if (!programmatic && activeGroup >= 0){ const r = $('g'+activeGroup); const off = r.offsetTop - tscroll.scrollTop; tback.classList.toggle('show', off < 0 || off > tscroll.clientHeight - 30); } }, {passive:true});
+tback.onclick = () => { tUserUntil = 0; follow($('g'+Math.max(0,activeGroup)), true); };
+const ttoggle = $('ttoggle'), tlabel = $('tlabel'), tcopy = $('tcopy');
+function setTranscript(open){
+  tpanel.classList.toggle('open', open); tpanel.inert = !open;
+  ttoggle.setAttribute('aria-expanded', open); tlabel.textContent = open ? 'Hide transcript' : 'Show transcript';
+  tcopy.hidden = !open;
+  try { localStorage.setItem('w0s2-transcript', open ? '1':'0'); } catch(e){}
+  if (open){ const r = $('g'+Math.max(0,activeGroup)); if (r) follow(r, 'instant'); }
+}
+ttoggle.onclick = () => setTranscript(ttoggle.getAttribute('aria-expanded') !== 'true');
+
+function flashCopy(btn, text){
+  navigator.clipboard?.writeText(text).catch(()=>{});
+  const r = btn.querySelector('.aim-roll > span') || btn.querySelector('span'); const old = r.textContent; setRoll(btn, 'Copied'); setTimeout(() => setRoll(btn, old), 1400);
+}
+tcopy.onclick = () => flashCopy(tcopy, CUES.map(c=>c.text).join(' '));
+document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => flashCopy(b, b.closest('.copyblock')?.querySelector('pre')?.textContent || 'System prompt'));
+
+const knowBtn = $('know-btn'), know = $('know');
+knowBtn.onclick = () => { const o = know.hidden; know.hidden = !o; knowBtn.setAttribute('aria-expanded', o); setRoll(knowBtn, o ? 'Hide the five words' : 'Open the five words'); };
+
+/* checklist, progress, step-complete moment */
+const items = [...document.querySelectorAll('.item')];
+const railList = $('rail-list');
+items.forEach(it => {
+  const a = document.createElement('a'); a.className='rail-link'; a.href='#checklist'; a.dataset.for = it.dataset.id;
+  a.innerHTML = `<span class="mini"><svg width="10" height="10" viewBox="0 0 16 16"><path pathLength="20" d="M3.5 8.5l3 3 6-7"/></svg></span>${it.querySelector('.item-title').firstChild.textContent.trim()}`;
+  railList.append(a);
+  const b = it.querySelector('.box-btn');
+  b.onclick = () => setChecked(it, b.getAttribute('aria-checked') !== 'true');
+});
+let stepDone = false;
+function setChecked(it, on){
+  const b = it.querySelector('.box-btn');
+  if ((b.getAttribute('aria-checked') === 'true') === on) return;
+  b.setAttribute('aria-checked', on); it.classList.toggle('done', on);
+  const r = railList.querySelector(`[data-for="${it.dataset.id}"]`); r.classList.toggle('done', on); r.querySelector('.mini').classList.toggle('on', on);
+  if (!on && stepDone) setStep(false);
+  refresh();
+}
+const mark = $('mark'), why = $('why'), live = $('live');
+let shownN = 0;
+const say = text => { if (why.textContent !== text){ why.textContent = text; restart(why, 'msg'); } };
+function refresh(){
+  const n = items.filter(i => i.classList.contains('done')).length, left = items.length - n;
+  $('prog-fill').style.setProperty('--pct', n/items.length);
+  $('prog').setAttribute('aria-valuenow', n);
+  countUp(shownN, n, 720, v => { shownN = v; $('prog-l').textContent = `${Math.round(v)} of ${items.length} checked`; });
+  if (!stepDone){
+    mark.setAttribute('aria-disabled', left ? 'true' : 'false');
+    why.classList.remove('nudge');
+    say(left ? `Check off ${left} more to mark this step done.` : 'All 4 checked. You’re ready to mark this step done.');
+  }
+}
+const pill2 = pillsRow.querySelector('[data-n="2"] .stp-n');
+const markLabel = $('mark-lbl'), markDone = mark.querySelector('.aim-async__done');
+function setStep(on){
+  stepDone = on;
+  mark.classList.toggle('is-done', on);
+  mark.dataset.state = on ? 'done' : 'idle';             /* brand 03: the CSS plays the roll, the rise, the dot and the ring */
+  markLabel.setAttribute('aria-hidden', on ? 'true' : 'false'); markDone.setAttribute('aria-hidden', on ? 'false' : 'true');
+  $('done-row').hidden = !on;
+  const nextCard = $('next');
+  if (on){
+    why.classList.remove('nudge'); say('Nice work. Step 3 is next.');
+    pill2.closest('.stp').dataset.s = 'done';
+    pill2.innerHTML = CHECK_DRAW;                         /* the check draws (lesson tier) */
+    nextCard.classList.add('cue-next');
+    live.textContent = 'Step 2 marked done. Next: Step 3, Start Your Time Baseline.';
+  } else {
+    pill2.closest('.stp').dataset.s = 'current'; pill2.innerHTML = '<span>2</span>';
+    nextCard.classList.remove('cue-next');
+    live.textContent = 'Step 2 is no longer marked done.';
+  }
+  refresh();
+}
+mark.onclick = () => {
+  if (stepDone) return;
+  if (mark.getAttribute('aria-disabled') === 'true'){
+    why.classList.add('nudge');
+    const first = items.find(i => !i.classList.contains('done'));
+    first?.scrollIntoView({behavior:beh(), block:'center'}); first?.querySelector('.box-btn').focus({preventScroll:true});
+    return;
+  }
+  setStep(true);
+};
+$('undo').onclick = () => setStep(false);
+
+/* scroll-spy on the rail */
+const spy = [...document.querySelectorAll('[data-spy]')];
+const spyMark = document.querySelector('.spy-mark');
+function placeSpy(){ const a = spy.find(x => x.getAttribute('aria-current') === 'true'); if (!a) return;
+  spyMark.style.setProperty('--x', a.offsetLeft + 'px'); spyMark.style.setProperty('--y', a.offsetTop + 'px'); spyMark.style.setProperty('--h', a.offsetHeight + 'px'); }
+placeSpy(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { placeSpy(); requestAnimationFrame(() => requestAnimationFrame(() => spyMark.classList.add('live'))); });
+new ResizeObserver(placeSpy).observe(spyMark.parentElement);
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ spy.forEach(a => a.dataset.spy === e.target.id ? a.setAttribute('aria-current','true') : a.removeAttribute('aria-current')); placeSpy(); } }), {rootMargin:'-30% 0px -60% 0px'});
+['watch','checklist','reference','styles'].forEach(id => io.observe($(id)));
+
+try { if (localStorage.getItem('w0s2-transcript') === '1') setTranscript(true); } catch(e){}
+tick(0, 'instant');
+refresh(); why.classList.remove('msg');
+window.__mock = {setChecked, items, setStep, setTranscript, seek, tick, chaps, pills};
+
+</script>
+</body>
+</html>
