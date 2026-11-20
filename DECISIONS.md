@@ -7050,3 +7050,29 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
   - **The ink on a forest button** was pure white. The step page's is `#f5f5f2` (`--sp-on-forest`), and the learner frame's `--r2-on-for` now takes it.
   - **The hero card's hairline** (Home, the week, Schedule, Account, a skill) was the 20% line. It is the step page's 12% card hairline now, and the hero keeps its larger lift.
 - **Result.** 38 checks pass: 36 for the rules (D-214, D-215) and 2 for this comparison.
+
+## D-217 · The builder's week fields wired to the learner pages (supersedes D-214 where they differ)
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that everything the builder holds reach learners, and that details be decided consistently with past guidance. The open week already shows what the builder edits, each section under its own heading (parity K-3, D-184), so these fields are drawn the same way instead of being left out of the builder.
+**Number:** D-216 is the component comparison.
+
+- **Flagship and Tools** (the builder's Course page card) are back in the builder. They form the week page's **Tools** section, after Who Does What: a Flagship row, then the tools as a list.
+- **Sample output** (Hire cards) is back. It is the week page's section of that title, just before the seat card, with its made-up label under the heading. Its blocks draw in order:
+  - text as a paragraph;
+  - a list as a list;
+  - a copy box as a labelled row;
+  - a table as the step page draws one (Geist Mono caps headings in forest on bone, a hairline frame, the first column in ink at 600).
+- **Status labels** (Hire cards) are back. They name a week's state in the builder's words on Home's week cards and in the sidebar, by key: `not_started` and `built`. A key left empty keeps the portal's own words ("Not started", "Built"), and an in-progress week keeps its count. The builder's hint says which keys are read.
+- **The promise** is still edited as the week's Outcome (D-214), the line learners read under the question.
+- **Outputs 1 to 3 and the Run button label** stay off a week's details.
+  - They are an AI Employee's fields: its hire page reads them, and the builder still offers them there.
+  - A week's outputs repeat its own "Implemented by Week's End" homework lines, word for word in every seeded week. A section of them would say the same three lines twice on one page.
+  - A week has no run action for a run label to name.
+- **The learner answer.** `courseWeekOf` now carries a week's flagship, tools, sample output and status labels, but only inside an open week of the gated course answer (D-173): a locked week's stub is unchanged.
+- **Proof.**
+  - `WeekBuilder.sync.test.tsx` drives the real builder's editors and checks that each field reaches a learner page:
+    - every text field in the Course page, Live build, Office hours, Seat card, Playbook card and Sample output (a paragraph, list, copy box and table) reaches the week page;
+    - Locked copy reaches the locked week;
+    - the Status labels editor reaches Home and the sidebar.
+  - `WeekContent.sync.test.ts` lists only the promise (carried by the outcome) as not drawn on the week page. It also checks the status labels on Home and in the nav.

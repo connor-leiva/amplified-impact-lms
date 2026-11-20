@@ -137,6 +137,24 @@ function Part({ part }: { part: PartVM }) {
         ))}
       </div>
     );
+  // D-217: a sample output's table, as the step page draws one.
+  if (part.kind === 'table')
+    return (
+      <div className={c.tbl}>
+        <table>
+          {part.head ? (
+            <thead>
+              <tr>{part.head.map((h, i) => <th key={i}>{h}</th>)}</tr>
+            </thead>
+          ) : null}
+          <tbody>
+            {part.rows.map((r, i) => (
+              <tr key={i}>{r.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   return (
     <div className={c.part}>
       {part.heading ? <h3 className={c.h3}>{part.heading}</h3> : null}

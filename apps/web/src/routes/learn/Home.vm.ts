@@ -13,7 +13,7 @@ import { COPY as COURSE_COPY } from '../course/Course.vm';
 import { PRE_LAUNCH, whenOf } from '../library/PreLaunch';
 import type { CoursePayload } from '../course/Course.vm';
 import type { CourseLoad } from './data';
-import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle } from './learn.vm';
+import { LABELS, SUPPORT_HREF, addLabel, icsEvents, segments, sessionRow, stepMeta, stepTitle, weekStatusText } from './learn.vm';
 import type { Seg, SessionRowVM, Tone, WeekRow } from './learn.vm';
 import { learnSchedule, learnSkills, learnStep } from './routes';
 import { HIRE } from './Hire.vm';
@@ -245,10 +245,10 @@ function cards(rows: readonly WeekRow[], current: WeekRow | null, liveWeek: numb
           ? { kind: 'text', text: r.opensShort }
           : null
         : r.state === 'built'
-          ? { kind: 'built', text: LABELS.built }
+          ? { kind: 'built', text: weekStatusText(r, 'built', LABELS.built) }
           : r.state === 'in_progress'
             ? { kind: 'bar', segs: segments(r.steps), text: `${r.done} of ${r.total}` }
-            : { kind: 'text', text: LABELS.notStarted };
+            : { kind: 'text', text: weekStatusText(r, 'not_started', LABELS.notStarted) };
     const said = foot ? foot.text : r.state === 'locked' ? LABELS.locked : '';
     return {
       key: `week:${r.week}`,

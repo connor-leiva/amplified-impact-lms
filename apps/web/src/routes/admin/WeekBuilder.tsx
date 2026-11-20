@@ -937,8 +937,27 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
               <Line label="Operator time" value={c.time.operator} onChange={(v) => set((x) => (x.time.operator = v))} />
             </span>
           </div>
-          {/* D-214: no Flagship or Tools fields. Nothing a learner sees reads them: the week's flagship is the kit
-              skill whose role is Flagship (Kit, below), and the learner pages list no tools. */}
+          {/* D-217: the week page's Tools section draws these two. */}
+          <Line
+            label="Flagship"
+            value={c.flagship ?? ''}
+            onChange={(v) =>
+              set((x) => {
+                if (v.trim()) x.flagship = v;
+                else delete x.flagship;
+              })
+            }
+          />
+          <Lines
+            label="Tools"
+            items={c.tools ?? []}
+            onChange={(v) =>
+              set((x) => {
+                if (v.length) x.tools = v;
+                else delete x.tools;
+              })
+            }
+          />
           <Lines label="By week’s end" items={c.homework.byWeekEnd} onChange={(v) => set((x) => (x.homework.byWeekEnd = v))} />
           <Lines label="Assignment" items={c.homework.assignment} onChange={(v) => set((x) => (x.homework.assignment = v))} />
           <Lines label="Checkpoint" items={c.homework.acceptance} onChange={(v) => set((x) => (x.homework.acceptance = v))} />
@@ -1124,11 +1143,10 @@ const EMPTY: { [K in CardKey]: NonNullable<WeekDraft['course'][K]> } = {
 };
 
 /**
- * D-214: the cards a learner sees: the seat and playbook cards on the week page, and a locked week's copy. A
- * week's sample output and status labels are kept on the module but not offered here: no learner page reads
- * them, so editing them would change nothing anyone sees.
+ * D-217: every card here reaches learners: the seat and playbook cards and the sample output on the week page,
+ * a locked week's copy, and the status labels on Home's week cards and in the sidebar (`not_started`, `built`).
  */
-const SHOWN_CARDS: readonly CardKey[] = ['seatCard', 'playbookCard', 'lockedCopy'];
+const SHOWN_CARDS: readonly CardKey[] = ['seatCard', 'playbookCard', 'sampleOutput', 'lockedCopy', 'statusLabels'];
 
 function HireCardsCard({ draft, up }: WeekCardsProps) {
   const [open, setOpen] = useState<CardKey | null>(null);
@@ -1292,7 +1310,7 @@ function StatusLabelFields({ labels, onChange }: { labels: Readonly<Record<strin
           onChange(out);
         }}
       />
-      <span className={clsx(k.me, w.hint)}>One per line: state, a colon, then the label (not_started: Not hired yet).</span>
+      <span className={clsx(k.me, w.hint)}>One per line: state, a colon, then the label (not_started: Not hired yet). Home and the sidebar read not_started and built.</span>
     </label>
   );
 }
