@@ -34,7 +34,13 @@ describe('the week’s content (D-184)', () => {
   it('@parity:K-1 @parity:K-2 @parity:K-3 @parity:K-4 @parity:K-6 @parity:K-7 every field present shows, in the course page’s order', () => {
     const p = payloadOf(deployed());
     open(p, 1).officeHours!.outputs = ['A spend map you trust.'];
-    expect(ids(p, 1)).toEqual(['why', 'who', 'live', 'office-hours', 'homework', 'evidence', 'rubric', 'readiness', 'media', 'seat', 'playbook']);
+    // D-217: the builder's flagship and tools follow Who Does What; a sample output (when set) comes before the cards.
+    expect(ids(p, 1)).toEqual(['why', 'who', 'tools', 'live', 'office-hours', 'homework', 'evidence', 'rubric', 'readiness', 'media', 'seat', 'playbook']);
+    open(p, 1).sampleOutput = { title: 'Sample report', madeUpLabel: 'Made-up data', blocks: [{ type: 'table', head: ['Source', 'Cost'], rows: [['Zillow', '$1']] }] };
+    const sample = weekContentVM(p, 1)!.sections.find((x) => x.id === 'sample')!;
+    expect(ids(p, 1).indexOf('sample')).toBe(ids(p, 1).indexOf('seat') - 1);
+    expect(sample).toMatchObject({ title: 'Sample report', meta: 'Made-up data', parts: [{ kind: 'table', head: ['Source', 'Cost'], rows: [['Zillow', '$1']] }] });
+    expect(weekContentVM(p, 1)!.sections.find((x) => x.id === 'tools')!.parts[0]).toEqual({ kind: 'rows', heading: null, rows: [{ label: 'Flagship', text: open(p, 1).flagship }] });
     const vm = weekContentVM(p, 1)!;
     const sec = (id: string) => vm.sections.find((x) => x.id === id)!;
     const w = open(p, 1);
@@ -206,6 +212,9 @@ describe('the week’s content (D-184)', () => {
         materials: [],
         seatCard: undefined,
         playbookCard: undefined,
+        flagship: undefined,
+        tools: undefined,
+        sampleOutput: undefined,
       });
     for (const w of p.course.weeks) blank(w as OpenCourseWeek);
     const empty: CohortCourse = {

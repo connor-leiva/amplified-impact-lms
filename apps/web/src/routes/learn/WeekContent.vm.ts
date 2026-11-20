@@ -13,7 +13,7 @@
 import { fmt } from '@ai/core';
 import type { AIEmployee, SkillFile } from '@ai/core';
 import type { LearnerCourseWeek, OpenCourseWeek } from '@ai/core/course';
-import type { PlaybookCard, SeatCard, VideoBlock } from '@ai/core/course-types';
+import type { PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
 import { skillPreview } from '@ai/core/files';
 import { COPY, weekVM as courseWeekVM } from '../course/Course.vm';
 import type { CoursePayload, DownloadVM, Row } from '../course/Course.vm';
@@ -77,6 +77,8 @@ export type PartVM =
   | { kind: 'list'; heading: string | null; items: string[] }
   /** D-188: a week's Media videos, each played inline (or a link to watch it). */
   | { kind: 'videos'; videos: VideoBlock[] }
+  /** D-217: a table from the week's sample output, drawn as the step page draws one (`.rt-table`). */
+  | { kind: 'table'; head: string[] | null; rows: string[][] }
   | { kind: 'text'; text: string; note: boolean };
 
 export interface SectionVM {
@@ -113,6 +115,27 @@ export interface WeekContentVM {
 }
 
 const has = (s: string | null | undefined): s is string => !!s && s.trim() !== '';
+
+/** D-217: the week page's words for the builder's flagship, tools and sample output. */
+export const WEEK_WORDS = { tools: 'Tools', flagship: 'Flagship', sampleOutput: 'Sample Output' } as const;
+
+/** D-217: the week's flagship and tools, as the builder's Course page card sets them. */
+function toolsSection(w: OpenCourseWeek): SectionVM | null {
+  return section('tools', WEEK_WORDS.tools, [rowsPart(null, [{ label: WEEK_WORDS.flagship, text: w.flagship ?? '' }]), listPart(null, w.tools)]);
+}
+
+/** D-217: the week's sample output (the builder's Hire cards), its blocks in order, with its made-up label. */
+function sampleSection(so: SampleOutput | undefined): SectionVM | null {
+  if (!so) return null;
+  const parts = so.blocks.map((b): PartVM | null => {
+    if (b.type === 'text') return textPart(b.text);
+    if (b.type === 'list') return listPart(null, b.items);
+    if (b.type === 'copy') return rowsPart(null, [{ label: b.label ?? '', text: b.text }]);
+    if (b.type === 'table') return b.rows.length ? { kind: 'table', head: b.head?.length ? b.head : null, rows: b.rows } : null;
+    return null;
+  });
+  return section('sample', has(so.title) ? so.title : WEEK_WORDS.sampleOutput, parts, has(so.madeUpLabel) ? so.madeUpLabel : null);
+}
 const rowsOf = (rows: readonly Row[]): Row[] => rows.filter((r) => has(r.text));
 const itemsOf = (items: readonly string[] | undefined): string[] => (items ?? []).filter(has);
 
@@ -182,6 +205,7 @@ export function weekContentVM(p: CoursePayload, week: number, m?: Pick<AIEmploye
       : null,
     section('why', COPY.why, [listPart(null, v.why)]),
     section('who', COPY.whoDoesWhat, [rowsPart(null, v.roles), rowsPart(COPY.time, v.time), rowsOf(v.time).length ? textPart(v.timeNote, true) : null]),
+    toolsSection(w),
     v.live
       ? section(
           'live',
@@ -230,6 +254,7 @@ export function weekContentVM(p: CoursePayload, week: number, m?: Pick<AIEmploye
       videosPart(v.media.filter((m): m is VideoBlock => typeof m !== 'string')),
       listPart(COPY.materials, v.materials),
     ]),
+    sampleSection(w.sampleOutput),
     seatSection(w.seatCard),
     playbookSection(w.playbookCard),
     last ? section('graduation', COPY.graduation, [listPart(null, after.graduation), textPart(after.graduationNote, true)]) : null,

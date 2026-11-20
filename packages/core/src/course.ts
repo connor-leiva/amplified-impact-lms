@@ -32,7 +32,7 @@ export function courseWeekModules(db: Pick<Db, 'modules'>): WeekModule[] {
  * gated answer, never in a locked week's stub (`lockedWeekOf`) or the snapshot (D-173).
  */
 export function courseWeekOf(m: WeekModule): CourseWeek {
-  const { promise: _p, flagship: _f, tools: _t, sampleOutput: _so, lockedCopy: _l, statusLabels: _sl, ...week } = m.course;
+  const { promise: _p, lockedCopy: _l, ...week } = m.course;
   return {
     ...week,
     module: {

@@ -110,6 +110,14 @@ export interface WeekRow {
 }
 
 /** Every week of the course, in order, each with this learner's place in it. */
+/**
+ * D-217: a week's status in the builder's words. Its Hire cards' Status labels name a state by key
+ * (`not_started`, `built`); an unset key keeps the portal's own words.
+ */
+export function weekStatusText(r: Pick<WeekRow, 'open'>, key: 'not_started' | 'built', fallback: string): string {
+  return r.open?.statusLabels?.[key]?.trim() || fallback;
+}
+
 export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'>, me: Learner | null): WeekRow[] {
   return p.course.weeks.map((w: LearnerCourseWeek): WeekRow => {
     const module = weekModuleOf(db, w.week);
@@ -288,10 +296,10 @@ export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathnam
                   ? { kind: 'opens', text: r.opensShort }
                   : null
                 : r.state === 'built'
-                  ? { kind: 'built', text: LABELS.built }
+                  ? { kind: 'built', text: weekStatusText(r, 'built', LABELS.built) }
                   : r.state === 'in_progress'
                     ? { kind: 'ring', text: `${r.done} of ${r.total}`, ratio: r.total ? r.done / r.total : 0 }
-                    : { kind: 'open', text: LABELS.notStarted };
+                    : { kind: 'open', text: weekStatusText(r, 'not_started', LABELS.notStarted) };
             return {
               key: `week:${r.week}`,
               week: r.week,

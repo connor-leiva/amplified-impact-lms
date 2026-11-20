@@ -345,3 +345,35 @@ button.dl:hover {
   outline: none;
   box-shadow: var(--r2-focus);
 }
+
+/* D-217: a sample output's table, as the step page draws one (step-page.more.css `.rt-table`): a hairline frame,
+   Geist Mono caps headings in forest on bone, the first column in ink at 600. */
+.tbl {
+  overflow-x: auto;
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+}
+.tbl table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--r2-fs-15);
+}
+.tbl th {
+  text-align: left;
+  font: 500 var(--r2-fs-13) / 1.2 var(--r2-font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--r2-for);
+  background: var(--r2-bg);
+  padding: 10px 16px;
+}
+.tbl td {
+  padding: 10px 16px;
+  border-top: 1px solid var(--r2-line);
+  vertical-align: top;
+  color: var(--r2-ink);
+}
+.tbl td:first-child {
+  font-weight: 600;
+}
+

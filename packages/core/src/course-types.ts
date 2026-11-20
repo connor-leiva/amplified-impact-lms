@@ -489,7 +489,11 @@ export interface CohortCourse {
  * A week as the course page renders it: the module's course, plus the AI Employee fields it shows. D-184:
  * with its seat card and playbook card, when the week has them (the learner portal's week page draws them).
  */
-export interface CourseWeek extends Omit<ModuleCourse, 'promise' | 'flagship' | 'tools' | 'sampleOutput' | 'lockedCopy' | 'statusLabels'> {
+/**
+ * D-217: the week page draws the builder's flagship, tools and sample output, and its status labels name the
+ * week's state; the promise is the module's outcome (D-214) and a locked week's copy goes with the locked stub.
+ */
+export interface CourseWeek extends Omit<ModuleCourse, 'promise' | 'lockedCopy'> {
   /** The AI Employee this week is in the portal: its icon, platform, outputs and steps. */
   module: {
     icon: IconName;

@@ -65,7 +65,9 @@ describe('the course-week cards (D-174)', () => {
     // D-214: the line learners read under the question; the promise follows it.
     expect(draft().outcome).toBe('Know which sources pay.');
     expect(draft().course.promise).toBe('Know which sources pay.');
-    expect(within(dialog).queryByRole('textbox', { name: 'Flagship' })).toBeNull();
+    // D-217: the week page's Tools section draws the flagship and the tools.
+    await user.type(within(dialog).getByRole('textbox', { name: 'Flagship' }), 'X');
+    expect(draft().course.flagship).toMatch(/X$/);
   });
 
   it('edits the live build’s run of show: a row added, labelled and moved', async () => {
@@ -93,11 +95,19 @@ describe('the course-week cards (D-174)', () => {
     expect(draft().course.seatCard).toBeUndefined();
   });
 
-  it('offers the cards a learner sees: the seat and playbook cards and the locked copy (D-214)', () => {
+  it('offers every hire card, each one read by a learner page (D-217)', () => {
     setup();
-    for (const label of ['Seat card', 'Playbook card', 'Locked copy']) expect(screen.getByRole('button', { name: `Edit ${label}` })).toBeInTheDocument();
-    // No learner page reads a week's sample output or status labels, so the builder doesn't offer them.
-    for (const label of ['Sample output', 'Status labels']) expect(screen.queryByRole('button', { name: `Edit ${label}` })).toBeNull();
+    for (const label of ['Seat card', 'Playbook card', 'Sample output', 'Locked copy', 'Status labels']) expect(screen.getByRole('button', { name: `Edit ${label}` })).toBeInTheDocument();
+  });
+
+  it('builds a sample output from blocks, labelled made up', async () => {
+    const { draft, user } = setup();
+    await user.click(screen.getByRole('button', { name: 'Edit Sample output' }));
+    const dialog = screen.getByRole('dialog', { name: 'Sample output' });
+    await user.selectOptions(within(dialog).getByRole('combobox', { name: 'Sample: kind of block to add' }), 'table');
+    await user.click(within(dialog).getByRole('button', { name: 'Add block' }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Block 1 headings' }), 'Source | Cost');
+    expect(draft().course.sampleOutput).toMatchObject({ madeUpLabel: 'Made-up data', blocks: [{ type: 'table', head: ['Source', 'Cost'] }] });
   });
 
   it('lists the week’s sessions in Mountain Time and saves a new one at once, through its audited action', async () => {
