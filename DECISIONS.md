@@ -7076,3 +7076,17 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
     - Locked copy reaches the locked week;
     - the Status labels editor reaches Home and the sidebar.
   - `WeekContent.sync.test.ts` lists only the promise (carried by the outcome) as not drawn on the week page. It also checks the status labels on Home and in the nav.
+
+## D-218 · A built week shows what it built and the action to use it (outputs and the run label)
+
+**Date:** 2026-11-20
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-217. He asked that every builder field reach learners, and that decisions not wait for his approval.
+**Number:** D-217 is the week fields wired to the learner pages.
+
+- **Where they go.** Once every step of a week is done, the week page's hero is its built card: the "Built" eyebrow and the week's title. It now holds the last two fields from the builder's week details:
+  - **Outputs 1 to 3** are listed under the title, each with a check, as what the week built (named "What it built" for screen readers).
+  - **The run button label** is the card's primary action (the one button system).
+- **Where the action goes.** It opens the week's Flagship skill's page. If that skill has no page of its own, it opens another of the week's skills that has one, else the Skill library, where the kit sends a skill without a page. A week with no skills, or no run label, draws no button.
+- **Why there.** The hero is where a week says what to do next. Once the steps are done, that means using what was built. The outputs are what the week produces, so the built card is the one place they don't repeat the homework list, which is about getting there.
+- **The builder.** A week's Edit details offers Output 1 to 3 and the Run button label again, as it does for an AI Employee.
+- **Result.** With D-212, D-214 and D-217, every field the builder offers for a week reaches a learner page. `WeekBuilder.sync.test.tsx` checks the outputs and the run label on a built week.
