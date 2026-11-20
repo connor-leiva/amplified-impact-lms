@@ -70,12 +70,15 @@
      controls keep the control size (--lv-ctl). */
   --lv-btn-fs: 15px;
   --lv-btn: 40px;
+  /* D-214: R2's primary control height (a hero's action) is the one button system's too: 40px, 48px on a phone. */
+  --r2-cp: 40px;
   --lv-ghost-hover: rgb(31 77 64 / 0.06);
 }
 @media (max-width: 767px) {
   [data-r2-scope][data-learner-v2] {
     --lv-btn-fs: 16px;
     --lv-btn: 44px;
+    --r2-cp: 48px;
   }
 }
 

@@ -385,7 +385,8 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     officeHours:
       w.officeHours && oh
         ? {
-            title: oh.title,
+            // D-214: the office hours page's own title (the builder's Office hours, Page), else the session's.
+            title: w.officeHours.title?.trim() || oh.title,
             when: fmt.when(oh.start),
             mins: mins(oh.mins),
             join: joinVM(course.intro.join),

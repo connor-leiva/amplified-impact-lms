@@ -18,10 +18,11 @@ const NOT_WORDS = new Set(['id', 'kind', 'href', 'url', 'upload', 'type', 'sessi
 
 /** Course words the learner portal does not draw, and why. */
 const NOT_DRAWN: readonly [RegExp, string][] = [
-  [/^course\.(promise|flagship|tools(\[\d+\])?)$/, 'AI Employee portal fields: courseWeekOf strips them from the learner answer (D-173)'],
+  // D-214: the builder edits the promise together with the week's outcome (the line learners read), and offers
+  // no flagship or tools fields: the kit's Flagship skill is the week's flagship.
+  [/^course\.(promise|flagship|tools(\[\d+\])?)$/, 'not course-page words: courseWeekOf strips them from the learner answer (D-173)'],
   [/^course\.setup\[\d+\]\.(text|route)$/, 'the old Setup Order: the week’s steps replace it (parity K-5)'],
   [/^course\.skills\[\d+\]\.use$/, 'a kit row shows the skill, its role and Free; the skill page carries its use (parity K-5)'],
-  [/^course\.officeHours\.title$/, 'the week names office hours by the session’s own title (Sessions in the builder)'],
 ];
 
 describe('the builder and the week page are one source (D-213)', () => {

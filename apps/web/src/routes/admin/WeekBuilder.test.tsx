@@ -58,9 +58,14 @@ describe('the course-week cards (D-174)', () => {
     const q = within(dialog).getByRole('textbox', { name: 'Question' });
     await user.clear(q);
     await user.type(q, 'Which lead sources pay?');
-    await user.type(within(dialog).getByRole('textbox', { name: 'Promise' }), 'Know which sources pay.');
+    const outcome = within(dialog).getByRole('textbox', { name: 'Outcome' });
+    await user.clear(outcome);
+    await user.type(outcome, 'Know which sources pay.');
     expect(draft().course.question).toBe('Which lead sources pay?');
+    // D-214: the line learners read under the question; the promise follows it.
+    expect(draft().outcome).toBe('Know which sources pay.');
     expect(draft().course.promise).toBe('Know which sources pay.');
+    expect(within(dialog).queryByRole('textbox', { name: 'Flagship' })).toBeNull();
   });
 
   it('edits the live build’s run of show: a row added, labelled and moved', async () => {
@@ -88,14 +93,11 @@ describe('the course-week cards (D-174)', () => {
     expect(draft().course.seatCard).toBeUndefined();
   });
 
-  it('builds a sample output from blocks, labelled made up', async () => {
-    const { draft, user } = setup();
-    await user.click(screen.getByRole('button', { name: 'Edit Sample output' }));
-    const dialog = screen.getByRole('dialog', { name: 'Sample output' });
-    await user.selectOptions(within(dialog).getByRole('combobox', { name: 'Sample: kind of block to add' }), 'table');
-    await user.click(within(dialog).getByRole('button', { name: 'Add block' }));
-    await user.type(within(dialog).getByRole('textbox', { name: 'Block 1 headings' }), 'Source | Cost');
-    expect(draft().course.sampleOutput).toMatchObject({ madeUpLabel: 'Made-up data', blocks: [{ type: 'table', head: ['Source', 'Cost'] }] });
+  it('offers the cards a learner sees: the seat and playbook cards and the locked copy (D-214)', () => {
+    setup();
+    for (const label of ['Seat card', 'Playbook card', 'Locked copy']) expect(screen.getByRole('button', { name: `Edit ${label}` })).toBeInTheDocument();
+    // No learner page reads a week's sample output or status labels, so the builder doesn't offer them.
+    for (const label of ['Sample output', 'Status labels']) expect(screen.queryByRole('button', { name: `Edit ${label}` })).toBeNull();
   });
 
   it('lists the week’s sessions in Mountain Time and saves a new one at once, through its audited action', async () => {
@@ -246,13 +248,6 @@ describe('a video block in a step’s paths and the week’s Media (D-188)', () 
     expect(last.paths!.claude!.blocks.map((b) => b.type)).toEqual(['text', 'video']);
     await user.click(screen.getByRole('button', { name: 'Remove Claude path block 2' }));
     expect(last.paths!.claude!.blocks.map((b) => b.type)).toEqual(['text']);
-  });
-
-  it('keeps a sample output to its content blocks: no video there', async () => {
-    const { user } = setup();
-    await user.click(screen.getByRole('button', { name: 'Edit Sample output' }));
-    const kinds = within(screen.getByRole('dialog', { name: 'Sample output' })).getByRole('combobox', { name: 'Sample: kind of block to add' });
-    expect(within(kinds).getAllByRole('option').map((o) => o.textContent)).toEqual(['Paragraph', 'Copy box', 'List', 'Table']);
   });
 
   it('adds a video to the week’s Media after its lines, which stay as they were', async () => {

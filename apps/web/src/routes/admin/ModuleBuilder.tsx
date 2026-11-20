@@ -505,7 +505,9 @@ export function Component() {
               ))}
             </div>
           </div>
-          {d.outputs.map((o, i) => (
+          {/* D-214: outputs and the run label are an AI Employee's (its hire page reads them); no page of a
+              course week does, so a week's details don't offer them. */}
+          {week ? null : d.outputs.map((o, i) => (
             <label key={i} className={s.lab}>
               {`Output ${i + 1}`}
               <input
@@ -606,10 +608,12 @@ export function Component() {
             Platform
             <input className={k.in} value={d.platform} onChange={(e) => setText('platform', e.target.value)} />
           </label>
-          <label className={s.lab}>
-            Run button label
-            <input className={k.in} value={d.runLabel} onChange={(e) => setText('runLabel', e.target.value)} />
-          </label>
+          {week ? null : (
+            <label className={s.lab}>
+              Run button label
+              <input className={k.in} value={d.runLabel} onChange={(e) => setText('runLabel', e.target.value)} />
+            </label>
+          )}
           <label className={s.lab}>
             Instructor notes
             <TextArea rows={3} value={d.notes} onChange={(e) => setText('notes', e.target.value)} />
