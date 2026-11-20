@@ -7,7 +7,7 @@
       "@ai/core": ["../../packages/core/src/index.ts"],
       "@ai/core/seed/*": ["../../packages/core/seed/*"],
       "@ai/core/*": ["../../packages/core/src/*"],
-      "@brand/ai-motion": ["./src/components/motion/ai-motion.d.ts"]
+      "@brand/ai-motion": ["apps/web/src/components/motion/ai-motion.d.ts"]
     }
   },
   "include": ["src/**/*", "vite.config.ts", "vite.ai101.config.ts", "vitest.config.ts"],
