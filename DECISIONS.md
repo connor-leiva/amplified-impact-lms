@@ -6812,8 +6812,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-210 · The v6 step page (brand motion), on every step
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 - First: port the v6 brand-motion step page from its handoff (`handoff/step-page-v6/`), JSX to TSX only, behind a feature flag, and prove it with the handoff's pixel diffs.
 - Later that day: ship it to production for the seeded test account only, keeping every default below.
 - That night: carry the rules that shaped `/learn/week/0/step/2` to every learner page and to the curriculum builder, with nothing seeded in code, and decide the details consistently with past guidance in order to ship.
@@ -6871,8 +6870,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-211 · The step page's system on every learner page
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the rules that shaped `/learn/week/0/step/2` (D-210) apply to every page of the learner side, with the admin console left out, and that details be decided consistently with past guidance in order to ship.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the rules that shaped `/learn/week/0/step/2` (D-210) apply to every page of the learner side, with the admin console left out, and that details be decided consistently with past guidance in order to ship. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-210 is the v6 step page.
 
 - **What it is.** The learner portal (D-177) keeps its layouts, words and behaviour. It takes the step page's system: its colours, its one button system, its headings and eyebrow, its step circles and its brand motion (Amplified Impact Motion v1). It applies to every page in the learner frame and to the curriculum builder's preview of a week, which shares the frame's tokens:
@@ -6924,8 +6922,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-212 · The curriculum builder and the step page are one source
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the step page's configuration (how steps are set up, how they flow, how they are formatted) carry over to the curriculum builder, so that everything stays in sync and nothing in the tool is seeded in code. He also asked that details be decided consistently with past guidance in order to ship.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that the step page's configuration (how steps are set up, how they flow, how they are formatted) carry over to the curriculum builder, so that everything stays in sync and nothing in the tool is seeded in code. He also asked that details be decided consistently with past guidance in order to ship. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-211 is the step page's system on every learner page.
 
 - **One source.** Every word a step shows on the v6 page (D-210) comes from a field the curriculum builder edits:
@@ -6950,8 +6947,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-213 · The rest of the learner frame on the step page's system, and the week page's sync guard
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 and D-212: every learner page, and the builder in sync.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 and D-212: every learner page, and the builder in sync. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-212 is the builder and the step page as one source.
 
 - **The shared pages and primitives.** The Vault and Team Hub are today's portal pages, drawn inside the learner frame. So are the shared Button, dialogs, drawers, toasts and status tokens. They read the design tokens (`tokens.css`), not R2's, so D-211 did not reach them. In the light theme, those tokens now take the same v6 values inside the learner frame (`styles/learner-v2.css`):
@@ -6975,8 +6971,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-214 · Every builder field reaches learners, and every learner page is checked against the step page's rules
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-213: every learner page on the step page's rules, and the builder fully in sync, with nothing seeded in code.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-213: every learner page on the step page's rules, and the builder fully in sync, with nothing seeded in code. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-213 is the Vault, Team Hub and shared primitives.
 
 - **The builder offers only what learners read.** A field that changed nothing anyone sees is either wired to the learner pages or no longer offered.
@@ -7018,8 +7013,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-215 · The brand motion on every learner page, and the wider page-by-page check
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-214.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-214. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-214 is the builder sync and the first page-by-page check.
 
 - **The motion now runs on every learner page.** It used to run only on the step page.
@@ -7041,8 +7035,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-216 · Every learner page's components compared with the step page's own
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-215.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-215. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-215 is the brand motion on every page and the wider page-by-page check.
 
 - **The comparison.** `learn-v2-system.spec.ts` now measures the step page first (Week 0, step 4), at 1440 and at 390. It then requires every component on all 18 learner pages to compute to the same values as the step page's:
@@ -7061,8 +7054,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-217 · The builder's week fields wired to the learner pages (supersedes D-214 where they differ)
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that everything the builder holds reach learners, and that details be decided consistently with past guidance. The open week already shows what the builder edits, each section under its own heading (parity K-3, D-184), so these fields are drawn the same way instead of being left out of the builder.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026. He asked that everything the builder holds reach learners, and that details be decided consistently with past guidance. The open week already shows what the builder edits, each section under its own heading (parity K-3, D-184), so these fields are drawn the same way instead of being left out of the builder. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-216 is the component comparison.
 
 - **Flagship and Tools** (the builder's Course page card) are back in the builder. They form the week page's **Tools** section, after Who Does What: a Flagship row, then the tools as a list.
@@ -7088,8 +7080,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-218 · A built week shows what it built and the action to use it (outputs and the run label)
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-217. He asked that every builder field reach learners, and that decisions not wait for his approval.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-217. He asked that every builder field reach learners, and that decisions not wait for his approval. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-217 is the week fields wired to the learner pages.
 
 - **Where they go.** Once every step of a week is done, the week page's hero is its built card: the "Built" eyebrow and the week's title. It now holds the last two fields from the builder's week details:
@@ -7103,8 +7094,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-219 · More of the step page compared on every learner page: section headings, links, segmented controls
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-218.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-218. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-218 is the built week's outputs and run label.
 
 - **The comparison (D-216) now also covers:**
@@ -7121,8 +7111,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-220 · The promise retired: a week's outcome is its one line
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-219: everything in the builder reaches learners, and nothing in the tool is seeded in code.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-219: everything in the builder reaches learners, and nothing in the tool is seeded in code. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-219 is the wider component comparison.
 
 - **What was wrong.** The first content seed kept each week's spec promise in `course.promise`, a second copy of the week's outcome line. Learners read only the outcome. The builder never showed the promise on its own: D-214's Outcome line overwrote it. So one seeded value was stored but never drawn or edited. Week 0's promise was not its outcome, and nobody could see or change it.
@@ -7144,8 +7133,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-221 · Every week field a learner sees is edited in the builder: kit skills and the stack card; two unshown fields retired
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-220: everything in the builder reaches learners, and nothing in the tool is seeded in code.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-220: everything in the builder reaches learners, and nothing in the tool is seeded in code. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-220 is the retired promise.
 
 - **The audit.** I checked every field of a week's course against the builder.
@@ -7183,8 +7171,7 @@ CLAUDE.md says this file only grows with explicit human approval, and this is it
 ## D-222 · Three fixes from a page-by-page look at every learner page
 
 **Date:** 2026-11-20
-**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-221: every learner page on the step page's rules.
-**Review:** written under Connor's standing instruction of Nov 20, 2026, not approved by him item by item. His goal for the overnight run said: “bypass my approval/make decisions consistent with my past guidance in order to get this shipped as quickly as possible.” This entry awaits his review. If he rejects it, it is reverted.
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, under the same ask as D-211 to D-221: every learner page on the step page's rules. **Confirmed by Connor Leiva on Nov 20, 2026** (asked in this session whether to approve D-210 to D-222, he answered “Approve all”).
 **Number:** D-221 is the builder's kit skills and stack card.
 
 I captured all 18 learner pages at 1440 and 390 (the system check's own states) and looked at each one, beyond what the automated checks measure. Three things were wrong. Each is fixed, and nothing else changes.
