@@ -20,8 +20,6 @@ const NOT_WORDS = new Set(['id', 'kind', 'href', 'url', 'upload', 'type', 'sessi
 
 /** Course words the learner portal does not draw, and why. */
 const NOT_DRAWN: readonly [RegExp, string][] = [
-  // D-214: the builder edits the promise together with the week's outcome (the line learners read).
-  [/^course\.promise$/, 'the week’s outcome carries it (the builder’s Outcome edits both)'],
   // D-217: status labels name the week's state on Home and in the sidebar (checked below), not on the week page.
   [/^course\.statusLabels\./, 'Home’s week cards and the sidebar read them (the next test)'],
   [/^course\.setup\[\d+\]\.(text|route)$/, 'the old Setup Order: the week’s steps replace it (parity K-5)'],

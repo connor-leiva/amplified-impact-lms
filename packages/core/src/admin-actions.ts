@@ -171,7 +171,9 @@ const moduleSummary = (m: AIEmployee) => ({
  * kept on the same steps (a removed step's check goes; the others follow their step to its new
  * `c{n}`), then one `module.save` audit row. Nothing else of a learner's progress is touched.
  */
-export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; status?: ModuleStatus }, c: Ctx): AdminOutcome {
+export function saveBuilderModule(db: Db, a: Actor, given: { draft: AIEmployee; status?: ModuleStatus }, c: Ctx): AdminOutcome {
+  // D-220: the retired promise (a second copy of the outcome learners read) is dropped, never stored again.
+  const args = given.draft.course?.promise === undefined ? given : { ...given, draft: withoutPromise(given.draft) };
   const stored = db.modules.find((m) => m.id === args.draft.id) ?? null;
   // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
   // never refuses it. Checked before `saveModule`, so a refusal writes nothing.
@@ -643,3 +645,10 @@ export type AdminActionName = keyof typeof ADMIN_ACTIONS;
 export type AdminActionArgs<K extends AdminActionName> = Parameters<(typeof ADMIN_ACTIONS)[K]>[2];
 
 export const isAdminActionName = (name: string): name is AdminActionName => Object.prototype.hasOwnProperty.call(ADMIN_ACTIONS, name);
+
+/** D-220: a module without the retired `course.promise`. Everything else is the same object. */
+export function withoutPromise(m: AIEmployee): AIEmployee {
+  if (!m.course || m.course.promise === undefined) return m;
+  const { promise: _p, ...course } = m.course;
+  return { ...m, course };
+}

@@ -258,6 +258,8 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       // D-196: Week 0's intake.
       [DATA_MIGRATIONS[7]!.id, 1, 0],
       [DATA_MIGRATIONS[8]!.id, 1, 0],
+      // D-220: today's content seed writes no promise, so there is none to clear here (production had four).
+      [DATA_MIGRATIONS[9]!.id, 0, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });

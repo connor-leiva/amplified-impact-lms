@@ -317,6 +317,11 @@ export interface ModuleCourse {
   media: MediaItem[];
   /** Course material shipped with the week, by name. */
   materials: string[];
+  /**
+   * D-220: retired. The first seed kept the spec's promise here as a second copy of the outcome line, which
+   * learners read from `outcome`. Nothing reads it; a builder save drops it, and `2026-11-20-promise-retired`
+   * cleared it from stored weeks. Kept only so an older draft still parses.
+   */
   promise?: string;
   flagship?: string;
   tools?: string[];
@@ -491,7 +496,7 @@ export interface CohortCourse {
  */
 /**
  * D-217: the week page draws the builder's flagship, tools and sample output, and its status labels name the
- * week's state; the promise is the module's outcome (D-214) and a locked week's copy goes with the locked stub.
+ * week's state; a locked week's copy goes with the locked stub, and the retired promise (D-220) goes nowhere.
  */
 export interface CourseWeek extends Omit<ModuleCourse, 'promise' | 'lockedCopy'> {
   /** The AI Employee this week is in the portal: its icon, platform, outputs and steps. */

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -11,6 +11,7 @@ import type { CourseLoad } from '../../routes/learn/data';
 import type * as DataModule from '../../routes/learn/data';
 import { learnerRoutes } from '../../routes/learn/routes';
 import { LEARNER_ID, prelaunchState } from '../../routes/learn/test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from '../../routes/learn/test/preload';
 
 // D-185: the learner shell's Theme (the account menu) and its desktop Collapse sidebar, rendered through
 // the shell's own routes. The data hooks and `GET /api/course` are stood in for, as in Learn.test.tsx, and
@@ -71,6 +72,9 @@ async function chooseTheme(name: 'Light' | 'Dark') {
   expect(group).toBeInTheDocument();
   fireEvent.click(screen.getByRole('menuitemradio', { name }));
 }
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   localStorage.clear();

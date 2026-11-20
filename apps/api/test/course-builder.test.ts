@@ -84,7 +84,9 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
 
     const m = (await snapshot()).modules.find((x) => x.id === W2)!;
     expect(m).toMatchObject({ name: 'Leads That Pay', icon, tone: 'violet', dueAt: draft.dueAt });
-    expect(m.course).toMatchObject({ promise: draft.course!.promise, seatCard: draft.course!.seatCard, playbookCard: draft.course!.playbookCard, sampleOutput: draft.course!.sampleOutput, lockedCopy: draft.course!.lockedCopy, statusLabels: draft.course!.statusLabels });
+    // D-220: the retired promise an older draft still carries is dropped on save; the outcome is the one copy.
+    expect(m.course!.promise).toBeUndefined();
+    expect(m.course).toMatchObject({ seatCard: draft.course!.seatCard, playbookCard: draft.course!.playbookCard, sampleOutput: draft.course!.sampleOutput, lockedCopy: draft.course!.lockedCopy, statusLabels: draft.course!.statusLabels });
     expect(await auditActions()).toEqual(['module.save']);
   });
 

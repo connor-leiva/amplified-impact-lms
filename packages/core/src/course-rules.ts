@@ -6,7 +6,7 @@
 //   1. No em dashes, anywhere a learner reads.
 //   2. Never the banned team-size and homes-a-year line ("a 100-agent team closing 700+ homes a year").
 //   3. Hire copy never says the hire sends, posts, updates the CRM or touches the books. Hire copy is
-//      what describes the AI employee itself: its outcome, headline and outputs, the promise and the
+//      what describes the AI employee itself: its outcome, headline and outputs, the
 //      flagship, the seat card (except "Can't do", which is where those limits are said), the sample
 //      output and the status labels. Steps and course pages talk to the owner and the operator, who
 //      may well send a brief; they are not hire copy.
@@ -210,7 +210,6 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
   mediaFields(out, c.media);
   pushAll(out, 'course.materials', 'Material', c.materials);
   // The builder's cards.
-  push(out, 'course.promise', 'Promise', c.promise, true);
   push(out, 'course.flagship', 'Flagship', c.flagship, true);
   pushAll(out, 'course.tools', 'Tool', c.tools, true);
   if (c.seatCard) {

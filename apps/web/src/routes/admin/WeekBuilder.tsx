@@ -912,20 +912,9 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
         >
           <Line label="Week title" value={c.title} onChange={(v) => set((x) => (x.title = v))} />
           <Line label="Question" value={c.question} onChange={(v) => set((x) => (x.question = v))} />
-          {/* D-214: the line under the week's question is the week's outcome (the learner pages read it; the
-              seed writes the course's promise into it). The builder edits that one line, and keeps the promise
-              the same so the copy rules read one value. */}
-          <Line
-            label="Outcome"
-            value={draft.outcome}
-            onChange={(v) =>
-              up((d) => {
-                d.outcome = v;
-                if (v.trim()) d.course!.promise = v;
-                else delete d.course!.promise;
-              })
-            }
-          />
+          {/* D-214, D-220: the line under the week's question is the week's outcome, the one value learners
+              read. There is no second copy: the retired promise goes on the next save (`saveBuilderModule`). */}
+          <Line label="Outcome" value={draft.outcome} onChange={(v) => up((d) => (d.outcome = v))} />
           <Lines label="Why" items={c.why} onChange={(v) => set((x) => (x.why = v))} />
           <Para label="Owner line" value={c.owner} onChange={(v) => set((x) => (x.owner = v))} />
           <Para label="Operator line" value={c.operator} onChange={(v) => set((x) => (x.operator = v))} />

@@ -18,6 +18,7 @@ import { COPY_V3, planCopyV3 } from '@ai/core/seed/copy-v3';
 import { GLOSSARY_V1, planGlossaryV1 } from '@ai/core/seed/glossary-v1';
 import { INTAKE_V1, planIntakeV1 } from '@ai/core/seed/intake-v1';
 import { STACK_V1, planStackV1 } from '@ai/core/seed/stack-v1';
+import { PROMISE_V1, planPromiseV1 } from '@ai/core/seed/promise-v1';
 import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
@@ -79,6 +80,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: STACK_V1,
     describe: 'Week 0 stack card, set only when that week has none (D-197)',
     plan: planStackV1,
+  },
+  {
+    id: PROMISE_V1,
+    describe: 'The retired promise, a second copy of each week’s outcome that nothing showed, cleared (D-220)',
+    plan: planPromiseV1,
   },
 ];
 

@@ -62,9 +62,9 @@ describe('the course-week cards (D-174)', () => {
     await user.clear(outcome);
     await user.type(outcome, 'Know which sources pay.');
     expect(draft().course.question).toBe('Which lead sources pay?');
-    // D-214: the line learners read under the question; the promise follows it.
+    // D-214, D-220: the one line learners read under the question; there is no second copy.
     expect(draft().outcome).toBe('Know which sources pay.');
-    expect(draft().course.promise).toBe('Know which sources pay.');
+    expect(draft().course.promise).toBeUndefined();
     // D-217: the week page's Tools section draws the flagship and the tools.
     await user.type(within(dialog).getByRole('textbox', { name: 'Flagship' }), 'X');
     expect(draft().course.flagship).toMatch(/X$/);

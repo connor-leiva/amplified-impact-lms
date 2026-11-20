@@ -10,6 +10,8 @@ import { COPY_V3, SKILL_IN_STEP, planCopyV3 } from '../seed/copy-v3';
 import { copyIssues } from '../src/course-rules';
 import { SEED_COPY, seedProduction } from '../seed/curriculum';
 import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan-v1';
+import { PROMISE_V1, planPromiseV1 } from '../seed/promise-v1';
+import { weekModuleV2 } from '../seed/weeks-0-3-v2';
 
 const prod = (): Db => seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
 const MT = (iso: string): number => Date.parse(`${iso}T12:00:00-07:00`);
@@ -138,5 +140,40 @@ describe('the In Step copy string (D-189)', () => {
   it('is one learner string, and passes the copy rules', () => {
     expect(SKILL_IN_STEP).toMatchObject({ key: 'skill.in_step', value: 'In Step {n}', audience: 'learner' });
     expect(copyIssues([{ path: SKILL_IN_STEP.key, label: SKILL_IN_STEP.key, text: SKILL_IN_STEP.value }])).toEqual([]);
+  });
+});
+
+// D-220: the first content seed kept each week's spec promise as a second copy of its outcome, which no page
+// drew and the builder never showed. The step clears it; the outcome learners read is untouched.
+describe('the retired promise (D-220)', () => {
+  it('today’s seed writes no promise: a week’s outcome is its one line', () => {
+    for (const n of [0, 1, 2, 3] as const) {
+      const m = weekModuleV2(n);
+      expect(m.course!.promise).toBeUndefined();
+      expect(m.outcome.trim()).not.toBe('');
+    }
+  });
+
+  it('clears it from every week that still has it, keeps each outcome, and is a no-op the second time', () => {
+    const db = prod();
+    // As production stored the weeks before this step: Week 0's promise differed from its outcome.
+    const stored = structuredClone(db);
+    stored.modules.forEach((m, i) => {
+      if (m.course && i < 4) m.course.promise = i === 0 ? 'Get to the same starting line as every team.' : m.outcome;
+    });
+    const withPromise = stored.modules.filter((m) => m.course?.promise !== undefined);
+    expect(withPromise.length).toBeGreaterThan(0);
+    const out = planPromiseV1(stored);
+    expect(out.skipped).toEqual([]);
+    expect(out.changes.map((c) => c.target.id)).toEqual(withPromise.map((m) => m.id));
+    expect(out.changes[0]!.after).toEqual({ promise: null });
+    for (const m of out.db.modules) {
+      expect(m.course?.promise).toBeUndefined();
+      expect(m.outcome).toBe(stored.modules.find((x) => x.id === m.id)!.outcome);
+    }
+    const again = planPromiseV1(out.db);
+    expect(again.changes).toEqual([]);
+    expect(again.db).toBe(out.db);
+    expect(PROMISE_V1).toBe('2026-11-20-promise-retired');
   });
 });

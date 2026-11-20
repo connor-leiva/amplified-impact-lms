@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { seed, setViewerZone } from '@ai/core';
@@ -10,6 +10,7 @@ import type * as DataModule from './data';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, liveState } from './test/fixture';
 import type { LearnState } from './test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-186: the hire's page in the learner portal v2, rendered through its own routes and shell: the Your
 // Deployment card and its Run dialog on an open week's page (E-14, E-15, A-6), the non-course AI Employee's
@@ -64,6 +65,9 @@ function at(path: string) {
 }
 
 const card = () => screen.getByRole('region', { name: 'Your Deployment' });
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -9,6 +9,7 @@ import type * as DataModule from './data';
 import { learnerRoutes } from './routes';
 import { LEARNER_ID, learnState, prelaunchState, sessionIn } from './test/fixture';
 import type { LearnState } from './test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-183: the current portal's live session, replay and announcements in the learner portal v2, rendered
 // through its own routes and shell. The course is the API's (`GET /api/course`, times only); the shell
@@ -48,6 +49,9 @@ function at(path: string) {
   render(<RouterProvider router={router} />);
   return router;
 }
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');

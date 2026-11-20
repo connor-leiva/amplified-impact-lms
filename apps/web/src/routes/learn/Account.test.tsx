@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -12,6 +12,7 @@ import { asBilling, asPassword, fetchAccount } from './accountData';
 import { learnerRoutes } from './routes';
 import { accountRead, accountState } from './test/account-fixture';
 import type { LearnState } from './test/fixture';
+import { PRELOAD_TIMEOUT, preloadLearnerRoutes } from './test/preload';
 
 // D-178: the learner Account page, rendered for real through its route and the learner shell; only the
 // data hooks, `GET /api/course` and the page's two reads are stood in for.
@@ -59,6 +60,9 @@ function at(path: string) {
   render(<RouterProvider router={router} />);
   return router;
 }
+
+// Every lazy route chunk loaded once, so no first render races its import (E-16).
+beforeAll(preloadLearnerRoutes, PRELOAD_TIMEOUT);
 
 beforeEach(() => {
   setViewerZone('America/Denver');
