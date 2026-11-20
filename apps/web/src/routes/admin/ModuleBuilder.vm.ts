@@ -470,7 +470,8 @@ export function builderR2VM(db: Db, d: AIEmployee, ui: { dirty: boolean; saved: 
     name: d.name,
     summary: d.outcome,
     icon: d.icon,
-    steps: d.checklist.map((s, i) => ({ key: `${i}`, text: s.text, kind: s.kind ?? '', length: `${s.mins} min` })),
+    // D-212: a course week's step shows its title from `ch` (the learner page's `ch || text`), so the row edits that.
+    steps: d.checklist.map((s, i) => ({ key: `${i}`, text: d.kind === 'week' ? s.ch || s.text : s.text, kind: s.kind ?? '', length: `${s.mins} min` })),
     files: d.files.map((f) => ({ name: f.name, desc: f.desc, size: f.size })),
     status: { label, tone },
     tier: d.tier,

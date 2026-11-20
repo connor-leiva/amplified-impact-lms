@@ -39,9 +39,9 @@
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background 0.12s,
-    color 0.12s,
-    box-shadow 0.12s;
+    background var(--aim-dur-quick) var(--aim-ease),
+    color var(--aim-dur-quick) var(--aim-ease),
+    box-shadow var(--aim-dur-quick) var(--aim-ease);
 }
 .seg a:hover {
   color: var(--r2-ink);
@@ -134,7 +134,7 @@
   width: 100%;
   background: none;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background var(--aim-dur-quick) var(--aim-ease);
 }
 .mth + .wr {
   border-top: 0;

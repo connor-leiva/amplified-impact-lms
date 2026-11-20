@@ -58,7 +58,7 @@
   gap: 12px;
   margin: 0 0 12px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--status-success-bg);
   color: var(--status-success-text);
   border: 1px solid var(--status-success-line);

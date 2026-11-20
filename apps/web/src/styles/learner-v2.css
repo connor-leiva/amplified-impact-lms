@@ -40,6 +40,45 @@
   }
 }
 
+/* D-211: the step page's system (D-210, handoff/step-page-v6) on every learner page, in the light theme. The
+   learner frame reads R2's tokens; here they take the v6 mockup's values (step-page.tokens.css), so every page,
+   the sidebar and the builder's preview of a week draw on its bone canvas with its ink, hairlines and forest
+   shadows. Values are the mockup's, verbatim. The Dark block below redefines every one of them, and wins by
+   specificity. Status colours (Open, In progress, Done, the live dot) are unchanged. */
+[data-r2-scope][data-learner-v2] {
+  --r2-ink: #0a0d0c;
+  --r2-f2: rgb(10 13 12 / 0.68);
+  --r2-f3: rgb(10 13 12 / 0.6);
+  --r2-line: rgb(10 13 12 / 0.12);
+  --r2-line2: rgb(10 13 12 / 0.2);
+  /* A secondary control's outline firms to ink on hover (brand v1). */
+  --r2-line-hover: #0a0d0c;
+  --r2-bg: #f1f0eb;
+  --r2-hov: rgb(31 77 64 / 0.06);
+  --r2-forh: color-mix(in oklch, #1f4d40 86%, #0a0d0c);
+  --r2-sh-card: 0 2px 4px rgb(31 77 64 / 0.06);
+  --r2-sh-button: 0 2px 4px rgb(31 77 64 / 0.06);
+  --r2-sh-lift: 0 8px 16px rgb(31 77 64 / 0.08);
+  --r2-sh-pop: 0 16px 32px rgb(31 77 64 / 0.1);
+  --lv-sh-hero: 0 8px 16px rgb(31 77 64 / 0.08);
+  --lv-sh-lift: 0 8px 16px rgb(31 77 64 / 0.08);
+  /* The current week, step or card is forest, as the step rail's current pill is (not blue). */
+  --lv-cur-line: rgb(31 77 64 / 0.45);
+  --lv-cur-ring: 0 0 0 3px rgb(31 77 64 / 0.08);
+  --lv-step-cur: rgb(31 77 64 / 0.06);
+  /* The one button system: 40px, 15px Geist 500 (16px and 44px on a phone). The sidebar and the small
+     controls keep the control size (--lv-ctl). */
+  --lv-btn-fs: 15px;
+  --lv-btn: 40px;
+  --lv-ghost-hover: rgb(31 77 64 / 0.06);
+}
+@media (max-width: 767px) {
+  [data-r2-scope][data-learner-v2] {
+    --lv-btn-fs: 16px;
+    --lv-btn: 44px;
+  }
+}
+
 /* D-185: the dark theme. The learner shell marks its frame `data-lv-theme` with the person's theme and puts
    the same on the root (`data-theme`, which turns tokens.css's dark values on), so every R2 and learner
    colour the frame reads is redefined here from the design tokens' dark values: no raw colour. Sizes,
@@ -120,6 +159,7 @@
   --lv-pulse-from: 0 0 0 0 var(--status-success-line);
   --lv-pulse-to: 0 0 0 6px transparent;
   --lv-row-now: var(--bg-raised);
+  --lv-ghost-hover: var(--action-primary-tint);
   --lv-leg-build: inset 0 0 0 1px var(--action-primary-line);
   --lv-leg-oh: inset 0 0 0 1px var(--status-progress-line);
 }

@@ -189,7 +189,10 @@ export function Component() {
             onChange={(e) => {
               const v = e.target.value;
               up((x) => {
-                x.checklist[i]!.text = v;
+                // D-212: on a course week the title the learner sees is `ch` (learn.vm's stepTitle), so the
+                // title edits it; an AI Employee's step keeps its text.
+                if (x.kind === 'week') x.checklist[i]!.ch = v;
+                else x.checklist[i]!.text = v;
               });
             }}
           />
