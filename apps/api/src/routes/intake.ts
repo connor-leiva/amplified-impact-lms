@@ -10,7 +10,8 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { checklistState, teamIntake, teams, users } from '../db/schema';
+import { checklistState, cohorts, teamIntake, teams, users } from '../db/schema';
+import { intakePdfHtml, intakePdfName, renderPdf } from '../pdf/render';
 import { clock } from '../lib/clock';
 
 export const INTAKE_PATH = '/api/intake';
@@ -48,7 +49,53 @@ async function checkTeam(teamId: string, item: { moduleId: string; stepId: strin
   }
 }
 
+export const INTAKE_PDF_PATH = '/api/intake/pdf';
+
+/**
+ * D-229 (B-18): a team's intake as a PDF, draft or submitted (the package's placeholder look until the template
+ * arrives, Q-14). Null when the course has no intake. The file is made on each request and never stored.
+ */
+export async function teamIntakePdf(teamId: string): Promise<{ pdf: Buffer; name: string } | null> {
+  const form = await formOf();
+  if (!form) return null;
+  const db = getDb();
+  const [row] = await db.select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
+  const [team] = await db.select({ name: teams.name, ownerId: teams.ownerId }).from(teams).where(eq(teams.id, teamId));
+  const [owner] = team ? await db.select({ name: users.name, cohortId: users.cohortId }).from(users).where(eq(users.id, team.ownerId)) : [];
+  const [cohort] = owner?.cohortId ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, owner.cohortId)) : [];
+  const html = intakePdfHtml({
+    intake: form,
+    answers: row?.answers ?? {},
+    team: team?.name ?? '',
+    owner: owner?.name ?? '',
+    // "Amplified AI Accelerator · December 2026 Cohort": the stored name, and the word core's `cohortLine` appends.
+    cohort: cohort ? `${cohort.name} Cohort` : '',
+    submittedAt: row?.submittedAt ?? null,
+    savedAt: row?.updatedAt ?? clock.now(),
+  });
+  return { pdf: await renderPdf(html), name: intakePdfName(team?.name ?? owner?.name ?? '') };
+}
+
+/** The PDF's response: a download, named for the team, never cached. */
+export const sendPdf = (reply: FastifyReply, file: { pdf: Buffer; name: string }): FastifyReply =>
+  reply
+    .header('content-type', 'application/pdf')
+    .header('content-disposition', `attachment; filename="${file.name.replace(/"/g, '')}"`)
+    .header('cache-control', 'no-store')
+    .send(file.pdf);
+
 export function registerIntakeRoute(app: FastifyInstance): void {
+  // D-229 (B-18): the learner's own team's intake as a PDF, for the owner and the operator (as the intake itself).
+  app.get(INTAKE_PDF_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
+    const { actor } = viewerOrThrow(req);
+    // A staff preview has no team, so nothing to print: the same refusal as an agent's.
+    const me = actor.kind === 'learner' ? await memberOf(actor.userId) : null;
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the operator.' });
+    const file = await teamIntakePdf(me.teamId);
+    if (!file) return reply.code(404).send({ error: 'This week has no intake.' });
+    return sendPdf(reply, file);
+  });
+
   app.get(INTAKE_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
     const { actor } = viewerOrThrow(req);
     reply.header('cache-control', 'no-store');

@@ -217,6 +217,8 @@ export const AUDIT_ACTIONS = [
   'vault.replace',
   // D-196: a staff member opened a team's intake on the workspace page.
   'intake.read',
+  // D-229 (B-18): a staff member downloaded a team's intake as a PDF.
+  'intake.pdf',
   // D-229: staff re-queue a team's submitted intake for GHL.
   'intake.sync',
   // D-197: a staff member opened a team's stack card.

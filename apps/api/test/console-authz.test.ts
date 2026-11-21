@@ -29,6 +29,7 @@ type RouteName =
   | 'workspaces'
   | 'workspace'
   | 'workspaceIntake'
+  | 'workspaceIntakePdf'
   | 'workspaceStack'
   | 'users'
   | 'user'
@@ -113,6 +114,10 @@ const ROUTES: Record<RouteName, Route> = {
   workspaces: { path: CONSOLE_PATHS.workspaces, url: CONSOLE_PATHS.workspaces, method: 'GET', route: `GET ${CONSOLE_PATHS.workspaces}` },
   workspace: { path: CONSOLE_PATHS.workspace, url: '/api/console/workspaces/northline', method: 'GET', route: `GET ${CONSOLE_PATHS.workspace}` },
   workspaceIntake: { path: CONSOLE_PATHS.workspaceIntake, url: '/api/console/workspaces/northline/intake', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceIntake}` },
+  // D-229 (B-18): the team's intake as a PDF, workspaces.read like the intake itself. The reference seed has no Week 0
+  // intake, so a caller the guard lets through gets 404 and nothing is printed or audited (`PDF_404`); `intake.test.ts`
+  // prints a real one and checks its `intake.pdf` row.
+  workspaceIntakePdf: { path: CONSOLE_PATHS.workspaceIntakePdf, url: '/api/console/workspaces/northline/intake/pdf', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceIntakePdf}` },
   workspaceStack: { path: CONSOLE_PATHS.workspaceStack, url: '/api/console/workspaces/northline/stack', method: 'GET', route: `GET ${CONSOLE_PATHS.workspaceStack}` },
   users: { path: CONSOLE_PATHS.users, url: CONSOLE_PATHS.users, method: 'GET', route: `GET ${CONSOLE_PATHS.users}` },
   user: { path: CONSOLE_PATHS.user, url: '/api/console/users/u_jamie', method: 'GET', route: `GET ${CONSOLE_PATHS.user}` },
@@ -296,11 +301,14 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // PR 5 (D-164): refund and void, previews included, are billing.refund and billing.void: Owner and
 // Admin. Support reads billing and changes nothing (D3).
 const ACT = (v: number) => Object.fromEntries(ACTIONS.map((a) => [a, v])) as Record<ActionRoute, number>;
+/** D-229: past the guard, the intake PDF finds no intake in the reference seed (see `ROUTES.workspaceIntakePdf`). */
+const PDF_404 = 404;
 // PR 10 (D-169): Health and the Skills list are console.view: Owner, Admin and Support.
 const ALL = (v: number) => ({
   workspaces: v,
   workspace: v,
   workspaceIntake: v,
+  workspaceIntakePdf: v === 200 ? PDF_404 : v,
   workspaceStack: v,
   users: v,
   user: v,

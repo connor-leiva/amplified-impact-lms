@@ -41,10 +41,10 @@ import type { ConsoleCap, ConsolePage, ConsoleUserRow, StaffNoteTarget, UserFilt
 import { eq } from 'drizzle-orm';
 import { passwordHashOf, requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
-import { users } from '../db/schema';
+import { teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { issuePasswordLink } from '../routes/password';
-import { readTeamIntake, requeueTeamIntake } from '../routes/intake';
+import { readTeamIntake, requeueTeamIntake, sendPdf, teamIntakePdf } from '../routes/intake';
 import { readTeamStack } from '../routes/stack';
 import { audit } from './audit';
 import { consoleAllows, consoleError, requireConsole, staffActor } from './guard';
@@ -58,6 +58,8 @@ export const SUPPORT_PATHS = {
   workspaces: '/api/console/workspaces',
   workspace: '/api/console/workspaces/:teamId',
   workspaceIntake: '/api/console/workspaces/:teamId/intake',
+  /** D-229 (B-18): the team's intake as a PDF, audited as `intake.pdf`. No console screen yet (C-14). */
+  workspaceIntakePdf: '/api/console/workspaces/:teamId/intake/pdf',
   /** D-229: re-queue the team's submitted intake for GHL. No console screen yet (C-14). */
   workspaceIntakeSync: '/api/console/workspaces/:teamId/intake/sync',
   workspaceStack: '/api/console/workspaces/:teamId/stack',
@@ -181,6 +183,18 @@ export function registerSupportRoutes(scope: FastifyInstance): void {
     const row = await readTeamIntake(req, id, actor);
     if (!row) return consoleError(reply, 'not_found');
     return reply.send(row);
+  });
+
+  scope.get(SUPPORT_PATHS.workspaceIntakePdf, { ...read, preHandler: [requireSession, requireConsole('workspaces.read')] }, async (req, reply): Promise<FastifyReply> => {
+    const id = paramOf(req, 'teamId');
+    const actor = staffActor(viewerOrThrow(req));
+    if (!ID.test(id) || !actor) return consoleError(reply, 'not_found');
+    const [team] = await getDb().select({ id: teams.id }).from(teams).where(eq(teams.id, id));
+    if (!team) return consoleError(reply, 'not_found');
+    const file = await teamIntakePdf(id);
+    if (!file) return consoleError(reply, 'not_found');
+    await audit(req, { action: 'intake.pdf', outcome: 'ok', actor, target: { type: 'team', id, label: 'Intake PDF' } });
+    return sendPdf(reply, file);
   });
 
   scope.post(
