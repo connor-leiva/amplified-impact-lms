@@ -1,0 +1,208 @@
+{
+  "id": "intake",
+  "ui": {
+    "title": "Week 0 Intake",
+    "kicker": "Week 0 · Step 1 · Owner and operator",
+    "sub": "Your answers save as you go, for your whole team.",
+    "submitLabel": "Submit intake",
+    "submittedTitle": "Intake submitted.",
+    "submittedText": "Your answers are with the Amplified Impact team. Change anything here and it saves the same way.",
+    "optional": "Optional",
+    "needText": "Add an answer.",
+    "needChoice": "Pick one."
+  },
+  "intake": {
+    "intro": "The goal of this intake is that we know your team before we build anything with you. Your answers tell us which AI you're on, what your data lives in, and who sets everything up. That way your operator gets the right setup path, and we can spot anything that needs another route before the live builds start on Wednesday, December 2. Short answers are fine. If you're not sure of something, say so and skip it.",
+    "sections": [
+      {
+        "title": "You and Your Team",
+        "questions": [
+          {
+            "id": "name",
+            "label": "Your name and email.",
+            "kind": "short",
+            "required": true
+          },
+          {
+            "id": "team",
+            "label": "Your team's name and brokerage.",
+            "kind": "short",
+            "required": true
+          },
+          {
+            "id": "size",
+            "label": "Team size (how many agents and staff today).",
+            "kind": "short"
+          },
+          {
+            "id": "lead-desk",
+            "label": "Who leads your lead desk?",
+            "help": "Write \"me\" if it is you.",
+            "kind": "short"
+          },
+          {
+            "id": "cadence",
+            "label": "Your weekly meeting cadence (meetings, day and time, who runs each).",
+            "kind": "long"
+          },
+          {
+            "id": "one-on-ones",
+            "label": "Do you hold 1:1s with your agents?",
+            "help": "If yes, who runs them and how often.",
+            "kind": "long"
+          }
+        ]
+      },
+      {
+        "title": "Your Operator",
+        "questions": [
+          {
+            "id": "operator",
+            "label": "Who is your operator?",
+            "help": "Name, email and role, or \"I'm both.\"",
+            "kind": "choice",
+            "options": [
+              "I'm both",
+              "A teammate"
+            ],
+            "required": true
+          },
+          {
+            "id": "operator-name",
+            "label": "Their name and email.",
+            "help": "Skip this if you chose I'm both.",
+            "kind": "short"
+          },
+          {
+            "id": "invited",
+            "label": "Have you invited them in the portal yet?",
+            "kind": "choice",
+            "options": [
+              "Yes",
+              "Not yet"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Your AI",
+        "questions": [
+          {
+            "id": "ai",
+            "label": "Which AI will your team use for the course?",
+            "kind": "choice",
+            "options": [
+              "Claude",
+              "ChatGPT"
+            ],
+            "required": true
+          },
+          {
+            "id": "plan",
+            "label": "Which plan are you on, or will you be on by Monday, November 30?",
+            "kind": "choice",
+            "options": [
+              "Claude Pro",
+              "Claude Max",
+              "Claude Team",
+              "ChatGPT Plus",
+              "ChatGPT Pro",
+              "ChatGPT Business",
+              "Not on a paid plan yet"
+            ],
+            "required": true
+          },
+          {
+            "id": "account",
+            "label": "Whose AI account runs your hires?",
+            "kind": "choice",
+            "options": [
+              "The operator's account (our default)",
+              "The owner's account",
+              "Another teammate's account"
+            ]
+          },
+          {
+            "id": "chatgpt-admin",
+            "label": "On ChatGPT only: does that person have admin access to your ChatGPT workspace?",
+            "kind": "choice",
+            "options": [
+              "Yes",
+              "No",
+              "Not on ChatGPT"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Your Stack",
+        "questions": [
+          {
+            "id": "books",
+            "label": "Your accounting system.",
+            "kind": "choice",
+            "options": [
+              "QuickBooks Online",
+              "QuickBooks Desktop",
+              "Xero",
+              "My bookkeeper has it",
+              "Something else"
+            ]
+          },
+          {
+            "id": "books-close",
+            "label": "Who owns your accounting and reports, and what day do your books usually close each month?",
+            "kind": "long"
+          },
+          {
+            "id": "sisu",
+            "label": "Do you use Sisu?",
+            "help": "If yes, what access does the person running your hires have: admin, TC or agent?",
+            "kind": "long"
+          },
+          {
+            "id": "crm",
+            "label": "Your CRM.",
+            "help": "Follow Up Boss, KW Command, Brivity, GoHighLevel, or something else. Can you export a speed-to-lead report from it?",
+            "kind": "long"
+          },
+          {
+            "id": "google",
+            "label": "Email, calendar and files: is your team on Google Workspace?",
+            "kind": "choice",
+            "options": [
+              "Yes",
+              "No"
+            ],
+            "required": true
+          },
+          {
+            "id": "google-other",
+            "label": "If you are not on Google, what do you use?",
+            "kind": "short"
+          },
+          {
+            "id": "tasks",
+            "label": "Where your tasks live.",
+            "kind": "long"
+          }
+        ]
+      },
+      {
+        "title": "Anything We Should Know",
+        "questions": [
+          {
+            "id": "problems",
+            "label": "Three recurring problems you'd like off your plate.",
+            "kind": "long"
+          },
+          {
+            "id": "access",
+            "label": "Known access restrictions.",
+            "kind": "long"
+          }
+        ]
+      }
+    ]
+  }
+}

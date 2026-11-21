@@ -1,0 +1,54 @@
+{
+  "learner": {
+    "name": "Alex Morgan",
+    "team": "Northline Realty",
+    "cohort": "Amplified AI Accelerator · December 2026 Cohort"
+  },
+  "new": {
+    "status": "new",
+    "answers": {}
+  },
+  "draft": {
+    "status": "draft",
+    "savedLabel": "Saved Thu 4:02 PM",
+    "answers": {
+      "name": "Alex Morgan, alex@northlinerealty.example",
+      "team": "Northline Realty, an independent brokerage",
+      "size": "9 agents, 3 staff",
+      "lead-desk": "me",
+      "cadence": "Monday 9:00 AM team meeting, I run it. Thursday 2:00 PM pipeline review, our operations lead runs it.",
+      "operator": "A teammate",
+      "operator-name": "Our operations lead, ops@northlinerealty.example",
+      "ai": "Claude",
+      "books": "QuickBooks Online"
+    }
+  },
+  "submitted": {
+    "status": "submitted",
+    "savedLabel": "Submitted Nov 19, 4:02 PM",
+    "submittedShort": "Nov 19",
+    "answers": {
+      "name": "Alex Morgan, alex@northlinerealty.example",
+      "team": "Northline Realty, an independent brokerage",
+      "size": "9 agents, 3 staff",
+      "lead-desk": "me",
+      "cadence": "Monday 9:00 AM team meeting, I run it. Thursday 2:00 PM pipeline review, our operations lead runs it.",
+      "one-on-ones": "Yes. I run them every other week.",
+      "operator": "A teammate",
+      "operator-name": "Our operations lead, ops@northlinerealty.example",
+      "invited": "Not yet",
+      "ai": "Claude",
+      "plan": "Claude Team",
+      "account": "The operator's account (our default)",
+      "chatgpt-admin": "Not on ChatGPT",
+      "books": "QuickBooks Online",
+      "books-close": "Our bookkeeper owns them. The books close on the 5th.",
+      "sisu": "Yes. Our operations lead has admin access.",
+      "crm": "Follow Up Boss. Yes, we can export speed to lead.",
+      "google": "Yes",
+      "tasks": "Asana, and too many sticky notes.",
+      "problems": "Stale leads nobody follows up. Monthly numbers built by hand. Contract deadlines that slip.",
+      "access": "Our brokerage limits API access to the transaction system."
+    }
+  }
+}

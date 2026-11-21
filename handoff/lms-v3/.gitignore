@@ -1,0 +1,6 @@
+# Built by `npm run build`; IMPLEMENTATION-SPEC.md: commit this folder without them.
+node_modules/
+harness/public/app.js
+harness/public/app.css
+# A local run's screenshots (results/report.json, the author's runs, is kept).
+results/*.png
