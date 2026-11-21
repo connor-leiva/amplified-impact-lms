@@ -1,7 +1,7 @@
 // D-229: the form drawer's props from the course's intake and GET /api/intake (§7.4, B-14, B-17).
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { fmt, setViewerZone } from '@ai/core';
-import { FORM_UI, formInitial, formRow, savedLabel } from './form.vm';
+import { FORM_UI, formInitial, formRow, opensIntakeDrawer, savedLabel } from './form.vm';
 
 beforeEach(() => setViewerZone('America/Chicago'));
 afterEach(() => setViewerZone(null));
@@ -57,4 +57,16 @@ describe('formRow (B-14)', () => {
     expect(opened).toBe(1);
   });
   it('the drawer’s words are the package’s', () => expect(FORM_UI.submitLabel).toBe('Submit intake'));
+});
+
+describe('what opens the drawer on a step page (B-15)', () => {
+  const page = '/learn/week/0/intake';
+  const file = '/api/files/resource/intake-form';
+  it('the old intake page and the intake’s kit file (production’s step 1 downloads it), nothing else', () => {
+    expect(opensIntakeDrawer(page, page, file)).toBe(true);
+    expect(opensIntakeDrawer(file, page, file)).toBe(true);
+    expect(opensIntakeDrawer('/api/files/resource/w0-stack-card', page, file)).toBe(false);
+    expect(opensIntakeDrawer('/learn/week/0/step/2', page, file)).toBe(false);
+    expect(opensIntakeDrawer(file, page, null)).toBe(false);
+  });
 });

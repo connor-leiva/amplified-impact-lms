@@ -28,6 +28,7 @@ import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome, learnIntake, learnStep } from './routes';
 import { v3For } from './lms-v3/v3';
+import { INTAKE_KIT_ID, opensIntakeDrawer } from './lms-v3/form.vm';
 import { v6StepAt } from './step-page/v6';
 import { StepPageRoute } from './step-page/StepPageRoute';
 import { StepLive } from './Live';
@@ -406,7 +407,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
       return (
         <>
           {page}
-          <InPlaceIntake intake={intake.intake} now={now} />
+          <InPlaceIntake intake={intake.intake} now={now} file={repo.fileUrl({ kind: 'resource', id: INTAKE_KIT_ID })} />
         </>
       );
     }
@@ -418,22 +419,26 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
 
 const StepIntake = lazy(() => import('./lms-v3/StepIntake'));
 
-/** Answers a click on a link to the intake's page by opening its drawer in place (loaded on the first open). */
-function InPlaceIntake({ intake, now }: { intake: CourseIntake; now: number }) {
+/**
+ * Answers a click on a link to the intake (its old page, or its kit file: `opensIntakeDrawer`) by opening its drawer in
+ * place (loaded on the first open).
+ */
+function InPlaceIntake({ intake, now, file }: { intake: CourseIntake; now: number; file: string | null }) {
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
-      if (!a || new URL(a.href, window.location.href).pathname !== learnIntake()) return;
+      const fileAt = file ? new URL(file, window.location.href).pathname : null;
+      if (!a || !opensIntakeDrawer(new URL(a.href, window.location.href).pathname, learnIntake(), fileAt)) return;
       e.preventDefault();
       setLoaded(true);
       setOpen(true);
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
-  }, []);
+  }, [file]);
   return loaded ? (
     <Suspense fallback={null}>
       <StepIntake intake={intake} now={now} open={open} onClose={() => setOpen(false)} />
