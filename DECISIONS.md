@@ -7260,3 +7260,21 @@ I captured all 18 learner pages at 1440 and 390 (the system check's own states) 
   | Reference | not marked | marked on click |
 - **Tests.** `http.test.ts` covers the stream (one refresh per burst, at most one per window, the own write's echo waiting, a refused stream reopened) and 429 handling (a read's `RateLimitedError` with its wait, a write retried once after it).
 
+
+## D-225 · LMS v3: the approved mockup is the design of the learner side, reproduced pixel by pixel
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Fri Nov 20, 2026. Asked whether the mockup is the approved design and the single source of truth, he answered:
+> "100%, yes absolutely approved. Make sure that is stated EXPLICITLY in the MD file. These need to be pixel by pixel reproduced. I don't want a single thing varying from this design."
+
+and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0 records.
+**Number:** D-224 is the checks that save (PR #218). The uploads and community patch's own entries, which it calls D-224 and D-225, take D-230 and D-231 when its server code lands.
+
+- **The design.** `handoff/lms-v3/mockup/index.html` (revision v6, sha256 `0383d010513f2f7af819ed1a780b25075079b9d2e274a5405a22bfc77ad1562f`) is the source of truth for the learner shell, the week overview, the locked week, the Schedule, the form drawer, the Community and Turn in. For those it outranks `design-reference/` and `docs/design/learner-v2`, and so changes CLAUDE.md's "Sources of truth" order there. Everything else keeps today's order.
+- **Nothing varies.** No size, colour, radius, gap, font, word, punctuation mark, icon, order, state or timing. The gate is **no different pixel** and the same size in every check of `handoff/lms-v3/diff/pixel-diff.mjs`, unchanged (its clock, threshold and states are the package's). Nothing loosens it: no `--max-px`, no mask, no dropped state, no re-captured reference. What can't be reproduced exactly is asked, never approximated.
+- **Copied, not written.** The package's two stylesheets (`lms.tokens.css`, `lms.css`) and its icon sprite (`icons.generated.js`) are in `apps/web/src/routes/learn/lms-v3/` byte for byte, as global stylesheets loaded after `ai-motion.css`, as the step page's are (D-210). `lms-v3.test.ts` checks their sha256 against the package's. They change only when the mockup changes and the package's `npm run build` regenerates them.
+- **Converted, not rewritten.** The package's React (`src/`) becomes TSX with types added and nothing else: the same class names, ids, DOM order and attributes. A test renders each component beside the package's own and compares the HTML.
+- **Exemptions on these surfaces** (the step page's, D-210 item 4, extended): the mockup's own icon sprite instead of `ICONS`; phone text under 16 px where the mockup has it; the mockup's button and field heights, so the app's global phone floor (`--tap` in `styles/lms.css`, D-156) is set to nothing inside the v3 frame and handed back to today's pages under it. Neither stylesheet is edited for it.
+- **Who sees it.** `VITE_LMS_V3` (`lms-v3/v3.ts`), off unless the build sets it to `true`, and the seeded test learner (D-200, D-202) always. A surface that needs a piece the mockup doesn't draw keeps today's page whole (the gap rule, IMPLEMENTATION-SPEC.md §4.D). Nothing reaches a learner until Phase 11.
+- **The test learner's starting point** for the tests is `compliance/lms-v3/` (`prepare.ts`, `reset.sql`), on a development database only: the package's made-up people (Alex Morgan, Northline Realty), never a real customer.
+- **Supersedes** CLAUDE.md "Sources of truth" for these surfaces, D-156's phone floor on them, and D-211's button sizes where they differ.

@@ -8,6 +8,8 @@ dist-private/
 # Stray TS emit next to sources. Nothing in src/ is authored as .js, so anything here is an
 # accident (a stray  without --noEmit) and must never be committed.
 apps/*/src/**/*.js
+# D-225: the one exception, the v3 icon sprite: the package's generated file, byte for byte (lms-v3.test.ts).
+!apps/web/src/routes/learn/lms-v3/icons.generated.js
 apps/*/src/**/*.js.map
 packages/*/src/**/*.js
 packages/*/src/**/*.js.map
