@@ -3,7 +3,7 @@
 // the portal's own `toggleStep`, and "For this step" with this step's Library skills and kit items.
 // Markup only: every string is computed in Step.vm.ts. The week's Build Kit stays (parity E-10).
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
@@ -11,6 +11,8 @@ import { acceleratorModuleId } from '@ai/core/accelerator';
 import { localToggle, localWatch } from '@ai/core/checklist';
 import { mayEditIntake } from '@ai/core/intake';
 import { learnerOf } from '@ai/core/learner';
+import { isLockedWeek } from '@ai/core/course';
+import type { CourseIntake } from '@ai/core/course-types';
 import { Icon } from '../../components/Icon';
 import { isFixture, repo } from '../../data/boot';
 import { useMutate } from '../../data/hooks';
@@ -24,7 +26,8 @@ import { weekParam } from './Week.vm';
 import { GlossaryProvider } from './Glossary';
 import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
-import { learnHome, learnStep } from './routes';
+import { learnHome, learnIntake, learnStep } from './routes';
+import { v3For } from './lms-v3/v3';
 import { v6StepAt } from './step-page/v6';
 import { StepPageRoute } from './step-page/StepPageRoute';
 import { StepLive } from './Live';
@@ -396,10 +399,46 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   // preview draws the same page, so a step looks the same where it is built and where it is taken.
   const path = step !== null ? learnStep(vm.week, step) : null;
   if (path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
-    return <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />;
+    const page = <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />;
+    // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
+    const intake = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
+    if (!preview && v3For(viewer, me) && intake && !isLockedWeek(intake) && intake.intake) {
+      return (
+        <>
+          {page}
+          <InPlaceIntake intake={intake.intake} now={now} />
+        </>
+      );
+    }
+    return page;
   }
   // A new step starts on its own first tab.
   return <Player key={`${vm.week}:${vm.eyebrow}`} vm={vm} more={more} local={local} />;
+}
+
+const StepIntake = lazy(() => import('./lms-v3/StepIntake'));
+
+/** Answers a click on a link to the intake's page by opening its drawer in place (loaded on the first open). */
+function InPlaceIntake({ intake, now }: { intake: CourseIntake; now: number }) {
+  const [open, setOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+      if (!a || new URL(a.href, window.location.href).pathname !== learnIntake()) return;
+      e.preventDefault();
+      setLoaded(true);
+      setOpen(true);
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
+  return loaded ? (
+    <Suspense fallback={null}>
+      <StepIntake intake={intake} now={now} open={open} onClose={() => setOpen(false)} />
+    </Suspense>
+  ) : null;
 }
 
 export function Component() {

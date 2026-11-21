@@ -264,12 +264,14 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       [DATA_MIGRATIONS[10]!.id, 0, 0],
       // D-223: the seed's Week 0 has no five-words table (staff built it in production), so this names why it skipped.
       [DATA_MIGRATIONS[11]!.id, 0, 1],
+      // D-229: the intake's six required questions, marked (the intake above has none marked).
+      [DATA_MIGRATIONS[12]!.id, 1, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
     expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(33).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(34).fill('curriculum.migrate'));
     expect(after.cohorts.find((c) => c.id === 'dec26')!.course!.glossary).toHaveLength(31);
     expect(after.modules.find((m) => m.id === 'accelerator-week-0')!.course!.startHere?.title).toBe('Start Here: Week 0');
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });

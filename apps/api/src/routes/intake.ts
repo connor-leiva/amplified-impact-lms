@@ -4,7 +4,7 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { cleanIntakeAnswers, intakeCheckTarget, mayEditIntake } from '@ai/core/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeMissing, mayEditIntake } from '@ai/core/intake';
 import type { IntakeAnswers } from '@ai/core/intake';
 import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
@@ -71,6 +71,11 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     if (!form) return reply.code(404).send({ error: 'This week has no intake.' });
     const body = (req.body ?? {}) as { answers?: unknown; submit?: boolean };
     const answers: IntakeAnswers = cleanIntakeAnswers(form, body.answers);
+    // B-16 (D-229): a submit with a required answer missing is refused, whatever the browser checked; a save isn't.
+    if (body.submit) {
+      const missing = intakeMissing(form, answers);
+      if (missing.length) return reply.code(422).send({ error: 'Some required answers are missing.', missing });
+    }
     const now = clock.now();
     const [prev] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
     const submittedAt = body.submit ? now : (prev?.submittedAt ?? null);

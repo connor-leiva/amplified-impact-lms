@@ -381,6 +381,8 @@ export interface IntakeQuestion {
   help?: string;
   kind: 'short' | 'long' | 'choice' | 'multi';
   options?: string[];
+  /** B-16 (D-229): Submit refuses until it has an answer. Absent is optional. */
+  required?: boolean;
 }
 
 /** D-196: one group of questions. */

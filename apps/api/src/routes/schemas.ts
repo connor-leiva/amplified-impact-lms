@@ -264,6 +264,8 @@ const moduleCourse = z.strictObject({
         help: z.string().max(1000).optional(),
         kind: z.enum(['short', 'long', 'choice', 'multi']),
         options: z.array(z.string().max(200)).max(20).optional(),
+        // B-16 (D-229): Submit refuses until it has an answer.
+        required: z.boolean().optional(),
       })).max(40),
     })).max(12),
   }).optional(),

@@ -17,6 +17,7 @@ import { COPY_V2, planCopyV2 } from '@ai/core/seed/copy-v2';
 import { COPY_V3, planCopyV3 } from '@ai/core/seed/copy-v3';
 import { GLOSSARY_V1, planGlossaryV1 } from '@ai/core/seed/glossary-v1';
 import { INTAKE_V1, planIntakeV1 } from '@ai/core/seed/intake-v1';
+import { INTAKE_REQUIRED_V1, planIntakeRequiredV1 } from '@ai/core/seed/required-v1';
 import { STACK_V1, planStackV1 } from '@ai/core/seed/stack-v1';
 import { PROMISE_V1, planPromiseV1 } from '@ai/core/seed/promise-v1';
 import { UNSHOWN_V1, planUnshownV1 } from '@ai/core/seed/unshown-v1';
@@ -97,6 +98,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: FIVE_WORDS_V1,
     describe: 'Week 0 step 2: Know these five words opens its definitions in the task, not in a table under it (D-223)',
     plan: planFiveWordsV1,
+  },
+  {
+    id: INTAKE_REQUIRED_V1,
+    describe: 'Week 0 intake: the six required questions, set only when none is marked (D-229)',
+    plan: planIntakeRequiredV1,
   },
 ];
 

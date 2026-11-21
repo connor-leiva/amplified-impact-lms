@@ -13,6 +13,8 @@ import { WEEK0_DUE_V1, WEEK_OPENS_V1, planReleaseV1 } from '../seed/release-plan
 import { PROMISE_V1, planPromiseV1 } from '../seed/promise-v1';
 import { UNSHOWN_V1, planUnshownV1 } from '../seed/unshown-v1';
 import { FIVE_WORDS_V1, planFiveWordsV1 } from '../seed/five-words-v1';
+import { planIntakeV1 } from '../seed/intake-v1';
+import { INTAKE_REQUIRED_V1, WEEK0_REQUIRED, planIntakeRequiredV1 } from '../seed/required-v1';
 import { planGlossaryV1 } from '../seed/glossary-v1';
 import type { PathBlock } from '../src/course-types';
 import { courseWithoutRetired, hasRetired } from '../src/course-retired';
@@ -285,3 +287,30 @@ describe('the five words in the task (D-223)', () => {
   });
 });
 
+
+describe('the intake’s required questions (D-229, B-16)', () => {
+  const withIntake = (): Db => planIntakeV1(prod()).db;
+  const requiredOf = (db: Db): string[] =>
+    (db.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[0])!.course!.intake!.sections.flatMap((x) => x.questions).filter((q) => q.required).map((q) => q.id));
+
+  it('marks the six Connor settled, and nothing else', () => {
+    const out = planIntakeRequiredV1(withIntake());
+    expect(requiredOf(out.db).sort()).toEqual([...WEEK0_REQUIRED].sort());
+    expect(out.changes).toHaveLength(1);
+    expect(out.skipped).toEqual([]);
+    expect(INTAKE_REQUIRED_V1).toBe('2026-11-21-intake-required');
+  });
+
+  it('never overwrites a choice made in the builder, and runs once', () => {
+    const once = planIntakeRequiredV1(withIntake());
+    const again = planIntakeRequiredV1(once.db);
+    expect(again.changes).toEqual([]);
+    expect(again.db).toBe(once.db);
+    expect(again.skipped[0]!.reason).toMatch(/already chosen in the builder/);
+  });
+
+  it('leaves a database without the intake', () => {
+    const out = planIntakeRequiredV1(prod());
+    expect(out.changes).toEqual([]);
+  });
+});

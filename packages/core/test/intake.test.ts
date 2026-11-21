@@ -1,6 +1,6 @@
 // D-196: the intake's questions, who may edit, and which box a submit checks.
 import { describe, expect, it } from 'vitest';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeIssues, mayEditIntake } from '../src/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeIssues, intakeMissing, mayEditIntake } from '../src/intake';
 import { WEEK0_INTAKE, planIntakeV1 } from '../seed/intake-v1';
 import { WEEK0_MODULE_ID } from '../seed/start-here-v1';
 import { copyIssues, moduleCopyFields } from '../src/course-rules';
@@ -42,5 +42,19 @@ describe('Week 0 intake (D-196)', () => {
       checklist: [{ id: 'c1', paths: { claude: { blocks: [{ type: 'check', id: 's1-intake', title: 'Fill in your intake', action: { type: 'form', formId: 'intake', label: 'Open' } }] } } }],
     } as unknown as AIEmployee;
     expect(intakeCheckTarget(mod)).toEqual({ moduleId: 'accelerator-week-0', stepId: 'c1', itemId: 's1-intake' });
+  });
+});
+
+describe('intakeMissing (D-229, B-16)', () => {
+  it('lists the required questions with no answer, in the form’s order', () => {
+    const form = {
+      sections: [
+        { title: 'A', questions: [{ id: 'name', label: 'Name', kind: 'short' as const, required: true }, { id: 'size', label: 'Size', kind: 'short' as const }] },
+        { title: 'B', questions: [{ id: 'ai', label: 'AI', kind: 'choice' as const, options: ['Claude'], required: true }, { id: 'tools', label: 'Tools', kind: 'multi' as const, options: ['X'], required: true }] },
+      ],
+    };
+    expect(intakeMissing(form, {})).toEqual(['name', 'ai', 'tools']);
+    expect(intakeMissing(form, { name: '  ', ai: 'Claude', tools: [] })).toEqual(['name', 'tools']);
+    expect(intakeMissing(form, { name: 'Alex', ai: 'Claude', tools: ['X'] })).toEqual([]);
   });
 });
