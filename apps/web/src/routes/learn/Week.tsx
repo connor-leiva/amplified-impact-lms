@@ -281,7 +281,7 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
   if (!preview && row && v3For(viewer, me)) {
     if (vm.kind === 'locked' && v3LockedDraws(vm, row)) return <V3Locked p={course.payload} rows={rows} r={row} vm={vm} now={now} />;
     if (vm.kind === 'open' && v3WeekDraws(row, course.payload.sessions))
-      return <V3Week p={course.payload} rows={rows} r={row} me={me} checks={me?.checks ?? []} build={buildKitVM(row.module, moduleFileUrl)} fileUrl={fileUrl} />;
+      return <V3Week p={course.payload} rows={rows} r={row} me={me} checks={me?.checks ?? []} build={buildKitVM(row.module, moduleFileUrl)} fileUrl={fileUrl} now={now} />;
   }
   if (vm.kind === 'locked') return <Locked vm={vm} now={now} crumbs={crumbs} title={title} />;
   const mod = row?.module;

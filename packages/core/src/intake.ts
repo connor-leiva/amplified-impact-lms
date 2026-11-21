@@ -52,6 +52,14 @@ export function intakeIssues(form: CourseIntake | undefined): string[] {
   return out;
 }
 
+/** B-16 (D-229): the required questions these answers leave empty, by id, in the form's order. */
+export function intakeMissing(form: CourseIntake, answers: IntakeAnswers): string[] {
+  const has = (v: string | string[] | undefined): boolean => (Array.isArray(v) ? v.length > 0 : v !== undefined && v.trim() !== '');
+  return intakeQuestions(form)
+    .filter((q) => q.required && !has(answers[q.id]))
+    .map((q) => q.id);
+}
+
 /** Keep only answers this form asks, trimmed, and only choices the question lists. */
 export function cleanIntakeAnswers(form: CourseIntake, raw: unknown): IntakeAnswers {
   const byId = new Map(intakeQuestions(form).map((q) => [q.id, q]));

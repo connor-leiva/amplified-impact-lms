@@ -7317,3 +7317,16 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **Retired on v3 weeks:** the Start Here card (its rows are the step list), the Week 0 done overlay (the deployed hero's completion motion replaces it), the `WeekLive` strip (the top bar carries a live session) and the deployment card's Run, Pause and Resume (C-07 to C-10).
 - **The gap rule.** Week 0 draws (its media placeholders are left out, as UX-AUDIT lists). Any other week with media, a sample output, a seat card or a playbook card, or with live sessions (the mockup's only week is self-paced and its tags have no words for a session), keeps today's page whole. A locked week whose builder line or second question has no slot keeps today's page.
 - **Supersedes** D-184, D-195, D-199, D-213 (its sync list gains the v3 page's own), D-217 and D-218 where they differ.
+
+## D-229 · LMS v3 intake in a drawer: required questions, a PDF, answers to GHL
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, with D-225 to D-231 ("Approved on all", `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0). Required: "Go with what you made required". GHL: "Yes to GHL, Spring doesn't need to approve"; the operator: "Yes, own contact but added as relationship to Owner"; the tag: "Yes, you decide".
+**Number:** after D-228.
+
+- **The drawer.** The package's `FormDrawer` and `useForm`, on the week page (the intake's kit row is the form's row: its line, "9 of 22 answered", and one button, Fill in, Continue or View, B-14) and in place on a step whose form action names the intake (B-15). `/learn/week/:week/intake` lands on the week page with `?form=intake`, which opens it. Today's intake page stays for learners v3 doesn't draw for, until Phase 11.
+- **Saving.** As today: `GET` and `PUT /api/intake`, one intake per team; two people editing at once, the last save wins. The drawer saves 700 ms after the last keystroke, at once for a choice, and on close. Its stamps are the viewer's clock ("Saved 3:18 PM", "Saved Thu 4:02 PM", "Submitted Nov 20, 3:18 PM"), through `fmt` (two formatters added: `weekdayShort`, `clockTime`).
+- **Required** (B-16). A question can be required (`IntakeQuestion.required`, the builder's Intake card has the checkbox). Submit refuses while one is empty, in the drawer and again on the server (`422` with the missing ids). The six Connor settled (name, team, operator, ai, plan, google) are marked by a one-time data step, only where none is marked yet.
+- **The PDF** (B-18) waits for Connor's template (Phase 7, Q-14): until then Download PDF has no file to give, so the drawer doesn't reach a learner before Phase 7.
+- **GHL** (B-20, Phase 8): the answers sync to the owner's contact on submit and on later saves, the operator as their own contact related to the owner, tag `ai-intake-submitted`. A dry run logs the payload first; nothing is written to GHL until Connor approves one.
+- **Supersedes** D-196's "Nothing is sent to GHL, Stripe or anywhere else" (for GHL, from Phase 8) and the intake page, on v3.

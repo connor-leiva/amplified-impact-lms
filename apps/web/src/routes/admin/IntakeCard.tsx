@@ -1,6 +1,7 @@
 // D-196: the Week 0 Intake card. Questions are the draft's. Removing operator, ai, plan or google asks first.
 
 import { useState } from 'react';
+import clsx from 'clsx';
 import type { CourseIntake, IntakeQuestion, IntakeSection } from '@ai/core/course-types';
 import { isLockedIntakeId } from '@ai/core/intake';
 import { Button } from '../../components/r2/Button';
@@ -95,6 +96,11 @@ function Section({ section, onTitle, onAsk, onRemove, onAdd }: { section: Intake
               <option value="choice">Choice</option>
               <option value="multi">Multi</option>
             </Sel>
+          </label>
+          {/* B-16 (D-229): Submit refuses until a required question has an answer. */}
+          <label className={clsx(k.row, k.nw, w.check)}>
+            <input type="checkbox" checked={!!q.required} onChange={(e) => onAsk(i, { ...q, required: e.target.checked || undefined })} />
+            Required
           </label>
           {q.kind === 'choice' || q.kind === 'multi' ? (
             <label>

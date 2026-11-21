@@ -20,7 +20,12 @@ beforeAll(async () => {
   handle = await testDatabase();
   const db = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
   const week = db.modules.find((m) => m.id === WEEK0_MODULE_ID)!;
-  week.course = { ...week.course!, intake: WEEK0_INTAKE };
+  // D-229 (B-16): name and ai required, as the data step marks the six.
+  const required = new Set(['name', 'ai']);
+  week.course = {
+    ...week.course!,
+    intake: { ...WEEK0_INTAKE, sections: WEEK0_INTAKE.sections.map((x) => ({ ...x, questions: x.questions.map((q) => (required.has(q.id) ? { ...q, required: true } : q)) })) },
+  };
   await resetDatabase(db);
   await handle.insert(teams).values([
     { id: 'team-a', name: 'Team A', ownerId: 'own-a', seats: 5, seq: 90 },
@@ -59,5 +64,20 @@ describe('team intake (D-196)', () => {
     const rows = await handle.select().from(auditLog).where(eq(auditLog.action, 'intake.read'));
     expect(rows.length).toBeGreaterThan(0);
     expect((await loadDb()).users.find((u) => u.id === 'own-b')?.checks ?? []).toEqual([]);
+  });
+
+  it('refuses a submit with a required answer missing (422 and the missing ids), and keeps saving a draft (D-229)', async () => {
+    const b = await app.signInAs('own-b');
+    const put = (payload: Record<string, unknown>) => app.inject({ method: 'PUT', url: '/api/intake', headers: { cookie: b, 'content-type': 'application/json' }, payload });
+    const draft = await put({ answers: { name: 'Bea' } });
+    expect(draft.statusCode).toBe(200);
+    const short = await put({ answers: { name: 'Bea' }, submit: true });
+    expect(short.statusCode).toBe(422);
+    expect(short.json()).toMatchObject({ missing: ['ai'] });
+    const kept = await app.inject({ method: 'GET', url: '/api/intake', headers: { cookie: b } });
+    expect(kept.json()).toMatchObject({ answers: { name: 'Bea' }, submittedAt: null });
+    const done = await put({ answers: { name: 'Bea', ai: 'Claude' }, submit: true });
+    expect(done.statusCode).toBe(200);
+    expect(done.json().submittedAt).not.toBeNull();
   });
 });

@@ -1,7 +1,8 @@
 // /learn/week/0/intake (D-196). The week's intake questions, autosaved for the team. Markup only.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, Navigate, useParams } from 'react-router';
+import { learnerOf } from '@ai/core/learner';
 import { fmt } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseIntake, IntakeQuestion } from '@ai/core/course-types';
@@ -10,6 +11,7 @@ import { cleanIntakeAnswers } from '@ai/core/intake';
 import { Icon } from '../../components/Icon';
 import { useLearn } from './data';
 import { learnWeek } from './routes';
+import { v3For } from './lms-v3/v3';
 import s from './Intake.module.css';
 import l from './Learn.module.css';
 
@@ -183,7 +185,12 @@ export function IntakePage({ week }: { week: number }) {
 
 export function Component() {
   const week = Number(useParams().week);
-  return <IntakePage week={Number.isFinite(week) ? week : 0} />;
+  const { db, viewer } = useLearn();
+  const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
+  const w = Number.isFinite(week) ? week : 0;
+  // B-15 (D-229): for a learner v3 draws for, the intake is the form drawer on its week's page.
+  if (v3For(viewer, me)) return <Navigate to={`${learnWeek(w)}?form=intake`} replace />;
+  return <IntakePage week={w} />;
 }
 
 export default Component;

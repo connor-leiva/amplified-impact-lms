@@ -2,10 +2,14 @@
 // them their props, sends Mark as deployed and Undo to the mutations (`markDeployed`, `unmarkDeployed`, B-11), opens
 // today's prompt modal from the kit's View (C-11, kept as it is), starts the kit's downloads through the gated files
 // route, and lets the locked week's calendar button download the week's sessions as today's Add to calendar does.
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useSearchParams } from 'react-router';
 import { ics } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
+import type { CourseIntake } from '@ai/core/course-types';
+import { cleanIntakeAnswers } from '@ai/core/intake';
 import { useMutate } from '../../../data/hooks';
 import type { CoursePayload } from '../../course/Course.vm';
 import { saveIcs } from '../ics';
@@ -13,7 +17,12 @@ import type { WeekRow } from '../learn.vm';
 import type { LockedWeekVM } from '../Week.vm';
 import { PromptModal } from '../WeekContent';
 import type { BuildKitVM } from '../WeekContent.vm';
+import { FormDrawer, useForm } from './FormDrawer';
+import type { FormApi } from './FormDrawer';
+import { FORM_ID, INTAKE_KIT_ID, formDef, formInitial, formRow } from './form.vm';
+import type { IntakeBody } from './form.vm';
 import { LockedWeekPage } from './LockedWeekPage';
+import type { FormAnswers } from './types';
 import { WeekPage } from './WeekPage';
 import { lockedWeekProps, weekLabels, weekProps } from './week.vm';
 import type { KitInput } from './week.vm';
@@ -36,7 +45,7 @@ export function V3Week({
   checks,
   build,
   fileUrl,
-  formRow,
+  now,
 }: {
   p: CoursePayload;
   rows: readonly WeekRow[];
@@ -45,10 +54,27 @@ export function V3Week({
   checks: readonly ChecklistMark[];
   build: BuildKitVM | null;
   fileUrl: (id: string) => string | null;
-  formRow?: KitInput['formRow'];
+  now: number;
 }) {
   const mutate = useMutate();
   const [prompt, setPrompt] = useState(false);
+  const form = useIntakeForm(r.open?.intake, now);
+  const [params, setParams] = useSearchParams();
+  // B-15: `?form=intake` opens the drawer (the old intake page's address lands here).
+  const drawerOpen = !!form && params.get('form') === FORM_ID;
+  const setOpen = (on: boolean) =>
+    setParams(
+      (q) => {
+        const next = new URLSearchParams(q);
+        if (on) next.set('form', FORM_ID);
+        else next.delete('form');
+        return next;
+      },
+      { replace: true },
+    );
+  const asForm: KitInput['formRow'] = form
+    ? (item, row) => (item.id === INTAKE_KIT_ID ? formRow(row, form, () => setOpen(true)) : row)
+    : undefined;
   const week = weekProps({
     p,
     rows,
@@ -59,7 +85,7 @@ export function V3Week({
     fileUrl,
     download,
     onViewPrompt: () => setPrompt(true),
-    formRow,
+    formRow: asForm,
   });
   const moduleId = acceleratorModuleId(r.week);
   return (
@@ -75,8 +101,58 @@ export function V3Week({
           <PromptModal prompt={build.prompt} onClose={() => setPrompt(false)} />
         </div>
       ) : null}
+      {/* The drawer is the app's sibling, as the mockup draws it: a portal to <body>, so nothing of the shell stacks over it. */}
+      {form
+        ? createPortal(<FormDrawer f={form} open={drawerOpen} onClose={() => setOpen(false)} />, document.body)
+        : null}
     </>
   );
+}
+
+/**
+ * The week's intake as the package's `useForm` drives it (§7.4): loaded from `GET /api/intake`, saved with
+ * `PUT /api/intake` (the answers the course asks, `cleanIntakeAnswers`), submitted the same way. One intake per team:
+ * two people editing at once, the last save wins, as today. Null when the week has no intake.
+ */
+export function useIntakeForm(intake: CourseIntake | undefined, now: number): FormApi | null {
+  const def = useMemo(() => (intake ? formDef(intake) : null), [intake]);
+  const put = useCallback(
+    async (answers: FormAnswers, submit: boolean) => {
+      if (!intake) return;
+      const res = await fetch('/api/intake', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ answers: cleanIntakeAnswers(intake, answers), submit }),
+      });
+      if (!res.ok) throw new Error(`PUT /api/intake ${res.status}`);
+    },
+    [intake],
+  );
+  const f = useForm({
+    form: def ?? formDef({ sections: [] }),
+    initial: { status: 'new', answers: {} },
+    onSave: (a) => put(a, false),
+    onSubmit: (a) => put(a, true),
+  });
+  const reset = useRef(f.reset);
+  reset.current = f.reset;
+  const nowAt = useRef(now);
+  nowAt.current = now;
+  useEffect(() => {
+    if (!intake) return undefined;
+    let alive = true;
+    void fetch('/api/intake', { credentials: 'include' })
+      .then((res) => (res.ok ? (res.json() as Promise<IntakeBody>) : null))
+      .then((body) => {
+        if (alive && body) reset.current(formInitial(body, nowAt.current));
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [intake]);
+  return def ? f : null;
 }
 
 export function V3Locked({

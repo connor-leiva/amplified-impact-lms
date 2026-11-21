@@ -37,7 +37,8 @@ export const ITEMS = {
 
 /** The kit's files, in the mockup's order: id, title, step, the file's type (the Vault's column). */
 const KIT: [string, string, string, string][] = [
-  ['w0-intake-form', 'Week 0 Intake Form', 'c1', 'PDF'],
+  // `intake-form` is the intake's kit file in production (the step's download action names it): its row becomes the form's.
+  ['intake-form', 'Week 0 Intake Form', 'c1', 'PDF'],
   ['w0-stack-card', 'Week 0 Stack Card', 'c1', 'PDF'],
   ['w0-time-baseline-xlsx', 'Time Baseline', 'c3', 'XLSX'],
   ['w0-time-baseline-csv', 'Time Baseline', 'c3', 'CSV'],

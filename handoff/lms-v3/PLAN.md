@@ -182,6 +182,13 @@ Not available (1.1). Phases 9 and 10 wait for it.
 - **Weeks with live sessions keep today's page.** The mockup's only week is self-paced; its tags ("Self-paced",
   "Owners and operators", the due date) have no words for a week with a live build. Weeks 1 to 8 open from Dec 2:
   **question for Connor** (a tag for a live week needs a mockup).
+- **The drawer's nine typing states** (`form-typed-saved`, `form-choice`, `form-errors` …) are marked `local` in the
+  test, which runs them only against the package's own harness, never a `--target`. Their behaviour is checked instead
+  by `FormDrawer.equality.test.tsx` (typing, saving, a submit with answers missing, a complete submit, both components
+  side by side, HTML equal at each step) and the API's 422 test; and by hand on the test learner.
+- **Two `fmt` formatters added** (`weekdayShort`, `clockTime`): the drawer's "Saved Thu 4:02 PM" and "Submitted Nov 20,
+  3:18 PM" carry no zone, and `fmt` had no way to print a clock time without one (B-17 says to stop if it can't; B-30
+  is the precedent for adding one, unit-tested).
 - **Locks and session states follow the server's clock**, not the one the test pins in the browser. The
   `--assume-clock` states need data seeded for that moment, and the sidebar's cohort line (above) moves with the
   browser's clock.

@@ -83,6 +83,10 @@ export interface Fmt {
   day: (t: number) => string;
   dayPlain: (t: number) => string;
   weekday: (t: number) => string;
+  /** "Thu", the viewer's weekday, short (D-229: the form's "Saved Thu 4:02 PM"). */
+  weekdayShort: (t: number) => string;
+  /** "4:02 PM", the viewer's clock time with no zone (D-229: the form's save and submit stamps, as the mockup prints them). */
+  clockTime: (t: number) => string;
   time: (t: number) => string;
   timeOnly: (t: number) => string;
   when: (t: number) => string;
@@ -106,6 +110,8 @@ export const fmt: Fmt = {
   dayPlain: (t) =>
     dOf(t, viewerZone(), { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', ''),
   weekday: (t) => dOf(t, viewerZone(), { weekday: 'long' }),
+  weekdayShort: (t) => dOf(t, viewerZone(), { weekday: 'short' }),
+  clockTime: (t) => tOf(t, viewerZone()),
   time: (t) => {
     const v = viewerZone(),
       prog = `${tOf(t, PROGRAM_TZ)} ${zoneAbbr(PROGRAM_TZ, t)}`;
