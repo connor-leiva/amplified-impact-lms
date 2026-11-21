@@ -63,6 +63,18 @@ export interface WeekProps {
   note: { initials: string; name: string; text: string } | null;
   kit: { label: string; rows: KitRow[] }[];
   reference: { title: string; blocks: RefBlock[] }[];
+  /** D-234: a live week's sessions, drawn as the locked week's "Build it live" list. A self-paced week has none. */
+  sessions?: WeekSession[];
+}
+
+/** D-234: one of a live week's sessions: the locked week's row, with the Schedule's state on its line. */
+export interface WeekSession {
+  title: string;
+  kind: string;
+  when: string;
+  tile: [string, string];
+  state?: SessionState;
+  replayHref?: string;
 }
 
 /** The chrome words (sample-data.js › sampleLabels). */
@@ -76,6 +88,8 @@ export interface WeekLabels {
   forThisWeek: string; inStepOrder: string; openLibrary: string; copied: string;
   instructorNote: string; whyThisWeek: string; questions: string;
   reference: string; nextWeek: string;
+  /** D-234: the heading over a live week's sessions (the locked week's words). */
+  buildLive?: string;
 }
 
 /** What the page works out from `steps` (one source: the hero, the list and the finish row read it). */

@@ -15,12 +15,12 @@ import type { WeekRow } from '../learn.vm';
 import { learnSkills, learnStep, learnWeek } from '../routes';
 import { weekStepStatuses } from '../Week.vm';
 import type { LockedWeekVM } from '../Week.vm';
-import { crumbsVM } from '../WeekContent.vm';
-import type { BuildKitVM } from '../WeekContent.vm';
+import { crumbsVM, playbookSection, sampleSection, seatSection } from '../WeekContent.vm';
+import type { BuildKitVM, SectionVM } from '../WeekContent.vm';
 import { hrs } from './Hero';
 import { nextSessionOf } from './shell.vm';
-import { SCHEDULE_V3 } from './schedule.vm';
-import type { KitAct, KitRow, LockedWeekProps, RefBlock, WeekLabels, WeekProps, WeekStep } from './types';
+import { SCHEDULE_V3, lineState } from './schedule.vm';
+import type { KitAct, KitRow, LockedWeekProps, RefBlock, WeekLabels, WeekProps, WeekSession, WeekStep } from './types';
 
 /** The mockup's chrome words for the week page (handoff/lms-v3/src/sample-data.js › sampleLabels). */
 export const WEEK_LABELS: WeekLabels = {
@@ -51,6 +51,7 @@ export const WEEK_LABELS: WeekLabels = {
   questions: 'Questions?',
   reference: 'Reference',
   nextWeek: 'Next week',
+  buildLive: 'Build it live',
 };
 
 /** The rest of the mockup's words: tags, roles, kit groups, Reference accordions and their terms. */
@@ -109,17 +110,67 @@ const isRole = (s: WeekStep, r: StepRole): boolean => s.who.includes(r);
 /**
  * The gap rule for a week (IMPLEMENTATION-SPEC.md §4.D, C-12): v3 draws a week only when it needs nothing the
  * mockup doesn't draw. Week 0's `why` is the instructor note, its pager the Next week card, and its media
- * placeholders are left out (UX-AUDIT); any other week with media, a sample output, a seat card or a playbook card,
- * or with live sessions (the mockup's only week is self-paced, and its tags have no words for a session), keeps
- * today's page whole.
+ * placeholders are left out (UX-AUDIT). D-234 (Connor, Nov 21: "Adapt Week 0's design for live weeks"): a live week
+ * draws too, its sessions as the locked week's "Build it live" list and its seat card, playbook card and sample
+ * output as Reference accordions (`weekCardRefs`). A week keeps today's page whole only for what still has no place:
+ * a real video in its media (a placeholder line is left out, as Week 0's are), or a sample output with paragraphs or
+ * a table (Reference has no block for them).
  */
-export function v3WeekDraws(r: WeekRow | undefined, sessions: readonly CourseSession[]): boolean {
+export function v3WeekDraws(r: WeekRow | undefined): boolean {
   const w = r?.open;
   if (!r || !w) return false;
-  if (r.week === 0) return !w.sampleOutput && !w.seatCard && !w.playbookCard;
-  return (
-    !w.media.length && !w.sampleOutput && !w.seatCard && !w.playbookCard && !sessions.some((s) => s.week === r.week)
-  );
+  return w.media.every((m) => typeof m === 'string') && weekCardRefs(w) !== null;
+}
+
+/**
+ * D-234: one of today's week sections as a Reference accordion, mapped onto Reference's blocks (term and
+ * description rows, a list, the small print). Null when a part has no block (a paragraph, a table, a video).
+ */
+function refOfSection(s: SectionVM): WeekProps['reference'][number] | null {
+  const blocks: RefBlock[] = [];
+  for (const part of s.parts) {
+    if (part.kind === 'rows') blocks.push({ type: 'dl', rows: part.rows.map((r) => ({ dt: r.label, dd: r.text })) });
+    else if (part.kind === 'list') blocks.push({ type: 'ul', items: part.items });
+    else if (part.kind === 'text' && part.note) blocks.push({ type: 'fine', text: part.text });
+    else return null;
+  }
+  if (s.meta) blocks.push({ type: 'fine', text: s.meta });
+  return { title: s.title, blocks };
+}
+
+/**
+ * D-234: a week's sample output, seat card and playbook card as Reference accordions, in today's order and with
+ * today's titles and terms ("Seat Card", "Playbook Card"). Null when one of them doesn't fit (`refOfSection`).
+ */
+export function weekCardRefs(w: OpenCourseWeek): WeekProps['reference'] | null {
+  const out: WeekProps['reference'] = [];
+  for (const s of [sampleSection(w.sampleOutput), seatSection(w.seatCard), playbookSection(w.playbookCard)]) {
+    if (!s) continue;
+    const ref = refOfSection(s);
+    if (!ref) return null;
+    out.push(ref);
+  }
+  return out;
+}
+
+/**
+ * A week's sessions as the locked week draws them (date tile, title, "Live build · Wed, Dec 2"): the hero's live
+ * build carries its time, as on the Schedule. D-234: an open week's line also carries the Schedule's state (Live
+ * now, Replay processing, Watch replay, Session ended).
+ */
+export function weekSessionsOf(sessions: readonly CourseSession[], week: number, now: number, open: boolean): WeekSession[] {
+  const own = sessions.filter((s) => s.week === week).sort((a, b) => a.start - b.start);
+  const heroId = nextSessionOf(sessions, now)?.s.id ?? null;
+  return own.map((s) => {
+    const t = dateTile(s.start);
+    return {
+      title: s.title,
+      kind: s.kind === 'build' ? SCHEDULE_V3.liveBuild : SCHEDULE_V3.officeHours,
+      when: s.id === heroId && s.kind === 'build' ? fmt.when(s.start) : fmt.day(s.start),
+      tile: [t.dw, t.dd],
+      ...(open ? { state: lineState(s, now), replayHref: learnWeek(week) } : {}),
+    };
+  });
 }
 
 /** A file type as its kit button says it. */
@@ -317,6 +368,8 @@ export interface WeekInput {
   download: (href: string) => void;
   onViewPrompt: () => void;
   formRow?: KitInput['formRow'];
+  /** D-234: the clock, for a live week's session states. */
+  now: number;
 }
 
 /** `WeekPage`'s `week` (§7.3). */
@@ -351,6 +404,10 @@ export function weekProps(x: WeekInput): WeekProps {
   const due = r.module?.dueAt;
   const next = x.rows.find((o) => o.week === r.week + 1);
   const instructor = p.course.intro.instructor;
+  // D-234: a live week's first tag is its live build ("Live build Wed, Dec 2, 1:00 PM CT", as the due tag reads)
+  // where a self-paced week's is "Self-paced".
+  const build = p.sessions.filter((s) => s.week === r.week && s.kind === 'build').sort((a, b) => a.start - b.start)[0];
+  const sessions = weekSessionsOf(p.sessions, r.week, x.now, true);
   return {
     n: r.week,
     title: r.title,
@@ -359,7 +416,9 @@ export function weekProps(x: WeekInput): WeekProps {
     purpose: r.outcome,
     crumbs: crumbsVM(r.title, r.week).map((c) => (c.href ? { label: c.label, href: c.href } : { label: c.label })),
     tags: [
-      { icon: 'clock', label: WEEK_V3.selfPaced },
+      build
+        ? { icon: 'radio', label: `${SCHEDULE_V3.liveBuild} ${fmt.day(build.start)}, ${fmt.time(build.start)}` }
+        : { icon: 'clock', label: WEEK_V3.selfPaced },
       {
         icon: 'users',
         label: owners && operators ? WEEK_V3.ownersAndOperators : owners ? WEEK_V3.owners : WEEK_V3.operators,
@@ -410,12 +469,20 @@ export function weekProps(x: WeekInput): WeekProps {
       onViewPrompt: x.onViewPrompt,
       formRow: x.formRow,
     }),
-    reference: referenceOf(p, w, mins('owner'), mins('operator')),
+    reference: [...referenceOf(p, w, mins('owner'), mins('operator')), ...(weekCardRefs(w) ?? [])],
+    ...(sessions.length ? { sessions } : {}),
   };
 }
 
-/** The week's own chrome word for its step count ("Eight steps"), by its number of steps. */
-export const weekLabels = (steps: number): WeekLabels => ({ ...WEEK_LABELS, stepsTitle: stepsTitle(steps) });
+/**
+ * The week's own chrome words: its step count ("Eight steps"), and D-234: a week after Week 0, once deployed, titles
+ * its hero with its outcome (the mockup's line, "Your office is ready for its first hire.", is Week 0's).
+ */
+export const weekLabels = (steps: number, outcome?: string): WeekLabels => ({
+  ...WEEK_LABELS,
+  stepsTitle: stepsTitle(steps),
+  ...(outcome ? { deployedTitle: outcome } : {}),
+});
 
 /**
  * The locked week's page (§7.7, B-39), from today's `LockedWeekVM`, or null when it holds something the mockup has no
@@ -435,8 +502,6 @@ export function lockedWeekProps(
 ): LockedWeekProps | null {
   const opensAt = r.locked?.opensAt ?? null;
   if (!v3LockedDraws(vm, r) || opensAt === null) return null;
-  const own = sessions.filter((s) => s.week === r.week).sort((a, b) => a.start - b.start);
-  const heroId = nextSessionOf(sessions, now)?.s.id ?? null;
   const current = [...rows].reverse().find((o) => o.state !== 'locked');
   return {
     n: r.week,
@@ -445,15 +510,7 @@ export function lockedWeekProps(
     question: vm.headline,
     opens: fmt.when(opensAt),
     opensAt: new Date(opensAt).toISOString(),
-    sessions: own.map((s) => {
-      const t = dateTile(s.start);
-      return {
-        title: s.title,
-        kind: s.kind === 'build' ? SCHEDULE_V3.liveBuild : SCHEDULE_V3.officeHours,
-        when: s.id === heroId && s.kind === 'build' ? fmt.when(s.start) : fmt.day(s.start),
-        tile: [t.dw, t.dd],
-      };
-    }),
+    sessions: weekSessionsOf(sessions, r.week, now, false),
     calendarHref,
     back: current
       ? { label: WEEK_V3.backToWeek(current.week), href: current.href }

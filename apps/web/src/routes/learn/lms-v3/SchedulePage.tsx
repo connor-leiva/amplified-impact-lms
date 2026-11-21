@@ -80,7 +80,7 @@ function NextHero({ next, now }: { next: ScheduleNext; now: () => number }) {
 
 const OVER: Record<string, string> = { processing: 'Replay processing', ended: 'Session ended' };
 /** A session's line ends with its day, or with what it is doing now. s.state: sessionState() or the LMS's own. */
-function SessionWhen({ s }: { s: ScheduleSession }) {
+export function SessionWhen({ s }: { s: ScheduleSession }) {
   if (s.state === 'live') return <span className="sc-when" data-s="live">Live now</span>;
   if (s.state === 'replay') return <a className="sc-replay" href={s.replayHref} onClick={stop(s.replayHref)}>Watch replay</a>;
   if (OVER[s.state!]) return <span className="sc-when">{OVER[s.state!]}</span>;
