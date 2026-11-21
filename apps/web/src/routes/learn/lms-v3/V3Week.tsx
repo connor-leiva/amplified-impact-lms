@@ -9,7 +9,7 @@ import { ics } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CourseIntake } from '@ai/core/course-types';
-import { cleanIntakeAnswers } from '@ai/core/intake';
+import { cleanIntakeAnswers, intakeFileIds } from '@ai/core/intake';
 import { useMutate } from '../../../data/hooks';
 import type { CoursePayload } from '../../course/Course.vm';
 import { saveIcs } from '../ics';
@@ -20,7 +20,7 @@ import type { BuildKitVM } from '../WeekContent.vm';
 import { FormDrawer, useForm } from './FormDrawer';
 import { NO_TAP } from './tap';
 import type { FormApi } from './FormDrawer';
-import { FORM_ID, INTAKE_KIT_ID, formDef, formInitial, formRow } from './form.vm';
+import { FORM_ID, formDef, formInitial, formRow } from './form.vm';
 import type { IntakeBody } from './form.vm';
 import { LockedWeekPage } from './LockedWeekPage';
 import type { FormAnswers } from './types';
@@ -73,8 +73,10 @@ export function V3Week({
       },
       { replace: true },
     );
+  // B-14: the kit files that are the intake (core's rule: production's has a generated id) become the form's row.
+  const intakeIds = form ? intakeFileIds(r.module, r.open?.kit ?? []) : [];
   const asForm: KitInput['formRow'] = form
-    ? (item, row) => (item.id === INTAKE_KIT_ID ? formRow(row, form, () => setOpen(true)) : row)
+    ? (item, row) => (intakeIds.includes(item.id) ? formRow(row, form, () => setOpen(true)) : row)
     : undefined;
   const week = weekProps({
     p,

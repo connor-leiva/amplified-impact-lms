@@ -6,17 +6,14 @@ import type { CourseIntake } from '@ai/core/course-types';
 import type { KitRow, FormDef, FormInitial, FormUi } from './types';
 
 export const FORM_ID = 'intake';
-/** The kit file that is the intake (B-14): its row becomes the form's row. */
-export const INTAKE_KIT_ID = 'intake-form';
-
 /**
  * B-15: a click on a step page that opens the intake's drawer in place. The old intake page's address (a step's `form`
- * action), and the intake's kit file (`intake-form`: a step's `download` action and the rail's View), which was the
- * "download the PDF and fill it in" path the drawer replaces (B-14 counts that file as the intake). Production's Week 0
- * step 1 reaches the intake through the file, so without it nothing on the step opened the drawer.
+ * action), and the intake's kit files (`intakeFileIds` in core: a step's `download` action and the rail's View), the
+ * "download the PDF and fill it in" path the drawer replaces. Production's Week 0 step 1 reaches the intake through its
+ * file, so without them nothing on the step opened the drawer.
  */
-export function opensIntakeDrawer(pathname: string, intakePage: string, intakeFile: string | null): boolean {
-  return pathname === intakePage || (intakeFile !== null && pathname === intakeFile);
+export function opensIntakeDrawer(pathname: string, intakePage: string, intakeFiles: readonly string[]): boolean {
+  return pathname === intakePage || intakeFiles.includes(pathname);
 }
 
 export const FORM_UI: FormUi = {
