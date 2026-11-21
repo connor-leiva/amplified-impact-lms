@@ -7331,6 +7331,19 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **GHL** (B-20, Phase 8): the answers sync to the owner's contact on submit and on later saves, the operator as their own contact related to the owner, tag `ai-intake-submitted`. A dry run logs the payload first; nothing is written to GHL until Connor approves one.
 - **Supersedes** D-196's "Nothing is sent to GHL, Stripe or anywhere else" (for GHL, from Phase 8) and the intake page, on v3.
 
+## D-234 · LMS v3: weeks with live sessions on Week 0's design
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 21, 2026: "Adapt Week 0's design for live weeks". D-232 and D-233 stay reserved for Q-13 and Q-16.
+**Number:** after D-229 (D-230 and D-231 are the spec's Turn in and Community).
+
+The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each with a live build and office hours) kept today's page under the gap rule (D-228). They now draw the v3 week page, built only from pieces the mockup already has; no new styles.
+- **Header.** A live week's first tag is its live build ("Live build Wed, Dec 2, 1:00 PM CT", as the due tag reads) where Week 0's is "Self-paced".
+- **Build it live.** The week's sessions, after the hero, as the locked week lists them (date tile, title, "Live build · Wed, Dec 2 · 1:00 PM CT"). Each line carries the Schedule's state: Live now, Replay processing, Watch replay, Session ended. Join stays in the top bar.
+- **Cards.** The week's seat card, playbook card and sample output become Reference accordions with today's titles and terms ("Seat Card", "Playbook Card"), on Reference's term-and-description rows.
+- **Hero.** A deployed week after Week 0 titles its hero with its outcome; "Your office is ready for its first hire." stays Week 0's. A step with no "who" or "done when" in the builder draws neither (no empty chip, no empty "Done when").
+- **Still today's page** for what has no place yet: a week holding a real video (a placeholder line is left out, as Week 0's are), or a sample output with paragraphs or a table.
+
 ## D-231 · LMS v3 cohort Community
 
 **Date:** 2026-11-21
