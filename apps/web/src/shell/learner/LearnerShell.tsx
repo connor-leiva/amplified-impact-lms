@@ -37,7 +37,7 @@ import { planItemOf, teamGateFor, teamPlanVM, withoutPlan } from '../../routes/l
 import { TeamPlanProvider } from '../../routes/learn/teamPlanContext';
 import type { PlanItem } from '../../routes/learn/teamPlanContext';
 import { v6StepAt } from '../../routes/learn/step-page/v6';
-import { v3For } from '../../routes/learn/lms-v3/v3';
+import { v3FrameAt } from '../../routes/learn/lms-v3/v3';
 import { v3PageAt } from '../../routes/learn/lms-v3/pages';
 import { currentOf } from '../../routes/learn/lms-v3/shell.vm';
 import s from './LearnerShell.module.css';
@@ -448,8 +448,8 @@ function Frame() {
   }
 
   // D-226: the v3 shell, for a learner it draws for. A staff member's preview keeps today's shell: its "Previewing as"
-  // line has no place in the mockup's frame (C-04), so that waits for Connor.
-  if (!gate && v3For(viewer, me)) {
+  // line has no place in the mockup's frame (C-04), so that waits for Connor. D-231: staff open the Community in it.
+  if (!gate && v3FrameAt(location.pathname, viewer, me)) {
     const cur = currentOf(location.pathname);
     return (
       <>

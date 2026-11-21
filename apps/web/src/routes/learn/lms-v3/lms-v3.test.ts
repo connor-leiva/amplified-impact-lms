@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { lmsV3Enabled, v3On } from './v3';
+import { communityFor, isCommunityPath, lmsV3Enabled, v3FrameAt, v3On } from './v3';
 
 const ROOT = join(__dirname, '../../../../../..');
 const sha = (p: string) => createHash('sha256').update(readFileSync(join(ROOT, p))).digest('hex');
@@ -48,5 +48,34 @@ describe('who sees v3 (D-225)', () => {
     expect(v3On({}, false)).toBe(false);
     expect(v3On(null, false)).toBe(false);
     expect(v3On({}, true)).toBe(true);
+  });
+});
+
+describe('who opens the Community (D-231)', () => {
+  const learner = { actor: { kind: 'learner' } };
+  const staff = { actor: { kind: 'staff' } };
+  const preview = { actor: { kind: 'staff' }, preview: 'owner' };
+  it('knows its addresses', () => {
+    expect(isCommunityPath('/learn/community')).toBe(true);
+    expect(isCommunityPath('/learn/community/')).toBe(true);
+    expect(isCommunityPath('/learn/community/2')).toBe(true);
+    expect(isCommunityPath('/learn/community/2/x')).toBe(false);
+    expect(isCommunityPath('/learn/communityx')).toBe(false);
+    expect(isCommunityPath('/learn/schedule')).toBe(false);
+  });
+  it('is a learner v3 draws for, and staff whatever the flag, but not a staff preview', () => {
+    expect(communityFor(learner, { test: true }, false)).toBe(true);
+    expect(communityFor(learner, {}, false)).toBe(false);
+    expect(communityFor(learner, {}, true)).toBe(true);
+    expect(communityFor(staff, null, false)).toBe(true);
+    expect(communityFor(preview, null, false)).toBe(false);
+    expect(communityFor(preview, null, true)).toBe(false);
+  });
+  it('gives staff the v3 frame on the Community only', () => {
+    expect(v3FrameAt('/learn/community/2', staff, null, false)).toBe(true);
+    expect(v3FrameAt('/learn/week/0', staff, null, false)).toBe(false);
+    expect(v3FrameAt('/learn/community', preview, null, false)).toBe(false);
+    expect(v3FrameAt('/learn/week/0', learner, { test: true }, false)).toBe(true);
+    expect(v3FrameAt('/learn/community', learner, {}, false)).toBe(false);
   });
 });

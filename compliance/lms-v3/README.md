@@ -8,6 +8,7 @@ test learner's starting point, and a reset before every shot. The session and th
 | File | What it does |
 |---|---|
 | `prepare.ts content` | On a **development** database: writes what the package's sample data has and the curriculum seed doesn't (step 6 at 30 minutes, the done-when lines' periods, the operator's time, the check items behind step 3's "In progress" and step 5's "Waiting on step 6"), and opens the cohort's pre-launch preview (Week 0 open, the rest locked with their dates). |
+| `prepare.ts community` | The package's sample Community (`handoff/lms-v3/src/data/community.samples.json`) with its own ids (thread 2, `[data-post="23"]`): five threads and seven posts by the test learner, a made-up learner (Dana Whitlock, Sample Team) and a made-up staff member (Connor Leiva), at the sample's times. With `LMS_V3_STAFF_PASSWORD` set, that staff member (`v3-staff@example.test`) can sign in, for the staff checks. Run it again after anything posts. |
 | `prepare.ts reset` / `reset.sql` | The test learner (`SEED_TEST_MEMBER_EMAIL`, flagged `is_test`, D-200) back to the tests' start: step 1 done, step 3 in progress, step 5 waiting, not deployed, only Week 0 open (no early access), the intake a draft of the package's sample answers saved Thu Nov 19, 4:02 PM CT, sidebar expanded and light theme, Alex Morgan of Northline Realty. Refuses any other account. `reset.sql -v state=s7|s8|deployed` is the same learner in the pixel test's `--assume` states (every step but 5, all eight, deployed). |
 
 ## Local run
@@ -29,6 +30,13 @@ node --import ../../compliance/step-page-v6/reset-hook.mjs diff/pixel-diff.mjs \
   --target http://127.0.0.1:4300/learn/week/0 --target-schedule http://127.0.0.1:4300/learn/schedule \
   --target-locked http://127.0.0.1:4300/learn/week/1 --storage-state ../../auth.json   # in parts, as HANDOFF §3
 ```
+
+The Community (D-231), after `prepare.ts community`: add `--target-community http://127.0.0.1:4300/learn/community
+--target-thread http://127.0.0.1:4300/learn/community/2` with `--match '^(cm-|th-)'`. The staff checks: a staff session
+(`SEED_TEST_MEMBER_EMAIL=v3-staff@example.test SEED_TEST_MEMBER_PASSWORD=$LMS_V3_STAFF_PASSWORD node
+compliance/step-page-v6/signin.mjs http://127.0.0.1:4300 staff.json`), `--storage-state staff.json --assume-as cl`; at
+1440 compare the page alone, `--selector '[data-ai="community"]'` with `--target …/learn/community`, and
+`--selector '[data-ai="thread"]'` with `--target …/learn/community/2` (a staff member's sidebar is their own).
 
 `TZ=America/Chicago` because the mockup shows a Central-time viewer: `fmt` prints the viewer's zone first, and the
 program's (Central) only in parentheses when they differ. Never point any of this at production or a real buyer.
