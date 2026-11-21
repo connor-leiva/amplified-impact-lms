@@ -352,4 +352,17 @@ describe('the trail and the sidebar (D-184)', () => {
     expect(sideVM(d, me, null, '/learn', LIVE).cohortLine).toBeNull();
     expect(sideVM(d, null, p, '/learn', LIVE).cohortLine).toBeNull();
   });
+  it('D-226: the v3 shell’s two lines, the program and the cohort, from a name that leads with the program', () => {
+    const d = deployed();
+    const named = { ...d, cohorts: d.cohorts.map((c, i) => (i === 0 ? { ...c, name: 'Amplified AI Accelerator · December 2026' } : c)) };
+    const me = learner({});
+    const p = payloadOf(named);
+    const v = sideVM(named, me, p, '/learn', LIVE);
+    expect(v.program).toBe('Amplified AI Accelerator');
+    expect(v.cohortOnly).toBe('December 2026 Cohort · Week 2 of 8');
+    expect(v.cohortLine).toBe('Amplified AI Accelerator · December 2026 Cohort · Week 2 of 8');
+    const plain = { ...d, cohorts: d.cohorts.map((c, i) => (i === 0 ? { ...c, name: 'December 2026' } : c)) };
+    expect(sideVM(plain, me, payloadOf(plain), '/learn', LIVE).cohortOnly).toBe('December 2026 Cohort · Week 2 of 8');
+    expect(sideVM(d, me, null, '/learn', LIVE)).toMatchObject({ program: null, cohortOnly: null });
+  });
 });

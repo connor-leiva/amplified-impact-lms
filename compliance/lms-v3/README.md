@@ -24,6 +24,7 @@ pnpm --filter @ai/api exec tsx ../../compliance/lms-v3/prepare.ts content
 node compliance/step-page-v6/signin.mjs http://127.0.0.1:4300 auth.json
 cd handoff/lms-v3
 export V6_RESET_CMD="psql $DATABASE_URL -v email=$SEED_TEST_MEMBER_EMAIL -f ../../compliance/lms-v3/reset.sql"
+export V6_READY='body[data-app-ready="true"] #sh-app'   # what says the app has drawn (the hook's default is the step page)
 node --import ../../compliance/step-page-v6/reset-hook.mjs diff/pixel-diff.mjs \
   --target http://127.0.0.1:4300/learn/week/0 --target-schedule http://127.0.0.1:4300/learn/schedule \
   --target-locked http://127.0.0.1:4300/learn/week/1 --storage-state ../../auth.json   # in parts, as HANDOFF §3

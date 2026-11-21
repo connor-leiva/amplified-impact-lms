@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
@@ -13,6 +13,7 @@ import '../../components/motion/ai-motion.css';
 import { Icon } from '../../components/Icon';
 import { calLinks } from '../../components/calendar-links';
 import { Menu } from '../../components/r2/Menu';
+import type { MenuEntry, MenuGroup } from '../../components/r2/Menu';
 import { useDialogA11y } from '../../components/primitives/Modal';
 import { ToasterProvider, useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
@@ -36,6 +37,8 @@ import { planItemOf, teamGateFor, teamPlanVM, withoutPlan } from '../../routes/l
 import { TeamPlanProvider } from '../../routes/learn/teamPlanContext';
 import type { PlanItem } from '../../routes/learn/teamPlanContext';
 import { v6StepAt } from '../../routes/learn/step-page/v6';
+import { v3On } from '../../routes/learn/lms-v3/v3';
+import { currentOf } from '../../routes/learn/lms-v3/shell.vm';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
 import { useLearnerPrefs } from './useLearnerPrefs';
@@ -310,6 +313,20 @@ function TeamPlan({ item, me, onClose }: { item: PlanItem; me: Learner | null; o
   return vm ? <TeamPlanWindow vm={vm} onClose={onClose} /> : null;
 }
 
+// D-226: the v3 shell (IMPLEMENTATION-SPEC.md Phase 3), loaded only for a learner it draws for (`v3On`: the build
+// flag, or the seeded test learner), so its global stylesheets never reach today's shell.
+const V3Frame = lazy(() => import('../../routes/learn/lms-v3/V3Frame'));
+
+/** The hidden breadcrumb's words for a page that isn't a week or an AI Employee (v3: the shell always draws one). */
+const HERE: Record<string, string> = {
+  home: LABELS.home,
+  schedule: LABELS.schedule,
+  community: 'Community',
+  library: LABELS.library,
+  team: LABELS.teamHub,
+  vault: LABELS.vault,
+};
+
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
@@ -403,6 +420,18 @@ function Frame() {
     setClicked(x);
   }, []);
 
+  const accountItems: (MenuEntry | MenuGroup)[] = [
+    { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
+    ...(hasTeamHub(db, me) ? [{ label: LABELS.teamHub, onSelect: () => navigate(learnTeam()) }] : []),
+    'separator',
+    {
+      group: theme.label,
+      items: theme.choices.map((c) => ({ label: c.label, icon: c.icon, checked: c.checked, onSelect: () => prefs.set({ theme: c.value }) })),
+    },
+    'separator',
+    { label: LABELS.signOut, onSelect: signOut },
+  ];
+
   // D-210: a step that draws the v6 step page has no app chrome (no sidebar, top bar or drawer). The step
   // route asks the same rule (`v6StepAt`), so the two always agree; with VITE_STEP_PAGE_V6 off it is never true.
   if (!gate && v6StepAt(location.pathname, payload, rows, viewer.actor, me, now)) {
@@ -414,6 +443,36 @@ function Frame() {
         </TeamPlanProvider>
         {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
       </div>
+    );
+  }
+
+  // D-226: the v3 shell, for a learner it draws for. A staff member's preview keeps today's shell: its "Previewing as"
+  // line has no place in the mockup's frame (C-04), so that waits for Connor.
+  if (!gate && !preview && v3On(me)) {
+    const cur = currentOf(location.pathname);
+    return (
+      <>
+        <Suspense fallback={null}>
+          <V3Frame
+            input={{ nav, side, rows, sessions: payload?.sessions ?? [], me, name, now, here: here?.title ?? (cur ? (HERE[cur] ?? '') : '') }}
+            pathname={location.pathname}
+            collapsed={prefs.sidebar === 'rail'}
+            onCollapse={(on) => prefs.set({ sidebar: on ? 'rail' : 'full' })}
+            menu={accountItems}
+            v3Page={false}
+            theme={prefs.theme}
+          >
+            <TeamPlanProvider value={openPlan}>
+              <Outlet context={ctx} />
+            </TeamPlanProvider>
+          </V3Frame>
+        </Suspense>
+        {item ? (
+          <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
+            <TeamPlan item={item} me={me} onClose={closePlan} />
+          </div>
+        ) : null}
+      </>
     );
   }
 
@@ -461,17 +520,7 @@ function Frame() {
             </nav>
             <Menu
               label={LABELS.account}
-              items={[
-                { label: LABELS.accountPage, onSelect: () => navigate(learnAccount()) },
-                ...(hasTeamHub(db, me) ? [{ label: LABELS.teamHub, onSelect: () => navigate(learnTeam()) }] : []),
-                'separator',
-                {
-                  group: theme.label,
-                  items: theme.choices.map((c) => ({ label: c.label, icon: c.icon, checked: c.checked, onSelect: () => prefs.set({ theme: c.value }) })),
-                },
-                'separator',
-                { label: LABELS.signOut, onSelect: signOut },
-              ]}
+              items={accountItems}
               trigger={(t) => (
                 <button type="button" className={s.avb} aria-label={LABELS.account} onClick={t.toggle} {...t.props}>
                   <span className={s.av}>{fmt.initials(name)}</span>

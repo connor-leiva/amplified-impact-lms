@@ -7278,3 +7278,28 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **Who sees it.** `VITE_LMS_V3` (`lms-v3/v3.ts`), off unless the build sets it to `true`, and the seeded test learner (D-200, D-202) always. A surface that needs a piece the mockup doesn't draw keeps today's page whole (the gap rule, IMPLEMENTATION-SPEC.md §4.D). Nothing reaches a learner until Phase 11.
 - **The test learner's starting point** for the tests is `compliance/lms-v3/` (`prepare.ts`, `reset.sql`), on a development database only: the package's made-up people (Alex Morgan, Northline Realty), never a real customer.
 - **Supersedes** CLAUDE.md "Sources of truth" for these surfaces, D-156's phone floor on them, and D-211's button sizes where they differ.
+
+## D-226 · LMS v3 shell: one breakpoint at 900 px, the nav folds behind Menu, light only
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, with D-225 to D-231 ("Approved on all", `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0).
+**Number:** after D-225.
+
+- **What it is.** When v3 draws (D-225: the build flag, or the seeded test learner), the learner frame is the package's `AppShell` (`routes/learn/lms-v3/V3Frame.tsx`), fed by `shellProps` from today's `navVM`, `sideVM` and `weekRows` and the course's sessions. Today's `Sidebar`, header and phone drawer don't draw.
+- **Forms.** One breakpoint, at 900 px. Under it the nav folds in place behind a Menu button: no modal drawer, no automatic rail. From 901 px up the person's Collapse sidebar / Expand sidebar choice (D-185's `sidebar`, the same stored preference) draws the full sidebar or the rail, and the change travels in motion (B-43). Light only until the dark pass: the v3 surfaces draw light whatever the Theme says (C-02).
+- **What the frame adds, drawing nothing.** The package's links are anchors: a click on an in-app address goes through the router, a calendar menu's Google and Outlook links open a new tab as today's do, and the Join link asks the join route for the Zoom URL at click time, as `Join` does (the URL never sits in the page). The account button opens today's account `Menu` (C-01), whose panel keeps its own look; `Menu` gained a `control` mode for a trigger drawn elsewhere. Today's pages under the new shell (Home, the Skill library, Team Hub, the vault, an AI Employee: Q-09) keep today's frame tokens and phone tap floor around them, and the package's sprite is drawn once for the shell's icons.
+- **Words.** The program and the cohort on two lines: `sideVM` gains `program` and `cohortOnly` (the stored cohort name leads with the program's: "Amplified AI Accelerator · December 2026"). The top bar follows the next session of any kind ("Next live build", "Next office hours") and has three modes (B-35, B-36). The nav carries Community (B-29's nav half; the page is Phase 10's).
+- **Held.** A staff member's preview keeps today's shell: its "Previewing as" line has no place in the mockup (C-04). `DemoControls` exist only in the fixture build, which never turns v3 on.
+- **Supersedes** D-181 (the phone nav as a modal dialog) and D-185's sidebar forms and theme, on v3 surfaces.
+
+## D-227 · LMS v3 shell and Schedule: one calendar menu, Weeks, numbers, status
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, with D-225 to D-231 ("Approved on all", `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0). "Add all to calendar": "Remove from menu"; "Weeks": "Yes, week is the right name", "AI employees is getting replaced with Weeks".
+**Number:** after D-226.
+
+- **Add to calendar** is one menu per session: Calendar file (.ics), Google Calendar, Outlook. **Add all to calendar** on the Schedule, and a locked week's add button, are plain buttons that download the calendar file.
+- **The top bar's strip** is hidden on the Schedule, whose hero is the same session.
+- **"Weeks" replaces "AI employees"** as the nav group. It lists the course's weeks only, each with its number (not an icon tile) and its full title. A non-course AI Employee has no row in the v3 nav.
+- **A week's status** in the nav: a ring and "N of M" once a step is done, a check once the week is deployed (all steps done but not deployed is still a ring), a lock while it is locked, and nothing for a week that hasn't started. Schedule rows show a status, not step counts.
+- **Supersedes** D-180 and D-183 where they differ.

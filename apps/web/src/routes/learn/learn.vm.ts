@@ -10,6 +10,7 @@
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
+import { PLAN_NAMES } from '@ai/core/offer';
 import { cohortLine, fmt, mountainWhen } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
@@ -529,6 +530,18 @@ export interface SideVM {
   teamHub: { label: string; href: string; active: boolean } | null;
   /** The cohort line under the wordmark (SH-9): "December 2026 Cohort · Week 2 of 9"; null without a course. */
   cohortLine: string | null;
+  /**
+   * D-226: the v3 shell's two lines. `program` is the program's name ("Amplified AI Accelerator"); `cohortOnly` is the
+   * cohort line without it ("December 2026 Cohort · Starts Dec 2"), the stored name being "<program> · <cohort>".
+   */
+  program: string | null;
+  cohortOnly: string | null;
+}
+
+/** A cohort whose stored name leads with the program's ("Amplified AI Accelerator · December 2026"), without it. */
+function withoutProgram<C extends { name: string }>(c: C): C {
+  const lead = `${PLAN_NAMES.cohort} · `;
+  return c.name.startsWith(lead) ? { ...c, name: c.name.slice(lead.length) } : c;
 }
 
 /**
@@ -540,5 +553,7 @@ export function sideVM(db: Pick<Db, 'teams' | 'cohorts' | 'sessions'>, me: Learn
   return {
     teamHub: hasTeamHub(db, me) ? { label: TEAM_HUB_LABEL, href: TEAM_HUB_HREF, active: pathname === TEAM_HUB_HREF } : null,
     cohortLine: cohort ? cohortLine(cohort, now, db.sessions) : null,
+    program: cohort ? PLAN_NAMES.cohort : null,
+    cohortOnly: cohort ? cohortLine(withoutProgram(cohort), now, db.sessions) : null,
   };
 }

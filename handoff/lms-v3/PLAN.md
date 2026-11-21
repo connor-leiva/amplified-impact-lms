@@ -152,6 +152,13 @@ Not available (1.1). Phases 9 and 10 wait for it.
   mockup's learner has only Week 0 open: the reset turns early access off and the dev cohort's preview on. In the
   pre-launch preview the nav's **Resource vault is locked** ("opens …"); the mockup draws a plain link. C-05 says stop
   on the vault's lock: **question for Connor**. The v3 shell draws the mockup's link for now.
+- **The test learner's sidebar and theme** are in `users.prefs` (D-185), not `learner_prefs`: the reset clears both.
+- **`--selector '[data-ai="shell"]'` can't gate the sidebar** on a desktop. The test measures the first visible
+  shell element (the sidebar, 248 px) and gives the mockup's sidebar the rest of the width, so the two never line up.
+  The shell is gated full page instead, on the week and Schedule routes, once their pages land; until then element
+  comparisons of the sidebar and the top bar (0 different pixels at 1440 and 390, the phone menu open) stand in.
+- **The phone tap floor is `min-width` and `min-height`**: the frame sets `--tap` to `auto` (their initial value),
+  not 0, which would let the account button shrink in the phone header.
 - **Locks and session states follow the server's clock**, not the one the test pins in the browser. The
   `--assume-clock` states need data seeded for that moment, and the sidebar's cohort line (above) moves with the
   browser's clock.
