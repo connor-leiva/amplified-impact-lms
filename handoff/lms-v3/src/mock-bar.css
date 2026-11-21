@@ -1,0 +1,9 @@
+/* MOCKUP-ONLY. GENERATED. The black MOCKUP bar. Do NOT ship. */
+/* @mock ============ MOCKUP bar only (review-only, not shipped) ============ */
+.wkx-flag,.wkx-flag *{box-sizing:border-box}
+.wkx-flag{display:flex;flex-wrap:wrap;gap:var(--sp-s2) var(--sp-s3);align-items:center;justify-content:space-between;line-height:1.3;background:var(--sp-black);color:var(--sp-on-forest);font:500 13px/1 var(--sp-mono);letter-spacing:.02em;padding:6px 24px;min-height:36px;-webkit-font-smoothing:antialiased}
+.wkx-flag b{color:var(--sp-energy-bright);font-weight:600}
+.wkx-prev{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.wkx-prev button{height:24px;padding:0 10px;border-radius:var(--sp-r-pill);border:1px solid var(--sp-on-forest-16);background:transparent;color:var(--sp-on-forest);font:500 12px/1 var(--sp-mono);cursor:pointer}
+.wkx-sep{margin-left:10px}
+.wkx-prev button[aria-pressed="true"]{background:var(--sp-energy-bright);border-color:var(--sp-energy-bright);color:var(--sp-black)}

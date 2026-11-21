@@ -1,0 +1,87 @@
+{
+ "ui": {
+  "turnIn": "Turn in",
+  "view": "View",
+  "agent": "Your team’s owner or operator turns this in.",
+  "drop": "Drop files here",
+  "or": "or",
+  "choose": "Choose files",
+  "types": "PDF, HTML report, PNG or JPG screenshot, Excel or CSV. Up to 5 files, 25 MB each.",
+  "uploaded": "Uploaded",
+  "remove": "Remove",
+  "submit": "Turn it in",
+  "submitted": "Turned in",
+  "done": "Done",
+  "newVersion": "Turn in a new version",
+  "sentTo": "Goes to Connor’s team. Nothing is emailed.",
+  "bannerTitle": "Turned in.",
+  "files": "Files",
+  "by": "by",
+  "needFile": "Add at least one file.",
+  "wait": "Wait for the upload to finish.",
+  "tooMany": "Up to 5 files at a time.",
+  "badType": "isn’t a file you can upload here. Use a PDF, an HTML report, a PNG or JPG screenshot, an Excel file or a CSV.",
+  "tooBig": "is over 25 MB. Export a smaller file, or save the report as a PDF.",
+  "kinds": {
+   "live_read": {
+    "title": "Report for a live read",
+    "sub": "Upload the report file. Add one line on what you’d like Connor to look at.",
+    "noteLabel": "What should Connor look at?",
+    "privacy": "Live reads are shown to the whole cohort. Take out anything you wouldn’t show another team."
+   },
+   "checkpoint": {
+    "title": "Checkpoint",
+    "sub": "Your signed seat card, a screenshot of the first run, and the minutes the hire took over.",
+    "noteLabel": "Anything Connor should know?",
+    "minutesLabel": "Minutes the hire took over",
+    "minutesHint": "“45”, “about 20 a day” or “not done today”."
+   }
+  }
+ },
+ "asks": [
+  {
+   "id": "live_read",
+   "kind": "live_read",
+   "step": 4,
+   "kicker": "Week 1 · Step 4"
+  },
+  {
+   "id": "checkpoint",
+   "kind": "checkpoint",
+   "step": 6,
+   "kicker": "Week 1 · Step 6"
+  }
+ ],
+ "sent": {
+  "files": [
+   {
+    "name": "Map Your Spend report (made up).html",
+    "size": "184 KB"
+   }
+  ],
+  "note": "Please look at advertising. (Made-up note.)",
+  "minutes": "",
+  "by": "Alex Morgan",
+  "when": "Thu, Nov 19 · 4:02 PM",
+  "short": "Nov 19"
+ },
+ "states": {
+  "report": {
+   "ask": "live_read",
+   "can": true,
+   "subs": []
+  },
+  "checkpoint": {
+   "ask": "checkpoint",
+   "can": true,
+   "subs": []
+  },
+  "turned": {
+   "ask": "live_read",
+   "can": true,
+   "subs": [
+    "live_read"
+   ]
+  }
+ }
+}

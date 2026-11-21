@@ -1,0 +1,178 @@
+{
+ "ui": {
+  "title": "Community",
+  "lede": "Ask the cohort, share a win, follow up on a live read. Everyone in your cohort can read what you write here.",
+  "all": "All",
+  "spaces": "Spaces",
+  "pinned": "Pinned",
+  "hidden": "Hidden",
+  "staff": "Staff",
+  "threads": "Threads",
+  "newest": "Newest activity first",
+  "none": "No threads here yet. Start one.",
+  "start": "Start a thread",
+  "space": "Space",
+  "threadTitle": "Title",
+  "titleHint": "One line: what you need.",
+  "details": "Details",
+  "detailsHint": "The number, what you tried, and where you’re stuck.",
+  "cohortReads": "Everyone in your cohort reads this. Leave out client names, and any number you wouldn’t show another team.",
+  "postThread": "Post thread",
+  "posted": "Posted",
+  "postingAs": "Posting as",
+  "how": "How this works",
+  "howLines": [
+   "Ask before office hours. Your question may already have an answer here.",
+   "Say the number, what you tried and where you’re stuck.",
+   "Reports for a live read go through Turn in on the step that asks for them, not here.",
+   "Nothing here is emailed. Come back to check for replies."
+  ],
+  "back": "Community",
+  "reply": "Reply",
+  "replyHint": "Add what you know, or what you tried.",
+  "replyReads": "Everyone in your cohort reads this.",
+  "postReply": "Post reply",
+  "edit": "Edit",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "deleteThread": "Delete this thread and its replies?",
+  "deleteReply": "Delete this reply?",
+  "edited": "edited",
+  "about": "About this thread",
+  "startedBy": "Started by",
+  "lastReply": "Last reply",
+  "noReplies": "No replies yet",
+  "staffOnly": "Staff only",
+  "staffSee": "Connor and staff see this",
+  "pin": "Pin thread",
+  "unpin": "Unpin thread",
+  "hide": "Hide",
+  "show": "Show",
+  "hideThread": "Hide thread",
+  "showThread": "Show thread",
+  "needSpace": "Pick a space for your thread.",
+  "needTitle": "Give your thread a title.",
+  "needDetails": "Add the details: the number, what you tried, and where you’re stuck.",
+  "needReply": "Write a reply first.",
+  "justNow": "Just now"
+ },
+ "people": {
+  "am": {
+   "name": "Alex Morgan",
+   "team": "Northline Realty",
+   "initials": "AM"
+  },
+  "dw": {
+   "name": "Dana Whitlock",
+   "team": "Sample Team",
+   "initials": "DW"
+  },
+  "cl": {
+   "name": "Connor Leiva",
+   "team": "Amplified Impact",
+   "initials": "CL",
+   "staff": true
+  }
+ },
+ "spaces": [
+  {
+   "id": "general",
+   "label": "General"
+  },
+  {
+   "id": "week-0",
+   "label": "Week 0 · Foundations"
+  },
+  {
+   "id": "wins",
+   "label": "Wins"
+  }
+ ],
+ "threads": [
+  {
+   "id": 1,
+   "space": "general",
+   "title": "Start here: how to ask so the cohort can help",
+   "pinned": true,
+   "activity": "2 days ago",
+   "posts": [
+    {
+     "id": 11,
+     "by": "cl",
+     "when": "Wed, Nov 18 · 9:00 AM CT",
+     "body": "Say the number, what you tried and where you’re stuck.\n\nKeep it to one question a thread, so the next team can find it."
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "space": "week-0",
+   "title": "Our bookkeeper keeps the QuickBooks login. Can the operator still connect the books?",
+   "activity": "3 hr ago",
+   "posts": [
+    {
+     "id": 21,
+     "by": "dw",
+     "when": "Thu, Nov 19 · 4:10 PM CT",
+     "body": "Step 6 asks us to connect the books. Our bookkeeper keeps the login and won’t share it.\n\nIs an export enough for now?"
+    },
+    {
+     "id": 22,
+     "by": "cl",
+     "when": "Thu, Nov 19 · 5:02 PM CT",
+     "body": "Yes. An export is the yellow route on your stack card.\n\nPut your bookkeeper on the card as the person who has it, and send the card back."
+    },
+    {
+     "id": 23,
+     "by": "am",
+     "when": "Fri, Nov 20 · 12:20 PM CT",
+     "body": "Same here. We asked ours for an export each month and that was fine."
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "space": "week-0",
+   "title": "Ready Check is green on Claude. Do we run it on ChatGPT too?",
+   "activity": "5 hr ago",
+   "posts": [
+    {
+     "id": 31,
+     "by": "am",
+     "when": "Fri, Nov 20 · 10:05 AM CT",
+     "body": "We picked Claude for the course. One teammate still uses ChatGPT for other work.\n\nDo we need the Ready Check on both?"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "space": "wins",
+   "title": "Win: the test hire ran with nobody at the keyboard",
+   "activity": "1 day ago",
+   "posts": [
+    {
+     "id": 41,
+     "by": "dw",
+     "when": "Thu, Nov 19 · 8:15 AM CT",
+     "body": "Step 8 is done. It ran on its own this morning."
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "space": "general",
+   "title": "Test post, please ignore",
+   "hidden": true,
+   "activity": "2 days ago",
+   "posts": [
+    {
+     "id": 51,
+     "by": "dw",
+     "when": "Wed, Nov 18 · 2:30 PM CT",
+     "body": "Checking that this works."
+    }
+   ]
+  }
+ ]
+}

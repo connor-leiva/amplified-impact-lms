@@ -1,0 +1,1340 @@
+<!doctype html>
+<!-- LMS mockup v4 (adds the Community and Turn in; v3 below is unchanged): the app shell (side nav, top bar), the week overview (/learn/week/0), the Schedule page, and the form drawer
+     (Week 0 Intake, opened from the kit).
+     Source of truth for all three. Looks: the step page's tokens. Motion: Amplified Impact Motion v1 (ai-motion.css, unchanged).
+     Two views in one file: #week-0 (default) and #schedule. The side nav switches between them.
+     Review-only, not shipped: the black MOCKUP bar with its Preview buttons. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amplified Impact Academy · shell, week overview and schedule (v6 mockup)</title>
+<link rel="stylesheet" href="ai-motion.css">
+<style>
+@font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
+@font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
+
+/* ============ 0. Tokens: the step page's set. Motion comes from ai-motion.css (--aim-*) ============ */
+:root{
+  --forest:#1f4d40; --energy:#1f8a5c; --energy-bright:#6fd3a5;
+  --bone:#f1f0eb; --black:#0a0d0c; --on-forest:#f5f5f2; --surface:#fff;
+  --forest-hover:color-mix(in oklch, var(--forest) 86%, var(--black));
+  --bright-hover:color-mix(in oklch, var(--energy-bright) 82%, var(--energy));
+  --tint-bright:color-mix(in oklch, var(--energy-bright) 22%, transparent);
+  --tint-forest:rgb(31 77 64 / .06);
+  --tint-forest-2:rgb(31 77 64 / .1);
+  --ink-85:rgb(10 13 12 / .85);
+  --ink-2:rgb(10 13 12 / .68);
+  --ink-3:rgb(10 13 12 / .6);
+  --ink-45:rgb(10 13 12 / .45);
+  --ink-08:rgb(10 13 12 / .08);
+  --line:rgb(10 13 12 / .12); --line-2:rgb(10 13 12 / .2);
+  --on-forest-82:rgb(245 245 242 / .82);
+  --on-forest-16:rgb(245 245 242 / .16);
+  --on-forest-10:rgb(245 245 242 / .1);
+  --white:#fff;
+  --border:1px solid var(--line);
+  --s1:4px; --s2:8px; --s3:16px; --s4:24px; --s5:32px; --s6:48px; --s7:64px;
+  --measure:65ch;
+  --r-sm:4px; --r-md:8px; --r-lg:14px; --r-pill:999px;
+  --sh-sm:0 2px 4px rgb(31 77 64 / .06);
+  --sh-md:0 8px 16px rgb(31 77 64 / .08);
+  --scrim:rgb(10 13 12 / .32);
+  --font:'Geist',ui-sans-serif,system-ui,sans-serif;
+  --mono:'Geist Mono',ui-monospace,monospace;
+}
+:root{interpolate-size:allow-keywords}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bone)}
+
+/* ============ 1. Base. Every root carries data-ai ("shell", "week", "schedule"); all element rules are scoped to it.
+   Classes: wk-* shared pieces and the week page, sc-* the schedule, sh-* the shell. ============ */
+:where([data-ai]),:where([data-ai]) *{box-sizing:border-box}
+[data-ai]{color:var(--black);font:400 16px/1.5 var(--font);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+:where([data-ai]) :is(h1,h2,h3,p,ol,ul,dl,dd){margin:0}
+:where([data-ai]) :is(ol,ul){padding:0;list-style:none}
+:where([data-ai]) button{font:inherit;color:inherit}
+:where([data-ai]) a{color:inherit}
+:where([data-ai]) svg{display:block}
+.wk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wk-page{max-width:1184px;margin:0 auto;padding:var(--s4) var(--s5) var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+.wk-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:auto 1fr;grid-template-areas:"steps rail" "ref rail";column-gap:var(--s5);row-gap:var(--s6);align-items:start}
+.wk-steps-sec{grid-area:steps;min-width:0}
+.wk-rail{grid-area:rail;display:flex;flex-direction:column;gap:var(--s3);min-width:0}
+.wk-ref{grid-area:ref;min-width:0;display:flex;flex-direction:column;gap:var(--s6)}
+@media (max-width:1100px){.wk-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"steps" "rail" "ref"}}
+@media (max-width:640px){.wk-page{padding:var(--s3) var(--s3) var(--s6);gap:var(--s4)}}
+
+/* ============ 2. Buttons (brand 01/02: labels roll, colour changes, nothing lifts; press squeezes and springs back) ============ */
+.wk-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);height:40px;padding:0 var(--s3);border-radius:var(--r-md);border:1px solid transparent;background:transparent;
+  font:500 15px/1 var(--font);text-decoration:none;cursor:pointer;white-space:nowrap;
+  transition:transform var(--aim-dur-spring) var(--aim-ease-spring),background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.wk-btn svg{flex:none}
+.wk-btn .aim-roll{line-height:calc(1em + 6px);margin-block:-3px}
+.wk-btn-accent{background:var(--energy-bright);color:var(--black)}
+.wk-btn-secondary{background:var(--surface);color:var(--black);border-color:var(--line)}
+.wk-btn-ghost{color:var(--forest)}
+.wk-btn-primary{background:var(--forest);color:var(--on-forest)}
+.wk-btn-onforest{color:var(--on-forest)}
+.wk-btn-lg{height:48px;padding:0 var(--s4);font-size:16px}
+.wk-btn-sm{height:32px;padding:0 12px;font-size:14px}
+.wk-btn-arrow{padding-right:var(--s3)}
+.wk-arrow{transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
+@media (hover:hover){
+  .wk-btn-accent:hover{background:var(--bright-hover)}
+  .wk-btn-secondary:hover{border-color:var(--black)}
+  .wk-btn-ghost:hover{background:var(--tint-forest)}
+  .wk-btn-primary:hover{background:var(--forest-hover)}
+  .wk-btn-onforest:hover{background:var(--on-forest-10)}
+  :is(.wk-btn,.wk-step,.wk-nextweek,.wk-kit-row):hover .wk-arrow,.sc-week:has(.sc-a:hover) .wk-arrow{transform:translateX(3px)}
+}
+.wk-btn:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+:is(.wk-btn,.wk-step,.wk-seg-b,.wk-acc summary,.wk-kit-a,.wk-nextweek,.wk-crumbs a,.wk-mail,.sc-a,.sc-menu a,.sh-link,.sh-group,.sh-logo,.fm-close,.cm-a,.up-x,.up-got a):focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+.wk-hero :is(.wk-btn):focus-visible{outline-color:var(--energy-bright)}
+
+/* ============ 3. Header ============ */
+.wk-crumbs{display:flex;align-items:center;gap:var(--s2);font-size:14px;color:var(--ink-2)}
+.wk-crumbs a{text-decoration:none;color:var(--black);font-weight:500;border-radius:var(--r-sm);transition:color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.wk-crumbs a:hover{color:var(--forest)}}
+.wk-head{display:flex;flex-direction:column;gap:var(--s2);max-width:760px}
+.wk-eyebrow{display:flex;align-items:center;gap:var(--s2);font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--forest)}
+.wk-open{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 var(--s2);border-radius:var(--r-pill);background:var(--tint-bright);color:var(--forest);font:500 12px/1 var(--mono);letter-spacing:.06em}
+.wk-open::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--energy)}
+.wk-h1{font:650 39px/1.15 var(--font);letter-spacing:-.015em;margin-top:var(--s1)}
+.wk-q{font:600 20px/1.4 var(--font)}
+.wk-purpose{font-size:18px;line-height:1.45;color:var(--ink-2)}
+.wk-meta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s2)}
+.wk-tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:var(--r-pill);background:var(--surface);border:var(--border);font:500 13px/1 var(--font)}
+.wk-tag svg{color:var(--forest)}
+
+/* ============ 4. Hero: the one next action, with progress beside it ============ */
+.wk-hero{display:grid;grid-template-columns:minmax(0,1fr) 300px;background:var(--forest);color:var(--on-forest);border-radius:var(--r-lg);overflow:hidden;--aim-mark:var(--energy-bright)}
+.wk-hero-main{padding:var(--s5);display:flex;flex-direction:column;align-items:flex-start;gap:var(--s2);min-height:232px;justify-content:center}
+.wk-kick{font:500 13px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--energy-bright)}
+.wk-hero-t{font:650 31px/1.15 var(--font);letter-spacing:-.015em;margin-top:var(--s1)}
+.wk-hero-m{display:flex;flex-wrap:wrap;font-size:15px;color:var(--on-forest-82)}
+.wk-hero-m span+span::before{content:"·";margin:0 var(--s2)}
+.wk-hero-d{font-size:16px;line-height:1.5;color:var(--on-forest-82);max-width:56ch}
+.wk-hero-d b{font-weight:600;color:var(--on-forest);margin-right:6px}
+.wk-hero-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin-top:var(--s3)}
+.wk-prog{padding:var(--s5);border-left:1px solid var(--on-forest-16);display:flex;flex-direction:column;justify-content:center;gap:12px}
+.wk-prog-l{display:flex;align-items:center;gap:6px;font:500 13px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--energy-bright)}
+.wk-prog-n{display:flex;align-items:baseline;gap:var(--s2);font-size:15px;color:var(--on-forest-82)}
+.wk-prog-n b{font:650 56px/1 var(--font);letter-spacing:-.02em;color:var(--on-forest)}
+.wk-segs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.wk-segs span{position:relative;height:6px;border-radius:var(--r-pill);overflow:hidden;background:var(--on-forest-16)}
+.wk-segs span::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--energy-bright);transform:scaleX(var(--v,0));transform-origin:0 50%;transition:transform var(--aim-dur-fill) var(--aim-ease)}
+.wk-prog-left{font-size:14px;color:var(--on-forest-82)}
+/* deployed: the brand's module completion (13): the mark lands and sends one ring out, then the words rise in */
+.wk-hero .aim-complete{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3)}
+.wk-hero .aim-complete>.aim-rise{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s2)}
+@media (max-width:820px){.wk-hero{grid-template-columns:minmax(0,1fr)}.wk-prog{border-left:0;border-top:1px solid var(--on-forest-16);padding:var(--s4) var(--s5)}.wk-prog-n b{font-size:39px}}
+@media (max-width:640px){.wk-hero-main{padding:var(--s4);min-height:0}.wk-prog{padding:var(--s4)}.wk-hero-t{font-size:25px}.wk-hero-acts .wk-btn-lg{width:100%}}
+
+/* ============ 5. Steps: one list. Role filter, status, what done looks like, then the finish line ============ */
+.wk-sec-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2) var(--s3);margin-bottom:var(--s2)}
+.wk-h2{font:650 25px/1.2 var(--font);letter-spacing:-.01em}
+.wk-sum{font-size:15px;color:var(--ink-2);margin-bottom:var(--s3);max-width:var(--measure)}
+/* role filter: a segmented control whose thumb springs to the choice (brand 10, the marker) */
+.wk-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--ink-08)}
+.wk-seg-thumb{position:absolute;top:3px;left:0;height:32px;width:var(--w,0px);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--sh-sm);transform:translateX(var(--x,0px));pointer-events:none}
+.wk-seg-thumb.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),width var(--aim-dur-spring) var(--aim-ease-spring)}
+.wk-seg-b{position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border:0;border-radius:var(--r-pill);background:transparent;font:500 14px/1 var(--font);color:var(--ink-2);cursor:pointer;transition:color var(--aim-dur-quick) var(--aim-ease)}
+.wk-seg-b small{font:500 12px/1 var(--mono);color:var(--ink-3)}
+.wk-seg-b{text-decoration:none}
+.wk-seg-b:is([aria-checked="true"],[aria-current="true"]){color:var(--black)}
+@media (hover:hover){.wk-seg-b:hover{color:var(--black)}}
+.wk-steps{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+.wk-steps>li+li{border-top:var(--border)}
+.wk-steps>li[hidden]{display:none}
+.wk-step{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto 20px;align-items:center;gap:var(--s3);padding:var(--s3) 20px;text-decoration:none;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){a.wk-step:hover{background:var(--bone)}}
+.wk-num{display:grid;place-items:center;inline-size:32px;block-size:32px;border-radius:50%;background:var(--bone);font:600 14px/1 var(--font);font-variant-numeric:tabular-nums lining-nums}
+.wk-step-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wk-step-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px var(--s2);font:600 17px/1.35 var(--font)}
+.wk-step-d{font-size:15px;line-height:1.45;color:var(--ink-2);max-width:var(--measure)}
+.wk-chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--bone);font:500 13px/1 var(--font);color:var(--forest);white-space:nowrap}
+.wk-step-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
+.wk-time{font-size:13px;line-height:1.3;color:var(--ink-2);max-width:150px}
+.wk-st{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--r-pill);font:500 13px/1 var(--font);white-space:nowrap}
+.wk-st[data-s="done"]{padding:0;color:var(--energy)}
+.wk-st[data-s="next"]{background:var(--forest);color:var(--on-forest)}
+.wk-st[data-s="progress"]{background:var(--tint-bright);color:var(--forest)}
+.wk-st[data-s="waiting"],.wk-st[data-s="locked"]{background:var(--bone);color:var(--ink-2)}
+.wk-chev{color:var(--forest)}
+/* row states: the same vocabulary as the step page's rail (done = energy check, current = forest, waiting = dashed) */
+.wk-step[data-s="done"] .wk-num{background:var(--energy);color:var(--white)}
+.wk-step[data-s="done"] .wk-step-t{color:var(--ink-3)}
+.wk-step[data-s="next"]{background:var(--tint-forest);box-shadow:inset 3px 0 var(--forest)}
+.wk-step[data-s="next"] .wk-num{background:var(--forest);color:var(--on-forest)}
+@media (hover:hover){a.wk-step[data-s="next"]:hover{background:var(--tint-forest-2)}}
+.wk-step[data-s="progress"] .wk-num{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--energy)}
+.wk-step[data-s="waiting"] .wk-num,.wk-finish[data-s="locked"] .wk-num{background:transparent;border:1px dashed var(--ink-45)}
+.wk-finish{grid-template-columns:32px minmax(0,1fr) auto}
+.wk-finish .wk-num{color:var(--forest)}
+.wk-finish[data-s="ready"] .wk-num{background:var(--forest);color:var(--on-forest)}
+.wk-finish[data-s="deployed"] .wk-num{background:var(--energy);color:var(--white)}
+.wk-finish small{display:block;font-size:13px;color:var(--ink-2);margin-top:2px}
+@media (max-width:640px){
+  .wk-step{grid-template-columns:32px minmax(0,1fr) 20px;align-items:start;padding:var(--s3)}
+  .wk-finish{grid-template-columns:32px minmax(0,1fr)}
+  .wk-step-r{grid-column:2;grid-row:2;flex-direction:row;align-items:center;text-align:left;flex-wrap:wrap}
+  .wk-step .wk-chev{grid-column:3;grid-row:1;margin-top:6px}
+  .wk-time{max-width:none}
+  .wk-seg{width:100%}.wk-seg-b{flex:1;justify-content:center;padding:0 var(--s2)}
+}
+
+/* ============ 6. Rail: the kit (grouped, in step order), the instructor's note, help ============ */
+.wk-card{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+.wk-card-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);padding:var(--s3) 20px 12px}
+.wk-h3{font:650 18px/1.3 var(--font)}
+.wk-card-h small{font-size:13px;color:var(--ink-2)}
+.wk-label{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.wk-kit-g{padding:10px 20px 6px;border-top:var(--border)}
+.wk-kit-row{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 20px;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.wk-kit-row:has(.wk-kit-a:hover){background:var(--bone)}}
+.wk-ic{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-md);background:var(--tint-forest);color:var(--forest)}
+.wk-kit-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wk-kit-tx b,.wk-kit-a{font:600 15px/1.3 var(--font);text-decoration:none}
+.wk-kit-a::after{content:"";position:absolute;inset:0}
+.wk-kit-tx small{font-size:13px;line-height:1.3;color:var(--ink-2)}
+.wk-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.wk-tags .wk-chip{height:22px;padding:0 var(--s2);font-size:12px}
+.wk-chip-hi{background:var(--tint-bright)}
+.wk-kit-acts{position:relative;display:flex;align-items:center;gap:6px}
+.wk-kit-row[data-acts="2"] .wk-kit-acts{grid-column:2 / -1;grid-row:2;margin-top:-4px}
+.wk-kit-foot{padding:12px 20px var(--s3);border-top:var(--border)}
+.wk-kit-foot .wk-btn{width:100%}
+.wk-note{padding:var(--s3) 20px 20px;display:flex;flex-direction:column;gap:12px}
+.wk-who{display:flex;align-items:center;gap:10px;font:600 15px/1.2 var(--font)}
+.wk-who small{display:block;font:400 13px/1.3 var(--font);color:var(--ink-2);margin-top:2px}
+.wk-av{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--energy-bright);color:var(--forest);font:600 13px/1 var(--font);flex:none}
+.wk-note p{font-size:15px;line-height:1.55;color:var(--ink-85)}
+.wk-help{padding:var(--s3) 20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.wk-mail{color:var(--forest);font-weight:500;text-decoration:none;border-bottom:1px solid var(--line-2);align-self:flex-start;position:relative;border-radius:2px}
+.wk-mail::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--aim-dur-move) var(--aim-ease)}
+@media (hover:hover){.wk-mail:hover::after{transform:none;transform-origin:0 50%}}
+.wk-mail:focus-visible::after{transform:none;transform-origin:0 50%}
+
+/* ============ 7. Reference: everything that is not a task, one accordion each (the step page's pattern) ============ */
+.wk-accs{display:flex;flex-direction:column;gap:var(--s2);margin-top:var(--s3)}
+.wk-acc{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+.wk-acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);cursor:pointer;font:600 17px/1.3 var(--font);transition:background-color var(--aim-dur-quick) var(--aim-ease),box-shadow var(--aim-dur-quick) var(--aim-ease)}
+.wk-acc summary::-webkit-details-marker{display:none}
+@media (hover:hover){.wk-acc summary:hover{background:var(--bone)}}
+.wk-acc summary svg{color:var(--forest);transition:transform var(--aim-dur-base) var(--aim-ease)}
+.wk-acc[open] summary svg{transform:rotate(180deg)}
+.wk-acc[open] summary{box-shadow:inset 0 -1px var(--line)}
+.wk-acc::details-content{block-size:0;overflow:hidden;transition:block-size var(--aim-dur-exit) var(--aim-ease-exit),content-visibility var(--aim-dur-exit) allow-discrete}
+.wk-acc[open]::details-content{block-size:auto;transition:block-size var(--aim-dur-move) var(--aim-ease),content-visibility var(--aim-dur-move) allow-discrete}
+.wk-acc-b{padding:var(--s3) var(--s4) var(--s4);display:flex;flex-direction:column;gap:var(--s3);font-size:15px;line-height:1.55;color:var(--ink-85)}
+.wk-acc-b>*{max-width:calc(var(--measure) + 48px)}
+.wk-ul{display:grid;gap:var(--s2);padding-left:18px!important;list-style:disc!important}
+.wk-dl{display:grid;gap:12px}
+.wk-dl>div{display:grid;grid-template-columns:170px minmax(0,1fr);gap:var(--s3)}
+.wk-dl dt{font-weight:600;color:var(--black)}
+.wk-dl dd p+p{margin-top:var(--s2)}
+.wk-dl dd small{display:block;font-size:13px;color:var(--ink-2);margin-top:6px}
+.wk-fine{font-size:13px;line-height:1.5;color:var(--ink-2)}
+.wk-scale{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.wk-scale span{display:inline-flex;align-items:center;gap:var(--s2);height:28px;padding:0 12px 0 4px;border-radius:var(--r-pill);border:var(--border);font-size:13px}
+.wk-scale b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--bone);font:600 12px/1 var(--mono)}
+@media (max-width:640px){.wk-dl>div{grid-template-columns:minmax(0,1fr);gap:2px}.wk-acc summary{padding:var(--s3)}.wk-acc-b{padding:var(--s3)}}
+.wk-nextweek{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);background:var(--surface);border:var(--border);border-radius:var(--r-lg);text-decoration:none;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease)}
+.wk-nextweek span{display:flex;flex-direction:column;gap:6px;font:600 17px/1.3 var(--font)}
+.wk-nextweek svg{color:var(--forest)}
+@media (hover:hover){.wk-nextweek:hover{border-color:var(--black)}}
+
+/* ============ 8. Schedule: the next session, then the nine weeks with their sessions ============ */
+.sc-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s3)}
+.sc-head>div:first-child{display:flex;flex-direction:column;gap:var(--s2)}
+.sc-head-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2)}
+.sc-hero{overflow:visible}
+.sc-next{display:flex;gap:20px;align-items:flex-start}
+.sc-next>div{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s2);min-width:0}
+.sc-date{display:grid;place-items:center;align-content:center;gap:4px;width:56px;height:60px;border-radius:var(--r-md);background:var(--bone);flex:none}
+.sc-date small{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.sc-date b{font:650 22px/1 var(--font);letter-spacing:-.01em;font-variant-numeric:tabular-nums lining-nums}
+.sc-hero .sc-date{background:var(--energy-bright);color:var(--forest);margin-top:2px}
+.sc-hero .sc-date small{color:var(--forest)}
+.sc-note{font-size:14px;color:var(--on-forest-82)}
+.sc-count{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s3);font-size:15px;color:var(--on-forest-82)}
+.sc-count span{display:inline-flex;align-items:baseline;gap:6px}
+.sc-count b{font:650 56px/1 var(--font);letter-spacing:-.02em;color:var(--on-forest)}
+/* one "Add to calendar" with the three choices inside it (brand 14: the panel unfolds from its trigger, .aim-pop) */
+.sc-cal{position:relative;display:inline-flex}
+.sc-cal .wk-btn>svg:last-child{transition:transform var(--aim-dur-base) var(--aim-ease)}
+.sc-cal .wk-btn[aria-expanded="true"]>svg:last-child{transform:rotate(180deg)}
+.sc-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:10;display:grid;gap:2px;min-width:232px;padding:6px;background:var(--surface);color:var(--black);border:var(--border);border-radius:var(--r-md);box-shadow:var(--sh-md);transform-origin:0 0}
+.sc-cal[data-align="end"] .sc-menu{left:auto;right:0;transform-origin:100% 0}
+.sc-menu a{display:flex;align-items:center;gap:10px;padding:var(--s2) 10px;border-radius:6px;font:500 14px/1.3 var(--font);text-decoration:none;white-space:nowrap;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+.sc-menu svg{color:var(--forest)}
+@media (hover:hover){.sc-menu a:hover{background:var(--bone)}}
+.sc-month{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s1) var(--s2);margin:var(--s4) 0 var(--s2);font:500 12px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.sc-month:first-of-type{margin-top:var(--s3)}
+.sc-month small{font:400 14px/1.3 var(--font);letter-spacing:0;text-transform:none}
+.sc-list{background:var(--surface);border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+.sc-list>li+li{border-top:var(--border)}
+.sc-week{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:start;gap:var(--s2) 20px;padding:20px;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.sc-week:has(.sc-a:hover){background:var(--bone)}}
+.sc-week[data-s="progress"]{background:var(--tint-forest);box-shadow:inset 3px 0 var(--forest)}
+@media (hover:hover){.sc-week[data-s="progress"]:has(.sc-a:hover){background:var(--tint-forest-2)}}
+.sc-body{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sc-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px var(--s2)}
+.sc-a{font:600 17px/1.35 var(--font);text-decoration:none}
+.sc-a::after{content:"";position:absolute;inset:0}
+.sc-week[data-s="done"] .sc-a{color:var(--ink-3)}
+.sc-d{font-size:15px;line-height:1.45;color:var(--ink-2);max-width:var(--measure)}
+.sc-sess{display:grid;gap:6px;margin-top:var(--s2)}
+.sc-sess li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:14px;line-height:1.4}
+.sc-sess svg{color:var(--forest);flex:none}
+.sc-when{color:var(--ink-2)}
+.sc-side{display:flex;align-items:center;gap:12px;min-height:27px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.sc-bar{position:relative;display:block;width:72px;height:4px;border-radius:var(--r-pill);background:var(--ink-08);overflow:hidden}
+.sc-bar::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--energy);transform:scaleX(var(--v,0));transform-origin:0 50%;transition:transform var(--aim-dur-fill) var(--aim-ease)}
+.sc-break{grid-template-columns:56px minmax(0,1fr);align-items:center}
+.sc-break .sc-date{background:transparent;border:1px dashed var(--ink-45);color:var(--forest)}
+.sc-break b{font:600 16px/1.35 var(--font)}
+.sc-break p{font-size:15px;color:var(--ink-2)}
+@media (max-width:640px){
+  .sc-week{grid-template-columns:48px minmax(0,1fr);padding:var(--s3);gap:var(--s2) 12px}
+  .sc-date{width:48px;height:52px}.sc-date b{font-size:20px}
+  .sc-side{grid-column:2;min-height:0}
+  .sc-side .wk-chev{display:none}
+  .sc-sess li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:2px 10px}
+  .sc-sess li>:not(svg){grid-column:2;justify-self:start}
+  .sc-next{flex-direction:column;gap:12px}
+  .sc-head-acts{width:100%}
+  .wk-hero-acts .sc-cal,.wk-hero-acts .sc-cal .wk-btn{width:100%}
+}
+
+/* ============ 9. Shell: the side nav and the top bar, shared by every page ============ */
+.sh-app{display:grid;grid-template-columns:var(--sh-w,248px) minmax(0,1fr);min-height:100vh}
+.sh-app[data-narrow="true"]{--sh-w:64px}
+.sh-col{min-width:0}
+.sh-side{background:var(--surface);border-right:var(--border)}
+.sh-side-in{position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.sh-brand{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--s2);padding:20px var(--s3) 12px}
+/* the logo is the brand's own drawings, as files, never redrawn: the "ai academy" app lockup at 161×34 (the Brand
+   Guide's sidebar size), the favicon drawing at 28×28 in the collapsed rail. [data-logo="full"] swaps in the full
+   "amplified impact academy" lockup at 205×20. One is shown at a time. */
+.sh-logo{display:flex;justify-self:start;border-radius:var(--r-sm)}
+.sh-logo>img{display:block}
+.sh-logo>.sh-logo-f,.sh-logo>.sh-logo-s{display:none}
+.sh-app[data-logo="full"] .sh-logo-l{display:none}
+.sh-app[data-logo="full"] .sh-logo-f{display:block}
+.sh-cohort{grid-column:1 / -1;font-size:12px;line-height:1.45;color:var(--ink-2)}
+.sh-menu{display:none}
+.sh-scroll{position:relative;flex:1;min-height:0;overflow-y:auto;padding:var(--s2) 0 var(--s3);scrollbar-width:thin}
+.sh-nav{display:grid;gap:2px;padding:0 var(--s2)}
+.sh-nav[hidden]{display:none}
+.sh-link{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:6px 10px;border:0;border-radius:var(--r-md);background:transparent;text-align:left;font:500 14px/1.35 var(--font);color:var(--ink-2);text-decoration:none;cursor:pointer;transition:color var(--aim-dur-quick) var(--aim-ease),background-color var(--aim-dur-quick) var(--aim-ease)}
+.sh-link>svg{flex:none;margin:0 2px}
+.sh-label{flex:1;min-width:0;transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
+@media (hover:hover){.sh-link:hover{color:var(--black)}.sh-link:hover .sh-label{transform:translateX(3px)}}
+.sh-link[aria-current="page"]{color:var(--forest);background:var(--tint-forest)}
+/* brand 10: one marker on the sidebar's own hairline springs to the current item */
+.sh-marker{position:absolute;top:0;right:0;width:2px;height:var(--h,0px);background:var(--forest);transform:translateY(var(--y,0px));pointer-events:none}
+.sh-marker.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),height var(--aim-dur-spring) var(--aim-ease-spring)}
+/* Weeks: a nav row like the ones above it, with its own icon; the nine weeks fall in under it along a guide line */
+.sh-group{width:calc(100% - 16px);margin:2px var(--s2)}
+.sh-group small{font:500 12px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;color:var(--ink-3)}
+.sh-group>svg:last-child{transition:transform var(--aim-dur-base) var(--aim-ease)}
+.sh-group[aria-expanded="false"]>svg:last-child{transform:rotate(-90deg)}
+.sh-group:has(+nav [aria-current="page"]){color:var(--forest)}
+.sh-weeks{position:relative;padding-left:36px}
+.sh-weeks::before{content:"";position:absolute;left:27px;top:2px;bottom:2px;width:1px;background:var(--line)}
+.sh-week{align-items:flex-start;gap:10px;padding-left:8px}
+.sh-wn{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--bone);color:var(--black);font:600 12px/1 var(--font);font-variant-numeric:tabular-nums lining-nums;flex:none;transition:background-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease)}
+.sh-link[aria-current="page"] .sh-wn{background:var(--forest);color:var(--on-forest)}
+.sh-stat{display:inline-flex;align-items:center;gap:6px;flex:none;font:500 12px/20px var(--font);color:var(--forest);white-space:nowrap}
+.sh-stat[data-s="done"]{color:var(--energy)}
+.sh-ring{transform:rotate(-90deg)}
+.sh-ring circle{fill:none;stroke-width:2.5;stroke:var(--line)}
+.sh-ring circle+circle{stroke:var(--energy);stroke-linecap:round;stroke-dasharray:1 1;stroke-dashoffset:calc(1 - var(--v,0));transition:stroke-dashoffset var(--aim-dur-fill) var(--aim-ease)}
+.sh-foot{border-top:var(--border);padding:var(--s2)}
+/* collapsed: a 64px rail of icons and week numbers */
+.sh-app[data-collapsed="true"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){display:none}
+.sh-app[data-collapsed="true"] .sh-logo-s{display:block}
+.sh-app[data-collapsed="true"] .sh-brand{justify-items:center;padding-inline:0}
+.sh-app[data-collapsed="true"] .sh-link{justify-content:center;padding-inline:0}
+/* collapsed, the guide line has nothing to hang from: the weeks sit in a tray under the Weeks icon instead */
+.sh-app[data-collapsed="true"] .sh-weeks::before{opacity:0}
+.sh-app[data-collapsed="true"] .sh-weeks{margin:2px var(--s2) 0;padding:var(--s1);background:var(--bone);border-radius:var(--r-md)}
+.sh-app[data-collapsed="true"] .sh-week{min-height:32px;border-radius:var(--r-sm)}
+.sh-app[data-collapsed="true"] .sh-week[aria-current="page"]{background:transparent}
+.sh-app[data-collapsed="true"] .sh-wn{background:var(--surface)}
+@media (hover:hover){.sh-app[data-collapsed="true"] .sh-week:hover .sh-wn{background:var(--tint-bright);color:var(--forest)}}
+.sh-app[data-collapsed="true"] .sh-link[aria-current="page"] .sh-wn{background:var(--forest);color:var(--on-forest)}
+.sh-top{display:flex;align-items:center;gap:var(--s3);min-height:56px;padding:var(--s2) var(--s5);border-bottom:var(--border);font-size:14px}
+.sh-next{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) 12px;min-width:0}
+.sh-next[hidden]{display:none}
+.sh-next b{font-weight:600}
+.sh-live{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--forest)}
+.sh-mut{color:var(--ink-2)}
+.sh-acct{margin-left:auto}
+@media (max-width:900px){
+  .sh-app,.sh-app[data-collapsed="true"]{grid-template-columns:minmax(0,1fr)}
+  .sh-side{border-right:0;border-bottom:var(--border)}
+  .sh-side-in{position:static;height:auto}
+  .sh-brand{padding:12px var(--s3)}
+  .sh-cohort{display:none}
+  .sh-menu{display:inline-flex}
+  .sh-side:not([data-open="true"]) :is(.sh-scroll,.sh-foot){display:none}
+  .sh-foot .sh-collapse{display:none}
+  .sh-top{padding:var(--s2) var(--s3)}
+  .sh-top .sh-mut:first-of-type{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where([data-ai]) *,:where([data-ai]) *::before,:where([data-ai]) *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ============ 10. Forms: a drawer (brand 05) with the form inside. Answers save as you go; Submit; Download PDF ============ */
+/* The brand's drawer classes carry the motion and the layout. Its colours come from system tokens the LMS doesn't have, so
+   they are set here; --scrim is the brand's light-theme scrim. */
+.fm-drawer{--aim-scrim:var(--scrim)}
+.fm-drawer .aim-drawer__panel{width:min(560px,100% - 40px);background:var(--surface);border-left:var(--border);color:var(--black);font:400 16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+.fm-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 var(--s3);padding:var(--s4) 28px var(--s3);border-bottom:var(--border)}
+.fm-kick{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--energy)}
+.fm-title{margin-top:10px;font:650 26px/1.15 var(--font);letter-spacing:-.02em}
+.fm-sub{margin-top:6px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.fm-close{align-self:start;margin-top:-4px;padding:4px 0;border:0;border-radius:var(--r-sm);background:none;cursor:pointer;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);transition:color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.fm-close:hover{color:var(--black)}}
+.fm-meter{grid-column:1 / -1;display:flex;align-items:center;gap:12px;min-height:20px;margin-top:var(--s3);font-size:13px;line-height:20px;color:var(--ink-2)}
+.fm-meter .sc-bar{flex:none;width:96px}
+.fm-count{white-space:nowrap}
+.fm-save{display:inline-flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap}
+.fm-save svg{color:var(--energy)}
+.fm-save .aim-sweep{width:24px;color:var(--forest)}
+.fm-body{flex:1;min-height:0;overflow-y:auto;padding:0 28px var(--s5);scrollbar-width:thin}
+.fm-banner{display:flex;align-items:flex-start;gap:12px;margin-top:var(--s4);padding:var(--s3);border-radius:var(--r-md);background:var(--tint-forest);--aim-mark:var(--energy)}
+.fm-banner .aim-mark{margin-top:1px}
+.fm-banner b{display:block;font:600 16px/1.4 var(--font)}
+.fm-banner p{font-size:14px;line-height:1.45;color:var(--ink-2)}
+.fm-intro{padding-top:var(--s4);font-size:15px;line-height:1.5;color:var(--ink-2)}
+.fm-sec{display:grid;gap:20px;padding:var(--s4) 0}
+.fm-sec+.fm-sec,.fm-intro+.fm-sec{border-top:var(--border)}
+.fm-intro+.fm-sec{margin-top:var(--s4)}
+.fm-sec-h{display:grid;gap:4px}
+.fm-sec-t{display:flex;align-items:baseline;gap:12px;font:650 18px/1.3 var(--font)}
+.fm-no{font:500 12px/1 var(--mono);letter-spacing:.06em;color:var(--energy)}
+.fm-sec-d{padding-left:28px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.fm-field{display:grid;gap:6px;min-width:0}
+.fm-label{font:500 15px/1.4 var(--font)}
+.fm-opt{margin-left:8px;font:400 13px/1.4 var(--font);color:var(--ink-3)}
+.fm-hint{margin-top:-4px;font-size:13px;line-height:1.4;color:var(--ink-2)}
+/* brand 07: on focus the ring tightens in from 7px to 2px and the border firms to ink; an error shakes */
+.fm-input{display:block;width:100%;height:44px;margin:0;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-md);background:var(--surface);font:400 16px/1.4 var(--font);color:var(--black);outline:2px solid transparent;outline-offset:7px;transition:border-color var(--aim-dur-quick) var(--aim-ease),outline-color var(--aim-dur-quick) var(--aim-ease),outline-offset var(--aim-dur-spring) var(--aim-ease-spring)}
+textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
+.fm-input:focus{border-color:var(--black)}
+.fm-input:focus-visible{outline-color:var(--forest);outline-offset:2px}
+.fm-field[data-state="error"] .fm-input{border-color:var(--black);animation:aim-shake 420ms var(--aim-ease)}
+.fm-field[data-state="error"] .fm-opts{animation:aim-shake 420ms var(--aim-ease)}
+.fm-msg{font:500 13px/1.4 var(--font);color:var(--black);animation:aim-msg-in var(--aim-dur-base) var(--aim-ease) backwards}
+.fm-msg::before{content:"";display:inline-block;width:6px;height:6px;margin:0 8px 1px 1px;border-radius:50%;background:var(--black)}
+/* choices: chips. One (radio) or several (checkbox, the plus turns into a check) */
+.fm-opts{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.fm-chip{position:relative;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface);font:500 14px/1 var(--font);cursor:pointer;user-select:none;transition:background-color var(--aim-dur-quick) var(--aim-ease),border-color var(--aim-dur-quick) var(--aim-ease),color var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+.fm-chip input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}
+.fm-chip svg{flex:none;margin-left:-4px;color:var(--ink-3)}
+.fm-chip svg+svg,.fm-chip:has(input:checked) svg{display:none}
+.fm-chip:has(input:checked) svg+svg{display:block;color:inherit}
+@media (hover:hover){.fm-chip:hover{border-color:var(--black)}}
+.fm-chip:has(input:checked){background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
+.fm-chip:has(input:focus-visible){outline:2px solid var(--forest);outline-offset:2px}
+.fm-chip:active{transform:scale(.96);transition-duration:var(--aim-dur-press);transition-timing-function:var(--aim-ease)}
+.fm-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) 12px;padding:var(--s3) 28px;border-top:var(--border);background:var(--surface)}
+.fm-note{margin-left:auto;font:500 13px/1.4 var(--font)}
+.fm-note:empty{display:none}
+/* brand 03: idle, busy (the hairline sweep), done (the mark lands). The layers share one cell so the width never jumps */
+.wk-btn.aim-async{display:inline-grid}
+.wk-btn-primary.aim-async{--aim-mark:var(--on-forest)}
+.wk-btn-secondary.aim-async{--aim-mark:var(--energy)}
+@media (max-width:640px){
+  .fm-drawer .aim-drawer__panel{width:100%;border-left:0}
+  .fm-head{padding:20px 20px var(--s3)}
+  .fm-meter .sc-bar{width:56px}
+  .fm-body{padding:0 20px var(--s4)}
+  .fm-foot{padding:12px 20px}
+  .fm-foot .wk-btn{flex:1}
+  .fm-note{flex-basis:100%;margin-left:0;order:-1}
+}
+
+/* ============ 11. Community: threads in spaces. A list, a thread, and Start a thread in the brand's drawer ============ */
+.cm-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:var(--s5);align-items:start}
+.cm-main,.cm-rail{display:flex;flex-direction:column;gap:var(--s3);min-width:0}
+.cm-spaces{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cm-main .sc-month{margin-top:0}
+.cm-row{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:start;gap:var(--s1) var(--s3);padding:var(--s3) 20px;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.cm-row:has(.cm-a:hover){background:var(--bone)}.cm-row:has(.cm-a:hover) .wk-arrow{transform:translateX(3px)}}
+.cm-row-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px var(--s2)}
+.cm-a{font:600 17px/1.35 var(--font);text-decoration:none;border-radius:var(--r-sm)}
+.cm-a::after{content:"";position:absolute;inset:0}
+.cm-meta{font-size:13px;line-height:1.4;color:var(--ink-2)}
+.cm-ex{margin-top:2px;font-size:15px;line-height:1.45;color:var(--ink-2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cm-act{display:flex;align-items:center;gap:12px;min-height:27px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.cm-av{background:var(--tint-forest-2)}
+.cm-av[data-staff]{background:var(--forest);color:var(--on-forest)}
+.cm-row[data-hidden] :is(.cm-a,.cm-ex),.cm-post[data-hidden] .cm-body{color:var(--ink-3)}
+.cm-empty{padding:var(--s5) 20px;text-align:center;font-size:15px;color:var(--ink-2)}
+.cm-how{display:grid;gap:12px;padding:0 20px 20px;font-size:15px;line-height:1.5;color:var(--ink-85)}
+.cm-thead{display:flex;flex-direction:column;gap:var(--s2)}
+.cm-h1{margin-top:0;font:650 31px/1.2 var(--font);letter-spacing:-.015em;max-width:26ch}
+.cm-tags{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cm-tags:empty{display:none}
+.cm-post{display:grid;gap:12px;padding:20px}
+.cm-post+.cm-post{border-top:var(--border)}
+.cm-by{display:flex;align-items:center;gap:12px;font:600 15px/1.3 var(--font)}
+.cm-by small{display:block;margin-top:2px;font:400 13px/1.3 var(--font);color:var(--ink-2)}
+.cm-by .wk-chip{margin-left:var(--s2);height:22px;padding:0 var(--s2);font-size:12px;vertical-align:1px}
+.cm-body{display:grid;gap:12px;max-width:var(--measure);font-size:16px;line-height:1.55}
+.cm-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s2);margin:-4px 0 -4px -12px;min-height:32px}
+.cm-acts>span{margin-left:12px;font:500 14px/1.4 var(--font)}
+.cm-edit{display:grid;gap:var(--s2)}
+.cm-edit>div{display:flex;gap:var(--s2)}
+.cm-reply{display:grid;gap:var(--s2);padding:0 20px 20px}
+.cm-reply-f{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2) var(--s3);font-size:13px;color:var(--ink-2)}
+.cm-kv{display:grid;gap:var(--s2);padding:0 20px 20px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.cm-kv b{font-weight:500;color:var(--black)}
+.cm-staff{display:flex;flex-wrap:wrap;gap:var(--s2);padding:0 20px 20px}
+.cm-as{margin-right:auto;font-size:13px;line-height:1.4;color:var(--ink-2)}
+@media (max-width:1100px){.cm-layout{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  .cm-row{grid-template-columns:36px minmax(0,1fr);padding:var(--s3)}
+  .cm-act{grid-column:2;min-height:0}.cm-act .wk-chev{display:none}
+  .cm-ex{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .cm-h1{font-size:25px}
+  .cm-post{padding:var(--s3)}.cm-reply,.cm-kv,.cm-how,.cm-staff{padding:0 var(--s3) var(--s3)}
+  .cm-as{flex-basis:100%;order:-1}
+}
+
+/* ============ 12. Turn in: the upload drawer (brand 05 and 16). It opens from a step's button; nothing on the week page ============ */
+/* brand 16: drag over firms the border and lifts the icon; each file arrives in order with its own hairline that fills; done draws a check */
+.up-drop{display:grid;justify-items:center;gap:10px;margin-top:var(--s4);padding:28px var(--s4);text-align:center;border:1px dashed var(--line-2);border-radius:var(--r-md);font-size:14px;line-height:1.45;color:var(--ink-2);transition:border-color var(--aim-dur-quick) var(--aim-ease),background-color var(--aim-dur-quick) var(--aim-ease),transform var(--aim-dur-spring) var(--aim-ease-spring)}
+.up-drop>svg{color:var(--forest);transition:transform var(--aim-dur-spring) var(--aim-ease-spring)}
+.up-drop b{font:600 16px/1.3 var(--font);color:var(--black)}
+.up-drop[data-drag="true"]{border-color:var(--black);border-style:solid;background:var(--tint-forest);transform:scale(1.015)}
+.up-drop[data-drag="true"]>svg{transform:translateY(-4px)}
+.up-drop[data-state="error"]{animation:aim-shake 420ms var(--aim-ease)}
+.up-pick{position:relative;overflow:hidden}
+.up-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.up-files{margin-top:var(--s2)}
+.up-files:empty{display:none}
+.up-file{display:grid;grid-template-columns:minmax(0,1fr) auto 28px;align-items:center;gap:var(--s2) 12px;padding:12px 0 10px;animation:aim-rise var(--aim-dur-spring) var(--aim-ease-spring) backwards;animation-delay:calc(var(--i,0) * var(--aim-stagger))}
+.up-name{font:500 15px/1.4 var(--font);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.up-name small{margin-left:var(--s2);font:400 13px/1.4 var(--font);color:var(--ink-2)}
+.up-state{display:inline-flex;align-items:center;gap:6px;font:500 12px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.up-check{width:16px;height:16px;fill:none;stroke:var(--energy);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1}
+.up-file[data-state="done"] .up-check{animation:aim-draw var(--aim-dur-base) var(--aim-ease) backwards}
+.up-x{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-2);cursor:pointer;transition:color var(--aim-dur-quick) var(--aim-ease),background-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.up-x:hover{color:var(--black);background:var(--bone)}}
+.up-bar{grid-column:1 / -1;position:relative;height:2px;overflow:hidden;background:var(--line);transition:opacity var(--aim-dur-base) var(--aim-ease) 280ms}
+.up-bar::after{content:"";position:absolute;inset:0;background:var(--forest);transform:scaleX(var(--v,0));transform-origin:0 50%;transition:transform 300ms var(--aim-ease)}
+.up-file[data-state="done"] .up-bar{opacity:0}
+.up-fields{display:grid;gap:20px;padding:var(--s4) 0}
+.up-privacy{display:flex;gap:10px;padding:12px var(--s3);border-radius:var(--r-md);background:var(--tint-forest);font-size:14px;line-height:1.45;color:var(--ink-85)}
+.up-privacy svg{flex:none;margin-top:3px;color:var(--forest)}
+.up-short{max-width:240px}
+.up-sent{display:grid;gap:20px;padding:var(--s4) 0}
+.up-sent h3{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.up-sent section{display:grid;gap:var(--s2)}
+.up-sent p{font-size:16px;line-height:1.5}
+.up-got{display:grid;gap:var(--s2)}
+.up-got li{display:flex;align-items:center;gap:10px;font-size:15px;line-height:1.4}
+.up-got svg{flex:none;color:var(--forest)}
+.up-got a{font-weight:500;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px;border-radius:var(--r-sm);transition:text-decoration-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.up-got a:hover{text-decoration-color:var(--black)}}
+.up-got small{font-size:13px;color:var(--ink-2)}
+.up-status{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);font-size:14px;color:var(--ink-2)}
+.wk-btn[aria-disabled="true"]{opacity:.45;cursor:default}
+
+/* ============ 13. Live sessions (v5): the top bar and the Schedule while a session is starting, live and over ============ */
+/* The strip has three modes. Next: label, title, when, Add to calendar. Starting soon (the join window is open): Join.
+   Live now: the label becomes the same pill the week's "Open" uses, and Join stays. Nothing here loops or pulses:
+   the brand's motion has no looping indicator. */
+.sh-live[data-mode="live"]{height:22px;padding:0 var(--s2);border-radius:var(--r-pill);background:var(--tint-bright)}
+.sh-live[data-mode="live"]::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--energy)}
+.wk-st[data-s="live"]{background:var(--tint-bright);color:var(--forest)}
+.wk-st[data-s="live"]::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--energy)}
+.sc-when[data-s="live"]{color:var(--forest);font-weight:600}
+.sc-replay{position:relative;z-index:1;color:var(--forest);font-weight:500;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px;border-radius:var(--r-sm);transition:text-decoration-color var(--aim-dur-quick) var(--aim-ease)}
+@media (hover:hover){.sc-replay:hover{text-decoration-color:currentColor}}
+.sc-replay:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+
+/* ============ 14. Locked weeks (v5): the nav row, and the page a locked week opens ============ */
+.sh-stat[data-s="locked"]{color:var(--ink-3)}
+.sh-week[data-locked] .sh-label{color:var(--ink-3)}
+.sh-week[data-locked] .sh-wn{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-3)}
+.sh-week[data-locked][aria-current="page"] .sh-label{color:var(--forest)}
+.sh-week[data-locked][aria-current="page"] .sh-wn{background:var(--forest);color:var(--on-forest);box-shadow:none}
+.wk-open[data-s="locked"]{background:var(--ink-08);color:var(--ink-2)}
+.wk-open[data-s="locked"]::before{display:none}
+.lk-list{margin-top:var(--s3)}
+.lk-row{grid-template-columns:56px minmax(0,1fr);align-items:center}
+.lk-row b{font:600 17px/1.35 var(--font)}
+@media (max-width:640px){.lk-row{grid-template-columns:48px minmax(0,1fr)}}
+
+/* ============ 15. The sidebar collapsing and opening (v6), in the brand's motion ============ */
+/* Two attributes, so the width and the layout can change at different moments:
+     [data-narrow]     the column is 64px wide          [data-collapsed]  the rail's layout (icons, the week tray)
+   and [data-anim] = collapsing | expanding while it travels. Each layout keeps its own width whatever the column is
+   doing (247px open, 63px as the rail), so nothing inside re-wraps on the way; the column's edge clips it.
+   Closing, one overlapping move: the column narrows on the system's curve (380 ms). For the first 160 ms the open
+   layout stays, its labels fade and the rail's mark fades in over the lockup's "ai". Then the layout becomes the rail
+   and every icon and week number glides from where it was to its place there (240 ms; the page's script measures and
+   moves them, FLIP), so the glide and the edge arrive together.
+   Opening: the layout opens at once behind the edge, the icons and numbers glide back out on the system's curve
+   (380 ms, no overshoot), the labels and the lockup fade in, and the column springs open (a panel arriving: 560 ms).
+   The marker on the hairline steps out while the edge is moving and fades back in when it stops.
+   Reduced motion, and phones (no rail there): both attributes change together and nothing travels. */
+.sh-app{transition:grid-template-columns var(--aim-dur-spring) var(--aim-ease-spring)}
+.sh-app[data-narrow="true"]{transition-duration:var(--aim-dur-move);transition-timing-function:var(--aim-ease)}
+.sh-side{overflow:clip}
+.sh-app:not([data-collapsed="true"]) .sh-side-in{min-width:247px}
+.sh-app[data-collapsed="true"] .sh-side-in{max-width:63px}
+/* the spring carries the edge a little past its place and back: the lists keep their own width, so no title re-wraps on the way */
+.sh-app:not([data-collapsed="true"]) :is(.sh-brand,.sh-scroll>nav){max-width:247px}
+.sh-app:not([data-collapsed="true"]) .sh-group{max-width:231px}
+.sh-app[data-collapsed="true"] .sh-logo{justify-self:center}
+.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.sh-app[data-anim="expanding"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){animation:aim-fade var(--aim-dur-base) var(--aim-ease) backwards}
+/* the two logos cross-fade in place: the mark sits exactly where the rail will hold it */
+.sh-app[data-anim] .sh-logo{position:relative}
+.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade var(--aim-dur-quick) var(--aim-ease) backwards}
+.sh-app[data-anim="expanding"] .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade-out var(--aim-dur-quick) var(--aim-ease) forwards}
+.sh-weeks{transition:background-color var(--aim-dur-base) var(--aim-ease)}
+.sh-weeks::before{transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.sh-app[data-anim="collapsing"] .sh-weeks::before{opacity:0}
+.sh-marker.live{transition:transform var(--aim-dur-spring) var(--aim-ease-spring),height var(--aim-dur-spring) var(--aim-ease-spring),opacity var(--aim-dur-quick) var(--aim-ease)}
+.sh-app[data-anim] .sh-marker{opacity:0;transition:none}
+@media (max-width:900px){.sh-app:not([data-collapsed="true"]) .sh-side-in{min-width:0}.sh-app:not([data-collapsed="true"]) :is(.sh-brand,.sh-scroll>nav,.sh-group){max-width:none}}
+@media (prefers-reduced-motion:reduce){.sh-app{transition:none}}
+
+/* @mock ============ MOCKUP bar only (review-only, not shipped) ============ */
+.wkx-flag,.wkx-flag *{box-sizing:border-box}
+.wkx-flag{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:center;justify-content:space-between;line-height:1.3;background:var(--black);color:var(--on-forest);font:500 13px/1 var(--mono);letter-spacing:.02em;padding:6px 24px;min-height:36px;-webkit-font-smoothing:antialiased}
+.wkx-flag b{color:var(--energy-bright);font-weight:600}
+.wkx-prev{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.wkx-prev button{height:24px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--on-forest-16);background:transparent;color:var(--on-forest);font:500 12px/1 var(--mono);cursor:pointer}
+.wkx-sep{margin-left:10px}
+.wkx-prev button[aria-pressed="true"]{background:var(--energy-bright);border-color:var(--energy-bright);color:var(--black)}
+/* @end-mock */
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="k-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="k-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.4 3.4-5.5 6.5-5.5s5.7 2.1 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/></g></symbol>
+    <symbol id="k-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="k-calplus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></g></symbol>
+    <symbol id="k-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></g></symbol>
+    <symbol id="k-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="k-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/></g></symbol>
+    <symbol id="k-radio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 000 8.4M16.2 7.8a6 6 0 010 8.4M5 5a10 10 0 000 14M19 5a10 10 0 010 14"/></g></symbol>
+    <symbol id="k-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.2 8.3 4.5 5 4.5H3.5v13H5c3.3 0 5.500 .700 7 2 1.500-1.300 3.700-2 7-2h1.500v-13H19c-3.300 0-5.500 .700-7 2z"/><path d="M12 6.500v13"/></g></symbol>
+    <symbol id="k-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.500H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V8.500z"/><path d="M14 3.500v5h5M9 13h6M9 16.500h4"/></g></symbol>
+    <symbol id="k-down" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-flag" viewBox="0 0 24 24"><path d="M6 21V4m0 1h11l-2.500 4 2.500 4H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="6.500" height="6.500" rx="1"/><rect x="13.500" y="4" width="6.500" height="6.500" rx="1"/><rect x="4" y="13.500" width="6.500" height="6.500" rx="1"/><rect x="13.500" y="13.500" width="6.500" height="6.500" rx="1"/></g></symbol>
+    <symbol id="k-folder" viewBox="0 0 24 24"><path d="M3.500 7a2 2 0 012-2h4l2 2.500h7a2 2 0 012 2V17a2 2 0 01-2 2h-13a2 2 0 01-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-help" viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-side" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.500 4v16"/></g></symbol>
+    <symbol id="k-moon" viewBox="0 0 24 24"><path d="M20 14.500A8 8 0 019.500 4a8 8 0 1010.500 10.500z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.500l9 5 9-5"/><path d="M3 17l9 5 9-5"/></g></symbol>
+    <symbol id="k-pen" viewBox="0 0 24 24"><path d="M4 20l1-4.500L16.500 4a2.120 2.120 0 013 3L8 18.500 4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="k-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="k-talk" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 5.500A1.500 1.500 0 014.500 4h10A1.500 1.500 0 0116 5.500v6a1.500 1.500 0 01-1.500 1.500H8l-3.500 3v-3A1.500 1.500 0 013 11.500v-6z"/><path d="M19 9h.500A1.500 1.500 0 0121 10.500v6a1.500 1.500 0 01-1.500 1.500v2.500l-3-2.500H11"/></g></symbol>
+    <symbol id="k-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 15V4M7.500 8.500L12 4l4.500 4.500"/><path d="M4 15v3.500A1.500 1.500 0 005.500 20h13a1.500 1.500 0 001.500-1.500V15"/></g></symbol>
+    <symbol id="k-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="k-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M9 4h6l-1 6 3.500 3.500h-11L10 10 9 4z"/><path d="M12 13.500V20"/></g></symbol>
+    <symbol id="k-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10.500l6-3v9l-6-3z"/></g></symbol>
+    <symbol id="k-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></g></symbol>
+    <symbol id="k-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="wkx-flag"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · shell, week overview, schedule · v6 · not live · uploads and downloads are simulated</span>
+  <span class="wkx-prev" role="group" aria-label="Preview a state">Preview
+    <button type="button" data-preview="s1" aria-pressed="true">1 of 8</button><button type="button" data-preview="s7" aria-pressed="false">7 of 8</button><button type="button" data-preview="s8" aria-pressed="false">8 of 8</button><button type="button" data-preview="deployed" aria-pressed="false">Deployed</button><span class="wkx-sep">Clock</span><button type="button" data-clock="today" aria-pressed="true">Today</button><button type="button" data-clock="soon" aria-pressed="false">9 min before</button><button type="button" data-clock="live" aria-pressed="false">Live</button><button type="button" data-clock="ended" aria-pressed="false">Just ended</button><button type="button" data-clock="nextday" aria-pressed="false">Next day</button><span class="wkx-sep">Intake</span><button type="button" data-form="new" aria-pressed="false">New</button><button type="button" data-form="draft" aria-pressed="true">Draft</button><button type="button" data-form="submitted" aria-pressed="false">Submitted</button><span class="wkx-sep">Open turn in</span><button type="button" data-turnin="report">Report</button><button type="button" data-turnin="checkpoint">Checkpoint</button><button type="button" data-turnin="turned">Turned in</button><span class="wkx-sep">Logo</span><button type="button" data-logo="app" aria-pressed="true">ai academy</button><button type="button" data-logo="full" aria-pressed="false">Full name</button><span class="wkx-sep">View as</span><button type="button" data-as="am" aria-pressed="true">Member</button><button type="button" data-as="cl" aria-pressed="false">Staff</button></span></div>
+
+<div class="sh-app" id="sh-app">
+  <aside class="sh-side" data-ai="shell" id="sh-side" aria-label="Primary">
+    <div class="sh-side-in">
+      <div class="sh-brand">
+        <a class="sh-logo" href="#" onclick="return false" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""><img class="sh-logo-f" src="logos/amplified-impact-academy.svg" width="205" height="20" alt=""><img class="sh-logo-s" src="logos/favicon.svg" width="28" height="28" alt=""></a>
+        <button class="wk-btn wk-btn-ghost wk-btn-sm sh-menu" type="button" id="sh-menu" aria-expanded="false" aria-controls="sh-scroll"><svg width="16" height="16"><use href="#k-menu"/></svg>Menu</button>
+        <p class="sh-cohort">Amplified AI Accelerator<br>December 2026 Cohort · Starts Dec 2</p>
+      </div>
+      <div class="sh-scroll" id="sh-scroll">
+        <nav aria-label="Main"><ul class="sh-nav" id="sh-main"></ul></nav>
+        <button class="sh-link sh-group" type="button" id="sh-group" aria-expanded="true" aria-controls="sh-weeks"><svg width="16" height="16"><use href="#k-layers"/></svg><span class="sh-label">Weeks</span><small>9</small><svg width="14" height="14"><use href="#k-chev"/></svg></button>
+        <nav aria-label="Weeks"><ul class="sh-nav sh-weeks" id="sh-weeks"></ul></nav>
+        <span class="sh-marker" id="sh-marker" aria-hidden="true"></span>
+      </div>
+      <ul class="sh-nav sh-foot">
+        <li><a class="sh-link" href="#" onclick="return false"><svg width="16" height="16"><use href="#k-help"/></svg><span class="sh-label">Get help</span></a></li>
+        <li><button class="sh-link sh-collapse" type="button" id="sh-collapse" aria-pressed="false"><svg width="16" height="16"><use href="#k-side"/></svg><span class="sh-label">Collapse sidebar</span></button></li>
+      </ul>
+    </div>
+  </aside>
+  <div class="sh-col">
+    <header class="sh-top" data-ai="shell">
+      <!-- the next session: next, starting soon (Join), live now (Join). Drawn by renderNext() -->
+      <div class="sh-next" id="sh-next"></div>
+      <nav class="wk-sr" aria-label="Breadcrumb"><a href="#" onclick="return false">Home</a> / <span aria-current="page" id="sh-here">Foundations</span></nav>
+      <!-- the account menu's trigger: the learner's initials. Its menu (Account, Team Hub, Theme, Sign out) is the LMS's own and is not drawn here. -->
+      <button class="wk-btn wk-btn-ghost wk-btn-sm sh-acct" type="button" aria-label="Your account" aria-haspopup="menu" aria-expanded="false"><span id="sh-me">AM</span><svg width="14" height="14"><use href="#k-chev"/></svg></button>
+    </header>
+
+    <main id="main">
+    <div data-ai="schedule" data-schedule-page id="view-schedule" hidden>
+      <div class="wk-page">
+        <header class="sc-head aim-rise" style="--i:0">
+          <div><h1 class="wk-h1">Schedule</h1><p class="wk-purpose">Wed builds and Thu office hours · 1:00 PM CT</p></div>
+          <div class="sc-head-acts">
+            <div class="wk-seg" id="sc-view" role="group" aria-label="View"><span class="wk-seg-thumb" aria-hidden="true"></span><a class="wk-seg-b" href="#schedule" aria-current="true">Weeks</a><a class="wk-seg-b" href="#" onclick="return false">Calendar</a></div>
+            <a class="wk-btn wk-btn-secondary" id="sc-all" href="#" onclick="return false"><svg width="14" height="14"><use href="#k-calplus"/></svg><span class="aim-roll"><span>Add all to calendar</span><span aria-hidden="true">Add all to calendar</span></span></a>
+          </div>
+        </header>
+        <section class="wk-hero sc-hero aim-rise" style="--i:1" aria-label="Next session">
+          <div class="wk-hero-main" id="sc-hero"></div>
+          <div class="wk-prog"><p class="wk-prog-l" id="sc-count-l"></p><p class="sc-count" id="sc-count"></p></div>
+        </section>
+        <section class="aim-rise" style="--i:2" aria-labelledby="sc-h">
+          <h2 class="wk-h2" id="sc-h">Nine weeks</h2>
+          <div id="sc-groups"></div>
+        </section>
+      </div>
+    </div>
+
+    <div data-ai="community" data-community-page id="view-community" hidden>
+      <div class="wk-page">
+        <header class="sc-head aim-rise" style="--i:0">
+          <div><h1 class="wk-h1">Community</h1><p class="wk-purpose">Ask the cohort, share a win, follow up on a live read. Everyone in your cohort can read what you write here.</p></div>
+          <div class="sc-head-acts"><button class="wk-btn wk-btn-primary" type="button" id="cm-start"><svg width="14" height="14"><use href="#k-pen"/></svg><span class="aim-roll"><span>Start a thread</span><span aria-hidden="true">Start a thread</span></span></button></div>
+        </header>
+        <div class="cm-spaces aim-rise" style="--i:1" id="cm-spaces" role="radiogroup" aria-label="Spaces"></div>
+        <div class="cm-layout">
+          <div class="cm-main aim-rise" style="--i:2" id="cm-list"></div>
+          <aside class="cm-rail aim-rise" style="--i:3" aria-label="How this works">
+            <section class="wk-card"><div class="wk-card-h"><h2 class="wk-h3">How this works</h2></div><ul class="cm-how"><li>Ask before office hours. Your question may already have an answer here.</li><li>Say the number, what you tried and where you’re stuck.</li><li>Reports for a live read go through Turn in on the step that asks for them, not here.</li><li>Nothing here is emailed. Come back to check for replies.</li></ul></section>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <div data-ai="thread" data-thread-page id="view-thread" hidden></div>
+
+    <!-- a locked week: drawn by renderLocked(n) -->
+    <div data-ai="locked" data-locked-page id="view-locked" hidden></div>
+
+    <div data-ai="week" data-week-page id="view-week">
+
+      <div class="wk-page">
+        <nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Breadcrumb"><a href="#" onclick="return false">Home</a><span aria-hidden="true">/</span><span>Foundations</span></nav>
+
+        <header class="wk-head aim-rise" style="--i:0">
+          <p class="wk-eyebrow">Week 0 <span class="wk-open">Open</span></p>
+          <h1 class="wk-h1">Foundations</h1>
+          <p class="wk-q">Is our office ready for its first hire?</p>
+          <p class="wk-purpose">Every team at the same starting line by Mon, Nov 30.</p>
+          <div class="wk-meta">
+            <span class="wk-tag"><svg width="14" height="14"><use href="#k-clock"/></svg>Self-paced</span>
+            <span class="wk-tag"><svg width="14" height="14"><use href="#k-users"/></svg>Owners and operators</span>
+            <span class="wk-tag"><svg width="14" height="14"><use href="#k-cal"/></svg>Due Mon, Nov 30, 1:00 PM CT</span>
+          </div>
+        </header>
+
+        <section class="wk-hero aim-rise" style="--i:1" aria-label="Up next">
+          <div class="wk-hero-main" id="wk-hero"></div>
+          <div class="wk-prog" id="wk-prog">
+            <p class="wk-prog-l"><svg width="14" height="14"><use href="#k-check"/></svg>Steps done</p>
+            <p class="wk-prog-n"><b id="wk-n">1</b>of 8</p>
+            <div class="wk-segs" id="wk-segs" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="1" aria-label="Steps done"></div>
+            <p class="wk-prog-left" id="wk-left"></p>
+          </div>
+        </section>
+
+        <div class="wk-grid">
+          <section class="wk-steps-sec aim-rise" style="--i:2" id="steps" aria-labelledby="steps-h">
+            <div class="wk-sec-head">
+              <h2 class="wk-h2" id="steps-h">Eight steps</h2>
+              <div class="wk-seg" id="wk-seg" role="radiogroup" aria-label="Show steps for">
+                <span class="wk-seg-thumb" aria-hidden="true"></span>
+                <button class="wk-seg-b" type="button" role="radio" aria-checked="true" data-role="all">All<small>8</small></button>
+                <button class="wk-seg-b" type="button" role="radio" aria-checked="false" tabindex="-1" data-role="owner">Owner<small>4</small></button>
+                <button class="wk-seg-b" type="button" role="radio" aria-checked="false" tabindex="-1" data-role="operator">Operator<small>6</small></button>
+              </div>
+            </div>
+            <p class="wk-sum" id="wk-sum" aria-live="polite"></p>
+            <ol class="wk-steps" id="wk-steps"></ol>
+          </section>
+
+          <aside class="wk-rail" aria-label="For this week">
+            <section class="wk-card aim-rise" style="--i:3" aria-labelledby="kit-h">
+              <div class="wk-card-h"><h3 class="wk-h3" id="kit-h">Week 0 kit</h3><small>In step order</small></div>
+              <div id="wk-kit"></div>
+              <div class="wk-kit-foot"><a class="wk-btn wk-btn-secondary wk-btn-arrow" href="#" onclick="return false"><span class="aim-roll"><span>Open your Skill Library</span><span aria-hidden="true">Open your Skill Library</span></span><svg class="wk-arrow" width="14" height="14"><use href="#k-arrow"/></svg></a></div>
+            </section>
+            <section class="wk-card aim-rise" style="--i:4" aria-label="Instructor note">
+              <div class="wk-note">
+                <div class="wk-who"><span class="wk-av" aria-hidden="true">CL</span><span>Connor Leiva<small>Why this week matters</small></span></div>
+                <p>Every team starts Week 1 on the same setup, so the live builds go to hiring, not troubleshooting. The hires will be measured against the time you record now.</p>
+              </div>
+            </section>
+            <section class="wk-card aim-rise" style="--i:5" aria-label="Questions">
+              <div class="wk-help"><b>Questions?</b><a class="wk-mail" href="mailto:support@amplifiedimpact.io">support@amplifiedimpact.io</a></div>
+            </section>
+          </aside>
+
+          <div class="wk-ref aim-rise" style="--i:4">
+            <section id="reference" aria-labelledby="ref-h">
+              <h2 class="wk-h2" id="ref-h">Reference</h2>
+              <div class="wk-accs" id="wk-accs"></div>
+            </section>
+            <a class="wk-nextweek" id="wk-nextweek" href="#week-1"><span><small class="wk-label">Next week</small>Week 1 · Where the Money Goes</span><svg class="wk-arrow" width="20" height="20"><use href="#k-arrow"/></svg></a>
+          </div>
+        </div>
+        <p class="wk-sr" aria-live="polite" id="wk-live"></p>
+      </div>
+    </div>
+    </main>
+  </div>
+</div>
+<div data-ai="form" id="fm-host"></div>
+<div data-ai="compose" id="cm-host"></div>
+<div data-ai="upload" id="up-host"></div>
+
+<script>
+/* ---------- data (in the LMS this comes from the week's view-model) ---------- */
+const WEEK = { n: 0, total: 8, deployedWhen: 'Ready Check is green and the test hire ran with nobody there. Every write tool Blocked except drafts and AI Office saves.', platform: 'Claude or ChatGPT',
+  next: { n: 1, title: 'Where the Money Goes' } };
+const STEPS = [
+  { n: 1, t: 'Fill In Your Intake and Name Your Operator', role: 'Owner', who: ['owner'], time: '10 min', min: 10, done: 'Intake in, operator invited, stack card sent back.' },
+  { n: 2, t: 'Watch the Orientation', role: 'Owner and operator', who: ['owner', 'operator'], time: '30 min', min: 30, done: 'Both know how a week runs and what a hire is.' },
+  { n: 3, t: 'Start Your Time Baseline', role: 'Owner', who: ['owner'], time: '20 min, over two weeks', min: 20, done: 'Six tasks timed per occurrence, or marked not done today.' },
+  { n: 4, t: 'Get Your AI Ready', role: 'Operator', who: ['operator'], time: '20 min', min: 20, done: 'Paid plan, training off, skills on, both cohort skills pass their self-test, on the Claude Path or the ChatGPT Path.' },
+  { n: 5, t: 'Set Up Your AI Brain', role: 'Each of you', who: ['owner', 'operator'], time: '30 min', min: 30, waits: 6, done: 'A new chat knows the business, and About My Business is in the AI Office.' },
+  { n: 6, t: 'Connect Your Data', role: 'Operator', who: ['operator'], time: '30 min', min: 30, done: 'Each green source answers a test question; each yellow source’s export is in the inbox.' },
+  { n: 7, t: 'Lock the Guardrails', role: 'Operator', who: ['operator'], time: '10 min', min: 10, done: 'Every write tool Blocked except drafts and AI Office saves, on your platform.' },
+  { n: 8, t: 'Run the Ready Check and Your Test Hire', role: 'Operator', who: ['operator'], time: '20 min, plus a next-morning check', min: 20, done: 'Ready Check is green and the test hire ran with nobody there.' }];
+/* preview states. status: done | progress | waiting | idle. waiting = a box in this step can't be ticked until another
+   step is done (step 5's last box needs step 6's Google connection): the row says which step. It is still a step you
+   can open and work on, so "Up next" is simply the first step that isn't done. */
+const PREVIEW = {
+  s1: { status: ['done', 'idle', 'progress', 'idle', 'waiting', 'idle', 'idle', 'idle'], deployed: false },
+  s7: { status: ['done', 'done', 'done', 'done', 'idle', 'done', 'done', 'done'], deployed: false },
+  s8: { status: Array(8).fill('done'), deployed: false },
+  deployed: { status: Array(8).fill('done'), deployed: true } };
+const SUMS = { all: 'About 2 hr 50 min in all. Steps 3 and 5 can run alongside the others.', owner: '4 steps for the owner, about 1 hr 30 min.', operator: '6 steps for the operator, about 2 hr 20 min.' };
+const KIT = [
+  { label: 'Skills', rows: [
+    { icon: 'book', title: 'AI Brain Setup', meta: 'Open now', tags: [['Flagship', 1], ['Free', 0]], link: true },
+    { icon: 'book', title: 'Map Your Spend', meta: 'Step 4 · Supporting', link: true, acts: [['down', 'Zip']] },
+    { icon: 'book', title: 'Lead Source Review', meta: 'Step 4 · Supporting', link: true, acts: [['down', 'Zip']] } ] },
+  { label: 'Files', rows: [
+    { icon: 'file', title: 'Week 0 Intake Form', meta: 'Step 1', form: true, acts: [['pen', 'Continue', 'form']] },
+    { icon: 'file', title: 'Week 0 Stack Card', meta: 'Step 1', link: true },
+    { icon: 'file', title: 'Time Baseline', meta: 'Step 3', acts: [['down', 'Excel'], ['down', 'CSV']] },
+    { icon: 'file', title: 'Test Hire Sample Week', meta: 'Step 8', link: true } ] },
+  { label: 'For your AI', rows: [
+    { icon: 'key', title: 'System prompt', meta: '6 lines · about 63 tokens', acts: [['eye', 'View'], ['copy', 'Copy', 'copy']] } ] } ];
+/* shell: main nav and the weeks */
+const NAV = [['home', 'Home'], ['cal', 'Schedule', 'schedule'], ['talk', 'Community', 'community'], ['grid', 'Skill library'], ['users', 'Team Hub'], ['folder', 'Resource vault']];
+const WEEKS = ['Foundations', 'Where the Money Goes', 'Leads That Pay', 'Numbers on the 5th', 'Protect the Pipeline', 'Coach from Evidence', 'Delegate an Outcome', 'Make the Workflow Repeatable', 'Sustain and Expand'];
+/* sessions that have a clock time in this mockup. "Now" is the real clock unless the MOCKUP bar's Clock sets it, so the
+   states around a live session can be seen: 9 minutes before, live, just ended, the next day. In the LMS all of this
+   comes from the schedule's view-model. A week opens when its live build starts. */
+const SESS = [
+  { id: 'b1', week: 1, kind: 'Live build', strip: 'Next live build', cta: 'See what you’ll build', title: 'Map Your Spend Live Build', day: 'Wed', date: '2', when: 'Wed, Dec 2 · 1:00 PM CT', time: '1:00 PM CT', length: '1 hr 30 min', where: 'Zoom', start: '2026-12-02T19:00:00Z', minutes: 90, joinBefore: 15, replayAt: '2026-12-03T15:00:00Z' },
+  { id: 'o1', week: 1, kind: 'Office hours', strip: 'Next office hours', cta: 'Open Week 1', title: 'Map Your Spend Office Hours', day: 'Thu', date: '3', when: 'Thu, Dec 3 · 1:00 PM CT', time: '1:00 PM CT', length: '1 hr', where: 'Zoom', start: '2026-12-03T19:00:00Z', minutes: 60, joinBefore: 15 },
+  { id: 'b2', week: 2, kind: 'Live build', strip: 'Next live build', cta: 'See what you’ll build', title: 'Lead Source Review Live Build', day: 'Wed', date: '9', when: 'Wed, Dec 9 · 1:00 PM CT', time: '1:00 PM CT', length: '1 hr 30 min', where: 'Zoom', start: '2026-12-09T19:00:00Z', minutes: 90, joinBefore: 15 } ];
+const CLOCKS = { soon: '2026-12-02T18:51:00Z', live: '2026-12-02T19:12:00Z', ended: '2026-12-02T21:00:00Z', nextday: '2026-12-03T16:00:00Z' };
+let clock = 'today';
+const nowMs = () => CLOCKS[clock] ? Date.parse(CLOCKS[clock]) : Date.now();
+const sessEnd = x => Date.parse(x.start) + x.minutes * 60000;
+/* wait | join (the join window is open) | live | processing | replay | ended */
+const sessState = x => { const t = nowMs(), a = Date.parse(x.start);
+  return t >= sessEnd(x) ? (x.replayAt ? (t >= Date.parse(x.replayAt) ? 'replay' : 'processing') : 'ended') : t >= a ? 'live' : Math.floor((a - t) / 60000) < x.joinBefore ? 'join' : 'wait'; };
+const nextSess = () => SESS.find(x => nowMs() < sessEnd(x)) || SESS[SESS.length - 1];
+const byId = id => SESS.find(x => x.id === id);
+/* locked weeks: each week's question, and when it opens */
+const LOCKS = [null,
+  { q: 'Where does our money go, and is it the right amount?', opens: 'Wed, Dec 2 · 1:00 PM CT', start: '2026-12-02T19:00:00Z' },
+  { q: 'Which lead sources pay, and is every lead worked?', opens: 'Wed, Dec 9 · 1:00 PM CT', start: '2026-12-09T19:00:00Z' },
+  { q: 'What did we make last month, and what do I do about it?', opens: 'Wed, Dec 16 · 1:00 PM CT', start: '2026-12-16T19:00:00Z' },
+  { q: 'Where is execution slipping?', opens: 'Wed, Jan 6 · 1:00 PM CT', start: '2027-01-06T19:00:00Z' },
+  { q: 'What behavior should change for this agent?', opens: 'Wed, Jan 13 · 1:00 PM CT', start: '2027-01-13T19:00:00Z' },
+  { q: 'What work can leave the owner’s desk without lowering standards?', opens: 'Wed, Jan 20 · 1:00 PM CT', start: '2027-01-20T19:00:00Z' },
+  { q: 'Can our operator adapt and run the next workflow without the instructor?', opens: 'Wed, Jan 27 · 1:00 PM CT', start: '2027-01-27T19:00:00Z' },
+  { q: 'What stays, what stops, and what should agents adopt next?', opens: 'Wed, Feb 3 · 1:00 PM CT', start: '2027-02-03T19:00:00Z' } ];
+const isLocked = n => n > 0 && nowMs() < Date.parse(LOCKS[n].start);
+const SCHED = [
+  { label: 'Now', note: 'Self-paced, before the first build', rows: [
+    { week: 0, tile: ['Due', '30'], d: 'Every team at the same starting line by Mon, Nov 30.', total: 8, sess: [['clock', 'Self-paced, due Mon, Nov 30'], ['users', 'Owner about 1 hr 30 min · operator about 2 hr 20 min']] } ] },
+  { label: 'December 2026', rows: [
+    { week: 1, tile: ['Wed', '2'], d: 'See every dollar of GCI on one chart, and what each gap costs you a year.', sess: [['radio', 'Map Your Spend Live Build', 'Wed, Dec 2 · 1:00 PM CT', 'b1'], ['users', 'Map Your Spend Office Hours', 'Thu, Dec 3', 'o1']] },
+    { week: 2, tile: ['Wed', '9'], d: 'Know which lead sources pay you back, and catch every new lead that isn’t worked to standard.', sess: [['radio', 'Lead Source Review Live Build', 'Wed, Dec 9', 'b2'], ['users', 'Goal-Planning Session 1 and Office Hours', 'Thu, Dec 10'], ['users', 'Lead Source Review Office Hours', 'Fri, Dec 11']] },
+    { week: 3, tile: ['Wed', '16'], d: 'Get last month’s numbers against your standard every month, without anyone building a spreadsheet.', sess: [['radio', 'Monthly Numbers Live Build', 'Wed, Dec 16'], ['users', 'Goal-Planning Session 2 and Office Hours', 'Thu, Dec 17'], ['users', 'Monthly Numbers Office Hours', 'Fri, Dec 18']] },
+    { brk: 'Holiday break', d: 'No sessions on Dec 23 or Dec 30. No new build until Jan 6.' } ] },
+  { label: 'January 2027', rows: [
+    { week: 4, tile: ['Wed', '6'], d: 'A ranked list of where deals are slipping, each with a record reference and a next step.', sess: [['radio', 'FUB Pipeline Review Live Build', 'Wed, Jan 6'], ['users', 'FUB Pipeline Review Office Hours', 'Thu, Jan 7']] },
+    { week: 5, tile: ['Wed', '13'], d: 'A coaching packet that keeps facts, hypotheses and questions apart, and one agreed behavior to change.', sess: [['radio', 'Agent 1:1 Prep Live Build', 'Wed, Jan 13'], ['users', 'Agent 1:1 Prep Office Hours', 'Thu, Jan 14']] },
+    { week: 6, tile: ['Wed', '20'], d: 'One recurring deliverable off the owner’s desk, with a responsibility card and a review checklist.', sess: [['radio', 'Team Playbook Builder Live Build', 'Wed, Jan 20'], ['users', 'Team Playbook Builder Office Hours', 'Thu, Jan 21']] },
+    { week: 7, tile: ['Wed', '27'], d: 'A versioned onboarding skill your operator can explain, test and repair without the instructor.', sess: [['radio', 'New Agent Onboarding Plan Live Build', 'Wed, Jan 27'], ['users', 'New Agent Onboarding Plan Office Hours', 'Thu, Jan 28']] } ] },
+  { label: 'February 2027', rows: [
+    { week: 8, tile: ['Wed', '3'], d: 'A cohort-end review: what stays, what stops, and a 90-day plan your team runs without us.', sess: [['radio', 'Cohort-End Review Live Build', 'Wed, Feb 3'], ['users', 'Cohort-End Review Office Hours', 'Thu, Feb 4']] } ] } ];
+
+const REF = [
+  ['How the program works', `<ul class="wk-ul"><li>Every week has one operating question, one flagship skill from the Library and one required output.</li><li>You get the finished skill ahead of time. Live building means setting it up, testing it and putting it to work.</li><li>“Working at the end of class” and “implemented by week’s end” aren’t the same thing. We track both.</li><li>The rest of the Library stays open the whole time. This week’s skills are just the ones in the spotlight.</li></ul><p class="wk-fine">No private coaching calls, no custom integrations, no bookkeeping cleanup and no full database cleanup. Those are outside the program.</p>`],
+  ['Owner and operator', `<dl class="wk-dl"><div><dt>Owner</dt><dd><p>Comes to the build, makes the business decisions, approves one real run each week and protects a weekly operating review.</p><p>This week: fill in your intake, name your operator, watch the orientation, start your time baseline and set up your AI Brain.</p><small>About 1 hr 30 min</small></dd></div><div><dt>Operator</dt><dd><p>Maintains the workflows: refreshes inputs, reruns outputs, finds failures and follows the repair steps. An owner can hold both roles, on purpose.</p><p>This week: get your AI ready, set up your AI Brain, connect your data, lock the guardrails, and run the Ready Check and your test hire.</p><small>About 2 hr 20 min</small></dd></div></dl><p class="wk-fine">These are planning estimates, not guarantees.</p>`],
+  ['What done looks like', `<dl class="wk-dl"><div><dt>Acceptance test</dt><dd><p>Ready Check is green and the test hire ran with nobody there.</p><p>Every write tool Blocked except drafts and AI Office saves.</p></dd></div><div><dt>Adopted means</dt><dd>Six tasks timed per occurrence, or marked not done today.</dd></div><div><dt>Before the next session</dt><dd>Keep timing the six tasks per occurrence until each has one, or mark it not done today.</dd></div></dl><p class="wk-fine">Missed a week? Do the core path first: the preconfigured skill, the minimum-data build and one reviewed real use. Extras can wait.</p>`],
+  ['Evidence packet', `<dl class="wk-dl"><div><dt>Skill and Version Link</dt><dd>A link to the skill and the version you ran.</dd></div><div><dt>One Redacted Output</dt><dd>One real output, with client and employee details removed.</dd></div><div><dt>Test Checklist</dt><dd>Normal, missing and misleading inputs, and what happened on each.</dd></div><div><dt>Use Log</dt><dd>When it ran, who ran it, what it was for, and prep and review time.</dd></div><div><dt>Three-Sentence Account</dt><dd>The action you took because of it. A two-minute recording works too.</dd></div></dl>`],
+  ['Rubric', `<p class="wk-scale"><span><b>0</b>Not demonstrated</span><span><b>1</b>Needs correction</span><span><b>2</b>Meets standard</span></p><dl class="wk-dl"><div><dt>Business Fit</dt><dd>Solves a named operating problem and informs an action.</dd></div><div><dt>Evidence Quality</dt><dd>Required facts trace to inputs. Missing information is visible.</dd></div><div><dt>Output Quality</dt><dd>Meets your team’s actual acceptance standard.</dd></div><div><dt>Control</dt><dd>Human approval, access limits and safe failure are explicit.</dd></div><div><dt>Repeatability</dt><dd>A named maintainer can rerun it at the agreed trigger.</dd></div></dl><ul class="wk-ul"><li>Tested: 8 or more out of 10, with no zero in Evidence Quality or Control.</li><li>Adopted: tested, plus this week’s use evidence. No score stands in for actual use.</li></ul>`],
+  ['Readiness', `<dl class="wk-dl"><div><dt>Green</dt><dd>Accounts work, permissions are confirmed, your operator is named and the minimum data is there. Build on your own data.</dd></div><div><dt>Amber</dt><dd>Accounts work, but a data gap remains. Build on the practice set while a named person fixes the gap, then rerun on your real data. Until you do, the week shows “data repair required.”</dd></div><div><dt>Red</dt><dd>No authorized access, no maintainer, or no time to implement. Sort it out before the start, or defer. Don’t let it become an open-ended support problem.</dd></div></dl>`],
+  ['Tools this week', `<dl class="wk-dl"><div><dt>Flagship</dt><dd>Foundations</dd></div><div><dt>You’ll use</dt><dd>Claude or ChatGPT, QuickBooks Online, Sisu and Google.</dd></div></dl>`]];
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches || !!document.body?.closest('.aim-reduced');
+const roll = t => `<span class="aim-roll"><span>${t}</span><span aria-hidden="true">${t}</span></span>`;
+const ic = (n, s = 14, c = '') => `<svg${c ? ` class="${c}"` : ''} width="${s}" height="${s}"><use href="#k-${n}"/></svg>`;
+const CHECK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+const hrs = m => { const h = Math.floor(m / 60), r = m % 60; return (h ? `${h} hr` : '') + (h && r ? ' ' : '') + (r ? `${r} min` : ''); };
+function cubicBezier(x1, y1, x2, y2){ const cx1 = 3*x1, bx = 3*(x2-x1)-cx1, ax = 1-cx1-bx, cy1 = 3*y1, by = 3*(y2-y1)-cy1, ay = 1-cy1-by;
+  const sx = t => ((ax*t+bx)*t+cx1)*t, sy = t => ((ay*t+by)*t+cy1)*t, dx = t => (3*ax*t+2*bx)*t+cx1;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 8; i++){ const e = sx(t)-x; if (Math.abs(e) < 1e-5) break; const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= e/d; } return sy(Math.min(1, Math.max(0, t))); }; }
+const easeBrand = cubicBezier(.2, .7, .2, 1);
+let countRun = 0, shownN = 0;
+function countUp(to){ const run = ++countRun, from = shownN; if (from === to || reduce()){ shownN = to; $('wk-n').textContent = to; return; } const t0 = performance.now();
+  const step = now => { if (run !== countRun) return; const p = Math.min(1, (now - t0)/720); shownN = from + (to - from)*easeBrand(p); $('wk-n').textContent = Math.round(shownN); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+
+/* ---------- state ---------- */
+let preview = 's1', role = 'all', filtered = false;
+const view = () => { const p = PREVIEW[preview]; const nextI = p.status.findIndex(s => s !== 'done');
+  return { ...p, nextI, allDone: nextI < 0, doneN: p.status.filter(s => s === 'done').length, left: STEPS.reduce((m, s, i) => m + (p.status[i] === 'done' ? 0 : s.min), 0) }; };
+const rowS = (v, i) => v.status[i] === 'done' ? 'done' : i === v.nextI ? 'next' : v.status[i];
+
+function renderHero(){ const v = view(), el = $('wk-hero');
+  if (v.deployed){
+    el.innerHTML = `<div class="aim-complete"><svg class="aim-mark" width="44" height="44" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle class="aim-mark__wave" cx="11" cy="11" r="9.5"/><circle class="aim-mark__ring" cx="11" cy="11" r="9.5" pathLength="1"/><circle class="aim-mark__dot" cx="11" cy="11" r="4"/></svg><div class="aim-rise" style="--i:6"><p class="wk-kick">Week ${WEEK.n} · Deployed</p><h2 class="wk-hero-t">Your office is ready for its first hire.</h2><p class="wk-hero-d">All ${WEEK.total} steps are done.</p><div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" id="wk-go" href="#week-${WEEK.next.n}">${roll(`Go to Week ${WEEK.next.n}`)}${ic('arrow', 16, 'wk-arrow')}</a><button class="wk-btn wk-btn-onforest" type="button" id="wk-undo">Undo</button></div></div></div>`;
+    $('wk-undo').onclick = () => setPreview('s8');
+  } else if (v.allDone){
+    el.innerHTML = `<p class="wk-kick">All ${WEEK.total} steps done</p><h2 class="wk-hero-t">Mark Week ${WEEK.n} deployed</h2><p class="wk-hero-d"><b>Deployed when</b>${WEEK.deployedWhen}</p><div class="wk-hero-acts"><button class="wk-btn wk-btn-accent wk-btn-lg" type="button" id="wk-deploy">${roll('Mark as deployed')}</button></div>`;
+    $('wk-deploy').onclick = () => { setPreview('deployed'); $('wk-live').textContent = `Week ${WEEK.n} marked deployed.`; };
+  } else { const s = STEPS[v.nextI], started = v.status[v.nextI] === 'progress';
+    el.innerHTML = `<p class="wk-kick">Up next · Step ${s.n} of ${WEEK.total}</p><h2 class="wk-hero-t">${s.t}</h2><p class="wk-hero-m"><span>${s.time}</span><span>${s.role}</span></p><p class="wk-hero-d"><b>Done when</b>${s.done}</p><div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" id="wk-go" href="#" onclick="return false">${roll(`${started ? 'Continue' : 'Start'} step ${s.n}`)}${ic('arrow', 16, 'wk-arrow')}</a></div>`;
+  }
+}
+function renderProg(){ const v = view();
+  if (!$('wk-segs').children.length) $('wk-segs').innerHTML = STEPS.map(() => '<span></span>').join('');
+  [...$('wk-segs').children].forEach((s, i) => s.style.setProperty('--v', v.status[i] === 'done' ? 1 : 0));
+  $('wk-segs').setAttribute('aria-valuenow', v.doneN);
+  countUp(v.doneN);
+  $('wk-left').textContent = v.deployed ? 'Deployed' : v.left ? `About ${hrs(v.left)} left` : 'All steps done';
+}
+const ST_LABEL = { done: 'Done', next: 'Up next', progress: 'In progress' };
+function renderSteps(){ const v = view(); let k = 0;
+  const rows = STEPS.map((s, i) => { const st = rowS(v, i), show = role === 'all' || s.who.includes(role);
+    const label = st === 'waiting' ? `Waiting on step ${s.waits}` : ST_LABEL[st];
+    const chip = label ? `<span class="wk-st" data-s="${st}">${st === 'done' ? ic('check') : ''}${label}</span>` : '';
+    return `<li${show ? '' : ' hidden'}${show && filtered ? ` class="aim-rise" style="--i:${k++}"` : ''}><a class="wk-step" data-s="${st}" data-n="${s.n}" href="#" onclick="return false"${st === 'next' ? ' aria-current="step"' : ''}>
+      <span class="wk-num" aria-hidden="true">${st === 'done' ? CHECK : s.n}</span>
+      <span class="wk-step-tx"><span class="wk-step-t">${s.t}<span class="wk-chip">${s.role}</span></span><span class="wk-step-d">${s.done}</span></span>
+      <span class="wk-step-r">${chip}<span class="wk-time">${s.time}</span></span>
+      ${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`; });
+  const fs = v.deployed ? 'deployed' : v.allDone ? 'ready' : 'locked', togo = WEEK.total - v.doneN;
+  const fchip = fs === 'deployed' ? `<span class="wk-st" data-s="done">${ic('check')}Deployed</span>` : fs === 'ready' ? '<span class="wk-st" data-s="next">Ready</span>' : `<span class="wk-st" data-s="locked">${togo} ${togo === 1 ? 'step' : 'steps'} to go</span>`;
+  rows.push(`<li${filtered ? ` class="aim-rise" style="--i:${k}"` : ''}><div class="wk-step wk-finish" data-s="${fs}" id="wk-finish">
+      <span class="wk-num" aria-hidden="true">${fs === 'deployed' ? CHECK : ic('flag', 16)}</span>
+      <span class="wk-step-tx"><span class="wk-step-t">Week ${WEEK.n} deployed</span><span class="wk-step-d">${WEEK.deployedWhen}<small>Platform: ${WEEK.platform}</small></span></span>
+      <span class="wk-step-r">${fchip}</span></div></li>`);
+  $('wk-steps').innerHTML = rows.join('');
+}
+function renderAll(){ renderHero(); renderProg(); renderSteps(); renderWeeksNav(); renderSchedule(); }
+function setPreview(p){ preview = p; document.querySelectorAll('[data-preview]').forEach(b => b.setAttribute('aria-pressed', b.dataset.preview === p)); renderAll(); }
+document.querySelectorAll('[data-preview]').forEach(b => b.onclick = () => setPreview(b.dataset.preview));
+
+/* ---------- role filter ---------- */
+const seg = $('wk-seg'), thumb = seg.querySelector('.wk-seg-thumb'), segBtns = [...seg.querySelectorAll('.wk-seg-b')];
+function placeThumb(){ const b = segBtns.find(x => x.getAttribute('aria-checked') === 'true'); thumb.style.setProperty('--x', b.offsetLeft + 'px'); thumb.style.setProperty('--w', b.offsetWidth + 'px'); }
+function setRole(r, focus){ role = r; filtered = true;
+  segBtns.forEach(b => { const on = b.dataset.role === r; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+  placeThumb(); $('wk-sum').textContent = SUMS[r]; renderSteps(); }
+segBtns.forEach((b, i) => { b.onclick = () => setRole(b.dataset.role);
+  b.onkeydown = e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); setRole(segBtns[(i + d + segBtns.length) % segBtns.length].dataset.role, true); }; });
+$('wk-sum').textContent = SUMS.all;
+placeThumb(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { placeThumb(); requestAnimationFrame(() => requestAnimationFrame(() => thumb.classList.add('live'))); });
+new ResizeObserver(placeThumb).observe(seg);
+
+/* ---------- kit, reference, shell ---------- */
+$('wk-kit').innerHTML = KIT.map(g => `<p class="wk-label wk-kit-g">${g.label}</p><ul>${g.rows.map(r => `<li class="wk-kit-row"${(r.acts || []).length > 1 ? ' data-acts="2"' : ''}${r.form ? ' data-form-row' : ''}><span class="wk-ic">${ic(r.icon, 16)}</span><span class="wk-kit-tx">${r.link ? `<a class="wk-kit-a" href="#" onclick="return false">${r.title}</a>` : `<b>${r.title}</b>`}<small>${r.meta}</small>${r.tags ? `<span class="wk-tags">${r.tags.map(([t, hi]) => `<span class="wk-chip${hi ? ' wk-chip-hi' : ''}">${t}</span>`).join('')}</span>` : ''}</span><span class="wk-kit-acts">${(r.acts || []).map(([i, t, a]) => `<button class="wk-btn wk-btn-secondary wk-btn-sm" type="button"${a ? ` data-act="${a}"` : ''}>${ic(i)}${roll(t)}</button>`).join('')}${r.link && !r.acts ? ic('right', 16, 'wk-chev wk-arrow') : ''}</span></li>`).join('')}</ul>`).join('');
+document.querySelectorAll('[data-act="copy"]').forEach(b => b.onclick = () => { navigator.clipboard?.writeText('System prompt').catch(() => {});
+  const sp = b.querySelectorAll('.aim-roll > span'); sp.forEach(x => x.textContent = 'Copied'); setTimeout(() => sp.forEach(x => x.textContent = 'Copy'), 1400); });
+$('wk-accs').innerHTML = REF.map(([t, b]) => `<details class="wk-acc"><summary>${t}${ic('chev', 18)}</summary><div class="wk-acc-b">${b}</div></details>`).join('');
+
+
+/* ---------- "Add to calendar": one button, three choices (brand 14: the panel unfolds from its trigger and leaves faster) ---------- */
+const CAL = [['down', 'Calendar file (.ics)'], ['cal', 'Google Calendar'], ['cal', 'Outlook']];
+function calMenu(host, cls, label, align){
+  host.className = 'sc-cal'; if (align) host.dataset.align = align;
+  host.innerHTML = `<button class="wk-btn ${cls}" type="button" aria-haspopup="true" aria-expanded="false">${ic('calplus')}${roll(label)}${ic('chev')}</button>`;
+  const btn = host.firstChild; let pop = null, t = 0;
+  const close = () => { if (!pop) return; btn.setAttribute('aria-expanded', 'false'); const p = pop; pop = null; p.dataset.state = 'closing'; t = setTimeout(() => p.remove(), reduce() ? 0 : 200); };
+  const open = () => { clearTimeout(t); host.querySelector('.sc-menu')?.remove(); btn.setAttribute('aria-expanded', 'true');
+    host.insertAdjacentHTML('beforeend', `<div class="aim-pop sc-menu" data-state="open" role="region" aria-label="${label}">${CAL.map(([i, x]) => `<a href="#" onclick="return false">${ic(i, 16)}${x}</a>`).join('')}</div>`);
+    pop = host.lastChild; pop.onclick = close; };
+  btn.onclick = () => (pop ? close() : open());
+  document.addEventListener('click', e => { if (pop && !host.contains(e.target)) close(); });
+  document.addEventListener('keydown', e => { if (pop && e.key === 'Escape'){ close(); btn.focus(); } });
+}
+
+/* ---------- schedule ---------- */
+const weekState = n => { if (n !== 0) return { s: 'idle', done: 0 }; const v = view(); return { s: v.deployed ? 'done' : v.doneN ? 'progress' : 'idle', done: v.doneN }; };
+/* a session's line in a week's row: its day, or what it is doing now */
+const SESS_OVER = { processing: 'Replay processing', ended: 'Session ended' };
+function sessLine([i, t, w, id]){ const st = id ? sessState(byId(id)) : '';
+  const when = st === 'live' ? '<span class="sc-when" data-s="live">Live now</span>' : st === 'replay' ? '<a class="sc-replay" href="#" onclick="return false">Watch replay</a>' : SESS_OVER[st] ? `<span class="sc-when">${SESS_OVER[st]}</span>` : w ? `<span class="sc-when">${w}</span>` : '';
+  return `<li>${ic(i)}<span>${t}</span>${when}</li>`; }
+function renderSchedule(){ const nx = nextSess();
+  $('sc-groups').innerHTML = SCHED.map(g => `<h3 class="sc-month">${g.label}${g.note ? `<small>${g.note}</small>` : ''}</h3><ol class="sc-list">${g.rows.map(r => {
+    if (r.brk) return `<li class="sc-week sc-break"><span class="sc-date" aria-hidden="true">${ic('moon', 20)}</span><div><b>${r.brk}</b><p>${r.d}</p></div></li>`;
+    const st = weekState(r.week), live = (r.sess || []).some(x => x[3] && sessState(byId(x[3])) === 'live');
+    const side = st.s === 'done' ? `<span class="wk-st" data-s="done">${ic('check')}Deployed</span>` : st.s === 'progress' ? `<span class="sc-bar" style="--v:${st.done / r.total}"></span>${st.done} of ${r.total} done` : live ? '<span class="wk-st" data-s="live">Live now</span>' : nx.week === r.week ? '<span class="wk-st" data-s="next">Next</span>' : '<span class="wk-st" data-s="waiting">Upcoming</span>';
+    const href = r.week === 0 ? '#week-0' : isLocked(r.week) ? `#week-${r.week}` : '#';
+    return `<li class="sc-week" data-s="${st.s}" data-week="${r.week}"><span class="sc-date" aria-hidden="true"><small>${r.tile[0]}</small><b>${r.tile[1]}</b></span>
+      <div class="sc-body"><div class="sc-t"><a class="sc-a" href="${href}"${href === '#' ? ' onclick="return false"' : ''}>Week ${r.week} · ${WEEKS[r.week]}</a>${st.s === 'progress' ? '<span class="wk-st" data-s="progress">In progress</span>' : ''}</div>
+        ${r.d ? `<p class="sc-d">${r.d}</p>` : ''}${r.sess ? `<ul class="sc-sess">${r.sess.map(sessLine).join('')}</ul>` : ''}</div>
+      <div class="sc-side">${side}${ic('right', 20, 'wk-chev wk-arrow')}</div></li>`; }).join('')}</ol>`).join('');
+}
+/* the next session: Add to calendar until the join window opens (15 min before), then Join */
+const unit = (n, u) => `<span><b>${n}</b>${u}</span>`;
+const countdown = mins => { const m = Math.max(0, mins), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60); return d ? unit(d, d === 1 ? 'day' : 'days') + unit(h, 'hr') : h ? unit(h, 'hr') + unit(m % 60, 'min') : unit(m, 'min'); };
+let heroMode = '';
+function renderNext(){ const NEXT = nextSess(), now = nowMs(), start = Date.parse(NEXT.start), mins = Math.floor((start - now) / 60000);
+  const mode = now >= start ? 'live' : mins < NEXT.joinBefore ? 'join' : 'wait';
+  if (NEXT.id + mode !== heroMode){ heroMode = NEXT.id + mode; const wkHref = isLocked(NEXT.week) ? `#week-${NEXT.week}` : '#';
+    $('sc-hero').innerHTML = `<div class="sc-next"><span class="sc-date" aria-hidden="true"><small>${NEXT.day}</small><b>${NEXT.date}</b></span><div>
+      <p class="wk-kick">${mode === 'live' ? 'Live now' : 'Next'} · Week ${NEXT.week} · ${NEXT.kind}</p><h2 class="wk-hero-t">${NEXT.title}</h2>
+      <p class="wk-hero-m"><span>${NEXT.when}</span><span>${NEXT.length}</span><span>${NEXT.where}</span></p>
+      <div class="wk-hero-acts">${mode === 'wait' ? '<span id="sc-cal"></span>' : `<a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" id="sc-join" href="#" onclick="return false">${ic('video', 16)}${roll(`Join on ${NEXT.where}`)}</a>`}<a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" id="sc-what" href="${wkHref}"${wkHref === '#' ? ' onclick="return false"' : ''}>${roll(NEXT.cta)}${ic('arrow', 16, 'wk-arrow')}</a></div>
+      ${mode === 'wait' ? `<p class="sc-note">Join opens ${NEXT.joinBefore} minutes before.</p>` : ''}</div></div>`;
+    if (mode === 'wait') calMenu($('sc-cal'), 'wk-btn-accent wk-btn-lg', 'Add to calendar');
+    /* the top bar's strip: the same session, the same three modes */
+    $('sh-next').innerHTML = mode === 'wait' ? `<span class="sh-live">${ic('radio', 16)}${NEXT.strip}</span><b>${NEXT.title}</b><span class="sh-mut">${NEXT.when}</span><span id="sh-cal"></span>`
+      : `<span class="sh-live" data-mode="${mode}">${mode === 'live' ? 'Live now' : ic('radio', 16) + 'Starting soon'}</span><b>${NEXT.title}</b><span class="sh-mut">${mode === 'live' ? `Started ${NEXT.time}` : NEXT.time}</span><a class="wk-btn wk-btn-accent wk-btn-sm" id="sh-join" href="#" onclick="return false">${ic('video')}${roll(`Join on ${NEXT.where}`)}</a>`;
+    if (mode === 'wait') calMenu($('sh-cal'), 'wk-btn-ghost wk-btn-sm', 'Add to calendar');
+  }
+  $('sc-count-l').innerHTML = ic('clock') + (mode === 'live' ? 'Started' : 'Starts in');
+  $('sc-count').innerHTML = mode === 'live' ? unit(Math.floor((now - start) / 60000), 'min ago') : countdown(mins);
+}
+setInterval(renderNext, 15000);
+
+/* ---------- a locked week: what it is, when it opens, and its sessions. In the LMS: /learn/week/N while the week is locked ---------- */
+const ADD_LABEL = n => n === 1 ? 'Add to calendar' : n === 2 ? 'Add both to calendar' : 'Add all to calendar';
+function renderLocked(n){ const L = LOCKS[n], r = SCHED.flatMap(g => g.rows).find(x => x.week === n), mins = Math.floor((Date.parse(L.start) - nowMs()) / 60000);
+  $('view-locked').innerHTML = `<div class="wk-page">
+    <nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Breadcrumb"><a href="#" onclick="return false">Home</a><span aria-hidden="true">/</span><span>${WEEKS[n]}</span></nav>
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">Week ${n} <span class="wk-open" data-s="locked">${ic('lock', 12)}Locked</span></p><h1 class="wk-h1">${WEEKS[n]}</h1><p class="wk-purpose">${r.d}</p></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="When this week opens">
+      <div class="wk-hero-main"><p class="wk-kick">Opens ${L.opens}</p><h2 class="wk-hero-t">${L.q}</h2>
+        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg" id="lk-cal" href="#" onclick="return false">${ic('calplus', 16)}${roll(ADD_LABEL(r.sess.length))}</a><a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" id="lk-back" href="#week-0">${roll('Back to Week 0')}${ic('arrow', 16, 'wk-arrow')}</a></div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('clock')}Opens in</p><p class="sc-count">${countdown(mins)}</p></div>
+    </section>
+    <section class="aim-rise" style="--i:2" aria-labelledby="lk-h"><h2 class="wk-h2" id="lk-h">Build it live</h2>
+      <ul class="sc-list lk-list">${r.sess.map(([i, t, w]) => { const m = /^(\w+), \w+ (\d+)/.exec(w); return `<li class="sc-week lk-row"><span class="sc-date" aria-hidden="true"><small>${m[1]}</small><b>${m[2]}</b></span><div class="sc-body"><b>${t}</b><p class="sc-d">${i === 'radio' ? 'Live build' : 'Office hours'} · ${w}</p></div></li>`; }).join('')}</ul>
+    </section></div>`;
+}
+
+/* ---------- shell: nav, marker, collapse, routing ---------- */
+$('sh-main').innerHTML = NAV.map(([i, t, id]) => `<li><a class="sh-link" href="#${id || ''}"${id ? ` data-nav="${id}"` : ' onclick="return false"'}>${ic(i, 16)}<span class="sh-label">${t}</span></a></li>`).join('');
+function renderWeeksNav(){ const cur = $('sh-weeks').querySelector('[aria-current]')?.dataset.nav;
+  $('sh-weeks').innerHTML = WEEKS.map((t, i) => { const st = weekState(i), lock = isLocked(i);
+    const stat = lock ? `<span class="sh-stat" data-s="locked">${ic('lock', 12)}<span class="wk-sr">Locked</span></span>` : st.s === 'done' ? `<span class="sh-stat" data-s="done">${ic('check')}</span>` : st.s === 'progress' ? `<span class="sh-stat"><svg class="sh-ring" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5"/><circle cx="7" cy="7" r="5.5" pathLength="1" style="--v:${st.done / 8}"/></svg>${st.done} of 8</span>` : '';
+    return `<li><a class="sh-link sh-week" href="#${i === 0 || lock ? 'week-' + i : ''}"${i === 0 || lock ? ` data-nav="week-${i}"` : ' onclick="return false"'}${lock ? ' data-locked' : ''} title="Week ${i} · ${t}"><span class="sh-wn" aria-hidden="true">${i}</span><span class="sh-label">${t}</span>${stat}</a></li>`; }).join('');
+  if (cur) setCurrent(cur);
+}
+const marker = $('sh-marker'), scroller = $('sh-scroll');
+function placeMarker(){ const a = scroller.querySelector('[aria-current="page"]'); const r = a && a.offsetParent ? a.getBoundingClientRect() : null, o = scroller.getBoundingClientRect();
+  marker.style.setProperty('--y', (r ? r.top - o.top + scroller.scrollTop : 0) + 'px'); marker.style.setProperty('--h', (r ? r.height : 0) + 'px'); }
+function setCurrent(id){ document.querySelectorAll('.sh-link[data-nav]').forEach(a => a.dataset.nav === id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')); placeMarker(); }
+function route(){ const h = location.hash, t = /^#thread-(\d+)$/.exec(h), lk = /^#week-([1-8])$/.exec(h);
+  if (lk && !isLocked(+lk[1])){ location.hash = '#schedule'; return; }   /* an open week past Week 0 isn't drawn in this mockup */
+  const view = h === '#schedule' ? 'schedule' : h === '#community' ? 'community' : t ? 'thread' : lk ? 'locked' : 'week';
+  ['schedule', 'community', 'thread', 'locked', 'week'].forEach(v => $('view-' + v).hidden = v !== view); $('sh-next').hidden = view === 'schedule';   /* the Schedule page's hero already is the next session */
+  setCurrent(view === 'week' ? 'week-0' : view === 'locked' ? 'week-' + lk[1] : view === 'thread' ? 'community' : view); $('sh-here').textContent = view === 'locked' ? WEEKS[+lk[1]] : { schedule: 'Schedule', community: 'Community', thread: 'Community', week: 'Foundations' }[view];
+  $('sh-side').removeAttribute('data-open'); $('sh-menu').setAttribute('aria-expanded', 'false');
+  if (view === 'schedule') placeView(); if (view === 'community') renderCommunity(); if (view === 'thread') openThread(+t[1]); if (view === 'locked') renderLocked(+lk[1]); }
+$('sh-group').onclick = e => { const b = e.currentTarget, open = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', open); $('sh-weeks').hidden = !open; placeMarker(); };
+/* collapse and expand in motion (the timing and the two attributes are explained in the stylesheet, section 15) */
+const app = $('sh-app'), cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim(), cssMs = v => parseFloat(cssVar(v));
+const movers = () => [...app.querySelectorAll('.sh-side .sh-link>svg:first-child,.sh-wn')], rectsOf = () => movers().map(el => el.getBoundingClientRect());
+/* FLIP: each icon and week number starts where it was and travels to where the new layout puts it */
+function flip(before, dur, ease){ movers().forEach((el, i) => { el.getAnimations().forEach(a => a.cancel()); const a = before[i], b = el.getBoundingClientRect(); if (!a || !a.width || !b.width) return; const dx = a.left - b.left, dy = a.top - b.top; if (!dx && !dy) return;
+  try { el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: cssMs(dur), easing: cssVar(ease) }); } catch (err) {} }); }
+let collapseT = 0, swapT = 0;
+function setCollapsed(on){ const btn = $('sh-collapse'); clearTimeout(collapseT); clearTimeout(swapT);
+  btn.setAttribute('aria-pressed', on); btn.querySelector('.sh-label').textContent = on ? 'Expand sidebar' : 'Collapse sidebar';
+  const settle = () => { clearTimeout(collapseT); clearTimeout(swapT); if (app.dataset.narrow === 'true') app.dataset.collapsed = true; app.removeAttribute('data-anim'); placeMarker(); placeThumb(); placeView(); };
+  if (reduce() || innerWidth <= 900){ app.dataset.narrow = app.dataset.collapsed = on; return settle(); }
+  app.ontransitionend = e => { if (e.target === app && e.propertyName === 'grid-template-columns') settle(); };
+  if (on){ app.dataset.narrow = true; app.dataset.anim = 'collapsing';   /* the labels fade first; then the layout changes and the icons and numbers glide */
+    swapT = setTimeout(() => { const before = rectsOf(); app.dataset.collapsed = true; placeMarker(); flip(before, '--aim-dur-base', '--aim-ease'); }, cssMs('--aim-dur-quick'));
+    collapseT = setTimeout(settle, cssMs('--aim-dur-move') + 80);
+  } else { const before = app.dataset.collapsed === 'true' ? rectsOf() : null;
+    app.dataset.collapsed = app.dataset.narrow = false; app.dataset.anim = 'expanding'; placeMarker();
+    if (before) flip(before, '--aim-dur-move', '--aim-ease');
+    collapseT = setTimeout(settle, cssMs('--aim-dur-spring') + 80); }
+}
+$('sh-collapse').onclick = () => setCollapsed(app.dataset.narrow !== 'true');
+/* the MOCKUP bar's Logo: which lockup the open sidebar carries */
+function setLogo(k){ app.dataset.logo = k; document.querySelectorAll('.wkx-prev [data-logo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.logo === k)); placeMarker(); }
+document.querySelectorAll('.wkx-prev [data-logo]').forEach(b => b.onclick = () => setLogo(b.dataset.logo));
+$('sh-menu').onclick = e => { const open = $('sh-side').dataset.open !== 'true'; $('sh-side').dataset.open = open; e.currentTarget.setAttribute('aria-expanded', open); placeMarker(); };
+const viewSeg = $('sc-view'), viewThumb = viewSeg.querySelector('.wk-seg-thumb');
+function placeView(){ const b = viewSeg.querySelector('[aria-current="true"]'); viewThumb.style.setProperty('--x', b.offsetLeft + 'px'); viewThumb.style.setProperty('--w', b.offsetWidth + 'px'); }
+new ResizeObserver(() => { placeMarker(); placeView(); }).observe(scroller); new ResizeObserver(placeView).observe(viewSeg);
+addEventListener('hashchange', () => { route(); scrollTo(0, 0); });
+
+shownN = view().doneN; setPreview(preview); renderNext();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { placeMarker(); placeView(); requestAnimationFrame(() => requestAnimationFrame(() => { marker.classList.add('live'); viewThumb.classList.add('live'); })); });
+
+/* ---------- forms: a drawer (brand 05) with the form inside. Answers save as you go (700 ms after the last keystroke, at once
+   for a choice); Submit checks the required answers; Download PDF. In the LMS, save and submit go to the API (HANDOFF.md). ---------- */
+const FORM = {"id": "intake", "ui": {"title": "Week 0 Intake", "kicker": "Week 0 · Step 1 · Owner and operator", "sub": "Your answers save as you go, for your whole team.", "submitLabel": "Submit intake", "submittedTitle": "Intake submitted.", "submittedText": "Your answers are with the Amplified Impact team. Change anything here and it saves the same way.", "optional": "Optional", "needText": "Add an answer.", "needChoice": "Pick one."}, "intake": {"intro": "The goal of this intake is that we know your team before we build anything with you. Your answers tell us which AI you're on, what your data lives in, and who sets everything up. That way your operator gets the right setup path, and we can spot anything that needs another route before the live builds start on Wednesday, December 2. Short answers are fine. If you're not sure of something, say so and skip it.", "sections": [{"title": "You and Your Team", "questions": [{"id": "name", "label": "Your name and email.", "kind": "short", "required": true}, {"id": "team", "label": "Your team's name and brokerage.", "kind": "short", "required": true}, {"id": "size", "label": "Team size (how many agents and staff today).", "kind": "short"}, {"id": "lead-desk", "label": "Who leads your lead desk?", "help": "Write \"me\" if it is you.", "kind": "short"}, {"id": "cadence", "label": "Your weekly meeting cadence (meetings, day and time, who runs each).", "kind": "long"}, {"id": "one-on-ones", "label": "Do you hold 1:1s with your agents?", "help": "If yes, who runs them and how often.", "kind": "long"}]}, {"title": "Your Operator", "questions": [{"id": "operator", "label": "Who is your operator?", "help": "Name, email and role, or \"I'm both.\"", "kind": "choice", "options": ["I'm both", "A teammate"], "required": true}, {"id": "operator-name", "label": "Their name and email.", "help": "Skip this if you chose I'm both.", "kind": "short"}, {"id": "invited", "label": "Have you invited them in the portal yet?", "kind": "choice", "options": ["Yes", "Not yet"]}]}, {"title": "Your AI", "questions": [{"id": "ai", "label": "Which AI will your team use for the course?", "kind": "choice", "options": ["Claude", "ChatGPT"], "required": true}, {"id": "plan", "label": "Which plan are you on, or will you be on by Monday, November 30?", "kind": "choice", "options": ["Claude Pro", "Claude Max", "Claude Team", "ChatGPT Plus", "ChatGPT Pro", "ChatGPT Business", "Not on a paid plan yet"], "required": true}, {"id": "account", "label": "Whose AI account runs your hires?", "kind": "choice", "options": ["The operator's account (our default)", "The owner's account", "Another teammate's account"]}, {"id": "chatgpt-admin", "label": "On ChatGPT only: does that person have admin access to your ChatGPT workspace?", "kind": "choice", "options": ["Yes", "No", "Not on ChatGPT"]}]}, {"title": "Your Stack", "questions": [{"id": "books", "label": "Your accounting system.", "kind": "choice", "options": ["QuickBooks Online", "QuickBooks Desktop", "Xero", "My bookkeeper has it", "Something else"]}, {"id": "books-close", "label": "Who owns your accounting and reports, and what day do your books usually close each month?", "kind": "long"}, {"id": "sisu", "label": "Do you use Sisu?", "help": "If yes, what access does the person running your hires have: admin, TC or agent?", "kind": "long"}, {"id": "crm", "label": "Your CRM.", "help": "Follow Up Boss, KW Command, Brivity, GoHighLevel, or something else. Can you export a speed-to-lead report from it?", "kind": "long"}, {"id": "google", "label": "Email, calendar and files: is your team on Google Workspace?", "kind": "choice", "options": ["Yes", "No"], "required": true}, {"id": "google-other", "label": "If you are not on Google, what do you use?", "kind": "short"}, {"id": "tasks", "label": "Where your tasks live.", "kind": "long"}]}, {"title": "Anything We Should Know", "questions": [{"id": "problems", "label": "Three recurring problems you'd like off your plate.", "kind": "long"}, {"id": "access", "label": "Known access restrictions.", "kind": "long"}]}]}};
+const FORM_SAMPLES = {"new": {"status": "new", "answers": {}}, "draft": {"status": "draft", "savedLabel": "Saved Thu 4:02 PM", "answers": {"name": "Alex Morgan, alex@northlinerealty.example", "team": "Northline Realty, an independent brokerage", "size": "9 agents, 3 staff", "lead-desk": "me", "cadence": "Monday 9:00 AM team meeting, I run it. Thursday 2:00 PM pipeline review, our operations lead runs it.", "operator": "A teammate", "operator-name": "Our operations lead, ops@northlinerealty.example", "ai": "Claude", "books": "QuickBooks Online"}}, "submitted": {"status": "submitted", "savedLabel": "Submitted Nov 19, 4:02 PM", "submittedShort": "Nov 19", "answers": {"name": "Alex Morgan, alex@northlinerealty.example", "team": "Northline Realty, an independent brokerage", "size": "9 agents, 3 staff", "lead-desk": "me", "cadence": "Monday 9:00 AM team meeting, I run it. Thursday 2:00 PM pipeline review, our operations lead runs it.", "one-on-ones": "Yes. I run them every other week.", "operator": "A teammate", "operator-name": "Our operations lead, ops@northlinerealty.example", "invited": "Not yet", "ai": "Claude", "plan": "Claude Team", "account": "The operator's account (our default)", "chatgpt-admin": "Not on ChatGPT", "books": "QuickBooks Online", "books-close": "Our bookkeeper owns them. The books close on the 5th.", "sisu": "Yes. Our operations lead has admin access.", "crm": "Follow Up Boss. Yes, we can export speed to lead.", "google": "Yes", "tasks": "Asana, and too many sticky notes.", "problems": "Stale leads nobody follows up. Monthly numbers built by hand. Contract deadlines that slip.", "access": "Our brokerage limits API access to the transaction system."}}};
+const UI = FORM.ui, FIELDS = FORM.intake.sections.flatMap(x => x.questions);   /* FORM.intake is the LMS's CourseIntake, plus `required` */
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const has = v => Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== '';
+const stamp = o => new Date().toLocaleString('en-US', o);
+const mark = (z, c = '') => `<svg class="aim-mark${c}" width="${z}" height="${z}" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle class="aim-mark__ring" cx="11" cy="11" r="9.5" pathLength="1"/><circle class="aim-mark__dot" cx="11" cy="11" r="4"/></svg>`;
+const picks = f => f.kind === 'choice' || f.kind === 'multi';
+let fm = null, fmEl = null, fmBefore = null, fmSaveT = 0, fmBusyT = 0, fmPending = false;
+const fmCount = () => FIELDS.filter(f => has(fm.answers[f.id])).length;
+function setForm(k){ closeForm(true); const x = FORM_SAMPLES[k];
+  fm = { status: x.status, answers: JSON.parse(JSON.stringify(x.answers)), saved: x.savedLabel || '', short: x.submittedShort || '', errors: {}, save: x.savedLabel ? 'saved' : 'idle', submit: 'idle', pdf: 'idle' };
+  document.querySelectorAll('[data-form]').forEach(b => b.setAttribute('aria-pressed', b.dataset.form === k)); renderFormRow(); }
+function renderFormRow(){ const row = document.querySelector('[data-form-row]'), n = fmCount();
+  row.querySelector('small').textContent = 'Step 1 · ' + (fm.status === 'submitted' ? `Submitted ${fm.short}` : n ? `${n} of ${FIELDS.length} answered` : `${FIELDS.length} questions`);
+  row.querySelectorAll('.aim-roll > span').forEach(x => x.textContent = fm.status === 'submitted' ? 'View' : n ? 'Continue' : 'Fill in'); }
+function fieldHtml(f){ const v = fm.answers[f.id], id = 'fm-' + f.id;
+  const opt = f.required ? '' : `<span class="fm-opt">${UI.optional}</span>`, hint = f.help ? `<p class="fm-hint" id="${id}-hint">${esc(f.help)}</p>` : '';
+  if (picks(f)){ const multi = f.kind === 'multi';
+    return `<div class="fm-field" data-field="${f.id}" data-kind="${f.kind}" role="${multi ? 'group' : 'radiogroup'}" aria-labelledby="${id}-l"><p class="fm-label" id="${id}-l">${esc(f.label)}${opt}</p>${hint}<div class="fm-opts">${f.options.map(o => `<label class="fm-chip"><input type="${multi ? 'checkbox' : 'radio'}" name="${f.id}" value="${esc(o)}"${(multi ? (v || []).includes(o) : v === o) ? ' checked' : ''}>${multi ? ic('plus') + ic('check') : ''}${esc(o)}</label>`).join('')}</div></div>`; }
+  const at = `class="fm-input" id="${id}" name="${f.id}"${f.help ? ` aria-describedby="${id}-hint"` : ''}`;
+  return `<div class="fm-field" data-field="${f.id}" data-kind="${f.kind}"><label class="fm-label" for="${id}">${esc(f.label)}${opt}</label>${hint}${f.kind === 'long' ? `<textarea ${at} rows="3">${esc(v || '')}</textarea>` : `<input ${at} type="text" value="${esc(v || '')}">`}</div>`; }
+function footHtml(){ const done = fm.status === 'submitted' && fm.submit === 'idle';
+  return (done ? `<button class="wk-btn wk-btn-primary fm-done" type="button">${roll('Done')}</button>`
+    : `<button class="wk-btn wk-btn-primary aim-async fm-submit" type="button" data-state="${fm.submit}"><span class="aim-async__label">${roll(UI.submitLabel)}</span><span class="aim-sweep" aria-hidden="true"></span><span class="aim-async__done">${mark(22)}Submitted</span></button>`)
+    + `<button class="wk-btn wk-btn-secondary aim-async fm-pdf" type="button" data-state="${fm.pdf}"><span class="aim-async__label">${ic('down')}${roll('Download PDF')}</span><span class="aim-sweep" aria-hidden="true"></span><span class="aim-async__done">${mark(22)}Downloaded</span></button><p class="fm-note" role="alert"></p>`; }
+const bannerHtml = () => `<div class="fm-banner aim-rise">${mark(22, ' aim-mark--play')}<div><b>${UI.submittedTitle}</b><p>${UI.submittedText}</p></div></div>`;
+function setMeter(){ const n = fmCount(); fmEl.querySelector('.sc-bar').style.setProperty('--v', n / FIELDS.length); fmEl.querySelector('.fm-count').textContent = `${n} of ${FIELDS.length} answered`; }
+function setSave(st){ fm.save = st; if (!fmEl) return;
+  fmEl.querySelector('.fm-save').innerHTML = st === 'saving' ? '<span class="aim-sweep" aria-hidden="true"></span>Saving' : st === 'saved' ? ic('check') + fm.saved : ''; }
+function setFoot(){ const foot = fmEl.querySelector('.fm-foot'), note = foot.querySelector('.fm-note').textContent; foot.innerHTML = footHtml(); foot.querySelector('.fm-note').textContent = note;
+  foot.querySelector('.fm-done')?.addEventListener('click', () => closeForm()); foot.querySelector('.fm-submit')?.addEventListener('click', submitForm); foot.querySelector('.fm-pdf').addEventListener('click', downloadPdf); }
+function setNote(){ const n = Object.keys(fm.errors).length; fmEl.querySelector('.fm-note').textContent = n ? `${n} answer${n > 1 ? 's' : ''} still needed` : ''; }
+function setFieldState(f){ const el = fmEl.querySelector(`[data-field="${f.id}"]`), err = fm.errors[f.id];
+  err ? el.dataset.state = 'error' : el.removeAttribute('data-state'); el.querySelector('.fm-msg')?.remove();
+  if (err) el.insertAdjacentHTML('beforeend', `<p class="fm-msg" id="fm-${f.id}-msg">${picks(f) ? UI.needChoice : UI.needText}</p>`); }
+function saveForm(){ fmPending = false; setSave('saving'); clearTimeout(fmBusyT);
+  fmBusyT = setTimeout(() => { if (fm.status === 'new') fm.status = 'draft'; fm.saved = 'Saved ' + stamp({ hour: 'numeric', minute: '2-digit' }); setSave('saved'); renderFormRow(); }, 450); }
+function touchForm(f, now){ if (fm.errors[f.id]){ delete fm.errors[f.id]; setNote(); } setFieldState(f); setMeter(); fmPending = true; clearTimeout(fmSaveT); fmSaveT = setTimeout(saveForm, now ? 0 : 700); }
+function submitForm(){ if (fm.submit === 'busy' || fm.submit === 'done') return;
+  fm.errors = {}; FIELDS.forEach(f => { if (f.required && !has(fm.answers[f.id])) fm.errors[f.id] = 1; });
+  FIELDS.forEach(setFieldState); setNote();
+  const btn = fmEl.querySelector('.fm-submit'), bad = FIELDS.find(f => fm.errors[f.id]);
+  if (bad){ fm.submit = 'error'; btn.dataset.state = 'idle'; void btn.offsetWidth; btn.dataset.state = 'error'; fmEl.querySelector(`[data-field="${bad.id}"] :is(input,textarea)`).focus(); return; }
+  clearTimeout(fmSaveT); clearTimeout(fmBusyT); fmPending = false; fm.submit = 'busy'; btn.dataset.state = 'busy'; btn.setAttribute('aria-busy', 'true');
+  setTimeout(() => { fm.status = 'submitted'; fm.submit = 'done'; fm.saved = 'Submitted ' + stamp({ month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); fm.short = stamp({ month: 'short', day: 'numeric' });
+    renderFormRow(); if (!fmEl) { fm.submit = 'idle'; return; }
+    btn.dataset.state = 'done'; btn.removeAttribute('aria-busy'); setSave('saved');
+    const body = fmEl.querySelector('.fm-body'); body.insertAdjacentHTML('afterbegin', bannerHtml()); body.scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' });
+    setTimeout(() => { fm.submit = 'idle'; if (fmEl) setFoot(); }, 1400); }, 900); }
+function downloadPdf(){ if (fm.pdf !== 'idle') return; const set = st => { fm.pdf = st; const b = fmEl?.querySelector('.fm-pdf'); if (b) b.dataset.state = st; };
+  set('busy'); setTimeout(() => { set('done'); setTimeout(() => set('idle'), 1600); }, 900); }   /* the LMS downloads the PDF here; a mockup can't */
+function openForm(){ if (fmEl) return; fmBefore = document.activeElement; fm.errors = {};
+  $('fm-host').innerHTML = `<div class="aim-drawer fm-drawer" data-state="open"><div class="aim-drawer__scrim"></div><aside class="aim-drawer__panel" role="dialog" aria-modal="true" aria-label="${UI.title}" tabindex="-1">
+    <header class="fm-head aim-in" style="--i:0"><div><p class="fm-kick">${UI.kicker}</p><h2 class="fm-title">${UI.title}</h2><p class="fm-sub">${UI.sub}</p></div><button class="fm-close" type="button">Close</button>
+      <div class="fm-meter"><span class="sc-bar"></span><span class="fm-count"></span><span class="fm-save" role="status"></span></div></header>
+    <form class="fm-body" novalidate>${fm.status === 'submitted' ? bannerHtml() : ''}${FORM.intake.intro ? `<p class="fm-intro aim-in" style="--i:1">${esc(FORM.intake.intro)}</p>` : ''}${FORM.intake.sections.map((x, i) => `<section class="fm-sec aim-in" style="--i:${i + 2}"><div class="fm-sec-h"><h3 class="fm-sec-t"><span class="fm-no">${String(i + 1).padStart(2, '0')}</span>${esc(x.title)}</h3>${x.intro ? `<p class="fm-sec-d">${esc(x.intro)}</p>` : ''}</div>${x.questions.map(fieldHtml).join('')}</section>`).join('')}</form>
+    <footer class="fm-foot aim-in" style="--i:${FORM.intake.sections.length + 2}"><p class="fm-note" role="alert"></p></footer></aside></div>`;
+  fmEl = $('fm-host').firstChild; $('fm-host').dataset.drawer = 'open'; const panel = fmEl.querySelector('.aim-drawer__panel');
+  setMeter(); setSave(fm.save); setFoot(); panel.focus();
+  fmEl.querySelector('.aim-drawer__scrim').onclick = () => closeForm(); fmEl.querySelector('.fm-close').onclick = () => closeForm();
+  fmEl.querySelector('.fm-body').addEventListener('submit', e => e.preventDefault());
+  fmEl.querySelector('.fm-body').addEventListener('input', e => { const f = FIELDS.find(x => x.id === e.target.name); if (!f) return;
+    fm.answers[f.id] = f.kind === 'multi' ? [...fmEl.querySelectorAll(`[name="${f.id}"]:checked`)].map(x => x.value) : e.target.value;
+    touchForm(f, picks(f)); }); }
+function closeForm(now){ if (!fmEl) return; const el = fmEl; fmEl = null; if (fmPending){ clearTimeout(fmSaveT); fmPending = false; if (fm.status === 'new') fm.status = 'draft'; renderFormRow(); }
+  $('fm-host').removeAttribute('data-drawer'); el.dataset.state = 'closing'; setTimeout(() => el.remove(), now || reduce() ? 0 : 200); fmBefore?.focus?.(); }
+document.addEventListener('keydown', e => { if (!fmEl) return; if (e.key === 'Escape') return closeForm(); if (e.key !== 'Tab') return;
+  const panel = fmEl.querySelector('.aim-drawer__panel'), items = [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)){ e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } });
+document.querySelector('[data-act="form"]').onclick = openForm;
+document.querySelectorAll('[data-form]').forEach(b => b.onclick = () => setForm(b.dataset.form));
+setForm('draft');
+
+/* ---------- a drawer for Start a thread and Turn in (brand 05; the form drawer above has its own copy of this) ---------- */
+let dw = null;
+function openDrawer(hostId, cls, label, html){ closeDrawer(true); const host = $(hostId), before = document.activeElement;
+  host.innerHTML = `<div class="aim-drawer fm-drawer ${cls}" data-state="open"><div class="aim-drawer__scrim"></div><aside class="aim-drawer__panel" role="dialog" aria-modal="true" aria-label="${label}" tabindex="-1">${html}</aside></div>`;
+  host.dataset.drawer = 'open'; const el = host.firstChild; dw = { host, el, before };
+  el.querySelector('.aim-drawer__scrim').onclick = () => closeDrawer(); el.querySelector('.aim-drawer__panel').focus(); return el; }
+function drawerHtml(hostId, cls, label, html){ if (!dw || dw.host !== $(hostId)) return openDrawer(hostId, cls, label, html); const panel = dw.el.querySelector('.aim-drawer__panel'); panel.innerHTML = html; panel.setAttribute('aria-label', label); panel.focus(); return dw.el; }
+function closeDrawer(now){ if (!dw) return; const { host, el, before } = dw; dw = null; host.removeAttribute('data-drawer'); el.dataset.state = 'closing'; setTimeout(() => el.remove(), now || reduce() ? 0 : 200); before?.focus?.(); }
+document.addEventListener('keydown', e => { if (!dw) return; if (e.key === 'Escape') return closeDrawer(); if (e.key !== 'Tab') return;
+  const panel = dw.el.querySelector('.aim-drawer__panel'), items = [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)){ e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } });
+const asyncBtn = (cls, label, done, icon = '') => `<button class="wk-btn ${cls} aim-async" type="button" data-state="idle"><span class="aim-async__label">${icon}${roll(label)}</span><span class="aim-sweep" aria-hidden="true"></span><span class="aim-async__done">${mark(22)}${done}</span></button>`;
+const fieldErr = (el, msg) => { el.querySelector('.fm-msg')?.remove(); if (msg){ el.dataset.state = 'idle'; void el.offsetWidth; el.dataset.state = 'error'; el.insertAdjacentHTML('beforeend', `<p class="fm-msg">${msg}</p>`); } else el.removeAttribute('data-state'); };
+
+/* ---------- community: threads in spaces. In the LMS: GET/POST /api/community (HANDOFF.md). Nothing is emailed. ---------- */
+const CM = {"ui": {"title": "Community", "lede": "Ask the cohort, share a win, follow up on a live read. Everyone in your cohort can read what you write here.", "all": "All", "spaces": "Spaces", "pinned": "Pinned", "hidden": "Hidden", "staff": "Staff", "threads": "Threads", "newest": "Newest activity first", "none": "No threads here yet. Start one.", "start": "Start a thread", "space": "Space", "threadTitle": "Title", "titleHint": "One line: what you need.", "details": "Details", "detailsHint": "The number, what you tried, and where you’re stuck.", "cohortReads": "Everyone in your cohort reads this. Leave out client names, and any number you wouldn’t show another team.", "postThread": "Post thread", "posted": "Posted", "postingAs": "Posting as", "how": "How this works", "howLines": ["Ask before office hours. Your question may already have an answer here.", "Say the number, what you tried and where you’re stuck.", "Reports for a live read go through Turn in on the step that asks for them, not here.", "Nothing here is emailed. Come back to check for replies."], "back": "Community", "reply": "Reply", "replyHint": "Add what you know, or what you tried.", "replyReads": "Everyone in your cohort reads this.", "postReply": "Post reply", "edit": "Edit", "save": "Save", "cancel": "Cancel", "delete": "Delete", "deleteThread": "Delete this thread and its replies?", "deleteReply": "Delete this reply?", "edited": "edited", "about": "About this thread", "startedBy": "Started by", "lastReply": "Last reply", "noReplies": "No replies yet", "staffOnly": "Staff only", "staffSee": "Connor and staff see this", "pin": "Pin thread", "unpin": "Unpin thread", "hide": "Hide", "show": "Show", "hideThread": "Hide thread", "showThread": "Show thread", "needSpace": "Pick a space for your thread.", "needTitle": "Give your thread a title.", "needDetails": "Add the details: the number, what you tried, and where you’re stuck.", "needReply": "Write a reply first.", "justNow": "Just now"}, "people": {"am": {"name": "Alex Morgan", "team": "Northline Realty", "initials": "AM"}, "dw": {"name": "Dana Whitlock", "team": "Sample Team", "initials": "DW"}, "cl": {"name": "Connor Leiva", "team": "Amplified Impact", "initials": "CL", "staff": true}}, "spaces": [{"id": "general", "label": "General"}, {"id": "week-0", "label": "Week 0 · Foundations"}, {"id": "wins", "label": "Wins"}], "threads": [{"id": 1, "space": "general", "title": "Start here: how to ask so the cohort can help", "pinned": true, "activity": "2 days ago", "posts": [{"id": 11, "by": "cl", "when": "Wed, Nov 18 · 9:00 AM CT", "body": "Say the number, what you tried and where you’re stuck.\n\nKeep it to one question a thread, so the next team can find it."}]}, {"id": 2, "space": "week-0", "title": "Our bookkeeper keeps the QuickBooks login. Can the operator still connect the books?", "activity": "3 hr ago", "posts": [{"id": 21, "by": "dw", "when": "Thu, Nov 19 · 4:10 PM CT", "body": "Step 6 asks us to connect the books. Our bookkeeper keeps the login and won’t share it.\n\nIs an export enough for now?"}, {"id": 22, "by": "cl", "when": "Thu, Nov 19 · 5:02 PM CT", "body": "Yes. An export is the yellow route on your stack card.\n\nPut your bookkeeper on the card as the person who has it, and send the card back."}, {"id": 23, "by": "am", "when": "Fri, Nov 20 · 12:20 PM CT", "body": "Same here. We asked ours for an export each month and that was fine."}]}, {"id": 3, "space": "week-0", "title": "Ready Check is green on Claude. Do we run it on ChatGPT too?", "activity": "5 hr ago", "posts": [{"id": 31, "by": "am", "when": "Fri, Nov 20 · 10:05 AM CT", "body": "We picked Claude for the course. One teammate still uses ChatGPT for other work.\n\nDo we need the Ready Check on both?"}]}, {"id": 4, "space": "wins", "title": "Win: the test hire ran with nobody at the keyboard", "activity": "1 day ago", "posts": [{"id": 41, "by": "dw", "when": "Thu, Nov 19 · 8:15 AM CT", "body": "Step 8 is done. It ran on its own this morning."}]}, {"id": 5, "space": "general", "title": "Test post, please ignore", "hidden": true, "activity": "2 days ago", "posts": [{"id": 51, "by": "dw", "when": "Wed, Nov 18 · 2:30 PM CT", "body": "Checking that this works."}]}]};
+const CU = CM.ui, PEOPLE = CM.people;
+let cmMe = 'am', cmSpace = 'all', cmNext = 100, cmOpen = null, cmEdit = null, cmAsk = null;
+const isStaff = () => !!PEOPLE[cmMe].staff;
+const spaceName = id => CM.spaces.find(x => x.id === id).label;
+const repliesText = n => n === 0 ? CU.noReplies : n === 1 ? '1 reply' : `${n} replies`;
+const shown = t => isStaff() ? t.posts.slice(1) : t.posts.slice(1).filter(x => !x.hidden);
+const avatar = id => `<span class="wk-av cm-av"${PEOPLE[id].staff ? ' data-staff' : ''} aria-hidden="true">${PEOPLE[id].initials}</span>`;
+const paras = b => esc(b).split(/\n{2,}/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('');
+function renderCommunity(){
+  $('cm-spaces').innerHTML = [{ id: 'all', label: CU.all }, ...CM.spaces].map(x => `<label class="fm-chip"><input type="radio" name="cm-space" value="${x.id}"${x.id === cmSpace ? ' checked' : ''}>${x.label}</label>`).join('');
+  const list = CM.threads.filter(t => (isStaff() || !t.hidden) && (cmSpace === 'all' || t.space === cmSpace));
+  const row = t => { const a = PEOPLE[t.posts[0].by]; return `<li class="cm-row"${t.hidden ? ' data-hidden' : ''} data-thread="${t.id}">${avatar(t.posts[0].by)}
+    <div><div class="cm-row-t"><a class="cm-a" href="#thread-${t.id}">${esc(t.title)}</a>${t.pinned ? `<span class="wk-st" data-s="progress">${ic('pin')}${CU.pinned}</span>` : ''}${t.hidden ? `<span class="wk-st" data-s="waiting">${CU.hidden}</span>` : ''}</div>
+      <p class="cm-meta">${a.name} · ${a.staff ? CU.staff : a.team} · ${spaceName(t.space)}</p><p class="cm-ex">${esc(t.posts[0].body.replace(/\s+/g, ' '))}</p></div>
+    <div class="cm-act">${repliesText(shown(t).length)} · ${t.activity}${ic('right', 20, 'wk-chev wk-arrow')}</div></li>`; };
+  const pinned = list.filter(t => t.pinned), rest = list.filter(t => !t.pinned);
+  $('cm-list').innerHTML = (pinned.length ? `<div><h2 class="sc-month">${CU.pinned}</h2><ol class="sc-list">${pinned.map(row).join('')}</ol></div>` : '')
+    + `<div><h2 class="sc-month">${CU.threads}<small>${CU.newest}</small></h2>${rest.length ? `<ol class="sc-list">${rest.map(row).join('')}</ol>` : `<div class="sc-list cm-empty">${CU.none}</div>`}</div>`; }
+$('cm-spaces').addEventListener('change', e => { cmSpace = e.target.value; renderCommunity(); });
+
+function postHtml(t, x, first){ const a = PEOPLE[x.by], mine = x.by === cmMe, staff = isStaff();
+  const acts = cmAsk === x.id ? `<span>${first ? CU.deleteThread : CU.deleteReply}</span><button class="wk-btn wk-btn-secondary wk-btn-sm" type="button" data-do="delete-yes">${roll(CU.delete)}</button><button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-do="cancel">${roll(CU.cancel)}</button>`
+    : [mine ? ['edit', CU.edit] : null, mine || staff ? ['delete', CU.delete] : null, staff && !first ? ['hide', x.hidden ? CU.show : CU.hide] : null].filter(Boolean).map(([d, l]) => `<button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-do="${d}">${roll(l)}</button>`).join('');
+  return `<article class="cm-post${x.fresh ? ' aim-rise' : ''}" data-post="${x.id}"${x.hidden ? ' data-hidden' : ''}>
+    <div class="cm-by">${avatar(x.by)}<span>${a.name}${a.staff ? `<span class="wk-chip wk-chip-hi">${CU.staff}</span>` : ''}${x.hidden ? `<span class="wk-chip">${CU.hidden}</span>` : ''}<small>${a.team} · ${x.when}${x.edited ? ` · ${CU.edited}` : ''}</small></span></div>
+    ${cmEdit === x.id ? `<div class="cm-edit fm-field"><textarea class="fm-input" rows="4" aria-label="${CU.edit}">${esc(x.body)}</textarea><div><button class="wk-btn wk-btn-primary wk-btn-sm" type="button" data-do="save">${roll(CU.save)}</button><button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-do="cancel">${roll(CU.cancel)}</button></div></div>`
+      : `<div class="cm-body">${paras(x.body)}</div>${acts ? `<div class="cm-acts">${acts}</div>` : ''}`}</article>`; }
+function drawThread(){ const t = cmOpen, rs = shown(t), last = rs[rs.length - 1], a = PEOPLE[t.posts[0].by];
+  $('cm-tags').innerHTML = (t.pinned ? `<span class="wk-st" data-s="progress">${ic('pin')}${CU.pinned}</span>` : '') + (t.hidden ? `<span class="wk-st" data-s="waiting">${CU.hidden}</span>` : '');
+  $('cm-first').innerHTML = postHtml(t, t.posts[0], true);
+  $('cm-replies').hidden = !rs.length; $('cm-replies').innerHTML = rs.length ? `<div class="wk-card-h"><h2 class="wk-h3">${repliesText(rs.length)}</h2></div>${rs.map(x => postHtml(t, x, false)).join('')}` : '';
+  $('cm-about').innerHTML = `<p><b>${CU.space}</b> · ${spaceName(t.space)}</p><p><b>${CU.startedBy}</b> · ${a.name}, ${a.staff ? CU.staff : a.team}</p><p><b>${CU.lastReply}</b> · ${last ? last.when : CU.noReplies}</p>`;
+  $('cm-staffcard').hidden = !isStaff(); $('cm-staff').innerHTML = `<button class="wk-btn wk-btn-secondary wk-btn-sm" type="button" data-do="pin">${ic('pin')}${roll(t.pinned ? CU.unpin : CU.pin)}</button><button class="wk-btn wk-btn-secondary wk-btn-sm" type="button" data-do="hide-thread">${roll(t.hidden ? CU.showThread : CU.hideThread)}</button>`;
+  t.posts.forEach(x => delete x.fresh); }
+function openThread(id){ const t = CM.threads.find(x => x.id === id && (isStaff() || !x.hidden)); if (!t){ location.hash = '#community'; return; }
+  cmOpen = t; cmEdit = cmAsk = null;
+  $('view-thread').innerHTML = `<div class="wk-page">
+    <nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Back"><a href="#community">${CU.back}</a><span aria-hidden="true">/</span><span>${spaceName(t.space)}</span></nav>
+    <header class="cm-thead aim-rise" style="--i:0"><h1 class="cm-h1" id="cm-title">${esc(t.title)}</h1><div class="cm-tags" id="cm-tags"></div></header>
+    <div class="cm-layout">
+      <div class="cm-main">
+        <section class="wk-card aim-rise" style="--i:1" id="cm-first"></section>
+        <section class="wk-card aim-rise" style="--i:2" id="cm-replies"></section>
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="cm-reply-h"><div class="wk-card-h"><h2 class="wk-h3" id="cm-reply-h">${CU.reply}</h2></div>
+          <div class="cm-reply fm-field" id="cm-replybox"><textarea class="fm-input" rows="3" placeholder="${CU.replyHint}" aria-labelledby="cm-reply-h"></textarea>
+            <div class="cm-reply-f"><span>${CU.replyReads}</span>${asyncBtn('wk-btn-primary', CU.postReply, CU.posted)}</div></div></section>
+      </div>
+      <aside class="cm-rail aim-rise" style="--i:2">
+        <section class="wk-card"><div class="wk-card-h"><h2 class="wk-h3">${CU.about}</h2></div><div class="cm-kv" id="cm-about"></div></section>
+        <section class="wk-card" id="cm-staffcard"><div class="wk-card-h"><h2 class="wk-h3">${CU.staffOnly}</h2><small>${CU.staffSee}</small></div><div class="cm-staff" id="cm-staff"></div></section>
+      </aside>
+    </div></div>`;
+  drawThread(); }
+$('view-thread').addEventListener('click', e => { const b = e.target.closest('[data-do]'), t = cmOpen; if (!b) return; const pe = b.closest('[data-post]'), x = pe && t.posts.find(y => y.id === +pe.dataset.post), d = b.dataset.do;
+  if (d === 'pin'){ t.pinned = !t.pinned; return drawThread(); } if (d === 'hide-thread'){ t.hidden = !t.hidden; return drawThread(); }
+  if (d === 'edit'){ cmEdit = x.id; cmAsk = null; drawThread(); return $('view-thread').querySelector('.cm-edit textarea').focus(); }
+  if (d === 'cancel'){ cmEdit = cmAsk = null; return drawThread(); }
+  if (d === 'save'){ const v = pe.querySelector('textarea').value.trim(); if (!v) return; x.body = v; x.edited = true; cmEdit = null; return drawThread(); }
+  if (d === 'delete'){ cmAsk = x.id; cmEdit = null; return drawThread(); }
+  if (d === 'hide'){ x.hidden = !x.hidden; return drawThread(); }
+  if (d === 'delete-yes'){ cmAsk = null; if (x === t.posts[0]){ CM.threads.splice(CM.threads.indexOf(t), 1); location.hash = '#community'; return; } t.posts.splice(t.posts.indexOf(x), 1); return drawThread(); } });
+$('view-thread').addEventListener('click', e => { const b = e.target.closest('#cm-replybox .aim-async'); if (!b || b.dataset.state === 'busy') return; const box = $('cm-replybox'), ta = box.querySelector('textarea'), v = ta.value.trim(), t = cmOpen;
+  if (!v){ fieldErr(box, CU.needReply); return ta.focus(); } fieldErr(box, ''); b.dataset.state = 'busy';
+  setTimeout(() => { t.posts.push({ id: cmNext++, by: cmMe, when: CU.justNow, body: v, fresh: true }); t.activity = CU.justNow.toLowerCase(); CM.threads.splice(CM.threads.indexOf(t), 1); CM.threads.unshift(t); ta.value = ''; b.dataset.state = 'idle'; if (cmOpen === t) drawThread(); }, 600); });
+$('view-thread').addEventListener('input', e => { if (e.target.closest('#cm-replybox')) fieldErr($('cm-replybox'), ''); });
+
+function startThread(){ const me = PEOPLE[cmMe]; let sp = cmSpace === 'all' ? '' : cmSpace;
+  const el = openDrawer('cm-host', 'cm-drawer', CU.start, `<header class="fm-head aim-in" style="--i:0"><div><p class="fm-kick">${CU.title}</p><h2 class="fm-title">${CU.start}</h2><p class="fm-sub">${CU.cohortReads}</p></div><button class="fm-close" type="button">Close</button></header>
+    <form class="fm-body" novalidate><section class="fm-sec aim-in" style="--i:1">
+      <div class="fm-field" data-field="space" role="radiogroup" aria-labelledby="cm-f-space"><p class="fm-label" id="cm-f-space">${CU.space}</p><div class="fm-opts">${CM.spaces.map(x => `<label class="fm-chip"><input type="radio" name="cm-new-space" value="${x.id}"${x.id === sp ? ' checked' : ''}>${x.label}</label>`).join('')}</div></div>
+      <div class="fm-field" data-field="title"><label class="fm-label" for="cm-f-title">${CU.threadTitle}</label><p class="fm-hint">${CU.titleHint}</p><input class="fm-input" id="cm-f-title" type="text" maxlength="140"></div>
+      <div class="fm-field" data-field="details"><label class="fm-label" for="cm-f-details">${CU.details}</label><p class="fm-hint">${CU.detailsHint}</p><textarea class="fm-input" id="cm-f-details" rows="6" maxlength="4000"></textarea></div>
+    </section></form>
+    <footer class="fm-foot aim-in" style="--i:2"><p class="cm-as">${CU.postingAs} ${me.name} · ${me.staff ? CU.staff : me.team}</p>${asyncBtn('wk-btn-primary', CU.postThread, CU.posted)}</footer>`);
+  const f = n => el.querySelector(`[data-field="${n}"]`), btn = el.querySelector('.fm-foot .aim-async');
+  el.querySelector('.fm-close').onclick = () => closeDrawer(); el.querySelector('.fm-body').addEventListener('submit', e => e.preventDefault());
+  el.querySelector('.fm-body').addEventListener('input', e => { const fe = e.target.closest('.fm-field'); if (fe?.dataset.state) fieldErr(fe, ''); });
+  btn.onclick = () => { if (btn.dataset.state === 'busy' || btn.dataset.state === 'done') return;
+    sp = el.querySelector('[name="cm-new-space"]:checked')?.value || ''; const title = $('cm-f-title').value.replace(/\s+/g, ' ').trim(), body = $('cm-f-details').value.trim();
+    const bad = [['space', !sp && CU.needSpace], ['title', title.length < 3 && CU.needTitle], ['details', !body && CU.needDetails]]; bad.forEach(([n, m]) => fieldErr(f(n), m || ''));
+    const first = bad.find(([, m]) => m); if (first){ btn.dataset.state = 'idle'; void btn.offsetWidth; btn.dataset.state = 'error'; return f(first[0]).querySelector('input,textarea').focus(); }
+    btn.dataset.state = 'busy';
+    setTimeout(() => { const id = cmNext++; CM.threads.unshift({ id, space: sp, title, activity: CU.justNow.toLowerCase(), posts: [{ id: cmNext++, by: cmMe, when: CU.justNow, body }] }); btn.dataset.state = 'done';
+      setTimeout(() => { closeDrawer(); location.hash = '#thread-' + id; }, 700); }, 700); }; }
+$('cm-start').onclick = startThread;
+function setAs(k){ cmMe = k; $('sh-me').textContent = PEOPLE[k].initials; document.querySelectorAll('[data-as]').forEach(b => b.setAttribute('aria-pressed', b.dataset.as === k)); closeDrawer(true); route(); }
+document.querySelectorAll('[data-as]').forEach(b => b.onclick = () => setAs(b.dataset.as));
+
+/* ---------- turn in: the upload drawer. It opens from the button on the step that asks for the file (the step page isn't
+   in this mockup: the MOCKUP bar's "Open turn in" opens it here). The team sees what they sent, never what staff did with it. In the LMS: /api/submissions (HANDOFF.md). A mockup can't upload:
+   each file's progress is played. window.__holdUploads = 0.42 stops every upload there (the pixel test uses it). ---------- */
+const TI = {"ui": {"turnIn": "Turn in", "view": "View", "agent": "Your team’s owner or operator turns this in.", "drop": "Drop files here", "or": "or", "choose": "Choose files", "types": "PDF, HTML report, PNG or JPG screenshot, Excel or CSV. Up to 5 files, 25 MB each.", "uploaded": "Uploaded", "remove": "Remove", "submit": "Turn it in", "submitted": "Turned in", "done": "Done", "newVersion": "Turn in a new version", "sentTo": "Goes to Connor’s team. Nothing is emailed.", "bannerTitle": "Turned in.", "files": "Files", "by": "by", "needFile": "Add at least one file.", "wait": "Wait for the upload to finish.", "tooMany": "Up to 5 files at a time.", "badType": "isn’t a file you can upload here. Use a PDF, an HTML report, a PNG or JPG screenshot, an Excel file or a CSV.", "tooBig": "is over 25 MB. Export a smaller file, or save the report as a PDF.", "kinds": {"live_read": {"title": "Report for a live read", "sub": "Upload the report file. Add one line on what you’d like Connor to look at.", "noteLabel": "What should Connor look at?", "privacy": "Live reads are shown to the whole cohort. Take out anything you wouldn’t show another team."}, "checkpoint": {"title": "Checkpoint", "sub": "Your signed seat card, a screenshot of the first run, and the minutes the hire took over.", "noteLabel": "Anything Connor should know?", "minutesLabel": "Minutes the hire took over", "minutesHint": "“45”, “about 20 a day” or “not done today”."}}}, "asks": [{"id": "live_read", "kind": "live_read", "step": 4, "kicker": "Week 1 · Step 4"}, {"id": "checkpoint", "kind": "checkpoint", "step": 6, "kicker": "Week 1 · Step 6"}], "sent": {"files": [{"name": "Map Your Spend report (made up).html", "size": "184 KB"}], "note": "Please look at advertising. (Made-up note.)", "minutes": "", "by": "Alex Morgan", "when": "Thu, Nov 19 · 4:02 PM", "short": "Nov 19"}, "states": {"report": {"ask": "live_read", "can": true, "subs": []}, "checkpoint": {"ask": "checkpoint", "can": true, "subs": []}, "turned": {"ask": "live_read", "can": true, "subs": ["live_read"]}}};
+const TU = TI.ui; let ti = { can: true, subs: {} };
+const OK_EXT = ['pdf', 'html', 'htm', 'png', 'jpg', 'jpeg', 'xlsx', 'csv'];
+const bytes = n => n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} KB`;
+const UPCHECK = '<svg class="up-check" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 8.5l2.8 2.8L12.5 5" pathLength="1"/></svg>';
+function launchTurnIn(k){ const st = TI.states[k]; closeDrawer(true); ti = { can: st.can, subs: Object.fromEntries(st.subs.map(id => [id, { ...TI.sent }])) }; openTurnIn(st.ask); }
+function openTurnIn(id, fresh){ const a = TI.asks.find(x => x.id === id), k = TU.kinds[a.kind], sub = !fresh && ti.subs[id];
+  const head = `<header class="fm-head aim-in" style="--i:0"><div><p class="fm-kick">${a.kicker}</p><h2 class="fm-title">${k.title}</h2><p class="fm-sub">${k.sub}</p></div><button class="fm-close" type="button">Close</button></header>`;
+  if (sub){ const el = drawerHtml('up-host', 'up-drawer', k.title, `${head}<div class="fm-body"><div class="fm-banner${sub.now ? ' aim-rise' : ''}">${mark(22, sub.now ? ' aim-mark--play' : '')}<div><b>${TU.bannerTitle}</b><p>${sub.when} ${TU.by} ${sub.by}</p></div></div>
+      <div class="up-sent aim-in" style="--i:1"><div class="up-status">${TU.sentTo}</div>
+        <section><h3>${TU.files}</h3><ul class="up-got">${sub.files.map(f => `<li>${ic('file', 16)}<a href="#" onclick="return false">${esc(f.name)}</a><small>${f.size}</small></li>`).join('')}</ul></section>
+        ${sub.note ? `<section><h3>${k.noteLabel}</h3><p>${esc(sub.note)}</p></section>` : ''}${sub.minutes ? `<section><h3>${k.minutesLabel}</h3><p>${esc(sub.minutes)}</p></section>` : ''}</div></div>
+      <footer class="fm-foot aim-in" style="--i:2"><button class="wk-btn wk-btn-primary" type="button" data-do="done">${roll(TU.done)}</button>${ti.can ? `<button class="wk-btn wk-btn-secondary" type="button" data-do="new">${ic('up')}${roll(TU.newVersion)}</button>` : ''}</footer>`);
+    delete sub.now; el.querySelector('.fm-close').onclick = el.querySelector('[data-do="done"]').onclick = () => closeDrawer(); const nv = el.querySelector('[data-do="new"]'); if (nv) nv.onclick = () => openTurnIn(id, true); return; }
+  const files = []; let seq = 0;
+  const el = drawerHtml('up-host', 'up-drawer', k.title, `${head}<form class="fm-body" novalidate>
+      <div class="fm-field aim-in" style="--i:1" data-field="files"><div class="up-drop">${ic('up', 24)}<b>${TU.drop}</b><span>${TU.or}</span><label class="wk-btn wk-btn-secondary wk-btn-sm up-pick">${roll(TU.choose)}<input type="file" multiple accept="${OK_EXT.map(x => '.' + x).join(',')}" aria-label="${TU.choose}"></label><span>${TU.types}</span></div><div class="up-files" aria-live="polite"></div></div>
+      <div class="up-fields aim-in" style="--i:2">${k.privacy ? `<p class="up-privacy">${ic('users', 16)}<span>${k.privacy}</span></p>` : ''}
+        ${k.minutesLabel ? `<div class="fm-field"><label class="fm-label" for="up-min">${k.minutesLabel}</label><p class="fm-hint">${k.minutesHint}</p><input class="fm-input up-short" id="up-min" type="text" maxlength="40"></div>` : ''}
+        <div class="fm-field"><label class="fm-label" for="up-note">${k.noteLabel}<span class="fm-opt">Optional</span></label><textarea class="fm-input" id="up-note" rows="3" maxlength="1000"></textarea></div></div></form>
+    <footer class="fm-foot aim-in" style="--i:3">${asyncBtn('wk-btn-primary up-submit', TU.submit, TU.submitted)}<button class="wk-btn wk-btn-ghost" type="button" data-do="cancel">${roll(CU.cancel)}</button><p class="fm-note" role="alert"></p></footer>`);
+  const drop = el.querySelector('.up-drop'), list = el.querySelector('.up-files'), fld = el.querySelector('[data-field="files"]'), btn = el.querySelector('.up-submit'), note = el.querySelector('.fm-note');
+  const ready = () => files.length > 0 && files.every(f => f.p >= 1), sync = () => btn.setAttribute('aria-disabled', !ready());
+  const drawFile = f => { const row = list.querySelector(`[data-file="${f.id}"]`), done = f.p >= 1; row.dataset.state = done ? 'done' : 'busy'; row.style.setProperty('--v', f.p); row.querySelector('.up-state').innerHTML = done ? UPCHECK + TU.uploaded : `${Math.round(f.p * 100)}%`; sync(); };
+  const run = f => { const hold = window.__holdUploads; f.p = Math.min(1, f.p + 0.14); if (hold && f.p >= hold) f.p = hold; drawFile(f); if (f.p < 1 && !(hold && f.p >= hold) && files.includes(f)) f.t = setTimeout(() => run(f), 120); };
+  const add = fl => { let err = ''; for (const file of fl){ const ext = file.name.split('.').pop().toLowerCase();
+      if (!OK_EXT.includes(ext)){ err = `${esc(file.name)} ${TU.badType}`; continue; } if (file.size > 25e6){ err = `${esc(file.name)} ${TU.tooBig}`; continue; } if (files.length >= 5){ err = TU.tooMany; break; }
+      const f = { id: ++seq, name: file.name, size: bytes(file.size), p: 0 }; files.push(f);
+      list.insertAdjacentHTML('beforeend', `<div class="up-file" data-file="${f.id}" data-state="busy" style="--i:${list.children.length};--v:0"><span class="up-name">${esc(f.name)}<small>${f.size}</small></span><span class="up-state">0%</span><button class="up-x" type="button" aria-label="${TU.remove} ${esc(f.name)}">${ic('x', 16)}</button><span class="up-bar" aria-hidden="true"></span></div>`); run(f); }
+    fieldErr(fld, err); if (err){ drop.dataset.state = 'idle'; void drop.offsetWidth; drop.dataset.state = 'error'; } note.textContent = ''; sync(); };
+  let depth = 0; drop.addEventListener('dragenter', e => { e.preventDefault(); depth++; drop.dataset.drag = 'true'; }); drop.addEventListener('dragover', e => e.preventDefault());
+  drop.addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) drop.removeAttribute('data-drag'); }); drop.addEventListener('drop', e => { e.preventDefault(); depth = 0; drop.removeAttribute('data-drag'); add([...e.dataTransfer.files]); });
+  el.querySelector('.up-pick input').addEventListener('change', e => { add([...e.target.files]); e.target.value = ''; });
+  list.addEventListener('click', e => { const x = e.target.closest('.up-x'); if (!x) return; const row = x.closest('.up-file'), i = files.findIndex(f => f.id === +row.dataset.file); clearTimeout(files[i].t); files.splice(i, 1); row.remove(); sync(); });
+  el.querySelector('.fm-close').onclick = el.querySelector('[data-do="cancel"]').onclick = () => closeDrawer(); el.querySelector('.fm-body').addEventListener('submit', e => e.preventDefault()); sync();
+  btn.onclick = () => { if (btn.dataset.state === 'busy' || btn.dataset.state === 'done') return;
+    if (!ready()){ note.textContent = files.length ? TU.wait : TU.needFile; btn.dataset.state = 'idle'; void btn.offsetWidth; btn.dataset.state = 'error'; return; }
+    note.textContent = ''; btn.dataset.state = 'busy';
+    setTimeout(() => { btn.dataset.state = 'done'; ti.subs[id] = { files: files.map(f => ({ name: f.name, size: f.size })), note: $('up-note').value.trim(), minutes: $('up-min')?.value.trim() || '', by: PEOPLE[cmMe].name, now: true,
+        when: stamp({ weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + stamp({ hour: 'numeric', minute: '2-digit' }), short: stamp({ month: 'short', day: 'numeric' }) };
+      setTimeout(() => { if (dw?.el === el) openTurnIn(id); }, 900); }, 900); }; }
+document.querySelectorAll('[data-turnin]').forEach(b => b.onclick = () => launchTurnIn(b.dataset.turnin));
+/* the MOCKUP bar's Clock */
+function setClock(k){ clock = k; document.querySelectorAll('[data-clock]').forEach(b => b.setAttribute('aria-pressed', b.dataset.clock === k)); heroMode = ''; renderNext(); renderAll(); route(); }
+document.querySelectorAll('[data-clock]').forEach(b => b.onclick = () => setClock(b.dataset.clock));
+route();
+window.__wk = { setPreview, setRole, setForm, openForm, launchTurnIn, setClock, setAs, setCollapsed, setLogo };
+</script>
+</body>
+</html>
