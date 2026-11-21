@@ -20,3 +20,15 @@ export const LMS_V3 = lmsV3Enabled();
 export function v3On(me: Pick<Learner, 'test'> | null, flag: boolean = LMS_V3): boolean {
   return flag || me?.test === true;
 }
+
+/**
+ * Who v3 draws for on this visit: `v3On`, except a staff member's preview, which keeps today's shell (its "Previewing
+ * as" line has no place in the mockup, C-04). The shell and every v3 page ask this, so chrome and page always agree.
+ */
+export function v3For(
+  viewer: { preview?: unknown },
+  me: Pick<Learner, 'test'> | null,
+  flag: boolean = LMS_V3,
+): boolean {
+  return !viewer.preview && v3On(me, flag);
+}

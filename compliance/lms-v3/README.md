@@ -8,7 +8,7 @@ test learner's starting point, and a reset before every shot. The session and th
 | File | What it does |
 |---|---|
 | `prepare.ts content` | On a **development** database: writes what the package's sample data has and the curriculum seed doesn't (step 6 at 30 minutes, the done-when lines' periods, the operator's time, the check items behind step 3's "In progress" and step 5's "Waiting on step 6"), and opens the cohort's pre-launch preview (Week 0 open, the rest locked with their dates). |
-| `prepare.ts reset` / `reset.sql` | The test learner (`SEED_TEST_MEMBER_EMAIL`, flagged `is_test`, D-200) back to the tests' start: step 1 done, step 3 in progress, step 5 waiting, not deployed, only Week 0 open (no early access), the intake a draft of the package's sample answers saved Thu Nov 19, 4:02 PM CT, sidebar expanded and light theme, Alex Morgan of Northline Realty. Refuses any other account. |
+| `prepare.ts reset` / `reset.sql` | The test learner (`SEED_TEST_MEMBER_EMAIL`, flagged `is_test`, D-200) back to the tests' start: step 1 done, step 3 in progress, step 5 waiting, not deployed, only Week 0 open (no early access), the intake a draft of the package's sample answers saved Thu Nov 19, 4:02 PM CT, sidebar expanded and light theme, Alex Morgan of Northline Realty. Refuses any other account. `reset.sql -v state=s7|s8|deployed` is the same learner in the pixel test's `--assume` states (every step but 5, all eight, deployed). |
 
 ## Local run
 

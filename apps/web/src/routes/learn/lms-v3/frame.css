@@ -1,0 +1,5 @@
+/* D-226: the app's base (styles/global.css, generated from design-reference/) underlines a link that has no class
+   when it is hovered. The mockup has no such rule, and the package's markup has such links (a calendar menu's items,
+   the breadcrumb). Inside the v3 frame that one rule is undone, at its own specificity, and this file loads before
+   lms.css, so every rule of the package's still wins. Nothing else: no value of the design is set here. */
+:where([data-lms-v3] [data-ai]) a:not([class]):hover{text-decoration:none;text-underline-offset:auto}

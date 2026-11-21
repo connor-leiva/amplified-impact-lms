@@ -8,6 +8,7 @@
 //     today's frame tokens around it, so it draws as it does today, inside the new shell.
 // Loaded lazily from `LearnerShell`, so its stylesheets reach only a learner v3 draws for: `lms.tokens.css` sets
 // `interpolate-size` on `:root`, which would change today's pages' transitions.
+import './frame.css';
 import './lms.tokens.css';
 import './lms.css';
 import { useCallback, useLayoutEffect, useState } from 'react';

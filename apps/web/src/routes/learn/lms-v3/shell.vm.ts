@@ -12,6 +12,7 @@ import type { NavVM, SideVM, WeekRow } from '../learn.vm';
 import { learnHome, learnSchedule, learnSkills, learnVault, LEARN_ROOT } from '../routes';
 import type { CalItem } from './CalMenu';
 import type { Shell, ShellNext, ShellWeek } from './AppShell';
+import type { SessionMode } from './session';
 
 /** The mockup's chrome words for the shell (handoff/lms-v3/src/sample-data.js › sampleShell). */
 export const SHELL_LABELS = {
@@ -90,19 +91,30 @@ export function calendarOf(s: CourseSession, onIcs: () => void): CalItem[] {
 }
 
 /**
- * The top bar's session (B-35, B-36): the session to join now (live, or inside its join window: today's `barVM`
- * rule, Go Live included), else the next session of any kind. `mode` is worked out here, from `now`, so the shell and
- * the Schedule agree.
+ * The next session (B-35, B-36, B-07): the one to join now (live, or inside its join window: today's `barVM` rule,
+ * Go Live included), else the next session of any kind, with its mode worked out from `now`. The top bar and the
+ * Schedule's hero both read it, so they always agree.
  */
+export function nextSessionOf(
+  sessions: readonly CourseSession[],
+  now: number,
+): { s: CourseSession; mode: SessionMode } | null {
+  const live = joinableSession(sessions, now) as CourseSession | null | undefined;
+  const s = live ?? upcomingSessions(sessions, now).find((x) => !x.live);
+  if (!s) return null;
+  const phase = live ? sessionPhase(live, now) : null;
+  return { s, mode: phase === 'live' ? 'live' : phase === 'ready' ? 'join' : 'wait' };
+}
+
+/** The top bar's session. */
 export function shellNext(
   sessions: readonly CourseSession[],
   now: number,
   saveIcs: (s: CourseSession) => void,
 ): ShellNext | null {
-  const live = joinableSession(sessions, now) as CourseSession | null | undefined;
-  const s = live ?? upcomingSessions(sessions, now).find((x) => !x.live);
-  if (!s) return null;
-  const phase = live ? sessionPhase(live, now) : null;
+  const next = nextSessionOf(sessions, now);
+  if (!next) return null;
+  const { s, mode } = next;
   return {
     label: s.kind === 'build' ? SHELL_LABELS.nextBuild : SHELL_LABELS.nextOfficeHours,
     title: s.title,
@@ -114,7 +126,7 @@ export function shellNext(
     joinBefore: JOIN_BEFORE_MIN,
     joinHref: learnJoin(s.id),
     calendar: calendarOf(s, () => saveIcs(s)),
-    mode: phase === 'live' ? 'live' : phase === 'ready' ? 'join' : 'wait',
+    mode,
   };
 }
 

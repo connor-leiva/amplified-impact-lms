@@ -159,6 +159,18 @@ Not available (1.1). Phases 9 and 10 wait for it.
   comparisons of the sidebar and the top bar (0 different pixels at 1440 and 390, the phone menu open) stand in.
 - **The phone tap floor is `min-width` and `min-height`**: the frame sets `--tap` to `auto` (their initial value),
   not 0, which would let the account button shrink in the phone header.
+- **The time on a session's line.** In the sample only Week 1's live build line reads "Wed, Dec 2 · 1:00 PM CT"; the
+  rest give the day. It is today's Join row for the next session, moved into the line (UX-AUDIT, Schedule): the hero's
+  session carries its time. On the mockup's ended and next-day clocks the sample keeps that line as it is and gives
+  the office hours none; with the rule, the office hours (then the hero's) get theirs. Part of the live-state
+  questions (Q-13).
+- **The Schedule keeps today's page** (C-13) while a row needs "attended live" (staff record it at End Session), a
+  session other than a live build has its recording posted ("Recording Posted"), or a row's Join is for a session
+  other than the hero's. After the first build, as soon as staff record attendance, that is every day: **question for
+  Connor** whether "attended live" can be left out of v3 rows.
+- **The app's global link rule** (`styles/global.css`: a link with no class is underlined on hover) reached the
+  package's class-less links (a calendar menu's items, the breadcrumb). `lms-v3/frame.css` undoes that one rule
+  inside the frame, at its own specificity, before `lms.css`. **For Connor to confirm** (D-226).
 - **Locks and session states follow the server's clock**, not the one the test pins in the browser. The
   `--assume-clock` states need data seeded for that moment, and the sidebar's cohort line (above) moves with the
   browser's clock.
