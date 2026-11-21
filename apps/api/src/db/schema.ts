@@ -116,6 +116,12 @@ export const teamIntake = pgTable('team_intake', {
   updatedAt: ts('updated_at').notNull(),
   updatedBy: text('updated_by').notNull(),
   submittedAt: ts('submitted_at'),
+  // D-229 (B-20): the sync to GHL (jobs/ghl-intake.ts). none, pending, synced or failed.
+  ghlSyncStatus: text('ghl_sync_status').notNull().default('none'),
+  ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0),
+  ghlError: text('ghl_error'),
+  ghlNextAt: ts('ghl_next_at'),
 });
 export const videoProgress = pgTable('video_progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),

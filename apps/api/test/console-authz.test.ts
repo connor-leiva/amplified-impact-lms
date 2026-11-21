@@ -12,7 +12,7 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, emailLog, ghlLogins, incidents, staffNotes, users } from '../src/db/schema';
+import { auditLog, emailLog, ghlLogins, incidents, staffNotes, teamIntake, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { fakeConsoleStripe, fakeConsoleStripeWrite } from './fake-console-stripe';
 import { invalidateConsoleFlags } from '../src/console/flags';
@@ -53,6 +53,7 @@ type RouteName =
   | 'apiEndpoints'
   | 'webhooks'
   | 'ghlRetry'
+  | 'workspaceIntakeSync'
   | 'jobs'
   | 'jobRun'
   | 'emailLog'
@@ -183,6 +184,18 @@ const ROUTES: Record<RouteName, Route> = {
   apiEndpoints: { path: CONSOLE_PATHS.apiEndpoints, url: CONSOLE_PATHS.apiEndpoints, method: 'GET', route: `GET ${CONSOLE_PATHS.apiEndpoints}` },
   webhooks: { path: CONSOLE_PATHS.webhooks, url: CONSOLE_PATHS.webhooks, method: 'GET', route: `GET ${CONSOLE_PATHS.webhooks}` },
   ghlRetry: { path: CONSOLE_PATHS.ghlRetry, url: CONSOLE_PATHS.ghlRetry, method: 'POST', route: `POST ${CONSOLE_PATHS.ghlRetry}`, body: { kind: 'login', id: 'u_jamie' } },
+  // D-229: re-queue a team's submitted intake for GHL (workspaces.read and webhooks.retry: Owner, Admin).
+  workspaceIntakeSync: {
+    path: CONSOLE_PATHS.workspaceIntakeSync,
+    url: '/api/console/workspaces/northline/intake/sync',
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.workspaceIntakeSync}`,
+    prepare: async () => {
+      const row = { teamId: 'northline', answers: { name: 'Alex' }, updatedAt: NOW, updatedBy: 'u_alex', submittedAt: NOW };
+      await (await testDatabase()).insert(teamIntake).values(row).onConflictDoUpdate({ target: teamIntake.teamId, set: row });
+      return {};
+    },
+  },
   jobs: { path: CONSOLE_PATHS.jobs, url: CONSOLE_PATHS.jobs, method: 'GET', route: `GET ${CONSOLE_PATHS.jobs}` },
   jobRun: { path: CONSOLE_PATHS.jobRun, url: '/api/console/jobs/session-24h/run', method: 'POST', route: `POST ${CONSOLE_PATHS.jobRun}` },
   // PR 7 (D-166). Row 1 is a logged send, inserted below.
@@ -248,6 +261,7 @@ const WRITES = new Set<RouteName>([
   'billingRefund',
   'billingVoid',
   'ghlRetry',
+  'workspaceIntakeSync',
   'jobRun',
   'emailLogExport',
   'incidentCreate',
@@ -314,7 +328,7 @@ const ALL = (v: number) => ({
 // PR 8 (D-167): the incident reads are incidents.read, create incidents.create, Acknowledge
 // incidents.ack and a note notes.write (Owner, Admin, Support); Resolve is incidents.resolve (Owner,
 // Admin: D3, Support acknowledges and does not resolve).
-const OPS = (v: number) => ({ ghlRetry: v, jobRun: v });
+const OPS = (v: number) => ({ ghlRetry: v, jobRun: v, workspaceIntakeSync: v });
 const INC = (read: number, write: number, resolve: number) => ({
   incidents: read,
   incidentSummary: read,
