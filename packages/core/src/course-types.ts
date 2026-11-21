@@ -118,7 +118,9 @@ export type CheckAction =
   | { type: 'calendar'; sessionId: string }
   | { type: 'link'; label: string; href: string }
   | { type: 'form'; formId: 'intake' | 'stack-card'; label: string; itemId?: string }
-  | { type: 'card'; terms: string[] };
+  | { type: 'card'; terms: string[] }
+  /** D-230: Turn in. The step's button opens the drawer for this kind (`@ai/core/submissions`); its words are fixed. */
+  | { type: 'upload'; kind: 'live_read' | 'checkpoint' };
 
 /** One line under a checklist item that has sub-checks (step 3's tasks). The item is checked when all are. */
 export interface CheckSub {

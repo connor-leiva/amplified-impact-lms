@@ -79,6 +79,26 @@ describe('the v6 step page’s props (D-210)', () => {
     expect(step.forStep[0]?.copyText).toBe(MOCKUP_PROMPT);
   });
 
+  it('D-230: an Upload action is Turn in’s button for the owner, the agent’s line for a teammate, and nothing without v3', () => {
+    const { p, rows } = mockupState();
+    const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;
+    const layout = vm.layouts!.claude!;
+    const kit = buildKitVM(rows[0]?.module, () => null);
+    const media = { duration: null, cues: [], poster: undefined, captions: undefined };
+    const asks: string[] = [];
+    const withUpload: ChecklistLayoutVM = { ...layout, items: layout.items.map((it, i) => (i === 0 ? { ...it, playLabel: null, playSeconds: null, card: [], action: { type: 'upload', kind: 'checkpoint' } } : it)) };
+    const base = { onCalendar: () => undefined, onViewPrompt: () => undefined };
+    expect(stepPageStep(vm, withUpload, kit, media, base).items[0]!.action).toBeNull();
+    const owner = stepPageStep(vm, withUpload, kit, media, { ...base, turnIn: { agent: null, labelOf: (k) => (k === 'checkpoint' ? 'View' : 'Turn in'), open: (k) => void asks.push(k) } });
+    const action = owner.items[0]!.action;
+    if (action?.type !== 'upload') throw new Error('no Turn in button');
+    expect(action.label).toBe('View');
+    action.onClick();
+    expect(asks).toEqual(['checkpoint']);
+    const agent = stepPageStep(vm, withUpload, kit, media, { ...base, turnIn: { agent: 'Your team’s owner or operator turns this in.', labelOf: () => 'Turn in', open: () => undefined } });
+    expect(agent.items[0]!.action).toEqual({ type: 'line', text: 'Your team’s owner or operator turns this in.' });
+  });
+
   it('every kind of step content draws: extra content, waiting items, sub-checks, actions, a step with no checklist', () => {
     const { p, rows } = mockupState();
     const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;

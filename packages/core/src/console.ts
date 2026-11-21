@@ -228,6 +228,8 @@ export const AUDIT_ACTIONS = [
   'community.pin',
   'community.hide',
   'community.delete',
+  // D-230: staff set what they did with a team's turn-in (Received, Picked for a live read, Reviewed).
+  'submission.status',
   // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.
   'user.seed',
 ] as const;

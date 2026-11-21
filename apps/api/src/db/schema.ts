@@ -154,6 +154,30 @@ export const communityPosts = pgTable('community_posts', {
   index('community_posts_thread_idx').on(t.threadId, t.id),
   index('community_posts_by_idx').on(t.byUserId, t.createdAt),
 ]);
+// D-230 (B-24 to B-28): Turn in. One row per turn-in: a team's latest for a week and a kind is the one it sees, and
+// staff see every version. `files` holds each file's bucket key (`submissions/<team>/…`), its name and its size.
+// `status` is what staff did with it and never leaves the staff routes (B-25). Not a `Db` record. Epoch ms.
+export const submissions = pgTable('submissions', {
+  id: serial('id').primaryKey(),
+  teamId: text('team_id').notNull(),
+  moduleId: text('module_id').notNull(),
+  kind: text('kind').notNull(),
+  files: jsonb('files').$type<{ key: string; name: string; size: number }[]>().notNull(),
+  note: text('note').notNull().default(''),
+  minutes: text('minutes').notNull().default(''),
+  byUserId: text('by_user_id').notNull(),
+  createdAt: ts('created_at').notNull(),
+  status: text('status').notNull().default('received'),
+  statusAt: ts('status_at'),
+  statusBy: text('status_by'),
+}, (t) => [
+  index('submissions_team_idx').on(t.teamId, t.moduleId, t.kind, t.id),
+  index('submissions_module_idx').on(t.moduleId, t.id),
+  // `SUBMISSION_KINDS` and `SUBMISSION_STATUSES` in `@ai/core/submissions`, typed out because drizzle-kit reads this
+  // file on its own.
+  check('submissions_kind', sql`${t.kind} in ('live_read', 'checkpoint')`),
+  check('submissions_status', sql`${t.status} in ('received', 'picked', 'reviewed')`),
+]);
 export const videoProgress = pgTable('video_progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),
   maxPct: doublePrecision('max_pct').notNull(), lastPositionS: doublePrecision('last_position_s').notNull(), updatedAt: ts('updated_at').notNull(),

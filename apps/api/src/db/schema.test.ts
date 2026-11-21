@@ -75,6 +75,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-231: the cohort Community's threads and posts. Not `Db` records.
   communityThreads: { table: 'community_threads', columns: ['activity_at', 'by_user_id', 'cohort_id', 'created_at', 'deleted_at', 'hidden', 'id', 'pinned', 'space', 'title'] },
   communityPosts: { table: 'community_posts', columns: ['body', 'by_user_id', 'created_at', 'deleted_at', 'edited_at', 'hidden', 'id', 'thread_id'] },
+  // D-230: Turn in's turn-ins. Not a `Db` record.
+  submissions: { table: 'submissions', columns: ['by_user_id', 'created_at', 'files', 'id', 'kind', 'minutes', 'module_id', 'note', 'status', 'status_at', 'status_by', 'team_id'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
@@ -349,6 +351,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   // D-231: a thread's start, its newest post and its delete; a post's, its edit and its delete.
   ['communityThreads', 'createdAt'], ['communityThreads', 'activityAt'], ['communityThreads', 'deletedAt'],
   ['communityPosts', 'createdAt'], ['communityPosts', 'editedAt'], ['communityPosts', 'deletedAt'],
+  // D-230: when a team turned in, and when staff last set its status.
+  ['submissions', 'createdAt'], ['submissions', 'statusAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
   ['requests', 'at'],
@@ -436,6 +440,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   teamStackCard: { unit: 'epoch-ms', why: 'D-197: updated_at and sent_at are clock.now()' },
   communityThreads: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.activity reads activity_at' },
   communityPosts: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.when prints created_at' },
+  submissions: { unit: 'epoch-ms', why: 'D-230: clock.now() at a turn-in and a status change, and fmt.when prints created_at' },
   resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
   announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
   dismissals: { unit: 'epoch-ms', why: 'no instant' },
@@ -746,6 +751,11 @@ describe('unique indexes @g9', () => {
       { name: 'community_posts_thread_idx', unique: false, columns: ['thread_id', 'id'] },
       { name: 'community_posts_by_idx', unique: false, columns: ['by_user_id', 'created_at'] },
     ],
+    // D-230: a team's turn-ins for a week and a kind, newest last; and a week's, for staff.
+    submissions: [
+      { name: 'submissions_team_idx', unique: false, columns: ['team_id', 'module_id', 'kind', 'id'] },
+      { name: 'submissions_module_idx', unique: false, columns: ['module_id', 'id'] },
+    ],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -781,6 +791,10 @@ describe('unique indexes @g9', () => {
   it('gives the Community its lookup indexes, none unique (D-231) @g9', () => {
     expect(indexesOf(tableOf('communityThreads'))).toEqual(LOOKUP_INDEXES.communityThreads);
     expect(indexesOf(tableOf('communityPosts'))).toEqual(LOOKUP_INDEXES.communityPosts);
+  });
+
+  it('gives Turn in its lookup indexes, none unique (D-230) @g9', () => {
+    expect(indexesOf(tableOf('submissions'))).toEqual(LOOKUP_INDEXES.submissions);
   });
 
   it('finds no other table carrying an index @g9', () => {

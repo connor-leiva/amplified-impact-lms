@@ -31,6 +31,11 @@ import { v3For } from './lms-v3/v3';
 import { opensIntakeDrawer } from './lms-v3/form.vm';
 import { v6StepAt } from './step-page/v6';
 import { StepPageRoute } from './step-page/StepPageRoute';
+import type { StepPageRouteProps } from './step-page/StepPageRoute';
+import { asksOf, mayTurnIn } from '@ai/core/submissions';
+import type { SubmissionAsk } from '@ai/core/submissions';
+import { TURN_IN_UI, asksProps, subsProps, turnInLabel } from './lms-v3/turnin.vm';
+import { useSubmissions, useTurnInWrites } from './lms-v3/turnin.data';
 import { StepLive } from './Live';
 import { BuildKit, Crumbs, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle } from './WeekContent.vm';
@@ -400,7 +405,14 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   // preview draws the same page, so a step looks the same where it is built and where it is taken.
   const path = step !== null ? learnStep(vm.week, step) : null;
   if (path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
-    const page = <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />;
+    // D-230 (B-26, B-27): for a viewer v3 draws for, a step that asks for a file has the Turn in button (or, for a
+    // teammate who can't turn in, the line in its place), and the drawer opens here.
+    const asks = !preview && v3For(viewer, me) && row?.module ? asksOf(row.module, row.week) : [];
+    const page = asks.length ? (
+      <TurnInStep key={`${vm.week}:${vm.eyebrow}`} moduleId={row!.module!.id} asks={asks} role={me?.role ?? null} vm={vm} kit={more.kit} title={more.title} local={local} />
+    ) : (
+      <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />
+    );
     // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
     const intake = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
     if (!preview && v3For(viewer, me) && intake && !isLockedWeek(intake) && intake.intake) {
@@ -422,6 +434,37 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
 }
 
 const StepIntake = lazy(() => import('./lms-v3/StepIntake'));
+const StepTurnIn = lazy(() => import('./lms-v3/StepTurnIn'));
+
+/** D-230: the step page with Turn in's button wired to its drawer (loaded on the first open), and the team's turn-ins. */
+function TurnInStep({ moduleId, asks, role, ...props }: StepPageRouteProps & { moduleId: string; asks: SubmissionAsk[]; role: string | null }) {
+  const can = mayTurnIn(role);
+  const subs = useSubmissions(moduleId, can);
+  const writes = useTurnInWrites(moduleId);
+  const [askId, setAskId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const turnIn = useMemo(
+    () => ({
+      agent: can ? null : TURN_IN_UI.agent,
+      labelOf: (kind: string) => turnInLabel(subs, kind),
+      open: (kind: string) => {
+        setLoaded(true);
+        setAskId(kind);
+      },
+    }),
+    [can, subs],
+  );
+  return (
+    <>
+      <StepPageRoute {...props} turnIn={turnIn} />
+      {loaded ? (
+        <Suspense fallback={null}>
+          <StepTurnIn ui={TURN_IN_UI} asks={asksProps(asks)} subs={subsProps(subs)} can={can} askId={askId} onClose={() => setAskId(null)} upload={writes.upload} onSubmit={writes.onSubmit} />
+        </Suspense>
+      ) : null}
+    </>
+  );
+}
 
 /**
  * Answers a click on a link to the intake (its old page, or one of its kit files: `opensIntakeDrawer`) by opening its

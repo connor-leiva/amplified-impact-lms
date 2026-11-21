@@ -194,3 +194,18 @@ export interface CmThreadRow { id: number | string; href: string; space: string;
 /** A post this viewer may see. `fresh`: it was just posted, and rises in. */
 export interface CmPost { id: number | string; by: string; when: string; body: string; edited?: boolean; hidden?: boolean; fresh?: boolean }
 export interface CmThread { id: number | string; space: string; spaceLabel: string; title: string; pinned?: boolean; hidden?: boolean; posts: CmPost[] }
+
+// D-230: Turn in (`handoff/lms-v3/src/components/TurnIn.jsx`, `src/data/turn-in.samples.json`).
+export interface TiKind { title: string; sub: string; noteLabel: string; privacy?: string; minutesLabel?: string; minutesHint?: string }
+export interface TurnInUi {
+  turnIn: string; view: string; agent: string; drop: string; or: string; choose: string; types: string; uploaded: string; remove: string;
+  submit: string; submitted: string; done: string; newVersion: string; sentTo: string; bannerTitle: string; files: string; by: string;
+  needFile: string; wait: string; tooMany: string; badType: string; tooBig: string;
+  kinds: Record<'live_read' | 'checkpoint', TiKind>;
+}
+/** One step that asks for a file: `id` is its kind. */
+export interface TiAsk { id: string; kind: 'live_read' | 'checkpoint'; step: number; kicker: string }
+/** What the team turned in last for an ask. Never what staff did with it. */
+export interface TiSub { files: { name: string; size: string; href?: string }[]; note: string; minutes: string; by: string; when: string }
+/** A file as the drawer hands it to `onSubmit`. */
+export interface TiFileIn { name: string; size: string; file: File }

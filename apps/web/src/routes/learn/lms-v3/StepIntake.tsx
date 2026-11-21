@@ -8,6 +8,7 @@ import type { CourseIntake } from '@ai/core/course-types';
 import { FormDrawer } from './FormDrawer';
 import { useIntakeForm } from './V3Week';
 import { NO_TAP } from './tap';
+import { IconSprite } from './Icons';
 
 export default function StepIntake({
   intake,
@@ -24,6 +25,8 @@ export default function StepIntake({
   return form
     ? createPortal(
         <div style={NO_TAP}>
+          {/* The drawer's icons are the v3 sprite's, which the step page doesn't draw. */}
+          <IconSprite />
           <FormDrawer f={form} open={open} onClose={onClose} />
         </div>,
         document.body,

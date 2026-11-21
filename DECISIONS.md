@@ -7344,3 +7344,19 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **Nothing is emailed or notified.** No route sends anything; the walkthrough's email log stayed empty.
 - **C-22's states**, each in a slot the mockup has: a list or thread that can't load, a thread that's gone and a viewer who isn't in the cohort in the list's empty slot (`.cm-empty`); a refused thread under its field in the drawer (the server's own three checks), else under Details, the button shaking back to Post thread; a refused reply (the hourly limit, a thread that's gone) under the reply box, as "Write a reply first." is; a refused edit, hide, pin or delete in the reply box's message slot. Loading draws nothing under the shell.
 - **The outside "Cohort Community" link on Home** (D-187, C-21) stays until Connor clears it in Course settings.
+
+## D-230 · LMS v3 Turn in
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, with D-225 to D-231 ("Approved on all", `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0); "In the button in the step, not on the week card" (B-23); "No status should be displayed telling them what I've done" (B-25); Nov 21: "build … the upload functionality".
+**Number:** the spec's (D-231 is the Community).
+
+- **The only way in** is the button on the step that asks for a file (B-27): a checklist item's new **Upload** action (the Week Builder's "Turn in" button, with the kind it collects: a report for a live read, or a checkpoint). It is the step page's own action button, "Turn in", then "View" once the team has turned something in, and it opens the package's `TurnInDrawer` (`lms-v3/TurnIn.tsx`, converted to TSX) in place. Nothing on the week page (B-23).
+- **Who** (B-26): the team's owner and operator (the intake's rule), on a plan with the course, in a week open to them. A teammate who can't turn in sees "Your team’s owner or operator turns this in." in the button's place, in the step page's own small text style (`.auto`); no button, no drawer. For a viewer v3 draws for; with the flag off an Upload action draws nothing.
+- **Files** (B-24): PDF, HTML, PNG, JPG, Excel or CSV, 25 MB each, 5 at a time, checked in the drawer and again on the server. Each goes to the bucket with a presigned PUT (`POST /api/submissions/upload-url`) under its team's own prefix (`submissions/<team>/`), with real progress (`XMLHttpRequest.upload.onprogress`); the turn-in checks each object is the team's, is there, and its stored size.
+- **Downloads.** A turned-in file is only ever a download: an attachment, typed as bytes, `nosniff`, with a sandbox policy, because a team can turn in an HTML report and the file is served from the app's own origin. The team's owner and operator get their own team's; staff who may view learners get any.
+- **Versions and status** (B-25, C-20): every turn-in is kept; the team sees its latest per kind, with when and who, the files, the note and the minutes, and never a status. Staff see every version on the Week Builder's **Submissions** card and set Received, Picked for a live read, or Reviewed, audited as `submission.status`. The patch's card never reached the repo, so the card is built here from the admin console's own kit.
+- **The step's item.** Turning in checks the item that asks for it, for the whole team, as a submitted intake checks its item (D-229).
+- **Nothing is emailed** ("Goes to Connor’s team. Nothing is emailed.").
+- **C-22's states**, in the drawer's own slots: an upload that fails leaves the list and says so where a refused file does (`.fm-msg`); a turn-in the server refuses says why in the foot (`.fm-note`), the button shaking back to Turn it in.
+- **The server was written here** (`0034_submissions`, `core/submissions.ts`, `routes/submissions.ts`): the spec's patch never reached the repo.

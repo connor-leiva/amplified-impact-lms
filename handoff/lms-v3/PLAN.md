@@ -169,6 +169,28 @@ spec's description of it (B-29 to B-34); the screens are the package's `Communit
   learner's list says "just now" in lowercase (the mockup writes `ui.justNow.toLowerCase()` there), so
   `fmt.activity` does too; a post's own time says "Just now".
 
+## Phase 9. Turn in
+
+Connor, Nov 21: build "the upload functionality" (D-230). The patch's server never reached the repo, so it is written
+here to the spec's description (B-24 to B-28); the drawer is the package's `TurnIn.jsx`, converted.
+
+- **Server**: `0034_submissions`, `core/submissions.ts`, `routes/submissions.ts`: the upload URL (a presigned PUT
+  under the team's own prefix), the turn-in (each file the team's, in the bucket, at its stored size), the team's latest
+  per kind with **no status** (B-25, tested), each file as a download only (attachment, bytes, `nosniff`, sandbox),
+  staff's list and status (audited). The step's asking item is checked for the team on a turn-in, as the intake's is.
+- **Step page**: the Week Builder's Upload action draws the step page's own button ("Turn in" / "View") for the owner
+  and operator, and the agent's line (`.auto`) for a teammate; the drawer opens in place, with the v3 sprite (the step
+  page has its own icons, so the drawer's were missing; the intake's drawer on the step page had the same gap, fixed).
+- **Gate** (local http build, Chrome, TZ America/Chicago; `turnin.sql` puts the test learner in each state, Week 1 open
+  with its steps 4 and 6 asking for files, `prepare.ts content`): `--target-turnin <step url> --assume-turnin report |
+  checkpoint | turned`, the drawer compared on its own: desktop 1440, 5 of 5; phone 390, 4 of 4; **no different
+  pixel**. The 9 `local` states (they upload or turn in) are pinned by `TurnIn.equality.test.tsx` (the package's JSX
+  and the TSX side by side through a refused file, an empty turn-in, two files uploading, one removed, the minutes and
+  a note, a turn-in, and a new version) and a walkthrough in a real browser on the local build (11 checks: a real PDF
+  to the bucket with progress, turned in, no status, the download as an attachment, View, staff's card and status).
+- **Found**: the drawer's icons are the v3 sprite's (`#k-*`), which the step page doesn't draw; both in-place drawers
+  (Turn in and the intake) now bring it.
+
 ## Found while building
 
 - **Seed against the package's words** (every field of `sampleWeek`, `sampleSchedule`, `sampleShell` and the intake,

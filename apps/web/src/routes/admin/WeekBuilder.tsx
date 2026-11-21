@@ -31,12 +31,14 @@ import { ROLE_LABEL } from '../course/Course.vm';
 import { LearnerWeekPreview } from '../learn/Preview';
 import { IntakeCard } from './IntakeCard';
 import { StackCard } from './StackCard';
+import { SubmissionsCard } from './SubmissionsCard';
 import { TextBlock } from './TextBlock';
 import { RichField } from './RichField';
 import { useNow } from '../../data/hooks';
 import type { useAct } from '../../data/hooks';
 import {
   ACTION_KINDS,
+  UPLOAD_KINDS,
   BLOCK_LABELS,
   CALLOUT_KINDS,
   CHECK_ROLES,
@@ -476,6 +478,7 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
       : type === 'link' ? { type: 'link', label: 'Open', href: '' }
       : type === 'form' ? { type: 'form', formId: 'intake', label: 'Open the form' }
       : type === 'card' ? { type: 'card', terms: [] }
+      : type === 'upload' ? { type: 'upload', kind: 'live_read' }
       : undefined;
     onChange(action ? { ...block, action } : { ...block, action: undefined });
   };
@@ -671,6 +674,16 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
           <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint="The checklist item a submit checks. Blank uses this item." onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
         </>
       ) : null}
+      {block.action?.type === 'upload' ? (
+        <label className={s.lab}>
+          Turns in
+          <Sel aria-label={`Block ${n} turns in`} value={block.action.kind} onChange={(e) => block.action?.type === 'upload' && onChange({ ...block, action: { type: 'upload', kind: e.target.value as 'live_read' | 'checkpoint' } })}>
+            {UPLOAD_KINDS.map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </Sel>
+        </label>
+      ) : null}
       {block.action?.type === 'card' ? (
         <fieldset className={w.blocks}>
           <legend className={w.legend}>Glossary terms</legend>
@@ -865,6 +878,7 @@ export function WeekCards(props: WeekCardsProps) {
       <CoursePageCard {...props} />
       <IntakeCard {...props} />
       <StackCard {...props} />
+      <SubmissionsCard {...props} />
       <AgendaCard {...props} which="liveBuild" />
       <AgendaCard {...props} which="officeHours" />
       <HireCardsCard {...props} />
