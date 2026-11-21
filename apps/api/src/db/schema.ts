@@ -18,7 +18,7 @@
 // Four tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
 // `auth_sessions` (§ 7.5), `job_runs` (§ 8.5, the scheduler's idempotence ledger) and
 // `ai101_waitlist` (the public /ai101 page's sign-ups, DECISIONS.md D-028).
-import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, bigserial, uniqueIndex, index, check, doublePrecision } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, bigserial, serial, uniqueIndex, index, check, doublePrecision } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
@@ -123,6 +123,37 @@ export const teamIntake = pgTable('team_intake', {
   ghlError: text('ghl_error'),
   ghlNextAt: ts('ghl_next_at'),
 });
+// D-231 (B-34): the cohort Community. A thread lives in a space ("general", "week-N", "wins") of one cohort; its
+// first post is its body and every later post a reply. Not a `Db` record and never in a snapshot: only
+// routes/community.ts reads or writes these. Nothing is removed: a delete sets `deleted_at` (the thread's too, when
+// its first post goes), so the posts-an-hour guard still counts it. `activity_at` is the newest post's time, which
+// the list sorts by. Ids are serials, so a thread's posts read in the order they were written (and an id is a plain
+// integer, never mistaken for an instant). Epoch ms.
+export const communityThreads = pgTable('community_threads', {
+  id: serial('id').primaryKey(),
+  cohortId: text('cohort_id').notNull(),
+  space: text('space').notNull(),
+  title: text('title').notNull(),
+  byUserId: text('by_user_id').notNull(),
+  pinned: boolean('pinned').notNull().default(false),
+  hidden: boolean('hidden').notNull().default(false),
+  createdAt: ts('created_at').notNull(),
+  activityAt: ts('activity_at').notNull(),
+  deletedAt: ts('deleted_at'),
+}, (t) => [index('community_threads_cohort_idx').on(t.cohortId, t.activityAt)]);
+export const communityPosts = pgTable('community_posts', {
+  id: serial('id').primaryKey(),
+  threadId: integer('thread_id').notNull().references(() => communityThreads.id),
+  byUserId: text('by_user_id').notNull(),
+  body: text('body').notNull(),
+  createdAt: ts('created_at').notNull(),
+  editedAt: ts('edited_at'),
+  hidden: boolean('hidden').notNull().default(false),
+  deletedAt: ts('deleted_at'),
+}, (t) => [
+  index('community_posts_thread_idx').on(t.threadId, t.id),
+  index('community_posts_by_idx').on(t.byUserId, t.createdAt),
+]);
 export const videoProgress = pgTable('video_progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),
   maxPct: doublePrecision('max_pct').notNull(), lastPositionS: doublePrecision('last_position_s').notNull(), updatedAt: ts('updated_at').notNull(),

@@ -2,6 +2,7 @@
 //
 //   pnpm --filter @ai/api exec tsx ../../compliance/lms-v3/prepare.ts content   # once: Week 0 and the cohort as the mockup has them
 //   pnpm --filter @ai/api exec tsx ../../compliance/lms-v3/prepare.ts reset     # before every state: the test learner (s1)
+//   pnpm --filter @ai/api exec tsx ../../compliance/lms-v3/prepare.ts community # before the cm-* and th-* states
 //
 // `content` writes what the package's sample data (handoff/lms-v3/src/sample-data.js) has and the curriculum seed
 // doesn't (handoff/lms-v3/PLAN.md, "Found while building"): step 6 at 30 minutes, the done-when lines' final periods,
@@ -14,10 +15,17 @@
 // (no early access), the intake a draft holding the package's sample answers, sidebar expanded, light theme, the
 // package's made-up people (Alex Morgan of Northline Realty). It refuses any database whose name doesn't say it is a
 // local one, and any learner that isn't flagged as the test account.
+//
+// `community` (D-231) writes the package's sample Community (handoff/lms-v3/src/data/community.samples.json) with its
+// own ids, which the tests click (`[data-post="23"]`, thread 2): five threads and seven posts, by the test learner
+// (Alex Morgan), a second made-up learner (Dana Whitlock of the Sample Team) and a made-up staff member (Connor Leiva,
+// "Amplified Impact"), at the sample's times. With LMS_V3_STAFF_PASSWORD set, that staff member can sign in, for the
+// staff checks (`--assume-as cl`): `SEED_TEST_MEMBER_EMAIL=v3-staff@example.test SEED_TEST_MEMBER_PASSWORD=… signin.mjs`.
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getSql } from '../../apps/api/src/db/client';
+import { hashPassword } from '../../apps/api/src/auth/passwords';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SAMPLES = resolve(HERE, '../../handoff/lms-v3/src/forms/week-0-intake.samples.json');
@@ -130,9 +138,69 @@ async function reset(): Promise<void> {
   console.log('Test learner reset: step 1 done, step 3 in progress, step 5 waiting, Week 0 open, the intake a draft.');
 }
 
+const COMMUNITY_SAMPLES = resolve(HERE, '../../handoff/lms-v3/src/data/community.samples.json');
+/** The sample's other people: `dw`, a learner on another team, and `cl`, staff. `am` is the test learner. */
+const DANA = { id: 'v3-dana', email: 'v3-dana@example.test', team: 'v3-sample-team' };
+const STAFF = { id: 'v3-staff', email: 'v3-staff@example.test' };
+/** Each sample post's time ("Thu, Nov 19 · 4:10 PM CT"), as an instant. */
+const POSTED: Record<number, string> = {
+  11: '2026-11-18T15:00:00Z',
+  21: '2026-11-19T22:10:00Z',
+  22: '2026-11-19T23:02:00Z',
+  23: '2026-11-20T18:20:00Z',
+  31: '2026-11-20T16:05:00Z',
+  41: '2026-11-19T14:15:00Z',
+  51: '2026-11-18T20:30:00Z',
+};
+
+async function community(): Promise<void> {
+  const email = process.env.SEED_TEST_MEMBER_EMAIL;
+  if (!email) throw new Error('SEED_TEST_MEMBER_EMAIL is not set.');
+  const [u] = await sql<{ id: string; is_test: boolean }[]>`select id, is_test from users where lower(email) = lower(${email})`;
+  if (!u?.is_test) throw new Error('No seeded test learner; refusing.');
+  const samples = JSON.parse(readFileSync(COMMUNITY_SAMPLES, 'utf8')) as {
+    people: Record<string, { name: string; team: string }>;
+    threads: { id: number; space: string; title: string; pinned?: boolean; hidden?: boolean; posts: { id: number; by: string; body: string; hidden?: boolean }[] }[];
+  };
+  const who: Record<string, string> = { am: u.id, dw: DANA.id, cl: STAFF.id };
+  const at = (id: number): number => Date.parse(POSTED[id]!);
+  const staffHash = process.env.LMS_V3_STAFF_PASSWORD ? await hashPassword(process.env.LMS_V3_STAFF_PASSWORD) : null;
+  await sql.begin(async (tx) => {
+    const dw = samples.people.dw!, cl = samples.people.cl!;
+    await tx`insert into teams (id, name, owner_id, seats, seq) values (${DANA.team}, ${dw.team}, ${DANA.id}, 5, 9000)
+             on conflict (id) do update set name = excluded.name`;
+    await tx`insert into users (id, email, name, kind, tier, role, team_id, cohort_id, joined, status, seq)
+             values (${DANA.id}, ${DANA.email}, ${dw.name}, 'learner', 'team', 'Team Owner', ${DANA.team}, ${COHORT}, ${PREVIEW_OPENS_AT}, 'active', 9000)
+             on conflict (id) do update set name = excluded.name, team_id = excluded.team_id`;
+    await tx`insert into users (id, email, name, kind, staff_role, seq) values (${STAFF.id}, ${STAFF.email}, ${cl.name}, 'staff', 'Owner', 9001)
+             on conflict (id) do update set name = excluded.name, staff_role = excluded.staff_role`;
+    if (staffHash) {
+      await tx`insert into user_passwords (user_id, hash, updated_at) values (${STAFF.id}, ${staffHash}, now())
+               on conflict (user_id) do update set hash = excluded.hash, updated_at = excluded.updated_at`;
+    }
+    await tx`delete from community_posts`;
+    await tx`delete from community_threads`;
+    for (const t of samples.threads) {
+      const first = t.posts[0]!;
+      const last = Math.max(...t.posts.map((p) => at(p.id)));
+      await tx`insert into community_threads (id, cohort_id, space, title, by_user_id, pinned, hidden, created_at, activity_at)
+               values (${t.id}, ${COHORT}, ${t.space}, ${t.title}, ${who[first.by]!}, ${!!t.pinned}, ${!!t.hidden}, ${at(first.id)}, ${last})`;
+      for (const p of t.posts) {
+        await tx`insert into community_posts (id, thread_id, by_user_id, body, created_at, hidden)
+                 values (${p.id}, ${t.id}, ${who[p.by]!}, ${p.body}, ${at(p.id)}, ${!!p.hidden})`;
+      }
+    }
+    // New threads and posts start at 100, as the mockup's do.
+    await tx`select setval('community_threads_id_seq', 100, false)`;
+    await tx`select setval('community_posts_id_seq', 100, false)`;
+  });
+  console.log(`The sample Community written: ${samples.threads.length} threads, ${samples.threads.flatMap((t) => t.posts).length} posts.`);
+}
+
 await guard();
 const what = process.argv[2];
 if (what === 'content') await content();
 else if (what === 'reset') await reset();
-else throw new Error('Usage: prepare.ts content | reset');
+else if (what === 'community') await community();
+else throw new Error('Usage: prepare.ts content | reset | community');
 await sql.end();

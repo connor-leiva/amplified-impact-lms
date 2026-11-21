@@ -32,3 +32,28 @@ export function v3For(
 ): boolean {
   return !viewer.preview && v3On(me, flag);
 }
+
+/** The Community's addresses: the list and one thread. */
+export const isCommunityPath = (pathname: string): boolean => /^\/learn\/community(?:\/[^/]+)?\/?$/.test(pathname);
+
+/**
+ * D-231: who opens the Community. A learner v3 draws for (`v3For`), and staff, flag or not: it is where they pin,
+ * hide and answer, and it has no page outside v3. A staff member previewing a learner (C-04) doesn't.
+ */
+export function communityFor(
+  viewer: { preview?: unknown; actor: { kind: string } },
+  me: Pick<Learner, 'test'> | null,
+  flag: boolean = LMS_V3,
+): boolean {
+  return v3For(viewer, me, flag) || (viewer.actor.kind === 'staff' && !viewer.preview);
+}
+
+/** Whether this visit draws the v3 frame at this address: `v3For`, or the Community's for staff (`communityFor`). */
+export function v3FrameAt(
+  pathname: string,
+  viewer: { preview?: unknown; actor: { kind: string } },
+  me: Pick<Learner, 'test'> | null,
+  flag: boolean = LMS_V3,
+): boolean {
+  return v3For(viewer, me, flag) || (isCommunityPath(pathname) && communityFor(viewer, me, flag));
+}

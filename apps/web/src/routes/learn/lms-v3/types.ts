@@ -190,3 +190,21 @@ export interface FormDef {
 export type FormAnswers = Record<string, string | string[]>;
 export type FormStatus = 'new' | 'draft' | 'submitted';
 export interface FormInitial { status: FormStatus; answers: FormAnswers; savedLabel?: string; submittedShort?: string }
+
+// D-231: the Community (`handoff/lms-v3/src/components/Community.jsx`, `src/data/community.samples.json`).
+export interface CommunityUi {
+  title: string; lede: string; all: string; spaces: string; pinned: string; hidden: string; staff: string; threads: string; newest: string;
+  none: string; start: string; space: string; threadTitle: string; titleHint: string; details: string; detailsHint: string; cohortReads: string;
+  postThread: string; posted: string; postingAs: string; how: string; howLines: string[]; back: string; reply: string; replyHint: string;
+  replyReads: string; postReply: string; edit: string; save: string; cancel: string; delete: string; deleteThread: string; deleteReply: string;
+  edited: string; about: string; startedBy: string; lastReply: string; noReplies: string; staffOnly: string; staffSee: string; pin: string;
+  unpin: string; hide: string; show: string; hideThread: string; showThread: string; needSpace: string; needTitle: string; needDetails: string;
+  needReply: string; justNow: string;
+}
+export interface CmPerson { name: string; team: string; initials: string; staff?: boolean }
+export interface CmSpace { id: string; label: string }
+/** A list row, in activity order. */
+export interface CmThreadRow { id: number | string; href: string; space: string; title: string; pinned?: boolean; hidden?: boolean; activity: string; replies: number; excerpt: string; by: string }
+/** A post this viewer may see. `fresh`: it was just posted, and rises in. */
+export interface CmPost { id: number | string; by: string; when: string; body: string; edited?: boolean; hidden?: boolean; fresh?: boolean }
+export interface CmThread { id: number | string; space: string; spaceLabel: string; title: string; pinned?: boolean; hidden?: boolean; posts: CmPost[] }

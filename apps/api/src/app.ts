@@ -107,6 +107,7 @@ import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import { registerIntakeRoute } from './routes/intake';
+import { registerCommunityRoutes } from './routes/community';
 import { registerPersonalizeRoute } from './routes/personalize';
 import { registerStackRoute } from './routes/stack';
 import type { OfferPages } from './routes/offer';
@@ -683,6 +684,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerIntakeRoute(app);
     registerStackRoute(app);
     registerPersonalizeRoute(app);
+    // D-231: the cohort Community. Signed in, then a learner whose plan has the course, or staff.
+    registerCommunityRoutes(app);
     // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
     registerCurriculumStatusRoute(app);
     // Whether a Skill Library download link resolves, as counts and a status code (D-122): open.
