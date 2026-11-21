@@ -70,7 +70,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-191: how far a learner has watched one course video. Epoch ms, like progress.
   videoProgress: { table: 'video_progress', columns: ['last_position_s', 'max_pct', 'module_id', 'updated_at', 'user_id', 'video_id'] },
   // D-196: one intake per team. Not a Db record.
-  teamIntake: { table: 'team_intake', columns: ['answers', 'submitted_at', 'team_id', 'updated_at', 'updated_by'] },
+  teamIntake: { table: 'team_intake', columns: ['answers', 'ghl_attempts', 'ghl_error', 'ghl_next_at', 'ghl_sync_status', 'ghl_synced_at', 'submitted_at', 'team_id', 'updated_at', 'updated_by'] },
   teamStackCard: { table: 'team_stack_card', columns: ['rows', 'sent_at', 'team_id', 'updated_at', 'updated_by'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
@@ -338,6 +338,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['videoProgress', 'updatedAt'],
   ['teamIntake', 'updatedAt'],
   ['teamIntake', 'submittedAt'],
+  // D-229: the intake's sync to GHL.
+  ['teamIntake', 'ghlSyncedAt'],
+  ['teamIntake', 'ghlNextAt'],
   ['teamStackCard', 'updatedAt'],
   ['teamStackCard', 'sentAt'],
   ['resources', 'updated'],

@@ -217,6 +217,8 @@ export const AUDIT_ACTIONS = [
   'vault.replace',
   // D-196: a staff member opened a team's intake on the workspace page.
   'intake.read',
+  // D-229: staff re-queue a team's submitted intake for GHL.
+  'intake.sync',
   // D-197: a staff member opened a team's stack card.
   'stack.read',
   // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.

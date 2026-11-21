@@ -44,7 +44,7 @@ import { getDb } from '../db/client';
 import { users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { issuePasswordLink } from '../routes/password';
-import { readTeamIntake } from '../routes/intake';
+import { readTeamIntake, requeueTeamIntake } from '../routes/intake';
 import { readTeamStack } from '../routes/stack';
 import { audit } from './audit';
 import { consoleAllows, consoleError, requireConsole, staffActor } from './guard';
@@ -58,6 +58,8 @@ export const SUPPORT_PATHS = {
   workspaces: '/api/console/workspaces',
   workspace: '/api/console/workspaces/:teamId',
   workspaceIntake: '/api/console/workspaces/:teamId/intake',
+  /** D-229: re-queue the team's submitted intake for GHL. No console screen yet (C-14). */
+  workspaceIntakeSync: '/api/console/workspaces/:teamId/intake/sync',
   workspaceStack: '/api/console/workspaces/:teamId/stack',
   users: '/api/console/users',
   user: '/api/console/users/:userId',
@@ -180,6 +182,19 @@ export function registerSupportRoutes(scope: FastifyInstance): void {
     if (!row) return consoleError(reply, 'not_found');
     return reply.send(row);
   });
+
+  scope.post(
+    SUPPORT_PATHS.workspaceIntakeSync,
+    { ...write, preHandler: [requireSession, requireJsonSameOrigin, requireConsole('workspaces.read'), requireConsole('webhooks.retry')] },
+    async (req, reply): Promise<FastifyReply> => {
+      const id = paramOf(req, 'teamId');
+      const actor = staffActor(viewerOrThrow(req));
+      if (!ID.test(id) || !actor) return consoleError(reply, 'not_found');
+      const state = await requeueTeamIntake(req, id, actor, clock.now());
+      if (!state) return consoleError(reply, 'not_found');
+      return reply.send({ ghl: state });
+    },
+  );
 
   scope.get(SUPPORT_PATHS.workspaceStack, { ...read, preHandler: [requireSession, requireConsole('workspaces.read')] }, async (req, reply): Promise<FastifyReply> => {
     const id = paramOf(req, 'teamId');

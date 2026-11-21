@@ -15,6 +15,9 @@ import { clock } from '../lib/clock';
 
 export const INTAKE_PATH = '/api/intake';
 
+/** D-229: a row is due for GHL one minute after its last edit, so a burst of edits is one sync. */
+export const INTAKE_QUIET_MS = 60_000;
+
 interface Member {
   id: string;
   teamId: string;
@@ -79,12 +82,15 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     const now = clock.now();
     const [prev] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
     const submittedAt = body.submit ? now : (prev?.submittedAt ?? null);
+    // D-229 (B-20): a submit, and any save after one, queues the answers for GHL after a minute's quiet
+    // (jobs/ghl-intake.ts). A draft never leaves the portal.
+    const sync = submittedAt !== null ? { ghlSyncStatus: 'pending', ghlNextAt: now + INTAKE_QUIET_MS, ghlAttempts: 0, ghlError: null } : {};
     await getDb()
       .insert(teamIntake)
-      .values({ teamId: me.teamId, answers, updatedAt: now, updatedBy: me.id, submittedAt })
+      .values({ teamId: me.teamId, answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync })
       .onConflictDoUpdate({
         target: teamIntake.teamId,
-        set: { answers, updatedAt: now, updatedBy: me.id, submittedAt },
+        set: { answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync },
       });
     if (body.submit) {
       const db = await loadDb(getDb());
@@ -100,10 +106,47 @@ export async function readTeamIntake(
   req: Parameters<typeof audit>[0],
   teamId: string,
   actor: { source: 'staff'; userId: string; role: string | null },
-): Promise<{ answers: IntakeAnswers; updatedAt: number | null; submittedAt: number | null } | null> {
+): Promise<{ answers: IntakeAnswers; updatedAt: number | null; submittedAt: number | null; ghl: IntakeSyncState } | null> {
   const [team] = await getDb().select({ id: teams.id }).from(teams).where(eq(teams.id, teamId));
   const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
   if (!team && !row) return null;
   await audit(req, { action: 'intake.read', outcome: 'ok', actor, target: { type: 'team', id: teamId, label: 'Intake' } });
-  return { answers: row?.answers ?? {}, updatedAt: row?.updatedAt ?? null, submittedAt: row?.submittedAt ?? null };
+  return { answers: row?.answers ?? {}, updatedAt: row?.updatedAt ?? null, submittedAt: row?.submittedAt ?? null, ghl: syncStateOf(row) };
+}
+
+/** D-229 (B-19, B-20): a team intake's sync to GHL, as the console reads it. */
+export interface IntakeSyncState {
+  status: string;
+  syncedAt: number | null;
+  attempts: number;
+  error: string | null;
+  nextAt: number | null;
+}
+const syncStateOf = (row: typeof teamIntake.$inferSelect | undefined): IntakeSyncState => ({
+  status: row?.ghlSyncStatus ?? 'none',
+  syncedAt: row?.ghlSyncedAt ?? null,
+  attempts: row?.ghlAttempts ?? 0,
+  error: row?.ghlError ?? null,
+  nextAt: row?.ghlNextAt ?? null,
+});
+
+/**
+ * D-229: staff re-queue a submitted intake for GHL (due now, attempts reset). The caller has passed the console's
+ * permissions. Audited as `intake.sync`. Null when there is no submitted intake to send.
+ */
+export async function requeueTeamIntake(
+  req: Parameters<typeof audit>[0],
+  teamId: string,
+  actor: { source: 'staff'; userId: string; role: string | null },
+  now: number,
+): Promise<IntakeSyncState | null> {
+  const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
+  if (!row?.submittedAt) return null;
+  const [next] = await getDb()
+    .update(teamIntake)
+    .set({ ghlSyncStatus: 'pending', ghlNextAt: now, ghlAttempts: 0, ghlError: null })
+    .where(eq(teamIntake.teamId, teamId))
+    .returning();
+  await audit(req, { action: 'intake.sync', outcome: 'ok', actor, target: { type: 'team', id: teamId, label: 'Intake' }, after: { ghl: 'pending' } });
+  return syncStateOf(next);
 }

@@ -58,6 +58,9 @@ import { registerStaticFiles } from './static';
 import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
 import { startGhlSync } from './jobs/ghl-sync';
+import { intakeDryRun, startGhlIntakeLoop } from './jobs/ghl-intake';
+import { ghlSyncPaused, readGhlConfig } from './integrations/ghl';
+import { clock } from './lib/clock';
 import { GUIDE_SLUGS } from './routes/guide-list';
 import { SALES_PAGES } from './routes/offer';
 import type { SalesPath } from './routes/offer';
@@ -202,6 +205,13 @@ startScheduler({ fixtureOnly, log: app.log });
 // database — and both GHL variables, not by `fixtureOnly`: it is about this page, not about the
 // program's emails, which is the distinction the comment above draws. Off and saying so otherwise.
 startGhlSync({ waitlist: databaseConfigured(), log: app.log });
+
+// D-229 (B-20): a submitted intake to GHL. A dry run unless GHL_INTAKE_DRY_RUN=false (it logs what it would send,
+// every value redacted to its length); off in the fixture build, without a database, and while GHL_SYNC_ENABLED=false.
+if (!fixtureOnly && databaseConfigured() && !ghlSyncPaused()) {
+  startGhlIntakeLoop({ config: readGhlConfig(), log: app.log, now: () => clock.now() });
+  app.log.info({ dryRun: intakeDryRun(), configured: readGhlConfig() !== null }, 'ghl-intake loop on');
+}
 
 // The offer (D-073 to D-078): say once what is on and in which mode, never a secret, and send the
 // owner invites held for Monday once Monday comes.
