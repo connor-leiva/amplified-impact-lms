@@ -59,10 +59,23 @@ export interface MenuProps {
   /** The menu's accessible name. */
   label: string;
   className?: string;
+  /**
+   * D-226: a menu whose trigger is drawn elsewhere (the v3 shell's account button, which the package draws). The
+   * caller holds `open`; `anchor` is that button, which takes focus back on Escape and doesn't count as leaving.
+   */
+  control?: { open: boolean; onOpenChange: (open: boolean) => void; anchor: () => HTMLElement | null };
 }
 
-export function Menu({ items, placement = 'below-right', trigger, label, className }: MenuProps) {
-  const [open, setOpen] = useState(false);
+export function Menu({ items, placement = 'below-right', trigger, label, className, control }: MenuProps) {
+  const [own, setOwn] = useState(false);
+  const open = control ? control.open : own;
+  const ctl = useRef(control);
+  ctl.current = control;
+  const setOpen = useCallback((v: boolean | ((o: boolean) => boolean)) => {
+    const c = ctl.current;
+    if (!c) return setOwn(v);
+    c.onOpenChange(typeof v === 'function' ? v(c.open) : v);
+  }, []);
   const root = useRef<HTMLSpanElement | null>(null);
   const pop = useRef<HTMLDivElement | null>(null);
   const focusFirst = useRef(false);
@@ -71,8 +84,20 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
   const buttons = () => Array.from(pop.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
   const close = useCallback((refocus: boolean) => {
     setOpen(false);
-    if (refocus) root.current?.querySelector<HTMLElement>('[aria-haspopup="menu"]')?.focus();
-  }, []);
+    if (refocus) (ctl.current?.anchor() ?? root.current?.querySelector<HTMLElement>('[aria-haspopup="menu"]'))?.focus();
+  }, [setOpen]);
+
+  // A controlled menu's trigger is outside it, so leaving the trigger isn't a blur here: a press anywhere else closes it.
+  const controlled = !!control;
+  useEffect(() => {
+    if (!controlled || !open) return undefined;
+    const down = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!root.current?.contains(t) && !ctl.current?.anchor()?.contains(t)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', down);
+    return () => document.removeEventListener('pointerdown', down);
+  }, [controlled, open, setOpen]);
 
   useEffect(() => {
     if (open && focusFirst.current) {
@@ -153,7 +178,8 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
       ref={root}
       className={clsx(s.menu, className)}
       onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+        const to = e.relatedTarget as Node | null;
+        if (!e.currentTarget.contains(to) && !(to && ctl.current?.anchor()?.contains(to))) setOpen(false);
       }}
     >
       {trigger(t)}

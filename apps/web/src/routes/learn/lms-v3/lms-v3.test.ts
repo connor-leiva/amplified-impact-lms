@@ -21,6 +21,15 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(sha(pkg)).toBe(want);
   });
 
+  // B-41: the academy logos the shell draws, the brand's files as Connor uploaded them (brand/logos/SHA256SUMS).
+  it.each(['amplified-impact-academy-app.svg', 'amplified-impact-academy.svg', 'favicon.svg'])('the logo %s', (f) => {
+    const sums = readFileSync(join(ROOT, 'handoff/lms-v3/brand/logos/SHA256SUMS'), 'utf8');
+    const want = sums.split('\n').find((l) => l.endsWith(`  ${f}`))?.split(' ')[0];
+    expect(want).toMatch(/^[0-9a-f]{64}$/);
+    expect(sha(`apps/web/src/routes/learn/lms-v3/logos/${f}`)).toBe(want);
+    expect(sha(`handoff/lms-v3/brand/logos/${f}`)).toBe(want);
+  });
+
   it('the package’s mockup is the approved revision (v6)', () => {
     expect(sha('handoff/lms-v3/mockup/index.html')).toBe('0383d010513f2f7af819ed1a780b25075079b9d2e274a5405a22bfc77ad1562f');
   });

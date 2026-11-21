@@ -21,7 +21,12 @@ export default defineConfig({
         replacement: fileURLToPath(new URL('../../packages/core/src/$1.ts', import.meta.url)),
       },
       { find: '@ai/core', replacement: fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)) },
+      // D-225: the package's own JSX, for the v3 equality tests only (the production vite config has no such alias).
+      { find: /^@lms-v3-pkg\/(.*)$/, replacement: fileURLToPath(new URL('../../handoff/lms-v3/src/$1', import.meta.url)) },
     ],
+    // D-225: the v3 equality tests render the package's own JSX (`handoff/lms-v3/src/`), which has no node_modules
+    // of its own. It resolves React from this app, so both versions render with the one React.
+    dedupe: ['react', 'react-dom'],
   },
   test: {
     globals: true,

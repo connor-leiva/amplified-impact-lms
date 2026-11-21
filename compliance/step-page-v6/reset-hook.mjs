@@ -18,6 +18,8 @@ let resets = 0;
 // ticking every box and marking the step done about 50 more, so before each target shot the hook waits until
 // the page's own API requests over the last 61 s leave room for a heavy one (V6_SHOT_NEED, 75).
 const LIMIT = 100;
+// What says the app has drawn: the step page by default; LMS v3's runs pass their own (compliance/lms-v3/README.md).
+const READY = process.env.V6_READY ?? '[data-step-page] .page';
 const NEED = Number(process.env.V6_SHOT_NEED ?? 75);
 const api = [];
 const recent = () => { const since = Date.now() - 61_000; while (api.length && api[0] < since) api.shift(); return api.length; };
@@ -42,7 +44,7 @@ chromium.launch = async (...args) => {
         const nav = page[m].bind(page);
         page[m] = async (...b) => {
           const res = await nav(...b);
-          await page.waitForSelector('[data-step-page] .page', { timeout: 30_000 });
+          await page.waitForSelector(READY, { timeout: 30_000 });
           return res;
         };
       }

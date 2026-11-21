@@ -152,6 +152,13 @@ Not available (1.1). Phases 9 and 10 wait for it.
   mockup's learner has only Week 0 open: the reset turns early access off and the dev cohort's preview on. In the
   pre-launch preview the nav's **Resource vault is locked** ("opens …"); the mockup draws a plain link. C-05 says stop
   on the vault's lock: **question for Connor**. The v3 shell draws the mockup's link for now.
+- **The test learner's sidebar and theme** are in `users.prefs` (D-185), not `learner_prefs`: the reset clears both.
+- **`--selector '[data-ai="shell"]'` can't gate the sidebar** on a desktop. The test measures the first visible
+  shell element (the sidebar, 248 px) and gives the mockup's sidebar the rest of the width, so the two never line up.
+  The shell is gated full page instead, on the week and Schedule routes, once their pages land; until then element
+  comparisons of the sidebar and the top bar (0 different pixels at 1440 and 390, the phone menu open) stand in.
+- **The phone tap floor is `min-width` and `min-height`**: the frame sets `--tap` to `auto` (their initial value),
+  not 0, which would let the account button shrink in the phone header.
 - **Locks and session states follow the server's clock**, not the one the test pins in the browser. The
   `--assume-clock` states need data seeded for that moment, and the sidebar's cohort line (above) moves with the
   browser's clock.
@@ -161,6 +168,12 @@ Not available (1.1). Phases 9 and 10 wait for it.
   the row exists. Plan: Phase 3 builds the row from the nav view-model (B-29's nav half) behind the same flag, linking
   to `/learn/community`, which renders nothing new until Phase 10.
 
+- **Accessibility: one serious axe finding, in the mockup itself.** The step list's "Done" chip
+  (`.wk-st[data-s="done"]`, #1f8a5c on white at 13 px) is 4.33:1 against axe's 4.5:1. The approved mockup has the same
+  finding, so the port reproduces it. The Schedule, the locked week and the open form drawer have none. CLAUDE.md asks
+  for zero serious findings; the mockup's colour can't change without a new mockup. **Question for Connor.**
+- **Q-09** screenshots: `screens/q09/`.
+
 ## Questions for Connor
 1. The uploads and community patch (1.1).
 2. Q-13 to Q-17 (spec §5.2), unchanged.
@@ -169,3 +182,4 @@ Not available (1.1). Phases 9 and 10 wait for it.
 4. Step 5's "Waiting on step 6": is the dependency in production's Week 0?
 5. The cohort line on and after Dec 2 ("Week 1 of 8" by today's rule, "Starts Dec 2" in the mockup).
 6. The Resource vault's pre-launch lock, which the mockup doesn't draw (C-05).
+7. The "Done" chip's contrast (4.33:1, in the mockup too): keep the mockup's colour, or a new mockup with a darker green?
