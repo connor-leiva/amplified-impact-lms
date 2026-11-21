@@ -120,6 +120,29 @@ the repo.
 
 Not available (1.1). Phases 9 and 10 wait for it.
 
+## Phase 7. PDF (the placeholder look)
+
+Connor, Nov 21: "Ship placeholder look" (the spec's choice when everything else is ready before the template, Q-14).
+So the server prints the package's `src/pdf/form-pdf.js` (converted to `apps/api/src/pdf/form-pdf.ts`, nothing else)
+with headless Chromium, as the package's `tools/make-pdf.mjs` does. The template replaces the look when it arrives.
+
+- **Routes** (B-18): `GET /api/intake/pdf` (the owner and the operator, their own team; an agent and a staff preview
+  are refused as for the intake) and `GET /api/console/workspaces/:teamId/intake/pdf` (workspaces.read, audited as
+  `intake.pdf`). "Week 0 Intake - <Team>.pdf", `no-store`, made on each request and never kept. Draft or submitted:
+  the date is the submit's, or the last save's, in Central.
+- **Drawer**: `onDownloadPdf` fetches the route; the button's busy state covers the render, then the browser saves
+  the file under the route's name. Checked on the test learner: "Week 0 Intake - Northline Realty.pdf", 3 pages.
+- **Engine**: `@sparticuz/chromium` 153 (Chromium for any Linux host, unpacked to the temp directory) and
+  `playwright-core` 1.63. `CHROME_PATH` names another browser for development.
+- **Gate** (pdftoppm, 110 dpi): the sample answers against `pdf/week-0-intake.sample.pdf`: 3 of 3 pages, **0 different
+  pixels** on each, from the bundled Chromium, from Chrome 153, and with the host's fonts hidden. The draft sample
+  against the package's own `make-pdf.mjs --state draft`: 3 of 3, 0 px. The server's HTML for the sample is byte for
+  byte the package's print source (`pdf/week-0-intake.sample.html`), pinned by `apps/api/test/intake-pdf.test.ts`.
+- **Time and memory**, here: 0.4 to 0.7 s a render once unpacked (about 4 s the first time), the API process at about
+  200 MB during a render, Chromium separate and closed after each.
+- **Not verified on Railway** (no access from here): the bundled Chromium needs only glibc beyond what the code hands
+  it (below), and writes to the temp directory. The first download after a deploy pays the unpacking.
+
 ## Found while building
 
 - **Seed against the package's words** (every field of `sampleWeek`, `sampleSchedule`, `sampleShell` and the intake,
@@ -203,6 +226,14 @@ Not available (1.1). Phases 9 and 10 wait for it.
   finding, so the port reproduces it. The Schedule, the locked week and the open form drawer have none. CLAUDE.md asks
   for zero serious findings; the mockup's colour can't change without a new mockup. **Question for Connor.**
 - **Q-09** screenshots: `screens/q09/`.
+- **The bundled Chromium on a bare host** (Phase 7). Its only libraries beyond glibc are NSS's (`libnss3`, `libnspr4`,
+  `libexpat`…), which a slim image lacks; the package ships them but unpacks them only on AWS Lambda. And on a host
+  with no fonts installed Chromium draws no text at all, web fonts included (measured: the sample printed with an
+  empty fontconfig had no words). So the server unpacks the package's libraries and its small font set and hands
+  both to the browser alone (`LD_LIBRARY_PATH`, `FONTCONFIG_PATH`), on every host: the same output everywhere, 0 px.
+- **Download PDF has no failure state** in the package's `useForm` (nor have saving and submitting): an
+  `onDownloadPdf` that throws leaves the button busy for good. A failed download resolves without a file, so the
+  button returns to Download PDF. **Question for Connor** if a failure should say something (C-22's slots).
 
 ## Questions for Connor
 1. The uploads and community patch (1.1).
@@ -210,6 +241,7 @@ Not available (1.1). Phases 9 and 10 wait for it.
 3. Week 0's production content against C-12 (1.4), and the content differences above (step 6's time, the periods,
    the kit's files and zips).
 4. Step 5's "Waiting on step 6": is the dependency in production's Week 0?
-5. The cohort line on and after Dec 2 ("Week 1 of 8" by today's rule, "Starts Dec 2" in the mockup).
+5. ~~The cohort line on and after Dec 2~~: answered Nov 21, "Week N of 8" (today's rule stays).
 6. The Resource vault's pre-launch lock, which the mockup doesn't draw (C-05).
 7. The "Done" chip's contrast (4.33:1, in the mockup too): keep the mockup's colour, or a new mockup with a darker green?
+8. Download PDF's failure state (Found while building), and the PDF template (Q-14), which replaces the placeholder look.

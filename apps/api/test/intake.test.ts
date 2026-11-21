@@ -81,3 +81,37 @@ describe('team intake (D-196)', () => {
     expect(done.json().submittedAt).not.toBeNull();
   });
 });
+
+describe('intake PDF (D-229, B-18)', () => {
+  // A real render: headless Chromium (`CHROME_PATH`, or the bundled `@sparticuz/chromium` as on the host).
+  it('prints the learner’s own team’s intake as a download, and refuses an agent, a staff preview and no session', async () => {
+    const a = await app.signInAs('own-a');
+    const agent = await app.signInAs('op-a');
+    const staff = await app.signInAs('st_owner');
+    const res = await app.inject({ method: 'GET', url: '/api/intake/pdf', headers: { cookie: a } });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('application/pdf');
+    expect(res.headers['content-disposition']).toBe('attachment; filename="Week 0 Intake - Team A.pdf"');
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.rawPayload.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    expect((await app.inject({ method: 'GET', url: '/api/intake/pdf', headers: { cookie: agent } })).statusCode).toBe(403);
+    expect((await app.inject({ method: 'GET', url: '/api/intake/pdf', headers: { cookie: staff } })).statusCode).toBe(403);
+    expect((await app.inject({ method: 'GET', url: '/api/intake/pdf' })).statusCode).toBe(401);
+  }, 60_000);
+
+  it('gives staff any team’s PDF, audited as intake.pdf, and a team that doesn’t exist is not found', async () => {
+    const staff = await app.signInAs('st_owner');
+    const before = (await handle.select().from(auditLog).where(eq(auditLog.action, 'intake.pdf'))).length;
+    const res = await app.inject({ method: 'GET', url: '/api/console/workspaces/team-b/intake/pdf', headers: { cookie: staff } });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-disposition']).toBe('attachment; filename="Week 0 Intake - Team B.pdf"');
+    expect(res.rawPayload.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    const rows = await handle.select().from(auditLog).where(eq(auditLog.action, 'intake.pdf'));
+    expect(rows.length).toBe(before + 1);
+    expect(rows.some((r) => r.targetType === 'team' && r.targetId === 'team-b' && r.outcome === 'ok')).toBe(true);
+    const missing = await app.inject({ method: 'GET', url: '/api/console/workspaces/team-z/intake/pdf', headers: { cookie: staff } });
+    expect(missing.statusCode).toBe(404);
+    const learner = await app.signInAs('own-a');
+    expect((await app.inject({ method: 'GET', url: '/api/console/workspaces/team-a/intake/pdf', headers: { cookie: learner } })).statusCode).toBe(403);
+  }, 60_000);
+});
