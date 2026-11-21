@@ -9,7 +9,7 @@ import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { localToggle, localWatch } from '@ai/core/checklist';
-import { mayEditIntake } from '@ai/core/intake';
+import { intakeFileIds, mayEditIntake } from '@ai/core/intake';
 import { learnerOf } from '@ai/core/learner';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseIntake } from '@ai/core/course-types';
@@ -28,7 +28,7 @@ import { Blocks, Go, KitRows, Tile, nStyle } from './parts';
 import type { VideoWatch } from './Video';
 import { learnHome, learnIntake, learnStep } from './routes';
 import { v3For } from './lms-v3/v3';
-import { INTAKE_KIT_ID, opensIntakeDrawer } from './lms-v3/form.vm';
+import { opensIntakeDrawer } from './lms-v3/form.vm';
 import { v6StepAt } from './step-page/v6';
 import { StepPageRoute } from './step-page/StepPageRoute';
 import { StepLive } from './Live';
@@ -407,7 +407,11 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
       return (
         <>
           {page}
-          <InPlaceIntake intake={intake.intake} now={now} file={repo.fileUrl({ kind: 'resource', id: INTAKE_KIT_ID })} />
+          <InPlaceIntake
+            intake={intake.intake}
+            now={now}
+            files={intakeFileIds(rows.find((x) => x.week === 0)?.module, intake.kit ?? []).flatMap((id) => repo.fileUrl({ kind: 'resource', id }) ?? [])}
+          />
         </>
       );
     }
@@ -420,25 +424,26 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
 const StepIntake = lazy(() => import('./lms-v3/StepIntake'));
 
 /**
- * Answers a click on a link to the intake (its old page, or its kit file: `opensIntakeDrawer`) by opening its drawer in
- * place (loaded on the first open).
+ * Answers a click on a link to the intake (its old page, or one of its kit files: `opensIntakeDrawer`) by opening its
+ * drawer in place (loaded on the first open).
  */
-function InPlaceIntake({ intake, now, file }: { intake: CourseIntake; now: number; file: string | null }) {
+function InPlaceIntake({ intake, now, files }: { intake: CourseIntake; now: number; files: readonly string[] }) {
+  const key = files.join(' ');
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
-      const fileAt = file ? new URL(file, window.location.href).pathname : null;
-      if (!a || !opensIntakeDrawer(new URL(a.href, window.location.href).pathname, learnIntake(), fileAt)) return;
+      const at = key ? key.split(' ').map((f) => new URL(f, window.location.href).pathname) : [];
+      if (!a || !opensIntakeDrawer(new URL(a.href, window.location.href).pathname, learnIntake(), at)) return;
       e.preventDefault();
       setLoaded(true);
       setOpen(true);
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
-  }, [file]);
+  }, [key]);
   return loaded ? (
     <Suspense fallback={null}>
       <StepIntake intake={intake} now={now} open={open} onClose={() => setOpen(false)} />

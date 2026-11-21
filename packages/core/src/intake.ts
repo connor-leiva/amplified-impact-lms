@@ -104,6 +104,37 @@ export function intakeCheckTarget(mod: AIEmployee | undefined): { moduleId: stri
   return null;
 }
 
+/** B-14: the kit file the spec names as the intake. A file made in the builder has a generated id instead. */
+export const INTAKE_FILE_ID = 'intake-form';
+
+/** A file titled as the intake form ("Week 0 Intake Form", "Intake form"). */
+const INTAKE_FORM_TITLE = /\bintake form$/i;
+
+/**
+ * D-229 (B-14, B-15): the kit files that are the intake, the "download the PDF and fill it in" path the form drawer
+ * replaces: the file `intake-form`; the files the intake's checklist item downloads (the item `intakeCheckTarget`
+ * finds); and a file on the intake's step titled as the intake form. A file made in the builder has a generated id
+ * (production's Week 0 Intake Form does, Nov 21), so the spec's id alone found nothing there.
+ */
+export function intakeFileIds(
+  mod: AIEmployee | undefined,
+  kit: readonly { id: string; title: string; stepId: string | null }[],
+): string[] {
+  const ids = new Set<string>();
+  const inKit = (id: string) => kit.some((k) => k.id === id);
+  if (inKit(INTAKE_FILE_ID)) ids.add(INTAKE_FILE_ID);
+  const step = mod?.checklist[0];
+  if (!step) return [...ids];
+  const target = intakeCheckTarget(mod);
+  const blocks = [...(step.paths?.claude?.blocks ?? []), ...(step.paths?.chatgpt?.blocks ?? [])];
+  for (const b of blocks) {
+    if (b.type !== 'check' || !target || b.id !== target.itemId || b.action?.type !== 'download') continue;
+    for (const id of b.action.kitItemIds) if (inKit(id)) ids.add(id);
+  }
+  for (const k of kit) if (k.stepId === step.id && INTAKE_FORM_TITLE.test(k.title.trim())) ids.add(k.id);
+  return [...ids];
+}
+
 /** Section titles and question labels, for the copy rules. */
 export function intakeCopy(form: CourseIntake | undefined): { path: string; label: string; text: string }[] {
   if (!form) return [];

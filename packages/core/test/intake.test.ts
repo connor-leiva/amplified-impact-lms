@@ -1,6 +1,6 @@
 // D-196: the intake's questions, who may edit, and which box a submit checks.
 import { describe, expect, it } from 'vitest';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeIssues, intakeMissing, mayEditIntake } from '../src/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds, intakeIssues, intakeMissing, mayEditIntake } from '../src/intake';
 import { WEEK0_INTAKE, planIntakeV1 } from '../seed/intake-v1';
 import { WEEK0_MODULE_ID } from '../seed/start-here-v1';
 import { copyIssues, moduleCopyFields } from '../src/course-rules';
@@ -56,5 +56,31 @@ describe('intakeMissing (D-229, B-16)', () => {
     expect(intakeMissing(form, {})).toEqual(['name', 'ai', 'tools']);
     expect(intakeMissing(form, { name: '  ', ai: 'Claude', tools: [] })).toEqual(['name', 'tools']);
     expect(intakeMissing(form, { name: 'Alex', ai: 'Claude', tools: ['X'] })).toEqual([]);
+  });
+});
+
+describe('intakeFileIds (D-229, B-14, B-15): the kit files the form drawer replaces', () => {
+  const week0 = (blocks: unknown[]) =>
+    ({ id: 'accelerator-week-0', checklist: [{ id: 'c1', paths: { claude: { blocks }, chatgpt: { blocks } } }, { id: 'c2' }] }) as unknown as AIEmployee;
+  const kit = [
+    { id: 'rmwmyx39v0aa9cbd8a', title: 'Week 0 Intake Form', stepId: 'c1' },
+    { id: 'rmwstack', title: 'Week 0 Stack Card', stepId: 'c1' },
+    { id: 'rmwother', title: 'Coaching Intake Form', stepId: 'c2' },
+  ];
+  it('production’s shape: the file the intake’s item downloads, by its generated id', () => {
+    const mod = week0([
+      { type: 'check', id: 's1-intake', title: 'Fill in your intake', action: { type: 'download', kitItemIds: ['rmwmyx39v0aa9cbd8a'] } },
+      { type: 'check', id: 's1-stack', title: 'Send back your stack card', action: { type: 'download', kitItemIds: ['rmwstack'] } },
+    ]);
+    expect(intakeFileIds(mod, kit)).toEqual(['rmwmyx39v0aa9cbd8a']);
+  });
+  it('an intake item with no download: the file on its step titled as the intake form', () => {
+    const mod = week0([{ type: 'check', id: 's1-intake', title: 'Fill in your intake' }]);
+    expect(intakeFileIds(mod, kit)).toEqual(['rmwmyx39v0aa9cbd8a']);
+  });
+  it('the spec’s id, and nothing for a week with no intake file', () => {
+    expect(intakeFileIds(week0([]), [{ id: 'intake-form', title: 'Intake', stepId: null }])).toEqual(['intake-form']);
+    expect(intakeFileIds(week0([]), kit.slice(1))).toEqual([]);
+    expect(intakeFileIds(undefined, kit)).toEqual([]);
   });
 });

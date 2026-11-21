@@ -62,11 +62,13 @@ describe('formRow (B-14)', () => {
 describe('what opens the drawer on a step page (B-15)', () => {
   const page = '/learn/week/0/intake';
   const file = '/api/files/resource/intake-form';
-  it('the old intake page and the intake’s kit file (production’s step 1 downloads it), nothing else', () => {
-    expect(opensIntakeDrawer(page, page, file)).toBe(true);
-    expect(opensIntakeDrawer(file, page, file)).toBe(true);
-    expect(opensIntakeDrawer('/api/files/resource/w0-stack-card', page, file)).toBe(false);
-    expect(opensIntakeDrawer('/learn/week/0/step/2', page, file)).toBe(false);
-    expect(opensIntakeDrawer(file, page, null)).toBe(false);
+  it('the old intake page and the intake’s kit files (production’s step 1 downloads one), nothing else', () => {
+    const made = '/api/files/resource/rmwmyx39v0aa9cbd8a';
+    expect(opensIntakeDrawer(page, page, [file])).toBe(true);
+    expect(opensIntakeDrawer(file, page, [file])).toBe(true);
+    expect(opensIntakeDrawer(made, page, [made])).toBe(true);
+    expect(opensIntakeDrawer('/api/files/resource/w0-stack-card', page, [file, made])).toBe(false);
+    expect(opensIntakeDrawer('/learn/week/0/step/2', page, [file])).toBe(false);
+    expect(opensIntakeDrawer(file, page, [])).toBe(false);
   });
 });
