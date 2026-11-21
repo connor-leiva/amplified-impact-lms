@@ -134,19 +134,32 @@ const SAID: Record<StartHereRowVM['status'], string> = {
   idle: LABELS.notStarted.toLowerCase(),
 };
 
-/** D-195: the card's rows are this week's steps. The first one that is not done is the current row. */
-export function startHereCard(card: StartHere, r: WeekRow, checks: readonly ChecklistMark[]): StartHereVM {
+/**
+ * Each step's checklist status (D-195) and, for a waiting step, the number of the step it waits on (B-22): the Start
+ * Here card's rows and the v3 week page's step list read the same rule.
+ */
+export function weekStepStatuses(r: WeekRow, checks: readonly ChecklistMark[]): { status: StartHereRowVM['status']; waitsOn: number | null }[] {
   const moduleId = acceleratorModuleId(r.week);
   const isOn = (stepId: string, itemId: string): boolean => checks.some((c) => c.moduleId === moduleId && c.stepId === stepId && c.itemId === itemId && c.checked);
-  const rows = r.steps.map((s): StartHereRowVM => {
+  const satisfied = (stepN: number, itemId: string): boolean => {
+    const other = r.steps[stepN - 1];
+    return !!other?.id && blocksOf(other).some((x) => isCheck(x) && (x.id === itemId || (x.subchecks ?? []).some((sub) => sub.id === itemId))) && isOn(other.id, itemId);
+  };
+  return r.steps.map((s) => {
     const blocks = blocksOf(s);
     const anyChecked = !!s.id && checks.some((c) => c.moduleId === moduleId && c.stepId === s.id && c.checked);
-    const waiting = (b: CheckBlock): boolean =>
-      waitingOn(b.dependsOn, (stepN, itemId) => {
-        const other = r.steps[stepN - 1];
-        return !!other?.id && blocksOf(other).some((x) => isCheck(x) && (x.id === itemId || (x.subchecks ?? []).some((sub) => sub.id === itemId))) && isOn(other.id, itemId);
-      }) !== null;
+    const waiting = (b: CheckBlock): boolean => waitingOn(b.dependsOn, satisfied) !== null;
     const status = stepChecklistStatus(s.done, blocks, anyChecked, (itemId) => (s.id ? isOn(s.id, itemId) : false), waiting);
+    const on = status === 'waiting' ? blocks.filter(isCheck).map((b) => waitingOn(b.dependsOn, satisfied)).find((n): n is number => n !== null) ?? null : null;
+    return { status, waitsOn: on };
+  });
+}
+
+/** D-195: the card's rows are this week's steps. The first one that is not done is the current row. */
+export function startHereCard(card: StartHere, r: WeekRow, checks: readonly ChecklistMark[]): StartHereVM {
+  const statuses = weekStepStatuses(r, checks);
+  const rows = r.steps.map((s, i): StartHereRowVM => {
+    const status = statuses[i]!.status;
     const time = s.step.timeLabel || (s.step.mins > 0 ? duration(s.step.mins) : '');
     return {
       n: s.n,

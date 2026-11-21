@@ -35,6 +35,17 @@ export const ITEMS = {
   step6: { type: 'check', id: 's6-google', title: 'Connect Google' },
 } as const;
 
+/** The kit's files, in the mockup's order: id, title, step, the file's type (the Vault's column). */
+const KIT: [string, string, string, string][] = [
+  ['w0-intake-form', 'Week 0 Intake Form', 'c1', 'PDF'],
+  ['w0-stack-card', 'Week 0 Stack Card', 'c1', 'PDF'],
+  ['w0-time-baseline-xlsx', 'Time Baseline', 'c3', 'XLSX'],
+  ['w0-time-baseline-csv', 'Time Baseline', 'c3', 'CSV'],
+  ['w0-map-your-spend-zip', 'Map Your Spend', 'c4', 'ZIP'],
+  ['w0-lead-source-review-zip', 'Lead Source Review', 'c4', 'ZIP'],
+  ['w0-test-hire-sample-week', 'Test Hire Sample Week', 'c8', 'PDF'],
+];
+
 const sql = getSql();
 
 async function guard(): Promise<void> {
@@ -44,6 +55,7 @@ async function guard(): Promise<void> {
 
 interface Step {
   id: string;
+  linkedSkill?: string;
   text?: string;
   doneWhen?: string;
   mins?: number;
@@ -69,10 +81,20 @@ async function content(): Promise<void> {
     if (n === 3) s = withItem(s, ITEMS.step3);
     if (n === 5) s = { ...s, paths: { claude: { blocks: [ITEMS.step5] } } };
     if (n === 6) s = withItem({ ...s, mins: 30, timeLabel: '30 min', hint: 'Operator. 30 min.' }, ITEMS.step6);
+    // The two supporting skills are step 4's (the kit says "Step 4 · Supporting").
+    if (n === 4) s = { ...s, linkedSkill: '/map-your-spend, /lead-source-review' };
     return s;
   });
   const course = { ...row.course, time: { ...row.course.time, operator: 'About 2 hr 20 min.' } };
   await sql`update modules set checklist = ${JSON.stringify(checklist)}::jsonb, course = ${JSON.stringify(course)}::jsonb, build = 170 where id = ${MODULE}`;
+  // The kit (B-13): the files the mockup lists, each on its step, and the two supporting skills' zips (a file titled as
+  // its skill). Rows only: their downloads aren't part of the tests (no file is stored).
+  for (const [i, [id, title, step, type]] of KIT.entries()) {
+    await sql`insert into resources (id, title, "desc", cat, type, tier, size, dl, updated, exec, status, seq, module_id, kind, step_id, visibility)
+              values (${id}, ${title}, '', 'Templates', ${type}, 'agent', '1 KB', 0, ${PREVIEW_OPENS_AT}, false, 'published', ${i}, ${MODULE}, 'file', ${step}, 'open_in_preview')
+              on conflict (id) do update set title = excluded.title, type = excluded.type, step_id = excluded.step_id, seq = excluded.seq,
+                status = 'published', visibility = 'open_in_preview', module_id = excluded.module_id`;
+  }
   await sql`update cohorts set preview_opens_at = ${PREVIEW_OPENS_AT} where id = ${COHORT}`;
   console.log('Week 0 written as the mockup has it; the cohort’s pre-launch preview is open.');
 }

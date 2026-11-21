@@ -29,6 +29,8 @@ import {
   weekState,
   weekSteps,
   withLiveState,
+  knownStepRole,
+  stepRoles,
 } from '../src/learner';
 import { endSession, goLive, publishReplay } from '../src/mutations';
 import type { Announcement } from '../src/types';
@@ -280,5 +282,21 @@ describe('the join window, the live state and the replay (D-183)', () => {
     expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1 } }, me)?.id).toBe('all');
     expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1 } }, { ...me, role: 'Operations Lead' })?.id).toBe('all');
     expect(inAppAnnouncement({ announcements: list, dismissed: { 'u1:owners': 1, 'u1:all': 1 } }, me)).toBeNull();
+  });
+});
+
+describe('stepRoles (B-09, D-228): who a step is for, from its who text', () => {
+  it('reads the builder’s words', () => {
+    expect(stepRoles('Owner')).toEqual(['owner']);
+    expect(stepRoles('Operator')).toEqual(['operator']);
+    expect(stepRoles('Owner and operator')).toEqual(['owner', 'operator']);
+    expect(stepRoles('Each of you')).toEqual(['owner', 'operator']);
+    expect(stepRoles(' operator. ')).toEqual(['operator']);
+  });
+  it('gives both roles any words it doesn’t know, so no step drops out of a list, and says it didn’t know them', () => {
+    expect(stepRoles('The team')).toEqual(['owner', 'operator']);
+    expect(stepRoles(undefined)).toEqual(['owner', 'operator']);
+    expect(knownStepRole('The team')).toBe(false);
+    expect(knownStepRole('Each of you')).toBe(true);
   });
 });

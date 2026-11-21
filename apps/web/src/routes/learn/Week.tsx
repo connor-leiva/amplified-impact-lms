@@ -23,6 +23,9 @@ import { DeployCard } from './Deploy';
 import { BuildKit, Crumbs, Downloads, WeekContent, WeekMeta, moduleFileUrl, useTabTitle } from './WeekContent';
 import { buildKitVM, crumbsVM, tabTitle, weekContentVM } from './WeekContent.vm';
 import type { BuildKitVM, CrumbVM, WeekContentVM } from './WeekContent.vm';
+import { V3Locked, V3Week } from './lms-v3/V3Week';
+import { v3LockedDraws, v3WeekDraws } from './lms-v3/week.vm';
+import { v3For } from './lms-v3/v3';
 import s from './Learn.module.css';
 
 const fileUrl = (id: string): string | null => repo.fileUrl({ kind: 'resource', id });
@@ -272,8 +275,16 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
   if (vm.kind === 'missing') return preview ? null : <Navigate to={vm.href} replace />;
   const crumbs = crumbsVM(vm.title, vm.week);
   const title = preview ? null : tabTitle(vm.week, vm.title);
+  const row = rows.find((r) => r.week === vm.week);
+  // D-228: the v3 week page for a learner v3 draws for (never in the builder's preview), when the week needs nothing
+  // the mockup doesn't draw (`v3WeekDraws`, `v3LockedDraws`); otherwise today's page whole.
+  if (!preview && row && v3For(viewer, me)) {
+    if (vm.kind === 'locked' && v3LockedDraws(vm, row)) return <V3Locked p={course.payload} rows={rows} r={row} vm={vm} now={now} />;
+    if (vm.kind === 'open' && v3WeekDraws(row, course.payload.sessions))
+      return <V3Week p={course.payload} rows={rows} r={row} me={me} checks={me?.checks ?? []} build={buildKitVM(row.module, moduleFileUrl)} fileUrl={fileUrl} />;
+  }
   if (vm.kind === 'locked') return <Locked vm={vm} now={now} crumbs={crumbs} title={title} />;
-  const mod = rows.find((r) => r.week === vm.week)?.module;
+  const mod = row?.module;
   const more: WeekMore = {
     crumbs,
     content: weekContentVM(course.payload, vm.week, mod),

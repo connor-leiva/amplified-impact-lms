@@ -426,6 +426,27 @@ export function markDeployed(db: Db, a: Actor, args: { moduleId: string }, c: Ct
 }
 
 /**
+ * B-11 (D-228): Undo a "Mark as deployed" on the v3 week page. The week goes back to every step done, not deployed,
+ * as it was before the mark; its steps are untouched. A week that isn't deployed is left as it is.
+ */
+export function unmarkDeployed(db: Db, a: Actor, args: { moduleId: string }, c: Ctx): Outcome {
+  const u = learnerOf(db, a);
+  const m = moduleOf(db, args.moduleId);
+  if (!u.progress[m.id]?.deployedAt) throw new MutationError('invalid', 'That week isn’t marked deployed.');
+  return {
+    db: produce(db, (d) => {
+      const du = d.users.find((x) => x.id === u.id)!;
+      const pr = du.progress[m.id]!;
+      pr.deployedAt = null;
+      pr.runtime = null;
+      delete pr.issue;
+      du.last = c.now;
+      log(d, c.now, u.name, `undid deploying ${m.name}`, 'info');
+    }),
+  };
+}
+
+/**
  * 4 · Portal Workspace: Pause, Resume or Reconnect a deployed AI Employee.
  * Resuming from `needs_attention` is the "Reconnect" path and clears the stored issue.
  */

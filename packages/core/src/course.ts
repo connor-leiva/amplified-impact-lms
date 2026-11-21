@@ -75,6 +75,8 @@ export interface CourseKitItem {
   kind: ResourceKind | null;
   platform: ResourcePlatform | null;
   stepId: string | null;
+  /** D-228: the file's type as the Vault lists it ("XLSX", "CSV", "ZIP", "PDF"), for the kit's buttons. */
+  type?: string;
 }
 
 /** An open week, with its kit when it has one. */
@@ -113,7 +115,7 @@ export function courseFor(db: Pick<Db, 'cohorts' | 'modules' | 'resources'>, now
     if (!open) return lockedWeekOf(m);
     const kit = db.resources
       .filter((r) => r.module === m.id && r.status === 'published' && (staff || kitVisible(r, true, viewer.preview)))
-      .map((r): CourseKitItem => ({ id: r.id, title: r.title, kind: r.kind ?? null, platform: r.platform ?? null, stepId: r.stepId ?? null }));
+      .map((r): CourseKitItem => ({ id: r.id, title: r.title, kind: r.kind ?? null, platform: r.platform ?? null, stepId: r.stepId ?? null, ...(r.type ? { type: r.type } : {}) }));
     const week = courseWeekOf(m);
     return kit.length ? { ...week, kit } : week;
   });

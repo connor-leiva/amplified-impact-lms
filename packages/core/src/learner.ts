@@ -80,6 +80,23 @@ export function weekState(week: LearnerCourseWeek, steps: readonly LearnerStep[]
 /** The minutes of the steps still to do. */
 export const minutesLeft = (steps: readonly LearnerStep[]): number => steps.filter((s) => !s.done).reduce((a, s) => a + (s.step.mins || 0), 0);
 
+/**
+ * B-09 (D-228): who a step is for, read from its `who` text, the words the builder already holds (Connor, Nov 20: "Read
+ * the text"). "Owner" is the owner's, "Operator" the operator's, and anything else ("Owner and operator", "Each of
+ * you", or words this rule doesn't know) is both of theirs, so no step ever drops out of a role's list.
+ */
+export type StepRole = 'owner' | 'operator';
+export function stepRoles(who: string | null | undefined): StepRole[] {
+  const t = (who ?? '').trim().toLowerCase().replace(/[.]$/, '');
+  if (t === 'owner') return ['owner'];
+  if (t === 'operator') return ['operator'];
+  return ['owner', 'operator'];
+}
+
+/** Whether `stepRoles` knows a step's `who` words (the builder can warn about any it doesn't). */
+export const knownStepRole = (who: string | null | undefined): boolean =>
+  ['owner', 'operator', 'owner and operator', 'each of you'].includes((who ?? '').trim().toLowerCase().replace(/[.]$/, ''));
+
 /** The minutes of every step. */
 export const minutesInAll = (steps: readonly LearnerStep[]): number => steps.reduce((a, s) => a + (s.step.mins || 0), 0);
 

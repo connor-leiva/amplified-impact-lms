@@ -123,7 +123,7 @@ describe('what a learner gets of the course (D-175)', () => {
     kit('r_w1', ACCELERATOR_MODULE_IDS[1]!, 'hidden_until_open');
     const course = courseFor(db, PREVIEW, { open: true, preview: true })!;
     const w0 = course.weeks[0]!;
-    expect(isLockedWeek(w0) ? null : w0.kit).toEqual([{ id: 'r_w0', title: 'r_w0', kind: 'prompt', platform: 'claude', stepId: null }]);
+    expect(isLockedWeek(w0) ? null : w0.kit).toEqual([{ id: 'r_w0', title: 'r_w0', kind: 'prompt', platform: 'claude', stepId: null, type: 'TXT' }]);
     expect(JSON.stringify(course)).not.toContain('r_w1');
   });
 
