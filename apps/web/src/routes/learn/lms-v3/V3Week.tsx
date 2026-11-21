@@ -116,10 +116,39 @@ export function V3Week({
   );
 }
 
+/** The file name the PDF route sends (`content-disposition`), or the route's own default. */
+export function pdfNameOf(disposition: string | null): string {
+  const m = /filename="([^"]+)"/.exec(disposition ?? '');
+  return m?.[1] ?? 'Week 0 Intake.pdf';
+}
+
+/**
+ * B-18: Download PDF. The file is made on the server (`GET /api/intake/pdf`, a second or two), so the button's busy
+ * state covers the wait, then the browser saves it under the route's name. The package's `useForm` has no failure
+ * state for this button: a failed download resolves without a file (PLAN.md, Found while building).
+ */
+export async function downloadIntakePdf(): Promise<void> {
+  try {
+    const res = await fetch('/api/intake/pdf', { credentials: 'include' });
+    if (!res.ok) throw new Error(`GET /api/intake/pdf ${res.status}`);
+    const href = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = pdfNameOf(res.headers.get('content-disposition'));
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 10_000);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 /**
  * The week's intake as the package's `useForm` drives it (§7.4): loaded from `GET /api/intake`, saved with
- * `PUT /api/intake` (the answers the course asks, `cleanIntakeAnswers`), submitted the same way. One intake per team:
- * two people editing at once, the last save wins, as today. Null when the week has no intake.
+ * `PUT /api/intake` (the answers the course asks, `cleanIntakeAnswers`), submitted the same way, and printed with
+ * `GET /api/intake/pdf`. One intake per team: two people editing at once, the last save wins, as today. Null when the
+ * week has no intake.
  */
 export function useIntakeForm(intake: CourseIntake | undefined, now: number): FormApi | null {
   const def = useMemo(() => (intake ? formDef(intake) : null), [intake]);
@@ -141,6 +170,7 @@ export function useIntakeForm(intake: CourseIntake | undefined, now: number): Fo
     initial: { status: 'new', answers: {} },
     onSave: (a) => put(a, false),
     onSubmit: (a) => put(a, true),
+    onDownloadPdf: downloadIntakePdf,
   });
   const reset = useRef(f.reset);
   reset.current = f.reset;

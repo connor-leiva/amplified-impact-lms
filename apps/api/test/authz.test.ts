@@ -633,6 +633,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
+  // D-229 (B-18): the intake as a PDF. Signed in, then the owner and the operator.
+  { path: '/api/intake/pdf', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/stack', methods: 'GET, HEAD, PUT', guard: 'session' },
   // D-199: intake conditions and the operator's count. Signed in, then the owner and the operator.
   { path: '/api/personalize', methods: 'GET, HEAD, POST', guard: 'session' },
@@ -652,6 +654,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/workspaces', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/workspaces/:teamId', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/workspaces/:teamId/intake', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/workspaces/:teamId/intake/pdf', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/workspaces/:teamId/stack', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId', methods: 'GET, HEAD', guard: 'session' },
@@ -1178,6 +1181,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/workspaces/:teamId': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline' }),
           '/api/console/workspaces/:teamId/intake': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/intake' }),
           '/api/intake': () => app.inject({ method: 'GET', url: '/api/intake' }),
+          '/api/console/workspaces/:teamId/intake/pdf': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/intake/pdf' }),
+          '/api/intake/pdf': () => app.inject({ method: 'GET', url: '/api/intake/pdf' }),
           '/api/console/workspaces/:teamId/stack': () => app.inject({ method: 'GET', url: '/api/console/workspaces/northline/stack' }),
           '/api/stack': () => app.inject({ method: 'GET', url: '/api/stack' }),
           '/api/personalize': () => app.inject({ method: 'GET', url: '/api/personalize' }),
@@ -1502,8 +1507,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the incidents' six (D-167), 72 with the flag, env, integrations, deploys and DB health's six
     // (D-168), 74 with System Health and the Skills list (D-169), 75 with the audited Build actions
     // (D-172), 77 with Invite staff and Change role…'s two (D-172), and 78 with a course week's
-    // uploaded video (D-188), and 80 with the intake's two routes (D-196).
-    expect(EXECUTED.unauthenticated).toBe(83);
+    // uploaded video (D-188), and 80 with the intake's two routes (D-196). 85 with the intake PDF's two (D-229).
+    expect(EXECUTED.unauthenticated).toBe(85);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1525,7 +1530,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
     // saveVideoProgress, counted the same way. And + 2 for the intake routes (D-196), probed unauthenticated.
     // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199). And + 2 for D-228's unmarkDeployed,
-    // counted once as the entitled learner and once as a staff session.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2);
+    // counted once as the entitled learner and once as a staff session. And + 2 for the intake PDF's routes (D-229), probed
+    // unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2);
   });
 });
