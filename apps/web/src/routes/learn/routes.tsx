@@ -9,6 +9,9 @@ import type { RouteObject } from 'react-router';
 //   /learn/week/:week              a week's overview, or its locked preview while it is locked
 //   /learn/week/:week/step/:step   the step player (1-based step number)
 //   /learn/schedule                the Schedule, by week (D-180); `?view=calendar` for the month view
+//   /learn/community               the cohort Community (D-231): its threads by space; for a learner v3 draws for,
+//                                  and staff; anyone else goes Home
+//   /learn/community/:id           one thread
 //   /learn/skills                  the Skill Library (D-179)
 //   /learn/skills/:slug            a skill: its guided setup in the step player when it is open, else
 //                                  its locked preview (D-179)
@@ -61,6 +64,8 @@ export function learnerRoutes(enabled: boolean, { gate = false }: LearnerRouteOp
         { path: 'week/:week/intake', lazy: () => import('./Intake') },
         { path: 'week/:week/stack', lazy: () => import('./Stack') },
         { path: 'schedule', lazy: () => import('./Schedule') },
+        { path: 'community', lazy: () => import('./Community') },
+        { path: 'community/:id', lazy: () => import('./Community') },
         { path: 'skills', lazy: () => import('./Library') },
         { path: 'skills/:slug', lazy: () => import('./Skill') },
         { path: 'account', lazy: () => import('./Account') },

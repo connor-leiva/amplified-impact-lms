@@ -8,6 +8,7 @@ import { learnSchedule } from '../routes';
 import { v3ScheduleDraws } from './schedule.vm';
 import { weekVM } from '../Week.vm';
 import { v3LockedDraws, v3WeekDraws } from './week.vm';
+import { isCommunityPath } from './v3';
 
 export function v3PageAt(
   pathname: string,
@@ -16,6 +17,8 @@ export function v3PageAt(
   rows: readonly WeekRow[],
   now: number,
 ): boolean {
+  // D-231: the Community draws its own pages (`[data-ai="community"]`, `[data-ai="thread"]`).
+  if (isCommunityPath(pathname)) return true;
   if (!payload) return false;
   const path = pathname.replace(/\/$/, '');
   if (path === learnSchedule()) {

@@ -223,6 +223,11 @@ export const AUDIT_ACTIONS = [
   'intake.sync',
   // D-197: a staff member opened a team's stack card.
   'stack.read',
+  // D-231: staff moderating the cohort Community: pin or unpin a thread, hide or show a thread or a reply, delete
+  // someone else's post.
+  'community.pin',
+  'community.hide',
+  'community.delete',
   // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.
   'user.seed',
 ] as const;

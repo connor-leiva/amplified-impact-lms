@@ -96,6 +96,12 @@ export interface Fmt {
   num: (n: number) => string;
   pct: (n: number) => string;
   ago: (t: number, now: number) => string;
+  /**
+   * D-231 (B-30): a Community thread's activity, in the mockup's words: "just now" (lowercase: the mockup's list writes
+   * `ui.justNow.toLowerCase()` after "No replies yet · "), "12 min ago", "3 hr ago", "1 day ago", "2 days ago"; after a
+   * week, the date.
+   */
+  activity: (t: number, now: number) => string;
   agoInline: (t: number, now: number) => string;
   until: (t: number, now: number) => string;
   initials: (n: string | null | undefined) => string;
@@ -149,6 +155,16 @@ export const fmt: Fmt = {
       const w = Math.floor(days / 7);
       return `${w} week${w === 1 ? '' : 's'} ago`;
     }
+    return fmt.date(t);
+  },
+  activity: (t, now) => {
+    const m = Math.max(0, (now - t) / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${Math.floor(m)} min ago`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${h} hr ago`;
+    const days = Math.max(1, Math.floor(m / 1440));
+    if (days < 7) return `${days} ${days === 1 ? 'day' : 'days'} ago`;
     return fmt.date(t);
   },
   agoInline: (t, now) => {

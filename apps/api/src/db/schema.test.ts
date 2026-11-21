@@ -72,6 +72,9 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-196: one intake per team. Not a Db record.
   teamIntake: { table: 'team_intake', columns: ['answers', 'ghl_attempts', 'ghl_error', 'ghl_next_at', 'ghl_sync_status', 'ghl_synced_at', 'submitted_at', 'team_id', 'updated_at', 'updated_by'] },
   teamStackCard: { table: 'team_stack_card', columns: ['rows', 'sent_at', 'team_id', 'updated_at', 'updated_by'] },
+  // D-231: the cohort Community's threads and posts. Not `Db` records.
+  communityThreads: { table: 'community_threads', columns: ['activity_at', 'by_user_id', 'cohort_id', 'created_at', 'deleted_at', 'hidden', 'id', 'pinned', 'space', 'title'] },
+  communityPosts: { table: 'community_posts', columns: ['body', 'by_user_id', 'created_at', 'deleted_at', 'edited_at', 'hidden', 'id', 'thread_id'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
@@ -343,6 +346,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['teamIntake', 'ghlNextAt'],
   ['teamStackCard', 'updatedAt'],
   ['teamStackCard', 'sentAt'],
+  // D-231: a thread's start, its newest post and its delete; a post's, its edit and its delete.
+  ['communityThreads', 'createdAt'], ['communityThreads', 'activityAt'], ['communityThreads', 'deletedAt'],
+  ['communityPosts', 'createdAt'], ['communityPosts', 'editedAt'], ['communityPosts', 'deletedAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
   ['requests', 'at'],
@@ -428,6 +434,8 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   videoProgress: { unit: 'epoch-ms', why: 'D-191: VideoProgress.updatedAt is clock.now() as written by saveVideoProgress, and fmt never reads a Date' },
   teamIntake: { unit: 'epoch-ms', why: 'D-196: updated_at and submitted_at are clock.now(), and the Saved line is fmt.time' },
   teamStackCard: { unit: 'epoch-ms', why: 'D-197: updated_at and sent_at are clock.now()' },
+  communityThreads: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.activity reads activity_at' },
+  communityPosts: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.when prints created_at' },
   resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
   announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
   dismissals: { unit: 'epoch-ms', why: 'no instant' },
@@ -731,6 +739,13 @@ describe('unique indexes @g9', () => {
       { name: 'incidents_status_idx', unique: false, columns: ['status'] },
     ],
     incidentEvents: [{ name: 'incident_events_incident_idx', unique: false, columns: ['incident_id', 'at'] }],
+    // D-231: the Community's list (a cohort's threads by newest activity), a thread's posts, and one person's posts
+    // in the last hour (the posts-an-hour guard).
+    communityThreads: [{ name: 'community_threads_cohort_idx', unique: false, columns: ['cohort_id', 'activity_at'] }],
+    communityPosts: [
+      { name: 'community_posts_thread_idx', unique: false, columns: ['thread_id', 'id'] },
+      { name: 'community_posts_by_idx', unique: false, columns: ['by_user_id', 'created_at'] },
+    ],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -761,6 +776,11 @@ describe('unique indexes @g9', () => {
     expect(indexesOf(tableOf('incidentEvents'))).toEqual(LOOKUP_INDEXES.incidentEvents);
     const [idx] = getTableConfig(tableOf('incidents')).indexes;
     expect(new PgDialect().sqlToQuery(idx!.config.where!).sql).toBe(`"incidents"."status" <> 'resolved'`);
+  });
+
+  it('gives the Community its lookup indexes, none unique (D-231) @g9', () => {
+    expect(indexesOf(tableOf('communityThreads'))).toEqual(LOOKUP_INDEXES.communityThreads);
+    expect(indexesOf(tableOf('communityPosts'))).toEqual(LOOKUP_INDEXES.communityPosts);
   });
 
   it('finds no other table carrying an index @g9', () => {

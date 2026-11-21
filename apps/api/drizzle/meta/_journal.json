@@ -232,6 +232,13 @@
       "when": 1795600000000,
       "tag": "0032_intake_ghl_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795700000000,
+      "tag": "0033_community_posts",
+      "breakpoints": true
     }
   ]
 }

@@ -143,6 +143,32 @@ with headless Chromium, as the package's `tools/make-pdf.mjs` does. The template
 - **Not verified on Railway** (no access from here): the bundled Chromium needs only glibc beyond what the code hands
   it (below), and writes to the temp directory. The first download after a deploy pays the unpacking.
 
+## Phase 10. Community
+
+Connor, Nov 21: "build Community now". The patch's server never reached the repo (§1.6), so it is written here to the
+spec's description of it (B-29 to B-34); the screens are the package's `Community.jsx`, converted (D-231).
+
+- **Server**: `0033_community_posts` (two tables, `community_threads` and `community_posts`, ids that are plain
+  serials so the tests' `[data-post="23"]` and thread 2 can be seeded exactly), `core/community.ts` (spaces, the
+  drawer's and the reply's checks in the mockup's words, who may see, edit, delete), `routes/community.ts`:
+  `GET`/`POST /api/community`, `GET`/`PATCH /api/community/:id` (staff: pinned, hidden), `POST …/:id/replies`,
+  `PATCH /api/community/posts/:postId` (the author's body; staff: hidden), `POST …/posts/:postId/delete`. 30 posts an
+  hour a person; nothing removed; staff moderation audited (`community.pin`, `community.hide`, `community.delete`).
+- **Who**: a learner whose plan has the course, in General, the weeks open to them and Wins; staff everywhere. Staff
+  open it in the v3 frame whatever the flag (it has no other page); a staff preview (`?preview=`) doesn't.
+- **Gate** (local http build, Chrome, TZ America/Chicago, the sample Community seeded by `prepare.ts community`):
+  desktop 1440, 10 of 10 (`cm-list`, the hovers, the Week 0 and Wins spaces, the drawer open and with its space kept,
+  `th-open`, `th-hover-act`); phone 390, 6 of 6; staff (`--assume-as cl`, a staff session) phone 2 of 2, and desktop 2
+  of 2 compared on the page alone (`--selector '[data-ai="community"]'`, `'[data-ai="thread"]'`): **no different pixel**
+  in any. The 19 states marked `local` (they post, edit, delete, pin or hide) run only against the package's harness;
+  their markup is pinned by `Community.equality.test.tsx` (the package's JSX and the TSX side by side through edit,
+  cancel, ask to delete, an empty reply, a reply, the drawer's three errors and a post) and their behaviour by the API's
+  `community.test.ts` and a walkthrough in a real browser (27 checks, both people, the email log empty after).
+- **Found**: the mockup's staff view reuses the member's sidebar (`setAs` changes only the initials); a staff
+  member's is their own (every week, no progress, no Team Hub), so the staff checks compare the page alone. And a
+  learner's list says "just now" in lowercase (the mockup writes `ui.justNow.toLowerCase()` there), so
+  `fmt.activity` does too; a post's own time says "Just now".
+
 ## Found while building
 
 - **Seed against the package's words** (every field of `sampleWeek`, `sampleSchedule`, `sampleShell` and the intake,
