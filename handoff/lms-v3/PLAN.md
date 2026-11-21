@@ -171,6 +171,17 @@ Not available (1.1). Phases 9 and 10 wait for it.
 - **The app's global link rule** (`styles/global.css`: a link with no class is underlined on hover) reached the
   package's class-less links (a calendar menu's items, the breadcrumb). `lms-v3/frame.css` undoes that one rule
   inside the frame, at its own specificity, before `lms.css`. **For Connor to confirm** (D-226).
+- **"Open" stays on a deployed week.** The sample's week is `open: true` in every state, deployed included; §7.3's
+  `vm.pill.tone !== 'done'` would drop the chip once every step is done. The mockup wins: an open week says Open.
+- **The kit's carriers** (B-13, B-13a). No zip or Excel file exists for Week 0. The rule built: a kit file titled as a
+  skill is that skill's zip; files sharing a title are one row with a button per file, named by the file's type (the
+  Vault's XLSX, CSV, ZIP). `prepare.ts` writes the mockup's files as rows on development. **Question for Connor:** is
+  that how he wants to enter them in the builder, and is there an Excel Time Baseline to upload?
+- **"Steps 3 and 5 can run alongside the others."** has no field of its own: it is the Start Here card's hint after
+  its first sentence, and the all-roles summary reads it from there.
+- **Weeks with live sessions keep today's page.** The mockup's only week is self-paced; its tags ("Self-paced",
+  "Owners and operators", the due date) have no words for a week with a live build. Weeks 1 to 8 open from Dec 2:
+  **question for Connor** (a tag for a live week needs a mockup).
 - **Locks and session states follow the server's clock**, not the one the test pins in the browser. The
   `--assume-clock` states need data seeded for that moment, and the sidebar's cohort line (above) moves with the
   browser's clock.

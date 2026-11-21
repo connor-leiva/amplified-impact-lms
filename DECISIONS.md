@@ -7303,3 +7303,17 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **"Weeks" replaces "AI employees"** as the nav group. It lists the course's weeks only, each with its number (not an icon tile) and its full title. A non-course AI Employee has no row in the v3 nav.
 - **A week's status** in the nav: a ring and "N of M" once a step is done, a check once the week is deployed (all steps done but not deployed is still a ring), a lock while it is locked, and nothing for a week that hasn't started. Schedule rows show a status, not step counts.
 - **Supersedes** D-180 and D-183 where they differ.
+
+## D-228 · LMS v3 week overview and locked week
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 20, 2026, with D-225 to D-231 ("Approved on all", `handoff/lms-v3/IMPLEMENTATION-SPEC.md` §5.0); "Replace the Start Here card and the Week 0 done overlay?": "Yes, replace"; role filter: "Read the text"; per-role time: the sum of the steps' minutes.
+**Number:** after D-227.
+
+- **The page** is the package's `WeekPage` (header, hero, role filter, step list, the deployment as the list's last row, the kit, the instructor note, the Reference accordions, the Next week card), fed by `weekProps` from the course, the learner's rows and checks (§7.3). The locked week is the package's `LockedWeekPage` (B-39, §7.7). Both draw for a learner v3 draws for (D-225); the builder's preview keeps today's page.
+- **Steps.** A step's roles are read from its `who` text (`stepRoles`, B-09: "Owner", "Operator", anything else both). Its status is the Start Here card's rule, now one function (`weekStepStatuses`): done, in progress, idle, or waiting on step N (B-22). Each role's time is the sum of its steps' minutes (B-10).
+- **Deployment.** Mark as deployed and Undo: `markDeployed` and the new `unmarkDeployed` (B-11), which takes the mark back and leaves the steps as they are.
+- **Kit** (B-13): Skills, Files, For your AI, in step order. A kit file titled as a skill is that skill's zip, on its row; files that share a title are one row with a button each (their type: Excel, CSV, Zip); the system prompt has View (today's prompt modal, C-11) and Copy. `GET /api/course` gains each kit file's type.
+- **Retired on v3 weeks:** the Start Here card (its rows are the step list), the Week 0 done overlay (the deployed hero's completion motion replaces it), the `WeekLive` strip (the top bar carries a live session) and the deployment card's Run, Pause and Resume (C-07 to C-10).
+- **The gap rule.** Week 0 draws (its media placeholders are left out, as UX-AUDIT lists). Any other week with media, a sample output, a seat card or a playbook card, or with live sessions (the mockup's only week is self-paced and its tags have no words for a session), keeps today's page whole. A locked week whose builder line or second question has no slot keeps today's page.
+- **Supersedes** D-184, D-195, D-199, D-213 (its sync list gains the v3 page's own), D-217 and D-218 where they differ.

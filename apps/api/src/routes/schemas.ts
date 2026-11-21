@@ -439,6 +439,7 @@ export const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> } = {
     lastPositionS: z.number().min(0).max(86400),
   }),
   markDeployed: z.strictObject({ moduleId: id }),
+  unmarkDeployed: z.strictObject({ moduleId: id }),
   setRuntime: z.strictObject({ moduleId: id, runtime }),
   recordRun: z.strictObject({ moduleId: id, title: z.string(), preview: z.string() }),
   requestUpgrade: z.strictObject({ source: z.string() }),

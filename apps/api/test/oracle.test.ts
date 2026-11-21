@@ -173,6 +173,7 @@ const CASES: readonly Case[] = [
   // is the only target for which both of the next two rows do something.
   { name: 'markDeployed', as: 'u_devon', args: { moduleId: 'sales' } },
   { name: 'setRuntime', as: 'u_devon', args: { moduleId: 'sales', runtime: 'deployed' } },
+  { name: 'unmarkDeployed', as: 'u_devon', args: { moduleId: 'sales' } },
   {
     name: 'recordRun',
     as: 'u_jamie',
@@ -418,7 +419,7 @@ describe('API ⇔ core oracle @g7', () => {
     // get a row, a schema or a route — the same thing `schemas.test.ts` pins.
     expect(callable).toContain('MutationError');
     const mutations = callable.filter((k) => k !== 'MutationError').sort();
-    expect(mutations).toHaveLength(40);
+    expect(mutations).toHaveLength(41);
     expect([...new Set(CASES.map((c) => c.name))].sort()).toEqual(mutations);
   });
 

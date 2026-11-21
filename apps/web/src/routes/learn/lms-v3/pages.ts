@@ -6,6 +6,8 @@ import type { WeekRow } from '../learn.vm';
 import { scheduleVM, viewOf } from '../Schedule.vm';
 import { learnSchedule } from '../routes';
 import { v3ScheduleDraws } from './schedule.vm';
+import { weekVM } from '../Week.vm';
+import { v3LockedDraws, v3WeekDraws } from './week.vm';
 
 export function v3PageAt(
   pathname: string,
@@ -19,6 +21,17 @@ export function v3PageAt(
   if (path === learnSchedule()) {
     const vm = scheduleVM(payload, rows, undefined, viewOf(new URLSearchParams(search).get('view')), now);
     return v3ScheduleDraws(vm, payload.sessions, now);
+  }
+  // D-228: a week's overview (not its steps): the open week when `v3WeekDraws`, the locked week when `v3LockedDraws`.
+  const m = /^\/learn\/week\/(\d{1,2})$/.exec(path);
+  if (m) {
+    const r = rows.find((x) => x.week === Number(m[1]));
+    if (!r) return false;
+    if (r.state === 'locked') {
+      const vm = weekVM(payload, rows, r.week, now, () => null);
+      return vm.kind === 'locked' && v3LockedDraws(vm, r);
+    }
+    return v3WeekDraws(r, payload.sessions);
   }
   return false;
 }

@@ -307,6 +307,8 @@ const LEARNER_ALLOWED: { as: string; case: Case }[] = [
   // Jamie's `marketing` is built and deployed, so `buildOf` is `verified` and the deploy is allowed.
   { as: 'u_jamie', case: mutationCase('markDeployed', 'markDeployed', { moduleId: 'marketing' }) },
   { as: 'u_jamie', case: mutationCase('setRuntime', 'setRuntime', { moduleId: 'marketing', runtime: 'paused' }) },
+  // B-11 (D-228): Undo on the same deployed week.
+  { as: 'u_jamie', case: mutationCase('unmarkDeployed', 'unmarkDeployed', { moduleId: 'marketing' }) },
   {
     as: 'u_jamie',
     case: mutationCase('recordRun', 'recordRun', {
@@ -832,7 +834,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         .filter((k) => typeof (M as Record<string, unknown>)[k] === 'function' && k !== 'MutationError')
         .sort();
       expect(exported).toEqual(catalog);
-      expect(catalog).toHaveLength(40);
+      expect(catalog).toHaveLength(41);
     });
 
     it('derives staff-or-learner and the permission conjunction from core itself @g7', async () => {
@@ -1005,7 +1007,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           }
         }
         expect(failures.join('\n')).toBe('');
-        expect(EXECUTED.learnerAllowed).toBe(14);
+        expect(EXECUTED.learnerAllowed).toBe(15);
       },
       180_000,
     );
@@ -1032,7 +1034,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           }
         }
         expect(failures.join('\n')).toBe('');
-        expect(EXECUTED.staffOnLearner).toBe(14);
+        expect(EXECUTED.staffOnLearner).toBe(15);
       },
       180_000,
     );
@@ -1484,8 +1486,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     expect(EXECUTED.matrix).toBe(STAFF_CASES.length * STAFF_ROLES.length);
     expect(EXECUTED.matrix).toBe(135);
     expect(EXECUTED.learnerDenied).toBe(10);
-    expect(EXECUTED.learnerAllowed).toBe(14);
-    expect(EXECUTED.staffOnLearner).toBe(14);
+    expect(EXECUTED.learnerAllowed).toBe(15);
+    expect(EXECUTED.staffOnLearner).toBe(15);
     // 11, not 7: phase 08 added four session-guarded routes (the two file downloads, upload-url and
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
@@ -1522,7 +1524,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-188), probed unauthenticated. And + 4 for D-190's toggleChecklistItem and setPref: each is
     // counted once as the entitled learner and once as a staff session. And + 2 for D-191's
     // saveVideoProgress, counted the same way. And + 2 for the intake routes (D-196), probed unauthenticated.
-    // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199).
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1);
+    // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199). And + 2 for D-228's unmarkDeployed,
+    // counted once as the entitled learner and once as a staff session.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2);
   });
 });

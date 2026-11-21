@@ -1705,6 +1705,7 @@ const ROWS: readonly string[] = [
   'setPref', // 2c
   'saveVideoProgress', // 2d
   'markDeployed', // 3
+  'unmarkDeployed', // B-11 (D-228): the v3 week page's Undo
   'setRuntime', // 4
   'recordRun', // 5
   'requestUpgrade', // 6
@@ -1743,8 +1744,8 @@ const ROWS: readonly string[] = [
 
 describe('catalog coverage @g2', () => {
   it('the 37-row catalog is fully exported and callable @g2', () => {
-    expect(ROWS).toHaveLength(40);
-    expect(new Set(ROWS).size).toBe(40);
+    expect(ROWS).toHaveLength(41);
+    expect(new Set(ROWS).size).toBe(41);
     const mod = M as unknown as Record<string, unknown>;
     const missing = ROWS.filter((n) => typeof mod[n] !== 'function');
     expect(missing, 'mutations dropped by the port').toEqual([]);
