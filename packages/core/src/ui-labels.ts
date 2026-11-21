@@ -9,6 +9,10 @@
 
 export const UI_LABELS: readonly { text: string; why: string }[] = [
   {
+    text: 'Owner and operator',
+    why: 'D-228, D-229: the v3 week page’s Reference accordion title and the form drawer’s kicker, words of the approved mockup (handoff/lms-v3). Week 0’s step 2 has the same words as its who line, which still comes from the database.',
+  },
+  {
     text: 'Amplified AI Accelerator',
     why: 'The program’s name: billing’s `PLAN_NAMES.cohort` (offer.ts), the course page’s tab title, the pre-launch welcome and the calendar files’ names. The course intro repeats it.',
   },
