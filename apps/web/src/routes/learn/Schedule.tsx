@@ -13,12 +13,15 @@ import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
 import { useLearn } from './data';
 import { saveIcs } from './ics';
-import { LABELS, weekRows } from './learn.vm';
+import { LABELS, icsEvents, weekRows } from './learn.vm';
 import { learnHome } from './routes';
 import { scheduleVM, viewOf } from './Schedule.vm';
 import type { AgendaGroupVM, GroupVM, HeroVM, MonthVM, ScheduleVM, WeekItemVM } from './Schedule.vm';
 import type { DateTileVM } from './learn.vm';
 import { CalLinks, JoinBadge, JoinBtn, JoinStrip, Tile } from './parts';
+import { SchedulePage } from './lms-v3/SchedulePage';
+import { scheduleProps } from './lms-v3/schedule.vm';
+import { v3For } from './lms-v3/v3';
 import l from './Learn.module.css';
 import s from './Schedule.module.css';
 
@@ -417,6 +420,12 @@ export function Component() {
   if (!payload) return <Navigate to={learnHome()} replace />;
   const cohort = db.cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
   const vm = scheduleVM(payload, rows, cohort, viewOf(params.get('view')), now);
+  // D-227: the v3 Schedule, for a learner v3 draws for, when nothing on it needs a piece the mockup doesn't draw
+  // (`v3ScheduleDraws`); otherwise, and for the Calendar view, today's page whole.
+  if (v3For(viewer, me)) {
+    const v3 = scheduleProps({ vm, rows, sessions: payload.sessions, me, now, saveIcs: (s) => saveIcs(icsEvents([s]), now) });
+    if (v3) return <SchedulePage schedule={v3} now={() => now} />;
+  }
   return <Body vm={vm} now={now} />;
 }
 
