@@ -69,7 +69,7 @@ export function StepList({ week, view, labels }: { week: WeekProps; view: WeekVi
             <li key={keyOf(s.n)} {...rise()}>
               <a className="wk-step" data-s={st} data-n={s.n} href={s.href} onClick={s.href === '#' ? (e: MouseEvent) => e.preventDefault() : undefined} aria-current={st === 'next' ? 'step' : undefined}>
                 <span className="wk-num" aria-hidden="true">{st === 'done' ? <NumCheck /> : s.n}</span>
-                <span className="wk-step-tx"><span className="wk-step-t">{s.title}<span className="wk-chip">{s.role}</span></span><span className="wk-step-d">{s.doneWhen}</span></span>
+                <span className="wk-step-tx"><span className="wk-step-t">{s.title}{s.role ? <span className="wk-chip">{s.role}</span> : null}</span>{s.doneWhen ? <span className="wk-step-d">{s.doneWhen}</span> : null}</span>
                 <span className="wk-step-r">{label && <span className="wk-st" data-s={st}>{st === 'done' && <Icon name="check" />}{label}</span>}<span className="wk-time">{s.time}</span></span>
                 <Icon name="right" size={20} className="wk-chev wk-arrow" />
               </a>
