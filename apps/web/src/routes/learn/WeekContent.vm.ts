@@ -125,7 +125,7 @@ function toolsSection(w: OpenCourseWeek): SectionVM | null {
 }
 
 /** D-217: the week's sample output (the builder's Hire cards), its blocks in order, with its made-up label. */
-function sampleSection(so: SampleOutput | undefined): SectionVM | null {
+export function sampleSection(so: SampleOutput | undefined): SectionVM | null {
   if (!so) return null;
   const parts = so.blocks.map((b): PartVM | null => {
     if (b.type === 'text') return textPart(b.text);
@@ -158,13 +158,13 @@ function section(id: string, title: string, parts: (PartVM | null)[], meta: stri
 }
 
 
-function seatSection(card: SeatCard | undefined): SectionVM | null {
+export function seatSection(card: SeatCard | undefined): SectionVM | null {
   if (!card) return null;
   const keys = Object.keys(SEAT_LABEL) as (keyof SeatCard)[];
   return section('seat', KIT.seatCard, [rowsPart(null, keys.map((k) => ({ label: SEAT_LABEL[k], text: card[k] ?? '' })))]);
 }
 
-function playbookSection(card: PlaybookCard | undefined): SectionVM | null {
+export function playbookSection(card: PlaybookCard | undefined): SectionVM | null {
   if (!card) return null;
   const keys = Object.keys(PLAYBOOK_LABEL) as (keyof typeof PLAYBOOK_LABEL)[];
   return section('playbook', KIT.playbookCard, [rowsPart(null, keys.map((k) => ({ label: PLAYBOOK_LABEL[k], text: card[k] ?? '' })))], card.signedOff ? KIT.signedOff : null);

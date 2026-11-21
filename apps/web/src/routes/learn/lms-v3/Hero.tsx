@@ -36,8 +36,9 @@ export function Hero({ week, view, labels, onDeploy, onUndo }: { week: WeekProps
           <>
             <p className="wk-kick">{`${labels.upNext} · Step ${next.n} of ${week.steps.length}`}</p>
             <h2 className="wk-hero-t">{next.title}</h2>
-            <p className="wk-hero-m"><span>{next.time}</span><span>{next.role}</span></p>
-            <p className="wk-hero-d"><b>{labels.doneWhen}</b>{next.doneWhen}</p>
+            {/* D-234: a live week's step may have no "who" or "done when" in the builder; then that piece isn't drawn. */}
+            <p className="wk-hero-m"><span>{next.time}</span>{next.role ? <span>{next.role}</span> : null}</p>
+            {next.doneWhen ? <p className="wk-hero-d"><b>{labels.doneWhen}</b>{next.doneWhen}</p> : null}
             <div className="wk-hero-acts">
               <a className="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" id="wk-go" href={next.href} onClick={stop(next.href)}>
                 <RollLabel>{`${next.status === 'progress' ? labels.continue : labels.start} step ${next.n}`}</RollLabel><Icon name="arrow" size={16} className="wk-arrow" />

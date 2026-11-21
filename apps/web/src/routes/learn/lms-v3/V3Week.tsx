@@ -89,6 +89,7 @@ export function V3Week({
     download,
     onViewPrompt: () => setPrompt(true),
     formRow: asForm,
+    now,
   });
   const moduleId = acceleratorModuleId(r.week);
   return (
@@ -96,7 +97,7 @@ export function V3Week({
       <WeekPage
         key={r.week}
         week={week}
-        labels={weekLabels(week.steps.length)}
+        labels={weekLabels(week.steps.length, r.week > 0 ? week.purpose : undefined)}
         onDeploy={(on) => void mutate(on ? 'markDeployed' : 'unmarkDeployed', { moduleId })}
       />
       {prompt && build?.prompt ? (

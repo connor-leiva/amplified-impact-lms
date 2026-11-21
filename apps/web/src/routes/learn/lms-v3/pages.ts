@@ -31,7 +31,7 @@ export function v3PageAt(
       const vm = weekVM(payload, rows, r.week, now, () => null);
       return vm.kind === 'locked' && v3LockedDraws(vm, r);
     }
-    return v3WeekDraws(r, payload.sessions);
+    return v3WeekDraws(r);
   }
   return false;
 }
