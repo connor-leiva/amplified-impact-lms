@@ -450,7 +450,7 @@ export function lockedWeekProps(
       return {
         title: s.title,
         kind: s.kind === 'build' ? SCHEDULE_V3.liveBuild : SCHEDULE_V3.officeHours,
-        when: s.id === heroId ? fmt.when(s.start) : fmt.day(s.start),
+        when: s.id === heroId && s.kind === 'build' ? fmt.when(s.start) : fmt.day(s.start),
         tile: [t.dw, t.dd],
       };
     }),

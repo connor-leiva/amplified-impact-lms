@@ -107,7 +107,7 @@ describe('scheduleProps', () => {
     expect(brk).toEqual({ break: 'Holiday break', text: expect.any(String) });
   });
 
-  it('a week’s sessions: radio for a build, people otherwise; the hero’s session with its time, the rest with their day', () => {
+  it('a week’s sessions: radio for a build, people otherwise; the hero’s live build with its time, the rest with their day', () => {
     const w1 = weekRowsOf(props(prelaunchState())!).find((r) => r.week === 1)!;
     expect(w1).toMatchObject({ tile: ['Wed', '2'], next: true, status: 'idle', live: false });
     expect(w1.sessions[0]).toMatchObject({
@@ -185,5 +185,15 @@ describe('v3ScheduleDraws (C-13)', () => {
   it('props are null whenever the rule says no', () => {
     const st = prelaunchState();
     expect(props(st, Date.parse('2027-06-01T00:00:00Z'))).toBeNull();
+  });
+});
+
+describe('the time on a session line (the mockup on every clock)', () => {
+  it('office hours that are next keep their day', () => {
+    const st = prelaunchState();
+    const after = Date.parse('2026-12-02T21:00:00Z'); // the first build just ended: the office hours are next
+    const p = props(st, after)!;
+    const w1 = weekRowsOf(p).find((r) => r.week === 1)!;
+    expect(w1.sessions[1]!.when).toBe(fmt.day(Date.parse('2026-12-03T19:00:00Z')));
   });
 });

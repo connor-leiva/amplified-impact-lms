@@ -103,8 +103,9 @@ function weekRow(
     ? own.map((s) => ({
         icon: s.kind === 'build' ? 'radio' : 'users',
         title: s.title?.trim() || SCHEDULE.type[typeOf(s)],
-        // The hero's session carries its time on its line (today's Join row became the hero: UX-AUDIT, Schedule).
-        when: s.id === heroId ? fmt.when(s.start) : fmt.day(s.start),
+        // The hero's session carries its time on its line when it is a live build (today's Join row became the hero:
+        // UX-AUDIT, Schedule); office hours keep their day, as the mockup draws them on every clock.
+        when: s.id === heroId && s.kind === 'build' ? fmt.when(s.start) : fmt.day(s.start),
         id: s.id,
         state: lineState(s, now),
         replayHref: r?.href ?? learnWeek(s.week),
