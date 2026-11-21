@@ -152,7 +152,8 @@ function Action({ action }: { action: CheckActionVM }) {
       <Link className={`${l.b} ${l.bi}`} to={action.href}>{action.label}</Link>
     );
   }
-  if (!action.event) return null;
+  // D-230: Turn in is the v6 step page's (the drawer is v3's); this player draws nothing for it.
+  if (action.type === 'upload' || !action.event) return null;
   return (
     <span className={s.acts}>
         <button type="button" className={`${l.b} ${l.bi}`} onClick={() => saveIcs([action.event!], Date.now(), 'amplified-impact-session.ics')}>

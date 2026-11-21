@@ -126,6 +126,8 @@ const GROUP_LABELS: Record<string, string> = {
   stack: 'Stack Card',
   // D-231: staff moderating the cohort Community.
   community: 'Community',
+  // D-230: staff setting what they did with a team's turn-in.
+  submission: 'Submissions',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

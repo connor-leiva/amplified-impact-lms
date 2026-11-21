@@ -236,6 +236,14 @@ export const ACTION_KINDS = [
   ['link', 'Link'],
   ['form', 'Form (later)'],
   ['card', 'Card'],
+  // D-230: Turn in. The step's button opens the upload drawer for the kind below; its words are the drawer's.
+  ['upload', 'Turn in'],
+] as const;
+
+/** D-230: what an Upload action collects, as the drawer heads it (`SUBMISSION_KIND_LABEL`). */
+export const UPLOAD_KINDS = [
+  ['live_read', 'Report for a live read'],
+  ['checkpoint', 'Checkpoint'],
 ] as const;
 
 /** A new block of a kind, empty. */

@@ -16,6 +16,10 @@
 // package's made-up people (Alex Morgan of Northline Realty). It refuses any database whose name doesn't say it is a
 // local one, and any learner that isn't flagged as the test account.
 //
+// `content` also gives Week 1's steps 4 and 6 the Upload action (D-230). `turnin.sql` puts the test learner where a
+// Turn in check starts (`--assume-turnin report | checkpoint | turned`): Week 1 open (early access), and nothing turned
+// in, or the package's sample report turned in.
+//
 // `community` (D-231) writes the package's sample Community (handoff/lms-v3/src/data/community.samples.json) with its
 // own ids, which the tests click (`[data-post="23"]`, thread 2): five threads and seven posts, by the test learner
 // (Alex Morgan), a second made-up learner (Dana Whitlock of the Sample Team) and a made-up staff member (Connor Leiva,
@@ -30,6 +34,7 @@ import { hashPassword } from '../../apps/api/src/auth/passwords';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SAMPLES = resolve(HERE, '../../handoff/lms-v3/src/forms/week-0-intake.samples.json');
 const MODULE = 'accelerator-week-0';
+const WEEK1 = 'accelerator-week-1';
 const COHORT = 'dec26';
 /** The pre-launch preview opened before the tests' clock (Fri Nov 20, 2026, 3:18 PM CT). */
 const PREVIEW_OPENS_AT = Date.parse('2026-11-16T18:00:00Z');
@@ -105,7 +110,18 @@ async function content(): Promise<void> {
                 status = 'published', visibility = 'open_in_preview', module_id = excluded.module_id`;
   }
   await sql`update cohorts set preview_opens_at = ${PREVIEW_OPENS_AT} where id = ${COHORT}`;
-  console.log('Week 0 written as the mockup has it; the cohort’s pre-launch preview is open.');
+  // D-230: Week 1 asks for a report on step 4 and a checkpoint on step 6 (the package's `asks`), with the Week
+  // Builder's Upload action, so the step's Turn in button opens the drawer.
+  const [w1] = await sql<{ checklist: Step[] }[]>`select checklist from modules where id = ${WEEK1}`;
+  if (w1) {
+    const asks: Record<number, { id: string; kind: 'live_read' | 'checkpoint' }> = { 4: { id: 'w1-turn-in-report', kind: 'live_read' }, 6: { id: 'w1-turn-in-checkpoint', kind: 'checkpoint' } };
+    const checklist = w1.checklist.map((st, i) => {
+      const ask = asks[i + 1];
+      return ask ? withItem(st, { type: 'check', id: ask.id, title: 'Turn it in', action: { type: 'upload', kind: ask.kind } } as { id: string }) : st;
+    });
+    await sql`update modules set checklist = ${JSON.stringify(checklist)}::jsonb where id = ${WEEK1}`;
+  }
+  console.log('Week 0 written as the mockup has it; the cohort’s pre-launch preview is open; Week 1 asks for its two files.');
 }
 
 async function reset(): Promise<void> {

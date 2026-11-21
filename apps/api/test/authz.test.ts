@@ -645,6 +645,13 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/community/:id/replies', methods: 'POST', guard: 'session' },
   { path: '/api/community/posts/:postId', methods: 'PATCH', guard: 'session' },
   { path: '/api/community/posts/:postId/delete', methods: 'POST', guard: 'session' },
+  // D-230: Turn in. Signed in, then a team's owner and operator (their own team's), or staff who may view learners
+  // (`test/submissions.test.ts`).
+  { path: '/api/submissions', methods: 'POST, GET, HEAD', guard: 'session' },
+  { path: '/api/submissions/upload-url', methods: 'POST', guard: 'session' },
+  { path: '/api/submissions/:id/files/:n', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/admin/submissions', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/admin/submissions/:id/status', methods: 'POST', guard: 'session' },
   // The CRM sync log (D-134): signed in, then the Owner and Admins only.
   { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/crm-sync/retry', methods: 'POST', guard: 'session' },
@@ -1204,6 +1211,14 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             app.inject({ method: 'PATCH', url: '/api/community/posts/1', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { body: 'Same here.' } }),
           '/api/community/posts/:postId/delete': () =>
             app.inject({ method: 'POST', url: '/api/community/posts/1/delete', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          // D-230: Turn in's five, each write with a valid body. The upload URL hands out a presigned PUT.
+          '/api/submissions': () => app.inject({ method: 'GET', url: '/api/submissions?moduleId=accelerator-week-1' }),
+          '/api/submissions/upload-url': () =>
+            app.inject({ method: 'POST', url: '/api/submissions/upload-url', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { name: 'report.pdf', size: 1024 } }),
+          '/api/submissions/:id/files/:n': () => app.inject({ method: 'GET', url: '/api/submissions/1/files/0' }),
+          '/api/admin/submissions': () => app.inject({ method: 'GET', url: '/api/admin/submissions?moduleId=accelerator-week-1' }),
+          '/api/admin/submissions/:id/status': () =>
+            app.inject({ method: 'POST', url: '/api/admin/submissions/1/status', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { status: 'picked' } }),
           '/api/console/users': () => app.inject({ method: 'GET', url: '/api/console/users' }),
           '/api/console/users/:userId': () => app.inject({ method: 'GET', url: '/api/console/users/u_jamie' }),
           '/api/console/users/:userId/password-reset': () =>
@@ -1526,8 +1541,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-168), 74 with System Health and the Skills list (D-169), 75 with the audited Build actions
     // (D-172), 77 with Invite staff and Change role…'s two (D-172), and 78 with a course week's
     // uploaded video (D-188), and 80 with the intake's two routes (D-196). 85 with the intake PDF's two (D-229).
-    // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231).
-    expect(EXECUTED.unauthenticated).toBe(91);
+    // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231), 96 with Turn in's
+    // five (D-230).
+    expect(EXECUTED.unauthenticated).toBe(96);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1551,7 +1567,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // The last + 2 is the stack card (D-197). And + 1 for personalization (D-199). And + 2 for D-228's unmarkDeployed,
     // counted once as the entitled learner and once as a staff session. And + 2 for the intake PDF's routes (D-229), probed
     // unauthenticated. And + 1 for D-229's intake re-queue, probed unauthenticated. And + 5 for the Community's routes
-    // (D-231), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5);
+    // (D-231), probed unauthenticated. And + 5 for Turn in's (D-230), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5);
   });
 });

@@ -209,7 +209,9 @@ export type CheckActionVM =
   | { type: 'copy'; label: string; text: string }
   | { type: 'invite'; label: string; href: string }
   | { type: 'calendar'; event: IcsEvent | null }
-  | { type: 'link'; label: string; href: string };
+  | { type: 'link'; label: string; href: string }
+  /** D-230: Turn in. The step page draws its button (or an agent's line) for a viewer v3 draws for. */
+  | { type: 'upload'; kind: 'live_read' | 'checkpoint' };
 
 export interface CheckItemVM {
   id: string;
@@ -442,6 +444,7 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
   if (action.type === 'copy') return { type: 'copy', label: action.label || STEP.copy, text: action.text };
   if (action.type === 'invite') return { type: 'invite', label: action.label || STEP.invite, href: learnTeam() };
   if (action.type === 'link') return { type: 'link', label: action.label, href: action.href };
+  if (action.type === 'upload') return { type: 'upload', kind: action.kind };
   const session = sessions.find((x) => x.id === action.sessionId);
   return { type: 'calendar', event: session ? (icsEvents([session])[0] ?? null) : null };
 }

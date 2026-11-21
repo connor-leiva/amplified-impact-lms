@@ -33,7 +33,7 @@ import { GlossaryProvider, Marked, RichTextView } from '../Glossary';
 import { StepLive } from '../Live';
 import { StartHereCard } from '../StartHere';
 import { V6_LABELS, V6_MORE, stepPageStep } from './StepPage.vm';
-import type { V6Nodes } from './StepPage.vm';
+import type { V6Handlers, V6Nodes } from './StepPage.vm';
 import { ProseBlocks } from './Blocks';
 import { Callout } from './Checklist';
 import type { SpCue } from './types';
@@ -48,6 +48,8 @@ export interface StepPageRouteProps {
   title: string | null;
   /** A staff member's in-memory checks and watch (D-184), as the step player takes them. */
   local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } | undefined;
+  /** D-230: Turn in's button, for a viewer v3 draws for (`V6Handlers.turnIn`). */
+  turnIn?: V6Handlers['turnIn'];
 }
 
 export function StepPageRoute(props: StepPageRouteProps) {
@@ -75,7 +77,7 @@ export function StepPageRoute(props: StepPageRouteProps) {
   return <LiveStepPage {...props} on={on} choose={choose} refused={refused} fault={fault} clearFault={clearFault} sync={epoch} />;
 }
 
-function LiveStepPage({ vm, kit, title, local, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
+function LiveStepPage({ vm, kit, title, local, turnIn, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
   refused: (why?: string) => void; on: Platform; choose: (p: Platform) => void; fault: string | null; clearFault: () => void; sync: number;
 }) {
   useTabTitle(title);
@@ -278,6 +280,7 @@ function LiveStepPage({ vm, kit, title, local, refused, on, choose, fault, clear
     },
     onViewPrompt: () => setViewing(true),
     nodes,
+    ...(turnIn ? { turnIn } : {}),
   });
   // Above Watch: the week's live session on a live-build step, and step 1's Start Here card.
   const lead = (

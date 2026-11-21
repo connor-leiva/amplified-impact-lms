@@ -36,7 +36,8 @@ async function formOf() {
   return db.modules.find((m) => m.id === 'accelerator-week-0')?.course?.intake;
 }
 
-async function checkTeam(teamId: string, item: { moduleId: string; stepId: string; itemId: string }, now: number): Promise<void> {
+/** Checks a checklist item for every learner on a team (a submitted intake's, D-229; a turn-in's, D-230). */
+export async function checkTeam(teamId: string, item: { moduleId: string; stepId: string; itemId: string }, now: number): Promise<void> {
   const mates = await getDb().select({ id: users.id }).from(users).where(and(eq(users.teamId, teamId), eq(users.kind, 'learner')));
   for (const mate of mates) {
     await getDb()

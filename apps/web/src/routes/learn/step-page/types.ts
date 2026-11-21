@@ -63,7 +63,10 @@ export type SpAction =
   | { type: 'link'; label: string; href: string }
   | { type: 'download'; files: { id: string; title: string; href: string | null }[] }
   | { type: 'copy'; label: string; text: string }
-  | { type: 'invite'; label: string; href: string };
+  | { type: 'invite'; label: string; href: string }
+  /** D-230: Turn in, the step page's own button; for a teammate who can't turn in, a line in its place (B-26). */
+  | { type: 'upload'; label: string; onClick: () => void }
+  | { type: 'line'; text: string };
 
 export interface SpSubcheck {
   id: string;

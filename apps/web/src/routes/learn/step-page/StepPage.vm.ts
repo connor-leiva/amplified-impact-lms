@@ -120,6 +120,11 @@ export interface V6Handlers {
   onCalendar: (item: CheckItemVM) => void;
   onViewPrompt: () => void;
   nodes?: V6Nodes;
+  /**
+   * D-230: Turn in, for a viewer v3 draws for (absent: an upload action draws nothing). `agent` is the line a teammate
+   * who can't turn in sees in the button's place (B-26); else the button reads `labelOf(kind)` and opens the drawer.
+   */
+  turnIn?: { agent: string | null; labelOf: (kind: 'live_read' | 'checkpoint') => string; open: (kind: 'live_read' | 'checkpoint') => void };
 }
 
 const hasTerm = (spans?: readonly GlossarySpan[]): spans is readonly GlossarySpan[] => !!spans?.some((x) => x.kind === 'term');
@@ -138,9 +143,14 @@ export const V6_MORE = {
 
 const ICON_OF: Record<string, SpForStep['icon']> = { book: 'book', play: 'play', lvCopy: 'copy', lvKey: 'key', file: 'book' };
 
-function actionOf(a: CheckItemVM['action'], item: CheckItemVM, onCalendar: (item: CheckItemVM) => void): SpAction | null {
+function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handlers, 'onCalendar' | 'turnIn'>): SpAction | null {
   if (!a) return null;
-  if (a.type === 'calendar') return a.event ? { type: 'calendar', label: V6_WORDS.addToCalendar, onClick: () => onCalendar(item) } : null;
+  if (a.type === 'calendar') return a.event ? { type: 'calendar', label: V6_WORDS.addToCalendar, onClick: () => on.onCalendar(item) } : null;
+  if (a.type === 'upload') {
+    const t = on.turnIn;
+    if (!t) return null;
+    return t.agent !== null ? { type: 'line', text: t.agent } : { type: 'upload', label: t.labelOf(a.kind), onClick: () => t.open(a.kind) };
+  }
   if (a.type === 'link') return { type: 'link', label: a.label, href: a.href };
   if (a.type === 'invite') return { type: 'invite', label: a.label, href: a.href };
   if (a.type === 'copy') return { type: 'copy', label: a.label, text: a.text };
@@ -152,7 +162,7 @@ function itemOf(it: CheckItemVM, on: V6Handlers): SpItem {
   const n = it.card?.length ? countWord(it.card.length) : null;
   const card: SpAction | null = n ? { type: 'card', openLabel: `${V6_WORDS.open} ${n} ${V6_WORDS.words}`, closeLabel: `${V6_WORDS.hide} ${n} ${V6_WORDS.words}` } : null;
   const play: SpAction | null = it.playLabel && it.playSeconds !== null ? { type: 'play', label: it.playLabel, seconds: it.playSeconds, ...(it.playVideo ? { video: it.playVideo } : {}) } : null;
-  const act = actionOf(it.action, it, on.onCalendar);
+  const act = actionOf(it.action, it, on);
   const action = card ?? play ?? act;
   const extra = card ? (play ?? act) : play && act ? act : null;
   const nodes = on.nodes;
