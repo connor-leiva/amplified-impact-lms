@@ -82,6 +82,7 @@ function week0(st: LearnState) {
       fileUrl: (id) => `/api/files/resource/${id}`,
       download: () => undefined,
       onViewPrompt: () => undefined,
+      now: st.now,
     }),
   };
 }
@@ -237,21 +238,25 @@ describe('kitGroups (B-13)', () => {
 });
 
 describe('the gap rule (§4.D) and the locked week (§7.7)', () => {
-  it('Week 0 draws; a week with sessions keeps today’s page', () => {
+  it('Week 0 draws, and D-234: so does a live week (sessions, seat card, playbook card, placeholder media)', () => {
     const st = learnState(Date.parse('2026-12-10T12:00:00Z'), false, { 0: ['c1'] });
     const rows = weekRows(st.payload, st.db, learnerOf(st.db, LEARNER_ID));
-    expect(
-      v3WeekDraws(
-        rows.find((r) => r.week === 0),
-        st.payload.sessions,
-      ),
-    ).toBe(true);
-    expect(
-      v3WeekDraws(
-        rows.find((r) => r.week === 1),
-        st.payload.sessions,
-      ),
-    ).toBe(false);
+    expect(v3WeekDraws(rows.find((r) => r.week === 0))).toBe(true);
+    const w1 = rows.find((r) => r.week === 1)!;
+    expect(st.payload.sessions.some((x) => x.week === 1)).toBe(true);
+    expect(w1.open?.seatCard && w1.open?.playbookCard).toBeTruthy();
+    expect(v3WeekDraws(w1)).toBe(true);
+  });
+  it('D-234: a week keeps today’s page for a real video, or a sample output with a paragraph or a table', () => {
+    const st = learnState(Date.parse('2026-12-10T12:00:00Z'), false, { 0: ['c1'] });
+    const rows = weekRows(st.payload, st.db, learnerOf(st.db, LEARNER_ID));
+    const w1 = rows.find((r) => r.week === 1)!;
+    const video = { ...w1, open: { ...w1.open!, media: [{ type: 'video', id: 'v', title: 'Replay', source: { url: 'https://example.test/v' } }] } };
+    expect(v3WeekDraws(video as unknown as typeof w1)).toBe(false);
+    const para = { ...w1, open: { ...w1.open!, sampleOutput: { title: 'Sample', blocks: [{ type: 'text', text: 'A paragraph.' }] } } };
+    expect(v3WeekDraws(para as unknown as typeof w1)).toBe(false);
+    const listed = { ...w1, open: { ...w1.open!, sampleOutput: { title: 'Sample', blocks: [{ type: 'list', items: ['One line'] }] } } };
+    expect(v3WeekDraws(listed as unknown as typeof w1)).toBe(true);
   });
   it('a locked week draws from its stub, with the hero’s session’s time on its line', () => {
     const st = learnState(PRELAUNCH_NOW, true, { 0: ['c1'] });
@@ -272,5 +277,43 @@ describe('the gap rule (§4.D) and the locked week (§7.7)', () => {
     expect(lk.sessions[0]!.when).toContain(' · ');
     expect(lk.sessions.slice(1).every((s) => !s.when.includes(' · '))).toBe(true);
     expect(lk.crumbs).toEqual([{ label: 'Home', href: '/learn' }, { label: r.title }]);
+  });
+});
+
+describe('D-234: a live week on the week page', () => {
+  const week1 = (now: number) => {
+    const st = learnState(now, false, { 0: ['c1'] });
+    const me = learnerOf(st.db, LEARNER_ID);
+    const rows = weekRows(st.payload, st.db, me);
+    const r = rows.find((x) => x.week === 1)!;
+    return weekProps({ p: st.payload, rows, r, me, checks: me?.checks ?? [], build: null, fileUrl: () => null, download: () => undefined, onViewPrompt: () => undefined, now });
+  };
+  it('its first tag is its live build, its sessions are the locked week’s list, its cards are Reference accordions', () => {
+    // Week 1 opens with its live build (Wed, Dec 2, 1:00 PM CT): ten minutes in, the build is live.
+    const props = week1(Date.parse('2026-12-02T19:10:00Z'));
+    expect(props.tags[0]).toEqual({ icon: 'radio', label: 'Live build Wed, Dec 2, 1:00 PM CT' });
+    expect(props.sessions?.map((x) => [x.title, x.kind, x.state])).toEqual([
+      ['Map Your Spend Live Build', 'Live build', 'live'],
+      ['Map Your Spend Office Hours', 'Office hours', 'wait'],
+    ]);
+    const titles = props.reference.map((x) => x.title);
+    expect(titles.slice(-2)).toEqual(['Seat Card', 'Playbook Card']);
+    const seat = props.reference.find((x) => x.title === 'Seat Card')!;
+    expect(seat.blocks[0]).toMatchObject({ type: 'dl' });
+  });
+  it('each session line follows the Schedule’s state: Live now, then a replay or Session ended', () => {
+    const during = week1(Date.parse('2026-12-02T19:30:00Z'));
+    expect(during.sessions?.[0]?.state).toBe('live');
+    const after = week1(Date.parse('2026-12-02T22:00:00Z'));
+    expect(['processing', 'replay', 'ended']).toContain(after.sessions?.[0]?.state);
+  });
+  it('a self-paced week (Week 0) has no sessions and keeps "Self-paced"', () => {
+    const st = learnState(Date.parse('2026-11-20T21:18:00Z'), false, { 0: ['c1'] });
+    const me = learnerOf(st.db, LEARNER_ID);
+    const rows = weekRows(st.payload, st.db, me);
+    const r = rows.find((x) => x.week === 0)!;
+    const props = weekProps({ p: st.payload, rows, r, me, checks: me?.checks ?? [], build: null, fileUrl: () => null, download: () => undefined, onViewPrompt: () => undefined, now: st.now });
+    expect(props.sessions).toBeUndefined();
+    expect(props.tags[0]!.label).toBe('Self-paced');
   });
 });

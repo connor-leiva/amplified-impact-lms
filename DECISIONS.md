@@ -7330,3 +7330,16 @@ and approved D-225 to D-231 together ("Approved on all"), as `handoff/lms-v3/IMP
 - **The PDF** (B-18, Phase 7) ships in the package's placeholder look (Connor, Nov 21, asked whether to hold the release for the template or ship the placeholder: "Ship placeholder look"), which spec Phase 7 says needs a headless browser on the host. The server prints the package's `formPdfHtml` (converted, `apps/api/src/pdf/form-pdf.ts`) with headless Chromium: `@sparticuz/chromium` with its own NSS libraries and fonts, driven by `playwright-core`, one render at a time, nothing stored. `GET /api/intake/pdf` (the owner and the operator, their own team) and `GET /api/console/workspaces/:teamId/intake/pdf` (workspaces.read, audited as `intake.pdf`; no console screen yet, C-14), as "Week 0 Intake - <Team>.pdf". Connor's designed template (Q-14) replaces the look when it arrives.
 - **GHL** (B-20, Phase 8): the answers sync to the owner's contact on submit and on later saves, the operator as their own contact related to the owner, tag `ai-intake-submitted`. A dry run logs the payload first; nothing is written to GHL until Connor approves one.
 - **Supersedes** D-196's "Nothing is sent to GHL, Stripe or anywhere else" (for GHL, from Phase 8) and the intake page, on v3.
+
+## D-234 · LMS v3: weeks with live sessions on Week 0's design
+
+**Date:** 2026-11-21
+**Approved by:** Connor Leiva (repository owner), Nov 21, 2026: "Adapt Week 0's design for live weeks". D-232 and D-233 stay reserved for Q-13 and Q-16.
+**Number:** after D-229 (D-230 and D-231 are the spec's Turn in and Community).
+
+The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each with a live build and office hours) kept today's page under the gap rule (D-228). They now draw the v3 week page, built only from pieces the mockup already has; no new styles.
+- **Header.** A live week's first tag is its live build ("Live build Wed, Dec 2, 1:00 PM CT", as the due tag reads) where Week 0's is "Self-paced".
+- **Build it live.** The week's sessions, after the hero, as the locked week lists them (date tile, title, "Live build · Wed, Dec 2 · 1:00 PM CT"). Each line carries the Schedule's state: Live now, Replay processing, Watch replay, Session ended. Join stays in the top bar.
+- **Cards.** The week's seat card, playbook card and sample output become Reference accordions with today's titles and terms ("Seat Card", "Playbook Card"), on Reference's term-and-description rows.
+- **Hero.** A deployed week after Week 0 titles its hero with its outcome; "Your office is ready for its first hire." stays Week 0's. A step with no "who" or "done when" in the builder draws neither (no empty chip, no empty "Done when").
+- **Still today's page** for what has no place yet: a week holding a real video (a placeholder line is left out, as Week 0's are), or a sample output with paragraphs or a table.

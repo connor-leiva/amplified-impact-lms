@@ -14,6 +14,7 @@ import { Hero } from './Hero';
 import { StepList } from './StepList';
 import { Kit } from './Kit';
 import { Reference } from './Reference';
+import { SessionWhen } from './SchedulePage';
 import type { MotionStyle } from '@brand/ai-motion';
 import type { WeekLabels, WeekProps } from './types';
 
@@ -52,6 +53,20 @@ export function WeekPage({ week, labels, onDeploy }: { week: WeekProps; labels: 
           </div>
         </header>
         <Hero week={week} view={view} labels={labels} onDeploy={() => deploy(true)} onUndo={() => deploy(false)} />
+        {/* D-234: a live week's sessions, as the locked week lists them, each line with the Schedule's state. */}
+        {week.sessions?.length ? (
+          <section className="aim-rise" style={{ '--i': 2 } as MotionStyle} aria-labelledby="wk-live-h">
+            <h2 className="wk-h2" id="wk-live-h">{labels.buildLive}</h2>
+            <ul className="sc-list lk-list">
+              {week.sessions.map((s) => (
+                <li className="sc-week lk-row" key={s.title}>
+                  <span className="sc-date" aria-hidden="true"><small>{s.tile[0]}</small><b>{s.tile[1]}</b></span>
+                  <div className="sc-body"><b>{s.title}</b><p className="sc-d">{`${s.kind} · `}<SessionWhen s={{ icon: '', ...s }} /></p></div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         <div className="wk-grid">
           <StepList week={week} view={view} labels={labels} />
           <Kit week={week} labels={labels} />
