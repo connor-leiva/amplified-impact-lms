@@ -124,6 +124,15 @@ async function go(a: Api, path: string): Promise<void> {
 
 const called = (a: Api, pattern: RegExp) => a.calls.some((c) => pattern.test(c));
 
+/**
+ * D-224: the event stream refreshes a page at most once per `CHANGED_EVERY_MS` (5 s, `apps/web/src/data/http.ts`).
+ * This file's stream closes after each answer, so the browser reconnects every 150 ms and each reconnect is a
+ * catch-up refresh; with the page's clock fixed, every refresh after the first waits the whole window. A `changed`
+ * fired just after one is refetched about 5.9 s later (measured): the poll waits the window and a margin, not the
+ * default 5 s.
+ */
+const CHANGED_WAIT = { timeout: 5_000 + 5_000 };
+
 test.describe('learner parity: the API the new screens call (http mode)', () => {
   test('the shell reads the viewer, the snapshot and the course, and opens the event stream @parity:A-1 @parity:A-2 @parity:A-11', async ({
     browser,
@@ -146,8 +155,12 @@ test.describe('learner parity: the API the new screens call (http mode)', () => 
       course: a.calls.filter((c) => c === 'GET /api/course').length,
     };
     a.change();
-    await expect.poll(() => a.calls.filter((c) => c === 'GET /api/snapshot').length).toBeGreaterThan(before.snapshot);
-    await expect.poll(() => a.calls.filter((c) => c === 'GET /api/course').length).toBeGreaterThan(before.course);
+    await expect
+      .poll(() => a.calls.filter((c) => c === 'GET /api/snapshot').length, CHANGED_WAIT)
+      .toBeGreaterThan(before.snapshot);
+    await expect
+      .poll(() => a.calls.filter((c) => c === 'GET /api/course').length, CHANGED_WAIT)
+      .toBeGreaterThan(before.course);
     await a.ctx.close();
   });
 
