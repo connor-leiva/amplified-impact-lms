@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import type { CourseIntake } from '@ai/core/course-types';
 import { FormDrawer } from './FormDrawer';
 import { useIntakeForm } from './V3Week';
+import { NO_TAP } from './tap';
 
 export default function StepIntake({
   intake,
@@ -20,5 +21,12 @@ export default function StepIntake({
   onClose: () => void;
 }) {
   const form = useIntakeForm(intake, now);
-  return form ? createPortal(<FormDrawer f={form} open={open} onClose={onClose} />, document.body) : null;
+  return form
+    ? createPortal(
+        <div style={NO_TAP}>
+          <FormDrawer f={form} open={open} onClose={onClose} />
+        </div>,
+        document.body,
+      )
+    : null;
 }

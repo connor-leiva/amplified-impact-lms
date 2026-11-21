@@ -18,6 +18,7 @@ import type { LockedWeekVM } from '../Week.vm';
 import { PromptModal } from '../WeekContent';
 import type { BuildKitVM } from '../WeekContent.vm';
 import { FormDrawer, useForm } from './FormDrawer';
+import { NO_TAP } from './tap';
 import type { FormApi } from './FormDrawer';
 import { FORM_ID, INTAKE_KIT_ID, formDef, formInitial, formRow } from './form.vm';
 import type { IntakeBody } from './form.vm';
@@ -101,9 +102,15 @@ export function V3Week({
           <PromptModal prompt={build.prompt} onClose={() => setPrompt(false)} />
         </div>
       ) : null}
-      {/* The drawer is the app's sibling, as the mockup draws it: a portal to <body>, so nothing of the shell stacks over it. */}
+      {/* The drawer is the app's sibling, as the mockup draws it: a portal to <body>, so nothing of the shell stacks over it.
+          It keeps D-225's exemption from the phone tap floor, as the frame does (NO_TAP). */}
       {form
-        ? createPortal(<FormDrawer f={form} open={drawerOpen} onClose={() => setOpen(false)} />, document.body)
+        ? createPortal(
+            <div style={NO_TAP}>
+              <FormDrawer f={form} open={drawerOpen} onClose={() => setOpen(false)} />
+            </div>,
+            document.body,
+          )
         : null}
     </>
   );

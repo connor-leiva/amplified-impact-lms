@@ -22,6 +22,7 @@ import { saveIcs } from '../ics';
 import { LABELS, icsEvents } from '../learn.vm';
 import { learnSchedule, LEARN_ROOT } from '../routes';
 import { AppShell } from './AppShell';
+import { KEEP_TAP, NO_TAP, TODAY_TAP } from './tap';
 import { IconSprite } from './Icons';
 import { LOGOS } from './logos';
 import { currentOf, joinOfHref, shellProps } from './shell.vm';
@@ -43,14 +44,7 @@ export interface V3FrameProps {
 
 const ACCOUNT = '.sh-acct';
 
-// D-225: the mockup's own control heights on these surfaces (D-210 item 4's exemption, extended). The app's global
-// `styles/lms.css` gives every button and field a phone floor through `--tap` (44px, 48px for the primary) on `:root`.
-// Neither stylesheet changes: the frame keeps the page's `--tap` aside, sets it to nothing for the package's markup,
-// and hands it back to today's pages under the shell, which keep their floor.
-const KEEP_TAP = { '--v3-tap': 'var(--tap)', '--v3-tap-primary': 'var(--tap-primary)' } as CSSProperties;
-// `auto`, not 0: the rule is `min-width` and `min-height`, and `auto` is their initial value (a 0 would let a flex item shrink).
-const NO_TAP = { '--tap': 'auto', '--tap-primary': 'auto' } as CSSProperties;
-const TODAY_TAP = { '--tap': 'var(--v3-tap)', '--tap-primary': 'var(--v3-tap-primary)' } as CSSProperties;
+// The tap floor's exemption (D-225): `tap.ts`.
 
 /** Where today's account menu opens: under the account button, its right edge on the button's (`below-right`). */
 function useAnchor(open: boolean): CSSProperties | null {
