@@ -170,6 +170,9 @@ export const submissions = pgTable('submissions', {
   status: text('status').notNull().default('received'),
   statusAt: ts('status_at'),
   statusBy: text('status_by'),
+  // D-237: when staff deleted this turn-in's files with the rest of its cohort's, and who. The row stays.
+  filesDeletedAt: ts('files_deleted_at'),
+  filesDeletedBy: text('files_deleted_by'),
 }, (t) => [
   index('submissions_team_idx').on(t.teamId, t.moduleId, t.kind, t.id),
   index('submissions_module_idx').on(t.moduleId, t.id),

@@ -85,6 +85,12 @@ export async function startFakeBucket(): Promise<FakeBucket> {
         res.writeHead(200, { etag: '"fake"' }).end();
         return;
       }
+      // D-237: a delete, as S3 answers one: 204, whether or not the key was there.
+      if (req.method === 'DELETE') {
+        objects.delete(key);
+        res.writeHead(204).end();
+        return;
+      }
       const obj = objects.get(key) ?? (bucket.anyKey ? { body: Buffer.from(`object:${key}`), contentType: 'application/octet-stream' } : undefined);
       if (!obj) {
         if (req.method === 'HEAD') res.writeHead(404).end();

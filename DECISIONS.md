@@ -7405,3 +7405,14 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Storage:** `team_seat_cards` (migration 0035, additive), one card per team per week.
 - **The flag.** As Turn in, it draws only for a viewer v3 draws for: with `VITE_LMS_V3` off, the seat card's Form button draws nothing.
 - Nothing is emailed, and nothing goes to GHL.
+
+## D-237 · Deleting a cohort's turned-in files
+
+**Date:** 2026-11-22
+**Asked for by:** the Subscription Agreement, Section 7 (`apps/web/src/legal/agreement.ts`, never edited): "If you share files with us for a live build, we use them only to help your team during that build and delete them when the cohort ends." Turn in (D-230) kept every version and had no delete (`handoff/weeks-1-2/00-BRIEF.md` §4). Connor Leiva (repository owner), Nov 22: a staff action on the cohort, audited, that removes the cohort's turned-in files from the bucket and marks each turn-in's files deleted; the team, who turned it in and when stay on record.
+
+- **Delete turned-in files**, on Cohorts & Sessions beside Add session (not in the mockup: Connor's call). It counts first and asks ("Delete the 12 files (4.2 MB) in 6 turn-ins for …?"), with why (the agreement) and what stays. Only staff who manage cohorts and sessions (the `cohorts` permission) can count or delete.
+- **What it removes:** every file of every turn-in of the cohort's teams that is still in the bucket. A team is its owner's cohort's (as the intake's PDF names it), else the cohort of whoever turned it in. Only a key under `submissions/` can be deleted this way (`deleteSubmissionObject`), so no Vault file, skill or video can go with it.
+- **What stays:** each turn-in's row: the team, who turned it in and when, its note and minutes, its files' names and sizes, with `files_deleted_at` and `files_deleted_by` (migration 0036, additive). Its files no longer download, for the team or for staff (410, "Deleted when the cohort ended."). The team's drawer shows their names with no link; the Submissions card says when and by whom they were deleted.
+- **Audited** once a run, as `submission.files_delete` on the cohort, with what it removed. A file that won't delete leaves its turn-in as it was, counted as failed (the run is audited as failed), for another try. A second run finds nothing more.
+- Nothing is emailed.
