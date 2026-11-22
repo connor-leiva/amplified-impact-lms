@@ -117,7 +117,8 @@ export type CheckAction =
   | { type: 'invite'; label?: string }
   | { type: 'calendar'; sessionId: string }
   | { type: 'link'; label: string; href: string }
-  | { type: 'form'; formId: 'intake' | 'stack-card'; label: string; itemId?: string }
+  /** D-236: `seat-card` is the week's seat card form; its save checks this item and the owner's signature `itemId`. */
+  | { type: 'form'; formId: 'intake' | 'stack-card' | 'seat-card'; label: string; itemId?: string }
   | { type: 'card'; terms: string[] }
   /** D-230: Turn in. The step's button opens the drawer for this kind (`@ai/core/submissions`); its words are fixed. */
   | { type: 'upload'; kind: 'live_read' | 'checkpoint' };

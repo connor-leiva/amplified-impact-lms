@@ -25,6 +25,7 @@ import { FIVE_WORDS_V1, planFiveWordsV1 } from '@ai/core/seed/five-words-v1';
 import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
+import { WEEKS_1_2_V1, planWeeks12V1 } from '@ai/core/seed/weeks-1-2-steps-v1';
 import { audit } from '../console/audit';
 import type { Database } from './client';
 import { loadDb, persistDiff } from './io';
@@ -103,6 +104,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: INTAKE_REQUIRED_V1,
     describe: 'Week 0 intake: the six required questions, set only when none is marked (D-229)',
     plan: planIntakeRequiredV1,
+  },
+  {
+    id: WEEKS_1_2_V1,
+    describe: 'Weeks 1 and 2: Connor’s approved step bodies on both paths and the week-level changes, once, only where the seed is untouched (D-235)',
+    plan: (db) => planWeeks12V1(db),
   },
 ];
 

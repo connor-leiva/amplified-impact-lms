@@ -1,0 +1,32 @@
+[
+ {
+  "field": "Outputs 3",
+  "seeded": "The Lead Desk Monitor running, with its first misses list",
+  "change_to": "The Lead Desk Monitor running, with its first misses list and each agent's follow-up list on the Team Board"
+ },
+ {
+  "field": "Live build, Required",
+  "seeded": "The Lead Desk Monitor scheduled, with its first misses list",
+  "change_to": "The Lead Desk Monitor scheduled, with its first misses list and each agent's follow-up list on the Team Board"
+ },
+ {
+  "field": "Seat card, Runs",
+  "seeded": "Weekdays at 7:00 AM MT for connected teams; Mondays for export teams",
+  "change_to": "Weekdays at 7:00 AM MT for connected teams, reading Sisu. Mondays at 7:00 AM MT for export teams"
+ },
+ {
+  "field": "Seat card, Pulls",
+  "seeded": "...from Sisu if test 5 passes, otherwise from the CRM's speed-to-lead report...",
+  "change_to": "New leads with their first response time and call attempts: from Sisu for connected teams, or from the CRM's speed-to-lead report in AI Office / Lead Desk / inbox for export teams"
+ },
+ {
+  "field": "Seat card, Produces",
+  "seeded": "A misses list as a Gmail draft to the team lead...",
+  "change_to": "A misses list for the team lead, added to the top of the Leadership Desk with the date and saved as a Gmail draft to the team lead: each lead with source, agent, minutes to first touch and attempts so far. Each agent's follow-up list, added to the top of the Team Board. Every lead shows by CRM link or ID, never a client name"
+ },
+ {
+  "field": "Seat card, Can't Do",
+  "seeded": "Call, text, reassign or update a lead",
+  "change_to": "Call, text, reassign or update a lead. It drafts and never sends"
+ }
+]

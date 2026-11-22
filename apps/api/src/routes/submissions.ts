@@ -8,6 +8,13 @@
 //   GET  /api/submissions/:id/files/:n             one file, as a download (the team's owner and operator, or staff)
 //   GET  /api/admin/submissions?moduleId=          staff: every turn-in for a week, every version, with status
 //   POST /api/admin/submissions/:id/status         staff: { status }, audited as `submission.status`
+//   GET  /api/admin/cohorts/:cohortId/turned-in-files         staff who manage cohorts: what a delete would remove
+//   POST /api/admin/cohorts/:cohortId/turned-in-files/delete  the same staff: delete it, audited `submission.files_delete`
+//
+// D-237: the Subscription Agreement, Section 7: "If you share files with us for a live build, we use them only to help
+// your team during that build and delete them when the cohort ends." Connor, Nov 22: a staff action on the cohort,
+// audited, that removes its turned-in files from the bucket and marks each turn-in's files deleted; the team, who
+// and when stay on record. A deleted file no longer downloads, for the team or for staff.
 //
 // A turned-in file is never shown in the browser: every download is an attachment typed as bytes, with `nosniff` and
 // a sandbox policy, because a team can turn in an HTML report and this is the app's own origin.
@@ -15,7 +22,7 @@
 
 import { randomUUID } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { can } from '@ai/core';
 import { isWeekModule } from '@ai/core/course';
 import { weekOpenFor } from '@ai/core/release';
@@ -38,18 +45,22 @@ import { audit } from '../console/audit';
 import { staffActor } from '../console/guard';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { submissions, teams, users } from '../db/schema';
+import { cohorts, submissions, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { courseEntryFor } from '../lib/course-access';
 import { checkTeam } from './intake';
-import { ObjectMissingError, StorageKeyError, contentDisposition, getObject, headObject, presignPut } from '../storage';
+import { ObjectMissingError, StorageKeyError, contentDisposition, deleteSubmissionObject, getObject, headObject, presignPut } from '../storage';
 
 export const SUBMISSIONS_PATH = '/api/submissions';
 export const SUBMISSIONS_UPLOAD_PATH = '/api/submissions/upload-url';
 export const SUBMISSION_FILE_PATH = '/api/submissions/:id/files/:n';
 export const ADMIN_SUBMISSIONS_PATH = '/api/admin/submissions';
 export const ADMIN_SUBMISSION_STATUS_PATH = '/api/admin/submissions/:id/status';
+export const ADMIN_COHORT_FILES_PATH = '/api/admin/cohorts/:cohortId/turned-in-files';
+export const ADMIN_COHORT_FILES_DELETE_PATH = '/api/admin/cohorts/:cohortId/turned-in-files/delete';
 export const submissionFileHref = (id: number, n: number): string => `/api/submissions/${id}/files/${n}`;
+/** D-237: what a deleted file's download answers. */
+export const FILES_DELETED = 'Deleted when the cohort ended.';
 
 /** Where a team's files go: `submissions/<team>/<uuid>.<ext>`, so a turn-in can only name its own team's. */
 const prefixOf = (teamId: string): string => `submissions/${teamId}/`;
@@ -79,6 +90,34 @@ async function turnerOf(viewer: SessionViewer, now: number): Promise<Member | nu
   return (await courseEntryFor(getDb(), me.id, now)).open ? me : null;
 }
 
+/** D-237: staff who may delete a cohort's turned-in files: those who manage cohorts and sessions. */
+async function cohortManager(viewer: SessionViewer): Promise<boolean> {
+  if (viewer.user.kind !== 'staff') return false;
+  return can(await loadDb(getDb()), viewer.actor, 'cohorts');
+}
+
+/**
+ * D-237: a cohort's turn-ins whose files are still in the bucket. A turn-in is its team's, and a team is its owner's
+ * cohort's (as the intake's PDF names it), else the cohort of whoever turned it in.
+ */
+async function cohortFiles(cohortId: string): Promise<Row[]> {
+  const db = getDb();
+  const rows = await db.select().from(submissions).where(isNull(submissions.filesDeletedAt)).orderBy(submissions.id);
+  if (!rows.length) return [];
+  const teamRows = await db.select({ id: teams.id, ownerId: teams.ownerId }).from(teams).where(inArray(teams.id, [...new Set(rows.map((r) => r.teamId))]));
+  const owner = new Map(teamRows.map((t) => [t.id, t.ownerId]));
+  const people = [...new Set([...teamRows.map((t) => t.ownerId), ...rows.map((r) => r.byUserId)])];
+  const cohortOf = new Map((await db.select({ id: users.id, cohortId: users.cohortId }).from(users).where(inArray(users.id, people))).map((u) => [u.id, u.cohortId]));
+  return rows.filter((r) => (cohortOf.get(owner.get(r.teamId) ?? '') ?? cohortOf.get(r.byUserId) ?? null) === cohortId);
+}
+
+/** What a delete would remove, or removed: turn-ins, files and bytes. */
+const tally = (rows: readonly Row[]) => ({
+  turnIns: rows.length,
+  files: rows.reduce((a, r) => a + r.files.length, 0),
+  bytes: rows.reduce((a, r) => a + r.files.reduce((b, f) => b + f.size, 0), 0),
+});
+
 /** Staff who may read what teams turn in: those who may view learners. */
 async function staffReader(viewer: SessionViewer): Promise<boolean> {
   if (viewer.user.kind !== 'staff') return false;
@@ -104,11 +143,11 @@ async function namesOf(ids: readonly string[]): Promise<Map<string, string>> {
   return new Map(rows.map((r) => [r.id, r.name]));
 }
 
-/** A turn-in as its team sees it. No status (B-25). */
+/** A turn-in as its team sees it. No status (B-25). Deleted files (D-237) keep their names, with no download. */
 const teamView = (r: Row, names: Map<string, string>) => ({
   id: r.id,
   kind: r.kind,
-  files: r.files.map((f, n) => ({ name: f.name, size: f.size, href: submissionFileHref(r.id, n) })),
+  files: r.files.map((f, n) => ({ name: f.name, size: f.size, ...(r.filesDeletedAt === null ? { href: submissionFileHref(r.id, n) } : {}) })),
   note: r.note,
   minutes: r.minutes,
   by: names.get(r.byUserId) ?? '',
@@ -186,8 +225,8 @@ export function registerSubmissionRoutes(app: FastifyInstance): void {
       .insert(submissions)
       .values({ teamId: me.teamId, moduleId: body.moduleId as string, kind: body.kind, files, note: cleanNote(body.note), minutes: cleanMinutes(body.minutes), byUserId: me.id, createdAt: now })
       .returning();
-    // The step's item that asks for it is done, for the whole team, as a submitted intake's is (D-229).
-    await checkTeam(me.teamId, { moduleId: body.moduleId as string, stepId: ask.stepId, itemId: ask.itemId }, now);
+    // The step's items that ask for it are done, on both paths, for the whole team, as a submitted intake's is (D-229).
+    for (const itemId of ask.itemIds) await checkTeam(me.teamId, { moduleId: body.moduleId as string, stepId: ask.stepId, itemId }, now);
     return reply.code(201).send({ sub: teamView(row!, await namesOf([me.id])) });
   });
 
@@ -227,6 +266,7 @@ export function registerSubmissionRoutes(app: FastifyInstance): void {
       const me = await turnerOf(viewer, clock.now());
       if (!me || me.teamId !== row.teamId) return reply.code(404).send({ error: 'Not found' });
     }
+    if (row.filesDeletedAt !== null) return reply.code(410).send({ error: FILES_DELETED });
     return sendFile(reply, file);
   });
 
@@ -237,12 +277,20 @@ export function registerSubmissionRoutes(app: FastifyInstance): void {
     const moduleId = (req.query as { moduleId?: unknown }).moduleId;
     if (typeof moduleId !== 'string' || !moduleId) return reply.code(400).send({ error: 'Which week?' });
     const rows = await getDb().select().from(submissions).where(eq(submissions.moduleId, moduleId)).orderBy(desc(submissions.id));
-    const names = await namesOf(rows.flatMap((r) => [r.byUserId, ...(r.statusBy ? [r.statusBy] : [])]));
+    const names = await namesOf(rows.flatMap((r) => [r.byUserId, ...(r.statusBy ? [r.statusBy] : []), ...(r.filesDeletedBy ? [r.filesDeletedBy] : [])]));
     const teamIds = [...new Set(rows.map((r) => r.teamId))];
     const teamRows = teamIds.length ? await getDb().select({ id: teams.id, name: teams.name }).from(teams).where(inArray(teams.id, teamIds)) : [];
     const team = new Map(teamRows.map((t) => [t.id, t.name]));
     return reply.code(200).send({
-      subs: rows.map((r) => ({ ...teamView(r, names), team: team.get(r.teamId) ?? '', status: r.status, statusAt: r.statusAt, statusBy: r.statusBy ? (names.get(r.statusBy) ?? '') : null })),
+      subs: rows.map((r) => ({
+        ...teamView(r, names),
+        team: team.get(r.teamId) ?? '',
+        status: r.status,
+        statusAt: r.statusAt,
+        statusBy: r.statusBy ? (names.get(r.statusBy) ?? '') : null,
+        filesDeletedAt: r.filesDeletedAt,
+        filesDeletedBy: r.filesDeletedBy ? (names.get(r.filesDeletedBy) ?? '') : null,
+      })),
     });
   });
 
@@ -270,5 +318,51 @@ export function registerSubmissionRoutes(app: FastifyInstance): void {
       });
     }
     return reply.code(200).send({ ok: true, status });
+  });
+
+  // D-237: what deleting a cohort's turned-in files would remove, for the confirm.
+  app.get(ADMIN_COHORT_FILES_PATH, read, async (req, reply): Promise<FastifyReply> => {
+    reply.header('cache-control', 'no-store');
+    if (!(await cohortManager(viewerOrThrow(req)))) return reply.code(403).send({ error: 'Not allowed' });
+    const cohortId = (req.params as { cohortId?: string }).cohortId ?? '';
+    const [cohort] = await getDb().select({ id: cohorts.id, name: cohorts.name }).from(cohorts).where(eq(cohorts.id, cohortId));
+    if (!cohort) return reply.code(404).send({ error: 'Not found' });
+    return reply.code(200).send({ cohort: cohort.name, ...tally(await cohortFiles(cohort.id)) });
+  });
+
+  // D-237: delete them. Each turn-in's files leave the bucket, then its row is marked; a file that won't delete leaves
+  // its turn-in as it was, counted as failed, for another try. Audited once, with what it removed.
+  app.post(ADMIN_COHORT_FILES_DELETE_PATH, write, async (req, reply): Promise<FastifyReply> => {
+    reply.header('cache-control', 'no-store');
+    const viewer = viewerOrThrow(req);
+    const actor = staffActor(viewer);
+    if (!actor || !(await cohortManager(viewer))) return reply.code(403).send({ error: 'Not allowed' });
+    const cohortId = (req.params as { cohortId?: string }).cohortId ?? '';
+    const [cohort] = await getDb().select({ id: cohorts.id, name: cohorts.name }).from(cohorts).where(eq(cohorts.id, cohortId));
+    if (!cohort) return reply.code(404).send({ error: 'Not found' });
+    const now = clock.now();
+    const done: Row[] = [];
+    let failed = 0;
+    for (const r of await cohortFiles(cohort.id)) {
+      try {
+        for (const f of r.files) await deleteSubmissionObject(f.key);
+      } catch (err) {
+        req.log.warn({ err, submission: r.id }, 'turned-in file delete failed');
+        failed++;
+        continue;
+      }
+      await getDb().update(submissions).set({ filesDeletedAt: now, filesDeletedBy: viewer.user.id }).where(eq(submissions.id, r.id));
+      done.push(r);
+    }
+    const removed = { ...tally(done), failed };
+    await audit(req, {
+      action: 'submission.files_delete',
+      outcome: failed ? 'failed' : 'ok',
+      actor,
+      target: { type: 'cohort', id: cohort.id, label: cohort.name },
+      after: removed,
+      ...(failed ? { reason: 'some_files_failed' } : {}),
+    });
+    return reply.code(failed ? 502 : 200).send(removed);
   });
 }

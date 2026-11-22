@@ -28,8 +28,8 @@ describe('Turn in’s props (D-230)', () => {
   });
   it('asks as the sample does, and labels the step’s button Turn in, then View', () => {
     expect(asksProps([
-      { id: 'live_read', kind: 'live_read', step: 4, stepId: 'c4', itemId: 'r', kicker: 'Week 1 · Step 4' },
-      { id: 'checkpoint', kind: 'checkpoint', step: 6, stepId: 'c6', itemId: 'k', kicker: 'Week 1 · Step 6' },
+      { id: 'live_read', kind: 'live_read', step: 4, stepId: 'c4', itemId: 'r', itemIds: ['r'], kicker: 'Week 1 · Step 4' },
+      { id: 'checkpoint', kind: 'checkpoint', step: 6, stepId: 'c6', itemId: 'k', itemIds: ['k'], kicker: 'Week 1 · Step 6' },
     ])).toEqual(turnInSamples.asks);
     expect(turnInLabel({}, 'live_read')).toBe('Turn in');
     expect(turnInLabel({ live_read: {} }, 'live_read')).toBe('View');
