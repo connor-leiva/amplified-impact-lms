@@ -7,10 +7,13 @@
 // build has none of it (`admin-shell-build.test.ts`).
 
 import type { Db } from '@ai/core';
+import type { ProgramKey } from '../home/program-logo';
 import type { ParityR2 } from './parity-r2';
 
-/** The program the admin runs. One today; the switcher's tile shows its initials. */
+/** The program the admin runs. One today. */
 export const PROGRAM = 'Amplified AI Accelerator';
+/** D-239: its key, for the switcher's tile: the program's own logo (`programLogo(key, { variant: 'tile' })`). */
+export const PROGRAM_KEY: ProgramKey = 'accelerator';
 /** The environment dot's label (BUILD-SPEC § 4). There is one environment, production. */
 export const ENVIRONMENT = 'Production';
 /** The cohort the admin shows when nothing else picks one (the shell's `DEFAULT_COHORT`). */
@@ -19,9 +22,12 @@ export const ADMIN_COHORT = 'dec26';
 export interface AdminShellData {
   viewer: { name: string; role: string };
   program: string;
+  /** D-239: the program's key, for its tile in the cohort switcher. */
+  programKey: ProgramKey;
   cohort: string;
   environment: string;
-  counts: { drafts: number; requests: number; incidents: number };
+  /** `waiting` (D-239): Community threads whose last word is a member's; 0 until the admin Community (R-3). */
+  counts: { drafts: number; requests: number; incidents: number; waiting: number };
   /** The mockup's whole `NAV`: the parity fixture only. */
   fullNav: boolean;
 }
@@ -46,12 +52,14 @@ export function shellDataFrom(db: Db, staffId: string | null, role: string | nul
   return {
     viewer: { name: me?.name ?? '', role: role ?? me?.role ?? '' },
     program: PROGRAM,
+    programKey: PROGRAM_KEY,
     cohort: cohort ? `${cohort.name} Cohort` : '',
     environment: ENVIRONMENT,
     counts: {
       drafts: db.modules.filter((m) => m.status === 'draft').length,
       requests: db.requests.filter((q) => q.status === 'new').length,
       incidents: openIncidents,
+      waiting: 0,
     },
     fullNav: false,
   };
@@ -61,9 +69,10 @@ export function shellDataFromParity(p: ParityR2): AdminShellData {
   return {
     viewer: { ...p.viewer },
     program: p.program,
+    programKey: PROGRAM_KEY,
     cohort: p.cohort,
     environment: p.environment,
-    counts: { ...p.counts },
+    counts: { ...p.counts, waiting: 0 },
     fullNav: true,
   };
 }

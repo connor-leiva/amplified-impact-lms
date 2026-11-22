@@ -1,18 +1,33 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/r2/Menu';
 import { initials } from '../../data/admin-shell';
 import type { AdminShellData } from '../../data/admin-shell';
+import { programLogo } from '../../home/program-logo';
+import { peekAfterClick } from './adminNav';
 import type { AdminNavGroup, R2Group } from './adminNav';
-import { Wordmark } from './Wordmark';
+import { AcademyLogo } from './Wordmark';
 import s from './AdminShell.module.css';
 
-// The admin sidebar (D-160 R2-1b, BUILD-SPEC § 4): the mockup's `Sidebar`, in its three forms.
-//   full    244px: the wordmark, the cohort switcher, the groups (each folds), the rail toggle, the
-//           signed-in staff member.
-//   rail    64px (768–1199px by default): the wordmark's first glyph, the switcher's tile, one icon
-//           per group with a flyout of its pages, the toggle, the avatar.
-//   drawer  the phone's 300px drawer: the full sidebar with a Close button and no toggle.
+// The admin sidebar (D-160 R2-1b, BUILD-SPEC § 4; D-239, ADMIN-SIDEBAR-SPEC.md): the mockup's `Sidebar`
+// (handoff/admin-mockup/AdminMock.jsx, "proposed"), in its three forms.
+//   full    244px: the academy logo, the cohort switcher with the program's own tile, six group rows (one open,
+//           its pages on a guide line), the rail toggle, the signed-in staff member.
+//   rail    64px (768–1199px by default): the logo through a 26px window (its "ai"), the tile, one icon per
+//           group with a fly-out of its pages, the toggle, the avatar. Each on the same centre line.
+//   drawer  the phone's 300px drawer: the full sidebar's rows, a Close button, no toggle, no travel.
+//
+// THE TRAVEL (ADMIN-SIDEBAR-SPEC.md §4, the learner sidebar's move). Three things, so the width and the layout can
+// change at different moments: `narrow` (the column is 64px wide), the layout (`data-mode` rail or full) and
+// `anim` (collapsing, expanding). Closing: the column narrows (--aim-dur-move, --aim-ease) and the logo's window
+// closes to "ai" with it; for the first --aim-dur-quick the full layout stays and its words fade; then the layout
+// becomes the rail and the tile, each group's icon, the toggle's icon and the avatar glide to their places
+// (--aim-dur-base, FLIP), arriving with the edge. Opening: the layout opens at once behind the edge, those glide
+// back out (--aim-dur-move, no overshoot), the words fade in (--aim-dur-base) and the column springs open
+// (--aim-dur-spring, --aim-ease-spring). Every duration and curve is read from the brand's tokens
+// (components/motion/ai-motion.css), never written here. Only a click on the toggle travels: a resize across a
+// band, the phone's drawer and reduced motion switch at once. A second click part-way turns it round.
 
 export type SidebarMode = 'full' | 'rail' | 'drawer';
 
@@ -21,7 +36,8 @@ export interface SidebarProps {
   data: AdminShellData;
   groups: readonly AdminNavGroup[];
   go: (to: string) => void;
-  onToggleGroup: (group: R2Group, active: boolean) => void;
+  /** D-239: a click on a group's row: open it (closing the rest), or close the open one (`null`). */
+  onPeek: (group: R2Group | null) => void;
   onToggleRail: () => void;
   onProfile: () => void;
   profileOpen: boolean;
@@ -29,26 +45,121 @@ export interface SidebarProps {
   closeRef?: Ref<HTMLButtonElement>;
 }
 
-export function Sidebar({
-  mode,
-  data,
-  groups,
-  go,
-  onToggleGroup,
-  onToggleRail,
-  onProfile,
-  profileOpen,
-  onClose,
-  closeRef,
-}: SidebarProps) {
-  const rail = mode === 'rail';
+type Anim = 'collapsing' | 'expanding' | null;
+interface Flip {
+  before: Record<string, DOMRect>;
+  dur: string;
+}
+
+/** The program's own tile (`programLogo`, variant "tile"), as an image. Never under 32px (that file's rule). */
+const tileSrc = (data: AdminShellData): string =>
+  `data:image/svg+xml,${encodeURIComponent(programLogo(data.programKey, { variant: 'tile', size: 32, title: '' }))}`;
+
+export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfile, profileOpen, onClose, closeRef }: SidebarProps) {
+  const drawer = mode === 'drawer';
+  const want = mode === 'rail';
+  const [rail, setLayout] = useState(want);
+  const [narrow, setNarrow] = useState(want);
+  const [anim, setAnim] = useState<Anim>(null);
+  const el = useRef<HTMLElement | null>(null);
+  const flipFrom = useRef<Flip | null>(null);
+  const byHand = useRef(false);
+  const was = useRef(want);
+  const t1 = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const t2 = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const switcherName = `${data.program} · ${data.cohort}`;
 
+  // The brand's tokens, read where they apply: a duration in ms, a curve as written.
+  const ms = (v: string): number => (el.current ? parseFloat(getComputedStyle(el.current).getPropertyValue(v)) || 0 : 0);
+  const curve = (v: string): string => (el.current ? getComputedStyle(el.current).getPropertyValue(v).trim() : '');
+  const rects = (): Record<string, DOMRect> => {
+    const m: Record<string, DOMRect> = {};
+    el.current?.querySelectorAll<HTMLElement>('[data-fl]').forEach((x) => {
+      if (x.dataset.fl) m[x.dataset.fl] = x.getBoundingClientRect();
+    });
+    return m;
+  };
+
+  useEffect(() => {
+    if (was.current === want) return;
+    was.current = want;
+    clearTimeout(t1.current);
+    clearTimeout(t2.current);
+    const hand = byHand.current;
+    byHand.current = false;
+    const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!hand || reduced) {
+      flipFrom.current = null;
+      setAnim(null);
+      setNarrow(want);
+      setLayout(want);
+      return;
+    }
+    if (want) {
+      setNarrow(true);
+      setAnim('collapsing');
+      t1.current = setTimeout(() => {
+        flipFrom.current = { before: rects(), dur: '--aim-dur-base' };
+        setLayout(true);
+      }, ms('--aim-dur-quick'));
+      t2.current = setTimeout(() => setAnim(null), ms('--aim-dur-move') + 80);
+    } else {
+      flipFrom.current = rail ? { before: rects(), dur: '--aim-dur-move' } : null;
+      setLayout(false);
+      setNarrow(false);
+      setAnim('expanding');
+      t2.current = setTimeout(() => setAnim(null), ms('--aim-dur-spring') + 80);
+    }
+    // `rail`, `rects` and `ms` are read at the moment of the change, as the mockup's are.
+  }, [want]);
+
+  // The glide: each mover from where it was to where it now is, by identity (`data-fl`), never by position.
+  useLayoutEffect(() => {
+    const f = flipFrom.current;
+    if (!f) return;
+    flipFrom.current = null;
+    el.current?.querySelectorAll<HTMLElement>('[data-fl]').forEach((x) => {
+      x.getAnimations?.().forEach((a) => a.cancel());
+      const a = x.dataset.fl ? f.before[x.dataset.fl] : undefined;
+      const b = x.getBoundingClientRect();
+      if (!a || !a.width || !b.width) return;
+      const dx = a.left - b.left;
+      const dy = a.top - b.top;
+      if (!dx && !dy) return;
+      try {
+        x.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: ms(f.dur), easing: curve('--aim-ease') });
+      } catch {
+        /* no Web Animations: the layout is already right */
+      }
+    });
+  }, [rail]);
+
+  useEffect(
+    () => () => {
+      clearTimeout(t1.current);
+      clearTimeout(t2.current);
+    },
+    [],
+  );
+
+  const layout: SidebarMode = drawer ? 'drawer' : rail ? 'rail' : 'full';
+  const toggle = () => {
+    byHand.current = true;
+    onToggleRail();
+  };
+
   return (
-    <aside aria-label="Primary" className={s.sidebar} data-mode={mode}>
+    <aside
+      ref={el}
+      aria-label="Primary"
+      className={s.sidebar}
+      data-mode={layout}
+      data-narrow={narrow && !drawer ? 'true' : undefined}
+      data-anim={anim ?? undefined}
+    >
       <div className={s.top}>
-        <Wordmark short={rail} />
-        {mode === 'drawer' ? (
+        <AcademyLogo short={narrow && !drawer} />
+        {drawer ? (
           <>
             <span className={s.spacer} />
             <button ref={closeRef} type="button" className={s.iconButton} aria-label="Close menu" onClick={onClose}>
@@ -61,6 +172,7 @@ export function Sidebar({
       <Menu
         label="Cohorts"
         placement="below-left"
+        className={s.switchMenu}
         items={[
           { label: data.cohort, checked: true, onSelect: () => {} },
           'separator',
@@ -75,7 +187,7 @@ export function Sidebar({
             onClick={t.toggle}
             {...t.props}
           >
-            <span className={s.tile}>{initials(data.program)}</span>
+            <img className={s.tile} data-fl="tile" src={tileSrc(data)} width={32} height={32} alt="" />
             {rail ? null : (
               <>
                 <span className={s.switcherText}>
@@ -110,7 +222,9 @@ export function Sidebar({
                   onClick={t.toggle}
                   {...t.props}
                 >
-                  <Icon name={g.icon} size={16} strokeWidth={1.75} />
+                  <span className={s.fl} data-fl={g.label}>
+                    <Icon name={g.icon} size={16} strokeWidth={1.75} />
+                  </span>
                 </button>
               )}
             />
@@ -118,46 +232,67 @@ export function Sidebar({
             <div key={g.label}>
               <button
                 type="button"
-                className={s.groupHead}
+                className={s.group}
+                data-has={g.active ? 'true' : undefined}
+                data-open={g.open ? 'true' : undefined}
                 aria-expanded={g.open}
-                onClick={() => onToggleGroup(g.label, g.active)}
+                onClick={() => onPeek(peekAfterClick(g.label, g.open))}
               >
-                <Icon name="r2Chev" size={12} strokeWidth={2.2} />
-                {g.label}
-                {g.alert ? <span className={s.alert}>{g.alert}</span> : null}
+                <span className={s.fl} data-fl={g.label}>
+                  <Icon name={g.icon} size={16} strokeWidth={1.75} />
+                </span>
+                <span className={s.groupName}>{g.label}</span>
+                {g.roll ? (
+                  <span className={s.roll} data-alert={g.roll.alert ? 'true' : undefined}>
+                    {g.roll.text}
+                  </span>
+                ) : null}
+                <span className={s.chev}>
+                  <Icon name="r2Chev" size={12} strokeWidth={2.2} />
+                </span>
               </button>
-              {g.open
-                ? g.rows.map((r) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      className={s.row}
-                      data-on={r.active ? 'true' : undefined}
-                      aria-current={r.active ? 'page' : undefined}
-                      onClick={() => go(r.to)}
-                    >
-                      <Icon name={r.icon} size={16} strokeWidth={1.75} />
-                      <span className={s.ellipsis}>{r.label}</span>
-                      {r.badge ? <span className={s.count}>{r.badge}</span> : null}
-                    </button>
-                  ))
-                : null}
+              <div className={s.pages} data-open={g.open ? 'true' : undefined}>
+                <div className={s.pagesIn}>
+                  <div className={s.kids}>
+                    {g.rows.map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        tabIndex={g.open ? 0 : -1}
+                        className={s.page}
+                        data-on={r.active ? 'true' : undefined}
+                        aria-current={r.active ? 'page' : undefined}
+                        onClick={() => go(r.to)}
+                      >
+                        <span className={s.pageName}>{r.label}</span>
+                        {r.badge ? (
+                          <span className={s.count} data-alert={r.alert ? 'true' : undefined}>
+                            {r.badge}
+                          </span>
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           ),
         )}
       </nav>
 
       <div className={s.footer}>
-        {mode === 'drawer' ? null : (
+        {drawer ? null : (
           <button
             type="button"
             className={s.row}
             title={rail ? 'Expand sidebar' : undefined}
             aria-label={rail ? 'Expand sidebar' : 'Collapse sidebar'}
-            onClick={onToggleRail}
+            onClick={toggle}
           >
-            <Icon name="r2Panel" size={16} strokeWidth={1.75} />
-            {rail ? null : 'Collapse sidebar'}
+            <span className={s.fl} data-fl="panel">
+              <Icon name="r2Panel" size={16} strokeWidth={1.75} />
+            </span>
+            {rail ? null : <span className={s.toggleLabel}>Collapse sidebar</span>}
           </button>
         )}
         <button
@@ -169,7 +304,9 @@ export function Sidebar({
           aria-expanded={profileOpen}
           onClick={onProfile}
         >
-          <span className={s.avatar}>{initials(data.viewer.name)}</span>
+          <span className={s.avatar} data-fl="av">
+            {initials(data.viewer.name)}
+          </span>
           {rail ? null : (
             <span className={s.who}>
               <span className={s.name}>{data.viewer.name}</span>

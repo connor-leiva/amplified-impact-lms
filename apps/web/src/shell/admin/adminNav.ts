@@ -2,7 +2,12 @@
 // design-reference/admin-redesign-r2/AdminRedesign.jsx, as a pure model the shell renders.
 //
 // PURE. No router, no storage, no React: the shell passes in where the viewer is, who they are, the
-// counts behind the badges and the groups they opened or closed, and gets back what to draw.
+// counts behind the badges and the group they peeked into, and gets back what to draw.
+//
+// D-239 (ADMIN-SIDEBAR-SPEC.md, Connor, Nov 22: "Much much better!"): six rows, one open. A group is a row
+// with its icon, its name, a roll-up of what is waiting inside it when it is closed, and a chevron. One group
+// is open at most: the one holding the page, or the one clicked (`peek`); going to a page resets it. Its pages
+// are plain words on a guide line; each count says what it counts ("2 requests", "1 incident").
 //
 // Which rows show:
 //   - `fullNav` (the parity fixture only): the mockup's whole `NAV`, so the shell can be compared with
@@ -21,8 +26,9 @@ import type { ConsoleCap, IconName } from '@ai/core';
 export const R2_GROUPS = ['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access'] as const;
 export type R2Group = (typeof R2_GROUPS)[number];
 
-/** What a badge counts. Each hides at zero (BUILD-SPEC § 4). */
-export type BadgeKey = 'drafts' | 'requests' | 'incidents';
+/** What a badge counts. Each hides at zero (BUILD-SPEC § 4). `waiting` (D-239): Community threads whose last word is
+ * a member's; 0 until the admin Community (R-3) feeds it. */
+export type BadgeKey = 'drafts' | 'requests' | 'incidents' | 'waiting';
 export type NavCounts = Readonly<Record<BadgeKey, number>>;
 
 export interface R2NavDef {
@@ -152,11 +158,6 @@ export const GROUP_ICON: Readonly<Record<R2Group, IconName>> = {
   Access: 'r2Roles',
 };
 
-/** Open until the viewer closes them (Connor, Nov 15, 11:24 AM MST). */
-export const DEFAULT_OPEN: Readonly<Partial<Record<R2Group, true>>> = { Health: true, Build: true };
-
-export type OpenState = Readonly<Record<string, boolean>>;
-
 const norm = (pathname: string): string => {
   const p = pathname.replace(/\/+$/, '');
   return p === '' ? '/' : p;
@@ -185,8 +186,11 @@ export interface AdminNavInput {
   role: string | null;
   fullNav: boolean;
   counts: NavCounts;
-  /** The viewer's remembered choices, by group label. */
-  open: OpenState;
+  /**
+   * D-239: the group open by hand. `undefined`: the group holding the page; `null`: none; a group: that one. View
+   * state for the session; the shell clears it when the address changes.
+   */
+  peek: R2Group | null | undefined;
 }
 
 export interface AdminNavRow {
@@ -195,8 +199,10 @@ export interface AdminNavRow {
   icon: IconName;
   to: string;
   active: boolean;
-  /** The count pill: "6 draft", "2", "1". Absent at zero. */
+  /** The count pill: "6 draft", "2 requests", "1 incident", "3 waiting". Absent at zero. */
   badge?: string;
+  /** The pill is an alert (incidents): drawn in --bad on --badb. */
+  alert?: true;
 }
 
 export interface AdminNavGroup {
@@ -206,24 +212,27 @@ export interface AdminNavGroup {
   /** It holds the page the viewer is on. */
   active: boolean;
   open: boolean;
-  /** A closed group's alert, "1 incident", drawn in --bad at the right of its header. */
-  alert?: string;
+  /**
+   * D-239: a closed group's roll-up, what is waiting inside it: the first of its rows with a count, in the group's
+   * order ("6 draft", "2 requests", "1 incident", "3 waiting"). Absent when the group is open (its rows carry their
+   * own) or nothing waits. `alert` for incidents, drawn in --bad.
+   */
+  roll?: { text: string; alert: boolean };
 }
 
-function badgeText(key: BadgeKey | undefined, counts: NavCounts): string | undefined {
+/** D-239: a count as its row says it. Absent at zero. */
+export function badgeText(key: BadgeKey | undefined, counts: NavCounts): string | undefined {
   if (!key) return undefined;
   const n = counts[key];
   if (!(n > 0)) return undefined;
-  return key === 'drafts' ? `${n} draft` : String(n);
-}
-
-/** Whether a group is open: the viewer's choice, else the default; always while it holds the page. */
-export function isGroupOpen(group: R2Group, active: boolean, open: OpenState): boolean {
-  return active || (open[group] ?? DEFAULT_OPEN[group] === true);
+  if (key === 'drafts') return `${n} draft`;
+  if (key === 'requests') return `${n} request${n === 1 ? '' : 's'}`;
+  if (key === 'incidents') return `${n} incident${n === 1 ? '' : 's'}`;
+  return `${n} waiting`;
 }
 
 /** The sidebar, as the shell draws it. */
-export function adminNav({ pathname, role, fullNav, counts, open }: AdminNavInput): AdminNavGroup[] {
+export function adminNav({ pathname, role, fullNav, counts, peek }: AdminNavInput): AdminNavGroup[] {
   const activeId = activeRowId(pathname);
   const out: AdminNavGroup[] = [];
   for (const [label, defs] of R2_NAV) {
@@ -238,33 +247,27 @@ export function adminNav({ pathname, role, fullNav, counts, open }: AdminNavInpu
           to: d.path,
           active: d.id === activeId,
           ...(badge ? { badge } : {}),
+          ...(badge && d.badge === 'incidents' ? { alert: true as const } : {}),
         };
       });
     if (!rows.length) continue;
     const active = rows.some((r) => r.active);
-    const isOpen = isGroupOpen(label, active, open);
-    const incidents = rows.some((r) => r.id === 'incidents') ? counts.incidents : 0;
+    const isOpen = peek === undefined ? active : peek === label;
+    const first = rows.find((r) => r.badge);
     out.push({
       label,
       icon: GROUP_ICON[label],
       rows,
       active,
       open: isOpen,
-      ...(!isOpen && incidents > 0 ? { alert: `${incidents} incident${incidents === 1 ? '' : 's'}` } : {}),
+      ...(!isOpen && first?.badge ? { roll: { text: first.badge, alert: first.alert === true } } : {}),
     });
   }
   return out;
 }
 
-/**
- * A header click (the mockup's `setOpen({ ...open, [g]: has ? 1 : !open[g] })`): the group holding
- * the page cannot close while its page is active, so clicking it only remembers it open; any other
- * group flips. The result is what to remember.
- */
-export function toggleGroup(group: R2Group, active: boolean, open: OpenState): OpenState {
-  if (active) return { ...open, [group]: true };
-  return { ...open, [group]: !isGroupOpen(group, false, open) };
-}
+/** D-239: a click on a group's row. The open group closes (none is open); any other opens, closing the rest. */
+export const peekAfterClick = (group: R2Group, open: boolean): R2Group | null => (open ? null : group);
 
 /**
  * A record's page (D-160 R2-1c, the mockup's `PARENT`): `/admin/workspaces/:teamId` belongs to the

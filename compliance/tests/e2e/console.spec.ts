@@ -347,13 +347,28 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
 
 test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-160 R2-1b) @g9 @console', () => {
   /** Open every closed group, then read each group's header and rows. */
+  /**
+   * D-239: each group and its pages, in order. One group is open at a time, so each is opened in turn (which shuts
+   * the one before it, as the sidebar must) and its pages read while it is open. The group's own name is its first
+   * line; a page's count pill is dropped.
+   */
   const groupsOf = async (scope: Locator) => {
     const nav = scope.locator('nav[aria-label="Admin"]');
-    const closed = nav.locator('button[aria-expanded="false"]');
-    while ((await closed.count()) > 0) await closed.first().click();
-    return nav.evaluate((el) =>
-      Array.from(el.children).map((g) => Array.from(g.children).map((x) => (x as HTMLElement).innerText.trim().split('\n')[0]!)),
-    );
+    const heads = nav.locator(':scope > div > button[aria-expanded]');
+    const out: string[][] = [];
+    for (let i = 0; i < (await heads.count()); i++) {
+      const head = heads.nth(i);
+      if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
+      await expect(head).toHaveAttribute('aria-expanded', 'true');
+      await expect(nav.locator(':scope > div > button[aria-expanded="true"]')).toHaveCount(1);
+      out.push(
+        await head.locator('xpath=..').evaluate((g) => [
+          (g.firstElementChild as HTMLElement).innerText.trim().split('\n')[0]!,
+          ...Array.from(g.querySelectorAll('button:not([aria-expanded])')).map((x) => (x as HTMLElement).innerText.trim().split('\n')[0]!),
+        ]),
+      );
+    }
+    return out;
   };
 
   const EXPECT: Record<string, string[][]> = {
@@ -381,36 +396,41 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
       const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
       const aside = page.locator('aside[aria-label="Primary"]');
-      // Health (the Overview's group) and Build start open; the rest are closed until opened.
-      await expect(aside.getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
-      await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'true');
-      await expect(aside.getByRole('button', { name: 'Support', exact: true })).toHaveAttribute('aria-expanded', 'false');
-      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT[role]);
+      const group = (name: string) => aside.getByRole('button', { name: new RegExp(`^${name}`) });
+      // D-239: one group is open, Health (the Overview's); the rest are shut until one is clicked.
+      await expect(group('Health')).toHaveAttribute('aria-expanded', 'true');
+      await expect(group('Build')).toHaveAttribute('aria-expanded', 'false');
+      await expect(group('Support')).toHaveAttribute('aria-expanded', 'false');
+      expect(await groupsOf(aside)).toEqual(EXPECT[role]);
       if (role !== 'Instructor') {
+        if ((await group('Operations').getAttribute('aria-expanded')) !== 'true') await group('Operations').click();
         await aside.getByRole('button', { name: 'Audit Log' }).click();
         await expect(page).toHaveURL(/\/admin\/audit/);
         await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
-        // The active page's group cannot close while its page is open.
-        await aside.getByRole('button', { name: 'Operations', exact: true }).click();
-        await expect(aside.getByRole('button', { name: 'Operations', exact: true })).toHaveAttribute('aria-expanded', 'true');
+        // The page's own group shuts on a click, too; it stays marked as holding the page.
+        await group('Operations').click();
+        await expect(group('Operations')).toHaveAttribute('aria-expanded', 'false');
+        await expect(group('Operations')).toHaveAttribute('data-has', 'true');
       }
       await expectAccessible(page);
       await close();
     });
   }
 
-  test('a group the viewer closes stays closed on the next visit, in this browser', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/no-such-page');
+  test('nothing about the groups is kept: a new visit opens the page’s group (D-239)', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin');
     const aside = page.locator('aside[aria-label="Primary"]');
-    await aside.getByRole('button', { name: 'Build', exact: true }).click();
-    await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    await aside.getByRole('button', { name: /^Build/ }).click();
+    await expect(aside.getByRole('button', { name: /^Build/ })).toHaveAttribute('aria-expanded', 'true');
+    await expect(aside.getByRole('button', { name: /^Health/ })).toHaveAttribute('aria-expanded', 'false');
     // A second visit in the same browser (a new tab: `openAt`'s init script, which seeds the
     // preferences, belongs to the first page only).
     const again = await page.context().newPage();
     await again.goto(page.url());
     await again.locator('body[data-app-ready="true"]').waitFor();
-    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
-    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
+    const second = again.locator('aside[aria-label="Primary"]');
+    await expect(second.getByRole('button', { name: /^Health/ })).toHaveAttribute('aria-expanded', 'true');
+    await expect(second.getByRole('button', { name: /^Build/ })).toHaveAttribute('aria-expanded', 'false');
     await close();
   });
 

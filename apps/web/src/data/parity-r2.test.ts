@@ -36,10 +36,13 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
     expect(d.program).toBe(PROGRAM);
     expect(d.cohort).toBe('December 2026 Cohort');
     expect(d.environment).toBe(ENVIRONMENT);
+    // D-239: the program's key, for its own tile; `waiting` (Community threads) is 0 until R-3 counts them.
+    expect(d.programKey).toBe('accelerator');
     expect(d.counts).toEqual({
       drafts: db.modules.filter((m) => m.status === 'draft').length,
       requests: db.requests.filter((q) => q.status === 'new').length,
       incidents: 0,
+      waiting: 0,
     });
     expect(d.fullNav).toBe(false);
     // The fixture build may preview another role; the name stays the viewer's.
@@ -50,9 +53,10 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
     expect(shellDataFromParity(PARITY_R2)).toEqual({
       viewer: { name: 'Connor Leiva', role: 'Owner' },
       program: 'Amplified AI Accelerator',
+      programKey: 'accelerator',
       cohort: 'December 2026 Cohort',
       environment: 'Production',
-      counts: { drafts: 6, requests: 2, incidents: 1 },
+      counts: { drafts: 6, requests: 2, incidents: 1, waiting: 0 },
       fullNav: true,
     });
   });

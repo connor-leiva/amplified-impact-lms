@@ -6,8 +6,6 @@ import {
   savePrefs,
   applyPrefs,
   bootPrefs,
-  loadNavGroups,
-  saveNavGroups,
   learnerSidebar,
   learnerTheme,
   loadLearnerPrefs,
@@ -84,25 +82,13 @@ describe('prefs @g1', () => {
     expect(root().dataset.font).toBeUndefined();
   });
 
-  // D-160 R2-1b (from #125): the admin sidebar's folded groups, per signed-in staff member, in this browser.
-  describe('admin sidebar groups', () => {
-    it('keeps two staff members’ groups apart, and every other preference', () => {
-      savePrefs({ theme: 'dark', sidebar: 'rail' });
-      saveNavGroups('st1', { Access: true });
-      saveNavGroups('st4', { Access: false, Build: true });
-      expect(loadNavGroups('st1')).toEqual({ Access: true });
-      expect(loadNavGroups('st4')).toEqual({ Access: false, Build: true });
-      expect(loadNavGroups('st2')).toEqual({});
-      saveNavGroups('st1', { Access: false });
-      expect(loadNavGroups('st4')).toEqual({ Access: false, Build: true });
-      expect(loadPrefs()).toMatchObject({ theme: 'dark', sidebar: 'rail' });
-    });
-
-    it('ignores anything stored that is not a true or false', () => {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ navGroups: { st1: { Access: 'yes', Build: false }, st2: 7 } }));
-      expect(loadNavGroups('st1')).toEqual({ Build: false });
-      expect(loadNavGroups('st2')).toEqual({});
-    });
+  // D-239: the admin sidebar's open group is view state. Its old stored map (D-160 R2-1b, from #125) is left where it
+  // is, unread: saving any other preference keeps it as it was.
+  it('leaves an old admin sidebar map where it is when other preferences are saved', () => {
+    const old = { st1: { Access: true, Build: false } };
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ theme: 'light', navGroups: old }));
+    savePrefs({ theme: 'dark', sidebar: 'rail' });
+    expect(JSON.parse(localStorage.getItem(PREFS_KEY)!)).toEqual({ theme: 'dark', sidebar: 'rail', navGroups: old });
   });
 
   // D-185: the learner portal v2's theme and sidebar, per person on this device.

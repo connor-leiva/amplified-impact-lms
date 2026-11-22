@@ -3,6 +3,8 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { avatarColor, consoleCan, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
+// D-239: the sidebar's travel reads the brand's motion tokens (--aim-dur-*, --aim-ease*), defined on :root here.
+import '../../components/motion/ai-motion.css';
 import { Icon } from '../../components/Icon';
 import { Status } from '../../components/r2/Status';
 import { useToaster } from '../../components/primitives/Toaster';
@@ -12,16 +14,15 @@ import { masqueradeActive } from '../../data/masquerade';
 import { PARITY_POSSIBLE, parityR2, shellDataFrom, shellDataFromParity } from '../../data/admin-shell';
 import type { ParityR2 } from '../../data/parity-r2';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
-import { loadNavGroups, loadPrefs, saveNavGroups, type Prefs } from '../../lib/prefs';
 import { DemoControls } from '../DemoControls';
 import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
-import { adminNav, crumbTrail, groupHub, hubPages, toggleGroup, type R2Group } from './adminNav';
+import { adminNav, crumbTrail, groupHub, hubPages, type R2Group } from './adminNav';
 import { AdminChromeProvider } from './chrome';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
-import { Wordmark } from './Wordmark';
+import { AcademyLogo } from './Wordmark';
 import { useOpenIncidents } from './useOpenIncidents';
 import s from './AdminShell.module.css';
 
@@ -48,17 +49,6 @@ const ADMIN_ROOT = '/admin';
 type Band = 'phone' | 'laptop' | 'desktop';
 const bandOf = (vw: number): Band => (vw < 768 ? 'phone' : vw < 1200 ? 'laptop' : 'desktop');
 
-/** Preferences, re-read on the `ai-prefs` event so a group's fold applies at once. */
-function usePrefs(): Prefs {
-  const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
-  useEffect(() => {
-    const onPrefs = () => setPrefs(loadPrefs());
-    window.addEventListener('ai-prefs', onPrefs);
-    return () => window.removeEventListener('ai-prefs', onPrefs);
-  }, []);
-  return prefs;
-}
-
 export function AdminShell() {
   const db = useDb();
   const viewer = useViewer();
@@ -66,7 +56,6 @@ export function AdminShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToaster();
-  const prefs = usePrefs();
   const vw = useViewportWidth();
 
   const path = location.pathname;
@@ -125,8 +114,13 @@ export function AdminShell() {
   const menuRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
-  // ---- groups: open or closed, per staff member, in this browser -----------------------------------
-  const open = useMemo(() => (staffId ? loadNavGroups(staffId, prefs) : {}), [prefs, staffId]);
+  // ---- groups: one open (D-239) ----------------------------------------------------------------------
+  // The group opened or shut by hand, for the visit it was clicked on (`location.key`: each navigation has its own,
+  // even back to the same address): going to any page resets it, and that page's group is the open one. View state
+  // for the session: nothing is stored, and what an older build stored is left where it is, unread.
+  const visit = location.key;
+  const [peeked, setPeeked] = useState<{ visit: string; group: R2Group | null } | null>(null);
+  const peek = peeked && peeked.visit === visit ? peeked.group : undefined;
   const groups = useMemo(
     () =>
       adminNav({
@@ -134,16 +128,11 @@ export function AdminShell() {
         role: parity ? data.viewer.role : role,
         fullNav: data.fullNav,
         counts: data.counts,
-        open,
+        peek,
       }),
-    [data, open, parity, path, role],
+    [data, parity, path, peek, role],
   );
-  const onToggleGroup = useCallback(
-    (group: R2Group, active: boolean) => {
-      if (staffId) saveNavGroups(staffId, toggleGroup(group, active, loadNavGroups(staffId)));
-    },
-    [staffId],
-  );
+  const onPeek = useCallback((group: R2Group | null) => setPeeked({ visit, group }), [visit]);
 
   // ---- navigating ----------------------------------------------------------------------------------
   const go = useCallback(
@@ -225,7 +214,7 @@ export function AdminShell() {
     data,
     groups,
     go,
-    onToggleGroup,
+    onPeek,
     onProfile: () => setProfileOpen((v) => !v),
     profileOpen,
     onToggleRail: () => setRailChoice({ band, rail: !rail }),
@@ -300,7 +289,7 @@ export function AdminShell() {
                   >
                     <Icon name="r2Menu" size={22} strokeWidth={1.75} />
                   </button>
-                  <Wordmark />
+                  <AcademyLogo />
                   {breadcrumb}
                   <span className={s.spacer} />
                   <button type="button" className={s.iconButton} aria-label="Search" onClick={openPalette}>

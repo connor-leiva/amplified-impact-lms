@@ -58,8 +58,8 @@ export function Component() {
       pathname: '/admin/search',
       role,
       fullNav: false,
-      counts: { drafts: 0, requests: 0, incidents: 0 },
-      open: {},
+      counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
+      peek: undefined,
     }).flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, to: r.to })));
   }, [db.staff, ready?.me.role, staffId]);
   const sections = searchSections(settled, pages, api);

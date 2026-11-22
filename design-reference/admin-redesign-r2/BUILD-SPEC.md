@@ -6,11 +6,11 @@
 
 | File | What it is |
 |---|---|
-| `AdminRedesign.jsx` | **Canonical mockup.** The signed-off export plus 2 tiny review-nit fixes (see its header and §7). Signed-off original sha256 `018c49c83b45c3ba67ca3546c31f69ed821f56d77f160911b2f50f38d11acc4f`; this copy `56c88323198fd96b050374b828800dca4041a0b5e10cfbce8869191537018694`. |
+| `AdminRedesign.jsx` | **Canonical mockup.** The signed-off export plus 2 tiny review-nit fixes (see its header and §7). Signed-off original sha256 `018c49c83b45c3ba67ca3546c31f69ed821f56d77f160911b2f50f38d11acc4f`; this copy `56c88323198fd96b050374b828800dca4041a0b5e10cfbce8869191537018694`. **D-239 (Nov 22, 2026):** its sidebar is the approved one (`handoff/admin-mockup/`, ADMIN-SIDEBAR-SPEC.md); this copy is now `eff56ee58eed3b38eeb8443f88a07d5952e3f4bcaf8bcde5abf9119b63b659ec`. |
 | `Design notes.md` | Claude Design's notes for this mockup (rationale, type, colour, density). |
 | `harness/render-mockup.mjs` | Renders the mockup to reference PNGs: React 18 + esbuild + headless Chromium, local Geist from `design-reference/fonts/`, Google Fonts blocked, DPR 1, mockup chrome hidden, artboard border dropped, internal scrollers expanded (full-page). |
 | `package.json` | Pinned deps for the harness, only if the repo root can't resolve esbuild / playwright(-core) / react@18 (`npm install --prefix design-reference/admin-redesign-r2`, gitignore its `node_modules`). |
-| `ref/*.png` + `ref/MANIFEST.tsv` | Reference PNGs: 30 screens × 1440/1280/1024/390, plus `roles-confirm-{w}` (124 files). The manifest lists file, width, height and the sha256 Grok Bot got (Chrome 156, Linux). |
+| `ref/*.png` + `ref/MANIFEST.tsv` | Reference PNGs: 30 screens × 1440/1280/1024/390, plus `roles-confirm-{w}` (124 files). The manifest lists file, width, height and sha256. Until D-239 it held the hashes Grok Bot got (Chrome 156, Linux); since D-239 every ref is the new sidebar's render, so the manifest holds those renders' sizes and hashes, as `MANIFEST.local.tsv` does. |
 
 `AdminConsole.jsx` / "Admin Console - Design notes.md" (Round 1) are **superseded**. Don't use them. The wordmark is the existing `design-reference/brand/amplified-impact-wordmark.svg` (byte-identical to the one embedded in the mockup), used as-is.
 
@@ -41,7 +41,7 @@ Some table decisions use the **table's own width** (`tw`), not the viewport. Row
 
 ## 4. Shell and sidebar
 - Groups and items in this exact order (`NAV` in the JSX): **Health** (Overview, System Health) · **Build** (Curriculum, Module Builder, Resource Vault, Cohorts & Sessions, Announcements) · **Support** (Learners & Teams, Workspaces, Users, Masquerade) · **Revenue** (Tiers & Upgrades, Billing, Usage) · **Operations** (Incidents, Audit Log, API & Webhooks, Scheduled Jobs, Email Log, Integrations, Deploys & Commits, DB Health, Environment Flags) · **Access** (Roles & Permissions). Items are filtered by the viewer's capabilities (the server still enforces).
-- **Collapsible** (Connor, Nov 15, 11:24 AM MST). Default open: Health and Build, plus whichever group holds the current page (that group can't collapse while its page is active). Remember the user's choice in localStorage; parity runs with it cleared. Chevron rotates 90° (150ms).
+- **Collapsible** (Connor, Nov 15, 11:24 AM MST). Default open: Health and Build, plus whichever group holds the current page (that group can't collapse while its page is active). Remember the user's choice in localStorage; parity runs with it cleared. Chevron rotates 90° (150ms). **Replaced by D-239 (Nov 22, 2026):** six rows with one open (the page's group, or the one clicked), nothing remembered, the chevron turning over 200 ms; see `handoff/admin-mockup/ADMIN-SIDEBAR-SPEC.md` § 3.
 - **Badges only for real alerts or work:** count pill `.ct` (Curriculum "6 draft", Tiers "2", Incidents "1"). When a group with an open incident is collapsed, show "1 incident" in `--bad` at the right of its header. Hide every badge at zero. Counts come from real data (fixture in parity).
 - Top bar: breadcrumb `Admin / {group} / {page}` (detail pages add the record name), the ⌘K search trigger, and an environment dot ("Production"). Phone: hamburger, wordmark, search icon.
 - Rail (768–1199): wordmark cropped to its first glyph (the JSX `Wordmark short`), the workspace tile, one icon per group with a flyout to the right (`.pop.rt`), a collapse/expand toggle and the user avatar in the footer.
