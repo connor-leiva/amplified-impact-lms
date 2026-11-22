@@ -1,5 +1,18 @@
-# LMS shell, week overview, locked weeks, Schedule, form drawer, Community and Turn in: handoff (v6) for Claude Code
+# LMS shell, week overview, locked weeks, Schedule, form drawer, Community and Turn in: handoff (v7) for Claude Code
 
+> **v7 (Nov 21, 2026). One logo; the rail shows its "ai".** Connor: "collapse it to where the Academy gets cut off
+> and we use the AI as the logo itself." The sidebar has one image, the "ai academy" lockup at 161×34. When the
+> sidebar collapses, the link around it closes like a window from the right, on the column's own curve, until 26 px
+> are left: the "ai", centred over the rail's icons. Opening, the window opens back over "academy". The favicon
+> drawing, the cross-fade and the black bar's **Logo** buttons (the full-name lockup to compare) are gone; the
+> "ai academy" lockup is the one. **260 checks** now (the three `nav-logo-full*` states left with the buttons).
+> Where the v6 notes below say otherwise about the rail's logo, this note wins.
+>
+> **Correction, Nov 21, 2026: staff and the Community.** In `main` a staff member moderates inside the learner
+> Community, in the v3 frame (D-231). Connor has since chosen an admin page for it: **Admin › Support › Community**
+> (`handoff/admin-mockup/`; `IMPLEMENTATION-SPEC.md` R-3, B-45, D-235). The door in the learner frame stays until
+> that page is live and Connor answers Q-20. Nothing in the mockup, the port or the checks changed for this.
+>
 > **v6 (Nov 20, 2026, evening).** Three changes Connor asked for after seeing v5:
 > - **The academy logos.** The typed wordmark is gone. Open sidebar and phone header: the "ai academy" app lockup,
 >   161×34. Collapsed rail: the favicon drawing, 28×28. The black bar's **Logo** buttons swap in the full "amplified
@@ -38,7 +51,7 @@ These are redesigns, not restyles. `UX-AUDIT.md` says what moved where and why.
    `#schedule` is the Schedule. Both sit in the same shell.
 2. `brand/ai-motion.css`, `brand/ai-motion.tsx`, `brand/motion-tokens.json` (Amplified Impact Motion v1): how things move.
    The mockup uses them unchanged.
-3. `src/` (React): renders the mockup with **no different pixel** in 264 checks (`npm run diff`).
+3. `src/` (React): renders the mockup with **no different pixel** in 260 checks (`npm run diff`).
 4. `src/pdf/form-pdf.js` and `pdf/week-0-intake.sample.pdf`: how the PDF looks.
 
 This file describes. It never overrides 1 to 3.
@@ -61,7 +74,7 @@ This file describes. It never overrides 1 to 3.
 | Main links | Home, Schedule, Skill library, Team Hub, Resource vault, **Weeks**. Icon + label. |
 | Weeks | A nav row like the five above it, with its own icon, the count and a chevron; it folds. The nine weeks fall in under it, indented along a guide line that drops from the icon. The row turns forest when the current page is one of its weeks. Each week has its **number** (0 to 8) and its **full title**; a long title wraps to a second line instead of being cut off. A week shows a status only when it has one: a progress ring and "7 of 8", or a check when it's deployed. Nothing for a week that hasn't started. |
 | Current page | One 2 px forest marker on the sidebar's edge, plus a tint and forest text. The marker springs from the old item to the new one. |
-| Foot | Get help; Collapse sidebar (a 64 px rail: icons including Weeks, the favicon drawing at 28×28, and the week numbers as white chips in a bone tray under the Weeks icon; no guide line there; the button then reads Expand sidebar). It travels as one move: the column narrows, the labels fade, the two logos cross-fade in place, and the icons and numbers glide into the rail as the edge arrives; opening springs back. `IMPLEMENTATION-SPEC.md` B-43 has the timings. |
+| Foot | Get help; Collapse sidebar (a 64 px rail: icons including Weeks, the lockup cut to its "ai" (the same image through a 26 px window), and the week numbers as white chips in a bone tray under the Weeks icon; no guide line there; the button then reads Expand sidebar). It travels as one move: the column narrows, the labels fade, the logo's window closes over "academy" until only "ai" is left, and the icons and numbers glide into the rail as the edge arrives; opening springs back. `IMPLEMENTATION-SPEC.md` B-43 has the timings. |
 | Top bar | "Next live build", its title, its date and time, and **one** Add to calendar menu (Calendar file, Google Calendar, Outlook). The account menu's trigger (the learner's initials and a chevron) on the right. On the Schedule page this strip is hidden: the hero right under it is the same session. |
 | ≤ 900 px | The nav folds behind a Menu button in the brand row; the cohort lines and Collapse are hidden. |
 
@@ -109,14 +122,14 @@ intake (`packages/core/seed/intake-v1.ts`: 22 questions in 5 sections), in the L
 ## 1e. The Community (`#community`, `#thread-N`)
 One community per cohort, inside the shell, under Schedule in the nav. Made-up people only in the mockup: Alex Morgan
 of Northline Realty (the viewer), Dana Whitlock of the skills' Sample Team, and Connor as staff. The black bar's
-**View as** switches between a member and staff.
+**View as** switches between a member and staff. Staff are moving to a Community page in the admin (see the correction at the top).
 
 | Part | What it is |
 |---|---|
 | List | Title, one line of purpose, **Start a thread**. Space chips: All, General, one per week that's open to the viewer, Wins. Pinned threads, then threads by newest activity. A row: avatar (staff are forest), title, "who · team · space", the first lines, "2 replies · 3 hr ago". How this works in the rail, ending "Nothing here is emailed." |
 | Thread | Back to Community and the space; the title; the first post; replies; Reply. Your own posts have Edit and Delete; Delete asks in place ("Delete this reply?"). An edited post says "edited". About this thread in the rail. |
 | Start a thread | The brand's drawer: Space (chips), Title, Details, the reminder that the whole cohort reads it, "Posting as …", **Post thread** → the mark and "Posted" → the new thread opens. Missing answers shake and say what's needed. |
-| Staff | The same pages. A Staff tag on their posts. A staff-only card on a thread: Pin / Unpin, Hide / Show thread. Hide / Show and Delete on any reply. Hidden threads and replies stay visible to staff, dimmed, with a Hidden tag. |
+| Staff | The same pages. A Staff tag on their posts. A staff-only card on a thread: Pin / Unpin, Hide / Show thread. Hide / Show and Delete on any reply. Hidden threads and replies stay visible to staff, dimmed, with a Hidden tag. **In `main` a staff member reaches these in the v3 frame (D-231); the admin's Community page (R-3) is where Connor wants staff to work.** |
 | Not here | No reactions, mentions, attachments, search, notifications or email. |
 
 ## 1f. Turn in (black bar › Open turn in)
@@ -228,7 +241,7 @@ Brand checksums (sha256): `ai-motion.css` `25f4fbfb9ff4eda379af32c8135ecb2299918
 npm i
 npm run build     # regenerates the CSS and icons from the mockup, then bundles the harness
 npm run serve     # http://localhost:4178/harness/  and  /mockup/index.html
-npm run diff      # harness vs mockup, 264 checks, about 30 minutes. In six parts:
+npm run diff      # harness vs mockup, 260 checks, about 30 minutes. In six parts:
                   #   -- --viewports desktop-1440 --match '^(?!cm-|th-|ti-|top-|lk-|sched-)' --tag d1   (and phone-390 … --tag p1)
                   #   -- --viewports desktop-1440 --match '^(top-|lk-|sched-)' --tag d1b                (and phone-390 … --tag p1b)
                   #   -- --viewports desktop-1440 --match '^(cm-|th-|ti-)' --tag d2                     (and phone-390 … --tag p2)
@@ -249,8 +262,8 @@ npm run pdf       # pdf/week-0-intake.sample.pdf from the sample answers (a plac
    the learner's response with the page, pass it as `initial`, and wire `onSave`, `onSubmit` and `onDownloadPdf` to
    the API in §9. The kit row that used to link to the PDF gets `form: '<form id>'` and one button.
 5. Stylesheets, global, in this order: `ai-motion.css`, `lms.tokens.css`, `lms.css`.
-6. Use the LMS's real `<Wordmark>` inside `.sh-logo-l` if it has one (the mockup sets the name in Geist), and keep
-   `.sh-logo`'s box so nothing around it moves. List the pixel difference it causes; that one is expected.
+6. The logo is the brand's file, as an `img` inside `.sh-logo` (`shell.logo.app`). Don't swap in a wordmark
+   component and don't add a second image for the rail: the rail is the same image, clipped by `.sh-logo`'s width.
 7. Don't render the Media card's "to be recorded" placeholders or any `/course/...` path (UX-AUDIT.md, "Left out").
 
 ## 5. Motion (Amplified Impact Motion v1)
@@ -343,9 +356,9 @@ Open (v3, forms):
 17. **The PDF is made with headless Chrome on the server.** If the host can't run Chrome, say so before choosing
     another engine: the layout uses CSS page-margin boxes for the footer.
 
-## 8. Results (my runs, Chrome 153, 20 Nov 2026)
-- Harness vs mockup: **264 / 264 checks with no different pixel** (159 at 1440, 105 at 390; 163 states): week 21
-  states, shell 35 (11 of them a session starting, live or over; 8 the logo and where the collapse lands), Schedule 24, locked weeks 17, form drawer 23, Community 13, thread 16, Turn in 14.
+## 8. Results (my runs, Chrome 153, 21 Nov 2026)
+- Harness vs mockup: **260 / 260 checks with no different pixel** (157 at 1440, 103 at 390; 160 states): week 21
+  states, shell 32 (11 of them a session starting, live or over; 7 where the collapse lands), Schedule 24, locked weeks 17, form drawer 23, Community 13, thread 16, Turn in 14.
 - The pass rule is **no different pixel** (same size). With a percentage alone, a full-page check passed with every
   icon on the page missing; at 25 pixels a missing 6 px status dot passed (15 pixels). Zero is the only rule that held.
 - LMS-shaped harness (`?lms`, whole page, MOCKUP bar hidden on the mockup): 59 / 59 with no different pixel; `?lms&clock=live`

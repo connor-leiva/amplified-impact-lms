@@ -163,8 +163,8 @@ const week0 = (preview) => { const done = STATUS[preview].filter((x) => x === 'd
 /** <AppShell shell>. week.status: 'idle' | 'progress' | 'done'; week.locked. next: the next session (session.js). */
 export const sampleShell = (preview = 's1', clock = 'today') => { const t = sampleNow(clock)(); return {
   homeHref: '#', helpHref: '#',
-  // the brand's files (brand/logos/, byte for byte). use: 'app' (the "ai academy" lockup) or 'full' (the full name)
-  logo: { label: 'Amplified Impact Academy, Home', app: 'logos/amplified-impact-academy-app.svg', full: 'logos/amplified-impact-academy.svg', mark: 'logos/favicon.svg', use: 'app' },
+  // the brand's file (brand/logos/, byte for byte): the "ai academy" lockup. The rail clips this same file to its "ai".
+  logo: { label: 'Amplified Impact Academy, Home', app: 'logos/amplified-impact-academy-app.svg' },
   cohort: ['Amplified AI Accelerator', 'December 2026 Cohort · Starts Dec 2'],
   nav: [
     { icon: 'home', label: 'Home', href: '#' },

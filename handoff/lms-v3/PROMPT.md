@@ -37,7 +37,7 @@ code and prove every piece with pixel diffs. You don't rebuild from descriptions
   Ask me which are required and which GHL fields receive them before wiring either.
 
 ## Phase 0: baseline
-In handoff/lms-v3/: `npm i && npm run build && npm run diff`. All 264 checks must show no different pixel. `npm run pdf` must
+In handoff/lms-v3/: `npm i && npm run build && npm run diff`. All 260 checks must show no different pixel. `npm run pdf` must
 reproduce pdf/week-0-intake.sample.pdf. If not, fix your
 environment (Chrome version, fonts, scale factor), not the code.
 

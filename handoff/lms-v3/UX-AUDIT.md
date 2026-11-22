@@ -138,7 +138,7 @@ New words to read: "Waiting on step 6", "Starting soon", "Replay processing", "W
 
 | # | Before | In the mockup |
 |---|---|---|
-| 1 | The sidebar's logo was the words "amplified impact", typed in the text face. It named the company, not the product, and it was text standing in for a logo. | The brand's own academy drawings, as files. Open sidebar and phone: the "ai academy" app lockup at 161×34, the size the Brand Guide gives an LMS sidebar. Collapsed rail: the favicon drawing at 28×28, because the lockup is under its minimum size there. |
+| 1 | The sidebar's logo was the words "amplified impact", typed in the text face. It named the company, not the product, and it was text standing in for a logo. | The brand's own academy drawings, as files. Open sidebar and phone: the "ai academy" app lockup at 161×34, the size the Brand Guide gives an LMS sidebar. Collapsed rail (v7, Connor, Nov 21): the same lockup through a 26 px window, so its "ai" is the logo there. One image, never shrunk, and no second mark to swap to. |
 | 2 | Collapsing the sidebar swapped one layout for the other in a single frame: 184 px of the page jumped. | It travels, in the brand's own timings. Closing: the edge wipes across the labels while they fade, then the icons and week numbers glide into the rail. Opening: the column springs open, as the brand's panels do, and the labels fade in. Reduced motion: no travel. |
 | 3 | The week numbers were in Geist Mono, the face the design keeps for labels and codes. Nine of them in a column read as data. | Geist, 12 px, tabular figures: they read as part of the navigation. The count beside "Weeks" follows. |
 

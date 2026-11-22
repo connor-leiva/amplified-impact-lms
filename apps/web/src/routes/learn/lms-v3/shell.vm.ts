@@ -25,11 +25,9 @@ export const SHELL_LABELS = {
   icsFile: 'Calendar file (.ics)',
 } as const;
 
-/** The three logo files as the page loads them (`logos.ts` inlines them as `data:` URIs). */
+/** D-233 (B-41, v7): the one logo file as the page loads it (`logos.ts` inlines it as a `data:` URI). */
 export interface ShellLogos {
   app: string;
-  full: string;
-  mark: string;
 }
 
 /** B-29 (nav half): the Community's address. The page itself arrives with Phase 10. */
@@ -160,7 +158,7 @@ export function shellProps(x: ShellInput): Shell {
   return {
     homeHref: nav.home.href,
     helpHref: nav.help.href,
-    logo: { label: SHELL_LABELS.logo, app: x.logos.app, full: x.logos.full, mark: x.logos.mark, use: 'app' },
+    logo: { label: SHELL_LABELS.logo, app: x.logos.app },
     cohort: [side.program ?? '', side.cohortOnly ?? ''],
     nav: navRows,
     weeksLabel: SHELL_LABELS.weeks,

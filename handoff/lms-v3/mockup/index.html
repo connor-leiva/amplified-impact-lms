@@ -8,7 +8,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Amplified Impact Academy · shell, week overview and schedule (v6 mockup)</title>
+<title>Amplified Impact Academy · shell, week overview and schedule (v7 mockup)</title>
 <link rel="stylesheet" href="ai-motion.css">
 <style>
 @font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
@@ -315,14 +315,11 @@ body{margin:0;background:var(--bone)}
 .sh-side{background:var(--surface);border-right:var(--border)}
 .sh-side-in{position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 .sh-brand{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--s2);padding:20px var(--s3) 12px}
-/* the logo is the brand's own drawings, as files, never redrawn: the "ai academy" app lockup at 161×34 (the Brand
-   Guide's sidebar size), the favicon drawing at 28×28 in the collapsed rail. [data-logo="full"] swaps in the full
-   "amplified impact academy" lockup at 205×20. One is shown at a time. */
-.sh-logo{display:flex;justify-self:start;border-radius:var(--r-sm)}
-.sh-logo>img{display:block}
-.sh-logo>.sh-logo-f,.sh-logo>.sh-logo-s{display:none}
-.sh-app[data-logo="full"] .sh-logo-l{display:none}
-.sh-app[data-logo="full"] .sh-logo-f{display:block}
+/* the logo is the brand's own drawing, as a file, never redrawn: the "ai academy" app lockup at 161×34 (the Brand
+   Guide's sidebar size). There is one logo. The collapsed rail shows the same file through a 26px window: its "ai".
+   (At 161×34 the "ai" ends at 25.8px and "academy" begins at 29.6px.) */
+.sh-logo{display:flex;justify-self:start;position:relative;left:0;width:161px;overflow:hidden;border-radius:var(--r-sm);transition:width var(--aim-dur-move) var(--aim-ease),left var(--aim-dur-move) var(--aim-ease)}
+.sh-logo>img{display:block;flex:none}
 .sh-cohort{grid-column:1 / -1;font-size:12px;line-height:1.45;color:var(--ink-2)}
 .sh-menu{display:none}
 .sh-scroll{position:relative;flex:1;min-height:0;overflow-y:auto;padding:var(--s2) 0 var(--s3);scrollbar-width:thin}
@@ -354,9 +351,7 @@ body{margin:0;background:var(--bone)}
 .sh-ring circle+circle{stroke:var(--energy);stroke-linecap:round;stroke-dasharray:1 1;stroke-dashoffset:calc(1 - var(--v,0));transition:stroke-dashoffset var(--aim-dur-fill) var(--aim-ease)}
 .sh-foot{border-top:var(--border);padding:var(--s2)}
 /* collapsed: a 64px rail of icons and week numbers */
-.sh-app[data-collapsed="true"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){display:none}
-.sh-app[data-collapsed="true"] .sh-logo-s{display:block}
-.sh-app[data-collapsed="true"] .sh-brand{justify-items:center;padding-inline:0}
+.sh-app[data-collapsed="true"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){display:none}
 .sh-app[data-collapsed="true"] .sh-link{justify-content:center;padding-inline:0}
 /* collapsed, the guide line has nothing to hang from: the weeks sit in a tray under the Weeks icon instead */
 .sh-app[data-collapsed="true"] .sh-weeks::before{opacity:0}
@@ -577,12 +572,14 @@ textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
      [data-narrow]     the column is 64px wide          [data-collapsed]  the rail's layout (icons, the week tray)
    and [data-anim] = collapsing | expanding while it travels. Each layout keeps its own width whatever the column is
    doing (247px open, 63px as the rail), so nothing inside re-wraps on the way; the column's edge clips it.
-   Closing, one overlapping move: the column narrows on the system's curve (380 ms). For the first 160 ms the open
-   layout stays, its labels fade and the rail's mark fades in over the lockup's "ai". Then the layout becomes the rail
+   Closing, one overlapping move: the column narrows on the system's curve (380 ms), and on the same curve the logo's
+   window closes from the right until only its "ai" is left, sliding 2.5px to the rail's centre. For the first 160 ms
+   the open layout stays and its labels fade. Then the layout becomes the rail
    and every icon and week number glides from where it was to its place there (240 ms; the page's script measures and
    moves them, FLIP), so the glide and the edge arrive together.
    Opening: the layout opens at once behind the edge, the icons and numbers glide back out on the system's curve
-   (380 ms, no overshoot), the labels and the lockup fade in, and the column springs open (a panel arriving: 560 ms).
+   (380 ms, no overshoot), the logo's window opens back over "academy" on that curve, the labels fade in, and the
+   column springs open (a panel arriving: 560 ms).
    The marker on the hairline steps out while the edge is moving and fades back in when it stops.
    Reduced motion, and phones (no rail there): both attributes change together and nothing travels. */
 .sh-app{transition:grid-template-columns var(--aim-dur-spring) var(--aim-ease-spring)}
@@ -593,13 +590,10 @@ textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
 /* the spring carries the edge a little past its place and back: the lists keep their own width, so no title re-wraps on the way */
 .sh-app:not([data-collapsed="true"]) :is(.sh-brand,.sh-scroll>nav){max-width:247px}
 .sh-app:not([data-collapsed="true"]) .sh-group{max-width:231px}
-.sh-app[data-collapsed="true"] .sh-logo{justify-self:center}
-.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
-.sh-app[data-anim="expanding"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){animation:aim-fade var(--aim-dur-base) var(--aim-ease) backwards}
-/* the two logos cross-fade in place: the mark sits exactly where the rail will hold it */
-.sh-app[data-anim] .sh-logo{position:relative}
-.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade var(--aim-dur-quick) var(--aim-ease) backwards}
-.sh-app[data-anim="expanding"] .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade-out var(--aim-dur-quick) var(--aim-ease) forwards}
+/* keyed on the width, not the layout, so the logo makes one move with the edge. The brand row keeps its padding in the rail: 16 + 2.5 puts the 26px window in the middle of the 63px rail */
+@media (min-width:901px){.sh-app[data-narrow="true"] .sh-logo{width:26px;left:2.5px}}
+.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.sh-app[data-anim="expanding"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){animation:aim-fade var(--aim-dur-base) var(--aim-ease) backwards}
 .sh-weeks{transition:background-color var(--aim-dur-base) var(--aim-ease)}
 .sh-weeks::before{transition:opacity var(--aim-dur-quick) var(--aim-ease)}
 .sh-app[data-anim="collapsing"] .sh-weeks::before{opacity:0}
@@ -657,15 +651,15 @@ textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
   </defs>
 </svg>
 
-<div class="wkx-flag"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · shell, week overview, schedule · v6 · not live · uploads and downloads are simulated</span>
+<div class="wkx-flag"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · shell, week overview, schedule · v7 · not live · uploads and downloads are simulated</span>
   <span class="wkx-prev" role="group" aria-label="Preview a state">Preview
-    <button type="button" data-preview="s1" aria-pressed="true">1 of 8</button><button type="button" data-preview="s7" aria-pressed="false">7 of 8</button><button type="button" data-preview="s8" aria-pressed="false">8 of 8</button><button type="button" data-preview="deployed" aria-pressed="false">Deployed</button><span class="wkx-sep">Clock</span><button type="button" data-clock="today" aria-pressed="true">Today</button><button type="button" data-clock="soon" aria-pressed="false">9 min before</button><button type="button" data-clock="live" aria-pressed="false">Live</button><button type="button" data-clock="ended" aria-pressed="false">Just ended</button><button type="button" data-clock="nextday" aria-pressed="false">Next day</button><span class="wkx-sep">Intake</span><button type="button" data-form="new" aria-pressed="false">New</button><button type="button" data-form="draft" aria-pressed="true">Draft</button><button type="button" data-form="submitted" aria-pressed="false">Submitted</button><span class="wkx-sep">Open turn in</span><button type="button" data-turnin="report">Report</button><button type="button" data-turnin="checkpoint">Checkpoint</button><button type="button" data-turnin="turned">Turned in</button><span class="wkx-sep">Logo</span><button type="button" data-logo="app" aria-pressed="true">ai academy</button><button type="button" data-logo="full" aria-pressed="false">Full name</button><span class="wkx-sep">View as</span><button type="button" data-as="am" aria-pressed="true">Member</button><button type="button" data-as="cl" aria-pressed="false">Staff</button></span></div>
+    <button type="button" data-preview="s1" aria-pressed="true">1 of 8</button><button type="button" data-preview="s7" aria-pressed="false">7 of 8</button><button type="button" data-preview="s8" aria-pressed="false">8 of 8</button><button type="button" data-preview="deployed" aria-pressed="false">Deployed</button><span class="wkx-sep">Clock</span><button type="button" data-clock="today" aria-pressed="true">Today</button><button type="button" data-clock="soon" aria-pressed="false">9 min before</button><button type="button" data-clock="live" aria-pressed="false">Live</button><button type="button" data-clock="ended" aria-pressed="false">Just ended</button><button type="button" data-clock="nextday" aria-pressed="false">Next day</button><span class="wkx-sep">Intake</span><button type="button" data-form="new" aria-pressed="false">New</button><button type="button" data-form="draft" aria-pressed="true">Draft</button><button type="button" data-form="submitted" aria-pressed="false">Submitted</button><span class="wkx-sep">Open turn in</span><button type="button" data-turnin="report">Report</button><button type="button" data-turnin="checkpoint">Checkpoint</button><button type="button" data-turnin="turned">Turned in</button><span class="wkx-sep">View as</span><button type="button" data-as="am" aria-pressed="true">Member</button><button type="button" data-as="cl" aria-pressed="false">Staff</button></span></div>
 
 <div class="sh-app" id="sh-app">
   <aside class="sh-side" data-ai="shell" id="sh-side" aria-label="Primary">
     <div class="sh-side-in">
       <div class="sh-brand">
-        <a class="sh-logo" href="#" onclick="return false" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""><img class="sh-logo-f" src="logos/amplified-impact-academy.svg" width="205" height="20" alt=""><img class="sh-logo-s" src="logos/favicon.svg" width="28" height="28" alt=""></a>
+        <a class="sh-logo" href="#" onclick="return false" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""></a>
         <button class="wk-btn wk-btn-ghost wk-btn-sm sh-menu" type="button" id="sh-menu" aria-expanded="false" aria-controls="sh-scroll"><svg width="16" height="16"><use href="#k-menu"/></svg>Menu</button>
         <p class="sh-cohort">Amplified AI Accelerator<br>December 2026 Cohort · Starts Dec 2</p>
       </div>
@@ -1091,9 +1085,7 @@ function setCollapsed(on){ const btn = $('sh-collapse'); clearTimeout(collapseT)
     collapseT = setTimeout(settle, cssMs('--aim-dur-spring') + 80); }
 }
 $('sh-collapse').onclick = () => setCollapsed(app.dataset.narrow !== 'true');
-/* the MOCKUP bar's Logo: which lockup the open sidebar carries */
-function setLogo(k){ app.dataset.logo = k; document.querySelectorAll('.wkx-prev [data-logo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.logo === k)); placeMarker(); }
-document.querySelectorAll('.wkx-prev [data-logo]').forEach(b => b.onclick = () => setLogo(b.dataset.logo));
+
 $('sh-menu').onclick = e => { const open = $('sh-side').dataset.open !== 'true'; $('sh-side').dataset.open = open; e.currentTarget.setAttribute('aria-expanded', open); placeMarker(); };
 const viewSeg = $('sc-view'), viewThumb = viewSeg.querySelector('.wk-seg-thumb');
 function placeView(){ const b = viewSeg.querySelector('[aria-current="true"]'); viewThumb.style.setProperty('--x', b.offsetLeft + 'px'); viewThumb.style.setProperty('--w', b.offsetWidth + 'px'); }
@@ -1334,7 +1326,7 @@ document.querySelectorAll('[data-turnin]').forEach(b => b.onclick = () => launch
 function setClock(k){ clock = k; document.querySelectorAll('[data-clock]').forEach(b => b.setAttribute('aria-pressed', b.dataset.clock === k)); heroMode = ''; renderNext(); renderAll(); route(); }
 document.querySelectorAll('[data-clock]').forEach(b => b.onclick = () => setClock(b.dataset.clock));
 route();
-window.__wk = { setPreview, setRole, setForm, openForm, launchTurnIn, setClock, setAs, setCollapsed, setLogo };
+window.__wk = { setPreview, setRole, setForm, openForm, launchTurnIn, setClock, setAs, setCollapsed };
 </script>
 </body>
 </html>

@@ -271,14 +271,11 @@ html:has([data-ai]) body{margin:0;background:var(--sp-bone)}
 .sh-side{background:var(--sp-surface);border-right:var(--sp-border)}
 .sh-side-in{position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 .sh-brand{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--sp-s2);padding:20px var(--sp-s3) 12px}
-/* the logo is the brand's own drawings, as files, never redrawn: the "ai academy" app lockup at 161×34 (the Brand
-   Guide's sidebar size), the favicon drawing at 28×28 in the collapsed rail. [data-logo="full"] swaps in the full
-   "amplified impact academy" lockup at 205×20. One is shown at a time. */
-.sh-logo{display:flex;justify-self:start;border-radius:var(--sp-r-sm)}
-.sh-logo>img{display:block}
-.sh-logo>.sh-logo-f,.sh-logo>.sh-logo-s{display:none}
-.sh-app[data-logo="full"] .sh-logo-l{display:none}
-.sh-app[data-logo="full"] .sh-logo-f{display:block}
+/* the logo is the brand's own drawing, as a file, never redrawn: the "ai academy" app lockup at 161×34 (the Brand
+   Guide's sidebar size). There is one logo. The collapsed rail shows the same file through a 26px window: its "ai".
+   (At 161×34 the "ai" ends at 25.8px and "academy" begins at 29.6px.) */
+.sh-logo{display:flex;justify-self:start;position:relative;left:0;width:161px;overflow:hidden;border-radius:var(--sp-r-sm);transition:width var(--aim-dur-move) var(--aim-ease),left var(--aim-dur-move) var(--aim-ease)}
+.sh-logo>img{display:block;flex:none}
 .sh-cohort{grid-column:1 / -1;font-size:12px;line-height:1.45;color:var(--sp-ink-2)}
 .sh-menu{display:none}
 .sh-scroll{position:relative;flex:1;min-height:0;overflow-y:auto;padding:var(--sp-s2) 0 var(--sp-s3);scrollbar-width:thin}
@@ -310,9 +307,7 @@ html:has([data-ai]) body{margin:0;background:var(--sp-bone)}
 .sh-ring circle+circle{stroke:var(--sp-energy);stroke-linecap:round;stroke-dasharray:1 1;stroke-dashoffset:calc(1 - var(--v,0));transition:stroke-dashoffset var(--aim-dur-fill) var(--aim-ease)}
 .sh-foot{border-top:var(--sp-border);padding:var(--sp-s2)}
 /* collapsed: a 64px rail of icons and week numbers */
-.sh-app[data-collapsed="true"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){display:none}
-.sh-app[data-collapsed="true"] .sh-logo-s{display:block}
-.sh-app[data-collapsed="true"] .sh-brand{justify-items:center;padding-inline:0}
+.sh-app[data-collapsed="true"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){display:none}
 .sh-app[data-collapsed="true"] .sh-link{justify-content:center;padding-inline:0}
 /* collapsed, the guide line has nothing to hang from: the weeks sit in a tray under the Weeks icon instead */
 .sh-app[data-collapsed="true"] .sh-weeks::before{opacity:0}
@@ -533,12 +528,14 @@ textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
      [data-narrow]     the column is 64px wide          [data-collapsed]  the rail's layout (icons, the week tray)
    and [data-anim] = collapsing | expanding while it travels. Each layout keeps its own width whatever the column is
    doing (247px open, 63px as the rail), so nothing inside re-wraps on the way; the column's edge clips it.
-   Closing, one overlapping move: the column narrows on the system's curve (380 ms). For the first 160 ms the open
-   layout stays, its labels fade and the rail's mark fades in over the lockup's "ai". Then the layout becomes the rail
+   Closing, one overlapping move: the column narrows on the system's curve (380 ms), and on the same curve the logo's
+   window closes from the right until only its "ai" is left, sliding 2.5px to the rail's centre. For the first 160 ms
+   the open layout stays and its labels fade. Then the layout becomes the rail
    and every icon and week number glides from where it was to its place there (240 ms; the page's script measures and
    moves them, FLIP), so the glide and the edge arrive together.
    Opening: the layout opens at once behind the edge, the icons and numbers glide back out on the system's curve
-   (380 ms, no overshoot), the labels and the lockup fade in, and the column springs open (a panel arriving: 560 ms).
+   (380 ms, no overshoot), the logo's window opens back over "academy" on that curve, the labels fade in, and the
+   column springs open (a panel arriving: 560 ms).
    The marker on the hairline steps out while the edge is moving and fades back in when it stops.
    Reduced motion, and phones (no rail there): both attributes change together and nothing travels. */
 .sh-app{transition:grid-template-columns var(--aim-dur-spring) var(--aim-ease-spring)}
@@ -549,13 +546,10 @@ textarea.fm-input{height:auto;min-height:92px;padding:10px 12px;resize:vertical}
 /* the spring carries the edge a little past its place and back: the lists keep their own width, so no title re-wraps on the way */
 .sh-app:not([data-collapsed="true"]) :is(.sh-brand,.sh-scroll>nav){max-width:247px}
 .sh-app:not([data-collapsed="true"]) .sh-group{max-width:231px}
-.sh-app[data-collapsed="true"] .sh-logo{justify-self:center}
-.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
-.sh-app[data-anim="expanding"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-logo-l,.sh-logo-f,.sh-group small,.sh-group>svg:last-child){animation:aim-fade var(--aim-dur-base) var(--aim-ease) backwards}
-/* the two logos cross-fade in place: the mark sits exactly where the rail will hold it */
-.sh-app[data-anim] .sh-logo{position:relative}
-.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade var(--aim-dur-quick) var(--aim-ease) backwards}
-.sh-app[data-anim="expanding"] .sh-logo>.sh-logo-s{display:block;position:absolute;left:1.5px;top:0;animation:aim-fade-out var(--aim-dur-quick) var(--aim-ease) forwards}
+/* keyed on the width, not the layout, so the logo makes one move with the edge. The brand row keeps its padding in the rail: 16 + 2.5 puts the 26px window in the middle of the 63px rail */
+@media (min-width:901px){.sh-app[data-narrow="true"] .sh-logo{width:26px;left:2.5px}}
+.sh-app[data-anim="collapsing"]:not([data-collapsed="true"]) :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.sh-app[data-anim="expanding"] :is(.sh-label,.sh-cohort,.sh-stat,.sh-group small,.sh-group>svg:last-child){animation:aim-fade var(--aim-dur-base) var(--aim-ease) backwards}
 .sh-weeks{transition:background-color var(--aim-dur-base) var(--aim-ease)}
 .sh-weeks::before{transition:opacity var(--aim-dur-quick) var(--aim-ease)}
 .sh-app[data-anim="collapsing"] .sh-weeks::before{opacity:0}
