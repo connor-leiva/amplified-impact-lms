@@ -8,7 +8,7 @@
 // count is the snapshot's. Each builder row says what the mockup's own page head says about it.
 
 import { COHORT_SEATS } from '@ai/core/offer';
-import { SKILL_SET_SHORT, SKILL_STATUS_LABELS, adminDate, adminWhen } from '@ai/core';
+import { SKILL_SET_SHORT, SKILL_STATUS_LABELS, adminDate, adminWhen, courseOpensAt, curriculumWeekAt, curriculumWeeks } from '@ai/core';
 import type { AdminStatus, ConsoleSkillRow, Db, IconName } from '@ai/core';
 
 export const BUILD_COPY = {
@@ -110,7 +110,12 @@ export function buildHubVM(db: Db, now: number, cohortId: string): BuildHubVM {
   // The cohort's own length: its `weeks`, else one week per live session. Never a number typed here.
   const weeks = co.weeks ?? sessions.length;
   const started = now >= co.start;
-  const current = Math.max(1, Math.floor((now - co.start) / WEEK) + 1);
+  // Same rule as Cohorts & Sessions: a course week is the curriculum's, and Opens is the earliest
+  // week's Opens. With no course (the prototype), both stay the cohort start and the day count.
+  const courseWeeks = curriculumWeeks(db.modules);
+  const dated = courseWeeks.some((w) => w.week > 0 && w.opens != null);
+  const counted = Math.max(1, Math.floor((now - co.start) / WEEK) + 1);
+  const current = dated ? curriculumWeekAt(courseWeeks, now) : started ? Math.min(weeks, counted) : 0;
   return {
     links,
     cohort: {
@@ -122,9 +127,9 @@ export function buildHubVM(db: Db, now: number, cohortId: string): BuildHubVM {
             ? { label: 'Active', tone: 'ok' }
             : { label: 'Scheduled', tone: 'info' },
       rows: [
-        { label: C.cohort.opens, value: adminWhen(co.start) },
+        { label: C.cohort.opens, value: adminWhen(courseOpensAt(courseWeeks) ?? co.start) },
         { label: C.cohort.weeks, value: plural(weeks, 'weekly live build') },
-        { label: C.cohort.week, value: started ? `${Math.min(weeks, current)} of ${weeks}` : C.cohort.notStarted },
+        { label: C.cohort.week, value: current < 1 ? C.cohort.notStarted : `${Math.min(weeks, current)} of ${weeks}` },
         { label: C.cohort.enrolled, value: plural(co.enrolled, 'learner') },
         { label: C.cohort.cadence, value: co.cadence },
       ],
