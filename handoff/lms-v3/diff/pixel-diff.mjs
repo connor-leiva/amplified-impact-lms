@@ -6,7 +6,7 @@
 //                            [--target-community <url>] [--target-thread <url of the sample thread 2>]
 //                            [--target-locked <url of locked Week 1>] [--target-turnin <step url> --turnin-button <css>]
 //                            [--assume s7|s8|deployed] [--assume-form new|submitted] [--assume-clock soon|live|ended|nextday]
-//                            [--assume-turnin report|checkpoint|turned] [--assume-logo full] [--assume-as cl] [--selector '[data-ai="schedule"]']
+//                            [--assume-turnin report|checkpoint|turned] [--assume-as cl] [--selector '[data-ai="schedule"]']
 //                                                              # deployed pages vs the mockup (acceptance test)
 //   pass:    no different pixel in any check (pixelmatch threshold 0.1, anti-aliasing ignored) and the same size.
 //   options: --states default,sched-default   --match '^(cm|th|ti)-'   --viewports desktop-1440   --tag d1 (names the
@@ -51,7 +51,7 @@ const selector = arg('selector', null);
 const NOW = '2026-11-20T21:18:00Z';
 // the MOCKUP bar's Clock moments (mockup/index.html › CLOCKS). A deployed target's browser clock is pinned to the same moment.
 const CLOCK_AT = { soon: '2026-12-02T18:51:00Z', live: '2026-12-02T19:12:00Z', ended: '2026-12-02T21:00:00Z', nextday: '2026-12-03T16:00:00Z' };
-const assume = arg('assume', 's1'), assumeForm = arg('assume-form', 'draft'), assumeTurnin = arg('assume-turnin', null), assumeClock = arg('assume-clock', 'today'), assumeLogo = arg('assume-logo', 'app'), assumeAs = arg('assume-as', 'am');
+const assume = arg('assume', 's1'), assumeForm = arg('assume-form', 'draft'), assumeTurnin = arg('assume-turnin', null), assumeClock = arg('assume-clock', 'today'), assumeAs = arg('assume-as', 'am');
 const onlyVp = arg('viewports')?.split(',');   // e.g. --viewports phone-390, to run one half at a time
 const VIEWPORTS = [{ name: 'desktop-1440', width: 1440, height: 900 }, { name: 'phone-390', width: 390, height: 844 }].filter((v) => !onlyVp || onlyVp.includes(v.name));
 const wait = (pg, ms) => pg.waitForTimeout(ms);
@@ -112,10 +112,6 @@ const STATES = {
   'nav-expand-interrupted': { desktop: true, local: true, full: true, run: async (pg) => { await click(pg, '#sh-collapse', 1200); await pg.click('#sh-collapse'); await wait(pg, 150); await click(pg, '#sh-collapse', 1400); await away(pg); } },
   'nav-collapsed-group-closed': { desktop: true, full: true, run: async (pg) => { await click(pg, '#sh-group'); await click(pg, '#sh-collapse', 1200); await away(pg); } },
   'nav-hover-logo': { desktop: true, run: (pg) => hover(pg, '.sh-logo') },
-  // the other lockup the open sidebar can carry (the MOCKUP bar's Logo; --assume-logo full on a deployed page)
-  'nav-logo-full': { logo: 'full', full: true, run: async () => {} },
-  'nav-logo-full-collapsed': { logo: 'full', desktop: true, full: true, run: async (pg) => { await click(pg, '#sh-collapse', 1200); await away(pg); } },
-  'nav-logo-full-menu': { logo: 'full', phone: true, full: true, run: async (pg) => { await click(pg, '#sh-menu'); } },
   'top-cal-open': { run: async (pg) => { await click(pg, '#sh-next .sc-cal button'); await away(pg); } },
   'top-cal-hover-item': { desktop: true, run: async (pg) => { await click(pg, '#sh-next .sc-cal button'); await pg.hover('#sh-next .sc-menu a:nth-child(2)'); await wait(pg, SETTLE); } },
   'top-cal-closed': { run: async (pg) => { await click(pg, '#sh-next .sc-cal button'); await pg.keyboard.press('Escape'); await wait(pg, SETTLE); await away(pg); } },
@@ -274,7 +270,6 @@ async function shot(base, vp, name, isTarget, sideWidth) {
   const preview = st.preview ?? 's1';
   if (preview !== 's1' && !live) { await pg.click(`[data-preview="${preview}"]`); await wait(pg, 1600); }
   if (st.form && !live) { await pg.click(`[data-form="${st.form}"]`); await wait(pg, 600); }
-  if (st.logo && !live) { if (remote) await pg.evaluate((k) => window.__wk.setLogo(k), st.logo); else await pg.click(`.wkx-prev [data-logo="${st.logo}"]`); await wait(pg, 600); }
   if (st.clock && !live) { if (remote) await pg.evaluate((k) => window.__wk.setClock(k), st.clock); else await pg.click(`[data-clock="${st.clock}"]`); await wait(pg, 1200); }
   if (st.as && !live) { await pg.click(`[data-as="${st.as}"]`); await wait(pg, 1400); }
   if (!isTarget && remote) { await pg.addStyleTag({ content: `.wkx-flag{display:none!important}${sideWidth != null ? `#sh-app{--sh-w:${sideWidth}px!important}` : ''}` }); await wait(pg, 300); }   // the MOCKUP bar isn't part of a deployed page
@@ -312,7 +307,7 @@ for (const vp of VIEWPORTS) {
     if (st.desktop && vp.width <= 640) continue;
     if (st.phone && vp.width > 640) continue;
     const tgt = st.turnin && remote ? (st.clip && st.turnin === assumeTurnin ? targetTurnin : null) : st.view === S ? targetSchedule : st.view === C ? targetCommunity : st.view === T ? (!remote || (st.thread ?? 2) === 2 ? targetThread : null) : st.view === L ? (!remote || st.week === 1 ? targetLocked : null) : target;
-    if (remote && (st.local || (st.preview ?? 's1') !== assume || (st.form ?? 'draft') !== assumeForm || (st.clock ?? 'today') !== assumeClock || (st.logo ?? 'app') !== assumeLogo || (st.as ?? 'am') !== assumeAs || !tgt)) { skipped.push(`${vp.name}-${name}`); continue; }
+    if (remote && (st.local || (st.preview ?? 's1') !== assume || (st.form ?? 'draft') !== assumeForm || (st.clock ?? 'today') !== assumeClock || (st.as ?? 'am') !== assumeAs || !tgt)) { skipped.push(`${vp.name}-${name}`); continue; }
     const [a, b] = await Promise.all([shot(tgt, vp, name, true, null), shot(reference, vp, name, false, side)]);   // two contexts, each with its own pointer
     if (!a || !b) { skipped.push(`${vp.name}-${name}`); continue; }   // --selector is not on this view
     const w = Math.max(a.width, b.width), h = Math.max(a.height, b.height);

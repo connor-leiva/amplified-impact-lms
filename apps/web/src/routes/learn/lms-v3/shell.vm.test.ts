@@ -178,7 +178,7 @@ describe('shellProps', () => {
     name: 'Alex Morgan',
     now: START - 11 * 86_400_000,
     here: 'Foundations',
-    logos: { app: 'data:a', full: 'data:f', mark: 'data:m' },
+    logos: { app: 'data:a' },
     account: { open: false, onClick: () => undefined },
     saveIcs: () => undefined,
   };
@@ -198,13 +198,8 @@ describe('shellProps', () => {
       [0, 'Foundations', false],
       [1, 'Where the Money Goes', true],
     ]);
-    expect(s.logo).toEqual({
-      label: 'Amplified Impact Academy, Home',
-      app: 'data:a',
-      full: 'data:f',
-      mark: 'data:m',
-      use: 'app',
-    });
+    // D-233 (v7): one logo; the rail shows the same file through a 26px window.
+    expect(s.logo).toEqual({ label: 'Amplified Impact Academy, Home', app: 'data:a' });
     expect(s.account).toMatchObject({ initials: fmt.initials('Alex Morgan'), aria: 'Your account', open: false });
     expect(s.homeHref).toBe('/learn');
     expect(s.helpHref).toBe('mailto:support@example.com');

@@ -7374,6 +7374,16 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **C-22's states**, in the drawer's own slots: an upload that fails leaves the list and says so where a refused file does (`.fm-msg`); a turn-in the server refuses says why in the foot (`.fm-note`), the button shaking back to Turn it in.
 - **The server was written here** (`0034_submissions`, `core/submissions.ts`, `routes/submissions.ts`): the spec's patch never reached the repo.
 
+## D-233 · LMS v3: one academy logo, and the rail shows its "ai" (revision v7)
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 21, 2026: "upon collapse, instead of having the AI Academy turn into our green logo, can we just basically collapse it to where the Academy gets cut off and we use the AI as the logo itself from the first part of that logo?" The package's revision v7 draws it (`handoff/lms-v3/IMPLEMENTATION-SPEC.md`, "Still to build" R-1; B-41, B-43). It settles Q-16: the "ai academy" app lockup is the sidebar's logo. The number is the one D-226 to D-234 kept for Q-16.
+
+- **One image.** The learner sidebar's logo is the brand's "ai academy" app lockup at 161×34, in the open sidebar and the phone's header. The collapsed rail shows the same file through a 26 px window, its "ai" (at 161×34 the "ai" ends at 25.8 px and "academy" begins at 29.6 px), sliding 2.5 px to the rail's centre line. The window closes and opens with the column, in CSS alone (`lms.css` section 15, keyed on `data-narrow`), on the brand's tokens. No favicon drawing, no second image, no cross-fade.
+- **The package is v7.** `handoff/lms-v3/` is the v7 package (the repo's `PLAN.md`, `screens/` and `.gitignore` kept; `mockup/logos/favicon.svg` and `amplified-impact-academy.svg` removed, which v7 no longer loads). `lms.css` is v7's, byte for byte; `AppShell.tsx` is v7's `AppShell.jsx`, converted. Gone: `sh-logo-f`, `sh-logo-s`, `data-logo`, `shell.logo.full`, `.mark` and `.use`, and the repo's copies of the two logos only those used.
+- **Left out of the public copy:** the GoHighLevel location id in `GHL-SETUP-REPORT.md` and the spec's Appendix A (the repo is public; the id is in Connor's records and in Railway's `GHL_LOCATION_ID`).
+- **The gate:** the shell's states against the local build, then the package's 260.
+
 ## D-235 · Weeks 1 and 2 loaded once by code, and the Week Builder's from then on
 
 **Date:** 2026-11-22

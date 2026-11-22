@@ -21,3 +21,7 @@ Read `IMPLEMENTATION-SPEC.md` first: it is the plan and the contract. Then `HAND
 7. The shell wraps every route. Don't restyle the pages that aren't in the mockup (Home, Skill library, Team Hub,
    Resource vault, the step page); open each inside the new shell and report what you see.
 8. Content differences (words, dates, sessions, kit items, form questions) are not code bugs. List them and ask.
+9. **What is left is "Still to build" at the top of IMPLEMENTATION-SPEC.md (R-1 to R-4).** Phases 0 to 10 are
+   merged. Community: leave the staff door D-231 built into the learner frame as it is; staff get a Community page
+   in the admin (R-3), and what happens to the door afterwards is Connor's (Q-20). The admin sidebar (R-4) is
+   specified in `handoff/admin-mockup/ADMIN-SIDEBAR-SPEC.md`.

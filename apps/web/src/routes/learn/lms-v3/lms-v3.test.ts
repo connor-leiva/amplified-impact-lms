@@ -11,7 +11,7 @@ const sha = (p: string) => createHash('sha256').update(readFileSync(join(ROOT, p
 
 const FILES: [string, string, string][] = [
   ['apps/web/src/routes/learn/lms-v3/lms.tokens.css', 'handoff/lms-v3/src/lms.tokens.css', 'f067d092f27d68d0f9af463e28a22597bd85dac5e1d94fe3bcfdef77e907ab7d'],
-  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', '7343efded92492279b3a0cefacaf9a5dc0a53ce3a9112abf392fbc9c369db4e3'],
+  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', 'd0bb864c74f984f0b58546560953a57d2c993c75f60a8bf1341cae05e6a8a869'],
   ['apps/web/src/routes/learn/lms-v3/icons.generated.js', 'handoff/lms-v3/src/components/icons.generated.js', '0fa73d8503a47fc367133acfb6ac9f36b7c5da2d37928707001d2002d9e59894'],
 ];
 
@@ -21,8 +21,8 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(sha(pkg)).toBe(want);
   });
 
-  // B-41: the academy logos the shell draws, the brand's files as Connor uploaded them (brand/logos/SHA256SUMS).
-  it.each(['amplified-impact-academy-app.svg', 'amplified-impact-academy.svg', 'favicon.svg'])('the logo %s', (f) => {
+  // B-41 (v7, D-233): the one academy logo the shell draws, the brand's file as Connor uploaded it (brand/logos/SHA256SUMS).
+  it.each(['amplified-impact-academy-app.svg'])('the logo %s', (f) => {
     const sums = readFileSync(join(ROOT, 'handoff/lms-v3/brand/logos/SHA256SUMS'), 'utf8');
     const want = sums.split('\n').find((l) => l.endsWith(`  ${f}`))?.split(' ')[0];
     expect(want).toMatch(/^[0-9a-f]{64}$/);
@@ -30,8 +30,8 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(sha(`handoff/lms-v3/brand/logos/${f}`)).toBe(want);
   });
 
-  it('the package’s mockup is the approved revision (v6)', () => {
-    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('0383d010513f2f7af819ed1a780b25075079b9d2e274a5405a22bfc77ad1562f');
+  it('the package’s mockup is the approved revision (v7)', () => {
+    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('ab62643b34ce0d4d060b9004aeb695c0f264303410cacdf482247527b96d9d1d');
   });
 });
 

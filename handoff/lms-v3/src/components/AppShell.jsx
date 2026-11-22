@@ -9,15 +9,15 @@
 // (a "Live now" pill, "Started 1:00 PM CT", Join). Locked weeks carry a lock, a quiet label and an outlined number.
 // `now` () => ms, defaults to Date.now. The LMS may pass shell.next.mode itself and skip the clock. The header also holds the breadcrumb for screen readers; <main id="main"> wraps the page. Pages whose own hero is the next
 // live build (Schedule) pass hideNext.
-// The logo is the brand's own files (shell.logo): the "ai academy" app lockup at 161×34 in the open sidebar and on
-// phones, the favicon drawing at 28×28 in the rail; shell.logo.use = 'full' swaps in the full lockup at 205×20.
+// The logo is the brand's own file (shell.logo.app): the "ai academy" app lockup at 161×34. There is one logo: the
+// collapsed rail shows the same file through a 26px window, its "ai" (lms.css: .sh-logo and [data-narrow]).
 // Motion (Amplified Impact Motion v1, 10): one marker on the sidebar's hairline springs to the current item; hover
 // nudges a label 3px forward; the ring fills over 720 ms.
 // Collapse and expand travel (lms.css, section 15): [data-narrow] is the column's width, [data-collapsed] the rail's
 // layout, [data-anim] says it is moving. Closing: the column narrows on the system's curve; the labels fade for 160 ms,
 // then the layout becomes the rail and the icons and week numbers glide into place (FLIP), arriving with the edge.
 // Opening: the layout opens behind the edge, the icons and numbers glide out, the labels fade in and the column
-// springs open. The two logos cross-fade in place. Reduced motion and phones: at once.
+// springs open. The logo's window closes to "ai" and opens again with the column (CSS only). Reduced motion and phones: at once.
 //   defaultCollapsed  start as the rail (the learner's stored choice)      onCollapse(on)  store the choice
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from './Icons.jsx';
@@ -91,15 +91,15 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
     const ro = new ResizeObserver(place); ro.observe(sc);
     document.fonts?.ready.then(() => { place(); requestAnimationFrame(() => requestAnimationFrame(() => setLive(true))); });
     return () => ro.disconnect();
-  }, [current, collapsed, anim, weeksOpen, menuOpen, navShape, shell.logo.use]);   // navShape: a week unlocking or gaining a status can re-wrap a row and move the ones under it
+  }, [current, collapsed, anim, weeksOpen, menuOpen, navShape]);   // navShape: a week unlocking or gaining a status can re-wrap a row and move the ones under it
   useLayoutEffect(() => { setMenuOpen(false); }, [current]);
   const cur = (id) => (id && id === current ? 'page' : undefined);
   return (
-    <div className="sh-app" id="sh-app" ref={appEl} data-collapsed={collapsed ? 'true' : undefined} data-narrow={narrow ? 'true' : undefined} data-anim={anim || undefined} data-logo={shell.logo.use === 'full' ? 'full' : undefined} onTransitionEnd={onColumnEnd}>
+    <div className="sh-app" id="sh-app" ref={appEl} data-collapsed={collapsed ? 'true' : undefined} data-narrow={narrow ? 'true' : undefined} data-anim={anim || undefined} onTransitionEnd={onColumnEnd}>
       <aside className="sh-side" data-ai="shell" id="sh-side" aria-label="Primary" data-open={menuOpen ? 'true' : undefined}>
         <div className="sh-side-in">
           <div className="sh-brand">
-            <a className="sh-logo" href={shell.homeHref} onClick={stop(shell.homeHref)} aria-label={shell.logo.label} data-brand-slot=""><img className="sh-logo-l" src={shell.logo.app} width={161} height={34} alt="" /><img className="sh-logo-f" src={shell.logo.full} width={205} height={20} alt="" /><img className="sh-logo-s" src={shell.logo.mark} width={28} height={28} alt="" /></a>
+            <a className="sh-logo" href={shell.homeHref} onClick={stop(shell.homeHref)} aria-label={shell.logo.label} data-brand-slot=""><img className="sh-logo-l" src={shell.logo.app} width={161} height={34} alt="" /></a>
             <button className="wk-btn wk-btn-ghost wk-btn-sm sh-menu" type="button" id="sh-menu" aria-expanded={menuOpen ? 'true' : 'false'} aria-controls="sh-scroll" onClick={() => setMenuOpen(!menuOpen)}><Icon name="menu" size={16} />Menu</button>
             <p className="sh-cohort">{shell.cohort[0]}<br />{shell.cohort[1]}</p>
           </div>

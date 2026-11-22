@@ -46,7 +46,7 @@ Every row of §3 holds. Corrections and additions:
 | Prop | Expression |
 |---|---|
 | `shell.homeHref`, `helpHref` | `nav.home.href`, `nav.help.href` |
-| `shell.logo` | `{ label: 'Amplified Impact Academy, Home', app, full, mark, use: 'app' }`; the three files inlined as `data:` URIs the way `BrandSlot` inlines today's. MISSING → B-41 (the academy app lockup files) |
+| `shell.logo` | `{ label: 'Amplified Impact Academy, Home', app }` (v7, D-233): the one file, the "ai academy" app lockup, inlined as a `data:` URI the way `BrandSlot` inlines today's. The rail shows the same file through a 26 px window (lms.css). |
 | `shell.cohort[0]`, `[1]` | MISSING → `sideVM` gains `program` (the course's name) and `cohortStart` ("December 2026 Cohort · Starts Dec 2", or "· Week N of M" once it has started, by today's `cohortLine` rule) |
 | `shell.nav[]` | `[home, schedule (nav.cohort), community (B-29, Phase 10), library, teamHub (side.teamHub), vault]` with the mockup's icons `home`, `cal`, `talk`, `grid`, `users`, `folder` |
 | `shell.weeksLabel` | `'Weeks'` (D-227; `LABELS.employees` keeps "AI employees" for today's shell) |

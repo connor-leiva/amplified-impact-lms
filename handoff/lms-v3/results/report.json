@@ -1,4765 +1,4693 @@
 {
-  "target": "http://localhost:4179/harness/",
-  "targetSchedule": "http://localhost:4179/harness/",
-  "reference": "http://localhost:4179/mockup/index.html",
-  "selector": null,
-  "clock": "2026-11-20T21:18:00Z",
-  "when": "2026-11-21T03:59:36.307Z",
-  "threshold": 0.1,
-  "report": [
-    {
-      "viewport": "desktop-1440",
-      "state": "default",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "filter-owner",
-      "size": {
-        "target": [
-          1440,
-          2009
-        ],
-        "reference": [
-          1440,
-          2009
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "filter-operator",
-      "size": {
-        "target": [
-          1440,
-          2215
-        ],
-        "reference": [
-          1440,
-          2215
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "reference-open",
-      "size": {
-        "target": [
-          1440,
-          4137
-        ],
-        "reference": [
-          1440,
-          4137
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-go",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-step-next",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-step",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-filter",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-kit-row",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-kit-button",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-library",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "acc-open-hover",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "hover-next-week",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "one-left",
-      "size": {
-        "target": [
-          1440,
-          2394
-        ],
-        "reference": [
-          1440,
-          2394
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "one-left-hover-step",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 46,
-      "strictPct": 0.0035
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "all-done",
-      "size": {
-        "target": [
-          1440,
-          2364
-        ],
-        "reference": [
-          1440,
-          2364
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "all-done-hover",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "deployed",
-      "size": {
-        "target": [
-          1440,
-          2400
-        ],
-        "reference": [
-          1440,
-          2400
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "deployed-hover-undo",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "deploy-click",
-      "size": {
-        "target": [
-          1440,
-          2400
-        ],
-        "reference": [
-          1440,
-          2400
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "deploy-undo",
-      "size": {
-        "target": [
-          1440,
-          2364
-        ],
-        "reference": [
-          1440,
-          2364
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-hover-link",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-hover-week",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-hover-current",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-hover-group",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-group-closed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-collapsed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-collapsed-hover",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-expanded-again",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-collapse-interrupted",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-collapse-interrupted-late",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-expand-interrupted",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-collapsed-group-closed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-hover-logo",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-logo-full",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-logo-full-collapsed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-to-schedule",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-to-week",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "nav-s7",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-row-hover",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-bottom",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-hover-chip",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-hover-close",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-hover-submit",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-hover-pdf",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-focus",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-closed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-typed-saved",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-choice",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 8,
-      "strictPct": 0.0006
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-errors",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-errors-fixed-one",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submit-busy",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submitted-now",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-pdf-done",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-edit-then-close",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submit-then-close",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-new-row",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-new-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submitted-row",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submitted-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "form-submitted-bottom",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-cal-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-cal-hover-item",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-cal-closed",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-hover-account",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-default",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-add",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-what",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-cal-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-cal-hover-item",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-add-all",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-view",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-week-0",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-week-1",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-hover-week-6",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-one-left",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-all-done",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-deployed",
-      "size": {
-        "target": [
-          1440,
-          2415
-        ],
-        "reference": [
-          1440,
-          2415
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-soon",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-soon-hover-join",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-live",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-live-hover-join",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-ended",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-ended-cal-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-nextday",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-live-community",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-live-thread",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 70,
-      "strictPct": 0.0054
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "top-live-nav-collapsed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-soon",
-      "size": {
-        "target": [
-          1440,
-          2391
-        ],
-        "reference": [
-          1440,
-          2391
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-soon-hover-join",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-live",
-      "size": {
-        "target": [
-          1440,
-          2391
-        ],
-        "reference": [
-          1440,
-          2391
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-live-hover-week",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-ended",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-ended-cal-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 13,
-      "strictPct": 0.001
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-nextday",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-nextday-hover-replay",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-nextday-hover-what",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 6,
-      "strictPct": 0.0005
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-clock-back",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-week-1",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-week-2",
-      "size": {
-        "target": [
-          1440,
-          1069
-        ],
-        "reference": [
-          1440,
-          1069
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-week-7",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-week-8",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-hover-cal",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-hover-back",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-hover-crumb",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-hover-row",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-nav-hover-locked",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-nav-collapsed",
-      "size": {
-        "target": [
-          1440,
-          1069
-        ],
-        "reference": [
-          1440,
-          1069
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-week-2-ended",
-      "size": {
-        "target": [
-          1440,
-          1069
-        ],
-        "reference": [
-          1440,
-          1069
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-from-nav",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-from-schedule",
-      "size": {
-        "target": [
-          1440,
-          1069
-        ],
-        "reference": [
-          1440,
-          1069
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-from-next-week",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-back-to-week",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "lk-opens-while-open",
-      "size": {
-        "target": [
-          1440,
-          2391
-        ],
-        "reference": [
-          1440,
-          2391
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "sched-nav-collapsed",
-      "size": {
-        "target": [
-          1440,
-          2416
-        ],
-        "reference": [
-          1440,
-          2416
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-list",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-hover-row",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-hover-start",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-hover-space",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-space-week",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-space-wins",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-compose-open",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-compose-space-kept",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-compose-errors",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-compose-busy",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-compose-posted",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-posted-then-list",
-      "size": {
-        "target": [
-          1440,
-          1018
-        ],
-        "reference": [
-          1440,
-          1018
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "cm-list-staff",
-      "size": {
-        "target": [
-          1440,
-          1020
-        ],
-        "reference": [
-          1440,
-          1020
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-open",
-      "size": {
-        "target": [
-          1440,
-          1187
-        ],
-        "reference": [
-          1440,
-          1187
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-own",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-pinned",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-hover-act",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-edit",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-edit-saved",
-      "size": {
-        "target": [
-          1440,
-          1187
-        ],
-        "reference": [
-          1440,
-          1187
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-delete-ask",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 7,
-      "strictPct": 0.0005
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-delete-yes",
-      "size": {
-        "target": [
-          1440,
-          1035
-        ],
-        "reference": [
-          1440,
-          1035
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-delete-thread",
-      "size": {
-        "target": [
-          1440,
-          987
-        ],
-        "reference": [
-          1440,
-          987
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-reply-error",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 13,
-      "strictPct": 0.001
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-reply-posted",
-      "size": {
-        "target": [
-          1440,
-          1339
-        ],
-        "reference": [
-          1440,
-          1339
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-staff",
-      "size": {
-        "target": [
-          1440,
-          1259
-        ],
-        "reference": [
-          1440,
-          1259
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-staff-pin",
-      "size": {
-        "target": [
-          1440,
-          1291
-        ],
-        "reference": [
-          1440,
-          1291
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-staff-hide-reply",
-      "size": {
-        "target": [
-          1440,
-          1262
-        ],
-        "reference": [
-          1440,
-          1262
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-staff-hide-thread",
-      "size": {
-        "target": [
-          1440,
-          1291
-        ],
-        "reference": [
-          1440,
-          1291
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "th-staff-hidden-thread",
-      "size": {
-        "target": [
-          1440,
-          1020
-        ],
-        "reference": [
-          1440,
-          1020
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-open-report",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-open-checkpoint",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-hover-choose",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-files-held",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-files-done",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-file-removed",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-bad-file",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-submit-empty",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-submit-busy",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-sent-now",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-sent-then-closed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-view-sent",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-new-version",
-      "size": {
-        "target": [
-          1440,
-          900
-        ],
-        "reference": [
-          1440,
-          900
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "desktop-1440",
-      "state": "ti-closed",
-      "size": {
-        "target": [
-          1440,
-          2376
-        ],
-        "reference": [
-          1440,
-          2376
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "default",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "filter-owner",
-      "size": {
-        "target": [
-          390,
-          4124
-        ],
-        "reference": [
-          390,
-          4124
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "filter-operator",
-      "size": {
-        "target": [
-          390,
-          4468
-        ],
-        "reference": [
-          390,
-          4468
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "reference-open",
-      "size": {
-        "target": [
-          390,
-          7769
-        ],
-        "reference": [
-          390,
-          7769
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "acc-open-hover",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "one-left",
-      "size": {
-        "target": [
-          390,
-          4931
-        ],
-        "reference": [
-          390,
-          4931
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "all-done",
-      "size": {
-        "target": [
-          390,
-          4924
-        ],
-        "reference": [
-          390,
-          4924
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "deployed",
-      "size": {
-        "target": [
-          390,
-          4989
-        ],
-        "reference": [
-          390,
-          4989
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "deploy-click",
-      "size": {
-        "target": [
-          390,
-          4989
-        ],
-        "reference": [
-          390,
-          4989
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "deploy-undo",
-      "size": {
-        "target": [
-          390,
-          4924
-        ],
-        "reference": [
-          390,
-          4924
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-group-closed",
-      "size": {
-        "target": [
-          390,
-          5201
-        ],
-        "reference": [
-          390,
-          5201
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-menu-open",
-      "size": {
-        "target": [
-          390,
-          5541
-        ],
-        "reference": [
-          390,
-          5541
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-logo-full",
-      "size": {
-        "target": [
-          390,
-          4854
-        ],
-        "reference": [
-          390,
-          4854
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-logo-full-menu",
-      "size": {
-        "target": [
-          390,
-          5539
-        ],
-        "reference": [
-          390,
-          5539
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-to-schedule",
-      "size": {
-        "target": [
-          390,
-          4003
-        ],
-        "reference": [
-          390,
-          4003
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-to-week",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "nav-s7",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-bottom",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-focus",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-closed",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-typed-saved",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-choice",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-errors",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-errors-fixed-one",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submit-busy",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submitted-now",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-pdf-done",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-edit-then-close",
-      "size": {
-        "target": [
-          390,
-          4873
-        ],
-        "reference": [
-          390,
-          4873
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submit-then-close",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-new-row",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-new-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submitted-row",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submitted-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "form-submitted-bottom",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-cal-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-cal-closed",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-default",
-      "size": {
-        "target": [
-          390,
-          4003
-        ],
-        "reference": [
-          390,
-          4003
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-cal-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-one-left",
-      "size": {
-        "target": [
-          390,
-          4003
-        ],
-        "reference": [
-          390,
-          4003
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-all-done",
-      "size": {
-        "target": [
-          390,
-          4003
-        ],
-        "reference": [
-          390,
-          4003
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-deployed",
-      "size": {
-        "target": [
-          390,
-          3978
-        ],
-        "reference": [
-          390,
-          3978
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-soon",
-      "size": {
-        "target": [
-          390,
-          4831
-        ],
-        "reference": [
-          390,
-          4831
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-live",
-      "size": {
-        "target": [
-          390,
-          4862
-        ],
-        "reference": [
-          390,
-          4862
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-ended",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-ended-cal-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-nextday",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-live-community",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-live-thread",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "top-live-menu-open",
-      "size": {
-        "target": [
-          390,
-          5547
-        ],
-        "reference": [
-          390,
-          5547
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-soon",
-      "size": {
-        "target": [
-          390,
-          3974
-        ],
-        "reference": [
-          390,
-          3974
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-live",
-      "size": {
-        "target": [
-          390,
-          3974
-        ],
-        "reference": [
-          390,
-          3974
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-ended",
-      "size": {
-        "target": [
-          390,
-          4010
-        ],
-        "reference": [
-          390,
-          4010
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-ended-cal-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-nextday",
-      "size": {
-        "target": [
-          390,
-          4010
-        ],
-        "reference": [
-          390,
-          4010
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "sched-clock-back",
-      "size": {
-        "target": [
-          390,
-          4003
-        ],
-        "reference": [
-          390,
-          4003
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-week-1",
-      "size": {
-        "target": [
-          390,
-          1388
-        ],
-        "reference": [
-          390,
-          1388
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-week-2",
-      "size": {
-        "target": [
-          390,
-          1494
-        ],
-        "reference": [
-          390,
-          1494
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-week-7",
-      "size": {
-        "target": [
-          390,
-          1482
-        ],
-        "reference": [
-          390,
-          1482
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-week-8",
-      "size": {
-        "target": [
-          390,
-          1443
-        ],
-        "reference": [
-          390,
-          1443
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-nav-menu-open",
-      "size": {
-        "target": [
-          390,
-          2073
-        ],
-        "reference": [
-          390,
-          2073
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-week-2-ended",
-      "size": {
-        "target": [
-          390,
-          1494
-        ],
-        "reference": [
-          390,
-          1494
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-from-nav",
-      "size": {
-        "target": [
-          390,
-          1434
-        ],
-        "reference": [
-          390,
-          1434
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-from-schedule",
-      "size": {
-        "target": [
-          390,
-          1494
-        ],
-        "reference": [
-          390,
-          1494
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-from-next-week",
-      "size": {
-        "target": [
-          390,
-          1388
-        ],
-        "reference": [
-          390,
-          1388
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-back-to-week",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "lk-opens-while-open",
-      "size": {
-        "target": [
-          390,
-          3974
-        ],
-        "reference": [
-          390,
-          3974
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-list",
-      "size": {
-        "target": [
-          390,
-          1963
-        ],
-        "reference": [
-          390,
-          1963
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-space-week",
-      "size": {
-        "target": [
-          390,
-          1561
-        ],
-        "reference": [
-          390,
-          1561
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-space-wins",
-      "size": {
-        "target": [
-          390,
-          1335
-        ],
-        "reference": [
-          390,
-          1335
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-compose-open",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-compose-space-kept",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-compose-errors",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-compose-busy",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-compose-posted",
-      "size": {
-        "target": [
-          390,
-          1247
-        ],
-        "reference": [
-          390,
-          1247
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-posted-then-list",
-      "size": {
-        "target": [
-          390,
-          2148
-        ],
-        "reference": [
-          390,
-          2148
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "cm-list-staff",
-      "size": {
-        "target": [
-          390,
-          2086
-        ],
-        "reference": [
-          390,
-          2086
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-open",
-      "size": {
-        "target": [
-          390,
-          1755
-        ],
-        "reference": [
-          390,
-          1755
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-own",
-      "size": {
-        "target": [
-          390,
-          1302
-        ],
-        "reference": [
-          390,
-          1302
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-pinned",
-      "size": {
-        "target": [
-          390,
-          1295
-        ],
-        "reference": [
-          390,
-          1295
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-edit",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-edit-saved",
-      "size": {
-        "target": [
-          390,
-          1747
-        ],
-        "reference": [
-          390,
-          1747
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-delete-ask",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 6,
-      "strictPct": 0.0018
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-delete-yes",
-      "size": {
-        "target": [
-          390,
-          1586
-        ],
-        "reference": [
-          390,
-          1586
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-delete-thread",
-      "size": {
-        "target": [
-          390,
-          1779
-        ],
-        "reference": [
-          390,
-          1779
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-reply-error",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-reply-posted",
-      "size": {
-        "target": [
-          390,
-          1899
-        ],
-        "reference": [
-          390,
-          1899
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-staff",
-      "size": {
-        "target": [
-          390,
-          1945
-        ],
-        "reference": [
-          390,
-          1945
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-staff-pin",
-      "size": {
-        "target": [
-          390,
-          1977
-        ],
-        "reference": [
-          390,
-          1977
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-staff-hide-reply",
-      "size": {
-        "target": [
-          390,
-          1947
-        ],
-        "reference": [
-          390,
-          1947
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-staff-hide-thread",
-      "size": {
-        "target": [
-          390,
-          1977
-        ],
-        "reference": [
-          390,
-          1977
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "th-staff-hidden-thread",
-      "size": {
-        "target": [
-          390,
-          2086
-        ],
-        "reference": [
-          390,
-          2086
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-open-report",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-open-checkpoint",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-files-held",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-files-done",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-file-removed",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-bad-file",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-submit-empty",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-submit-busy",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-sent-now",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-sent-then-closed",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-view-sent",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-new-version",
-      "size": {
-        "target": [
-          390,
-          844
-        ],
-        "reference": [
-          390,
-          844
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    },
-    {
-      "viewport": "phone-390",
-      "state": "ti-closed",
-      "size": {
-        "target": [
-          390,
-          4856
-        ],
-        "reference": [
-          390,
-          4856
-        ]
-      },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
-    }
-  ],
-  "skipped": [],
-  "pass": "no different pixel in any check, same size"
+ "target": "http://localhost:4179/harness/",
+ "targetSchedule": "http://localhost:4179/harness/",
+ "reference": "http://localhost:4179/mockup/index.html",
+ "selector": null,
+ "clock": "2026-11-20T21:18:00Z",
+ "when": "2026-11-22T05:44:26.642Z",
+ "threshold": 0.1,
+ "report": [
+  {
+   "viewport": "desktop-1440",
+   "state": "default",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "filter-owner",
+   "size": {
+    "target": [
+     1440,
+     2009
+    ],
+    "reference": [
+     1440,
+     2009
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "filter-operator",
+   "size": {
+    "target": [
+     1440,
+     2215
+    ],
+    "reference": [
+     1440,
+     2215
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "reference-open",
+   "size": {
+    "target": [
+     1440,
+     4137
+    ],
+    "reference": [
+     1440,
+     4137
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-go",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-step-next",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-step",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 54,
+   "strictPct": 0.0042
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-filter",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-kit-row",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-kit-button",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-library",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "acc-open-hover",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "hover-next-week",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "one-left",
+   "size": {
+    "target": [
+     1440,
+     2394
+    ],
+    "reference": [
+     1440,
+     2394
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "one-left-hover-step",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "all-done",
+   "size": {
+    "target": [
+     1440,
+     2364
+    ],
+    "reference": [
+     1440,
+     2364
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "all-done-hover",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "deployed",
+   "size": {
+    "target": [
+     1440,
+     2400
+    ],
+    "reference": [
+     1440,
+     2400
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "deployed-hover-undo",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "deploy-click",
+   "size": {
+    "target": [
+     1440,
+     2400
+    ],
+    "reference": [
+     1440,
+     2400
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "deploy-undo",
+   "size": {
+    "target": [
+     1440,
+     2364
+    ],
+    "reference": [
+     1440,
+     2364
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-hover-link",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-hover-week",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-hover-current",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-hover-group",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-group-closed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-collapsed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-collapsed-hover",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-expanded-again",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-collapse-interrupted",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-collapse-interrupted-late",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-expand-interrupted",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-collapsed-group-closed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-hover-logo",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-to-schedule",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-to-week",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "nav-s7",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-row-hover",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-bottom",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-hover-chip",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-hover-close",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-hover-submit",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-hover-pdf",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-focus",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-closed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-typed-saved",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-choice",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 8,
+   "strictPct": 0.0006
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-errors",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-errors-fixed-one",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submit-busy",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submitted-now",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-pdf-done",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-edit-then-close",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submit-then-close",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-new-row",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-new-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submitted-row",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submitted-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "form-submitted-bottom",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-cal-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-cal-hover-item",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-cal-closed",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-hover-account",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-default",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-add",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-what",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-cal-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-cal-hover-item",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 6,
+   "strictPct": 0.0005
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-add-all",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-view",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-week-0",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-week-1",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-hover-week-6",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-one-left",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-all-done",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-deployed",
+   "size": {
+    "target": [
+     1440,
+     2415
+    ],
+    "reference": [
+     1440,
+     2415
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-soon",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-soon-hover-join",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-live",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-live-hover-join",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-ended",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-ended-cal-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-nextday",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-live-community",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-live-thread",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 70,
+   "strictPct": 0.0054
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "top-live-nav-collapsed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-soon",
+   "size": {
+    "target": [
+     1440,
+     2391
+    ],
+    "reference": [
+     1440,
+     2391
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-soon-hover-join",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-live",
+   "size": {
+    "target": [
+     1440,
+     2391
+    ],
+    "reference": [
+     1440,
+     2391
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-live-hover-week",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 7,
+   "strictPct": 0.0005
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-ended",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-ended-cal-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 13,
+   "strictPct": 0.001
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-nextday",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-nextday-hover-replay",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-nextday-hover-what",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 13,
+   "strictPct": 0.001
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-clock-back",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-week-1",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-week-2",
+   "size": {
+    "target": [
+     1440,
+     1069
+    ],
+    "reference": [
+     1440,
+     1069
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-week-7",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-week-8",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-hover-cal",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-hover-back",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-hover-crumb",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-hover-row",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-nav-hover-locked",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-nav-collapsed",
+   "size": {
+    "target": [
+     1440,
+     1069
+    ],
+    "reference": [
+     1440,
+     1069
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-week-2-ended",
+   "size": {
+    "target": [
+     1440,
+     1069
+    ],
+    "reference": [
+     1440,
+     1069
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-from-nav",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-from-schedule",
+   "size": {
+    "target": [
+     1440,
+     1069
+    ],
+    "reference": [
+     1440,
+     1069
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-from-next-week",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-back-to-week",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "lk-opens-while-open",
+   "size": {
+    "target": [
+     1440,
+     2391
+    ],
+    "reference": [
+     1440,
+     2391
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "sched-nav-collapsed",
+   "size": {
+    "target": [
+     1440,
+     2416
+    ],
+    "reference": [
+     1440,
+     2416
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-list",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-hover-row",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-hover-start",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-hover-space",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-space-week",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-space-wins",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-compose-open",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-compose-space-kept",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-compose-errors",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-compose-busy",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-compose-posted",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-posted-then-list",
+   "size": {
+    "target": [
+     1440,
+     1018
+    ],
+    "reference": [
+     1440,
+     1018
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "cm-list-staff",
+   "size": {
+    "target": [
+     1440,
+     1020
+    ],
+    "reference": [
+     1440,
+     1020
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-open",
+   "size": {
+    "target": [
+     1440,
+     1187
+    ],
+    "reference": [
+     1440,
+     1187
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-own",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-pinned",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-hover-act",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-edit",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-edit-saved",
+   "size": {
+    "target": [
+     1440,
+     1187
+    ],
+    "reference": [
+     1440,
+     1187
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-delete-ask",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 7,
+   "strictPct": 0.0005
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-delete-yes",
+   "size": {
+    "target": [
+     1440,
+     1035
+    ],
+    "reference": [
+     1440,
+     1035
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-delete-thread",
+   "size": {
+    "target": [
+     1440,
+     987
+    ],
+    "reference": [
+     1440,
+     987
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-reply-error",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-reply-posted",
+   "size": {
+    "target": [
+     1440,
+     1339
+    ],
+    "reference": [
+     1440,
+     1339
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-staff",
+   "size": {
+    "target": [
+     1440,
+     1259
+    ],
+    "reference": [
+     1440,
+     1259
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-staff-pin",
+   "size": {
+    "target": [
+     1440,
+     1291
+    ],
+    "reference": [
+     1440,
+     1291
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-staff-hide-reply",
+   "size": {
+    "target": [
+     1440,
+     1262
+    ],
+    "reference": [
+     1440,
+     1262
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-staff-hide-thread",
+   "size": {
+    "target": [
+     1440,
+     1291
+    ],
+    "reference": [
+     1440,
+     1291
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "th-staff-hidden-thread",
+   "size": {
+    "target": [
+     1440,
+     1020
+    ],
+    "reference": [
+     1440,
+     1020
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-open-report",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-open-checkpoint",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-hover-choose",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-files-held",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-files-done",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-file-removed",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-bad-file",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-submit-empty",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-submit-busy",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-sent-now",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-sent-then-closed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-view-sent",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-new-version",
+   "size": {
+    "target": [
+     1440,
+     900
+    ],
+    "reference": [
+     1440,
+     900
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "desktop-1440",
+   "state": "ti-closed",
+   "size": {
+    "target": [
+     1440,
+     2376
+    ],
+    "reference": [
+     1440,
+     2376
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "default",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "filter-owner",
+   "size": {
+    "target": [
+     390,
+     4094
+    ],
+    "reference": [
+     390,
+     4094
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "filter-operator",
+   "size": {
+    "target": [
+     390,
+     4438
+    ],
+    "reference": [
+     390,
+     4438
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "reference-open",
+   "size": {
+    "target": [
+     390,
+     7739
+    ],
+    "reference": [
+     390,
+     7739
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "acc-open-hover",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "one-left",
+   "size": {
+    "target": [
+     390,
+     4901
+    ],
+    "reference": [
+     390,
+     4901
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "all-done",
+   "size": {
+    "target": [
+     390,
+     4894
+    ],
+    "reference": [
+     390,
+     4894
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "deployed",
+   "size": {
+    "target": [
+     390,
+     4959
+    ],
+    "reference": [
+     390,
+     4959
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "deploy-click",
+   "size": {
+    "target": [
+     390,
+     4959
+    ],
+    "reference": [
+     390,
+     4959
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "deploy-undo",
+   "size": {
+    "target": [
+     390,
+     4894
+    ],
+    "reference": [
+     390,
+     4894
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "nav-group-closed",
+   "size": {
+    "target": [
+     390,
+     5171
+    ],
+    "reference": [
+     390,
+     5171
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "nav-menu-open",
+   "size": {
+    "target": [
+     390,
+     5511
+    ],
+    "reference": [
+     390,
+     5511
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "nav-to-schedule",
+   "size": {
+    "target": [
+     390,
+     3973
+    ],
+    "reference": [
+     390,
+     3973
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "nav-to-week",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "nav-s7",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-bottom",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-focus",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-closed",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-typed-saved",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-choice",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-errors",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-errors-fixed-one",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submit-busy",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submitted-now",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-pdf-done",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-edit-then-close",
+   "size": {
+    "target": [
+     390,
+     4843
+    ],
+    "reference": [
+     390,
+     4843
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submit-then-close",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-new-row",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-new-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submitted-row",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submitted-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "form-submitted-bottom",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-cal-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-cal-closed",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-default",
+   "size": {
+    "target": [
+     390,
+     3973
+    ],
+    "reference": [
+     390,
+     3973
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-cal-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-one-left",
+   "size": {
+    "target": [
+     390,
+     3973
+    ],
+    "reference": [
+     390,
+     3973
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-all-done",
+   "size": {
+    "target": [
+     390,
+     3973
+    ],
+    "reference": [
+     390,
+     3973
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-deployed",
+   "size": {
+    "target": [
+     390,
+     3948
+    ],
+    "reference": [
+     390,
+     3948
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-soon",
+   "size": {
+    "target": [
+     390,
+     4801
+    ],
+    "reference": [
+     390,
+     4801
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-live",
+   "size": {
+    "target": [
+     390,
+     4832
+    ],
+    "reference": [
+     390,
+     4832
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-ended",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-ended-cal-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-nextday",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-live-community",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-live-thread",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "top-live-menu-open",
+   "size": {
+    "target": [
+     390,
+     5517
+    ],
+    "reference": [
+     390,
+     5517
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-soon",
+   "size": {
+    "target": [
+     390,
+     3944
+    ],
+    "reference": [
+     390,
+     3944
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-live",
+   "size": {
+    "target": [
+     390,
+     3944
+    ],
+    "reference": [
+     390,
+     3944
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-ended",
+   "size": {
+    "target": [
+     390,
+     3980
+    ],
+    "reference": [
+     390,
+     3980
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-ended-cal-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-nextday",
+   "size": {
+    "target": [
+     390,
+     3980
+    ],
+    "reference": [
+     390,
+     3980
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "sched-clock-back",
+   "size": {
+    "target": [
+     390,
+     3973
+    ],
+    "reference": [
+     390,
+     3973
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-week-1",
+   "size": {
+    "target": [
+     390,
+     1358
+    ],
+    "reference": [
+     390,
+     1358
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-week-2",
+   "size": {
+    "target": [
+     390,
+     1464
+    ],
+    "reference": [
+     390,
+     1464
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-week-7",
+   "size": {
+    "target": [
+     390,
+     1452
+    ],
+    "reference": [
+     390,
+     1452
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-week-8",
+   "size": {
+    "target": [
+     390,
+     1413
+    ],
+    "reference": [
+     390,
+     1413
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-nav-menu-open",
+   "size": {
+    "target": [
+     390,
+     2043
+    ],
+    "reference": [
+     390,
+     2043
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-week-2-ended",
+   "size": {
+    "target": [
+     390,
+     1464
+    ],
+    "reference": [
+     390,
+     1464
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-from-nav",
+   "size": {
+    "target": [
+     390,
+     1404
+    ],
+    "reference": [
+     390,
+     1404
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-from-schedule",
+   "size": {
+    "target": [
+     390,
+     1464
+    ],
+    "reference": [
+     390,
+     1464
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-from-next-week",
+   "size": {
+    "target": [
+     390,
+     1358
+    ],
+    "reference": [
+     390,
+     1358
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-back-to-week",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "lk-opens-while-open",
+   "size": {
+    "target": [
+     390,
+     3944
+    ],
+    "reference": [
+     390,
+     3944
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-list",
+   "size": {
+    "target": [
+     390,
+     1933
+    ],
+    "reference": [
+     390,
+     1933
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-space-week",
+   "size": {
+    "target": [
+     390,
+     1531
+    ],
+    "reference": [
+     390,
+     1531
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-space-wins",
+   "size": {
+    "target": [
+     390,
+     1305
+    ],
+    "reference": [
+     390,
+     1305
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-compose-open",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-compose-space-kept",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-compose-errors",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-compose-busy",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-compose-posted",
+   "size": {
+    "target": [
+     390,
+     1217
+    ],
+    "reference": [
+     390,
+     1217
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-posted-then-list",
+   "size": {
+    "target": [
+     390,
+     2118
+    ],
+    "reference": [
+     390,
+     2118
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "cm-list-staff",
+   "size": {
+    "target": [
+     390,
+     2056
+    ],
+    "reference": [
+     390,
+     2056
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-open",
+   "size": {
+    "target": [
+     390,
+     1725
+    ],
+    "reference": [
+     390,
+     1725
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-own",
+   "size": {
+    "target": [
+     390,
+     1272
+    ],
+    "reference": [
+     390,
+     1272
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-pinned",
+   "size": {
+    "target": [
+     390,
+     1265
+    ],
+    "reference": [
+     390,
+     1265
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-edit",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-edit-saved",
+   "size": {
+    "target": [
+     390,
+     1717
+    ],
+    "reference": [
+     390,
+     1717
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-delete-ask",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-delete-yes",
+   "size": {
+    "target": [
+     390,
+     1556
+    ],
+    "reference": [
+     390,
+     1556
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-delete-thread",
+   "size": {
+    "target": [
+     390,
+     1749
+    ],
+    "reference": [
+     390,
+     1749
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-reply-error",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-reply-posted",
+   "size": {
+    "target": [
+     390,
+     1869
+    ],
+    "reference": [
+     390,
+     1869
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-staff",
+   "size": {
+    "target": [
+     390,
+     1915
+    ],
+    "reference": [
+     390,
+     1915
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-staff-pin",
+   "size": {
+    "target": [
+     390,
+     1947
+    ],
+    "reference": [
+     390,
+     1947
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-staff-hide-reply",
+   "size": {
+    "target": [
+     390,
+     1917
+    ],
+    "reference": [
+     390,
+     1917
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-staff-hide-thread",
+   "size": {
+    "target": [
+     390,
+     1947
+    ],
+    "reference": [
+     390,
+     1947
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "th-staff-hidden-thread",
+   "size": {
+    "target": [
+     390,
+     2056
+    ],
+    "reference": [
+     390,
+     2056
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-open-report",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-open-checkpoint",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-files-held",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-files-done",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-file-removed",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-bad-file",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-submit-empty",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-submit-busy",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-sent-now",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-sent-then-closed",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-view-sent",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-new-version",
+   "size": {
+    "target": [
+     390,
+     844
+    ],
+    "reference": [
+     390,
+     844
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  },
+  {
+   "viewport": "phone-390",
+   "state": "ti-closed",
+   "size": {
+    "target": [
+     390,
+     4826
+    ],
+    "reference": [
+     390,
+     4826
+    ]
+   },
+   "diffPixels": 0,
+   "pct": 0,
+   "strictPixels": 0,
+   "strictPct": 0
+  }
+ ],
+ "skipped": [],
+ "pass": "no different pixel in any check, same size"
 }

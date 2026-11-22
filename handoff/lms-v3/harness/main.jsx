@@ -21,7 +21,7 @@ import '../src/mock-bar.css';           // mockup-only
 // Everything below the imports stands in for the API, with the mockup's timings. None of it ships.
 const q = new URLSearchParams(location.search);
 const lms = q.has('lms');
-const start = { preview: q.get('state') || 's1', clock: q.get('clock') || 'today', logo: q.get('logo') || 'app', form: q.get('form') || 'draft', as: q.get('as') || 'am' };
+const start = { preview: q.get('state') || 's1', clock: q.get('clock') || 'today', form: q.get('form') || 'draft', as: q.get('as') || 'am' };
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const stamp = (o) => new Date().toLocaleString('en-US', o);
 const copy = (x) => JSON.parse(JSON.stringify(x));
@@ -64,7 +64,7 @@ function App() {
     return withForm(sampleWeek(seed.preview), f, () => setFormOpen(true));
   };
   const base = sampleShell(picked.preview, picked.clock);
-  const shell = { ...base, logo: { ...base.logo, use: picked.logo }, account: { initials: PEOPLE[me].initials, aria: 'Your account' }, here: lockedN ? sampleLockedWeek(lockedN).title : { schedule: 'Schedule', community: 'Community', thread: 'Community', week: 'Foundations' }[view] };
+  const shell = { ...base, account: { initials: PEOPLE[me].initials, aria: 'Your account' }, here: lockedN ? sampleLockedWeek(lockedN).title : { schedule: 'Schedule', community: 'Community', thread: 'Community', week: 'Foundations' }[view] };
   return (
     <>
       {!lms && <MockBar picked={picked} onPick={pick} />}

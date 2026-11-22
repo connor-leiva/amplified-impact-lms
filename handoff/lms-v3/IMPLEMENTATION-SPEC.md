@@ -2,14 +2,43 @@
 
 **What this is.** The phased plan for wiring the mockup (app shell, week overview, Schedule, form drawer, branded
 PDF, profile and GHL sync, **the Community, and Turn in**) into `connor-leiva/amplified-impact-lms`, so that
-production matches the mockup pixel for pixel. The mockup is at revision **v6**; the folder keeps the name `lms-v3`.
+production matches the mockup pixel for pixel. The mockup is at revision **v7**; the folder keeps the name `lms-v3`.
 
 **Audited against:** `main` @ `0ebeb971` (PR #218, D-224, Nov 20, 2026, 3:05 PM CT). If `main` has moved, redo
 Phase 1's recon before trusting any path in §3.
 
+**Re-checked against:** `main` @ `e57c34d` (PR #231, Nov 21, 2026). Phases 0 to 10 are merged there, built from
+revision v6 of this file (PRs #225 to #231; D-225 to D-231, and D-234 for live weeks). **What is left is the short
+list in "Still to build" below. Start there.**
+
 **Package:** commit this folder as `handoff/lms-v3/` (beside `handoff/step-page-v6/`), without `node_modules` and
 without the two built files `harness/public/app.js` and `app.css` (`npm run build` makes them; the rest of
-`harness/public/` is source and stays).
+`harness/public/` is source and stays). **Updating the copy already in the repo:** copy this folder over it and keep
+the repo's own `PLAN.md`, `screens/` and `.gitignore`; delete `mockup/logos/favicon.svg` and
+`mockup/logos/amplified-impact-academy.svg`, which v7 no longer loads. The admin mockup goes beside it as
+`handoff/admin-mockup/`.
+
+---
+
+## Still to build (as of `main` @ `e57c34d`)
+
+Four pieces of work, each its own branch and PR, in this order. Everything else in this file is already merged and
+is here as the record. The rules in §0 and §2 still apply to all four.
+
+| # | What | Where it is specified | Decision to write |
+|---|---|---|---|
+| **R-1** | **The learner sidebar's logo, v7.** One image; the collapsed rail shows the lockup through a 26 px window ("ai"); no favicon drawing, no cross-fade, no `data-logo`. Replace the package, port `AppShell.jsx`, `lms.css` and `sample-data.js` again, remove `sh-logo-f`, `sh-logo-s`, `shell.logo.full`, `.mark`, `.use`. Gate: the shell states, then the full **260**. | "Revision v7" above; B-41, B-43; §7.1 | **D-233** (Q-16 is answered, so its number is free to use) |
+| **R-2** | **The academy logo everywhere else**, including the admin rail (the same 26 px window) and **the program's own tile in the admin cohort switcher** (`programLogo(key, { variant: 'tile', size: 32 })`, not initials). | B-42; `handoff/admin-mockup/ADMIN-SIDEBAR-SPEC.md` §2 | D-233 |
+| **R-3** | **Admin › Support › Community.** Staff read, reply, start threads, pin, hide and delete from the admin. It calls the Community API that is already in `main`. | B-33, B-34, B-45; §7.5a; `handoff/admin-mockup/` | **D-235** |
+| **R-4** | **The admin sidebar: six rows, one open, and a collapse that travels.** | `handoff/admin-mockup/ADMIN-SIDEBAR-SPEC.md` (the whole file) | **D-236** |
+
+Then Phase 11 (acceptance and rollout), unchanged.
+
+**Numbers.** `main` used D-234 for live weeks, so this file's staff decision is **D-235** and the admin sidebar is
+**D-236**. D-232 stays reserved for Q-13.
+
+**Not designed by this package:** D-234 (Weeks 1 to 8 on Week 0's design; Connor approved it with Claude Code on
+Nov 21). The mockup still draws one open week, Week 0, so the pixel gate does not cover those pages.
 
 ---
 
@@ -23,7 +52,7 @@ without the two built files `harness/public/app.js` and `app.css` (`npm run buil
 So, explicitly:
 
 1. **The mockup is approved, in full, as the design of the learner side.** `handoff/lms-v3/mockup/index.html`
-   (revision v6, sha256 `0383d010513f2f7af819ed1a780b25075079b9d2e274a5405a22bfc77ad1562f`).
+   (revision v7, sha256 `ab62643b34ce0d4d060b9004aeb695c0f264303410cacdf482247527b96d9d1d`; v7 is v6 with the one change Connor asked for on Nov 21, below).
 2. **It is reproduced pixel by pixel.** Not "close", not "equivalent", not "in the spirit of". The gate is **zero
    different pixels** in every check (§8).
 3. **Not a single thing varies.** No size, colour, radius, gap, font, word, punctuation mark, icon, order, state or
@@ -43,6 +72,24 @@ zero-pixel rule, but **their phases don't merge until Connor has looked at v5 an
 the LMS to the academy logos", "can we animate the sidebar collapse with motion", and "I don't like the mono font for
 the weeks in the sidebar" (§4.B, B-41 to B-44). Which of the two academy lockups sits in the open sidebar is his to
 confirm (Q-16).
+
+**Correction, Nov 21, 2026: how staff use the Community.** Revision v6 of this file said staff see the learner
+Community pages with staff tools, and never said how a staff account gets there. Building it, Claude Code closed
+that gap itself (D-231, PR #230): **in `main` a staff member opens `/learn/community` in the v3 frame and moderates
+there.** Connor's decision the same night, without having seen that: **staff read, reply and moderate from a
+Community page in the admin portal** ("Option 1 please."), and he has approved its screens ("looks great"). So the
+admin page is built (B-45, R-3). **The door Claude Code built stays exactly as it is until the admin page is live:**
+it is the only way to moderate today. Whether it then stays or goes is Connor's (Q-20). This changes B-33 and B-34
+and adds B-45, D-235, Q-20 and §7.5a. It changed nothing in the mockup, the port or the checks.
+
+**Revision v7 (Nov 21, 2026): one logo, and the rail shows its "ai".** Connor: "upon collapse, instead of having
+the AI Academy turn into our green logo, can we just basically collapse it to where the Academy gets cut off and we
+use the AI as the logo itself from the first part of that logo?" So the favicon drawing is gone from the rail, the
+cross-fade is gone, and the sidebar has **one** image: the "ai academy" lockup, shown through a window that closes to
+26 px as the column narrows (B-41, B-43). That settles Q-16 (the "ai academy" lockup is the one), so the black bar's
+Logo buttons, `[data-logo]`, `shell.logo.full`, `.mark` and `.use`, `--assume-logo` and the three `nav-logo-full*`
+states are removed. **The gate is now 260 checks** (was 264). If the old `sh-logo-f`, `sh-logo-s` or `data-logo` is
+already in a branch, take it out: replace `handoff/lms-v3/` with this package and port again from `src/`.
 
 **Scope and order (Connor, same message).** "Priority is all the learner side deploy." Not in this build, each one a
 later pass of its own (§6, "Later"): dark mode, the account dropdown, the admin view of a form, the admin portal.
@@ -87,7 +134,7 @@ write to the live GHL location or touch a real learner.
 |---|---|---|
 | 1 | `handoff/lms-v3/mockup/index.html` (+ `mockup/ai-motion.css`, `mockup/fonts/`) | Looks and behaviour of the shell, the week overview (`#week-0`), the Schedule (`#schedule`), the form drawer (opened from the kit row), the Community (`#community`, `#thread-2`, Start a thread) and Turn in (black bar › Turn in: the card on the week's page and the upload drawer) |
 | 2 | `handoff/lms-v3/brand/` (Amplified Impact Motion v1) | Motion. Already in the repo, byte-identical, at `apps/web/src/components/motion/` with a checksum test |
-| 3 | `handoff/lms-v3/src/` | The React port. It renders source 1 with 0 different pixels in 264 checks |
+| 3 | `handoff/lms-v3/src/` | The React port. It renders source 1 with 0 different pixels in 260 checks |
 | 4 | `handoff/lms-v3/src/pdf/form-pdf.js`, `pdf/week-0-intake.sample.pdf` | A **placeholder** PDF. Connor is having the real one designed (Phase 7); this one is not built |
 | 5 | `handoff/lms-v3/HANDOFF.md`, `UX-AUDIT.md`, this file | Descriptions. They never override 1 to 4 |
 | 6 | The repo's `CLAUDE.md`, `DECISIONS.md`, `docs/` | Everything outside these four surfaces, and process (gates, flags, copy rules) |
@@ -112,7 +159,7 @@ That is a change to the repo's own order of truth: entry **D-225** (§5), approv
 |---|---|
 | `src/lms.tokens.css`, `src/lms.css` | `apps/web/src/routes/learn/lms-v3/` as **global** stylesheets (not CSS modules), loaded after `ai-motion.css`. Same treatment as `step-page.css` (D-210). |
 | `src/components/icons.generated.js` | Same folder. The mockup's own sprite; exempt from the `ICONS` rule on these surfaces as the step page is (D-210 item 4). |
-| `brand/logos/*.svg` (and the copies the page loads, `mockup/logos/`) | The repo's brand folders, `design-reference/brand/` and `apps/web/src/assets/brand/`, byte for byte: checksums in `brand/logos/SHA256SUMS`, checked by the same script that checks the other brand files. Four are Connor's uploads of Nov 20, 2026 (the academy lockup and the academy app lockup, each with its reversed twin); `favicon.svg` is the repo's own file, unchanged. Never redraw, recolour, crop or re-export one. |
+| `brand/logos/*.svg` (and the copy of the app lockup the page loads, `mockup/logos/`) | The repo's brand folders, `design-reference/brand/` and `apps/web/src/assets/brand/`, byte for byte: checksums in `brand/logos/SHA256SUMS`, checked by the same script that checks the other brand files. Four are Connor's uploads of Nov 20, 2026 (the academy lockup and the academy app lockup, each with its reversed twin); `favicon.svg` is the repo's own file, unchanged. Never redraw, recolour, crop or re-export one. **The one sanctioned crop is the rail's:** the untouched file shown through a 26 px window in CSS (Connor, Nov 21; B-41). The file itself is never cut. |
 | `src/forms/week-0-intake.json` › `ui` | The drawer's words. `intake` in that file is a copy of the repo's seed (`packages/core/seed/intake-v1.ts`) plus `required`; the live questions come from the database. |
 
 ### 2.2 Convert JSX → TSX and nothing else
@@ -227,13 +274,13 @@ Each is a tracked item. None may be dropped.
 | B-39 | The **locked week page**: breadcrumb; "Week N" with a Locked chip, the title, the week's outcome; a hero with "Opens …", the week's question, one calendar button ("Add to calendar" / "Add both to calendar" / "Add all to calendar") and the way back to the open week, beside "Opens in" and the countdown; then **Build it live**, a row per session | `LockedWeekPage` in the package, fed by today's `lockedWeek()` view-model (§7.7). It replaces today's `Locked` component on v3. This closes C-06. | Phase 5 |
 | B-40 | Week 0's **Next week** link and the deployed hero's **Go to Week N+1** go to that week (its locked page while it is locked) | Hrefs from the pager. | Phase 5 |
 
-**Brand, collapse motion, week numbers (v6)**
+**Brand, collapse motion, week numbers (v6; the logo in the rail, v7)**
 
 | ID | What the mockup has | What's missing | Where it goes |
 |---|---|---|---|
-| B-41 | **The academy logos in the shell.** Open sidebar and the phone's header: the "ai academy" **app lockup at 161×34** (the Brand Guide's sidebar size, as D-031 records it). Collapsed rail: the **favicon drawing at 28×28**, the file the repo already has. The link's name is "Amplified Impact Academy, Home". One `img` shows at a time; the link keeps `data-brand-slot` | `shell.logo` (§7.1). The app lockup files are **new drawings**: they replace the repo's older `amplified-impact-academy-app*.svg` (different checksums). `[data-logo="full"]` shows the full "amplified impact academy" lockup at 205×20 instead; it is there so Connor can compare (Q-16), and only one of the two ships. | Phase 3 |
-| B-42 | **"Switch all the branding in the LMS to the academy logos"** (Connor, Nov 20). Outside the mockup's own pages the logo is drawn by one component, `shell/BrandSlot.tsx` | A **file and size swap, not a redesign**: `BrandSlot`'s `lockup` and `head` kinds show the academy app lockup (light and reversed) at 161×34, the size those places had before D-156; `mark` stays the favicon. That reaches every caller: the old learner shell and the admin shell (`AppShell.tsx`), `AcceptInvite.tsx`, `SkillGuide.tsx`, `WeekDone.tsx`, `Course.tsx` (four places). Also `admin/Wordmark.tsx` and its sidebar, the share and og-image builders (`site/share.ts`, `site/og-image.ts`), the tab title in `index.html` ("Amplified Impact" → "Amplified Impact Academy"), and any email that carries a logo. Update `compliance/tests/e2e/brand.spec.ts` (its letter colours become the new files' `#15211d` / `#f4f2ec`), the byte-identity check, and the goldens of each screen that changes, by entry D-233. If the taller logo breaks a layout on a page that isn't in the mockup, stop and show Connor: don't re-lay the page out. The www site's own logo (`kit/logo.ts`, the legal pages' signature) is **not** the LMS: leave it (Q-17). | Phase 3, then its own PR |
-| B-43 | **The sidebar collapses and opens in motion.** Closing is one overlapping move: the column narrows over 380 ms on the system's curve; for the first 160 ms the labels fade and the rail's mark fades in over the lockup; then the layout becomes the rail and the icons and week numbers glide to their places (240 ms), arriving with the edge. Opening: the layout opens behind the edge, the icons and numbers glide back out (380 ms, no overshoot), the labels and lockup fade in, and the column springs open (560 ms, the brand's spring). The marker on the hairline steps out while the edge moves and fades back in. A second click mid-travel turns it round. Reduced motion and phones: instant | All in the package: `lms.css` section 15 and `AppShell` (`data-narrow`, `data-collapsed`, `data-anim`, the FLIP). Every duration and curve is a brand token; none is a number in the component. `defaultCollapsed` and `onCollapse(on)` connect it to `useLearnerPrefs`. The main column re-flows as the sidebar's width changes: that is intended. | Phase 3 |
+| B-41 | **The academy logo in the shell: one image.** The "ai academy" **app lockup at 161×34** (the Brand Guide's sidebar size, as D-031 records it), in the open sidebar and the phone's header. **The collapsed rail shows the same image through a 26 px window: its "ai"** (Connor, Nov 21). At 161×34 the "ai" ends at 25.8 px and "academy" begins at 29.6 px, so 26 px shows the whole "ai" and nothing after it; the window sits 18.5 px from the left, over the centre line of the rail's icons. No favicon drawing in the rail, no second `img`. The link's name is "Amplified Impact Academy, Home"; it keeps `data-brand-slot` | `shell.logo` = `{ label, app }` (§7.1). The link is the window: `.sh-logo{width:161px;overflow:hidden}`, and `[data-narrow="true"] .sh-logo{width:26px;left:2.5px}` from 901 px up. The brand row keeps its 16 px padding in the rail (v6 dropped it). The app lockup files are **new drawings**: they replace the repo's older `amplified-impact-academy-app*.svg` (different checksums). | Phase 3 |
+| B-42 | **"Switch all the branding in the LMS to the academy logos"** (Connor, Nov 20). Outside the mockup's own pages the logo is drawn by one component, `shell/BrandSlot.tsx` | A **file and size swap, not a redesign**: `BrandSlot`'s `lockup` and `head` kinds show the academy app lockup (light and reversed) at 161×34, the size those places had before D-156; `mark` stays the favicon. That reaches every caller: the old learner shell and the admin shell (`AppShell.tsx`), `AcceptInvite.tsx`, `SkillGuide.tsx`, `WeekDone.tsx`, `Course.tsx` (four places). Also `admin/Wordmark.tsx` and its sidebar, the share and og-image builders (`site/share.ts`, `site/og-image.ts`), the tab title in `index.html` ("Amplified Impact" → "Amplified Impact Academy"), and any email that carries a logo. Update `compliance/tests/e2e/brand.spec.ts` (its letter colours become the new files' `#15211d` / `#f4f2ec`), the byte-identity check, and the goldens of each screen that changes, by entry D-233. If the taller logo breaks a layout on a page that isn't in the mockup, stop and show Connor: don't re-lay the page out. The www site's own logo (`kit/logo.ts`, the legal pages' signature) is **not** the LMS: leave it (Q-17). **Two more for the admin shell, drawn in `handoff/admin-mockup/` (Connor, Nov 21):** its rail shows the same lockup through the same 26 px window (not the favicon), and its cohort switcher shows **the program's own tile** in place of the "AA" initials: `programLogo(key, { variant: 'tile', size: 32, title: '' })` from `apps/web/src/home/program-logo.ts` (36 px on a phone; a tile is never under 32 px). Every program has one there; never draw a stand-in. | Phase 3, then its own PR |
+| B-43 | **The sidebar collapses and opens in motion.** Closing is one overlapping move: the column narrows over 380 ms on the system's curve; on the same curve and for the same 380 ms **the logo's window closes from the right until only "ai" is left**, sliding 2.5 px to the rail's centre; for the first 160 ms the labels fade; then the layout becomes the rail and the icons and week numbers glide to their places (240 ms), arriving with the edge. Opening: the layout opens behind the edge, the icons and numbers glide back out (380 ms, no overshoot), the logo's window opens back over "academy" (380 ms, the system's curve), the labels fade in, and the column springs open (560 ms, the brand's spring). The marker on the hairline steps out while the edge moves and fades back in. A second click mid-travel turns it round. Reduced motion and phones: instant | All in the package: `lms.css` section 15 and `AppShell` (`data-narrow`, `data-collapsed`, `data-anim`, the FLIP). The logo's move is CSS alone, keyed on `data-narrow`, so it makes one move with the edge whatever the layout is doing. Every duration and curve is a brand token; none is a number in the component. `defaultCollapsed` and `onCollapse(on)` connect it to `useLearnerPrefs`. The main column re-flows as the sidebar's width changes: that is intended. | Phase 3 |
 | B-44 | **Week numbers in the text face.** The number chips in the sidebar, and the count beside "Weeks", are Geist 12 px with tabular figures, not Geist Mono | In the CSS. | Phase 3 |
 
 
@@ -257,8 +304,9 @@ Each is a tracked item. None may be dropped.
 | B-30 | The **list**: space chips (All, General, one per open week, Wins), Pinned, Threads by newest activity, each row with avatar, title, who · team · space, the first lines, "2 replies · 3 hr ago"; How this works; the empty state | `CommunityPage` is in the package. `communityProps(...)` in a `.vm.ts`. The activity time ("3 hr ago", "1 day ago", "just now") through `fmt`: add a formatter that produces exactly these, unit-tested, if `fmt` has none. | Phase 10 |
 | B-31 | A **thread**: first post, replies, Reply; Edit and Delete on your own posts with an in-place confirm; "edited"; About this thread | `ThreadPage` is in the package. No browser `confirm()`. | Phase 10 |
 | B-32 | **Start a thread** in the drawer: space, title, details, the three validation messages, "Posting as …", Post thread → Posted → the new thread opens | `StartThreadDrawer` is in the package; the messages are the patch's `cleanThread` errors. | Phase 10 |
-| B-33 | **Staff** in the same pages: the Staff tag, Pin / Unpin and Hide / Show thread in a staff-only card, Hide / Show and Delete on any reply, hidden threads and replies visible to staff with a Hidden tag | The patch's rules and audit. | Phase 10 |
-| B-34 | The server side of the community | **From the patch, as it is:** `0033_community_posts`, `core/community.ts`, `routes/community.ts`, the 30-posts-an-hour guard, the tests. Nothing is emailed or notified. | Phase 10 |
+| B-33 | **The Staff tag** on a staff member's posts, in the list and in a thread. The mockup's **View as: Staff** also draws staff tools in these pages (a staff-only card with Pin / Unpin and Hide / Show thread, Hide / Show and Delete on any reply, hidden items with a Hidden tag). | **Merged (D-231, PR #230), staff tools included:** a staff member opens `/learn/community` in the v3 frame and moderates there. **Leave that as it is for now.** Connor's decision is that staff work from the admin (B-45). When B-45 is live, ask Connor Q-20 before touching the learner-frame door; do not remove it on your own. | Done; Q-20 |
+| B-34 | The server side of the community | **Merged (D-231).** The patch never reached the repo, so the server was written to this file's description: `0033_community_posts`, `core/community.ts`, `routes/community.ts` (`GET`/`POST /api/community`, `GET`/`PATCH /api/community/:id`, `POST …/:id/replies`, `PATCH …/posts/:postId`, `POST …/posts/:postId/delete`), 30 posts an hour, staff moderation audited, nothing emailed. **Two additions for B-45**, each unit-tested and sent to staff only (a test that neither reaches a learner): on each thread in the list, `waiting` (true when the newest post a member can see was not written by staff); and beside the list, the cohort's member and team counts. | R-3 |
+| B-45 | **Not in the learner mockup. In the admin mockup:** `handoff/admin-mockup/`, screens **Community** and **a thread** (`community-screens.jsx`). **Admin › Support › Community**, the only place staff read, answer and moderate. The list: Threads, Waiting on you, Pinned, Hidden and Members facts; tabs All, Waiting on you, Pinned, Hidden; find a thread; filter by space; a row menu with Pin and Hide; **Start a thread**. A thread: every post, hidden ones marked; **Reply as staff**; Pin to the top / Unpin; Hide from the cohort / Show to the cohort; Hide and Delete on any post, Delete behind the admin's confirm; About this thread. | New screens in `routes/admin/`, built the way every R2 admin screen is (D-160): the `components/r2/` kit, the admin stylesheet, a row in `shell/admin/adminNav.ts` under Support. They call the Community API that is in `main` (B-34) with the staff session; no second API. Writes go through the admin's guard. Words: the admin mockup's. **This is admin work, so it is outside the learner pixel gate; it follows the admin's own parity process** (`compliance/admin-r2.config.ts`). The nav row is not in `AdminRedesign.jsx`'s `NAV`: add it as `offMockup` (as Staff & Roles is) unless Connor says to change the R2 reference. The 30-an-hour limit applies to staff too; show the server's sentence in the admin's error toast. **Approved: Connor saw the screens on Nov 21 ("looks great").** Anyone on staff who can work on an account may post and moderate; every admin may read (Connor, Nov 21: "you assumed correctly"). | R-3 |
 
 ### 4.C In the repo, not in the mockup: HOLD. Do not delete, do not restyle.
 "Keep" means: the existing component, its module CSS and its behaviour stay exactly as they are and are rendered
@@ -316,10 +364,12 @@ draws a hybrid.
 | **D-229** | Intake in a drawer; six required questions; a PDF; **answers sync to GHL**, the operator as their own contact related to the owner. | D-196 ("Nothing is sent to GHL") |
 | **D-230** | Turn in: the `upload` action on a step opens the upload drawer (this mockup); submissions; **no card on the week page and no staff status shown to the team**; the staff Submissions card as the patch built it. | The patch's own entry (it calls it D-224; that number is taken) |
 | **D-231** | The cohort Community: threads in spaces, staff tools, names and teams visible to the cohort, nothing emailed; the screens are this mockup's. | The patch's own entry (it calls it D-225; that number is taken), and its artboards 22–25 |
-| **D-233** | The LMS carries the **academy** logos (Connor, Nov 20, 2026: "switch all the branding in the LMS to the academy logos"): the academy app lockup where the Amplified Impact wordmark was, at the Brand Guide's 161×34; the new drawings replace the older app-lockup files. Write it once Q-16 is answered. | D-156 |
+| **D-233** | The LMS carries the **academy** logos (Connor, Nov 20, 2026: "switch all the branding in the LMS to the academy logos"): the academy app lockup where the Amplified Impact wordmark was, at the Brand Guide's 161×34; the new drawings replace the older app-lockup files. **One logo:** the collapsed rail shows the same lockup cut to its "ai", not the favicon drawing (Connor, Nov 21). Q-16 is answered: write it. | D-156 |
+| **D-235** | **Staff use the Community from the admin portal, never from the learner portal** (Connor, Nov 21, 2026: "Option 1 please."). Admin › Support › Community reads, replies, starts threads, pins, hides and deletes for the cohort, with the Staff tag on what staff write. Until that page is live, the door D-231 built into the learner frame is how staff moderate. The screens are approved (Connor, Nov 21: "looks great"). | D-231's "Staff open the Community in the v3 frame … it is where they moderate", once Q-20 is answered |
 | **D-232** | **Not yet approved: Connor has to see v5 first.** The top bar and the Schedule while a session is starting, live and over; locked weeks in the nav and the locked week page (B-35 to B-40). | D-180, D-183, D-217 where they differ |
+| **D-236** | **The admin sidebar: six rows, one open** (Connor, Nov 22, 2026: "Much much better!"). A group is a row with its icon; only the group you are in is open, one at a time; its pages are plain words on a guide line; a closed group shows what is waiting in it; the collapse travels on the brand's timings, and the rail shows the lockup cut to "ai" and the program's own tile. The six groups and their pages do not change. `handoff/admin-mockup/ADMIN-SIDEBAR-SPEC.md`. | D-160's sidebar (`AdminRedesign.jsx` `Sidebar`, BUILD-SPEC § 4) where they differ |
 
-When the patch's server code lands, its two DECISIONS entries are rewritten under these numbers, and every `D-224` /
+When the patch's server code lands, its two DECISIONS entries are rewritten under these numbers (it never landed: D-230 and D-231 were written in the repo instead), and every `D-224` /
 `D-225` in its comments that means uploads or the community is renumbered with them.
 
 ### 5.1 Connor's answers (Nov 20, 2026). These are settled; don't ask again.
@@ -337,7 +387,7 @@ When the patch's server code lands, its two DECISIONS entries are rewritten unde
 | C-15 | Stack card? | "Leave for now but make note" | C-15. |
 | Q-06 | PDF engine? | "Whatever the simplest option is, but do know that I'm having Claude design an editorial/branded PDF version that I want to be filled in upon download. So the look will change" | Phase 7 waits for that template. `form-pdf.js` is a placeholder. |
 | Q-05 | GHL: send answers? Does Spring need to approve? | "Yes to GHL, Spring doesn't need to approve." | Phase 8 is unblocked. |
-| Q-05 | Who creates the custom fields? | "We'll need to have Claude in Chrome create them" | Appendix A is the list to create. Connor runs that; you don't write to GHL's settings. |
+| Q-05 | Who creates the custom fields? | "We'll need to have Claude in Chrome create them" | **Created Nov 20, 2026** (Appendix A, `GHL-SETUP-REPORT.md`). You don't write to GHL's settings. |
 | Q-05 | Does the operator become a contact? | "Yes, own contact but added as relationship to Owner" | Phase 8, step 3. |
 | Q-05 | Which tag on submit? | "Yes, you decide" | `ai-intake-submitted` (the repo's `ai-…` convention). |
 | Q-10 | Where does Turn in live? | "In the button in the step, not on the week card" | B-23 withdrawn, B-27. |
@@ -345,6 +395,11 @@ When the patch's server code lands, its two DECISIONS entries are rewritten unde
 | Q-11 | Where does Connor read what teams turn in? | "In the admin portal" | C-20: the patch's Submissions card, as built. A wider inbox waits with the admin portal. |
 | Q-12 | Names and teams visible to the cohort, Staff tag? | "Yes, that's fine" | B-30 to B-33 as drawn. |
 | Q-12 | Email on a reply? | "No" | Nothing is emailed. |
+| Q-16 | Which academy lockup sits in the open sidebar? | Settled by his Nov 21 request, which is about "the AI Academy" lockup and uses its "AI" as the collapsed logo. | The "ai academy" app lockup. The full-name alternative and its compare buttons are removed (v7). |
+| Q-19 | Do the admin Community screens look right? Who on staff may post and moderate? | "looks great" · "you assumed correctly" | B-45 is approved. Writes: anyone who can work on an account. Reading: every admin. |
+| (Nov 21) | What does the logo do when the sidebar collapses? | "collapse it to where the Academy gets cut off and we use the AI as the logo itself from the first part of that logo" | B-41, B-43, D-233. |
+| (Nov 21) | How does staff read, answer and moderate the Community, given that a staff account can't open the learner portal? | "Option 1 please." (a Community page inside the admin portal) | B-33, B-45, D-235, R-3. |
+| (Nov 22) | The admin sidebar is "really overwhelming … everything listed out like that." Is the proposal right? | "Much much better!", then two changes, both made: the Accelerator's tile centred in the rail, and the collapse in motion "like we've done on the learner portal". | R-4, D-236, `ADMIN-SIDEBAR-SPEC.md`. |
 | (scope) | What still needs drawing? | "Top Bar and Schedule while live, no run/pause/resume needed at all. Wait on dark mode Wait on account dropdown Design locked weeks Wait on admin view. Wait on the admin portal. Priority is all the learner side deploy" | B-35 to B-40 drawn in v5; C-02, C-09, C-14, C-24. |
 
 ### 5.2 Still open
@@ -354,8 +409,9 @@ When the patch's server code lands, its two DECISIONS entries are rewritten unde
 | **Q-13** | Connor looks at v5's two new designs (live sessions; locked weeks) and says yes or asks for changes. | Merging the parts of Phases 3, 4 and 5 that carry B-35 to B-40 |
 | **Q-14** | The PDF template: when does it arrive, and in what form (a PDF with form fields, or HTML and CSS)? | Phase 7, and through it the release (Phase 6's Download PDF button is in the approved design) |
 | **Q-15** | New words in v5 that Connor hasn't read: "Waiting on step 6", "Starting soon", "Replay processing", "Watch replay", "Session ended", "Next office hours", "Open Week 1", "Back to Week 0", "Opens in". | Nothing, unless he changes one: then the mockup changes first |
-| **Q-16** | Which academy lockup sits in the open sidebar: the **"ai academy" app lockup** at 161×34 (the mockup's default, and the Brand Guide's rule for an LMS sidebar) or the **full "amplified impact academy" lockup** at 205×20? The black bar's Logo buttons show both. | B-41, B-42, D-233 |
 | **Q-17** | "All the branding in the LMS": does that include the admin console (assumed yes: it is the same component), emails, and the www pages served from this repo (assumed no)? | B-42 |
+| **Q-18** | GHL already has a tag `intake-accelerator` (created Nov 11; the LMS's code never mentions it). Is it the same thing as `ai-intake-submitted`? If so, which one stays? | The tag in Phase 8. Everything else in Phase 8 can go ahead. |
+| **Q-20** | Once the admin Community page is live: does the staff door into the learner Community (`/learn/community` for a staff account, D-231) stay as a second way in, or go? Until Connor answers, it stays. | Only the clean-up after R-3 |
 | **Q-09** | Other pages inside the new shell (Home, Skill library, a skill, Account, Team, Vault, an AI Employee) keep their own layouts. A screenshot of each inside the v3 shell goes to Connor at the Phase 3 gate. | Phase 11 |
 
 ---
@@ -367,7 +423,7 @@ gate output, the list of tests updated or retired and why, every §2.3 addition,
 item. Nothing reaches a learner until Phase 11.
 
 ### Phase 0. Baseline (no repo changes)
-1. In `handoff/lms-v3/`: `npm i && npm run build && npm run diff`. **264 / 264 with no different pixel**
+1. In `handoff/lms-v3/`: `npm i && npm run build && npm run diff`. **260 / 260 with no different pixel**
    (about 20 minutes; `HANDOFF.md` §3 shows how to run it in four parts). `npm run pdf` reproduces
    `pdf/week-0-intake.sample.pdf` (same text via `pdftotext`, same page count).
 2. Record Chrome's version. If the baseline isn't 0 %, fix the environment, not the package.
@@ -417,7 +473,7 @@ Write `handoff/lms-v3/PLAN.md`:
 5. The brand files: copy `brand/logos/*.svg` to both brand folders, extend the byte-identity check, and have Vite
    inline them as `BrandSlot` does today (no request, CSP `img-src 'self' data:`).
 
-**Gate:** pixel gate (§8) for the shell states: `nav-*`, `top-*` (35 states, 49 checks; the live ones need a target seeded for that moment, §8), target = the week route and the
+**Gate:** pixel gate (§8) for the shell states: `nav-*`, `top-*` (32 states, 45 checks; the live ones need a target seeded for that moment, §8), target = the week route and the
 Schedule route with **today's** page bodies replaced only if their phases have landed; until then run with
 `--selector '[data-ai="shell"]'`. Plus a screenshot of every other `/learn` page inside the new shell, attached
 for Connor (Q-09). axe: zero serious or critical.
@@ -541,24 +597,29 @@ staff and confirm **nothing changes for the team**, turn in a new version, try a
 open the step as an agent.
 
 ### Phase 10. Community
-1. Server: from the patch (B-34): `0033_community_posts`, `core/community.ts` and its test, `routes/community.ts`
-   and its test, `Community.vm.ts` and its test, the route registrations and the nav view-model. **Leave out**
-   `Community.tsx`, `Community.module.css` and `docs/design/learner-v2/22`–`25` (C-18).
-2. `Community.tsx` (TSX conversion of the package's `Community.jsx`) + the HTML-equality test. `communityProps`
-   and `threadProps` (§7.5).
-3. Routes and the nav row (B-29). Staff see the same pages with the staff tools (B-33).
-4. C-22's states, each in the slot named there.
+**Merged (PR #230, D-231).** Server, pages, routes, the nav row, C-22's states, and a staff door into the v3 frame.
+What it did and found is in the repo's `handoff/lms-v3/PLAN.md` and in D-231. Its gate: the `cm-*` and `th-*`
+states (29 states, 54 checks), the staff states compared on the page alone.
 
-**Gate:** pixel gate, `cm-*` and `th-*` states (29 states, 54 checks). On a deployed target: the list, the three
-space filters, the compose drawer opened, and the sample thread (`--target-community`, `--target-thread`), with the
-community seeded as `compliance/lms-v3/prepare.ts` writes it; staff checks with `--assume-as cl` and a staff session.
-The checks that post, edit, delete, pin or hide run only against the local http build with the reset hook. By hand,
-as the test learner and as staff: post, reply, edit, delete, pin, hide, and confirm no email or notification left
-the system (the email log is empty for those minutes).
+**Still to build, as R-3:**
+1. Server additions (B-34): `waiting` on each thread and the member and team counts, staff only, with tests. A test
+   that neither reaches a learner.
+2. **Admin › Support › Community** (B-45, approved): the list and a thread, from `handoff/admin-mockup/`
+   (`community-screens.jsx`), mapped in §7.5a. Reply, start a thread, pin, hide, delete, each through the admin's
+   guard; the API already audits pin, hide and delete.
+3. The nav row under Support in `shell/admin/adminNav.ts`, and `waiting` as a nav count (it feeds the sidebar's
+   "3 waiting", R-4).
+4. Leave the learner-frame staff door alone (Q-20).
+
+**Gate for R-3:** the admin's own parity process, and screenshots of both screens at 1440 and 390 beside the admin
+mockup's in the PR. By hand, as the test learner in the portal and as staff in the admin: the learner posts and
+replies; staff sees it under Waiting on you, replies, and the learner sees the reply with the Staff tag; staff pins,
+hides and deletes, and the learner's page shows each result; no email or notification left the system (the email
+log is empty for those minutes).
 
 ### Phase 11. Acceptance and rollout
 1. Deployed **preview** with `VITE_LEARNER_V2=true`, `VITE_LMS_V3=true`, Week 0 and the schedule entered to match
-   the mockup's words (`compliance/lms-v3/prepare.ts` is the reference): the full pixel gate, the 264 checks'
+   the mockup's words (`compliance/lms-v3/prepare.ts` is the reference): the full pixel gate, the 260 checks'
    deployed subset plus the local-only subset against the local http build. **No different pixel in any of them.**
 2. `diff/piece-review.mjs` and `diff/motion-review.mjs` as `PROMPT.md` Phase 3 B and C describe (extended to the Community and Turn in pieces), both first proven
    on harness vs mockup (all 0) and proven to catch a 1 px and a 10 ms change.
@@ -573,8 +634,11 @@ the system (the email log is empty for those minutes).
 - **Dark mode.** A separate pass by Claude Code, after everything above is live and Connor has used it for a day.
   It starts from a dark version of the mockup that Connor approves, then goes through the same zero-pixel gate. Until
   then v3 is light only (C-02).
-- **The account dropdown** (C-24), **the admin view of a form and of what teams turn in** (C-14, C-20), **the admin
-  portal.** Each waits for its own mockup.
+- **The account dropdown** (C-24). Waits for its own mockup.
+- **The admin view of a form and of what teams turn in** (C-14, C-20) **and Forms & Submissions.** The admin
+  mockup draws them (`handoff/admin-mockup/`, `ADMIN-IMPACT.md`), and Connor is reviewing them. They are **not in
+  this build** until he says so and they have a spec of their own. The admin Community page (R-3) and the admin
+  sidebar (R-4) are the two pieces of admin work that are in.
 - **The Stack card in the drawer** (C-15).
 
 ---
@@ -585,7 +649,7 @@ the system (the email log is empty for those minutes).
 | Prop | From |
 |---|---|
 | `shell.homeHref`, `helpHref` | `nav.home.href`, `nav.help.href` |
-| `shell.logo` | `label` = "Amplified Impact Academy, Home"; `app`, `full`, `mark` = the three files' URLs (inlined `data:` URIs, as `BrandSlot` builds them); `use` = `'app'` (or `'full'`, by Q-16). Dark mode later adds the reversed files. |
+| `shell.logo` | `label` = "Amplified Impact Academy, Home"; `app` = the app lockup's URL (an inlined `data:` URI, as `BrandSlot` builds them). One file: the rail clips it in CSS. Dark mode later adds the reversed file. |
 | `shell.cohort[2]` | `side.cohortLine` split as the mockup splits it. If the stored line can't produce two lines by rule, add the two parts to `sideVM`; don't split by string surgery in the component. |
 | `shell.nav[]` | Home, Schedule (when `nav.cohort`), Skill library, Team Hub (when `side.teamHub`), Resource vault, in that order; `id` for the active match |
 | `shell.weeksLabel`, `weeks[]` | "Weeks"; `nav.employees.rows` with `week !== null`: `n` = week, `title` = `label`, `href`, `id`, `status` from `ring` → `progress` (+ `done`, `total`), `built` → `done`, else `idle`; `locked` from the row's `locked` (B-38) |
@@ -641,8 +705,25 @@ test.
 | `people` | each post's author: `name`, `team` (staff: "Amplified Impact"), `initials` (`initialsOf`), `staff` |
 | `threads[]` (list) | the API's list for the chosen space: `id`, `href`, `space`, `title`, `pinned`, `hidden`, `activity` (B-30), `replies` (what this viewer can see), `excerpt` (`excerptOf`), `by` |
 | `thread` | one thread with the posts this viewer may see: `when` through `fmt`, `edited`, `hidden` |
-| `me`, `staff` | the viewer's id; whether they are staff |
-| `onReply`, `onEdit`, `onDelete`, `onHidePost`, `onPin`, `onHideThread`, `onPost` | the patch's routes. Each returns a promise; the page draws what the next read returns. |
+| `me`, `staff` | the viewer's id; whether they are staff (true only for a staff member in the v3 frame, D-231) |
+| `onReply`, `onEdit`, `onDelete`, `onPost` | the patch's routes. Each returns a promise; the page draws what the next read returns. |
+| `onHidePost`, `onPin`, `onHideThread` | Wired for a staff member in the v3 frame (D-231, as merged). The admin page calls the same routes (§7.5a). |
+
+### 7.5a Admin › Community ← `/api/community` with a staff session (B-45)
+This is admin work: the r2 kit, not the package's components. The design is `handoff/admin-mockup/`. The routes are
+the ones in `main` (`apps/api/src/routes/community.ts`, D-231); read that file's header before wiring.
+| On the page | From |
+|---|---|
+| The cohort | The Accelerator cohort, as the API resolves it for staff. One cohort today, so no picker is drawn. |
+| Threads, Pinned, Hidden (facts and tabs) | counted from `GET /api/community` as staff (hidden threads included, marked) |
+| Waiting on you | the list's new `waiting` (B-34) |
+| Members | the new member and team counts (B-34) |
+| Space filter, a thread's space | the list's spaces (every week's, for staff) and `spaceLabel` |
+| A row: title, first lines, started by, replies, last activity | the list's thread fields, the time through `fmt.activity` |
+| A thread's posts, the Staff tag, Hidden | `GET /api/community/:id`: its posts, each author's staff flag, `hidden` |
+| Start a thread, Reply as staff | `POST /api/community`, `POST /api/community/:id/replies`; the server's own sentences under the field |
+| Pin, Hide a thread | `PATCH /api/community/:id` `{ pinned }` or `{ hidden }` |
+| Hide a reply, Delete a post | `PATCH /api/community/posts/:postId` `{ hidden }`, `POST /api/community/posts/:postId/delete` |
 
 ### 7.6 `TurnInDrawer` ← the step's `upload` action and `/api/submissions`
 | Prop | From |
@@ -692,8 +773,8 @@ node --import ../../compliance/step-page-v6/reset-hook.mjs diff/pixel-diff.mjs \
   --storage-state ../../auth.json                      # in parts: --viewports phone-390 --match '^(cm|th|ti)-' --tag p2
 ```
 - Seeded learner state: `compliance/lms-v3/reset.sql` (Phase 2). Other states: `--assume s7 | s8 | deployed`,
-  `--assume-form new | submitted`, `--assume-clock soon | live | ended | nextday`, `--assume-logo full`, `--assume-as cl` (a staff
-  session), each with its own seeded account or fixture. The Turn in drawer: `--target-turnin <step url>
+  `--assume-form new | submitted`, `--assume-clock soon | live | ended | nextday`, `--assume-as cl` (a staff
+  session; `main` compares the staff states on the page alone, D-231), each with its own seeded account or fixture. The Turn in drawer: `--target-turnin <step url>
   --turnin-button <selector> --assume-turnin report | checkpoint | turned` (only the drawer is compared).
 - Staged rollout: `--selector '[data-ai="shell"]'`, `'[data-ai="schedule"]'`, `'[data-ai="week"]'`,
   `'[data-ai="community"]'`, `'[data-ai="thread"]'`, `'[data-ai="locked"]'`; a drawer alone: `'.aim-drawer__panel'`.
@@ -725,45 +806,55 @@ Questions for Connor: <list, or none>
 
 ---
 
-## Appendix A. GHL custom fields for the intake (for Connor's Claude in Chrome session to create)
+## Appendix A. GHL custom fields for the intake
 
-Connor: "We'll need to have Claude in Chrome create them." This is the list. Create them on **Contact**, in one
-folder named "AI Accelerator Intake", in the live location, then give Claude Code each field's **id** to put in the
-environment variable beside it. Nobody building this spec creates, renames or deletes a field in GHL.
+**Done, Nov 20, 2026.** Claude in Chrome created all 23 from `GHL-SETUP-BRIEF.md`, in the sub-account **Amplified
+Impact LLC, location id (left out of this public copy; it is in Connor’s records)**. Every key below was confirmed as created. The report and what to do
+next are in `GHL-SETUP-REPORT.md` (beside this file). **First, confirm the LMS's `GHL_LOCATION_ID` is that id.**
 
-The field name and key are suggestions (change them freely: only the id matters to the code). The type is not a
-suggestion: a choice is stored as its words in a text field, so adding an option in the Week Builder later never
-breaks the sync.
+Connor: "We'll need to have Claude in Chrome create them." The brief Claude in Chrome followed is
+`GHL-SETUP-BRIEF.md` (beside this file): one folder, `AI Accelerator Intake`, on **Contact**, with these 23 fields.
+Nobody building this spec creates, renames or deletes a field in GHL's settings by hand.
 
-| Question id | Field name | Suggested key | Type | Env var for the field's id |
+The names are short on purpose: GHL builds a field's key from its name. A choice is stored as its words in a text
+field, so adding an option in the Week Builder later never breaks the sync.
+
+| Question id | Field name | Expected key | Type | Env var for the field's id |
 |---|---|---|---|---|
-| `name` | AI Intake · Your name and email | `ai_intake_name` | Single line text | `GHL_FIELD_INTAKE_NAME` |
-| `team` | AI Intake · Your team's name and brokerage | `ai_intake_team` | Single line text | `GHL_FIELD_INTAKE_TEAM` |
-| `size` | AI Intake · Team size (how many agents and staff today) | `ai_intake_size` | Single line text | `GHL_FIELD_INTAKE_SIZE` |
-| `lead-desk` | AI Intake · Who leads your lead desk? | `ai_intake_lead_desk` | Single line text | `GHL_FIELD_INTAKE_LEAD_DESK` |
-| `cadence` | AI Intake · Your weekly meeting cadence (meetings, day and time, who runs each) | `ai_intake_cadence` | Multi-line text | `GHL_FIELD_INTAKE_CADENCE` |
-| `one-on-ones` | AI Intake · Do you hold 1:1s with your agents? | `ai_intake_one_on_ones` | Multi-line text | `GHL_FIELD_INTAKE_ONE_ON_ONES` |
-| `operator` | AI Intake · Who is your operator? | `ai_intake_operator` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_OPERATOR` |
-| `operator-name` | AI Intake · Their name and email | `ai_intake_operator_name` | Single line text | `GHL_FIELD_INTAKE_OPERATOR_NAME` |
-| `invited` | AI Intake · Have you invited them in the portal yet? | `ai_intake_invited` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_INVITED` |
-| `ai` | AI Intake · Which AI will your team use for the course? | `ai_intake_ai` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_AI` |
-| `plan` | AI Intake · Which plan are you on, or will you be on by Monday, November 30? | `ai_intake_plan` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_PLAN` |
-| `account` | AI Intake · Whose AI account runs your hires? | `ai_intake_account` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_ACCOUNT` |
-| `chatgpt-admin` | AI Intake · On ChatGPT only: does that person have admin access to your ChatGPT workspace? | `ai_intake_chatgpt_admin` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_CHATGPT_ADMIN` |
-| `books` | AI Intake · Your accounting system | `ai_intake_books` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_BOOKS` |
-| `books-close` | AI Intake · Who owns your accounting and reports, and what day do your books usually close each month? | `ai_intake_books_close` | Multi-line text | `GHL_FIELD_INTAKE_BOOKS_CLOSE` |
-| `sisu` | AI Intake · Do you use Sisu? | `ai_intake_sisu` | Multi-line text | `GHL_FIELD_INTAKE_SISU` |
-| `crm` | AI Intake · Your CRM | `ai_intake_crm` | Multi-line text | `GHL_FIELD_INTAKE_CRM` |
-| `google` | AI Intake · Email, calendar and files: is your team on Google Workspace? | `ai_intake_google` | Single line text (the chosen option’s words) | `GHL_FIELD_INTAKE_GOOGLE` |
-| `google-other` | AI Intake · If you are not on Google, what do you use? | `ai_intake_google_other` | Single line text | `GHL_FIELD_INTAKE_GOOGLE_OTHER` |
-| `tasks` | AI Intake · Where your tasks live | `ai_intake_tasks` | Multi-line text | `GHL_FIELD_INTAKE_TASKS` |
-| `problems` | AI Intake · Three recurring problems you'd like off your plate | `ai_intake_problems` | Multi-line text | `GHL_FIELD_INTAKE_PROBLEMS` |
-| `access` | AI Intake · Known access restrictions | `ai_intake_access` | Multi-line text | `GHL_FIELD_INTAKE_ACCESS` |
-| (set by the sync) | AI Intake · Submitted on | `ai_intake_submitted_on` | Date | `GHL_FIELD_INTAKE_SUBMITTED_ON` |
+| `name` | AI Intake Name | `contact.ai_intake_name` | Single Line | `GHL_FIELD_INTAKE_NAME` |
+| `team` | AI Intake Team | `contact.ai_intake_team` | Single Line | `GHL_FIELD_INTAKE_TEAM` |
+| `size` | AI Intake Size | `contact.ai_intake_size` | Single Line | `GHL_FIELD_INTAKE_SIZE` |
+| `lead-desk` | AI Intake Lead Desk | `contact.ai_intake_lead_desk` | Single Line | `GHL_FIELD_INTAKE_LEAD_DESK` |
+| `cadence` | AI Intake Cadence | `contact.ai_intake_cadence` | Multi Line | `GHL_FIELD_INTAKE_CADENCE` |
+| `one-on-ones` | AI Intake One On Ones | `contact.ai_intake_one_on_ones` | Multi Line | `GHL_FIELD_INTAKE_ONE_ON_ONES` |
+| `operator` | AI Intake Operator | `contact.ai_intake_operator` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_OPERATOR` |
+| `operator-name` | AI Intake Operator Name | `contact.ai_intake_operator_name` | Single Line | `GHL_FIELD_INTAKE_OPERATOR_NAME` |
+| `invited` | AI Intake Invited | `contact.ai_intake_invited` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_INVITED` |
+| `ai` | AI Intake AI | `contact.ai_intake_ai` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_AI` |
+| `plan` | AI Intake Plan | `contact.ai_intake_plan` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_PLAN` |
+| `account` | AI Intake Account | `contact.ai_intake_account` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_ACCOUNT` |
+| `chatgpt-admin` | AI Intake ChatGPT Admin | `contact.ai_intake_chatgpt_admin` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_CHATGPT_ADMIN` |
+| `books` | AI Intake Books | `contact.ai_intake_books` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_BOOKS` |
+| `books-close` | AI Intake Books Close | `contact.ai_intake_books_close` | Multi Line | `GHL_FIELD_INTAKE_BOOKS_CLOSE` |
+| `sisu` | AI Intake Sisu | `contact.ai_intake_sisu` | Multi Line | `GHL_FIELD_INTAKE_SISU` |
+| `crm` | AI Intake CRM | `contact.ai_intake_crm` | Multi Line | `GHL_FIELD_INTAKE_CRM` |
+| `google` | AI Intake Google | `contact.ai_intake_google` | Single Line (holds the chosen option’s words) | `GHL_FIELD_INTAKE_GOOGLE` |
+| `google-other` | AI Intake Google Other | `contact.ai_intake_google_other` | Single Line | `GHL_FIELD_INTAKE_GOOGLE_OTHER` |
+| `tasks` | AI Intake Tasks | `contact.ai_intake_tasks` | Multi Line | `GHL_FIELD_INTAKE_TASKS` |
+| `problems` | AI Intake Problems | `contact.ai_intake_problems` | Multi Line | `GHL_FIELD_INTAKE_PROBLEMS` |
+| `access` | AI Intake Access | `contact.ai_intake_access` | Multi Line | `GHL_FIELD_INTAKE_ACCESS` |
+| (set by the sync) | AI Intake Submitted On | `contact.ai_intake_submitted_on` | Date & time, collecting a date only (GHL no longer has a date-only type). Send `YYYY-MM-DD` through the repo's `chicagoDate()`, as the AI Purchase Date field is filled. | `GHL_FIELD_INTAKE_SUBMITTED_ON` |
 
-Also needed once, in the same session or by the code on first run (Phase 8, step 3): a contact-to-contact
-association for "Team owner" ↔ "Operator". And the tag `ai-intake-submitted` (tags are created on first use).
+**Getting the ids.** Claude in Chrome reports each field's key, not its id. Resolve ids from keys with one read of the
+location's custom fields through the API, in the repo's existing `pnpm --filter @ai/api ghl:setup` (it already
+creates the five purchase fields and prints `GHL_FIELD_*` lines): extend it to look up these keys and print the
+`GHL_FIELD_INTAKE_*` lines. If a key is missing, print which, and write nothing. (If Connor would rather skip the
+browser step, the same script can create the fields with `--apply`, as it does for the other five; ask him first.)
+
+Also needed once, by the code on first run (Phase 8, step 3): the contact-to-contact association "Team owner" ↔
+"Operator". GHL's screen for it exists in this sub-account (Settings → Objects → Contacts → Associations) and none has
+been made yet. The tag `ai-intake-submitted` doesn't exist yet and is created on first use, **after Q-18.**
 
 Rules the sync follows: an answer longer than the field allows is cut at the limit with "…" and the full answer stays
-in the LMS; an empty answer clears the field; a field whose id is not configured is skipped and reported by name.
-
+in the LMS; **an unanswered question is not sent** (the repo's rule in `ghl.ts`: never blank a field, so an answer a
+team later empties stays in GHL as it was); a field whose id is not configured is skipped and reported by name.
