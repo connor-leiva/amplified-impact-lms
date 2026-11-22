@@ -38,10 +38,11 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
     // R2-1c turns on Workspaces (part 1) and Users (part 2); D-162 3b Masquerade; R2-4a (D-163) Billing; D-165 API & Webhooks and Scheduled Jobs; D-166 Usage and the Email Log; D-167 Incidents; D-168 the four infrastructure pages; D-169 System Health.
+    // D-238: Community, off the R2 mockup (the handoff mockup's row), after Learners & Teams.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview', 'System Health'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
+      ['Support', 'Learners & Teams', 'Community', 'Workspaces', 'Users', 'Masquerade'],
       ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
       ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
@@ -82,12 +83,13 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     ]);
     const instructor = labels(nav({ role: 'Instructor', fullNav: false }));
     expect(instructor.map((g) => g[0])).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
-    // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
+    // Workspaces and Users read `workspaces.read` and `users.read`, and Community `console.view` (D-238), which an
+    // Instructor lacks.
     expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
     // D-162 3b: Masquerade is the Owner's and Admin's (`masquerade.start`); Support reaches its lock card by address.
     expect(labels(nav({ role: 'Admin', fullNav: false })).find((g) => g[0] === 'Support')).toContain('Masquerade');
-    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams', 'Workspaces', 'Users']);
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams', 'Community', 'Workspaces', 'Users']);
     expect(support.flat()).not.toContain('Masquerade');
     // Billing reads `billing.read`: Support has it (read-only, D3); an Instructor does not.
     expect(instructor.find((g) => g[0] === 'Revenue')).toEqual(['Revenue', 'Tiers & Upgrades']);
@@ -230,5 +232,16 @@ describe('Course settings’ place (D-174)', () => {
     expect(R2_NAV.flatMap(([, rows]) => rows).some((r) => r.path === '/admin/curriculum/course')).toBe(false);
     // Every AI Employee and week the builder edits keeps its own trail.
     expect(crumbTrail('/admin/curriculum/accelerator-week-2')).toEqual(crumbTrail('/admin/curriculum/m1'));
+  });
+
+  // D-238: the Community row carries "N waiting"; a thread's page keeps it current and Support open.
+  it('puts "3 waiting" on the Community row and keeps it current on a thread’s page (D-238)', () => {
+    const groups = adminNav({ pathname: '/admin/community/2', role: 'Owner', fullNav: false, counts: { ...COUNTS, waiting: 3 }, peek: undefined });
+    const support = groups.find((g) => g.label === 'Support')!;
+    expect(support.open).toBe(true);
+    expect(support.rows.find((r) => r.id === 'community')).toMatchObject({ label: 'Community', badge: '3 waiting', active: true, to: '/admin/community' });
+    expect(crumbTrail('/admin/community/2')).toEqual({ group: 'Support', page: 'Community', parent: '/admin/community' });
+    // The parity fixture's sidebar is the R2 reference's: no Community row.
+    expect(labels(nav({ counts: { ...COUNTS, waiting: 3 } })).flat()).not.toContain('Community');
   });
 });

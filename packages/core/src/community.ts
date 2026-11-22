@@ -86,6 +86,21 @@ export const mayDeletePost = (by: string, me: string, staff: boolean): boolean =
 export const spaceLabel = (spaces: readonly CommunitySpace[], id: string): string =>
   spaces.find((s) => s.id === id)?.label ?? (id.startsWith('week-') ? `Week ${id.slice(5)}` : id);
 
+/**
+ * D-238 (B-34, the admin's "Waiting on you"): a thread waits on staff when the newest post the cohort can see was not
+ * written by staff. A hidden post doesn't count (the first post stands in when every reply is hidden), and a hidden
+ * thread waits on no one. `posts` oldest first, as a thread holds them; nothing deleted.
+ */
+export function waitingOn(
+  thread: { hidden: boolean },
+  posts: readonly { by: string; hidden: boolean }[],
+  isStaff: (userId: string) => boolean,
+): boolean {
+  if (thread.hidden) return false;
+  const last = [...posts].reverse().find((p) => !p.hidden) ?? posts[0];
+  return last !== undefined && !isStaff(last.by);
+}
+
 /** §7.5: the team a staff member writes under ("Connor Leiva · Amplified Impact"). */
 export const STAFF_TEAM = 'Amplified Impact';
 
@@ -124,6 +139,14 @@ export interface CommunityThreadRow {
   activityAt: number;
   replies: number;
   excerpt: string;
+  /** D-238 (B-34), STAFF ONLY: the last word the cohort can see is a member's (`waitingOn`). Never sent to a learner. */
+  waiting?: boolean;
+}
+
+/** D-238 (B-34), STAFF ONLY: the cohort's learners (not those still invited) and the teams they are in. */
+export interface CommunityMembers {
+  learners: number;
+  teams: number;
 }
 
 /** One post as a thread page draws it. */
@@ -138,6 +161,8 @@ export interface CommunityPost {
 
 export interface CommunityList extends CommunityViewerPart {
   threads: CommunityThreadRow[];
+  /** D-238 (B-34): staff only, beside the list. Never sent to a learner. */
+  members?: CommunityMembers;
 }
 
 export interface CommunityThread extends CommunityViewerPart {

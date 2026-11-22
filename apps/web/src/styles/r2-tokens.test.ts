@@ -84,6 +84,7 @@ describe('the R2 tokens (D-160 R2-1b)', () => {
     );
     expect(p).toHaveLength(45);
     for (const [name, d] of p) expect((ICONS as Record<string, string>)[name], name).toBe(d);
-    expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(48);
+    // 45 from the R2 mockup, three from the Week 0 step header, and D-238's Community row from the admin handoff mockup.
+    expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(49);
   });
 });

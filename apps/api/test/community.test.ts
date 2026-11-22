@@ -194,6 +194,44 @@ describe('the Community (D-231)', () => {
     ]);
   });
 
+  // D-238 (B-34): staff's list tells them what waits on them and how many are in the cohort; a learner's never does.
+  it('gives staff each thread’s `waiting` and the cohort’s members, and never a learner (D-238)', async () => {
+    // Two more learners the count must leave out: one still invited, one in no cohort.
+    await handle.insert(users).values([
+      { id: 'inv-a', email: 'inv-a@example.test', name: 'Ivy Invited', kind: 'learner', tier: 'team', role: 'Agent', teamId: 'team-a', cohortId: 'dec26', status: 'invited', joined: T, seq: 93 },
+      { id: 'solo', email: 'solo@example.test', name: 'Sol Agent', kind: 'learner', tier: 'agent', role: 'Agent', teamId: null, cohortId: null, status: 'active', joined: T, seq: 94 },
+    ]);
+    const a = (await start('own-a', { space: 'general', title: 'Where do I start?', body: 'A question about Week 1.' })).json().id as number;
+    const b = (await start('own-b', { space: 'general', title: 'A win to share', body: 'We closed one with it.' })).json().id as number;
+    await replyTo('st_owner', b, 'Nice work.');
+    const c = (await start('st_owner', { space: 'general', title: 'Office hours', body: 'Thursdays at noon.' })).json().id as number;
+
+    let staff = (await list('st_owner')).json() as CommunityList;
+    const waits = (id: number) => staff.threads.find((t) => t.id === id)?.waiting;
+    // A learner had the last word on A; staff answered B; staff started C.
+    expect([waits(a), waits(b), waits(c)]).toEqual([true, false, false]);
+    expect(staff.members).toEqual({ learners: 3, teams: 3 });
+
+    // A learner answers staff on B: it waits again. Staff hide that reply: the last word the cohort sees is staff's.
+    const thanks = (await replyTo('own-b', b, 'Thank you!')).json().id as number;
+    staff = (await list('st_owner')).json() as CommunityList;
+    expect(waits(b)).toBe(true);
+    expect((await patchPost('st_owner', thanks, { hidden: true })).statusCode).toBe(200);
+    staff = (await list('st_owner')).json() as CommunityList;
+    expect(waits(b)).toBe(false);
+    // A hidden thread waits on no one.
+    expect((await patchThread('st_owner', a, { hidden: true })).statusCode).toBe(200);
+    staff = (await list('st_owner')).json() as CommunityList;
+    expect(waits(a)).toBe(false);
+
+    // A learner's list carries neither, on any thread.
+    const learner = (await list('own-b')).json() as CommunityList;
+    expect(learner.threads.length).toBeGreaterThan(0);
+    expect(learner).not.toHaveProperty('members');
+    for (const t of learner.threads) expect(t).not.toHaveProperty('waiting');
+    expect(Object.keys(learner).sort()).toEqual(['me', 'people', 'spaces', 'staff', 'threads']);
+  });
+
   it('keeps a thread in a week a learner hasn’t opened to staff', async () => {
     const [t] = await handle.insert(communityThreads).values({ cohortId: 'dec26', space: 'week-8', title: 'Later', byUserId: 'st_owner', createdAt: T, activityAt: T }).returning();
     await handle.insert(communityPosts).values({ threadId: t!.id, byUserId: 'st_owner', body: 'Soon', createdAt: T });

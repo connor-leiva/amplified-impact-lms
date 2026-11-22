@@ -84,6 +84,9 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     'Support',
     [
       row('learners', 'Learners & Teams', 'r2Learners', '/admin/learners', true),
+      // D-238 (B-45): the handoff mockup's row, after Learners & Teams. Not in `AdminRedesign.jsx`'s `NAV`, so it is
+      // `offMockup` (as Staff & Roles is) and the parity fixture's sidebar stays the reference's.
+      row('community', 'Community', 'r2Community', '/admin/community', true, { cap: 'console.view', offMockup: true, badge: 'waiting' }),
       row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', true, { cap: 'workspaces.read' }),
       row('users', 'Users', 'r2Users', '/admin/users', true, { cap: 'users.read' }),
       // D-162 3b: built, for the roles that can start one (spec § 6). Support reaches its lock card by address.
@@ -281,6 +284,8 @@ export const RECORD_PARENTS: Readonly<Record<string, string>> = {
   '/admin/masquerade/': 'masquerade',
   // D-167: an incident belongs to the Incidents row (the mockup's `PARENT`: incident → incidents).
   '/admin/incidents/': 'incidents',
+  // D-238: a thread belongs to the Community row (the handoff mockup's `PARENT`: cthread → community).
+  '/admin/community/': 'community',
 };
 
 /** The mockup's learner view, whose parent crumb is drawn as the page's (bold), not as a link back. */

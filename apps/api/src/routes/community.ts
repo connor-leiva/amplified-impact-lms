@@ -16,6 +16,10 @@
 // Nothing is emailed and nothing notifies anyone: the page says so, and nothing here sends anything. Posts (threads
 // and replies) are limited to `POSTS_PER_HOUR` a person, deleted ones included. Nothing is ever removed: a delete
 // sets `deleted_at`.
+//
+// D-238 (B-34, for Admin › Support › Community): staff's list also carries, on each thread, `waiting` (the last word
+// the cohort can see is a member's, `waitingOn`) and, beside the threads, `members` (the cohort's learners and their
+// teams). Neither is ever sent to a learner.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, asc, count, desc, eq, gte, inArray, isNull } from 'drizzle-orm';
@@ -33,8 +37,9 @@ import {
   spaceLabel,
   spacesFor,
   visibleTo,
+  waitingOn,
 } from '@ai/core/community';
-import type { CommunityList, CommunityPerson, CommunityPost, CommunitySpace, CommunityThread, CommunityThreadRow } from '@ai/core/community';
+import type { CommunityList, CommunityMembers, CommunityPerson, CommunityPost, CommunitySpace, CommunityThread, CommunityThreadRow } from '@ai/core/community';
 import { courseWeekModules } from '@ai/core/course';
 import { weekOpenFor } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
@@ -117,6 +122,16 @@ async function peopleOf(ids: readonly string[]): Promise<Record<string, Communit
   );
 }
 
+/** D-238: the cohort's learners, not those still invited (as the Console counts them), and the teams they are in. */
+async function membersOf(cohortId: string): Promise<CommunityMembers> {
+  const rows = await getDb()
+    .select({ teamId: users.teamId, status: users.status })
+    .from(users)
+    .where(and(eq(users.kind, 'learner'), eq(users.cohortId, cohortId)));
+  const live = rows.filter((r) => r.status !== 'invited');
+  return { learners: live.length, teams: new Set(live.flatMap((r) => (r.teamId ? [r.teamId] : []))).size };
+}
+
 /** A thread this member may open: in the cohort, not deleted, in one of their spaces (staff: any), shown (staff: any). */
 const threadVisible = (t: ThreadRow, m: Member): boolean =>
   t.cohortId === m.cohortId && visibleTo(t, m.staff) && (m.staff || m.spaces.some((s) => s.id === t.space));
@@ -196,12 +211,22 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
       }];
     });
     threads.sort((a, b) => b.activityAt - a.activityAt || b.id - a.id);
+    // D-238: for staff, who wrote each thread's posts decides `waiting` (so staff's `people` names them all); a
+    // learner's list never carries it, and its `people` stays the thread starters and the reader.
+    const authors = m.staff ? posts.map((p) => p.byUserId) : [];
+    const people = await peopleOf([...threads.map((t) => t.by), m.id, ...authors]);
+    if (m.staff) {
+      const hidden = new Map(rows.map((t) => [t.id, t.hidden]));
+      for (const t of threads)
+        t.waiting = waitingOn({ hidden: hidden.get(t.id) ?? false }, (byThread.get(t.id) ?? []).map((p) => ({ by: p.byUserId, hidden: p.hidden })), (id) => people[id]?.staff === true);
+    }
     const body: CommunityList = {
       me: m.id,
       staff: m.staff,
       spaces: spacesWith(m, threads.map((t) => t.space)),
-      people: await peopleOf([...threads.map((t) => t.by), m.id]),
+      people,
       threads,
+      ...(m.staff && { members: await membersOf(m.cohortId) }),
     };
     return reply.code(200).send(body);
   });

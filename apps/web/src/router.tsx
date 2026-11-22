@@ -126,6 +126,9 @@ const routes: RouteObject[] = [
       // Incidents and one incident (D-167, spec § 7.14).
       { path: 'admin/incidents', lazy: () => import('./routes/console/Incidents') },
       { path: 'admin/incidents/:id', lazy: () => import('./routes/console/Incident') },
+      // D-238 (B-45): Admin › Support › Community and a thread.
+      { path: 'admin/community', lazy: () => import('./routes/console/Community') },
+      { path: 'admin/community/:id', lazy: () => import('./routes/console/CommunityThread') },
       // The Operations pages on R2 (D-168; spec §§ 7.11-7.13).
       { path: 'admin/integrations', lazy: () => import('./routes/console/Integrations') },
       { path: 'admin/deploys', lazy: () => import('./routes/console/Deploys') },

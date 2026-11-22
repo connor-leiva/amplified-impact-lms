@@ -1,0 +1,54 @@
+/* D-238 (B-45): Admin › Support › Community, the handoff mockup's own rules for what the R2 kit doesn't have:
+   `.lab` (a field's label over it), `.pd` and `.col.m` (a post's card), `.cmb` (a post's words) and `.cmh` (a post or
+   thread only staff can see). Tokens only (`--r2-*`). */
+
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+
+/* The server's own sentence under a field. */
+.err {
+  font-weight: 400;
+  font-size: calc(var(--r2-t) - 1px);
+  color: var(--r2-bad);
+}
+
+/* `.cd.pd.col.m`: a post, and the reply box. */
+.post {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* `.cmb`: a post's words, a paragraph each. */
+.body {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+}
+.body p {
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* `.cmh`: what only staff can see. */
+.hiddenPost {
+  background: var(--r2-hov);
+  border-style: dashed;
+}
+
+@media (max-width: 767px) {
+  .lab,
+  .err {
+    font-size: var(--r2-t);
+  }
+  .post {
+    padding: 16px;
+  }
+}
