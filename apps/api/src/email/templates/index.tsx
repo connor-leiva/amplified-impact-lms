@@ -60,6 +60,8 @@ import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
+import { CohortWelcomeEmail } from './cohort-welcome';
+import type { WelcomeCopy } from '@ai/core';
 import { whenFor } from './recipient';
 
 export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
@@ -98,6 +100,18 @@ function num(template: TemplateName, data: Record<string, unknown>, field: strin
 function optStr(data: Record<string, unknown>, field: string): string | undefined {
   const v = data[field];
   return typeof v === 'string' && v !== '' ? v : undefined;
+}
+
+/** The welcome's finished copy. A missing or non-object body is a render failure, not a blank email. */
+function welcomeCopy(template: TemplateName, data: Record<string, unknown>): WelcomeCopy {
+  const v = data.copy;
+  if (!v || typeof v !== 'object') throw bad(template, 'copy', 'must be the welcome copy');
+  const copy = v as WelcomeCopy;
+  if (typeof copy.heading !== 'string' || !copy.heading.trim()) throw bad(template, 'copy.heading', 'is empty');
+  if (typeof copy.buttonHref !== 'string' || !copy.buttonHref.startsWith('https://')) throw bad(template, 'copy.buttonHref', 'must be an https URL');
+  if (!Array.isArray(copy.intro) || copy.intro.length !== 2) throw bad(template, 'copy.intro', 'must be two paragraphs');
+  if (!Array.isArray(copy.steps) || copy.steps.length !== 3) throw bad(template, 'copy.steps', 'must be three steps');
+  return copy;
 }
 
 /** An optional positive integer, for `build-reminder`'s `total`. */
@@ -296,6 +310,13 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     case 'learner-nudge': {
       const input = { firstName: optStr(data, 'firstName') ?? '', appUrl };
       return { subject: SUBJECTS['learner-nudge']({}), element: <span />, html: learnerNudgeHtml(input), text: learnerNudgeText(input) };
+    }
+
+    case 'cohort-welcome': {
+      const cohortName = str(template, data, 'cohortName');
+      const copy = welcomeCopy(template, data);
+      const subject = SUBJECTS['cohort-welcome']({ cohortName });
+      return { subject, element: <CohortWelcomeEmail subject={subject} copy={copy} appUrl={appUrl} /> };
     }
 
     default: {

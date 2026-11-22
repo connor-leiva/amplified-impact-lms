@@ -244,6 +244,8 @@ export const AUDIT_ACTIONS = [
   // D-247 (H-9): Learners & Teams' Resend Invite and Send Nudge by staff, each one email (or none, said so).
   'user.invite_resend',
   'user.nudge',
+  // The cohort welcome's test send, to an allowlisted address only.
+  'welcome.test_send',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

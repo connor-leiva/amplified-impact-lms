@@ -269,7 +269,10 @@ async function sendViaResend(to: string, subject: string, html: string | null, t
   // happen, because it looks delivered to everyone involved, so this is a hard failure.
   if (html === null) throw new Error('No template renderer is registered');
   const resend = await resendClient();
-  const { data, error } = await resend.emails.send({ from, to, subject, html, ...(text ? { text } : {}) });
+  // One reply-to for every LMS email, including set-password and the cohort welcome. Unset: Resend
+  // uses the from address, which is what set-password did before this existed.
+  const replyTo = process.env.EMAIL_REPLY_TO?.trim();
+  const { data, error } = await resend.emails.send({ from, to, subject, html, ...(text ? { text } : {}), ...(replyTo ? { replyTo } : {}) });
   // The SDK reports a rejected send in `error` rather than by throwing. Both paths end up in
   // `send`'s catch.
   if (error) throw new Error(`${error.name}: ${error.message}`);

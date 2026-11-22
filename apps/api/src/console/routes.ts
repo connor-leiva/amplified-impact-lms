@@ -115,6 +115,7 @@ export const CONSOLE_PATHS = {
   // PR 9 (D-168): Environment Flags, Integrations, Deploys and DB health.
   opsEnv: INFRA_PATHS.env,
   flagFlip: INFRA_PATHS.flagFlip,
+  welcomeTest: INFRA_PATHS.welcomeTest,
   integrations: INFRA_PATHS.integrations,
   integrationCheck: INFRA_PATHS.integrationCheck,
   deploys: INFRA_PATHS.deploys,

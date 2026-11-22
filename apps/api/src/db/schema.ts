@@ -61,6 +61,8 @@ export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text(
 export const cohorts = pgTable('cohorts', {
   id: text('id').primaryKey(), name: text('name').notNull(), start: ts('start').notNull(), end: ts('end').notNull(), weeks: integer('weeks'), status: text('status').notNull(), capacity: integer('capacity').notNull(), cadence: text('cadence').notNull(),
   previewOpensAt: ts('preview_opens_at'), timezone: text('timezone'), defaultOpenTime: text('default_open_time'), course: jsonb('course'),
+  // When the cohort welcome may go out. Null: the access-open time (Week 0 Opens, else the preview, else the first dated week).
+  welcomeSendsAt: ts('welcome_sends_at'),
 }, (t) => [
   check('cohorts_default_open_time', sql`${t.defaultOpenTime} is null or ${t.defaultOpenTime} ~ '^[0-2][0-9]:[0-5][0-9]$'`),
 ]);
@@ -414,13 +416,38 @@ export const stripeEvents = pgTable('stripe_events', {
 // The buying team (D-078): one platform team with the buyer as its Team Owner. Found by the owner's
 // email (lower-cased), so a library buyer who later buys the cohort keeps one account and one login.
 // `invite_sent_at` is null until the owner's invite has gone out: invites made before
-// `INVITES_FROM` wait for it (Mon, Nov 16), so they arrive with the welcome email.
+// `INVITES_FROM` wait for it (Mon, Nov 16), so they arrive with the set-password email.
 export const accounts = pgTable('accounts', {
   id: text('id').primaryKey(), teamId: text('team_id').notNull(), ownerUserId: text('owner_user_id').notNull(),
   ownerEmail: text('owner_email').notNull(), name: text('name').notNull(), crm: text('crm'),
   stripeCustomerId: text('stripe_customer_id'),
   createdAt: ts('created_at').notNull(), inviteSentAt: ts('invite_sent_at'),
 }, (t) => [uniqueIndex('accounts_owner_email_idx').on(t.ownerEmail)]);
+
+// One cohort welcome per (team owner, cohort). The job inserts a row from a live cohort plan and
+// sends once. `welcome_status` null is still pending. `claimed` is in flight. `sent`, `failed` and
+// `skipped` are final, so a retry cannot send a second time. The GHL columns are the same queue the
+// other syncs use, for the `welcome-sent` tag after a real send. Not a `Db` record.
+export const cohortEnrollments = pgTable('cohort_enrollments', {
+  userId: text('user_id').notNull(),
+  cohortId: text('cohort_id').notNull(),
+  accountId: text('account_id').notNull(),
+  enrolledAt: ts('enrolled_at').notNull(),
+  welcomeStatus: text('welcome_status'),
+  welcomeSentAt: ts('welcome_sent_at'),
+  welcomeClaimedAt: ts('welcome_claimed_at'),
+  welcomeError: text('welcome_error'),
+  ghlContactId: text('ghl_contact_id'),
+  ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0),
+  ghlNextAttemptAt: ts('ghl_next_attempt_at'),
+  ghlError: text('ghl_error'),
+  ghlSyncStamp: text('ghl_sync_stamp'),
+  ghlLastAttemptAt: ts('ghl_last_attempt_at'),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.cohortId] }),
+  check('cohort_enrollments_status', sql`${t.welcomeStatus} is null or ${t.welcomeStatus} in ('claimed', 'sent', 'failed', 'skipped')`),
+]);
 
 // A plan an account holds (D-078). `paid_through` is what the access rule compares with a skill's
 // `released_at` ("cancel and keep"); `live_until` ends office hours, builds and coaching;
@@ -791,8 +818,9 @@ export const incidentEvents = pgTable('incident_events', {
 // THE ADMIN CONSOLE'S FLAGS (D-168, spec § 7.13, D8, D10)
 // ================================================================================================
 // The flags the Console owns: one row per key in `CONSOLE_FLAGS` (@ai/core), a closed list the CHECK
-// repeats, so a key the code doesn't know can't be stored. v1 has one, `masquerade_enabled`, on and
-// sensitive, which migration 0022 seeds. A missing row reads as the flag's default. Env switches are
+// repeats, so a key the code doesn't know can't be stored. `masquerade_enabled` (on, sensitive) is
+// seeded by migration 0022. `cohort_welcome_email` has no row until a flip, so it stays off. A missing
+// row reads as the flag's default. Env switches are
 // not here: they stay in Railway and the Console only reads them (D10). Every flip is one audit row
 // (`flag.flip`, before and after). `updated_at` is `clock.now()`, epoch ms; `updated_by` the staff
 // member's id. Not part of a `Db`, never in a snapshot.
@@ -803,5 +831,5 @@ export const consoleFlags = pgTable('console_flags', {
   updatedAt: ts('updated_at'),
   updatedBy: text('updated_by'),
 }, (t) => [
-  check('console_flags_key', sql`${t.key} in ('masquerade_enabled')`),
+  check('console_flags_key', sql`${t.key} in ('masquerade_enabled', 'cohort_welcome_email')`),
 ]);

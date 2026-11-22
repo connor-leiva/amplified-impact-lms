@@ -10,7 +10,7 @@
 // Pages are keyset pages over (lower(name), id), so a page never repeats or skips a row when one is
 // added in between; the cursor is that pair, base64url JSON.
 
-import { and, asc, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import {
   CONSOLE_PLAN_LABELS,
@@ -26,6 +26,7 @@ import {
   primaryPlan,
 } from '@ai/core';
 import type {
+  CohortWelcomeStatus,
   ConsoleEntitlements,
   ConsoleOrder,
   ConsolePlan,
@@ -47,6 +48,8 @@ import {
   accessGroupMembers,
   accessGroups,
   accounts,
+  cohortEnrollments,
+  cohorts,
   emailVerifications,
   googleIdentities,
   modules,
@@ -278,6 +281,8 @@ export async function workspaceDetail(db: Database, teamId: string, now: number)
   for (const p of planList) activity.push({ at: p.createdAt, kind: 'plan_started', subject: p.id, label: p.label });
   for (const m of members) if (m.joined !== null) activity.push({ at: m.joined, kind: 'member_joined', subject: m.id, label: m.name });
   for (const a of accts) if (a.inviteSentAt !== null) activity.push({ at: a.inviteSentAt, kind: 'invite_sent', subject: a.id, label: a.ownerEmail });
+  const welcome = acct ? await welcomeForOwner(db, acct.ownerUserId) : null;
+  if (welcome?.status === 'sent' && welcome.at !== null) activity.push({ at: welcome.at, kind: 'welcome_sent', subject: welcome.cohortId, label: welcome.cohortName });
 
   const subscriptionIds = [...new Set([...planList.map((p) => p.stripeSubscriptionId), ...orderList.map((o) => o.stripeSubscriptionId)].filter((v): v is string => !!v))];
   const paid = orderList.map((o) => o.paidAt).filter((v): v is number => v !== null);
@@ -288,6 +293,7 @@ export async function workspaceDetail(db: Database, teamId: string, now: number)
     account: acct
       ? { id: acct.id, name: acct.name, ownerEmail: acct.ownerEmail, crm: acct.crm, stripeCustomerId: acct.stripeCustomerId, createdAt: acct.createdAt, inviteSentAt: acct.inviteSentAt }
       : null,
+    welcome,
     plans: planList,
     primaryPlan: primary ? { kind: primary.kind, label: primary.label, status: primary.status } : null,
     seatsUsed: members.length,
@@ -471,5 +477,36 @@ export async function userDetail(db: Database, userId: string, now: number): Pro
     skillPurchases: await skillPurchasesOf(db, u.id, email),
     progress: progressList,
     entitlements,
+    welcome: await welcomeForOwner(db, u.id),
   };
+}
+
+/** The owner's cohort welcome, or a pending one when a live cohort plan has not been queued yet. */
+async function welcomeForOwner(db: Database, userId: string): Promise<CohortWelcomeStatus | null> {
+  const [row] = await db
+    .select({
+      cohortId: cohortEnrollments.cohortId,
+      cohortName: cohorts.name,
+      status: cohortEnrollments.welcomeStatus,
+      at: cohortEnrollments.welcomeSentAt,
+    })
+    .from(cohortEnrollments)
+    .leftJoin(cohorts, eq(cohorts.id, cohortEnrollments.cohortId))
+    .where(eq(cohortEnrollments.userId, userId))
+    .orderBy(desc(cohortEnrollments.enrolledAt))
+    .limit(1);
+  if (row) {
+    const status = row.status === 'claimed' || row.status === 'sent' || row.status === 'failed' || row.status === 'skipped' ? row.status : 'pending';
+    return { cohortId: row.cohortId, cohortName: row.cohortName ?? row.cohortId, status, at: row.at };
+  }
+  const [plan] = await db
+    .select({ cohortId: plans.cohortId, name: cohorts.name })
+    .from(plans)
+    .innerJoin(accounts, eq(accounts.id, plans.accountId))
+    .leftJoin(cohorts, eq(cohorts.id, plans.cohortId))
+    .where(and(eq(accounts.ownerUserId, userId), eq(plans.kind, 'cohort'), sql`${plans.cohortId} is not null`, ne(plans.status, 'ended')))
+    .orderBy(desc(plans.createdAt))
+    .limit(1);
+  if (!plan?.cohortId) return null;
+  return { cohortId: plan.cohortId, cohortName: plan.name ?? plan.cohortId, status: 'pending', at: null };
 }

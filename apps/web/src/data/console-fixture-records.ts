@@ -285,6 +285,7 @@ export function fixtureWorkspace(r: FixtureRecords, teamId: string): WorkspaceDe
       createdAt: mockStamp(JOINED),
       inviteSentAt: null,
     },
+    welcome: null,
     plans: planList,
     primaryPlan: planList[0] ? { kind: planList[0].kind, label: planList[0].label, status: planList[0].status } : null,
     seatsUsed: row.seatsUsed,
@@ -356,6 +357,7 @@ export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetai
         }))
       : [],
     entitlements: u.kind === 'learner' ? entitlementsOf(u.tier, planList) : { sets: [], course: false, groups: [] },
+    welcome: null,
   };
 }
 

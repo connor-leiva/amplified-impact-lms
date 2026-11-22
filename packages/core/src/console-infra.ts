@@ -25,6 +25,8 @@ export const INFRA_PATHS = {
   env: '/api/console/env',
   /** `POST { on, typed? }`: flip one Console flag. `flags.write`, or `flags.write_sensitive`. */
   flagFlip: '/api/console/flags/:key',
+  /** `POST { to, cohortId }`: send one cohort welcome to an allowlisted address. `flags.write`. */
+  welcomeTest: '/api/console/welcome/test',
   integrations: '/api/console/integrations',
   /** `POST`: Check now, Stripe and Resend only, read-only. `integrations.probe`. */
   integrationCheck: '/api/console/integrations/:id/check',
@@ -46,9 +48,13 @@ export interface ConsoleFlagDef {
   defaultOn: boolean;
 }
 
-/** The closed list. v1 has one flag (spec § 7.13). */
+/**
+ * The closed list. `masquerade_enabled` is spec § 7.13. `cohort_welcome_email` is off until a flip
+ * turns it on, and turning it on does not email people already in a live cohort.
+ */
 export const CONSOLE_FLAGS = [
   { key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: MASQUERADE_ENABLED_DEFAULT },
+  { key: 'cohort_welcome_email', label: 'Send the cohort welcome email', sensitive: false, defaultOn: false },
 ] as const satisfies readonly ConsoleFlagDef[];
 
 export type ConsoleFlagKey = (typeof CONSOLE_FLAGS)[number]['key'];

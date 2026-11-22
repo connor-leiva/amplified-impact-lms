@@ -202,17 +202,28 @@ const planSummary = (co: Cohort) => ({
   previewOpensAt: co.previewOpensAt ?? null,
   timezone: co.timezone ?? null,
   defaultOpenTime: co.defaultOpenTime ?? null,
+  welcomeSendsAt: co.welcomeSendsAt ?? null,
 });
 
 /**
  * The release plan: the cohort's name and cadence line, when the pre-launch preview opens (typed in
  * the cohort's zone, or none) and the time of day a week opens by default (`HH:MM`). The zone itself
  * stays Mountain: the brief leaves the time-zone picker out unless Connor asks.
+ *
+ * `welcomeSends` is "Welcome email sends at". Omit it and the stored instant stays. `null` clears it,
+ * so the welcome uses the access-open time. A date and time sets it.
  */
 export function saveCohortPlan(
   db: Db,
   a: Actor,
-  args: { cohortId: string; name: string; cadence: string; previewOpens: { date: string; time: string } | null; defaultOpenTime: string },
+  args: {
+    cohortId: string;
+    name: string;
+    cadence: string;
+    previewOpens: { date: string; time: string } | null;
+    defaultOpenTime: string;
+    welcomeSends?: { date: string; time: string } | null;
+  },
   _c: Ctx,
 ): AdminOutcome {
   requirePerm(db, a, 'cohorts');
@@ -223,6 +234,14 @@ export function saveCohortPlan(
   const tz = co.timezone ?? COURSE_TZ;
   const previewOpensAt = args.previewOpens ? zonedInstant(args.previewOpens.date, args.previewOpens.time, tz) : null;
   if (previewOpensAt !== null && Number.isNaN(previewOpensAt)) return { db, error: 'Pick a date and a time for the preview.' };
+  let welcomeSendsAt: number | null | undefined;
+  if (args.welcomeSends !== undefined) {
+    if (args.welcomeSends === null) welcomeSendsAt = null;
+    else {
+      welcomeSendsAt = zonedInstant(args.welcomeSends.date, args.welcomeSends.time, tz);
+      if (Number.isNaN(welcomeSendsAt)) return { db, error: 'Pick a date and a time for the welcome email.' };
+    }
+  }
   const cadence = (args.cadence || '').trim();
   const copy = refuseCopy(cohortCopyFields({ name: co.name, cadence: co.cadence }), cohortCopyFields({ name, cadence }));
   if (copy) return { db, error: copy };
@@ -234,6 +253,8 @@ export function saveCohortPlan(
     if (!x.timezone) x.timezone = tz;
     if (previewOpensAt === null) delete x.previewOpensAt;
     else x.previewOpensAt = previewOpensAt;
+    if (welcomeSendsAt === null) delete x.welcomeSendsAt;
+    else if (welcomeSendsAt !== undefined) x.welcomeSendsAt = welcomeSendsAt;
   });
   const saved = next.cohorts.find((x) => x.id === co.id)!;
   return {

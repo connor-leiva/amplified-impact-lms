@@ -15,12 +15,15 @@ export interface PlanForm {
   previewDate: string;
   previewTime: string;
   defaultOpenTime: string;
+  welcomeDate: string;
+  welcomeTime: string;
 }
 
 /** The release plan's inputs, in Mountain Time; a week opens at noon unless the cohort says otherwise. */
 export function planForm(co: Cohort): PlanForm {
   const p = co.previewOpensAt ? zonedInputs(co.previewOpensAt, co.timezone ?? COURSE_TZ) : { date: '', time: '' };
-  return { name: co.name, cadence: co.cadence, previewDate: p.date, previewTime: p.time, defaultOpenTime: co.defaultOpenTime ?? '12:00' };
+  const w = co.welcomeSendsAt ? zonedInputs(co.welcomeSendsAt, co.timezone ?? COURSE_TZ) : { date: '', time: '' };
+  return { name: co.name, cadence: co.cadence, previewDate: p.date, previewTime: p.time, defaultOpenTime: co.defaultOpenTime ?? '12:00', welcomeDate: w.date, welcomeTime: w.time };
 }
 
 /** What `saveCohortPlan` takes, from the form. */
@@ -30,6 +33,7 @@ export const planArgs = (cohortId: string, f: PlanForm) => ({
   cadence: f.cadence,
   previewOpens: f.previewDate ? { date: f.previewDate, time: f.previewTime || '12:00' } : null,
   defaultOpenTime: f.defaultOpenTime,
+  welcomeSends: f.welcomeDate ? { date: f.welcomeDate, time: f.welcomeTime || '12:00' } : null,
 });
 
 /** A list of label-and-text pairs as staff type them: one per line, "Label: text". */

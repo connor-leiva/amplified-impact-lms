@@ -554,6 +554,7 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       // PR 9 (D-168): the Operations pages, the flag flip and Check now.
       { method: 'GET', url: CONSOLE_PATHS.opsEnv },
       { method: 'POST', url: '/api/console/flags/masquerade_enabled' },
+      { method: 'POST', url: CONSOLE_PATHS.welcomeTest },
       { method: 'GET', url: CONSOLE_PATHS.integrations },
       { method: 'POST', url: '/api/console/integrations/stripe/check' },
       { method: 'GET', url: CONSOLE_PATHS.deploys },

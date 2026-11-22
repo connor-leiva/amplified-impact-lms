@@ -73,6 +73,7 @@ describe('one workspace (spec § 7.3) on R2', () => {
       owner: 'Elena Vargas',
       mrr: '$1,495',
       last: 'Dec 10, 8:52 AM',
+      welcome: null,
     });
   });
 

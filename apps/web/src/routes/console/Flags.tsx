@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm } from '../../components/r2/Modal';
 import { Status } from '../../components/r2/Status';
@@ -74,6 +75,7 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
           ))}
         </Card>
       </div>
+      {vm.flags.some((f) => f.key === 'cohort_welcome_email' && f.flip) ? <WelcomeTest api={api} /> : null}
       {ask?.flip ? (
         <Confirm
           title={ask.flip.confirm.title}
@@ -87,6 +89,43 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
         />
       ) : null}
     </>
+  );
+}
+
+function WelcomeTest({ api }: { api: ConsoleApi }) {
+  const { toast } = useAdminChrome();
+  const [to, setTo] = useState('accelerator-test@amplifiedimpact.io');
+  const [cohortId, setCohortId] = useState('dec26');
+  const [busy, setBusy] = useState(false);
+  return (
+    <Card title="Send a test welcome" sub="Only accelerator-test@amplifiedimpact.io, unless an allowlist adds another address. This does not email a learner.">
+      <div className={k.col}>
+        <label className={k.col}>
+          <span className={k.me}>To</span>
+          <input className={k.in} value={to} onChange={(e) => setTo(e.target.value)} />
+        </label>
+        <label className={k.col}>
+          <span className={k.me}>Cohort</span>
+          <input className={k.in} value={cohortId} onChange={(e) => setCohortId(e.target.value)} />
+        </label>
+        <Button
+          kind="primary"
+          disabled={busy}
+          onClick={() => {
+            setBusy(true);
+            api
+              .sendWelcomeTest(to, cohortId)
+              .then(
+                (out) => toast(out.subject),
+                (e: unknown) => toast(e instanceof ConsoleError ? e.message : 'The welcome was not sent.'),
+              )
+              .finally(() => setBusy(false));
+          }}
+        >
+          {busy ? 'Sending' : 'Send Test'}
+        </Button>
+      </div>
+    </Card>
   );
 }
 
