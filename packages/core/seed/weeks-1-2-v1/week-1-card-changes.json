@@ -1,0 +1,52 @@
+[
+ {
+  "field": "Operator line",
+  "seeded": "Pull twelve months of books and closings, run Map Your Spend and save the team file to the AI Office.",
+  "change_to": "Pull twelve months of books and closings, run Map Your Spend and put the Finance Analyst on its monthly schedule."
+ },
+ {
+  "field": "Outputs 2",
+  "seeded": "A confirmed map, saved as your team file",
+  "change_to": "The Finance Analyst on its monthly schedule, with its first numbers on your Owner Desk"
+ },
+ {
+  "field": "Live build, Required",
+  "seeded": "The confirmed map saved as the team file, and the seat card signed",
+  "change_to": "The Finance Analyst scheduled, with its first numbers on the Owner Desk, and the seat card signed"
+ },
+ {
+  "field": "Seat card, Seat",
+  "seeded": "Finance Analyst, onboarding",
+  "change_to": "Finance Analyst"
+ },
+ {
+  "field": "Seat card, Runs",
+  "seeded": "Once this week, with the operator. Goes on a schedule in Week 3",
+  "change_to": "Monthly, after the books close: the 5th at 6:00 AM MT, or the day after your close"
+ },
+ {
+  "field": "Seat card, Pulls",
+  "seeded": "A 12-month ledger or transaction detail export, plus closings from Sisu or an export...",
+  "change_to": "Last month's books and closings: from QuickBooks and Sisu for connected teams, or from last month's exports in AI Office / Map Your Spend / inbox for export teams"
+ },
+ {
+  "field": "Seat card, Applies",
+  "seeded": "The Standard Chart and its three rules: revenue booked gross, the leader paid a commission, every expense in one home",
+  "change_to": "Your confirmed map in team-file.json and the Standard Chart, with its three rules: revenue booked gross, the leader paid a commission, every expense in one home"
+ },
+ {
+  "field": "Seat card, Produces",
+  "seeded": "The baseline report and team-file.json, saved to AI Office / Map Your Spend",
+  "change_to": "Last month's numbers at the top of the Owner Desk, with the date: the headline, what moved more than 2 points, anything new that needs a home and one decision. The monthly report and the updated team file are saved in AI Office / Map Your Spend"
+ },
+ {
+  "field": "Seat card, Took Over",
+  "seeded": "Baseline task 1, getting last month's numbers in front of the owner. It starts doing that in Week 3",
+  "change_to": "Baseline task 1, getting last month's numbers in front of the owner"
+ },
+ {
+  "field": "Seat card, Can't Do",
+  "seeded": "Change the books. It reads and never posts",
+  "change_to": "Change the books, or fill a missing month with guesses. It says what is missing and stops"
+ }
+]

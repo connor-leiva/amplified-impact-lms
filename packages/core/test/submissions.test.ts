@@ -62,8 +62,22 @@ describe('Turn in (D-230)', () => {
       ],
     } as unknown as Parameters<typeof asksOf>[0];
     expect(asksOf(mod)).toEqual([
-      { id: 'live_read', kind: 'live_read', step: 4, stepId: 'c4', itemId: 'r', kicker: 'Week 1 · Step 4' },
-      { id: 'checkpoint', kind: 'checkpoint', step: 6, stepId: 'c6', itemId: 'k', kicker: 'Week 1 · Step 6' },
+      { id: 'live_read', kind: 'live_read', step: 4, stepId: 'c4', itemId: 'r', itemIds: ['r'], kicker: 'Week 1 · Step 4' },
+      { id: 'checkpoint', kind: 'checkpoint', step: 6, stepId: 'c6', itemId: 'k', itemIds: ['k'], kicker: 'Week 1 · Step 6' },
+    ]);
+  });
+  it('names the asking item on both paths, so a turn-in ticks the ChatGPT path’s too (the Weeks 1 and 2 brief, §3)', () => {
+    const upload = (id: string, kind: string) => ({ type: 'check', id, title: 'Turn it in', action: { type: 'upload', kind } });
+    const mod = {
+      course: { week: 1 },
+      checklist: [
+        { id: 'c4', paths: { claude: { blocks: [upload('w1s4c-submit', 'live_read')] }, chatgpt: { blocks: [{ type: 'check', id: 'w1s4g-run', title: 'Run it' }, upload('w1s4g-submit', 'live_read')] } } },
+        { id: 'c6', paths: { claude: { blocks: [upload('w1s6c-checkpoint', 'checkpoint')] }, chatgpt: { blocks: [upload('w1s6g-checkpoint', 'checkpoint')] } } },
+      ],
+    } as unknown as Parameters<typeof asksOf>[0];
+    expect(asksOf(mod).map((a) => [a.kind, a.stepId, a.itemIds])).toEqual([
+      ['live_read', 'c4', ['w1s4c-submit', 'w1s4g-submit']],
+      ['checkpoint', 'c6', ['w1s6c-checkpoint', 'w1s6g-checkpoint']],
     ]);
   });
   it('trims the note and the minutes to their limits, and sizes a file as the drawer does', () => {

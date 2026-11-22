@@ -7373,3 +7373,18 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Nothing is emailed** ("Goes to Connor’s team. Nothing is emailed.").
 - **C-22's states**, in the drawer's own slots: an upload that fails leaves the list and says so where a refused file does (`.fm-msg`); a turn-in the server refuses says why in the foot (`.fm-note`), the button shaking back to Turn it in.
 - **The server was written here** (`0034_submissions`, `core/submissions.ts`, `routes/submissions.ts`): the spec's patch never reached the repo.
+
+## D-235 · Weeks 1 and 2 loaded once by code, and the Week Builder's from then on
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 20 and 21, 2026: load Weeks 1 and 2 by code, and keep all of it configurable in the Week Builder ("I'm okay having it seed stuff into the portal, but I still want it ALL configurable in the admin portal in the curriculum builder"). The words are his approved Weeks 1 and 2 ("This is perfect," Nov 21), from `handoff/weeks-1-2/`.
+**Number:** the next free one (D-232 and D-233 stay reserved for Q-13 and Q-16).
+
+- **One data step** (`packages/core/seed/weeks-1-2-steps-v1.ts`, `2026-11-22-weeks-1-2-steps`, last in `DATA_MIGRATIONS`) writes the handoff's data (`packages/core/seed/weeks-1-2-v1/*.json`, verbatim) into the records the Week Builder edits, once, on deploy, in one transaction under the advisory lock, with an audit row per change. Each step of `accelerator-week-1` and `-2` gets its who, time, done-when, goal and both paths' blocks; the week-level rows change (Week 1: the operator line, output 2, the live build's Required line and seven seat card rows; Week 2: output 3, Required and four seat card rows).
+- **Only over the seed.** A step changes only while it has its seeded title, nothing on either path and no who, time, done-when or goal; any other step is left as it is and named. A week-level field changes only while it holds its seeded value: the repo's seed, or the value the handoff names as seeded, compared by its words (the handoff writes straight apostrophes, drops final periods and cuts long values with "..."). Week 1's Required line in the repo's seed is not the one the handoff names, so both count as seeded. Nothing else changes: no step id, status, opening, due date, session, Kit or media, and nothing is published or scheduled.
+- **Two row changes** follow the sales page's schedule: Week 1 step 5 becomes "Schedule the Finance Analyst" at 15 minutes (its stored sentence follows its goal), and Week 2 step 6 becomes 10 minutes, each only while it still has its seeded minutes. The week's `build`, the sum of its steps' minutes, follows, as the builder's save keeps it (Week 1: 70; Week 2: 65).
+- **"Title" is `ch`.** On a course week the builder's title edits `ch` (D-212), which is what the learner sees, so the handoff's "title" is matched and written there.
+- **Buttons.** Copy keeps each prompt exactly; Upload is Turn in's (D-230), by the kind it collects; Add to calendar names the week's session by its title; Download names the week's Kit files by their exact titles, and a file not in the Kit yet leaves its item without the button, named (on the seed, all ten); the seat card's Form button waits for its form, named (four). Each can be set in the builder.
+- **Videos** are left out with their "Watch the video" items until each is recorded; the builder adds them.
+- **Turn in ticks its item on both paths.** A turn-in now checks every item on the asking step whose Upload collects that kind, Claude's and ChatGPT's (`SubmissionAsk.itemIds`), so a team on the ChatGPT path sees its own item ticked.
+- **The copy guard** holds the new words too: no runtime file may contain them.

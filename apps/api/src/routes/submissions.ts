@@ -186,8 +186,8 @@ export function registerSubmissionRoutes(app: FastifyInstance): void {
       .insert(submissions)
       .values({ teamId: me.teamId, moduleId: body.moduleId as string, kind: body.kind, files, note: cleanNote(body.note), minutes: cleanMinutes(body.minutes), byUserId: me.id, createdAt: now })
       .returning();
-    // The step's item that asks for it is done, for the whole team, as a submitted intake's is (D-229).
-    await checkTeam(me.teamId, { moduleId: body.moduleId as string, stepId: ask.stepId, itemId: ask.itemId }, now);
+    // The step's items that ask for it are done, on both paths, for the whole team, as a submitted intake's is (D-229).
+    for (const itemId of ask.itemIds) await checkTeam(me.teamId, { moduleId: body.moduleId as string, stepId: ask.stepId, itemId }, now);
     return reply.code(201).send({ sub: teamView(row!, await namesOf([me.id])) });
   });
 
