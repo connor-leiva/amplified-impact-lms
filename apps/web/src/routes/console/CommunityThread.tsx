@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
 import { COMMUNITY_ERRORS } from '@ai/core/community';
@@ -21,6 +21,7 @@ import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
 import { COMMUNITY_COPY, COMMUNITY_HOME, COMMUNITY_WRITE_CAP, communityThreadVM, whoOf } from './community.vm';
 import type { PostVM, WhoVM } from './community.vm';
+import type { CommunityThread } from '@ai/core/community';
 import s from './Community.module.css';
 
 // /admin/community/:id (D-238, B-45): the handoff mockup's `CommunityThread()`. Every post, hidden ones marked; Reply
@@ -59,7 +60,11 @@ export function Component() {
   const api = gate.kind === 'ready' ? gate.api : null;
   const [reads, setReads] = useState(0);
   const rec = useConsoleRecord(api, (a) => a.communityThread(id), `${id}:${reads}`);
-  const vm = useMemo(() => (rec.data ? communityThreadVM(rec.data, now) : null), [rec.data, now]);
+  // A write reads the thread again: the last one stays on screen (for this thread) until the new one lands.
+  const kept = useRef<CommunityThread | null>(null);
+  if (rec.data) kept.current = rec.data;
+  const data = rec.data ?? (kept.current && String(kept.current.thread.id) === id ? kept.current : null);
+  const vm = useMemo(() => (data ? communityThreadVM(data, now) : null), [data, now]);
   const [body, setBody] = useState('');
   const [replyError, setReplyError] = useState('');
   const [asking, setAsking] = useState<Asking>(null);
@@ -81,7 +86,7 @@ export function Component() {
         <LoadError failure={rec.failure} retry={rec.retry} />
       </Page>
     );
-  if (!vm || !rec.data || gate.kind !== 'ready')
+  if (!vm || !data || gate.kind !== 'ready')
     return (
       <Page>
         <div role="status" aria-busy="true" aria-label="Loading" />
@@ -90,7 +95,7 @@ export function Component() {
 
   const role = gate.me.role ?? '';
   const canWrite = gate.me.caps.includes(COMMUNITY_WRITE_CAP);
-  const me = whoOf(rec.data.people, rec.data.me);
+  const me = whoOf(data.people, data.me);
   const guarded = (label: string, go: () => void) => (canWrite ? go() : toast(C.guard(role, label)));
   const changed = () => {
     setReads((n) => n + 1);

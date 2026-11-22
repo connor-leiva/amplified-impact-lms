@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router';
 import { COMMUNITY_ERRORS } from '@ai/core/community';
@@ -29,6 +29,7 @@ import {
   threadHref,
 } from './community.vm';
 import type { CommunityRowVM, CommunityTab } from './community.vm';
+import type { CommunityList } from '@ai/core/community';
 import s from './Community.module.css';
 
 // /admin/community (D-238, B-45): the handoff mockup's `Community()`. The cohort's threads for staff: the facts, the
@@ -75,7 +76,11 @@ export function Component() {
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [busy, setBusy] = useState(false);
 
-  const rows = useMemo(() => (rec.data ? communityRows(rec.data, now) : []), [rec.data, now]);
+  // A write reads the list again: the last list stays on screen until the new one lands, so nothing flashes.
+  const kept = useRef<CommunityList | null>(null);
+  if (rec.data) kept.current = rec.data;
+  const list = rec.data ?? kept.current;
+  const rows = useMemo(() => (list ? communityRows(list, now) : []), [list, now]);
   const counts = useMemo(() => communityCounts(rows), [rows]);
   const shown = useMemo(() => filterCommunity(rows, tab, space, q), [rows, tab, space, q]);
 
@@ -84,7 +89,7 @@ export function Component() {
 
   const role = gate.kind === 'ready' ? (gate.me.role ?? '') : '';
   const canWrite = gate.kind === 'ready' && gate.me.caps.includes(COMMUNITY_WRITE_CAP);
-  const meName = gate.kind === 'ready' && rec.data ? (rec.data.people[rec.data.me]?.name ?? '') : '';
+  const meName = gate.kind === 'ready' && list ? (list.people[list.me]?.name ?? '') : '';
   /** The mockup's `guard('account', label, fn)`. */
   const guarded = (label: string, go: () => void) => (canWrite ? go() : toast(C.guard(role, label)));
   const changed = () => {
@@ -128,7 +133,7 @@ export function Component() {
         .finally(() => setBusy(false));
     });
 
-  const spaces = rec.data?.spaces ?? [];
+  const spaces = list?.spaces ?? [];
   const cols: Column<CommunityRowVM>[] = [
     {
       key: 'title',
@@ -180,14 +185,14 @@ export function Component() {
         <LoadError failure={rec.failure} retry={rec.retry} />
       ) : (
         <>
-          {rec.data ? (
+          {list ? (
             <Facts
               items={[
                 { label: C.facts.threads, value: String(counts.threads) },
                 { label: C.facts.waiting, value: <span className={k.w5}>{counts.waiting}</span> },
                 { label: C.facts.pinned, value: String(counts.pinned) },
                 { label: C.facts.hidden, value: String(counts.hidden) },
-                { label: C.facts.members, value: rec.data.members ? C.members(rec.data.members) : '' },
+                { label: C.facts.members, value: list.members ? C.members(list.members) : '' },
               ]}
             />
           ) : (
@@ -216,7 +221,7 @@ export function Component() {
             cols={cols}
             rows={shown}
             rowKey={(r) => r.key}
-            loading={rec.status === 'loading' || gate.kind === 'loading'}
+            loading={!list && (rec.status === 'loading' || gate.kind === 'loading')}
             onRow={(r) => navigate(r.href)}
             menu={menu}
             empty={{ icon: 'r2File', title: empty.title, body: empty.body }}
