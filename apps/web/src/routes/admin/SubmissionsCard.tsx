@@ -17,7 +17,7 @@ export interface StaffSubmission {
   id: number;
   kind: string;
   team: string;
-  files: { name: string; size: number; href: string }[];
+  files: { name: string; size: number; href?: string }[];
   note: string;
   minutes: string;
   by: string;
@@ -25,6 +25,9 @@ export interface StaffSubmission {
   status: SubmissionStatus;
   statusAt: number | null;
   statusBy: string | null;
+  /** D-237: when its files were deleted with its cohort's, and by whom. */
+  filesDeletedAt?: number | null;
+  filesDeletedBy?: string | null;
 }
 
 export type StaffSubmissionsLoad = { kind: 'loading' } | { kind: 'ready'; subs: StaffSubmission[] } | { kind: 'failed' };
@@ -51,6 +54,7 @@ export const SUBMISSIONS_CARD = {
   note: 'Note',
   minutes: 'Minutes',
   status: 'Status',
+  deleted: 'Deleted',
 } as const;
 
 /** A row's lines, as the card lists them. Pure. */
@@ -62,6 +66,10 @@ export function submissionRows(s: StaffSubmission): { label: string; text: strin
     ...(s.minutes ? [{ label: SUBMISSIONS_CARD.minutes, text: s.minutes }] : []),
   ];
 }
+
+/** D-237: "Deleted Sun, Nov 22 · 3:18 PM UTC (9:18 AM CT) · Connor Leiva". Pure. */
+export const filesDeletedLine = (s: Pick<StaffSubmission, 'filesDeletedAt' | 'filesDeletedBy'>): string =>
+  s.filesDeletedAt ? `${SUBMISSIONS_CARD.deleted} ${fmt.when(s.filesDeletedAt)}${s.filesDeletedBy ? ` · ${s.filesDeletedBy}` : ''}` : '';
 
 /** Only a week whose steps ask for a file has the card; nothing is read for any other. */
 export function SubmissionsCard({ draft }: WeekCardsProps) {
@@ -101,11 +109,13 @@ function Submissions({ moduleId }: { moduleId: string }) {
                 value: (
                   <span>
                     {s.files.map((f, i) => (
-                      <span key={f.href}>
+                      <span key={`${i}:${f.name}`}>
                         {i ? ', ' : ''}
-                        <a href={f.href} download>{f.name}</a> ({bytesLabel(f.size)})
+                        {f.href ? <a href={f.href} download>{f.name}</a> : f.name} ({bytesLabel(f.size)})
                       </span>
                     ))}
+                    {/* D-237: deleted with the cohort's files: the names stay, the downloads don't. */}
+                    {s.filesDeletedAt ? ` · ${filesDeletedLine(s)}` : null}
                   </span>
                 ),
               },

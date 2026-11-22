@@ -221,6 +221,10 @@ describe('§7.3 the shapes worth checking individually @g7', () => {
     expect(builderDraft.safeParse({ ...week, course: { ...week.course, week: 'two' } }).success).toBe(false);
     expect(builderDraft.safeParse({ ...week, kind: 'lesson' }).success).toBe(false);
     expect(builderDraft.safeParse({ ...week, checklist: [{ ...week.checklist[0]!, paths: { claude: { blocks: [{ type: 'video', url: 'x' }] } } }] }).success).toBe(false);
+    // D-236: a Form button can open the week's seat card, naming the item the owner's signature checks; no other form.
+    const form = (formId: string) => ({ ...week, checklist: [{ ...week.checklist[0]!, paths: { claude: { blocks: [{ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId, label: 'Open the seat card', itemId: 'w1s6c-sign' } }] } } }] });
+    expect(builderDraft.parse(form('seat-card'))).toEqual(form('seat-card'));
+    expect(builderDraft.safeParse(form('seatcard')).success).toBe(false);
   });
 
   it('saveModule rejects a draft missing a field core will read @g7', () => {
