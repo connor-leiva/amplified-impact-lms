@@ -70,6 +70,11 @@ export interface SubmissionAsk {
   step: number;
   stepId: string;
   itemId: string;
+  /**
+   * Every item on the step whose Upload collects this kind, on both paths: a turn-in checks each one, so a team on the
+   * ChatGPT path sees its own item ticked too (the two paths' items have different ids).
+   */
+  itemIds: string[];
   kicker: string;
 }
 
@@ -85,7 +90,8 @@ export function asksOf(mod: Pick<AIEmployee, 'checklist'> & { course?: { week: n
       if (b.type !== 'check' || b.action?.type !== 'upload') continue;
       const kind = b.action.kind;
       if (out.some((a) => a.kind === kind)) continue;
-      out.push({ id: kind, kind, step: i + 1, stepId: step.id, itemId: b.id, kicker: `${week === undefined ? '' : `Week ${week} · `}Step ${i + 1}` });
+      const itemIds = blocks.flatMap((x) => (x.type === 'check' && x.action?.type === 'upload' && x.action.kind === kind ? [x.id] : []));
+      out.push({ id: kind, kind, step: i + 1, stepId: step.id, itemId: b.id, itemIds, kicker: `${week === undefined ? '' : `Week ${week} · `}Step ${i + 1}` });
     }
   });
   return out;

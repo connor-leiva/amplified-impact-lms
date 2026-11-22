@@ -32,6 +32,8 @@ import { LearnerWeekPreview } from '../learn/Preview';
 import { IntakeCard } from './IntakeCard';
 import { StackCard } from './StackCard';
 import { SubmissionsCard } from './SubmissionsCard';
+import { SeatCardsCard } from './SeatCardsCard';
+
 import { TextBlock } from './TextBlock';
 import { RichField } from './RichField';
 import { useNow } from '../../data/hooks';
@@ -76,6 +78,9 @@ import {
 import type { KitRow, PreviewAs, WeekDraft, WeekSessionRow } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import w from './WeekBuilder.module.css';
+
+/** D-236: the seat card's "Item to check" (its placeholder): saving it ready checks this item; signing, the one named. */
+const SEAT_CARD_ITEM_HINT = 'The item the owner’s signature checks, as w1s6c-sign. Blank uses this item.';
 
 type Up = (fn: (d: AIEmployee) => void) => void;
 type Act = ReturnType<typeof useAct>;
@@ -665,13 +670,15 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
         <>
           <label className={s.lab}>
             Form
-            <Sel aria-label={`Block ${n} form`} value={block.action.formId} onChange={(e) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, formId: e.target.value as 'intake' | 'stack-card' } })}>
+            <Sel aria-label={`Block ${n} form`} value={block.action.formId} onChange={(e) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, formId: e.target.value as 'intake' | 'stack-card' | 'seat-card' } })}>
               <option value="intake">Intake</option>
               <option value="stack-card">Stack card</option>
+              {/* D-236: the week's seat card, from its Seat Card card. */}
+              <option value="seat-card">Seat card</option>
             </Sel>
           </label>
           <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
-          <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint="The checklist item a submit checks. Blank uses this item." onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
+          <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint={block.action.formId === 'seat-card' ? SEAT_CARD_ITEM_HINT : 'The checklist item a submit checks. Blank uses this item.'} onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
         </>
       ) : null}
       {block.action?.type === 'upload' ? (
@@ -879,6 +886,7 @@ export function WeekCards(props: WeekCardsProps) {
       <IntakeCard {...props} />
       <StackCard {...props} />
       <SubmissionsCard {...props} />
+      <SeatCardsCard {...props} />
       <AgendaCard {...props} which="liveBuild" />
       <AgendaCard {...props} which="officeHours" />
       <HireCardsCard {...props} />

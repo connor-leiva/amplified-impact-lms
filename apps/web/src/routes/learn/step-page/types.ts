@@ -66,6 +66,8 @@ export type SpAction =
   | { type: 'invite'; label: string; href: string }
   /** D-230: Turn in, the step page's own button; for a teammate who can't turn in, a line in its place (B-26). */
   | { type: 'upload'; label: string; onClick: () => void }
+  /** D-236: the seat card form's button, drawn as a form's (the step page's arrow button); it opens the drawer. */
+  | { type: 'form'; label: string; onClick: () => void }
   | { type: 'line'; text: string };
 
 export interface SpSubcheck {

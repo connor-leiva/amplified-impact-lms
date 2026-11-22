@@ -125,6 +125,8 @@ export interface V6Handlers {
    * who can't turn in sees in the button's place (B-26); else the button reads `labelOf(kind)` and opens the drawer.
    */
   turnIn?: { agent: string | null; labelOf: (kind: 'live_read' | 'checkpoint') => string; open: (kind: 'live_read' | 'checkpoint') => void };
+  /** D-236: the seat card form, for a viewer v3 draws for (absent: its Form button draws nothing). */
+  seatCard?: { open: () => void };
 }
 
 const hasTerm = (spans?: readonly GlossarySpan[]): spans is readonly GlossarySpan[] => !!spans?.some((x) => x.kind === 'term');
@@ -143,7 +145,7 @@ export const V6_MORE = {
 
 const ICON_OF: Record<string, SpForStep['icon']> = { book: 'book', play: 'play', lvCopy: 'copy', lvKey: 'key', file: 'book' };
 
-function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handlers, 'onCalendar' | 'turnIn'>): SpAction | null {
+function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handlers, 'onCalendar' | 'turnIn' | 'seatCard'>): SpAction | null {
   if (!a) return null;
   if (a.type === 'calendar') return a.event ? { type: 'calendar', label: V6_WORDS.addToCalendar, onClick: () => on.onCalendar(item) } : null;
   if (a.type === 'upload') {
@@ -151,6 +153,7 @@ function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handle
     if (!t) return null;
     return t.agent !== null ? { type: 'line', text: t.agent } : { type: 'upload', label: t.labelOf(a.kind), onClick: () => t.open(a.kind) };
   }
+  if (a.type === 'seatcard') return on.seatCard ? { type: 'form', label: a.label, onClick: on.seatCard.open } : null;
   if (a.type === 'link') return { type: 'link', label: a.label, href: a.href };
   if (a.type === 'invite') return { type: 'invite', label: a.label, href: a.href };
   if (a.type === 'copy') return { type: 'copy', label: a.label, text: a.text };

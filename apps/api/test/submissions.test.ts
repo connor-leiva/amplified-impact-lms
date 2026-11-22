@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { accounts, auditLog, checklistState, emailLog, modules, plans, submissions, teams, users } from '../src/db/schema';
+import { accounts, auditLog, checklistState, cohorts, emailLog, modules, plans, submissions, teams, users } from '../src/db/schema';
 import { resetS3 } from '../src/storage';
 import { startFakeBucket } from './fake-bucket';
 import type { FakeBucket } from './fake-bucket';
@@ -59,9 +59,15 @@ beforeEach(async () => {
   const db = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
   // Week 1 asks for a report on step 4 and a checkpoint on step 6, as the builder's Upload action does.
   const week1 = db.modules.find((m) => m.id === WEEK1)!;
+  // Each path has its own item (the builder refuses a repeated id on a step), as Weeks 1 and 2 do.
   const ask = (i: number, id: string, kind: 'live_read' | 'checkpoint') => {
     const step = week1.checklist[i]!;
-    step.paths = { ...step.paths, claude: { blocks: [...(step.paths?.claude?.blocks ?? []), { type: 'check', id, title: 'Turn it in', action: { type: 'upload', kind } }] } };
+    const item = (x: string) => ({ type: 'check' as const, id: x, title: 'Turn it in', action: { type: 'upload' as const, kind } });
+    step.paths = {
+      ...step.paths,
+      claude: { blocks: [...(step.paths?.claude?.blocks ?? []), item(id)] },
+      chatgpt: { blocks: [...(step.paths?.chatgpt?.blocks ?? []), item(`${id}-gpt`)] },
+    };
   };
   ask(3, 'turn-in-report', 'live_read');
   ask(5, 'turn-in-checkpoint', 'checkpoint');
@@ -113,9 +119,11 @@ describe('Turn in (D-230)', () => {
     expect(bucket.objects.get(key)!.contentType).toBe('text/html');
     const made = await turnIn('own-a', { moduleId: WEEK1, kind: 'live_read', files: [{ key, name: 'Map Your Spend report.html' }], note: ' Please look at advertising. ', minutes: '' });
     expect(made.statusCode).toBe(201);
-    // The step's item that asks for it is done for the whole team, as a submitted intake's is.
-    const ticks = await handle.select().from(checklistState).where(eq(checklistState.itemId, 'turn-in-report'));
-    expect(ticks.map((t) => [t.userId, t.checked, t.auto]).sort()).toEqual([['ag-a', true, true], ['op-a', true, true], ['own-a', true, true]]);
+    // The step's items that ask for it are done for the whole team, on both paths, as a submitted intake's is.
+    for (const itemId of ['turn-in-report', 'turn-in-report-gpt']) {
+      const ticks = await handle.select().from(checklistState).where(eq(checklistState.itemId, itemId));
+      expect(ticks.map((t) => [t.userId, t.checked, t.auto]).sort()).toEqual([['ag-a', true, true], ['op-a', true, true], ['own-a', true, true]]);
+    }
 
     const res = await mine('op-a');
     expect(res.statusCode).toBe(200);
@@ -196,5 +204,70 @@ describe('Turn in (D-230)', () => {
     }
     expect(await handle.select().from(submissions)).toEqual([]);
     expect((await app.inject({ method: 'POST', url: '/api/submissions', headers: { cookie: cookie.get('own-a')! }, payload: 'x' })).statusCode).toBe(415);
+  });
+});
+
+describe('deleting a cohort’s turned-in files (D-237)', () => {
+  const count = (who: string, cohortId = 'dec26') => app.inject({ method: 'GET', url: `/api/admin/cohorts/${cohortId}/turned-in-files`, headers: { cookie: cookie.get(who)! } });
+  const remove = (who: string, cohortId = 'dec26') => app.inject({ method: 'POST', url: `/api/admin/cohorts/${cohortId}/turned-in-files/delete`, headers: json(who), payload: {} });
+
+  it('removes the cohort’s files from the bucket, keeps each turn-in on record, and is audited', async () => {
+    // Team B's owner is in the next cohort: its files stay.
+    await handle.insert(cohorts).values({ id: 'mar27', name: 'March 2027', start: T + 90 * 86_400_000, end: T + 150 * 86_400_000, status: 'upcoming', capacity: 15, cadence: 'Weekly' });
+    await handle.update(users).set({ cohortId: 'mar27' }).where(eq(users.id, 'own-b'));
+    const a1 = await put('own-a', 'report.html', '<h1>A</h1>');
+    const a2 = await put('own-a', 'shot.png', 'png!');
+    const b1 = await put('own-b', 'theirs.pdf', '%PDF-b');
+    expect((await turnIn('own-a', { moduleId: WEEK1, kind: 'live_read', files: [{ key: a1, name: 'report.html' }, { key: a2, name: 'shot.png' }] })).statusCode).toBe(201);
+    expect((await turnIn('op-a', { moduleId: WEEK1, kind: 'checkpoint', files: [{ key: a1, name: 'report.html' }] })).statusCode).toBe(201);
+    expect((await turnIn('own-b', { moduleId: WEEK1, kind: 'live_read', files: [{ key: b1, name: 'theirs.pdf' }] })).statusCode).toBe(201);
+
+    const before = await count('st_owner');
+    expect(before.statusCode).toBe(200);
+    expect(before.json()).toEqual({ cohort: 'Amplified AI Accelerator · December 2026', turnIns: 2, files: 3, bytes: Buffer.byteLength('<h1>A</h1>') * 2 + 4 });
+
+    const res = await remove('st_owner');
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ turnIns: 2, files: 3, bytes: Buffer.byteLength('<h1>A</h1>') * 2 + 4, failed: 0 });
+    expect(bucket.objects.has(a1)).toBe(false);
+    expect(bucket.objects.has(a2)).toBe(false);
+    expect(bucket.objects.has(b1)).toBe(true);
+
+    // Each turn-in stays: team, who and when; its files' names, with no download.
+    const rows = await handle.select().from(submissions).where(eq(submissions.teamId, 'team-a'));
+    expect(rows).toHaveLength(2);
+    expect(rows.every((r) => r.filesDeletedAt === T && r.filesDeletedBy === 'st_owner' && r.byUserId && r.createdAt === T)).toBe(true);
+    const team = (await mine('op-a')).json().subs as Record<string, { files: { name: string; href?: string }[]; by: string }>;
+    expect(team.live_read!.files).toEqual([{ name: 'report.html', size: Buffer.byteLength('<h1>A</h1>') }, { name: 'shot.png', size: 4 }]);
+    expect(team.live_read!.by).toBe('Alex Morgan');
+    for (const who of ['own-a', 'st_owner']) {
+      const gone = await app.inject({ method: 'GET', url: `/api/submissions/${rows[0]!.id}/files/0`, headers: { cookie: cookie.get(who)! } });
+      expect(gone.statusCode).toBe(410);
+      expect(gone.json()).toEqual({ error: 'Deleted when the cohort ended.' });
+    }
+    const staff = (await staffList('st_owner')).json().subs as { team: string; filesDeletedAt: number | null; filesDeletedBy: string | null; files: { href?: string }[] }[];
+    expect(staff.filter((x) => x.team === 'Northline Realty').every((x) => x.filesDeletedAt === T && x.filesDeletedBy === 'Connor Leiva' && x.files.every((f) => !f.href))).toBe(true);
+    expect(staff.find((x) => x.team === 'Sample Team')).toMatchObject({ filesDeletedAt: null, filesDeletedBy: null });
+
+    const audits = await handle.select().from(auditLog).where(eq(auditLog.action, 'submission.files_delete'));
+    expect(audits).toHaveLength(1);
+    expect(audits[0]).toMatchObject({ outcome: 'ok', targetType: 'cohort', targetId: 'dec26' });
+
+    // A second run finds nothing left; nothing is emailed.
+    expect((await count('st_owner')).json()).toMatchObject({ turnIns: 0, files: 0, bytes: 0 });
+    expect((await remove('st_owner')).json()).toEqual({ turnIns: 0, files: 0, bytes: 0, failed: 0 });
+    expect(await handle.select().from(emailLog)).toEqual([]);
+  });
+
+  it('is for staff who manage cohorts, and a cohort that exists', async () => {
+    await handle.insert(users).values({ id: 'st_support', email: 'support@example.test', name: 'Sam Support', kind: 'staff', staffRole: 'Support', seq: 99 });
+    cookie.set('st_support', await app.signInAs('st_support'));
+    for (const who of ['own-a', 'op-a', 'st_support']) {
+      expect((await count(who)).statusCode).toBe(403);
+      expect((await remove(who)).statusCode).toBe(403);
+    }
+    expect((await count('st_owner', 'nope')).statusCode).toBe(404);
+    expect((await remove('st_owner', 'nope')).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/turned-in-files' })).statusCode).toBe(401);
   });
 });

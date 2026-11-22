@@ -14,6 +14,7 @@ import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { addSessionArgsR2, blankSessionFormR2, cohortsR2VM, sessionArgsR2, sessionFormR2 } from './Cohorts.vm';
 import type { CohortsR2Row, SessionForm } from './Cohorts.vm';
 import s from './Cohorts.module.css';
+import { CohortFilesButton } from './CohortFiles';
 
 // Admin Cohorts & Sessions `/admin/cohorts` on the Admin redesign R2 (D-160 R2-2b): the signed-off
 // mockup's `Cohorts` (AdminRedesign.jsx), drawn from `cohortsR2VM`: the current cohort's key facts and
@@ -151,9 +152,13 @@ export function Component() {
         title="Cohorts & Sessions"
         description="The cohort calendar and each live build on Zoom. All times are MST (America/Phoenix)."
         right={
-          <Button header kind="primary" icon="r2Plus" onClick={() => setEdit({ id: null, n: 0, form: blankSessionFormR2(), err: '' })}>
-            Add session
-          </Button>
+          <>
+            {/* D-237: the cohort's turned-in files, deleted when it ends (the agreement's Section 7). */}
+            <CohortFilesButton cohortId={vm?.cohortId ?? ADMIN_COHORT} />
+            <Button header kind="primary" icon="r2Plus" onClick={() => setEdit({ id: null, n: 0, form: blankSessionFormR2(), err: '' })}>
+              Add session
+            </Button>
+          </>
         }
       />
       {vm ? (

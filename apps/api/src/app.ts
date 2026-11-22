@@ -109,6 +109,7 @@ import { registerCourseRoute } from './routes/course';
 import { registerIntakeRoute } from './routes/intake';
 import { registerCommunityRoutes } from './routes/community';
 import { registerSubmissionRoutes } from './routes/submissions';
+import { registerSeatCardRoutes } from './routes/seat-card';
 import { registerPersonalizeRoute } from './routes/personalize';
 import { registerStackRoute } from './routes/stack';
 import type { OfferPages } from './routes/offer';
@@ -689,6 +690,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerCommunityRoutes(app);
     // D-230: Turn in. Signed in, then a team's owner and operator; staff who may view learners for the list.
     registerSubmissionRoutes(app);
+    registerSeatCardRoutes(app);
     // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
     registerCurriculumStatusRoute(app);
     // Whether a Skill Library download link resolves, as counts and a status code (D-122): open.

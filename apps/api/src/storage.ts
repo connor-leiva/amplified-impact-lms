@@ -98,7 +98,7 @@
 //    `boundedExpiresIn` makes the bound structural. Both failures are invisible in a green suite,
 //    which is why each has a test that names the mechanism it is guarding.
 
-import { S3Client, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { MAX_FILE_BYTES, MAX_VIDEO_BYTES, UPLOAD_POLICY, UPLOAD_TYPES, nameMatchesType } from '@ai/core/uploads';
 import type { UploadType } from '@ai/core/uploads';
@@ -431,6 +431,19 @@ export function skillFileKey(slug: string, fileName: string): string {
 export async function putObject(key: string, body: Uint8Array, contentType: string): Promise<void> {
   const { client, config } = s3();
   await client.send(new PutObjectCommand({ Bucket: config.bucket, Key: requireKey(key), Body: body, ContentType: contentType }));
+}
+
+/**
+ * D-237: delete one turned-in file, server side: the staff action that keeps the Subscription Agreement's promise
+ * (Section 7) to delete what teams shared once the cohort ends. Only a key under `submissions/` is ever deleted, so no
+ * other object (a Vault file, a skill's ZIP, a video) can go this way. Deleting a key the bucket no longer holds is
+ * not an error (S3 answers it the same).
+ */
+export async function deleteSubmissionObject(key: string): Promise<void> {
+  const Key = requireKey(key);
+  if (!Key.startsWith('submissions/')) throw new StorageKeyError(key);
+  const { client, config } = s3();
+  await client.send(new DeleteObjectCommand({ Bucket: config.bucket, Key }));
 }
 
 /**

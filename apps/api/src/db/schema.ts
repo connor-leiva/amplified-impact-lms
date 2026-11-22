@@ -170,6 +170,9 @@ export const submissions = pgTable('submissions', {
   status: text('status').notNull().default('received'),
   statusAt: ts('status_at'),
   statusBy: text('status_by'),
+  // D-237: when staff deleted this turn-in's files with the rest of its cohort's, and who. The row stays.
+  filesDeletedAt: ts('files_deleted_at'),
+  filesDeletedBy: text('files_deleted_by'),
 }, (t) => [
   index('submissions_team_idx').on(t.teamId, t.moduleId, t.kind, t.id),
   index('submissions_module_idx').on(t.moduleId, t.id),
@@ -177,6 +180,22 @@ export const submissions = pgTable('submissions', {
   // file on its own.
   check('submissions_kind', sql`${t.kind} in ('live_read', 'checkpoint')`),
   check('submissions_status', sql`${t.status} in ('received', 'picked', 'reviewed')`),
+]);
+// D-236: the seat card form. One card per team per week: the team's answers to the week's seat card (by row), who
+// saved them last and when, when the Operations Lead marked it ready for the owner, and when the Team Owner signed it
+// and who. Only routes/seat-card.ts reads or writes it. A change after signing saves and the card stays signed. Epoch ms.
+export const teamSeatCards = pgTable('team_seat_cards', {
+  teamId: text('team_id').notNull(),
+  moduleId: text('module_id').notNull(),
+  answers: jsonb('answers').$type<Record<string, string>>().notNull(),
+  updatedAt: ts('updated_at').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  readyAt: ts('ready_at'),
+  signedAt: ts('signed_at'),
+  signedBy: text('signed_by'),
+}, (t) => [
+  primaryKey({ columns: [t.teamId, t.moduleId] }),
+  index('team_seat_cards_module_idx').on(t.moduleId),
 ]);
 export const videoProgress = pgTable('video_progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(), videoId: text('video_id').notNull(),

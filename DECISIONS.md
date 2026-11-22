@@ -7383,3 +7383,46 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **The package is v7.** `handoff/lms-v3/` is the v7 package (the repo's `PLAN.md`, `screens/` and `.gitignore` kept; `mockup/logos/favicon.svg` and `amplified-impact-academy.svg` removed, which v7 no longer loads). `lms.css` is v7's, byte for byte; `AppShell.tsx` is v7's `AppShell.jsx`, converted. Gone: `sh-logo-f`, `sh-logo-s`, `data-logo`, `shell.logo.full`, `.mark` and `.use`, and the repo's copies of the two logos only those used.
 - **Left out of the public copy:** the GoHighLevel location id in `GHL-SETUP-REPORT.md` and the spec's Appendix A (the repo is public; the id is in Connor's records and in Railway's `GHL_LOCATION_ID`).
 - **The gate:** the shell's states against the local build, then the package's 260.
+
+## D-235 · Weeks 1 and 2 loaded once by code, and the Week Builder's from then on
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 20 and 21, 2026: load Weeks 1 and 2 by code, and keep all of it configurable in the Week Builder ("I'm okay having it seed stuff into the portal, but I still want it ALL configurable in the admin portal in the curriculum builder"). The words are his approved Weeks 1 and 2 ("This is perfect," Nov 21), from `handoff/weeks-1-2/`.
+**Number:** the next free one (D-232 and D-233 stay reserved for Q-13 and Q-16).
+
+- **One data step** (`packages/core/seed/weeks-1-2-steps-v1.ts`, `2026-11-22-weeks-1-2-steps`, last in `DATA_MIGRATIONS`) writes the handoff's data (`packages/core/seed/weeks-1-2-v1/*.json`, verbatim) into the records the Week Builder edits, once, on deploy, in one transaction under the advisory lock, with an audit row per change. Each step of `accelerator-week-1` and `-2` gets its who, time, done-when, goal and both paths' blocks; the week-level rows change (Week 1: the operator line, output 2, the live build's Required line and seven seat card rows; Week 2: output 3, Required and four seat card rows).
+- **Only over the seed.** A step changes only while it has its seeded title, nothing on either path and no who, time, done-when or goal; any other step is left as it is and named. A week-level field changes only while it holds its seeded value: the repo's seed, or the value the handoff names as seeded, compared by its words (the handoff writes straight apostrophes, drops final periods and cuts long values with "..."). Week 1's Required line in the repo's seed is not the one the handoff names, so both count as seeded. Nothing else changes: no step id, status, opening, due date, session, Kit or media, and nothing is published or scheduled.
+- **Two row changes** follow the sales page's schedule: Week 1 step 5 becomes "Schedule the Finance Analyst" at 15 minutes (its stored sentence follows its goal), and Week 2 step 6 becomes 10 minutes, each only while it still has its seeded minutes. The week's `build`, the sum of its steps' minutes, follows, as the builder's save keeps it (Week 1: 70; Week 2: 65).
+- **"Title" is `ch`.** On a course week the builder's title edits `ch` (D-212), which is what the learner sees, so the handoff's "title" is matched and written there.
+- **Buttons.** Copy keeps each prompt exactly; Upload is Turn in's (D-230), by the kind it collects; Add to calendar names the week's session by its title; Download names the week's Kit files by their exact titles, and a file not in the Kit yet leaves its item without the button, named (on the seed, all ten); the seat card's Form button waits for its form, named (four). Each can be set in the builder.
+- **Videos** are left out with their "Watch the video" items until each is recorded; the builder adds them.
+- **Turn in ticks its item on both paths.** A turn-in now checks every item on the asking step whose Upload collects that kind, Claude's and ChatGPT's (`SubmissionAsk.itemIds`), so a team on the ChatGPT path sees its own item ticked.
+- **The copy guard** holds the new words too: no runtime file may contain them.
+
+## D-236 · The seat card form
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 20: teams fill in and sign their seat card in the portal instead of on a blank PDF (`handoff/weeks-1-2/00-BRIEF.md` §2, `reference/seat-card-fields.md`). His answers, Nov 22, to what the form drawer couldn't draw: the Operations Lead's main button is "Ready for the owner"; agents (and staff previewing) get the same drawer, locked; a change after signing keeps the signature.
+
+- **A third form on D-229's drawer.** The Week Builder's Form option gains "Seat card". Its questions are the week's own seat card (`course.seatCard`, the builder's Seat Card card): each row the team writes (Reports To, Runs, Pulls, Applies, Produces, Took Over, Can't Do, First Run) is asked with the week's standard as its hint, under the seat's name. A row changed in the builder changes the form; no seat card words live in code (`@ai/core/seat-card`).
+- **Who.** The Team Owner and the Operations Lead fill it in, and it saves as they go, for the team. The owner's main button is "Sign the seat card"; the Operations Lead's is "Ready for the owner". Both need every row answered. Agents read it in the same drawer, locked: every answer shown, and only Close and Download PDF work. A staff preview reads an empty card, locked, and nothing saves.
+- **The checklist.** Saving it ready checks the step's Form items for the whole team; signing checks them and the items their "Item to check" names (the `-sign` items), on both paths, as a submitted intake checks its item (D-229).
+- **Signed stays signed.** A change after signing saves and the card keeps its signature; the drawer says when it was signed and when it last changed.
+- **Download PDF** prints the team's card in the intake's placeholder look (D-229, Phase 7), with who signed it and when, for anyone on the team.
+- **Staff** read every team's card for a week on the Week Builder's Seat Cards card. It has no mockup: it is built from the admin console's own kit, as the Submissions card is (D-230).
+- **The drawer** gains three things beside the package's (D-225): `locked`; `ui.submittedLabel` ("Signed", "Ready" where the intake says "Submitted"); and a refusal, where the server's words show in the foot and the button shakes back, as Turn in's do (a refused save used to hang on "Saving"). With none in play it is the package's drawer: the intake's equality test still holds.
+- **Refused:** a password or an account number (the stack card's rule), an answer over 1,000 characters, and a week that doesn't ask for the card or isn't open.
+- **Storage:** `team_seat_cards` (migration 0035, additive), one card per team per week.
+- **The flag.** As Turn in, it draws only for a viewer v3 draws for: with `VITE_LMS_V3` off, the seat card's Form button draws nothing.
+- Nothing is emailed, and nothing goes to GHL.
+
+## D-237 · Deleting a cohort's turned-in files
+
+**Date:** 2026-11-22
+**Asked for by:** the Subscription Agreement, Section 7 (`apps/web/src/legal/agreement.ts`, never edited): "If you share files with us for a live build, we use them only to help your team during that build and delete them when the cohort ends." Turn in (D-230) kept every version and had no delete (`handoff/weeks-1-2/00-BRIEF.md` §4). Connor Leiva (repository owner), Nov 22: a staff action on the cohort, audited, that removes the cohort's turned-in files from the bucket and marks each turn-in's files deleted; the team, who turned it in and when stay on record.
+
+- **Delete turned-in files**, on Cohorts & Sessions beside Add session (not in the mockup: Connor's call). It counts first and asks ("Delete the 12 files (4.2 MB) in 6 turn-ins for …?"), with why (the agreement) and what stays. Only staff who manage cohorts and sessions (the `cohorts` permission) can count or delete.
+- **What it removes:** every file of every turn-in of the cohort's teams that is still in the bucket. A team is its owner's cohort's (as the intake's PDF names it), else the cohort of whoever turned it in. Only a key under `submissions/` can be deleted this way (`deleteSubmissionObject`), so no Vault file, skill or video can go with it.
+- **What stays:** each turn-in's row: the team, who turned it in and when, its note and minutes, its files' names and sizes, with `files_deleted_at` and `files_deleted_by` (migration 0036, additive). Its files no longer download, for the team or for staff (410, "Deleted when the cohort ended."). The team's drawer shows their names with no link; the Submissions card says when and by whom they were deleted.
+- **Audited** once a run, as `submission.files_delete` on the cohort, with what it removed. A file that won't delete leaves its turn-in as it was, counted as failed (the run is audited as failed), for another try. A second run finds nothing more.
+- Nothing is emailed.

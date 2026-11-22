@@ -29,6 +29,8 @@ import { SKILL_IN_STEP } from '@ai/core/seed/copy-v3';
 import { ACCELERATOR_GLOSSARY } from '@ai/core/seed/glossary-v1';
 import { weekModuleV2 } from '@ai/core/seed/weeks-0-3-v2';
 import { UI_LABEL_TEXTS } from '@ai/core/ui-labels';
+import { WEEKS_1_2_DATA } from '@ai/core/seed/weeks-1-2-steps-v1';
+import type { DataBlock } from '@ai/core/seed/weeks-1-2-steps-v1';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 
@@ -81,7 +83,22 @@ function seedStrings(): Set<string> {
   walk([SKILL_IN_STEP], '', '');
   // D-193: the Accelerator glossary. A term, a short line, a long line or an alias may not sit in runtime code.
   walk(ACCELERATOR_GLOSSARY, '', '');
+  // D-235: Weeks 1 and 2, loaded once by a data step and the builder's from then on. Their words (every step's body,
+  // who, time, done-when and goal, and the new card values) may not sit in runtime code. Not the buttons' fixed parts:
+  // what an Upload collects is Turn in's own kind label (D-230), and a recording's note never reaches a learner.
+  for (const n of [1, 2] as const) {
+    walk(WEEKS_1_2_DATA[n].steps.map((st) => ({ ...st, claude: st.claude.map(copyOf), chatgpt: st.chatgpt.map(copyOf) })), '', '');
+    walk(WEEKS_1_2_DATA[n].cards.map((c) => c.change_to), '', '');
+  }
   return out;
+}
+
+/** A data block's words only: no recording notes, and no Upload's kind (Turn in's fixed label). */
+function copyOf(b: DataBlock): unknown {
+  if (b.type === 'video') return { title: b.title };
+  if (b.type !== 'check') return b;
+  const { collects: _collects, ...button } = b.button;
+  return { ...b, button };
 }
 
 const isTest = (path: string): boolean => /\.test\.tsx?$/.test(path) || path.includes(`${sep}test${sep}`) || path.endsWith('test-setup.ts');
