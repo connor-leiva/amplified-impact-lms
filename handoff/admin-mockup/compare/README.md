@@ -20,3 +20,10 @@ Two differences are expected:
 - **The icons' colour.** The mockup draws every sidebar icon in `--f3`: its new file list is also named `.fl`, and
   its `.fl svg` rule reaches the sidebar. The reference and the app draw them `--f2`, forest on the group holding the
   page, as the spec says (D-239).
+
+## Admin › Support › Community (D-238)
+
+The same build at the mockup's "now" (`?now=2026-11-20T21:20:00.000Z`, Central time), the app left and the mockup
+right: `community-1440.png`, `thread-1440.png`, `community-390.png` and `thread-390.png`. Expected differences: the
+sidebar's data (the fixture's counts and staff member, Casey Lin, where the mockup has Connor Leiva) and the mockup's
+Forms & Submissions row, which is not part of this work.

@@ -26,7 +26,7 @@ export interface AdminShellData {
   programKey: ProgramKey;
   cohort: string;
   environment: string;
-  /** `waiting` (D-239): Community threads whose last word is a member's; 0 until the admin Community (R-3). */
+  /** `waiting` (D-239, D-238): Community threads whose last word is a member's (`useWaitingThreads`). */
   counts: { drafts: number; requests: number; incidents: number; waiting: number };
   /** The mockup's whole `NAV`: the parity fixture only. */
   fullNav: boolean;
@@ -43,23 +43,34 @@ export const initials = (name: string): string =>
 
 /**
  * From the snapshot. `role` is the staff role the shell filters by (the fixture build may preview
- * another). `openIncidents` is the API's count of open incidents (D-167, `useOpenIncidents`); the badge
- * hides at zero.
+ * another). `openIncidents` is the API's count of open incidents (D-167, `useOpenIncidents`) and `waiting` the
+ * Community's threads waiting on staff (D-238, `useWaitingThreads`); each badge hides at zero.
  */
-export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0): AdminShellData {
-  const me = db.staff.find((x) => x.id === staffId) ?? null;
+/**
+ * The cohort the admin shows, as the switcher's second line names it ("{name} Cohort"). D-238: a cohort's own name may
+ * start with the program's ("{program} · {month year}", as production's does); the line under the program names the
+ * cohort alone, as the mockup's does, so the program isn't said twice.
+ */
+export function adminCohortLabel(db: Db): string {
   const cohort = db.cohorts.find((c) => c.id === ADMIN_COHORT) ?? db.cohorts[0];
+  if (!cohort) return '';
+  const prefix = `${PROGRAM} · `;
+  return `${cohort.name.startsWith(prefix) ? cohort.name.slice(prefix.length) : cohort.name} Cohort`;
+}
+
+export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0, waiting = 0): AdminShellData {
+  const me = db.staff.find((x) => x.id === staffId) ?? null;
   return {
     viewer: { name: me?.name ?? '', role: role ?? me?.role ?? '' },
     program: PROGRAM,
     programKey: PROGRAM_KEY,
-    cohort: cohort ? `${cohort.name} Cohort` : '',
+    cohort: adminCohortLabel(db),
     environment: ENVIRONMENT,
     counts: {
       drafts: db.modules.filter((m) => m.status === 'draft').length,
       requests: db.requests.filter((q) => q.status === 'new').length,
       incidents: openIncidents,
-      waiting: 0,
+      waiting,
     },
     fullNav: false,
   };

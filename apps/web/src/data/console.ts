@@ -63,6 +63,8 @@ import type {
   WorkspaceFilters,
   WorkspaceRow,
 } from '@ai/core';
+import { COMMUNITY_PATH, communityPostDeletePath, communityPostPath, communityRepliesPath, communityThreadPath } from '@ai/core/community';
+import type { CommunityList, CommunityThread } from '@ai/core/community';
 import { masqueradeRefusal, navigation } from './http';
 import { masqueradeActive } from './masquerade';
 
@@ -221,6 +223,19 @@ export interface ConsoleApi {
    * sessions", "p95 latency", "DB connections", "Services"). The http client has no such method.
    */
   healthSample?(): HealthSample;
+  // D-238 (B-45): Admin › Support › Community, through the Community's own routes (D-231) with the staff session; no
+  // second API. A refusal is the server's own sentence (`COMMUNITY_ERRORS`), as the error's message.
+  /** The list, with staff's `waiting` on each thread and the cohort's `members`. */
+  community(): Promise<CommunityList>;
+  communityThread(id: string): Promise<CommunityThread>;
+  startThread(input: { space: string; title: string; body: string }): Promise<{ id: number }>;
+  replyThread(id: number, body: string): Promise<{ id: number }>;
+  /** Pin or unpin, hide or show a thread (audited by the server). */
+  setThread(id: number, change: { pinned: boolean } | { hidden: boolean }): Promise<void>;
+  /** Hide or show a reply (audited). */
+  setPost(postId: number, change: { hidden: boolean }): Promise<void>;
+  /** Delete a post (audited when it is someone else's); `thread`: it was the first post, so the thread went too. */
+  deletePost(postId: number): Promise<{ thread: boolean }>;
 }
 
 /** A tile the mockup draws in production's place: its words, over the production tile's. */
@@ -275,10 +290,13 @@ export function listQuery(values: Record<string, string | number | undefined>, c
 
 /** A window event the incident screens dispatch after a change, so the sidebar's count reads again. */
 export const INCIDENTS_CHANGED = 'ai-incidents-changed';
+/** D-238: a Community screen changed a thread, so the sidebar's "N waiting" reads again. */
+export const COMMUNITY_CHANGED = 'ai-community-changed';
 
 const incidentPath = (id: string): string => `/api/console/incidents/${encodeURIComponent(id)}`;
 
 const JSON_POST = (body: unknown): RequestInit => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+const JSON_PATCH = (body: unknown): RequestInit => ({ method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
 /** The audit list's query string: only the filters that are set, then the cursor. */
 export function auditQuery(filters: AuditFilters, cursor?: string | null): string {
@@ -333,6 +351,17 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
   return {
     source: 'http',
     me: async () => json<ConsoleMe>(await request(fetchImpl, '/api/console/me')),
+    community: async () => json<CommunityList>(await request(fetchImpl, COMMUNITY_PATH)),
+    communityThread: async (id) => json<CommunityThread>(await request(fetchImpl, communityThreadPath(encodeURIComponent(id)))),
+    startThread: async (input) => json<{ id: number }>(await request(fetchImpl, COMMUNITY_PATH, JSON_POST(input))),
+    replyThread: async (id, body) => json<{ id: number }>(await request(fetchImpl, communityRepliesPath(id), JSON_POST({ body }))),
+    setThread: async (id, change) => {
+      await request(fetchImpl, communityThreadPath(id), JSON_PATCH(change));
+    },
+    setPost: async (postId, change) => {
+      await request(fetchImpl, communityPostPath(postId), JSON_PATCH(change));
+    },
+    deletePost: async (postId) => ({ thread: (await json<{ thread?: unknown }>(await request(fetchImpl, communityPostDeletePath(postId), JSON_POST({})))).thread === true }),
     audit: async (filters, cursor) => json<ConsolePage<AuditRow>>(await request(fetchImpl, `/api/console/audit${auditQuery(filters, cursor)}`)),
     exportAudit: async (filters) => {
       const res = await request(fetchImpl, '/api/console/audit/export', {

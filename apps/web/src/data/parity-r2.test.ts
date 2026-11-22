@@ -35,6 +35,9 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
     expect(d.viewer).toEqual({ name: 'Casey Lin', role: 'Owner' });
     expect(d.program).toBe(PROGRAM);
     expect(d.cohort).toBe('December 2026 Cohort');
+    // D-238: production's cohort is named after the program too; the second line names the cohort alone.
+    const named = { ...db, cohorts: db.cohorts.map((c) => (c.id === 'dec26' ? { ...c, name: `${PROGRAM} · December 2026` } : c)) };
+    expect(shellDataFrom(named, 'st1', 'Owner').cohort).toBe('December 2026 Cohort');
     expect(d.environment).toBe(ENVIRONMENT);
     // D-239: the program's key, for its own tile; `waiting` (Community threads) is 0 until R-3 counts them.
     expect(d.programKey).toBe('accelerator');

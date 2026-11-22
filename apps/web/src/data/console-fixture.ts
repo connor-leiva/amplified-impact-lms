@@ -84,6 +84,7 @@ import { FIXTURE_ME, fixtureIncidentChange, fixtureIncidentPage, fixtureIncident
 import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from './console-fixture-infra';
 import { fixtureHealth, fixtureHealthSample, fixtureSkills } from './console-fixture-health';
 import { readParityR2 } from './parity-r2';
+import { fixtureCommunity } from './console-fixture-community';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
 
@@ -273,8 +274,17 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
       return next;
     });
 
+  // D-238: Admin › Support › Community, the admin mockup's threads; the parity fixture's viewer is its own `cl`.
+  const community = fixtureCommunity({
+    me: parity ? { id: 'cl', name: me.name ?? 'Connor Leiva' } : { id: STAFF.casey.userId, name: STAFF.casey.name },
+    now,
+    settle,
+    audit: (action, label, after) => record(action, { type: 'community_thread', id: null, label }, after),
+  });
+
   return {
     source: 'fixture',
+    ...community,
     // The viewer is answered whatever the list's state, so a state screenshot shows the screen.
     me: () => {
       if (!staff) return Promise.reject(forbidden());

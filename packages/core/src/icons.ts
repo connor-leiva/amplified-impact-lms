@@ -131,6 +131,8 @@ export const ICONS = {
   r2Down: "M12 5v14M6 13l6 6 6-6",
   r2File: "M6 3h8l4 4v14H6zM14 3v4h4",
   r2Play: "M7 5l12 7-12 7V5z",
+  // D-238: Admin › Support › Community's row, verbatim from the `P` map in handoff/admin-mockup/AdminMock.jsx.
+  r2Community: "M4 5h13a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z",
   // Week 0 step header chips, path data from design-reference/week0-polish/step-2.html.
   r2Clock: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0M12 7v5l3 2",
   r2People: "M12.5 8a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M2.5 20c.8-3.4 3.4-5.5 6.5-5.5s5.7 2.1 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2",

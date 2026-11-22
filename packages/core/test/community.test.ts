@@ -11,6 +11,7 @@ import {
   spaceLabel,
   spacesFor,
   visibleTo,
+  waitingOn,
 } from '../src/community';
 
 beforeEach(() => setViewerZone('America/Chicago'));
@@ -88,5 +89,33 @@ describe('fmt.activity (B-30): the mockup’s activity words', () => {
     expect(fmt.activity(NOW - 59 * 60_000, NOW)).toBe('59 min ago');
     expect(fmt.activity(NOW - 23.6 * 3_600_000, NOW)).toBe('1 day ago');
     expect(fmt.activity(NOW - 9 * 86_400_000, NOW)).toBe('Nov 11');
+  });
+});
+
+// D-238 (B-34): the admin's "Waiting on you", the mockup's `waiting`: the cohort's last word is a member's.
+describe('waiting on staff (D-238)', () => {
+  const staff = new Set(['cl', 'sam']);
+  const isStaff = (id: string) => staff.has(id);
+  const post = (by: string, hidden = false) => ({ by, hidden });
+
+  it('waits when the newest post the cohort sees is a member’s, and not after staff answer', () => {
+    expect(waitingOn({ hidden: false }, [post('u1')], isStaff)).toBe(true);
+    expect(waitingOn({ hidden: false }, [post('u1'), post('u2')], isStaff)).toBe(true);
+    expect(waitingOn({ hidden: false }, [post('u1'), post('cl')], isStaff)).toBe(false);
+    expect(waitingOn({ hidden: false }, [post('u1'), post('cl'), post('u1')], isStaff)).toBe(true);
+    // A thread staff started, with no reply yet, waits on no one.
+    expect(waitingOn({ hidden: false }, [post('sam')], isStaff)).toBe(false);
+  });
+
+  it('skips a hidden reply: the newest one the cohort can see decides', () => {
+    expect(waitingOn({ hidden: false }, [post('u1'), post('cl'), post('u2', true)], isStaff)).toBe(false);
+    expect(waitingOn({ hidden: false }, [post('u1'), post('cl', true)], isStaff)).toBe(true);
+    // Every reply hidden: the first post stands in.
+    expect(waitingOn({ hidden: false }, [post('u1', true), post('cl', true)], isStaff)).toBe(true);
+  });
+
+  it('a hidden thread waits on no one, and an empty one neither', () => {
+    expect(waitingOn({ hidden: true }, [post('u1')], isStaff)).toBe(false);
+    expect(waitingOn({ hidden: false }, [], isStaff)).toBe(false);
   });
 });

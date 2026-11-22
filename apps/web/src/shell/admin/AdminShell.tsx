@@ -24,6 +24,7 @@ import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { AcademyLogo } from './Wordmark';
 import { useOpenIncidents } from './useOpenIncidents';
+import { useWaitingThreads } from './useWaitingThreads';
 import s from './AdminShell.module.css';
 
 // The admin AppShell of the Admin redesign R2 (D-160 R2-1b, BUILD-SPEC § 4), the mockup's frame: the
@@ -91,9 +92,10 @@ export function AdminShell() {
 
   // D-167: the sidebar's "1 incident" from the API, once we know this is not the parity fixture.
   const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
+  const waiting = useWaitingThreads(parity === null && consoleCan(role, 'console.view'), path);
   const data = useMemo(
-    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents)),
-    [db, openIncidents, parity, role, staffId],
+    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents, waiting)),
+    [db, openIncidents, parity, role, staffId, waiting],
   );
 
   // ---- the sidebar's form --------------------------------------------------------------------------

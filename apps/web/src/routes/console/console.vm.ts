@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'build';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'build' | 'community';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -38,6 +38,8 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   // D-169 (spec §§ 7.1–7.2): System Health, the Console's home (D15), and the Build hub.
   health: { title: 'System Health', cap: 'console.view', path: '/admin/health' },
   build: { title: 'Build', cap: 'console.view', path: '/admin/build' },
+  // D-238 (B-45): every Console role reads it; writing is the 'account' row's (`COMMUNITY_WRITE_CAP`).
+  community: { title: 'Community', cap: 'console.view', path: '/admin/community' },
 };
 
 /** The way out of Denied and the 404. */
