@@ -15,6 +15,7 @@ import type { AIEmployee, SkillFile } from '@ai/core';
 import type { LearnerCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
 import { skillPreview } from '@ai/core/files';
+import { SEAT_CARD_LABEL } from '@ai/core/seat-card';
 import { COPY, weekVM as courseWeekVM } from '../course/Course.vm';
 import type { CoursePayload, DownloadVM, Row } from '../course/Course.vm';
 import { LABELS } from './learn.vm';
@@ -50,17 +51,8 @@ export const KIT = {
   program: 'Amplified AI Accelerator',
 } as const;
 
-const SEAT_LABEL: Record<keyof SeatCard, string> = {
-  seat: 'Seat',
-  reportsTo: 'Reports To',
-  runs: 'Runs',
-  pulls: 'Pulls',
-  applies: 'Applies',
-  produces: 'Produces',
-  tookOver: 'Took Over',
-  cantDo: 'Can’t Do',
-  firstRun: 'First Run',
-};
+/** D-236: the seat card form labels its rows alike, so the words live in core. */
+const SEAT_LABEL: Readonly<Record<keyof SeatCard, string>> = SEAT_CARD_LABEL;
 const PLAYBOOK_LABEL: Record<'name' | 'number' | 'question' | 'play' | 'source', string> = {
   name: 'Name',
   number: 'Number',

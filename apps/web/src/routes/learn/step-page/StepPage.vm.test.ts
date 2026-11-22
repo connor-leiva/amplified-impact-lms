@@ -99,6 +99,23 @@ describe('the v6 step page’s props (D-210)', () => {
     expect(agent.items[0]!.action).toEqual({ type: 'line', text: 'Your team’s owner or operator turns this in.' });
   });
 
+  it('D-236: the seat card’s Form button opens its drawer for a viewer v3 draws for, and draws nothing without v3', () => {
+    const { p, rows } = mockupState();
+    const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;
+    const layout = vm.layouts!.claude!;
+    const kit = buildKitVM(rows[0]?.module, () => null);
+    const media = { duration: null, cues: [], poster: undefined, captions: undefined };
+    let opened = 0;
+    const withForm: ChecklistLayoutVM = { ...layout, items: layout.items.map((it, i) => (i === 0 ? { ...it, playLabel: null, playSeconds: null, card: [], action: { type: 'seatcard', label: 'Open the seat card' } } : it)) };
+    const base = { onCalendar: () => undefined, onViewPrompt: () => undefined };
+    expect(stepPageStep(vm, withForm, kit, media, base).items[0]!.action).toBeNull();
+    const action = stepPageStep(vm, withForm, kit, media, { ...base, seatCard: { open: () => void opened++ } }).items[0]!.action;
+    if (action?.type !== 'form') throw new Error('no seat card button');
+    expect(action.label).toBe('Open the seat card');
+    action.onClick();
+    expect(opened).toBe(1);
+  });
+
   it('every kind of step content draws: extra content, waiting items, sub-checks, actions, a step with no checklist', () => {
     const { p, rows } = mockupState();
     const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;

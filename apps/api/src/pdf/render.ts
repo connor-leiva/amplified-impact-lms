@@ -76,6 +76,54 @@ export function intakePdfHtml(x: IntakePdfInput): string {
 /** "Week 0 Intake - Northline Realty.pdf", safe in a header. */
 export const intakePdfName = (team: string): string => `${PDF_UI.title} - ${team.replace(/[^\p{L}\p{N} .,&'-]+/gu, '').trim() || 'Team'}.pdf`;
 
+export interface SeatCardPdfInput {
+  /** The card's questions (`seatCardForm`): the week's rows, each standard its hint. */
+  form: CourseIntake;
+  seat: string;
+  week: number;
+  step: number;
+  answers: Record<string, string>;
+  team: string;
+  owner: string;
+  cohort: string;
+  savedAt: number;
+  signedAt: number | null;
+  signedBy: string | null;
+}
+
+/**
+ * D-236: a team's seat card as a PDF, in the intake's placeholder look: the drawer's title and kicker, the team's
+ * answers, and who signed it and when (or that it isn't signed yet).
+ */
+export function seatCardPdfHtml(x: SeatCardPdfInput): string {
+  const a = assetsOnce();
+  const signed = x.signedAt !== null;
+  const date = dateOf(x.signedAt ?? x.savedAt);
+  return formPdfHtml({
+    form: { id: 'seat-card', ui: { title: `${x.seat} Seat Card`, kicker: `Week ${x.week} · Step ${x.step} · Owner and operator` }, intake: x.form },
+    answers: x.answers,
+    meta: {
+      team: x.team,
+      owner: x.owner,
+      cohort: x.cohort,
+      status: signed ? 'Submitted' : 'Draft',
+      label: signed ? 'Signed' : 'Draft',
+      date,
+      end: signed
+        ? `Signed by ${x.signedBy || x.owner}, Team Owner, ${date} through learn.amplifiedimpact.io.`
+        : `Saved ${date} through learn.amplifiedimpact.io. Not signed yet.`,
+    },
+    fonts: { sans: a.sans, mono: a.mono },
+    logo: a.logo,
+  });
+}
+
+/** "Finance Analyst Seat Card - Northline Realty.pdf", safe in a header. */
+export const seatCardPdfName = (seat: string, team: string): string => {
+  const clean = (t: string) => t.replace(/[^\p{L}\p{N} .,&'-]+/gu, '').trim();
+  return `${clean(seat) || 'Seat'} Seat Card - ${clean(team) || 'Team'}.pdf`;
+};
+
 /** The bundled Chromium, unpacked to the temp directory on first use, with its own NSS libraries and fonts. */
 async function bundledChromium(): Promise<{ executablePath: string; args: string[]; env: Record<string, string> }> {
   const pkg = await import('@sparticuz/chromium');
