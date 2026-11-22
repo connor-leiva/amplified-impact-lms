@@ -16,7 +16,7 @@
 // package's made-up people (Alex Morgan of Northline Realty). It refuses any database whose name doesn't say it is a
 // local one, and any learner that isn't flagged as the test account.
 //
-// `content` also gives Week 1's steps 4 and 6 the Upload action (D-230). `turnin.sql` puts the test learner where a
+// `content` also gives Week 1's steps 4 and 6 the Upload action (D-230), unless they ask already (D-235's data step). `turnin.sql` puts the test learner where a
 // Turn in check starts (`--assume-turnin report | checkpoint | turned`): Week 1 open (early access), and nothing turned
 // in, or the package's sample report turned in.
 //
@@ -115,9 +115,15 @@ async function content(): Promise<void> {
   const [w1] = await sql<{ checklist: Step[] }[]>`select checklist from modules where id = ${WEEK1}`;
   if (w1) {
     const asks: Record<number, { id: string; kind: 'live_read' | 'checkpoint' }> = { 4: { id: 'w1-turn-in-report', kind: 'live_read' }, 6: { id: 'w1-turn-in-checkpoint', kind: 'checkpoint' } };
+    // Once the Weeks 1 and 2 data step has run (D-235), the steps ask already, on both paths, and nothing is added.
+    const asksFor = (st: Step, kind: string): boolean =>
+      [...(st.paths?.claude?.blocks ?? []), ...(st.paths?.chatgpt?.blocks ?? [])].some((b) => {
+        const a = (b as { action?: { type?: string; kind?: string } }).action;
+        return a?.type === 'upload' && a.kind === kind;
+      });
     const checklist = w1.checklist.map((st, i) => {
       const ask = asks[i + 1];
-      return ask ? withItem(st, { type: 'check', id: ask.id, title: 'Turn it in', action: { type: 'upload', kind: ask.kind } } as { id: string }) : st;
+      return ask && !asksFor(st, ask.kind) ? withItem(st, { type: 'check', id: ask.id, title: 'Turn it in', action: { type: 'upload', kind: ask.kind } } as { id: string }) : st;
     });
     await sql`update modules set checklist = ${JSON.stringify(checklist)}::jsonb where id = ${WEEK1}`;
   }

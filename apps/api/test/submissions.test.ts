@@ -59,9 +59,15 @@ beforeEach(async () => {
   const db = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
   // Week 1 asks for a report on step 4 and a checkpoint on step 6, as the builder's Upload action does.
   const week1 = db.modules.find((m) => m.id === WEEK1)!;
+  // Each path has its own item (the builder refuses a repeated id on a step), as Weeks 1 and 2 do.
   const ask = (i: number, id: string, kind: 'live_read' | 'checkpoint') => {
     const step = week1.checklist[i]!;
-    step.paths = { ...step.paths, claude: { blocks: [...(step.paths?.claude?.blocks ?? []), { type: 'check', id, title: 'Turn it in', action: { type: 'upload', kind } }] } };
+    const item = (x: string) => ({ type: 'check' as const, id: x, title: 'Turn it in', action: { type: 'upload' as const, kind } });
+    step.paths = {
+      ...step.paths,
+      claude: { blocks: [...(step.paths?.claude?.blocks ?? []), item(id)] },
+      chatgpt: { blocks: [...(step.paths?.chatgpt?.blocks ?? []), item(`${id}-gpt`)] },
+    };
   };
   ask(3, 'turn-in-report', 'live_read');
   ask(5, 'turn-in-checkpoint', 'checkpoint');
@@ -113,9 +119,11 @@ describe('Turn in (D-230)', () => {
     expect(bucket.objects.get(key)!.contentType).toBe('text/html');
     const made = await turnIn('own-a', { moduleId: WEEK1, kind: 'live_read', files: [{ key, name: 'Map Your Spend report.html' }], note: ' Please look at advertising. ', minutes: '' });
     expect(made.statusCode).toBe(201);
-    // The step's item that asks for it is done for the whole team, as a submitted intake's is.
-    const ticks = await handle.select().from(checklistState).where(eq(checklistState.itemId, 'turn-in-report'));
-    expect(ticks.map((t) => [t.userId, t.checked, t.auto]).sort()).toEqual([['ag-a', true, true], ['op-a', true, true], ['own-a', true, true]]);
+    // The step's items that ask for it are done for the whole team, on both paths, as a submitted intake's is.
+    for (const itemId of ['turn-in-report', 'turn-in-report-gpt']) {
+      const ticks = await handle.select().from(checklistState).where(eq(checklistState.itemId, itemId));
+      expect(ticks.map((t) => [t.userId, t.checked, t.auto]).sort()).toEqual([['ag-a', true, true], ['op-a', true, true], ['own-a', true, true]]);
+    }
 
     const res = await mine('op-a');
     expect(res.statusCode).toBe(200);

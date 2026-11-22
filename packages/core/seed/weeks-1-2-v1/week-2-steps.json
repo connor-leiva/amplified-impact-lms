@@ -1,0 +1,2292 @@
+[
+ {
+  "title": "Run Lead Source Review",
+  "who": "Operator",
+  "time": "15 min",
+  "mins": 15,
+  "done": "Your Lead Source Review report is built on the last 12 full months of closings by source",
+  "goal": "Run Lead Source Review on the last 12 months of closings by source.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w2-01a",
+    "title": "Run Lead Source Review (Claude)",
+    "note": "Recording w2-01a."
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-closings",
+    "title": "Export 12 months of closings by source",
+    "detail": "One row per deal with the lead source on each, from Sisu, your CRM or your brokerage. Add the agent and GCI columns if the export has them.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 2 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-spend",
+    "title": "Pull what you spend on leads",
+    "detail": "Your P&L, or a list of lead spend by source for the same 12 months. Week 1's report already has your advertising total.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-fees",
+    "title": "Add what platforms take at closing",
+    "detail": "Zillow, ReadyConnect, HomeLight and others that take a referral fee. Your commission or payout ledger usually has it.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-inbox",
+    "title": "Save the files in your inbox folder",
+    "detail": "In Google Drive, make AI Office / Lead Source Review with an inbox folder inside. Put this week's exports in the inbox. Leave out client contact details.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s1c-closings"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1c-run",
+    "title": "Run Lead Source Review",
+    "detail": "Open your AI Office project in Claude and start a new chat. Attach your files, paste this, and fill in the brackets.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s1c-inbox"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Run a Lead Source Review on our last 12 full months. Use the lead-source-review skill.\nOur team is [team name]. The attached files are [list each file: closings with the lead source on each, the P&L or a list of lead spend by source, and what we pay platforms like Zillow at closing].\nEvery agent and staff name on the team: [names, comma separated].\nRead the files, sort every label into the nine buckets, and send me one message with the period, the flagged questions, the bucket table and the questions our files can't answer. Wait for my answers before you score.\nRead only. Never change a lead or anything in our CRM. Never send."
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "The only file the review can't run without is closings by lead source. A missing file is never a reason to guess. The report lists it as a number to bring next time."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "This week grades each lead source on what it returns on company dollar, after splits and fees, and hires your Lead Desk Monitor to catch every new lead that isn't worked to standard.",
+     "The operator pulls the files and runs the skill. The owner answers the flags in step 2. Run it by Tuesday night, so you can submit your report for a live read on Wednesday."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Each File Unlocks",
+    "paras": [
+     "The review runs on closings alone. Each extra file adds a section."
+    ],
+    "head": [
+     "File",
+     "What It Adds"
+    ],
+    "rows": [
+     [
+      "Closings by source",
+      "The bucket mix and the six tests"
+     ],
+     [
+      "Lead spend by source",
+      "Cost per closing and return on company dollar"
+     ],
+     [
+      "Lead counts by source",
+      "Cost per lead, and whether a costly source is off on price or conversion"
+     ],
+     [
+      "Fees paid at closing",
+      "What pay-at-close platforms really keep"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Want to See It on Made-Up Data First?",
+    "paras": [
+     "Run the self-test from Week 0 step 4 again. The skill comes with a made-up Sample Team with 150 closings, so none of your data goes in."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w2-01b",
+    "title": "Run Lead Source Review (ChatGPT)",
+    "note": "Recording w2-01b."
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-closings",
+    "title": "Export 12 months of closings by source",
+    "detail": "One row per deal with the lead source on each, from Sisu, your CRM or your brokerage. Add the agent and GCI columns if the export has them.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 2 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-spend",
+    "title": "Pull what you spend on leads",
+    "detail": "Your P&L, or a list of lead spend by source for the same 12 months. Week 1's report already has your advertising total.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-fees",
+    "title": "Add what platforms take at closing",
+    "detail": "Zillow, ReadyConnect, HomeLight and others that take a referral fee. Your commission or payout ledger usually has it.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-inbox",
+    "title": "Save the files in your inbox folder",
+    "detail": "In Google Drive, make AI Office / Lead Source Review with an inbox folder inside. Put this week's exports in the inbox. Leave out client contact details.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s1g-closings"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s1g-run",
+    "title": "Run Lead Source Review",
+    "detail": "Open your AI Office project in ChatGPT and start a new chat. Attach your files, paste this, and fill in the brackets.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s1g-inbox"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Run a Lead Source Review on our last 12 full months. Use the @lead-source-review skill.\nOur team is [team name]. The attached files are [list each file: closings with the lead source on each, the P&L or a list of lead spend by source, and what we pay platforms like Zillow at closing].\nEvery agent and staff name on the team: [names, comma separated].\nRead the files, sort every label into the nine buckets, and send me one message with the period, the flagged questions, the bucket table and the questions our files can't answer. Wait for my answers before you score.\nRead only. Never change a lead or anything in our CRM. Never send."
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "The only file the review can't run without is closings by lead source. A missing file is never a reason to guess. The report lists it as a number to bring next time."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "This week grades each lead source on what it returns on company dollar, after splits and fees, and hires your Lead Desk Monitor to catch every new lead that isn't worked to standard.",
+     "The operator pulls the files and runs the skill. The owner answers the flags in step 2. Run it by Tuesday night, so you can submit your report for a live read on Wednesday."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Each File Unlocks",
+    "paras": [
+     "The review runs on closings alone. Each extra file adds a section."
+    ],
+    "head": [
+     "File",
+     "What It Adds"
+    ],
+    "rows": [
+     [
+      "Closings by source",
+      "The bucket mix and the six tests"
+     ],
+     [
+      "Lead spend by source",
+      "Cost per closing and return on company dollar"
+     ],
+     [
+      "Lead counts by source",
+      "Cost per lead, and whether a costly source is off on price or conversion"
+     ],
+     [
+      "Fees paid at closing",
+      "What pay-at-close platforms really keep"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Want to See It on Made-Up Data First?",
+    "paras": [
+     "Run the self-test from Week 0 step 4 again. The skill comes with a made-up Sample Team with 150 closings, so none of your data goes in."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Confirm the Buckets",
+  "who": "Owner",
+  "time": "10 min",
+  "mins": 10,
+  "done": "Every flagged label answered and the bucket table confirmed",
+  "goal": "Answer the flagged labels and confirm the bucket table.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w2-02",
+    "title": "Confirm the Buckets",
+    "note": "Recording w2-02 (one cut for both paths)."
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-period",
+    "title": "Check the period it used",
+    "detail": "The message starts with the exact months. If two of your numbers disagreed, it says which one it used.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-flags",
+    "title": "Answer the flagged labels",
+    "detail": "Labels it couldn't place, biggest first. A name in the lead source field might be an agent or a referral partner. Tell it which.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2c-period"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-table",
+    "title": "Confirm the bucket table",
+    "detail": "Each bucket with its closings, its share and the labels that fed it. One wrong bucket moves every number after it. If you say nothing about the table, it stands as shown.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2c-flags"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-unassigned",
+    "title": "Check how many closings are Unassigned",
+    "detail": "Over 30% Unassigned and the mix can't be graded. If you know where those closings came from, say so now.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2c-table"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2c-questions",
+    "title": "Answer the questions files can't",
+    "detail": "How many agents and whose closings were yours. Who owns each big bucket. Your sphere size. When each paid source started. Skip any you can't answer.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If spend by source adds up to more than your total advertising, the review stops and asks. It is usually a charge counted twice or a referral fee sitting in spend. Tell it which number is right."
+   },
+   {
+    "type": "accordion",
+    "title": "The Nine Buckets",
+    "paras": [
+     "Every lead source gets one home. There is no \"other.\""
+    ],
+    "head": [
+     "Bucket",
+     "What Goes In"
+    ],
+    "rows": [
+     [
+      "Sphere",
+      "Past clients, sphere, their referrals, friends and family"
+     ],
+     [
+      "Paid Leads",
+      "Anything bought up front: PPC, paid social, portal subscriptions, Ylopo, BoomTown"
+     ],
+     [
+      "Pay At Close",
+      "Platforms that take a referral fee: Zillow Preferred, ReadyConnect, HomeLight, Movoto"
+     ],
+     [
+      "Prospecting",
+      "Expireds, FSBOs, circle calls, doors, Vulcan and Mojo lists"
+     ],
+     [
+      "Legacy Database",
+      "Old or imported leads with no recorded source"
+     ],
+     [
+      "Open Houses",
+      "Open house sign-ins and follow-up"
+     ],
+     [
+      "Listing-Generated",
+      "Sign calls and inquiries on the team's own listings"
+     ],
+     [
+      "Brand And Content",
+      "Website and SEO, organic social, mailers, farming"
+     ],
+     [
+      "Partners",
+      "Agent-to-agent referrals, builders, lenders, relocation"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Bucketing Rules",
+    "paras": [
+     "Blanks and labels like \"unknown\" show as Unassigned, so the gap is visible.",
+     "The relationship beats the channel. A past client who comes back through a portal counts as Sphere.",
+     "Name where the lead came from, not the tool that caught it."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w2-02",
+    "title": "Confirm the Buckets",
+    "note": "Recording w2-02 (one cut for both paths)."
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-period",
+    "title": "Check the period it used",
+    "detail": "The message starts with the exact months. If two of your numbers disagreed, it says which one it used.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-flags",
+    "title": "Answer the flagged labels",
+    "detail": "Labels it couldn't place, biggest first. A name in the lead source field might be an agent or a referral partner. Tell it which.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2g-period"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-table",
+    "title": "Confirm the bucket table",
+    "detail": "Each bucket with its closings, its share and the labels that fed it. One wrong bucket moves every number after it. If you say nothing about the table, it stands as shown.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2g-flags"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-unassigned",
+    "title": "Check how many closings are Unassigned",
+    "detail": "Over 30% Unassigned and the mix can't be graded. If you know where those closings came from, say so now.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s2g-table"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s2g-questions",
+    "title": "Answer the questions files can't",
+    "detail": "How many agents and whose closings were yours. Who owns each big bucket. Your sphere size. When each paid source started. Skip any you can't answer.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If spend by source adds up to more than your total advertising, the review stops and asks. It is usually a charge counted twice or a referral fee sitting in spend. Tell it which number is right."
+   },
+   {
+    "type": "accordion",
+    "title": "The Nine Buckets",
+    "paras": [
+     "Every lead source gets one home. There is no \"other.\""
+    ],
+    "head": [
+     "Bucket",
+     "What Goes In"
+    ],
+    "rows": [
+     [
+      "Sphere",
+      "Past clients, sphere, their referrals, friends and family"
+     ],
+     [
+      "Paid Leads",
+      "Anything bought up front: PPC, paid social, portal subscriptions, Ylopo, BoomTown"
+     ],
+     [
+      "Pay At Close",
+      "Platforms that take a referral fee: Zillow Preferred, ReadyConnect, HomeLight, Movoto"
+     ],
+     [
+      "Prospecting",
+      "Expireds, FSBOs, circle calls, doors, Vulcan and Mojo lists"
+     ],
+     [
+      "Legacy Database",
+      "Old or imported leads with no recorded source"
+     ],
+     [
+      "Open Houses",
+      "Open house sign-ins and follow-up"
+     ],
+     [
+      "Listing-Generated",
+      "Sign calls and inquiries on the team's own listings"
+     ],
+     [
+      "Brand And Content",
+      "Website and SEO, organic social, mailers, farming"
+     ],
+     [
+      "Partners",
+      "Agent-to-agent referrals, builders, lenders, relocation"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Bucketing Rules",
+    "paras": [
+     "Blanks and labels like \"unknown\" show as Unassigned, so the gap is visible.",
+     "The relationship beats the channel. A past client who comes back through a portal counts as Sphere.",
+     "Name where the lead came from, not the tool that caught it."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Read the Six Tests",
+  "who": "Owner",
+  "time": "10 min",
+  "mins": 10,
+  "done": "You've made a fix, hold or scale call on each paid source",
+  "goal": "Read the six tests, cost per closing and speed to lead.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w2-03",
+    "title": "Read the Six Tests",
+    "note": "Recording w2-03 (one cut for both paths)."
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-open",
+    "title": "Open your report",
+    "detail": "Double-click the report file. It opens in your browser.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-tests",
+    "title": "Read the six tests",
+    "detail": "How diversified the business is. Check each one as you read it.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [
+     "t1 | Sphere closings never drop",
+     "t2 | Sphere stays inside its band",
+     "t3 | No other bucket over half",
+     "t4 | No company over a quarter",
+     "t5 | At least three pillars",
+     "t6 | Closing the gap if over the ceiling"
+    ],
+    "deps": [
+     "w2s3c-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-cost",
+    "title": "Read cost per closing and return by source",
+    "detail": "Return on company dollar, after splits and fees. A young source shows Not Judged Yet until its first read.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3c-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-speed",
+    "title": "Read speed to lead",
+    "detail": "Minutes to a human first touch, and call attempts in week one, against the standard.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3c-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "This is a compliance flag, not legal advice. Have counsel review the team's consent language. Read the full TCPA callout in this week's Kit before you change follow-up timing."
+   },
+   {
+    "type": "check",
+    "id": "w2s3c-call",
+    "title": "Make a call on each paid source",
+    "detail": "Fix, hold or scale. A paid source with slow follow-up has a follow-up problem before it has a price problem.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3c-cost",
+     "w2s3c-speed"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "The Six Tests One-Pager",
+      "Speed to Lead and the TCPA"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "Return Tiers",
+    "paras": [
+     "Return on company dollar = (company dollar back minus what the leads cost) divided by what the leads cost."
+    ],
+    "head": [
+     "Tier",
+     "Return",
+     "At the Final Read"
+    ],
+    "rows": [
+     [
+      "Below the floor",
+      "Under 150%",
+      "Fix it or cut it"
+     ],
+     [
+      "Fair",
+      "150%",
+      "Hold the spend"
+     ],
+     [
+      "Good",
+      "300%",
+      "Scale"
+     ],
+     [
+      "Very good",
+      "600%",
+      "Scale"
+     ],
+     [
+      "Excellent",
+      "900%",
+      "Scale"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "First Read and Final Read",
+    "paras": [
+     "A paid source that shows no return three months in has not been judged yet. Its leads have not had time to close."
+    ],
+    "head": [
+     "Bucket",
+     "First Read",
+     "Final Read"
+    ],
+    "rows": [
+     [
+      "Pay At Close",
+      "6 months",
+      "12 months"
+     ],
+     [
+      "Paid Leads",
+      "12 months",
+      "24 months"
+     ],
+     [
+      "Prospecting",
+      "3 months",
+      "6 months"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Speed-to-Lead Standard",
+    "paras": [
+     "The clock starts when the lead lands, and an auto-reply does not count."
+    ],
+    "head": [
+     "Lead Arrives As",
+     "Standard"
+    ],
+    "rows": [
+     [
+      "A live call from a platform",
+      "Answer it. 70% pickup or better"
+     ],
+     [
+      "An online inquiry",
+      "A human call or text within 5 minutes, an auto-text within 1"
+     ],
+     [
+      "No answer",
+      "8 call attempts inside the first week, then nurture"
+     ],
+     [
+      "A referral from a person",
+      "Within the hour"
+     ],
+     [
+      "After hours",
+      "Auto-text right away, a human by 9 the next morning"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w2-03",
+    "title": "Read the Six Tests",
+    "note": "Recording w2-03 (one cut for both paths)."
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-open",
+    "title": "Open your report",
+    "detail": "Double-click the report file. It opens in your browser.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-tests",
+    "title": "Read the six tests",
+    "detail": "How diversified the business is. Check each one as you read it.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [
+     "t1 | Sphere closings never drop",
+     "t2 | Sphere stays inside its band",
+     "t3 | No other bucket over half",
+     "t4 | No company over a quarter",
+     "t5 | At least three pillars",
+     "t6 | Closing the gap if over the ceiling"
+    ],
+    "deps": [
+     "w2s3g-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-cost",
+    "title": "Read cost per closing and return by source",
+    "detail": "Return on company dollar, after splits and fees. A young source shows Not Judged Yet until its first read.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3g-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-speed",
+    "title": "Read speed to lead",
+    "detail": "Minutes to a human first touch, and call attempts in week one, against the standard.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3g-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "This is a compliance flag, not legal advice. Have counsel review the team's consent language. Read the full TCPA callout in this week's Kit before you change follow-up timing."
+   },
+   {
+    "type": "check",
+    "id": "w2s3g-call",
+    "title": "Make a call on each paid source",
+    "detail": "Fix, hold or scale. A paid source with slow follow-up has a follow-up problem before it has a price problem.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s3g-cost",
+     "w2s3g-speed"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "The Six Tests One-Pager",
+      "Speed to Lead and the TCPA"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "Return Tiers",
+    "paras": [
+     "Return on company dollar = (company dollar back minus what the leads cost) divided by what the leads cost."
+    ],
+    "head": [
+     "Tier",
+     "Return",
+     "At the Final Read"
+    ],
+    "rows": [
+     [
+      "Below the floor",
+      "Under 150%",
+      "Fix it or cut it"
+     ],
+     [
+      "Fair",
+      "150%",
+      "Hold the spend"
+     ],
+     [
+      "Good",
+      "300%",
+      "Scale"
+     ],
+     [
+      "Very good",
+      "600%",
+      "Scale"
+     ],
+     [
+      "Excellent",
+      "900%",
+      "Scale"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "First Read and Final Read",
+    "paras": [
+     "A paid source that shows no return three months in has not been judged yet. Its leads have not had time to close."
+    ],
+    "head": [
+     "Bucket",
+     "First Read",
+     "Final Read"
+    ],
+    "rows": [
+     [
+      "Pay At Close",
+      "6 months",
+      "12 months"
+     ],
+     [
+      "Paid Leads",
+      "12 months",
+      "24 months"
+     ],
+     [
+      "Prospecting",
+      "3 months",
+      "6 months"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Speed-to-Lead Standard",
+    "paras": [
+     "The clock starts when the lead lands, and an auto-reply does not count."
+    ],
+    "head": [
+     "Lead Arrives As",
+     "Standard"
+    ],
+    "rows": [
+     [
+      "A live call from a platform",
+      "Answer it. 70% pickup or better"
+     ],
+     [
+      "An online inquiry",
+      "A human call or text within 5 minutes, an auto-text within 1"
+     ],
+     [
+      "No answer",
+      "8 call attempts inside the first week, then nurture"
+     ],
+     [
+      "A referral from a person",
+      "Within the hour"
+     ],
+     [
+      "After hours",
+      "Auto-text right away, a human by 9 the next morning"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Submit for a Live Read",
+  "who": "Owner",
+  "time": "5 min",
+  "mins": 5,
+  "done": "Your report is submitted for a live read, or you have one question ready",
+  "goal": "Submit your report for a live read, or bring one question.",
+  "claude": [
+   {
+    "type": "check",
+    "id": "w2s4c-choose",
+    "title": "Decide: a live read or one question",
+    "detail": "At the live build, Connor reads three or four member reports against the Lead Source Standard: the number, the question he'd ask, and the play. Submit yours if you want it read. If not, bring one question.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s4c-submit",
+    "title": "Submit your report by Tuesday night",
+    "detail": "Upload the report file here. Add one line on what you'd like Connor to look at.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s4c-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Report for a live read"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "Live reads are shown to the whole cohort, and every build is recorded. Before you submit, take out anything you don't want other teams to see."
+   },
+   {
+    "type": "check",
+    "id": "w2s4c-question",
+    "title": "Or write down one question",
+    "detail": "Bring it to the live build or to office hours.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s4c-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s4c-save",
+    "title": "Save the live build",
+    "detail": "Wed, Dec 9, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.",
+    "role": "Each of you",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Add to calendar",
+     "session": "Lead Source Review Live Build"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "How the Live Build Runs",
+    "paras": [
+     "90 minutes, the same every week.",
+     "Steps 5 and 6 are the Hire Lab. Do them at the build with everyone. If you miss it, do them with the recording and bring your questions to office hours."
+    ],
+    "head": [
+     "Minutes",
+     "What Happens"
+    ],
+    "rows": [
+     [
+      "0 to 10",
+      "The Question: the owner question, the number and why it matters this month"
+     ],
+     [
+      "10 to 50",
+      "Live Reads: Connor reads three or four member reports against his standard"
+     ],
+     [
+      "50 to 80",
+      "Hire Lab: everyone schedules the Lead Desk Monitor, runs it once and checks the Leadership Desk and the Team Board"
+     ],
+     [
+      "80 to 90",
+      "Commit: each team names the task the hire takes over and who it reports to"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "check",
+    "id": "w2s4g-choose",
+    "title": "Decide: a live read or one question",
+    "detail": "At the live build, Connor reads three or four member reports against the Lead Source Standard: the number, the question he'd ask, and the play. Submit yours if you want it read. If not, bring one question.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s4g-submit",
+    "title": "Submit your report by Tuesday night",
+    "detail": "Upload the report file here. Add one line on what you'd like Connor to look at.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s4g-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Report for a live read"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "Live reads are shown to the whole cohort, and every build is recorded. Before you submit, take out anything you don't want other teams to see."
+   },
+   {
+    "type": "check",
+    "id": "w2s4g-question",
+    "title": "Or write down one question",
+    "detail": "Bring it to the live build or to office hours.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s4g-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s4g-save",
+    "title": "Save the live build",
+    "detail": "Wed, Dec 9, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.",
+    "role": "Each of you",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Add to calendar",
+     "session": "Lead Source Review Live Build"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "How the Live Build Runs",
+    "paras": [
+     "90 minutes, the same every week.",
+     "Steps 5 and 6 are the Hire Lab. Do them at the build with everyone. If you miss it, do them with the recording and bring your questions to office hours."
+    ],
+    "head": [
+     "Minutes",
+     "What Happens"
+    ],
+    "rows": [
+     [
+      "0 to 10",
+      "The Question: the owner question, the number and why it matters this month"
+     ],
+     [
+      "10 to 50",
+      "Live Reads: Connor reads three or four member reports against his standard"
+     ],
+     [
+      "50 to 80",
+      "Hire Lab: everyone schedules the Lead Desk Monitor, runs it once and checks the Leadership Desk and the Team Board"
+     ],
+     [
+      "80 to 90",
+      "Commit: each team names the task the hire takes over and who it reports to"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Schedule the Monitor",
+  "who": "Each of you",
+  "time": "15 min",
+  "mins": 15,
+  "done": "The Lead Desk Monitor is scheduled, names who it reports to, and has run once",
+  "goal": "Schedule the Lead Desk Monitor and name who it reports to.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w2-05a",
+    "title": "Schedule the Lead Desk Monitor (Claude)",
+    "note": "Recording w2-05a."
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-who",
+    "title": "Name who gets the misses list",
+    "detail": "The team lead, or whoever owns the lead desk. Write their name and email in the prompt below. They read the list on the Leadership Desk. Each agent sees their own follow-up list on the Team Board.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-team",
+    "title": "Save the review and its team file",
+    "detail": "In the review chat, ask it to save the report and its team file to AI Office / Lead Source Review. Next quarter's review starts from that file.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Using Google Drive, save the report and the team file to AI Office / Lead Source Review. Tell me the full path of each file. Don't change or delete anything else."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-folder",
+    "title": "Make the Lead Desk inbox folder",
+    "detail": "In Google Drive, make AI Office / Lead Desk / inbox. Export teams drop the CRM's speed-to-lead report here each Monday. Connected teams leave it empty, as the fallback.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 2 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-sisu",
+    "title": "Test Sisu's speed to lead",
+    "detail": "Connected teams only. In a new chat in your AI Office project, paste this. If each lead shows a first response time and call attempts, keep the Sisu line in the prompt. If not, use the export line for now.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy test prompt",
+     "text": "Using Sisu, list our new leads from yesterday with the time each one came in, its first response time and its call attempts so far. Show CRM IDs only, never client names. Read only. Don't change anything."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-schedule",
+    "title": "Schedule the Lead Desk Monitor",
+    "detail": "In the Claude app, set up a scheduled task and paste the prompt. Fill in the brackets and keep only the line for your team.",
+    "role": "Operator",
+    "optional": false,
+    "click": [
+     "Scheduled",
+     "New task",
+     "Create with Claude"
+    ],
+    "tasks": [],
+    "deps": [
+     "w2s5c-who",
+     "w2s5c-folder"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "You are our Lead Desk Monitor. You report to [TEAM LEAD'S NAME]. You run on a schedule with nobody watching, so follow these steps exactly.\nUse the lead-source-review skill's speed-to-lead standard: a human call or text within 5 minutes of an online inquiry, referrals within the hour, after-hours leads by 9 the next morning, and 8 call attempts in the first week if the lead hasn't answered. The clock starts when the lead lands, and an auto-reply does not count.\n[Connected teams, keep this line:] Using Sisu, pull our new leads from the last 14 days, with when each one came in, its first response time and its call attempts so far. If Sisu doesn't answer, say so and read the newest report in AI Office / Lead Desk / inbox instead.\n[Export teams, keep this line:] Read the newest speed-to-lead report in AI Office / Lead Desk / inbox. If there is no report from the last 7 days, say what is missing and stop. Never guess.\nYour last run is the newest dated list at the top of AI Office / Leadership Desk. If there is none, use the last 7 days. Check first touch for every lead that came in since your last run. Check call attempts for every lead whose first week ended since your last run.\nList every lead that missed the standard: the CRM link or ID (never a client name), the source, the agent, minutes to first touch and attempts so far. Biggest miss first. If nothing missed, say so in one line.\nAdd the list, with today's date, to the top of AI Office / Leadership Desk. Don't change or delete anything else on the page.\nThen create a Gmail draft to [TEAM LEAD'S EMAIL]. Use the subject \"Lead Desk Monitor: Misses\" and today's date, and put the list in the body. Save it as a draft. Do not send it.\nThen add each agent's follow-up list, with today's date, to the top of AI Office / Team Board. Under each agent's name, list their leads from your list that still need work: the CRM link or ID (never a client name), the source, and what is due next, a first call or text or the next call attempt. Leave out minutes and attempt counts here, and leave out any agent with nothing due. If nobody has anything due, add one line that says so. Don't change or delete anything else on the page.\nIf one step fails, keep going with the others, and add a line at the top of the list that says which step failed and why.\nRead only. You may save drafts, save files in the AI Office and post to its desk pages. Never send an email. Never call, text, reassign or update a lead. Never change the books, a lead, or anything else in a connected app. Don't change or delete any file, except adding the list to the top of the Leadership Desk and the follow-up lists to the top of the Team Board."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-time",
+    "title": "Set the time",
+    "detail": "Connected teams: weekdays at 7:00 AM MT. Export teams: Mondays at 7:00 AM MT. Leave the folder empty.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s5c-schedule"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5c-save",
+    "title": "Save the task and run it once",
+    "detail": "Make sure Google Drive, Gmail and, for connected teams, Sisu are on for the task. Click Schedule, then run it once now, so you see a misses list and the follow-up lists today.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s5c-time"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Each run lands in three places. The misses list goes to the top of the Leadership Desk, with a copy as a Gmail draft to the team lead. Each agent's follow-up list goes to the top of the Team Board. Nothing is sent."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "The Lead Desk Monitor checks new leads against the speed-to-lead standard. It puts the misses on the Leadership Desk, with a copy as a Gmail draft to the team lead, and each agent's follow-up list on the Team Board.",
+     "It reads only. It never calls, texts, reassigns or updates a lead, and it never sends."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Where Its Work Lands",
+    "paras": [
+     "Three places, every run."
+    ],
+    "head": [
+     "Place",
+     "Who Sees It",
+     "What Lands There"
+    ],
+    "rows": [
+     [
+      "Leadership Desk",
+      "The owner, team leads and the operator",
+      "The misses list: each lead by CRM link or ID, with source, agent, minutes to first touch and attempts so far"
+     ],
+     [
+      "Gmail drafts",
+      "The account that runs the hire",
+      "The same misses list, as a draft to the team lead"
+     ],
+     [
+      "Team Board",
+      "Every agent, view only",
+      "Each agent's follow-up list: their leads that still need work, and what is due next"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What It Reads",
+    "paras": [
+     "Use whichever your Sisu test says."
+    ],
+    "head": [
+     "Team",
+     "Runs",
+     "Reads"
+    ],
+    "rows": [
+     [
+      "Connected (Sisu)",
+      "Weekdays at 7:00 AM MT",
+      "New leads from Sisu, with each one's first response time and call attempts"
+     ],
+     [
+      "Export",
+      "Mondays at 7:00 AM MT",
+      "The CRM's speed-to-lead report in AI Office / Lead Desk / inbox, covering the last 14 days"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w2-05b",
+    "title": "Schedule the Lead Desk Monitor (ChatGPT)",
+    "note": "Recording w2-05b."
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-who",
+    "title": "Name who gets the misses list",
+    "detail": "The team lead, or whoever owns the lead desk. Write their name and email in the prompt below. They read the list on the Leadership Desk. Each agent sees their own follow-up list on the Team Board.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-team",
+    "title": "Save the review and its team file",
+    "detail": "In the review chat, ask it to save the report and its team file to AI Office / Lead Source Review. Next quarter's review starts from that file.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Using Google Drive, save the report and the team file to AI Office / Lead Source Review. Tell me the full path of each file. Don't change or delete anything else."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-folder",
+    "title": "Make the Lead Desk inbox folder",
+    "detail": "In Google Drive, make AI Office / Lead Desk / inbox. Export teams drop the CRM's speed-to-lead report here each Monday. Connected teams leave it empty, as the fallback.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 2 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-sisu",
+    "title": "Test Sisu's speed to lead",
+    "detail": "Only if Sisu is connected in your ChatGPT workspace. In your AI Office project chat, paste this. If each lead shows a first response time and call attempts, keep the Sisu line. If not, use the export line for now.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy test prompt",
+     "text": "Using Sisu, list our new leads from yesterday with the time each one came in, its first response time and its call attempts so far. Show CRM IDs only, never client names. Read only. Don't change anything."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-schedule",
+    "title": "Schedule the Lead Desk Monitor",
+    "detail": "In your AI Office project chat, paste this. Fill in the brackets and keep only the line for your team. Connected teams run weekdays. Export teams run Mondays.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s5g-who",
+     "w2s5g-folder"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Please set up a scheduled task that runs [every weekday / every Monday] at 7:00 AM MT (Mountain time). Each time it runs, do this:\nYou are our Lead Desk Monitor. You report to [TEAM LEAD'S NAME]. You run on a schedule with nobody watching, so follow these steps exactly.\nUse the @lead-source-review skill's speed-to-lead standard: a human call or text within 5 minutes of an online inquiry, referrals within the hour, after-hours leads by 9 the next morning, and 8 call attempts in the first week if the lead hasn't answered. The clock starts when the lead lands, and an auto-reply does not count.\n[Connected teams, keep this line:] Using Sisu, pull our new leads from the last 14 days, with when each one came in, its first response time and its call attempts so far. If Sisu doesn't answer, say so and read the newest report in AI Office / Lead Desk / inbox instead.\n[Export teams, keep this line:] Read the newest speed-to-lead report in AI Office / Lead Desk / inbox. If there is no report from the last 7 days, say what is missing and stop. Never guess.\nYour last run is the newest dated list at the top of AI Office / Leadership Desk. If there is none, use the last 7 days. Check first touch for every lead that came in since your last run. Check call attempts for every lead whose first week ended since your last run.\nList every lead that missed the standard: the CRM link or ID (never a client name), the source, the agent, minutes to first touch and attempts so far. Biggest miss first. If nothing missed, say so in one line.\nAdd the list, with today's date, to the top of AI Office / Leadership Desk. Don't change or delete anything else on the page.\nThen create a Gmail draft to [TEAM LEAD'S EMAIL]. Use the subject \"Lead Desk Monitor: Misses\" and today's date, and put the list in the body. Save it as a draft. Do not send it.\nThen add each agent's follow-up list, with today's date, to the top of AI Office / Team Board. Under each agent's name, list their leads from your list that still need work: the CRM link or ID (never a client name), the source, and what is due next, a first call or text or the next call attempt. Leave out minutes and attempt counts here, and leave out any agent with nothing due. If nobody has anything due, add one line that says so. Don't change or delete anything else on the page.\nIf one step fails, keep going with the others, and add a line at the top of the list that says which step failed and why.\nRead only. You may save drafts, save files in the AI Office and post to its desk pages. Never send an email. Never call, text, reassign or update a lead. Never change the books, a lead, or anything else in a connected app. Don't change or delete any file, except adding the list to the top of the Leadership Desk and the follow-up lists to the top of the Team Board."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-check",
+    "title": "Check it shows in Scheduled",
+    "detail": "Open Scheduled in ChatGPT. The task should show with its next run time.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s5g-schedule"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s5g-save",
+    "title": "Run it once now",
+    "detail": "Ask the same chat to run it once now, so you see a misses list and the follow-up lists today.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s5g-check"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Each run lands in three places. The misses list goes to the top of the Leadership Desk, with a copy as a Gmail draft to the team lead. Each agent's follow-up list goes to the top of the Team Board. Nothing is sent."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "The Lead Desk Monitor checks new leads against the speed-to-lead standard. It puts the misses on the Leadership Desk, with a copy as a Gmail draft to the team lead, and each agent's follow-up list on the Team Board.",
+     "It reads only. It never calls, texts, reassigns or updates a lead, and it never sends."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Where Its Work Lands",
+    "paras": [
+     "Three places, every run."
+    ],
+    "head": [
+     "Place",
+     "Who Sees It",
+     "What Lands There"
+    ],
+    "rows": [
+     [
+      "Leadership Desk",
+      "The owner, team leads and the operator",
+      "The misses list: each lead by CRM link or ID, with source, agent, minutes to first touch and attempts so far"
+     ],
+     [
+      "Gmail drafts",
+      "The account that runs the hire",
+      "The same misses list, as a draft to the team lead"
+     ],
+     [
+      "Team Board",
+      "Every agent, view only",
+      "Each agent's follow-up list: their leads that still need work, and what is due next"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What It Reads",
+    "paras": [
+     "Use whichever your Sisu test says."
+    ],
+    "head": [
+     "Team",
+     "Runs",
+     "Reads"
+    ],
+    "rows": [
+     [
+      "Connected (Sisu)",
+      "Weekdays at 7:00 AM MT",
+      "New leads from Sisu, with each one's first response time and call attempts"
+     ],
+     [
+      "Export",
+      "Mondays at 7:00 AM MT",
+      "The CRM's speed-to-lead report in AI Office / Lead Desk / inbox, covering the last 14 days"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Check the Misses List",
+  "who": "Each of you",
+  "time": "10 min",
+  "mins": 10,
+  "done": "The first misses list and each agent's follow-up list are checked, and the Lead Desk Monitor's seat card is signed",
+  "goal": "Check its first misses list against what you know.",
+  "claude": [
+   {
+    "type": "check",
+    "id": "w2s6c-read",
+    "title": "Read the first misses list",
+    "detail": "Look in two places: the top of the Leadership Desk, and the Gmail drafts of the account that runs the hire. Each miss shows a CRM link or ID, the source, the agent, minutes to first touch and attempts so far.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-compare",
+    "title": "Check it against what you know",
+    "detail": "Open two misses in your CRM. Do the minutes and attempts match? If not, check the dates it read. Export teams, check the newest report is in the inbox.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-read"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-board",
+    "title": "Check each agent's follow-up list",
+    "detail": "Open the Team Board. Each agent with something due shows under their name, with the lead's CRM link or ID, its source and what is due next. Every agent can open this page, so make sure it reads the way you want.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-read"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-names",
+    "title": "Make sure no client names show",
+    "detail": "On both pages and in the draft: CRM links or IDs only. If a client name shows, tell the chat to drop it and fix the task.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-read",
+     "w2s6c-board"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-tell",
+    "title": "Tell your agents where to look",
+    "detail": "Agents open the Team Board, view only. Tell them their follow-up list shows there after every run, and that nothing on it gets sent to a client.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-board"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-fill",
+    "title": "Fill in the Lead Desk Monitor's seat card",
+    "detail": "Fill it in here, together. For Took Over, use your Week 0 baseline: Baseline task 2, checking one day of new leads for first touch and attempts. Write your minutes per occurrence, or \"not done today.\" For First Run, use the date of the misses list you just checked. A made-up team's finished card is in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Form",
+     "label": "Open the seat card",
+     "form": "Seat card"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-sign",
+    "title": "Sign the seat card",
+    "detail": "Read it, then sign it in the form. Your signature says you know what it reads, what it drafts, who it reports to and what it can't do.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-fill"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6c-checkpoint",
+    "title": "Turn in your checkpoint",
+    "detail": "Upload a screenshot of the first misses list before the next live build on Wed, Dec 16, 2026 at 12:00 PM MT. The signed seat card comes in through the form.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6c-sign"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Checkpoint"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "The Lead Desk Monitor's Seat Card",
+    "paras": [
+     "The standard card. Your card is in your own words, with your Took Over minutes and your First Run."
+    ],
+    "head": [
+     "Field",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Seat",
+      "Lead Desk Monitor"
+     ],
+     [
+      "Reports To",
+      "The team lead, or whoever owns the lead desk"
+     ],
+     [
+      "Runs",
+      "Weekdays at 7:00 AM MT for connected teams, reading Sisu. Mondays at 7:00 AM MT for export teams"
+     ],
+     [
+      "Pulls",
+      "New leads with their first response time and call attempts: from Sisu for connected teams, or from the CRM's speed-to-lead report in AI Office / Lead Desk / inbox for export teams"
+     ],
+     [
+      "Applies",
+      "The speed-to-lead standard: a human within 5 minutes, 8 call attempts in week one, referrals within the hour, after-hours leads by 9 the next morning"
+     ],
+     [
+      "Produces",
+      "A misses list for the team lead, added to the top of the Leadership Desk with the date and saved as a Gmail draft to the team lead: each lead with source, agent, minutes to first touch and attempts so far. Each agent's follow-up list, added to the top of the Team Board. Every lead shows by CRM link or ID, never a client name"
+     ],
+     [
+      "Took Over",
+      "Baseline task 2, checking one day of new leads for first touch and attempts. If nobody does it today, the gain is coverage"
+     ],
+     [
+      "Can't Do",
+      "Call, text, reassign or update a lead. It drafts and never sends"
+     ],
+     [
+      "First Run",
+      "Date and screenshot"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "check",
+    "id": "w2s6g-read",
+    "title": "Read the first misses list",
+    "detail": "Look in two places: the top of the Leadership Desk, and the Gmail drafts of the account that runs the hire. Each miss shows a CRM link or ID, the source, the agent, minutes to first touch and attempts so far.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-compare",
+    "title": "Check it against what you know",
+    "detail": "Open two misses in your CRM. Do the minutes and attempts match? If not, check the dates it read. Export teams, check the newest report is in the inbox.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-read"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-board",
+    "title": "Check each agent's follow-up list",
+    "detail": "Open the Team Board. Each agent with something due shows under their name, with the lead's CRM link or ID, its source and what is due next. Every agent can open this page, so make sure it reads the way you want.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-read"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-names",
+    "title": "Make sure no client names show",
+    "detail": "On both pages and in the draft: CRM links or IDs only. If a client name shows, tell the chat to drop it and fix the task.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-read",
+     "w2s6g-board"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-tell",
+    "title": "Tell your agents where to look",
+    "detail": "Agents open the Team Board, view only. Tell them their follow-up list shows there after every run, and that nothing on it gets sent to a client.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-board"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-fill",
+    "title": "Fill in the Lead Desk Monitor's seat card",
+    "detail": "Fill it in here, together. For Took Over, use your Week 0 baseline: Baseline task 2, checking one day of new leads for first touch and attempts. Write your minutes per occurrence, or \"not done today.\" For First Run, use the date of the misses list you just checked. A made-up team's finished card is in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Form",
+     "label": "Open the seat card",
+     "form": "Seat card"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-sign",
+    "title": "Sign the seat card",
+    "detail": "Read it, then sign it in the form. Your signature says you know what it reads, what it drafts, who it reports to and what it can't do.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-fill"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w2s6g-checkpoint",
+    "title": "Turn in your checkpoint",
+    "detail": "Upload a screenshot of the first misses list before the next live build on Wed, Dec 16, 2026 at 12:00 PM MT. The signed seat card comes in through the form.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w2s6g-sign"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Checkpoint"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "The Lead Desk Monitor's Seat Card",
+    "paras": [
+     "The standard card. Your card is in your own words, with your Took Over minutes and your First Run."
+    ],
+    "head": [
+     "Field",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Seat",
+      "Lead Desk Monitor"
+     ],
+     [
+      "Reports To",
+      "The team lead, or whoever owns the lead desk"
+     ],
+     [
+      "Runs",
+      "Weekdays at 7:00 AM MT for connected teams, reading Sisu. Mondays at 7:00 AM MT for export teams"
+     ],
+     [
+      "Pulls",
+      "New leads with their first response time and call attempts: from Sisu for connected teams, or from the CRM's speed-to-lead report in AI Office / Lead Desk / inbox for export teams"
+     ],
+     [
+      "Applies",
+      "The speed-to-lead standard: a human within 5 minutes, 8 call attempts in week one, referrals within the hour, after-hours leads by 9 the next morning"
+     ],
+     [
+      "Produces",
+      "A misses list for the team lead, added to the top of the Leadership Desk with the date and saved as a Gmail draft to the team lead: each lead with source, agent, minutes to first touch and attempts so far. Each agent's follow-up list, added to the top of the Team Board. Every lead shows by CRM link or ID, never a client name"
+     ],
+     [
+      "Took Over",
+      "Baseline task 2, checking one day of new leads for first touch and attempts. If nobody does it today, the gain is coverage"
+     ],
+     [
+      "Can't Do",
+      "Call, text, reassign or update a lead. It drafts and never sends"
+     ],
+     [
+      "First Run",
+      "Date and screenshot"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ }
+]
