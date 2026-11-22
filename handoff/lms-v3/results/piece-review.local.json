@@ -1,0 +1,190 @@
+{
+  "target": [
+    "http://127.0.0.1:4300/learn/week/0",
+    "http://127.0.0.1:4300/learn/schedule",
+    "http://127.0.0.1:4300/learn/community",
+    "http://127.0.0.1:4300/learn/community/2",
+    "http://127.0.0.1:4300/learn/week/1/step/4"
+  ],
+  "reference": "http://localhost:4201/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "when": "2026-11-22T11:33:23.735Z",
+  "done": true,
+  "report": [
+    {
+      "view": "week",
+      "width": 1440,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 390,
+      "pieces": {
+        "target": 89,
+        "reference": 89
+      },
+      "compared": 129,
+      "different": []
+    },
+    {
+      "view": "week-collapsed",
+      "width": 1440,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 1440,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 390,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 8,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 1440,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 390,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 164,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1440,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 390,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 18,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 1440,
+      "pieces": {
+        "target": 73,
+        "reference": 73
+      },
+      "compared": 178,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 390,
+      "pieces": {
+        "target": 42,
+        "reference": 42
+      },
+      "compared": 60,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 1440,
+      "pieces": {
+        "target": 63,
+        "reference": 63
+      },
+      "compared": 156,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 390,
+      "pieces": {
+        "target": 32,
+        "reference": 32
+      },
+      "compared": 46,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 1440,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 390,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 25,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 1440,
+      "pieces": {
+        "target": 61,
+        "reference": 61
+      },
+      "compared": 142,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 390,
+      "pieces": {
+        "target": 30,
+        "reference": 30
+      },
+      "compared": 40,
+      "different": []
+    }
+  ],
+  "parts": [
+    "local-first",
+    "local-overlays",
+    "local-turnin"
+  ]
+}

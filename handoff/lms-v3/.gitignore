@@ -4,3 +4,6 @@ harness/public/app.js
 harness/public/app.css
 # A local run's screenshots (results/report.json, the author's runs, is kept).
 results/*.png
+# The review scripts' images (their .md and .json reports are kept).
+results/pieces/
+results/motion/

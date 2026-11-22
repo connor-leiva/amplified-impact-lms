@@ -1,0 +1,615 @@
+{
+  "target": {
+    "week": "http://localhost:4191/harness/",
+    "schedule": "http://localhost:4191/harness/",
+    "community": "http://localhost:4191/harness/",
+    "thread": "http://localhost:4191/harness/",
+    "turnin": "http://localhost:4191/harness/"
+  },
+  "reference": "http://localhost:4191/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "when": "2026-11-22T11:40:57.057Z",
+  "done": true,
+  "report": [
+    {
+      "view": "week",
+      "width": 1440,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 1280,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 1100,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 900,
+      "pieces": {
+        "target": 89,
+        "reference": 89
+      },
+      "compared": 209,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 820,
+      "pieces": {
+        "target": 89,
+        "reference": 89
+      },
+      "compared": 209,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 640,
+      "pieces": {
+        "target": 89,
+        "reference": 89
+      },
+      "compared": 129,
+      "different": []
+    },
+    {
+      "view": "week",
+      "width": 390,
+      "pieces": {
+        "target": 89,
+        "reference": 89
+      },
+      "compared": 129,
+      "different": []
+    },
+    {
+      "view": "week-collapsed",
+      "width": 1440,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week-collapsed",
+      "width": 1280,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week-collapsed",
+      "width": 1100,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 1440,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 1280,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 1100,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 900,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 820,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 13,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 640,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 8,
+      "different": []
+    },
+    {
+      "view": "week-calendar",
+      "width": 390,
+      "pieces": {
+        "target": 4,
+        "reference": 4
+      },
+      "compared": 8,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 1440,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 1280,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 1100,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 900,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 820,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 250,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 640,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 164,
+      "different": []
+    },
+    {
+      "view": "week-form",
+      "width": 390,
+      "pieces": {
+        "target": 121,
+        "reference": 121
+      },
+      "compared": 164,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1440,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1280,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1100,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 900,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 820,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 640,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 18,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 390,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 18,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 1440,
+      "pieces": {
+        "target": 73,
+        "reference": 73
+      },
+      "compared": 178,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 1280,
+      "pieces": {
+        "target": 73,
+        "reference": 73
+      },
+      "compared": 178,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 1100,
+      "pieces": {
+        "target": 73,
+        "reference": 73
+      },
+      "compared": 178,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 900,
+      "pieces": {
+        "target": 42,
+        "reference": 42
+      },
+      "compared": 96,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 820,
+      "pieces": {
+        "target": 42,
+        "reference": 42
+      },
+      "compared": 96,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 640,
+      "pieces": {
+        "target": 42,
+        "reference": 42
+      },
+      "compared": 60,
+      "different": []
+    },
+    {
+      "view": "schedule",
+      "width": 390,
+      "pieces": {
+        "target": 42,
+        "reference": 42
+      },
+      "compared": 60,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 1440,
+      "pieces": {
+        "target": 63,
+        "reference": 63
+      },
+      "compared": 156,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 1280,
+      "pieces": {
+        "target": 63,
+        "reference": 63
+      },
+      "compared": 156,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 1100,
+      "pieces": {
+        "target": 63,
+        "reference": 63
+      },
+      "compared": 156,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 900,
+      "pieces": {
+        "target": 32,
+        "reference": 32
+      },
+      "compared": 74,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 820,
+      "pieces": {
+        "target": 32,
+        "reference": 32
+      },
+      "compared": 74,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 640,
+      "pieces": {
+        "target": 32,
+        "reference": 32
+      },
+      "compared": 46,
+      "different": []
+    },
+    {
+      "view": "community",
+      "width": 390,
+      "pieces": {
+        "target": 32,
+        "reference": 32
+      },
+      "compared": 46,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 1440,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 1280,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 1100,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 900,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 820,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 39,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 640,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 25,
+      "different": []
+    },
+    {
+      "view": "community-start",
+      "width": 390,
+      "pieces": {
+        "target": 18,
+        "reference": 18
+      },
+      "compared": 25,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 1440,
+      "pieces": {
+        "target": 61,
+        "reference": 61
+      },
+      "compared": 142,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 1280,
+      "pieces": {
+        "target": 61,
+        "reference": 61
+      },
+      "compared": 142,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 1100,
+      "pieces": {
+        "target": 61,
+        "reference": 61
+      },
+      "compared": 142,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 900,
+      "pieces": {
+        "target": 30,
+        "reference": 30
+      },
+      "compared": 60,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 820,
+      "pieces": {
+        "target": 30,
+        "reference": 30
+      },
+      "compared": 60,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 640,
+      "pieces": {
+        "target": 30,
+        "reference": 30
+      },
+      "compared": 40,
+      "different": []
+    },
+    {
+      "view": "thread",
+      "width": 390,
+      "pieces": {
+        "target": 30,
+        "reference": 30
+      },
+      "compared": 40,
+      "different": []
+    }
+  ],
+  "parts": [
+    "harness-a",
+    "harness-e",
+    "harness-d",
+    "harness-f",
+    "harness-g",
+    "harness-g2",
+    "harness-h",
+    "harness-i"
+  ]
+}

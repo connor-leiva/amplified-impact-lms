@@ -1,0 +1,73 @@
+{
+  "target": {
+    "week": "http://127.0.0.1:4300/learn/week/1/step/4",
+    "schedule": null,
+    "community": null,
+    "thread": null,
+    "turnin": "http://127.0.0.1:4300/learn/week/1/step/4"
+  },
+  "reference": "http://localhost:4218/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "frames": [
+    0,
+    60,
+    120,
+    240,
+    400,
+    560,
+    900
+  ],
+  "when": "2026-11-22T11:35:36.513Z",
+  "report": [
+    {
+      "part": "frames",
+      "view": "turnin",
+      "width": 1440,
+      "motion": "turnin-in",
+      "different": [
+        "60 ms: the target has nothing at .aim-drawer__panel",
+        "120 ms: the target has nothing at .aim-drawer__panel",
+        "240 ms: the target has nothing at .aim-drawer__panel",
+        "400 ms: 13616 px (sizes differ)",
+        "560 ms: 16776 px (sizes differ)",
+        "900 ms: 4900 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "turnin",
+      "width": 1440,
+      "motion": "turnin-in",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: one page has nothing there",
+        ".aim-reduced, 50 ms after the start: one page has nothing there"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "turnin",
+      "width": 390,
+      "motion": "turnin-in",
+      "different": [
+        "60 ms: the target has nothing at .aim-drawer__panel",
+        "120 ms: the target has nothing at .aim-drawer__panel",
+        "240 ms: the target has nothing at .aim-drawer__panel",
+        "400 ms: 14549 px (sizes differ)",
+        "560 ms: 16259 px",
+        "900 ms: 4757 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "turnin",
+      "width": 390,
+      "motion": "turnin-in",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: one page has nothing there",
+        ".aim-reduced, 50 ms after the start: one page has nothing there"
+      ],
+      "note": ""
+    }
+  ]
+}

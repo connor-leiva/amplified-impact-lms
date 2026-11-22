@@ -1,0 +1,257 @@
+{
+  "target": {
+    "week": "http://localhost:4198/harness/",
+    "schedule": "http://localhost:4198/harness/",
+    "community": "http://localhost:4198/harness/",
+    "thread": "http://localhost:4198/harness/",
+    "turnin": "http://localhost:4198/harness/"
+  },
+  "reference": "http://localhost:4198/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "inject": ".wk-step{padding-left:21px}",
+  "when": "2026-11-22T10:36:06.318Z",
+  "done": true,
+  "report": [
+    {
+      "view": "week",
+      "width": 1440,
+      "pieces": {
+        "target": 120,
+        "reference": 120
+      },
+      "compared": 291,
+      "different": [
+        {
+          "piece": "27 a.wk-step",
+          "state": "rest",
+          "detail": "1793 px"
+        },
+        {
+          "piece": "27 a.wk-step",
+          "state": "hover",
+          "detail": "1753 px"
+        },
+        {
+          "piece": "27 a.wk-step",
+          "state": "focus",
+          "detail": "1793 px"
+        },
+        {
+          "piece": "27 a.wk-step",
+          "state": "pressed",
+          "detail": "1753 px"
+        },
+        {
+          "piece": "28 a.wk-step",
+          "state": "rest",
+          "detail": "1682 px"
+        },
+        {
+          "piece": "28 a.wk-step",
+          "state": "hover",
+          "detail": "1669 px"
+        },
+        {
+          "piece": "28 a.wk-step",
+          "state": "focus",
+          "detail": "1682 px"
+        },
+        {
+          "piece": "28 a.wk-step",
+          "state": "pressed",
+          "detail": "1669 px"
+        },
+        {
+          "piece": "29 a.wk-step",
+          "state": "rest",
+          "detail": "1736 px"
+        },
+        {
+          "piece": "29 a.wk-step",
+          "state": "hover",
+          "detail": "1718 px"
+        },
+        {
+          "piece": "29 a.wk-step",
+          "state": "focus",
+          "detail": "1736 px"
+        },
+        {
+          "piece": "29 a.wk-step",
+          "state": "pressed",
+          "detail": "1718 px"
+        },
+        {
+          "piece": "30 a.wk-step",
+          "state": "rest",
+          "detail": "2598 px"
+        },
+        {
+          "piece": "30 a.wk-step",
+          "state": "hover",
+          "detail": "2551 px"
+        },
+        {
+          "piece": "30 a.wk-step",
+          "state": "focus",
+          "detail": "2598 px"
+        },
+        {
+          "piece": "30 a.wk-step",
+          "state": "pressed",
+          "detail": "2551 px"
+        },
+        {
+          "piece": "31 a.wk-step",
+          "state": "rest",
+          "detail": "2112 px"
+        },
+        {
+          "piece": "31 a.wk-step",
+          "state": "hover",
+          "detail": "2076 px"
+        },
+        {
+          "piece": "31 a.wk-step",
+          "state": "focus",
+          "detail": "2112 px"
+        },
+        {
+          "piece": "31 a.wk-step",
+          "state": "pressed",
+          "detail": "2076 px"
+        },
+        {
+          "piece": "32 a.wk-step",
+          "state": "rest",
+          "detail": "2229 px"
+        },
+        {
+          "piece": "32 a.wk-step",
+          "state": "hover",
+          "detail": "2205 px"
+        },
+        {
+          "piece": "32 a.wk-step",
+          "state": "focus",
+          "detail": "2229 px"
+        },
+        {
+          "piece": "32 a.wk-step",
+          "state": "pressed",
+          "detail": "2205 px"
+        },
+        {
+          "piece": "33 a.wk-step",
+          "state": "rest",
+          "detail": "1979 px"
+        },
+        {
+          "piece": "33 a.wk-step",
+          "state": "hover",
+          "detail": "1949 px"
+        },
+        {
+          "piece": "33 a.wk-step",
+          "state": "focus",
+          "detail": "1979 px"
+        },
+        {
+          "piece": "33 a.wk-step",
+          "state": "pressed",
+          "detail": "1949 px"
+        },
+        {
+          "piece": "34 a.wk-step",
+          "state": "rest",
+          "detail": "2240 px"
+        },
+        {
+          "piece": "34 a.wk-step",
+          "state": "hover",
+          "detail": "2209 px"
+        },
+        {
+          "piece": "34 a.wk-step",
+          "state": "focus",
+          "detail": "2240 px"
+        },
+        {
+          "piece": "34 a.wk-step",
+          "state": "pressed",
+          "detail": "2209 px"
+        },
+        {
+          "piece": ".wk-step 0 a.wk-step",
+          "state": "rest",
+          "detail": "1793 px"
+        },
+        {
+          "piece": ".wk-step 1 a.wk-step",
+          "state": "rest",
+          "detail": "1682 px"
+        },
+        {
+          "piece": ".wk-step 2 a.wk-step",
+          "state": "rest",
+          "detail": "1736 px"
+        },
+        {
+          "piece": ".wk-step 3 a.wk-step",
+          "state": "rest",
+          "detail": "2598 px"
+        },
+        {
+          "piece": ".wk-step 4 a.wk-step",
+          "state": "rest",
+          "detail": "2112 px"
+        },
+        {
+          "piece": ".wk-step 5 a.wk-step",
+          "state": "rest",
+          "detail": "2229 px"
+        },
+        {
+          "piece": ".wk-step 6 a.wk-step",
+          "state": "rest",
+          "detail": "1979 px"
+        },
+        {
+          "piece": ".wk-step 7 a.wk-step",
+          "state": "rest",
+          "detail": "2240 px"
+        },
+        {
+          "piece": ".wk-step 8 #wk-finish",
+          "state": "rest",
+          "detail": "3090 px"
+        },
+        {
+          "piece": "#main 0 #main",
+          "state": "rest",
+          "detail": "19459 px"
+        },
+        {
+          "piece": "#view-week 0 #view-week",
+          "state": "rest",
+          "detail": "19459 px"
+        },
+        {
+          "piece": "#steps 0 #steps",
+          "state": "rest",
+          "detail": "19459 px"
+        },
+        {
+          "piece": "#wk-steps 0 #wk-steps",
+          "state": "rest",
+          "detail": "19459 px"
+        },
+        {
+          "piece": "#wk-finish 0 #wk-finish",
+          "state": "rest",
+          "detail": "3090 px"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "target": {
+    "week": "http://127.0.0.1:4300/learn/week/0",
+    "schedule": "http://127.0.0.1:4300/learn/schedule",
+    "community": "http://127.0.0.1:4300/learn/community",
+    "thread": "http://127.0.0.1:4300/learn/community/2",
+    "turnin": null
+  },
+  "reference": "http://localhost:4202/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "frames": [
+    0,
+    60,
+    120,
+    240,
+    400,
+    560,
+    900
+  ],
+  "when": "2026-11-22T11:19:28.368Z",
+  "report": [
+    {
+      "part": "props",
+      "view": "week",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "arrival",
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "filter-operator",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "filter-operator",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-open",
+      "different": [],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-close",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-close",
+      "different": [],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-collapse",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-collapse",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-expand",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-expand",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-open",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-close",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-close",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-in",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-out",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-out",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "schedule",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "schedule",
+      "width": 1440,
+      "motion": "schedule-calendar-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "schedule",
+      "width": 1440,
+      "motion": "schedule-calendar-open",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "community",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "community",
+      "width": 1440,
+      "motion": "compose-in",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "community",
+      "width": 1440,
+      "motion": "compose-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "thread",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "thread",
+      "width": 1440,
+      "motion": "reply-focus",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "thread",
+      "width": 1440,
+      "motion": "reply-focus",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "week",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "arrival",
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "filter-operator",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "filter-operator",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-open",
+      "different": [],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-close",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-close",
+      "different": [],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-open",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-close",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-close",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "nav-menu-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "nav-menu-open",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "form-in",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "form-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "form-out",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "form-out",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "schedule",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "schedule",
+      "width": 390,
+      "motion": "schedule-calendar-open",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "schedule",
+      "width": 390,
+      "motion": "schedule-calendar-open",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "community",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "community",
+      "width": 390,
+      "motion": "compose-in",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "community",
+      "width": 390,
+      "motion": "compose-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "thread",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "thread",
+      "width": 390,
+      "motion": "reply-focus",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "thread",
+      "width": 390,
+      "motion": "reply-focus",
+      "different": [],
+      "note": ""
+    }
+  ]
+}
