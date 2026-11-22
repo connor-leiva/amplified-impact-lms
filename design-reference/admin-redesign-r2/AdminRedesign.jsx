@@ -2,11 +2,16 @@
    (1) Cohorts & Sessions Attendance "—" is muted (.mu) like Replay's "—";
    (2) phone Overview Live attendance labels use a fixed 124px column (same as desktop) so all bars start at the same x.
    Nit 3 (row numbers only when the Curriculum table is >= 1100px wide, i.e. 1440) is intended and unchanged.
-   Everything else is byte-identical to the signed-off export (see BUILD-SPEC.md for its sha256). */
+   Everything else is byte-identical to the signed-off export (see BUILD-SPEC.md for its sha256), except:
+   (3) D-239 (Nov 22, 2026, Connor: "Much much better!"): the sidebar is the approved one from handoff/admin-mockup/
+       (ADMIN-SIDEBAR-SPEC.md): six rows, one open, the academy logo, the program's own tile, and the collapse that
+       travels. build_admin.py's three sidebar blocks, without its today/proposed switch, its new screens or its data. */
 /* Amplified Impact LMS — Admin redesign, round 2. One file: admin + console screens.
    Notes: "Design notes.md". Fonts: Geist + Geist Mono from Google Fonts for the mock; the product self-hosts. */
 import React from 'react';
-const { useState, useEffect, useRef, createContext, useContext, Fragment } = React;
+import LOGO_APP from '../brand/amplified-impact-academy-app.svg';
+import LOGO_ACCELERATOR from './logos/program-accelerator-tile.svg';
+const { useState, useEffect, useLayoutEffect, useRef, createContext, useContext, Fragment } = React;
 
 const CSS = `
 .arx{height:100vh;display:flex;flex-direction:column;background:#D9D5CA;font-family:Geist,system-ui,sans-serif}
@@ -223,6 +228,58 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .mx{width:28px;height:28px;border-radius:8px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:var(--okb);color:var(--ok)}
 .mx.lk2{background:var(--warnb);color:var(--warn);border-color:#EBD9A8}.mx:disabled{cursor:default}
 .ph .mx{width:44px;height:44px}
+/* the logo is one image; the rail shows it through a 26px window: its "ai". The window closes with the column */
+.wm{display:flex;flex:none;position:relative;left:0;width:161px;overflow:hidden}.wm img{display:block;flex:none}
+.sb .wm-ai{width:26px;left:2.5px}
+.sb.rail .sb-top{justify-content:flex-start;padding:0 16px}
+/* the sidebar collapsing and opening, in the brand's motion (Amplified Impact Motion v1: the same tokens the learner sidebar uses) */
+.ax{--aim-ease:cubic-bezier(.2,.7,.2,1);--aim-ease-spring:cubic-bezier(.3,1.3,.6,1);--aim-dur-quick:160ms;--aim-dur-base:240ms;--aim-dur-move:380ms;--aim-dur-spring:560ms}
+@supports (animation-timing-function:linear(0,1)){.ax{--aim-ease-spring:linear(0,0.011,0.041,0.087,0.143,0.208,0.278,0.351,0.425,0.497,0.567,0.634,0.696,0.754,0.807,0.854,0.895,0.932,0.963,0.989,1.011,1.029,1.043,1.053,1.06,1.065,1.067,1.068,1.067,1.065,1.062,1.058,1.053,1.048,1.043,1.038,1.033,1.029,1.024,1.02,1.016,1.013,1.009,1.007,1.004,1.002,1)}}
+.sb.nar{width:64px}
+.fl{display:flex;flex:none}
+.sb.a-collapsing{transition:width var(--aim-dur-move) var(--aim-ease);overflow:clip}
+.sb.a-expanding{transition:width var(--aim-dur-spring) var(--aim-ease-spring);overflow:clip}
+.sb[class*=" a-"] .wm{transition:width var(--aim-dur-move) var(--aim-ease),left var(--aim-dur-move) var(--aim-ease)}
+/* each layout keeps its own width whatever the column is doing, so nothing inside re-wraps or drifts on the way; the edge clips it */
+.sb[class*=" a-"]:not(.rail)>*{min-width:243px}
+.sb[class*=" a-"].rail>*{max-width:63px}
+.sb.a-collapsing:not(.rail) :is(.gx>.el,.gx .rb,.gx .cv,.gw,.sw>.col,.sw>.mu,.lb,.uc>.col,.ng,.nav:not(.snf) .ni){opacity:0;transition:opacity var(--aim-dur-quick) var(--aim-ease)}
+.sb.a-collapsing:not(.rail) .sw{border-color:transparent;background-color:transparent;transition:border-color var(--aim-dur-quick) var(--aim-ease),background-color var(--aim-dur-quick) var(--aim-ease)}
+.sb.a-collapsing:not(.rail) :is(.gx.has,.gk.on){background-color:transparent;transition:background-color var(--aim-dur-quick) var(--aim-ease)}
+@keyframes sbfade{from{opacity:0}}
+@keyframes sbbox{from{border-color:transparent;background-color:transparent}}
+.sb.a-expanding :is(.gx>.el,.gx .rb,.gx .cv,.gw,.sw>.col,.sw>.mu,.lb,.uc>.col,.ng,.nav:not(.snf) .ni){animation:sbfade var(--aim-dur-base) var(--aim-ease) backwards}
+.sb.a-expanding .sw{animation:sbbox var(--aim-dur-base) var(--aim-ease) backwards}
+/* today's nav has no icon in common between its two layouts, so there the rail's icons fade in */
+.sb.a-collapsing.rail:not(.nm-focus) .nav .ni{animation:sbfade var(--aim-dur-base) var(--aim-ease) backwards}
+.sb.rail .ni.on{transition:background-color var(--aim-dur-base) var(--aim-ease)}
+@media (prefers-reduced-motion:reduce){.sb,.sb .wm{transition:none!important}}
+/* the sidebar proposal: six rows, one open. A group is a row with its icon; its pages hang from it on a guide line, as the learner sidebar's Weeks do */
+.nav.snf{padding:6px 8px 16px}
+.gx{display:flex;align-items:center;gap:10px;width:100%;height:var(--cp);padding:0 8px;margin-top:2px;border:0;background:none;border-radius:8px;font-size:calc(var(--t) - 1px);font-weight:500;color:var(--ink);cursor:pointer;text-align:left;white-space:nowrap}
+.ph .gx{font-size:16px}
+.gx>.fl{color:var(--f2)}
+.gx:hover{background:var(--sub)}
+.gx.has,.gx.has>.fl{color:var(--for)}
+.gx.has:not(.op){background:var(--tint)}
+.gx>.el{flex:none}.gx .rb{margin-left:auto;font-size:12px;font-weight:400;color:var(--f3);min-width:0;overflow:hidden;text-overflow:ellipsis}.gx .rb.bad{color:var(--bad);font-weight:500}
+.ph .gx .rb{font-size:16px}
+.gx .cv{margin-left:auto;display:flex;color:var(--f3)}.gx .rb+.cv{margin-left:8px}
+.gx .cv svg{transition:transform .2s ease}.gx.op .cv svg{transform:rotate(90deg)}
+.gw{display:grid;grid-template-rows:0fr;transition:grid-template-rows .2s ease}.gw.op{grid-template-rows:1fr}
+.gwi{overflow:hidden;min-height:0;visibility:hidden;transition:visibility 0s .2s}.gw.op .gwi{visibility:visible;transition-delay:0s}
+.gkids{margin:2px 0 6px 15.5px;padding-left:10px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+.gk{display:flex;align-items:center;gap:8px;width:100%;height:calc(var(--c) - 2px);padding:0 8px;border:0;background:none;border-radius:7px;font-size:calc(var(--t) - 1px);font-weight:400;color:var(--f2);cursor:pointer;text-align:left;white-space:nowrap}
+.ph .gk{font-size:16px;height:var(--c)}
+.gk:hover{background:var(--sub);color:var(--ink)}
+.gk.on{background:var(--tint);color:var(--for);font-weight:500}
+.gk .ct{margin-left:auto;font-size:11px;font-weight:500;color:var(--f2);background:var(--sf);border:1px solid var(--line);border-radius:999px;padding:0 6px;line-height:16px}.gk .ct.bad{color:var(--bad);border-color:var(--badb);background:var(--badb)}
+.ph .gk .ct{font-size:16px;line-height:24px;padding:0 8px}
+@media (prefers-reduced-motion:reduce){.gw,.gwi,.gx .cv svg{transition:none}}
+/* the program's own tile (program-logo.ts, variant "tile"), never under 32px */
+.sw img.tile{width:32px;height:32px;border-radius:0;background:none}
+/* in the rail the switcher sits on the same centre line as the logo and the icons */
+.sb>.menu{display:flex}.sb .sw{margin:0 8px 8px}.sb.rail>.menu{justify-content:center}.sb.rail .sw{margin:0 0 8px;width:36px}.ph .sw img.tile{width:36px;height:36px}
 `;
 
 /* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
@@ -1125,35 +1182,67 @@ const SCREENS = { overview: Overview, health: Health, curriculum: Curriculum, bu
 /* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
 const WM_VB = [41, -963.1, 7408, 1113.2];
 const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];
-function Wordmark({ short, h = 22 }) {
+function WordmarkOld({ short, h = 22 }) {
   const w = short ? 540 : WM_VB[2];
   return <svg className="wm" role="img" aria-label="Amplified Impact" height={h} width={Math.round(h * w / WM_VB[3] * 10) / 10} viewBox={WM_VB[0] + ' ' + WM_VB[1] + ' ' + w + ' ' + WM_VB[3]} style={{ overflow: 'hidden' }}>{WM_PATHS.map((p, i) => <path key={i} fill={p.fill} d={p.d} />)}<circle fill="none" stroke="#1F8A5C" cx="4477" cy="-800" r="139.3" strokeWidth="47.7" /><circle fill="#1F8A5C" cx="4477" cy="-800" r="69.7" /></svg>;
 }
+function Wordmark({ short }) { return <span className={'wm' + (short ? ' wm-ai' : '')}><img src={LOGO_APP} width={161} height={34} alt="Amplified Impact Academy" /></span>; }
 const GIC = { Health: 'overview', Build: 'curriculum', Support: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
 
 /* ---------- shell ---------- */
 function Sidebar({ rail, setRail, drawer, close }) {
   const { route, go, can, staff, masq, ph, toast } = useC();
   const active = PARENT[route.s] || route.s;
-  const [open, setOpen] = useState({ Health: 1, Build: 1 });
-  const r = rail && !drawer;
-  return <aside className={'sb' + (r ? ' rail' : '')}>
-    <div className="sb-top"><Wordmark short={r} />{drawer && <><span className="sp" /><button className="ib" aria-label="Close menu" onClick={close}><I n="x" s={20} /></button></>}</div>
-    <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label="Switch cohort. Amplified AI Accelerator, December 2026 Cohort" title={r ? 'Amplified AI Accelerator · December 2026 Cohort' : undefined} onClick={t}><span className="tile">AA</span>{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">December 2026 Cohort</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>}
+  const [peek, setPeek] = useState(undefined);   // the one group opened by hand (null: all shut); undefined: the group you are in
+  useEffect(() => { setPeek(undefined); }, [active]);
+  const badge = n => n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[0] === 'tiers' && n[3] ? n[3] + ' requests' : n[3];
+  // Collapse and expand travel. Three things, so the width and the layout can change at different moments:
+  //   nar   the column is 64px wide        r   the rail's layout (one icon per group)        anim   'collapsing' | 'expanding' while it moves
+  // Closing: the column narrows (380 ms, the system's curve) and the logo's window closes to "ai" with it; for the first 160 ms
+  // the open layout stays and its words fade; then the layout becomes the rail and the logo tile, the group icons, the collapse
+  // button and the avatar glide to their places (240 ms, FLIP), arriving with the edge. Opening: the layout opens at once behind
+  // the edge, those glide back out (380 ms, no overshoot), the words fade in and the column springs open (560 ms).
+  // Only a click on the button travels: a viewport change, the phone menu and reduced motion switch at once.
+  const want = !!rail && !drawer;
+  const [r, setLay] = useState(want), [nar, setNar] = useState(want), [anim, setAnim] = useState(null);
+  const sbEl = useRef(null), flipFrom = useRef(null), byHand = useRef(false), t1 = useRef(0), t2 = useRef(0), was = useRef(want);
+  const ms = v => parseFloat(getComputedStyle(sbEl.current).getPropertyValue(v)), cv = v => getComputedStyle(sbEl.current).getPropertyValue(v).trim();
+  const rects = () => { const m = {}; sbEl.current.querySelectorAll('[data-fl]').forEach(el => { m[el.dataset.fl] = el.getBoundingClientRect(); }); return m; };
+  useEffect(() => {
+    if (was.current === want) return; was.current = want; clearTimeout(t1.current); clearTimeout(t2.current);
+    const hand = byHand.current; byHand.current = false;
+    if (!hand || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { flipFrom.current = null; setAnim(null); setNar(want); setLay(want); return; }
+    if (want) { setNar(true); setAnim('collapsing');
+      t1.current = setTimeout(() => { flipFrom.current = { before: rects(), dur: '--aim-dur-base' }; setLay(true); }, ms('--aim-dur-quick'));
+      t2.current = setTimeout(() => setAnim(null), ms('--aim-dur-move') + 80);
+    } else { flipFrom.current = r ? { before: rects(), dur: '--aim-dur-move' } : null; setLay(false); setNar(false); setAnim('expanding'); t2.current = setTimeout(() => setAnim(null), ms('--aim-dur-spring') + 80); }
+  }, [want]);
+  useLayoutEffect(() => {
+    const f = flipFrom.current; if (!f) return; flipFrom.current = null;
+    sbEl.current.querySelectorAll('[data-fl]').forEach(el => { el.getAnimations().forEach(x => x.cancel()); const a = f.before[el.dataset.fl], b = el.getBoundingClientRect(); if (!a || !a.width || !b.width) return;
+      const dx = a.left - b.left, dy = a.top - b.top; if (!dx && !dy) return;
+      try { el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: ms(f.dur), easing: cv('--aim-ease') }); } catch (err) {} });
+  }, [r]);
+  useEffect(() => () => { clearTimeout(t1.current); clearTimeout(t2.current); }, []);
+  // `nm-focus` is the mockup's name for this sidebar; its stylesheet keys today's sidebar's own fade on its absence.
+  return <aside ref={sbEl} className={'sb' + (r ? ' rail' : '') + (nar ? ' nar' : '') + (anim ? ' a-' + anim : '') + ' nm-focus'}>
+    <div className="sb-top"><Wordmark short={nar} />{drawer && <><span className="sp" /><button className="ib" aria-label="Close menu" onClick={close}><I n="x" s={20} /></button></>}</div>
+    <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label="Switch cohort. Amplified AI Accelerator, December 2026 Cohort" title={r ? 'Amplified AI Accelerator · December 2026 Cohort' : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">December 2026 Cohort</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>}
       items={[{ l: 'December 2026 Cohort', on: 1, fn: () => {} }, { l: 'March 2027 Cohort · Draft', fn: () => toast('Switches the admin to the March 2027 cohort') }, '-', { l: 'All cohorts', fn: () => go('cohorts') }]} />
-    <nav className="nav" aria-label="Admin">
+    <nav className={'nav' + (!r ? ' snf' : '')} aria-label="Admin">
       {masq && <button className={'ni' + (route.s === 'as' ? ' on' : '')} title="Learner view" onClick={() => go('as')}><I n="eye" />{!r && <>Learner view<span className="ct" style={{ background: 'var(--warnb)', borderColor: '#EBD9A8', color: 'var(--warn)' }}>Live</span></>}</button>}
       {NAV.map(([g, items], gi) => {
         const vis = items.filter(n => !n[2] || can(n[2])); if (!vis.length) return null;
-        const has = vis.some(n => n[0] === active), op = has || !!open[g];
-        if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><I n={GIC[g]} /></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
-        return <div key={g}><button className={'ng' + (op ? ' op' : '')} aria-expanded={op} onClick={() => setOpen({ ...open, [g]: has ? 1 : !open[g] })}><I n="chev" s={12} w={2.2} />{g}{!op && vis.some(n => n[0] === 'incidents' && n[3]) && <span style={{ marginLeft: 'auto', color: 'var(--bad)', whiteSpace: 'nowrap' }}>1 incident</span>}</button>
-          {op && vis.map(n => <button key={n[0]} className={'ni' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><I n={n[0]} /><span className="el">{n[1]}</span>{n[3] && <span className="ct">{n[3]}</span>}</button>)}</div>;
+        const has = vis.some(n => n[0] === active);
+        if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
+        const opn = peek === undefined ? has : peek === g, roll = vis.find(n => badge(n));
+        return <div key={g}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
+          <div className={'gw' + (opn ? ' op' : '')}><div className="gwi"><div className="gkids">{vis.map(n => <button key={n[0]} tabIndex={opn ? 0 : -1} className={'gk' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><span className="el">{n[1]}</span>{badge(n) && <span className={'ct' + (n[0] === 'incidents' ? ' bad' : '')}>{badge(n)}</span>}</button>)}</div></div></div></div>;
       })}
     </nav>
     <div className="sb-ft">
-      {!ph && <button className="ni" title={r ? 'Expand sidebar' : undefined} aria-label={r ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setRail(!r)}><I n="panel" />{!r && 'Collapse sidebar'}</button>}
-      <div className="uc" title={r ? staff.n + ' · ' + staff.role : undefined}><span className="av">{ini(staff.n)}</span>{!r && <span className="col" style={{ gap: 0 }}><span className="w5" style={{ fontSize: ph ? 16 : 13, lineHeight: ph ? '22px' : '18px' }}>{staff.n}</span><span style={{ fontSize: ph ? 16 : 12, lineHeight: ph ? '22px' : '16px', color: 'var(--f3)' }}>{staff.role}</span></span>}</div>
+      {!ph && <button className="ni" title={r ? 'Expand sidebar' : undefined} aria-label={r ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => { byHand.current = true; setRail(!nar); }}><span className="fl" data-fl="panel"><I n="panel" /></span>{!r && <span className="lb">Collapse sidebar</span>}</button>}
+      <div className="uc" title={r ? staff.n + ' · ' + staff.role : undefined}><span className="av" data-fl="av">{ini(staff.n)}</span>{!r && <span className="col" style={{ gap: 0 }}><span className="w5" style={{ fontSize: ph ? 16 : 13, lineHeight: ph ? '22px' : '18px' }}>{staff.n}</span><span style={{ fontSize: ph ? 16 : 12, lineHeight: ph ? '22px' : '16px', color: 'var(--f3)' }}>{staff.role}</span></span>}</div>
     </div>
   </aside>;
 }

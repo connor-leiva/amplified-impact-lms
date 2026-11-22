@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { ICONS } from '@ai/core';
-import { DEFAULT_OPEN, GROUP_ICON, R2_GROUPS, R2_NAV, activeRowId, adminNav, crumbTrail, isGroupOpen, toggleGroup, groupHub, hubPages } from './adminNav';
+import { GROUP_ICON, R2_GROUPS, R2_NAV, activeRowId, adminNav, badgeText, crumbTrail, groupHub, hubPages, peekAfterClick } from './adminNav';
 import type { AdminNavInput } from './adminNav';
 
 // D-160 R2-1b: the R2 admin sidebar's model (BUILD-SPEC § 4, `NAV` in AdminRedesign.jsx).
 
-const COUNTS = { drafts: 6, requests: 2, incidents: 1 };
+const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 0 };
 const nav = (over: Partial<AdminNavInput> = {}) =>
-  adminNav({ pathname: '/admin/no-such-page', role: 'Owner', fullNav: true, counts: COUNTS, open: {}, ...over });
+  adminNav({ pathname: '/admin/no-such-page', role: 'Owner', fullNav: true, counts: COUNTS, peek: undefined, ...over });
 const labels = (groups: ReturnType<typeof adminNav>) => groups.map((g) => [g.label, ...g.rows.map((r) => r.label)]);
 
 describe('the R2 admin nav (D-160 R2-1b)', () => {
@@ -101,49 +101,55 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Operations')).toContain('Email Log');
   });
 
-  it('badges real work and alerts only, and hides each at zero', () => {
+  it('badges real work and alerts only, each saying what it counts, and hides each at zero (D-239)', () => {
     const rows = nav().flatMap((g) => g.rows);
     expect(rows.find((r) => r.id === 'curriculum')?.badge).toBe('6 draft');
-    expect(rows.find((r) => r.id === 'tiers')?.badge).toBe('2');
-    expect(rows.find((r) => r.id === 'incidents')?.badge).toBe('1');
+    expect(rows.find((r) => r.id === 'tiers')?.badge).toBe('2 requests');
+    expect(rows.find((r) => r.id === 'incidents')).toMatchObject({ badge: '1 incident', alert: true });
+    expect(rows.find((r) => r.id === 'tiers')?.alert).toBeUndefined();
     expect(rows.filter((r) => r.badge).map((r) => r.id)).toEqual(['curriculum', 'tiers', 'incidents']);
-    const none = nav({ counts: { drafts: 0, requests: 0, incidents: 0 } }).flatMap((g) => g.rows);
+    const none = nav({ counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 } }).flatMap((g) => g.rows);
     expect(none.filter((r) => r.badge)).toEqual([]);
+    expect([badgeText('requests', { ...COUNTS, requests: 1 }), badgeText('incidents', { ...COUNTS, incidents: 3 })]).toEqual(['1 request', '3 incidents']);
+    // `waiting` (R-3's Community): "3 waiting", and nothing at 0.
+    expect(badgeText('waiting', { ...COUNTS, waiting: 3 })).toBe('3 waiting');
+    expect(badgeText('waiting', COUNTS)).toBeUndefined();
   });
 
-  it('opens Health and Build by default, and a closed Operations shows its open incident', () => {
-    const g = nav();
-    expect(g.filter((x) => x.open).map((x) => x.label)).toEqual(['Health', 'Build']);
-    expect(DEFAULT_OPEN).toEqual({ Health: true, Build: true });
-    expect(g.find((x) => x.label === 'Operations')?.alert).toBe('1 incident');
-    expect(nav({ counts: { ...COUNTS, incidents: 3 } }).find((x) => x.label === 'Operations')?.alert).toBe(
-      '3 incidents',
-    );
-    expect(nav({ counts: { ...COUNTS, incidents: 0 } }).find((x) => x.label === 'Operations')?.alert).toBeUndefined();
-    // Open, the count is on the row instead.
-    expect(nav({ open: { Operations: true } }).find((x) => x.label === 'Operations')?.alert).toBeUndefined();
-    // Production (D-167): the Incidents row is on, so a closed Operations shows the real count.
-    expect(nav({ fullNav: false }).find((x) => x.label === 'Operations')?.alert).toBe('1 incident');
-    // Without the Incidents row (a role that can't read incidents), no alert.
-    expect(nav({ fullNav: false, role: 'Instructor' }).find((x) => x.label === 'Operations')).toBeUndefined();
-  });
-
-  it('keeps the group holding the page open, whatever was remembered', () => {
-    const g = nav({ pathname: '/admin/audit', open: { Operations: false, Build: false } });
+  it('opens one group: the one holding the page, or none on a page no group holds (D-239)', () => {
+    expect(nav().filter((x) => x.open)).toEqual([]);
+    const g = nav({ pathname: '/admin/audit' });
+    expect(g.filter((x) => x.open).map((x) => x.label)).toEqual(['Operations']);
     const ops = g.find((x) => x.label === 'Operations')!;
     expect(ops.active).toBe(true);
-    expect(ops.open).toBe(true);
     expect(ops.rows.find((r) => r.active)?.id).toBe('audit');
-    expect(g.find((x) => x.label === 'Build')!.open).toBe(false);
-    expect(isGroupOpen('Support', false, {})).toBe(false);
-    expect(isGroupOpen('Support', false, { Support: true })).toBe(true);
   });
 
-  it('toggles: the active group only remembers itself open; any other flips', () => {
-    expect(toggleGroup('Operations', true, { Operations: false })).toEqual({ Operations: true });
-    expect(toggleGroup('Build', false, {})).toEqual({ Build: false });
-    expect(toggleGroup('Support', false, {})).toEqual({ Support: true });
-    expect(toggleGroup('Support', false, { Support: true, Build: false })).toEqual({ Support: false, Build: false });
+  it('peeks: a group opens and the other closes; the same group again closes it; null shuts all (D-239)', () => {
+    const page = { pathname: '/admin/audit' };
+    expect(nav({ ...page, peek: 'Support' }).filter((x) => x.open).map((x) => x.label)).toEqual(['Support']);
+    // The group holding the page closes when another is peeked, and is still the active one.
+    expect(nav({ ...page, peek: 'Support' }).find((x) => x.label === 'Operations')).toMatchObject({ active: true, open: false });
+    expect(peekAfterClick('Support', true)).toBeNull();
+    expect(peekAfterClick('Support', false)).toBe('Support');
+    expect(nav({ ...page, peek: null }).filter((x) => x.open)).toEqual([]);
+    // A role that can't open a group doesn't get it, peeked or not.
+    expect(nav({ fullNav: false, role: 'Instructor', peek: 'Operations' }).find((x) => x.label === 'Operations')).toBeUndefined();
+  });
+
+  it('rolls up what waits in a closed group: its first count, in order; an open group shows none (D-239)', () => {
+    const closed = (label: string, over: Partial<AdminNavInput> = {}) => nav(over).find((x) => x.label === label)?.roll;
+    expect(closed('Build')).toEqual({ text: '6 draft', alert: false });
+    expect(closed('Revenue')).toEqual({ text: '2 requests', alert: false });
+    expect(closed('Operations')).toEqual({ text: '1 incident', alert: true });
+    expect(closed('Operations', { counts: { ...COUNTS, incidents: 3 } })).toEqual({ text: '3 incidents', alert: true });
+    expect(closed('Operations', { counts: { ...COUNTS, incidents: 0 } })).toBeUndefined();
+    expect(closed('Health')).toBeUndefined();
+    // Open, its rows carry their own.
+    expect(closed('Operations', { peek: 'Operations' })).toBeUndefined();
+    expect(closed('Build', { pathname: '/admin/curriculum' })).toBeUndefined();
+    // Production (D-167): the Incidents row is on, so a closed Operations shows the real count.
+    expect(closed('Operations', { fullNav: false })).toEqual({ text: '1 incident', alert: true });
   });
 
   it('knows the page by its address, Module Builder holding every AI Employee it edits', () => {

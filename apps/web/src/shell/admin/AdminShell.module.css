@@ -26,6 +26,10 @@
 }
 
 /* ---- sidebar (`.sb`) ------------------------------------------------------------------------ */
+/* D-239 (ADMIN-SIDEBAR-SPEC.md; handoff/admin-mockup/AdminMock.jsx, "Sidebar: proposed"): six group rows, one
+   open, its pages on a guide line; the academy logo; the program's own tile; and the travelling collapse. Ported
+   from the mockup's added rules (`.wm`, `.sb.nar`, `.fl`, the `a-collapsing`/`a-expanding` travel, `.nav.snf`,
+   `.gx`, `.gw`, `.gwi`, `.gkids`, `.gk`, `img.tile`, `.sb>.menu`), at the values the mockup RENDERS. */
 
 .sidebar {
   width: var(--r2-sidebar);
@@ -36,10 +40,12 @@
   flex-direction: column;
   min-height: 0;
 }
-.sidebar[data-mode='rail'] {
+/* `.sb.nar`: the column's width follows `data-narrow`, which changes before the layout does (see Sidebar.tsx). */
+.sidebar[data-narrow='true'] {
   width: var(--r2-rail);
 }
 
+/* `.sb-top`. The rail keeps the same padding: the logo stays where it is and its window closes (`.wm-ai`). */
 .top {
   height: 52px;
   display: flex;
@@ -47,11 +53,27 @@
   padding: 0 16px;
   flex: none;
 }
-.sidebar[data-mode='rail'] .top {
-  justify-content: center;
-  padding: 0;
+
+/* `.wm`: the academy lockup, one image at 161×34, seen through a window. */
+.academy {
+  display: flex;
+  flex: none;
+  position: relative;
+  left: 0;
+  width: 161px;
+  overflow: hidden;
+}
+.academy img {
+  display: block;
+  flex: none;
+}
+/* `.sb .wm-ai`: the rail's 26px window, its "ai". */
+.sidebar .academy[data-short='true'] {
+  width: 26px;
+  left: 2.5px;
 }
 
+/* The old wordmark (`Wordmark`), still drawn by the older learner shell and the paused console. */
 .wordmark {
   display: block;
   flex: none;
@@ -62,11 +84,20 @@
   flex: 1;
 }
 
-/* The cohort switcher (`.sw`). `width: calc(100% - 16px)` with no margin, as the mockup draws it. */
+/* `.sb>.menu`: the cohort menu is a row; in the rail it centres the switcher on the column's centre line. */
+.sidebar > .switchMenu {
+  display: flex;
+}
+.sidebar[data-mode='rail'] > .switchMenu {
+  justify-content: center;
+}
+
+/* The cohort switcher (`.sw`, `.sb .sw`). */
 .switcher {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0 8px 8px;
   padding: 6px 8px;
   border: 1px solid var(--r2-line);
   border-radius: 8px;
@@ -82,22 +113,18 @@
 }
 .sidebar[data-mode='rail'] .switcher {
   justify-content: center;
+  margin: 0 0 8px;
   padding: 0;
   border: 0;
   min-height: 36px;
+  width: 36px;
 }
+/* `.sw img.tile`: the program's own tile (program-logo.ts, variant "tile"), never under 32px. */
 .tile {
-  width: var(--r2-tile);
-  height: var(--r2-tile);
-  border-radius: 6px;
-  background: var(--r2-for);
-  color: var(--r2-on-for);
-  font-size: var(--r2-fs-11);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   flex: none;
+  width: 32px;
+  height: 32px;
 }
 .switcherText {
   display: flex;
@@ -126,11 +153,11 @@
   display: flex;
 }
 
-/* `.nav` */
+/* `.nav.snf` */
 .nav {
   flex: 1;
   overflow: auto;
-  padding: 4px 8px 16px;
+  padding: 6px 8px 16px;
 }
 .sidebar[data-mode='rail'] .nav {
   padding: 4px 12px 16px;
@@ -143,37 +170,141 @@
   display: flex;
 }
 
-/* A group header (`.ng`). */
-.groupHead {
+/* `.fl`: what glides (the tile, each group's icon, the toggle's icon, the avatar), by identity. */
+.fl {
+  display: flex;
+  flex: none;
+}
+
+/* A group (`.gx`): a row with its icon. Its size, weight and text colour are the body's, as the mockup's
+   `.arx button` reset leaves them; it is forest while it holds the page, on the tint while it is shut. */
+.group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
   width: 100%;
-  height: var(--r2-ng);
+  height: var(--r2-cp);
   padding: 0 8px;
   border: 0;
   background: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
+  white-space: nowrap;
 }
-.groupHead:hover {
-  color: var(--r2-ink);
-  background: var(--r2-hov);
+.group:hover {
+  background: var(--r2-sub);
 }
-.groupHead svg {
-  transition: transform 0.15s;
+/* Its icon is --f2, forest while it holds the page (`.gx>.fl`). The handoff mockup draws every sidebar icon in
+   --f3, because its new file list shares the `.fl` class name and its `.fl svg` rule reaches the sidebar; the
+   reference takes the sidebar's blocks alone, so it draws these, as the spec does (D-239). */
+.group > .fl {
+  color: var(--r2-f2);
 }
-.groupHead[aria-expanded='true'] svg {
+.group[data-has='true'],
+.group[data-has='true'] > .fl {
+  color: var(--r2-for);
+}
+.group[data-has='true']:not([data-open='true']) {
+  background: var(--r2-tint);
+}
+.groupName {
+  flex: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* `.rb`: a shut group's roll-up, its first page's count. */
+.roll {
+  margin-left: auto;
+  font-size: var(--r2-fs-12);
+  font-weight: 400;
+  color: var(--r2-f3);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roll[data-alert='true'] {
+  color: var(--r2-bad);
+  font-weight: 500;
+}
+/* `.cv` */
+.chev {
+  margin-left: auto;
+  display: flex;
+  color: var(--r2-f3);
+}
+.roll + .chev {
+  margin-left: 8px;
+}
+.chev svg {
+  transition: transform 0.2s ease;
+}
+.group[data-open='true'] .chev svg {
   transform: rotate(90deg);
 }
-.alert {
-  margin-left: auto;
-  color: var(--r2-bad);
+
+/* `.gw` and `.gwi`: the pages open and shut by height; shut, they can't be reached. */
+.pages {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease;
+}
+.pages[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+.pagesIn {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;
+  transition: visibility 0s 0.2s;
+}
+.pages[data-open='true'] .pagesIn {
+  visibility: visible;
+  transition-delay: 0s;
+}
+/* `.gkids`: the guide line. */
+.kids {
+  margin: 2px 0 6px 15.5px;
+  padding-left: 10px;
+  border-left: 1px solid var(--r2-line);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+/* A page (`.gk`). The body's size, weight 400 and text colour, as the reset leaves them. */
+.page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: calc(var(--r2-c) - 2px);
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+.page:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.page[data-on='true'] {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  font-weight: 500;
+}
+.pageName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* A row (`.ni`). */
+/* A rail row and the toggle (`.ni`). */
 .row {
   display: flex;
   align-items: center;
@@ -201,7 +332,10 @@
   padding: 0;
   height: 36px;
 }
-/* The count pill (`.ni .ct`). */
+.sidebar[data-mode='rail'] .row[data-on='true'] {
+  transition: background-color var(--aim-dur-base) var(--aim-ease);
+}
+/* The count pill (`.gk .ct`); an incident's in the alert colour. */
 .count {
   margin-left: auto;
   font-size: var(--r2-fs-11);
@@ -212,6 +346,11 @@
   border-radius: 999px;
   padding: 0 6px;
   line-height: var(--r2-ct-lh);
+}
+.count[data-alert='true'] {
+  color: var(--r2-bad);
+  border-color: var(--r2-badb);
+  background: var(--r2-badb);
 }
 
 /* `.sb-ft`: the rail toggle and the signed-in staff member. */
@@ -267,6 +406,78 @@
   font-size: var(--r2-fs-12);
   line-height: var(--r2-lh-16);
   color: var(--r2-f3);
+}
+
+/* ---- the travel (`.sb.a-collapsing`, `.sb.a-expanding`), in the brand's motion tokens ----------- */
+/* Closing, the column narrows on the system's curve; opening, it springs. The logo's window moves with it. */
+.sidebar[data-anim='collapsing'] {
+  transition: width var(--aim-dur-move) var(--aim-ease);
+  overflow: clip;
+}
+.sidebar[data-anim='expanding'] {
+  transition: width var(--aim-dur-spring) var(--aim-ease-spring);
+  overflow: clip;
+}
+.sidebar[data-anim] .academy {
+  transition:
+    width var(--aim-dur-move) var(--aim-ease),
+    left var(--aim-dur-move) var(--aim-ease);
+}
+/* Each layout keeps its own width whatever the column is doing, so nothing inside re-wraps or drifts on the
+   way; the edge clips it. */
+.sidebar[data-anim]:not([data-mode='rail']) > * {
+  min-width: 243px;
+}
+.sidebar[data-anim][data-mode='rail'] > * {
+  max-width: 63px;
+}
+/* Closing: for the first --aim-dur-quick the open layout stays and its words, the switcher's box and the
+   current row's fill fade. */
+.sidebar[data-anim='collapsing']:not([data-mode='rail'])
+  :is(.group > .groupName, .group .roll, .group .chev, .pages, .switcher > .switcherText, .switcher > .muted, .toggleLabel, .user > .who) {
+  opacity: 0;
+  transition: opacity var(--aim-dur-quick) var(--aim-ease);
+}
+.sidebar[data-anim='collapsing']:not([data-mode='rail']) .switcher {
+  border-color: transparent;
+  background-color: transparent;
+  transition:
+    border-color var(--aim-dur-quick) var(--aim-ease),
+    background-color var(--aim-dur-quick) var(--aim-ease);
+}
+.sidebar[data-anim='collapsing']:not([data-mode='rail']) :is(.group[data-has='true'], .page[data-on='true']) {
+  background-color: transparent;
+  transition: background-color var(--aim-dur-quick) var(--aim-ease);
+}
+@keyframes sbfade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sbbox {
+  from {
+    border-color: transparent;
+    background-color: transparent;
+  }
+}
+/* Opening: the words and the switcher's box fade back in. */
+.sidebar[data-anim='expanding']
+  :is(.group > .groupName, .group .roll, .group .chev, .pages, .switcher > .switcherText, .switcher > .muted, .toggleLabel, .user > .who) {
+  animation: sbfade var(--aim-dur-base) var(--aim-ease) backwards;
+}
+.sidebar[data-anim='expanding'] .switcher {
+  animation: sbbox var(--aim-dur-base) var(--aim-ease) backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar .academy {
+    transition: none !important;
+  }
+  .pages,
+  .pagesIn,
+  .chev svg {
+    transition: none;
+  }
 }
 
 /* ---- the main column (`.mainc`), its top bar (`.tb`) and `main` ------------------------------ */
@@ -456,6 +667,13 @@
 @media (max-width: 767px) {
   .switcher {
     min-height: 60px;
+  }
+  .tile {
+    width: 36px;
+    height: 36px;
+  }
+  .page {
+    height: var(--r2-c);
   }
   .count {
     padding: 0 8px;

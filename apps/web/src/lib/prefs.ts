@@ -6,6 +6,8 @@
 // undecided" (DESIGN.md); the brand is decided, so they were removed from the reference and from
 // here together (D-031). A stale `accent` or `font` key left in someone's localStorage is simply
 // ignored — nothing reads it and no stylesheet rule matches the attributes it used to set.
+// D-239: so is the admin sidebar's old `navGroups` map (D-160 R2-1b, from #125). The sidebar's open group is view
+// state now, so the map is no longer read or written; `savePrefs` keeps whatever is stored, as it keeps any key.
 import { setViewerZone } from '@ai/core';
 
 export const PREFS_KEY = 'ai-lms-prefs';
@@ -15,11 +17,6 @@ export type Prefs = {
   tz?: string | null; // null/undefined = Auto
   sidebar?: 'full' | 'rail';
   phase?: 'week0' | 'live' | 'post'; // fixture/demo only
-  /**
-   * The admin sidebar's open and closed groups (D-160 R2-1b, from #125), by the signed-in staff member's user id, then
-   * by group label. Per user per browser: two staff members on one browser keep their own.
-   */
-  navGroups?: Record<string, Record<string, boolean>>;
   /**
    * D-185: the learner portal v2's theme and sidebar, by the signed-in person's user id. Per person on
    * this device, and the device's copy of what the API keeps per person (`users.prefs`, through
@@ -80,21 +77,6 @@ export function bootPrefs(): Prefs {
   const stored = loadPrefs();
   applyPrefs(stored);
   return stored;
-}
-
-/** One staff member's remembered sidebar groups (D-160 R2-1b); empty when they have none. */
-export function loadNavGroups(userId: string, prefs: Prefs = loadPrefs()): Record<string, boolean> {
-  const mine = prefs.navGroups?.[userId];
-  if (!mine || typeof mine !== 'object') return {};
-  const out: Record<string, boolean> = {};
-  for (const [k, v] of Object.entries(mine)) if (typeof v === 'boolean') out[k] = v;
-  return out;
-}
-
-/** Remember one staff member's groups, leaving every other user's untouched. */
-export function saveNavGroups(userId: string, state: Record<string, boolean>): Prefs {
-  const all = loadPrefs().navGroups;
-  return savePrefs({ navGroups: { ...(all && typeof all === 'object' ? all : {}), [userId]: { ...state } } });
 }
 
 /** D-185: one person's own learner v2 choices, read field by field; empty when they have none. */

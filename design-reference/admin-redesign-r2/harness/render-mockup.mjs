@@ -34,7 +34,7 @@ mkdirSync(join(tmp, 'fonts'));
 for (const f of readdirSync(FONTS)) if (f.endsWith('.woff2')) copyFileSync(join(FONTS, f), join(tmp, 'fonts', f));
 // Bundle from the JSX's own folder so react/react-dom resolve once, from the repo's node_modules.
 await build({ stdin: { contents: `import React from 'react';import { createRoot } from 'react-dom/client';import M from ${JSON.stringify(JSX)};createRoot(document.getElementById('root')).render(React.createElement(M));`, resolveDir: dirname(JSX), loader: 'jsx' },
-  bundle: true, outfile: join(tmp, 'bundle.js'), loader: { '.jsx': 'jsx' }, define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'warning' });
+  bundle: true, outfile: join(tmp, 'bundle.js'), loader: { '.jsx': 'jsx', '.svg': 'dataurl' }, define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'warning' });
 writeFileSync(join(tmp, 'index.html'), `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:'Geist';font-style:normal;font-weight:100 900;src:url('fonts/geist-latin-wght-normal.woff2') format('woff2')}
 @font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;src:url('fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
