@@ -152,8 +152,8 @@ function Action({ action }: { action: CheckActionVM }) {
       <Link className={`${l.b} ${l.bi}`} to={action.href}>{action.label}</Link>
     );
   }
-  // D-230: Turn in is the v6 step page's (the drawer is v3's); this player draws nothing for it.
-  if (action.type === 'upload' || !action.event) return null;
+  // D-230, D-236: Turn in and the seat card are the v6 step page's (their drawers are v3's); this player draws nothing.
+  if (action.type === 'upload' || action.type === 'seatcard' || !action.event) return null;
   return (
     <span className={s.acts}>
         <button type="button" className={`${l.b} ${l.bi}`} onClick={() => saveIcs([action.event!], Date.now(), 'amplified-impact-session.ics')}>

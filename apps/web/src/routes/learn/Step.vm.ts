@@ -211,7 +211,9 @@ export type CheckActionVM =
   | { type: 'calendar'; event: IcsEvent | null }
   | { type: 'link'; label: string; href: string }
   /** D-230: Turn in. The step page draws its button (or an agent's line) for a viewer v3 draws for. */
-  | { type: 'upload'; kind: 'live_read' | 'checkpoint' };
+  | { type: 'upload'; kind: 'live_read' | 'checkpoint' }
+  /** D-236: the seat card form. The step page draws its button, which opens the drawer, for a viewer v3 draws for. */
+  | { type: 'seatcard'; label: string };
 
 export interface CheckItemVM {
   id: string;
@@ -432,6 +434,7 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
   if (!action || action.type === 'card') return null;
   if (action.type === 'form') {
     if (action.formId === 'intake') return { type: 'link', label: action.label || 'Open the form', href: learnIntake() };
+    if (action.formId === 'seat-card') return { type: 'seatcard', label: action.label || 'Open the form' };
     return { type: 'link', label: action.label || 'Open the form', href: learnStack() };
   }
   if (action.type === 'download') {

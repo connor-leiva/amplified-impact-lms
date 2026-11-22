@@ -91,6 +91,14 @@ function Act({ a, item, onPlay, labels }: { a: SpAction; item: SpItem; onPlay: (
   }
   // D-230: Turn in is the step page's own button, as it is; an agent's line uses the row's own text style.
   if (a.type === 'upload') return <button className="btn btn-secondary btn-sm" type="button" data-act="turnin" onClick={a.onClick}><RollLabel>{a.label}</RollLabel></button>;
+  // D-236: the seat card's Form button looks as a form's link does (the arrow button) and opens its drawer.
+  if (a.type === 'form') {
+    return (
+      <button className="btn btn-secondary btn-sm btn-arrow" type="button" data-act="seatcard" onClick={a.onClick}>
+        <RollLabel>{a.label}</RollLabel><svg className="arrow" width="14" height="14"><use href="#i-arrow" /></svg>
+      </button>
+    );
+  }
   if (a.type === 'line') return <span className="auto">{a.text}</span>;
   if (a.type === 'download') return <DownloadAction a={a} labels={labels} />;
   if (a.type === 'copy') return <CopyAction a={a} labels={labels} />;

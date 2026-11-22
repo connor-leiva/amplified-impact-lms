@@ -17,7 +17,11 @@ interface PdfQuestion { id: string; label: string; help?: string; kind: 'short' 
 export interface FormPdfInput {
   form: { id: string; ui: { title: string; [k: string]: string }; intake: { intro?: string; sections: { title: string; intro?: string; questions: PdfQuestion[] }[] } };
   answers: Record<string, string | string[]>;
-  meta: { team: string; owner: string; cohort: string; status: 'Submitted' | 'Draft'; date: string };
+  /**
+   * D-236: `label` names the finished state where it isn't "Submitted" (the seat card's "Signed") and `end` is the
+   * closing line; both absent, the intake prints as the package's.
+   */
+  meta: { team: string; owner: string; cohort: string; status: 'Submitted' | 'Draft'; date: string; label?: string; end?: string };
   fonts: { sans: string; mono: string };
   logo: string;
 }
@@ -97,7 +101,7 @@ main{padding:0 .8in}
   ${meta.team ? `<p class="team">${esc(meta.team)}</p>` : ''}
   <dl class="facts">
     <div><dt class="mono">From</dt><dd>${esc(meta.owner)}</dd></div>
-    <div><dt class="mono">${esc(meta.status)}</dt><dd>${meta.status === 'Submitted' ? '<svg width="12" height="12" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.500" fill="none" stroke="#6fd3a5" stroke-width="2"/><circle cx="11" cy="11" r="4" fill="#6fd3a5"/></svg>' : ''}${esc(meta.date)}</dd></div>
+    <div><dt class="mono">${esc(meta.label ?? meta.status)}</dt><dd>${meta.status === 'Submitted' ? '<svg width="12" height="12" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.500" fill="none" stroke="#6fd3a5" stroke-width="2"/><circle cx="11" cy="11" r="4" fill="#6fd3a5"/></svg>' : ''}${esc(meta.date)}</dd></div>
     <div><dt class="mono">Answers</dt><dd>${answered} of ${fields.length}</dd></div>
   </dl>
 </header>
@@ -106,7 +110,7 @@ ${intake.sections.map((s, i) => `<section class="sec">
   <div class="sec-h"><p class="mono sec-no">${String(i + 1).padStart(2, '0')}</p><h2 class="sec-t">${esc(s.title)}</h2>${s.intro ? `<p class="sec-d">${esc(s.intro)}</p>` : ''}</div>
   <div>${s.questions.map((f) => `<div class="qa"><p class="q">${esc(f.label)}</p>${answer(f)}</div>`).join('')}</div>
 </section>`).join('\n')}
-<p class="end">${meta.status === 'Submitted' ? 'Submitted' : 'Saved as a draft'} ${esc(meta.date)} through learn.amplifiedimpact.io. The current answers are in the learner's profile.</p>
+<p class="end">${meta.end !== undefined ? esc(meta.end) : `${meta.status === 'Submitted' ? 'Submitted' : 'Saved as a draft'} ${esc(meta.date)} through learn.amplifiedimpact.io. The current answers are in the learner's profile.`}</p>
 </main>
 </body></html>`;
 }

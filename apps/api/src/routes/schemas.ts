@@ -158,7 +158,7 @@ const checkAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('invite'), label: z.string().max(80).optional() }),
   z.strictObject({ type: z.literal('calendar'), sessionId: z.string().min(1).max(80) }),
   z.strictObject({ type: z.literal('link'), label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }),
-  z.strictObject({ type: z.literal('form'), formId: z.enum(['intake', 'stack-card']), label: z.string().max(80), itemId: z.string().max(80).optional() }),
+  z.strictObject({ type: z.literal('form'), formId: z.enum(['intake', 'stack-card', 'seat-card']), label: z.string().max(80), itemId: z.string().max(80).optional() }),
   z.strictObject({ type: z.literal('card'), terms: z.array(z.string().max(80)).max(24) }),
   // D-230: Turn in. The kind is all it holds; the button's words are the drawer's.
   z.strictObject({ type: z.literal('upload'), kind: z.enum(['live_read', 'checkpoint']) }),

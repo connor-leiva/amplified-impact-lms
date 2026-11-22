@@ -12,7 +12,8 @@ import { localToggle, localWatch } from '@ai/core/checklist';
 import { intakeFileIds, mayEditIntake } from '@ai/core/intake';
 import { learnerOf } from '@ai/core/learner';
 import { isLockedWeek } from '@ai/core/course';
-import type { CourseIntake } from '@ai/core/course-types';
+import type { CourseIntake, SeatCard } from '@ai/core/course-types';
+import { seatCardAskOf, seatCardRole } from '@ai/core/seat-card';
 import { Icon } from '../../components/Icon';
 import { isFixture, repo } from '../../data/boot';
 import { useMutate } from '../../data/hooks';
@@ -408,10 +409,25 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     // D-230 (B-26, B-27): for a viewer v3 draws for, a step that asks for a file has the Turn in button (or, for a
     // teammate who can't turn in, the line in its place), and the drawer opens here.
     const asks = !preview && v3For(viewer, me) && row?.module ? asksOf(row.module, row.week) : [];
-    const page = asks.length ? (
-      <TurnInStep key={`${vm.week}:${vm.eyebrow}`} moduleId={row!.module!.id} asks={asks} role={me?.role ?? null} vm={vm} kit={more.kit} title={more.title} local={local} />
+    // D-236: on the step that asks for the week's seat card, its Form button opens the drawer (a viewer v3 draws for).
+    const seatAsk = !preview && v3For(viewer, me) && row?.module ? seatCardAskOf(row.module) : null;
+    const openWeek = seatAsk && seatAsk.step === step ? course.payload.course.weeks.find((w) => w.week === row!.week) : undefined;
+    const seat =
+      seatAsk && openWeek && !isLockedWeek(openWeek) && openWeek.seatCard
+        ? { moduleId: row!.module!.id, card: openWeek.seatCard, at: { week: row!.week, step: seatAsk.step, ...(seatAsk.signLabel ? { signLabel: seatAsk.signLabel } : {}) } }
+        : null;
+    const inner = (seatCard?: { open: () => void }) =>
+      asks.length ? (
+        <TurnInStep key={`${vm.week}:${vm.eyebrow}`} moduleId={row!.module!.id} asks={asks} role={me?.role ?? null} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} />
+      ) : (
+        <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} />
+      );
+    const page = seat ? (
+      <SeatCardStep key={`seat:${vm.week}:${vm.eyebrow}`} seat={seat} role={me?.role ?? null} now={now}>
+        {inner}
+      </SeatCardStep>
     ) : (
-      <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} />
+      inner()
     );
     // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
     const intake = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
@@ -435,6 +451,45 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
 
 const StepIntake = lazy(() => import('./lms-v3/StepIntake'));
 const StepTurnIn = lazy(() => import('./lms-v3/StepTurnIn'));
+const StepSeatCard = lazy(() => import('./lms-v3/StepSeatCard'));
+
+/**
+ * D-236: the step page with the seat card's Form button wired to its drawer (loaded on the first open). The owner's
+ * drawer signs, the operator's marks it ready for the owner, and an agent's is locked (Connor, Nov 22).
+ */
+function SeatCardStep({
+  seat,
+  role,
+  now,
+  children,
+}: {
+  seat: { moduleId: string; card: SeatCard; at: { week: number; step: number; signLabel?: string } };
+  role: string | null;
+  now: number;
+  children: (seatCard: { open: () => void }) => ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const seatCard = useMemo(
+    () => ({
+      open: () => {
+        setLoaded(true);
+        setOpen(true);
+      },
+    }),
+    [],
+  );
+  return (
+    <>
+      {children(seatCard)}
+      {loaded ? (
+        <Suspense fallback={null}>
+          <StepSeatCard moduleId={seat.moduleId} card={seat.card} at={seat.at} role={seatCardRole(role)} now={now} open={open} onClose={() => setOpen(false)} />
+        </Suspense>
+      ) : null}
+    </>
+  );
+}
 
 /** D-230: the step page with Turn in's button wired to its drawer (loaded on the first open), and the team's turn-ins. */
 function TurnInStep({ moduleId, asks, role, ...props }: StepPageRouteProps & { moduleId: string; asks: SubmissionAsk[]; role: string | null }) {

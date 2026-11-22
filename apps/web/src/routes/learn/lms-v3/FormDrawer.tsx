@@ -17,7 +17,11 @@
 // Motion (Amplified Impact Motion v1): the brand's Drawer (05) slides in on the spring and its contents follow in
 // order; fields focus as brand 07 (the ring tightens in, the border firms to ink; an error shakes); Submit and
 // Download are brand 03 (idle → the hairline sweep → the mark lands); chips press (02).
-// D-225: `handoff/lms-v3/src/components/FormDrawer.jsx`, converted to TSX and nothing else.
+// D-225: `handoff/lms-v3/src/components/FormDrawer.jsx`, converted to TSX. D-236 adds three things the seat card needs
+// (Connor, Nov 22): `locked`, the same drawer with every answer shown and locked, where only Close and Download PDF
+// work (an agent's view); `ui.submittedLabel`, the finished state's word ("Signed", "Ready"); and a refusal: a save or
+// a submit the server refuses (a `FormRefusal`) stops, the button shakes back, and the foot says why, where a refused
+// save once hung on "Saving". With none of them in play the drawer is the package's.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Icon } from './Icons';
@@ -29,7 +33,13 @@ type Answer = FormAnswers[string] | undefined;
 interface FormState {
   status: FormStatus; answers: FormAnswers; rowAnswers: FormAnswers; saved: string; short: string;
   save: 'idle' | 'saving' | 'saved'; errors: Record<string, boolean>; submit: AsyncState; pdf: AsyncState; attempt: number;
+  /** D-236: why the server refused the last save or submit, in its words ('' for none). */
+  failure: string;
 }
+
+/** D-236: a save or a submit the server refused, with the words the drawer's foot shows. */
+export class FormRefusal extends Error {}
+const refusalOf = (err: unknown): string => (err instanceof FormRefusal ? err.message : '');
 export interface UseFormArgs {
   form: FormDef;
   initial: FormInitial;
@@ -45,7 +55,7 @@ const count = (fields: FormQuestion[], a: FormAnswers) => fields.filter((f) => h
 
 export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseFormArgs) {
   const fields = useMemo(() => form.intake.sections.flatMap((s) => s.questions), [form]);
-  const start = (i: FormInitial): FormState => ({ status: i.status, answers: i.answers, rowAnswers: i.answers, saved: i.savedLabel || '', short: i.submittedShort || '', save: i.savedLabel ? 'saved' : 'idle', errors: {}, submit: 'idle', pdf: 'idle', attempt: 0 });
+  const start = (i: FormInitial): FormState => ({ status: i.status, answers: i.answers, rowAnswers: i.answers, saved: i.savedLabel || '', short: i.submittedShort || '', save: i.savedLabel ? 'saved' : 'idle', errors: {}, submit: 'idle', pdf: 'idle', attempt: 0, failure: '' });
   const [s, setS] = useState(() => start(initial));
   const ref = useRef(s); ref.current = s;
   const timer = useRef(0 as unknown as ReturnType<typeof setTimeout>), pending = useRef(false), run = useRef(0);
@@ -54,13 +64,18 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
   const save = useCallback(async () => {
     pending.current = false; const id = ++run.current, a = ref.current.answers;
     set({ save: 'saving' });
-    await onSave?.(a);
+    try {
+      await onSave?.(a);
+    } catch (err) {
+      if (id === run.current) set({ save: 'idle', failure: refusalOf(err) });
+      return;
+    }
     if (id !== run.current) return;   // a newer save, or a submit, took over
     set((p) => ({ status: p.status === 'new' ? 'draft' : p.status, saved: 'Saved ' + stamp({ hour: 'numeric', minute: '2-digit' }), save: 'saved', rowAnswers: a }));
   }, [onSave]);
 
   const change = (f: FormQuestion, value: FormAnswers[string]) => {
-    set((p) => { const errors = { ...p.errors }; delete errors[f.id]; return { answers: { ...p.answers, [f.id]: value }, errors }; });
+    set((p) => { const errors = { ...p.errors }; delete errors[f.id]; return { answers: { ...p.answers, [f.id]: value }, errors, failure: '' }; });
     pending.current = true; clearTimeout(timer.current);
     timer.current = setTimeout(save, picks(f) ? 0 : 700);
   };
@@ -71,9 +86,14 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
     const bad = fields.find((f) => errors[f.id]);
     if (bad) { set({ errors, submit: 'error', attempt: p.attempt + 1 }); return bad; }
     clearTimeout(timer.current); pending.current = false; run.current++;
-    set({ errors, submit: 'busy' });
-    await onSubmit?.(p.answers);
-    set({ status: 'submitted', submit: 'done', save: 'saved', rowAnswers: p.answers, saved: 'Submitted ' + stamp({ month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }), short: stamp({ month: 'short', day: 'numeric' }) });
+    set({ errors, submit: 'busy', failure: '' });
+    try {
+      await onSubmit?.(p.answers);
+    } catch (err) {
+      set({ submit: 'error', attempt: p.attempt + 1, failure: refusalOf(err) });
+      return null;
+    }
+    set({ status: 'submitted', submit: 'done', save: 'saved', rowAnswers: p.answers, saved: (form.ui.submittedLabel ?? 'Submitted') + ' ' + stamp({ month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }), short: stamp({ month: 'short', day: 'numeric' }) });
     setTimeout(() => set({ submit: 'idle' }), 1400);
     return null;
   };
@@ -98,7 +118,7 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
 }
 export type FormApi = ReturnType<typeof useForm>;
 
-function Field({ f, fm }: { f: FormQuestion; fm: FormApi }) {
+function Field({ f, fm, locked }: { f: FormQuestion; fm: FormApi; locked: boolean }) {
   const v = fm.answers[f.id], id = 'fm-' + f.id, err = fm.errors[f.id], ui = fm.form.ui;
   const opt = f.required ? null : <span className="fm-opt">{ui.optional}</span>;
   const hint = f.help ? <p className="fm-hint" id={id + '-hint'}>{f.help}</p> : null;
@@ -111,7 +131,7 @@ function Field({ f, fm }: { f: FormQuestion; fm: FormApi }) {
         <div className="fm-opts">
           {f.options!.map((o) => (
             <label className="fm-chip" key={o}>
-              <input type={multi ? 'checkbox' : 'radio'} name={f.id} value={o} checked={multi ? list.includes(o) : v === o}
+              <input type={multi ? 'checkbox' : 'radio'} name={f.id} value={o} checked={multi ? list.includes(o) : v === o} disabled={locked || undefined}
                 onChange={() => fm.change(f, multi ? f.options!.filter((x) => (x === o ? !list.includes(o) : list.includes(x))) : o)} />
               {multi && <><Icon name="plus" /><Icon name="check" /></>}{o}
             </label>
@@ -121,7 +141,7 @@ function Field({ f, fm }: { f: FormQuestion; fm: FormApi }) {
       </div>
     );
   }
-  const p = { className: 'fm-input', id, name: f.id, 'aria-describedby': f.help ? id + '-hint' : undefined, 'aria-invalid': err ? true : undefined, value: v || '', onChange: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => fm.change(f, e.target.value) };
+  const p = { className: 'fm-input', id, name: f.id, 'aria-describedby': f.help ? id + '-hint' : undefined, 'aria-invalid': err ? true : undefined, readOnly: locked || undefined, value: v || '', onChange: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => fm.change(f, e.target.value) };
   return (
     <div className="fm-field" data-field={f.id} data-kind={f.kind} data-state={err ? 'error' : undefined}>
       <label className="fm-label" htmlFor={id}>{f.label}{opt}</label>{hint}
@@ -143,7 +163,7 @@ function AsyncBtn({ cls, state, icon, label, done, onClick, attempt }: { cls: st
   );
 }
 
-export function FormDrawer({ f: fm, open, onClose }: { f: FormApi; open: boolean; onClose: () => void }) {
+export function FormDrawer({ f: fm, open, onClose, locked = false }: { f: FormApi; open: boolean; onClose: () => void; locked?: boolean }) {
   const { ui, intake } = fm.form, body = useRef<HTMLFormElement>(null), wasSubmitted = useRef(fm.status === 'submitted');
   const close = () => { fm.flush(); onClose(); };
   const submit = async () => { const bad = await fm.submit(); if (bad) body.current?.querySelector<HTMLElement>(`[data-field="${bad.id}"] :is(input,textarea)`)?.focus(); };
@@ -175,16 +195,16 @@ export function FormDrawer({ f: fm, open, onClose }: { f: FormApi; open: boolean
           {intake.sections.map((x, i) => (
             <section className="fm-sec aim-in" style={{ '--i': i + 2 } as MotionStyle} key={x.title}>
               <div className="fm-sec-h"><h3 className="fm-sec-t"><span className="fm-no">{String(i + 1).padStart(2, '0')}</span>{x.title}</h3>{x.intro && <p className="fm-sec-d">{x.intro}</p>}</div>
-              {x.questions.map((f) => <Field key={f.id} f={f} fm={fm} />)}
+              {x.questions.map((f) => <Field key={f.id} f={f} fm={fm} locked={locked} />)}
             </section>
           ))}
         </form>
         <footer className="fm-foot aim-in" style={{ '--i': intake.sections.length + 2 } as MotionStyle}>
-          {done
+          {locked ? null : done
             ? <button className="wk-btn wk-btn-primary fm-done" type="button" onClick={close}><RollLabel>Done</RollLabel></button>
-            : <AsyncBtn cls="wk-btn-primary aim-async fm-submit" state={fm.submitState} label={ui.submitLabel} done="Submitted" onClick={submit} attempt={fm.attempt} />}
+            : <AsyncBtn cls="wk-btn-primary aim-async fm-submit" state={fm.submitState} label={ui.submitLabel} done={ui.submittedLabel ?? 'Submitted'} onClick={submit} attempt={fm.attempt} />}
           <AsyncBtn cls="wk-btn-secondary aim-async fm-pdf" state={fm.pdf} icon="down" label="Download PDF" done="Downloaded" onClick={fm.download} />
-          <p className="fm-note" role="alert">{errs ? `${errs} answer${errs > 1 ? 's' : ''} still needed` : null}</p>
+          <p className="fm-note" role="alert">{errs ? `${errs} answer${errs > 1 ? 's' : ''} still needed` : fm.failure || null}</p>
         </footer>
       </Drawer>
     </div>

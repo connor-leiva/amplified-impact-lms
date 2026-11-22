@@ -1,0 +1,2238 @@
+[
+ {
+  "title": "Run Map Your Spend",
+  "who": "Operator",
+  "time": "15 min",
+  "mins": 15,
+  "done": "Your Map Your Spend report is built on the last 12 full months of books and closings",
+  "goal": "Run Map Your Spend on the last 12 full months.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w1-01a",
+    "title": "Run Map Your Spend (Claude)",
+    "note": "Recording w1-01a in recordings/RECORDING-LIST.md."
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-ledger",
+    "title": "Export 12 full months of books",
+    "detail": "A general ledger or transaction detail export is best, and a P&L works. Use the export guide for your books in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 1 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Connected to QuickBooks in Week 0? Export the ledger once anyway. The QuickBooks connector's P&L looks to come back by account, not by vendor, and the map needs vendors."
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-cards",
+    "title": "Add card statements if you need them",
+    "detail": "Only if your books don't list each card charge one by one. If they do, leave the statements out, or the charges count twice.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-closings",
+    "title": "Pull 12 months of closings with GCI",
+    "detail": "From Sisu if it's connected, or a closings export with the GCI on each deal from Sisu, Follow Up Boss, Brivity or your brokerage.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-blackout",
+    "title": "Black out full card and bank numbers",
+    "detail": "Do this before any file goes in. The skill reads your books and never changes them.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1c-ledger"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-inbox",
+    "title": "Save the files in your inbox folder",
+    "detail": "In Google Drive, make AI Office / Map Your Spend, with an inbox folder and a reports folder inside. Put this week's exports in the inbox.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1c-blackout"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1c-run",
+    "title": "Run Map Your Spend",
+    "detail": "Open your AI Office project in Claude and start a new chat. Attach your files, paste this, and fill in the brackets.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1c-inbox"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Run Map Your Spend on our books for the last 12 full months. Use the map-your-spend skill.\nOur team is [team name]. The attached files are [list each file: the ledger or transaction detail export, any card statements, and the closings export].\nBefore you start, tell me the four guardrails. Then read the files, map every line to the Standard Chart, and ask me every question you need in one message. Wait for my answers before you score.\nRead only. Never change the books. Never send."
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If Claude says it can't run code, stop. Turn on code execution and file creation in Settings, then run it again. The skill never guesses a number."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "This week maps twelve months of your books onto Connor's Standard Chart and hires your Finance Analyst. At the live build, you put it on a monthly schedule. After the books close each month, it puts last month's numbers on your Owner Desk.",
+     "The operator pulls the files and runs the skill. The owner answers the flags in step 2. Run it by Tuesday night, so you can submit your report for a live read on Wednesday."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Four Guardrails",
+    "paras": [
+     "The skill says these before any upload:",
+     "Model training off, or a Team plan.",
+     "Full card and bank account numbers blacked out.",
+     "It reads the books and never changes them.",
+     "Check every category before you trust a percentage."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What to Pull",
+    "paras": [
+     "Use whichever your stack card says for each source."
+    ],
+    "head": [
+     "Source",
+     "Connected (Green)",
+     "Export (Yellow)"
+    ],
+    "rows": [
+     [
+      "Books",
+      "Export the ledger once anyway (see the Tip above)",
+      "Ledger or transaction detail export, 12 full months"
+     ],
+     [
+      "Closings",
+      "Sisu connector",
+      "Closings export with GCI on each deal"
+     ],
+     [
+      "Card statements",
+      "Only if the ledger lists card charges as one lump payment",
+      "Same"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Want to See It on Made-Up Data First?",
+    "paras": [
+     "Run the self-test from Week 0 step 4 again. It builds a full report for the made-up Sample Team that comes with the skill, so none of your data goes in. The Sample Run Walkthrough in this week's Kit shows what each part means."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w1-01b",
+    "title": "Run Map Your Spend (ChatGPT)",
+    "note": "Recording w1-01b in recordings/RECORDING-LIST.md."
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-ledger",
+    "title": "Export 12 full months of books",
+    "detail": "A general ledger or transaction detail export is best, and a P&L works. Use the export guide for your books in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Week 1 Export Guides"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Connected to QuickBooks in Week 0? Export the ledger once anyway. The QuickBooks connector's P&L looks to come back by account, not by vendor, and the map needs vendors."
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-cards",
+    "title": "Add card statements if you need them",
+    "detail": "Only if your books don't list each card charge one by one. If they do, leave the statements out, or the charges count twice.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-closings",
+    "title": "Pull 12 months of closings with GCI",
+    "detail": "From Sisu if it's connected, or a closings export with the GCI on each deal from Sisu, Follow Up Boss, Brivity or your brokerage.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-blackout",
+    "title": "Black out full card and bank numbers",
+    "detail": "Do this before any file goes in. The skill reads your books and never changes them.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1g-ledger"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-inbox",
+    "title": "Save the files in your inbox folder",
+    "detail": "In Google Drive, make AI Office / Map Your Spend, with an inbox folder and a reports folder inside. Put this week's exports in the inbox.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1g-blackout"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s1g-run",
+    "title": "Run Map Your Spend",
+    "detail": "Open your AI Office project in ChatGPT and start a new chat. Attach your files, paste this, and fill in the brackets.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s1g-inbox"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Run Map Your Spend on our books for the last 12 full months. Use the @map-your-spend skill.\nOur team is [team name]. The attached files are [list each file: the ledger or transaction detail export, any card statements, and the closings export].\nBefore you start, tell me the four guardrails. Then read the files, map every line to the Standard Chart, and ask me every question you need in one message. Wait for my answers before you score.\nRead only. Never change the books. Never send."
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If ChatGPT says it can't run code, stop. Turn on code execution, then run it again. The skill never guesses a number."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "This week maps twelve months of your books onto Connor's Standard Chart and hires your Finance Analyst. At the live build, you put it on a monthly schedule. After the books close each month, it puts last month's numbers on your Owner Desk.",
+     "The operator pulls the files and runs the skill. The owner answers the flags in step 2. Run it by Tuesday night, so you can submit your report for a live read on Wednesday."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Four Guardrails",
+    "paras": [
+     "The skill says these before any upload:",
+     "Model training off, or a Business plan.",
+     "Full card and bank account numbers blacked out.",
+     "It reads the books and never changes them.",
+     "Check every category before you trust a percentage."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What to Pull",
+    "paras": [
+     "Use whichever your stack card says for each source."
+    ],
+    "head": [
+     "Source",
+     "Connected (Green)",
+     "Export (Yellow)"
+    ],
+    "rows": [
+     [
+      "Books",
+      "Export the ledger once anyway (see the Tip above)",
+      "Ledger or transaction detail export, 12 full months"
+     ],
+     [
+      "Closings",
+      "Sisu connector",
+      "Closings export with GCI on each deal"
+     ],
+     [
+      "Card statements",
+      "Only if the ledger lists card charges as one lump payment",
+      "Same"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Want to See It on Made-Up Data First?",
+    "paras": [
+     "Run the self-test from Week 0 step 4 again. It builds a full report for the made-up Sample Team that comes with the skill, so none of your data goes in. The Sample Run Walkthrough in this week's Kit shows what each part means."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Answer the Flags",
+  "who": "Owner",
+  "time": "15 min",
+  "mins": 15,
+  "done": "Every flag answered and the totals by bucket confirmed",
+  "goal": "Answer every flag and confirm the totals by bucket.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w1-02",
+    "title": "Answer the Flags",
+    "note": "Recording w1-02 (one cut for both paths; the chat looks the same on both)."
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-flags",
+    "title": "Answer every flag",
+    "detail": "The skill lists each line it could not place, with a plain question. Answer each one in the same chat. If you don't know, say so.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-moved",
+    "title": "Check the lines it moved",
+    "detail": "It lists the lines it gave a different home than your books did, biggest first, like portal fees out of advertising or VAs out of software. Say if any home is wrong.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2c-flags"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-totals",
+    "title": "Confirm the totals by bucket",
+    "detail": "Compare each bucket's total with your books. A wrong total caught now is a wrong report you never see.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2c-moved"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-team",
+    "title": "Answer the questions files can't",
+    "detail": "How many agents. How many staff, contractors and VAs fill a seat. Whether you sell, and whether you're paid a commission on your own deals. How many files your outside transaction coordinator handled. Skip any you can't answer.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If you sell and aren't paid a commission on your own deals, the report restates your books to pay you one. That is usually where profit drops. Connor walks through it at the live build."
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-sign",
+    "title": "Answer the income sign question",
+    "detail": "Only if the skill asks. When one file shows income both ways, it stops and asks how that file shows a commission deposit. Look at one deposit in the file and tell it.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2c-rerun",
+    "title": "Let it map and score again",
+    "detail": "Once you've answered, the skill puts your answers into the map and scores again. Read the new totals before you go on.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2c-totals",
+     "w1s2c-team"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "The flags are the point. Every team has a few lines nobody can explain, and answering them is often the first time an owner sees the spend sorted the same way twice.",
+     "This step is the owner's. The operator can sit with you and type."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Flags Look Like (Made-Up Sample Team)",
+    "paras": [
+     "These come with the skill's made-up Sample Team. Your questions will be about your own vendors."
+    ],
+    "head": [
+     "Flag",
+     "The Answer"
+    ],
+    "rows": [
+     [
+      "J Alvarez, in Ask My Accountant",
+      "A video editor, paid monthly as a contractor"
+     ],
+     [
+      "Venmo, in Uncategorized Expense",
+      "The taco truck for open house weekends"
+     ],
+     [
+      "Zillow, in Advertising and Marketing",
+      "A referral fee Zillow takes out of the commission at closing"
+     ],
+     [
+      "MyOutDesk, in Software and Subscriptions",
+      "A VA company. Two VAs"
+     ],
+     [
+      "On the owner's card: the golf club",
+      "Personal"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Three Things to Watch For",
+    "paras": [
+     "The income sign on mixed files: one file showing income both as positive and negative numbers.",
+     "Card charges counted twice, when the ledger already lists them one by one.",
+     "A leader who sells but takes no commission."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w1-02",
+    "title": "Answer the Flags",
+    "note": "Recording w1-02 (one cut for both paths; the chat looks the same on both)."
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-flags",
+    "title": "Answer every flag",
+    "detail": "The skill lists each line it could not place, with a plain question. Answer each one in the same chat. If you don't know, say so.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-moved",
+    "title": "Check the lines it moved",
+    "detail": "It lists the lines it gave a different home than your books did, biggest first, like portal fees out of advertising or VAs out of software. Say if any home is wrong.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2g-flags"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-totals",
+    "title": "Confirm the totals by bucket",
+    "detail": "Compare each bucket's total with your books. A wrong total caught now is a wrong report you never see.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2g-moved"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-team",
+    "title": "Answer the questions files can't",
+    "detail": "How many agents. How many staff, contractors and VAs fill a seat. Whether you sell, and whether you're paid a commission on your own deals. How many files your outside transaction coordinator handled. Skip any you can't answer.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "If you sell and aren't paid a commission on your own deals, the report restates your books to pay you one. That is usually where profit drops. Connor walks through it at the live build."
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-sign",
+    "title": "Answer the income sign question",
+    "detail": "Only if the skill asks. When one file shows income both ways, it stops and asks how that file shows a commission deposit. Look at one deposit in the file and tell it.",
+    "role": "Operator",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s2g-rerun",
+    "title": "Let it map and score again",
+    "detail": "Once you've answered, the skill puts your answers into the map and scores again. Read the new totals before you go on.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s2g-totals",
+     "w1s2g-team"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "The flags are the point. Every team has a few lines nobody can explain, and answering them is often the first time an owner sees the spend sorted the same way twice.",
+     "This step is the owner's. The operator can sit with you and type."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Flags Look Like (Made-Up Sample Team)",
+    "paras": [
+     "These come with the skill's made-up Sample Team. Your questions will be about your own vendors."
+    ],
+    "head": [
+     "Flag",
+     "The Answer"
+    ],
+    "rows": [
+     [
+      "J Alvarez, in Ask My Accountant",
+      "A video editor, paid monthly as a contractor"
+     ],
+     [
+      "Venmo, in Uncategorized Expense",
+      "The taco truck for open house weekends"
+     ],
+     [
+      "Zillow, in Advertising and Marketing",
+      "A referral fee Zillow takes out of the commission at closing"
+     ],
+     [
+      "MyOutDesk, in Software and Subscriptions",
+      "A VA company. Two VAs"
+     ],
+     [
+      "On the owner's card: the golf club",
+      "Personal"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Three Things to Watch For",
+    "paras": [
+     "The income sign on mixed files: one file showing income both as positive and negative numbers.",
+     "Card charges counted twice, when the ledger already lists them one by one.",
+     "A leader who sells but takes no commission."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Read Your Six Lines",
+  "who": "Owner",
+  "time": "10 min",
+  "mins": 10,
+  "done": "You know which lines are on, watch or off, and the one gap you'll act on this month",
+  "goal": "Read your six lines: on, watch or off, and the gaps in dollars.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w1-03",
+    "title": "Reading Your Report",
+    "note": "Recording w1-03 (one cut for both paths; the report is the same file on both)."
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-open",
+    "title": "Open your report",
+    "detail": "Double-click the report file. It opens in your browser, with no internet needed, on a laptop or a phone.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-six",
+    "title": "Read your six lines",
+    "detail": "Each line is a share of GCI, marked on, watch or off. Check each one as you read it.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [
+     "cd | Company dollar",
+     "adv | Advertising",
+     "staff | Staffing",
+     "other | All other operating cost",
+     "total | Total operating cost",
+     "noi | Net operating income"
+    ],
+    "deps": [
+     "w1s3c-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-gaps",
+    "title": "Read the gaps in dollars",
+    "detail": "Biggest first. Each gap comes with the standard's first move.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3c-six"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-views",
+    "title": "Switch between As Booked and Restated",
+    "detail": "As Booked is what your books show. Restated books revenue gross and pays the leader a commission. The difference is the part of profit that was really cost of sale or the leader's paycheck.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3c-six"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3c-pick",
+    "title": "Pick the one gap you'll act on",
+    "detail": "One gap, this month. Write it down for the commit at the end of the live build.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3c-gaps"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Reading Your Report"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Use the What If sliders to size the one gap. They never change your numbers, and Reset To Actual puts them back."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "One chart, one standard and every gap in dollars is how you know what to fix first. Your books grew one account at a time, so this is likely the first time you've seen your spend sorted this way."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Standard Chart",
+    "paras": [
+     "Connor's standard. Every line is a share of GCI. The 30% is after the leader is paid a commission."
+    ],
+    "head": [
+     "Line",
+     "Rule",
+     "Standard"
+    ],
+    "rows": [
+     [
+      "Company dollar",
+      "At least",
+      "50%"
+     ],
+     [
+      "Advertising",
+      "At most",
+      "5%"
+     ],
+     [
+      "Staffing",
+      "About",
+      "10%"
+     ],
+     [
+      "All other operating cost",
+      "About",
+      "5%"
+     ],
+     [
+      "Total operating cost",
+      "At most",
+      "20%"
+     ],
+     [
+      "Net operating income",
+      "At least",
+      "30%"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "On, Watch and Off",
+    "paras": [
+     "Company dollar, advertising, total operating cost and net operating income are hard lines. On meets the number. Off does not.",
+     "Staffing and all other operating cost are \"about\" lines. On is at or under the number. Watch is up to 1 point over. Off is past that.",
+     "Low staffing or low advertising is never a flag on its own."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Play: The Standard's First Moves",
+    "paras": [
+     "Fix splits and lead cost before you cut people.",
+     "Staffing over 10%: give the repeat work to an AI Employee or a VA.",
+     "Advertising over 5%: pull cost per closing by source first, which is Week 2.",
+     "All other cost over 5%: audit software and occupancy."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w1-03",
+    "title": "Reading Your Report",
+    "note": "Recording w1-03 (one cut for both paths; the report is the same file on both)."
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-open",
+    "title": "Open your report",
+    "detail": "Double-click the report file. It opens in your browser, with no internet needed, on a laptop or a phone.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-six",
+    "title": "Read your six lines",
+    "detail": "Each line is a share of GCI, marked on, watch or off. Check each one as you read it.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [
+     "cd | Company dollar",
+     "adv | Advertising",
+     "staff | Staffing",
+     "other | All other operating cost",
+     "total | Total operating cost",
+     "noi | Net operating income"
+    ],
+    "deps": [
+     "w1s3g-open"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-gaps",
+    "title": "Read the gaps in dollars",
+    "detail": "Biggest first. Each gap comes with the standard's first move.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3g-six"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-views",
+    "title": "Switch between As Booked and Restated",
+    "detail": "As Booked is what your books show. Restated books revenue gross and pays the leader a commission. The difference is the part of profit that was really cost of sale or the leader's paycheck.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3g-six"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s3g-pick",
+    "title": "Pick the one gap you'll act on",
+    "detail": "One gap, this month. Write it down for the commit at the end of the live build.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s3g-gaps"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Download",
+     "kit": [
+      "Reading Your Report"
+     ]
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Use the What If sliders to size the one gap. They never change your numbers, and Reset To Actual puts them back."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "One chart, one standard and every gap in dollars is how you know what to fix first. Your books grew one account at a time, so this is likely the first time you've seen your spend sorted this way."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Standard Chart",
+    "paras": [
+     "Connor's standard. Every line is a share of GCI. The 30% is after the leader is paid a commission."
+    ],
+    "head": [
+     "Line",
+     "Rule",
+     "Standard"
+    ],
+    "rows": [
+     [
+      "Company dollar",
+      "At least",
+      "50%"
+     ],
+     [
+      "Advertising",
+      "At most",
+      "5%"
+     ],
+     [
+      "Staffing",
+      "About",
+      "10%"
+     ],
+     [
+      "All other operating cost",
+      "About",
+      "5%"
+     ],
+     [
+      "Total operating cost",
+      "At most",
+      "20%"
+     ],
+     [
+      "Net operating income",
+      "At least",
+      "30%"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "On, Watch and Off",
+    "paras": [
+     "Company dollar, advertising, total operating cost and net operating income are hard lines. On meets the number. Off does not.",
+     "Staffing and all other operating cost are \"about\" lines. On is at or under the number. Watch is up to 1 point over. Off is past that.",
+     "Low staffing or low advertising is never a flag on its own."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "The Play: The Standard's First Moves",
+    "paras": [
+     "Fix splits and lead cost before you cut people.",
+     "Staffing over 10%: give the repeat work to an AI Employee or a VA.",
+     "Advertising over 5%: pull cost per closing by source first, which is Week 2.",
+     "All other cost over 5%: audit software and occupancy."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Submit for a Live Read",
+  "who": "Owner",
+  "time": "5 min",
+  "mins": 5,
+  "done": "Your report is submitted for a live read, or you have one question ready",
+  "goal": "Submit your report for a live read, or bring one question.",
+  "claude": [
+   {
+    "type": "check",
+    "id": "w1s4c-choose",
+    "title": "Decide: a live read or one question",
+    "detail": "At the live build, Connor reads three or four member reports against the Standard Chart: the number, the question he'd ask, and the play. Submit yours if you want it read. If not, bring one question.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s4c-submit",
+    "title": "Submit your report by Tuesday night",
+    "detail": "Upload the report file here. Add one line on what you'd like Connor to look at.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s4c-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Report for a live read"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "Live reads are shown to the whole cohort, and every build is recorded. Before you submit, take out anything you don't want other teams to see."
+   },
+   {
+    "type": "check",
+    "id": "w1s4c-question",
+    "title": "Or write down one question",
+    "detail": "Bring it to the live build or to office hours.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s4c-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s4c-save",
+    "title": "Save the live build",
+    "detail": "Wed, Dec 2, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.",
+    "role": "Each of you",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Add to calendar",
+     "session": "Map Your Spend Live Build"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "How the Live Build Runs",
+    "paras": [
+     "90 minutes, the same every week.",
+     "Steps 5 and 6 are the Hire Lab. Do them at the build with everyone. If you miss it, do them with the recording and bring your questions to office hours."
+    ],
+    "head": [
+     "Minutes",
+     "What Happens"
+    ],
+    "rows": [
+     [
+      "0 to 10",
+      "The Question: the owner question, the number and why it matters this month"
+     ],
+     [
+      "10 to 50",
+      "Live Reads: Connor reads three or four member reports against his standard"
+     ],
+     [
+      "50 to 80",
+      "Hire Lab: everyone schedules the Finance Analyst, runs it once and checks the Owner Desk"
+     ],
+     [
+      "80 to 90",
+      "Commit: each team names the task the hire takes over and who it reports to"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "check",
+    "id": "w1s4g-choose",
+    "title": "Decide: a live read or one question",
+    "detail": "At the live build, Connor reads three or four member reports against the Standard Chart: the number, the question he'd ask, and the play. Submit yours if you want it read. If not, bring one question.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s4g-submit",
+    "title": "Submit your report by Tuesday night",
+    "detail": "Upload the report file here. Add one line on what you'd like Connor to look at.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s4g-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Report for a live read"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Heads up",
+    "text": "Live reads are shown to the whole cohort, and every build is recorded. Before you submit, take out anything you don't want other teams to see."
+   },
+   {
+    "type": "check",
+    "id": "w1s4g-question",
+    "title": "Or write down one question",
+    "detail": "Bring it to the live build or to office hours.",
+    "role": "Owner",
+    "optional": true,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s4g-choose"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s4g-save",
+    "title": "Save the live build",
+    "detail": "Wed, Dec 2, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.",
+    "role": "Each of you",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Add to calendar",
+     "session": "Map Your Spend Live Build"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "How the Live Build Runs",
+    "paras": [
+     "90 minutes, the same every week.",
+     "Steps 5 and 6 are the Hire Lab. Do them at the build with everyone. If you miss it, do them with the recording and bring your questions to office hours."
+    ],
+    "head": [
+     "Minutes",
+     "What Happens"
+    ],
+    "rows": [
+     [
+      "0 to 10",
+      "The Question: the owner question, the number and why it matters this month"
+     ],
+     [
+      "10 to 50",
+      "Live Reads: Connor reads three or four member reports against his standard"
+     ],
+     [
+      "50 to 80",
+      "Hire Lab: everyone schedules the Finance Analyst, runs it once and checks the Owner Desk"
+     ],
+     [
+      "80 to 90",
+      "Commit: each team names the task the hire takes over and who it reports to"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Schedule the Finance Analyst",
+  "who": "Each of you",
+  "time": "15 min",
+  "mins": 15,
+  "done": "The Finance Analyst is on its monthly schedule, has run once, and its first numbers are on your Owner Desk",
+  "goal": "Schedule the Finance Analyst and read its first numbers on your Owner Desk.",
+  "claude": [
+   {
+    "type": "video",
+    "id": "w1-05a",
+    "title": "Schedule the Finance Analyst (Claude)",
+    "note": "Recording w1-05a."
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-save",
+    "title": "Save the report and the team file",
+    "detail": "In the report chat, paste this. Claude saves with the Google Drive connector, using the create file tool you left on in Week 0.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Using Google Drive, save the report and team-file.json to AI Office / Map Your Spend. Keep the file name team-file.json exactly. Then tell me the full path of each file you saved.\nDon't change or delete anything else in Google Drive."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-look",
+    "title": "Check both files are in the folder",
+    "detail": "Open AI Office / Map Your Spend in Google Drive. You should see the report and team-file.json. Every monthly run starts from that file, so keep its name and keep one copy.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5c-save"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-day",
+    "title": "Pick the day it runs",
+    "detail": "The 5th of each month is the default, with last month's files in by the 4th. If your books close later, pick the day after they close, and change \"the 5th\" in the prompt to match.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-schedule",
+    "title": "Schedule the Finance Analyst",
+    "detail": "In the Claude app, set up a scheduled task and paste the prompt. Fill in the brackets and keep only the line for your team.",
+    "role": "Operator",
+    "optional": false,
+    "click": [
+     "Scheduled",
+     "New task",
+     "Create with Claude"
+    ],
+    "tasks": [],
+    "deps": [
+     "w1s5c-look",
+     "w1s5c-day"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "You are our Finance Analyst. You report to [OWNER'S NAME]. You run on a schedule with nobody watching, so follow these steps exactly.\nRun the Map Your Spend monthly run for [TEAM NAME]. Use the map-your-spend skill and follow references/monthly.md. The team file is AI Office / Map Your Spend / team-file.json.\nFirst run: if AI Office / Map Your Spend / reports has no monthly report yet, run the newest full month in the team file, using the files already in AI Office / Map Your Spend / inbox.\nEvery run after that: run last month. If today is before the 5th, or last month's report is already in the reports folder, reply \"Nothing to run\" and stop.\n[Connected teams, keep this line:] After the first run, pull last month from QuickBooks and Sisu. If either doesn't answer, say so and use the files in AI Office / Map Your Spend / inbox instead.\n[Export teams, keep this line:] After the first run, last month's files are in AI Office / Map Your Spend / inbox.\nMap the month, score it with --month for that month, and build the report. Save the report in AI Office / Map Your Spend / reports, and save the updated team file back to AI Office / Map Your Spend.\nThen add a note, with today's date, to the top of AI Office / Owner Desk: the month, the headline, what moved more than 2 points, anything new that needs a home, the one decision, and where the report is saved. Don't change or delete anything else on the page.\nIf the month's files are missing, say what is missing and where to drop it in that note, and stop. Never fill a missing month with guesses. If anything else fails or looks wrong, say what you saw in the note and stop before scoring.\nRead only. You may save drafts, save files in the AI Office and post to its desk pages. Never send an email. Never change the books, a lead, or anything else in a connected app. Don't change or delete any file outside AI Office / Map Your Spend, except adding your note to the top of the Owner Desk."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-time",
+    "title": "Set the day and time",
+    "detail": "Ask for the 5th of every month at 6:00 AM MT, or the day you picked. If Claude can only offer a weekly schedule, pick Mondays at 6:00 AM MT. The prompt skips a month it has already done. Leave the folder empty.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5c-schedule"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-run",
+    "title": "Save the task and run it once",
+    "detail": "Make sure Google Drive and, for connected teams, QuickBooks and Sisu are on for the task. Click Schedule, then run it once now. Its first run uses the newest month in your team file, so you see real numbers today.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5c-time"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5c-desk",
+    "title": "Read the note on your Owner Desk",
+    "detail": "Open the Owner Desk. The newest note at the top has the date, the month, the headline, what moved more than 2 points, anything new that needs a home and one decision. Take a screenshot for your checkpoint.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5c-run"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Its first run on its own comes on the next 5th, or the day you picked. If last month's books aren't in yet, it says what's missing and stops. Run it again once they are. Running the same month twice is safe."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "Your Finance Analyst is Map Your Spend on a monthly schedule. After the books close, it maps last month with the map you confirmed, shows what moved, and puts the numbers on your Owner Desk with one decision for the owner.",
+     "It reads and drafts. It never changes the books, and it never fills a missing month with guesses.",
+     "The team file holds your confirmed map, your team's answers and your numbers by month. Every monthly run starts from it."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Lands on the Owner Desk",
+    "paras": [
+     "A short note with the date, at the top of the page. The full report is saved in AI Office / Map Your Spend / reports."
+    ],
+    "head": [
+     "Line",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Headline",
+      "Where your last 12 months stand against the standard"
+     ],
+     [
+      "What moved",
+      "Any line that moved more than 2 points from the month before"
+     ],
+     [
+      "New this month",
+      "Vendors the map had not seen, and any it could not place"
+     ],
+     [
+      "The one decision",
+      "A question about the month's biggest move. For the made-up Sample Team: \"Advertising rose 4.1 points in October, from 6.3% to 10.4% of the month's GCI. Is that a one-month swing, or a change to act on now?\""
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What It Reads Each Month",
+    "paras": [
+     "Use whichever your stack card says."
+    ],
+    "head": [
+     "Team",
+     "Reads"
+    ],
+    "rows": [
+     [
+      "Connected (QuickBooks and Sisu)",
+      "Last month, straight from QuickBooks and Sisu"
+     ],
+     [
+      "Export",
+      "Last month's ledger and closings exports, saved in AI Office / Map Your Spend / inbox by the 4th"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Your Map Your Spend Folder",
+    "paras": [
+     "Inside your AI Office folder in Google Drive:"
+    ],
+    "head": [
+     "Folder or File",
+     "What Goes There"
+    ],
+    "rows": [
+     [
+      "AI Office / Map Your Spend",
+      "Your baseline report and team-file.json"
+     ],
+     [
+      "AI Office / Map Your Spend / inbox",
+      "Last month's exports, if you export"
+     ],
+     [
+      "AI Office / Map Your Spend / reports",
+      "Each month's report"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Late Closes and Missed Months",
+    "paras": [
+     "Books closed late? Run it again once they close. Running the same month twice is safe: that month's numbers are replaced, not added to.",
+     "Missed a month? Paste the prompt in a new chat in your AI Office project and add the month you want at the end."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "video",
+    "id": "w1-05b",
+    "title": "Schedule the Finance Analyst (ChatGPT)",
+    "note": "Recording w1-05b."
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-watch",
+    "title": "Watch the video",
+    "detail": "",
+    "role": "No role tag",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-save",
+    "title": "Save the report and the team file",
+    "detail": "In the report chat, paste this. If ChatGPT can't save to Google Drive, download both files from the chat and upload them to the folder yourself. The monthly run needs team-file.json in that folder.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Using Google Drive, save the report and team-file.json to AI Office / Map Your Spend. Keep the file name team-file.json exactly. Then tell me the full path of each file you saved.\nDon't change or delete anything else in Google Drive."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-look",
+    "title": "Check both files are in the folder",
+    "detail": "Open AI Office / Map Your Spend in Google Drive. You should see the report and team-file.json. Every monthly run starts from that file, so keep its name and keep one copy.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5g-save"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-day",
+    "title": "Pick the day it runs",
+    "detail": "The 5th of each month is the default, with last month's files in by the 4th. If your books close later, pick the day after they close, and change \"the 5th\" in the prompt to match.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-schedule",
+    "title": "Schedule the Finance Analyst",
+    "detail": "In your AI Office project chat, paste this. Fill in the brackets, keep only the line for your team, and change the 5th if you picked another day.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5g-look",
+     "w1s5g-day"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Copy",
+     "label": "Copy prompt",
+     "text": "Please set up a scheduled task that runs on the 5th of every month at 6:00 AM MT (Mountain time). Don't run it now. Each time it runs, do this:\nYou are our Finance Analyst. You report to [OWNER'S NAME]. You run on a schedule with nobody watching, so follow these steps exactly.\nRun the Map Your Spend monthly run for [TEAM NAME]. Use the @map-your-spend skill and follow references/monthly.md. The team file is AI Office / Map Your Spend / team-file.json.\nFirst run: if AI Office / Map Your Spend / reports has no monthly report yet, run the newest full month in the team file, using the files already in AI Office / Map Your Spend / inbox.\nEvery run after that: run last month. If today is before the 5th, or last month's report is already in the reports folder, reply \"Nothing to run\" and stop.\n[Connected teams, keep this line:] After the first run, pull last month from QuickBooks and Sisu. If either doesn't answer, say so and use the files in AI Office / Map Your Spend / inbox instead.\n[Export teams, keep this line:] After the first run, last month's files are in AI Office / Map Your Spend / inbox.\nMap the month, score it with --month for that month, and build the report. Save the report in AI Office / Map Your Spend / reports, and save the updated team file back to AI Office / Map Your Spend.\nThen add a note, with today's date, to the top of AI Office / Owner Desk: the month, the headline, what moved more than 2 points, anything new that needs a home, the one decision, and where the report is saved. Don't change or delete anything else on the page.\nIf the month's files are missing, say what is missing and where to drop it in that note, and stop. Never fill a missing month with guesses. If anything else fails or looks wrong, say what you saw in the note and stop before scoring.\nRead only. You may save drafts, save files in the AI Office and post to its desk pages. Never send an email. Never change the books, a lead, or anything else in a connected app. Don't change or delete any file outside AI Office / Map Your Spend, except adding your note to the top of the Owner Desk."
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-check",
+    "title": "Check it shows in Scheduled",
+    "detail": "Open Scheduled in ChatGPT. The task should show with its next run date.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5g-schedule"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-run",
+    "title": "Run it once now",
+    "detail": "Ask the same chat to run it once now. Its first run uses the newest month in your team file, so you see real numbers today.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5g-check"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s5g-desk",
+    "title": "Read the note on your Owner Desk",
+    "detail": "Open the Owner Desk. The newest note at the top has the date, the month, the headline, what moved more than 2 points, anything new that needs a home and one decision. Take a screenshot for your checkpoint. If the note came back in ChatGPT but isn't on the Owner Desk, paste it at the top yourself and tell us at office hours.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s5g-run"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "callout",
+    "kind": "Tip",
+    "text": "Its first run on its own comes on the next 5th, or the day you picked. If last month's books aren't in yet, it says what's missing and stops. Run it again once they are. Running the same month twice is safe."
+   },
+   {
+    "type": "accordion",
+    "title": "About This Step",
+    "paras": [
+     "Your Finance Analyst is Map Your Spend on a monthly schedule. After the books close, it maps last month with the map you confirmed, shows what moved, and puts the numbers on your Owner Desk with one decision for the owner.",
+     "It reads and drafts. It never changes the books, and it never fills a missing month with guesses.",
+     "The team file holds your confirmed map, your team's answers and your numbers by month. Every monthly run starts from it."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "What Lands on the Owner Desk",
+    "paras": [
+     "A short note with the date, at the top of the page. The full report is saved in AI Office / Map Your Spend / reports."
+    ],
+    "head": [
+     "Line",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Headline",
+      "Where your last 12 months stand against the standard"
+     ],
+     [
+      "What moved",
+      "Any line that moved more than 2 points from the month before"
+     ],
+     [
+      "New this month",
+      "Vendors the map had not seen, and any it could not place"
+     ],
+     [
+      "The one decision",
+      "A question about the month's biggest move. For the made-up Sample Team: \"Advertising rose 4.1 points in October, from 6.3% to 10.4% of the month's GCI. Is that a one-month swing, or a change to act on now?\""
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Connected or Export: What It Reads Each Month",
+    "paras": [
+     "Use whichever your stack card says."
+    ],
+    "head": [
+     "Team",
+     "Reads"
+    ],
+    "rows": [
+     [
+      "Connected (QuickBooks and Sisu)",
+      "Last month, straight from QuickBooks and Sisu"
+     ],
+     [
+      "Export",
+      "Last month's ledger and closings exports, saved in AI Office / Map Your Spend / inbox by the 4th"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Your Map Your Spend Folder",
+    "paras": [
+     "Inside your AI Office folder in Google Drive:"
+    ],
+    "head": [
+     "Folder or File",
+     "What Goes There"
+    ],
+    "rows": [
+     [
+      "AI Office / Map Your Spend",
+      "Your baseline report and team-file.json"
+     ],
+     [
+      "AI Office / Map Your Spend / inbox",
+      "Last month's exports, if you export"
+     ],
+     [
+      "AI Office / Map Your Spend / reports",
+      "Each month's report"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   },
+   {
+    "type": "accordion",
+    "title": "Late Closes and Missed Months",
+    "paras": [
+     "Books closed late? Run it again once they close. Running the same month twice is safe: that month's numbers are replaced, not added to.",
+     "Missed a month? Paste the prompt in a new chat in your AI Office project and add the month you want at the end."
+    ],
+    "head": [],
+    "rows": [],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ },
+ {
+  "title": "Sign the Seat Card",
+  "who": "Each of you",
+  "time": "10 min",
+  "mins": 10,
+  "done": "The Finance Analyst's seat card is signed, with its minutes and first run",
+  "goal": "Fill in the Finance Analyst's seat card and have the owner sign it.",
+  "claude": [
+   {
+    "type": "check",
+    "id": "w1s6c-fill",
+    "title": "Fill in the Finance Analyst's seat card",
+    "detail": "Fill it in here, together. For Took Over, use your Week 0 baseline: Baseline task 1, getting last month's numbers in front of the owner. Write your minutes per occurrence, or \"not done today.\" For First Run, use the date of the run you just did. A made-up team's finished card is in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Form",
+     "label": "Open the seat card",
+     "form": "Seat card"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s6c-sign",
+    "title": "Sign the seat card",
+    "detail": "Read it, then sign it in the form. Your signature says you know what it reads, what it drafts, who it reports to and what it can't do.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s6c-fill"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s6c-checkpoint",
+    "title": "Turn in your checkpoint",
+    "detail": "Upload a screenshot of the note on your Owner Desk before the next live build on Wed, Dec 9, 2026 at 12:00 PM MT. The signed seat card comes in through the form.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s6c-sign"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Checkpoint"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "The Finance Analyst's Seat Card",
+    "paras": [
+     "The standard card. Your card is in your own words, with your Took Over minutes and your First Run."
+    ],
+    "head": [
+     "Field",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Seat",
+      "Finance Analyst"
+     ],
+     [
+      "Reports To",
+      "Owner"
+     ],
+     [
+      "Runs",
+      "Monthly, after the books close: the 5th at 6:00 AM MT, or the day after your close"
+     ],
+     [
+      "Pulls",
+      "Last month's books and closings: from QuickBooks and Sisu for connected teams, or from last month's exports in AI Office / Map Your Spend / inbox for export teams"
+     ],
+     [
+      "Applies",
+      "Your confirmed map in team-file.json and the Standard Chart, with its three rules: revenue booked gross, the leader paid a commission, every expense in one home"
+     ],
+     [
+      "Produces",
+      "Last month's numbers at the top of the Owner Desk, with the date: the headline, what moved more than 2 points, anything new that needs a home and one decision. The monthly report and the updated team file are saved in AI Office / Map Your Spend"
+     ],
+     [
+      "Took Over",
+      "Baseline task 1, getting last month's numbers in front of the owner"
+     ],
+     [
+      "Can't Do",
+      "Change the books, or fill a missing month with guesses. It says what is missing and stops"
+     ],
+     [
+      "First Run",
+      "Date and screenshot"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ],
+  "chatgpt": [
+   {
+    "type": "check",
+    "id": "w1s6g-fill",
+    "title": "Fill in the Finance Analyst's seat card",
+    "detail": "Fill it in here, together. For Took Over, use your Week 0 baseline: Baseline task 1, getting last month's numbers in front of the owner. Write your minutes per occurrence, or \"not done today.\" For First Run, use the date of the run you just did. A made-up team's finished card is in this week's Kit.",
+    "role": "Operator",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [],
+    "other": [],
+    "button": {
+     "kind": "Form",
+     "label": "Open the seat card",
+     "form": "Seat card"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s6g-sign",
+    "title": "Sign the seat card",
+    "detail": "Read it, then sign it in the form. Your signature says you know what it reads, what it drafts, who it reports to and what it can't do.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s6g-fill"
+    ],
+    "other": [],
+    "button": {
+     "kind": "No button"
+    },
+    "play_at": null
+   },
+   {
+    "type": "check",
+    "id": "w1s6g-checkpoint",
+    "title": "Turn in your checkpoint",
+    "detail": "Upload a screenshot of the note on your Owner Desk before the next live build on Wed, Dec 9, 2026 at 12:00 PM MT. The signed seat card comes in through the form.",
+    "role": "Owner",
+    "optional": false,
+    "click": [],
+    "tasks": [],
+    "deps": [
+     "w1s6g-sign"
+    ],
+    "other": [],
+    "button": {
+     "kind": "Upload",
+     "collects": "Checkpoint"
+    },
+    "play_at": null
+   },
+   {
+    "type": "accordion",
+    "title": "The Finance Analyst's Seat Card",
+    "paras": [
+     "The standard card. Your card is in your own words, with your Took Over minutes and your First Run."
+    ],
+    "head": [
+     "Field",
+     "What It Says"
+    ],
+    "rows": [
+     [
+      "Seat",
+      "Finance Analyst"
+     ],
+     [
+      "Reports To",
+      "Owner"
+     ],
+     [
+      "Runs",
+      "Monthly, after the books close: the 5th at 6:00 AM MT, or the day after your close"
+     ],
+     [
+      "Pulls",
+      "Last month's books and closings: from QuickBooks and Sisu for connected teams, or from last month's exports in AI Office / Map Your Spend / inbox for export teams"
+     ],
+     [
+      "Applies",
+      "Your confirmed map in team-file.json and the Standard Chart, with its three rules: revenue booked gross, the leader paid a commission, every expense in one home"
+     ],
+     [
+      "Produces",
+      "Last month's numbers at the top of the Owner Desk, with the date: the headline, what moved more than 2 points, anything new that needs a home and one decision. The monthly report and the updated team file are saved in AI Office / Map Your Spend"
+     ],
+     [
+      "Took Over",
+      "Baseline task 1, getting last month's numbers in front of the owner"
+     ],
+     [
+      "Can't Do",
+      "Change the books, or fill a missing month with guesses. It says what is missing and stops"
+     ],
+     [
+      "First Run",
+      "Date and screenshot"
+     ]
+    ],
+    "link_label": "",
+    "link": ""
+   }
+  ]
+ }
+]
