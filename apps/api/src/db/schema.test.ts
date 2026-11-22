@@ -77,6 +77,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   communityPosts: { table: 'community_posts', columns: ['body', 'by_user_id', 'created_at', 'deleted_at', 'edited_at', 'hidden', 'id', 'thread_id'] },
   // D-230: Turn in's turn-ins. Not a `Db` record.
   submissions: { table: 'submissions', columns: ['by_user_id', 'created_at', 'files', 'id', 'kind', 'minutes', 'module_id', 'note', 'status', 'status_at', 'status_by', 'team_id'] },
+  // D-236: one seat card per team per week. Not a `Db` record.
+  teamSeatCards: { table: 'team_seat_cards', columns: ['answers', 'module_id', 'ready_at', 'signed_at', 'signed_by', 'team_id', 'updated_at', 'updated_by'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
   announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
@@ -353,6 +355,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['communityPosts', 'createdAt'], ['communityPosts', 'editedAt'], ['communityPosts', 'deletedAt'],
   // D-230: when a team turned in, and when staff last set its status.
   ['submissions', 'createdAt'], ['submissions', 'statusAt'],
+  // D-236: a seat card's last save, its ready mark and its signature.
+  ['teamSeatCards', 'updatedAt'], ['teamSeatCards', 'readyAt'], ['teamSeatCards', 'signedAt'],
   ['resources', 'updated'],
   ['announcements', 'at'],
   ['requests', 'at'],
@@ -441,6 +445,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   communityThreads: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.activity reads activity_at' },
   communityPosts: { unit: 'epoch-ms', why: 'D-231: clock.now() at each write, and fmt.when prints created_at' },
   submissions: { unit: 'epoch-ms', why: 'D-230: clock.now() at a turn-in and a status change, and fmt.when prints created_at' },
+  teamSeatCards: { unit: 'epoch-ms', why: 'D-236: clock.now() at a save, the ready mark and the signature, and fmt prints them' },
   resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
   announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
   dismissals: { unit: 'epoch-ms', why: 'no instant' },
@@ -644,6 +649,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   apiMetrics: ['minute', 'route'],
   // D-166: one count per learner, day and kind; each event upserts it (`on conflict … count + 1`).
   usageDaily: ['day', 'user_id', 'kind'],
+  // D-236: one seat card per team per week; each save upserts it (`on conflict … do update`).
+  teamSeatCards: ['team_id', 'module_id'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {
@@ -756,6 +763,8 @@ describe('unique indexes @g9', () => {
       { name: 'submissions_team_idx', unique: false, columns: ['team_id', 'module_id', 'kind', 'id'] },
       { name: 'submissions_module_idx', unique: false, columns: ['module_id', 'id'] },
     ],
+    // D-236: a week's seat cards, for staff. A team's own is its primary key.
+    teamSeatCards: [{ name: 'team_seat_cards_module_idx', unique: false, columns: ['module_id'] }],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -795,6 +804,10 @@ describe('unique indexes @g9', () => {
 
   it('gives Turn in its lookup indexes, none unique (D-230) @g9', () => {
     expect(indexesOf(tableOf('submissions'))).toEqual(LOOKUP_INDEXES.submissions);
+  });
+
+  it('gives the seat cards their lookup index, not unique (D-236) @g9', () => {
+    expect(indexesOf(tableOf('teamSeatCards'))).toEqual(LOOKUP_INDEXES.teamSeatCards);
   });
 
   it('finds no other table carrying an index @g9', () => {

@@ -7388,3 +7388,20 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Videos** are left out with their "Watch the video" items until each is recorded; the builder adds them.
 - **Turn in ticks its item on both paths.** A turn-in now checks every item on the asking step whose Upload collects that kind, Claude's and ChatGPT's (`SubmissionAsk.itemIds`), so a team on the ChatGPT path sees its own item ticked.
 - **The copy guard** holds the new words too: no runtime file may contain them.
+
+## D-236 · The seat card form
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 20: teams fill in and sign their seat card in the portal instead of on a blank PDF (`handoff/weeks-1-2/00-BRIEF.md` §2, `reference/seat-card-fields.md`). His answers, Nov 22, to what the form drawer couldn't draw: the Operations Lead's main button is "Ready for the owner"; agents (and staff previewing) get the same drawer, locked; a change after signing keeps the signature.
+
+- **A third form on D-229's drawer.** The Week Builder's Form option gains "Seat card". Its questions are the week's own seat card (`course.seatCard`, the builder's Seat Card card): each row the team writes (Reports To, Runs, Pulls, Applies, Produces, Took Over, Can't Do, First Run) is asked with the week's standard as its hint, under the seat's name. A row changed in the builder changes the form; no seat card words live in code (`@ai/core/seat-card`).
+- **Who.** The Team Owner and the Operations Lead fill it in, and it saves as they go, for the team. The owner's main button is "Sign the seat card"; the Operations Lead's is "Ready for the owner". Both need every row answered. Agents read it in the same drawer, locked: every answer shown, and only Close and Download PDF work. A staff preview reads an empty card, locked, and nothing saves.
+- **The checklist.** Saving it ready checks the step's Form items for the whole team; signing checks them and the items their "Item to check" names (the `-sign` items), on both paths, as a submitted intake checks its item (D-229).
+- **Signed stays signed.** A change after signing saves and the card keeps its signature; the drawer says when it was signed and when it last changed.
+- **Download PDF** prints the team's card in the intake's placeholder look (D-229, Phase 7), with who signed it and when, for anyone on the team.
+- **Staff** read every team's card for a week on the Week Builder's Seat Cards card. It has no mockup: it is built from the admin console's own kit, as the Submissions card is (D-230).
+- **The drawer** gains three things beside the package's (D-225): `locked`; `ui.submittedLabel` ("Signed", "Ready" where the intake says "Submitted"); and a refusal, where the server's words show in the foot and the button shakes back, as Turn in's do (a refused save used to hang on "Saving"). With none in play it is the package's drawer: the intake's equality test still holds.
+- **Refused:** a password or an account number (the stack card's rule), an answer over 1,000 characters, and a week that doesn't ask for the card or isn't open.
+- **Storage:** `team_seat_cards` (migration 0035, additive), one card per team per week.
+- **The flag.** As Turn in, it draws only for a viewer v3 draws for: with `VITE_LMS_V3` off, the seat card's Form button draws nothing.
+- Nothing is emailed, and nothing goes to GHL.

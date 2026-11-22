@@ -184,6 +184,22 @@ describe('a step’s course fields (D-174)', () => {
     expect('who' in last).toBe(false);
   });
 
+  it('D-236: a checklist item’s Form button can open the week’s seat card, naming the item the owner’s signature checks', async () => {
+    const user = userEvent.setup();
+    let last: Step = {
+      id: 'c6', text: 'Sign the seat card', ch: '', mins: 10, t: 0, hint: '',
+      paths: { claude: { blocks: [{ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId: 'intake', label: 'Open the seat card' } }] } },
+    };
+    render(<StepHarness start={last} onStep={(s) => (last = s)} />);
+    const menu = screen.getByRole('combobox', { name: 'Block 1 form' });
+    expect([...(menu as HTMLSelectElement).options].map((o) => [o.value, o.text])).toEqual([['intake', 'Intake'], ['stack-card', 'Stack card'], ['seat-card', 'Seat card']]);
+    await user.selectOptions(menu, 'seat-card');
+    const item = screen.getByRole('textbox', { name: 'Block 1 item to check' });
+    expect(item.getAttribute('placeholder')).toBe('The item the owner’s signature checks, as w1s6c-sign. Blank uses this item.');
+    await user.type(item, 'w1s6c-sign');
+    expect(last.paths!.claude!.blocks[0]).toEqual({ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId: 'seat-card', label: 'Open the seat card', itemId: 'w1s6c-sign' } });
+  });
+
   it('keeps other-step dependencies as one trimmed line each, including a step that is not converted yet', async () => {
     const user = userEvent.setup();
     let last: Step = { id: 'c1', text: 'Get your AI ready', ch: '', mins: 20, t: 0, hint: '' };

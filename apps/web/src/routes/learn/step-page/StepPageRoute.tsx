@@ -50,6 +50,8 @@ export interface StepPageRouteProps {
   local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } | undefined;
   /** D-230: Turn in's button, for a viewer v3 draws for (`V6Handlers.turnIn`). */
   turnIn?: V6Handlers['turnIn'];
+  /** D-236: the seat card form's button, for a viewer v3 draws for (`V6Handlers.seatCard`). */
+  seatCard?: V6Handlers['seatCard'];
 }
 
 export function StepPageRoute(props: StepPageRouteProps) {
@@ -77,7 +79,7 @@ export function StepPageRoute(props: StepPageRouteProps) {
   return <LiveStepPage {...props} on={on} choose={choose} refused={refused} fault={fault} clearFault={clearFault} sync={epoch} />;
 }
 
-function LiveStepPage({ vm, kit, title, local, turnIn, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
+function LiveStepPage({ vm, kit, title, local, turnIn, seatCard, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
   refused: (why?: string) => void; on: Platform; choose: (p: Platform) => void; fault: string | null; clearFault: () => void; sync: number;
 }) {
   useTabTitle(title);
@@ -281,6 +283,7 @@ function LiveStepPage({ vm, kit, title, local, turnIn, refused, on, choose, faul
     onViewPrompt: () => setViewing(true),
     nodes,
     ...(turnIn ? { turnIn } : {}),
+    ...(seatCard ? { seatCard } : {}),
   });
   // Above Watch: the week's live session on a live-build step, and step 1's Start Here card.
   const lead = (

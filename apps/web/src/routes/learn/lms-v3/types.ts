@@ -181,6 +181,8 @@ export interface FormUi {
   title: string; kicker: string; sub: string; submitLabel: string;
   submittedTitle: string; submittedText: string;
   optional: string; needText: string; needChoice: string;
+  /** D-236: the finished state's word on the button and the meter ("Signed", "Ready"). Absent: "Submitted". */
+  submittedLabel?: string;
 }
 export interface FormDef {
   id: string;
