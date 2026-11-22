@@ -32,10 +32,13 @@ export function useWaitingThreads(enabled: boolean, pathname: string): number {
     if (now - last.current < EVERY_MS) return;
     last.current = now;
     let alive = true;
+    // Counted in a step of its own, so an answer without threads is a failure like any other (zero), never an
+    // unhandled rejection.
     consoleApi()
       .then((api) => api.community())
+      .then((list) => list.threads.filter((t) => t.waiting).length)
       .then(
-        (list) => alive && setWaiting(list.threads.filter((t) => t.waiting).length),
+        (n) => alive && setWaiting(n),
         () => alive && setWaiting(0),
       );
     return () => {
