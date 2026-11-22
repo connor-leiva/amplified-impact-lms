@@ -8,7 +8,7 @@
   },
   "reference": "http://localhost:4191/mockup/index.html",
   "clock": "2026-11-20T21:18:00Z",
-  "when": "2026-11-22T10:58:55.742Z",
+  "when": "2026-11-22T11:40:57.057Z",
   "done": true,
   "report": [
     {
@@ -115,210 +115,210 @@
       "view": "week-calendar",
       "width": 1440,
       "pieces": {
-        "target": 123,
-        "reference": 123
+        "target": 4,
+        "reference": 4
       },
-      "compared": 288,
+      "compared": 13,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 1280,
       "pieces": {
-        "target": 123,
-        "reference": 123
+        "target": 4,
+        "reference": 4
       },
-      "compared": 288,
+      "compared": 13,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 1100,
       "pieces": {
-        "target": 123,
-        "reference": 123
+        "target": 4,
+        "reference": 4
       },
-      "compared": 288,
+      "compared": 13,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 900,
       "pieces": {
-        "target": 92,
-        "reference": 92
+        "target": 4,
+        "reference": 4
       },
-      "compared": 206,
+      "compared": 13,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 820,
       "pieces": {
-        "target": 92,
-        "reference": 92
+        "target": 4,
+        "reference": 4
       },
-      "compared": 206,
+      "compared": 13,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 640,
       "pieces": {
-        "target": 92,
-        "reference": 92
+        "target": 4,
+        "reference": 4
       },
-      "compared": 135,
+      "compared": 8,
       "different": []
     },
     {
       "view": "week-calendar",
       "width": 390,
       "pieces": {
-        "target": 92,
-        "reference": 92
+        "target": 4,
+        "reference": 4
       },
-      "compared": 135,
+      "compared": 8,
       "different": []
     },
     {
       "view": "week-form",
       "width": 1440,
       "pieces": {
-        "target": 213,
-        "reference": 213
+        "target": 121,
+        "reference": 121
       },
-      "compared": 291,
+      "compared": 250,
       "different": []
     },
     {
       "view": "week-form",
       "width": 1280,
       "pieces": {
-        "target": 213,
-        "reference": 213
+        "target": 121,
+        "reference": 121
       },
-      "compared": 291,
+      "compared": 250,
       "different": []
     },
     {
       "view": "week-form",
       "width": 1100,
       "pieces": {
-        "target": 213,
-        "reference": 213
+        "target": 121,
+        "reference": 121
       },
-      "compared": 291,
+      "compared": 250,
       "different": []
     },
     {
       "view": "week-form",
       "width": 900,
       "pieces": {
-        "target": 182,
-        "reference": 182
+        "target": 121,
+        "reference": 121
       },
-      "compared": 209,
+      "compared": 250,
       "different": []
     },
     {
       "view": "week-form",
       "width": 820,
       "pieces": {
-        "target": 182,
-        "reference": 182
+        "target": 121,
+        "reference": 121
       },
-      "compared": 209,
+      "compared": 250,
       "different": []
     },
     {
       "view": "week-form",
       "width": 640,
       "pieces": {
-        "target": 182,
-        "reference": 182
+        "target": 121,
+        "reference": 121
       },
-      "compared": 265,
+      "compared": 164,
       "different": []
     },
     {
       "view": "week-form",
       "width": 390,
       "pieces": {
-        "target": 182,
-        "reference": 182
+        "target": 121,
+        "reference": 121
       },
-      "compared": 265,
+      "compared": 164,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 1440,
       "pieces": {
-        "target": 132,
-        "reference": 132
+        "target": 13,
+        "reference": 13
       },
-      "compared": 291,
+      "compared": 28,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 1280,
       "pieces": {
-        "target": 132,
-        "reference": 132
+        "target": 13,
+        "reference": 13
       },
-      "compared": 291,
+      "compared": 28,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 1100,
       "pieces": {
-        "target": 132,
-        "reference": 132
+        "target": 13,
+        "reference": 13
       },
-      "compared": 291,
+      "compared": 28,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 900,
       "pieces": {
-        "target": 101,
-        "reference": 101
+        "target": 13,
+        "reference": 13
       },
-      "compared": 209,
+      "compared": 28,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 820,
       "pieces": {
-        "target": 101,
-        "reference": 101
+        "target": 13,
+        "reference": 13
       },
-      "compared": 209,
+      "compared": 28,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 640,
       "pieces": {
-        "target": 101,
-        "reference": 101
+        "target": 13,
+        "reference": 13
       },
-      "compared": 146,
+      "compared": 18,
       "different": []
     },
     {
       "view": "week-turnin",
       "width": 390,
       "pieces": {
-        "target": 101,
-        "reference": 101
+        "target": 13,
+        "reference": 13
       },
-      "compared": 146,
+      "compared": 18,
       "different": []
     },
     {
@@ -465,70 +465,70 @@
       "view": "community-start",
       "width": 1440,
       "pieces": {
-        "target": 78,
-        "reference": 78
+        "target": 18,
+        "reference": 18
       },
-      "compared": 156,
+      "compared": 39,
       "different": []
     },
     {
       "view": "community-start",
       "width": 1280,
       "pieces": {
-        "target": 78,
-        "reference": 78
+        "target": 18,
+        "reference": 18
       },
-      "compared": 156,
+      "compared": 39,
       "different": []
     },
     {
       "view": "community-start",
       "width": 1100,
       "pieces": {
-        "target": 78,
-        "reference": 78
+        "target": 18,
+        "reference": 18
       },
-      "compared": 156,
+      "compared": 39,
       "different": []
     },
     {
       "view": "community-start",
       "width": 900,
       "pieces": {
-        "target": 47,
-        "reference": 47
+        "target": 18,
+        "reference": 18
       },
-      "compared": 74,
+      "compared": 39,
       "different": []
     },
     {
       "view": "community-start",
       "width": 820,
       "pieces": {
-        "target": 47,
-        "reference": 47
+        "target": 18,
+        "reference": 18
       },
-      "compared": 74,
+      "compared": 39,
       "different": []
     },
     {
       "view": "community-start",
       "width": 640,
       "pieces": {
-        "target": 47,
-        "reference": 47
+        "target": 18,
+        "reference": 18
       },
-      "compared": 68,
+      "compared": 25,
       "different": []
     },
     {
       "view": "community-start",
       "width": 390,
       "pieces": {
-        "target": 47,
-        "reference": 47
+        "target": 18,
+        "reference": 18
       },
-      "compared": 68,
+      "compared": 25,
       "different": []
     },
     {
@@ -604,9 +604,12 @@
   ],
   "parts": [
     "harness-a",
-    "harness-b",
-    "harness-c",
+    "harness-e",
     "harness-d",
-    "harness-e"
+    "harness-f",
+    "harness-g",
+    "harness-g2",
+    "harness-h",
+    "harness-i"
   ]
 }

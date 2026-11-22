@@ -209,7 +209,13 @@ them on the local build is in `compliance/lms-v3/README.md`; their reports are i
   cropped from the viewport, never an element shot (which scrolls the page and draws a tall element beyond it).
 - **Nothing carried between states**: a press is let go off its piece, which drags a selection across the page, so
   piece review clears it (and the focus) before the next shot; a text field is focused with its caret at the start
-  (React sets a field's value as a property, the mockup as an attribute, so the caret starts at opposite ends).
+  (React sets a field's value as a property, the mockup as an attribute, so the caret starts at opposite ends). An
+  open menu or drawer is reviewed on its own, and a press in it is let go inside it: let go on the scrim, it closed
+  the drawer, and the drawer's pieces were then skipped on both pages.
+- **On the local build** (this stack with the learner flags, the test learner, 1440 and 390): no different pixel in
+  any piece, and every motion the same as the mockup's, except Turn in's first open on a step page. Its drawer
+  arrives about 325 ms after the click (measured in real time; 10 ms the second time), because its code loads on that
+  first open (D-230) and React holds the reveal; the mockup opens it at once (a question for Connor).
 - **Found**: with motion reduced, an accordion still slides over 380 ms, in the mockup and here alike. The brand's
   reduced-motion rule covers `*`, `::before` and `::after` but not `::details-content` (a question for Connor; neither
   file is edited here). And on arrival the mockup counts the steps-done figure up from 0, while the package's

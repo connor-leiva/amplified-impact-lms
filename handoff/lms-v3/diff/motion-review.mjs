@@ -417,7 +417,8 @@ for (const width of WIDTHS) {
         }
         // The steps-done figure, step by step (a count-up steps through the same values on both pages).
         const runs = (xs) => (xs ?? []).filter((x, i) => i === 0 || x !== xs[i - 1]).join(' → ');
-        if (ft.figures && ft.figures.join() !== fr.figures?.join()) different.push(`the steps-done figure, every 10 ms: the target's ${runs(ft.figures) || 'none'}, the reference's ${runs(fr.figures) || 'none'}`);
+        // (Not where a deployed target is a step page, which has no figure: Turn in's drawer opens on the step.)
+        if (ft.figures && !(remote && view === 'turnin') && ft.figures.join() !== fr.figures?.join()) different.push(`the steps-done figure, every 10 ms: the target's ${runs(ft.figures) || 'none'}, the reference's ${runs(fr.figures) || 'none'}`);
         await Promise.all([T.ctx.close(), R.ctx.close()]);
         report.push({ part: 'frames', view, width, motion: m.name, different });
         console.log(`frames  ${m.name.padEnd(24)} ${String(width).padStart(4)}  ${different.length ? `${different.length} of ${FRAMES.length} frames different` : 'all 0'}`);

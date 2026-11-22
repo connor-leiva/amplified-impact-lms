@@ -19,8 +19,10 @@
 // pointer held down on the piece, then moved off before it is let go, so nothing is ever clicked: no link is followed,
 // no calendar file saved, no "Mark as deployed", no Join. The views with a state of their own: the collapsed rail, the
 // top bar's calendar menu open, the form drawer open, the Turn in drawer open (the mockup's MOCKUP bar opens it; in the
-// LMS the step's own button does) and the Start a thread drawer open. A drawer's pieces are found inside it wherever
-// the page puts it. On a deployed page a drawer is only opened, never typed into, and nothing is sent.
+// LMS the step's own button does) and the Start a thread drawer open. An open menu or drawer is reviewed on its own
+// (the page under it is its own view), wherever the page puts it, and a press in it is let go inside it: let go on the
+// scrim or outside the menu, it would close it. Between states nothing stays selected or focused, and a text field is
+// focused with its caret at the start. On a deployed page a drawer is only opened, never typed into; nothing is sent.
 import { chromium } from 'playwright-core';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
@@ -67,12 +69,14 @@ const clickIn = async (pg, sel, ms = 900) => {
 const VIEWS = {
   week: { page: 'week' },
   'week-collapsed': { page: 'week', desktop: true, setup: (pg) => click(pg, '#sh-collapse', 1200) },
-  'week-calendar': { page: 'week', setup: (pg) => click(pg, '#sh-next .sc-cal button') },
-  'week-form': { page: 'week', setup: async (pg) => { await pg.evaluate(() => document.querySelector('[data-act="form"]').scrollIntoView({ block: 'center' })); await click(pg, '[data-act="form"]', 1600); } },
-  'week-turnin': { page: 'turnin', setup: (pg, isTarget) => (isTarget && remote ? click(pg, '[data-act="turnin"]', 1600) : clickIn(pg, '[data-turnin="report"]', 1600)) },
+  // An open menu or drawer is reviewed on its own (`scope`: the page under it has its own view), and a press in it is
+  // let go inside it (`letGo`): let go on the scrim or outside the menu, it would close it.
+  'week-calendar': { page: 'week', scope: '#sh-next .sc-cal', letGo: '#sh-next .sc-menu', setup: (pg) => click(pg, '#sh-next .sc-cal button') },
+  'week-form': { page: 'week', scope: '.aim-drawer', letGo: '.aim-drawer__panel', setup: async (pg) => { await pg.evaluate(() => document.querySelector('[data-act="form"]').scrollIntoView({ block: 'center' })); await click(pg, '[data-act="form"]', 1600); } },
+  'week-turnin': { page: 'turnin', scope: '.aim-drawer', letGo: '.aim-drawer__panel', setup: (pg, isTarget) => (isTarget && remote ? click(pg, '[data-act="turnin"]', 1600) : clickIn(pg, '[data-turnin="report"]', 1600)) },
   schedule: { page: 'schedule' },
   community: { page: 'community' },
-  'community-start': { page: 'community', setup: (pg) => click(pg, '#cm-start', 1600) },
+  'community-start': { page: 'community', scope: '.aim-drawer', letGo: '.aim-drawer__panel', setup: (pg) => click(pg, '#cm-start', 1600) },
   thread: { page: 'thread' },
 };
 const onlyViews = arg('views')?.split(',');
@@ -83,8 +87,9 @@ const NEVER_PRESS = '#wk-deploy, #wk-undo, [data-act="join"], .sc-menu a, a[href
 // components draw the same controls in the same order); each kind of block is its own group; and every element with
 // an id on BOTH pages is a piece of its own (the mockup names a few elements the components leave unnamed).
 const NOT_BAR = ':not(.wkx-flag, .wkx-flag *)';
-const IN = ':is(#sh-app, .aim-drawer)'; // the app, and a drawer wherever the page puts it
-const INTERACTIVE = ['a[href]', 'button', 'summary', 'input', 'textarea', '[tabindex]:not([tabindex="-1"])'].map((x) => `${IN} ${x}${NOT_BAR}`).join(', ');
+const ALL = ':is(#sh-app, .aim-drawer)'; // the app, and a drawer wherever the page puts it
+/** The interactive pieces inside `inside` (the app, or an open menu or drawer). */
+const interactive = (inside) => ['a[href]', 'button', 'summary', 'input', 'textarea', '[tabindex]:not([tabindex="-1"])'].map((x) => `${inside} ${x}${NOT_BAR}`).join(', ');
 const BLOCKS = ['#sh-weeks > li', '.wk-step', '.wk-kit-a', '.wk-acc', '.wk-card', '.sc-week', '.sc-line', '.sc-break', '.cm-row', '.cm-post', '.fm-q', '.fm-field', '.fm-chip', '.fm-foot', '.fm-head', '.up-drop', '.up-file', '.up-fields', '.up-sent', '.up-privacy'];
 
 const browser = await chromium.launch({ executablePath: arg('chrome', '/usr/bin/google-chrome'), args: ['--font-render-hinting=none', '--disable-lcd-text', '--hide-scrollbars'] });
@@ -105,8 +110,8 @@ async function open(url, width, isTarget) {
 }
 
 /** This page's pieces: per group, how many there are and what each is (its tag and classes, or its id). */
-const pieces = (pg) =>
-  pg.evaluate(([interactive, blocks, never, notBar, inside]) => {
+const pieces = (pg, inside) =>
+  pg.evaluate(([interactive, blocks, never, notBar, inside, ids]) => {
     const seen = (e) => {
       if (e.closest('.wkx-flag')) return false;
       const r = e.getBoundingClientRect();
@@ -117,13 +122,13 @@ const pieces = (pg) =>
     const group = (sel) => [...document.querySelectorAll(sel)].filter(seen);
     const out = { interactive: group(interactive).map((e) => ({ name: name(e), press: !e.matches(never) })) };
     for (const b of blocks) out[b] = group(`${inside} ${b}${notBar}`).map((e) => ({ name: name(e), press: false }));
-    out.ids = [...document.querySelectorAll(`#sh-app [id]${notBar}`)].filter(seen).map((e) => e.id);
+    out.ids = [...document.querySelectorAll(`${ids} [id]${notBar}`)].filter(seen).map((e) => e.id);
     return out;
-  }, [INTERACTIVE, BLOCKS, NEVER_PRESS, NOT_BAR, IN]);
+  }, [interactive(inside), BLOCKS, NEVER_PRESS, NOT_BAR, inside, inside === ALL ? '#sh-app' : inside]);
 
 /** The CSS selector of a group's elements, and how a piece is found: its group's n-th visible match. */
-const groupSel = (g) => (g === 'interactive' ? INTERACTIVE : g.startsWith('#') && !g.includes(' ') ? `#sh-app ${g}` : `${IN} ${g}${NOT_BAR}`);
-const locate = (pg, g, i) => pg.locator(`${groupSel(g)} >> visible=true`).nth(i);
+const groupSel = (g, inside) => (g === 'interactive' ? interactive(inside) : g.startsWith('#') && !g.includes(' ') ? `${inside === ALL ? '#sh-app' : inside} ${g}` : `${inside} ${g}${NOT_BAR}`);
+const locate = (pg, g, i, inside) => pg.locator(`${groupSel(g, inside)} >> visible=true`).nth(i);
 
 /**
  * Back to rest: the pointer off every piece, nothing focused, and nothing selected (a press is let go off its piece,
@@ -138,8 +143,8 @@ const reset = async (pg) => {
   await pg.waitForTimeout(SETTLE);
 };
 /** One piece in one state on one page: the element's own screenshot, or null when it isn't there to shoot. */
-async function shoot(pg, g, i, state) {
-  const el = locate(pg, g, i);
+async function shoot(pg, g, i, state, v) {
+  const el = locate(pg, g, i, v.scope ?? ALL);
   if (!(await el.count())) return null;
   await el.scrollIntoViewIfNeeded().catch(() => {});
   if (state === 'hover') await el.hover({ force: true });
@@ -168,7 +173,9 @@ async function shoot(pg, g, i, state) {
     png = null;
   }
   if (state === 'pressed') {
-    await pg.mouse.move(2, 400); // off the piece first, so letting go clicks nothing
+    // Off the piece first, so letting go clicks nothing: beside the page, or inside the open menu or drawer.
+    const inside = v.letGo ? await pg.locator(`${v.letGo} >> visible=true`).first().boundingBox().catch(() => null) : null;
+    await pg.mouse.move(inside ? inside.x + 3 : 2, inside ? inside.y + 3 : 400);
     await pg.mouse.up();
   }
   await reset(pg);
@@ -188,7 +195,7 @@ for (const [view, v] of Object.entries(VIEWS)) {
     if (v.setup) await Promise.all([v.setup(T.pg, true), v.setup(R.pg, false)]);
     // Keyboard modality, so a focused piece shows :focus-visible as it does after a Tab.
     await Promise.all([T.pg.keyboard.press('Shift'), R.pg.keyboard.press('Shift')]);
-    const [tp, rp] = await Promise.all([pieces(T.pg), pieces(R.pg)]);
+    const [tp, rp] = await Promise.all([pieces(T.pg, v.scope ?? ALL), pieces(R.pg, v.scope ?? ALL)]);
     // Every id on both pages is a piece of its own (as a group of one).
     const ids = tp.ids.filter((x) => rp.ids.includes(x));
     const groups = [['interactive', tp.interactive, rp.interactive], ...BLOCKS.map((b) => [b, tp[b], rp[b]]), ...ids.map((x) => [`#${x}`, [{ name: `#${x}`, press: false }], [{ name: `#${x}`, press: false }]])];
@@ -208,8 +215,8 @@ for (const [view, v] of Object.entries(VIEWS)) {
         const interactive = g === 'interactive';
         const states = STATES.filter((st) => st === 'rest' || (interactive && (st === 'focus' || (width > 640 && (st === 'hover' || (st === 'pressed' && a.press && b.press))))));
         for (const state of states) {
-          const tshot = await shoot(T.pg, g, i, state);
-          const rshot = await shoot(R.pg, g, i, state);
+          const tshot = await shoot(T.pg, g, i, state, v);
+          const rshot = await shoot(R.pg, g, i, state, v);
           if (!tshot && !rshot) continue;
           row.compared++;
           const tag = `${view}-${width}-${g.replace(/[^a-z0-9]+/gi, '_')}-${i}-${state}`;
