@@ -54,7 +54,7 @@ export interface ConsoleFlagDef {
  */
 export const CONSOLE_FLAGS = [
   { key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: MASQUERADE_ENABLED_DEFAULT },
-  { key: 'cohort_welcome_email', label: 'Send the cohort welcome email', sensitive: false, defaultOn: false },
+  { key: 'cohort_welcome_email', label: 'Send the cohort welcome email to new enrollments', sensitive: false, defaultOn: false },
 ] as const satisfies readonly ConsoleFlagDef[];
 
 export type ConsoleFlagKey = (typeof CONSOLE_FLAGS)[number]['key'];

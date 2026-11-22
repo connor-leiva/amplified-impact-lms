@@ -33,7 +33,7 @@ import {
 describe('Console flags (spec § 7.13, D8, D10) @console', () => {
   it('owns masquerade_enabled and the cohort welcome switch, which is off until a flip', () => {
     expect(CONSOLE_FLAG_KEYS).toEqual(['masquerade_enabled', 'cohort_welcome_email']);
-    expect(consoleFlagDef('cohort_welcome_email')).toEqual({ key: 'cohort_welcome_email', label: 'Send the cohort welcome email', sensitive: false, defaultOn: false });
+    expect(consoleFlagDef('cohort_welcome_email')).toEqual({ key: 'cohort_welcome_email', label: 'Send the cohort welcome email to new enrollments', sensitive: false, defaultOn: false });
     expect(consoleFlagDef('masquerade_enabled')).toEqual({ key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: true });
     expect(MASQUERADE_ENABLED_DEFAULT).toBe(true);
     expect(isConsoleFlagKey('masquerade_enabled')).toBe(true);
