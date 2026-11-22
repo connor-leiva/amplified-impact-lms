@@ -76,7 +76,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   communityThreads: { table: 'community_threads', columns: ['activity_at', 'by_user_id', 'cohort_id', 'created_at', 'deleted_at', 'hidden', 'id', 'pinned', 'space', 'title'] },
   communityPosts: { table: 'community_posts', columns: ['body', 'by_user_id', 'created_at', 'deleted_at', 'edited_at', 'hidden', 'id', 'thread_id'] },
   // D-230: Turn in's turn-ins. Not a `Db` record.
-  submissions: { table: 'submissions', columns: ['by_user_id', 'created_at', 'files', 'id', 'kind', 'minutes', 'module_id', 'note', 'status', 'status_at', 'status_by', 'team_id'] },
+  submissions: { table: 'submissions', columns: ['by_user_id', 'created_at', 'files', 'files_deleted_at', 'files_deleted_by', 'id', 'kind', 'minutes', 'module_id', 'note', 'status', 'status_at', 'status_by', 'team_id'] },
   // D-236: one seat card per team per week. Not a `Db` record.
   teamSeatCards: { table: 'team_seat_cards', columns: ['answers', 'module_id', 'ready_at', 'signed_at', 'signed_by', 'team_id', 'updated_at', 'updated_by'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
@@ -355,6 +355,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['communityPosts', 'createdAt'], ['communityPosts', 'editedAt'], ['communityPosts', 'deletedAt'],
   // D-230: when a team turned in, and when staff last set its status.
   ['submissions', 'createdAt'], ['submissions', 'statusAt'],
+  // D-237: when a turn-in's files were deleted with its cohort's.
+  ['submissions', 'filesDeletedAt'],
   // D-236: a seat card's last save, its ready mark and its signature.
   ['teamSeatCards', 'updatedAt'], ['teamSeatCards', 'readyAt'], ['teamSeatCards', 'signedAt'],
   ['resources', 'updated'],

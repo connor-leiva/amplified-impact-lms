@@ -652,6 +652,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/submissions/:id/files/:n', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/submissions', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/admin/submissions/:id/status', methods: 'POST', guard: 'session' },
+  // D-237: a cohort's turned-in files, counted and deleted. Signed in, then staff who manage cohorts.
+  { path: '/api/admin/cohorts/:cohortId/turned-in-files', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/admin/cohorts/:cohortId/turned-in-files/delete', methods: 'POST', guard: 'session' },
   // D-236: the seat card form. Signed in, then a team's learners (the owner and the operator write; agents read), or
   // staff who may view learners for the list (`test/seat-card.test.ts`).
   { path: '/api/seat-card', methods: 'GET, HEAD, PUT', guard: 'session' },
@@ -1224,6 +1227,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/admin/submissions': () => app.inject({ method: 'GET', url: '/api/admin/submissions?moduleId=accelerator-week-1' }),
           '/api/admin/submissions/:id/status': () =>
             app.inject({ method: 'POST', url: '/api/admin/submissions/1/status', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { status: 'picked' } }),
+          // D-237: a cohort's turned-in files, counted and deleted.
+          '/api/admin/cohorts/:cohortId/turned-in-files': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/turned-in-files' }),
+          '/api/admin/cohorts/:cohortId/turned-in-files/delete': () =>
+            app.inject({ method: 'POST', url: '/api/admin/cohorts/dec26/turned-in-files/delete', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
           // D-236: the seat card form's three.
           '/api/seat-card': () => app.inject({ method: 'GET', url: '/api/seat-card?moduleId=accelerator-week-1' }),
           '/api/seat-card/pdf': () => app.inject({ method: 'GET', url: '/api/seat-card/pdf?moduleId=accelerator-week-1' }),
@@ -1551,8 +1558,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-172), 77 with Invite staff and Change role…'s two (D-172), and 78 with a course week's
     // uploaded video (D-188), and 80 with the intake's two routes (D-196). 85 with the intake PDF's two (D-229).
     // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231), 96 with Turn in's
-    // five (D-230), 99 with the seat card form's three (D-236).
-    expect(EXECUTED.unauthenticated).toBe(99);
+    // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
+    expect(EXECUTED.unauthenticated).toBe(101);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1577,7 +1584,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // counted once as the entitled learner and once as a staff session. And + 2 for the intake PDF's routes (D-229), probed
     // unauthenticated. And + 1 for D-229's intake re-queue, probed unauthenticated. And + 5 for the Community's routes
     // (D-231), probed unauthenticated. And + 5 for Turn in's (D-230), probed unauthenticated. And + 3 for the seat card
-    // form's (D-236), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3);
+    // form's (D-236), probed unauthenticated. And + 2 for D-237's turned-in files, probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2);
   });
 });

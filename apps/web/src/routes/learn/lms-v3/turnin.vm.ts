@@ -51,7 +51,8 @@ export const TURN_IN_UI: TurnInUi = {
 export interface SubmissionWire {
   id: number;
   kind: string;
-  files: { name: string; size: number; href: string }[];
+  /** D-237: a file deleted with its cohort's has no `href`; the drawer shows its name, with no download. */
+  files: { name: string; size: number; href?: string }[];
   note: string;
   minutes: string;
   by: string;

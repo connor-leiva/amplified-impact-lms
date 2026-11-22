@@ -230,6 +230,8 @@ export const AUDIT_ACTIONS = [
   'community.delete',
   // D-230: staff set what they did with a team's turn-in (Received, Picked for a live read, Reviewed).
   'submission.status',
+  // D-237: staff delete a cohort's turned-in files from the bucket when the cohort ends (the agreement's Section 7).
+  'submission.files_delete',
   // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.
   'user.seed',
 ] as const;
