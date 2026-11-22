@@ -191,6 +191,31 @@ here to the spec's description (B-24 to B-28); the drawer is the package's `Turn
 - **Found**: the drawer's icons are the v3 sprite's (`#k-*`), which the step page doesn't draw; both in-place drawers
   (Turn in and the intake) now bring it.
 
+## Phase 11, step 2. The piece and motion reviews
+
+`diff/piece-review.mjs` and `diff/motion-review.mjs`, as PROMPT.md Phase 3 B to D describe them, with the Turn in drawer,
+the Community, Start a thread and a thread among their views. Each script's header says what it compares; how to run
+them on the local build is in `compliance/lms-v3/README.md`; their reports are in `results/`.
+
+- **Proven** on the package's harness against the mockup: piece review, every view at all seven widths
+  (`piece-review.harness.md`); motion review, every motion at 1440 and 390 (`motion-review.harness.md`): all 0. They
+  catch a 1 px padding (`piece-review.inject-1px.md`) and a 10 ms duration (`motion-review.inject-10ms.md`) on the
+  harness alone.
+- **Held, not frozen by `getAnimations()`**: an accordion's open and close is a transition on `::details-content`,
+  which `document.getAnimations()` doesn't return, and the mockup stages its motions with timers (the rail's labels
+  fade, then the layout changes 160 ms later). So motion review stops the page's timers (Playwright's clock) and its
+  animation timeline (DevTools' Animation domain, rate 0), and walks both pages through the same milliseconds, 10 at a
+  time; what a page starts in answer (a React render, an animation's end) is born at that moment. A motion's region is
+  cropped from the viewport, never an element shot (which scrolls the page and draws a tall element beyond it).
+- **Nothing carried between states**: a press is let go off its piece, which drags a selection across the page, so
+  piece review clears it (and the focus) before the next shot; a text field is focused with its caret at the start
+  (React sets a field's value as a property, the mockup as an attribute, so the caret starts at opposite ends).
+- **Found**: with motion reduced, an accordion still slides over 380 ms, in the mockup and here alike. The brand's
+  reduced-motion rule covers `*`, `::before` and `::after` but not `::details-content` (a question for Connor; neither
+  file is edited here). And on arrival the mockup counts the steps-done figure up from 0, while the package's
+  `useCountUp` (and so the LMS) draws it at its value; with the test learner at one step done, every arrival frame
+  shows the same figure on both pages.
+
 ## Found while building
 
 - **Seed against the package's words** (every field of `sampleWeek`, `sampleSchedule`, `sampleShell` and the intake,

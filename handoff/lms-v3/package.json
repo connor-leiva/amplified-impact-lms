@@ -6,6 +6,8 @@
     "build": "node tools/make-css.mjs && node harness/build.mjs",
     "serve": "node harness/serve.mjs",
     "diff": "node diff/pixel-diff.mjs",
+    "pieces": "node diff/piece-review.mjs",
+    "motion": "node diff/motion-review.mjs",
     "css": "node tools/make-css.mjs",
     "pdf": "node tools/make-pdf.mjs"
   },

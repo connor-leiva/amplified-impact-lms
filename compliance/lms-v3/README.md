@@ -44,5 +44,33 @@ Turn in (D-230): for each of `report` (step 4), `checkpoint` (step 6) and `turne
 `--target <step url> --target-turnin <step url> --assume-turnin <state> --match '^ti-'`. The drawer is compared on its own;
 the step's button is the harness's default selector, `[data-act="turnin"]`.
 
+The piece and motion reviews (IMPLEMENTATION-SPEC Phase 11 step 2, PROMPT.md Phase 3 B to D): the same hook and
+session, one run at a time (they share the learner's session and the API's 100-a-minute limit). Each script's header
+says what it compares. Their reports go to `handoff/lms-v3/results/` as `piece-review.<tag>.md` and
+`motion-review.<tag>.md` (with `.json`); their images to `results/pieces/` and `results/motion/` (not committed).
+
+```sh
+cd handoff/lms-v3
+O=http://127.0.0.1:4300
+export V6_RESET_CMD="psql $DATABASE_URL -q -v email=$SEED_TEST_MEMBER_EMAIL -f ../../compliance/lms-v3/reset.sql"
+export V6_READY='body[data-app-ready="true"] #sh-app'
+PAGES="--target $O/learn/week/0 --target-schedule $O/learn/schedule --target-community $O/learn/community --target-thread $O/learn/community/2"
+node --import ../../compliance/step-page-v6/reset-hook.mjs diff/piece-review.mjs $PAGES --storage-state ../../auth.json \
+  --views week,week-collapsed,week-calendar,week-form,schedule,community,community-start,thread --tag local
+node --import ../../compliance/step-page-v6/reset-hook.mjs diff/motion-review.mjs $PAGES --storage-state ../../auth.json --tag local
+# Turn in: the learner at Week 1 step 4 (turnin.sql, `report`), whose own button opens the drawer.
+export V6_RESET_CMD="$V6_RESET_CMD && psql $DATABASE_URL -q -v email=$SEED_TEST_MEMBER_EMAIL -v turnin=report -f ../../compliance/lms-v3/turnin.sql"
+export V6_READY='[data-step-page] .page'
+node --import ../../compliance/step-page-v6/reset-hook.mjs diff/piece-review.mjs --target $O/learn/week/1/step/4 \
+  --target-turnin $O/learn/week/1/step/4 --storage-state ../../auth.json --views week-turnin --tag local-turnin
+node --import ../../compliance/step-page-v6/reset-hook.mjs diff/motion-review.mjs --target $O/learn/week/1/step/4 \
+  --target-turnin $O/learn/week/1/step/4 --storage-state ../../auth.json --views turnin --tag local-turnin
+```
+
+Both are proven first on the package's own harness against the mockup (`node diff/piece-review.mjs`, `node
+diff/motion-review.mjs`: all 0), and then with a 1 px and a 10 ms change on the harness alone (`--inject-target`).
+The Community views need `prepare.ts community` first; on a deployed preview the Community and the drawers are
+only opened, never posted to.
+
 `TZ=America/Chicago` because the mockup shows a Central-time viewer: `fmt` prints the viewer's zone first, and the
 program's (Central) only in parentheses when they differ. Never point any of this at production or a real buyer.
