@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone } from '@ai/core';
 import { learnerOf } from '@ai/core/learner';
-import type { PathBlock } from '@ai/core/course-types';
+import type { PathBlock, SeatCard } from '@ai/core/course-types';
 import { weekRows } from './learn.vm';
 import { stepParam, stepVM, watchLength } from './Step.vm';
 import { LEARNER_ID, liveState, prelaunchState } from './test/fixture';
@@ -159,6 +159,27 @@ describe('the step player (D-177)', () => {
     expect(open.kind === 'step' && open.layouts?.claude?.accordions[0]?.open).toBe(true);
     const staff = stepVM(p, row, 3, { kind: 'staff', staffId: 's1' }, st.now);
     expect(staff.kind === 'step' && staff.layouts?.claude?.gate).toEqual({ locked: false, reason: null });
+  });
+
+  it('a table marked as the Seat Card draws its rows from the week’s card, under its own headings (D-240)', () => {
+    const p = structuredClone(st.payload);
+    const week = p.course.weeks[0] as { seatCard?: SeatCard; module: { checklist: { paths?: { claude?: { blocks: PathBlock[] } } }[] } };
+    week.seatCard = { seat: 'Finance Analyst', reportsTo: 'Owner', runs: 'Monthly', pulls: 'Books', applies: 'The chart', produces: 'A report', tookOver: 'Task 1', cantDo: 'Change the books', firstRun: 'Date and screenshot' };
+    const blocks: PathBlock[] = [
+      { type: 'check', id: 's3-a', title: 'Fill it in' },
+      { type: 'accordion', title: 'The Finance Analyst’s Seat Card', body: ['The standard card.'], table: { head: ['Field', 'What It Says'], rows: [] }, seatCard: true },
+      { type: 'accordion', title: 'Another table', body: [], table: { rows: [['A', 'B']] } },
+    ];
+    week.module.checklist[2]!.paths = { claude: { blocks } };
+    const row = weekRows(p, st.db, learnerOf(st.db, LEARNER_ID))[0];
+    const vm = stepVM(p, row, 3, learner, st.now);
+    if (vm.kind !== 'step') throw new Error('missing');
+    const [card, other] = vm.layouts?.claude?.accordions ?? [];
+    expect(card?.table).toEqual({
+      head: ['Field', 'What It Says'],
+      rows: [['Seat', 'Finance Analyst'], ['Reports To', 'Owner'], ['Runs', 'Monthly'], ['Pulls', 'Books'], ['Applies', 'The chart'], ['Produces', 'A report'], ['Took Over', 'Task 1'], ['Can’t Do', 'Change the books'], ['First Run', 'Date and screenshot']],
+    });
+    expect(other?.table).toEqual({ rows: [['A', 'B']] });
   });
 
   it('the due chip stays 12:00 PM MT when the viewer is not in Mountain time', () => {

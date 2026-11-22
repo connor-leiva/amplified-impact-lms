@@ -225,6 +225,10 @@ describe('§7.3 the shapes worth checking individually @g7', () => {
     const form = (formId: string) => ({ ...week, checklist: [{ ...week.checklist[0]!, paths: { claude: { blocks: [{ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId, label: 'Open the seat card', itemId: 'w1s6c-sign' } }] } } }] });
     expect(builderDraft.parse(form('seat-card'))).toEqual(form('seat-card'));
     expect(builderDraft.safeParse(form('seatcard')).success).toBe(false);
+    // D-240: a table can be the week's Seat Card (its rows drawn from the card); only `true` says so.
+    const table = (seatCard: unknown) => ({ ...week, checklist: [{ ...week.checklist[0]!, paths: { claude: { blocks: [{ type: 'accordion', title: 'The Seat Card', body: [], table: { head: ['Field', 'What It Says'], rows: [] }, seatCard }] } } }] });
+    expect(builderDraft.parse(table(true))).toEqual(table(true));
+    expect(builderDraft.safeParse(table(false)).success).toBe(false);
   });
 
   it('saveModule rejects a draft missing a field core will read @g7', () => {

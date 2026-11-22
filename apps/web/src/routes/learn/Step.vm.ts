@@ -10,7 +10,8 @@ import { fmt, mountainWhen } from '@ai/core';
 import { watchThreshold } from '@ai/core/video';
 import type { ChecklistMark, CoursePref, IcsEvent } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
-import type { CalloutBlock, CheckAction, CheckBlock, ContentBlock, GlossaryTerm, PathBlock, StepPaths, VideoBlock } from '@ai/core/course-types';
+import type { AccordionBlock, CalloutBlock, CheckAction, CheckBlock, ContentBlock, GlossaryTerm, PathBlock, SeatCard, StepPaths, VideoBlock } from '@ai/core/course-types';
+import { seatCardRows } from '@ai/core/seat-card';
 import type { RichText } from '@ai/core/rich-text';
 import { cardTerms, markSequence } from '@ai/core/glossary';
 import type { GlossarySpan } from '@ai/core/glossary';
@@ -515,7 +516,7 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
         title: b.title,
         body: b.body,
         ...(b.bodyRich ? { bodyRich: b.bodyRich } : {}),
-        table: b.table ?? null,
+        table: tableOf(b, ctx.seatCard),
         link: b.link ?? null,
         open: ctx.prefs.some((p) => p.key === prefKey && p.value === '1'),
         prefKey,
@@ -568,6 +569,15 @@ function applyGlossary(leading: CalloutVM[], items: CheckItemVM[], extras: reado
   return extras.map(() => marks[i++]);
 }
 
+/**
+ * An accordion's table: its own, or (D-240) the week's Seat Card when it is marked so, with its own headings. With no
+ * card to draw from, its own rows.
+ */
+function tableOf(b: AccordionBlock, card: SeatCard | undefined): { head?: string[]; rows: string[][] } | null {
+  if (!b.seatCard || !card) return b.table ?? null;
+  return { ...(b.table?.head?.length ? { head: b.table.head } : {}), rows: seatCardRows(card) };
+}
+
 interface LayoutCtx {
   week: number;
   n: number;
@@ -589,6 +599,8 @@ interface LayoutCtx {
   glossary?: readonly GlossaryTerm[];
   answers?: Readonly<Record<string, string | string[]>>;
   operatorNote?: string;
+  /** D-240: the week's Seat Card, for a table marked as it. */
+  seatCard?: SeatCard;
 }
 
 /**
@@ -662,6 +674,7 @@ function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor,
     ...(glossary?.length ? { glossary } : {}),
     ...(opts?.intake ? { answers: opts.intake } : {}),
     ...(lineFor(s.id) ? { operatorNote: lineFor(s.id) } : {}),
+    ...(r.open?.seatCard ? { seatCard: r.open.seatCard } : {}),
   };
   const layouts: Partial<Record<Platform, ChecklistLayoutVM>> = {};
   for (const k of ORDER) {

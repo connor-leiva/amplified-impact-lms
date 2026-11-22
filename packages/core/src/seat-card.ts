@@ -37,6 +37,17 @@ export const SEAT_CARD_FIELDS = ['reportsTo', 'runs', 'pulls', 'applies', 'produ
 export type SeatCardField = (typeof SEAT_CARD_FIELDS)[number];
 export type SeatCardAnswers = Partial<Record<SeatCardField, string>>;
 
+/**
+ * D-240: the card as a table's rows, label then words, the seat first and then the card's order: what a step's Seat
+ * Card table shows (an accordion marked `seatCard`). A row with no words is left out.
+ */
+export function seatCardRows(card: SeatCard): string[][] {
+  return (['seat', ...SEAT_CARD_FIELDS] as const).flatMap((k) => {
+    const words = (card[k] ?? '').trim();
+    return words ? [[SEAT_CARD_LABEL[k], words]] : [];
+  });
+}
+
 /** The rows answered on one line; the rest take a few. */
 const SHORT: ReadonlySet<SeatCardField> = new Set(['reportsTo', 'firstRun']);
 

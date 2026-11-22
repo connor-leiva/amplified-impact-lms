@@ -200,6 +200,33 @@ describe('a step’s course fields (D-174)', () => {
     expect(last.paths!.claude!.blocks[0]).toEqual({ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId: 'seat-card', label: 'Open the seat card', itemId: 'w1s6c-sign' } });
   });
 
+  it('D-240: the Button menu says Form, and a table can be the week’s Seat card, its rows then edited on the card', async () => {
+    const user = userEvent.setup();
+    let last: Step = {
+      id: 'c6', text: 'Sign the seat card', ch: '', mins: 10, t: 0, hint: '',
+      paths: {
+        claude: {
+          blocks: [
+            { type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card' },
+            { type: 'accordion', title: 'The Finance Analyst’s Seat Card', body: ['The standard card.'], table: { head: ['Field', 'What It Says'], rows: [['Seat', 'Finance Analyst']] } },
+          ],
+        },
+      },
+    };
+    render(<StepHarness start={last} onStep={(s) => (last = s)} />);
+    const button = screen.getByRole('combobox', { name: 'Block 1 button' });
+    expect([...(button as HTMLSelectElement).options].map((o) => o.text)).toContain('Form');
+    expect([...(button as HTMLSelectElement).options].map((o) => o.text)).not.toContain('Form (later)');
+    expect(screen.getByRole('textbox', { name: /^Block 2 table rows/ })).toBeTruthy();
+    await user.click(screen.getByRole('checkbox', { name: 'The table is this week’s Seat card' }));
+    expect(last.paths!.claude!.blocks[1]).toEqual({ type: 'accordion', title: 'The Finance Analyst’s Seat Card', body: ['The standard card.'], table: { head: ['Field', 'What It Says'], rows: [] }, seatCard: true });
+    expect(screen.queryByRole('textbox', { name: /^Block 2 table rows/ })).toBeNull();
+    expect(screen.getByText('Its rows come from this week’s Seat card. Change them there.')).toBeTruthy();
+    await user.click(screen.getByRole('checkbox', { name: 'The table is this week’s Seat card' }));
+    expect(last.paths!.claude!.blocks[1]).not.toHaveProperty('seatCard');
+    expect(screen.getByRole('textbox', { name: /^Block 2 table rows/ })).toBeTruthy();
+  });
+
   it('keeps other-step dependencies as one trimmed line each, including a step that is not converted yet', async () => {
     const user = userEvent.setup();
     let last: Step = { id: 'c1', text: 'Get your AI ready', ch: '', mins: 20, t: 0, hint: '' };
