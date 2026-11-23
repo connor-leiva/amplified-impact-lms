@@ -222,7 +222,7 @@ describe('the billing summary (spec § 7.6) @console', () => {
   it('prices come from the price cache, or read "Unavailable"; no amount is typed in', async () => {
     await start({ price: prices(null) });
     const s = body<BillingSummary>(await get(P.billingSummary));
-    expect(s.plans.map((p) => p.priceLabel)).toEqual(Array(5).fill('Unavailable'));
+    expect(s.plans.map((p) => p.priceLabel)).toEqual(Array(6).fill('Unavailable'));
     const code = (f: string) => readFileSync(new URL(f, import.meta.url), 'utf8').replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '');
     const src = code('../src/console/billing.ts') + code('../../../packages/core/src/console-billing.ts');
     expect(src).not.toMatch(/\$\s?\d|\b(497|997|1997|7500|3750|750000|375000)\b/);

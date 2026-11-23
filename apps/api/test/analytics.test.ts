@@ -95,6 +95,7 @@ describe('the tag on a www page (D-155)', () => {
       'cohort-two-pay': 'Amplified AI Accelerator, Two Payments',
       'insiders-year': 'Amplified Insiders, One Year',
       'insiders-monthly': 'Amplified Insiders, Monthly',
+      'insiders-agent-monthly': 'Amplified Insiders for Agents, Monthly',
       'agents-upto15': 'Amplified Team Plan, Up to 15 Agents',
       'agents-16to40': 'Amplified Team Plan, 16 to 40 Agents',
       'agent-monthly': 'Amplified Agent Plan, Monthly',

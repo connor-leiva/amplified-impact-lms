@@ -4,7 +4,7 @@
 // (`generateTestHeaderString`); the subscription calls go to a stub that records them. No network.
 //
 // The scenarios are numbered as in the spec's "In test mode" table where they map onto one. "Every
-// offer, end to end" (D-106) walks each of the eight carts through the same path: the account, the
+// offer, end to end" (D-106) walks each cart through the same path: the account, the
 // plan, the held invite, the welcome page, the skills by date, a failed payment, cancel and keep, and a
 // refund. Its sessions are shaped from the links' metadata contract (D-104, D-106), not from Stripe
 // sandbox fixtures, which the repository does not have.
@@ -399,7 +399,7 @@ describe('the offer pages (D-075, D-104)', () => {
     expect(soldOut).toContain('<li id="accelerator" data-state="soldout">');
   });
 
-  it('GET /api/offer lists the eight carts with live prices and their links', async () => {
+  it('GET /api/offer lists every cart with live prices and their links', async () => {
     const body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
     expect(body.founding).toEqual({ open: true, closesAt: '2026-12-01T06:59:00.000Z' });
     expect(body.carts.map((c: { id: string }) => c.id)).toEqual([
@@ -407,6 +407,7 @@ describe('the offer pages (D-075, D-104)', () => {
       'cohort-two-pay',
       'insiders-year',
       'insiders-monthly',
+      'insiders-agent-monthly',
       'agents-upto15',
       'agents-16to40',
       'agent-monthly',
@@ -1359,7 +1360,7 @@ describe('every offer, end to end (D-106)', () => {
   }
 
   it('a second purchase, of any offer, lands on the same account, whatever the email\'s case', async () => {
-    const order = ['agent-monthly', 'insiders-year', 'cohort-full', 'cohort-two-pay', 'insiders-monthly', 'agents-upto15', 'agents-16to40', 'agent-yearly'] as const;
+    const order = ['agent-monthly', 'insiders-year', 'cohort-full', 'cohort-two-pay', 'insiders-monthly', 'insiders-agent-monthly', 'agents-upto15', 'agents-16to40', 'agent-yearly'] as const;
     for (const [i, cart] of order.entries()) {
       const c = OFFER_CASES.find((x) => x.cart === cart)!;
       await purchase(c, i % 2 ? 'Pat@Example.com' : 'pat@example.com');
