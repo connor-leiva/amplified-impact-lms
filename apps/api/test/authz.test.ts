@@ -629,6 +629,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/skills/welcome/dismiss', methods: 'POST', guard: 'session' },
   // One skill, $37 once. Signed in. An access-group member is refused after the session check.
   { path: '/api/skills/:id/checkout', methods: 'POST', guard: 'session' },
+  // Signed-out $37 checkout. Off, it redirects to the stopgap Payment Link. On, it starts a session.
+  { path: '/api/skills/:id/guest-checkout', methods: 'GET, HEAD', guard: 'open' },
   // Manage Billing (D-077): the owner's way into Stripe's billing portal, signed in.
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.

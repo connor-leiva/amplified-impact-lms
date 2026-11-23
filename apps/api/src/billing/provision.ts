@@ -86,6 +86,10 @@ export interface ProvisionOptions {
   invitesEnabled?: boolean;
   /** Staff override: send the owner's invite now even before `invitesFrom`. */
   inviteNow?: boolean;
+  /** A skill guide to open after the buyer sets a password. Only `/skill-library/<page>`. */
+  skillGuide?: string;
+  /** The branded skill email is sent by the caller, so this does not send Set Your Password. */
+  skipInvite?: boolean;
 }
 
 export async function provisionOrder(orderId: string, options: ProvisionOptions): Promise<ProvisionOutcome> {
@@ -215,6 +219,73 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
   } else {
     log[outcome.reason === 'not-paid' ? 'info' : 'error']({ order: orderId, reason: outcome.reason }, 'order not provisioned');
   }
+  return outcome;
+}
+
+/**
+ * A $37 skill buyer with no account yet (or an account already, found by email). The same owner
+ * path as a paid plan, and the same Set Your Password email when they are still invited. No plan
+ * row: the skill purchase is recorded separately. Idempotent for an email that already has an account.
+ */
+export async function provisionSkillBuyer(
+  emailRaw: string,
+  name: string,
+  options: ProvisionOptions,
+): Promise<{ ok: true; userId: string; invite: 'sent' | 'already'; created: boolean } | { ok: false; reason: 'staff-email' | 'member-of-another-team' }> {
+  const db = options.db ?? getDb();
+  const email = emailRaw.trim().toLowerCase();
+  let sends: PendingSend[] = [];
+  const outcome = await db.transaction(async (tx) => {
+    await lock(tx);
+    const before = await loadDb(tx);
+    const owner = provisionOwner(
+      before,
+      { email, name, teamName: name.trim() || email, seats: 1, tier: 'agent', cohortId: OWNER_COHORT },
+      { now: options.now, id: randomIds() },
+    );
+    if (!owner.ok) return { ok: false as const, reason: owner.reason };
+    if (owner.db !== before) await persistDiff(tx, before, owner.db);
+
+    const [existingAccount] = await tx.select().from(accounts).where(eq(accounts.ownerEmail, email)).limit(1);
+    let account = existingAccount;
+    if (!account) {
+      const team = owner.db.teams.find((t) => t.id === owner.teamId);
+      const [created] = await tx
+        .insert(accounts)
+        .values({
+          id: randomIds()('acct'),
+          teamId: owner.teamId,
+          ownerUserId: owner.userId,
+          ownerEmail: email,
+          name: team?.name ?? email,
+          crm: null,
+          stripeCustomerId: null,
+          createdAt: options.now,
+        })
+        .returning();
+      account = created;
+    }
+
+    let invite: 'sent' | 'already' = 'already';
+    const user = owner.db.users.find((u) => u.id === owner.userId);
+    if (options.skipInvite) {
+      if (account && account.inviteSentAt === null && user?.status === 'invited') {
+        await tx.update(accounts).set({ inviteSentAt: options.now }).where(eq(accounts.id, account.id));
+      }
+    } else if (account && account.inviteSentAt === null && user?.status === 'invited' && options.invitesEnabled !== false && (options.now >= options.invitesFrom || options.inviteNow)) {
+      const effect: Effect = {
+        type: 'email',
+        template: 'set-password',
+        to: [email],
+        ...(options.skillGuide ? { data: { next: options.skillGuide } } : {}),
+      };
+      sends = await pendingSendsFor(tx, [effect], options.now, options.log as never);
+      await tx.update(accounts).set({ inviteSentAt: options.now }).where(eq(accounts.id, account.id));
+      invite = 'sent';
+    }
+    return { ok: true as const, userId: owner.userId, invite, created: owner.createdUser };
+  });
+  if (sends.length) await dispatchEffects(sends, options.log as never);
   return outcome;
 }
 

@@ -109,6 +109,8 @@ export const mintSessionId = (): string => `s_${randomBytes(32).toString('base64
 export async function createSession(db: Database, userId: string, now: number, { remember = true }: { remember?: boolean } = {}): Promise<string> {
   const id = mintSessionId();
   await db.insert(authSessions).values({ id, userId, remember, expiresAt: new Date(now + (remember ? SESSION_TTL_MS : SHORT_SESSION_TTL_MS)) });
+  const { claimSkillPurchases } = await import('../billing/skill-claim');
+  await claimSkillPurchases(db, userId);
   return id;
 }
 

@@ -17,6 +17,7 @@
 import { CARTS, COHORT_SEATS } from './offer';
 import type { LookupKey, PlanKind, PlanStatus } from './offer';
 import { CONSOLE_PLAN_LABELS } from './console-support';
+import type { ConsoleSkillPurchase } from './console-support';
 import { planLine, usdWhole } from './console-view';
 import type { AdminStatus } from './console-view';
 
@@ -232,6 +233,8 @@ export interface BillingSummary {
   refunds30d: number;
   plans: BillingPlanRow[];
   accelerator: BillingAccelerator;
+  /** Recent $37 skill purchases. Empty when there are none. */
+  skillPurchases: ConsoleSkillPurchase[];
 }
 
 /** A not-ended cohort plan with its order's payments, as the D-154 count sees it. */
@@ -310,6 +313,7 @@ export function buildBillingSummary(f: BillingFacts): BillingSummary {
     refunds30d: f.refunds.filter((r) => r.status !== 'failed' && r.status !== 'canceled').reduce((a, r) => a + r.amountCents, 0),
     plans,
     accelerator: f.accelerator,
+    skillPurchases: [],
   };
 }
 

@@ -103,12 +103,12 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     const upsell = skillUpsell((entryFor(guide)?.sets ?? GROK_TEMPLATES.find((t) => t.id === guide.grok)?.sets ?? 'both') as 'agent' | 'owner_ops' | 'both');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
-      [SKILL_PURCHASE.get, SKILL_PURCHASE.stopgapHref, false],
+      [SKILL_PURCHASE.get, `https://learn.amplifiedimpact.io/api/skills/${slug}/guest-checkout`, false],
       [upsell.label, `%%link:${upsell.cart}%%`, false],
       ['Sign In', skillGuideUrl(slug), false],
     ]);
     expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');
-    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(SKILL_PURCHASE.stopgapHref);
+    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(`https://learn.amplifiedimpact.io/api/skills/${slug}/guest-checkout`);
   });
 
   it('links no paid ZIP, and no download at all: no file to save, no hand-off to a download', () => {

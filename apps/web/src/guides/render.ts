@@ -30,7 +30,7 @@ import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import { SKILL_PURCHASE, skillUpsell, token, type SkillSet } from '@ai/core/offer';
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
-import { skillGuideUrl } from '@ai/core/skill-guides';
+import { LEARN_ORIGIN, skillGuideUrl } from '@ai/core/skill-guides';
 import {
   GUIDES,
   inSkillLibrary,
@@ -356,7 +356,7 @@ function libraryCard(guide: Guide): string {
     `<h2 id="library-heading">${esc(l.heading)}</h2>`,
     `<p>${esc(libraryBlurb(guide))}</p>`,
     `<div class="form">`,
-    `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
+    `<a class="btn btn-primary" href="${esc(`${LEARN_ORIGIN}/api/skills/${guide.slug}/guest-checkout`)}">${esc(SKILL_PURCHASE.get)}</a>`,
     `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,
     `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
     `</div>`,
@@ -414,7 +414,7 @@ function guidedCard(guide: Guide): string {
       `<h2 id="library-heading">${esc(l.heading)}</h2>`,
       `<p>${esc(libraryBlurb(guide))}</p>`,
       `<div class="form">`,
-      `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
+      `<a class="btn btn-primary" href="${esc(`${LEARN_ORIGIN}/api/skills/${guide.slug}/guest-checkout`)}">${esc(SKILL_PURCHASE.get)}</a>`,
       `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,
       // Its own class (Design, the live recheck of PR 105): 16px, and the link a 44px tap target.
       `<p class="legal owned">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,

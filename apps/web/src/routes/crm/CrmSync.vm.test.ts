@@ -7,7 +7,7 @@ const row = (over: Partial<CrmRow>): CrmRow => ({
 });
 const zero = { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 };
 const report = (over: Partial<CrmSyncReport> = {}): CrmSyncReport => ({
-  sync: 'on', fields: [], pipeline: false, stages: [], counts: { waitlist: zero, order: zero, login: zero }, problems: [], recent: [], ...over,
+  sync: 'on', fields: [], pipeline: false, stages: [], counts: { waitlist: zero, order: zero, login: zero, skill: zero }, problems: [], recent: [], ...over,
 });
 
 describe('CrmSync.vm (D-134)', () => {
@@ -26,8 +26,8 @@ describe('CrmSync.vm (D-134)', () => {
   });
 
   it('counts each kind in its own row, in a fixed order', () => {
-    const v = crmView(report({ counts: { waitlist: { ...zero, total: 1200, synced: 1190, waiting: 10 }, order: zero, login: zero } }));
-    expect(v.counts.map((c) => c.label)).toEqual(['Sign-Ups', 'Buyers', 'First Sign-Ins']);
+    const v = crmView(report({ counts: { waitlist: { ...zero, total: 1200, synced: 1190, waiting: 10 }, order: zero, login: zero, skill: zero } }));
+    expect(v.counts.map((c) => c.label)).toEqual(['Sign-Ups', 'Buyers', 'First Sign-Ins', 'Skill Purchases']);
     expect(v.counts[0]).toMatchObject({ total: '1,200', synced: '1,190', waiting: '10' });
   });
 

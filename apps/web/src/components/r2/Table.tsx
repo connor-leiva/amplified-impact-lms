@@ -48,6 +48,8 @@ export interface Column<R> extends FitColumn {
   noSort?: boolean;
   /** The cell may draw past its column (`ov`), as a pill's menu does (R2-2). */
   overflow?: boolean;
+  /** The cell wraps instead of ending in an ellipsis. */
+  wrap?: boolean;
   /** The sort value, and the cell when there is no `cell`. */
   value: (r: R) => string | number;
   cell?: (r: R, f: CellFit) => ReactNode;
@@ -423,7 +425,7 @@ export function Table<R>({
                 <div
                   key={c.key}
                   role="cell"
-                  className={clsx(k.cl, c.mono && k.mo, c.num && k.r, c.num && k.tn, c.overflow && k.ov)}
+                  className={clsx(k.cl, c.wrap && k.wrap, c.mono && k.mo, c.num && k.r, c.num && k.tn, c.overflow && k.ov)}
                 >
                   {j === 0 && rowHref && !c.cell ? (
                     <Link to={rowHref(r)} className={clsx(k.lk, k.el, c.mono && k.mo)}>

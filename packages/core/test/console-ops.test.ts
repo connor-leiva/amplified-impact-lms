@@ -65,7 +65,7 @@ describe('webhooks (D-165, D13)', () => {
   });
 
   it('retries the CRM sync log’s three kinds only', () => {
-    expect(['waitlist', 'order', 'login'].every(isGhlRetryKind)).toBe(true);
+    expect(['waitlist', 'order', 'login', 'skill'].every(isGhlRetryKind)).toBe(true);
     expect([undefined, 'invoice', 'Order', 1].some(isGhlRetryKind)).toBe(false);
   });
 });

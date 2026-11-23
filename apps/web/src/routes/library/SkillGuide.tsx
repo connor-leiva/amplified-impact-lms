@@ -29,6 +29,8 @@ export const COPY = {
   back: 'Skill Library',
   loading: 'Loading the guided setup',
   missing: 'We couldn’t find that skill.',
+  /** A signed-in account the library does not open for. Not the same as a skill that is not there. */
+  refused: 'The skill library is for learners.',
   failed: 'The guided setup didn’t load. Refresh the page to try again.',
   /** Over a locked skill's steps' titles: the setup is there, behind the plan line under it. */
   previewNote: 'Every step, with what to click and the words to paste, opens with the skill.',
@@ -53,7 +55,7 @@ export interface GuideAnswer {
   ui: GuideUi | null;
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'refused' } | { kind: 'failed' };
 
 const SIGN_IN = '/sign-in';
 /** How long the copy confirmation stays, as on www's guide pages. */
@@ -401,7 +403,10 @@ export function Component() {
           navigate(`${SIGN_IN}?next=${encodeURIComponent(guidePath(slug))}`, { replace: true });
           return;
         }
-        if (res.status === 404 || res.status === 403) return setLoad({ kind: 'missing' });
+        // 404 is a slug with no guide. 403 is an account the library does not open for. Saying the
+        // skill is missing for both sent people who followed a real www link to a dead end.
+        if (res.status === 404) return setLoad({ kind: 'missing' });
+        if (res.status === 403) return setLoad({ kind: 'refused' });
         if (!res.ok) return setLoad({ kind: 'failed' });
         const answer = (await res.json()) as GuideAnswer;
         if (alive) setLoad({ kind: 'ready', answer });
@@ -430,6 +435,7 @@ export function Component() {
       );
     }
     if (load.kind === 'missing') return <p className={s.status}>{COPY.missing}</p>;
+    if (load.kind === 'refused') return <p className={s.status}>{COPY.refused}</p>;
     if (load.kind === 'failed') {
       return (
         <p className={s.status} role="alert">

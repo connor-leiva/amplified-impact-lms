@@ -50,7 +50,8 @@ import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 
 /** Spring's GHL location (spec § 1, D-134): the Console never queues a write there. */
-export const SPRING_GHL_LOCATION = '4l4e5c7LuLR87EdUv2QK';
+export { SPRING_GHL_LOCATION } from '../integrations/ghl-location-guard';
+import { SPRING_GHL_LOCATION } from '../integrations/ghl-location-guard';
 
 /** Whether GHL writes go to Spring's location right now. A boolean; the id itself never leaves. */
 export const ghlPointsAtSpring = (env: NodeJS.ProcessEnv = process.env): boolean => (env.GHL_LOCATION_ID ?? '').trim() === SPRING_GHL_LOCATION;

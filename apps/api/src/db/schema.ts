@@ -459,7 +459,7 @@ export const skills = pgTable('skills', {
 // `order_id` is reserved and stays null: skill purchases are not rows in `orders`.
 export const skillPurchases = pgTable('skill_purchases', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id'),
   accountId: text('account_id'),
   skillId: text('skill_id').notNull(),
   orderId: text('order_id'),
@@ -468,10 +468,20 @@ export const skillPurchases = pgTable('skill_purchases', {
   amount: integer('amount'),
   purchasedAt: ts('purchased_at').notNull(),
   refundedAt: ts('refunded_at'),
+  // Set when the buyer has no account yet. Sign-in claims the row onto that email's user.
+  email: text('email'),
+  ghlContactId: text('ghl_contact_id'),
+  ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0),
+  ghlNextAttemptAt: ts('ghl_next_attempt_at'),
+  ghlError: text('ghl_error'),
+  ghlSyncStamp: text('ghl_sync_stamp'),
+  ghlLastAttemptAt: ts('ghl_last_attempt_at'),
 }, (t) => [
   uniqueIndex('skill_purchases_session_idx').on(t.stripeSessionId),
   uniqueIndex('skill_purchases_user_skill_idx').on(t.userId, t.skillId),
   index('skill_purchases_payment_intent_idx').on(t.stripePaymentIntentId),
+  uniqueIndex('skill_purchases_email_skill_idx').on(t.email, t.skillId).where(sql`${t.userId} is null`),
 ]);
 
 // Access groups (D-148): people who hold a plan's entitlement at no charge, by their VERIFIED email

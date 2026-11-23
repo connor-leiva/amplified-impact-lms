@@ -5,11 +5,13 @@ import type Stripe from 'stripe';
 import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
+import { SKILL_PURCHASE } from '../src/billing/catalog';
 import { readOfferConfig } from '../src/billing/config';
 import type { BillingStripe } from '../src/billing/stripe';
 import { handleStripeEvent } from '../src/billing/webhook';
 import type { Database } from '../src/db/client';
-import { skillPurchases, skills } from '../src/db/schema';
+import { skillPurchases, skills, users } from '../src/db/schema';
+import { outboxFor } from '../src/email/transport';
 import { provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import { accessGroups } from '../src/db/schema';
 import { resetDatabase, testDatabase } from './helpers';
@@ -72,10 +74,12 @@ const post = (url: string, cookie?: string) =>
     headers: { origin: APP_URL, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) },
   });
 
-async function deliver(id: string, type: string, object: Record<string, unknown>): Promise<string> {
+async function deliver(id: string, type: string, object: Record<string, unknown>, guest = false): Promise<string> {
+  const config = readOfferConfig();
+  if (guest) config.skillGuestCheckout = true;
   return handleStripeEvent({ id, object: 'event', type, data: { object } } as unknown as Stripe.Event, {
     stripe: null,
-    config: readOfferConfig(),
+    config,
     prices: { get: async () => null } as never,
     log,
     now: () => NOW,
@@ -202,6 +206,101 @@ describe('the webhook and access', () => {
     const cookie = await app.signInAs('u_jamie');
     const list = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
     expect(list.json().skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('locked');
+  });
+
+  it('sends a signed-out visitor to the stopgap link while guest checkout is off', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/guest-checkout' });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(SKILL_PURCHASE.stopgapHref);
+    expect(sessions).toHaveLength(0);
+  });
+
+  it('starts a checkout with no account when guest checkout is on', async () => {
+    await app.close();
+    const config = readOfferConfig();
+    config.skillPriceId = PRICE;
+    config.skillGuestCheckout = true;
+    app = await build({ logger: false, waitlist: true, offer: { config, stripe } });
+    const res = await app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/guest-checkout' });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('https://checkout.stripe.com/c/pay/cs_test_1');
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]).toMatchObject({
+      customerEmail: null,
+      metadata: { skill_id: 'team-pnl-review', ai_plan: 'skill', ai_option: 'single', offer: 'single_skill_37' },
+    });
+    expect(sessions[0]!.metadata).not.toHaveProperty('user_id');
+    expect(sessions[0]!.collectName).toBe(true);
+  });
+
+  it('stores a signed-out purchase by email, and sends nothing, while guest checkout is off', async () => {
+    const session = {
+      id: 'cs_test_guest',
+      object: 'checkout.session',
+      payment_status: 'paid',
+      amount_total: 3700,
+      payment_intent: 'pi_guest',
+      customer_details: { email: 'Buyer@Example.com', name: 'Buyer Example' },
+      metadata: { offer: 'single_skill_37' },
+      custom_fields: [{ key: 'skill', type: 'dropdown', dropdown: { value: 'teampnlreview' } }],
+    };
+    expect(await deliver('evt_guest', 'checkout.session.completed', session)).toBe('purchased');
+    expect(await db.select().from(users).where(eq(users.email, 'buyer@example.com'))).toEqual([]);
+    const [row] = await db.select().from(skillPurchases);
+    expect(row).toMatchObject({ userId: null, email: 'buyer@example.com', skillId: 'team-pnl-review', stripeSessionId: 'cs_test_guest' });
+    expect(outboxFor({ to: 'buyer@example.com' })).toEqual([]);
+  });
+
+  it('creates the learner and sends the branded email only when guest checkout is on', async () => {
+    const session = {
+      id: 'cs_test_guest',
+      object: 'checkout.session',
+      payment_status: 'paid',
+      amount_total: 3700,
+      payment_intent: 'pi_guest',
+      customer_details: { email: 'Buyer@Example.com', name: 'Buyer Example' },
+      metadata: { ai_plan: 'skill', ai_option: 'single', skill_id: 'team-pnl-review', offer: 'single_skill_37' },
+    };
+    expect(await deliver('evt_guest', 'checkout.session.completed', session, true)).toBe('purchased:new');
+    const [buyer] = await db.select().from(users).where(eq(users.email, 'buyer@example.com'));
+    expect(buyer).toMatchObject({ kind: 'learner', status: 'invited' });
+    const rows = await db.select().from(skillPurchases).where(eq(skillPurchases.userId, buyer!.id));
+    expect(rows).toHaveLength(1);
+    const [mail] = outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' });
+    expect(mail?.subject).toBe('Thank You for Buying Team P&L Review');
+    expect(mail?.html).toContain('Thank you, Buyer.');
+    expect(mail?.html).toContain('Set Your Password');
+    expect(mail?.html).toContain('next=%2Fskill-library%2Fteam-pnl-review');
+    expect(outboxFor({ to: 'buyer@example.com', template: 'set-password' })).toEqual([]);
+    expect(await deliver('evt_guest_again', 'checkout.session.completed', session, true)).toBe('duplicate');
+    expect(outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' })).toHaveLength(1);
+
+    const again = {
+      ...session,
+      id: 'cs_test_guest_2',
+      payment_intent: 'pi_guest_2',
+      metadata: { ...session.metadata, skill_id: 'appointment-follow-up' },
+    };
+    expect(await deliver('evt_guest_ready', 'checkout.session.completed', again, true)).toBe('purchased:ready');
+    const [ready] = outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' }).slice(-1);
+    expect(ready?.subject).toBe('Your New Skill Is Ready');
+    expect(ready?.html).toContain('>Sign In<');
+  });
+
+  it('does not grant a skill or create an account when the email is an access group', async () => {
+    await db.insert(accessGroups).values({ id: 'utah-life', name: 'Utah Life', plan: 'agent_plan', emailDomain: 'liveutah.com', expiresAt: null, createdAt: NOW - DAY });
+    const result = await deliver('evt_guest_utah', 'checkout.session.completed', {
+      id: 'cs_test_utah',
+      object: 'checkout.session',
+      payment_status: 'paid',
+      amount_total: 3700,
+      payment_intent: 'pi_utah',
+      customer_details: { email: 'lines@liveutah.com', name: 'Lines' },
+      metadata: { ai_plan: 'skill', ai_option: 'single', skill_id: 'team-pnl-review', offer: 'single_skill_37' },
+    });
+    expect(result).toBe('ignored:skill-group');
+    expect(await db.select().from(skillPurchases)).toEqual([]);
+    expect(await db.select().from(users).where(eq(users.email, 'lines@liveutah.com'))).toEqual([]);
   });
 
   it('does not open a skill that is not released yet, even after payment', async () => {

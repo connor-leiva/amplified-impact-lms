@@ -50,7 +50,7 @@ const dayIn = (t: number, timeZone: string) =>
 
 describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
   it('holds the CHECK constraints and the catalog to the same lists, as migration 0008 left them', () => {
-    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql', '0012_access_groups.sql', '0038_insiders_agent.sql']
+    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql', '0012_access_groups.sql', '0039_insiders_agent.sql']
       .map((f) => readFileSync(fileURLToPath(new URL(`../../drizzle/${f}`, import.meta.url)), 'utf8'))
       .join('\n');
     // The last definition of each constraint wins.

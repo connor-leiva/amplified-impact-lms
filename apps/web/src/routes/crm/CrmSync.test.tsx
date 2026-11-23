@@ -16,7 +16,7 @@ const REPORT: CrmSyncReport = {
   fields: ['offer'],
   pipeline: true,
   stages: ['lead', 'purchased'],
-  counts: { waitlist: { ...zero, total: 3, synced: 2, waiting: 1 }, order: { ...zero, total: 2, synced: 1, gaveUp: 1 }, login: zero },
+  counts: { waitlist: { ...zero, total: 3, synced: 2, waiting: 1 }, order: { ...zero, total: 2, synced: 1, gaveUp: 1 }, login: zero, skill: zero },
   problems: [{ kind: 'order', id: 'o-gone', email: 'gone@example.com', state: 'gave-up', attempts: 8, lastAttemptAt: null, nextAttemptAt: null, syncedAt: null, error: 'upsert:rejected:400' }],
   recent: [],
 };

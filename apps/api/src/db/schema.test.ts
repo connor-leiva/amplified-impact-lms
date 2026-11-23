@@ -140,7 +140,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // A skill bought on its own. Not a `Db` record, like `orders`.
   skillPurchases: {
     table: 'skill_purchases',
-    columns: ['account_id', 'amount', 'id', 'order_id', 'purchased_at', 'refunded_at', 'skill_id', 'stripe_payment_intent_id', 'stripe_session_id', 'user_id'],
+    columns: ['account_id', 'amount', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'order_id', 'purchased_at', 'refunded_at', 'skill_id', 'stripe_payment_intent_id', 'stripe_session_id', 'user_id'],
     gate: 9,
   },
   // D-157: the Admin Console's append-only audit log (spec § 7.8). Not a `Db` record, like `orders`.
@@ -392,6 +392,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
   ['skillPurchases', 'purchasedAt'], ['skillPurchases', 'refundedAt'],
+  ['skillPurchases', 'ghlSyncedAt'], ['skillPurchases', 'ghlNextAttemptAt'], ['skillPurchases', 'ghlLastAttemptAt'],
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
   // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
   ['auditLog', 'at'],
@@ -780,6 +781,7 @@ describe('unique indexes @g9', () => {
       { name: 'skill_purchases_session_idx', unique: true, columns: ['stripe_session_id'] },
       { name: 'skill_purchases_user_skill_idx', unique: true, columns: ['user_id', 'skill_id'] },
       { name: 'skill_purchases_payment_intent_idx', unique: false, columns: ['stripe_payment_intent_id'] },
+      { name: 'skill_purchases_email_skill_idx', unique: true, columns: ['email', 'skill_id'] },
     ],
   };
 
