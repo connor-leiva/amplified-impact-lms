@@ -349,7 +349,6 @@ function libraryBlurb(guide: Guide): string {
 
 function libraryCard(guide: Guide): string {
   const l = SHARED.skillLibrary;
-  const plan = l[unlockFor(guide)];
   const how = setupSteps(guide);
   return [
     `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library>`,
@@ -409,7 +408,6 @@ function guidedCard(guide: Guide): string {
   const learn = skillGuideUrl(guide.slug);
   if (inSkillLibrary(guide)) {
     const l = SHARED.skillLibrary;
-    const plan = l[unlockFor(guide)];
     return [
       `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library data-learn-guide="${esc(learn)}">`,
       `<div class="locked">`,
