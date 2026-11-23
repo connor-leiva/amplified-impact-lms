@@ -120,7 +120,7 @@ export const USER_COPY = {
     date: 'Date',
     session: 'Session',
     refunded: 'Refunded',
-    open: 'Open',
+    open: 'No',
   },
   progress: { empty: 'No builds started yet', deployed: 'Deployed', building: 'In progress', none: 'Not started' },
   noActivity: 'No activity yet',
@@ -158,7 +158,7 @@ export function signInOf(i: ConsoleUserDetail['identity']): string {
  */
 /** Fixture screenshots only. Production never reads this. */
 export const REVIEW_SKILL_ROWS = [
-  { key: 'skp_review', skill: 'Team P&L Review', amount: '$37.00', date: 'Nov 23, 2026', session: 'cs_review_skill', refunded: 'Open' },
+  { key: 'skp_review', skill: 'Team P&L Review', amount: '$37.00', date: 'Nov 23, 2026', session: 'cs_review_skill', refunded: 'No' },
 ];
 
 export const canReset = (role: string | null, target: ConsoleUserDetail['user']): boolean =>

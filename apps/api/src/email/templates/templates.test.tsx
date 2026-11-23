@@ -88,7 +88,7 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'replay-ready': { n: 2, title: 'Speed to Lead', employee: 'Sales AI Employee', moduleId: 'sales' },
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
-  'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
+  'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', sets: 'owner_ops', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
 };
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -301,8 +301,9 @@ describe('email templates · § 8.1 shell @g8', () => {
 
     it(`${name} renders exactly one primary button, styled like Button primary @g8`, () => {
       const html = HTML[name];
-      // § 8.1 allows one. More than one would mean a template had added a link of its own.
-      expect(html.match(/<a\b/g) ?? []).toHaveLength(1);
+      // § 8.1 allows one link. The skill purchase note also links Sign In and support in the footer.
+      if (name === 'skill-purchase') expect(html.match(/<a\b/g) ?? []).toHaveLength(3);
+      else expect(html.match(/<a\b/g) ?? []).toHaveLength(1);
 
       const a = styleOf(html, 'a');
       // `Button.module.css`: `.primary` background/colour, `.btn` radius 8 and weight 600,

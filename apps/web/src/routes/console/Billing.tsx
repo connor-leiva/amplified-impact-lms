@@ -193,10 +193,32 @@ function Summary({ vm, review }: { vm: BillingSummaryVM | null; review: boolean 
 function SkillPurchases({ rows }: { rows: BillingSummaryVM['skillPurchases'] }) {
   if (!rows.length) return null;
   const cols: Column<BillingSummaryVM['skillPurchases'][number]>[] = [
-    { key: 'skill', label: C.skills.skill, width: 'minmax(160px,1.4fr)', value: (r) => r.skill },
+    { key: 'skill', label: C.skills.skill, wrap: true, width: 'minmax(220px,2fr)', value: (r) => r.skill },
     { key: 'amt', label: C.skills.amount, num: true, width: '96px', value: (r) => r.amount },
     { key: 'date', label: C.skills.date, width: '120px', noSort: true, value: (r) => r.date },
-    { key: 'session', label: C.skills.session, mono: true, width: 'minmax(140px,1.2fr)', value: (r) => r.session },
+    {
+      key: 'session',
+      label: C.skills.session,
+      mono: true,
+      wrap: true,
+      width: 'minmax(180px,1.4fr)',
+      value: (r) => r.session,
+      cell: (r) => (
+        <span title={r.session}>
+          {r.session}{' '}
+          <button
+            type="button"
+            className={k.lk}
+            onClick={(e) => {
+              e.stopPropagation();
+              void navigator.clipboard?.writeText(r.session);
+            }}
+          >
+            Copy
+          </button>
+        </span>
+      ),
+    },
     { key: 'refunded', label: C.skills.refunded, width: '120px', value: (r) => r.refunded },
   ];
   return <Table title={C.skills.title} label={C.skills.title} cols={cols} rows={rows} rowKey={(r) => r.key} empty={{ icon: 'r2Billing', title: C.skills.title }} />;

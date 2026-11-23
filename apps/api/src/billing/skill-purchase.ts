@@ -237,8 +237,10 @@ async function guestSkillPurchase(
 }
 
 async function sendSkillEmail(db: Database, email: string, name: string, skillId: string, created: boolean, now: number, log: SkillPurchaseLog): Promise<void> {
-  const [skill] = await db.select({ title: skills.title }).from(skills).where(eq(skills.id, skillId)).limit(1);
-  const skillName = skill?.title ?? SKILL_CATALOG.find((s) => s.id === skillId)?.title ?? skillId;
+  const [skill] = await db.select({ title: skills.title, sets: skills.sets }).from(skills).where(eq(skills.id, skillId)).limit(1);
+  const catalog = SKILL_CATALOG.find((s) => s.id === skillId);
+  const skillName = skill?.title ?? catalog?.title ?? skillId;
+  const sets = skill?.sets === 'agent' || skill?.sets === 'both' || skill?.sets === 'owner_ops' ? skill.sets : (catalog?.sets ?? 'both');
   const next = `/skill-library/${guidePageOf(skillId)}`;
   const first = name.trim().split(/\s+/).filter(Boolean)[0] ?? '';
   const variant = created ? 'new' : 'ready';
@@ -247,7 +249,7 @@ async function sendSkillEmail(db: Database, email: string, name: string, skillId
     token = mintToken();
     await db.insert(authTokens).values({ tokenHash: hashToken(token), email, purpose: 'set_password', expiresAt: expiryFor('set_password', now) });
   }
-  const pending: PendingSend = { template: 'skill-purchase', to: email, data: { skillName, variant, firstName: first, next, ...(token ? { token } : {}) } };
+  const pending: PendingSend = { template: 'skill-purchase', to: email, data: { skillName, variant, sets, firstName: first, next, ...(token ? { token } : {}) } };
   const sends = await pendingSendsFor(db, [{ type: 'email', template: 'skill-purchase', to: [email], data: pending.data }], now, log as never);
   await dispatchEffects(sends, log as never);
 }

@@ -256,6 +256,8 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       const skillName = str(template, data, 'skillName');
       const variant = str(template, data, 'variant');
       if (variant !== 'new' && variant !== 'ready') throw bad(template, 'variant', 'must be new or ready');
+      const sets = str(template, data, 'sets');
+      if (sets !== 'owner_ops' && sets !== 'agent' && sets !== 'both') throw bad(template, 'sets', 'must be a skill set');
       const next = safeNext(str(template, data, 'next'));
       if (!next) throw bad(template, 'next', 'must be a skill guide');
       const subject = SUBJECTS['skill-purchase']({ skillName, variant });
@@ -266,6 +268,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
             subject={subject}
             variant={variant}
             skillName={skillName}
+            sets={sets}
             firstName={optStr(data, 'firstName') ?? ''}
             next={next}
             token={optStr(data, 'token')}

@@ -65,7 +65,7 @@ export const BILLING_COPY = {
     refunds: 'Refunds',
   },
   plans: { title: 'Plan economics', plan: 'Plan', price: 'Price', active: 'Active', mrr: 'MRR' },
-  skills: { title: 'Skill Purchases', skill: 'Skill', amount: 'Amount', date: 'Date', session: 'Session', refunded: 'Refunded', open: 'Open' },
+  skills: { title: 'Skill Purchases', skill: 'Skill', amount: 'Amount', date: 'Date', session: 'Session', refunded: 'Refunded', open: 'No' },
   accelerator: {
     title: 'AI Accelerator',
     price: 'Price',
