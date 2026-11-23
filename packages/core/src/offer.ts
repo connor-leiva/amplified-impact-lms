@@ -84,6 +84,11 @@ export const SKILL_PURCHASE = {
   get: 'Get This Skill, $37',
   insiders: 'Unlock Every Skill With Amplified Insiders, $197/Month',
   insidersHref: 'https://buy.stripe.com/aFadRa0CPgR80e1aJ773G07',
+  /**
+   * Signed-out buyers. The stopgap Payment Link (a required skill dropdown, filled in by hand).
+   * No skill is preselected. Signed-in learners use the in-app Checkout Session instead.
+   */
+  stopgapHref: 'https://buy.stripe.com/8x200k71d8kCbWJ5oN73G0f',
   title: 'Get This Skill',
   body: 'Buy this skill once, and keep it, including future updates. Or open every skill with Amplified Insiders.',
   close: 'Close',
