@@ -25,3 +25,11 @@ export const V2_INSIDERS = {
   /** Over the ways to pay. */
   plans: 'Three ways to pay',
 } as const;
+
+/** The monthly card's checks. The year card keeps the offer's own yearly lines. */
+export const TEAM_LEADER_MONTHLY = [
+  'For Team Leaders.',
+  '3-Month Minimum.',
+  'Every skill, plus weekly office hours.',
+  'Monthly payments don’t count toward the Accelerator.',
+] as const;

@@ -8,7 +8,7 @@ The marketing pages are the built HTML, so a buy button says "Opens soon" until 
 |---|---|---|
 | `pricing-1280.png.b64` | Programs and Pricing, four cards: Agent Plan $117, Insiders year then $169 | 1280 |
 | `pricing-390.png.b64` | The same page | 390 |
-| `insiders-1280.png.b64` | Three ways to pay: $1,997, $169 For Team Leaders, $79 Agent Insiders | 1280 |
+| `insiders-1280.png.b64` | Three ways to pay, with plan labels and buy buttons (state set to link, as the API does when the Payment Link is set) | 1280 |
 | `insiders-390.png.b64` | The same page | 390 |
 | `agents-1280.png.b64` | Amplified Agent Plan, $117 a month, 3-Month Minimum | 1280 |
 | `agents-390.png.b64` | The same page | 390 |

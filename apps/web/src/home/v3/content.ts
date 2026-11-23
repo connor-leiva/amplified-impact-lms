@@ -561,7 +561,7 @@ export const PROGRAMS = {
       ],
       best: 'Best if you like to figure things out yourself and want the whole toolbox for less.',
       toggle: { label: 'Insiders billing', a: 'Yearly', b: 'Monthly' },
-      notes: ['a year', 'a month, For Team Leaders'],
+      notes: ['a year', 'a month, for team leaders'],
       after: (monthly: string) => `Counts fully toward the Accelerator later. Or ${monthly} a month, with a 3-month minimum.`,
       cta: 'Join Insiders',
     },

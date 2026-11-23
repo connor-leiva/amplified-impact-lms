@@ -478,6 +478,10 @@ export const SHARED = {
       label: 'Get Amplified Insiders',
       href: '/pricing#insiders',
     },
+    /** Agent-set skills. Owner, ops, and both keep `insiders`. */
+    agentInsiders: {
+      body: 'It’s part of Amplified Insiders for Agents: every agent skill, plus weekly office hours.',
+    },
     agentPlan: {
       body: 'It’s part of the Amplified Agent Plan: every agent skill, and live training every week.',
       label: 'Get Amplified Agent Plan',

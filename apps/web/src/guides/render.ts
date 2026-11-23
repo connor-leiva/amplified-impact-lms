@@ -329,12 +329,22 @@ export function renderSetup(guide: Guide): string {
  * skills.css are inlined into the free skill's page too, which stays as it was.
  */
 /** The Insiders button for this page's skill set. The href is the cart token the API fills from Railway. */
-function insidersLink(guide: Guide): { label: string; href: string } {
+function guideSet(guide: Guide): SkillSet {
   const id = guide.skill ?? guide.grok;
   const row = SKILL_CATALOG.find((s) => s.id === id) ?? GROK_TEMPLATES.find((t) => t.id === id);
-  const sets: SkillSet = row?.sets === 'agent' || row?.sets === 'owner_ops' || row?.sets === 'both' ? row.sets : 'both';
-  const upsell = skillUpsell(sets);
+  return row?.sets === 'agent' || row?.sets === 'owner_ops' || row?.sets === 'both' ? row.sets : 'both';
+}
+
+/** The Insiders button for this page's skill set. The href is the cart token the API fills from Railway. */
+function insidersLink(guide: Guide): { label: string; href: string } {
+  const upsell = skillUpsell(guideSet(guide));
   return { label: upsell.label, href: token(`link:${upsell.cart}`) };
+}
+
+/** Owner, ops, and both keep the Insiders blurb. An agent skill names Agent Insiders. */
+function libraryBlurb(guide: Guide): string {
+  const l = SHARED.skillLibrary;
+  return guideSet(guide) === 'agent' ? l.agentInsiders.body : l.insiders.body;
 }
 
 function libraryCard(guide: Guide): string {
@@ -345,7 +355,7 @@ function libraryCard(guide: Guide): string {
     `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library>`,
     `<div class="locked">`,
     `<h2 id="library-heading">${esc(l.heading)}</h2>`,
-    `<p>${esc(plan.body)}</p>`,
+    `<p>${esc(libraryBlurb(guide))}</p>`,
     `<div class="form">`,
     `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
     `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,
@@ -404,7 +414,7 @@ function guidedCard(guide: Guide): string {
       `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library data-learn-guide="${esc(learn)}">`,
       `<div class="locked">`,
       `<h2 id="library-heading">${esc(l.heading)}</h2>`,
-      `<p>${esc(plan.body)}</p>`,
+      `<p>${esc(libraryBlurb(guide))}</p>`,
       `<div class="form">`,
       `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
       `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,

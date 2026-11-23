@@ -150,7 +150,8 @@ export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardP
       terms: [
         '2 months free. It counts in full toward the Amplified AI Accelerator.',
         'After your year, $169 a month unless you cancel with 30 days’ notice.',
-        'Or $169 a month from today, For Team Leaders, with a 3-Month Minimum. Monthly payments don’t count toward the Accelerator.',
+        'Or $169 a month from today, for team leaders, with a 3-Month Minimum. Monthly payments don’t count toward the Accelerator.',
+        'Or $79 a month for agents: every agent skill plus weekly office hours, 3-Month Minimum.',
       ],
     },
     button: 'Get Amplified Insiders',

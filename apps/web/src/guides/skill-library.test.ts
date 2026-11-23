@@ -95,9 +95,10 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
       expect(doc.querySelector('main.page')?.firstElementChild).toBe(card);
     }
     // Insiders opens every set. The card offers this skill for $37, or Insiders, then sign-in.
-    const plan = SHARED.skillLibrary[unlockFor(guide)];
+    const sets = entryFor(guide)?.sets ?? GROK_TEMPLATES.find((t) => t.id === guide.grok)?.sets;
+    const blurb = sets === 'agent' ? SHARED.skillLibrary.agentInsiders.body : SHARED.skillLibrary[unlockFor(guide)].body;
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
-    expect(text(card?.querySelector('h2 + p'))).toBe(plan.body);
+    expect(text(card?.querySelector('h2 + p'))).toBe(blurb);
     const top = card?.querySelector(':scope > .locked');
     const upsell = skillUpsell((entryFor(guide)?.sets ?? GROK_TEMPLATES.find((t) => t.id === guide.grok)?.sets ?? 'both') as 'agent' | 'owner_ops' | 'both');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);

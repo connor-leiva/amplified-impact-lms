@@ -340,6 +340,12 @@
 .aiw .in-plan.is-year {
   border-color: var(--signal);
 }
+.aiw .in-plan .plan-name {
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
 .aiw .in-plan .price-line {
   display: flex;
   flex-wrap: wrap;

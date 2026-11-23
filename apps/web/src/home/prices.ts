@@ -61,7 +61,7 @@ export const PRICES = {
   insiders: {
     /** $1,997 today for one year. */
     yearly: figure(OFFERS.membership.price.amount),
-    /** $169 a month, For Team Leaders. */
+    /** $169 a month, for team leaders. */
     monthly: figure(OFFERS.membership.more['insiders-monthly']),
   },
 } as const;

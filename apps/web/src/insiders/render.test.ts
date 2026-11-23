@@ -98,9 +98,10 @@ describe('/insiders', () => {
       [...monthlyFigure(c.more['insiders-monthly']!)],
       ['$79', 'a month'],
     ]);
+    expect(plans.map((p) => text($('.plan-name', p)))).toEqual(['Amplified Insiders', 'For Team Leaders', 'Amplified Insiders for Agents']);
     expect(plans.map((p) => $$('.checks li', p).map(text))).toEqual([
       [c.price.terms[0], c.price.terms[1]],
-      [c.price.terms[2]],
+      ['For Team Leaders.', '3-Month Minimum.', 'Every skill, plus weekly office hours.', 'Monthly payments don’t count toward the Accelerator.'],
       ['3-Month Minimum.', 'Every agent skill, plus weekly office hours.', 'No weekly live training.'],
     ]);
     // The monthly price is read out of the card's own line, not typed.

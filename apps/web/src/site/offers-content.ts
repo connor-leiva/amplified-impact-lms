@@ -56,6 +56,7 @@ export const AGENT_PLAN_MORE: Readonly<Record<string, string>> = { 'agent-yearly
 /** Agent Insiders, sold beside Team Leader Insiders. The insiders page reads this card, it does not retype it. */
 export const AGENT_INSIDERS = {
   cart: 'insiders-agent-monthly',
+  name: 'Amplified Insiders for Agents',
   amount: '$79',
   unit: 'a month',
   terms: ['3-Month Minimum.', 'Every agent skill, plus weekly office hours.', 'No weekly live training.'],
