@@ -5,11 +5,14 @@
 // bought through its Stripe Payment Link), so only the agreement's version is still shared.
 
 import { describe, expect, it } from 'vitest';
-import { AGREEMENT_VERSION } from '../src/billing/agreement';
-import { AGREEMENT_VERSION as WEB_AGREEMENT_VERSION } from '../../web/src/legal/agreement';
+import { AGREEMENT_EFFECTIVE, AGREEMENT_VERSION } from '../src/billing/agreement';
+import { AGREEMENT_EFFECTIVE as WEB_AGREEMENT_EFFECTIVE, AGREEMENT_VERSION as WEB_AGREEMENT_VERSION } from '../../web/src/legal/agreement';
 
 describe('the offer copy shared with the page (D-075)', () => {
   it('records the agreement version /agreement shows', () => {
+    expect(AGREEMENT_VERSION).toBe('2026-11-23');
     expect(WEB_AGREEMENT_VERSION).toBe(AGREEMENT_VERSION);
+    expect(AGREEMENT_EFFECTIVE).toEqual({ iso: '2026-11-23', label: 'November 23, 2026' });
+    expect(WEB_AGREEMENT_EFFECTIVE).toEqual(AGREEMENT_EFFECTIVE);
   });
 });
