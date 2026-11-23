@@ -258,11 +258,23 @@ describe('the learner portal v2’s Skill Library (D-179)', () => {
 });
 
 describe('the route’s other answers', () => {
-  it('answers 404 for a page that is not a guide, and 403 for staff', async () => {
+  it('answers 404 for a page that is not a guide', async () => {
     const cookie = await learner();
     expect((await guide('not-a-skill', cookie)).statusCode).toBe(404);
     expect((await guide('__proto__', cookie)).statusCode).toBe(404);
-    expect((await guide('appointment-follow-up', await app.signInAs('st1'))).statusCode).toBe(403);
+    expect((await guide('not-a-skill', await app.signInAs('st1'))).statusCode).toBe(404);
+  });
+
+  it('opens a free guide for staff and keeps a paid one locked, so the page does not say the skill is missing', async () => {
+    const cookie = await app.signInAs('st1');
+    const free = await guide('perfect-week', cookie);
+    expect(free.statusCode).toBe(200);
+    expect(free.json()).toMatchObject({ state: 'open', skill: 'perfect-week' });
+    expect(free.json().guide.lanes[0].steps[0].body).toEqual(['SECRET-PW-STEP-1 open Settings and switch it off.']);
+    const paid = await guide('appointment-follow-up', cookie);
+    expect(paid.statusCode).toBe(200);
+    expect(paid.json()).toMatchObject({ state: 'locked', guide: null, ui: null, accessGroups: [] });
+    expect(paid.body).not.toMatch(SECRET);
   });
 
   it('answers 503, with no guide, on a deploy whose build wrote no guides', async () => {
@@ -329,7 +341,8 @@ describe('a guide view is counted (D-166) @console', () => {
     expect((await guide('perfect-week', cookie)).statusCode).toBe(200);
     expect((await guide('appointment-follow-up', cookie)).statusCode).toBe(200);
     expect((await guide('not-a-skill', cookie)).statusCode).toBe(404);
-    expect((await guide('perfect-week', await app.signInAs('st1'))).statusCode).toBe(403);
+    // Staff open a free guide and are not counted: the row stays the learner's.
+    expect((await guide('perfect-week', await app.signInAs('st1'))).statusCode).toBe(200);
     expect(await usageRows()).toEqual([expect.objectContaining({ user_id: 'u_jamie', kind: 'guide_view', count: 2 })]);
   });
 

@@ -174,6 +174,14 @@ describe('the guided setup in learn (D-151)', () => {
     expect(screen.getByRole('link', { name: COPY.back })).toHaveAttribute('href', '/skill-library');
   });
 
+  it('does not call a real guide missing when the account cannot open the library', async () => {
+    fetchMock.mockResolvedValue(answer(403, { error: 'The skill library is for learners.' }));
+    at('ai-brain-tuneup');
+    expect(await screen.findByText(COPY.refused)).toBeInTheDocument();
+    expect(screen.queryByText(COPY.missing)).toBeNull();
+    expect(screen.getByRole('link', { name: COPY.back })).toHaveAttribute('href', '/skill-library');
+  });
+
   describe('Design\u2019s look check on PR 105', () => {
     it('puts the words first, then Copy & Open, for a line and a block alike', async () => {
       fetchMock.mockResolvedValue(answer(200, open));
