@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { adminStamp } from '@ai/core';
 import type { StaffNote } from '@ai/core';
 import { Button } from '../../components/r2/Button';
@@ -23,7 +23,7 @@ import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
 import { useMasqueradeEntry } from './useMasqueradeEntry';
 import { UserEmailsTab } from './RecordTabs';
-import { USER_COPY as C, USER_TABS, canReset, userVM } from './users.vm';
+import { REVIEW_SKILL_ROWS, USER_COPY as C, USER_TABS, canReset, userVM } from './users.vm';
 import type { UserTab, UserVM } from './users.vm';
 import { NONE } from './workspaces.vm';
 
@@ -37,6 +37,19 @@ import { NONE } from './workspaces.vm';
 // result is the R2 toast, or the app toaster's warning when it fails, as the shell's own Sign out does.
 
 type Order = UserVM['orders'][number];
+type SkillRow = UserVM['skillPurchases'][number];
+
+function SkillPurchases({ rows }: { rows: SkillRow[] }) {
+  if (!rows.length) return null;
+  const cols: Column<SkillRow>[] = [
+    { key: 'skill', label: C.skills.skill, width: 'minmax(160px,1.4fr)', value: (r) => r.skill },
+    { key: 'amt', label: C.skills.amount, num: true, width: '96px', value: (r) => r.amount },
+    { key: 'date', label: C.skills.date, width: '120px', noSort: true, value: (r) => r.date },
+    { key: 'session', label: C.skills.session, mono: true, width: 'minmax(140px,1.2fr)', value: (r) => r.session },
+    { key: 'refunded', label: C.skills.refunded, width: '120px', value: (r) => r.refunded },
+  ];
+  return <Table title={C.skills.label} label={C.skills.label} cols={cols} rows={rows} rowKey={(r) => r.key} empty={{ icon: 'r2Billing', title: C.skills.label }} />;
+}
 
 export function Component() {
   const { userId = '' } = useParams();
@@ -48,6 +61,7 @@ export function Component() {
   const api = gate.kind === 'ready' ? gate.api : null;
   const rec = useConsoleRecord(api, (a) => a.user(userId), userId);
   const vm = useMemo(() => (rec.data ? userVM(rec.data) : null), [rec.data]);
+  const [params] = useSearchParams();
   const [tab, setTab] = useState<UserTab>('orders');
   const [notes, setNotes] = useState<StaffNote[]>([]);
   const [confirm, setConfirm] = useState(false);
@@ -175,15 +189,18 @@ export function Component() {
         <div className={k.col}>
           <Tabs tabs={tabs} value={tab} onChange={setTab} phone={phone} label={C.sections} />
           {tab === 'orders' ? (
-            <Table
-              label={C.orders.label}
-              cols={orderCols}
-              rows={vm.orders}
-              rowKey={(o) => o.key}
-              rowHref={(o) => o.href ?? ''}
-              onRow={(o) => (o.href ? navigate(o.href) : undefined)}
-              empty={{ icon: 'r2Billing', title: C.orders.empty }}
-            />
+            <>
+              <Table
+                label={C.orders.label}
+                cols={orderCols}
+                rows={vm.orders}
+                rowKey={(o) => o.key}
+                rowHref={(o) => o.href ?? ''}
+                onRow={(o) => (o.href ? navigate(o.href) : undefined)}
+                empty={{ icon: 'r2Billing', title: C.orders.empty }}
+              />
+              <SkillPurchases rows={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills' ? REVIEW_SKILL_ROWS : vm.skillPurchases} />
+            </>
           ) : null}
           {tab === 'progress' ? (
             <Card pad={false}>

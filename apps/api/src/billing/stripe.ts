@@ -89,6 +89,8 @@ export interface BillingStripe {
     customerEmail: string | null;
     metadata: Record<string, string>;
     idempotencyKey: string;
+    /** Ask Checkout for the buyer's name. Guest skill checkout turns this on. */
+    collectName?: boolean;
   }): Promise<{ id: string; url: string }>;
 }
 
@@ -210,6 +212,7 @@ export function stripeClient(secretKey: string): BillingStripe {
           cancel_url: input.cancelUrl,
           client_reference_id: input.clientReferenceId,
           ...(input.customerEmail ? { customer_email: input.customerEmail } : {}),
+          ...(input.collectName ? { name_collection: { individual: { enabled: true, optional: false } } } : {}),
           metadata: input.metadata,
           automatic_tax: { enabled: true },
         },

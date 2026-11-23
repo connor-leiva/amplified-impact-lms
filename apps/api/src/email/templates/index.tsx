@@ -53,6 +53,7 @@ import { Session1hEmail } from './session-1h';
 import { Session24hEmail } from './session-24h';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
+import { SkillPurchaseEmail } from './skill-purchase';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
@@ -249,6 +250,29 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     case 'weekly-digest': {
       const subject = SUBJECTS['weekly-digest']({});
       return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={optStr(data, 'before')} /> };
+    }
+
+    case 'skill-purchase': {
+      const skillName = str(template, data, 'skillName');
+      const variant = str(template, data, 'variant');
+      if (variant !== 'new' && variant !== 'ready') throw bad(template, 'variant', 'must be new or ready');
+      const next = safeNext(str(template, data, 'next'));
+      if (!next) throw bad(template, 'next', 'must be a skill guide');
+      const subject = SUBJECTS['skill-purchase']({ skillName, variant });
+      return {
+        subject,
+        element: (
+          <SkillPurchaseEmail
+            subject={subject}
+            variant={variant}
+            skillName={skillName}
+            firstName={optStr(data, 'firstName') ?? ''}
+            next={next}
+            token={optStr(data, 'token')}
+            appUrl={appUrl}
+          />
+        ),
+      };
     }
 
     default: {

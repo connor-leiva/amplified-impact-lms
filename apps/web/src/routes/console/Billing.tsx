@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { SEAT_TIER_GATED } from '@ai/core';
 import type { BillingActionResult, ConsoleCap } from '@ai/core';
 import { Button } from '../../components/r2/Button';
@@ -33,6 +33,7 @@ import {
   refundVM,
   subscriptionVM,
 } from './billing.vm';
+import { REVIEW_SKILL_ROWS } from './users.vm';
 import type {
   ActionTarget,
   BillingSummaryVM,
@@ -60,6 +61,7 @@ const stripe = (url: string | null): MenuEntry[] =>
 
 export function Component() {
   const { tab: raw } = useParams();
+  const [params] = useSearchParams();
   const tab: BillingTab | null = raw === undefined ? 'summary' : isBillingTab(raw) && raw !== 'summary' ? raw : null;
   const gate = useConsoleGate('billing');
   const navigate = useNavigate();
@@ -111,7 +113,7 @@ export function Component() {
         summary.status === 'error' && summary.failure ? (
           <LoadError failure={summary.failure} detail={summary.detail} retry={summary.retry} />
         ) : (
-          <Summary vm={vm} />
+          <Summary vm={vm} review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'} />
         )
       ) : api ? (
         <List key={tab} kind={tab} api={api} can={can} version={version} act={setActing} open={(href) => navigate(href)} />
@@ -123,7 +125,7 @@ export function Component() {
   );
 }
 
-function Summary({ vm }: { vm: BillingSummaryVM | null }) {
+function Summary({ vm, review }: { vm: BillingSummaryVM | null; review: boolean }) {
   const cols: Column<PlanRowVM>[] = [
     {
       key: 'plan',
@@ -183,8 +185,21 @@ function Summary({ vm }: { vm: BillingSummaryVM | null }) {
       ) : (
         <Skel />
       )}
+      <SkillPurchases rows={review ? REVIEW_SKILL_ROWS : (vm?.skillPurchases ?? [])} />
     </>
   );
+}
+
+function SkillPurchases({ rows }: { rows: BillingSummaryVM['skillPurchases'] }) {
+  if (!rows.length) return null;
+  const cols: Column<BillingSummaryVM['skillPurchases'][number]>[] = [
+    { key: 'skill', label: C.skills.skill, width: 'minmax(160px,1.4fr)', value: (r) => r.skill },
+    { key: 'amt', label: C.skills.amount, num: true, width: '96px', value: (r) => r.amount },
+    { key: 'date', label: C.skills.date, width: '120px', noSort: true, value: (r) => r.date },
+    { key: 'session', label: C.skills.session, mono: true, width: 'minmax(140px,1.2fr)', value: (r) => r.session },
+    { key: 'refunded', label: C.skills.refunded, width: '120px', value: (r) => r.refunded },
+  ];
+  return <Table title={C.skills.title} label={C.skills.title} cols={cols} rows={rows} rowKey={(r) => r.key} empty={{ icon: 'r2Billing', title: C.skills.title }} />;
 }
 
 const status = (s: { label: string; tone: Parameters<typeof Status>[0]['tone'] }) => (

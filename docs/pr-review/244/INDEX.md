@@ -14,3 +14,11 @@ Playwright captures. Decode with `base64 -d file.png.b64 > file.png`.
 | `interstitial-390.png.b64` | The same interstitial | 390 |
 | `utah-life-1280.png.b64` | Utah Life locked row, no buy button | 1280 |
 | `utah-life-390.png.b64` | The same Utah Life library | 390 |
+| `email-new-1280.png.b64` | Thank You for Buying, new account | 1280 |
+| `email-new-390.png.b64` | The same email | 390 |
+| `email-ready-1280.png.b64` | Your New Skill Is Ready, existing account | 1280 |
+| `email-ready-390.png.b64` | The same email | 390 |
+| `user-skills-1280.png.b64` | Admin user detail, Skill Purchases | 1280 |
+| `user-skills-390.png.b64` | The same user detail | 390 |
+| `billing-skills-1280.png.b64` | Admin billing summary, Skill Purchases | 1280 |
+| `billing-skills-390.png.b64` | The same billing summary | 390 |

@@ -205,17 +205,18 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
 /**
  * `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
  *
- * A session with no `ai_plan` is ignored. That includes the stopgap single-skill Payment Link,
- * whose only clue is a `skill` dropdown (the skill id with the hyphens removed) and which carries
- * no `ai_plan`. It must not become a plan and it must not become a `skill_purchases` row. Those
- * buyers are backfilled by hand, after the fact.
+ * A session with no `ai_plan` is ignored, unless it is a single-skill Payment Link: those carry
+ * `offer=single_skill_37` and a `skill` dropdown (the skill id with the hyphens removed). A link
+ * with neither is still ignored, and is not a plan and not a purchase.
  */
 async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookDeps, db: Database): Promise<string> {
   const now = deps.now();
-  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN) {
+  const offer = session.metadata?.offer ?? '';
+  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN || offer === 'single_skill_37') {
     return skillCheckoutCompleted(session, db, now, deps.log, {
       invitesFrom: deps.config.invitesFrom,
       invitesEnabled: deps.config.invitesEnabled,
+      skillGuestCheckout: deps.config.skillGuestCheckout,
     });
   }
   const plan = session.metadata?.ai_plan ?? '';

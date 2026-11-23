@@ -88,6 +88,8 @@ export interface ProvisionOptions {
   inviteNow?: boolean;
   /** A skill guide to open after the buyer sets a password. Only `/skill-library/<page>`. */
   skillGuide?: string;
+  /** The branded skill email is sent by the caller, so this does not send Set Your Password. */
+  skipInvite?: boolean;
 }
 
 export async function provisionOrder(orderId: string, options: ProvisionOptions): Promise<ProvisionOutcome> {
@@ -229,7 +231,7 @@ export async function provisionSkillBuyer(
   emailRaw: string,
   name: string,
   options: ProvisionOptions,
-): Promise<{ ok: true; userId: string; invite: 'sent' | 'already' } | { ok: false; reason: 'staff-email' | 'member-of-another-team' }> {
+): Promise<{ ok: true; userId: string; invite: 'sent' | 'already'; created: boolean } | { ok: false; reason: 'staff-email' | 'member-of-another-team' }> {
   const db = options.db ?? getDb();
   const email = emailRaw.trim().toLowerCase();
   let sends: PendingSend[] = [];
@@ -266,7 +268,11 @@ export async function provisionSkillBuyer(
 
     let invite: 'sent' | 'already' = 'already';
     const user = owner.db.users.find((u) => u.id === owner.userId);
-    if (account && account.inviteSentAt === null && user?.status === 'invited' && options.invitesEnabled !== false && (options.now >= options.invitesFrom || options.inviteNow)) {
+    if (options.skipInvite) {
+      if (account && account.inviteSentAt === null && user?.status === 'invited') {
+        await tx.update(accounts).set({ inviteSentAt: options.now }).where(eq(accounts.id, account.id));
+      }
+    } else if (account && account.inviteSentAt === null && user?.status === 'invited' && options.invitesEnabled !== false && (options.now >= options.invitesFrom || options.inviteNow)) {
       const effect: Effect = {
         type: 'email',
         template: 'set-password',
@@ -277,7 +283,7 @@ export async function provisionSkillBuyer(
       await tx.update(accounts).set({ inviteSentAt: options.now }).where(eq(accounts.id, account.id));
       invite = 'sent';
     }
-    return { ok: true as const, userId: owner.userId, invite };
+    return { ok: true as const, userId: owner.userId, invite, created: owner.createdUser };
   });
   if (sends.length) await dispatchEffects(sends, options.log as never);
   return outcome;

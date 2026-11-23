@@ -114,8 +114,8 @@ export const DELIVERY_STATUS_LABELS: Readonly<Record<DeliveryStatus, string>> = 
 };
 
 /** A CRM sync row's kind, as the CRM sync log names it (`routes/crm-sync.ts`). */
-export type GhlRetryKind = 'waitlist' | 'order' | 'login';
-export const GHL_RETRY_KINDS: readonly GhlRetryKind[] = ['waitlist', 'order', 'login'];
+export type GhlRetryKind = 'waitlist' | 'order' | 'login' | 'skill';
+export const GHL_RETRY_KINDS: readonly GhlRetryKind[] = ['waitlist', 'order', 'login', 'skill'];
 export const isGhlRetryKind = (v: unknown): v is GhlRetryKind => typeof v === 'string' && (GHL_RETRY_KINDS as readonly string[]).includes(v);
 
 export interface WebhookDelivery {

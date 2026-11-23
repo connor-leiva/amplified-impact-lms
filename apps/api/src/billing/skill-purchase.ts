@@ -4,16 +4,21 @@
 // retried event cannot grant it twice. A payment after a refund reopens that row. A full refund sets
 // `refunded_at`. Nothing here creates an order or a plan, and nothing is credited toward Insiders.
 
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import type Stripe from 'stripe';
-import { accounts, skillPurchases, users } from '../db/schema';
+import { SKILL_CATALOG } from '@ai/core/skills';
+import { guidePageOf } from '@ai/core/skill-guides';
+import { expiryFor, hashToken, mintToken } from '../auth';
+import { accounts, authTokens, skillPurchases, skills, users } from '../db/schema';
 import type { Database } from '../db/client';
+import { audit } from '../console/audit';
+import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
+import type { PendingSend } from '../routes/mutate';
 import { randomIds } from '../lib/clock';
 import { groupsOf } from './access-groups';
 import { SKILL_AI_OPTION, SKILL_AI_PLAN } from './catalog';
 import { provisionSkillBuyer } from './provision';
 import type { ProvisionOptions } from './provision';
-import { guidePageOf } from '@ai/core/skill-guides';
 
 export interface SkillPurchaseLog {
   info(obj: Record<string, unknown>, msg: string): void;
@@ -56,12 +61,12 @@ export async function skillCheckoutCompleted(
   db: Database,
   now: number,
   log: SkillPurchaseLog,
-  provision?: Pick<ProvisionOptions, 'invitesFrom' | 'invitesEnabled' | 'inviteNow'>,
+  provision?: Pick<ProvisionOptions, 'invitesFrom' | 'invitesEnabled' | 'inviteNow'> & { skillGuestCheckout?: boolean },
 ): Promise<string> {
   const meta = session.metadata ?? {};
+  if (meta.offer === SKILL_GUEST_OFFER && !(meta.user_id ?? '').trim()) return guestSkillPurchase(session, db, now, log, provision);
   if (meta.ai_plan !== SKILL_AI_PLAN) return 'ignored:not-skill';
   if (meta.ai_option !== SKILL_AI_OPTION) return 'ignored:skill-option';
-  if (meta.offer === SKILL_GUEST_OFFER && !(meta.user_id ?? '').trim()) return guestSkillPurchase(session, db, now, log, provision);
   const skillId = (meta.skill_id ?? '').trim();
   const userId = (meta.user_id ?? session.client_reference_id ?? '').trim();
   if (!skillId || !userId || !session.id) {
@@ -69,14 +74,15 @@ export async function skillCheckoutCompleted(
     return 'ignored:skill-incomplete';
   }
   if (session.payment_status !== 'paid') return 'awaiting-payment';
-  const [buyer] = await db.select({ id: users.id, kind: users.kind }).from(users).where(eq(users.id, userId)).limit(1);
+  const [buyer] = await db.select({ id: users.id, kind: users.kind, email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
   if (!buyer || buyer.kind !== 'learner') {
     log.error({ session: session.id, user: userId }, 'a skill checkout matched no learner: Connor follows up');
     return 'ignored:skill-no-user';
   }
 
-  return recordPurchase(db, {
+  const recorded = await recordPurchase(db, {
     userId,
+    email: buyer.email,
     skillId,
     sessionId: session.id,
     paymentIntentId: idOf(session.payment_intent as string | { id: string } | null),
@@ -84,16 +90,19 @@ export async function skillCheckoutCompleted(
     now,
     log,
   });
+  if (recorded === 'purchased' || recorded === 'repurchased') await auditSkill(skillId, session.id);
+  return recorded;
 }
 
 async function recordPurchase(
   db: Database,
-  input: { userId: string; skillId: string; sessionId: string; paymentIntentId: string | null; amount: number | null; now: number; log: SkillPurchaseLog },
+  input: { userId: string | null; email: string | null; skillId: string; sessionId: string; paymentIntentId: string | null; amount: number | null; now: number; log: SkillPurchaseLog },
 ): Promise<'purchased' | 'duplicate' | 'already-owned' | 'repurchased'> {
   const row = {
     id: randomIds()('skp'),
     userId: input.userId,
-    accountId: await accountIdOf(db, input.userId),
+    email: input.email,
+    accountId: input.userId ? await accountIdOf(db, input.userId) : null,
     skillId: input.skillId,
     orderId: null,
     stripeSessionId: input.sessionId,
@@ -108,14 +117,10 @@ async function recordPurchase(
     return 'duplicate';
   } catch (err) {
     if (!uniqueViolation(err)) throw err;
-    const [owned] = await db
-      .select()
-      .from(skillPurchases)
-      .where(and(eq(skillPurchases.userId, input.userId), eq(skillPurchases.skillId, input.skillId)))
-      .limit(1);
+    const owned = await ownedRow(db, input.userId, input.email, input.skillId);
     if (!owned) throw err;
     if (owned.refundedAt === null) {
-      input.log.warn({ session: input.sessionId, user: input.userId, skill: input.skillId }, 'a skill was paid for twice: the first purchase stands, Connor follows up');
+      input.log.warn({ session: input.sessionId, skill: input.skillId }, 'a skill was paid for twice: the first purchase stands, Connor follows up');
       return 'already-owned';
     }
     await db
@@ -127,22 +132,58 @@ async function recordPurchase(
         amount: row.amount,
         purchasedAt: row.purchasedAt,
         accountId: row.accountId ?? owned.accountId,
+        email: row.email ?? owned.email,
+        ghlSyncedAt: null,
       })
       .where(eq(skillPurchases.id, owned.id));
     return 'repurchased';
   }
 }
 
-/** A signed-out $37 checkout. The buyer is found or created by the email Stripe collected. */
+async function ownedRow(db: Database, userId: string | null, email: string | null, skillId: string) {
+  if (userId) {
+    const [row] = await db.select().from(skillPurchases).where(and(eq(skillPurchases.userId, userId), eq(skillPurchases.skillId, skillId))).limit(1);
+    return row ?? null;
+  }
+  if (!email) return null;
+  const [row] = await db
+    .select()
+    .from(skillPurchases)
+    .where(and(isNull(skillPurchases.userId), eq(skillPurchases.skillId, skillId), sql`lower(${skillPurchases.email}) = ${email}`))
+    .limit(1);
+  return row ?? null;
+}
+
+/** The Payment Link dropdown stores the skill id with the hyphens removed (`team-pnl-review` → `teampnlreview`). */
+export function skillIdOfCompact(value: string): string | null {
+  const compact = value.trim().toLowerCase();
+  if (!compact) return null;
+  return SKILL_CATALOG.find((s) => s.id.replace(/-/g, '') === compact)?.id ?? null;
+}
+
+function customSkill(session: Stripe.Checkout.Session): string | null {
+  for (const field of session.custom_fields ?? []) {
+    if (field.key !== 'skill') continue;
+    const value = field.dropdown?.value ?? field.text?.value ?? '';
+    return skillIdOfCompact(value);
+  }
+  return null;
+}
+
+function buyerName(session: Stripe.Checkout.Session): string {
+  return (session.customer_details?.name ?? '').trim();
+}
+
+/** A signed-out $37 checkout, including the stopgap Payment Link once it carries `offer=single_skill_37`. */
 async function guestSkillPurchase(
   session: Stripe.Checkout.Session,
   db: Database,
   now: number,
   log: SkillPurchaseLog,
-  provision: Pick<ProvisionOptions, 'invitesFrom' | 'invitesEnabled' | 'inviteNow'> | undefined,
+  provision: (Pick<ProvisionOptions, 'invitesFrom' | 'invitesEnabled' | 'inviteNow'> & { skillGuestCheckout?: boolean }) | undefined,
 ): Promise<string> {
   const meta = session.metadata ?? {};
-  const skillId = (meta.skill_id ?? '').trim();
+  const skillId = (meta.skill_id ?? '').trim() || customSkill(session) || '';
   const email = (session.customer_details?.email ?? session.customer_email ?? '').trim().toLowerCase();
   if (!skillId || !session.id) {
     log.error({ session: session.id }, 'a guest skill checkout had no skill: Connor follows up');
@@ -157,25 +198,30 @@ async function guestSkillPurchase(
     log.warn({ session: session.id, skill: skillId }, 'a guest skill checkout matched an access group: nothing was granted');
     return 'ignored:skill-group';
   }
-  if (!provision) {
-    log.error({ session: session.id }, 'a guest skill checkout had no invite settings: Connor follows up');
-    return 'ignored:skill-no-provision';
-  }
-  const made = await provisionSkillBuyer(email, session.customer_details?.name ?? '', {
-    db,
-    log,
-    now,
-    invitesFrom: provision.invitesFrom,
-    invitesEnabled: provision.invitesEnabled,
-    inviteNow: provision.inviteNow,
-    skillGuide: `/skill-library/${guidePageOf(skillId)}`,
-  });
-  if (!made.ok) {
-    log.error({ session: session.id, skill: skillId, reason: made.reason }, 'a guest skill buyer was not provisioned: Connor follows up');
-    return `ignored:skill-${made.reason}`;
+  const open = provision?.skillGuestCheckout === true;
+  let userId: string | null = null;
+  let created = false;
+  if (open) {
+    if (!provision) return 'ignored:skill-no-provision';
+    const made = await provisionSkillBuyer(email, buyerName(session), {
+      db,
+      log,
+      now,
+      invitesFrom: provision.invitesFrom,
+      invitesEnabled: provision.invitesEnabled,
+      inviteNow: provision.inviteNow,
+      skipInvite: true,
+    });
+    if (!made.ok) {
+      log.error({ session: session.id, skill: skillId, reason: made.reason }, 'a guest skill buyer was not provisioned: Connor follows up');
+      return `ignored:skill-${made.reason}`;
+    }
+    userId = made.userId;
+    created = made.created;
   }
   const recorded = await recordPurchase(db, {
-    userId: made.userId,
+    userId,
+    email,
     skillId,
     sessionId: session.id,
     paymentIntentId: idOf(session.payment_intent as string | { id: string } | null),
@@ -183,7 +229,36 @@ async function guestSkillPurchase(
     now,
     log,
   });
-  return recorded === 'purchased' || recorded === 'repurchased' ? `${recorded}:${made.invite}` : recorded;
+  if (recorded === 'purchased' || recorded === 'repurchased') {
+    await auditSkill(skillId, session.id);
+    if (open) await sendSkillEmail(db, email, buyerName(session), skillId, created, now, log);
+  }
+  return open && (recorded === 'purchased' || recorded === 'repurchased') ? `${recorded}:${created ? 'new' : 'ready'}` : recorded;
+}
+
+async function sendSkillEmail(db: Database, email: string, name: string, skillId: string, created: boolean, now: number, log: SkillPurchaseLog): Promise<void> {
+  const [skill] = await db.select({ title: skills.title }).from(skills).where(eq(skills.id, skillId)).limit(1);
+  const skillName = skill?.title ?? SKILL_CATALOG.find((s) => s.id === skillId)?.title ?? skillId;
+  const next = `/skill-library/${guidePageOf(skillId)}`;
+  const first = name.trim().split(/\s+/).filter(Boolean)[0] ?? '';
+  const variant = created ? 'new' : 'ready';
+  let token: string | undefined;
+  if (variant === 'new') {
+    token = mintToken();
+    await db.insert(authTokens).values({ tokenHash: hashToken(token), email, purpose: 'set_password', expiresAt: expiryFor('set_password', now) });
+  }
+  const pending: PendingSend = { template: 'skill-purchase', to: email, data: { skillName, variant, firstName: first, next, ...(token ? { token } : {}) } };
+  const sends = await pendingSendsFor(db, [{ type: 'email', template: 'skill-purchase', to: [email], data: pending.data }], now, log as never);
+  await dispatchEffects(sends, log as never);
+}
+
+async function auditSkill(skillId: string, sessionId: string): Promise<void> {
+  await audit(null, {
+    action: 'skill.purchase',
+    outcome: 'ok',
+    actor: { source: 'system', role: 'stripe' },
+    target: { type: 'skill', id: skillId, label: sessionId },
+  });
 }
 
 /** `charge.refunded` for a skill purchase. Null when this charge is not one. */
@@ -191,6 +266,14 @@ export async function refundSkillPurchase(paymentIntentId: string | null, db: Da
   if (!paymentIntentId) return null;
   const [row] = await db.select().from(skillPurchases).where(eq(skillPurchases.stripePaymentIntentId, paymentIntentId)).limit(1);
   if (!row) return null;
-  if (row.refundedAt === null) await db.update(skillPurchases).set({ refundedAt: now }).where(eq(skillPurchases.id, row.id));
+  if (row.refundedAt === null) {
+    await db.update(skillPurchases).set({ refundedAt: now, ghlSyncedAt: null }).where(eq(skillPurchases.id, row.id));
+    await audit(null, {
+      action: 'skill.refund',
+      outcome: 'ok',
+      actor: { source: 'system', role: 'stripe' },
+      target: { type: 'skill', id: row.skillId, label: row.id },
+    });
+  }
   return 'skill-refunded';
 }

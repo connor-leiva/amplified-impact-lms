@@ -113,6 +113,15 @@ export const USER_COPY = {
     date: 'Date',
     empty: 'No orders for this user',
   },
+  skills: {
+    label: 'Skill Purchases',
+    skill: 'Skill',
+    amount: 'Amount',
+    date: 'Date',
+    session: 'Session',
+    refunded: 'Refunded',
+    open: 'Open',
+  },
   progress: { empty: 'No builds started yet', deployed: 'Deployed', building: 'In progress', none: 'Not started' },
   noActivity: 'No activity yet',
   identity: {
@@ -147,6 +156,11 @@ export function signInOf(i: ConsoleUserDetail['identity']): string {
  * Whether the viewer may send this user a password reset (spec § 7.4): `user.password_reset`, and a
  * staff member's only by the Owner.
  */
+/** Fixture screenshots only. Production never reads this. */
+export const REVIEW_SKILL_ROWS = [
+  { key: 'skp_review', skill: 'Team P&L Review', amount: '$37.00', date: 'Nov 23, 2026', session: 'cs_review_skill', refunded: 'Open' },
+];
+
 export const canReset = (role: string | null, target: ConsoleUserDetail['user']): boolean =>
   consoleCan(role, 'user.password_reset') && (target.kind !== 'staff' || role === 'Owner');
 
@@ -171,6 +185,14 @@ export interface UserVM {
     date: string;
     at: number;
     href: string | null;
+  }[];
+  skillPurchases: {
+    key: string;
+    skill: string;
+    amount: string;
+    date: string;
+    session: string;
+    refunded: string;
   }[];
   progress: { key: string; name: string; status: AdminStatus }[];
   activity: { key: string; text: string; when: string }[];
@@ -211,6 +233,14 @@ export function userVM(d: ConsoleUserDetail): UserVM {
       date: adminDate(o.createdAt),
       at: o.createdAt,
       href: o.accountId && u.teamId ? workspacePath(u.teamId) : null,
+    })),
+    skillPurchases: (d.skillPurchases ?? []).map((p) => ({
+      key: p.id,
+      skill: p.skill,
+      amount: p.amount === null ? NONE : usdCents(p.amount),
+      date: adminDate(p.purchasedAt),
+      session: p.stripeSessionId,
+      refunded: p.refundedAt === null ? USER_COPY.skills.open : adminDate(p.refundedAt),
     })),
     progress: d.progress.map((p) => ({
       key: p.moduleId,

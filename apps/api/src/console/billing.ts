@@ -22,7 +22,7 @@
 // `stripe_permission_missing` naming it. Stripe failing otherwise: 502 `stripe_unavailable`.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
@@ -61,7 +61,7 @@ import type { PriceCache } from '../billing/prices';
 import { cohortSeatsSold, countedCohortSeat } from '../billing/provision';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
-import { accounts, auditLog, orders, plans, teams, users } from '../db/schema';
+import { accounts, auditLog, orders, plans, skillPurchases, skills, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { consoleError, requireConsole } from './guard';
 import { decodeCursor, encodeCursor } from './records';
@@ -189,7 +189,35 @@ export async function billingSummary(db: Database, stripe: ConsoleStripe, prices
     readAll((after) => stripe.listRefunds({ limit: 100, startingAfter: after, createdGte: Math.floor((now - 30 * DAY) / 1000) }), (r) => r.id),
     acceleratorFromDb(db),
   ]);
-  return buildBillingSummary({ asOf: now, subscriptions, openInvoices: open, refunds, prices, accelerator });
+  const summary = buildBillingSummary({ asOf: now, subscriptions, openInvoices: open, refunds, prices, accelerator });
+  summary.skillPurchases = await recentSkillPurchases(db);
+  return summary;
+}
+
+async function recentSkillPurchases(db: Database): Promise<BillingSummary['skillPurchases']> {
+  const rows = await db
+    .select({
+      id: skillPurchases.id,
+      skillId: skillPurchases.skillId,
+      title: skills.title,
+      amount: skillPurchases.amount,
+      purchasedAt: skillPurchases.purchasedAt,
+      stripeSessionId: skillPurchases.stripeSessionId,
+      refundedAt: skillPurchases.refundedAt,
+    })
+    .from(skillPurchases)
+    .leftJoin(skills, eq(skills.id, skillPurchases.skillId))
+    .orderBy(desc(skillPurchases.purchasedAt))
+    .limit(20);
+  return rows.map((r) => ({
+    id: r.id,
+    skillId: r.skillId,
+    skill: r.title ?? r.skillId,
+    amount: r.amount,
+    purchasedAt: r.purchasedAt,
+    stripeSessionId: r.stripeSessionId,
+    refundedAt: r.refundedAt,
+  }));
 }
 
 // --- paging ---------------------------------------------------------------------------------------

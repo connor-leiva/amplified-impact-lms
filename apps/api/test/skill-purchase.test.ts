@@ -74,10 +74,12 @@ const post = (url: string, cookie?: string) =>
     headers: { origin: APP_URL, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) },
   });
 
-async function deliver(id: string, type: string, object: Record<string, unknown>): Promise<string> {
+async function deliver(id: string, type: string, object: Record<string, unknown>, guest = false): Promise<string> {
+  const config = readOfferConfig();
+  if (guest) config.skillGuestCheckout = true;
   return handleStripeEvent({ id, object: 'event', type, data: { object } } as unknown as Stripe.Event, {
     stripe: null,
-    config: readOfferConfig(),
+    config,
     prices: { get: async () => null } as never,
     log,
     now: () => NOW,
@@ -228,9 +230,28 @@ describe('the webhook and access', () => {
       metadata: { skill_id: 'team-pnl-review', ai_plan: 'skill', ai_option: 'single', offer: 'single_skill_37' },
     });
     expect(sessions[0]!.metadata).not.toHaveProperty('user_id');
+    expect(sessions[0]!.collectName).toBe(true);
   });
 
-  it('creates the learner from the email Stripe collected, and a second delivery does nothing', async () => {
+  it('stores a signed-out purchase by email, and sends nothing, while guest checkout is off', async () => {
+    const session = {
+      id: 'cs_test_guest',
+      object: 'checkout.session',
+      payment_status: 'paid',
+      amount_total: 3700,
+      payment_intent: 'pi_guest',
+      customer_details: { email: 'Buyer@Example.com', name: 'Buyer Example' },
+      metadata: { offer: 'single_skill_37' },
+      custom_fields: [{ key: 'skill', type: 'dropdown', dropdown: { value: 'teampnlreview' } }],
+    };
+    expect(await deliver('evt_guest', 'checkout.session.completed', session)).toBe('purchased');
+    expect(await db.select().from(users).where(eq(users.email, 'buyer@example.com'))).toEqual([]);
+    const [row] = await db.select().from(skillPurchases);
+    expect(row).toMatchObject({ userId: null, email: 'buyer@example.com', skillId: 'team-pnl-review', stripeSessionId: 'cs_test_guest' });
+    expect(outboxFor({ to: 'buyer@example.com' })).toEqual([]);
+  });
+
+  it('creates the learner and sends the branded email only when guest checkout is on', async () => {
     const session = {
       id: 'cs_test_guest',
       object: 'checkout.session',
@@ -240,17 +261,30 @@ describe('the webhook and access', () => {
       customer_details: { email: 'Buyer@Example.com', name: 'Buyer Example' },
       metadata: { ai_plan: 'skill', ai_option: 'single', skill_id: 'team-pnl-review', offer: 'single_skill_37' },
     };
-    expect(await deliver('evt_guest', 'checkout.session.completed', session)).toBe('purchased:sent');
+    expect(await deliver('evt_guest', 'checkout.session.completed', session, true)).toBe('purchased:new');
     const [buyer] = await db.select().from(users).where(eq(users.email, 'buyer@example.com'));
     expect(buyer).toMatchObject({ kind: 'learner', status: 'invited' });
     const rows = await db.select().from(skillPurchases).where(eq(skillPurchases.userId, buyer!.id));
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ skillId: 'team-pnl-review', stripeSessionId: 'cs_test_guest', refundedAt: null, orderId: null });
-    const [mail] = outboxFor({ to: 'buyer@example.com', template: 'set-password' });
+    const [mail] = outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' });
+    expect(mail?.subject).toBe('Thank You for Buying Team P&L Review');
+    expect(mail?.html).toContain('Thank you, Buyer.');
+    expect(mail?.html).toContain('Set Your Password');
     expect(mail?.html).toContain('next=%2Fskill-library%2Fteam-pnl-review');
-    expect(await deliver('evt_guest_again', 'checkout.session.completed', session)).toBe('duplicate');
-    expect(await db.select().from(skillPurchases)).toHaveLength(1);
-    expect(outboxFor({ to: 'buyer@example.com', template: 'set-password' })).toHaveLength(1);
+    expect(outboxFor({ to: 'buyer@example.com', template: 'set-password' })).toEqual([]);
+    expect(await deliver('evt_guest_again', 'checkout.session.completed', session, true)).toBe('duplicate');
+    expect(outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' })).toHaveLength(1);
+
+    const again = {
+      ...session,
+      id: 'cs_test_guest_2',
+      payment_intent: 'pi_guest_2',
+      metadata: { ...session.metadata, skill_id: 'appointment-follow-up' },
+    };
+    expect(await deliver('evt_guest_ready', 'checkout.session.completed', again, true)).toBe('purchased:ready');
+    const [ready] = outboxFor({ to: 'buyer@example.com', template: 'skill-purchase' }).slice(-1);
+    expect(ready?.subject).toBe('Your New Skill Is Ready');
+    expect(ready?.html).toContain('>Sign In<');
   });
 
   it('does not grant a skill or create an account when the email is an access group', async () => {

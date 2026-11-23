@@ -68,6 +68,7 @@ export function registerSkillCheckoutRoutes(app: FastifyInstance, options: Skill
       customerEmail: null,
       metadata: { skill_id: skill.id, ai_plan: SKILL_AI_PLAN, ai_option: SKILL_AI_OPTION, offer: SKILL_GUEST_OFFER },
       idempotencyKey: `skill-guest-${skill.id}-${randomUUID()}`,
+      collectName: true,
     });
     return reply.redirect(session.url, 302);
   });

@@ -344,6 +344,7 @@ export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetai
       hasGoogle: IDENTITY.google,
     },
     orders: r.orders.filter((o) => u.teamId !== null && o.accountId === `acct_${u.teamId}`),
+    skillPurchases: [],
     // The mockup's `pr`: how many of its builds this learner has deployed.
     progress: mock
       ? ['m1', 'm2', 'm3', 'm4', 'm5'].slice(0, mock.of).map((id, i) => ({

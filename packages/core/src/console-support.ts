@@ -150,6 +150,16 @@ export interface ConsolePlan {
   createdAt: number;
 }
 
+export interface ConsoleSkillPurchase {
+  id: string;
+  skillId: string;
+  skill: string;
+  amount: number | null;
+  purchasedAt: number;
+  stripeSessionId: string;
+  refundedAt: number | null;
+}
+
 export interface ConsoleOrder {
   id: string;
   plan: PlanKind;
@@ -323,6 +333,8 @@ export interface ConsoleUserDetail {
   };
   identity: ConsoleIdentity;
   orders: ConsoleOrder[];
+  /** $37 skill purchases for this person. Empty when they have bought none. */
+  skillPurchases: ConsoleSkillPurchase[];
   progress: ConsoleProgress[];
   entitlements: ConsoleEntitlements;
 }
