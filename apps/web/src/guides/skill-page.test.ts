@@ -461,7 +461,7 @@ describe('a paid skill’s page (D-082, D-101)', () => {
     const top = card?.querySelector(':scope > .locked');
     const links = [...(top?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
     expect(links).toEqual([
-      ['Get This Skill, $37', 'https://buy.stripe.com/8x200k71d8kCbWJ5oN73G0f', 'btn btn-primary', null],
+      ['Get This Skill, $37', 'https://learn.amplifiedimpact.io/api/skills/made-up-paid-skill/guest-checkout', 'btn btn-primary', null],
       ['Unlock Every Skill With Amplified Insiders, $197/Month', 'https://buy.stripe.com/aFadRa0CPgR80e1aJ773G07', 'btn btn-primary', null],
       ['Sign In', skillGuideUrl('made-up-paid-skill'), null, null],
     ]);

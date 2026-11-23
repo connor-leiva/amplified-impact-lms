@@ -4,6 +4,7 @@
 
 export * from './types';
 export * from './constants';
+export * from './plan-prices';
 export * from './icons';
 export * from './time';
 export * from './status';

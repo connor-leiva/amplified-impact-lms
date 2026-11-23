@@ -201,6 +201,7 @@ const CONFIG: OfferConfig = {
   teamCallUrl: null,
   seatCapLinks: ['plink_full', 'plink_two'],
   skillPriceId: null,
+  skillGuestCheckout: false,
 };
 
 let app: App;

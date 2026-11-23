@@ -35,6 +35,7 @@ const SAMPLE: { [K in TemplateName]: SubjectData[K] } = {
   'weekly-digest': {},
   'set-password': {},
   'reset-password': {},
+  'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new' },
 };
 
 describe('email subjects @g8', () => {
@@ -129,8 +130,8 @@ describe('email subjects @g8', () => {
     // silence, and because this is the list the deferred /api/test/outbox route will trust.
     expect(Object.keys(SUBJECTS).sort()).toEqual([...TEMPLATE_NAMES].sort());
     // § 8.1's nine, then D-132's two password links.
-    expect(TEMPLATE_NAMES).toHaveLength(11);
-    expect(new Set(TEMPLATE_NAMES).size).toBe(11);
+    expect(TEMPLATE_NAMES).toHaveLength(12);
+    expect(new Set(TEMPLATE_NAMES).size).toBe(12);
   });
 
   it('names the two password emails plainly (D-132)', () => {

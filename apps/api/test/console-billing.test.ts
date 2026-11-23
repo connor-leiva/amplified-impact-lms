@@ -187,7 +187,8 @@ describe('the billing summary (spec § 7.6) @console', () => {
     expect(res.statusCode).toBe(200);
     expect(res.headers['cache-control']).toBe('private, no-store');
     const s = body<BillingSummary>(res);
-    expect(Object.keys(s).sort()).toEqual(['accelerator', 'asOf', 'failedPayments', 'mrr', 'plans', 'refunds30d']);
+    expect(Object.keys(s).sort()).toEqual(['accelerator', 'asOf', 'failedPayments', 'mrr', 'plans', 'refunds30d', 'skillPurchases']);
+    expect(s.skillPurchases).toEqual([]);
     expect(Object.keys(s.mrr).sort()).toEqual(['activeSubscriptions', 'cents', 'pastDue', 'trialing']);
     expect(Object.keys(s.accelerator).sort()).toEqual(['cap', 'collectedCents', 'opensAt', 'paidInFull', 'scheduledCents', 'sold', 'twoPay']);
     for (const p of s.plans) expect(Object.keys(p).sort()).toEqual(['active', 'kind', 'label', 'mrrCents', 'priceLabel', 'seats']);

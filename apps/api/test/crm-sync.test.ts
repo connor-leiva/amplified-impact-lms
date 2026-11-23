@@ -69,6 +69,7 @@ describe('the CRM sync log @g9', () => {
       // The pending order is not part of the log: it is never copied.
       order: { total: 2, synced: 0, waiting: 0, retrying: 1, gaveUp: 1 },
       login: { total: 1, synced: 1, waiting: 0, retrying: 0, gaveUp: 0 },
+      skill: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 },
     });
     expect(body.problems.map((r: { id: string; state: string; error: string }) => [r.id, r.state, r.error])).toEqual([
       ['o-gone', 'gave-up', 'upsert:rejected:400'],

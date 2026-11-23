@@ -49,6 +49,7 @@ import { ai101Waitlist } from '../db/schema';
 import { clock } from '../lib/clock';
 import { ghlSyncPaused, readGhlConfig, syncStamp, syncWaitlistContact } from '../integrations/ghl';
 import { runGhlOrderSync } from './ghl-orders';
+import { runGhlSkillSync } from './ghl-skills';
 import { enqueueLogins, runGhlLoginSync } from './ghl-logins';
 import { afterContact, syncExtras } from './ghl-extras';
 import type { ExtrasOutcome, ExtrasTick } from './ghl-extras';
@@ -326,15 +327,16 @@ export function noteExtras(
  * One whole tick, as the loop runs it: the sign-ups, then the offer's buyers (D-076), then learners'
  * first sign-ins (D-134), queued from the database just before. Same token, one after the other.
  */
-export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }): Promise<{ waitlist: GhlSyncRun; buyers: GhlSyncRun; queued: number; logins: GhlSyncRun }> {
+export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }): Promise<{ waitlist: GhlSyncRun; buyers: GhlSyncRun; skills: GhlSyncRun; queued: number; logins: GhlSyncRun }> {
   const db = options.db ?? getDb();
   const log = options.log ?? CONSOLE_LOG;
   const shared = { db, log, config: options.config, ...(options.fetch ? { fetch: options.fetch } : {}) };
   const waitlist = await runGhlSync(shared);
   const buyers = await runGhlOrderSync(shared);
+  const skills = await runGhlSkillSync(shared);
   const queued = await enqueueLogins(db, clock.now());
   const logins = await runGhlLoginSync(shared);
-  return { waitlist, buyers, queued, logins };
+  return { waitlist, buyers, skills, queued, logins };
 }
 
 export interface GhlSync {

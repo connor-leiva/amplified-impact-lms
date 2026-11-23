@@ -88,6 +88,7 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'replay-ready': { n: 2, title: 'Speed to Lead', employee: 'Sales AI Employee', moduleId: 'sales' },
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
+  'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', sets: 'owner_ops', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
 };
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -103,6 +104,7 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'weekly-digest': SUBJECTS['weekly-digest']({}),
   'set-password': SUBJECTS['set-password']({}),
   'reset-password': SUBJECTS['reset-password']({}),
+  'skill-purchase': SUBJECTS['skill-purchase']({ skillName: 'Recruiting Prep', variant: 'new' }),
 };
 
 /**
@@ -122,6 +124,7 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'weekly-digest': { label: 'Open Team Hub', href: `${APP}/team` },
   'set-password': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_set_1` },
   'reset-password': { label: 'Reset Your Password', href: `${APP}/set-password?token=tok_reset_1` },
+  'skill-purchase': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_skill_1&amp;next=%2Fskill-library%2Frecruiting-prep` },
 };
 
 // ---------- helpers ----------------------------------------------------------------------------
@@ -191,7 +194,7 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
   it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
     // § 8.1's table has nine rows and D-132 adds two. If another name is ever added to
     // `subjects.ts`, this fails here rather than silently rendering one email short in production.
-    expect(TEMPLATE_NAMES).toHaveLength(11);
+    expect(TEMPLATE_NAMES).toHaveLength(12);
     expect(Object.keys(SAMPLE).sort()).toEqual([...TEMPLATE_NAMES].sort());
   });
 
@@ -298,8 +301,9 @@ describe('email templates · § 8.1 shell @g8', () => {
 
     it(`${name} renders exactly one primary button, styled like Button primary @g8`, () => {
       const html = HTML[name];
-      // § 8.1 allows one. More than one would mean a template had added a link of its own.
-      expect(html.match(/<a\b/g) ?? []).toHaveLength(1);
+      // § 8.1 allows one link. The skill purchase note also links Sign In and support in the footer.
+      if (name === 'skill-purchase') expect(html.match(/<a\b/g) ?? []).toHaveLength(3);
+      else expect(html.match(/<a\b/g) ?? []).toHaveLength(1);
 
       const a = styleOf(html, 'a');
       // `Button.module.css`: `.primary` background/colour, `.btn` radius 8 and weight 600,

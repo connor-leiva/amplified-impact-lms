@@ -42,6 +42,8 @@ export const TEMPLATE_NAMES = [
   // D-132: the two password links, after § 8.1's nine.
   'set-password',
   'reset-password',
+  // A $37 skill, bought with no account or with one. Sent only while SKILL_GUEST_CHECKOUT is on.
+  'skill-purchase',
 ] as const;
 
 export type TemplateName = (typeof TEMPLATE_NAMES)[number];
@@ -80,6 +82,7 @@ export interface SubjectData {
   'replay-ready': { n: number; title: string };
   'build-reminder': { employee: string };
   'weekly-digest': NoSubjectData;
+  'skill-purchase': { skillName: string; variant: 'new' | 'ready' };
 }
 
 /**
@@ -114,6 +117,7 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   // § 8.1 interpolates the AI Employee's name, so this reads "Finish your Listing Prep Assistant".
   'build-reminder': (d) => `Finish your ${d.employee}`,
   'weekly-digest': () => 'Your team this week',
+  'skill-purchase': (d) => (d.variant === 'ready' ? 'Your New Skill Is Ready' : `Thank You for Buying ${d.skillName}`),
 };
 
 /**

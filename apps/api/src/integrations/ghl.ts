@@ -342,6 +342,9 @@ export const BUYER_TAGS = {
   membershipEnded: 'membership-ended',
   refunded: 'refunded',
   forum: 'event-forum-nov-2026',
+  /** A $37 skill. Tags only. No workflow is started from these. */
+  skillBuyer: 'bought-skill-37',
+  skill: (id: string) => `skill-${id}`,
 } as const;
 
 /** The facts about one order that decide its tags. */
@@ -400,6 +403,15 @@ export async function syncBuyerContact(contact: BuyerContact, options: SyncOptio
   if (contact.company && contact.company.trim() !== '') upsertBody.companyName = contact.company.trim();
   if (isTextable(contact)) upsertBody.phone = contact.phone!.trim();
   return upsertAndTag(upsertBody, buyerTags(contact), options);
+}
+
+/** A skill bought on its own. The contact and two tags. No opportunity and no workflow. */
+export async function syncSkillContact(
+  contact: { email: string; name: string | null; skillId: string },
+  options: SyncOptions,
+): Promise<GhlResult> {
+  const upsertBody: Record<string, unknown> = { locationId: options.config.locationId, email: contact.email, ...nameParts(contact.name) };
+  return upsertAndTag(upsertBody, [BUYER_TAGS.skillBuyer, BUYER_TAGS.skill(contact.skillId)], options);
 }
 
 /** The upsert, then the tags as a union with what the contact already has (see the header). */

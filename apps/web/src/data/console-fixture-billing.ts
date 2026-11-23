@@ -117,6 +117,7 @@ export function fixtureBillingSummary(now: number): BillingSummary {
       scheduledCents: per * ACC.twoPay,
       opensAt: COURSE_OPENS_AT,
     },
+    skillPurchases: [],
   };
 }
 
