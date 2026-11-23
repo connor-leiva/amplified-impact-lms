@@ -126,8 +126,9 @@ describe('the guided setup in learn (D-151)', () => {
 
   it('shows a locked skill’s steps’ titles and the plans, with no step’s words', async () => {
     fetchMock.mockResolvedValue(answer(200, locked({ paidPlans: false })));
-    at('appointment-follow-up');
+    const router = at('appointment-follow-up');
     expect(await screen.findByText('Not in your plan.')).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/skill-library/appointment-follow-up');
     expect(screen.getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     const titles = Array.from(document.querySelectorAll('ol li')).map((li) => li.textContent);
