@@ -53,7 +53,7 @@ import { Session1hEmail } from './session-1h';
 import { Session24hEmail } from './session-24h';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
-import { SkillPurchaseEmail } from './skill-purchase';
+import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } from './skill-purchase-html';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
@@ -115,6 +115,13 @@ function optCount(template: TemplateName, data: Record<string, unknown>, field: 
 export interface PreparedEmail {
   subject: string;
   element: ReactElement;
+  /**
+   * Set only for skill-purchase. That note is Connor's HTML, which React Email would wrap and
+   * restyle, so `renderTemplate` sends this string instead of rendering `element`.
+   */
+  html?: string;
+  /** The plain-text alternative, sent with the HTML when Resend is the transport. */
+  text?: string;
 }
 
 /**
@@ -261,20 +268,21 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       const next = safeNext(str(template, data, 'next'));
       if (!next) throw bad(template, 'next', 'must be a skill guide');
       const subject = SUBJECTS['skill-purchase']({ skillName, variant });
+      const input: SkillPurchaseHtmlInput = {
+        variant,
+        skillName,
+        sets,
+        firstName: optStr(data, 'firstName') ?? '',
+        next,
+        token: optStr(data, 'token'),
+        appUrl,
+      };
+      // `element` is unused. The inbox gets `html`, which is the document Connor sent.
       return {
         subject,
-        element: (
-          <SkillPurchaseEmail
-            subject={subject}
-            variant={variant}
-            skillName={skillName}
-            sets={sets}
-            firstName={optStr(data, 'firstName') ?? ''}
-            next={next}
-            token={optStr(data, 'token')}
-            appUrl={appUrl}
-          />
-        ),
+        element: <span />,
+        html: skillPurchaseHtml(input),
+        text: skillPurchaseText(input),
       };
     }
 
@@ -296,8 +304,9 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
  * only promise.
  */
 export const renderTemplate = async (template: TemplateName, data: Record<string, unknown>): Promise<RenderedEmail> => {
-  const { subject, element } = elementFor(template, data);
-  return { subject, html: await render(element) };
+  const prepared = elementFor(template, data);
+  if (prepared.html) return { subject: prepared.subject, html: prepared.html, text: prepared.text };
+  return { subject: prepared.subject, html: await render(prepared.element) };
 };
 
 /** `renderTemplate` with the payload typed per template. What the deferred routes and jobs call. */
