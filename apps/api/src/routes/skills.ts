@@ -23,6 +23,7 @@ import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
 import { acceleratorUpcoming, pausedForPayment } from '@ai/core/accelerator';
 import { planCovers, skillOpensAt, skillState } from '../billing/access';
+import { purchasedSkillIds } from '../billing/skill-purchase';
 import { groupAccessOf } from '../billing/access-groups';
 import type { GroupMembership } from '../billing/access-groups';
 import type { PlanAccess, SkillAccess } from '../billing/access';
@@ -91,6 +92,8 @@ export async function accessOf(userId: string): Promise<{
   groups: GroupMembership[];
   /** Each group's own grant, in `groups`' order: what it opens by itself. */
   groupPlans: PlanAccess[];
+  /** Skills this learner bought and has not had refunded. */
+  purchased: ReadonlySet<string>;
 } | null> {
   const db = getDb();
   const [user] = await db
@@ -101,7 +104,8 @@ export async function accessOf(userId: string): Promise<{
   if (!user || user.kind !== 'learner') return null;
   const group = await groupAccessOf(db, user.email, clock.now());
   const paidPlans = await paidPlansOf(db, user.teamId);
-  return { role: user.role, tier: user.tier, plans: [...paidPlans, ...group.plans], paidPlans, groups: group.groups, groupPlans: group.plans };
+  const purchased = await purchasedSkillIds(db, userId);
+  return { role: user.role, tier: user.tier, plans: [...paidPlans, ...group.plans], paidPlans, groups: group.groups, groupPlans: group.plans, purchased };
 }
 
 /** The plans the learner's team's accounts hold. */
@@ -124,9 +128,10 @@ const asSkill = (s: SkillRow): SkillAccess => ({
  * A sales agent opens the agent set, never an owner-and-ops-only skill: not today, and not on their
  * plan's first day either, so such a skill is never `upcoming` for them unless it is unreleased.
  */
-export function stateFor(role: string | null, planList: readonly PlanAccess[], s: SkillRow, now: number) {
-  const state = skillState(planList, asSkill(s), now);
-  const barred = !s.free && role === 'Sales Agent' && s.sets === 'owner_ops';
+export function stateFor(role: string | null, planList: readonly PlanAccess[], s: SkillRow, now: number, purchased = false) {
+  const state = skillState(planList, asSkill(s), now, purchased);
+  // A purchase is this person's own access. The sales-agent bar is about the team's plan, not a skill they bought.
+  const barred = !purchased && !s.free && role === 'Sales Agent' && s.sets === 'owner_ops';
   if (barred && (state === 'open' || (state === 'upcoming' && s.releasedAt <= now))) return 'locked' as const;
   return state;
 }
@@ -204,7 +209,7 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
         .map((s) => {
-          const state = stateFor(access.role, access.plans, s, now);
+          const state = stateFor(access.role, access.plans, s, now, access.purchased.has(s.id));
           return {
             id: s.id,
             title: s.title,
@@ -246,7 +251,7 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       const fileName = kind ? skill?.files[kind] : undefined;
       if (!skill || skill.status !== 'published' || !kind || !fileName) return reply.code(404).send({ error: NOT_FOUND });
       const access = await accessOf(actor.userId);
-      if (!access || stateFor(access.role, access.plans, skill, clock.now()) !== 'open') return reply.code(403).send({ error: LOCKED });
+      if (!access || stateFor(access.role, access.plans, skill, clock.now(), access.purchased.has(skill.id)) !== 'open') return reply.code(403).send({ error: LOCKED });
       let url: string;
       try {
         url = await presignGet(skillFileKey(skill.id, fileName), fileName);

@@ -190,10 +190,22 @@ describe('the access rule (D-079)', () => {
   const skill = (over: Partial<SkillAccess> = {}): SkillAccess => ({ sets: 'owner_ops', free: false, releasedAt: NOW - 10 * DAY, status: 'published', ...over });
   const library = (over: Partial<PlanAccess> = {}): PlanAccess => ({ kind: 'membership', status: 'active', paidThrough: NOW + 20 * DAY, liveUntil: NOW + 20 * DAY, ...over });
 
-  it('opens the owner and operations set to an Amplified Insiders member and locks the agent set', () => {
+  it('opens every set to an Amplified Insiders member', () => {
+    expect(PLAN_SETS.membership).toEqual(['owner_ops', 'agent']);
     expect(canOpenSkill([library()], skill(), NOW)).toBe(true);
-    expect(canOpenSkill([library()], skill({ sets: 'agent' }), NOW)).toBe(false);
+    expect(canOpenSkill([library()], skill({ sets: 'agent' }), NOW)).toBe(true);
     expect(canOpenSkill([library()], skill({ sets: 'both' }), NOW)).toBe(true);
+  });
+
+  it('a single-skill purchase opens that skill once it is released, and not before, and not when it is hidden', () => {
+    expect(canOpenSkill([], skill({ sets: 'agent' }), NOW, true)).toBe(true);
+    expect(canOpenSkill([], skill({ sets: 'owner_ops' }), NOW, true)).toBe(true);
+    expect(canOpenSkill([], skill({ releasedAt: NOW + DAY }), NOW, true)).toBe(false);
+    expect(canOpenSkill([], skill({ status: 'hidden' }), NOW, true)).toBe(false);
+    expect(skillState([], skill(), NOW, true)).toBe('open');
+    expect(skillState([], skill(), NOW, false)).toBe('locked');
+    // The Agent Plan still opens the agent set only.
+    expect(PLAN_SETS.agent_plan).toEqual(['agent']);
   });
 
   it('opens both sets to a cohort buyer, and the agent set alone to an agent plan', () => {

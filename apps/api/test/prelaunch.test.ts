@@ -160,11 +160,11 @@ describe('an AI Accelerator bought tonight (D-153)', () => {
 });
 
 describe('every other plan keeps its day (D-153)', () => {
-  it('Amplified Insiders bought tonight opens its owner skills at once, and has no course date', async () => {
+  it('Amplified Insiders bought tonight opens every skill at once, and has no course date', async () => {
     const cookie = await buy('insiders');
     expect(await library(cookie)).toEqual({
       courseOpensAt: null,
-      states: { 'appointment-follow-up': ['locked', null], 'team-pnl-review': ['open', null], 'perfect-week': ['open', null] },
+      states: { 'appointment-follow-up': ['open', null], 'team-pnl-review': ['open', null], 'perfect-week': ['open', null] },
     });
     expect((await guide('team-pnl-review', cookie)).json()).toMatchObject({ state: 'open', guide: { slug: 'team-pnl-review' } });
   });

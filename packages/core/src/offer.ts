@@ -63,10 +63,34 @@ export const LOOKUP_KEYS = [
 ] as const;
 export type LookupKey = (typeof LOOKUP_KEYS)[number];
 
-/** The `ai_plan` metadata values Stripe objects carry. `test` is the $1 smoke test, recorded and ignored. */
-export const AI_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'test'] as const;
-/** The `ai_option` values. */
-export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'year_upfront', 'monthly', 'yearly', 'upto15', '16to40', 'test'] as const;
+/**
+ * The `ai_plan` metadata values Stripe objects carry. `test` is the $1 smoke test, recorded and ignored.
+ * `skill` is a one-time skill purchase, not a plan kind: it never becomes an order or a plan row.
+ */
+export const AI_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'skill', 'test'] as const;
+/** The `ai_option` values. `single` is the one-time skill purchase. */
+export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'year_upfront', 'monthly', 'yearly', 'upto15', '16to40', 'single', 'test'] as const;
+
+/**
+ * A single skill, bought once (Connor, 2026-11-23). Not a plan and not a cart. Checkout reads the
+ * price id from `STRIPE_PRICE_SKILL_SINGLE`. The live price's lookup key is `skill_single`, on one
+ * product named Amplified Skill, $37 once, with automatic tax. A refund ends access. The $37 is not
+ * credited toward Amplified Insiders. The Insiders button reuses the monthly Payment Link.
+ */
+export const SKILL_SINGLE_LOOKUP = 'skill_single' as const;
+export const SKILL_AI_PLAN = 'skill' as const;
+export const SKILL_AI_OPTION = 'single' as const;
+export const SKILL_PURCHASE = {
+  get: 'Get This Skill, $37',
+  insiders: 'Unlock Every Skill With Amplified Insiders, $197/Month',
+  insidersHref: 'https://buy.stripe.com/aFadRa0CPgR80e1aJ773G07',
+  title: 'Get This Skill',
+  body: 'Buy this skill once, and keep it, including future updates. Or open every skill with Amplified Insiders.',
+  close: 'Close',
+  starting: 'Starting Checkout',
+  failed: 'Checkout didn’t start. Try again.',
+  pending: 'Your payment is in. Refresh in a moment if this skill is still locked.',
+} as const;
 
 /**
  * The `billing` metadata the Team Plan's Payment Links carry (Ampy, 2026-11-10): the first 3 months paid
@@ -456,12 +480,16 @@ export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: numbe
   }
 }
 
-/** Which skill sets a plan opens (D-079). Cohort buyers get both; the Team Plan and the Agent Plan the agents'. */
+/**
+ * Which skill sets a plan opens (D-079). Cohort buyers get both. The Team Plan and the Agent Plan
+ * get the agents' set, and that is unchanged. Amplified Insiders (`membership`) opens every set
+ * (Connor, 2026-11-23): owner and ops, agent, and both.
+ */
 export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent')[]>> = {
   library: ['owner_ops'],
   cohort: ['owner_ops', 'agent'],
   agents: ['agent'],
-  membership: ['owner_ops'],
+  membership: ['owner_ops', 'agent'],
   agent_plan: ['agent'],
 };
 

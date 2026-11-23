@@ -82,7 +82,7 @@ export const HOME = {
         forWho: 'Owners and ops leads at their own pace',
         amount: '$1,997',
         unit: 'today for one year, or $197 a month',
-        line: 'Every owner and ops skill, 2 new skills a month, and office hours.',
+        line: 'Every skill, 2 new skills a month, and office hours.',
         button: { label: 'Get Amplified Insiders', href: '/pricing#insiders' },
       },
     ],

@@ -28,7 +28,8 @@ import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { AGREEMENT_VERSION } from './agreement';
-import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, SKILL_AI_PLAN, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { refundSkillPurchase, skillCheckoutCompleted } from './skill-purchase';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
@@ -201,9 +202,17 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
 
 // --- the handlers ----------------------------------------------------------------------------------
 
-/** `checkout.session.completed` and `checkout.session.async_payment_succeeded`. */
+/**
+ * `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
+ *
+ * A session with no `ai_plan` is ignored. That includes the stopgap single-skill Payment Link,
+ * whose only clue is a `skill` dropdown (the skill id with the hyphens removed) and which carries
+ * no `ai_plan`. It must not become a plan and it must not become a `skill_purchases` row. Those
+ * buyers are backfilled by hand, after the fact.
+ */
 async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookDeps, db: Database): Promise<string> {
   const now = deps.now();
+  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN) return skillCheckoutCompleted(session, db, now, deps.log);
   const plan = session.metadata?.ai_plan ?? '';
   if (!(PLAN_KINDS as readonly string[]).includes(plan)) {
     return (AI_PLANS as readonly string[]).includes(plan) ? `ignored:${plan}` : 'ignored:unknown-plan';
@@ -523,6 +532,8 @@ async function subscriptionChanged(sub: Stripe.Subscription, deleted: boolean, d
 async function chargeRefunded(charge: Stripe.Charge, deps: WebhookDeps, db: Database): Promise<string> {
   if (!charge.refunded) return 'ignored:partial';
   const pi = idOf(charge.payment_intent as string | { id: string } | null);
+  const skill = await refundSkillPurchase(pi, db, deps.now());
+  if (skill) return skill;
   let order: OrderRow | null = null;
   if (pi) {
     const [row] = await db.select().from(orders).where(eq(orders.stripePaymentIntentId, pi)).limit(1);

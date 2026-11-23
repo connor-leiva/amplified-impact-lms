@@ -74,7 +74,7 @@ export const COMPARE = {
   rows: [
     {
       label: 'Skills included',
-      cells: ['Every owner, ops and agent skill', 'Every agent skill', 'Every agent skill, for each agent', 'Every owner and ops skill, plus 2 new a month'],
+      cells: ['Every owner, ops and agent skill', 'Every agent skill', 'Every agent skill, for each agent', 'Every skill, plus 2 new a month'],
     },
     { label: 'AI employees built with you', cells: ['7, with at least 5 running by Feb 3', false, false, false] },
     {
@@ -118,7 +118,7 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
       a: [
         'An agent? The Amplified Agent Plan.',
         'A team owner who wants AI built into how your team runs? The Amplified AI Accelerator. Want your agents trained too? The Amplified Team Plan.',
-        'Want every owner and ops skill, at your own pace? Amplified Insiders.',
+        'Want every skill, at your own pace? Amplified Insiders.',
       ],
     },
     {
@@ -147,10 +147,9 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'Can I buy one skill?',
-      // The offer-pages brief's answer, word for word (Nov 11). No price and no "opens soon": there is no
-      // single-skill cart, and Ampy decided not to invent one.
+      // Connor, 2026-11-23: a skill that is not free is $37 once. Insiders opens every skill.
       a: [
-        'Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills.',
+        'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders is $197 a month and opens every skill. Anyone can start with the 5 free skills.',
       ],
       link: { label: 'See the Library', href: '/library' },
     },

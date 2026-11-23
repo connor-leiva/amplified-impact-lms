@@ -23,8 +23,8 @@
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
 
-import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
-import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
+import { isFreeGrokTemplate } from '@ai/core/grok-templates';
+import { isFreeSkill } from '@ai/core/skills';
 import { LEARN_ORIGIN } from '@ai/core/skill-guides';
 import { LEAD } from '../library/content';
 import type { ShareImage } from '../site/share';
@@ -411,12 +411,11 @@ export function inSkillLibrary(guide: Guide): boolean {
 export const isGuided = (guide: Pick<Guide, 'skill' | 'grok'>): boolean => guide.skill !== undefined || guide.grok !== undefined;
 
 /**
- * Which plan unlocks a paid guide (D-115), by its set: an agent-only skill or template opens with the
- * Amplified Agent Plan, anything for owners and ops (or both) with Amplified Insiders.
+ * Which plan the lower buttons name. Amplified Insiders opens every set (Connor, 2026-11-23), so
+ * every paid guide names Insiders. The Agent Plan still opens agent skills. It is not this button.
  */
-export function unlockFor(guide: Guide): 'insiders' | 'agentPlan' {
-  const sets = guide.skill !== undefined ? SKILL_CATALOG.find((s) => s.id === guide.skill)?.sets : guide.grok !== undefined ? GROK_TEMPLATES.find((g) => g.id === guide.grok)?.sets : undefined;
-  return sets === 'agent' ? 'agentPlan' : 'insiders';
+export function unlockFor(_guide: Guide): 'insiders' {
+  return 'insiders';
 }
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
@@ -468,18 +467,14 @@ export const SHARED = {
     sampleLess: 'Show Less',
     bar: 'Get the Free Skill',
   },
-  // A paid skill's page (D-082): the card in the sign-up's place, which says how to unlock the skill
-  // (D-115). The overnight brief's locked-skill buttons are "Buy this skill for $37" or "Get Amplified
-  // Insiders": no $37 cart exists yet, so the card has the plan's button alone. Which plan is the
-  // skill's set's: Amplified Insiders opens the owner and ops skills and the ones for both, and an
-  // agent-only skill opens with the Amplified Agent Plan, so its button says that plan's exact name
-  // (`unlockFor`). "Sign In" is the platform's own sign-in, for people who already have a plan. Also
-  // the button under "What you need".
+  // A paid skill's page (D-082): the card in the sign-up's place. Amplified Insiders opens every skill.
+  // The two choices before payment are this skill for $37, or Insiders (Connor, 2026-11-23). "Sign In"
+  // is the platform's own sign-in, for people who already have it. Also the button under "What you need".
   skillLibrary: {
     anchor: 'skill-library',
     heading: 'Get this skill',
     insiders: {
-      body: 'It’s part of Amplified Insiders: every owner and ops skill, 2 new skills a month, and weekly office hours.',
+      body: 'It’s part of Amplified Insiders: every skill, 2 new skills a month, and weekly office hours.',
       label: 'Get Amplified Insiders',
       href: '/pricing#insiders',
     },

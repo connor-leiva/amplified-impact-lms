@@ -174,6 +174,7 @@ function stubStripe(): Stub {
       stub.links.set(id, { id, active: change.active, metadata, inactiveMessage: change.inactive_message ?? link.inactiveMessage });
       return { id, active: change.active, metadata };
     },
+    createCheckoutSession: async () => ({ id: 'cs_test_skill', url: 'https://checkout.stripe.com/c/pay/cs_test_skill' }),
     paymentMethodOfPaymentIntent: async () => 'pm_saved',
     subscriptionOfPaymentIntent: async (pi) => stub.intents.get(pi) ?? null,
     constructEvent: stripeVerifier(),
@@ -199,6 +200,7 @@ const CONFIG: OfferConfig = {
   calendarUrls: { builds: null, officeHours: null },
   teamCallUrl: null,
   seatCapLinks: ['plink_full', 'plink_two'],
+  skillPriceId: null,
 };
 
 let app: App;
@@ -789,8 +791,10 @@ describe('the skill library (D-079)', () => {
     const list = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
     expect(list.statusCode).toBe(200);
     const states = Object.fromEntries(list.json().skills.map((s: { id: string; state: string }) => [s.id, s.state]));
-    expect(states).toEqual({ 'offer-strategy': 'locked', 'team-pnl-review': 'open' });
-    const locked = await app.inject({ method: 'GET', url: '/api/skills/offer-strategy/download/claude', headers: { cookie } });
+    expect(states).toEqual({ 'offer-strategy': 'open', 'team-pnl-review': 'open' });
+    // Insiders opens every set. A learner with no plan is still refused the file.
+    await (await db()).insert(users).values({ id: 'u_none', email: 'none@example.com', name: 'None', kind: 'learner', role: 'Team Owner', tier: 'agent', status: 'active', joined: now });
+    const locked = await app.inject({ method: 'GET', url: '/api/skills/offer-strategy/download/claude', headers: { cookie: await app.signInAs('u_none') } });
     expect(locked.statusCode).toBe(403);
     const missingKind = await app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/chatgpt', headers: { cookie } });
     expect(missingKind.statusCode).toBe(404);
@@ -808,8 +812,10 @@ describe('the skill library (D-079)', () => {
     const list = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
     const byId = Object.fromEntries(list.json().skills.map((s: { id: string; state: string; files: string[] }) => [s.id, s]));
     expect(byId['month-end-close']).toMatchObject({ state: 'open', files: ['grok'] });
-    expect(byId['listing-to-live']).toMatchObject({ state: 'locked', files: ['grok'] });
-    const locked = await app.inject({ method: 'GET', url: '/api/skills/listing-to-live/download/grok', headers: { cookie } });
+    expect(byId['listing-to-live']).toMatchObject({ state: 'open', files: ['grok'] });
+    // A paid template opens with Insiders. A learner with no plan is still refused the file.
+    await (await db()).insert(users).values({ id: 'u_none', email: 'none@example.com', name: 'None', kind: 'learner', role: 'Team Owner', tier: 'agent', status: 'active', joined: now });
+    const locked = await app.inject({ method: 'GET', url: '/api/skills/listing-to-live/download/grok', headers: { cookie: await app.signInAs('u_none') } });
     expect(locked.statusCode).toBe(403);
     // A template has no Claude file.
     const wrongKind = await app.inject({ method: 'GET', url: '/api/skills/month-end-close/download/claude', headers: { cookie } });
@@ -990,7 +996,7 @@ const OFFER_CASES: OfferCase[] = [
     tier: 'team',
     pin: null,
     tags: ['offer-buyer', 'plan-membership', 'pay-year', 'ai-buyer-insiders'],
-    opens: { owner_ops: NOW_MS, agent: null },
+    opens: { owner_ops: NOW_MS, agent: NOW_MS },
   },
   {
     cart: 'insiders-monthly',
@@ -999,7 +1005,7 @@ const OFFER_CASES: OfferCase[] = [
     tier: 'team',
     pin: null,
     tags: ['offer-buyer', 'plan-membership', 'pay-monthly', 'ai-buyer-insiders'],
-    opens: { owner_ops: NOW_MS, agent: null },
+    opens: { owner_ops: NOW_MS, agent: NOW_MS },
   },
   {
     cart: 'agents-upto15',
@@ -1357,10 +1363,10 @@ describe('every offer, end to end (D-106)', () => {
     const held = await (await db()).select().from(plans);
     expect(held.map((p) => `${p.kind}/${p.option}`).sort()).toEqual(OFFER_CASES.map((c) => `${c.plan.kind}/${c.plan.option}`).sort());
     expect(new Set(held.map((p) => p.accountId)).size).toBe(1);
-    // Insiders opens the owner set today; the AI Accelerator's agent set waits for its first build
-    // (D-153); the Agent Plan adds nothing until its Jan 4 charge is paid.
+    // Insiders opens every set today, so the agent skill is open with it. The Agent Plan adds
+    // nothing until its Jan 4 charge is paid, and the Accelerator's own start is still the first build.
     await seedSkills();
-    expect(await skillStates()).toEqual({ 'team-pnl-review': 'open', 'offer-strategy': 'upcoming', 'perfect-week': 'open' });
+    expect(await skillStates()).toEqual({ 'team-pnl-review': 'open', 'offer-strategy': 'open', 'perfect-week': 'open' });
   });
 
   it('after INVITES_FROM, every offer\'s owner invite goes at once', async () => {

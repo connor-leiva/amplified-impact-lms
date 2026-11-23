@@ -125,10 +125,12 @@ test.describe('learner parity: Utah Life keeps today’s portal', () => {
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(toggle).toContainText(/Skills, Not Included With Utah Life Access/);
     await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Get This Skill, $37' })).toHaveCount(0);
     await toggle.click();
     await expect(page.getByText(`Not included with ${UTAH.name} access`).first()).toBeVisible();
     expect(learnerCopy('locked.utah_life')).toBe(`Not included with ${UTAH.name} access`);
     await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Get This Skill, $37' })).toHaveCount(0);
     await page.context().close();
   });
 
@@ -207,7 +209,8 @@ test.describe('learner parity: every no-course plan keeps today’s portal', () 
         // An Agent Plan member's owner skills are closed until opened (D-201). A free account has no such section.
         const toggle = page.getByRole('button', { name: /Owner and Operations Skills/ });
         if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-        await expect(page.getByRole('link', { name: 'See Plans' }).first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Get This Skill, $37' }).first()).toBeVisible();
+        await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
       }
       await page.goto(fixtureUrl('/vault', plan.as));
       await page.waitForSelector('body[data-app-ready="true"]');

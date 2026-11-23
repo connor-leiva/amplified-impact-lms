@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
+import { SKILL_PURCHASE } from '@ai/core/offer';
 import { previewOf } from '@ai/core/skill-guides';
 import SkillGuide, { COPY, TOAST_MS } from './SkillGuide';
 import type { GuideAnswer } from './SkillGuide';
@@ -127,7 +128,8 @@ describe('the guided setup in learn (D-151)', () => {
     fetchMock.mockResolvedValue(answer(200, locked({ paidPlans: false })));
     at('appointment-follow-up');
     expect(await screen.findByText('Not in your plan.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'See Plans' })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
+    expect(screen.getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     const titles = Array.from(document.querySelectorAll('ol li')).map((li) => li.textContent);
     expect(titles).toEqual(guide.lanes[0]!.steps.map((s, i) => `${i + 1}${s.title}`));
     expect(screen.queryByRole('button', { name: FILE.ui.guided.next })).toBeNull();
@@ -142,6 +144,21 @@ describe('the guided setup in learn (D-151)', () => {
     expect(await screen.findByText('Not included with Utah Life access')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     expect(screen.queryByText('Not in your plan.')).toBeNull();
+    expect(screen.queryByRole('button', { name: SKILL_PURCHASE.get })).toBeNull();
+    expect(screen.queryByRole('link', { name: SKILL_PURCHASE.insiders })).toBeNull();
+    expect(screen.queryByText('$37')).toBeNull();
+    expect(screen.queryByText(/\$197/)).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens the two choices before payment, and does not for a Utah Life member', async () => {
+    fetchMock.mockResolvedValue(answer(200, locked({ paidPlans: false })));
+    at('appointment-follow-up');
+    await userEvent.click(await screen.findByRole('button', { name: SKILL_PURCHASE.get }));
+    const dialog = screen.getByRole('dialog', { name: SKILL_PURCHASE.title });
+    expect(within(dialog).getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: SKILL_PURCHASE.insiders })).toHaveAttribute('href', SKILL_PURCHASE.insidersHref);
+    expect(within(dialog).getByText(SKILL_PURCHASE.body)).toBeInTheDocument();
   });
 
   it('says when an upcoming one opens', async () => {

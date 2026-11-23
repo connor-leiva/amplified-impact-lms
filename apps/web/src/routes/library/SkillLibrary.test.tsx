@@ -95,8 +95,8 @@ describe('the skill library screen', () => {
     expect(within(agent).getByText(COPY.locked)).toBeInTheDocument();
     // A locked skill's guide shows its steps' titles and what it takes to open it (D-151).
     expect(within(agent).getByRole('link', { name: COPY.preview })).toHaveAttribute('href', '/skill-library/offer-strategy');
-    // /pricing compares all four programs; /offer#plans had no Agent Plan (D-140).
-    expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
+    expect(within(agent).getByRole('button', { name: 'Get This Skill, $37' })).toBeInTheDocument();
+    expect(within(agent).queryByRole('link', { name: COPY.seePlans })).toBeNull();
 
     const both = screen.getByRole('region', { name: COPY.sets.both });
     expect(within(both).getByText('Coming December 15.')).toBeInTheDocument();
@@ -274,6 +274,8 @@ describe('the skill library screen', () => {
       // Never "Not in your plan." and never See Plans, on any row.
       expect(screen.queryByText(COPY.locked)).toBeNull();
       expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Get This Skill, $37' })).toBeNull();
+      expect(screen.queryByText('$37')).toBeNull();
       expect(document.body.textContent).not.toMatch(/Agent Plan/);
       expect(offersPlans(true)).toBe(false);
     });
@@ -335,7 +337,8 @@ describe('the skill library screen', () => {
       render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByRole('region', { name: COPY.sets.owner_ops });
       expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
-      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'Get This Skill, $37' })).toHaveLength(2);
+      expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
       expect(screen.queryByText(/Not included with/)).toBeNull();
       expect(offersPlans(false)).toBe(true);
     });
@@ -561,7 +564,8 @@ describe('the skill library screen', () => {
       expect(headings[1]).toContain('2 Skills, Not In Your Plan');
       expect(screen.queryByRole('button', { name: /Agent Skills/ })).toBeNull();
       await userEvent.click(screen.getByRole('button', { name: /Owner and Operations Skills/ }));
-      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'Get This Skill, $37' })).toHaveLength(2);
+      expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
       expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
     });
 
@@ -573,7 +577,8 @@ describe('the skill library screen', () => {
       const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
       const agent = screen.getByRole('region', { name: COPY.sets.agent });
       expect(owner.compareDocumentPosition(agent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(within(owner).queryByRole('button')).toBeNull();
+      expect(within(owner).queryByRole('button', { name: /Owner and Operations/ })).toBeNull();
+      expect(within(owner).getByRole('button', { name: 'Get This Skill, $37' })).toBeInTheDocument();
       expect(within(owner).getByText(COPY.locked)).toBeInTheDocument();
       unmount();
 

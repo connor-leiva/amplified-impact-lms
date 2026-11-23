@@ -16,6 +16,7 @@ import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from './PreLaunch';
+import { GetSkillButton } from './SkillPurchase';
 import s from './SkillLibrary.module.css';
 
 export const COPY = {
@@ -454,12 +455,8 @@ function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups:
               <Icon name="listChecks" size={16} />
               {COPY.preview}
             </Link>
-            {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
-            {offersPlans(memberLine !== null) ? (
-              <a className={s.secondary} href={PLANS_URL}>
-                {COPY.seePlans}
-              </a>
-            ) : null}
+            {/* A bought skill, or every skill with Amplified Insiders. Never for an access group's member. */}
+            {offersPlans(memberLine !== null) ? <GetSkillButton skillId={skill.id} className={s.primary} /> : null}
           </>
         ) : (
           <span className={s.note}>

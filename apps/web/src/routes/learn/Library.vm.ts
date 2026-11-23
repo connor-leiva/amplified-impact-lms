@@ -321,6 +321,8 @@ export interface PreviewVM {
   when: { tile: DateTileVM; text: string } | null;
   get: GetRowVM[];
   plans: boolean;
+  /** The catalog id, for the $37 checkout. Empty when this preview does not offer it. */
+  skillId: string;
 }
 
 export interface SetupVM {
@@ -361,6 +363,7 @@ export function skillPageVM(p: SkillsPayload, slug: string | undefined, answer: 
     when: opensAt !== null ? { tile: dateTile(opensAt), text: `${fmt.day(opensAt)} at ${fmt.time(opensAt)}` } : null,
     get: getRows(k.files),
     plans: offersPlans(k, p),
+    skillId: k.id,
   };
 }
 

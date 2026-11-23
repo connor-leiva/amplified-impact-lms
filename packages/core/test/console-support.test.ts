@@ -43,7 +43,7 @@ describe('plan labels (spec § 7.3, inferred there; read from PLAN_NAMES here) @
   it('open the sets D-079 gives each plan', () => {
     expect(planSets('cohort')).toEqual(['owner_ops', 'agent']);
     expect(planSets('agents')).toEqual(['agent']);
-    expect(planSets('membership')).toEqual(['owner_ops']);
+    expect(planSets('membership')).toEqual(['owner_ops', 'agent']);
   });
 });
 

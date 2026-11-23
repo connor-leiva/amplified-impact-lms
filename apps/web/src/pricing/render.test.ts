@@ -392,15 +392,14 @@ describe('the questions', () => {
     expect($$('.faq details')).toHaveLength(7);
   });
 
-  it('say single-skill checkout is not open, with no price and no “opens soon”', () => {
+  it('says a skill that is not free is $37 once, and Insiders opens every skill', () => {
     const item = $$('.faq-list li').find((li) => text($('summary', li)) === 'Can I buy one skill?')!;
     expect($$('.answer p', item).map(text)).toEqual([
-      'Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills.',
+      'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders is $197 a month and opens every skill. Anyone can start with the 5 free skills.',
       'See the Library',
     ]);
     expect($('.answer a', item)?.getAttribute('href')).toBe('/library');
-    expect(html).not.toContain('$37');
-    expect(html).not.toMatch(/That checkout opens soon/i);
+    expect(html).not.toMatch(/That checkout opens soon|Single-skill checkout is not open/i);
   });
 
   it('answer from the Library’s own cards: most skills run in Claude or ChatGPT', () => {

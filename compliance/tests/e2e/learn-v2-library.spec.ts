@@ -181,11 +181,13 @@ test.describe('learner portal v2: the Skill Library (D-179) @g9', () => {
     const page = await open(browser, '/learn/skills', 1440, 'utah');
     await expect(page.getByText(UTAH_LINE, { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Get This Skill, $37' })).toHaveCount(0);
     await expectAccessible(page);
     await page.context().close();
     const preview = await open(browser, '/learn/skills/tc-file-audit', 1440, 'utah');
     await expect(preview.getByText(UTAH_LINE, { exact: false })).toBeVisible();
     await expect(preview.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await expect(preview.getByRole('button', { name: 'Get This Skill, $37' })).toHaveCount(0);
     await preview.context().close();
   });
 
