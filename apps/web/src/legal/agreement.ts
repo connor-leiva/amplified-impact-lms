@@ -1,8 +1,10 @@
 // /agreement: the subscription agreement every offer order records (DECISIONS.md D-073).
 //
-// ATTORNEY-APPROVED AS IT STOOD ON 2026-11-10 (Connor). Since then only the plan names (Connor's
-// decision 4), the renewal and cancel lines (decisions 1 and 2: the AI Accelerator rolls into Amplified
-// Insiders on May 3, 2027; members cancel themselves in the billing portal) and the version changed. It covers what the spec lists: the plan terms, automatic
+// ATTORNEY-APPROVED AS IT STOOD ON 2026-11-10 (Connor). Since then the plan names (Connor's
+// decision 4), the renewal and cancel lines (decisions 1 and 2: the AI Accelerator rolls into
+// Amplified Insiders for Team Leaders on May 4, 2027; members cancel themselves in the billing
+// portal) and, on 2026-11-23, the plan list, payment lines and minimum terms (Connor and Spring)
+// changed. The version changed with them. It covers what the spec lists: the plan terms, automatic
 // renewal, the agent plan's 3-month minimum, cancel and keep, no refunds with a seat that can move to
 // the next cohort, access to the client's data, and the client's responsibility for the texts and
 // calls they send (TCPA). Replace the words here; `AGREEMENT_VERSION` changes with them, and the API's
@@ -12,23 +14,23 @@
 
 import type { LegalDoc } from './content';
 
-/** Recorded on every order: the date this attorney-approved text took effect (Connor, 2026-11-10). */
-export const AGREEMENT_VERSION = '2026-11-12';
-export const AGREEMENT_EFFECTIVE = { iso: '2026-11-12', label: 'November 12, 2026' } as const;
+/** Recorded on every order: the date these words took effect (Connor and Spring, 2026-11-23). */
+export const AGREEMENT_VERSION = '2026-11-23';
+export const AGREEMENT_EFFECTIVE = { iso: '2026-11-23', label: 'November 23, 2026' } as const;
 
 const CONTACT = 'admin@amplifiedimpact.io';
 
 export const AGREEMENT: LegalDoc = {
   path: '/agreement',
   title: 'Subscription Agreement | Amplified Impact',
-  description: 'The terms of the Amplified Skill Library, the Amplified AI Accelerator, Amplified Insiders and the Amplified Team Plan.',
+  description: 'The terms of the Amplified Skill Library, the Amplified AI Accelerator, Amplified Insiders, the Amplified Agent Plan and the Amplified Team Plan.',
   heading: 'Subscription Agreement',
   numberedHeadings: true,
   draft: false,
   version: AGREEMENT_VERSION,
   effective: AGREEMENT_EFFECTIVE,
   notice:
-    'This agreement renews automatically for plans with a monthly charge. You can cancel a monthly charge as Section 5 explains. Payments are not refundable, as Section 6 explains.',
+    'This agreement renews automatically for plans with a monthly charge. Some plans have a three month minimum, as Section 4 explains. You can cancel a monthly charge as Section 5 explains. Payments are not refundable, as Section 6 explains.',
   intro: [
     'This Subscription Agreement covers the plans you buy from Amplified Impact, LLC on our offer page or through our payment links. It adds to our ',
     { link: 'Terms of Service', href: '/terms' },
@@ -47,6 +49,10 @@ export const AGREEMENT: LegalDoc = {
             [{ strong: 'Amplified Skill Library.' }, ' The owner and operations skills, plus the new skills released while your membership is paid. Office hours for 30 days, then while your membership is paid.'],
             [{ strong: 'Amplified AI Accelerator.' }, ' Both skill sets, eight weekly live builds for cohort one starting Tuesday, December 1, 2026, weekly office hours, and 90 days of new skills and office hours after the last build.'],
             [{ strong: 'Amplified Team Plan.' }, ' The agent skills, a recorded core path for new hires and a weekly live agent coaching session, for up to 15 agents or for 16 to 40 agents, as you chose.'],
+            [{ strong: 'Amplified Agent Plan.' }, ' Every agent skill, a weekly live agent training and weekly office hours.'],
+            [{ strong: 'Amplified Insiders for Team Leaders.' }, ' The owner and operations skills, plus the new skills released while your membership is paid, and weekly office hours.'],
+            [{ strong: 'Amplified Insiders for Agents.' }, ' Every agent skill and weekly office hours. No weekly live training.'],
+            [{ strong: 'Single Skill.' }, ' One skill of your choice, bought once.'],
           ],
         },
         { p: 'Session dates, times and hosts can change. We will tell you ahead of any change by email.' },
@@ -69,18 +75,21 @@ export const AGREEMENT: LegalDoc = {
           ul: [
             [{ strong: 'Amplified Skill Library.' }, ' The library price today, then the monthly membership starting on day 31, each month until you cancel.'],
             [{ strong: 'Amplified AI Accelerator in two payments.' }, ' The second payment one month after the first. The payments stop after the second one.'],
-            [{ strong: 'Amplified Insiders.' }, ' When the Amplified AI Accelerator\u2019s 90 included days end, you continue as an Amplified Insiders member automatically: the monthly membership, starting Monday, May 3, 2027 for cohort one, each month until you cancel.'],
+            [{ strong: 'Amplified Insiders for Team Leaders.' }, ' When the Amplified AI Accelerator\u2019s 90 included days end, you continue as an Amplified Insiders for Team Leaders member automatically: the monthly membership, starting Tuesday, May 4, 2027 for cohort one, each month until you cancel. If you bought Amplified Insiders by the year, you continue the same way, on the monthly membership, when your year ends.'],
             [{ strong: 'Amplified Team Plan.' }, ' Nothing today. The monthly price starting Tuesday, January 26, 2027, each month until you cancel, subject to Section 4.'],
+            [{ strong: 'Amplified Agent Plan.' }, ' Nothing today for buyers in the free period. The monthly membership starting on the first paid charge (Monday, January 4, 2027 for current trial buyers), each month until you cancel, subject to Section 4. The yearly option is one payment for one year.'],
+            [{ strong: 'Amplified Insiders for Team Leaders and for Agents.' }, ' The monthly membership starting at checkout, each month until you cancel, subject to Section 4. The yearly option for Team Leaders is one payment for one year, then the monthly membership each month until you cancel.'],
+            [{ strong: 'Single Skill.' }, ' One payment at checkout. It does not renew.'],
           ],
         },
-        { p: 'Stripe emails a reminder before a free period ends and a receipt for each charge. If a charge fails, Stripe retries it and asks you to update your card. Prices for later periods are the prices at checkout unless we give you 30 days of notice of a change.' },
+        { p: 'Stripe emails a reminder before a free period ends and a receipt for each charge. If a charge fails, Stripe retries it and asks you to update your card. Prices for later periods are the prices at checkout unless we give you 30 days of notice of a change. Members who joined the Amplified Agent Plan before November 23, 2026 keep their monthly price while their membership stays active.' },
       ],
     },
     {
       id: 'minimum',
-      heading: '4. The Amplified Team Plan Minimum',
+      heading: '4. Minimum Terms',
       blocks: [
-        { p: 'The Amplified Team Plan has a minimum term of three monthly payments, starting January 26, 2027. To cancel before the third payment, write to ' + CONTACT + '. Cancelling before then does not end the payments due for the minimum term. After the third payment, you can cancel in the billing portal as Section 5 explains.' },
+        { p: 'These monthly plans have a minimum term of three monthly payments: the Amplified Agent Plan, Amplified Insiders for Team Leaders and Amplified Insiders for Agents. The Amplified Team Plan has the same minimum, starting January 26, 2027. The minimum term counts from your first paid charge. For the Amplified Agent Plan, the first paid charge for current trial buyers is Monday, January 4, 2027. To cancel before the third payment, write to ' + CONTACT + '. Cancelling before then does not end the payments due for the minimum term. After the third payment, you can cancel in the billing portal as Section 5 explains.' },
       ],
     },
     {
