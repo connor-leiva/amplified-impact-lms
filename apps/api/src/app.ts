@@ -96,6 +96,7 @@ import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
 import { registerSkillRoutes } from './routes/skills';
+import { registerSkillCheckoutRoutes } from './routes/skill-checkout';
 import { registerSkillGuideRoutes } from './routes/skill-guides';
 import type { SkillGuidesFile } from '@ai/core/skill-guides';
 import { registerCurriculumStatusRoute } from './routes/curriculum-status';
@@ -677,6 +678,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerFilesRoutes(app);
     // The skill library (D-079): signed in, like the Vault beside it.
     registerSkillRoutes(app);
+    // One skill, $37 once. Access-group members get 403. The price id is STRIPE_PRICE_SKILL_SINGLE.
+    registerSkillCheckoutRoutes(app, { stripe: offerStripe, config: offerConfig });
     // Each skill's guided setup (D-151): signed in, and only for a learner the access rule lets in.
     registerSkillGuideRoutes(app, { guides: options.skillGuides ?? null });
     // Manage Billing (D-077): the owner's way into Stripe's billing portal, where members cancel.

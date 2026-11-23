@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SKILL_PURCHASE } from '@ai/core/offer';
 import { GUIDES, inSkillLibrary, SHARED, unlockFor, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
@@ -93,19 +94,19 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     } else {
       expect(doc.querySelector('main.page')?.firstElementChild).toBe(card);
     }
-    // The plan that opens it (D-115): Amplified Insiders, or the Amplified Agent Plan for an agent-only skill.
+    // Insiders opens every set. The card offers this skill for $37, or Insiders, then sign-in.
     const plan = SHARED.skillLibrary[unlockFor(guide)];
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
     expect(text(card?.querySelector('h2 + p'))).toBe(plan.body);
     const top = card?.querySelector(':scope > .locked');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
-    // D-151: the button unlocks the guided setup (at the plans), and a buyer signs in to its guide.
     expect(links).toEqual([
-      ['Unlock the Guided Setup', plan.href, false],
+      [SKILL_PURCHASE.get, skillGuideUrl(slug), false],
+      [SKILL_PURCHASE.insiders, SKILL_PURCHASE.insidersHref, false],
       ['Sign In', skillGuideUrl(slug), false],
     ]);
     expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');
-    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(plan.href);
+    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(skillGuideUrl(slug));
   });
 
   it('links no paid ZIP, and no download at all: no file to save, no hand-off to a download', () => {
@@ -196,18 +197,12 @@ describe('the card’s words', () => {
   });
 });
 
-describe('which plan opens a paid skill (D-115)', () => {
-  it('is the Amplified Agent Plan for an agent-only skill or template, and Amplified Insiders for the rest', () => {
-    for (const g of PAID) {
-      const sets = SKILL_CATALOG.find((s) => s.id === g.skill)?.sets;
-      expect(unlockFor(g), g.slug).toBe(sets === 'agent' ? 'agentPlan' : 'insiders');
-    }
-    for (const g of PAID_GROK) {
-      const sets = GROK_TEMPLATES.find((t) => t.id === g.grok)?.sets;
-      expect(unlockFor(g), g.slug).toBe(sets === 'agent' ? 'agentPlan' : 'insiders');
-    }
+describe('which plan a paid skill’s page names', () => {
+  it('is Amplified Insiders for every set, because Insiders opens every skill', () => {
+    for (const g of PAID) expect(unlockFor(g), g.slug).toBe('insiders');
+    for (const g of PAID_GROK) expect(unlockFor(g), g.slug).toBe('insiders');
     const byId = (id: string) => Object.values(GUIDES).find((g) => g.skill === id)!;
-    expect(unlockFor(byId('offer-strategy'))).toBe('agentPlan');
+    expect(unlockFor(byId('offer-strategy'))).toBe('insiders');
     expect(unlockFor(byId('team-ai-brain'))).toBe('insiders');
   });
 });

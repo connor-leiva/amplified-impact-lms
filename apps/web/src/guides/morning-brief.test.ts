@@ -148,7 +148,8 @@ describe('the page', () => {
   it('follows the house voice: no em dashes, no exclamation marks, nothing it must not say', () => {
     const body = doc.body.textContent ?? '';
     expect(body).not.toMatch(/[–—!]/);
-    for (const banned of ['Forum', '$37', 'guarantee', 'ROI story', 'income']) expect(body, banned).not.toContain(banned);
+    for (const banned of ['Forum', 'guarantee', 'ROI story', 'income']) expect(body, banned).not.toContain(banned);
+    expect(body).toContain('Get This Skill, $37');
     expect(doc.querySelector('a[href="mailto:support@amplifiedimpact.io"]')).not.toBeNull();
   });
 });

@@ -6,7 +6,7 @@
 // button, file and word to paste comes from that answer, so no browser bundle carries a setup. A
 // locked or upcoming skill shows what www shows anyone, its steps' titles, and what it would take to
 // open it: "Not included with Utah Life access" for an access group's member (no upsell, D-150),
-// "Not in your plan." and See Plans for anyone else. Signed out, it sends the visitor to sign in and
+// "Not in your plan." and Get This Skill for anyone else. Signed out, it sends the visitor to sign in and
 // back here (`next`).
 //
 // THE STEPS, ONE AT A TIME, as the www pages did (D-070): "Step 2 of 7", Back and Next, the place kept
@@ -15,12 +15,13 @@
 // downloads through `GET /api/skills/:id/download/:kind`, which checks the rule again.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { GuideInline, GuideLaneId, GuideStep, GuideUi, SkillGuide, SkillGuidePreview } from '@ai/core/skill-guides';
 import { LEAD } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
-import { COPY as LIBRARY, PLANS_URL, groupForSkill } from './SkillLibrary';
+import { COPY as LIBRARY, groupForSkill } from './SkillLibrary';
+import { GetSkillButton, SKILL_PURCHASE } from './SkillPurchase';
 import type { AccessGroupInfo } from './SkillLibrary';
 import s from './SkillGuide.module.css';
 
@@ -334,7 +335,7 @@ function OpenGuide({ guide, ui }: { guide: SkillGuide; ui: GuideUi }) {
 }
 
 /** A locked or upcoming skill: its steps' titles, as www shows them, and what it would take to open it. */
-function Preview({ answer }: { answer: GuideAnswer }) {
+function Preview({ answer, pending }: { answer: GuideAnswer; pending: boolean }) {
   const lane = answer.preview.lanes[0];
   const group = answer.state === 'locked' ? groupForSkill({ sets: answer.sets }, answer.accessGroups) : null;
   return (
@@ -373,9 +374,8 @@ function Preview({ answer }: { answer: GuideAnswer }) {
               <Icon name="lock" size={16} />
               {LIBRARY.locked}
             </span>
-            <a className={s.primary} href={PLANS_URL}>
-              {LIBRARY.seePlans}
-            </a>
+            {pending ? <p className={s.intro}>{SKILL_PURCHASE.pending}</p> : null}
+            <GetSkillButton skillId={answer.skill} className={s.primary} />
           </>
         )}
       </div>
@@ -385,6 +385,7 @@ function Preview({ answer }: { answer: GuideAnswer }) {
 
 export function Component() {
   const { slug = '' } = useParams();
+  const [params] = useSearchParams();
   const navigate = useNavigate();
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
 
@@ -436,8 +437,9 @@ export function Component() {
       );
     }
     const a = load.answer;
-    return a.state === 'open' && a.guide && a.ui ? <OpenGuide guide={a.guide} ui={a.ui} /> : <Preview answer={a} />;
-  }, [load]);
+    const pending = params.has('session_id') && a.accessGroups.length === 0;
+    return a.state === 'open' && a.guide && a.ui ? <OpenGuide guide={a.guide} ui={a.ui} /> : <Preview answer={a} pending={pending} />;
+  }, [load, params]);
 
   return (
     <main className={s.page}>

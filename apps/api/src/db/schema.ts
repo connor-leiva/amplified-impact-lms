@@ -452,6 +452,28 @@ export const skills = pgTable('skills', {
   check('skills_status', sql`${t.status} in ('draft', 'published', 'hidden')`),
 ]);
 
+// A skill bought on its own (Connor, 2026-11-23): $37 once, for this user, for as long as it is not
+// refunded. Not an order and not a plan, so it is not provisioned and it is not credited toward
+// Amplified Insiders. `user_id` is the buyer (a learner may have no account yet). `account_id` is
+// their team's account when they have one, for the ledger, and does not grant the skill to the team.
+// `order_id` is reserved and stays null: skill purchases are not rows in `orders`.
+export const skillPurchases = pgTable('skill_purchases', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  accountId: text('account_id'),
+  skillId: text('skill_id').notNull(),
+  orderId: text('order_id'),
+  stripeSessionId: text('stripe_session_id').notNull(),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  amount: integer('amount'),
+  purchasedAt: ts('purchased_at').notNull(),
+  refundedAt: ts('refunded_at'),
+}, (t) => [
+  uniqueIndex('skill_purchases_session_idx').on(t.stripeSessionId),
+  uniqueIndex('skill_purchases_user_skill_idx').on(t.userId, t.skillId),
+  index('skill_purchases_payment_intent_idx').on(t.stripePaymentIntentId),
+]);
+
 // Access groups (D-148): people who hold a plan's entitlement at no charge, by their VERIFIED email
 // address: everyone whose address is at `email_domain` (an exact match, never a subdomain), and anyone
 // listed in `access_group_members`. Not paid seats and not Stripe customers: no account, order or

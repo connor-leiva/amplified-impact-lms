@@ -53,7 +53,7 @@ export function registerSkillGuideRoutes(app: FastifyInstance, { guides }: Skill
     if (!row || row.status !== 'published') return reply.code(404).send({ error: NOT_FOUND });
 
     const now = clock.now();
-    const state = stateFor(access.role, access.plans, row, now);
+    const state = stateFor(access.role, access.plans, row, now, access.purchased.has(row.id));
     const open = state === 'open';
     recordUsage(req, actor.userId, 'guide_view'); // D-166: a usage count (skipped in a masquerade); it changes nothing here.
     return reply.send({

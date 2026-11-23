@@ -136,7 +136,7 @@ export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardP
   membership: {
     forWho: 'Owners and ops leads who want to go at their own pace.',
     lines: [
-      'Every owner and ops skill',
+      'Every skill',
       '2 new skills every month',
       'Weekly office hours, 60 minutes on Thursdays',
       'If you cancel, you keep what you’ve downloaded',

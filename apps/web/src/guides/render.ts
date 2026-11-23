@@ -27,6 +27,7 @@
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
+import { SKILL_PURCHASE } from '@ai/core/offer';
 import { skillGuideUrl } from '@ai/core/skill-guides';
 import {
   GUIDES,
@@ -335,7 +336,8 @@ function libraryCard(guide: Guide): string {
     `<h2 id="library-heading">${esc(l.heading)}</h2>`,
     `<p>${esc(plan.body)}</p>`,
     `<div class="form">`,
-    `<a class="btn btn-primary" href="${esc(plan.href)}">${esc(plan.label)}</a>`,
+    `<a class="btn btn-primary" href="${esc(skillGuideUrl(guide.slug))}">${esc(SKILL_PURCHASE.get)}</a>`,
+    `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.insidersHref)}">${esc(SKILL_PURCHASE.insiders)}</a>`,
     `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
     `</div>`,
     `</div>`,
@@ -393,7 +395,8 @@ function guidedCard(guide: Guide): string {
       `<h2 id="library-heading">${esc(l.heading)}</h2>`,
       `<p>${esc(plan.body)}</p>`,
       `<div class="form">`,
-      `<a class="btn btn-primary" href="${esc(plan.href)}">${esc(g.unlock)}</a>`,
+      `<a class="btn btn-primary" href="${esc(learn)}">${esc(SKILL_PURCHASE.get)}</a>`,
+      `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.insidersHref)}">${esc(SKILL_PURCHASE.insiders)}</a>`,
       // Its own class (Design, the live recheck of PR 105): 16px, and the link a 44px tap target.
       `<p class="legal owned">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,
       `</div>`,

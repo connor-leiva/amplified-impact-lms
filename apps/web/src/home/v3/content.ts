@@ -553,7 +553,7 @@ export const PROGRAMS = {
       href: '/insiders',
       text: 'The same owner skills we use, ready to download. Each one is a job description for your AI, with a short guide that walks you through setup. You set them up on your own time. Get stuck? Bring it to office hours and we’ll help.',
       list: [
-        'Every owner and ops skill, like Morning Brief, L10 Meeting Prep and Team P&L Review',
+        'Every skill, like Morning Brief, L10 Meeting Prep and Team P&L Review',
         '2 new skills added every month',
         'Weekly office hours: ask questions, or sit in and learn with other team owners',
         'Every session recorded in the Academy',

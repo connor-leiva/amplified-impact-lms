@@ -169,15 +169,15 @@ describe.each(GUIDED.map((g) => [g.slug, g] as const))('the public page /%s (D-1
     const card = doc.querySelector('[data-learn-guide]');
     expect(card?.getAttribute('data-learn-guide')).toBe(skillGuideUrl(slug));
     const free = guide.skill !== undefined ? isFreeSkill(guide.skill) : isFreeGrokTemplate(guide.grok ?? '');
-    const unlock = Array.from(doc.querySelectorAll('a, button')).filter((el) => el.textContent === 'Unlock the Guided Setup');
-    expect(unlock.length, slug).toBeGreaterThan(0);
     if (free) {
+      const unlock = Array.from(doc.querySelectorAll('a, button')).filter((el) => el.textContent === 'Unlock the Guided Setup');
+      expect(unlock.length, slug).toBeGreaterThan(0);
       // A free account: the sign-up's button unlocks it, then the link to the guide.
       expect(doc.querySelector('#guide-form button[type="submit"]')?.textContent).toBe('Unlock the Guided Setup');
       expect(doc.querySelector(`#check-email a[href="${skillGuideUrl(slug)}"]`)?.textContent).toBe('Open the Guided Setup');
     } else {
-      // The plans, and "Already own it? Sign In" to the guide.
-      expect(doc.querySelector('[data-skill-library] a.btn-primary')?.textContent).toBe('Unlock the Guided Setup');
+      // This skill for $37, and "Already own it? Sign In" to the guide.
+      expect(doc.querySelector('[data-skill-library] a.btn-primary')?.textContent).toBe('Get This Skill, $37');
       expect(doc.querySelector(`[data-skill-library] .legal a[href="${skillGuideUrl(slug)}"]`)?.textContent).toBe('Sign In');
     }
   });

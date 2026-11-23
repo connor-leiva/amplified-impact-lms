@@ -45,6 +45,9 @@ const GROUP_ICONS: Readonly<Partial<Record<keyof typeof TOPICS, BrandIconName>>>
   transactions: 'checklist',
   setup: 'settings',
   content: 'video-lesson',
+  buyers: 'ai-employee',
+  listings: 'resource-vault',
+  contracts: 'modules',
 };
 const GROUP_ORDER = Object.keys(GROUP_ICONS) as (keyof typeof TOPICS)[];
 
@@ -61,9 +64,9 @@ export function insidersSkills(): readonly InsidersSkill[] {
   return ENTRIES.flatMap((entry) => {
     const item = entry.href ? catalog.get(entry.href.slice(1)) : undefined;
     if (!item || !opens.has(item.sets)) return [];
-    const group = entry.collection ?? entry.topics.find((t) => t !== 'skills');
-    if (!group || !(group in GROUP_ICONS))
-      throw new Error(`/insiders has no group for ${entry.href}. Add its topic to GROUP_ICONS.`);
+    const topic = entry.collection ?? entry.topics.find((t) => t !== 'skills' && t in GROUP_ICONS);
+    const group = topic ?? (item.sets === 'owner_ops' ? 'team-ops' : 'buyers');
+    if (!(group in GROUP_ICONS)) throw new Error(`/insiders has no group for ${entry.href}. Add its topic to GROUP_ICONS.`);
     return [{ entry, summary: item.summary, group }];
   });
 }

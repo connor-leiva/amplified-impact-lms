@@ -1,0 +1,114 @@
+/* The skill purchase choice, in the skill library's look. Tokens only. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg-overlay);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(520px, 100%);
+  max-height: min(640px, 100%);
+  overflow: auto;
+  padding: 32px;
+  border: 1px solid var(--look-line);
+  border-radius: var(--look-radius-panel);
+  background: var(--look-surface-raised);
+  color: var(--look-ink);
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primary,
+.secondary,
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: var(--look-radius-control);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--look-action);
+  background: var(--look-action);
+  color: var(--look-on-action);
+}
+
+.secondary {
+  border: 1px solid var(--look-outline);
+  background: transparent;
+  color: var(--look-ink);
+}
+
+.primary:disabled {
+  cursor: default;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--look-focus);
+  outline-offset: 2px;
+}
+
+.close {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--look-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.failed {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--look-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .secondary,
+  .close {
+    transition: none;
+  }
+}
