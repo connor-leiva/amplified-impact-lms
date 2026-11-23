@@ -334,7 +334,13 @@ export const BUYER_TAGS = {
    * D-134's marketing aliases, beside the tags above (which stay exactly as they are): one per plan
    * sold, and one each for a full refund and an ended membership. The Skill Library has none.
    */
-  alias: { cohort: 'ai-buyer-accelerator', membership: 'ai-buyer-insiders', agent_plan: 'ai-buyer-agent-plan', agents: 'ai-buyer-team-plan' } as Readonly<Record<string, string>>,
+  alias: {
+    cohort: 'ai-buyer-accelerator',
+    membership: 'ai-buyer-insiders',
+    agent_plan: 'ai-buyer-agent-plan',
+    agents: 'ai-buyer-team-plan',
+    insiders_agent: 'ai-buyer-insiders-agent',
+  } as Readonly<Record<string, string>>,
   refundedAlias: 'ai-refunded',
   canceledAlias: 'ai-canceled',
   abandoned: (plan: string) => `checkout-abandoned-${tagWord(plan)}`,
@@ -361,7 +367,7 @@ export interface BuyerFacts {
   phone: string | null;
 }
 
-const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan'];
+const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent'];
 
 /** The tags one order should carry now. Tags are never removed, so a later event only adds. */
 export function buyerTags(o: BuyerFacts): string[] {
@@ -373,6 +379,7 @@ export function buyerTags(o: BuyerFacts): string[] {
     if (o.plan === 'cohort') tags.push(o.option === 'two_pay' ? BUYER_TAGS.payTwo : BUYER_TAGS.payFull);
     if (o.plan === 'membership') tags.push(o.option === 'year_upfront' ? BUYER_TAGS.payYear : BUYER_TAGS.payMonthly);
     if (o.plan === 'agent_plan') tags.push(o.option === 'yearly' ? BUYER_TAGS.payYearly : BUYER_TAGS.payMonthly);
+    if (o.plan === 'insiders_agent') tags.push(BUYER_TAGS.payMonthly);
     if (Object.hasOwn(BUYER_TAGS.alias, o.plan)) tags.push(BUYER_TAGS.alias[o.plan]!);
   } else if (o.status === 'expired') {
     tags.push(BUYER_TAGS.abandoned(o.plan));

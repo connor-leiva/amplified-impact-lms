@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SKILL_PURCHASE } from '@ai/core/offer';
+import { SKILL_PURCHASE, skillUpsell } from '@ai/core/offer';
 import { GUIDES, inSkillLibrary, SHARED, unlockFor, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
@@ -95,14 +95,16 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
       expect(doc.querySelector('main.page')?.firstElementChild).toBe(card);
     }
     // Insiders opens every set. The card offers this skill for $37, or Insiders, then sign-in.
-    const plan = SHARED.skillLibrary[unlockFor(guide)];
+    const sets = entryFor(guide)?.sets ?? GROK_TEMPLATES.find((t) => t.id === guide.grok)?.sets;
+    const blurb = sets === 'agent' ? SHARED.skillLibrary.agentInsiders.body : SHARED.skillLibrary[unlockFor(guide)].body;
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
-    expect(text(card?.querySelector('h2 + p'))).toBe(plan.body);
+    expect(text(card?.querySelector('h2 + p'))).toBe(blurb);
     const top = card?.querySelector(':scope > .locked');
+    const upsell = skillUpsell((entryFor(guide)?.sets ?? GROK_TEMPLATES.find((t) => t.id === guide.grok)?.sets ?? 'both') as 'agent' | 'owner_ops' | 'both');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
       [SKILL_PURCHASE.get, `https://learn.amplifiedimpact.io/api/skills/${slug}/guest-checkout`, false],
-      [SKILL_PURCHASE.insiders, SKILL_PURCHASE.insidersHref, false],
+      [upsell.label, `%%link:${upsell.cart}%%`, false],
       ['Sign In', skillGuideUrl(slug), false],
     ]);
     expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');

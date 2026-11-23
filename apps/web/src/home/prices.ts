@@ -42,7 +42,7 @@ export const PRICES = {
     twoPay: figure(termWith(OFFERS.cohort.price.terms, /2 payments/)),
   },
   agentPlan: {
-    /** $79 a month. */
+    /** $117 a month. */
     monthly: figure(AGENT_PLAN.price.amount),
     /** $790 a year. */
     yearly: figure(AGENT_PLAN_MORE['agent-yearly']),
@@ -61,7 +61,7 @@ export const PRICES = {
   insiders: {
     /** $1,997 today for one year. */
     yearly: figure(OFFERS.membership.price.amount),
-    /** $197 a month. */
+    /** $169 a month, for team leaders. */
     monthly: figure(OFFERS.membership.more['insiders-monthly']),
   },
 } as const;

@@ -151,7 +151,7 @@ export function Preview({ vm }: { vm: PreviewVM }) {
             <Icon name="lvLock" size={14} strokeWidth={1.75} />
             <span>{vm.meta}</span>
           </span>
-          {vm.plans ? <GetSkillButton skillId={vm.skillId} className={`${s.b} ${l.plans}`} /> : null}
+          {vm.plans ? <GetSkillButton skillId={vm.skillId} sets={vm.sets} className={`${s.b} ${l.plans}`} /> : null}
         </div>
       </div>
       <div className={vm.sample ? s.gms : l.side}>

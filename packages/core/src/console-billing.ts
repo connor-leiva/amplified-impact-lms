@@ -95,7 +95,7 @@ export function monthlyCents(item: BillingItem): number {
 }
 
 /** The plan lines the summary prints, in the mockup's order. */
-export const BILLING_LINES = ['agents16', 'agents41', 'agent_plan', 'membership', 'cohort'] as const;
+export const BILLING_LINES = ['agents16', 'agents41', 'agent_plan', 'membership', 'insiders_agent', 'cohort'] as const;
 export type BillingLine = (typeof BILLING_LINES)[number];
 
 const LINE_KIND: Record<BillingLine, PlanKind> = {
@@ -103,6 +103,7 @@ const LINE_KIND: Record<BillingLine, PlanKind> = {
   agents41: 'agents',
   agent_plan: 'agent_plan',
   membership: 'membership',
+  insiders_agent: 'insiders_agent',
   cohort: 'cohort',
 };
 
@@ -112,6 +113,7 @@ const LINE_SEATS: Record<BillingLine, number> = {
   agents41: CARTS['agents-16to40'].seats,
   agent_plan: CARTS['agent-monthly'].seats,
   membership: CARTS['insiders-monthly'].seats,
+  insiders_agent: CARTS['insiders-agent-monthly'].seats,
   cohort: CARTS['cohort-full'].seats,
 };
 
@@ -128,11 +130,12 @@ export function billingLineOf(lookupKey: string | null, meta: Record<string, str
   if (key.startsWith('agents_upto15')) return 'agents16';
   if (key.startsWith('agents_16to40')) return 'agents41';
   if (key.startsWith('agent_plan_')) return 'agent_plan';
+  if (key.startsWith('insiders_agent')) return 'insiders_agent';
   if (key.startsWith('membership_')) return 'membership';
   if (key.startsWith('cohort_')) return 'cohort';
   if (key !== '') return null;
   if (meta.ai_plan === 'agents') return meta.ai_option === '16to40' ? 'agents41' : meta.ai_option === 'upto15' ? 'agents16' : null;
-  if (meta.ai_plan === 'agent_plan' || meta.ai_plan === 'membership' || meta.ai_plan === 'cohort') return meta.ai_plan;
+  if (meta.ai_plan === 'agent_plan' || meta.ai_plan === 'membership' || meta.ai_plan === 'insiders_agent' || meta.ai_plan === 'cohort') return meta.ai_plan;
   return null;
 }
 
@@ -173,9 +176,11 @@ export function billingPriceLabel(line: BillingLine, prices: PriceBook | null): 
       : line === 'agents41'
         ? p('agents_16to40_founding') && `${p('agents_16to40_founding')} monthly`
         : line === 'agent_plan'
-          ? or(p('agent_plan_monthly') && `${p('agent_plan_monthly')} per agent, monthly`, p('agent_plan_yearly'), 'yearly')
+          ? or(p('agent_plan_monthly_117') && `${p('agent_plan_monthly_117')} per agent, monthly`, p('agent_plan_yearly'), 'yearly')
           : line === 'membership'
-            ? or(p('membership_monthly') && `${p('membership_monthly')} monthly`, p('membership_year_upfront'), 'yearly')
+            ? or(p('membership_monthly_team_leader') && `${p('membership_monthly_team_leader')} monthly`, p('membership_year_upfront'), 'yearly')
+            : line === 'insiders_agent'
+              ? p('insiders_agent_monthly') && `${p('insiders_agent_monthly')} monthly`
             : p('cohort_founding_full') && p('cohort_founding_two_pay')
               ? `${p('cohort_founding_full')} or ${INSTALLMENTS} × ${p('cohort_founding_two_pay')}`
               : null;

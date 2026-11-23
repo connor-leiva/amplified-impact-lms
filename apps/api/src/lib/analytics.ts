@@ -45,6 +45,7 @@ const OPTION_NAMES: Readonly<Record<CartId, string>> = {
   'cohort-two-pay': 'Two Payments',
   'insiders-year': 'One Year',
   'insiders-monthly': 'Monthly',
+  'insiders-agent-monthly': 'Monthly',
   'agents-upto15': 'Up to 15 Agents',
   'agents-16to40': '16 to 40 Agents',
   'agent-monthly': 'Monthly',

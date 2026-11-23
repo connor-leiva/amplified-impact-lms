@@ -23,6 +23,7 @@ import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
 import { acceleratorUpcoming, pausedForPayment } from '@ai/core/accelerator';
 import { planCovers, skillOpensAt, skillState } from '../billing/access';
+import { weeklyAgentTraining } from '../billing/catalog';
 import { purchasedSkillIds } from '../billing/skill-purchase';
 import { groupAccessOf } from '../billing/access-groups';
 import type { GroupMembership } from '../billing/access-groups';
@@ -206,6 +207,11 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // Not for an access group's member who bought nothing (D-148): their account's team of one is how
       // an account is made, not a team they run.
       teamHub: access.tier === 'team' && !(access.groups.length > 0 && access.paidPlans.length === 0),
+      // Weekly live agent training. Office hours stay on liveSessionsOpen. An access group is hidden.
+      training: weeklyAgentTraining(
+        access.paidPlans.map((p) => ({ kind: p.kind })),
+        { accessGroup: access.groups.length > 0, purchasedSkill: access.purchased.size > 0 },
+      ),
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
         .map((s) => {

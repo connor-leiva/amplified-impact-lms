@@ -323,6 +323,7 @@ export interface PreviewVM {
   plans: boolean;
   /** The catalog id, for the $37 checkout. Empty when this preview does not offer it. */
   skillId: string;
+  sets: 'owner_ops' | 'agent' | 'both';
 }
 
 export interface SetupVM {
@@ -364,6 +365,7 @@ export function skillPageVM(p: SkillsPayload, slug: string | undefined, answer: 
     get: getRows(k.files),
     plans: offersPlans(k, p),
     skillId: k.id,
+    sets: k.sets,
   };
 }
 

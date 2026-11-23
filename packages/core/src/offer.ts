@@ -14,12 +14,13 @@
 
 /**
  * The paid plans. A plan is what an account holds; it is also an order's `plan`, and Stripe's `ai_plan`.
- * `membership` is Amplified Insiders. `agents` is the Amplified Team Plan and `agent_plan` the Amplified
- * Agent Plan, one agent on their own (D-106): two kinds, so a solo agent is never read as a team.
- * `library` (the Amplified Skill Library) is retired (D-104): no cart sells it, and it stays here only so
- * a row written before then still reads.
+ * `membership` is Amplified Insiders for team leaders. `insiders_agent` is Amplified Insiders for Agents
+ * (every agent skill and weekly office hours, no weekly live training). `agents` is the Amplified Team
+ * Plan and `agent_plan` the Amplified Agent Plan, one agent on their own (D-106): two kinds, so a solo
+ * agent is never read as a team. `library` (the Amplified Skill Library) is retired (D-104): no cart
+ * sells it, and it stays here only so a row written before then still reads.
  */
-export const PLAN_KINDS = ['library', 'cohort', 'agents', 'membership', 'agent_plan'] as const;
+export const PLAN_KINDS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent'] as const;
 export type PlanKind = (typeof PLAN_KINDS)[number];
 
 /**
@@ -54,12 +55,15 @@ export const LOOKUP_KEYS = [
   'cohort_founding_two_pay',
   'membership_year_upfront',
   'membership_monthly',
+  'membership_monthly_team_leader',
   'agents_upto15_prepay3',
   'agents_16to40_prepay3',
   'agents_upto15_founding',
   'agents_16to40_founding',
   'agent_plan_monthly',
+  'agent_plan_monthly_117',
   'agent_plan_yearly',
+  'insiders_agent_monthly',
 ] as const;
 export type LookupKey = (typeof LOOKUP_KEYS)[number];
 
@@ -67,7 +71,7 @@ export type LookupKey = (typeof LOOKUP_KEYS)[number];
  * The `ai_plan` metadata values Stripe objects carry. `test` is the $1 smoke test, recorded and ignored.
  * `skill` is a one-time skill purchase, not a plan kind: it never becomes an order or a plan row.
  */
-export const AI_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'skill', 'test'] as const;
+export const AI_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent', 'skill', 'test'] as const;
 /** The `ai_option` values. `single` is the one-time skill purchase. */
 export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'year_upfront', 'monthly', 'yearly', 'upto15', '16to40', 'single', 'test'] as const;
 
@@ -75,15 +79,21 @@ export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'year_upfront', 'monthl
  * A single skill, bought once (Connor, 2026-11-23). Not a plan and not a cart. Checkout reads the
  * price id from `STRIPE_PRICE_SKILL_SINGLE`. The live price's lookup key is `skill_single`, on one
  * product named Amplified Skill, $37 once, with automatic tax. A refund ends access. The $37 is not
- * credited toward Amplified Insiders. The Insiders button reuses the monthly Payment Link.
+ * credited toward Amplified Insiders. The Insiders button is the cart for the skill's set: agent skills
+ * open Agent Insiders, and owner, ops, or both open Team Leader Insiders. The page fills the cart's
+ * Payment Link from its environment variable.
  */
 export const SKILL_SINGLE_LOOKUP = 'skill_single' as const;
 export const SKILL_AI_PLAN = 'skill' as const;
 export const SKILL_AI_OPTION = 'single' as const;
 export const SKILL_PURCHASE = {
   get: 'Get This Skill, $37',
-  insiders: 'Unlock Every Skill With Amplified Insiders, $197/Month',
-  insidersHref: 'https://buy.stripe.com/aFadRa0CPgR80e1aJ773G07',
+  /** Owner, ops, or both: Team Leader Insiders. The href is the cart's Payment Link, not a URL in code. */
+  teamLeader: 'Unlock Every Skill With Amplified Insiders, $169/Month',
+  teamLeaderCart: 'insiders-monthly',
+  /** Agent-set skills: Agent Insiders. The href is that cart's Payment Link. */
+  agentInsiders: 'Unlock Every Agent Skill With Amplified Insiders, $79/Month',
+  agentInsidersCart: 'insiders-agent-monthly',
   /**
    * Signed-out buyers. The stopgap Payment Link (a required skill dropdown, filled in by hand).
    * No skill is preselected. Signed-in learners use the in-app Checkout Session instead.
@@ -157,8 +167,16 @@ export const AGENT_PLAN_FIRST_CHARGE_AT = Date.parse('2027-01-04T00:00:00-06:00'
 /** Monthly minimums, a contract term rather than a Stripe setting: Amplified Insiders paid monthly. */
 export const MINIMUM_MONTHS = 3;
 
-/** Amplified Insiders paid for a year: $1,997 today, then `membership_monthly` after a 365-day trial. */
+/**
+ * Amplified Insiders paid for a year: $1,997 today, then `membership_monthly_team_leader` ($169) after a
+ * 365-day trial. The same price is what an Accelerator buyer rolls onto on May 4, 2027.
+ * `membership_monthly` ($197) stays a lookup key so a subscription already on it still reads. New
+ * rollovers do not use it (Connor, 2026-11-23).
+ */
 export const INSIDERS_YEAR_DAYS = 365;
+
+/** The lookup key new Accelerator and Insiders-year rollovers bill (Team Leader Insiders, $169). */
+export const ROLLOVER_LOOKUP = 'membership_monthly_team_leader' as const;
 
 /**
  * Cohort one, as the platform's `dec26` cohort: 8 Wednesday builds, Dec 2, 9 and 16, Jan 6, 13, 20 and
@@ -202,6 +220,7 @@ export const CART_IDS = [
   'cohort-two-pay',
   'insiders-year',
   'insiders-monthly',
+  'insiders-agent-monthly',
   'agents-upto15',
   'agents-16to40',
   'agent-monthly',
@@ -238,10 +257,10 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     id: 'cohort-full',
     plan: 'cohort',
     option: 'full',
-    // $7,500 today and Amplified Insiders trialing until May 4, 2027: one subscription, a one-time item
-    // and a monthly one, with `trial_end` pinned by the webhook.
+    // $7,500 today and Team Leader Insiders ($169) trialing until May 4, 2027: one subscription, a
+    // one-time item and a monthly one, with `trial_end` pinned by the webhook.
     mode: 'subscription',
-    items: ['cohort_founding_full', 'membership_monthly'],
+    items: ['cohort_founding_full', 'membership_monthly_team_leader'],
     founding: true,
     seats: 2,
     requiresFollowUpBoss: true,
@@ -263,10 +282,10 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     id: 'insiders-year',
     plan: 'membership',
     option: 'year_upfront',
-    // $1,997 today for one year, then $197 a month until cancelled: one subscription, a one-time item
-    // and `membership_monthly` on a 365-day trial. Not an annual price that renews.
+    // $1,997 today for one year, then $169 a month until cancelled: one subscription, a one-time item
+    // and `membership_monthly_team_leader` on a 365-day trial. Not an annual price that renews.
     mode: 'subscription',
-    items: ['membership_year_upfront', 'membership_monthly'],
+    items: ['membership_year_upfront', 'membership_monthly_team_leader'],
     founding: false,
     seats: 2,
     requiresFollowUpBoss: false,
@@ -277,12 +296,26 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     plan: 'membership',
     option: 'monthly',
     mode: 'subscription',
-    items: ['membership_monthly'],
+    items: ['membership_monthly_team_leader'],
     founding: false,
     seats: 2,
     minimumMonths: MINIMUM_MONTHS,
     requiresFollowUpBoss: false,
     paymentLinkEnv: 'PAYMENT_LINK_INSIDERS_MONTHLY',
+  },
+  'insiders-agent-monthly': {
+    id: 'insiders-agent-monthly',
+    plan: 'insiders_agent',
+    option: 'monthly',
+    // $79 a month from today, 3-month minimum. Every agent skill and weekly office hours. No weekly
+    // live agent training, and no pinned first charge.
+    mode: 'subscription',
+    items: ['insiders_agent_monthly'],
+    founding: false,
+    seats: 1,
+    minimumMonths: MINIMUM_MONTHS,
+    requiresFollowUpBoss: false,
+    paymentLinkEnv: 'PAYMENT_LINK_INSIDERS_AGENT_MONTHLY',
   },
   'agents-upto15': {
     id: 'agents-upto15',
@@ -314,12 +347,14 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     id: 'agent-monthly',
     plan: 'agent_plan',
     option: 'monthly',
-    // $79 a month, the first charge on Jan 4, 2027: the link sells a trial, and the webhook pins its
-    // end there. One agent's login; cancel anytime, no minimum, no founding price (D-106).
+    // $117 a month, the first charge on Jan 4, 2027: the link sells a trial, and the webhook pins its
+    // end there. One agent's login. A 3-month minimum counted from that first charge (Apr 4, 2027 for
+    // a trial buyer). No founding price (D-106). Buyers already on the $79 price stay on it.
     mode: 'subscription',
-    items: ['agent_plan_monthly'],
+    items: ['agent_plan_monthly_117'],
     founding: false,
     seats: 1,
+    minimumMonths: MINIMUM_MONTHS,
     requiresFollowUpBoss: false,
     paymentLinkEnv: 'PAYMENT_LINK_AGENT_MONTHLY',
   },
@@ -444,18 +479,20 @@ export interface PlanDates {
  * A new plan's dates (D-104, D-106):
  *   - the AI Accelerator: paid through the end of cohort one's 90 days, and started at the first live
  *     build (Dec 2, 1:00 PM Central, D-153), so its skills and its course open then and not at purchase;
- *   - Amplified Insiders by the year: paid through day 365, when its $197 a month begins;
- *   - Amplified Insiders by the month: paid through one month, with a 3-month minimum;
+ *   - Amplified Insiders by the year: paid through day 365, when its $169 a month begins;
+ *   - Amplified Insiders by the month, and Agent Insiders: paid through one month, with a 3-month minimum;
  *   - the Team Plan: paid at checkout through Apr 3, 2027, its first monthly charge on Apr 4. Its agent
  *     skills open on Dec 14 (`startsAt`, which the access rule reads); its 3-month minimum is paid up
  *     front, so nothing locks cancelling;
  *   - the Agent Plan: nothing is paid at checkout before Jan 4, 2027 (`chargedToday` is false: the link
  *     sells a trial), so it is paid through nothing until `invoice.paid` for the Jan 4 charge moves
  *     `paid_through` a month or a year on. Its skills open on Jan 4 (`startsAt`). A checkout that did
- *     charge (a buyer after Jan 4, on a link with no trial) is paid through one period from today. No
- *     minimum: cancel anytime.
+ *     charge (a buyer after Jan 4, on a link with no trial) is paid through one period from today. The
+ *     monthly plan's 3-month minimum is counted from the first paid charge: Jan 4, 2027 for a trial
+ *     buyer, so cancelling stays locked until Apr 4, 2027. The yearly plan has no minimum. A plan
+ *     already on the $79 price is not rewritten.
  */
-export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: number, chargedToday = true): PlanDates {
+export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option' | 'minimumMonths'>, now: number, chargedToday = true): PlanDates {
   switch (cart.plan) {
     case 'cohort':
       // D-153: the login works at once, and the course and its skills open at the first live build.
@@ -466,18 +503,23 @@ export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: numbe
         minimumUntil: null,
         cohortId: COHORT_ONE.id,
       };
-    case 'membership': {
+    case 'membership':
+    case 'insiders_agent': {
       if (cart.option === 'year_upfront') {
         const year = now + INSIDERS_YEAR_DAYS * DAY;
         return { startsAt: now, paidThrough: year, liveUntil: null, minimumUntil: null, cohortId: null };
       }
-      return { startsAt: now, paidThrough: addMonths(now, 1), liveUntil: null, minimumUntil: addMonths(now, MINIMUM_MONTHS), cohortId: null };
+      return { startsAt: now, paidThrough: addMonths(now, 1), liveUntil: null, minimumUntil: addMonths(now, cart.minimumMonths ?? MINIMUM_MONTHS), cohortId: null };
     }
     case 'agents':
       return { startsAt: Math.max(now, AGENTS_SKILLS_FROM), paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null, cohortId: null };
     case 'agent_plan': {
       const period = addMonths(now, cart.option === 'yearly' ? 12 : 1);
-      return { startsAt: Math.max(now, AGENT_PLAN_FIRST_CHARGE_AT), paidThrough: chargedToday ? period : null, liveUntil: null, minimumUntil: null, cohortId: null };
+      // The monthly minimum starts at the first paid charge. A trial buyer is not charged until Jan 4,
+      // so the lock runs to Apr 4, 2027. A charge today (after Jan 4) counts from today. Yearly has none.
+      const chargeAt = chargedToday ? now : Math.max(now, AGENT_PLAN_FIRST_CHARGE_AT);
+      const minimumUntil = cart.option === 'monthly' && cart.minimumMonths ? addMonths(chargeAt, cart.minimumMonths) : null;
+      return { startsAt: Math.max(now, AGENT_PLAN_FIRST_CHARGE_AT), paidThrough: chargedToday ? period : null, liveUntil: null, minimumUntil, cohortId: null };
     }
     case 'library':
       // Retired (D-104): no cart sells it. A row made before then keeps whatever it was given.
@@ -486,9 +528,9 @@ export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: numbe
 }
 
 /**
- * Which skill sets a plan opens (D-079). Cohort buyers get both. The Team Plan and the Agent Plan
- * get the agents' set, and that is unchanged. Amplified Insiders (`membership`) opens every set
- * (Connor, 2026-11-23): owner and ops, agent, and both.
+ * Which skill sets a plan opens (D-079). Cohort buyers get both. The Team Plan, the Agent Plan and
+ * Agent Insiders get the agents' set. Amplified Insiders for team leaders (`membership`) opens every
+ * set (Connor, 2026-11-23): owner and ops, agent, and both.
  */
 export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent')[]>> = {
   library: ['owner_ops'],
@@ -496,6 +538,7 @@ export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent
   agents: ['agent'],
   membership: ['owner_ops', 'agent'],
   agent_plan: ['agent'],
+  insiders_agent: ['agent'],
 };
 
 /** The plans' names (Connor, 2026-11-10). They print on every page that names a plan. */
@@ -505,7 +548,48 @@ export const PLAN_NAMES: Readonly<Record<PlanKind, string>> = {
   agents: 'Amplified Team Plan',
   membership: MEMBERSHIP_NAME,
   agent_plan: 'Amplified Agent Plan',
+  insiders_agent: 'Amplified Insiders for Agents',
 };
+
+/**
+ * The Insiders upsell on a skill page. Agent skills open Agent Insiders. Owner, ops, and both open
+ * Team Leader Insiders. The href is the cart's Payment Link (`%%link:<cart>%%` on www, the offer API
+ * in the library), so Railway's variable is what a buyer follows.
+ */
+export function skillUpsell(sets: SkillSet): { label: string; cart: CartId } {
+  if (sets === 'agent') return { label: SKILL_PURCHASE.agentInsiders, cart: SKILL_PURCHASE.agentInsidersCart };
+  return { label: SKILL_PURCHASE.teamLeader, cart: SKILL_PURCHASE.teamLeaderCart };
+}
+
+/**
+ * Weekly live agent training in the library, where skill buyers live (Connor, 2026-11-23).
+ * The Agent Plan and the Team Plan include it, and so does anyone who already holds one of those.
+ * Agent Insiders and a $37 skill do not. An access group's member is unchanged: the library shows
+ * them no training row and no upsell. Team Leader Insiders and the Accelerator keep the library they
+ * have today (no new row). Office hours are `liveSessionsOpen`, not this.
+ */
+export type TrainingAccess = 'open' | 'locked' | 'hidden';
+
+export function weeklyAgentTraining(
+  plans: readonly { kind: string }[],
+  opts: { accessGroup: boolean; purchasedSkill: boolean },
+): TrainingAccess {
+  if (opts.accessGroup) return 'hidden';
+  if (plans.some((p) => p.kind === 'agent_plan' || p.kind === 'agents')) return 'open';
+  if (plans.some((p) => p.kind === 'membership' || p.kind === 'cohort' || p.kind === 'library')) return 'hidden';
+  if (plans.some((p) => p.kind === 'insiders_agent') || opts.purchasedSkill) return 'locked';
+  return 'hidden';
+}
+
+/** The locked training row and the panel it opens. The link is the Agent Plan monthly cart. */
+export const AGENT_TRAINING = {
+  title: 'Weekly Live Training',
+  included: 'Weekly live training is included in your plan.',
+  locked: 'Weekly live training is not in this plan.',
+  upgrade: 'Upgrade to the Agent Plan, $117/Month',
+  body: '3-Month Minimum. Every agent skill, plus weekly live training, plus office hours.',
+  cart: 'agent-monthly',
+} as const;
 
 // --- the page's tokens -----------------------------------------------------------------------------
 // The offer pages are built once (apps/web) and filled per request (apps/api/src/routes/offer.ts):

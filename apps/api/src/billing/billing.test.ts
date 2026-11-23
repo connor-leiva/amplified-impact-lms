@@ -28,6 +28,7 @@ import {
   initialPlanDates,
   mountainDeadline,
   pinnedFirstCharge,
+  weeklyAgentTraining,
 } from './catalog';
 import { ACCELERATOR_LINKS_LIVE, describeOfferConfig, keyMode, readOfferConfig } from './config';
 import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
@@ -49,7 +50,7 @@ const dayIn = (t: number, timeZone: string) =>
 
 describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
   it('holds the CHECK constraints and the catalog to the same lists, as migration 0008 left them', () => {
-    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql']
+    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql', '0012_access_groups.sql', '0039_insiders_agent.sql']
       .map((f) => readFileSync(fileURLToPath(new URL(`../../drizzle/${f}`, import.meta.url)), 'utf8'))
       .join('\n');
     // The last definition of each constraint wins.
@@ -70,7 +71,10 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
     expect([...LOOKUP_KEYS].sort()).toEqual(
       [
         'agent_plan_monthly',
+        'agent_plan_monthly_117',
         'agent_plan_yearly',
+        'insiders_agent_monthly',
+        'membership_monthly_team_leader',
         'agents_16to40_founding',
         'agents_16to40_prepay3',
         'agents_upto15_founding',
@@ -89,19 +93,33 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
       'cohort-two-pay': ['cohort', 'two_pay', 'PAYMENT_LINK_COHORT_TWO_PAY'],
       'insiders-year': ['membership', 'year_upfront', 'PAYMENT_LINK_INSIDERS_YEAR'],
       'insiders-monthly': ['membership', 'monthly', 'PAYMENT_LINK_INSIDERS_MONTHLY'],
+      'insiders-agent-monthly': ['insiders_agent', 'monthly', 'PAYMENT_LINK_INSIDERS_AGENT_MONTHLY'],
       'agents-upto15': ['agents', 'upto15', 'PAYMENT_LINK_TEAM_UPTO15_PREPAY'],
       'agents-16to40': ['agents', '16to40', 'PAYMENT_LINK_TEAM_16TO40_PREPAY'],
       'agent-monthly': ['agent_plan', 'monthly', 'PAYMENT_LINK_AGENT_MONTHLY'],
       'agent-yearly': ['agent_plan', 'yearly', 'PAYMENT_LINK_AGENT_YEARLY'],
     });
-    // The Agent Plan: one login, one recurring price, no founding price, no minimum, no billing arrangement.
+    // The Agent Plan: one login, one recurring price, no founding price, no billing arrangement.
+    // Monthly has a 3-month minimum. Yearly does not. The $79 price is not what a new cart sells.
     for (const id of ['agent-monthly', 'agent-yearly'] as const) {
       expect(CARTS[id]).toMatchObject({ mode: 'subscription', founding: false, seats: 1, requiresFollowUpBoss: false });
-      expect(CARTS[id].minimumMonths).toBeUndefined();
       expect(CARTS[id].billing).toBeUndefined();
     }
-    expect([CARTS['agent-monthly'].items, CARTS['agent-yearly'].items]).toEqual([['agent_plan_monthly'], ['agent_plan_yearly']]);
-    expect(CARTS['insiders-year'].items).toEqual(['membership_year_upfront', 'membership_monthly']);
+    expect(CARTS['agent-monthly'].minimumMonths).toBe(3);
+    expect(CARTS['agent-yearly'].minimumMonths).toBeUndefined();
+    expect([CARTS['agent-monthly'].items, CARTS['agent-yearly'].items]).toEqual([['agent_plan_monthly_117'], ['agent_plan_yearly']]);
+    expect(CARTS['insiders-monthly'].items).toEqual(['membership_monthly_team_leader']);
+    expect(CARTS['insiders-agent-monthly']).toMatchObject({
+      plan: 'insiders_agent',
+      option: 'monthly',
+      mode: 'subscription',
+      items: ['insiders_agent_monthly'],
+      seats: 1,
+      minimumMonths: 3,
+      paymentLinkEnv: 'PAYMENT_LINK_INSIDERS_AGENT_MONTHLY',
+    });
+    expect(CARTS['cohort-full'].items).toEqual(['cohort_founding_full', 'membership_monthly_team_leader']);
+    expect(CARTS['insiders-year'].items).toEqual(['membership_year_upfront', 'membership_monthly_team_leader']);
     expect(CARTS['agents-upto15'].items).toEqual(['agents_upto15_prepay3', 'agents_upto15_founding']);
     // Founding prices close for the AI Accelerator and the Team Plan; Insiders has none.
     expect(CART_IDS.filter((id) => CARTS[id].founding)).toEqual(['cohort-full', 'cohort-two-pay', 'agents-upto15', 'agents-16to40']);
@@ -142,7 +160,7 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
     expect(mountainDeadline(Date.parse(DEFAULT_FOUNDING_CLOSES_AT))).toBe('Monday, November 30 at 11:59 PM Mountain');
     expect(pinnedFirstCharge(CARTS['agents-upto15'])).toBe(AGENTS_FIRST_CHARGE_AT);
     expect(pinnedFirstCharge(CARTS['cohort-full'])).toBe(INSIDERS_FIRST_CHARGE_AT);
-    expect([pinnedFirstCharge(CARTS['cohort-two-pay']), pinnedFirstCharge(CARTS['insiders-year'])]).toEqual([null, null]);
+    expect([pinnedFirstCharge(CARTS['cohort-two-pay']), pinnedFirstCharge(CARTS['insiders-year']), pinnedFirstCharge(CARTS['insiders-agent-monthly'])]).toEqual([null, null, null]);
   });
 
   it('pins the Agent Plan\'s first charge to Monday, Jan 4, 2027, 00:00 Central (D-106)', () => {
@@ -174,13 +192,38 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
     expect(initialPlanDates(CARTS['agents-16to40'], NOW)).toMatchObject({ startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, minimumUntil: null });
     expect(initialPlanDates(CARTS['agents-16to40'], AGENTS_SKILLS_FROM + DAY).startsAt).toBe(AGENTS_SKILLS_FROM + DAY);
     // The Agent Plan on its trial: skills from Jan 4, paid through nothing until the Jan 4 invoice is paid.
-    for (const id of ['agent-monthly', 'agent-yearly'] as const) {
-      expect(initialPlanDates(CARTS[id], NOW, false)).toEqual({ startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: null, liveUntil: null, minimumUntil: null, cohortId: null });
-    }
+    expect(initialPlanDates(CARTS['agent-yearly'], NOW, false)).toEqual({ startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: null, liveUntil: null, minimumUntil: null, cohortId: null });
+    // Monthly trial: the 3-month minimum is counted from the Jan 4 charge, so it ends Apr 4, 2027.
+    expect(initialPlanDates(CARTS['agent-monthly'], NOW, false)).toEqual({
+      startsAt: AGENT_PLAN_FIRST_CHARGE_AT,
+      paidThrough: null,
+      liveUntil: null,
+      minimumUntil: addMonths(AGENT_PLAN_FIRST_CHARGE_AT, 3),
+      cohortId: null,
+    });
+    expect(dayIn(addMonths(AGENT_PLAN_FIRST_CHARGE_AT, 3), 'America/Chicago')).toBe('Sunday, April 4, 2027');
+    // Agent Insiders starts now, paid a month ahead, with the same 3-month minimum, and opens agent skills only.
+    expect(initialPlanDates(CARTS['insiders-agent-monthly'], NOW)).toMatchObject({
+      startsAt: NOW,
+      paidThrough: addMonths(NOW, 1),
+      minimumUntil: addMonths(NOW, 3),
+    });
+    expect(PLAN_SETS.insiders_agent).toEqual(['agent']);
+    expect(weeklyAgentTraining([{ kind: 'agent_plan' }], { accessGroup: false, purchasedSkill: false })).toBe('open');
+    expect(weeklyAgentTraining([{ kind: 'agents' }], { accessGroup: false, purchasedSkill: false })).toBe('open');
+    expect(weeklyAgentTraining([{ kind: 'insiders_agent' }], { accessGroup: false, purchasedSkill: false })).toBe('locked');
+    expect(weeklyAgentTraining([], { accessGroup: false, purchasedSkill: true })).toBe('locked');
+    expect(weeklyAgentTraining([{ kind: 'membership' }], { accessGroup: false, purchasedSkill: false })).toBe('hidden');
+    expect(weeklyAgentTraining([{ kind: 'insiders_agent' }], { accessGroup: true, purchasedSkill: true })).toBe('hidden');
+    expect(PLAN_SETS.membership).toEqual(['owner_ops', 'agent']);
     // Charged at checkout (a buyer after Jan 4, on a link with no trial): one period from today.
     const later = AGENT_PLAN_FIRST_CHARGE_AT + 10 * DAY;
-    expect(initialPlanDates(CARTS['agent-monthly'], later, true)).toMatchObject({ startsAt: later, paidThrough: addMonths(later, 1) });
-    expect(initialPlanDates(CARTS['agent-yearly'], later, true)).toMatchObject({ startsAt: later, paidThrough: addMonths(later, 12) });
+    expect(initialPlanDates(CARTS['agent-monthly'], later, true)).toMatchObject({
+      startsAt: later,
+      paidThrough: addMonths(later, 1),
+      minimumUntil: addMonths(later, 3),
+    });
+    expect(initialPlanDates(CARTS['agent-yearly'], later, true)).toMatchObject({ startsAt: later, paidThrough: addMonths(later, 12), minimumUntil: null });
   });
 
 
@@ -430,6 +473,7 @@ describe('the offer page values (D-075, D-104)', () => {
       'cohort-two-pay': 'link',
       'insiders-year': 'link',
       'insiders-monthly': 'soon',
+      'insiders-agent-monthly': 'soon',
       'agents-upto15': 'link',
       'agents-16to40': 'soon',
       'agent-monthly': 'link',
