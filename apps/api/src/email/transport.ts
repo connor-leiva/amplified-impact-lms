@@ -115,6 +115,8 @@ export interface SendRequest<K extends TemplateName> {
 export interface RenderedEmail {
   subject: string;
   html: string;
+  /** Plain text, when the template has one. Resend gets it beside the HTML. */
+  text?: string;
 }
 
 /**
@@ -142,6 +144,8 @@ export interface OutboxEntry {
   data: Readonly<Record<string, unknown>>;
   /** The rendered body, or `null` when no renderer is registered (test and development only). */
   html: string | null;
+  /** The plain-text alternative, when the template produced one. */
+  text?: string;
 }
 
 export interface SendResult {
@@ -258,14 +262,14 @@ export function resetResendClient(): void {
 }
 
 /** Resend's message id for an accepted send (D-166: the email log keeps it), or null when it gave none. */
-async function sendViaResend(to: string, subject: string, html: string | null): Promise<string | null> {
+async function sendViaResend(to: string, subject: string, html: string | null, text?: string): Promise<string | null> {
   const from = process.env.EMAIL_FROM;
   if (!from) throw new Error('EMAIL_FROM is not set');
   // No renderer means no body. An email with an empty body is worse than a send that did not
   // happen, because it looks delivered to everyone involved, so this is a hard failure.
   if (html === null) throw new Error('No template renderer is registered');
   const resend = await resendClient();
-  const { data, error } = await resend.emails.send({ from, to, subject, html });
+  const { data, error } = await resend.emails.send({ from, to, subject, html, ...(text ? { text } : {}) });
   // The SDK reports a rejected send in `error` rather than by throwing. Both paths end up in
   // `send`'s catch.
   if (error) throw new Error(`${error.name}: ${error.message}`);
@@ -366,9 +370,12 @@ async function deliver<K extends TemplateName>(
   if (!subject.trim()) return fail(mode, template, to, subject, 'subject is empty');
 
   let html: string | null = null;
+  let text: string | undefined;
   if (renderer) {
     try {
-      html = (await renderer(template, data)).html;
+      const rendered = await renderer(template, data);
+      html = rendered.html;
+      text = rendered.text;
     } catch (err) {
       // A template that throws must not produce a half-email: nothing is collected, nothing is
       // sent, and the failure names the template.
@@ -384,6 +391,7 @@ async function deliver<K extends TemplateName>(
         subject,
         data: Object.freeze({ ...data } as Record<string, unknown>),
         html,
+        ...(text ? { text } : {}),
       }),
     );
     return { ok: true, mode, template, to, subject };
@@ -400,7 +408,7 @@ async function deliver<K extends TemplateName>(
   }
 
   try {
-    sent.providerId = await sendViaResend(to, subject, html);
+    sent.providerId = await sendViaResend(to, subject, html, text);
     return { ok: true, mode, template, to, subject };
   } catch (err) {
     // Decision 1: a production failure is reported, never thrown. The invite stands.

@@ -18,3 +18,11 @@ export function insidersSentence(sets: SkillSet): string {
   if (sets === 'agent') return `Amplified Insiders for Agents unlocks every agent skill for ${AGENT_INSIDERS_MONTHLY_PRICE}.`;
   return `Amplified Insiders unlocks every skill for ${INSIDERS_MONTHLY_PRICE}.`;
 }
+
+/** The upsell paragraph on the skill purchase email. The headline above it stays fixed. */
+export function skillUpsellBody(skillName: string, sets: SkillSet): string {
+  if (sets === 'agent') {
+    return `${skillName} is one agent skill in the library. Amplified Insiders for Agents opens every agent skill for ${AGENT_INSIDERS_MONTHLY_PRICE}, so the next job you want AI to handle already has a skill waiting.`;
+  }
+  return `${skillName} is one skill in the library. Amplified Insiders opens all of them for ${INSIDERS_MONTHLY_PRICE}, so the next job you want AI to handle already has a skill waiting.`;
+}
