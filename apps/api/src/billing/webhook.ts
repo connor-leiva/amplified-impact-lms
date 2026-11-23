@@ -303,7 +303,7 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
 }
 
 /**
- * A `membership_monthly` subscription trialing until `startsAt`, on the card the buyer already saved.
+ * A `membership_monthly_team_leader` subscription trialing until `startsAt`, on the card the buyer already saved.
  * With no saved card, Stripe emails an invoice instead of charging. Idempotent by `opts.key`, and
  * skipped when the customer already has an active or trialing membership, so a retried webhook never
  * enrolls anyone twice.
@@ -319,11 +319,16 @@ async function startMembership(
   const plan = await planOfOrder(db, order.id);
   if (!plan || plan.stripeSubscriptionId) return;
   const prices = await deps.prices.get(deps.now());
-  const price = prices?.membership_monthly;
-  if (!price) throw Object.assign(new Error('membership_monthly has no price'), { code: 'no-membership-price' });
+  const price = prices?.membership_monthly_team_leader;
+  if (!price) throw Object.assign(new Error('membership_monthly_team_leader has no price'), { code: 'no-membership-price' });
   if (!order.stripeCustomerId) throw Object.assign(new Error('order has no customer'), { code: 'no-customer' });
 
-  const existing = await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, price.id);
+  // A buyer already on Team Leader Insiders, or still on the earlier $197 price, is not enrolled again.
+  // The $197 subscription is left as it is.
+  const legacy = prices?.membership_monthly;
+  const existing =
+    (await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, price.id)) ??
+    (legacy ? await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, legacy.id) : null);
   if (existing) {
     deps.log.warn({ order: order.id, plan: plan.id, subscription: existing }, 'customer already has a membership; none created');
     return;
@@ -356,7 +361,7 @@ async function startMembership(
 
 /**
  * An AI Accelerator order's Amplified Insiders. Paid in full, the order's own subscription carries it
- * (`membership_monthly` trialing until May 4), so the plan points there. Two payments, the installments
+ * (`membership_monthly_team_leader` trialing until May 4), so the plan points there. Two payments, the installments
  * are their own subscription and Insiders is a separate one, created here with `trial_end` pinned to
  * May 4, 2027 and the idempotency key `membership-autoroll-<session>` (the Stripe-side requirements,
  * section B): sharing one subscription would delay or cancel the installments with the membership. A

@@ -10,13 +10,13 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { PLAN_SETS, type PlanKind } from '@ai/core/offer';
+import { AGENT_TRAINING, PLAN_SETS, type PlanKind, type TrainingAccess } from '@ai/core/offer';
 import { guidePageOf, skillGuidePath } from '@ai/core/skill-guides';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from './PreLaunch';
-import { GetSkillButton } from './SkillPurchase';
+import { AgentPlanUpgrade, GetSkillButton } from './SkillPurchase';
 import s from './SkillLibrary.module.css';
 
 export const COPY = {
@@ -259,6 +259,7 @@ type Load =
       /** D-179: each group's locked line from the builder (`locked.utah_life`), by group id. */
       lockedLines: Record<string, string>;
       paidPlans: boolean;
+      training: TrainingAccess;
       /** D-153: when a bought AI Accelerator opens, while it has not; null otherwise. */
       courseOpensAt: number | null;
     }
@@ -282,6 +283,7 @@ async function loadSkills(): Promise<Load> {
       accessGroups?: AccessGroupInfo[];
       lockedLines?: Record<string, string>;
       courseOpensAt?: number | null;
+      training?: TrainingAccess;
     };
     return {
       kind: 'ready',
@@ -293,6 +295,7 @@ async function loadSkills(): Promise<Load> {
       plans: body.plans ?? [],
       lockedLines: body.lockedLines ?? {},
       paidPlans: (body.plans ?? []).length > 0,
+      training: body.training === 'open' || body.training === 'locked' ? body.training : 'hidden',
       courseOpensAt: typeof body.courseOpensAt === 'number' ? body.courseOpensAt : null,
     };
   } catch {
@@ -406,6 +409,36 @@ async function dismissWelcome(group: string): Promise<void> {
   }
 }
 
+function TrainingRow({ access }: { access: TrainingAccess }) {
+  const [open, setOpen] = useState(false);
+  if (access === 'hidden') return null;
+  return (
+    <ul className={s.list} role="list">
+      <li className={s.skill} data-state={access === 'open' ? 'open' : 'locked'} data-training={access}>
+        <div className={s.text}>
+          <h2 className={s.name} id="weekly-live-training">
+            {AGENT_TRAINING.title}
+          </h2>
+        </div>
+        <div className={s.actions}>
+          {access === 'open' ? (
+            <span className={s.note}>
+              <Icon name="checkCircle" size={16} />
+              {AGENT_TRAINING.included}
+            </span>
+          ) : (
+            <button type="button" className={s.primary} onClick={() => setOpen(true)}>
+              <Icon name="lock" size={16} />
+              {AGENT_TRAINING.locked}
+            </button>
+          )}
+        </div>
+      </li>
+      {open ? <AgentPlanUpgrade onClose={() => setOpen(false)} /> : null}
+    </ul>
+  );
+}
+
 function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups: readonly AccessGroupInfo[]; lockedLines: Readonly<Record<string, string>> }) {
   const group = groupForSkill(skill, groups);
   const memberLine = group ? (lockedLines[group.id] ?? COPY.notIncluded(group.name)) : null;
@@ -456,7 +489,7 @@ function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups:
               {COPY.preview}
             </Link>
             {/* A bought skill, or every skill with Amplified Insiders. Never for an access group's member. */}
-            {offersPlans(memberLine !== null) ? <GetSkillButton skillId={skill.id} className={s.primary} /> : null}
+            {offersPlans(memberLine !== null) ? <GetSkillButton skillId={skill.id} sets={skill.sets} className={s.primary} /> : null}
           </>
         ) : (
           <span className={s.note}>
@@ -541,6 +574,8 @@ export function Component() {
 
       {/* D-153: bought, and opening at the first live build: why the course and the skills wait. */}
       {load.kind === 'ready' && load.courseOpensAt !== null ? <PreLaunch opensAt={load.courseOpensAt} /> : null}
+
+      {load.kind === 'ready' ? <TrainingRow access={load.training} /> : null}
 
       {load.kind === 'ready'
         ? load.groups

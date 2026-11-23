@@ -561,7 +561,7 @@ export const PROGRAMS = {
       ],
       best: 'Best if you like to figure things out yourself and want the whole toolbox for less.',
       toggle: { label: 'Insiders billing', a: 'Yearly', b: 'Monthly' },
-      notes: ['a year', 'a month'],
+      notes: ['a year', 'a month, For Team Leaders'],
       after: (monthly: string) => `Counts fully toward the Accelerator later. Or ${monthly} a month, with a 3-month minimum.`,
       cta: 'Join Insiders',
     },
@@ -608,7 +608,7 @@ export const PROGRAMS = {
       best: 'Best if your team owner hasn’t jumped in yet, or you just want to get ahead.',
       toggle: { label: 'Agent Plan billing', a: 'Monthly', b: 'Yearly' },
       notes: ['a month', 'a year'],
-      after: (yearly: string, first: string) => `Or ${yearly} a year. Join any day, cancel anytime. First charge ${first}.`,
+      after: (yearly: string, first: string) => `Or ${yearly} a year. Join any day. 3-Month Minimum. First charge ${first}.`,
       cta: 'Start the Agent Plan',
     },
   },
@@ -755,7 +755,7 @@ export const QUESTIONS = {
     },
     {
       q: 'Can I cancel?',
-      a: ['The Agent Plan cancels anytime. Insiders monthly has a 3-month minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.'],
+      a: ['The Agent Plan monthly has a 3-Month Minimum. Insiders monthly has a 3-Month Minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.'],
     },
   ],
 } as const;

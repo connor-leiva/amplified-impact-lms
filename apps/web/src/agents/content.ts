@@ -2,11 +2,11 @@
 // already somewhere else.
 //
 // THE SOURCES. Spring's page outline (docs/SPRING-PLAN.md, "Amplified Agent Plan (/agents)"): the hero
-// with a one-line promise, $79 a month and a Join button, opening the week of January 4; your first
+// with a one-line promise, $117 a month and a Join button, opening the week of January 4; your first
 // week, the starter path; the monthly training rotation as a 4 week calendar; office hours; what
 // happens after you buy; proof, the questions and a final button. Her "How each program runs" names the
-// starter path and the rotation's topics and skills. The overnight brief: "$79/mo or $790/yr, first
-// charge January 4, 2027, cancel anytime. Wire buttons to the Agent Plan carts." The card's own words
+// starter path and the rotation's topics and skills. The overnight brief: "$117/mo or $790/yr, first
+// charge January 4, 2027, 3-Month Minimum. Wire buttons to the Agent Plan carts." The card's own words
 // are `AGENT_PLAN` (`../site/offers-content.ts`), shared with /pricing.
 //
 // Spring's voice: contractions, short sentences, lead with a statement, no victim language. No em
@@ -19,7 +19,7 @@ import type { Faq } from '../site/offers-content';
 export const AGENTS_META = {
   title: 'Amplified Agent Plan · Amplified Impact',
   description:
-    'AI for your leads, listings and buyers, with live training every week. $79 a month or $790 a year. Starts the week of January 4. Cancel anytime.',
+    'AI for your leads, listings and buyers, with live training every week. $117 a month or $790 a year. Starts the week of January 4. 3-Month Minimum.',
   path: '/agents',
 } as const;
 
@@ -87,11 +87,11 @@ export const AGENTS_FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'Can I cancel?',
-      a: ['Yes, anytime. If you cancel, you keep the skills you’ve downloaded. You lose new skills, updates and training.'],
+      a: ['The monthly plan has a 3-Month Minimum. If you cancel, you keep the skills you’ve downloaded. You lose new skills, updates and training.'],
     },
     {
       q: 'Monthly or yearly?',
-      a: ['$79 a month, or $790 a year. Pick the one you want at checkout.'],
+      a: ['$117 a month, with a 3-Month Minimum, or $790 a year. Pick the one you want at checkout.'],
     },
     {
       q: 'Do I need Claude or ChatGPT?',

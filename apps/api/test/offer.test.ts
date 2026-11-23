@@ -58,6 +58,9 @@ const PRICE_LIST: PriceInfo[] = [
   { lookupKey: 'cohort_founding_two_pay', id: 'price_c2', unitAmount: 375000, currency: 'usd', interval: 'month', productName: 'Core Cohort' },
   { lookupKey: 'membership_year_upfront', id: 'price_my', unitAmount: 199700, currency: 'usd', interval: null, productName: 'Amplified Insiders' },
   { lookupKey: 'membership_monthly', id: 'price_mm', unitAmount: 19700, currency: 'usd', interval: 'month', productName: 'Membership' },
+  { lookupKey: 'membership_monthly_team_leader', id: 'price_mtl', unitAmount: 16900, currency: 'usd', interval: 'month', productName: 'Amplified Insiders' },
+  { lookupKey: 'insiders_agent_monthly', id: 'price_iam', unitAmount: 7900, currency: 'usd', interval: 'month', productName: 'Amplified Insiders for Agents' },
+  { lookupKey: 'agent_plan_monthly_117', id: 'price_ap117', unitAmount: 11700, currency: 'usd', interval: 'month', productName: 'Amplified Agent Plan' },
   { lookupKey: 'agents_upto15_prepay3', id: 'price_p15', unitAmount: 149100, currency: 'usd', interval: null, productName: 'Amplified Team Plan' },
   { lookupKey: 'agents_16to40_prepay3', id: 'price_p40', unitAmount: 239100, currency: 'usd', interval: null, productName: 'Amplified Team Plan' },
   { lookupKey: 'agents_upto15_founding', id: 'price_a15', unitAmount: 49700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
@@ -494,7 +497,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
   });
 
-  it('2: Amplified Insiders by the month: each $197 counts and moves paid_through a month, with a 3-month minimum', async () => {
+  it('2: Amplified Insiders by the month: each invoice counts and moves paid_through a month, with a 3-month minimum', async () => {
     const order = await buy('insiders-monthly', {}, { subscription: 'sub_mo' });
     const meta = { order_id: order.id, ai_plan: 'membership', ai_option: 'monthly' };
     const [before] = await (await db()).select().from(plans);
@@ -547,7 +550,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect(stub.creates[0]!.key).toBe(`membership-autoroll-${order.stripeSessionId}`);
     expect(stub.creates[0]!.params).toMatchObject({
       customer: 'cus_1',
-      items: [{ price: 'price_mm' }],
+      items: [{ price: 'price_mtl' }],
       trial_end: 1809406800,
       default_payment_method: 'pm_sub',
       metadata: { ai_plan: 'membership', ai_option: 'monthly', origin: 'payment_link', source_plan: 'cohort', source_option: 'two_pay', source_session: order.stripeSessionId },
@@ -908,14 +911,14 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
     expect(stub.portals.at(-1)?.configuration).toBe('bpc_locked');
   });
 
-  it('lets an Amplified Agent Plan member cancel anytime: never the locked configuration, trial or paid', async () => {
+  it('locks an Amplified Agent Plan monthly member until Apr 4, 2027, and not a yearly member', async () => {
     stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: 1799042400 * 1000, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
     await buy('agent-monthly', {}, { subscription: 'sub_ap', payment_status: 'no_payment_required', amount_total: 0 });
     const [plan] = await (await db()).select().from(plans);
-    expect(plan).toMatchObject({ kind: 'agent_plan', minimumUntil: null });
+    expect(plan).toMatchObject({ kind: 'agent_plan', minimumUntil: addMonths(JAN4, 3) });
     const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
     expect(res.statusCode).toBe(303);
-    expect(stub.portals.at(-1)?.configuration).toBeUndefined();
+    expect(stub.portals.at(-1)?.configuration).toBe('bpc_locked');
   });
 
   it('sends a team member who is not the owner away, and anyone without a session to sign in', async () => {
@@ -1008,6 +1011,15 @@ const OFFER_CASES: OfferCase[] = [
     opens: { owner_ops: NOW_MS, agent: NOW_MS },
   },
   {
+    cart: 'insiders-agent-monthly',
+    paymentStatus: 'paid',
+    plan: { kind: 'insiders_agent', option: 'monthly', seats: 1, status: 'active', cohortId: null, startsAt: NOW_MS, paidThrough: addMonths(NOW_MS, 1), liveUntil: null, minimumUntil: addMonths(NOW_MS, 3) },
+    tier: 'agent',
+    pin: null,
+    tags: ['offer-buyer', 'plan-insiders-agent', 'pay-monthly', 'ai-buyer-insiders-agent'],
+    opens: { owner_ops: null, agent: NOW_MS },
+  },
+  {
     cart: 'agents-upto15',
     paymentStatus: 'paid',
     plan: { kind: 'agents', option: 'upto15', seats: 16, status: 'active', cohortId: null, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null },
@@ -1028,12 +1040,12 @@ const OFFER_CASES: OfferCase[] = [
   {
     cart: 'agent-monthly',
     paymentStatus: 'no_payment_required',
-    plan: { kind: 'agent_plan', option: 'monthly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: null },
+    plan: { kind: 'agent_plan', option: 'monthly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: addMonths(JAN4, 3) },
     tier: 'agent',
     pin: 1799042400,
     tags: ['offer-buyer', 'plan-agent-plan', 'pay-monthly', 'ai-buyer-agent-plan'],
     opens: { owner_ops: null, agent: JAN4 },
-    firstCharge: { amount: 7900, periodEnd: addMonths(JAN4, 1) },
+    firstCharge: { amount: 11700, periodEnd: addMonths(JAN4, 1) },
   },
   {
     cart: 'agent-yearly',
@@ -1253,7 +1265,7 @@ describe('every offer, end to end (D-106)', () => {
         expect(tick.buyers).toMatchObject({ claimed: 1, synced: 1, failed: 0 });
         // The order's tags, its plan's alias among them, exactly as buyerTags says.
         expect(crm.tagsOf('pat@example.com')).toEqual(buyerTags(await one()));
-        const alias: Record<string, string> = { cohort: 'ai-buyer-accelerator', membership: 'ai-buyer-insiders', agents: 'ai-buyer-team-plan', agent_plan: 'ai-buyer-agent-plan' };
+        const alias: Record<string, string> = { cohort: 'ai-buyer-accelerator', membership: 'ai-buyer-insiders', agents: 'ai-buyer-team-plan', agent_plan: 'ai-buyer-agent-plan', insiders_agent: 'ai-buyer-insiders-agent' };
         expect(crm.tagsOf('pat@example.com')).toContain(alias[c.plan.kind]);
         // The fields: the plan's name, the cohort for the Accelerator only, and what was paid and when, if anything was.
         const paid = c.paymentStatus === 'paid';
@@ -1381,7 +1393,7 @@ describe('the AI Accelerator rolls into Amplified Insiders on May 4, 2027 (D-104
   beforeEach(async () => void (await fresh()));
   const MAY4 = INSIDERS_FIRST_CHARGE_AT;
 
-  it('paid in full: the first $197 on May 4 carries the plan, both sets and its live sessions a month on', async () => {
+  it('paid in full: the first Insiders invoice on May 4 carries the plan, both sets and its live sessions a month on', async () => {
     stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: MAY4, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
     const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
     process.env.FIXED_NOW = '2027-05-04T09:00:00-05:00';
@@ -1391,7 +1403,7 @@ describe('the AI Accelerator rolls into Amplified Insiders on May 4, 2027 (D-104
     expect(stub.creates).toEqual([]);
   });
 
-  it('two payments: the separate Insiders subscription\'s first $197 carries the plan, and never counts as an installment', async () => {
+  it('two payments: the separate Insiders subscription\'s first invoice carries the plan, and never counts as an installment', async () => {
     const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
     expect(stub.creates[0]!.params.trial_end).toBe(MAY4 / 1000);
     process.env.FIXED_NOW = '2027-05-04T09:00:00-05:00';

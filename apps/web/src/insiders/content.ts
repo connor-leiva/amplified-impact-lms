@@ -22,6 +22,6 @@ export const INSIDERS_META = {
 export const V2_INSIDERS = {
   /** The hero's headline, from the card's "Every skill" and /pricing's "at your own pace". */
   title: 'Every skill. At your own pace.',
-  /** Over the two ways to pay. */
-  plans: 'Two ways to pay',
+  /** Over the ways to pay. */
+  plans: 'Three ways to pay',
 } as const;

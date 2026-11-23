@@ -128,9 +128,9 @@ describe('every price in a row', () => {
     const shown = (cls: string) => rungs.map((a) => $$(`.rung-price${cls}, .rung-note${cls}`, a).map(text).join(' '));
     expect(shown(':not(.founding-closed)')).toEqual([
       '$7,500 founding price',
-      '$79 a month, or $790 a year',
+      '$117 a month, or $790 a year',
       '$1,491 today for 3 months, up to 15 agents',
-      '$1,997 today for one year, or $197 a month',
+      '$1,997 today for one year, or $169 a month for team leaders',
     ]);
     expect(shown('.founding-closed')).toEqual(['$9,997 next cohort', '', 'Waitlist', '']);
   });
@@ -302,11 +302,11 @@ describe('the four cards', () => {
 
   it('sell the Amplified Agent Plan through its two carts (D-114), saying "Opens soon." until the API knows them', () => {
     const card = $('#agent-plan')!;
-    expect(text($('.figure', card))).toBe('$79 a month');
+    expect(text($('.figure', card))).toBe('$117 a month');
     expect($$('.price .terms', card).map(text)).toEqual([
       'Or $790 a year.',
       'Your first charge is Monday, January 4, 2027.',
-      'Cancel anytime.',
+      '3-Month Minimum.',
     ]);
     expect(card.getAttribute('data-state')).toBe('%%state:agent-monthly%%');
     expect($$('.act-link a', card).map((a) => [text(a), a.getAttribute('href')])).toEqual([
@@ -395,7 +395,7 @@ describe('the questions', () => {
   it('says a skill that is not free is $37 once, and Insiders opens every skill', () => {
     const item = $$('.faq-list li').find((li) => text($('summary', li)) === 'Can I buy one skill?')!;
     expect($$('.answer p', item).map(text)).toEqual([
-      'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders is $197 a month and opens every skill. Anyone can start with the 5 free skills.',
+      'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders for Team Leaders is $169 a month and opens every skill. Amplified Insiders for Agents is $79 a month and opens every agent skill. Anyone can start with the 5 free skills.',
       'See the Library',
     ]);
     expect($('.answer a', item)?.getAttribute('href')).toBe('/library');
@@ -447,7 +447,7 @@ describe('the links to the programs’ own pages', () => {
       '%%link:agents-upto15%%',
       '%%link:insiders-year%%',
     ]);
-    expect($$('.plan .price:not(.founding-closed) .amount').map(text)).toEqual(['$7,500', '$79', '$1,491', '$1,997']);
+    expect($$('.plan .price:not(.founding-closed) .amount').map(text)).toEqual(['$7,500', '$117', '$1,491', '$1,997']);
   });
 });
 

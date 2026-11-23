@@ -201,7 +201,7 @@ describe('S11’s switches', () => {
     mount();
     initSwitches(document.body);
     $<HTMLButtonElement>('#p-insiders [data-v3-opt="1"]').click();
-    expect(shown('#p-insiders .price-big').map((p) => p.textContent)).toEqual(['$197']);
+    expect(shown('#p-insiders .price-big').map((p) => p.textContent)).toEqual(['$169']);
     expect([...document.querySelectorAll('#p-insiders [data-v3-opt]')].map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
     $<HTMLButtonElement>('#p-team [data-v3-opt="1"]').click();
     expect(shown('#p-team .price-big').map((p) => p.textContent)).toEqual(['$2,391']);

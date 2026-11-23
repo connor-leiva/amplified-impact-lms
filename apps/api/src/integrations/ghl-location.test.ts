@@ -88,7 +88,7 @@ const opts = (locationId: string, token: string, fetch: Fetch) => ({ config: { t
 
 describe('the tags this app writes @g9', () => {
   it('knows every tag Spring already has from this app, and the new aliases', () => {
-    for (const tag of ['ai101-waitlist', 'event-expcon-2026', 'src-qr', 'src-ig', 'src-direct', 'sms-consent', 'task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool', 'december-interest', 'team-size-1-10', 'team-size-11-25', 'offer-buyer', 'plan-cohort', 'pay-full', 'checkout-abandoned-cohort', 'refunded', 'membership-ended', 'payment-failed', 'event-forum-nov-2026', 'ai-lead-free-skills', 'ai-buyer-accelerator', 'ai-buyer-insiders', 'ai-buyer-agent-plan', 'ai-buyer-team-plan', 'ai-refunded', 'ai-canceled', 'lms-logged-in'])
+    for (const tag of ['ai101-waitlist', 'event-expcon-2026', 'src-qr', 'src-ig', 'src-direct', 'sms-consent', 'task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool', 'december-interest', 'team-size-1-10', 'team-size-11-25', 'offer-buyer', 'plan-cohort', 'pay-full', 'checkout-abandoned-cohort', 'refunded', 'membership-ended', 'payment-failed', 'event-forum-nov-2026', 'ai-lead-free-skills', 'ai-buyer-accelerator', 'ai-buyer-insiders', 'ai-buyer-agent-plan', 'ai-buyer-team-plan', 'ai-buyer-insiders-agent', 'ai-refunded', 'ai-canceled', 'lms-logged-in'])
       expect(APP_TAGS, tag).toContain(tag);
   });
 

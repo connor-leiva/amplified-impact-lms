@@ -27,7 +27,9 @@
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
-import { SKILL_PURCHASE } from '@ai/core/offer';
+import { SKILL_PURCHASE, skillUpsell, token, type SkillSet } from '@ai/core/offer';
+import { GROK_TEMPLATES } from '@ai/core/grok-templates';
+import { SKILL_CATALOG } from '@ai/core/skills';
 import { skillGuideUrl } from '@ai/core/skill-guides';
 import {
   GUIDES,
@@ -326,6 +328,15 @@ export function renderSetup(guide: Guide): string {
  * card's classes (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and
  * skills.css are inlined into the free skill's page too, which stays as it was.
  */
+/** The Insiders button for this page's skill set. The href is the cart token the API fills from Railway. */
+function insidersLink(guide: Guide): { label: string; href: string } {
+  const id = guide.skill ?? guide.grok;
+  const row = SKILL_CATALOG.find((s) => s.id === id) ?? GROK_TEMPLATES.find((t) => t.id === id);
+  const sets: SkillSet = row?.sets === 'agent' || row?.sets === 'owner_ops' || row?.sets === 'both' ? row.sets : 'both';
+  const upsell = skillUpsell(sets);
+  return { label: upsell.label, href: token(`link:${upsell.cart}`) };
+}
+
 function libraryCard(guide: Guide): string {
   const l = SHARED.skillLibrary;
   const plan = l[unlockFor(guide)];
@@ -337,7 +348,7 @@ function libraryCard(guide: Guide): string {
     `<p>${esc(plan.body)}</p>`,
     `<div class="form">`,
     `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
-    `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.insidersHref)}">${esc(SKILL_PURCHASE.insiders)}</a>`,
+    `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,
     `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
     `</div>`,
     `</div>`,
@@ -396,7 +407,7 @@ function guidedCard(guide: Guide): string {
       `<p>${esc(plan.body)}</p>`,
       `<div class="form">`,
       `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.stopgapHref)}">${esc(SKILL_PURCHASE.get)}</a>`,
-      `<a class="btn btn-primary" href="${esc(SKILL_PURCHASE.insidersHref)}">${esc(SKILL_PURCHASE.insiders)}</a>`,
+      `<a class="btn btn-primary" href="${esc(insidersLink(guide).href)}">${esc(insidersLink(guide).label)}</a>`,
       // Its own class (Design, the live recheck of PR 105): 16px, and the link a 44px tap target.
       `<p class="legal owned">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,
       `</div>`,

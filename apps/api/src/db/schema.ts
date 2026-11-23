@@ -380,7 +380,7 @@ export const orders = pgTable('orders', {
   createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
-  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly', 'yearly')`),
   check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
   check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
@@ -433,7 +433,7 @@ export const plans = pgTable('plans', {
   stripeSubscriptionId: text('stripe_subscription_id'), orderId: text('order_id').notNull(), createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('plans_order_idx').on(t.orderId),
-  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
 ]);
 
@@ -485,7 +485,7 @@ export const accessGroups = pgTable('access_groups', {
   id: text('id').primaryKey(), name: text('name').notNull(), plan: text('plan').notNull(),
   emailDomain: text('email_domain'), expiresAt: ts('expires_at'), createdAt: ts('created_at').notNull(),
 }, (t) => [
-  check('access_groups_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('access_groups_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('access_groups_domain', sql`${t.emailDomain} is null or ${t.emailDomain} = lower(trim(${t.emailDomain}))`),
 ]);
 

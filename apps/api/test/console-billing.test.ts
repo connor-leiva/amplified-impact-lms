@@ -93,9 +93,12 @@ const PRICES: PriceMap = Object.fromEntries(
       ['agents_upto15_founding', 49_700, 'month'],
       ['agents_16to40_founding', 99_700, 'month'],
       ['agent_plan_monthly', 7_900, 'month'],
+      ['agent_plan_monthly_117', 11_700, 'month'],
       ['agent_plan_yearly', 79_000, 'year'],
       ['membership_monthly', 19_700, 'month'],
+      ['membership_monthly_team_leader', 16_900, 'month'],
       ['membership_year_upfront', 199_700, null],
+      ['insiders_agent_monthly', 7_900, 'month'],
       ['cohort_founding_full', 750_000, null],
       ['cohort_founding_two_pay', 375_000, 'month'],
     ] as const
@@ -201,11 +204,12 @@ describe('the billing summary (spec § 7.6) @console', () => {
     expect(s.plans.map((p) => [p.label, p.active, p.mrrCents, p.priceLabel])).toEqual([
       ['Team Plan · 16 seats', 1, 49_700, '$497 monthly'],
       ['Team Plan · 41 seats', 1, 99_700, '$997 monthly'],
-      ['Agent Plan', 1, 6_583, '$79 per agent, monthly or $790 yearly'],
-      ['Insiders', 1, 19_700, '$197 monthly or $1,997 yearly'],
+      ['Agent Plan', 1, 6_583, '$117 per agent, monthly or $790 yearly'],
+      ['Insiders', 1, 19_700, '$169 monthly or $1,997 yearly'],
+      ['Insiders for Agents', 0, 0, '$79 monthly'],
       ['AI Accelerator', 4, null, '$7,500 or 2 × $3,750'],
     ]);
-    expect(s.plans.map((p) => p.seats)).toEqual([16, 41, 1, 2, 2]);
+    expect(s.plans.map((p) => p.seats)).toEqual([16, 41, 1, 2, 1, 2]);
   });
 
   it('counts failed payments and the last 30 days’ refunds', async () => {

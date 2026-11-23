@@ -203,7 +203,7 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
 
   it('prices the Accelerator at $7,500 founding, or 2 payments of $3,750, then $9,997, with its dates', () => {
     const c = card('cohort');
-    for (const s of ['$7,500 founding price', 'Or 2 payments of $3,750.', '$9,997', '15 founding seats', 'Seven AI employees built with you, at least five running by Feb 3', 'Sisu, QuickBooks Online and Google', 'Wednesday, December 2.', 'February 3', 'December 23 or 30', 'Tuesday, May 4, 2027', '$197 a month', '90 minutes', '60 minutes']) {
+    for (const s of ['$7,500 founding price', 'Or 2 payments of $3,750.', '$9,997', '15 founding seats', 'Seven AI employees built with you, at least five running by Feb 3', 'Sisu, QuickBooks Online and Google', 'Wednesday, December 2.', 'February 3', 'December 23 or 30', 'Tuesday, May 4, 2027', '$169 a month', '90 minutes', '60 minutes']) {
       expect(c, s).toContain(s);
     }
   });
@@ -213,8 +213,8 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
     // One year, then monthly: never "a year", which would read as a price that renews every year.
     expect(text(offer.querySelector('#plan-membership .figure'))).toBe('$1,997 today for one year');
     expect(c).not.toMatch(/\$1,997 a year|per year|annual/i);
-    expect(c.indexOf('$1,997')).toBeLessThan(c.indexOf('Or $197 a month'));
-    for (const s of ['2 months free', 'After your year, $197 a month unless you cancel with 30 days’ notice.', 'counts in full toward the Amplified AI Accelerator', '3 month minimum', 'Monthly payments don’t count', '2 new skills every month', 'keep what you’ve downloaded']) {
+    expect(c.indexOf('$1,997')).toBeLessThan(c.indexOf('Or $169 a month'));
+    for (const s of ['2 months free', 'After your year, $169 a month unless you cancel with 30 days’ notice.', 'counts in full toward the Amplified AI Accelerator', '3-Month Minimum', 'Monthly payments don’t count', '2 new skills every month', 'keep what you’ve downloaded']) {
       expect(c, s).toContain(s);
     }
     expect(OFFERS.membership.button).toBe('Get Amplified Insiders');
@@ -305,8 +305,7 @@ describe('/offer/welcome markup', () => {
     expect(text(agent.querySelector('h1'))).toBe('Welcome to the Amplified Agent Plan.');
     expect(text(agent)).toContain('Your first charge is Monday, January 4, 2027, when your agent skills open.');
     expect(text(agent)).not.toMatch(/receipt|intake/i);
-    // Its billing words are its own: cancel anytime, never the Insiders' notice period or minimum.
-    expect(text(agent)).toContain('$79 a month, or $790 a year. Cancel anytime.');
+    expect(text(agent)).toContain('$117 a month, or $790 a year. 3-Month Minimum.');
     expect(text(agent)).not.toMatch(/notice|minimum|30 days/i);
     expect(readFileSync(resolve(HERE, './offer.css'), 'utf8')).toContain(`[data-product='agent_plan'] .t-agent_plan`);
     const shell = readFileSync(resolve(HERE, '../../offer-welcome.html'), 'utf8');
@@ -339,7 +338,7 @@ describe('/offer/welcome markup', () => {
     expect(t('cohort')).toContain('Tuesday, May 4, 2027');
     expect(t('cohort')).toContain('Thursday, December 10');
     expect(t('membership')).toContain('counts in full toward the Amplified AI Accelerator');
-    expect(t('membership')).toContain('After your year, it’s $197 a month unless you cancel with 30 days’ notice.');
+    expect(t('membership')).toContain('After your year, it’s $169 a month unless you cancel with 30 days’ notice.');
     expect(t('agents')).toContain('starter path');
     expect(t('agents')).toContain('January 4 to April 3, 2027');
     expect(t('agents')).toContain('Monthly billing starts Sunday, April 4, 2027');

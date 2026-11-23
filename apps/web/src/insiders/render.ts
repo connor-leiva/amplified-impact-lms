@@ -21,6 +21,7 @@ import { FREE_SKILLS_HREF } from '../site/content';
 import { cartsOf, linkToken, offerActions, offerPrice, SHARE_IMAGE, stateToken } from '../site/offers';
 import { siteHead } from '../site/render';
 import { PROOF } from '../team-build/content';
+import { AGENT_INSIDERS } from '../site/offers-content';
 import { INSIDERS_META, V2_INSIDERS } from './content';
 
 const c = OFFERS.membership;
@@ -221,7 +222,7 @@ function plan(
   ].join('');
 }
 
-/** Two ways to pay, on the other theme: the year and the month, each the card's own words and cart. */
+/** The ways to pay, on the other theme: the year, Team Leader monthly, and Agent Insiders. */
 function pricing(): string {
   const [year, monthly] = cartsOf('membership') as [string, string];
   const more = c.more[monthly as keyof typeof c.more]!;
@@ -237,6 +238,7 @@ function pricing(): string {
     `<div class="in-plans">`,
     plan(year, c.price.amount, c.price.unit, [yearTerm, afterYear], c.button, 'primary', 'is-year'),
     plan(monthly, mAmount, mUnit, [monthTerm], more, 'secondary'),
+    plan(AGENT_INSIDERS.cart, AGENT_INSIDERS.amount, AGENT_INSIDERS.unit, AGENT_INSIDERS.terms, AGENT_INSIDERS.label, 'secondary'),
     `</div>`,
     `<div class="stub" aria-hidden="true">`,
     `<div class="stub-l"><span class="mono">${esc(c.price.unit)}</span><span class="stub-amt tnum">${esc(c.price.amount)}</span></div>`,

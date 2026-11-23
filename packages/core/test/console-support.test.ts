@@ -32,6 +32,7 @@ describe('plan labels (spec § 7.3, inferred there; read from PLAN_NAMES here) @
       agents: 'Team Plan',
       agent_plan: 'Agent Plan',
       membership: 'Insiders',
+      insiders_agent: 'Insiders for Agents',
       library: 'Skill Library',
     });
   });

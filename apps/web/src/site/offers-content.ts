@@ -42,9 +42,9 @@ export const AGENT_PLAN: OfferCopy = {
   // [OPEN: the day and time of the weekly agent training]. Spring's placeholder stands until Connor sets it.
   starts: ['Weekly training starts the week of January 4.', 'Join any day.'],
   price: {
-    amount: '$79',
+    amount: '$117',
     unit: 'a month',
-    terms: ['Or $790 a year.', 'Your first charge is Monday, January 4, 2027.', 'Cancel anytime.'],
+    terms: ['Or $790 a year.', 'Your first charge is Monday, January 4, 2027.', '3-Month Minimum.'],
   },
   button: 'Get Amplified Agent Plan',
   more: {},
@@ -52,6 +52,15 @@ export const AGENT_PLAN: OfferCopy = {
 
 /** The Agent Plan's link under its button, for its yearly cart (D-114). */
 export const AGENT_PLAN_MORE: Readonly<Record<string, string>> = { 'agent-yearly': 'Or pay $790 a year' };
+
+/** Agent Insiders, sold beside Team Leader Insiders. The insiders page reads this card, it does not retype it. */
+export const AGENT_INSIDERS = {
+  cart: 'insiders-agent-monthly',
+  amount: '$79',
+  unit: 'a month',
+  terms: ['3-Month Minimum.', 'Every agent skill, plus weekly office hours.', 'No weekly live training.'],
+  label: 'Get Amplified Insiders for Agents',
+} as const;
 
 /** Spring's FAQ, her questions in her order. Each answer is a few short sentences; a link is a plain text link. */
 export interface Faq {

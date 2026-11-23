@@ -375,7 +375,7 @@ function Preview({ answer, pending }: { answer: GuideAnswer; pending: boolean })
               {LIBRARY.locked}
             </span>
             {pending ? <p className={s.intro}>{SKILL_PURCHASE.pending}</p> : null}
-            <GetSkillButton skillId={answer.skill} className={s.primary} />
+            <GetSkillButton skillId={answer.skill} sets={answer.sets} className={s.primary} />
           </>
         )}
       </div>

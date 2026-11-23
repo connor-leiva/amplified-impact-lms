@@ -57,7 +57,7 @@ const OWNER_COHORT = COHORT_ONE.id;
  * the session plans; this is the default until then. The Agent Plan's solo agent is Agent tier: one
  * seat, nobody to add, and no owner view (D-106).
  */
-const ownerTier = (plan: PlanKind): 'team' | 'agent' => (plan === 'agent_plan' ? 'agent' : 'team');
+const ownerTier = (plan: PlanKind): 'team' | 'agent' => (plan === 'agent_plan' || plan === 'insiders_agent' ? 'agent' : 'team');
 
 /** The plan's status from the order's: `trialing` only for a checkout with nothing due today. */
 const planStatusFor = (orderStatus: string): PlanStatus => (orderStatus === 'trialing' ? 'trialing' : 'active');

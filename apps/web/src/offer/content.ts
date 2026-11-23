@@ -7,7 +7,7 @@
 //
 // THE SOURCE IS SPRING'S PLAN, as Ampy rewrote it with Connor's offer names: docs/SPRING-PLAN.md,
 // Phase 1 and "Facts to use everywhere", held to the live Payment Links' own checkout text (Ampy's
-// Stripe update, D-104): Insiders by the year is $1,997 for one year, then $197 a month unless
+// Stripe update, D-104): Insiders by the year is $1,997 for one year, then $169 a month unless
 // cancelled with 30 days' notice; the Team Plan's first 3 months are paid today, with monthly billing
 // from Sunday, April 4, 2027; 15 founding seats. Spring reviews these words before they go live, so
 // they ship on a pull request, never straight to main.
@@ -111,7 +111,7 @@ export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardP
       '8 live builds, 90 minutes each',
       'Weekly office hours, 60 minutes',
       '90 days of new skills and office hours after your last build',
-      'Then Amplified Insiders at $197 a month, from Tuesday, May 4, 2027, until you cancel',
+      'Then Amplified Insiders at $169 a month, from Tuesday, May 4, 2027, until you cancel',
     ],
     howItRuns: 'Live, with a small group of owners. You build on Wednesdays. Office hours are on Thursdays.',
     // [OPEN: the time of day for the builds and office hours]. Not set yet, so no time is named.
@@ -149,12 +149,12 @@ export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardP
       unit: 'today for one year',
       terms: [
         '2 months free. It counts in full toward the Amplified AI Accelerator.',
-        'After your year, $197 a month unless you cancel with 30 days’ notice.',
-        'Or $197 a month from today, with a 3 month minimum. Monthly payments don’t count toward the Accelerator.',
+        'After your year, $169 a month unless you cancel with 30 days’ notice.',
+        'Or $169 a month from today, For Team Leaders, with a 3-Month Minimum. Monthly payments don’t count toward the Accelerator.',
       ],
     },
     button: 'Get Amplified Insiders',
-    more: { 'insiders-monthly': 'Or pay $197 a month' },
+    more: { 'insiders-monthly': 'Or pay $169 a month' },
   },
   agents: {
     forWho: 'Team owners who want every agent using AI.',
@@ -307,7 +307,7 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
       {
         title: 'After your last build',
         body: [
-          'After February 3, you get 90 days of new skills and office hours. Then you move to Amplified Insiders at $197 a month, starting Tuesday, May 4, 2027, until you cancel.',
+          'After February 3, you get 90 days of new skills and office hours. Then you move to Amplified Insiders at $169 a month, starting Tuesday, May 4, 2027, until you cancel.',
         ],
       },
     ],
@@ -327,7 +327,7 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
       {
         title: 'Your plan',
         body: [
-          'Paid for a year? Your $1,997 counts in full toward the Amplified AI Accelerator. After your year, it’s $197 a month unless you cancel with 30 days’ notice.',
+          'Paid for a year? Your $1,997 counts in full toward the Amplified AI Accelerator. After your year, it’s $169 a month unless you cancel with 30 days’ notice.',
           'Paid monthly? Your plan has a 3 month minimum.',
           'If you cancel, you keep what you’ve downloaded.',
         ],
@@ -385,7 +385,7 @@ export const AGENT_PLAN_THANKS: ThanksCopy = {
       body: ['Start the recorded starter path. Then join one live training a week.', 'Office hours run every Thursday.'],
       extras: ['calendar-office-hours'],
     },
-    { title: 'Your plan', body: ['$79 a month, or $790 a year. Cancel anytime.', 'If you cancel, you keep what you’ve downloaded.'] },
+    { title: 'Your plan', body: ['$117 a month, or $790 a year. 3-Month Minimum.', 'If you cancel, you keep what you’ve downloaded.'] },
   ],
 };
 

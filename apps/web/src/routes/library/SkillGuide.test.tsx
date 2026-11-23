@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
-import { SKILL_PURCHASE } from '@ai/core/offer';
+import { SKILL_PURCHASE, skillUpsell } from '@ai/core/offer';
 import { previewOf } from '@ai/core/skill-guides';
 import SkillGuide, { COPY, TOAST_MS } from './SkillGuide';
 import type { GuideAnswer } from './SkillGuide';
@@ -145,19 +145,26 @@ describe('the guided setup in learn (D-151)', () => {
     expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     expect(screen.queryByText('Not in your plan.')).toBeNull();
     expect(screen.queryByRole('button', { name: SKILL_PURCHASE.get })).toBeNull();
-    expect(screen.queryByRole('link', { name: SKILL_PURCHASE.insiders })).toBeNull();
+    expect(screen.queryByRole('link', { name: skillUpsell('agent').label })).toBeNull();
+    expect(screen.queryByRole('link', { name: skillUpsell('owner_ops').label })).toBeNull();
     expect(screen.queryByText('$37')).toBeNull();
     expect(screen.queryByText(/\$197/)).toBeNull();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('opens the two choices before payment, and does not for a Utah Life member', async () => {
-    fetchMock.mockResolvedValue(answer(200, locked({ paidPlans: false })));
+    const upsell = skillUpsell('agent');
+    fetchMock.mockImplementation((url: string) => {
+      if (String(url).includes('/api/offer')) {
+        return Promise.resolve(answer(200, { carts: [{ id: upsell.cart, paymentLink: 'https://buy.stripe.com/test_agent_insiders' }] }));
+      }
+      return Promise.resolve(answer(200, locked({ paidPlans: false })));
+    });
     at('appointment-follow-up');
     await userEvent.click(await screen.findByRole('button', { name: SKILL_PURCHASE.get }));
     const dialog = screen.getByRole('dialog', { name: SKILL_PURCHASE.title });
     expect(within(dialog).getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
-    expect(within(dialog).getByRole('link', { name: SKILL_PURCHASE.insiders })).toHaveAttribute('href', SKILL_PURCHASE.insidersHref);
+    expect(await within(dialog).findByRole('link', { name: upsell.label })).toHaveAttribute('href', 'https://buy.stripe.com/test_agent_insiders');
     expect(within(dialog).getByText(SKILL_PURCHASE.body)).toBeInTheDocument();
   });
 

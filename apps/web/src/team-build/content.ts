@@ -241,7 +241,7 @@ export const TB_FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'What happens after week 8?',
-      a: ['You get 90 days of new skills and office hours. Then Amplified Insiders is $197 a month from Tuesday, May 4, 2027, until you cancel.'],
+      a: ['You get 90 days of new skills and office hours. Then Amplified Insiders is $169 a month from Tuesday, May 4, 2027, until you cancel.'],
     },
     {
       q: 'Is there a payment plan?',

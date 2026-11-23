@@ -7,8 +7,8 @@
 //
 // ONE COPY OF EACH FACT. Three of the four cards are /offer's own words (`OFFERS` in
 // `../offer/content.ts`, D-105), so /offer and /pricing cannot price a plan two ways. The fourth, the
-// Amplified Agent Plan, is here, from the overnight brief: $79 a month or $790 a year, first charge
-// January 4, 2027, cancel anytime. The proof line is the homepage's (`HOME.proof`).
+// Amplified Agent Plan, is here, from the overnight brief: $117 a month or $790 a year, first charge
+// January 4, 2027, 3-Month Minimum. The proof line is the homepage's (`HOME.proof`).
 //
 // Spring's voice: contractions, short sentences, lead with a statement, no victim language. No em
 // dashes, no exclamation marks. Labels and buttons in Title Case, sentences in sentence case. Never
@@ -89,14 +89,14 @@ export const COMPARE = {
       label: 'Price',
       cells: [
         { open: '$7,500 founding price', closed: '$9,997, next cohort' },
-        '$79 a month, or $790 a year',
+        '$117 a month, or $790 a year',
         { open: '$1,491 today for 3 months, up to 15 agents', closed: 'Waitlist' },
-        '$1,997 today for one year, or $197 a month',
+        '$1,997 today for one year, or $169 a month for team leaders',
       ],
     },
     {
       label: 'Commitment',
-      cells: ['Paid in full, or 2 payments', 'Cancel anytime', 'First 3 months paid today, then monthly', 'One year, or a 3 month minimum'],
+      cells: ['Paid in full, or 2 payments', '3-Month Minimum, or $790 a year', 'First 3 months paid today, then monthly', 'One year, or a 3-Month Minimum'],
     },
   ] as readonly { label: string; cells: readonly Cell[] }[],
 } as const;
@@ -131,7 +131,7 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
     {
       q: 'Can I cancel?',
       a: [
-        'The Amplified Agent Plan: cancel anytime. Amplified Insiders by the month has a 3 month minimum. The Amplified Team Plan’s first 3 months are paid up front.',
+        'The Amplified Agent Plan monthly has a 3-Month Minimum. Amplified Insiders by the month has a 3-Month Minimum. The Amplified Team Plan’s first 3 months are paid up front.',
         'If you cancel, you keep the skills you’ve downloaded. You lose new skills, updates and office hours.',
       ],
     },
@@ -149,7 +149,7 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
       q: 'Can I buy one skill?',
       // Connor, 2026-11-23: a skill that is not free is $37 once. Insiders opens every skill.
       a: [
-        'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders is $197 a month and opens every skill. Anyone can start with the 5 free skills.',
+        'Yes. A skill that is not free is $37 once. You keep it, including future updates, and a refund ends that access. Amplified Insiders for Team Leaders is $169 a month and opens every skill. Amplified Insiders for Agents is $79 a month and opens every agent skill. Anyone can start with the 5 free skills.',
       ],
       link: { label: 'See the Library', href: '/library' },
     },

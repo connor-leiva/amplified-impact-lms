@@ -7452,3 +7452,16 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Decided overnight, for Connor to check:** the list puts pinned threads first, then the newest activity, as the mockup's list draws them (the mockup moves a thread with a new reply above even the pinned one; here pinned stays on top). The switcher's second line and the page's description name the cohort alone ("December 2026 Cohort"): production's cohort is named "Amplified AI Accelerator · December 2026", so the line under the program said the program twice.
 - **The fixture build** carries the mockup's own threads, people and "148 in 7 teams" (`console-fixture-community.ts`, fixture only, like `parity-r2.ts`), so its screens can be compared with the mockup's and the browser specs can drive them.
 - **Left as it is (Q-20):** the staff door into the learner Community (D-231) stays until Connor says otherwise.
+
+## D-240 · New prices: Agent Plan $117, Team Leader Insiders $169, Agent Insiders $79
+
+**Date:** 2026-11-23
+**Approved by:** Connor Leiva (repository owner), November 23, 2026. Live Stripe objects already exist on `acct_1Ua8wnLAuFJaUU8q`. This change does not create or edit Stripe or Railway objects, and it does not rewrite a subscription that is already on the $79 or $197 price.
+
+- **Agent Plan monthly** is $117 (`agent_plan_monthly_117`, `price_1Uf5UtLAuFJaUU8q3ESnciyc`). New checkouts use that lookup key. The first charge stays Monday, January 4, 2027. The monthly plan has a 3-month minimum counted from that first paid charge, so a trial buyer is locked until April 4, 2027. Yearly stays $790 with no minimum. A member already on $79 is not given a minimum and is not moved to $117.
+- **Team Leader Insiders** is $169 a month (`membership_monthly_team_leader`, `price_1Uf5UwLAuFJaUU8qslvsCw8F`), 3-month minimum, on the existing Insiders product. It replaces $197 for new buyers. Accelerator buyers (May 4, 2027) and Insiders yearly buyers after their year roll onto this price. `membership_monthly` ($197) stays a lookup key so a subscription already on it still reads. The code does not change those subscriptions.
+- **Amplified Insiders for Agents** is a new plan kind, `insiders_agent`: $79 a month (`insiders_agent_monthly`, `price_1Uf5UyLAuFJaUU8qo0ewLodu`, product `prod_VgSPRo9GzYscnF`), 3-month minimum, one seat, agent skills at once, weekly office hours, no weekly live training, no pinned first charge. Migration `0038_insiders_agent` widens the plan checks and changes no rows.
+- **Skill pages.** An agent skill offers Agent Insiders at $79. An owner, ops, or both skill offers Team Leader Insiders at $169. The href is the cart's Payment Link from Railway.
+- **Weekly live training** is a row on the Skill Library. The Agent Plan and the Team Plan see it open. Agent Insiders and a $37 skill see it locked, and the lock opens "Upgrade to the Agent Plan, $117/Month". Team Leader Insiders and the Accelerator see no new row. An access group's member sees no row and no upsell. Office hours stay open for every Insiders tier.
+- **Not touched:** `/agreement` and `apps/api/src/billing/agreement.ts`.
+- **Blast radius.** No parity golden, mask, or tolerance. Marketing pages, the skill library, and the offer tests.

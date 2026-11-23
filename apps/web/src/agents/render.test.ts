@@ -55,14 +55,14 @@ describe('the page', () => {
 });
 
 describe('the price and the carts', () => {
-  it('shows $79 a month, $790 a year, the January 4 first charge and cancel anytime', () => {
+  it('shows $117 a month, $790 a year, the January 4 first charge and a 3-month minimum', () => {
     const buy = $('#join')!;
-    expect(text($('.figure', buy))).toBe('$79 a month');
+    expect(text($('.figure', buy))).toBe('$117 a month');
     expect($$('.terms', buy).map(text)).toEqual([...AGENT_PLAN.price.terms]);
     expect(AGENT_PLAN.price.terms).toEqual([
       'Or $790 a year.',
       'Your first charge is Monday, January 4, 2027.',
-      'Cancel anytime.',
+      '3-Month Minimum.',
     ]);
     // January 4, 2027 is a Monday.
     expect(new Date('2027-01-04T12:00:00Z').getUTCDay()).toBe(1);

@@ -390,9 +390,9 @@ describe('prices and the live offer state', () => {
       usd(PRICES.insiders.yearly),
     ]).toEqual(HOME.ways.cards.map((c) => c.amount));
     expect(PRICES.accelerator).toEqual({ founding: 7500, standard: 9997, twoPay: 3750 });
-    expect(PRICES.agentPlan).toEqual({ monthly: 79, yearly: 790 });
+    expect(PRICES.agentPlan).toEqual({ monthly: 117, yearly: 790 });
     expect(PRICES.teamPlan.today).toEqual([1491, 2391]);
-    expect(PRICES.insiders).toEqual({ yearly: 1997, monthly: 197 });
+    expect(PRICES.insiders).toEqual({ yearly: 1997, monthly: 169 });
     expect(dollarsIn('Then $497 or $797 a month')).toEqual([497, 797]);
   });
 

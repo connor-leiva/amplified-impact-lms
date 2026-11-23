@@ -26,7 +26,7 @@
 import { BUYER_TAGS, DECEMBER_INTEREST_TAG, FIELD_ENV, FREE_SKILLS_TAG, STAGE_ENV, LMS_LOGGED_IN_TAG, SMS_CONSENT_TAG, SOURCE_TAGS, SRC_TAGS, TEAM_SIZE_TAGS, call, upsertAndTag } from './ghl';
 import type { CallResult, Fetch, FieldKey, GhlConfig, StageKey } from './ghl';
 
-const PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan'] as const;
+const PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent'] as const;
 
 /** Every tag this app writes, by name. */
 export const APP_TAGS: readonly string[] = [
