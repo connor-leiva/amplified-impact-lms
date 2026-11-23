@@ -55,8 +55,10 @@ describe('skill purchase email · Connor’s HTML', () => {
 
   it('puts the Insiders tile in the upsell slot and links the button to the Insiders page', () => {
     expect(html).toContain(
-      `<img src="${INSIDERS_EMAIL_LOGO_URL}" width="64" height="64" alt="Amplified Insiders" style="display:block; width:64px; height:64px; border:0;">`,
+      `<img src="${INSIDERS_EMAIL_LOGO_URL}" width="36" height="36" alt="Amplified Insiders" style="display:block; width:36px; height:36px; border:0;">`,
     );
+    expect(html).toContain('padding:0 12px 0 0;');
+    expect(html).not.toMatch(/<img[^>]+alt="Amplified Insiders"[^>]*>\s*<div style="padding-top:22px/);
     expect(INSIDERS_EMAIL_LOGO_URL).toBe('https://learn.amplifiedimpact.io/brand/amplified-insiders-tile.png');
     expect(html).toContain('You have one skill. Get every one.');
     expect(html).toContain(

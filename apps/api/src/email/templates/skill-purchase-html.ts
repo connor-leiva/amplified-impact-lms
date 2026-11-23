@@ -17,8 +17,9 @@ export const SKILL_EMAIL_LOGO_URL = `${LEARN_ORIGIN}${SKILL_EMAIL_LOGO_PATH}`;
 export const INSIDERS_PAGE_URL = `${LIBRARY_ORIGIN}/insiders`;
 
 /**
- * The Insiders tile, 64 by 64. Source file: handoff/admin-mockup/logos/program-insiders-tile.svg
- * (the only insiders asset in the repo). Rasterized to PNG because email clients drop SVG.
+ * The Insiders tile. Source file: handoff/admin-mockup/logos/program-insiders-tile.svg
+ * (the only insiders asset in the repo). The PNG stays 64 by 64 so a 36px display size is sharp.
+ * Rasterized because email clients drop SVG.
  */
 export const INSIDERS_EMAIL_LOGO_PATH = '/brand/amplified-insiders-tile.png';
 export const INSIDERS_EMAIL_LOGO_URL = `${LEARN_ORIGIN}${INSIDERS_EMAIL_LOGO_PATH}`;
@@ -166,12 +167,14 @@ export function skillPurchaseHtml(input: SkillPurchaseHtmlInput): string {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; background-color:#0a0d0c; border-radius:8px;">
           <tr>
             <td bgcolor="#0a0d0c" style="background-color:#0a0d0c; border-radius:8px; padding:28px 28px 30px 28px;">
-              <img src="${INSIDERS_EMAIL_LOGO_URL}" width="64" height="64" alt="Amplified Insiders" style="display:block; width:64px; height:64px; border:0;">
               <div style="padding-top:22px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:26px; line-height:1.12; font-weight:500; letter-spacing:-0.03em; color:#f5f5f2;">You have one skill. Get every one.</div>
               <div style="padding-top:12px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:16px; line-height:1.55; color:#a3aba7;">${upsell}</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin-top:22px;">
                 <tr>
-                  <td align="center" style="border:1px solid #5c6762; border-radius:6px;">
+                  <td valign="middle" style="padding:0 12px 0 0;">
+                    <img src="${INSIDERS_EMAIL_LOGO_URL}" width="36" height="36" alt="Amplified Insiders" style="display:block; width:36px; height:36px; border:0;">
+                  </td>
+                  <td valign="middle" align="center" style="border:1px solid #5c6762; border-radius:6px;">
                     <a href="${INSIDERS_PAGE_URL}" target="_blank" style="display:inline-block; padding:12px 22px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:15px; line-height:21px; font-weight:500; color:#f5f5f2; text-decoration:none; border-radius:6px;">See Amplified Insiders</a>
                   </td>
                 </tr>
