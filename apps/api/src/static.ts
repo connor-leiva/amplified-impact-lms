@@ -19,7 +19,8 @@
 import fastifyStatic from '@fastify/static';
 import type { FastifyInstance } from 'fastify';
 import { PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
-import { GUIDED_DOWNLOADS, guidedPageOfFile, skillGuideUrl } from '@ai/core/skill-guides';
+import { GUIDED_DOWNLOADS, guidedPageOfFile, isGuidedPage, skillGuideUrl } from '@ai/core/skill-guides';
+import { SESSION_COOKIE } from './auth/sessions';
 import { PAID_DOWNLOADS } from './billing/skills-catalog';
 import { GUIDE_SLUGS } from './routes/guide-list';
 import { SALES_PAGES } from './routes/offer';
@@ -66,6 +67,29 @@ export function staticIgnores(): string[] {
 
 const pathOf = (url: string): string => url.split('?')[0] ?? url;
 
+const SKILL_GUIDE_PATH = /^\/skill-library\/([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+
+/** True when the request carries a session cookie, signed or not. The SPA checks the signature. */
+export function hasSessionCookie(header: string | undefined): boolean {
+  if (!header) return false;
+  return header.split(';').some((part) => {
+    const [name, value] = part.trim().split('=');
+    return name === SESSION_COOKIE && (value ?? '') !== '';
+  });
+}
+
+/**
+ * Where a signed-out document request for a skill guide goes. They used to receive the SPA, which
+ * painted an empty Skill Library page and only then sent them to sign in. Null when the visitor
+ * has a session, or the path is not a guide: the SPA answers those.
+ */
+export function signedOutSkillRedirect(path: string, hasSession: boolean): string | null {
+  if (hasSession) return null;
+  const slug = SKILL_GUIDE_PATH.exec(path)?.[1];
+  if (!slug || !isGuidedPage(slug)) return null;
+  return `/sign-in?next=${encodeURIComponent(`/skill-library/${slug}`)}`;
+}
+
 /**
  * A hashed file is kept for a year; `index.html` is checked on every load, so a deploy's new file
  * names are picked up; anything else keeps the `public, max-age=0` it always had.
@@ -100,6 +124,10 @@ export async function registerStaticFiles(app: FastifyInstance, root: string): P
   app.setNotFoundHandler((req, reply) => {
     const path = pathOf(req.url);
     if (path.startsWith('/api/')) return reply.code(404).send({ error: 'Not found' });
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      const to = signedOutSkillRedirect(path, hasSessionCookie(req.headers.cookie));
+      if (to) return reply.redirect(to, 302);
+    }
     // A skill's or template's old ZIP link (D-151): on to its guided setup in learn, which signs the
     // visitor in and checks the plan first. Its own page, by the catalog, never anywhere else.
     if (path.startsWith('/downloads/')) {

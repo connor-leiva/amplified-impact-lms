@@ -101,12 +101,12 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     const top = card?.querySelector(':scope > .locked');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
-      [SKILL_PURCHASE.get, skillGuideUrl(slug), false],
+      [SKILL_PURCHASE.get, SKILL_PURCHASE.stopgapHref, false],
       [SKILL_PURCHASE.insiders, SKILL_PURCHASE.insidersHref, false],
       ['Sign In', skillGuideUrl(slug), false],
     ]);
     expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');
-    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(skillGuideUrl(slug));
+    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(SKILL_PURCHASE.stopgapHref);
   });
 
   it('links no paid ZIP, and no download at all: no file to save, no hand-off to a download', () => {

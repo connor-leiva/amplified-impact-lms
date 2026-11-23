@@ -425,6 +425,7 @@ export function Component() {
       return (
         <div className={s.status} role="status" aria-busy="true">
           <Icon name="spinner" size={20} strokeWidth={2.2} className={s.spin} label={COPY.loading} />
+          <p>{COPY.loading}</p>
         </div>
       );
     }

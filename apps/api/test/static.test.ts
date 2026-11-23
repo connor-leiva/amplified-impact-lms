@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, GLOBAL_RATE_MAX, isApiPath } from '../src/app';
 import type { App } from '../src/app';
-import { IMMUTABLE, cacheControlFor, registerStaticFiles } from '../src/static';
+import { IMMUTABLE, cacheControlFor, hasSessionCookie, registerStaticFiles, signedOutSkillRedirect } from '../src/static';
 import { GUIDE_SLUGS } from '../src/routes/guide-list';
 
 const SHELL = '<!doctype html><title>Amplified Impact</title><div id="root"></div>';
@@ -181,6 +181,26 @@ describe('D-170: the learn app shell is no-cache wherever it is answered; hashed
   it('keeps the year-long immutable cache on the hashed files the shell names', async () => {
     const a = await serve();
     for (const url of ASSET_URLS) expect((await get(a, url)).headers['cache-control'], url).toBe(IMMUTABLE);
+  });
+
+  it('sends a signed-out skill guide straight to sign-in, and leaves a session on the app', async () => {
+    expect(signedOutSkillRedirect('/skill-library/agent-1on1-prep', false)).toBe('/sign-in?next=%2Fskill-library%2Fagent-1on1-prep');
+    expect(signedOutSkillRedirect('/skill-library/agent-1on1-prep', true)).toBeNull();
+    expect(signedOutSkillRedirect('/skill-library', false)).toBeNull();
+    expect(signedOutSkillRedirect('/skill-library/not-a-skill', false)).toBeNull();
+    expect(hasSessionCookie(undefined)).toBe(false);
+    expect(hasSessionCookie('ai_sid=abc')).toBe(true);
+    expect(hasSessionCookie('other=1')).toBe(false);
+
+    const a = await serve();
+    const out = await a.inject({ method: 'GET', url: '/skill-library/agent-1on1-prep' });
+    expect(out.statusCode).toBe(302);
+    expect(out.headers.location).toBe('/sign-in?next=%2Fskill-library%2Fagent-1on1-prep');
+    const inSession = await a.inject({ method: 'GET', url: '/skill-library/agent-1on1-prep', headers: { cookie: 'ai_sid=abc' } });
+    expect(inSession.statusCode).toBe(200);
+    expect(inSession.headers['content-type']).toMatch(/^text\/html/);
+    const library = await a.inject({ method: 'GET', url: '/skill-library' });
+    expect(library.statusCode).toBe(200);
   });
 
   it('changes nothing else: other files, and www’s homepage, keep the headers they had', async () => {
