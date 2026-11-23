@@ -212,7 +212,12 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
  */
 async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookDeps, db: Database): Promise<string> {
   const now = deps.now();
-  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN) return skillCheckoutCompleted(session, db, now, deps.log);
+  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN) {
+    return skillCheckoutCompleted(session, db, now, deps.log, {
+      invitesFrom: deps.config.invitesFrom,
+      invitesEnabled: deps.config.invitesEnabled,
+    });
+  }
   const plan = session.metadata?.ai_plan ?? '';
   if (!(PLAN_KINDS as readonly string[]).includes(plan)) {
     return (AI_PLANS as readonly string[]).includes(plan) ? `ignored:${plan}` : 'ignored:unknown-plan';

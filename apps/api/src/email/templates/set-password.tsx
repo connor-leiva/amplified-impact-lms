@@ -10,11 +10,14 @@ export interface SetPasswordEmailProps {
   /** The `purpose:'set_password'` token, valid 72 hours. */
   token: string;
   appUrl?: string | null;
+  /** A skill guide to open after the password is saved. Already checked. */
+  next?: string | null;
 }
 
-export function SetPasswordEmail({ subject, token, appUrl }: SetPasswordEmailProps) {
+export function SetPasswordEmail({ subject, token, appUrl, next }: SetPasswordEmailProps) {
+  const path = setPasswordPath(token) + (next ? `&next=${encodeURIComponent(next)}` : '');
   return (
-    <EmailLayout subject={subject} cta={{ label: 'Set Your Password', href: absolute(setPasswordPath(token), appUrl) }}>
+    <EmailLayout subject={subject} cta={{ label: 'Set Your Password', href: absolute(path, appUrl) }}>
       <Para>Your Amplified Impact account is ready. Choose a password, and you’re signed in.</Para>
       <Para>This link works once and expires in 72 hours. Need a new one? Use Forgot Password on the sign-in page.</Para>
     </EmailLayout>

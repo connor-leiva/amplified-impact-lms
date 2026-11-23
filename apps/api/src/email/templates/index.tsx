@@ -140,7 +140,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     case 'set-password': {
       const token = str(template, data, 'token');
       const subject = SUBJECTS['set-password']({});
-      return { subject, element: <SetPasswordEmail subject={subject} token={token} appUrl={appUrl} /> };
+      return { subject, element: <SetPasswordEmail subject={subject} token={token} appUrl={appUrl} next={safeNext(optStr(data, 'next'))} /> };
     }
 
     case 'reset-password': {

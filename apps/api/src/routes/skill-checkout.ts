@@ -12,8 +12,9 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-import { guidePageOf } from '@ai/core/skill-guides';
-import { SKILL_AI_OPTION, SKILL_AI_PLAN } from '../billing/catalog';
+import { guidePageOf, skillIdOfPage } from '@ai/core/skill-guides';
+import { SKILL_AI_OPTION, SKILL_AI_PLAN, SKILL_PURCHASE } from '../billing/catalog';
+import { SKILL_GUEST_OFFER } from '../billing/skill-purchase';
 import type { OfferConfig } from '../billing/config';
 import type { BillingStripe } from '../billing/stripe';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
@@ -37,6 +38,40 @@ export interface SkillCheckoutOptions {
 }
 
 export function registerSkillCheckoutRoutes(app: FastifyInstance, options: SkillCheckoutOptions): void {
+  // Signed-out buyers. Off, this is the stopgap Payment Link. On, Stripe collects the email and the
+  // webhook creates the account. No session, so a marketing page can link here.
+  app.get<{ Params: { id: string } }>('/api/skills/:id/guest-checkout', async (req, reply): Promise<FastifyReply> => {
+    if (!options.config.skillGuestCheckout) return reply.redirect(SKILL_PURCHASE.stopgapHref, 302);
+    const skillId = skillIdOfPage(req.params.id);
+    if (!skillId) return reply.code(404).send({ error: 'Not found' });
+    const [skill] = await getDb().select().from(skills).where(eq(skills.id, skillId)).limit(1);
+    const now = clock.now();
+    if (!skill || skill.status !== 'published' || skill.free || skill.releasedAt > now) return reply.code(404).send({ error: NOT_FOR_SALE });
+    if (!options.stripe || !options.config.skillPriceId) {
+      req.log.error({ skill: skill.id }, 'guest skill checkout is not configured; sending the stopgap link');
+      return reply.redirect(SKILL_PURCHASE.stopgapHref, 302);
+    }
+    let successUrl: string;
+    let cancelUrl: string;
+    try {
+      const page = guidePageOf(skill.id);
+      successUrl = absolute(`/skill-library/${page}?session_id={CHECKOUT_SESSION_ID}`);
+      cancelUrl = absolute(`/skill-library/${page}`);
+    } catch {
+      return reply.redirect(SKILL_PURCHASE.stopgapHref, 302);
+    }
+    const session = await options.stripe.createCheckoutSession({
+      priceId: options.config.skillPriceId,
+      successUrl,
+      cancelUrl,
+      clientReferenceId: `guest-${randomUUID()}`,
+      customerEmail: null,
+      metadata: { skill_id: skill.id, ai_plan: SKILL_AI_PLAN, ai_option: SKILL_AI_OPTION, offer: SKILL_GUEST_OFFER },
+      idempotencyKey: `skill-guest-${skill.id}-${randomUUID()}`,
+    });
+    return reply.redirect(session.url, 302);
+  });
+
   app.post<{ Params: { id: string } }>(SKILL_CHECKOUT_PATH, { preHandler: [requireSession, requireJsonSameOrigin] }, async (req, reply): Promise<FastifyReply> => {
     const { actor } = viewerOrThrow(req);
     if (actor.kind !== 'learner') return reply.code(403).send({ error: GROUP });

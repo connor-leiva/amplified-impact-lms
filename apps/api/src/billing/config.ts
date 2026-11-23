@@ -59,6 +59,11 @@ export interface OfferConfig {
    * not a price id, skill checkout answers 503 and creates nothing.
    */
   skillPriceId: string | null;
+  /**
+   * Signed-out $37 checkout that creates the account. Off unless `SKILL_GUEST_CHECKOUT=on`.
+   * Off, the public button's route sends the visitor to the stopgap Payment Link.
+   */
+  skillGuestCheckout: boolean;
 }
 
 export class OfferConfigError extends Error {
@@ -150,6 +155,7 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     teamCallUrl: httpsUrl(env.TEAM_CALL_URL),
     seatCapLinks: seatCapLinks(env),
     skillPriceId: skillPriceId(env.STRIPE_PRICE_SKILL_SINGLE),
+    skillGuestCheckout: (env.SKILL_GUEST_CHECKOUT ?? '').trim().toLowerCase() === 'on',
   };
 }
 
@@ -182,5 +188,6 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     seatCapLinks: config.seatCapLinks.length,
     // Whether the one-time skill price id is set. The id itself stays out of the log.
     skillPrice: config.skillPriceId === null ? 'unset' : 'set',
+    skillGuestCheckout: config.skillGuestCheckout ? 'on' : 'off',
   };
 }
