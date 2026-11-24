@@ -4,7 +4,7 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeMissing, mayEditIntake } from '@ai/core/intake';
+import { cleanIntakeAnswers, currentIntakeAnswers, intakeCheckTarget, intakeMissing, mayEditIntake } from '@ai/core/intake';
 import type { IntakeAnswers } from '@ai/core/intake';
 import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
@@ -66,7 +66,7 @@ export async function teamIntakePdf(teamId: string): Promise<{ pdf: Buffer; name
   const [cohort] = owner?.cohortId ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, owner.cohortId)) : [];
   const html = intakePdfHtml({
     intake: form,
-    answers: row?.answers ?? {},
+    answers: currentIntakeAnswers(form, row?.answers ?? {}),
     team: team?.name ?? '',
     owner: owner?.name ?? '',
     // "Amplified AI Accelerator · December 2026 Cohort": the stored name, and the word core's `cohortLine` appends.
@@ -91,7 +91,7 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     const { actor } = viewerOrThrow(req);
     // A staff preview has no team, so nothing to print: the same refusal as an agent's.
     const me = actor.kind === 'learner' ? await memberOf(actor.userId) : null;
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the AI Implementer.' });
     const file = await teamIntakePdf(me.teamId);
     if (!file) return reply.code(404).send({ error: 'This week has no intake.' });
     return sendPdf(reply, file);
@@ -102,10 +102,12 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     if (actor.kind !== 'learner') return reply.code(200).send({ answers: {}, updatedAt: null, submittedAt: null, preview: true });
     const me = await memberOf(actor.userId);
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the AI Implementer.' });
     const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
+    // D-243: a choice saved in the operator's words comes back as the option it picks now.
+    const form = row ? await formOf() : undefined;
     return reply.code(200).send({
-      answers: row?.answers ?? {},
+      answers: currentIntakeAnswers(form, row?.answers ?? {}),
       updatedAt: row?.updatedAt ?? null,
       submittedAt: row?.submittedAt ?? null,
       preview: false,
@@ -117,7 +119,7 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     if (actor.kind !== 'learner') return reply.code(403).send({ error: 'Preview: Answers Aren’t Saved' });
     const me = await memberOf(actor.userId);
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the AI Implementer.' });
     const form = await formOf();
     if (!form) return reply.code(404).send({ error: 'This week has no intake.' });
     const body = (req.body ?? {}) as { answers?: unknown; submit?: boolean };
@@ -159,7 +161,8 @@ export async function readTeamIntake(
   const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
   if (!team && !row) return null;
   await audit(req, { action: 'intake.read', outcome: 'ok', actor, target: { type: 'team', id: teamId, label: 'Intake' } });
-  return { answers: row?.answers ?? {}, updatedAt: row?.updatedAt ?? null, submittedAt: row?.submittedAt ?? null, ghl: syncStateOf(row) };
+  const form = row ? await formOf() : undefined;
+  return { answers: currentIntakeAnswers(form, row?.answers ?? {}), updatedAt: row?.updatedAt ?? null, submittedAt: row?.submittedAt ?? null, ghl: syncStateOf(row) };
 }
 
 /** D-229 (B-19, B-20): a team intake's sync to GHL, as the console reads it. */

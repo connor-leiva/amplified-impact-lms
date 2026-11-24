@@ -12,7 +12,7 @@ function Body({ card }: { card: StartHereVM }) {
       <p className={s.line}>{card.line}</p>
       <p className={s.totals}>
         <span>Owner · {card.owner}</span>
-        <span>Operator · {card.operator}</span>
+        <span>AI Implementer · {card.operator}</span>
       </p>
       <p className={s.hint}>{card.hint}</p>
       <ul className={s.rows}>

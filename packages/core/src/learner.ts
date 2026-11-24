@@ -15,6 +15,7 @@ import { acceleratorModuleId, isAcceleratorModule } from './accelerator';
 import { isLockedWeek } from './course';
 import type { CourseSessionRow, LearnerCourseWeek, OpenCourseWeek } from './course';
 import { joinMode, moduleForSession, sessionState } from './sessions';
+import { implementerWords } from './role-words';
 import type { SessionTiming } from './sessions';
 import { viewerZone } from './time';
 import type { AIEmployee, Announcement, Db, Learner, Progress, Session, Step } from './types';
@@ -82,20 +83,22 @@ export const minutesLeft = (steps: readonly LearnerStep[]): number => steps.filt
 
 /**
  * B-09 (D-228): who a step is for, read from its `who` text, the words the builder already holds (Connor, Nov 20: "Read
- * the text"). "Owner" is the owner's, "Operator" the operator's, and anything else ("Owner and operator", "Each of
- * you", or words this rule doesn't know) is both of theirs, so no step ever drops out of a role's list.
+ * the text"). "Owner" is the owner's, "AI Implementer" the AI Implementer's (the role's id stays `operator`, D-243), and
+ * anything else ("Owner and AI Implementer", "Each of you", or words this rule doesn't know) is both of theirs, so no
+ * step ever drops out of a role's list. A Who line saved before D-243 ("Operator") still reads the same.
  */
 export type StepRole = 'owner' | 'operator';
+const whoKey = (who: string | null | undefined): string => implementerWords((who ?? '').trim()).toLowerCase().replace(/[.]$/, '');
 export function stepRoles(who: string | null | undefined): StepRole[] {
-  const t = (who ?? '').trim().toLowerCase().replace(/[.]$/, '');
+  const t = whoKey(who);
   if (t === 'owner') return ['owner'];
-  if (t === 'operator') return ['operator'];
+  if (t === 'ai implementer') return ['operator'];
   return ['owner', 'operator'];
 }
 
 /** Whether `stepRoles` knows a step's `who` words (the builder can warn about any it doesn't). */
 export const knownStepRole = (who: string | null | undefined): boolean =>
-  ['owner', 'operator', 'owner and operator', 'each of you'].includes((who ?? '').trim().toLowerCase().replace(/[.]$/, ''));
+  ['owner', 'ai implementer', 'owner and ai implementer', 'each of you'].includes(whoKey(who));
 
 /** The minutes of every step. */
 export const minutesInAll = (steps: readonly LearnerStep[]): number => steps.reduce((a, s) => a + (s.step.mins || 0), 0);

@@ -4,6 +4,7 @@
 // The database is production after the deploy's one-time release plan (each week Scheduled at its live
 // build, Week 0 due Nov 30) with a preview date set in Course settings. Buyers are made by the real
 // provisioning path. The clock is FIXED_NOW, set per case, every instant with its offset.
+import { implementerWords } from '@ai/core/role-words';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, eq } from 'drizzle-orm';
 import type { Db, Learner } from '@ai/core';
@@ -272,12 +273,15 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       // D-242: the seat card in one place: Week 2's Took Over and both weeks' First Run on the card, and step 6's Seat
       // Card table on both paths of both weeks drawn from it.
       [DATA_MIGRATIONS[14]!.id, 7, 0],
+      // D-243: the AI Implementer, in the nine weeks and the cohort's pages (10 records). Named: Week 0 Step 1's line,
+      // since the seed gives Step 1 no sentence that says who the person is.
+      [DATA_MIGRATIONS[15]!.id, 10, 1],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
     expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7 + 10).fill('curriculum.migrate'));
     expect(after.cohorts.find((c) => c.id === 'dec26')!.course!.glossary).toHaveLength(31);
     expect(after.modules.find((m) => m.id === 'accelerator-week-0')!.course!.startHere?.title).toBe('Start Here: Week 0');
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });
@@ -317,7 +321,8 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       const body = (await asStaff()).json() as { course: LearnerCourse; sessions: { id: string; title: string; start: number }[]; copy: Record<string, string> };
       const weeks = body.course.weeks as unknown as { week: number; title: string; question: string; module: { checklist: { ch: string }[] } }[];
       expect(weeks.slice(0, 4).map((w) => w.title)).toEqual(['Foundations', 'Where the Money Goes', 'Leads That Pay', 'Numbers on the 5th']);
-      expect(weeks[0]!.module.checklist.map((s) => s.ch)).toEqual(WEEK0_STEPS.map((s) => s.step));
+      // D-243's step renames the role in step 1's title, as it does everywhere else.
+      expect(weeks[0]!.module.checklist.map((s) => s.ch)).toEqual(WEEK0_STEPS.map((s) => implementerWords(s.step)));
       expect(weeks[4]!.title).toBe(ACCELERATOR_WEEKS_CONTENT[4]!.title);
       expect(body.copy['skill.coming']).toBe('Coming With Week 1');
       expect(body.copy['skill.in_step']).toBe('In Step {n}');

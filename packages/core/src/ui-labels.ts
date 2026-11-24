@@ -9,8 +9,8 @@
 
 export const UI_LABELS: readonly { text: string; why: string }[] = [
   {
-    text: 'Owner and operator',
-    why: 'D-228, D-229: the v3 week page’s Reference accordion title and the form drawer’s kicker, words of the approved mockup (handoff/lms-v3). Week 0’s step 2 has the same words as its who line, which still comes from the database.',
+    text: 'Owner and AI Implementer',
+    why: 'D-228, D-229, D-243: the v3 week page’s Reference accordion title and the form drawer’s kicker, words of the approved mockup (handoff/lms-v3) with the role renamed. Week 0’s step 2 has the same words as its who line, which still comes from the database.',
   },
   {
     text: 'Amplified AI Accelerator',
@@ -33,8 +33,8 @@ export const UI_LABELS: readonly { text: string; why: string }[] = [
     why: 'D-241: which AI apps a skill works in, as the Skill Library labels it (`platformsOf`, from the library’s TOOLS), and the $37 buyer’s Home line “Open its Setup Guide to add it to Claude or ChatGPT.” A week’s platform line repeats the words; it still comes from the database.',
   },
   {
-    text: 'your operator',
-    why: 'The builder’s default Invite button reads “Invite your operator” (D-190). D-193’s Operator term has that phrase as an alias. The alias’s meaning still comes from the glossary, not from this label.',
+    text: 'your AI Implementer',
+    why: 'The builder’s default Invite button reads “Invite your AI Implementer” (D-190, D-243). D-193’s AI Implementer term has that phrase as an alias. The alias’s meaning still comes from the glossary, not from this label.',
   },
 ];
 

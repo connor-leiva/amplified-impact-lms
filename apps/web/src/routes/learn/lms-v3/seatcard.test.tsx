@@ -28,7 +28,7 @@ describe('the seat card’s words (D-236)', () => {
   it('takes its title from the seat, its kicker from the step, and its questions from the week’s rows', () => {
     const def = seatCardDef(CARD, AT, 'owner', {});
     expect(def.ui.title).toBe('Finance Analyst Seat Card');
-    expect(def.ui.kicker).toBe('Week 1 · Step 6 · Owner and operator');
+    expect(def.ui.kicker).toBe('Week 1 · Step 6 · Owner and AI Implementer');
     expect(def.intake.sections[0]!.title).toBe('Finance Analyst');
     expect(def.intake.sections[0]!.questions.map((q) => [q.label, q.help ?? null])).toEqual([
       ['Reports To', 'Owner'], ['Runs', CARD.runs], ['Pulls', CARD.pulls], ['Applies', CARD.applies], ['Produces', CARD.produces],
@@ -40,7 +40,7 @@ describe('the seat card’s words (D-236)', () => {
     expect([owner.submitLabel, owner.submittedLabel, owner.submittedTitle]).toEqual(['Sign the seat card', 'Signed', 'Seat card signed.']);
     const op = seatCardDef(CARD, AT, 'operator', {}).ui;
     expect([op.submitLabel, op.submittedLabel, op.submittedTitle, op.submittedText]).toEqual(['Ready for the owner', 'Ready', 'Ready for the owner.', SEAT_CARD_UI.readyText]);
-    expect(seatCardDef(CARD, AT, 'agent', {}).ui.sub).toBe('Your team’s owner and operator fill this in.');
+    expect(seatCardDef(CARD, AT, 'agent', {}).ui.sub).toBe('Your team’s owner and AI Implementer fill this in.');
     // The owner's button is the sign item's title (the builder's words), or "Sign" when the action names none.
     expect(seatCardDef(CARD, { week: 1, step: 6 }, 'owner', {}).ui.submitLabel).toBe('Sign');
     // Signed: who and when, for everyone; the editors also hear that a change saves.

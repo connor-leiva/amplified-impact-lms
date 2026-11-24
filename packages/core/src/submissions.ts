@@ -54,7 +54,7 @@ export const mayTurnIn = (role: string | null | undefined): boolean => mayEditIn
 
 /** The server's words. The drawer's own (wrong type, too big, too many) are the package's, in the web app. */
 export const SUBMISSION_ERRORS = {
-  notYours: 'Your team’s owner or operator turns this in.',
+  notYours: 'Your team’s owner or AI Implementer turns this in.',
   notAsked: 'This step doesn’t ask for a file.',
   badFile: 'One of those files can’t be turned in.',
   tooMany: 'Up to 5 files at a time.',

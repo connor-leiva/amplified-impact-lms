@@ -47,7 +47,7 @@ export const SCHEDULE = {
   selfPaced: 'Self-paced, before the first build',
   selfPacedDue: 'Self-paced, due',
   owner: 'Owner',
-  operator: 'operator',
+  operator: 'AI Implementer',
   weeks_: 'weeks',
   done: 'done',
   opens: 'opens',

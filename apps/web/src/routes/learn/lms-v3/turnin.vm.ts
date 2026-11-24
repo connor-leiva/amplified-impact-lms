@@ -10,7 +10,7 @@ import type { TiAsk, TiSub, TurnInUi } from './types';
 export const TURN_IN_UI: TurnInUi = {
   turnIn: 'Turn in',
   view: 'View',
-  agent: 'Your team’s owner or operator turns this in.',
+  agent: 'Your team’s owner or AI Implementer turns this in.',
   drop: 'Drop files here',
   or: 'or',
   choose: 'Choose files',

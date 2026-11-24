@@ -27,6 +27,7 @@ import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { WEEKS_1_2_V1, planWeeks12V1 } from '@ai/core/seed/weeks-1-2-steps-v1';
 import { SEAT_CARD_ONE_COPY_V1, planSeatCardOneCopyV1 } from '@ai/core/seed/seat-card-one-copy-v1';
+import { AI_IMPLEMENTER_V1, planAiImplementerV1 } from '@ai/core/seed/ai-implementer-v1';
 import { audit } from '../console/audit';
 import type { Database } from './client';
 import { loadDb, persistDiff } from './io';
@@ -116,7 +117,38 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     describe: 'Weeks 1 and 2: the Seat Card’s rows to Connor’s approved words where untouched, and step 6’s Seat Card table drawn from the card, once (D-242)',
     plan: planSeatCardOneCopyV1,
   },
+  {
+    id: AI_IMPLEMENTER_V1,
+    describe: 'The operator is the AI Implementer: the word in the course, staff edits included, and the line where the role is defined (D-243)',
+    plan: planAiImplementerV1,
+  },
 ];
+
+export interface DataMigrationPreview {
+  id: string;
+  describe: string;
+  changes: { target: { type: string; id: string; label: string }; before: unknown; after: unknown }[];
+  skipped: DataSkip[];
+}
+
+/**
+ * D-243: what the pending steps WOULD change, read from the database and never written. The transaction is read
+ * only, so Postgres itself refuses any write. Run it against a copy of production before a deploy.
+ */
+export async function previewDataMigrations(db: Database, steps: readonly DataMigration[] = DATA_MIGRATIONS): Promise<DataMigrationPreview[]> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`set transaction read only`);
+    const done = new Set((await tx.select({ id: dataMigrations.id }).from(dataMigrations)).map((r) => r.id));
+    let snapshot = await loadDb(tx);
+    const out: DataMigrationPreview[] = [];
+    for (const step of steps.filter((s) => !done.has(s.id))) {
+      const planned = step.plan(snapshot);
+      snapshot = planned.db;
+      out.push({ id: step.id, describe: step.describe, changes: planned.changes, skipped: planned.skipped });
+    }
+    return out;
+  });
+}
 
 export interface DataMigrationReport {
   id: string;

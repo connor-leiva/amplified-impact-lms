@@ -48,8 +48,8 @@ describe('the week’s content (D-184)', () => {
     expect(sec('why')).toMatchObject({ title: COPY.why, parts: [{ kind: 'list', items: w.why }] });
     expect(sec('who').title).toBe(COPY.whoDoesWhat);
     expect(sec('who').parts).toEqual([
-      { kind: 'rows', heading: null, rows: [{ label: 'Owner', text: w.owner }, { label: 'Operator', text: w.operator }] },
-      { kind: 'rows', heading: COPY.time, rows: [{ label: 'Owner', text: w.time.owner }, { label: 'Operator', text: w.time.operator }] },
+      { kind: 'rows', heading: null, rows: [{ label: 'Owner', text: w.owner }, { label: 'AI Implementer', text: w.operator }] },
+      { kind: 'rows', heading: COPY.time, rows: [{ label: 'Owner', text: w.time.owner }, { label: 'AI Implementer', text: w.time.operator }] },
       { kind: 'text', text: p.course.shared.estimateNote, note: true },
     ]);
 
@@ -116,7 +116,7 @@ describe('the week’s content (D-184)', () => {
     expect(ids(p, 1)).not.toContain('how');
     const how = weekContentVM(p, 0)!.sections[0]!;
     expect(how.parts[0]).toEqual({ kind: 'list', heading: null, items: p.course.intro.how });
-    expect(how.parts[1]).toMatchObject({ kind: 'rows', rows: [{ label: 'Owner', text: p.course.intro.roles.owner }, { label: 'Operator', text: p.course.intro.roles.operator }] });
+    expect(how.parts[1]).toMatchObject({ kind: 'rows', rows: [{ label: 'Owner', text: p.course.intro.roles.owner }, { label: 'AI Implementer', text: p.course.intro.roles.operator }] });
     expect(how.parts.slice(2).map((x) => (x as { text: string }).text)).toEqual([p.course.intro.scope, p.course.intro.instructor, p.course.intro.support].filter(Boolean));
     const last = ids(p, 8);
     expect(last.slice(-2)).toEqual(['graduation', 'after']);

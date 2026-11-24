@@ -478,7 +478,7 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
     const action: CheckAction | undefined =
       type === 'download' ? { type: 'download', kitItemIds: [] }
       : type === 'copy' ? { type: 'copy', label: 'Copy prompt', text: '' }
-      : type === 'invite' ? { type: 'invite', label: 'Invite your operator' }
+      : type === 'invite' ? { type: 'invite', label: 'Invite your AI Implementer' }
       : type === 'calendar' ? { type: 'calendar', sessionId: picks?.sessions[0]?.id ?? '' }
       : type === 'link' ? { type: 'link', label: 'Open', href: '' }
       : type === 'form' ? { type: 'form', formId: 'intake', label: 'Open the form' }
@@ -861,7 +861,7 @@ export function StepWeekFields({ step, onChange, picks }: { step: Step; onChange
     });
   return (
     <>
-      <Line label="Who" value={step.who ?? ''} hint="Owner, Operator, Each of you" onChange={(v) => setOpt('who', v)} />
+      <Line label="Who" value={step.who ?? ''} hint="Owner, AI Implementer, Each of you" onChange={(v) => setOpt('who', v)} />
       <Line label="Time" value={step.timeLabel ?? ''} hint="20 min" onChange={(v) => setOpt('timeLabel', v)} />
       <Para label="Done when" value={step.doneWhen ?? ''} onChange={(v) => setOpt('doneWhen', v)} />
       <Para label="Goal" value={step.goal ?? ''} hint="The paragraph under the step title." onChange={(v) => setOpt('goal', v)} />
@@ -937,7 +937,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           { label: 'Question', value: c.question },
           { label: 'Outcome', value: draft.outcome || <span className={k.mu}>Not set</span> },
           { label: 'Owner time', value: c.time.owner },
-          { label: 'Operator time', value: c.time.operator },
+          { label: 'AI Implementer time', value: c.time.operator },
           { label: 'Start Here', value: c.startHere?.title ?? <span className={k.mu}>Not set</span> },
         ]}
       />
@@ -959,13 +959,13 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           <Line label="Outcome" value={draft.outcome} onChange={(v) => up((d) => (d.outcome = v))} />
           <Lines label="Why" items={c.why} onChange={(v) => set((x) => (x.why = v))} />
           <Para label="Owner line" value={c.owner} onChange={(v) => set((x) => (x.owner = v))} />
-          <Para label="Operator line" value={c.operator} onChange={(v) => set((x) => (x.operator = v))} />
+          <Para label="AI Implementer line" value={c.operator} onChange={(v) => set((x) => (x.operator = v))} />
           <div className={clsx(k.row, k.nw)}>
             <span className={k.sp}>
               <Line label="Owner time" value={c.time.owner} onChange={(v) => set((x) => (x.time.owner = v))} />
             </span>
             <span className={k.sp}>
-              <Line label="Operator time" value={c.time.operator} onChange={(v) => set((x) => (x.time.operator = v))} />
+              <Line label="AI Implementer time" value={c.time.operator} onChange={(v) => set((x) => (x.time.operator = v))} />
             </span>
           </div>
           {/* D-217: the week page's Tools section draws these two. */}
@@ -1007,7 +1007,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
                   <Line label="Owner total" value={c.startHere.totals.owner} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, totals: { ...x.startHere!.totals, owner: v } }))} />
                 </span>
                 <span className={k.sp}>
-                  <Line label="Operator total" value={c.startHere.totals.operator} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, totals: { ...x.startHere!.totals, operator: v } }))} />
+                  <Line label="AI Implementer total" value={c.startHere.totals.operator} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, totals: { ...x.startHere!.totals, operator: v } }))} />
                 </span>
               </div>
               <Button kind="quiet" onClick={() => set((x) => { delete x.startHere; })}>Remove Start Here</Button>
@@ -1648,7 +1648,7 @@ export type { WeekDraft };
 
 /**
  * Preview as Learner, for a course week: the learner portal's week page and step player (D-184) drawn
- * from the draft as it is now (nothing saved, nothing sent), as an owner, an operator, a Utah Life member
+ * from the draft as it is now (nothing saved, nothing sent), as an owner, an AI Implementer, a Utah Life member
  * and a buyer before launch. The pages are the real ones, given the draft instead of the API's answer; a
  * plan without the course and a buyer before the preview still see the course page's own words for it.
  */

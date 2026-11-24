@@ -173,7 +173,7 @@ function SharedPages({ cohortId, initial }: { cohortId: string; initial: CohortC
           }}
         />
         <Area label="The owner’s role" value={c.intro.roles.owner} onChange={(v) => up((x) => (x.intro.roles.owner = v))} />
-        <Area label="The operator’s role" value={c.intro.roles.operator} onChange={(v) => up((x) => (x.intro.roles.operator = v))} />
+        <Area label="The AI Implementer’s role" value={c.intro.roles.operator} onChange={(v) => up((x) => (x.intro.roles.operator = v))} />
         <Area label="Scope" value={c.intro.scope} onChange={(v) => up((x) => (x.intro.scope = v))} />
         <Area label="Support" value={c.intro.support} onChange={(v) => up((x) => (x.intro.support = v))} />
         {/* D-187: the learner portal's Cohort Community link, on Home. Empty hides it. */}

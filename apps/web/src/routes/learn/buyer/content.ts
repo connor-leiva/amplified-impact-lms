@@ -239,7 +239,7 @@ export const COPY = {
     title: 'AI Accelerator',
     lede: 'Week 0 sets up the office. Then one AI hire a week, built on your own numbers.',
     weeks: 'The Weeks',
-    owners: 'Owners and operators',
+    owners: 'Owners and AI Implementers',
     kick: 'Locked · Part of the AI Accelerator',
     how: 'How it works',
     howLine: 'Every week answers one question about your business.',

@@ -63,7 +63,7 @@ export function registerPersonalizeRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     if (actor.kind !== 'learner') return reply.code(403).send({ error: 'Preview: Checks Aren’t Saved' });
     const me = await memberOf(actor.userId);
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That page is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That page is for the owner and the AI Implementer.' });
     const mates = await getDb().select({ id: users.id, role: users.role }).from(users).where(and(eq(users.teamId, me.teamId), eq(users.kind, 'learner')));
     const [intake] = await getDb().select({ answers: teamIntake.answers }).from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
     const joined = mates.some((mate) => mate.role === 'Operations Lead');

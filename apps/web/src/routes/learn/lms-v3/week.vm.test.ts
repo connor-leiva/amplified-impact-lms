@@ -123,7 +123,7 @@ describe('weekProps (§7.3)', () => {
     expect(props.crumbs).toEqual([{ label: 'Home', href: '/learn' }, { label: 'Foundations' }]);
     expect(props.tags.map((t) => t.icon)).toEqual(['clock', 'users', 'cal']);
     expect(props.tags[0]!.label).toBe('Self-paced');
-    expect(props.tags[1]!.label).toBe('Owners and operators');
+    expect(props.tags[1]!.label).toBe('Owners and AI Implementers');
     expect(props.tags[2]!.label).toMatch(/^Due Mon, Nov 30, /);
   });
 
@@ -143,7 +143,8 @@ describe('weekProps (§7.3)', () => {
     const ownerMins = props.steps.filter((s) => s.who.includes('owner')).reduce((a, s) => a + s.minutes, 0);
     expect(owner).toMatchObject({ id: 'owner', count: props.steps.filter((s) => s.who.includes('owner')).length });
     expect(owner!.summary).toContain(`about ${Math.floor(ownerMins / 60)} hr`);
-    expect(operator!.id).toBe('operator');
+    expect(operator).toMatchObject({ id: 'operator', label: 'AI Implementer' });
+    expect(operator!.summary).toMatch(/^\d+ steps? for the AI Implementer, about /);
   });
 
   it('the step heading counts its steps', () => {
@@ -163,7 +164,7 @@ describe('weekProps (§7.3)', () => {
     const { props } = week0(learnState(PRELAUNCH_NOW, true, { 0: ['c1'] }));
     expect(props.reference.map((a) => a.title)).toEqual([
       'How the program works',
-      'Owner and operator',
+      'Owner and AI Implementer',
       'What done looks like',
       'Evidence packet',
       'Rubric',

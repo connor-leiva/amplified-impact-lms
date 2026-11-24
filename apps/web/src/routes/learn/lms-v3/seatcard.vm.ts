@@ -30,7 +30,7 @@ export interface SeatCardBody {
 /** The drawer's words. Chrome, as the intake's are; the card's own words are the week's. */
 export const SEAT_CARD_UI = {
   seatCard: 'Seat Card',
-  kickerWho: 'Owner and operator',
+  kickerWho: 'Owner and AI Implementer',
   /** The owner's button when the action names no sign item; else that item's title (the builder's words). */
   sign: 'Sign',
   signed: 'Signed',
@@ -40,7 +40,7 @@ export const SEAT_CARD_UI = {
   readyTitle: 'Ready for the owner.',
   readyText: 'Your owner signs it here. Change anything here and it saves the same way.',
   again: 'Change anything here and it saves the same way.',
-  locked: 'Your team’s owner and operator fill this in.',
+  locked: 'Your team’s owner and AI Implementer fill this in.',
 } as const;
 
 const when = (t: number): string => `${fmt.date(t)}, ${fmt.clockTime(t)}`;

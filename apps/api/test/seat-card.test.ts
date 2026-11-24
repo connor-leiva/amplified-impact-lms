@@ -156,7 +156,7 @@ describe('the seat card form (D-236)', () => {
     expect(agent.json()).toMatchObject({ answers: FULL, role: 'agent', preview: false });
     const write = await save('ag-a', { answers: FULL });
     expect(write.statusCode).toBe(403);
-    expect(write.json()).toEqual({ error: 'That card is for the owner and the operator.' });
+    expect(write.json()).toEqual({ error: 'That card is for the owner and the AI Implementer.' });
     expect((await read('own-b')).json()).toMatchObject({ answers: {}, updatedAt: null, role: 'owner' });
   });
 

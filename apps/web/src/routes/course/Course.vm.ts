@@ -68,7 +68,7 @@ export const COPY = {
   weeks: 'The Weeks',
   calendar: 'Calendar',
   howItWorks: 'How It Works',
-  roles: { owner: 'Owner', operator: 'Operator' },
+  roles: { owner: 'Owner', operator: 'AI Implementer' },
   before: 'Before Week 1',
   intake: 'The Intake',
   orientation: 'Orientation',

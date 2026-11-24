@@ -37,7 +37,7 @@ describe('the Account page (D-178)', () => {
       used: 1,
       of: 'of 2 in use',
       segments: [true, false],
-      note: 'Operator invite sent Nov 16, not accepted yet',
+      note: 'AI Implementer invite sent Nov 16, not accepted yet',
       resend: null,
     });
   });
@@ -52,7 +52,7 @@ describe('the Account page (D-178)', () => {
       heading: 'Profile',
       name: { label: 'Full name', value: 'Dana Ross' },
       email: { label: 'Email', value: 'dana@example.com', hint: 'You sign in with this.' },
-      role: { label: 'Role', value: 'Team owner', hint: 'Your operator gets the second seat.' },
+      role: { label: 'Role', value: 'Team owner', hint: 'Your AI Implementer gets the second seat.' },
       password: { label: 'Password', changed: 'Last changed Nov 12, 2026', action: { label: 'Change password', href: '/account' } },
     });
   });
@@ -70,12 +70,12 @@ describe('the Account page (D-178)', () => {
     });
   });
 
-  it('an operator: no Manage billing (the owner’s alone), no receipts in the lede, and no Resend for a joined team', () => {
+  it('an AI Implementer: no Manage billing (the owner’s alone), no receipts in the lede, and no Resend for a joined team', () => {
     const st = accountState({ role: 'Operations Lead', operatorStatus: 'active' });
     const vm = vmFor(accountRead(), st);
     expect(vm.plan?.billing).toBeNull();
     expect(vm.lede).toBe(ACCOUNT.ledeNoBilling);
-    expect(vm.profile.role).toEqual({ label: 'Role', value: 'Operator', hint: null });
+    expect(vm.profile.role).toEqual({ label: 'Role', value: 'AI Implementer', hint: null });
   });
 
   it('a sales agent can’t resend an invite', () => {
