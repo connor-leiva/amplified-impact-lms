@@ -154,22 +154,23 @@ export interface CourseSessionRow {
  * `GET /api/course` sends these, and the builder's live preview (D-174) renders them from the draft.
  */
 export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID): CourseSessionRow[] {
-  // The curriculum week when the course has one (so a holiday gap does not renumber a session),
-  // and the id / `n` week otherwise, which is what every session the reference seeds already uses.
+  // The week the builder gave the session (H-13, D-247: a session added in the builder has the cohort's next `n`,
+  // which is no week's); else the curriculum week when the course has one (so a holiday gap does not renumber a
+  // session), and the id / `n` week otherwise, which is what every session the reference seeds already uses.
   const weeks = curriculumWeeks(db.modules);
   return db.sessions
     .filter((s) => s.cohortId === cohortId)
-    .filter((s) => {
+    .flatMap((s) => {
       const m = moduleForSession(db, s);
-      return !!m && isAcceleratorModule(m.id);
+      return m && isAcceleratorModule(m.id) ? [{ s, named: s.moduleId === m.id ? m.course?.week : undefined }] : [];
     })
-    .sort((a, b) => a.start - b.start)
-    .map((s) => ({
+    .sort((a, b) => a.s.start - b.s.start)
+    .map(({ s, named }) => ({
       id: s.id,
       n: s.n,
       kind: sessionKind(s),
       type: sessionType(s),
-      week: sessionCurriculumWeek(weeks, s) ?? sessionWeek(s),
+      week: named ?? sessionCurriculumWeek(weeks, s) ?? sessionWeek(s),
       title: s.title,
       start: s.start,
       mins: s.mins,

@@ -2,10 +2,11 @@
 // checks the step 1 item. It does not send email.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { and, eq } from 'drizzle-orm';
-import { mayEditIntake } from '@ai/core/intake';
-import { cleanStackRows, prefillStack, stackCheckTarget } from '@ai/core/stack';
+import { and, eq, sql } from 'drizzle-orm';
+import { INTAKE_OUT_OF_DATE, mayEditIntake } from '@ai/core/intake';
+import { STACK_CONFLICT, mergeStackEdit, prefillStack, stackCheckTarget } from '@ai/core/stack';
 import type { StackRow } from '@ai/core/stack';
+import type { StackCardContent } from '@ai/core/course-types';
 import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
 import { getDb } from '../db/client';
@@ -26,6 +27,16 @@ async function cardOf() {
   return db.modules.find((m) => m.id === 'accelerator-week-0')?.course?.stackCard;
 }
 
+type Reader = Pick<ReturnType<typeof getDb>, 'select'>;
+
+/** The team's card as stored, or, before its first save, as the intake prefills it (what `GET` shows). */
+async function storedRows(db: Reader, teamId: string, card: StackCardContent | undefined): Promise<{ rows: StackRow[]; sentAt: number | null }> {
+  const [saved] = await db.select().from(teamStackCard).where(eq(teamStackCard.teamId, teamId));
+  if (saved) return { rows: saved.rows, sentAt: saved.sentAt };
+  const [intake] = await db.select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
+  return { rows: card ? prefillStack(card, intake?.answers ?? {}) : [], sentAt: null };
+}
+
 export function registerStackRoute(app: FastifyInstance): void {
   app.get(STACK_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
     const { actor } = viewerOrThrow(req);
@@ -33,12 +44,9 @@ export function registerStackRoute(app: FastifyInstance): void {
     if (actor.kind !== 'learner') return reply.code(200).send({ rows: [], sentAt: null, preview: true });
     const me = await memberOf(actor.userId);
     if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the AI Implementer.' });
-    const [saved] = await getDb().select().from(teamStackCard).where(eq(teamStackCard.teamId, me.teamId));
-    if (saved) return reply.code(200).send({ rows: saved.rows, sentAt: saved.sentAt, preview: false });
     const card = await cardOf();
-    const [intake] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
-    const rows = card ? prefillStack(card, intake?.answers ?? {}) : [];
-    return reply.code(200).send({ rows, sentAt: null, preview: false });
+    const saved = await storedRows(getDb(), me.teamId, card);
+    return reply.code(200).send({ rows: saved.rows, sentAt: saved.sentAt, preview: false });
   });
 
   app.put(STACK_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
@@ -49,16 +57,29 @@ export function registerStackRoute(app: FastifyInstance): void {
     if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the AI Implementer.' });
     const card = await cardOf();
     if (!card) return reply.code(404).send({ error: 'This week has no stack card.' });
-    const body = (req.body ?? {}) as { rows?: unknown; send?: boolean };
-    const cleaned = cleanStackRows(card, body.rows);
-    if (cleaned.secret) return reply.code(422).send({ error: 'Never a password.' });
+    const body = (req.body ?? {}) as { changes?: unknown; base?: unknown; send?: boolean };
+    // H-10 (D-247): only the rows this browser changed, each as it last read it. A page from before this change sends
+    // every row, which would erase a teammate's: it is refused, and asked to reload.
+    if (!body.changes || typeof body.changes !== 'object' || Array.isArray(body.changes)) {
+      return reply.code(409).send({ error: INTAKE_OUT_OF_DATE, conflicts: [] });
+    }
     const now = clock.now();
-    const [prev] = await getDb().select().from(teamStackCard).where(eq(teamStackCard.teamId, me.teamId));
-    const sentAt = body.send ? now : (prev?.sentAt ?? null);
-    await getDb()
-      .insert(teamStackCard)
-      .values({ teamId: me.teamId, rows: cleaned.rows, sentAt, updatedAt: now, updatedBy: me.id })
-      .onConflictDoUpdate({ target: teamStackCard.teamId, set: { rows: cleaned.rows, sentAt, updatedAt: now, updatedBy: me.id } });
+    // Read, merge and write under the team's own lock, as the intake does.
+    const out = await getDb().transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('team_stack_card'), hashtext(${me.teamId}))`);
+      const prev = await storedRows(tx, me.teamId, card);
+      const merged = mergeStackEdit(card, prev.rows, body.changes, body.base);
+      if (merged.secret) return { code: 422 as const, body: { error: 'Never a password.' } };
+      if (merged.conflicts.length) return { code: 409 as const, body: { error: STACK_CONFLICT, conflicts: merged.conflicts } };
+      const sentAt = body.send ? now : prev.sentAt;
+      await tx
+        .insert(teamStackCard)
+        .values({ teamId: me.teamId, rows: merged.rows, sentAt, updatedAt: now, updatedBy: me.id })
+        .onConflictDoUpdate({ target: teamStackCard.teamId, set: { rows: merged.rows, sentAt, updatedAt: now, updatedBy: me.id } });
+      return { code: 200 as const, body: { rows: merged.rows, sentAt } };
+    });
+    if (out.code !== 200) return reply.code(out.code).send(out.body);
+    const { rows, sentAt } = out.body;
     if (body.send) {
       const db = await loadDb(getDb());
       const target = stackCheckTarget(db.modules.find((m) => m.id === 'accelerator-week-0'));
@@ -75,7 +96,7 @@ export function registerStackRoute(app: FastifyInstance): void {
         }
       }
     }
-    return reply.code(200).send({ rows: cleaned.rows, sentAt });
+    return reply.code(200).send({ rows, sentAt });
   });
 }
 

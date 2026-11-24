@@ -16,7 +16,8 @@
 // D-153's exactly and every week opens with the course: deploying this changes nothing by itself.
 //
 // `acceleratorOpen` and `acceleratorLearnerIds` are untouched: the scheduler's reminders and digests
-// read them, so no email moves (the brief's hard rule).
+// read them, so no email moves (the brief's hard rule). H-14 (D-247) reads `acceleratorOpen` at a
+// session's start for its reminders (`courseRoster`), so the first live build's reminders go out.
 
 import { ACCELERATOR_OPTIONS, acceleratorOpen, acceleratorUpcoming, isAcceleratorModule, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';

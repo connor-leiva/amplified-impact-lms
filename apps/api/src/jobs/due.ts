@@ -79,6 +79,7 @@ import {
 } from '@ai/core';
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
 import { isAcceleratorModule } from '@ai/core/accelerator';
+import type { CourseRoster } from '@ai/core/accelerator';
 import { sessionLabel } from '@ai/core';
 import { jobKey } from './keys';
 import type { JobName } from './keys';
@@ -249,6 +250,12 @@ const underWay = (db: Db, u: Learner): boolean => {
 const reachable = (db: Db, u: Learner): boolean => mailable(u) && underWay(db, u);
 
 /**
+ * Who is in the AI Accelerator (D-110), asked with the instant that matters (H-14, D-247): core's `CourseRoster`. A
+ * plain set of learner ids is one too (its `has` ignores the instant), which is how the pure tests pass a cohort.
+ */
+export type CourseAudience = CourseRoster;
+
+/**
  * Who a session's reminders go to.
  *
  * Tier, not just enrolment: Session 4 teaches the Meetings AI Employee, which is Team-only, so an
@@ -261,14 +268,17 @@ const reachable = (db: Db, u: Learner): boolean => mailable(u) && underWay(db, u
  * (`status !== 'draft'`, the same filter `visibleModules` applies), so an employee an admin has not
  * published yet never narrows an audience.
  */
-const sessionAudience = (db: Db, s: Session, accelerator?: ReadonlySet<string>): Learner[] => {
+const sessionAudience = (db: Db, s: Session, now: number, accelerator?: CourseAudience): Learner[] => {
   const m = moduleForSession(db, s);
   // The AI Accelerator's sessions go only to learners whose plan opens the course (D-110): every paid
   // buyer sits in this cohort at Team tier, so the tier rule above cannot tell them apart. Absent
   // (every caller before the course, and the demo), nothing is narrowed.
   const course = !!accelerator && !!m && isAcceleratorModule(m.id);
+  // H-14 (D-247): asked at the session's start while it is ahead, so a buyer whose course opens with the first live
+  // build hears of it the day before and the hour before; once it has started, now (a replay, a build reminder).
+  const at = Math.max(now, s.start);
   return db.users.filter(
-    (u) => u.cohortId === s.cohortId && reachable(db, u) && (!m || canAccess(u, m)) && (!course || accelerator!.has(u.id)),
+    (u) => u.cohortId === s.cohortId && reachable(db, u) && (!m || canAccess(u, m)) && (!course || accelerator!.has(u.id, at)),
   );
 };
 
@@ -322,13 +332,13 @@ const mondayOf = (t: number): number => {
 // ---------------------------------------------------------------------------
 
 /** `session-24h` and `session-1h`: § 8.1's "Tomorrow: …" and "Starting in 1 hour: …". */
-function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: ReadonlySet<string>): Send[] {
+function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: CourseAudience): Send[] {
   const out: Send[] = [];
   for (const s of db.sessions) {
     // Not yet begun. `sessionState` — not `now < s.start` — because an admin who pressed Go Live
     // early makes the session live before its scheduled start, and "Tomorrow:" is then a lie.
     if (sessionState(s, now) !== 'upcoming') continue;
-    const audience = sessionAudience(db, s, accelerator);
+    const audience = sessionAudience(db, s, now, accelerator);
     if (!audience.length) continue;
     // `n` and `title` build § 8.1's subject; `start` and `zone` are what the body renders, through
     // `whenFor(start, zone)` in the template — § 8.1: "Session times in emails use `fmt.when` with
@@ -383,7 +393,7 @@ function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: 
  * Skipping leaves the key unwritten, so if the admin publishes the AI Employee while the window is
  * still open the next tick sends it properly.
  */
-function replayReady(db: Db, now: number, accelerator?: ReadonlySet<string>): Send[] {
+function replayReady(db: Db, now: number, accelerator?: CourseAudience): Send[] {
   const out: Send[] = [];
   for (const s of db.sessions) {
     if (sessionState(s, now) !== 'replay') continue;
@@ -391,7 +401,7 @@ function replayReady(db: Db, now: number, accelerator?: ReadonlySet<string>): Se
     if (!isDue(now, end, end + GRACE)) continue;
     const m = moduleForSession(db, s);
     if (!m) continue;
-    for (const u of sessionAudience(db, s, accelerator)) {
+    for (const u of sessionAudience(db, s, now, accelerator)) {
       out.push({
         job: 'replay-ready',
         key: jobKey('replay-ready', s.id, u.id),
@@ -419,7 +429,7 @@ function replayReady(db: Db, now: number, accelerator?: ReadonlySet<string>): Se
  * `job_runs` key. They are independent by design: being nudged by hand on Tuesday does not cancel
  * Thursday's automatic reminder, and the toggle (rm4) governs only this one.
  */
-function buildNotFinished48h(db: Db, now: number, accelerator?: ReadonlySet<string>): Send[] {
+function buildNotFinished48h(db: Db, now: number, accelerator?: CourseAudience): Send[] {
   const out: Send[] = [];
   for (const s of db.sessions) {
     // A build reminder follows the build. An office hour (D-110) shares its week's AI Employee, and
@@ -433,7 +443,7 @@ function buildNotFinished48h(db: Db, now: number, accelerator?: ReadonlySet<stri
     const m: AIEmployee | null = moduleForSession(db, s);
     // Nothing to finish: a session with no AI Employee has no build.
     if (!m) continue;
-    for (const u of sessionAudience(db, s, accelerator)) {
+    for (const u of sessionAudience(db, s, now, accelerator)) {
       const build = buildOf(u, m);
       if (build.state === 'verified') continue;
       out.push({
@@ -628,8 +638,9 @@ export function dueWork(
   /**
    * The learners whose plan opens the AI Accelerator (D-110), which the `Db` cannot say: the
    * scheduler reads it from the plans. The course's reminders go to them only. Absent: no narrowing.
+   * H-14 (D-247): asked per session at its start (`acceleratorRoster`); a plain set of ids still works.
    */
-  accelerator?: ReadonlySet<string>,
+  accelerator?: CourseAudience,
 ): DueWork {
   const announcements = scheduledAnnouncements(db, now);
   const candidates: Send[] = [

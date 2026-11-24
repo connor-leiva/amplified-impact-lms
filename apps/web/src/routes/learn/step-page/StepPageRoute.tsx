@@ -48,9 +48,9 @@ export interface StepPageRouteProps {
   title: string | null;
   /** A staff member's in-memory checks and watch (D-184), as the step player takes them. */
   local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } | undefined;
-  /** D-230: Turn in's button, for a viewer v3 draws for (`V6Handlers.turnIn`). */
+  /** D-230: Turn in's button, for every learner, v3 or not (H-15, D-247; `V6Handlers.turnIn`). */
   turnIn?: V6Handlers['turnIn'];
-  /** D-236: the seat card form's button, for a viewer v3 draws for (`V6Handlers.seatCard`). */
+  /** D-236: the seat card form's button, for every learner, v3 or not (H-15, D-247; `V6Handlers.seatCard`). */
   seatCard?: V6Handlers['seatCard'];
   /** D-245: the intake's kit files, whose Download opens its drawer, for a viewer v3 draws for (`V6Handlers.intakeFiles`). */
   intakeFiles?: V6Handlers['intakeFiles'];

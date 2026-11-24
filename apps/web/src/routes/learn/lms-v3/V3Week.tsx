@@ -9,20 +9,21 @@ import { ics } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CourseIntake } from '@ai/core/course-types';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds } from '@ai/core/intake';
+import { intakeCheckTarget, intakeFileIds } from '@ai/core/intake';
 import { useMutate } from '../../../data/hooks';
 import { downloadIntakePdf } from '../intake-pdf';
 import type { CoursePayload } from '../../course/Course.vm';
 import { saveIcs } from '../ics';
+import { INTAKE_LOAD_FAILED, intakeSaver, loadIntake } from '../intake-sync';
+import type { IntakeSaver } from '../intake-sync';
 import type { WeekRow } from '../learn.vm';
 import type { LockedWeekVM } from '../Week.vm';
 import { PromptModal } from '../WeekContent';
 import type { BuildKitVM } from '../WeekContent.vm';
-import { FormDrawer, useForm } from './FormDrawer';
+import { FormDrawer, FormRefusal, useForm } from './FormDrawer';
 import { NO_TAP } from './tap';
 import type { FormApi } from './FormDrawer';
 import { FORM_ID, formDef, formInitial, formItem, formRow, intakeStepOf } from './form.vm';
-import type { IntakeBody } from './form.vm';
 import { LockedWeekPage } from './LockedWeekPage';
 import type { FormAnswers } from './types';
 import { WeekPage } from './WeekPage';
@@ -60,10 +61,11 @@ export function V3Week({
 }) {
   const mutate = useMutate();
   const [prompt, setPrompt] = useState(false);
-  const form = useIntakeForm(r.open?.intake, now);
   const [params, setParams] = useSearchParams();
   // B-15: `?form=intake` opens the drawer (the old intake page's address lands here).
-  const drawerOpen = !!form && params.get('form') === FORM_ID;
+  const asked = params.get('form') === FORM_ID;
+  const form = useIntakeForm(r.open?.intake, now, asked);
+  const drawerOpen = !!form && asked;
   const setOpen = (on: boolean) =>
     setParams(
       (q) => {
@@ -115,7 +117,7 @@ export function V3Week({
       {form
         ? createPortal(
             <div style={NO_TAP}>
-              <FormDrawer f={form} open={drawerOpen} onClose={() => setOpen(false)} />
+              <FormDrawer f={form} open={drawerOpen} onClose={() => setOpen(false)} locked={form.locked} />
             </div>,
             document.body,
           )
@@ -128,27 +130,34 @@ export function V3Week({
 // where the drawer's tests have always found it.
 export { downloadIntakePdf, pdfNameOf } from '../intake-pdf';
 
+/** H-10 (D-247): the drawer's foot when the intake didn't load (and can be asked again by opening it again). */
+export const INTAKE_DRAWER_LOAD_FAILED = `${INTAKE_LOAD_FAILED} Close it and open it again.`;
+
+/** The drawer's form, and whether it may be edited yet (H-10: not before the answers load, nor after a clash). */
+export type IntakeFormApi = FormApi & { locked: boolean };
+
 /**
  * The week's intake as the package's `useForm` drives it (§7.4): loaded from `GET /api/intake`, saved with
- * `PUT /api/intake` (the answers the course asks, `cleanIntakeAnswers`), submitted the same way, and printed with
- * `GET /api/intake/pdf`. One intake per team: two people editing at once, the last save wins, as today. Null when the
- * week has no intake.
+ * `PUT /api/intake` and submitted the same way, and printed with `GET /api/intake/pdf`. One intake per team. H-10
+ * (D-247): the drawer is locked until the answers load, and a load that fails says so in its foot and is asked again
+ * when the drawer opens again; a save sends only what changed (`intake-sync.ts`), so a teammate's other answers stay,
+ * and a question they changed too is refused in the server's words, the drawer then locked with what was typed still
+ * in it. Null when the week has no intake.
  */
-export function useIntakeForm(intake: CourseIntake | undefined, now: number): FormApi | null {
+export function useIntakeForm(intake: CourseIntake | undefined, now: number, open = false): IntakeFormApi | null {
   const def = useMemo(() => (intake ? formDef(intake) : null), [intake]);
-  const put = useCallback(
-    async (answers: FormAnswers, submit: boolean) => {
-      if (!intake) return;
-      const res = await fetch('/api/intake', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ answers: cleanIntakeAnswers(intake, answers), submit }),
-      });
-      if (!res.ok) throw new Error(`PUT /api/intake ${res.status}`);
-    },
-    [intake],
-  );
+  const saver = useRef<IntakeSaver | null>(null);
+  const [load, setLoad] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const [stale, setStale] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const put = useCallback(async (answers: FormAnswers, submit: boolean) => {
+    const to = saver.current;
+    if (!to) throw new FormRefusal(INTAKE_DRAWER_LOAD_FAILED);
+    const out = await to.save(answers, submit);
+    if (out.kind === 'saved' || out.kind === 'unchanged') return;
+    if (out.kind === 'conflict') setStale(true);
+    throw new FormRefusal(out.error);
+  }, []);
   const f = useForm({
     form: def ?? formDef({ sections: [] }),
     initial: { status: 'new', answers: {} },
@@ -158,22 +167,37 @@ export function useIntakeForm(intake: CourseIntake | undefined, now: number): Fo
   });
   const reset = useRef(f.reset);
   reset.current = f.reset;
+  const refuse = useRef(f.refuse);
+  refuse.current = f.refuse;
   const nowAt = useRef(now);
   nowAt.current = now;
   useEffect(() => {
     if (!intake) return undefined;
     let alive = true;
-    void fetch('/api/intake', { credentials: 'include' })
-      .then((res) => (res.ok ? (res.json() as Promise<IntakeBody>) : null))
-      .then((body) => {
-        if (alive && body) reset.current(formInitial(body, nowAt.current));
-      })
-      .catch(() => undefined);
+    setLoad('loading');
+    void loadIntake().then((out) => {
+      if (!alive) return;
+      if (out.kind === 'failed') {
+        saver.current = null;
+        setLoad('failed');
+        refuse.current(out.retry ? INTAKE_DRAWER_LOAD_FAILED : out.error);
+        return;
+      }
+      saver.current = intakeSaver(intake, out.body.answers);
+      reset.current(formInitial(out.body, nowAt.current));
+      setLoad('ready');
+    });
     return () => {
       alive = false;
     };
-  }, [intake]);
-  return def ? f : null;
+  }, [intake, attempt]);
+  // A load that failed is asked again when the drawer opens again.
+  const failed = useRef(false);
+  failed.current = load === 'failed';
+  useEffect(() => {
+    if (open && failed.current) setAttempt((n) => n + 1);
+  }, [open]);
+  return def ? { ...f, locked: load !== 'ready' || stale } : null;
 }
 
 export function V3Locked({
