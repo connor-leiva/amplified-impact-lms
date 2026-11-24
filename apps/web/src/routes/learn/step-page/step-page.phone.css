@@ -13,5 +13,10 @@
 ){font-size:16px}
 [data-step-page] :is(a[href]:not(.inline),button,[role=radio],[role=checkbox]){min-height:44px;min-width:44px}
 [data-step-page] .btn-primary{min-height:48px}
+/* D-245: a checklist item's button keeps its whole label on a phone. A label wider than the row ("Open and Submit the
+   Intake Form", a long file title) wraps inside the button, both roll copies alike, where it was clipped; a label that
+   fits draws as before, on the 44px floor. */
+[data-step-page] .item-acts .btn{height:auto;white-space:normal;text-align:left;padding-block:var(--sp-s2)}
+[data-step-page] .item-acts .btn .aim-roll{min-width:0}
 [data-step-page] .seg{height:auto}
 }

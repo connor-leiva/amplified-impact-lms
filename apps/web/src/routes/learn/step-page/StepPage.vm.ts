@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 import type { GlossarySpan } from '@ai/core/glossary';
 import type { PathBlock } from '@ai/core/course-types';
 import type { RichText } from '@ai/core/rich-text';
+import { FORM_BUTTON_LABEL } from '@ai/core/form-button';
 import type { SpAction, SpCallout, SpCue, SpForStep, SpHelp, SpItem, SpLabels, SpStep, SpVideo } from './types';
 
 /** The chrome words, exactly as the mockup prints them (handoff/step-page-v6/src/sample-data.js › sampleLabels). */
@@ -127,6 +128,11 @@ export interface V6Handlers {
   turnIn?: { agent: string | null; labelOf: (kind: 'live_read' | 'checkpoint') => string; open: (kind: 'live_read' | 'checkpoint') => void };
   /** D-236: the seat card form, for a viewer v3 draws for (absent: its Form button draws nothing). */
   seatCard?: { open: () => void };
+  /**
+   * D-245: the intake's kit files (their kit ids), for a viewer v3 draws for. A click on one opens the intake's drawer
+   * (B-15), so a Download of one is the intake form's button, in the form's words. Absent: every file downloads.
+   */
+  intakeFiles?: readonly string[];
 }
 
 const hasTerm = (spans?: readonly GlossarySpan[]): spans is readonly GlossarySpan[] => !!spans?.some((x) => x.kind === 'term');
@@ -145,7 +151,7 @@ export const V6_MORE = {
 
 const ICON_OF: Record<string, SpForStep['icon']> = { book: 'book', play: 'play', lvCopy: 'copy', lvKey: 'key', file: 'book' };
 
-function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handlers, 'onCalendar' | 'turnIn' | 'seatCard'>): SpAction | null {
+function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handlers, 'onCalendar' | 'turnIn' | 'seatCard' | 'intakeFiles'>): SpAction | null {
   if (!a) return null;
   if (a.type === 'calendar') return a.event ? { type: 'calendar', label: V6_WORDS.addToCalendar, onClick: () => on.onCalendar(item) } : null;
   if (a.type === 'upload') {
@@ -154,10 +160,13 @@ function actionOf(a: CheckItemVM['action'], item: CheckItemVM, on: Pick<V6Handle
     return t.agent !== null ? { type: 'line', text: t.agent } : { type: 'upload', label: t.labelOf(a.kind), onClick: () => t.open(a.kind) };
   }
   if (a.type === 'seatcard') return on.seatCard ? { type: 'form', label: a.label, onClick: on.seatCard.open } : null;
-  if (a.type === 'link') return { type: 'link', label: a.label, href: a.href };
+  if (a.type === 'link') return { type: 'link', label: a.label, href: a.href, ...(a.form ? { form: true as const } : {}) };
   if (a.type === 'invite') return { type: 'invite', label: a.label, href: a.href };
   if (a.type === 'copy') return { type: 'copy', label: a.label, text: a.text };
-  if (a.type === 'download') return { type: 'download', files: a.files };
+  if (a.type === 'download') {
+    const forms = on.intakeFiles ?? [];
+    return { type: 'download', files: a.files.map((f) => (forms.includes(f.id) ? { ...f, form: FORM_BUTTON_LABEL.intake } : f)) };
+  }
   return null;
 }
 

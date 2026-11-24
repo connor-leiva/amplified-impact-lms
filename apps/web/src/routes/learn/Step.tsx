@@ -416,11 +416,17 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
       seatAsk && openWeek && !isLockedWeek(openWeek) && openWeek.seatCard
         ? { moduleId: row!.module!.id, card: openWeek.seatCard, at: { week: row!.week, step: seatAsk.step, ...(seatAsk.signLabel ? { signLabel: seatAsk.signLabel } : {}) } }
         : null;
+    // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
+    const week0 = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
+    const intake = !preview && v3For(viewer, me) && week0 && !isLockedWeek(week0) && week0.intake ? { form: week0.intake, kit: week0.kit ?? [] } : null;
+    // D-245: the intake's kit files, whose Download opens that drawer, so the step page draws it as the form's button.
+    const intakeFiles = intake ? intakeFileIds(rows.find((x) => x.week === 0)?.module, intake.kit) : [];
+    const forms = intakeFiles.length ? { intakeFiles } : {};
     const inner = (seatCard?: { open: () => void }) =>
       asks.length ? (
-        <TurnInStep key={`${vm.week}:${vm.eyebrow}`} moduleId={row!.module!.id} asks={asks} role={me?.role ?? null} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} />
+        <TurnInStep key={`${vm.week}:${vm.eyebrow}`} moduleId={row!.module!.id} asks={asks} role={me?.role ?? null} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} {...forms} />
       ) : (
-        <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} />
+        <StepPageRoute key={`${vm.week}:${vm.eyebrow}`} vm={vm} kit={more.kit} title={more.title} local={local} {...(seatCard ? { seatCard } : {})} {...forms} />
       );
     const page = seat ? (
       <SeatCardStep key={`seat:${vm.week}:${vm.eyebrow}`} seat={seat} role={me?.role ?? null} now={now}>
@@ -429,17 +435,11 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     ) : (
       inner()
     );
-    // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
-    const intake = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
-    if (!preview && v3For(viewer, me) && intake && !isLockedWeek(intake) && intake.intake) {
+    if (intake) {
       return (
         <>
           {page}
-          <InPlaceIntake
-            intake={intake.intake}
-            now={now}
-            files={intakeFileIds(rows.find((x) => x.week === 0)?.module, intake.kit ?? []).flatMap((id) => repo.fileUrl({ kind: 'resource', id }) ?? [])}
-          />
+          <InPlaceIntake intake={intake.form} now={now} files={intakeFiles.flatMap((id) => repo.fileUrl({ kind: 'resource', id }) ?? [])} />
         </>
       );
     }

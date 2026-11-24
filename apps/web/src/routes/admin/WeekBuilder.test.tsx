@@ -243,6 +243,40 @@ describe('a step’s course fields (D-174)', () => {
     // Step 6 is not a checklist yet. The line is still a cross-step dependency, and save is not refused.
     expect(checklistIssueLines([last])).toEqual([]);
   });
+
+  it('D-245: the Button menu says Form, a new Form button starts blank, and blank names the words learners see', async () => {
+    const user = userEvent.setup();
+    let last: Step = { id: 'c1', text: 'Get your AI ready', ch: '', mins: 20, t: 0, hint: '' };
+    render(<StepHarness start={last} onStep={(s) => (last = s)} />);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Claude path: kind of block to add' }), 'check');
+    await user.click(screen.getAllByRole('button', { name: 'Add block' })[0]!);
+    const button = screen.getByRole('combobox', { name: 'Block 1 button' });
+    const kinds = [...(button as HTMLSelectElement).options].map((o) => o.text);
+    expect(kinds).toContain('Form');
+    expect(kinds).not.toContain('Form (later)');
+    await user.selectOptions(button, 'form');
+    expect(last.paths!.claude!.blocks[0]).toMatchObject({ type: 'check', action: { type: 'form', formId: 'intake', label: '' } });
+    const label = screen.getByRole('textbox', { name: 'Block 1 button label' });
+    expect(label).toHaveValue('');
+    expect(label.getAttribute('placeholder')).toBe('Blank uses “Open and Submit the Intake Form”.');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Block 1 form' }), 'stack-card');
+    expect(label.getAttribute('placeholder')).toBe('Blank uses “Open Your Stack Card”.');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Block 1 form' }), 'seat-card');
+    expect(label.getAttribute('placeholder')).toBe('Blank uses “Fill In Your Seat Card”.');
+    await user.type(label, 'Sign Your Seat Card');
+    expect(last.paths!.claude!.blocks[0]).toMatchObject({ action: { type: 'form', formId: 'seat-card', label: 'Sign Your Seat Card' } });
+  });
+
+  it('D-245: a Form button the builder filled with “Open the form” shows as blank, since learners see the form’s own words', () => {
+    const last: Step = {
+      id: 'c1', text: 'Fill in the intake', ch: '', mins: 10, t: 0, hint: '',
+      paths: { claude: { blocks: [{ type: 'check', id: 's1-intake', title: 'Fill in the intake', action: { type: 'form', formId: 'intake', label: 'Open the form' } }] } },
+    };
+    render(<StepHarness start={last} onStep={() => undefined} />);
+    const label = screen.getByRole('textbox', { name: 'Block 1 button label' });
+    expect(label).toHaveValue('');
+    expect(label.getAttribute('placeholder')).toBe('Blank uses “Open and Submit the Intake Form”.');
+  });
 });
 
 describe('a video block in a step’s paths and the week’s Media (D-188)', () => {

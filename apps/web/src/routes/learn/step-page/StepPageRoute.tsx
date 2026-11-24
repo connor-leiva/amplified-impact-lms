@@ -52,6 +52,8 @@ export interface StepPageRouteProps {
   turnIn?: V6Handlers['turnIn'];
   /** D-236: the seat card form's button, for a viewer v3 draws for (`V6Handlers.seatCard`). */
   seatCard?: V6Handlers['seatCard'];
+  /** D-245: the intake's kit files, whose Download opens its drawer, for a viewer v3 draws for (`V6Handlers.intakeFiles`). */
+  intakeFiles?: V6Handlers['intakeFiles'];
 }
 
 export function StepPageRoute(props: StepPageRouteProps) {
@@ -79,7 +81,7 @@ export function StepPageRoute(props: StepPageRouteProps) {
   return <LiveStepPage {...props} on={on} choose={choose} refused={refused} fault={fault} clearFault={clearFault} sync={epoch} />;
 }
 
-function LiveStepPage({ vm, kit, title, local, turnIn, seatCard, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
+function LiveStepPage({ vm, kit, title, local, turnIn, seatCard, intakeFiles, refused, on, choose, fault, clearFault, sync }: StepPageRouteProps & {
   refused: (why?: string) => void; on: Platform; choose: (p: Platform) => void; fault: string | null; clearFault: () => void; sync: number;
 }) {
   useTabTitle(title);
@@ -284,6 +286,7 @@ function LiveStepPage({ vm, kit, title, local, turnIn, seatCard, refused, on, ch
     nodes,
     ...(turnIn ? { turnIn } : {}),
     ...(seatCard ? { seatCard } : {}),
+    ...(intakeFiles?.length ? { intakeFiles } : {}),
   });
   // Above Watch: the week's live session on a live-build step, and step 1's Start Here card.
   const lead = (
