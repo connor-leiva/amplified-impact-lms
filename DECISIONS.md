@@ -7518,7 +7518,7 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 ## D-243 · Utah Life in a category of its own: every cohort number counts the course's learners
 
 **Date:** 2026-11-24
-**Approved by:** Connor Leiva (repository owner), November 24, 2026. On Admin › Support › Community's "34 in 34 teams": "We need to do something to exclude the Utah Life members, but I don't want it 'hardcoded' I would rather find a way to put them in a separate category altogether." He approved the proposal (Utah Life as its own group, outside the course; a Utah Life group on Learners & Teams; every cohort number counting only the course's members, with no rule naming Utah Life; nothing changing for the agents) with "go on Utah Life".
+**Approved by:** Connor Leiva (repository owner), November 24, 2026. On Admin › Support › Community's "34 in 34 teams": "We need to do something to exclude the Utah Life members, but I don't want it 'hardcoded' I would rather find a way to put them in a separate category altogether." Connor approved the proposal (Utah Life as its own group, outside the course; a Utah Life group on Learners & Teams; every cohort number counting only the course's members, with no rule naming Utah Life; nothing changing for the agents) with "go on Utah Life".
 
 - **Why.** Provisioning puts every account in cohort `dec26`: an access group's member (`provisionGroupMember`, each the owner of a team of one) and a buyer of any plan (D-110). So every number that counted the cohort's rows counted Utah Life's agents too.
 - **The rule** (`apps/api/src/lib/course-members.ts`). A learner is outside the course when their team's plans don't hold it (`holdsCourse`, `@ai/core/release`: the AI Accelerator bought in full or in two payments and not refunded; a plan paused for a payment still holds it) and they hold something else instead:
@@ -7544,5 +7544,5 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
   - The row menu holds Open user record and Masquerade… (Owner and Admin, as before).
   - Without groups (the fixture, and the mockup's parity snapshot), the tabs are the mockup's two.
 - **People outside the course and in no group** (another plan's buyer, a skill buyer, a refunded buyer) leave the cohort's numbers and Learners & Teams. They stay in Users and Workspaces.
-- **Nothing changes for the agents.** Their access, sign-in, Skill Library ("Not included with Utah Life access", no upsell), emails and data are untouched. A Utah Life agent's snapshot is the one she had, except the cohort's head count, which none of her pages shows (`apps/api/test/course-members.test.ts` holds it).
+- **Nothing changes for the agents.** Their access, sign-in, Skill Library ("Not included with Utah Life access", no upsell), emails and data are untouched. A Utah Life agent's snapshot is the one they had, except the cohort's head count, which none of their pages shows (`apps/api/test/course-members.test.ts` holds it).
 - **Not touched:** `apps/api/src/billing/*` (read only: `inGroup`, `normalizeAddress`), GHL, Stripe and email. No migration, env var, parity golden, mask or tolerance.

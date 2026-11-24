@@ -112,7 +112,7 @@ describe('who is outside the course (D-243)', () => {
     const p = await population();
     const out = await outsideOf(db, await learnerRows(db), NOW, { groups: true });
     expect([...out.ids].sort()).toEqual(p.outside);
-    // Utah Life by address: the agent who followed her link and the one who hasn't yet. Not Kim, who bought the course.
+    // Utah Life by address: the agent who followed their link and the one who hasn't yet. Not Kim, who bought the course.
     expect(out.groups.map((g) => ({ ...g, ids: [...g.ids].sort() }))).toEqual([{ id: 'utah-life', name: 'Utah Life', ids: [p.jane, p.sam].sort() }]);
     // A caller that only counts can leave the groups.
     expect((await outsideOf(db, await learnerRows(db), NOW, { groups: false })).groups).toEqual([]);
@@ -147,13 +147,13 @@ describe('the snapshot (D-243)', () => {
     expect(own.cohorts.find((c) => c.id === 'dec26')?.enrolled).toBe(all.users.filter((u) => u.cohortId === 'dec26' && u.test !== true && !p.outside.includes(u.id)).length);
   });
 
-  it('gives a Utah Life agent the snapshot she had, but for the cohort’s head count', async () => {
+  it('gives a Utah Life agent the snapshot they had, but for the cohort’s head count', async () => {
     const p = await population();
     for (const id of [p.jane, p.sam]) {
       if (id === p.sam) await db.update(users).set({ status: 'active' }).where(eq(users.id, id));
       const seen = await snapshot(await app.signInAs(id));
       expect(seen).not.toHaveProperty('outside');
-      // What the route served before D-243: every row, scoped, with her own access.
+      // What the route served before D-243: every row, scoped, with their own access.
       const before = scopeSnapshot(await loadDb(db), { kind: 'learner', userId: id }, await viewerAccessFor(db, id, NOW));
       expect(noCount(seen)).toEqual(noCount(JSON.parse(JSON.stringify(before)) as Db));
     }
