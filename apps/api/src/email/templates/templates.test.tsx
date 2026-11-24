@@ -89,7 +89,13 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
   'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', sets: 'owner_ops', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
+  'learner-invite': { firstName: 'Pat', email: 'pat@example.test', token: 'tok_learner_1' },
+  'learner-nudge': { firstName: 'Pat' },
 };
+
+/** Connor's HTML documents (the $37 skill email's design, D-247): not § 8.1's React Email shell. */
+const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge'];
+const branded = (name: TemplateName): boolean => BRANDED.includes(name);
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
 const SUBJECT: { [K in TemplateName]: string } = {
@@ -105,6 +111,8 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'set-password': SUBJECTS['set-password']({}),
   'reset-password': SUBJECTS['reset-password']({}),
   'skill-purchase': SUBJECTS['skill-purchase']({ skillName: 'Recruiting Prep', variant: 'new' }),
+  'learner-invite': SUBJECTS['learner-invite']({}),
+  'learner-nudge': SUBJECTS['learner-nudge']({}),
 };
 
 /**
@@ -125,6 +133,8 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'set-password': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_set_1` },
   'reset-password': { label: 'Reset Your Password', href: `${APP}/set-password?token=tok_reset_1` },
   'skill-purchase': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_skill_1&amp;next=%2Fskill-library%2Frecruiting-prep` },
+  'learner-invite': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_learner_1` },
+  'learner-nudge': { label: 'Sign In', href: `${APP}/sign-in` },
 };
 
 // ---------- helpers ----------------------------------------------------------------------------
@@ -196,9 +206,10 @@ const hrefOf = (html: string): string => /<a\b[^>]*\shref="([^"]*)"/.exec(html)?
 
 describe('email templates · § 8.1 subjects and CTAs @g8', () => {
   it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
-    // § 8.1's table has nine rows and D-132 adds two. If another name is ever added to
-    // `subjects.ts`, this fails here rather than silently rendering one email short in production.
-    expect(TEMPLATE_NAMES).toHaveLength(12);
+    // § 8.1's table has nine rows and D-132 adds two, then the $37 skill email and D-247's two. If
+    // another name is ever added to `subjects.ts`, this fails here rather than silently rendering one
+    // email short in production.
+    expect(TEMPLATE_NAMES).toHaveLength(14);
     expect(Object.keys(SAMPLE).sort()).toEqual([...TEMPLATE_NAMES].sort());
   });
 
@@ -211,6 +222,14 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
       if (name === 'skill-purchase') {
         expect(html).toContain('<title>Thank you, Pat.</title>');
         expect(html).toContain('Thank you, Pat.');
+        expect(html).toContain(`>${CTA[name].label}</a>`);
+        expect(html).toContain(`href="${CTA[name].href}"`);
+        return;
+      }
+      // D-247: the learner emails are the same document, with their own greeting.
+      if (name === 'learner-invite' || name === 'learner-nudge') {
+        const greeting = name === 'learner-invite' ? 'Welcome, Pat.' : 'Hi, Pat.';
+        expect(html).toContain(`<title>${greeting}</title>`);
         expect(html).toContain(`>${CTA[name].label}</a>`);
         expect(html).toContain(`href="${CTA[name].href}"`);
         return;
@@ -274,8 +293,9 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
 // ================================================================================================
 
 describe('email templates · § 8.1 shell @g8', () => {
-  // skill-purchase is Connor's document (600px, Geist, his own button). Its own test pins that.
-  for (const name of TEMPLATE_NAMES.filter((n) => n !== 'skill-purchase')) {
+  // skill-purchase is Connor's document (600px, Geist, his own button), and D-247's two learner emails
+  // share it. Their own tests pin that.
+  for (const name of TEMPLATE_NAMES.filter((n) => !branded(n))) {
     it(`${name} renders the 560 px content column @g8`, () => {
       const html = HTML[name];
       const column = tableDecls(html).find((d) => d.includes(`max-width:${CONTENT_WIDTH}px`));
@@ -349,7 +369,7 @@ describe('email templates · what would break in a real inbox @g8', () => {
       expect(html).not.toContain('var(--');
       expect(html).not.toContain('oklch(');
       // Connor's note uses his own colours, not the § 8.1 token pair or the 560px card.
-      if (name === 'skill-purchase') return;
+      if (branded(name)) return;
 
       // And the hexes that should be there, are — ON THE ELEMENTS THAT NEED THEM.
       //
@@ -386,7 +406,7 @@ describe('email templates · what would break in a real inbox @g8', () => {
 
     it(`${name} renders an absolute link @g8`, () => {
       // There is no document in an inbox to resolve a relative href against.
-      if (name === 'skill-purchase') {
+      if (branded(name)) {
         const hrefs = [...HTML[name].matchAll(/\shref="([^"]*)"/g)].map((m) => m[1] ?? '');
         expect(hrefs.length).toBeGreaterThan(0);
         for (const href of hrefs) expect(href).toMatch(/^(https:\/\/|mailto:)/);

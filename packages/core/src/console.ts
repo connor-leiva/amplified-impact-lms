@@ -240,6 +240,10 @@ export const AUDIT_ACTIONS = [
   // H-4 (Week 0 launch audit): the reviewed one-off that activates an invited learner who already signed
   // in by link (`apps/api/src/db/activate-invited.ts`). One row per learner, actor role `system:activate-invited`.
   'user.activate',
+
+  // D-247 (H-9): Learners & Teams' Resend Invite and Send Nudge by staff, each one email (or none, said so).
+  'user.invite_resend',
+  'user.nudge',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

@@ -132,6 +132,19 @@ describe('withPreview', () => {
     });
   });
 
+  it('refuses Resend Invite and Send Nudge (D-247); the fixture answers them as the prototype does', async () => {
+    const inner = createFixtureRepository('admin', 'live');
+    const email = vi.spyOn(inner, 'emailLearner');
+    expect(await withPreview(inner, 'owner').emailLearner('nudge', 'u_jamie')).toEqual({ error: PREVIEW_ONLY });
+    expect(email).not.toHaveBeenCalled();
+
+    // There is no email in the demo: Send Nudge is core's `nudgeLearners` (its stamp and its toast).
+    expect(await inner.emailLearner('nudge', 'u_jamie')).toEqual({ toast: { msg: 'Nudge sent to Jamie Ortiz', tone: 'success' } });
+    expect((await inner.snapshot()).users.find((u) => u.id === 'u_jamie')!.nudged).toEqual(expect.any(Number));
+    // Resend Invite is checked by the API's rule: nobody in the seed is invited, so it is refused inline.
+    expect(await inner.emailLearner('invite', 'u_jamie')).toEqual({ error: 'They’ve already joined, so there’s no invite to resend.' });
+  });
+
   it('does nothing for a learner who adds the flag', async () => {
     const inner = createFixtureRepository('agent', 'live');
     const repo = withPreview(inner, 'owner');

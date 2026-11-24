@@ -238,9 +238,8 @@ function seatsVM(db: Pick<Db, 'teams' | 'users'>, me: Learner | null): SeatsVM |
     of: `of ${team.seats} in use`,
     segments: Array.from({ length: team.seats }, (_, i) => i < used),
     note,
-    // No Resend invite yet: the API has no route that resends a team invite (Team Hub's button only
-    // confirms), and a page that says "resent" when nothing was sent misleads the owner. Hidden until the
-    // PM picks a real resend or none (D-178).
+    // No Resend invite here (D-178): hidden until the PM picks one. D-247 gave the Team Hub's button a real
+    // send (`POST /api/learners/:userId/resend-invite`), which this page could use if it is chosen.
     resend: null,
   };
 }

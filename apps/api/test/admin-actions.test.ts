@@ -4,7 +4,7 @@
 // unit-tested in `packages/core/test/admin-actions.test.ts`.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc } from 'drizzle-orm';
-import { addStep, removeStep, seedForDatabase } from '@ai/core';
+import { addStep, moduleVersion, removeStep, seedForDatabase } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
@@ -97,14 +97,19 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     const db = await loadDb();
     const sales = db.modules.find((m) => m.id === 'sales')!;
     const draft = { ...sales, checklist: addStep(removeStep(sales.checklist, 1)) };
-    const res = await act(app, 'st1', 'saveBuilderModule', { draft });
+    const res = await act(app, 'st1', 'saveBuilderModule', { draft, base: moduleVersion(sales) });
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body)).toEqual({ toast: { msg: 'Sales AI Employee saved', tone: 'success' } });
     const after = await loadDb();
     const saved = after.modules.find((m) => m.id === 'sales')!;
+    // D-247: the saved module's version and its step ids come back, for the builder.
+    expect(JSON.parse(res.body)).toEqual({
+      toast: { msg: 'Sales AI Employee saved', tone: 'success' },
+      saved: { id: 'sales', version: moduleVersion(saved), stepIds: ['c1', 'c3', 'c4', 'c5', 'c6', 'c7'] },
+    });
     expect(saved.checklist).toHaveLength(6);
-    expect(saved.checklist[5]).toMatchObject({ id: 'c6', text: 'New step', mins: 5, kind: 'Build' });
-    expect(after.users.find((u) => u.id === 'u_jamie')!.progress.sales!.steps).toEqual(['c1', 'c2']);
+    // D-247: kept steps keep their ids; the new step is numbered past them.
+    expect(saved.checklist[5]).toMatchObject({ id: 'c7', text: 'New step', mins: 5, kind: 'Build' });
+    expect(after.users.find((u) => u.id === 'u_jamie')!.progress.sales!.steps).toEqual(['c1', 'c3']);
     const rows = await auditRows();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({
@@ -118,7 +123,7 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
   it('a refused publish is the inline 422, with no write and no row', async () => {
     const db = await loadDb();
     const sales = db.modules.find((m) => m.id === 'sales')!;
-    const res = await act(app, 'st1', 'saveBuilderModule', { draft: { ...sales, checklist: removeStep(sales.checklist, 0) }, status: 'published' });
+    const res = await act(app, 'st1', 'saveBuilderModule', { draft: { ...sales, checklist: removeStep(sales.checklist, 0) }, status: 'published', base: moduleVersion(sales) });
     expect(res.statusCode).toBe(422);
     expect(JSON.parse(res.body)).toEqual({ error: 'Give all six build steps a title.' });
     expect((await loadDb()).modules.find((m) => m.id === 'sales')!.checklist).toHaveLength(6);
@@ -132,7 +137,7 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     for (const id of [ACCELERATOR_MODULE_IDS[0]!, ACCELERATOR_MODULE_IDS[2]!]) {
       const stored = (await loadDb()).modules.find((m) => m.id === id)!;
       expect(stored.course, id).toBeDefined();
-      const res = await act(app, 'st_owner', 'saveBuilderModule', { draft: { ...structuredClone(stored), short: `${stored.short} (edited)` } });
+      const res = await act(app, 'st_owner', 'saveBuilderModule', { draft: { ...structuredClone(stored), short: `${stored.short} (edited)` }, base: moduleVersion(stored) });
       expect(res.statusCode, `${id}: ${res.body}`).toBe(200);
       const saved = (await loadDb()).modules.find((m) => m.id === id)!;
       expect(saved).toEqual({ ...stored, short: `${stored.short} (edited)` });

@@ -17,7 +17,7 @@
 
 import { produce } from 'immer';
 import { adminDay, fromAdminLocal } from './admin-build';
-import { requirePerm } from './can';
+import { can, requirePerm } from './can';
 import type { AuditAction } from './console';
 import { EXEC_CATEGORIES } from './constants';
 import { MutationError, publishReplay, saveModule, uploadResource } from './mutations';
@@ -27,6 +27,7 @@ import { fmt } from './time';
 import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
+import { moduleVersion } from './module-version';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
 
 /** The one audit row a write owes: what, on which thing, and before and after where it applies. */
@@ -53,6 +54,8 @@ export interface AdminStorageWrite {
 export interface AdminOutcome extends Outcome {
   audit?: AdminAudit;
   storage?: AdminStorageWrite;
+  /** D-247: set by `saveBuilderModule`: the saved module's new version and step ids, for the builder. */
+  saved?: SavedModuleRef;
 }
 
 const moduleOf = (db: Db, id: string): AIEmployee => {
@@ -106,8 +109,16 @@ export function duplicateModule(db: Db, a: Actor, args: { id: string }, c: Ctx):
 // Duplicate step and Remove step change the draft and mark it unsaved, exactly as the mockup's
 // `setSteps(…); setDirty(true)`, so Discard (the unsaved-changes prompt) undoes them and nothing is
 // half-written. "Save changes" persists the draft through `saveBuilderModule`: core's own
-// `saveModule` (unchanged: its checks, its renumbering, its toast), then the learners' progress kept
-// on the same steps, then ONE `module.save` audit row with the step changes.
+// `saveModule` (unchanged: its checks and its toast), then the step ids kept stable, then ONE
+// `module.save` audit row with the step changes.
+//
+// D-247 (H-5): a step's id no longer moves. `saveModule` (the reference's) still numbers the steps
+// `c1…cN`, and `saveBuilderModule` then gives every kept step back the id it had, so a learner's
+// checks (`checklist_state`), their checked steps (`progress.steps`), their remembered accordions
+// (`acc:<module>:<step>:<n>`) and a kit item's `stepId` stay on the step they were made on through a
+// reorder, a removal or an insert. A new step gets `c{n}` past every id the module or any of those
+// records still names, so nothing old can attach to it. The step page's address is the step's
+// position (`/learn/week/:week/step/:n`), not its id, so it is unaffected.
 
 /** The mockup's new step: `['Build', 'New step', '5 min']`. */
 export const NEW_STEP: Readonly<Omit<Step, 'id'>> = { text: 'New step', ch: '', mins: 5, t: 0, hint: '', kind: 'Build' };
@@ -133,23 +144,60 @@ export function duplicateStep(list: readonly Step[], i: number): Step[] {
 /** Remove step: step `i` gone, the rest in order. */
 export const removeStep = (list: readonly Step[], i: number): Step[] => list.filter((_, j) => j !== i);
 
+/** The `n` of a `c{n}` step id, or 0 for any other id. */
+const stepNumber = (id: string): number => {
+  const m = /^c(\d+)$/.exec(id);
+  return m ? Number(m[1]) : 0;
+};
+
 /**
- * How a save moves step ids: each kept step's old id → the `c{n}` `saveModule` gives its new place.
- * A step whose id the stored module did not have (added, duplicated) maps from nothing.
+ * D-247: every step id this module's records still name: the stored steps, the draft's, and every id a
+ * learner's checked steps, checks or remembered accordions, or a kit item attached to it, carries. A
+ * new step's id is past all of them.
  */
-export function stepIdMap(stored: readonly Step[], draft: readonly Step[]): Map<string, string> {
+export function usedStepIds(db: Db, moduleId: string, ...lists: readonly (readonly Step[])[]): Set<string> {
+  const used = new Set<string>();
+  for (const list of lists) for (const s of list) used.add(s.id);
+  const acc = `acc:${moduleId}:`;
+  for (const u of db.users) {
+    for (const id of u.progress?.[moduleId]?.steps ?? []) used.add(id);
+    for (const c of u.checks ?? []) if (c.moduleId === moduleId) used.add(c.stepId);
+    for (const p of u.coursePrefs ?? []) {
+      if (!p.key.startsWith(acc)) continue;
+      const rest = p.key.slice(acc.length);
+      const cut = rest.lastIndexOf(':');
+      if (cut > 0) used.add(rest.slice(0, cut));
+    }
+  }
+  for (const r of db.resources) if (r.module === moduleId && r.stepId) used.add(r.stepId);
+  return used;
+}
+
+/**
+ * D-247: the id each draft step is saved with, in order. A kept step (the first draft step with a stored
+ * id) keeps that id; any other (added, duplicated, a repeat) gets `c{n}`, past every id in `used`.
+ * A new module has no stored steps, so it is numbered `c1…cN`, as `saveModule` numbers it.
+ */
+export function savedStepIds(stored: readonly Step[], draft: readonly Step[], used: ReadonlySet<string> = new Set()): string[] {
   const had = new Set(stored.map((s) => s.id));
-  const map = new Map<string, string>();
-  draft.forEach((s, i) => {
-    if (had.has(s.id) && !map.has(s.id)) map.set(s.id, `c${i + 1}`);
+  const kept = new Set<string>();
+  let n = Math.max(0, ...[...used].map(stepNumber), ...stored.map((s) => stepNumber(s.id)));
+  return draft.map((s) => {
+    if (had.has(s.id) && !kept.has(s.id)) {
+      kept.add(s.id);
+      return s.id;
+    }
+    n += 1;
+    return `c${n}`;
   });
-  return map;
 }
 
 /** The step changes a save makes, for its audit row. */
 export function stepChanges(stored: readonly Step[], draft: readonly Step[]): { added: number; removed: number; reordered: boolean } {
-  // A kept step is the first draft step with a stored id, as `stepIdMap` counts it; a repeat is new.
-  const kept = [...stepIdMap(stored, draft).keys()];
+  // A kept step is the first draft step with a stored id, as `savedStepIds` counts it; a repeat is new.
+  const had = new Set(stored.map((s) => s.id));
+  const kept: string[] = [];
+  for (const s of draft) if (had.has(s.id) && !kept.includes(s.id)) kept.push(s.id);
   const keptSet = new Set(kept);
   const order = stored.map((s) => s.id).filter((id) => keptSet.has(id));
   return {
@@ -167,17 +215,66 @@ const moduleSummary = (m: AIEmployee) => ({
   files: m.files.length,
 });
 
+/** What the builder calls the module in a sentence: a week or an AI Employee. */
+const moduleNoun = (m: Pick<AIEmployee, 'kind'>): string => (m.kind === 'week' ? 'week' : 'AI Employee');
+
 /**
- * The Module Builder's Save (and its Status menu): `saveModule`, then every learner's checked steps
- * kept on the same steps (a removed step's check goes; the others follow their step to its new
- * `c{n}`), then one `module.save` audit row. Nothing else of a learner's progress is touched.
+ * D-247 (H-6): what a stale save says. The draft stays on screen, so nothing typed is lost.
  */
-export function saveBuilderModule(db: Db, a: Actor, given: { draft: AIEmployee; status?: ModuleStatus }, c: Ctx): AdminOutcome {
+export const staleSaveMessage = (m: Pick<AIEmployee, 'kind'>): string =>
+  `Someone changed this ${moduleNoun(m)} since you opened it. Copy your changes, reload the page, and save again.`;
+
+/**
+ * D-247 (H-8): what a save says to someone without the Publish modules permission. Saving a module that
+ * is Published or Scheduled (or publishing one) needs it; the roles that lack it are not changed here.
+ */
+export const publishNeededMessage = (m: Pick<AIEmployee, 'kind'>, status?: ModuleStatus): string =>
+  status === 'published'
+    ? 'Publishing needs the “Publish modules” permission. Ask an Owner or Admin.'
+    : `Saving a published or scheduled ${moduleNoun(m)} needs the “Publish modules” permission. Ask an Owner or Admin.`;
+
+/** Whether this save publishes, exactly as `saveModule` decides it (and so needs `publish`). */
+export const savePublishes = (draft: Pick<AIEmployee, 'status'>, status?: ModuleStatus): boolean =>
+  status === 'published' || (status === undefined && draft.status !== 'draft');
+
+/** D-247: what the builder needs back from a save: the module, its new version, and its step ids in order. */
+export interface SavedModuleRef {
+  id: string;
+  version: string;
+  stepIds: string[];
+}
+
+/**
+ * The Module Builder's Save (and its Status menu): `saveModule`, then the step ids kept stable (D-247),
+ * then one `module.save` audit row.
+ *
+ * `base` (D-247, H-6) is the version of the module the draft was opened from (`moduleVersion`), or null
+ * for a module that did not exist. When it is given and the stored module is no longer that version,
+ * nothing is written and it throws `MutationError('conflict')`. So a repeated request, a second tab or a
+ * second editor can't apply a save over a newer one. The API requires it; a caller that omits it is not
+ * checked (the fixture's own tests, and core's).
+ *
+ * A removed step's id comes off every learner's checked steps (so a build is counted on the steps there
+ * are) and off a kit item that pointed at it (so the item can be given another step). Nothing else of a
+ * learner's progress is touched: their checks and remembered accordions stay on the steps they were made
+ * on, because those steps keep their ids.
+ */
+export function saveBuilderModule(
+  db: Db,
+  a: Actor,
+  given: { draft: AIEmployee; status?: ModuleStatus; base?: string | null },
+  c: Ctx,
+): AdminOutcome {
   // D-220, D-221: the retired course fields (the promise, the old setup order, a kit skill's use line) are
   // dropped, never stored again.
   const draft = withoutRetired(given.draft);
-  const args = draft === given.draft ? given : { ...given, draft };
+  const args: { draft: AIEmployee; status?: ModuleStatus } = given.status === undefined ? { draft } : { draft, status: given.status };
   const stored = db.modules.find((m) => m.id === args.draft.id) ?? null;
+  if (given.base !== undefined) {
+    requirePerm(db, a, 'curriculum');
+    const current = stored ? moduleVersion(stored) : null;
+    if (given.base !== current) throw new MutationError('conflict', staleSaveMessage(stored ?? args.draft));
+  }
   // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
   // never refuses it. Checked before `saveModule`, so a refusal writes nothing.
   const issues = copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(args.draft)));
@@ -189,33 +286,54 @@ export function saveBuilderModule(db: Db, a: Actor, given: { draft: AIEmployee; 
     requirePerm(db, a, 'curriculum');
     return { db, error: [...issues.map(issueLine), ...videos, ...checks].join('\n') };
   }
+  // D-247 (H-8): `saveModule` refuses a save that publishes without the Publish modules permission with
+  // the generic "You don't have permission"; this says which permission, and who has it.
+  if (savePublishes(args.draft, args.status) && !can(db, a, 'publish')) {
+    requirePerm(db, a, 'curriculum');
+    throw new MutationError('forbidden', publishNeededMessage(args.draft, args.status));
+  }
   const out = saveModule(db, a, args, c);
   if (out.error) return out;
-  const saved = out.db.modules.find((m) => m.id === args.draft.id)!;
+  const id = args.draft.id;
   const draftSteps = args.draft.checklist ?? [];
-  const map = stored ? stepIdMap(stored.checklist, draftSteps) : new Map<string, string>();
-  const moves = stored !== null && stored.checklist.some((s) => map.get(s.id) !== s.id);
-  const next = moves
-    ? produce(out.db, (d) => {
-        for (const u of d.users) {
-          const p = u.progress?.[saved.id];
-          if (!p) continue;
-          p.steps = p.steps.flatMap((id) => {
-            const to = map.get(id);
-            return to === undefined ? [] : [to];
-          });
-        }
-      })
-    : out.db;
+  const storedSteps = stored?.checklist ?? [];
+  const ids = savedStepIds(storedSteps, draftSteps, usedStepIds(db, id, storedSteps, draftSteps));
+  const live = new Set(ids);
+  const removed = new Set(storedSteps.map((s) => s.id).filter((x) => !live.has(x)));
+  let kitCleared = 0;
+  const next = produce(out.db, (d) => {
+    const m = d.modules.find((x) => x.id === id)!;
+    m.checklist.forEach((s, i) => {
+      if (s.id !== ids[i]) s.id = ids[i]!;
+    });
+    if (!removed.size) return;
+    for (const u of d.users) {
+      const p = u.progress?.[id];
+      if (p && p.steps.some((x) => removed.has(x))) p.steps = p.steps.filter((x) => !removed.has(x));
+    }
+    for (const r of d.resources) {
+      if (r.module === id && r.stepId && removed.has(r.stepId)) {
+        delete r.stepId;
+        kitCleared += 1;
+      }
+    }
+  });
+  const saved = next.modules.find((m) => m.id === id)!;
   return {
     ...out,
     db: next,
+    saved: { id, version: moduleVersion(saved), stepIds: ids },
     audit: {
       action: 'module.save',
       target: { type: 'module', id: saved.id, label: saved.name },
       before: stored ? moduleSummary(stored) : null,
       // D-174: the field-diff summary, where the module changed (paths only, never values).
-      after: { ...moduleSummary(saved), stepChanges: stepChanges(stored?.checklist ?? [], draftSteps), ...diffSummary(stored ?? {}, saved) },
+      after: {
+        ...moduleSummary(saved),
+        stepChanges: stepChanges(storedSteps, draftSteps),
+        ...(kitCleared ? { kitCleared } : {}),
+        ...diffSummary(stored ?? {}, saved),
+      },
     },
   };
 }

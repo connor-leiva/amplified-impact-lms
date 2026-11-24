@@ -54,6 +54,7 @@ import { Session24hEmail } from './session-24h';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
 import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } from './skill-purchase-html';
+import { learnerInviteHtml, learnerInviteText, learnerNudgeHtml, learnerNudgeText } from './learner-emails-html';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
@@ -116,7 +117,7 @@ export interface PreparedEmail {
   subject: string;
   element: ReactElement;
   /**
-   * Set only for skill-purchase. That note is Connor's HTML, which React Email would wrap and
+   * Set only for skill-purchase and D-247's learner-invite and learner-nudge. That note is Connor's HTML, which React Email would wrap and
    * restyle, so `renderTemplate` sends this string instead of rendering `element`.
    */
   html?: string;
@@ -284,6 +285,17 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
         html: skillPurchaseHtml(input),
         text: skillPurchaseText(input),
       };
+    }
+
+    // D-247 (H-9): the purchase email's design, as `skill-purchase` sends it (the HTML string, not `element`).
+    case 'learner-invite': {
+      const input = { firstName: optStr(data, 'firstName') ?? '', email: str(template, data, 'email'), token: str(template, data, 'token'), appUrl };
+      return { subject: SUBJECTS['learner-invite']({}), element: <span />, html: learnerInviteHtml(input), text: learnerInviteText(input) };
+    }
+
+    case 'learner-nudge': {
+      const input = { firstName: optStr(data, 'firstName') ?? '', appUrl };
+      return { subject: SUBJECTS['learner-nudge']({}), element: <span />, html: learnerNudgeHtml(input), text: learnerNudgeText(input) };
     }
 
     default: {

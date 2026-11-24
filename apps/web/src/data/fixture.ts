@@ -1,9 +1,9 @@
 import { ADMIN_ACTIONS, DB_KEY, DB_V, seed, type Db, type Phase } from '@ai/core';
 import type { Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
-import { MutationError } from '@ai/core';
+import { MutationError, resendInviteTarget } from '@ai/core';
 import { clock } from '../lib/clock';
-import type { AdminActionArgs, AdminActionName, LmsRepository, MutationArgs, MutationName, MutationResult, UploadResult, Viewer } from './repository';
+import type { AdminActionArgs, AdminActionName, LearnerEmailKind, LmsRepository, MutationArgs, MutationName, MutationResult, UploadResult, Viewer } from './repository';
 import { checkFile, fixtureUploadKey } from './upload';
 
 /**
@@ -105,6 +105,20 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     async act<K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult> {
       const fn = ADMIN_ACTIONS[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: AdminActionArgs<K>, c: Ctx) => Outcome;
       return apply((c) => fn(db, PERSONA[role], args, c));
+    },
+    // D-247 (H-9): there is no email here. The demo answers as the prototype does: Send Nudge is core's
+    // `nudgeLearners` (its stamp and its toast), and Resend Invite is its own confirmation, after the
+    // same rule the API checks.
+    async emailLearner(kind: LearnerEmailKind, userId: string): Promise<MutationResult> {
+      if (kind === 'nudge') return apply((c) => M.nudgeLearners(db, PERSONA[role], { userIds: [userId] }, c));
+      await ready;
+      try {
+        const who = resendInviteTarget(db, PERSONA[role], userId);
+        return { toast: { msg: `Invite resent to ${who.email}`, tone: 'success' } };
+      } catch (e) {
+        if (e instanceof MutationError) return { error: e.message };
+        throw e;
+      }
     },
     // Phase 08 § 8.2. The prototype has no bucket and never did: its Download buttons serialise a
     // Blob in the browser. Answering `null` is what keeps that true — every parity scenario and

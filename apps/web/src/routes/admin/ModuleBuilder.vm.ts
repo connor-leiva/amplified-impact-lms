@@ -18,6 +18,7 @@ import {
   cardVM,
   fmt,
   fromAdminLocal,
+  savedStepIds,
   sessionFor,
   sessionState,
   sortedModules,
@@ -161,17 +162,21 @@ export function nextFile(d: AIEmployee): SkillFile {
 
 /**
  * What `saveModule` writes, computed locally so the draft on screen shows the stored values the
- * moment the save succeeds — step ids renumbered `c1…c6`, `build` set to the sum of the step
- * minutes, `short` defaulted to the name minus ` AI Employee` (SCREENS § 4.3). The reference's
- * `save()` applies exactly this to its own copy before `setState`; `@ai/core`'s `saveModule` is
- * still the only thing that persists, and it applies the same transforms to what it stores, so
- * this is idempotent and never the authority.
+ * moment the save succeeds — `build` set to the sum of the step minutes, `short` defaulted to the
+ * name minus ` AI Employee` (SCREENS § 4.3). The reference's `save()` applies exactly this to its own
+ * copy before `setState`; `@ai/core`'s `saveModule` is still the only thing that persists, and it
+ * applies the same transforms to what it stores, so this is idempotent and never the authority.
+ *
+ * D-247 (H-5): the step ids are the ones the save answered (`saved.stepIds`): a kept step keeps its id
+ * and a new one gets the id the server gave it, so the next save (and a kit item's step) names the
+ * stored step. Without them (a new module's first save in a test), `c1…cN`, as a new module is saved.
  */
-export function normalizeSaved(draft: AIEmployee, status?: ModuleStatus): AIEmployee {
+export function normalizeSaved(draft: AIEmployee, status?: ModuleStatus, stepIds?: readonly string[]): AIEmployee {
   const d = structuredClone(draft);
   if (status) d.status = status;
   if (d.status === 'published') d.opens = null;
-  d.checklist = d.checklist.map((s, i) => ({ ...s, id: 'c' + (i + 1) }));
+  const ids = stepIds && stepIds.length === d.checklist.length ? stepIds : savedStepIds([], d.checklist);
+  d.checklist = d.checklist.map((s, i) => ({ ...s, id: ids[i]! }));
   d.build = d.checklist.reduce((a, s) => a + (+s.mins || 0), 0);
   d.short = d.short.trim() || d.name.replace(/ AI Employee$/, '');
   return d;

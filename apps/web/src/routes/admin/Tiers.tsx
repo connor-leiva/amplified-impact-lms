@@ -12,7 +12,8 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { PageHead, Pill, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
-import { useDb, useMutate } from '../../data/hooks';
+import { refusal, useDb, useMutate } from '../../data/hooks';
+import type { MutationResult } from '../../data/repository';
 import { useViewportWidth } from '../../shell/hooks';
 import { tiersR2VM } from './Tiers.vm';
 import type { AccessR2Row, RequestAction, RequestR2Row } from './Tiers.vm';
@@ -39,11 +40,12 @@ export function Component() {
   const phone = useViewportWidth() < 768;
   const vm = useMemo(() => tiersR2VM(db), [db]);
 
-  // `useMutate` raises the success toast; a refusal is a warning, as before.
+  // `useMutate` raises the success toast; a refusal is a warning, as before. D-247: a failed request's
+  // error toast is the hook's, so it isn't said twice.
   const run = useCallback(
-    async (p: Promise<{ error?: string }>) => {
-      const r = await p;
-      if (r.error) toast(r.error, 'warn');
+    async (p: Promise<MutationResult>) => {
+      const e = refusal(await p);
+      if (e) toast(e, 'warn');
     },
     [toast],
   );

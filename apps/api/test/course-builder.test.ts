@@ -4,7 +4,7 @@
 // row), against a real Postgres seeded as production is (`seedProduction`), with no restart between.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc } from 'drizzle-orm';
-import { MODULE_ICONS } from '@ai/core';
+import { MODULE_ICONS, moduleVersion } from '@ai/core';
 import type { Db } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS } from '@ai/core/accelerator';
 import type { CourseContent } from '@ai/core/course-types';
@@ -36,8 +36,18 @@ afterAll(() => {
   delete process.env.FIXED_NOW;
 });
 
-const act = (name: string, payload: unknown) =>
-  app.inject({ method: 'POST', url: `/api/admin/actions/${name}`, headers: { cookie, 'content-type': 'application/json' }, payload: JSON.stringify(payload) });
+/**
+ * D-247 (H-6): a builder save sends the version of the module it opened. Every draft here is opened from
+ * the stored row just before it is sent, so the helper adds that row's version when a test gives none.
+ */
+const withBase = async (name: string, payload: unknown): Promise<unknown> => {
+  if (name !== 'saveBuilderModule' || !payload || typeof payload !== 'object' || 'base' in payload) return payload;
+  const id = (payload as { draft: { id: string } }).draft.id;
+  const stored = (await loadDb()).modules.find((m) => m.id === id);
+  return { ...payload, base: stored ? moduleVersion(stored) : null };
+};
+const act = async (name: string, payload: unknown) =>
+  app.inject({ method: 'POST', url: `/api/admin/actions/${name}`, headers: { cookie, 'content-type': 'application/json' }, payload: JSON.stringify(await withBase(name, payload)) });
 const ok = async (name: string, payload: unknown): Promise<void> => {
   const res = await act(name, payload);
   expect(res.statusCode, `${name}: ${res.body}`).toBe(200);

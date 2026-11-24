@@ -517,7 +517,7 @@ describe('moduleBuilderVM @g6', () => {
       ]);
     });
 
-    it('normalises on save: c1…c6, build = Σ minutes, short = name minus " AI Employee"', () => {
+    it('normalises on save: a new module’s c1…c6, build = Σ minutes, short = name minus " AI Employee"', () => {
       const blank = seedDraft(db, null, NEW_AT);
       const saved = normalizeSaved(
         { ...blank, name: 'Listing Coordinator AI Employee', short: '  ', opens: DEFAULT_OPENS },
@@ -528,7 +528,7 @@ describe('moduleBuilderVM @g6', () => {
       expect(saved.opens).toBe(null);
       expect(saved.build).toBe(30);
       expect(saved.checklist.map((s) => s.id)).toEqual(['c1', 'c2', 'c3', 'c4', 'c5', 'c6']);
-      // Reordering renumbers rather than reshuffling the ids.
+      // A new module's steps are numbered in their order.
       const moved = normalizeSaved({ ...blank, checklist: moveStep(blank.checklist, 0, 1) });
       expect(moved.checklist.map((s) => [s.id, s.ch])).toEqual([
         ['c1', 'Add the System Prompt'],
@@ -538,6 +538,14 @@ describe('moduleBuilderVM @g6', () => {
         ['c5', 'Run the Test'],
         ['c6', 'Check the Output'],
       ]);
+    });
+
+    it('takes the step ids the save answered, so a reordered step keeps its id (D-247)', () => {
+      const moved = normalizeSaved({ ...d, checklist: moveStep(d.checklist, 0, 1) }, undefined, ['c2', 'c1', 'c3', 'c4', 'c5', 'c6']);
+      expect(moved.checklist.map((s) => s.id)).toEqual(['c2', 'c1', 'c3', 'c4', 'c5', 'c6']);
+      expect(moved.checklist[0]!.text).toBe(d.checklist[1]!.text);
+      // A list that doesn't match the steps is not used.
+      expect(normalizeSaved(d, undefined, ['c9']).checklist.map((s) => s.id)).toEqual(['c1', 'c2', 'c3', 'c4', 'c5', 'c6']);
     });
 
     it('keeps an explicit sidebar label and leaves a saved status alone', () => {

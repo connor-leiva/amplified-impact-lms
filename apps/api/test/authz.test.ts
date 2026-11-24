@@ -534,6 +534,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/mutate/:name', methods: 'POST', guard: 'session' },
   // D-172: the R2 mockup's remaining Build controls, audited, beside `/api/mutate` and guarded as it is.
   { path: '/api/admin/actions/:name', methods: 'POST', guard: 'session' },
+  // D-247 (H-9): Resend Invite and Send Nudge, with a real email. Session-guarded; who may is core's rule.
+  { path: '/api/learners/:userId/resend-invite', methods: 'POST', guard: 'session' },
+  { path: '/api/learners/:userId/nudge', methods: 'POST', guard: 'session' },
   { path: '/api/snapshot', methods: 'GET, HEAD', guard: 'session' },
   // Phase 08's four. All session-guarded, and every one hands out something a learner must not get
   // for free: a presigned object URL (§ 8.2) or a Zoom link (§ 8.4). This table is why they could
@@ -1152,6 +1155,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // D-172: a valid body, for the same reason as `/api/mutate/:name`'s.
           '/api/admin/actions/:name': () =>
             app.inject({ method: 'POST', url: '/api/admin/actions/duplicateModule', payload: { id: 'sales' } }),
+          // D-247: a real learner, so a 404 can't answer before the guard.
+          '/api/learners/:userId/resend-invite': () => app.inject({ method: 'POST', url: '/api/learners/u_lena/resend-invite', payload: {} }),
+          '/api/learners/:userId/nudge': () => app.inject({ method: 'POST', url: '/api/learners/u_lena/nudge', payload: {} }),
           // Phase 08's four. Each hands out something a learner must not get for free — a presigned
           // object URL (§ 8.2) or a Zoom link (§ 8.4) — so the 401 matters more here than anywhere
           // else in this table. Real ids from the fixture, because a 404 on a made-up id would
@@ -1572,8 +1578,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // uploaded video (D-188), and 80 with the intake's two routes (D-196). 85 with the intake PDF's two (D-229).
     // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231), 96 with Turn in's
     // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
-    // 102 with a single skill's checkout.
-    expect(EXECUTED.unauthenticated).toBe(102);
+    // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge.
+    expect(EXECUTED.unauthenticated).toBe(104);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1599,7 +1605,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // unauthenticated. And + 1 for D-229's intake re-queue, probed unauthenticated. And + 5 for the Community's routes
     // (D-231), probed unauthenticated. And + 5 for Turn in's (D-230), probed unauthenticated. And + 3 for the seat card
     // form's (D-236), probed unauthenticated. And + 2 for D-237's turned-in files, probed unauthenticated.
-    // And + 1 for a single skill's checkout, probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1);
+    // And + 1 for a single skill's checkout, probed unauthenticated. And + 2 for D-247's Resend Invite and Send Nudge,
+    // probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2);
   });
 });

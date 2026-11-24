@@ -59,6 +59,9 @@ export interface BodyData {
     token?: string | null;
     appUrl?: string | null;
   };
+  /** D-247: `email` is the address they sign in with; `token` a `set_password` one (72 hours). */
+  'learner-invite': { firstName: string; email: string; token: string; appUrl?: string | null };
+  'learner-nudge': { firstName: string; appUrl?: string | null };
 }
 
 /**

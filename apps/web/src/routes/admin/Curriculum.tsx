@@ -17,7 +17,7 @@ import { TierPill } from '../../components/r2/TierPill';
 import { Bar, Find, PageHead, Sel, k, keepHyphens } from '../../components/r2/kit';
 import { ButtonLink } from '../../components/r2/Button';
 import { isFixture } from '../../data/boot';
-import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
+import { refusal, useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { curriculumR2VM, movesFor, previewUrl, type CurriculumR2Row } from './Curriculum.vm';
 import s from './Curriculum.module.css';
@@ -81,14 +81,14 @@ function Curriculum() {
       const { dir, times } = movesFor(from, to);
       for (let i = 0; i < times; i++) {
         const out = await mutate('moveModule', { id: r.id, dir });
-        if (out.error) return warn(out.error);
+        if (out.error) return warn(refusal(out));
       }
     },
     [mutate, vm.rows, warn],
   );
 
   const setTier = useCallback(
-    async (id: string, tier: Tier) => warn((await mutate('setModuleTier', { id, tier })).error),
+    async (id: string, tier: Tier) => warn(refusal(await mutate('setModuleTier', { id, tier }))),
     [mutate, warn],
   );
 
@@ -99,7 +99,7 @@ function Curriculum() {
         ? 'Learners with access see it in the portal right away.'
         : 'It is hidden from learners right away. Their progress is kept.',
       cta: on ? 'Publish' : 'Unpublish',
-      yes: () => void mutate(on ? 'publishModule' : 'unpublishModule', { id: r.id }).then((o) => warn(o.error)),
+      yes: () => void mutate(on ? 'publishModule' : 'unpublishModule', { id: r.id }).then((o) => warn(refusal(o))),
     });
 
   const remove = (r: CurriculumR2Row) =>
@@ -108,7 +108,7 @@ function Curriculum() {
       body: 'The draft and its steps are removed. Learners never saw it.',
       cta: 'Delete draft',
       danger: true,
-      yes: () => void mutate('deleteModule', { id: r.id }).then((o) => warn(o.error)),
+      yes: () => void mutate('deleteModule', { id: r.id }).then((o) => warn(refusal(o))),
     });
 
   /**
@@ -136,7 +136,7 @@ function Curriculum() {
     { label: 'Edit in Module Builder', icon: 'r2Builder', onSelect: () => edit(r) },
     { label: 'Preview as Learner', icon: 'r2Eye', onSelect: () => preview(r) },
     // D-172: the mockup's Duplicate, a draft copy with every step and setting, audited.
-    { label: 'Duplicate', onSelect: () => void act('duplicateModule', { id: r.id }).then((o) => warn(o.error)) },
+    { label: 'Duplicate', onSelect: () => void act('duplicateModule', { id: r.id }).then((o) => warn(refusal(o))) },
     'separator',
     r.publishes
       ? { label: 'Publish', onSelect: () => publish(r, true) }

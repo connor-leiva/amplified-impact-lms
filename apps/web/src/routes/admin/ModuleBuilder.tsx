@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useBlocker, useNavigate, useParams } from 'react-router';
 import clsx from 'clsx';
-import { MODULE_ICONS, addStep, duplicateStep, moduleVideos, removeStep } from '@ai/core';
+import { MODULE_ICONS, addStep, can, duplicateStep, moduleVersion, moduleVideos, publishNeededMessage, removeStep, savePublishes } from '@ai/core';
 import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import type { AIEmployee, Db, ModuleStatus } from '@ai/core';
 
@@ -18,7 +18,7 @@ import type { Column } from '../../components/r2/Table';
 import { TierPill } from '../../components/r2/TierPill';
 import { KV, PageHead, Pill, Sel, TextArea, k } from '../../components/r2/kit';
 import { isFixture } from '../../data/boot';
-import { useAct, useDb, useNow } from '../../data/hooks';
+import { useAct, useDb, useNow, useViewer } from '../../data/hooks';
 import { clock } from '../../lib/clock';
 import { useViewportWidth } from '../../shell/hooks';
 import {
@@ -65,13 +65,25 @@ interface BuilderState {
   draft: AIEmployee;
   dirty: boolean;
   errors: string[];
+  /**
+   * D-247 (H-6): the version of the stored module this draft was opened from (`moduleVersion`), or null
+   * for a new one. Every save sends it; the server refuses a save whose module has moved on (409), and
+   * a save answers the next one.
+   */
+  base: string | null;
 }
+
+const versionOf = (db: Db, id: string | null): string | null => {
+  const m = id ? db.modules.find((x) => x.id === id) : null;
+  return m ? moduleVersion(m) : null;
+};
 
 const seedState = (db: Db, id: string | null): BuilderState => ({
   key: id ?? '',
   draft: seedDraft(db, id, clock.now()),
   dirty: false,
   errors: [],
+  base: versionOf(db, id),
 });
 
 const STATUSES: readonly [ModuleStatus, string][] = [
@@ -84,6 +96,7 @@ export function Component() {
   const db = useDb();
   const now = useNow();
   const act = useAct();
+  const viewer = useViewer();
   const navigate = useNavigate();
   const { toast } = useToaster();
   const params = useParams();
@@ -123,25 +136,42 @@ export function Component() {
       d[key] = v;
     });
 
+  // D-247 (H-6): one save at a time. Save and the Status menu wait while a save is on its way, so a
+  // double click is one request.
+  const [saving, setSaving] = useState(false);
+  const inFlight = useRef(false);
+
   const save = useCallback(
     async (status?: ModuleStatus) => {
+      if (inFlight.current) return;
+      inFlight.current = true;
+      setSaving(true);
       const isNew = !st.key;
       const draft = structuredClone(st.draft);
       if (status === 'scheduled' && !draft.opens) draft.opens = DEFAULT_OPENS;
-      const out = await act('saveBuilderModule', { draft, status });
+      let out: Awaited<ReturnType<typeof act>>;
+      try {
+        out = await act('saveBuilderModule', { draft, status, base: st.base });
+      } finally {
+        inFlight.current = false;
+        setSaving(false);
+      }
       if (out.error) {
+        // A refusal (inline) or a failed request (a 403, a 409, no network; the error toast said it too):
+        // the draft stays as it is, so nothing typed is lost.
         setSt((prev) => ({ ...prev, errors: out.error!.split('\n') }));
         return;
       }
-      const saved = normalizeSaved(draft, status);
-      setSt((prev) => ({ ...prev, key: saved.id, draft: saved, dirty: false, errors: [] }));
+      const saved = normalizeSaved(draft, status, out.saved?.stepIds);
+      const base = out.saved?.version ?? null;
+      setSt((prev) => ({ ...prev, key: saved.id, draft: saved, dirty: false, errors: [], base }));
       if (isNew) {
         savedNew.current = saved.id;
         bypass.current = true;
         void navigate(`/admin/curriculum/${saved.id}`);
       }
     },
-    [act, navigate, st.draft, st.key],
+    [act, navigate, st.base, st.draft, st.key],
   );
 
   const d = st.draft;
@@ -151,6 +181,10 @@ export function Component() {
   // D-174: what Save would be refused for, while staff type (the copy rules on what changed).
   const issues = st.dirty ? draftIssues(db.modules.find((m) => m.id === d.id) ?? null, d) : [];
   const live = db.modules.some((m) => m.id === d.id && m.status === 'published');
+  // D-247 (H-8): a published or scheduled module saves only with the Publish modules permission. Said up
+  // front, in the notice the builder already uses, so nobody edits for ten minutes and then learns it.
+  const storedStatus = db.modules.find((m) => m.id === d.id)?.status;
+  const needsPublish = !!st.key && storedStatus !== undefined && storedStatus !== 'draft' && savePublishes(d) && !can(db, viewer.actor, 'publish');
 
   /** Preview as Learner: the published AI Employee as the learner its tier calls for (phase 06 § 6.4). */
   const preview = () => {
@@ -221,7 +255,7 @@ export function Component() {
             <Button header icon="r2Eye" onClick={preview}>
               Preview as Learner
             </Button>
-            <Button header kind="primary" onClick={() => void save()}>
+            <Button header kind="primary" disabled={saving} aria-busy={saving || undefined} onClick={() => void save()}>
               {vm.saveLabel}
             </Button>
           </>
@@ -234,6 +268,11 @@ export function Component() {
               {e}
             </p>
           ))}
+        </div>
+      ) : null}
+      {needsPublish && !st.errors.length ? (
+        <div role="status" className={s.alert}>
+          <p className={k.p}>{publishNeededMessage(d)}</p>
         </div>
       ) : null}
       {issues.length && !st.errors.length ? (
@@ -388,6 +427,7 @@ export function Component() {
                       items={STATUSES.map(([key, label]) => ({
                         label,
                         checked: d.status === key,
+                        disabled: saving,
                         onSelect: () => void save(key),
                       }))}
                       trigger={(t) => (
@@ -395,6 +435,7 @@ export function Component() {
                           type="button"
                           className={s.plain}
                           aria-label={`Status: ${vm.status.label}`}
+                          disabled={saving}
                           {...t.props}
                           onClick={t.toggle}
                         >

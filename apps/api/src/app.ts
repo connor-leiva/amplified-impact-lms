@@ -92,6 +92,7 @@ import { bucketOrigin } from './storage';
 import { registerJoinRoute } from './routes/join';
 import { registerMutateRoute } from './routes/mutate';
 import { registerAdminActionsRoute } from './routes/admin-actions';
+import { registerLearnerEmailRoutes } from './routes/learner-email';
 import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
@@ -746,6 +747,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerMutateRoute(app, { broadcast });
     // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.
     registerAdminActionsRoute(app, { broadcast });
+    // D-247 (H-9): Resend Invite and Send Nudge, with a real email.
+    registerLearnerEmailRoutes(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and
     // re-checks it, so moving this line cannot smuggle the routes into another environment.

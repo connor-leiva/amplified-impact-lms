@@ -9,11 +9,15 @@
 //   403  this actor may not                             `MutationError('forbidden')`: the action's own
 //                                                       `requirePerm` (the existing `PermKey` rule)
 //   404  the thing it names is gone                     `MutationError('not_found')`
-//   200  it happened, with its toast; one audit row was written with it
+//   409  the Module Builder's draft is stale            `MutationError('conflict')` (D-247, H-6): the
+//                                                       module is no longer the `base` version it sent
+//   200  it happened, with its toast; one audit row was written with it. `saveBuilderModule` also
+//        answers `saved` (D-247): the module's new version and its step ids, for the builder.
 //
 // Signed in, same-origin JSON (§ 9.4's CSRF rule), 20 a minute per session (the Console's write rate,
-// spec § 7). It sends nothing: no action here has an email effect. A masquerade refuses it with every
-// other write (D-162's global block refuses every POST but Extend, Exit and Sign Out).
+// spec § 7). No action has an email effect; D-247 (H-9): an edited announcement's Send now with Email
+// sends its email as `/api/mutate/sendAnnouncement` does (`email/announce-now.ts`). A masquerade refuses
+// it with every other write (D-162's global block refuses every POST but Extend, Exit and Sign Out).
 
 import { ADMIN_ACTIONS, MutationError, VAULT_FILE_ERROR, isAdminActionName } from '@ai/core';
 import type { Actor, AdminActionArgs, AdminActionName, AdminOutcome, Ctx, Db, VaultFile } from '@ai/core';
@@ -31,6 +35,8 @@ import { ObjectMissingError, headObject } from '../storage';
 import { clock, newIds } from '../lib/clock';
 import { builderDraft, cohortCourse } from './schemas';
 import { statusForMutationError } from './mutate';
+import { claimSendNowEmails, sendClaimed, withSendNowToast } from '../email/announce-now';
+import type { SendNowClaim } from '../email/announce-now';
 
 export const ADMIN_ACTIONS_PATH = '/api/admin/actions/:name';
 
@@ -59,7 +65,9 @@ const vaultFile = z.strictObject({ key: z.string().regex(UPLOAD_KEY), name: text
 /** One strict schema per action; `tsc` proves each one's output is that action's argument type. */
 export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActionArgs<K>> } = {
   duplicateModule: z.strictObject({ id }),
-  saveBuilderModule: z.strictObject({ draft: builderDraft, status: moduleStatus.optional() }),
+  // D-247 (H-6): `base` is the version of the module the draft was opened from (`moduleVersion`), null for
+  // a new one. Required: a save that can't say what it started from could overwrite a newer one.
+  saveBuilderModule: z.strictObject({ draft: builderDraft, status: moduleStatus.optional(), base: z.string().max(64).nullable() }),
   editResource: z.strictObject({
     id,
     title: text(200),
@@ -113,7 +121,9 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;
 const ACTIONS = ADMIN_ACTIONS as unknown as Record<AdminActionName, ActionFn>;
 
-type Committed = { ok: true; body: { toast?: AdminOutcome['toast'] } } | { ok: false; status: number; body: { error: string } };
+type Committed =
+  | { ok: true; body: { toast?: AdminOutcome['toast']; saved?: AdminOutcome['saved'] }; announced: SendNowClaim[] }
+  | { ok: false; status: number; body: { error: string } };
 
 export interface AdminActionsRouteOptions {
   /** § 7.6: called after each commit, so every connected client refetches. */
@@ -172,7 +182,9 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
           if (out.audit && actor) {
             await audit(req, { action: out.audit.action, outcome: 'ok', actor, target: out.audit.target, before: auditBefore, after: out.audit.after }, tx);
           }
-          return { ok: true, body: out.toast ? { toast: out.toast } : {} };
+          // D-247 (H-9): an edited announcement's Send now with Email claims its emails here.
+          const announced = await claimSendNowEmails(tx, before, out.db, now, req.log);
+          return { ok: true, body: { ...(out.toast ? { toast: out.toast } : {}), ...(out.saved ? { saved: out.saved } : {}) }, announced };
         });
       } catch (err) {
         if (err instanceof MutationError) return reply.code(statusForMutationError(err.code)).send({ error: err.message });
@@ -180,7 +192,9 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
       }
       if (!committed.ok) return reply.code(committed.status).send(committed.body);
       broadcast();
-      return reply.code(200).send(committed.body);
+      const emailed = await sendClaimed(committed.announced, req.log);
+      const toast = withSendNowToast(committed.body.toast, committed.announced, emailed);
+      return reply.code(200).send({ ...committed.body, ...(toast ? { toast } : {}) });
     },
   );
 }
