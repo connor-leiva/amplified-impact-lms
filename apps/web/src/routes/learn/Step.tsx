@@ -409,7 +409,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   const path = step !== null ? learnStep(vm.week, step) : null;
   if (path && v6StepAt(path, course.payload, rows, viewer.actor, me, now)) {
     // D-230 (B-26, B-27): a step that asks for a file has the Turn in button (or, for a teammate who can't turn in, the
-    // line in its place), and the drawer opens here. H-15 (D-247): for every learner, v3 or not: the step page is the
+    // line in its place), and the drawer opens here. H-15 (D-248): for every learner, v3 or not: the step page is the
     // same page either way (D-210), and the drawer brings its own styles. A staff member's preview of a learner (C-04)
     // still draws neither, as before.
     const asks = !preview && !viewer.preview && row?.module ? asksOf(row.module, row.week) : [];

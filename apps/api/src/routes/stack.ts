@@ -58,7 +58,7 @@ export function registerStackRoute(app: FastifyInstance): void {
     const card = await cardOf();
     if (!card) return reply.code(404).send({ error: 'This week has no stack card.' });
     const body = (req.body ?? {}) as { changes?: unknown; base?: unknown; send?: boolean };
-    // H-10 (D-247): only the rows this browser changed, each as it last read it. A page from before this change sends
+    // H-10 (D-248): only the rows this browser changed, each as it last read it. A page from before this change sends
     // every row, which would erase a teammate's: it is refused, and asked to reload.
     if (!body.changes || typeof body.changes !== 'object' || Array.isArray(body.changes)) {
       return reply.code(409).send({ error: INTAKE_OUT_OF_DATE, conflicts: [] });

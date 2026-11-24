@@ -454,7 +454,7 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     const snapshot = await loadDb(tx);
     const zones = await savedZones(tx);
     // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110), read at each
-    // session's start for a reminder before it (H-14, D-247), so the first live build's reminders go out.
+    // session's start for a reminder before it (H-14, D-248), so the first live build's reminders go out.
     const accelerator = await acceleratorRoster(tx);
 
     // `due.ts`'s header's own wrapper, in its own order: a candidate pass with `NO_KEYS` to learn

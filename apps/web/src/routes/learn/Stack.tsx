@@ -1,5 +1,5 @@
 // /learn/week/0/stack (D-197). The team's stack card. Send Back stays in the portal.
-// H-10 (D-247): editable only once the card has loaded (a failed load says so, with Retry). Send Back sends only the
+// H-10 (D-248): editable only once the card has loaded (a failed load says so, with Retry). Send Back sends only the
 // rows changed since the load, each as it was (`stackEdit`), so a teammate's other rows stay; a row they changed too
 // is refused (409) and the page says to reload, what was typed still on screen to copy.
 

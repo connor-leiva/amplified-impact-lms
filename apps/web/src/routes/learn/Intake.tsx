@@ -1,9 +1,9 @@
 // /learn/week/0/intake (D-196). The week's intake questions, autosaved for the team. Markup only.
 // D-246: once the team has submitted, Download Your Answers (PDF) hands the learner their team's answers as a PDF
 // (`GET /api/intake/pdf`, which takes the team from the session). A staff preview has no team, so no button.
-// H-10 (D-247): editable only once the answers have loaded (a failed load says so, with Retry); a save sends only what
+// H-10 (D-248): editable only once the answers have loaded (a failed load says so, with Retry); a save sends only what
 // changed (`intake-sync.ts`), and a teammate's change to the same question stops the page with a reload message, what
-// was typed still on screen to copy. H-11 (D-247): a question not required says "Optional", as the v3 drawer does
+// was typed still on screen to copy. H-11 (D-248): a question not required says "Optional", as the v3 drawer does
 // (D-229), and a submit with a required answer missing names the questions, marks each and moves to the first.
 
 import { useEffect, useMemo, useRef, useState } from 'react';

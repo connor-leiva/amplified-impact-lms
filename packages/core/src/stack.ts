@@ -51,7 +51,7 @@ export function cleanStackRows(content: StackCardContent, raw: unknown): { rows:
   return { rows, secret };
 }
 
-// --- H-10 (D-247): the stack card, as the intake: a browser sends only the rows it changed ---------
+// --- H-10 (D-248): the stack card, as the intake: a browser sends only the rows it changed ---------
 
 /** The 409 when a teammate changed a row this browser changed too. The page keeps what was typed. */
 export const STACK_CONFLICT = 'Someone on your team changed this card since you opened it. Copy what you typed, then reload the page.';

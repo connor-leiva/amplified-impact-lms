@@ -1,4 +1,4 @@
-// D-247, the Week 0 launch audit's H-13 and H-14, over HTTP and through the scheduler against a real Postgres.
+// D-248, the Week 0 launch audit's H-13 and H-14, over HTTP and through the scheduler against a real Postgres.
 //
 // H-13: a session added in the Week Builder gets the cohort's next `n`, which no week's `session` names. It belongs to
 // the week the builder gave it (`moduleId`): `/api/course` lists it under that week for a course buyer, and an

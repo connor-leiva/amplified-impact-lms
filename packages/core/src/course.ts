@@ -154,7 +154,7 @@ export interface CourseSessionRow {
  * `GET /api/course` sends these, and the builder's live preview (D-174) renders them from the draft.
  */
 export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID): CourseSessionRow[] {
-  // The week the builder gave the session (H-13, D-247: a session added in the builder has the cohort's next `n`,
+  // The week the builder gave the session (H-13, D-248: a session added in the builder has the cohort's next `n`,
   // which is no week's); else the curriculum week when the course has one (so a holiday gap does not renumber a
   // session), and the id / `n` week otherwise, which is what every session the reference seeds already uses.
   const weeks = curriculumWeeks(db.modules);

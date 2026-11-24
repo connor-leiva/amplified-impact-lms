@@ -21,7 +21,7 @@
 // (Connor, Nov 22): `locked`, the same drawer with every answer shown and locked, where only Close and Download PDF
 // work (an agent's view); `ui.submittedLabel`, the finished state's word ("Signed", "Ready"); and a refusal: a save or
 // a submit the server refuses (a `FormRefusal`) stops, the button shakes back, and the foot says why, where a refused
-// save once hung on "Saving". With none of them in play the drawer is the package's. D-247 (H-10) adds `refuse`, the
+// save once hung on "Saving". With none of them in play the drawer is the package's. D-248 (H-10) adds `refuse`, the
 // same foot words for what no save gave (the intake that didn't load, shown with the drawer locked).
 // D-246 adds one more, the same way: `ui.submittedPdfLabel`, a download button on the submitted banner (the intake's
 // "Download Your Answers (PDF)"). It shares Download PDF's state and action, so one file is made at a time.
@@ -111,7 +111,7 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
     set((p) => ({ status: p.status === 'new' ? 'draft' : p.status, rowAnswers: a }));
   };
   const reset = (i: FormInitial) => { clearTimeout(timer.current); pending.current = false; run.current++; setS(start(i)); };
-  /** H-10 (D-247): words for the foot that no save or submit gave (the intake that didn't load), as a refusal shows. */
+  /** H-10 (D-248): words for the foot that no save or submit gave (the intake that didn't load), as a refusal shows. */
   const refuse = (message: string) => set({ failure: message });
 
   const n = count(fields, s.rowAnswers);

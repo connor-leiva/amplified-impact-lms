@@ -1,4 +1,4 @@
-// H-10 (D-247): the v3 intake drawer is locked until the answers load (a failed load says so in its foot and is asked
+// H-10 (D-248): the v3 intake drawer is locked until the answers load (a failed load says so in its foot and is asked
 // again when the drawer opens again), sends only what changed, and after a teammate's clash shows the server's words
 // and locks, what was typed still in it.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';

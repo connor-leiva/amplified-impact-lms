@@ -88,7 +88,7 @@ export function acceleratorOpen(plans: readonly AcceleratorPlan[], now: number, 
 }
 
 /**
- * H-14 (D-247): who is in the course at a given instant, for the scheduler's session emails. `has(userId, at)` is
+ * H-14 (D-248): who is in the course at a given instant, for the scheduler's session emails. `has(userId, at)` is
  * `acceleratorOpen` on the plans of the learner's team, read at `at`, not at the tick: a reminder about a session
  * that hasn't started asks at the session's start, so the 24-hour and 1-hour reminders for the first live build
  * (which opens the course, `COURSE_OPENS_AT`) reach every buyer whose course opens with it. Nothing else changes:

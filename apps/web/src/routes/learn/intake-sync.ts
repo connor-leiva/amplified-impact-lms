@@ -1,4 +1,4 @@
-// H-10 (D-247): the team intake's reads and writes, for both of its forms (today's page, `Intake.tsx`, and the v3
+// H-10 (D-248): the team intake's reads and writes, for both of its forms (today's page, `Intake.tsx`, and the v3
 // drawer, `lms-v3/V3Week.tsx`). A form is editable only once `GET /api/intake` has answered. A save sends only the
 // answers changed since the last load or save, each with the answer it was (`intakeEdit`), one save at a time, so the
 // server can merge them into what a teammate saved and refuse (409) only a question they changed too.

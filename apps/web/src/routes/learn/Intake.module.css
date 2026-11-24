@@ -71,7 +71,7 @@
   font-weight: 600;
 }
 
-/* H-10, H-11 (D-247). A question not required says "Optional" (the v3 drawer's marker, D-229); a required answer a
+/* H-10, H-11 (D-248). A question not required says "Optional" (the v3 drawer's marker, D-229); a required answer a
    submit found missing firms its border to ink and says what it needs under it, with a dot (never colour alone). */
 .opt {
   margin-left: 4px;
@@ -149,7 +149,7 @@
   cursor: not-allowed;
 }
 
-/* Audit M-3 (D-247): on a phone the page runs edge to edge, so everything outside the question cards (Back, the title,
+/* Audit M-3 (D-248): on a phone the page runs edge to edge, so everything outside the question cards (Back, the title,
    the intro, the saved line, the messages, Submit) takes the page's side gutter, as the cards' own text has. The cards
    keep their width: their group steps back out by the same gutter. */
 @media (max-width: 767px) {

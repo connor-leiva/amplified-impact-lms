@@ -1,4 +1,4 @@
-// D-247, the Week 0 launch audit's H-10, H-13 and H-14: two people editing one intake or stack card both keep their
+// D-248, the Week 0 launch audit's H-10, H-13 and H-14: two people editing one intake or stack card both keep their
 // answers (a clash is refused), a session the builder adds belongs to the week it names, and the course roster is
 // read at a session's start so the first live build's reminders go out.
 import { describe, expect, it } from 'vitest';

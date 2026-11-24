@@ -250,7 +250,7 @@ const underWay = (db: Db, u: Learner): boolean => {
 const reachable = (db: Db, u: Learner): boolean => mailable(u) && underWay(db, u);
 
 /**
- * Who is in the AI Accelerator (D-110), asked with the instant that matters (H-14, D-247): core's `CourseRoster`. A
+ * Who is in the AI Accelerator (D-110), asked with the instant that matters (H-14, D-248): core's `CourseRoster`. A
  * plain set of learner ids is one too (its `has` ignores the instant), which is how the pure tests pass a cohort.
  */
 export type CourseAudience = CourseRoster;
@@ -274,7 +274,7 @@ const sessionAudience = (db: Db, s: Session, now: number, accelerator?: CourseAu
   // buyer sits in this cohort at Team tier, so the tier rule above cannot tell them apart. Absent
   // (every caller before the course, and the demo), nothing is narrowed.
   const course = !!accelerator && !!m && isAcceleratorModule(m.id);
-  // H-14 (D-247): asked at the session's start while it is ahead, so a buyer whose course opens with the first live
+  // H-14 (D-248): asked at the session's start while it is ahead, so a buyer whose course opens with the first live
   // build hears of it the day before and the hour before; once it has started, now (a replay, a build reminder).
   const at = Math.max(now, s.start);
   return db.users.filter(
@@ -638,7 +638,7 @@ export function dueWork(
   /**
    * The learners whose plan opens the AI Accelerator (D-110), which the `Db` cannot say: the
    * scheduler reads it from the plans. The course's reminders go to them only. Absent: no narrowing.
-   * H-14 (D-247): asked per session at its start (`acceleratorRoster`); a plain set of ids still works.
+   * H-14 (D-248): asked per session at its start (`acceleratorRoster`); a plain set of ids still works.
    */
   accelerator?: CourseAudience,
 ): DueWork {

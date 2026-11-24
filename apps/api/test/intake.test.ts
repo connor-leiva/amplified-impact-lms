@@ -87,7 +87,7 @@ describe('team intake (D-196)', () => {
   });
 });
 
-describe('two people on one intake (H-10, D-247)', () => {
+describe('two people on one intake (H-10, D-248)', () => {
   const putAs = (cookie: string, payload: Record<string, unknown>) =>
     app.inject({ method: 'PUT', url: '/api/intake', headers: { cookie, 'content-type': 'application/json' }, payload });
   const stored = async () => (await handle.select().from(teamIntake).where(eq(teamIntake.teamId, 'team-a')))[0]!;
@@ -144,7 +144,7 @@ describe('two people on one intake (H-10, D-247)', () => {
   });
 });
 
-describe('two people on one stack card (H-10, D-247)', () => {
+describe('two people on one stack card (H-10, D-248)', () => {
   const putAs = (cookie: string, payload: Record<string, unknown>) =>
     app.inject({ method: 'PUT', url: '/api/stack', headers: { cookie, 'content-type': 'application/json' }, payload });
   type Row = { source: string; tool: string; plan: string; who: string };

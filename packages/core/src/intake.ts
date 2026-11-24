@@ -101,7 +101,7 @@ export function cleanIntakeAnswers(form: CourseIntake, raw: unknown): IntakeAnsw
   return out;
 }
 
-// --- H-10 (D-247): two people editing one team's intake -------------------------------------------
+// --- H-10 (D-248): two people editing one team's intake -------------------------------------------
 //
 // A browser sends only the answers it changed, each with the value it last read for that question (its base). The
 // server writes those questions over the stored answers and keeps every other one, so an owner and an operator

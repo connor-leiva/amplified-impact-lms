@@ -1,4 +1,4 @@
-// D-196: an autosave shows the time in Mountain Time. D-247: H-10 (editable only once loaded; a save sends only what
+// D-196: an autosave shows the time in Mountain Time. D-248: H-10 (editable only once loaded; a save sends only what
 // changed; a teammate's clash keeps what was typed and says to reload) and H-11 (optional questions say so; a submit
 // with a required answer missing names them, marks each and moves to the first).
 import { readFileSync } from 'node:fs';
@@ -258,7 +258,7 @@ describe('Download Your Answers (PDF) on the intake page (D-246)', () => {
   });
 });
 
-describe('the page’s side gutter on a phone (audit M-3, D-247)', () => {
+describe('the page’s side gutter on a phone (audit M-3, D-248)', () => {
   it('gives everything outside the question cards the page gutter at 767px and under, and leaves wider screens alone', () => {
     const css = readFileSync('src/routes/learn/Intake.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
     expect(css).toMatch(/@media \(max-width: 767px\) \{\s*\.page \{\s*padding-inline: var\(--r2-pad\);\s*\}\s*\.lock \{\s*margin-inline: calc\(var\(--r2-pad\) \* -1\);\s*\}\s*\}/);

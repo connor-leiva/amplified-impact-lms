@@ -51,7 +51,7 @@ export async function acceleratorAccess(db: Reader, userId: string, now: number)
 
 /**
  * Who is in the course at a given instant, for the scheduler (D-110): the AI Accelerator's session emails go to them
- * only. H-14 (D-247): asked at the session (its start, for a reminder about one that hasn't begun), not at the tick, so
+ * only. H-14 (D-248): asked at the session (its start, for a reminder about one that hasn't begun), not at the tick, so
  * the reminders before the first live build reach the buyers whose course opens with it. Three reads, not one per
  * learner, because the scheduler asks about everyone at once.
  */

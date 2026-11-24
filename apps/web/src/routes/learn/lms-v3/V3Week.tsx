@@ -130,7 +130,7 @@ export function V3Week({
 // where the drawer's tests have always found it.
 export { downloadIntakePdf, pdfNameOf } from '../intake-pdf';
 
-/** H-10 (D-247): the drawer's foot when the intake didn't load (and can be asked again by opening it again). */
+/** H-10 (D-248): the drawer's foot when the intake didn't load (and can be asked again by opening it again). */
 export const INTAKE_DRAWER_LOAD_FAILED = `${INTAKE_LOAD_FAILED} Close it and open it again.`;
 
 /** The drawer's form, and whether it may be edited yet (H-10: not before the answers load, nor after a clash). */
@@ -139,7 +139,7 @@ export type IntakeFormApi = FormApi & { locked: boolean };
 /**
  * The week's intake as the package's `useForm` drives it (§7.4): loaded from `GET /api/intake`, saved with
  * `PUT /api/intake` and submitted the same way, and printed with `GET /api/intake/pdf`. One intake per team. H-10
- * (D-247): the drawer is locked until the answers load, and a load that fails says so in its foot and is asked again
+ * (D-248): the drawer is locked until the answers load, and a load that fails says so in its foot and is asked again
  * when the drawer opens again; a save sends only what changed (`intake-sync.ts`), so a teammate's other answers stay,
  * and a question they changed too is refused in the server's words, the drawer then locked with what was typed still
  * in it. Null when the week has no intake.

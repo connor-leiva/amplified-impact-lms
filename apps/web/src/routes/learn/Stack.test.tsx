@@ -1,4 +1,4 @@
-// H-10 (D-247): the stack card can't be sent until it has loaded (a failed load says so, with Retry), Send Back sends
+// H-10 (D-248): the stack card can't be sent until it has loaded (a failed load says so, with Retry), Send Back sends
 // only the rows changed, and a teammate's clash (409) keeps what was typed and stops sending.
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';

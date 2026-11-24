@@ -123,7 +123,7 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     const form = await formOf();
     if (!form) return reply.code(404).send({ error: 'This week has no intake.' });
     const body = (req.body ?? {}) as { changes?: unknown; base?: unknown; submit?: boolean };
-    // H-10 (D-247): only the answers this browser changed, each with the answer it last read. A page from before
+    // H-10 (D-248): only the answers this browser changed, each with the answer it last read. A page from before
     // this change sends the whole form, which would erase a teammate's answers: it is refused, and asked to reload.
     if (!body.changes || typeof body.changes !== 'object' || Array.isArray(body.changes)) {
       return reply.code(409).send({ error: INTAKE_OUT_OF_DATE, conflicts: [] });
