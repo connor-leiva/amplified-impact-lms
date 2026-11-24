@@ -10,12 +10,14 @@
 //   4. the operator, as their own contact (no tags), related to the owner's through HighLevel's associations
 //      (`GHL_INTAKE_ASSOCIATION_ID`, one contact-to-contact association made once for the location). Name and email
 //      from the operator's LMS account once they have accepted their invite, else the intake's `operator-name` answer
-//      only if it holds an email; otherwise skipped and reported, never guessed. "I am" (the owner runs it): none.
+//      only if it holds an email; otherwise skipped and reported, never guessed. "I'm both" (the owner runs it; the
+//      seeded choice, read as personalization reads it) or a legacy "I am…": none, whatever account or email exists.
 //      The operator's name and email go to that contact only: never into a field on the owner's, never into a log.
 // THE DRY RUN: `GHL_INTAKE_DRY_RUN` is on unless it says `false`. It logs what would be sent, every value redacted to
 // its length, and sends nothing. Connor reads one payload and turns it off. Never a write from a preview build, a
 // test or the seeded test learner (`is_test`): those rows are marked and left.
 import { and, eq, isNotNull, lte } from 'drizzle-orm';
+import { isBothAnswer } from '@ai/core/checklist';
 import type { CourseIntake } from '@ai/core/course-types';
 import { intakeQuestions } from '@ai/core/intake';
 import { call, upsertAndTag } from '../integrations/ghl';
@@ -92,7 +94,8 @@ export function operatorOf(
   answers: Record<string, string | string[]>,
   account: { name: string; email: string } | null,
 ): { contact: { name: string; email: string } | null; reason: string | null } {
-  if (asText(answers.operator).toLowerCase().startsWith('i am'))
+  // The seeded choice is "I'm both" (personalization's rule, D-199); "I am…" is still read for older answers.
+  if (isBothAnswer(answers.operator) || asText(answers.operator).toLowerCase().startsWith('i am'))
     return { contact: null, reason: 'the owner is the operator' };
   if (account) return { contact: account, reason: null };
   const raw = asText(answers['operator-name']);

@@ -91,6 +91,17 @@ describe('the operator (their own contact)', () => {
       reason: 'the owner is the operator',
     });
   });
+  it('the seeded "I’m both" is the owner, even with an Operations Lead account or an email in the answer', () => {
+    const both = FORM.sections.flatMap((s) => s.questions).find((q) => q.id === 'operator')!.options![0]!;
+    expect(both).toBe("I'm both");
+    const account = { name: 'Op', email: 'op@x.test' };
+    const none = { contact: null, reason: 'the owner is the operator' };
+    expect(operatorOf({ operator: both }, account)).toEqual(none);
+    expect(operatorOf({ operator: both, 'operator-name': 'Sam, sam@x.test' }, account)).toEqual(none);
+    expect(operatorOf({ operator: 'I’m both' }, account)).toEqual(none);
+    expect(operatorOf({ operator: "  i'M BOTH " }, account)).toEqual(none);
+    expect(operatorOf({ operator: 'A teammate' }, account)).toEqual({ contact: account, reason: null });
+  });
 });
 
 describe('one row', () => {
@@ -151,6 +162,33 @@ describe('one row', () => {
     });
     // The operator's name and email go to their own contact only.
     expect(JSON.stringify(calls.slice(0, 5))).not.toContain('op@x.test');
+  });
+  it('"I’m both" with an Operations Lead account sends no operator contact and no relation', async () => {
+    const { f, calls } = mockFetch();
+    const logged: unknown[] = [];
+    const out = await syncIntakeRow(
+      { teamId: 't', answers: { name: 'Alex', operator: "I'm both" }, submittedAt: SUBMITTED },
+      {
+        form: FORM,
+        owner,
+        operator: { name: 'Op', email: 'op@x.test' },
+        options: { config, fetch: f },
+        send: true,
+        associationId: 'assoc',
+        log: { info: (o) => logged.push(o), warn: () => undefined },
+        env: ENV,
+      },
+    );
+    expect(out).toEqual({ status: 'synced' });
+    expect(calls.map((c) => `${c.method} ${c.path}`)).toEqual([
+      'POST /contacts/upsert',
+      'POST /contacts/c-1/tags',
+      'PUT /contacts/c-1',
+      'POST /contacts/upsert',
+      'POST /contacts/c-4/tags',
+    ]);
+    expect(JSON.stringify(calls)).not.toContain('op@x.test');
+    expect(logged).toContainEqual({ team: 't', operator: 'the owner is the operator' });
   });
   it('never the seeded test account', async () => {
     const { f, calls } = mockFetch();

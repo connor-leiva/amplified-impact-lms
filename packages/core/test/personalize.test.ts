@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { conditionMet } from '../src/checklist';
+import { conditionMet, isBothAnswer } from '../src/checklist';
 import { prefillStack } from '../src/stack';
 import { autoCheckItems, operatorItems, pathFromAnswers } from '../src/personalize';
 
@@ -15,6 +15,12 @@ describe('intake conditions (D-199)', () => {
     expect(conditionMet({ field: 'operator', equals: 'both' }, answers)).toBe(true);
     expect(conditionMet({ field: 'operator', equals: 'both' }, { operator: 'both' })).toBe(true);
     expect(conditionMet({ field: 'operator', equals: 'both' }, { operator: 'A teammate' })).toBe(false);
+    expect(conditionMet({ field: 'operator', equals: 'both' }, { operator: 'I’m both' })).toBe(true);
+    expect(conditionMet({ field: 'operator', equals: 'both' }, { operator: " I'M BOTH " })).toBe(true);
+    expect(isBothAnswer("I'm both")).toBe(true);
+    expect(isBothAnswer('I am')).toBe(false);
+    expect(isBothAnswer(['I’m both'])).toBe(false);
+    expect(isBothAnswer(undefined)).toBe(false);
     expect(conditionMet({ field: 'nope', equals: 'Yes' }, answers)).toBe(false);
     expect(conditionMet({ field: 'ai', equals: 'ChatGPT' }, undefined)).toBe(false);
     expect(conditionMet(undefined, answers)).toBe(false);

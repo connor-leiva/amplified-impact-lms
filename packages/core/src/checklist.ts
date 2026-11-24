@@ -24,17 +24,26 @@ export function weekHasCheck(steps: readonly { paths?: { claude?: { blocks: Path
 export const titleWords = (title: string): number => title.trim().split(/\s+/).filter(Boolean).length;
 
 /**
+ * D-199: the intake's `operator` answer that means the owner holds both roles: "both" or "I'm both",
+ * any case, with a straight or curly apostrophe. Personalization and the GHL intake sync both read it.
+ */
+export function isBothAnswer(value: string | string[] | undefined): boolean {
+  if (typeof value !== 'string') return false;
+  const got = value.trim().toLowerCase().replace(/[‘’ʼ]/g, "'");
+  return got === 'both' || got === "i'm both";
+}
+
+/**
  * D-199: a stored condition against the team's intake. No intake, or a field the intake does not
- * have, does nothing. `both` also matches "I'm both".
+ * have, does nothing. `both` also matches "I'm both" (`isBothAnswer`).
  */
 export function conditionMet(cond: { field: string; equals: string } | undefined, answers?: Readonly<Record<string, string | string[]>>): boolean {
   if (!cond || !answers || !(cond.field in answers)) return false;
   const value = answers[cond.field];
   if (typeof value !== 'string') return false;
   const want = cond.equals.trim().toLowerCase();
-  const got = value.trim().toLowerCase();
-  if (want === 'both') return got === 'both' || got === "i'm both";
-  return got === want;
+  if (want === 'both') return isBothAnswer(value);
+  return value.trim().toLowerCase() === want;
 }
 
 export const checkVisible = (b: CheckBlock, answers?: Readonly<Record<string, string | string[]>>): boolean => !conditionMet(b.hideIf, answers);
