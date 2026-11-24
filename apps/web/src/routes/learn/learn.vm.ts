@@ -9,7 +9,7 @@
 // (the viewer's zone first, the program's in parentheses); a locked week's opening reads the course's
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
-import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
+import { ACCELERATOR_SUPPORT_EMAIL, COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { PLAN_NAMES } from '@ai/core/offer';
 import { cohortLine, fmt, mountainWhen } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
@@ -268,10 +268,14 @@ export function weekOfPath(pathname: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
-/** The first week that opens after the preview, as the vault's lock says it. */
+/**
+ * When the vault opens, as its lock says it: when the pre-launch preview ends, the course's own opening at
+ * the first live build (D-153, `COURSE_OPENS_AT`), which is what unlocks it. D-249: not the first locked
+ * week's opening any more, since Week 1 now opens inside the preview (Sun, Nov 29) and the vault stays
+ * locked until Wed, Dec 2.
+ */
 function vaultOpens(p: CoursePayload): string | null {
-  const next = p.course.weeks.find((w): w is LockedCourseWeek => isLockedWeek(w) && w.opensAt !== null);
-  return next ? opensText(next, p.copy) : null;
+  return opensText({ opensAt: COURSE_OPENS_AT }, p.copy);
 }
 
 /**

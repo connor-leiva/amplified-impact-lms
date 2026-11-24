@@ -50,8 +50,26 @@ describe('Home (D-177)', () => {
     const cards = vm.employees!.cards;
     expect(cards).toHaveLength(9);
     expect(cards[0]).toMatchObject({ title: 'Foundations', current: true, locked: false, foot: { kind: 'bar', text: '2 of 8' }, weekLabel: 'Week 0', aria: 'Foundations, 2 of 8' });
-    expect(cards[1]).toMatchObject({ title: 'Where the Money Goes', current: false, locked: true, foot: { kind: 'text', text: 'Opens Dec 2' }, weekLabel: 'Week 1' });
+    // D-249: Week 1 opens Sun, Nov 29, three days before its live build.
+    expect(cards[1]).toMatchObject({ title: 'Where the Money Goes', current: false, locked: true, foot: { kind: 'text', text: 'Opens Nov 29' }, weekLabel: 'Week 1' });
     expect(vm.employees!.meta).toBeNull();
+  });
+
+  it('D-249: on Sun, Nov 29 Week 1 opens in the preview, and the countdown stays on its live build, Wed, Dec 2', () => {
+    const at = Date.parse('2026-11-29T12:00:00-07:00');
+    const vm = home(learnState(at, true, { 0: ['c1', 'c2'] }));
+    expect(vm.lede).toBe('Pre-launch preview: Week 0 is open now, and each week opens on the date shown.');
+    expect(vm.employees!.cards[1]).toMatchObject({ title: 'Where the Money Goes', locked: false, weekLabel: 'Week 1' });
+    expect(vm.employees!.cards[2]).toMatchObject({ locked: true, foot: { kind: 'text', text: 'Opens Dec 9' } });
+    if (vm.hero?.kind !== 'step') throw new Error('no step hero');
+    expect(vm.hero.right).toMatchObject({ label: 'Goes live in', foot: 'Wed, Dec 2 · 12:00 PM MT (1:00 PM CT)' });
+    expect(vm.hero.right!.parts).toEqual([
+      { n: 3, unit: 'days' },
+      { n: 0, unit: 'hrs' },
+      { n: 0, unit: 'min' },
+    ]);
+    // A minute before, it is still locked, with its date.
+    expect(home(learnState(at - 60_000, true, { 0: ['c1', 'c2'] })).employees!.cards[1]).toMatchObject({ locked: true, foot: { kind: 'text', text: 'Opens Nov 29' } });
   });
 
   it('lists what is coming up and the cohort, with real counts only', () => {

@@ -18,6 +18,7 @@
     "db:data-steps:preview": "tsx src/db/data-steps-preview.ts",
     "db:owner": "tsx src/db/seed.ts --owner",
     "db:owner:ensure": "tsx src/db/seed.ts --owner-ensure",
+    "db:smoke-buyer": "tsx src/db/smoke-buyer.ts",
     "provision": "tsx src/billing/cli.ts provision",
     "skills": "tsx src/billing/cli.ts skills",
     "two-pay:check": "tsx src/billing/two-pay-check.ts",

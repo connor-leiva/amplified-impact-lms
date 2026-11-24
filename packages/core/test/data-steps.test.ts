@@ -1,7 +1,8 @@
 // D-175: the one-time data steps, pure. Each changes only what is still as the seed left it, and names
 // what it leaves for the PM. The deploy runs them once (apps/api/test/data-migrations.test.ts).
 import { describe, expect, it } from 'vitest';
-import { ACCELERATOR_MODULE_IDS } from '../src/accelerator';
+import { ACCELERATOR_MODULE_IDS, COURSE_OPENS_AT, buildSessionId } from '../src/accelerator';
+import { mountainWhen } from '../src/release';
 import type { Db } from '../src/types';
 import { WEEK0_DUE_AT } from '../seed/accelerator-v1';
 import { COPY_V1_KEYS, planCopyV1 } from '../seed/copy-v1';
@@ -24,10 +25,10 @@ const prod = (): Db => seedProduction({ owner: { name: 'Connor Leiva', email: 'c
 const MT = (iso: string): number => Date.parse(`${iso}T12:00:00-07:00`);
 
 describe('the Nov 17 release plan (D-175)', () => {
-  it('holds Connor’s dates: Week 0 due Mon, Nov 30, each week at its live build, 12:00 PM MT', () => {
+  it('holds Connor’s dates: Week 0 due Mon, Nov 30, Week 1 Sun, Nov 29, each later week at its live build, 12:00 PM MT', () => {
     expect(WEEK0_DUE_V1).toBe(Date.parse('2026-11-30T19:00:00Z'));
     expect(WEEK_OPENS_V1).toEqual({
-      1: MT('2026-12-02'),
+      1: MT('2026-11-29'),
       2: MT('2026-12-09'),
       3: MT('2026-12-16'),
       4: MT('2027-01-06'),
@@ -36,6 +37,18 @@ describe('the Nov 17 release plan (D-175)', () => {
       7: MT('2027-01-27'),
       8: MT('2027-02-03'),
     });
+  });
+
+  it('opens Week 1 on Sun, Nov 29 (D-249) and leaves its live build, and the course’s own opening, on Wed, Dec 2', () => {
+    expect(WEEK_OPENS_V1[1]).toBe(Date.parse('2026-11-29T19:00:00Z'));
+    expect(mountainWhen(WEEK_OPENS_V1[1]!)).toBe('Sun, Nov 29 · 12:00 PM MT');
+    const db = planReleaseV1(prod()).db;
+    const build = db.sessions.find((x) => x.id === buildSessionId(1))!;
+    expect(mountainWhen(build.start)).toBe('Wed, Dec 2 · 12:00 PM MT');
+    expect(COURSE_OPENS_AT).toBe(build.start);
+    expect(WEEK_OPENS_V1[1]! + 3 * 86_400_000).toBe(build.start);
+    // Every later week still opens with its own live build.
+    for (const n of [2, 3, 4, 5, 6, 7, 8]) expect(WEEK_OPENS_V1[n]).toBe(db.sessions.find((x) => x.id === buildSessionId(n))!.start);
   });
 
   it('schedules each week as the seed left it, moves Week 0’s due date, and touches nothing else', () => {

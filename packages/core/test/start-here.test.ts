@@ -14,7 +14,8 @@ describe('Week 0 Start Here (D-195)', () => {
     expect(START_HERE).toEqual({
       title: 'Start Here: Week 0',
       sub: 'Foundations: Set Up the Office',
-      line: 'Eight steps get every team to the same starting line before our first live build on Wed, Dec 2, 2026. Everything is due Mon, Nov 30, 2026, 12:00 PM MT.',
+      // D-249: Week 1 opens Sun, Nov 29, and the line names it. The first live build stays Wed, Dec 2.
+      line: 'Eight steps get every team to the same starting line for Week 1, which opens Sun, Nov 29, 2026, 12:00 PM MT. Everything is due Mon, Nov 30, 2026, 12:00 PM MT.',
       hint: 'Start with Step 1. Steps 3 and 5 can run alongside the others.',
       totals: { owner: 'About 1 hr 30 min', operator: 'About 2 hr 15 min' },
     });

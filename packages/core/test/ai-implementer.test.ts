@@ -170,7 +170,8 @@ describe('the one-time step (D-243)', () => {
       `Maintains the workflows: refreshes inputs, reruns outputs, finds failures and follows the repair steps. ${PERSON_NOT_SOFTWARE} An owner can hold both roles, on purpose.`,
     );
     const intro = week(after, 0).course!.intake!.intro!;
-    expect(intro).toContain(`before the live builds start on Wednesday, December 2. ${PERSON_NOT_SOFTWARE} Short answers are fine.`);
+    // D-249: the intro's sentence names Week 1's opening, Sun, Nov 29; the line still follows it.
+    expect(intro).toContain(`before Week 1 opens on Sunday, November 29. ${PERSON_NOT_SOFTWARE} Short answers are fine.`);
     expect(intro.split(PERSON_NOT_SOFTWARE)).toHaveLength(2);
   });
 

@@ -205,6 +205,42 @@ before the new process starts, so a restart of the deployment that is already ru
 run the step. The pre-deploy command string does not change. After the account exists, remove the
 variables. The next deploy then writes nothing.
 
+**A regular buyer for smoke tests, on a local or staging database only (D-249).** The test learner
+above is `is_test` and `early_access`, so it sees the course before Preview opens and every week
+before its date, and the v3 and v6 flags count it as on. It cannot show what a buyer sees. This
+command can:
+
+```bash
+SMOKE_BUYER_PASSWORD='<a password of 10+ characters>' pnpm --filter @ai/api db:smoke-buyer -- --email you+smoke@example.com --name "Smoke Buyer"
+```
+
+It writes the paid order (no Stripe id, no amount) and provisions it with `provisionOrder`, the
+webhook's own function. The result is the same team, seats, Team tier owner, account and plan a
+purchase gets. It holds the invite, so no email goes out. Then it sets the password the way Set
+Password does. The account is active, and it is not `is_test` or `early_access`. Run twice, it
+writes nothing. Run on an existing learner, it adds what a buyer has and that learner lacks: a live
+plan, this password, active status.
+
+It refuses a staff address, the seeded test learner and anyone seated on another owner's team. It
+reads the password from `SMOKE_BUYER_PASSWORD` only, never a flag, and prints the address but never
+the password.
+
+**It never runs against production.** A regular buyer takes a founding seat and counts in enrollment
+and revenue. So it refuses a database named `railway` (D-019) unless `RAILWAY_ENVIRONMENT_NAME` is
+exactly `staging` or `demo`, the non-production environments `.railway/railway.ts` defines. This is an
+allowlist, and the match is exact. Any other value is refused: unset, empty, `production`, `prod`, a
+typo, or `Staging` / `staging ` (with a space). It always refuses `RAILWAY_ENVIRONMENT_NAME=production`,
+whatever the database is called.
+
+- **Locally:** point `DATABASE_URL` at your own database.
+- **On staging,** whose database is almost certainly named `railway` too (Railway's default), run it inside the staging environment, so
+  Railway sets `RAILWAY_ENVIRONMENT_NAME=staging`. For example:
+  `railway ssh --environment staging --service web`, then the command above from the app's
+  directory.
+
+Use an address you can read. Staging sends this account the program's reminder emails, as it would
+a buyer.
+
 **The pre-launch preview opens only when its date is set**, in the console: Build › Curriculum › a
 course week › Course settings › Release plan › Preview opens. Until then there is no preview, and
 Week 0 opens with Week 1 at the first live build.

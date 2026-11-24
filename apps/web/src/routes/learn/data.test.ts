@@ -5,7 +5,8 @@ import { createElement } from 'react';
 import type { ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { prelaunchState, PRELAUNCH_NOW } from './test/fixture';
+import { COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { learnState, prelaunchState, PRELAUNCH_NOW } from './test/fixture';
 
 const listeners = new Set<() => void>();
 vi.mock('../../data/boot', () => ({
@@ -44,6 +45,15 @@ describe('the course’s freshness (D-183)', () => {
     expect(nextOpening({ kind: 'ready', payload }, PRELAUNCH_NOW)).toBe((first as { opensAt: number }).opensAt);
     expect(nextOpening({ kind: 'upcoming', opensAt: PRELAUNCH_NOW + 1000 }, PRELAUNCH_NOW)).toBe(PRELAUNCH_NOW + 1000);
     expect(nextOpening({ kind: 'locked' }, PRELAUNCH_NOW)).toBeNull();
+  });
+
+  it('D-249: in the preview, after Week 1 opens (Sun, Nov 29), the next refetch is the preview’s end at the first live build, not Week 2', () => {
+    const at = Date.parse('2026-11-30T09:00:00-07:00');
+    const inPreview = learnState(at, true, { 0: ['c1'] }).payload;
+    expect(nextOpening({ kind: 'ready', payload: inPreview }, at)).toBe(COURSE_OPENS_AT);
+    // Once the course is open, the next week's opening again.
+    const live = learnState(COURSE_OPENS_AT + 1, false, { 0: ['c1'] }).payload;
+    expect(nextOpening({ kind: 'ready', payload: live }, COURSE_OPENS_AT + 1)).toBe(Date.parse('2026-12-09T12:00:00-07:00'));
   });
 
   it('refetches the course when the event stream says something changed @parity:A-3 @parity:C-4', async () => {

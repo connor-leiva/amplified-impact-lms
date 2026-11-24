@@ -11,6 +11,7 @@
 
 import { createContext, useContext, useEffect } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import { isLockedWeek } from '@ai/core/course';
 import { repo } from '../../data/boot';
 import { clock } from '../../lib/clock';
@@ -66,8 +67,8 @@ export const COURSE_KEY = ['learn', 'course'] as const;
  * D-183: it stays as fresh as the snapshot. When the server says something changed (the event stream's
  * `changed`, which already refetches the snapshot), the course is refetched too, so a session's new time,
  * a week staff publish, a kit upload or a replay shows without a reload. And when a locked week's opening
- * (or, before the preview, the course's) passes while the tab is open, it is refetched then, so the week
- * opens on screen. A refetch keeps the page on screen while it runs.
+ * (or, before the preview, the course's; in it, the preview's end) passes while the tab is open, it is
+ * refetched then, so the week opens on screen. A refetch keeps the page on screen while it runs.
  */
 export function useCourse(): CourseLoad {
   const qc = useQueryClient();
@@ -85,11 +86,14 @@ export function useCourse(): CourseLoad {
 /** setTimeout's ceiling (about 24.8 days); a later opening is waited for in steps. */
 const MAX_WAIT = 2_147_483_647;
 
-/** The next instant a locked week opens, after `now`, or null. */
+/**
+ * The next instant a locked week opens, or (D-249) the pre-launch preview ends, after `now`, or null. The
+ * preview ends at the course's own opening, the first live build (`COURSE_OPENS_AT`), which Week 1's
+ * opening no longer marks now that Week 1 opens inside the preview.
+ */
 export function nextOpening(load: CourseLoad, now: number): number | null {
   if (load.kind !== 'ready') return load.kind === 'upcoming' && load.opensAt > now ? load.opensAt : null;
-  const at = load.payload.course.weeks
-    .map((w) => (isLockedWeek(w) ? w.opensAt : null))
+  const at = [...load.payload.course.weeks.map((w) => (isLockedWeek(w) ? w.opensAt : null)), load.payload.prelaunch ? COURSE_OPENS_AT : null]
     .filter((t): t is number => t !== null && t > now)
     .sort((a, b) => a - b)[0];
   return at ?? null;
