@@ -2,12 +2,13 @@
 // RULE: no one whose enrollment existed when the switch came on is ever mailed, whatever the cohort's send time
 // or live state; the flip records that switch-on time.
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { and, eq } from 'drizzle-orm';
-import { WELCOME_SENT_TAG, WELCOME_TEST_ADDRESS, seedForDatabase } from '@ai/core';
+import { and, eq, sql } from 'drizzle-orm';
+import { WELCOME_SENT_TAG, WELCOME_TEST_ADDRESS } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
-import { accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, plans, sessions, teams, users } from '../src/db/schema';
+import { accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, modules, plans, sessions, teams, users } from '../src/db/schema';
+import { SKILL_EMAIL_LOGO_URL } from '../src/email/templates/branded-html';
 import { invalidateConsoleFlags } from '../src/console/flags';
 import { renderTemplate } from '../src/email/templates';
 import { outboxFor, resetOutbox, resetRenderer, setRenderer } from '../src/email/transport';
@@ -16,6 +17,7 @@ import { runGhlWelcomeSync } from '../src/jobs/ghl-welcome';
 import { sendDueWelcomes } from '../src/jobs/welcome';
 import { settleObserved } from '../src/lib/observe';
 import { resetDatabase, testDatabase } from './helpers';
+import { liveWithCourse } from './accelerator-course';
 
 const ENABLED = Date.parse('2026-12-09T15:00:00Z');
 const ENROLLED_EARLY = Date.parse('2026-11-01T15:00:00Z');
@@ -87,7 +89,8 @@ beforeAll(() => {
 
 beforeEach(async () => {
   process.env.FIXED_NOW = new Date(NOW).toISOString();
-  await resetDatabase(seedForDatabase('live'));
+  // The course as a deploy stores it: the welcome reads Week 0's Due, title, steps and baseline from it.
+  await resetDatabase(liveWithCourse());
   resetOutbox();
 });
 
@@ -173,6 +176,81 @@ describe('sendDueWelcomes', () => {
     const [row] = await d.select().from(cohortEnrollments).where(and(eq(cohortEnrollments.userId, 'u_new'), eq(cohortEnrollments.cohortId, 'dec26')));
     expect(row?.ghlSyncedAt).not.toBeNull();
     expect(row?.ghlContactId).toBe('c_new');
+  });
+});
+
+describe('the welcome’s fixes: Week 0 from data, MT / CT, the branded wordmark', () => {
+  const welcomeOf = async () => {
+    await flag(true, ENABLED);
+    await seedOwner('u_new', 'new@example.com', ENROLLED_LATE);
+    await sendDueWelcomes({ db: await database(), log, now: NOW });
+    const [mail] = outboxFor({ to: 'new@example.com', template: 'cohort-welcome' });
+    return mail?.html ?? '';
+  };
+  /** The page's text, tags dropped and React's entities read back. */
+  const visible = (h: string) =>
+    h
+      .replace(/<style[\s\S]*?<\/style>/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&#x27;/g, "'")
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ');
+
+  it('says Week 0 is due Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT, from Week 0’s Due, and not at the first live build', async () => {
+    const text = visible(await welcomeOf());
+    expect(text).toContain('03 Finish Week 0 by Mon, Nov 30');
+    expect(text).toContain("That's Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT.");
+    expect(text).toContain('By Mon, Nov 30, your AI is set up');
+    expect(text).not.toContain('Finish Before Our First Live Build');
+    expect(text).not.toContain('By our first live build');
+  });
+
+  it('counts six baseline tasks, the stored table’s rows, and never says seven', async () => {
+    const text = visible(await welcomeOf());
+    expect(text).toContain("you've timed the six tasks we'll measure against");
+    expect(text).not.toMatch(/\bseven\b/i);
+  });
+
+  it('names Week 0 by the title the course page shows, read from the stored module', async () => {
+    expect(visible(await welcomeOf())).toContain('02 Start Week 0 · Foundations Foundations is the Week 0 course, and it has eight steps.');
+    resetOutbox();
+    await (await database()).delete(cohortEnrollments);
+    await (await database()).delete(consoleFlags);
+    await (await database()).execute(sql`update modules set course = jsonb_set(course, '{title}', '"Get Ready"') where id = 'accelerator-week-0'`);
+    await (await database()).delete(plans);
+    await (await database()).delete(accounts);
+    await (await database()).delete(teams).where(eq(teams.id, 't_u_new'));
+    await (await database()).delete(users).where(eq(users.id, 'u_new'));
+    const renamed = visible(await welcomeOf());
+    expect(renamed).toContain('02 Start Week 0 · Get Ready Get Ready is the Week 0 course');
+    expect(renamed).not.toContain('Foundations');
+  });
+
+  it('shows every clock MT first, with the same time in CT after it', async () => {
+    const text = visible(await welcomeOf());
+    const mt = [...text.matchAll(/\d{1,2}:\d{2}(?: (?:AM|PM))?(?: to \d{1,2}:\d{2} (?:AM|PM))? MT/g)];
+    expect(mt.length).toBeGreaterThanOrEqual(5);
+    for (const m of mt) expect(text.slice((m.index ?? 0) + m[0].length), m[0]).toMatch(/^ \/ (?:[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}, )?\d{1,2}:\d{2}/);
+    expect(text).not.toMatch(/\bCT\b[^/]*\bMT\b(?! \/)/);
+  });
+
+  it('shows the branded emails’ white wordmark, 180 by 27, on their black band', async () => {
+    const html = await welcomeOf();
+    expect(html).toContain(`src="${SKILL_EMAIL_LOGO_URL}"`);
+    expect(html).toMatch(/<img[^>]*alt="Amplified Impact"[^>]*height="27"[^>]*>|<img[^>]*height="27"[^>]*alt="Amplified Impact"[^>]*>/);
+    expect(html).toContain('width="180"');
+    expect(html).toContain('background-color:#0a0d0c');
+    expect(html).not.toContain('/img/og/amplified-impact.png');
+  });
+
+  it('waits on the builder while Week 0 has no Due', async () => {
+    await (await database()).update(modules).set({ dueAt: null }).where(eq(modules.id, 'accelerator-week-0'));
+    await flag(true, ENABLED);
+    await seedOwner('u_new', 'new@example.com', ENROLLED_LATE);
+    const out = await sendDueWelcomes({ db: await database(), log, now: NOW });
+    expect(out).toMatchObject({ sent: 0, waiting: 1 });
+    expect(outboxFor({ template: 'cohort-welcome' })).toHaveLength(0);
+    expect((await enrollment('u_new'))?.welcomeStatus ?? null).toBeNull();
   });
 });
 

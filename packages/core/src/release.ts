@@ -141,9 +141,31 @@ function rangeIn(z: Zone, start: number, end: number | null): string {
  * CT". The day is Mountain Time's; where Central Time's start falls on another day, its own day comes with it.
  */
 export function sessionTimeMtCt(start: number, mins?: number | null): string {
+  const { day, time } = sessionTimeMtCtParts(start, mins);
+  return `${day}, ${time}`;
+}
+
+/**
+ * `sessionTimeMtCt` in its two parts, so copy can word the day its own way: Mountain Time's day ("Wed, Dec 2") and the
+ * clocks after it ("12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT", Central's own day first where it differs). The same
+ * formatter, not a second one: `sessionTimeMtCt` is `${day}, ${time}`.
+ */
+export function sessionTimeMtCtParts(start: number, mins?: number | null): { day: string; time: string } {
   const end = typeof mins === 'number' && Number.isFinite(mins) && mins > 0 ? start + mins * 60_000 : null;
   const day = MOUNTAIN.day.format(new Date(start));
   const ctDay = CENTRAL.day.format(new Date(start));
   const ct = rangeIn(CENTRAL, start, end);
-  return `${day}, ${rangeIn(MOUNTAIN, start, end)} / ${ctDay === day ? ct : `${ctDay}, ${ct}`}`;
+  return { day, time: `${rangeIn(MOUNTAIN, start, end)} / ${ctDay === day ? ct : `${ctDay}, ${ct}`}` };
+}
+
+const MT_DAY_YEAR = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+/**
+ * A due time as the Week 0 emails word it, Mountain Time first and Central Time after it, from the instant: "Mon, Nov 30
+ * at 12:00 PM MT / 1:00 PM CT", or with `year`, "Mon, Nov 30, 2026 at 12:00 PM MT / 1:00 PM CT". The day is Mountain
+ * Time's; the clocks are `sessionTimeMtCtParts`'s.
+ */
+export function dueTimeMtCt(t: number, opts: { year?: boolean } = {}): string {
+  const { day, time } = sessionTimeMtCtParts(t);
+  return `${opts.year ? MT_DAY_YEAR.format(new Date(t)) : day} at ${time}`;
 }

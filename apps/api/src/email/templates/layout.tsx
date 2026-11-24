@@ -36,6 +36,7 @@
 import { Body, Button, Container, Head, Heading, Html, Img, Preview, Section, Text } from '@react-email/components';
 import type { CSSProperties, ReactNode } from 'react';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
+import { BAND } from './branded-html';
 
 const T = EMAIL_TOKENS;
 
@@ -201,7 +202,10 @@ export interface EmailLayoutProps {
   preheader?: string;
   /** A short line above the heading. Rendered as a span, so it is not the body's first paragraph. */
   eyebrow?: string;
-  /** A hosted raster. Absent on every template but the cohort welcome. */
+  /**
+   * A hosted raster: the branded emails' white wordmark (180 by 27), drawn on their black band across the top of the
+   * card. Absent on every template but the cohort welcome, whose card is otherwise light.
+   */
   logoSrc?: string;
   /** Blocks after the button: the welcome's later sections. */
   below?: ReactNode;
@@ -238,9 +242,42 @@ const eyebrowStyle: CSSProperties = {
   color: T['text-secondary'],
 };
 
-const logoStyle: CSSProperties = { display: 'block', margin: '0 0 20px', border: 0 };
+/** The wordmark at the branded emails' size. */
+const logoStyle: CSSProperties = { display: 'block', width: '180px', height: '27px', border: 0 };
+
+/**
+ * The branded emails' black band (`branded-html.ts`, `#0a0d0c`), as the card's first row, edge to edge, so the white
+ * wordmark never sits on white. The card keeps its width, border, radius and surface; its padding moves inside, under
+ * the band (`bandedColumn`, `bandedInner`).
+ */
+const logoBand: CSSProperties = {
+  padding: '32px 32px 28px',
+  borderRadius: '15px 15px 0 0',
+  backgroundColor: BAND,
+};
+const bandedColumn: CSSProperties = { ...column, padding: '0', overflow: 'hidden' };
+const bandedInner: CSSProperties = { padding: '32px' };
 
 export function EmailLayout({ subject, cta: action, children, heading, preheader, eyebrow, logoSrc, below }: EmailLayoutProps) {
+  const inner = (
+    <>
+      {eyebrow ? (
+        <Section>
+          <span style={eyebrowStyle}>{eyebrow}</span>
+        </Section>
+      ) : null}
+      <Heading as="h1" style={h1}>
+        {heading ?? subject}
+      </Heading>
+      {children}
+      <Section style={ctaRow}>
+        <Button href={action.href} style={cta}>
+          {action.label}
+        </Button>
+      </Section>
+      {below}
+    </>
+  );
   return (
     <Html lang="en">
       <Head>
@@ -249,23 +286,13 @@ export function EmailLayout({ subject, cta: action, children, heading, preheader
       </Head>
       <Preview>{preheader ?? subject}</Preview>
       <Body style={page}>
-        <Container style={column}>
-          {logoSrc ? <Img src={logoSrc} alt="Amplified Impact" width="240" style={logoStyle} /> : null}
-          {eyebrow ? (
-            <Section>
-              <span style={eyebrowStyle}>{eyebrow}</span>
+        <Container style={logoSrc ? bandedColumn : column}>
+          {logoSrc ? (
+            <Section style={logoBand}>
+              <Img src={logoSrc} alt="Amplified Impact" width="180" height="27" style={logoStyle} />
             </Section>
           ) : null}
-          <Heading as="h1" style={h1}>
-            {heading ?? subject}
-          </Heading>
-          {children}
-          <Section style={ctaRow}>
-            <Button href={action.href} style={cta}>
-              {action.label}
-            </Button>
-          </Section>
-          {below}
+          {logoSrc ? <Section style={bandedInner}>{inner}</Section> : inner}
         </Container>
       </Body>
     </Html>

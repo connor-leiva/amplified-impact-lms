@@ -4,13 +4,15 @@
 // The incident: rapid reloads of /employees/marketing got 429 on /assets/*.js and *.css, some with
 // the limiter's JSON body, so the SPA never booted. A conference room shares one IP.
 import { afterEach, beforeAll, afterAll, describe, expect, it } from 'vitest';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { build, GLOBAL_RATE_MAX, isApiPath } from '../src/app';
 import type { App } from '../src/app';
 import { IMMUTABLE, cacheControlFor, registerStaticFiles } from '../src/static';
 import { GUIDE_SLUGS } from '../src/routes/guide-list';
+import { WEEK0_CONFETTI_PATH } from '../src/email/templates/branded-html';
 
 const SHELL = '<!doctype html><title>Amplified Impact</title><div id="root"></div>';
 const FILES: Record<string, { body: string | Buffer; type: RegExp }> = {
@@ -203,5 +205,52 @@ describe('D-170: the learn app shell is no-cache wherever it is answered; hashed
     const a = await serve('www.amplifiedimpact.io');
     const home = await get(a, '/', 'www.amplifiedimpact.io');
     expect([home.statusCode, home.headers['cache-control']]).toEqual([200, 'public, max-age=300']);
+  });
+});
+
+// The Week 0 Is Open email loads its confetti from learn by a fixed URL (`WEEK0_CONFETTI_URL`), so the file must be
+// there for anyone, signed in or not, as a GIF. Served from the real `apps/web/public`, which Vite copies into `dist`
+// as it is, through the same `registerStaticFiles` the server uses.
+describe('the Week 0 email’s confetti GIF', () => {
+  const PUBLIC = fileURLToPath(new URL('../../web/public', import.meta.url));
+
+  async function servePublic(): Promise<App> {
+    app = await build({ fixtureOnly: true, logger: false });
+    await registerStaticFiles(app, PUBLIC);
+    await app.ready();
+    return app;
+  }
+
+  it('GET /brand/week0-confetti.gif answers 200 image/gif, a year of cache, with no session and no limit', async () => {
+    const a = await servePublic();
+    for (const method of ['GET', 'HEAD'] as const) {
+      const res = await a.inject({ method, url: WEEK0_CONFETTI_PATH, headers: { ...ROOM, host: 'learn.amplifiedimpact.io' } });
+      expect(res.statusCode, method).toBe(200);
+      expect(res.headers['content-type'], method).toBe('image/gif');
+      expect(res.headers['cache-control'], method).toBe(IMMUTABLE);
+      expect(res.headers['set-cookie'], method).toBeUndefined();
+      expect(res.headers['x-ratelimit-limit'], method).toBeUndefined();
+    }
+    const body = (await get(a, WEEK0_CONFETTI_PATH)).rawPayload;
+    expect(body.equals(readFileSync(join(PUBLIC, WEEK0_CONFETTI_PATH)))).toBe(true);
+  });
+
+  it('is the approved file: GIF89a, 600 by 200, 52 frames, and no loop extension, so it plays once', () => {
+    const gif = readFileSync(join(PUBLIC, WEEK0_CONFETTI_PATH));
+    expect(gif.subarray(0, 6).toString('latin1')).toBe('GIF89a');
+    expect([gif.readUInt16LE(6), gif.readUInt16LE(8)]).toEqual([600, 200]);
+    expect(gif.includes(Buffer.from('NETSCAPE2.0', 'latin1'))).toBe(false);
+    let frames = 0;
+    for (let i = 0; i < gif.length - 1; i++) if (gif[i] === 0x21 && gif[i + 1] === 0xf9 && gif[i + 2] === 0x04) frames += 1;
+    expect(frames).toBe(52);
+    expect(gif.length).toBeLessThan(700 * 1024);
+  });
+
+  it('keeps the wordmark beside it as it was', async () => {
+    const a = await servePublic();
+    const res = await get(a, '/brand/amplified-impact-wordmark-on-dark.png');
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('image/png');
+    expect(res.headers['cache-control']).toBe('public, max-age=0');
   });
 });

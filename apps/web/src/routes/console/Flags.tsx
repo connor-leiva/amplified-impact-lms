@@ -75,7 +75,20 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
           ))}
         </Card>
       </div>
-      {vm.flags.some((f) => f.key === 'cohort_welcome_email' && f.flip) ? <WelcomeTest api={api} /> : null}
+      {vm.flags.some((f) => f.key === 'cohort_welcome_email' && f.flip) ? (
+        <TestSend
+          title="Send a test welcome"
+          failed="The welcome was not sent."
+          send={(to, cohortId) => api.sendWelcomeTest(to, cohortId)}
+        />
+      ) : null}
+      {vm.flags.some((f) => f.key === 'week0_open_email' && f.flip) ? (
+        <TestSend
+          title="Send a test Week 0 Is Open email"
+          failed="The Week 0 email was not sent."
+          send={(to, cohortId) => api.sendWeek0Test(to, cohortId)}
+        />
+      ) : null}
       {ask?.flip ? (
         <Confirm
           title={ask.flip.confirm.title}
@@ -92,13 +105,14 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
   );
 }
 
-function WelcomeTest({ api }: { api: ConsoleApi }) {
+/** One email's test send, to the allowlist only: the welcome's, and the Week 0 Is Open email's, the same control. */
+function TestSend({ title, failed, send }: { title: string; failed: string; send: (to: string, cohortId: string) => Promise<{ ok: true; subject: string }> }) {
   const { toast } = useAdminChrome();
   const [to, setTo] = useState('accelerator-test@amplifiedimpact.io');
   const [cohortId, setCohortId] = useState('dec26');
   const [busy, setBusy] = useState(false);
   return (
-    <Card title="Send a test welcome" sub="Only accelerator-test@amplifiedimpact.io, unless an allowlist adds another address. This does not email a learner.">
+    <Card title={title} sub="Only accelerator-test@amplifiedimpact.io, unless an allowlist adds another address. This does not email a learner.">
       <div className={k.col}>
         <label className={k.col}>
           <span className={k.me}>To</span>
@@ -113,11 +127,10 @@ function WelcomeTest({ api }: { api: ConsoleApi }) {
           disabled={busy}
           onClick={() => {
             setBusy(true);
-            api
-              .sendWelcomeTest(to, cohortId)
+            send(to, cohortId)
               .then(
                 (out) => toast(out.subject),
-                (e: unknown) => toast(e instanceof ConsoleError ? e.message : 'The welcome was not sent.'),
+                (e: unknown) => toast(e instanceof ConsoleError ? e.message : failed),
               )
               .finally(() => setBusy(false));
           }}

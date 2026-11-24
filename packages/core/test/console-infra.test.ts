@@ -31,9 +31,10 @@ import {
 } from '../src/index';
 
 describe('Console flags (spec § 7.13, D8, D10) @console', () => {
-  it('owns masquerade_enabled and the cohort welcome switch, which is off until a flip', () => {
-    expect(CONSOLE_FLAG_KEYS).toEqual(['masquerade_enabled', 'cohort_welcome_email']);
+  it('owns masquerade_enabled, the cohort welcome switch and the Week 0 email switch, both off until a flip', () => {
+    expect(CONSOLE_FLAG_KEYS).toEqual(['masquerade_enabled', 'cohort_welcome_email', 'week0_open_email']);
     expect(consoleFlagDef('cohort_welcome_email')).toEqual({ key: 'cohort_welcome_email', label: 'Send the cohort welcome email to new enrollments', sensitive: false, defaultOn: false });
+    expect(consoleFlagDef('week0_open_email')).toEqual({ key: 'week0_open_email', label: 'Send the Week 0 Is Open email to current Accelerator owners', sensitive: false, defaultOn: false });
     expect(consoleFlagDef('masquerade_enabled')).toEqual({ key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: true });
     expect(MASQUERADE_ENABLED_DEFAULT).toBe(true);
     expect(isConsoleFlagKey('masquerade_enabled')).toBe(true);

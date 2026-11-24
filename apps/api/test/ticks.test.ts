@@ -140,6 +140,7 @@ describe('JOB_SCHEDULES (D-165, D14) @g8', () => {
       ...JOB_NAMES.map((j) => [j, 'allowed']),
       ['billing', 'schedule_only'],
       ['cohort-welcome', 'schedule_only'],
+      ['week0-open', 'schedule_only'],
       ['ghl-sync', 'off'],
       ['ghl-logins', 'off'],
       ['ghl-orders', 'off'],

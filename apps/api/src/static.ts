@@ -12,6 +12,10 @@
 //   - HASHED FILES ARE IMMUTABLE. Vite names every file under `/assets/` by its content, so a browser
 //     may keep it for a year and never ask again: `public, max-age=31536000, immutable`. `index.html`
 //     is `no-cache`, so a new deploy's file names are picked up on the next load.
+//   - EMAIL IMAGES ARE KEPT A YEAR TOO. An image an email loads (`EMAIL_IMAGES`: the Week 0 email's confetti GIF) has
+//     no content hash in its name, because the sent email names it for good, so it is cached like a hashed file. New
+//     art takes a new file name. It is a plain public file like the wordmark beside it: no session, no limit, and
+//     `@fastify/static` types it by its extension (`.gif` is `image/gif`).
 //   - A MISSING FILE IS A REAL 404. A request under `/assets/` that matches no file answers
 //     `404 Not found` as text, never `index.html` (which a browser would try to run as a script, or
 //     apply as a stylesheet) and never JSON.
@@ -21,6 +25,7 @@ import type { FastifyInstance } from 'fastify';
 import { PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
 import { GUIDED_DOWNLOADS, guidedPageOfFile, skillGuideUrl } from '@ai/core/skill-guides';
 import { PAID_DOWNLOADS } from './billing/skills-catalog';
+import { WEEK0_CONFETTI_PATH } from './email/templates/branded-html';
 import { GUIDE_SLUGS } from './routes/guide-list';
 import { SALES_PAGES } from './routes/offer';
 
@@ -66,12 +71,16 @@ export function staticIgnores(): string[] {
 
 const pathOf = (url: string): string => url.split('?')[0] ?? url;
 
+/** Images a sent email loads by a fixed URL. Each is cached a year: new art takes a new name. */
+export const EMAIL_IMAGES: readonly string[] = [WEEK0_CONFETTI_PATH];
+
 /**
- * A hashed file is kept for a year; `index.html` is checked on every load, so a deploy's new file
- * names are picked up; anything else keeps the `public, max-age=0` it always had.
+ * A hashed file is kept for a year, and so is an email's image; `index.html` is checked on every load, so a deploy's
+ * new file names are picked up; anything else keeps the `public, max-age=0` it always had.
  */
 export function cacheControlFor(filePath: string): string {
   if (filePath.includes(HASHED_PREFIX)) return IMMUTABLE;
+  if (EMAIL_IMAGES.some((p) => filePath.endsWith(p))) return IMMUTABLE;
   if (filePath.endsWith('/index.html')) return 'no-cache';
   return 'public, max-age=0';
 }

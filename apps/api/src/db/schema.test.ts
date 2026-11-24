@@ -134,7 +134,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // One cohort welcome per (team owner, cohort). Not a `Db` record.
   cohortEnrollments: {
     table: 'cohort_enrollments',
-    columns: ['account_id', 'cohort_id', 'enrolled_at', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'user_id', 'welcome_claimed_at', 'welcome_error', 'welcome_sent_at', 'welcome_status'],
+    columns: ['account_id', 'cohort_id', 'enrolled_at', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'user_id', 'week0_claimed_at', 'week0_error', 'week0_sent_at', 'week0_status', 'welcome_claimed_at', 'welcome_error', 'welcome_sent_at', 'welcome_status'],
     gate: 9,
   },
   plans: {
@@ -398,6 +398,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accounts', 'createdAt'], ['accounts', 'inviteSentAt'],
   ['cohortEnrollments', 'enrolledAt'], ['cohortEnrollments', 'welcomeSentAt'], ['cohortEnrollments', 'welcomeClaimedAt'],
   ['cohortEnrollments', 'ghlSyncedAt'], ['cohortEnrollments', 'ghlNextAttemptAt'], ['cohortEnrollments', 'ghlLastAttemptAt'],
+  ['cohortEnrollments', 'week0SentAt'], ['cohortEnrollments', 'week0ClaimedAt'],
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
   ['skillPurchases', 'purchasedAt'], ['skillPurchases', 'refundedAt'],
@@ -488,7 +489,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   stripeEvents: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by the webhook' },
   ghlLogins: { unit: 'epoch-ms', why: 'D-134: clock.now() as written by the GHL loop' },
   accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
-  cohortEnrollments: { unit: 'epoch-ms', why: 'enrolled_at is the cohort plan’s created_at; welcome_sent_at is clock.now() when the welcome goes out' },
+  cohortEnrollments: { unit: 'epoch-ms', why: 'enrolled_at is the cohort plan’s created_at; welcome_sent_at and week0_sent_at are clock.now() when each email goes out' },
   plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
   skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },
   skillPurchases: { unit: 'epoch-ms', why: 'purchased_at and refunded_at are clock.now() as written by the skill webhook' },

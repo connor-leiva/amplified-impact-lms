@@ -23,17 +23,24 @@
 // THE LINK. An owner with no password and no Google account gets a set-password link in the same
 // email. Everyone else is told to use the password from the other email. The button is always
 // Open The Academy.
+//
+// NEVER BOTH. The Week 0 Is Open email (`week0-open.ts`) also says Week 0 starts now. A row that email
+// already reached (`week0_status = 'sent'`, or a lost claim) is skipped here (`welcome_error =
+// 'week0_sent'`), and a row it has claimed is not claimed here, so no owner gets both, in either order.
+//
+// WEEK 0 FROM DATA. The copy's Week 0 due date, name, step count and baseline count come from the
+// Week 0 module (`welcomeWeek0`). While Week 0 has no Due, the welcome waits on the builder.
 
 import { and, eq, sql } from 'drizzle-orm';
-import { COHORT_WELCOME_FLAG, buildWelcomeCopy, enrolledBeforeSwitch, firstNameOf, welcomeDecision, welcomeSchedule } from '@ai/core';
-import type { WelcomeSession, WelcomeWeek } from '@ai/core';
+import { COHORT_WELCOME_FLAG, buildWelcomeCopy, enrolledBeforeSwitch, firstNameOf, otherEmailReached, welcomeDecision, welcomeSchedule, welcomeWeek0 } from '@ai/core';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
-import { authTokens, cohortEnrollments, cohorts, consoleFlags, emailLog, googleIdentities, modules, sessions, userPasswords, users } from '../db/schema';
+import { authTokens, cohortEnrollments, cohorts, consoleFlags, emailLog, googleIdentities, sessions, userPasswords, users } from '../db/schema';
 import { absolute, setPasswordPath } from '../email/templates/links';
 import { send } from '../email/transport';
 import type { BillingLog } from '../billing/provision';
+import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from './enrollments';
 
 /** A claim still open after this is treated as lost, and not sent again. */
 const CLAIM_LEASE_MS = 15 * 60_000;
@@ -49,6 +56,8 @@ interface PendingRow {
   name: string;
   has_password: boolean;
   has_google: boolean;
+  week0_status: string | null;
+  week0_error: string | null;
 }
 
 const num = (v: string | number): number => Number(v);
@@ -79,7 +88,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
   // The switch-on time. A flip always stamps it. A row that is on without one (written by hand) takes
   // its last flip's time, or else now, and records it, so the time stays fixed from then on and no
   // enrollment already there is ever mailed.
-  const enabledAt = flag.turnedOnAt ?? (await recordSwitchOn(db, flag.updatedAt ?? now));
+  const enabledAt = flag.turnedOnAt ?? (await recordSwitchOn(db, COHORT_WELCOME_FLAG, flag.updatedAt ?? now));
 
   await db.execute(sql`
     update ${cohortEnrollments}
@@ -89,25 +98,11 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
        and welcome_claimed_at <= ${now - CLAIM_LEASE_MS}
   `);
 
-  // One row per (owner, cohort) with a plan that has not ended. Its time is the owner's EARLIEST
-  // cohort plan for that cohort, ended ones included: someone enrolled before the switch who ends and
-  // buys again after it still enrolled before it.
-  await db.execute(sql`
-    insert into ${cohortEnrollments} (user_id, cohort_id, account_id, enrolled_at)
-    select distinct on (a.owner_user_id, p.cohort_id) a.owner_user_id, p.cohort_id, a.id,
-           (select min(p2.created_at)
-              from plans p2
-              join accounts a2 on a2.id = p2.account_id
-             where p2.kind = 'cohort' and p2.cohort_id = p.cohort_id and a2.owner_user_id = a.owner_user_id)
-      from plans p
-      join accounts a on a.id = p.account_id
-     where p.kind = 'cohort' and p.cohort_id is not null and p.status <> 'ended'
-     order by a.owner_user_id, p.cohort_id, p.created_at
-    on conflict (user_id, cohort_id) do nothing
-  `);
+  // One row per (owner, cohort) with a plan that has not ended, shared with the Week 0 job.
+  await upsertCohortEnrollments(db);
 
   const pending = (await db.execute(sql`
-    select e.user_id, e.cohort_id, e.enrolled_at, u.email, u.name,
+    select e.user_id, e.cohort_id, e.enrolled_at, u.email, u.name, e.week0_status, e.week0_error,
            exists (select 1 from ${userPasswords} pw where pw.user_id = u.id) as has_password,
            exists (select 1 from ${googleIdentities} g where g.user_id = u.id) as has_google
       from ${cohortEnrollments} e
@@ -120,7 +115,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 
   const cohortRows = await db.select().from(cohorts);
   const sessionRows = await db.select().from(sessions);
-  const moduleRows = await db.select({ id: modules.id, status: modules.status, opens: modules.opens, course: modules.course }).from(modules);
+  const weeks = await readWeeks(db);
 
   for (const row of pending) {
     const cohort = cohortRows.find((c) => c.id === row.cohort_id);
@@ -131,12 +126,21 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       run.skipped += 1;
       continue;
     }
+    // Never both: the Week 0 Is Open email already reached this owner.
+    if (otherEmailReached(row.week0_status, row.week0_error)) {
+      await markSkipped(db, row, cohort?.name ?? row.cohort_id, now, 'week0_sent');
+      run.skipped += 1;
+      continue;
+    }
+    if (row.week0_status === 'claimed') {
+      run.waiting += 1;
+      continue;
+    }
     if (!cohort) {
       log.warn({ cohort: row.cohort_id }, 'cohort welcome has no cohort; left pending');
       run.waiting += 1;
       continue;
     }
-    const weeks = weeksOf(moduleRows);
     const sess = sessionRows.filter((s) => s.cohortId === cohort.id).map(sessionOf);
     const built = welcomeSchedule(
       { name: cohort.name, start: cohort.start, previewOpensAt: cohort.previewOpensAt, welcomeSendsAt: cohort.welcomeSendsAt, defaultOpenTime: cohort.defaultOpenTime },
@@ -145,6 +149,12 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
     );
     if (!built.ok) {
       log.warn({ cohort: cohort.id, reason: built.reason }, 'cohort welcome is waiting on the builder');
+      run.waiting += 1;
+      continue;
+    }
+    const week0 = welcomeWeek0(weeks);
+    if (!week0.ok) {
+      log.warn({ cohort: cohort.id, reason: week0.reason }, 'cohort welcome is waiting on the builder');
       run.waiting += 1;
       continue;
     }
@@ -158,10 +168,14 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       run.skipped += 1;
       continue;
     }
+    // The claim also refuses a row the Week 0 email holds or may have sent, so the two jobs on two replicas can't both
+    // mail one owner.
     const claimed = (await db.execute(sql`
       update ${cohortEnrollments}
          set welcome_status = 'claimed', welcome_claimed_at = ${now}
        where user_id = ${row.user_id} and cohort_id = ${row.cohort_id} and welcome_status is null
+         and coalesce(week0_status, '') not in ('claimed', 'sent')
+         and not (coalesce(week0_status, '') = 'failed' and coalesce(week0_error, '') = 'lost')
       returning user_id
     `)) as unknown as { user_id: string }[];
     if (claimed.length === 0) continue;
@@ -172,7 +186,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       await db.insert(authTokens).values({ tokenHash: hashToken(token), email: row.email, purpose: 'set_password', expiresAt: expiryFor('set_password', now) });
       setPasswordUrl = absolute(setPasswordPath(token));
     }
-    const copy = buildWelcomeCopy(built.schedule, firstNameOf(row.name), setPasswordUrl);
+    const copy = buildWelcomeCopy(built.schedule, week0.week0, firstNameOf(row.name), setPasswordUrl);
     const result = await send({ template: 'cohort-welcome', to: row.email, data: { cohortName: copy.cohortName, copy } });
     if (result.ok) {
       await db
@@ -194,17 +208,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
   return run;
 }
 
-/** Record the switch-on time on a row that is on without one, and return it. */
-async function recordSwitchOn(db: Database, at: number): Promise<number> {
-  const [row] = await db
-    .update(consoleFlags)
-    .set({ turnedOnAt: sql`coalesce(${consoleFlags.turnedOnAt}, ${at})` })
-    .where(and(eq(consoleFlags.key, COHORT_WELCOME_FLAG), eq(consoleFlags.on, true)))
-    .returning({ turnedOnAt: consoleFlags.turnedOnAt });
-  return row?.turnedOnAt ?? at;
-}
-
-async function markSkipped(db: Database, row: PendingRow, cohortName: string, now: number, reason: 'enrolled_before_switch'): Promise<void> {
+async function markSkipped(db: Database, row: PendingRow, cohortName: string, now: number, reason: 'enrolled_before_switch' | 'week0_sent'): Promise<void> {
   const subject = `Your Access To The ${cohortName} Is Live`;
   await db
     .update(cohortEnrollments)
@@ -221,27 +225,4 @@ async function markSkipped(db: Database, row: PendingRow, cohortName: string, no
     status: 'skipped',
     errorKind: null,
   });
-}
-
-interface ModuleRow {
-  status: string;
-  opens: number | null;
-  course: unknown;
-}
-
-function weeksOf(rows: readonly ModuleRow[]): WelcomeWeek[] {
-  return rows.map((m) => {
-    const course = m.course && typeof m.course === 'object' ? (m.course as { week?: number; liveBuild?: { sessionId?: string } | null; officeHours?: { sessionId?: string } | null }) : null;
-    return {
-      week: typeof course?.week === 'number' ? course.week : null,
-      opens: m.opens,
-      status: m.status,
-      liveSessionId: course?.liveBuild?.sessionId ?? null,
-      officeSessionId: course?.officeHours?.sessionId ?? null,
-    };
-  });
-}
-
-function sessionOf(s: { id: string; n: number; start: number; mins: number; kind: string | null }): WelcomeSession {
-  return { id: s.id, n: s.n, start: s.start, mins: s.mins, kind: s.kind };
 }

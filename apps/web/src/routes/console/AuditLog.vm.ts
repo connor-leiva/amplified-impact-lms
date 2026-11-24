@@ -131,6 +131,8 @@ const GROUP_LABELS: Record<string, string> = {
   submission: 'Submissions',
   // The cohort welcome's test send.
   welcome: 'Welcome Email',
+  // The Week 0 Is Open email's test send.
+  week0: 'Week 0 Email',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

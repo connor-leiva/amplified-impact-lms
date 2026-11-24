@@ -116,6 +116,7 @@ export const CONSOLE_PATHS = {
   opsEnv: INFRA_PATHS.env,
   flagFlip: INFRA_PATHS.flagFlip,
   welcomeTest: INFRA_PATHS.welcomeTest,
+  week0Test: INFRA_PATHS.week0Test,
   integrations: INFRA_PATHS.integrations,
   integrationCheck: INFRA_PATHS.integrationCheck,
   deploys: INFRA_PATHS.deploys,

@@ -83,7 +83,9 @@ const WELCOME_COPY = buildWelcomeCopy(
     officeHoursAt: Date.parse('2026-12-04T11:00:00-07:00'),
     weekOpenAt: Date.parse('2026-11-29T12:00:00-07:00'),
     weekOpenClock: '12:00',
+    weekOpenClockAt: Date.parse('2026-12-02T12:00:00-07:00'),
   },
+  { dueAt: Date.parse('2026-11-30T12:00:00-07:00'), title: 'Foundations', steps: 8, baselineTasks: 6 },
   'Pat',
   null,
 );
@@ -109,11 +111,12 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'learner-invite': { firstName: 'Pat', email: 'pat@example.test', token: 'tok_learner_1' },
   'learner-nudge': { firstName: 'Pat' },
   'cohort-welcome': { cohortName: 'December Cohort', copy: WELCOME_COPY },
+  'week0-open': { firstName: 'Pat', week0DueAt: Date.parse('2026-11-30T19:00:00Z'), liveBuildAt: Date.parse('2026-12-02T19:00:00Z'), liveBuildMins: 90 },
 };
 
 /** Connor's HTML documents (the $37 skill email's design, D-247): not § 8.1's React Email shell. */
 // D-250: the session reminders are the same document, as a note from Connor.
-const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h'];
+const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h', 'week0-open'];
 const branded = (name: TemplateName): boolean => BRANDED.includes(name);
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -133,6 +136,7 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'learner-invite': SUBJECTS['learner-invite']({}),
   'learner-nudge': SUBJECTS['learner-nudge']({}),
   'cohort-welcome': SUBJECTS['cohort-welcome']({ cohortName: 'December Cohort' }),
+  'week0-open': SUBJECTS['week0-open']({}),
 };
 
 /**
@@ -156,6 +160,7 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'learner-invite': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_learner_1` },
   'learner-nudge': { label: 'Sign In', href: `${APP}/sign-in` },
   'cohort-welcome': { label: 'Open The Academy', href: ACADEMY_URL },
+  'week0-open': { label: 'Start Week 0', href: `${APP}/learn/week/0` },
 };
 
 // ---------- helpers ----------------------------------------------------------------------------
@@ -228,9 +233,9 @@ const hrefOf = (html: string): string => /<a\b[^>]*\shref="([^"]*)"/.exec(html)?
 describe('email templates · § 8.1 subjects and CTAs @g8', () => {
   it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
     // § 8.1's table has nine rows and D-132 adds two, then the $37 skill email, D-247's two and the cohort
-    // welcome. If another name is ever added to `subjects.ts`, this fails here rather than silently rendering one
-    // email short in production.
-    expect(TEMPLATE_NAMES).toHaveLength(15);
+    // welcome, and the Week 0 Is Open email. If another name is ever added to `subjects.ts`, this fails here rather
+    // than silently rendering one email short in production.
+    expect(TEMPLATE_NAMES).toHaveLength(16);
     expect(Object.keys(SAMPLE).sort()).toEqual([...TEMPLATE_NAMES].sort());
   });
 
@@ -257,6 +262,15 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
         expect(html).toContain('>The Living Database</div>');
         expect(html).toContain(cardTime(S3_TIME));
         expect(html).toContain('<span style="font-weight:500;">Connor</span>');
+        expect(html).toContain(`>${CTA[name].label}</a>`);
+        expect(html).toContain(`href="${CTA[name].href}"`);
+        return;
+      }
+      // The Week 0 Is Open email is that document too, Connor's v2: the subject without its emoji in the <title>, the
+      // reader's name in the heading, and the button to Week 0.
+      if (name === 'week0-open') {
+        expect(html).toContain('<title>Welcome to the December Cohort: Week 0 Is Open</title>');
+        expect(html).toContain('Pat, We’re Officially Underway!');
         expect(html).toContain(`>${CTA[name].label}</a>`);
         expect(html).toContain(`href="${CTA[name].href}"`);
         return;
