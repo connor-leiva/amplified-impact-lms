@@ -19,6 +19,8 @@ import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { checkVisible, conditionMet, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
 import { pathFromAnswers } from '@ai/core/personalize';
+import { formButtonLabel } from '@ai/core/form-button';
+import type { FormId } from '@ai/core/form-button';
 import type { LearnerStep } from '@ai/core/learner';
 import { inLibrary } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
@@ -210,7 +212,8 @@ export type CheckActionVM =
   | { type: 'copy'; label: string; text: string }
   | { type: 'invite'; label: string; href: string }
   | { type: 'calendar'; event: IcsEvent | null }
-  | { type: 'link'; label: string; href: string }
+  /** D-242: `form` marks a Form button (the intake or the stack card), drawn with the form icon. */
+  | { type: 'link'; label: string; href: string; form?: FormId }
   /** D-230: Turn in. The step page draws its button (or an agent's line) for a viewer v3 draws for. */
   | { type: 'upload'; kind: 'live_read' | 'checkpoint' }
   /** D-236: the seat card form. The step page draws its button, which opens the drawer, for a viewer v3 draws for. */
@@ -434,9 +437,10 @@ function calloutVM(b: CalloutBlock): CalloutVM {
 function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckActionVM | null {
   if (!action || action.type === 'card') return null;
   if (action.type === 'form') {
-    if (action.formId === 'intake') return { type: 'link', label: action.label || 'Open the form', href: learnIntake() };
-    if (action.formId === 'seat-card') return { type: 'seatcard', label: action.label || 'Open the form' };
-    return { type: 'link', label: action.label || 'Open the form', href: learnStack() };
+    // D-242: a Form button says what it does (`formButtonLabel`); a label staff set wins.
+    const label = formButtonLabel(action);
+    if (action.formId === 'seat-card') return { type: 'seatcard', label };
+    return { type: 'link', label, href: action.formId === 'intake' ? learnIntake() : learnStack(), form: action.formId };
   }
   if (action.type === 'download') {
     const files = action.kitItemIds.flatMap((id) => {

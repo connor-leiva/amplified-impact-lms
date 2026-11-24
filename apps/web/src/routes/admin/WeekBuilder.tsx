@@ -19,6 +19,7 @@ import { titleWords } from '@ai/core/checklist';
 import { chapterText, parseChapters } from '@ai/core';
 import { isVideoUpload } from '@ai/core/course-types';
 import { fileSizeLabel, uploadAccept } from '@ai/core/uploads';
+import { FORM_BUTTON_LABEL, ownFormLabel } from '@ai/core/form-button';
 import { uploadFile } from '../../data/files';
 import { UPLOAD_COPY } from '../../data/upload';
 import { Button, ButtonLink } from '../../components/r2/Button';
@@ -481,7 +482,7 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
       : type === 'invite' ? { type: 'invite', label: 'Invite your AI Implementer' }
       : type === 'calendar' ? { type: 'calendar', sessionId: picks?.sessions[0]?.id ?? '' }
       : type === 'link' ? { type: 'link', label: 'Open', href: '' }
-      : type === 'form' ? { type: 'form', formId: 'intake', label: 'Open the form' }
+      : type === 'form' ? { type: 'form', formId: 'intake', label: '' }
       : type === 'card' ? { type: 'card', terms: [] }
       : type === 'upload' ? { type: 'upload', kind: 'live_read' }
       : undefined;
@@ -677,7 +678,8 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
               <option value="seat-card">Seat card</option>
             </Sel>
           </label>
-          <Line label={`Block ${n} button label`} value={block.action.label} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
+          {/* D-242: blank says what the form does (`FORM_BUTTON_LABEL`); the builder's old fill, "Open the form", counts as blank. */}
+          <Line label={`Block ${n} button label`} value={ownFormLabel(block.action.label)} hint={`Blank uses “${FORM_BUTTON_LABEL[block.action.formId]}”.`} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
           <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint={block.action.formId === 'seat-card' ? SEAT_CARD_ITEM_HINT : 'The checklist item a submit checks. Blank uses this item.'} onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
         </>
       ) : null}
