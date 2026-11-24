@@ -1,4 +1,6 @@
-// A skill bought on its own (Connor, 2026-11-23). The webhook is the only writer. A Checkout Session
+// A skill bought on its own (Connor, 2026-11-23). The webhook writes the purchase, and the guest
+// return after Stripe calls the same function so a buyer who beats the webhook is not left unsigned.
+// A Checkout Session
 // with `ai_plan=skill` and `ai_option=single` inserts one row. The same session delivered again does
 // nothing. A second payment for a skill the buyer already holds is recorded as already owned, so a
 // retried event cannot grant it twice. A payment after a refund reopens that row. A full refund sets
@@ -8,7 +10,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import type Stripe from 'stripe';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { guidePageOf } from '@ai/core/skill-guides';
-import { expiryFor, hashToken, mintToken } from '../auth';
+import { SET_PASSWORD_TTL_MS, expiryFor, hasPassword, hashToken, mintToken, userByEmail } from '../auth';
 import { accounts, authTokens, skillPurchases, skills, users } from '../db/schema';
 import type { Database } from '../db/client';
 import { audit } from '../console/audit';
@@ -261,6 +263,41 @@ async function auditSkill(skillId: string, sessionId: string): Promise<void> {
     actor: { source: 'system', role: 'stripe' },
     target: { type: 'skill', id: skillId, label: sessionId },
   });
+}
+
+export type GuestReturn = { action: 'enter'; userId: string; next: string } | { action: 'sign-in'; next: string };
+
+/**
+ * Where a paid guest goes after Stripe. A brand-new account has no password yet, so the return
+ * signs them in and opens the skill. An account that already has a password goes to sign-in; the
+ * webhook already sent that buyer the Sign In email. The same completion the webhook runs is called
+ * first, so arriving before the webhook still creates the account, and arriving after it does not
+ * send a second email.
+ */
+export async function guestSkillReturn(
+  session: Stripe.Checkout.Session,
+  db: Database,
+  now: number,
+  log: SkillPurchaseLog,
+  provision?: Pick<ProvisionOptions, 'invitesFrom' | 'invitesEnabled' | 'inviteNow'> & { skillGuestCheckout?: boolean },
+): Promise<GuestReturn> {
+  const meta = session.metadata ?? {};
+  const skillId = (meta.skill_id ?? '').trim() || customSkill(session) || '';
+  const next = skillId ? `/skill-library/${guidePageOf(skillId)}` : '/skill-library';
+  const signIn: GuestReturn = { action: 'sign-in', next };
+  if (meta.offer !== SKILL_GUEST_OFFER || (meta.user_id ?? '').trim()) return signIn;
+  if (session.payment_status !== 'paid' || !skillId || !session.id) return signIn;
+  const createdMs = typeof session.created === 'number' ? session.created * 1000 : now;
+  if (now - createdMs > SET_PASSWORD_TTL_MS || createdMs > now + 5 * 60 * 1000) return signIn;
+
+  await skillCheckoutCompleted(session, db, now, log, provision);
+
+  const email = (session.customer_details?.email ?? session.customer_email ?? '').trim().toLowerCase();
+  if (!email) return signIn;
+  const buyer = await userByEmail(db, email);
+  if (!buyer || buyer.kind !== 'learner') return signIn;
+  if (await hasPassword(db, buyer.id)) return signIn;
+  return { action: 'enter', userId: buyer.id, next };
 }
 
 /** `charge.refunded` for a skill purchase. Null when this charge is not one. */

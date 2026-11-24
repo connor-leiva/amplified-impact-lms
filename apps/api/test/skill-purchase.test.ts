@@ -5,6 +5,7 @@ import type Stripe from 'stripe';
 import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
+import { SESSION_COOKIE, storePassword } from '../src/auth';
 import { SKILL_PURCHASE } from '../src/billing/catalog';
 import { readOfferConfig } from '../src/billing/config';
 import type { BillingStripe } from '../src/billing/stripe';
@@ -25,11 +26,17 @@ let app: App;
 let db: Database;
 let savedAppUrl: string | undefined;
 const sessions: Parameters<BillingStripe['createCheckoutSession']>[0][] = [];
+const retrieved = new Map<string, Stripe.Checkout.Session>();
 
 const stripe = {
   async createCheckoutSession(input: Parameters<BillingStripe['createCheckoutSession']>[0]) {
     sessions.push(input);
     return { id: `cs_test_${sessions.length}`, url: `https://checkout.stripe.com/c/pay/cs_test_${sessions.length}` };
+  },
+  async retrieveCheckoutSession(id: string) {
+    const found = retrieved.get(id);
+    if (!found) throw new Error('missing-session');
+    return found;
   },
 } as unknown as BillingStripe;
 
@@ -49,6 +56,7 @@ afterAll(() => {
 async function boot(): Promise<void> {
   process.env.FIXED_NOW = new Date(NOW).toISOString();
   sessions.length = 0;
+  retrieved.clear();
   await resetDatabase(seedForDatabase('live'));
   await db.insert(skills).values([
     { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW - 10 * DAY, files: { claude: 'team-pnl-review.zip' } },
@@ -231,6 +239,7 @@ describe('the webhook and access', () => {
     });
     expect(sessions[0]!.metadata).not.toHaveProperty('user_id');
     expect(sessions[0]!.collectName).toBe(true);
+    expect(sessions[0]!.successUrl).toBe(`${APP_URL}/api/skills/guest-return?session_id={CHECKOUT_SESSION_ID}`);
   });
 
   it('stores a signed-out purchase by email, and sends nothing, while guest checkout is off', async () => {
@@ -301,6 +310,76 @@ describe('the webhook and access', () => {
     expect(result).toBe('ignored:skill-group');
     expect(await db.select().from(skillPurchases)).toEqual([]);
     expect(await db.select().from(users).where(eq(users.email, 'lines@liveutah.com'))).toEqual([]);
+  });
+
+  it('signs a new guest in on the way back from Stripe and leaves an existing password at sign-in', async () => {
+    await app.close();
+    const config = readOfferConfig();
+    config.skillPriceId = PRICE;
+    config.skillGuestCheckout = true;
+    app = await build({ logger: false, waitlist: true, offer: { config, stripe } });
+
+    const fresh = {
+      id: 'cs_test_freshguest1',
+      object: 'checkout.session',
+      payment_status: 'paid',
+      amount_total: 3700,
+      payment_intent: 'pi_fresh',
+      created: Math.floor(NOW / 1000),
+      customer_details: { email: 'New.Buyer@Example.com', name: 'New Buyer' },
+      metadata: { ai_plan: 'skill', ai_option: 'single', skill_id: 'team-pnl-review', offer: 'single_skill_37' },
+    } as unknown as Stripe.Checkout.Session;
+    retrieved.set(fresh.id, fresh);
+
+    const back = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${fresh.id}` });
+    expect(back.statusCode).toBe(302);
+    expect(back.headers.location).toBe('/skill-library/team-pnl-review');
+    const setCookie = back.headers['set-cookie'];
+    const cookie = (Array.isArray(setCookie) ? setCookie.join('\n') : (setCookie ?? '')).split('\n').find((line) => line.startsWith(`${SESSION_COOKIE}=`))?.split(';')[0];
+    expect(cookie).toBeTruthy();
+    const [buyer] = await db.select().from(users).where(eq(users.email, 'new.buyer@example.com'));
+    expect(buyer).toMatchObject({ kind: 'learner', status: 'invited' });
+    expect(await db.select().from(skillPurchases).where(eq(skillPurchases.userId, buyer!.id))).toHaveLength(1);
+    const [mail] = outboxFor({ to: 'new.buyer@example.com', template: 'skill-purchase' });
+    expect(mail?.html).toContain('Set Your Password');
+    const list = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie: cookie! } });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('open');
+
+    // The same return does not send the email again.
+    const again = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${fresh.id}` });
+    expect(again.statusCode).toBe(302);
+    expect(outboxFor({ to: 'new.buyer@example.com', template: 'skill-purchase' })).toHaveLength(1);
+
+    await storePassword(db, buyer!.id, 'a long enough password', NOW);
+    const owned = {
+      ...fresh,
+      id: 'cs_test_ownedguest1',
+      payment_intent: 'pi_owned',
+      metadata: { ...fresh.metadata, skill_id: 'appointment-follow-up' },
+    } as unknown as Stripe.Checkout.Session;
+    retrieved.set(owned.id, owned);
+    const existing = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${owned.id}` });
+    expect(existing.statusCode).toBe(302);
+    expect(existing.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library/appointment-follow-up')}`);
+    const existingCookie = existing.headers['set-cookie'];
+    expect(String(existingCookie ?? '')).not.toContain(`${SESSION_COOKIE}=`);
+    const [ready] = outboxFor({ to: 'new.buyer@example.com', template: 'skill-purchase' }).slice(-1);
+    expect(ready?.subject).toBe('Your New Skill Is Ready');
+    expect(ready?.html).toContain('>Sign In<');
+
+    retrieved.set('cs_test_unpaidguest', { ...fresh, id: 'cs_test_unpaidguest', payment_status: 'unpaid' } as unknown as Stripe.Checkout.Session);
+    const unpaid = await app.inject({ method: 'GET', url: '/api/skills/guest-return?session_id=cs_test_unpaidguest' });
+    expect(unpaid.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library/team-pnl-review')}`);
+
+    const stale = { ...fresh, id: 'cs_test_staleguests', created: Math.floor((NOW - 73 * 60 * 60 * 1000) / 1000) } as unknown as Stripe.Checkout.Session;
+    retrieved.set(stale.id, stale);
+    const old = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${stale.id}` });
+    expect(old.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library/team-pnl-review')}`);
+    expect(String(old.headers['set-cookie'] ?? '')).not.toContain(`${SESSION_COOKIE}=`);
+
+    const missing = await app.inject({ method: 'GET', url: '/api/skills/guest-return?session_id=cs_test_notreally1' });
+    expect(missing.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library')}`);
   });
 
   it('does not open a skill that is not released yet, even after payment', async () => {

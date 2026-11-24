@@ -14,10 +14,10 @@ import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { guidePageOf, skillIdOfPage } from '@ai/core/skill-guides';
 import { SKILL_AI_OPTION, SKILL_AI_PLAN, SKILL_PURCHASE } from '../billing/catalog';
-import { SKILL_GUEST_OFFER } from '../billing/skill-purchase';
+import { SKILL_GUEST_OFFER, guestSkillReturn } from '../billing/skill-purchase';
 import type { OfferConfig } from '../billing/config';
 import type { BillingStripe } from '../billing/stripe';
-import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
+import { SESSION_COOKIE, createSession, markActive, requireJsonSameOrigin, requireSession, sessionCookieOptions, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { skills, users } from '../db/schema';
 import { absolute } from '../email/templates/links';
@@ -28,6 +28,10 @@ import type { SkillRow } from './skills';
 export const SKILL_CHECKOUT_PATH = '/api/skills/:id/checkout';
 
 const GROUP = 'Skill checkout is not part of team access.';
+const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
+
+/** Stripe's success address for a signed-out $37 checkout. The return signs a new account in. */
+export const GUEST_RETURN_PATH = '/api/skills/guest-return';
 const UNAVAILABLE = 'Skill checkout is not available right now.';
 const NOT_FOR_SALE = 'This skill is not for sale.';
 const ALREADY = 'You already have this skill.';
@@ -38,6 +42,37 @@ export interface SkillCheckoutOptions {
 }
 
 export function registerSkillCheckoutRoutes(app: FastifyInstance, options: SkillCheckoutOptions): void {
+  // After Stripe. A new guest account is signed in and sent to the skill. An account that already
+  // has a password is sent to sign-in. No cookie is trusted from the query: the session is read
+  // back from Stripe, and it has to be a paid guest skill purchase.
+  app.get(GUEST_RETURN_PATH, async (req, reply): Promise<FastifyReply> => {
+    reply.header('cache-control', 'private, no-store');
+    const raw = new URL(req.url, 'https://learn.local').searchParams.get('session_id') ?? '';
+    const refuse = (next = '/skill-library') => reply.redirect(`/sign-in?next=${encodeURIComponent(next)}`, 302);
+    if (!SESSION_ID.test(raw) || !options.stripe) return refuse();
+    let checkout;
+    try {
+      checkout = await options.stripe.retrieveCheckoutSession(raw);
+    } catch (err) {
+      req.log.warn({ err: err instanceof Error ? err.name : 'error' }, 'guest return could not read the checkout');
+      return refuse();
+    }
+    const db = getDb();
+    const now = clock.now();
+    const back = await guestSkillReturn(checkout, db, now, req.log, {
+      invitesFrom: options.config.invitesFrom,
+      invitesEnabled: options.config.invitesEnabled,
+      skillGuestCheckout: options.config.skillGuestCheckout,
+    });
+    if (back.action === 'enter') {
+      const sessionId = await createSession(db, back.userId, now);
+      await markActive(db, back.userId, now);
+      reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions());
+      return reply.redirect(back.next, 302);
+    }
+    return refuse(back.next);
+  });
+
   // Signed-out buyers. Off, this is the stopgap Payment Link. On, Stripe collects the email and the
   // webhook creates the account. No session, so a marketing page can link here.
   app.get<{ Params: { id: string } }>('/api/skills/:id/guest-checkout', async (req, reply): Promise<FastifyReply> => {
@@ -55,7 +90,7 @@ export function registerSkillCheckoutRoutes(app: FastifyInstance, options: Skill
     let cancelUrl: string;
     try {
       const page = guidePageOf(skill.id);
-      successUrl = absolute(`/skill-library/${page}?session_id={CHECKOUT_SESSION_ID}`);
+      successUrl = absolute(`${GUEST_RETURN_PATH}?session_id={CHECKOUT_SESSION_ID}`);
       cancelUrl = absolute(`/skill-library/${page}`);
     } catch {
       return reply.redirect(SKILL_PURCHASE.stopgapHref, 302);

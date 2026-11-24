@@ -92,6 +92,8 @@ export interface BillingStripe {
     /** Ask Checkout for the buyer's name. Guest skill checkout turns this on. */
     collectName?: boolean;
   }): Promise<{ id: string; url: string }>;
+  /** The Checkout Session Stripe stored, for the guest return after payment. */
+  retrieveCheckoutSession(id: string): Promise<Stripe.Checkout.Session>;
 }
 
 const idOf = (value: string | { id: string } | null | undefined): string | null =>
@@ -220,6 +222,10 @@ export function stripeClient(secretKey: string): BillingStripe {
       );
       if (!session.url) throw Object.assign(new Error('checkout session has no url'), { code: 'no-checkout-url' });
       return { id: session.id, url: session.url };
+    },
+
+    retrieveCheckoutSession(id) {
+      return stripe.checkout.sessions.retrieve(id);
     },
   };
 }
