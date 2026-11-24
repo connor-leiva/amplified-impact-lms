@@ -130,7 +130,7 @@ import { NO_KEYS, dueWork } from './due';
 import type { Send, ZoneLookup } from './due';
 import { jobOf } from './keys';
 import type { JobName } from './keys';
-import { acceleratorLearnerIds } from '../lib/course-access';
+import { acceleratorRoster } from '../lib/course-access';
 import { sweepMasquerades } from '../console/masquerade';
 import { SCHEDULER_TICK_JOB, recordTick } from './ticks';
 import { pruneEmailAndUsage } from './prune-logs';
@@ -453,8 +453,9 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
 
     const snapshot = await loadDb(tx);
     const zones = await savedZones(tx);
-    // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110).
-    const accelerator = await acceleratorLearnerIds(tx, now);
+    // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110), read at each
+    // session's start for a reminder before it (H-14, D-248), so the first live build's reminders go out.
+    const accelerator = await acceleratorRoster(tx);
 
     // `due.ts`'s header's own wrapper, in its own order: a candidate pass with `NO_KEYS` to learn
     // which keys to ask the ledger about, then the real pass with the answer. Calling `dueWork`

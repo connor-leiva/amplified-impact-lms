@@ -11,8 +11,8 @@
 // and `GET /api/course`.
 
 import { eq, inArray } from 'drizzle-orm';
-import { ACCELERATOR_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming } from '@ai/core/accelerator';
-import type { AcceleratorPlan } from '@ai/core/accelerator';
+import { ACCELERATOR_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming, courseRoster } from '@ai/core/accelerator';
+import type { AcceleratorPlan, CourseRoster } from '@ai/core/accelerator';
 import { courseEntry, courseUpcoming, liveCoursePlan } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
 import type { Cohort, ViewerAccess } from '@ai/core';
@@ -50,29 +50,31 @@ export async function acceleratorAccess(db: Reader, userId: string, now: number)
 }
 
 /**
- * Every learner whose account's plans open the course right now, for the scheduler (D-110): the AI
- * Accelerator's reminders go to them only. Three reads, not one per learner, because the scheduler
- * asks about everyone at once.
+ * Who is in the course at a given instant, for the scheduler (D-110): the AI Accelerator's session emails go to them
+ * only. H-14 (D-248): asked at the session (its start, for a reminder about one that hasn't begun), not at the tick, so
+ * the reminders before the first live build reach the buyers whose course opens with it. Three reads, not one per
+ * learner, because the scheduler asks about everyone at once.
  */
-export async function acceleratorLearnerIds(db: Reader, now: number): Promise<Set<string>> {
+export async function acceleratorRoster(db: Reader): Promise<CourseRoster> {
   const accts = await db.select({ id: accounts.id, teamId: accounts.teamId }).from(accounts);
-  if (!accts.length) return new Set();
-  const rows = await db
-    .select({ accountId: plans.accountId, kind: plans.kind, option: plans.option, status: plans.status, startsAt: plans.startsAt })
-    .from(plans);
-  const teams = new Set(
-    accts
-      .filter((a) =>
-        acceleratorOpen(
-          rows.filter((p) => p.accountId === a.id).map((p) => ({ ...p, startsAt: p.startsAt === null ? null : Number(p.startsAt) })),
-          now,
-        ),
-      )
-      .map((a) => a.teamId),
-  );
-  if (!teams.size) return new Set();
-  const learners = await db.select({ id: users.id, teamId: users.teamId }).from(users).where(eq(users.kind, 'learner'));
-  return new Set(learners.filter((u) => u.teamId !== null && teams.has(u.teamId)).map((u) => u.id));
+  const rows = accts.length
+    ? await db.select({ accountId: plans.accountId, kind: plans.kind, option: plans.option, status: plans.status, startsAt: plans.startsAt }).from(plans)
+    : [];
+  const byTeam = new Map<string, AcceleratorPlan[]>();
+  for (const a of accts) {
+    const list = byTeam.get(a.teamId) ?? [];
+    for (const p of rows) if (p.accountId === a.id) list.push({ kind: p.kind, option: p.option, status: p.status, startsAt: p.startsAt === null ? null : Number(p.startsAt) });
+    byTeam.set(a.teamId, list);
+  }
+  const learners = byTeam.size ? await db.select({ id: users.id, teamId: users.teamId }).from(users).where(eq(users.kind, 'learner')) : [];
+  return courseRoster(byTeam, new Map(learners.map((u) => [u.id, u.teamId])));
+}
+
+/** Every learner whose account's plans open the course at `now`: the roster, read at one instant. */
+export async function acceleratorLearnerIds(db: Reader, now: number): Promise<Set<string>> {
+  const roster = await acceleratorRoster(db);
+  const learners = await db.select({ id: users.id }).from(users).where(eq(users.kind, 'learner'));
+  return new Set(learners.filter((u) => roster.has(u.id, now)).map((u) => u.id));
 }
 
 // --- D-175: the course's release plan, from data -------------------------------------------------

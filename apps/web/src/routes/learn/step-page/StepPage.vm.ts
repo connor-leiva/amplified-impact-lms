@@ -122,11 +122,12 @@ export interface V6Handlers {
   onViewPrompt: () => void;
   nodes?: V6Nodes;
   /**
-   * D-230: Turn in, for a viewer v3 draws for (absent: an upload action draws nothing). `agent` is the line a teammate
-   * who can't turn in sees in the button's place (B-26); else the button reads `labelOf(kind)` and opens the drawer.
+   * D-230: Turn in, for every learner since H-15 (D-248), v3 or not (absent, in the builder's preview or a staff
+   * preview: an upload action draws nothing). `agent` is the line a teammate who can't turn in sees in the button's
+   * place (B-26); else the button reads `labelOf(kind)` and opens the drawer.
    */
   turnIn?: { agent: string | null; labelOf: (kind: 'live_read' | 'checkpoint') => string; open: (kind: 'live_read' | 'checkpoint') => void };
-  /** D-236: the seat card form, for a viewer v3 draws for (absent: its Form button draws nothing). */
+  /** D-236: the seat card form, for every learner since H-15 (D-248) (absent: its Form button draws nothing). */
   seatCard?: { open: () => void };
   /**
    * D-245: the intake's kit files (their kit ids), for a viewer v3 draws for. A click on one opens the intake's drawer

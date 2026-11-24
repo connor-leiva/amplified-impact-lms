@@ -38,9 +38,17 @@ export const hasOfficeHoursSeries = (sessions: readonly Session[], cohortId: str
 export const sessionFor = (db: Db, cohortId: string, n: number): Session | null =>
   db.sessions.find((s) => s.cohortId === cohortId && s.n === n) || null;
 
-/** An office hour belongs to its week's AI Employee; a build to the one whose `session` is its `n`. */
-export const moduleForSession = (db: Pick<Db, 'modules'>, s: Pick<Session, 'id' | 'n'>): AIEmployee | null =>
-  db.modules.find((m) => m.session === sessionWeek(s) && m.status !== 'draft') || null;
+/**
+ * The AI Employee a session belongs to. H-13 (D-248): the week the builder gave it (`moduleId`, D-173) comes first,
+ * so a session added in the builder, whose `n` is the cohort's next number, belongs to its week; a draft is no
+ * one's, as before. Without one (every session the reference seeds, and a `moduleId` naming nothing): an office
+ * hour belongs to its week's AI Employee, a build to the one whose `session` is its `n`.
+ */
+export const moduleForSession = (db: Pick<Db, 'modules'>, s: Pick<Session, 'id' | 'n'> & Partial<Pick<Session, 'moduleId'>>): AIEmployee | null => {
+  const named = s.moduleId ? db.modules.find((m) => m.id === s.moduleId) : undefined;
+  if (named) return named.status !== 'draft' ? named : null;
+  return db.modules.find((m) => m.session === sessionWeek(s) && m.status !== 'draft') || null;
+};
 
 export const sessionEnd = (s: Pick<Session, 'start' | 'mins'>): number => s.start + s.mins * 60000;
 

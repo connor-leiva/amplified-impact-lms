@@ -70,3 +70,93 @@
   color: var(--r2-for);
   font-weight: 600;
 }
+
+/* H-10, H-11 (D-248). A question not required says "Optional" (the v3 drawer's marker, D-229); a required answer a
+   submit found missing firms its border to ink and says what it needs under it, with a dot (never colour alone). */
+.opt {
+  margin-left: 4px;
+  font-size: var(--fs-13);
+  font-weight: 400;
+  color: var(--r2-f2);
+}
+.field[data-state='error'] > input,
+.field[data-state='error'] > textarea {
+  border-color: var(--r2-ink);
+  box-shadow: 0 0 0 1px var(--r2-ink);
+}
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-13);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--r2-ink);
+}
+.msg::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--r2-ink);
+}
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gaps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--r2-t);
+  line-height: var(--r2-tl);
+}
+.gaps a {
+  color: var(--r2-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+/* Every question, disabled until the answers load. No box of its own. */
+.lock {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* Until the answers load, the fields read as shut: the page's ground behind them, a dashed edge. */
+.lock:disabled .field > input,
+.lock:disabled .field > textarea {
+  background: var(--r2-sub);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+/* Audit M-3 (D-248): on a phone the page runs edge to edge, so everything outside the question cards (Back, the title,
+   the intro, the saved line, the messages, Submit) takes the page's side gutter, as the cards' own text has. The cards
+   keep their width: their group steps back out by the same gutter. */
+@media (max-width: 767px) {
+  .page {
+    padding-inline: var(--r2-pad);
+  }
+  .lock {
+    margin-inline: calc(var(--r2-pad) * -1);
+  }
+}

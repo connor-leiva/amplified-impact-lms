@@ -1,6 +1,7 @@
 // D-229 (B-15): a step's form action opens the intake's drawer in place, on the step page. Loaded on the first open
 // only, with the package's stylesheets, so the step page draws exactly as it does until then. The step's own button
-// is the step page's and doesn't change; this module only answers its click.
+// is the step page's and doesn't change; this module only answers its click. H-10 (D-248): locked until the answers
+// load, and after a teammate's clash (`useIntakeForm`).
 import './lms.tokens.css';
 import './lms.css';
 import { createPortal } from 'react-dom';
@@ -21,13 +22,13 @@ export default function StepIntake({
   open: boolean;
   onClose: () => void;
 }) {
-  const form = useIntakeForm(intake, now);
+  const form = useIntakeForm(intake, now, open);
   return form
     ? createPortal(
         <div style={NO_TAP}>
           {/* The drawer's icons are the v3 sprite's, which the step page doesn't draw. */}
           <IconSprite />
-          <FormDrawer f={form} open={open} onClose={onClose} />
+          <FormDrawer f={form} open={open} onClose={onClose} locked={form.locked} />
         </div>,
         document.body,
       )

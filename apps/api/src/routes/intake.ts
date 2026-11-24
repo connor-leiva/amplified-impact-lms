@@ -3,8 +3,8 @@
 // nothing is sent to GHL, Stripe or anywhere else.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { and, eq } from 'drizzle-orm';
-import { cleanIntakeAnswers, currentIntakeAnswers, intakeCheckTarget, intakeMissing, mayEditIntake } from '@ai/core/intake';
+import { and, eq, sql } from 'drizzle-orm';
+import { INTAKE_CONFLICT, INTAKE_OUT_OF_DATE, currentIntakeAnswers, intakeCheckTarget, intakeMissing, mayEditIntake, mergeIntakeEdit } from '@ai/core/intake';
 import type { IntakeAnswers } from '@ai/core/intake';
 import { requireSession, viewerOrThrow } from '../auth';
 import { audit } from '../console/audit';
@@ -122,26 +122,41 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the AI Implementer.' });
     const form = await formOf();
     if (!form) return reply.code(404).send({ error: 'This week has no intake.' });
-    const body = (req.body ?? {}) as { answers?: unknown; submit?: boolean };
-    const answers: IntakeAnswers = cleanIntakeAnswers(form, body.answers);
-    // B-16 (D-229): a submit with a required answer missing is refused, whatever the browser checked; a save isn't.
-    if (body.submit) {
-      const missing = intakeMissing(form, answers);
-      if (missing.length) return reply.code(422).send({ error: 'Some required answers are missing.', missing });
+    const body = (req.body ?? {}) as { changes?: unknown; base?: unknown; submit?: boolean };
+    // H-10 (D-248): only the answers this browser changed, each with the answer it last read. A page from before
+    // this change sends the whole form, which would erase a teammate's answers: it is refused, and asked to reload.
+    if (!body.changes || typeof body.changes !== 'object' || Array.isArray(body.changes)) {
+      return reply.code(409).send({ error: INTAKE_OUT_OF_DATE, conflicts: [] });
     }
     const now = clock.now();
-    const [prev] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
-    const submittedAt = body.submit ? now : (prev?.submittedAt ?? null);
-    // D-229 (B-20): a submit, and any save after one, queues the answers for GHL after a minute's quiet
-    // (jobs/ghl-intake.ts). A draft never leaves the portal.
-    const sync = submittedAt !== null ? { ghlSyncStatus: 'pending', ghlNextAt: now + INTAKE_QUIET_MS, ghlAttempts: 0, ghlError: null } : {};
-    await getDb()
-      .insert(teamIntake)
-      .values({ teamId: me.teamId, answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync })
-      .onConflictDoUpdate({
-        target: teamIntake.teamId,
-        set: { answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync },
-      });
+    // Read, merge and write under the team's own lock, so two saves landing together can't both merge into the same
+    // stored answers and the second erase the first's.
+    const out = await getDb().transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('team_intake'), hashtext(${me.teamId}))`);
+      const [prev] = await tx.select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
+      const merged = mergeIntakeEdit(form, prev?.answers ?? {}, body.changes, body.base);
+      if (merged.conflicts.length) return { code: 409 as const, body: { error: INTAKE_CONFLICT, conflicts: merged.conflicts } };
+      const answers: IntakeAnswers = merged.answers;
+      // B-16 (D-229): a submit with a required answer missing is refused, whatever the browser checked; a save isn't.
+      if (body.submit) {
+        const missing = intakeMissing(form, answers);
+        if (missing.length) return { code: 422 as const, body: { error: 'Some required answers are missing.', missing } };
+      }
+      const submittedAt = body.submit ? now : (prev?.submittedAt ?? null);
+      // D-229 (B-20): a submit, and any save after one, queues the answers for GHL after a minute's quiet
+      // (jobs/ghl-intake.ts). A draft never leaves the portal.
+      const sync = submittedAt !== null ? { ghlSyncStatus: 'pending', ghlNextAt: now + INTAKE_QUIET_MS, ghlAttempts: 0, ghlError: null } : {};
+      await tx
+        .insert(teamIntake)
+        .values({ teamId: me.teamId, answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync })
+        .onConflictDoUpdate({
+          target: teamIntake.teamId,
+          set: { answers, updatedAt: now, updatedBy: me.id, submittedAt, ...sync },
+        });
+      return { code: 200 as const, body: { answers, updatedAt: now, submittedAt } };
+    });
+    if (out.code !== 200) return reply.code(out.code).send(out.body);
+    const { answers, submittedAt } = out.body;
     if (body.submit) {
       const db = await loadDb(getDb());
       const target = intakeCheckTarget(db.modules.find((m) => m.id === 'accelerator-week-0'));

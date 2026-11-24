@@ -109,9 +109,15 @@ describe('an intake answer saved in the old words (D-243)', () => {
     const read = await app.inject({ method: 'GET', url: '/api/console/workspaces/team-a/intake', headers: { cookie: staff } });
     expect(read.json().answers).toMatchObject({ account: NEW_ACCOUNT });
 
-    // The browser sends back what it was given, or the old words it held: either way the answer is kept.
-    const put = await app.inject({ method: 'PUT', url: '/api/intake', headers: { cookie: a, 'content-type': 'application/json' }, payload: { answers: { account: OLD_ACCOUNT, name: 'Dana' } } });
+    // A save sends only what changed, each with the answer it was (H-10, D-248). Another question's edit keeps the
+    // account answer, as today's option.
+    const json = { cookie: a, 'content-type': 'application/json' };
+    const put = await app.inject({ method: 'PUT', url: '/api/intake', headers: json, payload: { changes: { name: 'Dana Lee' }, base: { name: 'Dana' } } });
     expect(put.statusCode).toBe(200);
-    expect(put.json().answers).toEqual({ account: NEW_ACCOUNT, name: 'Dana' });
+    expect(put.json().answers).toEqual({ account: NEW_ACCOUNT, name: 'Dana Lee' });
+    // A browser that held the old words, as the answer it read or the one it sends, is no clash: the answer is kept.
+    const held = await app.inject({ method: 'PUT', url: '/api/intake', headers: json, payload: { changes: { account: OLD_ACCOUNT }, base: { account: OLD_ACCOUNT } } });
+    expect(held.statusCode).toBe(200);
+    expect(held.json().answers).toEqual({ account: NEW_ACCOUNT, name: 'Dana Lee' });
   });
 });

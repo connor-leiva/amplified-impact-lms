@@ -99,7 +99,7 @@ describe('the v6 step page’s props (D-210)', () => {
     expect(agent.items[0]!.action).toEqual({ type: 'line', text: 'Your team’s owner or operator turns this in.' });
   });
 
-  it('D-236: the seat card’s Form button opens its drawer for a viewer v3 draws for, and draws nothing without v3', () => {
+  it('D-236: the seat card’s Form button opens its drawer, and draws nothing without the handler (a builder or staff preview)', () => {
     const { p, rows } = mockupState();
     const vm = stepVM(p, rows[0], 2, learner, PRELAUNCH_NOW) as StepVM;
     const layout = vm.layouts!.claude!;
