@@ -134,7 +134,7 @@
   cursor: pointer;
   border-radius: 4px;
 }
-/* D-246: the Status menu waits while a save is on its way, drawn as the R2 button's own disabled state. */
+/* D-247: the Status menu waits while a save is on its way, drawn as the R2 button's own disabled state. */
 .plain:disabled {
   opacity: 0.45;
   cursor: not-allowed;

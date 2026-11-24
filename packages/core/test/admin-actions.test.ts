@@ -119,7 +119,7 @@ describe('Module Builder: the draft’s step helpers', () => {
     expect(removeStep(list, 9)).toEqual(list);
   });
 
-  it('a save keeps each kept step’s id, numbers a new one past them, and counts the changes (D-246)', () => {
+  it('a save keeps each kept step’s id, numbers a new one past them, and counts the changes (D-247)', () => {
     const draft = [step('c3'), step('c1'), step('new-1'), step('c1')];
     // c3 and c1 keep their ids; the new step and the repeat get c4 and c5.
     expect(savedStepIds(list, draft)).toEqual(['c3', 'c1', 'c4', 'c5']);
@@ -147,7 +147,7 @@ describe('Module Builder › Save (saveBuilderModule)', () => {
     const out = saveBuilderModule(db, OWNER, { draft }, mkCtx());
     expect(out.error).toBeUndefined();
     const saved = out.db.modules.find((x) => x.id === 'sales')!;
-    // D-246: kept steps keep their ids; the duplicate and the new step are numbered past them.
+    // D-247: kept steps keep their ids; the duplicate and the new step are numbered past them.
     expect(saved.checklist.map((s) => s.id)).toEqual(['c1', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']);
     expect(saved.checklist.map((s) => s.text)).toEqual([
       sales.checklist[0]!.text,

@@ -29,7 +29,7 @@ vi.mock('../../data/hooks', () => ({
   useViewer: () => state.viewer,
   useNow: () => state.now,
   useMutate: () => mutate,
-  // D-246: the Team Hub's Resend Invite (and the screens' refusal helper).
+  // D-247: the Team Hub's Resend Invite (and the screens' refusal helper).
   useEmailLearner: () => mutate,
   refusal: (r: { failed?: true; error?: string }) => (r.failed ? undefined : r.error),
 }));

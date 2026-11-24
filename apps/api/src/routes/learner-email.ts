@@ -1,4 +1,4 @@
-// D-246 (H-9): Resend Invite and Send Nudge, sending a real email (they used to only show a toast).
+// D-247 (H-9): Resend Invite and Send Nudge, sending a real email (they used to only show a toast).
 //
 //   POST /api/learners/:userId/resend-invite   a fresh set-password link (72 hours) for a learner who
 //                                               hasn't joined. Staff with View learners (Learners & Teams),

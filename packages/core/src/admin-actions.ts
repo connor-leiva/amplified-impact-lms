@@ -54,7 +54,7 @@ export interface AdminStorageWrite {
 export interface AdminOutcome extends Outcome {
   audit?: AdminAudit;
   storage?: AdminStorageWrite;
-  /** D-246: set by `saveBuilderModule`: the saved module's new version and step ids, for the builder. */
+  /** D-247: set by `saveBuilderModule`: the saved module's new version and step ids, for the builder. */
   saved?: SavedModuleRef;
 }
 
@@ -112,7 +112,7 @@ export function duplicateModule(db: Db, a: Actor, args: { id: string }, c: Ctx):
 // `saveModule` (unchanged: its checks and its toast), then the step ids kept stable, then ONE
 // `module.save` audit row with the step changes.
 //
-// D-246 (H-5): a step's id no longer moves. `saveModule` (the reference's) still numbers the steps
+// D-247 (H-5): a step's id no longer moves. `saveModule` (the reference's) still numbers the steps
 // `c1…cN`, and `saveBuilderModule` then gives every kept step back the id it had, so a learner's
 // checks (`checklist_state`), their checked steps (`progress.steps`), their remembered accordions
 // (`acc:<module>:<step>:<n>`) and a kit item's `stepId` stay on the step they were made on through a
@@ -151,7 +151,7 @@ const stepNumber = (id: string): number => {
 };
 
 /**
- * D-246: every step id this module's records still name: the stored steps, the draft's, and every id a
+ * D-247: every step id this module's records still name: the stored steps, the draft's, and every id a
  * learner's checked steps, checks or remembered accordions, or a kit item attached to it, carries. A
  * new step's id is past all of them.
  */
@@ -174,7 +174,7 @@ export function usedStepIds(db: Db, moduleId: string, ...lists: readonly (readon
 }
 
 /**
- * D-246: the id each draft step is saved with, in order. A kept step (the first draft step with a stored
+ * D-247: the id each draft step is saved with, in order. A kept step (the first draft step with a stored
  * id) keeps that id; any other (added, duplicated, a repeat) gets `c{n}`, past every id in `used`.
  * A new module has no stored steps, so it is numbered `c1…cN`, as `saveModule` numbers it.
  */
@@ -219,13 +219,13 @@ const moduleSummary = (m: AIEmployee) => ({
 const moduleNoun = (m: Pick<AIEmployee, 'kind'>): string => (m.kind === 'week' ? 'week' : 'AI Employee');
 
 /**
- * D-246 (H-6): what a stale save says. The draft stays on screen, so nothing typed is lost.
+ * D-247 (H-6): what a stale save says. The draft stays on screen, so nothing typed is lost.
  */
 export const staleSaveMessage = (m: Pick<AIEmployee, 'kind'>): string =>
   `Someone changed this ${moduleNoun(m)} since you opened it. Copy your changes, reload the page, and save again.`;
 
 /**
- * D-246 (H-8): what a save says to someone without the Publish modules permission. Saving a module that
+ * D-247 (H-8): what a save says to someone without the Publish modules permission. Saving a module that
  * is Published or Scheduled (or publishing one) needs it; the roles that lack it are not changed here.
  */
 export const publishNeededMessage = (m: Pick<AIEmployee, 'kind'>, status?: ModuleStatus): string =>
@@ -237,7 +237,7 @@ export const publishNeededMessage = (m: Pick<AIEmployee, 'kind'>, status?: Modul
 export const savePublishes = (draft: Pick<AIEmployee, 'status'>, status?: ModuleStatus): boolean =>
   status === 'published' || (status === undefined && draft.status !== 'draft');
 
-/** D-246: what the builder needs back from a save: the module, its new version, and its step ids in order. */
+/** D-247: what the builder needs back from a save: the module, its new version, and its step ids in order. */
 export interface SavedModuleRef {
   id: string;
   version: string;
@@ -245,10 +245,10 @@ export interface SavedModuleRef {
 }
 
 /**
- * The Module Builder's Save (and its Status menu): `saveModule`, then the step ids kept stable (D-246),
+ * The Module Builder's Save (and its Status menu): `saveModule`, then the step ids kept stable (D-247),
  * then one `module.save` audit row.
  *
- * `base` (D-246, H-6) is the version of the module the draft was opened from (`moduleVersion`), or null
+ * `base` (D-247, H-6) is the version of the module the draft was opened from (`moduleVersion`), or null
  * for a module that did not exist. When it is given and the stored module is no longer that version,
  * nothing is written and it throws `MutationError('conflict')`. So a repeated request, a second tab or a
  * second editor can't apply a save over a newer one. The API requires it; a caller that omits it is not
@@ -286,7 +286,7 @@ export function saveBuilderModule(
     requirePerm(db, a, 'curriculum');
     return { db, error: [...issues.map(issueLine), ...videos, ...checks].join('\n') };
   }
-  // D-246 (H-8): `saveModule` refuses a save that publishes without the Publish modules permission with
+  // D-247 (H-8): `saveModule` refuses a save that publishes without the Publish modules permission with
   // the generic "You don't have permission"; this says which permission, and who has it.
   if (savePublishes(args.draft, args.status) && !can(db, a, 'publish')) {
     requirePerm(db, a, 'curriculum');

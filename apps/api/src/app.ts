@@ -747,7 +747,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerMutateRoute(app, { broadcast });
     // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.
     registerAdminActionsRoute(app, { broadcast });
-    // D-246 (H-9): Resend Invite and Send Nudge, with a real email.
+    // D-247 (H-9): Resend Invite and Send Nudge, with a real email.
     registerLearnerEmailRoutes(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

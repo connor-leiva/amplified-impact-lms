@@ -80,7 +80,7 @@ function withGlossary(vm: StepVM, page: ReactNode) {
 
 function Player({ vm, more, local }: { vm: StepVM; more: StepMore; local?: { toggle: (itemId: string) => void; watch: VideoWatch['onSave'] } }) {
   useTabTitle(more.title);
-  // D-246: the step page shows its own failures in place (a check that didn't save), so a failed request
+  // D-247: the step page shows its own failures in place (a check that didn't save), so a failed request
   // comes back here as before, not as the hooks' error toast.
   const mutate = useMutate({ rethrow: true });
   const [picked, setPicked] = useState<Platform | null>(null);

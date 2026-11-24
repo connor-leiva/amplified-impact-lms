@@ -101,13 +101,13 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     expect(res.statusCode).toBe(200);
     const after = await loadDb();
     const saved = after.modules.find((m) => m.id === 'sales')!;
-    // D-246: the saved module's version and its step ids come back, for the builder.
+    // D-247: the saved module's version and its step ids come back, for the builder.
     expect(JSON.parse(res.body)).toEqual({
       toast: { msg: 'Sales AI Employee saved', tone: 'success' },
       saved: { id: 'sales', version: moduleVersion(saved), stepIds: ['c1', 'c3', 'c4', 'c5', 'c6', 'c7'] },
     });
     expect(saved.checklist).toHaveLength(6);
-    // D-246: kept steps keep their ids; the new step is numbered past them.
+    // D-247: kept steps keep their ids; the new step is numbered past them.
     expect(saved.checklist[5]).toMatchObject({ id: 'c7', text: 'New step', mins: 5, kind: 'Build' });
     expect(after.users.find((u) => u.id === 'u_jamie')!.progress.sales!.steps).toEqual(['c1', 'c3']);
     const rows = await auditRows();

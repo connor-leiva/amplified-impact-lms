@@ -131,12 +131,12 @@ describe('email subjects @g8', () => {
     // asserted at runtime too because the typecheck is what a hurried `// @ts-expect-error` can
     // silence, and because this is the list the deferred /api/test/outbox route will trust.
     expect(Object.keys(SUBJECTS).sort()).toEqual([...TEMPLATE_NAMES].sort());
-    // § 8.1's nine, then D-132's two password links, the $37 skill email, and D-246's two learner emails.
+    // § 8.1's nine, then D-132's two password links, the $37 skill email, and D-247's two learner emails.
     expect(TEMPLATE_NAMES).toHaveLength(14);
     expect(new Set(TEMPLATE_NAMES).size).toBe(14);
   });
 
-  it('names D-246’s two learner emails: the invite as the set-password email, the nudge plainly', () => {
+  it('names D-247’s two learner emails: the invite as the set-password email, the nudge plainly', () => {
     expect(SUBJECTS['learner-invite']({})).toBe('Set your Amplified Impact password');
     expect(SUBJECTS['learner-nudge']({})).toBe('Pick up where you left off');
   });

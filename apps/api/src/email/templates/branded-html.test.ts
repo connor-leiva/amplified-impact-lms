@@ -1,4 +1,4 @@
-// D-246 (H-9): the $37 skill email's design as shared parts. The purchase email must render exactly as
+// D-247 (H-9): the $37 skill email's design as shared parts. The purchase email must render exactly as
 // it did before the parts were cut from it, and Resend Invite's and Send Nudge's emails must be the same
 // document: the same head, the dark band and wordmark, the card, the button and the footer.
 import { createHash } from 'node:crypto';

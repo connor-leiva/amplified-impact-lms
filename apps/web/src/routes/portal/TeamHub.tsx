@@ -88,7 +88,7 @@ function TeamHub() {
     [mutate, toast],
   );
 
-  // D-246 (H-9): Resend Invite sends the invitee a fresh set-password link (the same email staff send from
+  // D-247 (H-9): Resend Invite sends the invitee a fresh set-password link (the same email staff send from
   // Learners & Teams). The server's toast says whether it went.
   const [resending, setResending] = useState(false);
   const resend = useCallback(

@@ -1,4 +1,4 @@
-// D-246: the API's modules load under Node's own ESM loader, in `server.ts`'s order. vitest's loader
+// D-247: the API's modules load under Node's own ESM loader, in `server.ts`'s order. vitest's loader
 // resolves an import cycle that Node's does not: a static import of `jobs/scheduler.ts` from
 // `email/announce-now.ts` (reached from `routes/mutate.ts`) passed every suite and stopped the server
 // booting ("Cannot access 'TICK_MS' before initialization" in `jobs/schedules.ts`). This loads the graph

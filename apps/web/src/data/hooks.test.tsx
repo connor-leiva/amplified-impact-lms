@@ -1,4 +1,4 @@
-// D-246 (H-7): `useMutate`, `useAct` and `useEmailLearner` catch a failed request (a 403, 409, 429, 500 or
+// D-247 (H-7): `useMutate`, `useAct` and `useEmailLearner` catch a failed request (a 403, 409, 429, 500 or
 // no network) and show the server's words as an error toast, answering `{ error, failed: true }` so a
 // caller stops where it would stop for an inline error. A learner step page that shows its own failure
 // asks for the old contract (`rethrow`). And the http repository's errors carry the server's words.

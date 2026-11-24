@@ -1,4 +1,4 @@
-// D-246 (H-9): the two emails staff send by hand from Learners & Teams, in the $37 skill purchase
+// D-247 (H-9): the two emails staff send by hand from Learners & Teams, in the $37 skill purchase
 // email's design (`branded-html.ts`, Connor's HTML, shared and unchanged), as Connor asked on Nov 24:
 //
 //   learner-invite   Resend Invite: a fresh set-password link (72 hours) for a learner who hasn't joined.

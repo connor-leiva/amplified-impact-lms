@@ -1,4 +1,4 @@
-// D-246 (H-6): the version of an AI Employee or a course week, as the Module Builder's base version.
+// D-247 (H-6): the version of an AI Employee or a course week, as the Module Builder's base version.
 //
 // The builder sends the version of the module it started from with every save; the save refuses
 // (`MutationError('conflict')`, a 409 over HTTP) when the stored module is no longer that version, so

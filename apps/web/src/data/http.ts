@@ -143,7 +143,7 @@ export async function sendWrite(send: () => Promise<Response>): Promise<Response
 }
 
 /**
- * D-246 (H-7): a request the API refused or failed, with the API's own words when it sent some
+ * D-247 (H-7): a request the API refused or failed, with the API's own words when it sent some
  * (`serverMessage`): a 403's "needs the Publish modules permission", a 409's "Someone changed this week",
  * a 500's nothing. `useMutate` and `useAct` show `serverMessage` as the error toast, or a plain
  * "Something went wrong" when there is none. `quiet` is a failure the page already handles by leaving
@@ -301,7 +301,7 @@ export function createHttpRepository(): LmsRepository {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(args),
       }).then((res) => parse(res, `POST /api/admin/actions/${name}`)) as Promise<MutationResult>,
-    // D-246 (H-9): Resend Invite and Send Nudge send their email; the answer's toast says what happened.
+    // D-247 (H-9): Resend Invite and Send Nudge send their email; the answer's toast says what happened.
     emailLearner: (kind: LearnerEmailKind, userId: string) => {
       const path = `/api/learners/${encodeURIComponent(userId)}/${kind === 'invite' ? 'resend-invite' : 'nudge'}`;
       return fetch(path, {

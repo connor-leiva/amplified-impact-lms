@@ -66,7 +66,7 @@ interface BuilderState {
   dirty: boolean;
   errors: string[];
   /**
-   * D-246 (H-6): the version of the stored module this draft was opened from (`moduleVersion`), or null
+   * D-247 (H-6): the version of the stored module this draft was opened from (`moduleVersion`), or null
    * for a new one. Every save sends it; the server refuses a save whose module has moved on (409), and
    * a save answers the next one.
    */
@@ -136,7 +136,7 @@ export function Component() {
       d[key] = v;
     });
 
-  // D-246 (H-6): one save at a time. Save and the Status menu wait while a save is on its way, so a
+  // D-247 (H-6): one save at a time. Save and the Status menu wait while a save is on its way, so a
   // double click is one request.
   const [saving, setSaving] = useState(false);
   const inFlight = useRef(false);
@@ -181,7 +181,7 @@ export function Component() {
   // D-174: what Save would be refused for, while staff type (the copy rules on what changed).
   const issues = st.dirty ? draftIssues(db.modules.find((m) => m.id === d.id) ?? null, d) : [];
   const live = db.modules.some((m) => m.id === d.id && m.status === 'published');
-  // D-246 (H-8): a published or scheduled module saves only with the Publish modules permission. Said up
+  // D-247 (H-8): a published or scheduled module saves only with the Publish modules permission. Said up
   // front, in the notice the builder already uses, so nobody edits for ten minutes and then learns it.
   const storedStatus = db.modules.find((m) => m.id === d.id)?.status;
   const needsPublish = !!st.key && storedStatus !== undefined && storedStatus !== 'draft' && savePublishes(d) && !can(db, viewer.actor, 'publish');

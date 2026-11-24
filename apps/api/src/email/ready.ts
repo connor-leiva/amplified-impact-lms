@@ -1,4 +1,4 @@
-// D-246 (H-9): whether this server actually sends email, so a toast can say so instead of claiming a send.
+// D-247 (H-9): whether this server actually sends email, so a toast can say so instead of claiming a send.
 //
 // `transport.ts` has three modes. Test writes to the outbox (a send, as far as a test is concerned).
 // Development only logs, so nothing reaches an inbox. Production sends through Resend, and needs

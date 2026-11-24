@@ -117,7 +117,7 @@ export interface PreparedEmail {
   subject: string;
   element: ReactElement;
   /**
-   * Set only for skill-purchase and D-246's learner-invite and learner-nudge. That note is Connor's HTML, which React Email would wrap and
+   * Set only for skill-purchase and D-247's learner-invite and learner-nudge. That note is Connor's HTML, which React Email would wrap and
    * restyle, so `renderTemplate` sends this string instead of rendering `element`.
    */
   html?: string;
@@ -287,7 +287,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       };
     }
 
-    // D-246 (H-9): the purchase email's design, as `skill-purchase` sends it (the HTML string, not `element`).
+    // D-247 (H-9): the purchase email's design, as `skill-purchase` sends it (the HTML string, not `element`).
     case 'learner-invite': {
       const input = { firstName: optStr(data, 'firstName') ?? '', email: str(template, data, 'email'), token: str(template, data, 'token'), appUrl };
       return { subject: SUBJECTS['learner-invite']({}), element: <span />, html: learnerInviteHtml(input), text: learnerInviteText(input) };

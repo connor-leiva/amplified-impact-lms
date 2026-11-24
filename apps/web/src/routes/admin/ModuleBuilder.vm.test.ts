@@ -540,7 +540,7 @@ describe('moduleBuilderVM @g6', () => {
       ]);
     });
 
-    it('takes the step ids the save answered, so a reordered step keeps its id (D-246)', () => {
+    it('takes the step ids the save answered, so a reordered step keeps its id (D-247)', () => {
       const moved = normalizeSaved({ ...d, checklist: moveStep(d.checklist, 0, 1) }, undefined, ['c2', 'c1', 'c3', 'c4', 'c5', 'c6']);
       expect(moved.checklist.map((s) => s.id)).toEqual(['c2', 'c1', 'c3', 'c4', 'c5', 'c6']);
       expect(moved.checklist[0]!.text).toBe(d.checklist[1]!.text);

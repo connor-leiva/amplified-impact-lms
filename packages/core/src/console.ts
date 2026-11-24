@@ -241,7 +241,7 @@ export const AUDIT_ACTIONS = [
   // in by link (`apps/api/src/db/activate-invited.ts`). One row per learner, actor role `system:activate-invited`.
   'user.activate',
 
-  // D-246 (H-9): Learners & Teams' Resend Invite and Send Nudge by staff, each one email (or none, said so).
+  // D-247 (H-9): Learners & Teams' Resend Invite and Send Nudge by staff, each one email (or none, said so).
   'user.invite_resend',
   'user.nudge',
 ] as const;

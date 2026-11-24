@@ -106,7 +106,7 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
       const fn = ADMIN_ACTIONS[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: AdminActionArgs<K>, c: Ctx) => Outcome;
       return apply((c) => fn(db, PERSONA[role], args, c));
     },
-    // D-246 (H-9): there is no email here. The demo answers as the prototype does: Send Nudge is core's
+    // D-247 (H-9): there is no email here. The demo answers as the prototype does: Send Nudge is core's
     // `nudgeLearners` (its stamp and its toast), and Resend Invite is its own confirmation, after the
     // same rule the API checks.
     async emailLearner(kind: LearnerEmailKind, userId: string): Promise<MutationResult> {

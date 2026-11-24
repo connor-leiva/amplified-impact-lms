@@ -167,7 +167,7 @@ export function nextFile(d: AIEmployee): SkillFile {
  * copy before `setState`; `@ai/core`'s `saveModule` is still the only thing that persists, and it
  * applies the same transforms to what it stores, so this is idempotent and never the authority.
  *
- * D-246 (H-5): the step ids are the ones the save answered (`saved.stepIds`): a kept step keeps its id
+ * D-247 (H-5): the step ids are the ones the save answered (`saved.stepIds`): a kept step keeps its id
  * and a new one gets the id the server gave it, so the next save (and a kit item's step) names the
  * stored step. Without them (a new module's first save in a test), `c1…cN`, as a new module is saved.
  */

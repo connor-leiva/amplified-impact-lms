@@ -1,4 +1,4 @@
-// D-246: the Module Builder's save through `POST /api/admin/actions/saveBuilderModule` and a real
+// D-247: the Module Builder's save through `POST /api/admin/actions/saveBuilderModule` and a real
 // Postgres, on an open week with learners' checks, remembered accordions and kit files on its steps (the
 // launch audit's H-5, H-6 and H-8). The rules are unit-tested in packages/core/test/builder-save-safety.test.ts.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';

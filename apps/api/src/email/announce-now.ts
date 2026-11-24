@@ -1,4 +1,4 @@
-// D-246 (H-9): Announcements › Send now with the Email channel, sent at once through the scheduled path.
+// D-247 (H-9): Announcements › Send now with the Email channel, sent at once through the scheduled path.
 //
 // D-172 kept Send now in-app only because no new production send was allowed then; the mail job sends
 // an announcement's email only when it flips a SCHEDULED one to sent (`jobs/due.ts`). Connor asked for

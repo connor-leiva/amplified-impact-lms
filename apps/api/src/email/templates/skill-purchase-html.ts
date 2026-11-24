@@ -1,7 +1,7 @@
 // Connor's skill purchase email, ported as the HTML he sent. The tables, inline styles, colors,
 // fonts, spacing, media query and preheader padding stay as he wrote them. Only the values named
 // in the call are filled in. React Email is not used here: it would wrap and restyle the document.
-// D-246: the document's shell and its card, button and small print are `branded-html.ts` (cut from
+// D-247: the document's shell and its card, button and small print are `branded-html.ts` (cut from
 // this file unchanged), so Resend Invite and Send Nudge share the design; this email renders exactly
 // as before.
 

@@ -1,4 +1,4 @@
-// D-246 (H-9): the learner emails staff and team owners send by hand, and what their toasts say.
+// D-247 (H-9): the learner emails staff and team owners send by hand, and what their toasts say.
 //
 //   Resend Invite (Learners & Teams' drawer, and a Team Owner's Team Hub): a fresh set-password link
 //   for a learner who hasn't joined yet, in the $37 skill email's design.

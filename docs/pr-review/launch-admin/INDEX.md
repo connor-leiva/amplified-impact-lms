@@ -1,4 +1,4 @@
-# Review files for PR B, the admin console's launch-audit fixes (D-246)
+# Review files for PR B, the admin console's launch-audit fixes (D-247)
 
 The Week 0 launch audit's H-5 to H-9: what changed on screen in the admin console and the Team Hub, and the two emails Resend Invite and Send Nudge now send, at 1280 and 390.
 

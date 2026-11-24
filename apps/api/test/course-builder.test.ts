@@ -37,7 +37,7 @@ afterAll(() => {
 });
 
 /**
- * D-246 (H-6): a builder save sends the version of the module it opened. Every draft here is opened from
+ * D-247 (H-6): a builder save sends the version of the module it opened. Every draft here is opened from
  * the stored row just before it is sent, so the helper adds that row's version when a test gives none.
  */
 const withBase = async (name: string, payload: unknown): Promise<unknown> => {

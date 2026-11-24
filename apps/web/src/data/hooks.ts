@@ -12,7 +12,7 @@ import { useConfetti } from '../shell/Confetti';
 
 export const DB_KEY = ['db'] as const;
 
-/** D-246 (H-7): a failed request with no words of the server's: the sign-in screens' own words for one. */
+/** D-247 (H-7): a failed request with no words of the server's: the sign-in screens' own words for one. */
 export const REQUEST_FAILED = SIGN_OUT_FAILED;
 export const VIEWER_KEY = ['viewer'] as const;
 
@@ -30,7 +30,7 @@ export function useViewer(): Viewer {
 }
 
 /**
- * D-246 (H-7): what a failed request says in its error toast: the API's own words when it sent some (a
+ * D-247 (H-7): what a failed request says in its error toast: the API's own words when it sent some (a
  * 403's missing permission, a 409's stale draft, a 429's limit), else the app's plain "Something went
  * wrong. Try again." Null for a failure the page handles by leaving (a 401 on its way to sign in).
  */
@@ -41,7 +41,7 @@ export function failureMessage(e: unknown): string | null {
 }
 
 /**
- * D-246 (H-7): an `error` a caller should still say itself, or undefined when the hook's error toast
+ * D-247 (H-7): an `error` a caller should still say itself, or undefined when the hook's error toast
  * already said it (`failed`). For the screens that toast a refusal: `const e = refusal(r); if (e) toast(e, 'warn')`.
  */
 export const refusal = (r: MutationResult): string | undefined => (r.failed ? undefined : r.error);
@@ -81,7 +81,7 @@ function useAnswer() {
 
 export interface MutateOptions {
   /**
-   * D-246: a failed request throws to the caller instead of the error toast. For the learner screens
+   * D-247: a failed request throws to the caller instead of the error toast. For the learner screens
    * that already show their own failure in place (a check that didn't save), so nothing is said twice.
    */
   rethrow?: boolean;
@@ -89,7 +89,7 @@ export interface MutateOptions {
 
 /**
  * Run a named mutation. The repository applies the new Db; this turns the rest of the Outcome into
- * the UI's response — a toast, confetti, or an inline error the caller renders in its form. D-246
+ * the UI's response — a toast, confetti, or an inline error the caller renders in its form. D-247
  * (H-7): a request that fails is an error toast with the server's words, and `{ error, failed }`.
  */
 export function useMutate(options: MutateOptions = {}) {
@@ -112,7 +112,7 @@ export function useMutate(options: MutateOptions = {}) {
 
 /**
  * D-172: run an audited Build action (`repo.act`), with `useMutate`'s handling of its answer: the
- * toast, an inline error the caller renders, and a refetch. D-246 (H-7): a failed request is an error
+ * toast, an inline error the caller renders, and a refetch. D-247 (H-7): a failed request is an error
  * toast with the server's words, and `{ error, failed }`.
  */
 export function useAct() {
@@ -123,7 +123,7 @@ export function useAct() {
   );
 }
 
-/** D-246 (H-9): Resend Invite or Send Nudge, with `useAct`'s handling: the server's toast says what happened. */
+/** D-247 (H-9): Resend Invite or Send Nudge, with `useAct`'s handling: the server's toast says what happened. */
 export function useEmailLearner() {
   const answer = useAnswer();
   return useCallback((kind: LearnerEmailKind, userId: string): Promise<MutationResult> => answer(() => repo.emailLearner(kind, userId), false), [answer]);

@@ -40,7 +40,7 @@ export function Component() {
   const phone = useViewportWidth() < 768;
   const vm = useMemo(() => tiersR2VM(db), [db]);
 
-  // `useMutate` raises the success toast; a refusal is a warning, as before. D-246: a failed request's
+  // `useMutate` raises the success toast; a refusal is a warning, as before. D-247: a failed request's
   // error toast is the hook's, so it isn't said twice.
   const run = useCallback(
     async (p: Promise<MutationResult>) => {

@@ -1,5 +1,5 @@
 // The $37 skill purchase email's design (Connor's HTML), as parts any learner email can share
-// (D-246, H-9: Resend Invite and Send Nudge use it). Every table, inline style, color, font, spacing,
+// (D-247, H-9: Resend Invite and Send Nudge use it). Every table, inline style, color, font, spacing,
 // the media query and the preheader padding are his, cut from `skill-purchase-html.ts` without a
 // character changed: that email is built from these parts and renders exactly as before (its tests,
 // and a byte-for-byte check in `branded-html.test.ts`). React Email is not used: it would wrap and

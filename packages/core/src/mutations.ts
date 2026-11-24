@@ -84,7 +84,7 @@ export interface Outcome {
 // strip-only type stripping (`node --experimental-strip-types`) refuses, and the repo's own
 // verification path imports these modules that way, so the field is declared and assigned
 // explicitly instead. The public shape is identical.
-// D-246 (H-6): `conflict` is the Module Builder's stale save (a 409): the module changed after the draft
+// D-247 (H-6): `conflict` is the Module Builder's stale save (a 409): the module changed after the draft
 // was opened. No reference mutation throws it.
 export class MutationError extends Error {
   code: 'forbidden' | 'invalid' | 'not_found' | 'conflict';

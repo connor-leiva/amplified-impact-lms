@@ -1,4 +1,4 @@
-// D-246: the Module Builder's save made safe for an open week (the launch audit's H-5, H-6 and H-8), and
+// D-247: the Module Builder's save made safe for an open week (the launch audit's H-5, H-6 and H-8), and
 // the learner emails' rules and toasts (H-9). Pure: the API runs the same functions
 // (apps/api/test/builder-save-safety.test.ts, apps/api/test/learner-email.test.ts).
 import { describe, expect, it } from 'vitest';

@@ -93,7 +93,7 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'learner-nudge': { firstName: 'Pat' },
 };
 
-/** Connor's HTML documents (the $37 skill email's design, D-246): not § 8.1's React Email shell. */
+/** Connor's HTML documents (the $37 skill email's design, D-247): not § 8.1's React Email shell. */
 const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge'];
 const branded = (name: TemplateName): boolean => BRANDED.includes(name);
 
@@ -206,7 +206,7 @@ const hrefOf = (html: string): string => /<a\b[^>]*\shref="([^"]*)"/.exec(html)?
 
 describe('email templates · § 8.1 subjects and CTAs @g8', () => {
   it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
-    // § 8.1's table has nine rows and D-132 adds two, then the $37 skill email and D-246's two. If
+    // § 8.1's table has nine rows and D-132 adds two, then the $37 skill email and D-247's two. If
     // another name is ever added to `subjects.ts`, this fails here rather than silently rendering one
     // email short in production.
     expect(TEMPLATE_NAMES).toHaveLength(14);
@@ -226,7 +226,7 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
         expect(html).toContain(`href="${CTA[name].href}"`);
         return;
       }
-      // D-246: the learner emails are the same document, with their own greeting.
+      // D-247: the learner emails are the same document, with their own greeting.
       if (name === 'learner-invite' || name === 'learner-nudge') {
         const greeting = name === 'learner-invite' ? 'Welcome, Pat.' : 'Hi, Pat.';
         expect(html).toContain(`<title>${greeting}</title>`);
@@ -293,7 +293,7 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
 // ================================================================================================
 
 describe('email templates · § 8.1 shell @g8', () => {
-  // skill-purchase is Connor's document (600px, Geist, his own button), and D-246's two learner emails
+  // skill-purchase is Connor's document (600px, Geist, his own button), and D-247's two learner emails
   // share it. Their own tests pin that.
   for (const name of TEMPLATE_NAMES.filter((n) => !branded(n))) {
     it(`${name} renders the 560 px content column @g8`, () => {

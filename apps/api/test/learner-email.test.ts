@@ -1,4 +1,4 @@
-// D-246 (H-9): Resend Invite, Send Nudge and Announcements' Send now with Email, through the real router
+// D-247 (H-9): Resend Invite, Send Nudge and Announcements' Send now with Email, through the real router
 // and a real Postgres. Each sends a real email (the test outbox), writes what it says, and its toast says
 // what happened: the email went, this server has no email set up, or it failed. The rules and the words
 // are unit-tested in packages/core/test/builder-save-safety.test.ts.

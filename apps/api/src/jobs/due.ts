@@ -553,7 +553,7 @@ function scheduledAnnouncements(db: Db, now: number): DueWork {
  * One announcement's emails: one per learner its audience reaches (`mailable` + `inAudience`, above), keyed
  * `announcement:<id>:<user>` in `job_runs`. Nothing for an announcement without the Email channel.
  *
- * D-246 (H-9): exported so Send now's email (`email/announce-now.ts`) goes to exactly the people, with
+ * D-247 (H-9): exported so Send now's email (`email/announce-now.ts`) goes to exactly the people, with
  * exactly the payload and the ledger keys, a scheduled one's does. A key either path recorded is never
  * sent again by the other.
  */

@@ -132,7 +132,7 @@ describe('withPreview', () => {
     });
   });
 
-  it('refuses Resend Invite and Send Nudge (D-246); the fixture answers them as the prototype does', async () => {
+  it('refuses Resend Invite and Send Nudge (D-247); the fixture answers them as the prototype does', async () => {
     const inner = createFixtureRepository('admin', 'live');
     const email = vi.spyOn(inner, 'emailLearner');
     expect(await withPreview(inner, 'owner').emailLearner('nudge', 'u_jamie')).toEqual({ error: PREVIEW_ONLY });
