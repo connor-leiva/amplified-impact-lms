@@ -56,7 +56,8 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../../src/app';
 import type { App } from '../../src/app';
 import { expiryFor, hashToken } from '../../src/auth';
-import { authTokens } from '../../src/db/schema';
+import { ALREADY_HAS_ACCOUNT } from '@ai/core/mutations';
+import { authTokens, users } from '../../src/db/schema';
 import { resetOutbox } from '../../src/email/transport';
 import type { OutboxEntry } from '../../src/email/transport';
 import { loadDb, resetDatabase, testDatabase } from '../helpers';
@@ -295,5 +296,33 @@ describe('Gate 8 · inviteMember → one team-invite email, and its link signs t
     expect(await outboxOverHttp()).toHaveLength(0);
     const db = await testDatabase();
     expect(await db.select().from(authTokens)).toHaveLength(0);
+  });
+
+  // H-12: an address that already has an account, on another team or on staff, in any case. It used to
+  // reach the database's unique email and answer 500, or, typed in other capitals, make a second account
+  // for the same inbox that sign-in can't tell apart.
+  it('refuses an address that already has an account elsewhere, in any case, as an inline 422, and makes nothing @g8', async () => {
+    const cookie = await app.signInAs(INVITER);
+    const db = await testDatabase();
+    const before = (await db.select().from(users)).length;
+    for (const email of ['natasha@harborpine.com', 'Natasha@HarborPine.com', ' MARCUS@keystonecollective.com ', 'casey@amplifiedimpact.com']) {
+      const res = await mutate(cookie, 'inviteMember', { email, role: 'Operations Lead' });
+      expect([res.statusCode, res.json()], email).toEqual([422, { error: ALREADY_HAS_ACCOUNT }]);
+    }
+    expect((await db.select().from(users)).length).toBe(before);
+    expect(await outboxOverHttp()).toHaveLength(0);
+    expect(await db.select().from(authTokens)).toHaveLength(0);
+  });
+
+  it('stores a new invitee lower-cased, so the invite link and sign-in find one account (H-12) @g8', async () => {
+    const cookie = await app.signInAs(INVITER);
+    const res = await mutate(cookie, 'inviteMember', { email: ' New.Ops@NorthlineRealty.com ', role: 'Sales Agent' });
+    expect(res.statusCode).toBe(200);
+    const db = await testDatabase();
+    const rows = await db.select({ email: users.email }).from(users);
+    expect(rows.map((r) => r.email)).toContain('new.ops@northlinerealty.com');
+    expect(rows.map((r) => r.email)).not.toContain('New.Ops@NorthlineRealty.com');
+    const [token] = await db.select().from(authTokens);
+    expect(token?.email).toBe('new.ops@northlinerealty.com');
   });
 });

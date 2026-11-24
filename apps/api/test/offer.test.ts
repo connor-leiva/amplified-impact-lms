@@ -41,8 +41,8 @@ import { createPriceCache } from '../src/billing/prices';
 import { cohortSeatsSold, provisionOrder, sendHeldInvites } from '../src/billing/provision';
 import { SOLD_OUT_MARK, SOLD_OUT_MESSAGE, reconcileAcceleratorSeats, resetSeatCapLogForTests, syncAcceleratorPaymentLinks } from '../src/billing/payment-links';
 import { startBillingLoop } from '../src/jobs/billing';
-import type { BillingStripe, PaymentLinkChange, PaymentLinkInfo, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
-import { stripeVerifier } from '../src/billing/stripe';
+import type { BillingStripe, InvoiceLike, PaymentLinkChange, PaymentLinkInfo, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
+import { stripeVerifier, subscriptionOfInvoice } from '../src/billing/stripe';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { SESSION_COOKIE, settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
@@ -94,6 +94,8 @@ interface Stub {
   creates: { params: Stripe.SubscriptionCreateParams; key: string }[];
   cancels: string[];
   subs: Map<string, SubscriptionInfo>;
+  /** H-16: the paid invoices (above $0) Stripe holds per subscription. `deliver` adds each `invoice.paid` it sends. */
+  paidInvoices: Map<string, string[]>;
   /** Which subscription a payment intent paid an invoice of, for a refund of a subscription charge. */
   intents: Map<string, string>;
   fail: boolean;
@@ -120,6 +122,7 @@ function stubStripe(): Stub {
     creates: [],
     cancels: [],
     subs: new Map(),
+    paidInvoices: new Map(),
     intents: new Map(),
     fail: false,
     links: seedLinks(),
@@ -138,6 +141,7 @@ function stubStripe(): Stub {
     defaultPaymentMethod: 'pm_sub',
     metadata: {},
     cancelAt: null,
+    cancelAtPeriodEnd: false,
     currentPeriodEnd: null,
     ...stub.subs.get(id),
     ...over,
@@ -145,6 +149,7 @@ function stubStripe(): Stub {
   stub.client = {
     pricesByLookupKeys: async () => PRICE_LIST,
     retrieveSubscription: async (id) => sub(id),
+    paidInvoiceIds: async (id) => [...(stub.paidInvoices.get(id) ?? [])],
     updateSubscription: async (id, params) => {
       stub.updates.push({ id, params });
       return sub(id);
@@ -265,6 +270,11 @@ const one = async () => (await orderRows())[0]!;
 
 let eventN = 0;
 async function deliver(type: string, object: Record<string, unknown>, id = `evt_${++eventN}`) {
+  // Stripe lists an invoice as paid once `invoice.paid` is sent for it (H-16 counts installments from that list).
+  if (type === 'invoice.paid' && Number(object.amount_paid ?? 0) > 0) {
+    const sub = subscriptionOfInvoice(object as InvoiceLike);
+    if (sub && typeof object.id === 'string') stub.paidInvoices.set(sub, [...new Set([...(stub.paidInvoices.get(sub) ?? []), object.id])]);
+  }
   const payload = JSON.stringify({ id, object: 'event', type, api_version: '2025-10-29.clover', data: { object } });
   const header = new Stripe('sk_test_x').webhooks.generateTestHeaderString({ payload, secret: SECRET });
   return app.inject({ method: 'POST', url: '/api/stripe/webhook', payload, headers: { 'content-type': 'application/json', 'stripe-signature': header } });
@@ -528,7 +538,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
 
   it('4: the AI Accelerator in full opens both sets, and its own subscription carries Insiders from May 4, 2027', async () => {
     // A Payment Link's relative trial lands on the wrong day for a later buyer: the webhook pins it.
-    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: INSIDERS_FIRST_CHARGE_AT + 2 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: INSIDERS_FIRST_CHARGE_AT + 2 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
     const [plan] = await (await db()).select().from(plans);
     expect(plan).toMatchObject({ kind: 'cohort', cohortId: 'dec26', paidThrough: INSIDERS_FIRST_CHARGE_AT, stripeSubscriptionId: 'sub_full' });
@@ -605,6 +615,71 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect(ended.statusCode).toBe(200);
     const [plan] = await (await db()).select().from(plans);
     expect(plan!.status).toBe('active');
+  });
+
+  // H-16: installments are counted from Stripe's paid invoices, not from the order events arrive in.
+  const cancels = () => stub.updates.filter((u) => u.params.cancel_at_period_end);
+
+  it('H-16: an installment paid before its Payment Link session completes is counted, and the second still ends the subscription', async () => {
+    // Stripe sends the first installment's invoice.paid before checkout.session.completed: no order exists yet.
+    const early = await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY));
+    expect(early.statusCode).toBe(200);
+    expect(await orderRows()).toEqual([]);
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    expect((await one()).paymentsMade).toBe(1);
+    expect(cancels()).toEqual([]);
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 61 * DAY, { order_id: order.id }));
+    expect((await one()).paymentsMade).toBe(2);
+    expect(cancels()).toEqual([{ id: 'sub_two', params: { cancel_at_period_end: true } }]);
+  });
+
+  it('H-16: the same invoice announced twice is one installment', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    const first = invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id });
+    await deliver('invoice.paid', first);
+    await deliver('invoice.paid', first);
+    expect((await one()).paymentsMade).toBe(1);
+    expect(cancels()).toEqual([]);
+  });
+
+  it('H-16: a two-pay plan paid in full is complete when its subscription ends, even if an installment was never counted here', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
+    // Stripe holds a second paid installment whose event this app never handled.
+    stub.paidInvoices.set('sub_two', [...stub.paidInvoices.get('sub_two')!, 'in_missed_second']);
+    const ended = await deliver('customer.subscription.deleted', { id: 'sub_two', status: 'canceled', metadata: { order_id: order.id } });
+    expect(ended.statusCode).toBe(200);
+    expect((await one()).paymentsMade).toBe(2);
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('active');
+  });
+
+  it('H-16: a charge attempted after the last installment does not pause a plan paid in full, and the subscription is told to stop', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 61 * DAY, { order_id: order.id }));
+    stub.updates.length = 0;
+    const res = await deliver('invoice.payment_failed', invoice('sub_two', 0, NOW_MS + 91 * DAY, { order_id: order.id }));
+    expect(res.statusCode).toBe(200);
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('active');
+    expect((await one()).paymentFailedAt).toBeNull();
+    expect(cancels()).toEqual([{ id: 'sub_two', params: { cancel_at_period_end: true } }]);
+  });
+
+  it('H-16: cancel_at_period_end is set unless the subscription already ends by its period end', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    const periodEnd = NOW_MS + 61 * DAY;
+    // A cancel date after the period end still lets the next renewal charge: set it.
+    stub.subs.set('sub_two', { id: 'sub_two', status: 'active', customer: 'cus_1', trialEnd: null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: periodEnd + 40 * DAY, cancelAtPeriodEnd: false, currentPeriodEnd: periodEnd });
+    const second = invoice('sub_two', 375000, periodEnd, { order_id: order.id });
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
+    await deliver('invoice.paid', second);
+    expect(cancels()).toEqual([{ id: 'sub_two', params: { cancel_at_period_end: true } }]);
+    // Already set to end with the period: the second installment announced again sends nothing more.
+    stub.updates.length = 0;
+    stub.subs.set('sub_two', { ...stub.subs.get('sub_two')!, cancelAt: periodEnd, cancelAtPeriodEnd: true });
+    await deliver('invoice.paid', second);
+    expect((await one()).paymentsMade).toBe(2);
+    expect(cancels()).toEqual([]);
   });
 
   it('6: a failed second payment makes the plan past_due and tags payment-failed', async () => {
@@ -684,7 +759,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
   });
 
   it('7: a Team Plan pays its first 3 months today, holds 41 logins, and bills monthly from Apr 4, 2027', async () => {
-    stub.subs.set('sub_agents', { id: 'sub_agents', status: 'trialing', customer: 'cus_1', trialEnd: AGENTS_FIRST_CHARGE_AT + 9 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_agents', { id: 'sub_agents', status: 'trialing', customer: 'cus_1', trialEnd: AGENTS_FIRST_CHARGE_AT + 9 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const order = await buy('agents-16to40', {}, { subscription: 'sub_agents' });
     expect(order.status).toBe('paid');
     const [plan] = await (await db()).select().from(plans);
@@ -705,7 +780,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
   });
 
   it('8: a Team Plan link with billing=forum_prepay becomes an order with its trial moved to exactly Apr 4; an older link does not', async () => {
-    stub.subs.set('sub_link', { id: 'sub_link', status: 'trialing', customer: 'cus_7', trialEnd: AGENTS_FIRST_CHARGE_AT - 2 * DAY, defaultPaymentMethod: 'pm_7', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_link', { id: 'sub_link', status: 'trialing', customer: 'cus_7', trialEnd: AGENTS_FIRST_CHARGE_AT - 2 * DAY, defaultPaymentMethod: 'pm_7', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const res = await deliver('checkout.session.completed', {
       id: 'cs_test_linksession01',
       object: 'checkout.session',
@@ -917,7 +992,7 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
   });
 
   it('locks an Amplified Agent Plan monthly member until Apr 4, 2027, and not a yearly member', async () => {
-    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: 1799042400 * 1000, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: 1799042400 * 1000, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     await buy('agent-monthly', {}, { subscription: 'sub_ap', payment_status: 'no_payment_required', amount_total: 0 });
     const [plan] = await (await db()).select().from(plans);
     expect(plan).toMatchObject({ kind: 'agent_plan', minimumUntil: addMonths(JAN4, 3) });
@@ -1079,7 +1154,7 @@ describe('every offer, end to end (D-106)', () => {
   async function purchase(c: OfferCase, email = 'pat@example.com') {
     const sub = subOf(c);
     const trialing = c.pin !== null;
-    stub.subs.set(sub, { id: sub, status: trialing ? 'trialing' : 'active', customer: 'cus_1', trialEnd: trialing ? c.pin! * 1000 + 3 * DAY : null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set(sub, { id: sub, status: trialing ? 'trialing' : 'active', customer: 'cus_1', trialEnd: trialing ? c.pin! * 1000 + 3 * DAY : null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     stub.intents.set(`pi_${sub}`, sub);
     return buy(c.cart, { email }, { subscription: sub, payment_status: c.paymentStatus, amount_total: c.paymentStatus === 'paid' ? 100 : 0 });
   }
@@ -1399,7 +1474,7 @@ describe('the AI Accelerator rolls into Amplified Insiders on May 4, 2027 (D-104
   const MAY4 = INSIDERS_FIRST_CHARGE_AT;
 
   it('paid in full: the first Insiders invoice on May 4 carries the plan, both sets and its live sessions a month on', async () => {
-    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: MAY4, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: MAY4, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
     process.env.FIXED_NOW = '2027-05-04T09:00:00-05:00';
     await deliver('invoice.paid', invoice('sub_full', 19700, addMonths(MAY4, 1), { order_id: order.id, ai_plan: 'cohort', ai_option: 'full' }));
@@ -1432,7 +1507,7 @@ describe('the Amplified Agent Plan, edges (D-106)', () => {
   it('bought after Jan 4 and charged at checkout: no pin into the past, paid through one period, skills open at once', async () => {
     process.env.FIXED_NOW = '2027-01-10T10:00:00-06:00';
     const now = Date.parse('2027-01-10T10:00:00-06:00');
-    stub.subs.set('sub_late', { id: 'sub_late', status: 'trialing', customer: 'cus_1', trialEnd: now + 7 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_late', { id: 'sub_late', status: 'trialing', customer: 'cus_1', trialEnd: now + 7 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const order = await buy('agent-monthly', {}, { subscription: 'sub_late', payment_status: 'paid' });
     expect(order.status).toBe('paid');
     expect(stub.updates.every((u) => u.params.trial_end === undefined)).toBe(true);
@@ -1592,7 +1667,7 @@ describe('payment paths outside the per-offer block', () => {
   });
 
   it('an Agent Plan trial cancelled before Jan 4 is never charged and never opens anything', async () => {
-    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const order = await buy('agent-monthly', {}, { subscription: 'sub_ap', payment_status: 'no_payment_required' });
     expect(order.status).toBe('trialing');
     await (await db()).insert(skills).values([{ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } }]);
@@ -1618,7 +1693,7 @@ describe('payment paths outside the per-offer block', () => {
 
   it.each(['agent-monthly', 'insiders-monthly', 'agents-16to40'] as const)('%s: the course stays shut over HTTP, "not in your plan", never "paused"', async (cart) => {
     const sub = `sub_${cart.replace(/-/g, '_')}`;
-    stub.subs.set(sub, { id: sub, status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.subs.set(sub, { id: sub, status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     await buy(cart, {}, { subscription: sub, ...(cart === 'agent-monthly' ? { payment_status: 'no_payment_required' } : {}) });
     process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
     const res = await courseFor();

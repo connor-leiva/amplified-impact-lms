@@ -11,7 +11,7 @@ import type Stripe from 'stripe';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { guidePageOf } from '@ai/core/skill-guides';
 import { SET_PASSWORD_TTL_MS, expiryFor, hasPassword, hashToken, mintToken, userByEmail } from '../auth';
-import { accounts, authTokens, skillPurchases, skills, users } from '../db/schema';
+import { accounts, authSessions, authTokens, skillPurchases, skills, users } from '../db/schema';
 import type { Database } from '../db/client';
 import { audit } from '../console/audit';
 import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
@@ -137,6 +137,9 @@ async function recordPurchase(
         accountId: row.accountId ?? owned.accountId,
         email: row.email ?? owned.email,
         ghlSyncedAt: null,
+        // H-1: the row now belongs to this checkout; the earlier one's guest return is not carried over.
+        createdUserId: null,
+        guestEnteredAt: null,
       })
       .where(eq(skillPurchases.id, owned.id));
     return 'repurchased';
@@ -232,6 +235,14 @@ async function guestSkillPurchase(
     now,
     log,
   });
+  // H-1: only the purchase that created the account records it, so the guest return can tell a new
+  // account (it may sign in, once) from an existing one typed at Stripe (it never may).
+  if (created && userId && recorded !== 'already-owned') {
+    await db
+      .update(skillPurchases)
+      .set({ createdUserId: userId })
+      .where(and(eq(skillPurchases.stripeSessionId, session.id), eq(skillPurchases.userId, userId)));
+  }
   if (recorded === 'purchased' || recorded === 'repurchased') {
     await auditSkill(skillId, session.id);
     if (open) await sendSkillEmail(db, email, buyerName(session), skillId, created, now, log);
@@ -269,11 +280,17 @@ async function auditSkill(skillId: string, sessionId: string): Promise<void> {
 export type GuestReturn = { action: 'enter'; userId: string; next: string } | { action: 'sign-in'; next: string };
 
 /**
- * Where a paid guest goes after Stripe. A brand-new account has no password yet, so the return
- * signs them in and opens the skill. An account that already has a password goes to sign-in; the
- * webhook already sent that buyer the Sign In email. The same completion the webhook runs is called
- * first, so arriving before the webhook still creates the account, and arriving after it does not
- * send a second email.
+ * Where a paid guest goes after Stripe. The same completion the webhook runs is called first, so
+ * arriving before the webhook still creates the account, and arriving after it does not send a second
+ * email.
+ *
+ * H-1: STRIPE DOES NOT VERIFY THE EMAIL TYPED AT CHECKOUT, so the return signs an account in only
+ * when all of these hold, as the welcome page's password button does (`checkoutPasswordUser`):
+ *   - this checkout's own purchase created the account (`skill_purchases.created_user_id`);
+ *   - the account is still `invited`, has no password and has never had a session;
+ *   - this checkout has not signed anyone in before (`guest_entered_at`, spent atomically, so a
+ *     replayed or refreshed return address goes to sign-in).
+ * Everyone else goes to sign-in. A new buyer also has the Set Your Password email the webhook sent.
  */
 export async function guestSkillReturn(
   session: Stripe.Checkout.Session,
@@ -296,8 +313,23 @@ export async function guestSkillReturn(
   const email = (session.customer_details?.email ?? session.customer_email ?? '').trim().toLowerCase();
   if (!email) return signIn;
   const buyer = await userByEmail(db, email);
-  if (!buyer || buyer.kind !== 'learner') return signIn;
+  if (!buyer || buyer.kind !== 'learner' || buyer.status !== 'invited') return signIn;
+  const [purchase] = await db
+    .select({ createdUserId: skillPurchases.createdUserId, guestEnteredAt: skillPurchases.guestEnteredAt })
+    .from(skillPurchases)
+    .where(eq(skillPurchases.stripeSessionId, session.id))
+    .limit(1);
+  if (!purchase || purchase.createdUserId !== buyer.id || purchase.guestEnteredAt !== null) return signIn;
   if (await hasPassword(db, buyer.id)) return signIn;
+  const [anySession] = await db.select({ id: authSessions.id }).from(authSessions).where(eq(authSessions.userId, buyer.id)).limit(1);
+  if (anySession) return signIn;
+  // Spent once: of two returns racing on the same checkout, Postgres gives the row to one.
+  const spent = await db
+    .update(skillPurchases)
+    .set({ guestEnteredAt: now })
+    .where(and(eq(skillPurchases.stripeSessionId, session.id), eq(skillPurchases.createdUserId, buyer.id), isNull(skillPurchases.guestEnteredAt)))
+    .returning({ id: skillPurchases.id });
+  if (spent.length === 0) return signIn;
   return { action: 'enter', userId: buyer.id, next };
 }
 

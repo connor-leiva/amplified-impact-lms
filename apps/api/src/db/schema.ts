@@ -477,6 +477,11 @@ export const skillPurchases = pgTable('skill_purchases', {
   ghlError: text('ghl_error'),
   ghlSyncStamp: text('ghl_sync_stamp'),
   ghlLastAttemptAt: ts('ghl_last_attempt_at'),
+  // H-1: the account this checkout's guest purchase created, when it created one, and when the guest
+  // return after Stripe signed that account in. The return signs in only the account its own checkout
+  // made, and only once (migration 0040; both null on every row written before it).
+  createdUserId: text('created_user_id'),
+  guestEnteredAt: ts('guest_entered_at'),
 }, (t) => [
   uniqueIndex('skill_purchases_session_idx').on(t.stripeSessionId),
   uniqueIndex('skill_purchases_user_skill_idx').on(t.userId, t.skillId),

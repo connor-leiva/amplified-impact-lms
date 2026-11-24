@@ -34,6 +34,8 @@ export interface SubscriptionInfo {
   metadata: Record<string, string>;
   /** When it is set to end, epoch ms, or null. */
   cancelAt: number | null;
+  /** Set to end when its current period does (H-16: how a two-pay subscription stops after its last installment). */
+  cancelAtPeriodEnd: boolean;
   /** The end of the current period, epoch ms: on the item since API 2025-03-31, on the subscription before. */
   currentPeriodEnd: number | null;
 }
@@ -60,6 +62,12 @@ export interface BillingStripe {
   /** D-154: needs Payment Links: Write on the restricted key. The only Stripe write the seat cap makes. */
   updatePaymentLink(id: string, change: PaymentLinkChange, idempotencyKey: string): Promise<PaymentLinkInfo>;
   retrieveSubscription(id: string): Promise<SubscriptionInfo>;
+  /**
+   * H-16: the ids of this subscription's paid invoices that took money (`amount_paid` above $0), every
+   * page of them. A two-pay order's installments are counted from this, never from the order events
+   * happened to arrive in. Read-only.
+   */
+  paidInvoiceIds(subscriptionId: string): Promise<string[]>;
   updateSubscription(id: string, params: Stripe.SubscriptionUpdateParams, idempotencyKey?: string): Promise<SubscriptionInfo>;
   createSubscription(params: Stripe.SubscriptionCreateParams, idempotencyKey: string): Promise<SubscriptionInfo>;
   /** Cancels at once, with no proration: a refunded plan must not charge again. */
@@ -115,6 +123,7 @@ function subscriptionInfo(s: Stripe.Subscription): SubscriptionInfo {
     defaultPaymentMethod: idOf(s.default_payment_method as string | { id: string } | null),
     metadata: { ...(s.metadata ?? {}) },
     cancelAt: s.cancel_at ? s.cancel_at * 1000 : null,
+    cancelAtPeriodEnd: s.cancel_at_period_end === true,
     currentPeriodEnd: periodEndOf(s),
   };
 }
@@ -151,6 +160,14 @@ export function stripeClient(secretKey: string): BillingStripe {
 
     async retrieveSubscription(id) {
       return subscriptionInfo(await stripe.subscriptions.retrieve(id));
+    },
+
+    async paidInvoiceIds(subscriptionId) {
+      const ids: string[] = [];
+      for await (const invoice of stripe.invoices.list({ subscription: subscriptionId, status: 'paid', limit: 100 })) {
+        if (invoice.id && (invoice.amount_paid ?? 0) > 0) ids.push(invoice.id);
+      }
+      return ids;
     },
 
     async retrievePaymentLink(id) {

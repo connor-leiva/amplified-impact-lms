@@ -20,6 +20,7 @@ import { NOT_IN_PLAN, isAcceleratorModule } from './accelerator';
 import { canOpenModule } from './release';
 import { buildOf, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
+import { SUPPORT_EMAIL } from './offer';
 import { autoTargets, crossesWatch } from './video';
 import { seatCaps } from './seats';
 import { downgradeUser, upgradeUser } from './tiers';
@@ -548,7 +549,15 @@ export function downloadResource(db: Db, a: Actor, args: { id: string }, _c: Ctx
 // 8-11 · Portal Team Hub
 // ---------------------------------------------------------------------------
 
-/** 8 · Portal Team Hub: invite a seat. Four inline errors before anything is written. */
+/**
+ * H-12 (Week 0 launch audit; the approach of stale PR #67, D-141): an invite to an address that already
+ * has an account, on another team or on staff. One address is one account (`users.email` is unique,
+ * and sign-in matches it in any case), and moving someone between teams is support's decision, not
+ * the invite form's.
+ */
+export const ALREADY_HAS_ACCOUNT = `That email already has an Amplified Impact account. Invite them with a different email, or write to ${SUPPORT_EMAIL}.`;
+
+/** 8 · Portal Team Hub: invite a seat. Five inline errors before anything is written. */
 export function inviteMember(
   db: Db,
   a: Actor,
@@ -559,18 +568,26 @@ export function inviteMember(
   const team = db.teams.find((t) => t.id === owner.teamId);
   if (!team || !['Team Owner', 'Operations Lead'].includes(owner.role))
     throw new MutationError('forbidden', 'Only the team owner or operations lead can invite.');
-  const email = args.email.trim(),
+  const typed = args.email.trim(),
+    // H-12: stored and compared lower-cased, so `Natasha@HarborPine.com` is the same inbox as
+    // `natasha@harborpine.com` everywhere (the unique `users.email` is case-sensitive; sign-in is not).
+    email = typed.toLowerCase(),
     mem = db.users.filter((u) => u.teamId === team.id);
   if (!EMAIL_RE.test(email)) return { db, error: 'Enter a valid email address.' };
-  if (mem.some((u) => u.email.toLowerCase() === email.toLowerCase()))
+  if (mem.some((u) => u.email.toLowerCase() === email))
     return { db, error: 'That person is already on your team.' };
+  // Anyone else with this address, in any case: a learner on another team (a $37 buyer, a Utah Life
+  // member, another owner's agent) or staff. Without this the unique email answered 500, and a
+  // different case made a second account for the same inbox.
+  if (db.users.some((u) => u.email.toLowerCase() === email) || db.staff.some((x) => x.email.toLowerCase() === email))
+    return { db, error: ALREADY_HAS_ACCOUNT };
   if (mem.length >= team.seats)
     return { db, error: 'All seats are assigned. Remove a seat or contact us to add more.' };
   // The plan's seats, shared (D-081, D-120): 15 or 40 agents on the Team Plan, five in the prototype.
   const cap = seatCaps(db, team)[args.role];
   if (mem.filter((u) => u.role === args.role).length >= cap)
     return { db, error: `Your plan includes ${cap} ${args.role}${cap > 1 ? 's' : ''}.` };
-  const name = args.name?.trim() || nameFromEmail(email);
+  const name = args.name?.trim() || nameFromEmail(typed);
   return {
     db: produce(db, (d) => {
       d.users.push({
