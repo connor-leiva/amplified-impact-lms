@@ -21,7 +21,7 @@ import type { BuildKitVM } from '../WeekContent.vm';
 import { FormDrawer, useForm } from './FormDrawer';
 import { NO_TAP } from './tap';
 import type { FormApi } from './FormDrawer';
-import { FORM_ID, formDef, formInitial, formItem, formRow } from './form.vm';
+import { FORM_ID, formDef, formInitial, formItem, formRow, intakeStepOf } from './form.vm';
 import type { IntakeBody } from './form.vm';
 import { LockedWeekPage } from './LockedWeekPage';
 import type { FormAnswers } from './types';
@@ -78,7 +78,7 @@ export function V3Week({
   const intakeIds = form ? intakeFileIds(r.module, r.open?.kit ?? []) : [];
   // D-241: with no such file (the static PDF is no longer needed as a step file), the form still has its row, on the
   // intake's step.
-  const standIn = form && !intakeIds.length ? formItem(intakeCheckTarget(r.module)?.stepId ?? r.module?.checklist[0]?.id ?? null) : undefined;
+  const standIn = form && !intakeIds.length ? formItem(intakeStepOf(r.steps, intakeCheckTarget(r.module)?.stepId)) : undefined;
   const asForm: KitInput['formRow'] = form
     ? (item, row) => (intakeIds.includes(item.id) || item === standIn ? formRow(row, form, () => setOpen(true)) : row)
     : undefined;

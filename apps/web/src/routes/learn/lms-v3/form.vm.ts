@@ -77,6 +77,12 @@ export function formInitial(body: IntakeBody | null, now: number): FormInitial {
  */
 export const FORM_ROW_TITLE = 'Week 0 Intake Form';
 export const formItem = (stepId: string | null): CourseKitItem => ({ id: '', title: FORM_ROW_TITLE, kind: null, platform: null, stepId });
+/**
+ * The stand-in's step, from the week's own steps (the ids its row is drawn against): the step the intake's checklist
+ * item is on, else the week's first, the intake's step (`intakeFileIds`). Null for a week with no steps.
+ */
+export const intakeStepOf = (steps: readonly { id: string | null }[], target: string | null | undefined): string | null =>
+  (target ? steps.find((s) => s.id === target)?.id : undefined) ?? steps[0]?.id ?? null;
 
 /** B-14: the intake's kit row as the form's row: its line ("Step 1 · 9 of 22 answered") and one button that opens it. */
 export function formRow(row: KitRow, f: { row: { meta: string; label: string } }, onOpen: () => void): KitRow {

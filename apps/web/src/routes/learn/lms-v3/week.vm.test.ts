@@ -9,7 +9,7 @@ import { weekVM } from '../Week.vm';
 import { LEARNER_ID, PRELAUNCH_NOW, learnState } from '../test/fixture';
 import type { LearnState } from '../test/fixture';
 import { kitGroups, lockedWeekProps, stepsTitle, v3LockedDraws, v3WeekDraws, weekProps } from './week.vm';
-import { formItem, formRow } from './form.vm';
+import { formItem, formRow, intakeStepOf } from './form.vm';
 
 beforeEach(() => setViewerZone('America/Chicago'));
 afterEach(() => setViewerZone(null));
@@ -265,6 +265,15 @@ describe('the intake’s form row without a step file (D-241)', () => {
     expect(rows[0]).toMatchObject({ icon: 'file', form: 'intake', meta: 'Step 1 · 9 of 22 answered' });
     expect(rows[0]!.href).toBeUndefined();
     expect(rows[0]!.acts?.map((a) => a.label)).toEqual(['Continue']);
+  });
+  it('takes its step from the week’s own steps: the intake item’s, else the first', () => {
+    expect(intakeStepOf(r.steps, 'c1')).toBe('c1');
+    expect(intakeStepOf(r.steps, 'c3')).toBe('c3');
+    // A module record whose ids the course's steps don't share (the item's step isn't on the week): the week's first.
+    expect(intakeStepOf(r.steps, 'not-a-step')).toBe(r.steps[0]!.id);
+    expect(intakeStepOf(r.steps, undefined)).toBe(r.steps[0]!.id);
+    expect(intakeStepOf([], 'c1')).toBeNull();
+    expect(files([stack], formItem(intakeStepOf(r.steps, 'not-a-step')))[0]).toMatchObject({ title: 'Week 0 Intake Form', meta: 'Step 1 · 9 of 22 answered' });
   });
   it('draws nothing extra without the stand-in, or without a form row to draw it', () => {
     expect(files([stack]).map((x) => x.title)).toEqual(['Week 0 Stack Card']);
