@@ -581,6 +581,16 @@ export function weeklyAgentTraining(
   return 'hidden';
 }
 
+/**
+ * D-241: a $37 skill buyer and nothing more (Connor, Nov 24, 2026): a learner who bought at least one skill, holds no
+ * plan and is in no access group. They get the LMS's shell with their skills first and the rest of the LMS shown
+ * locked (`/learn`). Everyone else keeps what they have: an access group's member (Utah Life) and every plan's member,
+ * with or without a $37 skill beside it. Read off `GET /api/skills` (`plans`, `accessGroups`, `purchased`).
+ */
+export function skillOnlyBuyer(a: { plans?: readonly unknown[]; accessGroups?: readonly unknown[]; purchased?: readonly string[] }): boolean {
+  return (a.plans ?? []).length === 0 && (a.accessGroups ?? []).length === 0 && (a.purchased ?? []).length > 0;
+}
+
 /** The locked training row and the panel it opens. The link is the Agent Plan monthly cart. */
 export const AGENT_TRAINING = {
   title: 'Weekly Live Training',

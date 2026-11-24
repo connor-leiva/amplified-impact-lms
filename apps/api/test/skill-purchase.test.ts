@@ -184,10 +184,15 @@ describe('the webhook and access', () => {
     expect(list.json().skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('open');
     // The other paid skill stays locked: a purchase is one skill, not a plan.
     expect(list.json().skills.find((s: { id: string }) => s.id === 'appointment-follow-up').state).toBe('locked');
+    // D-241: the bought skill is named, so a buyer with no plan gets the LMS with it first.
+    expect(before.json().purchased).toEqual([]);
+    expect(list.json().purchased).toEqual(['team-pnl-review']);
 
     expect(await deliver('evt_refund', 'charge.refunded', { id: 'ch_skill', object: 'charge', refunded: true, payment_intent: 'pi_skill' })).toBe('skill-refunded');
     expect((await db.select().from(skillPurchases))[0]!.refundedAt).toBe(NOW);
-    expect((await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('locked');
+    const refunded = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json();
+    expect(refunded.skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('locked');
+    expect(refunded.purchased).toEqual([]);
 
     // A later purchase of the same skill reopens it. The $37 is not turned into Insiders.
     expect(await deliver('evt_rebuy', 'checkout.session.completed', paidSession('u_jamie', 'team-pnl-review', 'cs_test_again', 'pi_skill2'))).toBe('repurchased');
@@ -195,6 +200,18 @@ describe('the webhook and access', () => {
     expect(again).toMatchObject({ stripeSessionId: 'cs_test_again', refundedAt: null });
     expect(await db.select().from(skillPurchases)).toHaveLength(1);
     expect((await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().plans).toEqual([]);
+  });
+
+  it('names the skills a learner holds, the latest purchase first (D-241)', async () => {
+    const cookie = await app.signInAs('u_jamie');
+    await db.insert(skillPurchases).values([
+      { id: 'sp_old', userId: 'u_jamie', skillId: 'team-pnl-review', stripeSessionId: 'cs_old', amount: 3700, purchasedAt: NOW - DAY },
+      { id: 'sp_new', userId: 'u_jamie', skillId: 'appointment-follow-up', stripeSessionId: 'cs_new', amount: 3700, purchasedAt: NOW },
+    ]);
+    const body = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json();
+    expect(body.purchased).toEqual(['appointment-follow-up', 'team-pnl-review']);
+    expect(body.plans).toEqual([]);
+    expect(body.accessGroups).toEqual([]);
   });
 
   it('ignores a Payment Link session that carries no ai_plan, even when it names a skill', async () => {

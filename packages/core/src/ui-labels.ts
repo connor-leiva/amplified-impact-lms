@@ -29,6 +29,10 @@ export const UI_LABELS: readonly { text: string; why: string }[] = [
     why: 'The session-type label (the Schedule, the step player’s help row, the builder). D-193’s glossary uses the same two words for the term. The term’s short and long lines are not in this list.',
   },
   {
+    text: 'Claude or ChatGPT',
+    why: 'D-241: which AI apps a skill works in, as the Skill Library labels it (`platformsOf`, from the library’s TOOLS), and the $37 buyer’s Home line “Open its Setup Guide to add it to Claude or ChatGPT.” A week’s platform line repeats the words; it still comes from the database.',
+  },
+  {
     text: 'your operator',
     why: 'The builder’s default Invite button reads “Invite your operator” (D-190). D-193’s Operator term has that phrase as an alias. The alias’s meaning still comes from the glossary, not from this label.',
   },
