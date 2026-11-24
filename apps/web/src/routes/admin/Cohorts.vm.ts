@@ -14,7 +14,7 @@
 // reference computes it. In http mode the API returns `ZERO_BASE`, so this same arithmetic shows
 // live numbers. Nothing here branches on the data source.
 
-import { adminWhen, courseOpensAt, curriculumWeekAt, curriculumWeeks, fmt, fromAdminLocal, moduleForSession, sessionCurriculumWeek, sessionState, sessionWeek, toAdminLocal } from '@ai/core';
+import { adminWhen, courseOpensAt, courseUsers, curriculumWeekAt, curriculumWeeks, fmt, fromAdminLocal, moduleForSession, sessionCurriculumWeek, sessionState, sessionWeek, toAdminLocal } from '@ai/core';
 import type { Cohort, Db, Session } from '@ai/core';
 
 /** The three tones this screen's pills use. They resolve to the status custom properties in CSS. */
@@ -118,7 +118,8 @@ export const sessionForm = (s: Session): SessionForm => ({
 
 export function cohortsVM(db: Db, now: number, selectedId: string): CohortsVM {
   // phase 06 § 6.2. `db.base` first, always — the aggregate learners are not in `db.users`.
-  const learners = db.base.learners + db.users.filter((u) => u.status !== 'invited' && u.test !== true).length;
+  // D-243: the cohort's learners only, not the ones outside the course.
+  const learners = db.base.learners + courseUsers(db).filter((u) => u.status !== 'invited' && u.test !== true).length;
 
   const co = db.cohorts.find((x) => x.id === selectedId) ?? db.cohorts[0] ?? null;
 

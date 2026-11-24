@@ -17,7 +17,7 @@ import { useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
-import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
+import type { GroupR2Row, LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
 import s from './Learners.module.css';
 
 // Admin Learners & Teams `/admin/learners` on the Admin redesign R2 (D-160 R2-3): the signed-off
@@ -34,6 +34,11 @@ import s from './Learners.module.css';
 //     old screens' Export roster and the Needs Attention list with Nudge All have no surface the mockup
 //     draws, so they are not offered here (Needs Connor's call); each learner's nudge stays in their
 //     details drawer.
+//   - D-243 (Connor, Nov 24): Learners and Teams are the cohort's, the learners in the course. Each access
+//     group with people outside the course (Utah Life) has a tab of its own, named and counted from the data,
+//     after Teams: their name or address and when they were last active. A row opens their User page; they
+//     build nothing in the course, so there is no details drawer. With no group (the fixture) the tabs are
+//     the mockup's two.
 
 function Learners() {
   const db = useDb();
@@ -44,7 +49,7 @@ function Learners() {
   const navigate = useNavigate();
   const entry = useMasqueradeEntry();
 
-  const [tab, setTab] = useState<'learners' | 'teams'>('learners');
+  const [tab, setTab] = useState<'learners' | 'teams' | `group:${string}`>('learners');
   const [q, setQ] = useState('');
   const [tier, setTier] = useState<R2TierFilter>('All tiers');
   const [sel, setSel] = useState<string | null>(null);
@@ -137,6 +142,25 @@ function Learners() {
     { key: 'invites', label: 'Pending invites', width: '104px', value: (t) => t.invites },
   ];
 
+  const groupCols: Column<GroupR2Row>[] = [
+    {
+      key: 'name',
+      label: 'Learner',
+      width: 'minmax(200px,1.5fr)',
+      value: (u) => u.name,
+      cell: (u) => (
+        <div className={clsx(k.row, k.nw, s.who)}>
+          <Avatar initials={u.initials} />
+          <Two a={u.name} b={u.email} />
+        </div>
+      ),
+    },
+    { key: 'last', label: 'Last active', width: '128px', noSort: true, value: (u) => u.lastAt, cell: (u) => u.last },
+  ];
+  const group = vm.groups.find((g) => g.key === tab) ?? null;
+  // A group's tab that is gone (its people joined the course, or the data moved) reads as Learners.
+  const current = group ? group.key : tab === 'teams' ? 'teams' : 'learners';
+
   const learnerMenu = (u: LearnerR2Row): MenuEntry[] => [
     { label: 'Open learner details', onSelect: () => setSel(u.id) },
     { label: 'Open user record', onSelect: () => navigate(userPath(u.id)) },
@@ -155,15 +179,29 @@ function Learners() {
       <Tabs
         label="Section"
         phone={phone}
-        value={tab}
+        value={current}
         onChange={setTab}
         tabs={[
           { id: 'learners', label: 'Learners', count: vm.learnersCount },
           { id: 'teams', label: 'Teams', count: vm.teamsCount },
+          ...vm.groups.map((g) => ({ id: g.key, label: g.name, count: g.rows.length })),
         ]}
       />
 
-      {tab === 'learners' ? (
+      {group ? (
+        <Table
+          label={group.name}
+          cols={groupCols}
+          rows={group.rows}
+          rowKey={(u) => u.id}
+          onRow={(u) => navigate(userPath(u.id))}
+          menu={(u) => [
+            { label: 'Open user record', onSelect: () => navigate(userPath(u.id)) },
+            ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: group.name }),
+          ]}
+          empty={{ icon: 'r2Learners', title: 'No learners enrolled' }}
+        />
+      ) : current === 'learners' ? (
         <>
           <div className={k.row}>
             <Find value={q} onChange={setQ} placeholder="Filter by name or team" />

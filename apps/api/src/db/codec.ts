@@ -26,7 +26,7 @@
 // real cohort moves through its dates on its own. `Dashboard.vm.ts` already reads an absent phase
 // as `'live'`, which is the correct answer for production.
 
-import { DB_V, ZERO_BASE } from '@ai/core';
+import { DB_V, ZERO_BASE, enrolledIn } from '@ai/core';
 import type {
   AIEmployee,
   ActivityEvent,
@@ -620,9 +620,8 @@ export function fromRows(rows: Rows): Db {
     }));
 
   // Derived, per § 7.2: the number of learners whose cohort it is. A seeded test account is enrolled
-  // for real and is left out of the number (D-202).
-  const enrolled = new Map<string, number>();
-  for (const u of users) if (!u.test) enrolled.set(u.cohortId, (enrolled.get(u.cohortId) ?? 0) + 1);
+  // for real and is left out of the number (D-202). `enrolledIn` is the rule; the snapshot route counts
+  // again without the learners outside the course (D-243, `withOutside`), which the rows here can't tell.
 
   const dismissed: Record<string, 1> = {};
   for (const r of rows.dismissals) dismissed[`${str(r.userId)}:${str(r.announcementId)}`] = 1;
@@ -646,7 +645,7 @@ export function fromRows(rows: Rows): Db {
           end: num(r.end),
           status: r.status as Cohort['status'],
           capacity: num(r.capacity),
-          enrolled: enrolled.get(str(r.id)) ?? 0,
+          enrolled: enrolledIn(users, str(r.id)),
           cadence: str(r.cadence),
         },
         { weeks: r.weeks, previewOpensAt: r.previewOpensAt, timezone: r.timezone, defaultOpenTime: r.defaultOpenTime, course: r.course },

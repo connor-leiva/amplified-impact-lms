@@ -196,7 +196,9 @@ describe('GET /api/snapshot @g7', () => {
 
   it('is scopeSnapshot(loadDb(), actor) and nothing else', async () => {
     // The whole object, both viewers. A route that re-filtered — or that forgot to scope — fails
-    // this; so does one that adds a field the web app would then depend on.
+    // this; so does one that adds a field the web app would then depend on. D-243: the route also
+    // counts the cohort without the learners outside the course (`withOutside`). The demo database
+    // has nobody outside it, so this is `loadDb`'s own; course-members.test.ts holds the rest.
     for (const [id, actor] of [
       ['u_jamie', { kind: 'learner', userId: 'u_jamie' }],
       ['st1', { kind: 'staff', staffId: 'st1' }],

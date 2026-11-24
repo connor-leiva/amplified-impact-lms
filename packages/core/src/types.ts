@@ -155,5 +155,29 @@ export interface Db {
   base: Baseline; activity: ActivityEvent[];
   /** The builder's copy strings (D-173). Optional: absent when there are none, as in every fixture. */
   copy?: CopyString[];
+  /**
+   * D-243: the learners outside the course, in staff's snapshot only. Absent in every learner's snapshot and in
+   * the fixture, where everyone is the cohort's. See `cohort-members.ts`.
+   */
+  outside?: Outside;
+}
+
+/**
+ * D-243: who is outside the course: their team's plans don't hold it, and they hold something else instead (an
+ * access group, Utah Life above all; another plan, or the course refunded; a skill bought on its own).
+ * Provisioning put them in the cohort all the same. A learner who holds nothing stays the cohort's.
+ */
+export interface Outside {
+  /** Every learner outside the course. */
+  ids: string[];
+  /** The access groups they are in by their address, by name. */
+  groups: OutsideGroup[];
+}
+
+/** One access group, and which of the learners outside the course are in it. */
+export interface OutsideGroup {
+  id: string;
+  name: string;
+  ids: string[];
 }
 export const ZERO_BASE: Baseline = { learners: 0, agent: 0, teamSeats: 0, teams: 0, mod: {}, daily: [0] };

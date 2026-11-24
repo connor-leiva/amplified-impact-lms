@@ -8,7 +8,8 @@ import type { CommunityList, CommunityThread } from '@ai/core/community';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { accounts, auditLog, communityPosts, communityThreads, emailLog, modules, plans, teams, users } from '../src/db/schema';
+import { provisionGroupMember } from '../src/billing/access-groups';
+import { accessGroups, accounts, auditLog, communityPosts, communityThreads, emailLog, modules, plans, teams, users } from '../src/db/schema';
 import { resetDatabase, testDatabase } from './helpers';
 import type { Database } from '../src/db/client';
 
@@ -230,6 +231,24 @@ describe('the Community (D-231)', () => {
     expect(learner).not.toHaveProperty('members');
     for (const t of learner.threads) expect(t).not.toHaveProperty('waiting');
     expect(Object.keys(learner).sort()).toEqual(['me', 'people', 'spaces', 'staff', 'threads']);
+  });
+
+  // D-243 (Connor, Nov 24): the members are the course's. Whoever holds something else instead (an access group,
+  // another plan, the course refunded) is outside it, by rule; a buyer's teammate is in it through the team's plan.
+  it('counts the course’s members only: not Utah Life, another plan’s buyer or a refunded team (D-243)', async () => {
+    await handle.insert(accessGroups).values({ id: 'utah-life', name: 'Utah Life', plan: 'agent_plan', emailDomain: 'liveutah.com', expiresAt: null, createdAt: T });
+    const jane = await provisionGroupMember(handle, 'jane@liveutah.com', T);
+    await handle.update(users).set({ status: 'active' }).where(eq(users.id, jane!));
+    await handle.insert(users).values({ id: 'ops-a', email: 'ops-a@example.test', name: 'Opal Ops', kind: 'learner', tier: 'team', role: 'Operations Lead', teamId: 'team-a', cohortId: 'dec26', status: 'active', joined: T, seq: 95 });
+    let staff = (await list('st_owner')).json() as CommunityList;
+    // Jane is outside; Nora's team holds nothing yet, so she stays the cohort's, as before.
+    expect(staff.members).toEqual({ learners: 4, teams: 3 });
+    // Team N buys another plan; team B's course is refunded.
+    await handle.insert(accounts).values({ id: 'acct-n', teamId: 'team-n', ownerUserId: 'own-n', ownerEmail: 'own-n@example.test', name: 'No Plan Team', createdAt: T });
+    await handle.insert(plans).values({ id: 'plan-n', accountId: 'acct-n', kind: 'agent_plan', option: 'monthly', seats: 1, cohortId: null, status: 'active', startsAt: T - 86_400_000, orderId: 'ord-n', createdAt: T });
+    await handle.update(plans).set({ status: 'ended' }).where(eq(plans.id, 'plan-b'));
+    staff = (await list('st_owner')).json() as CommunityList;
+    expect(staff.members).toEqual({ learners: 2, teams: 1 });
   });
 
   it('keeps a thread in a week a learner hasn’t opened to staff', async () => {

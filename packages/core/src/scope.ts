@@ -336,8 +336,12 @@ function scopeForStaff(db: Db, staffId: string): Db {
   if (!db.staff.some((s) => s.id === staffId)) return denyAll(db);
   // Everything except the auth tables, which `Db` does not model in the first place.
   const out: Db = { ...db, base: zeroBase() };
-  // No `viewLearners` means no learner rows at all, and therefore no learner progress.
-  if (!can(db, { kind: 'staff', staffId }, 'viewLearners')) out.users = [];
+  // No `viewLearners` means no learner rows at all, and therefore no learner progress. Nor who is outside the
+  // course and in which access group (D-243): that is learner data too.
+  if (!can(db, { kind: 'staff', staffId }, 'viewLearners')) {
+    out.users = [];
+    delete out.outside;
+  }
   return out;
 }
 

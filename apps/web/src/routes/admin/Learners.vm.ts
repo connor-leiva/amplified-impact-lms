@@ -13,7 +13,7 @@
 // The reference's inline colours become semantic tones the stylesheet keys off. Only the seeded
 // avatar fill and the seat bar's width are genuinely per-instance, and they travel as values.
 
-import { adminDate, adminStamp, buildOf, canAccess, csv, fmt, isOpen, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
+import { adminDate, adminStamp, buildOf, canAccess, courseTeams, courseUsers, csv, fmt, isOpen, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
 import type { BuildState, Db, Learner, RuntimeState, Tier } from '@ai/core';
 
 export type LearnersTab = 'learners' | 'teams';
@@ -156,8 +156,10 @@ export function learnersVM(db: Db, now: number, ui: LearnersUi = LEARNERS_UI): L
   const mods = visibleModules(db);
   const teamOf = (u: Learner) => (u.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined);
 
-  const active = db.users.filter((u) => u.status !== 'invited');
-  const invited = db.users.filter((u) => u.status === 'invited');
+  // D-243: the cohort's learners only. Everyone, without `db.outside` (the fixture).
+  const people = courseUsers(db);
+  const active = people.filter((u) => u.status !== 'invited');
+  const invited = people.filter((u) => u.status === 'invited');
 
   // ---- The four stat cards. Each one adds its `base` aggregate (phase 06 § 6.2). --------------
   const stats: StatCard[] = [
@@ -178,7 +180,7 @@ export function learnersVM(db: Db, now: number, ui: LearnersUi = LEARNERS_UI): L
 
   // ---- Filter, then sort newest-active first ---------------------------------------------------
   const ql = ui.q.trim().toLowerCase();
-  const list = db.users
+  const list = people
     .filter((u) => {
       if (ui.tier && u.tier !== ui.tier) return false;
       if (!ql) return true;
@@ -220,7 +222,8 @@ export function learnersVM(db: Db, now: number, ui: LearnersUi = LEARNERS_UI): L
   });
 
   // ---- Teams tab -------------------------------------------------------------------------------
-  const teams: TeamRow[] = db.teams.map((t) => {
+  const cohortTeams = courseTeams(db);
+  const teams: TeamRow[] = cohortTeams.map((t) => {
     const mem = db.users.filter((u) => u.teamId === t.id);
     const mact = mem.filter((u) => u.status !== 'invited');
     const owner = db.users.find((u) => u.id === t.ownerId);
@@ -291,8 +294,8 @@ export function learnersVM(db: Db, now: number, ui: LearnersUi = LEARNERS_UI): L
     isTeams: ui.tab === 'teams',
     rows,
     teams,
-    footNote: `Showing ${rows.length} of ${fmt.num(base.learners + db.users.length)} learners. Highlighted rows are the demo personas.`,
-    teamsNote: `Showing ${teams.length} of ${base.teams + db.teams.length} teams.`,
+    footNote: `Showing ${rows.length} of ${fmt.num(base.learners + people.length)} learners. Highlighted rows are the demo personas.`,
+    teamsNote: `Showing ${teams.length} of ${base.teams + cohortTeams.length} teams.`,
     drawer: { open: !!du, person },
     csvName: 'learners-dec-2026.csv',
     // `u.role` is the raw role, without the ` · Demo: …` badge the table appends. The reference's
@@ -350,6 +353,28 @@ export interface TeamR2Row {
   invites: string;
 }
 
+/** D-243: one of an access group's people, on its tab: outside the course, so no builds and no team. */
+export interface GroupR2Row {
+  id: string;
+  /** Their name, or their address when they have given none (a self-serve sign-up). */
+  name: string;
+  /** Their address under the name, or nothing when the address is the name. */
+  email: string;
+  initials: string;
+  /** `Dec 10, 8:52 AM`, `Invite pending` (a sign-up who hasn't followed their link), or `—`. */
+  last: string;
+  /** For sorting Last active. */
+  lastAt: number;
+}
+
+/** D-243: an access group's tab (Utah Life): the learners outside the course who are in it, by name. */
+export interface GroupR2Tab {
+  /** `group:{the group's id}`: never `learners` or `teams`. */
+  key: `group:${string}`;
+  name: string;
+  rows: GroupR2Row[];
+}
+
 export interface LearnersR2VM {
   learnersCount: number;
   teamsCount: number;
@@ -357,6 +382,8 @@ export interface LearnersR2VM {
   started: boolean;
   rows: LearnerR2Row[];
   teams: TeamR2Row[];
+  /** D-243: a tab per access group with people outside the course in it. None without `db.outside` (the fixture). */
+  groups: GroupR2Tab[];
 }
 
 export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: string }): LearnersR2VM {
@@ -365,8 +392,11 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
   const open = visibleModules(db).filter((m) => isOpen(m, now));
   const teamOf = (u: Learner) => (u.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined);
   const ql = ui.q.trim().toLowerCase();
+  // D-243: the cohort's learners and teams only. The people outside the course are on their group's tab.
+  const people = courseUsers(db);
+  const cohortTeams = courseTeams(db);
 
-  const rows = db.users
+  const rows = people
     .filter((u) => (ui.tier === 'All tiers' || (u.tier === 'team' ? 'Team' : 'Agent') === ui.tier))
     .filter((u) => !ql || (u.name + u.email + (teamOf(u)?.name ?? '')).toLowerCase().includes(ql))
     .map((u): LearnerR2Row => {
@@ -386,7 +416,7 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
       };
     });
 
-  const teams = db.teams.map((t): TeamR2Row => {
+  const teams = cohortTeams.map((t): TeamR2Row => {
     const members = db.users.filter((u) => u.teamId === t.id);
     const pending = members.filter((u) => u.status === 'invited').length;
     return {
@@ -400,12 +430,34 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
     };
   });
 
+  const byId = new Map(db.users.map((u) => [u.id, u]));
+  const outside = new Set(db.outside?.ids ?? []);
+  const groups = (db.outside?.groups ?? []).flatMap((g): GroupR2Tab[] => {
+    const groupRows = g.ids
+      .filter((id) => outside.has(id))
+      .flatMap((id) => {
+        const u = byId.get(id);
+        return u ? [u] : [];
+      })
+      .map((u): GroupR2Row => ({
+        id: u.id,
+        name: u.name || u.email,
+        email: u.name ? u.email : '',
+        initials: fmt.initials(u.name || u.email),
+        last: u.status === 'invited' ? 'Invite pending' : u.last ? adminStamp(u.last) : '—',
+        lastAt: u.last ?? 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return groupRows.length ? [{ key: `group:${g.id}`, name: g.name, rows: groupRows }] : [];
+  });
+
   return {
-    learnersCount: base.learners + db.users.filter((u) => u.test !== true).length,
-    teamsCount: base.teams + db.teams.length,
+    learnersCount: base.learners + people.filter((u) => u.test !== true).length,
+    teamsCount: base.teams + cohortTeams.length,
     started: !!cohort && now >= cohort.start,
     rows,
     teams,
+    groups,
   };
 }
 

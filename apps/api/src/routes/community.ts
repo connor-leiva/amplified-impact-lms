@@ -52,6 +52,7 @@ import { loadDb } from '../db/io';
 import { communityPosts, communityThreads, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { courseEntryFor } from '../lib/course-access';
+import { outsideOf } from '../lib/course-members';
 
 export { COMMUNITY_PATH };
 export const COMMUNITY_THREAD_PATH = `${COMMUNITY_PATH}/:id`;
@@ -122,13 +123,18 @@ async function peopleOf(ids: readonly string[]): Promise<Record<string, Communit
   );
 }
 
-/** D-238: the cohort's learners, not those still invited (as the Console counts them), and the teams they are in. */
-async function membersOf(cohortId: string): Promise<CommunityMembers> {
+/**
+ * D-238: the cohort's learners, not those still invited (as the Console counts them), and the teams they are in.
+ * D-243: not the learners outside the course either (an access group's member, Utah Life above all, or another
+ * plan's buyer), though provisioning put them in the cohort: `outsideOf`, the rule every cohort number uses.
+ */
+async function membersOf(cohortId: string, now: number): Promise<CommunityMembers> {
   const rows = await getDb()
-    .select({ teamId: users.teamId, status: users.status })
+    .select({ id: users.id, email: users.email, teamId: users.teamId, status: users.status })
     .from(users)
     .where(and(eq(users.kind, 'learner'), eq(users.cohortId, cohortId)));
-  const live = rows.filter((r) => r.status !== 'invited');
+  const outside = new Set((await outsideOf(getDb(), rows, now, { groups: false })).ids);
+  const live = rows.filter((r) => r.status !== 'invited' && !outside.has(r.id));
   return { learners: live.length, teams: new Set(live.flatMap((r) => (r.teamId ? [r.teamId] : []))).size };
 }
 
@@ -226,7 +232,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
       spaces: spacesWith(m, threads.map((t) => t.space)),
       people,
       threads,
-      ...(m.staff && { members: await membersOf(m.cohortId) }),
+      ...(m.staff && { members: await membersOf(m.cohortId, clock.now()) }),
     };
     return reply.code(200).send(body);
   });

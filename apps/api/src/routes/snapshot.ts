@@ -32,8 +32,13 @@
 // are for a plan that opens the course, and every paid buyer sits in cohort `dec26` as Team tier, so
 // the `Db` alone cannot tell who bought it. The route reads the learner's plans (lib/course-access.ts)
 // and hands `scopeSnapshot` a yes or no; the filtering itself stays in the one tested function.
+//
+// AND WHO IS OUTSIDE THE COURSE (D-243). For the same reason, the cohort's rows can't tell an access group's
+// member (Utah Life) or another plan's buyer from a learner in the course. The route reads it
+// (lib/course-members.ts) and `withOutside` counts each cohort's `enrolled` without them, for everyone. The
+// list itself, with the access groups they are in, is staff's: `scopeSnapshot` hands it to no learner.
 
-import { scopeSnapshot } from '@ai/core';
+import { scopeSnapshot, withOutside } from '@ai/core';
 import type { Db } from '@ai/core';
 import type { FastifyInstance } from 'fastify';
 import { requireSession, viewerOrThrow } from '../auth';
@@ -41,13 +46,17 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
 import { viewerAccessFor } from '../lib/course-access';
+import { outsideOf } from '../lib/course-members';
 
 export function registerSnapshotRoute(app: FastifyInstance): void {
   app.get('/api/snapshot', { preHandler: requireSession }, async (req): Promise<Db> => {
     const { actor } = viewerOrThrow(req);
     const db = getDb();
+    const now = clock.now();
     // D-175: the course opens to a learner on its own dates (the preview, each week's opening).
-    const access = actor.kind === 'learner' ? await viewerAccessFor(db, actor.userId, clock.now()) : undefined;
-    return scopeSnapshot(await loadDb(db), actor, access);
+    const access = actor.kind === 'learner' ? await viewerAccessFor(db, actor.userId, now) : undefined;
+    const all = await loadDb(db);
+    const outside = await outsideOf(db, all.users, now, { groups: actor.kind === 'staff' });
+    return scopeSnapshot(withOutside(all, outside), actor, access);
   });
 }

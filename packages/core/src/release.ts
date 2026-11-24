@@ -41,6 +41,13 @@ export const CLOSED: CourseEntry = { open: false, preview: false };
 export const liveCoursePlan = (plans: readonly AcceleratorPlan[]): boolean =>
   plans.some((p) => p.kind === 'cohort' && p.option !== null && ACCELERATOR_OPTIONS.includes(p.option) && p.status !== 'ended' && !pausedForPayment(p));
 
+/**
+ * D-243: a plan that holds the course, open yet or not: bought in full or in two payments and not ended (a refund
+ * ends it). A plan paused for a payment (D-143) still holds it. Who counts as the cohort's (`cohort-members.ts`).
+ */
+export const holdsCourse = (plans: readonly AcceleratorPlan[]): boolean =>
+  plans.some((p) => p.kind === 'cohort' && p.option !== null && ACCELERATOR_OPTIONS.includes(p.option) && p.status !== 'ended');
+
 /** Whether these plans let a learner into the course at `now`, given the cohort's release plan. */
 export function courseEntry(plans: readonly AcceleratorPlan[], now: number, cohort: Pick<Cohort, 'previewOpensAt'> | null | undefined): CourseEntry {
   if (acceleratorOpen(plans, now)) return { open: true, preview: false };

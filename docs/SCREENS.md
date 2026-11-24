@@ -575,6 +575,7 @@ Ref: `Admin Learners.dc.html`.
 - **Teams table**, min-width 860: `Team · Owner · Seats · Deployed · Pending Invites`.
 - **Learner drawer** (440): facts (`Tier`, `Team`, `Joined`, `Last Active`) and `Build Progress` rows. Locked employees show an access token; others show build plus runtime tokens.
   - Footer: `Upgrade to Team Tier` (amber primary) or `Move to Agent Tier` (secondary), plus `Send Nudge` / `Resend Invite`.
+- **D-243:** every count and table here is the cohort's, the learners in the course. Each access group with people outside the course (Utah Life) has a tab of its own after Teams, named and counted from the data: `Learner` and `Last active`, each row opening the User page. The fixture has no groups, so the reference's tabs are unchanged.
 
 ### 4.6 Resource Vault manager `/admin/vault`
 Ref: `Admin Vault.dc.html`.

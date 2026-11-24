@@ -325,7 +325,8 @@ describe('Gate 7 · GET /api/snapshot applies § 7.4 @g7', () => {
       expect(seen[name].status, name).toBe(200);
       // The route's whole body against the pure function, per viewer. A route that re-filtered,
       // added a field or forgot to scope fails this, and so does one whose `loadDb` and
-      // `scopeSnapshot` disagree about a shape.
+      // `scopeSnapshot` disagree about a shape. D-243: the route's `withOutside` adds nothing here,
+      // where nobody is outside the course (course-members.test.ts holds the case where someone is).
       expect(seen[name].db, name).toEqual(scopeSnapshot(whole, VIEWERS[name].actor));
     }
     // And the other half: that scoping HAPPENED. `toEqual(scopeSnapshot(...))` would also pass if

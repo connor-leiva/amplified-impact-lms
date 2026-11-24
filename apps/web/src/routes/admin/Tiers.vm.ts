@@ -14,7 +14,7 @@
 // In http mode the API returns `ZERO_BASE`, so the same arithmetic shows live numbers. Nothing here
 // branches on where the data came from.
 
-import { adminStamp, fmt, sortedModules } from '@ai/core';
+import { adminStamp, courseTeams, courseUsers, fmt, sortedModules } from '@ai/core';
 import type { Db, IconName, Tier, UpgradeRequest } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -122,13 +122,14 @@ const ORDER: Record<UpgradeRequest['status'], number> = { new: 0, contacted: 1, 
 
 export function tiersVM(db: Db, now: number): TiersVM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  // D-243: the cohort's learners and teams only. Nobody outside the course holds a tier's seat.
+  const users = courseUsers(db).filter((u) => u.status !== 'invited' && u.test !== true);
 
   // The two figures every price on this screen is multiplied by. A seeded test account's team is
   // left out, so its price is not multiplied into the revenue line (D-202).
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
-  const teamN = B.teams + db.teams.filter((t) => !testOwners.has(t.ownerId)).length;
+  const teamN = B.teams + courseTeams(db).filter((t) => !testOwners.has(t.ownerId)).length;
 
   const priceOf = (id: Tier): number => db.tiers.find((t) => t.id === id)?.price ?? 0;
 
@@ -275,14 +276,16 @@ const R2_REQUEST_STATUS: Record<UpgradeRequest['status'], RequestR2Row['status']
 
 export function tiersR2VM(db: Db): TiersR2VM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  // D-243: the cohort's learners and teams only. Nobody outside the course holds a tier's seat.
+  const users = courseUsers(db).filter((u) => u.status !== 'invited' && u.test !== true);
+  const cohortTeams = courseTeams(db);
   const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const teamTiers = db.tiers.filter((t) => t.id === 'team').sort((a, b) => a.seats - b.seats);
 
   /** The teams a Team Tier card counts: every team, or with several sizes, the teams of its size. */
   const teamsFor = (seats: number): number => {
-    const teams = db.teams.filter((t) => !testOwners.has(t.ownerId));
+    const teams = cohortTeams.filter((t) => !testOwners.has(t.ownerId));
     if (teamTiers.length <= 1) return B.teams + teams.length;
     const i = teamTiers.findIndex((t) => t.seats === seats);
     const below = i > 0 ? teamTiers[i - 1]!.seats : 0;
@@ -307,7 +310,7 @@ export function tiersR2VM(db: Db): TiersR2VM {
     };
   });
   const revenue = db.tiers.reduce((a, t) => a + (t.id === 'team' ? teamsFor(t.seats) : agentN) * t.price, 0);
-  const teamN = B.teams + db.teams.length;
+  const teamN = B.teams + cohortTeams.length;
   const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0];
 
   const agentPrice = db.tiers.find((t) => t.id === 'agent')?.price;

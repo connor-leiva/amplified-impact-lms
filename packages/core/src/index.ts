@@ -39,6 +39,7 @@ export * from './admin-actions';
 export * from './course-rules';
 export * from './course-actions';
 export * from './release';
+export * from './cohort-members';
 export * from './console-staff';
 export * from './build-audit';
 export * from './uploads';

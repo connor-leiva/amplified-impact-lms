@@ -22,6 +22,7 @@ import {
   adminTime,
   adminWhen,
   canAccess,
+  courseUsers,
   fmt,
   sessionFor,
   sessionState,
@@ -82,8 +83,9 @@ export interface CurriculumVM {
 export function curriculumVM(db: Db, now: number): CurriculumVM {
   const base = db.base;
   const mods = sortedModules(db);
-  // Invited people have no portal yet, so they are not part of any AI Employee's audience.
-  const users = db.users.filter((u) => u.status !== 'invited');
+  // Invited people have no portal yet, so they are not part of any AI Employee's audience. Nor is anyone
+  // outside the course (D-243).
+  const users = courseUsers(db).filter((u) => u.status !== 'invited');
 
   const rows: CurriculumRow[] = mods.map((m, i) => {
     const sess = m.session ? sessionFor(db, COHORT_ID, m.session) : null;
@@ -210,7 +212,8 @@ export const tierWords = (t: Tier): string => (t === 'agent' ? 'Agent + Team' : 
 
 export function curriculumR2VM(db: Db, now: number): CurriculumR2VM {
   const mods = sortedModules(db);
-  const users = db.users.filter((u) => u.status !== 'invited');
+  // D-243: the cohort's learners only, not the ones outside the course.
+  const users = courseUsers(db).filter((u) => u.status !== 'invited');
   const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? null;
   const started = !!cohort && now >= cohort.start;
 
