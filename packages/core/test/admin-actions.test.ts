@@ -19,13 +19,14 @@ import {
   freshStepId,
   isAdminActionName,
   isReplayUrl,
+  moduleVersion,
   removeStep,
   saveAnnouncementDraft,
   saveBuilderModule,
   scopeSnapshot,
   seed,
+  savedStepIds,
   stepChanges,
-  stepIdMap,
   updateAnnouncement,
 } from '../src';
 import type { Actor, Ctx, Db, Step } from '../src';
@@ -118,12 +119,14 @@ describe('Module Builder: the draft’s step helpers', () => {
     expect(removeStep(list, 9)).toEqual(list);
   });
 
-  it('a save maps each kept step to its new place, and counts the changes', () => {
+  it('a save keeps each kept step’s id, numbers a new one past them, and counts the changes (D-246)', () => {
     const draft = [step('c3'), step('c1'), step('new-1'), step('c1')];
-    expect([...stepIdMap(list, draft)]).toEqual([
-      ['c3', 'c1'],
-      ['c1', 'c2'],
-    ]);
+    // c3 and c1 keep their ids; the new step and the repeat get c4 and c5.
+    expect(savedStepIds(list, draft)).toEqual(['c3', 'c1', 'c4', 'c5']);
+    // Past every id a learner record still names, too: a removed c9's checks can't attach to a new step.
+    expect(savedStepIds(list, draft, new Set(['c9']))).toEqual(['c3', 'c1', 'c10', 'c11']);
+    // A new module is numbered as `saveModule` numbers it.
+    expect(savedStepIds([], [step('new-1'), step('new-2')])).toEqual(['c1', 'c2']);
     expect(stepChanges(list, draft)).toEqual({ added: 2, removed: 1, reordered: true });
     expect(stepChanges(list, list)).toEqual({ added: 0, removed: 0, reordered: false });
     expect(stepChanges([], [step('new-1')])).toEqual({ added: 1, removed: 0, reordered: false });
@@ -131,7 +134,7 @@ describe('Module Builder: the draft’s step helpers', () => {
 });
 
 describe('Module Builder › Save (saveBuilderModule)', () => {
-  it('saves through saveModule, keeps learners’ checks on the same steps, and writes one audit row', () => {
+  it('saves through saveModule, keeps every step’s id, drops a removed step’s check, and writes one audit row', () => {
     const db = fresh();
     const sales = db.modules.find((x) => x.id === 'sales')!;
     // Jamie has Sales at 3 of 6: c1, c2, c3.
@@ -144,7 +147,8 @@ describe('Module Builder › Save (saveBuilderModule)', () => {
     const out = saveBuilderModule(db, OWNER, { draft }, mkCtx());
     expect(out.error).toBeUndefined();
     const saved = out.db.modules.find((x) => x.id === 'sales')!;
-    expect(saved.checklist.map((s) => s.id)).toEqual(['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7']);
+    // D-246: kept steps keep their ids; the duplicate and the new step are numbered past them.
+    expect(saved.checklist.map((s) => s.id)).toEqual(['c1', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']);
     expect(saved.checklist.map((s) => s.text)).toEqual([
       sales.checklist[0]!.text,
       sales.checklist[2]!.text,
@@ -154,8 +158,9 @@ describe('Module Builder › Save (saveBuilderModule)', () => {
       sales.checklist[2]!.text,
       'New step',
     ]);
-    // c1 stays c1, c2 (removed) goes, c3 is now c2.
-    expect(out.db.users.find((u) => u.id === 'u_jamie')!.progress.sales!.steps).toEqual(['c1', 'c2']);
+    // c1 and c3 stay where they are; c2 (removed) goes.
+    expect(out.db.users.find((u) => u.id === 'u_jamie')!.progress.sales!.steps).toEqual(['c1', 'c3']);
+    expect(out.saved).toEqual({ id: 'sales', version: moduleVersion(saved), stepIds: ['c1', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'] });
     expect(out.toast).toEqual({ msg: 'Sales AI Employee saved', tone: 'success' });
     expect(out.audit).toEqual({
       action: 'module.save',

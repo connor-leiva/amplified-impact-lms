@@ -124,6 +124,10 @@ export function withPreview(inner: LmsRepository, as: PreviewAs): LmsRepository 
       if (await isStaff()) return { error: PREVIEW_ONLY };
       return inner.act(name, args);
     },
+    async emailLearner(kind, userId): Promise<MutationResult> {
+      if (await isStaff()) return { error: PREVIEW_ONLY };
+      return inner.emailLearner(kind, userId);
+    },
     subscribe: (onChange) => inner.subscribe(onChange),
     fileUrl: (ref) => inner.fileUrl(ref),
     // D-188: a preview tab writes nothing, so it puts nothing in the bucket either.

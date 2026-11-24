@@ -13,7 +13,7 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
-import { useDb, useMutate, useNow } from '../../data/hooks';
+import { refusal, useDb, useEmailLearner, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
@@ -26,7 +26,8 @@ import s from './Learners.module.css';
 //
 //   - A learner's row opens their details (the old drawer, now R2's): tier, team, joined, last active,
 //     each AI Employee's progress, and Upgrade to Team Tier / Move to Agent Tier (`setLearnerTier`) and
-//     Send Nudge / Resend Invite (`nudgeLearners`).
+//     Send Nudge / Resend Invite, which send a real email (D-246: `POST /api/learners/:id/nudge` and
+//     `…/resend-invite`; the fixture's `nudgeLearners`).
 //   - "Open user record" opens the learner's User page and the Teams tab's "Open workspace" the team's
 //     Workspace (D-160 R2-1c part 2): a learner's id is their `users.id` and a team's its `teams.id`,
 //     the ids those pages take. "Masquerade…" opens the reason dialog (D-162 3b): Owner and Admin only.
@@ -39,6 +40,7 @@ function Learners() {
   const db = useDb();
   const now = useNow();
   const mutate = useMutate();
+  const emailLearner = useEmailLearner();
   const { toast } = useToaster();
   const phone = useViewportWidth() < 768;
   const navigate = useNavigate();
@@ -55,22 +57,24 @@ function Learners() {
 
   const changeTier = useCallback(async () => {
     if (!person) return;
-    const r = await mutate('setLearnerTier', { userId: person.id, tier: person.tierTarget });
-    if (r.error) toast(r.error, 'warn');
+    const e = refusal(await mutate('setLearnerTier', { userId: person.id, tier: person.tierTarget }));
+    if (e) toast(e, 'warn');
   }, [mutate, person, toast]);
 
+  // D-246 (H-9): Send Nudge and Resend Invite send a real email. The toast is the server's and says what
+  // happened: sent, email not set up, or failed. The button waits while it sends, so one press is one email.
+  const [sending, setSending] = useState(false);
   const nudge = useCallback(
-    async (ids: string[], invitedEmail?: string) => {
-      // An invite has no learner to nudge yet, so the screen only confirms the resend, as before.
-      if (invitedEmail) {
-        toast(`Invite resent to ${invitedEmail}`);
-        return;
+    async (userId: string, invited: boolean) => {
+      setSending(true);
+      try {
+        const e = refusal(await emailLearner(invited ? 'invite' : 'nudge', userId));
+        if (e) toast(e, 'warn');
+      } finally {
+        setSending(false);
       }
-      if (!ids.length) return;
-      const r = await mutate('nudgeLearners', { userIds: ids });
-      if (r.error) toast(r.error, 'warn');
     },
-    [mutate, toast],
+    [emailLearner, toast],
   );
 
   const filtered = q !== '' || tier !== 'All tiers';
@@ -206,7 +210,7 @@ function Learners() {
               <Button kind={person.tierUpgrade ? 'primary' : 'secondary'} onClick={() => void changeTier()}>
                 {person.tierLabel}
               </Button>
-              <Button onClick={() => void nudge([person.id], person.invited ? person.email : undefined)}>
+              <Button disabled={sending} aria-busy={sending || undefined} onClick={() => void nudge(person.id, person.invited)}>
                 {person.nudgeLabel}
               </Button>
             </>

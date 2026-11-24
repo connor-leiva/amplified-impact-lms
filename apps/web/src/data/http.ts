@@ -5,6 +5,7 @@ import type {
   AdminActionName,
   AppearancePrefs,
   JoinTicket,
+  LearnerEmailKind,
   LmsRepository,
   MutationArgs,
   MutationName,
@@ -141,17 +142,37 @@ export async function sendWrite(send: () => Promise<Response>): Promise<Response
   return send();
 }
 
+/**
+ * D-246 (H-7): a request the API refused or failed, with the API's own words when it sent some
+ * (`serverMessage`): a 403's "needs the Publish modules permission", a 409's "Someone changed this week",
+ * a 500's nothing. `useMutate` and `useAct` show `serverMessage` as the error toast, or a plain
+ * "Something went wrong" when there is none. `quiet` is a failure the page already handles by leaving
+ * (a 401 on its way to /sign-in, a masquerade that ended), so no toast is shown for it.
+ */
+export class HttpError extends Error {
+  readonly status: number;
+  readonly serverMessage: string | null;
+  readonly quiet: boolean;
+  constructor(status: number, serverMessage: string | null, quiet = false) {
+    super(serverMessage ?? `HTTP ${status}`);
+    this.name = 'HttpError';
+    this.status = status;
+    this.serverMessage = serverMessage;
+    this.quiet = quiet;
+  }
+}
+
 async function parse(res: Response, attempt: string | null = null): Promise<unknown> {
   if (res.status === 429) throw await rateLimited(res);
   if (res.status === 401) {
     navigation.toSignIn();
-    throw new Error('Not signed in');
+    throw new HttpError(401, 'Not signed in', true);
   }
   const body = (await res.json().catch(() => ({}))) as { error?: string };
   const masq = masqueradeRefusal(res.status, body, attempt);
   // A blocked write changed nothing: it resolves like a 422, so the form shows it and moves on.
   if (masq === 'blocked') return { error: body.error ?? BLOCKED_MESSAGE };
-  if (!res.ok && res.status !== 422) throw new Error(body.error ?? `HTTP ${res.status}`);
+  if (!res.ok && res.status !== 422) throw new HttpError(res.status, typeof body.error === 'string' && body.error.trim() ? body.error : null, masq === 'ended');
   return body;
 }
 
@@ -280,6 +301,16 @@ export function createHttpRepository(): LmsRepository {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(args),
       }).then((res) => parse(res, `POST /api/admin/actions/${name}`)) as Promise<MutationResult>,
+    // D-246 (H-9): Resend Invite and Send Nudge send their email; the answer's toast says what happened.
+    emailLearner: (kind: LearnerEmailKind, userId: string) => {
+      const path = `/api/learners/${encodeURIComponent(userId)}/${kind === 'invite' ? 'resend-invite' : 'nudge'}`;
+      return fetch(path, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: '{}',
+      }).then((res) => parse(res, `POST ${path}`)) as Promise<MutationResult>;
+    },
     // § 8.2: the browser navigates here and the route streams the file (D-188; it used to 302). The URL is
     // returned rather than fetched, because the redirect has to be followed by the browser itself
     // for the download to land in the downloads tray.

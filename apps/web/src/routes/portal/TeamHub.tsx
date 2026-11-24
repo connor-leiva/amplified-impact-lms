@@ -7,7 +7,7 @@ import { Avatar } from '../../components/primitives/Avatar';
 import { Drawer } from '../../components/primitives/Drawer';
 import { Modal } from '../../components/primitives/Modal';
 import { useToaster } from '../../components/primitives/Toaster';
-import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
+import { refusal, useDb, useEmailLearner, useMutate, useNow, useViewer } from '../../data/hooks';
 import { TEAM_HUB_UI, teamHubVM } from './TeamHub.vm';
 import type { DrawerMember, TeamHubUi } from './TeamHub.vm';
 import s from './TeamHub.module.css';
@@ -51,6 +51,7 @@ function TeamHub() {
   const viewer = useViewer();
   const now = useNow();
   const mutate = useMutate();
+  const emailLearner = useEmailLearner();
   const { toast } = useToaster();
 
   const [ui, setUi] = useState<TeamHubUi>(TEAM_HUB_UI);
@@ -81,16 +82,32 @@ function TeamHub() {
 
   const remind = useCallback(
     async (userIds: string[]) => {
-      const r = await mutate('remindMembers', { userIds });
-      if (r.error) toast(r.error, 'warn');
+      const e = refusal(await mutate('remindMembers', { userIds }));
+      if (e) toast(e, 'warn');
     },
     [mutate, toast],
   );
 
+  // D-246 (H-9): Resend Invite sends the invitee a fresh set-password link (the same email staff send from
+  // Learners & Teams). The server's toast says whether it went.
+  const [resending, setResending] = useState(false);
+  const resend = useCallback(
+    async (userId: string) => {
+      setResending(true);
+      try {
+        const e = refusal(await emailLearner('invite', userId));
+        if (e) toast(e, 'warn');
+      } finally {
+        setResending(false);
+      }
+    },
+    [emailLearner, toast],
+  );
+
   const setMemberRole = useCallback(
     async (userId: string, role: LearnerRole) => {
-      const r = await mutate('setMemberRole', { userId, role });
-      if (r.error) toast(r.error, 'warn');
+      const e = refusal(await mutate('setMemberRole', { userId, role }));
+      if (e) toast(e, 'warn');
     },
     [mutate, toast],
   );
@@ -98,8 +115,9 @@ function TeamHub() {
   const removeMember = useCallback(
     async (userId: string) => {
       const r = await mutate('removeMember', { userId });
-      if (r.error) toast(r.error, 'warn');
-      else patch({ sel: null });
+      const e = refusal(r);
+      if (e) toast(e, 'warn');
+      if (!r.error) patch({ sel: null });
     },
     [mutate, patch, toast],
   );
@@ -386,9 +404,8 @@ function TeamHub() {
               <button
                 type="button"
                 className={s.nudge}
-                onClick={() =>
-                  dm.invited ? toast(`Invite resent to ${dm.email}`) : void remind([dm.id])
-                }
+                disabled={resending}
+                onClick={() => (dm.invited ? void resend(dm.id) : void remind([dm.id]))}
               >
                 <Icon name={dm.nudgeIcon} size={14} strokeWidth={1.9} />
                 {dm.nudgeLabel}

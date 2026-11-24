@@ -171,7 +171,7 @@ const TRY_LOCK = sql.raw(`select pg_try_advisory_xact_lock(${SCHEDULER_LOCK}) as
  * that names one of them cannot accept the other. `Queryable` is select/insert/delete; the ledger
  * and the flip need `update`, and the lock needs `execute`.
  */
-interface SchedulerTx extends Queryable {
+export interface SchedulerTx extends Queryable {
   update: Database['update'];
   execute: Database['execute'];
 }

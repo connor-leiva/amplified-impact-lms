@@ -545,27 +545,39 @@ function weeklyDigest(db: Db, now: number): Send[] {
 function scheduledAnnouncements(db: Db, now: number): DueWork {
   const due = db.announcements.filter((a) => a.status === 'scheduled' && now >= a.at);
   const sends: Send[] = [];
-  for (const a of due) {
-    if (!a.channels.includes('email')) continue;
-    for (const u of db.users) {
-      if (!mailable(u) || !inAudience(a, u)) continue;
-      sends.push({
-        job: 'announcement',
-        key: jobKey('announcement', a.id, u.id),
-        template: 'announcement',
-        to: u.email,
-        // § 8.1: the announcement's subject IS its title, and the body is the admin's own copy.
-        // `action`/`actionLabel` are the one button; `Dashboard.vm.ts` renders no button at all for
-        // `action: null`, and the template falls back to the app's own `Open` label, so both are
-        // passed through exactly as the admin set them.
-        //
-        // `severity` and the announcement id are NOT here: the banner shows severity as a colour
-        // and an email has one layout, and the id is already in the key (`announcement:a3:u_alex`).
-        data: { title: a.title, body: a.body, action: a.action, actionLabel: a.actionLabel },
-      });
-    }
-  }
+  for (const a of due) sends.push(...announcementSends(db, a));
   return { sends, flip: due.map((a) => a.id) };
+}
+
+/**
+ * One announcement's emails: one per learner its audience reaches (`mailable` + `inAudience`, above), keyed
+ * `announcement:<id>:<user>` in `job_runs`. Nothing for an announcement without the Email channel.
+ *
+ * D-246 (H-9): exported so Send now's email (`email/announce-now.ts`) goes to exactly the people, with
+ * exactly the payload and the ledger keys, a scheduled one's does. A key either path recorded is never
+ * sent again by the other.
+ */
+export function announcementSends(db: Db, a: Announcement): Send[] {
+  if (!a.channels.includes('email')) return [];
+  const sends: Send[] = [];
+  for (const u of db.users) {
+    if (!mailable(u) || !inAudience(a, u)) continue;
+    sends.push({
+      job: 'announcement',
+      key: jobKey('announcement', a.id, u.id),
+      template: 'announcement',
+      to: u.email,
+      // § 8.1: the announcement's subject IS its title, and the body is the admin's own copy.
+      // `action`/`actionLabel` are the one button; `Dashboard.vm.ts` renders no button at all for
+      // `action: null`, and the template falls back to the app's own `Open` label, so both are
+      // passed through exactly as the admin set them.
+      //
+      // `severity` and the announcement id are NOT here: the banner shows severity as a colour
+      // and an email has one layout, and the id is already in the key (`announcement:a3:u_alex`).
+      data: { title: a.title, body: a.body, action: a.action, actionLabel: a.actionLabel },
+    });
+  }
+  return sends;
 }
 
 // ---------------------------------------------------------------------------

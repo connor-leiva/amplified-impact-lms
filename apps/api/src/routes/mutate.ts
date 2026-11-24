@@ -95,6 +95,8 @@ import { clock, newIds } from '../lib/clock';
 import { recordStaffRefusal, refuseOwnerlessResult, refuseStaffWrite, staffWriteContext, writeStaffChange } from '../console/staff-writes';
 import { audit } from '../console/audit';
 import { viewerAccessFor } from '../lib/course-access';
+import { claimSendNowEmails, sendClaimed, withSendNowToast } from '../email/announce-now';
+import type { SendNowClaim } from '../email/announce-now';
 import { staffActor } from '../console/guard';
 import { schemaFor } from './schemas';
 
@@ -211,13 +213,13 @@ export async function dispatchEffects(sends: readonly PendingSend[], log: Fastif
   }
 }
 
-/** § 7.3's `MutationError` mapping, verbatim. */
+/** § 7.3's `MutationError` mapping, verbatim, plus D-246's 409 for the Module Builder's stale save. */
 export const statusForMutationError = (code: MutationError['code']): number =>
-  code === 'forbidden' ? 403 : code === 'not_found' ? 404 : 422;
+  code === 'forbidden' ? 403 : code === 'not_found' ? 404 : code === 'conflict' ? 409 : 422;
 
 /** What the transaction hands back: the response to send, and the mail to send after committing. */
 type Committed =
-  | { ok: true; body: { toast?: Outcome['toast']; effects: Effect[] }; sends: PendingSend[] }
+  | { ok: true; body: { toast?: Outcome['toast']; effects: Effect[] }; sends: PendingSend[]; announced: SendNowClaim[] }
   | { ok: false; status: number; body: { error: string; code?: string } };
 
 export interface MutateRouteOptions {
@@ -308,6 +310,9 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
             if (record) await audit(req, { ...record, outcome: 'ok', actor: buildActor }, tx);
           }
           const sends = await pendingSendsFor(tx, out.effects ?? [], now, req.log);
+          // D-246 (H-9): Send now with Email (`sendAnnouncement`) claims its emails' ledger keys here, in
+          // the write's transaction, as the scheduled path does. Nothing for any other write.
+          const announced = await claimSendNowEmails(tx, before, out.db, now, req.log);
 
           return {
             ok: true,
@@ -316,6 +321,7 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
               effects: (out.effects ?? []).filter((e) => e.type === 'confetti'),
             },
             sends,
+            announced,
           };
         });
       } catch (err) {
@@ -337,8 +343,11 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
       // waiting for), then do the mail, which nobody is watching.
       broadcast();
       await dispatchEffects(committed.sends, req.log);
+      // D-246 (H-9): Send now's email, then the toast says how many it went to (or that none could).
+      const emailed = await sendClaimed(committed.announced, req.log);
+      const toast = withSendNowToast(committed.body.toast, committed.announced, emailed);
 
-      return reply.code(200).send(committed.body);
+      return reply.code(200).send({ ...committed.body, ...(toast ? { toast } : {}) });
     },
   );
 }

@@ -41,7 +41,8 @@ function Seats({ vm }: { vm: SeatsVM }) {
       {vm.note ? <span className={s.dl}>{vm.note}</span> : null}
       {vm.resend ? (
         <div className={s.row} style={{ paddingTop: 4 }}>
-          {/* Team Hub's Resend Invite, as it is today: the same confirmation, no new email path. */}
+          {/* Never drawn today: `accountVM` sets no `resend` (D-178). If it is chosen, it sends through the Team
+              Hub's real Resend Invite (D-246, `useEmailLearner`), never this toast alone. */}
           <button type="button" className={s.b} onClick={() => toast(`Invite resent to ${vm.resend!.email}`)}>
             {vm.resend.label}
           </button>

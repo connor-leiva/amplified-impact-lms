@@ -1,4 +1,4 @@
-import type { AdminActionArgs, AdminActionName, Db, MutationArgs, MutationName, Outcome } from '@ai/core';
+import type { AdminActionArgs, AdminActionName, Db, MutationArgs, MutationName, Outcome, SavedModuleRef } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import * as M from '@ai/core/mutations';
 import type { UploadType } from '@ai/core/uploads';
@@ -15,8 +15,18 @@ import type { UploadType } from '@ai/core/uploads';
 // import the rest of the seam from.
 export type { AdminActionArgs, AdminActionName, MutationArgs, MutationName };
 
-/** What a mutation hands back to the UI. The new Db is applied by the repository, not the caller. */
-export type MutationResult = Omit<Outcome, 'db'>;
+/**
+ * What a mutation hands back to the UI. The new Db is applied by the repository, not the caller.
+ *
+ * D-246 (H-7): `failed` is set by `useMutate` / `useAct` when the request itself failed (a 403, a 409, a
+ * 429, a 500, no network). `error` then holds what the toast already said, so a form can show it inline
+ * and a caller that would toast an `error` does not toast it twice (`refusal`). `saved` is
+ * `saveBuilderModule`'s (D-246, H-5/H-6): the module's new version and step ids.
+ */
+export type MutationResult = Omit<Outcome, 'db'> & { failed?: true; saved?: SavedModuleRef };
+
+/** D-246 (H-9): the learner emails staff and team owners send by hand. */
+export type LearnerEmailKind = 'invite' | 'nudge';
 
 export type ViewerRole = 'agent' | 'owner' | 'admin' | 'learner';
 
@@ -110,6 +120,13 @@ export interface LmsRepository {
    * function, in the browser, as `run`. Answers like `run`: a 422 is `{ error }`, anything else throws.
    */
   act<K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult>;
+  /**
+   * D-246 (H-9): Resend Invite or Send Nudge to one learner. http mode
+   * `POST /api/learners/:userId/resend-invite|nudge`, which sends the email and answers a toast that says
+   * what happened (sent, email not set up, or failed). Fixture mode has no email: it answers as the
+   * prototype does (`nudgeLearners`, and Resend Invite's own words). A staff preview tab refuses it.
+   */
+  emailLearner(kind: LearnerEmailKind, userId: string): Promise<MutationResult>;
   /** Cross-tab storage events in fixture mode, Server-Sent Events in http mode. */
   subscribe(onChange: () => void): () => void;
   /**

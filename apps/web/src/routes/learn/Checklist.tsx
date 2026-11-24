@@ -351,7 +351,9 @@ export function ChecklistPlayer({
   /** D-195: step 1's card, after the step's own heading. */
   startHere?: StartHereVM;
 }) {
-  const mutate = useMutate();
+  // D-246: the step page shows its own failures in place (a check that didn't save), so a failed request
+  // comes back here as before, not as the hooks' error toast.
+  const mutate = useMutate({ rethrow: true });
   const [busy, setBusy] = useState(false);
   const [pop, setPop] = useState<string | null>(null);
   const [pending, setPending] = useState<Record<string, boolean>>({});

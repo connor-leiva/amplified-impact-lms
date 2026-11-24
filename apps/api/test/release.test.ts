@@ -7,6 +7,7 @@
 import { implementerWords } from '@ai/core/role-words';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, eq } from 'drizzle-orm';
+import { moduleVersion } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS, COURSE_OPENS_AT, isAcceleratorModule } from '@ai/core/accelerator';
 import type { LearnerCourse } from '@ai/core/course';
@@ -218,7 +219,7 @@ describe('the weekly releases (D-175) @release', () => {
       method: 'POST',
       url: '/api/admin/actions/saveBuilderModule',
       headers: { cookie: cookies.get('staff')!, 'content-type': 'application/json' },
-      payload: JSON.stringify({ draft: { ...structuredClone(w1), opens }, status: 'scheduled' }),
+      payload: JSON.stringify({ draft: { ...structuredClone(w1), opens }, status: 'scheduled', base: moduleVersion(w1) }),
     });
     expect(res.statusCode, res.body).toBe(200);
     try {
@@ -337,7 +338,7 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
         method: 'POST',
         url: '/api/admin/actions/saveBuilderModule',
         headers: { cookie: staff, 'content-type': 'application/json' },
-        payload: JSON.stringify({ draft, status: w1.status }),
+        payload: JSON.stringify({ draft, status: w1.status, base: moduleVersion(w1) }),
       });
       expect(res.statusCode, res.body).toBe(200);
       const again = (await asStaff()).json() as { course: { weeks: { week: number; question: string }[] } };

@@ -10,7 +10,7 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Facts, PageHead, k } from '../../components/r2/kit';
 import { ADMIN_COHORT } from '../../data/admin-shell';
-import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
+import { refusal, useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { addSessionArgsR2, blankSessionFormR2, cohortsR2VM, sessionArgsR2, sessionFormR2 } from './Cohorts.vm';
 import type { CohortsR2Row, SessionForm } from './Cohorts.vm';
 import s from './Cohorts.module.css';
@@ -93,7 +93,7 @@ export function Component() {
           'separator' as const,
           {
             label: r.primary.label,
-            onSelect: () => void mutate(r.primary!.mutation, { sessionId: r.id }).then((o) => warn(o.error)),
+            onSelect: () => void mutate(r.primary!.mutation, { sessionId: r.id }).then((o) => warn(refusal(o))),
           },
         ]
       : []),
