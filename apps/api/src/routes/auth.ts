@@ -317,8 +317,12 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     // § 7.5: "`/invite/:token` verifies the token, sets `status: 'active'` and `joined`, and signs
     // the user in." Learners only — `status` and `joined` are § 7.2's learner columns and a staff
     // row carries neither. An account made from an access group's link joins the same way.
+    //
+    // H-4: so does an invited learner who spends a sign-in link. A buyer is made `invited`, and one
+    // whose set-password link lapsed signs in with "Email Me a Sign-In Link Instead": the link proves
+    // the address as an invite does. Left invited, Join refuses them and no reminder reaches them.
     let joined = false;
-    if ((claim.purpose === 'invite' || made) && user.kind === 'learner') {
+    if ((claim.purpose === 'invite' || made || user.status === 'invited') && user.kind === 'learner') {
       await db
         .update(users)
         // `joined` is kept if it is already set: the invite is single use, but a row seeded as

@@ -237,6 +237,9 @@ export const AUDIT_ACTIONS = [
   // A $37 skill purchase, and a full refund of one. The webhook writes both. Actor source `system`.
   'skill.purchase',
   'skill.refund',
+  // H-4 (Week 0 launch audit): the reviewed one-off that activates an invited learner who already signed
+  // in by link (`apps/api/src/db/activate-invited.ts`). One row per learner, actor role `system:activate-invited`.
+  'user.activate',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

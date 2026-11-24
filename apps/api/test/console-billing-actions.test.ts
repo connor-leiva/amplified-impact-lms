@@ -464,7 +464,7 @@ describe('the consequences are what billing/webhook.ts does (spec § 7.6) @conso
   /** A BillingStripe for the webhook: subscriptions are live until it cancels them. */
   function webhookStripe(intents: Record<string, string>) {
     const cancels: string[] = [];
-    const sub = (id: string): SubscriptionInfo => ({ id, status: cancels.includes(id) ? 'canceled' : 'active', customer: 'cus_North', trialEnd: null, defaultPaymentMethod: null, metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const sub = (id: string): SubscriptionInfo => ({ id, status: cancels.includes(id) ? 'canceled' : 'active', customer: 'cus_North', trialEnd: null, defaultPaymentMethod: null, metadata: {}, cancelAt: null, cancelAtPeriodEnd: false, currentPeriodEnd: null });
     const stripe = {
       retrieveSubscription: async (id: string) => sub(id),
       cancelSubscription: async (id: string) => (cancels.push(id), sub(id)),

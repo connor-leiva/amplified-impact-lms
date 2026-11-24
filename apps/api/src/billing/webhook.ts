@@ -105,6 +105,69 @@ async function planOfOrder(db: Database, orderId: string): Promise<PlanRow | nul
   return row ?? null;
 }
 
+// --- two payments (H-16) ---------------------------------------------------------------------------
+//
+// A two-pay order's installments are counted from Stripe, not from the order events arrived in.
+// Stripe does not promise order: a Payment Link's order exists only once its session completes, so
+// an `invoice.paid` handled before that found no order and was never counted, the second installment
+// then read as the first, `cancel_at_period_end` was never set, and a third $3,750 was charged.
+// Counting the subscription's paid invoices is the same answer however many times, and in whatever
+// order, the events arrive, which also makes a redelivered event harmless.
+
+/** The no-key error every Stripe call here throws, so Stripe retries the event once the key is set. */
+const noStripeKey = () => Object.assign(new Error('no Stripe key'), { code: 'no-stripe-key' });
+
+/**
+ * How many installments this subscription has paid: its paid invoices above $0, by id, plus the
+ * invoice being handled (Stripe's list can lag the event that announced it by a moment).
+ */
+async function paidInstallments(stripe: BillingStripe, subscriptionId: string, current?: InvoiceLike): Promise<number> {
+  const paid = new Set(await stripe.paidInvoiceIds(subscriptionId));
+  if (current?.id && (current.amount_paid ?? 0) > 0) paid.add(current.id);
+  return paid.size;
+}
+
+/**
+ * The installments Stripe holds, written to the order (`payments_made`), and the subscription told to
+ * stop at the end of the period the last one paid for. Null for an order that is not paid in
+ * installments. Safe to run any number of times.
+ */
+async function reconcileInstallments(
+  order: OrderRow,
+  subscriptionId: string,
+  deps: WebhookDeps,
+  db: Database,
+  current?: InvoiceLike,
+): Promise<{ payments: number; complete: boolean } | null> {
+  const cart = cartFor(order.plan, order.option);
+  if (!cart?.installments) return null;
+  if (!deps.stripe) throw noStripeKey();
+  const payments = await paidInstallments(deps.stripe, subscriptionId, current);
+  if (payments !== order.paymentsMade) {
+    await db.update(orders).set({ paymentsMade: payments }).where(eq(orders.id, order.id));
+  }
+  const complete = payments >= cart.installments;
+  if (complete) await endInstallments(subscriptionId, deps);
+  if (payments > cart.installments) {
+    deps.log.error({ order: order.id, subscription: subscriptionId, payments }, 'a two-pay order was charged more installments than it owes: Connor refunds the extra one');
+  }
+  return { payments, complete };
+}
+
+/**
+ * The subscription ends when its current period does, unless it is already set to end by then.
+ * `cancel_at_period_end`, not `cancel_at`: the question is whether the next renewal is charged.
+ */
+async function endInstallments(subscriptionId: string, deps: WebhookDeps): Promise<void> {
+  const stripe = deps.stripe;
+  if (!stripe) throw noStripeKey();
+  const sub = await stripe.retrieveSubscription(subscriptionId);
+  if (sub.status === 'canceled' || sub.status === 'incomplete_expired') return;
+  if (sub.cancelAtPeriodEnd) return;
+  if (sub.cancelAt !== null && sub.currentPeriodEnd !== null && sub.cancelAt <= sub.currentPeriodEnd) return;
+  await stripe.updateSubscription(subscriptionId, { cancel_at_period_end: true }, `two-pay-end-${subscriptionId}`);
+}
+
 /** Stripe's subscription status as a plan's. A refunded plan stays `ended` whatever Stripe says next. */
 export function planStatusOf(stripeStatus: string): PlanStatus {
   switch (stripeStatus) {
@@ -300,6 +363,9 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
       update.proration_behavior = 'none';
     }
     if (Object.keys(update).length) await stripe.updateSubscription(subscriptionId, update, `order-${order.id}-sub`);
+    // H-16: an installment `invoice.paid` handled before this session made the order was not counted
+    // then; it is now, from Stripe.
+    await reconcileInstallments(fresh, subscriptionId, deps, db);
   }
 
   // Every paid AI Accelerator order rolls into Amplified Insiders on May 4, 2027, whichever link it
@@ -419,24 +485,21 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
   // whose roll-on Insiders it is (that subscription carries the Accelerator's `order_id`).
   const rollOn = meta.ai_plan === 'membership' && order?.plan !== 'membership';
   if (order && (order.stripeSubscriptionId === subscriptionId || order.stripeSubscriptionId === null) && !rollOn) {
+    const cart = cartFor(order.plan, order.option);
     const [updated] = await db
       .update(orders)
       .set({
-        paymentsMade: sql`${orders.paymentsMade} + 1`,
+        // H-16: installments are counted from Stripe below, never by adding one per event.
+        ...(cart?.installments ? {} : { paymentsMade: sql`${orders.paymentsMade} + 1` }),
         stripeSubscriptionId: subscriptionId,
         ...(order.status === 'trialing' || order.status === 'pending' ? { status: 'paid' as const, paidAt: order.paidAt ?? now, ...resync } : {}),
       })
       .where(eq(orders.id, order.id))
       .returning();
-    const cart = cartFor(order.plan, order.option);
     // Two payments, then none: the subscription ends at the end of the period the second one paid for.
-    if (cart?.installments && updated && updated.paymentsMade >= cart.installments) {
-      if (!deps.stripe) throw Object.assign(new Error('no Stripe key'), { code: 'no-stripe-key' });
-      const sub = await deps.stripe.retrieveSubscription(subscriptionId);
-      if (sub.cancelAt === null) {
-        await deps.stripe.updateSubscription(subscriptionId, { cancel_at_period_end: true }, `two-pay-end-${subscriptionId}`);
-      }
-      result = 'two-pay-complete';
+    if (cart?.installments && updated) {
+      const counted = await reconcileInstallments(updated, subscriptionId, deps, db, invoice);
+      if (counted?.complete) result = 'two-pay-complete';
     }
     // D-143: an installment paid after a failed one lifts the pause on the AI Accelerator it pays for
     // (`invoiceFailed` reached that plan through the order, so this does too). Only the status: the
@@ -490,6 +553,15 @@ async function invoiceFailed(invoice: InvoiceLike, deps: WebhookDeps, db: Databa
   if (!subscriptionId) return 'ignored';
   const meta = subscriptionMetadataOfInvoice(invoice);
   const order = await orderBySubscription(db, subscriptionId, meta.order_id);
+  // H-16: a charge after the last installment is not a missed payment. The order is paid in full, so
+  // its AI Accelerator is not paused; the subscription is told to stop, and Connor voids the invoice.
+  if (order && order.stripeSubscriptionId === subscriptionId && cartFor(order.plan, order.option)?.installments) {
+    const counted = await reconcileInstallments(order, subscriptionId, deps, db);
+    if (counted?.complete) {
+      deps.log.error({ order: order.id, subscription: subscriptionId, payments: counted.payments }, 'a two-pay subscription tried to charge after its last installment: Connor voids the invoice');
+      return 'two-pay-complete:extra-invoice';
+    }
+  }
   const plan = (await planBySubscription(db, subscriptionId)) ?? (order ? await planOfOrder(db, order.id) : null);
   if (plan && plan.status !== 'ended') await db.update(plans).set({ status: 'past_due' }).where(eq(plans.id, plan.id));
   const tagged = order ?? (plan ? await orderById(db, plan.orderId) : null);
@@ -506,9 +578,13 @@ async function subscriptionChanged(sub: Stripe.Subscription, deleted: boolean, d
   if (deleted && order && order.stripeSubscriptionId === sub.id) {
     const cart = cartFor(order.plan, order.option);
     if (cart?.installments) {
-      // Two-pay that ended after its payments is complete, not cancelled.
-      if (order.paymentsMade >= cart.installments) return 'two-pay-complete';
-      deps.log.error({ order: order.id, payments: order.paymentsMade }, 'a two-pay subscription ended before its last payment: Connor follows up');
+      // Two-pay that ended after its payments is complete, not cancelled. H-16: counted from Stripe,
+      // so a paid-in-full plan is never marked past_due because an event was counted late or not at all.
+      if (!deps.stripe) throw noStripeKey();
+      const payments = await paidInstallments(deps.stripe, sub.id);
+      if (payments !== order.paymentsMade) await db.update(orders).set({ paymentsMade: payments }).where(eq(orders.id, order.id));
+      if (payments >= cart.installments) return 'two-pay-complete';
+      deps.log.error({ order: order.id, payments }, 'a two-pay subscription ended before its last payment: Connor follows up');
       const cohortPlan = await planOfOrder(db, order.id);
       if (cohortPlan && cohortPlan.status !== 'ended') await db.update(plans).set({ status: 'past_due' }).where(eq(plans.id, cohortPlan.id));
       return 'two-pay-unpaid';

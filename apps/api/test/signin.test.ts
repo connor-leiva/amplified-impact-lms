@@ -48,7 +48,7 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { SESSION_COOKIE, hashToken } from '../src/auth';
-import { authTokens } from '../src/db/schema';
+import { authTokens, users } from '../src/db/schema';
 import { resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
 import { resetDatabase, testDatabase } from './helpers';
@@ -266,5 +266,40 @@ describe('Gate 7 · following the emailed link @g7', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({ error: 'expired' });
     expect(res.headers['set-cookie']).toBeUndefined();
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// H-4 (Week 0 launch audit): any spent sign-in link activates an invited learner
+// ------------------------------------------------------------------------------------------------
+
+describe('H-4 · a sign-in link activates an invited learner', () => {
+  it('sets an invited learner active and joined when they spend an emailed sign-in link, as an invite does', async () => {
+    const db = await testDatabase();
+    // A buyer is provisioned `invited`; their set-password link lapsed, so they ask for a sign-in link.
+    await db.update(users).set({ status: 'invited', joined: null }).where(eq(users.id, 'u_jamie'));
+    await requestLink(JAMIE);
+    const res = await verify(tokenFromEmailBody((await outboxOverHttp())[0]!));
+    expect(res.statusCode).toBe(200);
+    const [jamie] = await db.select({ status: users.status, joined: users.joined }).from(users).where(eq(users.id, 'u_jamie'));
+    expect(jamie).toEqual({ status: 'active', joined: NOW });
+  });
+
+  it('keeps an invited learner\'s existing join date, and leaves an active learner as they are', async () => {
+    const db = await testDatabase();
+    const [before] = await db.select({ joined: users.joined }).from(users).where(eq(users.id, 'u_jamie'));
+    expect(before!.joined).not.toBeNull();
+    await db.update(users).set({ status: 'invited' }).where(eq(users.id, 'u_jamie'));
+    await requestLink(JAMIE);
+    await verify(tokenFromEmailBody((await outboxOverHttp())[0]!));
+    const [after] = await db.select({ status: users.status, joined: users.joined }).from(users).where(eq(users.id, 'u_jamie'));
+    expect(after).toEqual({ status: 'active', joined: before!.joined });
+
+    // Already active: a second sign-in changes nothing.
+    resetOutbox();
+    await requestLink(JAMIE);
+    await verify(tokenFromEmailBody((await outboxOverHttp())[0]!));
+    const [again] = await db.select({ status: users.status, joined: users.joined }).from(users).where(eq(users.id, 'u_jamie'));
+    expect(again).toEqual(after);
   });
 });

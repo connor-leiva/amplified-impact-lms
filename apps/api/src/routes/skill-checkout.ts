@@ -42,9 +42,11 @@ export interface SkillCheckoutOptions {
 }
 
 export function registerSkillCheckoutRoutes(app: FastifyInstance, options: SkillCheckoutOptions): void {
-  // After Stripe. A new guest account is signed in and sent to the skill. An account that already
-  // has a password is sent to sign-in. No cookie is trusted from the query: the session is read
-  // back from Stripe, and it has to be a paid guest skill purchase.
+  // After Stripe. No cookie is trusted from the query: the session is read back from Stripe, and it
+  // has to be a paid guest skill purchase. H-1: only the account this checkout created, still
+  // invited with no password and no session ever, is signed in, and only on the first visit; every
+  // other buyer (an existing account typed at Stripe, a refresh, a replayed link) goes to sign-in.
+  // `guestSkillReturn` holds the rules.
   app.get(GUEST_RETURN_PATH, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'private, no-store');
     const raw = new URL(req.url, 'https://learn.local').searchParams.get('session_id') ?? '';

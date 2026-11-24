@@ -82,7 +82,7 @@ const post = (url: string, cookie?: string) =>
     headers: { origin: APP_URL, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) },
   });
 
-async function deliver(id: string, type: string, object: Record<string, unknown>, guest = false): Promise<string> {
+async function deliver(id: string, type: string, object: Record<string, unknown> | Stripe.Checkout.Session, guest = false): Promise<string> {
   const config = readOfferConfig();
   if (guest) config.skillGuestCheckout = true;
   return handleStripeEvent({ id, object: 'event', type, data: { object } } as unknown as Stripe.Event, {
@@ -363,9 +363,11 @@ describe('the webhook and access', () => {
     expect(list.statusCode).toBe(200);
     expect(list.json().skills.find((s: { id: string }) => s.id === 'team-pnl-review').state).toBe('open');
 
-    // The same return does not send the email again.
+    // The same return does not send the email again, and (H-1) does not sign anyone in a second time.
     const again = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${fresh.id}` });
     expect(again.statusCode).toBe(302);
+    expect(again.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library/team-pnl-review')}`);
+    expect(String(again.headers['set-cookie'] ?? '')).not.toContain(`${SESSION_COOKIE}=`);
     expect(outboxFor({ to: 'new.buyer@example.com', template: 'skill-purchase' })).toHaveLength(1);
 
     await storePassword(db, buyer!.id, 'a long enough password', NOW);
@@ -397,6 +399,90 @@ describe('the webhook and access', () => {
 
     const missing = await app.inject({ method: 'GET', url: '/api/skills/guest-return?session_id=cs_test_notreally1' });
     expect(missing.headers.location).toBe(`/sign-in?next=${encodeURIComponent('/skill-library')}`);
+  });
+
+  // H-1: Stripe does not verify the email typed at checkout. Only the account this checkout created
+  // may be signed in by the return, only while it is invited with no password and no session, once.
+  describe('the guest return signs in only the account its own checkout created (H-1)', () => {
+    async function guestApp(): Promise<void> {
+      await app.close();
+      const config = readOfferConfig();
+      config.skillPriceId = PRICE;
+      config.skillGuestCheckout = true;
+      app = await build({ logger: false, waitlist: true, offer: { config, stripe } });
+    }
+    const guest = (id: string, email: string, skillId = 'team-pnl-review') =>
+      ({
+        id,
+        object: 'checkout.session',
+        payment_status: 'paid',
+        amount_total: 3700,
+        payment_intent: `pi_${id}`,
+        created: Math.floor(NOW / 1000),
+        customer_details: { email, name: 'Some Buyer' },
+        metadata: { ai_plan: 'skill', ai_option: 'single', skill_id: skillId, offer: 'single_skill_37' },
+      }) as unknown as Stripe.Checkout.Session;
+    const cookieOf = (res: { headers: Record<string, unknown> }) => String(res.headers['set-cookie'] ?? '').includes(`${SESSION_COOKIE}=`);
+    const signInTo = (skill: string) => `/sign-in?next=${encodeURIComponent(`/skill-library/${skill}`)}`;
+
+    it('sends a checkout typed with an existing passwordless account\'s email to sign-in, with no session', async () => {
+      await guestApp();
+      // The owner of victim@example.com bought a skill last week and never set a password.
+      expect(await deliver('evt_victim', 'checkout.session.completed', guest('cs_test_victimfirst', 'victim@example.com'), true)).toBe('purchased:new');
+      const [victim] = await db.select().from(users).where(eq(users.email, 'victim@example.com'));
+      expect(victim).toMatchObject({ status: 'invited' });
+
+      // Someone else pays $37 and types the same address at Stripe.
+      const attack = guest('cs_test_attackerpay', 'Victim@Example.com', 'appointment-follow-up');
+      retrieved.set(attack.id, attack);
+      const res = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${attack.id}` });
+      expect(res.statusCode).toBe(302);
+      expect(res.headers.location).toBe(signInTo('appointment-follow-up'));
+      expect(cookieOf(res)).toBe(false);
+      const [row] = await db.select().from(skillPurchases).where(eq(skillPurchases.stripeSessionId, attack.id));
+      expect(row).toMatchObject({ userId: victim!.id, createdUserId: null, guestEnteredAt: null });
+    });
+
+    it('signs in the account the webhook created for this checkout once, and never after it has had a session', async () => {
+      await guestApp();
+      const first = guest('cs_test_webhookfirst', 'webhook.first@example.com');
+      retrieved.set(first.id, first);
+      // The webhook beats the buyer back from Stripe and creates the account.
+      expect(await deliver('evt_webhook_first', 'checkout.session.completed', first, true)).toBe('purchased:new');
+      const [buyer] = await db.select().from(users).where(eq(users.email, 'webhook.first@example.com'));
+      expect((await db.select().from(skillPurchases).where(eq(skillPurchases.stripeSessionId, first.id)))[0]).toMatchObject({ createdUserId: buyer!.id, guestEnteredAt: null });
+
+      const back = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${first.id}` });
+      expect(back.headers.location).toBe('/skill-library/team-pnl-review');
+      expect(cookieOf(back)).toBe(true);
+      expect((await db.select().from(skillPurchases).where(eq(skillPurchases.stripeSessionId, first.id)))[0]!.guestEnteredAt).toBe(NOW);
+
+      // Signed out, the same address in the history bar is spent.
+      const replay = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${first.id}` });
+      expect(replay.headers.location).toBe(signInTo('team-pnl-review'));
+      expect(cookieOf(replay)).toBe(false);
+    });
+
+    it('does not sign in a new account that already had a session or is no longer invited', async () => {
+      await guestApp();
+      const withSession = guest('cs_test_hadasession', 'had.session@example.com');
+      retrieved.set(withSession.id, withSession);
+      await deliver('evt_had_session', 'checkout.session.completed', withSession, true);
+      const [a] = await db.select().from(users).where(eq(users.email, 'had.session@example.com'));
+      // They opened the Set Your Password email on another device first.
+      await app.signInAs(a!.id);
+      const res = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${withSession.id}` });
+      expect(res.headers.location).toBe(signInTo('team-pnl-review'));
+      expect(cookieOf(res)).toBe(false);
+
+      const active = guest('cs_test_nowactive01', 'now.active@example.com');
+      retrieved.set(active.id, active);
+      await deliver('evt_now_active', 'checkout.session.completed', active, true);
+      await db.update(users).set({ status: 'active' }).where(eq(users.email, 'now.active@example.com'));
+      const res2 = await app.inject({ method: 'GET', url: `/api/skills/guest-return?session_id=${active.id}` });
+      expect(res2.headers.location).toBe(signInTo('team-pnl-review'));
+      expect(cookieOf(res2)).toBe(false);
+    });
   });
 
   it('does not open a skill that is not released yet, even after payment', async () => {
