@@ -198,12 +198,13 @@ describe('the legal pages on the marketing host @g9', () => {
     }
   });
 
-  it('lets through only the exact paths: lookalikes still go to the placeholder @g9', async () => {
+  it('lets through only the exact paths: lookalikes are a 404 @g9', async () => {
     const a = await onMarketingHost();
     for (const url of ['/terms-old', '/termsofservice', '/privacy-policy', '/terms/', '/privacy/extra']) {
       const res = await a.inject({ method: 'GET', url, headers: { host: WWW } });
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
     }
   });
 });

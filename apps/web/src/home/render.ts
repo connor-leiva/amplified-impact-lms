@@ -24,8 +24,10 @@
 // Every string goes through `esc()`.
 
 import { kitHeader } from '../kit/render';
+import { SITE } from '../site/content';
 import { siteFooter, siteHead, skipLink } from '../site/render';
 import { HOME } from './content';
+import { FOUNDERS } from './v3/content';
 import { entryFor, liveEntries } from './library-data';
 import { compare } from './sections/compare';
 import { end } from './sections/end';
@@ -39,8 +41,43 @@ import { trust } from './sections/trust';
 
 export { entryFor, liveEntries };
 
+/**
+ * Organization and WebSite, for the homepage only. Names and the logo are already on the site: the
+ * wordmark in `public/brand/`, and the two people the live homepage calls co-founders. No `sameAs`:
+ * the site does not link to a social profile, and one is not invented here.
+ */
+export function homeJsonLd(): string {
+  const url = new URL('/', SITE.url).toString();
+  const logo = new URL('/brand/amplified-impact-wordmark-on-dark.png', SITE.url).toString();
+  const founder = FOUNDERS.people
+    .filter((person) => /founder/i.test(person.role))
+    .map((person) => ({ '@type': 'Person', name: person.name }));
+  const graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${url}#organization`,
+        name: SITE.name,
+        url,
+        logo,
+        founder,
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${url}#website`,
+        name: SITE.name,
+        url,
+        publisher: { '@id': `${url}#organization` },
+      },
+    ],
+  };
+  const json = JSON.stringify(graph).replace(/</g, '\\u003c');
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
 export function renderHomeHead(): string {
-  return siteHead(HOME.meta);
+  return [siteHead(HOME.meta), homeJsonLd()].join('\n    ');
 }
 
 /** The kit's header for `/`, in its own `.aiw` scope: dark, like the page, and drawing no box. */

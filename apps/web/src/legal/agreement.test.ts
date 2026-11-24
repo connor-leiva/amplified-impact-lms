@@ -30,6 +30,7 @@ describe('the subscription agreement', () => {
     expect(doc.querySelector('time')?.getAttribute('datetime')).toBe('2026-11-23');
     expect(doc.querySelector('time')?.textContent).toBe('November 23, 2026');
     expect(doc.querySelector('.version')?.textContent).toBe('Version 2026-11-23');
+    expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/agreement');
   });
 
   it('names the minimum in the notice, and Section 4 in the contents', () => {

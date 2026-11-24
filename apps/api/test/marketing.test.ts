@@ -115,11 +115,12 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       expect(res.statusCode, url).toBe(301);
       expect(res.headers.location, url).toBe(location);
     }
-    // A guessed deep link must not reach the app's shell on www.
+    // A guessed deep link must not reach the app's shell on www, and must not pretend to be the homepage.
     for (const url of ['/skills/reel-editor', '/guides/reel-editor', '/library/x', '/skills/x?src=ig']) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
     }
   });
 
@@ -246,11 +247,12 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       }
     }
 
-    // Lookalikes still go to the placeholder.
+    // Lookalikes are a real 404, not the homepage.
     for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops', '/voice-profilex', '/voice', '/reel-editorx', '/reel', '/retoolx', '/retool-x', '/RETOOLX', '/Retoolx', '/ReTool', '/reTOOL', '/retoo', '/libraryx', '/library-old', '/Library', '/guidesx', '/guide', '/skillsx', '/skill']) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
     }
   });
 
@@ -267,30 +269,32 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     }
   });
 
-  it('sends an app path on the marketing host to the placeholder, not to sign-in @g9', async () => {
-    // Someone following an old link to `www.../vault` should see the placeholder rather than a
-    // login screen for a product they have never heard of.
+  it('answers an app path on the marketing host with a 404, not sign-in @g9', async () => {
+    // Someone following an old link to `www.../vault` should not see a login screen for a product
+    // they have never heard of, and should not be told that the homepage is that address.
     const a = await serve(WWW);
 
     for (const url of ['/vault', '/sign-in', '/employees/marketing', '/admin']) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
+      expect(res.body, url).not.toContain('Sign in');
     }
   });
 
-  it('uses 302 and not 301, because these paths will mean something later @g9', async () => {
-    // A 301 is cached by browsers more or less forever, so it would outlive the reason for it and
-    // strand a visitor on the placeholder after the real site replaced it.
+  it('answers an unknown path with 404, not a redirect @g9', async () => {
+    // A 302 to `/` is a soft 404. A 301 would be cached past the day the path becomes a page.
     const a = await serve(WWW);
 
-    // Not `/about`, which is a page now (D-117): a path that still has none.
     const res = await get(a, '/somewhere-later', WWW);
-    expect(res.statusCode).toBe(302);
-    expect(res.statusCode).not.toBe(301);
+    expect(res.statusCode).toBe(404);
+    expect(res.headers.location).toBeUndefined();
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.body).toContain('Page not found');
   });
 
-  it('sends /pricing/ to Programs and Pricing (D-111), and /contact and lookalikes to the homepage, on www only (D-102) @g9', async () => {
+  it('sends /pricing/ to Programs and Pricing (D-111), and /contact and lookalikes to a 404, on www only (D-102) @g9', async () => {
     const a = await serve(WWW, PAGE, asServed);
 
     // `/pricing` itself is a page now (routes/offer.ts, D-111): www lets it through to its route.
@@ -298,8 +302,10 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect([slash.statusCode, slash.headers.location]).toEqual([302, '/pricing']);
     for (const url of ['/contact', '/about/us', '/freebies', '/pricing/old', '/pricingx']) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
+      expect(res.body, url).not.toBe(SHELL);
     }
     // The app host gets no marketing redirect: `/pricing` there is the page's own route, like /offer,
     // which answers 404 here because this test builds no page.
@@ -361,8 +367,9 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     ];
     for (const url of deeper) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/');
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).toContain('Page not found');
       expect(res.body, url).not.toBe(SHELL);
     }
 

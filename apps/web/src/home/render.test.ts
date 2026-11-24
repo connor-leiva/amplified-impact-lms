@@ -95,6 +95,22 @@ describe('the head and the shell', () => {
     expect(meta('description')).toMatch(/^AI coaching and training for business owners and their teams/);
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/');
     expect(meta('og:image')).toBe('https://www.amplifiedimpact.io/img/og/amplified-impact.png');
+    const blocks = [...renderHomeHead().matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+    expect(blocks).toHaveLength(1);
+    const data = JSON.parse(blocks[0]![1]!) as { '@graph': Array<Record<string, unknown>> };
+    const org = data['@graph'].find((node) => node['@type'] === 'Organization');
+    const site = data['@graph'].find((node) => node['@type'] === 'WebSite');
+    expect(org).toMatchObject({
+      name: 'Amplified Impact',
+      url: 'https://www.amplifiedimpact.io/',
+      logo: 'https://www.amplifiedimpact.io/brand/amplified-impact-wordmark-on-dark.png',
+      founder: [
+        { '@type': 'Person', name: 'Connor Leiva' },
+        { '@type': 'Person', name: 'Spring Bengtzen' },
+      ],
+    });
+    expect(site).toMatchObject({ name: 'Amplified Impact', url: 'https://www.amplifiedimpact.io/' });
+    expect(JSON.stringify(data)).not.toMatch(/sameAs|linkedin|instagram|facebook|twitter|youtube/i);
   });
 
   it('loads its stylesheet and exactly one script, as a module file (never inline), and the body opts into the page’s look', () => {

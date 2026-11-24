@@ -18,6 +18,7 @@
 // The brand package's signature drawing, byte for byte (`scripts/reference-tokens.mjs --check` holds
 // the copy in `assets/brand/` to `design-reference/brand/`). Inlined, so the logo costs no request.
 import signature from '../assets/brand/amplified-impact-signature.svg?raw';
+import { SITE } from '../site/content';
 import { AGREEMENT } from './agreement';
 import {
   CHROME,
@@ -122,9 +123,11 @@ function footer(doc: LegalDoc): string {
 
 /** The <head> lines for one page. While `draft`, search engines are asked not to index it. */
 export function renderLegalHead(doc: LegalDoc, draft: boolean = doc.draft ?? DRAFT): string {
+  const canonical = new URL(doc.path, SITE.url).toString();
   return [
     `<title>${esc(doc.title)}</title>`,
     `<meta name="description" content="${esc(doc.description)}" />`,
+    `<link rel="canonical" href="${esc(canonical)}" />`,
     ...(draft ? [`<meta name="robots" content="noindex" />`] : []),
   ].join('\n    ');
 }

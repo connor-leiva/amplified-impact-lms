@@ -57,6 +57,7 @@ describe('the head', () => {
     expect(text($('title'))).toBe('The Library · Amplified Impact');
     expect($('meta[property="og:title"]')?.getAttribute('content')).toBe('The Library · Amplified Impact');
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/library');
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/library');
     expect($('meta[name="description"]')?.getAttribute('content')).toBe(LIBRARY.meta.description);
   });
 });

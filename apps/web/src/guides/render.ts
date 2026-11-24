@@ -95,6 +95,7 @@ export function renderGuideHead(guide: Guide): string {
   return [
     `<title>${esc(title)}</title>`,
     `<meta name="description" content="${esc(description)}" />`,
+    `<link rel="canonical" href="${esc(`${SITE.origin}/${guide.slug}`)}" />`,
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:description" content="${esc(description)}" />`,
     `<meta property="og:type" content="website" />`,

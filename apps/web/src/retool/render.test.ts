@@ -72,6 +72,7 @@ describe('the head', () => {
   it('names the page and its canonical address', () => {
     expect(text($('title'))).toBe("Retool, Don't Replace: AI 101 for Team Owners · Amplified Impact");
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/retool');
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/retool');
   });
 });
 

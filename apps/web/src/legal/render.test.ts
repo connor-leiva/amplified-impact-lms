@@ -200,8 +200,11 @@ describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and la
     for (const a of all(page, 'a[href^="#"]')) {
       expect(page.getElementById(a.getAttribute('href')!.slice(1)), a.getAttribute('href')!).not.toBeNull();
     }
-    // A link is not a request: the page itself still loads nothing from anywhere.
-    expect(all(page, 'img, iframe, link, object, embed')).toHaveLength(0);
+    // A link is not a request: the page itself still loads nothing from anywhere. The canonical
+    // address is the one exception, and a browser does not fetch it.
+    expect(all(page, 'img, iframe, object, embed')).toHaveLength(0);
+    expect(all(page, 'link:not([rel="canonical"])')).toHaveLength(0);
+    expect(page.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(`https://www.amplifiedimpact.io${doc.path}`);
   });
 
   it('has no em dash anywhere in the copy or on the page', () => {
