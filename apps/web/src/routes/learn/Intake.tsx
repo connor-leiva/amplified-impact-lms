@@ -159,8 +159,8 @@ export function IntakePage({ week }: { week: number }) {
       setLoad({ kind: 'ready' });
       return;
     }
+    // No step back to 'loading' on a Retry or a reload: a failed page stays disabled, a loaded one stays on screen.
     let alive = true;
-    setLoad({ kind: 'loading' });
     void loadIntake().then((out) => {
       if (!alive) return;
       if (out.kind === 'failed') {

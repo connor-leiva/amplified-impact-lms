@@ -38,7 +38,6 @@ export function StackPage({ week }: { week: number }) {
       return;
     }
     let alive = true;
-    setLoaded(false);
     setRetry(false);
     void fetch('/api/stack', { credentials: 'include' })
       .then(async (res) => {

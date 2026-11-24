@@ -174,7 +174,6 @@ export function useIntakeForm(intake: CourseIntake | undefined, now: number, ope
   useEffect(() => {
     if (!intake) return undefined;
     let alive = true;
-    setLoad('loading');
     void loadIntake().then((out) => {
       if (!alive) return;
       if (out.kind === 'failed') {
