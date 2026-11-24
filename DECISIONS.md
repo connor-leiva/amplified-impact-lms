@@ -7722,3 +7722,22 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **The switches.** The reminders send only while Automated Reminders `rm1` (24 hours) and `rm2` (1 hour) are on (`due.ts` `TOGGLE`; a missing row reads as off). Admin › Announcements flips a row that exists; it can't create one.
 - **Removed:** `session-reminder.tsx`, `session-24h.tsx` and `session-1h.tsx`, the React Email components these replace.
 - **Blast radius.** The two reminders' subjects, HTML and text, and the time in them. No parity golden, mask or tolerance (emails have none). No migration, env var, route or permission. The @g8 template, scheduler and subject tests that pinned § 8.1's subjects and the CT fallback now pin the subjects with their time and MT / CT. The learner parity suite's email deep links count only links on this site (the branded document's wordmark and footer link the academy's own address), and M-1's test is named for "View the Session".
+
+## D-251 · Join opens 15 minutes before the first live build, though the course opens at its start
+
+**Date:** 2026-11-24
+**Asked for by:** Connor Leiva (repository owner), Nov 24, 2026: "Make the join route let an enrolled, active learner join a course session from the same 15-minute window the button uses, even if the course opens at that session's start. Keep everything else unchanged: the course itself, steps, and other content still open at COURSE_OPENS_AT; non-active statuses still get 403; outside the window still 409. Smallest change wins (e.g. allow join when acceleratorOpen(now + 15 min) and the session is within the join window)."
+
+- **The gap.** `COURSE_OPENS_AT` is the first live build's start (Wed, Dec 2, 2026, 12:00 PM MT, D-153), and a buyer's plan starts then too. Join shows 15 minutes before every session (`canJoin`, `joinMode`) and the reminders say "Join opens 15 minutes before we start." (D-250). The join route asked about the plan at `now`, so from 11:45 to 12:00 PM MT the first build's Join answered 404. D-175 recorded this as D-153's known gap.
+- **The change** (`apps/api/src/routes/join.ts`). While a course session's join window is open (`joinMode` is not `disabled`), the route asks `acceleratorOpen` about the plan at `now` plus 15 minutes. Otherwise it asks at `now`, as before. On Dec 2 this opens Join for the first build at 11:45 AM MT, the instant the button shows. Every other check in the route is unchanged and reads `now`.
+- **Only the time moves.** A plan that is ended (refunded) or paused for a payment is shut at every instant, so it stays shut. A plan without the course still gets the same 404 as an unknown id. A seat that hasn't accepted its invite still gets 403. A session whose window is shut still gets 409 once the course is open. Before the window (11:44 AM MT on Dec 2), the course isn't open yet, so the first build still answers the pre-launch 404, as it did before.
+- **Unchanged:** the course, its weeks, steps, the snapshot, `GET /api/course`, the Library and the skills all still open at `COURSE_OPENS_AT`. Also unchanged: `acceleratorOpen` itself, the reminders' roster (D-248), and every session with no course week behind it (the route reads no plan for those).
+- **Tests** (`apps/api/test/course.test.ts`, through Postgres, with buyers made by `provisionOrder`):
+  - Week 1's build for the full and two-payment buyers and the owner's teammate: 404 at 11:44 AM MT; 200 at 11:45, 11:50 and 12:00 PM MT. At each instant the route agrees with `canJoin`.
+  - At 11:45 AM MT, the course and the snapshot are still shut and Week 2's build is still 404.
+  - An invited seat gets 403 at 11:45 and at 12:00.
+  - A refunded plan stays 404 inside the window.
+  - A session with no course week (planted at the same start) answers 409 at 11:44 and 200 at 11:45 and 12:00, for a buyer and for an Amplified Insiders member.
+  - The old test that pinned the gap (404 at 12:50 PM CT) now expects 200.
+- **Supersedes** D-175's "the first build's join window still opens 15 minutes before the course does, D-153's known gap".
+- No migration, env var, Railway variable, Stripe, billing, users, role, tier or `audit_log` change. No copy, golden, mask or tolerance moves.
