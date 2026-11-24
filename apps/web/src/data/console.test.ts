@@ -304,3 +304,43 @@ describe('the Console client, PR 2 (D-158)', () => {
     expect(listQuery({ q: 'x', plan: undefined, status: '' }, 'C')).toBe('?q=x&cursor=C');
   });
 });
+
+describe('a Workspace’s intake PDF (D-246)', () => {
+  const NOW = Date.parse('2026-12-10T16:30:00Z');
+
+  it('asks the team’s PDF route with credentials, and answers the file under the server’s name', async () => {
+    const calls: [string, RequestInit | undefined][] = [];
+    const file = new Blob(['%PDF-1.7'], { type: 'application/pdf' });
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push([url, init]);
+      return { ...res(200, null, { 'content-disposition': 'attachment; filename="Week 0 Intake - Northshore Realty.pdf"' }), blob: async () => file } as unknown as Response;
+    });
+    const out = await createConsoleHttp(fetchMock as unknown as typeof fetch).teamIntakePdf('ws/northshore');
+    expect(out).toEqual({ blob: file, filename: 'Week 0 Intake - Northshore Realty.pdf' });
+    expect(calls[0]![0]).toBe('/api/console/workspaces/ws%2Fnorthshore/intake/pdf');
+    expect(calls[0]![1]).toMatchObject({ credentials: 'include', headers: { accept: 'application/pdf' } });
+  });
+
+  it('turns a refusal into the console’s states, as every route does', async () => {
+    const api = createConsoleHttp((async () => res(404, { error: 'Not found', code: 'not_found' })) as unknown as typeof fetch);
+    expect((await failure(api.teamIntakePdf('ws_gone'))).kind).toBe('not_found');
+  });
+
+  it('in the fixture build: a one-page stand-in under the route’s name, audited as intake.pdf, and refused as the route refuses', async () => {
+    const owner = createConsoleFixture({ role: 'Owner', staff: true, state: null, now: () => NOW });
+    const { blob, filename } = await owner.teamIntakePdf('ws_northshore');
+    const name = (await owner.workspace('ws_northshore')).team.name;
+    expect(filename).toBe(`Week 0 Intake - ${name}.pdf`);
+    expect(blob.type).toBe('application/pdf');
+    const text = await blob.text();
+    expect(text.startsWith('%PDF-1.4\n')).toBe(true);
+    expect(text).toContain('(Week 0 Intake) Tj');
+    // The cross-reference table points at each object, so a reader opens it.
+    const offsets = /xref\n0 6\n0000000000 65535 f \n((?:\d{10} 00000 n \n){5})/.exec(text)![1]!.trim().split('\n').map((l) => Number(l.slice(0, 10)));
+    offsets.forEach((o, i) => expect(text.slice(o, o + 7)).toBe(`${i + 1} 0 obj`));
+    expect(Number(/startxref\n(\d+)/.exec(text)![1])).toBe(text.indexOf('xref\n'));
+    expect((await owner.audit({})).rows[0]).toMatchObject({ action: 'intake.pdf', target: { type: 'team', id: 'ws_northshore' } });
+    await expect(owner.teamIntakePdf('nope')).rejects.toMatchObject({ kind: 'not_found' });
+    await expect(createConsoleFixture({ role: 'Instructor', staff: true, state: null }).teamIntakePdf('ws_northshore')).rejects.toMatchObject({ kind: 'forbidden' });
+  });
+});

@@ -2,7 +2,9 @@
 // (IMPLEMENTATION-SPEC.md §7.4). Pure. The questions are the builder's (with `required`, B-16); the drawer's own words
 // are the mockup's (`handoff/lms-v3/src/forms/week-0-intake.json` › `ui`), here as constants.
 import { fmt } from '@ai/core';
+import type { CourseKitItem } from '@ai/core/course';
 import type { CourseIntake } from '@ai/core/course-types';
+import { DOWNLOAD_ANSWERS_LABEL } from '../intake-pdf';
 import type { KitRow, FormDef, FormInitial, FormUi } from './types';
 
 export const FORM_ID = 'intake';
@@ -26,6 +28,8 @@ export const FORM_UI: FormUi = {
   optional: 'Optional',
   needText: 'Add an answer.',
   needChoice: 'Pick one.',
+  // D-246: on the submitted banner, the team's answers as a PDF (the foot's Download PDF stays, draft or submitted).
+  submittedPdfLabel: DOWNLOAD_ANSWERS_LABEL,
 };
 
 export const formDef = (intake: CourseIntake): FormDef => ({ id: FORM_ID, ui: FORM_UI, intake });
@@ -66,6 +70,19 @@ export function formInitial(body: IntakeBody | null, now: number): FormInitial {
     return { status: 'draft', answers, ...(updatedAt !== null ? { savedLabel: savedLabel(updatedAt, now) } : {}) };
   return { status: 'new', answers };
 }
+
+/**
+ * D-246: the intake's row on the week when no kit file is the intake (the static PDF is no longer needed as a step
+ * file): the mockup's "Week 0 Intake Form" on the intake's step, with no file behind it. `formRow` draws it.
+ */
+export const FORM_ROW_TITLE = 'Week 0 Intake Form';
+export const formItem = (stepId: string | null): CourseKitItem => ({ id: '', title: FORM_ROW_TITLE, kind: null, platform: null, stepId });
+/**
+ * The stand-in's step, from the week's own steps (the ids its row is drawn against): the step the intake's checklist
+ * item is on, else the week's first, the intake's step (`intakeFileIds`). Null for a week with no steps.
+ */
+export const intakeStepOf = (steps: readonly { id: string | null }[], target: string | null | undefined): string | null =>
+  (target ? steps.find((s) => s.id === target)?.id : undefined) ?? steps[0]?.id ?? null;
 
 /** B-14: the intake's kit row as the form's row: its line ("Step 1 · 9 of 22 answered") and one button that opens it. */
 export function formRow(row: KitRow, f: { row: { meta: string; label: string } }, onOpen: () => void): KitRow {

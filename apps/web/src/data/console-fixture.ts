@@ -87,6 +87,7 @@ import { readParityR2 } from './parity-r2';
 import { fixtureCommunity } from './console-fixture-community';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
+import { onePagePdf } from './one-page-pdf';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited', 'stripe_off', 'stripe_scope', 'action_expired', 'action_scope'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -461,6 +462,17 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (!fixtureWorkspace(records, teamId)) throw notFound();
         record('intake.read', { type: 'team', id: teamId, label: 'Intake' }, null);
         return { answers: {}, updatedAt: null, submittedAt: null };
+      }),
+    // D-246: the server prints the real PDF (headless Chromium); the fixture build hands back a one-page stand-in,
+    // named and audited as the route's.
+    teamIntakePdf: (teamId) =>
+      settle(() => {
+        need('workspaces.read');
+        const w = fixtureWorkspace(records, teamId);
+        if (!w) throw notFound();
+        record('intake.pdf', { type: 'team', id: teamId, label: 'Intake PDF' }, null);
+        const name = w.team.name.replace(/[^\p{L}\p{N} .,&'-]+/gu, '').trim() || 'Team';
+        return { blob: onePagePdf(['Week 0 Intake', name, "Demo data. The live console prints the team's answers."]), filename: `Week 0 Intake - ${name}.pdf` };
       }),
     teamStack: (teamId) =>
       settle(() => {

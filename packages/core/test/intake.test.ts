@@ -1,6 +1,6 @@
 // D-196: the intake's questions, who may edit, and which box a submit checks.
 import { describe, expect, it } from 'vitest';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds, intakeIssues, intakeMissing, mayEditIntake } from '../src/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds, intakeIssues, intakeItemOn, intakeMissing, mayEditIntake, unlistedIntakeFiles } from '../src/intake';
 import { WEEK0_INTAKE, planIntakeV1 } from '../seed/intake-v1';
 import { WEEK0_MODULE_ID } from '../seed/start-here-v1';
 import { copyIssues, moduleCopyFields } from '../src/course-rules';
@@ -82,5 +82,33 @@ describe('intakeFileIds (D-229, B-14, B-15): the kit files the form drawer repla
     expect(intakeFileIds(week0([]), [{ id: 'intake-form', title: 'Intake', stepId: null }])).toEqual(['intake-form']);
     expect(intakeFileIds(week0([]), kit.slice(1))).toEqual([]);
     expect(intakeFileIds(undefined, kit)).toEqual([]);
+  });
+});
+
+describe('the static intake PDF is no longer a step file (D-246)', () => {
+  const week0 = (blocks: unknown[]) =>
+    ({ id: 'accelerator-week-0', checklist: [{ id: 'c1', paths: { claude: { blocks }, chatgpt: { blocks } } }, { id: 'c2' }] }) as unknown as AIEmployee;
+  const kit = [
+    { id: 'rmwmyx39v0aa9cbd8a', title: 'Week 0 Intake Form', stepId: 'c1' },
+    { id: 'rmwstack', title: 'Week 0 Stack Card', stepId: 'c1' },
+  ];
+  const intake = { sections: [] };
+  const mod = week0([
+    { type: 'check', id: 's1-intake', title: 'Fill in your intake', action: { type: 'download', kitItemIds: ['rmwmyx39v0aa9cbd8a'] } },
+    { type: 'check', id: 's1-stack', title: 'Send back your stack card', action: { type: 'download', kitItemIds: ['rmwstack'] } },
+  ]);
+  it('a week with the intake form stops listing the intake’s PDF, and only that file', () => {
+    expect(unlistedIntakeFiles(mod, { intake, kit })).toEqual(['rmwmyx39v0aa9cbd8a']);
+  });
+  it('a week without the form keeps every file, and a week with no PDF has nothing to drop', () => {
+    expect(unlistedIntakeFiles(mod, { kit })).toEqual([]);
+    expect(unlistedIntakeFiles(mod, { intake, kit: kit.slice(1) })).toEqual([]);
+    expect(unlistedIntakeFiles(mod, undefined)).toEqual([]);
+  });
+  it('the intake’s checklist item, on its own step only, and only with the form', () => {
+    expect(intakeItemOn(mod, { intake }, 'c1')).toBe('s1-intake');
+    expect(intakeItemOn(mod, { intake }, 'c2')).toBeNull();
+    expect(intakeItemOn(mod, {}, 'c1')).toBeNull();
+    expect(intakeItemOn(mod, { intake }, null)).toBeNull();
   });
 });

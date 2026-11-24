@@ -46,3 +46,66 @@ describe('the intake form (D-196)', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('Download Your Answers (PDF) on the intake page (D-246)', () => {
+  const SUBMITTED = Date.parse('2026-11-19T16:04:00Z');
+  const pdf = () => new Response('%PDF-1.4', { status: 200, headers: { 'content-disposition': 'attachment; filename="Week 0 Intake - Northline Realty.pdf"' } });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('is not offered on a draft', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: null }), { status: 200 })));
+    page(false);
+    expect(await screen.findByLabelText('Your name and email.')).toHaveValue('Dana');
+    expect(screen.queryByRole('button', { name: 'Download Your Answers (PDF)' })).toBeNull();
+  });
+
+  it('appears once the team submits, and saves the team’s own PDF from the session’s route', async () => {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/intake/pdf') return pdf();
+      if (init?.method === 'PUT') return new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: SUBMITTED }), { status: 200 });
+      return new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: null }), { status: 200 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:pdf'), revokeObjectURL: vi.fn() }));
+    const saved: string[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      saved.push(this.download);
+    });
+    page(false);
+    await screen.findByLabelText('Your name and email.');
+    expect(screen.queryByRole('button', { name: 'Download Your Answers (PDF)' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    const button = await screen.findByRole('button', { name: 'Download Your Answers (PDF)' });
+    fireEvent.click(button);
+    await waitFor(() => expect(saved).toEqual(['Week 0 Intake - Northline Realty.pdf']));
+    // The route takes the team from the session: the page names no team, so it can't ask for another one's.
+    expect(fetchMock).toHaveBeenCalledWith('/api/intake/pdf', { credentials: 'include' });
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('says so when the PDF doesn’t arrive', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url === '/api/intake/pdf'
+          ? new Response('{}', { status: 403 })
+          : new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: SUBMITTED }), { status: 200 }),
+      ),
+    );
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    page(false);
+    fireEvent.click(await screen.findByRole('button', { name: 'Download Your Answers (PDF)' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Your answers didn’t download. Try again.');
+  });
+
+  it('is not offered to a staff preview, which has no team', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    page(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+    expect(await screen.findByText(/^Submitted /)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Download Your Answers (PDF)' })).toBeNull();
+  });
+});

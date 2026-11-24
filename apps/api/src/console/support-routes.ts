@@ -58,7 +58,7 @@ export const SUPPORT_PATHS = {
   workspaces: '/api/console/workspaces',
   workspace: '/api/console/workspaces/:teamId',
   workspaceIntake: '/api/console/workspaces/:teamId/intake',
-  /** D-229 (B-18): the team's intake as a PDF, audited as `intake.pdf`. No console screen yet (C-14). */
+  /** D-229 (B-18): the team's intake as a PDF, audited as `intake.pdf`. D-246: the Workspace's Intake card's Download PDF. */
   workspaceIntakePdf: '/api/console/workspaces/:teamId/intake/pdf',
   /** D-229: re-queue the team's submitted intake for GHL. No console screen yet (C-14). */
   workspaceIntakeSync: '/api/console/workspaces/:teamId/intake/sync',

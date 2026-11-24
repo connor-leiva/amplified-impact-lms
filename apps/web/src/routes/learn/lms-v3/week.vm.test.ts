@@ -9,6 +9,7 @@ import { weekVM } from '../Week.vm';
 import { LEARNER_ID, PRELAUNCH_NOW, learnState } from '../test/fixture';
 import type { LearnState } from '../test/fixture';
 import { kitGroups, lockedWeekProps, stepsTitle, v3LockedDraws, v3WeekDraws, weekProps } from './week.vm';
+import { formItem, formRow, intakeStepOf } from './form.vm';
 
 beforeEach(() => setViewerZone('America/Chicago'));
 afterEach(() => setViewerZone(null));
@@ -235,6 +236,49 @@ describe('kitGroups (B-13)', () => {
     expect(row).toMatchObject({ icon: 'key', title: 'System prompt', meta: '6 lines · about 63 tokens' });
     expect(row.acts?.map((a) => a.label)).toEqual(['View', 'Copy']);
     expect(row.acts?.[1]!.copyText).toBe('Hi');
+  });
+});
+
+describe('the intake’s form row without a step file (D-246)', () => {
+  const st = learnState(PRELAUNCH_NOW, true, { 0: ['c1'] });
+  const { r } = week0(st);
+  const stack = { id: 's', title: 'Week 0 Stack Card', kind: 'file' as const, platform: null, stepId: 'c1', type: 'PDF' };
+  const baseline = { id: 'b', title: 'Time Baseline', kind: 'file' as const, platform: null, stepId: 'c3', type: 'XLSX' };
+  const f = { row: { meta: '9 of 22 answered', label: 'Continue' } };
+  const files = (kit: (typeof stack)[], item?: ReturnType<typeof formItem>) => {
+    const groups = kitGroups({
+      w: { ...r.open!, kit },
+      steps: r.steps,
+      week: 0,
+      build: null,
+      fileUrl: (id) => `/f/${id}`,
+      download: () => undefined,
+      onViewPrompt: () => undefined,
+      formRow: (it, row) => (it === item ? formRow(row, f, () => undefined) : row),
+      formItem: item,
+    });
+    return groups.find((g) => g.label === 'Files')!.rows;
+  };
+  it('lists the mockup’s Week 0 Intake Form row on the intake’s step, as the form’s row, with no file behind it', () => {
+    const rows = files([baseline, stack], formItem('c1'));
+    expect(rows.map((x) => x.title)).toEqual(['Week 0 Intake Form', 'Week 0 Stack Card', 'Time Baseline']);
+    expect(rows[0]).toMatchObject({ icon: 'file', form: 'intake', meta: 'Step 1 · 9 of 22 answered' });
+    expect(rows[0]!.href).toBeUndefined();
+    expect(rows[0]!.acts?.map((a) => a.label)).toEqual(['Continue']);
+  });
+  it('takes its step from the week’s own steps: the intake item’s, else the first', () => {
+    expect(intakeStepOf(r.steps, 'c1')).toBe('c1');
+    expect(intakeStepOf(r.steps, 'c3')).toBe('c3');
+    // A module record whose ids the course's steps don't share (the item's step isn't on the week): the week's first.
+    expect(intakeStepOf(r.steps, 'not-a-step')).toBe(r.steps[0]!.id);
+    expect(intakeStepOf(r.steps, undefined)).toBe(r.steps[0]!.id);
+    expect(intakeStepOf([], 'c1')).toBeNull();
+    expect(files([stack], formItem(intakeStepOf(r.steps, 'not-a-step')))[0]).toMatchObject({ title: 'Week 0 Intake Form', meta: 'Step 1 · 9 of 22 answered' });
+  });
+  it('draws nothing extra without the stand-in, or without a form row to draw it', () => {
+    expect(files([stack]).map((x) => x.title)).toEqual(['Week 0 Stack Card']);
+    const groups = kitGroups({ w: { ...r.open!, kit: [stack] }, steps: r.steps, week: 0, build: null, fileUrl: () => null, download: () => undefined, onViewPrompt: () => undefined, formItem: formItem('c1') });
+    expect(groups.find((g) => g.label === 'Files')!.rows.map((x) => x.title)).toEqual(['Week 0 Stack Card']);
   });
 });
 
