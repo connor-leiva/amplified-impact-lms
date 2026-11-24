@@ -148,3 +148,15 @@
   border-style: dashed;
   cursor: not-allowed;
 }
+
+/* Audit M-3 (D-247): on a phone the page runs edge to edge, so everything outside the question cards (Back, the title,
+   the intro, the saved line, the messages, Submit) takes the page's side gutter, as the cards' own text has. The cards
+   keep their width: their group steps back out by the same gutter. */
+@media (max-width: 767px) {
+  .page {
+    padding-inline: var(--r2-pad);
+  }
+  .lock {
+    margin-inline: calc(var(--r2-pad) * -1);
+  }
+}

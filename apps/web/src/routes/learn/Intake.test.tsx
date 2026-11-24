@@ -1,6 +1,7 @@
 // D-196: an autosave shows the time in Mountain Time. D-247: H-10 (editable only once loaded; a save sends only what
 // changed; a teammate's clash keeps what was typed and says to reload) and H-11 (optional questions say so; a submit
 // with a required answer missing names them, marks each and moves to the first).
+import { readFileSync } from 'node:fs';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { setViewerZone } from '@ai/core';
@@ -254,5 +255,14 @@ describe('Download Your Answers (PDF) on the intake page (D-246)', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Submit' }));
     expect(await screen.findByText(/^Submitted /)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Download Your Answers (PDF)' })).toBeNull();
+  });
+});
+
+describe('the page’s side gutter on a phone (audit M-3, D-247)', () => {
+  it('gives everything outside the question cards the page gutter at 767px and under, and leaves wider screens alone', () => {
+    const css = readFileSync('src/routes/learn/Intake.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(css).toMatch(/@media \(max-width: 767px\) \{\s*\.page \{\s*padding-inline: var\(--r2-pad\);\s*\}\s*\.lock \{\s*margin-inline: calc\(var\(--r2-pad\) \* -1\);\s*\}\s*\}/);
+    // Nothing else sets a side gutter, so 768px and up are as they were.
+    expect(css.match(/padding-inline|margin-inline/g)).toHaveLength(2);
   });
 });
