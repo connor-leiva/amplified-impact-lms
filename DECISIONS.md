@@ -7656,3 +7656,47 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **New words.** "Someone on your team changed this intake since you opened it. Copy what you typed, then reload the page.", "Someone on your team changed this card since you opened it. Copy what you typed, then reload the page.", "This page is out of date. Copy what you typed, then reload the page.", "Could not load the intake. Close it and open it again." (the drawer), and the button "Retry". Reused: "Optional", "Add an answer.", "Pick one." (the drawer's), "Some required answers are missing.", "Could not load the intake.", "Could not load the card." (the pages' own).
 - **Supersedes** D-229's "two people editing at once, the last save wins" for the intake (both forms; the seat card keeps it, D-236) and D-197's whole-card stack save; and D-230's and D-236's "with `VITE_LMS_V3` off ... draws nothing".
 - No migration, env var, Railway variable, Stripe, billing, role or permission change. No golden, mask or tolerance moves.
+
+## D-248 · Week 1 opens Sun, Nov 29, and a regular buyer for smoke tests
+
+**Date:** 2026-11-24
+**Asked for by:** Connor Leiva (repository owner), Nov 24, 2026, fixing the Week 0 launch audit's H-3 and H-2: "Week 1 now opens Sun Nov 29, 2026 at 12:00 PM MT. Update the seed/release plan and all learner copy that names Wed Dec 2 as the Week 1 open (Home countdown, Start Here, intake intro). Leave live session gating and the Dec 2 Live Build session on Wed Dec 2. In the PR, list the exact admin field I must change in production (Week Builder, Week 1 Opens (MT))." and "add a seed or script for a regular non-test, non-early_access buyer account for local/staging smoke tests, and document a smoke-test checklist in the PR."
+
+- **Week 1's opening (H-3).**
+  - The release plan (`packages/core/seed/release-plan-v1.ts`) opens Week 1 on Sun, Nov 29, 2026, at 12:00 PM MT. It used to open Wed, Dec 2.
+  - Every other week, Week 0's due date (Mon, Nov 30) and every session stay as they were. That includes the Map Your Spend Live Build, Wed, Dec 2, 12:00 PM MT.
+  - Also unchanged: `COURSE_OPENS_AT`, and with it Join, the Library's skills (a buyer's plan starts at the first live build, D-153) and the reminders.
+  - **The step runs once,** so this reaches a new database only. Production keeps Dec 2 until staff change Week 1's Opens (MT) in the Module Builder. No deploy-time data step was added.
+- **What follows the date by itself.** These are read from Week 1's Opens:
+  - Home's Week 1 card and the sidebar ("Opens Nov 29");
+  - the locked Week 1 page ("Opens Sun, Nov 29 · 12:00 PM MT · Week 1");
+  - the Schedule's week row (its tile stays the week's live build, Wed 2);
+  - the admin's cohort "Opens" (the earliest dated week).
+  - On Nov 29 at 12:00 PM MT Week 1 opens inside the pre-launch preview. The preview lasts until the course's own opening, Wed, Dec 2, 12:00 PM MT.
+- **Two places assumed Week 1 opened when the preview ended.** They now read the preview's end itself, `COURSE_OPENS_AT`:
+  - **The Resource vault's lock** (`learn.vm.ts` `vaultOpens`). The vault stays locked until Dec 2, so the lock still reads "Opens Wed, Dec 2 · 12:00 PM MT". Without this change it would have named Week 1's Nov 29, and then Week 2's Dec 9.
+  - **The course's refetch** (`data.ts` `nextOpening`). A tab left open in the preview refetches at Dec 2, 12:00 PM MT too, so the preview line and the vault's lock clear on time.
+- **What stays on Dec 2.** None of these is Week 1's opening:
+  - **Home's countdown** ("Goes live in"). It counts to the next live build session, the Dec 2 Live Build, not to Week 1's opening.
+  - **The top bar's Next live build.**
+  - **The cohort line "Starts Dec 2".** That is the cohort's start, its first live build.
+  - **Week 1's live-build detail** ("Wed, Dec 2, 2026, 12:00 to 1:30 PM MT. Every live build is on Wednesday.").
+  - **The skills' "Opens Wed, Dec 2".**
+  - **The pre-launch welcome** ("Live sessions start {date}. Your course and your skills open then."). Its date is the course's entry, never Week 1's.
+  - **The offer's thank-you page** and the marketing pages' "Starts Wednesday, December 2" (the first build).
+- **Copy, in the seed only (D-173).** Production's words change in the Module Builder.
+  - **Week 0's Start Here line** (`start-here-v1.ts`). It was "Eight steps get every team to the same starting line before our first live build on Wed, Dec 2, 2026. Everything is due Mon, Nov 30, 2026, 12:00 PM MT." It is now "Eight steps get every team to the same starting line for Week 1, which opens Sun, Nov 29, 2026, 12:00 PM MT. Everything is due Mon, Nov 30, 2026, 12:00 PM MT."
+  - **The Week 0 intake's intro** (`intake-v1.ts`). Its last date was "…before the live builds start on Wednesday, December 2." and is now "…before Week 1 opens on Sunday, November 29."
+  - Both old lines were still true, since the first live build stays on Dec 2. They change because the owner named them. Each now names Week 1's opening, and neither says a live build moves.
+- **A regular buyer for smoke tests (H-2).**
+  - `pnpm --filter @ai/api db:smoke-buyer -- --email <address> [--name "Full Name"]` runs `apps/api/src/db/smoke-buyer.ts`, with the password in `SMOKE_BUYER_PASSWORD`.
+  - **What it writes.** A paid order (the AI Accelerator in full, no Stripe id, no amount), provisioned by `provisionOrder` with the invite held, then the set-password flow's own ending. The result is a Team tier owner of a team of two seats in cohort `dec26`: active, with a live plan that starts at the first live build, not `is_test`, not `early_access`.
+  - **What it does not do.** No Stripe call, no email, no GoHighLevel row. Run twice, it writes nothing.
+  - **An existing learner** gains what a buyer has and they lack: a plan, the password, active status. It also loses early access, which does nothing without `is_test`.
+  - **It refuses,** writing nothing, a staff address, the seeded test learner (D-200) and a learner seated on another owner's team. An audited `user.seed` row (actor `system:seed-smoke-buyer`, the address) records each run that changed something.
+  - **Never production.** It refuses a database named `railway` (D-019's rule in `apps/api/test/helpers.ts`) unless `RAILWAY_ENVIRONMENT_NAME` names a non-production environment. That is how staging, whose database is also `railway`, is reached: through `railway ssh` or `railway run` in staging. It always refuses `RAILWAY_ENVIRONMENT_NAME=production`.
+  - Documented in `docs/LAUNCH.md` § 6.
+- **New strings.**
+  - Learners: the Start Here line and the intake intro above. Both are in the seed only.
+  - Developers: `db:smoke-buyer`'s usage, refusal and result lines.
+- No migration, env var, Railway variable, Stripe, billing data, role or permission change. No parity golden, mask or tolerance moves.

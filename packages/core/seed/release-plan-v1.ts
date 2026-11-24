@@ -4,8 +4,14 @@
 //
 // What Connor decided (the Week 0 brief, points 1 and 4):
 //   - Week 0 is due Mon, Nov 30, 2026 at 12:00 PM MT (no longer Wed, Dec 2).
-//   - Each week opens at the start of its live build, 12:00 PM MT: Week 1 Wed, Dec 2; Week 2 Dec 9;
-//     Week 3 Dec 16; Week 4 Wed, Jan 6, 2027; Week 5 Jan 13; Week 6 Jan 20; Week 7 Jan 27; Week 8 Feb 3.
+//   - Each week opens at the start of its live build, 12:00 PM MT: Week 2 Dec 9; Week 3 Dec 16;
+//     Week 4 Wed, Jan 6, 2027; Week 5 Jan 13; Week 6 Jan 20; Week 7 Jan 27; Week 8 Feb 3.
+//   - Week 1 opens Sun, Nov 29, 2026 at 12:00 PM MT, three days before its live build (D-248, the Week 0
+//     launch audit's H-3). Its live build stays Wed, Dec 2, and so does everything that waits for the
+//     sessions to start (`COURSE_OPENS_AT`: Join, the Library's skills, the reminders).
+//
+// A DATABASE THIS STEP ALREADY RAN ON KEEPS WEEK 1 ON DEC 2. The step runs once (`data_migrations`), so
+// changing the date here changes a new database only. Production's Week 1 moves in the Week Builder.
 //
 // ONLY OVER THE SEED'S OWN VALUES. A week still as the seed left it (Published, no Opens) becomes
 // Scheduled at its date; Week 0's due date moves only if it is still the seed's (or unset). A row staff
@@ -31,9 +37,9 @@ const noonMT = (day: string): number => Date.parse(`${day}T12:00:00-07:00`);
 /** Week 0's due date: Mon, Nov 30, 2026, 12:00 PM MT. */
 export const WEEK0_DUE_V1 = noonMT('2026-11-30');
 
-/** Each week's opening: the start of its live build, 12:00 PM MT. */
+/** Each week's opening, 12:00 PM MT: the start of its live build, but Week 1's, three days before it (D-248). */
 export const WEEK_OPENS_V1: Readonly<Record<number, number>> = {
-  1: noonMT('2026-12-02'),
+  1: noonMT('2026-11-29'),
   2: noonMT('2026-12-09'),
   3: noonMT('2026-12-16'),
   4: noonMT('2027-01-06'),

@@ -181,13 +181,19 @@ describe('the pre-launch preview, from the cohort’s date (D-175) @release', ()
 });
 
 describe('the weekly releases (D-175) @release', () => {
-  it('opens Week 1 at its live build: locked at 12:59 PM CT on Dec 2, open at 1:00 PM CT', { timeout: 120_000 }, async () => {
+  it('opens Week 1 on Sun, Nov 29 at 12:00 PM MT, in the preview, three days before its live build (D-248)', { timeout: 120_000 }, async () => {
     at(WEEK_OPENS_V1[1]! - 60_000);
     expect(weeksOf((await course('full')).json()).slice(0, 2)).toEqual(['0:open', '1:locked']);
     at(WEEK_OPENS_V1[1]!);
     const body = (await course('full')).json() as { prelaunch: boolean; course: LearnerCourse };
-    expect(body.prelaunch).toBe(false);
+    // Still the preview: the course's own opening stays the first live build, Wed, Dec 2.
+    expect(body.prelaunch).toBe(true);
     expect(weeksOf(body).slice(0, 3)).toEqual(['0:open', '1:open', '2:locked']);
+    expect(await acceleratorLearnerIds(handle, WEEK_OPENS_V1[1]!)).toEqual(new Set());
+    at(COURSE_OPENS_AT);
+    const live = (await course('full')).json() as { prelaunch: boolean; course: LearnerCourse };
+    expect(live.prelaunch).toBe(false);
+    expect(weeksOf(live).slice(0, 3)).toEqual(['0:open', '1:open', '2:locked']);
   });
 
   it('opens Week 4 on Jan 6, after the holiday, and not a minute before', { timeout: 120_000 }, async () => {

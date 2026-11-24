@@ -117,8 +117,9 @@ describe('the weeks view (D-180)', () => {
       title: 'Week 1 · Where the Money Goes',
       locked: true,
       pill: null,
+      // D-248: the tile is the week's live build (Wed, Dec 2); the week itself opens Sun, Nov 29.
       tile: { dw: 'Wed', dd: '2' },
-      aria: 'Week 1, Where the Money Goes, opens Wed, Dec 2',
+      aria: 'Week 1, Where the Money Goes, opens Sun, Nov 29',
     });
   });
 

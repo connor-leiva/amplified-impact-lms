@@ -1,6 +1,7 @@
 // SEED, NOT RUNTIME (D-195). Week 0's Start Here card, Design Nov 18, 2026. A one-time data step sets
 // it on accelerator-week-0 only when that week has no Start Here yet. It never overwrites one staff
 // saved, and it never runs twice. The step list is not stored here: the card reads the week's steps.
+// A change here reaches a new database only; a live one changes in the Week Builder (D-173, D-248).
 // Runtime code may not import this file.
 //
 // Pure: no clock, no random source.
@@ -18,7 +19,9 @@ export const WEEK0_MODULE_ID = 'accelerator-week-0';
 export const START_HERE: StartHere = {
   title: 'Start Here: Week 0',
   sub: 'Foundations: Set Up the Office',
-  line: 'Eight steps get every team to the same starting line before our first live build on Wed, Dec 2, 2026. Everything is due Mon, Nov 30, 2026, 12:00 PM MT.',
+  // D-248: Week 1 opens Sun, Nov 29 (the release plan), and the line names it. Was "before our first live
+  // build on Wed, Dec 2, 2026"; the build stays on Dec 2.
+  line: 'Eight steps get every team to the same starting line for Week 1, which opens Sun, Nov 29, 2026, 12:00 PM MT. Everything is due Mon, Nov 30, 2026, 12:00 PM MT.',
   hint: 'Start with Step 1. Steps 3 and 5 can run alongside the others.',
   totals: { owner: 'About 1 hr 30 min', operator: 'About 2 hr 15 min' },
 };

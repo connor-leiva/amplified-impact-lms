@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setViewerZone } from '@ai/core';
 import { learnerOf, type LearnerStep } from '@ai/core/learner';
 import { LABELS, barVM, dateTile, kitRow, linkedRoutes, navVM, sessionRow, skillRow, stepMeta, stepOfSkill, stepText, stepTitle, toneOf, weekOfPath, weekRows } from './learn.vm';
-import { LEARNER_ID, LIVE_NOW, PRELAUNCH_NOW, liveState, prelaunchState } from './test/fixture';
+import { LEARNER_ID, LIVE_NOW, PRELAUNCH_NOW, learnState, liveState, prelaunchState } from './test/fixture';
 
 beforeEach(() => setViewerZone('America/Denver'));
 afterEach(() => setViewerZone(null));
@@ -15,7 +15,7 @@ describe('the learner shell’s view-model (D-177)', () => {
     expect(rows).toHaveLength(9);
     expect(rows[0]).toMatchObject({ week: 0, title: 'Foundations', state: 'in_progress', done: 2, total: 8, href: '/learn/week/0', opensShort: null });
     expect(rows[0]!.steps.map((s) => s.id)).toEqual(['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']);
-    expect(rows[1]).toMatchObject({ week: 1, title: 'Where the Money Goes', state: 'locked', steps: [], opensShort: 'Opens Dec 2', open: null });
+    expect(rows[1]).toMatchObject({ week: 1, title: 'Where the Money Goes', state: 'locked', steps: [], opensShort: 'Opens Nov 29', open: null });
     // A locked week's icon and tone come from the snapshot's stub of its module; its words from the API's stub.
     expect(rows[1]!.icon).toBe('dollar');
     expect(rows.every((r) => r.tone === 'forest')).toBe(true);
@@ -40,6 +40,18 @@ describe('the learner shell’s view-model (D-177)', () => {
     expect(nav.employees!.rows[0]).toMatchObject({ label: 'Foundations', active: true, status: { kind: 'ring', text: '2 of 8', ratio: 0.25 }, title: 'Foundations · 2 of 8' });
     expect(nav.employees!.rows[2]).toMatchObject({ label: 'Leads That Pay', active: false, status: { kind: 'opens', text: 'Opens Dec 9' } });
     expect(nav.help.href).toBe('mailto:support@amplifiedimpact.io');
+  });
+
+  it('D-248: keeps the vault’s lock on the course’s own opening, Wed, Dec 2, after Week 1 opens in the preview', () => {
+    const { payload, db } = learnState(Date.parse('2026-11-30T09:00:00-07:00'), true, { 0: ['c1', 'c2'] });
+    const rows = weekRows(payload, db, learnerOf(db, LEARNER_ID));
+    expect(rows.slice(0, 3).map((r) => [r.week, r.state, r.opensShort])).toEqual([
+      [0, 'in_progress', null],
+      [1, 'not_started', null],
+      [2, 'locked', 'Opens Dec 9'],
+    ]);
+    // Not Week 2's Dec 9: the vault opens when the preview ends, with the first live build.
+    expect(navVM(payload, rows, '/learn').vault).toMatchObject({ locked: true, title: 'Opens Wed, Dec 2 · 12:00 PM MT' });
   });
 
   it('reads built, not started and an open vault once the course is live', () => {

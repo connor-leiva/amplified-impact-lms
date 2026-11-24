@@ -148,7 +148,7 @@ describe('Home (D-177)', () => {
     expect(within(hero).getByRole('timer')).toHaveAccessibleName('13 days, 22 hrs, 0 min');
     const cards = screen.getByRole('region', { name: 'Your AI employees' });
     expect(within(cards).getByRole('link', { name: 'Foundations, 2 of 8' })).toHaveAttribute('href', '/learn/week/0');
-    expect(within(cards).getByRole('link', { name: 'Where the Money Goes, Opens Dec 2' })).toBeInTheDocument();
+    expect(within(cards).getByRole('link', { name: 'Where the Money Goes, Opens Nov 29' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Coming up' })).toHaveTextContent('Map Your Spend Office Hours');
     expect(screen.getByRole('region', { name: 'Your cohort' })).toHaveTextContent('15in your cohort');
   });

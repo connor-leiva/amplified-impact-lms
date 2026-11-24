@@ -44,7 +44,7 @@ export interface DataMigration {
 export const DATA_MIGRATIONS: readonly DataMigration[] = [
   {
     id: RELEASE_PLAN_V1,
-    describe: 'Connor’s Nov 17 release plan: each week opens at its live build, Week 0 due Nov 30 (D-175)',
+    describe: 'Connor’s Nov 17 release plan: each week opens at its live build, Week 1 on Sun, Nov 29 (D-248), Week 0 due Nov 30 (D-175)',
     plan: planReleaseV1,
   },
   {

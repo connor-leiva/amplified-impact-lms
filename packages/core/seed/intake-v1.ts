@@ -2,6 +2,8 @@
 // accelerator-week-0 only when that week has no intake yet. It never overwrites one staff saved.
 // The repo had topic names (team size, cadence, operator, CRM, tasks, problems, access) and no
 // question form, so these 20 questions are the form. Runtime code may not import this file.
+// D-248: the intro names Week 1's opening, Sun, Nov 29 (it named the live builds' start, Wed, Dec 2). A change
+// here reaches a new database only; a live one changes in the Week Builder's Week 0 Intake card.
 
 import type { CourseIntake } from '../src/course-types';
 import type { Db } from '../src/types';
@@ -15,7 +17,7 @@ const text = (id: string, label: string, kind: 'short' | 'long', help?: string) 
 
 export const WEEK0_INTAKE: CourseIntake = {
   intro:
-    "The goal of this intake is that we know your team before we build anything with you. Your answers tell us which AI you're on, what your data lives in, and who sets everything up. That way your operator gets the right setup path, and we can spot anything that needs another route before the live builds start on Wednesday, December 2. Short answers are fine. If you're not sure of something, say so and skip it.",
+    "The goal of this intake is that we know your team before we build anything with you. Your answers tell us which AI you're on, what your data lives in, and who sets everything up. That way your operator gets the right setup path, and we can spot anything that needs another route before Week 1 opens on Sunday, November 29. Short answers are fine. If you're not sure of something, say so and skip it.",
   sections: [
     {
       title: 'You and Your Team',
