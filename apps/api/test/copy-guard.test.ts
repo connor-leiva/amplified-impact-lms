@@ -29,6 +29,8 @@ import { SKILL_IN_STEP } from '@ai/core/seed/copy-v3';
 import { ACCELERATOR_GLOSSARY } from '@ai/core/seed/glossary-v1';
 import { weekModuleV2 } from '@ai/core/seed/weeks-0-3-v2';
 import { UI_LABEL_TEXTS } from '@ai/core/ui-labels';
+import { implementerWords } from '@ai/core/role-words';
+import { PERSON_NOT_SOFTWARE } from '@ai/core/seed/ai-implementer-v1';
 import { WEEKS_1_2_DATA } from '@ai/core/seed/weeks-1-2-steps-v1';
 import type { DataBlock } from '@ai/core/seed/weeks-1-2-steps-v1';
 
@@ -90,6 +92,14 @@ function seedStrings(): Set<string> {
     walk(WEEKS_1_2_DATA[n].steps.map((st) => ({ ...st, claude: st.claude.map(copyOf), chatgpt: st.chatgpt.map(copyOf) })), '', '');
     walk(WEEKS_1_2_DATA[n].cards.map((c) => c.change_to), '', '');
   }
+  // D-242: the course's words once the AI Implementer step has renamed them, and Connor's line. The renamed words
+  // are the database's, as the old ones were, so runtime code may not hold them either.
+  const before = [...out];
+  for (const s of before) {
+    const renamed = implementerWords(s);
+    if (renamed !== s) out.add(renamed);
+  }
+  out.add(PERSON_NOT_SOFTWARE);
   return out;
 }
 

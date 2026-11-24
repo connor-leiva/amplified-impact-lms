@@ -46,7 +46,7 @@ function assetsOnce(): { sans: string; mono: string; logo: string } {
 }
 
 /** The PDF's own words: the drawer's title and kicker (handoff/lms-v3/src/forms/week-0-intake.json › ui). */
-export const PDF_UI = { title: 'Week 0 Intake', kicker: 'Week 0 · Step 1 · Owner and operator' };
+export const PDF_UI = { title: 'Week 0 Intake', kicker: 'Week 0 · Step 1 · Owner and AI Implementer' };
 
 export interface IntakePdfInput {
   intake: CourseIntake;
@@ -100,7 +100,7 @@ export function seatCardPdfHtml(x: SeatCardPdfInput): string {
   const signed = x.signedAt !== null;
   const date = dateOf(x.signedAt ?? x.savedAt);
   return formPdfHtml({
-    form: { id: 'seat-card', ui: { title: `${x.seat} Seat Card`, kicker: `Week ${x.week} · Step ${x.step} · Owner and operator` }, intake: x.form },
+    form: { id: 'seat-card', ui: { title: `${x.seat} Seat Card`, kicker: `Week ${x.week} · Step ${x.step} · Owner and AI Implementer` }, intake: x.form },
     answers: x.answers,
     meta: {
       team: x.team,

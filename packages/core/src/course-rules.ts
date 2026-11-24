@@ -164,9 +164,9 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
   push(out, 'course.question', 'Question', c.question);
   pushAll(out, 'course.why', 'Why', c.why);
   push(out, 'course.owner', 'Owner line', c.owner);
-  push(out, 'course.operator', 'Operator line', c.operator);
+  push(out, 'course.operator', 'AI Implementer line', c.operator);
   push(out, 'course.time.owner', 'Owner time', c.time.owner);
-  push(out, 'course.time.operator', 'Operator time', c.time.operator);
+  push(out, 'course.time.operator', 'AI Implementer time', c.time.operator);
   // D-195: the Start Here card. Step rows are the week's steps, not copy stored here.
   if (c.startHere) {
     push(out, 'course.startHere.title', 'Start here title', c.startHere.title);
@@ -174,7 +174,7 @@ function courseFields(out: CopyField[], c: ModuleCourse): void {
     push(out, 'course.startHere.line', 'Start here line', c.startHere.line);
     push(out, 'course.startHere.hint', 'Start here hint', c.startHere.hint);
     push(out, 'course.startHere.totals.owner', 'Start here owner total', c.startHere.totals.owner);
-    push(out, 'course.startHere.totals.operator', 'Start here operator total', c.startHere.totals.operator);
+    push(out, 'course.startHere.totals.operator', 'Start here AI Implementer total', c.startHere.totals.operator);
   }
   for (const field of intakeCopy(c.intake)) push(out, field.path, field.label, field.text);
   for (const field of stackCopy(c.stackCard)) push(out, field.path, field.label, field.text);
@@ -285,7 +285,7 @@ export function cohortCopyFields(c: Pick<Cohort, 'name' | 'cadence' | 'course'>)
   push(out, 'course.intro.sub', 'Course subtitle', cc.intro.sub);
   pushAll(out, 'course.intro.how', 'How it works', cc.intro.how);
   push(out, 'course.intro.roles.owner', 'Owner role', cc.intro.roles.owner);
-  push(out, 'course.intro.roles.operator', 'Operator role', cc.intro.roles.operator);
+  push(out, 'course.intro.roles.operator', 'AI Implementer role', cc.intro.roles.operator);
   push(out, 'course.intro.scope', 'Scope', cc.intro.scope);
   push(out, 'course.intro.support', 'Support', cc.intro.support);
   push(out, 'course.intro.holiday', 'Holiday note', cc.intro.holiday);

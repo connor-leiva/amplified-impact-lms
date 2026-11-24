@@ -101,7 +101,7 @@ describe('scheduleProps', () => {
     });
     expect(w0.sessions.map((s) => [s.icon, s.title])).toEqual([
       ['clock', `Self-paced, due ${fmt.day(Date.parse('2026-11-30T19:00:00Z'))}`],
-      ['users', expect.stringMatching(/^Owner about .+ · operator about .+$/)],
+      ['users', expect.stringMatching(/^Owner about .+ · AI Implementer about .+$/)],
     ]);
     const brk = p.groups.flatMap((g) => g.rows).find((r) => r.break !== undefined);
     expect(brk).toEqual({ break: 'Holiday break', text: expect.any(String) });

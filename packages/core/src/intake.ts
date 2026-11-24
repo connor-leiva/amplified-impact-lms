@@ -5,6 +5,7 @@
 // submit checks. Nothing here sends a message or writes outside the portal.
 
 import type { CourseIntake, IntakeQuestion, IntakeSection } from './course-types';
+import { implementerWords } from './role-words';
 import type { AIEmployee } from './types';
 
 /** Ids a later change reads. The builder warns before one of these is removed. */
@@ -60,6 +61,18 @@ export function intakeMissing(form: CourseIntake, answers: IntakeAnswers): strin
     .map((q) => q.id);
 }
 
+/**
+ * The option a choice answer picks, or null. An answer saved before D-242 renamed the operator the AI Implementer
+ * ("The operator's account (our default)") picks its renamed option, so a team's earlier answer is neither shown
+ * as unpicked nor dropped on the next save. The stored answer itself is never rewritten.
+ */
+function optionOf(q: IntakeQuestion, value: string): string | null {
+  const options = q.options ?? [];
+  if (options.includes(value)) return value;
+  const renamed = implementerWords(value);
+  return renamed !== value && options.includes(renamed) ? renamed : null;
+}
+
 /** Keep only answers this form asks, trimmed, and only choices the question lists. */
 export function cleanIntakeAnswers(form: CourseIntake, raw: unknown): IntakeAnswers {
   const byId = new Map(intakeQuestions(form).map((q) => [q.id, q]));
@@ -70,18 +83,45 @@ export function cleanIntakeAnswers(form: CourseIntake, raw: unknown): IntakeAnsw
     if (q.kind === 'multi') {
       const picked = (Array.isArray(value) ? value : typeof value === 'string' ? [value] : [])
         .filter((x): x is string => typeof x === 'string')
-        .map((x) => x.trim())
-        .filter((x) => (q.options ?? []).includes(x));
+        .map((x) => optionOf(q, x.trim()))
+        .filter((x): x is string => x !== null);
       if (picked.length) out[id] = [...new Set(picked)];
       continue;
     }
     if (typeof value !== 'string') continue;
     const text = value.trim().slice(0, TEXT_MAX);
     if (!text) continue;
-    if (q.kind === 'choice' && !(q.options ?? []).includes(text)) continue;
+    if (q.kind === 'choice') {
+      const option = optionOf(q, text);
+      if (option !== null) out[id] = option;
+      continue;
+    }
     out[id] = text;
   }
   return out;
+}
+
+/**
+ * Saved answers as the form reads now (D-242): a choice saved in the operator's words comes back as the option it
+ * picks today. Everything else, including answers to questions the form no longer asks, comes back as it was.
+ */
+export function currentIntakeAnswers(form: CourseIntake | undefined, answers: IntakeAnswers): IntakeAnswers {
+  if (!form) return answers;
+  const byId = new Map(intakeQuestions(form).map((q) => [q.id, q]));
+  let changed = false;
+  const out: IntakeAnswers = {};
+  for (const [id, value] of Object.entries(answers)) {
+    const q = byId.get(id);
+    if (!q || (q.kind !== 'choice' && q.kind !== 'multi')) {
+      out[id] = value;
+      continue;
+    }
+    const read = (v: string): string => optionOf(q, v) ?? v;
+    const next = Array.isArray(value) ? value.map(read) : read(value);
+    if (Array.isArray(next) ? next.some((v, i) => v !== (value as string[])[i]) : next !== value) changed = true;
+    out[id] = next;
+  }
+  return changed ? out : answers;
 }
 
 /**

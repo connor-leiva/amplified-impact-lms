@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { formPdfHtml } from '../src/pdf/form-pdf';
 import type { FormPdfInput } from '../src/pdf/form-pdf';
+import { implementerWords } from '@ai/core/role-words';
 import { PDF_UI, intakePdfHtml, intakePdfName } from '../src/pdf/render';
 
 const PKG = fileURLToPath(new URL('../../../handoff/lms-v3/', import.meta.url));
@@ -42,11 +43,13 @@ describe('intake PDF (D-229, B-18)', () => {
       submittedAt: Date.parse('2026-11-19T22:00:00Z'),
       savedAt: Date.parse('2026-11-20T22:00:00Z'),
     });
-    expect(html).toBe(readFileSync(PKG + 'pdf/week-0-intake.sample.html', 'utf8'));
+    // D-242: the package's print source, with the kicker's role renamed. The answers print as saved.
+    expect(html).toBe(readFileSync(PKG + 'pdf/week-0-intake.sample.html', 'utf8').replace('Week 0 · Step 1 · Owner and operator', PDF_UI.kicker));
+    expect(PDF_UI.kicker).toBe('Week 0 · Step 1 · Owner and AI Implementer');
   });
 
   it('uses the drawer’s words, dates a draft by its last save, and names the file for the team', () => {
-    expect(PDF_UI).toEqual({ title: form.ui.title, kicker: form.ui.kicker });
+    expect(PDF_UI).toEqual({ title: form.ui.title, kicker: implementerWords(form.ui.kicker) });
     const draft = intakePdfHtml({ intake: form.intake, answers: samples.draft.answers, team: 'Northline Realty', owner: 'Alex Morgan', cohort: '', submittedAt: null, savedAt: Date.parse('2026-11-21T03:00:00Z') });
     expect(draft).toContain('Draft');
     expect(draft).toContain('Nov 20, 2026');

@@ -45,14 +45,26 @@ function hitsIn(text: string, terms: readonly GlossaryTerm[]): Hit[] {
 
 /**
  * The first unused term in `text`. Longer phrases win when they overlap (so "Inbox folder" beats
- * "inbox", and "your operator" beats "operator"). `used` gains each id this call marks.
+ * "inbox", and "your AI Implementer" beats "Your AI"). A term already marked still holds its words, so
+ * a shorter term inside them isn't marked instead: the second "your AI Implementer" is plain text, not
+ * the "Your AI" term (D-242). `used` gains each id this call marks.
  */
 function take(text: string, terms: readonly GlossaryTerm[], used: Set<string>): GlossarySpan[] {
   const hits = hitsIn(text, terms).sort((a, b) => a.start - b.start || b.len - a.len || a.order - b.order);
   const chosen: Hit[] = [];
+  // Words of a term marked in an earlier text are held before anything is chosen, so a shorter term that starts
+  // first ("your AI" in "your AI Office") can't take them either.
+  const held: Hit[] = hits.filter((h) => used.has(h.id));
+  const overlaps = (h: Hit, c: Hit): boolean => h.start < c.end && h.end > c.start;
+  // A longer term that holds the held words whole still wins, as longer phrases do ("Inbox folder" over "inbox").
+  const covers = (h: Hit, c: Hit): boolean => h.start <= c.start && h.end >= c.end && h.len > c.len;
   for (const h of hits) {
-    if (used.has(h.id)) continue;
-    if (chosen.some((c) => h.start < c.end && h.end > c.start)) continue;
+    if (held.includes(h)) continue;
+    if (chosen.some((c) => overlaps(h, c)) || held.some((c) => overlaps(h, c) && !covers(h, c))) continue;
+    if (used.has(h.id)) {
+      held.push(h);
+      continue;
+    }
     chosen.push(h);
     used.add(h.id);
   }

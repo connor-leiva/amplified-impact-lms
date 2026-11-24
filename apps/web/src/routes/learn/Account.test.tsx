@@ -85,7 +85,7 @@ describe('the Account page (D-178)', () => {
     expect(plan).toHaveTextContent('December 2026 cohort · Live Dec 2 to Feb 4 · Included through Tue, May 4, 2027');
     expect(within(plan).getByRole('link', { name: 'Manage billing' })).toHaveAttribute('href', '/api/billing/portal');
     expect(plan).toHaveTextContent('1of 2 in use');
-    expect(plan).toHaveTextContent('Operator invite sent Nov 16, not accepted yet');
+    expect(plan).toHaveTextContent('AI Implementer invite sent Nov 16, not accepted yet');
     // No money, receipts or card: those stay in Stripe's portal, behind Manage billing.
     expect(screen.queryByText(/\$/)).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Receipts' })).toBeNull();
@@ -96,7 +96,7 @@ describe('the Account page (D-178)', () => {
 
   it('shows the waiting invite but no Resend invite, since nothing would be sent (D-178)', async () => {
     at('/learn/account');
-    expect(await screen.findByText('Operator invite sent Nov 16, not accepted yet')).toBeInTheDocument();
+    expect(await screen.findByText('AI Implementer invite sent Nov 16, not accepted yet')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Resend invite' })).toBeNull();
   });
 

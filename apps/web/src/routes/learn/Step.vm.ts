@@ -101,7 +101,7 @@ export const STEP = {
   checkFailed: 'That check didn’t save.',
 } as const;
 
-const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'Operator', each: 'Each of you' };
+const ROLE_LABEL: Record<string, string> = { owner: 'Owner', operator: 'AI Implementer', each: 'Each of you' };
 const CALLOUT_LABEL = { tip: STEP.tip, heads_up: STEP.headsUp, diy: STEP.diy } as const;
 
 /** A video's length beside Watch: "7 min 49 s", "2 min", or "8 s". */

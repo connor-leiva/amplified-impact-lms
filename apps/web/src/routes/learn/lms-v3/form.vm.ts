@@ -18,7 +18,7 @@ export function opensIntakeDrawer(pathname: string, intakePage: string, intakeFi
 
 export const FORM_UI: FormUi = {
   title: 'Week 0 Intake',
-  kicker: 'Week 0 · Step 1 · Owner and operator',
+  kicker: 'Week 0 · Step 1 · Owner and AI Implementer',
   sub: 'Your answers save as you go, for your whole team.',
   submitLabel: 'Submit intake',
   submittedTitle: 'Intake submitted.',

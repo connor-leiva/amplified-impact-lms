@@ -7503,3 +7503,51 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
   - The mockup extends the LMS v3 mockup (unchanged) with `buyer.css`. The app ships that file byte for byte; a test holds the checksum.
   - `handoff/lms-mockup/tools/pairs.ts` compares the mockup with the production build at 1280 and 390, and the pairs are in `docs/pr-review/252/`.
 - **No migration, env var, Stripe, GHL or email change.** No parity golden, mask or tolerance moves.
+
+---
+
+## D-242 · The operator is the AI Implementer
+
+**Date:** 2026-11-24
+**Approved by:** Connor Leiva (repository owner), November 24, 2026, through the scoping in this change's session. He asked to rename the secondary course role from "Operator" to "AI Implementer" everywhere in the LMS, keeping internal identifiers, with additive migrations only. On the spelling: "spell it 'AI Implementer' (plural 'AI Implementers')". On the definition: "wherever the role is first defined (e.g. Week 0 intake intro, onboarding copy), add: 'Your AI Implementer is a person on your team, not software.'" On the scoping's three questions: "Go with B, add it to short too, leave Operations Lead".
+
+- **The words.** Every word a learner or staff member reads now says AI Implementer: "an AI Implementer", "AI Implementers", "the AI Implementer's", and Title Case in headings ("Name Your AI Implementer"). Mid-sentence it keeps its capitals ("your AI Implementer").
+  - **In code (40 strings).** The learner portal: the course page, the Account page, Schedule, Start Here, the step role tag, the v3 week page's tags, role filter and Reference accordion, the intake, seat card and Turn in drawers, and the $37 buyer's course preview. The admin: Week Builder (the AI Implementer line, time and total, Who's hint, the item role, Preview as, the default "Invite your AI Implementer" button), Course Settings ("The AI Implementer’s role"), and the save-error labels. The API: the owner-and-AI-Implementer refusals, and the intake and seat card PDF headers. `UI_LABELS` holds the two renamed chrome strings ("Owner and AI Implementer", "your AI Implementer").
+  - **In the database.** A one-time data step (`2026-11-24-ai-implementer`, `packages/core/seed/ai-implementer-v1.ts`, last in `DATA_MIGRATIONS`). This is Connor's option B: it renames the word in **every** course record, staff edits in the builder included. That departs from D-175's rule that a data step changes only rows still as the seed left them. It covers the Accelerator's weeks (every field but the ids, settings, links and transcripts it lists in `KEEP`), the Accelerator cohort's shared pages and glossary, the Accelerator's session titles, the Resource Vault's titles and descriptions, and the builder's copy strings. Over the deployed seed that is 78 fields in 10 records. Each record gets one audit row with each field before and after. A second run changes nothing.
+- **The line.** "Your AI Implementer is a person on your team, not software." goes, by the same step, after:
+  - the Week 0 intake intro's first sentence that names the AI Implementer;
+  - the first sentence of the glossary term's short line (the hover and the Week 0 "Know these five words" card) and its long line;
+  - the first sentence of the course's role line (`intro.roles.operator`, the course page's "The AI Implementer's role");
+  - in Week 0 Step 1 (written by staff, not seeded), the sentence that says who the person is ("The person who…", "The teammate who…"). Where Step 1 has no such sentence, the step leaves it and names it in its summary, for staff to place in the builder.
+  - The glossary term gains the alias "AI Implementers".
+- **What stays as it was.**
+  - **Identifiers:**
+    - the step role `operator` and its schema enum;
+    - the week fields `operator`, `time.operator`, `startHere.totals.operator` and `intro.roles.operator`;
+    - the glossary term's id `operator`;
+    - the intake question ids `operator` and `operator-name`, and with them the GHL setting names `GHL_FIELD_INTAKE_OPERATOR` and `_OPERATOR_NAME` and the GHL field keys `contact.ai_intake_operator` and `_operator_name`;
+    - the TypeScript names (`StepRole`, `SeatCardRole`, `PreviewAs`) and the role filter's `data-role="operator"`.
+  - **Data:**
+    - the account role `Operations Lead` ("leave Operations Lead": Team Hub, the invite drawer and the admin keep showing it);
+    - a team's saved intake answers;
+    - conditions staff set (`field`, `equals`);
+    - users, teams, plans, billing, Stripe and tiers;
+    - announcements already sent;
+    - live-session transcripts.
+  - **No schema migration.** No column is named for the role.
+- **Words saved before the rename still work.**
+  - `stepRoles` reads a Who line of "AI Implementer" or the old "Operator" as the role, so the v3 week page's filters and times hold whichever words a step has.
+  - A condition matches an answer in either words (`sameRoleWords`).
+  - A choice answer saved as "The operator's account (our default)" reads as today's option in the drawer, the PDF and the GHL sync (`currentIntakeAnswers`), and is no longer dropped on the next save (`cleanIntakeAnswers`). The stored row is not rewritten.
+- **The glossary.** A term already marked now still holds its words (`take`, `glossary.ts`). So a shorter term inside or across them isn't marked instead: the second "your AI Implementer" on a step is plain text, not the "Your AI" term (Claude or ChatGPT) found inside it, and "your AI Office" no longer marks "your AI" once AI Office has been marked. A longer term that contains them whole still wins, as before ("Inbox folder" over "inbox").
+- **Before the deploy.** `pnpm --filter @ai/api db:data-steps:preview` prints every field the pending steps would change, before and after, and what they would leave. It reads in one read-only transaction and writes nothing. Run it against a copy of production and read it before the deploy that runs the step.
+- **Not in this change.** These are named for Connor:
+  - the GHL field labels ("AI Intake Operator", "AI Intake Operator Name") and the contact association's "Operator" label, which staff rename in GHL (the keys stay);
+  - the welcome email (a GHL workflow);
+  - the Week 0 orientation video, whose narration and captions say "operator";
+  - the Library skills that use the word (morning-brief, new-agent-onboarding-plan) and the free guides' "owners and operators";
+  - the historical course plan and handoff packages.
+- **Blast radius.**
+  - **Goldens.** No golden, mask or tolerance: no fingerprint in `compliance/goldens/` contains the word.
+  - **Reference files.** `design-reference/week0-polish/step-2.html` and `admin-redesign-r2/AdminRedesign.jsx`, the signed-off `docs/design/learner-v2` artboards and the `handoff/lms-v3` and `step-page-v6` mockups still say "operator". They are not edited. The local lms-v3 pixel-diff and step-page-v6 acceptance runs will differ on these words, by this decision.
+  - **Fixture-only demo data** mirrored from the reference (`parity-r2.ts`, `console-fixture-community.ts`) is unchanged.

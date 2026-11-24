@@ -176,7 +176,7 @@ describe('Turn in (D-230)', () => {
     expect((await turnIn('ag-a', { moduleId: WEEK1, kind: 'live_read', files: [] })).statusCode).toBe(403);
     const r = await mine('ag-a');
     expect(r.statusCode).toBe(403);
-    expect(r.json().error).toBe('Your team’s owner or operator turns this in.');
+    expect(r.json().error).toBe('Your team’s owner or AI Implementer turns this in.');
     // A staff preview has no team, and nothing turned in.
     expect((await mine('st_owner')).json()).toEqual({ subs: {}, preview: true });
   });

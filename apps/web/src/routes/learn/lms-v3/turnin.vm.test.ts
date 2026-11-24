@@ -3,14 +3,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { turnInSamples } from '@lms-v3-pkg/sample-data.js';
 import { OK_EXT } from '@lms-v3-pkg/components/TurnIn.jsx';
+import { implementerWords } from '@ai/core/role-words';
 import { SUBMISSION_KIND_LABEL, SUBMISSION_TYPES } from '@ai/core/submissions';
 import { OK_EXT as REPO_OK_EXT } from './TurnIn';
 import { TURN_IN_UI, asksProps, subsProps, turnInLabel, turnedInWhen } from './turnin.vm';
 import { putFile } from './turnin.data';
 
 describe('Turn in’s props (D-230)', () => {
-  it('uses the package’s words', () => {
-    expect(TURN_IN_UI).toEqual(turnInSamples.ui);
+  it('uses the package’s words, with the operator renamed the AI Implementer (D-242)', () => {
+    expect(TURN_IN_UI).toEqual(JSON.parse(implementerWords(JSON.stringify(turnInSamples.ui))));
   });
   it('lets the server take exactly the drawer’s files, and heads each kind as the drawer does', () => {
     expect(Object.keys(SUBMISSION_TYPES)).toEqual(OK_EXT);

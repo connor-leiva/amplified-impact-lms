@@ -35,7 +35,7 @@ export const ADMIN_SEAT_CARDS_PATH = '/api/admin/seat-cards';
 /** The server's words for a refusal. The drawer's foot shows them. */
 export const SEAT_CARD_ERRORS = {
   notTeam: 'That card is for your team.',
-  notEditor: 'That card is for the owner and the operator.',
+  notEditor: 'That card is for the owner and the AI Implementer.',
   notOwner: 'Only the Team Owner signs.',
   noCard: 'This week has no seat card.',
   missing: 'Answer every line first.',

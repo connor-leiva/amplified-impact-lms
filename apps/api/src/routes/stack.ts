@@ -32,7 +32,7 @@ export function registerStackRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     if (actor.kind !== 'learner') return reply.code(200).send({ rows: [], sentAt: null, preview: true });
     const me = await memberOf(actor.userId);
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the AI Implementer.' });
     const [saved] = await getDb().select().from(teamStackCard).where(eq(teamStackCard.teamId, me.teamId));
     if (saved) return reply.code(200).send({ rows: saved.rows, sentAt: saved.sentAt, preview: false });
     const card = await cardOf();
@@ -46,7 +46,7 @@ export function registerStackRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     if (actor.kind !== 'learner') return reply.code(403).send({ error: 'Preview only' });
     const me = await memberOf(actor.userId);
-    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the operator.' });
+    if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That card is for the owner and the AI Implementer.' });
     const card = await cardOf();
     if (!card) return reply.code(404).send({ error: 'This week has no stack card.' });
     const body = (req.body ?? {}) as { rows?: unknown; send?: boolean };

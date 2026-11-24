@@ -5,6 +5,7 @@
 import type { AccordionBlock, CalloutBlock, CheckBlock, ContentBlock, PathBlock, VideoBlock } from './course-types';
 import type { ChecklistMark, Step, VideoProgress } from './types';
 import { autoTargets, crossesWatch } from './video';
+import { sameRoleWords } from './role-words';
 
 const ITEM_ID = /^[A-Za-z0-9_-]+$/;
 const CROSS = /^step:(\d+):([A-Za-z0-9_-]+)$/;
@@ -25,7 +26,8 @@ export const titleWords = (title: string): number => title.trim().split(/\s+/).f
 
 /**
  * D-199: a stored condition against the team's intake. No intake, or a field the intake does not
- * have, does nothing. `both` also matches "I'm both".
+ * have, does nothing. `both` also matches "I'm both". An answer or a condition saved before D-242 renamed the operator
+ * the AI Implementer still matches its renamed words.
  */
 export function conditionMet(cond: { field: string; equals: string } | undefined, answers?: Readonly<Record<string, string | string[]>>): boolean {
   if (!cond || !answers || !(cond.field in answers)) return false;
@@ -34,7 +36,7 @@ export function conditionMet(cond: { field: string; equals: string } | undefined
   const want = cond.equals.trim().toLowerCase();
   const got = value.trim().toLowerCase();
   if (want === 'both') return got === 'both' || got === "i'm both";
-  return got === want;
+  return got === want || sameRoleWords(got, want);
 }
 
 export const checkVisible = (b: CheckBlock, answers?: Readonly<Record<string, string | string[]>>): boolean => !conditionMet(b.hideIf, answers);

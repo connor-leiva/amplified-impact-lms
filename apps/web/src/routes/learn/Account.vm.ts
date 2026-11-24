@@ -40,7 +40,7 @@ export const ACCOUNT = {
   email: 'Email',
   emailHint: 'You sign in with this.',
   role: 'Role',
-  roleHint: 'Your operator gets the second seat.',
+  roleHint: 'Your AI Implementer gets the second seat.',
   password: 'Password',
   changePassword: 'Change password',
   included: 'What’s included',
@@ -97,7 +97,7 @@ export interface SeatsVM {
   of: string;
   /** One per seat: true while it is taken by someone who has joined. */
   segments: boolean[];
-  /** "Operator invite sent Nov 16, not accepted yet", or null when nobody is waiting. */
+  /** "AI Implementer invite sent Nov 16, not accepted yet", or null when nobody is waiting. */
   note: string | null;
   /** Resend, for the one invite waiting, when the viewer may invite. */
   resend: { label: string; email: string } | null;
@@ -120,10 +120,10 @@ export interface AccountVM {
   included: { heading: string; items: string[] } | null;
 }
 
-/** A role as the mockup writes it: sentence case, and the second seat's holder is the operator. */
+/** A role as the mockup writes it: sentence case, and the second seat's holder is the AI Implementer (D-242). */
 const ROLE_LABEL: Record<Learner['role'], string> = {
   'Team Owner': 'Team owner',
-  'Operations Lead': 'Operator',
+  'Operations Lead': 'AI Implementer',
   'Sales Agent': 'Sales agent',
   Agent: 'Agent',
 };
@@ -131,7 +131,7 @@ const ROLE_LABEL: Record<Learner['role'], string> = {
 /** Who an invite is for, as the seats note names them. */
 const INVITEE: Record<Learner['role'], string> = {
   'Team Owner': 'Owner',
-  'Operations Lead': 'Operator',
+  'Operations Lead': 'AI Implementer',
   'Sales Agent': 'Agent',
   Agent: 'Agent',
 };
@@ -255,7 +255,7 @@ function profileVM(read: AccountRead, db: Pick<Db, 'teams'>, me: Learner | null)
       ? {
           label: ACCOUNT.role,
           value: ROLE_LABEL[me.role],
-          // A team of two is the owner and their operator (the AI Accelerator's seats).
+          // A team of two is the owner and their AI Implementer (the AI Accelerator's seats).
           hint: me.role === 'Team Owner' && team?.seats === 2 ? ACCOUNT.roleHint : null,
         }
       : null,

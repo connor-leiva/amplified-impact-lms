@@ -107,7 +107,7 @@ describe('the weeks view (D-180)', () => {
     });
     expect(w0.lines.map((x) => [x.dot, x.text])).toEqual([
       ['build', 'Self-paced, due Mon, Nov 30'],
-      ['oh', 'Owner about 1 hr 30 min · operator about 2 hr 15 min'],
+      ['oh', 'Owner about 1 hr 30 min · AI Implementer about 2 hr 15 min'],
     ]);
   });
 

@@ -217,7 +217,7 @@ export function nextCheckId(taken: readonly string[]): string {
 export const CHECK_ROLES = [
   ['', 'No role tag'],
   ['owner', 'Owner'],
-  ['operator', 'Operator'],
+  ['operator', 'AI Implementer'],
   ['each', 'Each of you'],
 ] as const;
 
@@ -276,7 +276,7 @@ export const listItems = (text: string): string[] => text.split('\n').map((l) =>
 export type PreviewAs = 'owner' | 'operator' | 'utah' | 'prelaunch';
 export const PREVIEW_AS_LABELS: Readonly<Record<PreviewAs, string>> = {
   owner: 'Owner',
-  operator: 'Operator',
+  operator: 'AI Implementer',
   utah: 'Utah Life',
   prelaunch: 'Before launch',
 };

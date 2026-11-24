@@ -17,7 +17,7 @@
 // test or the seeded test learner (`is_test`): those rows are marked and left.
 import { and, eq, isNotNull, lte } from 'drizzle-orm';
 import type { CourseIntake } from '@ai/core/course-types';
-import { intakeQuestions } from '@ai/core/intake';
+import { currentIntakeAnswers, intakeQuestions } from '@ai/core/intake';
 import { call, upsertAndTag } from '../integrations/ghl';
 import type { GhlConfig, SyncOptions } from '../integrations/ghl';
 import { getDb } from '../db/client';
@@ -139,7 +139,8 @@ export async function syncIntakeRow(
   },
 ): Promise<RowOutcome> {
   if (ctx.owner.isTest) return { status: 'skipped', error: 'the seeded test account: never synced' };
-  const payload = intakePayload(ctx.form, row.answers, row.submittedAt, ctx.env);
+  // D-242: a choice saved in the operator's words goes to GHL as the option it picks now.
+  const payload = intakePayload(ctx.form, currentIntakeAnswers(ctx.form, row.answers), row.submittedAt, ctx.env);
   const op = operatorOf(row.answers, ctx.operator);
   if (!ctx.send || !ctx.options) {
     ctx.log.info(
