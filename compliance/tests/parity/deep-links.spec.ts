@@ -51,7 +51,7 @@ const schedule = async (page: Page) => {
 test.describe('learner parity: email deep links', () => {
   test('every template is rendered here, each with exactly one link on this site', () => {
     const covered = new Set(CASES.map((c) => c.template));
-    // `session-reminder.tsx` is the shared body of session-24h and session-1h, not a template of its own.
+    // D-250: session-24h and session-1h are `session-reminder-html.ts` (no `.tsx` of their own); they are still cases.
     expect(TEMPLATE_FILES.filter((t) => t !== 'session-reminder' && !covered.has(t))).toEqual([]);
     for (const c of CASES) expect(() => ctaPath(c.name), c.name).not.toThrow();
     expect(Object.keys(rendered())).toHaveLength(CASES.length);
@@ -88,7 +88,7 @@ test.describe('learner parity: email deep links', () => {
     await outside.context().close();
   });
 
-  test('session-24h "Open Sessions" lands on the Schedule @parity:M-1', async ({ browser }) => {
+  test('session-24h "View the Session" lands on the Schedule @parity:M-1', async ({ browser }) => {
     const page = await tab(browser);
     await land(page, 'session-24h');
     await schedule(page);
