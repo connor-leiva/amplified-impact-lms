@@ -255,7 +255,7 @@ export function buildWelcomeCopy(schedule: WelcomeSchedule, firstName: string, s
       {
         n: '02',
         title: 'Start Foundations',
-        body: 'Foundations is the Week 0 course, and it has eight steps. A few belong to the owner and a few belong to your operator. The orientation video walks you through who does what.',
+        body: 'Foundations is the Week 0 course, and it has eight steps. A few belong to the owner and a few belong to your AI Implementer. The orientation video walks you through who does what.',
       },
       {
         n: '03',
