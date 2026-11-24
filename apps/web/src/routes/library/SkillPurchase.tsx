@@ -20,6 +20,27 @@ export function paymentLinks(): Promise<Record<string, string | null>> {
     .catch(() => ({}));
 }
 
+/**
+ * Starts a $37 Checkout Session for a signed-in learner and goes to it. Resolves false when it didn't start (the caller
+ * says "Checkout didn’t start. Try again."). The dialog below and the $37 buyer's locked skill page (D-241) both use it.
+ */
+export async function startSkillCheckout(skillId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/skills/${encodeURIComponent(skillId)}/checkout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { accept: 'application/json', 'content-type': 'application/json' },
+      body: '{}',
+    });
+    const body = (await res.json().catch(() => null)) as { url?: string } | null;
+    if (!res.ok || !body?.url) return false;
+    window.location.assign(body.url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function GetSkillButton({ skillId, sets, className }: { skillId: string; sets: SkillSet; className?: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -52,21 +73,7 @@ function SkillPurchaseDialog({ skillId, sets, onClose }: { skillId: string; sets
   const buy = async () => {
     setBusy(true);
     setFailed(false);
-    try {
-      const res = await fetch(`/api/skills/${encodeURIComponent(skillId)}/checkout`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { accept: 'application/json', 'content-type': 'application/json' },
-        body: '{}',
-      });
-      const body = (await res.json().catch(() => null)) as { url?: string } | null;
-      if (!res.ok || !body?.url) {
-        setFailed(true);
-        setBusy(false);
-        return;
-      }
-      window.location.assign(body.url);
-    } catch {
+    if (!(await startSkillCheckout(skillId))) {
       setFailed(true);
       setBusy(false);
     }

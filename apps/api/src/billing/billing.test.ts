@@ -29,6 +29,7 @@ import {
   mountainDeadline,
   pinnedFirstCharge,
   weeklyAgentTraining,
+  skillOnlyBuyer,
 } from './catalog';
 import { ACCELERATOR_LINKS_LIVE, describeOfferConfig, keyMode, readOfferConfig } from './config';
 import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
@@ -215,6 +216,12 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
     expect(weeklyAgentTraining([], { accessGroup: false, purchasedSkill: true })).toBe('locked');
     expect(weeklyAgentTraining([{ kind: 'membership' }], { accessGroup: false, purchasedSkill: false })).toBe('hidden');
     expect(weeklyAgentTraining([{ kind: 'insiders_agent' }], { accessGroup: true, purchasedSkill: true })).toBe('hidden');
+    // D-241: only a buyer with no plan and no group gets the LMS's buyer pages.
+    expect(skillOnlyBuyer({ plans: [], accessGroups: [], purchased: ['team-pnl-review'] })).toBe(true);
+    expect(skillOnlyBuyer({ plans: [], accessGroups: [], purchased: [] })).toBe(false);
+    expect(skillOnlyBuyer({ plans: [{ kind: 'insiders_agent' }], accessGroups: [], purchased: ['team-pnl-review'] })).toBe(false);
+    expect(skillOnlyBuyer({ plans: [], accessGroups: [{ id: 'utah_life' }], purchased: ['team-pnl-review'] })).toBe(false);
+    expect(skillOnlyBuyer({ plans: [] })).toBe(false);
     expect(PLAN_SETS.membership).toEqual(['owner_ops', 'agent']);
     // Charged at checkout (a buyer after Jan 4, on a link with no trial): one period from today.
     const later = AGENT_PLAN_FIRST_CHARGE_AT + 10 * DAY;

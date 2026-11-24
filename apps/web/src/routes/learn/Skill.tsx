@@ -430,8 +430,10 @@ function Status({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export function Component() {
-  const { slug } = useParams();
+/** `slug` is given by the $37 buyer's frame (D-241), whose route has no `:slug`; the learner portal's route has one. */
+export function Component({ slug: given }: { slug?: string } = {}) {
+  const { slug: param } = useParams();
+  const slug = given ?? param;
   const skills = useSkills();
   const known = skillOfSlug(slug) !== null;
   const guide = useGuide(known && slug ? slug : null);

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { readFileSync } from 'node:fs';
@@ -104,6 +104,38 @@ describe('the skill library screen', () => {
     // The ready mark is set in an effect after the list renders, so wait for it rather than race it.
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
     expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
+  });
+
+  it('sends a $37 skill buyer with no plan and no access group to their LMS, and nobody else (D-241)', async () => {
+    const at = (body: unknown) => {
+      fetchMock.mockResolvedValue(answer(200, body));
+      return render(
+        <MemoryRouter initialEntries={['/skill-library']}>
+          <Routes>
+            <Route path="/skill-library" element={<SkillLibrary />} />
+            <Route path="/learn" element={<p>The buyer’s LMS</p>} />
+          </Routes>
+        </MemoryRouter>,
+      );
+    };
+    const bought = { skills: [skill({})], plans: [], accessGroups: [], purchased: ['team-pnl-review'] };
+    const buyer = at(bought);
+    expect(await screen.findByText('The buyer’s LMS')).toBeInTheDocument();
+    buyer.unmount();
+    // A Utah Life member keeps this page exactly as it was, a purchase or not.
+    const utah = at({ ...bought, accessGroups: [{ id: 'utah_life', name: 'Utah Life', covers: ['agent', 'both'] }] });
+    expect(await screen.findByRole('heading', { level: 1, name: COPY.title })).toBeInTheDocument();
+    expect(screen.queryByText('The buyer’s LMS')).toBeNull();
+    utah.unmount();
+    // So does every plan's member, and a learner who bought nothing.
+    for (const body of [{ ...bought, plans: [{ kind: 'insiders_agent', status: 'active' }] }, { ...bought, purchased: [] }, { skills: [skill({})] }]) {
+      const view = at(body);
+      expect(await screen.findByRole('heading', { level: 1, name: COPY.title })).toBeInTheDocument();
+      await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
+      expect(screen.queryByText('The buyer’s LMS')).toBeNull();
+      view.unmount();
+      delete document.body.dataset.appReady;
+    }
   });
 
   it('names the plan\'s first day for a skill the buyer has paid for but can\'t open yet (D-140)', async () => {

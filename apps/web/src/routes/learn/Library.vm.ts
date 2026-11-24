@@ -98,6 +98,10 @@ export interface SkillsPayload {
   lockedLines?: Record<string, string>;
   /** D-187: the Team Plan window's words (`plan.team.*`), from the builder's copy strings. */
   planCopy?: Record<string, string>;
+  /** The bought plans (an access group's grant is not one). */
+  plans?: { kind: string; status?: string; paidThrough?: number | null }[];
+  /** D-241: the skills this learner bought for $37 and still holds, by id. */
+  purchased?: string[];
 }
 
 /** What `GET /api/skill-guides/:slug` answers. */

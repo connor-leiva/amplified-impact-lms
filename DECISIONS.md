@@ -7465,3 +7465,40 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Weekly live training** is a row on the Skill Library. The Agent Plan and the Team Plan see it open. Agent Insiders and a $37 skill see it locked, and the lock opens "Upgrade to the Agent Plan, $117/Month". Team Leader Insiders and the Accelerator see no new row. An access group's member sees no row and no upsell. Office hours stay open for every Insiders tier.
 - **Not touched:** `/agreement` and `apps/api/src/billing/agreement.ts`.
 - **Blast radius.** No parity golden, mask, or tolerance. Marketing pages, the skill library, and the offer tests.
+
+## D-241 · The $37 skill buyer inside the LMS
+
+**Date:** 2026-11-24
+**Approved by:** Connor Leiva (repository owner), November 24, 2026. He asked for this redesign: "redesign what a signed-in $37 single-skill buyer sees, and bring them inside the LMS". He then approved the mockup (`handoff/lms-mockup/buyer.html`, PR #252) and answered its three questions: "See the AI Accelerator is fine.", "Show them now" and "Light only is fine".
+
+- **Who.** A learner who bought at least one $37 skill, holds no plan and is in no access group (`skillOnlyBuyer`, `@ai/core/offer`). They are read off `GET /api/skills`, which now also names the skills held (`purchased`, the latest purchase first; a refund drops one). Everyone else keeps what they have:
+  - an access group's member, Utah Life above all, whose `/skill-library` is unchanged, with "Not included with Utah Life access" and no upsell or buy button;
+  - every member of the Agent Plan, the Team Plan, either Insiders or the Accelerator, a $37 skill beside it or not;
+  - a learner who bought nothing.
+- **Where.** A buyer who opens `/skill-library` (where sign-in lands them) goes to `/learn`.
+  - **The pages.** Home, the Skill Library (`/learn/skills`), a skill (`/learn/skills/:slug`), Weekly Live Training (`/learn/training`, new), Office Hours (`/learn/office-hours`, new) and the AI Accelerator (`/learn/week/:n`). Any other `/learn` address goes Home.
+  - **Flags.** It shows whatever `VITE_LEARNER_V2` and `VITE_LMS_V3` say ("Show them now"). With the learner flag off, `/learn/*` is the buyer's and anyone else is sent to `/`, as before. With it on, `LearnGate` gives a buyer these pages where it sent a learner without the course to the first portal.
+  - **Unchanged.** The skill guides at `/skill-library/:slug`, the Stripe return and the server's landing.
+- **The shell.** The members' LMS v3 `AppShell`, with:
+  - the program lines "Amplified Skill" and "1 skill bought";
+  - nav: Home, Skill library, then Office hours and Weekly training with the weeks' lock;
+  - the AI Accelerator's nine weeks, locked;
+  - the top bar's strip holding their own skill and Open the Setup Guide, hidden on Home;
+  - the members' account menu (Account, Theme, Sign out). Manage billing is on the Account page, as members have it.
+  - **What `AppShell` gained.** Two optional props: a main row's `locked` and a `strip`. Members' markup is unchanged; the equality tests hold it.
+  - **Light only**, as the v3 member pages are (D-226). The guided setup of a skill they hold and the Account page are today's pages inside the shell, as the members' v3 frame draws them.
+- **The upgrade.** One path, by set (`skillUpsell`):
+  - an agent skill offers Agent Insiders, $79/Month; owner, ops and both offer Team Leader Insiders, $169/Month;
+  - Weekly Live Training offers "Upgrade to the Agent Plan, $117/Month";
+  - every monthly plan says 3-Month Minimum;
+  - each button's href is its cart's `PAYMENT_LINK_*` from `GET /api/offer`, with no link in code;
+  - "Get This Skill, $37" stays on every locked skill as the second choice (`startSkillCheckout`, the same checkout as today's dialog);
+  - Week 0 and the hires are the AI Accelerator's only. They offer "See the AI Accelerator", its page on www, with no buy button.
+- **Words.**
+  - `apps/web/src/routes/learn/buyer/content.ts` builds them from the product's own copy: the offer, the Agent Plan's card, the agents page's rotation and office hours, the pricing table, and the Accelerator's page (its weeks, questions and hires).
+  - Week 0's eight steps moved, unchanged, from `seed/weeks-0-3-v2.ts` to `src/week0-steps.ts`; the seed re-exports them.
+  - Copy rules: Title Case headings and buttons, no em dashes, MT after clock times, no invented number (each is counted from the catalog or quoted from the pricing page), hires read and draft ("Every hire reads and drafts. Nothing is sent without you."), and Claude and ChatGPT as the same button.
+- **Design and parity.**
+  - The mockup extends the LMS v3 mockup (unchanged) with `buyer.css`. The app ships that file byte for byte; a test holds the checksum.
+  - `handoff/lms-mockup/tools/pairs.ts` compares the mockup with the production build at 1280 and 390, and the pairs are in `docs/pr-review/252/`.
+- **No migration, env var, Stripe, GHL or email change.** No parity golden, mask or tolerance moves.

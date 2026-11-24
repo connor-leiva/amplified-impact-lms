@@ -22,6 +22,7 @@ import { courseWithoutRetired } from '../src/course-retired';
 import { courseGuideUrl } from '../src/skill-guides';
 import type { AIEmployee, Session, Step } from '../src/types';
 import { ACCELERATOR_INSTRUCTOR, OFFICE_HOURS_FORMAT, OFFICE_HOURS_MINS, OWNER_APPROVAL, WEEK_TIME, weekModule } from './accelerator-v1';
+import { WEEK0_STEPS } from '../src/week0-steps';
 
 // --- the loop every week runs (spec, "What Every Week Contains") -------------------------------------
 
@@ -41,26 +42,10 @@ export const BEFORE_THE_BUILD =
 
 // --- Week 0's spec pieces -----------------------------------------------------------------------------
 
-export interface Week0Step {
-  n: number;
-  step: string;
-  who: string;
-  time: string;
-  doneWhen: string;
-}
-
-export const WEEK0_STEPS: readonly Week0Step[] = [
-  { n: 1, step: 'Fill In Your Intake and Name Your Operator', who: 'Owner', time: '10 min', doneWhen: 'Intake in, operator invited, stack card sent back' },
-  { n: 2, step: 'Watch the Orientation', who: 'Owner and operator', time: '30 min', doneWhen: 'Both know how a week runs and what a hire is' },
-  { n: 3, step: 'Start Your Time Baseline', who: 'Owner', time: '20 min, over two weeks', doneWhen: 'Six tasks timed per occurrence, or marked not done today' },
-  // ADJUSTED: spec "Get Claude Ready".
-  { n: 4, step: 'Get Your AI Ready', who: 'Operator', time: '20 min', doneWhen: 'Paid plan, training off, skills on, both cohort skills pass their self-test, on the Claude Path or the ChatGPT Path' },
-  { n: 5, step: 'Set Up Your AI Brain', who: 'Each of you', time: '30 min', doneWhen: 'A new chat knows the business, and About My Business is in the AI Office' },
-  { n: 6, step: 'Connect Your Data', who: 'Operator', time: '25 min', doneWhen: 'Each green source answers a test question; each yellow source’s export is in the inbox' },
-  // ADJUSTED: "on your platform" added; ChatGPT per-tool blocking is Test B.
-  { n: 7, step: 'Lock the Guardrails', who: 'Operator', time: '10 min', doneWhen: 'Every write tool Blocked except drafts and AI Office saves, on your platform' },
-  { n: 8, step: 'Run the Ready Check and Your Test Hire', who: 'Operator', time: '20 min, plus a next-morning check', doneWhen: 'Ready Check is green and the test hire ran with nobody there' },
-];
+// Week 0's eight steps live in `src/week0-steps.ts` (D-241: the $37 buyer's locked preview reads them at runtime), word for
+// word as they were here. This file uses and re-exports them, so nothing it writes changes.
+export { WEEK0_STEPS };
+export type { Week0Step } from '../src/week0-steps';
 
 /** Step 4's two paths. ADJUSTED: the ChatGPT Path. */
 export const GET_YOUR_AI_READY = {

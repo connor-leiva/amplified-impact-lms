@@ -2,6 +2,7 @@ node_modules/
 dist/
 dist-fixture/
 dist-fixture-v2/
+dist-buyer/
 # D-151: the build's server-only guided setups (apps/web/dist-private/skill-guides.json).
 dist-private/
 *.tsbuildinfo

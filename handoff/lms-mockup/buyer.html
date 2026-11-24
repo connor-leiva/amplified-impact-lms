@@ -3,9 +3,10 @@
      An extension of the LMS v3 mockup (handoff/lms-v3/mockup/index.html, revision v7, D-225), which stays as it is.
      Looks: that mockup's own stylesheets, unchanged (handoff/lms-v3/src/lms.tokens.css and lms.css, generated from it, the
      files the app ships), its icons and its logo. What the buyer's pages add is buyer.css (built from the same tokens and
-     classes) and buyer.dark.css (the learner's Dark theme, as the step page does it). Data: buyer-data.js, generated from the
-     repo's catalogs (tools/make-data.ts). One file, six views: #home (default), #library, #skill-<id>, #training,
-     #office-hours, #accelerator and #week-<n>. Query: ?bought=owner|agent|two, ?theme=light|dark, ?bar=0 (no MOCKUP bar).
+     classes). Light only, as the v3 member pages are (D-226; Connor, Nov 24: "Light only is fine"). Data: buyer-data.js,
+     generated from the repo's catalogs and the build's own buyer content (tools/make-data.ts), so the mockup and the build
+     say the same words. One file, six views: #home (default), #library, #skill-<id>, #training, #office-hours,
+     #accelerator and #week-<n>. Query: ?bought=owner|agent|two, ?bar=0 (no MOCKUP bar).
      Review-only, not shipped: the black MOCKUP bar. -->
 <html lang="en">
 <head>
@@ -13,11 +14,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Amplified Impact Academy · the $37 skill buyer in the LMS (mockup)</title>
 <link rel="stylesheet" href="../lms-v3/mockup/ai-motion.css">
-<link rel="stylesheet" href="../../apps/web/src/styles/tokens.css">
 <link rel="stylesheet" href="../lms-v3/src/lms.tokens.css">
 <link rel="stylesheet" href="../lms-v3/src/lms.css">
 <link rel="stylesheet" href="buyer.css">
-<link rel="stylesheet" href="buyer.dark.css">
 <style>
 @font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('../lms-v3/mockup/fonts/geist-latin-wght-normal.woff2') format('woff2')}
 @font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('../lms-v3/mockup/fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
@@ -74,20 +73,20 @@
 
 <div class="wkx-flag" id="wkx"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · the $37 skill buyer in the LMS · for approval · not live</span>
   <span class="wkx-prev" role="group" aria-label="Preview a state">Bought
-    <button type="button" data-bought="owner">Owner skill</button><button type="button" data-bought="agent">Agent skill</button><button type="button" data-bought="two">Two skills</button><span class="wkx-sep">Theme</span><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button><span class="wkx-sep">Page</span><button type="button" data-go="home">Home</button><button type="button" data-go="library">Library</button><button type="button" data-go="skill-database-health-check">Locked skill</button><button type="button" data-go="training">Training</button><button type="button" data-go="office-hours">Office hours</button><button type="button" data-go="accelerator">Accelerator</button></span></div>
+    <button type="button" data-bought="owner">Owner skill</button><button type="button" data-bought="agent">Agent skill</button><button type="button" data-bought="two">Two skills</button><span class="wkx-sep">Page</span><button type="button" data-go="home">Home</button><button type="button" data-go="library">Library</button><button type="button" data-go="skill-database-health-check">Locked skill</button><button type="button" data-go="training">Training</button><button type="button" data-go="office-hours">Office hours</button><button type="button" data-go="accelerator">Accelerator</button></span></div>
 
 <div class="sh-app" id="sh-app" data-buyer>
   <aside class="sh-side" data-ai="shell" id="sh-side" aria-label="Primary">
     <div class="sh-side-in">
       <div class="sh-brand">
-        <a class="sh-logo" href="#home" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="../lms-v3/mockup/logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""><img class="sh-logo-d" src="logos/amplified-impact-academy-app-reversed.svg" width="161" height="34" alt=""></a>
+        <a class="sh-logo" href="#home" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="../lms-v3/mockup/logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""></a>
         <button class="wk-btn wk-btn-ghost wk-btn-sm sh-menu" type="button" id="sh-menu" aria-expanded="false" aria-controls="sh-scroll"><svg width="16" height="16"><use href="#k-menu"/></svg>Menu</button>
         <p class="sh-cohort" id="sh-cohort"></p>
       </div>
       <div class="sh-scroll" id="sh-scroll">
         <nav aria-label="Main"><ul class="sh-nav" id="sh-main"></ul></nav>
         <button class="sh-link sh-group" type="button" id="sh-group" aria-expanded="true" aria-controls="sh-weeks"><svg width="16" height="16"><use href="#k-layers"/></svg><span class="sh-label">AI Accelerator</span><small>9</small><svg width="14" height="14"><use href="#k-chev"/></svg></button>
-        <nav aria-label="AI Accelerator"><ul class="sh-nav sh-weeks" id="sh-weeks"></ul></nav>
+        <nav aria-label="Weeks"><ul class="sh-nav sh-weeks" id="sh-weeks"></ul></nav>
         <span class="sh-marker" id="sh-marker" aria-hidden="true"></span>
       </div>
       <ul class="sh-nav sh-foot">
@@ -110,104 +109,74 @@
 
 <script src="buyer-data.js"></script>
 <script>
-/* ---------- the buyer and the plans (in the LMS: GET /api/skills, GET /api/offer for each cart's Payment Link) ---------- */
+/* ---------- the buyer and the plans (in the LMS: GET /api/skills, GET /api/offer for each cart's Payment Link) ----------
+   Every word below that the build also says comes from window.BUYER (the build's apps/web/src/routes/learn/buyer/content.ts)
+   or window.CATALOG (the catalogs, leads and guides), both written by tools/make-data.ts. */
 const Q = new URLSearchParams(location.search);
 const BOUGHT = { owner: ['team-pnl-review'], agent: ['appointment-follow-up'], two: ['team-pnl-review', 'fub-pipeline-review'] };
 let bought = BOUGHT[Q.get('bought')] ? Q.get('bought') : 'owner';
-let theme = Q.get('theme') === 'dark' ? 'dark' : 'light';
 if (Q.get('bar') === '0') document.getElementById('wkx').hidden = true;
 const ME = { first: 'Alex', initials: 'AM' };
-const CAT = window.CATALOG;
+const CAT = window.CATALOG, B = window.BUYER;
+const PLANS = B.plans, AGENT_PLAN = B.agentPlan, TRAINING = B.training, OFFICE = B.office, ACCEL = B.accel;
 const skill = id => CAT.find(s => s.id === id);
 const owned = () => BOUGHT[bought].map(skill);
 const isOwned = s => BOUGHT[bought].includes(s.id);
 const isOpen = s => isOwned(s) || s.f === 1;
+const slugOf = s => s.id === 'content-opportunity-research' ? 'content-strategist' : s.id;
 
 const SETS = { owner_ops: 'Owner and Operations Skills', agent: 'Agent Skills', both: 'Skills for Everyone' };
 const SET_ONE = { owner_ops: 'Owner and Operations Skill', agent: 'Agent Skill', both: 'Skill for Everyone' };
 const SET_ORDER = ['owner_ops', 'agent', 'both'];
-/* The Insiders upsell, by the skill's set, as the library has it (offer.ts skillUpsell): agent skills open Agent
-   Insiders; owner, ops and both open Team Leader Insiders. The href is the cart's PAYMENT_LINK_* from /api/offer. */
-const PLANS = {
-  leader: { cart: 'insiders-monthly', name: 'Amplified Insiders', chip: 'Amplified Insiders', who: 'For team leaders', amount: '$169', terms: '3-Month Minimum.',
-    button: 'Upgrade to Amplified Insiders, $169/Month', short: 'Upgrade to Amplified Insiders', line: 'Every owner, ops and agent skill, plus weekly office hours.',
-    checks: ['Every owner, ops and agent skill', 'Weekly office hours, Thursdays at 12:00 PM MT', 'New skills and updates as they come out'],
-    every: 'Open Every Skill in the Library', getAll: 'Get This Skill and Every Other One', opens: () => true },
-  agent: { cart: 'insiders-agent-monthly', name: 'Amplified Insiders for Agents', chip: 'Agent Insiders', who: 'For agents', amount: '$79', terms: '3-Month Minimum. No weekly live training.',
-    button: 'Upgrade to Agent Insiders, $79/Month', short: 'Upgrade to Agent Insiders', line: 'Every agent skill, plus weekly office hours.',
-    checks: ['Every agent skill', 'Weekly office hours, Thursdays at 12:00 PM MT'],
-    every: 'Open Every Agent Skill', getAll: 'Get This Skill and Every Agent Skill', opens: s => s.s !== 'owner_ops' } };
+/* The Insiders upsell follows the skill's set (offer.ts skillUpsell): agent skills open Agent Insiders; owner, ops and
+   both open Team Leader Insiders. */
 const planFor = sets => (sets === 'agent' ? PLANS.agent : PLANS.leader);
-const myPlan = () => planFor(owned().some(s => s.s !== 'agent') ? 'owner_ops' : 'agent');
-/* Weekly live training: the Agent Plan's cart (offer.ts AGENT_TRAINING, agents/content.ts ROTATION, site/offers-content.ts AGENT_PLAN). */
-const AGENT_PLAN = { cart: 'agent-monthly', name: 'Amplified Agent Plan', amount: '$117', button: 'Upgrade to the Agent Plan, $117/Month',
-  body: '3-Month Minimum. Every agent skill, plus weekly live training, plus office hours.',
-  lines: ['Every agent skill', 'A short recorded starter path for your first week', 'One live training a week, 60 minutes', 'Weekly office hours, 60 minutes on Thursdays'] };
-const ROTATION = [
-  { n: 1, topic: 'Leads and Follow-Up', skills: ['speed-to-lead-reply', 'sphere-touch-plan', 'open-house-follow-up'] },
-  { n: 2, topic: 'Listings', skills: ['pricing-conversation-prep', 'listing-description-writer', 'seller-listing-update'] },
-  { n: 3, topic: 'Buyers and Contracts', skills: ['offer-strategy', 'due-diligence-review', 'counter-explainer'] },
-  { n: 4, topic: 'Content and Your Week', skills: ['content-opportunity-research', 'perfect-week', 'appointment-follow-up'] } ];
-/* The AI Accelerator: the v3 mockup's weeks, Week 0's steps and each week's line and live build, word for word. */
-const WEEKS = ['Foundations', 'Where the Money Goes', 'Leads That Pay', 'Numbers on the 5th', 'Protect the Pipeline', 'Coach from Evidence', 'Delegate an Outcome', 'Make the Workflow Repeatable', 'Sustain and Expand'];
-const WEEK_D = [null,
-  ['See every dollar of GCI on one chart, and what each gap costs you a year.', 'Map Your Spend Live Build'],
-  ['Know which lead sources pay you back, and catch every new lead that isn’t worked to standard.', 'Lead Source Review Live Build'],
-  ['Get last month’s numbers against your standard every month, without anyone building a spreadsheet.', 'Monthly Numbers Live Build'],
-  ['A ranked list of where deals are slipping, each with a record reference and a next step.', 'FUB Pipeline Review Live Build'],
-  ['A coaching packet that keeps facts, hypotheses and questions apart, and one agreed behavior to change.', 'Agent 1:1 Prep Live Build'],
-  ['One recurring deliverable off the owner’s desk, with a responsibility card and a review checklist.', 'Team Playbook Builder Live Build'],
-  ['A versioned onboarding skill your operator can explain, test and repair without the instructor.', 'New Agent Onboarding Plan Live Build'],
-  ['A cohort-end review: what stays, what stops, and a 90-day plan your team runs without us.', 'Cohort-End Review Live Build'] ];
-const STEPS0 = [
-  ['Fill In Your Intake and Name Your Operator', 'Owner', '10 min'], ['Watch the Orientation', 'Owner and operator', '30 min'],
-  ['Start Your Time Baseline', 'Owner', '20 min, over two weeks'], ['Get Your AI Ready', 'Operator', '20 min'],
-  ['Set Up Your AI Brain', 'Each of you', '30 min'], ['Connect Your Data', 'Operator', '30 min'],
-  ['Lock the Guardrails', 'Operator', '10 min'], ['Run the Ready Check and Your Test Hire', 'Operator', '20 min, plus a next-morning check'] ];
+const myPlan = () => (owned().some(s => s.s !== 'agent') ? PLANS.leader : PLANS.agent);
+const opensWith = plan => CAT.filter(x => !isOpen(x) && (plan.key === 'leader' || x.s !== 'owner_ops')).length;
 const SUPPORT = 'support@amplifiedimpact.io';
+const MINIMUM = '3-Month Minimum.';
 
 /* ---------- helpers (the v3 mockup's) ---------- */
 const $ = id => document.getElementById(id);
 const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const roll = t => `<span class="aim-roll"><span>${t}</span><span aria-hidden="true">${t}</span></span>`;
-const ic = (n, s = 14, c = '') => `<svg${c ? ` class="${c}"` : ''} width="${s}" height="${s}" aria-hidden="true"><use href="#k-${n}"/></svg>`;
-const CHECK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+const ic = (n, s = 14, c = '') => `<svg${c ? ` class="${c}"` : ''} width="${s}" height="${s}"><use href="#k-${n}"/></svg>`;
+const CHECK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
 const tools = s => s.files.includes('chatgpt') ? 'Claude or ChatGPT' : s.files.includes('grok') ? 'Grok Bot' : 'Claude';
-const LANE = { claude: 'Claude', chatgpt: 'ChatGPT', grok: 'Grok Bot' };
 const DL = { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', grok: 'Download for Grok Bot', practice: 'Practice Files' };
+const dlsOf = s => ['claude', 'chatgpt', 'grok', 'practice'].filter(k => s.files.includes(k));
+const nb = t => esc(t).replace(MINIMUM, `<span class="by-nb">${MINIMUM}</span>`);
 const lockedPill = `<span class="wk-open" data-s="locked">${ic('lock', 12)}Locked</span>`;
 const stLocked = `<span class="wk-st" data-s="locked">${ic('lock', 12)}Locked</span>`;
-const crumbs = (...xs) => `<nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Breadcrumb"><a href="#home">Home</a>${xs.map((x, i) => `<span aria-hidden="true">/</span>${i < xs.length - 1 ? `<a href="${x[1]}">${esc(x[0])}</a>` : `<span>${esc(x[0])}</span>`}`).join('')}</nav>`;
+const crumbs = (...xs) => `<nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Breadcrumb"><a href="#home">Home</a>${xs.map(x => `<span aria-hidden="true">/</span>${x[1] ? `<a href="${x[1]}">${esc(x[0])}</a>` : `<span>${esc(x[0])}</span>`}`).join('')}</nav>`;
 const tag = (i, t) => `<span class="wk-tag">${ic(i)}${esc(t)}</span>`;
 const help = i => `<section class="wk-card aim-rise" style="--i:${i}" aria-label="Questions"><div class="wk-help"><b>Questions?</b><a class="wk-mail" href="mailto:${SUPPORT}">${SUPPORT}</a></div></section>`;
 const checks = xs => `<ul class="by-checks">${xs.map(x => `<li>${CHECK}<span>${esc(x)}</span></li>`).join('')}</ul>`;
-const nb = t => esc(t).replace('3-Month Minimum.', '<span class="by-nb">3-Month Minimum.</span>');
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+const pay = (cart, cls, label) => `<a class="${cls}" href="#" onclick="return false" data-cart="${cart}">${roll(esc(label))}</a>`;
 
 /* the one upgrade card: the plan, its price, what it opens and its button */
-function upCard(plan, i, { button = true, keep = true } = {}){
-  const mine = owned();
-  const keepLine = keep ? [mine.length === 1 ? `${mine[0].t} stays yours` : 'The skills you bought stay yours'] : [];
+function upCard(plan, i, { button = true } = {}){
+  const mine = owned(), keep = mine.length === 1 ? `${mine[0].t} stays yours` : 'The skills you bought stay yours';
   return `<section class="wk-card aim-rise" style="--i:${i}" aria-labelledby="up-h-${i}">
     <div class="by-up-h"><p class="wk-label">${esc(plan.who)}</p><h2 class="wk-h3" id="up-h-${i}">${esc(plan.name)}</h2>
       <p class="by-price"><b>${plan.amount}</b>a month</p><p class="by-terms">${esc(plan.terms)}</p></div>
-    ${checks([...plan.checks, ...keepLine])}
-    ${button ? `<div class="wk-kit-foot"><a class="wk-btn wk-btn-primary by-wrap" href="#" onclick="return false" data-cart="${plan.cart}">${roll(esc(plan.short))}</a></div>` : ''}
+    ${checks([...plan.checks, keep])}
+    ${button ? `<div class="wk-kit-foot">${pay(plan.cart, 'wk-btn wk-btn-primary by-wrap', plan.short)}</div>` : ''}
   </section>`;
 }
 
 /* ---------- views ---------- */
 function viewHome(){
   const mine = owned(), s = mine[0], plan = myPlan(), two = mine.length > 1;
-  const locked = CAT.filter(x => !isOpen(x)).length, opens = CAT.filter(x => !isOpen(x) && plan.opens(x)).length;
+  const locked = CAT.filter(x => !isOpen(x)).length, opens = opensWith(plan);
   const next = CAT.filter(x => x.s === s.s && !isOpen(x)).slice(0, 3);
-  const dls = ['claude', 'chatgpt', 'grok', 'practice'].filter(k => s.files.includes(k));
   const rows = [
     ['grid', 'Every Other Skill', opens === locked ? `${locked} more skills, each with its Setup Guide to preview.` : `${locked} more skills to preview. ${plan.chip} opens ${opens} of them.`, plan.chip, '#library'],
-    ['users', 'Office Hours', 'Every Thursday, 12:00 PM MT, 60 minutes. Drop in with a real file and get help.', plan.chip, '#office-hours'],
+    ['users', 'Office Hours', OFFICE.body, plan.chip, '#office-hours'],
     ['radio', 'Weekly Live Training', 'One 60 minute session a week, building one skill live on a real file.', 'Agent Plan', '#training'],
-    ['flag', 'Week 0: Foundations', 'Eight steps that answer one question: is our office ready for its first hire?', 'AI Accelerator', '#week-0'],
-    ['layers', 'AI Hires, Weeks 1 to 8', 'Each week has one operating question, one flagship skill and one required output.', 'AI Accelerator', '#week-1'] ];
+    ['flag', 'Week 0: Set Up the Office', 'Eight steps that answer one question: is our setup ready to hire?', 'AI Accelerator', '#week-0'],
+    ['layers', 'AI Hires, Weeks 1 to 8', 'Each week answers one question about your business and adds one AI employee.', 'AI Accelerator', '#week-1'] ];
   return `<div class="wk-page">
     <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">${greeting()}, ${ME.first}</h1>
       <p class="wk-purpose">${two ? 'Your skills are ready. Open a Setup Guide to add one to Claude or ChatGPT.' : 'Your skill is ready. Open its Setup Guide to add it to Claude or ChatGPT.'}</p></header>
@@ -217,111 +186,102 @@ function viewHome(){
         <p class="wk-hero-d"><b>What it does</b>${esc(s.o)}</p>
         <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="#" onclick="return false">${roll('Open the Setup Guide')}${ic('arrow', 16, 'wk-arrow')}</a>${two ? `<a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#library">${roll('See All Your Skills')}${ic('arrow', 16, 'wk-arrow')}</a>` : ''}</div></div>
       <div class="wk-prog"><p class="wk-prog-l">${ic('down')}Downloads</p>
-        <div class="by-side">${dls.map(k => `<a class="wk-btn wk-btn-onforest by-line" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
+        <div class="by-side">${dlsOf(s).map(k => `<a class="wk-btn wk-btn-onforest by-line" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
         <p class="wk-prog-left">Set it up once. It’s easiest on a computer.</p></div>
     </section>
     <div class="wk-grid by-g1">
       <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="more-h">
         <div class="wk-sec-head"><h2 class="wk-h2" id="more-h">Also in the Academy</h2></div>
         <p class="wk-sum">Not in your plan yet. Open any of them to see what’s inside.</p>
-        <ol class="wk-steps">${rows.map(([i, t, d, chip, href]) => `<li><a class="wk-step" data-s="locked" href="${href}"><span class="wk-ic" aria-hidden="true">${ic(i, 16)}</span>
-          <span class="wk-step-tx"><span class="wk-step-t">${t}<span class="wk-chip">${chip}</span></span><span class="wk-step-d">${esc(d)}</span></span>
-          <span class="wk-step-r">${stLocked}</span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`).join('')}</ol>
+        <ol class="wk-steps">${rows.map(([i, t, d, chip, href]) => `<li><a class="wk-step" data-s="locked" href="${href}"><span class="wk-ic" aria-hidden="true">${ic(i, 16)}</span><span class="wk-step-tx"><span class="wk-step-t">${t}<span class="wk-chip">${chip}</span></span><span class="wk-step-d">${esc(d)}</span></span><span class="wk-step-r">${stLocked}</span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`).join('')}</ol>
       </section>
       <aside class="wk-rail" aria-label="Upgrade">${upCard(plan, 3)}${help(4)}</aside>
     </div>
     <section class="aim-rise" style="--i:5" aria-labelledby="next-h"><h2 class="wk-h2" id="next-h">Skills to Open Next</h2>
-        <p class="wk-sum">From ${SETS[s.s]}, the same set as ${two ? 'your first skill' : 'yours'}.</p>
-        <ul class="by-cards">${next.map(x => `<li class="wk-card by-card"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><a class="wk-kit-a" href="#skill-${x.id}">${esc(x.t)}</a>
-          <p class="wk-step-d">${esc(x.o)}</p><span class="by-go">Preview the Setup${ic('arrow', 14, 'wk-arrow')}</span></li>`).join('')}</ul></section>
+      <p class="wk-sum">From ${SETS[s.s]}, the same set as ${two ? 'your first skill' : 'yours'}.</p>
+      <ul class="by-cards">${next.map(x => `<li class="wk-card by-card"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><a class="wk-kit-a" href="#skill-${x.id}">${esc(x.t)}</a><p class="wk-step-d">${esc(x.o)}</p><span class="by-go">Preview the Setup${ic('arrow', 14, 'wk-arrow')}</span></li>`).join('')}</ul></section>
     </div>`;
 }
 
+const lead = s => `<div><dt>The problem</dt><dd>${esc(s.pr)}</dd></div><div><dt>What it does for you</dt><dd>${esc(s.o)}</dd></div><div><dt>Who it’s for</dt><dd>${esc(s.role)}</dd></div>`;
 const ownCard = (s, i) => `<article class="wk-card aim-rise" style="--i:${i}" aria-labelledby="own-${s.id}">
   <div class="by-own-h"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><div><h3 class="wk-h3" id="own-${s.id}">${esc(s.t)}</h3><p>${SET_ONE[s.s]} · ${tools(s)}</p></div><span class="wk-st" data-s="next">${ic('check')}Yours</span></div>
-  <dl class="wk-dl by-lead"><div><dt>The problem</dt><dd>${esc(s.pr)}</dd></div><div><dt>What it does for you</dt><dd>${esc(s.o)}</dd></div><div><dt>Who it’s for</dt><dd>${esc(s.role)}</dd></div></dl>
-  <div class="by-acts"><a class="wk-btn wk-btn-primary wk-btn-arrow" href="#" onclick="return false">${roll('Open the Setup Guide')}${ic('arrow', 14, 'wk-arrow')}</a>${['claude', 'chatgpt', 'grok', 'practice'].filter(k => s.files.includes(k)).map(k => `<a class="wk-btn wk-btn-secondary" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
+  <dl class="wk-dl by-lead">${lead(s)}</dl>
+  <div class="by-acts"><a class="wk-btn wk-btn-primary wk-btn-arrow" href="#" onclick="return false">${roll('Open the Setup Guide')}${ic('arrow', 14, 'wk-arrow')}</a>${dlsOf(s).map(k => `<a class="wk-btn wk-btn-secondary" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
 </article>`;
 
 function skillRow(s, i){
   const st = isOwned(s) ? `<span class="wk-st" data-s="next">${ic('check')}Yours</span>` : s.f ? '<span class="wk-st" data-s="progress">Free</span>' : stLocked;
   const href = isOpen(s) ? '#" onclick="return false' : `#skill-${s.id}`;
-  return `<li${i >= 5 ? ' data-more' : ''}><a class="wk-step"${isOpen(s) ? '' : ' data-s="locked"'} href="${href}"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span>
-    <span class="wk-step-tx"><span class="wk-step-t">${esc(s.t)}<span class="wk-chip">${esc(s.role)}</span></span><span class="wk-step-d">${esc(s.o)}</span></span>
-    <span class="wk-step-r">${st}<span class="wk-time">${tools(s)}</span></span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`;
+  return `<li${i >= 5 ? ' data-more' : ''}><a class="wk-step"${isOpen(s) ? '' : ' data-s="locked"'} href="${href}"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(s.t)}<span class="wk-chip">${esc(s.role)}</span></span><span class="wk-step-d">${esc(s.o)}</span></span><span class="wk-step-r">${st}<span class="wk-time">${tools(s)}</span></span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`;
 }
 
 function viewLibrary(){
-  const mine = owned(), plan = myPlan();
-  const opens = CAT.filter(x => !isOpen(x) && plan.opens(x)).length;
+  const mine = owned(), plan = myPlan(), many = mine.length > 1;
   return `<div class="wk-page">${crumbs(['Skill Library'])}
-    <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">Skill Library</h1><p class="wk-purpose">${mine.length > 1 ? 'Your skills come first.' : 'Your skill comes first.'} Every other skill is here to preview, with what it does and who it’s for.</p></header>
-    <section class="aim-rise" style="--i:1" aria-labelledby="own-h"><div class="wk-sec-head"><h2 class="wk-h2" id="own-h">${mine.length > 1 ? 'Your Skills' : 'Your Skill'}</h2></div>
+    <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">Skill Library</h1><p class="wk-purpose">${many ? 'Your skills come first.' : 'Your skill comes first.'} Every other skill is here to preview, with what it does and who it’s for.</p></header>
+    <section class="aim-rise" style="--i:1" aria-labelledby="own-h"><div class="wk-sec-head"><h2 class="wk-h2" id="own-h">${many ? 'Your Skills' : 'Your Skill'}</h2></div>
       <div class="by-owned">${mine.map((s, k) => ownCard(s, 1 + k)).join('')}</div></section>
     <section class="wk-hero aim-rise" style="--i:2" aria-label="Upgrade">
       <div class="wk-hero-main"><p class="wk-kick">${esc(plan.name)} · ${plan.amount} a month</p><h2 class="wk-hero-t">${plan.every}</h2>
         <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(plan.terms)}</p>
-        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg by-wrap" href="#" onclick="return false" data-cart="${plan.cart}">${roll(esc(plan.button))}</a></div></div>
-      <div class="wk-prog"><p class="wk-prog-l">${ic('lock')}Locked now</p><p class="wk-prog-n"><b>${opens}</b>skills</p>
-        <p class="wk-prog-left">${plan === PLANS.leader ? 'Every one of them opens with Insiders.' : 'The agent skills and the skills for everyone open with Agent Insiders.'}</p></div>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('lock')}Locked now</p><p class="wk-prog-n"><b>${opensWith(plan)}</b>skills</p>
+        <p class="wk-prog-left">${plan.key === 'leader' ? 'Every one of them opens with Insiders.' : 'The agent skills and the skills for everyone open with Agent Insiders.'}</p></div>
     </section>
     <section class="aim-rise" style="--i:3" aria-labelledby="all-h"><div class="wk-sec-head"><h2 class="wk-h2" id="all-h">Every Skill</h2></div>
       <p class="wk-sum">Open a locked skill to see its setup. Any one of them is also $37 on its own.</p>
       ${SET_ORDER.map(set => { const xs = CAT.filter(x => x.s === set).sort((a, b) => (isOwned(b) - isOwned(a)) || (b.f - a.f)); const mineN = xs.filter(isOwned).length, freeN = xs.filter(x => x.f).length;
         const meta = [`${xs.length} skills`, mineN ? `${mineN} yours` : '', freeN ? `${freeN} free` : ''].filter(Boolean).join(' · ');
-        return `<div class="by-set"><h3 class="sc-month" id="set-${set}">${SETS[set]}<small>${meta}</small></h3>
-          <ol class="wk-steps by-list" data-all="false" aria-labelledby="set-${set}">${xs.map(skillRow).join('')}</ol>
-          ${xs.length > 5 ? `<div class="by-more"><button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-more>${roll(`Show All ${xs.length}`)}${ic('chev')}</button></div>` : ''}</div>`; }).join('')}
+        return `<div class="by-set"><h3 class="sc-month" id="set-${set}">${SETS[set]}<small>${meta}</small></h3><ol class="wk-steps by-list" data-all="false" aria-labelledby="set-${set}">${xs.map(skillRow).join('')}</ol>${xs.length > 5 ? `<div class="by-more"><button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-more>${roll(`Show All ${xs.length}`)}${ic('chev')}</button></div>` : ''}</div>`; }).join('')}
     </section></div>`;
 }
 
 function viewSkill(id){
   const s = skill(id); if (!s) return viewLibrary();
-  const plan = planFor(s.s), lanes = Object.keys(s.lanes);
+  const plan = planFor(s.s), lanes = s.lanes;
+  const what = [['book', 'Its step-by-step setup guide'], ['down', s.files.includes('grok') ? 'The Grok Bot template' : s.files.includes('chatgpt') ? 'Downloads for Claude and ChatGPT' : 'The download for Claude'], ...(s.files.includes('practice') ? [['file', 'Practice files to try it safely']] : [])];
   return `<div class="wk-page">${crumbs(['Skill Library', '#library'], [s.t])}
     <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${SET_ONE[s.s]} ${lockedPill}</p><h1 class="wk-h1">${esc(s.t)}</h1><p class="wk-purpose">${esc(s.o)}</p>
       <div class="wk-meta">${tag('users', s.role)}${tag('book', tools(s))}${s.files.includes('practice') ? tag('file', 'Practice files included') : ''}</div></header>
     <section class="wk-hero aim-rise" style="--i:1" aria-label="Get this skill">
       <div class="wk-hero-main"><p class="wk-kick">Locked · In ${esc(plan.name)}</p><h2 class="wk-hero-t">${plan.getAll}</h2>
-        <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb('3-Month Minimum.')}</p>
-        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg by-wrap" href="#" onclick="return false" data-cart="${plan.cart}">${roll(esc(plan.button))}</a></div></div>
+        <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(MINIMUM)}</p>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
       <div class="wk-prog"><p class="wk-prog-l">Or just this one</p><p class="wk-prog-n"><b>$37</b>once</p><p class="wk-prog-left">Yours to keep, including future updates.</p>
         <button class="wk-btn wk-btn-onforest by-line" type="button">${roll('Get This Skill, $37')}</button></div>
     </section>
     <div class="wk-grid by-g1">
       <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="setup-h">
-        <div class="wk-card"><dl class="wk-dl by-lead" style="padding-top:20px"><div><dt>The problem</dt><dd>${esc(s.pr)}</dd></div><div><dt>What it does for you</dt><dd>${esc(s.o)}</dd></div><div><dt>Who it’s for</dt><dd>${esc(s.role)}</dd></div></dl></div>
-        <div class="wk-sec-head" style="margin-top:var(--sp-s5)"><h2 class="wk-h2" id="setup-h">The Setup</h2>
-          ${lanes.length > 1 ? `<div class="wk-seg" id="lane-seg" role="radiogroup" aria-label="Your AI"><span class="wk-seg-thumb" aria-hidden="true"></span>${lanes.map((l, k) => `<button class="wk-seg-b" type="button" role="radio" aria-checked="${k === 0}"${k ? ' tabindex="-1"' : ''} data-lane="${l}">${LANE[l]}<small>${s.lanes[l].length}</small></button>`).join('')}</div>` : ''}</div>
-        <p class="wk-sum">${esc(s.intro)}</p>
-        ${lanes.map((l, k) => `<ol class="wk-steps by-steps" data-lane-list="${l}"${k ? ' hidden' : ''} aria-label="${LANE[l]} steps">${s.lanes[l].map((t, n) => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${n + 1}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(t)}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>`).join('')}
+        <div class="wk-card"><dl class="wk-dl by-lead by-lead-card">${lead(s)}</dl></div>
+        <div class="wk-sec-head by-setup-h"><h2 class="wk-h2" id="setup-h">The Setup</h2>
+          ${lanes.length > 1 ? `<div class="wk-seg" id="lane-seg" role="radiogroup" aria-label="Your AI"><span class="wk-seg-thumb" aria-hidden="true"></span>${lanes.map((l, k) => `<button class="wk-seg-b" type="button" role="radio" aria-checked="${k === 0}"${k ? ' tabindex="-1"' : ''} data-lane="${l.id}">${l.label}<small>${l.steps.length}</small></button>`).join('')}</div>` : ''}</div>
+        ${lanes.map((l, k) => `<ol class="wk-steps by-steps" data-lane-list="${l.id}"${k ? ' hidden' : ''} aria-label="${l.label} steps">${l.steps.map((t, n) => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${n + 1}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(t)}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>`).join('')}
       </section>
       <aside class="wk-rail" aria-label="What you get">
         <section class="wk-card aim-rise" style="--i:3" aria-labelledby="get-h"><div class="wk-card-h"><h3 class="wk-h3" id="get-h">What You’ll Get</h3></div>
-          <ul>${[['book', 'Its step-by-step setup guide'], ['down', s.files.includes('grok') ? 'The Grok Bot template' : s.files.includes('chatgpt') ? 'Downloads for Claude and ChatGPT' : 'The download for Claude'], ...(s.files.includes('practice') ? [['file', 'Practice files to try it safely']] : [])].map(([i, t]) => `<li class="wk-kit-row"><span class="wk-ic">${ic(i, 16)}</span><span class="wk-kit-tx"><b>${t}</b></span><span></span></li>`).join('')}</ul></section>
+          <ul>${what.map(([i, t]) => `<li class="wk-kit-row"><span class="wk-ic">${ic(i, 16)}</span><span class="wk-kit-tx"><b>${t}</b></span><span></span></li>`).join('')}</ul></section>
         ${help(4)}
       </aside>
     </div></div>`;
 }
 
 function viewTraining(){
-  return `<div class="wk-page">${crumbs(['Weekly Live Training'])}
-    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">Amplified Agent Plan ${lockedPill}</p><h1 class="wk-h1">Weekly Live Training</h1>
-      <p class="wk-purpose">One 60 minute session a week, building one skill live on a real file. The topic changes each week of the month, so you cover every topic in 4 weeks.</p>
-      <div class="wk-meta">${tag('cal', 'Weekly, starting the week of January 4')}${tag('clock', '60 minutes')}${tag('users', 'For agents')}</div></header>
+  return `<div class="wk-page">${crumbs([TRAINING.title])}
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${AGENT_PLAN.name} ${lockedPill}</p><h1 class="wk-h1">${TRAINING.title}</h1>
+      <p class="wk-purpose">${esc(TRAINING.lede)}</p>
+      <div class="wk-meta">${tag('cal', TRAINING.when)}${tag('clock', '60 minutes')}${tag('users', 'For agents')}</div></header>
     <section class="wk-hero aim-rise" style="--i:1" aria-label="Upgrade">
       <div class="wk-hero-main"><p class="wk-kick">Locked · In the Agent Plan</p><h2 class="wk-hero-t">Build One Skill Live, Every Week</h2>
         <p class="wk-hero-d"><b>Agent Plan</b>${nb(AGENT_PLAN.body)}</p>
-        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg by-wrap" href="#" onclick="return false" data-cart="${AGENT_PLAN.cart}">${roll(AGENT_PLAN.button)}</a></div></div>
-      <div class="wk-prog"><p class="wk-prog-l">${ic('radio')}One topic a week</p><p class="wk-prog-n"><b>4</b>topics</p><p class="wk-prog-left">You cover every topic in 4 weeks.</p></div>
+        <div class="wk-hero-acts">${pay(AGENT_PLAN.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', AGENT_PLAN.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('radio')}One topic a week</p><p class="wk-prog-n"><b>${TRAINING.weeks.length}</b>topics</p><p class="wk-prog-left">You cover every topic in 4 weeks.</p></div>
     </section>
     <div class="wk-grid by-g1">
       <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="rot-h"><h2 class="wk-h2" id="rot-h">The Rotation</h2>
-        <ol class="sc-list lk-list">${ROTATION.map(w => `<li class="sc-week"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.n}</b></span>
-          <div class="sc-body"><div class="sc-t"><b class="sc-a">${w.topic}</b></div><ul class="sc-sess">${w.skills.map(id => { const x = skill(id); return `<li>${ic('book')}<span>${esc(x.t)}</span>${isOwned(x) ? '<span class="sc-when">Yours</span>' : x.f ? '<span class="sc-when">Free</span>' : ''}</li>`; }).join('')}</ul></div>
-          <div class="sc-side">${stLocked}</div></li>`).join('')}</ol></section>
-      <aside class="wk-rail" aria-label="The Agent Plan">
-        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="ap-h"><div class="by-up-h"><p class="wk-label">For agents</p><h2 class="wk-h3" id="ap-h">${AGENT_PLAN.name}</h2><p class="by-price"><b>${AGENT_PLAN.amount}</b>a month</p><p class="by-terms">3-Month Minimum.</p></div>${checks(AGENT_PLAN.lines)}</section>
+        <ol class="sc-list lk-list">${TRAINING.weeks.map(w => `<li class="sc-week"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.n}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${w.topic}</b></div><ul class="sc-sess">${w.skills.map(k => { const x = CAT.find(c => c.id === k || slugOf(c) === k); return x ? `<li>${ic('book')}<span>${esc(x.t)}</span>${isOwned(x) ? '<span class="sc-when">Yours</span>' : x.f ? '<span class="sc-when">Free</span>' : ''}</li>` : ''; }).join('')}</ul></div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol></section>
+      <aside class="wk-rail" aria-label="${AGENT_PLAN.name}">
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="ap-h"><div class="by-up-h"><p class="wk-label">For agents</p><h2 class="wk-h3" id="ap-h">${AGENT_PLAN.name}</h2><p class="by-price"><b>${AGENT_PLAN.amount}</b>a month</p><p class="by-terms">${MINIMUM}</p></div>${checks(AGENT_PLAN.lines)}</section>
         ${help(4)}</aside>
     </div></div>`;
 }
@@ -330,43 +290,40 @@ function viewOffice(){
   const plan = myPlan();
   return `<div class="wk-page">${crumbs(['Office Hours'])}
     <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${esc(plan.name)} ${lockedPill}</p><h1 class="wk-h1">Office Hours</h1>
-      <p class="wk-purpose">Drop in with a real file and get help. Every session is recorded, so you’re never behind.</p>
+      <p class="wk-purpose">${esc(OFFICE.lede)}</p>
       <div class="wk-meta">${tag('cal', 'Every Thursday')}${tag('clock', '12:00 PM MT, 60 minutes')}${tag('video', 'Recorded')}</div></header>
     <section class="wk-hero aim-rise" style="--i:1" aria-label="Upgrade">
       <div class="wk-hero-main"><p class="wk-kick">Locked · In ${esc(plan.name)}</p><h2 class="wk-hero-t">Get Help on a Real File, Every Thursday</h2>
         <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(plan.terms)}</p>
-        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg by-wrap" href="#" onclick="return false" data-cart="${plan.cart}">${roll(esc(plan.button))}</a></div></div>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
       <div class="wk-prog"><p class="wk-prog-l">${ic('clock')}Every Thursday</p><p class="wk-prog-n"><b>12:00</b>PM MT</p><p class="wk-prog-left">60 minutes, live, then recorded.</p></div>
     </section>
     <div class="by-cards by-pair">${upCard(plan, 2, { button: false })}${help(3)}</div></div>`;
 }
 
 function viewAccel(){
+  const week0 = ACCEL.weeks.find(w => w.n === 0);
   return `<div class="wk-page">${crumbs(['AI Accelerator'])}
-    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">Amplified AI Accelerator ${lockedPill}</p><h1 class="wk-h1">AI Accelerator</h1>
-      <p class="wk-purpose">Week 0 gets your office ready for its first hire. Then eight live builds, one a week.</p>
-      <div class="wk-meta">${tag('radio', '8 live builds, 90 minutes, Wednesdays')}${tag('users', 'Owners and operators')}</div></header>
-    <section class="wk-hero aim-rise" style="--i:1" aria-label="The AI Accelerator">
-      <div class="wk-hero-main"><p class="wk-kick">Locked · Part of the AI Accelerator</p><h2 class="wk-hero-t">Is our office ready for its first hire?</h2>
-        <p class="wk-hero-d"><b>How it works</b>Every week has one operating question, one flagship skill from the Library and one required output.</p>
-        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="#" onclick="return false">${roll('See the AI Accelerator')}${ic('arrow', 16, 'wk-arrow')}</a><a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#home">${roll('Back to Home')}${ic('arrow', 16, 'wk-arrow')}</a></div></div>
-      <div class="wk-prog"><p class="wk-prog-l">AI employees</p><p class="wk-prog-n"><b>7</b>built with you</p><p class="wk-prog-left">With at least 5 running by Feb 3.</p></div>
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${ACCEL.name} ${lockedPill}</p><h1 class="wk-h1">AI Accelerator</h1>
+      <p class="wk-purpose">Week 0 sets up the office. Then one AI hire a week, built on your own numbers.</p>
+      <div class="wk-meta">${tag('radio', ACCEL.builds)}${tag('users', 'Owners and operators')}</div></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="${ACCEL.name}">
+      <div class="wk-hero-main"><p class="wk-kick">Locked · Part of the AI Accelerator</p><h2 class="wk-hero-t">${esc(week0.question)}</h2>
+        <p class="wk-hero-d"><b>How it works</b>Every week answers one question about your business.</p>
+        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="${B.accelHref}" onclick="return false">${roll('See the AI Accelerator')}${ic('arrow', 16, 'wk-arrow')}</a><a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#home">${roll('Back to Home')}${ic('arrow', 16, 'wk-arrow')}</a></div></div>
+      <div class="wk-prog"><p class="wk-prog-l">AI employees</p><p class="wk-prog-n"><b>${ACCEL.hiresN}</b>built with you</p><p class="wk-prog-left">${ACCEL.hiresRest}</p></div>
     </section>
     <div class="wk-grid">
       <section class="wk-steps-sec aim-rise" style="--i:2" id="wk-row-0" aria-labelledby="w0-h">
-        <div class="wk-sec-head"><h2 class="wk-h2" id="w0-h">Week 0 · Foundations</h2></div>
-        <p class="wk-sum">About 2 hr 50 min in all. Steps 3 and 5 can run alongside the others.</p>
-        <ol class="wk-steps">${STEPS0.map(([t, r, time], n) => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${n + 1}</span>
-          <span class="wk-step-tx"><span class="wk-step-t">${t}<span class="wk-chip">${r}</span></span></span><span class="wk-step-r"><span class="wk-time">${time}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>
+        <div class="wk-sec-head"><h2 class="wk-h2" id="w0-h">Week 0 · Set Up the Office</h2></div>
+        <p class="wk-sum">Eight steps, for the owner and the operator.</p>
+        <ol class="wk-steps">${ACCEL.week0Steps.map(st => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${st.n}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(st.title)}<span class="wk-chip">${esc(st.who)}</span></span></span><span class="wk-step-r"><span class="wk-time">${esc(st.time)}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>
       </section>
       <aside class="wk-rail" aria-label="In the AI Accelerator">
-        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="acc-h"><div class="wk-card-h"><h3 class="wk-h3" id="acc-h">In the AI Accelerator</h3></div>
-          ${checks(['Every owner, ops and agent skill', '7 AI employees built with you', '8 live builds, 90 minutes, Wednesdays', 'Office hours'])}</section>
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="acc-h"><div class="wk-card-h"><h3 class="wk-h3" id="acc-h">In the AI Accelerator</h3></div>${checks(ACCEL.checks)}</section>
         ${help(4)}</aside>
       <div class="wk-ref aim-rise" style="--i:4"><section aria-labelledby="hires-h"><h2 class="wk-h2" id="hires-h">The Hires, Week by Week</h2>
-        <ol class="sc-list lk-list">${WEEK_D.slice(1).map(([d, build], k) => `<li class="sc-week" id="wk-row-${k + 1}"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${k + 1}</b></span>
-          <div class="sc-body"><div class="sc-t"><b class="sc-a">${WEEKS[k + 1]}</b></div><p class="sc-d">${d}</p><ul class="sc-sess"><li>${ic('radio')}<span>${build}</span></li></ul></div>
-          <div class="sc-side">${stLocked}</div></li>`).join('')}</ol>
+        <ol class="sc-list lk-list">${ACCEL.weeks.filter(w => w.n > 0).map(w => `<li class="sc-week" id="wk-row-${w.n}"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.n}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${esc(w.title)}</b></div><p class="sc-d">${esc(w.question)}</p><ul class="sc-sess"><li>${ic('users')}<span>${w.hire ? `The hire: ${esc(w.hire)}` : 'No new hire'}</span></li></ul></div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol>
         <p class="wk-fine by-fine">Every hire reads and drafts. Nothing is sent without you.</p></section></div>
     </div></div>`;
 }
@@ -378,7 +335,7 @@ function renderShell(){
   const mine = owned();
   $('sh-cohort').innerHTML = `Amplified Skill<br>${mine.length === 1 ? '1 skill' : `${mine.length} skills`} bought`;
   $('sh-main').innerHTML = NAV.map(([i, t, id, lock]) => `<li><a class="sh-link" href="#${id}" data-nav="${id}"${lock ? ' data-locked' : ''}>${ic(i, 16)}<span class="sh-label">${t}</span>${lock ? lockStat : ''}</a></li>`).join('');
-  $('sh-weeks').innerHTML = WEEKS.map((t, i) => `<li><a class="sh-link sh-week" href="#week-${i}" data-nav="week-${i}" data-locked title="Week ${i} · ${t}"><span class="sh-wn" aria-hidden="true">${i}</span><span class="sh-label">${t}</span>${lockStat}</a></li>`).join('');
+  $('sh-weeks').innerHTML = ACCEL.weeks.map(w => `<li><a class="sh-link sh-week" href="#week-${w.n}" data-nav="week-${w.n}" data-locked title="Week ${w.n} · ${esc(w.title)}"><span class="sh-wn" aria-hidden="true">${w.n}</span><span class="sh-label">${esc(w.title)}</span>${lockStat}</a></li>`).join('');
   $('sh-next').innerHTML = mine.length === 1
     ? `<span class="sh-live">${ic('book', 16)}Your skill</span><b>${esc(mine[0].t)}</b><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#" onclick="return false">${roll('Open the Setup Guide')}</a>`
     : `<span class="sh-live">${ic('book', 16)}Your skills</span><b>${esc(mine[0].t)}</b><span class="sh-mut">and ${mine.length - 1} more</span><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#library">${roll('Open Your Skills')}</a>`;
@@ -408,7 +365,7 @@ function route(){
   $('sh-here').textContent = view === 'skill' ? (skill(sk[1]) || {}).t || 'Skill Library' : HERE[view];
   $('sh-side').removeAttribute('data-open'); $('sh-menu').setAttribute('aria-expanded', 'false');
   wire();
-  if (wk && +wk[1] > 0) requestAnimationFrame(() => $(`wk-row-${wk[1]}`)?.scrollIntoView({ block: 'start' })); else if (!Q.get('keep-scroll')) scrollTo(0, 0);
+  if (wk && +wk[1] > 0) requestAnimationFrame(() => $(`wk-row-${wk[1]}`)?.scrollIntoView({ block: 'start' })); else scrollTo(0, 0);
   document.body.dataset.appReady = 'true';
 }
 $('sh-group').onclick = e => { const b = e.currentTarget, open = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', open); $('sh-weeks').hidden = !open; placeMarker(); };
@@ -436,13 +393,11 @@ $('sh-menu').onclick = e => { const open = $('sh-side').dataset.open !== 'true';
 new ResizeObserver(() => { placeMarker(); placeThumb(); }).observe(document.body);
 
 /* ---------- the MOCKUP bar (review-only) ---------- */
-function setTheme(t){ theme = t; document.documentElement.dataset.theme = t; document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeSet === t)); }
 function setBought(b){ bought = b; document.querySelectorAll('[data-bought]').forEach(x => x.setAttribute('aria-pressed', x.dataset.bought === b)); renderShell(); route(); }
-document.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => setTheme(b.dataset.themeSet));
 document.querySelectorAll('[data-bought]').forEach(b => b.onclick = () => setBought(b.dataset.bought));
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
 addEventListener('hashchange', route);
-setTheme(theme); setBought(bought);
+setBought(bought);
 </script>
 </body>
 </html>

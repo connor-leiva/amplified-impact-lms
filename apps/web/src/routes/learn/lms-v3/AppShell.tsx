@@ -37,7 +37,8 @@ export interface Shell {
   helpHref: string;
   logo: { label: string; app: string };
   cohort: [string, string];
-  nav: { icon: string; label: string; href: string; id?: string }[];
+  /** D-241: `locked` puts the weeks' lock on a main row (the $37 buyer's Office hours and Weekly training). */
+  nav: { icon: string; label: string; href: string; id?: string; locked?: boolean }[];
   weeksLabel: string;
   weeks: ShellWeek[];
   next: ShellNext | null;
@@ -63,7 +64,8 @@ function WeekStat({ w }: { w: ShellWeek }) {
   );
 }
 
-export function AppShell({ shell, current, hideNext, now = Date.now, defaultCollapsed = false, onCollapse, children }: { shell: Shell; current?: string; hideNext?: boolean; now?: () => number; defaultCollapsed?: boolean; onCollapse?: (on: boolean) => void; children?: ReactNode }) {
+// D-241: `strip` fills the top bar's strip in place of the next session (the $37 buyer's own skill, one click away).
+export function AppShell({ shell, current, hideNext, now = Date.now, defaultCollapsed = false, onCollapse, strip, children }: { shell: Shell; current?: string; hideNext?: boolean; now?: () => number; defaultCollapsed?: boolean; onCollapse?: (on: boolean) => void; strip?: ReactNode; children?: ReactNode }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);   // the rail's layout
   const [narrow, setNarrow] = useState(defaultCollapsed);         // the column's width
   const [anim, setAnim] = useState<'collapsing' | 'expanding' | null>(null);                         // 'collapsing' | 'expanding' | null, while it travels
@@ -128,7 +130,7 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
             <nav aria-label="Main">
               <ul className="sh-nav" id="sh-main">
                 {shell.nav.map((n) => (
-                  <li key={n.label}><a className="sh-link" href={n.href} data-nav={n.id} aria-current={cur(n.id)} onClick={stop(n.href)}><Icon name={n.icon} size={16} /><span className="sh-label">{n.label}</span></a></li>
+                  <li key={n.label}><a className="sh-link" href={n.href} data-nav={n.id} data-locked={n.locked ? '' : undefined} aria-current={cur(n.id)} onClick={stop(n.href)}><Icon name={n.icon} size={16} /><span className="sh-label">{n.label}</span>{n.locked ? <WeekStat w={{ n: 0, title: '', href: '', locked: true }} /> : null}</a></li>
                 ))}
               </ul>
             </nav>
@@ -152,8 +154,8 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
       </aside>
       <div className="sh-col">
         <header className="sh-top" data-ai="shell">
-          <div className="sh-next" id="sh-next" hidden={hideNext || !next}>
-            {next && (mode === 'wait' ? <>
+          <div className="sh-next" id="sh-next" hidden={hideNext || (!next && !strip)}>
+            {strip ?? (next && (mode === 'wait' ? <>
               <span className="sh-live"><Icon name="radio" size={16} />{next.label}</span>
               <b>{next.title}</b>
               <span className="sh-mut">{next.when}</span>
@@ -163,7 +165,7 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
               <b>{next.title}</b>
               <span className="sh-mut">{mode === 'live' ? `Started ${next.time}` : next.time}</span>
               <a className="wk-btn wk-btn-accent wk-btn-sm" id="sh-join" href={next.joinHref} onClick={stop(next.joinHref)}><Icon name="video" /><RollLabel>{`Join on ${next.where}`}</RollLabel></a>
-            </>)}
+            </>))}
           </div>
           <nav className="wk-sr" aria-label="Breadcrumb"><a href={shell.homeHref} onClick={stop(shell.homeHref)}>Home</a>{' / '}<span aria-current="page" id="sh-here">{shell.here}</span></nav>
           {/* The account menu's trigger: the learner's initials. The menu itself is the LMS's own (not in the mockup). */}

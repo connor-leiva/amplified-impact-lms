@@ -6,7 +6,7 @@
 // retried event cannot grant it twice. A payment after a refund reopens that row. A full refund sets
 // `refunded_at`. Nothing here creates an order or a plan, and nothing is credited toward Insiders.
 
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import type Stripe from 'stripe';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { guidePageOf } from '@ai/core/skill-guides';
@@ -36,12 +36,13 @@ function uniqueViolation(err: unknown): boolean {
   return e.code === '23505' || e.cause?.code === '23505';
 }
 
-/** Skill ids this user holds and has not had refunded. */
+/** Skill ids this user holds and has not had refunded, the latest purchase first (D-241: the buyer's LMS leads with it). */
 export async function purchasedSkillIds(db: Database, userId: string): Promise<ReadonlySet<string>> {
   const rows = await db
     .select({ skillId: skillPurchases.skillId })
     .from(skillPurchases)
-    .where(and(eq(skillPurchases.userId, userId), isNull(skillPurchases.refundedAt)));
+    .where(and(eq(skillPurchases.userId, userId), isNull(skillPurchases.refundedAt)))
+    .orderBy(desc(skillPurchases.purchasedAt), skillPurchases.skillId);
   return new Set(rows.map((r) => r.skillId));
 }
 

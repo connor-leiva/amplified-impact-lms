@@ -22,6 +22,8 @@ export default tseslint.config(
       '**/dist-fixture/**',
       // D-182: the flag-on fixture build (`build:fixture:v2`).
       '**/dist-fixture-v2/**',
+      // D-241: the production build the buyer's mockup-vs-build pairs are captured from (handoff/lms-mockup/tools/pairs.ts).
+      '**/dist-buyer/**',
       'design-reference/**',
       'handoff-starter/**',
       // The v6 step page's design handoff (D-210), kept verbatim: its mockup, harness and diff tools.

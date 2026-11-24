@@ -62,14 +62,13 @@
 /* a term that never breaks at its hyphen */
 .by-nb{white-space:nowrap}
 
-/* the steps of a locked guide, and the fine print under a list */
+/* the steps of a locked guide, the lead's card over them, and the fine print under a list */
 .by-steps .wk-step{grid-template-columns:32px minmax(0,1fr) 20px}
+.by-lead-card{padding-top:20px}
+.by-setup-h{margin-top:var(--sp-s5)}
 .by-fine{margin-top:var(--sp-s3)}
 
 /* ---------- the sidebar: a plan the buyer doesn't hold carries the weeks' lock ---------- */
 .sh-link[data-locked] .sh-label{color:var(--sp-ink-3)}
 .sh-link[data-locked][aria-current="page"] .sh-label{color:var(--sp-forest)}
 @media (hover:hover){.sh-link[data-locked]:hover .sh-label{color:var(--sp-black)}}
-
-/* the logo on the dark theme is the brand's reversed file, through the same 161x34 window */
-.sh-logo>.sh-logo-d{display:none}

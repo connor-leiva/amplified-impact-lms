@@ -1,10 +1,10 @@
-// Screenshots of the $37 buyer mockup (../buyer.html) at 1280 and 390, light and dark, for review.
+// Screenshots of the $37 buyer mockup (../buyer.html) at 1280 and 390, for review. Light only (D-226).
 //
 //   node handoff/lms-mockup/tools/capture.mjs --out <dir> [--b64] [--only home,library] [--scale 1]
 //
 // Serves the repo root itself (the mockup links ../lms-v3 and apps/web/src/styles/tokens.css), opens each view with the
 // MOCKUP bar hidden (?bar=0), reduced motion (every entrance at its end state) and a fixed clock (2:00 PM, for the
-// greeting), and writes <view>-<width>[-dark].png, or .png.b64 (one line of base64) with --b64.
+// greeting), and writes <view>-<width>.png, or .png.b64 (one line of base64) with --b64.
 import { createServer } from 'node:http';
 import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
@@ -25,8 +25,8 @@ export const SHOTS = [
   { name: 'training', hash: 'training', what: 'Weekly Live Training, locked: Upgrade to the Agent Plan, $117/Month' },
   { name: 'office-hours', hash: 'office-hours', what: 'Office Hours, locked: in Amplified Insiders' },
   { name: 'accelerator', hash: 'accelerator', what: 'Week 0 and the AI hires, locked: part of the AI Accelerator' },
-  { name: 'home-agent', hash: 'home', bought: 'agent', themes: ['light'], what: 'Home for an agent skill buyer: Agent Insiders, $79/Month' },
-  { name: 'library-two', hash: 'library', bought: 'two', themes: ['light'], what: 'Skill Library for a buyer of two skills' },
+  { name: 'home-agent', hash: 'home', bought: 'agent', what: 'Home for an agent skill buyer: Agent Insiders, $79/Month' },
+  { name: 'library-two', hash: 'library', bought: 'two', what: 'Skill Library for a buyer of two skills' },
 ];
 const WIDTHS = [1280, 390];
 
@@ -42,17 +42,17 @@ const base = `http://127.0.0.1:${server.address().port}/handoff/lms-mockup/buyer
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 for (const shot of SHOTS.filter((s) => !only?.length || only.includes(s.name))) {
-  for (const theme of shot.themes ?? ['light', 'dark']) {
+  {
     for (const width of WIDTHS) {
       const ctx = await browser.newContext({ viewport: { width, height: width > 900 ? 900 : 844 }, deviceScaleFactor: scale, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
       await page.clock.setFixedTime(new Date('2026-11-24T14:00:00'));
-      await page.goto(`${base}?bar=0&theme=${theme}&bought=${shot.bought ?? 'owner'}#${shot.hash}`);
+      await page.goto(`${base}?bar=0&bought=${shot.bought ?? 'owner'}#${shot.hash}`);
       await page.waitForSelector('body[data-app-ready="true"]');
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(300);
       const png = await page.screenshot({ fullPage: true });
-      const file = join(out, `${shot.name}-${width}${theme === 'dark' ? '-dark' : ''}.png${b64 ? '.b64' : ''}`);
+      const file = join(out, `${shot.name}-${width}.png${b64 ? '.b64' : ''}`);
       writeFileSync(file, b64 ? png.toString('base64') : png);
       console.log(file);
       await ctx.close();

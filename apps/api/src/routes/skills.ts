@@ -212,6 +212,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
         access.paidPlans.map((p) => ({ kind: p.kind })),
         { accessGroup: access.groups.length > 0, purchasedSkill: access.purchased.size > 0 },
       ),
+      // D-241: the skills this learner bought for $37 and still holds (a refund drops one), the latest first, so a buyer
+      // with no plan and no group gets the LMS led by what they just bought (`skillOnlyBuyer`).
+      purchased: [...access.purchased],
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
         .map((s) => {

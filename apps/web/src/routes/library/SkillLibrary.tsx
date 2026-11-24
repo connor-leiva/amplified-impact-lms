@@ -9,8 +9,8 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
-import { AGENT_TRAINING, PLAN_SETS, type PlanKind, type TrainingAccess } from '@ai/core/offer';
+import { Link, Navigate } from 'react-router';
+import { AGENT_TRAINING, PLAN_SETS, skillOnlyBuyer, type PlanKind, type TrainingAccess } from '@ai/core/offer';
 import { guidePageOf, skillGuidePath } from '@ai/core/skill-guides';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
@@ -262,6 +262,8 @@ type Load =
       training: TrainingAccess;
       /** D-153: when a bought AI Accelerator opens, while it has not; null otherwise. */
       courseOpensAt: number | null;
+      /** D-241: a $37 skill buyer with no plan and no access group, whose library is in the LMS now (`/learn`). */
+      buyer: boolean;
     }
   | { kind: 'signed-out' }
   | { kind: 'failed' };
@@ -284,6 +286,7 @@ async function loadSkills(): Promise<Load> {
       lockedLines?: Record<string, string>;
       courseOpensAt?: number | null;
       training?: TrainingAccess;
+      purchased?: string[];
     };
     return {
       kind: 'ready',
@@ -297,6 +300,7 @@ async function loadSkills(): Promise<Load> {
       paidPlans: (body.plans ?? []).length > 0,
       training: body.training === 'open' || body.training === 'locked' ? body.training : 'hidden',
       courseOpensAt: typeof body.courseOpensAt === 'number' ? body.courseOpensAt : null,
+      buyer: skillOnlyBuyer({ plans: body.plans, accessGroups: body.accessGroups, purchased: body.purchased }),
     };
   } catch {
     return { kind: 'signed-out' };
@@ -530,6 +534,10 @@ export function Component() {
   useEffect(() => {
     if (load.kind !== 'loading') document.body.dataset.appReady = 'true';
   }, [load.kind]);
+
+  // D-241: a $37 skill buyer with no plan and no access group has their library inside the LMS. Everyone else, an
+  // access group's member (Utah Life) and every plan's member above all, keeps this page exactly as it was.
+  if (load.kind === 'ready' && load.buyer) return <Navigate to="/learn" replace />;
 
   return (
     <main className={s.page}>
