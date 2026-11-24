@@ -121,6 +121,9 @@ export const JOIN_WINDOW_SHUT = 'Join opens 15 min before';
 /** The 403 for a tier that cannot reach the session's AI Employee. `@ai/core`'s own wording. */
 export const TIER_REQUIRED = 'Team tier required';
 
+/** D-251: how far ahead a course session's plan is read while its window is open. `joinMode`'s 15 minutes. */
+const JOIN_WINDOW_MS = 15 * 60_000;
+
 export function registerJoinRoute(app: FastifyInstance): void {
   app.get<{ Params: { id: string } }>(
     '/api/sessions/:id/join',
@@ -150,11 +153,18 @@ export function registerJoinRoute(app: FastifyInstance): void {
         return reply.code(404).send({ error: `No session ${id}` });
       }
 
+      const now = clock.now();
+
       // An AI Accelerator session for a plan that does not open the course (D-110). Every paid buyer
       // is in this cohort, so the cohort check above cannot catch it. The same 404 as another
       // cohort's session, because the snapshot leaves these sessions out for this viewer entirely.
+      // D-251: while this session's join window is open, the plan is read 15 minutes ahead. The first
+      // live build opens the course at its own start (`COURSE_OPENS_AT`), and its Join opens 15 minutes
+      // before, like every session's. Only the time moves: a plan that is ended or paused stays shut, and
+      // the course itself still opens at `COURSE_OPENS_AT`.
       const owner = moduleForSession(db, session);
-      const course = owner && isAcceleratorModule(owner.id) ? await acceleratorAccess(getDb(), me.id, clock.now()) : undefined;
+      const planAt = joinMode(session, now) === 'disabled' ? now : now + JOIN_WINDOW_MS;
+      const course = owner && isAcceleratorModule(owner.id) ? await acceleratorAccess(getDb(), me.id, planAt) : undefined;
       if (course === false) {
         return reply.code(404).send({ error: `No session ${id}` });
       }
@@ -177,7 +187,7 @@ export function registerJoinRoute(app: FastifyInstance): void {
 
       // The window. `clock.now()` so § 7.7's FIXED_NOW drives it, which is how Gate 8's "409 at
       // 12:44 CT and 200 at 12:46 CT" is a test rather than a stopwatch.
-      if (joinMode(session, clock.now()) === 'disabled') {
+      if (joinMode(session, now) === 'disabled') {
         return reply.code(409).send({ error: JOIN_WINDOW_SHUT });
       }
 

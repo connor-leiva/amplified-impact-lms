@@ -9,7 +9,8 @@
 // The clock is § 7.7's FIXED_NOW, set per case. Every instant is written with its Central offset.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { seedForDatabase } from '@ai/core';
+import { moduleForSession, seedForDatabase } from '@ai/core';
+import { canJoin } from '@ai/core/learner';
 import { seedProduction } from '@ai/core/seed/curriculum';
 // What main served before the course moved into the database (D-173), written from main's code.
 import courseV1 from '../../../packages/core/test/fixtures/curriculum-v1/course.json';
@@ -21,7 +22,7 @@ import { provisionOrder } from '../src/billing/provision';
 import { applyCurriculum } from '../src/db/seed';
 import { persistDiff } from '../src/db/io';
 import { DATA_MIGRATIONS, applyDataMigrations } from '../src/db/data-migrations';
-import { orders, plans, skillPurchases, users } from '../src/db/schema';
+import { orders, plans, sessions, skillPurchases, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
 import { NOT_IN_PLAN, NOT_YET } from '../src/routes/course';
 import { acceleratorLearnerIds } from '../src/lib/course-access';
@@ -34,6 +35,10 @@ const BEFORE_HOLD = '2026-11-20T09:00:00-06:00';
 const OPENS = '2026-12-02T13:00:00-06:00';
 /** Ten minutes before Week 1's build: its join window is open. */
 const WEEK1_WINDOW = '2026-12-02T12:50:00-06:00';
+/** D-251: 11:44 AM MT, one minute before Week 1's join window opens. */
+const BEFORE_WINDOW = '2026-12-02T12:44:00-06:00';
+/** D-251: 11:45 AM MT, the first instant of Week 1's join window: 15 minutes before its start. */
+const WINDOW_OPENS = '2026-12-02T12:45:00-06:00';
 
 const silent = { info: () => undefined, warn: () => undefined, error: () => undefined };
 
@@ -167,16 +172,93 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
     expect(snap.modules.filter((m) => 'course' in m)).toEqual([]);
   });
 
-  it('can join Week 1’s build once the course opens at its start, with no invented Zoom link', async () => {
-    // D-153, a known gap to close before Dec 2: the join window's first 15 minutes come before the
-    // course opens, so the first build cannot be joined early.
-    at(WEEK1_WINDOW);
-    expect((await get('/api/sessions/dec26-s1/join', 'full')).statusCode).toBe(404);
-    at(OPENS);
-    const res = await get('/api/sessions/dec26-s1/join', 'full');
-    expect(res.statusCode).toBe(200);
-    // Staff have not set the real link yet; the client reads an empty URL as shut.
-    expect(res.json()).toEqual({ url: '' });
+  it.each(['full', 'twoPay', 'operator'])('%s: D-251, joins Week 1’s build from 15 minutes before it starts, as Join shows', async (who) => {
+    // The first live build opens the course at its own start, 12:00 PM MT.
+    const s1 = (await loadDb()).sessions.find((s) => s.id === 'dec26-s1')!;
+    expect(s1.start).toBe(Date.parse(OPENS));
+
+    // 11:44 AM MT: Join doesn't show yet, and the route answers as it did before D-251. The window is
+    // shut and the course isn't open, so it is the pre-launch 404, the one an unknown id gets.
+    at(BEFORE_WINDOW);
+    expect(canJoin(s1, Date.parse(BEFORE_WINDOW))).toBe(false);
+    const shut = await get('/api/sessions/dec26-s1/join', who);
+    expect(shut.statusCode).toBe(404);
+    expect(shut.json()).toEqual({ error: 'No session dec26-s1' });
+
+    // 11:45 AM MT, the window's first instant, through the start: Join shows and the route answers it.
+    for (const when of [WINDOW_OPENS, WEEK1_WINDOW, OPENS]) {
+      at(when);
+      expect(canJoin(s1, Date.parse(when)), when).toBe(true);
+      const res = await get('/api/sessions/dec26-s1/join', who);
+      expect(res.statusCode, when).toBe(200);
+      expect(res.headers['cache-control'], when).toBe('no-store');
+      // Staff have not set the real link yet; the client reads an empty URL as shut.
+      expect(res.json(), when).toEqual({ url: '' });
+    }
+  });
+
+  it('D-251: inside the window, the course itself and the next build stay shut until 12:00 PM MT', async () => {
+    at(WINDOW_OPENS);
+    const course = await get('/api/course', 'full');
+    expect(course.statusCode).toBe(403);
+    expect(course.json()).toEqual({ open: false, upcoming: true, opensAt: Date.parse(OPENS), error: NOT_YET });
+    const snap = (await get('/api/snapshot', 'full')).json() as Db;
+    expect(snap.modules.filter((m) => isAcceleratorModule(m.id))).toEqual([]);
+    expect(snap.sessions).toEqual([]);
+    // Only the session whose window is open reads the plan ahead: Week 2's build is the pre-launch 404.
+    expect((await get('/api/sessions/dec26-s2/join', 'full')).statusCode).toBe(404);
+  });
+
+  it('D-251: an invited seat that never accepted is still refused, inside the window and at the start', async () => {
+    await handle.update(users).set({ status: 'invited' }).where(eq(users.id, 'u_operator'));
+    try {
+      for (const when of [WINDOW_OPENS, OPENS]) {
+        at(when);
+        const res = await get('/api/sessions/dec26-s1/join', 'operator');
+        expect(res.statusCode, when).toBe(403);
+        expect(res.json(), when).toEqual({ error: 'Accept your invite before joining a session.' });
+      }
+    } finally {
+      await handle.update(users).set({ status: 'active' }).where(eq(users.id, 'u_operator'));
+    }
+  });
+
+  it('D-251: the plan is read ahead in time only, so a refunded plan stays shut inside the window', async () => {
+    const [o] = await handle.select({ accountId: orders.accountId }).from(orders).where(eq(orders.id, 'ord_twoPay'));
+    await handle.update(plans).set({ status: 'ended' }).where(eq(plans.accountId, o!.accountId!));
+    try {
+      at(WINDOW_OPENS);
+      expect((await get('/api/sessions/dec26-s1/join', 'twoPay')).statusCode).toBe(404);
+    } finally {
+      await handle.update(plans).set({ status: 'active' }).where(eq(plans.accountId, o!.accountId!));
+    }
+  });
+
+  it('D-251: a session with no course week behind it is unchanged, for a plan with the course and one without', async () => {
+    // A cohort session no module claims (no week's `session` is 50): the route reads no plan for it,
+    // before D-251 or after. It starts with the first live build, so the instants are the same.
+    const zoom = 'https://zoom.us/j/5550001234';
+    await handle.insert(sessions).values({ id: 'dec26-kickoff', cohortId: 'dec26', n: 50, title: 'Kickoff', start: Date.parse(OPENS), mins: 60, zoom, live: false, views: 0 });
+    try {
+      expect(moduleForSession(await loadDb(), { id: 'dec26-kickoff', n: 50 })).toBeNull();
+      for (const who of ['full', 'insiders']) {
+        at(BEFORE_WINDOW);
+        const shut = await get('/api/sessions/dec26-kickoff/join', who);
+        expect(shut.statusCode, who).toBe(409);
+        expect(shut.json(), who).toEqual({ error: 'Join opens 15 min before' });
+        for (const when of [WINDOW_OPENS, OPENS]) {
+          at(when);
+          const res = await get('/api/sessions/dec26-kickoff/join', who);
+          expect(res.statusCode, `${who} ${when}`).toBe(200);
+          expect(res.json(), `${who} ${when}`).toEqual({ url: zoom });
+        }
+      }
+      // At the same instant, the course's own build is still the 404 for the plan without the course.
+      at(WINDOW_OPENS);
+      expect((await get('/api/sessions/dec26-s1/join', 'insiders')).statusCode).toBe(404);
+    } finally {
+      await handle.delete(sessions).where(eq(sessions.id, 'dec26-kickoff'));
+    }
   });
 });
 

@@ -92,7 +92,7 @@ export function acceleratorOpen(plans: readonly AcceleratorPlan[], now: number, 
  * `acceleratorOpen` on the plans of the learner's team, read at `at`, not at the tick: a reminder about a session
  * that hasn't started asks at the session's start, so the 24-hour and 1-hour reminders for the first live build
  * (which opens the course, `COURSE_OPENS_AT`) reach every buyer whose course opens with it. Nothing else changes:
- * the course, its weeks and the Join window still open at `COURSE_OPENS_AT`.
+ * the course and its weeks still open at `COURSE_OPENS_AT` (the first live build's Join opens 15 minutes before, D-251).
  */
 export interface CourseRoster {
   has(userId: string, at: number): boolean;
