@@ -1,8 +1,8 @@
-// D-242: a Form button says what it does, and a label staff set wins.
+// D-245: a Form button says what it does, and a label staff set wins.
 import { describe, expect, it } from 'vitest';
 import { FORM_BUTTON_LABEL, FORM_LABEL_UNSET, formButtonLabel, ownFormLabel } from '../src/form-button';
 
-describe('a Form button’s words (D-242)', () => {
+describe('a Form button’s words (D-245)', () => {
   it('says what each form does when staff set no label', () => {
     expect(formButtonLabel({ formId: 'intake', label: '' })).toBe('Open and Submit the Intake Form');
     expect(formButtonLabel({ formId: 'stack-card', label: '' })).toBe('Open Your Stack Card');

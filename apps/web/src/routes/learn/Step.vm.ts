@@ -212,7 +212,7 @@ export type CheckActionVM =
   | { type: 'copy'; label: string; text: string }
   | { type: 'invite'; label: string; href: string }
   | { type: 'calendar'; event: IcsEvent | null }
-  /** D-242: `form` marks a Form button (the intake or the stack card), drawn with the form icon. */
+  /** D-245: `form` marks a Form button (the intake or the stack card), drawn with the form icon. */
   | { type: 'link'; label: string; href: string; form?: FormId }
   /** D-230: Turn in. The step page draws its button (or an agent's line) for a viewer v3 draws for. */
   | { type: 'upload'; kind: 'live_read' | 'checkpoint' }
@@ -437,7 +437,7 @@ function calloutVM(b: CalloutBlock): CalloutVM {
 function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[]): CheckActionVM | null {
   if (!action || action.type === 'card') return null;
   if (action.type === 'form') {
-    // D-242: a Form button says what it does (`formButtonLabel`); a label staff set wins.
+    // D-245: a Form button says what it does (`formButtonLabel`); a label staff set wins.
     const label = formButtonLabel(action);
     if (action.formId === 'seat-card') return { type: 'seatcard', label };
     return { type: 'link', label, href: action.formId === 'intake' ? learnIntake() : learnStack(), form: action.formId };

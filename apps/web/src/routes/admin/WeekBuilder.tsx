@@ -678,7 +678,7 @@ function CheckFields({ n, block, picks, ids, videos, onChange }: { n: number; bl
               <option value="seat-card">Seat card</option>
             </Sel>
           </label>
-          {/* D-242: blank says what the form does (`FORM_BUTTON_LABEL`); the builder's old fill, "Open the form", counts as blank. */}
+          {/* D-245: blank says what the form does (`FORM_BUTTON_LABEL`); the builder's old fill, "Open the form", counts as blank. */}
           <Line label={`Block ${n} button label`} value={ownFormLabel(block.action.label)} hint={`Blank uses “${FORM_BUTTON_LABEL[block.action.formId]}”.`} onChange={(label) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, label } })} />
           <Line label={`Block ${n} item to check`} value={block.action.itemId ?? ''} hint={block.action.formId === 'seat-card' ? SEAT_CARD_ITEM_HINT : 'The checklist item a submit checks. Blank uses this item.'} onChange={(itemId) => block.action?.type === 'form' && onChange({ ...block, action: { ...block.action, ...(itemId.trim() ? { itemId } : { itemId: undefined }) } })} />
         </>

@@ -244,7 +244,7 @@ describe('a step’s course fields (D-174)', () => {
     expect(checklistIssueLines([last])).toEqual([]);
   });
 
-  it('D-242: the Button menu says Form, a new Form button starts blank, and blank names the words learners see', async () => {
+  it('D-245: the Button menu says Form, a new Form button starts blank, and blank names the words learners see', async () => {
     const user = userEvent.setup();
     let last: Step = { id: 'c1', text: 'Get your AI ready', ch: '', mins: 20, t: 0, hint: '' };
     render(<StepHarness start={last} onStep={(s) => (last = s)} />);
@@ -267,7 +267,7 @@ describe('a step’s course fields (D-174)', () => {
     expect(last.paths!.claude!.blocks[0]).toMatchObject({ action: { type: 'form', formId: 'seat-card', label: 'Sign Your Seat Card' } });
   });
 
-  it('D-242: a Form button the builder filled with “Open the form” shows as blank, since learners see the form’s own words', () => {
+  it('D-245: a Form button the builder filled with “Open the form” shows as blank, since learners see the form’s own words', () => {
     const last: Step = {
       id: 'c1', text: 'Fill in the intake', ch: '', mins: 10, t: 0, hint: '',
       paths: { claude: { blocks: [{ type: 'check', id: 's1-intake', title: 'Fill in the intake', action: { type: 'form', formId: 'intake', label: 'Open the form' } }] } },

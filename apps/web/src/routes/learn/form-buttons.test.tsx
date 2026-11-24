@@ -1,4 +1,4 @@
-// D-242: a checklist item's Form button says what it does and carries the form's pen, never Download and its arrow:
+// D-245: a checklist item's Form button says what it does and carries the form's pen, never Download and its arrow:
 // in the step player (the legacy view), on the v6 step page, and on the v3 drawer path (the intake's kit file, B-15).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
@@ -44,7 +44,7 @@ function model(): { vm: StepVM; layout: ChecklistLayoutVM; rows: ReturnType<type
 
 const actionOf = (layout: ChecklistLayoutVM, id: string): CheckItemVM['action'] => layout.items.find((it) => it.id === id)?.action ?? null;
 
-describe('a Form button’s words (D-242)', () => {
+describe('a Form button’s words (D-245)', () => {
   it('defaults to what each form does, keeps a label staff set, and marks the form', () => {
     const { layout } = model();
     expect(actionOf(layout, 's1-intake')).toEqual({ type: 'link', label: 'Open and Submit the Intake Form', href: '/learn/week/0/intake', form: 'intake' });
@@ -70,7 +70,7 @@ describe('a Form button’s words (D-242)', () => {
   });
 });
 
-describe('the v6 step page’s Form buttons (D-242)', () => {
+describe('the v6 step page’s Form buttons (D-245)', () => {
   const media = { duration: null, cues: [], poster: undefined, captions: undefined };
   const base: V6Handlers = { onCalendar: () => undefined, onViewPrompt: () => undefined };
   const labels = { ...V6_LABELS, ...V6_MORE };

@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 export type SpIcon =
   | 'left' | 'right' | 'arrow' | 'chev' | 'play' | 'clock' | 'users' | 'user' | 'cal' | 'calplus' | 'lines' | 'copy'
   | 'down' | 'check' | 'x' | 'book' | 'info' | 'alert' | 'key' | 'eye' | 'mail' | 'radio' | 'link'
-  /** D-242: a form's button (the LMS v3 sprite's pen). */
+  /** D-245: a form's button (the LMS v3 sprite's pen). */
   | 'pen';
 
 /** PillVM-like: status is the LMS's own words; `on` marks the current step. */
@@ -62,10 +62,10 @@ export type SpAction =
   | { type: 'play'; label: string; seconds: number; video?: string | null }
   | { type: 'card'; openLabel: string; closeLabel: string }
   | { type: 'calendar'; label: string; onClick?: () => void }
-  /** D-242: `form` marks a Form button (the intake or the stack card), drawn with the pen. */
+  /** D-245: `form` marks a Form button (the intake or the stack card), drawn with the pen. */
   | { type: 'link'; label: string; href: string; form?: true }
   /**
-   * D-242: `form` is set on a file whose click opens a form instead (the intake's kit file, for a viewer v3 draws for,
+   * D-245: `form` is set on a file whose click opens a form instead (the intake's kit file, for a viewer v3 draws for,
    * B-15): its button says the form's words with the pen, not the file's title with the download arrow.
    */
   | { type: 'download'; files: { id: string; title: string; href: string | null; form?: string }[] }
@@ -73,7 +73,7 @@ export type SpAction =
   | { type: 'invite'; label: string; href: string }
   /** D-230: Turn in, the step page's own button; for a teammate who can't turn in, a line in its place (B-26). */
   | { type: 'upload'; label: string; onClick: () => void }
-  /** D-236: the seat card form's button, drawn as a form's (the step page's arrow button, D-242: with the pen); it opens the drawer. */
+  /** D-236: the seat card form's button, drawn as a form's (the step page's arrow button, D-245: with the pen); it opens the drawer. */
   | { type: 'form'; label: string; onClick: () => void }
   | { type: 'line'; text: string };
 

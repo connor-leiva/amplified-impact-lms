@@ -52,7 +52,7 @@ export interface StepPageRouteProps {
   turnIn?: V6Handlers['turnIn'];
   /** D-236: the seat card form's button, for a viewer v3 draws for (`V6Handlers.seatCard`). */
   seatCard?: V6Handlers['seatCard'];
-  /** D-242: the intake's kit files, whose Download opens its drawer, for a viewer v3 draws for (`V6Handlers.intakeFiles`). */
+  /** D-245: the intake's kit files, whose Download opens its drawer, for a viewer v3 draws for (`V6Handlers.intakeFiles`). */
   intakeFiles?: V6Handlers['intakeFiles'];
 }
 

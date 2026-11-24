@@ -129,7 +129,7 @@ export interface V6Handlers {
   /** D-236: the seat card form, for a viewer v3 draws for (absent: its Form button draws nothing). */
   seatCard?: { open: () => void };
   /**
-   * D-242: the intake's kit files (their kit ids), for a viewer v3 draws for. A click on one opens the intake's drawer
+   * D-245: the intake's kit files (their kit ids), for a viewer v3 draws for. A click on one opens the intake's drawer
    * (B-15), so a Download of one is the intake form's button, in the form's words. Absent: every file downloads.
    */
   intakeFiles?: readonly string[];

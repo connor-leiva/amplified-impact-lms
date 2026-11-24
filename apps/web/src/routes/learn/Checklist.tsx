@@ -144,7 +144,7 @@ function Action({ action }: { action: CheckActionVM }) {
   }
   if (action.type === 'link') {
     const outer = /^https?:\/\//.test(action.href) || action.href.startsWith('mailto:');
-    // D-242: a Form button (the intake or the stack card) carries the form's pen, as Copy and Invite carry theirs.
+    // D-245: a Form button (the intake or the stack card) carries the form's pen, as Copy and Invite carry theirs.
     const icon = action.form ? <Icon name="pencil" size={14} strokeWidth={1.75} /> : null;
     return outer ? (
       <a className={`${l.b} ${l.bi}`} href={action.href} {...(/^https?:/.test(action.href) ? { target: '_blank', rel: 'noopener' } : {})}>

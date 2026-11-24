@@ -1,5 +1,5 @@
-// D-242: what a checklist item's Form button says to a learner. A form's button says what it does: one default per
-// form, in Title Case, and a label staff set in the builder wins. Until D-242 the builder filled a new Form button with
+// D-245: what a checklist item's Form button says to a learner. A form's button says what it does: one default per
+// form, in Title Case, and a label staff set in the builder wins. Until D-245 the builder filled a new Form button with
 // "Open the form", which names no form and no task, so that stored value counts as no label.
 import type { CheckAction } from './course-types';
 
@@ -13,7 +13,7 @@ export const FORM_BUTTON_LABEL: Readonly<Record<FormId, string>> = {
   'seat-card': 'Fill In Your Seat Card',
 };
 
-/** What the builder stored in a new Form button's label before D-242: filled in, never chosen. */
+/** What the builder stored in a new Form button's label before D-245: filled in, never chosen. */
 export const FORM_LABEL_UNSET = 'Open the form';
 
 /** The label staff set on a Form button, as stored: empty when they set none (blank, or the builder's old fill). */

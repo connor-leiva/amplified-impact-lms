@@ -419,7 +419,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     // D-229 (B-15): for a learner v3 draws for, the step's form action opens the intake's drawer here.
     const week0 = course.payload.course.weeks.find((w) => w.week === 0 && !isLockedWeek(w));
     const intake = !preview && v3For(viewer, me) && week0 && !isLockedWeek(week0) && week0.intake ? { form: week0.intake, kit: week0.kit ?? [] } : null;
-    // D-242: the intake's kit files, whose Download opens that drawer, so the step page draws it as the form's button.
+    // D-245: the intake's kit files, whose Download opens that drawer, so the step page draws it as the form's button.
     const intakeFiles = intake ? intakeFileIds(rows.find((x) => x.week === 0)?.module, intake.kit) : [];
     const forms = intakeFiles.length ? { intakeFiles } : {};
     const inner = (seatCard?: { open: () => void }) =>

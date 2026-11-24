@@ -61,7 +61,7 @@ function DownloadAction({ a, labels }: { a: Extract<SpAction, { type: 'download'
   return (
     <>
       {a.files.map((f) =>
-        // D-242: a file that opens a form (the intake's, B-15) is the form's button: its words, the pen and the arrow.
+        // D-245: a file that opens a form (the intake's, B-15) is the form's button: its words, the pen and the arrow.
         f.href && f.form ? (
           <a key={f.id} className="btn btn-secondary btn-sm btn-arrow" href={f.href} data-act="form">
             <Icon name="pen" size={14} /><RollLabel>{f.form}</RollLabel><svg className="arrow" width="14" height="14"><use href="#i-arrow" /></svg>
@@ -96,7 +96,7 @@ function Act({ a, item, onPlay, labels }: { a: SpAction; item: SpItem; onPlay: (
   }
   // D-230: Turn in is the step page's own button, as it is; an agent's line uses the row's own text style.
   if (a.type === 'upload') return <button className="btn btn-secondary btn-sm" type="button" data-act="turnin" onClick={a.onClick}><RollLabel>{a.label}</RollLabel></button>;
-  // D-236: the seat card's Form button looks as a form's link does (the arrow button, D-242: with the pen) and opens its drawer.
+  // D-236: the seat card's Form button looks as a form's link does (the arrow button, D-245: with the pen) and opens its drawer.
   if (a.type === 'form') {
     return (
       <button className="btn btn-secondary btn-sm btn-arrow" type="button" data-act="seatcard" onClick={a.onClick}>
