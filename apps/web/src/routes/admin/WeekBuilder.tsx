@@ -773,8 +773,24 @@ function AccordionFields({ n, block, onChange }: { n: number; block: AccordionBl
         else delete next.bodyRich;
         onChange(next);
       }} />
-      <HeadField label={`Block ${n} table headings`} head={block.table?.head ?? []} onChange={(head) => onChange({ ...block, table: head.length || (block.table?.rows?.length ?? 0) ? { ...(head.length ? { head } : {}), rows: block.table?.rows ?? [] } : undefined })} />
-      <TableRowsField label={`Block ${n} table rows`} rows={block.table?.rows ?? []} onChange={(rows) => onChange({ ...block, table: rows.length || (block.table?.head?.length ?? 0) ? { ...(block.table?.head?.length ? { head: [...block.table.head] } : {}), rows } : undefined })} />
+      <HeadField label={`Block ${n} table headings`} head={block.table?.head ?? []} onChange={(head) => onChange({ ...block, table: head.length || (block.table?.rows?.length ?? 0) || block.seatCard ? { ...(head.length ? { head } : {}), rows: block.table?.rows ?? [] } : undefined })} />
+      {/* D-242: a table that is the week's Seat Card draws its rows from the card, so they are edited there. */}
+      <label className={clsx(k.row, k.nw, w.check)}>
+        <input
+          type="checkbox"
+          checked={!!block.seatCard}
+          onChange={(e) => {
+            const { seatCard: _was, ...rest } = block;
+            onChange(e.target.checked ? { ...rest, seatCard: true, table: { ...(block.table?.head?.length ? { head: [...block.table.head] } : {}), rows: [] } } : rest);
+          }}
+        />
+        The table is this week’s Seat card
+      </label>
+      {block.seatCard ? (
+        <p className={clsx(k.me, w.hint)}>Its rows come from this week’s Seat card. Change them there.</p>
+      ) : (
+        <TableRowsField label={`Block ${n} table rows`} rows={block.table?.rows ?? []} onChange={(rows) => onChange({ ...block, table: rows.length || (block.table?.head?.length ?? 0) ? { ...(block.table?.head?.length ? { head: [...block.table.head] } : {}), rows } : undefined })} />
+      )}
       <Line label={`Block ${n} link label`} value={block.link?.label ?? ''} onChange={(label) => onChange({ ...block, link: label.trim() || block.link?.href ? { label, href: block.link?.href ?? '' } : undefined })} />
       <Line label={`Block ${n} link`} value={block.link?.href ?? ''} hint="A route, mailto or https://" onChange={(href) => onChange({ ...block, link: href.trim() || block.link?.label ? { label: block.link?.label ?? '', href } : undefined })} />
     </>

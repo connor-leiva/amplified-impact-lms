@@ -181,6 +181,12 @@ export interface AccordionBlock {
   /** Inline formatting for `body`. Absent: each string renders as its own paragraph. */
   bodyRich?: RichText;
   table?: { head?: string[]; rows: string[][] };
+  /**
+   * D-242: the table is the week's Seat Card. Its rows are drawn from `course.seatCard` wherever the step is drawn, so
+   * the card's words live in one place, the Week Builder's Seat Card card. `table.head` stays this table's headings;
+   * any stored rows are ignored.
+   */
+  seatCard?: true;
   link?: { label: string; href: string };
 }
 
