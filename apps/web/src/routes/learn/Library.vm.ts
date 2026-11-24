@@ -98,6 +98,10 @@ export interface SkillsPayload {
   lockedLines?: Record<string, string>;
   /** D-187: the Team Plan window's words (`plan.team.*`), from the builder's copy strings. */
   planCopy?: Record<string, string>;
+  /** The bought plans (an access group's grant is not one). */
+  plans?: { kind: string; status?: string; paidThrough?: number | null }[];
+  /** D-241: the skills this learner bought for $37 and still holds, by id. */
+  purchased?: string[];
 }
 
 /** What `GET /api/skill-guides/:slug` answers. */
@@ -321,6 +325,9 @@ export interface PreviewVM {
   when: { tile: DateTileVM; text: string } | null;
   get: GetRowVM[];
   plans: boolean;
+  /** The catalog id, for the $37 checkout. Empty when this preview does not offer it. */
+  skillId: string;
+  sets: 'owner_ops' | 'agent' | 'both';
 }
 
 export interface SetupVM {
@@ -361,6 +368,8 @@ export function skillPageVM(p: SkillsPayload, slug: string | undefined, answer: 
     when: opensAt !== null ? { tile: dateTile(opensAt), text: `${fmt.day(opensAt)} at ${fmt.time(opensAt)}` } : null,
     get: getRows(k.files),
     plans: offersPlans(k, p),
+    skillId: k.id,
+    sets: k.sets,
   };
 }
 

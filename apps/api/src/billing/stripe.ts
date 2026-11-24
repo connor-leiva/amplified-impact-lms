@@ -3,9 +3,9 @@
 // Everything that talks to Stripe goes through `BillingStripe`, so the webhook can be tested against a
 // stub with no network (the spec's "tests without the network"), and so the restricted key's
 // permissions (the handoff's section 7) are one list here: Subscriptions, Customers' portal sessions
-// to write; Prices, Products, PaymentIntents, Invoices and Charges to read. Nothing here creates a
-// price, a coupon, a Payment Link or a refund, and since the site's own checkout was retired (D-104)
-// nothing creates a Checkout Session either: the Payment Links do.
+// and Checkout Sessions to write; Prices, Products, PaymentIntents, Invoices and Charges to read.
+// Nothing here creates a price, a coupon, a Payment Link or a refund. Plan checkout stays on Payment
+// Links (D-104). The one Checkout Session this client creates is a single skill, mode `payment`.
 //
 // API VERSIONS. The SDK pins its own (`2025-10-29.clover`), which governs what these calls return.
 // Webhook payloads are rendered in the ENDPOINT's version, which is the account's default and may be
@@ -77,6 +77,23 @@ export interface BillingStripe {
   subscriptionOfPaymentIntent(id: string): Promise<string | null>;
   /** Verifies the signature and parses the event. Throws on a bad signature. */
   constructEvent(rawBody: string | Buffer, signature: string, secret: string): Stripe.Event;
+  /**
+   * A one-time Checkout Session for a single skill. `automatic_tax` is on, as on the Payment Links.
+   * Returns the session id and the URL the browser is sent to.
+   */
+  createCheckoutSession(input: {
+    priceId: string;
+    successUrl: string;
+    cancelUrl: string;
+    clientReferenceId: string;
+    customerEmail: string | null;
+    metadata: Record<string, string>;
+    idempotencyKey: string;
+    /** Ask Checkout for the buyer's name. Guest skill checkout turns this on. */
+    collectName?: boolean;
+  }): Promise<{ id: string; url: string }>;
+  /** The Checkout Session Stripe stored, for the guest return after payment. */
+  retrieveCheckoutSession(id: string): Promise<Stripe.Checkout.Session>;
 }
 
 const idOf = (value: string | { id: string } | null | undefined): string | null =>
@@ -186,6 +203,29 @@ export function stripeClient(secretKey: string): BillingStripe {
 
     constructEvent(rawBody, signature, secret) {
       return stripe.webhooks.constructEvent(rawBody, signature, secret);
+    },
+
+    async createCheckoutSession(input) {
+      const session = await stripe.checkout.sessions.create(
+        {
+          mode: 'payment',
+          line_items: [{ price: input.priceId, quantity: 1 }],
+          success_url: input.successUrl,
+          cancel_url: input.cancelUrl,
+          client_reference_id: input.clientReferenceId,
+          ...(input.customerEmail ? { customer_email: input.customerEmail } : {}),
+          ...(input.collectName ? { name_collection: { individual: { enabled: true, optional: false } } } : {}),
+          metadata: input.metadata,
+          automatic_tax: { enabled: true },
+        },
+        { idempotencyKey: input.idempotencyKey },
+      );
+      if (!session.url) throw Object.assign(new Error('checkout session has no url'), { code: 'no-checkout-url' });
+      return { id: session.id, url: session.url };
+    },
+
+    retrieveCheckoutSession(id) {
+      return stripe.checkout.sessions.retrieve(id);
     },
   };
 }

@@ -1,8 +1,9 @@
 // The one rule that decides whether an account can open a skill (D-079), and the one that decides
 // whether its live sessions are open.
 //
-//   The skill is free; or one of the account's plans covers the skill's set, has started, and is paid
-//   up now or was paid up when the skill was released.
+//   The skill is free; or the viewer bought it and it has not been refunded; or one of the account's
+//   plans covers the skill's set, has started, and is paid up now or was paid up when the skill was
+//   released.
 //
 // "Has started" is the plan's `starts_at`: purchase for every plan but the Team Plan, whose agent
 // skills open on Dec 14, 2026 with the starter path while its logins open at purchase (D-104), and the
@@ -44,9 +45,11 @@ export function planCovers(kind: PlanKind, sets: SkillSet): boolean {
   return sets === 'both' ? opens.length > 0 : opens.includes(sets);
 }
 
-export function canOpenSkill(plans: readonly PlanAccess[], skill: SkillAccess, now: number): boolean {
+export function canOpenSkill(plans: readonly PlanAccess[], skill: SkillAccess, now: number, purchased = false): boolean {
   if (skill.status !== 'published' || skill.releasedAt > now) return false;
-  if (skill.free) return true;
+  // A paid purchase is lifetime access to this skill, including updates released later. It still
+  // waits for the release, and a hidden or draft skill stays closed. A refund is not `purchased`.
+  if (skill.free || purchased) return true;
   return plans.some(
     (p) =>
       p.status !== 'ended' &&
@@ -95,9 +98,9 @@ export function planOpensAt(plans: readonly PlanAccess[], skill: SkillAccess, no
   return at;
 }
 
-export function skillState(plans: readonly PlanAccess[], skill: SkillAccess, now: number): SkillState {
+export function skillState(plans: readonly PlanAccess[], skill: SkillAccess, now: number, purchased = false): SkillState {
   if (skill.releasedAt > now) return 'upcoming';
-  if (canOpenSkill(plans, skill, now)) return 'open';
+  if (canOpenSkill(plans, skill, now, purchased)) return 'open';
   return planOpensAt(plans, skill, now) !== null ? 'upcoming' : 'locked';
 }
 

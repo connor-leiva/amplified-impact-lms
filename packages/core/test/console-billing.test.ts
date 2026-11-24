@@ -71,21 +71,22 @@ describe('MRR (spec § 7.6)', () => {
     expect(billingLineOf(null, { ai_plan: 'agents', ai_option: 'upto15' })).toBe('agents16');
     expect(billingLineOf(null, { ai_plan: 'membership' })).toBe('membership');
     expect(billingLineOf(null, { ai_plan: 'test' })).toBeNull();
-    expect(BILLING_LINES.map(billingLineLabel)).toEqual(['Team Plan · 16 seats', 'Team Plan · 41 seats', 'Agent Plan', 'Insiders', 'AI Accelerator']);
+    expect(BILLING_LINES.map(billingLineLabel)).toEqual(['Team Plan · 16 seats', 'Team Plan · 41 seats', 'Agent Plan', 'Insiders', 'Insiders for Agents', 'AI Accelerator']);
   });
 });
 
 describe('prices, from the price cache', () => {
   const book = {
     agents_upto15_founding: { unitAmount: 49_700 },
-    agent_plan_monthly: { unitAmount: 7_900 },
-    membership_monthly: { unitAmount: 19_700 },
+    agent_plan_monthly_117: { unitAmount: 11_700 },
+    membership_monthly_team_leader: { unitAmount: 16_900 },
+    insiders_agent_monthly: { unitAmount: 7_900 },
     cohort_founding_full: { unitAmount: 750_000 },
     cohort_founding_two_pay: { unitAmount: 375_000 },
   };
   it('prints each line’s, or "Unavailable"', () => {
-    expect(BILLING_LINES.map((l) => billingPriceLabel(l, book))).toEqual(['$497 monthly', 'Unavailable', '$79 per agent, monthly', '$197 monthly', '$7,500 or 2 × $3,750']);
-    expect(BILLING_LINES.map((l) => billingPriceLabel(l, null))).toEqual(Array(5).fill('Unavailable'));
+    expect(BILLING_LINES.map((l) => billingPriceLabel(l, book))).toEqual(['$497 monthly', 'Unavailable', '$117 per agent, monthly', '$169 monthly', '$79 monthly', '$7,500 or 2 × $3,750']);
+    expect(BILLING_LINES.map((l) => billingPriceLabel(l, null))).toEqual(Array(6).fill('Unavailable'));
     expect(billingPriceLabel('cohort', { cohort_founding_full: { unitAmount: 750_000 } })).toBe('Unavailable');
   });
   it('the Accelerator card says it as a sentence', () => {

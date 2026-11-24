@@ -137,6 +137,12 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     gate: 9,
   },
   skills: { table: 'skills', columns: ['files', 'free', 'id', 'released_at', 'sets', 'status', 'summary', 'title'], gate: 9 },
+  // A skill bought on its own. Not a `Db` record, like `orders`.
+  skillPurchases: {
+    table: 'skill_purchases',
+    columns: ['account_id', 'amount', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'order_id', 'purchased_at', 'refunded_at', 'skill_id', 'stripe_payment_intent_id', 'stripe_session_id', 'user_id'],
+    gate: 9,
+  },
   // D-157: the Admin Console's append-only audit log (spec § 7.8). Not a `Db` record, like `orders`.
   auditLog: {
     table: 'audit_log',
@@ -385,6 +391,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accounts', 'createdAt'], ['accounts', 'inviteSentAt'],
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
+  ['skillPurchases', 'purchasedAt'], ['skillPurchases', 'refundedAt'],
+  ['skillPurchases', 'ghlSyncedAt'], ['skillPurchases', 'ghlNextAttemptAt'], ['skillPurchases', 'ghlLastAttemptAt'],
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
   // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
   ['auditLog', 'at'],
@@ -472,6 +480,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
   plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
   skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },
+  skillPurchases: { unit: 'epoch-ms', why: 'purchased_at and refunded_at are clock.now() as written by the skill webhook' },
   accessGroups: { unit: 'epoch-ms', why: 'D-148: expires_at is compared with clock.now() by inGroup' },
   accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
@@ -767,6 +776,13 @@ describe('unique indexes @g9', () => {
     ],
     // D-236: a week's seat cards, for staff. A team's own is its primary key.
     teamSeatCards: [{ name: 'team_seat_cards_module_idx', unique: false, columns: ['module_id'] }],
+    // One open purchase per buyer and skill, one row per Checkout Session, and refunds found by payment intent.
+    skillPurchases: [
+      { name: 'skill_purchases_session_idx', unique: true, columns: ['stripe_session_id'] },
+      { name: 'skill_purchases_user_skill_idx', unique: true, columns: ['user_id', 'skill_id'] },
+      { name: 'skill_purchases_payment_intent_idx', unique: false, columns: ['stripe_payment_intent_id'] },
+      { name: 'skill_purchases_email_skill_idx', unique: true, columns: ['email', 'skill_id'] },
+    ],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -810,6 +826,10 @@ describe('unique indexes @g9', () => {
 
   it('gives the seat cards their lookup index, not unique (D-236) @g9', () => {
     expect(indexesOf(tableOf('teamSeatCards'))).toEqual(LOOKUP_INDEXES.teamSeatCards);
+  });
+
+  it('keeps one skill purchase per buyer and skill, and one row per Checkout Session @g9', () => {
+    expect(indexesOf(tableOf('skillPurchases'))).toEqual(LOOKUP_INDEXES.skillPurchases);
   });
 
   it('finds no other table carrying an index @g9', () => {

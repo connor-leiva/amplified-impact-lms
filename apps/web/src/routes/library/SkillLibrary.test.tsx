@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { readFileSync } from 'node:fs';
@@ -95,8 +95,8 @@ describe('the skill library screen', () => {
     expect(within(agent).getByText(COPY.locked)).toBeInTheDocument();
     // A locked skill's guide shows its steps' titles and what it takes to open it (D-151).
     expect(within(agent).getByRole('link', { name: COPY.preview })).toHaveAttribute('href', '/skill-library/offer-strategy');
-    // /pricing compares all four programs; /offer#plans had no Agent Plan (D-140).
-    expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
+    expect(within(agent).getByRole('button', { name: 'Get This Skill, $37' })).toBeInTheDocument();
+    expect(within(agent).queryByRole('link', { name: COPY.seePlans })).toBeNull();
 
     const both = screen.getByRole('region', { name: COPY.sets.both });
     expect(within(both).getByText('Coming December 15.')).toBeInTheDocument();
@@ -104,6 +104,38 @@ describe('the skill library screen', () => {
     // The ready mark is set in an effect after the list renders, so wait for it rather than race it.
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
     expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
+  });
+
+  it('sends a $37 skill buyer with no plan and no access group to their LMS, and nobody else (D-241)', async () => {
+    const at = (body: unknown) => {
+      fetchMock.mockResolvedValue(answer(200, body));
+      return render(
+        <MemoryRouter initialEntries={['/skill-library']}>
+          <Routes>
+            <Route path="/skill-library" element={<SkillLibrary />} />
+            <Route path="/learn" element={<p>The buyer’s LMS</p>} />
+          </Routes>
+        </MemoryRouter>,
+      );
+    };
+    const bought = { skills: [skill({})], plans: [], accessGroups: [], purchased: ['team-pnl-review'] };
+    const buyer = at(bought);
+    expect(await screen.findByText('The buyer’s LMS')).toBeInTheDocument();
+    buyer.unmount();
+    // A Utah Life member keeps this page exactly as it was, a purchase or not.
+    const utah = at({ ...bought, accessGroups: [{ id: 'utah_life', name: 'Utah Life', covers: ['agent', 'both'] }] });
+    expect(await screen.findByRole('heading', { level: 1, name: COPY.title })).toBeInTheDocument();
+    expect(screen.queryByText('The buyer’s LMS')).toBeNull();
+    utah.unmount();
+    // So does every plan's member, and a learner who bought nothing.
+    for (const body of [{ ...bought, plans: [{ kind: 'insiders_agent', status: 'active' }] }, { ...bought, purchased: [] }, { skills: [skill({})] }]) {
+      const view = at(body);
+      expect(await screen.findByRole('heading', { level: 1, name: COPY.title })).toBeInTheDocument();
+      await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
+      expect(screen.queryByText('The buyer’s LMS')).toBeNull();
+      view.unmount();
+      delete document.body.dataset.appReady;
+    }
   });
 
   it('names the plan\'s first day for a skill the buyer has paid for but can\'t open yet (D-140)', async () => {
@@ -274,6 +306,8 @@ describe('the skill library screen', () => {
       // Never "Not in your plan." and never See Plans, on any row.
       expect(screen.queryByText(COPY.locked)).toBeNull();
       expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Get This Skill, $37' })).toBeNull();
+      expect(screen.queryByText('$37')).toBeNull();
       expect(document.body.textContent).not.toMatch(/Agent Plan/);
       expect(offersPlans(true)).toBe(false);
     });
@@ -335,7 +369,8 @@ describe('the skill library screen', () => {
       render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByRole('region', { name: COPY.sets.owner_ops });
       expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
-      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'Get This Skill, $37' })).toHaveLength(2);
+      expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
       expect(screen.queryByText(/Not included with/)).toBeNull();
       expect(offersPlans(false)).toBe(true);
     });
@@ -561,7 +596,8 @@ describe('the skill library screen', () => {
       expect(headings[1]).toContain('2 Skills, Not In Your Plan');
       expect(screen.queryByRole('button', { name: /Agent Skills/ })).toBeNull();
       await userEvent.click(screen.getByRole('button', { name: /Owner and Operations Skills/ }));
-      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'Get This Skill, $37' })).toHaveLength(2);
+      expect(screen.queryByRole('link', { name: COPY.seePlans })).toBeNull();
       expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
     });
 
@@ -573,7 +609,8 @@ describe('the skill library screen', () => {
       const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
       const agent = screen.getByRole('region', { name: COPY.sets.agent });
       expect(owner.compareDocumentPosition(agent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(within(owner).queryByRole('button')).toBeNull();
+      expect(within(owner).queryByRole('button', { name: /Owner and Operations/ })).toBeNull();
+      expect(within(owner).getByRole('button', { name: 'Get This Skill, $37' })).toBeInTheDocument();
       expect(within(owner).getByText(COPY.locked)).toBeInTheDocument();
       unmount();
 

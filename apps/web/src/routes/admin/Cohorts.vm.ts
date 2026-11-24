@@ -14,7 +14,7 @@
 // reference computes it. In http mode the API returns `ZERO_BASE`, so this same arithmetic shows
 // live numbers. Nothing here branches on the data source.
 
-import { adminWhen, fmt, fromAdminLocal, moduleForSession, sessionState, toAdminLocal } from '@ai/core';
+import { adminWhen, courseOpensAt, curriculumWeekAt, curriculumWeeks, fmt, fromAdminLocal, moduleForSession, sessionCurriculumWeek, sessionState, sessionWeek, toAdminLocal } from '@ai/core';
 import type { Cohort, Db, Session } from '@ai/core';
 
 /** The three tones this screen's pills use. They resolve to the status custom properties in CSS. */
@@ -260,8 +260,25 @@ export function cohortsR2VM(db: Db, now: number, cohortId: string): CohortsR2VM 
   if (!co) return null;
   const base = cohortsVM(db, now, co.id);
   const started = now >= co.start;
-  const weeks = co.weeks ?? 6;
+  const total = co.weeks ?? 6;
+  // No curriculum (the prototype's six builds): the week is still counted from the cohort start,
+  // which lands on the same number the mockup prints. A course week uses the curriculum instead,
+  // so the holiday break does not number Jan 6 as Week 6.
+  const courseWeeks = curriculumWeeks(db.modules);
+  const hasCourse = courseWeeks.some((w) => w.week > 0);
+  const dated = courseWeeks.some((w) => w.week > 0 && w.opens != null);
   const weekOf = (t: number) => Math.max(1, Math.floor((t - co.start) / WEEK) + 1);
+  const current = dated ? curriculumWeekAt(courseWeeks, now) : started ? Math.min(total, weekOf(now)) : 0;
+  const weekLabel = (s: (typeof db.sessions)[number]): string => {
+    // The prototype has no course weeks, and its labels are the day count the mockup prints.
+    if (!hasCourse) return `Week ${weekOf(s.start)}`;
+    const fromCourse = sessionCurriculumWeek(courseWeeks, s);
+    if (fromCourse != null) return `Week ${fromCourse}`;
+    // Opens dates are missing, but the id still names a real week (an office hour). A session
+    // added in the builder, whose number matches no week, has none to show.
+    const encoded = sessionWeek(s);
+    return courseWeeks.some((w) => w.week > 0 && w.week === encoded) ? `Week ${encoded}` : '—';
+  };
   const list = db.sessions.filter((s) => s.cohortId === co.id).sort((a, b) => a.start - b.start);
   return {
     cohortId: co.id,
@@ -273,8 +290,8 @@ export function cohortsR2VM(db: Db, now: number, cohortId: string): CohortsR2VM 
           : started && co.status === 'live'
             ? { label: 'Active', tone: 'ok' }
             : { label: 'Scheduled', tone: 'info' },
-      opens: adminWhen(co.start),
-      week: started ? `${Math.min(weeks, weekOf(now))} of ${weeks}` : 'Not started',
+      opens: adminWhen(courseOpensAt(courseWeeks) ?? co.start),
+      week: current < 1 ? 'Not started' : `${Math.min(total, current)} of ${total}`,
       enrolled: `${co.enrolled} learners`,
       cadence: co.cadence,
     },
@@ -284,7 +301,7 @@ export function cohortsR2VM(db: Db, now: number, cohortId: string): CohortsR2VM 
         id: s.id,
         title: `Session ${s.n} · ${s.title}`,
         when: adminWhen(s.start),
-        week: `Week ${weekOf(s.start)}`,
+        week: weekLabel(s),
         invite: !s.zoom
           ? { label: 'Draft', tone: 'off' }
           : now >= s.start - 864e5

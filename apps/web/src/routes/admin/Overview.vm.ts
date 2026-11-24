@@ -17,7 +17,9 @@ import {
   adminTime,
   canAccess,
   cohortLine,
+  courseOpensAt,
   csv,
+  curriculumWeeks,
   fmt,
   isOpen,
   sortedModules,
@@ -534,11 +536,14 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
     },
   ];
 
+  // The header's Opens is the earliest course week (Week 1 at 8:00 AM once the builder says so),
+  // not Session 1. The chart below still counts deploys from the first live build.
+  const opensAt = cohort ? (courseOpensAt(curriculumWeeks(db.modules)) ?? cohort.start) : 0;
   const subline = !cohort
     ? ''
     : started
       ? `${cohortLine(cohort, now, db.sessions)} · Updated live from learner activity`
-      : `${cohort.name} Cohort · Opens ${adminDay(cohort.start)} at ${adminTime(cohort.start)} ${ADMIN_ZONE} · ${fmt.num(learners)} learners enrolled`;
+      : `${cohort.name} Cohort · Opens ${adminDay(opensAt)} at ${adminTime(opensAt)} ${ADMIN_ZONE} · ${fmt.num(learners)} learners enrolled`;
 
   return {
     subline,

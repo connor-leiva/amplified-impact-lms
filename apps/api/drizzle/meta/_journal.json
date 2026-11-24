@@ -260,6 +260,27 @@
       "when": 1796000000000,
       "tag": "0036_submission_files_deleted",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1796100000000,
+      "tag": "0037_skill_purchases",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1796200000000,
+      "tag": "0038_skill_purchase_claim",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1796300000000,
+      "tag": "0039_insiders_agent",
+      "breakpoints": true
     }
   ]
 }

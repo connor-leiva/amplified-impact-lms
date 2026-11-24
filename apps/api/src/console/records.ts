@@ -52,6 +52,8 @@ import {
   modules,
   orders,
   plans,
+  skillPurchases,
+  skills,
   progress,
   teams,
   userPasswords,
@@ -380,6 +382,32 @@ export async function countUsers(db: Database, f: UserFilters): Promise<number> 
 /** Every matching user, for the export: `max` at most. */
 export const exportUsers = async (db: Database, f: UserFilters, max: number): Promise<UserExportRow[]> => (await readUsers(db, f, { limit: max })).map(userRowOf);
 
+async function skillPurchasesOf(db: Database, userId: string, email: string) {
+  const rows = await db
+    .select({
+      id: skillPurchases.id,
+      skillId: skillPurchases.skillId,
+      title: skills.title,
+      amount: skillPurchases.amount,
+      purchasedAt: skillPurchases.purchasedAt,
+      stripeSessionId: skillPurchases.stripeSessionId,
+      refundedAt: skillPurchases.refundedAt,
+    })
+    .from(skillPurchases)
+    .leftJoin(skills, eq(skills.id, skillPurchases.skillId))
+    .where(or(eq(skillPurchases.userId, userId), sql`lower(${skillPurchases.email}) = ${email}`))
+    .orderBy(desc(skillPurchases.purchasedAt));
+  return rows.map((r) => ({
+    id: r.id,
+    skillId: r.skillId,
+    skill: r.title ?? r.skillId,
+    amount: r.amount,
+    purchasedAt: r.purchasedAt,
+    stripeSessionId: r.stripeSessionId,
+    refundedAt: r.refundedAt,
+  }));
+}
+
 /** One user as a support record, or null when there is no such user. Identity is existence only. */
 export async function userDetail(db: Database, userId: string, now: number): Promise<ConsoleUserDetail | null> {
   const [u] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
@@ -440,6 +468,7 @@ export async function userDetail(db: Database, userId: string, now: number): Pro
     },
     identity: { emailVerifiedAt: verified ? Number(verified.at) : null, hasPassword: !!pw, hasGoogle: !!google },
     orders: orderRows.map(orderOf),
+    skillPurchases: await skillPurchasesOf(db, u.id, email),
     progress: progressList,
     entitlements,
   };

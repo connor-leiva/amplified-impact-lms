@@ -457,12 +457,12 @@ describe('a paid skill’s page (D-082, D-101)', () => {
     expect(card?.hasAttribute('data-skill-library')).toBe(true);
     // A made-up skill has no catalog row, so it opens with Amplified Insiders (D-115, `unlockFor`).
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
-    expect(text(card?.querySelector('h2 + p'))).toBe('It’s part of Amplified Insiders: every owner and ops skill, 2 new skills a month, and weekly office hours.');
+    expect(text(card?.querySelector('h2 + p'))).toBe('It’s part of Amplified Insiders: every skill, 2 new skills a month, and weekly office hours.');
     const top = card?.querySelector(':scope > .locked');
     const links = [...(top?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
-    // D-151: "Unlock the Guided Setup" at the plans, and a buyer signs in to the guide in learn.
     expect(links).toEqual([
-      ['Unlock the Guided Setup', '/pricing#insiders', 'btn btn-primary', null],
+      ['Get This Skill, $37', 'https://learn.amplifiedimpact.io/api/skills/made-up-paid-skill/guest-checkout', 'btn btn-primary', null],
+      ['Unlock Every Skill With Amplified Insiders, $169/Month', '%%link:insiders-monthly%%', 'btn btn-primary', null],
       ['Sign In', skillGuideUrl('made-up-paid-skill'), null, null],
     ]);
     expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');

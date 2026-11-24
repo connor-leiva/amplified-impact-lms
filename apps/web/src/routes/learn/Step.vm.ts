@@ -570,7 +570,7 @@ function applyGlossary(leading: CalloutVM[], items: CheckItemVM[], extras: reado
 }
 
 /**
- * An accordion's table: its own, or (D-240) the week's Seat Card when it is marked so, with its own headings. With no
+ * An accordion's table: its own, or (D-242) the week's Seat Card when it is marked so, with its own headings. With no
  * card to draw from, its own rows.
  */
 function tableOf(b: AccordionBlock, card: SeatCard | undefined): { head?: string[]; rows: string[][] } | null {
@@ -599,7 +599,7 @@ interface LayoutCtx {
   glossary?: readonly GlossaryTerm[];
   answers?: Readonly<Record<string, string | string[]>>;
   operatorNote?: string;
-  /** D-240: the week's Seat Card, for a table marked as it. */
+  /** D-242: the week's Seat Card, for a table marked as it. */
   seatCard?: SeatCard;
 }
 

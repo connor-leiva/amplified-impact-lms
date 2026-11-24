@@ -4,10 +4,12 @@
 
 export * from './types';
 export * from './constants';
+export * from './plan-prices';
 export * from './icons';
 export * from './time';
 export * from './status';
 export * from './sessions';
+export * from './curriculum-week';
 export * from './cards';
 export * from './files';
 export * from './tiers';

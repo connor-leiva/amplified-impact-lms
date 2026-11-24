@@ -215,7 +215,7 @@ const CRM: CrmSyncReport = {
   fields: [],
   pipeline: false,
   stages: [],
-  counts: { waitlist: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 }, order: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 }, login: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 } },
+  counts: { waitlist: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 }, order: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 }, login: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 }, skill: { total: 0, synced: 0, waiting: 0, retrying: 0, gaveUp: 0 } },
   problems: [{ kind: 'order', id: 'o1', email: 'ana@example.com', state: 'retrying', attempts: 2, lastAttemptAt: NOW - 20 * MIN, nextAttemptAt: null, syncedAt: null, error: 'upsert:unauthorized:401' }],
   recent: [{ kind: 'login', id: 'u1', email: 'bo@example.com', state: 'synced', attempts: 0, lastAttemptAt: null, nextAttemptAt: null, syncedAt: NOW - 12 * 60 * MIN, error: null }],
 };

@@ -65,6 +65,7 @@ export const BILLING_COPY = {
     refunds: 'Refunds',
   },
   plans: { title: 'Plan economics', plan: 'Plan', price: 'Price', active: 'Active', mrr: 'MRR' },
+  skills: { title: 'Skill Purchases', skill: 'Skill', amount: 'Amount', date: 'Date', session: 'Session', refunded: 'Refunded', open: 'No' },
   accelerator: {
     title: 'AI Accelerator',
     price: 'Price',
@@ -165,6 +166,7 @@ export interface BillingSummaryVM {
     collected: string;
     second: string;
   };
+  skillPurchases: { key: string; skill: string; amount: string; date: string; session: string; refunded: string }[];
 }
 
 /** The Summary tab. `sample` is the fixture's (the mockup's qualifiers); production passes null. */
@@ -206,6 +208,14 @@ export function billingSummaryVM(s: BillingSummary, sample: BillingSample | null
       collected: usdWhole(a.collectedCents),
       second: secondPaymentsLine(a),
     },
+    skillPurchases: (s.skillPurchases ?? []).map((p) => ({
+      key: p.id,
+      skill: p.skill,
+      amount: p.amount === null ? NONE : usdCents(p.amount),
+      date: adminDate(p.purchasedAt),
+      session: p.stripeSessionId,
+      refunded: p.refundedAt === null ? BILLING_COPY.skills.open : adminDate(p.refundedAt),
+    })),
   };
 }
 

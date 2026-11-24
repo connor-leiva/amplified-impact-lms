@@ -1,4 +1,4 @@
-// SEED, NOT RUNTIME (D-240). Connor, Nov 22, 2026, on the seat card's words: "Fix it". Weeks 1 and 2 keep each seat card
+// SEED, NOT RUNTIME (D-242). Connor, Nov 22, 2026, on the seat card's words: "Fix it". Weeks 1 and 2 keep each seat card
 // in three places: the week's Seat Card card (`course.seatCard`, what the form asks and the week page shows) and step
 // 6's "… Seat Card" table on each path (D-235 loaded both from `handoff/weeks-1-2/`). Two of the card's rows never got
 // the approved words: Week 2's Took Over still held the repo seed's, and neither week had a First Run. This step, once:

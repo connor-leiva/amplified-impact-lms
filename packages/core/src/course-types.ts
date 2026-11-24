@@ -182,7 +182,7 @@ export interface AccordionBlock {
   bodyRich?: RichText;
   table?: { head?: string[]; rows: string[][] };
   /**
-   * D-240: the table is the week's Seat Card. Its rows are drawn from `course.seatCard` wherever the step is drawn, so
+   * D-242: the table is the week's Seat Card. Its rows are drawn from `course.seatCard` wherever the step is drawn, so
    * the card's words live in one place, the Week Builder's Seat Card card. `table.head` stays this table's headings;
    * any stored rows are ignored.
    */

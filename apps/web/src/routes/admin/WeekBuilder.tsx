@@ -774,7 +774,7 @@ function AccordionFields({ n, block, onChange }: { n: number; block: AccordionBl
         onChange(next);
       }} />
       <HeadField label={`Block ${n} table headings`} head={block.table?.head ?? []} onChange={(head) => onChange({ ...block, table: head.length || (block.table?.rows?.length ?? 0) || block.seatCard ? { ...(head.length ? { head } : {}), rows: block.table?.rows ?? [] } : undefined })} />
-      {/* D-240: a table that is the week's Seat Card draws its rows from the card, so they are edited there. */}
+      {/* D-242: a table that is the week's Seat Card draws its rows from the card, so they are edited there. */}
       <label className={clsx(k.row, k.nw, w.check)}>
         <input
           type="checkbox"

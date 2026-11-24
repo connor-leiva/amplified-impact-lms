@@ -10,7 +10,8 @@ import { Link, Navigate, useParams } from 'react-router';
 import type { GuideInline, GuideLane, GuideLaneId, GuideSample, GuideSampleBlock, GuideStep, GuideUi, SkillGuide } from '@ai/core/skill-guides';
 import { Icon } from '../../components/Icon';
 import { COPY as GUIDE } from '../library/SkillGuide';
-import { COPY as LIBRARY, PLANS_URL } from '../library/SkillLibrary';
+import { COPY as LIBRARY } from '../library/SkillLibrary';
+import { GetSkillButton } from '../library/SkillPurchase';
 import { LABELS, SUPPORT_HREF } from './learn.vm';
 import { LIB, clampStep, placeKey, progressText, skillOfSlug, skillPageVM } from './Library.vm';
 import type { PreviewVM, SetupVM } from './Library.vm';
@@ -150,11 +151,7 @@ export function Preview({ vm }: { vm: PreviewVM }) {
             <Icon name="lvLock" size={14} strokeWidth={1.75} />
             <span>{vm.meta}</span>
           </span>
-          {vm.plans ? (
-            <a className={`${s.b} ${l.plans}`} href={PLANS_URL}>
-              {LIBRARY.seePlans}
-            </a>
-          ) : null}
+          {vm.plans ? <GetSkillButton skillId={vm.skillId} sets={vm.sets} className={`${s.b} ${l.plans}`} /> : null}
         </div>
       </div>
       <div className={vm.sample ? s.gms : l.side}>
@@ -433,8 +430,10 @@ function Status({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export function Component() {
-  const { slug } = useParams();
+/** `slug` is given by the $37 buyer's frame (D-241), whose route has no `:slug`; the learner portal's route has one. */
+export function Component({ slug: given }: { slug?: string } = {}) {
+  const { slug: param } = useParams();
+  const slug = given ?? param;
   const skills = useSkills();
   const known = skillOfSlug(slug) !== null;
   const guide = useGuide(known && slug ? slug : null);

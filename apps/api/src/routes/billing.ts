@@ -25,7 +25,9 @@ export const PORTAL_PATH = '/api/billing/portal';
 
 /**
  * Whether cancelling should be off for this account right now: a plan inside its minimum (Amplified
- * Insiders paid monthly, D-104), or two payments before the second.
+ * Insiders paid monthly, Agent Insiders, or the Agent Plan paid monthly, each a 3-month minimum), or
+ * two payments before the second. A plan with no `minimumUntil` (a grandfathered $79 Agent Plan, the
+ * yearly Agent Plan) is not locked.
  */
 export async function insideCommitment(accountId: string, now: number): Promise<boolean> {
   const db = getDb();

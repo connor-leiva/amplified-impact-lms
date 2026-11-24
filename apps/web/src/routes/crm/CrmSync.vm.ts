@@ -4,7 +4,7 @@
 
 import { fmt } from '@ai/core';
 
-export type CrmKind = 'waitlist' | 'order' | 'login';
+export type CrmKind = 'waitlist' | 'order' | 'login' | 'skill';
 export type CrmState = 'synced' | 'waiting' | 'retrying' | 'gave-up';
 export type FieldKey = 'offer' | 'cohort' | 'amount' | 'purchaseDate' | 'lmsLogin';
 export type StageKey = 'lead' | 'freeSkills' | 'checkoutStarted' | 'purchased' | 'paymentFailed' | 'canceled' | 'refunded';
@@ -68,7 +68,7 @@ export const COPY = {
   unavailable: 'The sync log isn’t available here.',
 } as const;
 
-export const KIND_LABEL: Readonly<Record<CrmKind, string>> = { waitlist: 'Sign-Ups', order: 'Buyers', login: 'First Sign-Ins' };
+export const KIND_LABEL: Readonly<Record<CrmKind, string>> = { waitlist: 'Sign-Ups', order: 'Buyers', login: 'First Sign-Ins', skill: 'Skill Purchases' };
 export const STATE_LABEL: Readonly<Record<CrmState, string>> = { synced: 'Synced', waiting: 'Waiting', retrying: 'Retrying', 'gave-up': 'Gave Up' };
 export const FIELD_LABEL: Readonly<Record<FieldKey, string>> = { offer: 'AI Offer', cohort: 'AI Cohort', amount: 'AI Amount', purchaseDate: 'AI Purchase Date', lmsLogin: 'LMS Login' };
 export const STAGE_LABEL: Readonly<Record<StageKey, string>> = {
@@ -141,7 +141,7 @@ const rowVM = (r: CrmRow): RowVM => ({
 });
 
 export function crmView(report: CrmSyncReport): CrmView {
-  const kinds: CrmKind[] = ['waitlist', 'order', 'login'];
+  const kinds: CrmKind[] = ['waitlist', 'order', 'login', 'skill'];
   return {
     status: COPY.status[report.sync],
     fields: report.fields.length ? report.fields.map((f) => FIELD_LABEL[f]).join(', ') : COPY.noneSet,

@@ -18,7 +18,7 @@ import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
 import { provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import type { Database } from '../src/db/client';
-import { accessGroups, ai101Waitlist, copyStrings, modules, skills, users } from '../src/db/schema';
+import { accessGroups, ai101Waitlist, copyStrings, modules, skillPurchases, skills, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
 import { registerStaticFiles } from '../src/static';
@@ -258,11 +258,23 @@ describe('the learner portal v2’s Skill Library (D-179)', () => {
 });
 
 describe('the route’s other answers', () => {
-  it('answers 404 for a page that is not a guide, and 403 for staff', async () => {
+  it('answers 404 for a page that is not a guide', async () => {
     const cookie = await learner();
     expect((await guide('not-a-skill', cookie)).statusCode).toBe(404);
     expect((await guide('__proto__', cookie)).statusCode).toBe(404);
-    expect((await guide('appointment-follow-up', await app.signInAs('st1'))).statusCode).toBe(403);
+    expect((await guide('not-a-skill', await app.signInAs('st1'))).statusCode).toBe(404);
+  });
+
+  it('opens a free guide for staff and keeps a paid one locked, so the page does not say the skill is missing', async () => {
+    const cookie = await app.signInAs('st1');
+    const free = await guide('perfect-week', cookie);
+    expect(free.statusCode).toBe(200);
+    expect(free.json()).toMatchObject({ state: 'open', skill: 'perfect-week' });
+    expect(free.json().guide.lanes[0].steps[0].body).toEqual(['SECRET-PW-STEP-1 open Settings and switch it off.']);
+    const paid = await guide('appointment-follow-up', cookie);
+    expect(paid.statusCode).toBe(200);
+    expect(paid.json()).toMatchObject({ state: 'locked', guide: null, ui: null, accessGroups: [] });
+    expect(paid.body).not.toMatch(SECRET);
   });
 
   it('answers 503, with no guide, on a deploy whose build wrote no guides', async () => {
@@ -270,6 +282,51 @@ describe('the route’s other answers', () => {
     await boot(null);
     const res = await guide('perfect-week', await learner());
     expect(res.statusCode).toBe(503);
+  });
+});
+
+describe('a signed-in buyer with no plan', () => {
+  it('opens a skill they bought and a free skill, and shows a locked page for one they do not own', async () => {
+    await db.insert(skillPurchases).values({
+      id: 'sp_jamie_pnl',
+      userId: 'u_jamie',
+      skillId: 'team-pnl-review',
+      stripeSessionId: 'cs_jamie_pnl',
+      email: 'jamie@ortizhomes.com',
+      purchasedAt: NOW,
+    });
+    const cookie = await learner();
+
+    const bought = await guide('team-pnl-review', cookie);
+    expect(bought.statusCode).toBe(200);
+    expect(bought.json()).toMatchObject({ state: 'open', skill: 'team-pnl-review' });
+    expect(bought.json().guide.lanes[0].steps[0].body).toEqual(['SECRET-PNL-STEP-1 open Settings and switch it off.']);
+
+    const free = await guide('perfect-week', cookie);
+    expect(free.statusCode).toBe(200);
+    expect(free.json().state).toBe('open');
+    expect(free.json().guide).toBeTruthy();
+
+    const other = await guide('appointment-follow-up', cookie);
+    expect(other.statusCode).toBe(200);
+    expect(other.json()).toMatchObject({ state: 'locked', guide: null });
+
+    const root = mkdtempSync(join(tmpdir(), 'ai-guide-page-'));
+    writeFileSync(join(root, 'index.html'), '<!doctype html><title>app</title>');
+    const pages = await build({ fixtureOnly: true, logger: false });
+    await registerStaticFiles(pages, root);
+    await pages.ready();
+    try {
+      for (const path of ['/skill-library/team-pnl-review', '/skill-library/perfect-week', '/skill-library/appointment-follow-up']) {
+        const res = await pages.inject({ method: 'GET', url: path, headers: { cookie } });
+        expect(res.statusCode, path).toBe(200);
+        expect(res.headers.location, path).toBeUndefined();
+        expect(String(res.headers['content-type']), path).toMatch(/text\/html/);
+      }
+    } finally {
+      await pages.close();
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 
@@ -329,7 +386,8 @@ describe('a guide view is counted (D-166) @console', () => {
     expect((await guide('perfect-week', cookie)).statusCode).toBe(200);
     expect((await guide('appointment-follow-up', cookie)).statusCode).toBe(200);
     expect((await guide('not-a-skill', cookie)).statusCode).toBe(404);
-    expect((await guide('perfect-week', await app.signInAs('st1'))).statusCode).toBe(403);
+    // Staff open a free guide and are not counted: the row stays the learner's.
+    expect((await guide('perfect-week', await app.signInAs('st1'))).statusCode).toBe(200);
     expect(await usageRows()).toEqual([expect.objectContaining({ user_id: 'u_jamie', kind: 'guide_view', count: 2 })]);
   });
 

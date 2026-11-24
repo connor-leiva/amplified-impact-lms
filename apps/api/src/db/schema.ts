@@ -380,7 +380,7 @@ export const orders = pgTable('orders', {
   createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
-  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly', 'yearly')`),
   check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
   check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
@@ -433,7 +433,7 @@ export const plans = pgTable('plans', {
   stripeSubscriptionId: text('stripe_subscription_id'), orderId: text('order_id').notNull(), createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('plans_order_idx').on(t.orderId),
-  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
 ]);
 
@@ -452,6 +452,38 @@ export const skills = pgTable('skills', {
   check('skills_status', sql`${t.status} in ('draft', 'published', 'hidden')`),
 ]);
 
+// A skill bought on its own (Connor, 2026-11-23): $37 once, for this user, for as long as it is not
+// refunded. Not an order and not a plan, so it is not provisioned and it is not credited toward
+// Amplified Insiders. `user_id` is the buyer (a learner may have no account yet). `account_id` is
+// their team's account when they have one, for the ledger, and does not grant the skill to the team.
+// `order_id` is reserved and stays null: skill purchases are not rows in `orders`.
+export const skillPurchases = pgTable('skill_purchases', {
+  id: text('id').primaryKey(),
+  userId: text('user_id'),
+  accountId: text('account_id'),
+  skillId: text('skill_id').notNull(),
+  orderId: text('order_id'),
+  stripeSessionId: text('stripe_session_id').notNull(),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  amount: integer('amount'),
+  purchasedAt: ts('purchased_at').notNull(),
+  refundedAt: ts('refunded_at'),
+  // Set when the buyer has no account yet. Sign-in claims the row onto that email's user.
+  email: text('email'),
+  ghlContactId: text('ghl_contact_id'),
+  ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0),
+  ghlNextAttemptAt: ts('ghl_next_attempt_at'),
+  ghlError: text('ghl_error'),
+  ghlSyncStamp: text('ghl_sync_stamp'),
+  ghlLastAttemptAt: ts('ghl_last_attempt_at'),
+}, (t) => [
+  uniqueIndex('skill_purchases_session_idx').on(t.stripeSessionId),
+  uniqueIndex('skill_purchases_user_skill_idx').on(t.userId, t.skillId),
+  index('skill_purchases_payment_intent_idx').on(t.stripePaymentIntentId),
+  uniqueIndex('skill_purchases_email_skill_idx').on(t.email, t.skillId).where(sql`${t.userId} is null`),
+]);
+
 // Access groups (D-148): people who hold a plan's entitlement at no charge, by their VERIFIED email
 // address: everyone whose address is at `email_domain` (an exact match, never a subdomain), and anyone
 // listed in `access_group_members`. Not paid seats and not Stripe customers: no account, order or
@@ -463,7 +495,7 @@ export const accessGroups = pgTable('access_groups', {
   id: text('id').primaryKey(), name: text('name').notNull(), plan: text('plan').notNull(),
   emailDomain: text('email_domain'), expiresAt: ts('expires_at'), createdAt: ts('created_at').notNull(),
 }, (t) => [
-  check('access_groups_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('access_groups_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('access_groups_domain', sql`${t.emailDomain} is null or ${t.emailDomain} = lower(trim(${t.emailDomain}))`),
 ]);
 

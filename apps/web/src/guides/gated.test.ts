@@ -3,9 +3,9 @@ import { mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GUIDED_PAGES, guidePageOf, isGuidedPage, previewOf, skillGuideUrl } from '@ai/core/skill-guides';
+import { GUIDED_PAGES, guidePageOf, isGuidedPage, previewOf, skillGuideUrl, skillIdOfPage } from '@ai/core/skill-guides';
 import type { GuideInline, SkillGuide } from '@ai/core/skill-guides';
-import { isFreeGrokTemplate } from '@ai/core/grok-templates';
+import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
 import { GUIDES, isGuided, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
@@ -169,16 +169,62 @@ describe.each(GUIDED.map((g) => [g.slug, g] as const))('the public page /%s (D-1
     const card = doc.querySelector('[data-learn-guide]');
     expect(card?.getAttribute('data-learn-guide')).toBe(skillGuideUrl(slug));
     const free = guide.skill !== undefined ? isFreeSkill(guide.skill) : isFreeGrokTemplate(guide.grok ?? '');
-    const unlock = Array.from(doc.querySelectorAll('a, button')).filter((el) => el.textContent === 'Unlock the Guided Setup');
-    expect(unlock.length, slug).toBeGreaterThan(0);
     if (free) {
+      const unlock = Array.from(doc.querySelectorAll('a, button')).filter((el) => el.textContent === 'Unlock the Guided Setup');
+      expect(unlock.length, slug).toBeGreaterThan(0);
       // A free account: the sign-up's button unlocks it, then the link to the guide.
       expect(doc.querySelector('#guide-form button[type="submit"]')?.textContent).toBe('Unlock the Guided Setup');
       expect(doc.querySelector(`#check-email a[href="${skillGuideUrl(slug)}"]`)?.textContent).toBe('Open the Guided Setup');
     } else {
-      // The plans, and "Already own it? Sign In" to the guide.
-      expect(doc.querySelector('[data-skill-library] a.btn-primary')?.textContent).toBe('Unlock the Guided Setup');
+      // This skill for $37, and "Already own it? Sign In" to the guide.
+      expect(doc.querySelector('[data-skill-library] a.btn-primary')?.textContent).toBe('Get This Skill, $37');
       expect(doc.querySelector(`[data-skill-library] .legal a[href="${skillGuideUrl(slug)}"]`)?.textContent).toBe('Sign In');
+    }
+  });
+});
+
+describe('every www guide link resolves to a guide (D-151)', () => {
+  const file = exportSkillGuides();
+
+  it('covers all 37 skills, free and paid, and each Grok Bot template', () => {
+    expect(SKILL_CATALOG).toHaveLength(37);
+    expect(SKILL_CATALOG.filter((s) => isFreeSkill(s.id)).map((s) => s.id).sort()).toEqual([
+      'ai-brain-setup',
+      'ai-brain-tuneup',
+      'inbox-meeting-follow-through',
+      'perfect-week',
+    ]);
+    const pages = new Set<string>();
+    for (const skill of SKILL_CATALOG) {
+      const page = guidePageOf(skill.id);
+      pages.add(page);
+      const guide = file.guides[page];
+      expect(guide, skill.id).toBeTruthy();
+      expect(guide!.skill, skill.id).toBe(skill.id);
+      expect(skillIdOfPage(page), skill.id).toBe(skill.id);
+      expect(isGuidedPage(page), skill.id).toBe(true);
+      expect(guide!.lanes.length, skill.id).toBeGreaterThan(0);
+    }
+    for (const template of GROK_TEMPLATES) {
+      pages.add(template.id);
+      expect(file.guides[template.id]?.skill, template.id).toBe(template.id);
+      expect(skillIdOfPage(template.id), template.id).toBe(template.id);
+    }
+    expect([...pages].sort()).toEqual([...GUIDED_PAGES].sort());
+  });
+
+  it('points Open the Guided Setup and Sign In at that same guide', () => {
+    for (const g of GUIDED) {
+      const doc = parse(g);
+      const free = g.skill !== undefined ? isFreeSkill(g.skill) : isFreeGrokTemplate(g.grok ?? '');
+      const href = free
+        ? doc.querySelector('#check-email a.btn-primary')?.getAttribute('href')
+        : doc.querySelector('[data-skill-library] .legal a')?.getAttribute('href');
+      expect(href, g.slug).toBe(skillGuideUrl(g.slug));
+      expect(doc.querySelector('[data-learn-guide]')?.getAttribute('data-learn-guide'), g.slug).toBe(href);
+      const page = new URL(href!).pathname.slice('/skill-library/'.length);
+      expect(file.guides[page]?.skill, g.slug).toBe(skillIdOfPage(page));
+      expect(file.guides[page]?.lanes.length, g.slug).toBeGreaterThan(0);
     }
   });
 });

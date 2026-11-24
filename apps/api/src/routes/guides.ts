@@ -18,6 +18,16 @@ import { GUIDE_ALIASES, GUIDE_SLUGS, guidePagePath, type GuideSlug } from './gui
 /** Each guide's built HTML, by slug; a missing or null one answers a JSON 404. */
 export type GuidePages = Partial<Record<GuideSlug, string | null>>;
 
+/**
+ * Skill pages name a cart (`%%link:<cart>%%`). Fill it from the Payment Link Railway holds for that
+ * cart, the same tokens the sales pages use. An unset link stays empty: the button has nowhere to go
+ * until the variable is set.
+ */
+export function fillGuideLinks(html: string | null, links: Partial<Record<string, string>>): string | null {
+  if (html === null) return null;
+  return html.replace(/%%link:([a-z0-9-]+)%%/g, (_whole, id: string) => links[id] ?? '');
+}
+
 /** A path plus the request's own query string, exactly as it arrived. */
 export function withQuery(path: string, rawUrl: string): string {
   const q = rawUrl.indexOf('?');

@@ -196,7 +196,7 @@ const accordionBlock = z.strictObject({
   body: z.array(z.string().max(4000)).max(40),
   bodyRich: richText.optional(),
   table: z.strictObject({ head: z.array(z.string().max(200)).max(12).optional(), rows: z.array(z.array(z.string().max(2000)).max(12)).max(40) }).optional(),
-  // D-240: the table is the week's Seat Card, drawn from the card.
+  // D-242: the table is the week's Seat Card, drawn from the card.
   seatCard: z.literal(true).optional(),
   link: z.strictObject({ label: z.string().max(80), href: z.string().max(VIDEO_URL_MAX) }).optional(),
 });

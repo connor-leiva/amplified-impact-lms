@@ -21,7 +21,8 @@ import { FREE_SKILLS_HREF } from '../site/content';
 import { cartsOf, linkToken, offerActions, offerPrice, SHARE_IMAGE, stateToken } from '../site/offers';
 import { siteHead } from '../site/render';
 import { PROOF } from '../team-build/content';
-import { INSIDERS_META, V2_INSIDERS } from './content';
+import { AGENT_INSIDERS } from '../site/offers-content';
+import { INSIDERS_META, TEAM_LEADER_MONTHLY, V2_INSIDERS } from './content';
 
 const c = OFFERS.membership;
 
@@ -45,6 +46,9 @@ const GROUP_ICONS: Readonly<Partial<Record<keyof typeof TOPICS, BrandIconName>>>
   transactions: 'checklist',
   setup: 'settings',
   content: 'video-lesson',
+  buyers: 'ai-employee',
+  listings: 'resource-vault',
+  contracts: 'modules',
 };
 const GROUP_ORDER = Object.keys(GROUP_ICONS) as (keyof typeof TOPICS)[];
 
@@ -61,9 +65,9 @@ export function insidersSkills(): readonly InsidersSkill[] {
   return ENTRIES.flatMap((entry) => {
     const item = entry.href ? catalog.get(entry.href.slice(1)) : undefined;
     if (!item || !opens.has(item.sets)) return [];
-    const group = entry.collection ?? entry.topics.find((t) => t !== 'skills');
-    if (!group || !(group in GROUP_ICONS))
-      throw new Error(`/insiders has no group for ${entry.href}. Add its topic to GROUP_ICONS.`);
+    const topic = entry.collection ?? entry.topics.find((t) => t !== 'skills' && t in GROUP_ICONS);
+    const group = topic ?? (item.sets === 'owner_ops' ? 'team-ops' : 'buyers');
+    if (!(group in GROUP_ICONS)) throw new Error(`/insiders has no group for ${entry.href}. Add its topic to GROUP_ICONS.`);
     return [{ entry, summary: item.summary, group }];
   });
 }
@@ -202,6 +206,7 @@ export function monthlyFigure(more: string): readonly [string, string] {
 /** One way to pay: its cart's own state, price, terms and button, with the proof line under it. */
 function plan(
   cart: string,
+  name: string,
   amount: string,
   unit: string,
   terms: readonly string[],
@@ -211,6 +216,7 @@ function plan(
 ): string {
   return [
     `<article class="in-plan plan${cls ? ` ${cls}` : ''}" data-state="${stateToken(cart)}">`,
+    `<h3 class="plan-name">${esc(name)}</h3>`,
     `<p class="price-line"><span class="price tnum">${esc(amount)}</span> <span class="mono price-note">${esc(unit)}</span></p>`,
     checks(terms),
     `<div class="plan-actions"><div class="act-link"><a class="btn btn-${variant}" href="${linkToken(cart)}">${esc(label)}</a>${proofLine()}</div><p class="act-soon">${esc(CARD_STATES.soon)}</p></div>`,
@@ -218,7 +224,7 @@ function plan(
   ].join('');
 }
 
-/** Two ways to pay, on the other theme: the year and the month, each the card's own words and cart. */
+/** The ways to pay, on the other theme: the year, Team Leader monthly, and Agent Insiders. */
 function pricing(): string {
   const [year, monthly] = cartsOf('membership') as [string, string];
   const more = c.more[monthly as keyof typeof c.more]!;
@@ -232,8 +238,9 @@ function pricing(): string {
     `<div class="wrap">`,
     `<div class="in-pricing-head rv"><h2 id="in-pricing-title" class="h-section">${esc(V2_INSIDERS.plans)}</h2></div>`,
     `<div class="in-plans">`,
-    plan(year, c.price.amount, c.price.unit, [yearTerm, afterYear], c.button, 'primary', 'is-year'),
-    plan(monthly, mAmount, mUnit, [monthTerm], more, 'secondary'),
+    plan(year, 'Amplified Insiders', c.price.amount, c.price.unit, [yearTerm, afterYear], c.button, 'primary', 'is-year'),
+    plan(monthly, 'For Team Leaders', mAmount, mUnit, TEAM_LEADER_MONTHLY, more, 'secondary'),
+    plan(AGENT_INSIDERS.cart, AGENT_INSIDERS.name, AGENT_INSIDERS.amount, AGENT_INSIDERS.unit, AGENT_INSIDERS.terms, AGENT_INSIDERS.label, 'secondary'),
     `</div>`,
     `<div class="stub" aria-hidden="true">`,
     `<div class="stub-l"><span class="mono">${esc(c.price.unit)}</span><span class="stub-amt tnum">${esc(c.price.amount)}</span></div>`,

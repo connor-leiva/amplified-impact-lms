@@ -88,6 +88,7 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'replay-ready': { n: 2, title: 'Speed to Lead', employee: 'Sales AI Employee', moduleId: 'sales' },
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
+  'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', sets: 'owner_ops', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
 };
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -103,6 +104,7 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'weekly-digest': SUBJECTS['weekly-digest']({}),
   'set-password': SUBJECTS['set-password']({}),
   'reset-password': SUBJECTS['reset-password']({}),
+  'skill-purchase': SUBJECTS['skill-purchase']({ skillName: 'Recruiting Prep', variant: 'new' }),
 };
 
 /**
@@ -122,14 +124,19 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'weekly-digest': { label: 'Open Team Hub', href: `${APP}/team` },
   'set-password': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_set_1` },
   'reset-password': { label: 'Reset Your Password', href: `${APP}/set-password?token=tok_reset_1` },
+  'skill-purchase': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_skill_1&amp;next=%2Fskill-library%2Frecruiting-prep` },
 };
 
 // ---------- helpers ----------------------------------------------------------------------------
 
-const renderOne = (template: TemplateName): Promise<string> =>
+const renderOne = (template: TemplateName): Promise<string> => {
   // `elementFor` + `render` rather than `renderTemplate`, so the HTML and the subject can be
   // compared independently; `renderTemplate` is exercised on its own below.
-  render(elementFor(template, SAMPLE[template] as Record<string, unknown>).element);
+  // skill-purchase is Connor's HTML string. Rendering its placeholder element would drop the note.
+  const prepared = elementFor(template, SAMPLE[template] as Record<string, unknown>);
+  if (prepared.html) return Promise.resolve(prepared.html);
+  return render(prepared.element);
+};
 
 /** Every rendered template, once, so the per-row assertions do not re-render nine emails each. */
 const HTML = {} as Record<TemplateName, string>;
@@ -191,13 +198,23 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
   it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
     // § 8.1's table has nine rows and D-132 adds two. If another name is ever added to
     // `subjects.ts`, this fails here rather than silently rendering one email short in production.
-    expect(TEMPLATE_NAMES).toHaveLength(11);
+    expect(TEMPLATE_NAMES).toHaveLength(12);
     expect(Object.keys(SAMPLE).sort()).toEqual([...TEMPLATE_NAMES].sort());
   });
 
   for (const name of TEMPLATE_NAMES) {
     it(`${name} renders its exact subject and its CTA label @g8`, () => {
       const html = HTML[name];
+
+      // skill-purchase keeps the inbox subject, and the document is Connor's: the <title> and the
+      // greeting are "Thank you, {first name}." The first link is the wordmark, not the button.
+      if (name === 'skill-purchase') {
+        expect(html).toContain('<title>Thank you, Pat.</title>');
+        expect(html).toContain('Thank you, Pat.');
+        expect(html).toContain(`>${CTA[name].label}</a>`);
+        expect(html).toContain(`href="${CTA[name].href}"`);
+        return;
+      }
 
       // The subject, character for character — in the <title>, the preheader and the H1, which
       // `EmailLayout` renders from the one string.
@@ -257,7 +274,8 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
 // ================================================================================================
 
 describe('email templates · § 8.1 shell @g8', () => {
-  for (const name of TEMPLATE_NAMES) {
+  // skill-purchase is Connor's document (600px, Geist, his own button). Its own test pins that.
+  for (const name of TEMPLATE_NAMES.filter((n) => n !== 'skill-purchase')) {
     it(`${name} renders the 560 px content column @g8`, () => {
       const html = HTML[name];
       const column = tableDecls(html).find((d) => d.includes(`max-width:${CONTENT_WIDTH}px`));
@@ -298,7 +316,7 @@ describe('email templates · § 8.1 shell @g8', () => {
 
     it(`${name} renders exactly one primary button, styled like Button primary @g8`, () => {
       const html = HTML[name];
-      // § 8.1 allows one. More than one would mean a template had added a link of its own.
+      // § 8.1 allows one link. skill-purchase is Connor's document and is not in this loop.
       expect(html.match(/<a\b/g) ?? []).toHaveLength(1);
 
       const a = styleOf(html, 'a');
@@ -330,6 +348,8 @@ describe('email templates · what would break in a real inbox @g8', () => {
       // either one is a dropped colour declaration — black text on a dark client's black card.
       expect(html).not.toContain('var(--');
       expect(html).not.toContain('oklch(');
+      // Connor's note uses his own colours, not the § 8.1 token pair or the 560px card.
+      if (name === 'skill-purchase') return;
 
       // And the hexes that should be there, are — ON THE ELEMENTS THAT NEED THEM.
       //
@@ -366,6 +386,12 @@ describe('email templates · what would break in a real inbox @g8', () => {
 
     it(`${name} renders an absolute link @g8`, () => {
       // There is no document in an inbox to resolve a relative href against.
+      if (name === 'skill-purchase') {
+        const hrefs = [...HTML[name].matchAll(/\shref="([^"]*)"/g)].map((m) => m[1] ?? '');
+        expect(hrefs.length).toBeGreaterThan(0);
+        for (const href of hrefs) expect(href).toMatch(/^(https:\/\/|mailto:)/);
+        return;
+      }
       const href = hrefOf(HTML[name]);
       expect(href).toMatch(/^https:\/\//);
       expect(href.startsWith(`${APP}/`)).toBe(true);

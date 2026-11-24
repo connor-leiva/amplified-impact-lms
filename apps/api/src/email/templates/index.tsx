@@ -53,6 +53,7 @@ import { Session1hEmail } from './session-1h';
 import { Session24hEmail } from './session-24h';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
+import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } from './skill-purchase-html';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
@@ -114,6 +115,13 @@ function optCount(template: TemplateName, data: Record<string, unknown>, field: 
 export interface PreparedEmail {
   subject: string;
   element: ReactElement;
+  /**
+   * Set only for skill-purchase. That note is Connor's HTML, which React Email would wrap and
+   * restyle, so `renderTemplate` sends this string instead of rendering `element`.
+   */
+  html?: string;
+  /** The plain-text alternative, sent with the HTML when Resend is the transport. */
+  text?: string;
 }
 
 /**
@@ -140,7 +148,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     case 'set-password': {
       const token = str(template, data, 'token');
       const subject = SUBJECTS['set-password']({});
-      return { subject, element: <SetPasswordEmail subject={subject} token={token} appUrl={appUrl} /> };
+      return { subject, element: <SetPasswordEmail subject={subject} token={token} appUrl={appUrl} next={safeNext(optStr(data, 'next'))} /> };
     }
 
     case 'reset-password': {
@@ -251,6 +259,33 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={optStr(data, 'before')} /> };
     }
 
+    case 'skill-purchase': {
+      const skillName = str(template, data, 'skillName');
+      const variant = str(template, data, 'variant');
+      if (variant !== 'new' && variant !== 'ready') throw bad(template, 'variant', 'must be new or ready');
+      const sets = str(template, data, 'sets');
+      if (sets !== 'owner_ops' && sets !== 'agent' && sets !== 'both') throw bad(template, 'sets', 'must be a skill set');
+      const next = safeNext(str(template, data, 'next'));
+      if (!next) throw bad(template, 'next', 'must be a skill guide');
+      const subject = SUBJECTS['skill-purchase']({ skillName, variant });
+      const input: SkillPurchaseHtmlInput = {
+        variant,
+        skillName,
+        sets,
+        firstName: optStr(data, 'firstName') ?? '',
+        next,
+        token: optStr(data, 'token'),
+        appUrl,
+      };
+      // `element` is unused. The inbox gets `html`, which is the document Connor sent.
+      return {
+        subject,
+        element: <span />,
+        html: skillPurchaseHtml(input),
+        text: skillPurchaseText(input),
+      };
+    }
+
     default: {
       // Unreachable while every `TemplateName` has an arm; this is the line that fails to compile
       // if a tenth name is added to § 8.1's table without a template.
@@ -269,8 +304,9 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
  * only promise.
  */
 export const renderTemplate = async (template: TemplateName, data: Record<string, unknown>): Promise<RenderedEmail> => {
-  const { subject, element } = elementFor(template, data);
-  return { subject, html: await render(element) };
+  const prepared = elementFor(template, data);
+  if (prepared.html) return { subject: prepared.subject, html: prepared.html, text: prepared.text };
+  return { subject: prepared.subject, html: await render(prepared.element) };
 };
 
 /** `renderTemplate` with the payload typed per template. What the deferred routes and jobs call. */

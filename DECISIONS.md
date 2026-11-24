@@ -7453,7 +7453,58 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **The fixture build** carries the mockup's own threads, people and "148 in 7 teams" (`console-fixture-community.ts`, fixture only, like `parity-r2.ts`), so its screens can be compared with the mockup's and the browser specs can drive them.
 - **Left as it is (Q-20):** the staff door into the learner Community (D-231) stays until Connor says otherwise.
 
-## D-240 · The seat card's words in one place: the Week Builder's Seat card
+## D-240 · New prices: Agent Plan $117, Team Leader Insiders $169, Agent Insiders $79
+
+**Date:** 2026-11-23
+**Approved by:** Connor Leiva (repository owner), November 23, 2026. Live Stripe objects already exist on `acct_1Ua8wnLAuFJaUU8q`. This change does not create or edit Stripe or Railway objects, and it does not rewrite a subscription that is already on the $79 or $197 price.
+
+- **Agent Plan monthly** is $117 (`agent_plan_monthly_117`, `price_1Uf5UtLAuFJaUU8q3ESnciyc`). New checkouts use that lookup key. The first charge stays Monday, January 4, 2027. The monthly plan has a 3-month minimum counted from that first paid charge, so a trial buyer is locked until April 4, 2027. Yearly stays $790 with no minimum. A member already on $79 is not given a minimum and is not moved to $117.
+- **Team Leader Insiders** is $169 a month (`membership_monthly_team_leader`, `price_1Uf5UwLAuFJaUU8qslvsCw8F`), 3-month minimum, on the existing Insiders product. It replaces $197 for new buyers. Accelerator buyers (May 4, 2027) and Insiders yearly buyers after their year roll onto this price. `membership_monthly` ($197) stays a lookup key so a subscription already on it still reads. The code does not change those subscriptions.
+- **Amplified Insiders for Agents** is a new plan kind, `insiders_agent`: $79 a month (`insiders_agent_monthly`, `price_1Uf5UyLAuFJaUU8qo0ewLodu`, product `prod_VgSPRo9GzYscnF`), 3-month minimum, one seat, agent skills at once, weekly office hours, no weekly live training, no pinned first charge. Migration `0039_insiders_agent` widens the plan checks and changes no rows. `0038_skill_purchase_claim` already owned that number on main.
+- **Skill pages.** An agent skill offers Agent Insiders at $79. An owner, ops, or both skill offers Team Leader Insiders at $169. The href is the cart's Payment Link from Railway.
+- **Weekly live training** is a row on the Skill Library. The Agent Plan and the Team Plan see it open. Agent Insiders and a $37 skill see it locked, and the lock opens "Upgrade to the Agent Plan, $117/Month". Team Leader Insiders and the Accelerator see no new row. An access group's member sees no row and no upsell. Office hours stay open for every Insiders tier.
+- **Not touched:** `/agreement` and `apps/api/src/billing/agreement.ts`.
+- **Blast radius.** No parity golden, mask, or tolerance. Marketing pages, the skill library, and the offer tests.
+
+## D-241 · The $37 skill buyer inside the LMS
+
+**Date:** 2026-11-24
+**Approved by:** Connor Leiva (repository owner), November 24, 2026. He asked for this redesign: "redesign what a signed-in $37 single-skill buyer sees, and bring them inside the LMS". He then approved the mockup (`handoff/lms-mockup/buyer.html`, PR #252) and answered its three questions: "See the AI Accelerator is fine.", "Show them now" and "Light only is fine".
+
+- **Who.** A learner who bought at least one $37 skill, holds no plan and is in no access group (`skillOnlyBuyer`, `@ai/core/offer`). They are read off `GET /api/skills`, which now also names the skills held (`purchased`, the latest purchase first; a refund drops one). Everyone else keeps what they have:
+  - an access group's member, Utah Life above all, whose `/skill-library` is unchanged, with "Not included with Utah Life access" and no upsell or buy button;
+  - every member of the Agent Plan, the Team Plan, either Insiders or the Accelerator, a $37 skill beside it or not;
+  - a learner who bought nothing.
+- **Where.** A buyer who opens `/skill-library` (where sign-in lands them) goes to `/learn`.
+  - **The pages.** Home, the Skill Library (`/learn/skills`), a skill (`/learn/skills/:slug`), Weekly Live Training (`/learn/training`, new), Office Hours (`/learn/office-hours`, new) and the AI Accelerator (`/learn/week/:n`). Any other `/learn` address goes Home.
+  - **Flags.** It shows whatever `VITE_LEARNER_V2` and `VITE_LMS_V3` say ("Show them now"). With the learner flag off, `/learn/*` is the buyer's and anyone else is sent to `/`, as before. With it on, `LearnGate` gives a buyer these pages where it sent a learner without the course to the first portal.
+  - **Unchanged.** The skill guides at `/skill-library/:slug`, the Stripe return and the server's landing.
+- **The shell.** The members' LMS v3 `AppShell`, with:
+  - the program lines "Amplified Skill" and "1 skill bought";
+  - nav: Home, Skill library, then Office hours and Weekly training with the weeks' lock;
+  - the AI Accelerator's nine weeks, locked;
+  - the top bar's strip holding their own skill and Open the Setup Guide, hidden on Home;
+  - the members' account menu (Account, Theme, Sign out). Manage billing is on the Account page, as members have it.
+  - **What `AppShell` gained.** Two optional props: a main row's `locked` and a `strip`. Members' markup is unchanged; the equality tests hold it.
+  - **Light only**, as the v3 member pages are (D-226). The guided setup of a skill they hold and the Account page are today's pages inside the shell, as the members' v3 frame draws them.
+- **The upgrade.** One path, by set (`skillUpsell`):
+  - an agent skill offers Agent Insiders, $79/Month; owner, ops and both offer Team Leader Insiders, $169/Month;
+  - Weekly Live Training offers "Upgrade to the Agent Plan, $117/Month";
+  - every monthly plan says 3-Month Minimum;
+  - each button's href is its cart's `PAYMENT_LINK_*` from `GET /api/offer`, with no link in code;
+  - "Get This Skill, $37" stays on every locked skill as the second choice (`startSkillCheckout`, the same checkout as today's dialog);
+  - Week 0 and the hires are the AI Accelerator's only. They offer "See the AI Accelerator", its page on www, with no buy button.
+- **Words.**
+  - `apps/web/src/routes/learn/buyer/content.ts` builds them from the product's own copy: the offer, the Agent Plan's card, the agents page's rotation and office hours, and the pricing table.
+  - **The AI Accelerator's weeks are the course's own, from the database (D-173).** `GET /api/course` still answers a buyer 403 (`NOT_IN_PLAN`), and now adds `outline`: every week as the outline shows a learner a week that hasn't opened (`courseOutline`: title, question, outcome, opening date). None of a week's content comes with it. Nobody else's answer changes.
+  - `UI_LABELS` gains "Claude or ChatGPT", the library's label for a skill's apps (`platformsOf`), which a week's platform line repeats.
+  - Copy rules: Title Case headings and buttons, no em dashes, MT after clock times, no invented number (each is counted from the catalog or quoted from the pricing page), hires read and draft ("Every hire reads and drafts. Nothing is sent without you."), and Claude and ChatGPT as the same button.
+- **Design and parity.**
+  - The mockup extends the LMS v3 mockup (unchanged) with `buyer.css`. The app ships that file byte for byte; a test holds the checksum.
+  - `handoff/lms-mockup/tools/pairs.ts` compares the mockup with the production build at 1280 and 390, and the pairs are in `docs/pr-review/252/`.
+- **No migration, env var, Stripe, GHL or email change.** No parity golden, mask or tolerance moves.
+
+## D-242 · The seat card's words in one place: the Week Builder's Seat card
 
 **Date:** 2026-11-22
 **Asked for by:** Connor Leiva (repository owner), Nov 22, 2026, on the seat card's words that disagreed after D-235 ("Week 2's Took Over says something different on the card than on the step page; neither week's card has a First Run; each card's wording is stored in two places"): "Fix it".

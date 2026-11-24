@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
 import { Field, Input } from '../../components/primitives/Field';
+import { safeNext } from '@ai/core/landing';
 import { AuthCard, GoogleSignIn, PASSWORD_MIN, errorOf, landingOf, post, useAppReady, useGoogleSignIn } from './shared';
 import s from './SignIn.module.css';
 
@@ -92,7 +93,7 @@ export function Component() {
         setBusy(false);
         if (res.ok) {
           // D-150: straight to the Skill Library for a learner with no cohort portal.
-          navigate(await landingOf(res), { replace: true });
+          navigate(safeNext(params.get('next')) ?? (await landingOf(res)), { replace: true });
           return;
         }
         const why = await errorOf(res);

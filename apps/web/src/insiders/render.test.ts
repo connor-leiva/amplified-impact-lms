@@ -86,18 +86,23 @@ describe('/insiders', () => {
     expect(plans.map((p) => p.getAttribute('data-state'))).toEqual([
       '%%state:insiders-year%%',
       '%%state:insiders-monthly%%',
+      '%%state:insiders-agent-monthly%%',
     ]);
     expect(plans.map((p) => $$('a.btn', p).map((a) => [text(a), a.getAttribute('href')]))).toEqual([
       [[c.button, '%%link:insiders-year%%']],
       [[c.more['insiders-monthly'], '%%link:insiders-monthly%%']],
+      [['Get Amplified Insiders for Agents', '%%link:insiders-agent-monthly%%']],
     ]);
     expect(plans.map((p) => [text($('.price', p)), text($('.price-note', p))])).toEqual([
       [c.price.amount, c.price.unit],
       [...monthlyFigure(c.more['insiders-monthly']!)],
+      ['$79', 'a month'],
     ]);
+    expect(plans.map((p) => text($('.plan-name', p)))).toEqual(['Amplified Insiders', 'For Team Leaders', 'Amplified Insiders for Agents']);
     expect(plans.map((p) => $$('.checks li', p).map(text))).toEqual([
       [c.price.terms[0], c.price.terms[1]],
-      [c.price.terms[2]],
+      ['For Team Leaders.', '3-Month Minimum.', 'Every skill, plus weekly office hours.', 'Monthly payments don’t count toward the Accelerator.'],
+      ['3-Month Minimum.', 'Every agent skill, plus weekly office hours.', 'No weekly live training.'],
     ]);
     // The monthly price is read out of the card's own line, not typed.
     expect(monthlyFigure('Or pay $197 a month')).toEqual(['$197', 'a month']);
@@ -108,12 +113,12 @@ describe('/insiders', () => {
 
   it('puts the proof line right under every buy button', () => {
     const buttons = $$('main a.btn').filter((a) => /%%link:/.test(a.getAttribute('href') ?? ''));
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(4);
     for (const b of buttons) {
       const proof = b.closest('.act-link')?.querySelector('.proof-line');
       expect(text(proof)).toBe(PROOF);
     }
-    expect($$('main .proof-line').length).toBe(3);
+    expect($$('main .proof-line').length).toBe(4);
   });
 
   it('lists every owner and ops skill Insiders opens, by its Library card, grouped by its Library topic', () => {
@@ -159,8 +164,10 @@ describe('/insiders', () => {
   it('carries only the tokens the API fills for every sales page', () => {
     const tokens = [...new Set([...html.matchAll(TOKEN_PATTERN)].map((m) => m[0]))].sort();
     expect(tokens).toEqual([
+      '%%link:insiders-agent-monthly%%',
       '%%link:insiders-monthly%%',
       '%%link:insiders-year%%',
+      '%%state:insiders-agent-monthly%%',
       '%%state:insiders-monthly%%',
       '%%state:insiders-year%%',
     ]);

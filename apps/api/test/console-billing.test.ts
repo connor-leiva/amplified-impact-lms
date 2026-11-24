@@ -93,9 +93,12 @@ const PRICES: PriceMap = Object.fromEntries(
       ['agents_upto15_founding', 49_700, 'month'],
       ['agents_16to40_founding', 99_700, 'month'],
       ['agent_plan_monthly', 7_900, 'month'],
+      ['agent_plan_monthly_117', 11_700, 'month'],
       ['agent_plan_yearly', 79_000, 'year'],
       ['membership_monthly', 19_700, 'month'],
+      ['membership_monthly_team_leader', 16_900, 'month'],
       ['membership_year_upfront', 199_700, null],
+      ['insiders_agent_monthly', 7_900, 'month'],
       ['cohort_founding_full', 750_000, null],
       ['cohort_founding_two_pay', 375_000, 'month'],
     ] as const
@@ -187,7 +190,8 @@ describe('the billing summary (spec § 7.6) @console', () => {
     expect(res.statusCode).toBe(200);
     expect(res.headers['cache-control']).toBe('private, no-store');
     const s = body<BillingSummary>(res);
-    expect(Object.keys(s).sort()).toEqual(['accelerator', 'asOf', 'failedPayments', 'mrr', 'plans', 'refunds30d']);
+    expect(Object.keys(s).sort()).toEqual(['accelerator', 'asOf', 'failedPayments', 'mrr', 'plans', 'refunds30d', 'skillPurchases']);
+    expect(s.skillPurchases).toEqual([]);
     expect(Object.keys(s.mrr).sort()).toEqual(['activeSubscriptions', 'cents', 'pastDue', 'trialing']);
     expect(Object.keys(s.accelerator).sort()).toEqual(['cap', 'collectedCents', 'opensAt', 'paidInFull', 'scheduledCents', 'sold', 'twoPay']);
     for (const p of s.plans) expect(Object.keys(p).sort()).toEqual(['active', 'kind', 'label', 'mrrCents', 'priceLabel', 'seats']);
@@ -201,11 +205,12 @@ describe('the billing summary (spec § 7.6) @console', () => {
     expect(s.plans.map((p) => [p.label, p.active, p.mrrCents, p.priceLabel])).toEqual([
       ['Team Plan · 16 seats', 1, 49_700, '$497 monthly'],
       ['Team Plan · 41 seats', 1, 99_700, '$997 monthly'],
-      ['Agent Plan', 1, 6_583, '$79 per agent, monthly or $790 yearly'],
-      ['Insiders', 1, 19_700, '$197 monthly or $1,997 yearly'],
+      ['Agent Plan', 1, 6_583, '$117 per agent, monthly or $790 yearly'],
+      ['Insiders', 1, 19_700, '$169 monthly or $1,997 yearly'],
+      ['Insiders for Agents', 0, 0, '$79 monthly'],
       ['AI Accelerator', 4, null, '$7,500 or 2 × $3,750'],
     ]);
-    expect(s.plans.map((p) => p.seats)).toEqual([16, 41, 1, 2, 2]);
+    expect(s.plans.map((p) => p.seats)).toEqual([16, 41, 1, 2, 1, 2]);
   });
 
   it('counts failed payments and the last 30 days’ refunds', async () => {
@@ -218,7 +223,7 @@ describe('the billing summary (spec § 7.6) @console', () => {
   it('prices come from the price cache, or read "Unavailable"; no amount is typed in', async () => {
     await start({ price: prices(null) });
     const s = body<BillingSummary>(await get(P.billingSummary));
-    expect(s.plans.map((p) => p.priceLabel)).toEqual(Array(5).fill('Unavailable'));
+    expect(s.plans.map((p) => p.priceLabel)).toEqual(Array(6).fill('Unavailable'));
     const code = (f: string) => readFileSync(new URL(f, import.meta.url), 'utf8').replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '');
     const src = code('../src/console/billing.ts') + code('../../../packages/core/src/console-billing.ts');
     expect(src).not.toMatch(/\$\s?\d|\b(497|997|1997|7500|3750|750000|375000)\b/);

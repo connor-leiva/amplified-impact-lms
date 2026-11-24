@@ -113,7 +113,7 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
   },
   {
     id: SEAT_CARD_ONE_COPY_V1,
-    describe: 'Weeks 1 and 2: the Seat Card’s rows to Connor’s approved words where untouched, and step 6’s Seat Card table drawn from the card, once (D-240)',
+    describe: 'Weeks 1 and 2: the Seat Card’s rows to Connor’s approved words where untouched, and step 6’s Seat Card table drawn from the card, once (D-242)',
     plan: planSeatCardOneCopyV1,
   },
 ];

@@ -6,7 +6,7 @@
 // button, file and word to paste comes from that answer, so no browser bundle carries a setup. A
 // locked or upcoming skill shows what www shows anyone, its steps' titles, and what it would take to
 // open it: "Not included with Utah Life access" for an access group's member (no upsell, D-150),
-// "Not in your plan." and See Plans for anyone else. Signed out, it sends the visitor to sign in and
+// "Not in your plan." and Get This Skill for anyone else. Signed out, it sends the visitor to sign in and
 // back here (`next`).
 //
 // THE STEPS, ONE AT A TIME, as the www pages did (D-070): "Step 2 of 7", Back and Next, the place kept
@@ -15,12 +15,13 @@
 // downloads through `GET /api/skills/:id/download/:kind`, which checks the rule again.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { GuideInline, GuideLaneId, GuideStep, GuideUi, SkillGuide, SkillGuidePreview } from '@ai/core/skill-guides';
 import { LEAD } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
-import { COPY as LIBRARY, PLANS_URL, groupForSkill } from './SkillLibrary';
+import { COPY as LIBRARY, groupForSkill } from './SkillLibrary';
+import { GetSkillButton, SKILL_PURCHASE } from './SkillPurchase';
 import type { AccessGroupInfo } from './SkillLibrary';
 import s from './SkillGuide.module.css';
 
@@ -28,6 +29,8 @@ export const COPY = {
   back: 'Skill Library',
   loading: 'Loading the guided setup',
   missing: 'We couldn’t find that skill.',
+  /** A signed-in account the library does not open for. Not the same as a skill that is not there. */
+  refused: 'The skill library is for learners.',
   failed: 'The guided setup didn’t load. Refresh the page to try again.',
   /** Over a locked skill's steps' titles: the setup is there, behind the plan line under it. */
   previewNote: 'Every step, with what to click and the words to paste, opens with the skill.',
@@ -52,9 +55,17 @@ export interface GuideAnswer {
   ui: GuideUi | null;
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'refused' } | { kind: 'failed' };
 
 const SIGN_IN = '/sign-in';
+const CHECKOUT_SESSION = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
+
+/** A paid guest's return. A full navigation, so the session cookie from that response is kept. */
+export const checkoutReturn = {
+  go(sessionId: string): void {
+    window.location.replace(`/api/skills/guest-return?session_id=${encodeURIComponent(sessionId)}`);
+  },
+};
 /** How long the copy confirmation stays, as on www's guide pages. */
 export const TOAST_MS = 3200;
 const dateOf = (t: number): string => new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' }).format(t);
@@ -334,7 +345,7 @@ function OpenGuide({ guide, ui }: { guide: SkillGuide; ui: GuideUi }) {
 }
 
 /** A locked or upcoming skill: its steps' titles, as www shows them, and what it would take to open it. */
-function Preview({ answer }: { answer: GuideAnswer }) {
+function Preview({ answer, pending }: { answer: GuideAnswer; pending: boolean }) {
   const lane = answer.preview.lanes[0];
   const group = answer.state === 'locked' ? groupForSkill({ sets: answer.sets }, answer.accessGroups) : null;
   return (
@@ -373,9 +384,8 @@ function Preview({ answer }: { answer: GuideAnswer }) {
               <Icon name="lock" size={16} />
               {LIBRARY.locked}
             </span>
-            <a className={s.primary} href={PLANS_URL}>
-              {LIBRARY.seePlans}
-            </a>
+            {pending ? <p className={s.intro}>{SKILL_PURCHASE.pending}</p> : null}
+            <GetSkillButton skillId={answer.skill} sets={answer.sets} className={s.primary} />
           </>
         )}
       </div>
@@ -385,8 +395,10 @@ function Preview({ answer }: { answer: GuideAnswer }) {
 
 export function Component() {
   const { slug = '' } = useParams();
+  const [params] = useSearchParams();
   const navigate = useNavigate();
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
+  const checkoutSession = params.get('session_id');
 
   useEffect(() => {
     let alive = true;
@@ -395,12 +407,21 @@ export function Component() {
       try {
         const res = await fetch(`/api/skill-guides/${encodeURIComponent(slug)}`, { credentials: 'include', headers: { accept: 'application/json' } });
         if (!alive) return;
+        // A guest just paid. Stripe sent them here with the checkout session, and they have no
+        // password yet, so sign-in cannot help. The return route reads that session and signs them in.
+        if (res.status === 401 && checkoutSession && CHECKOUT_SESSION.test(checkoutSession)) {
+          checkoutReturn.go(checkoutSession);
+          return;
+        }
         // Signed out: sign in, then straight back here (D-151).
         if (res.status === 401) {
           navigate(`${SIGN_IN}?next=${encodeURIComponent(guidePath(slug))}`, { replace: true });
           return;
         }
-        if (res.status === 404 || res.status === 403) return setLoad({ kind: 'missing' });
+        // 404 is a slug with no guide. 403 is an account the library does not open for. Saying the
+        // skill is missing for both sent people who followed a real www link to a dead end.
+        if (res.status === 404) return setLoad({ kind: 'missing' });
+        if (res.status === 403) return setLoad({ kind: 'refused' });
         if (!res.ok) return setLoad({ kind: 'failed' });
         const answer = (await res.json()) as GuideAnswer;
         if (alive) setLoad({ kind: 'ready', answer });
@@ -411,7 +432,7 @@ export function Component() {
     return () => {
       alive = false;
     };
-  }, [slug, navigate]);
+  }, [slug, navigate, checkoutSession]);
 
   // Outside `AppShell`, so this route marks the body ready itself, as the Skill Library does.
   useEffect(() => {
@@ -424,10 +445,12 @@ export function Component() {
       return (
         <div className={s.status} role="status" aria-busy="true">
           <Icon name="spinner" size={20} strokeWidth={2.2} className={s.spin} label={COPY.loading} />
+          <p>{COPY.loading}</p>
         </div>
       );
     }
     if (load.kind === 'missing') return <p className={s.status}>{COPY.missing}</p>;
+    if (load.kind === 'refused') return <p className={s.status}>{COPY.refused}</p>;
     if (load.kind === 'failed') {
       return (
         <p className={s.status} role="alert">
@@ -436,8 +459,9 @@ export function Component() {
       );
     }
     const a = load.answer;
-    return a.state === 'open' && a.guide && a.ui ? <OpenGuide guide={a.guide} ui={a.ui} /> : <Preview answer={a} />;
-  }, [load]);
+    const pending = params.has('session_id') && a.accessGroups.length === 0;
+    return a.state === 'open' && a.guide && a.ui ? <OpenGuide guide={a.guide} ui={a.ui} /> : <Preview answer={a} pending={pending} />;
+  }, [load, params]);
 
   return (
     <main className={s.page}>

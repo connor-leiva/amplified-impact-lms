@@ -8,6 +8,7 @@ import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from './accelerator';
 import type { CohortCourse, CourseContent, CourseWeek, LockedCopy, ModuleCourse } from './course-types';
 import { kitVisible, weekOpenFor } from './release';
 import type { CourseEntry } from './release';
+import { curriculumWeeks, sessionCurriculumWeek } from './curriculum-week';
 import { moduleForSession, sessionKind, sessionWeek } from './sessions';
 import type { SessionKind } from './sessions';
 import type { AIEmployee, Db, ResourceKind, ResourcePlatform, Session, SessionType } from './types';
@@ -101,6 +102,16 @@ const lockedWeekOf = (m: WeekModule): LockedCourseWeek => ({
 });
 
 /**
+ * D-241: the whole course as the outline shows a locked week (title, question, outcome, when it opens), for a $37 skill
+ * buyer's locked preview of the AI Accelerator. None of any week's content, whatever its dates: the same stub a
+ * learner in the course gets for a week that hasn't opened (`lockedWeekOf`). Null when the database holds no course.
+ */
+export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'>, cohortId: string = ACCELERATOR_COHORT_ID): LockedCourseWeek[] | null {
+  if (!db.cohorts.find((c) => c.id === cohortId)?.course) return null;
+  return courseWeekModules(db).map(lockedWeekOf);
+}
+
+/**
  * The course for one viewer, or null when the database holds none. Staff (`'staff'`) see every week
  * whole, as the builder's preview does. A learner sees each week open or locked by their entry and the
  * week's own opening (`weekOpenFor`), and an open week's kit by its visibility (`kitVisible`). Locked
@@ -143,6 +154,9 @@ export interface CourseSessionRow {
  * `GET /api/course` sends these, and the builder's live preview (D-174) renders them from the draft.
  */
 export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID): CourseSessionRow[] {
+  // The curriculum week when the course has one (so a holiday gap does not renumber a session),
+  // and the id / `n` week otherwise, which is what every session the reference seeds already uses.
+  const weeks = curriculumWeeks(db.modules);
   return db.sessions
     .filter((s) => s.cohortId === cohortId)
     .filter((s) => {
@@ -150,7 +164,16 @@ export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID)
       return !!m && isAcceleratorModule(m.id);
     })
     .sort((a, b) => a.start - b.start)
-    .map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), type: sessionType(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins }));
+    .map((s) => ({
+      id: s.id,
+      n: s.n,
+      kind: sessionKind(s),
+      type: sessionType(s),
+      week: sessionCurriculumWeek(weeks, s) ?? sessionWeek(s),
+      title: s.title,
+      start: s.start,
+      mins: s.mins,
+    }));
 }
 
 /** D-180: a session's type, as the builder set it, else live build or office hours off its id. */

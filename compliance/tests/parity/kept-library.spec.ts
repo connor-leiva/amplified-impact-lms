@@ -56,9 +56,10 @@ test.describe('learner parity: the Skill Library (KEPT)', () => {
     if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
     await expect(utah.getByText(learnerCopy('locked.utah_life'), { exact: true }).first()).toBeVisible();
     await expect(utah.getByRole('link', { name: 'See Plans' })).toHaveCount(0);
+    await expect(utah.getByRole('button', { name: 'Get This Skill, $37' })).toHaveCount(0);
     await utah.context().close();
     const free = await openWorld(browser, '/learn/skills/agent-1on1-prep', { audience: 'free' });
-    await expect(free.getByRole('link', { name: /See (P|p)lans/ }).first()).toBeVisible();
+    await expect(free.getByRole('button', { name: 'Get This Skill, $37' }).first()).toBeVisible();
     await free.context().close();
   });
 

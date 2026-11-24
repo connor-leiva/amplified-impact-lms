@@ -269,7 +269,7 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       // D-235: Weeks 1 and 2, their twelve steps and sixteen card rows. Named: ten Download buttons (the Kit has none
       // of the PDFs yet) and four seat card buttons (its form isn't built yet), each left off its item.
       [DATA_MIGRATIONS[13]!.id, 28, 14],
-      // D-240: the seat card in one place: Week 2's Took Over and both weeks' First Run on the card, and step 6's Seat
+      // D-242: the seat card in one place: Week 2's Took Over and both weeks' First Run on the card, and step 6's Seat
       // Card table on both paths of both weeks drawn from it.
       [DATA_MIGRATIONS[14]!.id, 7, 0],
     ]);

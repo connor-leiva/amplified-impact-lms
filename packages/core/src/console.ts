@@ -234,6 +234,9 @@ export const AUDIT_ACTIONS = [
   'submission.files_delete',
   // D-200: the deploy's test learner. One row, the address only, actor role `system:seed-test-member`.
   'user.seed',
+  // A $37 skill purchase, and a full refund of one. The webhook writes both. Actor source `system`.
+  'skill.purchase',
+  'skill.refund',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

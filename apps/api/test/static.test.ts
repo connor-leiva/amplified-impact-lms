@@ -183,6 +183,20 @@ describe('D-170: the learn app shell is no-cache wherever it is answered; hashed
     for (const url of ASSET_URLS) expect((await get(a, url)).headers['cache-control'], url).toBe(IMMUTABLE);
   });
 
+  it('serves a skill guide as the app, with or without a session, so a buyer is not sent to sign-in', async () => {
+    const a = await serve();
+    for (const headers of [{}, { cookie: 'ai_sid=abc' }] as const) {
+      const res = await a.inject({ method: 'GET', url: '/skill-library/agent-1on1-prep', headers });
+      expect(res.statusCode).toBe(200);
+      expect(res.headers.location).toBeUndefined();
+      expect(res.headers['content-type']).toMatch(/^text\/html/);
+      expect(res.headers['cache-control']).toBe('no-cache');
+      expect(res.body).toBe(SHELL);
+    }
+    const library = await a.inject({ method: 'GET', url: '/skill-library' });
+    expect(library.statusCode).toBe(200);
+  });
+
   it('changes nothing else: other files, and www’s homepage, keep the headers they had', async () => {
     expect(cacheControlFor('/srv/apps/web/dist/robots.txt')).toBe('public, max-age=0');
     expect(cacheControlFor('/srv/apps/web/dist/downloads/guide.pdf')).toBe('public, max-age=0');

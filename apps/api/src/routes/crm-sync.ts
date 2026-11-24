@@ -16,7 +16,7 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq, sql } from 'drizzle-orm';
 import { getDb } from '../db/client';
-import { ai101Waitlist, ghlLogins, orders, users } from '../db/schema';
+import { ai101Waitlist, ghlLogins, orders, skillPurchases, users } from '../db/schema';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { FIELD_ENV, STAGE_ENV, ghlSyncPaused, readGhlConfig, syncStamp } from '../integrations/ghl';
 import type { FieldKey, StageKey } from '../integrations/ghl';
@@ -25,7 +25,7 @@ import { MAX_ATTEMPTS } from '../jobs/ghl-sync';
 export const CRM_SYNC_PATH = '/api/admin/crm-sync';
 export const CRM_SYNC_RETRY_PATH = '/api/admin/crm-sync/retry';
 
-export type CrmKind = 'waitlist' | 'order' | 'login';
+export type CrmKind = 'waitlist' | 'order' | 'login' | 'skill';
 export type CrmState = 'synced' | 'waiting' | 'retrying' | 'gave-up';
 
 export interface CrmRow {
@@ -100,6 +100,8 @@ async function rowsOf(kind: CrmKind): Promise<RawRow[]> {
   if (kind === 'waitlist') return (await db.execute(sql`select id, email, ${cols}, created_at as at from ${ai101Waitlist}`)) as unknown as RawRow[];
   // A pending order is never copied (ghl-orders.ts), so it is not part of the log.
   if (kind === 'order') return (await db.execute(sql`select id, email, ${cols}, created_at as at from ${orders} where status <> 'pending' and email is not null`)) as unknown as RawRow[];
+  if (kind === 'skill')
+    return (await db.execute(sql`select id, coalesce(email, '') as email, ${cols}, purchased_at as at from ${skillPurchases} where email is not null or user_id is not null`)) as unknown as RawRow[];
   return (await db.execute(sql`
     select l.user_id as id, u.email, l.ghl_synced_at, l.ghl_sync_stamp, l.ghl_attempts, l.ghl_next_attempt_at,
            l.ghl_last_attempt_at, l.ghl_error, l.first_login_at as at
@@ -109,7 +111,7 @@ async function rowsOf(kind: CrmKind): Promise<RawRow[]> {
 export async function crmSyncReport(env: NodeJS.ProcessEnv = process.env): Promise<CrmSyncReport> {
   const config = readGhlConfig(env);
   const stamp = config ? syncStamp(config) : null;
-  const kinds: CrmKind[] = ['waitlist', 'order', 'login'];
+  const kinds: CrmKind[] = ['waitlist', 'order', 'login', 'skill'];
   const all: { row: CrmRow; activity: number }[] = [];
   const counts = {} as Record<CrmKind, CrmCounts>;
   for (const kind of kinds) {
@@ -149,7 +151,7 @@ export async function crmSyncReport(env: NodeJS.ProcessEnv = process.env): Promi
   };
 }
 
-const TABLES = { waitlist: ai101Waitlist, order: orders, login: ghlLogins } as const;
+const TABLES = { waitlist: ai101Waitlist, order: orders, skill: skillPurchases } as const;
 
 /**
  * The retry's reset, in one place (D-165, spec D13): the row's attempts back to 0 and its next-attempt
@@ -178,7 +180,7 @@ export function registerCrmSyncRoutes(app: FastifyInstance): void {
     const body = (req.body ?? {}) as { kind?: unknown; id?: unknown };
     const kind = body.kind;
     const id = typeof body.id === 'string' ? body.id.trim() : '';
-    if ((kind !== 'waitlist' && kind !== 'order' && kind !== 'login') || id === '') return reply.code(400).send({ error: 'Say which row: kind and id.' });
+    if ((kind !== 'waitlist' && kind !== 'order' && kind !== 'login' && kind !== 'skill') || id === '') return reply.code(400).send({ error: 'Say which row: kind and id.' });
     if (!(await resetCrmSyncRow(kind, id))) return reply.code(404).send({ error: 'No such row.' });
     // Ids only: never the row's email.
     req.log.info({ kind, row: id, by: viewer.user.id }, 'CRM sync: row retried by staff');

@@ -45,6 +45,9 @@ export const learnAccount = (): string => `${LEARN_ROOT}/account`;
 export const learnTeam = (): string => `${LEARN_ROOT}/team`;
 export const learnVault = (): string => `${LEARN_ROOT}/vault`;
 export const learnEmployee = (id: string): string => `${LEARN_ROOT}/employees/${encodeURIComponent(id)}`;
+// D-241: the $37 skill buyer's two pages with no member page of their own (`buyer/`).
+export const learnTraining = (): string => `${LEARN_ROOT}/training`;
+export const learnOfficeHours = (): string => `${LEARN_ROOT}/office-hours`;
 
 export interface LearnerRouteOptions {
   /** Send a learner without the course back to the first portal (D-182, `gates/LearnGate.tsx`). */
@@ -52,7 +55,9 @@ export interface LearnerRouteOptions {
 }
 
 export function learnerRoutes(enabled: boolean, { gate = false }: LearnerRouteOptions = {}): RouteObject[] {
-  if (!enabled) return [{ path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
+  // D-241: with the flag off, /learn is still the $37 skill buyer's LMS (`buyer/Buyer.tsx`); anyone else goes to /, as
+  // before. The screens' own tests (no `gate`) keep the bare redirect.
+  if (!enabled) return [gate ? { path: `${LEARN_ROOT}/*`, lazy: () => import('./buyer/Buyer') } : { path: `${LEARN_ROOT}/*`, element: <Navigate to="/" replace /> }];
   return [
     {
       path: LEARN_ROOT,

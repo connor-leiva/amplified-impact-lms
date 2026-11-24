@@ -100,6 +100,11 @@ export async function registerStaticFiles(app: FastifyInstance, root: string): P
   app.setNotFoundHandler((req, reply) => {
     const path = pathOf(req.url);
     if (path.startsWith('/api/')) return reply.code(404).send({ error: 'Not found' });
+    // A guide used to 302 to `/sign-in?next=` when this document carried no session cookie. That
+    // answer was sent before the page could call `GET /api/skill-guides/:slug` on the same origin, and
+    // a cache could store the 302. A buyer who already had a session, including one who owns a single
+    // skill and no plan, landed on sign-in. The app now loads and asks the API, which opens a skill
+    // they own (bought or free) and returns the locked preview for one they do not.
     // A skill's or template's old ZIP link (D-151): on to its guided setup in learn, which signs the
     // visitor in and checks the plan first. Its own page, by the catalog, never anywhere else.
     if (path.startsWith('/downloads/')) {

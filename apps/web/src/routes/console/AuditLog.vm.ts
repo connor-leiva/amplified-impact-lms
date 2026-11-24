@@ -101,6 +101,7 @@ const GROUP_LABELS: Record<string, string> = {
   user: 'Users',
   masquerade: 'Masquerade',
   billing: 'Billing',
+  skill: 'Skill Purchases',
   webhook: 'Webhooks',
   job: 'Jobs',
   email_log: 'Email Log',

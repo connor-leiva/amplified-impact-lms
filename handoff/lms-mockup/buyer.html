@@ -1,0 +1,401 @@
+<!doctype html>
+<!-- The $37 skill buyer inside the LMS: a design for Connor's approval (Nov 24, 2026). Not live.
+     An extension of the LMS v3 mockup (handoff/lms-v3/mockup/index.html, revision v7, D-225), which stays as it is.
+     Looks: that mockup's own stylesheets, unchanged (handoff/lms-v3/src/lms.tokens.css and lms.css, generated from it, the
+     files the app ships), its icons and its logo. What the buyer's pages add is buyer.css (built from the same tokens and
+     classes). Light only, as the v3 member pages are (D-226; Connor, Nov 24: "Light only is fine"). Data: buyer-data.js,
+     generated from the repo's catalogs and the build's own buyer content (tools/make-data.ts), so the mockup and the build
+     say the same words. One file, six views: #home (default), #library, #skill-<id>, #training, #office-hours,
+     #accelerator and #week-<n>. Query: ?bought=owner|agent|two, ?bar=0 (no MOCKUP bar).
+     Review-only, not shipped: the black MOCKUP bar. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amplified Impact Academy · the $37 skill buyer in the LMS (mockup)</title>
+<link rel="stylesheet" href="../lms-v3/mockup/ai-motion.css">
+<link rel="stylesheet" href="../lms-v3/src/lms.tokens.css">
+<link rel="stylesheet" href="../lms-v3/src/lms.css">
+<link rel="stylesheet" href="buyer.css">
+<style>
+@font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url('../lms-v3/mockup/fonts/geist-latin-wght-normal.woff2') format('woff2')}
+@font-face{font-family:'Geist Mono';font-style:normal;font-display:swap;font-weight:100 900;src:url('../lms-v3/mockup/fonts/geist-mono-latin-wght-normal.woff2') format('woff2')}
+/* @mock ============ MOCKUP bar only (review-only, not shipped): the v3 mockup's, on the --sp-* names ============ */
+.wkx-flag,.wkx-flag *{box-sizing:border-box}
+.wkx-flag{display:flex;flex-wrap:wrap;gap:var(--sp-s2) var(--sp-s3);align-items:center;justify-content:space-between;line-height:1.3;background:#0a0d0c;color:#f5f5f2;font:500 13px/1 var(--sp-mono);letter-spacing:.02em;padding:6px 24px;min-height:36px;-webkit-font-smoothing:antialiased}
+.wkx-flag b{color:#6fd3a5;font-weight:600}
+.wkx-prev{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.wkx-prev button{height:24px;padding:0 10px;border-radius:999px;border:1px solid rgb(245 245 242 / .16);background:transparent;color:#f5f5f2;font:500 12px/1 var(--sp-mono);cursor:pointer}
+.wkx-sep{margin-left:10px}
+.wkx-prev button[aria-pressed="true"]{background:#6fd3a5;border-color:#6fd3a5;color:#0a0d0c}
+.wkx-flag[hidden]{display:none}
+/* @end-mock */
+</style>
+</head>
+<body>
+<!-- the v3 mockup's icon sprite, copied verbatim from handoff/lms-v3/mockup/index.html -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="k-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="k-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.4 3.4-5.5 6.5-5.5s5.7 2.1 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/></g></symbol>
+    <symbol id="k-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="k-calplus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></g></symbol>
+    <symbol id="k-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></g></symbol>
+    <symbol id="k-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="k-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/></g></symbol>
+    <symbol id="k-radio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 000 8.4M16.2 7.8a6 6 0 010 8.4M5 5a10 10 0 000 14M19 5a10 10 0 010 14"/></g></symbol>
+    <symbol id="k-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.2 8.3 4.5 5 4.5H3.5v13H5c3.3 0 5.500 .700 7 2 1.500-1.300 3.700-2 7-2h1.500v-13H19c-3.300 0-5.500 .700-7 2z"/><path d="M12 6.500v13"/></g></symbol>
+    <symbol id="k-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.500H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V8.500z"/><path d="M14 3.500v5h5M9 13h6M9 16.500h4"/></g></symbol>
+    <symbol id="k-down" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-flag" viewBox="0 0 24 24"><path d="M6 21V4m0 1h11l-2.500 4 2.500 4H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="k-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="6.500" height="6.500" rx="1"/><rect x="13.500" y="4" width="6.500" height="6.500" rx="1"/><rect x="4" y="13.500" width="6.500" height="6.500" rx="1"/><rect x="13.500" y="13.500" width="6.500" height="6.500" rx="1"/></g></symbol>
+    <symbol id="k-folder" viewBox="0 0 24 24"><path d="M3.500 7a2 2 0 012-2h4l2 2.500h7a2 2 0 012 2V17a2 2 0 01-2 2h-13a2 2 0 01-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-help" viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-side" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.500 4v16"/></g></symbol>
+    <symbol id="k-moon" viewBox="0 0 24 24"><path d="M20 14.500A8 8 0 019.500 4a8 8 0 1010.500 10.500z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="k-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.500l9 5 9-5"/><path d="M3 17l9 5 9-5"/></g></symbol>
+    <symbol id="k-pen" viewBox="0 0 24 24"><path d="M4 20l1-4.500L16.500 4a2.120 2.120 0 013 3L8 18.500 4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="k-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="k-talk" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 5.500A1.500 1.500 0 014.500 4h10A1.500 1.500 0 0116 5.500v6a1.500 1.500 0 01-1.500 1.500H8l-3.500 3v-3A1.500 1.500 0 013 11.500v-6z"/><path d="M19 9h.500A1.500 1.500 0 0121 10.500v6a1.500 1.500 0 01-1.500 1.500v2.500l-3-2.500H11"/></g></symbol>
+    <symbol id="k-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 15V4M7.500 8.500L12 4l4.500 4.500"/><path d="M4 15v3.500A1.500 1.500 0 005.500 20h13a1.500 1.500 0 001.500-1.500V15"/></g></symbol>
+    <symbol id="k-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="k-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M9 4h6l-1 6 3.500 3.500h-11L10 10 9 4z"/><path d="M12 13.500V20"/></g></symbol>
+    <symbol id="k-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10.500l6-3v9l-6-3z"/></g></symbol>
+    <symbol id="k-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></g></symbol>
+    <symbol id="k-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="wkx-flag" id="wkx"><span><b>MOCKUP</b> · learn.amplifiedimpact.io · the $37 skill buyer in the LMS · for approval · not live</span>
+  <span class="wkx-prev" role="group" aria-label="Preview a state">Bought
+    <button type="button" data-bought="owner">Owner skill</button><button type="button" data-bought="agent">Agent skill</button><button type="button" data-bought="two">Two skills</button><span class="wkx-sep">Page</span><button type="button" data-go="home">Home</button><button type="button" data-go="library">Library</button><button type="button" data-go="skill-database-health-check">Locked skill</button><button type="button" data-go="training">Training</button><button type="button" data-go="office-hours">Office hours</button><button type="button" data-go="accelerator">Accelerator</button></span></div>
+
+<div class="sh-app" id="sh-app" data-buyer>
+  <aside class="sh-side" data-ai="shell" id="sh-side" aria-label="Primary">
+    <div class="sh-side-in">
+      <div class="sh-brand">
+        <a class="sh-logo" href="#home" aria-label="Amplified Impact Academy, Home" data-brand-slot><img class="sh-logo-l" src="../lms-v3/mockup/logos/amplified-impact-academy-app.svg" width="161" height="34" alt=""></a>
+        <button class="wk-btn wk-btn-ghost wk-btn-sm sh-menu" type="button" id="sh-menu" aria-expanded="false" aria-controls="sh-scroll"><svg width="16" height="16"><use href="#k-menu"/></svg>Menu</button>
+        <p class="sh-cohort" id="sh-cohort"></p>
+      </div>
+      <div class="sh-scroll" id="sh-scroll">
+        <nav aria-label="Main"><ul class="sh-nav" id="sh-main"></ul></nav>
+        <button class="sh-link sh-group" type="button" id="sh-group" aria-expanded="true" aria-controls="sh-weeks"><svg width="16" height="16"><use href="#k-layers"/></svg><span class="sh-label">AI Accelerator</span><small>9</small><svg width="14" height="14"><use href="#k-chev"/></svg></button>
+        <nav aria-label="Weeks"><ul class="sh-nav sh-weeks" id="sh-weeks"></ul></nav>
+        <span class="sh-marker" id="sh-marker" aria-hidden="true"></span>
+      </div>
+      <ul class="sh-nav sh-foot">
+        <li><a class="sh-link" href="mailto:support@amplifiedimpact.io"><svg width="16" height="16"><use href="#k-help"/></svg><span class="sh-label">Get help</span></a></li>
+        <li><button class="sh-link sh-collapse" type="button" id="sh-collapse" aria-pressed="false"><svg width="16" height="16"><use href="#k-side"/></svg><span class="sh-label">Collapse sidebar</span></button></li>
+      </ul>
+    </div>
+  </aside>
+  <div class="sh-col">
+    <header class="sh-top" data-ai="shell">
+      <!-- the buyer's own skill, one click from any page: the strip members use for their next session. Hidden on Home, whose hero is the same skill -->
+      <div class="sh-next" id="sh-next"></div>
+      <nav class="wk-sr" aria-label="Breadcrumb"><a href="#home">Home</a> / <span aria-current="page" id="sh-here">Home</span></nav>
+      <!-- the account menu's trigger. Its menu (Account, with Manage billing and the skills bought; Theme; Sign out) is the LMS's own, as members have it -->
+      <button class="wk-btn wk-btn-ghost wk-btn-sm sh-acct" type="button" aria-label="Your account" aria-haspopup="menu" aria-expanded="false"><span>AM</span><svg width="14" height="14"><use href="#k-chev"/></svg></button>
+    </header>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script src="buyer-data.js"></script>
+<script>
+/* ---------- the buyer and the plans (in the LMS: GET /api/skills, GET /api/offer for each cart's Payment Link) ----------
+   Every word below that the build also says comes from window.BUYER (the build's apps/web/src/routes/learn/buyer/content.ts)
+   or window.CATALOG (the catalogs, leads and guides), both written by tools/make-data.ts. */
+const Q = new URLSearchParams(location.search);
+const BOUGHT = { owner: ['team-pnl-review'], agent: ['appointment-follow-up'], two: ['team-pnl-review', 'fub-pipeline-review'] };
+let bought = BOUGHT[Q.get('bought')] ? Q.get('bought') : 'owner';
+if (Q.get('bar') === '0') document.getElementById('wkx').hidden = true;
+const ME = { first: 'Alex', initials: 'AM' };
+const CAT = window.CATALOG, B = window.BUYER;
+const PLANS = B.plans, AGENT_PLAN = B.agentPlan, TRAINING = B.training, OFFICE = B.office, ACCEL = B.accel, OUTLINE = B.outline;
+const skill = id => CAT.find(s => s.id === id);
+const owned = () => BOUGHT[bought].map(skill);
+const isOwned = s => BOUGHT[bought].includes(s.id);
+const isOpen = s => isOwned(s) || s.f === 1;
+const slugOf = s => s.id === 'content-opportunity-research' ? 'content-strategist' : s.id;
+
+const SETS = { owner_ops: 'Owner and Operations Skills', agent: 'Agent Skills', both: 'Skills for Everyone' };
+const SET_ONE = { owner_ops: 'Owner and Operations Skill', agent: 'Agent Skill', both: 'Skill for Everyone' };
+const SET_ORDER = ['owner_ops', 'agent', 'both'];
+/* The Insiders upsell follows the skill's set (offer.ts skillUpsell): agent skills open Agent Insiders; owner, ops and
+   both open Team Leader Insiders. */
+const planFor = sets => (sets === 'agent' ? PLANS.agent : PLANS.leader);
+const myPlan = () => (owned().some(s => s.s !== 'agent') ? PLANS.leader : PLANS.agent);
+const opensWith = plan => CAT.filter(x => !isOpen(x) && (plan.key === 'leader' || x.s !== 'owner_ops')).length;
+const SUPPORT = 'support@amplifiedimpact.io';
+const MINIMUM = '3-Month Minimum.';
+
+/* ---------- helpers (the v3 mockup's) ---------- */
+const $ = id => document.getElementById(id);
+const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const roll = t => `<span class="aim-roll"><span>${t}</span><span aria-hidden="true">${t}</span></span>`;
+const ic = (n, s = 14, c = '') => `<svg${c ? ` class="${c}"` : ''} width="${s}" height="${s}"><use href="#k-${n}"/></svg>`;
+const CHECK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+/* the AI apps a skill's files are for, as the Skill Library says it (Library.vm.ts platformsOf) */
+const tools = s => { const n = [['grok', 'Grok Bot'], ['claude', 'Claude'], ['chatgpt', 'ChatGPT']].filter(([k]) => s.files.includes(k)).map(x => x[1]); return n.length <= 1 ? (n[0] || '') : `${n.slice(0, -1).join(', ')} or ${n[n.length - 1]}`; };
+const DL = { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', grok: 'Download for Grok Bot', practice: 'Practice Files' };
+const dlsOf = s => ['claude', 'chatgpt', 'grok', 'practice'].filter(k => s.files.includes(k));
+const nb = t => esc(t).replace(MINIMUM, `<span class="by-nb">${MINIMUM}</span>`);
+const lockedPill = `<span class="wk-open" data-s="locked">${ic('lock', 12)}Locked</span>`;
+const stLocked = `<span class="wk-st" data-s="locked">${ic('lock', 12)}Locked</span>`;
+const crumbs = (...xs) => `<nav class="wk-crumbs aim-rise" style="--i:0" aria-label="Breadcrumb"><a href="#home">Home</a>${xs.map(x => `<span aria-hidden="true">/</span>${x[1] ? `<a href="${x[1]}">${esc(x[0])}</a>` : `<span>${esc(x[0])}</span>`}`).join('')}</nav>`;
+const tag = (i, t) => `<span class="wk-tag">${ic(i)}${esc(t)}</span>`;
+const help = i => `<section class="wk-card aim-rise" style="--i:${i}" aria-label="Questions"><div class="wk-help"><b>Questions?</b><a class="wk-mail" href="mailto:${SUPPORT}">${SUPPORT}</a></div></section>`;
+const checks = xs => `<ul class="by-checks">${xs.map(x => `<li>${CHECK}<span>${esc(x)}</span></li>`).join('')}</ul>`;
+const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+const pay = (cart, cls, label) => `<a class="${cls}" href="#" onclick="return false" data-cart="${cart}">${roll(esc(label))}</a>`;
+
+/* the one upgrade card: the plan, its price, what it opens and its button */
+function upCard(plan, i, { button = true } = {}){
+  const mine = owned(), keep = mine.length === 1 ? `${mine[0].t} stays yours` : 'The skills you bought stay yours';
+  return `<section class="wk-card aim-rise" style="--i:${i}" aria-labelledby="up-h-${i}">
+    <div class="by-up-h"><p class="wk-label">${esc(plan.who)}</p><h2 class="wk-h3" id="up-h-${i}">${esc(plan.name)}</h2>
+      <p class="by-price"><b>${plan.amount}</b>a month</p><p class="by-terms">${esc(plan.terms)}</p></div>
+    ${checks([...plan.checks, keep])}
+    ${button ? `<div class="wk-kit-foot">${pay(plan.cart, 'wk-btn wk-btn-primary by-wrap', plan.short)}</div>` : ''}
+  </section>`;
+}
+
+/* ---------- views ---------- */
+function viewHome(){
+  const mine = owned(), s = mine[0], plan = myPlan(), two = mine.length > 1;
+  const locked = CAT.filter(x => !isOpen(x)).length, opens = opensWith(plan);
+  const next = CAT.filter(x => x.s === s.s && !isOpen(x)).slice(0, 3);
+  const rows = [
+    ['grid', 'Every Other Skill', opens === locked ? `${locked} more skills, each with its Setup Guide to preview.` : `${locked} more skills to preview. ${plan.chip} opens ${opens} of them.`, plan.chip, '#library'],
+    ['users', 'Office Hours', OFFICE.body, plan.chip, '#office-hours'],
+    ['radio', 'Weekly Live Training', 'One 60 minute session a week, building one skill live on a real file.', 'Agent Plan', '#training'] ];
+  /* the AI Accelerator, from the course's own outline (GET /api/course answers a buyer with it) */
+  const week0 = OUTLINE.find(w => w.week === 0), last = Math.max(0, ...OUTLINE.map(w => w.week));
+  if (week0) rows.push(['flag', `Week 0: ${week0.title}`, week0.question, 'AI Accelerator', '#week-0']);
+  if (last > 0) rows.push(['layers', `AI Hires, Weeks 1 to ${last}`, 'Each week answers one question about your business and adds one AI employee.', 'AI Accelerator', '#week-1']);
+  return `<div class="wk-page">
+    <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">${greeting()}, ${ME.first}</h1>
+      <p class="wk-purpose">${two ? 'Your skills are ready. Open a Setup Guide to add one to Claude or ChatGPT.' : 'Your skill is ready. Open its Setup Guide to add it to Claude or ChatGPT.'}</p></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="Your skill">
+      <div class="wk-hero-main"><p class="wk-kick">${two ? `Your skills · 1 of ${mine.length}` : 'Your skill'}</p><h2 class="wk-hero-t">${esc(s.t)}</h2>
+        <p class="wk-hero-m"><span>${tools(s)}</span><span>${esc(s.role)}</span></p>
+        <p class="wk-hero-d"><b>What it does</b>${esc(s.o)}</p>
+        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="#" onclick="return false">${roll('Open the Setup Guide')}${ic('arrow', 16, 'wk-arrow')}</a>${two ? `<a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#library">${roll('See All Your Skills')}${ic('arrow', 16, 'wk-arrow')}</a>` : ''}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('down')}Downloads</p>
+        <div class="by-side">${dlsOf(s).map(k => `<a class="wk-btn wk-btn-onforest by-line" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
+        <p class="wk-prog-left">Set it up once. It’s easiest on a computer.</p></div>
+    </section>
+    <div class="wk-grid by-g1">
+      <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="more-h">
+        <div class="wk-sec-head"><h2 class="wk-h2" id="more-h">Also in the Academy</h2></div>
+        <p class="wk-sum">Not in your plan yet. Open any of them to see what’s inside.</p>
+        <ol class="wk-steps">${rows.map(([i, t, d, chip, href]) => `<li><a class="wk-step" data-s="locked" href="${href}"><span class="wk-ic" aria-hidden="true">${ic(i, 16)}</span><span class="wk-step-tx"><span class="wk-step-t">${t}<span class="wk-chip">${chip}</span></span><span class="wk-step-d">${esc(d)}</span></span><span class="wk-step-r">${stLocked}</span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`).join('')}</ol>
+      </section>
+      <aside class="wk-rail" aria-label="Upgrade">${upCard(plan, 3)}${help(4)}</aside>
+    </div>
+    <section class="aim-rise" style="--i:5" aria-labelledby="next-h"><h2 class="wk-h2" id="next-h">Skills to Open Next</h2>
+      <p class="wk-sum">From ${SETS[s.s]}, the same set as ${two ? 'your first skill' : 'yours'}.</p>
+      <ul class="by-cards">${next.map(x => `<li class="wk-card by-card"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><a class="wk-kit-a" href="#skill-${x.id}">${esc(x.t)}</a><p class="wk-step-d">${esc(x.o)}</p><span class="by-go">Preview the Setup${ic('arrow', 14, 'wk-arrow')}</span></li>`).join('')}</ul></section>
+    </div>`;
+}
+
+const lead = s => `<div><dt>The problem</dt><dd>${esc(s.pr)}</dd></div><div><dt>What it does for you</dt><dd>${esc(s.o)}</dd></div><div><dt>Who it’s for</dt><dd>${esc(s.role)}</dd></div>`;
+const ownCard = (s, i) => `<article class="wk-card aim-rise" style="--i:${i}" aria-labelledby="own-${s.id}">
+  <div class="by-own-h"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><div><h3 class="wk-h3" id="own-${s.id}">${esc(s.t)}</h3><p>${SET_ONE[s.s]} · ${tools(s)}</p></div><span class="wk-st" data-s="next">${ic('check')}Yours</span></div>
+  <dl class="wk-dl by-lead">${lead(s)}</dl>
+  <div class="by-acts"><a class="wk-btn wk-btn-primary wk-btn-arrow" href="#" onclick="return false">${roll('Open the Setup Guide')}${ic('arrow', 14, 'wk-arrow')}</a>${dlsOf(s).map(k => `<a class="wk-btn wk-btn-secondary" href="#" onclick="return false">${ic(k === 'practice' ? 'file' : 'down')}${roll(DL[k])}</a>`).join('')}</div>
+</article>`;
+
+function skillRow(s, i){
+  const st = isOwned(s) ? `<span class="wk-st" data-s="next">${ic('check')}Yours</span>` : s.f ? '<span class="wk-st" data-s="progress">Free</span>' : stLocked;
+  const href = isOpen(s) ? '#" onclick="return false' : `#skill-${s.id}`;
+  return `<li${i >= 5 ? ' data-more' : ''}><a class="wk-step"${isOpen(s) ? '' : ' data-s="locked"'} href="${href}"><span class="wk-ic" aria-hidden="true">${ic('book', 16)}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(s.t)}<span class="wk-chip">${esc(s.role)}</span></span><span class="wk-step-d">${esc(s.o)}</span></span><span class="wk-step-r">${st}<span class="wk-time">${tools(s)}</span></span>${ic('right', 20, 'wk-chev wk-arrow')}</a></li>`;
+}
+
+function viewLibrary(){
+  const mine = owned(), plan = myPlan(), many = mine.length > 1;
+  return `<div class="wk-page">${crumbs(['Skill Library'])}
+    <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">Skill Library</h1><p class="wk-purpose">${many ? 'Your skills come first.' : 'Your skill comes first.'} Every other skill is here to preview, with what it does and who it’s for.</p></header>
+    <section class="aim-rise" style="--i:1" aria-labelledby="own-h"><div class="wk-sec-head"><h2 class="wk-h2" id="own-h">${many ? 'Your Skills' : 'Your Skill'}</h2></div>
+      <div class="by-owned">${mine.map((s, k) => ownCard(s, 1 + k)).join('')}</div></section>
+    <section class="wk-hero aim-rise" style="--i:2" aria-label="Upgrade">
+      <div class="wk-hero-main"><p class="wk-kick">${esc(plan.name)} · ${plan.amount} a month</p><h2 class="wk-hero-t">${plan.every}</h2>
+        <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(plan.terms)}</p>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('lock')}Locked now</p><p class="wk-prog-n"><b>${opensWith(plan)}</b>skills</p>
+        <p class="wk-prog-left">${plan.key === 'leader' ? 'Every one of them opens with Insiders.' : 'The agent skills and the skills for everyone open with Agent Insiders.'}</p></div>
+    </section>
+    <section class="aim-rise" style="--i:3" aria-labelledby="all-h"><div class="wk-sec-head"><h2 class="wk-h2" id="all-h">Every Skill</h2></div>
+      <p class="wk-sum">Open a locked skill to see its setup. Any one of them is also $37 on its own.</p>
+      ${SET_ORDER.map(set => { const xs = CAT.filter(x => x.s === set).sort((a, b) => (isOwned(b) - isOwned(a)) || (b.f - a.f)); const mineN = xs.filter(isOwned).length, freeN = xs.filter(x => x.f).length;
+        const meta = [`${xs.length} skills`, mineN ? `${mineN} yours` : '', freeN ? `${freeN} free` : ''].filter(Boolean).join(' · ');
+        return `<div class="by-set"><h3 class="sc-month" id="set-${set}">${SETS[set]}<small>${meta}</small></h3><ol class="wk-steps by-list" data-all="false" aria-labelledby="set-${set}">${xs.map(skillRow).join('')}</ol>${xs.length > 5 ? `<div class="by-more"><button class="wk-btn wk-btn-ghost wk-btn-sm" type="button" data-more>${roll(`Show All ${xs.length}`)}${ic('chev')}</button></div>` : ''}</div>`; }).join('')}
+    </section></div>`;
+}
+
+function viewSkill(id){
+  const s = skill(id); if (!s) return viewLibrary();
+  const plan = planFor(s.s), lanes = s.lanes;
+  const what = [['book', 'Its step-by-step setup guide'], ['down', s.files.includes('grok') ? 'The Grok Bot template' : s.files.includes('chatgpt') ? 'Downloads for Claude and ChatGPT' : 'The download for Claude'], ...(s.files.includes('practice') ? [['file', 'Practice files to try it safely']] : [])];
+  return `<div class="wk-page">${crumbs(['Skill Library', '#library'], [s.t])}
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${SET_ONE[s.s]} ${lockedPill}</p><h1 class="wk-h1">${esc(s.t)}</h1><p class="wk-purpose">${esc(s.o)}</p>
+      <div class="wk-meta">${tag('users', s.role)}${tag('book', tools(s))}${s.files.includes('practice') ? tag('file', 'Practice files included') : ''}</div></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="Get this skill">
+      <div class="wk-hero-main"><p class="wk-kick">Locked · In ${esc(plan.name)}</p><h2 class="wk-hero-t">${plan.getAll}</h2>
+        <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(MINIMUM)}</p>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">Or just this one</p><p class="wk-prog-n"><b>$37</b>once</p><p class="wk-prog-left">Yours to keep, including future updates.</p>
+        <button class="wk-btn wk-btn-onforest by-line" type="button">${roll('Get This Skill, $37')}</button></div>
+    </section>
+    <div class="wk-grid by-g1">
+      <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="setup-h">
+        <div class="wk-card"><dl class="wk-dl by-lead by-lead-card">${lead(s)}</dl></div>
+        <div class="wk-sec-head by-setup-h"><h2 class="wk-h2" id="setup-h">The Setup</h2>
+          ${lanes.length > 1 ? `<div class="wk-seg" id="lane-seg" role="radiogroup" aria-label="Your AI"><span class="wk-seg-thumb" aria-hidden="true"></span>${lanes.map((l, k) => `<button class="wk-seg-b" type="button" role="radio" aria-checked="${k === 0}"${k ? ' tabindex="-1"' : ''} data-lane="${l.id}">${l.label}<small>${l.steps.length}</small></button>`).join('')}</div>` : ''}</div>
+        ${lanes.map((l, k) => `<ol class="wk-steps by-steps" data-lane-list="${l.id}"${k ? ' hidden' : ''} aria-label="${l.label} steps">${l.steps.map((t, n) => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${n + 1}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(t)}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>`).join('')}
+      </section>
+      <aside class="wk-rail" aria-label="What you get">
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="get-h"><div class="wk-card-h"><h3 class="wk-h3" id="get-h">What You’ll Get</h3></div>
+          <ul>${what.map(([i, t]) => `<li class="wk-kit-row"><span class="wk-ic">${ic(i, 16)}</span><span class="wk-kit-tx"><b>${t}</b></span><span></span></li>`).join('')}</ul></section>
+        ${help(4)}
+      </aside>
+    </div></div>`;
+}
+
+function viewTraining(){
+  return `<div class="wk-page">${crumbs([TRAINING.title])}
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${AGENT_PLAN.name} ${lockedPill}</p><h1 class="wk-h1">${TRAINING.title}</h1>
+      <p class="wk-purpose">${esc(TRAINING.lede)}</p>
+      <div class="wk-meta">${tag('cal', TRAINING.when)}${tag('clock', '60 minutes')}${tag('users', 'For agents')}</div></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="Upgrade">
+      <div class="wk-hero-main"><p class="wk-kick">Locked · In the Agent Plan</p><h2 class="wk-hero-t">Build One Skill Live, Every Week</h2>
+        <p class="wk-hero-d"><b>Agent Plan</b>${nb(AGENT_PLAN.body)}</p>
+        <div class="wk-hero-acts">${pay(AGENT_PLAN.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', AGENT_PLAN.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('radio')}One topic a week</p><p class="wk-prog-n"><b>${TRAINING.weeks.length}</b>topics</p><p class="wk-prog-left">You cover every topic in 4 weeks.</p></div>
+    </section>
+    <div class="wk-grid by-g1">
+      <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="rot-h"><h2 class="wk-h2" id="rot-h">The Rotation</h2>
+        <ol class="sc-list lk-list">${TRAINING.weeks.map(w => `<li class="sc-week"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.n}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${w.topic}</b></div><ul class="sc-sess">${w.skills.map(k => { const x = CAT.find(c => c.id === k || slugOf(c) === k); return x ? `<li>${ic('book')}<span>${esc(x.t)}</span>${isOwned(x) ? '<span class="sc-when">Yours</span>' : x.f ? '<span class="sc-when">Free</span>' : ''}</li>` : ''; }).join('')}</ul></div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol></section>
+      <aside class="wk-rail" aria-label="${AGENT_PLAN.name}">
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="ap-h"><div class="by-up-h"><p class="wk-label">For agents</p><h2 class="wk-h3" id="ap-h">${AGENT_PLAN.name}</h2><p class="by-price"><b>${AGENT_PLAN.amount}</b>a month</p><p class="by-terms">${MINIMUM}</p></div>${checks(AGENT_PLAN.lines)}</section>
+        ${help(4)}</aside>
+    </div></div>`;
+}
+
+function viewOffice(){
+  const plan = myPlan();
+  return `<div class="wk-page">${crumbs(['Office Hours'])}
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${esc(plan.name)} ${lockedPill}</p><h1 class="wk-h1">Office Hours</h1>
+      <p class="wk-purpose">${esc(OFFICE.lede)}</p>
+      <div class="wk-meta">${tag('cal', 'Every Thursday')}${tag('clock', '12:00 PM MT, 60 minutes')}${tag('video', 'Recorded')}</div></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="Upgrade">
+      <div class="wk-hero-main"><p class="wk-kick">Locked · In ${esc(plan.name)}</p><h2 class="wk-hero-t">Get Help on a Real File, Every Thursday</h2>
+        <p class="wk-hero-d"><b>${esc(plan.name)}</b>${esc(plan.line)} ${nb(plan.terms)}</p>
+        <div class="wk-hero-acts">${pay(plan.cart, 'wk-btn wk-btn-accent wk-btn-lg by-wrap', plan.button)}</div></div>
+      <div class="wk-prog"><p class="wk-prog-l">${ic('clock')}Every Thursday</p><p class="wk-prog-n"><b>12:00</b>PM MT</p><p class="wk-prog-left">60 minutes, live, then recorded.</p></div>
+    </section>
+    <div class="by-cards by-pair">${upCard(plan, 2, { button: false })}${help(3)}</div></div>`;
+}
+
+function viewAccel(){
+  const week0 = OUTLINE.find(w => w.week === 0);
+  return `<div class="wk-page">${crumbs(['AI Accelerator'])}
+    <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${ACCEL.name} ${lockedPill}</p><h1 class="wk-h1">AI Accelerator</h1>
+      <p class="wk-purpose">Week 0 sets up the office. Then one AI hire a week, built on your own numbers.</p>
+      <div class="wk-meta">${tag('radio', ACCEL.builds)}${tag('users', 'Owners and operators')}</div></header>
+    <section class="wk-hero aim-rise" style="--i:1" aria-label="${ACCEL.name}">
+      <div class="wk-hero-main"><p class="wk-kick">Locked · Part of the AI Accelerator</p><h2 class="wk-hero-t">${esc(week0 ? week0.question : 'AI Accelerator')}</h2>
+        <p class="wk-hero-d"><b>How it works</b>Every week answers one question about your business.</p>
+        <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="${B.accelHref}" onclick="return false">${roll('See the AI Accelerator')}${ic('arrow', 16, 'wk-arrow')}</a><a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#home">${roll('Back to Home')}${ic('arrow', 16, 'wk-arrow')}</a></div></div>
+      <div class="wk-prog"><p class="wk-prog-l">AI employees</p><p class="wk-prog-n"><b>${ACCEL.hiresN}</b>built with you</p><p class="wk-prog-left">${ACCEL.hiresRest}</p></div>
+    </section>
+    <div class="wk-grid by-g1">
+      <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="weeks-h"><h2 class="wk-h2" id="weeks-h">The Weeks</h2>
+        <ol class="sc-list lk-list">${OUTLINE.map(w => `<li class="sc-week" id="wk-row-${w.week}"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.week}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${esc(w.title)}</b></div>${w.outcome ? `<p class="sc-d">${esc(w.outcome)}</p>` : ''}${w.question ? `<ul class="sc-sess"><li class="by-q">${ic('help')}<span>${esc(w.question)}</span></li></ul>` : ''}</div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol>
+        <p class="wk-fine by-fine">Every hire reads and drafts. Nothing is sent without you.</p></section>
+      <aside class="wk-rail" aria-label="In the AI Accelerator">
+        <section class="wk-card aim-rise" style="--i:3" aria-labelledby="acc-h"><div class="wk-card-h"><h3 class="wk-h3" id="acc-h">In the AI Accelerator</h3></div>${checks(ACCEL.checks)}</section>
+        ${help(4)}</aside>
+    </div></div>`;
+}
+
+/* ---------- shell: nav, the top bar's strip, marker, collapse, routing (the v3 mockup's, with the buyer's rows) ---------- */
+const NAV = [['home', 'Home', 'home'], ['grid', 'Skill library', 'library'], ['users', 'Office hours', 'office-hours', 1], ['radio', 'Weekly training', 'training', 1]];
+const lockStat = `<span class="sh-stat" data-s="locked">${ic('lock', 12)}<span class="wk-sr">Locked</span></span>`;
+function renderShell(){
+  const mine = owned();
+  $('sh-cohort').innerHTML = `Amplified Skill<br>${mine.length === 1 ? '1 skill' : `${mine.length} skills`} bought`;
+  $('sh-main').innerHTML = NAV.map(([i, t, id, lock]) => `<li><a class="sh-link" href="#${id}" data-nav="${id}"${lock ? ' data-locked' : ''}>${ic(i, 16)}<span class="sh-label">${t}</span>${lock ? lockStat : ''}</a></li>`).join('');
+  $('sh-weeks').innerHTML = OUTLINE.map(w => `<li><a class="sh-link sh-week" href="#week-${w.week}" data-nav="week-${w.week}" data-locked title="Week ${w.week} · ${esc(w.title)}"><span class="sh-wn" aria-hidden="true">${w.week}</span><span class="sh-label">${esc(w.title)}</span>${lockStat}</a></li>`).join('');
+  $('sh-next').innerHTML = mine.length === 1
+    ? `<span class="sh-live">${ic('book', 16)}Your skill</span><b>${esc(mine[0].t)}</b><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#" onclick="return false">${roll('Open the Setup Guide')}</a>`
+    : `<span class="sh-live">${ic('book', 16)}Your skills</span><b>${esc(mine[0].t)}</b><span class="sh-mut">and ${mine.length - 1} more</span><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#library">${roll('Open Your Skills')}</a>`;
+}
+const marker = $('sh-marker'), scroller = $('sh-scroll');
+function placeMarker(){ const a = scroller.querySelector('[aria-current="page"]'); const r = a && a.offsetParent ? a.getBoundingClientRect() : null, o = scroller.getBoundingClientRect();
+  marker.style.setProperty('--y', (r ? r.top - o.top + scroller.scrollTop : 0) + 'px'); marker.style.setProperty('--h', (r ? r.height : 0) + 'px'); }
+function setCurrent(id){ document.querySelectorAll('.sh-link[data-nav]').forEach(a => a.dataset.nav === id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')); placeMarker(); }
+function placeThumb(){ const seg = $('lane-seg'); if (!seg) return; const b = seg.querySelector('[aria-checked="true"]'), th = seg.querySelector('.wk-seg-thumb');
+  th.style.setProperty('--x', b.offsetLeft + 'px'); th.style.setProperty('--w', b.offsetWidth + 'px'); }
+function wire(){
+  document.querySelectorAll('[data-more]').forEach(b => b.onclick = () => { b.closest('.by-set').querySelector('.by-list').dataset.all = 'true'; b.parentElement.remove(); });
+  const seg = $('lane-seg'); if (!seg) return; const bs = [...seg.querySelectorAll('.wk-seg-b')];
+  const pick = (b, focus) => { bs.forEach(x => { const on = x === b; x.setAttribute('aria-checked', on); x.tabIndex = on ? 0 : -1; }); if (focus) b.focus();
+    document.querySelectorAll('[data-lane-list]').forEach(l => l.hidden = l.dataset.laneList !== b.dataset.lane); placeThumb(); };
+  bs.forEach((b, i) => { b.onclick = () => pick(b); b.onkeydown = e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); pick(bs[(i + d + bs.length) % bs.length], true); }; });
+  placeThumb(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { placeThumb(); requestAnimationFrame(() => requestAnimationFrame(() => seg.querySelector('.wk-seg-thumb').classList.add('live'))); });
+}
+const HERE = { home: 'Home', library: 'Skill Library', training: 'Weekly Live Training', 'office-hours': 'Office Hours', accelerator: 'AI Accelerator' };
+function route(){
+  const h = location.hash.slice(1) || 'home', sk = /^skill-(.+)$/.exec(h), wk = /^week-([0-8])$/.exec(h);
+  const view = sk ? 'skill' : wk || h === 'accelerator' ? 'accelerator' : HERE[h] ? h : 'home';
+  const html = view === 'skill' ? viewSkill(sk[1]) : view === 'library' ? viewLibrary() : view === 'training' ? viewTraining() : view === 'office-hours' ? viewOffice() : view === 'accelerator' ? viewAccel() : viewHome();
+  $('main').innerHTML = `<div data-ai="${view}">${html}</div>`;
+  $('sh-next').hidden = view === 'home';   /* Home's hero already is the buyer's skill, as the Schedule's hero is the next session */
+  setCurrent(view === 'skill' ? 'library' : view === 'accelerator' ? `week-${wk ? wk[1] : 0}` : view);
+  $('sh-here').textContent = view === 'skill' ? (skill(sk[1]) || {}).t || 'Skill Library' : HERE[view];
+  $('sh-side').removeAttribute('data-open'); $('sh-menu').setAttribute('aria-expanded', 'false');
+  wire();
+  if (wk && +wk[1] > 0) requestAnimationFrame(() => $(`wk-row-${wk[1]}`)?.scrollIntoView({ block: 'start' })); else scrollTo(0, 0);
+  document.body.dataset.appReady = 'true';
+}
+$('sh-group').onclick = e => { const b = e.currentTarget, open = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', open); $('sh-weeks').hidden = !open; placeMarker(); };
+const app = $('sh-app'), cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim(), cssMs = v => parseFloat(cssVar(v));
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const movers = () => [...app.querySelectorAll('.sh-side .sh-link>svg:first-child,.sh-wn')], rectsOf = () => movers().map(el => el.getBoundingClientRect());
+function flip(before, dur, ease){ movers().forEach((el, i) => { el.getAnimations().forEach(a => a.cancel()); const a = before[i], b = el.getBoundingClientRect(); if (!a || !a.width || !b.width) return; const dx = a.left - b.left, dy = a.top - b.top; if (!dx && !dy) return;
+  try { el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: cssMs(dur), easing: cssVar(ease) }); } catch (err) {} }); }
+let collapseT = 0, swapT = 0;
+function setCollapsed(on){ const btn = $('sh-collapse'); clearTimeout(collapseT); clearTimeout(swapT);
+  btn.setAttribute('aria-pressed', on); btn.querySelector('.sh-label').textContent = on ? 'Expand sidebar' : 'Collapse sidebar';
+  const settle = () => { clearTimeout(collapseT); clearTimeout(swapT); if (app.dataset.narrow === 'true') app.dataset.collapsed = true; app.removeAttribute('data-anim'); placeMarker(); placeThumb(); };
+  if (reduce() || innerWidth <= 900){ app.dataset.narrow = app.dataset.collapsed = on; return settle(); }
+  app.ontransitionend = e => { if (e.target === app && e.propertyName === 'grid-template-columns') settle(); };
+  if (on){ app.dataset.narrow = true; app.dataset.anim = 'collapsing';
+    swapT = setTimeout(() => { const before = rectsOf(); app.dataset.collapsed = true; placeMarker(); flip(before, '--aim-dur-base', '--aim-ease'); }, cssMs('--aim-dur-quick'));
+    collapseT = setTimeout(settle, cssMs('--aim-dur-move') + 80);
+  } else { const before = app.dataset.collapsed === 'true' ? rectsOf() : null;
+    app.dataset.collapsed = app.dataset.narrow = false; app.dataset.anim = 'expanding'; placeMarker();
+    if (before) flip(before, '--aim-dur-move', '--aim-ease');
+    collapseT = setTimeout(settle, cssMs('--aim-dur-spring') + 80); }
+}
+$('sh-collapse').onclick = () => setCollapsed(app.dataset.narrow !== 'true');
+$('sh-menu').onclick = e => { const open = $('sh-side').dataset.open !== 'true'; $('sh-side').dataset.open = open; e.currentTarget.setAttribute('aria-expanded', open); placeMarker(); };
+new ResizeObserver(() => { placeMarker(); placeThumb(); }).observe(document.body);
+
+/* ---------- the MOCKUP bar (review-only) ---------- */
+function setBought(b){ bought = b; document.querySelectorAll('[data-bought]').forEach(x => x.setAttribute('aria-pressed', x.dataset.bought === b)); renderShell(); route(); }
+document.querySelectorAll('[data-bought]').forEach(b => b.onclick = () => setBought(b.dataset.bought));
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
+addEventListener('hashchange', route);
+setBought(bought);
+</script>
+</body>
+</html>

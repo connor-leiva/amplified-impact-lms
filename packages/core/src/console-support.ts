@@ -52,11 +52,11 @@ export const LIVE_PLAN_STATUSES: readonly PlanStatus[] = ['trialing', 'active', 
 
 /**
  * Which plan names a workspace when its accounts hold more than one: a running plan before a lapsed
- * one, then the AI Accelerator, the Team Plan, the Agent Plan, Insiders and the retired library, then
- * the newest. An AI Accelerator buyer also holds Insiders (it rolls into it), and is an Accelerator
- * workspace; a lapsed Team Plan with a running Insiders is an Insiders one.
+ * one, then the AI Accelerator, the Team Plan, the Agent Plan, Insiders, Agent Insiders and the retired
+ * library, then the newest. An AI Accelerator buyer also holds Insiders (it rolls into it), and is an
+ * Accelerator workspace; a lapsed Team Plan with a running Insiders is an Insiders one.
  */
-export const PLAN_PRIORITY: readonly PlanKind[] = ['cohort', 'agents', 'agent_plan', 'membership', 'library'];
+export const PLAN_PRIORITY: readonly PlanKind[] = ['cohort', 'agents', 'agent_plan', 'membership', 'insiders_agent', 'library'];
 
 export interface PlanLike {
   kind: string;
@@ -148,6 +148,16 @@ export interface ConsolePlan {
   stripeSubscriptionId: string | null;
   orderId: string;
   createdAt: number;
+}
+
+export interface ConsoleSkillPurchase {
+  id: string;
+  skillId: string;
+  skill: string;
+  amount: number | null;
+  purchasedAt: number;
+  stripeSessionId: string;
+  refundedAt: number | null;
 }
 
 export interface ConsoleOrder {
@@ -323,6 +333,8 @@ export interface ConsoleUserDetail {
   };
   identity: ConsoleIdentity;
   orders: ConsoleOrder[];
+  /** $37 skill purchases for this person. Empty when they have bought none. */
+  skillPurchases: ConsoleSkillPurchase[];
   progress: ConsoleProgress[];
   entitlements: ConsoleEntitlements;
 }

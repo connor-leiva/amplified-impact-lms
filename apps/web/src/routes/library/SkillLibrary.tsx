@@ -9,13 +9,14 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
-import { PLAN_SETS, type PlanKind } from '@ai/core/offer';
+import { Link, Navigate } from 'react-router';
+import { AGENT_TRAINING, PLAN_SETS, skillOnlyBuyer, type PlanKind, type TrainingAccess } from '@ai/core/offer';
 import { guidePageOf, skillGuidePath } from '@ai/core/skill-guides';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from './PreLaunch';
+import { AgentPlanUpgrade, GetSkillButton } from './SkillPurchase';
 import s from './SkillLibrary.module.css';
 
 export const COPY = {
@@ -258,8 +259,11 @@ type Load =
       /** D-179: each group's locked line from the builder (`locked.utah_life`), by group id. */
       lockedLines: Record<string, string>;
       paidPlans: boolean;
+      training: TrainingAccess;
       /** D-153: when a bought AI Accelerator opens, while it has not; null otherwise. */
       courseOpensAt: number | null;
+      /** D-241: a $37 skill buyer with no plan and no access group, whose library is in the LMS now (`/learn`). */
+      buyer: boolean;
     }
   | { kind: 'signed-out' }
   | { kind: 'failed' };
@@ -281,6 +285,8 @@ async function loadSkills(): Promise<Load> {
       accessGroups?: AccessGroupInfo[];
       lockedLines?: Record<string, string>;
       courseOpensAt?: number | null;
+      training?: TrainingAccess;
+      purchased?: string[];
     };
     return {
       kind: 'ready',
@@ -292,7 +298,9 @@ async function loadSkills(): Promise<Load> {
       plans: body.plans ?? [],
       lockedLines: body.lockedLines ?? {},
       paidPlans: (body.plans ?? []).length > 0,
+      training: body.training === 'open' || body.training === 'locked' ? body.training : 'hidden',
       courseOpensAt: typeof body.courseOpensAt === 'number' ? body.courseOpensAt : null,
+      buyer: skillOnlyBuyer({ plans: body.plans, accessGroups: body.accessGroups, purchased: body.purchased }),
     };
   } catch {
     return { kind: 'signed-out' };
@@ -405,6 +413,36 @@ async function dismissWelcome(group: string): Promise<void> {
   }
 }
 
+function TrainingRow({ access }: { access: TrainingAccess }) {
+  const [open, setOpen] = useState(false);
+  if (access === 'hidden') return null;
+  return (
+    <ul className={s.list} role="list">
+      <li className={s.skill} data-state={access === 'open' ? 'open' : 'locked'} data-training={access}>
+        <div className={s.text}>
+          <h2 className={s.name} id="weekly-live-training">
+            {AGENT_TRAINING.title}
+          </h2>
+        </div>
+        <div className={s.actions}>
+          {access === 'open' ? (
+            <span className={s.note}>
+              <Icon name="checkCircle" size={16} />
+              {AGENT_TRAINING.included}
+            </span>
+          ) : (
+            <button type="button" className={s.primary} onClick={() => setOpen(true)}>
+              <Icon name="lock" size={16} />
+              {AGENT_TRAINING.locked}
+            </button>
+          )}
+        </div>
+      </li>
+      {open ? <AgentPlanUpgrade onClose={() => setOpen(false)} /> : null}
+    </ul>
+  );
+}
+
 function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups: readonly AccessGroupInfo[]; lockedLines: Readonly<Record<string, string>> }) {
   const group = groupForSkill(skill, groups);
   const memberLine = group ? (lockedLines[group.id] ?? COPY.notIncluded(group.name)) : null;
@@ -454,12 +492,8 @@ function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups:
               <Icon name="listChecks" size={16} />
               {COPY.preview}
             </Link>
-            {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
-            {offersPlans(memberLine !== null) ? (
-              <a className={s.secondary} href={PLANS_URL}>
-                {COPY.seePlans}
-              </a>
-            ) : null}
+            {/* A bought skill, or every skill with Amplified Insiders. Never for an access group's member. */}
+            {offersPlans(memberLine !== null) ? <GetSkillButton skillId={skill.id} sets={skill.sets} className={s.primary} /> : null}
           </>
         ) : (
           <span className={s.note}>
@@ -500,6 +534,10 @@ export function Component() {
   useEffect(() => {
     if (load.kind !== 'loading') document.body.dataset.appReady = 'true';
   }, [load.kind]);
+
+  // D-241: a $37 skill buyer with no plan and no access group has their library inside the LMS. Everyone else, an
+  // access group's member (Utah Life) and every plan's member above all, keeps this page exactly as it was.
+  if (load.kind === 'ready' && load.buyer) return <Navigate to="/learn" replace />;
 
   return (
     <main className={s.page}>
@@ -544,6 +582,8 @@ export function Component() {
 
       {/* D-153: bought, and opening at the first live build: why the course and the skills wait. */}
       {load.kind === 'ready' && load.courseOpensAt !== null ? <PreLaunch opensAt={load.courseOpensAt} /> : null}
+
+      {load.kind === 'ready' ? <TrainingRow access={load.training} /> : null}
 
       {load.kind === 'ready'
         ? load.groups

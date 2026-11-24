@@ -200,7 +200,7 @@ describe('a step’s course fields (D-174)', () => {
     expect(last.paths!.claude!.blocks[0]).toEqual({ type: 'check', id: 'w1s6c-fill', title: 'Fill in the seat card', action: { type: 'form', formId: 'seat-card', label: 'Open the seat card', itemId: 'w1s6c-sign' } });
   });
 
-  it('D-240: the Button menu says Form, and a table can be the week’s Seat card, its rows then edited on the card', async () => {
+  it('D-242: the Button menu says Form, and a table can be the week’s Seat card, its rows then edited on the card', async () => {
     const user = userEvent.setup();
     let last: Step = {
       id: 'c6', text: 'Sign the seat card', ch: '', mins: 10, t: 0, hint: '',

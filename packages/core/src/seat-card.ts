@@ -38,7 +38,7 @@ export type SeatCardField = (typeof SEAT_CARD_FIELDS)[number];
 export type SeatCardAnswers = Partial<Record<SeatCardField, string>>;
 
 /**
- * D-240: the card as a table's rows, label then words, the seat first and then the card's order: what a step's Seat
+ * D-242: the card as a table's rows, label then words, the seat first and then the card's order: what a step's Seat
  * Card table shows (an accordion marked `seatCard`). A row with no words is left out.
  */
 export function seatCardRows(card: SeatCard): string[][] {

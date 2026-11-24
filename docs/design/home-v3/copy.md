@@ -406,7 +406,7 @@ TEAM OWNERS AND OPS LEADS
 DETAILS
 Amplified Insiders
 The same owner skills we use, ready to download. Each one is a job description for your AI, with a short guide that walks you through setup. You set them up on your own time. Get stuck? Bring it to office hours and we’ll help.
-Every owner and ops skill, like Morning Brief, L10 Meeting Prep and Team P&L Review
+Every skill, like Morning Brief, L10 Meeting Prep and Team P&L Review
 2 new skills added every month
 Weekly office hours: ask questions, or sit in and learn with other team owners
 Every session recorded in the Academy
@@ -416,7 +416,7 @@ Yearly
 Monthly
 $1,997
 A YEAR
-Counts fully toward the Accelerator later. Or $197 a month, with a 3-month minimum.
+Counts fully toward the Accelerator later. Or $169 a month, with a 3-month minimum.
 Join Insiders
 WE TRAIN YOUR AGENTS
 TEAM OWNERS
@@ -448,14 +448,14 @@ Weekly office hours: a live Q&A, ask us anything
 Best if your team owner hasn’t jumped in yet, or you just want to get ahead.
 Monthly
 Yearly
-$79
+$117
 A MONTH
-Or $790 a year. Join any day, cancel anytime. First charge Jan 4.
+Or $790 a year. Join any day. 3-Month Minimum. First charge Jan 4.
 Start the Agent Plan
 Still not sure? Start with the 5 free skills. You’ll know in a week which program fits.
 Compare Every Program
 ```
-**Toggle states:** Insiders Monthly → $197 a month (buy link insidersMonthly). Team 16 to 40 → $2,391 first 3 months; "For 16 to 40 agents. Then $797 a month, from April 4, 2027." (buy link team16to40). Agent Yearly → $790 a year (buy link agentYearly). Every number must come from the same source /pricing uses, not be retyped.
+**Toggle states:** Insiders Monthly → $169 a month (buy link insidersMonthly). Team 16 to 40 → $2,391 first 3 months; "For 16 to 40 agents. Then $797 a month, from April 4, 2027." (buy link team16to40). Agent Yearly → $790 a year (buy link agentYearly). Every number must come from the same source /pricing uses, not be retyped.
 
 ## S12 Accelerator timeline  (`section.wed`, theme: light)
 ```
@@ -509,7 +509,7 @@ No new hire. Keep, fix or let go each one, then pick your next hire for a 90-day
 AFTER
 90 DAYS
 Keep building
-New skills and office hours for 90 days after your last build. Then Amplified Insiders at $197 a month, from May 4, 2027, until you cancel.
+New skills and office hours for 90 days after your last build. Then Amplified Insiders at $169 a month, from May 4, 2027, until you cancel.
 BUILDS WED 12:00 PM MT, 90 MINUTES
 OFFICE HOURS THU 12:00 PM MT
 NO BUILDS DEC 23 OR 30
@@ -624,7 +624,7 @@ Can I cancel?
 05 Every build and class is recorded in the Academy. Watch it when you can, then bring your questions to office hours.
 06 No. The Accelerator runs hands-off on Sisu, QuickBooks Online and Google. For anything else, you drop in an export. It takes a few minutes a month. Everything else works with any CRM.
 07 Want it built with you, live? The Accelerator. Want to build it yourself? Insiders. Want your agents trained for you? The Team Plan. Just you, as an agent? The Agent Plan. Still not sure? Start with the 5 free skills. [link: Compare Every Program]
-08 The Agent Plan cancels anytime. Insiders monthly has a 3-month minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.
+08 The Agent Plan monthly has a 3-Month Minimum. Insiders monthly has a 3-Month Minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.
 
 ## S16 Closing CTA  (`section.close`, theme: forest)
 ```

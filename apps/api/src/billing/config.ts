@@ -12,6 +12,7 @@
 //   TEAM_CALL_URL          where "Let's talk" goes for a team over 40 agents (D-105); unset, an email to support
 //   STRIPE_PORTAL_LOGIN_URL      the billing portal's login page, where members cancel themselves
 //   STRIPE_PORTAL_CONFIG_LOCKED  a portal configuration with cancelling off, for buyers inside a commitment
+//   STRIPE_PRICE_SKILL_SINGLE    the `price_…` id of the $37 one-time skill price (lookup key skill_single)
 //
 // EVERYTHING HERE IS OPTIONAL, AND THE API BOOTS WITHOUT ANY OF IT. With no Stripe key the offer page
 // shows the fallback links instead of its own buttons; with no links either, it says the carts open
@@ -53,6 +54,16 @@ export interface OfferConfig {
    * link when the key is a live key. With a test key and no variable, none: the cap leaves Stripe alone.
    */
   seatCapLinks: string[];
+  /**
+   * The one-time skill price (`STRIPE_PRICE_SKILL_SINGLE`), a `price_…` id. Not a secret. Unset, or
+   * not a price id, skill checkout answers 503 and creates nothing.
+   */
+  skillPriceId: string | null;
+  /**
+   * Signed-out $37 checkout that creates the account. Off unless `SKILL_GUEST_CHECKOUT=on`.
+   * Off, the public button's route sends the visitor to the stopgap Payment Link.
+   */
+  skillGuestCheckout: boolean;
 }
 
 export class OfferConfigError extends Error {
@@ -99,6 +110,12 @@ export const ACCELERATOR_LINKS_LIVE = {
 } as const;
 
 const PLINK = /^plink_[A-Za-z0-9]+$/;
+const PRICE_ID = /^price_[A-Za-z0-9]+$/;
+
+function skillPriceId(raw: string | undefined): string | null {
+  const value = (raw ?? '').trim();
+  return PRICE_ID.test(value) ? value : null;
+}
 
 function seatCapLinks(env: NodeJS.ProcessEnv): string[] {
   const live = keyMode(secret(env.STRIPE_SECRET_KEY)) === 'live';
@@ -137,6 +154,8 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     calendarUrls: { builds: httpsUrl(env.CALENDAR_URL_BUILDS), officeHours: httpsUrl(env.CALENDAR_URL_OFFICE_HOURS) },
     teamCallUrl: httpsUrl(env.TEAM_CALL_URL),
     seatCapLinks: seatCapLinks(env),
+    skillPriceId: skillPriceId(env.STRIPE_PRICE_SKILL_SINGLE),
+    skillGuestCheckout: (env.SKILL_GUEST_CHECKOUT ?? '').trim().toLowerCase() === 'on',
   };
 }
 
@@ -167,5 +186,8 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     teamCall: config.teamCallUrl !== null,
     // D-154: how many Accelerator Payment Links the 15-seat cap turns off and on (ids, never a key).
     seatCapLinks: config.seatCapLinks.length,
+    // Whether the one-time skill price id is set. The id itself stays out of the log.
+    skillPrice: config.skillPriceId === null ? 'unset' : 'set',
+    skillGuestCheckout: config.skillGuestCheckout ? 'on' : 'off',
   };
 }

@@ -6,8 +6,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
+import { SKILL_PURCHASE, skillUpsell } from '@ai/core/offer';
 import { previewOf } from '@ai/core/skill-guides';
-import SkillGuide, { COPY, TOAST_MS } from './SkillGuide';
+import SkillGuide, { COPY, TOAST_MS, checkoutReturn } from './SkillGuide';
 import type { GuideAnswer } from './SkillGuide';
 import { GUIDES } from '../../guides/content';
 import { exportGuide, exportSkillGuides } from '../../guides/setup-export';
@@ -72,6 +73,21 @@ describe('the guided setup in learn (D-151)', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/skill-guides/appointment-follow-up', expect.objectContaining({ credentials: 'include' }));
   });
 
+  it('sends a paid guest through the checkout return instead of the sign-in form', async () => {
+    const go = vi.spyOn(checkoutReturn, 'go').mockImplementation(() => undefined);
+    fetchMock.mockResolvedValue(answer(401));
+    const router = createMemoryRouter(
+      [
+        { path: '/skill-library/:slug', element: <SkillGuide /> },
+        { path: '/sign-in', element: <p>sign in</p> },
+      ],
+      { initialEntries: ['/skill-library/post-closing-client-care?session_id=cs_test_abcdefghij'] },
+    );
+    render(<RouterProvider router={router} />);
+    await waitFor(() => expect(go).toHaveBeenCalledWith('cs_test_abcdefghij'));
+    expect(router.state.location.pathname).toBe('/skill-library/post-closing-client-care');
+  });
+
   it('walks an open skill one step at a time, with its file through the checked download, and copies its words', async () => {
     fetchMock.mockResolvedValue(answer(200, open));
     const writeText = vi.fn(() => Promise.resolve());
@@ -125,9 +141,11 @@ describe('the guided setup in learn (D-151)', () => {
 
   it('shows a locked skill’s steps’ titles and the plans, with no step’s words', async () => {
     fetchMock.mockResolvedValue(answer(200, locked({ paidPlans: false })));
-    at('appointment-follow-up');
+    const router = at('appointment-follow-up');
     expect(await screen.findByText('Not in your plan.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'See Plans' })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
+    expect(router.state.location.pathname).toBe('/skill-library/appointment-follow-up');
+    expect(screen.getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     const titles = Array.from(document.querySelectorAll('ol li')).map((li) => li.textContent);
     expect(titles).toEqual(guide.lanes[0]!.steps.map((s, i) => `${i + 1}${s.title}`));
     expect(screen.queryByRole('button', { name: FILE.ui.guided.next })).toBeNull();
@@ -142,6 +160,28 @@ describe('the guided setup in learn (D-151)', () => {
     expect(await screen.findByText('Not included with Utah Life access')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'See Plans' })).toBeNull();
     expect(screen.queryByText('Not in your plan.')).toBeNull();
+    expect(screen.queryByRole('button', { name: SKILL_PURCHASE.get })).toBeNull();
+    expect(screen.queryByRole('link', { name: skillUpsell('agent').label })).toBeNull();
+    expect(screen.queryByRole('link', { name: skillUpsell('owner_ops').label })).toBeNull();
+    expect(screen.queryByText('$37')).toBeNull();
+    expect(screen.queryByText(/\$197/)).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens the two choices before payment, and does not for a Utah Life member', async () => {
+    const upsell = skillUpsell('agent');
+    fetchMock.mockImplementation((url: string) => {
+      if (String(url).includes('/api/offer')) {
+        return Promise.resolve(answer(200, { carts: [{ id: upsell.cart, paymentLink: 'https://buy.stripe.com/test_agent_insiders' }] }));
+      }
+      return Promise.resolve(answer(200, locked({ paidPlans: false })));
+    });
+    at('appointment-follow-up');
+    await userEvent.click(await screen.findByRole('button', { name: SKILL_PURCHASE.get }));
+    const dialog = screen.getByRole('dialog', { name: SKILL_PURCHASE.title });
+    expect(within(dialog).getByRole('button', { name: SKILL_PURCHASE.get })).toBeInTheDocument();
+    expect(await within(dialog).findByRole('link', { name: upsell.label })).toHaveAttribute('href', 'https://buy.stripe.com/test_agent_insiders');
+    expect(within(dialog).getByText(SKILL_PURCHASE.body)).toBeInTheDocument();
   });
 
   it('says when an upcoming one opens', async () => {
@@ -154,6 +194,14 @@ describe('the guided setup in learn (D-151)', () => {
     fetchMock.mockResolvedValue(answer(404, { error: 'Not found' }));
     at('not-a-skill');
     expect(await screen.findByText(COPY.missing)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: COPY.back })).toHaveAttribute('href', '/skill-library');
+  });
+
+  it('does not call a real guide missing when the account cannot open the library', async () => {
+    fetchMock.mockResolvedValue(answer(403, { error: 'The skill library is for learners.' }));
+    at('ai-brain-tuneup');
+    expect(await screen.findByText(COPY.refused)).toBeInTheDocument();
+    expect(screen.queryByText(COPY.missing)).toBeNull();
     expect(screen.getByRole('link', { name: COPY.back })).toHaveAttribute('href', '/skill-library');
   });
 

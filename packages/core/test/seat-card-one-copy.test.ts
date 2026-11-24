@@ -1,4 +1,4 @@
-// D-240: the seat card's words in one place. Over what production holds after D-235, the step sets the two card rows
+// D-242: the seat card's words in one place. Over what production holds after D-235, the step sets the two card rows
 // that never got the approved words (Week 2's Took Over, both weeks' First Run), marks step 6's Seat Card table on both
 // paths to draw from the card, changes nothing on a second run, and leaves a row or a table changed in the builder.
 import { describe, expect, it } from 'vitest';
@@ -42,7 +42,7 @@ const approved = (n: 1 | 2): string[][] => {
   return t && t.type === 'accordion' ? t.rows : [];
 };
 
-describe('the seat card in one place (D-240)', () => {
+describe('the seat card in one place (D-242)', () => {
   it('sets the rows that never got the approved words, and step 6 then shows exactly the approved table', () => {
     const before = deployed();
     // What was wrong: Week 2's Took Over still held the repo seed's words, and neither week had a First Run.
@@ -110,7 +110,7 @@ describe('the seat card in one place (D-240)', () => {
   });
 });
 
-describe('seatCardRows (D-240)', () => {
+describe('seatCardRows (D-242)', () => {
   it('is the seat, then each row in the card’s order, leaving out a row with no words', () => {
     expect(seatCardRows({ seat: 'Finance Analyst', reportsTo: 'Owner', runs: 'Monthly', pulls: 'Books', applies: 'The chart', produces: 'A report', tookOver: '', cantDo: 'Change the books', firstRun: 'Date and screenshot' })).toEqual([
       ['Seat', 'Finance Analyst'],

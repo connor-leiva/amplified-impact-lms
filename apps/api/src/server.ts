@@ -62,6 +62,7 @@ import { intakeDryRun, startGhlIntakeLoop } from './jobs/ghl-intake';
 import { ghlSyncPaused, readGhlConfig } from './integrations/ghl';
 import { clock } from './lib/clock';
 import { GUIDE_SLUGS } from './routes/guide-list';
+import { fillGuideLinks } from './routes/guides';
 import { SALES_PAGES } from './routes/offer';
 import type { SalesPath } from './routes/offer';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
@@ -145,6 +146,9 @@ const salesPages = Object.fromEntries(
 const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', import.meta.url));
 // Read once, here, so a malformed FOUNDING_CLOSES_AT stops the deploy before it serves a wrong price.
 const offerConfig = readOfferConfig();
+const linkedGuidePages = Object.fromEntries(
+  Object.entries(guidePages).map(([slug, html]) => [slug, fillGuideLinks(html, offerConfig.paymentLinks)]),
+);
 
 const app = await build({
   // § 9.4's logger, with its redaction: no cookie, and no token, email, or Google `code` or `state`
@@ -153,9 +157,9 @@ const app = await build({
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
-  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages), libraryPage, offerPage, welcomePage]),
+  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(linkedGuidePages), libraryPage, offerPage, welcomePage]),
   ai101Page,
-  guidePages,
+  guidePages: linkedGuidePages,
   skillGuides,
   libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },

@@ -28,7 +28,8 @@ import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { AGREEMENT_VERSION } from './agreement';
-import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, SKILL_AI_PLAN, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { refundSkillPurchase, skillCheckoutCompleted } from './skill-purchase';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
@@ -201,9 +202,23 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
 
 // --- the handlers ----------------------------------------------------------------------------------
 
-/** `checkout.session.completed` and `checkout.session.async_payment_succeeded`. */
+/**
+ * `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
+ *
+ * A session with no `ai_plan` is ignored, unless it is a single-skill Payment Link: those carry
+ * `offer=single_skill_37` and a `skill` dropdown (the skill id with the hyphens removed). A link
+ * with neither is still ignored, and is not a plan and not a purchase.
+ */
 async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookDeps, db: Database): Promise<string> {
   const now = deps.now();
+  const offer = session.metadata?.offer ?? '';
+  if ((session.metadata?.ai_plan ?? '') === SKILL_AI_PLAN || offer === 'single_skill_37') {
+    return skillCheckoutCompleted(session, db, now, deps.log, {
+      invitesFrom: deps.config.invitesFrom,
+      invitesEnabled: deps.config.invitesEnabled,
+      skillGuestCheckout: deps.config.skillGuestCheckout,
+    });
+  }
   const plan = session.metadata?.ai_plan ?? '';
   if (!(PLAN_KINDS as readonly string[]).includes(plan)) {
     return (AI_PLANS as readonly string[]).includes(plan) ? `ignored:${plan}` : 'ignored:unknown-plan';
@@ -294,7 +309,7 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
 }
 
 /**
- * A `membership_monthly` subscription trialing until `startsAt`, on the card the buyer already saved.
+ * A `membership_monthly_team_leader` subscription trialing until `startsAt`, on the card the buyer already saved.
  * With no saved card, Stripe emails an invoice instead of charging. Idempotent by `opts.key`, and
  * skipped when the customer already has an active or trialing membership, so a retried webhook never
  * enrolls anyone twice.
@@ -310,11 +325,16 @@ async function startMembership(
   const plan = await planOfOrder(db, order.id);
   if (!plan || plan.stripeSubscriptionId) return;
   const prices = await deps.prices.get(deps.now());
-  const price = prices?.membership_monthly;
-  if (!price) throw Object.assign(new Error('membership_monthly has no price'), { code: 'no-membership-price' });
+  const price = prices?.membership_monthly_team_leader;
+  if (!price) throw Object.assign(new Error('membership_monthly_team_leader has no price'), { code: 'no-membership-price' });
   if (!order.stripeCustomerId) throw Object.assign(new Error('order has no customer'), { code: 'no-customer' });
 
-  const existing = await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, price.id);
+  // A buyer already on Team Leader Insiders, or still on the earlier $197 price, is not enrolled again.
+  // The $197 subscription is left as it is.
+  const legacy = prices?.membership_monthly;
+  const existing =
+    (await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, price.id)) ??
+    (legacy ? await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, legacy.id) : null);
   if (existing) {
     deps.log.warn({ order: order.id, plan: plan.id, subscription: existing }, 'customer already has a membership; none created');
     return;
@@ -347,7 +367,7 @@ async function startMembership(
 
 /**
  * An AI Accelerator order's Amplified Insiders. Paid in full, the order's own subscription carries it
- * (`membership_monthly` trialing until May 4), so the plan points there. Two payments, the installments
+ * (`membership_monthly_team_leader` trialing until May 4), so the plan points there. Two payments, the installments
  * are their own subscription and Insiders is a separate one, created here with `trial_end` pinned to
  * May 4, 2027 and the idempotency key `membership-autoroll-<session>` (the Stripe-side requirements,
  * section B): sharing one subscription would delay or cancel the installments with the membership. A
@@ -523,6 +543,8 @@ async function subscriptionChanged(sub: Stripe.Subscription, deleted: boolean, d
 async function chargeRefunded(charge: Stripe.Charge, deps: WebhookDeps, db: Database): Promise<string> {
   if (!charge.refunded) return 'ignored:partial';
   const pi = idOf(charge.payment_intent as string | { id: string } | null);
+  const skill = await refundSkillPurchase(pi, db, deps.now());
+  if (skill) return skill;
   let order: OrderRow | null = null;
   if (pi) {
     const [row] = await db.select().from(orders).where(eq(orders.stripePaymentIntentId, pi)).limit(1);

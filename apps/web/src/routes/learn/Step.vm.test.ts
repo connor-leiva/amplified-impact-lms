@@ -161,7 +161,7 @@ describe('the step player (D-177)', () => {
     expect(staff.kind === 'step' && staff.layouts?.claude?.gate).toEqual({ locked: false, reason: null });
   });
 
-  it('a table marked as the Seat Card draws its rows from the week’s card, under its own headings (D-240)', () => {
+  it('a table marked as the Seat Card draws its rows from the week’s card, under its own headings (D-242)', () => {
     const p = structuredClone(st.payload);
     const week = p.course.weeks[0] as { seatCard?: SeatCard; module: { checklist: { paths?: { claude?: { blocks: PathBlock[] } } }[] } };
     week.seatCard = { seat: 'Finance Analyst', reportsTo: 'Owner', runs: 'Monthly', pulls: 'Books', applies: 'The chart', produces: 'A report', tookOver: 'Task 1', cantDo: 'Change the books', firstRun: 'Date and screenshot' };

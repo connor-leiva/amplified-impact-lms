@@ -398,7 +398,7 @@ describe('the first-run welcome’s count and its dismissal (D-150)', () => {
     const cookie = await account('two.groups@liveutah.com', { verified: true });
     expect((await groupsOf(cookie)).map((g) => [g.id, g.covers])).toEqual([
       ['utah-life', ['agent', 'both']],
-      ['zeta', ['owner_ops', 'both']],
+      ['zeta', ['owner_ops', 'agent', 'both']],
     ]);
   });
 
