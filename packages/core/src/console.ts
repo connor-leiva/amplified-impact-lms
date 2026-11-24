@@ -246,6 +246,8 @@ export const AUDIT_ACTIONS = [
   'user.nudge',
   // The cohort welcome's test send, to an allowlisted address only.
   'welcome.test_send',
+  // The Week 0 Is Open email's test send, to the same allowlist only.
+  'week0.test_send',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

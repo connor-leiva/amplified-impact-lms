@@ -27,6 +27,8 @@ export const INFRA_PATHS = {
   flagFlip: '/api/console/flags/:key',
   /** `POST { to, cohortId }`: send one cohort welcome to an allowlisted address. `flags.write`. */
   welcomeTest: '/api/console/welcome/test',
+  /** `POST { to, cohortId }`: send one Week 0 Is Open email to an allowlisted address. `flags.write`. */
+  week0Test: '/api/console/week0/test',
   integrations: '/api/console/integrations',
   /** `POST`: Check now, Stripe and Resend only, read-only. `integrations.probe`. */
   integrationCheck: '/api/console/integrations/:id/check',
@@ -51,10 +53,14 @@ export interface ConsoleFlagDef {
 /**
  * The closed list. `masquerade_enabled` is spec § 7.13. `cohort_welcome_email` is off until a flip
  * turns it on, and the welcome never goes to anyone enrolled before that flip (`enrolledBeforeSwitch`).
+ * `week0_open_email` is off until a flip as well, and is the mirror image: the Week 0 Is Open email goes
+ * once to each Accelerator owner enrolled when it is turned on, and never to anyone who enrolls later
+ * (`enrolledAtSwitch`).
  */
 export const CONSOLE_FLAGS = [
   { key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: MASQUERADE_ENABLED_DEFAULT },
   { key: 'cohort_welcome_email', label: 'Send the cohort welcome email to new enrollments', sensitive: false, defaultOn: false },
+  { key: 'week0_open_email', label: 'Send the Week 0 Is Open email to current Accelerator owners', sensitive: false, defaultOn: false },
 ] as const satisfies readonly ConsoleFlagDef[];
 
 export type ConsoleFlagKey = (typeof CONSOLE_FLAGS)[number]['key'];

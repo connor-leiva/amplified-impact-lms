@@ -428,6 +428,9 @@ export const accounts = pgTable('accounts', {
 // sends once. `welcome_status` null is still pending. `claimed` is in flight. `sent`, `failed` and
 // `skipped` are final, so a retry cannot send a second time. The GHL columns are the same queue the
 // other syncs use, for the `welcome-sent` tag after a real send. Not a `Db` record.
+//
+// The `week0_*` columns (0042) are the Week 0 Is Open email's own marker on the same row, with the same
+// meanings: null pending, `claimed` in flight, `sent`, `failed` and `skipped` final.
 export const cohortEnrollments = pgTable('cohort_enrollments', {
   userId: text('user_id').notNull(),
   cohortId: text('cohort_id').notNull(),
@@ -444,9 +447,14 @@ export const cohortEnrollments = pgTable('cohort_enrollments', {
   ghlError: text('ghl_error'),
   ghlSyncStamp: text('ghl_sync_stamp'),
   ghlLastAttemptAt: ts('ghl_last_attempt_at'),
+  week0Status: text('week0_status'),
+  week0SentAt: ts('week0_sent_at'),
+  week0ClaimedAt: ts('week0_claimed_at'),
+  week0Error: text('week0_error'),
 }, (t) => [
   primaryKey({ columns: [t.userId, t.cohortId] }),
   check('cohort_enrollments_status', sql`${t.welcomeStatus} is null or ${t.welcomeStatus} in ('claimed', 'sent', 'failed', 'skipped')`),
+  check('cohort_enrollments_week0_status', sql`${t.week0Status} is null or ${t.week0Status} in ('claimed', 'sent', 'failed', 'skipped')`),
 ]);
 
 // A plan an account holds (D-078). `paid_through` is what the access rule compares with a skill's
@@ -836,5 +844,5 @@ export const consoleFlags = pgTable('console_flags', {
    */
   turnedOnAt: ts('turned_on_at'),
 }, (t) => [
-  check('console_flags_key', sql`${t.key} in ('masquerade_enabled', 'cohort_welcome_email')`),
+  check('console_flags_key', sql`${t.key} in ('masquerade_enabled', 'cohort_welcome_email', 'week0_open_email')`),
 ]);

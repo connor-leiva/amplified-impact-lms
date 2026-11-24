@@ -201,6 +201,7 @@ describe('env presence: booleans and modes only (spec § 7.13) @console', () => 
     expect(body.flags.map((f) => [f.key, f.source, f.on])).toEqual([
       ['masquerade_enabled', 'console', true],
       ['cohort_welcome_email', 'console', false],
+      ['week0_open_email', 'console', false],
       ['OFFER_OPEN', 'env', true],
       ['GHL_SYNC_ENABLED', 'env', false],
     ]);

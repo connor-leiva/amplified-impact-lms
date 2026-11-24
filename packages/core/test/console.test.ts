@@ -127,7 +127,8 @@ describe('the audit vocabulary @console', () => {
   it('is a closed list with PR 1’s two actions first', () => {
     expect(AUDIT_ACTIONS.slice(0, 2)).toEqual(['console.access_denied', 'audit.export']);
     expect(new Set(AUDIT_ACTIONS).size).toBe(AUDIT_ACTIONS.length);
-    for (const a of AUDIT_ACTIONS) expect(a).toMatch(/^[a-z_]+\.[a-z_]+$/);
+    // Lowercase `group.verb`. A group may carry a digit after its first letter (`week0.test_send`, the Week 0 email's).
+    for (const a of AUDIT_ACTIONS) expect(a).toMatch(/^[a-z][a-z0-9_]*\.[a-z_]+$/);
     expect(isAuditAction('audit.export')).toBe(true);
     expect(isAuditAction('audit.delete')).toBe(false);
     expect(isAuditAction(7)).toBe(false);

@@ -12,6 +12,7 @@ import type { Database } from '../db/client';
 import { clock } from '../lib/clock';
 import { sendHeldInvites } from '../billing/provision';
 import { sendDueWelcomes } from './welcome';
+import { sendWeek0Open } from './week0-open';
 import type { BillingLog } from '../billing/provision';
 import { reconcileAcceleratorSeats } from '../billing/payment-links';
 import type { OfferConfig } from '../billing/config';
@@ -49,6 +50,14 @@ export function startBillingLoop(options: {
       .then(
         () => {},
         (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'cohort welcome tick failed; the next tick retries'),
+      )
+      // The Week 0 Is Open email, beside the welcome: off until its Console switch, then once per owner enrolled then.
+      .then(async () => {
+        await sendWeek0Open({ db: options.db, log: options.log, now: clock.now() });
+      })
+      .then(
+        () => {},
+        (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'week 0 email tick failed; the next tick retries'),
       )
       .then(async () => {
         if (options.seatCap) await reconcileAcceleratorSeats({ ...options.seatCap, now: clock.now(), log: options.log, db: options.db });

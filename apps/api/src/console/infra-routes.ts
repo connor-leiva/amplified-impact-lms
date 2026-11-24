@@ -26,6 +26,7 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { registerFlagRoutes, readConsoleFlags } from './flags';
 import { registerWelcomeTestRoute } from './welcome';
+import { registerWeek0TestRoute } from './week0-test';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { readDbHealth } from './infra-db';
 import { readDeploys } from './infra-deploys';
@@ -68,6 +69,7 @@ export function registerInfraRoutes(scope: FastifyInstance, deps: InfraDeps, lim
 
   registerFlagRoutes(scope, { write: limits.write });
   registerWelcomeTestRoute(scope, { write: limits.write }, env);
+  registerWeek0TestRoute(scope, { write: limits.write }, env);
 
   scope.get(INFRA_PATHS.integrations, read, async (_req, reply): Promise<FastifyReply> =>
     reply.send({ integrations: await readIntegrations({ env: env(), fetch: deps.fetch, now, stripeScopes: deps.stripeScopes, crm: deps.crm }) }),

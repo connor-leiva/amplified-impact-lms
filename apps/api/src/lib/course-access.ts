@@ -15,6 +15,8 @@ import { ACCELERATOR_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorU
 import type { AcceleratorPlan, CourseRoster } from '@ai/core/accelerator';
 import { courseEntry, courseUpcoming, liveCoursePlan } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
+import { week0Roster } from '@ai/core/week0-open';
+import type { Week0Roster } from '@ai/core/week0-open';
 import type { Cohort, ViewerAccess } from '@ai/core';
 import type { Database } from '../db/client';
 import { accounts, cohorts, plans, users } from '../db/schema';
@@ -56,6 +58,21 @@ export async function acceleratorAccess(db: Reader, userId: string, now: number)
  * learner, because the scheduler asks about everyone at once.
  */
 export async function acceleratorRoster(db: Reader): Promise<CourseRoster> {
+  const { byTeam, teamOf } = await rosterInputs(db);
+  return courseRoster(byTeam, teamOf);
+}
+
+/**
+ * The Week 0 Is Open email's audience test (`week0Roster`): `courseRoster`'s own lookup and plan rule, read from the
+ * same three tables, without the course's opening date, which comes after the preview the email marks.
+ */
+export async function week0RosterOf(db: Reader): Promise<Week0Roster> {
+  const { byTeam, teamOf } = await rosterInputs(db);
+  return week0Roster(byTeam, teamOf);
+}
+
+/** What `courseRoster` reads: every team's plans (through its accounts), and each learner's team. */
+async function rosterInputs(db: Reader): Promise<{ byTeam: Map<string, AcceleratorPlan[]>; teamOf: Map<string, string | null> }> {
   const accts = await db.select({ id: accounts.id, teamId: accounts.teamId }).from(accounts);
   const rows = accts.length
     ? await db.select({ accountId: plans.accountId, kind: plans.kind, option: plans.option, status: plans.status, startsAt: plans.startsAt }).from(plans)
@@ -67,7 +84,7 @@ export async function acceleratorRoster(db: Reader): Promise<CourseRoster> {
     byTeam.set(a.teamId, list);
   }
   const learners = byTeam.size ? await db.select({ id: users.id, teamId: users.teamId }).from(users).where(eq(users.kind, 'learner')) : [];
-  return courseRoster(byTeam, new Map(learners.map((u) => [u.id, u.teamId])));
+  return { byTeam, teamOf: new Map(learners.map((u) => [u.id, u.teamId])) };
 }
 
 /** Every learner whose account's plans open the course at `now`: the roster, read at one instant. */

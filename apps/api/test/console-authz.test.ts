@@ -8,7 +8,6 @@
 // cannot ship without a row here.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, sql } from 'drizzle-orm';
-import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
@@ -18,6 +17,7 @@ import { fakeConsoleStripe, fakeConsoleStripeWrite } from './fake-console-stripe
 import { invalidateConsoleFlags } from '../src/console/flags';
 import { resetProbes } from '../src/console/infra-integrations';
 import { resetDatabase, testDatabase } from './helpers';
+import { liveWithWeek0 } from './accelerator-course';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
 
@@ -70,6 +70,7 @@ type RouteName =
   | 'opsEnv'
   | 'flagFlip'
   | 'welcomeTest'
+  | 'week0Test'
   | 'integrations'
   | 'integrationCheck'
   | 'deploys'
@@ -240,6 +241,13 @@ const ROUTES: Record<RouteName, Route> = {
     route: `POST ${CONSOLE_PATHS.welcomeTest}`,
     body: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
   },
+  week0Test: {
+    path: CONSOLE_PATHS.week0Test,
+    url: CONSOLE_PATHS.week0Test,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.week0Test}`,
+    body: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
+  },
   integrations: { path: CONSOLE_PATHS.integrations, url: CONSOLE_PATHS.integrations, method: 'GET', route: `GET ${CONSOLE_PATHS.integrations}` },
   integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
   deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
@@ -280,6 +288,7 @@ const WRITES = new Set<RouteName>([
   'workspaceStack',
   'flagFlip',
   'welcomeTest',
+  'week0Test',
   'integrationCheck',
 ]);
 
@@ -358,6 +367,7 @@ const INFRA = (read: number, flip: number, check: number, test: number = read) =
   opsEnv: read,
   flagFlip: flip,
   welcomeTest: test,
+  week0Test: test,
   integrations: read,
   integrationCheck: check,
   deploys: read,
@@ -395,7 +405,9 @@ beforeAll(async () => {
 });
 beforeEach(async () => {
   process.env.FIXED_NOW = new Date(NOW).toISOString();
-  await resetDatabase(seedForDatabase('live'));
+  // With Week 0 as the course stores it (no intake form), so the two test sends (the welcome's and the Week 0 email's) can
+  // fill in Week 0's Due and baseline and answer 200 to a caller with the capability.
+  await resetDatabase(liveWithWeek0());
   const db = await testDatabase();
   // The seed has no Admin; the matrix needs one.
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });

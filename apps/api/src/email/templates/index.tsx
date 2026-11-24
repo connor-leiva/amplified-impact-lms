@@ -63,6 +63,8 @@ import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
 import { CohortWelcomeEmail } from './cohort-welcome';
 import type { WelcomeCopy } from '@ai/core';
+import { week0OpenHtml, week0OpenText } from './week0-open-html';
+import type { Week0OpenInput } from './week0-open-html';
 
 export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
 export { ROUTES, absolute, appBase, employeePath, invitePath, setPasswordPath, signInPath } from './links';
@@ -129,7 +131,7 @@ export interface PreparedEmail {
   subject: string;
   element: ReactElement;
   /**
-   * Set only for skill-purchase and D-247's learner-invite and learner-nudge. That note is Connor's HTML, which React Email would wrap and
+   * Set only for skill-purchase, D-247's learner-invite and learner-nudge, the session reminders and week0-open. That note is Connor's HTML, which React Email would wrap and
    * restyle, so `renderTemplate` sends this string instead of rendering `element`.
    */
   html?: string;
@@ -312,6 +314,19 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       const copy = welcomeCopy(template, data);
       const subject = SUBJECTS['cohort-welcome']({ cohortName });
       return { subject, element: <CohortWelcomeEmail subject={subject} copy={copy} appUrl={appUrl} /> };
+    }
+
+    // Connor's v2 design, in the learner emails' parts (the HTML string, as `skill-purchase` sends it). Each time is
+    // Mountain Time first and Central Time after it, from its instant.
+    case 'week0-open': {
+      const input: Week0OpenInput = {
+        firstName: optStr(data, 'firstName') ?? '',
+        week0DueAt: num(template, data, 'week0DueAt'),
+        liveBuildAt: num(template, data, 'liveBuildAt'),
+        liveBuildMins: num(template, data, 'liveBuildMins'),
+        appUrl,
+      };
+      return { subject: SUBJECTS['week0-open']({}), element: <span />, html: week0OpenHtml(input), text: week0OpenText(input) };
     }
 
     default: {

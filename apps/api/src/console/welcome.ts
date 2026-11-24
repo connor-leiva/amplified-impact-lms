@@ -6,19 +6,19 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { INFRA_PATHS, buildWelcomeCopy, firstNameOf, welcomeSchedule, welcomeTestAllowed } from '@ai/core';
-import type { WelcomeSession, WelcomeWeek } from '@ai/core';
+import { INFRA_PATHS, buildWelcomeCopy, firstNameOf, welcomeSchedule, welcomeTestAllowed, welcomeWeek0 } from '@ai/core';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import { getDb } from '../db/client';
-import { authTokens, cohorts, googleIdentities, modules, sessions, userPasswords, users } from '../db/schema';
+import { authTokens, cohorts, googleIdentities, sessions, userPasswords, users } from '../db/schema';
 import { absolute, setPasswordPath } from '../email/templates/links';
 import { send } from '../email/transport';
+import { readWeeks, sessionOf } from '../jobs/enrollments';
 import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 
-const extraAllowlist = (env: NodeJS.ProcessEnv): string[] =>
+export const extraAllowlist = (env: NodeJS.ProcessEnv): string[] =>
   (env.WELCOME_TEST_ALLOWLIST ?? '')
     .split(',')
     .map((s) => s.trim())
@@ -43,20 +43,11 @@ export function registerWelcomeTestRoute(scope: FastifyInstance, limits: { write
       const [cohort] = await db.select().from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
       if (!cohort) return consoleError(reply, 'not_found', 'No cohort with that id.');
       const sessionRows = await db.select().from(sessions).where(eq(sessions.cohortId, cohortId));
-      const moduleRows = await db.select({ status: modules.status, opens: modules.opens, course: modules.course }).from(modules);
-      const weeks: WelcomeWeek[] = moduleRows.map((m) => {
-        const course = m.course && typeof m.course === 'object' ? (m.course as { week?: number; liveBuild?: { sessionId?: string } | null; officeHours?: { sessionId?: string } | null }) : null;
-        return {
-          week: typeof course?.week === 'number' ? course.week : null,
-          opens: m.opens,
-          status: m.status,
-          liveSessionId: course?.liveBuild?.sessionId ?? null,
-          officeSessionId: course?.officeHours?.sessionId ?? null,
-        };
-      });
-      const sess: WelcomeSession[] = sessionRows.map((s) => ({ id: s.id, n: s.n, start: s.start, mins: s.mins, kind: s.kind }));
-      const built = welcomeSchedule(cohort, weeks, sess);
+      const weeks = await readWeeks(db);
+      const built = welcomeSchedule(cohort, weeks, sessionRows.map(sessionOf));
       if (!built.ok) return consoleError(reply, 'invalid_body', 'This cohort has no live build and office hours yet, so the welcome cannot be filled in.');
+      const week0 = welcomeWeek0(weeks);
+      if (!week0.ok) return consoleError(reply, 'invalid_body', 'Week 0 has no due date or baseline table yet, so the welcome cannot be filled in.');
       const [user] = await db.select({ id: users.id, name: users.name }).from(users).where(eq(users.email, to)).limit(1);
       let setPasswordUrl: string | null = null;
       if (user) {
@@ -68,7 +59,7 @@ export function registerWelcomeTestRoute(scope: FastifyInstance, limits: { write
           setPasswordUrl = absolute(setPasswordPath(token));
         }
       }
-      const copy = buildWelcomeCopy(built.schedule, firstNameOf(user?.name ?? ''), setPasswordUrl);
+      const copy = buildWelcomeCopy(built.schedule, week0.week0, firstNameOf(user?.name ?? ''), setPasswordUrl);
       const result = await send({ template: 'cohort-welcome', to, data: { cohortName: copy.cohortName, copy } });
       await audit(req, {
         action: 'welcome.test_send',

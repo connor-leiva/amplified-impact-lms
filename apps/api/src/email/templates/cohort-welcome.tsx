@@ -1,14 +1,13 @@
 // The cohort welcome. The words are `WelcomeCopy` from `@ai/core` (dates already filled, Mountain
-// Time). This file is the markup: the same shell as the other emails, with the extra sections the
+// Time first and Central Time after it). This file is the markup: the same shell as the other emails, with the extra sections the
 // welcome needs after the button.
 
 import { Heading, Section, Text } from '@react-email/components';
 import type { CSSProperties } from 'react';
-import { WELCOME_LOGO_PATH } from '@ai/core';
 import type { WelcomeCopy } from '@ai/core';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
+import { SKILL_EMAIL_LOGO_URL } from './branded-html';
 import { EmailLayout, Para } from './layout';
-import { absolute } from './links';
 
 const T = EMAIL_TOKENS;
 
@@ -58,8 +57,10 @@ export interface CohortWelcomeEmailProps {
   appUrl?: string | null;
 }
 
-export function CohortWelcomeEmail({ subject, copy, appUrl }: CohortWelcomeEmailProps) {
-  const logo = absolute(WELCOME_LOGO_PATH, appUrl);
+export function CohortWelcomeEmail({ subject, copy }: CohortWelcomeEmailProps) {
+  // The branded emails' white wordmark, on their black band (`EmailLayout`), as the skill purchase, learner invite and
+  // nudge, and session reminder emails show it.
+  const logo = SKILL_EMAIL_LOGO_URL;
   return (
     <EmailLayout
       subject={subject}

@@ -52,6 +52,8 @@ export const TEMPLATE_NAMES = [
 
   // The cohort welcome, sent when a cohort enrollment is due.
   'cohort-welcome',
+  // The Week 0 Is Open celebration, sent once to each Accelerator owner enrolled when its switch came on.
+  'week0-open',
 ] as const;
 
 export type TemplateName = (typeof TEMPLATE_NAMES)[number];
@@ -96,6 +98,7 @@ export interface SubjectData {
   'learner-nudge': NoSubjectData;
 
   'cohort-welcome': { cohortName: string };
+  'week0-open': NoSubjectData;
 }
 
 /**
@@ -137,6 +140,8 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   'learner-nudge': () => 'Pick up where you left off',
 
   'cohort-welcome': (d) => `Your Access To The ${d.cohortName} Is Live`,
+  // Connor's approved line. "December Cohort" is literal: the cohort's name ("December 2026") reads badly here.
+  'week0-open': () => '🎉 Welcome to the December Cohort: Week 0 Is Open',
 };
 
 /**

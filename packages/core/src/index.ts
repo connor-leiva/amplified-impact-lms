@@ -40,6 +40,7 @@ export * from './course-rules';
 export * from './course-actions';
 export * from './release';
 export * from './welcome';
+export * from './week0-open';
 export * from './console-staff';
 export * from './build-audit';
 export * from './uploads';

@@ -73,6 +73,11 @@ export interface BodyData {
    * the inbox line and the body cannot name two different cohorts.
    */
   'cohort-welcome': { copy: WelcomeCopy; appUrl?: string | null };
+  /**
+   * The Week 0 Is Open email: Week 0's Due and the first live build, as instants (the email shows each in MT and CT),
+   * and the reader's first name (absent or empty: no name in the heading).
+   */
+  'week0-open': { firstName?: string; week0DueAt: number; liveBuildAt: number; liveBuildMins: number; appUrl?: string | null };
 }
 
 /**

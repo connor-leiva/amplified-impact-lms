@@ -46,6 +46,13 @@ export const JOB_SCHEDULES: readonly JobSchedule[] = [
     runNow: 'schedule_only',
     note: 'Runs on the billing loop. Off until Send the cohort welcome email is on. Never emails anyone enrolled before it was turned on.',
   },
+  {
+    job: 'week0-open',
+    tickJob: 'billing',
+    intervalMs: BILLING_TICK_MS,
+    runNow: 'schedule_only',
+    note: 'Runs on the billing loop. Off until Send the Week 0 Is Open email is on. Emails each Accelerator owner enrolled when it was turned on, once, after the preview opens. Never emails anyone who enrolls later.',
+  },
   ...GHL_JOBS.map((job): JobSchedule => ({ job, tickJob: job, intervalMs: GHL_TICK_MS, runNow: 'off', note: null })),
 ];
 

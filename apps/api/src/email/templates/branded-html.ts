@@ -15,6 +15,17 @@ import { LEARN_ORIGIN } from '@ai/core/skill-guides';
 export const SKILL_EMAIL_LOGO_PATH = '/brand/amplified-impact-wordmark-on-dark.png';
 export const SKILL_EMAIL_LOGO_URL = `${LEARN_ORIGIN}${SKILL_EMAIL_LOGO_PATH}`;
 
+/**
+ * The Week 0 Is Open email's confetti burst: 600 by 200, 52 frames, plays once (no loop extension). Frame 0 is already
+ * mid-pop, because Outlook desktop shows only frame 0. Served by the app from `apps/web/public/brand/`, next to the
+ * wordmark, with a year's cache (`static.ts`): new art takes a new file name.
+ */
+export const WEEK0_CONFETTI_PATH = '/brand/week0-confetti.gif';
+export const WEEK0_CONFETTI_URL = `${LEARN_ORIGIN}${WEEK0_CONFETTI_PATH}`;
+
+/** The dark band's color, as every row on it paints it. */
+export const BAND = '#0a0d0c';
+
 const PREHEADER_PAD = '&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;';
 
 /** Escapes text for the document. */
@@ -32,6 +43,18 @@ export interface BrandedEmailParts {
   heading: string;
   /** The rows between the dark band and the footer: `cardRow`, `buttonRow`, `fineRow`, or an email's own. */
   rows: string;
+  /**
+   * Rows on the dark band between the wordmark and the eyebrow (the Week 0 email's `confettiRow`). With them the eyebrow
+   * sits 8px under them, as Connor's Week 0 design has it. Absent: the band is exactly as before.
+   */
+  afterLogo?: string;
+  /**
+   * Rows on the dark band under the heading (the Week 0 email's `bandIntroRow`), which then carry the band's 40px
+   * bottom instead of the heading. Absent: the band is exactly as before.
+   */
+  underHeading?: string;
+  /** Extra rules for the phone media query (the Week 0 email's `.ai-gif`). Absent: the head is exactly as before. */
+  mobileCss?: readonly string[];
 }
 
 /** The light card: a mono label, a large title and a line. */
@@ -95,9 +118,81 @@ export const signoffRow = (closing: string, name: string): string => `    <tr>
       </td>
     </tr>`;
 
+// --- the Week 0 Is Open email's rows (Connor's v2 design, approved Nov 24, 2026), each its markup unchanged ----------
+
+/** On the dark band, under the wordmark: an animated image at 600 by 200, edge to edge, full width on a phone. */
+export const confettiRow = (src: string, alt: string): string => `    <tr>
+      <td bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:20px 0 0 0; line-height:0; font-size:0;">
+        <!-- Confetti burst. Plays once in Gmail and Apple Mail; Outlook desktop shows frame 0, which is already mid-pop. -->
+        <img class="ai-gif" src="${esc(src)}" width="600" height="200" alt="${alt}" style="display:block; width:600px; max-width:100%; height:auto; border:0; color:#6fd3a5; font-family:'Geist', Helvetica, Arial, sans-serif; font-size:14px;">
+      </td>
+    </tr>`;
+
+/** The phone rule `confettiRow`'s image needs: full width, its height following. */
+export const CONFETTI_MOBILE_CSS = '.ai-gif { width:100% !important; height:auto !important; }';
+
+/** On the dark band, under the heading: a grey paragraph, closing the band. */
+export const bandIntroRow = (text: string): string => `    <tr>
+      <td class="ai-pad" bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:16px 40px 40px 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:17px; line-height:1.55; color:#a3aba7;">
+        ${text}
+      </td>
+    </tr>`;
+
+/** A numbered list under a section heading: each row a mono number, a title and a line under it. */
+export const launchListRows = (heading: string, items: readonly { n: string; title: string; line: string }[]): string => `    <tr>
+      <td class="ai-pad" style="padding:44px 40px 0 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:22px; line-height:1.2; font-weight:600; letter-spacing:-0.02em; color:#0a0d0c;">
+        ${heading}
+      </td>
+    </tr>
+    <tr>
+      <td class="ai-pad" style="padding:16px 40px 0 40px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #0a0d0c;">
+${items
+  .map(
+    (it) => `          <tr>
+            <td width="44" valign="top" style="width:44px; padding:16px 0 16px 0; border-bottom:1px solid #dad8d0; font-family:'Geist Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace; font-size:13px; line-height:24px; color:#4d5350;">${it.n}</td>
+            <td valign="top" style="padding:16px 0 16px 0; border-bottom:1px solid #dad8d0; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:17px; line-height:24px; font-weight:500; letter-spacing:-0.01em; color:#0a0d0c;">${it.title}
+              <div style="padding-top:4px; font-size:15px; line-height:1.5; font-weight:400; letter-spacing:0; color:#4d5350;">${it.line}</div></td>
+          </tr>`,
+  )
+  .join('\n')}
+        </table>
+      </td>
+    </tr>`;
+
+/** The dark box: a green mono label, a title, a green time line and a grey line. */
+export const darkBoxRow = (label: string, title: string, time: string, line: string): string => `    <tr>
+      <td class="ai-pad" style="padding:36px 40px 0 40px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; background-color:#0a0d0c; border-radius:8px;">
+          <tr>
+            <td bgcolor="#0a0d0c" style="background-color:#0a0d0c; border-radius:8px; padding:28px 28px 30px 28px;">
+              <div style="font-family:'Geist Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace; font-size:12px; line-height:17px; letter-spacing:0.16em; text-transform:uppercase; color:#6fd3a5;">${label}</div>
+              <div style="padding-top:14px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:26px; line-height:1.12; font-weight:500; letter-spacing:-0.03em; color:#f5f5f2;">${title}</div>
+              <div style="padding-top:6px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:18px; line-height:1.4; font-weight:500; color:#6fd3a5;">${time}</div>
+              <div style="padding-top:12px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:16px; line-height:1.55; color:#a3aba7;">${line}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`;
+
+/** The sign-off: a line and the names under it, with the 40px the last section leaves before the footer. */
+export const closingRow = (line: string, name: string): string => `    <tr>
+      <td class="ai-pad" style="padding:36px 40px 40px 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:17px; line-height:1.55; color:#0a0d0c;">
+        ${line}<br>
+        <span style="font-weight:600;">${name}</span>
+      </td>
+    </tr>`;
+
 /** The whole document: the head, the preheader, the dark band (wordmark, eyebrow, heading), the rows and the footer. */
 export function brandedEmailHtml(parts: BrandedEmailParts): string {
   const { title, preheader, eyebrow, heading, rows } = parts;
+  // Each optional part adds its own lines and nothing else, so an email that names none renders byte for byte as before.
+  const mobileCss = (parts.mobileCss ?? []).map((rule) => `    ${rule}\n`).join('');
+  const afterLogo = parts.afterLogo ? `${parts.afterLogo}\n` : '';
+  const underHeading = parts.underHeading ? `${parts.underHeading}\n` : '';
+  const eyebrowTop = parts.afterLogo ? 8 : 44;
+  const headingBottom = parts.underHeading ? '0' : '40px';
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -122,7 +217,7 @@ export function brandedEmailHtml(parts: BrandedEmailParts): string {
     .ai-pad { padding-left:24px !important; padding-right:24px !important; }
     .ai-h1 { font-size:34px !important; }
     .ai-btn a { display:block !important; }
-  }
+${mobileCss}  }
 </style>
 </head>
 <body style="margin:0; padding:0; background-color:#f1f0eb;">
@@ -136,17 +231,17 @@ export function brandedEmailHtml(parts: BrandedEmailParts): string {
         <a href="${LEARN_ORIGIN}" style="text-decoration:none;"><img src="${SKILL_EMAIL_LOGO_URL}" width="180" height="27" alt="Amplified Impact" style="display:block; width:180px; height:27px; border:0;"></a>
       </td>
     </tr>
-    <tr>
-      <td class="ai-pad" bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:44px 40px 0 40px; font-family:'Geist Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace; font-size:12px; line-height:17px; letter-spacing:0.16em; text-transform:uppercase; color:#6fd3a5;">
+${afterLogo}    <tr>
+      <td class="ai-pad" bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:${eyebrowTop}px 40px 0 40px; font-family:'Geist Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace; font-size:12px; line-height:17px; letter-spacing:0.16em; text-transform:uppercase; color:#6fd3a5;">
         ${eyebrow}
       </td>
     </tr>
     <tr>
-      <td class="ai-pad ai-h1" bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:16px 40px 40px 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:42px; line-height:1.04; font-weight:500; letter-spacing:-0.04em; color:#f5f5f2;">
+      <td class="ai-pad ai-h1" bgcolor="#0a0d0c" style="background-color:#0a0d0c; padding:16px 40px ${headingBottom} 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:42px; line-height:1.04; font-weight:500; letter-spacing:-0.04em; color:#f5f5f2;">
         ${heading}
       </td>
     </tr>
-${rows}
+${underHeading}${rows}
     <tr>
       <td class="ai-pad" style="padding:0 40px 0 40px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
