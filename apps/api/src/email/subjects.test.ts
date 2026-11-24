@@ -23,13 +23,18 @@ import type { SubjectData, TemplateName } from './subjects';
  * the builders, so a change to a subject's data shape fails here too rather than being silently
  * cast away.
  */
+/** Session 3: Wed, Dec 9, 2026, 12:00 PM MT (1:00 PM CT), 75 minutes, as the seed has it. */
+const S3_START = Date.parse('2026-12-09T12:00:00-07:00');
+/** D-250: the reminders' time, Mountain Time first and Central Time after it. */
+const S3_TIME = 'Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
+
 const SAMPLE: { [K in TemplateName]: SubjectData[K] } = {
   'sign-in': {},
   'team-invite': { inviter: 'Alex Rivera', team: 'Northline Realty' },
   'staff-invite': {},
   announcement: { title: 'Session 4 moved' },
-  'session-24h': { n: 3, title: 'The Living Database' },
-  'session-1h': { n: 3, title: 'The Living Database' },
+  'session-24h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75 },
+  'session-1h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75 },
   'replay-ready': { n: 2, title: 'Speed to Lead' },
   'build-reminder': { employee: 'Marketing AI Employee' },
   'weekly-digest': {},
@@ -68,15 +73,21 @@ describe('email subjects @g8', () => {
     );
   });
 
-  it('builds the session-24h subject exactly as § 8.1 gives it', () => {
-    expect(SUBJECTS['session-24h']({ n: 3, title: 'The Living Database' })).toBe(
-      'Tomorrow: Session 3 · The Living Database',
+  it('builds the session-24h subject as § 8.1 gives it, with the time in MT and CT (D-250)', () => {
+    expect(SUBJECTS['session-24h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 })).toBe(
+      `Tomorrow: Session 3 · The Living Database · ${S3_TIME}`,
     );
   });
 
-  it('builds the session-1h subject exactly as § 8.1 gives it', () => {
-    expect(SUBJECTS['session-1h']({ n: 3, title: 'The Living Database' })).toBe(
-      'Starting in 1 hour: Session 3 · The Living Database',
+  it('builds the session-1h subject as § 8.1 gives it, with the time in MT and CT (D-250)', () => {
+    expect(SUBJECTS['session-1h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 })).toBe(
+      `Starting in 1 hour: Session 3 · The Living Database · ${S3_TIME}`,
+    );
+  });
+
+  it('names an office hour by its week, and shows the start alone with no length (D-250)', () => {
+    expect(SUBJECTS['session-24h']({ n: 102, label: 'Week 2', title: 'Office Hours', start: S3_START })).toBe(
+      'Tomorrow: Week 2 · Office Hours · Wed, Dec 9, 12:00 PM MT / 1:00 PM CT',
     );
   });
 
@@ -189,11 +200,11 @@ describe('email subjects @g8', () => {
     const db = seedForDatabase('live');
     const s3 = db.sessions.find((s) => s.id === 'dec26-s3');
     expect(s3).toBeDefined();
-    expect(subjectFor('session-24h', { n: s3!.n, title: s3!.title })).toBe(
-      'Tomorrow: Session 3 · The Living Database',
+    expect(subjectFor('session-24h', { n: s3!.n, title: s3!.title, start: s3!.start, mins: s3!.mins })).toBe(
+      `Tomorrow: Session 3 · The Living Database · ${S3_TIME}`,
     );
-    expect(subjectFor('session-1h', { n: s3!.n, title: s3!.title })).toBe(
-      'Starting in 1 hour: Session 3 · The Living Database',
+    expect(subjectFor('session-1h', { n: s3!.n, title: s3!.title, start: s3!.start, mins: s3!.mins })).toBe(
+      `Starting in 1 hour: Session 3 · The Living Database · ${S3_TIME}`,
     );
   });
 });

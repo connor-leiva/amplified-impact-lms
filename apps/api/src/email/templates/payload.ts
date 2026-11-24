@@ -47,8 +47,12 @@ export interface BodyData {
     appUrl?: string | null;
   };
   /** `start` is the session instant; `zone` is the RECIPIENT's saved `prefs.tz` (§ 8.1). */
-  'session-24h': { start: number; zone?: string | null; appUrl?: string | null };
-  'session-1h': { start: number; zone?: string | null; appUrl?: string | null };
+  /**
+   * D-250: `start` and `mins` give the time, in Mountain and Central (`sessionTimeMtCt`); `firstName` opens Connor's
+   * note ("Hi Dana,"), and absent or empty it says "Hi,".
+   */
+  'session-24h': { start: number; mins?: number; firstName?: string; appUrl?: string | null };
+  'session-1h': { start: number; mins?: number; firstName?: string; appUrl?: string | null };
   'replay-ready': { employee: string; moduleId: string; appUrl?: string | null };
   'build-reminder': { moduleId: string; steps: number; total?: number; appUrl?: string | null };
   /** `before`: the day to review before. Absent: Thursday, the prototype's. The AI Accelerator's is its build day (D-110). */

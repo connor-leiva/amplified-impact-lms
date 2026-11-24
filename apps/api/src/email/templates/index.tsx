@@ -16,8 +16,8 @@
 // that depends on mutable module state — and `fmt`'s viewer zone is exactly that — must therefore
 // be resolved BEFORE the render begins, or a concurrent render can change it mid-flight and a
 // learner is told the wrong hour with nothing thrown. `elementFor` is that synchronous phase:
-// it validates the payload, builds the subject, formats every instant through `whenFor`, and hands
-// back a finished element tree. `recipient.ts` has the full argument.
+// it validates the payload, builds the subject, formats every instant, and hands back a finished
+// element tree. D-250: the session reminders' time is `sessionTimeMtCt`, which reads no viewer zone at all.
 //
 // ------------------------------------------------------------------------------------------------
 // WHY THE PAYLOAD IS READ FIELD BY FIELD INSTEAD OF CAST
@@ -49,25 +49,23 @@ import type { EmailPayload } from './payload';
 import { AnnouncementEmail } from './announcement';
 import { BuildReminderEmail } from './build-reminder';
 import { ReplayReadyEmail } from './replay-ready';
-import { Session1hEmail } from './session-1h';
-import { Session24hEmail } from './session-24h';
+import { sessionReminderHtml, sessionReminderText } from './session-reminder-html';
+import type { SessionReminderInput } from './session-reminder-html';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
 import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } from './skill-purchase-html';
 import { learnerInviteHtml, learnerInviteText, learnerNudgeHtml, learnerNudgeText } from './learner-emails-html';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
+import { sessionTimeMtCt } from '@ai/core';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
 import { CohortWelcomeEmail } from './cohort-welcome';
 import type { WelcomeCopy } from '@ai/core';
-import { whenFor } from './recipient';
 
 export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
 export { ROUTES, absolute, appBase, employeePath, invitePath, setPasswordPath, signInPath } from './links';
-export { whenFor, zoneFor } from './recipient';
-export type { RecipientZone } from './recipient';
 
 // `BodyData` and `EmailPayload` live in `./payload.ts` — a leaf module with no runtime imports — so
 // that `transport.ts` can name the payload type without importing this module, and therefore
@@ -213,27 +211,24 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       };
     }
 
-    case 'session-24h': {
-      const n = num(template, data, 'n');
-      const title = str(template, data, 'title');
-      const subject = SUBJECTS['session-24h']({ n, title });
-      // § 8.1's time rule, resolved here — synchronously, before any render. See recipient.ts.
-      const when = whenFor(num(template, data, 'start'), optStr(data, 'zone'));
-      return {
-        subject,
-        element: <Session24hEmail subject={subject} when={when} appUrl={appUrl} />,
-      };
-    }
-
+    // D-250: the learner emails' design, as a note from Connor (the HTML string, as `skill-purchase` sends it). The
+    // time is Mountain Time first and Central Time after it, from the session's instant (`sessionTimeMtCt`).
+    case 'session-24h':
     case 'session-1h': {
       const n = num(template, data, 'n');
       const title = str(template, data, 'title');
-      const subject = SUBJECTS['session-1h']({ n, title });
-      const when = whenFor(num(template, data, 'start'), optStr(data, 'zone'));
-      return {
-        subject,
-        element: <Session1hEmail subject={subject} when={when} appUrl={appUrl} />,
+      const label = optStr(data, 'label');
+      const start = num(template, data, 'start');
+      const mins = typeof data.mins === 'number' ? data.mins : undefined;
+      const subject = SUBJECTS[template]({ n, title, start, ...(label ? { label } : {}), ...(mins !== undefined ? { mins } : {}) });
+      const input: SessionReminderInput = {
+        label: label ?? `Session ${n}`,
+        title,
+        when: sessionTimeMtCt(start, mins),
+        firstName: optStr(data, 'firstName') ?? '',
+        appUrl,
       };
+      return { subject, element: <span />, html: sessionReminderHtml(template, input), text: sessionReminderText(template, input) };
     }
 
     case 'replay-ready': {

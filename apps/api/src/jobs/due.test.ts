@@ -17,7 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fmt, seed, setViewerZone } from '@ai/core';
 import type { Db } from '@ai/core';
 import { NO_KEYS, dueWork } from './due';
-import type { Send, ZoneLookup } from './due';
+import type { Send } from './due';
 // The templates, imported BY THE JOBS' OWN TEST on purpose. A `Send`'s `data` is handed to
 // `transport.send` untouched and from there straight to this renderer, so "does the scheduler build
 // a payload this template can render" is a question only these two files together can answer — and
@@ -26,6 +26,9 @@ import { renderEmail } from '../email/templates';
 import type { EmailPayload } from '../email/templates';
 import { SUBJECTS } from '../email/subjects';
 import type { TemplateName } from '../email/subjects';
+
+/** D-250: the card's time as the reminder draws it, each zone's half kept on one line. */
+const cardTime = (t: string): string => `>${t.split(' / ').map((h) => `<span style="white-space:nowrap;">${h}</span>`).join(' / ')}</div>`;
 
 const MINUTE = 60e3;
 const HOUR = 3600e3;
@@ -118,12 +121,9 @@ describe('Gate 8 · the scheduler at 2026-12-08T13:00 CT @g8', () => {
       expect(data.n).toBe(3);
       expect(data.title).toBe('The Living Database');
       expect(data.start).toBe(S3.start);
-      // § 8.1's zone field is PRESENT on every session reminder, as an explicit `null` when no
-      // zone was supplied. Absent and null mean the same thing to the template (both fall back to
-      // CT) but not to a reader of this code: the job used to omit the key entirely, which read as
-      // "every learner is Central" by accident rather than on purpose. See `dueWork`'s `zones`.
-      expect(data).toHaveProperty('zone');
-      expect(data.zone).toBeNull();
+      // D-250: the time's end comes from the session's length; the email shows MT / CT to everyone, so no zone.
+      expect(data.mins).toBe(S3.mins);
+      expect(data).not.toHaveProperty('zone');
     }
   });
 
@@ -636,7 +636,7 @@ describe('§8.5 dueWork is pure @g8', () => {
 // That is not hypothetical: three of § 8.5's five jobs shipped payloads § 8.1's templates reject.
 // `replay-ready` had no `employee` and a `moduleId` of `null`; `build-reminder` had no `steps`;
 // both session reminders had no `zone`, which is not a throw but a wrong answer — Central for every
-// learner on earth. Every one of them typechecked, because `transport.EmailData` was
+// learner on earth (D-250 since shows MT / CT to everyone, from `start` and `mins`). Every one of them typechecked, because `transport.EmailData` was
 // `SubjectData[K] & Record<string, unknown>`: the subject half, plus anything.
 //
 // The type is tightened now (`email/templates/payload.ts`), so those three are compile errors. This
@@ -645,7 +645,6 @@ describe('§8.5 dueWork is pure @g8', () => {
 describe('§8.5 payloads § 8.1 can render @g8', () => {
   /** A reserved-TLD origin (RFC 2606), so no link in a fixture can reach anything real. */
   const APP = 'https://app.amplifiedimpact.test';
-  const NEW_YORK = 'America/New_York';
   const BUSY = at('2026-12-03', '15:00');
   const MONDAY = at('2026-12-07', '08:00');
   const ANNOUNCED = at('2026-12-11', '08:00');
@@ -660,8 +659,7 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
   afterAll(() => {
     if (savedAppUrl === undefined) delete process.env.APP_URL;
     else process.env.APP_URL = savedAppUrl;
-    // `whenFor` restores this itself, per call. This is the suite's own belt and braces: nothing
-    // else in `apps/api/src` formats through `fmt`, so a latched zone here would be invisible.
+    // Belt and braces: nothing in `apps/api/src` sets the viewer zone, so a latched one here would be invisible.
     setViewerZone(null);
   });
 
@@ -670,26 +668,12 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
     for (const r of d.reminders) r.on = true;
   });
 
-  /**
-   * What the deferred shell will read out of `users.prefs`: three learners with a saved zone and
-   * eleven without.
-   *
-   * `''` is what `ZONES`'s first entry ("Auto") stores and `'America/Chigago'` is the realistic bad
-   * value — `prefs` is free-form jsonb with no enum and no check constraint, so one letter off the
-   * program zone is a value this column really can hold. Both must render as CT, not throw.
-   */
-  const SAVED: ZoneLookup = new Map([
-    ['u_jamie', NEW_YORK],
-    ['u_priya', ''],
-    ['u_omar', 'America/Chigago'],
-  ]);
-
   const EVERY_SEND: Send[] = [
-    ...dueWork(ALL_ON, GATE_NOW, NO_KEYS, SAVED).sends,
-    ...dueWork(ALL_ON, S3.start - HOUR, NO_KEYS, SAVED).sends,
-    ...dueWork(ALL_ON, BUSY, NO_KEYS, SAVED).sends,
-    ...dueWork(ALL_ON, MONDAY, NO_KEYS, SAVED).sends,
-    ...dueWork(ALL_ON, ANNOUNCED, NO_KEYS, SAVED).sends,
+    ...dueWork(ALL_ON, GATE_NOW, NO_KEYS).sends,
+    ...dueWork(ALL_ON, S3.start - HOUR, NO_KEYS).sends,
+    ...dueWork(ALL_ON, BUSY, NO_KEYS).sends,
+    ...dueWork(ALL_ON, MONDAY, NO_KEYS).sends,
+    ...dueWork(ALL_ON, ANNOUNCED, NO_KEYS).sends,
   ];
 
   it('is looking at all five jobs and the announcement @g8', () => {
@@ -711,6 +695,15 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
       // what `Send` guarantees at the push site; this call is only asserting the payload renders.
       const out = await renderEmail(s.template, s.data as never);
       expect(out.subject, `${s.key} rendered an empty subject`).toBeTruthy();
+      expect(out.subject).not.toContain('undefined');
+      if (s.template === 'session-24h' || s.template === 'session-1h') {
+        // D-250: the reminders are Connor's note in the branded design. Its heading is the <title>; the subject's
+        // session and its title are on the card, so a payload missing either would show here.
+        const data = s.data as { n: number; title: string; label?: string };
+        expect(out.html).toContain(`>${data.label ?? `Session ${data.n}`}</div>`);
+        expect(out.html).toContain(`>${data.title.replace(/&/g, '&amp;')}</div>`);
+        continue;
+      }
       // § 8.1's subject reaches the inbox AND the <title>, the preheader and the H1 — one string,
       // from `SUBJECTS`. If the payload were missing a subject field this would be `Session
       // undefined`, which is why the exact table value is checked rather than mere presence.
@@ -748,39 +741,20 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
     expect(lena.html).not.toContain('Continue Build');
   });
 
-  it('renders each session reminder in that recipient’s saved zone @g8', async () => {
-    // § 8.1: "Session times in emails use `fmt.when` with the RECIPIENT's saved zone, and fall back
-    // to CT." A Send is per recipient, so the zone is per recipient; the job used to send no
-    // `zone` at all, which rendered Central for all fourteen learners — the one learner this
-    // sentence exists for being the one it failed.
-    const run = dueWork(db, GATE_NOW, NO_KEYS, SAVED);
+  it('renders each session reminder in MT / CT, the same for every recipient, with their first name @g8', async () => {
+    // D-250: Mountain Time first and Central Time after it, for everyone (§ 8.1 had rendered each recipient's saved
+    // zone). Session 3 starts 2026-12-09 at 12:00 PM MT, 1:00 PM CT, for 75 minutes. Written out, so it measures the
+    // same thing on any host.
+    const run = dueWork(db, GATE_NOW, NO_KEYS);
     const forUser = (id: string) => run.sends.find((s) => recipients([s])[0] === id)!;
-
-    expect(dataOf(forUser('u_jamie'), 'session-24h').zone).toBe(NEW_YORK);
-    expect(dataOf(forUser('u_priya'), 'session-24h').zone).toBe('');
-    expect(dataOf(forUser('u_omar'), 'session-24h').zone).toBe('America/Chigago');
-    // Not in the map at all: an explicit null, which the template reads as "we were never told".
-    expect(dataOf(forUser('u_michael'), 'session-24h').zone).toBeNull();
-
-    // And the HTML, which is the only place the difference is visible to a learner. Session 3
-    // starts 2026-12-09 at 13:00 CT. Every expected string is written out rather than computed
-    // through `fmt`, because `fmt` with no viewer zone reads the HOST's — and this program's
-    // machines are in Central, so a computed expectation would pass here and fail on a UTC runner
-    // (or worse, pass on both while measuring nothing).
-    const html = async (id: string) =>
-      (await renderEmail('session-24h', dataOf(forUser(id), 'session-24h'))).html;
-
-    // Eastern: viewer zone first, program zone in parentheses — CLAUDE.md's time rule.
-    expect(await html('u_jamie')).toContain('Wed, Dec 9 · 2:00 PM ET (1:00 PM CT)');
-    // "Auto" (`''`) falls back to CT, and a Central recipient gets one clock, not two.
-    expect(await html('u_priya')).toContain('Wed, Dec 9 · 1:00 PM CT');
-    expect(await html('u_priya')).not.toContain('(1:00 PM CT)');
-    // A zone `Intl` cannot use falls back to CT as well, rather than throwing `RangeError` out of
-    // the render and leaving that one learner with no email at all. See `templates/recipient.ts`.
-    expect(await html('u_omar')).toContain('Wed, Dec 9 · 1:00 PM CT');
-    expect(await html('u_omar')).not.toContain('(1:00 PM CT)');
-    // Nothing saved: CT, same as Auto.
-    expect(await html('u_michael')).toContain('Wed, Dec 9 · 1:00 PM CT');
+    const out = async (id: string) => renderEmail('session-24h', dataOf(forUser(id), 'session-24h'));
+    const time = 'Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
+    for (const id of ['u_jamie', 'u_michael']) {
+      expect((await out(id)).html).toContain(cardTime(time));
+      expect((await out(id)).subject.endsWith(` · ${time}`)).toBe(true);
+    }
+    // The note opens with the learner's first name, from the job's payload.
+    expect(dataOf(forUser('u_jamie'), 'session-24h').firstName).toBeTruthy();
   });
 
   it('leaves every subject exactly as § 8.1’s table writes it @g8', async () => {
@@ -791,8 +765,9 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
       const s = EVERY_SEND.find((x) => x.job === job)!;
       return (await renderEmail(s.template, s.data as never)).subject;
     };
-    expect(await subjectOf('session-24h')).toBe(SUBJECTS['session-24h']({ n: 3, title: 'The Living Database' }));
-    expect(await subjectOf('session-1h')).toBe(SUBJECTS['session-1h']({ n: 3, title: 'The Living Database' }));
+    const s3 = { n: 3, title: 'The Living Database', start: S3.start, mins: S3.mins };
+    expect(await subjectOf('session-24h')).toBe(SUBJECTS['session-24h'](s3));
+    expect(await subjectOf('session-1h')).toBe(SUBJECTS['session-1h'](s3));
     expect(await subjectOf('replay-ready')).toBe(SUBJECTS['replay-ready']({ n: 2, title: 'Speed to Lead' }));
     expect(await subjectOf('build-48h')).toBe(SUBJECTS['build-reminder']({ employee: 'Marketing AI Employee' }));
     expect(await subjectOf('weekly-digest')).toBe(SUBJECTS['weekly-digest']({}));

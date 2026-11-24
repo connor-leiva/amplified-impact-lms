@@ -3,9 +3,10 @@
 // did not buy. The scheduler hands `dueWork` the learners whose plan opens it, and only they hear.
 import { describe, expect, it } from 'vitest';
 import { seedProduction } from '@ai/core/seed/curriculum';
+import { sessionTimeMtCt } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { SUBJECTS } from '../email/subjects';
-import { NO_KEYS, NO_ZONES, dueWork } from './due';
+import { NO_KEYS, dueWork } from './due';
 
 const at = (s: string) => Date.parse(`${s}-06:00`);
 const learner = (id: string): Learner => ({ id, name: id, email: `${id}@example.test`, tier: 'team', role: 'Team Owner', teamId: `t_${id}`, cohortId: 'dec26', joined: 0, last: null, status: 'active', progress: {} });
@@ -20,32 +21,34 @@ const to = (sends: { job: string; to: string }[], job: string) => sends.filter((
 
 describe('the AI Accelerator’s reminders go to its buyers only', () => {
   it('reminds the buyer of Week 1’s build, and not the Insiders buyer in the same cohort', () => {
-    const sends = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS, NO_ZONES, BUYERS).sends;
+    const sends = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS, BUYERS).sends;
     expect(to(sends, 'session-24h')).toEqual(['u_buyer@example.test']);
   });
 
   it('without the set, behaves as before: the tier rule alone', () => {
-    const sends = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS, NO_ZONES).sends;
+    const sends = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS).sends;
     expect(to(sends, 'session-24h').sort()).toEqual(['u_buyer@example.test', 'u_insider@example.test']);
   });
 
   it('names an office hour by its week in the subject, not by its n', () => {
-    const sends = dueWork(db(), at('2026-12-02T14:00'), NO_KEYS, NO_ZONES, BUYERS).sends.filter((s) => s.job === 'session-24h');
+    const sends = dueWork(db(), at('2026-12-02T14:00'), NO_KEYS, BUYERS).sends.filter((s) => s.job === 'session-24h');
     expect(sends).toHaveLength(1);
-    const data = sends[0]!.data as { n: number; title: string; label?: string };
+    const data = sends[0]!.data as { n: number; title: string; label?: string; start: number; mins?: number };
     expect(data).toMatchObject({ n: 101, title: 'Lead-Source ROI Office Hours', label: 'Week 1' });
-    expect(SUBJECTS['session-24h'](data)).toBe('Tomorrow: Week 1 · Lead-Source ROI Office Hours');
-    // A build keeps the subject it always had.
-    const build = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS, NO_ZONES, BUYERS).sends.find((s) => s.job === 'session-24h')!;
-    expect(SUBJECTS['session-24h'](build.data as { n: number; title: string })).toBe('Tomorrow: Session 1 · Lead-Source ROI Live Build');
+    // D-250: the time follows, in MT and CT (`sessionTimeMtCt`'s own tests pin its words).
+    expect(SUBJECTS['session-24h'](data)).toBe(`Tomorrow: Week 1 · Lead-Source ROI Office Hours · ${sessionTimeMtCt(data.start, data.mins)}`);
+    // A build keeps the subject it always had, with its time.
+    const build = dueWork(db(), at('2026-12-01T14:00'), NO_KEYS, BUYERS).sends.find((s) => s.job === 'session-24h')!;
+    const b = build.data as { n: number; title: string; start: number; mins?: number };
+    expect(SUBJECTS['session-24h'](b)).toBe(`Tomorrow: Session 1 · Lead-Source ROI Live Build · ${sessionTimeMtCt(b.start, b.mins)}`);
   });
 
   it('sends one build reminder per week, after the build, never a second after the office hour', () => {
     // 48 hours after the Week 1 office hour ends (Thu Dec 3, 2:00 PM CT).
-    const sends = dueWork(db(), at('2026-12-05T14:30'), NO_KEYS, NO_ZONES, BUYERS).sends;
+    const sends = dueWork(db(), at('2026-12-05T14:30'), NO_KEYS, BUYERS).sends;
     expect(to(sends, 'build-48h')).toEqual([]);
     // 48 hours after the Week 1 build ends (Wed Dec 2, 2:30 PM CT).
-    const after = dueWork(db(), at('2026-12-04T15:00'), NO_KEYS, NO_ZONES, BUYERS).sends;
+    const after = dueWork(db(), at('2026-12-04T15:00'), NO_KEYS, BUYERS).sends;
     expect(to(after, 'build-48h')).toEqual(['u_buyer@example.test']);
   });
 });

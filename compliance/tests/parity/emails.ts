@@ -47,12 +47,12 @@ export const CASES: EmailCase[] = [
   {
     name: 'session-1h',
     template: 'session-1h',
-    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, zone: 'America/Denver' },
+    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, mins: 90 },
   },
   {
     name: 'session-24h',
     template: 'session-24h',
-    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, zone: 'America/Denver' },
+    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, mins: 90 },
   },
   {
     name: 'announcement (Open Sessions)',
@@ -133,13 +133,28 @@ export function rendered(): Record<string, Rendered> {
   return cache;
 }
 
-/** A case's one call to action, as a path on this site (origin checked and dropped). */
+/**
+ * A case's one call to action, as a path on this site (origin checked and dropped).
+ *
+ * D-250: the session reminders are the branded document (`branded-html.ts`), whose wordmark and footer link the
+ * academy's own address (`LEARN_ORIGIN`) and whose footer has the support `mailto:`. Those are the document's, not
+ * the email's call to action, and none is on this site, so only the links on this site (`ORIGIN`, the payload's
+ * `appUrl`) count, and there must be exactly one. An email whose only link leaves the app still fails.
+ */
 export function ctaPath(name: string): string {
   const r = rendered()[name];
   if (!r) throw new Error(`no rendered email named ${name}`);
-  if (r.hrefs.length !== 1)
-    throw new Error(`${name}: expected one link, found ${r.hrefs.length}: ${r.hrefs.join(', ')}`);
-  const url = new URL(r.hrefs[0]!);
-  if (url.origin !== ORIGIN) throw new Error(`${name}: link leaves the app: ${url.href}`);
+  const onSite = r.hrefs.filter((h) => {
+    try {
+      return new URL(h).origin === ORIGIN;
+    } catch {
+      return false;
+    }
+  });
+  if (onSite.length !== 1) {
+    if (onSite.length === 0 && r.hrefs.length) throw new Error(`${name}: link leaves the app: ${r.hrefs.join(', ')}`);
+    throw new Error(`${name}: expected one link on this site, found ${onSite.length}: ${r.hrefs.join(', ')}`);
+  }
+  const url = new URL(onSite[0]!);
   return `${url.pathname}${url.search}${url.hash}`;
 }

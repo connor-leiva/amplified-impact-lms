@@ -28,12 +28,15 @@
 // subject in the HTML.
 import { describe, it, expect, afterAll, beforeAll } from 'vitest';
 import { render } from '@react-email/render';
-import { ACADEMY_URL, PROGRAM_TZ, buildWelcomeCopy, fmt, setViewerZone, viewerZone } from '@ai/core';
+import { ACADEMY_URL, buildWelcomeCopy, fmt, setViewerZone, viewerZone } from '@ai/core';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
 import { SUBJECTS, TEMPLATE_NAMES } from '../subjects';
 import type { TemplateName } from '../subjects';
-import { CONTENT_WIDTH, appBase, elementFor, renderEmail, renderTemplate, whenFor, zoneFor } from './index';
+import { CONTENT_WIDTH, appBase, elementFor, renderEmail, renderTemplate } from './index';
 import type { EmailPayload } from './index';
+
+/** D-250: the card's time as the reminder draws it, each zone's half kept on one line. */
+const cardTime = (t: string): string => `>${t.split(' / ').map((h) => `<span style="white-space:nowrap;">${h}</span>`).join(' / ')}</div>`;
 
 // ---------- anchors ----------------------------------------------------------------------------
 
@@ -46,9 +49,9 @@ const APP = 'https://app.amplifiedimpact.test';
 /** Session 3 of the December 2026 cohort: 2026-12-09T13:00 CT, the same anchor Gate 2 uses. */
 const S3_START = Date.parse('2026-12-09T13:00:00-06:00');
 
-const CHICAGO = 'America/Chicago';
-const NEW_YORK = 'America/New_York';
-/** `ZONES`'s last entry. Here only as a third candidate for "a zone this host is not already in". */
+/** D-250: Session 3's time in the reminders, Mountain Time first and Central Time after it (75 minutes). */
+const S3_TIME = 'Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
+/** A zone a viewer might have, to show the reminders never read one. */
 const HONOLULU = 'Pacific/Honolulu';
 
 let savedAppUrl: string | undefined;
@@ -61,7 +64,7 @@ beforeAll(() => {
 afterAll(() => {
   if (savedAppUrl === undefined) delete process.env.APP_URL;
   else process.env.APP_URL = savedAppUrl;
-  // `whenFor` already restores this per call; this is belt and braces for the suite's own pokes.
+  // Belt and braces for the suite's own pokes: no template sets the viewer zone.
   setViewerZone(null);
 });
 
@@ -97,8 +100,8 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
     action: 'calendar',
     actionLabel: 'Update Calendar',
   },
-  'session-24h': { n: 3, title: 'The Living Database', start: S3_START, zone: CHICAGO },
-  'session-1h': { n: 3, title: 'The Living Database', start: S3_START, zone: CHICAGO },
+  'session-24h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat' },
+  'session-1h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat' },
   'replay-ready': { n: 2, title: 'Speed to Lead', employee: 'Sales AI Employee', moduleId: 'sales' },
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
@@ -109,7 +112,8 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
 };
 
 /** Connor's HTML documents (the $37 skill email's design, D-247): not § 8.1's React Email shell. */
-const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge'];
+// D-250: the session reminders are the same document, as a note from Connor.
+const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h'];
 const branded = (name: TemplateName): boolean => BRANDED.includes(name);
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -118,8 +122,8 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'team-invite': SUBJECTS['team-invite']({ inviter: 'Alex Rivera', team: 'Northline Realty' }),
   'staff-invite': SUBJECTS['staff-invite']({}),
   announcement: SUBJECTS.announcement({ title: 'Session 3 moved to Wed Dec 9 · 1:00 PM CT' }),
-  'session-24h': SUBJECTS['session-24h']({ n: 3, title: 'The Living Database' }),
-  'session-1h': SUBJECTS['session-1h']({ n: 3, title: 'The Living Database' }),
+  'session-24h': SUBJECTS['session-24h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 }),
+  'session-1h': SUBJECTS['session-1h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 }),
   'replay-ready': SUBJECTS['replay-ready']({ n: 2, title: 'Speed to Lead' }),
   'build-reminder': SUBJECTS['build-reminder']({ employee: 'Marketing AI Employee' }),
   'weekly-digest': SUBJECTS['weekly-digest']({}),
@@ -141,7 +145,7 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'team-invite': { label: 'Accept Invite', href: `${APP}/invite/tok_invite_1` },
   'staff-invite': { label: 'Open Admin Console', href: `${APP}/invite/tok_staff_1` },
   announcement: { label: 'Update Calendar', href: `${APP}/sessions` },
-  'session-24h': { label: 'Open Sessions', href: `${APP}/sessions` },
+  'session-24h': { label: 'View the Session', href: `${APP}/sessions` },
   'session-1h': { label: 'Join Session', href: `${APP}/sessions` },
   'replay-ready': { label: 'Watch Replay', href: `${APP}/employees/sales` },
   'build-reminder': { label: 'Continue Build', href: `${APP}/employees/marketing` },
@@ -239,6 +243,20 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
       if (name === 'skill-purchase') {
         expect(html).toContain('<title>Thank you, Pat.</title>');
         expect(html).toContain('Thank you, Pat.');
+        expect(html).toContain(`>${CTA[name].label}</a>`);
+        expect(html).toContain(`href="${CTA[name].href}"`);
+        return;
+      }
+      // D-250: the session reminders are that document too, a note from Connor: its heading in the <title>, his note
+      // to the reader, the session and its time on the card, the button, and his name.
+      if (name === 'session-24h' || name === 'session-1h') {
+        const heading = name === 'session-24h' ? 'We Build Together Tomorrow' : 'Starting in an Hour';
+        expect(html).toContain(`<title>${heading}</title>`);
+        expect(html).toContain('Hi Pat,');
+        expect(html).toContain('>Session 3</div>');
+        expect(html).toContain('>The Living Database</div>');
+        expect(html).toContain(cardTime(S3_TIME));
+        expect(html).toContain('<span style="font-weight:500;">Connor</span>');
         expect(html).toContain(`>${CTA[name].label}</a>`);
         expect(html).toContain(`href="${CTA[name].href}"`);
         return;
@@ -446,111 +464,42 @@ describe('email templates · what would break in a real inbox @g8', () => {
 });
 
 // ================================================================================================
-// § 8.1's time rule: `fmt.when` in the RECIPIENT's zone, falling back to CT
+// D-250: every reminder time in Mountain and Central, MT first, the same for every reader
 // ================================================================================================
 
-describe('email templates · recipient time zones @g8', () => {
-  it('renders a session instant in the recipient’s saved zone @g8', async () => {
-    const html = await render(
-      elementFor('session-24h', {
-        n: 3,
-        title: 'The Living Database',
-        start: S3_START,
-        zone: NEW_YORK,
-      }).element,
-    );
-    // Viewer zone first, program zone in parentheses — CLAUDE.md's time rule, and the same string
-    // Gate 2 pins for `fmt.when` with a New York viewer.
-    expect(html).toContain('Wed, Dec 9 · 2:00 PM ET (1:00 PM CT)');
-  });
+describe('email templates · the reminders’ time, MT / CT @g8', () => {
+  const rendered = (name: 'session-24h' | 'session-1h', over: Record<string, unknown> = {}) =>
+    elementFor(name, { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat', ...over });
 
-  it('falls back to CT when the recipient has no saved zone @g8', async () => {
-    for (const zone of [undefined, null, '']) {
-      const html = await render(
-        elementFor('session-1h', {
-          n: 3,
-          title: 'The Living Database',
-          start: S3_START,
-          zone,
-        }).element,
-      );
-      // CT, and no parenthesised second zone: for a Central recipient `fmt.time` prints one clock.
-      expect(html).toContain('Wed, Dec 9 · 1:00 PM CT');
-      expect(html).not.toContain('(1:00 PM CT)');
+  it('shows the range in Mountain and Central, MT first, in the subject, the card and the text @g8', () => {
+    for (const name of ['session-24h', 'session-1h'] as const) {
+      const out = rendered(name);
+      expect(out.subject.endsWith(` · ${S3_TIME}`)).toBe(true);
+      expect(out.html).toContain(cardTime(S3_TIME));
+      expect(out.text).toContain(S3_TIME);
     }
   });
 
-  it('falls back to CT when the recipient’s saved zone is not a zone at all @g8', async () => {
-    // `users.prefs` is free-form `jsonb` (`apps/api/src/db/schema.ts`) with no enum and no check
-    // constraint, so `tz` is NOT guaranteed to be one of `ZONES`'s eight. A plausible typo rather
-    // than a nonsense string, because that is the value this actually happens with: one letter
-    // from the program zone, out of a hand-written migration or an imported roster.
-    const TYPO = 'America/Chigago';
-    // The premise, asserted rather than assumed: if `Intl` ever started accepting this string the
-    // rest of the test would be measuring nothing.
-    expect(() => new Intl.DateTimeFormat('en-US', { timeZone: TYPO })).toThrow(RangeError);
-
-    // § 8.1: "and fall back to CT". Before this, `fmt.when` threw `RangeError` out of `elementFor`,
-    // `transport.send` logged `template render threw: …` and returned `{ok: false}`, and that ONE
-    // learner received no email at all — not a wrong hour, nothing — while the rest of the cohort
-    // got theirs. Pinned as the literal CT string, not as `fmt.when(S3_START)`: this machine's host
-    // zone IS Central, so comparing against an unzoned format would pass here and on no CI runner.
-    expect(zoneFor(TYPO)).toBe(PROGRAM_TZ);
-    expect(whenFor(S3_START, TYPO)).toBe('Wed, Dec 9 · 1:00 PM CT');
-
-    const html = await render(
-      elementFor('session-24h', {
-        n: 3,
-        title: 'The Living Database',
-        start: S3_START,
-        zone: TYPO,
-      }).element,
-    );
-    expect(html).toContain('Wed, Dec 9 · 1:00 PM CT');
-    // CT only, with no parenthesised second clock: the fallback IS the program zone, so `fmt.time`
-    // prints one clock exactly as it does for a Central recipient.
-    expect(html).not.toContain('(1:00 PM CT)');
+  it('shows the start alone when the payload has no length @g8', () => {
+    const out = rendered('session-1h', { mins: undefined });
+    expect(out.html).toContain(cardTime('Wed, Dec 9, 12:00 PM MT / 1:00 PM CT'));
+    expect(out.subject).toBe('Starting in 1 hour: Session 3 · The Living Database · Wed, Dec 9, 12:00 PM MT / 1:00 PM CT');
   });
 
-  it('does not latch a recipient’s zone into the shared fmt module @g8', () => {
-    // `fmt` reads a module-level viewer zone (`packages/core/src/time.ts`), so a formatter that
-    // forgot to restore it would silently re-zone every later email in the process — and in a
-    // scheduler fanning one reminder out to twelve zones, most of them would be wrong. This is the
-    // single invariant `recipient.ts`'s 48-line header is built around, and the try/finally in
-    // `whenFor` is all that enforces it.
-    //
-    // WHY THE EXPECTED VALUE IS READ OFF THE HOST INSTEAD OF WRITTEN DOWN. The failure latches the
-    // RECIPIENT's zone, so the assertion has to be able to tell that zone apart from a correctly
-    // restored "auto" — and "auto" is the HOST's zone, which is Central on this program's machines
-    // and UTC on CI. The previous version of this test poked New York in beforehand and asserted
-    // `viewerZone() !== NEW_YORK`, which no realistic failure produces: deleting the whole
-    // try/finally from `whenFor` left all 83 tests green. So: resolve what this host's auto zone
-    // actually renders, pick a recipient zone that renders DIFFERENTLY, and assert the module came
-    // back to auto.
-    setViewerZone(null);
-    const auto = viewerZone();
-    const autoWhen = fmt.when(S3_START);
-    const foreign = [NEW_YORK, HONOLULU, CHICAGO].find(
-      (z) => z !== auto && whenFor(S3_START, z) !== autoWhen,
-    );
-    expect(foreign, 'no candidate zone renders differently from this host’s own').toBeTruthy();
+  it('is the same for every reader: a saved zone in the payload changes nothing @g8', () => {
+    // § 8.1 had rendered each recipient's saved zone; D-250 shows MT / CT to everyone, so the job sends no zone, and
+    // one that arrived anyway is not read.
+    const plain = rendered('session-24h').html;
+    expect(rendered('session-24h', { zone: 'America/New_York' }).html).toBe(plain);
+    expect(plain).not.toMatch(/ ET\b| HT\b| PT\b/);
+  });
 
-    const rendered = whenFor(S3_START, foreign!);
-    // The recipient really was rendered in their own zone — otherwise "it restored the zone" would
-    // be trivially true of a `whenFor` that never set one.
-    expect(rendered).not.toBe(autoWhen);
-    // And the shared module is back to auto, both as the state it reports and as what it formats.
-    expect(viewerZone()).toBe(auto);
-    expect(fmt.when(S3_START)).toBe(autoWhen);
-
-    // Restored to AUTO, not to whatever happened to be set before — `recipient.ts`'s consequence 1.
-    // `time.ts` exports no reader for the raw `VIEW_TZ`, so a `whenFor` that tried to put back
-    // "what it was" would have to read `viewerZone()`, which substitutes the host zone for null and
-    // would latch it permanently. Poking `foreign` in beforehand is what makes that visible: a
-    // restore-to-previous implementation lands on `foreign`, which is not `auto` by construction.
-    setViewerZone(foreign!);
-    whenFor(S3_START, CHICAGO);
-    expect(viewerZone()).toBe(auto);
+  it('never reads or changes the shared viewer zone @g8', () => {
+    setViewerZone(HONOLULU);
+    const before = fmt.when(S3_START);
+    expect(rendered('session-24h').html).toContain(cardTime(S3_TIME));
+    expect(viewerZone()).toBe(HONOLULU);
+    expect(fmt.when(S3_START)).toBe(before);
     setViewerZone(null);
   });
 });

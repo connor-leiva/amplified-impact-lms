@@ -5,22 +5,21 @@
 // `runDue(tx, now, [...])`. That shell is deferred with the rest of the Fastify server. This file
 // is the decision it exists to make, lifted out as a pure function:
 //
-//     dueWork(db, now, alreadySent, zones) -> { sends, flip }
+//     dueWork(db, now, alreadySent) -> { sends, flip }
 //
-// No clock, no transaction, no email. Given the same four arguments it returns the same answer,
+// No clock, no transaction, no email. Given the same arguments it returns the same answer,
 // which is what makes "the scheduler at 2026-12-08T13:00 CT sends session-24h for Session 3 to
 // each eligible learner once, and running it twice sends nothing new" a unit test instead of a
 // staging ritual. The deferred shell is then a wrapper with no decisions left in it:
 //
 //     const db = await loadDb(tx);
-//     const zones = await savedZones(tx);                                      // select id, prefs from users
-//     const sent = await keysAlreadyIn(tx, dueWork(db, now, NO_KEYS, zones).sends); // … where key in (…)
-//     const { sends, flip } = dueWork(db, now, sent, zones);
+//     const sent = await keysAlreadyIn(tx, dueWork(db, now, NO_KEYS).sends); // … where key in (…)
+//     const { sends, flip } = dueWork(db, now, sent);
 //     for (const s of sends) { await send(s); await tx.insert(jobRuns)…onConflictDoNothing(); }
 //     if (flip.length) await tx.update(announcements)…
 //
-// `zones` is there because `users.prefs.tz` is a column no `Db` carries — § 8.1 renders a session
-// time in the RECIPIENT's saved zone, and only the shell can read it. See `ZoneLookup`.
+// D-250: the session reminders show their time in Mountain and Central for everyone (`sessionTimeMtCt`), so no
+// recipient's saved zone is read; § 8.1 had rendered it in each recipient's own.
 //
 // (`dueWork(db, now, sent)` and `dueWork(db, now, NO_KEYS).sends.filter(…)` are the same list by
 // construction — `alreadySent` only ever subtracts. A test pins that, because it is what lets the
@@ -56,8 +55,8 @@
 // places that need a Central Time wall clock go through `fmt.isoDate` / `fmt.fromCT`. Those two
 // are the only `fmt` members safe on a server: the rest resolve through `viewerZone()`, which is
 // module-level state in `@ai/core/time` set by whichever request last rendered a page. A job must
-// never read it — a learner's saved zone belongs to the email template, which § 8.1 says resolves
-// it per recipient.
+// never read it. D-250: the session reminders' time is Mountain and Central for everyone
+// (`sessionTimeMtCt`), which takes no viewer zone at all.
 //
 // `fmt.fromCT` reads a wall clock as `-06:00`, Central STANDARD Time, all year. That is the
 // reference's own behaviour and DECISIONS.md's open question ("Cohorts inside Daylight Saving Time
@@ -80,7 +79,7 @@ import {
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
 import { isAcceleratorModule } from '@ai/core/accelerator';
 import type { CourseRoster } from '@ai/core/accelerator';
-import { sessionLabel } from '@ai/core';
+import { firstNameOf, sessionLabel } from '@ai/core';
 import { jobKey } from './keys';
 import type { JobName } from './keys';
 import type { EmailData, TemplateName } from '../email/transport';
@@ -106,7 +105,8 @@ import type { EmailData, TemplateName } from '../email/transport';
  * which no template reads, and carrying them is exactly how three of the five jobs came to be
  * missing fields that every template DOES read — `replay-ready` with no `employee`,
  * `build-reminder` with no `steps`, both session reminders with no `zone`. All three typechecked
- * and all three would have thrown inside `elementFor` on a live cohort.
+ * and all three would have thrown inside `elementFor` on a live cohort. (D-250: the session reminders now declare
+ * and carry `mins`, for the time's end, and no longer a `zone`.)
  *
  * Anything the SCHEDULER needs to know about a send rather than the inbox lives beside `data`:
  * `job` and `key`, and the key already encodes the scope (`session-24h:dec26-s3:u_jamie`), so
@@ -121,27 +121,6 @@ export type Send<K extends TemplateName = TemplateName> = {
     data: EmailData<T>;
   };
 }[K];
-
-/**
- * A recipient's saved zone, per user id — § 8.1's "use `fmt.when` with the RECIPIENT's saved zone,
- * and fall back to CT".
- *
- * THIS IS A PARAMETER BECAUSE THE SNAPSHOT DOES NOT CARRY IT. `users.prefs` is a real jsonb column
- * (`apps/api/src/db/schema.ts`: `prefs: jsonb().$type<{ tz?: string | null; … }>()`), but
- * `@ai/core`'s `Learner` has no `prefs` field at all, so a `Db` — which is what `dueWork` is handed
- * inside the transaction — physically cannot answer "what zone did this learner save?". Adding
- * `prefs` to `Learner` is a core domain-type change, which this sprint is not allowed to make.
- *
- * So the zones come in from the caller, which is the one place that can read the column: the
- * deferred § 8.5 shell already has `tx`, and `select id, prefs from users` is the query. An empty
- * map is the honest default — every recipient then renders in CT, which is § 8.1's own fallback,
- * and `whenFor` applies it. What is NOT acceptable, and was the defect, is a payload with no `zone`
- * key at all: that reads as "the recipient is Central", for all fourteen of them, silently.
- */
-export type ZoneLookup = ReadonlyMap<string, string | null | undefined>;
-
-/** For a caller that has no zones to offer. Every recipient then renders in CT, per § 8.1. */
-export const NO_ZONES: ZoneLookup = new Map<string, string | null | undefined>();
 
 export interface DueWork {
   /** Emails to send, each exactly once, in `runDue`'s job order. */
@@ -332,7 +311,7 @@ const mondayOf = (t: number): number => {
 // ---------------------------------------------------------------------------
 
 /** `session-24h` and `session-1h`: § 8.1's "Tomorrow: …" and "Starting in 1 hour: …". */
-function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: CourseAudience): Send[] {
+function sessionReminders(db: Db, now: number, accelerator?: CourseAudience): Send[] {
   const out: Send[] = [];
   for (const s of db.sessions) {
     // Not yet begun. `sessionState` — not `now < s.start` — because an admin who pressed Go Live
@@ -340,23 +319,13 @@ function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: 
     if (sessionState(s, now) !== 'upcoming') continue;
     const audience = sessionAudience(db, s, now, accelerator);
     if (!audience.length) continue;
-    // `n` and `title` build § 8.1's subject; `start` and `zone` are what the body renders, through
-    // `whenFor(start, zone)` in the template — § 8.1: "Session times in emails use `fmt.when` with
-    // the RECIPIENT's saved zone, and fall back to CT."
-    //
-    // `zone` IS PER RECIPIENT, which is why this takes `u` and builds a fresh object each time. One
-    // object shared by all fourteen learners would give every one of them whichever zone was
-    // written last; a payload with no `zone` key at all — which is what this job used to produce —
-    // silently renders Central for all fourteen, including the learner in Honolulu.
-    //
-    // `?? null` rather than leaving the key off: `null` is what `users.prefs.tz` stores for "Auto"
-    // (`ZONES`'s first entry is `['', 'Auto']`), the template reads it with `optStr`, and `whenFor`
-    // turns it into § 8.1's CT fallback. A missing key would mean the same thing by accident
-    // instead of on purpose.
+    // `n` and `title` build § 8.1's subject. D-250: `start` and `mins` are the time, which the subject and the body
+    // show in Mountain and Central (`sessionTimeMtCt`), the same for every recipient. The first name opens Connor's
+    // note ("Hi Dana,"), which is why this takes `u` and builds a fresh object each time.
     // An office hour (D-110) is named by its week, "Week 2", not by its n (102); a build carries no
     // label, so every payload the prototype makes is unchanged.
     const label = sessionLabel(s) === `Session ${s.n}` ? {} : { label: sessionLabel(s) };
-    const data = (u: Learner) => ({ n: s.n, title: s.title, ...label, start: s.start, zone: zones.get(u.id) ?? null });
+    const data = (u: Learner) => ({ n: s.n, title: s.title, ...label, start: s.start, mins: s.mins, firstName: firstNameOf(u.name) });
     // Written out twice rather than looped over a [job, opens, closes] table: `template` and `data`
     // are correlated in `Send`, and a loop variable of type `'session-24h' | 'session-1h'` loses
     // that correlation — the compiler would have to be told to stop checking the one thing worth
@@ -621,11 +590,6 @@ const toggleOn = (db: Db, job: JobName): boolean => {
  * `alreadySent` is required rather than defaulted, because an omitted argument would be the exact
  * shape of the bug this function exists to prevent. Pass `NO_KEYS` for the candidate pass.
  *
- * `zones` IS defaulted, because unlike `alreadySent` an omitted one is not a bug but a documented
- * fallback: § 8.1 says a recipient with no saved zone is rendered in CT, and `NO_ZONES` is every
- * recipient having no saved zone. It is the fourth argument rather than a field on `Learner`
- * because `@ai/core`'s `Learner` has no `prefs` — see `ZoneLookup` above.
- *
  * § 8.5: "Scheduled AI Employees need no job. `isOpen(m, now)` already opens them at `opens`." So
  * there is no sixth job here, by design — the Operations AI Employee's `opens` instant is read at
  * render time, not announced.
@@ -634,7 +598,6 @@ export function dueWork(
   db: Db,
   now: number,
   alreadySent: ReadonlySet<string>,
-  zones: ZoneLookup = NO_ZONES,
   /**
    * The learners whose plan opens the AI Accelerator (D-110), which the `Db` cannot say: the
    * scheduler reads it from the plans. The course's reminders go to them only. Absent: no narrowing.
@@ -644,7 +607,7 @@ export function dueWork(
 ): DueWork {
   const announcements = scheduledAnnouncements(db, now);
   const candidates: Send[] = [
-    ...sessionReminders(db, now, zones, accelerator),
+    ...sessionReminders(db, now, accelerator),
     ...replayReady(db, now, accelerator),
     ...buildNotFinished48h(db, now, accelerator),
     ...weeklyDigest(db, now),

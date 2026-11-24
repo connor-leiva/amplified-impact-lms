@@ -2208,20 +2208,20 @@
     {
       "id": "M-1",
       "area": "Emails, reminders and deep links into the portal",
-      "what": "Session 24h \"Open Sessions\": links to `/sessions` (`session-24h.tsx:19`, `session-reminder.tsx:36`)",
+      "what": "Session 24h \"View the Session\" (\"Open Sessions\" before D-250): links to `/sessions` (`session-reminder-html.ts`)",
       "kind": "deep-link",
       "audience": [
         "Accelerator"
       ],
       "status": "kept",
       "tests": [
-        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-24h \"Open Sessions\" lands on the Schedule @parity:M-1"
+        "compliance/tests/parity/deep-links.spec.ts › learner parity: email deep links › session-24h \"View the Session\" lands on the Schedule @parity:M-1"
       ]
     },
     {
       "id": "M-2",
       "area": "Emails, reminders and deep links into the portal",
-      "what": "Session 1h \"Join Session\": links to `/sessions` (`session-1h.tsx:18`)",
+      "what": "Session 1h \"Join Session\": links to `/sessions` (`session-reminder-html.ts`, D-250)",
       "kind": "deep-link",
       "audience": [
         "Accelerator"
