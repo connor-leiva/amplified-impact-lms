@@ -288,7 +288,7 @@ export function Component() {
                     {
                       label: C.billing.invoice,
                       value: vm.billing.invoice ? (
-                        <span className={k.row}>
+                        <span className={k.row} style={{ gap: 8 }}>
                           <span className={k.mo}>{vm.billing.invoice.id}</span>
                           <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
                         </span>
