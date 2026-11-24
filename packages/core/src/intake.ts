@@ -176,7 +176,7 @@ export function intakeFileIds(
 }
 
 /**
- * D-241: the step files a week no longer lists: the static intake PDF (`intakeFileIds`), once the week has the intake
+ * D-246: the step files a week no longer lists: the static intake PDF (`intakeFileIds`), once the week has the intake
  * form. The form is filled in on the portal and its answers download as a PDF (`GET /api/intake/pdf`), so the blank
  * PDF is neither needed nor shown as a step's file. A week without the form keeps its files as they are.
  */
@@ -189,7 +189,7 @@ export function unlistedIntakeFiles(
 }
 
 /**
- * D-241: the intake's checklist item on a step, when the week has the intake form. Its download once named the static
+ * D-246: the intake's checklist item on a step, when the week has the intake form. Its download once named the static
  * intake PDF; a step with that file gone (it is no longer needed) opens the form from the item instead.
  */
 export function intakeItemOn(mod: AIEmployee | undefined, week: { intake?: CourseIntake } | undefined, stepId: string | null): string | null {

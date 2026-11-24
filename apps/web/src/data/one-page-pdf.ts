@@ -1,4 +1,4 @@
-// D-241: a one-page PDF of a few lines of text, for the fixture build's intake download. The real file is printed on
+// D-246: a one-page PDF of a few lines of text, for the fixture build's intake download. The real file is printed on
 // the server by headless Chromium (`apps/api/src/pdf/render.ts`), which the fixture build has no server for. Fixture
 // only: nothing in http mode calls this.
 

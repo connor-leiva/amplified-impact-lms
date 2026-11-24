@@ -28,7 +28,7 @@ export const FORM_UI: FormUi = {
   optional: 'Optional',
   needText: 'Add an answer.',
   needChoice: 'Pick one.',
-  // D-241: on the submitted banner, the team's answers as a PDF (the foot's Download PDF stays, draft or submitted).
+  // D-246: on the submitted banner, the team's answers as a PDF (the foot's Download PDF stays, draft or submitted).
   submittedPdfLabel: DOWNLOAD_ANSWERS_LABEL,
 };
 
@@ -72,7 +72,7 @@ export function formInitial(body: IntakeBody | null, now: number): FormInitial {
 }
 
 /**
- * D-241: the intake's row on the week when no kit file is the intake (the static PDF is no longer needed as a step
+ * D-246: the intake's row on the week when no kit file is the intake (the static PDF is no longer needed as a step
  * file): the mockup's "Week 0 Intake Form" on the intake's step, with no file behind it. `formRow` draws it.
  */
 export const FORM_ROW_TITLE = 'Week 0 Intake Form';

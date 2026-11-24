@@ -305,7 +305,7 @@ describe('the Console client, PR 2 (D-158)', () => {
   });
 });
 
-describe('a Workspace’s intake PDF (D-241)', () => {
+describe('a Workspace’s intake PDF (D-246)', () => {
   const NOW = Date.parse('2026-12-10T16:30:00Z');
 
   it('asks the team’s PDF route with credentials, and answers the file under the server’s name', async () => {

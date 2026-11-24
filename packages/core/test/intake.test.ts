@@ -85,7 +85,7 @@ describe('intakeFileIds (D-229, B-14, B-15): the kit files the form drawer repla
   });
 });
 
-describe('the static intake PDF is no longer a step file (D-241)', () => {
+describe('the static intake PDF is no longer a step file (D-246)', () => {
   const week0 = (blocks: unknown[]) =>
     ({ id: 'accelerator-week-0', checklist: [{ id: 'c1', paths: { claude: { blocks }, chatgpt: { blocks } } }, { id: 'c2' }] }) as unknown as AIEmployee;
   const kit = [

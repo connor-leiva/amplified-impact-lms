@@ -4,7 +4,7 @@ import { APP_BASE } from '../../lib/prepare';
 import { expectAccessible } from '../../lib/a11y';
 
 /**
- * D-241: Admin › Workspaces › a team › Intake has Download PDF beside View intake. It asks the team's intake PDF
+ * D-246: Admin › Workspaces › a team › Intake has Download PDF beside View intake. It asks the team's intake PDF
  * (`GET /api/console/workspaces/:teamId/intake/pdf`, audited as `intake.pdf`) and the browser saves it under the
  * route's name. In the fixture build the Console fixture answers a one-page stand-in under that name (the real file
  * is printed on the server). The audit row is the unit tests' (`apps/web/src/data/console.test.ts`, the API's
@@ -27,7 +27,7 @@ async function openAt(browser: Browser, path: string, width: number): Promise<{ 
 
 const intakeCard = (page: Page) => page.locator('main section').filter({ has: page.getByRole('heading', { level: 2, name: 'Intake' }) });
 
-test.describe('a Workspace’s intake PDF (D-241) @g9 @console', () => {
+test.describe('a Workspace’s intake PDF (D-246) @g9 @console', () => {
   for (const width of [1280, 390])
     test(`Download PDF sits beside View intake and saves the team’s PDF, at ${width}`, async ({ browser }) => {
       const { page, close } = await openAt(browser, '/admin/workspaces/ws_northshore', width);

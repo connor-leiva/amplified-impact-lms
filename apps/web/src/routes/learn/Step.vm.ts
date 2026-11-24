@@ -333,7 +333,7 @@ function asideOf(w: OpenCourseWeek, steps: readonly LearnerStep[], s: LearnerSte
   const skills = skillsForStep(w, s)
     .filter((k) => inLibrary(k.route))
     .map((k) => skillRow(k, copy));
-  // D-241: the static intake PDF is no longer a step file once the week has the intake form (`unlistedIntakeFiles`).
+  // D-246: the static intake PDF is no longer a step file once the week has the intake form (`unlistedIntakeFiles`).
   const kit = (w.kit ?? [])
     .filter((item) => s.id !== null && item.stepId === s.id && !unlisted.includes(item.id))
     .map((item) => ({ platform: item.platform, row: kitRow(item, steps, fileUrl) }));
@@ -460,7 +460,7 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
 }
 
 /**
- * D-241: the intake's checklist item whose download names no file left on the week (the static intake PDF, no longer
+ * D-246: the intake's checklist item whose download names no file left on the week (the static intake PDF, no longer
  * needed as a step file) opens the form instead, as a `form` action naming the intake does.
  */
 function intakeFallback(b: CheckBlock, intakeItem: string | undefined): CheckActionVM | null {
@@ -616,7 +616,7 @@ interface LayoutCtx {
   operatorNote?: string;
   /** D-242: the week's Seat Card, for a table marked as it. */
   seatCard?: SeatCard;
-  /** D-241: the intake's checklist item on this step (`intakeItemOn`), when the week has the form. */
+  /** D-246: the intake's checklist item on this step (`intakeItemOn`), when the week has the form. */
   intakeItem?: string;
 }
 

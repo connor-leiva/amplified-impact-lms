@@ -153,7 +153,7 @@ export interface ConsoleApi {
   workspace(teamId: string): Promise<WorkspaceDetail>;
   /** D-196: a team's intake. The read is audited. */
   teamIntake(teamId: string): Promise<{ answers: Record<string, string | string[]>; updatedAt: number | null; submittedAt: number | null }>;
-  /** D-229 (B-18), D-241: a team's intake as a PDF and the name the server gave it. Audited as `intake.pdf`. */
+  /** D-229 (B-18), D-246: a team's intake as a PDF and the name the server gave it. Audited as `intake.pdf`. */
   teamIntakePdf(teamId: string): Promise<{ blob: Blob; filename: string }>;
   teamStack(teamId: string): Promise<{ rows: { source: string; tool: string; plan: 'green' | 'yellow'; who: string }[]; sentAt: number | null }>;
   users(filters: UserFilters, cursor?: string | null): Promise<ConsolePage<ConsoleUserRow>>;

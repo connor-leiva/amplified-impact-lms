@@ -96,7 +96,7 @@ export function Component() {
 
   const team = rec.data?.team;
   const owner = entry.state();
-  // D-241: the team's intake as the server prints it (`GET …/intake/pdf`, audited as `intake.pdf`), saved under its name.
+  // D-246: the team's intake as the server prints it (`GET …/intake/pdf`, audited as `intake.pdf`), saved under its name.
   const downloadPdf = () => {
     if (!api || pdfBusy) return;
     setPdfBusy(true);

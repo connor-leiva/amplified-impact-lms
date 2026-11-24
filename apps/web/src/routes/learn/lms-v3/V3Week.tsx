@@ -76,7 +76,7 @@ export function V3Week({
     );
   // B-14: the kit files that are the intake (core's rule: production's has a generated id) become the form's row.
   const intakeIds = form ? intakeFileIds(r.module, r.open?.kit ?? []) : [];
-  // D-241: with no such file (the static PDF is no longer needed as a step file), the form still has its row, on the
+  // D-246: with no such file (the static PDF is no longer needed as a step file), the form still has its row, on the
   // intake's step.
   const standIn = form && !intakeIds.length ? formItem(intakeStepOf(r.steps, intakeCheckTarget(r.module)?.stepId)) : undefined;
   const asForm: KitInput['formRow'] = form
@@ -124,7 +124,7 @@ export function V3Week({
   );
 }
 
-// B-18: Download PDF, and D-241's Download Your Answers (PDF): the shared helper (`../intake-pdf`), re-exported here
+// B-18: Download PDF, and D-246's Download Your Answers (PDF): the shared helper (`../intake-pdf`), re-exported here
 // where the drawer's tests have always found it.
 export { downloadIntakePdf, pdfNameOf } from '../intake-pdf';
 

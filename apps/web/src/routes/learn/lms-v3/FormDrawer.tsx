@@ -22,7 +22,7 @@
 // work (an agent's view); `ui.submittedLabel`, the finished state's word ("Signed", "Ready"); and a refusal: a save or
 // a submit the server refuses (a `FormRefusal`) stops, the button shakes back, and the foot says why, where a refused
 // save once hung on "Saving". With none of them in play the drawer is the package's.
-// D-241 adds one more, the same way: `ui.submittedPdfLabel`, a download button on the submitted banner (the intake's
+// D-246 adds one more, the same way: `ui.submittedPdfLabel`, a download button on the submitted banner (the intake's
 // "Download Your Answers (PDF)"). It shares Download PDF's state and action, so one file is made at a time.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
@@ -153,7 +153,7 @@ function Field({ f, fm, locked }: { f: FormQuestion; fm: FormApi; locked: boolea
   );
 }
 
-/** D-241: the banner's download sits under its words, the banner's own 12 px gap away. */
+/** D-246: the banner's download sits under its words, the banner's own 12 px gap away. */
 const BANNER_PDF = { marginTop: 12 } as const;
 
 function AsyncBtn({ cls, state, icon, label, done, onClick, attempt }: { cls: string; state: AsyncState; icon?: string; label: string; done: string; onClick: () => void; attempt?: number }) {

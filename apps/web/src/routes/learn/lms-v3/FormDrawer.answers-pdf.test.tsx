@@ -1,4 +1,4 @@
-// D-241: once the team has submitted, the intake drawer's confirmation offers Download Your Answers (PDF). It is the
+// D-246: once the team has submitted, the intake drawer's confirmation offers Download Your Answers (PDF). It is the
 // intake's own option (`ui.submittedPdfLabel`): the package's drawer (the equality test's), and the seat card's, have
 // none, and a draft shows no banner to put it on.
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
@@ -22,7 +22,7 @@ function Drawer({ form, initial, onDownloadPdf }: { form: FormDef; initial: Form
   return <FormDrawer f={f} open onClose={() => {}} />;
 }
 
-describe('Download Your Answers (PDF) on the drawer’s confirmation (D-241)', () => {
+describe('Download Your Answers (PDF) on the drawer’s confirmation (D-246)', () => {
   it('sits on the submitted banner, Title Case, beside the foot’s Download PDF', () => {
     render(<Drawer form={def} initial={{ status: 'submitted', answers: { name: 'Dana' } }} onDownloadPdf={() => Promise.resolve()} />);
     const banner = document.querySelector<HTMLElement>('.fm-banner')!;

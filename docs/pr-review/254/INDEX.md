@@ -1,6 +1,6 @@
 # Review files for https://github.com/connor-leiva/amplified-impact-lms/pull/254
 
-Playwright captures of D-241 (Download Your Answers (PDF), and the admin's Download PDF), at device scale 2. Decode with `base64 -d file.png.b64 > file.png`.
+Playwright captures of D-246 (Download Your Answers (PDF), and the admin's Download PDF), at device scale 2. Decode with `base64 -d file.png.b64 > file.png`.
 
 Captured from local fixture builds at commit `c8d0123`, with the learner reads answered as the API would: the course from the deployed seed with the Week 0 intake (and the fixture's database given the same Accelerator modules, so the steps carry their ids), and the team's intake submitted Thu, Nov 19, 4:02 PM CT with the package's sample answers (`handoff/lms-v3/src/forms/week-0-intake.samples.json`). The admin is the Console fixture's Northshore Group (`?as=admin`).
 

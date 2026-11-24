@@ -200,7 +200,7 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
     const v = skillVM(k, p.copy);
     return { ...skillRow(k, p.copy, { week: r.week, steps: r.steps }), tags: [{ label: v.role }, ...(v.free ? [{ label: COPY.free, tone: 'done' as const }] : [])] };
   });
-  // D-241: the static intake PDF is no longer a step file once the week has the intake form.
+  // D-246: the static intake PDF is no longer a step file once the week has the intake form.
   const unlisted = unlistedIntakeFiles(r.module, w);
   const kitRows = (w.kit ?? []).filter((k) => !unlisted.includes(k.id)).map((k) => kitRow(k, r.steps, fileUrl));
   const rows = [...skillRows, ...kitRows];

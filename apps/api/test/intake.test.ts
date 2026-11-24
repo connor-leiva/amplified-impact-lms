@@ -99,9 +99,9 @@ describe('intake PDF (D-229, B-18)', () => {
     expect((await app.inject({ method: 'GET', url: '/api/intake/pdf' })).statusCode).toBe(401);
   }, 60_000);
 
-  // D-241: Download Your Answers (PDF). The route takes the team from the session, so nothing a learner sends names
+  // D-246: Download Your Answers (PDF). The route takes the team from the session, so nothing a learner sends names
   // another team: a query string is ignored, and the console's per-team route refuses a learner (below).
-  it('scopes a learner to their own team’s PDF, whatever the request names (D-241)', async () => {
+  it('scopes a learner to their own team’s PDF, whatever the request names (D-246)', async () => {
     const a = await app.signInAs('own-a');
     const b = await app.signInAs('own-b');
     const name = async (cookie: string, url: string) => {

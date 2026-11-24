@@ -1,6 +1,6 @@
 // Hand the browser a file the API answered, under the name the API gave it (#128's, kept): a blob URL,
 // so nothing leaves the page. The users export and the Audit Log's export share the CSV one; a Workspace's
-// intake PDF (D-241) the blob one.
+// intake PDF (D-246) the blob one.
 export function downloadCsv(csv: string, filename: string): void {
   downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), filename);
 }

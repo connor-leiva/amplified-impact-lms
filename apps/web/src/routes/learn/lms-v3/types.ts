@@ -184,7 +184,7 @@ export interface FormUi {
   /** D-236: the finished state's word on the button and the meter ("Signed", "Ready"). Absent: "Submitted". */
   submittedLabel?: string;
   /**
-   * D-241: a download button on the submitted banner ("Download Your Answers (PDF)"), the team's answers as a PDF.
+   * D-246: a download button on the submitted banner ("Download Your Answers (PDF)"), the team's answers as a PDF.
    * Absent: the banner is the package's, words only.
    */
   submittedPdfLabel?: string;

@@ -1,4 +1,4 @@
-// D-241: the static intake PDF no longer needs to be a step file. Once Week 0 has the intake form, the step's
+// D-246: the static intake PDF no longer needs to be a step file. Once Week 0 has the intake form, the step's
 // "For this step" and the week's kit stop listing the blank PDF, and the intake's checklist item still opens the form
 // when the file is gone from the week. A week without the form keeps its files as they are.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -42,7 +42,7 @@ function week0({ form, file }: { form: boolean; file: boolean }) {
   return { step, week };
 }
 
-describe('the static intake PDF is no longer a step file (D-241)', () => {
+describe('the static intake PDF is no longer a step file (D-246)', () => {
   it('For this step lists the stack card and not the blank intake PDF, once the week has the form', () => {
     const { step } = week0({ form: true, file: true });
     expect(step.forStep.map((r) => r.title)).toEqual(['Week 0 Stack Card']);

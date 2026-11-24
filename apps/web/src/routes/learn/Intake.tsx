@@ -1,5 +1,5 @@
 // /learn/week/0/intake (D-196). The week's intake questions, autosaved for the team. Markup only.
-// D-241: once the team has submitted, Download Your Answers (PDF) hands the learner their team's answers as a PDF
+// D-246: once the team has submitted, Download Your Answers (PDF) hands the learner their team's answers as a PDF
 // (`GET /api/intake/pdf`, which takes the team from the session). A staff preview has no team, so no button.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -19,7 +19,7 @@ import s from './Intake.module.css';
 import l from './Learn.module.css';
 
 const WAIT = 600;
-/** D-241: the download didn't reach the browser (the route refused, or the request failed). */
+/** D-246: the download didn't reach the browser (the route refused, or the request failed). */
 export const PDF_FAILED = 'Your answers didn’t download. Try again.';
 
 interface Saved {

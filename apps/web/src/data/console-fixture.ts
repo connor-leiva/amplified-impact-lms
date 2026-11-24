@@ -463,7 +463,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         record('intake.read', { type: 'team', id: teamId, label: 'Intake' }, null);
         return { answers: {}, updatedAt: null, submittedAt: null };
       }),
-    // D-241: the server prints the real PDF (headless Chromium); the fixture build hands back a one-page stand-in,
+    // D-246: the server prints the real PDF (headless Chromium); the fixture build hands back a one-page stand-in,
     // named and audited as the route's.
     teamIntakePdf: (teamId) =>
       settle(() => {

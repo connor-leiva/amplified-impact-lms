@@ -145,7 +145,7 @@ export type WorkspaceTab = (typeof WORKSPACE_TABS)[number];
 
 export const WORKSPACE_COPY = {
   back: 'Workspaces',
-  /** D-241: beside View intake, the team's intake as a PDF. */
+  /** D-246: beside View intake, the team's intake as a PDF. */
   intakePdf: 'Download PDF',
   intakePdfFailed: 'Could not download the intake PDF.',
   masquerade: 'Masquerade as owner',

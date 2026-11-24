@@ -13,7 +13,7 @@ import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 import { WEEK0_MODULE_ID } from '../../../packages/core/seed/start-here-v1';
 
 /**
- * D-241: on the intake page v3 doesn't draw for (`/learn/week/0/intake`), once the team has submitted, Download Your
+ * D-246: on the intake page v3 doesn't draw for (`/learn/week/0/intake`), once the team has submitted, Download Your
  * Answers (PDF) saves the team's answers as a PDF. The page asks `GET /api/intake/pdf`, which takes the team from the
  * session: the request names no team. In the fixture build (learner v2 on) the reads are answered as the API would:
  * the course from the deployed seed with the intake, the team's intake, and its PDF.
@@ -58,7 +58,7 @@ async function open(browser: Browser, width: number, submitted: boolean): Promis
 
 const BUTTON = 'Download Your Answers (PDF)';
 
-test.describe('learner portal v2, the intake page’s PDF (D-241) @g9', () => {
+test.describe('learner portal v2, the intake page’s PDF (D-246) @g9', () => {
   test('a draft offers no download', async ({ browser }) => {
     const { page } = await open(browser, 1280, false);
     await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
