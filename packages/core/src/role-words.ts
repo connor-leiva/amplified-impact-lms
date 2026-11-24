@@ -1,4 +1,4 @@
-// D-242: the course's second role is the AI Implementer (it was the operator). Pure: no clock, no I/O.
+// D-243: the course's second role is the AI Implementer (it was the operator). Pure: no clock, no I/O.
 //
 // The role's ids stay as they were: the step role `operator`, the week's `operator` lines, the glossary
 // term `operator`, the intake's `operator` and `operator-name` questions, and the account role

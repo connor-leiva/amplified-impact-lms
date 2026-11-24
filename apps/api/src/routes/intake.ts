@@ -104,7 +104,7 @@ export function registerIntakeRoute(app: FastifyInstance): void {
     const me = await memberOf(actor.userId);
     if (!me || !mayEditIntake(me.role)) return reply.code(403).send({ error: 'That intake is for the owner and the AI Implementer.' });
     const [row] = await getDb().select().from(teamIntake).where(eq(teamIntake.teamId, me.teamId));
-    // D-242: a choice saved in the operator's words comes back as the option it picks now.
+    // D-243: a choice saved in the operator's words comes back as the option it picks now.
     const form = row ? await formOf() : undefined;
     return reply.code(200).send({
       answers: currentIntakeAnswers(form, row?.answers ?? {}),

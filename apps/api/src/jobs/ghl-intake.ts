@@ -139,7 +139,7 @@ export async function syncIntakeRow(
   },
 ): Promise<RowOutcome> {
   if (ctx.owner.isTest) return { status: 'skipped', error: 'the seeded test account: never synced' };
-  // D-242: a choice saved in the operator's words goes to GHL as the option it picks now.
+  // D-243: a choice saved in the operator's words goes to GHL as the option it picks now.
   const payload = intakePayload(ctx.form, currentIntakeAnswers(ctx.form, row.answers), row.submittedAt, ctx.env);
   const op = operatorOf(row.answers, ctx.operator);
   if (!ctx.send || !ctx.options) {

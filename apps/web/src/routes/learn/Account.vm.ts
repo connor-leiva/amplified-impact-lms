@@ -120,7 +120,7 @@ export interface AccountVM {
   included: { heading: string; items: string[] } | null;
 }
 
-/** A role as the mockup writes it: sentence case, and the second seat's holder is the AI Implementer (D-242). */
+/** A role as the mockup writes it: sentence case, and the second seat's holder is the AI Implementer (D-243). */
 const ROLE_LABEL: Record<Learner['role'], string> = {
   'Team Owner': 'Team owner',
   'Operations Lead': 'AI Implementer',

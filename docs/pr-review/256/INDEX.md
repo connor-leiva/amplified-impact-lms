@@ -1,6 +1,6 @@
 # Review files for https://github.com/connor-leiva/amplified-impact-lms/pull/256
 
-The operator is the AI Implementer (D-242): every surface the rename changes, at 1280 and 390. Decode with `base64 -d file.png.b64 > file.png`.
+The operator is the AI Implementer (D-243): every surface the rename changes, at 1280 and 390. Decode with `base64 -d file.png.b64 > file.png`.
 
 - **Build:** this branch, served the way Railway serves it: the web app built with `VITE_LEARNER_V2=true VITE_STEP_PAGE_V6=true VITE_DATA_SOURCE=http`, from the API (`apps/api/src/server.ts`) on a local Postgres.
 - **Data:** a database shaped like production before this deploy: `seedProduction`, then every earlier data step. Then the deploy's own `pnpm --filter @ai/api db:curriculum:ensure` ran `2026-11-24-ai-implementer` (10 records, Step 1's line named for staff). The learner is the seeded test learner, the made-up Alex Morgan, a Team Owner with two seats; the reset scripts in `compliance/lms-v3/` set up their Week 0 and opened Week 1. Added for these screens only, on that local database: an invited Operations Lead (Jordan Lee, made up), the intake's kit row, and the old-words answer for "Whose AI account runs your hires?".

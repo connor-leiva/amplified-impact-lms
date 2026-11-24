@@ -26,7 +26,7 @@ export const titleWords = (title: string): number => title.trim().split(/\s+/).f
 
 /**
  * D-199: a stored condition against the team's intake. No intake, or a field the intake does not
- * have, does nothing. `both` also matches "I'm both". An answer or a condition saved before D-242 renamed the operator
+ * have, does nothing. `both` also matches "I'm both". An answer or a condition saved before D-243 renamed the operator
  * the AI Implementer still matches its renamed words.
  */
 export function conditionMet(cond: { field: string; equals: string } | undefined, answers?: Readonly<Record<string, string | string[]>>): boolean {

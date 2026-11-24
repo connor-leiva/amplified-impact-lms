@@ -1,4 +1,4 @@
-// D-242: the operator is the AI Implementer, on the server. The deploy's preview reads what the pending steps would
+// D-243: the operator is the AI Implementer, on the server. The deploy's preview reads what the pending steps would
 // change and writes nothing; the step itself runs once and audits each record; and a team's intake answer saved in
 // the old words reads, prints and re-saves as today's option without its stored row being rewritten.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -33,7 +33,7 @@ afterAll(async () => {
   await app?.close();
 });
 
-describe('the deploy’s preview and the step (D-242)', () => {
+describe('the deploy’s preview and the step (D-243)', () => {
   it('previews every field the step would change, writes nothing, then the deploy runs it once with an audit row per record', { timeout: 180_000 }, async () => {
     await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
     // Production as it is before this deploy: every earlier step has run.
@@ -86,7 +86,7 @@ describe('the deploy’s preview and the step (D-242)', () => {
   });
 });
 
-describe('an intake answer saved in the old words (D-242)', () => {
+describe('an intake answer saved in the old words (D-243)', () => {
   it('reads, prints and re-saves as today’s option, and its stored row is not rewritten', { timeout: 60_000 }, async () => {
     const db = planAiImplementerV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db;
     const week = db.modules.find((m) => m.id === WEEK0_MODULE_ID)!;

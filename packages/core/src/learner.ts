@@ -83,9 +83,9 @@ export const minutesLeft = (steps: readonly LearnerStep[]): number => steps.filt
 
 /**
  * B-09 (D-228): who a step is for, read from its `who` text, the words the builder already holds (Connor, Nov 20: "Read
- * the text"). "Owner" is the owner's, "AI Implementer" the AI Implementer's (the role's id stays `operator`, D-242), and
+ * the text"). "Owner" is the owner's, "AI Implementer" the AI Implementer's (the role's id stays `operator`, D-243), and
  * anything else ("Owner and AI Implementer", "Each of you", or words this rule doesn't know) is both of theirs, so no
- * step ever drops out of a role's list. A Who line saved before D-242 ("Operator") still reads the same.
+ * step ever drops out of a role's list. A Who line saved before D-243 ("Operator") still reads the same.
  */
 export type StepRole = 'owner' | 'operator';
 const whoKey = (who: string | null | undefined): string => implementerWords((who ?? '').trim()).toLowerCase().replace(/[.]$/, '');

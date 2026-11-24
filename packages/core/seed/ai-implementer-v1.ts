@@ -1,4 +1,4 @@
-// SEED, NOT RUNTIME (D-242). Connor, Nov 24, 2026: the course's second role is the AI Implementer, not the
+// SEED, NOT RUNTIME (D-243). Connor, Nov 24, 2026: the course's second role is the AI Implementer, not the
 // operator, everywhere a person reads it ("Go with B"), and wherever the role is first defined, the line
 // "Your AI Implementer is a person on your team, not software." A one-time data step makes both edits on the
 // stored course, once, on deploy:

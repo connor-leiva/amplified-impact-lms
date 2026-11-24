@@ -62,7 +62,7 @@ export function intakeMissing(form: CourseIntake, answers: IntakeAnswers): strin
 }
 
 /**
- * The option a choice answer picks, or null. An answer saved before D-242 renamed the operator the AI Implementer
+ * The option a choice answer picks, or null. An answer saved before D-243 renamed the operator the AI Implementer
  * ("The operator's account (our default)") picks its renamed option, so a team's earlier answer is neither shown
  * as unpicked nor dropped on the next save. The stored answer itself is never rewritten.
  */
@@ -102,7 +102,7 @@ export function cleanIntakeAnswers(form: CourseIntake, raw: unknown): IntakeAnsw
 }
 
 /**
- * Saved answers as the form reads now (D-242): a choice saved in the operator's words comes back as the option it
+ * Saved answers as the form reads now (D-243): a choice saved in the operator's words comes back as the option it
  * picks today. Everything else, including answers to questions the form no longer asks, comes back as it was.
  */
 export function currentIntakeAnswers(form: CourseIntake | undefined, answers: IntakeAnswers): IntakeAnswers {

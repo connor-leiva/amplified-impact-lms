@@ -43,7 +43,7 @@ describe('intake PDF (D-229, B-18)', () => {
       submittedAt: Date.parse('2026-11-19T22:00:00Z'),
       savedAt: Date.parse('2026-11-20T22:00:00Z'),
     });
-    // D-242: the package's print source, with the kicker's role renamed. The answers print as saved.
+    // D-243: the package's print source, with the kicker's role renamed. The answers print as saved.
     expect(html).toBe(readFileSync(PKG + 'pdf/week-0-intake.sample.html', 'utf8').replace('Week 0 · Step 1 · Owner and operator', PDF_UI.kicker));
     expect(PDF_UI.kicker).toBe('Week 0 · Step 1 · Owner and AI Implementer');
   });

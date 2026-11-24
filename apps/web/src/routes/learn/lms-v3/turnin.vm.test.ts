@@ -10,7 +10,7 @@ import { TURN_IN_UI, asksProps, subsProps, turnInLabel, turnedInWhen } from './t
 import { putFile } from './turnin.data';
 
 describe('Turn in’s props (D-230)', () => {
-  it('uses the package’s words, with the operator renamed the AI Implementer (D-242)', () => {
+  it('uses the package’s words, with the operator renamed the AI Implementer (D-243)', () => {
     expect(TURN_IN_UI).toEqual(JSON.parse(implementerWords(JSON.stringify(turnInSamples.ui))));
   });
   it('lets the server take exactly the drawer’s files, and heads each kind as the drawer does', () => {

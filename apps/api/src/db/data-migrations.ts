@@ -26,6 +26,7 @@ import { START_HERE_V1, planStartHereV1 } from '@ai/core/seed/start-here-v1';
 import type { DataSkip, DataStepOutcome } from '@ai/core/seed/data-step';
 import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { WEEKS_1_2_V1, planWeeks12V1 } from '@ai/core/seed/weeks-1-2-steps-v1';
+import { SEAT_CARD_ONE_COPY_V1, planSeatCardOneCopyV1 } from '@ai/core/seed/seat-card-one-copy-v1';
 import { AI_IMPLEMENTER_V1, planAiImplementerV1 } from '@ai/core/seed/ai-implementer-v1';
 import { audit } from '../console/audit';
 import type { Database } from './client';
@@ -112,8 +113,13 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     plan: (db) => planWeeks12V1(db),
   },
   {
+    id: SEAT_CARD_ONE_COPY_V1,
+    describe: 'Weeks 1 and 2: the Seat Card’s rows to Connor’s approved words where untouched, and step 6’s Seat Card table drawn from the card, once (D-242)',
+    plan: planSeatCardOneCopyV1,
+  },
+  {
     id: AI_IMPLEMENTER_V1,
-    describe: 'The operator is the AI Implementer: the word in the course, staff edits included, and the line where the role is defined (D-242)',
+    describe: 'The operator is the AI Implementer: the word in the course, staff edits included, and the line where the role is defined (D-243)',
     plan: planAiImplementerV1,
   },
 ];
@@ -126,7 +132,7 @@ export interface DataMigrationPreview {
 }
 
 /**
- * D-242: what the pending steps WOULD change, read from the database and never written. The transaction is read
+ * D-243: what the pending steps WOULD change, read from the database and never written. The transaction is read
  * only, so Postgres itself refuses any write. Run it against a copy of production before a deploy.
  */
 export async function previewDataMigrations(db: Database, steps: readonly DataMigration[] = DATA_MIGRATIONS): Promise<DataMigrationPreview[]> {

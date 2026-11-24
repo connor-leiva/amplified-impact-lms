@@ -92,7 +92,7 @@ function seedStrings(): Set<string> {
     walk(WEEKS_1_2_DATA[n].steps.map((st) => ({ ...st, claude: st.claude.map(copyOf), chatgpt: st.chatgpt.map(copyOf) })), '', '');
     walk(WEEKS_1_2_DATA[n].cards.map((c) => c.change_to), '', '');
   }
-  // D-242: the course's words once the AI Implementer step has renamed them, and Connor's line. The renamed words
+  // D-243: the course's words once the AI Implementer step has renamed them, and Connor's line. The renamed words
   // are the database's, as the old ones were, so runtime code may not hold them either.
   const before = [...out];
   for (const s of before) {

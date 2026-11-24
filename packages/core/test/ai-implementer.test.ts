@@ -1,4 +1,4 @@
-// D-242: the operator is the AI Implementer. The words change everywhere a person reads them; ids, keys, role
+// D-243: the operator is the AI Implementer. The words change everywhere a person reads them; ids, keys, role
 // values and a team's answers don't. Words saved before the rename still mean what they meant, the glossary marks
 // the new name without mistaking it for "Your AI", and the one-time data step renames the course (staff edits
 // included), adds Connor's line where the role is defined, touches nothing else, and does nothing the second time.
@@ -43,7 +43,7 @@ const strings = (v: unknown, key = '', out: { key: string; text: string }[] = []
   return out;
 };
 
-describe('the words (D-242)', () => {
+describe('the words (D-243)', () => {
   it('renames the role in any case, plural and possessive, and keeps "an"', () => {
     expect(implementerWords('Name your operator.')).toBe('Name your AI Implementer.');
     expect(implementerWords('Operator. 20 min.')).toBe('AI Implementer. 20 min.');
@@ -75,7 +75,7 @@ describe('the words (D-242)', () => {
   });
 });
 
-describe('a team’s intake answers, saved before the rename (D-242)', () => {
+describe('a team’s intake answers, saved before the rename (D-243)', () => {
   const form: CourseIntake = {
     sections: [
       {
@@ -111,7 +111,7 @@ describe('a team’s intake answers, saved before the rename (D-242)', () => {
   });
 });
 
-describe('the glossary marks the AI Implementer, not "Your AI" inside it (D-242)', () => {
+describe('the glossary marks the AI Implementer, not "Your AI" inside it (D-243)', () => {
   const terms = planAiImplementerV1(deployed()).db.cohorts.find((c) => c.id === 'dec26')!.course!.glossary!;
 
   it('marks the first use, and a later "your AI Implementer" stays plain text', () => {
@@ -128,7 +128,7 @@ describe('the glossary marks the AI Implementer, not "Your AI" inside it (D-242)
   });
 });
 
-describe('the one-time step (D-242)', () => {
+describe('the one-time step (D-243)', () => {
   const before = deployed();
   const out = planAiImplementerV1(before);
   const after = out.db;
@@ -243,7 +243,7 @@ describe('the one-time step (D-242)', () => {
   });
 });
 
-describe('a term already marked holds its words (D-242)', () => {
+describe('a term already marked holds its words (D-243)', () => {
   const terms = planAiImplementerV1(deployed()).db.cohorts.find((c) => c.id === 'dec26')!.course!.glossary!;
   const marks = (texts: string[]) =>
     markSequence(texts, terms, 8).map((spans) => (spans ?? []).flatMap((s) => (s.kind === 'term' ? [`${s.id}:${s.text}`] : [])));

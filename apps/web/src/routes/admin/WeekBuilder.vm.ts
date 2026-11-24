@@ -234,7 +234,7 @@ export const ACTION_KINDS = [
   ['invite', 'Invite'],
   ['calendar', 'Add to calendar'],
   ['link', 'Link'],
-  ['form', 'Form (later)'],
+  ['form', 'Form'],
   ['card', 'Card'],
   // D-230: Turn in. The step's button opens the upload drawer for the kind below; its words are the drawer's.
   ['upload', 'Turn in'],

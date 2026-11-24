@@ -1,4 +1,4 @@
-// D-242: print what the deploy's pending data steps would change, field by field, without writing anything.
+// D-243: print what the deploy's pending data steps would change, field by field, without writing anything.
 //
 //   DATABASE_URL=postgres://…/a-copy-of-production pnpm --filter @ai/api db:data-steps:preview
 //
