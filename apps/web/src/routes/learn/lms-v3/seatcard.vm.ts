@@ -51,8 +51,10 @@ export const signedLine = (by: string | null | undefined, at: number): string =>
 /** The drawer's form: the week's rows, and the words for this viewer and the card's state. */
 export function seatCardDef(card: SeatCard, at: { week: number; step: number; signLabel?: string }, role: SeatCardRole, state: Pick<SeatCardBody, 'signedAt' | 'signedBy'>): FormDef {
   const signedAt = state.signedAt ?? null;
+  // D-241's banner download is the intake's (its answers, its route): the seat card keeps Download PDF in its foot only.
+  const { submittedPdfLabel: _intakeOnly, ...base } = FORM_UI;
   const ui: FormUi = {
-    ...FORM_UI,
+    ...base,
     title: `${card.seat} ${SEAT_CARD_UI.seatCard}`,
     kicker: `Week ${at.week} · Step ${at.step} · ${SEAT_CARD_UI.kickerWho}`,
     sub: role === 'agent' ? SEAT_CARD_UI.locked : FORM_UI.sub,

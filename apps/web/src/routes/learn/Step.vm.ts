@@ -21,6 +21,7 @@ import { checkVisible, conditionMet, gateRemaining, itemChecked, pathHasCheck, p
 import { pathFromAnswers } from '@ai/core/personalize';
 import { formButtonLabel } from '@ai/core/form-button';
 import type { FormId } from '@ai/core/form-button';
+import { intakeItemOn, unlistedIntakeFiles } from '@ai/core/intake';
 import type { LearnerStep } from '@ai/core/learner';
 import { inLibrary } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
@@ -328,12 +329,13 @@ export function asideRows(aside: StepAside, tab: Platform | null): KitRowVM[] {
   return [...aside.skills, ...aside.kit.filter((k) => kitOnTab(k.platform, tab)).map((k) => k.row)];
 }
 
-function asideOf(w: OpenCourseWeek, steps: readonly LearnerStep[], s: LearnerStep, copy: Record<string, string> | undefined, fileUrl: (id: string) => string | null): StepAside {
+function asideOf(w: OpenCourseWeek, steps: readonly LearnerStep[], s: LearnerStep, copy: Record<string, string> | undefined, fileUrl: (id: string) => string | null, unlisted: readonly string[] = []): StepAside {
   const skills = skillsForStep(w, s)
     .filter((k) => inLibrary(k.route))
     .map((k) => skillRow(k, copy));
+  // D-241: the static intake PDF is no longer a step file once the week has the intake form (`unlistedIntakeFiles`).
   const kit = (w.kit ?? [])
-    .filter((item) => s.id !== null && item.stepId === s.id)
+    .filter((item) => s.id !== null && item.stepId === s.id && !unlisted.includes(item.id))
     .map((item) => ({ platform: item.platform, row: kitRow(item, steps, fileUrl) }));
   return { skills, kit };
 }
@@ -350,7 +352,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
   const w = r.open;
   const paths = pathsOf(s.step.paths);
   const tabs = ORDER.filter((k) => paths[k]);
-  const aside = asideOf(w, r.steps, s, p.copy, opts?.fileUrl ?? (() => null));
+  const aside = asideOf(w, r.steps, s, p.copy, opts?.fileUrl ?? (() => null), unlistedIntakeFiles(r.module, w));
   const following = r.steps[s.n];
   const base: StepVM = {
     kind: 'step',
@@ -457,7 +459,16 @@ function actionVM(action: CheckAction | undefined, kit: readonly CourseKitItem[]
   return { type: 'calendar', event: session ? (icsEvents([session])[0] ?? null) : null };
 }
 
-function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[], glossary: readonly GlossaryTerm[] | undefined, answers?: Readonly<Record<string, string | string[]>>, operatorNote?: string): CheckItemVM {
+/**
+ * D-241: the intake's checklist item whose download names no file left on the week (the static intake PDF, no longer
+ * needed as a step file) opens the form instead, as a `form` action naming the intake does.
+ */
+function intakeFallback(b: CheckBlock, intakeItem: string | undefined): CheckActionVM | null {
+  if (!intakeItem || b.id !== intakeItem || b.action?.type !== 'download') return null;
+  return { type: 'link', label: formButtonLabel({ formId: 'intake' }), href: learnIntake(), form: 'intake' };
+}
+
+function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, itemId: string) => boolean, stepId: string, waiting: (b: CheckBlock) => number | null, kit: readonly CourseKitItem[], fileUrl: (id: string) => string | null, sessions: readonly CourseSession[], glossary: readonly GlossaryTerm[] | undefined, answers?: Readonly<Record<string, string | string[]>>, operatorNote?: string, intakeItem?: string): CheckItemVM {
   const subs = (b.subchecks ?? []).map((sub) => ({ id: sub.id, label: sub.label, checked: isOn(stepId, `${b.id}:${sub.id}`) }));
   const listed = b.action?.type === 'card' ? cardTerms(b.action.terms, glossary) : [];
   const folded = conditionMet(b.collapseIf, answers);
@@ -478,7 +489,7 @@ function itemVM(b: CheckBlock, callouts: CalloutBlock[], isOn: (stepId: string, 
     playSeconds: b.playAt ? b.playAt.t : null,
     playVideo: b.playAt?.video ?? null,
     autoLabel: b.auto ? `${STEP.checksItself} ${Math.round(watchThreshold(b.auto.at) * 100)}%` : null,
-    action: actionVM(b.action, kit, fileUrl, sessions),
+    action: actionVM(b.action, kit, fileUrl, sessions) ?? intakeFallback(b, intakeItem),
     subchecks: subs,
     callouts: shown.map(calloutVM),
     ...(listed.length ? { card: listed } : {}),
@@ -497,7 +508,7 @@ function layoutFor(blocks: readonly PathBlock[], ctx: LayoutCtx): ChecklistLayou
   const tasks = counts.tasks;
   const shows = (c: CalloutBlock): boolean => !c.showIf || !ctx.answers || conditionMet(c.showIf, ctx.answers);
   const leading = regions.leading.filter(shows).map(calloutVM);
-  const items = regions.groups.filter((g) => checkVisible(g.item, ctx.answers)).map((g) => itemVM(g.item, g.callouts.filter(shows), ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions, ctx.glossary, ctx.answers, ctx.operatorNote));
+  const items = regions.groups.filter((g) => checkVisible(g.item, ctx.answers)).map((g) => itemVM(g.item, g.callouts.filter(shows), ctx.isOn, ctx.stepId, ctx.waiting, ctx.kit, ctx.fileUrl, ctx.sessions, ctx.glossary, ctx.answers, ctx.operatorNote, ctx.intakeItem));
   const extraMarks = applyGlossary(leading, items, regions.extras, ctx.glossary, ctx.n);
   return {
     eyebrow: `${STEP.week} ${ctx.week} · ${LABELS.step} ${ctx.n}`,
@@ -605,6 +616,8 @@ interface LayoutCtx {
   operatorNote?: string;
   /** D-242: the week's Seat Card, for a table marked as it. */
   seatCard?: SeatCard;
+  /** D-241: the intake's checklist item on this step (`intakeItemOn`), when the week has the form. */
+  intakeItem?: string;
 }
 
 /**
@@ -679,6 +692,7 @@ function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor,
     ...(opts?.intake ? { answers: opts.intake } : {}),
     ...(lineFor(s.id) ? { operatorNote: lineFor(s.id) } : {}),
     ...(r.open?.seatCard ? { seatCard: r.open.seatCard } : {}),
+    ...(intakeItemOn(r.module, r.open, s.id) ? { intakeItem: intakeItemOn(r.module, r.open, s.id)! } : {}),
   };
   const layouts: Partial<Record<Platform, ChecklistLayoutVM>> = {};
   for (const k of ORDER) {

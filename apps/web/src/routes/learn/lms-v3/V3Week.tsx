@@ -9,8 +9,9 @@ import { ics } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CourseIntake } from '@ai/core/course-types';
-import { cleanIntakeAnswers, intakeFileIds } from '@ai/core/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds } from '@ai/core/intake';
 import { useMutate } from '../../../data/hooks';
+import { downloadIntakePdf } from '../intake-pdf';
 import type { CoursePayload } from '../../course/Course.vm';
 import { saveIcs } from '../ics';
 import type { WeekRow } from '../learn.vm';
@@ -20,7 +21,7 @@ import type { BuildKitVM } from '../WeekContent.vm';
 import { FormDrawer, useForm } from './FormDrawer';
 import { NO_TAP } from './tap';
 import type { FormApi } from './FormDrawer';
-import { FORM_ID, formDef, formInitial, formRow } from './form.vm';
+import { FORM_ID, formDef, formInitial, formItem, formRow } from './form.vm';
 import type { IntakeBody } from './form.vm';
 import { LockedWeekPage } from './LockedWeekPage';
 import type { FormAnswers } from './types';
@@ -75,8 +76,11 @@ export function V3Week({
     );
   // B-14: the kit files that are the intake (core's rule: production's has a generated id) become the form's row.
   const intakeIds = form ? intakeFileIds(r.module, r.open?.kit ?? []) : [];
+  // D-241: with no such file (the static PDF is no longer needed as a step file), the form still has its row, on the
+  // intake's step.
+  const standIn = form && !intakeIds.length ? formItem(intakeCheckTarget(r.module)?.stepId ?? r.module?.checklist[0]?.id ?? null) : undefined;
   const asForm: KitInput['formRow'] = form
-    ? (item, row) => (intakeIds.includes(item.id) ? formRow(row, form, () => setOpen(true)) : row)
+    ? (item, row) => (intakeIds.includes(item.id) || item === standIn ? formRow(row, form, () => setOpen(true)) : row)
     : undefined;
   const week = weekProps({
     p,
@@ -89,6 +93,7 @@ export function V3Week({
     download,
     onViewPrompt: () => setPrompt(true),
     formRow: asForm,
+    formItem: standIn,
     now,
   });
   const moduleId = acceleratorModuleId(r.week);
@@ -119,33 +124,9 @@ export function V3Week({
   );
 }
 
-/** The file name the PDF route sends (`content-disposition`), or the route's own default. */
-export function pdfNameOf(disposition: string | null): string {
-  const m = /filename="([^"]+)"/.exec(disposition ?? '');
-  return m?.[1] ?? 'Week 0 Intake.pdf';
-}
-
-/**
- * B-18: Download PDF. The file is made on the server (`GET /api/intake/pdf`, a second or two), so the button's busy
- * state covers the wait, then the browser saves it under the route's name. The package's `useForm` has no failure
- * state for this button: a failed download resolves without a file (PLAN.md, Found while building).
- */
-export async function downloadIntakePdf(): Promise<void> {
-  try {
-    const res = await fetch('/api/intake/pdf', { credentials: 'include' });
-    if (!res.ok) throw new Error(`GET /api/intake/pdf ${res.status}`);
-    const href = URL.createObjectURL(await res.blob());
-    const a = document.createElement('a');
-    a.href = href;
-    a.download = pdfNameOf(res.headers.get('content-disposition'));
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(href), 10_000);
-  } catch (err) {
-    console.error(err);
-  }
-}
+// B-18: Download PDF, and D-241's Download Your Answers (PDF): the shared helper (`../intake-pdf`), re-exported here
+// where the drawer's tests have always found it.
+export { downloadIntakePdf, pdfNameOf } from '../intake-pdf';
 
 /**
  * The week's intake as the package's `useForm` drives it (§7.4): loaded from `GET /api/intake`, saved with

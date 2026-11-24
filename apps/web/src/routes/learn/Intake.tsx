@@ -1,4 +1,6 @@
 // /learn/week/0/intake (D-196). The week's intake questions, autosaved for the team. Markup only.
+// D-241: once the team has submitted, Download Your Answers (PDF) hands the learner their team's answers as a PDF
+// (`GET /api/intake/pdf`, which takes the team from the session). A staff preview has no team, so no button.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
@@ -10,12 +12,15 @@ import type { IntakeAnswers } from '@ai/core/intake';
 import { cleanIntakeAnswers } from '@ai/core/intake';
 import { Icon } from '../../components/Icon';
 import { useLearn } from './data';
+import { DOWNLOAD_ANSWERS_LABEL, downloadIntakePdf } from './intake-pdf';
 import { learnWeek } from './routes';
 import { v3For } from './lms-v3/v3';
 import s from './Intake.module.css';
 import l from './Learn.module.css';
 
 const WAIT = 600;
+/** D-241: the download didn't reach the browser (the route refused, or the request failed). */
+export const PDF_FAILED = 'Your answers didn’t download. Try again.';
 
 interface Saved {
   answers: IntakeAnswers;
@@ -87,6 +92,7 @@ export function IntakePage({ week }: { week: number }) {
   const [submittedAt, setSubmittedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef(answers);
   latest.current = answers;
@@ -151,6 +157,15 @@ export function IntakePage({ week }: { week: number }) {
 
   const stamp = useMemo(() => (savedAt ? `Saved ${fmt.time(savedAt)}` : null), [savedAt]);
 
+  const downloadPdf = () => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
+    void downloadIntakePdf().then((ok) => {
+      setPdfBusy(false);
+      setError(ok ? null : PDF_FAILED);
+    });
+  };
+
   if (course.kind !== 'ready') return null;
   if (!form) return <p className={s.intro}>This week has no intake.</p>;
   return (
@@ -178,6 +193,12 @@ export function IntakePage({ week }: { week: number }) {
         : null}
       <div className={s.acts}>
         <button type="button" className={`${l.b} ${l.bp}`} onClick={() => save(true)}>Submit</button>
+        {submittedAt && !staff ? (
+          <button type="button" className={l.b} onClick={downloadPdf} disabled={pdfBusy} aria-busy={pdfBusy || undefined}>
+            <Icon name="download" size={14} strokeWidth={1.75} />
+            {DOWNLOAD_ANSWERS_LABEL}
+          </button>
+        ) : null}
       </div>
     </div>
   );

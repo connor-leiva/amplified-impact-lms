@@ -1,4 +1,5 @@
 // D-229 (B-18): the drawer's Download PDF asks `GET /api/intake/pdf` and saves the file under the route's name.
+// D-241: the same helper serves Download Your Answers (PDF), so it says whether the file arrived.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { downloadIntakePdf, pdfNameOf } from './V3Week';
 
@@ -23,17 +24,17 @@ describe('Download PDF (B-18)', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       saved.push({ href: this.getAttribute('href') ?? '', download: this.download });
     });
-    await downloadIntakePdf();
+    await expect(downloadIntakePdf()).resolves.toBe(true);
     expect(fetchMock).toHaveBeenCalledWith('/api/intake/pdf', { credentials: 'include' });
     expect(created).toHaveBeenCalledTimes(1);
     expect(saved).toEqual([{ href: 'blob:pdf', download: 'Week 0 Intake - Northline Realty.pdf' }]);
   });
 
-  it('saves nothing when the route refuses, and still resolves (the package’s button has no failure state)', async () => {
+  it('saves nothing when the route refuses, and resolves false without throwing (the package’s button has no failure state)', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 403 })));
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
-    await expect(downloadIntakePdf()).resolves.toBeUndefined();
+    await expect(downloadIntakePdf()).resolves.toBe(false);
     expect(click).not.toHaveBeenCalled();
   });
 });

@@ -153,6 +153,8 @@ export interface ConsoleApi {
   workspace(teamId: string): Promise<WorkspaceDetail>;
   /** D-196: a team's intake. The read is audited. */
   teamIntake(teamId: string): Promise<{ answers: Record<string, string | string[]>; updatedAt: number | null; submittedAt: number | null }>;
+  /** D-229 (B-18), D-241: a team's intake as a PDF and the name the server gave it. Audited as `intake.pdf`. */
+  teamIntakePdf(teamId: string): Promise<{ blob: Blob; filename: string }>;
   teamStack(teamId: string): Promise<{ rows: { source: string; tool: string; plan: 'green' | 'yellow'; who: string }[]; sentAt: number | null }>;
   users(filters: UserFilters, cursor?: string | null): Promise<ConsolePage<ConsoleUserRow>>;
   user(userId: string): Promise<ConsoleUserDetail>;
@@ -376,6 +378,10 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
     workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
     teamIntake: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/intake`)),
+    teamIntakePdf: async (teamId) => {
+      const res = await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/intake/pdf`, { headers: { accept: 'application/pdf' } });
+      return { blob: await res.blob(), filename: filenameOf(res.headers.get('content-disposition'), 'Week 0 Intake.pdf') };
+    },
     teamStack: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/stack`)),
     users: async (f, cursor) => json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind }, cursor)}`)),
     user: async (userId) => json<ConsoleUserDetail>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}`)),

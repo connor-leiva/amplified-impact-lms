@@ -193,6 +193,11 @@ export interface KitInput {
   onViewPrompt: () => void;
   /** B-14 (Phase 6): the intake's kit row as a form row; until then the intake is an ordinary file row. */
   formRow?: (item: CourseKitItem, row: KitRow) => KitRow;
+  /**
+   * D-241: the item that stands for the intake when no kit file is the intake. The static PDF no longer needs to be a
+   * step file: the week still lists the form, in step order, and `formRow` draws it as the form's row.
+   */
+  formItem?: CourseKitItem;
 }
 
 /**
@@ -202,7 +207,8 @@ export interface KitInput {
  */
 export function kitGroups(x: KitInput): WeekProps['kit'] {
   const stepOf = (id: string | null): LearnerStep | undefined => (id ? x.steps.find((s) => s.id === id) : undefined);
-  const items = x.w.kit ?? [];
+  // D-241: the intake's stand-in leads its step's files, where the mockup's intake row sits.
+  const items = [...(x.formItem && x.formRow ? [x.formItem] : []), ...(x.w.kit ?? [])];
   const skillTitles = new Set(x.w.skills.map((k) => k.title.trim().toLowerCase()));
   const act = (it: CourseKitItem): KitAct => {
     const href = x.fileUrl(it.id);
@@ -368,6 +374,7 @@ export interface WeekInput {
   download: (href: string) => void;
   onViewPrompt: () => void;
   formRow?: KitInput['formRow'];
+  formItem?: KitInput['formItem'];
   /** D-234: the clock, for a live week's session states. */
   now: number;
 }
@@ -468,6 +475,7 @@ export function weekProps(x: WeekInput): WeekProps {
       download: x.download,
       onViewPrompt: x.onViewPrompt,
       formRow: x.formRow,
+      formItem: x.formItem,
     }),
     reference: [...referenceOf(p, w, mins('owner'), mins('operator')), ...(weekCardRefs(w) ?? [])],
     ...(sessions.length ? { sessions } : {}),

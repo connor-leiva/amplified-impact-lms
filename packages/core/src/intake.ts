@@ -175,6 +175,29 @@ export function intakeFileIds(
   return [...ids];
 }
 
+/**
+ * D-241: the step files a week no longer lists: the static intake PDF (`intakeFileIds`), once the week has the intake
+ * form. The form is filled in on the portal and its answers download as a PDF (`GET /api/intake/pdf`), so the blank
+ * PDF is neither needed nor shown as a step's file. A week without the form keeps its files as they are.
+ */
+export function unlistedIntakeFiles(
+  mod: AIEmployee | undefined,
+  week: { intake?: CourseIntake; kit?: readonly { id: string; title: string; stepId: string | null }[] } | undefined,
+): string[] {
+  if (!week?.intake) return [];
+  return intakeFileIds(mod, week.kit ?? []);
+}
+
+/**
+ * D-241: the intake's checklist item on a step, when the week has the intake form. Its download once named the static
+ * intake PDF; a step with that file gone (it is no longer needed) opens the form from the item instead.
+ */
+export function intakeItemOn(mod: AIEmployee | undefined, week: { intake?: CourseIntake } | undefined, stepId: string | null): string | null {
+  if (!week?.intake || !stepId) return null;
+  const target = intakeCheckTarget(mod);
+  return target && target.stepId === stepId ? target.itemId : null;
+}
+
 /** Section titles and question labels, for the copy rules. */
 export function intakeCopy(form: CourseIntake | undefined): { path: string; label: string; text: string }[] {
   if (!form) return [];

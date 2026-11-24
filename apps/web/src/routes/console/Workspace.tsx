@@ -27,6 +27,7 @@ import {
 import { useViewportWidth } from '../../shell/hooks';
 import { useAdminChrome, useRecordCrumb } from '../../shell/admin/chrome';
 import { Denied, NotFound } from './Denied';
+import { downloadBlob } from './download';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
@@ -55,6 +56,7 @@ export function Component() {
   const [draft, setDraft] = useState('');
   const [intake, setIntake] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
   useRecordCrumb(vm?.title ?? null);
 
@@ -94,6 +96,21 @@ export function Component() {
 
   const team = rec.data?.team;
   const owner = entry.state();
+  // D-241: the team's intake as the server prints it (`GET …/intake/pdf`, audited as `intake.pdf`), saved under its name.
+  const downloadPdf = () => {
+    if (!api || pdfBusy) return;
+    setPdfBusy(true);
+    api.teamIntakePdf(teamId).then(
+      ({ blob, filename }) => {
+        downloadBlob(blob, filename);
+        setPdfBusy(false);
+      },
+      () => {
+        setPdfBusy(false);
+        toast(C.intakePdfFailed);
+      },
+    );
+  };
   const save = () => {
     const body = cleanNoteBody(draft);
     if (!api || !body) return;
@@ -174,18 +191,23 @@ export function Component() {
       <Card
         title="Intake"
         right={
-          <Button
-            kind="quiet"
-            onClick={() => {
-              if (!api) return;
-              api.teamIntake(teamId).then(
-                (row) => setIntake(JSON.stringify(row.answers, null, 2) || 'No answers yet.'),
-                () => setIntake('Could not load the intake.'),
-              );
-            }}
-          >
-            View intake
-          </Button>
+          <span className={k.row}>
+            <Button
+              kind="quiet"
+              onClick={() => {
+                if (!api) return;
+                api.teamIntake(teamId).then(
+                  (row) => setIntake(JSON.stringify(row.answers, null, 2) || 'No answers yet.'),
+                  () => setIntake('Could not load the intake.'),
+                );
+              }}
+            >
+              View intake
+            </Button>
+            <Button kind="quiet" icon="download" disabled={pdfBusy} aria-busy={pdfBusy || undefined} onClick={downloadPdf}>
+              {C.intakePdf}
+            </Button>
+          </span>
         }
       >
         {intake ? <pre className={k.mo}>{intake}</pre> : <span className={k.mu}>Not loaded</span>}
@@ -266,7 +288,7 @@ export function Component() {
                     {
                       label: C.billing.invoice,
                       value: vm.billing.invoice ? (
-                        <span className={k.row} style={{ gap: 8 }}>
+                        <span className={k.row}>
                           <span className={k.mo}>{vm.billing.invoice.id}</span>
                           <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
                         </span>

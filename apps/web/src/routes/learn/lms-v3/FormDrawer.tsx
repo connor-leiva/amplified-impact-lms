@@ -22,6 +22,8 @@
 // work (an agent's view); `ui.submittedLabel`, the finished state's word ("Signed", "Ready"); and a refusal: a save or
 // a submit the server refuses (a `FormRefusal`) stops, the button shakes back, and the foot says why, where a refused
 // save once hung on "Saving". With none of them in play the drawer is the package's.
+// D-241 adds one more, the same way: `ui.submittedPdfLabel`, a download button on the submitted banner (the intake's
+// "Download Your Answers (PDF)"). It shares Download PDF's state and action, so one file is made at a time.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Icon } from './Icons';
@@ -151,6 +153,9 @@ function Field({ f, fm, locked }: { f: FormQuestion; fm: FormApi; locked: boolea
   );
 }
 
+/** D-241: the banner's download sits under its words, the banner's own 12 px gap away. */
+const BANNER_PDF = { marginTop: 12 } as const;
+
 function AsyncBtn({ cls, state, icon, label, done, onClick, attempt }: { cls: string; state: AsyncState; icon?: string; label: string; done: string; onClick: () => void; attempt?: number }) {
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => { if (state === 'error' && attempt) restartAnimation(ref.current); }, [state, attempt]);
@@ -189,7 +194,9 @@ export function FormDrawer({ f: fm, open, onClose, locked = false }: { f: FormAp
         </header>
         <form className="fm-body" noValidate ref={body} onSubmit={(e) => e.preventDefault()}>
           {fm.status === 'submitted' && (
-            <div className="fm-banner aim-rise"><SignalMark play /><div><b>{ui.submittedTitle}</b><p>{ui.submittedText}</p></div></div>
+            <div className="fm-banner aim-rise"><SignalMark play /><div><b>{ui.submittedTitle}</b><p>{ui.submittedText}</p>
+              {ui.submittedPdfLabel ? <div style={BANNER_PDF}><AsyncBtn cls="wk-btn-secondary aim-async fm-banner-pdf" state={fm.pdf} icon="down" label={ui.submittedPdfLabel} done="Downloaded" onClick={fm.download} /></div> : null}
+            </div></div>
           )}
           {intake.intro && <p className="fm-intro aim-in" style={{ '--i': 1 } as MotionStyle}>{intake.intro}</p>}
           {intake.sections.map((x, i) => (

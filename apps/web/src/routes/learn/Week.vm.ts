@@ -10,6 +10,7 @@ import { fmt } from '@ai/core';
 import type { ChecklistMark, IconName, IcsEvent } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { isCheck, stepChecklistStatus, waitingOn } from '@ai/core/checklist';
+import { unlistedIntakeFiles } from '@ai/core/intake';
 import type { CheckBlock, PathBlock, StartHere } from '@ai/core/course-types';
 import { countWord, duration, minutesInAll, minutesLeft, upcomingSessions } from '@ai/core/learner';
 import type { LearnerStep } from '@ai/core/learner';
@@ -199,7 +200,9 @@ function openWeek(p: CoursePayload, r: WeekRow, fileUrl: (id: string) => string 
     const v = skillVM(k, p.copy);
     return { ...skillRow(k, p.copy, { week: r.week, steps: r.steps }), tags: [{ label: v.role }, ...(v.free ? [{ label: COPY.free, tone: 'done' as const }] : [])] };
   });
-  const kitRows = (w.kit ?? []).map((k) => kitRow(k, r.steps, fileUrl));
+  // D-241: the static intake PDF is no longer a step file once the week has the intake form.
+  const unlisted = unlistedIntakeFiles(r.module, w);
+  const kitRows = (w.kit ?? []).filter((k) => !unlisted.includes(k.id)).map((k) => kitRow(k, r.steps, fileUrl));
   const rows = [...skillRows, ...kitRows];
   return {
     kind: 'open',

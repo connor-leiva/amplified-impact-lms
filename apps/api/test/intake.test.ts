@@ -99,6 +99,22 @@ describe('intake PDF (D-229, B-18)', () => {
     expect((await app.inject({ method: 'GET', url: '/api/intake/pdf' })).statusCode).toBe(401);
   }, 60_000);
 
+  // D-241: Download Your Answers (PDF). The route takes the team from the session, so nothing a learner sends names
+  // another team: a query string is ignored, and the console's per-team route refuses a learner (below).
+  it('scopes a learner to their own team’s PDF, whatever the request names (D-241)', async () => {
+    const a = await app.signInAs('own-a');
+    const b = await app.signInAs('own-b');
+    const name = async (cookie: string, url: string) => {
+      const res = await app.inject({ method: 'GET', url, headers: { cookie } });
+      expect(res.statusCode).toBe(200);
+      expect(res.rawPayload.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+      return res.headers['content-disposition'];
+    };
+    expect(await name(a, '/api/intake/pdf?teamId=team-b')).toBe('attachment; filename="Week 0 Intake - Team A.pdf"');
+    expect(await name(b, '/api/intake/pdf?team=team-a&teamId=team-a')).toBe('attachment; filename="Week 0 Intake - Team B.pdf"');
+    expect((await app.inject({ method: 'GET', url: '/api/console/workspaces/team-b/intake/pdf', headers: { cookie: a } })).statusCode).toBe(403);
+  }, 90_000);
+
   it('gives staff any team’s PDF, audited as intake.pdf, and a team that doesn’t exist is not found', async () => {
     const staff = await app.signInAs('st_owner');
     const before = (await handle.select().from(auditLog).where(eq(auditLog.action, 'intake.pdf'))).length;
