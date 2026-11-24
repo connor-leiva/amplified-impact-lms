@@ -115,11 +115,6 @@ export function welcomeTestAllowed(email: string, extra: readonly string[] = [])
   return extra.some((a) => a.trim().toLowerCase() === to);
 }
 
-/** The first word of a name, or '' when there is none. */
-export function firstNameOf(name: string): string {
-  return name.trim().split(/\s+/)[0] ?? '';
-}
-
 const weekday = (t: number) => new Intl.DateTimeFormat('en-US', { timeZone: MT, weekday: 'long' }).format(t);
 const weekdayShort = (t: number) => new Intl.DateTimeFormat('en-US', { timeZone: MT, weekday: 'short' }).format(t);
 const monthDay = (t: number) => new Intl.DateTimeFormat('en-US', { timeZone: MT, month: 'short', day: 'numeric' }).format(t);
