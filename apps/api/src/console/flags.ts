@@ -106,10 +106,13 @@ export function registerFlagRoutes(scope: FastifyInstance, rate: { write: number
         const [row] = await tx.select({ on: consoleFlags.on }).from(consoleFlags).where(eq(consoleFlags.key, def.key)).for('update');
         const before = row ? row.on : def.defaultOn;
         if (before === on) return false;
+        // The switch-on time: stamped by an off-to-on flip, cleared by an on-to-off one. The cohort
+        // welcome mails only enrollments made after it (`enrolledBeforeSwitch`).
+        const turnedOnAt = on ? now : null;
         await tx
           .insert(consoleFlags)
-          .values({ key: def.key, on, sensitive: def.sensitive, updatedAt: now, updatedBy: actor.userId })
-          .onConflictDoUpdate({ target: consoleFlags.key, set: { on, sensitive: def.sensitive, updatedAt: now, updatedBy: actor.userId } });
+          .values({ key: def.key, on, sensitive: def.sensitive, updatedAt: now, updatedBy: actor.userId, turnedOnAt })
+          .onConflictDoUpdate({ target: consoleFlags.key, set: { on, sensitive: def.sensitive, updatedAt: now, updatedBy: actor.userId, turnedOnAt } });
         await audit(
           req,
           { action: 'flag.flip', outcome: 'ok', actor, target: { type: 'flag', id: def.key, label: def.label }, before: { on: before }, after: { on, sensitive: def.sensitive } },

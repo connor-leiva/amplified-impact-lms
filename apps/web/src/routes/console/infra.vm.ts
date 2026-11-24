@@ -288,7 +288,7 @@ export function flipConfirm(key: string, to: boolean, sensitive: boolean): FlipC
       : 'Nobody can start or extend a masquerade session while it is off. A session already running ends at its time.'
     : welcome
       ? to
-        ? 'New enrollments get the welcome when the cohort goes live, or right away if it already has. People already enrolled in a cohort that is already live are not emailed.'
+        ? 'New enrollments get the welcome when the cohort goes live, or right away if it already has. No one enrolled before you turn this on is emailed, whether or not their cohort is live yet.'
         : 'The welcome stops. Nothing already sent is taken back.'
       : to
         ? 'This flag turns on for everyone.'

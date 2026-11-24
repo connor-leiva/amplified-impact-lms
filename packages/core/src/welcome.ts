@@ -7,9 +7,11 @@
 // live gets it at enrollment.
 //
 // THE SWITCH. `cohort_welcome_email` is off until a Console flip turns it on. `enabledAt` is that
-// flip's time. An enrollment that was already due then (enrolled, and the cohort already live) is
-// skipped. Turning the switch on does not backfill. There is no bulk send; that would be a separate
-// action if Connor asks for one.
+// flip's time, recorded as `console_flags.turned_on_at` (an off-to-on flip stamps it, an on-to-off
+// flip clears it). THE RULE: an enrollment that existed when the switch came on never gets the
+// welcome, whatever the cohort's send time and whether or not the cohort is live yet. Only an
+// enrollment made after the switch-on time qualifies (`enrolledBeforeSwitch`). Turning the switch
+// on does not backfill. There is no bulk send; that would be a separate action if Connor asks for one.
 //
 // TIMES. Every date and clock in the copy comes from the cohort, its weeks and its sessions, drawn
 // in Mountain Time with "MT" after the clock. Nothing here names a calendar day of its own. The
@@ -82,17 +84,26 @@ export function welcomeSendInstant(
 }
 
 /**
+ * Whether an enrollment existed when the switch came on: made at or before the switch-on time.
+ * Such an enrollment never gets the welcome. Only one made strictly after it qualifies.
+ */
+export function enrolledBeforeSwitch(enrolledAt: number, switchOnAt: number): boolean {
+  return enrolledAt <= switchOnAt;
+}
+
+/**
  * One enrollment on one tick.
  *
- * `enabledAt` null: the switch is off, so nothing is decided (`hold`). A due enrollment whose
- * enrollment and send time are both at or before the switch came on is `skip` (no backfill).
- * Not yet due is `wait`. Otherwise `send`.
+ * `enabledAt` (the switch-on time) null: the switch is off, so nothing is decided (`hold`). An
+ * enrollment that existed when the switch came on is `skip`, before anything else: its cohort's
+ * send time and whether the cohort is live yet don't matter (no backfill, ever). Not yet due is
+ * `wait`. Otherwise `send`.
  */
 export function welcomeDecision(input: { enabledAt: number | null; now: number; enrolledAt: number; sendsAt: number }): WelcomeDecision {
   if (input.enabledAt === null) return 'hold';
+  if (enrolledBeforeSwitch(input.enrolledAt, input.enabledAt)) return 'skip';
   const due = Math.max(input.enrolledAt, input.sendsAt);
   if (input.now < due) return 'wait';
-  if (input.enrolledAt < input.enabledAt && input.sendsAt <= input.enabledAt) return 'skip';
   return 'send';
 }
 

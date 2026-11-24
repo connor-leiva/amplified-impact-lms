@@ -830,6 +830,11 @@ export const consoleFlags = pgTable('console_flags', {
   sensitive: boolean('sensitive').notNull(),
   updatedAt: ts('updated_at'),
   updatedBy: text('updated_by'),
+  /**
+   * When the flag was last turned on (an off-to-on flip), and null while it is off. The cohort
+   * welcome reads it as the switch-on time: only an enrollment made after it may get the email.
+   */
+  turnedOnAt: ts('turned_on_at'),
 }, (t) => [
   check('console_flags_key', sql`${t.key} in ('masquerade_enabled', 'cohort_welcome_email')`),
 ]);

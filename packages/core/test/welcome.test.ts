@@ -1,6 +1,6 @@
 // The cohort welcome: when it is due, and that every date in the copy comes from the schedule.
 import { describe, expect, it } from 'vitest';
-import { ACADEMY_URL, WELCOME_TEST_ADDRESS, accessOpensAt, buildWelcomeCopy, welcomeDecision, welcomeSchedule, welcomeSendInstant, welcomeTestAllowed } from '../src/welcome';
+import { ACADEMY_URL, WELCOME_TEST_ADDRESS, accessOpensAt, buildWelcomeCopy, enrolledBeforeSwitch, welcomeDecision, welcomeSchedule, welcomeSendInstant, welcomeTestAllowed } from '../src/welcome';
 import type { WelcomeSchedule, WelcomeSession, WelcomeWeek } from '../src/welcome';
 
 const SESSION = Date.parse('2026-12-02T12:00:00-07:00'); // Wed, Dec 2, 12:00 PM MT
@@ -41,8 +41,26 @@ describe('when a welcome is due', () => {
     expect(welcomeDecision({ enabledAt: LATER, now: LATER, enrolledAt: LIVE, sendsAt: LIVE })).toBe('skip');
   });
 
-  it('still sends an earlier enrollment when go-live is after the switch', () => {
-    expect(welcomeDecision({ enabledAt: LIVE, now: SESSION, enrolledAt: LIVE - 86_400_000, sendsAt: SESSION })).toBe('send');
+  it('never sends an enrollment that existed when the switch came on, even when go-live is after the switch', () => {
+    // The cohort is not live yet when the switch comes on, and its send time comes later: still skipped.
+    expect(welcomeDecision({ enabledAt: LIVE, now: LIVE, enrolledAt: LIVE - 86_400_000, sendsAt: SESSION })).toBe('skip');
+    expect(welcomeDecision({ enabledAt: LIVE, now: SESSION, enrolledAt: LIVE - 86_400_000, sendsAt: SESSION })).toBe('skip');
+    expect(welcomeDecision({ enabledAt: LIVE, now: LATER, enrolledAt: LIVE - 86_400_000, sendsAt: SESSION })).toBe('skip');
+  });
+
+  it('skips a pre-switch enrollment before it would wait, whatever the send time', () => {
+    // Not due for months: still skipped now, not left waiting to be sent later.
+    expect(welcomeDecision({ enabledAt: LIVE, now: LIVE + 1, enrolledAt: LIVE - 1, sendsAt: LATER + 365 * 86_400_000 })).toBe('skip');
+    // Send time long past: skipped as well.
+    expect(welcomeDecision({ enabledAt: LATER, now: LATER, enrolledAt: LIVE, sendsAt: LIVE - 365 * 86_400_000 })).toBe('skip');
+  });
+
+  it('counts an enrollment made at the switch-on instant as before it; only one made after qualifies', () => {
+    expect(enrolledBeforeSwitch(LIVE - 1, LIVE)).toBe(true);
+    expect(enrolledBeforeSwitch(LIVE, LIVE)).toBe(true);
+    expect(enrolledBeforeSwitch(LIVE + 1, LIVE)).toBe(false);
+    expect(welcomeDecision({ enabledAt: LIVE, now: SESSION, enrolledAt: LIVE, sendsAt: SESSION })).toBe('skip');
+    expect(welcomeDecision({ enabledAt: LIVE, now: SESSION, enrolledAt: LIVE + 1, sendsAt: SESSION })).toBe('send');
   });
 });
 

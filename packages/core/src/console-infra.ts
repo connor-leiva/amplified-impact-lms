@@ -50,7 +50,7 @@ export interface ConsoleFlagDef {
 
 /**
  * The closed list. `masquerade_enabled` is spec § 7.13. `cohort_welcome_email` is off until a flip
- * turns it on, and turning it on does not email people already in a live cohort.
+ * turns it on, and the welcome never goes to anyone enrolled before that flip (`enrolledBeforeSwitch`).
  */
 export const CONSOLE_FLAGS = [
   { key: 'masquerade_enabled', label: 'Staff can start masquerade sessions', sensitive: true, defaultOn: MASQUERADE_ENABLED_DEFAULT },

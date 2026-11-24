@@ -44,7 +44,7 @@ export const JOB_SCHEDULES: readonly JobSchedule[] = [
     tickJob: 'billing',
     intervalMs: BILLING_TICK_MS,
     runNow: 'schedule_only',
-    note: 'Runs on the billing loop. Off until Send the cohort welcome email is on. Does not email people already in a live cohort.',
+    note: 'Runs on the billing loop. Off until Send the cohort welcome email is on. Never emails anyone enrolled before it was turned on.',
   },
   ...GHL_JOBS.map((job): JobSchedule => ({ job, tickJob: job, intervalMs: GHL_TICK_MS, runNow: 'off', note: null })),
 ];

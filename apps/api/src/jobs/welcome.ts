@@ -2,9 +2,13 @@
 // email or to INVITES_FROM.
 //
 // THE SWITCH. `cohort_welcome_email` is off until a Console flip. While it is off this function
-// returns without writing a row and without an email_log line. Turning it on does not backfill:
-// an enrollment that was already due when the switch came on (the person was already enrolled, and
-// the cohort was already live) is marked `skipped` once. There is no bulk send.
+// returns without writing a row and without an email_log line. The flip records the switch-on time
+// (`console_flags.turned_on_at`). THE RULE: an enrollment that existed at that time never gets the
+// welcome, whatever the cohort's send time and whether the cohort is live yet; it is marked
+// `skipped` (`enrolled_before_switch`) once. Only an enrollment made after the switch-on time
+// qualifies. An enrollment's time is the owner's earliest cohort plan for that cohort, ended ones
+// included, so buying again after the switch does not make an earlier enrollment new. There is no
+// bulk send.
 //
 // ONCE. A row is claimed (`welcome_status = 'claimed'`) before the send. A second tick, a second
 // replica, or a retry finds the claim and does not send again. A claim still open after the lease
@@ -21,8 +25,8 @@
 // Open The Academy.
 
 import { and, eq, sql } from 'drizzle-orm';
-import { COHORT_WELCOME_FLAG, buildWelcomeCopy, firstNameOf, welcomeDecision, welcomeSchedule } from '@ai/core';
-import type { WelcomeSchedule, WelcomeSession, WelcomeWeek } from '@ai/core';
+import { COHORT_WELCOME_FLAG, buildWelcomeCopy, enrolledBeforeSwitch, firstNameOf, welcomeDecision, welcomeSchedule } from '@ai/core';
+import type { WelcomeSession, WelcomeWeek } from '@ai/core';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
@@ -66,12 +70,16 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
   const { log, now } = options;
   const run: WelcomeRun = { held: false, sent: 0, skipped: 0, failed: 0, waiting: 0 };
 
-  const [flag] = await db.select({ on: consoleFlags.on, updatedAt: consoleFlags.updatedAt }).from(consoleFlags).where(eq(consoleFlags.key, COHORT_WELCOME_FLAG));
+  const [flag] = await db
+    .select({ on: consoleFlags.on, turnedOnAt: consoleFlags.turnedOnAt, updatedAt: consoleFlags.updatedAt })
+    .from(consoleFlags)
+    .where(eq(consoleFlags.key, COHORT_WELCOME_FLAG));
   // Off, or never flipped: do nothing. No row, no email_log line.
   if (!flag?.on) return { ...run, held: true };
-  // A row that is on with no time (it should not happen; a flip always stamps one) treats "now" as
-  // the enable time, so nothing already due is backfilled.
-  const enabledAt = flag.updatedAt ?? now;
+  // The switch-on time. A flip always stamps it. A row that is on without one (written by hand) takes
+  // its last flip's time, or else now, and records it, so the time stays fixed from then on and no
+  // enrollment already there is ever mailed.
+  const enabledAt = flag.turnedOnAt ?? (await recordSwitchOn(db, flag.updatedAt ?? now));
 
   await db.execute(sql`
     update ${cohortEnrollments}
@@ -81,9 +89,16 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
        and welcome_claimed_at <= ${now - CLAIM_LEASE_MS}
   `);
 
+  // One row per (owner, cohort) with a plan that has not ended. Its time is the owner's EARLIEST
+  // cohort plan for that cohort, ended ones included: someone enrolled before the switch who ends and
+  // buys again after it still enrolled before it.
   await db.execute(sql`
     insert into ${cohortEnrollments} (user_id, cohort_id, account_id, enrolled_at)
-    select distinct on (a.owner_user_id, p.cohort_id) a.owner_user_id, p.cohort_id, a.id, p.created_at
+    select distinct on (a.owner_user_id, p.cohort_id) a.owner_user_id, p.cohort_id, a.id,
+           (select min(p2.created_at)
+              from plans p2
+              join accounts a2 on a2.id = p2.account_id
+             where p2.kind = 'cohort' and p2.cohort_id = p.cohort_id and a2.owner_user_id = a.owner_user_id)
       from plans p
       join accounts a on a.id = p.account_id
      where p.kind = 'cohort' and p.cohort_id is not null and p.status <> 'ended'
@@ -109,6 +124,13 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 
   for (const row of pending) {
     const cohort = cohortRows.find((c) => c.id === row.cohort_id);
+    // THE RULE, first: an enrollment that existed when the switch came on is never mailed. Its
+    // cohort's send time, whether the cohort is live, and whether the builder is ready don't matter.
+    if (enrolledBeforeSwitch(num(row.enrolled_at), enabledAt)) {
+      await markSkipped(db, row, cohort?.name ?? row.cohort_id, now, 'enrolled_before_switch');
+      run.skipped += 1;
+      continue;
+    }
     if (!cohort) {
       log.warn({ cohort: row.cohort_id }, 'cohort welcome has no cohort; left pending');
       run.waiting += 1;
@@ -132,7 +154,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       continue;
     }
     if (decision === 'skip') {
-      await markSkipped(db, row, built.schedule, now);
+      await markSkipped(db, row, built.schedule.cohortName, now, 'enrolled_before_switch');
       run.skipped += 1;
       continue;
     }
@@ -172,11 +194,21 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
   return run;
 }
 
-async function markSkipped(db: Database, row: PendingRow, schedule: WelcomeSchedule, now: number): Promise<void> {
-  const subject = `Your Access To The ${schedule.cohortName} Is Live`;
+/** Record the switch-on time on a row that is on without one, and return it. */
+async function recordSwitchOn(db: Database, at: number): Promise<number> {
+  const [row] = await db
+    .update(consoleFlags)
+    .set({ turnedOnAt: sql`coalesce(${consoleFlags.turnedOnAt}, ${at})` })
+    .where(and(eq(consoleFlags.key, COHORT_WELCOME_FLAG), eq(consoleFlags.on, true)))
+    .returning({ turnedOnAt: consoleFlags.turnedOnAt });
+  return row?.turnedOnAt ?? at;
+}
+
+async function markSkipped(db: Database, row: PendingRow, cohortName: string, now: number, reason: 'enrolled_before_switch'): Promise<void> {
+  const subject = `Your Access To The ${cohortName} Is Live`;
   await db
     .update(cohortEnrollments)
-    .set({ welcomeStatus: 'skipped', welcomeError: 'already_live' })
+    .set({ welcomeStatus: 'skipped', welcomeError: reason })
     .where(and(eq(cohortEnrollments.userId, row.user_id), eq(cohortEnrollments.cohortId, row.cohort_id), sql`${cohortEnrollments.welcomeStatus} is null`));
   await db.insert(emailLog).values({
     at: now,
