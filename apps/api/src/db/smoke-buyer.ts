@@ -1,4 +1,4 @@
-// A regular AI Accelerator buyer, for smoke tests on a local or staging database (D-248, the Week 0
+// A regular AI Accelerator buyer, for smoke tests on a local or staging database (D-249, the Week 0
 // launch audit's H-2). `pnpm --filter @ai/api db:smoke-buyer -- --email <address> [--name "Full Name"]`,
 // with the password in `SMOKE_BUYER_PASSWORD`.
 //
@@ -151,7 +151,7 @@ export function smokeBuyerRefusal(databaseName: string, env: NodeJS.ProcessEnv):
   if (!NON_PRODUCTION_RAILWAY_ENVIRONMENTS.includes(raw))
     return (
       `Refusing: DATABASE_URL points at '${DEPLOYED_DATABASE}', and RAILWAY_ENVIRONMENT_NAME is ${JSON.stringify(raw)}, which is not ` +
-      `exactly one of ${NON_PRODUCTION_RAILWAY_ENVIRONMENTS.map((x) => `'${x}'`).join(' or ')} (DECISIONS.md D-019, D-248). Nothing was written.`
+      `exactly one of ${NON_PRODUCTION_RAILWAY_ENVIRONMENTS.map((x) => `'${x}'`).join(' or ')} (DECISIONS.md D-019, D-249). Nothing was written.`
     );
   return null;
 }

@@ -39,7 +39,7 @@ describe('the Nov 17 release plan (D-175)', () => {
     });
   });
 
-  it('opens Week 1 on Sun, Nov 29 (D-248) and leaves its live build, and the course’s own opening, on Wed, Dec 2', () => {
+  it('opens Week 1 on Sun, Nov 29 (D-249) and leaves its live build, and the course’s own opening, on Wed, Dec 2', () => {
     expect(WEEK_OPENS_V1[1]).toBe(Date.parse('2026-11-29T19:00:00Z'));
     expect(mountainWhen(WEEK_OPENS_V1[1]!)).toBe('Sun, Nov 29 · 12:00 PM MT');
     const db = planReleaseV1(prod()).db;

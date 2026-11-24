@@ -7657,7 +7657,7 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **Supersedes** D-229's "two people editing at once, the last save wins" for the intake (both forms; the seat card keeps it, D-236) and D-197's whole-card stack save; and D-230's and D-236's "with `VITE_LMS_V3` off ... draws nothing".
 - No migration, env var, Railway variable, Stripe, billing, role or permission change. No golden, mask or tolerance moves.
 
-## D-248 · Week 1 opens Sun, Nov 29, and a regular buyer for smoke tests
+## D-249 · Week 1 opens Sun, Nov 29, and a regular buyer for smoke tests
 
 **Date:** 2026-11-24
 **Asked for by:** Connor Leiva (repository owner), Nov 24, 2026, fixing the Week 0 launch audit's H-3 and H-2: "Week 1 now opens Sun Nov 29, 2026 at 12:00 PM MT. Update the seed/release plan and all learner copy that names Wed Dec 2 as the Week 1 open (Home countdown, Start Here, intake intro). Leave live session gating and the Dec 2 Live Build session on Wed Dec 2. In the PR, list the exact admin field I must change in production (Week Builder, Week 1 Opens (MT))." and "add a seed or script for a regular non-test, non-early_access buyer account for local/staging smoke tests, and document a smoke-test checklist in the PR."

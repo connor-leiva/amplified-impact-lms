@@ -42,7 +42,7 @@ describe('the learner shell’s view-model (D-177)', () => {
     expect(nav.help.href).toBe('mailto:support@amplifiedimpact.io');
   });
 
-  it('D-248: keeps the vault’s lock on the course’s own opening, Wed, Dec 2, after Week 1 opens in the preview', () => {
+  it('D-249: keeps the vault’s lock on the course’s own opening, Wed, Dec 2, after Week 1 opens in the preview', () => {
     const { payload, db } = learnState(Date.parse('2026-11-30T09:00:00-07:00'), true, { 0: ['c1', 'c2'] });
     const rows = weekRows(payload, db, learnerOf(db, LEARNER_ID));
     expect(rows.slice(0, 3).map((r) => [r.week, r.state, r.opensShort])).toEqual([

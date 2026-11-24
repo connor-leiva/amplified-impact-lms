@@ -1,4 +1,4 @@
-// The smoke-test buyer (D-248, the Week 0 launch audit's H-2): a regular AI Accelerator buyer made by
+// The smoke-test buyer (D-249, the Week 0 launch audit's H-2): a regular AI Accelerator buyer made by
 // the webhook's own provisioning, active with a known password, never a test account and never early,
 // refused on the deployed database, and a second run that writes nothing. The address and the password
 // are made in the test.
@@ -114,7 +114,7 @@ describe('the arguments, the password and the guard', () => {
     // Anything else is refused, not guessed at: Railway's names are exact, so no trimming and no case folding.
     for (const name of ['prod', 'Prod', 'Staging', 'staging ', ' staging', 'STAGING', 'stagging', 'stage', 'dev', 'preview', 'demo ', '  ']) {
       expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: name }), name).toBe(
-        `Refusing: DATABASE_URL points at 'railway', and RAILWAY_ENVIRONMENT_NAME is ${JSON.stringify(name)}, which is not exactly one of 'staging' or 'demo' (DECISIONS.md D-019, D-248). Nothing was written.`,
+        `Refusing: DATABASE_URL points at 'railway', and RAILWAY_ENVIRONMENT_NAME is ${JSON.stringify(name)}, which is not exactly one of 'staging' or 'demo' (DECISIONS.md D-019, D-249). Nothing was written.`,
       );
     }
   });

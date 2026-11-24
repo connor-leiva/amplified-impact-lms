@@ -270,7 +270,7 @@ export function weekOfPath(pathname: string): number | null {
 
 /**
  * When the vault opens, as its lock says it: when the pre-launch preview ends, the course's own opening at
- * the first live build (D-153, `COURSE_OPENS_AT`), which is what unlocks it. D-248: not the first locked
+ * the first live build (D-153, `COURSE_OPENS_AT`), which is what unlocks it. D-249: not the first locked
  * week's opening any more, since Week 1 now opens inside the preview (Sun, Nov 29) and the vault stays
  * locked until Wed, Dec 2.
  */

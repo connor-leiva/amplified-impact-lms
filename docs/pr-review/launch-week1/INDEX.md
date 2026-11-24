@@ -1,4 +1,4 @@
-# Review files: Week 1 opens Sun, Nov 29 (D-248, the Week 0 launch audit's H-3)
+# Review files: Week 1 opens Sun, Nov 29 (D-249, the Week 0 launch audit's H-3)
 
 Each screen before (main at `1d23037`) and after this branch, at 1280 and 390 wide.
 

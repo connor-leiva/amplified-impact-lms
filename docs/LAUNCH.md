@@ -205,7 +205,7 @@ before the new process starts, so a restart of the deployment that is already ru
 run the step. The pre-deploy command string does not change. After the account exists, remove the
 variables. The next deploy then writes nothing.
 
-**A regular buyer for smoke tests, on a local or staging database only (D-248).** The test learner
+**A regular buyer for smoke tests, on a local or staging database only (D-249).** The test learner
 above is `is_test` and `early_access`, so it sees the course before Preview opens and every week
 before its date, and the v3 and v6 flags count it as on. It cannot show what a buyer sees. This
 command can:

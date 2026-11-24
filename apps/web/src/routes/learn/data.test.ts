@@ -47,7 +47,7 @@ describe('the course’s freshness (D-183)', () => {
     expect(nextOpening({ kind: 'locked' }, PRELAUNCH_NOW)).toBeNull();
   });
 
-  it('D-248: in the preview, after Week 1 opens (Sun, Nov 29), the next refetch is the preview’s end at the first live build, not Week 2', () => {
+  it('D-249: in the preview, after Week 1 opens (Sun, Nov 29), the next refetch is the preview’s end at the first live build, not Week 2', () => {
     const at = Date.parse('2026-11-30T09:00:00-07:00');
     const inPreview = learnState(at, true, { 0: ['c1'] }).payload;
     expect(nextOpening({ kind: 'ready', payload: inPreview }, at)).toBe(COURSE_OPENS_AT);

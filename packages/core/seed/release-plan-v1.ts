@@ -6,7 +6,7 @@
 //   - Week 0 is due Mon, Nov 30, 2026 at 12:00 PM MT (no longer Wed, Dec 2).
 //   - Each week opens at the start of its live build, 12:00 PM MT: Week 2 Dec 9; Week 3 Dec 16;
 //     Week 4 Wed, Jan 6, 2027; Week 5 Jan 13; Week 6 Jan 20; Week 7 Jan 27; Week 8 Feb 3.
-//   - Week 1 opens Sun, Nov 29, 2026 at 12:00 PM MT, three days before its live build (D-248, the Week 0
+//   - Week 1 opens Sun, Nov 29, 2026 at 12:00 PM MT, three days before its live build (D-249, the Week 0
 //     launch audit's H-3). Its live build stays Wed, Dec 2, and so does everything that waits for the
 //     sessions to start (`COURSE_OPENS_AT`: Join, the Library's skills, the reminders).
 //
@@ -37,7 +37,7 @@ const noonMT = (day: string): number => Date.parse(`${day}T12:00:00-07:00`);
 /** Week 0's due date: Mon, Nov 30, 2026, 12:00 PM MT. */
 export const WEEK0_DUE_V1 = noonMT('2026-11-30');
 
-/** Each week's opening, 12:00 PM MT: the start of its live build, but Week 1's, three days before it (D-248). */
+/** Each week's opening, 12:00 PM MT: the start of its live build, but Week 1's, three days before it (D-249). */
 export const WEEK_OPENS_V1: Readonly<Record<number, number>> = {
   1: noonMT('2026-11-29'),
   2: noonMT('2026-12-09'),

@@ -16,7 +16,7 @@ describe('Week 0 intake (D-196)', () => {
       'Claude Pro', 'Claude Max', 'Claude Team', 'ChatGPT Plus', 'ChatGPT Pro', 'ChatGPT Business', 'Not on a paid plan yet',
     ]);
     expect(intakeIssues(WEEK0_INTAKE)).toEqual([]);
-    // D-248: the intro names Week 1's opening, Sun, Nov 29, not the live builds' Wed, Dec 2.
+    // D-249: the intro names Week 1's opening, Sun, Nov 29, not the live builds' Wed, Dec 2.
     expect(WEEK0_INTAKE.intro).toContain('before Week 1 opens on Sunday, November 29.');
     expect(WEEK0_INTAKE.intro).not.toMatch(/December 2|Dec 2/);
     const db = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });

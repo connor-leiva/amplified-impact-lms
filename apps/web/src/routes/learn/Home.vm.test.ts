@@ -50,12 +50,12 @@ describe('Home (D-177)', () => {
     const cards = vm.employees!.cards;
     expect(cards).toHaveLength(9);
     expect(cards[0]).toMatchObject({ title: 'Foundations', current: true, locked: false, foot: { kind: 'bar', text: '2 of 8' }, weekLabel: 'Week 0', aria: 'Foundations, 2 of 8' });
-    // D-248: Week 1 opens Sun, Nov 29, three days before its live build.
+    // D-249: Week 1 opens Sun, Nov 29, three days before its live build.
     expect(cards[1]).toMatchObject({ title: 'Where the Money Goes', current: false, locked: true, foot: { kind: 'text', text: 'Opens Nov 29' }, weekLabel: 'Week 1' });
     expect(vm.employees!.meta).toBeNull();
   });
 
-  it('D-248: on Sun, Nov 29 Week 1 opens in the preview, and the countdown stays on its live build, Wed, Dec 2', () => {
+  it('D-249: on Sun, Nov 29 Week 1 opens in the preview, and the countdown stays on its live build, Wed, Dec 2', () => {
     const at = Date.parse('2026-11-29T12:00:00-07:00');
     const vm = home(learnState(at, true, { 0: ['c1', 'c2'] }));
     expect(vm.lede).toBe('Pre-launch preview: Week 0 is open now, and each week opens on the date shown.');

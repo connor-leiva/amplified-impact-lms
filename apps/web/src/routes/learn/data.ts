@@ -87,7 +87,7 @@ export function useCourse(): CourseLoad {
 const MAX_WAIT = 2_147_483_647;
 
 /**
- * The next instant a locked week opens, or (D-248) the pre-launch preview ends, after `now`, or null. The
+ * The next instant a locked week opens, or (D-249) the pre-launch preview ends, after `now`, or null. The
  * preview ends at the course's own opening, the first live build (`COURSE_OPENS_AT`), which Week 1's
  * opening no longer marks now that Week 1 opens inside the preview.
  */

@@ -181,7 +181,7 @@ describe('the pre-launch preview, from the cohort’s date (D-175) @release', ()
 });
 
 describe('the weekly releases (D-175) @release', () => {
-  it('opens Week 1 on Sun, Nov 29 at 12:00 PM MT, in the preview, three days before its live build (D-248)', { timeout: 120_000 }, async () => {
+  it('opens Week 1 on Sun, Nov 29 at 12:00 PM MT, in the preview, three days before its live build (D-249)', { timeout: 120_000 }, async () => {
     at(WEEK_OPENS_V1[1]! - 60_000);
     expect(weeksOf((await course('full')).json()).slice(0, 2)).toEqual(['0:open', '1:locked']);
     at(WEEK_OPENS_V1[1]!);

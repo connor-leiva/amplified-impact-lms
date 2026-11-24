@@ -2,7 +2,7 @@
 // accelerator-week-0 only when that week has no intake yet. It never overwrites one staff saved.
 // The repo had topic names (team size, cadence, operator, CRM, tasks, problems, access) and no
 // question form, so these 20 questions are the form. Runtime code may not import this file.
-// D-248: the intro names Week 1's opening, Sun, Nov 29 (it named the live builds' start, Wed, Dec 2). A change
+// D-249: the intro names Week 1's opening, Sun, Nov 29 (it named the live builds' start, Wed, Dec 2). A change
 // here reaches a new database only; a live one changes in the Week Builder's Week 0 Intake card.
 
 import type { CourseIntake } from '../src/course-types';
