@@ -75,7 +75,7 @@ describe('Turn in and the seat card without v3 (H-15)', () => {
 
   it('gives an agent the line in Turn in’s place, and never asks for the team’s turn-ins', async () => {
     page('Agent');
-    expect(await screen.findByText('Your team’s owner or operator turns this in.')).toBeInTheDocument();
+    expect(await screen.findByText('Your team’s owner or AI Implementer turns this in.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Turn in/ })).toBeNull();
     // The seat card opens for them too, locked (D-236).
     expect(screen.getByRole('button', { name: 'Open the seat card' })).toBeInTheDocument();
@@ -86,6 +86,6 @@ describe('Turn in and the seat card without v3 (H-15)', () => {
     page('Team Owner', true);
     expect(screen.queryByRole('button', { name: /Turn in/ })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Open the seat card' })).toBeNull();
-    expect(screen.queryByText('Your team’s owner or operator turns this in.')).toBeNull();
+    expect(screen.queryByText('Your team’s owner or AI Implementer turns this in.')).toBeNull();
   });
 });

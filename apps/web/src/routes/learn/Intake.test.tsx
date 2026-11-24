@@ -197,6 +197,8 @@ describe('H-11: required questions, and the missing ones on a submit', () => {
 
 describe('Download Your Answers (PDF) on the intake page (D-246)', () => {
   const SUBMITTED = Date.parse('2026-11-19T16:04:00Z');
+  /** The form's three required answers. */
+  const COMPLETE = { name: 'Dana', team: 'Lee Group', ai: 'Claude' };
   const pdf = () => new Response('%PDF-1.4', { status: 200, headers: { 'content-disposition': 'attachment; filename="Week 0 Intake - Northline Realty.pdf"' } });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -213,8 +215,9 @@ describe('Download Your Answers (PDF) on the intake page (D-246)', () => {
   it('appears once the team submits, and saves the team’s own PDF from the session’s route', async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === '/api/intake/pdf') return pdf();
-      if (init?.method === 'PUT') return new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: SUBMITTED }), { status: 200 });
-      return new Response(JSON.stringify({ answers: { name: 'Dana' }, updatedAt: SUBMITTED, submittedAt: null }), { status: 200 });
+      // Every required answer is given, so the page sends the submit (H-11, D-248, checks before it sends).
+      if (init?.method === 'PUT') return new Response(JSON.stringify({ answers: COMPLETE, updatedAt: SUBMITTED, submittedAt: SUBMITTED }), { status: 200 });
+      return new Response(JSON.stringify({ answers: COMPLETE, updatedAt: SUBMITTED, submittedAt: null }), { status: 200 });
     });
     vi.stubGlobal('fetch', fetchMock);
     vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:pdf'), revokeObjectURL: vi.fn() }));
