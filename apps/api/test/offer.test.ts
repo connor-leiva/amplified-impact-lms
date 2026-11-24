@@ -178,6 +178,9 @@ function stubStripe(): Stub {
       return { id, active: change.active, metadata };
     },
     createCheckoutSession: async () => ({ id: 'cs_test_skill', url: 'https://checkout.stripe.com/c/pay/cs_test_skill' }),
+    retrieveCheckoutSession: async () => {
+      throw new Error('no checkout session in this test');
+    },
     paymentMethodOfPaymentIntent: async () => 'pm_saved',
     subscriptionOfPaymentIntent: async (pi) => stub.intents.get(pi) ?? null,
     constructEvent: stripeVerifier(),

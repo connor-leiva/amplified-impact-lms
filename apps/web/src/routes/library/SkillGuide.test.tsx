@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { SKILL_PURCHASE, skillUpsell } from '@ai/core/offer';
 import { previewOf } from '@ai/core/skill-guides';
-import SkillGuide, { COPY, TOAST_MS } from './SkillGuide';
+import SkillGuide, { COPY, TOAST_MS, checkoutReturn } from './SkillGuide';
 import type { GuideAnswer } from './SkillGuide';
 import { GUIDES } from '../../guides/content';
 import { exportGuide, exportSkillGuides } from '../../guides/setup-export';
@@ -71,6 +71,21 @@ describe('the guided setup in learn (D-151)', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));
     expect(router.state.location.search).toBe(`?next=${encodeURIComponent('/skill-library/appointment-follow-up')}`);
     expect(fetchMock).toHaveBeenCalledWith('/api/skill-guides/appointment-follow-up', expect.objectContaining({ credentials: 'include' }));
+  });
+
+  it('sends a paid guest through the checkout return instead of the sign-in form', async () => {
+    const go = vi.spyOn(checkoutReturn, 'go').mockImplementation(() => undefined);
+    fetchMock.mockResolvedValue(answer(401));
+    const router = createMemoryRouter(
+      [
+        { path: '/skill-library/:slug', element: <SkillGuide /> },
+        { path: '/sign-in', element: <p>sign in</p> },
+      ],
+      { initialEntries: ['/skill-library/post-closing-client-care?session_id=cs_test_abcdefghij'] },
+    );
+    render(<RouterProvider router={router} />);
+    await waitFor(() => expect(go).toHaveBeenCalledWith('cs_test_abcdefghij'));
+    expect(router.state.location.pathname).toBe('/skill-library/post-closing-client-care');
   });
 
   it('walks an open skill one step at a time, with its file through the checked download, and copies its words', async () => {

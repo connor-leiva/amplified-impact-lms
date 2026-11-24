@@ -58,6 +58,14 @@ export interface GuideAnswer {
 type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'refused' } | { kind: 'failed' };
 
 const SIGN_IN = '/sign-in';
+const CHECKOUT_SESSION = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
+
+/** A paid guest's return. A full navigation, so the session cookie from that response is kept. */
+export const checkoutReturn = {
+  go(sessionId: string): void {
+    window.location.replace(`/api/skills/guest-return?session_id=${encodeURIComponent(sessionId)}`);
+  },
+};
 /** How long the copy confirmation stays, as on www's guide pages. */
 export const TOAST_MS = 3200;
 const dateOf = (t: number): string => new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' }).format(t);
@@ -390,6 +398,7 @@ export function Component() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
+  const checkoutSession = params.get('session_id');
 
   useEffect(() => {
     let alive = true;
@@ -398,6 +407,12 @@ export function Component() {
       try {
         const res = await fetch(`/api/skill-guides/${encodeURIComponent(slug)}`, { credentials: 'include', headers: { accept: 'application/json' } });
         if (!alive) return;
+        // A guest just paid. Stripe sent them here with the checkout session, and they have no
+        // password yet, so sign-in cannot help. The return route reads that session and signs them in.
+        if (res.status === 401 && checkoutSession && CHECKOUT_SESSION.test(checkoutSession)) {
+          checkoutReturn.go(checkoutSession);
+          return;
+        }
         // Signed out: sign in, then straight back here (D-151).
         if (res.status === 401) {
           navigate(`${SIGN_IN}?next=${encodeURIComponent(guidePath(slug))}`, { replace: true });
@@ -417,7 +432,7 @@ export function Component() {
     return () => {
       alive = false;
     };
-  }, [slug, navigate]);
+  }, [slug, navigate, checkoutSession]);
 
   // Outside `AppShell`, so this route marks the body ready itself, as the Skill Library does.
   useEffect(() => {

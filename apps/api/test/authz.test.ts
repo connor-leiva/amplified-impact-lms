@@ -631,6 +631,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/skills/:id/checkout', methods: 'POST', guard: 'session' },
   // Signed-out $37 checkout. Off, it redirects to the stopgap Payment Link. On, it starts a session.
   { path: '/api/skills/:id/guest-checkout', methods: 'GET, HEAD', guard: 'open' },
+  // After a signed-out $37 payment. Signs a new account in; an existing password goes to sign-in.
+  { path: '/api/skills/guest-return', methods: 'GET, HEAD', guard: 'open' },
   // Manage Billing (D-077): the owner's way into Stripe's billing portal, signed in.
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.
