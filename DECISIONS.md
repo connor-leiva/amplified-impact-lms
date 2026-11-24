@@ -7694,7 +7694,10 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
   - **What it does not do.** No Stripe call, no email, no GoHighLevel row. Run twice, it writes nothing.
   - **An existing learner** gains what a buyer has and they lack: a plan, the password, active status. It also loses early access, which does nothing without `is_test`.
   - **It refuses,** writing nothing, a staff address, the seeded test learner (D-200) and a learner seated on another owner's team. An audited `user.seed` row (actor `system:seed-smoke-buyer`, the address) records each run that changed something.
-  - **Never production.** It refuses a database named `railway` (D-019's rule in `apps/api/test/helpers.ts`) unless `RAILWAY_ENVIRONMENT_NAME` names a non-production environment. That is how staging, whose database is also `railway`, is reached: through `railway ssh` or `railway run` in staging. It always refuses `RAILWAY_ENVIRONMENT_NAME=production`.
+  - **Never production.** It refuses a database named `railway` (D-019's rule in `apps/api/test/helpers.ts`) unless `RAILWAY_ENVIRONMENT_NAME` is exactly `staging` or `demo`, the non-production environments `.railway/railway.ts` defines.
+    - This is an allowlist, with no trimming or case folding. It refuses any other value: unset, empty, `production`, `prod`, a typo, or `Staging` / `staging ` (with a space).
+    - That is how staging, whose database is almost certainly `railway` too, is reached: through `railway ssh` or `railway run` in staging.
+    - It always refuses `RAILWAY_ENVIRONMENT_NAME=production`, whatever the database is called. A test holds the allowlist to `.railway/railway.ts`.
   - Documented in `docs/LAUNCH.md` § 6.
 - **New strings.**
   - Learners: the Start Here line and the intake intro above. Both are in the seed only.

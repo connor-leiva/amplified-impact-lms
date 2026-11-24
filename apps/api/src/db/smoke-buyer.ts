@@ -25,10 +25,13 @@
 // NEVER PRODUCTION. A regular buyer takes one of the 15 founding seats, counts in enrollment and
 // revenue, gets the reminders and, where GoHighLevel is set up (production only), is copied there. So
 // it refuses the database the deployed site reads, by the rule the test harness uses (D-019,
-// `apps/api/test/helpers.ts`): a database named `railway`. Railway names every environment's database
-// `railway`, staging's too, so `railway` is allowed only when Railway says which environment this is
-// and it is not production (`RAILWAY_ENVIRONMENT_NAME`, which Railway sets inside a service and in
-// `railway run` / `railway ssh`). `RAILWAY_ENVIRONMENT_NAME=production` is refused whatever the name.
+// `apps/api/test/helpers.ts`): a database named `railway`. Railway's Postgres names its database
+// `railway` by default in every environment, staging's too, so `railway` is allowed only when Railway
+// says this is one of the non-production environments `.railway/railway.ts` defines: an ALLOWLIST,
+// `RAILWAY_ENVIRONMENT_NAME` exactly `staging` or `demo` (Railway sets it inside a service and in
+// `railway run` / `railway ssh`). Any other value is refused: unset or empty, `production`, `prod`, a
+// typo, or a different spelling (`Staging`, `staging ` with a space): Railway's names are exact.
+// `RAILWAY_ENVIRONMENT_NAME=production` is refused whatever the database is called.
 //
 // THE PASSWORD. Read from `SMOKE_BUYER_PASSWORD`, never a flag (a flag stays in the shell's history and
 // the process list) and never in the code. Hashed by the set-password helper and dropped: it is not in
@@ -60,6 +63,13 @@ export const SMOKE_BUYER_PASSWORD_VAR = 'SMOKE_BUYER_PASSWORD';
 /** The database the deployed site reads, in every Railway environment (D-019). */
 export const DEPLOYED_DATABASE = 'railway';
 
+/**
+ * The Railway environments, by `.railway/railway.ts`'s own names, where the `railway` database is not
+ * production's. Exact: no trimming, no case folding. (`demo` runs the fixture source and has no
+ * database, so in practice this is staging.)
+ */
+export const NON_PRODUCTION_RAILWAY_ENVIRONMENTS: readonly string[] = ['staging', 'demo'];
+
 const DEFAULT_NAME = 'Smoke Buyer';
 const NAME_MAX = 200;
 
@@ -72,8 +82,8 @@ export const SMOKE_BUYER_USAGE = [
   '  early access. No Stripe call, no email. Safe to run twice.',
   '',
   `  The password is read from ${SMOKE_BUYER_PASSWORD_VAR} only. It refuses the database the deployed`,
-  `  site reads (named '${DEPLOYED_DATABASE}'), unless RAILWAY_ENVIRONMENT_NAME names a Railway environment`,
-  '  that is not production (staging, through `railway run` or `railway ssh`).',
+  `  site reads (named '${DEPLOYED_DATABASE}'), unless RAILWAY_ENVIRONMENT_NAME is exactly 'staging' or 'demo'`,
+  '  (staging, through `railway run` or `railway ssh`). Any other value is refused.',
 ].join('\n');
 
 /** What the step did. `refused` wrote nothing. */
@@ -123,18 +133,25 @@ export function readSmokeBuyerPassword(env: NodeJS.ProcessEnv): { ok: true; pass
 
 /**
  * Why this may not run against `databaseName`, or null when it may. Production is refused: by
- * Railway's own variable, and by the deployed database's name unless Railway says this is another
- * environment.
+ * Railway's own variable, whatever the database is called; and the deployed database's name is
+ * allowed only in an environment on the allowlist (`NON_PRODUCTION_RAILWAY_ENVIRONMENTS`, exact).
+ * A database with any other name (a local or development one) is not Railway's, and runs.
  */
 export function smokeBuyerRefusal(databaseName: string, env: NodeJS.ProcessEnv): string | null {
-  const railway = (env.RAILWAY_ENVIRONMENT_NAME ?? '').trim().toLowerCase();
-  if (railway === 'production')
+  const raw = env.RAILWAY_ENVIRONMENT_NAME;
+  if ((raw ?? '').trim().toLowerCase() === 'production')
     return 'Refusing: RAILWAY_ENVIRONMENT_NAME is production. A regular buyer takes a founding seat and counts in enrollment and revenue, so this never runs there. Nothing was written.';
-  if (databaseName === DEPLOYED_DATABASE && railway === '')
+  if (databaseName !== DEPLOYED_DATABASE) return null;
+  if (raw === undefined || raw === '')
     return (
       `Refusing: DATABASE_URL points at '${DEPLOYED_DATABASE}', the database the deployed site reads, and nothing says which ` +
       'environment it is (DECISIONS.md D-019). Locally, use a development database. On staging, run it through ' +
       '`railway run` or `railway ssh` in the staging environment, which sets RAILWAY_ENVIRONMENT_NAME. Nothing was written.'
+    );
+  if (!NON_PRODUCTION_RAILWAY_ENVIRONMENTS.includes(raw))
+    return (
+      `Refusing: DATABASE_URL points at '${DEPLOYED_DATABASE}', and RAILWAY_ENVIRONMENT_NAME is ${JSON.stringify(raw)}, which is not ` +
+      `exactly one of ${NON_PRODUCTION_RAILWAY_ENVIRONMENTS.map((x) => `'${x}'`).join(' or ')} (DECISIONS.md D-019, D-248). Nothing was written.`
     );
   return null;
 }

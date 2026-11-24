@@ -3,6 +3,8 @@
 // refused on the deployed database, and a second run that writes nothing. The address and the password
 // are made in the test.
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { seedProduction } from '@ai/core/seed/curriculum';
@@ -14,6 +16,7 @@ import { cohortSeatsSold } from '../src/billing/provision';
 import type { Database } from '../src/db/client';
 import {
   DEPLOYED_DATABASE,
+  NON_PRODUCTION_RAILWAY_ENVIRONMENTS,
   SMOKE_BUYER_ACTOR,
   parseSmokeBuyerArgs,
   readSmokeBuyerPassword,
@@ -94,14 +97,34 @@ describe('the arguments, the password and the guard', () => {
     expect(() => parseSmokeBuyerArgs(pkg.scripts['db:smoke-buyer']!.split(/\s+/).slice(2))).toThrow(/--email is required/);
   });
 
-  it('refuses production by Railway’s variable, and the deployed database’s name unless Railway names another environment', () => {
+  it('refuses production by Railway’s variable, and allows the deployed database’s name only in an allowlisted environment, exactly', () => {
     expect(DEPLOYED_DATABASE).toBe('railway');
+    expect(NON_PRODUCTION_RAILWAY_ENVIRONMENTS).toEqual(['staging', 'demo']);
+    // A local or development database is not Railway's: it runs, unless Railway says this is production.
     expect(smokeBuyerRefusal('ai_lms_dev', {})).toBeNull();
-    expect(smokeBuyerRefusal('railway', {})).toMatch(/points at 'railway'.*D-019/);
-    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: '  ' })).toMatch(/points at 'railway'/);
+    expect(smokeBuyerRefusal('ai_lms_dev', { RAILWAY_ENVIRONMENT_NAME: 'staging' })).toBeNull();
+    expect(smokeBuyerRefusal('ai_lms_dev', { RAILWAY_ENVIRONMENT_NAME: 'Production' })).toMatch(/RAILWAY_ENVIRONMENT_NAME is production.*Nothing was written\.$/);
+    // `railway`: only exactly `staging` or `demo`.
     expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: 'staging' })).toBeNull();
-    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: 'production' })).toMatch(/RAILWAY_ENVIRONMENT_NAME is production/);
-    expect(smokeBuyerRefusal('ai_lms_dev', { RAILWAY_ENVIRONMENT_NAME: 'Production' })).toMatch(/RAILWAY_ENVIRONMENT_NAME is production/);
+    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: 'demo' })).toBeNull();
+    expect(smokeBuyerRefusal('railway', {})).toMatch(/points at 'railway'.*nothing says which environment.*D-019.*Nothing was written\.$/);
+    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: '' })).toMatch(/nothing says which environment/);
+    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: 'production' })).toMatch(/RAILWAY_ENVIRONMENT_NAME is production.*Nothing was written\.$/);
+    expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: ' production ' })).toMatch(/RAILWAY_ENVIRONMENT_NAME is production/);
+    // Anything else is refused, not guessed at: Railway's names are exact, so no trimming and no case folding.
+    for (const name of ['prod', 'Prod', 'Staging', 'staging ', ' staging', 'STAGING', 'stagging', 'stage', 'dev', 'preview', 'demo ', '  ']) {
+      expect(smokeBuyerRefusal('railway', { RAILWAY_ENVIRONMENT_NAME: name }), name).toBe(
+        `Refusing: DATABASE_URL points at 'railway', and RAILWAY_ENVIRONMENT_NAME is ${JSON.stringify(name)}, which is not exactly one of 'staging' or 'demo' (DECISIONS.md D-019, D-248). Nothing was written.`,
+      );
+    }
+  });
+
+  it('allows exactly the non-production environments `.railway/railway.ts` defines', () => {
+    const railway = readFileSync(fileURLToPath(new URL('../../../.railway/railway.ts', import.meta.url)), 'utf8');
+    const line = /const env = ctx\.environment; \/\/ (.+)$/m.exec(railway)?.[1] ?? '';
+    const defined = [...line.matchAll(/'([a-z]+)'/g)].map((m) => m[1]);
+    expect(defined).toContain('production');
+    expect(defined.filter((x) => x !== 'production')).toEqual([...NON_PRODUCTION_RAILWAY_ENVIRONMENTS]);
   });
 
   it('the CLI stops before it connects: a usage error, a missing password, the deployed database', async () => {
@@ -129,6 +152,9 @@ describe('the arguments, the password and the guard', () => {
     expect(refused).toMatchObject({ code: 1, connected: 0 });
     expect(refused.out).toMatch(/Refusing: DATABASE_URL points at 'railway'/);
     expect(refused.out).not.toContain(password);
+    const typo = await run(['--email', email], { SMOKE_BUYER_PASSWORD: password, DATABASE_URL: deployed, RAILWAY_ENVIRONMENT_NAME: 'prod' });
+    expect(typo).toMatchObject({ code: 1, connected: 0 });
+    expect(typo.out).toMatch(/RAILWAY_ENVIRONMENT_NAME is "prod", which is not exactly one of 'staging' or 'demo'.*Nothing was written\.\n$/);
     const prod = await run(['--email', email], { SMOKE_BUYER_PASSWORD: password, DATABASE_URL: TEST_DATABASE_URL, RAILWAY_ENVIRONMENT_NAME: 'production' });
     expect(prod).toMatchObject({ code: 1, connected: 0 });
     expect(await counts()).toEqual(start);

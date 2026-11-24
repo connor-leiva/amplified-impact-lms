@@ -226,11 +226,14 @@ reads the password from `SMOKE_BUYER_PASSWORD` only, never a flag, and prints th
 the password.
 
 **It never runs against production.** A regular buyer takes a founding seat and counts in enrollment
-and revenue. So it refuses a database named `railway` (D-019) unless `RAILWAY_ENVIRONMENT_NAME`
-names another environment, and it always refuses `RAILWAY_ENVIRONMENT_NAME=production`.
+and revenue. So it refuses a database named `railway` (D-019) unless `RAILWAY_ENVIRONMENT_NAME` is
+exactly `staging` or `demo`, the non-production environments `.railway/railway.ts` defines. This is an
+allowlist, and the match is exact. Any other value is refused: unset, empty, `production`, `prod`, a
+typo, or `Staging` / `staging ` (with a space). It always refuses `RAILWAY_ENVIRONMENT_NAME=production`,
+whatever the database is called.
 
 - **Locally:** point `DATABASE_URL` at your own database.
-- **On staging,** whose database is also named `railway`, run it inside the staging environment, so
+- **On staging,** whose database is almost certainly named `railway` too (Railway's default), run it inside the staging environment, so
   Railway sets `RAILWAY_ENVIRONMENT_NAME=staging`. For example:
   `railway ssh --environment staging --service web`, then the command above from the app's
   directory.
