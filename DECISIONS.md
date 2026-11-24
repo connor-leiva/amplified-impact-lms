@@ -7503,3 +7503,14 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
   - The mockup extends the LMS v3 mockup (unchanged) with `buyer.css`. The app ships that file byte for byte; a test holds the checksum.
   - `handoff/lms-mockup/tools/pairs.ts` compares the mockup with the production build at 1280 and 390, and the pairs are in `docs/pr-review/252/`.
 - **No migration, env var, Stripe, GHL or email change.** No parity golden, mask or tolerance moves.
+
+## D-242 · The seat card's words in one place: the Week Builder's Seat card
+
+**Date:** 2026-11-22
+**Asked for by:** Connor Leiva (repository owner), Nov 22, 2026, on the seat card's words that disagreed after D-235 ("Week 2's Took Over says something different on the card than on the step page; neither week's card has a First Run; each card's wording is stored in two places"): "Fix it".
+
+- **Where they disagreed.** Weeks 1 and 2 kept each seat card three times: the week's Seat card (`course.seatCard`: the form's questions and hints, the week page's Reference) and step 6's "… Seat Card" table on each path (D-235 loaded both from `handoff/weeks-1-2/`). Two of the card's rows never got the approved words: Week 2's Took Over still held the repo seed's ("checking who worked which new leads"), and neither week had a First Run.
+- **One copy.** A step's table can be the week's Seat card (`AccordionBlock.seatCard`): the step page draws its rows from the card (`seatCardRows`: the seat, then the card's rows in order, a row with no words left out), under the table's own headings. The Week Builder's table has a checkbox for it, "The table is this week’s Seat card"; with it ticked the rows box gives way to a line saying the rows are the Seat card's. Editing the card changes the form, the week page and the step's table together.
+- **The one-time data step** (`2026-11-22-seat-card-one-copy`), on the deploy after merge: each card row takes the approved words of step 6's table (`seat-card-fields.md`) where it is empty or still the seed's (Week 2's Took Over, both First Runs); then step 6's table on both paths of both weeks is marked as the Seat card where its rows are still the approved ones. A row or a table changed in the builder is left and named. Nothing else changes; nothing is published or scheduled.
+- **What a learner sees change:** Week 2's form hint for Took Over and both weeks' First Run hint ("Date and screenshot") now match step 6. Step 6's table reads as before, except two of Week 2's rows (Reports To, Applies), which the card writes with a final period the old table left off, and the label "Can’t Do", now spelled with a curly apostrophe as the form and the week page spell it.
+- **Also:** the builder's Button menu said "Form (later)" from before forms worked; it says "Form".
