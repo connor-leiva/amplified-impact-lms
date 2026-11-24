@@ -39,13 +39,24 @@ import { LEARN_ROOT, learnAccount, learnHome, learnSkills } from '../routes';
 import { Component as SkillPage } from '../Skill';
 import { useGuide, useSkills } from '../skills-data';
 import { RollLabel } from '@brand/ai-motion';
-import { buyerCurrent, buyerHere, buyerShell, buyerSkills, buyerView, initialsOf, isSkillBuyer, ownedOf, stripOf, v3PageOf } from './buyer.vm';
-import type { BuyerSkill } from './buyer.vm';
+import { buyerCurrent, buyerHere, buyerShell, buyerSkills, buyerView, initialsOf, isSkillBuyer, outlineOf, ownedOf, stripOf, v3PageOf } from './buyer.vm';
+import type { BuyerSkill, OutlineWeek } from './buyer.vm';
 import { Accelerator, Home, Library, LockedSkill, Office, Training } from './pages';
 import type { Checkout, Links } from './pages';
 
 const ACCOUNT = '.sh-acct';
 const LINKS_KEY = ['offer', 'payment-links'] as const;
+const OUTLINE_KEY = ['buyer', 'course-outline'] as const;
+
+/** The AI Accelerator's weeks, as `GET /api/course` outlines them for a buyer (a 403 with `outline`). Any failure: none. */
+async function fetchOutline(): Promise<OutlineWeek[]> {
+  try {
+    const res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
+    return outlineOf(await res.json());
+  } catch {
+    return [];
+  }
+}
 
 /** Where the account menu opens: under the account button, as the members' v3 frame places it. */
 function useAnchor(open: boolean): CSSProperties | null {
@@ -109,9 +120,12 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
   const theme = themeVM(prefs.theme);
   const linksQ = useQuery({ queryKey: LINKS_KEY, queryFn: paymentLinks, staleTime: Infinity });
   const links = (linksQ.data ?? {}) as Links;
+  const outlineQ = useQuery({ queryKey: OUTLINE_KEY, queryFn: fetchOutline, staleTime: Infinity });
+  const weeks = outlineQ.data ?? [];
   const [account, setAccount] = useState(false);
   const anchor = useAnchor(account);
-  useAppReady();
+  // Ready once the outline is in, so the sidebar's weeks and Home's rows draw in one frame.
+  useAppReady(outlineQ.isFetched);
 
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const name = me?.name ?? '';
@@ -160,7 +174,7 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
   const ctx: LearnContext = { course: { kind: 'locked' }, db, viewer, now };
   const page =
     view.kind === 'home' ? (
-      <Home skills={skills} first={name.split(/\s+/)[0] ?? ''} hour={new Date(now).getHours()} links={links} />
+      <Home skills={skills} weeks={weeks} first={name.split(/\s+/)[0] ?? ''} hour={new Date(now).getHours()} links={links} />
     ) : view.kind === 'library' ? (
       <Library skills={skills} links={links} />
     ) : view.kind === 'skill' && skill ? (
@@ -174,7 +188,7 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
     ) : view.kind === 'office' ? (
       <Office owned={owned} links={links} />
     ) : view.kind === 'accelerator' ? (
-      <Accelerator />
+      <Accelerator weeks={weeks} />
     ) : (
       <LearnProvider value={ctx}>
         <Account />
@@ -183,6 +197,7 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
 
   const shell = buyerShell({
     owned,
+    weeks,
     initials: initialsOf(name),
     here: buyerHere(view, skill?.title ?? null),
     logo: LOGOS.app,

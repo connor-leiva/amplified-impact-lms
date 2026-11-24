@@ -7,7 +7,8 @@
 // The build is the production build (http data, VITE_LEARNER_V2 and VITE_LMS_V3 unset), served by `vite preview`, with
 // every /api call answered here: the mockup's buyer (Alex Morgan, who bought Team P&L Review, Appointment Follow-Up, or
 // Team P&L Review and FUB Pipeline Review), the real catalog (`buyer.test-data.ts`) and each locked guide's real step
-// titles (the web build's skill-guides.json). Both sides: reduced motion, Mountain time, the clock at 2:00 PM.
+// titles (the web build's skill-guides.json), and the course's outline as the API answers a buyer (`outline.ts`). Both
+// sides: reduced motion, Mountain time, the clock at 2:00 PM.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -21,14 +22,15 @@ import { seed } from '../../../packages/core/src/seed';
 import { previewOf } from '../../../packages/core/src/skill-guides';
 import type { SkillGuide } from '../../../packages/core/src/skill-guides';
 import { catalogAnswer } from '../../../apps/web/src/routes/learn/buyer/buyer.test-data';
+import { deployedOutline } from './outline';
 
 const root = resolve(fileURLToPath(import.meta.url), '../../../..');
 const arg = (k: string, d: string) => {
   const i = process.argv.indexOf(`--${k}`);
   return i > 0 ? process.argv[i + 1]! : d;
 };
-// `pnpm --filter … exec` runs in apps/api; a relative --out is read from where the command was typed (pnpm's INIT_CWD).
-const out = resolve(process.env.INIT_CWD ?? process.cwd(), arg('out', join(root, 'handoff/lms-mockup/pairs')));
+// `pnpm --filter … exec` runs in apps/api, so a relative --out is read from the repository's root, whoever runs it.
+const out = resolve(root, arg('out', 'handoff/lms-mockup/pairs'));
 const b64 = process.argv.includes('--b64');
 const withDiff = process.argv.includes('--diff');
 const PORT = Number(arg('port', '4480'));
@@ -91,6 +93,8 @@ async function answerApi(ctx: BrowserContext, bought: Bought): Promise<void> {
     if (path === '/api/me') return json({ viewer: { actor: { kind: 'learner', userId: 'u_jamie' }, role: 'agent' }, prefs: {} });
     if (path === '/api/snapshot') return json(db);
     if (path === '/api/skills') return json(catalogAnswer(BOUGHT[bought]));
+    // A buyer: the course is not in their plan, and comes as its outline (D-241).
+    if (path === '/api/course') return json({ open: false, error: 'The AI Accelerator isn’t in your plan.', outline: deployedOutline() }, 403);
     if (path === '/api/offer') return json({ carts: CARTS.map((id) => ({ id, paymentLink: `https://buy.stripe.com/review-${id}` })) });
     if (path.startsWith('/api/skill-guides/')) {
       const slug = decodeURIComponent(path.split('/').pop() ?? '');

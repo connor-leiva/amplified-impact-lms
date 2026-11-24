@@ -4,10 +4,11 @@ import { skillOnlyBuyer } from '@ai/core/offer';
 import type { SkillSet } from '@ai/core/offer';
 import { guidePageOf } from '@ai/core/skill-guides';
 import { leadFor } from '../../../library/content';
+import { platformsOf } from '../Library.vm';
 import type { ApiSkill, FileKind, SkillsPayload } from '../Library.vm';
 import { LEARN_ROOT, learnAccount, learnHome, learnOfficeHours, learnSkill, learnSkills, learnTraining, learnWeek } from '../routes';
 import type { Shell } from '../lms-v3/AppShell';
-import { ACCEL, COPY, PLANS, planFor } from './content';
+import { COPY, PLANS, planFor } from './content';
 import type { BuyerPlan } from './content';
 
 export { skillOnlyBuyer };
@@ -37,12 +38,8 @@ export interface BuyerSkill {
   tools: string;
 }
 
-/** "Claude or ChatGPT", "Claude" or "Grok Bot": the AI apps a skill's downloads are for. */
-export function toolsOf(files: readonly string[]): string {
-  if (files.includes('chatgpt')) return 'Claude or ChatGPT';
-  if (files.includes('grok')) return 'Grok Bot';
-  return 'Claude';
-}
+/** The AI apps a skill's downloads are for, as the members' Skill Library says it (`platformsOf`). */
+export const toolsOf = (files: readonly FileKind[]): string => platformsOf(files);
 
 export function buyerSkill(s: ApiSkill, purchased: readonly string[]): BuyerSkill {
   const slug = guidePageOf(s.id);
@@ -163,9 +160,30 @@ export function buyerHere(v: BuyerView, skillTitle: string | null): string {
 /** A v3 page draws its own `[data-ai]` frame; the guide player and the Account page are today's, inside the shell. */
 export const v3PageOf = (v: BuyerView, skillOpen: boolean): boolean => v.kind !== 'account' && !(v.kind === 'skill' && skillOpen);
 
+/**
+ * A week of the AI Accelerator as the outline shows a locked one: what `GET /api/course` answers a $37 buyer
+ * (`outline`, from `courseOutline`). The course's words are data (D-173); none of a week's content comes with it.
+ */
+export interface OutlineWeek {
+  week: number;
+  title: string;
+  question: string;
+  outcome: string;
+}
+
+/** The outline from `GET /api/course`'s answer to a buyer (a 403 with `outline`), or none. */
+export function outlineOf(body: unknown): OutlineWeek[] {
+  const rows = (body as { outline?: unknown } | null)?.outline;
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .filter((w): w is OutlineWeek => !!w && typeof w === 'object' && typeof (w as OutlineWeek).week === 'number' && typeof (w as OutlineWeek).title === 'string')
+    .map((w) => ({ week: w.week, title: w.title, question: w.question ?? '', outcome: w.outcome ?? '' }));
+}
+
 /** The shell: the members' sidebar and top bar with the buyer's rows (`AppShell`). */
 export function buyerShell(input: {
   owned: readonly BuyerSkill[];
+  weeks: readonly OutlineWeek[];
   initials: string;
   here: string;
   logo: string;
@@ -184,7 +202,7 @@ export function buyerShell(input: {
       { icon: 'radio', label: COPY.shell.training, href: learnTraining(), id: 'training', locked: true },
     ],
     weeksLabel: COPY.shell.weeks,
-    weeks: ACCEL.weeks.map((w) => ({ n: w.n, title: w.title, href: learnWeek(w.n), id: `week-${w.n}`, locked: true })),
+    weeks: input.weeks.map((w) => ({ n: w.week, title: w.title, href: learnWeek(w.week), id: `week-${w.week}`, locked: true })),
     next: null,
     account: { initials: input.initials, aria: 'Your account', onClick: input.account.onClick, open: input.account.open },
     here: input.here,

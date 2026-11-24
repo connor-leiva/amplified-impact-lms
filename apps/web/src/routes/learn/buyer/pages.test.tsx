@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ACCELERATOR_HREF } from './content';
 import { buyerSkills } from './buyer.vm';
-import { catalogAnswer } from './buyer.test-data';
+import { OUTLINE, catalogAnswer } from './buyer.test-data';
 import { Accelerator, Home, Library, LockedSkill, Office, Training } from './pages';
 import type { Links } from './pages';
 
@@ -19,7 +19,7 @@ const link = (name: string | RegExp) => screen.getByRole('link', { name });
 
 describe('Home', () => {
   it('puts the skill they bought first, with its Setup Guide and both downloads alike', () => {
-    render(<Home skills={owner} first="Alex" hour={14} links={LINKS} />);
+    render(<Home skills={owner} weeks={OUTLINE} first="Alex" hour={14} links={LINKS} />);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Good afternoon, Alex');
     const hero = screen.getByRole('region', { name: 'Your skill' });
     expect(within(hero).getByRole('heading', { level: 2 }).textContent).toBe('Team P&L Review');
@@ -32,13 +32,13 @@ describe('Home', () => {
   });
 
   it('shows the rest of the LMS locked, each with the plan that opens it, and one upgrade with its Payment Link', () => {
-    render(<Home skills={owner} first="Alex" hour={9} links={LINKS} />);
+    render(<Home skills={owner} weeks={OUTLINE} first="Alex" hour={9} links={LINKS} />);
     const rows = screen.getByRole('heading', { name: 'Also in the Academy' }).closest('section')!;
     expect(within(rows).getAllByRole('link').map((a) => [a.querySelector('.wk-step-t')!.firstChild!.textContent, a.getAttribute('href')])).toEqual([
       ['Every Other Skill', '/learn/skills'],
       ['Office Hours', '/learn/office-hours'],
       ['Weekly Live Training', '/learn/training'],
-      ['Week 0: Set Up the Office', '/learn/week/0'],
+      ['Week 0: Week Zero Setup', '/learn/week/0'],
       ['AI Hires, Weeks 1 to 8', '/learn/week/1'],
     ]);
     expect(within(rows).getByText('48 more skills, each with its Setup Guide to preview.')).toBeTruthy();
@@ -49,14 +49,14 @@ describe('Home', () => {
   });
 
   it('offers an agent skill’s buyer Agent Insiders, and says what it would open', () => {
-    render(<Home skills={agent} first="Alex" hour={20} links={LINKS} />);
+    render(<Home skills={agent} weeks={OUTLINE} first="Alex" hour={20} links={LINKS} />);
     expect(link('Upgrade to Agent Insiders').getAttribute('href')).toBe(LINKS['insiders-agent-monthly']);
     expect(screen.getByText('48 more skills to preview. Agent Insiders opens 33 of them.')).toBeTruthy();
     expect(screen.getByText('3-Month Minimum. No weekly live training.')).toBeTruthy();
   });
 
   it('draws an upgrade as disabled while its Payment Link isn’t set, with no link in the page', () => {
-    render(<Home skills={owner} first="Alex" hour={14} links={{}} />);
+    render(<Home skills={owner} weeks={OUTLINE} first="Alex" hour={14} links={{}} />);
     const up = screen.getByText('Upgrade to Amplified Insiders', { selector: '.aim-roll > span:first-child' }).closest('a')!;
     expect(up.getAttribute('href')).toBeNull();
     expect(up.getAttribute('aria-disabled')).toBe('true');
@@ -133,11 +133,11 @@ describe('the locked areas', () => {
     expect(screen.getByText('12:00 PM MT, 60 minutes')).toBeTruthy();
   });
 
-  it('the AI Accelerator shows Week 0’s steps and a hire a week, and links to its own page', () => {
-    render(<Accelerator />);
-    expect(screen.getAllByRole('listitem').filter((li) => li.id.startsWith('wk-row-'))).toHaveLength(8);
-    expect(screen.getByText('The hire: Finance Analyst')).toBeTruthy();
-    expect(screen.getByText('Fill In Your Intake and Name Your Operator')).toBeTruthy();
+  it('the AI Accelerator shows the course\u2019s weeks locked, as its outline, and links to its own page', () => {
+    render(<Accelerator weeks={OUTLINE} />);
+    expect(screen.getAllByRole('listitem').filter((li) => li.id.startsWith('wk-row-'))).toHaveLength(9);
+    expect(screen.getByRole('heading', { level: 2, name: 'Sample question 0?' })).toBeTruthy();
+    expect(screen.getByText('Sample outcome 8.')).toBeTruthy();
     expect(link('See the AI Accelerator').getAttribute('href')).toBe(ACCELERATOR_HREF);
     expect(screen.getByText('Every hire reads and drafts. Nothing is sent without you.')).toBeTruthy();
   });

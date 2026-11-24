@@ -21,7 +21,7 @@ import { provisionOrder } from '../src/billing/provision';
 import { applyCurriculum } from '../src/db/seed';
 import { persistDiff } from '../src/db/io';
 import { DATA_MIGRATIONS, applyDataMigrations } from '../src/db/data-migrations';
-import { orders, plans, users } from '../src/db/schema';
+import { orders, plans, skillPurchases, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
 import { NOT_IN_PLAN, NOT_YET } from '../src/routes/course';
 import { acceleratorLearnerIds } from '../src/lib/course-access';
@@ -192,6 +192,26 @@ describe('anyone else cannot open the course', () => {
     expect(snap.sessions).toEqual([]);
     // D-173: the words every week shares are the cohort's data now, and stay out of the snapshot too.
     expect(snap.cohorts.filter((c) => 'course' in c)).toEqual([]);
+  });
+
+  it('D-241: a $37 skill buyer with no plan gets the course as the outline shows a locked week, and none of its content', async () => {
+    await handle.insert(skillPurchases).values({ id: 'sp_course', userId: NO_PLAN.id, skillId: 'team-pnl-review', stripeSessionId: 'cs_course', amount: 3700, purchasedAt: Date.parse(BOUGHT) });
+    try {
+      const res = await get('/api/course', 'noPlan');
+      expect(res.statusCode).toBe(403);
+      const body = res.json() as { open: boolean; error: string; outline: { week: number; title: string; question: string; outcome: string; locked: true }[] };
+      expect(body).toMatchObject({ open: false, error: NOT_IN_PLAN });
+      const course = (await get('/api/course', 'staff')).json() as { course: { weeks: { week: number; title: string; question: string }[] } };
+      expect(body.outline.map((w) => [w.week, w.title, w.question])).toEqual(course.course.weeks.map((w) => [w.week, w.title, w.question]));
+      expect(body.outline.every((w) => w.locked && Object.keys(w).every((k) => ['week', 'title', 'question', 'outcome', 'opensAt', 'lockedCopy', 'locked'].includes(k)))).toBe(true);
+      // No week's content: not a step, not the kit, not a session.
+      expect(res.body).not.toContain('"steps"');
+      expect(res.body).not.toContain('"kit"');
+      // A plan's member with a $37 skill beside it gets no outline: only a buyer and nothing more does.
+      expect((await get('/api/course', 'insiders')).json()).toEqual({ open: false, error: NOT_IN_PLAN });
+    } finally {
+      await handle.delete(skillPurchases).where(eq(skillPurchases.id, 'sp_course'));
+    }
   });
 
   it.each(['insiders', 'teamPlan', 'noPlan'])('%s: an Accelerator session is the same 404 as one that does not exist', async (who) => {

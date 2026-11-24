@@ -12,7 +12,7 @@ import { learnHome, learnOfficeHours, learnSkill, learnSkills, learnTraining, le
 import { ACCEL, ACCELERATOR_HREF, AGENT_PLAN_UP, COPY, OFFICE, TRAINING } from './content';
 import type { BuyerPlan } from './content';
 import { DOWNLOAD_LABEL, FIRST_ROWS, downloadHref, downloadsOf, librarySets, lockedOf, myPlan, nextSkills, opensWith, ownedOf, planOf } from './buyer.vm';
-import type { BuyerSkill } from './buyer.vm';
+import type { BuyerSkill, OutlineWeek } from './buyer.vm';
 
 /** Each cart's Payment Link, from `GET /api/offer` (Railway's `PAYMENT_LINK_*`). A missing one draws the button disabled. */
 export type Links = Partial<Record<CartId, string | null>>;
@@ -131,7 +131,7 @@ const fileIcon = (k: string) => (k === 'practice' ? 'file' : 'down');
 
 // --- Home ------------------------------------------------------------------------------------------
 
-export function Home({ skills, first, hour, links }: { skills: readonly BuyerSkill[]; first: string; hour: number; links: Links }) {
+export function Home({ skills, weeks, first, hour, links }: { skills: readonly BuyerSkill[]; weeks: readonly OutlineWeek[]; first: string; hour: number; links: Links }) {
   const owned = ownedOf(skills);
   const s = owned[0]!;
   const many = owned.length > 1;
@@ -142,9 +142,12 @@ export function Home({ skills, first, hour, links }: { skills: readonly BuyerSki
     ['grid', COPY.home.everyOther, opens === locked ? COPY.home.everyOtherAll(locked) : COPY.home.everyOtherSome(locked, plan.chip, opens), plan.chip, learnSkills()],
     ['users', COPY.home.office, OFFICE.body, plan.chip, learnOfficeHours()],
     ['radio', COPY.home.training, COPY.home.trainingLine, COPY.home.trainingChip, learnTraining()],
-    ['flag', COPY.home.week0, COPY.home.week0Line, COPY.home.accelChip, learnWeek(0)],
-    ['layers', COPY.home.hires, COPY.home.hiresLine, COPY.home.accelChip, learnWeek(1)],
   ];
+  // The AI Accelerator, from the course's own outline: Week 0 and its question, then the hires' weeks.
+  const week0 = weeks.find((w) => w.week === 0);
+  const last = Math.max(0, ...weeks.map((w) => w.week));
+  if (week0) rows.push(['flag', COPY.home.week0(week0.title), week0.question, COPY.home.accelChip, learnWeek(0)]);
+  if (last > 0) rows.push(['layers', COPY.home.hires(last), COPY.home.hiresLine, COPY.home.accelChip, learnWeek(1)]);
   return (
     <div className="wk-page">
       <header className="wk-head aim-rise" style={rise(0)}>
@@ -784,10 +787,10 @@ export function Office({ owned, links }: { owned: readonly BuyerSkill[]; links: 
   );
 }
 
-// --- the AI Accelerator: Week 0 and the hires --------------------------------------------------------
+// --- the AI Accelerator: its weeks, as the outline shows a locked one -----------------------------------
 
-export function Accelerator() {
-  const week0 = ACCEL.weeks.find((w) => w.n === 0)!;
+export function Accelerator({ weeks }: { weeks: readonly OutlineWeek[] }) {
+  const week0 = weeks.find((w) => w.week === 0);
   return (
     <div className="wk-page">
       <Crumbs trail={[[COPY.accel.title]]} />
@@ -805,7 +808,7 @@ export function Accelerator() {
       <section className="wk-hero aim-rise" style={rise(1)} aria-label={ACCEL.name}>
         <div className="wk-hero-main">
           <p className="wk-kick">{COPY.accel.kick}</p>
-          <h2 className="wk-hero-t">{week0.question}</h2>
+          <h2 className="wk-hero-t">{week0?.question || COPY.accel.title}</h2>
           <p className="wk-hero-d">
             <b>{COPY.accel.how}</b>
             {COPY.accel.howLine}
@@ -830,35 +833,39 @@ export function Accelerator() {
           <p className="wk-prog-left">{ACCEL.hiresRest}</p>
         </div>
       </section>
-      <div className="wk-grid">
-        <section className="wk-steps-sec aim-rise" style={rise(2)} id="wk-row-0" aria-labelledby="w0-h">
-          <div className="wk-sec-head">
-            <h2 className="wk-h2" id="w0-h">
-              {COPY.accel.week0}
-            </h2>
-          </div>
-          <p className="wk-sum">{COPY.accel.week0Sum}</p>
-          <ol className="wk-steps">
-            {ACCEL.week0Steps.map((st) => (
-              <li key={st.n}>
-                <div className="wk-step" data-s="waiting">
-                  <span className="wk-num" aria-hidden="true">
-                    {st.n}
-                  </span>
-                  <span className="wk-step-tx">
-                    <span className="wk-step-t">
-                      {st.title}
-                      <span className="wk-chip">{st.who}</span>
-                    </span>
-                  </span>
-                  <span className="wk-step-r">
-                    <span className="wk-time">{st.time}</span>
-                  </span>
-                  <Icon name="lock" size={16} className="by-lock" />
+      <div className="wk-grid by-g1">
+        <section className="wk-steps-sec aim-rise" style={rise(2)} aria-labelledby="weeks-h">
+          <h2 className="wk-h2" id="weeks-h">
+            {COPY.accel.weeks}
+          </h2>
+          <ol className="sc-list lk-list">
+            {weeks.map((w) => (
+              <li key={w.week} className="sc-week" id={`wk-row-${w.week}`}>
+                <span className="sc-date" aria-hidden="true">
+                  <small>{COPY.week}</small>
+                  <b>{w.week}</b>
+                </span>
+                <div className="sc-body">
+                  <div className="sc-t">
+                    <b className="sc-a">{w.title}</b>
+                  </div>
+                  {w.outcome ? <p className="sc-d">{w.outcome}</p> : null}
+                  {w.question ? (
+                    <ul className="sc-sess">
+                      <li className="by-q">
+                        <Icon name="help" />
+                        <span>{w.question}</span>
+                      </li>
+                    </ul>
+                  ) : null}
+                </div>
+                <div className="sc-side">
+                  <StLocked />
                 </div>
               </li>
             ))}
           </ol>
+          <p className="wk-fine by-fine">{COPY.accel.fine}</p>
         </section>
         <aside className="wk-rail" aria-label={COPY.accel.inIt}>
           <section className="wk-card aim-rise" style={rise(3)} aria-labelledby="acc-h">
@@ -871,41 +878,6 @@ export function Accelerator() {
           </section>
           <Help i={4} />
         </aside>
-        <div className="wk-ref aim-rise" style={rise(4)}>
-          <section aria-labelledby="hires-h">
-            <h2 className="wk-h2" id="hires-h">
-              {COPY.accel.hires}
-            </h2>
-            <ol className="sc-list lk-list">
-              {ACCEL.weeks
-                .filter((w) => w.n > 0)
-                .map((w) => (
-                  <li key={w.n} className="sc-week" id={`wk-row-${w.n}`}>
-                    <span className="sc-date" aria-hidden="true">
-                      <small>{COPY.week}</small>
-                      <b>{w.n}</b>
-                    </span>
-                    <div className="sc-body">
-                      <div className="sc-t">
-                        <b className="sc-a">{w.title}</b>
-                      </div>
-                      <p className="sc-d">{w.question}</p>
-                      <ul className="sc-sess">
-                        <li>
-                          <Icon name="users" />
-                          <span>{w.hire ? COPY.accel.hire(w.hire) : COPY.accel.noHire}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="sc-side">
-                      <StLocked />
-                    </div>
-                  </li>
-                ))}
-            </ol>
-            <p className="wk-fine by-fine">{COPY.accel.fine}</p>
-          </section>
-        </div>
       </div>
     </div>
   );

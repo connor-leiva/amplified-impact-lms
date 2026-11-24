@@ -6,6 +6,8 @@
 //   403 { open: false, upcoming, opensAt, error }  a buyer before the preview (or, with none, the first
 //                                          live build, D-153): the screen shows the pre-launch welcome
 //   403 { open: false, error }             any other learner: no plan, or a plan that is not the course
+//   403 { open: false, error, outline }    D-241: a $37 skill buyer with no plan and no access group, with every week as
+//                                          the outline shows a locked one (`courseOutline`), for their locked preview
 //   401                                    not signed in (`requireSession`)
 //
 // The course's words live in the database (D-173: the cohort's `course` and each week module's) and
@@ -23,7 +25,8 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
-import { courseFor, courseSessions } from '@ai/core/course';
+import { courseFor, courseOutline, courseSessions } from '@ai/core/course';
+import { skillOnlyBuyer } from '@ai/core/offer';
 import { courseUpcoming } from '@ai/core/release';
 import type { CourseEntry } from '@ai/core/release';
 import { requireSession, viewerOrThrow } from '../auth';
@@ -31,6 +34,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { courseEntryFor, plansForLearner, releaseOf } from '../lib/course-access';
 import { clock } from '../lib/clock';
+import { accessOf } from './skills';
 
 export const COURSE_PATH = '/api/course';
 // D-186: core's, so a course week's step a plan without the course asks for is refused in the same words.
@@ -60,7 +64,11 @@ export function registerCourseRoute(app: FastifyInstance): void {
         if (acceleratorPaused(plans, now)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
         const opensAt = courseUpcoming(plans, now, release);
         if (opensAt !== null) return reply.code(403).send({ open: false, upcoming: true, opensAt, error: NOT_YET });
-        return reply.code(403).send({ open: false, error: NOT_IN_PLAN });
+        // D-241: a $37 skill buyer sees the course locked, as the outline shows a locked week, and nothing more.
+        const access = await accessOf(actor.userId);
+        const buyer = access && skillOnlyBuyer({ plans: access.paidPlans, accessGroups: access.groups, purchased: [...access.purchased] });
+        const outline = buyer ? courseOutline(await loadDb(db)) : null;
+        return reply.code(403).send({ open: false, error: NOT_IN_PLAN, ...(outline ? { outline } : {}) });
       }
     }
     const snapshot = await loadDb(db);

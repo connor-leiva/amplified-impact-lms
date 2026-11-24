@@ -118,7 +118,7 @@ let bought = BOUGHT[Q.get('bought')] ? Q.get('bought') : 'owner';
 if (Q.get('bar') === '0') document.getElementById('wkx').hidden = true;
 const ME = { first: 'Alex', initials: 'AM' };
 const CAT = window.CATALOG, B = window.BUYER;
-const PLANS = B.plans, AGENT_PLAN = B.agentPlan, TRAINING = B.training, OFFICE = B.office, ACCEL = B.accel;
+const PLANS = B.plans, AGENT_PLAN = B.agentPlan, TRAINING = B.training, OFFICE = B.office, ACCEL = B.accel, OUTLINE = B.outline;
 const skill = id => CAT.find(s => s.id === id);
 const owned = () => BOUGHT[bought].map(skill);
 const isOwned = s => BOUGHT[bought].includes(s.id);
@@ -142,7 +142,8 @@ const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const roll = t => `<span class="aim-roll"><span>${t}</span><span aria-hidden="true">${t}</span></span>`;
 const ic = (n, s = 14, c = '') => `<svg${c ? ` class="${c}"` : ''} width="${s}" height="${s}"><use href="#k-${n}"/></svg>`;
 const CHECK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
-const tools = s => s.files.includes('chatgpt') ? 'Claude or ChatGPT' : s.files.includes('grok') ? 'Grok Bot' : 'Claude';
+/* the AI apps a skill's files are for, as the Skill Library says it (Library.vm.ts platformsOf) */
+const tools = s => { const n = [['grok', 'Grok Bot'], ['claude', 'Claude'], ['chatgpt', 'ChatGPT']].filter(([k]) => s.files.includes(k)).map(x => x[1]); return n.length <= 1 ? (n[0] || '') : `${n.slice(0, -1).join(', ')} or ${n[n.length - 1]}`; };
 const DL = { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', grok: 'Download for Grok Bot', practice: 'Practice Files' };
 const dlsOf = s => ['claude', 'chatgpt', 'grok', 'practice'].filter(k => s.files.includes(k));
 const nb = t => esc(t).replace(MINIMUM, `<span class="by-nb">${MINIMUM}</span>`);
@@ -174,9 +175,11 @@ function viewHome(){
   const rows = [
     ['grid', 'Every Other Skill', opens === locked ? `${locked} more skills, each with its Setup Guide to preview.` : `${locked} more skills to preview. ${plan.chip} opens ${opens} of them.`, plan.chip, '#library'],
     ['users', 'Office Hours', OFFICE.body, plan.chip, '#office-hours'],
-    ['radio', 'Weekly Live Training', 'One 60 minute session a week, building one skill live on a real file.', 'Agent Plan', '#training'],
-    ['flag', 'Week 0: Set Up the Office', 'Eight steps that answer one question: is our setup ready to hire?', 'AI Accelerator', '#week-0'],
-    ['layers', 'AI Hires, Weeks 1 to 8', 'Each week answers one question about your business and adds one AI employee.', 'AI Accelerator', '#week-1'] ];
+    ['radio', 'Weekly Live Training', 'One 60 minute session a week, building one skill live on a real file.', 'Agent Plan', '#training'] ];
+  /* the AI Accelerator, from the course's own outline (GET /api/course answers a buyer with it) */
+  const week0 = OUTLINE.find(w => w.week === 0), last = Math.max(0, ...OUTLINE.map(w => w.week));
+  if (week0) rows.push(['flag', `Week 0: ${week0.title}`, week0.question, 'AI Accelerator', '#week-0']);
+  if (last > 0) rows.push(['layers', `AI Hires, Weeks 1 to ${last}`, 'Each week answers one question about your business and adds one AI employee.', 'AI Accelerator', '#week-1']);
   return `<div class="wk-page">
     <header class="wk-head aim-rise" style="--i:0"><h1 class="wk-h1">${greeting()}, ${ME.first}</h1>
       <p class="wk-purpose">${two ? 'Your skills are ready. Open a Setup Guide to add one to Claude or ChatGPT.' : 'Your skill is ready. Open its Setup Guide to add it to Claude or ChatGPT.'}</p></header>
@@ -302,29 +305,24 @@ function viewOffice(){
 }
 
 function viewAccel(){
-  const week0 = ACCEL.weeks.find(w => w.n === 0);
+  const week0 = OUTLINE.find(w => w.week === 0);
   return `<div class="wk-page">${crumbs(['AI Accelerator'])}
     <header class="wk-head aim-rise" style="--i:0"><p class="wk-eyebrow">${ACCEL.name} ${lockedPill}</p><h1 class="wk-h1">AI Accelerator</h1>
       <p class="wk-purpose">Week 0 sets up the office. Then one AI hire a week, built on your own numbers.</p>
       <div class="wk-meta">${tag('radio', ACCEL.builds)}${tag('users', 'Owners and operators')}</div></header>
     <section class="wk-hero aim-rise" style="--i:1" aria-label="${ACCEL.name}">
-      <div class="wk-hero-main"><p class="wk-kick">Locked · Part of the AI Accelerator</p><h2 class="wk-hero-t">${esc(week0.question)}</h2>
+      <div class="wk-hero-main"><p class="wk-kick">Locked · Part of the AI Accelerator</p><h2 class="wk-hero-t">${esc(week0 ? week0.question : 'AI Accelerator')}</h2>
         <p class="wk-hero-d"><b>How it works</b>Every week answers one question about your business.</p>
         <div class="wk-hero-acts"><a class="wk-btn wk-btn-accent wk-btn-lg wk-btn-arrow" href="${B.accelHref}" onclick="return false">${roll('See the AI Accelerator')}${ic('arrow', 16, 'wk-arrow')}</a><a class="wk-btn wk-btn-onforest wk-btn-lg wk-btn-arrow" href="#home">${roll('Back to Home')}${ic('arrow', 16, 'wk-arrow')}</a></div></div>
       <div class="wk-prog"><p class="wk-prog-l">AI employees</p><p class="wk-prog-n"><b>${ACCEL.hiresN}</b>built with you</p><p class="wk-prog-left">${ACCEL.hiresRest}</p></div>
     </section>
-    <div class="wk-grid">
-      <section class="wk-steps-sec aim-rise" style="--i:2" id="wk-row-0" aria-labelledby="w0-h">
-        <div class="wk-sec-head"><h2 class="wk-h2" id="w0-h">Week 0 · Set Up the Office</h2></div>
-        <p class="wk-sum">Eight steps, for the owner and the operator.</p>
-        <ol class="wk-steps">${ACCEL.week0Steps.map(st => `<li><div class="wk-step" data-s="waiting"><span class="wk-num" aria-hidden="true">${st.n}</span><span class="wk-step-tx"><span class="wk-step-t">${esc(st.title)}<span class="wk-chip">${esc(st.who)}</span></span></span><span class="wk-step-r"><span class="wk-time">${esc(st.time)}</span></span>${ic('lock', 16, 'by-lock')}</div></li>`).join('')}</ol>
-      </section>
+    <div class="wk-grid by-g1">
+      <section class="wk-steps-sec aim-rise" style="--i:2" aria-labelledby="weeks-h"><h2 class="wk-h2" id="weeks-h">The Weeks</h2>
+        <ol class="sc-list lk-list">${OUTLINE.map(w => `<li class="sc-week" id="wk-row-${w.week}"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.week}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${esc(w.title)}</b></div>${w.outcome ? `<p class="sc-d">${esc(w.outcome)}</p>` : ''}${w.question ? `<ul class="sc-sess"><li class="by-q">${ic('help')}<span>${esc(w.question)}</span></li></ul>` : ''}</div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol>
+        <p class="wk-fine by-fine">Every hire reads and drafts. Nothing is sent without you.</p></section>
       <aside class="wk-rail" aria-label="In the AI Accelerator">
         <section class="wk-card aim-rise" style="--i:3" aria-labelledby="acc-h"><div class="wk-card-h"><h3 class="wk-h3" id="acc-h">In the AI Accelerator</h3></div>${checks(ACCEL.checks)}</section>
         ${help(4)}</aside>
-      <div class="wk-ref aim-rise" style="--i:4"><section aria-labelledby="hires-h"><h2 class="wk-h2" id="hires-h">The Hires, Week by Week</h2>
-        <ol class="sc-list lk-list">${ACCEL.weeks.filter(w => w.n > 0).map(w => `<li class="sc-week" id="wk-row-${w.n}"><span class="sc-date" aria-hidden="true"><small>Week</small><b>${w.n}</b></span><div class="sc-body"><div class="sc-t"><b class="sc-a">${esc(w.title)}</b></div><p class="sc-d">${esc(w.question)}</p><ul class="sc-sess"><li>${ic('users')}<span>${w.hire ? `The hire: ${esc(w.hire)}` : 'No new hire'}</span></li></ul></div><div class="sc-side">${stLocked}</div></li>`).join('')}</ol>
-        <p class="wk-fine by-fine">Every hire reads and drafts. Nothing is sent without you.</p></section></div>
     </div></div>`;
 }
 
@@ -335,7 +333,7 @@ function renderShell(){
   const mine = owned();
   $('sh-cohort').innerHTML = `Amplified Skill<br>${mine.length === 1 ? '1 skill' : `${mine.length} skills`} bought`;
   $('sh-main').innerHTML = NAV.map(([i, t, id, lock]) => `<li><a class="sh-link" href="#${id}" data-nav="${id}"${lock ? ' data-locked' : ''}>${ic(i, 16)}<span class="sh-label">${t}</span>${lock ? lockStat : ''}</a></li>`).join('');
-  $('sh-weeks').innerHTML = ACCEL.weeks.map(w => `<li><a class="sh-link sh-week" href="#week-${w.n}" data-nav="week-${w.n}" data-locked title="Week ${w.n} · ${esc(w.title)}"><span class="sh-wn" aria-hidden="true">${w.n}</span><span class="sh-label">${esc(w.title)}</span>${lockStat}</a></li>`).join('');
+  $('sh-weeks').innerHTML = OUTLINE.map(w => `<li><a class="sh-link sh-week" href="#week-${w.week}" data-nav="week-${w.week}" data-locked title="Week ${w.week} · ${esc(w.title)}"><span class="sh-wn" aria-hidden="true">${w.week}</span><span class="sh-label">${esc(w.title)}</span>${lockStat}</a></li>`).join('');
   $('sh-next').innerHTML = mine.length === 1
     ? `<span class="sh-live">${ic('book', 16)}Your skill</span><b>${esc(mine[0].t)}</b><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#" onclick="return false">${roll('Open the Setup Guide')}</a>`
     : `<span class="sh-live">${ic('book', 16)}Your skills</span><b>${esc(mine[0].t)}</b><span class="sh-mut">and ${mine.length - 1} more</span><a class="wk-btn wk-btn-ghost wk-btn-sm" href="#library">${roll('Open Your Skills')}</a>`;

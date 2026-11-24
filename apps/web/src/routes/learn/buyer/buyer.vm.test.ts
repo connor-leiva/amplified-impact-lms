@@ -3,8 +3,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { catalogAnswer } from './buyer.test-data';
-import { ACCEL, AGENT_PLAN_UP, COPY, OFFICE, PLANS, TRAINING, hireOf, titleCase } from './content';
+import { OUTLINE, catalogAnswer } from './buyer.test-data';
+import { ACCEL, AGENT_PLAN_UP, COPY, OFFICE, PLANS, TRAINING, titleCase } from './content';
 import {
   DOWNLOAD_LABEL,
   buyerCurrent,
@@ -22,6 +22,7 @@ import {
   opensWith,
   ownedOf,
   planOf,
+  outlineOf,
   stripOf,
   toolsOf,
   v3PageOf,
@@ -83,7 +84,7 @@ describe('the buyer\u2019s skills', () => {
     expect(DOWNLOAD_LABEL.claude).toBe('Download for Claude');
     expect(DOWNLOAD_LABEL.chatgpt).toBe('Download for ChatGPT');
     expect(downloadHref('team-pnl-review', 'claude')).toBe('/api/skills/team-pnl-review/download/claude');
-    expect([toolsOf(['claude', 'chatgpt']), toolsOf(['grok']), toolsOf(['claude'])]).toEqual(['Claude or ChatGPT', 'Grok Bot', 'Claude']);
+    expect([toolsOf(['claude', 'chatgpt']), toolsOf(['grok']), toolsOf(['claude']), toolsOf(['claude', 'chatgpt', 'grok'])]).toEqual(['Claude or ChatGPT', 'Grok Bot', 'Claude', 'Grok Bot, Claude or ChatGPT']);
   });
 });
 
@@ -108,7 +109,7 @@ describe('addresses and the shell', () => {
 
   it('is the members\u2019 shell with the buyer\u2019s rows: their skills on two lines, the plans they don\u2019t hold locked', () => {
     const owned = ownedOf(buyerSkills(catalogAnswer(['team-pnl-review'])));
-    const shell = buyerShell({ owned, initials: 'AM', here: 'Home', logo: 'data:', account: { open: false, onClick: () => {} } });
+    const shell = buyerShell({ owned, weeks: OUTLINE, initials: 'AM', here: 'Home', logo: 'data:', account: { open: false, onClick: () => {} } });
     expect(shell.cohort).toEqual(['Amplified Skill', '1 skill bought']);
     expect(shell.nav.map((n) => [n.label, n.href, !!n.locked])).toEqual([
       ['Home', '/learn', false],
@@ -117,7 +118,8 @@ describe('addresses and the shell', () => {
       ['Weekly training', '/learn/training', true],
     ]);
     expect(shell.weeksLabel).toBe('AI Accelerator');
-    expect(shell.weeks.map((w) => w.n)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(shell.weeks.map((w) => [w.n, w.href])).toEqual(OUTLINE.map((w) => [w.week, `/learn/week/${w.week}`]));
+    expect(shell.weeks[0]!.title).toBe('Week Zero Setup');
     expect(shell.weeks.every((w) => w.locked)).toBe(true);
     expect(shell.next).toBeNull();
     expect(stripOf(owned)).toEqual({ label: 'Your skill', title: 'Team P&L Review', more: null, action: 'Open the Setup Guide', href: '/learn/skills/team-pnl-review' });
@@ -171,19 +173,17 @@ describe('the words', () => {
   });
 
   it('says the hires read and draft, and never that they send or post', () => {
-    // What the pages say a hire does (a week's own question is about the team's work, not the hire's).
-    const hireWords = [...ACCEL.weeks.map((w) => w.hire ?? ''), COPY.accel.fine, COPY.home.hiresLine, COPY.accel.lede, COPY.accel.howLine, COPY.home.week0Line];
+    const hireWords = [COPY.accel.fine, COPY.home.hiresLine, COPY.accel.lede, COPY.accel.howLine];
     for (const s of hireWords) expect(s, s).not.toMatch(/\b(send|sends|sent to|post|posts|change|changes)\b/i);
     expect(COPY.accel.fine).toBe('Every hire reads and drafts. Nothing is sent without you.');
+    // The Accelerator's numbers are the pricing page's: seven AI employees, eight live builds.
+    expect([ACCEL.hiresN, ACCEL.hiresRest, ACCEL.builds]).toEqual(['7', 'With at least 5 running by Feb 3.', '8 live builds, 90 minutes, Wednesdays']);
   });
 
-  it('names seven hires from the Accelerator\u2019s own page, and Week 0\u2019s eight steps from the course', () => {
-    expect(ACCEL.weeks.map((w) => w.n)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(ACCEL.weeks.filter((w) => w.hire).length).toBe(Number(ACCEL.hiresN));
-    expect(hireOf('The hire: Finance Analyst. Runs monthly.')).toBe('Finance Analyst');
-    expect(hireOf('No new hire.')).toBeNull();
-    expect(ACCEL.week0Steps).toHaveLength(8);
-    expect(ACCEL.week0Steps[0]!.title).toBe('Fill In Your Intake and Name Your Operator');
+  it('reads the course\u2019s weeks from the API\u2019s outline, and nothing else of them', () => {
+    expect(outlineOf({ open: false, error: 'x', outline: [{ week: 0, title: 'A', question: 'Q?', outcome: 'O.', opensAt: null, locked: true }] })).toEqual([{ week: 0, title: 'A', question: 'Q?', outcome: 'O.' }]);
+    expect(outlineOf({ open: false, error: 'x' })).toEqual([]);
+    expect(outlineOf(null)).toEqual([]);
   });
 
   it('makes a heading of a sentence-case topic', () => {

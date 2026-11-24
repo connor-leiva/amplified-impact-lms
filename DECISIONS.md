@@ -7495,8 +7495,9 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
   - "Get This Skill, $37" stays on every locked skill as the second choice (`startSkillCheckout`, the same checkout as today's dialog);
   - Week 0 and the hires are the AI Accelerator's only. They offer "See the AI Accelerator", its page on www, with no buy button.
 - **Words.**
-  - `apps/web/src/routes/learn/buyer/content.ts` builds them from the product's own copy: the offer, the Agent Plan's card, the agents page's rotation and office hours, the pricing table, and the Accelerator's page (its weeks, questions and hires).
-  - Week 0's eight steps moved, unchanged, from `seed/weeks-0-3-v2.ts` to `src/week0-steps.ts`; the seed re-exports them.
+  - `apps/web/src/routes/learn/buyer/content.ts` builds them from the product's own copy: the offer, the Agent Plan's card, the agents page's rotation and office hours, and the pricing table.
+  - **The AI Accelerator's weeks are the course's own, from the database (D-173).** `GET /api/course` still answers a buyer 403 (`NOT_IN_PLAN`), and now adds `outline`: every week as the outline shows a learner a week that hasn't opened (`courseOutline`: title, question, outcome, opening date). None of a week's content comes with it. Nobody else's answer changes.
+  - `UI_LABELS` gains "Claude or ChatGPT", the library's label for a skill's apps (`platformsOf`), which a week's platform line repeats.
   - Copy rules: Title Case headings and buttons, no em dashes, MT after clock times, no invented number (each is counted from the catalog or quoted from the pricing page), hires read and draft ("Every hire reads and drafts. Nothing is sent without you."), and Claude and ChatGPT as the same button.
 - **Design and parity.**
   - The mockup extends the LMS v3 mockup (unchanged) with `buyer.css`. The app ships that file byte for byte; a test holds the checksum.

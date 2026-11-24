@@ -102,6 +102,16 @@ const lockedWeekOf = (m: WeekModule): LockedCourseWeek => ({
 });
 
 /**
+ * D-241: the whole course as the outline shows a locked week (title, question, outcome, when it opens), for a $37 skill
+ * buyer's locked preview of the AI Accelerator. None of any week's content, whatever its dates: the same stub a
+ * learner in the course gets for a week that hasn't opened (`lockedWeekOf`). Null when the database holds no course.
+ */
+export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'>, cohortId: string = ACCELERATOR_COHORT_ID): LockedCourseWeek[] | null {
+  if (!db.cohorts.find((c) => c.id === cohortId)?.course) return null;
+  return courseWeekModules(db).map(lockedWeekOf);
+}
+
+/**
  * The course for one viewer, or null when the database holds none. Staff (`'staff'`) see every week
  * whole, as the builder's preview does. A learner sees each week open or locked by their entry and the
  * week's own opening (`weekOpenFor`), and an open week's kit by its visibility (`kitVisible`). Locked

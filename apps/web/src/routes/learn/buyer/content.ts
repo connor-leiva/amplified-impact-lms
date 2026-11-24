@@ -2,22 +2,21 @@
 // exists so nothing is typed twice:
 //   the plans, their prices and terms     @ai/core/offer (SKILL_PURCHASE, AGENT_TRAINING, PLAN_NAMES), site/offers-content
 //   weekly training and office hours      agents/content (ROTATION, OFFICE_HOURS)
-//   the AI Accelerator's weeks and hires   team-build/content (the Accelerator's own page, WEEKS) and pricing (COMPARE)
-//   Week 0's steps                         the course's own (WEEK0_STEPS)
-// The approved mockup (`handoff/lms-mockup/buyer.html`) reads this same module (its `tools/make-data.ts` writes it out),
-// so the mockup and the build say the same thing. Pure data, no imports of the app's.
+//   the AI Accelerator's promise           pricing (COMPARE: what it includes, its AI employees, its live builds)
+// The course's own weeks (titles, questions, outcomes) are not here: they are data (D-173) and reach the page from
+// `GET /api/course`, as the outline shows a locked week (`courseOutline`). The approved mockup
+// (`handoff/lms-mockup/buyer.html`) reads this same module (its `tools/make-data.ts` writes it out), so the mockup and
+// the build say the same thing. Pure data, no imports of the app's.
 //
 // Copy rules (Connor, Nov 24): Title Case for headings and buttons, no em dashes, no invented number, MT after a clock
-// time, hires read and draft only, Claude and ChatGPT look equal. `buyer.content.test.ts` holds them.
+// time, hires read and draft only, Claude and ChatGPT look equal. `buyer.vm.test.ts` holds them.
 import { AGENT_TRAINING, PLAN_NAMES, SKILL_PURCHASE } from '@ai/core/offer';
 import type { CartId, SkillSet } from '@ai/core/offer';
 import { LIBRARY_ORIGIN } from '@ai/core/accelerator';
-import { WEEK0_STEPS } from '@ai/core/week0-steps';
 import { OFFICE_HOURS, ROTATION } from '../../../agents/content';
 import { COMPARE } from '../../../pricing/content';
 import { PROGRAM_PAGES } from '../../../site/content';
 import { AGENT_INSIDERS, AGENT_PLAN } from '../../../site/offers-content';
-import { WEEKS as ACCELERATOR } from '../../../team-build/content';
 
 /** Title Case for a heading made from a sentence-case line ("Leads and follow-up" → "Leads and Follow-Up"). */
 const SMALL = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
@@ -118,21 +117,8 @@ export const OFFICE = {
 /** "7, with at least 5 running by Feb 3": the Accelerator's column of the pricing table. */
 const [HIRES_N, HIRES_REST] = (COMPARE.rows[1]!.cells[0] as string).split(', ');
 
-/** A week of the AI Accelerator, as its page sells it: the title, its question and the hire it adds (if any). */
-export interface AcceleratorWeek {
-  n: number;
-  title: string;
-  question: string;
-  hire: string | null;
-}
-
-/** The hire a week adds, from its line on the Accelerator's page ("The hire: Finance Analyst. …"). */
-export const hireOf = (note: string | undefined): string | null => /^The hire: ([^.]+)\./.exec(note ?? '')?.[1] ?? null;
-
 export const ACCEL = {
   name: PLAN_NAMES.cohort,
-  weeks: ACCELERATOR.items.map((w): AcceleratorWeek => ({ n: w.n, title: w.title, question: w.question ?? '', hire: hireOf(w.note) })),
-  week0Steps: WEEK0_STEPS.map((s) => ({ n: s.n, title: s.step, who: s.who, time: s.time })),
   hiresN: HIRES_N!,
   hiresRest: `${HIRES_REST!.charAt(0).toUpperCase()}${HIRES_REST!.slice(1)}.`,
   builds: COMPARE.rows[2]!.cells[0] as string,
@@ -178,9 +164,8 @@ export const COPY = {
     training: 'Weekly Live Training',
     trainingLine: 'One 60 minute session a week, building one skill live on a real file.',
     trainingChip: 'Agent Plan',
-    week0: 'Week 0: Set Up the Office',
-    week0Line: 'Eight steps that answer one question: is our setup ready to hire?',
-    hires: 'AI Hires, Weeks 1 to 8',
+    week0: (title: string) => `Week 0: ${title}`,
+    hires: (last: number) => `AI Hires, Weeks 1 to ${last}`,
     hiresLine: 'Each week answers one question about your business and adds one AI employee.',
     accelChip: 'AI Accelerator',
     nextTitle: 'Skills to Open Next',
@@ -253,6 +238,7 @@ export const COPY = {
   accel: {
     title: 'AI Accelerator',
     lede: 'Week 0 sets up the office. Then one AI hire a week, built on your own numbers.',
+    weeks: 'The Weeks',
     owners: 'Owners and operators',
     kick: 'Locked · Part of the AI Accelerator',
     how: 'How it works',
@@ -261,11 +247,6 @@ export const COPY = {
     back: 'Back to Home',
     employees: 'AI employees',
     builtWithYou: 'built with you',
-    week0: 'Week 0 · Set Up the Office',
-    week0Sum: 'Eight steps, for the owner and the operator.',
-    hires: 'The Hires, Week by Week',
-    hire: (name: string) => `The hire: ${name}`,
-    noHire: 'No new hire',
     inIt: 'In the AI Accelerator',
     fine: 'Every hire reads and drafts. Nothing is sent without you.',
   },

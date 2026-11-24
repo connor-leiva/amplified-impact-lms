@@ -8,13 +8,18 @@ import { FREE_SKILLS, LAUNCH_RELEASE, SKILL_CATALOG } from '../../../packages/co
 import { GROK_TEMPLATES } from '../../../packages/core/src/grok-templates';
 import { previewOf } from '../../../packages/core/src/skill-guides';
 import type { SkillGuide } from '../../../packages/core/src/skill-guides';
+import { courseOutline } from '../../../packages/core/src/course';
+import { planContentV2 } from '../../../packages/core/seed/content-v2';
+import { seedProduction } from '../../../packages/core/seed/curriculum';
+import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 
 /**
  * D-241: the $37 skill buyer inside the LMS, in the fixture build (VITE_LEARNER_V2 off, as production builds by default:
  * the buyer's pages show whatever that flag says). `GET /api/skills` answers from the catalog the way the API answers
  * a buyer with no plan and no access group (the skill they bought and the free ones open, `purchased` naming theirs),
  * or a Utah Life member, or an Agent Insiders member who also bought one. `GET /api/offer` names each cart's Payment
- * Link; `GET /api/skill-guides/:slug` answers a locked skill with its steps' titles.
+ * Link; `GET /api/skill-guides/:slug` answers a locked skill with its steps' titles; `GET /api/course` answers a buyer
+ * 403 with the course's outline (`courseOutline`, from the deployed course), everyone else 403 alone.
  *
  *   landing   a buyer who opens /skill-library is in the LMS (/learn), their skill first; nobody else is
  *   pages     the sidebar reaches the Skill Library, a locked skill, Office Hours, Weekly Live Training and the
@@ -24,6 +29,7 @@ import type { SkillGuide } from '../../../packages/core/src/skill-guides';
 
 const GUIDES_FILE = fileURLToPath(new URL('../../../apps/web/dist-private/skill-guides.json', import.meta.url));
 const guides: SkillGuide[] = existsSync(GUIDES_FILE) ? Object.values((JSON.parse(readFileSync(GUIDES_FILE, 'utf8')) as { guides: Record<string, SkillGuide> }).guides) : [];
+const OUTLINE = courseOutline(planContentV2(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db) ?? [];
 const LINKS: Record<string, string> = {
   'insiders-monthly': 'https://buy.stripe.com/test-leader',
   'insiders-agent-monthly': 'https://buy.stripe.com/test-agent',
@@ -48,6 +54,10 @@ async function world(browser: Browser, width: number, skills: unknown): Promise<
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, timezoneId: 'America/Denver', locale: 'en-US' });
   const checkouts: string[] = [];
   await ctx.route('**/api/skills', (route) => route.fulfill({ json: skills }));
+  const buyer = (skills as { purchased?: string[]; plans?: unknown[]; accessGroups?: unknown[] }).purchased?.length && !(skills as { plans: unknown[] }).plans.length && !(skills as { accessGroups: unknown[] }).accessGroups.length;
+  await ctx.route('**/api/course', (route) =>
+    route.fulfill({ status: 403, json: { open: false, error: 'The AI Accelerator isn’t in your plan.', ...(buyer ? { outline: OUTLINE } : {}) } }),
+  );
   await ctx.route('**/api/offer', (route) => route.fulfill({ json: { carts: Object.entries(LINKS).map(([id, paymentLink]) => ({ id, paymentLink })) } }));
   await ctx.route('**/api/skill-guides/*', (route) => {
     const slug = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop() ?? '');
@@ -84,7 +94,8 @@ test.describe('the $37 skill buyer inside the LMS (D-241)', () => {
     await expect(page.locator('[data-brand-slot]')).toHaveCount(1);
     await expect(page.locator('.sh-cohort')).toHaveText(/Amplified Skill\s*1 skill bought/);
     await expect(page.locator('#sh-main .sh-link[data-locked]')).toHaveText(['Office hoursLocked', 'Weekly trainingLocked']);
-    await expect(page.locator('#sh-weeks .sh-week[data-locked]')).toHaveCount(9);
+    await expect(page.locator('#sh-weeks .sh-week[data-locked]')).toHaveCount(OUTLINE.length);
+    expect(OUTLINE.length).toBeGreaterThan(1);
     // One upgrade, the Insiders of the skill's set, as its cart's Payment Link.
     await expect(page.getByRole('link', { name: 'Upgrade to Amplified Insiders' })).toHaveAttribute('href', LINKS['insiders-monthly']!);
     // Claude and ChatGPT are the same button.
@@ -115,6 +126,8 @@ test.describe('the $37 skill buyer inside the LMS (D-241)', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Office Hours');
     await page.locator('#sh-weeks').getByRole('link').first().click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI Accelerator');
+    // The course's own weeks, as the outline shows a locked one: titles and questions, none of their content.
+    await expect(page.locator('main .sc-week .sc-a')).toHaveText(OUTLINE.map((w) => w.title));
     await expect(page.getByText('Every hire reads and drafts. Nothing is sent without you.')).toBeVisible();
   });
 
