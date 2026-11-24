@@ -49,8 +49,8 @@ import type { EmailPayload } from './payload';
 import { AnnouncementEmail } from './announcement';
 import { BuildReminderEmail } from './build-reminder';
 import { ReplayReadyEmail } from './replay-ready';
-import { Session1hEmail } from './session-1h';
-import { Session24hEmail } from './session-24h';
+import { sessionReminderHtml, sessionReminderText } from './session-reminder-html';
+import type { SessionReminderInput } from './session-reminder-html';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
 import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } from './skill-purchase-html';
@@ -199,27 +199,22 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       };
     }
 
-    case 'session-24h': {
-      const n = num(template, data, 'n');
-      const title = str(template, data, 'title');
-      const subject = SUBJECTS['session-24h']({ n, title });
-      // § 8.1's time rule, resolved here — synchronously, before any render. See recipient.ts.
-      const when = whenFor(num(template, data, 'start'), optStr(data, 'zone'));
-      return {
-        subject,
-        element: <Session24hEmail subject={subject} when={when} appUrl={appUrl} />,
-      };
-    }
-
+    // D-250: the learner emails' design, as a note from Connor (the HTML string, as `skill-purchase` sends it). The
+    // time is the recipient's zone first and Mountain Time in parentheses, or Mountain Time alone (`whenFor`).
+    case 'session-24h':
     case 'session-1h': {
       const n = num(template, data, 'n');
       const title = str(template, data, 'title');
-      const subject = SUBJECTS['session-1h']({ n, title });
-      const when = whenFor(num(template, data, 'start'), optStr(data, 'zone'));
-      return {
-        subject,
-        element: <Session1hEmail subject={subject} when={when} appUrl={appUrl} />,
+      const label = optStr(data, 'label');
+      const subject = SUBJECTS[template]({ n, title, ...(label ? { label } : {}) });
+      const input: SessionReminderInput = {
+        label: label ?? `Session ${n}`,
+        title,
+        when: whenFor(num(template, data, 'start'), optStr(data, 'zone')),
+        firstName: optStr(data, 'firstName') ?? '',
+        appUrl,
       };
+      return { subject, element: <span />, html: sessionReminderHtml(template, input), text: sessionReminderText(template, input) };
     }
 
     case 'replay-ready': {

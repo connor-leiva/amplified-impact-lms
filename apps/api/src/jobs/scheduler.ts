@@ -284,8 +284,8 @@ function lockGranted(value: unknown): boolean {
  * problem; `ZoneLookup` carries the full argument).
  *
  * `?? null` rather than leaving a learner out of the map: `null` is what the column stores for
- * "Auto" (`ZONES`'s first entry is `['', 'Auto']`) and what `whenFor` turns into § 8.1's CT
- * fallback. Both readings end in CT, but one of them says so on purpose.
+ * "Auto" (`ZONES`'s first entry is `['', 'Auto']`) and what `whenFor` turns into Mountain Time alone (D-250; § 8.1
+ * had CT). Both readings end in Mountain Time, but one of them says so on purpose.
  */
 export async function savedZones(tx: Queryable): Promise<ZoneLookup> {
   const rows = await tx.select({ id: users.id, prefs: users.prefs }).from(users);

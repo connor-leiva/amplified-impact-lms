@@ -22,6 +22,7 @@
 import { ACCELERATOR_OPTIONS, acceleratorOpen, acceleratorUpcoming, isAcceleratorModule, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';
 import { canAccess, isOpen } from './status';
+import { zoneAbbr } from './time';
 import type { AIEmployee, Cohort, Learner, Resource } from './types';
 
 /** Whether a learner may enter the course now, and whether that is the pre-launch preview. */
@@ -109,3 +110,26 @@ const MT_TIME = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', h
 
 /** "Wed, Dec 9 · 12:00 PM MT": an instant as the course shows it. */
 export const mountainWhen = (t: number): string => `${MT_DAY.format(new Date(t))} · ${MT_TIME.format(new Date(t))} MT`;
+
+/**
+ * D-250: an instant for one reader who may have saved a zone, as the course shows times. The reader's zone comes
+ * first and Mountain Time follows in parentheses ("Wed, Dec 9 · 2:00 PM ET (12:00 PM MT)"), the time rule with this
+ * program's zone. With no zone, a zone `Intl` can't format, or one whose clock and day are Mountain Time's, it is
+ * `mountainWhen`'s one clock ("Wed, Dec 9 · 12:00 PM MT"). Takes the zone rather than reading the viewer zone, so a
+ * server rendering many readers' emails at once can't hand one reader another's zone.
+ */
+export function mountainWhenFor(t: number, zone: string | null | undefined): string {
+  const z = zone?.trim();
+  if (!z) return mountainWhen(t);
+  let day: string;
+  let time: string;
+  try {
+    day = new Intl.DateTimeFormat('en-US', { timeZone: z, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(t));
+    time = new Intl.DateTimeFormat('en-US', { timeZone: z, hour: 'numeric', minute: '2-digit' }).format(new Date(t));
+  } catch {
+    return mountainWhen(t);
+  }
+  const mtTime = MT_TIME.format(new Date(t));
+  if (day === MT_DAY.format(new Date(t)) && time === mtTime) return mountainWhen(t);
+  return `${day} · ${time} ${zoneAbbr(z, t)} (${mtTime} MT)`;
+}

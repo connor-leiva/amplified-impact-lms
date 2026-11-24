@@ -711,6 +711,15 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
       // what `Send` guarantees at the push site; this call is only asserting the payload renders.
       const out = await renderEmail(s.template, s.data as never);
       expect(out.subject, `${s.key} rendered an empty subject`).toBeTruthy();
+      expect(out.subject).not.toContain('undefined');
+      if (s.template === 'session-24h' || s.template === 'session-1h') {
+        // D-250: the reminders are Connor's note in the branded design. Its heading is the <title>; the subject's
+        // session and its title are on the card, so a payload missing either would show here.
+        const data = s.data as { n: number; title: string; label?: string };
+        expect(out.html).toContain(`>${data.label ?? `Session ${data.n}`}</div>`);
+        expect(out.html).toContain(`>${data.title.replace(/&/g, '&amp;')}</div>`);
+        continue;
+      }
       // § 8.1's subject reaches the inbox AND the <title>, the preheader and the H1 — one string,
       // from `SUBJECTS`. If the payload were missing a subject field this would be `Session
       // undefined`, which is why the exact table value is checked rather than mere presence.
@@ -749,8 +758,8 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
   });
 
   it('renders each session reminder in that recipient’s saved zone @g8', async () => {
-    // § 8.1: "Session times in emails use `fmt.when` with the RECIPIENT's saved zone, and fall back
-    // to CT." A Send is per recipient, so the zone is per recipient; the job used to send no
+    // D-250: the RECIPIENT's saved zone first and Mountain Time in parentheses, or Mountain Time alone (§ 8.1 had
+    // "fall back to CT"). A Send is per recipient, so the zone is per recipient; the job used to send no
     // `zone` at all, which rendered Central for all fourteen learners — the one learner this
     // sentence exists for being the one it failed.
     const run = dueWork(db, GATE_NOW, NO_KEYS, SAVED);
@@ -763,24 +772,24 @@ describe('§8.5 payloads § 8.1 can render @g8', () => {
     expect(dataOf(forUser('u_michael'), 'session-24h').zone).toBeNull();
 
     // And the HTML, which is the only place the difference is visible to a learner. Session 3
-    // starts 2026-12-09 at 13:00 CT. Every expected string is written out rather than computed
-    // through `fmt`, because `fmt` with no viewer zone reads the HOST's — and this program's
-    // machines are in Central, so a computed expectation would pass here and fail on a UTC runner
-    // (or worse, pass on both while measuring nothing).
+    // starts 2026-12-09 at 13:00 CT, 12:00 PM MT. Every expected string is written out, so it measures
+    // the same thing on any host.
     const html = async (id: string) =>
       (await renderEmail('session-24h', dataOf(forUser(id), 'session-24h'))).html;
 
-    // Eastern: viewer zone first, program zone in parentheses — CLAUDE.md's time rule.
-    expect(await html('u_jamie')).toContain('Wed, Dec 9 · 2:00 PM ET (1:00 PM CT)');
-    // "Auto" (`''`) falls back to CT, and a Central recipient gets one clock, not two.
-    expect(await html('u_priya')).toContain('Wed, Dec 9 · 1:00 PM CT');
-    expect(await html('u_priya')).not.toContain('(1:00 PM CT)');
-    // A zone `Intl` cannot use falls back to CT as well, rather than throwing `RangeError` out of
+    // Eastern: viewer zone first, Mountain Time in parentheses, the time rule with this program's zone.
+    expect(await html('u_jamie')).toContain('Wed, Dec 9 · 2:00 PM ET (12:00 PM MT)');
+    // "Auto" (`''`) is Mountain Time alone: one clock, not two.
+    expect(await html('u_priya')).toContain('Wed, Dec 9 · 12:00 PM MT');
+    expect(await html('u_priya')).not.toContain('(12:00 PM MT)');
+    // A zone `Intl` cannot use is Mountain Time alone as well, rather than throwing `RangeError` out of
     // the render and leaving that one learner with no email at all. See `templates/recipient.ts`.
-    expect(await html('u_omar')).toContain('Wed, Dec 9 · 1:00 PM CT');
-    expect(await html('u_omar')).not.toContain('(1:00 PM CT)');
-    // Nothing saved: CT, same as Auto.
-    expect(await html('u_michael')).toContain('Wed, Dec 9 · 1:00 PM CT');
+    expect(await html('u_omar')).toContain('Wed, Dec 9 · 12:00 PM MT');
+    expect(await html('u_omar')).not.toContain('(12:00 PM MT)');
+    // Nothing saved: Mountain Time, same as Auto.
+    expect(await html('u_michael')).toContain('Wed, Dec 9 · 12:00 PM MT');
+    // D-250: the note opens with the learner's first name, from the job's payload.
+    expect(dataOf(forUser('u_jamie'), 'session-24h').firstName).toBeTruthy();
   });
 
   it('leaves every subject exactly as § 8.1’s table writes it @g8', async () => {

@@ -77,6 +77,24 @@ export const spacerRow = (px = 40): string => `    <tr>
       <td class="ai-pad" height="${px}" style="height:${px}px; padding:0 40px 0 40px; font-size:0; line-height:0;">&nbsp;</td>
     </tr>`;
 
+/**
+ * D-250: a short letter on the panel, one paragraph per item (HTML already), in the card's type at the ink color. The
+ * session reminders open with it, from Connor.
+ */
+export const letterRow = (paragraphs: readonly string[]): string => `    <tr>
+      <td class="ai-pad" style="padding:40px 40px 0 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:16px; line-height:1.6; color:#0a0d0c;">
+${paragraphs.map((p, i) => `        <div style="padding-top:${i === 0 ? 0 : 14}px;">${p}</div>`).join('\n')}
+      </td>
+    </tr>`;
+
+/** D-250: the letter's close and the name under it ("See you there," / "Connor"), both HTML already. */
+export const signoffRow = (closing: string, name: string): string => `    <tr>
+      <td class="ai-pad" style="padding:28px 40px 0 40px; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:16px; line-height:1.6; color:#0a0d0c;">
+        ${closing}<br>
+        <span style="font-weight:500;">${name}</span>
+      </td>
+    </tr>`;
+
 /** The whole document: the head, the preheader, the dark band (wordmark, eyebrow, heading), the rows and the footer. */
 export function brandedEmailHtml(parts: BrandedEmailParts): string {
   const { title, preheader, eyebrow, heading, rows } = parts;

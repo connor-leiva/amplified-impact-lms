@@ -80,7 +80,7 @@ import {
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
 import { isAcceleratorModule } from '@ai/core/accelerator';
 import type { CourseRoster } from '@ai/core/accelerator';
-import { sessionLabel } from '@ai/core';
+import { firstNameOf, sessionLabel } from '@ai/core';
 import { jobKey } from './keys';
 import type { JobName } from './keys';
 import type { EmailData, TemplateName } from '../email/transport';
@@ -123,8 +123,8 @@ export type Send<K extends TemplateName = TemplateName> = {
 }[K];
 
 /**
- * A recipient's saved zone, per user id — § 8.1's "use `fmt.when` with the RECIPIENT's saved zone,
- * and fall back to CT".
+ * A recipient's saved zone, per user id: the reminders show it first, with Mountain Time in parentheses, and a
+ * recipient with none sees Mountain Time alone (D-250; § 8.1 had "fall back to CT").
  *
  * THIS IS A PARAMETER BECAUSE THE SNAPSHOT DOES NOT CARRY IT. `users.prefs` is a real jsonb column
  * (`apps/api/src/db/schema.ts`: `prefs: jsonb().$type<{ tz?: string | null; … }>()`), but
@@ -134,13 +134,13 @@ export type Send<K extends TemplateName = TemplateName> = {
  *
  * So the zones come in from the caller, which is the one place that can read the column: the
  * deferred § 8.5 shell already has `tx`, and `select id, prefs from users` is the query. An empty
- * map is the honest default — every recipient then renders in CT, which is § 8.1's own fallback,
+ * map is the honest default — every recipient then renders in Mountain Time, the course's fallback (D-250),
  * and `whenFor` applies it. What is NOT acceptable, and was the defect, is a payload with no `zone`
  * key at all: that reads as "the recipient is Central", for all fourteen of them, silently.
  */
 export type ZoneLookup = ReadonlyMap<string, string | null | undefined>;
 
-/** For a caller that has no zones to offer. Every recipient then renders in CT, per § 8.1. */
+/** For a caller that has no zones to offer. Every recipient then renders in Mountain Time (D-250). */
 export const NO_ZONES: ZoneLookup = new Map<string, string | null | undefined>();
 
 export interface DueWork {
@@ -341,8 +341,8 @@ function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: 
     const audience = sessionAudience(db, s, now, accelerator);
     if (!audience.length) continue;
     // `n` and `title` build § 8.1's subject; `start` and `zone` are what the body renders, through
-    // `whenFor(start, zone)` in the template — § 8.1: "Session times in emails use `fmt.when` with
-    // the RECIPIENT's saved zone, and fall back to CT."
+    // `whenFor(start, zone)` in the template: the RECIPIENT's saved zone first and Mountain Time in parentheses, or
+    // Mountain Time alone (D-250; § 8.1 had "fall back to CT").
     //
     // `zone` IS PER RECIPIENT, which is why this takes `u` and builds a fresh object each time. One
     // object shared by all fourteen learners would give every one of them whichever zone was
@@ -351,12 +351,13 @@ function sessionReminders(db: Db, now: number, zones: ZoneLookup, accelerator?: 
     //
     // `?? null` rather than leaving the key off: `null` is what `users.prefs.tz` stores for "Auto"
     // (`ZONES`'s first entry is `['', 'Auto']`), the template reads it with `optStr`, and `whenFor`
-    // turns it into § 8.1's CT fallback. A missing key would mean the same thing by accident
+    // turns it into Mountain Time alone. A missing key would mean the same thing by accident
     // instead of on purpose.
     // An office hour (D-110) is named by its week, "Week 2", not by its n (102); a build carries no
     // label, so every payload the prototype makes is unchanged.
     const label = sessionLabel(s) === `Session ${s.n}` ? {} : { label: sessionLabel(s) };
-    const data = (u: Learner) => ({ n: s.n, title: s.title, ...label, start: s.start, zone: zones.get(u.id) ?? null });
+    // D-250: the first name opens Connor's note in the email ("Hi Dana,").
+    const data = (u: Learner) => ({ n: s.n, title: s.title, ...label, start: s.start, zone: zones.get(u.id) ?? null, firstName: firstNameOf(u.name) });
     // Written out twice rather than looped over a [job, opens, closes] table: `template` and `data`
     // are correlated in `Send`, and a loop variable of type `'session-24h' | 'session-1h'` loses
     // that correlation — the compiler would have to be told to stop checking the one thing worth
@@ -622,7 +623,7 @@ const toggleOn = (db: Db, job: JobName): boolean => {
  * shape of the bug this function exists to prevent. Pass `NO_KEYS` for the candidate pass.
  *
  * `zones` IS defaulted, because unlike `alreadySent` an omitted one is not a bug but a documented
- * fallback: § 8.1 says a recipient with no saved zone is rendered in CT, and `NO_ZONES` is every
+ * fallback: a recipient with no saved zone is rendered in Mountain Time (D-250), and `NO_ZONES` is every
  * recipient having no saved zone. It is the fourth argument rather than a field on `Learner`
  * because `@ai/core`'s `Learner` has no `prefs` — see `ZoneLookup` above.
  *
