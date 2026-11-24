@@ -49,6 +49,7 @@
 
 import { createHash } from 'node:crypto';
 import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
+import { WELCOME_SENT_TAG } from '@ai/core';
 import { PLAN_NAMES } from '@ai/core/offer';
 import { GUIDE_SLUGS } from '../routes/guide-list';
 
@@ -456,6 +457,12 @@ function statusOf(r: { status?: number }): { status?: number } {
 export interface LoginContact {
   email: string;
   name: string | null;
+}
+
+/** Create or update the learner's contact and add `welcome-sent`. Idempotent, like the login tag. */
+export async function syncWelcomeContact(contact: LoginContact, options: SyncOptions): Promise<GhlResult> {
+  const upsertBody: Record<string, unknown> = { locationId: options.config.locationId, email: contact.email, ...nameParts(contact.name) };
+  return upsertAndTag(upsertBody, [WELCOME_SENT_TAG], options);
 }
 
 /** Create or update the learner's contact and add `lms-logged-in`. Idempotent, like the others. */

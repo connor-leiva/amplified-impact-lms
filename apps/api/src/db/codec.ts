@@ -182,7 +182,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt'],
   sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility'],
   modules: [
     'id',
@@ -336,6 +336,7 @@ const cohortRow = (c: Cohort): Row => ({
   timezone: col(c.timezone),
   defaultOpenTime: col(c.defaultOpenTime),
   course: col(c.course),
+  welcomeSendsAt: col(c.welcomeSendsAt),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -649,7 +650,7 @@ export function fromRows(rows: Rows): Db {
           enrolled: enrolled.get(str(r.id)) ?? 0,
           cadence: str(r.cadence),
         },
-        { weeks: r.weeks, previewOpensAt: r.previewOpensAt, timezone: r.timezone, defaultOpenTime: r.defaultOpenTime, course: r.course },
+        { weeks: r.weeks, previewOpensAt: r.previewOpensAt, timezone: r.timezone, defaultOpenTime: r.defaultOpenTime, course: r.course, welcomeSendsAt: r.welcomeSendsAt },
       ),
     ),
     sessions: rows.sessions.map((r) =>

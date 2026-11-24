@@ -158,7 +158,7 @@ export const WORKSPACE_COPY = {
     billing: 'Billing',
     activity: 'Activity',
   } as Record<WorkspaceTab, string>,
-  facts: { id: 'Workspace ID', plan: 'Plan', seats: 'Seats', owner: 'Owner', mrr: 'MRR', last: 'Last activity' },
+  facts: { id: 'Workspace ID', plan: 'Plan', seats: 'Seats', owner: 'Owner', mrr: 'MRR', last: 'Last activity', welcome: 'Welcome' },
   members: {
     label: 'Members',
     name: 'Member',
@@ -206,6 +206,16 @@ export const workspaceTabOf = (raw: string | null): WorkspaceTab =>
   (WORKSPACE_TABS as readonly string[]).includes(raw ?? '') ? (raw as WorkspaceTab) : 'members';
 
 /** One activity line, in words (#127's). */
+/** A welcome line for the facts row, or null when this workspace is not in a cohort. */
+export function welcomeWords(w: { status: string; at: number | null; cohortName: string } | null): string | null {
+  if (!w) return null;
+  if (w.status === 'sent' && w.at !== null) return `Sent ${adminStamp(w.at)}`;
+  if (w.status === 'failed') return 'Failed';
+  if (w.status === 'skipped') return 'Skipped';
+  if (w.status === 'claimed') return 'Sending';
+  return 'Not sent yet';
+}
+
 export function activityLine(a: WorkspaceActivity): string {
   switch (a.kind) {
     case 'order_created':
@@ -224,6 +234,8 @@ export function activityLine(a: WorkspaceActivity): string {
       return `${a.label} joined`;
     case 'invite_sent':
       return `Owner invite sent to ${a.label}`;
+    case 'welcome_sent':
+      return `Cohort welcome sent for ${a.label}`;
   }
 }
 
@@ -240,7 +252,7 @@ export interface MemberVM {
 export interface WorkspaceVM {
   title: string;
   status: AdminStatus;
-  facts: { id: string; plan: string; seats: string; owner: string; mrr: string; last: string };
+  facts: { id: string; plan: string; seats: string; owner: string; mrr: string; last: string; welcome: string | null };
   members: MemberVM[];
   plan: {
     plan: string;
@@ -275,6 +287,7 @@ export function workspaceVM(d: WorkspaceDetail): WorkspaceVM {
       owner: d.team.ownerName ?? NONE,
       mrr,
       last: stampOrNever(lastActive),
+      welcome: welcomeWords(d.welcome),
     },
     members: d.members.map((m) => ({
       key: m.id,

@@ -60,7 +60,7 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
   users: { table: 'users', columns: ['cohort_id', 'early_access', 'email', 'id', 'is_test', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
-  cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'course', 'default_open_time', 'end', 'id', 'name', 'preview_opens_at', 'start', 'status', 'timezone', 'weeks'] },
+  cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'course', 'default_open_time', 'end', 'id', 'name', 'preview_opens_at', 'start', 'status', 'timezone', 'weeks', 'welcome_sends_at'] },
   sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'start', 'title', 'views', 'zoom'] },
   modules: { table: 'modules', columns: ['build', 'checklist', 'course', 'due_at', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'kind', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'tone', 'transcript'] },
   progress: { table: 'progress', columns: ['built_at', 'deployed_at', 'issue', 'last_run', 'module_id', 'runtime', 'steps', 'user_id'] },
@@ -131,6 +131,12 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['created_at', 'crm', 'id', 'invite_sent_at', 'name', 'owner_email', 'owner_user_id', 'stripe_customer_id', 'team_id'],
     gate: 9,
   },
+  // One cohort welcome per (team owner, cohort). Not a `Db` record.
+  cohortEnrollments: {
+    table: 'cohort_enrollments',
+    columns: ['account_id', 'cohort_id', 'enrolled_at', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'user_id', 'welcome_claimed_at', 'welcome_error', 'welcome_sent_at', 'welcome_status'],
+    gate: 9,
+  },
   plans: {
     table: 'plans',
     columns: ['account_id', 'cohort_id', 'created_at', 'id', 'kind', 'live_until', 'minimum_until', 'option', 'order_id', 'paid_through', 'seats', 'starts_at', 'status', 'stripe_subscription_id'],
@@ -185,7 +191,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   },
   incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
   // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
-  consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
+  consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'turned_on_at', 'updated_at', 'updated_by'], gate: 9 },
   // D-173: the curriculum builder's copy strings. A `Db` record (`Db.copy`), round-tripped by the codec.
   copyStrings: { table: 'copy_strings', columns: ['audience', 'key', 'value'] },
   // D-175: which one-time data steps the deploy has run (release plan, copy strings). Not a `Db` record.
@@ -345,6 +351,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   // D-173: a week's due time, and when the cohort's pre-launch preview opens.
   ['modules', 'dueAt'],
   ['cohorts', 'previewOpensAt'],
+  ['cohorts', 'welcomeSendsAt'],
   ['progress', 'builtAt'], ['progress', 'deployedAt'],
   ['checklistState', 'checkedAt'],
   ['learnerPrefs', 'updatedAt'],
@@ -389,6 +396,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['ghlLogins', 'firstLoginAt'], ['ghlLogins', 'ghlSyncedAt'], ['ghlLogins', 'ghlNextAttemptAt'], ['ghlLogins', 'ghlLastAttemptAt'],
   ['stripeEvents', 'receivedAt'], ['stripeEvents', 'processedAt'],
   ['accounts', 'createdAt'], ['accounts', 'inviteSentAt'],
+  ['cohortEnrollments', 'enrolledAt'], ['cohortEnrollments', 'welcomeSentAt'], ['cohortEnrollments', 'welcomeClaimedAt'],
+  ['cohortEnrollments', 'ghlSyncedAt'], ['cohortEnrollments', 'ghlNextAttemptAt'], ['cohortEnrollments', 'ghlLastAttemptAt'],
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
   ['skillPurchases', 'purchasedAt'], ['skillPurchases', 'refundedAt'],
@@ -419,6 +428,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['incidentEvents', 'at'],
   // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
   ['consoleFlags', 'updatedAt'],
+  ['consoleFlags', 'turnedOnAt'],
   // D-175: when the deploy ran a one-time data step, as `clock.now()` stamps it.
   ['dataMigrations', 'ranAt'],
 ];
@@ -478,6 +488,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   stripeEvents: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by the webhook' },
   ghlLogins: { unit: 'epoch-ms', why: 'D-134: clock.now() as written by the GHL loop' },
   accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
+  cohortEnrollments: { unit: 'epoch-ms', why: 'enrolled_at is the cohort plan’s created_at; welcome_sent_at is clock.now() when the welcome goes out' },
   plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
   skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },
   skillPurchases: { unit: 'epoch-ms', why: 'purchased_at and refunded_at are clock.now() as written by the skill webhook' },
@@ -494,7 +505,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
-  consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
+  consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at and turned_on_at are clock.now() as written by console/flags.ts, and fmt.* formats them' },
   copyStrings: { unit: 'epoch-ms', why: 'D-173: no instant at all; a key, its words and who reads them' },
   dataMigrations: { unit: 'epoch-ms', why: 'D-175: ran_at is clock.now() as the deploy ran the step' },
 };
@@ -662,6 +673,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   usageDaily: ['day', 'user_id', 'kind'],
   // D-236: one seat card per team per week; each save upserts it (`on conflict … do update`).
   teamSeatCards: ['team_id', 'module_id'],
+  // One welcome per team owner and cohort. The pair is the key, so a second plan cannot send a second welcome.
+  cohortEnrollments: ['user_id', 'cohort_id'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {

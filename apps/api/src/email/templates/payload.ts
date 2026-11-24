@@ -25,6 +25,7 @@
 // `index.tsx` re-exports both names, so every existing caller still imports them from
 // `./templates`.
 
+import type { WelcomeCopy } from '@ai/core';
 import type { SubjectData, TemplateName } from '../subjects';
 
 /**
@@ -62,6 +63,12 @@ export interface BodyData {
   /** D-247: `email` is the address they sign in with; `token` a `set_password` one (72 hours). */
   'learner-invite': { firstName: string; email: string; token: string; appUrl?: string | null };
   'learner-nudge': { firstName: string; appUrl?: string | null };
+
+  /**
+   * `copy` is the finished welcome (`buildWelcomeCopy`). The subject still reads `cohortName`, so
+   * the inbox line and the body cannot name two different cohorts.
+   */
+  'cohort-welcome': { copy: WelcomeCopy; appUrl?: string | null };
 }
 
 /**

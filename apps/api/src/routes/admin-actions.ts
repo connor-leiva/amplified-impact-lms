@@ -113,6 +113,7 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
     cadence: text(300),
     previewOpens: z.strictObject({ date: text(10), time: text(5) }).nullable(),
     defaultOpenTime: text(5),
+    welcomeSends: z.strictObject({ date: text(10), time: text(5) }).nullable().optional(),
   }),
   saveCohortCourse: z.strictObject({ cohortId: id, course: cohortCourse }),
   saveCopyString: z.strictObject({ key: text(120), value: text(2000), audience: z.enum(['learner', 'staff']) }),

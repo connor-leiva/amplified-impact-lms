@@ -36,6 +36,10 @@ export const UI_LABELS: readonly { text: string; why: string }[] = [
     text: 'your AI Implementer',
     why: 'The builder’s default Invite button reads “Invite your AI Implementer” (D-190, D-243). D-193’s AI Implementer term has that phrase as an alias. The alias’s meaning still comes from the glossary, not from this label.',
   },
+  {
+    text: 'Connor Leiva',
+    why: 'The cohort welcome is signed with this name, as the brief requires. The curriculum seed repeats it as the weeks’ instructor.',
+  },
 ];
 
 /** The allowlisted strings alone. */

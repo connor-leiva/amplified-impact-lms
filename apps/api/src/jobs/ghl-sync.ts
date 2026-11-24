@@ -51,6 +51,7 @@ import { ghlSyncPaused, readGhlConfig, syncStamp, syncWaitlistContact } from '..
 import { runGhlOrderSync } from './ghl-orders';
 import { runGhlSkillSync } from './ghl-skills';
 import { enqueueLogins, runGhlLoginSync } from './ghl-logins';
+import { runGhlWelcomeSync } from './ghl-welcome';
 import { afterContact, syncExtras } from './ghl-extras';
 import type { ExtrasOutcome, ExtrasTick } from './ghl-extras';
 import type { Fetch, GhlConfig, GhlFailureKind } from '../integrations/ghl';
@@ -327,7 +328,7 @@ export function noteExtras(
  * One whole tick, as the loop runs it: the sign-ups, then the offer's buyers (D-076), then learners'
  * first sign-ins (D-134), queued from the database just before. Same token, one after the other.
  */
-export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }): Promise<{ waitlist: GhlSyncRun; buyers: GhlSyncRun; skills: GhlSyncRun; queued: number; logins: GhlSyncRun }> {
+export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }): Promise<{ waitlist: GhlSyncRun; buyers: GhlSyncRun; skills: GhlSyncRun; queued: number; logins: GhlSyncRun; welcomes: GhlSyncRun }> {
   const db = options.db ?? getDb();
   const log = options.log ?? CONSOLE_LOG;
   const shared = { db, log, config: options.config, ...(options.fetch ? { fetch: options.fetch } : {}) };
@@ -336,7 +337,8 @@ export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }
   const skills = await runGhlSkillSync(shared);
   const queued = await enqueueLogins(db, clock.now());
   const logins = await runGhlLoginSync(shared);
-  return { waitlist, buyers, skills, queued, logins };
+  const welcomes = await runGhlWelcomeSync(shared);
+  return { waitlist, buyers, skills, queued, logins, welcomes };
 }
 
 export interface GhlSync {
@@ -386,6 +388,7 @@ export function startGhlSync(options: StartGhlSyncOptions): GhlSync {
         if (t.buyers.claimed > 0) log.info({ ...t.buyers, paused: t.buyers.paused?.kind }, 'GHL buyer sync tick');
         if (t.queued > 0) log.info({ queued: t.queued }, 'GHL login sync queued first sign-ins');
         if (t.logins.claimed > 0) log.info({ ...t.logins, paused: t.logins.paused?.kind }, 'GHL login sync tick');
+        if (t.welcomes.claimed > 0) log.info({ ...t.welcomes, paused: t.welcomes.paused?.kind }, 'GHL welcome tag tick');
       })
       .then(
         () => {},

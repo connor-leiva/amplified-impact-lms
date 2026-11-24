@@ -47,6 +47,9 @@ export const TEMPLATE_NAMES = [
   // D-247 (H-9): Learners & Teams' Resend Invite (and a Team Owner's) and Send Nudge, in the purchase email's design.
   'learner-invite',
   'learner-nudge',
+
+  // The cohort welcome, sent when a cohort enrollment is due.
+  'cohort-welcome',
 ] as const;
 
 export type TemplateName = (typeof TEMPLATE_NAMES)[number];
@@ -88,6 +91,8 @@ export interface SubjectData {
   'skill-purchase': { skillName: string; variant: 'new' | 'ready' };
   'learner-invite': NoSubjectData;
   'learner-nudge': NoSubjectData;
+
+  'cohort-welcome': { cohortName: string };
 }
 
 /**
@@ -126,6 +131,8 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   // D-247: the set-password email's own subject: it is the same link, in the purchase email's design.
   'learner-invite': () => 'Set your Amplified Impact password',
   'learner-nudge': () => 'Pick up where you left off',
+
+  'cohort-welcome': (d) => `Your Access To The ${d.cohortName} Is Live`,
 };
 
 /**

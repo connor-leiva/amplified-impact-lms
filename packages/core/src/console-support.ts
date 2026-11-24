@@ -211,7 +211,8 @@ export type WorkspaceActivityKind =
   | 'membership_ended'
   | 'plan_started'
   | 'member_joined'
-  | 'invite_sent';
+  | 'invite_sent'
+  | 'welcome_sent';
 
 export interface WorkspaceActivity {
   at: number;
@@ -225,6 +226,16 @@ export interface WorkspaceActivity {
 /** Spec § 7.3: activity is merged across its sources and capped at 50 items. */
 export const WORKSPACE_ACTIVITY_MAX = 50;
 
+/** Where one owner's cohort welcome stands. `at` is the send time when `status` is `sent`. */
+export const COHORT_WELCOME_STATUSES = ['pending', 'claimed', 'sent', 'failed', 'skipped'] as const;
+export type CohortWelcomeState = (typeof COHORT_WELCOME_STATUSES)[number];
+export interface CohortWelcomeStatus {
+  cohortId: string;
+  cohortName: string;
+  status: CohortWelcomeState;
+  at: number | null;
+}
+
 export interface WorkspaceDetail {
   team: { id: string; name: string; seats: number; ownerId: string; ownerName: string | null; ownerEmail: string | null };
   account: {
@@ -236,6 +247,8 @@ export interface WorkspaceDetail {
     createdAt: number;
     inviteSentAt: number | null;
   } | null;
+  /** The owner's cohort welcome, or null when this workspace is not enrolled in a cohort. */
+  welcome: CohortWelcomeStatus | null;
   plans: ConsolePlan[];
   primaryPlan: { kind: PlanKind; label: string; status: PlanStatus } | null;
   seatsUsed: number;
@@ -337,6 +350,8 @@ export interface ConsoleUserDetail {
   skillPurchases: ConsoleSkillPurchase[];
   progress: ConsoleProgress[];
   entitlements: ConsoleEntitlements;
+  /** This person's cohort welcome, when they are the enrolled team owner. Otherwise null. */
+  welcome: CohortWelcomeStatus | null;
 }
 
 /** The users export's columns. No hash, no token: existence flags only. Times are ISO 8601 UTC. */

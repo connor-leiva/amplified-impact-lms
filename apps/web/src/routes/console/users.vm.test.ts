@@ -55,6 +55,7 @@ describe('one user (spec § 7.4) on R2', () => {
       role: 'Team owner',
       tier: 'Team',
       last: 'Dec 10, 8:52 AM',
+      welcome: null,
     });
   });
 

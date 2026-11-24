@@ -19,7 +19,7 @@ import {
   workspacePath,
 } from '@ai/core';
 import type { AdminStatus, ConsoleUserDetail, ConsoleUserRow, UserFilters } from '@ai/core';
-import { NONE, stampOrNever } from './workspaces.vm';
+import { NONE, stampOrNever, welcomeWords } from './workspaces.vm';
 import type { Option } from './workspaces.vm';
 
 export const USERS_COPY = {
@@ -104,7 +104,7 @@ export const USER_COPY = {
     UserTab,
     string
   >,
-  facts: { id: 'User ID', email: 'Email', workspace: 'Workspace', role: 'Role', tier: 'Tier', last: 'Last sign-in' },
+  facts: { id: 'User ID', email: 'Email', workspace: 'Workspace', role: 'Role', tier: 'Tier', last: 'Last sign-in', welcome: 'Welcome' },
   orders: {
     label: 'Orders',
     invoice: 'Invoice',
@@ -175,6 +175,7 @@ export interface UserVM {
     role: string;
     tier: string;
     last: string;
+    welcome: string | null;
   };
   orders: {
     key: string;
@@ -223,6 +224,7 @@ export function userVM(d: ConsoleUserDetail): UserVM {
       role: u.staffRole ?? u.role ?? NONE,
       tier: tierLabel(u.tier),
       last: stampOrNever(u.lastActive),
+      welcome: welcomeWords(d.welcome),
     },
     orders: d.orders.map((o) => ({
       key: o.id,

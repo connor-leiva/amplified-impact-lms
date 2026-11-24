@@ -288,6 +288,13 @@
       "when": 1796400000000,
       "tag": "0040_skill_guest_return",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1796500000000,
+      "tag": "0041_cohort_welcome",
+      "breakpoints": true
     }
   ]
 }

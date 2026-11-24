@@ -139,10 +139,12 @@ describe('JOB_SCHEDULES (D-165, D14) @g8', () => {
     expect(JOB_SCHEDULES.map((s) => [s.job, s.runNow])).toEqual([
       ...JOB_NAMES.map((j) => [j, 'allowed']),
       ['billing', 'schedule_only'],
+      ['cohort-welcome', 'schedule_only'],
       ['ghl-sync', 'off'],
       ['ghl-logins', 'off'],
       ['ghl-orders', 'off'],
       ['ghl-extras', 'off'],
+      ['ghl-welcome', 'off'],
     ]);
     expect(JOB_SCHEDULES.filter((s) => s.tickJob === SCHEDULER_TICK_JOB).map((s) => s.job)).toEqual([...JOB_NAMES]);
   });

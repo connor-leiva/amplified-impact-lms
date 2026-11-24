@@ -32,13 +32,20 @@ export interface JobSchedule {
   note: string | null;
 }
 
-export const GHL_JOBS = ['ghl-sync', 'ghl-logins', 'ghl-orders', 'ghl-extras'] as const;
+export const GHL_JOBS = ['ghl-sync', 'ghl-logins', 'ghl-orders', 'ghl-extras', 'ghl-welcome'] as const;
 
 export const JOB_SCHEDULES: readonly JobSchedule[] = [
   ...JOB_NAMES.map(
     (job): JobSchedule => ({ job, tickJob: SCHEDULER_TICK_JOB, intervalMs: TICK_MS, runNow: isRunNowJob(job) ? 'allowed' : 'off', note: null }),
   ),
   { job: 'billing', tickJob: 'billing', intervalMs: BILLING_TICK_MS, runNow: 'schedule_only', note: BILLING_JOB_NOTE },
+  {
+    job: 'cohort-welcome',
+    tickJob: 'billing',
+    intervalMs: BILLING_TICK_MS,
+    runNow: 'schedule_only',
+    note: 'Runs on the billing loop. Off until Send the cohort welcome email is on. Never emails anyone enrolled before it was turned on.',
+  },
   ...GHL_JOBS.map((job): JobSchedule => ({ job, tickJob: job, intervalMs: GHL_TICK_MS, runNow: 'off', note: null })),
 ];
 
