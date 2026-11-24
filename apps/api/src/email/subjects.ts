@@ -49,6 +49,9 @@ export const TEMPLATE_NAMES = [
   // D-247 (H-9): Learners & Teams' Resend Invite (and a Team Owner's) and Send Nudge, in the purchase email's design.
   'learner-invite',
   'learner-nudge',
+
+  // The cohort welcome, sent when a cohort enrollment is due.
+  'cohort-welcome',
 ] as const;
 
 export type TemplateName = (typeof TEMPLATE_NAMES)[number];
@@ -69,7 +72,7 @@ export type NoSubjectData = Record<never, never>;
  * `{inviter}`, `{team}`, `{title}`, `{n}`, `{employee}`.
  *
  * This is deliberately NOT the whole email payload. A template body needs more than its subject
- * does (the sign-in link, the session instant, the recipient's saved zone), and that larger type
+ * does (the sign-in link, the reader's first name, the session's time), and that larger type
  * belongs with the templates in `apps/api/src/email/templates/`. `transport.ts` composes the two:
  * it requires these fields, because without them it cannot build a subject at all, and it accepts
  * whatever else the template needs.
@@ -91,6 +94,8 @@ export interface SubjectData {
   'skill-purchase': { skillName: string; variant: 'new' | 'ready' };
   'learner-invite': NoSubjectData;
   'learner-nudge': NoSubjectData;
+
+  'cohort-welcome': { cohortName: string };
 }
 
 /**
@@ -130,6 +135,8 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   // D-247: the set-password email's own subject: it is the same link, in the purchase email's design.
   'learner-invite': () => 'Set your Amplified Impact password',
   'learner-nudge': () => 'Pick up where you left off',
+
+  'cohort-welcome': (d) => `Your Access To The ${d.cohortName} Is Live`,
 };
 
 /**

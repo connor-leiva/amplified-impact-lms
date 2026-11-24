@@ -281,13 +281,18 @@ export interface FlagsVM {
 /** The confirm a flip asks (the R2 `Confirm`, typed for a sensitive flag). */
 export function flipConfirm(key: string, to: boolean, sensitive: boolean): FlipConfirm {
   const masq = key === 'masquerade_enabled';
+  const welcome = key === 'cohort_welcome_email';
   const body = masq
     ? to
       ? 'Owners and Admins can start and extend masquerade sessions again.'
       : 'Nobody can start or extend a masquerade session while it is off. A session already running ends at its time.'
-    : to
-      ? 'This flag turns on for everyone.'
-      : 'This flag turns off for everyone.';
+    : welcome
+      ? to
+        ? 'New enrollments get the welcome when the cohort goes live, or right away if it already has. No one enrolled before you turn this on is emailed, whether or not their cohort is live yet.'
+        : 'The welcome stops. Nothing already sent is taken back.'
+      : to
+        ? 'This flag turns on for everyone.'
+        : 'This flag turns off for everyone.';
   return {
     title: `Turn ${to ? 'on' : 'off'} ${key}?`,
     body,

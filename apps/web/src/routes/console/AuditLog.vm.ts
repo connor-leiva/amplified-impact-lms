@@ -129,6 +129,8 @@ const GROUP_LABELS: Record<string, string> = {
   community: 'Community',
   // D-230: staff setting what they did with a team's turn-in.
   submission: 'Submissions',
+  // The cohort welcome's test send.
+  welcome: 'Welcome Email',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

@@ -205,6 +205,7 @@ export function Component() {
           { label: C.facts.role, value: vm.facts.role },
           { label: C.facts.tier, value: vm.facts.tier },
           { label: C.facts.last, value: vm.facts.last },
+          ...(vm.facts.welcome ? [{ label: C.facts.welcome, value: vm.facts.welcome }] : []),
         ]}
       />
       <div className={k.gms}>

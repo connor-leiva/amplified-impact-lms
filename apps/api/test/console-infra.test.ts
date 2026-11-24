@@ -94,7 +94,7 @@ describe('masquerade_enabled (spec § 7.13, D8) @console', () => {
     const res = await flip(false);
     expect(res.statusCode).toBe(200);
     expect(res.json().flag).toMatchObject({ key: 'masquerade_enabled', on: false, updatedAt: NOW, updatedBy: 'Casey Lin' });
-    expect(await (await db()).select().from(consoleFlags)).toEqual([{ key: 'masquerade_enabled', on: false, sensitive: true, updatedAt: NOW, updatedBy: 'st1' }]);
+    expect(await (await db()).select().from(consoleFlags)).toEqual([{ key: 'masquerade_enabled', on: false, sensitive: true, updatedAt: NOW, updatedBy: 'st1', turnedOnAt: null }]);
     const rows = await audits();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({
@@ -200,6 +200,7 @@ describe('env presence: booleans and modes only (spec § 7.13) @console', () => 
     ]);
     expect(body.flags.map((f) => [f.key, f.source, f.on])).toEqual([
       ['masquerade_enabled', 'console', true],
+      ['cohort_welcome_email', 'console', false],
       ['OFFER_OPEN', 'env', true],
       ['GHL_SYNC_ENABLED', 'env', false],
     ]);

@@ -52,7 +52,8 @@ test.describe('learner parity: email deep links', () => {
   test('every template is rendered here, each with exactly one link on this site', () => {
     const covered = new Set(CASES.map((c) => c.template));
     // D-250: session-24h and session-1h are `session-reminder-html.ts` (no `.tsx` of their own); they are still cases.
-    expect(TEMPLATE_FILES.filter((t) => t !== 'session-reminder' && !covered.has(t))).toEqual([]);
+    // `cohort-welcome` links to learn.amplifiedimpact.io, not a path on this app, so it is not a deep link.
+    expect(TEMPLATE_FILES.filter((t) => t !== 'session-reminder' && t !== 'cohort-welcome' && !covered.has(t))).toEqual([]);
     for (const c of CASES) expect(() => ctaPath(c.name), c.name).not.toThrow();
     expect(Object.keys(rendered())).toHaveLength(CASES.length);
   });

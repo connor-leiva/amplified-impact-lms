@@ -11,6 +11,7 @@
 import type { Database } from '../db/client';
 import { clock } from '../lib/clock';
 import { sendHeldInvites } from '../billing/provision';
+import { sendDueWelcomes } from './welcome';
 import type { BillingLog } from '../billing/provision';
 import { reconcileAcceleratorSeats } from '../billing/payment-links';
 import type { OfferConfig } from '../billing/config';
@@ -42,6 +43,13 @@ export function startBillingLoop(options: {
         (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'held invites tick failed; the next tick retries'),
       )
       // The seat cap never throws; it logs and waits for the next tick.
+      .then(async () => {
+        await sendDueWelcomes({ db: options.db, log: options.log, now: clock.now() });
+      })
+      .then(
+        () => {},
+        (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'cohort welcome tick failed; the next tick retries'),
+      )
       .then(async () => {
         if (options.seatCap) await reconcileAcceleratorSeats({ ...options.seatCap, now: clock.now(), log: options.log, db: options.db });
       })

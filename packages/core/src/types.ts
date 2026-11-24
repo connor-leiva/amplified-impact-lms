@@ -118,6 +118,11 @@ export interface Cohort {
    * day (`HH:MM`, absent reads as `12:00`), and what every week of the course shares.
    */
   previewOpensAt?: number; timezone?: string; defaultOpenTime?: string; course?: CohortCourse;
+  /**
+   * When the cohort welcome may go out (epoch ms). Absent: the access-open time (`accessOpensAt`
+   * in welcome.ts), which is Week 0's Opens, else the preview, else the first dated week, else `start`.
+   */
+  welcomeSendsAt?: number;
 }
 /** What a session is, as the builder sets it (D-173). `sessionKind()` still reads build or office hours off the id. */
 export type SessionType = 'live_build' | 'office_hours' | 'goal_planning' | 'setup' | 'other';

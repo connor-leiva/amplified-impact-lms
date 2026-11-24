@@ -185,7 +185,7 @@ describe('POST /api/console/webhooks/ghl/retry (D-165, D13) @console', () => {
 describe('GET /api/console/jobs (D-165, spec § 7.10) @console', () => {
   it('lists every scheduled job from code, the billing row in the spec’s words, and no accelerator-reminders', async () => {
     const body = (await get('/api/console/jobs', 'st4')).json<ConsoleJobs>();
-    expect(body.rows.map((r) => r.job)).toEqual([...JOB_NAMES, 'billing', 'ghl-sync', 'ghl-logins', 'ghl-orders', 'ghl-extras']);
+    expect(body.rows.map((r) => r.job)).toEqual([...JOB_NAMES, 'billing', 'cohort-welcome', 'ghl-sync', 'ghl-logins', 'ghl-orders', 'ghl-extras', 'ghl-welcome']);
     expect(body.rows.every((r) => r.schedule === 'Every minute' && r.last === null && r.durationMs === null && r.nextRunAt === null)).toBe(true);
     const billing = body.rows.find((r) => r.job === 'billing')!;
     expect(billing).toMatchObject({ note: BILLING_JOB_NOTE, runNow: 'schedule_only' });

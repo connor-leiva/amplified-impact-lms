@@ -33,7 +33,7 @@
 // any of the nine. DO NOT "fix" this file back to tokens; the test will tell you the same thing.
 // =================================================================================================
 
-import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from '@react-email/components';
+import { Body, Button, Container, Head, Heading, Html, Img, Preview, Section, Text } from '@react-email/components';
 import type { CSSProperties, ReactNode } from 'react';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
 
@@ -193,6 +193,18 @@ export interface EmailLayoutProps {
   cta: { label: string; href: string };
   /** The body paragraphs, as `<Para>` elements. */
   children?: ReactNode;
+  /**
+   * The cohort welcome names its own heading and preheader. Absent, both stay the subject, which is
+   * what every other template renders.
+   */
+  heading?: string;
+  preheader?: string;
+  /** A short line above the heading. Rendered as a span, so it is not the body's first paragraph. */
+  eyebrow?: string;
+  /** A hosted raster. Absent on every template but the cohort welcome. */
+  logoSrc?: string;
+  /** Blocks after the button: the welcome's later sections. */
+  below?: ReactNode;
 }
 
 /**
@@ -215,18 +227,37 @@ export function Para({ children }: { children: ReactNode }) {
  * recorded as such in D-031. When it and a compliance footer arrive, they belong here — in one
  * place.
  */
-export function EmailLayout({ subject, cta: action, children }: EmailLayoutProps) {
+const eyebrowStyle: CSSProperties = {
+  display: 'block',
+  margin: '0 0 8px',
+  fontFamily: EMAIL_FONT_STACK,
+  fontSize: '12px',
+  lineHeight: '16px',
+  fontWeight: 600,
+  letterSpacing: '0.04em',
+  color: T['text-secondary'],
+};
+
+const logoStyle: CSSProperties = { display: 'block', margin: '0 0 20px', border: 0 };
+
+export function EmailLayout({ subject, cta: action, children, heading, preheader, eyebrow, logoSrc, below }: EmailLayoutProps) {
   return (
     <Html lang="en">
       <Head>
         <title>{subject}</title>
         <link rel="stylesheet" href={FONT_HREF} />
       </Head>
-      <Preview>{subject}</Preview>
+      <Preview>{preheader ?? subject}</Preview>
       <Body style={page}>
         <Container style={column}>
+          {logoSrc ? <Img src={logoSrc} alt="Amplified Impact" width="240" style={logoStyle} /> : null}
+          {eyebrow ? (
+            <Section>
+              <span style={eyebrowStyle}>{eyebrow}</span>
+            </Section>
+          ) : null}
           <Heading as="h1" style={h1}>
-            {subject}
+            {heading ?? subject}
           </Heading>
           {children}
           <Section style={ctaRow}>
@@ -234,6 +265,7 @@ export function EmailLayout({ subject, cta: action, children }: EmailLayoutProps
               {action.label}
             </Button>
           </Section>
+          {below}
         </Container>
       </Body>
     </Html>

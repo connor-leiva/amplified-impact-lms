@@ -117,7 +117,15 @@ function ReleasePlan({ cohortId, initial }: { cohortId: string; initial: PlanFor
           </span>
         </div>
         <Field label="A week opens at (MT)" type="time" value={f.defaultOpenTime} onChange={(v) => setF({ ...f, defaultOpenTime: v })} />
-        <p className={clsx(k.p, k.me)}>Times are Mountain Time. Leave the preview date empty for no preview.</p>
+        <div className={clsx(k.row, k.nw, w.dt)}>
+          <span className={k.sp}>
+            <Field label="Welcome email sends at (MT)" type="date" value={f.welcomeDate} onChange={(v) => setF({ ...f, welcomeDate: v })} />
+          </span>
+          <span className={k.sp}>
+            <Field label="Time" type="time" value={f.welcomeTime} onChange={(v) => setF({ ...f, welcomeTime: v })} />
+          </span>
+        </div>
+        <p className={clsx(k.p, k.me)}>Times are Mountain Time. Leave the preview date empty for no preview. Leave the welcome date empty to send when access opens.</p>
       </div>
     </Card>
   );

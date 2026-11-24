@@ -742,6 +742,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // and DB health. Signed in, then by capability (`test/console-authz.test.ts`).
   { path: '/api/console/env', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/flags/:key', methods: 'POST', guard: 'session' },
+  { path: '/api/console/welcome/test', methods: 'POST', guard: 'session' },
   { path: '/api/console/integrations', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/integrations/:id/check', methods: 'POST', guard: 'session' },
   { path: '/api/console/deploys', methods: 'GET, HEAD', guard: 'session' },
@@ -1368,6 +1369,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
               payload: { on: false, typed: 'masquerade_enabled' },
             }),
+          '/api/console/welcome/test': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/welcome/test',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
+            }),
           '/api/console/integrations': () => app.inject({ method: 'GET', url: '/api/console/integrations' }),
           '/api/console/integrations/:id/check': () =>
             app.inject({ method: 'POST', url: '/api/console/integrations/resend/check', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
@@ -1578,8 +1586,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // uploaded video (D-188), and 80 with the intake's two routes (D-196). 85 with the intake PDF's two (D-229).
     // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231), 96 with Turn in's
     // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
-    // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge.
-    expect(EXECUTED.unauthenticated).toBe(104);
+    // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge. 105 with the cohort welcome's
+    // test send.
+    expect(EXECUTED.unauthenticated).toBe(105);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1606,7 +1615,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-231), probed unauthenticated. And + 5 for Turn in's (D-230), probed unauthenticated. And + 3 for the seat card
     // form's (D-236), probed unauthenticated. And + 2 for D-237's turned-in files, probed unauthenticated.
     // And + 1 for a single skill's checkout, probed unauthenticated. And + 2 for D-247's Resend Invite and Send Nudge,
-    // probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2);
+    // probed unauthenticated. And + 1 for the cohort welcome's test send, probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1);
   });
 });

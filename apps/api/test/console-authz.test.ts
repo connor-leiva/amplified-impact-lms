@@ -69,6 +69,7 @@ type RouteName =
   | 'incidentNote'
   | 'opsEnv'
   | 'flagFlip'
+  | 'welcomeTest'
   | 'integrations'
   | 'integrationCheck'
   | 'deploys'
@@ -232,6 +233,13 @@ const ROUTES: Record<RouteName, Route> = {
     route: `POST ${CONSOLE_PATHS.flagFlip}`,
     body: { on: false, typed: 'masquerade_enabled' },
   },
+  welcomeTest: {
+    path: CONSOLE_PATHS.welcomeTest,
+    url: CONSOLE_PATHS.welcomeTest,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.welcomeTest}`,
+    body: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
+  },
   integrations: { path: CONSOLE_PATHS.integrations, url: CONSOLE_PATHS.integrations, method: 'GET', route: `GET ${CONSOLE_PATHS.integrations}` },
   integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
   deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
@@ -271,6 +279,7 @@ const WRITES = new Set<RouteName>([
   'workspaceIntake',
   'workspaceStack',
   'flagFlip',
+  'welcomeTest',
   'integrationCheck',
 ]);
 
@@ -345,7 +354,15 @@ const EU = (read: number, exp: number) => ({ emailLog: read, emailLogOne: read, 
 // PR 9 (D-168): every infrastructure route is ops.read (Owner, Admin; Support none, D3), Check now is
 // integrations.probe (Owner, Admin), and the flip of the sensitive `masquerade_enabled` is
 // flags.write_sensitive: the Owner alone (D8). An Admin's flip is refused, and audited, at that second step.
-const INFRA = (read: number, flip: number, check: number) => ({ opsEnv: read, flagFlip: flip, integrations: read, integrationCheck: check, deploys: read, dbHealth: read });
+const INFRA = (read: number, flip: number, check: number, test: number = read) => ({
+  opsEnv: read,
+  flagFlip: flip,
+  welcomeTest: test,
+  integrations: read,
+  integrationCheck: check,
+  deploys: read,
+  dbHealth: read,
+});
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,

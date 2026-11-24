@@ -213,6 +213,8 @@ export interface ConsoleApi {
   opsEnv(): Promise<OpsEnv>;
   /** `typed`: a sensitive flag's key, typed to confirm. */
   flipFlag(key: string, on: boolean, typed?: string): Promise<FlagFlipResult>;
+  /** One cohort welcome, to an allowlisted address. Does not mark a learner sent. */
+  sendWelcomeTest(to: string, cohortId: string): Promise<{ ok: true; subject: string }>;
   integrations(): Promise<IntegrationView[]>;
   checkIntegration(id: ProbeIntegration): Promise<ProbeResult>;
   deploys(): Promise<DeploysView>;
@@ -449,6 +451,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     opsEnv: async () => json<OpsEnv>(await request(fetchImpl, '/api/console/env')),
     flipFlag: async (key, on, typed) =>
       json<FlagFlipResult>(await request(fetchImpl, `/api/console/flags/${encodeURIComponent(key)}`, JSON_POST(typed === undefined ? { on } : { on, typed }))),
+    sendWelcomeTest: async (to, cohortId) => json<{ ok: true; subject: string }>(await request(fetchImpl, '/api/console/welcome/test', JSON_POST({ to, cohortId }))),
     integrations: async () => (await json<{ integrations: IntegrationView[] }>(await request(fetchImpl, '/api/console/integrations'))).integrations,
     checkIntegration: async (id) => (await json<{ result: ProbeResult }>(await request(fetchImpl, `/api/console/integrations/${id}/check`, JSON_POST({})))).result,
     deploys: async () => json<DeploysView>(await request(fetchImpl, '/api/console/deploys')),
