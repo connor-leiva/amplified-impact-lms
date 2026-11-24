@@ -7514,3 +7514,35 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 - **The one-time data step** (`2026-11-22-seat-card-one-copy`), on the deploy after merge: each card row takes the approved words of step 6's table (`seat-card-fields.md`) where it is empty or still the seed's (Week 2's Took Over, both First Runs); then step 6's table on both paths of both weeks is marked as the Seat card where its rows are still the approved ones. A row or a table changed in the builder is left and named. Nothing else changes; nothing is published or scheduled.
 - **What a learner sees change:** Week 2's form hint for Took Over and both weeks' First Run hint ("Date and screenshot") now match step 6. Step 6's table reads as before, except two of Week 2's rows (Reports To, Applies), which the card writes with a final period the old table left off, and the label "Can’t Do", now spelled with a curly apostrophe as the form and the week page spell it.
 - **Also:** the builder's Button menu said "Form (later)" from before forms worked; it says "Form".
+
+## D-243 · Utah Life in a category of its own: every cohort number counts the course's learners
+
+**Date:** 2026-11-24
+**Approved by:** Connor Leiva (repository owner), November 24, 2026. On Admin › Support › Community's "34 in 34 teams": "We need to do something to exclude the Utah Life members, but I don't want it 'hardcoded' I would rather find a way to put them in a separate category altogether." He approved the proposal (Utah Life as its own group, outside the course; a Utah Life group on Learners & Teams; every cohort number counting only the course's members, with no rule naming Utah Life; nothing changing for the agents) with "go on Utah Life".
+
+- **Why.** Provisioning puts every account in cohort `dec26`: an access group's member (`provisionGroupMember`, each the owner of a team of one) and a buyer of any plan (D-110). So every number that counted the cohort's rows counted Utah Life's agents too.
+- **The rule** (`apps/api/src/lib/course-members.ts`). A learner is outside the course when their team's plans don't hold it (`holdsCourse`, `@ai/core/release`: the AI Accelerator bought in full or in two payments and not refunded; a plan paused for a payment still holds it) and they hold something else instead:
+  - an access group, by address (`inGroup`: the domain exactly, or the list). Verification still decides what a group grants (D-148). It doesn't decide which group an account is in, so a sign-up who hasn't followed their link yet is the group's;
+  - a plan on their team's account: another plan, or the course refunded;
+  - a skill bought on its own, not refunded (D-241).
+  - A learner who holds nothing stays the cohort's, as before. The demo database has no plan rows, so it counts as it did.
+  - No rule names Utah Life. A group added later is outside the course the same way.
+- **How, and how it differs from the proposal's "move them out".** No row moves and `users.cohort_id` is unchanged. Moving them would have meant changing the sign-up code in `apps/api/src/billing/`, which stays untouched, and could have changed what they see. Instead:
+  - `GET /api/snapshot` reads who is outside the course, and `withOutside` (`@ai/core/cohort-members`) counts each cohort's `enrolled` without them, for every viewer. That covers the Cohorts page's Enrolled, the Overview's "learners enrolled", the console's build page and the members' Home "in your cohort" figure.
+  - Staff's snapshot also carries the list itself, `Db.outside` (the ids, and the access groups by name). `scopeSnapshot` gives it to no learner, and to no staff member without View Learners.
+  - The admin's cohort numbers and lists read `courseUsers` and `courseTeams`:
+    - Overview: active learners, attendance and completion;
+    - Learners & Teams: both tabs and their counts;
+    - Cohorts: learners and attendance;
+    - Tiers & Upgrades: Agent licenses, teams and revenue;
+    - Curriculum: each build's deployed share.
+  - Announcements' reach numbers are unchanged: an announcement still reaches everyone it reached.
+  - Admin › Support › Community's members count (D-238) uses the same rule.
+- **The Utah Life tab.** Learners & Teams gains a tab for each access group with people outside the course. It sits after Teams and is named and counted from the data ("Utah Life").
+  - Columns: Learner (the name, or the address when there is none) and Last active ("Invite pending" for a sign-up who hasn't followed their link).
+  - A row opens the User page. There is no details drawer, because they build nothing in the course.
+  - The row menu holds Open user record and Masquerade… (Owner and Admin, as before).
+  - Without groups (the fixture, and the mockup's parity snapshot), the tabs are the mockup's two.
+- **People outside the course and in no group** (another plan's buyer, a skill buyer, a refunded buyer) leave the cohort's numbers and Learners & Teams. They stay in Users and Workspaces.
+- **Nothing changes for the agents.** Their access, sign-in, Skill Library ("Not included with Utah Life access", no upsell), emails and data are untouched. A Utah Life agent's snapshot is the one she had, except the cohort's head count, which none of her pages shows (`apps/api/test/course-members.test.ts` holds it).
+- **Not touched:** `apps/api/src/billing/*` (read only: `inGroup`, `normalizeAddress`), GHL, Stripe and email. No migration, env var, parity golden, mask or tolerance.
