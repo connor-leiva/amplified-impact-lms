@@ -22,7 +22,7 @@
 //     object literal)
 // So the nine-row table in § 8.1 and this file cannot drift in either direction.
 
-import { sessionTimeMtCt } from '@ai/core';
+import { sessionTimeMtCt, welcomeSubject } from '@ai/core';
 
 /**
  * The nine templates in § 8.1's table, in table order.
@@ -139,7 +139,8 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   'learner-invite': () => 'Set your Amplified Impact password',
   'learner-nudge': () => 'Pick up where you left off',
 
-  'cohort-welcome': (d) => `Your Access To The ${d.cohortName} Is Live`,
+  // The cohort with its noun ("December 2026 Cohort"), in title case with "to the" lower: `welcomeSubject` (@ai/core).
+  'cohort-welcome': (d) => welcomeSubject(d.cohortName),
   // Connor's approved line. "December Cohort" is literal: the cohort's name ("December 2026") reads badly here.
   'week0-open': () => '🎉 Welcome to the December Cohort: Week 0 Is Open',
 };

@@ -294,6 +294,18 @@ export interface WelcomeCopy {
 }
 
 /**
+ * The cohort as the copy names it, with its noun: "December 2026" is "December 2026 Cohort", as the Week 0 email and the
+ * admin's Learners page say it. A name that already ends in "Cohort" is left as it is.
+ */
+export function cohortLabel(name: string): string {
+  const n = name.trim();
+  return /\bcohort$/i.test(n) ? n : `${n} Cohort`;
+}
+
+/** The welcome's subject: "Your Access to the December 2026 Cohort Is Live". The subject table and the copy share it. */
+export const welcomeSubject = (cohortName: string): string => `Your Access to the ${cohortLabel(cohortName)} Is Live`;
+
+/**
  * The welcome, with every date filled from `schedule` and Week 0's facts from `week0` (the Week 0 module). Each clock is
  * Mountain Time first and Central Time after it.
  */
@@ -309,14 +321,15 @@ export function buildWelcomeCopy(schedule: WelcomeSchedule, week0: WelcomeWeek0,
   const due = sessionTimeMtCtParts(week0.dueAt);
   const weekName = `Week 0 · ${week0.title}`;
   const name = schedule.cohortName.trim();
+  const label = cohortLabel(name);
   const hi = firstName.trim();
   return {
     cohortName: name,
-    subject: `Your Access To The ${name} Is Live`,
+    subject: welcomeSubject(name),
     preheader: `You're in! Here's what to do before our first live build on ${sWhen}.`,
     eyebrow: 'Amplified AI Accelerator',
-    heading: 'Welcome! Week 0 starts now.',
-    cohortLine: `${name} Starts ${sWhen} · ${start.time}`,
+    heading: 'Welcome! Week 0 Starts Now',
+    cohortLine: `${label} Starts ${sWhen} · ${start.time}`,
     greeting: hi ? `Hi ${hi},` : 'Hi,',
     intro: [
       "You're in! Your access to the Amplified AI Accelerator is live, and Week 0 starts now. I'm so glad you're here. We're about to build real AI hires for your business, together, and I can't wait to get started.",
@@ -360,6 +373,6 @@ export function buildWelcomeCopy(schedule: WelcomeSchedule, week0: WelcomeWeek0,
     ],
     signoffName: 'Connor Leiva',
     signoffRole: 'Amplified Impact',
-    footer: `Amplified Impact, LLC. You're getting this because you enrolled in the ${name}.`,
+    footer: `Amplified Impact, LLC. You're getting this because you enrolled in the ${label}.`,
   };
 }

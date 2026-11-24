@@ -66,7 +66,7 @@ import type { WelcomeCopy } from '@ai/core';
 import { week0OpenHtml, week0OpenText } from './week0-open-html';
 import type { Week0OpenInput } from './week0-open-html';
 
-export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
+export { CONTENT_WIDTH, EmailLayout, FLUID_MAX_WIDTH, Para } from './layout';
 export { ROUTES, absolute, appBase, employeePath, invitePath, setPasswordPath, signInPath } from './links';
 
 // `BodyData` and `EmailPayload` live in `./payload.ts` — a leaf module with no runtime imports — so

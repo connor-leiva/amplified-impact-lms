@@ -6,11 +6,13 @@ import {
   accessOpensAt,
   baselineTaskCount,
   buildWelcomeCopy,
+  cohortLabel,
   enrolledBeforeSwitch,
   week0DueAt,
   welcomeDecision,
   welcomeSchedule,
   welcomeSendInstant,
+  welcomeSubject,
   welcomeTestAllowed,
   welcomeWeek0,
 } from '../src/welcome';
@@ -115,7 +117,7 @@ describe('the copy', () => {
   const withLink = buildWelcomeCopy(schedule(), WEEK0, 'Pat', 'https://learn.amplifiedimpact.io/set-password?token=abc');
 
   it('uses the cohort name in the subject and fills every time from the schedule, MT first and CT after it', () => {
-    expect(copy.subject).toBe('Your Access To The December Cohort Is Live');
+    expect(copy.subject).toBe('Your Access to the December Cohort Is Live');
     expect(copy.preheader).toBe("You're in! Here's what to do before our first live build on Wed, Dec 2.");
     expect(copy.cohortLine).toBe('December Cohort Starts Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
     expect(copy.rows[0]).toEqual({ label: 'Sunday', body: 'The week opens at 12:00 PM MT / 1:00 PM CT with a playbook to read and load into your AI before the build.' });
@@ -131,6 +133,23 @@ describe('the copy', () => {
   it('has no em dash or en dash', () => {
     const text = JSON.stringify(copy);
     expect(text).not.toMatch(/[–—]/);
+  });
+
+  it('names the cohort with its noun in the subject, the cohort line and the footer, and heads in Title Case', () => {
+    const dec = buildWelcomeCopy(schedule({ cohortName: 'December 2026' }), WEEK0, 'Pat', null);
+    expect(dec.subject).toBe('Your Access to the December 2026 Cohort Is Live');
+    expect(dec.cohortLine).toBe('December 2026 Cohort Starts Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
+    expect(dec.footer).toBe("Amplified Impact, LLC. You're getting this because you enrolled in the December 2026 Cohort.");
+    expect(dec.heading).toBe('Welcome! Week 0 Starts Now');
+    // Every line a reader sees (`cohortName` is the data the subject is built from, not copy).
+    const { cohortName: _name, ...words } = dec;
+    expect(JSON.stringify(words)).not.toMatch(/December 2026(?! Cohort)/);
+    expect(welcomeSubject('December 2026')).toBe(dec.subject);
+    // A name that already carries the noun is not given a second one.
+    expect(cohortLabel('December 2026')).toBe('December 2026 Cohort');
+    expect(cohortLabel(' December Cohort ')).toBe('December Cohort');
+    expect(cohortLabel('Spring cohort')).toBe('Spring cohort');
+    expect(copy.footer).toBe("Amplified Impact, LLC. You're getting this because you enrolled in the December Cohort.");
   });
 
   it('says Week 0 is due Mon, Nov 30, from Week 0’s Due, and never that it is due at the first live build', () => {

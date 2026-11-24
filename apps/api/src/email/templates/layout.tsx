@@ -209,6 +209,11 @@ export interface EmailLayoutProps {
   logoSrc?: string;
   /** Blocks after the button: the welcome's later sections. */
   below?: ReactNode;
+  /**
+   * A fluid card, as the Week 0 email's panel is: `width: 100%` up to `max-width: 600px`, instead of § 8.1's fixed 560px
+   * column. The cohort welcome's alone; every other template keeps the column.
+   */
+  fluid?: boolean;
 }
 
 /**
@@ -258,7 +263,15 @@ const logoBand: CSSProperties = {
 const bandedColumn: CSSProperties = { ...column, padding: '0', overflow: 'hidden' };
 const bandedInner: CSSProperties = { padding: '32px' };
 
-export function EmailLayout({ subject, cta: action, children, heading, preheader, eyebrow, logoSrc, below }: EmailLayoutProps) {
+/**
+ * A fluid card's widest, the branded emails' panel width (`branded-html.ts`'s 600). A fluid card is as wide as the screen
+ * up to this, so a phone never scrolls sideways for it; the fixed 560px column measured 592px wide on a 390px phone.
+ */
+export const FLUID_MAX_WIDTH = 600;
+const fluidWidth: CSSProperties = { width: '100%', maxWidth: `${FLUID_MAX_WIDTH}px` };
+
+export function EmailLayout({ subject, cta: action, children, heading, preheader, eyebrow, logoSrc, below, fluid }: EmailLayoutProps) {
+  const card = logoSrc ? bandedColumn : column;
   const inner = (
     <>
       {eyebrow ? (
@@ -286,7 +299,7 @@ export function EmailLayout({ subject, cta: action, children, heading, preheader
       </Head>
       <Preview>{preheader ?? subject}</Preview>
       <Body style={page}>
-        <Container style={logoSrc ? bandedColumn : column}>
+        <Container style={fluid ? { ...card, ...fluidWidth } : card}>
           {logoSrc ? (
             <Section style={logoBand}>
               <Img src={logoSrc} alt="Amplified Impact" width="180" height="27" style={logoStyle} />

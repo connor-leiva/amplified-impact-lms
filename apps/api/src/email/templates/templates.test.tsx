@@ -32,7 +32,7 @@ import { ACADEMY_URL, buildWelcomeCopy, fmt, setViewerZone, viewerZone } from '@
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
 import { SUBJECTS, TEMPLATE_NAMES } from '../subjects';
 import type { TemplateName } from '../subjects';
-import { CONTENT_WIDTH, appBase, elementFor, renderEmail, renderTemplate } from './index';
+import { CONTENT_WIDTH, FLUID_MAX_WIDTH, appBase, elementFor, renderEmail, renderTemplate } from './index';
 import type { EmailPayload } from './index';
 
 /** D-250: the card's time as the reminder draws it, each zone's half kept on one line. */
@@ -118,6 +118,8 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
 // D-250: the session reminders are the same document, as a note from Connor.
 const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h', 'week0-open'];
 const branded = (name: TemplateName): boolean => BRANDED.includes(name);
+/** § 8.1 shell templates whose card is fluid (`EmailLayout`'s `fluid`): the cohort welcome. */
+const fluid = (name: TemplateName): boolean => name === 'cohort-welcome';
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
 const SUBJECT: { [K in TemplateName]: string } = {
@@ -345,8 +347,19 @@ describe('email templates · § 8.1 shell @g8', () => {
   // skill-purchase is Connor's document (600px, Geist, his own button), and D-247's two learner emails
   // share it. Their own tests pin that.
   for (const name of TEMPLATE_NAMES.filter((n) => !branded(n))) {
-    it(`${name} renders the 560 px content column @g8`, () => {
+    it(`${name} renders ${fluid(name) ? 'a fluid card, up to 600 px' : 'the 560 px content column'} @g8`, () => {
       const html = HTML[name];
+      // The cohort welcome's card is fluid, as the Week 0 email's panel is: as wide as the screen, up to 600px, so a
+      // 390px phone never scrolls sideways for it (the 560px column measured 592px there).
+      if (fluid(name)) {
+        const card = tableDecls(html).find((d) => d.includes(`max-width:${FLUID_MAX_WIDTH}px`));
+        expect(card, 'no table carries the 600px max-width').toBeTruthy();
+        expect(card).toContain('width:100%');
+        expect(card).not.toContain(`width:${CONTENT_WIDTH}px`);
+        expect(tableDecls(html).some((d) => d.includes(`width:${CONTENT_WIDTH}px`))).toBe(false);
+        expect(FLUID_MAX_WIDTH).toBe(600);
+        return;
+      }
       const column = tableDecls(html).find((d) => d.includes(`max-width:${CONTENT_WIDTH}px`));
       expect(column, 'no table carries the 560px max-width').toBeTruthy();
       // Both, deliberately: the CSS width holds the column at 560 in a client that honours it, and
@@ -442,8 +455,8 @@ describe('email templates · what would break in a real inbox @g8', () => {
         'the page box paints --bg-canvas but sets no text colour of its own',
       ).toBe(true);
 
-      const card = blocks.find((d) => d.includes(`max-width:${CONTENT_WIDTH}px`));
-      expect(card, 'no element carries the 560px column').toBeTruthy();
+      const card = blocks.find((d) => d.includes(`max-width:${fluid(name) ? FLUID_MAX_WIDTH : CONTENT_WIDTH}px`));
+      expect(card, 'no element carries the card’s width').toBeTruthy();
       expect(card, 'the 560px card does not paint --bg-surface').toContain(
         `background-color:${EMAIL_TOKENS['bg-surface']}`,
       );

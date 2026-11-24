@@ -116,8 +116,9 @@ describe('sendDueWelcomes', () => {
     expect(first.sent).toBe(1);
     const mail = outboxFor({ to: 'new@example.com', template: 'cohort-welcome' });
     expect(mail).toHaveLength(1);
-    expect(mail[0]?.subject).toBe('Your Access To The December 2026 Is Live');
-    expect(mail[0]?.html).toContain('Welcome! Week 0 starts now.');
+    expect(mail[0]?.subject).toBe('Your Access to the December 2026 Cohort Is Live');
+    expect(mail[0]?.html).toContain('Welcome! Week 0 Starts Now');
+    expect(mail[0]?.html).toContain('because you enrolled in the December 2026 Cohort.');
     expect(mail[0]?.html).toContain(' MT');
     expect(mail[0]?.html).not.toMatch(/[–—]/);
     const second = await sendDueWelcomes({ db: await database(), log, now: NOW });

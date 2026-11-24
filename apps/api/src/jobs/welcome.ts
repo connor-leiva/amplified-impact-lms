@@ -38,6 +38,7 @@ import type { Database } from '../db/client';
 import { getDb } from '../db/client';
 import { authTokens, cohortEnrollments, cohorts, consoleFlags, emailLog, googleIdentities, sessions, userPasswords, users } from '../db/schema';
 import { absolute, setPasswordPath } from '../email/templates/links';
+import { SUBJECTS } from '../email/subjects';
 import { send } from '../email/transport';
 import type { BillingLog } from '../billing/provision';
 import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from './enrollments';
@@ -209,7 +210,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 }
 
 async function markSkipped(db: Database, row: PendingRow, cohortName: string, now: number, reason: 'enrolled_before_switch' | 'week0_sent'): Promise<void> {
-  const subject = `Your Access To The ${cohortName} Is Live`;
+  const subject = SUBJECTS['cohort-welcome']({ cohortName });
   await db
     .update(cohortEnrollments)
     .set({ welcomeStatus: 'skipped', welcomeError: reason })

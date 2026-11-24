@@ -68,6 +68,7 @@ export function CohortWelcomeEmail({ subject, copy }: CohortWelcomeEmailProps) {
       heading={copy.heading}
       eyebrow={copy.eyebrow}
       logoSrc={logo}
+      fluid
       cta={{ label: copy.buttonLabel, href: copy.buttonHref }}
       below={
         <>
