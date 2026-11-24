@@ -13,7 +13,7 @@ import '../lms-v3/frame.css';
 import '../lms-v3/lms.tokens.css';
 import '../lms-v3/lms.css';
 import './buyer.css';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -27,7 +27,6 @@ import { useAppReady } from '../../../shell/hooks';
 import { themeVM } from '../../../shell/learner/shell.vm';
 import { useLearnerPrefs } from '../../../shell/learner/useLearnerPrefs';
 import { paymentLinks, startSkillCheckout } from '../../library/SkillPurchase';
-import { Component as Account } from '../Account';
 import { LearnProvider } from '../data';
 import type { LearnContext } from '../data';
 import { LABELS } from '../learn.vm';
@@ -36,7 +35,6 @@ import { Icon, IconSprite } from '../lms-v3/Icons';
 import { LOGOS } from '../lms-v3/logos';
 import { KEEP_TAP, NO_TAP, TODAY_TAP } from '../lms-v3/tap';
 import { LEARN_ROOT, learnAccount, learnHome, learnSkills } from '../routes';
-import { Component as SkillPage } from '../Skill';
 import { useGuide, useSkills } from '../skills-data';
 import { RollLabel } from '@brand/ai-motion';
 import { buyerCurrent, buyerHere, buyerShell, buyerSkills, buyerView, initialsOf, isSkillBuyer, outlineOf, ownedOf, stripOf, v3PageOf } from './buyer.vm';
@@ -45,6 +43,11 @@ import { Accelerator, Home, Library, LockedSkill, Office, Training } from './pag
 import type { Checkout, Links } from './pages';
 
 const ACCOUNT = '.sh-acct';
+
+// The members' pages the frame draws as they are (a held skill's guided setup, the Account page), loaded when one is
+// shown, so the buyer's own pages never load theirs.
+const SkillPage = lazy(() => import('../Skill'));
+const Account = lazy(() => import('../Account'));
 const LINKS_KEY = ['offer', 'payment-links'] as const;
 const OUTLINE_KEY = ['buyer', 'course-outline'] as const;
 
@@ -220,7 +223,7 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
             <div data-ai={view.kind}>{page}</div>
           ) : (
             <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme} style={TODAY_TAP}>
-              {page}
+              <Suspense fallback={null}>{page}</Suspense>
             </div>
           )}
         </AppShell>

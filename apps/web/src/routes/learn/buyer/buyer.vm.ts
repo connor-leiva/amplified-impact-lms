@@ -3,8 +3,7 @@
 import { skillOnlyBuyer } from '@ai/core/offer';
 import type { SkillSet } from '@ai/core/offer';
 import { guidePageOf } from '@ai/core/skill-guides';
-import { leadFor } from '../../../library/content';
-import { platformsOf } from '../Library.vm';
+import { TOOLS, leadFor } from '../../../library/content';
 import type { ApiSkill, FileKind, SkillsPayload } from '../Library.vm';
 import { LEARN_ROOT, learnAccount, learnHome, learnOfficeHours, learnSkill, learnSkills, learnTraining, learnWeek } from '../routes';
 import type { Shell } from '../lms-v3/AppShell';
@@ -38,8 +37,15 @@ export interface BuyerSkill {
   tools: string;
 }
 
-/** The AI apps a skill's downloads are for, as the members' Skill Library says it (`platformsOf`). */
-export const toolsOf = (files: readonly FileKind[]): string => platformsOf(files);
+/**
+ * The AI apps a skill's downloads are for, as the members' Skill Library says it ("Grok Bot, Claude or ChatGPT": its
+ * `platformsOf`, from the same TOOLS names). Its own copy, so the buyer's frame never loads the library's view-model.
+ */
+export function toolsOf(files: readonly FileKind[]): string {
+  const names = (['grok', 'claude', 'chatgpt'] as const).filter((k) => files.includes(k)).map((k) => TOOLS[k]);
+  if (names.length <= 1) return names[0] ?? '';
+  return `${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}`;
+}
 
 export function buyerSkill(s: ApiSkill, purchased: readonly string[]): BuyerSkill {
   const slug = guidePageOf(s.id);
