@@ -22,6 +22,8 @@
 //     object literal)
 // So the nine-row table in § 8.1 and this file cannot drift in either direction.
 
+import { sessionTimeMtCt } from '@ai/core';
+
 /**
  * The nine templates in § 8.1's table, in table order.
  *
@@ -80,8 +82,9 @@ export interface SubjectData {
   'staff-invite': NoSubjectData;
   announcement: { title: string };
   // `label` (D-110): an office hour's "Week 2", which reads better than its `n` (102). Absent: `Session {n}`.
-  'session-24h': { n: number; title: string; label?: string };
-  'session-1h': { n: number; title: string; label?: string };
+  // D-250: `start` and `mins` give the reminder's time, in Mountain and Central (`sessionTimeMtCt`).
+  'session-24h': { n: number; title: string; label?: string; start: number; mins?: number };
+  'session-1h': { n: number; title: string; label?: string; start: number; mins?: number };
   'replay-ready': { n: number; title: string };
   'build-reminder': { employee: string };
   'weekly-digest': NoSubjectData;
@@ -116,8 +119,9 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   // § 8.1: the announcement's subject IS its title, with no prefix of ours. `sendAnnouncement`
   // already requires a non-empty title, so there is nothing to fall back to and nothing to add.
   announcement: (d) => d.title,
-  'session-24h': (d) => `Tomorrow: ${sessionLine(d)}`,
-  'session-1h': (d) => `Starting in 1 hour: ${sessionLine(d)}`,
+  // D-250: § 8.1's two, with the session's time after it, Mountain Time first and Central Time after it.
+  'session-24h': (d) => `Tomorrow: ${sessionLine(d)} · ${sessionTimeMtCt(d.start, d.mins)}`,
+  'session-1h': (d) => `Starting in 1 hour: ${sessionLine(d)} · ${sessionTimeMtCt(d.start, d.mins)}`,
   'replay-ready': (d) => `Replay is up: ${sessionLine(d)}`,
   // § 8.1 interpolates the AI Employee's name, so this reads "Finish your Listing Prep Assistant".
   'build-reminder': (d) => `Finish your ${d.employee}`,

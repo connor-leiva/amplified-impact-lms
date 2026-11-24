@@ -32,8 +32,11 @@ import { fmt, setViewerZone, viewerZone } from '@ai/core';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
 import { SUBJECTS, TEMPLATE_NAMES } from '../subjects';
 import type { TemplateName } from '../subjects';
-import { CONTENT_WIDTH, appBase, elementFor, renderEmail, renderTemplate, whenFor, zoneFor } from './index';
+import { CONTENT_WIDTH, appBase, elementFor, renderEmail, renderTemplate } from './index';
 import type { EmailPayload } from './index';
+
+/** D-250: the card's time as the reminder draws it, each zone's half kept on one line. */
+const cardTime = (t: string): string => `>${t.split(' / ').map((h) => `<span style="white-space:nowrap;">${h}</span>`).join(' / ')}</div>`;
 
 // ---------- anchors ----------------------------------------------------------------------------
 
@@ -46,9 +49,9 @@ const APP = 'https://app.amplifiedimpact.test';
 /** Session 3 of the December 2026 cohort: 2026-12-09T13:00 CT, the same anchor Gate 2 uses. */
 const S3_START = Date.parse('2026-12-09T13:00:00-06:00');
 
-const CHICAGO = 'America/Chicago';
-const NEW_YORK = 'America/New_York';
-/** `ZONES`'s last entry. Here only as a third candidate for "a zone this host is not already in". */
+/** D-250: Session 3's time in the reminders, Mountain Time first and Central Time after it (75 minutes). */
+const S3_TIME = 'Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
+/** A zone a viewer might have, to show the reminders never read one. */
 const HONOLULU = 'Pacific/Honolulu';
 
 let savedAppUrl: string | undefined;
@@ -83,8 +86,8 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
     action: 'calendar',
     actionLabel: 'Update Calendar',
   },
-  'session-24h': { n: 3, title: 'The Living Database', start: S3_START, zone: CHICAGO, firstName: 'Pat' },
-  'session-1h': { n: 3, title: 'The Living Database', start: S3_START, zone: CHICAGO, firstName: 'Pat' },
+  'session-24h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat' },
+  'session-1h': { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat' },
   'replay-ready': { n: 2, title: 'Speed to Lead', employee: 'Sales AI Employee', moduleId: 'sales' },
   'build-reminder': { employee: 'Marketing AI Employee', moduleId: 'marketing', steps: 3 },
   'weekly-digest': {},
@@ -104,8 +107,8 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'team-invite': SUBJECTS['team-invite']({ inviter: 'Alex Rivera', team: 'Northline Realty' }),
   'staff-invite': SUBJECTS['staff-invite']({}),
   announcement: SUBJECTS.announcement({ title: 'Session 3 moved to Wed Dec 9 · 1:00 PM CT' }),
-  'session-24h': SUBJECTS['session-24h']({ n: 3, title: 'The Living Database' }),
-  'session-1h': SUBJECTS['session-1h']({ n: 3, title: 'The Living Database' }),
+  'session-24h': SUBJECTS['session-24h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 }),
+  'session-1h': SUBJECTS['session-1h']({ n: 3, title: 'The Living Database', start: S3_START, mins: 75 }),
   'replay-ready': SUBJECTS['replay-ready']({ n: 2, title: 'Speed to Lead' }),
   'build-reminder': SUBJECTS['build-reminder']({ employee: 'Marketing AI Employee' }),
   'weekly-digest': SUBJECTS['weekly-digest']({}),
@@ -235,7 +238,7 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
         expect(html).toContain('Hi Pat,');
         expect(html).toContain('>Session 3</div>');
         expect(html).toContain('>The Living Database</div>');
-        expect(html).toContain('Wed, Dec 9 · 1:00 PM CT (12:00 PM MT)');
+        expect(html).toContain(cardTime(S3_TIME));
         expect(html).toContain('<span style="font-weight:500;">Connor</span>');
         expect(html).toContain(`>${CTA[name].label}</a>`);
         expect(html).toContain(`href="${CTA[name].href}"`);
@@ -442,47 +445,40 @@ describe('email templates · what would break in a real inbox @g8', () => {
 });
 
 // ================================================================================================
-// D-250: the RECIPIENT's zone first and Mountain Time in parentheses, or Mountain Time alone
+// D-250: every reminder time in Mountain and Central, MT first, the same for every reader
 // ================================================================================================
 
-describe('email templates · recipient time zones @g8', () => {
-  const htmlFor = (name: 'session-24h' | 'session-1h', zone: string | null | undefined): string =>
-    elementFor(name, { n: 3, title: 'The Living Database', start: S3_START, zone, firstName: 'Pat' }).html!;
+describe('email templates · the reminders’ time, MT / CT @g8', () => {
+  const rendered = (name: 'session-24h' | 'session-1h', over: Record<string, unknown> = {}) =>
+    elementFor(name, { n: 3, title: 'The Living Database', start: S3_START, mins: 75, firstName: 'Pat', ...over });
 
-  it('renders a session instant in the recipient’s saved zone, with Mountain Time in parentheses @g8', () => {
-    // Viewer zone first, program zone in parentheses: CLAUDE.md's time rule, with this program's zone (D-250).
-    expect(htmlFor('session-24h', NEW_YORK)).toContain('Wed, Dec 9 · 2:00 PM ET (12:00 PM MT)');
-    expect(htmlFor('session-1h', HONOLULU)).toContain('Wed, Dec 9 · 9:00 AM HT (12:00 PM MT)');
-  });
-
-  it('renders Mountain Time alone when the recipient has no saved zone @g8', () => {
-    for (const zone of [undefined, null, '']) {
-      const html = htmlFor('session-1h', zone);
-      expect(html).toContain('Wed, Dec 9 · 12:00 PM MT');
-      expect(html).not.toContain('(12:00 PM MT)');
-      expect(html).not.toContain(' CT');
+  it('shows the range in Mountain and Central, MT first, in the subject, the card and the text @g8', () => {
+    for (const name of ['session-24h', 'session-1h'] as const) {
+      const out = rendered(name);
+      expect(out.subject.endsWith(` · ${S3_TIME}`)).toBe(true);
+      expect(out.html).toContain(cardTime(S3_TIME));
+      expect(out.text).toContain(S3_TIME);
     }
   });
 
-  it('renders Mountain Time alone when the recipient’s saved zone is not a zone at all @g8', () => {
-    // `users.prefs` is free-form `jsonb` with no enum and no check constraint, so `tz` is NOT guaranteed to be one
-    // of `ZONES`'s eight. A plausible typo, because that is the value this actually happens with.
-    const TYPO = 'America/Chigago';
-    // The premise, asserted rather than assumed: if `Intl` ever accepted this string the rest would measure nothing.
-    expect(() => new Intl.DateTimeFormat('en-US', { timeZone: TYPO })).toThrow(RangeError);
-    // Rendering in it would throw out of `elementFor`, and that one learner would get no email at all.
-    expect(zoneFor(TYPO)).toBeNull();
-    expect(whenFor(S3_START, TYPO)).toBe('Wed, Dec 9 · 12:00 PM MT');
-    expect(htmlFor('session-24h', TYPO)).toContain('Wed, Dec 9 · 12:00 PM MT');
+  it('shows the start alone when the payload has no length @g8', () => {
+    const out = rendered('session-1h', { mins: undefined });
+    expect(out.html).toContain(cardTime('Wed, Dec 9, 12:00 PM MT / 1:00 PM CT'));
+    expect(out.subject).toBe('Starting in 1 hour: Session 3 · The Living Database · Wed, Dec 9, 12:00 PM MT / 1:00 PM CT');
   });
 
-  it('never sets or reads the shared viewer zone, so concurrent renders can’t trade zones @g8', () => {
-    // `fmt` reads a module-level viewer zone (`packages/core/src/time.ts`). `whenFor` takes the zone as an argument
-    // (`mountainWhenFor`), so whatever the shared zone is, each recipient gets their own, and it is left untouched.
+  it('is the same for every reader: a saved zone in the payload changes nothing @g8', () => {
+    // § 8.1 had rendered each recipient's saved zone; D-250 shows MT / CT to everyone, so the job sends no zone, and
+    // one that arrived anyway is not read.
+    const plain = rendered('session-24h').html;
+    expect(rendered('session-24h', { zone: 'America/New_York' }).html).toBe(plain);
+    expect(plain).not.toMatch(/ ET\b| HT\b| PT\b/);
+  });
+
+  it('never reads or changes the shared viewer zone @g8', () => {
     setViewerZone(HONOLULU);
     const before = fmt.when(S3_START);
-    expect(whenFor(S3_START, NEW_YORK)).toBe('Wed, Dec 9 · 2:00 PM ET (12:00 PM MT)');
-    expect(whenFor(S3_START, null)).toBe('Wed, Dec 9 · 12:00 PM MT');
+    expect(rendered('session-24h').html).toContain(cardTime(S3_TIME));
     expect(viewerZone()).toBe(HONOLULU);
     expect(fmt.when(S3_START)).toBe(before);
     setViewerZone(null);

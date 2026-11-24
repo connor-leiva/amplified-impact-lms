@@ -58,13 +58,10 @@
 // ================================================================================================
 // TIME ZONES
 // ================================================================================================
-// § 8.1: "Session times in emails use `fmt.when` with the RECIPIENT's saved zone, and fall back to
-// CT." That fallback is a REAL host-zone risk — `fmt.*` resolves through `viewerZone()`, which ends
-// at the host's zone when nothing sets one — so nothing in this file asserts a rendered instant.
-// `templates.test.tsx` owns that, with three dedicated zone tests, and `recipient.ts` is what pins
-// the zone per render. What is asserted here is the SUBJECT, which interpolates only `{n}` and
-// `{title}`, and the `job_runs` keys, which are ids. Both are byte-identical in either zone; the
-// two-zone run is in the report regardless.
+// D-250: the reminders show their time in Mountain Time first and Central Time after it, the same for every
+// recipient and on any host (`sessionTimeMtCt` takes no viewer zone). § 8.1 had rendered each recipient's saved
+// zone. What is asserted here is the SUBJECT, which now carries that time, and the `job_runs` keys, which are ids.
+// `templates.test.tsx` and `sessionTimeMtCt`'s own tests own the time's words.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
@@ -87,8 +84,11 @@ const APP_URL = 'https://learn.example.com';
 
 const HOUR = 3600e3;
 
-/** § 8.1's `session-24h` subject, `Tomorrow: Session {n} · {title}`, resolved for Session 3. */
-const SUBJECT = 'Tomorrow: Session 3 · The Living Database';
+/**
+ * § 8.1's `session-24h` subject, `Tomorrow: Session {n} · {title}`, resolved for Session 3, with its time after it in
+ * Mountain and Central (D-250): Wed, Dec 9, 12:00 PM MT, 75 minutes.
+ */
+const SUBJECT = 'Tomorrow: Session 3 · The Living Database · Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
 
 let app: App;
 let savedAppUrl: string | undefined;

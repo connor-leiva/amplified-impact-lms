@@ -47,12 +47,12 @@ export const CASES: EmailCase[] = [
   {
     name: 'session-1h',
     template: 'session-1h',
-    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, zone: 'America/Denver' },
+    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, mins: 90 },
   },
   {
     name: 'session-24h',
     template: 'session-24h',
-    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, zone: 'America/Denver' },
+    data: { n: 2, title: 'Lead Source Review Live Build', start: S2_START, mins: 90 },
   },
   {
     name: 'announcement (Open Sessions)',

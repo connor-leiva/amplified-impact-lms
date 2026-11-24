@@ -14,7 +14,7 @@
 //   }
 //
 // This file is that function, and NOTHING ELSE. The five jobs in § 8.5's array do not appear here:
-// `jobs/due.ts` already is them, lifted into one pure `dueWork(db, now, alreadySent, zones)` whose
+// `jobs/due.ts` already is them, lifted into one pure `dueWork(db, now, alreadySent)` whose
 // `TOGGLE` map is total over `JobName`, so a sixth job cannot be added without declaring which
 // Automated Reminders switch gates it. There is therefore no job-array parameter to pass — the list
 // is not a thing a caller should be able to get wrong, and `due.test.ts` has 60-odd assertions
@@ -22,7 +22,7 @@
 //
 //   1. the 60-second loop, and stopping it on SIGTERM
 //   2. `pg_try_advisory_xact_lock(4242)`, so one replica executes jobs
-//   3. reading the `job_runs` ledger into `alreadySent`, and `users.prefs.tz` into `zones`
+//   3. reading the `job_runs` ledger into `alreadySent`
 //   4. writing the ledger rows and dispatching the mail
 //   5. applying the scheduled-announcement flips
 //
@@ -122,12 +122,12 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { loadDb } from '../db/io';
 import type { Queryable } from '../db/io';
-import { announcements, jobRuns, users } from '../db/schema';
+import { announcements, jobRuns } from '../db/schema';
 import { send } from '../email/transport';
 import type { SendRequest, TemplateName } from '../email/transport';
 import { clock } from '../lib/clock';
 import { NO_KEYS, dueWork } from './due';
-import type { Send, ZoneLookup } from './due';
+import type { Send } from './due';
 import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorRoster } from '../lib/course-access';
@@ -273,25 +273,6 @@ function lockGranted(value: unknown): boolean {
       'neither true nor false. Refusing to guess: one guess double-runs every tick and the other ' +
       'silently stops the scheduler forever.',
   );
-}
-
-/**
- * § 8.1's "the RECIPIENT's saved zone", as `dueWork`'s fourth argument.
- *
- * `select id, prefs from users` — the query `due.ts`'s header names, and the reason the argument
- * exists at all: `users.prefs` is a real jsonb column but `@ai/core`'s `Learner` has no `prefs`
- * field, so a `Db` physically cannot answer "what zone did this learner save?" (D-022's sibling
- * problem; `ZoneLookup` carries the full argument).
- *
- * `?? null` rather than leaving a learner out of the map: `null` is what the column stores for
- * "Auto" (`ZONES`'s first entry is `['', 'Auto']`) and what `whenFor` turns into Mountain Time alone (D-250; § 8.1
- * had CT). Both readings end in Mountain Time, but one of them says so on purpose.
- */
-export async function savedZones(tx: Queryable): Promise<ZoneLookup> {
-  const rows = await tx.select({ id: users.id, prefs: users.prefs }).from(users);
-  const zones = new Map<string, string | null | undefined>();
-  for (const row of rows) zones.set(row.id, row.prefs?.tz ?? null);
-  return zones;
 }
 
 /**
@@ -452,7 +433,6 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     if (!lockGranted(rows[0]?.locked)) return null;
 
     const snapshot = await loadDb(tx);
-    const zones = await savedZones(tx);
     // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110), read at each
     // session's start for a reminder before it (H-14, D-248), so the first live build's reminders go out.
     const accelerator = await acceleratorRoster(tx);
@@ -462,9 +442,9 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     // twice is its documented contract ("`alreadySent` only ever subtracts", pinned by a test in
     // `due.test.ts`) and it keeps the ledger filter inside the function that owns it instead of
     // reimplementing the subtraction here.
-    const candidates = dueWork(snapshot, now, NO_KEYS, zones, accelerator).sends;
+    const candidates = dueWork(snapshot, now, NO_KEYS, accelerator).sends;
     const alreadySent = await keysAlreadyIn(tx, candidates);
-    const { sends, flip } = dueWork(snapshot, now, alreadySent, zones, accelerator);
+    const { sends, flip } = dueWork(snapshot, now, alreadySent, accelerator);
 
     // LEDGER FIRST. See the header.
     const recorded = await recordSends(tx, sends, now, log);

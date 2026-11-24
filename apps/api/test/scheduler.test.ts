@@ -16,9 +16,8 @@
 //      argument). The observable consequence — a refused send is NOT retried — is a promise this
 //      file has to pin, because it is the cost of the choice and the thing a future reader would
 //      otherwise "fix".
-//   4. THE ZONE COLUMN. `users.prefs.tz` has no `Learner` field (D-022's sibling problem), so
-//      `dueWork` takes a `ZoneLookup` it cannot populate. `savedZones` is the query, and whether
-//      it reaches the recipient's email is only visible end to end.
+//   4. THE TIME. D-250: the reminders show Mountain Time first and Central Time after it to everyone,
+//      so a saved zone (`users.prefs.tz`) must not reach the email. Only visible end to end.
 //   5. THE LOOP ITSELF. SIGTERM stopping the interval, and a thrown job not killing it.
 //
 // Every test here is one of those five. The transport is in test mode (an in-memory outbox,
@@ -37,6 +36,9 @@ import { SCHEDULER_LOCK, TICK_MS, runScheduledJobs, startScheduler } from '../sr
 import type { SchedulerDb, SchedulerLog } from '../src/jobs/scheduler';
 import { announcements, jobRuns, reminders, users } from '../src/db/schema';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
+
+/** D-250: the card's time as the reminder draws it, each zone's half kept on one line. */
+const cardTime = (t: string): string => `>${t.split(' / ').map((h) => `<span style="white-space:nowrap;">${h}</span>`).join(' / ')}</div>`;
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -284,7 +286,10 @@ describe('Gate 8 · the scheduler at 2026-12-08T13:00 CT @g8', () => {
     const sent = outbox();
     expect(sent).toHaveLength(EVERYONE.length);
     expect(toOf(sent)).toEqual(SEED.users.map((u) => u.email));
-    expect(new Set(sent.map((e) => e.subject))).toEqual(new Set(['Tomorrow: Session 3 · The Living Database']));
+    // D-250: with the session's time after it, Mountain Time first and Central Time after it.
+    expect(new Set(sent.map((e) => e.subject))).toEqual(
+      new Set(['Tomorrow: Session 3 · The Living Database · Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT']),
+    );
     // The renderer is registered, so a body is proof the payload rendered rather than proof it
     // typechecked.
     for (const entry of sent) expect(entry.html).toContain('The Living Database');
@@ -514,16 +519,11 @@ describe('§8.5 scheduled announcements @g8', () => {
 // 6. The recipient's saved zone
 // ===========================================================================
 
-describe('§8.1 the recipient’s saved zone @g8', () => {
-  it('reads users.prefs.tz into dueWork’s ZoneLookup, per recipient @g8', async () => {
-    // § 8.1: "Session times in emails use `fmt.when` with the RECIPIENT's saved zone, and fall back
-    // to CT." `dueWork` takes that as a parameter because `@ai/core`'s `Learner` has no `prefs`
-    // field while `users` has a `prefs` column — see `due.ts`'s `ZoneLookup`. `savedZones` is the
-    // query, and this is the only test that can prove the column reaches an inbox.
-    //
-    // Honolulu on purpose: it is the one zone where the 13:00 CT session renders on a DIFFERENT
-    // DAY, so a shell that shared one payload across all fourteen learners (or dropped the field)
-    // would send "Tomorrow:" about a session that is today.
+describe('D-250 the reminders’ time, MT / CT for everyone @g8', () => {
+  it('sends every recipient the same MT / CT time, whatever zone they saved @g8', async () => {
+    // § 8.1 had rendered each recipient's saved zone (`users.prefs.tz`); D-250 shows Mountain Time first and Central
+    // Time after it to everyone. Honolulu on purpose: the zone where Session 3 falls on a different day, so a send
+    // that still read the column would show here. Session 3: Wed, Dec 9, 12:00 PM MT, 75 minutes.
     await resetDatabase(SEED);
     const db = await testDatabase();
     await db.update(users).set({ prefs: { tz: 'Pacific/Honolulu' } }).where(eq(users.id, 'u_jamie'));
@@ -532,18 +532,14 @@ describe('§8.1 the recipient’s saved zone @g8', () => {
     const run = await runScheduledJobs();
     expect(run.sent).toBe(EVERYONE.length);
 
+    const time = 'Wed, Dec 9, 12:00 to 1:15 PM MT / 1:00 to 2:15 PM CT';
     const jamie = SEED.users.find((u) => u.id === 'u_jamie')!;
-    const [mine] = outboxFor({ to: jamie.email });
-    expect(mine!.data.zone).toBe('Pacific/Honolulu');
-
-    // Everybody else keeps § 8.1's CT fallback, spelled as an explicit `null` rather than as a
-    // missing key — the defect `due.ts` records at length, because an absent `zone` reads as "the
-    // recipient is Central" for all fourteen, silently.
     for (const entry of outbox()) {
-      if (entry.to === jamie.email) continue;
-      expect(entry.data).toHaveProperty('zone');
-      expect(entry.data.zone).toBeNull();
+      expect(entry.data).not.toHaveProperty('zone');
+      expect(entry.subject.endsWith(` · ${time}`)).toBe(true);
+      expect(entry.html).toContain(cardTime(time));
     }
+    expect(outboxFor({ to: jamie.email })).toHaveLength(1);
   });
 });
 

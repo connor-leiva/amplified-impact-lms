@@ -22,7 +22,6 @@
 import { ACCELERATOR_OPTIONS, acceleratorOpen, acceleratorUpcoming, isAcceleratorModule, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';
 import { canAccess, isOpen } from './status';
-import { zoneAbbr } from './time';
 import type { AIEmployee, Cohort, Learner, Resource } from './types';
 
 /** Whether a learner may enter the course now, and whether that is the pre-launch preview. */
@@ -111,25 +110,40 @@ const MT_TIME = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', h
 /** "Wed, Dec 9 · 12:00 PM MT": an instant as the course shows it. */
 export const mountainWhen = (t: number): string => `${MT_DAY.format(new Date(t))} · ${MT_TIME.format(new Date(t))} MT`;
 
+// --- a live session's time in the reminders (D-250): Mountain and Central, MT first ----------------------------------
+
+const CLOCK_PARTS = (zone: string) => new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit', hour12: true });
+const DAY_IN = (zone: string) => new Intl.DateTimeFormat('en-US', { timeZone: zone, weekday: 'short', month: 'short', day: 'numeric' });
+const MOUNTAIN = { zone: 'America/Denver', abbr: 'MT', clock: CLOCK_PARTS('America/Denver'), day: DAY_IN('America/Denver') };
+const CENTRAL = { zone: 'America/Chicago', abbr: 'CT', clock: CLOCK_PARTS('America/Chicago'), day: DAY_IN('America/Chicago') };
+type Zone = typeof MOUNTAIN;
+
+/** "12:00" and "PM" for an instant in one zone. */
+function clockIn(z: Zone, t: number): { hm: string; period: string } {
+  const parts = z.clock.formatToParts(new Date(t));
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? '';
+  return { hm: `${get('hour')}:${get('minute')}`, period: get('dayPeriod').toUpperCase() };
+}
+
+/** "12:00 to 1:30 PM MT", "11:30 AM to 1:00 PM MT", or "12:00 PM MT" with no end. */
+function rangeIn(z: Zone, start: number, end: number | null): string {
+  const s = clockIn(z, start);
+  if (end === null) return `${s.hm} ${s.period} ${z.abbr}`;
+  const e = clockIn(z, end);
+  const sameHalf = s.period === e.period && z.day.format(new Date(start)) === z.day.format(new Date(end));
+  return sameHalf ? `${s.hm} to ${e.hm} ${e.period} ${z.abbr}` : `${s.hm} ${s.period} to ${e.hm} ${e.period} ${z.abbr}`;
+}
+
 /**
- * D-250: an instant for one reader who may have saved a zone, as the course shows times. The reader's zone comes
- * first and Mountain Time follows in parentheses ("Wed, Dec 9 · 2:00 PM ET (12:00 PM MT)"), the time rule with this
- * program's zone. With no zone, a zone `Intl` can't format, or one whose clock and day are Mountain Time's, it is
- * `mountainWhen`'s one clock ("Wed, Dec 9 · 12:00 PM MT"). Takes the zone rather than reading the viewer zone, so a
- * server rendering many readers' emails at once can't hand one reader another's zone.
+ * D-250: a live session's time as the reminders show it, Mountain Time first and Central Time after it, both computed
+ * from the session's own instant, so each zone's daylight saving is its own: "Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00
+ * to 2:30 PM CT". With no length (`mins` absent or not positive), the start alone: "Wed, Dec 2, 12:00 PM MT / 1:00 PM
+ * CT". The day is Mountain Time's; where Central Time's start falls on another day, its own day comes with it.
  */
-export function mountainWhenFor(t: number, zone: string | null | undefined): string {
-  const z = zone?.trim();
-  if (!z) return mountainWhen(t);
-  let day: string;
-  let time: string;
-  try {
-    day = new Intl.DateTimeFormat('en-US', { timeZone: z, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(t));
-    time = new Intl.DateTimeFormat('en-US', { timeZone: z, hour: 'numeric', minute: '2-digit' }).format(new Date(t));
-  } catch {
-    return mountainWhen(t);
-  }
-  const mtTime = MT_TIME.format(new Date(t));
-  if (day === MT_DAY.format(new Date(t)) && time === mtTime) return mountainWhen(t);
-  return `${day} · ${time} ${zoneAbbr(z, t)} (${mtTime} MT)`;
+export function sessionTimeMtCt(start: number, mins?: number | null): string {
+  const end = typeof mins === 'number' && Number.isFinite(mins) && mins > 0 ? start + mins * 60_000 : null;
+  const day = MOUNTAIN.day.format(new Date(start));
+  const ctDay = CENTRAL.day.format(new Date(start));
+  const ct = rangeIn(CENTRAL, start, end);
+  return `${day}, ${rangeIn(MOUNTAIN, start, end)} / ${ctDay === day ? ct : `${ctDay}, ${ct}`}`;
 }

@@ -4,8 +4,9 @@
 //   session-24h   a day out: we build together tomorrow, the session and its time, and a button to it
 //   session-1h    an hour out: we start in an hour, see you there, and the Join button's page
 //
-// THE TIME. Mountain Time, with "MT", for a reader with no saved zone; a reader who saved one sees theirs first and
-// Mountain Time in parentheses (`mountainWhenFor`, through `whenFor` in `recipient.ts`).
+// THE TIME. Mountain Time first and Central Time after it, for every reader, both computed from the session's instant
+// ("Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT", `sessionTimeMtCt`), in the card, the preheader and the
+// subject. No saved zone: Connor asked for MT / CT always.
 //
 // NEITHER REMINDER LINKS TO ZOOM. § 8.4 keeps the Zoom URL on the server (`GET /api/sessions/:id/join` hands it over
 // only inside the join window), and there is no address that joins a session by itself: Join is a button that asks the
@@ -25,7 +26,7 @@ export interface SessionReminderInput {
   label: string;
   /** The session's title, as staff typed it. */
   title: string;
-  /** The session instant, already rendered for the reader (`whenFor`). */
+  /** The session's time, already rendered in Mountain and Central (`sessionTimeMtCt`). */
   when: string;
   /** The reader's first name, or '' for none. */
   firstName: string;
@@ -68,19 +69,28 @@ export const SESSION_REMINDER_COPY: Readonly<Record<SessionReminderKind, Copy>> 
 export const SESSION_REMINDER_FROM = 'Connor';
 
 const greeting = (first: string): string => (first ? `Hi ${first},` : 'Hi,');
+
+/**
+ * The time on the card, each zone's half kept on one line ("Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT"),
+ * so a phone breaks it after the slash rather than inside Central's range.
+ */
+const cardTime = (when: string): string =>
+  when
+    .split(' / ')
+    .map((half) => `<span style="white-space:nowrap;">${esc(half)}</span>`)
+    .join(' / ');
 const sessionsHref = (appUrl?: string | null): string => absolute(ROUTES.sessions, appUrl);
 
 export function sessionReminderHtml(kind: SessionReminderKind, input: SessionReminderInput): string {
   const c = SESSION_REMINDER_COPY[kind];
-  const when = esc(input.when);
   return brandedEmailHtml({
     title: c.heading,
-    preheader: c.preheader(when),
+    preheader: c.preheader(esc(input.when)),
     eyebrow: c.eyebrow,
     heading: c.heading,
     rows: [
       letterRow([esc(greeting(input.firstName.trim())), c.note]),
-      cardRow(esc(input.label), esc(input.title), when),
+      cardRow(esc(input.label), esc(input.title), cardTime(input.when)),
       buttonRow(c.button, sessionsHref(input.appUrl)),
       fineRow(c.fine),
       signoffRow(c.closing, SESSION_REMINDER_FROM),

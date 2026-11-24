@@ -57,15 +57,13 @@ import { skillPurchaseHtml, skillPurchaseText, type SkillPurchaseHtmlInput } fro
 import { learnerInviteHtml, learnerInviteText, learnerNudgeHtml, learnerNudgeText } from './learner-emails-html';
 import { SignInEmail } from './sign-in';
 import { safeNext } from '@ai/core/landing';
+import { sessionTimeMtCt } from '@ai/core';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
-import { whenFor } from './recipient';
 
 export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
 export { ROUTES, absolute, appBase, employeePath, invitePath, setPasswordPath, signInPath } from './links';
-export { whenFor, zoneFor } from './recipient';
-export type { RecipientZone } from './recipient';
 
 // `BodyData` and `EmailPayload` live in `./payload.ts` — a leaf module with no runtime imports — so
 // that `transport.ts` can name the payload type without importing this module, and therefore
@@ -200,17 +198,19 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     }
 
     // D-250: the learner emails' design, as a note from Connor (the HTML string, as `skill-purchase` sends it). The
-    // time is the recipient's zone first and Mountain Time in parentheses, or Mountain Time alone (`whenFor`).
+    // time is Mountain Time first and Central Time after it, from the session's instant (`sessionTimeMtCt`).
     case 'session-24h':
     case 'session-1h': {
       const n = num(template, data, 'n');
       const title = str(template, data, 'title');
       const label = optStr(data, 'label');
-      const subject = SUBJECTS[template]({ n, title, ...(label ? { label } : {}) });
+      const start = num(template, data, 'start');
+      const mins = typeof data.mins === 'number' ? data.mins : undefined;
+      const subject = SUBJECTS[template]({ n, title, start, ...(label ? { label } : {}), ...(mins !== undefined ? { mins } : {}) });
       const input: SessionReminderInput = {
         label: label ?? `Session ${n}`,
         title,
-        when: whenFor(num(template, data, 'start'), optStr(data, 'zone')),
+        when: sessionTimeMtCt(start, mins),
         firstName: optStr(data, 'firstName') ?? '',
         appUrl,
       };
