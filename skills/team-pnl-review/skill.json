@@ -2,7 +2,8 @@
   "name": "team-pnl-review",
   "page": "team-pnl-review",
   "title": "Team P&L Review",
-  "version": "1.0",
+  "version": "1.1",
   "apps": ["claude", "chatgpt"],
-  "shared": []
+  "shared": [],
+  "pageKit": true
 }

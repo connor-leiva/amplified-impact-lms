@@ -1,6 +1,6 @@
 # Analysis Code
 
-Last verified: 2026-11-08. The terms and formulas this code uses are explained, with sources, in pnl-terms.md; the layouts it reads (QuickBooks Online and Desktop, Xero, the P&L Detail, Sisu and back-office closing exports) are in pnl-review-guide.md. The thresholds at the top are this review's defaults, not industry standards.
+Last verified: 2026-11-08. The terms and formulas this code uses are explained, with sources, in the P&L Terms part of pnl-review-guide.md; the layouts it reads (QuickBooks Online and Desktop, Xero, the P&L Detail, Sisu and back-office closing exports) are in pnl-review-guide.md. The thresholds at the top are this review's defaults, not industry standards.
 
 Run this code with Python 3 on the uploaded files. It uses Python's standard library, plus openpyxl for an .xlsx file and pdfplumber (or the pdftotext command) for a PDF. Do not paste it into the conversation. It never prints client names, addresses, agents' payouts, employees' pay or memo lines: charges in agent split, payroll and owner accounts show "(payee not shown)".
 

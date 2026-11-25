@@ -1,10 +1,10 @@
 ---
 name: agent-1on1-prep
 description: "Preps a team leader or coach for a coaching one-on-one with one agent, from that agent's numbers (a Sisu Agent Accountability or dashboard printout, a Follow Up Boss report, or a spreadsheet of appointments set and met, signed, under contract, closings, volume and GCI by month), their goals or business plan, last time's notes and the leader's notes. It does the pace math in code (year to date against the prorated goal, arithmetic shown), shows what changed since last time, lists last time's commitments with status exactly as given, and drafts open questions, one to three possible focus areas, an agenda and a recap template. Facts, not judgments. Use it when someone says prep my 1:1 with an agent, coaching session, accountability meeting or check-in, or attaches one agent's numbers and goals, even if they never say one-on-one. Not for the team's P&L (team-pnl-review), recruiting conversations (recruiting-prep), the weekly team L10 (l10-meeting-prep) or the team's weekly pipeline (fub-pipeline-review)."
-compatibility: "Needs code execution (Settings > Capabilities > Code execution and file creation) to read the numbers and do every sum, prorated goal and pace in Python. Works from uploaded CSV or Excel files, PDF printouts and pasted notes. A Sisu or Follow Up Boss connector, if one is connected, is used read only."
+compatibility: "Needs code execution (Settings > Capabilities > Code execution and file creation) to read the numbers, do every sum, prorated goal and pace in Python, and build the page it hands back. Works from uploaded CSV or Excel files, PDF printouts and pasted notes. A Sisu or Follow Up Boss connector, if one is connected, is used read only."
 metadata:
   author: Amplified Impact
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Agent 1:1 Prep
@@ -12,6 +12,13 @@ metadata:
 Turn one agent's numbers, goals and notes into the page a team leader walks into a coaching one-on-one with: where the agent stands against their own goal with the pace arithmetic shown, what changed since last time, last time's commitments carried forward exactly as given, and the questions to ask. Sisu already shows each agent's dashboard and pacer; the value here is the prep, and the risk is a guess, a label or a personal detail slipping into it.
 
 **Run:** reads the numbers, goals and notes, does every sum, prorated goal, pace and ratio in code with the arithmetic shown, and lines up last time's commitments with their status as given. **Draft:** the prep (questions, focus options, agenda) and a recap template, for the leader to read first. **Own:** the leader picks the focus and decides what to raise and how; the agent gives their own commitments and status; any judgment about the agent's work, and anything about pay, splits, HR or their place on the team, stays with the leader, the broker and HR. This skill never sends anything and never writes to Sisu or a CRM.
+
+## Before You Start: Code
+This skill hands back a page: one HTML file the leader can sort, search and print. The page is built by
+`scripts/build_page.py`, so it needs code execution (Claude: Settings > Capabilities > Code execution and
+file creation. ChatGPT: the code tool). Check once with `python3 SKILL_FOLDER/scripts/build_page.py --help`
+(`python` if `python3` is not found).
+If code can't run, stop and say how to turn it on. Never estimate or hand-write the page.
 
 ## 1. Get the Files
 
@@ -48,7 +55,19 @@ Follow `references/prep-rules.md` for each part:
 - **Last time's commitments:** word for word, status exactly as given with its source, a matching number from the file beside a numeric one as a fact.
 - **Open coaching questions,** **possible focus areas** (one to three from the run's candidates, as options), the **agenda** and the **recap template.**
 
-## 5. Guardrails
+## 5. Hand It Back As A Page
+1. The run's `one_on_one_data.json` is the facts file: every number the page uses is in it or in the inputs. Never type a number by hand.
+2. Write `page.json` in OUTPUT_FOLDER: the sections in "Output, In This Order", using the section kinds in
+   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). The recap goes in one `drafts` section. Check Before Sending is the last section, a `checklist`.
+3. Write `words.json`: the headline (two short sentences) and three findings, the bottom line's three parts, each `status: quiet` with a short `chip` naming its part ("Pace", "Since <last 1:1 date>", "Commitments"). No moves: the focus is the leader's call. Status words stay facts, never verdicts: a measure against its prorated goal takes `on` with "At Goal" or `hold` with "Under Goal", the run's own words; never `off`, "behind" or "on track".
+4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts one_on_one_data.json --inputs <their CSV and text files (not a spreadsheet or PDF), and the leader's message saved to a file> --out OUTPUT_FOLDER/Agent-1on1-Prep-<Agent-Name>-<YYYY-MM-DD>.html` (the meeting's date). Write every clock time in MT, both ends of a range ("10:00 AM MT to 10:05 AM MT"); the build adds the CT time beside each. Outside Mountain time, add `--tz-label` with the team's zone.
+5. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case,
+   "industry standard", a line saying something was sent). Fix the words, never the check, and build again.
+6. Hand over the file at the path the build printed, with `one_on_one_data.md` beside it (Claude: the outputs folder, so it shows as a download. ChatGPT: the download link, and say "download it now, the link
+   expires"). A Data Check that comes from their files (a column to confirm, a goal left out, a month not totaled) stays on the page: say so in one line. Then four lines in the chat: the headline, the number that matters, the first open question, and "check
+   every number against your files before you act."
+
+## 6. Guardrails
 
 - **Never invent.** No number, goal, commitment, status, date or event that isn't in the inputs or the run. A missing goal means no pace math, and the prep says so. An empty or unreadable cell stays as it is.
 - **Status only as given.** Never mark a commitment done, not done, missed or late from numbers, dates or silence.
@@ -58,17 +77,19 @@ Follow `references/prep-rules.md` for each part:
 - **Drafts only, read only.** Never send the recap, never write to Sisu, Follow Up Boss or any CRM, even with a connector.
 - **Stay in lane.** No benchmarks or "typical agent" numbers, no income projections. Sisu stays the source of record for its own pacer and conversion; name it when it answers better.
 
-## 6. Output, In This Order
+## 7. Output, In This Order
 
-1. **Flags:** the files read, the as-of date and where it came from, the meeting date, time and length (given or default), the pace window and any partial month left out, goals (prorated how, any left out and why, or none), columns to confirm, anything left out for privacy or pay, and a one-line answer to any comparison or verdict asked for.
-2. **Bottom line** (three sentences max): where the agent stands against their own goal (or that there's no goal), what changed since last time, and the commitments' statuses as given.
-3. **Numbers Against Goal**, with the arithmetic.
-4. **What Changed Since the Last One-on-One.**
-5. **Last Time's Commitments.**
-6. **Open Coaching Questions.**
-7. **Possible Focus Areas (Your Call).**
-8. **Agenda**, labeled a suggestion.
-9. **Recap Template (Fill In After)**, with a Title Case subject and [placeholders].
-10. **Check Before Sending:** every item listed in `references/prep-rules.md`.
+The page holds these sections in this order, each kind in brackets; the page draws the bottom line at the top, so Flags is the first section under it. The chat gets four lines.
 
-Attach `one_on_one_data.md` so the leader can see every sum. Say it is for the leader, not the agent's file. If the user asks for one part ("just the questions"), give that part with Flags and Check Before Sending.
+1. **Flags** (`callouts`, the left-out line first with `hold` and "Left Out"): the files read, the as-of date and where it came from, the meeting date, time and length (given or default), the pace window and any partial month left out, goals (prorated how, any left out and why, or none), columns to confirm, anything left out for privacy or pay, and a one-line answer to any comparison or verdict asked for. Every "Confirm" line, goal left out and measure not totaled also goes in `dataCheck`.
+2. **Bottom line** (three sentences max; the headline and findings in `words.json`; 3 to 5 `keyNumbers`, each measure with its bar to the prorated goal): where the agent stands against their own goal (or that there's no goal), what changed since last time, and the commitments' statuses as given.
+3. **Numbers Against Goal**, with the arithmetic (`progress`, the run's arithmetic in `math`; then a `table` month by month with a `multiples` chart; then `meters` for the count ratios, the plan's rate as the mark). No goal: `progress` items without a goal, so no bar; a measure not totaled stays out and says why in the note.
+4. **What Changed Since the Last One-on-One** (`deltas` then and now, the table in `detail`; `bars` for each month since against her own average; `notes` for what the notes report, each with its source).
+5. **Last Time's Commitments** (`commitments`: owner and due only from the commitment's own words; `quiet` and "No Status Given" whenever no status is given, with any related fact as `fact`).
+6. **Open Coaching Questions** (`questions`, the fact each is tied to as its `why`; `show` 4).
+7. **Possible Focus Areas (Your Call)** (`choices`, with "These are options from the numbers, not a verdict; pick one, or none." as the callout).
+8. **Agenda**, labeled a suggestion (`agenda`).
+9. **Recap Template (Fill In After)**, with a Title Case subject and [placeholders] (`drafts`).
+10. **Check Before Sending:** every item listed in `references/prep-rules.md` (`checklist`).
+
+Attach `one_on_one_data.md` beside the page so the leader can see every sum. Say it is for the leader, not the agent's file. If the user asks for one part ("just the questions"), give that part with Flags and Check Before Sending.

@@ -21,7 +21,8 @@
         "Cost per closing is computed from the 56 closings in the production file, with the arithmetic shown.",
         "The bookkeeper questions ask whether April was recorded net and ask for it to be restated; the one decision is to choose one way to record commission income and restate April.",
         "An owner brief and a bookkeeper email with a Title Case subject are drafted, and no client name from the production file appears anywhere.",
-        "A Check Before Sending section traces the numbers in the brief and email to the run."
+        "A Check Before Sending section traces the numbers in the brief and email to the run.",
+        "The page builds from page.json, words.json and the run's pnl_report.json, with pnl_report.md as an input, with no BUILD STOPPED, CHECK, DATA CHECK or NOTE line (or, when the totals check fails or a gap makes figures provisional, a Data Check banner listing exactly those); its sections follow Output, In This Order with Check Before Sending last; every number on it traces to the run or the inputs; it holds no phone number, email address, account number, client name or address, or individual's pay; and it is one file that opens offline."
       ]
     },
     {
@@ -44,7 +45,8 @@
         "No agent's or employee's name appears next to an amount, even though the detail lists agent payouts and payroll checks by name.",
         "The one decision is whether to keep or cancel Pinecone Dialer; the duplicate and the misfiled charge are bookkeeper fixes, not the decision.",
         "The bookkeeper email has a Title Case subject and asks about the duplicate, the dialer, the Office Supplies charge and the uncategorized item, naming charges by vendor, date and amount only.",
-        "A Check Before Sending section is present."
+        "A Check Before Sending section is present.",
+        "The page builds from page.json, words.json and the run's pnl_report.json, with pnl_report.md as an input, with no BUILD STOPPED, CHECK, DATA CHECK or NOTE line (or, when the totals check fails or a gap makes figures provisional, a Data Check banner listing exactly those); its sections follow Output, In This Order with Check Before Sending last; every number on it traces to the run or the inputs; it holds no phone number, email address, account number, client name or address, or individual's pay; and it is one file that opens offline."
       ]
     },
     {
@@ -66,7 +68,8 @@
         "It reports year to date for January to October 2026 and says there is no prior-year comparison in the file.",
         "The owner brief fits on one page and includes a line saying cost per closing is not available and what to add.",
         "No benchmark, industry average or typical-team figure appears.",
-        "A Check Before Sending section is present."
+        "A Check Before Sending section is present.",
+        "The page builds from page.json, words.json and the run's pnl_report.json, with pnl_report.md as an input, with no BUILD STOPPED, CHECK, DATA CHECK or NOTE line (or, when the totals check fails or a gap makes figures provisional, a Data Check banner listing exactly those); its sections follow Output, In This Order with Check Before Sending last; every number on it traces to the run or the inputs; it holds no phone number, email address, account number, client name or address, or individual's pay; and it is one file that opens offline."
       ]
     }
   ]

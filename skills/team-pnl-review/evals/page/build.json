@@ -1,0 +1,39 @@
+{
+  "page": "evals/page/sample-page.json",
+  "words": "evals/page/sample-words.json",
+  "facts": [
+    "evals/runs/practice/files/pnl_report.json"
+  ],
+  "inputs": [
+    "evals/runs/practice/files/pnl_report.md",
+    "practice/PRACTICE Closed Deals Export Jan-Sep 2026.csv",
+    "evals/page/practice-prompt.txt"
+  ],
+  "out": "evals/page/Team-PnL-Review-Sample.html",
+  "order": [
+    "used",
+    "revenue",
+    "dollar",
+    "dollar-months",
+    "mix",
+    "changed",
+    "closing",
+    "anomalies",
+    "q-bookkeeper",
+    "q-cpa",
+    "q-broker",
+    "drafts",
+    "check"
+  ],
+  "never": [
+    "Salaries & Wages",
+    "123,750"
+  ],
+  "neverColumns": {
+    "practice/PRACTICE Closed Deals Export Jan-Sep 2026.csv": [
+      "Property Address",
+      "Client",
+      "Agent"
+    ]
+  }
+}

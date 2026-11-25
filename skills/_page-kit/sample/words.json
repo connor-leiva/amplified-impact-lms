@@ -1,0 +1,9 @@
+{
+  "headline": ["Closings are behind pace.", "October appointments slipped."],
+  "findings": [
+    {"status": "off", "text": "Marigold has 11 closings against 18 for the year to date, a pace of 72.4%."},
+    {"status": "hold", "text": "Appointments met dropped from 9 to 6 in October, so the pipeline is thinning \u2014 ask why first."},
+    {"status": "on", "text": "She held both open houses she committed to."}
+  ],
+  "sections": {"numbers": {"note": "GCI is $41,550 short of goal to date."}}
+}

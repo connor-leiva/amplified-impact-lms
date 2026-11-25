@@ -2,7 +2,8 @@
   "name": "agent-1on1-prep",
   "page": "agent-1on1-prep",
   "title": "Agent 1:1 Prep",
-  "version": "1.0",
+  "version": "1.1",
   "apps": ["claude", "chatgpt"],
-  "shared": []
+  "shared": [],
+  "pageKit": true
 }

@@ -1,0 +1,204 @@
+{
+ "id": "sample-1on1-marigold-2026-11",
+ "report": "Agent 1:1 Prep",
+ "subtitle": "Marigold Fizzwhistle, one-on-one on Thursday, November 12 at 10:00 AM MT",
+ "sample": "Practice File: Made-Up Example",
+ "meta": [
+  {
+   "label": "Agent",
+   "value": "Marigold Fizzwhistle"
+  },
+  {
+   "label": "Numbers As Of",
+   "value": "Nov 10, 2026 (Sisu)"
+  },
+  {
+   "label": "Meeting",
+   "value": "Thu, Nov 12, 10:00 AM MT"
+  },
+  {
+   "label": "For",
+   "value": "The Team Leader Only"
+  }
+ ],
+ "headline": [
+  "Closings are behind pace.",
+  "Appointments fell in October."
+ ],
+ "findings": [
+  {
+   "status": "off",
+   "text": "11 closings against a year-to-date goal of 18, a pace of 72.4%."
+  },
+  {
+   "status": "hold",
+   "text": "Appointments met fell from 9 in September to 6 in October."
+  },
+  {
+   "status": "on",
+   "text": "One of two commitments from last time is done."
+  }
+ ],
+ "moves": [
+  {
+   "title": "Ask About The October Drop",
+   "text": "Start with appointments met before closings.",
+   "tag": "Appointments"
+  },
+  {
+   "title": "Agree On One Weekly Number",
+   "text": "Pick one activity she owns through December.",
+   "tag": "Pace"
+  }
+ ],
+ "sections": [
+  {
+   "id": "numbers",
+   "kind": "tiles",
+   "label": "Numbers Against Goal",
+   "finding": "Behind on closings and GCI.",
+   "tiles": [
+    {
+     "label": "Closings YTD",
+     "value": "11",
+     "unit": "of 18 goal",
+     "status": "off"
+    },
+    {
+     "label": "Pace",
+     "value": "72.4%",
+     "unit": "of goal to date",
+     "status": "off"
+    },
+    {
+     "label": "GCI YTD",
+     "value": "$98,450",
+     "unit": "of $140,000 goal",
+     "status": "off"
+    },
+    {
+     "label": "Signed In October",
+     "value": "2",
+     "unit": "buyer or listing agreements",
+     "status": "quiet"
+    }
+   ],
+   "math": [
+    "Pace: 11 / 18 = 0.611, prorated goal to Nov 10 is 15.2, so 11 / 15.2 = 72.4%",
+    "GCI gap: $140,000 - $98,450 = $41,550"
+   ]
+  },
+  {
+   "id": "months",
+   "kind": "table",
+   "label": "Month By Month",
+   "finding": "October was the lowest month for appointments.",
+   "columns": [
+    {
+     "key": "month",
+     "label": "Month",
+     "type": "text",
+     "sortKey": "ym"
+    },
+    {
+     "key": "met",
+     "label": "Appts Met",
+     "type": "num"
+    },
+    {
+     "key": "signed",
+     "label": "Signed",
+     "type": "num"
+    },
+    {
+     "key": "closed",
+     "label": "Closed",
+     "type": "num"
+    }
+   ],
+   "rows": [
+    {
+     "month": "Aug 2026",
+     "met": 8,
+     "signed": 3,
+     "closed": 1,
+     "ym": "2026-08"
+    },
+    {
+     "month": "Sep 2026",
+     "met": 9,
+     "signed": 2,
+     "closed": 2,
+     "ym": "2026-09"
+    },
+    {
+     "month": "Oct 2026",
+     "met": 6,
+     "signed": 2,
+     "closed": 1,
+     "_status": "hold",
+     "ym": "2026-10"
+    }
+   ],
+   "sort": {
+    "key": "month",
+    "dir": "asc"
+   }
+  },
+  {
+   "id": "commitments",
+   "kind": "list",
+   "label": "Last Time's Commitments",
+   "finding": "One of two is done.",
+   "items": [
+    {
+     "status": "off",
+     "title": "Call 20 Past Clients",
+     "text": "Not done. Ask what got in the way."
+    },
+    {
+     "status": "on",
+     "title": "Hold 2 Open Houses",
+     "text": "Done."
+    }
+   ]
+  },
+  {
+   "id": "recap",
+   "kind": "drafts",
+   "label": "Recap Template",
+   "finding": "Fill it in after the meeting.",
+   "drafts": [
+    {
+     "label": "Recap Email",
+     "to": "[Agent Email]",
+     "channel": "Gmail draft",
+     "subject": "Our One-On-One Recap",
+     "body": "Hi Marigold,\n\nThanks for today. Here is what we agreed:\n- [Commitment 1]\n- [Commitment 2]\n\nWe check in again on [Date] at [Time] MT.\n\n[Leader Name]"
+    }
+   ]
+  },
+  {
+   "id": "check",
+   "kind": "checklist",
+   "label": "Check Before Sending",
+   "finding": "Every fact in the recap, traced.",
+   "items": [
+    {
+     "text": "Meeting date Thursday, November 12",
+     "source": "Calendar invite"
+    },
+    {
+     "text": "Closings 11 and goal 18",
+     "source": "Sisu export, Nov 10, 2026"
+    },
+    {
+     "text": "Every [placeholder] filled in",
+     "source": "The recap draft"
+    }
+   ]
+  }
+ ],
+ "stamp": "Agent 1:1 Prep",
+ "closing": "Built from the agent's own numbers and goals. For the leader, not the agent's file."
+}

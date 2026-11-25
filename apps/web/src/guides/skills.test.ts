@@ -11,7 +11,21 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { expected as grokExpected, listTemplates } from '../../../../scripts/grok-templates.mjs';
-import { check, DOWNLOADS_DIR, expected, listSkills, readManifest, shellFor, shellPath, SKILLS_DIR, unzip } from '../../../../scripts/skills.mjs';
+import {
+  check,
+  DOWNLOADS_DIR,
+  expected,
+  listSkills,
+  PAGE_KIT_CHATGPT,
+  PAGE_KIT_DIR,
+  PAGE_KIT_FILES,
+  pageKitErrors,
+  readManifest,
+  shellFor,
+  shellPath,
+  SKILLS_DIR,
+  unzip,
+} from '../../../../scripts/skills.mjs';
 import { ENTRIES } from '../library/content';
 import { GUIDES } from './content';
 import { renderGuideBody } from './render';
@@ -81,6 +95,28 @@ describe.each(SKILLS)('skills/%s', (name) => {
 
   it('is in the free library, linked to its page', () => {
     expect(ENTRIES.some((e) => e.href === `/${manifest.page}`)).toBe(true);
+  });
+});
+
+// The shared page kit (skills/README.md, Page Kit): one copy in skills/_page-kit/, shipped inside every skill that
+// hands back a page. The ZIP test above already holds each download to plan(), which takes these files
+// from _page-kit/; this holds the shipped copies to the kit itself, byte for byte, so no skill can ever
+// carry an older build or template than the kit's.
+it('keeps the page kit out of the skills, and its ChatGPT copy current', () => {
+  expect(SKILLS).not.toContain('_page-kit');
+  expect(pageKitErrors()).toEqual([]);
+});
+
+describe.each(SKILLS.filter((name) => readManifest(name).pageKit === true))('skills/%s (hands back a page)', (name) => {
+  it.each(PAGE_KIT_FILES)('ships %s exactly as skills/_page-kit holds it', (rel) => {
+    const zip = unzip(readFileSync(join(DOWNLOADS_DIR, `${name}.zip`)));
+    expect(zip.get(`${name}/${rel}`)?.equals(readFileSync(join(PAGE_KIT_DIR, rel))), `${name}.zip: ${rel} differs from skills/_page-kit/${rel}`).toBe(true);
+  });
+
+  it('ships page-kit.md in its ChatGPT version, exactly as skills/_page-kit holds it', () => {
+    if (!readManifest(name).apps.includes('chatgpt')) return;
+    const zip = unzip(readFileSync(join(DOWNLOADS_DIR, `${name}-chatgpt.zip`)));
+    expect(zip.get(`${name}-chatgpt/page-kit.md`)?.equals(readFileSync(join(PAGE_KIT_DIR, PAGE_KIT_CHATGPT)))).toBe(true);
   });
 });
 

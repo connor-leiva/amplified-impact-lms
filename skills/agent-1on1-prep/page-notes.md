@@ -35,16 +35,20 @@ Sisu already shows each agent's dashboard and accountability: the Agent Accounta
 
 ## What Comes Back
 
+One page you can sort, search and print (an HTML file to download, the same layout every time), plus four lines in the chat: the headline, the number that matters, the first thing to ask, and a reminder to check every number against your files. The page holds, in this order:
+
 - Flags: the files read, the date the numbers run to, the meeting, how goals were read and prorated, columns to confirm, anything left out for privacy or pay.
-- A three-sentence bottom line.
+- The bottom line at the top: a two-sentence headline and three findings.
 - Numbers against goal: year to date, the prorated goal, pace and the difference, each with the arithmetic ("24 x 10 / 12 = 20.0", "20 / 20.0 = 100.0%"), what the annual goal needs per month left, the month-by-month table and the count ratios. With no goal, the year to date and the line saying why there's no pace math.
 - What changed since the last one-on-one: year to date then and now, each month since against the agent's own monthly average, and what your notes report, labeled.
 - Last time's commitments, word for word, with the status exactly as your notes give it, or "No status given."
 - Five to eight open coaching questions.
 - One to three possible focus areas from the numbers, as options for you to choose.
 - A suggested agenda with times.
-- A recap template to fill in after, with [placeholders].
-- A Check Before Sending list and the file with every sum (one_on_one_data.md).
+- A recap template to fill in after, with [placeholders] and a Copy Draft button.
+- A Check Before Sending list you can tick (the ticks stay in your browser), and beside the page, the file with every sum (one_on_one_data.md).
+
+The page opens with a plain headline and four key numbers, each with a bar toward her prorated goal and the words "At Goal" or "Under Goal". Numbers are drawn where a picture reads faster: progress bars, ratio meters with her plan's mark, small monthly charts, then-and-now rows. Commitments look like pledges with owner and due chips, questions like a numbered deck (Why Ask This shows the fact behind each), focus options like tiles you can pick, the agenda like a run of show with times in MT and CT, and the recap like an email with its blanks highlighted. Tables, the arithmetic and the rest of the questions wait behind Show The Details; Print Or Save As PDF opens everything on Letter paper. Nothing you do on the page changes your numbers or sends anything. A made-up sample: `evals/page/Agent-1on1-Prep-Sample.html` (screenshots, an expanded screenshot and a PDF beside it).
 
 ## What It Won't Do
 
@@ -58,7 +62,7 @@ Sisu already shows each agent's dashboard and accountability: the Agent Accounta
 ## What You Need
 
 - **Claude:** a plan with skills and code execution. Claude's help center says skills work on every plan and need code execution, which is on by default for Free, Pro, Max and Ultra (Settings > Capabilities > Code execution and file creation, called "Create and edit files" in the newer settings); Claude's docs list Pro and up for custom skills, so Free is unconfirmed. Sources as on the other skill pages: https://support.claude.com/en/articles/12512180-use-skills-in-claude and https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude (checked 2026-11-08 for D-068).
-- **ChatGPT version:** a ChatGPT Project with three files (instructions.md, which downloads as agent-1on1-prep-instructions.md, agent-1on1-prep-guide.md and agent-1on1-prep-code.md, plus paste.txt in the Instructions box). It needs data analysis, which ChatGPT's free plan has only as "Limited" (https://chatgpt.com/pricing, as on /team-pnl-review). No connector.
+- **ChatGPT version:** a ChatGPT Project with four files (instructions.md, which downloads as agent-1on1-prep-instructions.md, agent-1on1-prep-guide.md, agent-1on1-prep-code.md and page-kit.md, plus paste.txt in the Instructions box). It needs data analysis, which also builds the page (ChatGPT gives a download link that expires, so download the page right away), which ChatGPT's free plan has only as "Limited" (https://chatgpt.com/pricing, as on /team-pnl-review). No connector.
 - **The numbers:** Sisu access to the agent's reports (an admin or team leader role), a Follow Up Boss export right, or the team's tracker.
 - **No connector needed.** A Sisu or Follow Up Boss connector, if connected, is used read only.
 - **Cost:** nothing beyond the Claude or ChatGPT plan and the tools the team already has.

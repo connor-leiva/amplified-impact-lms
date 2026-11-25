@@ -1,10 +1,10 @@
 ---
 name: team-pnl-review
 description: Reviews a real estate team's profit and loss (P&L) export from QuickBooks, Xero or the bookkeeper (Excel, CSV or PDF), plus an optional P&L Detail, closed-deal export and budget. It first checks how commission income is recorded each month (gross GCI with agent splits as a cost, or net of splits and fees), then computes company dollar, margin, expense mix, monthly and year-to-date changes, and cost per closing and lead source return when closings data supports them. It flags duplicate charges, new recurring vendors and misfiled items, does the math in code and shows it, and drafts an owner brief and bookkeeper questions. Use it whenever an owner, team leader or ops person uploads a P&L, income statement or monthly financials, or asks about profit, margin, company dollar or where the money went, even if they never say P&L. Not tax advice (the CPA). Not for goals or forecasts (Sisu), a CRM export (database-health-check), a recruit's production (recruiting-prep) or an agent fee schedule (team-playbook-builder).
-compatibility: Needs code execution (Settings > Capabilities > Code execution and file creation) to do the math in Python. Works from uploaded P&L, P&L Detail and production exports (Excel, CSV or PDF). A QuickBooks, Xero or Sisu connector, if connected, is used read only.
+compatibility: Needs code execution (Settings > Capabilities > Code execution and file creation) to do the math in Python and build the page it hands back. Works from uploaded P&L, P&L Detail and production exports (Excel, CSV or PDF). A QuickBooks, Xero or Sisu connector, if connected, is used read only.
 metadata:
   author: Amplified Impact
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Team P&L Review
@@ -12,6 +12,13 @@ metadata:
 Turn the team's P&L into what an owner needs once a month: what the team actually kept, where it went, what changed, what looks wrong, and the one decision on the table. Most team P&Ls can't be compared month to month because commission income is recorded gross one month and net of agent splits the next, so this skill checks that first, before any ratio.
 
 **Run:** reads the exports, does every sum and ratio in code, works out how revenue is recorded month by month, sorts expenses, and finds duplicates, new charges and misfiled items. **Draft:** the owner brief and the questions and email for the bookkeeper, for the owner to read first. **Own:** the owner decides spending, splits, hires and cuts; the bookkeeper makes every correction in the books; the CPA answers how anything should be recorded or taxed. This skill never touches the books or pays anything, and never asks for, repeats or handles wire instructions or bank, card, account or routing numbers.
+
+## Before You Start: Code
+This skill hands back a page: one HTML file the owner can sort, search and print. The page is built by
+`scripts/build_page.py`, so it needs code execution (Claude: Settings > Capabilities > Code execution and
+file creation. ChatGPT: the code tool). Check once with `python3 SKILL_FOLDER/scripts/build_page.py --help`
+(`python` if `python3` is not found).
+If code can't run, stop and say how to turn it on. Never estimate or hand-write the page.
 
 ## 1. Get the Files
 
@@ -57,7 +64,19 @@ Follow `references/review-rules.md`:
 - **Questions for the bookkeeper**, then **questions for the CPA**, then **questions for the broker** when a cap, fee schedule or referral question came up, each with the numbers that raised it. Route each one by `references/review-rules.md` (Who Gets Which Question).
 - **Email to the bookkeeper** with those questions: Title Case subject, short and specific, signed with the owner's name or [Owner Name]. Follow the owner's voice profile when one is in the conversation; otherwise warm, plain and direct.
 
-## 6. Guardrails
+## 6. Hand It Back As A Page
+1. The run's `pnl_report.json` is the facts file, and `pnl_report.md` holds every figure as the run prints it: every number the page uses is in one of them. Never type a number by hand.
+2. Write `page.json` in OUTPUT_FOLDER: the sections in "Output, In This Order", using the section kinds in
+   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). A `pct` value is the percent as `pnl_report.md` prints it (12.1, not the JSON's 0.121). Both drafts go in one `drafts` section. Check Before Sending is the last section, a `checklist`. A totals check that doesn't tie, and every gap that makes a figure provisional, goes in `dataCheck`. On the page, dollar amounts in sentences, tiles and drafts are whole dollars with "$" ("$6,611"); a charge the bookkeeper will look up keeps its cents ("$486.20"); the arithmetic keeps the run's cents, with "$".
+3. Write `words.json`: the headline (two short sentences), three findings (profit, the biggest change, the top flag), up to three moves taken from the questions, and `decide`: the one decision, as a choice with its numbers, in one plain sentence (a string, never an object).
+4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts pnl_report.json --inputs pnl_report.md <their CSV or text files> --out OUTPUT_FOLDER/Team-PnL-Review-<Team-Name>-<YYYY-MM>.html` (the P&L's last month).
+5. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case,
+   "industry standard", a line saying something was sent). Fix the words, never the check, and build again.
+6. Hand over the file at the path the build printed, with `pnl_report.md` beside it (Claude: the outputs folder, so it shows as a download. ChatGPT: the download link, and say "download it now, the link
+   expires"). A Data Check that comes from their books (a totals check that doesn't tie, a month recorded net, a missing export) stays on the page: say so in one line. Then four lines in the chat: the headline, the number that matters, the first move, and "check
+   every number against your files before you act."
+
+## 7. Guardrails
 
 - **Numbers only from the uploads,** through the code, with the arithmetic shown. No benchmarks or "typical team" figures from memory. A benchmark appears only when a connected Sisu or QuickBooks connector returns one; name the source and date.
 - **Not tax or accounting advice.** How revenue, owner pay, agent payments or anything else should be recorded or taxed goes to the CPA, and no draft proposes a recording method or tax treatment. Questions about what was recorded go to the bookkeeper. Cap and fee schedules go to the broker.
@@ -66,19 +85,20 @@ Follow `references/review-rules.md`:
 - **No projections:** no run rates, year-end forecasts, revenue share projections or income promises. Goals and forecasting belong in Sisu.
 - **Drafts only:** never send, never edit the books, never use a connector to write.
 
-## 7. Output, In This Order
+## 8. Output, In This Order
 
-1. **Bottom line** (three sentences max): profit for the period and the latest month, the biggest change, and the one decision.
-2. **What I Used:** files, months, basis, totals check, the account fixes made, and every gap and placeholder.
-3. **How Revenue Is Recorded:** the verdict, the month table, and what it changes.
-4. **Company Dollar and Margin**, with the arithmetic.
-5. **Expense Mix**, with the arithmetic.
-6. **What Changed:** month over month, against the average, year to date, budget if given.
-7. **Cost per Closing and Lead Sources**, or the line saying why they were skipped.
-8. **Anomalies**, most important first.
-9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker.**
-10. **Owner Brief** (draft).
-11. **Email to the Bookkeeper** (draft).
-12. **Check Before Sending:** every dollar amount, percentage, date, month and account name in items 10 and 11, each traced to the run, plus any placeholder.
+The page holds these sections in this order, each kind in brackets; the bottom line sits at the top of the page. The chat gets four lines.
 
-Attach `pnl_report.md` so the owner or bookkeeper can see every calculation.
+1. **Bottom line** (three sentences max; the headline, findings, moves and `decide` in `words.json`; 3 to 5 `keyNumbers`: net income, the latest month with its change, company dollar, the top flag as Watch): profit for the period and the latest month, the biggest change, and the one decision.
+2. **What I Used** (`callouts`: the totals check `on` with "Passed" or `off`, gaps `quiet`): files, months, basis, totals check, the account fixes made, and every gap and placeholder.
+3. **How Revenue Is Recorded** (`table` by month, with how each month reads, a `columns` chart of the share that moved, and the verdict as the callout): the verdict, the month table, and what it changes.
+4. **Company Dollar and Margin**, with the arithmetic (`tiles`, each with what it means, the arithmetic in `math`; then a `table` by month with a `columns` chart of net income, a loss month `off`).
+5. **Expense Mix**, with the arithmetic (`bars` by category, largest first, the table in `detail`, the arithmetic in `math`).
+6. **What Changed** (`deltas`, up or down in words, the table in `detail`): month over month, against the average, year to date, budget if given.
+7. **Cost per Closing and Lead Sources** (`bars` of each source's share, cost per closing as the callout, the table in `detail`), or the line saying why they were skipped (`callouts`).
+8. **Anomalies**, most important first (`callouts`, each `hold`).
+9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker** (`questions` each, the flag behind it as `why`; with none, `prose`).
+10. **Owner Brief** (draft, `"style": "memo"`) and 11. **Email to the Bookkeeper** (draft), together in one `drafts` section.
+12. **Check Before Sending** (`checklist`): every dollar amount, percentage, date, month and account name in items 10 and 11, each traced to the run, plus any placeholder.
+
+Attach `pnl_report.md` beside the page so the owner or bookkeeper can see every calculation.
