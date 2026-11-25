@@ -1,7 +1,9 @@
 // LMS v3 rollout (Phase 11, D-257): which open weeks keep today's page because their Media holds a real video, for a
 // course as the API sends it to a learner. READ ONLY: it reads a saved `GET /api/course` answer and writes nothing.
 //
-//   node --import <tsx>/esm compliance/lms-v3/week-draws.ts <course.json>
+//   node compliance/step-page-v6/signin.mjs <origin> auth.json          (SEED_TEST_MEMBER_EMAIL / _PASSWORD)
+//   node compliance/lms-v3/get-course.mjs <origin> auth.json course.json   (one GET)
+//   pnpm --filter @ai/api exec tsx ../../compliance/lms-v3/week-draws.ts "$PWD/course.json"
 //
 // The check is `v3WeekDraws`'s media half (apps/web/src/routes/learn/lms-v3/week.vm.ts; IMPLEMENTATION-SPEC.md §4.D,
 // C-12, D-234, D-252): every Media item is a placeholder line (a string) or Week 0's pinned LMS tour. The rule's other
