@@ -6,7 +6,7 @@
 //   node scripts/skills.mjs shell [name ...]   write each skill page's HTML shell, apps/web/<page>.html
 //   node scripts/skills.mjs list               every skill, with its page and apps
 //
-// A skill whose manifest sets `"pageKit": true` hands back a page (HTML-BRIEF.md): its Claude ZIP also
+// A skill whose manifest sets `"pageKit": true` hands back a page (skills/README.md, Page Kit): its Claude ZIP also
 // holds the shared page kit's files from `skills/_page-kit/` (`PAGE_KIT_FILES` below), and its ChatGPT
 // ZIP holds `page-kit.md`, the kit packed into one markdown file by `_page-kit/scripts/
 // make_chatgpt_kit.py`, as one of its 4 files. The kit lives in one place, like `_shared/`, so a

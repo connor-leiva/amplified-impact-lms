@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The page checks for one converted skill's sample page (HTML-BRIEF.md, Part 2 step 8 and Part 3).
+"""The page checks for one converted skill's sample page (skills/README.md, Page Kit).
 
     python3 skills/_page-kit/tests/check_skill_page.py skills/<name>
 

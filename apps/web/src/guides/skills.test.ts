@@ -98,7 +98,7 @@ describe.each(SKILLS)('skills/%s', (name) => {
   });
 });
 
-// The shared page kit (HTML-BRIEF.md): one copy in skills/_page-kit/, shipped inside every skill that
+// The shared page kit (skills/README.md, Page Kit): one copy in skills/_page-kit/, shipped inside every skill that
 // hands back a page. The ZIP test above already holds each download to plan(), which takes these files
 // from _page-kit/; this holds the shipped copies to the kit itself, byte for byte, so no skill can ever
 // carry an older build or template than the kit's.

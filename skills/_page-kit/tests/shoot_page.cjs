@@ -1,4 +1,4 @@
-// Screenshots and a Letter PDF of one built page (HTML-BRIEF.md, Part 2 step 5 and Part 3 item 4).
+// Screenshots and a Letter PDF of one built page (skills/README.md, Page Kit).
 //
 //   node skills/_page-kit/tests/shoot_page.cjs <page.html>
 //

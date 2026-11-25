@@ -1,4 +1,4 @@
-"""Writes evals/page/sample-page.json: the practice run as the page the skill hands back (HTML-BRIEF.md).
+"""Writes evals/page/sample-page.json: the practice run as the page the skill hands back (skills/README.md, Page Kit).
 
 python3 -I skills/agent-1on1-prep/evals/make/make_page_sample.py
 

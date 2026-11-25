@@ -105,7 +105,7 @@ A one-page draft the owner can share with a partner. About 250 words.
 - **What Needs a Look:** up to five flags, one line each.
 - **Cost per Closing:** the period figure, or "Not available: add [the export] to see it."
 - **The Decision:** the one decision.
-- **With the Bookkeeper:** how many questions went out, plus how many went to the CPA or the broker.
+- **With the Bookkeeper:** how many questions there are to send, plus how many go to the CPA or the broker.
 
 No individual's pay, no client names, no account or card numbers.
 

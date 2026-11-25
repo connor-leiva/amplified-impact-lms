@@ -5,7 +5,7 @@
 
 Writes chatgpt/pnl-review-guide.md (review-rules.md, then exports.md without the Claude connector section, then
 pnl-terms.md as its last part, "P&L Terms") and chatgpt/pnl-analysis-code.md. The terms ride inside the guide so the
-Project stays at 4 files with page-kit.md (HTML-BRIEF.md). chatgpt/instructions.md and chatgpt/paste.txt are written
+Project stays at 4 files with page-kit.md (skills/README.md, Page Kit). chatgpt/instructions.md and chatgpt/paste.txt are written
 by hand.
 """
 import re

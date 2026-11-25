@@ -175,7 +175,7 @@ None from these numbers.
 
 **The Decision:** Keep or cancel Pumpkinpatch Portal (3,000.00 a month since July; it was 2,500.00). For January to September it cost 24,000.00 and its 16 closings brought the team 66,930.64.
 
-**With the Bookkeeper:** 4 questions sent; 1 question for the broker.
+**With the Bookkeeper:** 4 questions to send; 1 question for the broker.
 
 ## Email to the Bookkeeper (Draft)
 

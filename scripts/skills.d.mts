@@ -8,7 +8,7 @@ export interface Manifest {
   version: string;
   apps: readonly ('claude' | 'chatgpt' | 'grok')[];
   shared?: readonly string[];
-  /** Hands back a page: ships the shared page kit from `skills/_page-kit/` (HTML-BRIEF.md). */
+  /** Hands back a page: ships the shared page kit from `skills/_page-kit/` (skills/README.md, Page Kit). */
   pageKit?: boolean;
 }
 
