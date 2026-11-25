@@ -73,13 +73,6 @@
   left: 2.5px;
 }
 
-/* The old wordmark (`Wordmark`), still drawn by the older learner shell and the paused console. */
-.wordmark {
-  display: block;
-  flex: none;
-  overflow: hidden;
-}
-
 .spacer {
   flex: 1;
 }

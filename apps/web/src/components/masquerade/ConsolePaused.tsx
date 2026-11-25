@@ -12,7 +12,7 @@ import { masquerade } from '../../data/masquerade';
 import { ENVIRONMENT } from '../../data/admin-shell';
 import { useAppReady, useViewportWidth } from '../../shell/hooks';
 import { crumbTrail } from '../../shell/admin/adminNav';
-import { Wordmark } from '../../shell/admin/Wordmark';
+import { AcademyLogo } from '../../shell/admin/Wordmark';
 import { MASQ_COPY, activeVM, bannerVM } from '../../routes/console/masquerade.vm';
 import { ReasonDialog } from './ReasonDialog';
 import { Rules } from './Rules';
@@ -21,10 +21,11 @@ import s from './Masquerade.module.css';
 
 // The Console, paused (D-162 3b, spec D2): every `/admin/*` address during a session, ahead of the
 // learner shell's bounce. The mockup has no frame for it, so it is built from R2 parts inside the R2
-// frame: the top bar (the wordmark, the breadcrumb of the page asked for, the environment), the page
-// head, and the mockup's own "Active session" card (from `Masquerade()`, which D2 makes unreachable
-// on `/admin/masquerade` itself) with Extend and Exit, beside its "Rules for every session". No
-// sidebar: every Console page is paused, and the session is the learner's, not the staff member's.
+// frame: the top bar (the academy lockup since D-256, the breadcrumb of the page asked for, the
+// environment), the page head, and the mockup's own "Active session" card (from `Masquerade()`,
+// which D2 makes unreachable on `/admin/masquerade` itself) with Extend and Exit, beside its "Rules
+// for every session". No sidebar: every Console page is paused, and the session is the learner's,
+// not the staff member's.
 
 export default function ConsolePaused({ session, skew }: { session: MasqueradeView; skew: number }) {
   const { pathname } = useLocation();
@@ -45,7 +46,7 @@ export default function ConsolePaused({ session, skew }: { session: MasqueradeVi
     <div className={s.paused} data-r2-shell="">
       <div className={a.column}>
         <header className={a.bar}>
-          <Wordmark />
+          <AcademyLogo />
           <nav aria-label="Breadcrumb" className={phone ? a.srOnly : a.crumbs}>
             <span>Admin</span>
             {trail ? (

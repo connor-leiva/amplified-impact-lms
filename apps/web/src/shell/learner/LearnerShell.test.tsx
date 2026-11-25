@@ -114,12 +114,14 @@ describe('the learner shell’s Theme (D-185)', () => {
     expect(root().dataset.theme).toBe('light');
   });
 
-  it('the dark page carries the brand’s reversed wordmark @parity:SH-5', async () => {
+  it('the dark page carries the brand’s reversed academy lockup @parity:SH-5', async () => {
     await at('/learn');
-    const fill = () => document.querySelector('[data-brand-slot] path')?.getAttribute('fill');
-    expect(fill()).toBe('#0A0D0C');
+    // D-256: the academy app lockup's "ai" is stroked Ink on light and Cream on dark.
+    const logo = () => decodeURIComponent(document.querySelector('[data-brand-slot] img')?.getAttribute('src') ?? '');
+    expect(logo()).toContain('stroke="#15211d"');
     await chooseTheme('Dark');
-    await waitFor(() => expect(fill()).toBe('#F5F5F2'));
+    await waitFor(() => expect(logo()).toContain('stroke="#f4f2ec"'));
+    expect(logo()).not.toContain('#15211d');
   });
 
   it('takes what the API keeps for this person, and gives the device’s theme back as it goes @parity:SH-5', async () => {

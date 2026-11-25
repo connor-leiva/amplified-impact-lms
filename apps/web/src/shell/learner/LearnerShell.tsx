@@ -23,7 +23,7 @@ import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
 import { ConfettiProvider } from '../Confetti';
 import { DemoControls } from '../DemoControls';
 import { useAppReady, useViewportWidth } from '../hooks';
-import { Wordmark } from '../admin/Wordmark';
+import { AcademyLogo } from '../admin/Wordmark';
 import { useCourse } from '../../routes/learn/data';
 import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
@@ -66,7 +66,7 @@ import { useLearnerPrefs } from './useLearnerPrefs';
 // REQUIRED LANDMARKS (CLAUDE.md): `aside[aria-label="Primary"]` (on a phone it is in the drawer, hidden
 // until opened), a `header` holding `nav[aria-label="Breadcrumb"]` (visually hidden: the mockup's bar
 // draws none), `main`, `[role="dialog"]` and `data-drawer="open"` on the open drawer, `data-brand-slot` on
-// the wordmark, and `body[data-app-ready="true"]` once the snapshot, the viewer and the course are in.
+// the academy lockup (D-256), and `body[data-app-ready="true"]` once the snapshot, the viewer and the course are in.
 //
 // D-185 restores two of the current portal's controls: the account menu's Theme (Light, Dark) and, on a
 // desktop (1200px and wider), Collapse sidebar / Expand sidebar, the collapsed form being the rail. Both
@@ -94,7 +94,7 @@ interface SidebarProps {
   rail?: boolean;
   /** D-185: the desktop's Collapse sidebar / Expand sidebar, or none. */
   toggle?: { label: string; onToggle: () => void } | null;
-  /** D-185: the brand's reversed wordmark, on the dark theme. */
+  /** D-185, D-256: the brand's reversed academy lockup, on the dark theme. */
   dark?: boolean;
 }
 
@@ -104,7 +104,7 @@ function Sidebar({ nav, side, drawer = false, onClose, closeRef, go, rail = fals
     <aside aria-label={LABELS.primary} className={s.sb} data-rail={rail ? 'true' : undefined}>
       <div className={s.top}>
         <Link className={s.wmw} to={nav.home.href} aria-label={LABELS.homeLink} onClick={go}>
-          <Wordmark reversed={dark} />
+          <AcademyLogo short={rail} reversed={dark} />
         </Link>
         {drawer ? (
           <>
@@ -513,7 +513,7 @@ function Frame() {
                 <Icon name="r2Menu" size={22} strokeWidth={1.75} />
               </button>
               <Link className={s.wmw} to={learnHome()} aria-label={LABELS.homeLink}>
-                <Wordmark reversed={dark} />
+                <AcademyLogo reversed={dark} />
               </Link>
             </div>
             <NextSession bar={bar} now={now} />

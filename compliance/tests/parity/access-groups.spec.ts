@@ -28,7 +28,9 @@ import {
  * GOLDENS. No golden captures the standalone Skill Library, the old guide or a no-course learner's shell
  * (the prototype has neither). The goldens of the two shell screens these learners keep, the Vault and the
  * Team Hub, are pinned below byte for byte, as they are on `main` @ e5f5dd2; fixture parity (`pnpm
- * compliance`) is what keeps rendering them against those files.
+ * compliance`) is what keeps rendering them against those files. D-256 (R-2, B-42) re-captured the five
+ * `-page` PNGs, whose sidebar now shows the academy logo every LMS screen shows; their `.json` fingerprints,
+ * the `-main` and drawer PNGs, and everything else on those screens are unchanged.
  */
 
 const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
@@ -223,7 +225,7 @@ test.describe('learner parity: every no-course plan keeps today’s portal', () 
       await page.context().close();
     });
 
-  test('the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3', () => {
+  test('the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2, but for the academy logo (D-256) @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3', () => {
     const GOLDENS = fileURLToPath(new URL('../../goldens/', import.meta.url));
     const sha = (f: string) =>
       createHash('sha256')
@@ -240,16 +242,16 @@ test.describe('learner parity: every no-course plan keeps today’s portal', () 
       'vault-agent-page.json': 'ec8808bd5816c3fdfe84798ee176f3722ed1f45e875e8e8bf404519cb4cf1c06',
       'vault-owner-exec-main.json': '21983baa446b3feb138605d5e057fdc04271830fc7619ebffe8b34a71053fc40',
       'vault-owner-exec-page.json': 'e1b8bd25edc4e0c95f057087748fe6aa393f94fc3bc321ec378a2982ff29c90f',
-      'linux/team-owner-invite-page.png': '57f1fc2a525b6e4bf3b834bdeae715fef2afd3f52f7bb42c479d1816a5df0c60',
+      'linux/team-owner-invite-page.png': '1dbc37faa0cb4a82412de610f1ed7e45db3e64ea01130d4a989779286ac32079',
       'linux/team-owner-main.png': '27130cf856692e006321f34f7bc647c686d295cfeb4ee3ead1e7f9e5e447ee93',
       'linux/team-owner-member-drawer.png': '05d08b66affa54041657b89911d38d86c36d14cc74c3ef109471163e43a2a48a',
-      'linux/team-owner-page.png': '7698545259d7767a733407ad9177bf81de0ce110c39935f452616541dae9e472',
+      'linux/team-owner-page.png': '96777b74b8cdc3f876574d4a67021f0c81a0fa8a1de8f915009a6fe9b0ec7c59',
       'linux/vault-agent-exec-main.png': 'aa8b2a0602e133601011e6513db68a4014ff24131590b5e2d76a4fb549384dab',
-      'linux/vault-agent-exec-page.png': '362a9e04395745171c2b0927baed562ef3766e2f3384a8fc337241a82d6e48f1',
+      'linux/vault-agent-exec-page.png': '6633d967d1f7de1ec95f34f54f81e1788c203b1b94d9e2266ba1421d4bb10f31',
       'linux/vault-agent-main.png': 'bb99ec05368911c597707ebca29a3fc90bc057cef6dba9b75501c47c60755752',
-      'linux/vault-agent-page.png': '5baa44c8b812c629668cd3652d00ccfdbfb47f96c9be9f1ceb55e948fe7a9970',
+      'linux/vault-agent-page.png': '2029af2d9bba0f51049c8bd735a961fe684fa76d887f66e80005f611acd3bfed',
       'linux/vault-owner-exec-main.png': '8e517efa0b9423b4edeaf9fe19f475a96aeffc24e965af3aef5d58759db51639',
-      'linux/vault-owner-exec-page.png': '9ea1cd45454872fdeed4c2c7c03683c0765dd464703353722d5bcb9dc12469b7',
+      'linux/vault-owner-exec-page.png': '9569951f8268afd4b487d384b0e5b89843beb53119d22ae2dbab36ec6ba72b63',
     };
     for (const [file, hash] of Object.entries(MAIN)) expect(sha(file), file).toBe(hash);
   });

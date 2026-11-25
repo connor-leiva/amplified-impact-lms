@@ -130,7 +130,7 @@ async function setUpHttpMode(): Promise<void> {
     );
 
   const html = await text(`${HTTP_BASE}/`, 'http-mode app');
-  if (!(html.includes('<title>Amplified Impact</title>') && html.includes('ai-lms-prefs')))
+  if (!(html.includes('<title>Amplified Impact Academy</title>') && html.includes('ai-lms-prefs')))
     throw new Error(
       `Compliance setup: ${HTTP_BASE} answers /api/health but is not serving this SPA.\n` +
         '  `apps/api/src/server.ts` only registers @fastify/static when `apps/web/dist` exists, so the\n' +
@@ -170,7 +170,7 @@ export default async function globalSetup() {
   // remote target (phase 09 runs against a deployed URL), which has its own smoke tests.
   if (process.env.REFERENCE_ONLY || process.env.APP_URL) return;
   const html = await text(`${APP_BASE}/`, 'app under test');
-  const ours = html.includes('<title>Amplified Impact</title>') && html.includes('ai-lms-prefs');
+  const ours = html.includes('<title>Amplified Impact Academy</title>') && html.includes('ai-lms-prefs');
   if (!ours)
     throw new Error(
       `Compliance setup: ${APP_BASE} is serving a DIFFERENT application.\n` +

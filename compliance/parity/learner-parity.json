@@ -354,7 +354,7 @@
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › a Dark saved in today’s portal draws the new portal dark, the whole frame @parity:SH-5",
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › takes what the API keeps for this person, and gives the device’s theme back as it goes @parity:SH-5",
         "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › the account menu switches to Dark and back, and remembers it for this person @parity:SH-5",
-        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › the dark page carries the brand’s reversed wordmark @parity:SH-5",
+        "apps/web/src/shell/learner/LearnerShell.test.tsx › the learner shell’s Theme (D-185) › the dark page carries the brand’s reversed academy lockup @parity:SH-5",
         "apps/web/src/shell/learner/shell.vm.test.ts › the account menu’s Theme (D-185) › offers Light and Dark, each with its icon and word, the one in use checked @parity:SH-5",
         "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Account at 1440, dark: accessible, nothing left light @parity:SH-5",
         "compliance/tests/e2e/learn-v2-shell.spec.ts › learner portal v2 in dark: every screen passes axe (D-185) @g9 › Account at 390, dark: accessible, nothing left light @parity:SH-5",
@@ -2745,7 +2745,7 @@
         "apps/web/src/routes/learn/audience.test.tsx › the audience (D-182) › @parity:U-3 @parity:U-5 sends a learner without the course from each /learn address to the first portal’s page for it",
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-5 @parity:U-3 @parity:SH-2 the vault is the first portal’s, in its own shell, from either address",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: Utah Life keeps today’s portal › their nav: the library has none; in the shell, only the Skill Library and the Vault @parity:U-3",
-        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2, but for the academy logo (D-256) @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
     },
     {
@@ -2844,7 +2844,7 @@
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:R-4 @parity:G-2 a Team Plan owner’s Team Hub is the first portal’s, from either address",
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › team-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-2",
-        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2, but for the academy logo (D-256) @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
     },
     {
@@ -2860,7 +2860,7 @@
       "tests": [
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › agent-plan: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-3",
-        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2, but for the academy logo (D-256) @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
     },
     {
@@ -2876,7 +2876,7 @@
       "tests": [
         "compliance/tests/e2e/learn-v2-flip.spec.ts › a learner without the course: today’s portal, unchanged @g4 › @parity:U-1 @parity:U-2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:G-5 @parity:L-5 @parity:L-6 `/` and /learn go to the standalone Skill Library, never the learner portal",
         "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › insiders: / is the standalone Skill Library, with its own buttons, and the Vault stays @parity:G-4",
-        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2 @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
+        "compliance/tests/parity/access-groups.spec.ts › learner parity: every no-course plan keeps today’s portal › the goldens of the screens they keep (Vault, Team Hub) are byte-identical to main @ e5f5dd2, but for the academy logo (D-256) @parity:G-2 @parity:G-3 @parity:G-4 @parity:U-3"
       ]
     },
     {

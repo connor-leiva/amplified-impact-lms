@@ -10,12 +10,13 @@ import { APP_BASE } from '../../lib/prepare';
 // invisible, so it is asserted here directly, on every surface that shows the logo.
 //
 // Each logo file carries its own colours, so the drawing that is VISIBLE is identified by them. Since
-// D-156 the expanded sidebar shows the Amplified Impact wordmark (the www kit's Logo 1): near-black
-// letters (#0A0D0C) with the Energy (#1F8A5C) ring and dot on light, Cream letters (#F5F5F2) with the
-// Energy Bright (#6FD3A5) ring and dot on dark. The favicon tile in the collapsed rail is the same in
-// both themes.
+// D-256 (R-2, B-42) the expanded sidebar shows the brand's "ai academy" app lockup again, as D-031 had it
+// (D-156 had swapped in the Amplified Impact wordmark): on light, the "ai" in Ink (#15211D), "academy" in
+// Forest (#1F4D40) and the Energy (#1F8A5C) ring and dot; on dark, the "ai" and "academy" in Cream
+// (#F4F2EC) and the Energy Bright (#6FD3A5) ring and dot. The favicon tile in the collapsed rail is the
+// same in both themes.
 
-const LETTERS = { light: '#0A0D0C', dark: '#F5F5F2' } as const;
+const LETTERS = { light: '#15211D', dark: '#F4F2EC' } as const;
 
 async function visibleBrandSvg(page: Page, scope: string): Promise<string> {
   const imgs = page.locator(`${scope} [data-brand-slot] img`);
@@ -40,11 +41,13 @@ async function open(page: Page, path: string, prefs: Record<string, string>) {
 }
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`the sidebar shows the ${theme} wordmark in the ${theme} theme @g9`, async ({ page }) => {
+  test(`the sidebar shows the ${theme} academy lockup in the ${theme} theme @g9`, async ({ page }) => {
     await open(page, '/', { theme, sidebar: 'full' });
     const svg = await visibleBrandSvg(page, 'aside[aria-label="Primary"]');
-    expect(svg).toContain(`FILL="${LETTERS[theme]}"`);
-    expect(svg).not.toContain(`FILL="${LETTERS[theme === 'light' ? 'dark' : 'light']}"`);
+    // The letters are stroked, not filled, in the academy files.
+    expect(svg).toContain(`STROKE="${LETTERS[theme]}"`);
+    expect(svg).not.toContain(LETTERS[theme === 'light' ? 'dark' : 'light']);
+    expect(svg).toContain('<TITLE>AMPLIFIED IMPACT ACADEMY</TITLE>'); // the academy file, not the old wordmark
     if (theme === 'dark') expect(svg).toContain('#6FD3A5'); // Energy Bright, the reversed hero dot
     else expect(svg).toContain('#1F8A5C'); // Energy, the hero dot on light grounds
   });
