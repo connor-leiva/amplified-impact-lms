@@ -30,6 +30,9 @@ jobs:
       # when DATABASE_URL goes missing is a suite that reports green while testing nothing, and
       # the `api` job losing its service is exactly the case that has to stay loud.
       - run: pnpm --filter @ai/core --filter @ai/web test
+      # The shared page kit's own checks (HTML-BRIEF.md, Part 1): the build stops on a stray number,
+      # a time without MT, a heading not in Title Case, and the rest. Python 3, standard library only.
+      - run: python3 skills/_page-kit/tests/run_tests.py
 
   goldens: # proves the goldens are exactly what the reference renders, and nothing else
     runs-on: ubuntu-latest

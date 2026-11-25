@@ -6,6 +6,12 @@
 //   node scripts/skills.mjs shell [name ...]   write each skill page's HTML shell, apps/web/<page>.html
 //   node scripts/skills.mjs list               every skill, with its page and apps
 //
+// A skill whose manifest sets `"pageKit": true` hands back a page (HTML-BRIEF.md): its Claude ZIP also
+// holds the shared page kit's files from `skills/_page-kit/` (`PAGE_KIT_FILES` below), and its ChatGPT
+// ZIP holds `page-kit.md`, the kit packed into one markdown file by `_page-kit/scripts/
+// make_chatgpt_kit.py`, as one of its 4 files. The kit lives in one place, like `_shared/`, so a
+// skill's copy can never drift from it, and `_page-kit` is never a skill.
+//
 // A skill whose manifest lists `grok` (Morning Brief, D-108) also ships a Grok Bot template from
 // `grok/SKILL.md`, in the Grok Bot templates' shape (D-100, `grokTemplateErrors` below), as
 // `<name>-grok.zip`. The Grok Bot shelf's own templates in content/grok-bot-templates/ are
@@ -39,6 +45,7 @@ function rootDir() {
 export const ROOT = rootDir();
 export const SKILLS_DIR = join(ROOT, 'skills');
 export const SHARED_DIR = join(SKILLS_DIR, '_shared');
+export const PAGE_KIT_DIR = join(SKILLS_DIR, '_page-kit');
 export const DOWNLOADS_DIR = join(ROOT, 'apps', 'web', 'public', 'downloads');
 
 /** Frontmatter keys Anthropic's skill format allows (the Agent Skills spec and skill-creator's validator). */
@@ -50,6 +57,20 @@ const JUNK = new Set(['.DS_Store', '__pycache__', 'Thumbs.db', '.git']);
 const TEXT = /\.(md|txt|json|ya?ml|py|sh|js|mjs|ts|css|html|csv|tsv)$/i;
 const DASHES = /[–—]/;
 const MAX_LINES = 500;
+/**
+ * What a skill with `"pageKit": true` ships from `_page-kit/`, at the same path inside the skill: the
+ * build, the template, its embedded fonts and their license, and the page format the model reads.
+ */
+export const PAGE_KIT_FILES = [
+  'scripts/build_page.py',
+  'assets/base-template.html',
+  'assets/fonts.css',
+  'assets/FONT-LICENSE.txt',
+  'references/page-format.md',
+];
+/** The kit for a ChatGPT Project: one markdown file, shipped as `<name>-chatgpt/page-kit.md`. */
+export const PAGE_KIT_CHATGPT = 'chatgpt-kit/page-kit.md';
+
 const HOUSE_LINES = 150;
 
 /** Every skill folder: each directory in `skills/` whose name does not start with `_`. */
@@ -93,6 +114,9 @@ export function plan(name) {
   for (const file of manifest.shared ?? []) {
     skill.push({ path: `${name}/references/${file}`, abs: join(SHARED_DIR, file) });
   }
+  if (manifest.pageKit === true) {
+    for (const rel of PAGE_KIT_FILES) skill.push({ path: `${name}/${rel}`, abs: join(PAGE_KIT_DIR, rel) });
+  }
   skill.sort((a, b) => (a.path < b.path ? -1 : 1));
 
   const chatgptDir = join(dir, 'chatgpt');
@@ -102,6 +126,10 @@ export function plan(name) {
         abs: join(chatgptDir, rel),
       }))
     : null;
+  if (chatgpt && manifest.pageKit === true) {
+    chatgpt.push({ path: `${name}-chatgpt/page-kit.md`, abs: join(PAGE_KIT_DIR, PAGE_KIT_CHATGPT) });
+    chatgpt.sort((a, b) => (a.path < b.path ? -1 : 1));
+  }
 
   const grokFile = join(dir, 'grok', 'SKILL.md');
   const grok = existsSync(join(dir, 'grok')) ? [{ path: `${name}-grok/SKILL.md`, abs: grokFile }] : null;
@@ -223,6 +251,15 @@ export function check(name) {
     if (!existsSync(join(SHARED_DIR, file))) err(`shared reference ${file} is not in skills/_shared/`);
     if (existsSync(join(dir, 'references', file))) err(`references/${file} would be overwritten by the shared copy`);
   }
+  if (manifest.pageKit !== undefined && typeof manifest.pageKit !== 'boolean') err('skill.json pageKit must be true or false');
+  const pageKit = manifest.pageKit === true;
+  if (pageKit) {
+    for (const rel of PAGE_KIT_FILES) {
+      if (existsSync(join(dir, rel))) err(`${rel} would be overwritten by the page kit's copy: keep it only in skills/_page-kit/`);
+    }
+    if (existsSync(join(dir, 'chatgpt', 'page-kit.md'))) err('chatgpt/page-kit.md would be overwritten by the page kit\'s copy');
+    for (const m of pageKitErrors()) err(`page kit: ${m}`);
+  }
 
   // SKILL.md
   const skillPath = join(dir, 'SKILL.md');
@@ -258,6 +295,12 @@ export function check(name) {
     const lines = body.split('\n').length;
     if (lines > MAX_LINES) err(`SKILL.md body is ${lines} lines (500 max)`);
     else if (lines > HOUSE_LINES + 20) warn(`SKILL.md body is ${lines} lines (house target about ${HOUSE_LINES})`);
+  }
+
+  if (pageKit) {
+    for (const named of ['scripts/build_page.py', 'references/page-format.md']) {
+      if (!text.includes(named)) err(`SKILL.md must name ${named} (its "Hand It Back As A Page" step)`);
+    }
   }
 
   // Every shipped file and every source file: no dashes, and references the SKILL.md names exist.
@@ -301,11 +344,13 @@ export function check(name) {
       if (paste.length > 1000) err(`chatgpt/paste.txt is ${paste.length} characters (1,000 max)`);
       if (!paste.includes(`${name}-instructions.md`)) err(`chatgpt/paste.txt must name ${name}-instructions.md`);
     }
-    const uploads = files.filter((f) => f !== 'paste.txt');
-    if (uploads.length > 4) err(`chatgpt/ has ${uploads.length} files to upload (4 max, to fit ChatGPT Free's 5)`);
+    // The page kit's page-kit.md is one of the 4 when the skill hands back a page.
+    const uploads = [...files.filter((f) => f !== 'paste.txt'), ...(pageKit ? ['page-kit.md'] : [])];
+    if (uploads.length > 4) err(`chatgpt/ has ${uploads.length} files to upload${pageKit ? ', counting page-kit.md,' : ''} (4 max, to fit ChatGPT Free's 5)`);
     for (const f of uploads) if (!f.endsWith('.md') || f.includes('/')) err(`chatgpt/${f} must be a top-level .md file`);
     const instr = files.includes('instructions.md') ? readFileSync(join(dir, 'chatgpt', 'instructions.md'), 'utf8') : '';
     if (/\bClaude\b|SKILL\.md|references\//.test(instr)) err('chatgpt/instructions.md mentions Claude, SKILL.md or references/');
+    if (pageKit && !instr.includes('page-kit.md')) err('chatgpt/instructions.md must name page-kit.md, which builds the page');
   }
 
   // The Grok Bot template (D-108): one SKILL.md in the Grok Bot templates' shape (D-100).
@@ -337,6 +382,34 @@ export function check(name) {
   if (!existsSync(join(dir, 'sample.md'))) err('sample.md is missing');
   if (!existsSync(join(dir, 'page-notes.md'))) err('page-notes.md is missing');
   return { errors, warnings };
+}
+
+// --- the page kit ----------------------------------------------------------------------------------
+
+/**
+ * Every way `skills/_page-kit/` is not fit to ship: a kit file missing, a dash in one, or a
+ * `page-kit.md` that no longer holds today's `build_page.py` and `base-template.html` word for word
+ * (rebuild it with `python3 skills/_page-kit/scripts/make_chatgpt_kit.py`).
+ */
+export function pageKitErrors() {
+  const errors = [];
+  for (const rel of [...PAGE_KIT_FILES, PAGE_KIT_CHATGPT]) {
+    const abs = join(PAGE_KIT_DIR, rel);
+    if (!existsSync(abs)) errors.push(`skills/_page-kit/${rel} is missing`);
+    else if (TEXT.test(rel) && DASHES.test(readFileSync(abs, 'utf8'))) errors.push(`skills/_page-kit/${rel} has an em or en dash`);
+  }
+  const md = join(PAGE_KIT_DIR, PAGE_KIT_CHATGPT);
+  if (existsSync(md)) {
+    const text = readFileSync(md, 'utf8');
+    for (const [lang, rel] of [['python', 'scripts/build_page.py'], ['html', 'assets/base-template.html']]) {
+      const block = new RegExp(`^~~~~~~${lang}\\n([\\s\\S]*?)\\n~~~~~~$`, 'm').exec(text);
+      const source = existsSync(join(PAGE_KIT_DIR, rel)) ? readFileSync(join(PAGE_KIT_DIR, rel), 'utf8').trimEnd() : null;
+      if (!block || block[1] !== source) {
+        errors.push(`${PAGE_KIT_CHATGPT} does not hold today's ${rel}: run python3 skills/_page-kit/scripts/make_chatgpt_kit.py`);
+      }
+    }
+  }
+  return errors;
 }
 
 // --- Grok Bot templates ------------------------------------------------------------------------------

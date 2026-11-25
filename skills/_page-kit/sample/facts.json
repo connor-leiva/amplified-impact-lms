@@ -1,0 +1,14 @@
+{
+  "agent": "Marigold Fizzwhistle",
+  "as_of": "2026-11-10",
+  "goal_closings_ytd": 18,
+  "closings_ytd": 11,
+  "pace_pct": 72.4,
+  "appointments_met_oct": 6,
+  "appointments_met_sep": 9,
+  "signed_oct": 2,
+  "gci_ytd": 98450,
+  "gci_goal_ytd": 140000,
+  "gci_gap": 41550,
+  "commitments": [{"text": "Call 20 past clients", "done": false}, {"text": "Hold 2 open houses", "done": true}]
+}
