@@ -24,7 +24,7 @@ the program and is built once. So a six-week cohort is a form you fill in, not a
 |---|---|---|
 | Overview | (none) | Overview |
 | **Program** | Curriculum · Course settings · Resource Vault | Curriculum, Module Builder, Course settings (hidden), Resource Vault |
-| **Cohort** | Overview · Schedule · People · Submissions · Community · Announcements · Settings | Cohorts & Sessions, Learners & Teams, Forms & Submissions, Community, Announcements |
+| **Cohort** | Overview · Schedule · People · Submissions · Community · Announcements · Settings | Cohorts & Sessions, Learners & Teams, Community, Announcements |
 | **People** | Everyone · Teams · Utah Life · Masquerade | Users, Workspaces, Masquerade |
 | **Revenue** | Summary · Payments · Plans & upgrades · Usage | Billing, Tiers & Upgrades, Usage |
 | Operations, Access | unchanged, under a hairline (System Health moves into Operations) | |

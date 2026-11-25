@@ -30,6 +30,9 @@ recon and are explained in section 2.
 
 Phases 1 and 2 can start once you have read this. Neither needs an answer above.
 
+**Nov 25, 2026.** Connor answered Q-21, Q-22, Q-26, Q-29, Q-30, Q-33 and part of Q-31, and amended the plan. Section 10
+holds both. Where section 10 and an earlier section differ, section 10 wins.
+
 ---
 
 ## 2. Where the spec, the mockup and the code disagree
@@ -498,3 +501,172 @@ which refs changed and why. A fixture for new screens goes beside `console-fixtu
 - **Not checked:** production's data (its real preview date, links and edited words); how many staff edits production
   holds on December's weeks (Phase 3's data step reads them as they are); whether Stripe's read scopes cover Revenue's
   "Coming in" (Phase 8).
+
+---
+
+## 10. The amendment (Connor, Nov 25, 2026)
+
+Connor's answers and his amendment to this plan, as he sent them, placed in the phase each belongs to, with what the
+code says today beside each one. Phases 1 and 2 are open as their own pull requests (#270 and #271) and are not
+changed by this section, except where 10.9 asks.
+
+### 10.1 The answers
+
+| # | Answer | Lands in |
+|---|---|---|
+| Q-21 | January's price is not set. Connor or Spring create it by hand in Stripe under **new** lookup keys (not `cohort_founding_full` or `cohort_founding_two_pay`). Whether January is "founding" is undecided, so nothing hard-codes founding for January. | Phase 5 |
+| Q-22 | A seat's included time ends **90 days after the last build**: May 10, 2027 on the sample schedule (last build Tue, Feb 9). It is a date stored on the cohort, prefilled to last build + 90 days, and frozen once the first seat sells. | Phases 3 and 5 |
+| Q-26 | Dates and release gets **"Welcome email sends at (MT)"**, an editable date and time. The cadence line is written from the shape on every shape save, so it has no field of its own. | Phase 3 |
+| Q-29 | After a cohort's last session and until it is archived, its status reads **"Finished"**. | Phase 3 |
+| Q-30 | The price is read-only, from Stripe. The dialog says: "Prices and Payment Links are made in Stripe. This shows Stripe's price for this cohort." | Phase 5 |
+| Q-31, in part | Week 0's Course page keeps Media, every video field and "Show as the LMS Tour on Sign-In" exactly as today. Week 0 keeps the Intake and Stack Card editors as a seventh section, "Forms". The other placements in 6.1 and 6.2 stand as proposed until Connor says otherwise. | Phase 6 |
+| Q-33 | January sends a new value in GoHighLevel's Cohort field. All GoHighLevel workflows are off, the code writes nothing else to GoHighLevel, and Connor and Spring set GoHighLevel up. | Phase 4 |
+
+Still open: Q-27 (the "Every Sunday" line) and Q-28 (December's shape, derived or stored), which Phase 3 needs; Q-23,
+Q-24, Q-25 and Q-20. Q-32 is read as **yes**: the amendment adds to the December test and asks for January's snapshot
+tests beside December's unchanged ones, which is what 3.4 proposed.
+
+### 10.2 Order, and the Dec 16 target
+
+- **By Dec 16:** Phases 0 to 4 merged, and January created as a draft (through Phase 3's New cohort, by Connor or
+  Spring, once Phase 3 is deployed; not by a data step).
+- **Phases 3 and 4 run side by side** once Phase 2 merges. Phase 4 reads the viewer's cohort, which is Phase 2's; it
+  needs none of Phase 3's screens. Phase 3 also needs Phase 1's frame.
+- **Phase 5 is not in the target.** It follows Phase 4, with its own written plan first. Until it lands, January's
+  "Before it opens" shows its Stripe and Payment Link lines as not done, so Open enrollment refuses: January stays a
+  draft, as the target says.
+- Phases 6 to 9 follow, in any order.
+
+### 10.3 Phase 3: the Cohort page and New cohort
+
+- **Dates and release** holds: each week's opening and due date (Week 0's due date among them), Preview opens (with
+  `saveCohortPlan`'s audit as today), and "Welcome email sends at (MT)". The cohort's name is edited only in Edit words.
+  There is no cadence field: `saveCohortShape` already writes the cadence line from the shape (`meetsLine`) on every save
+  (Phase 2). December's cadence therefore never changes while its shape is not stored (Q-28).
+- **Course settings' Release plan** becomes a read-only line that links to Cohort › Settings.
+- **Setup week:** the toggle stays. With it on, `cohortRun` hands the setup week out as week 0 (Phase 2's `layOut`
+  already puts Week 0's module first, as `n: 0`). With it off, "Before it opens" warns: "No setup week: no LMS Tour, no
+  welcome email, no intake."
+- **"Before it opens" is Open enrollment's refusals, exactly, in this order:** Shape; Its weeks; Sessions; Zoom links;
+  Week 0 due date; Stripe price found for each lookup key; Payment Links entered; Included time ends; Words learners see;
+  Test emails sent; Open enrollment. One function in `packages/core` answers both the checklist and the refusal, so they
+  cannot drift. "Test emails sent" reads the audit rows the two test sends already write (`welcome.test_send` and
+  `week0.test_send`, outcome ok, for that cohort): no new table. "Words learners see" is done when no word still carries
+  its "Read them once" flag.
+- **Included time** (Q-22): a new nullable column, the date the included time ends. Its instant is the start of that day
+  in America/Chicago, which is how `INSIDERS_FIRST_CHARGE_AT` is defined today. New cohort prefills it to the last live
+  build + 90 days. Settings edits it until the first seat sells; then it is frozen. December's value (2027-05-04) is
+  written by Phase 5's named data step, not here.
+- **Status words:** Draft, Scheduled, Active, Finished (after the last session until archived). Never written to
+  `cohorts.status` (2.5 holds).
+- **Test sends:** the cohort field becomes a picker of the cohorts not archived. Sends go to
+  `accelerator-test@amplifiedimpact.io` only. Today the allowlist also takes `WELCOME_TEST_ALLOWLIST` (10.9).
+- **Environment Flags and Email Log** stay in Operations, where Phase 1 left them.
+- **Auto-drafted words** (New cohort) start as December's words, each flagged "Read them once" until it is saved.
+- **Seats** have one source, Enrollment; every other seat count links to it.
+- **Hosts:** the cohort's Hosts (`shape.hosts`, Phase 2) is the one field. The Cohort page has no Instructor field. A
+  week's own `instructor` is the program's and is not touched.
+
+### 10.4 Phase 4: the learner side reads its own cohort
+
+- **Week 0 Is Open's subject** (`apps/api/src/email/subjects.ts:144`, today the literal "🎉 Welcome to the December
+  Cohort: Week 0 Is Open") uses the cohort's name. The line reads badly with the year in it (the comment beside it says
+  so), so it uses the cohort's name without its year: December's subject stays byte-identical, and January's reads
+  "January Cohort".
+- **The welcome and Week 0 Is Open** read Week 0's due date from the cohort's run (2.10).
+- **The weekly digest** names the cohort's own meeting days, or none.
+- **Snapshot tests for January** sit beside December's, which stay unchanged.
+- **GoHighLevel** (Q-33): `orderFieldValues` (`integrations/ghl.ts:589`) sends the plan's cohort instead of
+  `ACCELERATOR_COHORT_ID`. A new cohort's id is random (`c_…`), so the value is the cohort's month and two-digit year
+  in its zone: "dec26" for December, the value it sends today, and "jan27" for January. Connor and Spring add "jan27" in
+  GoHighLevel if the field is a dropdown. The code writes nothing else to GoHighLevel, and every workflow stays off.
+
+### 10.5 Phase 5: selling a seat
+
+- **The price is read-only.** The cohort holds its lookup keys; Revenue and the cohort show Stripe's amount for each
+  (`PriceBook`). The typed price field and the typed-vs-Stripe mismatch rule are gone. The code never creates a Stripe
+  price or a Payment Link.
+- **January's lookup keys are new** and made by hand in Stripe. Today's carts are `founding: true` and carry the
+  founding keys; January's founding status is a setting on the cohort to be decided before Phase 5, not a constant.
+- **Link addresses live on the cohort record**, not in Railway variables (today `PAYMENT_LINK_COHORT_FULL` and
+  `PAYMENT_LINK_COHORT_TWO_PAY`). December's are copied onto its record by Phase 5's data step, with its lookup keys,
+  seats and included-time date (2027-05-04).
+- **A "Sells through" card:** lookup keys, link addresses, seats, two payments yes or no, and the included-time end.
+- **Every Stripe write the code makes today**, and what each must read:
+
+  | # | Where | The write | Date it reads today |
+  |---|---|---|---|
+  | 1 | `webhook.ts`, a completed checkout | `subscriptions.update`: the order's metadata, and for the AI Accelerator in full `trial_end` pinned by `pinnedFirstCharge` with `proration_behavior: none` (key `order-<id>-sub`) | `INSIDERS_FIRST_CHARGE_AT` |
+  | 2 | `webhook.ts`, `ensureInsiders` for two payments | `subscriptions.create`: Team Leader Insiders (`membership_monthly_team_leader`) trialing to the date (key `membership-autoroll-<session>`) | `INSIDERS_FIRST_CHARGE_AT` |
+  | 3 | `webhook.ts`, `endInstallments` | `subscriptions.update`: `cancel_at_period_end` after the second paid installment (key `two-pay-end-<subscription>`) | none |
+  | 4 | `webhook.ts`, a refund | `subscriptions.cancel` for the plan's and the order's subscriptions | none |
+  | 5 | `payment-links.ts`, the seat cap (D-154) | `paymentLinks.update`: off at 15 sold, with the waitlist line and the `ai_soldout` mark; back on under 15 when the mark is ours and the offer is open | none (counts seats) |
+  | 6 | `console/stripe-write.ts`, Billing's staff actions (D-164) | `refunds.create`, `invoices.voidInvoice` | none |
+
+  Two database writes read the same date: provisioning (`initialPlanDates`, `packages/core/src/offer.ts`) sets a cohort
+  plan's `paidThrough` and `liveUntil` to `COHORT_ONE_LIVE_UNTIL` (which equals `INSIDERS_FIRST_CHARGE_AT`), and
+  `invoicePaid` caps a period end at the pin. `initialPlanDates` also sets every cohort plan's `startsAt` from
+  `COHORT_ONE.firstBuildAt` and its `cohortId` to `dec26`: Phase 5 reads the cohort being sold for all four.
+  Writes 1 and 2 and those two reads take the cohort's included-time end instead. December's is 2027-05-04, whose start
+  in America/Chicago is the constant's instant, so its writes are byte-identical by construction.
+- **The seat cap is every cohort's today.** `cohortSeatsSold` (`countedCohortSeat`) counts every `cohort` plan not
+  ended and not a test account's, whichever cohort it is in, and the links are December's two. Once January sells, December's links would turn off at 15 seats across both
+  cohorts. Phase 5 counts seats per cohort, uses the cohort's capacity, and turns only that cohort's links on and off.
+- **Test mode only** for every new write path. **December's writes stay byte-identical in the December test.** The test
+  captures write 5 today (its `seat-cap` section). Writes 1 and 2 are not captured yet: Phase 5 adds them to
+  `december-others.ts`, captured on `main` before any change, so the expected values come from today's code.
+- **Two payments, as the code and Stripe have them today:** `cohort_founding_two_pay` is a $3,750 monthly price (its
+  interval is set on the price in Stripe; the code's fixtures and `docs/LMS-DELIVERY.md` say "$3,750 today and in a
+  month, then the installments end"). Stripe charges the first at checkout and the second one billing month later, the
+  same day of the next month, not 30 days. On the second paid invoice the webhook sets `cancel_at_period_end`, so there
+  is no third. A separate Insiders subscription trials to May 4, 2027, 00:00 CT. The legal agreement says "The second
+  payment one month after the first. The payments stop after the second one." (`legal/agreement.ts:77`); the offer
+  page's button caption says "Today and again in 30 days" (`offer/content.ts:132`). "Half at checkout, half 30 days
+  later" does not match the code; "Half at checkout, half one month later" does. The Sells through card reads the
+  interval from Stripe's price (`PriceBook` holds it) rather than stating a schedule.
+- **Included time** is frozen once the first seat sells: its save is refused once the cohort has a cohort plan.
+
+### 10.6 Phase 6: Program
+
+- Week 0's Course page keeps Media, every video field and the "Show as the LMS Tour on Sign-In" checkbox exactly as
+  today (`TOUR_RULE` unchanged). Week 0 keeps the Intake and Stack Card editors as a seventh section, "Forms".
+- **The December test's tour check** must stay green: `tourVideoOf(GET /api/course)` returns the flagged tour for every
+  December viewer who can open the course (owner, two-payment owner, the learner invited onto the owner's team, the early
+  tester), for staff, and for staff masquerading as a team owner. That check is already in `december-others.ts`
+  (#271, fe309d3); the five viewers without the course get 403, as today.
+- Data step: December's shared fields are **copied** to the program record, not moved (10.8).
+
+### 10.7 Phase 7: People, and Utah Life
+
+- The tab is named **Utah Life**, one group.
+- Two access actions are built in R-5: **"Add an address outside the domain"** and **"End access"**. Each confirms
+  before it writes, writes one `audit_log` row, is limited to the staff capabilities that manage access groups (named in
+  Phase 7's pull request), and has e2e tests. Neither writes to the GoHighLevel location.
+
+### 10.8 Every phase
+
+- **Copy.** Title Case every page, card and tab heading ("Plans & Upgrades", "Course Settings", "Dates and Release",
+  "Words From This Cohort"). Times on one line: "12:00 PM MT / 1:00 PM CT", through `fmt`. Never "Operator": "AI
+  Implementer" ("No AI Implementer Named", "AI Implementer's Contact"). No em or en dashes, including as an empty cell's
+  glyph: "Not answered", "None" or "Not set". No invented numbers; never "industry standard". The repo's rule is that copy
+  matches the reference, so each phase brings these into the R2 reference for the screens it ports, under its decision
+  entry, and renders those refs again.
+- **Data steps.** December's shared fields are copied to the program record, not moved; `cohorts.course` stays on
+  `dec26` as it is. Each data step has a rollback: clearing what it wrote restores today's reads (for December's run,
+  `run = null`, which `cohortView` already reads as "the curriculum's weeks"). `audit_log` is never updated or deleted
+  from; data steps only append.
+- **Migrations** are additive only.
+- **Phase 8** also draws Revenue's "N failed" (Connor's call on #270).
+
+### 10.9 Asked back
+
+1. **Title Case in #270.** The frame draws "Course settings" and "Plans & upgrades", as the mockup does. Changing them
+   means the R2 reference and the refs that show those tabs (about 22). In #270 now, or with Phase 3?
+2. **Times.** `CLAUDE.md` says the viewer's zone first and the program zone in parentheses. Is "12:00 PM MT / 1:00 PM
+   CT" for the admin only, with the learner portal as it is?
+3. **Test sends.** "Only `accelerator-test@`" drops `WELCOME_TEST_ALLOWLIST`, which adds addresses today. Drop it?
+4. **"The flagged v7 tour."** No video named v7 is in the repo; the December test's tour is a stand-in titled "How the
+   LMS Works". If v7 is production's file, its title and file name go on the stand-in.
+5. **The offer page's "Today and again in 30 days"** disagrees with the agreement and with Stripe. It is not R-5's
+   page; it is noted here for Connor.
+6. **January's founding status** needs an answer before Phase 5.
