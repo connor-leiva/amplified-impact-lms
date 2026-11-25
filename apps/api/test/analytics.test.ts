@@ -276,7 +276,7 @@ describe('the Accelerator’s two buttons on the real pages, filled per request 
       const want = pair(...hrefs);
       expect(buttons(res.body), url).toEqual(Array.from({ length: blocks }, () => want).flat());
       expect(res.body, url).toContain('One payment today');
-      expect(res.body, url).toContain('Today and again in 30 days');
+      expect(res.body, url).toContain('Today and again in one month');
       expect(res.body, url).toContain('plus applicable tax');
       expect(res.body, url).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
       expect(res.body, url).not.toContain('%%');

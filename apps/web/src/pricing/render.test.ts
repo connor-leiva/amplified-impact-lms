@@ -290,7 +290,7 @@ describe('the four cards', () => {
       $$('.act-link .pay-choice', card).map((ch) => [text($('a', ch)), $('a', ch)?.getAttribute('href'), $('a', ch)?.className, text($('.pay-caption', ch))]),
     ).toEqual([
       ['Pay in full · $7,500', `%%link:${full}%%`, 'btn btn-primary pay-btn', 'One payment today'],
-      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'btn btn-primary pay-btn', 'Today and again in 30 days'],
+      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'btn btn-primary pay-btn', 'Today and again in one month'],
     ]);
     expect($$('.act-link .pay-tax', card).map(text)).toEqual(['plus applicable tax']);
     // No single "Get" button and no text link: neither way to pay is the lesser one.

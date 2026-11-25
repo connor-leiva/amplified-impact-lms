@@ -153,7 +153,7 @@ describe('the Accelerator’s two ways to pay, two equal buttons (D-159)', () =>
       choices.map((ch) => [text(ch.querySelector('a')), ch.querySelector('a')?.getAttribute('href'), text(ch.querySelector('a + .pay-caption'))]),
     ).toEqual([
       ['Pay in full · $7,500', `%%link:${full}%%`, 'One payment today'],
-      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'Today and again in 30 days'],
+      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'Today and again in one month'],
     ]);
     expect(all(acc, '.pay-tax').map(text)).toEqual(['plus applicable tax']);
     expect(acc.querySelector('.pay-pair + .pay-tax')).not.toBeNull();

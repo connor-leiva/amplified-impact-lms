@@ -126,10 +126,11 @@ export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardP
     },
     // D-159 (Connor, Nov 15, 2026): two equal buttons, so nobody who wants 2 payments is charged in
     // full. Connor's words, exactly: the labels are not Title Case. `$7,500` is `price.amount` and
-    // `$3,750` the payment in `price.terms`.
+    // `$3,750` the payment in `price.terms`. Connor, Nov 25, 2026: the second payment is one month after the first (the
+    // same day next month, as Stripe bills a monthly price and the agreement says), not "in 30 days".
     pay: {
       full: { label: (amount) => `Pay in full · ${amount}`, caption: 'One payment today' },
-      twoPay: { label: (amount) => `2 payments · ${amount}/mo`, caption: 'Today and again in 30 days' },
+      twoPay: { label: (amount) => `2 payments · ${amount}/mo`, caption: 'Today and again in one month' },
       tax: 'plus applicable tax',
     },
   },
