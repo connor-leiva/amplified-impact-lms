@@ -1,0 +1,14 @@
+{
+  "page": "evals/page/sample-page.json",
+  "words": "evals/page/sample-words.json",
+  "facts": ["evals/runs/case-1/files/one_on_one_data.json"],
+  "inputs": [
+    "practice/PRACTICE Sisu Monthly Numbers Marigold Fizzwhistle 2026-11-10.csv",
+    "practice/PRACTICE Marigold Fizzwhistle 2026 Goals.md",
+    "practice/PRACTICE Last 1on1 Notes 2026-10-08.txt",
+    "evals/page/practice-prompt.txt"
+  ],
+  "out": "evals/page/Agent-1on1-Prep-Sample.html",
+  "order": ["flags", "numbers", "months", "ratios", "changed", "averages", "notes", "commitments", "questions", "focus", "agenda", "recap", "check"],
+  "never": ["148,500", "148500", "kids", "cabin", "lake", "Take-home goal", "2028", "my why", "Dana"]
+}

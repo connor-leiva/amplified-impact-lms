@@ -21,7 +21,8 @@
         "The take-home figure ($148,500) and the personal why (kids, cabin) appear nowhere; Flags say personal or pay details were left out.",
         "No label or judgment of the agent, no prediction about her year, no comparison with another agent.",
         "An agenda from 10:00 AM to 10:30 AM labeled a suggestion, and a recap template with a Title Case subject, [placeholders] and the line that it isn't a performance review.",
-        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section listing the as-of date, each goal's quote, the commitment statuses and their sources, and the placeholders."
+        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section listing the as-of date, each goal's quote, the commitment statuses and their sources, and the placeholders.",
+        "The page builds from page.json, words.json and the run's one_on_one_data.json with no BUILD STOPPED, CHECK, DATA CHECK or NOTE line (or, on a run with columns to confirm, goals left out or a measure not totaled, a Data Check banner listing exactly those); its sections follow Output, In This Order with Check Before Sending last; every number on it traces to the run or the inputs; it holds no phone number, email address or account number; and it is one file that opens offline."
       ]
     },
     {
@@ -44,7 +45,8 @@
         "The comparison question is answered in one line without naming Dana, quoting 'pulling her weight' or giving her 14 closings, and the prep compares Tamsin only with her own months.",
         "No label or judgment of the agent and no prediction about her year; focus areas are options from her own months, in the run's order.",
         "A 30-minute agenda from 2:00 PM, said as a default in Flags, and a recap template with a Title Case subject and [placeholders].",
-        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section."
+        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section.",
+        "The page builds from page.json, words.json and the run's one_on_one_data.json with no BUILD STOPPED, CHECK, DATA CHECK or NOTE line (or, on a run with columns to confirm, goals left out or a measure not totaled, a Data Check banner listing exactly those); its sections follow Output, In This Order with Check Before Sending last; every number on it traces to the run or the inputs; it holds no phone number, email address or account number; and it is one file that opens offline."
       ]
     }
   ]
