@@ -24,7 +24,7 @@
 // window, exactly as for the portal.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
 import { courseFor, courseOutline, courseSessions } from '@ai/core/course';
 import { skillOnlyBuyer } from '@ai/core/offer';
 import { courseUpcoming } from '@ai/core/release';
@@ -32,7 +32,7 @@ import type { CourseEntry } from '@ai/core/release';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { courseEntryFor, plansForLearner, releaseOf } from '../lib/course-access';
+import { courseEntryFor, opensAtOf, plansForLearner, releaseOf, viewerCohortId } from '../lib/course-access';
 import { clock } from '../lib/clock';
 import { accessOf } from './skills';
 
@@ -53,26 +53,29 @@ export function registerCourseRoute(app: FastifyInstance): void {
     reply.header('cache-control', 'no-store');
     const now = clock.now();
     let entry: CourseEntry | 'staff' = 'staff';
+    // R-5 (D-254): the viewer's own cohort's course. Staff read the default cohort's, as they always have.
+    const cohortId = actor.kind === 'learner' ? await viewerCohortId(db, actor.userId) : DEFAULT_COHORT_ID;
     if (actor.kind === 'learner') {
       // D-175: a learner enters the course when it opens for their plan (D-153), or before that once the
       // cohort's pre-launch preview opens. Each week then opens on its own date.
       const plans = await plansForLearner(db, actor.userId);
-      const release = await releaseOf(db);
+      const release = await releaseOf(db, cohortId);
+      const courseOpens = await opensAtOf(db, cohortId);
       // D-202: a test account's early access is part of this entry, so weeks open before their dates.
       entry = await courseEntryFor(db, actor.userId, now);
       if (!entry.open) {
-        if (acceleratorPaused(plans, now)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
-        const opensAt = courseUpcoming(plans, now, release);
+        if (acceleratorPaused(plans, now, courseOpens)) return reply.code(403).send({ open: false, paused: true, error: PAUSED });
+        const opensAt = courseUpcoming(plans, now, release, courseOpens);
         if (opensAt !== null) return reply.code(403).send({ open: false, upcoming: true, opensAt, error: NOT_YET });
         // D-241: a $37 skill buyer sees the course locked, as the outline shows a locked week, and nothing more.
         const access = await accessOf(actor.userId);
         const buyer = access && skillOnlyBuyer({ plans: access.paidPlans, accessGroups: access.groups, purchased: [...access.purchased] });
-        const outline = buyer ? courseOutline(await loadDb(db)) : null;
+        const outline = buyer ? courseOutline(await loadDb(db), cohortId) : null;
         return reply.code(403).send({ open: false, error: NOT_IN_PLAN, ...(outline ? { outline } : {}) });
       }
     }
     const snapshot = await loadDb(db);
-    const course = courseFor(snapshot, now, entry);
+    const course = courseFor(snapshot, now, entry, cohortId);
     if (!course) return reply.code(503).send({ open: false, error: NOT_LOADED });
     return reply.code(200).send({
       open: true,
@@ -80,7 +83,7 @@ export function registerCourseRoute(app: FastifyInstance): void {
       // D-175: the learner is in the pre-launch preview (Week 0 open, the rest locked with their dates).
       prelaunch: entry !== 'staff' && entry.preview,
       course,
-      sessions: courseSessions(snapshot),
+      sessions: courseSessions(snapshot, cohortId),
       // D-175: the learner-facing copy strings the page needs (what a locked week says, the preview line).
       copy: Object.fromEntries((snapshot.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value])),
     });

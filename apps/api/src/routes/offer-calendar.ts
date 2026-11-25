@@ -23,7 +23,7 @@
 // email and is in the LMS at learn.amplifiedimpact.io once staff set it.
 
 import { asc, eq } from 'drizzle-orm';
-import { ACCELERATOR_COHORT_ID, acceleratorModuleId, officeHoursSessionId } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, acceleratorModuleId, officeHoursSessionId } from '@ai/core/accelerator';
 import { sessionKind, sessionWeek } from '@ai/core';
 import { SCHEDULE_ICS_PATH } from '@ai/core/schedule';
 import type { Session } from '@ai/core';
@@ -132,7 +132,7 @@ const byStart = (a: Session, b: Session): number => a.start - b.start;
  */
 function buildEvents(sessions: readonly Session[], instructorOf: (s: Session) => string | undefined): CalEvent[] {
   return sessions
-    .filter((s) => s.cohortId === ACCELERATOR_COHORT_ID && typeOf(s) === 'live_build')
+    .filter((s) => s.cohortId === DEFAULT_COHORT_ID && typeOf(s) === 'live_build')
     .sort(byStart)
     .map((s) => {
       const who = instructorOf(s);
@@ -161,7 +161,7 @@ const officeHoursUid = (s: Session): string =>
  * owners' agents are invited to, and that week's office hours are a short segment of the same call.
  */
 function officeHourEvents(sessions: readonly Session[]): CalEvent[] {
-  const thursdays = sessions.filter((s) => s.cohortId === ACCELERATOR_COHORT_ID && typeOf(s) !== 'live_build').sort(byStart);
+  const thursdays = sessions.filter((s) => s.cohortId === DEFAULT_COHORT_ID && typeOf(s) !== 'live_build').sort(byStart);
   const goals = thursdays.filter((s) => typeOf(s) === 'goal_planning');
   return thursdays.map((s) => {
     const goal = goals.indexOf(s);
@@ -222,7 +222,7 @@ export async function calendarFiles(): Promise<{ builds: string; officeHours: st
         moduleId: sessionsTable.moduleId,
       })
       .from(sessionsTable)
-      .where(eq(sessionsTable.cohortId, ACCELERATOR_COHORT_ID))
+      .where(eq(sessionsTable.cohortId, DEFAULT_COHORT_ID))
       .orderBy(asc(sessionsTable.start)),
     db.select({ id: modulesTable.id, instructor: modulesTable.instructor }).from(modulesTable).where(eq(modulesTable.kind, 'week')),
   ]);

@@ -16,7 +16,7 @@
 
 import { buildOf, canAccess, fmt, isOpen, progressOf, runtimeOf } from '@ai/core';
 import type { AIEmployee, Db, IconName, Learner, RuntimeState } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { isCourseWeek } from '@ai/core/accelerator';
 import { duration } from '@ai/core/learner';
 import { LABELS, toneOf } from './learn.vm';
 import type { KitRowVM, NavEmployeeVM, Seg, Tone } from './learn.vm';
@@ -206,7 +206,7 @@ export interface HireRow {
 }
 
 /** A published (or scheduled) module that is not a course week: an AI Employee of its own. */
-export const isHireModule = (m: Pick<AIEmployee, 'id' | 'kind' | 'status'>): boolean => m.status !== 'draft' && m.kind !== 'week' && !isAcceleratorModule(m.id);
+export const isHireModule = (m: Pick<AIEmployee, 'id' | 'kind' | 'status'>): boolean => m.status !== 'draft' && m.kind !== 'week' && !isCourseWeek(m.id);
 
 /** Every non-course AI Employee in the learner's snapshot, in the builder's order, each with this learner's place in it. */
 export function hireRows(db: Pick<Db, 'modules'>, me: Learner | null, now: number): HireRow[] {

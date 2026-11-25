@@ -27,6 +27,8 @@ import { fmt } from './time';
 import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, tourIssues, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
+import { addCohortSessions, createCohortFromShape, saveCohortRun, saveCohortShape } from './cohort-actions';
+import type { CohortActionResult } from './cohort-actions';
 import { moduleVersion } from './module-version';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
 
@@ -56,6 +58,8 @@ export interface AdminOutcome extends Outcome {
   storage?: AdminStorageWrite;
   /** D-247: set by `saveBuilderModule`: the saved module's new version and step ids, for the builder. */
   saved?: SavedModuleRef;
+  /** R-5 (D-254): set by a cohort write: the cohort, its layout's warnings, and the sessions left as they were. */
+  cohort?: CohortActionResult;
 }
 
 const moduleOf = (db: Db, id: string): AIEmployee => {
@@ -761,6 +765,11 @@ export const ADMIN_ACTIONS = {
   saveCohortPlan,
   saveCohortCourse,
   saveCopyString,
+  // R-5 (D-254): a cohort owns its run and its shape (`cohort-actions.ts`).
+  createCohortFromShape,
+  saveCohortShape,
+  saveCohortRun,
+  addCohortSessions,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

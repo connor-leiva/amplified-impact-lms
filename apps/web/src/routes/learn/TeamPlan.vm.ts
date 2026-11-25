@@ -13,7 +13,7 @@
 
 import { canAccess } from '@ai/core';
 import type { Db, IconName, Learner } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { isCourseWeek } from '@ai/core/accelerator';
 import { COPY as LIBRARY } from '../library/SkillLibrary';
 import { TEAM_HUB_LABEL, hasTeamHub, toneOf } from './learn.vm';
 import type { Tone } from './learn.vm';
@@ -89,7 +89,7 @@ export function teamGateFor(pathname: string, db: Pick<Db, 'modules' | 'teams'>,
   if (!emp) return null;
   const id = decodeURIComponent(emp[1]!);
   const m = db.modules.find((x) => x.id === id);
-  if (!m || isAcceleratorModule(m.id) || canAccess(me, m)) return null;
+  if (!m || isCourseWeek(m.id) || canAccess(me, m)) return null;
   return teamPlanHref({ kind: 'module', id });
 }
 

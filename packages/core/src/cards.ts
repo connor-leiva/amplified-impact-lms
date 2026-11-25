@@ -4,6 +4,7 @@
 
 import { ICONS } from './icons';
 import { buildOf, canAccess, isOpen } from './status';
+import { DEFAULT_COHORT_ID } from './accelerator';
 import { sessionFor, sessionState } from './sessions';
 import { fmt } from './time';
 import type { AIEmployee, BuildState, Db, Learner, ModuleStatus, Progress, Step, Tier } from './types';
@@ -87,7 +88,7 @@ export function cardVM(db: Db, u: CardVMUser | null | undefined, m: CardVMModule
   const locked = !canAccess(u, m),
     soon = !locked && !isOpen(m, now);
   const b = buildOf(asLearner(u), m),
-    sess = m.session ? sessionFor(db, (u && u.cohortId) || 'dec26', m.session) : null;
+    sess = m.session ? sessionFor(db, (u && u.cohortId) || DEFAULT_COHORT_ID, m.session) : null;
   const sst = sess ? sessionState(sess, now) : 'none';
   const sessLine = !sess
     ? 'Self-Paced'

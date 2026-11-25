@@ -123,8 +123,23 @@ export interface Cohort {
    * in welcome.ts), which is Week 0's Opens, else the preview, else the first dated week, else `start`.
    */
   welcomeSendsAt?: number;
+  /**
+   * R-5 (D-254): the cohort owns its run and its shape. All optional, and absent on every cohort made before it:
+   * absent `run` reads the week modules as they are (`cohortRun`), which is how December reads until its run is
+   * written. `programId` names the program it runs (one today); `archivedAt` hides it from the pickers.
+   */
+  run?: CohortWeek[]; shape?: CohortShape; programId?: string; archivedAt?: number;
 }
-/** What a session is, as the builder sets it (D-173). `sessionKind()` still reads build or office hours off the id. */
+/**
+ * R-5 (D-254): one week of a cohort's run: the program's week module it takes, its number in this cohort, and when it
+ * opens and is due for this cohort (epoch ms; null when it is open with the course, or has no due date).
+ */
+export interface CohortWeek { moduleId: string; n: number; opensAt: number | null; dueAt: number | null }
+/** R-5 (D-254): one meeting of a cohort's rhythm: a weekday (0 is Sunday), a start (`HH:MM` in the cohort's zone), a kind, a length. */
+export interface CohortSlot { day: 0 | 1 | 2 | 3 | 4 | 5 | 6; time: string; kind: SessionType; mins: number }
+/** R-5 (D-254): a cohort's shape: weeks of building, whether a setup week comes first, its rhythm, and who hosts. */
+export interface CohortShape { buildWeeks: number; setupWeek: boolean; slots: CohortSlot[]; hosts: string }
+/** What a session is, as the builder sets it (D-173). `sessionKind()` reads it, and the id only for a row without one. */
 export type SessionType = 'live_build' | 'office_hours' | 'goal_planning' | 'setup' | 'other';
 /** Who sees a session's replay. */
 export type ReplayVisibility = 'hidden' | 'after_open' | 'published';
@@ -132,6 +147,11 @@ export interface Session {
   id: string; cohortId: string; n: number; title: string; start: number; mins: number; zoom: string; live: boolean; attended: number | null; replay: null | 'processing' | 'ready'; views: number; movedFrom?: number; /** The recording a past session's Attach replay records (D-172). Optional; staff-only: learners' snapshots drop it. */ replayUrl?: string;
   /** The builder's (D-173): what kind of session, the week module it belongs to, who sees its replay. */
   kind?: SessionType; moduleId?: string; replayVisibility?: ReplayVisibility;
+  /**
+   * R-5 (D-254): the rhythm slot that laid this session out (`slotKey`). Absent on a session made by hand, every one
+   * of December's included, and dropped when staff edit it: a layout never moves or deletes a session without one.
+   */
+  slot?: string;
 }
 export type ResourceKind = 'file' | 'prompt' | 'guide' | 'replay' | 'vault';
 export type ResourceVisibility = 'hidden_until_open' | 'open_in_preview' | 'published' | 'hidden';

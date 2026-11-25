@@ -38,6 +38,8 @@ export * from './console-health';
 export * from './admin-actions';
 export * from './course-rules';
 export * from './course-actions';
+export * from './cohort-run';
+export * from './cohort-actions';
 export * from './release';
 export * from './welcome';
 export * from './week0-open';

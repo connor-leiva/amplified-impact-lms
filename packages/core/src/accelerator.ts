@@ -14,9 +14,20 @@
 // Pure: no clock, no random source.
 
 import { COHORT_ONE } from './offer';
+import type { Session } from './types';
 
-/** The platform's production cohort: cohort one, `COHORT_ONE.id` in offer.ts. */
-export const ACCELERATOR_COHORT_ID = 'dec26';
+/**
+ * R-5 (D-254): the cohort of anyone not placed in another one: cohort one, `COHORT_ONE.id` in offer.ts. For a
+ * viewer without a `cohort` plan it is inert (their plan is the gate, scope.ts). It is today's
+ * `ACCELERATOR_COHORT_ID` under an honest name.
+ */
+export const DEFAULT_COHORT_ID = 'dec26';
+
+/**
+ * The platform's production cohort, cohort one. The seeds (history, `packages/core/seed/`) name it this way; code
+ * reads `DEFAULT_COHORT_ID`.
+ */
+export const ACCELERATOR_COHORT_ID = DEFAULT_COHORT_ID;
 
 /** A plan without the course asking for it: `GET /api/course`'s 403, and (D-186) a course week's step. */
 export const NOT_IN_PLAN = 'The AI Accelerator isn’t in your plan.';
@@ -33,6 +44,19 @@ export const ACCELERATOR_SUPPORT_EMAIL = 'support@amplifiedimpact.io';
  */
 export const COURSE_OPENS_AT = COHORT_ONE.firstBuildAt;
 
+/**
+ * R-5 (D-254): when the course opens for a cohort's plans, as D-153's instant is December's: the start of its first
+ * live build. December's stays the constant (`COURSE_OPENS_AT`) until Phase 5 moves its dates onto its record, so no
+ * edit to a December session can move when its course opens. Another cohort's is the earliest of its sessions of kind
+ * `live_build`; with none, its course never opens by date (its preview, and a test account's early access, still do).
+ */
+export function cohortOpensAt(cohortId: string, sessions: readonly Pick<Session, 'cohortId' | 'start' | 'kind'>[]): number {
+  if (cohortId === DEFAULT_COHORT_ID) return COURSE_OPENS_AT;
+  let at = Number.POSITIVE_INFINITY;
+  for (const s of sessions) if (s.cohortId === cohortId && s.kind === 'live_build' && s.start < at) at = s.start;
+  return at;
+}
+
 export const buildSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-s${week}`;
 export const officeHoursSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-oh${week}`;
 /** An office hour's `n`: a second series, never equal to a module's `session` (1 to 8). */
@@ -48,6 +72,13 @@ export const acceleratorModuleId = (week: number): string => `${MODULE_PREFIX}${
 export const ACCELERATOR_MODULE_IDS: readonly string[] = ACCELERATOR_WEEKS.map(acceleratorModuleId);
 /** Whether an AI Employee is one of the course's nine weeks. The demo's six never are. */
 export const isAcceleratorModule = (id: string): boolean => ACCELERATOR_MODULE_IDS.includes(id);
+
+/**
+ * R-5 (D-254): is this a course week at all, so the plan gates it (D-110)? The first of the two questions
+ * `isAcceleratorModule` answered; the second, whether it is in this viewer's cohort, is the cohort's run
+ * (`cohortView` in cohort-run.ts). Today it is the same nine ids.
+ */
+export const isCourseWeek = isAcceleratorModule;
 
 /** `/course/week-3`: the course page for a week, on the learn host. */
 export const coursePath = (week: number): string => `/course/week-${week}`;

@@ -59,6 +59,18 @@ const announcement = {
   at: text(16).optional(),
 };
 
+/** R-5 (D-254): a date and a time typed in the cohort's zone. */
+const dateTime = z.strictObject({ date: text(10), time: text(5) });
+/** R-5 (D-254): one meeting of a rhythm, and a shape as the form sends it (its weeks are the weeks picked). */
+const weekday = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6)]);
+const cohortSlot = z.strictObject({
+  day: weekday,
+  time: text(5),
+  kind: z.enum(['live_build', 'office_hours', 'goal_planning', 'setup', 'other']),
+  mins: z.number().int(),
+});
+const cohortShape = z.strictObject({ setupWeek: z.boolean(), slots: z.array(cohortSlot).max(7), hosts: text(300) });
+
 /** D-188: the file a browser put in the bucket, as the Vault sends it. Its key is one the upload route mints. */
 const vaultFile = z.strictObject({ key: z.string().regex(UPLOAD_KEY), name: text(200).min(1), size: z.number().int().positive(), type: text(120) });
 
@@ -117,13 +129,21 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
   }),
   saveCohortCourse: z.strictObject({ cohortId: id, course: cohortCourse }),
   saveCopyString: z.strictObject({ key: text(120), value: text(2000), audience: z.enum(['learner', 'staff']) }),
+  // R-5 (D-254): a cohort owns its run and its shape (`cohort-actions.ts`).
+  createCohortFromShape: z.strictObject({ name: text(200), start: text(10), sourceCohortId: id, picks: z.array(id).max(40), shape: cohortShape }),
+  saveCohortShape: z.strictObject({ cohortId: id, picks: z.array(id).max(40), shape: cohortShape }),
+  saveCohortRun: z.strictObject({
+    cohortId: id,
+    weeks: z.array(z.strictObject({ moduleId: id, opens: dateTime.nullable(), due: dateTime.nullable() })).max(40),
+  }),
+  addCohortSessions: z.strictObject({ cohortId: id }),
 };
 
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;
 const ACTIONS = ADMIN_ACTIONS as unknown as Record<AdminActionName, ActionFn>;
 
 type Committed =
-  | { ok: true; body: { toast?: AdminOutcome['toast']; saved?: AdminOutcome['saved'] }; announced: SendNowClaim[] }
+  | { ok: true; body: { toast?: AdminOutcome['toast']; saved?: AdminOutcome['saved']; cohort?: AdminOutcome['cohort'] }; announced: SendNowClaim[] }
   | { ok: false; status: number; body: { error: string } };
 
 export interface AdminActionsRouteOptions {
@@ -185,7 +205,11 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
           }
           // D-247 (H-9): an edited announcement's Send now with Email claims its emails here.
           const announced = await claimSendNowEmails(tx, before, out.db, now, req.log);
-          return { ok: true, body: { ...(out.toast ? { toast: out.toast } : {}), ...(out.saved ? { saved: out.saved } : {}) }, announced };
+          return {
+            ok: true,
+            body: { ...(out.toast ? { toast: out.toast } : {}), ...(out.saved ? { saved: out.saved } : {}), ...(out.cohort ? { cohort: out.cohort } : {}) },
+            announced,
+          };
         });
       } catch (err) {
         if (err instanceof MutationError) return reply.code(statusForMutationError(err.code)).send({ error: err.message });

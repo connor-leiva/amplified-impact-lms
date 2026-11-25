@@ -63,6 +63,9 @@ export const cohorts = pgTable('cohorts', {
   previewOpensAt: ts('preview_opens_at'), timezone: text('timezone'), defaultOpenTime: text('default_open_time'), course: jsonb('course'),
   // When the cohort welcome may go out. Null: the access-open time (Week 0 Opens, else the preview, else the first dated week).
   welcomeSendsAt: ts('welcome_sends_at'),
+  // R-5 (D-254, migration 0043): the cohort owns its run and its shape. All nullable, no default: a null reads back as
+  // an absent key, so every cohort made before reads exactly as before (December's run is written in Phase 3).
+  run: jsonb('run'), shape: jsonb('shape'), programId: text('program_id'), archivedAt: ts('archived_at'),
 }, (t) => [
   check('cohorts_default_open_time', sql`${t.defaultOpenTime} is null or ${t.defaultOpenTime} ~ '^[0-2][0-9]:[0-5][0-9]$'`),
 ]);
@@ -70,6 +73,8 @@ export const cohorts = pgTable('cohorts', {
 export const sessions = pgTable('sessions', {
   id: text('id').primaryKey(), cohortId: text('cohort_id').notNull(), n: integer('n').notNull(), title: text('title').notNull(), start: ts('start').notNull(), mins: integer('mins').notNull(), zoom: text('zoom').notNull(), live: boolean('live').notNull().default(false), attended: integer('attended'), replay: text('replay'), views: integer('views').notNull().default(0), movedFrom: ts('moved_from'), replayUrl: text('replay_url'),
   kind: text('kind'), moduleId: text('module_id'), replayVisibility: text('replay_visibility'),
+  // R-5 (D-254, migration 0043): the rhythm slot that laid the session out. Null on a session made or edited by hand.
+  slot: text('slot'),
 }, (t) => [
   // `SessionType` and `ReplayVisibility` in `@ai/core` types.ts, typed out because drizzle-kit reads this file on its own.
   check('sessions_kind', sql`${t.kind} is null or ${t.kind} in ('live_build', 'office_hours', 'goal_planning', 'setup', 'other')`),

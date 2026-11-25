@@ -4,7 +4,8 @@
 // week shares in its own `course`. This file only reassembles them into the `CourseContent` shape
 // `GET /api/course` has always sent, so the course page renders exactly as before. No words here.
 
-import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from './accelerator';
+import { DEFAULT_COHORT_ID, isCourseWeek } from './accelerator';
+import { cohortView } from './cohort-run';
 import type { CohortCourse, CourseContent, CourseWeek, LockedCopy, ModuleCourse } from './course-types';
 import { kitVisible, weekOpenFor } from './release';
 import type { CourseEntry } from './release';
@@ -18,11 +19,14 @@ export type WeekModule = AIEmployee & { kind: 'week'; course: ModuleCourse };
 
 export const isWeekModule = (m: AIEmployee): m is WeekModule => m.kind === 'week' && m.course !== undefined;
 
-/** The course's week modules, in week order. Drafts are left out: a draft week isn't on the course. */
+/**
+ * The course's week modules, in week order. Drafts are left out: a draft week isn't on the course. Handed a cohort's
+ * view (`cohortView`), they are that cohort's weeks, numbered and dated as it has them (R-5, D-254).
+ */
 export function courseWeekModules(db: Pick<Db, 'modules'>): WeekModule[] {
   return db.modules
     .filter(isWeekModule)
-    .filter((m) => isAcceleratorModule(m.id) && m.status !== 'draft')
+    .filter((m) => isCourseWeek(m.id) && m.status !== 'draft')
     .sort((a, b) => a.course.week - b.course.week);
 }
 
@@ -48,11 +52,15 @@ export function courseWeekOf(m: WeekModule): CourseWeek {
 }
 
 /** The whole course, from a snapshot, or null when the cohort holds none (the seed hasn't run). */
-export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'>, cohortId: string = ACCELERATOR_COHORT_ID): CourseContent | null {
+export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string = DEFAULT_COHORT_ID): CourseContent | null {
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!cohort?.course) return null;
-  return { ...cohort.course, weeks: courseWeekModules(db).map(courseWeekOf) };
+  return { ...cohort.course, weeks: courseWeekModules(viewOf(db, cohortId)).map(courseWeekOf) };
 }
+
+/** A cohort's view of the week modules (`cohortView`): the same modules for a cohort with no stored run. */
+const viewOf = (db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string): Pick<Db, 'modules'> =>
+  cohortView({ cohorts: db.cohorts, modules: db.modules, sessions: db.sessions ?? [] }, cohortId);
 
 // --- what a learner gets (D-175): open weeks whole, locked weeks as the outline shows them --------
 
@@ -106,9 +114,9 @@ const lockedWeekOf = (m: WeekModule): LockedCourseWeek => ({
  * buyer's locked preview of the AI Accelerator. None of any week's content, whatever its dates: the same stub a
  * learner in the course gets for a week that hasn't opened (`lockedWeekOf`). Null when the database holds no course.
  */
-export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'>, cohortId: string = ACCELERATOR_COHORT_ID): LockedCourseWeek[] | null {
+export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string = DEFAULT_COHORT_ID): LockedCourseWeek[] | null {
   if (!db.cohorts.find((c) => c.id === cohortId)?.course) return null;
-  return courseWeekModules(db).map(lockedWeekOf);
+  return courseWeekModules(viewOf(db, cohortId)).map(lockedWeekOf);
 }
 
 /**
@@ -117,11 +125,16 @@ export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'>, cohortId: str
  * week's own opening (`weekOpenFor`), and an open week's kit by its visibility (`kitVisible`). Locked
  * weeks carry no content; the response itself is the gate.
  */
-export function courseFor(db: Pick<Db, 'cohorts' | 'modules' | 'resources'>, now: number, viewer: CourseEntry | 'staff', cohortId: string = ACCELERATOR_COHORT_ID): LearnerCourse | null {
+export function courseFor(
+  db: Pick<Db, 'cohorts' | 'modules' | 'resources'> & Partial<Pick<Db, 'sessions'>>,
+  now: number,
+  viewer: CourseEntry | 'staff',
+  cohortId: string = DEFAULT_COHORT_ID,
+): LearnerCourse | null {
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!cohort?.course) return null;
   const staff = viewer === 'staff';
-  const weeks = courseWeekModules(db).map((m): LearnerCourseWeek => {
+  const weeks = courseWeekModules(viewOf(db, cohortId)).map((m): LearnerCourseWeek => {
     const open = staff || weekOpenFor(m, now, viewer);
     if (!open) return lockedWeekOf(m);
     const kit = db.resources
@@ -153,7 +166,9 @@ export interface CourseSessionRow {
  * The course's sessions, by start: the cohort's sessions that belong to one of the course's weeks.
  * `GET /api/course` sends these, and the builder's live preview (D-174) renders them from the draft.
  */
-export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID): CourseSessionRow[] {
+export function courseSessions(full: Db, cohortId: string = DEFAULT_COHORT_ID): CourseSessionRow[] {
+  // R-5 (D-254): read through the cohort's view, so a week's number is its number in this cohort.
+  const db = cohortView(full, cohortId);
   // The week the builder gave the session (H-13, D-248: a session added in the builder has the cohort's next `n`,
   // which is no week's); else the curriculum week when the course has one (so a holiday gap does not renumber a
   // session), and the id / `n` week otherwise, which is what every session the reference seeds already uses.
@@ -162,7 +177,7 @@ export function courseSessions(db: Db, cohortId: string = ACCELERATOR_COHORT_ID)
     .filter((s) => s.cohortId === cohortId)
     .flatMap((s) => {
       const m = moduleForSession(db, s);
-      return m && isAcceleratorModule(m.id) ? [{ s, named: s.moduleId === m.id ? m.course?.week : undefined }] : [];
+      return m && isCourseWeek(m.id) ? [{ s, named: s.moduleId === m.id ? m.course?.week : undefined }] : [];
     })
     .sort((a, b) => a.s.start - b.s.start)
     .map(({ s, named }) => ({

@@ -29,7 +29,7 @@ import type { Queryable } from '../db/io';
 import { accessGroupMembers, accessGroups, emailVerifications } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import type { PlanAccess } from './access';
-import { COHORT_ONE } from './catalog';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import type { PlanKind } from './catalog';
 
 /** A group as the rule reads it. */
@@ -136,7 +136,7 @@ export async function createGroupMember(tx: GroupWriter, email: string, now: num
   const address = normalizeAddress(email);
   await lock(tx);
   const before = await loadDb(tx);
-  const owner = provisionOwner(before, { email: address, name, teamName: '', seats: 1, tier: 'agent', cohortId: COHORT_ONE.id }, { now, id: randomIds() });
+  const owner = provisionOwner(before, { email: address, name, teamName: '', seats: 1, tier: 'agent', cohortId: DEFAULT_COHORT_ID }, { now, id: randomIds() });
   if (!owner.ok) return null;
   if (owner.db !== before) await persistDiff(tx, before, owner.db);
   return owner.userId;
