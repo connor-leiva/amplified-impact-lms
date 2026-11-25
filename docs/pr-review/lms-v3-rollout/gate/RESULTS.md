@@ -5,7 +5,7 @@
 ## The Build and the Data
 
 - **Build.** `apps/web` with `VITE_LEARNER_V2=true VITE_LMS_V3=true VITE_DATA_SOURCE=http` (`--mode parity`, so the build guard stands aside, as `compliance/lms-v3/README.md` does), plus the web build's second step (`vite.ai101.config.ts`). It was served by the API on one origin at `http://127.0.0.1:4300`.
-- **Branch.** This PR's branch, which carries PR B (connor-leiva/amplified-impact-lms#273): the build that ships when the flag is turned on.
+- **Branch.** This PR's branch, which carries PR B (connor-leiva/amplified-impact-lms#273) with Connor's answers: the build that ships when the flag is turned on.
 - **Database.** A local development database (`ai_lms_v3`), never production:
   - `db:migrate`, `db:curriculum` and `skills`;
   - `compliance/lms-v3/prepare.ts content` and `prepare.ts community`;
@@ -13,6 +13,8 @@
 - **Browser.** Chrome for Testing 153 (chromium-1243), `TZ=America/Chicago`, as the README says.
 
 ## Results
+
+**Rerun after Connor's answers on connor-leiva/amplified-impact-lms#273** (the final build). The mockup now carries D-257's darker green in three text rules, sha256 `6f0b0d97…`, where v7 was `ab62643b…`. Both sides moved together, and the numbers are the same as the first run.
 
 | Part | How it ran | Checks | At 0 px |
 |---|---|---|---|
