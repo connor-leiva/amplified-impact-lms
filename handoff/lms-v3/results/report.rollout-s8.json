@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s8",
-  "when": "2026-11-25T20:59:15.494Z",
+  "when": "2026-11-25T23:03:45.319Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           2277
         ]
       },
-      "diffPixels": 6600,
-      "pct": 0.2013,
-      "strictPixels": 22525,
-      "strictPct": 0.687
+      "diffPixels": 7714,
+      "pct": 0.2353,
+      "strictPixels": 27266,
+      "strictPct": 0.8316
     },
     {
       "viewport": "desktop-1440",
@@ -39,10 +39,10 @@
           900
         ]
       },
-      "diffPixels": 4824,
-      "pct": 0.3722,
-      "strictPixels": 16040,
-      "strictPct": 1.2377
+      "diffPixels": 4992,
+      "pct": 0.3852,
+      "strictPixels": 18620,
+      "strictPct": 1.4367
     },
     {
       "viewport": "desktop-1440",
@@ -57,10 +57,10 @@
           2329
         ]
       },
-      "diffPixels": 15608,
-      "pct": 0.4612,
-      "strictPixels": 133651,
-      "strictPct": 3.9495
+      "diffPixels": 16731,
+      "pct": 0.4944,
+      "strictPixels": 136588,
+      "strictPct": 4.0363
     },
     {
       "viewport": "phone-390",
@@ -75,10 +75,10 @@
           4661
         ]
       },
-      "diffPixels": 84811,
-      "pct": 4.6083,
-      "strictPixels": 370132,
-      "strictPct": 20.1114
+      "diffPixels": 85552,
+      "pct": 4.6485,
+      "strictPixels": 374306,
+      "strictPct": 20.3382
     },
     {
       "viewport": "phone-390",
@@ -86,17 +86,17 @@
       "size": {
         "target": [
           390,
-          3740
+          3760
         ],
         "reference": [
           390,
           3740
         ]
       },
-      "diffPixels": 2220,
-      "pct": 0.1522,
-      "strictPixels": 4820,
-      "strictPct": 0.3305
+      "diffPixels": 67375,
+      "pct": 4.5946,
+      "strictPixels": 213796,
+      "strictPct": 14.5797
     }
   ],
   "skipped": [

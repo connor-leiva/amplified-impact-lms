@@ -4,7 +4,7 @@
   "reference": "http://localhost:4179/mockup/index.html",
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
-  "when": "2026-11-25T21:24:29.311Z",
+  "when": "2026-11-25T23:29:00.887Z",
   "threshold": 0.1,
   "report": [
     {
@@ -166,8 +166,8 @@
       },
       "diffPixels": 0,
       "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "strictPixels": 63,
+      "strictPct": 0.0049
     },
     {
       "viewport": "desktop-1440",
@@ -1804,8 +1804,8 @@
       },
       "diffPixels": 0,
       "pct": 0,
-      "strictPixels": 24,
-      "strictPct": 0.0019
+      "strictPixels": 13,
+      "strictPct": 0.001
     },
     {
       "viewport": "desktop-1440",
@@ -2452,8 +2452,8 @@
       },
       "diffPixels": 0,
       "pct": 0,
-      "strictPixels": 6,
-      "strictPct": 0.0005
+      "strictPixels": 13,
+      "strictPct": 0.001
     },
     {
       "viewport": "desktop-1440",

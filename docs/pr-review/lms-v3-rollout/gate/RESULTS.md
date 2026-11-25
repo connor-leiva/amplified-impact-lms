@@ -14,26 +14,31 @@
 
 ## Results
 
-**Rerun after Connor's answers on connor-leiva/amplified-impact-lms#273** (the final build). The mockup now carries D-257's darker green in three text rules, sha256 `6f0b0d97…`, where v7 was `ab62643b…`. Both sides moved together, and the numbers are the same as the first run.
+**Rerun on the final build, with D-259** (Connor, Nov 25: every learner-portal time on one line, "12:00 PM MT / 1:00 PM CT"). That build is this PR's head before it was restacked on connor-leiva/amplified-impact-lms#270, which changes only the admin side. The mockup carries D-257's darker green and phone grid rows, and D-259's phone meter wrap: sha256 `1b150f32…`, where v7 was `ab62643b…`. The harness and the mockup moved together, so the harness is still at zero.
 
 | Part | How it ran | Checks | At 0 px |
 |---|---|---|---|
 | The package's own harness against the mockup (every state, the local-only ones included) | `node diff/pixel-diff.mjs` | 260 | **260** |
-| Learner s1 (week, Schedule, locked week, Community, thread) | `--assume s1` | 86 | 17 |
+| Learner s1 (week, Schedule, locked week, Community, thread) | `--assume s1` | 86 | 2 |
 | Learner s7, s8, deployed | `--assume s7 \| s8 \| deployed` | 7 + 5 + 5 | 0 |
 | The form drawer, intake new and submitted | `--assume-form new \| submitted --match '^form-'` | 4 + 6 | 0 |
-| Staff in the Community (phone whole page; desktop the page alone, as the README says) | `--assume-as cl` | 2 + 1 + 1 | **4** |
-| Turn in: report, checkpoint, turned (the drawer alone) | `--assume-turnin …` | 3 + 2 + 4 | **9** |
-| **The app, all parts** | | **126** | **30** |
+| Staff in the Community (phone whole page; desktop the page alone, as the README says) | `--assume-as cl` | 2 + 1 + 1 | 1 |
+| Turn in: report, checkpoint, turned (the drawer alone) | `--assume-turnin …` | 3 + 2 + 4 | 7 |
+| **The app, all parts** | | **126** | **10** |
 
-**Every check whose content no later decision touched is at 0 px:**
-- every Community check;
-- every thread check;
-- every staff check;
-- every Turn in check;
-- the Schedule's calendar menu.
+**Before D-259 the app was at 30 / 126** (the run before this one). **The 20 checks that moved are all D-259's line**, longer than the mockup's "1:00 PM CT":
+- **The top bar's next session** on the Community and thread pages, "Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT" (`cm-*` at 1440 and 390, and the staff list at 390). Crop: `cause-times-top-bar-1440.png`.
+- **The thread at 390** (`th-open`, `th-staff`) is 71 px taller, because the longer line wraps.
+- **The thread at 1440** (`th-hover-act`, `th-staff`).
+- **The Schedule hero's meta at 390** (`sched-cal-open`): the length and "Zoom" go to a second line. Crop: `cause-times-schedule-hero-390.png`.
+- **Turn in's stamp** (`ti-view-sent` at 1440 and 390), "Thu, Nov 19 · 3:02 PM MT / 4:02 PM CT" where the mockup has "Thu, Nov 19 · 4:02 PM".
 
-**The 96 that differ are the week page, the Schedule and the locked week, at both widths.** Each difference I traced is content or copy from a decision Connor approved after the v7 mockup was drawn. The mockup was never updated for them:
+**Still at 0 px (10):**
+- Turn in's report and checkpoint drawers, and its new-version state;
+- the staff Community list at 1440 (the page alone, without the top bar);
+- the phone's compose sheet (`cm-compose-open`, `cm-compose-space-kept`), which covers the top bar.
+
+**The rest differ as in the run before**, for the content decisions that came after the v7 mockup was drawn. The mockup was never updated for them:
 
 - **D-243 (Nov 24), "operator" is "AI Implementer"**, in 40 code strings and the course data. The role filter reads "AI Implementer" (142 px wide, where the mockup's "Operator" is 100 px). The tags read "Owners and AI Implementers". Step titles and role tags change ("Name Your AI Implementer", "AI Implementer"), as do the Reference's "Owner and AI Implementer" and the Schedule's "AI Implementer about 2 hr 20 min".
   - The longer words wrap, so the phone week page is 58 px taller than the mockup's.

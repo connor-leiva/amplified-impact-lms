@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T21:00:38.906Z",
+  "when": "2026-11-25T23:05:08.461Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           2289
         ]
       },
-      "diffPixels": 6954,
-      "pct": 0.211,
-      "strictPixels": 28651,
-      "strictPct": 0.8692
+      "diffPixels": 8067,
+      "pct": 0.2447,
+      "strictPixels": 32255,
+      "strictPct": 0.9786
     },
     {
       "viewport": "desktop-1440",
@@ -57,10 +57,10 @@
           4593
         ]
       },
-      "diffPixels": 76815,
-      "pct": 4.2348,
-      "strictPixels": 376827,
-      "strictPct": 20.7745
+      "diffPixels": 77556,
+      "pct": 4.2757,
+      "strictPixels": 381001,
+      "strictPct": 21.0046
     },
     {
       "viewport": "phone-390",

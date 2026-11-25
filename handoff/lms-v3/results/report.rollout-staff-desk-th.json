@@ -5,7 +5,7 @@
   "selector": "[data-ai=\"thread\"]",
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T21:02:09.870Z",
+  "when": "2026-11-25T23:06:39.939Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           1116
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 1454,
-      "strictPct": 0.1093
+      "diffPixels": 5152,
+      "pct": 0.3873,
+      "strictPixels": 29074,
+      "strictPct": 2.1856
     }
   ],
   "skipped": [

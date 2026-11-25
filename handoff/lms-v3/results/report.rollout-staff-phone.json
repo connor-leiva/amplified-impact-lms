@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T21:01:58.499Z",
+  "when": "2026-11-25T23:06:27.856Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           1823
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 347,
+      "pct": 0.0488,
+      "strictPixels": 917,
+      "strictPct": 0.129
     },
     {
       "viewport": "phone-390",
@@ -32,17 +32,17 @@
       "size": {
         "target": [
           390,
-          1682
+          1753
         ],
         "reference": [
           390,
           1682
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 1454,
-      "strictPct": 0.2217
+      "diffPixels": 39960,
+      "pct": 5.8449,
+      "strictPixels": 170165,
+      "strictPct": 24.8899
     }
   ],
   "skipped": [

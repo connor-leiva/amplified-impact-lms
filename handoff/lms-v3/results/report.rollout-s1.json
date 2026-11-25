@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T20:56:53.375Z",
+  "when": "2026-11-25T23:01:23.310Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           2289
         ]
       },
-      "diffPixels": 6954,
-      "pct": 0.211,
-      "strictPixels": 23243,
-      "strictPct": 0.7052
+      "diffPixels": 8068,
+      "pct": 0.2448,
+      "strictPixels": 27984,
+      "strictPct": 0.849
     },
     {
       "viewport": "desktop-1440",
@@ -39,10 +39,10 @@
           1922
         ]
       },
-      "diffPixels": 6679,
-      "pct": 0.2413,
-      "strictPixels": 18939,
-      "strictPct": 0.6843
+      "diffPixels": 7793,
+      "pct": 0.2816,
+      "strictPixels": 23680,
+      "strictPct": 0.8556
     },
     {
       "viewport": "desktop-1440",
@@ -57,10 +57,10 @@
           2128
         ]
       },
-      "diffPixels": 6116,
-      "pct": 0.1996,
-      "strictPixels": 19476,
-      "strictPct": 0.6356
+      "diffPixels": 7230,
+      "pct": 0.2359,
+      "strictPixels": 24217,
+      "strictPct": 0.7903
     },
     {
       "viewport": "desktop-1440",
@@ -75,10 +75,10 @@
           4050
         ]
       },
-      "diffPixels": 106775,
-      "pct": 1.8201,
-      "strictPixels": 372597,
-      "strictPct": 6.3512
+      "diffPixels": 107889,
+      "pct": 1.8391,
+      "strictPixels": 377338,
+      "strictPct": 6.432
     },
     {
       "viewport": "desktop-1440",
@@ -93,10 +93,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16719,
-      "strictPct": 1.29
+      "diffPixels": 5346,
+      "pct": 0.4125,
+      "strictPixels": 19299,
+      "strictPct": 1.4891
     },
     {
       "viewport": "desktop-1440",
@@ -147,10 +147,10 @@
           900
         ]
       },
-      "diffPixels": 5539,
-      "pct": 0.4274,
-      "strictPixels": 17899,
-      "strictPct": 1.3811
+      "diffPixels": 5707,
+      "pct": 0.4404,
+      "strictPixels": 20479,
+      "strictPct": 1.5802
     },
     {
       "viewport": "desktop-1440",
@@ -165,10 +165,10 @@
           900
         ]
       },
-      "diffPixels": 5509,
-      "pct": 0.4251,
-      "strictPixels": 17897,
-      "strictPct": 1.3809
+      "diffPixels": 5677,
+      "pct": 0.438,
+      "strictPixels": 20477,
+      "strictPct": 1.58
     },
     {
       "viewport": "desktop-1440",
@@ -255,10 +255,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 6292,
+      "pct": 0.4855,
+      "strictPixels": 21220,
+      "strictPct": 1.6373
     },
     {
       "viewport": "desktop-1440",
@@ -273,10 +273,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 5346,
+      "pct": 0.4125,
+      "strictPixels": 19059,
+      "strictPct": 1.4706
     },
     {
       "viewport": "desktop-1440",
@@ -291,10 +291,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 6292,
+      "pct": 0.4855,
+      "strictPixels": 21220,
+      "strictPct": 1.6373
     },
     {
       "viewport": "desktop-1440",
@@ -309,10 +309,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 6292,
+      "pct": 0.4855,
+      "strictPixels": 21220,
+      "strictPct": 1.6373
     },
     {
       "viewport": "desktop-1440",
@@ -327,10 +327,10 @@
           2289
         ]
       },
-      "diffPixels": 6954,
-      "pct": 0.211,
-      "strictPixels": 23243,
-      "strictPct": 0.7052
+      "diffPixels": 8068,
+      "pct": 0.2448,
+      "strictPixels": 27984,
+      "strictPct": 0.849
     },
     {
       "viewport": "desktop-1440",
@@ -345,10 +345,10 @@
           2289
         ]
       },
-      "diffPixels": 6957,
-      "pct": 0.2111,
-      "strictPixels": 23266,
-      "strictPct": 0.7059
+      "diffPixels": 8070,
+      "pct": 0.2448,
+      "strictPixels": 28008,
+      "strictPct": 0.8497
     },
     {
       "viewport": "desktop-1440",
@@ -363,10 +363,10 @@
           900
         ]
       },
-      "diffPixels": 5181,
-      "pct": 0.3998,
-      "strictPixels": 16484,
-      "strictPct": 1.2719
+      "diffPixels": 6294,
+      "pct": 0.4856,
+      "strictPixels": 21226,
+      "strictPct": 1.6378
     },
     {
       "viewport": "desktop-1440",
@@ -381,10 +381,10 @@
           2289
         ]
       },
-      "diffPixels": 6954,
-      "pct": 0.211,
-      "strictPixels": 23243,
-      "strictPct": 0.7052
+      "diffPixels": 8068,
+      "pct": 0.2448,
+      "strictPixels": 27984,
+      "strictPct": 0.849
     },
     {
       "viewport": "desktop-1440",
@@ -399,10 +399,10 @@
           2289
         ]
       },
-      "diffPixels": 6957,
-      "pct": 0.2111,
-      "strictPixels": 23266,
-      "strictPct": 0.7059
+      "diffPixels": 8070,
+      "pct": 0.2448,
+      "strictPixels": 28008,
+      "strictPct": 0.8497
     },
     {
       "viewport": "desktop-1440",
@@ -417,10 +417,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 6292,
+      "pct": 0.4855,
+      "strictPixels": 21220,
+      "strictPct": 1.6373
     },
     {
       "viewport": "desktop-1440",
@@ -435,10 +435,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 8454,
+      "pct": 0.6523,
+      "strictPixels": 56493,
+      "strictPct": 4.359
     },
     {
       "viewport": "desktop-1440",
@@ -453,10 +453,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 8408,
+      "pct": 0.6488,
+      "strictPixels": 52019,
+      "strictPct": 4.0138
     },
     {
       "viewport": "desktop-1440",
@@ -471,10 +471,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16489,
-      "strictPct": 1.2723
+      "diffPixels": 7268,
+      "pct": 0.5608,
+      "strictPixels": 22480,
+      "strictPct": 1.7346
     },
     {
       "viewport": "desktop-1440",
@@ -489,10 +489,10 @@
           900
         ]
       },
-      "diffPixels": 5178,
-      "pct": 0.3995,
-      "strictPixels": 16479,
-      "strictPct": 1.2715
+      "diffPixels": 6292,
+      "pct": 0.4855,
+      "strictPixels": 21220,
+      "strictPct": 1.6373
     },
     {
       "viewport": "desktop-1440",
@@ -507,10 +507,10 @@
           2329
         ]
       },
-      "diffPixels": 15608,
-      "pct": 0.4612,
-      "strictPixels": 133651,
-      "strictPct": 3.9495
+      "diffPixels": 16731,
+      "pct": 0.4944,
+      "strictPixels": 136588,
+      "strictPct": 4.0363
     },
     {
       "viewport": "desktop-1440",
@@ -525,10 +525,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -543,10 +543,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -561,10 +561,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -579,10 +579,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -597,10 +597,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -615,10 +615,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1886,
+      "pct": 0.1455,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -633,10 +633,10 @@
           900
         ]
       },
-      "diffPixels": 762,
-      "pct": 0.0588,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1885,
+      "pct": 0.1454,
+      "strictPixels": 4482,
+      "strictPct": 0.3458
     },
     {
       "viewport": "desktop-1440",
@@ -651,10 +651,10 @@
           900
         ]
       },
-      "diffPixels": 763,
-      "pct": 0.0589,
-      "strictPixels": 1545,
-      "strictPct": 0.1192
+      "diffPixels": 1116,
+      "pct": 0.0861,
+      "strictPixels": 2465,
+      "strictPct": 0.1902
     },
     {
       "viewport": "desktop-1440",
@@ -705,10 +705,10 @@
           900
         ]
       },
-      "diffPixels": 30849,
-      "pct": 2.3803,
-      "strictPixels": 68566,
-      "strictPct": 5.2906
+      "diffPixels": 31458,
+      "pct": 2.4273,
+      "strictPixels": 70061,
+      "strictPct": 5.4059
     },
     {
       "viewport": "desktop-1440",
@@ -723,10 +723,10 @@
           900
         ]
       },
-      "diffPixels": 9377,
-      "pct": 0.7235,
-      "strictPixels": 24800,
-      "strictPct": 1.9136
+      "diffPixels": 9986,
+      "pct": 0.7705,
+      "strictPixels": 26295,
+      "strictPct": 2.0289
     },
     {
       "viewport": "desktop-1440",
@@ -741,10 +741,10 @@
           900
         ]
       },
-      "diffPixels": 12283,
-      "pct": 0.9478,
-      "strictPixels": 30107,
-      "strictPct": 2.3231
+      "diffPixels": 12892,
+      "pct": 0.9948,
+      "strictPixels": 31602,
+      "strictPct": 2.4384
     },
     {
       "viewport": "desktop-1440",
@@ -759,10 +759,10 @@
           900
         ]
       },
-      "diffPixels": 30849,
-      "pct": 2.3803,
-      "strictPixels": 68566,
-      "strictPct": 5.2906
+      "diffPixels": 31458,
+      "pct": 2.4273,
+      "strictPixels": 70061,
+      "strictPct": 5.4059
     },
     {
       "viewport": "desktop-1440",
@@ -777,10 +777,10 @@
           900
         ]
       },
-      "diffPixels": 30849,
-      "pct": 2.3803,
-      "strictPixels": 68566,
-      "strictPct": 5.2906
+      "diffPixels": 31458,
+      "pct": 2.4273,
+      "strictPixels": 70061,
+      "strictPct": 5.4059
     },
     {
       "viewport": "desktop-1440",
@@ -795,10 +795,10 @@
           900
         ]
       },
-      "diffPixels": 30849,
-      "pct": 2.3803,
-      "strictPixels": 68566,
-      "strictPct": 5.2906
+      "diffPixels": 31458,
+      "pct": 2.4273,
+      "strictPixels": 70061,
+      "strictPct": 5.4059
     },
     {
       "viewport": "desktop-1440",
@@ -813,10 +813,10 @@
           900
         ]
       },
-      "diffPixels": 34745,
-      "pct": 2.6809,
-      "strictPixels": 72634,
-      "strictPct": 5.6045
+      "diffPixels": 35354,
+      "pct": 2.7279,
+      "strictPixels": 74129,
+      "strictPct": 5.7198
     },
     {
       "viewport": "desktop-1440",
@@ -831,10 +831,10 @@
           2289
         ]
       },
-      "diffPixels": 6954,
-      "pct": 0.211,
-      "strictPixels": 23243,
-      "strictPct": 0.7052
+      "diffPixels": 8068,
+      "pct": 0.2448,
+      "strictPixels": 27984,
+      "strictPct": 0.849
     },
     {
       "viewport": "desktop-1440",
@@ -849,10 +849,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 39,
-      "strictPct": 0.003
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2200,
+      "strictPct": 0.1698
     },
     {
       "viewport": "desktop-1440",
@@ -867,10 +867,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 39,
-      "strictPct": 0.003
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2200,
+      "strictPct": 0.1698
     },
     {
       "viewport": "desktop-1440",
@@ -885,10 +885,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 39,
-      "strictPct": 0.003
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2200,
+      "strictPct": 0.1698
     },
     {
       "viewport": "desktop-1440",
@@ -903,10 +903,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2161,
+      "strictPct": 0.1667
     },
     {
       "viewport": "desktop-1440",
@@ -921,10 +921,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2161,
+      "strictPct": 0.1667
     },
     {
       "viewport": "desktop-1440",
@@ -939,10 +939,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 946,
+      "pct": 0.073,
+      "strictPixels": 2161,
+      "strictPct": 0.1667
     },
     {
       "viewport": "desktop-1440",
@@ -957,10 +957,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 32,
-      "strictPct": 0.0025
+      "diffPixels": 454,
+      "pct": 0.035,
+      "strictPixels": 1188,
+      "strictPct": 0.0917
     },
     {
       "viewport": "desktop-1440",
@@ -975,10 +975,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 454,
+      "pct": 0.035,
+      "strictPixels": 1156,
+      "strictPct": 0.0892
     },
     {
       "viewport": "desktop-1440",
@@ -993,10 +993,10 @@
           1100
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 1454,
-      "strictPct": 0.0918
+      "diffPixels": 2461,
+      "pct": 0.1554,
+      "strictPixels": 13785,
+      "strictPct": 0.8703
     },
     {
       "viewport": "desktop-1440",
@@ -1011,10 +1011,10 @@
           900
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 1454,
-      "strictPct": 0.1122
+      "diffPixels": 1515,
+      "pct": 0.1169,
+      "strictPixels": 11624,
+      "strictPct": 0.8969
     },
     {
       "viewport": "desktop-1440",
@@ -1029,10 +1029,10 @@
           900
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.1891,
-      "strictPixels": 4271,
-      "strictPct": 0.3296
+      "diffPixels": 4008,
+      "pct": 0.3093,
+      "strictPixels": 8024,
+      "strictPct": 0.6191
     },
     {
       "viewport": "desktop-1440",
@@ -1047,10 +1047,10 @@
           900
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.1891,
-      "strictPixels": 4271,
-      "strictPct": 0.3296
+      "diffPixels": 4008,
+      "pct": 0.3093,
+      "strictPixels": 8024,
+      "strictPct": 0.6191
     },
     {
       "viewport": "desktop-1440",
@@ -1065,10 +1065,10 @@
           900
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.1891,
-      "strictPixels": 4271,
-      "strictPct": 0.3296
+      "diffPixels": 4008,
+      "pct": 0.3093,
+      "strictPixels": 8024,
+      "strictPct": 0.6191
     },
     {
       "viewport": "desktop-1440",
@@ -1083,10 +1083,10 @@
           900
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.1891,
-      "strictPixels": 4271,
-      "strictPct": 0.3296
+      "diffPixels": 4008,
+      "pct": 0.3093,
+      "strictPixels": 8024,
+      "strictPct": 0.6191
     },
     {
       "viewport": "desktop-1440",
@@ -1101,10 +1101,10 @@
           900
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.1891,
-      "strictPixels": 4271,
-      "strictPct": 0.3296
+      "diffPixels": 4008,
+      "pct": 0.3093,
+      "strictPixels": 8024,
+      "strictPct": 0.6191
     },
     {
       "viewport": "desktop-1440",
@@ -1119,10 +1119,10 @@
           900
         ]
       },
-      "diffPixels": 5509,
-      "pct": 0.4251,
-      "strictPixels": 17897,
-      "strictPct": 1.3809
+      "diffPixels": 5677,
+      "pct": 0.438,
+      "strictPixels": 20477,
+      "strictPct": 1.58
     },
     {
       "viewport": "desktop-1440",
@@ -1137,10 +1137,10 @@
           2329
         ]
       },
-      "diffPixels": 15610,
-      "pct": 0.4613,
-      "strictPixels": 137520,
-      "strictPct": 4.0638
+      "diffPixels": 16733,
+      "pct": 0.4945,
+      "strictPixels": 140457,
+      "strictPct": 4.1506
     },
     {
       "viewport": "phone-390",
@@ -1155,10 +1155,10 @@
           4593
         ]
       },
-      "diffPixels": 77100,
-      "pct": 4.2505,
-      "strictPixels": 372092,
-      "strictPct": 20.5135
+      "diffPixels": 77841,
+      "pct": 4.2914,
+      "strictPixels": 376266,
+      "strictPct": 20.7436
     },
     {
       "viewport": "phone-390",
@@ -1173,10 +1173,10 @@
           3861
         ]
       },
-      "diffPixels": 3433,
-      "pct": 0.228,
-      "strictPixels": 9133,
-      "strictPct": 0.6065
+      "diffPixels": 4174,
+      "pct": 0.2772,
+      "strictPixels": 13307,
+      "strictPct": 0.8837
     },
     {
       "viewport": "phone-390",
@@ -1191,10 +1191,10 @@
           4205
         ]
       },
-      "diffPixels": 76427,
-      "pct": 4.5969,
-      "strictPixels": 369804,
-      "strictPct": 22.2429
+      "diffPixels": 77168,
+      "pct": 4.6415,
+      "strictPixels": 373978,
+      "strictPct": 22.494
     },
     {
       "viewport": "phone-390",
@@ -1209,10 +1209,10 @@
           7506
         ]
       },
-      "diffPixels": 180923,
-      "pct": 6.1145,
-      "strictPixels": 594516,
-      "strictPct": 20.0923
+      "diffPixels": 181664,
+      "pct": 6.1395,
+      "strictPixels": 598690,
+      "strictPct": 20.2333
     },
     {
       "viewport": "phone-390",
@@ -1245,10 +1245,10 @@
           4938
         ]
       },
-      "diffPixels": 77107,
-      "pct": 3.9574,
-      "strictPixels": 372086,
-      "strictPct": 19.0966
+      "diffPixels": 77848,
+      "pct": 3.9954,
+      "strictPixels": 376260,
+      "strictPct": 19.3108
     },
     {
       "viewport": "phone-390",
@@ -1263,10 +1263,10 @@
           5278
         ]
       },
-      "diffPixels": 77109,
-      "pct": 3.7053,
-      "strictPixels": 372098,
-      "strictPct": 17.8804
+      "diffPixels": 77850,
+      "pct": 3.7409,
+      "strictPixels": 376272,
+      "strictPct": 18.081
     },
     {
       "viewport": "phone-390",
@@ -1281,10 +1281,10 @@
           844
         ]
       },
-      "diffPixels": 726,
-      "pct": 0.2206,
-      "strictPixels": 2463,
-      "strictPct": 0.7483
+      "diffPixels": 1467,
+      "pct": 0.4457,
+      "strictPixels": 6637,
+      "strictPct": 2.0163
     },
     {
       "viewport": "phone-390",
@@ -1299,10 +1299,10 @@
           844
         ]
       },
-      "diffPixels": 726,
-      "pct": 0.2206,
-      "strictPixels": 2463,
-      "strictPct": 0.7483
+      "diffPixels": 1467,
+      "pct": 0.4457,
+      "strictPixels": 6637,
+      "strictPct": 2.0163
     },
     {
       "viewport": "phone-390",
@@ -1310,17 +1310,17 @@
       "size": {
         "target": [
           390,
-          3740
+          3760
         ],
         "reference": [
           390,
           3740
         ]
       },
-      "diffPixels": 2220,
-      "pct": 0.1522,
-      "strictPixels": 4820,
-      "strictPct": 0.3305
+      "diffPixels": 67375,
+      "pct": 4.5946,
+      "strictPixels": 213796,
+      "strictPct": 14.5797
     },
     {
       "viewport": "phone-390",
@@ -1335,10 +1335,10 @@
           844
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 763,
+      "pct": 0.2318,
+      "strictPixels": 1960,
+      "strictPct": 0.5955
     },
     {
       "viewport": "phone-390",
@@ -1353,10 +1353,10 @@
           844
         ]
       },
-      "diffPixels": 17706,
-      "pct": 5.3791,
-      "strictPixels": 35986,
-      "strictPct": 10.9327
+      "diffPixels": 26496,
+      "pct": 8.0496,
+      "strictPixels": 56724,
+      "strictPct": 17.233
     },
     {
       "viewport": "phone-390",
@@ -1371,10 +1371,10 @@
           844
         ]
       },
-      "diffPixels": 5251,
-      "pct": 1.5953,
-      "strictPixels": 7742,
-      "strictPct": 2.352
+      "diffPixels": 6601,
+      "pct": 2.0054,
+      "strictPixels": 10251,
+      "strictPct": 3.1143
     },
     {
       "viewport": "phone-390",
@@ -1389,10 +1389,10 @@
           844
         ]
       },
-      "diffPixels": 25532,
-      "pct": 7.7567,
-      "strictPixels": 46117,
-      "strictPct": 14.0105
+      "diffPixels": 27554,
+      "pct": 8.371,
+      "strictPixels": 53762,
+      "strictPct": 16.3331
     },
     {
       "viewport": "phone-390",
@@ -1407,10 +1407,10 @@
           4593
         ]
       },
-      "diffPixels": 78153,
-      "pct": 4.3086,
-      "strictPixels": 373364,
-      "strictPct": 20.5836
+      "diffPixels": 78894,
+      "pct": 4.3494,
+      "strictPixels": 377538,
+      "strictPct": 20.8137
     },
     {
       "viewport": "phone-390",
@@ -1425,10 +1425,10 @@
           1700
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 347,
+      "pct": 0.0523,
+      "strictPixels": 917,
+      "strictPct": 0.1383
     },
     {
       "viewport": "phone-390",
@@ -1443,10 +1443,10 @@
           1298
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 347,
+      "pct": 0.0685,
+      "strictPixels": 917,
+      "strictPct": 0.1811
     },
     {
       "viewport": "phone-390",
@@ -1461,10 +1461,10 @@
           1072
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 0,
-      "strictPct": 0
+      "diffPixels": 347,
+      "pct": 0.083,
+      "strictPixels": 917,
+      "strictPct": 0.2193
     },
     {
       "viewport": "phone-390",
@@ -1508,17 +1508,17 @@
       "size": {
         "target": [
           390,
-          1492
+          1563
         ],
         "reference": [
           390,
           1492
         ]
       },
-      "diffPixels": 0,
-      "pct": 0,
-      "strictPixels": 1454,
-      "strictPct": 0.2499
+      "diffPixels": 35349,
+      "pct": 5.799,
+      "strictPixels": 150486,
+      "strictPct": 24.6872
     },
     {
       "viewport": "phone-390",
@@ -1526,17 +1526,17 @@
       "size": {
         "target": [
           390,
-          1125
+          1157
         ],
         "reference": [
           390,
           1125
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.5586,
-      "strictPixels": 4271,
-      "strictPct": 0.9734
+      "diffPixels": 31187,
+      "pct": 6.9116,
+      "strictPixels": 82332,
+      "strictPct": 18.2461
     },
     {
       "viewport": "phone-390",
@@ -1544,17 +1544,17 @@
       "size": {
         "target": [
           390,
-          1810
+          1842
         ],
         "reference": [
           390,
           1810
         ]
       },
-      "diffPixels": 2451,
-      "pct": 0.3472,
-      "strictPixels": 4271,
-      "strictPct": 0.605
+      "diffPixels": 31183,
+      "pct": 4.3407,
+      "strictPixels": 82324,
+      "strictPct": 11.4597
     }
   ],
   "skipped": [

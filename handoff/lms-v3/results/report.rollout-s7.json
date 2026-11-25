@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s7",
-  "when": "2026-11-25T20:58:09.519Z",
+  "when": "2026-11-25T23:02:39.398Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           2307
         ]
       },
-      "diffPixels": 6599,
-      "pct": 0.1986,
-      "strictPixels": 22521,
-      "strictPct": 0.6779
+      "diffPixels": 7713,
+      "pct": 0.2322,
+      "strictPixels": 27262,
+      "strictPct": 0.8206
     },
     {
       "viewport": "desktop-1440",
@@ -57,10 +57,10 @@
           900
         ]
       },
-      "diffPixels": 4825,
-      "pct": 0.3723,
-      "strictPixels": 15758,
-      "strictPct": 1.2159
+      "diffPixels": 5939,
+      "pct": 0.4583,
+      "strictPixels": 20499,
+      "strictPct": 1.5817
     },
     {
       "viewport": "desktop-1440",
@@ -75,10 +75,10 @@
           2329
         ]
       },
-      "diffPixels": 15608,
-      "pct": 0.4612,
-      "strictPixels": 133651,
-      "strictPct": 3.9495
+      "diffPixels": 16731,
+      "pct": 0.4944,
+      "strictPixels": 136588,
+      "strictPct": 4.0363
     },
     {
       "viewport": "phone-390",
@@ -93,10 +93,10 @@
           4668
         ]
       },
-      "diffPixels": 83930,
-      "pct": 4.5536,
-      "strictPixels": 389220,
-      "strictPct": 21.1172
+      "diffPixels": 84671,
+      "pct": 4.5938,
+      "strictPixels": 393394,
+      "strictPct": 21.3437
     },
     {
       "viewport": "phone-390",
@@ -111,10 +111,10 @@
           844
         ]
       },
-      "diffPixels": 370,
-      "pct": 0.1124,
-      "strictPixels": 1740,
-      "strictPct": 0.5286
+      "diffPixels": 1111,
+      "pct": 0.3375,
+      "strictPixels": 5914,
+      "strictPct": 1.7967
     },
     {
       "viewport": "phone-390",
@@ -122,17 +122,17 @@
       "size": {
         "target": [
           390,
-          3740
+          3760
         ],
         "reference": [
           390,
           3740
         ]
       },
-      "diffPixels": 2220,
-      "pct": 0.1522,
-      "strictPixels": 4820,
-      "strictPct": 0.3305
+      "diffPixels": 67375,
+      "pct": 4.5946,
+      "strictPixels": 213796,
+      "strictPct": 14.5797
     }
   ],
   "skipped": [

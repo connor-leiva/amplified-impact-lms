@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "deployed",
-  "when": "2026-11-25T21:00:21.566Z",
+  "when": "2026-11-25T23:04:51.127Z",
   "threshold": 0.1,
   "report": [
     {
@@ -21,10 +21,10 @@
           2313
         ]
       },
-      "diffPixels": 6601,
-      "pct": 0.1982,
-      "strictPixels": 22522,
-      "strictPct": 0.6762
+      "diffPixels": 7715,
+      "pct": 0.2316,
+      "strictPixels": 27263,
+      "strictPct": 0.8185
     },
     {
       "viewport": "desktop-1440",
@@ -39,10 +39,10 @@
           900
         ]
       },
-      "diffPixels": 4825,
-      "pct": 0.3723,
-      "strictPixels": 16037,
-      "strictPct": 1.2374
+      "diffPixels": 4993,
+      "pct": 0.3853,
+      "strictPixels": 18617,
+      "strictPct": 1.4365
     },
     {
       "viewport": "desktop-1440",
@@ -57,10 +57,10 @@
           2328
         ]
       },
-      "diffPixels": 15479,
-      "pct": 0.4576,
-      "strictPixels": 133462,
-      "strictPct": 3.9456
+      "diffPixels": 16602,
+      "pct": 0.4908,
+      "strictPixels": 136399,
+      "strictPct": 4.0324
     },
     {
       "viewport": "phone-390",
@@ -75,10 +75,10 @@
           4726
         ]
       },
-      "diffPixels": 83513,
-      "pct": 4.4761,
-      "strictPixels": 371304,
-      "strictPct": 19.901
+      "diffPixels": 84254,
+      "pct": 4.5158,
+      "strictPixels": 375478,
+      "strictPct": 20.1247
     },
     {
       "viewport": "phone-390",
@@ -86,17 +86,17 @@
       "size": {
         "target": [
           390,
-          3715
+          3734
         ],
         "reference": [
           390,
           3715
         ]
       },
-      "diffPixels": 2224,
-      "pct": 0.1535,
-      "strictPixels": 4820,
-      "strictPct": 0.3327
+      "diffPixels": 67430,
+      "pct": 4.6304,
+      "strictPixels": 212934,
+      "strictPct": 14.622
     }
   ],
   "skipped": [
