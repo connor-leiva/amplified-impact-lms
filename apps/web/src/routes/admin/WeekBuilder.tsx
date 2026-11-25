@@ -16,11 +16,11 @@ import clsx from 'clsx';
 import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
 import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, CourseSkill, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, SkillRole, VideoBlock } from '@ai/core/course-types';
 import { titleWords } from '@ai/core/checklist';
-import { chapterText, parseChapters } from '@ai/core';
+import { LMS_TOUR_MODULE_ID, chapterText, parseChapters } from '@ai/core';
 import { isVideoUpload } from '@ai/core/course-types';
 import { fileSizeLabel, uploadAccept } from '@ai/core/uploads';
 import { FORM_BUTTON_LABEL, ownFormLabel } from '@ai/core/form-button';
-import { uploadFile } from '../../data/files';
+import { uploadFile, videoDurationOf } from '../../data/files';
 import { UPLOAD_COPY } from '../../data/upload';
 import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
@@ -219,6 +219,8 @@ export interface BlockPicks {
   /** Video ids already used anywhere in this week (both paths of every step): a video's id is unique per week
    *  (course-rules `videoIssues`), so a new one does not reuse one. */
   videoIds?: string[];
+  /** D-252: these are Week 0's Media videos, so each offers "Show as the LMS Tour on Sign-In". */
+  tour?: boolean;
 }
 
 export function Blocks({
@@ -265,7 +267,7 @@ export function Blocks({
               <TableRowsField label={`Block ${i + 1} rows`} rows={b.rows} onChange={(rows) => set(i, { ...b, rows })} />
             </>
           ) : null}
-          {b.type === 'video' ? <VideoFields n={i + 1} block={b} ids={[...new Set([...(picks?.ids ?? []), ...blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))])]} onChange={(v) => set(i, v)} /> : null}
+          {b.type === 'video' ? <VideoFields n={i + 1} block={b} ids={[...new Set([...(picks?.ids ?? []), ...blocks.flatMap((x) => (x.type === 'check' ? [x.id] : []))])]} tour={picks?.tour === true} onChange={(v) => set(i, v)} /> : null}
           {b.type === 'check' ? (
             <CheckFields
               n={i + 1}
@@ -315,7 +317,7 @@ export function Blocks({
  * without sending it), with its progress and any refusal said here. The save runs the copy rules on
  * the title.
  */
-function VideoFields({ n, block, ids, onChange }: { n: number; block: VideoBlock; ids: string[]; onChange: (b: VideoBlock) => void }) {
+function VideoFields({ n, block, ids, tour = false, onChange }: { n: number; block: VideoBlock; ids: string[]; tour?: boolean; onChange: (b: VideoBlock) => void }) {
   const uploaded = isVideoUpload(block.source) ? block.source : null;
   const [mode, setMode] = useState<'link' | 'upload'>(uploaded ? 'upload' : 'link');
   const [progress, setProgress] = useState<number | null>(null);
@@ -329,11 +331,15 @@ function VideoFields({ n, block, ids, onChange }: { n: number; block: VideoBlock
     if (!file) return;
     setError('');
     setProgress(0);
-    const out = await uploadFile(file, setProgress, true);
+    // D-252: the file's length, read here from the chosen file while it uploads, so a learner's card can say it.
+    const [out, seconds] = await Promise.all([uploadFile(file, setProgress, true), videoDurationOf(file)]);
     setProgress(null);
     if (input.current) input.current.value = '';
     if (!out.ok) setError(out.error);
-    else onChange({ ...block, source: { upload: out.file.key, name: out.file.name, size: out.file.size, type: 'video/mp4' } });
+    else {
+      const { durationS: _old, ...rest } = block;
+      onChange({ ...rest, source: { upload: out.file.key, name: out.file.name, size: out.file.size, type: 'video/mp4' }, ...(seconds ? { durationS: seconds } : {}) });
+    }
   };
   const pickSide = async (file: File | undefined, kind: 'poster' | 'transcript') => {
     if (!file) return;
@@ -416,6 +422,25 @@ function VideoFields({ n, block, ids, onChange }: { n: number; block: VideoBlock
         <input type="checkbox" checked={!!block.draft} onChange={(e) => onChange(e.target.checked ? { ...block, draft: true } : { ...block, draft: undefined })} />
         {VIDEO_LABELS.draft}
       </label>
+      {tour || block.tour ? (
+        <>
+          <label className={clsx(k.row, k.nw, w.check)}>
+            <input
+              type="checkbox"
+              checked={block.tour === true}
+              aria-describedby={`${group}-tour`}
+              onChange={(e) => {
+                const { tour: _t, ...rest } = block;
+                onChange(e.target.checked ? { ...rest, tour: true } : rest);
+              }}
+            />
+            {VIDEO_LABELS.tour}
+          </label>
+          <p id={`${group}-tour`} className={clsx(k.p, k.me)}>
+            {VIDEO_LABELS.tourHint}
+          </p>
+        </>
+      ) : null}
       <ChaptersField n={n} chapters={block.chapters ?? []} ids={ids} onChange={(chapters) => onChange(chapters?.length ? { ...block, chapters } : { ...block, chapters: undefined })} />
       {progress !== null ? (
         <p role="status" className={clsx(k.p, k.me)}>
@@ -997,7 +1022,13 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
           <Para label="Use evidence" value={c.homework.useEvidence} onChange={(v) => set((x) => (x.homework.useEvidence = v))} />
           <Lines label="Materials" items={c.materials} onChange={(v) => set((x) => (x.materials = v))} />
           <Lines label="Media" items={mediaLines(c.media)} onChange={(v) => set((x) => (x.media = [...v, ...mediaVideos(x.media)]))} />
-          <Blocks label={VIDEO_LABELS.mediaVideos} kinds={VIDEO_KINDS} blocks={mediaVideos(c.media)} onChange={(b) => set((x) => (x.media = [...mediaLines(x.media), ...(b as VideoBlock[])]))} />
+          <Blocks
+            label={VIDEO_LABELS.mediaVideos}
+            kinds={VIDEO_KINDS}
+            blocks={mediaVideos(c.media)}
+            picks={draft.id === LMS_TOUR_MODULE_ID ? { kit: [], sessions: [], ids: [], tour: true } : undefined}
+            onChange={(b) => set((x) => (x.media = [...mediaLines(x.media), ...(b as VideoBlock[])]))}
+          />
           {c.startHere ? (
             <>
               <Line label="Start here title" value={c.startHere.title} onChange={(v) => set((x) => (x.startHere = { ...x.startHere!, title: v }))} />

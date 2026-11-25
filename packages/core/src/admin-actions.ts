@@ -25,7 +25,7 @@ import { UPLOAD_POLICY, fileSizeLabel, isUploadKey, isUploadType, nameMatchesTyp
 import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
 import { withoutRetired } from './course-retired';
-import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, videoIssues } from './course-rules';
+import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, tourIssues, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
 import { moduleVersion } from './module-version';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
@@ -278,8 +278,9 @@ export function saveBuilderModule(
   // D-174: every learner-facing string this save changes passes the copy rules; one it leaves alone
   // never refuses it. Checked before `saveModule`, so a refusal writes nothing.
   const issues = copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(args.draft)));
-  // D-188: a video block plays an uploaded mp4 or an http(s) link, and nothing else.
-  const videos = videoIssues(args.draft);
+  // D-188: a video block plays an uploaded mp4 or an http(s) link, and nothing else. D-252: the LMS tour is one
+  // uploaded video with a transcript, in Week 0's Media, across the whole course.
+  const videos = [...videoIssues(args.draft), ...tourIssues(args.draft, db.modules)];
   // D-190: checklist ids, same-step dependencies and links. Copy rules already cover the words.
   const checks = checklistIssues(args.draft);
   if (issues.length || videos.length || checks.length) {

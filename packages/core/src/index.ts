@@ -45,5 +45,6 @@ export * from './console-staff';
 export * from './build-audit';
 export * from './uploads';
 export * from './video';
+export * from './lms-tour';
 export * from './module-version';
 export * from './learner-email';

@@ -1,4 +1,5 @@
 import { isFixture } from './boot';
+import { forgetTourLater } from './tour-later';
 
 // Sign Out (DECISIONS.md D-152), and what the back button shows after it.
 //
@@ -68,6 +69,8 @@ export function signOut(): Promise<boolean> {
       }
     }
     signedOut = true;
+    // D-252: Watch Later on the LMS tour lasts until sign-out, so it opens again on the next sign-in here.
+    forgetTourLater();
     for (const teardown of teardowns) {
       try {
         teardown();

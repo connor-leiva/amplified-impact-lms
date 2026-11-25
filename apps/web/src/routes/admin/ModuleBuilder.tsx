@@ -179,7 +179,7 @@ export function Component() {
   // D-174: a course week gets the course's cards; an AI Employee is drawn as the R2 mockup draws it.
   const week = isWeekDraft(d) ? d : null;
   // D-174: what Save would be refused for, while staff type (the copy rules on what changed).
-  const issues = st.dirty ? draftIssues(db.modules.find((m) => m.id === d.id) ?? null, d) : [];
+  const issues = st.dirty ? draftIssues(db.modules.find((m) => m.id === d.id) ?? null, d, db.modules) : [];
   const live = db.modules.some((m) => m.id === d.id && m.status === 'published');
   // D-247 (H-8): a published or scheduled module saves only with the Publish modules permission. Said up
   // front, in the notice the builder already uses, so nobody edits for ten minutes and then learns it.

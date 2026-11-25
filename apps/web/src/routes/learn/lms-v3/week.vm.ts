@@ -4,6 +4,7 @@
 import { fmt } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
+import { isPinnedTour } from '@ai/core/lms-tour';
 import { progressOn, stepRoles } from '@ai/core/learner';
 import type { LearnerStep, StepRole } from '@ai/core/learner';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
@@ -119,7 +120,8 @@ const isRole = (s: WeekStep, r: StepRole): boolean => s.who.includes(r);
 export function v3WeekDraws(r: WeekRow | undefined): boolean {
   const w = r?.open;
   if (!r || !w) return false;
-  return w.media.every((m) => typeof m === 'string') && weekCardRefs(w) !== null;
+  // D-252: Week 0's LMS tour is drawn: it is the card pinned above the hero (`TourCard`), not a Media video.
+  return w.media.every((m) => typeof m === 'string' || isPinnedTour(r.week, m)) && weekCardRefs(w) !== null;
 }
 
 /**
