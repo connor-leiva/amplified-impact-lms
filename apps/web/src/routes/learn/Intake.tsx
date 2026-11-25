@@ -21,6 +21,7 @@ import { learnWeek } from './routes';
 import { v3For } from './lms-v3/v3';
 import { FORM_UI } from './lms-v3/form.vm';
 import { intakeSaver, loadIntake } from './intake-sync';
+import { IntroText } from './IntroText';
 import type { IntakeSave, IntakeSaver } from './intake-sync';
 import s from './Intake.module.css';
 import l from './Learn.module.css';
@@ -262,7 +263,7 @@ export function IntakePage({ week }: { week: number }) {
         Back
       </Link>
       <h1 className={l.h0}>Week 0 Intake</h1>
-      {form.intro ? <p className={s.intro}>{form.intro}</p> : null}
+      <IntroText text={form.intro} className={s.intro} />
       {staff ? <p className={s.saved}>Preview: Answers Aren’t Saved</p> : null}
       {stamp ? <p className={s.saved} role="status">{stamp}</p> : null}
       {submittedAt ? <p className={s.saved}>Submitted {fmt.time(submittedAt)}</p> : null}
@@ -305,7 +306,7 @@ export function IntakePage({ week }: { week: number }) {
           {form.sections.map((section) => (
             <section key={section.title} className={s.section} aria-labelledby={`sec-${section.title}`}>
               <h2 id={`sec-${section.title}`}>{section.title}</h2>
-              {section.intro ? <p className={s.intro}>{section.intro}</p> : null}
+              <IntroText text={section.intro} className={s.intro} />
               {section.questions.map((q) => (
                 <Field key={q.id} q={q} value={answers[q.id]} invalid={missing.includes(q.id)} readOnly={stale} onChange={(v) => onChange(q.id, v)} />
               ))}

@@ -288,6 +288,80 @@ export function intakeItemOn(mod: AIEmployee | undefined, week: { intake?: Cours
   return target && target.stepId === stepId ? target.itemId : null;
 }
 
+// --- the intro's lines (D-257) -----------------------------------------------------------------------
+
+/** A run of an intro's words: plain, or bold (`**text**`). Always text: nothing in it is markup. */
+export interface IntroRun {
+  text: string;
+  bold?: true;
+}
+
+/** A paragraph (its lines, each a list of runs) or a bulleted list (its items, each a list of runs). */
+export type IntroBlock = { kind: 'paragraph'; lines: IntroRun[][] } | { kind: 'list'; items: IntroRun[][] };
+
+/** One line's runs: `**text**` is bold; a `**` with no partner, or with nothing between, stays as typed. */
+function introRuns(line: string): IntroRun[] {
+  const out: IntroRun[] = [];
+  const plain = (text: string) => {
+    if (!text) return;
+    const last = out[out.length - 1];
+    if (last && !last.bold) last.text += text;
+    else out.push({ text });
+  };
+  let rest = line;
+  for (;;) {
+    const open = rest.indexOf('**');
+    const close = open < 0 ? -1 : rest.indexOf('**', open + 2);
+    if (close < 0) {
+      plain(rest);
+      return out;
+    }
+    const inner = rest.slice(open + 2, close);
+    if (inner.trim()) {
+      plain(rest.slice(0, open));
+      out.push({ text: inner, bold: true });
+    } else {
+      // "****" or "** **": nothing to make bold, so the stars stay as typed.
+      plain(rest.slice(0, close + 2));
+    }
+    rest = rest.slice(close + 2);
+  }
+}
+
+const BULLET = /^\s*- /;
+
+/**
+ * The intake's intro as staff typed it in the Week Builder, in blocks. A blank line starts a new paragraph; lines that
+ * start with "- " are a bulleted list, one item a line; `**text**` is bold; a single line break inside a paragraph stays
+ * a line break. Nothing else is read: no HTML, no links. Each run is text, rendered as text. An intro with no line
+ * breaks and no stars is one paragraph of one run, as it rendered before.
+ */
+export function introBlocks(text: string | null | undefined): IntroBlock[] {
+  const out: IntroBlock[] = [];
+  let para: IntroRun[][] | null = null;
+  let list: IntroRun[][] | null = null;
+  for (const raw of (text ?? '').replace(/\r\n?/g, '\n').split('\n')) {
+    const line = raw.trim();
+    if (!line) {
+      para = null;
+      list = null;
+      continue;
+    }
+    if (BULLET.test(raw)) {
+      para = null;
+      const item = line.slice(1).trim();
+      if (!item) continue;
+      if (!list) out.push({ kind: 'list', items: (list = []) });
+      list.push(introRuns(item));
+      continue;
+    }
+    list = null;
+    if (!para) out.push({ kind: 'paragraph', lines: (para = []) });
+    para.push(introRuns(line));
+  }
+  return out;
+}
+
 /** Section titles and question labels, for the copy rules. */
 export function intakeCopy(form: CourseIntake | undefined): { path: string; label: string; text: string }[] {
   if (!form) return [];
