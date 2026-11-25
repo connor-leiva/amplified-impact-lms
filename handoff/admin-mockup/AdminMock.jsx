@@ -234,9 +234,9 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .qkv dt{color:var(--f3);display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .qkv dd{margin:0 0 14px;min-width:0;overflow-wrap:break-word;max-width:720px}
 .qkv dd:last-child{margin-bottom:0}
-.fl{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.fl li{display:flex;align-items:center;gap:8px;min-width:0}
-.fl svg{flex:none;color:var(--f3)}
+.fls{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.fls li{display:flex;align-items:center;gap:8px;min-width:0}
+.fls svg{flex:none;color:var(--f3)}
 .rq{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0 8px 22px;border-top:1px solid var(--line)}
 .rq>span:last-child{flex:none;color:var(--f2)}
 .ty{display:grid;grid-template-columns:minmax(0,1fr) 72px 20px;align-items:center;gap:10px;color:var(--f2)}
@@ -309,10 +309,125 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .gk .ct{margin-left:auto;font-size:11px;font-weight:500;color:var(--f2);background:var(--sf);border:1px solid var(--line);border-radius:999px;padding:0 6px;line-height:16px}.gk .ct.bad{color:var(--bad);border-color:var(--badb);background:var(--badb)}
 .ph .gk .ct{font-size:16px;line-height:24px;padding:0 8px}
 @media (prefers-reduced-motion:reduce){.gw,.gwi,.gx .cv svg{transition:none}}
+/* ---- Nov 25: program, cohort, people, revenue ---- */
+/* a fact that opens the list it counts */
+.fx>.fxl{background:var(--sf);border:0;padding:12px 34px 12px 20px;display:flex;flex-direction:column;gap:2px;flex:1 0 auto;max-width:100%;white-space:nowrap;text-align:left;cursor:pointer;position:relative;color:inherit;transition:background-color .12s}
+.fx>.fxl:hover{background:var(--hov)}.fx>.fxl>svg{position:absolute;right:14px;top:50%;margin-top:-6px;color:var(--line2);transition:color .12s,transform .12s}.fx>.fxl:hover>svg{color:var(--for);transform:translateX(2px)}
+.ph .fx>.fxl{padding:12px 26px 12px 12px;min-width:0}.ph .fx>.fxl>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}.ph .fx>.fxl>span:nth-child(2){font-size:15px}.ph .fx>.fxl>svg{right:8px}
+.ph .fx>.fxl:last-child:nth-child(odd){grid-column:1/-1}.ph .fx>.fxw{grid-column:1/-1}
+.stat{transition:border-color .12s,box-shadow .12s}button.stat{cursor:pointer;position:relative}button.stat:hover{border-color:var(--line2);box-shadow:0 2px 8px rgba(21,33,29,.06)}
+button.stat::after{content:"";position:absolute;right:14px;top:18px;width:6px;height:6px;border-right:1.5px solid var(--line2);border-top:1.5px solid var(--line2);transform:rotate(45deg);transition:border-color .12s}button.stat:hover::after{border-color:var(--for)}
+/* the cohort picker: in a page's title on This cohort, beside it elsewhere */
+.cpk{display:inline-flex;align-items:center;gap:8px;height:var(--c);padding:0 8px 0 6px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);font-size:calc(var(--t) - 1px);font-weight:500;color:var(--ink);cursor:pointer;max-width:100%;box-shadow:0 1px 1px rgba(21,33,29,.04)}
+.cpk:hover{background:var(--hov)}.cpk>svg{color:var(--f3);flex:none}.cpk img{border-radius:5px;flex:none}
+.cpk.big{height:auto;padding:2px 8px 2px 0;margin:-2px 0;border-color:transparent;background:none;box-shadow:none;font:inherit;letter-spacing:inherit;border-radius:8px;gap:6px}
+.cpk.big:hover{background:var(--sub)}.cpk.big:hover>svg{color:var(--ink)}
+.hd h1 .menu{max-width:100%}
+/* a section list down the left, one section on screen at a time */
+.srg{display:grid;grid-template-columns:216px minmax(0,1fr);gap:24px;align-items:start}.ph .srg{grid-template-columns:minmax(0,1fr);gap:16px}
+.srl{display:flex;flex-direction:column;gap:1px;position:sticky;top:0}
+.srb{display:flex;align-items:center;gap:8px;height:var(--c);padding:0 10px;border:0;background:none;border-radius:8px;font-size:calc(var(--t) - 1px);color:var(--f2);cursor:pointer;text-align:left}
+.srb:hover{background:var(--sub);color:var(--ink)}.srb.on{background:var(--tint);color:var(--for);font-weight:500}.srb .el{flex:1}.srb .tn{font-size:var(--m);color:var(--f3);font-weight:400}
+.fat{font-weight:400;font-size:var(--m);line-height:var(--ml);color:var(--f3);margin-top:-4px}
+textarea.in{height:auto;padding:8px 10px;line-height:var(--tl);resize:vertical}
+.lns{display:flex;flex-direction:column;gap:6px}.ln{display:flex;align-items:center;gap:4px}.ln .in{flex:1;font-weight:400}
+.grp{display:flex;align-items:center;justify-content:center;width:20px;height:var(--c);color:var(--line2);cursor:grab;flex:none}.wkr:hover .grp,.ln:hover .grp{color:var(--f3)}
+/* a week, a step, anything in an ordered list that opens */
+.wkl{display:flex;flex-direction:column}.wkl>*+*{border-top:1px solid var(--line)}
+.wkr{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 8px;min-height:60px}.ph .wkr{flex-wrap:wrap;padding:12px 12px 12px 16px;gap:8px 12px}
+.wkr.stp{padding-left:12px}.wkr:hover{background:var(--hov)}
+.wn{width:28px;height:28px;border-radius:8px;background:var(--tint);color:var(--for);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none;font-variant-numeric:tabular-nums}
+.wn.off{background:var(--sub);color:var(--f3)}.wn.sm{width:24px;height:24px;border-radius:6px;font-size:12px;background:var(--sub);color:var(--f2)}
+.wkm{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit;border-radius:4px}
+.wkm:hover .w5{color:var(--for);text-decoration:underline;text-decoration-color:var(--mint);text-underline-offset:3px}
+.wkc{flex:0 0 104px;display:flex;flex-direction:column;min-width:0;font-size:calc(var(--t) - 1px)}.wkc.wkd{flex-basis:172px}.stp .wkc{flex:0 0 196px}.stp .wkc .row{flex-wrap:nowrap}.ph .stp .wkc{flex:1 1 auto}.wks{flex:0 0 96px;display:flex;justify-content:flex-start;font-size:calc(var(--t) - 1px)}
+.lap .wkc{flex-basis:120px}.lap .wkc.wkd{display:none}
+.rdn{flex:none;white-space:nowrap;text-align:right;min-width:44px}
+/* on a phone a row is two lines: what it is and its menu, then when and where it stands */
+.ph .wkr .wn{order:0}.ph .wkm{order:1;flex:1 1 calc(100% - 100px)}.ph .wkr>.menu{order:2}.ph .wkc{display:none}.ph .wkc.wkd,.ph .stp .wkc{display:flex;order:3;flex:1 1 auto;margin-left:40px}.ph .stp .wkc{margin-left:36px}.ph .wks{order:4;flex:0 0 auto;align-items:center}
+.ph .chs{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}.ph .chs::-webkit-scrollbar{display:none}.ph .ch{flex:none}
+/* a row that opens something: a card's link row, a needs-you row, a readiness row */
+.rnw,.nyr,.rdy{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font-size:calc(var(--t) - 1px)}
+.rnw{padding:8px;margin:-4px -8px;width:calc(100% + 16px);border-radius:8px}.rnw:hover{background:var(--sub)}.rnw>svg:last-child,.nyr>svg:last-child{color:var(--line2);flex:none}.rnw:hover>svg:last-child,.nyr:hover>svg:last-child{color:var(--for)}
+.rnw img{border-radius:8px;flex:none}
+.nyr{padding:12px 16px 12px 20px;min-height:60px}.nyr:hover{background:var(--hov)}.nyr.rn{min-height:52px;padding-block:8px}
+.nyr.now{background:linear-gradient(90deg,var(--tint),transparent 60%)}
+.mt.bad{background:var(--badb);color:var(--bad)}.mt.warn{background:var(--warnb);color:var(--warn)}.mt.off{background:var(--sub);color:var(--f3)}
+.rdy{padding:6px 8px;margin:-2px -8px;width:calc(100% + 16px);border-radius:8px;gap:10px}.rdy:hover{background:var(--sub)}
+.dt{width:36px;height:40px;border-radius:8px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;line-height:1}.dt b{font-size:15px;font-weight:600}.dt span{font-size:10px;color:var(--f3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+/* unsaved changes: one bar, at the bottom of what you are editing */
+.svb{position:sticky;bottom:16px;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;background:var(--ink);color:#F4F2EC;border-radius:12px;box-shadow:0 8px 24px rgba(21,33,29,.18);font-size:calc(var(--t) - 1px);z-index:3}
+.svb .b{border-color:#47534E;background:#202D28;color:#F4F2EC;box-shadow:none}.svb .b:hover{background:#2A3832}.svb .b.p{background:var(--mint);border-color:var(--mint);color:var(--ink)}.svb .b.p:hover{background:#86DDB5}
+/* audiences: chips to filter by, a bar to see the split */
+.chs{display:flex;flex-wrap:wrap;gap:6px}
+.ch{display:inline-flex;align-items:center;gap:7px;height:var(--c);padding:0 12px;border:1px solid var(--line2);border-radius:999px;background:var(--sf);font-size:calc(var(--t) - 1px);font-weight:500;color:var(--f2);cursor:pointer}
+.ch:hover{color:var(--ink);background:var(--hov)}.ch.on{background:var(--ink);border-color:var(--ink);color:#fff}.ch i,.pl.aud i,.auk>i,.lg i{width:8px;height:8px;border-radius:2px;flex:none;display:block}
+.ch .tn{font-weight:400;color:var(--f3)}.ch.on .tn{color:#C9D2CD}
+.aub{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden}.aub i{display:block;min-width:4px}
+.aul{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.lap .aul{grid-template-columns:repeat(3,minmax(0,1fr))}.ph .aul{grid-template-columns:repeat(2,minmax(0,1fr))}
+.auk{display:flex;align-items:flex-start;gap:8px;padding:8px;margin:0 -8px 0 0;border:0;background:none;border-radius:8px;text-align:left;cursor:pointer;color:inherit}.auk:hover{background:var(--sub)}.auk>i{margin-top:8px}.auk .w5{font-size:17px;line-height:24px}
+/* revenue: cash by month */
+.rvc{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:end;height:300px}.ph .rvc{gap:6px;height:180px}
+.rvm{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0}.rvb{flex:1;width:100%;max-width:72px;display:flex;align-items:flex-end;border-bottom:1px solid var(--line)}
+.rvb i{display:block;width:100%;border-radius:6px 6px 0 0;background:var(--for)}
+.hat{background:repeating-linear-gradient(135deg,#BFE3D0 0 6px,#E7F1EB 6px 12px)!important}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:var(--m);color:var(--f2)}.ph .rvm .me{font-size:11px}
+/* ---- Nov 25, second pass: offerings, a new offering, setup, a new cohort ---- */
+.ptl{display:flex;align-items:center;justify-content:center;flex:none;border:1.5px dashed var(--line2);background:var(--hov);color:var(--f3);font-weight:600;line-height:1}
+.nyr.ofr{min-height:72px;gap:16px}.ofc{flex:0 0 220px;font-size:calc(var(--t) - 1px)}.lap .ofc:nth-of-type(2){display:none}.ph .nyr.ofr{flex-wrap:wrap}.ph .ofc{flex:1 1 100%;padding-left:56px}
+.sgm{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:var(--sf);align-self:flex-start}
+.ph .sgm button{padding:0 9px}.sgm button{white-space:nowrap;height:var(--c);padding:0 12px;border:0;border-right:1px solid var(--line2);background:none;font-size:calc(var(--t) - 1px);font-weight:500;color:var(--f2);cursor:pointer}.sgm button:last-child{border-right:0}
+.sgm button:hover{background:var(--hov)}.sgm button.on{background:var(--tint);color:var(--for)}
+.stp2{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);align-self:flex-start;height:var(--c)}.stp2 b{min-width:28px;text-align:center;font-weight:600}.stp2 .ib{height:calc(var(--c) - 2px);font-size:16px}.stp2 .ib:disabled{opacity:.35;cursor:default}
+.slt .in{flex:1 1 0;min-width:0;font-weight:400}.ph .slt{flex-wrap:wrap}.ph .slt .in{flex:1 1 40%}
+.ckr{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:calc(var(--t) - 1px)}.ckr input{margin:3px 0 0;width:16px;height:16px;accent-color:var(--for);flex:none}
+.opt{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--sf);text-align:left;cursor:pointer;color:inherit;font-size:calc(var(--t) - 1px)}
+.opt:hover{background:var(--hov)}.opt.on{border-color:var(--for);box-shadow:0 0 0 1px var(--for);background:var(--tint)}
+.skf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}.skf>div{background:var(--sf);padding:10px 12px;display:flex;flex-direction:column}.skf b{font-size:20px;line-height:26px;font-weight:600}
+.skl,.ncl{display:flex;flex-direction:column;gap:6px}.skw{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.skc{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:var(--tint);color:var(--for);font-size:var(--m);font-weight:500;white-space:nowrap}
+.skc.alt{background:var(--infob);color:var(--info)}.skc.off{background:var(--sub);color:var(--f3)}.skc.bad{background:var(--badb);color:var(--bad)}
+.ncl{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px 12px;gap:10px;font-weight:400}.ncw{display:flex;align-items:flex-start;gap:10px}
+.thn{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:var(--f2);font-size:calc(var(--t) - 1px)}
+.tdc{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.tdo.ok .tdc{background:#2E9A63;border-color:#2E9A63}.tdo.ok .w5{color:var(--f2);font-weight:400}div.tdo{cursor:default}div.tdo:hover{background:none}
 /* the program's own tile (program-logo.ts, variant "tile"), never under 32px */
 .sw img.tile{width:32px;height:32px;border-radius:0;background:none}
 /* in the rail the switcher sits on the same centre line as the logo and the icons */
 .sb>.menu{display:flex}.sb .sw{margin:0 8px 8px}.sb.rail>.menu{justify-content:center}.sb.rail .sw{margin:0 0 8px;width:36px}.ph .sw img.tile{width:36px;height:36px}
+/* ---- third pass: four pages with tabs ---- */
+.area>.atb{display:flex;flex-direction:column;gap:20px;min-width:0}.ph .area>.atb{gap:16px}
+.area .atb .pg{padding:0;max-width:none;margin:0}
+.shd{display:flex;gap:12px 16px;align-items:center;justify-content:space-between;flex-wrap:wrap}.shd>p{max-width:720px;margin:0}.shd .b{height:var(--cp);padding:0 14px}
+.sgm.stb{flex:none}.sgm .tn{margin-left:6px;font-weight:400;color:var(--f3)}.sgm button.on .tn{color:var(--for)}
+.area>.tabs{overflow-x:auto;scrollbar-width:none}.area>.tabs .tab{white-space:nowrap;flex:none}
+/* the sidebar's single rows, and the hairline above the system pages */
+.gx.solo .rb{margin-left:auto}.gx .rb.dr{color:var(--warn)}
+.gsep{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+/* Overview: the four things, each a link */
+.thr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.lap .thr{grid-template-columns:repeat(2,minmax(0,1fr))}.ph .thr{grid-template-columns:minmax(0,1fr);gap:12px}
+.thl{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:left;padding:14px 16px 16px;cursor:pointer;color:inherit;transition:border-color .12s,box-shadow .12s;min-width:0}
+.thl:hover{border-color:var(--line2);box-shadow:0 2px 8px rgba(21,33,29,.06)}
+.tlk{display:flex;align-items:center;gap:8px;font-size:var(--m);font-weight:500;color:var(--f2);margin-bottom:6px}.tlk .mt{width:24px;height:24px;border-radius:6px}.tlk .mt svg{width:14px;height:14px}
+.tlk>svg:last-child{margin-left:auto;color:var(--line2);transition:color .12s,transform .12s}.thl:hover .tlk>svg:last-child{color:var(--for);transform:translateX(2px)}
+.thl .fig{font-size:20px;line-height:28px}.thl .me{white-space:normal}
+/* a cohort's settings: two columns of cards */
+.set2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.lap .set2,.ph .set2{grid-template-columns:minmax(0,1fr)}
+.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr)}
+.cfl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px;font-weight:400}
+.cfb{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px 14px;border:1px dashed var(--line2);border-radius:10px;background:var(--hov);font-size:calc(var(--t) - 1px)}
+/* picking a cohort's weeks from the program's */
+.wpl{display:flex;flex-direction:column}.wpl>*+*{border-top:1px solid var(--line)}
+.wpk{display:flex;align-items:center;gap:12px;padding:10px 20px;min-height:56px;cursor:pointer;font-size:calc(var(--t) - 1px)}.wpk:hover{background:var(--hov)}.ph .wpk{padding:10px 16px;flex-wrap:wrap}
+.wpk input{width:16px;height:16px;accent-color:var(--for);flex:none;margin:0}.wpk:not(.on) .w5,.wpk:not(.on) .me{color:var(--f3)}.wpk:not(.on) .w5{font-weight:400}
+.wn.sm.pk{background:var(--tint);color:var(--for)}
+.ewl{display:flex;flex-direction:column;gap:6px;margin-top:2px}.ewr{display:grid;grid-template-columns:24px minmax(0,1fr) 150px 150px;gap:8px;align-items:center;font-weight:400}.ewf{display:block;min-width:0}.ewf .in{min-width:0;width:100%}.ewk{display:none}
+.ewh{color:var(--f3);font-size:var(--m);line-height:var(--ml)}
+.ph .ewh{display:none}.ph .ewl{gap:14px}.ph .ewr{grid-template-columns:24px minmax(0,1fr);row-gap:6px}.ph .ewf{grid-column:2;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center}.ph .ewk{display:block;color:var(--f3)}
+.ncl.free{max-height:none}
+.skc.wrn{background:var(--warnb);color:var(--warn)}
+.ngl{padding:8px 20px;font-size:var(--m);line-height:var(--ml);font-weight:500;color:var(--f3);background:var(--hov)}.ph .ngl{padding:8px 16px}
+.lk.uin{font-weight:400;color:var(--f2)}.uir{margin:0;width:100%;border:1px solid var(--line);padding:8px 12px}
 `;
 
 /* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
@@ -331,6 +446,7 @@ const P = {
   download: 'M12 4v11M7 11l5 5 5-5M5 20h14', panel: 'M4 5h16v14H4zM9 5v14', bolt: 'M13 3L5 14h6l-1 7 8-11h-6l1-7z', eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   up: 'M12 19V5M6 11l6-6 6 6', down: 'M12 5v14M6 13l6 6 6-6', file: 'M6 3h8l4 4v14H6zM14 3v4h4', play: 'M7 5l12 7-12 7V5z', refresh: 'M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4',
 };
+Object.assign(P, { program: P.curriculum, course: P.builder, cohort: P.cohorts, sessions: P.play, enrolled: P.learners, people: P.users, teamsall: P.workspaces, groups: P.roles, revenue: P.usage });
 const I = ({ n, s = 16, w }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w || (n === 'more' || n === 'grip' ? 2.6 : 1.75)} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none' }}><path d={P[n] || P.file} /></svg>;
 
 /* ---------- sample data (fictional; "today" is Thu, Dec 10, 2026, MST) ---------- */
@@ -460,14 +576,15 @@ const PERMS0 = [
   ['export', 'Export audit and email logs', [1, 1, 1]], ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]], ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
 ];
 const NAV = [
-  ['Health', [['overview', 'Overview'], ['health', 'System Health']]],
-  ['Build', [['curriculum', 'Curriculum', 0, '6 draft'], ['builder', 'Module Builder'], ['vault', 'Resource Vault'], ['cohorts', 'Cohorts & Sessions'], ['announce', 'Announcements']]],
-  ['Support', [['learners', 'Learners & Teams'], ['forms', 'Forms & Submissions'], ['community', 'Community'], ['workspaces', 'Workspaces'], ['users', 'Users'], ['masquerade', 'Masquerade']]],
-  ['Revenue', [['tiers', 'Tiers & Upgrades', 0, '2'], ['billing', 'Billing'], ['usage', 'Usage']]],
-  ['Operations', [['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
+  ['Overview', [['overview', 'Overview']]],
+  ['Program', [['program', 'Program']]],
+  ['Cohort', [['cohort', 'Cohort']]],
+  ['People', [['people', 'People']]],
+  ['Revenue', [['revenue', 'Revenue']]],
+  ['Operations', [['health', 'System Health'], ['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
   ['Access', [['roles', 'Roles & Permissions', 'ops']]],
 ];
-const PARENT = { weekcards: 'curriculum', cthread: 'community', workspace: 'workspaces', user: 'users', incident: 'incidents', as: 'masquerade' };
+const PARENT = { newcohort: 'cohort', week: 'program', weekcards: 'program', cthread: 'cohort', workspace: 'people', user: 'people', incident: 'incidents', as: 'people' };
 const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeeded: 'ok', Live: 'ok', Published: 'ok', Connected: 'ok', Resolved: 'ok', Present: 'ok', Sent: 'ok', On: 'ok', Healthy: 'ok', Ready: 'ok', Approved: 'ok',
   Running: 'run', Retrying: 'run', Scheduled: 'info', Trialing: 'info', Queued: 'info', Acknowledged: 'info', Upcoming: 'info',
   Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
@@ -497,6 +614,7 @@ function GBtn({ perm, label, go, k = '', ic, children }) {
 }
 function Head({ t, d, right, back, meta }) {
   const { go, ph } = useC();
+  if (useContext(AreaCtx)) return d || right ? <div className="shd">{d ? <p className="s2">{d}</p> : <span />}{right && <div className="row">{right}</div>}</div> : null;
   return <div className="col m">
     {back && <button className="b q" style={{ alignSelf: 'flex-start', marginLeft: -10, height: ph ? 44 : 28 }} onClick={() => go(back[0])}><I n="back" />{back[1]}</button>}
     <div className="hd"><div className="col s" style={{ flex: '1 1 320px' }}><div className="row" style={{ gap: 10 }}><h1>{t}</h1>{meta}</div>{d && <p className="s2" style={{ maxWidth: 720 }}>{d}</p>}</div>{right && <div className="row">{right}</div>}</div>
@@ -519,6 +637,7 @@ function Gate({ children, n, empty }) {
 }
 function Tabs({ tabs, v, on }) {
   const { ph } = useC();
+  if (useContext(AreaCtx) && !ph) return <div className="sgm stb" role="tablist">{tabs.map(([k, l, c]) => <button key={k} type="button" role="tab" aria-selected={v === k} className={v === k ? 'on' : ''} onClick={() => on(k)}>{l}{c !== undefined && <span className="tn">{c}</span>}</button>)}</div>;
   if (ph) return <select className="in" style={{ width: '100%' }} aria-label="Section" value={v} onChange={e => on(e.target.value)}>{tabs.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>;
   return <div className="tabs" role="tablist">{tabs.map(([k, l, c]) => <button key={k} role="tab" aria-selected={v === k} className={'tab' + (v === k ? ' on' : '')} onClick={() => on(k)}>{l}{c !== undefined && <span className="mu" style={{ marginLeft: 6, fontWeight: 400 }}>{c}</span>}</button>)}</div>;
 }
@@ -787,7 +906,7 @@ function Tiers() {
     ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
   const tog = m => guard('build', 'Change tier access for ' + m.n, () => { setMods(ms => ms.map(x => x.id === m.id ? { ...x, tier: x.tier === 'both' ? 'team' : 'both' } : x)); log('tier.access_change', m.n, m.tier === 'both' ? 'Agent + Team to Team only.' : 'Team only to Agent + Team.'); });
   return <div className="pg">
-    <Head t="Tiers & Upgrades" d="December 2026 Cohort revenue $148,445 · 104 Agent licenses · 7 teams" />
+    <Head t="Plans & upgrades" d="What each plan costs and holds, and the teams asking to move between them." />
     <Gate n={8}>
       <div className="g3">{T.map(t => <section key={t[0]} className="cd pd col" style={{ gap: 12 }}>
         <div className="row nw"><h2>{t[1]}</h2><Pill v={t[2]} tone="" /><span className="sp" /><span className="me">{t[4]}</span></div>
@@ -896,7 +1015,7 @@ function Workspace() {
   const mem = USERS.filter(u => u.ws === w.n);
   const inv = INV.find(i => i.c === w.n);
   return <div className="pg">
-    <Head back={['workspaces', 'Workspaces']} t={w.n} meta={<Pill v={w.st} />} right={<Btn ic="masquerade" onClick={() => startMasq(USERS.find(u => u.n === w.owner))}>Masquerade as owner</Btn>} />
+    <Head back={['teamsall', 'Teams']} t={w.n} meta={<Pill v={w.st} />} right={<Btn ic="masquerade" onClick={() => startMasq(USERS.find(u => u.n === w.owner))}>Masquerade as owner</Btn>} />
     <Gate n={3}><Facts items={[['Workspace ID', <span className="mo">{w.id}</span>], ['Plan', w.plan], ['Seats', w.used + ' of ' + w.cap], ['Owner', w.owner], ['MRR', w.mrr], ['Last activity', w.last]]} /></Gate>
     <div className="gms">
       <div className="col">
@@ -940,7 +1059,7 @@ function User() {
   if (!u) return <NotFound />;
   const w = WS.find(x => x.n === u.ws);
   return <div className="pg">
-    <Head back={['users', 'Users']} t={u.n} meta={<Pill v={u.st} />}
+    <Head back={['people', 'People']} t={u.n} meta={<Pill v={u.st} />}
       right={<><Btn ic="masquerade" onClick={() => startMasq(u)}>Masquerade</Btn><Menu items={[
         { l: 'Send password reset…', g: 1, fn: () => guard('account', 'Send password reset to ' + u.n, () => setDlg({ title: 'Send a password reset to ' + u.n + '?', body: 'Emails a reset link to ' + u.e + '. Their current password keeps working until they use it.', cta: 'Send reset email', yes: () => { log('user.password_reset', u.n, ''); toast('Reset email sent'); } })) },
         { l: 'Change email…', g: 1, fn: () => guard('account', 'Change email for ' + u.n, () => setDlg({ title: 'Change sign-in email for ' + u.n + '?', body: 'Current: ' + u.e + '. The new address must be verified before it takes effect.', cta: 'Send verification', needReason: 1, yes: r => { log('user.email_change', u.n, r); toast('Verification sent'); } })) }]} trigger={(t, o) => <button className="b" style={{ height: 'var(--cp)', width: 'var(--cp)', padding: 0 }} aria-label="More actions" aria-expanded={o} onClick={t}><I n="more" /></button>} /></>} />
@@ -995,13 +1114,14 @@ function LearnerView() {
 
 function Billing() {
   const { route, go, guard, setDlg, toast, log, can } = useC();
-  const [tab, setTab] = useState(route.tab || 'summary');
+  const [tab, setTab] = useState(route.tab || 'customers');
+  useEffect(() => { if (route.tab) setTab(route.tab); }, [route.tab]);
   const ro = !can('refund');
   const refund = i => guard('refund', 'Refund ' + i.id, () => setDlg({ title: 'Refund ' + i.amt + ' to ' + i.c + '?', body: 'Invoice ' + i.id + ', ' + i.card + '. The refund is sent to Stripe and cannot be reversed from the admin.', cta: 'Refund ' + i.amt, danger: 1, needReason: 1, yes: r => { log('billing.refund', i.id, i.amt + '. Reason: ' + r); toast('Refund sent to Stripe'); } }));
   const voidI = i => guard('refund', 'Void ' + i.id, () => setDlg({ title: 'Void invoice ' + i.id + '?', body: i.amt + ' for ' + i.c + '. The customer will no longer be asked to pay it.', cta: 'Void invoice', danger: 1, needReason: 1, yes: r => { log('billing.void', i.id, r); toast('Invoice voided'); } }));
   return <div className="pg">
-    <Head t="Billing" meta={ro && <Pill v="Read-only for your role" tone="" />} d="An operations view of Stripe. Prices, Payment Links, and the Accelerator cap are product rules and are not edited here." />
-    <Tabs v={tab} on={setTab} tabs={[['summary', 'Summary'], ['customers', 'Customers'], ['subs', 'Subscriptions'], ['invoices', 'Invoices'], ['failed', 'Failed payments', 3], ['refunds', 'Refunds']]} />
+    <Head t="Billing" meta={ro && <Pill v="Read-only for your role" tone="" />} d="The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here." />
+    <Tabs v={tab} on={setTab} tabs={[['customers', 'Customers'], ['subs', 'Subscriptions'], ['invoices', 'Invoices'], ['failed', 'Failed payments', 3], ['refunds', 'Refunds']]} />
     {tab === 'summary' && <><Gate n={3}><div className="g4"><Stat l="MRR · sample" v="$18,516" sub="+$695 this week" tone="ok" /><Stat l="Subscriptions" v="77" sub="Active" /><Stat l="Failed payments" v="3" sub="Needs review" tone="bad" go={() => setTab('failed')} /><Stat l="Refunds, 30d" v="$0" go={() => setTab('refunds')} /></div></Gate>
       <Table title="Plan economics · sample figures" rows={[['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'], ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'], ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'], ['Insiders', '$97 monthly', '61 members', '$5,917'], ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time']]}
         cols={[{ k: 0, l: 'Plan', w: 'minmax(180px,1.4fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Price', w: 'minmax(160px,1fr)' }, { k: 2, l: 'Active', w: 'minmax(110px,1fr)' }, { k: 3, l: 'MRR', w: '96px', num: 1 }]} />
@@ -1176,10 +1296,10 @@ function Denied({ what }) {
 function searchAll(q, can, mods) {
   const s = q.trim().toLowerCase(); const m = t => !s || t.toLowerCase().includes(s);
   return [
-    ['Pages', NAV.flatMap(g => g[1]).filter(n => m(n[1]) && (!n[2] || can(n[2]))).map(n => ({ ic: n[0], l: n[1], to: [n[0]] }))],
+    ['Pages', [...NAV.flatMap(g => g[1]).filter(n => m(n[1]) && (!n[2] || can(n[2]))).map(n => ({ ic: n[0], l: n[1], to: [n[0]] })), ...Object.entries(AREAS).flatMap(([k, ts]) => ts.map(t => ({ ic: k, l: k[0].toUpperCase() + k.slice(1) + ' › ' + t[1], to: [k, null, t[0]] }))).filter(x => s && m(x.l))]],
     ['Users', USERS.filter(u => m(u.n + u.e)).map(u => ({ ic: 'users', l: u.n, r: u.e, to: ['user', u.id] }))],
-    ['Workspaces', WS.filter(w => m(w.n + w.plan)).map(w => ({ ic: 'workspaces', l: w.n, r: w.plan, to: ['workspace', w.id] }))],
-    ['AI Employees', mods.filter(k => m(k.n)).map(k => ({ ic: 'curriculum', l: k.n, r: k.st, to: ['builder', k.id] }))],
+    ['Teams', WS.filter(w => m(w.n + w.plan)).map(w => ({ ic: 'workspaces', l: w.n, r: w.plan, to: ['workspace', w.id] }))],
+    ['Weeks', LIB.filter(w => m(w.t)).map(w => ({ ic: 'curriculum', l: w.t, r: w.st, to: ['week', String(w.id)] }))],
     ['Invoices', INV.filter(i => m(i.id + i.c)).map(i => ({ ic: 'billing', l: i.id, r: i.c + ' · ' + i.amt, to: ['billing', null, 'invoices'], mo: 1 }))],
   ].map(([g, items]) => [g, s ? items.slice(0, 6) : items.slice(0, g === 'Pages' ? 5 : 2)]).filter(g => g[1].length);
 }
@@ -1191,7 +1311,7 @@ function Palette() {
   let n = -1;
   return <div className="scrim top0" onMouseDown={e => { if (e.target === e.currentTarget) setPal(false); }}>
     <div className="modal" role="dialog" aria-modal="true" aria-label="Command palette" style={{ maxWidth: 600 }}>
-      <div className="row nw" style={{ padding: '4px 8px 4px 16px', borderBottom: '1px solid var(--line)', height: ph ? 56 : 48, color: 'var(--f3)' }}><I n="search" /><input autoFocus placeholder="Search users, workspaces, AI Employees, invoices, pages" aria-label="Command palette search" style={{ flex: 1, border: 0, background: 'none', boxShadow: 'none', height: '100%', fontSize: ph ? 16 : 15, color: 'var(--ink)', minWidth: 0 }} value={q} onChange={e => { setQ(e.target.value); setCur(0); }}
+      <div className="row nw" style={{ padding: '4px 8px 4px 16px', borderBottom: '1px solid var(--line)', height: ph ? 56 : 48, color: 'var(--f3)' }}><I n="search" /><input autoFocus placeholder="Search people, teams, weeks, invoices, pages" aria-label="Command palette search" style={{ flex: 1, border: 0, background: 'none', boxShadow: 'none', height: '100%', fontSize: ph ? 16 : 15, color: 'var(--ink)', minWidth: 0 }} value={q} onChange={e => { setQ(e.target.value); setCur(0); }}
         onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); setCur(Math.min(flat.length - 1, cur + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setCur(Math.max(0, cur - 1)); } if (e.key === 'Enter' && flat[cur]) pick(flat[cur]); }} />
         {ph ? <button className="ib" aria-label="Close" onClick={() => setPal(false)}><I n="x" /></button> : <span className="kbd" style={{ marginRight: 8 }}>esc</span>}</div>
       <div style={{ overflow: 'auto', maxHeight: 400, padding: 6 }}>
@@ -1269,7 +1389,7 @@ const TI0 = [
 const TST = { Received: '', 'Picked for a live read': 'info', Reviewed: 'ok' };
 const TSTS = Object.keys(TST);
 const Ghl = ({ v }) => v ? <St v={v} tone={v === 'Synced' ? 'ok' : v === 'Failed' ? 'bad' : 'warn'} /> : <span className="mu">—</span>;
-const FileList = ({ files }) => <ul className="fl">{files.map(f => <li key={f[0]}><I n="file" /><button className="lk">{f[0]}</button><span className="me">{f[1]}</span></li>)}</ul>;
+const FileList = ({ files }) => <ul className="fls">{files.map(f => <li key={f[0]}><I n="file" /><button className="lk">{f[0]}</button><span className="me">{f[1]}</span></li>)}</ul>;
 
 /* Learners & Teams › Intake: every team's Week 0 Intake, by team or one question across the cohort */
 function IntakeTab() {
@@ -1360,7 +1480,7 @@ function Forms() {
   const { route, toast } = useC();
   const [tab, setTab] = useState(route.tab || 'intake');
   return <div className="pg">
-    <Head t="Forms & Submissions" d="What the cohort has told you and sent you, added up. For one team's answers or files, open Learners & Teams." right={<Btn ic="download" onClick={() => toast('Exported ' + TEAMS + ' teams as CSV')}>Export CSV</Btn>} />
+    <Head t="Forms & Submissions" d="What the cohort has told you and sent you, added up. For one team's answers or files, open the team." right={<Btn ic="download" onClick={() => toast('Exported ' + TEAMS + ' teams as CSV')}>Export CSV</Btn>} />
     <Tabs v={tab} on={setTab} tabs={[['intake', 'Intake', IR.filter(r => r.st === 'Submitted').length + ' of ' + TEAMS], ['turnedin', 'Turned in', TI0.length]]} />
     {tab === 'intake' ? <FormsIntake /> : <FormsTurnedIn />}
   </div>;
@@ -1484,7 +1604,7 @@ function Community() {
   const post = () => guard('account', 'Start a thread', () => act(() => { const id = ++cmSeq; CMT = [{ id, space: d.space, title: d.title.trim(), activity: 'just now', posts: [{ id: ++cmSeq, by: CME, when: 'Just now', body: d.body.trim() }] }, ...CMT]; setCompose(false); setD({ space: 'general', title: '', body: '' }); toast('Posted to the cohort as staff'); go('cthread', String(id)); }));
   return <div className="pg">
     <Head t="Community" d="The December 2026 Cohort's threads. You read, reply and moderate here, as staff. The cohort sees your posts with a Staff tag. Nothing is emailed." right={<GBtn k="p" ic="plus" perm="account" label="Start a thread" go={() => setCompose(true)}>Start a thread</GBtn>} />
-    <Gate n={3}><Facts items={[['Threads', String(CMT.filter(t => !t.hidden).length)], ['Waiting on you', <span className="w5">{CMT.filter(waiting).length}</span>], ['Pinned', String(CMT.filter(t => t.pinned).length)], ['Hidden', String(CMT.filter(t => t.hidden).length)], ['Members', '148 in 7 teams']]} /></Gate>
+    <Gate n={3}><Facts items={[['Threads', String(CMT.filter(t => !t.hidden).length)], ['Waiting on you', <span className="w5">{CMT.filter(waiting).length}</span>], ['Pinned', String(CMT.filter(t => t.pinned).length)], ['Hidden', String(CMT.filter(t => t.hidden).length)], ['Members', '15 in 7 teams']]} /></Gate>
     <Tabs v={tab} on={setTab} tabs={[['all', 'All', CMT.length], ['waiting', 'Waiting on you', CMT.filter(waiting).length], ['pinned', 'Pinned', CMT.filter(t => t.pinned).length], ['hidden', 'Hidden', CMT.filter(t => t.hidden).length]]} />
     <div className="row"><Find v={q} on={setQ} ph="Find a thread" /><Sel label="Space" v={sp} on={setSp} opts={['All spaces', ...CMS.map(s => s.label)]} /></div>
     <Table rows={rows} onRow={t => go('cthread', String(t.id))} empty={{ ic: 'file', t: tab === 'waiting' ? 'Nothing is waiting on you' : 'No threads here', b: tab === 'waiting' ? 'Every thread ends with a reply from staff.' : 'Change the filters, or start one.' }}
@@ -1544,7 +1664,873 @@ function CommunityThread() {
   </div>;
 }
 
-const SCREENS = { weekcards: WeekCards, forms: Forms, community: Community, cthread: CommunityThread, overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
+
+/* =====================================================================================================
+   NEW (Nov 25): Program, Cohort, People, Utah Life and Revenue. Sample data is made up.
+   The model: a PROGRAM is what you teach. A COHORT is one group going through it. PEOPLE is everyone
+   with a sign-in, sorted by how they got in. Every number on these screens opens the list it counts.
+   ===================================================================================================== */
+
+/* Admin times are Mountain (learners see Central, one hour later), so a time that learners see shows both. */
+const ACC_WEEKS = [
+  { n: 0, t: 'Foundations', o: 'The office is ready for its first hire.', st: 'Published', steps: 8, min: 170, opens: 'Sun, Nov 29', build: null, kit: 7 },
+  { n: 1, t: 'Where the Money Goes', o: 'A year of spend on one standard chart.', st: 'Published', steps: 7, min: 150, opens: 'Sun, Nov 29', build: 'Wed, Dec 2', kit: 5 },
+  { n: 2, t: 'Leads That Pay', o: 'Every lead source ranked by what it returns.', st: 'Scheduled', steps: 7, min: 160, opens: 'Sun, Dec 6', build: 'Wed, Dec 9', kit: 4 },
+  { n: 3, t: 'Numbers on the 5th', o: 'A monthly report that builds itself.', st: 'Draft', steps: 6, min: 140, opens: 'Sun, Dec 13', build: 'Wed, Dec 16', kit: 3 },
+  { n: 4, t: 'Protect the Pipeline', o: 'No file goes quiet without someone knowing.', st: 'Draft', steps: 5, min: 120, opens: 'Sun, Jan 3', build: 'Wed, Jan 6', kit: 2 },
+  { n: 5, t: 'Coach from Evidence', o: 'One-on-ones that start from the numbers.', st: 'Draft', steps: 4, min: 90, opens: 'Sun, Jan 10', build: 'Wed, Jan 13', kit: 2 },
+  { n: 6, t: 'Delegate an Outcome', o: 'A hire that owns a result, not a task.', st: 'Draft', steps: 3, min: 60, opens: 'Sun, Jan 17', build: 'Wed, Jan 20', kit: 0 },
+  { n: 7, t: 'Make the Workflow Repeatable', o: 'What worked, written down so it runs again.', st: 'Draft', steps: 0, min: 0, opens: 'Sun, Jan 24', build: 'Wed, Jan 27', kit: 0 },
+  { n: 8, t: 'Sustain and Expand', o: 'The next three hires, in order.', st: 'Draft', steps: 0, min: 0, opens: 'Sun, Jan 31', build: 'Wed, Feb 3', kit: 0 },
+];
+const W0_STEPS = [
+  ['Fill In Your Intake and Name Your AI Implementer', ['Owner'], '10 min', 'Intake in, AI Implementer invited, stack card sent back.'],
+  ['Watch the Orientation', ['Owner', 'AI Implementer'], '30 min', 'Both know how a week runs and what a hire is.'],
+  ['Start Your Time Baseline', ['Owner'], '20 min', 'Six tasks timed per occurrence, or marked not done today.'],
+  ['Get Your AI Ready', ['AI Implementer'], '20 min', 'Paid plan, training off, skills on, both cohort skills pass their self-test.'],
+  ['Set Up Your AI Brain', ['Owner', 'AI Implementer'], '30 min', 'A new chat knows the business.'],
+  ['Connect Your Data', ['AI Implementer'], '30 min', 'Each green source answers a test question.'],
+  ['Lock the Guardrails', ['AI Implementer'], '10 min', 'Every write tool blocked except drafts and saves.'],
+  ['Run the Ready Check and Your Test Hire', ['AI Implementer'], '20 min', 'Ready Check is green and the test hire ran.'],
+];
+const WK_STEPS = [
+  ['Read the Week and Pick Your Data', ['Owner'], '15 min', 'The export this week needs is in the AI Office.'],
+  ['Join the Live Build', ['Owner', 'AI Implementer'], '1 hr 30 min', 'The hire ran once on your own data.'],
+  ['Run It Again on Your Own', ['AI Implementer'], '30 min', 'A second run matches the first.'],
+  ['Check the Output with the Rubric', ['Owner'], '15 min', 'Every rubric line is a yes or has a note.'],
+  ['Turn In Your Report', ['AI Implementer'], '10 min', 'The report is turned in from the step.'],
+  ['Bring One Question to Office Hours', ['Owner', 'AI Implementer'], '1 hr', 'The question is posted or asked live.'],
+  ['Mark the Hire as Deployed', ['Owner'], '5 min', 'The week shows Deployed.'],
+];
+const ACC_SES = [
+  { n: 1, t: 'Map Your Spend Live Build', k: 'Live build', wk: 1, d: 'Wed, Dec 2', zoom: 'Ready', inv: 'Sent' },
+  { n: 2, t: 'Map Your Spend Office Hours', k: 'Office hours', wk: 1, d: 'Thu, Dec 3', zoom: 'Ready', inv: 'Sent' },
+  { n: 3, t: 'Lead Source Review Live Build', k: 'Live build', wk: 2, d: 'Wed, Dec 9', zoom: 'No link yet', inv: 'Scheduled' },
+  { n: 4, t: 'Lead Source Review Office Hours', k: 'Office hours', wk: 2, d: 'Thu, Dec 10', zoom: 'No link yet', inv: 'Scheduled' },
+  { n: 5, t: 'Numbers on the 5th Live Build', k: 'Live build', wk: 3, d: 'Wed, Dec 16', zoom: 'No link yet', inv: 'Draft' },
+  { n: 6, t: 'Numbers on the 5th Office Hours', k: 'Office hours', wk: 3, d: 'Thu, Dec 17', zoom: 'No link yet', inv: 'Draft' },
+  { n: 7, t: 'Protect the Pipeline Live Build', k: 'Live build', wk: 4, d: 'Wed, Jan 6', zoom: 'No link yet', inv: 'Draft' },
+  { n: 8, t: 'Protect the Pipeline Office Hours', k: 'Office hours', wk: 4, d: 'Thu, Jan 7', zoom: 'No link yet', inv: 'Draft' },
+];
+/* the cohort's teams: the same seven the intake screens use */
+const ACC_CT = [
+  { id: 'ws_northline', n: 'Northline Realty', owner: 'Alex Morgan', seats: 3, in: 3, pay: 'Paid in full', intake: 'Submitted', w0: 8, last: 'Today, 9:14 AM' },
+  { id: 'ws_sampleteam', n: 'Sample Team', owner: 'Jordan Avery', seats: 3, in: 3, pay: 'Paid in full', intake: 'Submitted', w0: 6, last: 'Yesterday, 3:02 PM' },
+  { id: 'ws_copperbasin', n: 'Copper Basin Realty', owner: 'Devon Achterberg', seats: 1, in: 1, pay: '1 of 2 payments', intake: 'Submitted', w0: 4, last: 'Yesterday, 2:15 PM' },
+  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', owner: 'Jordan Hale', seats: 2, in: 2, pay: 'Paid in full', intake: 'Draft', w0: 2, last: 'Nov 20, 2:11 PM' },
+  { id: 'ws_lantern', n: 'Lantern Street Partners', owner: 'Tessa Lindqvist', seats: 2, in: 2, pay: '1 of 2 payments', intake: 'Draft', w0: 1, last: 'Nov 17, 8:05 AM' },
+  { id: 'ws_northshore', n: 'Northshore Group', owner: 'Elena Vargas', seats: 2, in: 2, pay: 'Paid in full', intake: 'Not started', w0: 0, last: 'Nov 12, 8:52 AM' },
+  { id: 'ws_redcliff', n: 'Red Cliff Collective', owner: 'Noor Haddad', seats: 2, in: 0, pay: 'Paid in full', intake: 'Not started', w0: 0, last: 'Never signed in' },
+];
+const ACC_CL = [
+  { id: 'u_2001', n: 'Alex Morgan', e: 'alex@northlinerealty.example', team: 'Northline Realty', role: 'Owner', w0: 8, last: 'Today, 9:14 AM', st: 'Active' },
+  { id: 'u_2002', n: 'Jordan Avery', e: 'jordan@sampleteam.example', team: 'Sample Team', role: 'Owner', w0: 6, last: 'Yesterday, 3:02 PM', st: 'Active' },
+  { id: 'u_2003', n: 'Dana Whitlock', e: 'dana@sampleteam.example', team: 'Sample Team', role: 'AI Implementer', w0: 6, last: 'Yesterday, 1:40 PM', st: 'Active' },
+  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', team: 'Copper Basin Realty', role: 'Owner and AI Implementer', w0: 4, last: 'Yesterday, 2:15 PM', st: 'Active' },
+  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', team: 'Hale & Marlowe Realty', role: 'Owner', w0: 2, last: 'Nov 20, 2:11 PM', st: 'Active' },
+  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', team: 'Lantern Street Partners', role: 'Owner', w0: 1, last: 'Nov 17, 8:05 AM', st: 'Active' },
+  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', team: 'Northshore Group', role: 'Owner', w0: 0, last: 'Nov 12, 8:52 AM', st: 'Active' },
+  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', team: 'Red Cliff Collective', role: 'Owner', w0: 0, last: 'Never', st: 'Invited' },
+];
+/* how each person got in. One primary audience each, so the counts add up to everyone. */
+const AUD = [['acc', 'Accelerator', 15, 'var(--for)'], ['team', 'Team Plan', 39, '#2E9A63'], ['agent', 'Agent Plan', 46, '#6FD3A5'], ['ins', 'Insiders', 6, '#3B74D6'], ['skill', 'Skill buyers', 11, '#D99A1C'], ['ul', 'Utah Life', 31, '#9AA39E']];
+const AUD_ALL = AUD.reduce((a, x) => a + x[2], 0);
+const audOf = k => (AUD.find(a => a[0] === k) || [])[1];
+const PPL = [
+  ...ACC_CL.map(p => ({ ...p, a: 'acc' })),
+  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', team: 'Northshore Group', role: 'Agent', a: 'team', last: 'Yesterday, 4:31 PM', st: 'Active' },
+  { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', team: 'Fourth Meridian', role: 'Owner', a: 'team', last: 'Nov 2, 4:40 PM', st: 'Canceled' },
+  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', team: '', role: 'Member', a: 'ins', last: 'Nov 18, 9:03 AM', st: 'Past due' },
+  { id: 'ul1', n: 'Utah Life agent', e: 'a•••••@liveutah.com', team: '', role: 'Agent', a: 'ul', last: 'Today, 8:02 AM', st: 'Active' },
+  { id: 'ul2', n: 'Utah Life agent', e: 'c•••@liveutah.com', team: '', role: 'Agent', a: 'ul', last: 'Yesterday, 5:47 PM', st: 'Active' },
+  { id: 'ul3', n: 'Utah Life agent', e: 'j••••••@liveutah.com', team: '', role: 'Agent', a: 'ul', last: 'Nov 19, 11:20 AM', st: 'Active' },
+];
+const ULA = [['a•••••@liveutah.com', 'Nov 12', 'Today, 8:02 AM', 9], ['c•••@liveutah.com', 'Nov 12', 'Yesterday, 5:47 PM', 14], ['j••••••@liveutah.com', 'Nov 12', 'Nov 19, 11:20 AM', 4], ['m••••@liveutah.com', 'Nov 12', 'Nov 18, 2:36 PM', 6], ['r•••••••@liveutah.com', 'Nov 13', 'Nov 17, 9:11 AM', 3], ['s•••@liveutah.com', 'Nov 13', 'Nov 13, 4:05 PM', 2], ['t••••••@liveutah.com', 'Nov 14', 'Nov 14, 10:30 AM', 1], ['k••••@liveutah.com', 'Nov 16', 'Never opened a skill', 0]];
+const TEAMS2 = [
+  { id: 'ws_northline', n: 'Northline Realty', owner: 'Alex Morgan', p: ['Accelerator'], seats: '3 of 3', money: 'Paid in full', st: 'Active' },
+  { id: 'ws_sampleteam', n: 'Sample Team', owner: 'Jordan Avery', p: ['Accelerator'], seats: '3 of 3', money: 'Paid in full', st: 'Active' },
+  { id: 'ws_copperbasin', n: 'Copper Basin Realty', owner: 'Devon Achterberg', p: ['Accelerator'], seats: '1 of 1', money: '1 of 2 payments', st: 'Active' },
+  { id: 'ws_northshore', n: 'Northshore Group', owner: 'Elena Vargas', p: ['Accelerator', 'Team Plan'], seats: '33 of 41', money: '$1,495 a month', st: 'Active' },
+  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', owner: 'Jordan Hale', p: ['Accelerator', 'Team Plan'], seats: '15 of 16', money: '$695 a month', st: 'Active' },
+  { id: 'ws_redcliff', n: 'Red Cliff Collective', owner: 'Noor Haddad', p: ['Accelerator', 'Agent Plan'], seats: '46 of 50', money: '$1,450 a month', st: 'Active' },
+  { id: 'ws_lantern', n: 'Lantern Street Partners', owner: 'Tessa Lindqvist', p: ['Accelerator', 'Team Plan'], seats: '6 of 16', money: '1 of 2 payments', st: 'Trialing' },
+  { id: 'ws_fourthmeridian', n: 'Fourth Meridian', owner: 'Priya Raman', p: ['Team Plan'], seats: '0 of 16', money: '$0', st: 'Canceled' },
+];
+
+/* ---------- shared pieces ---------- */
+/* Facts where each one opens the list it counts. [label, value, where it goes, full width] */
+function LFacts({ items }) {
+  const { go } = useC();
+  return <div className="cd fx">{items.map(([k, v, to, full], i) => to
+    ? <button key={i} className={'fxl' + (full ? ' fxw' : '')} onClick={() => typeof to === 'function' ? to() : go(...[].concat(to))}><span className="me">{k}</span><span className="w5 el">{v}</span><I n="chev" s={12} w={2.2} /></button>
+    : <div key={i} className={full ? 'fxw' : undefined}><span className="me">{k}</span><span className="w5 el">{v}</span></div>)}</div>;
+}
+/* A section list down the left: one section on screen at a time. A select on a phone. */
+function Rail({ items, v, on }) {
+  const { ph } = useC();
+  if (ph) return <select className="in" style={{ width: '100%' }} aria-label="Section" value={v} onChange={e => on(e.target.value)}>{items.map(([k, l, c]) => <option key={k} value={k}>{l}{c !== undefined ? ' · ' + c : ''}</option>)}</select>;
+  return <nav className="srl" aria-label="Sections">{items.map(([k, l, c]) => <button key={k} className={'srb' + (v === k ? ' on' : '')} aria-current={v === k ? 'true' : undefined} onClick={() => on(k)}><span className="el">{l}</span>{c !== undefined && <span className="tn">{c}</span>}</button>)}</nav>;
+}
+/* progress toward a whole: always green, full when done (the kit's Bar turns amber near a seat cap) */
+const PBar = ({ v, max }) => <span className="bar"><i style={{ width: (v / max) * 100 + '%' }} /></span>;
+const Fld = ({ l, at, children }) => <label className="lab">{l}{at && <span className="fat">Learners see it on {at}</span>}{children}</label>;
+function Lines({ l, at, v, touch }) {
+  const [rows, set] = useState(v);
+  const upd = r => { set(r); touch(); };
+  return <div className="lab"><span>{l}</span>{at && <span className="fat">Learners see it on {at}</span>}
+    <div className="lns">{rows.map((r, i) => <div key={i} className="ln"><span className="grp" aria-hidden="true"><I n="grip" s={14} /></span><input className="in" aria-label={l + ', line ' + (i + 1)} value={r} onChange={e => upd(rows.map((x, j) => j === i ? e.target.value : x))} /><button type="button" className="ib" aria-label={'Remove line ' + (i + 1)} onClick={() => upd(rows.filter((x, j) => j !== i))}><I n="x" s={14} /></button></div>)}</div>
+    <button type="button" className="b q" style={{ alignSelf: 'flex-start', marginLeft: -10 }} onClick={() => upd([...rows, ''])}><I n="plus" />Add a line</button></div>;
+}
+const StepWho = ({ v }) => <span className="row" style={{ gap: 4 }}>{v.map(x => <span key={x} className={'pl' + (x === 'Owner' ? ' info' : ' ok')}>{x}</span>)}</span>;
+const Wn = ({ n, st }) => <span className={'wn' + (st === 'Draft' ? ' off' : '')}>{n}</span>;
+const ctOf = t => { const m = String(t).match(/(\d+):(\d+) (AM|PM)/); if (!m) return t; const h = (+m[1] % 12) + (m[3] === 'PM' ? 12 : 0) + 1; return ((h + 11) % 12 + 1) + ':' + m[2] + ' ' + (h % 24 >= 12 ? 'PM' : 'AM'); };
+const When = ({ d, t = '12:00 PM' }) => <div className="col" style={{ gap: 0 }}><span className="el">{d} · {t} MT</span><span className="me">{ctOf(t)} CT for learners</span></div>;
+
+/* ---------- Program › Course settings: what every week shares ---------- */
+const GLOSS = [['AI Employee', 'A piece of work your AI does on a schedule, with a seat card.', 'hire, AI hire', 'Week 0 · Step 2'], ['AI Implementer', 'The person on your team who sets the hires up and keeps them running.', 'implementer', 'Week 0 · Step 1'], ['AI Brain', 'What your AI knows about your business before you ask it anything.', 'brain', 'Week 0 · Step 5'], ['Seat card', 'One page: what a hire does, for whom, and what it never touches.', '', 'Week 1 · Step 2'], ['Playbook card', 'How to run a hire, check it and fix it.', 'playbook', 'Week 1 · Step 2'], ['Guardrails', 'The settings that stop your AI from sending or changing anything on its own.', '', 'Week 0 · Step 7'], ['Ready Check', 'A short test that says your setup is ready for a hire.', '', 'Week 0 · Step 8'], ['Stack card', 'The tools your team runs on, on one page.', '', 'Week 0 · Step 1'], ['Time baseline', 'How long six tasks take today, so you can see what changed.', 'baseline', 'Week 0 · Step 3'], ['Evidence packet', 'What you turn in to show a hire works.', 'evidence', 'Week 1 · Step 5']];
+const WORDS0 = [['locked.opens', 'Opens {date}', 'Learners'], ['locked.utah_life', 'Not included with Utah Life access', 'Learners'], ['community.nothing_emailed', 'Nothing is emailed.', 'Learners'], ['turnin.goes_to', 'Goes to Connor\'s team. Nothing is emailed.', 'Learners'], ['week.done', 'Deployed', 'Learners'], ['staff.preview', 'Previewing as a learner. Nothing you do here is saved.', 'Staff']];
+function CourseSet() {
+  const { route, go, guard, toast, ph } = useC();
+  const [sec, setSec] = useState(route.tab || 'intro'), [dirty, setDirty] = useState(false), [k, setK] = useState(0), [q, setQ] = useState(''), [au, setAu] = useState('Everyone'), [ed, setEd] = useState(null);
+  useEffect(() => { if (route.tab) setSec(route.tab); }, [route.tab]);
+  const touch = () => setDirty(true);
+  const names = { intro: 'Course intro', roles: 'Roles', rules: 'Rules and support', before: 'Before Week 1', after: 'After the cohort', join: 'Joining and community', glossary: 'Glossary', words: 'Words' };
+  const save = () => guard('build', 'Save course settings', () => { setDirty(false); toast(names[sec] + ' saved'); });
+  const T = (l, at, v, rows) => <Fld l={l} at={at}>{rows ? <textarea className="in" rows={rows} defaultValue={v} onChange={touch} /> : <input className="in" defaultValue={v} onChange={touch} />}</Fld>;
+  const words = WORDS0.filter(w => (w[0] + w[1]).toLowerCase().includes(q.toLowerCase()) && (au === 'Everyone' || w[2] === au));
+  return <div className="pg">
+    <Head t="Course settings" d="What every cohort shares: the intro, the rules, the pages before and after, the glossary and the words learners see. Anything that names a date, a weekday or a number of weeks is filled in from the cohort." 
+      right={<Btn ic="eye" onClick={() => toast('Opens the learner preview of the course')}>Preview</Btn>} />
+    <div className="srg" key={k}>
+      <div className="col">
+        <Rail v={sec} on={v => { setSec(v); }} items={[['intro', 'Course intro'], ['roles', 'Roles'], ['rules', 'Rules and support'], ['before', 'Before Week 1'], ['after', 'After the cohort'], ['join', 'Joining and community'], ['glossary', 'Glossary', GLOSS.length], ['words', 'Words', WORDS0.length]]} />
+        {!ph && <div className="note col s"><span className="w5">Looking for dates?</span><span className="me">A cohort's dates, its promise, how often it meets and when its emails send are on the cohort.</span><button className="lk a" style={{ alignSelf: 'flex-start' }} onClick={() => go('cohortset')}>Open the cohort's Settings</button></div>}
+      </div>
+      <div className="col">
+        {sec === 'intro' && <Card t="Course intro" sub="The first thing a new learner reads."><div className="col">
+          {T('Course title', 'Home', 'Amplified AI Accelerator')}
+          <FromCohort l="The promise" at="Home, under the title" v={COH.promise} />
+          <FromCohort l="How it works" at="Home" lines={howOf(COH)} />
+          {T('Instructor', 'Home and each live build', 'Connor Leiva')}
+        </div></Card>}
+        {sec === 'roles' && <Card t="Roles" sub="The two seats every team fills."><div className="col">
+          {T('The owner\'s role', 'Home and Week 0', 'You decide what the hire is for and whether its work is good enough to use.', 3)}
+          {T('The AI Implementer\'s role', 'Home and Week 0', 'You set the hire up, run it, and keep it running. On a small team this can be the owner.', 3)}
+        </div></Card>}
+        {sec === 'rules' && <Card t="Rules and support" sub="What we will and won't do, and where to get help."><div className="col">
+          {T('Scope', 'Home', 'We build the hires in this course. We don\'t set up your CRM or your books.', 2)}
+          {T('Support', 'Home and Get help', 'Ask in the Community first. For anything private, email the team.', 2)}
+          <Lines l="Office hours rules" at="each Office hours row" touch={touch} v={['Bring one question.', 'Share your screen, not your client\'s name.', 'If we can\'t fix it in ten minutes, we take it to a thread.']} />
+          <Lines l="Evidence" at="Reference" touch={touch} v={['The report the hire made.', 'The rubric, filled in.', 'One sentence on what you would change.']} />
+          {T('Missed a week', 'Reference', 'Watch the replay, run the hire, and turn it in. Nothing locks behind you.', 2)}
+          <FromCohort l="Holiday note" at="the Schedule" v={COH.holiday || 'None. Every week has its sessions.'} />
+        </div></Card>}
+        {sec === 'before' && <Card t="Before Week 1" sub="What a team reads between buying and the first live build."><div className="col">
+          <Lines l="Intake" at="Week 0 · Step 1" touch={touch} v={['Fill in the intake before {first live build}.', 'Name your AI Implementer and invite them.']} />
+          <p className="me">Words in braces are filled in from the cohort. For the {COH.n}, {'{first live build}'} reads {firstBuildOf(COH)}.</p>
+          {T('Practice set note', 'Week 0', 'Use the practice set until your own export is ready. It is made-up data.', 2)}
+          <Lines l="Safe sharing" at="Week 0 and the Community" touch={touch} v={['No client names in a thread.', 'No passwords or keys, ever.', 'Screenshots with numbers are fine. Screenshots with people are not.']} />
+        </div></Card>}
+        {sec === 'after' && <Card t="After the cohort" sub="What a team reads when its last week is done."><div className="col">
+          <Lines l="Graduation" at="the last week" touch={touch} v={['{weeks of building} hires deployed.', 'A seat card and a playbook card for each.', 'Your next three hires, in order.']} />
+          {T('Graduation note', 'the last week', 'You keep everything you built, and the portal stays open to you.', 2)}
+          <Lines l="Paths" at="the last week" touch={touch} v={['Keep going with the Team Plan.', 'Bring your agents in on the Agent Plan.']} />
+          {T('No paywall', 'the last week', 'Nothing you built here locks when the cohort ends.', 2)}
+        </div></Card>}
+        {sec === 'join' && <Card t="Joining and community" sub="The button that takes a learner into a live session, and where the cohort talks."><div className="col">
+          <div className="g2">{T('Join label', 'the top bar, 15 minutes before a session', 'Join on Zoom')}{T('Community link', 'Home, until the built-in Community replaces it', '')}</div>
+          {T('Join note', 'under the Join button', 'Opens 15 minutes before we start.', 2)}
+          <p className="me">The cohort's own threads are in <button className="lk a" onClick={() => go('community')}>Community</button>. Leave the link empty to show only that.</p>
+        </div></Card>}
+        {sec === 'glossary' && <Table title="Glossary" right={<GBtn ic="plus" perm="build" label="Add a term" go={() => setEd(['', '', '', ''])}>Add a term</GBtn>} rows={GLOSS} onRow={g => setEd(g)}
+          cols={[{ k: 0, l: 'Term', w: '170px', r: g => <span className="w5 el" style={{ display: 'block' }}>{g[0]}</span> }, { k: 1, l: 'Short definition', w: 'minmax(240px,2fr)', r: g => <span className="s2 cl2">{g[1]}</span> }, { k: 2, l: 'Also matches', w: '130px', hide: 'lap', r: g => g[2] || <span className="mu">None</span> }, { k: 3, l: 'First used', w: '140px', ns: 1 }]}
+          card={g => <><span className="w6" style={{ fontSize: 17 }}>{g[0]}</span><p className="s2">{g[1]}</p><span className="me">First used: {g[3]}</span></>} />}
+        {sec === 'words' && <><div className="row"><Find v={q} on={setQ} ph="Find a line" /><Sel label="Who reads it" v={au} on={setAu} opts={['Everyone', 'Learners', 'Staff']} /></div>
+          <Table title="Words" right={<GBtn ic="plus" perm="build" label="Add a line" go={() => setEd(['', '', 'Learners', 'word'])}>Add a line</GBtn>} rows={words} onRow={w => setEd([...w, 'word'])} empty={{ ic: 'file', t: 'No line matches', b: 'Try fewer letters.' }}
+            cols={[{ k: 1, l: 'What it says', w: 'minmax(240px,2fr)', r: w => <span className="w5 cl2">{w[1]}</span> }, { k: 0, l: 'Key', w: 'minmax(190px,1fr)', mo: 1, hide: 'lap' }, { k: 2, l: 'Who reads it', w: '112px', r: w => <Pill v={w[2]} tone={w[2] === 'Staff' ? '' : 'info'} /> }]}
+            card={w => <><span className="w6">{w[1]}</span><span className="me mo">{w[0]}</span><Pill v={w[2]} tone={w[2] === 'Staff' ? '' : 'info'} /></>} />
+          <p className="me">Short lines the portal shows in fixed places. A week's own words are in the week.</p></>}
+        {dirty && <div className="svb"><span className="w5" style={{ flex: 1 }}>Unsaved changes to {names[sec]}</span><Btn onClick={() => { setDirty(false); setK(k + 1); }}>Discard</Btn><Btn k="p" onClick={save}>Save changes</Btn></div>}
+      </div>
+    </div>
+    {ed && <Modal title={ed[3] === 'word' ? (ed[0] || 'New line') : (ed[0] || 'New term')} w={560} onClose={() => setEd(null)} foot={<><Btn onClick={() => setEd(null)}>Cancel</Btn><Btn k="p" onClick={() => guard('build', 'Save', () => { setEd(null); toast('Saved'); })}>Save</Btn></>}>
+      {ed[3] === 'word' ? <><label className="lab">Key<input className="in mo" defaultValue={ed[0]} placeholder="locked.opens" /></label><label className="lab">What it says<textarea className="in" rows={3} defaultValue={ed[1]} /></label><label className="lab">Who reads it<select className="in" defaultValue={ed[2]}><option>Learners</option><option>Staff</option></select></label></>
+        : <><label className="lab">Term<input className="in" defaultValue={ed[0]} /></label><label className="lab">Short definition<textarea className="in" rows={2} defaultValue={ed[1]} /></label><label className="lab">Also matches<input className="in" defaultValue={ed[2]} placeholder="Other words to underline, separated by commas" /></label></>}
+    </Modal>}
+  </div>;
+}
+
+/* ---------- People › People: everyone with a sign-in, by how they got in ---------- */
+function AudChips({ v, on, all = true }) {
+  return <div className="chs" role="group" aria-label="Audience">{(all ? [['all', 'Everyone', AUD_ALL], ...AUD] : AUD).map(a => <button key={a[0]} className={'ch' + (v === a[0] ? ' on' : '')} aria-pressed={v === a[0]} onClick={() => on(a[0])}>{a[3] && <i style={{ background: a[3] }} />}{a[1]}<span className="tn">{a[2]}</span></button>)}</div>;
+}
+function PeoplePg() {
+  const { route, go, toast } = useC();
+  const [a, setA] = useState(route.tab || 'all'), [q, setQ] = useState('');
+  useEffect(() => { if (route.tab) setA(route.tab); }, [route.tab]);
+  const rows = PPL.filter(p => (a === 'all' || p.a === a) && (p.n + p.e + p.team).toLowerCase().includes(q.toLowerCase()));
+  const open = p => p.a === 'ul' ? go('groups') : go('user', p.id);
+  return <div className="pg">
+    <AudChips v={a} on={setA} />
+    <div className="row"><Find v={q} on={setQ} ph="Find a person by name or email" /><span className="sp" /><Btn ic="download" onClick={() => toast('Export started')}>Export</Btn></div>
+    <Table rows={rows} onRow={open} empty={{ ic: 'users', t: 'No one matches', b: 'Try another audience or fewer letters.' }}
+      cols={[{ k: 'n', l: 'Person', w: 'minmax(220px,1.5fr)', r: p => <Two a={p.n} b={p.e} /> }, { k: 'a', l: 'Got in through', w: '136px', r: p => <span className="pl aud"><i style={{ background: AUD.find(x => x[0] === p.a)[3] }} />{audOf(p.a)}</span> },
+        { k: 'team', l: 'Team', w: 'minmax(160px,1fr)', hide: 'lap', r: p => p.team ? p.team : <span className="mu">On their own</span> }, { k: 'role', l: 'Seat', w: '204px', hide: 'lap' }, { k: 'last', l: 'Last active', w: '150px', ns: 1 }, { k: 'st', l: 'Status', w: '104px', r: p => <St v={p.st} tone={p.st === 'Invited' ? 'warn' : undefined} /> }]}
+      menu={p => [{ l: p.a === 'ul' ? 'Open Utah Life' : 'Open person', fn: () => open(p) }, ...(p.a === 'acc' ? [{ l: 'See them in the cohort', fn: () => go('enrolled', null, 'learners') }] : [])]} />
+    <p className="me">Showing {rows.length} of {a === 'all' ? AUD_ALL : AUD.find(x => x[0] === a)[2]}. This list is for the account: sign-in, plan and seat. To see how a cohort is doing, open <button className="lk a" onClick={() => go('enrolled')}>the cohort's People tab</button>.</p>
+  </div>;
+}
+
+/* ---------- People › Teams: accounts with more than one seat ---------- */
+function TeamsPg() {
+  const { go } = useC();
+  const [q, setQ] = useState(''), [p, setP] = useState('All products');
+  const rows = TEAMS2.filter(t => (t.n + t.owner).toLowerCase().includes(q.toLowerCase()) && (p === 'All products' || t.p.includes(p)));
+  return <div className="pg">
+    <Head t="Teams" d="Every team account and what it holds. Someone on their own (an Insider, a skill buyer, a Utah Life agent) is a person, not a team, so they are under Everyone." />
+    <div className="row"><Find v={q} on={setQ} ph="Find a team or its owner" /><Sel label="Product" v={p} on={setP} opts={['All products', 'Accelerator', 'Team Plan', 'Agent Plan']} /></div>
+    <Table rows={rows} onRow={t => go('workspace', t.id)} empty={{ ic: 'workspaces', t: 'No team matches' }}
+      cols={[{ k: 'n', l: 'Team', w: 'minmax(200px,1.4fr)', r: t => <Two a={t.n} b={t.owner} /> }, { k: 'p', l: 'Holds', w: 'minmax(190px,1fr)', ns: 1, r: t => <span className="row" style={{ gap: 4 }}>{t.p.map(x => <span key={x} className={'pl' + (x === 'Accelerator' ? ' ok' : ' info')}>{x}</span>)}</span> },
+        { k: 'seats', l: 'Seats used', w: '110px', r: t => <span className="tn">{t.seats}</span> }, { k: 'money', l: 'Paying', w: '150px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: t => <St v={t.st} /> }]}
+      menu={t => [{ l: 'Open team', fn: () => go('workspace', t.id) }, ...(t.p.includes('Accelerator') ? [{ l: 'See them in the cohort', fn: () => go('enrolled') }] : [])]} />
+    <p className="me">31 Utah Life agents and 17 people on their own are not listed here. <button className="lk a" onClick={() => go('groups')}>Utah Life</button> · <button className="lk a" onClick={() => go('people')}>Everyone</button></p>
+  </div>;
+}
+
+/* ---------- People › Utah Life: an access group, in its own area ---------- */
+function Groups() {
+  const { go, guard, toast, setDlg, log } = useC();
+  const [q, setQ] = useState('');
+  return <div className="pg">
+    <Head t="Utah Life" meta={<Pill v="Access group" tone="" />} d="Agents with a liveutah.com address get the Agent Plan's skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue."
+      right={<><Btn ic="download" onClick={() => toast('Export started')}>Export</Btn><Menu items={[{ l: 'Add an address outside the domain…', g: 1, fn: () => guard('account', 'Add an address', () => toast('Adds one address to the group')) }, '-', { l: 'End access…', d: 1, g: 1, fn: () => guard('account', 'End Utah Life access', () => setDlg({ title: 'End Utah Life access?', body: '31 agents lose the Agent Plan\'s skills right away. Their accounts stay, with nothing to open.', cta: 'End access', danger: 1, needReason: 1, yes: r => { log('access_group.end', 'Utah Life', r); toast('Access ended'); } })) }]} /></>} />
+    <LFacts items={[['Agents signed in', '31'], ['Active, last 30 days', '24'], ['Gets', 'Agent Plan skills, free', ['course', null, 'words'], 1], ['Who qualifies', 'A verified @liveutah.com address', null, 1], ['Since', 'Thu, Nov 12, 2026'], ['Ends', 'No end date']]} />
+    <div className="gms">
+      <div className="col">
+        <div className="row"><Find v={q} on={setQ} ph="Find an agent by email" /></div>
+        <Table title="Agents" rows={ULA.filter(r => r[0].includes(q.toLowerCase()))}
+          cols={[{ k: 0, l: 'Agent', w: 'minmax(200px,1.5fr)', r: r => <Two a="Utah Life agent" b={r[0]} /> }, { k: 1, l: 'First sign-in', w: '120px', ns: 1 }, { k: 2, l: 'Last active', w: '170px', ns: 1 }, { k: 3, l: 'Skills opened', w: '110px', num: 1 }]} />
+        <p className="me">Showing 8 of 31. Addresses are masked in this mockup.</p>
+      </div>
+      <div className="col">
+        <Card t="What they can open"><div className="col m">
+          <div className="row nw" style={{ gap: 10 }}><span className="mt"><I n="check" /></span><span className="col" style={{ gap: 0 }}><span className="w5">The Agent Plan's skills</span><span className="me">Every agent skill, and each new one as it is released</span></span></div>
+          <div className="row nw" style={{ gap: 10 }}><span className="mt off"><I n="lock" /></span><span className="col" style={{ gap: 0 }}><span className="w5">Not the Accelerator, not team skills</span><span className="me">A locked skill says "Not included with Utah Life access"</span></span></div>
+          <button className="lk a" style={{ alignSelf: 'flex-start' }} onClick={() => go('course', null, 'words')}>Change that line in Words</button></div></Card>
+        <Card t="Most opened" sub="Last 30 days"><div className="col m">{[['Appointment Follow-Up', 22], ['Repair Request Response', 19], ['Listing Description Writer', 11], ['Speed to Lead Reply', 7]].map(s => <div key={s[0]} className="rdy" style={{ cursor: 'default' }}><span className="el" style={{ flex: '0 0 176px' }}>{s[0]}</span><PBar v={s[1]} max={24} /><span className="tn w5 rdn" style={{ minWidth: 24 }}>{s[1]}</span></div>)}</div></Card>
+        <Card t="Where they are counted"><div className="kvs"><KV rows={[['Overview', 'Shown, kept apart from learners'], ['A cohort', 'Never. They are not in one.'], ['Teams', 'Never. Each is one person.'], ['Revenue', 'Never. The access is free.']]} /></div></Card>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- Revenue › Summary: what came in, what is still owed, what repeats ---------- */
+const REV = {
+  'All time': { c: '$82,694', cs: 'Since Aug 2026', t: '$90,194' },
+  'This month': { c: '$53,160', cs: 'Nov 1 to Nov 24', t: '$60,660' },
+};
+const RV_MONTHS = [['Aug', 7480, 0], ['Sep', 9917, 0], ['Oct', 12137, 0], ['Nov', 53160, 0], ['Dec', 0, 19929], ['Jan', 0, 12429]];
+const RV_PROD = [
+  ['AI Accelerator', 'December 2026 · 7 of 15 seats', '$45,000', '$7,500', '$52,500', 'One-time', ['enrolled']],
+  ['Team Plan', '7 teams · 39 people', '$19,395', '$0', '$19,395', '$6,465', ['billing', null, 'subs']],
+  ['Agent Plan', '46 agents', '$16,146', '$0', '$16,146', '$5,382', ['billing', null, 'subs']],
+  ['Insiders', '6 members', '$1,746', '$0', '$1,746', '$582', ['billing', null, 'subs']],
+  ['Skills', '11 bought', '$407', '$0', '$407', 'One-time', ['billing', null, 'invoices']],
+];
+const RV_NEXT = [
+  ['Thu, Dec 3', 'Hale & Marlowe Realty', 'Team Plan renewal', '$695', 'Scheduled', 'ws_halemarlowe'],
+  ['Fri, Dec 4', 'Tidewater Property Co.', 'Insiders, second try', '$97', 'Retrying', 'ws_tidewater'],
+  ['Sun, Dec 6', 'Red Cliff Collective', 'Agent Plan renewal', '$1,450', 'Scheduled', 'ws_redcliff'],
+  ['Tue, Dec 8', 'Northshore Group', 'Team Plan renewal', '$1,495', 'Scheduled', 'ws_northshore'],
+  ['Wed, Dec 30', 'Copper Basin Realty', 'Accelerator, payment 2 of 2', '$3,750', 'Scheduled', 'ws_copperbasin'],
+  ['Wed, Dec 30', 'Lantern Street Partners', 'Accelerator, payment 2 of 2', '$3,750', 'Scheduled', 'ws_lantern'],
+];
+function Revenue() {
+  const { go, ph } = useC();
+  const [per, setPer] = useState('All time');
+  const r = REV[per], max = Math.max(...RV_MONTHS.map(m => m[1] + m[2]));
+  const usd = n => '$' + n.toLocaleString('en-US');
+  return <div className="pg">
+    <Head t="Revenue" right={<Sel label="Period" v={per} on={setPer} opts={['All time', 'This month']} />} />
+    <div className="g5">
+      <Stat l="Cash collected" v={r.c} sub={r.cs} go={() => go('billing', null, 'invoices')} />
+      <Stat l="Still to collect" v="$7,500" sub={ph ? '2 payments · Dec 30' : '2 payments · Wed, Dec 30'} tone="info" go={() => document.getElementById('rv-next') && document.getElementById('rv-next').scrollIntoView({ behavior: 'smooth', block: 'start' })} />
+      <Stat l="Total revenue" v={r.t} sub="Collected + still to collect" go={() => go('billing', null, 'customers')} />
+      <Stat l="MRR" v="$12,429" sub="59 subscriptions" tone="ok" go={() => go('billing', null, 'subs')} />
+      <Stat l="Failed payments" v="3" sub="Needs review" tone="bad" go={() => go('billing', null, 'failed')} />
+    </div>
+    <div className="gms">
+      <Card t="Cash by month" sub="Collected, and what Stripe already has on the calendar" right={!ph && <span className="row" style={{ gap: 12 }}><span className="lg"><i style={{ background: 'var(--for)' }} />Collected</span><span className="lg"><i className="hat" />On the calendar</span></span>}>
+        <div className="rvc" role="img" aria-label="Cash collected by month from August to November, and what is scheduled for December and January.">{RV_MONTHS.map(m => { const v = m[1] + m[2]; return <div key={m[0]} className="rvm"><span className="tn me">{usd(v)}</span><span className="rvb"><i className={m[2] ? 'hat' : ''} style={{ height: Math.max(4, (v / max) * 100) + '%' }} /></span><span className={'w5' + (m[0] === 'Nov' ? '' : ' mu')}>{m[0]}</span></div>; })}</div>
+        {ph && <div className="row" style={{ gap: 12, marginTop: 12 }}><span className="lg"><i style={{ background: 'var(--for)' }} />Collected</span><span className="lg"><i className="hat" />On the calendar</span></div>}
+        <p className="me" style={{ marginTop: 12 }}>December counts two second payments ($7,500) and this month's renewals. It is not a forecast of new sales.</p>
+      </Card>
+      <div className="col">
+        <Card t="AI Accelerator" sub="December 2026 Cohort" right={<Btn onClick={() => { setCur('dec26'); go('enrolled'); }}>People</Btn>}><div className="col m">
+          <button className="rdy" onClick={() => go('enrolled')}><span style={{ flex: '0 0 96px' }}>Seats sold</span><Bar v={7} max={15} fx /><span className="tn w5 rdn">7 of 15</span></button>
+          <div className="kvs"><KV rows={[['Paid in full', '5 teams · $37,500'], ['On two payments', '2 teams · $7,500 in, $7,500 to come'], ['Refunds', 'None']]} /></div></div></Card>
+        <Card t="Refunds" sub="Last 30 days" right={<Btn onClick={() => go('billing', null, 'refunds')}>Open</Btn>}><span className="fig">$695</span><p className="me">1 refund · Fourth Meridian · Nov 1</p></Card>
+      </div>
+    </div>
+    <Table title="By product" rows={[RV_PROD[0], ...COHORTS.filter(c => c.id !== 'dec26').map(c => ['AI Accelerator', c.n.replace(' Cohort', '') + ' · ' + c.teams.length + ' of ' + c.cap + ' seats', '$0', '$0', '$0', 'One-time', ['enrolled'], c.id]), ...RV_PROD.slice(1)]} onRow={p => { if (p[0] === 'AI Accelerator') setCur(p[7] || 'dec26'); go(...p[6]); }}
+      cols={[{ k: 0, l: 'Product', w: 'minmax(160px,1.4fr)', r: p => <Two a={p[0]} b={p[1]} /> }, { k: 2, l: 'Collected', w: '110px', num: 1 }, { k: 3, l: 'Still to collect', w: '120px', num: 1, hide: 'lap' }, { k: 4, l: 'Total', w: '110px', num: 1, r: p => <span className="w5">{p[4]}</span> }, { k: 5, l: 'MRR', w: '100px', num: 1 }]} />
+    <div id="rv-next"><Table title="Coming in" right={<span className="me">Next 60 days · $11,237</span>} rows={RV_NEXT} onRow={p => go('workspace', p[5])}
+      cols={[{ k: 0, l: 'When', w: '120px', ns: 1 }, { k: 1, l: 'From', w: 'minmax(180px,1.3fr)', r: p => <span className="w5 el" style={{ display: 'block' }}>{p[1]}</span> }, { k: 2, l: 'For', w: 'minmax(190px,1.3fr)', hide: 'lap' }, { k: 3, l: 'Amount', w: '96px', num: 1 }, { k: 4, l: 'Status', w: '112px', r: p => <St v={p[4]} /> }]} /></div>
+  </div>;
+}
+
+/* ---------- Overview: who is counted as a learner ---------- */
+function AudCard() {
+  const { go } = useC();
+  return <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Who has a sign-in</h2><span className="me">{AUD_ALL} people, each counted once. Utah Life agents are kept out of the learner count and out of revenue.</span></div><Btn onClick={() => go('people')}>People</Btn></div>
+    <div className="cdb col m"><div className="aub" aria-hidden="true">{AUD.map(a => <i key={a[0]} style={{ flex: a[2], background: a[3] }} />)}</div>
+      <div className="aul">{AUD.map(a => <button key={a[0]} className="auk" onClick={() => a[0] === 'ul' ? go('groups') : a[0] === 'acc' ? go('enrolled', null, 'learners') : go('people', null, a[0])}><i style={{ background: a[3] }} /><span className="col" style={{ gap: 0 }}><span className="w5 tn">{a[2]}</span><span className="me">{a[1]}</span></span></button>)}</div></div></section>;
+}
+
+/* =====================================================================================================
+   Nov 25, third pass: four pages with tabs. The sidebar reads as the through line:
+   PROGRAM (what you teach) · COHORT (one group going through it) · PEOPLE (who has a sign-in) · REVENUE.
+   A cohort owns its SHAPE: how many weeks, which ones, how often it meets, its seats and its price. A
+   start date turns the shape into dates and sessions. The program owns what each week teaches. So a new
+   cohort with a different promise is a form, not a code change. Sample data is made up.
+   ===================================================================================================== */
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DOWF = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], MONF = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const NUMW = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
+const dparse = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(Date.UTC(y || 2027, (m || 1) - 1, d || 1)); };
+const dadd = (d, n) => new Date(d.getTime() + n * 864e5);
+const dfmt = d => DOW[d.getUTCDay()] + ', ' + MON[d.getUTCMonth()] + ' ' + d.getUTCDate();
+const HOLI = { '2027-01-01': 'New Year\'s Day', '2027-01-18': 'Martin Luther King Jr. Day', '2027-02-15': 'Presidents\' Day', '2027-05-31': 'Memorial Day' };
+
+/* the program: what you teach. Its weeks are a library a cohort picks from. */
+const PRG = { id: 'acc', n: 'Amplified AI Accelerator', logo: LOGO_ACCELERATOR };
+const LIB = ACC_WEEKS.map(w => ({ id: w.n, t: w.t, o: w.o, st: w.st === 'Draft' ? 'Draft' : 'Published', steps: w.steps, min: w.min, kit: w.kit }));
+const libOf = id => LIB.find(w => w.id === id) || { id, t: 'Week', o: '', st: 'Draft', steps: 0, min: 0, kit: 0 };
+const PTile = ({ s = 32 }) => <img className="tile" src={PRG.logo} width={s} height={s} alt="" style={{ width: s, height: s, flex: 'none', borderRadius: Math.round(s * 0.22) }} />;
+
+/* the December cohort's Wednesday build and Thursday office hours are both at 12:00 PM MT through Thu, Feb 4 */
+const DEC_LAST = dparse('2027-02-04');
+const clashOf = s => s.time === '12:00 PM' && (s.day === 'Wed' || s.day === 'Thu') && s.date <= DEC_LAST ? (s.day === 'Wed' ? 'live build' : 'office hours') : '';
+
+const COHORTS = [{
+  id: 'dec26', n: 'December 2026 Cohort', st: 'Scheduled', enroll: true, full: true, read: true, promise: 'Nine weeks. One hire a week. Built live, on your own numbers.',
+  week0: true, pick: [1, 2, 3, 4, 5, 6, 7, 8], pattern: [['Wed', '12:00 PM', 'Live build', '1 hr 30 min'], ['Thu', '12:00 PM', 'Office hours', '1 hr']], cap: 15, price: '$7,500', two: true, hosts: 'Connor Leiva',
+  start: '2026-11-29', opens: 'Sun, Nov 29', w1: 'Sun, Nov 29', ends: 'Thu, Feb 4', holiday: 'No sessions the weeks of Dec 21 and Dec 28. Week 4 opens Sun, Jan 3.',
+  run: ACC_WEEKS.map(w => ({ id: w.n, n: w.n, opens: w.opens, build: w.build })), ses: ACC_SES, teams: ACC_CT, learners: ACC_CL,
+}];
+let CUR = 'dec26', POKE = () => {}, COH = COHORTS[0], WEEKS = [], SES = [], CT = [], CL = [];
+const runOf = c => c.run.map(r => ({ ...libOf(r.id), ...r }));
+function syncCur() { COH = COHORTS.find(c => c.id === CUR) || COHORTS[0]; WEEKS = runOf(COH); SES = COH.ses; CT = COH.teams; CL = COH.learners; }
+syncCur();
+function setCur(id) { CUR = id; syncCur(); POKE(); }
+
+/* the shape, in words */
+const meetsOf = c => c.pattern.length === 1 ? 'once a week' : c.pattern.length === 2 ? 'twice a week' : c.pattern.length + ' times a week';
+const shapeOf = c => c.pick.length + ' weeks of building · ' + meetsOf(c);
+const slotLine = s => DOWF[s[0]] + ' · ' + s[1] + ' MT · ' + s[2] + ' · ' + s[3];
+const autoPromise = n => (NUMW[n] || n) + ' weeks of building. One hire a week. Built live, on your own numbers.';
+const howOf = c => { const b = c.pattern.filter(s => s[2] === 'Live build').map(s => DOWF[s[0]]), o = c.pattern.filter(s => s[2] === 'Office hours').map(s => DOWF[s[0]]);
+  return ['A week opens on Sunday.', b.length ? 'We build its hire together on ' + b.join(' and ') + '.' : 'There is no live build. You work through the week on your own.', 'You run it on your own data and turn in what it made.', o.length ? 'Office hours are ' + o.join(' and ') + '.' : null].filter(Boolean); };
+const firstBuildOf = c => { const s = c.ses.find(x => x.k === 'Live build') || c.ses[0]; return s ? s.d : 'the first session'; };
+const widOf = s => s.wid === undefined ? s.wk : s.wid;
+
+/* A shape and a start date make a calendar: when each week opens, and every session in it.
+   f: { start (the day Week 1 opens), week0, pick (the weeks, by id, in order), pattern } */
+function planOf(f) {
+  const w1 = dparse(f.start), rows = [];
+  if (f.week0) rows.push({ id: 0, n: 0, open: dadd(w1, -7), ses: [] });
+  f.pick.forEach((id, i) => { const open = dadd(w1, 7 * i);
+    const ses = f.pattern.map(sl => { let d = open; while (DOW[d.getUTCDay()] !== sl[0]) d = dadd(d, 1); return { day: sl[0], date: d, d: dfmt(d), time: sl[1], k: sl[2], len: sl[3], hol: HOLI[d.toISOString().slice(0, 10)] }; });
+    rows.push({ id, n: i + 1, open, ses }); });
+  return rows;
+}
+/* lay a cohort out (again) from its shape */
+function reshape(c, patch) {
+  Object.assign(c, patch);
+  const pl = planOf(c), ses = [];
+  pl.forEach(w => w.ses.forEach(s => ses.push({ n: ses.length + 1, t: libOf(w.id).t + ' · ' + s.k, k: s.k, wk: w.n, wid: w.id, d: s.d, time: s.time, zoom: 'No link yet', inv: 'Draft', clash: clashOf(s), hol: s.hol })));
+  c.run = pl.map(w => ({ id: w.id, n: w.n, opens: dfmt(w.open), build: w.ses.map(s => s.d).join(' and ') || null }));
+  c.ses = ses; c.opens = dfmt(pl[0].open); c.w1 = dfmt(dparse(c.start)); c.ends = ses.length ? ses[ses.length - 1].d : '';
+  return c;
+}
+function makeCohort(f) {
+  const c = reshape({ id: 'c' + (COHORTS.length + 1), n: f.n, st: 'Draft', enroll: false, full: false, read: false, promise: f.promise, cap: +f.cap || 15, price: (f.price || '').trim(), two: !!f.two, hosts: f.hosts, holiday: '', teams: [], learners: [] },
+    { start: f.start, week0: f.week0, pick: [...f.pick], pattern: f.slots.map(s => [...s]) });
+  COHORTS.push(c); return c;
+}
+/* Connor's example: six weeks of building, twice a week, starting in early January */
+const JAN_F = { n: null, promise: null, from: 'dec26', week0: true, pick: [1, 2, 3, 4, 5, 6], slots: [['Tue', '12:00 PM', 'Live build', '1 hr 30 min'], ['Thu', '12:00 PM', 'Office hours', '1 hr']], start: '2027-01-03', cap: 15, price: '', two: true, hosts: 'Connor Leiva and Spring' };
+/* the Screen list's shortcut: the January cohort, already created from those defaults */
+function seedJan() { let c = COHORTS.find(x => x.id !== 'dec26'); if (!c) c = makeCohort({ ...JSON.parse(JSON.stringify(JAN_F)), n: 'January 2027 Cohort', promise: autoPromise(6) }); CUR = c.id; syncCur(); }
+
+/* ---------- which cohort: the sidebar's switcher, and the same choice in the Cohort page's title ---------- */
+function CtxSwitch({ r }) {
+  const { go, route } = useC();
+  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => { setCur(c.id); if (route.s !== 'cohort' && route.s !== 'overview') go('cohort'); } }));
+  items.push('-', { l: 'New cohort…', fn: () => go('newcohort') });
+  return <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label={'Switch cohort. ' + PRG.n + ', ' + COH.n} title={r ? PRG.n + ' · ' + COH.n : undefined} onClick={t}><span data-fl="tile" style={{ display: 'flex', flex: 'none' }}><PTile /></span>{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">{PRG.n}</span><span className="el sw2">{COH.n}</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>} items={items} />;
+}
+function CohortPick({ big }) {
+  const { go } = useC();
+  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => setCur(c.id) }));
+  items.push('-', { l: 'New cohort…', fn: () => go('newcohort') });
+  return <Menu lf trigger={(t, o) => <button className={'cpk' + (big ? ' big' : '')} aria-expanded={o} aria-label={'Switch cohort. ' + COH.n} onClick={t}>{!big && <PTile s={20} />}<span className="el">{COH.n}</span><I n="updown" s={big ? 18 : 14} /></button>} items={items} />;
+}
+
+/* ---------- pieces the new-cohort page and the cohort's settings share ---------- */
+const Seg = ({ v, on, opts }) => <span className="sgm" role="group">{opts.map(o => <button key={o[0]} type="button" className={v === o[0] ? 'on' : ''} aria-pressed={v === o[0]} onClick={() => on(o[0])}>{o[1]}</button>)}</span>;
+/* how long and how often. f: { pick, slots, week0 } */
+function ShapeFields({ f, up }) {
+  const ids = LIB.filter(w => w.id > 0).map(w => w.id);
+  const weeks = n => { let p = [...f.pick]; while (p.length > n) p.pop(); while (p.length < n) { const nx = ids.find(id => !p.includes(id)); if (nx === undefined) break; p.push(nx); } up({ pick: ids.filter(id => p.includes(id)) }); };
+  const slot = (i, j, v) => up({ slots: f.slots.map((s, k) => k === i ? s.map((x, m) => m === j ? v : x) : s) });
+  const times = n => up({ slots: Array.from({ length: n }, (x, i) => f.slots[i] || [['Tue', 'Thu', 'Fri'][i] || 'Fri', '12:00 PM', i ? 'Office hours' : 'Live build', i ? '1 hr' : '1 hr 30 min']) });
+  return <div className="col">
+    <div className="row" style={{ gap: 24, alignItems: 'flex-start' }}>
+      <div className="lab"><span>Weeks of building</span><span className="stp2"><button type="button" className="ib" aria-label="One week fewer" disabled={f.pick.length <= 1} onClick={() => weeks(f.pick.length - 1)}>−</button><b className="tn">{f.pick.length}</b><button type="button" className="ib" aria-label="One week more" disabled={f.pick.length >= ids.length} title={f.pick.length >= ids.length ? 'The curriculum has ' + ids.length + ' building weeks. Add one there first.' : undefined} onClick={() => weeks(f.pick.length + 1)}>+</button></span></div>
+      <div className="lab"><span>You meet</span><Seg v={f.slots.length} on={times} opts={[[1, 'Once a week'], [2, 'Twice a week'], [3, 'Three times']]} /></div>
+    </div>
+    <div className="lab"><span>When</span><span className="fat">Mountain time. Learners see Central, one hour later.</span>
+      <div className="lns">{f.slots.map((s, i) => <div key={i} className="ln slt"><Sel label={'Day ' + (i + 1)} v={DOWF[s[0]]} on={v => slot(i, 0, v.slice(0, 3))} opts={['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']} /><Sel label={'Time ' + (i + 1)} v={s[1]} on={v => slot(i, 1, v)} opts={['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM']} /><Sel label={'Kind ' + (i + 1)} v={s[2]} on={v => slot(i, 2, v)} opts={['Live build', 'Office hours', 'Working session']} /></div>)}</div></div>
+    <label className="ckr"><input type="checkbox" checked={f.week0} onChange={e => up({ week0: e.target.checked })} /><span className="col" style={{ gap: 0 }}><span className="w5">Start with a setup week</span><span className="me">Week 0, self-paced, opens a week before Week 1. Teams fill in their intake and get their AI ready.</span></span></label>
+  </div>;
+}
+/* which of the program's weeks the cohort runs. They keep the curriculum's order. */
+function WeekPick({ pick, on }) {
+  const ids = LIB.filter(w => w.id > 0).map(w => w.id);
+  return <div className="wpl">{LIB.filter(w => w.id > 0).map(w => { const i = pick.indexOf(w.id), onn = i >= 0;
+    return <label key={w.id} className={'wpk' + (onn ? ' on' : '')}><input type="checkbox" checked={onn} disabled={onn && pick.length === 1} onChange={() => on(ids.filter(id => id === w.id ? !onn : pick.includes(id)))} />
+      <span className={'wn sm' + (onn ? ' pk' : '')}>{onn ? i + 1 : '–'}</span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me el">{w.o}</span></span>
+      {w.st !== 'Draft' ? <span className="pl ok">Published</span> : <span className={'pl' + (w.steps ? '' : ' warn')}>{w.steps ? 'Draft · ' + w.steps + ' steps' : 'Not built yet'}</span>}</label>; })}</div>;
+}
+/* the calendar a shape makes, week by week */
+function PlanList({ pl, free }) {
+  return <div className={'ncl' + (free ? ' free' : '')}>{pl.map(w => <div key={w.id} className="ncw"><span className="wn sm pk">{w.n}</span><span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}><span className="w5 el">{libOf(w.id).t}</span><span className="me">Opens {dfmt(w.open)}</span>
+    <span className="row" style={{ gap: 6 }}>{w.ses.length ? w.ses.map((s, i) => <span key={i} className={'skc' + (clashOf(s) ? ' wrn' : s.k === 'Live build' ? '' : ' alt')} title={clashOf(s) ? 'Same time as the December 2026 Cohort\'s ' + clashOf(s) : s.hol || undefined}>{s.d.replace(',', '')} · {s.time.replace(':00', '')} · {s.k}</span>) : <span className="skc off">Self-paced</span>}</span></span></div>)}</div>;
+}
+
+/* ---------- Cohort › New cohort: say its shape and when it starts; see what that makes ---------- */
+function NewCohort() {
+  const { go, guard, toast, log, ph } = useC();
+  const [f, setF] = useState(() => JSON.parse(JSON.stringify(JAN_F)));
+  const up = p => setF({ ...f, ...p });
+  const s0 = dparse(f.start), autoN = MONF[s0.getUTCMonth()] + ' ' + s0.getUTCFullYear() + ' Cohort', name = f.n === null ? autoN : f.n, promise = f.promise === null ? autoPromise(f.pick.length) : f.promise;
+  const pl = planOf({ ...f, pattern: f.slots }), all = pl.flatMap(w => w.ses), cl = all.filter(clashOf), last = all[all.length - 1], hol = all.filter(s => s.hol);
+  const drafts = f.pick.filter(id => libOf(id).st === 'Draft');
+  const create = () => guard('build', 'Create cohort', () => { const c = makeCohort({ ...f, n: name.trim() || autoN, promise }); log('cohort.create', c.n, shapeOf(c)); setCur(c.id); toast(c.n + ' is created as a draft. ' + c.ses.length + ' sessions are on the calendar.'); go('cohort'); });
+  return <div className="pg">
+    <Head back={['cohort', 'Cohort']} t="New cohort" d="One group going through the program. Say how long it runs, how often you meet and when it starts. The portal lays out the weeks and the sessions. You can change any of it afterwards." />
+    <div className="gms">
+      <div className="col">
+        <Card t="The cohort"><div className="col">
+          <div className="g2"><label className="lab">Name<input className="in" value={name} onChange={e => up({ n: e.target.value })} /></label>
+            <div className="lab"><span>Start from</span><Sel label="Start from" v={f.from ? 'December 2026 Cohort' : 'A blank cohort'} on={v => up({ from: v === 'A blank cohort' ? '' : 'dec26' })} opts={['December 2026 Cohort', 'A blank cohort']} /></div></div>
+          <label className="lab">The promise<span className="fat">One line. Learners see it on Home, under the program's name.</span><input className="in" value={promise} onChange={e => up({ promise: e.target.value })} /></label>
+          {f.from && <p className="me">Copied from December: its seats, its intake form, its emails and its community rules. Nothing about December changes.</p>}
+        </div></Card>
+        <Card t="Its shape" sub="How long it runs and how often you meet"><ShapeFields f={f} up={up} /></Card>
+        <Card t="When it starts"><div className="g2"><label className="lab">Week 1 opens<input className="in" type="date" value={f.start} onChange={e => e.target.value && up({ start: e.target.value })} /></label>
+          <div className="lab"><span>That makes</span><span className="s2" style={{ fontWeight: 400 }}>{f.week0 ? 'The setup week opens ' + dfmt(dadd(s0, -7)) + '. ' : ''}{all[0] ? 'The first session is ' + all[0].d + ' and the last is ' + last.d + '.' : 'No sessions yet.'}</span></div></div></Card>
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>What it covers</h2><span className="me">Pick from the program's weeks. They keep the curriculum's order.</span></div><span className="pl ok">{f.pick.length} of {LIB.length - 1} weeks</span></div>
+          <WeekPick pick={f.pick} on={p => up({ pick: p })} />
+          {drafts.length > 0 && <div className="cdb" style={{ borderTop: '1px solid var(--line)' }}><p className="me">{drafts.length} of these {drafts.length === 1 ? 'is' : 'are'} still {drafts.length === 1 ? 'a draft' : 'drafts'} in the curriculum. A draft week stays locked for learners until it is published. <button className="lk a" onClick={() => go('program')}>Open the curriculum</button></p></div>}
+        </section>
+        <Card t="Seats and price"><div className="col">
+          <div className="g2"><label className="lab">Seats<span className="fat">A seat is a team: an owner and an AI Implementer.</span><input className="in" type="number" min="1" value={f.cap} onChange={e => up({ cap: e.target.value })} style={{ maxWidth: 120 }} /></label>
+            <label className="lab">Price for a seat<span className="fat">Leave it empty for now and set it before you open enrollment.</span><input className="in" value={f.price} placeholder="Not set" onChange={e => up({ price: e.target.value })} style={{ maxWidth: 160 }} /></label></div>
+          <label className="ckr"><input type="checkbox" checked={f.two} onChange={e => up({ two: e.target.checked })} /><span className="col" style={{ gap: 0 }}><span className="w5">Offer two payments</span><span className="me">Half at checkout, half 30 days later. Revenue shows the second half as still to collect.</span></span></label>
+          <label className="lab">Hosts<input className="in" value={f.hosts} onChange={e => up({ hosts: e.target.value })} /></label>
+        </div></Card>
+      </div>
+      <div className="col" style={ph ? undefined : { position: 'sticky', top: 0 }}>
+        <section className="cd"><div className="cdb col">
+          <div className="row nw" style={{ gap: 12, alignItems: 'flex-start' }}><PTile s={40} /><div className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w6" style={{ fontSize: 16 }}>{name || autoN}</span><span className="me">{PRG.n}</span></div></div>
+          <div className="skf"><div><b className="tn">{f.pick.length}</b><span className="me">weeks of building</span></div><div><b className="tn">{all.length}</b><span className="me">sessions</span></div><div><b className="tn">{f.cap || 0}</b><span className="me">team seats</span></div></div>
+          <PlanList pl={pl} free />
+          {cl.length > 0 && <div className="note row" style={{ gap: 10, borderColor: '#EBD9A8', background: 'var(--warnb)', alignItems: 'flex-start' }}><I n="incidents" /><span style={{ flex: 1, minWidth: 180 }}><b>{cl.length} sessions are at the same time as December's.</b> Its Wednesday build and Thursday office hours are at 12:00 PM MT through Thu, Feb 4. Pick another day or hour, or keep them if you mean to run them together.</span></div>}
+          {hol.length > 0 && <div className="note row" style={{ gap: 10, alignItems: 'flex-start' }}><I n="cohorts" /><span style={{ flex: 1, minWidth: 180 }}>{hol.map(s => s.d + ' is ' + s.hol).join('. ')}.</span></div>}
+          <GBtn k="p" perm="build" label="Create cohort" go={create}>Create cohort</GBtn>
+          <p className="me">Creates a draft. No one is enrolled, nothing is for sale and no one is emailed.</p>
+        </div></section>
+      </div>
+    </div>
+  </div>;
+}
+
+/* =====================================================================================================
+   The Cohort page's tabs: Overview, Schedule, People, Submissions, Community, Announcements, Settings.
+   Each one is about the cohort picked in the page's title (and in the sidebar's switcher).
+   ===================================================================================================== */
+const QuietTab = ({ t, b }) => <section className="cd"><Empty ic="cohorts" t={t || 'Nothing here yet'} b={b} /></section>;
+/* what needs staff before the next live build (a running cohort), in one list. Overview shows the same rows. */
+/* 'Sun, Nov 29' as a date field's value. The sample runs from November 2026 into 2027. */
+const isoOf = d => { const m = String(d || '').match(/(\w+), (\w+) (\d+)/); if (!m) return ''; const mi = MON.indexOf(m[2]); return new Date(Date.UTC(mi > 9 ? 2026 : 2027, mi, +m[3])).toISOString().slice(0, 10); };
+function needsOf(go) {
+  return [
+    ['forms', '2 teams haven\'t started their intake', 'Northshore Group and Red Cliff Collective. It is due before Wed, Dec 2.', () => go('forms', null, 'teams'), 'bad'],
+    ['integrations', '1 intake didn\'t reach GHL', 'Copper Basin Realty. Retry from the team\'s Intake tab.', () => go('workspace', 'ws_copperbasin', 'intake'), 'bad'],
+    ['community', '3 threads are waiting on you', 'The last word in each is a member\'s.', () => go('community'), 'warn'],
+    ['cohorts', '6 sessions have no Zoom link', 'The next one without a link is Wed, Dec 9.', () => go('sessions'), 'warn'],
+    ['billing', '2 second payments are on the calendar', '$3,750 each, on Wed, Dec 30.', () => go('revenue'), ''],
+  ];
+}
+/* what is left before a draft cohort can open. [what, where it stands, done, where to fix it] */
+function todoOf(c, go, openEnroll) {
+  const run = runOf(c).filter(w => w.id > 0), pub = run.filter(w => w.st !== 'Draft'), clash = c.ses.filter(s => s.clash), zoom = c.ses.filter(s => s.zoom === 'Ready');
+  return [
+    ['Shape', shapeOf(c) + (c.week0 ? ', after a setup week' : ''), true, () => go('cohortset')],
+    ['Its weeks', pub.length + ' of ' + run.length + ' are published' + (run.length - pub.length ? '. The rest are still drafts in the curriculum.' : ''), pub.length === run.length, () => go('program')],
+    ['Sessions', c.ses.length + ' on the calendar' + (clash.length ? '. ' + clash.length + ' are at the same time as December\'s ' + [...new Set(clash.map(s => s.clash))].join(' and ') + '.' : ''), !clash.length, () => go('sessions')],
+    ['Zoom links', zoom.length + ' of ' + c.ses.length + ' sessions have one', zoom.length === c.ses.length, () => go('sessions')],
+    ['Price', c.price ? c.price + (c.two ? ', or two payments' : '') + ' · ' + c.cap + ' seats' : 'Not set. A team can\'t check out without one.', !!c.price, () => go('cohortset')],
+    ['Words learners see', c.read ? 'The promise and how it works, written from this cohort\'s shape' : 'The promise and how it works are written from this cohort\'s shape. Read them once.', !!c.read, () => { c.read = true; go('cohortset'); }],
+    ['Open enrollment', c.enroll ? 'A team that buys a seat is placed here' : 'Off. Turn it on when the rest is done.', !!c.enroll, openEnroll],
+  ];
+}
+function useEnroll() {
+  const { guard, setDlg, log, toast } = useC();
+  return () => guard('account', 'Open enrollment', () => !COH.price ? toast('Set a price first. A team can\'t check out without one.') : setDlg({ title: 'Open enrollment for the ' + COH.n + '?', body: 'From now on, a team that buys a seat is placed in this cohort, up to ' + COH.cap + ' seats. They get the welcome email and can start the setup week on ' + COH.opens + '.', cta: 'Open enrollment', yes: () => { COH.enroll = true; COH.st = 'Scheduled'; log('cohort.enrollment_open', COH.n, ''); POKE(); toast('Enrollment is open'); } }));
+}
+/* the dialog that picks which of the program's weeks this cohort runs */
+function WeeksDlg({ onClose }) {
+  const { guard, toast, log } = useC();
+  const [p, setP] = useState(COH.pick);
+  const save = () => guard('build', 'Change this cohort\'s weeks', () => { if (COH.full) toast('Saved. Weeks that are already open stay as they are.'); else { reshape(COH, { pick: p }); syncCur(); POKE(); toast(COH.n + ' now runs ' + p.length + ' weeks. Its sessions are laid out again.'); } log('cohort.weeks', COH.n, p.length + ' weeks'); onClose(); });
+  return <Modal title={'The weeks the ' + COH.n + ' runs'} w={620} onClose={onClose} foot={<><Btn onClick={onClose}>Cancel</Btn><Btn k="p" onClick={save}>Save</Btn></>}>
+    <p className="s2">Pick from the program's weeks. What a week teaches is the same for every cohort. Its date is this cohort's.</p>
+    <div className="cd" style={{ boxShadow: 'none' }}><WeekPick pick={p} on={setP} /></div>
+    <p className="me">{p.length} weeks of building{COH.week0 ? ', after the setup week' : ''}. {p.length !== COH.pick.length ? 'The promise says ' + COH.promise.split('.')[0].toLowerCase() + '. Change it in Settings if it no longer fits.' : ''}</p>
+  </Modal>;
+}
+
+/* ---------- Cohort › Overview: what needs you, the run, and how ready the group is ---------- */
+function CohortOverview() {
+  const { go, started, ph } = useC();
+  const [wk, setWk] = useState(false);
+  const openEnroll = useEnroll();
+  const full = !!COH.full, first = SES[0], nowN = started && full ? 2 : WEEKS[0].n;
+  const need = full ? needsOf(go) : null, todo = full ? null : todoOf(COH, go, openEnroll), left = todo ? todo.filter(t => !t[2]).length : 0;
+  return <div className="col">
+    <LFacts items={[
+      ['Opens', ph ? COH.opens : COH.opens + ' · 12:00 PM MT', () => go('cohortset')],
+      ['Shape', COH.pick.length + ' weeks · ' + meetsOf(COH), () => go('cohortset')],
+      ['Teams', CT.length + ' of ' + COH.cap + ' seats', () => go('enrolled')],
+      ['Learners', full ? '15 · 13 signed in' : String(CL.length), () => go('enrolled', null, 'learners')],
+      ['Next session', first ? (started && full ? 'Wed, Dec 9' : first.d) : 'None yet', () => go('sessions')],
+    ]} />
+    <div className="gms">
+      <div className="col">
+        {todo ? <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Before it opens</h2><span className="me">{todo.length - left} of {todo.length} done</span></div>{left > 0 ? <span className="pl warn">{left} left</span> : <span className="pl ok">Ready</span>}</div>
+          <div className="wkl">{todo.map(t => <button key={t[0]} className={'nyr tdo' + (t[2] ? ' ok' : '')} onClick={t[3]}><span className="tdc">{t[2] && <I n="check" s={12} w={2.6} />}</span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{t[0]}</span><span className="me">{t[1]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div></section>
+          : <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Needs you</h2><span className="me">Before the next live build</span></div><span className="pl warn">{need.length}</span></div>
+            <div className="wkl">{need.map(n => <button key={n[1]} className="nyr" onClick={n[3]}><span className={'mt' + (n[4] ? ' ' + n[4] : '')}><I n={n[0]} /></span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{n[1]}</span><span className="me">{n[2]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div></section>}
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>The run</h2><span className="me">The weeks this cohort takes, when each opens, and when you meet</span></div><GBtn perm="build" label="Change this cohort's weeks" go={() => setWk(true)}>Change weeks</GBtn></div>
+          <div className="wkl run">{WEEKS.map(w => { const now = w.n === nowN; return <button key={w.id} className={'nyr rn' + (now ? ' now' : '')} onClick={() => go('week', String(w.id))}><Wn n={w.n} st={w.st} /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me el">Opens {w.opens}{w.build ? ' · ' + (full ? 'Live build ' : 'Meets ') + w.build : ' · Self-paced'}</span></span>{now ? <span className="pl ok">{started && full ? 'This week' : 'Opens first'}</span> : w.st === 'Draft' ? <span className={'pl' + (w.steps ? '' : ' warn')}>{w.steps ? 'Draft' : 'Not built yet'}</span> : !ph && <span className="me">Published</span>}<I n="chev" s={12} w={2.2} /></button>; })}</div></section>
+      </div>
+      <div className="col">
+        {full ? <Card t="Readiness" sub="Out of 7 teams"><div className="col m">{[['Signed in', 6, ['enrolled']], ['Intake submitted', 3, ['forms', null, 'teams']], ['Week 0 done', 1, ['enrolled']], ['Paid in full', 5, ['revenue']]].map(r => <button key={r[0]} className="rdy" onClick={() => go(...r[2])}><span style={{ flex: '0 0 116px' }}>{r[0]}</span><PBar v={r[1]} max={7} /><span className="tn w5 rdn">{r[1]} of 7</span></button>)}</div></Card>
+          : <Card t="Seats" right={<Btn onClick={() => go('enrolled')}>People</Btn>}><div className="col m"><div className="rdy" style={{ cursor: 'default' }}><span style={{ flex: '0 0 96px' }}>Seats taken</span><PBar v={CT.length} max={COH.cap} /><span className="tn w5 rdn">{CT.length} of {COH.cap}</span></div><p className="me">{COH.enroll ? 'Enrollment is open. A team that buys a seat lands here.' : 'No one yet. Enrollment is closed.'}</p></div></Card>}
+        <Card t="Coming up" right={<Btn onClick={() => go('sessions')}>Schedule</Btn>}><div className="col m">{SES.length ? SES.slice(started && full ? 2 : 0, started && full ? 5 : 3).map(s => <button key={s.n} className="rnw" onClick={() => go('sessions')}><span className="dt"><b>{s.d.split(' ')[2]}</b><span>{s.d.split(' ')[1]}</span></span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{s.t}</span><span className="me">{s.d.split(',')[0]} · {s.time || '12:00 PM'} MT</span></span>{s.clash ? <span className="pl warn">Same time</span> : s.zoom !== 'Ready' && <span className="pl warn">No link</span>}</button>) : <p className="s2">No sessions yet.</p>}</div></Card>
+        <Card t="This cohort's shape" right={<Btn onClick={() => go('cohortset')}>Settings</Btn>}><div className="kvs"><KV rows={[['Promise', COH.promise], ['Meets', COH.pattern.map(s => s[0] + ' ' + s[2].toLowerCase()).join(' and ')], ['Seats', COH.cap + ' teams'], ['Price', COH.price ? COH.price + (COH.two ? ', or two payments' : '') : <span className="pl warn">Not set</span>]]} /></div></Card>
+      </div>
+    </div>
+    {wk && <WeeksDlg onClose={() => setWk(false)} />}
+  </div>;
+}
+
+/* ---------- Cohort › Schedule: every session, in one place ---------- */
+function CohortSchedule() {
+  const { go, guard, toast, log } = useC();
+  const [f, setF] = useState('All sessions');
+  const total = COH.pick.length * COH.pattern.length, wkOf = s => WEEKS.find(w => w.n === s.wk) || { t: '' };
+  const noZoom = SES.filter(s => s.zoom !== 'Ready').length, clash = SES.filter(s => s.clash).length, noSes = WEEKS.filter(w => w.id > 0 && !SES.some(s => s.wk === w.n));
+  const next = d => { const m = d.match(/(\w+), (\w+) (\d+)/), mi = MON.indexOf(m[2]); return dfmt(new Date(Date.UTC(mi > 9 ? 2026 : 2027, mi, +m[3] + 1))); };
+  const fill = () => guard('build', 'Add the missing sessions', () => { noSes.forEach(w => { if (!w.build) return; COH.pattern.forEach((sl, i) => SES.push({ n: SES.length + 1, t: w.t + ' · ' + sl[2], k: sl[2], wk: w.n, wid: w.id, d: i ? next(w.build) : w.build, time: sl[1], zoom: 'No link yet', inv: 'Draft' })); }); log('cohort.sessions_fill', COH.n, noSes.length + ' weeks'); POKE(); toast(noSes.length * COH.pattern.length + ' sessions added from the cohort\'s rhythm'); });
+  const rows = SES.filter(s => f === 'All sessions' || (f === 'Without a Zoom link' ? s.zoom !== 'Ready' : f === 'Same time as another cohort' ? s.clash : s.k === (f === 'Live builds' ? 'Live build' : 'Office hours')));
+  return <div className="col">
+    <LFacts items={[['On the calendar', SES.length + ' of ' + total + ' sessions'], ['Rhythm', COH.pattern.map(s => s[0] + ' ' + s[2].toLowerCase()).join(' and '), () => go('cohortset')], ['Without a Zoom link', String(noZoom), () => setF('Without a Zoom link')], clash ? ['Same time as another cohort', String(clash), () => setF('Same time as another cohort')] : ['Next', SES[0] ? SES[0].d + ' · ' + (SES[0].time || '12:00 PM') + ' MT' : 'None yet']]} />
+    {noSes.length > 0 && <div className="note row" style={{ gap: 10 }}><I n="cohorts" /><span style={{ flex: 1, minWidth: 200 }}><b>Weeks {noSes[0].n} to {noSes[noSes.length - 1].n} have no sessions yet.</b> The rhythm is {COH.pattern.map(s => DOWF[s[0]] + ' ' + s[2].toLowerCase()).join(' and ')}, so they can be laid out for you.</span><GBtn perm="build" label="Add the missing sessions" go={fill}>Add {noSes.length * COH.pattern.length} sessions</GBtn></div>}
+    <div className="row"><Sel label="Kind" v={f} on={setF} opts={['All sessions', 'Live builds', 'Office hours', 'Without a Zoom link', ...(clash ? ['Same time as another cohort'] : [])]} /><span className="sp" /><GBtn k="p" ic="plus" perm="build" label="Add session" go={() => toast('Session editor opens here')}>Add session</GBtn></div>
+    <Table rows={rows} onRow={s => toast('Opens ' + s.t)} empty={{ ic: 'cohorts', t: 'No sessions match', b: 'Try another filter.' }}
+      cols={[{ k: 't', l: 'Session', w: 'minmax(240px,1.6fr)', r: s => <Two a={s.t} b={s.k} /> }, { k: 'd', l: 'When', w: '210px', ns: 1, r: s => <When d={s.d} t={s.time || '12:00 PM'} /> },
+        { k: 'wk', l: 'Week', w: 'minmax(200px,1.2fr)', hide: 'lap', r: s => <button className="lk a el" onClick={e => { e.stopPropagation(); go('week', String(widOf(s))); }}>Week {s.wk} · {wkOf(s).t}</button> },
+        { k: 'zoom', l: 'Zoom link', w: '150px', r: s => s.clash ? <span className="pl warn">Same time as Dec</span> : s.zoom === 'Ready' ? <St v="Ready" /> : <span className="pl warn">No link yet</span> }, { k: 'inv', l: 'Reminder', w: '112px', r: s => <St v={s.inv} /> }]}
+      menu={s => [{ l: 'Edit session', g: 1, fn: () => guard('build', 'Edit ' + s.t, () => toast('Session editor opens here')) }, { l: 'Copy join link', fn: () => toast('Join link copied') }, { l: 'Open the week', fn: () => go('week', String(widOf(s))) }, { l: 'Attach replay', g: 1, fn: () => guard('build', 'Attach replay', () => toast('Replay picker opens here')) }]} />
+    <p className="me">Sessions are edited here and nowhere else. A week shows its sessions but doesn't change them. Times are Mountain, with Central under each for what learners see.</p>
+  </div>;
+}
+
+/* ---------- Cohort › People: the teams and learners in this cohort, and how each is doing ---------- */
+function CohortPeople() {
+  const { route, go } = useC();
+  const [tab, setTab] = useState(route.tab === 'learners' ? 'learners' : 'teams'), [q, setQ] = useState('');
+  const f = r => (r.n + (r.owner || '') + (r.team || '')).toLowerCase().includes(q.toLowerCase());
+  const W0 = ({ v }) => <span className="row nw" style={{ gap: 10 }}><PBar v={v} max={8} /><span className="tn" style={{ flex: 'none', minWidth: 42, textAlign: 'right' }}>{v} of 8</span></span>;
+  if (!CT.length) return <QuietTab t="No one is enrolled yet" b={COH.enroll ? 'Enrollment is open. The first team to buy a seat shows up here.' : 'Enrollment is closed. Open it from Overview, and a team that buys a seat is placed here.'} />;
+  return <div className="col">
+    <div className="row"><Tabs v={tab} on={setTab} tabs={[['teams', 'Teams', CT.length + ' of ' + COH.cap], ['learners', 'Learners', 15]]} /><Find v={q} on={setQ} ph={tab === 'teams' ? 'Find a team' : 'Find a person'} /></div>
+    {tab === 'teams' && <Table rows={CT.filter(f)} onRow={t => go('workspace', t.id)}
+      cols={[{ k: 'n', l: 'Team', w: 'minmax(200px,1.5fr)', r: t => <Two a={t.n} b={t.owner} /> }, { k: 'seats', l: 'People', w: '120px', r: t => <span className="tn">{t.in} of {t.seats} signed in</span> },
+        { k: 'pay', l: 'Paid', w: '140px', hide: 'lap', r: t => t.pay === 'Paid in full' ? <St v="Paid" /> : <span className="pl info">{t.pay}</span> },
+        { k: 'intake', l: 'Intake', w: '120px', r: t => <St v={t.intake} tone={t.intake === 'Submitted' ? 'ok' : t.intake === 'Draft' ? 'warn' : 'off'} /> },
+        { k: 'w0', l: 'Week 0', w: '150px', r: t => <W0 v={t.w0} /> }, { k: 'last', l: 'Last active', w: '150px', ns: 1, hide: 'lap' }]}
+      menu={t => [{ l: 'Open team', fn: () => go('workspace', t.id) }, { l: 'Read their intake', fn: () => go('workspace', t.id, 'intake') }, { l: 'What they turned in', fn: () => go('workspace', t.id, 'turnedin') }]} />}
+    {tab === 'learners' && <><Table rows={CL.filter(f)} onRow={u => go('user', u.id)}
+      cols={[{ k: 'n', l: 'Learner', w: 'minmax(210px,1.5fr)', r: u => <Two a={u.n} b={u.e} /> }, { k: 'team', l: 'Team', w: 'minmax(160px,1fr)', r: u => <button className="lk el" onClick={e => { e.stopPropagation(); go('workspace', CT.find(t => t.n === u.team).id); }}>{u.team}</button> },
+        { k: 'role', l: 'Seat', w: '190px', hide: 'lap' }, { k: 'w0', l: 'Week 0', w: '150px', r: u => <W0 v={u.w0} /> }, { k: 'last', l: 'Last active', w: '150px', ns: 1, r: u => u.st === 'Invited' ? <span className="pl warn">Invited, not signed in</span> : u.last }]} />
+      <p className="me">Showing 8 of 15. The other seven are teammates who joined from an invite.</p></>}
+    <p className="me">This is the cohort's roster: who is in it and how far along they are. For a sign-in, a plan or a seat, open the person or the team.</p>
+  </div>;
+}
+
+/* ---------- Cohort › Submissions: what the cohort told you (intake) and sent you (turned in) ---------- */
+function CohortSubs() {
+  const { route, toast } = useC();
+  const [v, setV] = useState({ teams: 'teams', turnedin: 'asks', files: 'files' }[route.tab] || 'intake');
+  if (!COH.full) return <QuietTab b="Intake answers and turned-in files show up here once teams are enrolled." />;
+  return <div className="col">
+    <div className="row"><Tabs v={v} on={setV} tabs={[['intake', 'Intake, added up'], ['teams', 'Intake, team by team', IR.filter(r => r.st === 'Submitted').length + ' of ' + IR.length], ['asks', 'Turned in, by step'], ['files', 'Turned in, every file', TI0.length]]} /><span className="sp" /><Btn ic="download" onClick={() => toast('Exported as CSV')}>Export CSV</Btn></div>
+    {v === 'intake' && <FormsIntake />}{v === 'teams' && <IntakeTab />}{v === 'asks' && <FormsTurnedIn />}{v === 'files' && <TurnedInTab />}
+  </div>;
+}
+
+/* ---------- Cohort › Settings: its shape, its dates, its seats and price, the words that come from them ---------- */
+function CohortSettings() {
+  const { go, guard, toast, setDlg, log } = useC();
+  const [dates, setDates] = useState(false), [shape, setShape] = useState(null), [wk, setWk] = useState(false), [pr, setPr] = useState(null);
+  const openEnroll = useEnroll(), full = !!COH.full, how = howOf(COH);
+  const saveShape = () => guard('build', 'Save the shape', () => { if (full) toast('Saved. Sessions that haven\'t happened are laid out again.'); else { reshape(COH, { pick: shape.pick, pattern: shape.slots.map(s => [...s]), week0: shape.week0 }); syncCur(); POKE(); toast('Shape saved. ' + COH.ses.length + ' sessions are on the calendar.'); } log('cohort.shape', COH.n, shapeOf(COH)); setShape(null); });
+  return <div className="col">
+    <div className="set2">
+      <div className="col">
+        <Card t="Shape" sub="How long it runs and how often you meet" right={<GBtn perm="build" label="Edit the shape" go={() => setShape({ pick: [...COH.pick], slots: COH.pattern.map(s => [...s]), week0: COH.week0 })}>Edit</GBtn>}>
+          <div className="kvs"><KV rows={[['Length', COH.pick.length + ' weeks of building' + (COH.week0 ? ', after a setup week' : '')], ...COH.pattern.map((s, i) => [i ? 'And' : 'Meets', slotLine(s)]), ['Its weeks', <button className="lk a" onClick={() => setWk(true)}>{COH.pick.length} of the program's {LIB.length - 1}</button>], ['Hosts', COH.hosts]]} /></div>
+          <p className="me" style={{ marginTop: 12 }}>Change the shape and the sessions that haven't happened are laid out again. Past sessions keep their dates.</p></Card>
+        <Card t="Dates and release" right={<GBtn perm="build" label="Edit dates and release" go={() => setDates(true)}>Edit</GBtn>}><div className="kvs"><KV rows={[['Week 1 opens', COH.w1 + ' · 12:00 PM MT'], ['A week opens', 'Every Sunday · 12:00 PM MT · 1:00 PM CT for learners'], [COH.week0 ? 'Setup week opens' : 'Preview opens', full ? 'Mon, Nov 23 · 9:00 AM MT' : COH.opens + ' · 12:00 PM MT'], ['Welcome email', full ? 'Sun, Nov 29 · 12:00 PM MT' : 'When a team is enrolled'], ['Session reminders', 'The day before and an hour before, in MT and CT'], ['Time zone', 'Mountain in the admin. Learners see Central.']]} /></div></Card>
+      </div>
+      <div className="col">
+        <Card t="Enrollment" right={<St v={COH.enroll ? 'Open' : 'Closed'} tone={COH.enroll ? 'ok' : 'off'} />}>
+          <div className="kvs"><KV rows={[['Seats', <button className="lk a" onClick={() => go('enrolled')}>{CT.length} of {COH.cap} taken</button>], ['A seat is', 'A team: an owner and an AI Implementer'], ['Price', COH.price ? COH.price : <span className="pl warn">Not set</span>], ['Two payments', COH.two ? 'Offered. Half at checkout, half 30 days later.' : 'Not offered'], ['Who lands here', 'A team that buys a seat while enrollment is open']]} /></div>
+          <div className="row" style={{ marginTop: 12 }}>{COH.enroll ? <GBtn perm="account" label="Close enrollment" go={() => setDlg({ title: 'Close enrollment for the ' + COH.n + '?', body: 'No new team can buy a seat in this cohort. The ' + CT.length + ' already in it are not affected.', cta: 'Close enrollment', yes: () => { COH.enroll = false; log('cohort.enrollment_close', COH.n, ''); POKE(); toast('Enrollment is closed'); } })}>Close enrollment</GBtn> : <GBtn k="p" perm="account" label="Open enrollment" go={openEnroll}>Open enrollment</GBtn>}<GBtn perm="account" label="Set the price" go={() => setPr({ v: COH.price || '', two: COH.two })}>{COH.price ? 'Change the price' : 'Set the price'}</GBtn></div></Card>
+        <Card t="Words from this cohort" sub="Written from its shape, so they are right for this group. Learners see them on Home and the Schedule."><div className="col m">
+          <div className="cfx"><span className="me">Name</span><span>{COH.n}</span></div>
+          <div className="cfx"><span className="me">The promise</span><span>{COH.promise}</span></div>
+          <div className="cfx"><span className="me">How it works</span><ul className="cfl">{how.map(h => <li key={h}>{h}</li>)}</ul></div>
+          <div className="cfx"><span className="me">Holiday note</span><span>{COH.holiday || 'None. Every week has its sessions.'}</span></div>
+          <div className="row"><GBtn perm="build" label="Edit this cohort's words" go={() => { COH.read = true; POKE(); toast('Opens these four as fields. The portal fills them in from the shape until you change one.'); }}>Edit words</GBtn><button className="lk a" onClick={() => go('course')}>What every cohort shares is in Course settings</button></div>
+        </div></Card>
+        <Card t="Clean-up"><div className="col m">
+          <div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Delete turned-in files</span><span className="me">Removes every file teams turned in. The record that they turned it in stays.</span></span><GBtn perm="build" label="Delete turned-in files" go={() => setDlg({ title: 'Delete this cohort\'s turned-in files?', body: 'Every file teams turned in is removed for good. The record that they turned it in stays.', cta: 'Delete files', danger: 1, needReason: 1, yes: r => { log('cohort.files_delete', COH.n, r); toast('Turned-in files deleted'); } })}>Delete…</GBtn></div>
+          <div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Archive this cohort</span><span className="me">Hides it from the switcher when it is over. Its people, files and payments are kept.</span></span><GBtn perm="build" label="Archive this cohort" go={() => toast(full ? 'A cohort can be archived after its last session, Thu, Feb 4.' : 'Archived cohorts move to the bottom of the switcher.')}>Archive…</GBtn></div>
+        </div></Card>
+      </div>
+    </div>
+    {shape && <Modal title={'Shape of the ' + COH.n} w={640} onClose={() => setShape(null)} foot={<><Btn onClick={() => setShape(null)}>Cancel</Btn><Btn k="p" onClick={saveShape}>Save shape</Btn></>}>
+      <ShapeFields f={shape} up={p => setShape({ ...shape, ...p })} />
+      <div className="lab"><span>What this makes</span><PlanList pl={planOf({ start: COH.start, week0: shape.week0, pick: shape.pick, pattern: shape.slots })} /></div>
+    </Modal>}
+    {wk && <WeeksDlg onClose={() => setWk(false)} />}
+    {pr && <Modal title={'Price for a seat in the ' + COH.n} w={520} onClose={() => setPr(null)} foot={<><Btn onClick={() => setPr(null)}>Cancel</Btn><Btn k="p" disabled={!pr.v.trim()} onClick={() => guard('account', 'Set the price', () => { COH.price = pr.v.trim(); COH.two = pr.two; log('cohort.price', COH.n, COH.price); setPr(null); POKE(); toast('Price saved'); })}>Save price</Btn></>}>
+      <label className="lab">Price for a seat<input className="in" value={pr.v} placeholder="$0,000" onChange={e => setPr({ ...pr, v: e.target.value })} style={{ maxWidth: 160 }} /></label>
+      <label className="ckr"><input type="checkbox" checked={pr.two} onChange={e => setPr({ ...pr, two: e.target.checked })} /><span className="col" style={{ gap: 0 }}><span className="w5">Offer two payments</span><span className="me">Half at checkout, half 30 days later. Revenue shows the second half as still to collect.</span></span></label>
+      <p className="me">Saving makes this cohort's own checkout in Stripe, so every buyer and every dollar is filed under it.</p>
+    </Modal>}
+    {dates && <Modal title="Dates and release" w={560} onClose={() => setDates(false)} foot={<><Btn onClick={() => setDates(false)}>Cancel</Btn><Btn k="p" onClick={() => guard('build', 'Save dates and release', () => { setDates(false); log('cohort.plan_save', COH.n, ''); toast('Dates and release saved'); })}>Save</Btn></>}>
+      <div className="g2"><label className="lab">Week 1 opens<input className="in" type="date" defaultValue={COH.start} /></label><label className="lab">A week opens at (MT)<input className="in" type="time" defaultValue="12:00" /></label></div>
+      <div className="g2"><label className="lab">{COH.week0 ? 'Setup week opens' : 'Preview opens'}<input className="in" type="date" defaultValue={full ? '2026-11-23' : isoOf(COH.opens)} /></label><label className="lab">Time (MT)<input className="in" type="time" defaultValue={full ? '09:00' : '12:00'} /></label></div>
+      <p className="me">To move the whole cohort, change when Week 1 opens. Every week and session after it moves by the same number of days.</p>
+      <div className="lab"><span>Each week</span><span className="fat">Move one week on its own, for a holiday break. Its sessions that haven't happened move with it.</span>
+        <div className="ewl"><div className="ewr ewh" aria-hidden="true"><span /><span /><span>Opens</span><span>Due</span></div>
+          {WEEKS.map(w => { const o = isoOf(w.opens); return <div key={w.id} className="ewr"><span className="wn sm">{w.n}</span><span className="el ewt">{w.t}</span><label className="ewf"><span className="ewk">Opens</span>{w.id === 0 ? <span className="me">Set above</span> : <input className="in" type="date" aria-label={'Week ' + w.n + ' opens'} defaultValue={o} />}</label><label className="ewf"><span className="ewk">Due</span><input className="in" type="date" aria-label={'Week ' + w.n + ' is due'} defaultValue={w.id === 0 ? isoOf(firstBuildOf(COH)) : o ? dadd(dparse(o), 6).toISOString().slice(0, 10) : ''} /></label></div>; })}</div></div>
+    </Modal>}
+  </div>;
+}
+
+/* =====================================================================================================
+   Four pages with tabs, the home page, and the curriculum. A page's tab is one of yesterday's pages, so
+   nothing was drawn twice: inside a tab, a page's own title is dropped and its own tabs become a
+   segmented control (see Head and Tabs).
+   ===================================================================================================== */
+const AreaCtx = createContext(0);
+const SOLO = { Overview: 1, Program: 1, Cohort: 1, People: 1, Revenue: 1 };
+const AREAS = {
+  program: [['curriculum', 'Curriculum'], ['settings', 'Course settings'], ['vault', 'Resource Vault']],
+  cohort: [['overview', 'Overview'], ['schedule', 'Schedule'], ['people', 'People'], ['submissions', 'Submissions'], ['community', 'Community'], ['announcements', 'Announcements'], ['settings', 'Settings']],
+  people: [['everyone', 'Everyone'], ['teams', 'Teams'], ['utah', 'Utah Life'], ['masquerade', 'Masquerade']],
+  revenue: [['summary', 'Summary'], ['payments', 'Payments'], ['plans', 'Plans & upgrades'], ['usage', 'Usage']],
+};
+const AREA_TABS = Object.fromEntries(Object.entries(AREAS).map(([k, v]) => [k, v.map(t => t[0])]));
+/* yesterday's page names still work: each one is a tab now */
+const ALIAS = { course: ['program', 'settings'], vault: ['program', 'vault'], sessions: ['cohort', 'schedule'], enrolled: ['cohort', 'people'], forms: ['cohort', 'submissions'], community: ['cohort', 'community'], announce: ['cohort', 'announcements'], cohortset: ['cohort', 'settings'],
+  teamsall: ['people', 'teams'], groups: ['people', 'utah'], masquerade: ['people', 'masquerade'], billing: ['revenue', 'payments'], tiers: ['revenue', 'plans'], usage: ['revenue', 'usage'] };
+const routeOf = (s, id, tab) => ALIAS[s] ? { s: ALIAS[s][0], tab: ALIAS[s][1], sub: tab, id } : AREA_TABS[s] ? (AREA_TABS[s].includes(tab) ? { s, tab, id } : { s, tab: AREA_TABS[s][0], sub: tab, id }) : { s, id, tab };
+const aliasOf = r => Object.keys(ALIAS).find(k => ALIAS[k][0] === r.s && ALIAS[k][1] === r.tab);
+
+function Area({ k, t, meta, d, right, counts = {}, children }) {
+  const c = useC(), tab = AREA_TABS[k].includes(c.route.tab) ? c.route.tab : AREA_TABS[k][0];
+  return <div className="pg area">
+    <Head t={t} meta={meta} d={d} right={right} />
+    <Tabs v={tab} on={v => c.go(k, null, v)} tabs={AREAS[k].map(([id, l]) => counts[id] === undefined ? [id, l] : [id, l, counts[id]])} />
+    <AreaCtx.Provider value={1}><Ctx.Provider value={{ ...c, route: { ...c.route, tab: c.route.sub, sub: undefined } }}><div className="atb" key={tab + '/' + (c.route.sub || '')}>{children(tab)}</div></Ctx.Provider></AreaCtx.Provider>
+  </div>;
+}
+
+function ProgramArea() {
+  return <Area k="program" t={<span className="row nw" style={{ gap: 10 }}><PTile s={28} />{PRG.n}</span>} meta={<Pill v="Program" tone="" />} d="What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." counts={{ curriculum: LIB.length }}>
+    {tab => tab === 'settings' ? <CourseSet /> : tab === 'vault' ? <Vault /> : <Curriculum3 />}</Area>;
+}
+function CohortArea() {
+  const { go, toast, started } = useC();
+  const openEnroll = useEnroll(), full = !!COH.full, wait = full ? CMT.filter(waiting).length : 0;
+  return <Area k="cohort" t={<CohortPick big />} meta={<St v={started && full ? 'Active' : COH.st} />} d={PRG.n + ' · ' + shapeOf(COH) + ' · opens ' + COH.opens}
+    right={<>{!COH.enroll && <GBtn k="p" perm="account" label="Open enrollment" go={openEnroll}>Open enrollment</GBtn>}<Btn ic="eye" onClick={() => toast('Opens the learner preview of this cohort')}>Preview</Btn><Menu items={[{ l: 'New cohort…', fn: () => go('newcohort') }, { l: 'All settings', fn: () => go('cohortset') }]} /></>}
+    counts={{ schedule: SES.length, people: CT.length, community: wait || undefined }}>
+    {tab => tab === 'schedule' ? <CohortSchedule /> : tab === 'people' ? <CohortPeople /> : tab === 'submissions' ? <CohortSubs /> : tab === 'community' ? (full ? <Community /> : <QuietTab b="This cohort's threads start when its first members are in." />) : tab === 'announcements' ? (full ? <Announce /> : <QuietTab b="Nothing has been sent to this cohort." />) : tab === 'settings' ? <CohortSettings /> : <CohortOverview />}</Area>;
+}
+function PeopleArea() {
+  return <Area k="people" t="People" d="Everyone with a sign-in, across every product. Each person is counted once, under how they got in." counts={{ everyone: AUD_ALL, teams: TEAMS2.length, utah: 31 }}>
+    {tab => tab === 'teams' ? <TeamsPg /> : tab === 'utah' ? <Groups /> : tab === 'masquerade' ? <Masquerade /> : <PeoplePg />}</Area>;
+}
+function RevenueArea() {
+  return <Area k="revenue" t="Revenue" d="What has come in, what is still owed on a payment plan, and what repeats every month. Every figure is from Stripe and opens the payments behind it." counts={{ plans: 2 }}>
+    {tab => tab === 'payments' ? <Billing /> : tab === 'plans' ? <Tiers /> : tab === 'usage' ? <Usage /> : <Revenue />}</Area>;
+}
+
+/* a field that is filled in from the cohort, shown where the course's shared words are edited */
+const FromCohort = ({ l, at, v, lines }) => { const { go } = useC(); return <div className="lab"><span>{l}</span>{at && <span className="fat">Learners see it on {at}</span>}
+  <div className="cfb"><span className="pl info">From the cohort</span>{lines ? <ul className="cfl">{lines.map(x => <li key={x}>{x}</li>)}</ul> : <span style={{ fontWeight: 400 }}>{v}</span>}<button type="button" className="lk a" onClick={() => go('cohortset')}>{COH.n.replace(' Cohort', '')} › Settings</button></div></div>; };
+
+/* ---------- Program › Curriculum: the weeks, built once ---------- */
+function Curriculum3() {
+  const { go, guard, toast, setDlg, log, ph } = useC();
+  const pub = w => guard('build', 'Publish ' + w.t, () => setDlg({ title: 'Publish ' + w.t + '?', body: 'Each cohort that runs it gets it on its own date. Until then learners see its title and outcome, locked.', cta: 'Publish', yes: () => { w.st = 'Published'; syncCur(); log('module.publish', w.t, ''); POKE(); toast(w.t + ' is published'); } }));
+  const used = id => COHORTS.map(c => { const r = c.run.find(x => x.id === id); return r && [c, r]; }).filter(Boolean);
+  const drafts = LIB.filter(w => w.st === 'Draft').length;
+  return <div className="col">
+    <section className="cd">
+      <div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Weeks</h2><span className="me">{LIB.length - drafts} published and {drafts} in draft. Open a week to build it.</span></div><GBtn k="p" ic="plus" perm="build" label="Add a week" go={() => toast('Adds a week at the end as a draft and opens it')}>Add a week</GBtn></div>
+      <div className="wkl">{LIB.map(w => { const u = used(w.id); return <div key={w.id} className="wkr">
+        {!ph && <span className="grp" title="Drag to reorder" aria-hidden="true"><I n="grip" s={14} /></span>}
+        <Wn n={w.id} st={w.st} />
+        <button className="wkm" onClick={() => go('week', String(w.id))}><span className="w5 el">{w.t}</span><span className="me el">{w.o}</span></button>
+        <div className="wkc"><span className="tn">{w.steps ? w.steps + ' steps' : 'No steps yet'}</span><span className="me">{w.min ? Math.floor(w.min / 60) + ' hr ' + (w.min % 60 ? (w.min % 60) + ' min' : '') : 'Not built'}</span></div>
+        <div className="wkc wkd">{u.length ? u.map(([c, r]) => <button key={c.id} className="lk el uin" onClick={() => { setCur(c.id); go('cohort'); }}>{c.n.replace(' Cohort', '')} · Week {r.n}</button>) : <span className="me">No cohort runs it</span>}</div>
+        <div className="wks">{w.st === 'Draft' ? <Btn disabled={!w.steps} title={w.steps ? undefined : 'Add a step first'} onClick={() => pub(w)}>Publish</Btn> : <St v="Published" />}</div>
+        <Menu items={[{ l: 'Open week', ic: 'builder', fn: () => go('week', String(w.id)) }, { l: 'Preview as a learner', ic: 'eye', fn: () => toast('Opens the learner preview of ' + w.t) }, { l: 'Duplicate', g: 1, fn: () => guard('build', 'Duplicate ' + w.t, () => toast('Duplicated as a draft. Use it when one cohort needs its own version of a week.')) }, '-', w.st === 'Draft' ? { l: 'Publish', g: 1, fn: () => pub(w) } : { l: 'Unpublish', g: 1, d: 1, fn: () => guard('build', 'Unpublish', () => toast('Hidden from learners in every cohort. Their progress is kept.')) }]} />
+      </div>; })}</div>
+    </section>
+    <div className="set2">
+      <Card t="Cohorts that run it" right={<Btn ic="plus" onClick={() => go('newcohort')}>New</Btn>}><div className="col m">{COHORTS.map(c => <button key={c.id} className="rnw" onClick={() => { setCur(c.id); go('cohort'); }}><PTile /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{c.n}</span><span className="me">{c.pick.length} weeks · opens {c.opens}</span></span><I n="chev" s={12} w={2.2} /></button>)}
+        <p className="me">A cohort picks its weeks from this list and gives them dates. Change a week here and every cohort that runs it gets the change.</p></div></Card>
+      <Card t="Shared by every week"><div className="kvs"><KV rows={[
+        ['Course pages', <button className="lk a" onClick={() => go('course')}>Intro, rules, before and after</button>],
+        ['Glossary', <button className="lk a" onClick={() => go('course', null, 'glossary')}>10 terms</button>],
+        ['Words', <button className="lk a" onClick={() => go('course', null, 'words')}>6 lines learners see</button>],
+        ['Resource Vault', <button className="lk a" onClick={() => go('vault')}>{LIB.reduce((a, w) => a + w.kit, 0)} kit files</button>]]} /></div></Card>
+    </div>
+  </div>;
+}
+
+/* ---------- Program › Curriculum › a week: the builder, one section at a time ---------- */
+function WeekEdit() {
+  const { route, go, guard, toast, ph } = useC();
+  const w = LIB.find(x => String(x.id) === String(route.id)) || LIB[0], wi = LIB.indexOf(w);
+  const steps = (w.id === 0 ? W0_STEPS : WK_STEPS).slice(0, w.steps);
+  const [sec, setSec] = useState(route.tab || 'steps'), [dirty, setDirty] = useState(false), [k, setK] = useState(0);
+  const touch = () => setDirty(true);
+  const used = COHORTS.map(c => { const r = c.run.find(x => x.id === w.id); return r && { c, r }; }).filter(Boolean), mine = used.find(u => u.c === COH);
+  const ses = mine ? SES.filter(s => widOf(s) === w.id) : [];
+  const save = () => guard('build', 'Save ' + w.t, () => { setDirty(false); toast(w.t + ' saved' + (used.length > 1 ? ' for ' + used.length + ' cohorts' : '')); });
+  return <div className="pg">
+    <Head back={['program', 'Curriculum']} t={w.t} meta={<St v={w.st} />} d={w.o}
+      right={<><span className="row nw" style={{ gap: 0 }}><button className="ib" aria-label="Previous week" disabled={wi === 0} onClick={() => go('week', String(LIB[wi - 1].id))}><I n="back" /></button><button className="ib" aria-label="Next week" disabled={wi === LIB.length - 1} onClick={() => go('week', String(LIB[wi + 1].id))}><span style={{ display: 'flex', transform: 'scaleX(-1)' }}><I n="back" /></span></button></span><Btn ic="eye" onClick={() => toast('Opens the learner preview of ' + w.t)}>Preview</Btn><Btn k="p" disabled={!dirty} onClick={save}>Save changes</Btn></>} />
+    <div className="srg" key={k}>
+      <Rail v={sec} on={setSec} items={[['basics', 'Basics'], ['steps', 'Steps', steps.length], ['page', 'Course page'], ['live', 'Live sessions', ses.length], ['cards', 'Hire cards', w.id === 0 ? 0 : 3], ['kit', 'Kit', w.kit]]} />
+      <div className="col">
+        {sec === 'basics' && <Card t="Basics" sub="What the week is called and what it is for."><div className="col">
+          <Fld l="Title" at="the sidebar and the week page"><input className="in" defaultValue={w.t} onChange={touch} /></Fld>
+          <Fld l="Outcome" at="the week page, under the title"><input className="in" defaultValue={w.o} onChange={touch} /></Fld>
+          <div className="lab"><span>Where it runs</span><span className="fat">A week's number and its date come from the cohort, not from the week.</span>
+            {used.length ? <div className="col m">{used.map(u => <button key={u.c.id} className="rnw uir" onClick={() => { setCur(u.c.id); go('cohort'); }}><span className="wn sm pk">{u.r.n}</span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">Week {u.r.n} of the {u.c.n}</span><span className="me">Opens {u.r.opens} · 12:00 PM MT{u.r.build ? ' · meets ' + u.r.build : ''}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div> : <div className="note"><span className="s2">No cohort runs this week yet. Add it from a cohort's Overview, under The run.</span></div>}</div>
+        </div></Card>}
+        {sec === 'steps' && <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Steps</h2><span className="me">{steps.length ? 'In order. A learner ticks each one off.' : 'This week has no steps yet.'}</span></div><GBtn ic="plus" perm="build" label="Add a step" go={() => { touch(); toast('Adds a step at the end and opens it'); }}>Add a step</GBtn></div>
+          {steps.length ? <div className="wkl">{steps.map((s, i) => <div key={i} className="wkr stp">
+            {!ph && <span className="grp" aria-hidden="true"><I n="grip" s={14} /></span>}<span className="wn sm">{i + 1}</span>
+            <button className="wkm" onClick={() => toast('Opens the step: its words, who does it, its time, and its Claude and ChatGPT paths')}><span className="w5 el">{s[0]}</span><span className="me el">Done when: {s[3]}</span></button>
+            <div className="wkc"><StepWho v={s[1]} /></div><div className="wks tn">{s[2]}</div>
+            <Menu items={[{ l: 'Edit step', fn: () => toast('Opens the step') }, { l: 'Move up', fn: touch }, { l: 'Move down', fn: touch }, '-', { l: 'Remove step', d: 1, g: 1, fn: () => guard('build', 'Remove step', touch) }]} /></div>)}</div>
+            : <Empty ic="curriculum" t="No steps yet" b="Add the first step, or duplicate a built week and change it." cta="Add a step" on={() => toast('Adds a step and opens it')} />}
+        </section>}
+        {sec === 'page' && <Card t="Course page" sub="The words on this week's page, above its steps."><div className="col">
+          <Fld l="What you will build" at="the week page"><textarea className="in" rows={3} defaultValue={w.o + ' By Friday it has run on your own numbers at least twice.'} onChange={touch} /></Fld>
+          <Lines l="Before you start" at="the week page" touch={touch} v={['Last year\'s numbers exported and saved in your AI Office.', 'Both of you can open the cohort skills.']} />
+          <Fld l="What done looks like" at="Reference"><textarea className="in" rows={2} defaultValue="The report is turned in, and you can say what you would change next month." onChange={touch} /></Fld>
+          <p className="me">What every week shares (the course intro, the rules, the glossary) is in <button className="lk a" onClick={() => go('course')}>Course settings</button>.</p>
+        </div></Card>}
+        {sec === 'live' && <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Live sessions</h2><span className="me">Sessions belong to the cohort. This week only says what happens in them.</span></div><Btn onClick={() => go('sessions')}>Open Schedule</Btn></div>
+          {ses.length ? <div className="wkl">{ses.map(s => <div key={s.n} className="wkr stp"><span className="mt"><I n={s.k === 'Live build' ? 'play' : 'community'} /></span><button className="wkm" onClick={() => go('sessions')}><span className="w5 el">{s.t}</span><span className="me el">{s.d} · {s.time || '12:00 PM'} MT · {ctOf(s.time || '12:00 PM')} CT for learners</span></button><div className="wks"><St v={s.zoom === 'Ready' ? 'Ready' : 'Waiting'} /></div></div>)}</div>
+            : <div className="cdb"><p className="s2">{w.id === 0 ? 'The setup week is self-paced. It has no sessions.' : mine ? 'The ' + COH.n + ' has no sessions for this week yet. ' : 'The ' + COH.n + ' doesn\'t run this week. '}{w.id > 0 && mine && <button className="lk a" onClick={() => go('sessions')}>Add them in Schedule</button>}</p></div>}
+          {w.id > 0 && <div className="cdb" style={{ borderTop: '1px solid var(--line)' }}><Lines l="Run of show" at="the live build's row on the week page" touch={touch} v={['0:00 What we are building and why', '0:10 Build it together, step by step', '1:00 Run it on your own data', '1:20 What to turn in by Friday']} /></div>}
+        </section>}
+        {sec === 'cards' && <Card t="Hire cards" sub="The three cards a learner keeps from the week.">{w.id === 0 ? <p className="s2">The setup week has no hire. Cards start with the first building week.</p> : <div className="col m">{[['Seat card', 'What this hire does, for whom, and what it never touches.', 'Written'], ['Playbook card', 'How to run it, check it and fix it.', w.st === 'Draft' ? 'Empty' : 'Written'], ['Sample output', 'One finished report, from made-up numbers.', w.st === 'Draft' ? 'Empty' : 'Written']].map(c => <button key={c[0]} className="rnw" onClick={() => toast('Opens the ' + c[0].toLowerCase())}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{c[0]}</span><span className="me">{c[1]}</span></span><Pill v={c[2]} tone={c[2] === 'Written' ? 'ok' : ''} /><I n="chev" s={12} w={2.2} /></button>)}</div>}</Card>}
+        {sec === 'kit' && <Card t="Kit" sub="The skills and files this week hands out." right={<GBtn ic="plus" perm="build" label="Add to the kit" go={() => toast('Pick from the Resource Vault, or upload')}>Add</GBtn>}>{w.kit ? <div className="col m">{['Map Your Spend skill', 'Lead Source Review skill', 'Week checklist', 'Report template', 'Rubric', 'Sample week', 'Time baseline'].slice(0, w.kit).map((f, i) => <div key={f} className="row nw" style={{ gap: 10 }}><span className="mt"><I n={i < 2 ? 'bolt' : 'file'} /></span><span className="w5 el" style={{ flex: 1 }}>{f}</span><span className="me">{i < 2 ? 'Skill' : 'File'}</span></div>)}<p className="me">Files live in the <button className="lk a" onClick={() => go('vault')}>Resource Vault</button>. A week only points at them.</p></div> : <p className="s2">Nothing in this week's kit yet.</p>}</Card>}
+        {dirty && <div className="svb"><span className="w5" style={{ flex: 1 }}>Unsaved changes to {w.t}</span><Btn onClick={() => { setDirty(false); setK(k + 1); }}>Discard</Btn><Btn k="p" onClick={save}>Save changes</Btn></div>}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- Overview: the four things, each a link, and what needs you across all of them ---------- */
+function Home() {
+  const { go, started, ph } = useC();
+  const openEnroll = useEnroll();
+  const full = !!COH.full, dr = LIB.filter(w => w.st === 'Draft').length, short = COH.n.replace(' Cohort', '');
+  const todo = full ? [] : todoOf(COH, go, openEnroll).filter(t => !t[2]);
+  const at = (c, fn) => () => { setCur(c.id); fn(); };
+  const groups = [...COHORTS.map(c => [c.n + (c.st === 'Draft' ? ' · Draft' : ''), (c.full ? needsOf(go) : todoOf(c, go, openEnroll).filter(t => !t[2]).map(t => ['cohorts', t[0], t[1], t[3], 'warn'])).map(r => [r[0], r[1], r[2], at(c, r[3]), r[4]])]),
+    ['Payments and system', [['billing', '3 payments failed', 'Stripe is retrying one. Two need a new card.', () => go('billing', null, 'failed'), 'bad'], ['tiers', '2 teams asked to move up a plan', 'Both from the Agent Plan to the Team Plan.', () => go('tiers'), ''], ['incidents', '1 incident is open', 'Open it in Operations.', () => go('incidents'), 'bad']]]].filter(g => g[1].length);
+  const needN = groups.reduce((a, g) => a + g[1].length, 0);
+  const tiles = [
+    ['Program', 'curriculum', 'AI Accelerator', LIB.length + ' weeks · ' + (LIB.length - dr) + ' published, ' + dr + ' in draft', 'program'],
+    ['Cohort', 'cohorts', short, full ? (started ? 'Week 2 of 8' : 'Opens ' + COH.opens) + ' · ' + CT.length + ' of ' + COH.cap + ' seats' : 'Draft · ' + todo.length + ' left before it opens', 'cohort'],
+    ['People', 'learners', AUD_ALL + ' with a sign-in', '15 in the cohort · 31 Utah Life, kept apart', 'people'],
+    ['Revenue', 'billing', '$82,694 collected', '$7,500 still to collect · $12,429 a month', 'revenue'],
+  ];
+  const soon = COHORTS.flatMap(c => c.ses.slice(0, 2).map(s => ({ ...s, c }))).slice(0, 4);
+  return <div className="pg">
+    <Head t="Overview" d="What you teach, who is going through it, who has a sign-in, and what has been paid. Each one opens its page." />
+    <div className="thr">{tiles.map(t => <button key={t[0]} className="cd thl" onClick={() => go(t[4])}><span className="tlk"><span className="mt"><I n={t[1]} /></span><span>{t[0]}</span><I n="chev" s={12} w={2.2} /></span><span className="fig el">{t[2]}</span><span className="me">{t[3]}</span></button>)}</div>
+    <div className="gms">
+      <div className="col">
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Needs you</h2><span className="me">Across the cohort, payments and the system</span></div><span className="pl warn">{needN}</span></div>
+          <div className="wkl">{groups.map(g => <Fragment key={g[0]}><div className="ngl">{g[0]}</div>{g[1].map(n => <button key={g[0] + n[1]} className="nyr" onClick={n[3]}><span className={'mt' + (n[4] ? ' ' + n[4] : '')}><I n={n[0]} /></span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{n[1]}</span><span className="me">{n[2]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</Fragment>)}</div></section>
+        <AudCard />
+      </div>
+      <div className="col">
+        <Card t="Cohorts" right={<Btn ic="plus" onClick={() => go('newcohort')}>New cohort</Btn>}><div className="col m">{COHORTS.map(c => <button key={c.id} className="rnw" onClick={() => { setCur(c.id); go('cohort'); }}><PTile /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{c.n}</span><span className="me el">{c.pick.length} weeks · {meetsOf(c)} · opens {c.opens}</span></span><St v={c.st} /></button>)}</div></Card>
+        <Card t="Coming up" right={<Btn onClick={() => go('sessions')}>Schedule</Btn>}><div className="col m">{soon.map(s => <button key={s.c.id + s.n} className="rnw" onClick={() => { setCur(s.c.id); go('sessions'); }}><span className="dt"><b>{s.d.split(' ')[2]}</b><span>{s.d.split(' ')[1]}</span></span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{s.t}</span><span className="me el">{s.d.split(',')[0]} · {s.time || '12:00 PM'} MT{COHORTS.length > 1 ? ' · ' + s.c.n.replace(' Cohort', '') : ''}</span></span>{s.zoom !== 'Ready' && <span className="pl warn">No link</span>}</button>)}</div></Card>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- the breadcrumb: Admin / the page / its tab / what is open ---------- */
+const DETAIL = { week: 'curriculum', weekcards: 'curriculum', cthread: 'community', workspace: 'teams', user: 'everyone', as: 'masquerade' };
+const TODAY = { curriculum: 'Curriculum (today)', builder: 'Module Builder (today)', cohorts: 'Cohorts & Sessions (today)', learners: 'Learners & Teams (today)', workspaces: 'Workspaces (today)', users: 'Users (today)', overview0: 'Overview (today)' };
+const hereOf = r => r.s === 'week' ? (LIB.find(w => String(w.id) === String(r.id)) || {}).t : r.s === 'weekcards' ? 'Week Builder' : r.s === 'cthread' ? (CMT.find(x => String(x.id) === String(r.id)) || {}).title : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'newcohort' ? 'New cohort' : r.s === 'incident' ? r.id : '';
+function Crumbs() {
+  const { route, go } = useC();
+  const par = PARENT[route.s], key = par || route.s, item = NAV.flatMap(g => g[1]).find(n => n[0] === key), grp = item && NAV.find(g => g[1].includes(item))[0];
+  const tk = par ? DETAIL[route.s] : route.tab, tabL = AREAS[key] && tk ? (AREAS[key].find(t => t[0] === tk) || [])[1] : null, here = par ? hereOf(route) || 'Detail' : null;
+  const L = (l, fn) => <button className="lk" style={{ fontWeight: 400, color: 'var(--f3)' }} onClick={fn}>{l}</button>, S = <span aria-hidden="true">/</span>;
+  return <nav className="bc" aria-label="Breadcrumb"><span>Admin</span>
+    {grp && !SOLO[grp] && <>{S}<span>{grp}</span></>}
+    {item ? <>{S}{tabL || here ? L(item[1], () => go(item[0])) : <b>{item[1]}</b>}</> : <>{S}<b>{TODAY[route.s] || 'Page'}</b></>}
+    {tabL && <>{S}{here ? L(tabL, () => go(key, null, tk)) : <b>{tabL}</b>}</>}
+    {here && <>{S}<b className="el">{here}</b></>}
+  </nav>;
+}
+const SCREENS = { program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, newcohort: NewCohort, week: WeekEdit, overview0: Overview, weekcards: WeekCards, forms: Forms, community: Community, cthread: CommunityThread, overview: Home, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
 /* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
 const WM_VB = [41, -963.1, 7408, 1113.2];
 const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];
@@ -1553,7 +2539,7 @@ function WordmarkOld({ short, h = 22 }) {
   return <svg className="wm" role="img" aria-label="Amplified Impact" height={h} width={Math.round(h * w / WM_VB[3] * 10) / 10} viewBox={WM_VB[0] + ' ' + WM_VB[1] + ' ' + w + ' ' + WM_VB[3]} style={{ overflow: 'hidden' }}>{WM_PATHS.map((p, i) => <path key={i} fill={p.fill} d={p.d} />)}<circle fill="none" stroke="#1F8A5C" cx="4477" cy="-800" r="139.3" strokeWidth="47.7" /><circle fill="#1F8A5C" cx="4477" cy="-800" r="69.7" /></svg>;
 }
 function Wordmark({ short }) { return <span className={'wm' + (short ? ' wm-ai' : '')}><img src={LOGO_APP} width={161} height={34} alt="Amplified Impact Academy" /></span>; }
-const GIC = { Health: 'overview', Build: 'curriculum', Support: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
+const GIC = { Overview: 'overview', Program: 'curriculum', Cohort: 'cohorts', People: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
 
 let NAVM = 'focus';
 /* ---------- shell ---------- */
@@ -1564,7 +2550,7 @@ function Sidebar({ rail, setRail, drawer, close }) {
   const [peek, setPeek] = useState(undefined);   // proposal: the one group opened by hand (null: all shut); undefined: the group you are in
   useEffect(() => { setPeek(undefined); }, [active]);
   const wait = CMT.filter(waiting).length;
-  const badge = n => n[0] === 'community' ? (wait ? wait + ' waiting' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[0] === 'tiers' && n[3] ? n[3] + ' requests' : n[3];
+  const badge = n => n[0] === 'program' ? (LIB.filter(w => w.st === 'Draft').length ? LIB.filter(w => w.st === 'Draft').length + ' draft' : '') : n[0] === 'cohort' ? (COH.full ? (wait ? wait + ' waiting' : '') : COH.st === 'Draft' ? 'Draft' : '') : n[0] === 'revenue' ? '3 failed' : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
   // Collapse and expand travel. Three things, so the width and the layout can change at different moments:
   //   nar   the column is 64px wide        r   the rail's layout (one icon per group)        anim   'collapsing' | 'expanding' while it moves
   // Closing: the column narrows (380 ms, the system's curve) and the logo's window closes to "ai" with it; for the first 160 ms
@@ -1595,16 +2581,17 @@ function Sidebar({ rail, setRail, drawer, close }) {
   useEffect(() => () => { clearTimeout(t1.current); clearTimeout(t2.current); }, []);
   return <aside ref={sbEl} className={'sb' + (r ? ' rail' : '') + (nar ? ' nar' : '') + (anim ? ' a-' + anim : '') + (NAVM === 'focus' ? ' nm-focus' : '')}>
     <div className="sb-top"><Wordmark short={nar} />{drawer && <><span className="sp" /><button className="ib" aria-label="Close menu" onClick={close}><I n="x" s={20} /></button></>}</div>
-    <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label="Switch cohort. Amplified AI Accelerator, December 2026 Cohort" title={r ? 'Amplified AI Accelerator · December 2026 Cohort' : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">December 2026 Cohort</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>}
-      items={[{ l: 'December 2026 Cohort', on: 1, fn: () => {} }, { l: 'March 2027 Cohort · Draft', fn: () => toast('Switches the admin to the March 2027 cohort') }, '-', { l: 'All cohorts', fn: () => go('cohorts') }]} />
+    <CtxSwitch r={r} />
     <nav className={'nav' + (NAVM === 'focus' && !r ? ' snf' : '')} aria-label="Admin">
       {masq && <button className={'ni' + (route.s === 'as' ? ' on' : '')} title="Learner view" onClick={() => go('as')}><I n="eye" />{!r && <>Learner view<span className="ct" style={{ background: 'var(--warnb)', borderColor: '#EBD9A8', color: 'var(--warn)' }}>Live</span></>}</button>}
       {NAV.map(([g, items], gi) => {
         const vis = items.filter(n => !n[2] || can(n[2])); if (!vis.length) return null;
         const has = vis.some(n => n[0] === active), op = has || !!open[g];
+        if (SOLO[g] && r) return <button key={g} className={'ni' + (has ? ' on' : '')} title={g} aria-label={g} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>;
+        if (SOLO[g]) return <button key={g} className={'gx solo' + (has ? ' has' : '')} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{badge(vis[0]) && <span className={'rb' + (vis[0][0] === 'cohort' && COH.st === 'Draft' ? ' dr' : '')}>{badge(vis[0])}</span>}</button>;
         if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
         if (NAVM === 'focus') { const opn = peek === undefined ? has : peek === g, roll = vis.find(n => badge(n));
-          return <div key={g}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
+          return <div key={g} className={g === 'Operations' ? 'gsep' : undefined}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
             <div className={'gw' + (opn ? ' op' : '')}><div className="gwi"><div className="gkids">{vis.map(n => <button key={n[0]} tabIndex={opn ? 0 : -1} className={'gk' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><span className="el">{n[1]}</span>{badge(n) && <span className={'ct' + (n[0] === 'incidents' ? ' bad' : '')}>{badge(n)}</span>}</button>)}</div></div></div></div>; }
         return <div key={g}><button className={'ng' + (op ? ' op' : '')} aria-expanded={op} onClick={() => setOpen({ ...open, [g]: has ? 1 : !open[g] })}><I n="chev" s={12} w={2.2} />{g}{!op && vis.some(n => n[0] === 'incidents' && n[3]) && <span style={{ marginLeft: 'auto', color: 'var(--bad)', whiteSpace: 'nowrap' }}>1 incident</span>}</button>
           {op && vis.map(n => <button key={n[0]} className={'ni' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><I n={n[0]} /><span className="el">{n[1]}</span>{n[3] && <span className="ct">{n[3]}</span>}</button>)}</div>;
@@ -1618,8 +2605,9 @@ function Sidebar({ rail, setRail, drawer, close }) {
 }
 
 function AdminRedesign() {
-  const [vp, setVp] = useState(1280), [ds, setDs] = useState('default'), [role, setRole] = useState('Owner'), [started, setStarted] = useState(true);
+  const [vp, setVp] = useState(1280), [ds, setDs] = useState('default'), [role, setRole] = useState('Owner'), [started, setStarted] = useState(false);
   const [route, setRoute] = useState({ s: 'overview' });
+  const [, pk] = useState(0); POKE = () => pk(x => x + 1);
   const [navm, setNavm] = useState('focus'); NAVM = navm;
   const [masq, setMasq] = useState(null), [mq, setMq] = useState(null), [blocked, setBlocked] = useState(null);
   const [dlg, setDlg] = useState(null), [pal, setPal] = useState(false), [drawer, setDrawer] = useState(false), [tst, setTst] = useState(null), [prev, setPrev] = useState(null);
@@ -1633,7 +2621,7 @@ function AdminRedesign() {
   const can = k => { const p = perms.find(x => x[0] === k); return !!p && !!p[2][ROLES.indexOf(role)]; };
   const toast = m => { setTst(m); clearTimeout(tt.current); tt.current = setTimeout(() => setTst(null), 3200); };
   const log = (act, tg, d) => setAudit(a => [{ t: 'Just now', actor: staff.n, act, tg, d: d || '' }, ...a]);
-  const go = (s, id, tab) => { setRoute({ s, id, tab }); setDrawer(false); if (mainRef.current) mainRef.current.scrollTop = 0; };
+  const go = (s, id, tab) => { setRoute(routeOf(s, id, tab)); setDrawer(false); if (mainRef.current) mainRef.current.scrollTop = 0; };
   const guard = (perm, label, fn) => {
     if (masq) { log('masquerade.blocked_action', masq.u.n, 'Tried: ' + label + '.'); setBlocked(label); return; }
     if (!can(perm)) { toast('Your role (' + role + ") can't do this: " + label); return; }
@@ -1657,24 +2645,24 @@ function AdminRedesign() {
   const group = (NAV.find(g => g[1].includes(navItem)) || [])[0];
   const Screen = SCREENS[route.s];
   const ctx = { ph, lap, wide: vp >= 1400, ds, setDs, role, can, staff, route, go, masq, startMasq, endMasq, guard, toast, log, setDlg, audit, perms, setPerms, inc, setInc, setPal, started, mods, setMods, setPrev };
-  const NEW = { 'n:community': ['community'], 'n:cthread': ['cthread', '2'], 'n:cthread-hidden': ['cthread', '5'], 'n:forms': ['forms'], 'n:forms-ti': ['forms', null, 'turnedin'], 'n:intake': ['learners', null, 'intake'], 'n:turnedin': ['learners', null, 'turnedin'], 'n:ws-intake': ['workspace', 'ws_northline', 'intake'], 'n:ws-failed': ['workspace', 'ws_copperbasin', 'intake'], 'n:ws-draft': ['workspace', 'ws_halemarlowe', 'intake'], 'n:ws-turnedin': ['workspace', 'ws_sampleteam', 'turnedin'], 'n:weekcards': ['weekcards'] };
+  const NEW = { 'n:week': ['week', '1'], 'n:community': ['community'], 'n:cthread': ['cthread', '2'], 'n:cthread-hidden': ['cthread', '5'], 'n:forms': ['forms'], 'n:forms-ti': ['forms', null, 'turnedin'], 'n:intake': ['learners', null, 'intake'], 'n:turnedin': ['learners', null, 'turnedin'], 'n:ws-intake': ['workspace', 'ws_northline', 'intake'], 'n:ws-failed': ['workspace', 'ws_copperbasin', 'intake'], 'n:ws-draft': ['workspace', 'ws_halemarlowe', 'intake'], 'n:ws-turnedin': ['workspace', 'ws_sampleteam', 'turnedin'], 'n:weekcards': ['weekcards'] };
   const newKey = Object.keys(NEW).find(k => NEW[k][0] === route.s && (NEW[k][1] || null) === (route.id || null) && (NEW[k][2] || undefined) === route.tab);
-  const pick = v => NEW[v] ? go(...NEW[v]) : go(v, { workspace: 'ws_northshore', user: 'u_1042', incident: 'INC-0007' }[v]);
+  const pick = v => v === 'n:jan' ? (seedJan(), go('cohort')) : NEW[v] ? go(...NEW[v]) : go(v, { workspace: 'ws_northshore', user: 'u_1042', incident: 'INC-0007' }[v]);
   return <div className="arx">
     <style>{CSS}</style>
     <div className="mk" role="toolbar" aria-label="Mockup controls">
       <span style={{ fontWeight: 600 }}>Mockup · admin · new screens are first in the list · sample data is made up</span>
       <span className="sg">{[1440, 1280, 1024, 390].map(v => <button key={v} className={vp === v ? 'on' : ''} onClick={() => { setVp(v); setRailP(null); }}>{v}</button>)}</span>
-      <select aria-label="Screen" value={newKey || route.s} onChange={e => pick(e.target.value)}>
-        <optgroup label="NEW: community"><option value="n:community">Community</option><option value="n:cthread">Community › a thread</option><option value="n:cthread-hidden">Community › a hidden thread</option></optgroup><optgroup label="NEW: forms, uploads, GHL"><option value="n:forms">Forms &amp; Submissions › Intake</option><option value="n:forms-ti">Forms &amp; Submissions › Turned in</option><option value="n:intake">Learners &amp; Teams › Intake</option><option value="n:ws-intake">Workspace › Intake (submitted)</option><option value="n:ws-failed">Workspace › Intake (GHL failed)</option><option value="n:ws-draft">Workspace › Intake (draft)</option><option value="n:turnedin">Learners &amp; Teams › Turned in</option><option value="n:ws-turnedin">Workspace › Turned in</option><option value="n:weekcards">Week Builder: what changes</option></optgroup>
-        {NAV.map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
-        <optgroup label="Detail and system"><option value="workspace">Workspace detail</option><option value="user">User detail</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
+      <select aria-label="Screen" value={newKey || aliasOf(route) || route.s} onChange={e => pick(e.target.value)}>
+        <optgroup label="NEW: the four pages"><option value="overview">Overview</option><option value="program">Program › Curriculum</option><option value="n:week">Program › a week</option><option value="course">Program › Course settings</option><option value="vault">Program › Resource Vault</option><option value="cohort">Cohort › Overview</option><option value="sessions">Cohort › Schedule</option><option value="enrolled">Cohort › People</option><option value="forms">Cohort › Submissions</option><option value="community">Cohort › Community</option><option value="announce">Cohort › Announcements</option><option value="cohortset">Cohort › Settings</option><option value="people">People › Everyone</option><option value="teamsall">People › Teams</option><option value="groups">People › Utah Life</option><option value="masquerade">People › Masquerade</option><option value="revenue">Revenue › Summary</option><option value="billing">Revenue › Payments</option><option value="tiers">Revenue › Plans &amp; upgrades</option><option value="usage">Revenue › Usage</option></optgroup><optgroup label="NEW: set up the January cohort"><option value="newcohort">New cohort: six weeks, twice a week</option><option value="n:jan">Skip ahead: January, created</option></optgroup><optgroup label="Today's pages, replaced"><option value="overview0">Overview (today)</option><option value="curriculum">Curriculum (today)</option><option value="builder">Module Builder (today)</option><option value="cohorts">Cohorts &amp; Sessions (today)</option><option value="learners">Learners &amp; Teams (today)</option><option value="workspaces">Workspaces (today)</option><option value="users">Users (today)</option></optgroup><optgroup label="Earlier rounds: community"><option value="n:community">Community</option><option value="n:cthread">Community › a thread</option><option value="n:cthread-hidden">Community › a hidden thread</option></optgroup><optgroup label="Earlier rounds: forms, uploads, GHL"><option value="n:forms">Forms &amp; Submissions › Intake</option><option value="n:forms-ti">Forms &amp; Submissions › Turned in</option><option value="n:intake">Learners &amp; Teams › Intake</option><option value="n:ws-intake">Workspace › Intake (submitted)</option><option value="n:ws-failed">Workspace › Intake (GHL failed)</option><option value="n:ws-draft">Workspace › Intake (draft)</option><option value="n:turnedin">Learners &amp; Teams › Turned in</option><option value="n:ws-turnedin">Workspace › Turned in</option><option value="n:weekcards">Week Builder: what changes</option></optgroup>
+        {NAV.filter(g => !SOLO[g[0]]).map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
+        <optgroup label="Detail and system"><option value="workspace">People › a team</option><option value="user">People › a person</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
       </select>
       <select aria-label="Data state" value={ds} onChange={e => setDs(e.target.value)}><option value="default">State: default</option><option value="loading">State: loading</option><option value="empty">State: empty</option><option value="error">State: error</option></select>
       <select aria-label="Role" value={role} onChange={e => setRole(e.target.value)}>{ROLES.map(r => <option key={r} value={r}>Role: {r}</option>)}</select>
       <select aria-label="Cohort" value={started ? '1' : '0'} onChange={e => setStarted(e.target.value === '1')}><option value="1">Cohort: Week 2</option><option value="0">Cohort: before start</option></select>
       <button className={masq ? 'on' : ''} onClick={() => masq ? endMasq('Exited by staff') : (setMasq({ u: USERS[0], reason: 'Customer reports Week 2 steps are out of order.', left: 900, granted: 900 }), log('masquerade.start', USERS[0].n, 'Reason: Customer reports Week 2 steps are out of order.'))}>Masquerade</button>
-      <span className="sg" role="group" aria-label="Sidebar">{[['today', 'Sidebar: today'], ['focus', 'Sidebar: proposed']].map(([k, l]) => <button key={k} className={navm === k ? 'on' : ''} onClick={() => setNavm(k)}>{l}</button>)}</span>
+      
       <button onClick={() => setPal(true)}>⌘K palette</button>
     </div>
     <div className="stg" ref={stage}><div className="hold" style={{ width: vp * sc, height: fh * sc }}>
@@ -1690,7 +2678,7 @@ function AdminRedesign() {
             <div className="mainc">
               <header className="tb">
                 {ph ? <><button className="ib" aria-label="Open menu" onClick={() => setDrawer(true)}><I n="menu" s={22} /></button><Wordmark /><span className="sp" /><button className="ib" aria-label="Search" onClick={() => setPal(true)}><I n="search" s={20} /></button></>
-                  : <><nav className="bc" aria-label="Breadcrumb"><span>Admin</span>{group && <><span aria-hidden="true">/</span><span>{group}</span></>}{navItem && <><span aria-hidden="true">/</span>{PARENT[route.s] && route.s !== 'as' ? <button className="lk" style={{ fontWeight: 400, color: 'var(--f3)' }} onClick={() => go(navItem[0])}>{navItem[1]}</button> : <b>{navItem[1]}</b>}</>}{PARENT[route.s] && <><span aria-hidden="true">/</span><b className="el">{route.s === 'as' ? 'Learner view' : route.s === 'weekcards' ? 'Week Builder' : route.s === 'cthread' ? (CMT.find(x => String(x.id) === String(route.id)) || {}).title : route.s === 'workspace' ? (WS.find(w => w.id === route.id) || {}).n : route.s === 'user' ? (USERS.find(u => u.id === route.id) || {}).n : route.id}</b></>}</nav>
+                  : <><Crumbs />
                     <span className="sp" /><button className="srch" onClick={() => setPal(true)}><I n="search" /><span style={{ flex: 1, textAlign: 'left' }}>Search or jump to…</span><span className="kbd">⌘K</span></button>
                     <span className="st ok" style={{ fontSize: 13, color: 'var(--f2)' }}><i />Production</span></>}
               </header>

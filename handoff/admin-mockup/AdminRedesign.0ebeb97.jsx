@@ -1,0 +1,1263 @@
+/* HANDOFF COPY (Nov 15, 2026): signed-off Round 2 mockup + the two review nits resolved before generating ref/:
+   (1) Cohorts & Sessions Attendance "—" is muted (.mu) like Replay's "—";
+   (2) phone Overview Live attendance labels use a fixed 124px column (same as desktop) so all bars start at the same x.
+   Nit 3 (row numbers only when the Curriculum table is >= 1100px wide, i.e. 1440) is intended and unchanged.
+   Everything else is byte-identical to the signed-off export (see BUILD-SPEC.md for its sha256). */
+/* Amplified Impact LMS — Admin redesign, round 2. One file: admin + console screens.
+   Notes: "Design notes.md". Fonts: Geist + Geist Mono from Google Fonts for the mock; the product self-hosts. */
+import React from 'react';
+const { useState, useEffect, useRef, createContext, useContext, Fragment } = React;
+
+const CSS = `
+.arx{height:100vh;display:flex;flex-direction:column;background:#D9D5CA;font-family:Geist,system-ui,sans-serif}
+.arx *,.arx *:before,.arx *:after{box-sizing:border-box}
+.arx button,.arx input,.arx select,.arx textarea{font:inherit;color:inherit;margin:0}
+.mk{background:#15211D;color:#F4F2EC;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:none;font-size:13px}
+.mk select,.mk button{height:30px;border-radius:7px;border:1px solid #47534E;background:#202D28;color:#F4F2EC;padding:0 9px;cursor:pointer}
+.mk .sg{display:flex;border:1px solid #47534E;border-radius:7px;overflow:hidden}
+.mk .sg button{border:0;border-radius:0;background:none}
+.mk .sg button.on,.mk button.on{background:#6FD3A5;color:#15211D;border-color:#6FD3A5}
+.stg{flex:1;min-height:0;overflow:hidden auto;padding:16px}
+.hold{position:relative;margin:0 auto}
+.ax{--ink:#15211D;--f2:#46524D;--f3:#5F6A64;--line:#E6E3DA;--line2:#D3CFC3;--bg:#F4F2EC;--sf:#fff;--hov:#FAF9F5;--sub:#F1EFE8;--for:#1F4D40;--forh:#183E33;--mint:#6FD3A5;--tint:#E7F1EB;
+--ok:#1D6B45;--okb:#E3F2E8;--info:#2B58A8;--infob:#E7EEF9;--bad:#A93A25;--badb:#FAE9E4;--warn:#7D5207;--warnb:#FAEFD6;
+--t:14px;--tl:20px;--m:12px;--ml:16px;--mo:13px;--sh:15px;--h:26px;--hl:32px;--c:32px;--cp:36px;--row:52px;--pad:32px;--pl:22px;
+position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);color:var(--ink);font:400 var(--t)/var(--tl) Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased;border:1px solid var(--line2)}
+.ax.lap{--pad:24px}
+.ax.ph{--t:16px;--tl:24px;--m:16px;--ml:22px;--mo:16px;--sh:17px;--h:24px;--hl:30px;--c:44px;--cp:48px;--pad:16px;--pl:28px}
+.ax :focus{outline:none}
+.ax :focus-visible{outline:none;box-shadow:0 0 0 2px var(--sf),0 0 0 4px var(--for);border-radius:8px}
+.ax input:focus-visible,.ax textarea:focus-visible,.ax select:focus-visible{border-color:var(--for);box-shadow:0 0 0 3px rgba(111,211,165,.4)}
+.ax h1{font:600 var(--h)/var(--hl) Geist,sans-serif;letter-spacing:-.02em;margin:0}
+.ax h2{font:600 var(--sh)/22px Geist,sans-serif;letter-spacing:-.005em;margin:0}
+.ax p{margin:0;text-wrap:pretty}
+.mo{font-family:'Geist Mono',ui-monospace,monospace;font-size:var(--mo);letter-spacing:-.01em}
+.mu{color:var(--f3)}.s2{color:var(--f2)}.me{font-size:var(--m);line-height:var(--ml);color:var(--f3)}.w5{font-weight:500}.w6{font-weight:600}
+.el{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tn{font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.row.nw{flex-wrap:nowrap}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}.col.s{gap:4px}.col.m{gap:8px}
+.sp{flex:1}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.gms{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.lap .g5{grid-template-columns:repeat(6,minmax(0,1fr))}.lap .g5>*{grid-column:span 2}.lap .g5>:nth-child(n+4){grid-column:span 3}.lap .gms{grid-template-columns:minmax(0,1fr) 300px}
+.ph .g2,.ph .g3,.ph .gms{grid-template-columns:minmax(0,1fr)}.ph .g4,.ph .g5{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+/* masquerade banner */
+.mq{background:#F7E2A6;color:#3D2A03;border-bottom:1px solid #DDBE66;padding:6px var(--pad);min-height:40px;display:flex;gap:4px 12px;align-items:center;flex-wrap:wrap;flex:none}
+.mq .who{flex:1 1 300px;min-width:0}
+.mq .b{background:transparent;border-color:#A8842A;color:#3D2A03;box-shadow:none}.mq .b:hover{background:#F0D689}
+.mq .b.p{background:#3D2A03;border-color:#3D2A03;color:#fff}.mq .b.p:hover{background:#2A1C02}
+.ax.msq{box-shadow:inset 0 0 0 2px #DDBE66}
+/* shell */
+.shell{flex:1;display:flex;min-height:0}
+.sb{width:244px;flex:none;background:var(--sf);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.sb.rail{width:64px}
+.sb-top{height:52px;display:flex;align-items:center;padding:0 16px;flex:none}
+.sb.rail .sb-top{justify-content:center;padding:0}
+.wm{display:block;flex:none}
+.sw{margin:0 8px 8px;display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--sf);cursor:pointer;text-align:left;min-height:44px;width:calc(100% - 16px)}
+.sw:hover{background:var(--hov);border-color:var(--line2)}
+.sw .tile{width:24px;height:24px;border-radius:6px;background:var(--for);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none}
+.sb.rail .sw{justify-content:center;padding:0;border:0;min-height:36px}
+.nav{flex:1;overflow:auto;padding:4px 8px 16px}
+.ng{display:flex;align-items:center;gap:4px;width:100%;height:28px;padding:0 8px;margin-top:8px;border:0;background:none;border-radius:6px;font-size:12px;font-weight:500;color:var(--f3);cursor:pointer;text-align:left}
+.ng:hover{color:var(--ink);background:var(--hov)}
+.ng svg{transition:transform .15s}.ng.op svg{transform:rotate(90deg)}
+.ni{display:flex;align-items:center;gap:10px;width:100%;height:var(--c);padding:0 8px;border:0;background:none;border-radius:8px;font-size:calc(var(--t) - 1px);font-weight:500;color:var(--f2);cursor:pointer;text-align:left;white-space:nowrap}
+.ph .ni{font-size:16px}
+.ni:hover{background:var(--sub);color:var(--ink)}
+.ni.on{background:var(--tint);color:var(--for)}
+.ni .ct{margin-left:auto;font-size:11px;font-weight:500;color:var(--f2);background:var(--sf);border:1px solid var(--line);border-radius:999px;padding:0 6px;line-height:16px}
+.ph .ni .ct{font-size:16px;line-height:24px;padding:0 8px}
+.ph .ng{height:44px;font-size:16px}
+.sw1{font-size:13px;line-height:18px}.sw2{font-size:12px;line-height:16px;color:var(--f3)}
+.ph .sw1,.ph .sw2{font-size:16px;line-height:22px}.ph .sw .tile{width:36px;height:36px;font-size:16px}.ph .sw{min-height:60px}
+.sb.rail .ni{justify-content:center;padding:0;height:36px}
+.sb.rail .nav{padding:4px 12px 16px}
+.rsep{height:1px;background:var(--line);margin:8px 4px}
+.sb-ft{border-top:1px solid var(--line);padding:8px;flex:none;display:flex;flex-direction:column;gap:2px}
+.uc{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;min-width:0}
+.sb.rail .uc{justify-content:center;padding:6px 0}
+.av{width:28px;height:28px;border-radius:50%;background:var(--tint);color:var(--for);font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.ph .av{width:40px;height:40px;font-size:16px}
+.ph .pc .av{display:none}.ph .pc .w6.mo,.ph .pc .w6 .mo{font-weight:500}
+.main{scrollbar-gutter:stable}
+.ph .pc .me{font-weight:400}.ph .pc .w6 .w5{font-weight:600}
+.mainc{flex:1;min-width:0;display:flex;flex-direction:column}
+.tb{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--pad);border-bottom:1px solid var(--line)}
+.ph .tb{height:56px;padding:0 8px;gap:4px;background:var(--sf)}
+.bc{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--f3);min-width:0}
+.bc b{font-weight:500;color:var(--ink)}
+.srch{height:32px;width:240px;display:flex;align-items:center;gap:8px;padding:0 8px 0 10px;border:1px solid var(--line);border-radius:8px;background:var(--sf);color:var(--f3);cursor:pointer;font-size:13px}
+.srch:hover{border-color:var(--line2)}
+.kbd{font:500 11px/16px 'Geist Mono',monospace;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--bg);color:var(--f2)}
+.ph .kbd{font-size:14px;line-height:22px}
+.main{flex:1;overflow:auto;min-height:0}
+.pg{max-width:1400px;margin:0 auto;padding:28px var(--pad) 64px;display:flex;flex-direction:column;gap:20px}
+.ph .pg{padding:20px 16px 48px;gap:16px}
+.hd{display:flex;gap:12px 16px;align-items:flex-end;flex-wrap:wrap}
+.hd .b{height:var(--cp);padding:0 14px}
+/* controls */
+.b{height:var(--c);padding:0 12px;border-radius:8px;border:1px solid var(--line2);background:var(--sf);color:var(--ink);font-weight:500;font-size:calc(var(--t) - 1px);display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 1px rgba(21,33,29,.04);transition:background .12s,border-color .12s}
+.ph .b{font-size:16px;padding:0 16px}
+.b:hover{background:var(--hov);border-color:#C4BFB1}
+.b:active{transform:translateY(.5px)}
+.b.p{background:var(--for);border-color:var(--for);color:#fff}.b.p:hover{background:var(--forh)}
+.b.d{color:var(--bad)}.b.p.d{background:var(--bad);border-color:var(--bad);color:#fff}
+.b.q{border-color:transparent;background:none;box-shadow:none;color:var(--f2)}.b.q:hover{background:var(--sub);color:var(--ink)}
+.b:disabled{opacity:.45;cursor:not-allowed}
+.ib{width:var(--c);height:var(--c);border:0;background:none;border-radius:8px;color:var(--f2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.ib:hover{background:var(--sub);color:var(--ink)}
+.lk{border:0;background:none;padding:0;font-weight:500;color:var(--ink);cursor:pointer;text-align:left;border-radius:4px;max-width:100%}
+.lk:hover{color:var(--for);text-decoration:underline;text-decoration-color:var(--mint);text-underline-offset:3px}
+.lk.a{color:var(--for)}
+.ph .lk{min-height:44px;display:inline-flex;align-items:center}
+.ph button.pl{height:44px}
+.ph textarea.ine{min-height:44px}
+.prc{height:40px}.ph .prc{height:48px}
+.in{height:var(--c);padding:0 10px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);width:100%;font-size:var(--t);transition:border-color .12s,box-shadow .12s}
+textarea.in{height:auto;padding:8px 10px;line-height:var(--tl);resize:vertical}
+select.in{width:auto;max-width:100%;padding-right:28px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235F6A64' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer}
+.ph .row>select.in{flex:1 1 130px}
+.sin{position:relative;flex:1 1 220px;max-width:320px}.sin .in{padding-left:32px}.sin svg{position:absolute;left:10px;top:50%;margin-top:-8px;color:var(--f3)}
+.ph .sin{max-width:none;flex:1 1 150px}.ph .sin svg{margin-top:-9px}
+.lab{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:calc(var(--t) - 1px)}
+.ph .lab{font-size:16px}
+.ine{border-color:transparent;background:transparent;font-weight:500;padding:0 8px;margin-left:-8px}
+.ine:hover{border-color:var(--line2);background:var(--sf)}
+.pl{display:inline-flex;align-items:center;gap:5px;height:var(--pl);padding:0 8px;border-radius:999px;font-size:var(--m);font-weight:500;white-space:nowrap;background:var(--sub);color:var(--f2)}
+.pl.ok{background:var(--okb);color:var(--ok)}.pl.info{background:var(--infob);color:var(--info)}.pl.bad{background:var(--badb);color:var(--bad)}.pl.warn{background:var(--warnb);color:var(--warn)}
+button.pl{border:0;cursor:pointer}button.pl:hover{filter:brightness(.96)}
+.st{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;color:var(--ink)}
+.st i{width:7px;height:7px;border-radius:50%;background:#9AA39E;flex:none}
+.st.ok i{background:#2E9A63}.st.info i{background:#3B74D6}.st.bad i{background:#D0492F}.st.warn i{background:#D99A1C}
+.st.run i{background:none;border:2px solid #3B74D6}.st.off i{background:none;border:1.5px solid #9AA39E}
+.cd{background:var(--sf);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 2px rgba(21,33,29,.03);min-width:0}
+.cd.pd{padding:20px}.ph .cd.pd{padding:16px}
+.cdh{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--line);min-height:52px}
+.ph .cdh{padding:12px 16px}
+.cdb{padding:16px 20px}.ph .cdb{padding:12px 16px}
+.li{display:flex;gap:8px 12px;align-items:center;padding:10px 20px;border-bottom:1px solid var(--line);min-height:44px}
+.li:last-child{border-bottom:0}.ph .li{padding:12px 16px;flex-wrap:wrap}
+/* tables */
+.th,.tr{display:grid;gap:16px;align-items:center;padding:0 20px}
+.th{height:40px;border-bottom:1px solid var(--line);font-size:12px;font-weight:500;color:var(--f3)}
+.th button{border:0;background:none;padding:0;font-weight:500;color:inherit;cursor:pointer;display:inline-flex;gap:4px;align-items:center;height:28px;border-radius:4px}
+.th button:hover{color:var(--ink)}.th .ar{opacity:0}.th button:hover .ar{opacity:.5}.th .ar.on{opacity:1;color:var(--for)}
+.tr{min-height:var(--row);border-bottom:1px solid var(--line);transition:background .1s}
+.tr:last-child{border-bottom:0;border-radius:0 0 12px 12px}
+.tr:hover{background:var(--hov)}.tr.ck{cursor:pointer}.tr.sel{background:#F3F8F5}
+.tr.drg{opacity:.4}.tr.over{box-shadow:inset 0 2px 0 var(--for)}
+.cl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl.r,.th .r{text-align:right;justify-self:end}
+.cl.ov{overflow:visible}
+.ra{display:flex;gap:2px;align-items:center;justify-content:flex-end;position:relative}
+.ra .hv{display:flex;gap:2px;opacity:0;transition:opacity .12s;position:absolute;right:100%;top:50%;transform:translateY(-50%);padding:0 4px 0 24px;background:linear-gradient(90deg,transparent,var(--hov) 24px);pointer-events:none}
+.tr:hover .hv,.tr:focus-within .hv{pointer-events:auto}
+.tr:hover .hv,.tr:focus-within .hv{opacity:1}
+.grip{width:20px;height:28px;border:0;background:none;color:#A9B0AB;cursor:grab;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;padding:0}
+.grip:hover{color:var(--ink);background:var(--sub)}
+.chk{width:16px;height:16px;accent-color:#1F4D40;margin:0;cursor:pointer}
+.ph .chk{width:22px;height:22px}
+.pc{padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.pc-r{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.pc-r>span:last-child{text-align:right;min-width:0;overflow-wrap:break-word}
+.menu{position:relative;display:inline-flex}
+.pop{position:absolute;right:0;top:calc(100% + 4px);z-index:30;background:var(--sf);border:1px solid var(--line2);border-radius:10px;padding:4px;min-width:200px;box-shadow:0 8px 24px rgba(21,33,29,.10),0 1px 2px rgba(21,33,29,.06)}
+.pop.up{top:auto;bottom:calc(100% + 4px)}.pop.lf{right:auto;left:0}
+.pop button{display:flex;gap:8px;align-items:center;width:100%;height:var(--c);padding:0 10px;border:0;background:none;border-radius:6px;text-align:left;cursor:pointer;white-space:nowrap;font-size:calc(var(--t) - 1px)}
+.ph .pop button{font-size:16px}
+.pop button:hover{background:var(--sub)}.pop button.d{color:var(--bad)}.pop button:disabled{color:var(--f3);cursor:not-allowed;background:none}
+.pop hr{border:0;border-top:1px solid var(--line);margin:4px}
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--line)}
+.tab{height:36px;padding:0;border:0;background:none;font-weight:500;font-size:calc(var(--t) - 1px);color:var(--f3);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;border-radius:0}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--ink);border-bottom-color:var(--for)}
+.stat{padding:16px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left}
+.ph .stat{padding:12px 16px}
+button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.stat:hover{border-color:var(--line2);box-shadow:0 2px 8px rgba(21,33,29,.06)}
+.fig{font:600 24px/32px Geist,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fx{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);overflow:hidden}
+.fx>div{background:var(--sf);padding:12px 20px;display:flex;flex-direction:column;gap:2px;flex:1 0 auto;max-width:100%;white-space:nowrap}
+.ph .fx{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.ph .fx>div{padding:12px 10px 12px 12px;min-width:0}.ph .fx>div>span:last-child{font-size:15px}.ph .fx>div>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}.ph .fx>div:last-child:nth-child(odd),.ph .fx>div.fxw{grid-column:1/-1}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 16px;margin:0}
+.kv dt{color:var(--f3)}.kv dd{margin:0;min-width:0;overflow-wrap:break-word}
+.ph .kv,.kvs .kv{grid-template-columns:minmax(0,1fr);gap:2px}.ph .kv dd,.kvs .kv dd{margin-bottom:10px}
+.bar{height:6px;border-radius:3px;background:var(--sub);overflow:hidden;min-width:40px;flex:1;display:flex}
+.bar i{display:block;height:100%;background:#2E9A63}.bar i.b2{background:#3B74D6}.bar.hot i{background:#D99A1C}.bar.full i{background:#9AA39E}
+.tl{position:relative;padding:0 0 16px 20px;border-left:1px solid var(--line);margin-left:4px}
+.tl:last-child{padding-bottom:0}.tl:before{content:'';position:absolute;left:-4px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--sf);border:1.5px solid var(--f3)}
+.scrim{position:absolute;inset:0;background:rgba(21,33,29,.38);display:flex;align-items:center;justify-content:center;padding:16px;z-index:40}
+.scrim.top0{align-items:flex-start;padding-top:96px}.ph .scrim.top0{padding-top:16px}
+.modal{background:var(--sf);border-radius:12px;border:1px solid var(--line2);width:100%;max-width:480px;max-height:100%;overflow:auto;box-shadow:0 24px 64px rgba(21,33,29,.22)}
+.mh{padding:16px 20px 0;display:flex;gap:8px;align-items:flex-start}.mb{padding:12px 20px 20px;display:flex;flex-direction:column;gap:12px}
+.mf{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--hov);border-radius:0 0 12px 12px}
+.drw{position:absolute;top:0;bottom:0;left:0;width:300px;max-width:86%;z-index:41;display:flex}
+.drw .sb{width:100%}
+.toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#15211D;color:#F4F2EC;border-radius:8px;padding:8px 12px;z-index:50;max-width:calc(100% - 32px);font-size:calc(var(--t) - 1px);box-shadow:0 8px 24px rgba(21,33,29,.2);display:flex;gap:8px;align-items:center}
+.sk{height:10px;border-radius:5px;background:linear-gradient(90deg,#EFEDE6 0,#F7F5F0 50%,#EFEDE6 100%);background-size:200% 100%;animation:arxs 1.4s linear infinite}
+@keyframes arxs{to{background-position:-200% 0}}
+.emp{padding:48px 24px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.emp .ic{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--f3);margin-bottom:6px;background:var(--hov)}
+.pre{font:400 var(--mo)/20px 'Geist Mono',monospace;background:var(--hov);border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:break-word;margin:0}
+.pal-i{display:flex;gap:10px;width:100%;height:var(--cp);align-items:center;padding:0 10px;border:0;background:none;border-radius:8px;text-align:left;cursor:pointer;font-size:var(--t)}
+.pal-i.on{background:var(--tint)}.pal-i:hover{background:var(--sub)}.pal-i.on:hover{background:var(--tint)}
+.mt{width:32px;height:32px;border-radius:8px;background:var(--tint);color:var(--for);display:flex;align-items:center;justify-content:center;flex:none}
+.note{background:var(--hov);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.bb{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+.bb>:last-child{grid-column:2}
+.wide .bb{grid-template-columns:220px minmax(0,1fr) 264px}.wide .bb>:last-child{grid-column:auto}
+.ph .bb{grid-template-columns:minmax(0,1fr)}.ph .bb>:last-child{grid-column:1}
+.ph .pc .el{white-space:normal}
+.ax{hyphens:none;-webkit-hyphens:none}
+.lk.el{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ph .lk.el{display:inline-flex}
+.cl2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.cl3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.ph .pc .cl1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stl{font-size:13px;white-space:nowrap}.ph .stl{font-size:16px}
+.ph .g5>:nth-child(5){grid-column:1/-1}.ph .g3.st2{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pop.rt{left:calc(100% + 12px);right:auto;top:0}
+.sb.rail .nav{overflow:visible;display:flex;flex-direction:column;gap:4px}.sb.rail .nav .menu{display:flex}
+.mx{width:28px;height:28px;border-radius:8px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:var(--okb);color:var(--ok)}
+.mx.lk2{background:var(--warnb);color:var(--warn);border-color:#EBD9A8}.mx:disabled{cursor:default}
+.ph .mx{width:44px;height:44px}
+`;
+
+/* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
+const P = {
+  overview: 'M5 20v-8M12 20V5M19 20v-5', health: 'M3 12h4l3-8 4 16 3-8h4', curriculum: 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5', builder: 'M4 20l1-5L16 4l4 4L9 19l-5 1z',
+  vault: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z', cohorts: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4', announce: 'M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z',
+  learners: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 4a4 4 0 0 1 0 7M19 15a6 6 0 0 1 3 6', workspaces: 'M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 10h4a1 1 0 0 1 1 1v10M3 21h18M8 8h3M8 12h3M8 16h3',
+  users: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0', masquerade: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', tiers: 'M3 6h18v12H3zM3 10h18',
+  billing: 'M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6', usage: 'M3 17l6-6 4 4 8-8M15 7h6v6', incidents: 'M12 4l9 16H3l9-16zM12 10v4M12 17h.01', audit: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',
+  api: 'M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16', jobs: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2', email: 'M3 6h18v12H3zM3 7l9 6 9-6', integrations: 'M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v4',
+  deploys: 'M6 8v8M6 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 8v1a4 4 0 0 1-4 4H6',
+  db: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3', flags: 'M5 21V4M5 4h13l-2.5 4 2.5 4H5', roles: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z',
+  search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16.5 16.5L21 21', x: 'M6 6l12 12M18 6L6 18', menu: 'M4 7h16M4 12h16M4 17h16', more: 'M5 12h.01M12 12h.01M19 12h.01', chev: 'M9 6l6 6-6 6', back: 'M15 6l-6 6 6 6',
+  updown: 'M8 9l4-4 4 4M8 15l4 4 4-4', chevd: 'M6 9l6 6 6-6', plus: 'M12 5v14M5 12h14', lock: 'M6 11h12v9H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11', grip: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01', check: 'M5 12.5l4.5 4.5L19 7',
+  download: 'M12 4v11M7 11l5 5 5-5M5 20h14', panel: 'M4 5h16v14H4zM9 5v14', bolt: 'M13 3L5 14h6l-1 7 8-11h-6l1-7z', eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  up: 'M12 19V5M6 11l6-6 6 6', down: 'M12 5v14M6 13l6 6 6-6', file: 'M6 3h8l4 4v14H6zM14 3v4h4', play: 'M7 5l12 7-12 7V5z', refresh: 'M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4',
+};
+const I = ({ n, s = 16, w }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w || (n === 'more' || n === 'grip' ? 2.6 : 1.75)} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none' }}><path d={P[n] || P.file} /></svg>;
+
+/* ---------- sample data (fictional; "today" is Thu, Dec 10, 2026, MST) ---------- */
+const MODS0 = [
+  { id: 'm1', n: 'Marketing AI Employee', d: 'Paste an MLS listing → Fair-Housing-checked copy', ic: 'announce', tier: 'both', ses: null, st: 'Published', steps: 6, files: 3, dep: 66 },
+  { id: 'm2', n: 'Week 0 · Get Ready', d: 'Your accounts, operator, and baseline', ic: 'audit', tier: 'team', ses: null, st: 'Published', steps: 6, files: 2, dep: 91 },
+  { id: 'm3', n: 'Week 1 · Know the Business', d: 'A checked view of what your business earns and spends', ic: 'tiers', tier: 'team', ses: ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST · Replay ready'], st: 'Published', steps: 6, files: 4, dep: 74 },
+  { id: 'm4', n: 'Sales AI Employee', d: 'Paste a new lead → a first reply in your voice', ic: 'bolt', tier: 'both', ses: null, st: 'Published', steps: 6, files: 3, dep: 35 },
+  { id: 'm5', n: 'Week 2 · Own the Day', d: 'A ten-minute morning brief from your own data', ic: 'jobs', tier: 'team', ses: ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST · Replay ready'], st: 'Published', steps: 6, files: 3, dep: 38 },
+  { id: 'm6', n: 'Database AI Employee', d: 'Upload your contact export → ten warm conversations', ic: 'db', tier: 'both', ses: null, st: 'Scheduled', steps: 6, files: 3, opens: 'Opens Dec 14' },
+  { id: 'm7', n: 'Week 3 · Work the Database', d: 'Sort your sphere and plan the week of calls', ic: 'learners', tier: 'team', ses: ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST'], st: 'Scheduled', steps: 6, files: 2, opens: 'Opens Dec 14' },
+  { id: 'm8', n: 'Meetings AI Employee', d: 'Paste a meeting transcript → decisions and owners', ic: 'email', tier: 'team', ses: null, st: 'Scheduled', steps: 5, files: 2, opens: 'Opens Dec 21' },
+  { id: 'm9', n: 'Week 4 · Run the Meeting', d: 'A weekly meeting that runs from your scorecard', ic: 'cohorts', tier: 'team', ses: ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST'], st: 'Scheduled', steps: 6, files: 2, opens: 'Opens Dec 21' },
+  { id: 'm10', n: 'Finance AI Employee', d: 'Upload a ledger export → spend mapped to a standard chart', ic: 'billing', tier: 'team', ses: null, st: 'Draft', steps: 4, files: 1 },
+  { id: 'm11', n: 'Week 5 · Close Clean', d: 'Contract-to-close checklist with dates and owners', ic: 'check', tier: 'team', ses: ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST'], st: 'Draft', steps: 3, files: 0 },
+  { id: 'm12', n: 'Operations AI Employee', d: 'Upload an executed contract → a dated task list', ic: 'jobs', tier: 'team', ses: null, st: 'Draft', steps: 2, files: 0 },
+  { id: 'm13', n: 'Week 6 · Hand It Off', d: 'Document each AI Employee so a teammate can run it', ic: 'file', tier: 'team', ses: ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST'], st: 'Draft', steps: 2, files: 0 },
+  { id: 'm14', n: 'Recruiting AI Employee', d: 'Paste a candidate profile → call prep and questions', ic: 'users', tier: 'team', ses: null, st: 'Draft', steps: 1, files: 0 },
+  { id: 'm15', n: 'Listing AI Employee', d: 'Paste seller notes → a listing appointment follow-up', ic: 'vault', tier: 'team', ses: null, st: 'Draft', steps: 1, files: 0 },
+];
+const WS = [
+  { id: 'ws_northshore', n: 'Northshore Group', plan: 'Team Plan · 41 seats', used: 33, cap: 41, st: 'Active', last: 'Dec 10, 8:52 AM', owner: 'Elena Vargas', mrr: '$1,495', cus: 'cus_Rk3NshoreA1', sub: 'sub_1Qn7NshoreT41' },
+  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', plan: 'Team Plan · 16 seats', used: 15, cap: 16, st: 'Active', last: 'Dec 9, 6:10 PM', owner: 'Jordan Hale', mrr: '$695', cus: 'cus_Rm8HaleMrl02', sub: 'sub_1Qp2HaleT16' },
+  { id: 'ws_redcliff', n: 'Red Cliff Collective', plan: 'Agent Plan', used: 46, cap: 50, st: 'Active', last: 'Dec 10, 12:41 AM', owner: 'Noor Haddad', mrr: '$1,450', cus: 'cus_Rj1RedClf03', sub: 'sub_1Qk9RedClfA50' },
+  { id: 'ws_copperbasin', n: 'Copper Basin Realty', plan: 'AI Accelerator', used: 2, cap: 2, st: 'Active', last: 'Dec 9, 2:15 PM', owner: 'Devon Achterberg', mrr: 'One-time', cus: 'cus_Rp4CoprBsn04', sub: '—' },
+  { id: 'ws_tidewater', n: 'Tidewater Property Co.', plan: 'Insiders', used: 1, cap: 1, st: 'Past due', last: 'Dec 4, 9:03 AM', owner: 'Sam Whitlock', mrr: '$97', cus: 'cus_Rg6Tidewtr05', sub: 'sub_1Qh3TidewI1' },
+  { id: 'ws_lantern', n: 'Lantern Street Partners', plan: 'Team Plan · 16 seats', used: 6, cap: 16, st: 'Trialing', last: 'Dec 9, 11:27 AM', owner: 'Tessa Lindqvist', mrr: '$0', cus: 'cus_Rt2Lantern06', sub: 'sub_1Qv5LanternT16' },
+  { id: 'ws_fourthmeridian', n: 'Fourth Meridian', plan: 'Team Plan · 16 seats', used: 0, cap: 16, st: 'Canceled', last: 'Nov 2, 4:40 PM', owner: 'Priya Raman', mrr: '$0', cus: 'cus_Rb9FourthM07', sub: 'sub_1Qc1FourthT16' },
+];
+const USERS = [
+  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'Northshore Group', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM', st: 'Active', pr: 4, of: 5 },
+  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'Northshore Group', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM', st: 'Active', pr: 3, of: 5 },
+  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'Hale & Marlowe Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM', st: 'Active', pr: 5, of: 5 },
+  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'Red Cliff Collective', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM', st: 'Active', pr: 2, of: 2 },
+  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'Copper Basin Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM', st: 'Active', pr: 2, of: 5 },
+  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'Tidewater Property Co.', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', st: 'Past due', pr: 1, of: 2 },
+  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'Lantern Street Partners', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', st: 'Trialing', pr: 1, of: 5 },
+  { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
+];
+const STAFF = [
+  { n: 'Connor Leiva', role: 'Owner', e: 'connor@amplifiedimpact.io', last: 'Dec 10, 9:22 AM' },
+  { n: 'Avery Stone', role: 'Admin', e: 'avery@amplifiedimpact.example', last: 'Dec 9, 5:48 PM' },
+  { n: 'Imani Brooks', role: 'Support', e: 'imani@amplifiedimpact.example', last: 'Dec 9, 9:30 PM' },
+];
+const ROLES = ['Owner', 'Admin', 'Support'];
+const INV = [
+  { id: 'in_1QxT4mNs0291', c: 'Northshore Group', amt: '$1,495.00', st: 'Paid', d: 'Dec 8, 2026', card: 'Visa ending 4242' },
+  { id: 'in_1QxR9aRc0288', c: 'Red Cliff Collective', amt: '$1,450.00', st: 'Paid', d: 'Dec 6, 2026', card: 'Amex ending 1007' },
+  { id: 'in_1QxQ2cCb0285', c: 'Copper Basin Realty', amt: '$3,750.00', st: 'Paid', d: 'Dec 5, 2026', card: 'Visa ending 1881' },
+  { id: 'in_1QxP7tTw0283', c: 'Tidewater Property Co.', amt: '$97.00', st: 'Failed', d: 'Dec 4, 2026', card: 'Mastercard ending 5521' },
+  { id: 'in_1QxN1hHm0279', c: 'Hale & Marlowe Realty', amt: '$695.00', st: 'Open', d: 'Dec 3, 2026', card: 'Visa ending 3310' },
+  { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
+];
+const JOBS = [
+  { j: 'session-24h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.4 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'session-1h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.3 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'replay-ready', sch: 'Every 15 min', last: 'Dec 10, 9:15 AM', dur: '0.9 s', st: 'Succeeded', next: '9:30 AM' },
+  { j: 'build-48h', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.5 s', st: 'Succeeded', next: '10:00 AM' },
+  { j: 'weekly-digest', sch: 'Mon 7:00 AM', last: 'Dec 7, 7:00 AM', dur: '48 s', st: 'Succeeded', next: 'Dec 14, 7:00 AM' },
+  { j: 'announcement', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.2 s', st: 'Succeeded', next: '9:25 AM' },
+  { j: 'billing', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '2.1 s', st: 'Succeeded', next: '10:00 AM' },
+  { j: 'accelerator-reminders', sch: 'Daily 9:00 AM', last: 'Dec 10, 9:00 AM', dur: '1.4 s', st: 'Succeeded', next: 'Dec 11, 9:00 AM' },
+  { j: 'ghl-sync', sch: 'Every 10 min', last: 'Dec 10, 9:20 AM', dur: '3.8 s', st: 'Running', next: '9:30 AM' },
+  { j: 'ghl-logins', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '1.1 s', st: 'Succeeded', next: '9:30 AM' },
+  { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '0.6 s', st: 'Failed', next: '9:30 AM' },
+  { j: 'ghl-extras', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.8 s', st: 'Waiting', next: '10:00 AM' },
+];
+const HOOKS = [
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2291', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2288', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'login.sync', id: 'u_1077', st: 'Retrying', att: '2 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'Stripe', ev: 'invoice.payment_failed', id: 'evt_1QxP7tTw83', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
+  { src: 'Stripe', ev: 'checkout.session.completed', id: 'evt_1QxQ2cCb85', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
+  { src: 'Stripe', ev: 'customer.subscription.updated', id: 'evt_1QxN1hHm79', st: 'Failed', att: '5 of 5', next: 'None, attempts used', err: 'Handler timeout after 10 s' },
+  { src: 'Zoom', ev: 'recording.completed', id: '—', st: 'Not configured', att: '—', next: '—', err: 'Recording webhook is not live' },
+];
+const ENDPOINTS = [
+  { p: 'GET /api/events', req: '41,208', p50: 'stream', p95: 'stream', er: 0.1 }, { p: 'GET /api/snapshot', req: '18,940', p50: '48 ms', p95: '212 ms', er: 0.2 },
+  { p: 'POST /api/mutate', req: '6,312', p50: '61 ms', p95: '240 ms', er: 0.4 }, { p: 'GET /api/skills', req: '5,926', p50: '35 ms', p95: '118 ms', er: 0.0 },
+  { p: 'GET /api/course', req: '3,410', p50: '42 ms', p95: '160 ms', er: 0.1 }, { p: 'GET /api/sessions/:id/join', req: '286', p50: '90 ms', p95: '410 ms', er: 0.7 },
+  { p: 'POST /api/billing/webhook', req: '142', p50: '120 ms', p95: '880 ms', er: 2.1 }, { p: 'POST /api/crm-sync', req: '96', p50: '310 ms', p95: '1,940 ms', er: 6.3 },
+];
+const EMAILS = [
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM' },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Opened', t: 'Dec 9, 3:10 PM' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Queued', t: 'Dec 10, 9:18 AM' },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM' },
+];
+const DEPLOYS = [
+  { sha: 'a3f91c2', m: 'Scope 16px floor and 44px targets to phone widths', a: 'Connor Leiva', t: 'Dec 9, 10:42 PM', st: 'Live', dur: '1m 48s' },
+  { sha: '7be20d4', m: 'Curriculum: fitted grid, tier pill, drag handles', a: 'Avery Stone', t: 'Dec 9, 3:15 PM', st: 'Succeeded', dur: '1m 52s' },
+  { sha: 'c41d8e0', m: 'GHL orders: back off on 401 and record last error', a: 'Connor Leiva', t: 'Dec 8, 8:02 PM', st: 'Succeeded', dur: '1m 44s' },
+  { sha: '19aa6f3', m: 'Sidebar: collapsible groups and cohort switcher', a: 'Avery Stone', t: 'Dec 8, 11:20 AM', st: 'Failed', dur: '0m 39s' },
+  { sha: 'e5527b9', m: 'Cohort starts at first build (migration 0014)', a: 'Connor Leiva', t: 'Dec 2, 9:48 AM', st: 'Succeeded', dur: '2m 03s' },
+];
+const INCIDENTS = [
+  { id: 'INC-0007', t: 'GHL order sync failing with 401', sev: 'Sev 2', st: 'Open', o: 'Dec 9, 9:14 PM', own: 'Imani Brooks', links: [['jobs', 'Job ghl-orders'], ['api', '3 webhook deliveries']],
+    tl: [['Dec 9, 9:14 PM', 'Opened automatically after 3 failed runs of ghl-orders.'], ['Dec 9, 9:20 PM', 'Imani Brooks confirmed orders are saved locally. Only the GHL copy is behind.'], ['Dec 9, 10:42 PM', 'Deploy a3f91c2 went live. No change in error rate.']] },
+  { id: 'INC-0006', t: 'Stripe subscription.updated handler timeout', sev: 'Sev 3', st: 'Acknowledged', o: 'Dec 8, 7:31 PM', own: 'Avery Stone', links: [['api', '1 webhook delivery']],
+    tl: [['Dec 8, 7:31 PM', 'Opened after a delivery used all 5 attempts.'], ['Dec 8, 7:40 PM', 'Acknowledged by Avery Stone.']] },
+  { id: 'INC-0005', t: 'Weekly digest bounces above 2%', sev: 'Sev 3', st: 'Resolved', o: 'Dec 7, 7:12 AM', own: 'Connor Leiva', links: [['email', 'Email log, weekly-digest']],
+    tl: [['Dec 7, 7:12 AM', 'Opened by Connor Leiva.'], ['Dec 7, 2:05 PM', 'Canceled workspaces removed from the digest audience.'], ['Dec 7, 2:10 PM', 'Resolved by Connor Leiva.']] },
+];
+const AUDIT0 = [
+  { t: 'Dec 10, 8:58 AM', actor: 'Connor Leiva', act: 'job.run_now', tg: 'ghl-orders', d: 'Manual run. Failed with 401.' },
+  { t: 'Dec 9, 9:31 PM', actor: 'Avery Stone', act: 'masquerade.stop', tg: 'Sam Whitlock', d: 'Exited by staff after 6 min.' },
+  { t: 'Dec 9, 9:27 PM', actor: 'Avery Stone', act: 'masquerade.blocked_action', tg: 'Sam Whitlock', d: 'Tried: Refund in_1QxP7tTw0283.' },
+  { t: 'Dec 9, 9:25 PM', actor: 'Avery Stone', act: 'masquerade.start', tg: 'Sam Whitlock', d: 'Reason: Customer cannot see the Session 2 replay.' },
+  { t: 'Dec 9, 5:02 PM', actor: 'Imani Brooks', act: 'audit.export', tg: 'Audit log', d: 'CSV, last 7 days, 212 rows.' },
+  { t: 'Dec 9, 3:20 PM', actor: 'Avery Stone', act: 'module.publish', tg: 'Sales AI Employee', d: 'Draft to Published.' },
+  { t: 'Dec 9, 2:10 PM', actor: 'Connor Leiva', act: 'permission.change', tg: 'Support', d: 'Refund or void an invoice: allowed to not allowed.' },
+  { t: 'Dec 8, 4:44 PM', actor: 'Connor Leiva', act: 'tier.access_change', tg: 'Database AI Employee', d: 'Team only to Agent + Team.' },
+  { t: 'Dec 8, 9:05 AM', actor: 'Imani Brooks', act: 'email_log.export', tg: 'Email log', d: 'CSV, template weekly-digest, 388 rows.' },
+  { t: 'Nov 1, 4:44 PM', actor: 'Connor Leiva', act: 'billing.refund', tg: 'in_1QxK5fFm0270', d: '$695.00. Reason: canceled inside trial window.' },
+];
+const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]], ['masq', 'Start and extend masquerade', [1, 1, 0]], ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]], ['refund', 'Refund or void an invoice', [1, 1, 0]], ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]], ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]], ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+];
+const NAV = [
+  ['Health', [['overview', 'Overview'], ['health', 'System Health']]],
+  ['Build', [['curriculum', 'Curriculum', 0, '6 draft'], ['builder', 'Module Builder'], ['vault', 'Resource Vault'], ['cohorts', 'Cohorts & Sessions'], ['announce', 'Announcements']]],
+  ['Support', [['learners', 'Learners & Teams'], ['workspaces', 'Workspaces'], ['users', 'Users'], ['masquerade', 'Masquerade']]],
+  ['Revenue', [['tiers', 'Tiers & Upgrades', 0, '2'], ['billing', 'Billing'], ['usage', 'Usage']]],
+  ['Operations', [['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
+  ['Access', [['roles', 'Roles & Permissions', 'ops']]],
+];
+const PARENT = { workspace: 'workspaces', user: 'users', incident: 'incidents', as: 'masquerade' };
+const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeeded: 'ok', Live: 'ok', Published: 'ok', Connected: 'ok', Resolved: 'ok', Present: 'ok', Sent: 'ok', On: 'ok', Healthy: 'ok', Ready: 'ok', Approved: 'ok',
+  Running: 'run', Retrying: 'run', Scheduled: 'info', Trialing: 'info', Queued: 'info', Acknowledged: 'info', Upcoming: 'info',
+  Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
+  Waiting: 'warn', 'Not configured': 'warn', 'Sev 3': 'warn', Pending: 'warn', Refunded: 'warn',
+  Draft: 'off', Off: 'off', Canceled: 'off', Open: 'warn' };
+
+/* ---------- primitives ---------- */
+const Ctx = createContext(null);
+const useC = () => useContext(Ctx);
+const ini = n => n.split(' ').map(x => x[0]).join('').slice(0, 2);
+const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+const St = ({ v, tone }) => <span className={'st ' + (tone || TONE[v] || '')}><i />{v}</span>;
+const Pill = ({ v, tone, children }) => <span className={'pl ' + (tone !== undefined ? tone : TONE[v] === 'run' ? 'info' : TONE[v] === 'off' ? '' : TONE[v] || '')}>{children || v}</span>;
+const Btn = ({ k = '', ic, children, ...p }) => <button className={'b ' + k} {...p}>{ic && <I n={ic} />}{children}</button>;
+const fixedSeats = w => !!w && (w.plan === 'AI Accelerator' || w.plan === 'Insiders');
+const Bar = ({ v, max = 100, v2, fx }) => <span className={'bar' + (fx && v >= max ? ' full' : v2 === undefined && max !== 100 && v / max >= 0.9 ? ' hot' : '')}><i style={{ width: (v / max) * 100 + '%' }} />{v2 !== undefined && <i className="b2" style={{ width: (v2 / max) * 100 + '%' }} />}</span>;
+const KV = ({ rows }) => <dl className="kv">{rows.map(([k, v], i) => <Fragment key={i}><dt>{k}</dt><dd>{v}</dd></Fragment>)}</dl>;
+const Sel = ({ v, on, opts, label }) => <select className="in" aria-label={label} value={v} onChange={e => on(e.target.value)}>{opts.map(o => <option key={o}>{o}</option>)}</select>;
+const Find = ({ v, on, ph }) => <span className="sin"><I n="search" /><input className="in" placeholder={ph} aria-label={ph} value={v} onChange={e => on(e.target.value)} /></span>;
+const Facts = ({ items }) => <div className="cd fx">{items.map(([k, v, full], i) => <div key={i} className={full ? 'fxw' : undefined}><span className="me">{k}</span><span className="w5 el">{v}</span></div>)}</div>;
+const Card = ({ t, sub, right, children, pad = true }) => <section className="cd">{t && <div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>{t}</h2>{sub && <span className="me">{sub}</span>}</div>{right}</div>}{pad ? <div className="cdb">{children}</div> : children}</section>;
+
+function GBtn({ perm, label, go, k = '', ic, children }) {
+  const { masq, guard, can } = useC();
+  const locked = masq || !can(perm);
+  return <Btn k={k} ic={locked ? 'lock' : ic} onClick={() => guard(perm, label, go)} title={masq ? 'Blocked while masquerading' : !can(perm) ? 'Your role cannot do this' : undefined}>{children}</Btn>;
+}
+function Head({ t, d, right, back, meta }) {
+  const { go, ph } = useC();
+  return <div className="col m">
+    {back && <button className="b q" style={{ alignSelf: 'flex-start', marginLeft: -10, height: ph ? 44 : 28 }} onClick={() => go(back[0])}><I n="back" />{back[1]}</button>}
+    <div className="hd"><div className="col s" style={{ flex: '1 1 320px' }}><div className="row" style={{ gap: 10 }}><h1>{t}</h1>{meta}</div>{d && <p className="s2" style={{ maxWidth: 720 }}>{d}</p>}</div>{right && <div className="row">{right}</div>}</div>
+  </div>;
+}
+function Empty({ ic = 'file', t, b, cta, on }) {
+  return <div className="emp"><span className="ic"><I n={ic} s={18} /></span><span className="w6" style={{ fontSize: 'var(--sh)' }}>{t}</span>{b && <p className="mu" style={{ maxWidth: 380 }}>{b}</p>}{cta && <Btn onClick={on} style={{ marginTop: 10 }}>{cta}</Btn>}</div>;
+}
+function ErrBox() {
+  const { setDs } = useC();
+  return <div className="emp" role="alert"><span className="ic" style={{ color: 'var(--bad)', background: 'var(--badb)', borderColor: '#F0CFC6' }}><I n="incidents" s={18} /></span><span className="w6" style={{ fontSize: 'var(--sh)' }}>This didn't load</span><p className="mu" style={{ maxWidth: 380 }}>The admin API returned a 502. Nothing was changed.</p><Btn ic="refresh" onClick={() => setDs('default')} style={{ marginTop: 10 }}>Retry</Btn></div>;
+}
+const Skel = ({ n = 5 }) => <div className="cd pd col" aria-busy="true" aria-label="Loading" style={{ gap: 18 }}>{Array.from({ length: n }).map((_, i) => <div key={i} className="sk" style={{ width: 88 - i * 12 + '%' }} />)}</div>;
+function Gate({ children, n, empty }) {
+  const { ds } = useC();
+  if (ds === 'loading') return <Skel n={n} />;
+  if (ds === 'error') return <div className="cd"><ErrBox /></div>;
+  if (ds === 'empty' && empty) return <div className="cd"><Empty {...empty} /></div>;
+  return children;
+}
+function Tabs({ tabs, v, on }) {
+  const { ph } = useC();
+  if (ph) return <select className="in" style={{ width: '100%' }} aria-label="Section" value={v} onChange={e => on(e.target.value)}>{tabs.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>;
+  return <div className="tabs" role="tablist">{tabs.map(([k, l, c]) => <button key={k} role="tab" aria-selected={v === k} className={'tab' + (v === k ? ' on' : '')} onClick={() => on(k)}>{l}{c !== undefined && <span className="mu" style={{ marginLeft: 6, fontWeight: 400 }}>{c}</span>}</button>)}</div>;
+}
+function Menu({ items, up, trigger, lf, rt }) {
+  const [o, setO] = useState(false);
+  const { masq } = useC();
+  return <span className="menu" onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setO(false); }}>
+    {trigger ? trigger(() => setO(!o), o) : <button className="ib" aria-label="More actions" aria-expanded={o} onClick={() => setO(!o)}><I n="more" /></button>}
+    {o && <div className={'pop' + (up ? ' up' : '') + (lf ? ' lf' : '') + (rt ? ' rt' : '')} role="menu">{items.map((it, i) => it === '-' ? <hr key={i} /> : <button key={i} role="menuitem" disabled={it.off} className={it.d ? 'd' : ''} onClick={() => { setO(false); it.fn(); }}>{(it.off || (it.g && masq)) ? <I n="lock" /> : it.ic ? <I n={it.ic} /> : null}{it.l}{it.on && <span style={{ marginLeft: 'auto' }}><I n="check" /></span>}</button>)}</div>}
+  </span>;
+}
+/* Table: CSS-grid rows. cols: {k,l,w,r,mo,num,ns,hide:'lap'}; menu(r) -> "…" items; quick(r) -> hover icon buttons; primary(r) -> always-visible control */
+function Table({ cols, rows, onRow, menu, quick, primary, aw, empty, sel, bulk, onMove, title, right, card }) {
+  const { ph, lap, ds } = useC();
+  const [sort, setSort] = useState(null), [chk, setChk] = useState({}), [drag, setDrag] = useState(null), [over, setOver] = useState(null);
+  const box = useRef(null), [tw, setTw] = useState(9999);
+  useEffect(() => { const el = box.current; if (!el) return; const g = () => setTw(el.clientWidth); g(); const ro = new ResizeObserver(g); ro.observe(el); return () => ro.disconnect(); }, []);
+  const need = cs => cs.reduce((a, c) => a + (parseInt(((c.w || '').match(/(\d+)px/) || [0, 120])[1], 10)) + 16, 0) + 40 + (onMove ? 36 : 0) + (sel ? 32 : 0) + (menu || quick || primary ? parseInt(aw || '32', 10) + 16 : 0);
+  const drop = !ph && need(cols) > tw && (lap || tw < 800);
+  const vis = cols.filter(c => !(c.hide === 'lap' && drop));
+  const tight = need(vis) > tw;
+  const hasA = menu || quick || primary;
+  const tpl = (onMove ? '20px ' : '') + (sel ? '16px ' : '') + vis.map(c => (c.w || 'minmax(0,1fr)').replace(/minmax\(\d+px,/, tight ? 'minmax(0,' : '$&')).join(' ') + (hasA ? ' ' + (aw || '32px') : '');
+  const head = !ph && <div className="th" style={{ gridTemplateColumns: tpl }}>
+    {onMove && <span />}
+    {sel && <input type="checkbox" className="chk" aria-label="Select all" checked={rows.length > 0 && rows.every((_, i) => chk[i])} onChange={e => setChk(e.target.checked ? Object.fromEntries(rows.map((_, i) => [i, true])) : {})} />}
+    {vis.map((c, i) => <span key={i} className={c.num ? 'r' : ''} aria-sort={sort && sort.i === i ? (sort.dir > 0 ? 'ascending' : 'descending') : undefined}>{c.ns || onMove ? c.l : <button onClick={() => setSort({ i, dir: sort && sort.i === i ? -sort.dir : 1 })}>{c.l}<span className={'ar' + (sort && sort.i === i ? ' on' : '')}><I n={sort && sort.i === i && sort.dir < 0 ? 'down' : 'up'} s={12} /></span></button>}</span>)}
+    {hasA && <span />}
+  </div>;
+  const wrap = body => <section className="cd" ref={box}>{title && <div className="cdh"><h2 style={{ flex: 1 }}>{title}</h2>{right}</div>}{body}</section>;
+  if (ds === 'loading') return wrap(<div aria-busy="true" aria-label="Loading">{head}{Array.from({ length: 6 }).map((_, i) => <div key={i} className="tr" style={{ gridTemplateColumns: ph ? '1fr' : tpl }}>{(ph ? [0] : [...(onMove ? [0] : []), ...(sel ? [0] : []), ...vis]).map((_, j) => <div key={j} className="sk" style={{ width: 40 + ((i * 7 + j * 13) % 50) + '%' }} />)}</div>)}</div>);
+  if (ds === 'error') return wrap(<ErrBox />);
+  if (ds === 'empty' || !rows.length) return wrap(<Empty {...(ds === 'empty' ? empty || { t: 'Nothing here yet' } : { ic: 'search', t: 'No matches', b: 'Try a different search or clear the filters.' })} />);
+  const val = (c, r) => (c.sv ? c.sv(r) : r[c.k]);
+  const data = sort && !onMove ? [...rows].sort((a, b) => { const c = vis[sort.i]; const x = val(c, a), y = val(c, b); return (x > y ? 1 : x < y ? -1 : 0) * sort.dir; }) : rows;
+  const cell = (c, r) => (c.r ? c.r(r, { drop, tight, tw }) : r[c.k]);
+  const nSel = Object.values(chk).filter(Boolean).length;
+  const key = r => rows.indexOf(r);
+  const click = (e, r) => { if (onRow && !e.target.closest('button,a,input,select,label')) onRow(r); };
+  const acts = (r, i) => <div className="ra">
+    {quick && <span className="hv">{quick(r).map((q, j) => <button key={j} className="ib" aria-label={q.l} title={q.l} onClick={q.fn}><I n={q.ic} /></button>)}</span>}
+    {primary && primary(r)}
+    {menu && <Menu items={menu(r)} up={data.length > 5 && i >= data.length - 2} />}
+  </div>;
+  const bulkBar = sel && nSel > 0 && <div className="li" style={{ background: '#F3F8F5' }}><span className="w5">{nSel} selected</span><span className="sp" />{bulk}<Btn k="q" onClick={() => setChk({})}>Clear</Btn></div>;
+  const pm = (r, i) => [...(quick ? quick(r).map(q => ({ l: q.l, ic: q.ic, fn: q.fn })) : []), ...(onMove && i > 0 ? [{ l: 'Move up', ic: 'up', fn: () => onMove(i, i - 1) }] : []), ...(onMove && i < data.length - 1 ? [{ l: 'Move down', ic: 'down', fn: () => onMove(i, i + 1) }] : []), ...(onMove && menu ? ['-'] : []), ...(menu ? menu(r) : [])];
+  if (ph && card) return wrap(<div>{data.map((r, i) => <div key={key(r)} className="pc" style={{ borderBottom: i < data.length - 1 ? '1px solid var(--line)' : 0 }}>{card(r, i, pm(r, i), data.length > 3 && i >= data.length - 2)}</div>)}</div>);
+  if (ph) return wrap(<div>{bulkBar}{data.map((r, i) => <div key={key(r)} className="pc" style={{ borderBottom: i < data.length - 1 ? '1px solid var(--line)' : 0 }} onClick={e => click(e, r)}>
+    <div className="row nw" style={{ alignItems: 'flex-start' }}>
+      {sel && <label style={{ display: 'flex', width: 44, height: 44, margin: '-10px 0 -10px -11px', alignItems: 'center', justifyContent: 'center', flex: 'none' }}><input type="checkbox" className="chk" aria-label="Select row" checked={!!chk[key(r)]} onChange={e => setChk({ ...chk, [key(r)]: e.target.checked })} /></label>}
+      <div className={'w6' + (cols[0].mo ? ' mo' : '')} style={{ flex: 1, minWidth: 0, overflowWrap: 'break-word' }}>{cell(cols[0], r)}</div>
+      {(menu || onMove) && <span style={{ margin: '-8px -8px 0 0' }}><Menu items={pm(r, i)} up={data.length > 3 && i >= data.length - 2} /></span>}
+    </div>
+    {cols.slice(1).map((c, j) => <div key={j} className="pc-r"><span className="mu">{c.l}</span><span className={c.mo ? 'mo' : ''}>{cell(c, r)}</span></div>)}
+    {primary && primary(r) && <div className="row" style={{ paddingTop: 6 }}>{primary(r)}</div>}
+  </div>)}</div>);
+  return wrap(<div>{bulkBar}{head}{data.map((r, i) => <div key={key(r)} className={'tr' + (onRow ? ' ck' : '') + (chk[key(r)] ? ' sel' : '') + (drag === i ? ' drg' : '') + (over === i && drag !== null && drag !== i ? ' over' : '')} style={{ gridTemplateColumns: tpl }} onClick={e => click(e, r)}
+    onDragOver={onMove ? e => { e.preventDefault(); setOver(i); } : undefined} onDrop={onMove ? () => { if (drag !== null && drag !== i) onMove(drag, i); setDrag(null); setOver(null); } : undefined}>
+    {onMove && <button className="grip" draggable aria-label={'Reorder row ' + (i + 1) + '. Alt plus arrow keys move it.'} title="Drag to reorder" onDragStart={() => setDrag(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
+      onKeyDown={e => { if (e.altKey && e.key === 'ArrowUp' && i > 0) { e.preventDefault(); onMove(i, i - 1); } if (e.altKey && e.key === 'ArrowDown' && i < data.length - 1) { e.preventDefault(); onMove(i, i + 1); } }}><I n="grip" s={14} /></button>}
+    {sel && <input type="checkbox" className="chk" aria-label="Select row" checked={!!chk[key(r)]} onChange={e => setChk({ ...chk, [key(r)]: e.target.checked })} />}
+    {vis.map((c, j) => <div key={j} className={'cl' + (c.mo ? ' mo' : '') + (c.num ? ' r tn' : '') + (c.ov ? ' ov' : '')}>{j === 0 && onRow && !c.r ? <button className={'lk el' + (c.mo ? ' mo' : '')} style={{ display: 'block' }} onClick={() => onRow(r)}>{cell(c, r)}</button> : cell(c, r)}</div>)}
+    {hasA && acts(r, i)}
+  </div>)}</div>);
+}
+function Modal({ title, children, foot, onClose, lock, w }) {
+  return <div className="scrim" onMouseDown={e => { if (!lock && e.target === e.currentTarget) onClose(); }}>
+    <div className="modal" role="dialog" aria-modal="true" aria-label={title} style={w ? { maxWidth: w } : undefined}>
+      <div className="mh"><h2 style={{ flex: 1, paddingTop: 4 }}>{title}</h2>{!lock && <button className="ib" style={{ margin: '-2px -8px 0 0' }} aria-label="Close" onClick={onClose}><I n="x" /></button>}</div>
+      <div className="mb">{children}</div>
+      {foot && <div className="mf">{foot}</div>}
+    </div>
+  </div>;
+}
+const Stat = ({ l, v, sub, go, tone }) => {
+  const C = go ? 'button' : 'div';
+  return <C className="cd stat" onClick={go}><span className="mu stl">{l}</span><span className="fig">{v}</span>{sub && <span className="me" style={tone ? { color: 'var(--' + tone + ')' } : undefined}>{sub}</span>}</C>;
+};
+const nb = s => typeof s === 'string' && s.includes('-') ? s.split(/(\S+-\S+)/).map((p, i) => i % 2 ? <span key={i} style={{ whiteSpace: 'nowrap' }}>{p}</span> : p) : s;
+const brk = s => typeof s === 'string' && s.includes('@') ? s.split('@').map((p, i) => <Fragment key={i}>{i > 0 && <>@<wbr /></>}{p}</Fragment>) : s;
+const Two = ({ a, b, mo }) => <div className="col" style={{ gap: 0 }}><span className="w5 el">{a}</span><span className={'me el' + (mo ? ' mo' : '')}>{brk(b)}</span></div>;
+
+/* ---------- admin screens ---------- */
+function Overview() {
+  const { go, started, toast, guard, ph } = useC();
+  const pts = [22, 58, 96, 121, 150, 178, 190];
+  const line = pts.map((v, i) => (i * 100) + ',' + (200 - v * 0.95)).join(' ');
+  const funnel = [['Marketing', 98, 22, 148], ['Sales', 52, 31, 148], ['Week 1 · Know the Business', 33, 6, 44], ['Week 2 · Own the Day', 17, 12, 44], ['Database', 0, 0, 148]];
+  return <div className="pg">
+    <Head t="Overview" d={started ? 'December 2026 Cohort · Week 2 of 6 · Updated live from learner activity' : 'December 2026 Cohort · Opens Wed, Dec 2 at 12:00 PM MST · 148 learners enrolled'}
+      right={<><Btn ic="download" onClick={() => toast('Report export started')}>Export report</Btn><GBtn k="p" ic="plus" perm="build" label="New AI Employee" go={() => go('builder')}>New AI Employee</GBtn></>} />
+    <Gate n={8}>
+      <div className="g5">
+        <Stat l="Active learners" v="148" sub={ph ? '44 on Team Tier' : '104 Agent · 44 Team'} go={() => go('learners')} />
+        <Stat l={ph ? 'Deployed' : 'AI Employees deployed'} v={started ? '190' : '0'} sub={started ? (ph ? '+6 in 24 hours' : '+6 in the last 24 hours') : (ph ? 'Starts Dec 2' : 'Counting starts Dec 2')} tone={started ? 'ok' : null} go={() => go('curriculum')} />
+        <Stat l={ph ? 'Completion' : 'Build completion'} v={started ? '33%' : '—'} sub={ph ? 'Of open builds' : 'Of builds available'} />
+        <Stat l={ph ? 'Attendance' : 'Live attendance'} v={started ? '74%' : '—'} sub={started ? (ph ? 'Session 2' : 'Session 2 · 109 attended') : (ph ? 'Opens Dec 2' : 'Session 1 is Wed, Dec 2')} go={() => go('cohorts')} />
+        <Stat l="Upgrade pipeline" v="$8,000" sub="2 open requests" tone="warn" go={() => go('tiers')} />
+      </div>
+      <div className="gms">
+        <Card t="AI Employees deployed" sub="Cumulative, all learners" right={started && <span className="w5" style={{ color: 'var(--ok)' }}>190 total</span>}>
+          {started ? <div><svg viewBox="0 0 600 200" preserveAspectRatio="none" style={{ width: '100%', height: ph ? 160 : 220, display: 'block' }} role="img" aria-label="Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.">
+            {[50, 100, 150].map(y => <line key={y} x1="0" x2="600" y1={y} y2={y} stroke="#E6E3DA" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
+            <polygon points={'0,200 ' + line + ' 600,200'} fill="#E7F1EB" /><polyline points={line} fill="none" stroke="#1F4D40" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+          </svg><div className="row nw me" style={{ justifyContent: 'space-between', paddingTop: 8 }}>{(ph ? ['Dec 2', 'Dec 4', 'Dec 6', 'Dec 8'] : ['Dec 2', 'Dec 3', 'Dec 4', 'Dec 5', 'Dec 6', 'Dec 7', 'Dec 8']).map(d => <span key={d} style={{ whiteSpace: 'nowrap' }}>{d}</span>)}</div></div>
+            : <Empty ic="usage" t="Not started" b="Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MST." />}
+        </Card>
+        <Card t="Live activity" pad={false}>
+          {started ? [['Sarah Collins', 'deployed Database AI Employee', '38 min ago', 'ok'], ['Rosa Delgado', 'deployed Sales AI Employee', '2 hours ago', 'ok'], ['Natasha Reed', 'deployed Marketing AI Employee', '2 hours ago', 'ok'], ['Devon Price', 'deployed Sales AI Employee', '14 hours ago', 'ok'], ['Kenji Watanabe', 'requested a Team tier upgrade', '18 hours ago', 'warn']].map((a, i) =>
+            <div key={i} className="li" style={{ alignItems: 'flex-start' }}><span className={'st ' + a[3]} style={{ paddingTop: 7 }}><i /></span><span style={{ flex: 1, minWidth: 0 }}><span className="w5">{a[0]}</span> <span className="s2">{a[1]}</span></span><span className="me" style={{ whiteSpace: 'nowrap', paddingTop: 2 }}>{a[2]}</span></div>)
+            : <Empty ic="health" t="No activity yet" b="Learner activity appears here once the cohort opens." />}
+        </Card>
+      </div>
+      <div className="gms">
+        <Card t="Build funnel by AI Employee" right={!ph && <span className="row me" style={{ gap: 12 }}><span className="st ok"><i />Deployed</span><span className="st info"><i />In progress</span><span className="st"><i style={{ background: '#DAD6CB' }} />Not started</span></span>} pad={false}>
+          {funnel.map(f => { const nums = started ? <><span className="w5">{Math.round(f[1] / f[3] * 100)}%</span> <span className="mu">· {f[1]} of {f[3]}</span></> : <span className="mu">Not started</span>; const bar = <Bar v={started ? f[1] : 0} v2={started ? f[2] : 0} max={f[3]} />;
+            return ph ? <div key={f[0]} className="li" style={{ flexDirection: 'column', alignItems: 'stretch', flexWrap: 'nowrap', gap: 8 }}><div className="row nw" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}><span className="w5" style={{ minWidth: 0 }}>{f[0]}</span><span className="tn" style={{ flex: 'none', whiteSpace: 'nowrap' }}>{nums}</span></div><div style={{ display: 'flex' }}>{bar}</div></div>
+              : <div key={f[0]} className="li"><span className="w5 el" style={{ flex: '0 0 220px' }}>{f[0]}</span>{bar}<span className="tn" style={{ flex: '0 0 112px', textAlign: 'right', whiteSpace: 'nowrap' }}>{nums}</span></div>; })}
+        </Card>
+        <Card t="Live attendance" pad={false}>
+          {[['Session 1 · Dec 2', 82, '121 attended'], ['Session 2 · Dec 9', 74, '109 attended'], ['Session 3 · Dec 16', null, 'Upcoming']].map(s => <div key={s[0]} className="li"><span className={ph ? '' : 'el'} style={ph ? { flex: '0 0 124px', whiteSpace: 'nowrap' } : { flex: '0 0 124px' }}>{s[0]}</span>{started && s[1] ? <><Bar v={s[1]} /><span className="w5 tn">{s[1]}%</span></> : <span className="mu sp" style={{ textAlign: 'right' }}>{started ? s[2] : 'Upcoming'}</span>}</div>)}
+        </Card>
+      </div>
+    </Gate>
+  </div>;
+}
+
+function TierPill({ m, set }) {
+  const { guard, log } = useC();
+  const ch = v => guard('build', 'Change tier access for ' + m.n, () => { set(v); log('tier.access_change', m.n, v === 'both' ? 'Team only to Agent + Team.' : 'Agent + Team to Team only.'); });
+  return <Menu lf trigger={(t, o) => <button className={'pl ' + (m.tier === 'both' ? 'ok' : 'warn')} aria-expanded={o} aria-label={'Tier access: ' + (m.tier === 'both' ? 'Agent + Team' : 'Team only')} onClick={t}>{m.tier === 'both' ? 'Agent + Team' : 'Team only'}<I n="chevd" s={11} w={2.4} /></button>}
+    items={[{ l: 'Agent + Team', on: m.tier === 'both', fn: () => m.tier !== 'both' && ch('both') }, { l: 'Team only', on: m.tier === 'team', fn: () => m.tier !== 'team' && ch('team') }]} />;
+}
+function Curriculum() {
+  const { mods, setMods, started, guard, log, toast, go, setDlg, setPrev, lap, wide, ph } = useC();
+  const [q, setQ] = useState(''), [f, setF] = useState('All statuses');
+  const upd = (id, p) => setMods(ms => ms.map(m => m.id === id ? { ...m, ...p } : m));
+  const pub = (m, on) => guard('build', (on ? 'Publish ' : 'Unpublish ') + m.n, () => setDlg({ title: (on ? 'Publish ' : 'Unpublish ') + m.n + '?', body: on ? 'Learners with access see it in the portal right away.' : 'It is hidden from learners right away. Their progress is kept.', cta: on ? 'Publish' : 'Unpublish', yes: () => { upd(m.id, { st: on ? 'Published' : 'Draft', dep: on ? (m.dep || 0) : m.dep }); log('module.' + (on ? 'publish' : 'unpublish'), m.n, ''); toast(m.n + (on ? ' is published' : ' is now a draft')); } }));
+  const filt = q || f !== 'All statuses';
+  const rows = mods.filter(m => m.n.toLowerCase().includes(q.toLowerCase()) && (f === 'All statuses' || m.st === f));
+  const move = (a, b) => guard('build', 'Reorder curriculum', () => setMods(ms => { const x = [...ms]; const [r] = x.splice(a, 1); x.splice(b, 0, r); return x; }));
+  return <div className="pg">
+    <Head t="Curriculum" d={mods.length + ' AI Employees · ' + mods.filter(m => m.tier === 'both').length + (ph ? ' in Agent\u00A0Tier\u00A0·\u00A0' : ' in Agent Tier, all in Team Tier · ') + mods.filter(m => m.st === 'Draft').length + '\u00A0draft'}
+      right={<GBtn k="p" ic="plus" perm="build" label="New AI Employee" go={() => go('builder')}>New AI Employee</GBtn>} />
+    <div className="row"><Find v={q} on={setQ} ph="Filter AI Employees" /><Sel label="Status" v={f} on={setF} opts={['All statuses', 'Published', 'Scheduled', 'Draft']} /></div>
+    <Table rows={rows} onMove={filt ? undefined : move} aw="104px" empty={{ ic: 'curriculum', t: 'No AI Employees yet', b: 'Create the first one to start the curriculum.', cta: 'New AI Employee', on: () => go('builder') }}
+      cols={[
+        { k: 'n', l: 'AI Employee', w: wide ? 'minmax(260px,1.6fr)' : 'minmax(194px,1fr)', r: (m, x) => <div className="row nw" style={{ gap: x.tw < 1100 ? 8 : 12 }}>{x.tw >= 1100 && <span className="me tn" style={{ width: 16, textAlign: 'right', flex: 'none' }}>{mods.indexOf(m) + 1}</span>}<span className="mt" style={x.tw < 1100 ? { width: 28, height: 28 } : undefined}><I n={m.ic} /></span><div className="col" style={{ gap: 0, padding: '6px 0' }}><button className={'lk' + (x.tw < 1100 ? '' : ' el')} onClick={() => go('builder', m.id)}>{m.n}</button><span className="me el">{x.drop ? (m.ses ? m.ses[0].split(' · ')[0] + ' · ' + m.ses[1].split(' · ').slice(0, 2).join(' · ') : 'Self-paced') : nb(m.d)}</span></div></div> },
+        { k: 'tier', l: 'Tier access', w: wide || lap ? '124px' : '116px', ov: 1, r: m => <TierPill m={m} set={v => upd(m.id, { tier: v })} /> },
+        { k: 'ses', l: 'Live session', w: wide ? 'minmax(250px,1.6fr)' : '132px', hide: 'lap', r: (m, x) => m.ses ? <div className="col" style={{ gap: 0, padding: '6px 0' }} title={m.ses[0] + ' · ' + m.ses[1]} aria-label={m.ses[0] + ' · ' + m.ses[1]}><span className={wide ? 'cl3' : 'el'}>{wide ? nb(m.ses[0]) : m.ses[0].replace(/^Session \d+ · /, '').replace(/ Live Build$/, '')}</span><span className={wide ? 'me' : 'me el'} style={wide ? { whiteSpace: 'normal' } : undefined}>{x.tw < 1100 ? m.ses[1].split(' · ').slice(0, 2).join(' · ').replace(' MST', '') : m.ses[1]}</span></div> : <span className="mu">Self-paced</span> },
+        { k: 'st', l: 'Status', w: lap ? '112px' : wide ? '128px' : '120px', r: m => m.st === 'Draft' && lap ? <div className="col" style={{ gap: 2, alignItems: 'flex-start' }}><St v={m.st} /><span className="pl" title="Hidden from learners" aria-label="Hidden from learners">Hidden</span></div> : <div className="col" style={{ gap: 0 }}><St v={m.st} /><span className="me" style={{ whiteSpace: 'nowrap' }}>{m.st === 'Draft' ? 'Hidden from learners' : m.st === 'Scheduled' ? m.opens : m.steps + ' steps · ' + m.files + ' files'}</span></div> },
+        { k: 'dep', l: 'Deployed', w: '96px', ov: 1, r: m => !started || m.st !== 'Published' ? <span className="mu">{m.st === 'Draft' ? 'Not published' : 'Not started'}</span> : <span className="row nw" style={{ gap: 10 }}><Bar v={m.dep} /><span className="tn w5" style={{ minWidth: 34, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{m.dep}%</span></span> },
+      ]}
+      card={(m, i, items, up) => <><button className="lk w6" style={{ fontSize: 17, lineHeight: '24px', margin: '-10px 0' }} onClick={() => go('builder', m.id)}>{m.n}</button><p className="s2 cl2">{nb(m.d)}</p><span className="mu cl1">{m.st === 'Draft' ? 'Hidden from learners · ' : ''}{m.ses ? (m.st === 'Draft' ? '' : m.ses[0].split(' · ')[0] + ' · ') + m.ses[1].split(' · ')[0] : 'Self-paced'}{started && m.st === 'Published' ? ' · ' + m.dep + '% deployed' : !started && m.st === 'Published' ? ' · Not started' : ''}</span><div className="row nw" style={{ gap: 6 }}><span title={m.st === 'Draft' ? 'Hidden from learners' : undefined} aria-label={m.st === 'Draft' ? 'Draft. Hidden from learners' : undefined}><St v={m.st} /></span><TierPill m={m} set={v => upd(m.id, { tier: v })} /><span className="sp" />{m.st === 'Draft' && <Btn k="p" style={{ padding: '0 12px' }} onClick={() => pub(m, true)}>Publish</Btn>}<Menu items={items} up={up} /></div></>}
+      quick={m => [{ l: 'Preview as Learner', ic: 'eye', fn: () => setPrev(m) }]}
+      primary={m => m.st === 'Draft' ? <Btn k="p" onClick={() => pub(m, true)}>Publish</Btn> : null}
+      menu={m => [{ l: 'Edit in Module Builder', ic: 'builder', fn: () => go('builder', m.id) }, { l: 'Preview as Learner', ic: 'eye', fn: () => setPrev(m) }, { l: 'Duplicate', g: 1, fn: () => guard('build', 'Duplicate ' + m.n, () => toast('Duplicated as a draft')) }, '-', m.st === 'Draft' ? { l: 'Publish', g: 1, fn: () => pub(m, true) } : { l: 'Unpublish', g: 1, d: 1, fn: () => pub(m, false) }]} />
+    <p className="me">Tier access and publish status update the learner portal immediately. Session times are MST. {ph ? 'Reorder from the … menu.' : 'Drag the handle, or focus it and press Alt with an arrow key, to reorder.'}</p>
+  </div>;
+}
+
+function Builder() {
+  const { mods, setMods, route, guard, toast, log, setPrev, ph, ds } = useC();
+  const [id, setId] = useState(route.id || 'm1');
+  const m = mods.find(x => x.id === id) || mods[0];
+  const [steps, setSteps] = useState([['Watch', 'What this AI Employee does', '4 min'], ['Read', 'Before you start: what to have open', '3 min'], ['Build', 'Install the skill file', '6 min'], ['Build', 'Run it on your first real input', '8 min'], ['Check', 'Review the output against the checklist', '5 min'], ['Ship', 'Mark as deployed', '1 min']]);
+  const [dirty, setDirty] = useState(false);
+  const upd = p => { setMods(ms => ms.map(x => x.id === m.id ? { ...x, ...p } : x)); setDirty(true); };
+  const move = (a, b) => { const x = [...steps]; const [r] = x.splice(a, 1); x.splice(b, 0, r); setSteps(x); setDirty(true); };
+  return <div className="pg">
+    <Head t="Module Builder" d="Edit one AI Employee: its steps, files, tier access, and live session." right={<><Btn ic="eye" onClick={() => setPrev(m)}>Preview as Learner</Btn><GBtn k="p" perm="build" label={'Save ' + m.n} go={() => { setDirty(false); log('module.save', m.n, ''); toast('Saved'); }}>{dirty ? 'Save changes' : 'Saved'}</GBtn></>} />
+    <Gate n={8} empty={{ ic: 'builder', t: 'No module selected', b: 'Create an AI Employee in Curriculum, then build it here.' }}>
+      <div className="bb">
+        {ph ? <select className="in" style={{ width: '100%' }} aria-label="AI Employee" value={m.id} onChange={e => setId(e.target.value)}>{mods.map(x => <option key={x.id} value={x.id}>{x.n}</option>)}</select>
+          : <section className="cd" style={{ padding: 4, maxHeight: 560, overflow: 'auto' }}>{mods.map(x => <button key={x.id} className={'ni' + (x.id === m.id ? ' on' : '')} onClick={() => setId(x.id)}><span className={'st ' + TONE[x.st]}><i /></span><span className="el">{x.n}</span></button>)}</section>}
+        <div className="col">
+          <section className="cd pd col m">
+            <div className="row nw"><span className="mt"><I n={m.ic} /></span><input className="in ine" style={{ fontSize: 'var(--sh)', fontWeight: 600 }} aria-label="Name" value={m.n} onChange={e => upd({ n: e.target.value })} /></div>
+            <input className="in ine s2" style={{ fontWeight: 400 }} aria-label="Summary" value={m.d} onChange={e => upd({ d: e.target.value })} />
+          </section>
+          <Table title={'Steps · ' + steps.length} right={<GBtn k="q" ic="plus" perm="build" label="Add step" go={() => { setSteps([...steps, ['Build', 'New step', '5 min']]); setDirty(true); }}>Add step</GBtn>} rows={steps} onMove={move}
+            cols={[{ k: 1, l: 'Step', w: 'minmax(0,1fr)', r: s => <textarea className="in ine" rows={1} style={{ resize: 'none', fieldSizing: 'content', whiteSpace: 'normal', display: 'block', margin: '6px 0 6px -8px', width: 'calc(100% + 8px)' }} aria-label="Step title" title={s[1]} value={s[1]} onChange={e => { setSteps(steps.map(x => x === s ? [s[0], e.target.value, s[2]] : x)); setDirty(true); }} /> }, { k: 0, l: 'Type', w: '64px', r: s => <Pill v={s[0]} tone="" /> }, { k: 2, l: 'Length', w: '48px', num: 1 }]}
+            menu={s => [{ l: 'Duplicate step', fn: () => { setSteps([...steps, [...s]]); setDirty(true); } }, { l: 'Remove step', d: 1, g: 1, fn: () => guard('build', 'Remove step', () => { setSteps(steps.filter(x => x !== s)); setDirty(true); }) }]} />
+          <Card t={'Files · 3'} pad={false} right={<GBtn k="q" ic="plus" perm="build" label="Attach file" go={() => toast('File picker opens here')}>Attach</GBtn>}>
+            {[['skill-file.zip', 'Skill file', '184 KB'], ['system-prompt.md', 'System prompt', '6 KB'], ['review-checklist.pdf', 'Checklist', '412 KB']].map(f => <div key={f[0]} className="li"><I n="file" /><span className="mo el" style={{ flex: 1 }}>{f[0]}</span><span className="mu">{f[1]}</span><span className="me tn" style={{ width: 56, textAlign: 'right' }}>{f[2]}</span></div>)}
+          </Card>
+        </div>
+        <Card t="Settings"><div className="col kvs">
+          <KV rows={[['Status', <St v={m.st} />], ['Tier access', <TierPill m={m} set={v => upd({ tier: v })} />], ['Live session', m.ses ? <span>{m.ses[0]}<br /><span className="me">{m.ses[1]}</span></span> : <span className="mu">Self-paced</span>], ['Opens', m.st === 'Scheduled' ? m.opens.replace('Opens ', '') : m.st === 'Draft' ? <span className="mu">Not scheduled</span> : 'Open now'], ['Skill guide', <span className="row" style={{ gap: 6 }}><I n="check" />Linked</span>]]} />
+          <p className="me">Preview as Learner opens a read-only copy in a new tab. It is not masquerade and is not audit-logged.</p>
+        </div></Card>
+      </div>
+    </Gate>
+  </div>;
+}
+
+function Vault() {
+  const { guard, toast, setDlg, log } = useC();
+  const [q, setQ] = useState(''), [ty, setTy] = useState('All types');
+  const R = [['Listing appointment checklist', 'PDF', 'Listing AI Employee', 'Agent + Team', '412 KB', 'Dec 8', 86], ['Standard chart of accounts', 'Sheet', 'Finance AI Employee', 'Team only', '88 KB', 'Dec 6', 31], ['Fair Housing review checklist', 'PDF', 'Marketing AI Employee', 'Agent + Team', '240 KB', 'Dec 2', 128], ['Session 1 replay', 'Video', 'Week 1 · Know the Business', 'Team only', '214 MB', 'Dec 2', 97], ['Session 2 replay', 'Video', 'Week 2 · Own the Day', 'Team only', '198 MB', 'Dec 9', 64], ['Skill install walkthrough', 'Video', 'Week 0 · Get Ready', 'Agent + Team', '96 MB', 'Nov 24', 141], ['Morning brief prompt pack', 'Prompt', 'Week 2 · Own the Day', 'Team only', '9 KB', 'Dec 9', 52]];
+  return <div className="pg">
+    <Head t="Resource Vault" d="Files, replays, prompts, and checklists learners can open from the portal." right={<GBtn k="p" ic="plus" perm="build" label="Add resource" go={() => toast('Upload opens here')}>Add resource</GBtn>} />
+    <div className="row"><Find v={q} on={setQ} ph="Filter resources" /><Sel label="Type" v={ty} on={setTy} opts={['All types', 'PDF', 'Sheet', 'Video', 'Prompt']} /></div>
+    <Table rows={R.filter(r => r[0].toLowerCase().includes(q.toLowerCase()) && (ty === 'All types' || r[1] === ty))} empty={{ ic: 'vault', t: 'The vault is empty', b: 'Add a file or a replay and attach it to an AI Employee.', cta: 'Add resource' }}
+      cols={[{ k: 0, l: 'Resource', w: 'minmax(200px,1.6fr)', r: r => <div className="row nw" style={{ gap: 10 }}><I n={r[1] === 'Video' ? 'play' : 'file'} /><span className="w5 el">{r[0]}</span></div> }, { k: 1, l: 'Type', w: '72px' }, { k: 2, l: 'Attached to', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 3, l: 'Tier access', w: '120px', r: r => <Pill v={r[3]} tone={r[3] === 'Team only' ? 'warn' : 'ok'} /> }, { k: 4, l: 'Size', w: '72px', num: 1, ns: 1 }, { k: 6, l: 'Opens', w: '64px', num: 1 }, { k: 5, l: 'Updated', w: '72px', ns: 1 }]}
+      quick={r => [{ l: 'Download', ic: 'download', fn: () => toast('Download started') }]}
+      menu={r => [{ l: 'Edit details', g: 1, fn: () => guard('build', 'Edit ' + r[0], () => toast('Editor opens here')) }, { l: 'Replace file', g: 1, fn: () => guard('build', 'Replace ' + r[0], () => toast('File picker opens here')) }, '-', { l: 'Remove from vault', d: 1, g: 1, fn: () => guard('build', 'Remove ' + r[0], () => setDlg({ title: 'Remove "' + r[0] + '"?', body: 'Learners lose access right away. The file stays in storage for 30 days.', cta: 'Remove resource', danger: 1, yes: () => { log('vault.remove', r[0], ''); toast('Removed from the vault'); } })) }]} />
+  </div>;
+}
+
+function Cohorts() {
+  const { guard, toast, started } = useC();
+  const S = [['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST', 'Week 1', 'Sent', 'Ready', '82%'], ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST', 'Week 2', 'Sent', 'Ready', '74%'], ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST', 'Week 3', 'Scheduled', '—', '—'], ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST', 'Week 4', 'Scheduled', '—', '—'], ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST', 'Week 5', 'Draft', '—', '—'], ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST', 'Week 6', 'Draft', '—', '—']];
+  return <div className="pg">
+    <Head t="Cohorts & Sessions" d="The cohort calendar and each live build on Zoom. All times are MST (America/Phoenix)." right={<GBtn k="p" ic="plus" perm="build" label="Add session" go={() => toast('Session editor opens here')}>Add session</GBtn>} />
+    <Gate n={3}><Facts items={[['Cohort', 'December 2026'], ['Status', <St v={started ? 'Active' : 'Scheduled'} />], ['Opens', 'Wed, Dec 2 · 12:00 PM MST', 1], ['Week', started ? '2 of 6' : 'Not started'], ['Enrolled', '148 learners'], ['Cadence', 'Wednesdays, weekly', 1]]} /></Gate>
+    <Table title="Sessions" rows={S} empty={{ ic: 'cohorts', t: 'No sessions scheduled', b: 'Add the first live build for this cohort.', cta: 'Add session' }}
+      cols={[{ k: 0, l: 'Session', w: 'minmax(250px,1.6fr)', r: s => <span className="w5 el" style={{ display: 'block' }}>{s[0]}</span> }, { k: 1, l: 'When', w: '188px', ns: 1, r: s => <div className="col" style={{ gap: 0 }}><span className="el">{s[1]}</span><span className="me">Live on Zoom</span></div> }, { k: 2, l: 'Module', w: '68px', hide: 'lap' }, { k: 3, l: 'Zoom invite', w: '112px', r: s => <St v={!started && s[3] === 'Sent' ? 'Scheduled' : s[3]} /> }, { k: 4, l: 'Replay', w: '72px', r: s => started && s[4] === 'Ready' ? <St v="Ready" /> : <span className="mu">—</span> }, { k: 5, l: 'Attendance', w: '88px', num: 1, r: s => started && s[5] !== '—' ? s[5] : <span className="mu">—</span> }]}
+      menu={s => [{ l: 'Edit session', g: 1, fn: () => guard('build', 'Edit ' + s[0], () => toast('Session editor opens here')) }, { l: 'Copy join link', fn: () => toast('Join link copied') }, { l: 'Attach replay', g: 1, fn: () => guard('build', 'Attach replay', () => toast('Replay picker opens here')) }]} />
+  </div>;
+}
+
+function Announce() {
+  const { guard, toast, log } = useC();
+  const [open, setOpen] = useState(false), [ti, setTi] = useState(''), [bo, setBo] = useState('');
+  const [rows, setRows] = useState([['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM'], ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM'], ['Session 3 is Wednesday at 12:00 PM MST', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'], ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—']]);
+  return <div className="pg">
+    <Head t="Announcements" d="Messages to learners in the portal and by email." right={<GBtn k="p" ic="plus" perm="build" label="New announcement" go={() => setOpen(true)}>New announcement</GBtn>} />
+    <Table rows={rows} empty={{ ic: 'announce', t: 'No announcements yet', b: 'Write the first one to tell learners what is new.', cta: 'New announcement', on: () => setOpen(true) }}
+      cols={[{ k: 0, l: 'Announcement', w: 'minmax(220px,2fr)', r: r => <span className="w5 el" style={{ display: 'block' }}>{r[0]}</span> }, { k: 1, l: 'Audience', w: '104px' }, { k: 2, l: 'Channels', w: '120px', hide: 'lap' }, { k: 3, l: 'Status', w: '112px', r: r => <St v={r[3]} /> }, { k: 4, l: 'Send time', w: '136px', ns: 1 }]}
+      menu={r => [{ l: 'Edit', g: 1, fn: () => guard('build', 'Edit announcement', () => toast('Editor opens here')) }, { l: 'Duplicate', g: 1, fn: () => guard('build', 'Duplicate announcement', () => toast('Duplicated as a draft')) }]} />
+    {open && <Modal title="New announcement" onClose={() => setOpen(false)} foot={<><Btn onClick={() => setOpen(false)}>Cancel</Btn><Btn k="p" disabled={!ti.trim()} onClick={() => { setRows([[ti, 'Everyone', 'In-app', 'Draft', '—'], ...rows]); log('announcement.create', ti, 'Draft'); setOpen(false); setTi(''); setBo(''); toast('Saved as a draft'); }}>Save draft</Btn></>}>
+      <label className="lab">Title<input className="in" autoFocus value={ti} onChange={e => setTi(e.target.value)} /></label>
+      <label className="lab">Message<textarea className="in" rows={4} value={bo} onChange={e => setBo(e.target.value)} /></label>
+      <div className="row"><label className="lab" style={{ flex: 1 }}>Audience<select className="in" style={{ width: '100%' }}><option>Everyone</option><option>Agent Tier</option><option>Team Tier</option></select></label><label className="lab" style={{ flex: 1 }}>Channels<select className="in" style={{ width: '100%' }}><option>In-app</option><option>In-app, email</option><option>Email</option></select></label></div>
+    </Modal>}
+  </div>;
+}
+
+function Learners() {
+  const { go, startMasq, started } = useC();
+  const [tab, setTab] = useState('learners'), [q, setQ] = useState(''), [tier, setTier] = useState('All tiers');
+  const L = USERS.filter(u => u.st !== 'Canceled' && (u.n + u.ws).toLowerCase().includes(q.toLowerCase()) && (tier === 'All tiers' || u.tier === tier));
+  return <div className="pg">
+    <Head t="Learners & Teams" d="Everyone enrolled in the December 2026 Cohort, with build progress. Account and billing support lives in Workspaces and Users." />
+    <Tabs v={tab} on={setTab} tabs={[['learners', 'Learners', 148], ['teams', 'Teams', 7]]} />
+    {tab === 'learners' && <><div className="row"><Find v={q} on={setQ} ph="Filter by name or team" /><Sel label="Tier" v={tier} on={setTier} opts={['All tiers', 'Agent', 'Team']} /></div>
+      <Table rows={L} onRow={u => go('user', u.id)} empty={{ ic: 'learners', t: 'No learners enrolled', b: 'Learners appear here after checkout.' }}
+        cols={[{ k: 'n', l: 'Learner', w: 'minmax(200px,1.5fr)', r: u => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={u.e} /></div> }, { k: 'ws', l: 'Team', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'tier', l: 'Tier', w: '72px', r: u => <Pill v={u.tier} tone={u.tier === 'Team' ? 'warn' : 'ok'} /> }, { k: 'pr', l: 'Builds deployed', w: '160px', r: u => started ? <span className="row nw" style={{ gap: 10 }}><Bar v={u.pr} max={u.of} v2={0} /><span className="tn" style={{ minWidth: 44, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{u.pr} of {u.of}</span></span> : <span className="mu">Not started</span> }, { k: 'last', l: 'Last active', w: '128px', ns: 1 }]}
+        menu={u => [{ l: 'Open user record', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} /></>}
+    {tab === 'teams' && <Table rows={WS.filter(w => w.plan.startsWith('Team'))} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No teams yet' }}
+      cols={[{ k: 'n', l: 'Team', w: 'minmax(180px,1.5fr)' }, { k: 'owner', l: 'Owner', w: 'minmax(120px,1fr)' }, { k: 'plan', l: 'Plan', w: '160px', hide: 'lap' }, { k: 'used', l: 'Seats', w: '160px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]}
+      menu={w => [{ l: 'Open workspace', fn: () => go('workspace', w.id) }]} />}
+  </div>;
+}
+
+function Tiers() {
+  const { mods, setMods, guard, log, toast, setDlg, ph } = useC();
+  const [price, setPrice] = useState({ a: '995', t16: '4995', t41: '9995' });
+  const [req, setReq] = useState([['Kenji Watanabe', 'Agent → Team · 16 seats', '$4,000', 'Dec 9, 3:02 PM', 'Pending'], ['Jordan Hale', 'Team · 16 seats → 41 seats', '$4,000', 'Dec 9, 6:12 PM', 'Pending'], ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM', 'Approved']]);
+  const T = [['a', 'Agent Tier', '1 seat', 'per agent, per cohort', '104 licenses', '$103,480', 'For individual agents building their own AI Employees.', ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault']],
+    ['t16', 'Team Tier', '16 seats', 'per team, per cohort', '5 teams', '$24,975', 'For teams that want every seat building, plus the leadership modules.', ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking']],
+    ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
+  const tog = m => guard('build', 'Change tier access for ' + m.n, () => { setMods(ms => ms.map(x => x.id === m.id ? { ...x, tier: x.tier === 'both' ? 'team' : 'both' } : x)); log('tier.access_change', m.n, m.tier === 'both' ? 'Agent + Team to Team only.' : 'Team only to Agent + Team.'); });
+  return <div className="pg">
+    <Head t="Tiers & Upgrades" d="December 2026 Cohort revenue $148,445 · 104 Agent licenses · 7 teams" />
+    <Gate n={8}>
+      <div className="g3">{T.map(t => <section key={t[0]} className="cd pd col" style={{ gap: 12 }}>
+        <div className="row nw"><h2>{t[1]}</h2><Pill v={t[2]} tone="" /><span className="sp" /><span className="me">{t[4]}</span></div>
+        <div className="row nw" style={{ alignItems: 'baseline' }}><span className="row nw prc" style={{ gap: 2, border: '1px solid var(--line2)', borderRadius: 8, padding: '0 10px', width: 124 }}><span className="mu">$</span><input className="tn" aria-label={t[1] + ' ' + t[2] + ' price'} style={{ border: 0, outline: 0, background: 'none', width: '100%', height: '100%', font: '600 20px/28px Geist,sans-serif', letterSpacing: '-.02em', boxShadow: 'none' }} value={price[t[0]]} onChange={e => guard('build', 'Change ' + t[1] + ' price', () => setPrice({ ...price, [t[0]]: e.target.value.replace(/\D/g, '') }))} /></span><span className="me">{t[3]}</span></div>
+        <p className="s2">{t[6]}</p>
+        <div className="col" style={{ gap: 6 }}>{t[7].map(x => <span key={x} className="row nw" style={{ alignItems: 'flex-start' }}><span style={{ color: 'var(--ok)', paddingTop: 2 }}><I n="check" /></span><span>{x}</span></span>)}</div>
+        <div className="row nw" style={{ borderTop: '1px solid var(--line)', paddingTop: 12, marginTop: 'auto' }}><span className="mu">Cohort revenue</span><span className="sp" /><span className="w6 tn">{t[5]}</span></div>
+      </section>)}</div>
+      <Table title="Upgrade requests" rows={req} empty={{ ic: 'tiers', t: 'No upgrade requests' }}
+        cols={[{ k: 0, l: 'From', w: 'minmax(140px,1fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Request', w: 'minmax(180px,1.4fr)' }, { k: 2, l: 'Value', w: '80px', num: 1 }, { k: 3, l: 'Received', w: '136px', ns: 1, hide: 'lap' }, { k: 4, l: 'Status', w: '104px', r: r => <St v={r[4]} /> }]} aw="124px"
+        primary={r => r[4] === 'Pending' ? <Btn onClick={() => guard('build', 'Approve upgrade for ' + r[0], () => setDlg({ title: 'Approve upgrade for ' + r[0] + '?', body: r[1] + '. They get an email with a checkout link for ' + r[2] + '.', cta: 'Approve and send link', yes: () => { setReq(req.map(x => x === r ? [r[0], r[1], r[2], r[3], 'Approved'] : x)); log('upgrade.approve', r[0], r[1]); toast('Approved. Checkout link sent.'); } }))}>Approve</Btn> : null}
+        menu={r => [{ l: 'Decline', d: 1, g: 1, fn: () => guard('build', 'Decline upgrade', () => toast('Declined')) }]} />
+      <Card t="Access matrix" sub="Click an Agent cell to include or gate a module. Team Tier always includes everything." pad={false}>
+        {!ph && <div className="th" style={{ gridTemplateColumns: 'minmax(0,1fr) 80px 80px' }}><span>Included</span><span style={{ textAlign: 'center' }}>Agent</span><span style={{ textAlign: 'center' }}>Team</span></div>}
+        {mods.map(m => <div key={m.id} className="tr" style={{ gridTemplateColumns: 'minmax(0,1fr) ' + (ph ? '44px 44px' : '80px 80px'), minHeight: ph ? 56 : 44 }}><span className="el">{m.n}</span>
+          <span style={{ justifySelf: 'center' }}><button className={'mx' + (m.tier === 'both' ? '' : ' lk2')} aria-label={m.n + ', Agent Tier: ' + (m.tier === 'both' ? 'included' : 'gated')} onClick={() => tog(m)}><I n={m.tier === 'both' ? 'check' : 'lock'} s={14} /></button></span>
+          <span style={{ justifySelf: 'center' }}><button className="mx" disabled aria-label={m.n + ', Team Tier: included'}><I n="check" s={14} /></button></span></div>)}
+      </Card>
+    </Gate>
+  </div>;
+}
+
+function Audit() {
+  const { audit, log, toast, guard } = useC();
+  const [actor, setActor] = useState('Any actor'), [act, setAct] = useState('Any action'), [q, setQ] = useState(''), [range, setRange] = useState('Last 7 days');
+  const rows = audit.filter(a => (actor === 'Any actor' || a.actor === actor) && (act === 'Any action' || a.act.startsWith(act)) && (a.tg + a.d).toLowerCase().includes(q.toLowerCase()));
+  const exp = () => guard('export', 'Export audit log', () => { log('audit.export', 'Audit log', 'CSV, ' + range.toLowerCase() + ', ' + rows.length + ' rows.'); toast('Export started. The export is in the log.'); });
+  return <div className="pg">
+    <Head t="Audit Log" d="Every staff action. Append-only. Times are MST (America/Phoenix)." right={<GBtn ic="download" perm="export" label="Export audit log" go={exp}>Export CSV</GBtn>} />
+    <div className="row"><Find v={q} on={setQ} ph="Filter target or detail" /><Sel label="Actor" v={actor} on={setActor} opts={['Any actor', ...STAFF.map(s => s.n)]} /><Sel label="Action" v={act} on={setAct} opts={['Any action', 'masquerade', 'billing', 'permission', 'module', 'tier', 'job', 'audit', 'email_log', 'incident', 'user']} /><Sel label="Date range" v={range} on={setRange} opts={['Last 24 hours', 'Last 7 days', 'Last 30 days']} /></div>
+    <Table rows={rows} sel bulk={<Btn onClick={exp}>Export selected</Btn>} empty={{ ic: 'audit', t: 'No audit entries yet', b: 'Staff actions are recorded here as they happen.' }}
+      cols={[{ k: 't', l: 'Time', w: '136px', ns: 1, r: a => <span className="mo s2">{a.t}</span> }, { k: 'actor', l: 'Actor', w: '128px' }, { k: 'act', l: 'Action', w: 'minmax(210px,1.2fr)', mo: 1 }, { k: 'tg', l: 'Target', w: 'minmax(110px,.9fr)' }, { k: 'd', l: 'Detail', w: 'minmax(160px,1.6fr)', ns: 1, hide: 'lap', r: a => <span className="s2">{a.d}</span> }]} />
+  </div>;
+}
+
+function Roles() {
+  const { perms, setPerms, guard, log, ph, role, toast, setDlg } = useC();
+  const locked = (p, r) => ROLES[r] === 'Support' && (p[0] === 'refund' || p[0] === 'masq');
+  const flip = (i, r) => guard('staff', 'Change ' + ROLES[r] + ' permission', () => setDlg({ title: (perms[i][2][r] ? 'Remove this permission from ' : 'Give this permission to ') + ROLES[r] + '?', body: perms[i][1] + '. Applies to every ' + ROLES[r] + ' on staff right away.', cta: perms[i][2][r] ? 'Remove permission' : 'Allow', yes: () => { setPerms(perms.map((x, j) => j === i ? [x[0], x[1], x[2].map((v, k) => k === r ? (v ? 0 : 1) : v)] : x)); log('permission.change', ROLES[r], perms[i][1] + ': ' + (perms[i][2][r] ? 'allowed to not allowed.' : 'not allowed to allowed.')); toast('Permission updated'); } }));
+  const box = (p, i, r) => locked(p, r) ? <span className="row nw mu" style={{ gap: 4, cursor: 'not-allowed' }} title="Fixed by product rules"><input type="checkbox" className="chk" disabled checked={false} readOnly style={{ cursor: 'not-allowed' }} aria-label={p[1] + ', ' + ROLES[r] + '. Fixed by product rules'} /><I n="lock" s={14} /></span> : <input type="checkbox" className="chk" disabled={r === 0} checked={!!p[2][r]} onChange={() => flip(i, r)} aria-label={p[1] + ', ' + ROLES[r]} />;
+  return <div className="pg">
+    <Head t="Roles & Permissions" d="Who on staff can do what. Learners, agents, and team owners never see the admin." right={<GBtn k="p" ic="plus" perm="staff" label="Invite staff" go={() => toast('Invite form opens here')}>Invite staff</GBtn>} />
+    <Table title="Staff" rows={STAFF} empty={{ ic: 'roles', t: 'No staff yet' }}
+      cols={[{ k: 'n', l: 'Staff member', w: 'minmax(200px,1.4fr)', r: s => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(s.n)}</span><Two a={s.n + (s.role === role ? ' (you)' : '')} b={s.e} /></div> }, { k: 'role', l: 'Role', w: '104px', r: s => <Pill v={s.role} tone={s.role === 'Owner' ? 'ok' : ''} /> }, { k: 'last', l: 'Last sign-in', w: '136px', ns: 1 }]}
+      menu={s => [{ l: 'Change role…', g: 1, off: s.role === 'Owner', fn: () => guard('staff', 'Change role for ' + s.n, () => toast('Role picker opens here')) }]} />
+    <Gate n={8}><Card t="Permission matrix" sub="Owner always has every permission. Locked boxes are fixed by product rules. Changes are confirmed and audit-logged." pad={false}>
+      {!ph && <div className="th" style={{ gridTemplateColumns: 'minmax(0,1fr) 88px 88px 88px' }}><span>Capability</span>{ROLES.map(r => <span key={r}>{r}</span>)}</div>}
+      {perms.map((p, i) => ph ? <div key={p[0]} className="pc" style={{ borderBottom: '1px solid var(--line)' }}><span className="w6">{p[1]}</span>{ROLES.map((r, k) => <label key={r} className="pc-r" title={locked(p, k) ? 'Fixed by product rules' : undefined} style={{ alignItems: 'center', minHeight: 44 }}><span className="mu">{r}</span><span className="row nw">{p[2][k] ? 'Allowed' : 'Not allowed'}{box(p, i, k)}</span></label>)}</div>
+        : <div key={p[0]} className="tr" style={{ gridTemplateColumns: 'minmax(0,1fr) 88px 88px 88px', minHeight: 44 }}><span className="el">{p[1]}</span>{ROLES.map((r, k) => <label key={r} className="row nw" title={locked(p, k) ? 'Fixed by product rules' : undefined} style={{ cursor: locked(p, k) ? 'not-allowed' : k ? 'pointer' : 'default' }}>{box(p, i, k)}<span className="mu">{p[2][k] ? 'Yes' : 'No'}</span></label>)}</div>)}
+    </Card></Gate>
+  </div>;
+}
+
+/* ---------- console screens (same header, table, card system) ---------- */
+function Health() {
+  const { go, ds } = useC();
+  const e = ds === 'empty';
+  return <div className="pg">
+    <Head t="System Health" meta={<Pill v={e ? 'All systems normal' : '1 open incident'} tone={e ? 'ok' : 'bad'} />} d="learn.amplifiedimpact.io right now. Times are MST (America/Phoenix)." />
+    <Gate n={8}>
+      <div className="g4">
+        <Stat l="Live sessions" v="37" sub="on /api/events" go={() => go('usage')} />
+        <Stat l="Sign-in success" v="98.6%" sub="Healthy · 24h" tone="ok" go={() => go('usage')} />
+        <Stat l="Failed payments" v={e ? '0' : '3'} sub={e ? 'None' : 'Needs review'} tone={e ? 'ok' : 'bad'} go={() => go('billing', null, 'failed')} />
+        <Stat l="Failed webhooks" v={e ? '0' : '4'} sub={e ? 'None' : '3 GHL, 1 Stripe'} tone={e ? 'ok' : 'bad'} go={() => go('api', null, 'hooks')} />
+        <Stat l="Job failures, 24h" v={e ? '0' : '1'} sub={e ? '12 of 12 succeeded' : 'ghl-orders'} tone={e ? 'ok' : 'bad'} go={() => go('jobs')} />
+        <Stat l="Open incidents" v={e ? '0' : '1'} sub={e ? 'None' : 'Sev 2 · INC-0007'} tone={e ? 'ok' : 'bad'} go={() => go('incidents')} />
+        <Stat l="p95 latency" v="212 ms" sub="Healthy" tone="ok" go={() => go('api')} />
+        <Stat l="DB connections" v="14 / 100" sub="Healthy" tone="ok" go={() => go('db')} />
+      </div>
+      <div className="gms">
+        <Card t="Needs attention" pad={false}>
+          {e ? <Empty ic="check" t="Nothing needs attention" b="Failed payments, webhooks, and jobs show up here when they happen." /> :
+            [['incident', 'INC-0007', 'GHL order sync failing with 401', 'Open since Dec 9, 9:14 PM', 'Sev 2'], ['billing', null, 'Tidewater Property Co. is past due', 'Insiders · $97.00 · 2 retries left', 'Past due'], ['api', null, 'Stripe subscription.updated used all 5 attempts', 'Handler timeout after 10 s', 'Failed'], ['workspace', 'ws_halemarlowe', 'Hale & Marlowe Realty is at 15 of 16 seats', 'Team Plan · 16 seats', 'Waiting']].map((r, i) =>
+              <div key={i} className="li"><div className="col" style={{ flex: '1 1 220px', gap: 0 }}><button className="lk el" onClick={() => go(r[0], r[1])}>{r[2]}</button><span className="me">{r[3]}</span></div><Pill v={r[4]} /></div>)}
+        </Card>
+        <div className="col">
+          <Card t="Services" pad={false}>{[['Web · Railway', 'Healthy'], ['Postgres', 'Healthy'], ['Stripe', 'Connected'], ['GoHighLevel', e ? 'Connected' : 'Degraded'], ['Resend', 'Connected'], ['Zoom', 'Connected']].map(s => <div key={s[0]} className="li"><span style={{ flex: 1 }}>{s[0]}</span><St v={s[1]} /></div>)}</Card>
+          <Card t="Latest deploy" right={<button className="lk a" onClick={() => go('deploys')}>All deploys</button>}><div className="col m"><div className="row nw"><span className="mo">{DEPLOYS[0].sha}</span><St v="Live" /></div><span className="el">{DEPLOYS[0].m}</span><span className="me">{DEPLOYS[0].a} · {DEPLOYS[0].t}</span></div></Card>
+        </div>
+      </div>
+    </Gate>
+  </div>;
+}
+
+function Workspaces() {
+  const { go, startMasq } = useC();
+  const [q, setQ] = useState(''), [plan, setPlan] = useState('All plans'), [st, setSt] = useState('Any status');
+  const rows = WS.filter(w => (w.n + w.owner).toLowerCase().includes(q.toLowerCase()) && (plan === 'All plans' || w.plan.startsWith(plan)) && (st === 'Any status' || w.st === st));
+  return <div className="pg">
+    <Head t="Workspaces" d="Every team and solo account. Open one for members, plan, usage, billing, and staff notes." />
+    <div className="row"><Find v={q} on={setQ} ph="Filter workspace or owner" /><Sel label="Plan" v={plan} on={setPlan} opts={['All plans', 'Team Plan', 'Agent Plan', 'Insiders', 'AI Accelerator']} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Active', 'Trialing', 'Past due', 'Canceled']} /></div>
+    <Table rows={rows} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No workspaces yet', b: 'A workspace is created at checkout.' }}
+      cols={[{ k: 'n', l: 'Workspace', w: 'minmax(170px,1.3fr)', r: (w, dr) => <Two a={w.n} b={dr.drop ? w.owner + ' · ' + w.id : w.id} mo={!dr.drop} /> }, { k: 'owner', l: 'Owner', w: 'minmax(116px,.9fr)', hide: 'lap' }, { k: 'plan', l: 'Plan', w: 'minmax(140px,1.1fr)' }, { k: 'used', l: 'Seats', w: '132px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '96px', r: w => <St v={w.st} /> }, { k: 'last', l: 'Last activity', w: '124px', ns: 1 }]}
+      menu={w => [{ l: 'Open workspace', fn: () => go('workspace', w.id) }, { l: 'Masquerade as owner…', ic: 'masquerade', fn: () => startMasq(USERS.find(u => u.n === w.owner)) }]} />
+  </div>;
+}
+
+function Workspace() {
+  const { route, go, startMasq, guard, toast, log } = useC();
+  const w = WS.find(x => x.id === route.id);
+  const [tab, setTab] = useState('members');
+  const [notes, setNotes] = useState([['Imani Brooks', 'Dec 7, 3:40 PM', 'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.'], ['Connor Leiva', 'Nov 24, 10:05 AM', 'Onboarding call done. They want the leadership modules first.']]);
+  const [draft, setDraft] = useState('');
+  if (!w) return <NotFound />;
+  const mem = USERS.filter(u => u.ws === w.n);
+  const inv = INV.find(i => i.c === w.n);
+  return <div className="pg">
+    <Head back={['workspaces', 'Workspaces']} t={w.n} meta={<Pill v={w.st} />} right={<Btn ic="masquerade" onClick={() => startMasq(USERS.find(u => u.n === w.owner))}>Masquerade as owner</Btn>} />
+    <Gate n={3}><Facts items={[['Workspace ID', <span className="mo">{w.id}</span>], ['Plan', w.plan], ['Seats', w.used + ' of ' + w.cap], ['Owner', w.owner], ['MRR', w.mrr], ['Last activity', w.last]]} /></Gate>
+    <div className="gms">
+      <div className="col">
+        <Tabs v={tab} on={setTab} tabs={[['members', 'Members', mem.length], ['plan', 'Plan & entitlements'], ['usage', 'Usage'], ['billing', 'Billing'], ['activity', 'Activity']]} />
+        {tab === 'members' && <Table rows={mem} onRow={u => go('user', u.id)} empty={{ ic: 'users', t: 'No members in this workspace' }} cols={[{ k: 'n', l: 'Member', w: 'minmax(180px,1.5fr)', r: u => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={u.e} /></div> }, { k: 'role', l: 'Role', w: '104px' }, { k: 'st', l: 'Status', w: '96px', r: u => <St v={u.st} /> }]} menu={u => [{ l: 'Open user', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} />}
+        {tab === 'plan' && <Gate><Card><KV rows={[['Plan', w.plan], ['Status', <St v={w.st} />], ['Seats used', <span className="row nw" style={{ maxWidth: 260 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn">{w.used} of {w.cap}</span></span>],
+          ['Seat tier', w.plan.startsWith('Team') ? <span className="row" style={{ gap: 6 }}><I n="lock" />Team Plan is sold in two sizes, 16 or 41 seats. Changing size is an upgrade request in Tiers & Upgrades.</span> : w.plan === 'AI Accelerator' ? <span className="row" style={{ gap: 6 }}><I n="lock" />Cohort cap is a product rule. View only.</span> : 'Per agent'],
+          ['Access groups', <span className="row" style={{ gap: 6 }}><Pill v="library" tone="" /><Pill v="agent" tone="" />{w.plan.startsWith('Team') && <Pill v="team" tone="" />}{w.plan === 'AI Accelerator' && <Pill v="cohort-dec-2026" tone="" />}</span>], ['Renews', w.mrr === 'One-time' ? 'One-time purchase' : 'Jan 8, 2027']]} /></Card></Gate>}
+        {tab === 'usage' && <Gate><div className="g4"><Stat l="Sign-ins, 7d" v={String(w.used * 6)} /><Stat l="Lesson plays, 7d" v={String(w.used * 4)} /><Stat l="Guide views, 7d" v={String(w.used * 9)} /><Stat l="Storage" v={(w.used * 0.2).toFixed(1) + ' GB'} /></div></Gate>}
+        {tab === 'billing' && <Gate><Card><div className="col"><KV rows={[['Stripe customer', <span className="mo">{w.cus}</span>], ['Subscription', <span className="mo">{w.sub}</span>], ['MRR', w.mrr], ['Last invoice', inv ? <span className="row" style={{ gap: 8 }}><span className="mo">{inv.id}</span><St v={inv.st} /></span> : '—']]} /><div><Btn onClick={() => go('billing', null, 'invoices')}>Open in Billing</Btn></div></div></Card></Gate>}
+        {tab === 'activity' && <Gate><Card>{[['Dec 10, 8:52 AM', w.owner + ' signed in'], ['Dec 10, 8:55 AM', w.owner + ' deployed Sales AI Employee'], ['Dec 8, 10:14 AM', 'A member was invited'], ['Dec 8, 9:00 AM', 'Invoice paid']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo">{a[0]}</div></div>)}</Card></Gate>}
+      </div>
+      <Card t="Staff notes" sub="Internal. Never shown to the workspace."><div className="col m">
+        <textarea className="in" rows={3} aria-label="Add a note" value={draft} onChange={e => setDraft(e.target.value)} placeholder="What happened, what you told them" />
+        <div><Btn disabled={!draft.trim()} onClick={() => guard('account', 'Add staff note', () => { setNotes([['You', 'Just now', draft.trim()], ...notes]); log('workspace.note_add', w.n, ''); setDraft(''); toast('Note saved'); })}>Save note</Btn></div>
+        {notes.map((n, i) => <div key={i} className="note col s"><span><span className="w5">{n[0]}</span> <span className="me">· {n[1]}</span></span><p className="s2">{n[2]}</p></div>)}
+      </div></Card>
+    </div>
+  </div>;
+}
+
+function Users() {
+  const { go, startMasq, toast, log, guard } = useC();
+  const [q, setQ] = useState(''), [role, setRole] = useState('Any role');
+  const rows = USERS.filter(u => (u.n + u.e + u.ws).toLowerCase().includes(q.toLowerCase()) && (role === 'Any role' || u.role === role));
+  return <div className="pg">
+    <Head t="Users" d="Find a person by name, email, or workspace." />
+    <div className="row"><Find v={q} on={setQ} ph="Filter name, email, workspace" /><Sel label="Role" v={role} on={setRole} opts={['Any role', 'Team owner', 'Agent']} /></div>
+    <Table rows={rows} sel onRow={u => go('user', u.id)} empty={{ ic: 'users', t: 'No users yet' }} bulk={<Btn onClick={() => guard('export', 'Export users', () => { log('users.export', 'Users', 'CSV'); toast('Export started. It is in the audit log.'); })}>Export selected</Btn>}
+      cols={[{ k: 'n', l: 'User', w: 'minmax(220px,1.6fr)', r: (u, dr) => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={dr.drop ? u.role + ' · ' + u.e : u.e} /></div> }, { k: 'ws', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'role', l: 'Role', w: '104px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: u => <St v={u.st} /> }, { k: 'last', l: 'Last sign-in', w: '128px', ns: 1 }]}
+      menu={u => [{ l: 'Open user', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} />
+  </div>;
+}
+
+function User() {
+  const { route, go, startMasq, guard, setDlg, toast, log, started } = useC();
+  const u = USERS.find(x => x.id === route.id);
+  const [tab, setTab] = useState('orders');
+  if (!u) return <NotFound />;
+  const w = WS.find(x => x.n === u.ws);
+  return <div className="pg">
+    <Head back={['users', 'Users']} t={u.n} meta={<Pill v={u.st} />}
+      right={<><Btn ic="masquerade" onClick={() => startMasq(u)}>Masquerade</Btn><Menu items={[
+        { l: 'Send password reset…', g: 1, fn: () => guard('account', 'Send password reset to ' + u.n, () => setDlg({ title: 'Send a password reset to ' + u.n + '?', body: 'Emails a reset link to ' + u.e + '. Their current password keeps working until they use it.', cta: 'Send reset email', yes: () => { log('user.password_reset', u.n, ''); toast('Reset email sent'); } })) },
+        { l: 'Change email…', g: 1, fn: () => guard('account', 'Change email for ' + u.n, () => setDlg({ title: 'Change sign-in email for ' + u.n + '?', body: 'Current: ' + u.e + '. The new address must be verified before it takes effect.', cta: 'Send verification', needReason: 1, yes: r => { log('user.email_change', u.n, r); toast('Verification sent'); } })) }]} trigger={(t, o) => <button className="b" style={{ height: 'var(--cp)', width: 'var(--cp)', padding: 0 }} aria-label="More actions" aria-expanded={o} onClick={t}><I n="more" /></button>} /></>} />
+    <Gate n={3}><Facts items={[['User ID', <span className="mo">{u.id}</span>], ['Email', <span className="mo">{u.e}</span>], ['Workspace', <button className="lk el" onClick={() => go('workspace', w.id)}>{w.n}</button>], ['Role', u.role], ['Tier', u.tier], ['Last sign-in', u.last]]} /></Gate>
+    <div className="gms">
+      <div className="col">
+        <Tabs v={tab} on={setTab} tabs={[['orders', 'Orders'], ['progress', 'Progress'], ['emails', 'Emails sent'], ['activity', 'Activity']]} />
+        {tab === 'orders' && <Table rows={INV.filter(i => i.c === u.ws)} empty={{ ic: 'billing', t: 'No orders for this user' }} cols={[{ k: 'id', l: 'Invoice', mo: 1, w: 'minmax(150px,1.4fr)' }, { k: 'amt', l: 'Amount', num: 1, w: '96px' }, { k: 'st', l: 'Status', w: '104px', r: i => <St v={i.st} /> }, { k: 'd', l: 'Date', w: '112px', ns: 1 }]} onRow={() => go('billing', null, 'invoices')} />}
+        {tab === 'progress' && <Gate><Card pad={false}>{MODS0.filter(m => m.st === 'Published' && (u.tier === 'Team' || m.tier === 'both')).map((m, i) => <div key={m.id} className="li"><span className="el" style={{ flex: 1 }}>{m.n}</span><St v={!started ? 'Not started' : i < u.pr ? 'Deployed' : i === u.pr ? 'In progress' : 'Not started'} tone={!started ? '' : i < u.pr ? 'ok' : i === u.pr ? 'info' : ''} /></div>)}</Card></Gate>}
+        {tab === 'emails' && <Table rows={EMAILS.filter(e => e.to === u.e)} empty={{ ic: 'email', t: 'No emails sent to this user' }} cols={[{ k: 'sub', l: 'Subject', w: 'minmax(200px,2fr)' }, { k: 'tpl', l: 'Template', mo: 1, w: '136px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />}
+        {tab === 'activity' && <Gate><Card>{[[u.last, 'Signed in with Google'], ['Dec 8, 2:14 PM', 'Opened the Session 2 replay'], ['Dec 2, 12:01 PM', 'Joined Session 1'], ['Nov 24, 9:30 AM', 'Account created at checkout']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo">{a[0]}</div></div>)}</Card></Gate>}
+      </div>
+      <div className="col">
+        <Card t="Identity"><KV rows={[['Email verified', 'Yes, Nov 24, 2026'], ['Sign-in', 'Password, Google'], ['Staff role', 'None'], ['Access groups', <span className="row" style={{ gap: 6 }}><Pill v="library" tone="" /><Pill v="agent" tone="" />{u.tier === 'Team' && <Pill v="team" tone="" />}</span>]]} /></Card>
+        <Card t="Notes" sub="Internal. Never shown to the user."><div className="note col s"><span><span className="w5">Imani Brooks</span> <span className="me">· Dec 7, 3:40 PM</span></span><p className="s2">Prefers email over calls. Mornings MST.</p></div></Card>
+      </div>
+    </div>
+  </div>;
+}
+
+function Masquerade() {
+  const { masq, startMasq, endMasq, go, can, role } = useC();
+  const [pick, setPick] = useState(USERS[0].id);
+  return <div className="pg">
+    <Head t="Masquerade" d="Sign in as a user to see exactly what they see. Owner and Admin only, time-boxed, and audit-logged." />
+    <Gate n={6}>
+      <div className="gms">
+        <div className="col">
+          {masq ? <Card t="Active session" right={<Pill v={fmt(masq.left) + ' left'} tone="warn" />}><div className="col"><KV rows={[['Signed in as', masq.u.n + ' · ' + masq.u.ws], ['Reason', masq.reason], ['Time granted', masq.granted / 60 + ' of 60 minutes']]} /><div className="row"><Btn onClick={() => go('as')}>Open learner view</Btn><Btn k="d" onClick={() => endMasq('Exited by staff')}>Exit masquerade</Btn></div></div></Card>
+            : can('masq') ? <Card t="Start a session"><div className="col m"><div className="row"><select className="in" style={{ flex: '1 1 240px' }} aria-label="User" value={pick} onChange={e => setPick(e.target.value)}>{USERS.map(u => <option key={u.id} value={u.id}>{u.n} · {u.ws}</option>)}</select><Btn k="p" ic="masquerade" onClick={() => startMasq(USERS.find(u => u.id === pick))}>Masquerade…</Btn></div><p className="me">You will be asked for a reason. You can also start from any user or workspace record.</p></div></Card>
+              : <Card t="Start a session"><div className="row nw" style={{ alignItems: 'flex-start' }}><I n="lock" /><p className="s2">Your role ({role}) can't start masquerade. Ask an Owner or Admin, or send them the user record.</p></div></Card>}
+          <Table title="Recent sessions" empty={{ ic: 'masquerade', t: 'No masquerade sessions yet' }} rows={[['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'], ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'], ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff']]}
+            cols={[{ k: 1, l: 'As user', w: 'minmax(120px,1fr)', r: r => <Two a={r[1]} b={'by ' + r[0]} /> }, { k: 2, l: 'Reason', w: 'minmax(160px,2fr)', ns: 1 }, { k: 3, l: 'Started', w: '128px', ns: 1, hide: 'lap' }, { k: 4, l: 'Length', w: '64px', num: 1 }, { k: 5, l: 'Ended', w: '120px', r: (r, dr) => dr.drop ? <div className="col" style={{ gap: 0 }}><span className="el">{r[5]}</span><span className="me el">{r[3]}</span></div> : r[5] }]} />
+        </div>
+        <div className="col">
+          <Card t="Rules for every session" pad={false}>{['A written reason is required to start.', '15 minutes. Each extension adds 15 and needs a new reason. 60 minutes is the maximum.', 'A banner stays on screen with the countdown and an Exit control.', 'Every write is blocked: edits, publishes, refunds, exports, retries, notes.', 'Start, stop, extend, and every blocked attempt go to the audit log.'].map((t, i) => <div key={i} className="li" style={{ alignItems: 'flex-start' }}><span className="me tn" style={{ width: 12, paddingTop: 2 }}>{i + 1}</span><span style={{ flex: 1 }}>{t}</span></div>)}</Card>
+          <Card t="Not the same as Preview as Learner"><p className="s2">Preview as Learner is a read-only curriculum preview in one tab, as a generic agent or owner. It lives in <button className="lk a" onClick={() => go('curriculum')}>Curriculum</button> and is not audit-logged.</p></Card>
+        </div>
+      </div>
+    </Gate>
+  </div>;
+}
+function LearnerView() {
+  const { masq, go } = useC();
+  if (!masq) return <div className="pg"><div className="cd"><Empty ic="masquerade" t="No masquerade session is active" b="Start one from a user or workspace record." cta="Go to Masquerade" on={() => go('masquerade')} /></div></div>;
+  return <div className="pg">
+    <Head t={'Good morning, ' + masq.u.n.split(' ')[0]} d={'The learner portal as ' + masq.u.n + ' sees it. Learner screens are outside this mockup, so this page is a stand-in.'} right={<Btn onClick={() => go('user', masq.u.id)}>Back to user record</Btn>} />
+    <div className="g2"><Card t="Your builds"><div className="row nw"><Bar v={masq.u.pr} max={masq.u.of} v2={0} /><span className="tn">{masq.u.pr} of {masq.u.of} deployed</span></div></Card><Card t="Next live build"><span>Session 3 · Wed, Dec 16 · 12:00 PM MST</span></Card></div>
+    <Card t="Try a blocked action"><div className="col m"><p className="s2">Admin tools stay visible during a session, with a lock. Using one shows the block and logs the attempt.</p><div><Btn onClick={() => go('billing', null, 'invoices')}>Go to invoices</Btn></div></div></Card>
+  </div>;
+}
+
+function Billing() {
+  const { route, go, guard, setDlg, toast, log, can } = useC();
+  const [tab, setTab] = useState(route.tab || 'summary');
+  const ro = !can('refund');
+  const refund = i => guard('refund', 'Refund ' + i.id, () => setDlg({ title: 'Refund ' + i.amt + ' to ' + i.c + '?', body: 'Invoice ' + i.id + ', ' + i.card + '. The refund is sent to Stripe and cannot be reversed from the admin.', cta: 'Refund ' + i.amt, danger: 1, needReason: 1, yes: r => { log('billing.refund', i.id, i.amt + '. Reason: ' + r); toast('Refund sent to Stripe'); } }));
+  const voidI = i => guard('refund', 'Void ' + i.id, () => setDlg({ title: 'Void invoice ' + i.id + '?', body: i.amt + ' for ' + i.c + '. The customer will no longer be asked to pay it.', cta: 'Void invoice', danger: 1, needReason: 1, yes: r => { log('billing.void', i.id, r); toast('Invoice voided'); } }));
+  return <div className="pg">
+    <Head t="Billing" meta={ro && <Pill v="Read-only for your role" tone="" />} d="An operations view of Stripe. Prices, Payment Links, and the Accelerator cap are product rules and are not edited here." />
+    <Tabs v={tab} on={setTab} tabs={[['summary', 'Summary'], ['customers', 'Customers'], ['subs', 'Subscriptions'], ['invoices', 'Invoices'], ['failed', 'Failed payments', 3], ['refunds', 'Refunds']]} />
+    {tab === 'summary' && <><Gate n={3}><div className="g4"><Stat l="MRR · sample" v="$18,516" sub="+$695 this week" tone="ok" /><Stat l="Subscriptions" v="77" sub="Active" /><Stat l="Failed payments" v="3" sub="Needs review" tone="bad" go={() => setTab('failed')} /><Stat l="Refunds, 30d" v="$0" go={() => setTab('refunds')} /></div></Gate>
+      <Table title="Plan economics · sample figures" rows={[['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'], ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'], ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'], ['Insiders', '$97 monthly', '61 members', '$5,917'], ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time']]}
+        cols={[{ k: 0, l: 'Plan', w: 'minmax(180px,1.4fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Price', w: 'minmax(160px,1fr)' }, { k: 2, l: 'Active', w: 'minmax(110px,1fr)' }, { k: 3, l: 'MRR', w: '96px', num: 1 }]} />
+      <Gate><Card t="AI Accelerator" right={<St v="Active" />}><KV rows={[['Price', '$7,500, or two payments of $3,750'], ['Seats sold', <span className="row nw" style={{ maxWidth: 260 }}><Bar v={11} max={15} /><span className="tn">11 of 15</span></span>], ['Seat cap', <span className="row" style={{ gap: 6 }}><I n="lock" />15 seats. Product rule, view only.</span>], ['Collected', '$67,500'], ['Second payments due', '4 × $3,750 = $15,000']]} /></Card></Gate></>}
+    {tab === 'customers' && <Table rows={WS} onRow={w => go('workspace', w.id)} empty={{ ic: 'billing', t: 'No Stripe customers yet' }} cols={[{ k: 'n', l: 'Customer', w: 'minmax(180px,1.4fr)', r: w => <Two a={w.n} b={w.cus} mo /> }, { k: 'plan', l: 'Plan', w: 'minmax(150px,1fr)' }, { k: 'mrr', l: 'MRR', w: '96px', num: 1 }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]} />}
+    {tab === 'subs' && <Table rows={WS.filter(w => w.sub !== '—')} empty={{ ic: 'billing', t: 'No subscriptions yet' }} cols={[{ k: 'sub', l: 'Subscription', mo: 1, w: 'minmax(170px,1.2fr)' }, { k: 'n', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'plan', l: 'Plan', w: 'minmax(150px,1fr)', hide: 'lap' }, { k: 'mrr', l: 'MRR', w: '96px', num: 1 }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]} onRow={w => go('workspace', w.id)} />}
+    {tab === 'invoices' && <Table rows={INV} empty={{ ic: 'billing', t: 'No invoices yet' }} cols={[{ k: 'id', l: 'Invoice', mo: 1, w: 'minmax(150px,1.2fr)' }, { k: 'c', l: 'Customer', w: 'minmax(150px,1.2fr)' }, { k: 'card', l: 'Payment method', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'amt', l: 'Amount', w: '96px', num: 1 }, { k: 'st', l: 'Status', w: '104px', r: i => <St v={i.st} /> }, { k: 'd', l: 'Date', w: '104px', ns: 1 }]}
+      menu={i => [{ l: 'Open customer', fn: () => go('workspace', WS.find(w => w.n === i.c).id) }, ...(i.st === 'Paid' ? ['-', { l: 'Refund…', d: !ro, g: 1, off: ro, fn: () => refund(i) }] : []), ...(i.st === 'Open' || i.st === 'Failed' ? ['-', { l: 'Void invoice…', d: !ro, g: 1, off: ro, fn: () => voidI(i) }] : [])]} />}
+    {tab === 'failed' && <Table empty={{ ic: 'check', t: 'No failed payments' }} rows={[['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM'], ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM'], ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM']]}
+      cols={[{ k: 0, l: 'Customer', w: 'minmax(170px,1.2fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 2, l: 'Decline reason', mo: 1, w: 'minmax(200px,1.6fr)' }, { k: 1, l: 'Amount', w: '96px', num: 1 }, { k: 3, l: 'Attempts', w: '80px' }, { k: 4, l: 'Next retry', w: '136px', ns: 1 }]}
+      menu={r => [{ l: 'Open customer', fn: () => go('workspace', WS.find(w => w.n === r[0]).id) }, { l: 'Open email log', fn: () => go('email') }]} />}
+    {tab === 'refunds' && <Table empty={{ ic: 'billing', t: 'No refunds yet' }} rows={[['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']]} cols={[{ k: 0, l: 'Refund', mo: 1, w: 'minmax(120px,1fr)' }, { k: 1, l: 'Invoice', mo: 1, w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 3, l: 'Reason', w: 'minmax(180px,1.6fr)' }, { k: 4, l: 'By', w: '120px' }, { k: 2, l: 'Amount', w: '96px', num: 1 }, { k: 5, l: 'When', w: '128px', ns: 1 }]} />}
+  </div>;
+}
+
+function Usage() {
+  const { ph } = useC();
+  const [ws, setWs] = useState('All workspaces'), [plan, setPlan] = useState('All plans'), [range, setRange] = useState('Last 14 days');
+  const rows = WS.filter(w => (ws === 'All workspaces' || w.n === ws) && (plan === 'All plans' || w.plan.startsWith(plan)) && w.st !== 'Canceled');
+  const bars = [62, 71, 68, 80, 77, 31, 28, 74, 85, 88, 92, 81, 36, 30];
+  const k = rows.reduce((a, w) => a + w.used, 0);
+  return <div className="pg">
+    <Head t="Usage" d="How much the product is being used, by workspace and plan." />
+    <div className="row"><Sel label="Workspace" v={ws} on={setWs} opts={['All workspaces', ...WS.map(w => w.n)]} /><Sel label="Plan" v={plan} on={setPlan} opts={['All plans', 'Team Plan', 'Agent Plan', 'Insiders', 'AI Accelerator']} /><Sel label="Date range" v={range} on={setRange} opts={['Last 7 days', 'Last 14 days', 'Last 30 days']} /></div>
+    <Gate n={8} empty={{ ic: 'usage', t: 'No usage in this range' }}>
+      <div className="g3 st2"><Stat l="Sign-ins" v={(k * 16).toLocaleString()} /><Stat l="Lesson plays" v={(k * 43).toLocaleString()} /><Stat l="Skill-guide views" v={(k * 74).toLocaleString()} /><Stat l="Seat utilization" v={Math.round(k / rows.reduce((a, w) => a + w.cap, 0) * 100 || 0) + '%'} /><Stat l="Storage" v="41.2 GB" sub="of 100 GB bucket" /><Stat l="Emails sent" v={(k * 29).toLocaleString()} /></div>
+      <Card t="Sign-ins per day" sub={range}><div style={{ display: 'flex', alignItems: 'flex-end', gap: ph ? 4 : 8, height: 140 }} role="img" aria-label="Sign-ins per day. Weekdays run 60 to 90, weekends about 30.">{bars.map((b, i) => <i key={i} style={{ flex: 1, height: b + '%', background: 'var(--for)', borderRadius: '3px 3px 0 0', opacity: b < 40 ? 0.45 : 1 }} />)}</div><div className="row nw me mo" style={{ paddingTop: 8 }}><span>Nov 27</span><span className="sp" /><span>Dec 10</span></div></Card>
+    </Gate>
+    <Table title="By workspace" rows={rows} empty={{ ic: 'usage', t: 'No usage in this range' }} cols={[{ k: 'n', l: 'Workspace', w: 'minmax(180px,1.5fr)', r: w => <span className="w5">{w.n}</span> }, { k: 'plan', l: 'Plan', w: 'minmax(150px,1fr)', hide: 'lap' }, { k: 'used', l: 'Sign-ins', num: 1, w: '88px', r: w => (w.used * 16).toLocaleString() }, { k: 'used', l: 'Lesson plays', num: 1, w: '104px', r: w => (w.used * 43).toLocaleString() }, { k: 'used', l: 'Seat use', w: '160px', sv: w => w.used / w.cap, r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 36, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{Math.round(w.used / w.cap * 100)}%</span></span> }]} />
+  </div>;
+}
+
+function Api() {
+  const { route, go, guard, setDlg, toast, log } = useC();
+  const [tab, setTab] = useState(route.tab || 'endpoints'), [src, setSrc] = useState('All sources');
+  return <div className="pg">
+    <Head t="API & Webhooks" d="Endpoint latency and error rates over the last 24 hours, and every webhook delivery in and out." />
+    <Gate n={3}><div className="g4"><Stat l="p95 latency" v="212 ms" sub="Healthy" tone="ok" /><Stat l="Error rate" v="0.4%" sub="Healthy" tone="ok" /><Stat l="Requests, 24h" v="76,320" /><Stat l="Failed deliveries" v="4" sub="3 GHL, 1 Stripe" tone="bad" go={() => setTab('hooks')} /></div></Gate>
+    <Tabs v={tab} on={setTab} tabs={[['endpoints', 'Endpoints'], ['hooks', 'Webhook deliveries', HOOKS.length]]} />
+    {tab === 'endpoints' && <Table rows={ENDPOINTS} empty={{ ic: 'api', t: 'No requests in this window' }} cols={[{ k: 'p', l: 'Endpoint', mo: 1, w: 'minmax(220px,2fr)' }, { k: 'req', l: 'Requests', num: 1, ns: 1, w: '88px' }, { k: 'p50', l: 'p50', num: 1, ns: 1, w: '80px' }, { k: 'p95', l: 'p95', num: 1, ns: 1, w: '80px' }, { k: 'er', l: 'Error rate', w: '136px', r: e => <span className="row nw"><span className="tn" style={{ width: 40 }}>{e.er.toFixed(1)}%</span>{e.er >= 2 && <Pill v={e.er >= 5 ? 'High' : 'Elevated'} tone={e.er >= 5 ? 'bad' : 'warn'} />}</span> }]} />}
+    {tab === 'hooks' && <><div className="row"><Sel label="Source" v={src} on={setSrc} opts={['All sources', 'Stripe', 'GoHighLevel', 'Zoom']} /></div>
+      <Table rows={HOOKS.filter(h => src === 'All sources' || h.src === src)} empty={{ ic: 'api', t: 'No webhook deliveries yet' }}
+        cols={[{ k: 'ev', l: 'Event', w: 'minmax(200px,1.6fr)', r: h => <Two a={<span className="mo">{h.ev}</span>} b={h.src + (h.id !== '—' ? ' · ' + h.id : '')} /> }, { k: 'st', l: 'Status', w: '128px', r: h => <St v={h.st} /> }, { k: 'att', l: 'Attempts', w: '80px' }, { k: 'next', l: 'Next attempt', w: '152px', ns: 1, hide: 'lap' }, { k: 'err', l: 'Last error', w: 'minmax(160px,1.4fr)', ns: 1, r: h => <span className="s2">{h.err}</span> }]}
+        menu={h => [{ l: 'Retry now…', g: 1, off: !(h.st === 'Failed' || h.st === 'Retrying'), fn: () => guard('jobs', 'Retry ' + h.ev, () => setDlg({ title: 'Retry ' + h.ev + ' for ' + h.id + '?', body: 'Sends this ' + h.src + ' delivery again now. Handlers are idempotent, so a repeat is safe.', cta: 'Retry delivery', yes: () => { log('webhook.retry', h.ev + ' ' + h.id, ''); toast('Retry queued'); } })) }, { l: 'Related incidents', fn: () => go('incidents') }]} />
+      <p className="me">Payloads and signing secrets are not shown. Event IDs link a delivery to its order or user.</p></>}
+  </div>;
+}
+
+function Integrations() {
+  const { toast } = useC();
+  const L = [
+    { n: 'Stripe', use: 'Payments, subscriptions, invoices', st: 'Connected', ok: 'Dec 10, 9:18 AM', err: 'None', sec: [['Secret key', 1], ['Webhook signing secret', 1]] },
+    { n: 'GoHighLevel', use: 'CRM sync for logins and orders', st: 'Degraded', ok: 'Dec 9, 9:04 PM', err: 'Dec 10, 9:10 AM · 401 Unauthorized', sec: [['Access token', 1], ['Location ID', 1]] },
+    { n: 'Zoom', use: 'Session join links', st: 'Connected', ok: 'Dec 9, 12:00 PM', err: 'None', sec: [['OAuth client secret', 1], ['Recording webhook secret', 0]] },
+    { n: 'Google', use: 'Sign in with Google', st: 'Connected', ok: 'Dec 10, 8:52 AM', err: 'None', sec: [['OAuth client secret', 1]] },
+    { n: 'Resend', use: 'Transactional email', st: 'Connected', ok: 'Dec 10, 9:18 AM', err: 'Dec 7, 7:00 AM · 1 hard bounce', sec: [['API key', 1]] },
+    { n: 'Storage', use: 'Railway S3-compatible bucket', st: 'Connected', ok: 'Dec 10, 9:02 AM', err: 'None', sec: [['Access key', 1]] },
+    { n: 'GA4', use: 'Analytics on www only', st: 'Connected', ok: '—', err: '—', id: 'G-TSQ5YB5BCP', sec: [] },
+    { n: 'Meta Pixel', use: 'Ads measurement on www only', st: 'Connected', ok: '—', err: '—', id: '1835170747490806', sec: [] },
+  ];
+  return <div className="pg">
+    <Head t="Integrations" d="Connection state for each service. Secret values never reach the browser, so there is nothing to reveal, copy, or replace here." />
+    <Gate n={8}><div className="g2">{L.map(x => <Card key={x.n} t={x.n} sub={x.use} right={<St v={x.st} />}><div className="col">
+      <KV rows={[['Last success', <span className="mo">{x.ok}</span>], ['Last error', <span className="mo">{x.err}</span>], ...(x.id ? [['Public tag ID', <span className="mo">{x.id}</span>]] : []), ...x.sec.map(s => [s[0], <St v={s[1] ? 'Present' : 'Not configured'} />])]} />
+      {x.sec.length > 0 ? <div><Btn ic="refresh" onClick={() => toast(x.n + (x.st === 'Degraded' ? ': test failed, 401 Unauthorized' : ': connection ok'))}>Test connection</Btn></div> : <p className="me">Managed on www. View only.</p>}
+    </div></Card>)}</div></Gate>
+  </div>;
+}
+
+function Deploys() {
+  return <div className="pg">
+    <Head t="Deploys & Commits" d="Commits on main and their Railway production deploys. Read-only." />
+    <Gate n={3}><Facts items={[['Repository', <span className="mo">amplified-impact-lms</span>], ['Branch', <span className="mo">main</span>], ['Railway service', <span className="mo">web</span>], ['Environment', 'Production'], ['Live commit', <span className="row nw" style={{ gap: 8 }}><span className="mo">a3f91c2</span><St v="Live" /></span>]]} /></Gate>
+    <Table rows={DEPLOYS} empty={{ ic: 'deploys', t: 'No deploys found' }} cols={[{ k: 'm', l: 'Commit', w: 'minmax(260px,2.4fr)', r: d => <div className="row nw" style={{ gap: 12 }}><St v="" tone={TONE[d.st]} /><Two a={d.m} b={d.sha + ' · main'} mo /></div> }, { k: 'st', l: 'Deploy', w: '112px', r: d => <span className={d.st === 'Failed' ? 'w5' : ''} style={d.st === 'Failed' ? { color: 'var(--bad)' } : undefined}>{d.st}</span> }, { k: 'dur', l: 'Build', w: '72px', num: 1, ns: 1 }, { k: 'a', l: 'Author', w: '128px', hide: 'lap' }, { k: 't', l: 'Time', w: '136px', ns: 1 }]} />
+  </div>;
+}
+
+function Db() {
+  return <div className="pg">
+    <Head t="DB Health" meta={<Pill v="Read-only" tone="" />} d="Postgres health. Nothing on this page can change data." />
+    <Gate n={8}>
+      <div className="g4"><Stat l="Connections" v="14 / 100" sub="Healthy" tone="ok" /><Stat l="Database size" v="1.8 GB" /><Stat l="Slow queries, 24h" v="3" sub="over 500 ms" /><Stat l="Migration" v="0014" sub="Up to date" tone="ok" /></div>
+      <Card t="Slow queries" sub="Parameters removed"><div className="col">
+        {[['1,940 ms mean · 96 calls', 'SELECT o.id, o.ghl_attempts, o.ghl_error\nFROM orders o\nWHERE o.ghl_synced_at IS NULL\nORDER BY o.created_at\nLIMIT $1'], ['812 ms mean · 14 calls', 'SELECT p.user_id, count(*)\nFROM progress p\nJOIN modules m ON m.id = p.module_id\nWHERE m.cohort_id = $1\nGROUP BY p.user_id'], ['604 ms mean · 7 calls', 'SELECT job, key, sent_at\nFROM job_runs\nWHERE job = $1 AND sent_at > $2']].map((s, i) => <div key={i} className="col m"><span className="me">{s[0]}</span><pre className="pre">{s[1]}</pre></div>)}
+      </div></Card>
+      <div className="g2">
+        <Card t="Largest tables" pad={false}>{[['activity', '412 MB', '2.1M rows'], ['progress', '288 MB', '940K rows'], ['auth_sessions', '164 MB', '310K rows'], ['job_runs', '121 MB', '1.4M rows'], ['stripe_events', '96 MB', '48K rows'], ['orders', '22 MB', '3.2K rows']].map(t => <div key={t[0]} className="li"><span className="mo" style={{ flex: 1 }}>{t[0]}</span><span className="tn">{t[1]}</span><span className="tn mu" style={{ width: 80, textAlign: 'right' }}>{t[2]}</span></div>)}</Card>
+        <Card t="Migrations" sub="Drizzle" pad={false}>{[['0014_cohort_starts_at_first_build', 'Dec 2, 9:48 AM'], ['0013_course_guide_links', 'Nov 24, 4:48 PM'], ['0012_access_group_domains', 'Nov 12, 1:10 PM'], ['0011_google_identities', 'Nov 3, 9:32 AM']].map((m, i) => <div key={m[0]} className="li"><span className="mo el" style={{ flex: 1 }}>{m[0]}</span>{i === 0 && <Pill v="Latest" tone="ok" />}<span className="me" style={{ whiteSpace: 'nowrap' }}>{m[1]}</span></div>)}</Card>
+      </div>
+    </Gate>
+  </div>;
+}
+
+function Flags() {
+  const F = [['masquerade_enabled', 'Staff can start masquerade sessions', 1], ['preview_as_learner', 'Curriculum preview in the builder', 1], ['google_sign_in', 'Sign in with Google on the login page', 1], ['accelerator_two_pay', 'Offer two payments at Accelerator checkout', 1], ['weekly_digest', 'Send the Monday digest email', 1], ['ghl_sync_write', 'Write logins and orders to GoHighLevel', 1], ['zoom_recording_webhook', 'Accept Zoom recording webhooks', 0], ['maintenance_mode', 'Show the maintenance page to learners', 0]];
+  return <div className="pg">
+    <Head t="Environment Flags" meta={<Pill v="Read-only" tone="" />} d="Flag state and whether each secret is configured. Flags are set in the Railway environment, and values are never shown." />
+    <Gate n={8}>
+      <Facts items={[['Environment', 'Production'], ['Stripe mode', <St v="Live" />], ['Email mode', 'Resend, live sending'], ['Flags on', '6 of 8']]} />
+      <div className="g2" style={{ alignItems: 'start' }}>
+        <Card t="Feature flags" pad={false}>{F.map(x => <div key={x[0]} className="li"><div className="col" style={{ flex: 1, gap: 0 }}><span className="mo el">{x[0]}</span><span className="me">{x[1]}</span></div><St v={x[2] ? 'On' : 'Off'} /></div>)}</Card>
+        <Card t="Configured secrets" sub="Presence only. There is no reveal or replace control." pad={false}>{[['Stripe secret key', 1], ['Stripe webhook signing secret', 1], ['Resend API key', 1], ['GoHighLevel access token', 1], ['Google OAuth client secret', 1], ['Zoom OAuth client secret', 1], ['Zoom recording webhook secret', 0], ['Session signing secret', 1], ['Storage access key', 1]].map(s => <div key={s[0]} className="li"><span style={{ flex: 1 }}>{s[0]}</span><St v={s[1] ? 'Present' : 'Not configured'} /></div>)}</Card>
+      </div>
+    </Gate>
+  </div>;
+}
+
+function Jobs() {
+  const { guard, setDlg, log, toast, go } = useC();
+  const [run, setRun] = useState({});
+  return <div className="pg">
+    <Head t="Scheduled Jobs" d="Runs are keyed in job_runs, so running a job again skips anything it already sent. One scheduler holds the lock at a time." />
+    <Table rows={JOBS} empty={{ ic: 'jobs', t: 'No jobs registered' }} cols={[{ k: 'j', l: 'Job', mo: 1, w: 'minmax(180px,1.5fr)' }, { k: 'sch', l: 'Schedule', w: 'minmax(110px,1fr)' }, { k: 'st', l: 'Last result', w: '120px', r: j => <St v={run[j.j] ? 'Running' : j.st} /> }, { k: 'last', l: 'Last run', w: '136px', ns: 1 }, { k: 'dur', l: 'Duration', num: 1, ns: 1, w: '72px', hide: 'lap' }, { k: 'next', l: 'Next run', w: '136px', ns: 1 }]}
+      menu={j => [j.j === 'billing' ? { l: 'Run now is off for billing', off: 1, fn: () => {} } : { l: 'Run now…', ic: 'play', g: 1, fn: () => guard('jobs', 'Run ' + j.j, () => setDlg({ title: 'Run ' + j.j + ' now?', body: 'Starts one extra run outside the schedule (' + j.sch.toLowerCase() + '). Anything already sent is skipped.', cta: 'Run ' + j.j, yes: () => { setRun({ ...run, [j.j]: 1 }); log('job.run_now', j.j, 'Manual run.'); toast(j.j + ' started'); } })) }, ...(j.st === 'Failed' ? [{ l: 'Open incident', fn: () => go('incident', 'INC-0007') }] : [])]} />
+    <p className="me">The billing job only runs on its schedule. It cannot be started by hand.</p>
+  </div>;
+}
+
+function Incidents() {
+  const { go, inc } = useC();
+  const [st, setSt] = useState('Any status');
+  return <div className="pg">
+    <Head t="Incidents" d="What broke, who has it, and what it is linked to." />
+    <div className="row"><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Open', 'Acknowledged', 'Resolved']} /></div>
+    <Table rows={INCIDENTS.map(i => ({ ...i, st: inc[i.id] || i.st })).filter(i => st === 'Any status' || i.st === st)} onRow={i => go('incident', i.id)} empty={{ ic: 'check', t: 'No incidents', b: 'Failed jobs and webhooks open one automatically.' }}
+      cols={[{ k: 't', l: 'Incident', w: 'minmax(240px,2fr)', r: i => <Two a={i.t} b={i.id} mo /> }, { k: 'sev', l: 'Severity', w: '88px', r: i => <Pill v={i.sev} /> }, { k: 'st', l: 'Status', w: '128px', r: i => <St v={i.st} tone={i.st === 'Open' ? 'bad' : undefined} /> }, { k: 'own', l: 'Owner', w: '128px', hide: 'lap' }, { k: 'o', l: 'Opened', w: '128px', ns: 1 }]} />
+  </div>;
+}
+function Incident() {
+  const { route, go, inc, setInc, log, guard, toast } = useC();
+  const i = INCIDENTS.find(x => x.id === route.id);
+  if (!i) return <NotFound />;
+  const st = inc[i.id] || i.st;
+  const set = s => guard('jobs', s + ' ' + i.id, () => { setInc({ ...inc, [i.id]: s }); log('incident.' + s.toLowerCase(), i.id, ''); toast(i.id + ' is ' + s.toLowerCase()); });
+  return <div className="pg">
+    <Head back={['incidents', 'Incidents']} t={i.t} meta={<Pill v={i.sev} />} right={<>{st === 'Open' && <GBtn perm="jobs" label={'Acknowledge ' + i.id} go={() => set('Acknowledged')}>Acknowledge</GBtn>}{st !== 'Resolved' && <GBtn k="p" perm="jobs" label={'Resolve ' + i.id} go={() => set('Resolved')}>Resolve</GBtn>}</>} />
+    <Gate n={3}><Facts items={[['Incident', <span className="mo">{i.id}</span>], ['Status', <St v={st} tone={st === 'Open' ? 'bad' : undefined} />], ['Severity', i.sev], ['Owner', i.own], ['Opened', i.o + ' MST']]} /></Gate>
+    <Gate><div className="gms">
+      <Card t="Timeline">{[...i.tl, ...(st !== i.st ? [['Just now', st + ' by you.']] : [])].map((t, k) => <div key={k} className="tl"><div>{t[1]}</div><div className="me mo">{t[0]}</div></div>)}</Card>
+      <Card t="Linked" pad={false}>{i.links.map((l, k) => <div key={k} className="li"><I n={l[0]} /><button className="lk" style={{ flex: 1 }} onClick={() => go(l[0], null, l[0] === 'api' ? 'hooks' : null)}>{l[1]}</button><I n="chev" /></div>)}</Card>
+    </div></Gate>
+  </div>;
+}
+
+function Email() {
+  const { log, toast, guard } = useC();
+  const [q, setQ] = useState(''), [tpl, setTpl] = useState('Any template'), [st, setSt] = useState('Any status'), [open, setOpen] = useState(null);
+  const rows = EMAILS.filter(e => (e.to + e.sub).toLowerCase().includes(q.toLowerCase()) && (tpl === 'Any template' || e.tpl === tpl) && (st === 'Any status' || e.st === st));
+  const exp = () => guard('export', 'Export email log', () => { log('email_log.export', 'Email log', 'CSV, ' + rows.length + ' rows.'); toast('Export started. It is in the audit log.'); });
+  return <div className="pg">
+    <Head t="Email Log" d="Every transactional email and notification sent through Resend. Times are MST (America/Phoenix)." right={<GBtn ic="download" perm="export" label="Export email log" go={exp}>Export CSV</GBtn>} />
+    <div className="row"><Find v={q} on={setQ} ph="Filter recipient or subject" /><Sel label="Template" v={tpl} on={setTpl} opts={['Any template', ...new Set(EMAILS.map(e => e.tpl))]} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Delivered', 'Opened', 'Queued', 'Bounced']} /></div>
+    <Table rows={rows} sel onRow={setOpen} bulk={<Btn onClick={exp}>Export selected</Btn>} empty={{ ic: 'email', t: 'No emails sent yet' }}
+      cols={[{ k: 'sub', l: 'Email', w: 'minmax(260px,2fr)', r: e => <Two a={e.sub} b={e.to} mo /> }, { k: 'tpl', l: 'Template', mo: 1, w: '160px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />
+    {open && <Modal title={open.sub} onClose={() => setOpen(null)} foot={<Btn k="p" onClick={() => setOpen(null)}>Done</Btn>}>
+      <KV rows={[['To', <span className="mo">{open.to}</span>], ['From', 'Amplified Impact'], ['Template', <span className="mo">{open.tpl}</span>], ['Provider', 'Resend'], ['Status', <St v={open.st} />], ['Sent', open.t + ' MST']]} />
+      <p className="me">The log keeps the subject and delivery events. The message body is not stored here.</p>
+    </Modal>}
+  </div>;
+}
+
+function NotFound() {
+  const { go, setPal } = useC();
+  return <div className="pg"><div className="cd"><Empty ic="search" t="This page doesn't exist" b="The link may be old, or the record was removed. Error 404." /><div className="row" style={{ justifyContent: 'center', paddingBottom: 40, marginTop: -28 }}><Btn k="p" onClick={() => go('overview')}>Go to Overview</Btn><Btn onClick={() => setPal(true)}>Search the admin</Btn></div></div></div>;
+}
+function Denied({ what }) {
+  const { go, role } = useC();
+  return <div className="pg"><div className="cd"><Empty ic="lock" t={'Your role can\'t open ' + (what || 'this page')} b={'You are signed in as ' + role + '. An Owner can change this in Roles & Permissions.'} /><div className="row" style={{ justifyContent: 'center', paddingBottom: 40, marginTop: -28 }}><Btn k="p" onClick={() => go('overview')}>Go to Overview</Btn></div></div></div>;
+}
+
+/* ---------- command palette ---------- */
+function searchAll(q, can, mods) {
+  const s = q.trim().toLowerCase(); const m = t => !s || t.toLowerCase().includes(s);
+  return [
+    ['Pages', NAV.flatMap(g => g[1]).filter(n => m(n[1]) && (!n[2] || can(n[2]))).map(n => ({ ic: n[0], l: n[1], to: [n[0]] }))],
+    ['Users', USERS.filter(u => m(u.n + u.e)).map(u => ({ ic: 'users', l: u.n, r: u.e, to: ['user', u.id] }))],
+    ['Workspaces', WS.filter(w => m(w.n + w.plan)).map(w => ({ ic: 'workspaces', l: w.n, r: w.plan, to: ['workspace', w.id] }))],
+    ['AI Employees', mods.filter(k => m(k.n)).map(k => ({ ic: 'curriculum', l: k.n, r: k.st, to: ['builder', k.id] }))],
+    ['Invoices', INV.filter(i => m(i.id + i.c)).map(i => ({ ic: 'billing', l: i.id, r: i.c + ' · ' + i.amt, to: ['billing', null, 'invoices'], mo: 1 }))],
+  ].map(([g, items]) => [g, s ? items.slice(0, 6) : items.slice(0, g === 'Pages' ? 5 : 2)]).filter(g => g[1].length);
+}
+function Palette() {
+  const { go, setPal, can, mods, ph } = useC();
+  const [q, setQ] = useState(''), [cur, setCur] = useState(0);
+  const groups = searchAll(q, can, mods), flat = groups.flatMap(g => g[1]);
+  const pick = it => { setPal(false); go(...it.to); };
+  let n = -1;
+  return <div className="scrim top0" onMouseDown={e => { if (e.target === e.currentTarget) setPal(false); }}>
+    <div className="modal" role="dialog" aria-modal="true" aria-label="Command palette" style={{ maxWidth: 600 }}>
+      <div className="row nw" style={{ padding: '4px 8px 4px 16px', borderBottom: '1px solid var(--line)', height: ph ? 56 : 48, color: 'var(--f3)' }}><I n="search" /><input autoFocus placeholder="Search users, workspaces, AI Employees, invoices, pages" aria-label="Command palette search" style={{ flex: 1, border: 0, background: 'none', boxShadow: 'none', height: '100%', fontSize: ph ? 16 : 15, color: 'var(--ink)', minWidth: 0 }} value={q} onChange={e => { setQ(e.target.value); setCur(0); }}
+        onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); setCur(Math.min(flat.length - 1, cur + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setCur(Math.max(0, cur - 1)); } if (e.key === 'Enter' && flat[cur]) pick(flat[cur]); }} />
+        {ph ? <button className="ib" aria-label="Close" onClick={() => setPal(false)}><I n="x" /></button> : <span className="kbd" style={{ marginRight: 8 }}>esc</span>}</div>
+      <div style={{ overflow: 'auto', maxHeight: 400, padding: 6 }}>
+        {!groups.length ? <Empty ic="search" t={'No results for "' + q + '"'} b="Try a name, an email, or an invoice ID." /> : groups.map(([g, items]) => <div key={g}><div className="me w5" style={{ padding: '8px 10px 4px' }}>{g}</div>{items.map(it => { n++; const k = n; return <button key={g + it.l} className={'pal-i' + (k === cur ? ' on' : '')} onMouseEnter={() => setCur(k)} onClick={() => pick(it)}><span className="mu" style={{ display: 'flex' }}><I n={it.ic} /></span><span className={'el' + (it.mo ? ' mo' : '')}>{it.l}</span>{it.r && <span className="me el" style={{ marginLeft: 'auto', paddingLeft: 12 }}>{it.r}</span>}</button>; })}</div>)}
+      </div>
+      {!ph && <div className="mf me" style={{ justifyContent: 'flex-start', gap: 16 }}><span className="row nw" style={{ gap: 4 }}><span className="kbd">↑</span><span className="kbd">↓</span> Navigate</span><span className="row nw" style={{ gap: 4 }}><span className="kbd">↵</span> Open</span><span className="sp" /><span className="row nw" style={{ gap: 4 }}><span className="kbd">⌘K</span> Toggle</span></div>}
+    </div>
+  </div>;
+}
+
+/* ---------- dialogs ---------- */
+function ReasonModal({ mq, onGo, onCancel }) {
+  const [r, setR] = useState('');
+  const ext = mq.mode === 'extend';
+  return <Modal lock title={ext ? 'Extend masquerade by 15 minutes' : 'Masquerade as ' + mq.u.n} foot={<><Btn onClick={onCancel}>Cancel</Btn><Btn k="p" disabled={r.trim().length < 8} onClick={() => onGo(r.trim())}>{ext ? 'Extend 15 minutes' : 'Start 15-minute session'}</Btn></>}>
+    {!ext && <p className="s2">You will be signed in as {mq.u.n} ({mq.u.ws}) for 15 minutes. Every write is blocked, and the session is audit-logged.</p>}
+    <label className="lab">{ext ? 'New reason' : 'Reason'}<textarea className="in" rows={3} autoFocus value={r} onChange={e => setR(e.target.value)} placeholder="Ticket, or what you need to check" /></label>
+    <p className="me">{r.trim().length < 8 ? 'Required. Saved to the audit log with your name.' : 'Saved to the audit log with your name.'}</p>
+  </Modal>;
+}
+function Confirm({ d, onClose }) {
+  const [r, setR] = useState('');
+  const ok = !d.needReason || r.trim();
+  return <Modal title={d.title} onClose={onClose} foot={<><Btn onClick={onClose}>Cancel</Btn><Btn k={'p' + (d.danger ? ' d' : '')} disabled={!ok} onClick={() => { onClose(); d.yes(r.trim()); }}>{d.cta}</Btn></>}>
+    <p className="s2">{d.body}</p>
+    {d.needReason && <label className="lab">Reason<input className="in" autoFocus value={r} onChange={e => setR(e.target.value)} placeholder="Required" /></label>}
+    <p className="me">This action is audit-logged.</p>
+  </Modal>;
+}
+
+const SCREENS = { overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
+/* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
+const WM_VB = [41, -963.1, 7408, 1113.2];
+const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];
+function Wordmark({ short, h = 22 }) {
+  const w = short ? 540 : WM_VB[2];
+  return <svg className="wm" role="img" aria-label="Amplified Impact" height={h} width={Math.round(h * w / WM_VB[3] * 10) / 10} viewBox={WM_VB[0] + ' ' + WM_VB[1] + ' ' + w + ' ' + WM_VB[3]} style={{ overflow: 'hidden' }}>{WM_PATHS.map((p, i) => <path key={i} fill={p.fill} d={p.d} />)}<circle fill="none" stroke="#1F8A5C" cx="4477" cy="-800" r="139.3" strokeWidth="47.7" /><circle fill="#1F8A5C" cx="4477" cy="-800" r="69.7" /></svg>;
+}
+const GIC = { Health: 'overview', Build: 'curriculum', Support: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
+
+/* ---------- shell ---------- */
+function Sidebar({ rail, setRail, drawer, close }) {
+  const { route, go, can, staff, masq, ph, toast } = useC();
+  const active = PARENT[route.s] || route.s;
+  const [open, setOpen] = useState({ Health: 1, Build: 1 });
+  const r = rail && !drawer;
+  return <aside className={'sb' + (r ? ' rail' : '')}>
+    <div className="sb-top"><Wordmark short={r} />{drawer && <><span className="sp" /><button className="ib" aria-label="Close menu" onClick={close}><I n="x" s={20} /></button></>}</div>
+    <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label="Switch cohort. Amplified AI Accelerator, December 2026 Cohort" title={r ? 'Amplified AI Accelerator · December 2026 Cohort' : undefined} onClick={t}><span className="tile">AA</span>{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">December 2026 Cohort</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>}
+      items={[{ l: 'December 2026 Cohort', on: 1, fn: () => {} }, { l: 'March 2027 Cohort · Draft', fn: () => toast('Switches the admin to the March 2027 cohort') }, '-', { l: 'All cohorts', fn: () => go('cohorts') }]} />
+    <nav className="nav" aria-label="Admin">
+      {masq && <button className={'ni' + (route.s === 'as' ? ' on' : '')} title="Learner view" onClick={() => go('as')}><I n="eye" />{!r && <>Learner view<span className="ct" style={{ background: 'var(--warnb)', borderColor: '#EBD9A8', color: 'var(--warn)' }}>Live</span></>}</button>}
+      {NAV.map(([g, items], gi) => {
+        const vis = items.filter(n => !n[2] || can(n[2])); if (!vis.length) return null;
+        const has = vis.some(n => n[0] === active), op = has || !!open[g];
+        if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><I n={GIC[g]} /></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
+        return <div key={g}><button className={'ng' + (op ? ' op' : '')} aria-expanded={op} onClick={() => setOpen({ ...open, [g]: has ? 1 : !open[g] })}><I n="chev" s={12} w={2.2} />{g}{!op && vis.some(n => n[0] === 'incidents' && n[3]) && <span style={{ marginLeft: 'auto', color: 'var(--bad)', whiteSpace: 'nowrap' }}>1 incident</span>}</button>
+          {op && vis.map(n => <button key={n[0]} className={'ni' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><I n={n[0]} /><span className="el">{n[1]}</span>{n[3] && <span className="ct">{n[3]}</span>}</button>)}</div>;
+      })}
+    </nav>
+    <div className="sb-ft">
+      {!ph && <button className="ni" title={r ? 'Expand sidebar' : undefined} aria-label={r ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setRail(!r)}><I n="panel" />{!r && 'Collapse sidebar'}</button>}
+      <div className="uc" title={r ? staff.n + ' · ' + staff.role : undefined}><span className="av">{ini(staff.n)}</span>{!r && <span className="col" style={{ gap: 0 }}><span className="w5" style={{ fontSize: ph ? 16 : 13, lineHeight: ph ? '22px' : '18px' }}>{staff.n}</span><span style={{ fontSize: ph ? 16 : 12, lineHeight: ph ? '22px' : '16px', color: 'var(--f3)' }}>{staff.role}</span></span>}</div>
+    </div>
+  </aside>;
+}
+
+function AdminRedesign() {
+  const [vp, setVp] = useState(1280), [ds, setDs] = useState('default'), [role, setRole] = useState('Owner'), [started, setStarted] = useState(true);
+  const [route, setRoute] = useState({ s: 'curriculum' });
+  const [masq, setMasq] = useState(null), [mq, setMq] = useState(null), [blocked, setBlocked] = useState(null);
+  const [dlg, setDlg] = useState(null), [pal, setPal] = useState(false), [drawer, setDrawer] = useState(false), [tst, setTst] = useState(null), [prev, setPrev] = useState(null);
+  const [audit, setAudit] = useState(AUDIT0), [perms, setPerms] = useState(PERMS0), [inc, setInc] = useState({}), [mods, setMods] = useState(MODS0);
+  const [railP, setRailP] = useState(null);
+  const [box, setBox] = useState({ w: 1312, h: 832 });
+  const stage = useRef(null), mainRef = useRef(null), tt = useRef(null);
+  const ph = vp < 768, lap = vp >= 768 && vp < 1200;
+  const rail = railP === null ? lap : railP;
+  const staff = STAFF[ROLES.indexOf(role)];
+  const can = k => { const p = perms.find(x => x[0] === k); return !!p && !!p[2][ROLES.indexOf(role)]; };
+  const toast = m => { setTst(m); clearTimeout(tt.current); tt.current = setTimeout(() => setTst(null), 3200); };
+  const log = (act, tg, d) => setAudit(a => [{ t: 'Just now', actor: staff.n, act, tg, d: d || '' }, ...a]);
+  const go = (s, id, tab) => { setRoute({ s, id, tab }); setDrawer(false); if (mainRef.current) mainRef.current.scrollTop = 0; };
+  const guard = (perm, label, fn) => {
+    if (masq) { log('masquerade.blocked_action', masq.u.n, 'Tried: ' + label + '.'); setBlocked(label); return; }
+    if (!can(perm)) { toast('Your role (' + role + ") can't do this: " + label); return; }
+    fn();
+  };
+  const startMasq = u => { if (masq) return toast('Exit the current masquerade session first'); if (!can('masq')) return toast("Your role (" + role + ") can't start masquerade"); setMq({ u, mode: 'start' }); };
+  const endMasq = why => { if (!masq) return; log('masquerade.stop', masq.u.n, why + '.'); setMasq(null); setBlocked(null); toast('Masquerade ended. You are ' + staff.n + ' again.'); setRoute(r => r.s === 'as' ? { s: 'masquerade' } : r); };
+  const on = !!masq, left = masq ? masq.left : null;
+  useEffect(() => { if (!on) return; const t = setInterval(() => setMasq(m => m && { ...m, left: m.left - 1 }), 1000); return () => clearInterval(t); }, [on]);
+  useEffect(() => { if (on && left <= 0) endMasq('Expired after time limit'); }, [left]);
+  useEffect(() => {
+    if (!document.getElementById('arx-font')) { const l = document.createElement('link'); l.id = 'arx-font'; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap'; document.head.appendChild(l); }
+    const el = stage.current; const f = () => setBox({ w: el.clientWidth, h: el.clientHeight }); f();
+    const ro = new ResizeObserver(f); ro.observe(el);
+    const key = e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setPal(p => !p); } if (e.key === 'Escape') { setPal(false); setDrawer(false); setDlg(null); setBlocked(null); setPrev(null); } };
+    window.addEventListener('keydown', key);
+    return () => { ro.disconnect(); window.removeEventListener('keydown', key); };
+  }, []);
+  const sc = Math.min(1, (box.w - 32) / vp);
+  const fh = Math.round(ph ? Math.min(844, Math.max(640, (box.h - 32) / sc)) : Math.max(640, (box.h - 32) / sc));
+  const navItem = NAV.flatMap(g => g[1]).find(n => n[0] === (PARENT[route.s] || route.s));
+  const group = (NAV.find(g => g[1].includes(navItem)) || [])[0];
+  const Screen = SCREENS[route.s];
+  const ctx = { ph, lap, wide: vp >= 1400, ds, setDs, role, can, staff, route, go, masq, startMasq, endMasq, guard, toast, log, setDlg, audit, perms, setPerms, inc, setInc, setPal, started, mods, setMods, setPrev };
+  const pick = v => go(v, { workspace: 'ws_northshore', user: 'u_1042', incident: 'INC-0007' }[v]);
+  return <div className="arx">
+    <style>{CSS}</style>
+    <div className="mk" role="toolbar" aria-label="Mockup controls">
+      <span style={{ fontWeight: 600 }}>Mockup</span>
+      <span className="sg">{[1440, 1280, 1024, 390].map(v => <button key={v} className={vp === v ? 'on' : ''} onClick={() => { setVp(v); setRailP(null); }}>{v}</button>)}</span>
+      <select aria-label="Screen" value={route.s} onChange={e => pick(e.target.value)}>
+        {NAV.map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
+        <optgroup label="Detail and system"><option value="workspace">Workspace detail</option><option value="user">User detail</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
+      </select>
+      <select aria-label="Data state" value={ds} onChange={e => setDs(e.target.value)}><option value="default">State: default</option><option value="loading">State: loading</option><option value="empty">State: empty</option><option value="error">State: error</option></select>
+      <select aria-label="Role" value={role} onChange={e => setRole(e.target.value)}>{ROLES.map(r => <option key={r} value={r}>Role: {r}</option>)}</select>
+      <select aria-label="Cohort" value={started ? '1' : '0'} onChange={e => setStarted(e.target.value === '1')}><option value="1">Cohort: Week 2</option><option value="0">Cohort: before start</option></select>
+      <button className={masq ? 'on' : ''} onClick={() => masq ? endMasq('Exited by staff') : (setMasq({ u: USERS[0], reason: 'Customer reports Week 2 steps are out of order.', left: 900, granted: 900 }), log('masquerade.start', USERS[0].n, 'Reason: Customer reports Week 2 steps are out of order.'))}>Masquerade</button>
+      <button onClick={() => setPal(true)}>⌘K palette</button>
+    </div>
+    <div className="stg" ref={stage}><div className="hold" style={{ width: vp * sc, height: fh * sc }}>
+      <Ctx.Provider value={ctx}>
+        <div className={'ax' + (ph ? ' ph' : '') + (lap ? ' lap' : '') + (vp >= 1400 ? ' wide' : '') + (masq ? ' msq' : '')} style={{ width: vp, height: fh, transform: 'scale(' + sc + ')' }}>
+          {masq && <div className="mq" role="status">
+            <div className="who col" style={{ gap: 0 }}><span className="w6 el">Masquerading as {masq.u.n}{!ph && ' · ' + masq.u.ws}</span>{!ph && <span className="el" style={{ fontSize: 12, lineHeight: '16px' }}>Reason: {masq.reason} All writes are blocked.</span>}</div>
+            <span className="mo w5" style={{ whiteSpace: 'nowrap', flex: ph ? 1 : 'none' }} aria-label="Time remaining">{fmt(masq.left)} left</span>
+            <Btn disabled={masq.granted >= 3600} title={masq.granted >= 3600 ? '60-minute maximum reached' : undefined} onClick={() => setMq({ u: masq.u, mode: 'extend' })}>{masq.granted >= 3600 ? 'Max 60 min' : ph ? 'Extend' : 'Extend 15 min'}</Btn><Btn k="p" onClick={() => endMasq('Exited by staff')}>{ph ? 'Exit' : 'Exit masquerade'}</Btn>
+          </div>}
+          <div className="shell">
+            {!ph && <Sidebar rail={rail} setRail={setRailP} />}
+            <div className="mainc">
+              <header className="tb">
+                {ph ? <><button className="ib" aria-label="Open menu" onClick={() => setDrawer(true)}><I n="menu" s={22} /></button><Wordmark /><span className="sp" /><button className="ib" aria-label="Search" onClick={() => setPal(true)}><I n="search" s={20} /></button></>
+                  : <><nav className="bc" aria-label="Breadcrumb"><span>Admin</span>{group && <><span aria-hidden="true">/</span><span>{group}</span></>}{navItem && <><span aria-hidden="true">/</span>{PARENT[route.s] && route.s !== 'as' ? <button className="lk" style={{ fontWeight: 400, color: 'var(--f3)' }} onClick={() => go(navItem[0])}>{navItem[1]}</button> : <b>{navItem[1]}</b>}</>}{PARENT[route.s] && <><span aria-hidden="true">/</span><b className="el">{route.s === 'as' ? 'Learner view' : route.s === 'workspace' ? (WS.find(w => w.id === route.id) || {}).n : route.s === 'user' ? (USERS.find(u => u.id === route.id) || {}).n : route.id}</b></>}</nav>
+                    <span className="sp" /><button className="srch" onClick={() => setPal(true)}><I n="search" /><span style={{ flex: 1, textAlign: 'left' }}>Search or jump to…</span><span className="kbd">⌘K</span></button>
+                    <span className="st ok" style={{ fontSize: 13, color: 'var(--f2)' }}><i />Production</span></>}
+              </header>
+              <main className="main" ref={mainRef}>
+                {!Screen ? <NotFound /> : route.s === 'denied' || (navItem && navItem[2] && !can(navItem[2])) ? <Denied what={route.s === 'denied' ? null : navItem[1]} /> : <Screen key={route.s + (route.id || '') + (route.tab || '')} />}
+              </main>
+            </div>
+          </div>
+          {drawer && <><div className="scrim" onClick={() => setDrawer(false)} /><div className="drw" role="dialog" aria-modal="true" aria-label="Admin menu"><Sidebar drawer close={() => setDrawer(false)} /></div></>}
+          {pal && <Palette />}
+          {dlg && <Confirm d={dlg} onClose={() => setDlg(null)} />}
+          {prev && <Modal title="Preview as Learner" onClose={() => setPrev(null)} foot={<><Btn onClick={() => setPrev(null)}>Cancel</Btn><Btn k="p" onClick={() => { setPrev(null); toast('Preview opened in a new tab'); }}>Open preview</Btn></>}>
+            <p className="s2">Opens "{prev.n}" in a new tab as a learner on the {prev.tier === 'both' ? 'Agent' : 'Team'} Tier would see it.</p>
+            <p className="me">Read-only and local to that tab. This is not masquerade: you stay signed in as yourself and nothing is audit-logged.</p>
+          </Modal>}
+          {mq && <ReasonModal mq={mq} onCancel={() => setMq(null)} onGo={r => {
+            if (mq.mode === 'extend') { setMasq(m => ({ ...m, left: m.left + 900, granted: m.granted + 900, reason: r })); log('masquerade.extend', mq.u.n, 'Reason: ' + r); toast('Extended by 15 minutes'); }
+            else { setMasq({ u: mq.u, reason: r, left: 900, granted: 900 }); log('masquerade.start', mq.u.n, 'Reason: ' + r); go('as'); }
+            setMq(null);
+          }} />}
+          {blocked && masq && <Modal title="Blocked while masquerading" onClose={() => setBlocked(null)} foot={<><Btn onClick={() => setBlocked(null)}>Close</Btn><Btn k="p" onClick={() => endMasq('Exited by staff')}>Exit masquerade</Btn></>}>
+            <div className="note row nw"><I n="lock" /><span className="w5">{blocked}</span></div>
+            <p className="s2">You are signed in as {masq.u.n}. Every write is blocked until you exit: edits, publishes, refunds, exports, retries, and notes.</p>
+            <p className="me">This attempt was added to the audit log.</p>
+          </Modal>}
+          {tst && <div className="toast" role="status"><span style={{ color: 'var(--mint)', display: 'flex' }}><I n="check" /></span>{tst}</div>}
+        </div>
+      </Ctx.Provider>
+    </div></div>
+  </div>;
+}
+
+export default AdminRedesign;
