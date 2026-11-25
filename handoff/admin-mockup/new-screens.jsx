@@ -42,7 +42,7 @@ const TI0 = [
 const TST = { Received: '', 'Picked for a live read': 'info', Reviewed: 'ok' };
 const TSTS = Object.keys(TST);
 const Ghl = ({ v }) => v ? <St v={v} tone={v === 'Synced' ? 'ok' : v === 'Failed' ? 'bad' : 'warn'} /> : <span className="mu">—</span>;
-const FileList = ({ files }) => <ul className="fl">{files.map(f => <li key={f[0]}><I n="file" /><button className="lk">{f[0]}</button><span className="me">{f[1]}</span></li>)}</ul>;
+const FileList = ({ files }) => <ul className="fls">{files.map(f => <li key={f[0]}><I n="file" /><button className="lk">{f[0]}</button><span className="me">{f[1]}</span></li>)}</ul>;
 
 /* Learners & Teams › Intake: every team's Week 0 Intake, by team or one question across the cohort */
 function IntakeTab() {
