@@ -18,7 +18,8 @@ export { k };
 /**
  * `Head`: an optional way back, the h1 with its status, the description, and the actions. D-253: inside one of the
  * four pages' tabs a page shows its title once (the mockup's `AreaCtx`, `.shd`): it keeps its description and its
- * actions, and drops its own h1, its status beside it and its way back.
+ * actions, and drops its own h1 and its way back. Its status stays, beside its actions (Connor, Nov 25, 2026: Support's
+ * "Read-only for your role" on Revenue › Payments; the mockup drops it). Billing is the only page in a tab with one.
  */
 export function PageHead({
   title,
@@ -35,10 +36,15 @@ export function PageHead({
 }) {
   const inArea = useInArea();
   if (inArea)
-    return description || right ? (
+    return description || meta || right ? (
       <div className={k.shd}>
         {description ? <p className={clsx(k.p, k.s2)}>{description}</p> : <span />}
-        {right ? <div className={k.row}>{right}</div> : null}
+        {meta || right ? (
+          <div className={k.row}>
+            {meta}
+            {right}
+          </div>
+        ) : null}
       </div>
     ) : null;
   return (

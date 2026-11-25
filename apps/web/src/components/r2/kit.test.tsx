@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { Bar, Facts, Find, KV, Note, PageHead, Pill, Sel, Tabs, Timeline, Two, breakAt } from './kit';
+import { AreaProvider } from './area-context';
 import { Table } from './Table';
 import type { Column } from './Table';
 import { fit, need } from './table';
@@ -74,6 +75,34 @@ describe('the kit', () => {
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Every team.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Workspaces' })).toHaveAttribute('href', '/admin/workspaces');
+  });
+
+  it('PageHead inside a tab (D-253): no h1 and no way back, but the description, the status and the actions stay', () => {
+    inRouter(
+      <AreaProvider value>
+        <PageHead
+          title="Billing"
+          meta={<Pill tone="neutral">Read-only for your role</Pill>}
+          description="The lists behind the money."
+          right={<button type="button">Export</button>}
+          back={{ to: '/admin/revenue', label: 'Revenue' }}
+        />
+      </AreaProvider>,
+    );
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Revenue' })).toBeNull();
+    expect(screen.getByText('The lists behind the money.')).toBeInTheDocument();
+    expect(screen.getByText('Read-only for your role')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument();
+  });
+
+  it('PageHead inside a tab with a status alone still draws it', () => {
+    inRouter(
+      <AreaProvider value>
+        <PageHead title="Billing" meta={<Pill tone="neutral">Read-only for your role</Pill>} />
+      </AreaProvider>,
+    );
+    expect(screen.getByText('Read-only for your role')).toBeInTheDocument();
   });
 
   it('Pill and Bar carry their tone and fill as classes, never red', () => {

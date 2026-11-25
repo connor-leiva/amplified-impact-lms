@@ -487,6 +487,10 @@ which refs changed and why. A fixture for new screens goes beside `console-fixtu
   `scheduled` status: clearing them would be a rewrite the spec does not name, and they stay the fallback.
 - **Phase 4**'s test team is a seeded test account (D-202) placed in January by hand; it never counts as a seat.
 - **Phase 5** starts only after Q-21 and Q-22, with a written plan of its own first, as the spec asks.
+- **Phase 8** also draws Revenue's "N failed" on the sidebar row (spec § 3), moved here from Phase 1 by Connor on
+  Nov 25, 2026 (D-253). It is the count of the Failed list, the same count as the Summary's Failed payments figure. It
+  is read from what Billing already holds in memory (`BillingMemo`) through a new API route, never a Stripe call per
+  page view, and nothing is drawn while it is unknown.
 
 ---
 

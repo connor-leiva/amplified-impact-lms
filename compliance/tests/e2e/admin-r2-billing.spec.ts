@@ -127,12 +127,13 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await close();
   });
 
-  test('Support reads billing: no refund or void at all', async ({ browser }) => {
+  test('Support reads billing: the read-only pill, and no refund or void at all', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/revenue/payments/invoices?console-role=Support');
-    // D-253: inside a tab a page's head keeps its description and actions and drops its title, and the status
-    // beside the title with it (the mockup's `AreaCtx`), so the read-only pill is not drawn. Support still has no
+    // D-253: inside a tab a page's head drops its title but keeps its description, its status and its actions, so
+    // Payments keeps the read-only pill (Connor, Nov 25, 2026; the mockup's `AreaCtx` drops it). Support still has no
     // refund or void, and every tab of Revenue.
-    await expect(page.getByText('Read-only for your role')).toHaveCount(0);
+    await expect(page.getByText('Read-only for your role')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Billing' })).toHaveCount(0);
     await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText(['Summary', 'Payments', /^Plans & upgrades/, 'Usage']);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'View in Stripe' })).toBeVisible();

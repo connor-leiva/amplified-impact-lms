@@ -7802,7 +7802,7 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 
 - **The sidebar** (spec § 3; the mockup's `NAV` with `SOLO`). Overview, Program, Cohort, People and Revenue are single rows: each opens its page, and in the rail each is one icon with no fly-out. Then a hairline (`gsep`), then Operations, with System Health moved in first, and Access, which stay groups that open. D-239's travel, rail, fly-outs, one-open rule, `peek` and roll-ups are as they were. Where a role has no Operations, the hairline is above Access.
   - **Roll-ups on the single rows.** Program "N draft" (its draft weeks, the count Curriculum had). Cohort "N waiting" (the Community's threads, D-238, for a role that may open Community) or "Draft", in the warn colour, when the cohort it opens is a draft. Each hides at zero. Upgrade requests are counted on the Plans & upgrades tab, not on a row. Operations keeps "1 incident".
-  - **Revenue's "N failed" is not drawn.** The spec wants it from what Billing already holds in memory (`BillingMemo`), never a Stripe call per page view, and nothing while unknown. The web has no way to read that count without one: the summary route reads Stripe whenever its 10-minute memo is stale, and System Health's billing source calls Stripe too. A read of the memo alone needs an API route, which this phase does not touch. The reference leaves it out too.
+  - **Revenue's "N failed" is not drawn.** The spec wants it from what Billing already holds in memory (`BillingMemo`), never a Stripe call per page view, and nothing while unknown. The web has no way to read that count without one: the summary route reads Stripe whenever its 10-minute memo is stale, and System Health's billing source calls Stripe too. A read of the memo alone needs an API route, which this phase does not touch. The reference leaves it out too. **Connor (Nov 25, 2026): it moves to a later phase**; `handoff/admin-mockup/PLAN.md`'s phase notes put it with Phase 8 (Revenue › Summary), whose Failed payments figure is the same count.
 - **Four pages with tabs** (the mockup's `Area`, a shared `routes/admin/areas/Area.tsx` on the kit's `Tabs`). A tab is drawn once its page exists:
   - **Program**: Curriculum, Course settings (D-174's page, in no nav until now) and Resource Vault. Its head is the program's tile and name, the "Program" pill and "What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." Curriculum's tab counts its AI Employees.
   - **Cohort**: Schedule (Cohorts & Sessions), People (Learners & Teams), Community (D-238) and Announcements. Its head is the cohort picker alone. Schedule counts the cohort's sessions, People its teams (Learners & Teams' own Teams count, which is what the mockup counts there), Community the threads waiting.
@@ -7835,10 +7835,10 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 
 1. **The program's tile in Program's title** is 28 px in the mockup; `program-logo.ts`'s rule (Connor's logo README) is never under 32 px for a tile. The reference and the app draw 32 px.
 2. **The cohort picker in the title is 36 px tall on a phone** in the mockup (`.cpk.big`, `height:auto`), under the phone's 44 px target, which every control there keeps (the app's global rule, and the mockup's own `.ph .lk`). The reference and the app make it 44 px.
-3. **Revenue's "N failed"**: left out (above).
+3. **Revenue's "N failed"**: left out (above), and moved to Phase 8 by Connor.
 4. **The Cohort page's head** in the mockup carries a status pill, a shape line ("… · 8 weeks of building · twice a week · opens …"), Preview, Open enrollment and a menu with New cohort… and All settings. Each needs what Phases 3 and 5 store or build (the status words are Q-29); this phase draws the picker alone.
 5. **Counts on People's tabs** (the mockup's 148, 8, 31) count each person once, under how they got in: Phase 7's rule. Today's Users and Workspaces print no totals, so this phase draws none.
-6. **Inside a tab the head's status goes with its title** (the mockup's `AreaCtx` keeps the description and actions only), so Billing's "Read-only for your role" is not drawn for Support on Payments. Support still has no refund or void.
+6. **Inside a tab the mockup's head drops its status with its title** (its `AreaCtx` keeps the description and actions only), which would hide Billing's "Read-only for your role" from Support on Payments. **Connor (Nov 25, 2026): put it back.** So in the app a page in a tab keeps its status, beside its actions (`PageHead`); Billing is the only page in a tab that has one. The reference keeps the mockup's head: no ref is drawn as Support, so no ref moves. Support still has no refund or void.
 7. **People's and Revenue's descriptions** describe Phases 7 and 8 ("each person is counted once, under how they got in"; "every figure … opens the payments behind it"). They are the mockup's words, so they are drawn as written; under today's Users and Billing Summary they are true in part.
 8. **The mockup's copy edits to Plans & upgrades and Payments** take the cohort's revenue line out of Tiers' head and Billing's mention of the Accelerator cap; Revenue › Summary still prints Billing's figures. PLAN.md had the revenue line leaving in Phase 8.
 9. **Remembering the last cohort** in `users.prefs`: the route refuses the key (above).
@@ -7848,8 +7848,8 @@ The mockup designs one week, Week 0, which is self-paced, so Weeks 1 to 8 (each 
 **For Connor to check**
 
 - The 32 px tile and the 44 px phone picker (1, 2).
-- Revenue's roll-up stays empty until an API reads Billing's memory without Stripe; say if you want that route in a later phase (3).
-- The read-only pill's absence on Payments for Support (6), and People's and Revenue's descriptions under today's pages (7).
+- Revenue's roll-up: decided, Phase 8 (3). The read-only pill on Payments for Support: decided, drawn (6).
+- People's and Revenue's descriptions under today's pages (7).
 - Plans & upgrades' new head in place of the cohort's revenue line (8).
 - The Build hub's skill list and cohort card are gone with it (the spec's § 3 replaces it with Program).
 - The screenshots are in `handoff/admin-mockup/compare/r5-phase1/`, the app beside the mockup.

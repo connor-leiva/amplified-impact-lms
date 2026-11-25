@@ -31,6 +31,7 @@ what to compare; a tab's own page is today's until its phase.
 | `people-team-{1280,390}.png` | A team (`/admin/people/teams/ws_northshore`): way back "Teams", crumb `Admin / People / Teams / Northshore Group` | People › a team |
 | `revenue-summary-{1440,1280,1024,390}.png` | Revenue › Summary: Billing's own Summary (`/admin/revenue`) | Revenue › Summary |
 | `revenue-payments-{1440,1280,1024,390}.png` | Revenue › Payments: Billing's lists as the segmented control (`/admin/revenue/payments`) | Revenue › Payments |
+| `revenue-payments-support-{1280,390}.png` | Revenue › Payments as Support (`?console-role=Support`), Invoices: the "Read-only for your role" pill kept beside the page's actions (Connor, Nov 25, 2026). The app alone at device scale 2; the mockup drops the pill in a tab | none |
 | `revenue-plans-{1440,1280,1024,390}.png` | Revenue › Plans & upgrades: Tiers & Upgrades (`/admin/revenue/plans`) | Revenue › Plans & upgrades |
 | `revenue-usage-{1440,1280,1024,390}.png` | Revenue › Usage | Revenue › Usage |
 | `palette-{1280,390}.png` | The ⌘K palette with "people" typed: the pages and the tabs | the same |
@@ -49,5 +50,8 @@ Expected differences, each in D-253:
 - **Program's tile** is 32 px (the program logo's own floor), the mockup's 28; **the picker on a phone** is 44 px tall (the
   phone's target floor), the mockup's 36.
 - **People's tabs** carry no counts (the mockup's are Phase 7's).
+- **Support's read-only pill.** The mockup drops a page's status inside a tab (its `AreaCtx`); Connor asked for Billing's
+  "Read-only for your role" back on Payments for Support, so the app draws it beside the page's actions. Every
+  side-by-side here is drawn as Admin, who may act, so none shows it; `revenue-payments-support-*` do.
 - **Data.** Each side's own sample data: the mockup's Overview here is "before start", its Payments add Northline Realty
   and Sample Team, its weeks and sessions are its January-ready sample, and so on. The words of the frame are the same.
