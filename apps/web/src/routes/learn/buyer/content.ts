@@ -17,6 +17,14 @@ import { OFFICE_HOURS, ROTATION } from '../../../agents/content';
 import { COMPARE } from '../../../pricing/content';
 import { PROGRAM_PAGES } from '../../../site/content';
 import { AGENT_INSIDERS, AGENT_PLAN } from '../../../site/offers-content';
+import { LMS_V3 } from '../lms-v3/v3';
+
+/**
+ * Office hours' time, Thursdays at noon Mountain. With LMS v3 on, the learner portal's one line (D-259, Connor, Nov 25:
+ * "Times everywhere in the learner portal use one line: '12:00 PM MT / 1:00 PM CT'"); with it off, the words as they were.
+ */
+const OH_TIME = LMS_V3 ? '12:00 PM MT / 1:00 PM CT' : '12:00 PM MT';
+const OH_PM = LMS_V3 ? 'PM MT / 1:00 PM CT' : 'PM MT';
 
 /** Title Case for a heading made from a sentence-case line ("Leads and follow-up" → "Leads and Follow-Up"). */
 const SMALL = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
@@ -66,7 +74,7 @@ export const PLANS: Readonly<Record<'leader' | 'agent', BuyerPlan>> = {
     button: 'Upgrade to Amplified Insiders, $169/Month',
     short: 'Upgrade to Amplified Insiders',
     line: 'Every owner, ops and agent skill, plus weekly office hours.',
-    checks: [COMPARE.rows[0]!.cells[0] as string, 'Weekly office hours, Thursdays at 12:00 PM MT', 'New skills and updates as they come out'],
+    checks: [COMPARE.rows[0]!.cells[0] as string, `Weekly office hours, Thursdays at ${OH_TIME}`, 'New skills and updates as they come out'],
     every: 'Open Every Skill in the Library',
     getAll: 'Get This Skill and Every Other One',
   },
@@ -81,7 +89,7 @@ export const PLANS: Readonly<Record<'leader' | 'agent', BuyerPlan>> = {
     button: 'Upgrade to Agent Insiders, $79/Month',
     short: 'Upgrade to Agent Insiders',
     line: AGENT_INSIDERS.terms[1],
-    checks: ['Every agent skill', 'Weekly office hours, Thursdays at 12:00 PM MT'],
+    checks: ['Every agent skill', `Weekly office hours, Thursdays at ${OH_TIME}`],
     every: 'Open Every Agent Skill',
     getAll: 'Get This Skill and Every Agent Skill',
   },
@@ -108,9 +116,9 @@ export const TRAINING = {
   weeks: ROTATION.weeks.map((w) => ({ n: w.n, topic: titleCase(w.topic), skills: w.skills })),
 } as const;
 
-/** Office hours (the Agent Plan page's words, the time in MT). */
+/** Office hours (the Agent Plan page's words; the time is `OH_TIME`, D-259). */
 export const OFFICE = {
-  body: 'Every Thursday, 12:00 PM MT, 60 minutes. Drop in with a real file and get help.',
+  body: `Every Thursday, ${OH_TIME}, 60 minutes. Drop in with a real file and get help.`,
   lede: `Drop in with a real file and get help. ${OFFICE_HOURS.recorded}`,
 } as const;
 
@@ -229,10 +237,10 @@ export const COPY = {
     title: 'Office Hours',
     hero: 'Get Help on a Real File, Every Thursday',
     every: 'Every Thursday',
-    time: '12:00 PM MT, 60 minutes',
+    time: `${OH_TIME}, 60 minutes`,
     recorded: 'Recorded',
     clock: '12:00',
-    pm: 'PM MT',
+    pm: OH_PM,
     live: '60 minutes, live, then recorded.',
   },
   accel: {

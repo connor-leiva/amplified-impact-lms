@@ -22,6 +22,7 @@
 import { ACCELERATOR_OPTIONS, COURSE_OPENS_AT, acceleratorOpen, acceleratorUpcoming, isCourseWeek, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';
 import { canAccess, isOpen } from './status';
+import { mtCtTime, timeStyle } from './time';
 import type { AIEmployee, Cohort, Learner, Resource } from './types';
 
 /** Whether a learner may enter the course now, and whether that is the pre-launch preview. */
@@ -122,8 +123,12 @@ export function kitVisible(r: Pick<Resource, 'module' | 'visibility'>, weekOpen:
 const MT_DAY = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', weekday: 'short', month: 'short', day: 'numeric' });
 const MT_TIME = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit' });
 
-/** "Wed, Dec 9 · 12:00 PM MT": an instant as the course shows it. */
-export const mountainWhen = (t: number): string => `${MT_DAY.format(new Date(t))} · ${MT_TIME.format(new Date(t))} MT`;
+/**
+ * "Wed, Dec 9 · 12:00 PM MT": an instant as the course shows it. In the learner portal with LMS v3 on (D-259, `timeStyle`),
+ * "Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT", as every time there.
+ */
+export const mountainWhen = (t: number): string =>
+  `${MT_DAY.format(new Date(t))} · ${timeStyle() === 'mtct' ? mtCtTime(t) : `${MT_TIME.format(new Date(t))} MT`}`;
 
 // --- a live session's time in the reminders (D-250): Mountain and Central, MT first ----------------------------------
 

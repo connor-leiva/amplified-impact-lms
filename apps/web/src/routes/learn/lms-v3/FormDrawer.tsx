@@ -29,6 +29,7 @@
 // paragraph is the package's <p>, as before.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
+import { fmt, timeStyle } from '@ai/core';
 import { Icon } from './Icons';
 import { IntroText } from '../IntroText';
 import { Drawer, HairlineSweep, RollLabel, SignalMark, isReducedMotion, restartAnimation } from '@brand/ai-motion';
@@ -57,6 +58,13 @@ export interface UseFormArgs {
 const picks = (f: FormQuestion) => f.kind === 'choice' || f.kind === 'multi';
 const has = (v: Answer) => (Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== '');
 const stamp = (o: Intl.DateTimeFormatOptions) => new Date().toLocaleString('en-US', o);
+// D-259: in the learner portal with LMS v3 on, a stamp reads as every time there, "4:02 PM MT / 5:02 PM CT" (`fmt`).
+// Otherwise the package's own stamp, unchanged (the equality test holds it to the package's).
+const mtct = () => timeStyle() === 'mtct';
+const savedStamp = () => (mtct() ? fmt.clockTime(Date.now()) : stamp({ hour: 'numeric', minute: '2-digit' }));
+const submittedStamp = () =>
+  mtct() ? `${fmt.date(Date.now())}, ${fmt.clockTime(Date.now())}` : stamp({ month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const submittedShort = () => (mtct() ? fmt.date(Date.now()) : stamp({ month: 'short', day: 'numeric' }));
 const count = (fields: FormQuestion[], a: FormAnswers) => fields.filter((f) => has(a[f.id])).length;
 
 export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseFormArgs) {
@@ -77,7 +85,7 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
       return;
     }
     if (id !== run.current) return;   // a newer save, or a submit, took over
-    set((p) => ({ status: p.status === 'new' ? 'draft' : p.status, saved: 'Saved ' + stamp({ hour: 'numeric', minute: '2-digit' }), save: 'saved', rowAnswers: a }));
+    set((p) => ({ status: p.status === 'new' ? 'draft' : p.status, saved: 'Saved ' + savedStamp(), save: 'saved', rowAnswers: a }));
   }, [onSave]);
 
   const change = (f: FormQuestion, value: FormAnswers[string]) => {
@@ -99,7 +107,7 @@ export function useForm({ form, initial, onSave, onSubmit, onDownloadPdf }: UseF
       set({ submit: 'error', attempt: p.attempt + 1, failure: refusalOf(err) });
       return null;
     }
-    set({ status: 'submitted', submit: 'done', save: 'saved', rowAnswers: p.answers, saved: (form.ui.submittedLabel ?? 'Submitted') + ' ' + stamp({ month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }), short: stamp({ month: 'short', day: 'numeric' }) });
+    set({ status: 'submitted', submit: 'done', save: 'saved', rowAnswers: p.answers, saved: (form.ui.submittedLabel ?? 'Submitted') + ' ' + submittedStamp(), short: submittedShort() });
     setTimeout(() => set({ submit: 'idle' }), 1400);
     return null;
   };

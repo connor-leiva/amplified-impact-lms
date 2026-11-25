@@ -1,8 +1,10 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useLocation, useOutlet } from 'react-router';
+import { setTimeStyle } from '@ai/core';
 import { MASQUERADE_BLOCKED_EVENT } from '../data/http';
 import type { MasqueradeBlockedDetail } from '../data/http';
 import { masquerade, useMasquerade } from '../data/masquerade';
+import { timeStyleFor } from '../lib/timeStyle';
 
 // The router's root (D-162 3b, spec § 6): every route renders inside it, so a masquerade shows on
 // every page, the learner portal, the pages outside its shell (/course, /skill-library, /account …)
@@ -27,6 +29,9 @@ export const isAdminPath = (p: string): boolean => p === '/admin' || p.startsWit
 export function MasqueradeRoot() {
   const outlet = useOutlet();
   const { pathname } = useLocation();
+  const admin = isAdminPath(pathname);
+  // D-259: the learner portal's times with LMS v3 on, set before the page draws (`lib/timeStyle.ts`).
+  setTimeStyle(timeStyleFor(admin));
   const st = useMasquerade();
   const [blocked, setBlocked] = useState<MasqueradeBlockedDetail | null>(null);
   const active = st.status === 'active';
@@ -58,7 +63,6 @@ export function MasqueradeRoot() {
   }, [active]);
 
   // The page keeps its place (the second child) whether or not a session shows, so it never remounts.
-  const admin = isAdminPath(pathname);
   return (
     <>
       {active ? (
