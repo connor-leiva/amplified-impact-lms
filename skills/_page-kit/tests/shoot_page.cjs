@@ -39,6 +39,7 @@ const SHRINK = 'import sys\nfrom PIL import Image\nfor f in sys.argv[1:]:\n    I
     }
     if (width === 1280) {
       await page.evaluate(() => document.querySelectorAll('.disc-toggle[aria-expanded="false"], .why-toggle[aria-expanded="false"]').forEach((b) => b.click()));
+      await page.waitForTimeout(500); // let each chevron finish turning
       await page.screenshot({ path: `${stem}-1280-expanded.png`, fullPage: true });
       console.log(`1280px expanded: ${basename(stem)}-1280-expanded.png`);
       await page.emulateMedia({ media: 'print' });
