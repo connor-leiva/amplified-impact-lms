@@ -1,0 +1,157 @@
+{
+  "target": "http://127.0.0.1:4300/learn/week/0",
+  "targetSchedule": "http://127.0.0.1:4300/learn/schedule",
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": null,
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T18:52:25.842Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1440",
+      "state": "form-submitted-row",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6954,
+      "pct": 0.211,
+      "strictPixels": 23243,
+      "strictPct": 0.7052
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-submitted-open",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 32006,
+      "pct": 2.4696,
+      "strictPixels": 91688,
+      "strictPct": 7.0747
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-submitted-bottom",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 7891,
+      "pct": 0.6089,
+      "strictPixels": 24308,
+      "strictPct": 1.8756
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-submitted-row",
+      "size": {
+        "target": [
+          390,
+          4651
+        ],
+        "reference": [
+          390,
+          4593
+        ]
+      },
+      "diffPixels": 76838,
+      "pct": 4.2361,
+      "strictPixels": 377093,
+      "strictPct": 20.7892
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-submitted-open",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 19955,
+      "pct": 6.0624,
+      "strictPixels": 51790,
+      "strictPct": 15.734
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-submitted-bottom",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 6941,
+      "pct": 2.1087,
+      "strictPixels": 13001,
+      "strictPct": 3.9498
+    }
+  ],
+  "skipped": [
+    "desktop-1440-form-row-hover",
+    "desktop-1440-form-open",
+    "desktop-1440-form-bottom",
+    "desktop-1440-form-hover-chip",
+    "desktop-1440-form-hover-close",
+    "desktop-1440-form-hover-submit",
+    "desktop-1440-form-hover-pdf",
+    "desktop-1440-form-focus",
+    "desktop-1440-form-closed",
+    "desktop-1440-form-typed-saved",
+    "desktop-1440-form-choice",
+    "desktop-1440-form-errors",
+    "desktop-1440-form-errors-fixed-one",
+    "desktop-1440-form-submit-busy",
+    "desktop-1440-form-submitted-now",
+    "desktop-1440-form-pdf-done",
+    "desktop-1440-form-edit-then-close",
+    "desktop-1440-form-submit-then-close",
+    "desktop-1440-form-new-row",
+    "desktop-1440-form-new-open",
+    "phone-390-form-open",
+    "phone-390-form-bottom",
+    "phone-390-form-focus",
+    "phone-390-form-closed",
+    "phone-390-form-typed-saved",
+    "phone-390-form-choice",
+    "phone-390-form-errors",
+    "phone-390-form-errors-fixed-one",
+    "phone-390-form-submit-busy",
+    "phone-390-form-submitted-now",
+    "phone-390-form-pdf-done",
+    "phone-390-form-edit-then-close",
+    "phone-390-form-submit-then-close",
+    "phone-390-form-new-row",
+    "phone-390-form-new-open"
+  ]
+}

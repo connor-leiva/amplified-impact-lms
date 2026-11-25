@@ -1,0 +1,44 @@
+{
+  "target": "http://127.0.0.1:4300/learn/community",
+  "targetSchedule": null,
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": "[data-ai=\"community\"]",
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T18:52:41.024Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-list-staff",
+      "size": {
+        "target": [
+          1192,
+          877
+        ],
+        "reference": [
+          1192,
+          877
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    }
+  ],
+  "skipped": [
+    "desktop-1440-cm-list",
+    "desktop-1440-cm-hover-row",
+    "desktop-1440-cm-hover-start",
+    "desktop-1440-cm-hover-space",
+    "desktop-1440-cm-space-week",
+    "desktop-1440-cm-space-wins",
+    "desktop-1440-cm-compose-open",
+    "desktop-1440-cm-compose-space-kept",
+    "desktop-1440-cm-compose-errors",
+    "desktop-1440-cm-compose-busy",
+    "desktop-1440-cm-compose-posted",
+    "desktop-1440-cm-posted-then-list"
+  ]
+}

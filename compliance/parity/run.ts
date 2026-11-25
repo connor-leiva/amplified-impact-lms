@@ -7,6 +7,9 @@
 //      http-mode request-capture build, and the main config's http parity project when HTTP_PARITY is on)
 //   3. every vitest test tagged `@parity:` in packages/core and apps/web
 //   4. the meta-test (`check.ts`) over what 2 and 3 reported
+//   5. D-258: the LMS v3 screens, which a production build with `VITE_LMS_V3=true` ships: the both-flags-on e2e
+//      (`pnpm e2e:v3`, every `lms-v3-*` spec, every learner type) and the v3 unit tests in apps/web (the package's
+//      HTML-equality tests, the view-models, the gap rules, every learner type's routing)
 //
 // Every step runs even when an earlier one failed, so one red run says everything that is wrong.
 
@@ -27,9 +30,9 @@ import { main as check } from './check';
 
 const API = join(ROOT, 'apps', 'api');
 
-function step(name: string, cmd: string, args: string[], cwd: string): boolean {
+function step(name: string, cmd: string, args: string[], cwd: string, env: NodeJS.ProcessEnv = process.env): boolean {
   console.log(`\n▶ ${name}\n  ${cmd} ${args.join(' ')}`);
-  const run = spawnSync(cmd, args, { cwd, stdio: 'inherit', env: process.env });
+  const run = spawnSync(cmd, args, { cwd, stdio: 'inherit', env });
   const ok = run.status === 0;
   console.log(`${ok ? '✓' : '✗'} ${name}${ok ? '' : ` (exit ${run.status ?? run.signal})`}`);
   return ok;
@@ -85,6 +88,28 @@ for (const pkg of VITEST_PACKAGES) {
     ),
   });
 }
+
+// D-258: the guard (`learner-parity-guard.ts`) reads this job's conclusion, so with these two steps it attests the v3
+// screens too. Neither is tagged `@parity:`: the meta-test's manifest and the results it reads are unchanged.
+results.push({
+  name: 'the LMS v3 screens, both flags on (e2e-v3)',
+  ok: step(
+    'the LMS v3 screens, both flags on (e2e-v3)',
+    process.execPath,
+    [PLAYWRIGHT_CLI, 'test', '-c', join(ROOT, 'compliance', 'playwright.config.ts'), '--project=e2e-v3'],
+    ROOT,
+    { ...process.env, LMS_V3: '1', LEARNER_V2: '' },
+  ),
+});
+results.push({
+  name: 'the LMS v3 unit tests (apps/web)',
+  ok: step(
+    'the LMS v3 unit tests (apps/web)',
+    process.execPath,
+    [vitestCli('apps/web'), 'run', 'src/routes/learn/lms-v3', 'src/routes/learn/every-learner.test.tsx', 'src/routes/learn/IntroText.test.tsx'],
+    join(ROOT, 'apps', 'web'),
+  ),
+});
 
 console.log('\n▶ the meta-test (check.ts)\n');
 results.push({ name: 'the meta-test', ok: check([]) === 0 });

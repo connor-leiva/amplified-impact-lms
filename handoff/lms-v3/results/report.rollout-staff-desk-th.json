@@ -1,0 +1,47 @@
+{
+  "target": "http://127.0.0.1:4300/learn/community/2",
+  "targetSchedule": null,
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": "[data-ai=\"thread\"]",
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T18:52:47.414Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1440",
+      "state": "th-staff",
+      "size": {
+        "target": [
+          1192,
+          1116
+        ],
+        "reference": [
+          1192,
+          1116
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 1454,
+      "strictPct": 0.1093
+    }
+  ],
+  "skipped": [
+    "desktop-1440-th-open",
+    "desktop-1440-th-own",
+    "desktop-1440-th-pinned",
+    "desktop-1440-th-hover-act",
+    "desktop-1440-th-edit",
+    "desktop-1440-th-edit-saved",
+    "desktop-1440-th-delete-ask",
+    "desktop-1440-th-delete-yes",
+    "desktop-1440-th-delete-thread",
+    "desktop-1440-th-reply-error",
+    "desktop-1440-th-reply-posted",
+    "desktop-1440-th-staff-pin",
+    "desktop-1440-th-staff-hide-reply",
+    "desktop-1440-th-staff-hide-thread",
+    "desktop-1440-th-staff-hidden-thread"
+  ]
+}

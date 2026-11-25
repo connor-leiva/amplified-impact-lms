@@ -1,0 +1,75 @@
+{
+  "target": "http://127.0.0.1:4300/learn/week/1/step/6",
+  "targetSchedule": null,
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": null,
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T18:53:08.544Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1440",
+      "state": "ti-open-checkpoint",
+      "size": {
+        "target": [
+          561,
+          900
+        ],
+        "reference": [
+          561,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "ti-open-checkpoint",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    }
+  ],
+  "skipped": [
+    "desktop-1440-ti-open-report",
+    "desktop-1440-ti-hover-choose",
+    "desktop-1440-ti-files-held",
+    "desktop-1440-ti-files-done",
+    "desktop-1440-ti-file-removed",
+    "desktop-1440-ti-bad-file",
+    "desktop-1440-ti-submit-empty",
+    "desktop-1440-ti-submit-busy",
+    "desktop-1440-ti-sent-now",
+    "desktop-1440-ti-sent-then-closed",
+    "desktop-1440-ti-view-sent",
+    "desktop-1440-ti-new-version",
+    "desktop-1440-ti-closed",
+    "phone-390-ti-open-report",
+    "phone-390-ti-files-held",
+    "phone-390-ti-files-done",
+    "phone-390-ti-file-removed",
+    "phone-390-ti-bad-file",
+    "phone-390-ti-submit-empty",
+    "phone-390-ti-submit-busy",
+    "phone-390-ti-sent-now",
+    "phone-390-ti-sent-then-closed",
+    "phone-390-ti-view-sent",
+    "phone-390-ti-new-version",
+    "phone-390-ti-closed"
+  ]
+}

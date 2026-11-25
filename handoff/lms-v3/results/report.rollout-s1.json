@@ -1,0 +1,1736 @@
+{
+  "target": "http://127.0.0.1:4300/learn/week/0",
+  "targetSchedule": "http://127.0.0.1:4300/learn/schedule",
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": null,
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T18:47:27.958Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "desktop-1440",
+      "state": "default",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6954,
+      "pct": 0.211,
+      "strictPixels": 23243,
+      "strictPct": 0.7052
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "filter-owner",
+      "size": {
+        "target": [
+          1440,
+          1922
+        ],
+        "reference": [
+          1440,
+          1922
+        ]
+      },
+      "diffPixels": 6679,
+      "pct": 0.2413,
+      "strictPixels": 18939,
+      "strictPct": 0.6843
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "filter-operator",
+      "size": {
+        "target": [
+          1440,
+          2128
+        ],
+        "reference": [
+          1440,
+          2128
+        ]
+      },
+      "diffPixels": 6116,
+      "pct": 0.1996,
+      "strictPixels": 19476,
+      "strictPct": 0.6356
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "reference-open",
+      "size": {
+        "target": [
+          1440,
+          4074
+        ],
+        "reference": [
+          1440,
+          4050
+        ]
+      },
+      "diffPixels": 106775,
+      "pct": 1.8201,
+      "strictPixels": 372597,
+      "strictPct": 6.3512
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-go",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16719,
+      "strictPct": 1.29
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-step-next",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 4581,
+      "pct": 0.3535,
+      "strictPixels": 14958,
+      "strictPct": 1.1542
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-step",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 4882,
+      "pct": 0.3767,
+      "strictPixels": 16320,
+      "strictPct": 1.2593
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-filter",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5539,
+      "pct": 0.4274,
+      "strictPixels": 17899,
+      "strictPct": 1.3811
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-kit-row",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5509,
+      "pct": 0.4251,
+      "strictPixels": 17897,
+      "strictPct": 1.3809
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-kit-button",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 1776,
+      "pct": 0.137,
+      "strictPixels": 6764,
+      "strictPct": 0.5219
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-library",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 1776,
+      "pct": 0.137,
+      "strictPixels": 6764,
+      "strictPct": 0.5219
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "acc-open-hover",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 804,
+      "pct": 0.062,
+      "strictPixels": 2143,
+      "strictPct": 0.1654
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "hover-next-week",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 804,
+      "pct": 0.062,
+      "strictPixels": 2143,
+      "strictPct": 0.1654
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-hover-link",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-hover-week",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-hover-current",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-hover-group",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-group-closed",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6954,
+      "pct": 0.211,
+      "strictPixels": 23243,
+      "strictPct": 0.7052
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-collapsed",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6957,
+      "pct": 0.2111,
+      "strictPixels": 23266,
+      "strictPct": 0.7059
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-collapsed-hover",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5181,
+      "pct": 0.3998,
+      "strictPixels": 16484,
+      "strictPct": 1.2719
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-expanded-again",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6954,
+      "pct": 0.211,
+      "strictPixels": 23243,
+      "strictPct": 0.7052
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-collapsed-group-closed",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6957,
+      "pct": 0.2111,
+      "strictPixels": 23266,
+      "strictPct": 0.7059
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "nav-hover-logo",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "top-cal-open",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "top-cal-hover-item",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "top-cal-closed",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16489,
+      "strictPct": 1.2723
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "top-hover-account",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5178,
+      "pct": 0.3995,
+      "strictPixels": 16479,
+      "strictPct": 1.2715
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-default",
+      "size": {
+        "target": [
+          1440,
+          2350
+        ],
+        "reference": [
+          1440,
+          2329
+        ]
+      },
+      "diffPixels": 15608,
+      "pct": 0.4612,
+      "strictPixels": 133651,
+      "strictPct": 3.9495
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-add",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-what",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-cal-open",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-cal-hover-item",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-add-all",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-view",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-week-0",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 762,
+      "pct": 0.0588,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-week-1",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 763,
+      "pct": 0.0589,
+      "strictPixels": 1545,
+      "strictPct": 0.1192
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-hover-week-6",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 14824,
+      "pct": 1.1438,
+      "strictPixels": 94797,
+      "strictPct": 7.3146
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-row-hover",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 4886,
+      "pct": 0.377,
+      "strictPixels": 17108,
+      "strictPct": 1.3201
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-open",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 30842,
+      "pct": 2.3798,
+      "strictPixels": 68566,
+      "strictPct": 5.2906
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-bottom",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 9365,
+      "pct": 0.7226,
+      "strictPixels": 24800,
+      "strictPct": 1.9136
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-hover-chip",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 12269,
+      "pct": 0.9467,
+      "strictPixels": 30107,
+      "strictPct": 2.3231
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-hover-close",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 30842,
+      "pct": 2.3798,
+      "strictPixels": 68566,
+      "strictPct": 5.2906
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-hover-submit",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 30842,
+      "pct": 2.3798,
+      "strictPixels": 68566,
+      "strictPct": 5.2906
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-hover-pdf",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 30842,
+      "pct": 2.3798,
+      "strictPixels": 68566,
+      "strictPct": 5.2906
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-focus",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 34738,
+      "pct": 2.6804,
+      "strictPixels": 72634,
+      "strictPct": 5.6045
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "form-closed",
+      "size": {
+        "target": [
+          1440,
+          2289
+        ],
+        "reference": [
+          1440,
+          2289
+        ]
+      },
+      "diffPixels": 6954,
+      "pct": 0.211,
+      "strictPixels": 23243,
+      "strictPct": 0.7052
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-list",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 39,
+      "strictPct": 0.003
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-hover-row",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 39,
+      "strictPct": 0.003
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-hover-start",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 39,
+      "strictPct": 0.003
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-hover-space",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-space-week",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-space-wins",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-compose-open",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 32,
+      "strictPct": 0.0025
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "cm-compose-space-kept",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "th-open",
+      "size": {
+        "target": [
+          1440,
+          1100
+        ],
+        "reference": [
+          1440,
+          1100
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 1454,
+      "strictPct": 0.0918
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "th-hover-act",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 1454,
+      "strictPct": 0.1122
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-week-1",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.1891,
+      "strictPixels": 4271,
+      "strictPct": 0.3296
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-hover-cal",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.1891,
+      "strictPixels": 4271,
+      "strictPct": 0.3296
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-hover-back",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.1891,
+      "strictPixels": 4271,
+      "strictPct": 0.3296
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-hover-crumb",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.1891,
+      "strictPixels": 4271,
+      "strictPct": 0.3296
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-hover-row",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.1891,
+      "strictPixels": 4271,
+      "strictPct": 0.3296
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "lk-nav-hover-locked",
+      "size": {
+        "target": [
+          1440,
+          900
+        ],
+        "reference": [
+          1440,
+          900
+        ]
+      },
+      "diffPixels": 5509,
+      "pct": 0.4251,
+      "strictPixels": 17897,
+      "strictPct": 1.3809
+    },
+    {
+      "viewport": "desktop-1440",
+      "state": "sched-nav-collapsed",
+      "size": {
+        "target": [
+          1440,
+          2350
+        ],
+        "reference": [
+          1440,
+          2329
+        ]
+      },
+      "diffPixels": 15610,
+      "pct": 0.4613,
+      "strictPixels": 137520,
+      "strictPct": 4.0638
+    },
+    {
+      "viewport": "phone-390",
+      "state": "default",
+      "size": {
+        "target": [
+          390,
+          4651
+        ],
+        "reference": [
+          390,
+          4593
+        ]
+      },
+      "diffPixels": 77100,
+      "pct": 4.2505,
+      "strictPixels": 372092,
+      "strictPct": 20.5135
+    },
+    {
+      "viewport": "phone-390",
+      "state": "filter-owner",
+      "size": {
+        "target": [
+          390,
+          3861
+        ],
+        "reference": [
+          390,
+          3861
+        ]
+      },
+      "diffPixels": 3433,
+      "pct": 0.228,
+      "strictPixels": 9133,
+      "strictPct": 0.6065
+    },
+    {
+      "viewport": "phone-390",
+      "state": "filter-operator",
+      "size": {
+        "target": [
+          390,
+          4263
+        ],
+        "reference": [
+          390,
+          4205
+        ]
+      },
+      "diffPixels": 76427,
+      "pct": 4.5969,
+      "strictPixels": 369804,
+      "strictPct": 22.2429
+    },
+    {
+      "viewport": "phone-390",
+      "state": "reference-open",
+      "size": {
+        "target": [
+          390,
+          7587
+        ],
+        "reference": [
+          390,
+          7506
+        ]
+      },
+      "diffPixels": 180923,
+      "pct": 6.1145,
+      "strictPixels": 594516,
+      "strictPct": 20.0923
+    },
+    {
+      "viewport": "phone-390",
+      "state": "acc-open-hover",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 1514,
+      "pct": 0.46,
+      "strictPixels": 3765,
+      "strictPct": 1.1438
+    },
+    {
+      "viewport": "phone-390",
+      "state": "nav-group-closed",
+      "size": {
+        "target": [
+          390,
+          4996
+        ],
+        "reference": [
+          390,
+          4938
+        ]
+      },
+      "diffPixels": 77107,
+      "pct": 3.9574,
+      "strictPixels": 372086,
+      "strictPct": 19.0966
+    },
+    {
+      "viewport": "phone-390",
+      "state": "nav-menu-open",
+      "size": {
+        "target": [
+          390,
+          5336
+        ],
+        "reference": [
+          390,
+          5278
+        ]
+      },
+      "diffPixels": 77109,
+      "pct": 3.7053,
+      "strictPixels": 372098,
+      "strictPct": 17.8804
+    },
+    {
+      "viewport": "phone-390",
+      "state": "top-cal-open",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 726,
+      "pct": 0.2206,
+      "strictPixels": 2463,
+      "strictPct": 0.7483
+    },
+    {
+      "viewport": "phone-390",
+      "state": "top-cal-closed",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 726,
+      "pct": 0.2206,
+      "strictPixels": 2463,
+      "strictPct": 0.7483
+    },
+    {
+      "viewport": "phone-390",
+      "state": "sched-default",
+      "size": {
+        "target": [
+          390,
+          3740
+        ],
+        "reference": [
+          390,
+          3740
+        ]
+      },
+      "diffPixels": 2220,
+      "pct": 0.1522,
+      "strictPixels": 4820,
+      "strictPct": 0.3305
+    },
+    {
+      "viewport": "phone-390",
+      "state": "sched-cal-open",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-open",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 17694,
+      "pct": 5.3755,
+      "strictPixels": 35986,
+      "strictPct": 10.9327
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-bottom",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 5234,
+      "pct": 1.5901,
+      "strictPixels": 7742,
+      "strictPct": 2.352
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-focus",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 25521,
+      "pct": 7.7534,
+      "strictPixels": 46117,
+      "strictPct": 14.0105
+    },
+    {
+      "viewport": "phone-390",
+      "state": "form-closed",
+      "size": {
+        "target": [
+          390,
+          4651
+        ],
+        "reference": [
+          390,
+          4593
+        ]
+      },
+      "diffPixels": 78153,
+      "pct": 4.3086,
+      "strictPixels": 373364,
+      "strictPct": 20.5836
+    },
+    {
+      "viewport": "phone-390",
+      "state": "cm-list",
+      "size": {
+        "target": [
+          390,
+          1700
+        ],
+        "reference": [
+          390,
+          1700
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "cm-space-week",
+      "size": {
+        "target": [
+          390,
+          1298
+        ],
+        "reference": [
+          390,
+          1298
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "cm-space-wins",
+      "size": {
+        "target": [
+          390,
+          1072
+        ],
+        "reference": [
+          390,
+          1072
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "cm-compose-open",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "cm-compose-space-kept",
+      "size": {
+        "target": [
+          390,
+          844
+        ],
+        "reference": [
+          390,
+          844
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 0,
+      "strictPct": 0
+    },
+    {
+      "viewport": "phone-390",
+      "state": "th-open",
+      "size": {
+        "target": [
+          390,
+          1492
+        ],
+        "reference": [
+          390,
+          1492
+        ]
+      },
+      "diffPixels": 0,
+      "pct": 0,
+      "strictPixels": 1454,
+      "strictPct": 0.2499
+    },
+    {
+      "viewport": "phone-390",
+      "state": "lk-week-1",
+      "size": {
+        "target": [
+          390,
+          1125
+        ],
+        "reference": [
+          390,
+          1125
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.5586,
+      "strictPixels": 4271,
+      "strictPct": 0.9734
+    },
+    {
+      "viewport": "phone-390",
+      "state": "lk-nav-menu-open",
+      "size": {
+        "target": [
+          390,
+          1810
+        ],
+        "reference": [
+          390,
+          1810
+        ]
+      },
+      "diffPixels": 2451,
+      "pct": 0.3472,
+      "strictPixels": 4271,
+      "strictPct": 0.605
+    }
+  ],
+  "skipped": [
+    "desktop-1440-one-left",
+    "desktop-1440-one-left-hover-step",
+    "desktop-1440-all-done",
+    "desktop-1440-all-done-hover",
+    "desktop-1440-deployed",
+    "desktop-1440-deployed-hover-undo",
+    "desktop-1440-deploy-click",
+    "desktop-1440-deploy-undo",
+    "desktop-1440-nav-collapse-interrupted",
+    "desktop-1440-nav-collapse-interrupted-late",
+    "desktop-1440-nav-expand-interrupted",
+    "desktop-1440-nav-to-schedule",
+    "desktop-1440-nav-to-week",
+    "desktop-1440-nav-s7",
+    "desktop-1440-sched-one-left",
+    "desktop-1440-sched-all-done",
+    "desktop-1440-sched-deployed",
+    "desktop-1440-form-typed-saved",
+    "desktop-1440-form-choice",
+    "desktop-1440-form-errors",
+    "desktop-1440-form-errors-fixed-one",
+    "desktop-1440-form-submit-busy",
+    "desktop-1440-form-submitted-now",
+    "desktop-1440-form-pdf-done",
+    "desktop-1440-form-edit-then-close",
+    "desktop-1440-form-submit-then-close",
+    "desktop-1440-form-new-row",
+    "desktop-1440-form-new-open",
+    "desktop-1440-form-submitted-row",
+    "desktop-1440-form-submitted-open",
+    "desktop-1440-form-submitted-bottom",
+    "desktop-1440-cm-compose-errors",
+    "desktop-1440-cm-compose-busy",
+    "desktop-1440-cm-compose-posted",
+    "desktop-1440-cm-posted-then-list",
+    "desktop-1440-cm-list-staff",
+    "desktop-1440-th-own",
+    "desktop-1440-th-pinned",
+    "desktop-1440-th-edit",
+    "desktop-1440-th-edit-saved",
+    "desktop-1440-th-delete-ask",
+    "desktop-1440-th-delete-yes",
+    "desktop-1440-th-delete-thread",
+    "desktop-1440-th-reply-error",
+    "desktop-1440-th-reply-posted",
+    "desktop-1440-th-staff",
+    "desktop-1440-th-staff-pin",
+    "desktop-1440-th-staff-hide-reply",
+    "desktop-1440-th-staff-hide-thread",
+    "desktop-1440-th-staff-hidden-thread",
+    "desktop-1440-ti-open-report",
+    "desktop-1440-ti-open-checkpoint",
+    "desktop-1440-ti-hover-choose",
+    "desktop-1440-ti-files-held",
+    "desktop-1440-ti-files-done",
+    "desktop-1440-ti-file-removed",
+    "desktop-1440-ti-bad-file",
+    "desktop-1440-ti-submit-empty",
+    "desktop-1440-ti-submit-busy",
+    "desktop-1440-ti-sent-now",
+    "desktop-1440-ti-sent-then-closed",
+    "desktop-1440-ti-view-sent",
+    "desktop-1440-ti-new-version",
+    "desktop-1440-ti-closed",
+    "desktop-1440-top-soon",
+    "desktop-1440-top-soon-hover-join",
+    "desktop-1440-top-live",
+    "desktop-1440-top-live-hover-join",
+    "desktop-1440-top-ended",
+    "desktop-1440-top-ended-cal-open",
+    "desktop-1440-top-nextday",
+    "desktop-1440-top-live-community",
+    "desktop-1440-top-live-thread",
+    "desktop-1440-top-live-nav-collapsed",
+    "desktop-1440-sched-soon",
+    "desktop-1440-sched-soon-hover-join",
+    "desktop-1440-sched-live",
+    "desktop-1440-sched-live-hover-week",
+    "desktop-1440-sched-ended",
+    "desktop-1440-sched-ended-cal-open",
+    "desktop-1440-sched-nextday",
+    "desktop-1440-sched-nextday-hover-replay",
+    "desktop-1440-sched-nextday-hover-what",
+    "desktop-1440-sched-clock-back",
+    "desktop-1440-lk-week-2",
+    "desktop-1440-lk-week-7",
+    "desktop-1440-lk-week-8",
+    "desktop-1440-lk-nav-collapsed",
+    "desktop-1440-lk-week-2-ended",
+    "desktop-1440-lk-from-nav",
+    "desktop-1440-lk-from-schedule",
+    "desktop-1440-lk-from-next-week",
+    "desktop-1440-lk-back-to-week",
+    "desktop-1440-lk-opens-while-open",
+    "phone-390-one-left",
+    "phone-390-all-done",
+    "phone-390-deployed",
+    "phone-390-deploy-click",
+    "phone-390-deploy-undo",
+    "phone-390-nav-to-schedule",
+    "phone-390-nav-to-week",
+    "phone-390-nav-s7",
+    "phone-390-sched-one-left",
+    "phone-390-sched-all-done",
+    "phone-390-sched-deployed",
+    "phone-390-form-typed-saved",
+    "phone-390-form-choice",
+    "phone-390-form-errors",
+    "phone-390-form-errors-fixed-one",
+    "phone-390-form-submit-busy",
+    "phone-390-form-submitted-now",
+    "phone-390-form-pdf-done",
+    "phone-390-form-edit-then-close",
+    "phone-390-form-submit-then-close",
+    "phone-390-form-new-row",
+    "phone-390-form-new-open",
+    "phone-390-form-submitted-row",
+    "phone-390-form-submitted-open",
+    "phone-390-form-submitted-bottom",
+    "phone-390-cm-compose-errors",
+    "phone-390-cm-compose-busy",
+    "phone-390-cm-compose-posted",
+    "phone-390-cm-posted-then-list",
+    "phone-390-cm-list-staff",
+    "phone-390-th-own",
+    "phone-390-th-pinned",
+    "phone-390-th-edit",
+    "phone-390-th-edit-saved",
+    "phone-390-th-delete-ask",
+    "phone-390-th-delete-yes",
+    "phone-390-th-delete-thread",
+    "phone-390-th-reply-error",
+    "phone-390-th-reply-posted",
+    "phone-390-th-staff",
+    "phone-390-th-staff-pin",
+    "phone-390-th-staff-hide-reply",
+    "phone-390-th-staff-hide-thread",
+    "phone-390-th-staff-hidden-thread",
+    "phone-390-ti-open-report",
+    "phone-390-ti-open-checkpoint",
+    "phone-390-ti-files-held",
+    "phone-390-ti-files-done",
+    "phone-390-ti-file-removed",
+    "phone-390-ti-bad-file",
+    "phone-390-ti-submit-empty",
+    "phone-390-ti-submit-busy",
+    "phone-390-ti-sent-now",
+    "phone-390-ti-sent-then-closed",
+    "phone-390-ti-view-sent",
+    "phone-390-ti-new-version",
+    "phone-390-ti-closed",
+    "phone-390-top-soon",
+    "phone-390-top-live",
+    "phone-390-top-ended",
+    "phone-390-top-ended-cal-open",
+    "phone-390-top-nextday",
+    "phone-390-top-live-community",
+    "phone-390-top-live-thread",
+    "phone-390-top-live-menu-open",
+    "phone-390-sched-soon",
+    "phone-390-sched-live",
+    "phone-390-sched-ended",
+    "phone-390-sched-ended-cal-open",
+    "phone-390-sched-nextday",
+    "phone-390-sched-clock-back",
+    "phone-390-lk-week-2",
+    "phone-390-lk-week-7",
+    "phone-390-lk-week-8",
+    "phone-390-lk-week-2-ended",
+    "phone-390-lk-from-nav",
+    "phone-390-lk-from-schedule",
+    "phone-390-lk-from-next-week",
+    "phone-390-lk-back-to-week",
+    "phone-390-lk-opens-while-open"
+  ]
+}
