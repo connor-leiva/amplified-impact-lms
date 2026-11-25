@@ -28,7 +28,7 @@
 // subject in the HTML.
 import { describe, it, expect, afterAll, beforeAll } from 'vitest';
 import { render } from '@react-email/render';
-import { ACADEMY_URL, buildWelcomeCopy, fmt, setViewerZone, viewerZone } from '@ai/core';
+import { fmt, setViewerZone, viewerZone } from '@ai/core';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
 import { SUBJECTS, TEMPLATE_NAMES } from '../subjects';
 import type { TemplateName } from '../subjects';
@@ -74,22 +74,6 @@ afterAll(() => {
 // deferred routes will hand over: Session 3 is `The Living Database`, Session 2 is `Speed to Lead`,
 // `a1` is the seeded moved-session announcement with its `Update Calendar` action, and the two AI
 // Employees are `sales` and `marketing`.
-const WELCOME_COPY = buildWelcomeCopy(
-  {
-    cohortName: 'December Cohort',
-    sendsAt: Date.parse('2026-12-02T12:00:00-07:00'),
-    session1At: Date.parse('2026-12-02T12:00:00-07:00'),
-    session1Mins: 90,
-    officeHoursAt: Date.parse('2026-12-04T11:00:00-07:00'),
-    weekOpenAt: Date.parse('2026-11-29T12:00:00-07:00'),
-    weekOpenClock: '12:00',
-    weekOpenClockAt: Date.parse('2026-12-02T12:00:00-07:00'),
-  },
-  { dueAt: Date.parse('2026-11-30T12:00:00-07:00'), title: 'Foundations', steps: 8, baselineTasks: 6 },
-  'Pat',
-  null,
-);
-
 const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'sign-in': { token: 'tok_signin_1' },
   'team-invite': { inviter: 'Alex Rivera', team: 'Northline Realty', token: 'tok_invite_1' },
@@ -110,13 +94,25 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'skill-purchase': { skillName: 'Recruiting Prep', variant: 'new', sets: 'owner_ops', firstName: 'Pat', next: '/skill-library/recruiting-prep', token: 'tok_skill_1' },
   'learner-invite': { firstName: 'Pat', email: 'pat@example.test', token: 'tok_learner_1' },
   'learner-nudge': { firstName: 'Pat' },
-  'cohort-welcome': { cohortName: 'December Cohort', copy: WELCOME_COPY },
+  'cohort-welcome': {
+    cohortName: 'December 2026',
+    firstName: 'Pat',
+    week0DueAt: Date.parse('2026-11-30T19:00:00Z'),
+    week0Title: 'Foundations',
+    week0Steps: 8,
+    baselineTasks: 6,
+    tour: true,
+    liveBuildAt: Date.parse('2026-12-02T19:00:00Z'),
+    liveBuildMins: 90,
+    setPasswordUrl: null,
+  },
   'week0-open': { firstName: 'Pat', week0DueAt: Date.parse('2026-11-30T19:00:00Z'), liveBuildAt: Date.parse('2026-12-02T19:00:00Z'), liveBuildMins: 90 },
 };
 
 /** Connor's HTML documents (the $37 skill email's design, D-247): not § 8.1's React Email shell. */
 // D-250: the session reminders are the same document, as a note from Connor.
-const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h', 'week0-open'];
+// The Week 0 Is Open email, and the cohort welcome in its design, are the same document too.
+const BRANDED: readonly TemplateName[] = ['skill-purchase', 'learner-invite', 'learner-nudge', 'session-24h', 'session-1h', 'week0-open', 'cohort-welcome'];
 const branded = (name: TemplateName): boolean => BRANDED.includes(name);
 
 /** § 8.1's exact subject for each sample, from `SUBJECTS` — the table, not a retyped copy. */
@@ -135,7 +131,7 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'skill-purchase': SUBJECTS['skill-purchase']({ skillName: 'Recruiting Prep', variant: 'new' }),
   'learner-invite': SUBJECTS['learner-invite']({}),
   'learner-nudge': SUBJECTS['learner-nudge']({}),
-  'cohort-welcome': SUBJECTS['cohort-welcome']({ cohortName: 'December Cohort' }),
+  'cohort-welcome': SUBJECTS['cohort-welcome']({ cohortName: 'December 2026' }),
   'week0-open': SUBJECTS['week0-open']({}),
 };
 
@@ -159,7 +155,7 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'skill-purchase': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_skill_1&amp;next=%2Fskill-library%2Frecruiting-prep` },
   'learner-invite': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_learner_1` },
   'learner-nudge': { label: 'Sign In', href: `${APP}/sign-in` },
-  'cohort-welcome': { label: 'Open The Academy', href: ACADEMY_URL },
+  'cohort-welcome': { label: 'Start Week 0', href: `${APP}/learn/week/0` },
   'week0-open': { label: 'Start Week 0', href: `${APP}/learn/week/0` },
 };
 
@@ -268,6 +264,13 @@ describe('email templates · § 8.1 subjects and CTAs @g8', () => {
       }
       // The Week 0 Is Open email is that document too, Connor's v2: the subject without its emoji in the <title>, the
       // reader's name in the heading, and the button to Week 0.
+      if (name === 'cohort-welcome') {
+        expect(html).toContain('<title>Welcome to the December 2026 Cohort: You’re In</title>');
+        expect(html).toContain('Pat, You’re In!');
+        expect(html).toContain(`>${CTA[name].label}</a>`);
+        expect(html).toContain(`href="${CTA[name].href}"`);
+        return;
+      }
       if (name === 'week0-open') {
         expect(html).toContain('<title>Welcome to the December Cohort: Week 0 Is Open</title>');
         expect(html).toContain('Pat, We’re Officially Underway!');
@@ -463,9 +466,7 @@ describe('email templates · what would break in a real inbox @g8', () => {
       }
       const href = hrefOf(HTML[name]);
       expect(href).toMatch(/^https:\/\//);
-      // The welcome's button is the academy host, not a path on this app.
-      if (name === 'cohort-welcome') expect(href).toBe(ACADEMY_URL);
-      else expect(href.startsWith(`${APP}/`)).toBe(true);
+      expect(href.startsWith(`${APP}/`)).toBe(true);
     });
 
     it(`${name} never carries a Zoom URL @g8`, () => {

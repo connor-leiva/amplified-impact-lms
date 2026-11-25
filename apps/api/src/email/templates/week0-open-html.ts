@@ -27,6 +27,7 @@ import {
   darkBoxRow,
   esc,
   fineRow,
+  keepTimeHalves,
   launchListRows,
 } from './branded-html';
 import { absolute } from './links';
@@ -72,15 +73,8 @@ export const WEEK0_OPEN_COPY = {
 
 const C = WEEK0_OPEN_COPY;
 
-/**
- * Each zone's half of a time kept on one line ("Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT"), so a phone
- * breaks it after the slash, never inside Central's range, as the session reminders do (D-250).
- */
-const keepHalves = (when: string): string =>
-  when
-    .split(' / ')
-    .map((half) => `<span style="white-space:nowrap;">${esc(half)}</span>`)
-    .join(' / ');
+/** Each zone's half of a time kept on one line, so a phone breaks it after the slash (`keepTimeHalves`). */
+const keepHalves = keepTimeHalves;
 
 const startHref = (appUrl?: string | null): string => absolute(WEEK0_LEARN_PATH, appUrl);
 

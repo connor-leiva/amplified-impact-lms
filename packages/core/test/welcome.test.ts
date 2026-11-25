@@ -1,16 +1,17 @@
-// The cohort welcome: when it is due, and that every date in the copy comes from the schedule.
+// The cohort welcome: when it is due, its subject and cohort label, and Week 0's facts from the stored module. The
+// email's words are the template's (`apps/api/src/email/templates/cohort-welcome-html.test.ts`).
 import { describe, expect, it } from 'vitest';
 import {
-  ACADEMY_URL,
   WELCOME_TEST_ADDRESS,
   accessOpensAt,
   baselineTaskCount,
-  buildWelcomeCopy,
+  cohortLabel,
   enrolledBeforeSwitch,
   week0DueAt,
   welcomeDecision,
   welcomeSchedule,
   welcomeSendInstant,
+  welcomeSubject,
   welcomeTestAllowed,
   welcomeWeek0,
 } from '../src/welcome';
@@ -36,7 +37,7 @@ const schedule = (over: Partial<WelcomeSchedule> = {}): WelcomeSchedule => ({
 
 /** Mon, Nov 30, 2026, 12:00 PM MT (1:00 PM CT): Week 0's Due, as the release plan sets it. */
 const WEEK0_DUE = Date.parse('2026-11-30T19:00:00Z');
-const WEEK0: WelcomeWeek0 = { dueAt: WEEK0_DUE, title: 'Foundations', steps: 8, baselineTasks: 6 };
+const WEEK0: WelcomeWeek0 = { dueAt: WEEK0_DUE, title: 'Foundations', steps: 8, baselineTasks: 6, tour: false };
 
 const session = (id: string, n: number, start: number, kind: string | null = null): WelcomeSession => ({ id, n, start, mins: 75, kind });
 
@@ -110,77 +111,23 @@ describe('the send time comes from the builder', () => {
   });
 });
 
-describe('the copy', () => {
-  const copy = buildWelcomeCopy(schedule(), WEEK0, 'Pat', null);
-  const withLink = buildWelcomeCopy(schedule(), WEEK0, 'Pat', 'https://learn.amplifiedimpact.io/set-password?token=abc');
-
-  it('uses the cohort name in the subject and fills every time from the schedule, MT first and CT after it', () => {
-    expect(copy.subject).toBe('Your Access To The December Cohort Is Live');
-    expect(copy.preheader).toBe("You're in! Here's what to do before our first live build on Wed, Dec 2.");
-    expect(copy.cohortLine).toBe('December Cohort Starts Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
-    expect(copy.rows[0]).toEqual({ label: 'Sunday', body: 'The week opens at 12:00 PM MT / 1:00 PM CT with a playbook to read and load into your AI before the build.' });
-    expect(copy.rows[1]?.body).toBe('The live build from 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT. 90 minutes, building your next AI hire together.');
-    expect(copy.rows[1]?.label).toBe('Wednesday');
-    expect(copy.rows[2]?.body).toBe('Office hours Friday at 11:00 AM MT / 12:00 PM CT, for anything that got stuck.');
-    expect(copy.buttonHref).toBe(ACADEMY_URL);
-    expect(copy.signoffName).toBe('Connor Leiva');
-    expect(copy.setPasswordUrl).toBeNull();
-    expect(withLink.setPasswordLine).toBe('If you have not set a password yet, set one here.');
-  });
-
-  it('has no em dash or en dash', () => {
-    const text = JSON.stringify(copy);
-    expect(text).not.toMatch(/[–—]/);
-  });
-
-  it('says Week 0 is due Mon, Nov 30, from Week 0’s Due, and never that it is due at the first live build', () => {
-    expect(copy.steps[2]).toEqual({
-      n: '03',
-      title: 'Finish Week 0 by Mon, Nov 30',
-      body: "That's Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT. Everything in Foundations feeds our first live build, so I'd love for every team to walk in with it done and ready to build.",
-    });
-    expect(copy.intro[1]).toContain('By Mon, Nov 30, your AI is set up');
-    expect(copy.intro[1]).not.toContain('By our first live build');
-    // Another Due moves every line that names it.
-    const later = buildWelcomeCopy(schedule(), { ...WEEK0, dueAt: Date.parse('2026-12-01T17:30:00Z') }, 'Pat', null);
-    expect(later.steps[2]?.title).toBe('Finish Week 0 by Tue, Dec 1');
-    expect(later.steps[2]?.body).toContain("That's Tue, Dec 1 at 10:30 AM MT / 11:30 AM CT.");
-    expect(later.intro[1]).toContain('By Tue, Dec 1,');
-  });
-
-  it('counts the baseline tasks from the data, in words, and never says seven', () => {
-    expect(copy.intro[1]).toContain("you've timed the six tasks we'll measure against");
-    expect(JSON.stringify(copy)).not.toMatch(/\bseven\b/i);
-    expect(buildWelcomeCopy(schedule(), { ...WEEK0, baselineTasks: 5 }, 'Pat', null).intro[1]).toContain('timed the five tasks');
-  });
-
-  it('names Week 0 by the title the course shows, with its step count, from the data', () => {
-    expect(copy.steps[1]?.title).toBe('Start Week 0 · Foundations');
-    expect(copy.steps[1]?.body).toMatch(/^Foundations is the Week 0 course, and it has eight steps\./);
-    const renamed = buildWelcomeCopy(schedule(), { ...WEEK0, title: 'Get Ready', steps: 6 }, 'Pat', null);
-    expect(renamed.steps[1]?.title).toBe('Start Week 0 · Get Ready');
-    expect(renamed.steps[1]?.body).toMatch(/^Get Ready is the Week 0 course, and it has six steps\./);
-    expect(renamed.steps[2]?.body).toContain('Everything in Get Ready feeds');
-    expect(JSON.stringify(renamed)).not.toContain('Foundations');
-  });
-
-  it('shows every clock MT first with CT after it, and no clock with MT alone', () => {
-    const text = JSON.stringify(copy);
-    const clocks = text.match(/\d{1,2}:\d{2}(?: (?:AM|PM))?(?: to \d{1,2}:\d{2} (?:AM|PM))? (?:MT|CT)/g) ?? [];
-    expect(clocks.length).toBeGreaterThan(0);
-    for (const m of text.matchAll(/(\d{1,2}:\d{2}(?: (?:AM|PM))?(?: to \d{1,2}:\d{2} (?:AM|PM))?) MT/g)) {
-      expect(text.slice((m.index ?? 0) + m[0].length, (m.index ?? 0) + m[0].length + 3), m[0]).toBe(' / ');
-    }
+describe('the subject, the cohort label and the test list', () => {
+  it('welcomes the cohort by its name with its noun', () => {
+    expect(welcomeSubject('December 2026')).toBe('🎉 Welcome to the December 2026 Cohort: You’re In');
+    expect(welcomeSubject('December 2026')).not.toMatch(/[–—]/);
+    // A name that already carries the noun is not given a second one.
+    expect(welcomeSubject('December Cohort')).toBe('🎉 Welcome to the December Cohort: You’re In');
+    expect(cohortLabel('December 2026')).toBe('December 2026 Cohort');
+    expect(cohortLabel(' December Cohort ')).toBe('December Cohort');
+    expect(cohortLabel('Spring cohort')).toBe('Spring cohort');
   });
 
   it('computes the week-open clock from a real instant when Week 1 has no Opens, so CT follows that date', () => {
-    // A cohort starting in summer: 12:00 PM MDT is 1:00 PM CDT. One starting in winter: 12:00 PM MST, 1:00 PM CST.
     const summer = welcomeSchedule({ name: 'June', start: Date.parse('2027-06-09T18:00:00Z'), defaultOpenTime: '09:30' }, [], [session('s1', 1, Date.parse('2027-06-09T18:00:00Z')), session('oh', 101, Date.parse('2027-06-11T18:00:00Z'))]);
     expect(summer.ok).toBe(true);
     if (!summer.ok) return;
-    const out = buildWelcomeCopy({ ...summer.schedule, weekOpenAt: null }, WEEK0, '', null);
-    expect(out.rows[0]).toEqual({ label: 'Week Open', body: 'The week opens at 9:30 AM MT / 10:30 AM CT with a playbook to read and load into your AI before the build.' });
     expect(new Date(summer.schedule.weekOpenClockAt).toISOString()).toBe('2027-06-09T15:30:00.000Z');
+    expect(schedule().session1Mins).toBe(90);
   });
 
   it('allows only the test address, plus an extra list', () => {
@@ -212,6 +159,11 @@ describe('Week 0, from the Week 0 module', () => {
   });
 
   const week0: WelcomeWeek = { week: 0, opens: null, status: 'published', dueAt: WEEK0_DUE, title: 'Foundations', steps: 8, baselineTasks: 6 };
+
+  it('says whether the "How the LMS Works" tour is live, from the week (D-252)', () => {
+    expect(welcomeWeek0([week0])).toMatchObject({ ok: true, week0: { tour: false } });
+    expect(welcomeWeek0([{ ...week0, tour: true }])).toMatchObject({ ok: true, week0: { tour: true } });
+  });
 
   it('reads Week 0’s Due, title, steps and baseline, and waits on the builder while any is missing', () => {
     expect(week0DueAt([week0])).toBe(WEEK0_DUE);

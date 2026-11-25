@@ -637,7 +637,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         need('flags.write');
         if (!welcomeTestAllowed(to)) throw new ConsoleError('forbidden', 403, 'console_forbidden', 'That address is not on the welcome test list.');
         record('welcome.test_send', { type: 'cohort', id: cohortId, label: cohortId }, { to });
-        return { ok: true as const, subject: 'Your Access To The December Cohort Is Live' };
+        return { ok: true as const, subject: '🎉 Welcome to the December 2026 Cohort: You’re In' };
       }),
     sendWeek0Test: (to, cohortId) =>
       settle(() => {

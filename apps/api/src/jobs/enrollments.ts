@@ -5,12 +5,14 @@
 //     moved here unchanged.
 //   - `recordSwitchOn`: a flag row that is on without a switch-on time takes its last flip's time, once.
 //   - `readWeeks` / `weeksOf` / `sessionOf`: the course's weeks and sessions as `welcomeSchedule` and `welcomeWeek0`
-//     read them, Week 0's Due, title, step count and baseline count included.
+//     read them, Week 0's Due, title, step count, baseline count and whether its "How the LMS Works" tour is live.
 
 import { and, eq, sql } from 'drizzle-orm';
 import { baselineTaskCount } from '@ai/core';
-import type { WelcomeSession, WelcomeWeek } from '@ai/core';
-import type { StepPaths } from '@ai/core/course-types';
+import type { WelcomeSchedule, WelcomeSession, WelcomeWeek, WelcomeWeek0 } from '@ai/core';
+import type { EmailPayload } from '../email/templates/payload';
+import type { MediaItem, StepPaths } from '@ai/core/course-types';
+import { tourVideoOf } from '@ai/core/lms-tour';
 import type { Database } from '../db/client';
 import { cohortEnrollments, consoleFlags, modules } from '../db/schema';
 
@@ -55,7 +57,13 @@ interface ModuleRow {
   course: unknown;
 }
 
-type CourseWords = { week?: number; title?: string; liveBuild?: { sessionId?: string } | null; officeHours?: { sessionId?: string } | null };
+type CourseWords = {
+  week?: number;
+  title?: string;
+  media?: MediaItem[];
+  liveBuild?: { sessionId?: string } | null;
+  officeHours?: { sessionId?: string } | null;
+};
 
 /** The modules as weeks: each one's week, opening, status, sessions, and (for Week 0's copy) Due, title and steps. */
 export function weeksOf(rows: readonly ModuleRow[]): WelcomeWeek[] {
@@ -72,6 +80,8 @@ export function weeksOf(rows: readonly ModuleRow[]): WelcomeWeek[] {
       title: typeof course?.title === 'string' ? course.title : null,
       steps: checklist ? checklist.length : null,
       baselineTasks: baselineTaskCount(checklist),
+      // D-252: the tour as the LMS finds it (Week 0's Media, flagged, uploaded, with a transcript).
+      tour: typeof course?.week === 'number' && tourVideoOf({ weeks: [{ week: course.week, media: Array.isArray(course.media) ? course.media : [] }] }) !== null,
     };
   });
 }
@@ -86,4 +96,29 @@ export async function readWeeks(db: Pick<Database, 'select'>): Promise<WelcomeWe
 
 export function sessionOf(s: { id: string; n: number; start: number; mins: number; kind: string | null }): WelcomeSession {
   return { id: s.id, n: s.n, start: s.start, mins: s.mins, kind: s.kind };
+}
+
+/**
+ * The cohort welcome's payload, for the job and the Console test send alike: the cohort (the subject and the copy name
+ * it), the first live build from the schedule, Week 0's facts, the reader's first name and any set-password link.
+ */
+export function welcomeEmailData(
+  cohortName: string,
+  schedule: WelcomeSchedule,
+  week0: WelcomeWeek0,
+  firstName: string,
+  setPasswordUrl: string | null,
+): EmailPayload<'cohort-welcome'> {
+  return {
+    cohortName,
+    firstName,
+    week0DueAt: week0.dueAt,
+    week0Title: week0.title,
+    week0Steps: week0.steps,
+    baselineTasks: week0.baselineTasks,
+    tour: week0.tour,
+    liveBuildAt: schedule.session1At,
+    liveBuildMins: schedule.session1Mins,
+    setPasswordUrl,
+  };
 }

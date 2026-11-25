@@ -21,8 +21,8 @@
 // uses, so a test learner is never mailed as a customer and never tagged.
 //
 // THE LINK. An owner with no password and no Google account gets a set-password link in the same
-// email. Everyone else is told to use the password from the other email. The button is always
-// Open The Academy.
+// email. Everyone else is told how to get a sign-in link. The button is always Start Week 0. The words
+// are the template's (`cohort-welcome-html.ts`, the Week 0 Is Open email's design).
 //
 // NEVER BOTH. The Week 0 Is Open email (`week0-open.ts`) also says Week 0 starts now. A row that email
 // already reached (`week0_status = 'sent'`, or a lost claim) is skipped here (`welcome_error =
@@ -32,15 +32,16 @@
 // Week 0 module (`welcomeWeek0`). While Week 0 has no Due, the welcome waits on the builder.
 
 import { and, eq, sql } from 'drizzle-orm';
-import { COHORT_WELCOME_FLAG, buildWelcomeCopy, enrolledBeforeSwitch, firstNameOf, otherEmailReached, welcomeDecision, welcomeSchedule, welcomeWeek0 } from '@ai/core';
+import { COHORT_WELCOME_FLAG, enrolledBeforeSwitch, firstNameOf, otherEmailReached, welcomeDecision, welcomeSchedule, welcomeWeek0 } from '@ai/core';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
 import { authTokens, cohortEnrollments, cohorts, consoleFlags, emailLog, googleIdentities, sessions, userPasswords, users } from '../db/schema';
 import { absolute, setPasswordPath } from '../email/templates/links';
+import { SUBJECTS } from '../email/subjects';
 import { send } from '../email/transport';
 import type { BillingLog } from '../billing/provision';
-import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from './enrollments';
+import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments, welcomeEmailData } from './enrollments';
 
 /** A claim still open after this is treated as lost, and not sent again. */
 const CLAIM_LEASE_MS = 15 * 60_000;
@@ -186,8 +187,11 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       await db.insert(authTokens).values({ tokenHash: hashToken(token), email: row.email, purpose: 'set_password', expiresAt: expiryFor('set_password', now) });
       setPasswordUrl = absolute(setPasswordPath(token));
     }
-    const copy = buildWelcomeCopy(built.schedule, week0.week0, firstNameOf(row.name), setPasswordUrl);
-    const result = await send({ template: 'cohort-welcome', to: row.email, data: { cohortName: copy.cohortName, copy } });
+    const result = await send({
+      template: 'cohort-welcome',
+      to: row.email,
+      data: welcomeEmailData(built.schedule.cohortName, built.schedule, week0.week0, firstNameOf(row.name), setPasswordUrl),
+    });
     if (result.ok) {
       await db
         .update(cohortEnrollments)
@@ -209,7 +213,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 }
 
 async function markSkipped(db: Database, row: PendingRow, cohortName: string, now: number, reason: 'enrolled_before_switch' | 'week0_sent'): Promise<void> {
-  const subject = `Your Access To The ${cohortName} Is Live`;
+  const subject = SUBJECTS['cohort-welcome']({ cohortName });
   await db
     .update(cohortEnrollments)
     .set({ welcomeStatus: 'skipped', welcomeError: reason })

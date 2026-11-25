@@ -61,8 +61,8 @@ import { sessionTimeMtCt } from '@ai/core';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
-import { CohortWelcomeEmail } from './cohort-welcome';
-import type { WelcomeCopy } from '@ai/core';
+import { cohortWelcomeHtml, cohortWelcomeText } from './cohort-welcome-html';
+import type { CohortWelcomeInput } from './cohort-welcome-html';
 import { week0OpenHtml, week0OpenText } from './week0-open-html';
 import type { Week0OpenInput } from './week0-open-html';
 
@@ -102,18 +102,6 @@ function optStr(data: Record<string, unknown>, field: string): string | undefine
   return typeof v === 'string' && v !== '' ? v : undefined;
 }
 
-/** The welcome's finished copy. A missing or non-object body is a render failure, not a blank email. */
-function welcomeCopy(template: TemplateName, data: Record<string, unknown>): WelcomeCopy {
-  const v = data.copy;
-  if (!v || typeof v !== 'object') throw bad(template, 'copy', 'must be the welcome copy');
-  const copy = v as WelcomeCopy;
-  if (typeof copy.heading !== 'string' || !copy.heading.trim()) throw bad(template, 'copy.heading', 'is empty');
-  if (typeof copy.buttonHref !== 'string' || !copy.buttonHref.startsWith('https://')) throw bad(template, 'copy.buttonHref', 'must be an https URL');
-  if (!Array.isArray(copy.intro) || copy.intro.length !== 2) throw bad(template, 'copy.intro', 'must be two paragraphs');
-  if (!Array.isArray(copy.steps) || copy.steps.length !== 3) throw bad(template, 'copy.steps', 'must be three steps');
-  return copy;
-}
-
 /** An optional positive integer, for `build-reminder`'s `total`. */
 function optCount(template: TemplateName, data: Record<string, unknown>, field: string): number | undefined {
   const v = data[field];
@@ -131,7 +119,7 @@ export interface PreparedEmail {
   subject: string;
   element: ReactElement;
   /**
-   * Set only for skill-purchase, D-247's learner-invite and learner-nudge, the session reminders and week0-open. That note is Connor's HTML, which React Email would wrap and
+   * Set only for skill-purchase, D-247's learner-invite and learner-nudge, the session reminders, week0-open and the cohort welcome. That note is Connor's HTML, which React Email would wrap and
    * restyle, so `renderTemplate` sends this string instead of rendering `element`.
    */
   html?: string;
@@ -309,11 +297,26 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       return { subject: SUBJECTS['learner-nudge']({}), element: <span />, html: learnerNudgeHtml(input), text: learnerNudgeText(input) };
     }
 
+    // The Week 0 Is Open email's design (the HTML string, as `week0-open` sends it). Every time is MT first and CT after
+    // it, from its instant; Week 0's title and counts are the stored course's.
     case 'cohort-welcome': {
       const cohortName = str(template, data, 'cohortName');
-      const copy = welcomeCopy(template, data);
-      const subject = SUBJECTS['cohort-welcome']({ cohortName });
-      return { subject, element: <CohortWelcomeEmail subject={subject} copy={copy} appUrl={appUrl} /> };
+      const setPasswordUrl = optStr(data, 'setPasswordUrl');
+      if (setPasswordUrl !== undefined && !setPasswordUrl.startsWith('http')) throw bad(template, 'setPasswordUrl', 'must be an absolute URL');
+      const input: CohortWelcomeInput = {
+        cohortName,
+        firstName: optStr(data, 'firstName') ?? '',
+        week0DueAt: num(template, data, 'week0DueAt'),
+        week0Title: str(template, data, 'week0Title'),
+        week0Steps: num(template, data, 'week0Steps'),
+        baselineTasks: num(template, data, 'baselineTasks'),
+        tour: data.tour === true,
+        liveBuildAt: num(template, data, 'liveBuildAt'),
+        liveBuildMins: num(template, data, 'liveBuildMins'),
+        setPasswordUrl: setPasswordUrl ?? null,
+        appUrl,
+      };
+      return { subject: SUBJECTS['cohort-welcome']({ cohortName }), element: <span />, html: cohortWelcomeHtml(input), text: cohortWelcomeText(input) };
     }
 
     // Connor's v2 design, in the learner emails' parts (the HTML string, as `skill-purchase` sends it). Each time is

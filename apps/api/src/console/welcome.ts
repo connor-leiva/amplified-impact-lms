@@ -6,14 +6,14 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { INFRA_PATHS, buildWelcomeCopy, firstNameOf, welcomeSchedule, welcomeTestAllowed, welcomeWeek0 } from '@ai/core';
+import { INFRA_PATHS, firstNameOf, welcomeSchedule, welcomeTestAllowed, welcomeWeek0 } from '@ai/core';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import { getDb } from '../db/client';
 import { authTokens, cohorts, googleIdentities, sessions, userPasswords, users } from '../db/schema';
 import { absolute, setPasswordPath } from '../email/templates/links';
 import { send } from '../email/transport';
-import { readWeeks, sessionOf } from '../jobs/enrollments';
+import { readWeeks, sessionOf, welcomeEmailData } from '../jobs/enrollments';
 import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
@@ -59,8 +59,11 @@ export function registerWelcomeTestRoute(scope: FastifyInstance, limits: { write
           setPasswordUrl = absolute(setPasswordPath(token));
         }
       }
-      const copy = buildWelcomeCopy(built.schedule, week0.week0, firstNameOf(user?.name ?? ''), setPasswordUrl);
-      const result = await send({ template: 'cohort-welcome', to, data: { cohortName: copy.cohortName, copy } });
+      const result = await send({
+        template: 'cohort-welcome',
+        to,
+        data: welcomeEmailData(built.schedule.cohortName, built.schedule, week0.week0, firstNameOf(user?.name ?? ''), setPasswordUrl),
+      });
       await audit(req, {
         action: 'welcome.test_send',
         outcome: result.ok ? 'ok' : 'failed',

@@ -23,9 +23,6 @@ export const SKILL_EMAIL_LOGO_URL = `${LEARN_ORIGIN}${SKILL_EMAIL_LOGO_PATH}`;
 export const WEEK0_CONFETTI_PATH = '/brand/week0-confetti.gif';
 export const WEEK0_CONFETTI_URL = `${LEARN_ORIGIN}${WEEK0_CONFETTI_PATH}`;
 
-/** The dark band's color, as every row on it paints it. */
-export const BAND = '#0a0d0c';
-
 const PREHEADER_PAD = '&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;';
 
 /** Escapes text for the document. */
@@ -55,6 +52,11 @@ export interface BrandedEmailParts {
   underHeading?: string;
   /** Extra rules for the phone media query (the Week 0 email's `.ai-gif`). Absent: the head is exactly as before. */
   mobileCss?: readonly string[];
+  /**
+   * A line under the footer's Sign In and Questions lines (the cohort welcome's "You’re getting this because you
+   * enrolled in…"). HTML already. Absent: the footer is exactly as before.
+   */
+  footerNote?: string;
 }
 
 /** The light card: a mono label, a large title and a line. */
@@ -128,6 +130,16 @@ export const confettiRow = (src: string, alt: string): string => `    <tr>
       </td>
     </tr>`;
 
+/**
+ * A time in MT / CT ("Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT") with each zone's half kept on one line, so a
+ * phone breaks it after the slash, never inside Central's range (D-250's reminders, the Week 0 email, the welcome).
+ */
+export const keepTimeHalves = (when: string): string =>
+  when
+    .split(' / ')
+    .map((half) => `<span style="white-space:nowrap;">${esc(half)}</span>`)
+    .join(' / ');
+
 /** The phone rule `confettiRow`'s image needs: full width, its height following. */
 export const CONFETTI_MOBILE_CSS = '.ai-gif { width:100% !important; height:auto !important; }';
 
@@ -191,6 +203,7 @@ export function brandedEmailHtml(parts: BrandedEmailParts): string {
   const mobileCss = (parts.mobileCss ?? []).map((rule) => `    ${rule}\n`).join('');
   const afterLogo = parts.afterLogo ? `${parts.afterLogo}\n` : '';
   const underHeading = parts.underHeading ? `${parts.underHeading}\n` : '';
+  const footerNote = parts.footerNote ? `<br>\n              ${parts.footerNote}` : '';
   const eyebrowTop = parts.afterLogo ? 8 : 44;
   const headingBottom = parts.underHeading ? '0' : '40px';
   return `<!DOCTYPE html>
@@ -248,7 +261,7 @@ ${underHeading}${rows}
           <tr>
             <td style="border-top:1px solid #dad8d0; padding:20px 0 28px 0; font-family:'Geist', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:13px; line-height:1.7; color:#5e6461;">
               <a href="${LEARN_ORIGIN}" style="color:#1f4d40; text-decoration:underline;">Sign In</a><br>
-              Questions? Write to <a href="mailto:${SUPPORT_EMAIL}" style="color:#1f4d40; text-decoration:underline;">${SUPPORT_EMAIL}</a>.
+              Questions? Write to <a href="mailto:${SUPPORT_EMAIL}" style="color:#1f4d40; text-decoration:underline;">${SUPPORT_EMAIL}</a>.${footerNote}
             </td>
           </tr>
         </table>

@@ -161,9 +161,14 @@ describe('email subjects @g8', () => {
     expect(SUBJECTS['learner-nudge']({})).toBe('Pick up where you left off');
   });
 
-  it('names the cohort welcome from the cohort, in title case', () => {
-    expect(SUBJECTS['cohort-welcome']({ cohortName: 'December Cohort' })).toBe('Your Access To The December Cohort Is Live');
-    expect(SUBJECTS['cohort-welcome']({ cohortName: 'December Cohort' })).not.toMatch(/[–—]/);
+  it('names the cohort welcome from the cohort, with its noun, as Connor wrote it', () => {
+    // The cohort's stored name is "December 2026": the subject gives it its noun.
+    expect(SUBJECTS['cohort-welcome']({ cohortName: 'December 2026' })).toBe('🎉 Welcome to the December 2026 Cohort: You’re In');
+    // A name that already ends in "Cohort" is not given a second one.
+    expect(SUBJECTS['cohort-welcome']({ cohortName: 'December Cohort' })).toBe('🎉 Welcome to the December Cohort: You’re In');
+    // U+2019, as `staff-invite`'s "You’ve" and the Week 0 email's copy.
+    expect([...SUBJECTS['cohort-welcome']({ cohortName: 'December 2026' })].map((c) => c.codePointAt(0)!)).toContain(0x2019);
+    expect(SUBJECTS['cohort-welcome']({ cohortName: 'December 2026' })).not.toMatch(/[–—]/);
   });
 
   it('names the two password emails plainly (D-132)', () => {
