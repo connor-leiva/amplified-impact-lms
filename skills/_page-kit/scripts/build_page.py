@@ -13,7 +13,7 @@ Usage:
     python build_page.py --check-only page.json --words words.json                    (validate, write nothing)
 
 page.json   the page: written by the skill's own script (preferred) or by the model when
-            the skill has no script. Shape: see HTML-OUTPUT-FRAMING.md, "The Page JSON".
+            the skill has no script. Shape and section kinds: references/page-format.md.
 words.json  optional. The sentences that need judgment, written by the model. Replaces the
             headline, findings, moves, decide, and any section's finding or note.
 --facts     optional, repeatable. JSON files the skill's scripts wrote. Every number in the
@@ -22,25 +22,35 @@ words.json  optional. The sentences that need judgment, written by the model. Re
             without scripts, numbers in the page may come from these too.
 
 Checks that STOP the build (exit 1), each with a plain message:
-  1. Shape: report name, a headline of one or two sentences, known section kinds and statuses.
+  1. Shape: report name, a headline of one or two sentences, known section kinds and statuses,
+     at most five key numbers, and each section kind's own fields (a bar needs its number and its
+     goal, a meter a percent from 0 to 100, an agenda block its minutes, a chart its columns).
   2. Banned words: "industry standard", "industry average"; client-facing filler
      ("stunning", "dream home", "don't hesitate to reach out").
   3. A sentence that claims the page sent, posted or changed something. Hires read and draft only.
-  4. A number in the words that is not in the facts, the page data or the inputs.
-  5. A clock time with no "MT" after it (pass --tz-label to change the label).
+  4. A number in the words that is not in the facts, the page data or the inputs. A whole-dollar
+     figure ("$6,611") passes when it is a figure in the facts rounded to the dollar (6,610.89).
+  5. A clock time with no "MT" after it (pass --tz-label to change the label), or an MT time whose
+     CT time beside it is wrong. Every MT time gets its CT time added: "12:00 PM MT / 1:00 PM CT"
+     (--tz-second sets the second zone and its offset, "CT:+1" by default, "none" for one zone).
   6. A heading, section label, move title or draft subject that is not in Title Case.
-Fixed with a NOTE (build goes on): em and en dashes in any text become commas or "to".
+Fixed with a NOTE (build goes on): em and en dashes in any text become commas or "to", and a
+dollar amount ending in ".00" loses it ("$79.00" becomes "$79").
 Standard library only. Python 3.7 or later.
 """
 import argparse
 import json
+import math
 import os
 import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SLOT_DATA, SLOT_FONTS, SLOT_TITLE = "/*PAGE_DATA*/", "/*FONTS*/", "/*PAGE_TITLE*/"
-KINDS = {"table", "tiles", "list", "timeline", "drafts", "checklist", "prose"}
+KINDS = {"table", "tiles", "list", "timeline", "drafts", "checklist", "prose",
+         "progress", "meters", "bars", "deltas", "callouts", "notes", "commitments", "questions", "choices", "agenda"}
+NOT_TEXT = {"key", "type", "kind", "id", "status", "style", "format", "dir", "scale", "x", "icon", "sortKey"}
+CLOCK = r"(?:1[0-2]|0?[1-9])(?::[0-5]\d)?\s?(?:AM|PM|am|pm|a\.m\.|p\.m\.)"
 STATUSES = {"on", "off", "hold", "quiet", ""}
 NUMBER = re.compile(r"(?<![A-Za-z])\$?\d[\d,]*(?:\.\d+)?%?")
 TIME = re.compile(r"\b(1[0-2]|0?[1-9])(?::[0-5]\d)?\s?(AM|PM|am|pm|a\.m\.|p\.m\.)")
@@ -76,7 +86,10 @@ def clean(text, notes):
     out = out.replace(" \u2014 ", ", ").replace("\u2014", ", ").replace(" \u2013 ", ", ").replace("\u2013", "-")
     if out != text:
         notes.append("Dashes replaced in: %s" % text[:70])
-    return out
+    cents = re.sub(r"(\$\d[\d,]*)\.00(?![\d])", r"\1", out)
+    if cents != out:
+        notes.append("Dropped .00 from a dollar amount in: %s" % out[:70])
+    return cents
 
 
 def deep_clean(node, notes):
@@ -104,7 +117,7 @@ def texts(page):
     def walk(node, where):
         if isinstance(node, dict):
             for k, v in node.items():
-                if k.startswith("_") or k in ("key", "type", "kind", "id", "status"):
+                if k.startswith("_") or k in NOT_TEXT:
                     continue
                 walk(v, where + "." + k)
         elif isinstance(node, list):
@@ -133,6 +146,22 @@ def headings(page):
             out.append(("draft label", d.get("label", "")))
     for m in page.get("meta") or []:
         out.append(("meta label", m.get("label", "")))
+    for k in page.get("keyNumbers") or []:
+        out.append(("key number label", k.get("label", "")))
+    for s in page.get("sections") or []:
+        for it in s.get("items") or []:
+            if not isinstance(it, dict):
+                continue
+            if s.get("kind") in ("progress", "meters", "bars", "deltas"):
+                out.append(("%s label" % s.get("kind"), it.get("label", "")))
+            elif s.get("kind") in ("callouts", "notes", "choices", "agenda", "commitments"):
+                out.append(("%s title" % s.get("kind"), it.get("title", "")))
+            elif s.get("kind") == "questions":
+                out.append(("question tag", it.get("tag", "")))
+        for c in (s.get("detail") or {}).get("columns") or []:
+            out.append(("column", c.get("label", "")))
+        for se in (s.get("chart") or {}).get("series") or []:
+            out.append(("chart series", se.get("label", "")))
     return [(w, t) for w, t in out if t]
 
 
@@ -168,6 +197,13 @@ def check_shape(page, problems):
         problems.append("at most four findings. Pick the ones worth the most.")
     if len(page.get("moves") or []) > 3:
         problems.append("at most three moves. Three things to do this week, not a list.")
+    keys = page.get("keyNumbers") or []
+    if len(keys) > 5:
+        problems.append("at most five key numbers. Pick the ones a reader needs first.")
+    for k in keys:
+        check_item(k, "a key number", ("label", "value"), problems)
+        if k.get("bar") is not None:
+            check_bar(k.get("bar"), "key number '%s'" % k.get("label"), problems)
     seen = set()
     for i, s in enumerate(page.get("sections") or []):
         if s.get("kind") not in KINDS:
@@ -176,10 +212,133 @@ def check_shape(page, problems):
         if sid in seen:
             problems.append("two sections share the id '%s'." % sid)
         seen.add(sid)
+        check_kind(s, problems)
     if not any(s.get("kind") == "checklist" for s in page.get("sections") or []) and any(
             s.get("kind") == "drafts" for s in page.get("sections") or []):
         problems.append('a page with drafts needs a "checklist" section (Check Before Sending) listing every date, '
                         "dollar amount, name and quoted fact in the drafts.")
+
+
+def is_num(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def check_item(it, what, needs, problems):
+    if not isinstance(it, dict):
+        problems.append("%s must be an object with %s." % (what, ", ".join(needs)))
+        return False
+    missing = [k for k in needs if it.get(k) in (None, "")]
+    if missing:
+        problems.append("%s needs %s. Got: %s" % (what, " and ".join(missing), json.dumps(it, ensure_ascii=False)[:120]))
+    if str(it.get("status", "")) not in STATUSES:
+        problems.append("%s has status %r. Use on, off, hold or quiet." % (what, it.get("status")))
+    return not missing
+
+
+def check_bar(bar, what, problems):
+    if not isinstance(bar, dict) or not is_num(bar.get("value")) or not is_num(bar.get("goal")) or bar.get("goal") <= 0:
+        problems.append("%s: a bar needs a number \"value\" and a number \"goal\" above 0, both from the facts." % what)
+
+
+def check_kind(s, problems):
+    """Each section kind's own fields, so a page never draws an empty bar or a meter past 100%."""
+    kind, label = s.get("kind"), s.get("label") or s.get("id")
+    items = s.get("items")
+    needs = {"progress": ("label",), "meters": ("label",), "bars": ("label",), "deltas": ("label", "to"),
+             "callouts": (), "notes": ("text",), "commitments": ("words",), "questions": ("ask",),
+             "choices": ("title",), "agenda": ("time", "title")}
+    if kind in needs:
+        if not isinstance(items, list) or not items:
+            problems.append('section "%s" (%s) needs "items": a list with at least one.' % (label, kind))
+            return
+        for n, it in enumerate(items):
+            what = 'section "%s" item %d' % (label, n + 1)
+            if not check_item(it, what, needs[kind], problems):
+                continue
+            if kind == "progress" and (not is_num(it.get("value")) or ("goal" in it and (not is_num(it.get("goal")) or it["goal"] <= 0))):
+                problems.append('%s: progress needs a number "value" and, when there is a goal, a number "goal" above 0.' % what)
+            if kind == "meters":
+                for f in ("value", "target"):
+                    if f in it and (not is_num(it[f]) or not 0 <= it[f] <= 100):
+                        problems.append('%s: a meter\'s "%s" is a percent from 0 to 100 (12.1, not 0.121).' % (what, f))
+                if not is_num(it.get("value")):
+                    problems.append('%s: a meter needs a number "value".' % what)
+            if kind == "bars" and (not it.get("bars") or not all(isinstance(b, dict) and is_num(b.get("value")) for b in it["bars"])):
+                problems.append('%s: "bars" is a list of {label, value, text} with a number value each.' % what)
+            if kind == "agenda" and (not is_num(it.get("minutes")) or it["minutes"] <= 0):
+                problems.append('%s: an agenda block needs its "minutes" as a number above 0.' % what)
+            if kind == "callouts" and not (it.get("title") or it.get("text")):
+                problems.append("%s: a callout needs a title or a text." % what)
+    chart = s.get("chart")
+    if chart is not None:
+        cols = {c.get("key") for c in s.get("columns") or []}
+        if kind != "table":
+            problems.append('section "%s": only a table carries a chart.' % label)
+        elif chart.get("type", "columns") not in ("columns", "multiples"):
+            problems.append('section "%s": chart type is "columns" or "multiples".' % label)
+        elif chart.get("x") not in cols or not chart.get("series") or any(se.get("key") not in cols for se in chart["series"]):
+            problems.append('section "%s": the chart\'s "x" and every "series" key must be columns of the table.' % label)
+    detail = s.get("detail")
+    if detail is not None and (not isinstance(detail, dict) or not detail.get("columns") or not isinstance(detail.get("rows"), list)):
+        problems.append('section "%s": "detail" is a table: {columns, rows}.' % label)
+
+
+def shift_clock(token, hours):
+    m = re.match(r"(1[0-2]|0?[1-9])(?::([0-5]\d))?\s?(AM|PM|am|pm|a\.m\.|p\.m\.)", token)
+    h24 = int(m.group(1)) % 12 + (12 if m.group(3).lower().startswith("p") else 0)
+    h24 = (h24 + hours) % 24
+    pm = h24 >= 12
+    style = m.group(3)
+    word = ("PM" if pm else "AM") if style in ("AM", "PM") else ("pm" if pm else "am") if style in ("am", "pm") else ("p.m." if pm else "a.m.")
+    return "%d%s %s" % (h24 % 12 or 12, ":" + m.group(2) if m.group(2) else "", word)
+
+
+def same_clock(a, b):
+    return re.sub(r"\s", "", a).lower() == re.sub(r"\s", "", b).lower()
+
+
+def zones(page, first, second, problems):
+    """Every first-zone time gets its second-zone time beside it; every time must carry a zone."""
+    if second:
+        label2, hours = second
+        rng = re.compile(r"(%s)(?:\s*%s)?\s+to\s+(%s)\s*%s(?!\s*/)" % (CLOCK, re.escape(first), CLOCK, re.escape(first)))
+        one = re.compile(r"(%s)\s*%s(?!\s*/)" % (CLOCK, re.escape(first)))
+
+        def add(text):
+            if not isinstance(text, str):
+                return text
+            text = rng.sub(lambda m: "%s to %s %s / %s to %s %s" % (m.group(1), m.group(2), first, shift_clock(m.group(1), hours),
+                                                                  shift_clock(m.group(2), hours), label2), text)
+            return one.sub(lambda m: "%s %s / %s %s" % (m.group(1), first, shift_clock(m.group(1), hours), label2), text)
+
+        def walk(node, key=""):
+            if isinstance(node, dict):
+                return {k: (v if k.startswith("_") or k in NOT_TEXT else walk(v, k)) for k, v in node.items()}
+            if isinstance(node, list):
+                return [walk(v, key) for v in node]
+            return add(node)
+        page = walk(page)
+        pair_rng = re.compile(r"(%s) to (%s) %s / (%s) to (%s) %s" % (CLOCK, CLOCK, re.escape(first), CLOCK, CLOCK, re.escape(label2)))
+        pair_one = re.compile(r"(%s)\s*%s\s*/\s*(%s)\s*%s" % (CLOCK, re.escape(first), CLOCK, re.escape(label2)))
+    for where, t in texts(page):
+        rest = t
+        if second:
+            for m in pair_rng.finditer(t):
+                if not (same_clock(shift_clock(m.group(1), hours), m.group(3)) and same_clock(shift_clock(m.group(2), hours), m.group(4))):
+                    problems.append('The %s times in "%s" are not %d hour(s) after the %s times. At %s.' % (label2, m.group(0), hours, first, where))
+            rest = pair_rng.sub(" ", rest)
+            for m in pair_one.finditer(rest):
+                if not same_clock(shift_clock(m.group(1), hours), m.group(2)):
+                    problems.append('The %s time in "%s" is not %d hour(s) after the %s time. At %s.' % (label2, m.group(0), hours, first, where))
+            rest = pair_one.sub(" ", rest)
+        for m in TIME.finditer(rest):
+            tail = rest[m.end():m.end() + 30]
+            if second and re.match(r"\s*%s" % re.escape(second[0]), tail):
+                problems.append('The time "%s" needs "%s" after it, with the %s time beside it: "%s / %s". At %s.' % (
+                    m.group(0), first, second[0], "H:MM AM " + first, "H:MM AM " + second[0], where))
+            elif not re.match(r"\s*(%s|Mountain)" % re.escape(first), tail) and not re.match(r"\s+to\s+%s\s*%s" % (CLOCK, re.escape(first)), tail):
+                problems.append('The time "%s" needs "%s" after it. At %s.' % (m.group(0), first, where))
+    return page
 
 
 def main():
@@ -193,6 +352,7 @@ def main():
     ap.add_argument("--fonts", default=os.path.join(HERE, "..", "assets", "fonts.css"),
                     help="embedded font CSS. Missing file means system fonts (the lite build).")
     ap.add_argument("--tz-label", default="MT", help='the label every clock time needs after it (default "MT")')
+    ap.add_argument("--tz-second", default="CT:+1", help='the zone shown beside it and its offset in hours (default "CT:+1"; "none" for one zone)')
     ap.add_argument("--allow-number", action="append", default=[], help="a number the skill's standard uses, always fine")
     ap.add_argument("--check-only", action="store_true", help="run every check and write nothing")
     args = ap.parse_args()
@@ -227,7 +387,14 @@ def main():
         allowed |= data_numbers  # model sentences may repeat what the scripts put on the page
     elif args.facts or args.inputs:
         written = json.dumps(page, ensure_ascii=False)  # model wrote the whole page: everything must trace
-    strays = sorted(numbers_in(written) - allowed, key=lambda t: float(t) if re.match(r"^\d+(\.\d+)?$", t) else 0)
+    rounded = set()
+    for tok in allowed:
+        if re.match(r"^\d+\.\d+$", tok):
+            x = float(tok)
+            rounded |= {str(int(round(x))), str(int(math.floor(x + 0.5)))}
+    dollars = {norm(m) for m in NUMBER.findall(written) if m.startswith("$")}
+    strays = sorted((n for n in numbers_in(written) - allowed if not (n in dollars and n in rounded)),
+                    key=lambda t: float(t) if re.match(r"^\d+(\.\d+)?$", t) else 0)
     if strays and (args.facts or args.inputs):
         problems.append("These numbers are in the sentences but not in the facts or the inputs: %s. "
                         "Fix the sentence or take the number out. Never leave a figure the data does not support." % ", ".join(strays))
@@ -241,10 +408,14 @@ def main():
                 problems.append((msg % m.group(0)) + " At %s." % where)
         if ACTED.search(t) and ".drafts" not in where:
             problems.append('"%s" says something was sent, posted or changed. Hires read and draft only. At %s.' % (t[:80], where))
-        for m in TIME.finditer(t):
-            tail = t[m.end():m.end() + 12]
-            if not re.match(r"\s*(%s|Mountain)" % re.escape(args.tz_label), tail):
-                problems.append('The time "%s" needs "%s" after it. At %s.' % (m.group(0), args.tz_label, where))
+    second = None
+    if args.tz_second and args.tz_second.lower() != "none":
+        lab, _, off = args.tz_second.partition(":")
+        try:
+            second = (lab.strip(), int(off or "1"))
+        except ValueError:
+            sys.exit('--tz-second looks like "CT:+1": a zone label, a colon and its hours after --tz-label.')
+    page = zones(page, args.tz_label, second, problems)
     for where, t in headings(page):
         if not is_title_case(t):
             problems.append('The %s "%s" is not in Title Case.' % (where, t))

@@ -1,0 +1,73 @@
+{
+ "id": "sample-visuals-marigold-2026-11",
+ "report": "Agent 1:1 Prep",
+ "subtitle": "Every section kind, on the made-up sample. One-on-one on Thursday, November 12 at 10:00 AM MT.",
+ "sample": "Practice File: Made-Up Example",
+ "meta": [
+  {"label": "Agent", "value": "Marigold Fizzwhistle"},
+  {"label": "Numbers As Of", "value": "Nov 10, 2026"}
+ ],
+ "headline": ["Placeholder headline."],
+ "keyNumbers": [
+  {"label": "Closings YTD", "value": "11", "status": "hold", "chip": "Under Goal", "bar": {"value": 11, "goal": 18}, "means": "11 closings so far against a year-to-date goal of 18."},
+  {"label": "GCI YTD", "value": "$98,450", "status": "hold", "chip": "Under Goal", "bar": {"value": 98450, "goal": 140000}, "means": "**$41,550 short** of the goal to date."},
+  {"label": "Appointments Met", "value": "6", "delta": {"dir": "down", "text": "From 9 in September"}, "means": "Appointments met in October."}
+ ],
+ "sections": [
+  {"id": "flags", "kind": "callouts", "label": "Flags", "finding": "What was read.",
+   "items": [
+    {"title": "Files Read", "text": "The Sisu export and the goals."},
+    {"status": "hold", "chip": "Left Out", "title": "Personal Details", "text": "One detail left out."}
+   ]},
+  {"id": "numbers", "kind": "progress", "label": "Numbers Against Goal", "finding": "Against the goal to date.", "goalLegend": "The line marks the goal to date.",
+   "items": [
+    {"label": "Closings", "value": 11, "goal": 18, "valueText": "11", "goalText": "of 18", "pctText": "72.4% of pace", "status": "hold", "chip": "Under Goal", "text": "Under the goal to date."}
+   ]},
+  {"id": "months", "kind": "table", "label": "Month By Month", "finding": "Three months.",
+   "columns": [{"key": "month", "label": "Month", "type": "text"}, {"key": "met", "label": "Met", "type": "num"}, {"key": "signed", "label": "Signed", "type": "num"}],
+   "rows": [{"month": "Aug 2026", "met": 8, "signed": 3}, {"month": "Sep 2026", "met": 9, "signed": 2}, {"month": "Oct 2026", "met": 6, "signed": 2, "_partial": true}],
+   "chart": {"type": "multiples", "x": "month", "series": [{"key": "met", "label": "Appointments Met"}, {"key": "signed", "label": "Signed"}], "legend": [{"label": "Partial month"}]}},
+  {"id": "cols", "kind": "table", "label": "Met By Month", "finding": "One series.",
+   "columns": [{"key": "month", "label": "Month", "type": "text"}, {"key": "met", "label": "Met", "type": "num"}, {"key": "chg", "label": "Change", "type": "change", "format": "num"}],
+   "rows": [{"month": "Aug 2026", "met": 8, "chg": 0}, {"month": "Sep 2026", "met": 9, "chg": 1}, {"month": "Oct 2026", "met": 6, "chg": -3, "_status": "hold"}],
+   "chart": {"type": "columns", "x": "month", "series": [{"key": "met", "label": "Appointments Met"}]}},
+  {"id": "ratios", "kind": "meters", "label": "Count Ratios", "finding": "One ratio.",
+   "items": [{"label": "Met To Signed", "value": 72.4, "target": 100, "valueText": "72.4%", "targetText": "The goal: 100%", "status": "hold", "chip": "Under Plan", "text": "A same-month ratio."}]},
+  {"id": "avg", "kind": "bars", "label": "October Against Her Average", "finding": "Two bars.", "scale": "item",
+   "items": [{"label": "Appointments Met", "bars": [{"label": "September", "value": 9, "text": "9"}, {"label": "October", "value": 6, "text": "6"}]}]},
+  {"id": "changed", "kind": "deltas", "label": "What Changed", "finding": "Then and now.",
+   "items": [{"label": "Appointments Met", "from": "9", "to": "6", "change": "In October", "text": "September to October."}]},
+  {"id": "notes", "kind": "notes", "label": "From Your Notes", "finding": "As reported.",
+   "items": [{"title": "The Open Houses", "text": "Both were held.", "source": "Your notes"}]},
+  {"id": "commit", "kind": "commitments", "label": "Last Time's Commitments", "finding": "One of two has a status.",
+   "items": [
+    {"title": "Commitment 1", "words": "Call 20 past clients", "owner": "Marigold", "due": "By the next one-on-one", "status": "quiet", "chip": "No Status Given", "statusText": "No status given."},
+    {"title": "Commitment 2", "words": "Hold 2 open houses", "owner": "Marigold", "statusText": "Both were held, per your notes.", "fact": "Nothing in the export."}
+   ]},
+  {"id": "questions", "kind": "questions", "label": "Open Coaching Questions", "finding": "Two questions.", "show": 1,
+   "items": [
+    {"tag": "October", "ask": "What changed in October?", "why": "Appointments met went from 9 to 6."},
+    {"tag": "Next", "ask": "What do you need from me?"}
+   ]},
+  {"id": "focus", "kind": "choices", "label": "Possible Focus Areas (Your Call)", "finding": "Two options.",
+   "callout": {"text": "Options from the numbers, not a verdict."},
+   "items": [
+    {"title": "Closings", "big": "72.4%", "bigLabel": "of the goal to date", "bar": {"value": 11, "goal": 18}, "facts": ["11 of 18"], "open": "What would one more closing take?"},
+    {"title": "Appointments", "big": "6", "bigLabel": "met in October", "open": "Where do appointments come from now?"}
+   ]},
+  {"id": "agenda", "kind": "agenda", "label": "Agenda", "finding": "A suggested order.", "when": "Thursday, November 12, 30 minutes",
+   "items": [
+    {"time": "10:00 AM MT", "minutes": 10, "title": "Her Wins", "text": "She goes first."},
+    {"time": "10:10 AM MT", "minutes": 20, "title": "The Focus You Pick"}
+   ]},
+  {"id": "tiles", "kind": "tiles", "label": "Tiles", "finding": "Tiles with a bar.", "collapsed": true,
+   "tiles": [{"label": "GCI YTD", "value": "$98,450", "bar": {"value": 98450, "goal": 140000}, "unit": "of $140,000"}],
+   "detail": {"columns": [{"key": "a", "label": "Agent", "type": "text"}], "rows": [{"a": "Marigold Fizzwhistle"}]}},
+  {"id": "brief", "kind": "drafts", "label": "Recap Template", "finding": "Fill it in after.",
+   "drafts": [{"label": "Memo", "style": "memo", "to": "The leader", "subject": "Our One-On-One Recap", "body": "Bottom Line: Fill in [Focus].\nNext Steps:\n- [Commitment 1]\n- [Commitment 2]"}]},
+  {"id": "check", "kind": "checklist", "label": "Check Before Sending", "finding": "Every fact, traced.",
+   "items": [{"text": "Closings 11 and goal 18", "source": "Sisu export"}]}
+ ],
+ "stamp": "Agent 1:1 Prep",
+ "closing": "Made-up sample of every section kind."
+}

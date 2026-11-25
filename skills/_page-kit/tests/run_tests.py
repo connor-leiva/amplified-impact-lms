@@ -68,6 +68,44 @@ p = json.loads(json.dumps(base)); p["closing"] = "</script><script>alert(1)</scr
 code, log, out = run(p, words)
 case("data cannot break out of the JSON block", code == 0 and "</script><script>alert" not in open(out).read(), log)
 
+# The section kinds that draw pictures and real-world objects, and the rules that came with them.
+visuals = json.load(open(os.path.join(SAMPLE, "page-visuals.json")))
+code, log, out = run(visuals, words)
+built = open(out).read() if code == 0 else ""
+case("every section kind builds: progress, meters, bars, deltas, callouts, notes, commitments, questions, choices, agenda, charts",
+     code == 0 and all('"kind": "%s"' % k in built for k in ("progress", "meters", "bars", "deltas", "callouts", "notes", "commitments",
+                                                              "questions", "choices", "agenda")) and '"multiples"' in built, log)
+case("an MT time gets its CT time beside it", code == 0 and "10:00 AM MT / 11:00 AM CT" in built, log)
+
+p = json.loads(json.dumps(base)); p["subtitle"] = "One-on-one Thursday at 10:00 AM MT / 12:00 PM CT"
+code, log, _ = run(p, words); case("a CT time that is not an hour after the MT time stops the build", code == 1 and "not 1 hour" in log, log)
+
+v = json.loads(json.dumps(visuals)); v["sections"][4]["items"][0]["value"] = 0.724
+v["sections"][4]["items"][0]["target"] = 140
+code, log, _ = run(v, words); case("a meter past 100 stops the build", code == 1 and "percent from 0 to 100" in log, log)
+
+v = json.loads(json.dumps(visuals)); del v["sections"][1]["items"][0]["value"]
+code, log, _ = run(v, words); case("a progress bar without its number stops the build", code == 1 and "progress needs" in log, log)
+
+v = json.loads(json.dumps(visuals)); del v["sections"][11]["items"][1]["minutes"]
+code, log, _ = run(v, words); case("an agenda block without its minutes stops the build", code == 1 and "minutes" in log, log)
+
+v = json.loads(json.dumps(visuals)); v["sections"][3]["chart"]["series"][0]["key"] = "closings"
+code, log, _ = run(v, words); case("a chart naming a column the table does not have stops the build", code == 1 and "columns of the table" in log, log)
+
+v = json.loads(json.dumps(visuals)); v["keyNumbers"] = v["keyNumbers"] * 2
+code, log, _ = run(v, words); case("more than five key numbers stop the build", code == 1 and "five key numbers" in log, log)
+
+cents = os.path.join(tempfile.mkdtemp(), "cents.json"); json.dump({"change": 6610.89}, open(cents, "w"))
+w = dict(words); w["findings"] = [{"status": "off", "text": "Company dollar rose $6,611 in September."}]
+code, log, _ = run(base, w, ["--facts", cents]); case("a whole-dollar figure rounded from the facts ($6,610.89 to $6,611) passes", code == 0, log)
+w = dict(words); w["findings"] = [{"status": "off", "text": "Company dollar rose $6,612 in September."}]
+code, log, _ = run(base, w, ["--facts", cents]); case("a whole-dollar figure the facts do not round to still stops the build", code == 1 and "6612" in log, log)
+
+p = json.loads(json.dumps(base)); p["closing"] = "Her split costs $1,550.00 a month."
+code, log, out = run(p, words, ["--allow-number", "1550"])
+case('a dollar amount ending in ".00" loses it, with a note', code == 0 and "Dropped .00" in log and "$1,550 a month" in open(out).read(), log)
+
 passed = sum(1 for _, ok in results if ok)
 print("\n%d of %d passed" % (passed, len(results)))
 sys.exit(0 if passed == len(results) else 1)

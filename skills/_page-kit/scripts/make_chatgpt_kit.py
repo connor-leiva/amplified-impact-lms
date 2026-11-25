@@ -19,7 +19,7 @@ tpl = open(os.path.join(HERE, "..", "assets", "base-template.html"), encoding="u
 fmt = open(os.path.join(HERE, "..", "references", "page-format.md"), encoding="utf-8").read()
 fmt = "\n".join("#" + l if l.startswith("#") else l for l in fmt.strip().splitlines()[1:]).strip()
 fence = "~~~~~~"
-body = """# Page Kit (for building the report page)
+body = """# Page Kit (For Building The Report Page)
 
 Use this file only when the instructions say to build the page. In code (Python), save the block under
 "build_page.py" below as build_page.py and the block under "base-template.html" as base-template.html,
