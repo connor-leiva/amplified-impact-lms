@@ -10,7 +10,9 @@ import type { ChecklistMark, Learner } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CourseIntake } from '@ai/core/course-types';
 import { intakeCheckTarget, intakeFileIds } from '@ai/core/intake';
+import { LMS_TOUR_WEEK, tourVideoOf } from '@ai/core/lms-tour';
 import { useMutate } from '../../../data/hooks';
+import { TourCard } from '../tour/Tour';
 import { downloadIntakePdf } from '../intake-pdf';
 import type { CoursePayload } from '../../course/Course.vm';
 import { saveIcs } from '../ics';
@@ -99,6 +101,8 @@ export function V3Week({
     now,
   });
   const moduleId = acceleratorModuleId(r.week);
+  // D-252: Week 0's LMS tour, pinned above the hero.
+  const tour = r.week === LMS_TOUR_WEEK ? tourVideoOf(p.course) : null;
   return (
     <>
       <WeekPage
@@ -106,6 +110,7 @@ export function V3Week({
         week={week}
         labels={weekLabels(week.steps.length, r.week > 0 ? week.purpose : undefined)}
         onDeploy={(on) => void mutate(on ? 'markDeployed' : 'unmarkDeployed', { moduleId })}
+        pinned={tour ? <TourCard video={tour} /> : undefined}
       />
       {prompt && build?.prompt ? (
         <div data-r2-scope="" data-learner-v2="">

@@ -7,6 +7,8 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import type { AIEmployee, Learner } from '@ai/core';
+import { LMS_TOUR_WEEK, tourVideoOf } from '@ai/core/lms-tour';
+import type { VideoBlock } from '@ai/core/course-types';
 import { Icon } from '../../components/Icon';
 import { isFixture, repo } from '../../data/boot';
 import { useLearn } from './data';
@@ -14,6 +16,7 @@ import { saveIcs } from './ics';
 import { weekRows } from './learn.vm';
 import { StartHereCard } from './StartHere';
 import { WeekDone } from './WeekDone';
+import { TourCard } from './tour/Tour';
 import { WEEK, weekParam, weekVM } from './Week.vm';
 import type { LockedWeekVM, OpenWeekVM } from './Week.vm';
 import { KitRows, Prog, SessionRows, Tile } from './parts';
@@ -44,6 +47,8 @@ interface WeekMore {
   /** D-199: the one-time Week 0 finish. Staff and fixture mode leave it off. */
   celebrate: boolean;
   onCelebrate: () => void;
+  /** D-252: Week 0's LMS tour, pinned at the top of the week, or null. */
+  tour: VideoBlock | null;
 }
 
 function Head({ vm, question, children }: { vm: OpenWeekVM | LockedWeekVM; question?: string | null; children: ReactNode }) {
@@ -78,6 +83,7 @@ function Open({ vm, more }: { vm: OpenWeekVM; more: WeekMore }) {
         </span>
         {more.content ? <WeekMeta vm={more.content.meta} /> : null}
       </Head>
+      {more.tour ? <TourCard video={more.tour} /> : null}
       {vm.startHere ? <StartHereCard card={vm.startHere} /> : null}
       <WeekLive week={vm.week} />
 
@@ -294,6 +300,7 @@ export function WeekPage({ week, preview = false }: { week: number | null; previ
     deploy: mod ? { m: mod, me, now } : null,
     celebrate: !hid && !isFixture && !preview && viewer.actor.kind === 'learner' && vm.week === 0 && vm.right.total > 0 && vm.right.done === vm.right.total && !me?.coursePrefs?.some((p) => p.key === 'week0-done'),
     onCelebrate: () => setHid(true),
+    tour: vm.week === LMS_TOUR_WEEK ? tourVideoOf(course.payload.course) : null,
   };
   return <Open vm={vm} more={more} />;
 }

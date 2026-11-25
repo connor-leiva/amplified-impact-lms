@@ -24,6 +24,7 @@ import { stackCopy } from './stack';
 import type { CohortCourse, MediaItem, ModuleCourse, PathBlock, VideoBlock } from './course-types';
 import { isVideoUpload } from './course-types';
 import { chapterProblems } from './video';
+import { LMS_TOUR_MODULE_ID, TOUR_RULE } from './lms-tour';
 
 export type CopyRule = 'em_dash' | 'banned_line' | 'hire_claim' | 'time_zone';
 
@@ -421,6 +422,25 @@ export function videoIssues(m: AIEmployee): string[] {
     const items = step ? stepItemIds(m, Number(step[1])) : null;
     for (const problem of chapterProblems(v.block, items)) out.push(`${v.label}: ${problem}`);
   }
+  return out;
+}
+
+/**
+ * D-252: the LMS tour's rules, for a save of `m` with the rest of the course in `others`. A flagged video must be in
+ * Week 0's Media, an uploaded mp4 with a transcript, and the only one in the course. Nothing for a module with none.
+ */
+export function tourIssues(m: AIEmployee, others: readonly AIEmployee[]): string[] {
+  const tours = moduleVideos(m).filter((v) => v.block.tour === true);
+  if (!tours.length) return [];
+  const out: string[] = [];
+  for (const v of tours) {
+    if (m.id !== LMS_TOUR_MODULE_ID || !v.path.startsWith('course.media[')) out.push(`${v.label}: ${TOUR_RULE.where}`);
+    if (!isVideoUpload(v.block.source)) out.push(`${v.label}: ${TOUR_RULE.upload}`);
+    else if (!v.block.transcript) out.push(`${v.label}: ${TOUR_RULE.transcript}`);
+  }
+  if (tours.length > 1) out.push(TOUR_RULE.one);
+  const other = others.find((x) => x.id !== m.id && moduleVideos(x).some((v) => v.block.tour === true));
+  if (other) out.push(TOUR_RULE.elsewhere(other.course ? `Week ${other.course.week}` : other.name));
   return out;
 }
 

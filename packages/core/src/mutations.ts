@@ -17,6 +17,7 @@ import { produce } from 'immer';
 import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
 import { NOT_IN_PLAN, isAcceleratorModule } from './accelerator';
+import { LMS_TOUR_MODULE_ID, LMS_TOUR_PREF } from './lms-tour';
 import { canOpenModule } from './release';
 import { buildOf, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
@@ -324,19 +325,24 @@ export function toggleChecklistItem(db: Db, a: Actor, args: { moduleId: string; 
 /**
  * D-190: remember one accordion (open or closed) for this learner. The key is `acc:<moduleId>:<stepId>:<index>`
  * and the value is `1` or `0`. Same door as `toggleStep`. Not audited.
+ * D-252: also `lms-tour-seen` (`LMS_TOUR_PREF`), only `1`: the LMS tour was seen. Only for a learner whose plan opens
+ * the course (the course's own refusal otherwise). A preview and a masquerade never send it.
  */
 export function setPref(db: Db, a: Actor, args: { key: string; value: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);
   const path = args.key === 'path';
   const weekDone = args.key === 'week0-done';
+  const tour = args.key === LMS_TOUR_PREF;
   if (path) {
     if (args.value !== 'claude' && args.value !== 'chatgpt') throw new MutationError('invalid', 'That preference is not one this page stores.');
-  } else if (weekDone) {
+  } else if (weekDone || tour) {
     if (args.value !== '1') throw new MutationError('invalid', 'That preference is not one this page stores.');
   } else if (!PREF_KEY.test(args.key) || (args.value !== '0' && args.value !== '1')) {
     throw new MutationError('invalid', 'That preference is not one this page stores.');
   }
-  if (!path && !weekDone) {
+  // The tour lives in Week 0, so it follows Week 0's door: the plan, never the tier (`canOpenModule`).
+  if (tour && !canOpenModule(u, { id: LMS_TOUR_MODULE_ID, tier: 'team' }, c.course)) throw new MutationError('forbidden', NOT_IN_PLAN);
+  if (!path && !weekDone && !tour) {
     const moduleId = args.key.split(':')[1]!;
     const m = moduleOf(db, moduleId);
     if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');

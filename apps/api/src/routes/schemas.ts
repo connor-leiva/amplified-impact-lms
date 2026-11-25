@@ -141,6 +141,9 @@ const videoBlock = z.strictObject({
   transcript: z.strictObject({ ...videoFile, type: z.literal('text/vtt') }).optional(),
   chapters: z.array(videoChapter).max(80).optional(),
   draft: z.boolean().optional(),
+  // D-252: the file's length, read in the Week Builder, and the LMS tour flag (`tourIssues` checks where it may be).
+  durationS: z.number().positive().max(86400).optional(),
+  tour: z.literal(true).optional(),
 }).superRefine((block, ctx) => {
   const chapters = block.chapters ?? [];
   for (let i = 1; i < chapters.length; i++) {

@@ -40,6 +40,7 @@ import { v6StepAt } from '../../routes/learn/step-page/v6';
 import { v3FrameAt } from '../../routes/learn/lms-v3/v3';
 import { v3PageAt } from '../../routes/learn/lms-v3/pages';
 import { currentOf } from '../../routes/learn/lms-v3/shell.vm';
+import { TourProvider, useLmsTour } from '../../routes/learn/tour/Tour';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
 import { useLearnerPrefs } from './useLearnerPrefs';
@@ -391,6 +392,8 @@ function Frame() {
   }, [location.pathname]);
 
   useAppReady();
+  // D-252: "How the LMS Works", once per page load for a learner in the course who hasn't seen it, and Week 0's card.
+  const tour = useLmsTour({ viewer, me, course, theme: prefs.theme });
 
   const signOut = useCallback(() => {
     void endSession().then((ok) => {
@@ -440,9 +443,12 @@ function Frame() {
     return (
       <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
         <TeamPlanProvider value={openPlan}>
-          <Outlet context={ctx} />
+          <TourProvider value={tour.api}>
+            <Outlet context={ctx} />
+          </TourProvider>
         </TeamPlanProvider>
         {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
+        {tour.modal}
       </div>
     );
   }
@@ -464,7 +470,9 @@ function Frame() {
             theme={prefs.theme}
           >
             <TeamPlanProvider value={openPlan}>
-              <Outlet context={ctx} />
+              <TourProvider value={tour.api}>
+                <Outlet context={ctx} />
+              </TourProvider>
             </TeamPlanProvider>
           </V3Frame>
         </Suspense>
@@ -473,6 +481,7 @@ function Frame() {
             <TeamPlan item={item} me={me} onClose={closePlan} />
           </div>
         ) : null}
+        {tour.modal}
       </>
     );
   }
@@ -544,7 +553,9 @@ function Frame() {
             </div>
           ) : null}
           <main className={s.main} id="main">
-            <TeamPlanProvider value={openPlan}>{gate ? <Navigate to={gate} replace /> : <Outlet context={ctx} />}</TeamPlanProvider>
+            <TeamPlanProvider value={openPlan}>
+              <TourProvider value={tour.api}>{gate ? <Navigate to={gate} replace /> : <Outlet context={ctx} />}</TourProvider>
+            </TeamPlanProvider>
           </main>
         </div>
       </div>
@@ -559,6 +570,7 @@ function Frame() {
       ) : null}
 
       {item ? <TeamPlan item={item} me={me} onClose={closePlan} /> : null}
+      {tour.modal}
     </div>
   );
 }

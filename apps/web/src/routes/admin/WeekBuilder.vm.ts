@@ -5,7 +5,7 @@
 // An AI Employee (no `kind`) never reaches these: the builder draws exactly what the R2 mockup draws
 // for it, so the enforced `builder` cells (the demo's m1) keep their numbers.
 
-import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, kitVisible, moduleCopyFields, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
+import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, kitVisible, moduleCopyFields, tourIssues, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
 import type { AIEmployee, Db, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, ReplayVisibility, Session, SessionType } from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { ContentBlock, CourseContent, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
@@ -96,6 +96,9 @@ export const VIDEO_LABELS = {
   draft: 'Draft video · narration coming',
   chapters: 'Chapters',
   chaptersHint: 'One per line: 0:47 | Open Settings | item-1',
+  // D-252: on a Week 0 Media video only.
+  tour: 'Show as the LMS Tour on Sign-In',
+  tourHint: 'Opens for each learner when they sign in, until they’ve seen it, and sits at the top of Week 0. One video only, with a transcript.',
 } as const;
 
 /** A week's Media split as the builder edits it: its lines, then its videos (D-188). */
@@ -180,10 +183,18 @@ export const unattached = (db: Pick<Db, 'resources'>): Resource[] => db.resource
 
 // --- the copy rules, while staff type --------------------------------------------------------------
 
-/** What this draft would be refused for on Save: the copy rules on every string it changed. */
-export function draftIssues(stored: AIEmployee | null, draft: AIEmployee): string[] {
+/**
+ * What this draft would be refused for on Save: the copy rules on every string it changed. D-252: `others` is the rest
+ * of the course, so a second LMS tour is said while staff tick it, as the save refuses it.
+ */
+export function draftIssues(stored: AIEmployee | null, draft: AIEmployee, others: readonly AIEmployee[] = []): string[] {
   // D-188: and a video whose source isn't an uploaded mp4 or an http(s) link, as the save refuses it.
-  return [...copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(draft))).map(issueLine), ...videoIssues(draft), ...checklistIssues(draft)];
+  return [
+    ...copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(draft))).map(issueLine),
+    ...videoIssues(draft),
+    ...tourIssues(draft, others),
+    ...checklistIssues(draft),
+  ];
 }
 
 // --- small list edits ------------------------------------------------------------------------------
