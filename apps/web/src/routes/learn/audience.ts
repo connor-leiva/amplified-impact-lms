@@ -12,6 +12,11 @@
 //
 // With the flag off none of this runs: the router registers the first portal's routes as they are.
 //
+// D-257 (Connor, Nov 25, 2026: "v3 rolls out to EVERY learner type, not only the cohort"). With LMS v3 on as well
+// (`VITE_LMS_V3=true`), a learner without the course is in the LMS too: /learn, in the v3 frame, with the pages they
+// have today inside it (`learnFrameFor`, `learnsInLms`). Their first-portal addresses send them there. With v3 off,
+// everything above holds as it was.
+//
 // PURE, apart from `useAudience`, which reads the session without the 401 redirect (below).
 
 import { useEffect, useState } from 'react';
@@ -22,10 +27,28 @@ import { repo } from '../../data/boot';
 import { DB_KEY, VIEWER_KEY } from '../../data/hooks';
 import type { Viewer } from '../../data/repository';
 import { hasPortal } from '../../shell/navModel';
+import { LMS_V3 } from './lms-v3/v3';
 import { LEARN_ROOT } from './routes';
 
 /** A learner whose plan opens the course: the learner portal's audience (D-182). Staff never are. */
 export const isCourseLearner = (viewer: Pick<Viewer, 'actor'>, db: Db): boolean => viewer.actor.kind === 'learner' && hasPortal(db);
+
+/**
+ * D-257: a signed-in learner whose plan opens no course: the Agent Plan, the Team Plan, both Insiders, Utah Life and
+ * every access group's member, a $37 skill buyer, and a buyer whose course is paused or not open yet (`hasPortal`).
+ */
+export const isNoCourseLearner = (viewer: Pick<Viewer, 'actor'>, db: Db): boolean => viewer.actor.kind === 'learner' && !hasPortal(db);
+
+/**
+ * D-257: where a signed-in learner's /learn address draws. The course's learner: the learner portal (D-182). A $37
+ * buyer with nothing else: the buyer's LMS (D-241), whatever the flags say. Any other learner without the course: the
+ * learner portal in the v3 frame once v3 is on, else the first portal's page for the address, as `main` serves it.
+ */
+export function learnFrameFor(o: { course: boolean; buyer: boolean; v3?: boolean }): 'portal' | 'buyer' | 'first-portal' {
+  if (o.course) return 'portal';
+  if (o.buyer) return 'buyer';
+  return (o.v3 ?? LMS_V3) ? 'portal' : 'first-portal';
+}
 
 /**
  * Where a learner without the course goes from a /learn address: the first portal's page for it, as
@@ -46,6 +69,16 @@ export function firstPortalPathFor(pathname: string): string {
 
 export type Audience = 'course' | 'other';
 
+/** D-257: the audience with the signed-in learner without the course told apart from a visitor and from staff. */
+export type LearnerAudience = 'course' | 'no-course' | 'other';
+
+/**
+ * D-257: whether an address that is open to signed-out visitors (`/skill-library`, a skill's guide) sends this visitor
+ * into /learn: the course's learner always (D-182), and every other signed-in learner once v3 is on. A visitor and
+ * staff get the page itself, as today.
+ */
+export const learnsInLms = (a: LearnerAudience, v3: boolean = LMS_V3): boolean => a === 'course' || (v3 && a === 'no-course');
+
 /**
  * The audience of a page that is open to a signed-out visitor (the Skill Library, a skill's guide, the
  * course pages). `useDb`/`useViewer` would send a signed-out visitor to /sign-in (`data/http.ts`'s 401
@@ -55,12 +88,17 @@ export type Audience = 'course' | 'other';
  * twice. Any failure is `other`: the page `main` serves.
  */
 export async function probeAudience(qc: QueryClient, source: 'fixture' | 'http' = repo.source, signedIn: () => Promise<boolean> = probeSession): Promise<Audience> {
+  return (await probeLearnerAudience(qc, source, signedIn)) === 'course' ? 'course' : 'other';
+}
+
+/** D-257: `probeAudience`, with a signed-in learner without the course answered as `no-course`. */
+export async function probeLearnerAudience(qc: QueryClient, source: 'fixture' | 'http' = repo.source, signedIn: () => Promise<boolean> = probeSession): Promise<LearnerAudience> {
   try {
     if (source === 'http' && !(await signedIn())) return 'other';
     const viewer = await qc.fetchQuery({ queryKey: VIEWER_KEY, queryFn: () => repo.viewer(), staleTime: Infinity });
     if (viewer.actor.kind !== 'learner') return 'other';
     const db = await qc.fetchQuery({ queryKey: DB_KEY, queryFn: () => repo.snapshot(), staleTime: Infinity });
-    return isCourseLearner(viewer, db) ? 'course' : 'other';
+    return isCourseLearner(viewer, db) ? 'course' : 'no-course';
   } catch {
     return 'other';
   }
@@ -74,11 +112,17 @@ async function probeSession(): Promise<boolean> {
 
 /** `probeAudience` as a hook: null until it is known, so the page draws nothing on its way. */
 export function useAudience(): Audience | null {
+  const a = useLearnerAudience();
+  return a === null ? null : a === 'course' ? 'course' : 'other';
+}
+
+/** D-257: `probeLearnerAudience` as a hook: null until it is known. */
+export function useLearnerAudience(): LearnerAudience | null {
   const qc = useQueryClient();
-  const [audience, setAudience] = useState<Audience | null>(null);
+  const [audience, setAudience] = useState<LearnerAudience | null>(null);
   useEffect(() => {
     let alive = true;
-    void probeAudience(qc).then((a) => {
+    void probeLearnerAudience(qc).then((a) => {
       if (alive) setAudience(a);
     });
     return () => {

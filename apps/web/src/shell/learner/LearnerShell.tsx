@@ -41,6 +41,7 @@ import { v3FrameAt } from '../../routes/learn/lms-v3/v3';
 import { v3PageAt } from '../../routes/learn/lms-v3/pages';
 import { currentOf } from '../../routes/learn/lms-v3/shell.vm';
 import { TourProvider, useLmsTour } from '../../routes/learn/tour/Tour';
+import { isNoCourseLearner } from '../../routes/learn/audience';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
 import { useLearnerPrefs } from './useLearnerPrefs';
@@ -414,7 +415,10 @@ function Frame() {
   const [clicked, setClicked] = useState<PlanItem | null>(null);
   const addressed = planItemOf(location.search);
   const item = clicked ?? addressed;
-  const gate = teamGateFor(location.pathname, db, me);
+  // D-257: a learner without the course (in the v3 frame once v3 is on) keeps today's rule for the Team Hub: no Team
+  // Plan window from its address (`/learn/team` sends them to their Skill Library, as `/team` did).
+  const noCourse = isNoCourseLearner(viewer, db);
+  const gate = noCourse ? null : teamGateFor(location.pathname, db, me);
   const closePlan = useCallback(() => {
     setClicked(null);
     if (addressed) navigate({ pathname: location.pathname, search: withoutPlan(location.search), hash: location.hash }, { replace: true });
@@ -461,7 +465,7 @@ function Frame() {
       <>
         <Suspense fallback={null}>
           <V3Frame
-            input={{ nav, side, rows, sessions: payload?.sessions ?? [], me, name, now, here: here?.title ?? (cur ? (HERE[cur] ?? '') : '') }}
+            input={{ nav, side, rows, sessions: payload?.sessions ?? [], me, name, now, here: here?.title ?? (cur ? (HERE[cur] ?? '') : ''), noCourse }}
             pathname={location.pathname}
             collapsed={prefs.sidebar === 'rail'}
             onCollapse={(on) => prefs.set({ sidebar: on ? 'rail' : 'full' })}

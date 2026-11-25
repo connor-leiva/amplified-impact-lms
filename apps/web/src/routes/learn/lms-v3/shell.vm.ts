@@ -142,13 +142,19 @@ export interface ShellInput {
   logos: ShellLogos;
   account: { open: boolean; onClick: () => void };
   saveIcs: (s: CourseSession) => void;
+  /**
+   * D-257: a learner whose plan opens no course (`isNoCourseLearner`). Their sidebar is the one they have today
+   * (Skill library, Team Hub when they have one, Resource vault): no Home, since their landing is the Skill Library
+   * (D-119), and the logo goes there; no Schedule, Community or Weeks, which are the cohort's.
+   */
+  noCourse?: boolean;
 }
 
 /** `AppShell`'s `shell` prop. */
 export function shellProps(x: ShellInput): Shell {
   const { nav, side } = x;
   const navRows: Shell['nav'] = [
-    { icon: 'home', label: nav.home.label, href: nav.home.href, id: 'home' },
+    ...(x.noCourse ? [] : [{ icon: 'home', label: nav.home.label, href: nav.home.href, id: 'home' }]),
     ...(nav.cohort ? [{ icon: 'cal', label: nav.schedule.label, href: nav.schedule.href, id: 'schedule' }] : []),
     ...(nav.cohort ? [{ icon: 'talk', label: SHELL_LABELS.community, href: learnCommunity(), id: 'community' }] : []),
     { icon: 'grid', label: nav.library.label, href: nav.library.href, id: 'library' },
@@ -156,7 +162,7 @@ export function shellProps(x: ShellInput): Shell {
     { icon: 'folder', label: nav.vault.label, href: nav.vault.href, id: 'vault' },
   ];
   return {
-    homeHref: nav.home.href,
+    homeHref: x.noCourse ? nav.library.href : nav.home.href,
     helpHref: nav.help.href,
     logo: { label: SHELL_LABELS.logo, app: x.logos.app },
     cohort: [side.program ?? '', side.cohortOnly ?? ''],

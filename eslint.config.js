@@ -22,6 +22,8 @@ export default tseslint.config(
       '**/dist-fixture/**',
       // D-182: the flag-on fixture build (`build:fixture:v2`).
       '**/dist-fixture-v2/**',
+      // D-257: the both-flags-on fixture build (`build:fixture:v3`, `pnpm e2e:v3`).
+      '**/dist-fixture-v3/**',
       // D-241: the production build the buyer's mockup-vs-build pairs are captured from (handoff/lms-mockup/tools/pairs.ts).
       '**/dist-buyer/**',
       'design-reference/**',

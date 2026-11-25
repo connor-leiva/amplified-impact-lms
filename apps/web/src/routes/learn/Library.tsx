@@ -8,7 +8,9 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { guidePageOf } from '@ai/core/skill-guides';
 import { Icon } from '../../components/Icon';
-import { COPY as LIBRARY } from '../library/SkillLibrary';
+import { COPY as LIBRARY, Component as SkillLibrary } from '../library/SkillLibrary';
+import { useDb, useViewer } from '../../data/hooks';
+import { isNoCourseLearner } from './audience';
 import { HUE } from './learn.vm';
 import { LIB, libraryVM, showAll, snipOf } from './Library.vm';
 import type { CardVM, GroupKey, GroupVM, LibraryVM } from './Library.vm';
@@ -187,7 +189,19 @@ export function LibraryPage({ vm, query, setQuery, chip, setChip }: { vm: Librar
   );
 }
 
+/**
+ * D-257: a learner without the course (in the v3 frame once v3 is on) gets the Skill Library they have today, unchanged,
+ * inside it: the access group's welcome and its Dismiss, the "Included with your … team" line, Weekly Live Training,
+ * Manage Billing, each skill's Download and Setup Guide, and the pre-launch or paused panel. The course's learner gets
+ * the members' library below.
+ */
 export function Component() {
+  const db = useDb();
+  const viewer = useViewer();
+  return isNoCourseLearner(viewer, db) ? <SkillLibrary /> : <Members />;
+}
+
+function Members() {
   const load = useSkills();
   const [query, setQuery] = useState('');
   const [chip, setChip] = useState<GroupKey | 'all'>('all');

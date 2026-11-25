@@ -2,7 +2,7 @@
 // Markup only: every string and every time is computed in Home.vm.ts. One hero per page.
 
 import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
 import { useToaster } from '../../components/primitives/Toaster';
@@ -12,7 +12,9 @@ import { useLearn } from './data';
 import { saveIcs } from './ics';
 import { LABELS, weekRows } from './learn.vm';
 import { homeVM } from './Home.vm';
-import { learnSchedule } from './routes';
+import { learnSchedule, learnSkills } from './routes';
+import { isNoCourseLearner } from './audience';
+import { withQuery } from './redirects';
 import { hireRows } from './Hire.vm';
 import type { BannerVM, CardVM, HeroRightVM, HeroVM, HomeVM, PostVM, RecentVM } from './Home.vm';
 import { CalLinks, Go, LiveDot, Mbar, Prog, SessionRows, Tile, nStyle } from './parts';
@@ -408,6 +410,9 @@ export function Component() {
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
   const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now, db, hires);
+  const { search, hash } = useLocation();
+  // D-257: a learner without the course has no Home: their landing is their Skill Library (D-119), as `/` was.
+  if (isNoCourseLearner(viewer, db)) return <Navigate to={withQuery(learnSkills(), search, hash)} replace />;
   return <Body vm={vm} now={now} />;
 }
 

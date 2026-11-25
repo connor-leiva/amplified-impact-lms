@@ -64,6 +64,7 @@ function WeekStat({ w }: { w: ShellWeek }) {
   );
 }
 
+// D-257: the Weeks group is drawn only when there are weeks (a learner without the course has none).
 // D-241: `strip` fills the top bar's strip in place of the next session (the $37 buyer's own skill, one click away).
 export function AppShell({ shell, current, hideNext, now = Date.now, defaultCollapsed = false, onCollapse, strip, children }: { shell: Shell; current?: string; hideNext?: boolean; now?: () => number; defaultCollapsed?: boolean; onCollapse?: (on: boolean) => void; strip?: ReactNode; children?: ReactNode }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);   // the rail's layout
@@ -134,6 +135,8 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
                 ))}
               </ul>
             </nav>
+            {/* D-257: a learner with no weeks (a plan without the course) has no Weeks group: no empty "Weeks 0". */}
+            {shell.weeks.length ? <>
             <button className="sh-link sh-group" type="button" id="sh-group" aria-expanded={weeksOpen ? 'true' : 'false'} aria-controls="sh-weeks" onClick={() => setWeeksOpen(!weeksOpen)}><Icon name="layers" size={16} /><span className="sh-label">{shell.weeksLabel}</span><small>{shell.weeks.length}</small><Icon name="chev" /></button>
             <nav aria-label="Weeks">
               <ul className="sh-nav sh-weeks" id="sh-weeks" hidden={!weeksOpen}>
@@ -144,6 +147,7 @@ export function AppShell({ shell, current, hideNext, now = Date.now, defaultColl
                 ))}
               </ul>
             </nav>
+            </> : null}
             <span className={'sh-marker' + (live ? ' live' : '')} id="sh-marker" style={mark} aria-hidden="true" />
           </div>
           <ul className="sh-nav sh-foot">

@@ -34,7 +34,12 @@ export const REF_PORT = Number(process.env.REF_PORT ?? 4400);
  * no spec. A flag-on run never starts the http-mode API (that build is the flag-off production build).
  */
 export const LEARNER_V2_RUN = process.env.LEARNER_V2 === '1';
-export const APP_PORT = Number(process.env.APP_PORT ?? (LEARNER_V2_RUN ? 4174 : 4173));
+/**
+ * D-257: a third build, both flags on (`LMS_V3=1`, `pnpm e2e:v3`): `dist-fixture-v3` on 4175, LMS v3 for every learner,
+ * the cohort's and every plan's without the course. The `lms-v3-*` specs run here, and nothing else does.
+ */
+export const LMS_V3_RUN = process.env.LMS_V3 === '1';
+export const APP_PORT = Number(process.env.APP_PORT ?? (LMS_V3_RUN ? 4175 : LEARNER_V2_RUN ? 4174 : 4173));
 export const REF_BASE = `http://127.0.0.1:${REF_PORT}`;
 export const APP_BASE = process.env.APP_URL ?? `http://127.0.0.1:${APP_PORT}`;
 
@@ -69,6 +74,7 @@ export const HTTP_BASE = `http://127.0.0.1:${HTTP_PORT}`;
  */
 export const HTTP_PARITY: boolean =
   !LEARNER_V2_RUN &&
+  !LMS_V3_RUN &&
   !process.env.APP_URL &&
   !process.env.REFERENCE_ONLY &&
   process.env.HTTP_PARITY !== '0' &&
