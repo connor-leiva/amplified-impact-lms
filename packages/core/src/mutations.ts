@@ -16,7 +16,8 @@
 import { produce } from 'immer';
 import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
-import { NOT_IN_PLAN, isAcceleratorModule } from './accelerator';
+import { NOT_IN_PLAN, isCourseWeek } from './accelerator';
+import { cohortView } from './cohort-run';
 import { LMS_TOUR_MODULE_ID, LMS_TOUR_PREF } from './lms-tour';
 import { canOpenModule } from './release';
 import { buildOf, isOpen, progressOf, runtimeOf } from './status';
@@ -147,6 +148,12 @@ const moduleOf = (db: Db, id: string): AIEmployee => {
   return m;
 };
 
+/**
+ * R-5 (D-254): a module as this learner's cohort has it (`cohortView`): a course week with its number and dates there,
+ * and not found when the cohort doesn't take it. The same module for a cohort with no stored run.
+ */
+const learnerModuleOf = (db: Db, u: Learner, id: string): AIEmployee => moduleOf(cohortView(db, u.cohortId), id);
+
 const sessionOf = (db: Db, id: string): Session => {
   const s = db.sessions.find((x) => x.id === id);
   if (!s) throw new MutationError('not_found', `No session ${id}`);
@@ -222,7 +229,7 @@ const nameFromEmail = (email: string): string =>
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** A course week is open on its date, or before that for a test account's early access (D-202). */
-const moduleOpen = (m: AIEmployee, c: Ctx): boolean => (c.early === true && isAcceleratorModule(m.id) && m.status !== 'draft') || isOpen(m, c.now);
+const moduleOpen = (m: AIEmployee, c: Ctx): boolean => (c.early === true && isCourseWeek(m.id) && m.status !== 'draft') || isOpen(m, c.now);
 
 // ---------------------------------------------------------------------------
 // 1-7 · Learner portal: dashboard, workspace, upgrade, vault
@@ -242,9 +249,9 @@ export function dismissAnnouncement(db: Db, a: Actor, args: { id: string }, _c: 
 /** 2 · Portal Workspace: check or un-check a build step. The 6th one builds the AI Employee. */
 export function toggleStep(db: Db, a: Actor, args: { moduleId: string; stepId: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);
-  const m = moduleOf(db, args.moduleId);
+  const m = learnerModuleOf(db, u, args.moduleId);
   // D-186: a course week follows course access, every other module the tier.
-  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isCourseWeek(m.id) ? NOT_IN_PLAN : 'Team tier required');
   if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   const p = progressOf(u, m);
   if (p.deployedAt && p.steps.includes(args.stepId))
@@ -296,8 +303,8 @@ const PREF_KEY = /^acc:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+:\d{1,4}$/;
  */
 export function toggleChecklistItem(db: Db, a: Actor, args: { moduleId: string; stepId: string; itemId: string }, c: Ctx): Outcome {
   const u = learnerOf(db, a);
-  const m = moduleOf(db, args.moduleId);
-  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  const m = learnerModuleOf(db, u, args.moduleId);
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isCourseWeek(m.id) ? NOT_IN_PLAN : 'Team tier required');
   if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   if (!m.checklist.some((s) => s.id === args.stepId)) throw new MutationError('invalid', 'That step is not on this week.');
   if (!CHECK_ITEM.test(args.itemId)) throw new MutationError('invalid', 'That item is not on this step.');
@@ -344,8 +351,8 @@ export function setPref(db: Db, a: Actor, args: { key: string; value: string }, 
   if (tour && !canOpenModule(u, { id: LMS_TOUR_MODULE_ID, tier: 'team' }, c.course)) throw new MutationError('forbidden', NOT_IN_PLAN);
   if (!path && !weekDone && !tour) {
     const moduleId = args.key.split(':')[1]!;
-    const m = moduleOf(db, moduleId);
-    if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+    const m = learnerModuleOf(db, u, moduleId);
+    if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isCourseWeek(m.id) ? NOT_IN_PLAN : 'Team tier required');
     if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   }
   const next = produce(db, (d) => {
@@ -378,8 +385,8 @@ export function saveVideoProgress(
   c: Ctx,
 ): Outcome {
   const u = learnerOf(db, a);
-  const m = moduleOf(db, args.moduleId);
-  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isAcceleratorModule(m.id) ? NOT_IN_PLAN : 'Team tier required');
+  const m = learnerModuleOf(db, u, args.moduleId);
+  if (!canOpenModule(u, m, c.course)) throw new MutationError('forbidden', isCourseWeek(m.id) ? NOT_IN_PLAN : 'Team tier required');
   if (!moduleOpen(m, c)) return { db, toast: { msg: `${m.name} opens ${fmt.day(m.opens!)}.`, tone: 'info' } };
   if (!args.videoId.trim() || args.videoId.length > 300) throw new MutationError('invalid', 'That video is not on this week.');
   if (!Number.isFinite(args.maxPct) || args.maxPct < 0 || args.maxPct > 1) throw new MutationError('invalid', 'That progress is not a portion of the video.');

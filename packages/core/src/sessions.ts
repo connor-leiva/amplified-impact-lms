@@ -4,6 +4,7 @@
 // Ported verbatim from design-reference/lms-data.js (lines 216-293 and 330). Every exported
 // name, signature, field name and string matches the reference; the differential suite compares
 // this file to it function by function.
+import { DEFAULT_COHORT_ID } from './accelerator';
 import { fmt } from './time';
 import { canAccess } from './status';
 import type { AIEmployee, Cohort, Db, Learner, Session } from './types';
@@ -18,7 +19,19 @@ const OH_ID = /-oh(\d+)$/;
 
 export type SessionKind = 'build' | 'office_hours';
 
-export const sessionKind = (s: Pick<Session, 'id'>): SessionKind => (OH_ID.test(s.id) ? 'office_hours' : 'build');
+/**
+ * R-5 (D-254): a session of a cohort other than December reads its stored kind (`live_build` is a build, any other kind
+ * is not), since its id says nothing. December's, and any row without a kind, read the id as they always have, so no
+ * session already on December's calendar changes kind.
+ */
+export const sessionKind = (s: Pick<Session, 'id'> & Partial<Pick<Session, 'kind' | 'cohortId'>>): SessionKind =>
+  s.kind !== undefined && s.cohortId !== undefined && s.cohortId !== DEFAULT_COHORT_ID
+    ? s.kind === 'live_build'
+      ? 'build'
+      : 'office_hours'
+    : OH_ID.test(s.id)
+      ? 'office_hours'
+      : 'build';
 
 /** The week a session belongs to: an office hour's from its id, a build's from its `n`. */
 export const sessionWeek = (s: Pick<Session, 'id' | 'n'>): number => {
@@ -70,7 +83,7 @@ export const sessionState = (s: SessionTiming | null | undefined, now: number, f
 };
 
 export const accessibleSessions = (db: Db, u: Learner | null | undefined): Session[] => {
-  const cid = (u && u.cohortId) || 'dec26';
+  const cid = (u && u.cohortId) || DEFAULT_COHORT_ID;
   return db.sessions
     .filter((s) => s.cohortId === cid)
     .filter((s) => {

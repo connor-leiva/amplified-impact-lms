@@ -42,10 +42,49 @@ export const OTHER_COHORT_DOMAINS: readonly string[] = ['january.example.test'];
 
 let world: Database | null = null;
 
-export async function addOtherCohorts(db: Database, _now: number): Promise<void> {
+export async function addOtherCohorts(db: Database, now: number): Promise<void> {
   world = db;
-  // No other cohort yet. Phase 3 creates January here; Phase 4 puts a test team in it.
+  // R-5 Phase 2 (D-254): Connor's January, made the way staff make it: `createCohortFromShape` through the audited
+  // admin action, from December as its source. Six weeks of building after a setup week, a Tuesday live build and a
+  // Thursday office hours at 12:00 PM MT (five of them at the same instant as December's), Week 1 opening Sun, Jan 3.
+  // A draft: no people, no plans, no words. Phase 4 puts a test team in it.
+  process.env.FIXED_NOW = iso(now);
+  const app = await build({ logger: false });
+  try {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/admin/actions/createCohortFromShape',
+      headers: { cookie: await app.signInAs(STAFF), 'content-type': 'application/json' },
+      payload: JSON.stringify(JANUARY),
+    });
+    if (res.statusCode !== 200) throw new Error(`January was not created: ${res.statusCode} ${res.body}`);
+  } finally {
+    await app.close();
+  }
 }
+
+/** Connor's January, as the New cohort page sends it. */
+const JANUARY = {
+  name: 'January 2027 Cohort',
+  start: '2027-01-03',
+  sourceCohortId: 'dec26',
+  picks: [
+    'accelerator-week-1',
+    'accelerator-week-2',
+    'accelerator-week-3',
+    'accelerator-week-4',
+    'accelerator-week-5',
+    'accelerator-week-6',
+  ],
+  shape: {
+    setupWeek: true,
+    slots: [
+      { day: 2, time: '12:00', kind: 'live_build', mins: 90 },
+      { day: 4, time: '12:00', kind: 'office_hours', mins: 60 },
+    ],
+    hosts: 'Connor Leiva and Spring',
+  },
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 // December beyond the golden

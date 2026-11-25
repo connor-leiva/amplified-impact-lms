@@ -209,6 +209,12 @@ export const AUDIT_ACTIONS = [
   'session.delete',
   'cohort.save',
   'cohort.course_save',
+  // R-5 (D-254): a cohort's own writes (`cohort-actions.ts`): create one from a shape, save its shape, save its run
+  // (each week's dates), add the sessions its rhythm is missing.
+  'cohort.create',
+  'cohort.shape_save',
+  'cohort.run_save',
+  'cohort.sessions_add',
   'copy.save',
   // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
   'curriculum.migrate',

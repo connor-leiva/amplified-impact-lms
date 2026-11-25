@@ -12,7 +12,8 @@
 //      says string, so the web app's existing screens keep rendering.
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
-import { isAcceleratorModule } from './accelerator';
+import { isCourseWeek } from './accelerator';
+import { cohortView } from './cohort-run';
 import { canOpenModule, kitVisible } from './release';
 import { can } from './can';
 import { moduleForSession } from './sessions';
@@ -236,7 +237,7 @@ const lockedWeekModule = (m: AIEmployee): AIEmployee => {
  * opens the session's week at all.
  */
 function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resources: Resource[], at: number, preview: boolean, inPlan: (s: Session) => boolean) {
-  const locked = new Set(db.modules.filter((m) => isAcceleratorModule(m.id) && !isOpen(m, at)).map((m) => m.id));
+  const locked = new Set(db.modules.filter((m) => isCourseWeek(m.id) && !isOpen(m, at)).map((m) => m.id));
   return {
     modules: modules.map((m) => (locked.has(m.id) ? lockedWeekModule(m) : m)),
     sessions: sessions.map((s) => {
@@ -254,18 +255,22 @@ function withReleases(db: Db, modules: AIEmployee[], sessions: Session[], resour
 /** Drop the course for a learner whose plan does not open it: its modules and the sessions behind them. */
 function withoutAccelerator(db: Db, modules: AIEmployee[], sessions: Session[]): { modules: AIEmployee[]; sessions: Session[] } {
   return {
-    modules: modules.filter((m) => !isAcceleratorModule(m.id)),
+    modules: modules.filter((m) => !isCourseWeek(m.id)),
     sessions: sessions.filter((s) => {
       const m = moduleForSession(db, s);
-      return !m || !isAcceleratorModule(m.id);
+      return !m || !isCourseWeek(m.id);
     }),
   };
 }
 
 /** `db` is already this call's private clone, so these reads and spreads cannot reach the caller. */
-function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
-  const me = db.users.find((u) => u.id === userId);
-  if (!me) return denyAll(db);
+function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
+  const me = full.users.find((u) => u.id === userId);
+  if (!me) return denyAll(full);
+  // R-5 (D-254): the course as the learner's own cohort has it (`cohortView`): its weeks, their numbers and dates
+  // there. The same object for a cohort with no stored run, which is every cohort before R-5 and December until its
+  // run is written.
+  const db = cohortView(full, me.cohortId);
 
   const teamId = me.teamId;
   const showEmail = seesTeamEmails(me);
@@ -283,7 +288,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   };
   const replayWeek = (s: Session): ReplayWeek => {
     const m = moduleForSession(db, s);
-    const open = !m || access?.early === true || access?.at === undefined || !isAcceleratorModule(m.id) || isOpen(m, access.at);
+    const open = !m || access?.early === true || access?.at === undefined || !isCourseWeek(m.id) || isOpen(m, access.at);
     return { access: inPlan(s), open };
   };
   let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map((s) => redactSession(s, replayWeek(s)));
@@ -302,7 +307,7 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   } else if (access?.early) {
     // D-202: the dates stay on the row. This viewer's copy of a scheduled week reads as open,
     // which is what the screens ask (`isOpen`) before they draw Mark step done.
-    modules = modules.map((m) => (isAcceleratorModule(m.id) && m.status === 'scheduled' ? { ...m, status: 'published' } : m));
+    modules = modules.map((m) => (isCourseWeek(m.id) && m.status === 'scheduled' ? { ...m, status: 'published' } : m));
   } else if (access && access.at !== undefined) {
     // D-175: in the course, each week opens on its own date (the builder's Status and Opens).
     ({ modules, sessions, resources } = withReleases(db, modules, sessions, resources, access.at, !!access.preview, inPlan));
@@ -311,7 +316,8 @@ function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   return {
     v: db.v,
     phase: db.phase,
-    cohorts: db.cohorts.map(cohortForLearner),
+    // R-5 (D-254): their own cohort, not every cohort's dates and status (a draft's included).
+    cohorts: db.cohorts.filter((c) => c.id === me.cohortId).map(cohortForLearner),
     sessions,
     modules,
     // Themselves, plus their team's roster. An Agent-tier learner with no team sees only themselves.

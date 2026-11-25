@@ -28,7 +28,8 @@ import { provisionOwner } from '@ai/core';
 import { passwordProblem, userByEmail } from '../auth';
 import type { UserRow } from '../auth';
 import { createGroupMember, emailDomainOf, normalizeAddress, recordVerified } from '../billing/access-groups';
-import { CARTS, COHORT_ONE, initialPlanDates } from '../billing/catalog';
+import { CARTS, initialPlanDates } from '../billing/catalog';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import { audit } from '../console/audit';
 import { clock, randomIds } from '../lib/clock';
 import { finishPasswordSet } from '../routes/password';
@@ -119,7 +120,7 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
   let userId = user.id;
   if (!teamId) {
     const before = await loadDb(tx);
-    const owner = provisionOwner(before, { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: COHORT_ONE.id }, { now, id: randomIds() });
+    const owner = provisionOwner(before, { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: DEFAULT_COHORT_ID }, { now, id: randomIds() });
     if (!owner.ok) return false;
     if (owner.db !== before) await persistDiff(tx, before, owner.db);
     teamId = owner.teamId;
@@ -197,7 +198,7 @@ async function seedAccelerator(tx: Database, email: string, name: string, passwo
     const before = await loadDb(tx);
     const owner = provisionOwner(
       before,
-      { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: COHORT_ONE.id },
+      { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: DEFAULT_COHORT_ID },
       { now: at, id: randomIds() },
     );
     if (!owner.ok) return { status: 'skipped', reason: 'refused' };

@@ -19,7 +19,7 @@
 // read them, so no email moves (the brief's hard rule). H-14 (D-248) reads `acceleratorOpen` at a
 // session's start for its reminders (`courseRoster`), so the first live build's reminders go out.
 
-import { ACCELERATOR_OPTIONS, acceleratorOpen, acceleratorUpcoming, isAcceleratorModule, pausedForPayment } from './accelerator';
+import { ACCELERATOR_OPTIONS, COURSE_OPENS_AT, acceleratorOpen, acceleratorUpcoming, isCourseWeek, pausedForPayment } from './accelerator';
 import type { AcceleratorPlan } from './accelerator';
 import { canAccess, isOpen } from './status';
 import type { AIEmployee, Cohort, Learner, Resource } from './types';
@@ -42,9 +42,17 @@ export const CLOSED: CourseEntry = { open: false, preview: false };
 export const liveCoursePlan = (plans: readonly AcceleratorPlan[]): boolean =>
   plans.some((p) => p.kind === 'cohort' && p.option !== null && ACCELERATOR_OPTIONS.includes(p.option) && p.status !== 'ended' && !pausedForPayment(p));
 
-/** Whether these plans let a learner into the course at `now`, given the cohort's release plan. */
-export function courseEntry(plans: readonly AcceleratorPlan[], now: number, cohort: Pick<Cohort, 'previewOpensAt'> | null | undefined): CourseEntry {
-  if (acceleratorOpen(plans, now)) return { open: true, preview: false };
+/**
+ * Whether these plans let a learner into the course at `now`, given the cohort's release plan. `opensAt` is when the
+ * course opens for the learner's cohort (`cohortOpensAt`); absent, D-153's instant, December's.
+ */
+export function courseEntry(
+  plans: readonly AcceleratorPlan[],
+  now: number,
+  cohort: Pick<Cohort, 'previewOpensAt'> | null | undefined,
+  opensAt: number = COURSE_OPENS_AT,
+): CourseEntry {
+  if (acceleratorOpen(plans, now, opensAt)) return { open: true, preview: false };
   if (!liveCoursePlan(plans)) return CLOSED;
   const at = cohort?.previewOpensAt;
   return at !== undefined && now >= at ? { open: true, preview: true } : CLOSED;
@@ -54,9 +62,16 @@ export function courseEntry(plans: readonly AcceleratorPlan[], now: number, coho
  * When the course opens for a buyer who can't enter it yet: the earlier of the preview's opening and
  * the course's own (D-153), or null (not a buyer, already open, or paused for a payment).
  */
-export function courseUpcoming(plans: readonly AcceleratorPlan[], now: number, cohort: Pick<Cohort, 'previewOpensAt'> | null | undefined): number | null {
+export function courseUpcoming(
+  plans: readonly AcceleratorPlan[],
+  now: number,
+  cohort: Pick<Cohort, 'previewOpensAt'> | null | undefined,
+  opensAt: number = COURSE_OPENS_AT,
+): number | null {
   if (!liveCoursePlan(plans)) return null;
-  const course = acceleratorUpcoming(plans, now);
+  const upcoming = acceleratorUpcoming(plans, now, opensAt);
+  // A cohort with no live build yet has no date its course opens (`cohortOpensAt`): only its preview says when.
+  const course = upcoming !== null && Number.isFinite(upcoming) ? upcoming : null;
   const at = cohort?.previewOpensAt;
   const preview = at !== undefined && at > now ? at : null;
   if (course === null) return preview;
@@ -86,7 +101,7 @@ export const countsTowardEnrollment = (u: { test?: true }): boolean => u.test !=
  *   - Every other module follows the tier, as before (`canAccess`).
  */
 export const canOpenModule = (u: Pick<Learner, 'tier'> | null | undefined, m: Pick<AIEmployee, 'id' | 'tier'>, course?: boolean): boolean =>
-  isAcceleratorModule(m.id) ? (course ?? true) : canAccess(u, m);
+  isCourseWeek(m.id) ? (course ?? true) : canAccess(u, m);
 
 /**
  * Whether a learner sees a vault resource, by the week it is attached to. One attached to no course week
@@ -95,7 +110,7 @@ export const canOpenModule = (u: Pick<Learner, 'tier'> | null | undefined, m: Pi
  * `hidden_until_open`, or none set, once its week opens.
  */
 export function kitVisible(r: Pick<Resource, 'module' | 'visibility'>, weekOpen: boolean, preview: boolean): boolean {
-  if (!r.module || !isAcceleratorModule(r.module)) return true;
+  if (!r.module || !isCourseWeek(r.module)) return true;
   if (r.visibility === 'hidden') return false;
   if (r.visibility === 'published') return true;
   if (r.visibility === 'open_in_preview') return weekOpen || preview;

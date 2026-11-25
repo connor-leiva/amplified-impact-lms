@@ -77,7 +77,7 @@ import {
   sessionState,
 } from '@ai/core';
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { isCourseWeek } from '@ai/core/accelerator';
 import type { CourseRoster } from '@ai/core/accelerator';
 import { firstNameOf, sessionLabel } from '@ai/core';
 import { jobKey } from './keys';
@@ -252,7 +252,7 @@ const sessionAudience = (db: Db, s: Session, now: number, accelerator?: CourseAu
   // The AI Accelerator's sessions go only to learners whose plan opens the course (D-110): every paid
   // buyer sits in this cohort at Team tier, so the tier rule above cannot tell them apart. Absent
   // (every caller before the course, and the demo), nothing is narrowed.
-  const course = !!accelerator && !!m && isAcceleratorModule(m.id);
+  const course = !!accelerator && !!m && isCourseWeek(m.id);
   // H-14 (D-248): asked at the session's start while it is ahead, so a buyer whose course opens with the first live
   // build hears of it the day before and the hour before; once it has started, now (a replay, a build reminder).
   const at = Math.max(now, s.start);

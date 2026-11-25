@@ -182,8 +182,8 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt'],
-  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt'],
+  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility', 'slot'],
   modules: [
     'id',
     'name',
@@ -337,6 +337,10 @@ const cohortRow = (c: Cohort): Row => ({
   defaultOpenTime: col(c.defaultOpenTime),
   course: col(c.course),
   welcomeSendsAt: col(c.welcomeSendsAt),
+  run: col(c.run),
+  shape: col(c.shape),
+  programId: col(c.programId),
+  archivedAt: col(c.archivedAt),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -356,6 +360,7 @@ const sessionRow = (s: Session): Row => ({
   kind: col(s.kind),
   moduleId: col(s.moduleId),
   replayVisibility: col(s.replayVisibility),
+  slot: col(s.slot),
 });
 
 const moduleRow = (m: AIEmployee): Row => ({
@@ -650,7 +655,18 @@ export function fromRows(rows: Rows): Db {
           enrolled: enrolled.get(str(r.id)) ?? 0,
           cadence: str(r.cadence),
         },
-        { weeks: r.weeks, previewOpensAt: r.previewOpensAt, timezone: r.timezone, defaultOpenTime: r.defaultOpenTime, course: r.course, welcomeSendsAt: r.welcomeSendsAt },
+        {
+          weeks: r.weeks,
+          previewOpensAt: r.previewOpensAt,
+          timezone: r.timezone,
+          defaultOpenTime: r.defaultOpenTime,
+          course: r.course,
+          welcomeSendsAt: r.welcomeSendsAt,
+          run: r.run,
+          shape: r.shape,
+          programId: r.programId,
+          archivedAt: r.archivedAt,
+        },
       ),
     ),
     sessions: rows.sessions.map((r) =>
@@ -668,7 +684,7 @@ export function fromRows(rows: Rows): Db {
           replay: r.replay as Session['replay'],
           views: num(r.views),
         },
-        { movedFrom: r.movedFrom, replayUrl: r.replayUrl, kind: r.kind, moduleId: r.moduleId, replayVisibility: r.replayVisibility },
+        { movedFrom: r.movedFrom, replayUrl: r.replayUrl, kind: r.kind, moduleId: r.moduleId, replayVisibility: r.replayVisibility, slot: r.slot },
       ),
     ),
     modules: rows.modules.map((r) =>
