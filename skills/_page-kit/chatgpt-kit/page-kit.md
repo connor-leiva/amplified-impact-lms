@@ -522,7 +522,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   .btn, .math-toggle, .tbl-tools, .note-line, .more, .toc { display: none !important; }
   .math-body[hidden], tr[hidden] { display: revert !important; }
   .rail-in { position: static; }
-  .row, .items li, .tl li, .draft, .check li, .tile, tr { break-inside: avoid; }
+  .row, .items li, .tl li, .draft, .check li, .tile, tr, .found li, .moves li, .decide { break-inside: avoid; }
   .owner-in { border-bottom-color: transparent; }
 }
 </style>
