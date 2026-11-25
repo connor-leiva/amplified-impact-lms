@@ -162,7 +162,8 @@ Checks that STOP the build (exit 1), each with a plain message:
      (--tz-second sets the second zone and its offset, "CT:+1" by default, "none" for one zone).
   6. A heading, section label, move title or draft subject that is not in Title Case.
 Fixed with a NOTE (build goes on): em and en dashes in any text become commas or "to", and a
-dollar amount ending in ".00" loses it ("$79.00" becomes "$79").
+dollar amount ending in ".00" loses it ("$79.00" becomes "$79"), except in arithmetic (math lines and
+table cells keep the run's cents).
 Standard library only. Python 3.7 or later.
 """
 import argparse
@@ -205,26 +206,29 @@ def numbers_in(text):
     return {norm(m) for m in NUMBER.findall(text or "") if norm(m)}
 
 
-def clean(text, notes):
-    """House style: no em dashes or en dashes."""
+def clean(text, notes, arithmetic=False):
+    """House style: no em dashes or en dashes; no ".00" on a dollar amount, except in arithmetic."""
     if not isinstance(text, str):
         return text
     out = re.sub(r"(?<=\d)\s*[\u2013\u2014]\s*(?=\d)", " to ", text)
     out = out.replace(" \u2014 ", ", ").replace("\u2014", ", ").replace(" \u2013 ", ", ").replace("\u2013", "-")
     if out != text:
         notes.append("Dashes replaced in: %s" % text[:70])
+    if arithmetic:
+        return out
     cents = re.sub(r"(\$\d[\d,]*)\.00(?![\d])", r"\1", out)
     if cents != out:
         notes.append("Dropped .00 from a dollar amount in: %s" % out[:70])
     return cents
 
 
-def deep_clean(node, notes):
+def deep_clean(node, notes, arithmetic=False):
+    """Arithmetic (a section's math lines and a table's cells) keeps the run's cents."""
     if isinstance(node, dict):
-        return {k: deep_clean(v, notes) for k, v in node.items()}
+        return {k: deep_clean(v, notes, arithmetic or k in ("math", "rows")) for k, v in node.items()}
     if isinstance(node, list):
-        return [deep_clean(v, notes) for v in node]
-    return clean(node, notes)
+        return [deep_clean(v, notes, arithmetic) for v in node]
+    return clean(node, notes, arithmetic)
 
 
 def is_title_case(text):
@@ -660,7 +664,7 @@ button, input { font: inherit; color: inherit; }
 .label, .eyebrow { font: 400 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
 .eyebrow { color: var(--accent); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-strong.hl { font-weight: 500; background: var(--hl); padding: 0 .15em; }
+strong.hl { font-weight: 500; color: var(--ink); background: var(--hl); padding: 0 .15em; }
 .lockup { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .lockup-end { border-bottom: 0; border-top: 1px solid var(--line); margin-top: 40px; }
 .lockup-by { font: 400 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
@@ -784,6 +788,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 
 /* Bars: side-by-side amounts, each row with its own words. */
 .hbars { display: grid; gap: 18px; }
+.hbars.pairs { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px 28px; }
+.hbars.pairs .hbar { grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) auto; }
 .hbar-item h3 { font-size: 16px; font-weight: 500; }
 .hbar-item > p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
 .hbar { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 6px; font-size: 14px; }
@@ -829,7 +835,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .mini h3 { font-size: 15px; font-weight: 500; }
 .mini-last { font: 400 12px/1.3 var(--mono); color: var(--ink-2); white-space: nowrap; }
 .mini .plot { height: 64px; gap: 3px; }
-.mini .xaxis span { font-size: 10px; }
+.xaxis.ends { justify-content: space-between; }
+.xaxis.ends span { flex: none; font-size: 10px; }
 .view-toggle { display: inline-flex; border: 1px solid var(--ink); justify-self: start; }
 .vt { min-height: 32px; padding: 0 14px; border: 0; background: transparent; cursor: pointer; font-size: 13px; }
 .vt[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
@@ -908,7 +915,8 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
 
 /* Choices: options side by side, each a tile you can mark as the one you picked. */
 .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-.ch { background: var(--raised); border: 2px solid var(--line); padding: 18px 18px 16px; display: grid; gap: 10px; align-content: start; }
+.ch { background: var(--raised); border: 2px solid var(--line); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ch .pick { margin-top: auto; }
 .ch.picked { border-color: var(--accent); background: var(--accent-wash); }
 .ch-opt { font: 500 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
 .ch h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
@@ -1012,7 +1020,14 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   .tbl-wrap { overflow: visible; }
   .tbl-box .tbl-frame::after { display: none !important; }
   .rail-in { position: static; }
-  .row, .items li, .tl li, .draft, .memo, .check li, .tile, tr, .found li, .moves li, .decide, .co, .nt, .pl, .qc, .ch, .meter, .prog, .dl-row, .hbar-item, .ros-item, .mini, .chart, .callout { break-inside: avoid; }
+  /* A row may break between its items, never inside one, and its heading stays with what follows it. */
+  .row, .summary, .proof, .found > ul { display: block; }
+  .rail { margin-bottom: 16px; break-after: avoid; }
+  .rail, .rail-in { break-inside: avoid; }
+  .proof > :first-child { break-before: avoid; }
+  .proof > * + *, .found li + li { margin-top: 14px; }
+  .moves { margin-top: 20px; }
+  .items li, .tl li, .draft, .check li, .tile, tr, .found li, .moves li, .decide, .co, .nt, .pl, .qc, .ch, .meter, .prog, .dl-row, .hbar-item, .ros-item, .mini, .chart, .callout, .memo-part, .math-body li { break-inside: avoid; }
   .owner-in { border-bottom-color: transparent; }
 }
 </style>
@@ -1085,6 +1100,11 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   function chip(status, text) {
     if (!status) return null;
     return h('span.chip.' + status, icon(status), h('span', text || WORD[status] || status));
+  }
+  /* The status word alone, beside an icon that is already there. */
+  function word(status, text) {
+    if (!status) return null;
+    return h('span.chip.' + status, text || WORD[status] || status);
   }
   function mark() {
     var s = document.createElementNS(SVG, 'svg');
@@ -1208,7 +1228,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     var st = f.status || '';
     return h((tag || 'div') + '.co' + (st ? '.' + st : ''),
       h('span.co-icon', icon(f.icon || (st === 'quiet' || !st ? 'quiet' : st))),
-      h('div', f.title ? h('h3', f.title, chip(st, f.chip)) : (f.chip || st ? h('h3', chip(st, f.chip)) : null), f.text ? h('p', rich(f.text)) : null));
+      h('div', f.title ? h('h3', f.title, word(st, f.chip)) : (f.chip || st ? h('h3', word(st, f.chip)) : null), f.text ? h('p', rich(f.text)) : null));
   }
   /* ----- the bottom line: headline, key numbers, what we found, first moves with editable owners, decide ----- */
   function bottom() {
@@ -1330,16 +1350,16 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
         g.appendChild(b);
         if (!small && series.length === 1 && c.values !== false) {
           var lab = h('span.val', fmt(v, se.format || c.format));
-          if (v >= 0) lab.style.bottom = 'calc(' + (zero + Math.abs(v) / span * 100) + '% + 2px)'; else lab.style.top = 'calc(' + (100 - zero + Math.abs(v) / span * 100) + '% + 2px)';
+          /* Above the bar; for a negative bar, just above the zero line, so it never meets the month labels. */
+          lab.style.bottom = 'calc(' + (v >= 0 ? zero + Math.abs(v) / span * 100 : zero) + '% + 2px)';
           g.appendChild(lab);
         }
       });
       plot.appendChild(g);
     });
     var z = h('span.zero'); z.style.bottom = zero + '%'; plot.appendChild(z);
-    var axis = h('div.xaxis', { 'aria-hidden': 'true' }, rows.map(function (r, i) {
-      return h('span', small && i > 0 && i < rows.length - 1 ? '' : short(r[c.x]));
-    }));
+    var axis = small && rows.length ? h('div.xaxis.ends', { 'aria-hidden': 'true' }, h('span', short(rows[0][c.x])), h('span', short(rows[rows.length - 1][c.x])))
+      : h('div.xaxis', { 'aria-hidden': 'true' }, rows.map(function (r) { return h('span', short(r[c.x])); }));
     return [plot, axis];
   }
   function chartView(s) {
@@ -1501,7 +1521,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
         h('div.tile-head', h('h3', it.label), chip(it.status, it.chip)),
         h('p.meter-big', it.valueText || fmt(it.value, 'pct')),
         track, h('div.meter-scale', { 'aria-hidden': 'true' }, h('span', '0%'), h('span', '100%')),
-        it.targetText ? h('p.meter-text', h('span.legend-line', h('i'), h('span', it.targetText))) : null,
+        it.targetText ? (typeof it.target === 'number' ? h('p.meter-text', h('span.legend-line', h('i'), h('span', it.targetText))) : h('p.meter-text', it.targetText)) : null,
         it.text ? h('p.meter-text', rich(it.text)) : null);
     }));
   }
@@ -1509,7 +1529,8 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     var items = s.items || [];
     var all = []; items.forEach(function (it) { (it.bars || []).forEach(function (b) { all.push(b.value); }); });
     var shared = Math.max.apply(null, [0].concat(all));
-    return h('div.hbars', items.map(function (it) {
+    var pairs = items.length > 2 && items.every(function (it) { return (it.bars || []).length > 1; });
+    return h('div.hbars' + (pairs ? '.pairs' : ''), items.map(function (it) {
       var bars = it.bars || [];
       var top = s.scale === 'item' ? Math.max.apply(null, [0].concat(bars.map(function (b) { return b.value; }))) : shared;
       var solo = bars.length === 1 && !bars[0].label;
@@ -1555,7 +1576,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       if (d.style === 'memo') {
         return h('article.memo',
           h('div.memo-top', h('span.memo-kind', d.label || 'Memo'), btn),
-          d.subject ? h('h4.memo-title', d.subject) : null,
+          d.subject ? h('h3.memo-title', d.subject) : null,
           h('p.memo-to', d.to ? 'For: ' + d.to : null, d.channel ? (d.to ? ' · ' : '') + d.channel : null),
           memoView(d),
           d.flag ? h('p.draft-flag', { style: 'margin-top:14px' }, d.flag) : null);
@@ -1601,7 +1622,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       h('div.proof',
         c ? h('blockquote.callout' + (c.status ? '.' + c.status : ''), c.status ? chip(c.status, c.chip) : null, h('p', rich(c.text || c))) : null,
         s.collapsed ? disclose(s.collapsedLabel || 'Show The Details', body) : body,
-        s.detail ? disclose(s.detail.label || 'Show The Table', tableView(s.detail)) : null,
+        s.detail ? disclose(s.detail.label || 'Show The Table', tableView(Object.assign({}, s.detail, { label: s.label + ', Full Table' }))) : null,
         math(s.math, s.mathTitle)));
   }
   function end() {

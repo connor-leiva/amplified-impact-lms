@@ -35,7 +35,8 @@ Checks that STOP the build (exit 1), each with a plain message:
      (--tz-second sets the second zone and its offset, "CT:+1" by default, "none" for one zone).
   6. A heading, section label, move title or draft subject that is not in Title Case.
 Fixed with a NOTE (build goes on): em and en dashes in any text become commas or "to", and a
-dollar amount ending in ".00" loses it ("$79.00" becomes "$79").
+dollar amount ending in ".00" loses it ("$79.00" becomes "$79"), except in arithmetic (math lines and
+table cells keep the run's cents).
 Standard library only. Python 3.7 or later.
 """
 import argparse
@@ -78,26 +79,29 @@ def numbers_in(text):
     return {norm(m) for m in NUMBER.findall(text or "") if norm(m)}
 
 
-def clean(text, notes):
-    """House style: no em dashes or en dashes."""
+def clean(text, notes, arithmetic=False):
+    """House style: no em dashes or en dashes; no ".00" on a dollar amount, except in arithmetic."""
     if not isinstance(text, str):
         return text
     out = re.sub(r"(?<=\d)\s*[\u2013\u2014]\s*(?=\d)", " to ", text)
     out = out.replace(" \u2014 ", ", ").replace("\u2014", ", ").replace(" \u2013 ", ", ").replace("\u2013", "-")
     if out != text:
         notes.append("Dashes replaced in: %s" % text[:70])
+    if arithmetic:
+        return out
     cents = re.sub(r"(\$\d[\d,]*)\.00(?![\d])", r"\1", out)
     if cents != out:
         notes.append("Dropped .00 from a dollar amount in: %s" % out[:70])
     return cents
 
 
-def deep_clean(node, notes):
+def deep_clean(node, notes, arithmetic=False):
+    """Arithmetic (a section's math lines and a table's cells) keeps the run's cents."""
     if isinstance(node, dict):
-        return {k: deep_clean(v, notes) for k, v in node.items()}
+        return {k: deep_clean(v, notes, arithmetic or k in ("math", "rows")) for k, v in node.items()}
     if isinstance(node, list):
-        return [deep_clean(v, notes) for v in node]
-    return clean(node, notes)
+        return [deep_clean(v, notes, arithmetic) for v in node]
+    return clean(node, notes, arithmetic)
 
 
 def is_title_case(text):

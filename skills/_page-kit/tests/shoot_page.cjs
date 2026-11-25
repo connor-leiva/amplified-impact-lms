@@ -3,7 +3,8 @@
 //   node skills/_page-kit/tests/shoot_page.cjs <page.html>
 //
 // Writes, beside the page: <name>-1280.png and <name>-390.png (full page, 1 CSS pixel per image pixel,
-// so the widths are exactly 1280 and 390), and <name>.pdf (Letter, the template's own print styles,
+// so the widths are exactly 1280 and 390, as a reader first sees it), <name>-1280-expanded.png (every
+// Show The Details and Why Ask This opened), and <name>.pdf (Letter, the template's own print styles,
 // which hide the buttons, open every Show The Math block and show every table row). Fails when the
 // page throws or logs an error, or scrolls sideways at either width. Uses the preinstalled Playwright.
 // Each PNG is then reduced to a 128-color palette with Python's Pillow, when it is installed, so the
@@ -37,6 +38,9 @@ const SHRINK = 'import sys\nfrom PIL import Image\nfor f in sys.argv[1:]:\n    I
       for (const e of errors) console.error(`  ${e}`);
     }
     if (width === 1280) {
+      await page.evaluate(() => document.querySelectorAll('.disc-toggle[aria-expanded="false"], .why-toggle[aria-expanded="false"]').forEach((b) => b.click()));
+      await page.screenshot({ path: `${stem}-1280-expanded.png`, fullPage: true });
+      console.log(`1280px expanded: ${basename(stem)}-1280-expanded.png`);
       await page.emulateMedia({ media: 'print' });
       await page.pdf({ path: `${stem}.pdf`, preferCSSPageSize: true, printBackground: true });
       console.log(`print: ${basename(stem)}.pdf`);
@@ -44,7 +48,7 @@ const SHRINK = 'import sys\nfrom PIL import Image\nfor f in sys.argv[1:]:\n    I
     await page.close();
   }
   await browser.close();
-  const shrink = spawnSync('python3', ['-c', SHRINK, `${stem}-1280.png`, `${stem}-390.png`], { encoding: 'utf8' });
+  const shrink = spawnSync('python3', ['-c', SHRINK, `${stem}-1280.png`, `${stem}-390.png`, `${stem}-1280-expanded.png`], { encoding: 'utf8' });
   console.log(shrink.status === 0 ? 'PNGs reduced to a 128-color palette' : 'Pillow not found: PNGs left in full color');
   process.exit(failed ? 1 : 0);
 })();
