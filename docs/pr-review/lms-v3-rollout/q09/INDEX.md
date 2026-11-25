@@ -29,7 +29,7 @@ None scrolls sideways.
 | Turn in on Week 1 step 4 | `turn-in-week-1-step-4-*.png` | The upload drawer, over the v6 step page (the step page has no shell, D-210). |
 | The seat card drawer | `seat-card-drawer-*.png` | Opened from Week 1 step 6's Fill In Your Seat Card, over the step page. |
 | Community and a thread | `community-*.png`, `thread-*.png` | The v3 pages, with the package's sample threads. |
-| The Schedule | `schedule-*.png` | The v3 Schedule. Every time on it is `fmt`'s: Central only for this Central-time viewer. |
+| The Schedule | `schedule-*.png` | The v3 Schedule. Every time on it reads "12:00 PM MT / 1:00 PM CT" (D-259), except the lede, which is the cohort's cadence as staff typed it. |
 | A locked week | `locked-week-*.png` | Week 1, locked, "Opens Sun, Nov 29" (D-249). |
 | Dark mode: Home | `dark-home-*.png` | The learner's Theme is Dark. **Home draws dark inside the light v3 frame.** The same goes for every page under the shell that isn't a v3 page (the Skill Library, a skill, Account, Team Hub, the Vault): the frame hands today's pages the learner's theme. |
 | Dark mode: Week 0 | `dark-week-0-*.png` | A v3 page stays light, as C-02 says. |
