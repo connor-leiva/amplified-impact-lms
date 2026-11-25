@@ -1,0 +1,74 @@
+/* D-253 (R-5 Phase 1): the four pages, from handoff/admin-mockup/build_admin.py ("third pass: four pages with tabs"). */
+
+/* `.area>.tabs`: the page's tabs scroll sideways when they don't fit, with no scroll bar drawn. */
+.tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs > button {
+  white-space: nowrap;
+  flex: none;
+}
+
+/* `.area>.atb`: the tab's page, under the tabs. */
+.atb {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+@media (max-width: 767px) {
+  .atb {
+    gap: 16px;
+  }
+}
+
+/* Program's title: the program's own tile (`programLogo`, variant "tile", never under 32px) beside its name. */
+.programTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.tile {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 7px;
+}
+
+/* `.cpk.big`: the cohort picker in the Cohort page's title, in the title's own type. */
+.pickMenu {
+  max-width: 100%;
+}
+.pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 2px 8px 2px 0;
+  margin: -2px 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.pick:hover {
+  background: var(--r2-sub);
+}
+.pick > svg {
+  color: var(--r2-f3);
+}
+.pick:hover > svg {
+  color: var(--r2-ink);
+}
+.pickName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

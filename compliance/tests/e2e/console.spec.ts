@@ -346,16 +346,17 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
 });
 
 test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-160 R2-1b) @g9 @console', () => {
-  /** Open every closed group, then read each group's header and rows. */
   /**
-   * D-239: each group and its pages, in order. One group is open at a time, so each is opened in turn (which shuts
-   * the one before it, as the sidebar must) and its pages read while it is open. The group's own name is its first
-   * line; a page's count pill is dropped.
+   * D-253 (R-5 Phase 1): the sidebar's rows, in order. A single row (Overview, Program, Cohort, People, Revenue) is its
+   * name alone; a group that opens (Operations, Access, under the hairline) is its name and its pages. D-239: one group
+   * is open at a time, so each is opened in turn (which shuts the one before it, as the sidebar must) and its pages read
+   * while it is open. A row's roll-up and a page's count pill are dropped.
    */
-  const groupsOf = async (scope: Locator) => {
+  const rowsOf = async (scope: Locator) => {
     const nav = scope.locator('nav[aria-label="Admin"]');
+    const solo = await nav.locator(':scope > button').evaluateAll((bs) => bs.map((b) => [(b as HTMLElement).innerText.trim().split('\n')[0]!]));
     const heads = nav.locator(':scope > div > button[aria-expanded]');
-    const out: string[][] = [];
+    const out: string[][] = [...solo];
     for (let i = 0; i < (await heads.count()); i++) {
       const head = heads.nth(i);
       if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
@@ -373,36 +374,47 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
 
   const EXPECT: Record<string, string[][]> = {
     Owner: [
-      // D-169: System Health is on in production (console.view: Owner, Admin, Support).
-      ['Health', 'Overview', 'System Health'],
-      ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      // D-160 R2-1c: Workspaces and Users are on in production; D-162 3b: Masquerade (`masquerade.start`).
-      // D-238: Community (`console.view`), the handoff mockup's row after Learners & Teams.
-      ['Support', 'Learners & Teams', 'Community', 'Workspaces', 'Users', 'Masquerade'],
-      // D-163: Billing is on in production (billing.read: Owner, Admin, Support); D-166 Usage (usage.read).
-      ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
+      ['Overview'],
+      ['Program'],
+      ['Cohort'],
+      ['People'],
+      ['Revenue'],
+      // D-253: System Health moves into Operations, first (console.view: Owner, Admin, Support).
       // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3); D-166 the Email Log.
       // D-167: Incidents is on in production too (Support reads and acknowledges, D3).
       // D-168: the four infrastructure pages are on in production (ops.read: Owner, Admin; Support none, D3).
-      ['Operations', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'],
+      ['Operations', 'System Health', 'Incidents', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };
   const OPS_ROWS = ['Roles & Permissions', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'];
   EXPECT.Admin = EXPECT.Owner!;
-  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => !OPS_ROWS.includes(x) && x !== 'Masquerade'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Community', 'Workspaces', 'Users', 'Masquerade', 'Billing', 'Usage', 'System Health'].includes(x)));
+  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => !OPS_ROWS.includes(x)));
+  // An Instructor opens no Console page: no People (none of its tabs), no Operations; Staff & Roles stays (D11).
+  EXPECT.Instructor = [['Overview'], ['Program'], ['Cohort'], ['Revenue'], ['Access', 'Staff & Roles']];
+  /** The tabs of People and Revenue each role is drawn (the rest are every role's). */
+  const TABS: Record<string, { People: string[]; Revenue: string[] }> = {
+    Owner: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
+    Admin: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
+    Support: { People: ['Everyone', 'Teams'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
+    Instructor: { People: [], Revenue: ['Plans & upgrades'] },
+  };
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
-    test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
+    test(`${role} sees the Console rows their capabilities open, and the rows go where they say`, async ({ browser }) => {
       const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
       const aside = page.locator('aside[aria-label="Primary"]');
       const group = (name: string) => aside.getByRole('button', { name: new RegExp(`^${name}`) });
-      // D-239: one group is open, Health (the Overview's); the rest are shut until one is clicked.
-      await expect(group('Health')).toHaveAttribute('aria-expanded', 'true');
-      await expect(group('Build')).toHaveAttribute('aria-expanded', 'false');
-      await expect(group('Support')).toHaveAttribute('aria-expanded', 'false');
-      expect(await groupsOf(aside)).toEqual(EXPECT[role]);
+      // D-253: the Overview is a single row, the page; every group that opens is shut until one is clicked.
+      await expect(aside.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-current', 'page');
+      await expect(aside.locator('button[aria-expanded="true"]')).toHaveCount(0);
+      expect(await rowsOf(aside)).toEqual(EXPECT[role]);
+      for (const [row, tabs] of Object.entries(TABS[role]!)) {
+        if (!tabs.length) continue;
+        await group(row).click();
+        await expect(page.getByRole('tablist', { name: row }).getByRole('tab')).toHaveText(tabs.map((t) => new RegExp(`^${t.replace('&', '\\&')}`)));
+        await expect(group(row)).toHaveAttribute('aria-current', 'page');
+      }
       if (role !== 'Instructor') {
         if ((await group('Operations').getAttribute('aria-expanded')) !== 'true') await group('Operations').click();
         await aside.getByRole('button', { name: 'Audit Log' }).click();
@@ -419,30 +431,30 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
   }
 
   test('nothing about the groups is kept: a new visit opens the page’s group (D-239)', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin');
+    const { page, close } = await openAt(browser, '/admin/audit');
     const aside = page.locator('aside[aria-label="Primary"]');
-    await aside.getByRole('button', { name: /^Build/ }).click();
-    await expect(aside.getByRole('button', { name: /^Build/ })).toHaveAttribute('aria-expanded', 'true');
-    await expect(aside.getByRole('button', { name: /^Health/ })).toHaveAttribute('aria-expanded', 'false');
+    await aside.getByRole('button', { name: /^Access/ }).click();
+    await expect(aside.getByRole('button', { name: /^Access/ })).toHaveAttribute('aria-expanded', 'true');
+    await expect(aside.getByRole('button', { name: /^Operations/ })).toHaveAttribute('aria-expanded', 'false');
     // A second visit in the same browser (a new tab: `openAt`'s init script, which seeds the
     // preferences, belongs to the first page only).
     const again = await page.context().newPage();
     await again.goto(page.url());
     await again.locator('body[data-app-ready="true"]').waitFor();
     const second = again.locator('aside[aria-label="Primary"]');
-    await expect(second.getByRole('button', { name: /^Health/ })).toHaveAttribute('aria-expanded', 'true');
-    await expect(second.getByRole('button', { name: /^Build/ })).toHaveAttribute('aria-expanded', 'false');
+    await expect(second.getByRole('button', { name: /^Operations/ })).toHaveAttribute('aria-expanded', 'true');
+    await expect(second.getByRole('button', { name: /^Access/ })).toHaveAttribute('aria-expanded', 'false');
     await close();
   });
 
   for (const width of [320, 390]) {
-    test(`the phone drawer at ${width}: every group, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
+    test(`the phone drawer at ${width}: every row, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
       const { page, close } = await openAt(browser, '/admin/audit', { width });
       await page.getByRole('button', { name: 'Open menu' }).click();
       const drawer = page.locator('[data-drawer="open"][role="dialog"]');
       await expect(drawer).toHaveCount(1);
       const aside = drawer.locator('aside[aria-label="Primary"]');
-      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT.Owner);
+      await expect.poll(() => rowsOf(aside)).toEqual(EXPECT.Owner);
       const problems = await aside.evaluate((el) => {
         const out: string[] = [];
         if (el.scrollWidth > el.clientWidth + 1) out.push(`drawer ${el.scrollWidth} > ${el.clientWidth}`);

@@ -25,10 +25,13 @@ export function Palette({
   phone,
   go,
   onClose,
+  cohortId = '',
 }: {
   pages: readonly PalettePage[];
   modules: readonly PaletteModule[];
   phone: boolean;
+  /** D-253: the cohort a moved address of the API's opens in. */
+  cohortId?: string;
   go: (to: string) => void;
   onClose: () => void;
 }) {
@@ -59,7 +62,7 @@ export function Palette({
     };
   }, [q]);
 
-  const groups = useMemo(() => paletteGroups(q, pages, modules, api), [q, pages, modules, api]);
+  const groups = useMemo(() => paletteGroups(q, pages, modules, api, cohortId), [q, pages, modules, api, cohortId]);
   const flat = groups.flatMap(([, items]) => items);
   const pick = (it: PaletteItem) => {
     onClose();

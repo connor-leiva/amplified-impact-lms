@@ -8,6 +8,28 @@ import { learnerRoutes } from './routes/learn/routes';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
+/** D-253: yesterday's admin addresses, each a redirect to its new one (`shell/admin/addresses.ts`). */
+const MOVED_ADMIN_PATHS = [
+  'admin/curriculum',
+  'admin/curriculum/:id',
+  'admin/vault',
+  'admin/build',
+  'admin/cohorts',
+  'admin/learners',
+  'admin/community',
+  'admin/community/:id',
+  'admin/announcements',
+  'admin/users',
+  'admin/users/:id',
+  'admin/workspaces',
+  'admin/workspaces/:id',
+  'admin/masquerade',
+  'admin/billing',
+  'admin/billing/:tab',
+  'admin/tiers',
+  'admin/usage',
+] as const;
+
 // The learner portal v2's switch (D-177, `routes/learn/flag.ts`), read once, here. OFF, which is every
 // build that does not set `VITE_LEARNER_V2=true` (production today), the router below is #171's, line for
 // line: the first portal at `/`, the standalone Skill Library and its guides, the course pages, and every
@@ -90,53 +112,86 @@ const routes: RouteObject[] = [
       { path: 'vault', lazy: () => import('./routes/portal/Vault') },
       { path: 'team-tier', lazy: () => import('./routes/portal/TeamTier') },
       { path: 'admin', lazy: () => import('./routes/admin/Overview') },
-      { path: 'admin/curriculum', lazy: () => import('./routes/admin/Curriculum') },
-      // One route for both: `new` is the blank draft, anything else edits that AI Employee.
-      // D-174: the course's settings (release plan, shared pages, copy strings), before the builder's `:employeeId`.
-      { path: 'admin/curriculum/course', lazy: () => import('./routes/admin/CourseSettings') },
-      { path: 'admin/curriculum/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
-      { path: 'admin/cohorts', lazy: () => import('./routes/admin/Cohorts') },
-      { path: 'admin/learners', lazy: () => import('./routes/admin/Learners') },
-      { path: 'admin/vault', lazy: () => import('./routes/admin/VaultManager') },
-      { path: 'admin/announcements', lazy: () => import('./routes/admin/Announcements') },
-      { path: 'admin/tiers', lazy: () => import('./routes/admin/Tiers') },
+      // D-253 (R-5 Phase 1, ADMIN-RESTRUCTURE-SPEC.md § 3): four pages with tabs, each tab one of yesterday's pages.
+      // Program: Curriculum, Course settings (D-174) and the Resource Vault; a week (the Module Builder) is Curriculum's
+      // record. `new` is the blank draft, anything else edits that AI Employee or week.
+      {
+        path: 'admin/program',
+        lazy: () => import('./routes/admin/areas/ProgramArea'),
+        children: [
+          { index: true, lazy: () => import('./routes/admin/Curriculum') },
+          { path: 'course', lazy: () => import('./routes/admin/CourseSettings') },
+          { path: 'vault', lazy: () => import('./routes/admin/VaultManager') },
+        ],
+      },
+      { path: 'admin/program/weeks/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
+      // Cohort: the cohort is in the address. `/admin/cohort` goes to the one the admin is on.
+      { path: 'admin/cohort', lazy: () => import('./routes/admin/areas/CohortHome') },
+      {
+        path: 'admin/cohort/:cohortId',
+        lazy: () => import('./routes/admin/areas/CohortArea'),
+        children: [
+          { index: true, lazy: () => import('./routes/admin/Cohorts') },
+          { path: 'schedule', lazy: () => import('./routes/admin/Cohorts') },
+          { path: 'people', lazy: () => import('./routes/admin/Learners') },
+          // D-238 (B-45): the cohort's Community, and a thread.
+          { path: 'community', lazy: () => import('./routes/console/Community') },
+          { path: 'announcements', lazy: () => import('./routes/admin/Announcements') },
+        ],
+      },
+      { path: 'admin/cohort/:cohortId/community/:id', lazy: () => import('./routes/console/CommunityThread') },
+      // People: Everyone (Users), Teams (Workspaces) and Masquerade; a person and a team are records (D-160 R2-1c).
+      {
+        path: 'admin/people',
+        lazy: () => import('./routes/admin/areas/PeopleArea'),
+        children: [
+          { index: true, lazy: () => import('./routes/console/Users') },
+          { path: 'teams', lazy: () => import('./routes/console/Workspaces') },
+          // Masquerade on R2 (D-162 3b, spec § 6).
+          { path: 'masquerade', lazy: () => import('./routes/console/Masquerade') },
+        ],
+      },
+      { path: 'admin/people/teams/:teamId', lazy: () => import('./routes/console/Workspace') },
+      { path: 'admin/people/:userId', lazy: () => import('./routes/console/User') },
+      // The mockup's learner view (its `as`) keeps its address (spec § 3).
+      { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
+      // Revenue: Billing's Summary (until Phase 8), its five lists as Payments (D-163, each at its tab's address),
+      // Plans & upgrades (Tiers & Upgrades) and Usage (D-166).
+      {
+        path: 'admin/revenue',
+        lazy: () => import('./routes/admin/areas/RevenueArea'),
+        children: [
+          { index: true, lazy: () => import('./routes/console/Billing').then((m) => ({ Component: m.Summary })) },
+          { path: 'payments', lazy: () => import('./routes/console/Billing') },
+          { path: 'payments/:tab', lazy: () => import('./routes/console/Billing') },
+          { path: 'plans', lazy: () => import('./routes/admin/Tiers') },
+          { path: 'usage', lazy: () => import('./routes/console/Usage') },
+        ],
+      },
       { path: 'admin/staff', lazy: () => import('./routes/admin/Staff') },
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
       { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
       { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
-      // The Support records on R2 (D-160 R2-1c; spec §§ 7.3–7.5, D-158's API).
-      { path: 'admin/workspaces', lazy: () => import('./routes/console/Workspaces') },
-      { path: 'admin/workspaces/:teamId', lazy: () => import('./routes/console/Workspace') },
-      { path: 'admin/users', lazy: () => import('./routes/console/Users') },
-      { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
       { path: 'admin/search', lazy: () => import('./routes/console/Search') },
-      // Masquerade on R2 (D-162 3b, spec § 6): the page, and the mockup's learner view (its `as`).
-      { path: 'admin/masquerade', lazy: () => import('./routes/console/Masquerade') },
-      { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
-      // Billing, read-only (D-163, spec § 7.6): the Summary, and each list at its own tab address.
-      { path: 'admin/billing', lazy: () => import('./routes/console/Billing') },
-      { path: 'admin/billing/:tab', lazy: () => import('./routes/console/Billing') },
       // API & Webhooks (with its deliveries tab at its own address) and Scheduled Jobs (D-165, spec §§ 7.9-7.10).
       { path: 'admin/api', lazy: () => import('./routes/console/Api') },
       { path: 'admin/api/:tab', lazy: () => import('./routes/console/Api') },
       { path: 'admin/jobs', lazy: () => import('./routes/console/Jobs') },
-      // D-166: the Email Log and Usage (spec §§ 7.7, 7.15).
+      // D-166: the Email Log (spec § 7.7).
       { path: 'admin/email', lazy: () => import('./routes/console/EmailLog') },
-      { path: 'admin/usage', lazy: () => import('./routes/console/Usage') },
       // Incidents and one incident (D-167, spec § 7.14).
       { path: 'admin/incidents', lazy: () => import('./routes/console/Incidents') },
       { path: 'admin/incidents/:id', lazy: () => import('./routes/console/Incident') },
-      // D-238 (B-45): Admin › Support › Community and a thread.
-      { path: 'admin/community', lazy: () => import('./routes/console/Community') },
-      { path: 'admin/community/:id', lazy: () => import('./routes/console/CommunityThread') },
       // The Operations pages on R2 (D-168; spec §§ 7.11-7.13).
       { path: 'admin/integrations', lazy: () => import('./routes/console/Integrations') },
       { path: 'admin/deploys', lazy: () => import('./routes/console/Deploys') },
       { path: 'admin/db', lazy: () => import('./routes/console/DbHealth') },
       { path: 'admin/flags', lazy: () => import('./routes/console/Flags') },
-      // D-169 (spec §§ 7.1–7.2): System Health, the Console's home (D15), and the Build hub.
+      // D-169 (spec § 7.1): System Health, now Operations' first page (D-253).
       { path: 'admin/health', lazy: () => import('./routes/console/Health') },
-      { path: 'admin/build', lazy: () => import('./routes/console/BuildHub') },
+      // D-253: every address that moved lands on its new one (`shell/admin/addresses.ts`), query and hash kept. The
+      // Build hub (D-169) is Program now.
+      ...MOVED_ADMIN_PATHS.map((path) => ({ path, lazy: () => import('./routes/admin/areas/Moved') })),
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every

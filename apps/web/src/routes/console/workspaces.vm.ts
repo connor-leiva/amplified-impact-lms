@@ -16,9 +16,7 @@ import {
   planStatusOf,
   seatBar,
   seatPct,
-  userPath,
   userStatusOf,
-  workspacePath,
 } from '@ai/core';
 import type {
   AdminStatus,
@@ -29,6 +27,7 @@ import type {
   WorkspaceRow,
 } from '@ai/core';
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
+import { personPath, teamPath } from '../../shell/admin/addresses';
 
 export const NEVER = 'Never';
 export const NONE = '—';
@@ -135,7 +134,7 @@ export const workspaceRowVM = (w: WorkspaceRow): WorkspaceRowVM => ({
   status: planStatusOf(w.planStatus),
   last: stampOrNever(w.lastActivity),
   lastAt: w.lastActivity ?? 0,
-  href: workspacePath(w.teamId),
+  href: teamPath(w.teamId),
 });
 
 // --- one workspace -------------------------------------------------------------------------------
@@ -144,7 +143,8 @@ export const WORKSPACE_TABS = ['members', 'plan', 'usage', 'billing', 'activity'
 export type WorkspaceTab = (typeof WORKSPACE_TABS)[number];
 
 export const WORKSPACE_COPY = {
-  back: 'Workspaces',
+  /** D-253: a team's way back is People › Teams (the mockup's third pass). */
+  back: 'Teams',
   /** D-246: beside View intake, the team's intake as a PDF. */
   intakePdf: 'Download PDF',
   intakePdfFailed: 'Could not download the intake PDF.',
@@ -189,7 +189,7 @@ export const WORKSPACE_COPY = {
     invoice: 'Last invoice',
     // D-163: Billing exists, so the mockup's way there is drawn (its Invoices tab).
     open: 'Open in Billing',
-    to: '/admin/billing/invoices',
+    to: '/admin/revenue/payments/invoices',
   },
   noActivity: 'No activity yet',
   notes: {
@@ -296,7 +296,7 @@ export function workspaceVM(d: WorkspaceDetail): WorkspaceVM {
       initials: initialsOf(m.name),
       role: m.role ?? NONE,
       status: userStatusOf(m.status),
-      href: userPath(m.id),
+      href: personPath(m.id),
     })),
     plan: {
       plan: planLine(kind, d.team.seats),

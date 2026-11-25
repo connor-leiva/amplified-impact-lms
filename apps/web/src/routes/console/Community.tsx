@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { COMMUNITY_ERRORS } from '@ai/core/community';
 import { Button } from '../../components/r2/Button';
 import type { MenuEntry } from '../../components/r2/Menu';
@@ -11,7 +11,7 @@ import type { Column } from '../../components/r2/Table';
 import { Facts, Find, PageHead, Pill, Sel, Skel, Tabs, TextArea, Two, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { COMMUNITY_CHANGED, ConsoleError } from '../../data/console';
-import { adminCohortLabel } from '../../data/admin-shell';
+import { cohortLabel } from '../../data/admin-shell';
 import { useDb, useNow } from '../../data/hooks';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { useViewportWidth } from '../../shell/hooks';
@@ -58,9 +58,13 @@ const FIELD_OF: Record<string, Field> = {
 };
 
 export function Component() {
+  // D-253: Cohort › Community (`/admin/cohort/:cohortId/community`). The threads are the Community's (D-231), which is
+  // December's alone until Phase 4; the cohort in the address names it and its threads' addresses.
+  const { cohortId = '' } = useParams();
   const gate = useConsoleGate('community');
   const navigate = useNavigate();
   const db = useDb();
+  const cohort = db.cohorts.find((c) => c.id === cohortId) ?? null;
   const now = useNow();
   const { toast } = useAdminChrome();
   const toaster = useToaster();
@@ -80,7 +84,7 @@ export function Component() {
   const kept = useRef<CommunityList | null>(null);
   if (rec.data) kept.current = rec.data;
   const list = rec.data ?? kept.current;
-  const rows = useMemo(() => (list ? communityRows(list, now) : []), [list, now]);
+  const rows = useMemo(() => (list ? communityRows(list, now, cohortId) : []), [list, now, cohortId]);
   const counts = useMemo(() => communityCounts(rows), [rows]);
   const shown = useMemo(() => filterCommunity(rows, tab, space, q), [rows, tab, space, q]);
 
@@ -122,7 +126,7 @@ export function Component() {
             close();
             toast(C.toast.posted);
             window.dispatchEvent(new Event(COMMUNITY_CHANGED));
-            navigate(threadHref(id));
+            navigate(threadHref(cohortId, id));
           },
           (e: unknown) => {
             const field = e instanceof ConsoleError ? FIELD_OF[e.message] : undefined;
@@ -166,7 +170,7 @@ export function Component() {
     <Page>
       <PageHead
         title={C.title}
-        description={C.description(adminCohortLabel(db))}
+        description={C.description(cohort ? cohortLabel(cohort) : '')}
         right={
           <Button
             header

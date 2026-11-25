@@ -19,6 +19,7 @@ import { ButtonLink } from '../../components/r2/Button';
 import { isFixture } from '../../data/boot';
 import { refusal, useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
+import { weekPath } from '../../shell/admin/addresses';
 import { curriculumR2VM, movesFor, previewUrl, type CurriculumR2Row } from './Curriculum.vm';
 import s from './Curriculum.module.css';
 
@@ -130,7 +131,7 @@ function Curriculum() {
     window.location.assign(url.toString());
   }, []);
 
-  const edit = (r: CurriculumR2Row) => void navigate(`/admin/curriculum/${r.id}`);
+  const edit = (r: CurriculumR2Row) => void navigate(weekPath(r.id));
 
   const menu = (r: CurriculumR2Row): MenuEntry[] => [
     { label: 'Edit in Module Builder', icon: 'r2Builder', onSelect: () => edit(r) },
@@ -238,7 +239,7 @@ function Curriculum() {
         title="Curriculum"
         description={phone ? vm.summaryPhone : vm.summary}
         right={
-          <ButtonLink header kind="primary" icon="r2Plus" to="/admin/curriculum/new">
+          <ButtonLink header kind="primary" icon="r2Plus" to={weekPath('new')}>
             New AI Employee
           </ButtonLink>
         }

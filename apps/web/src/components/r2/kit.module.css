@@ -281,6 +281,65 @@
   font-weight: 400;
 }
 
+/* ---- inside a tab of one of the four pages (D-253, the mockup's `AreaCtx`) --------------------------------------- */
+/* `.shd`: the page's description and actions, its title dropped. */
+.shd {
+  display: flex;
+  gap: 12px 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  /* `.shd .b{padding:0 14px}` comes last in the mockup's sheet, so on a phone its buttons keep 14px where a page
+     head's take `.ph .b`'s 16px (Button.module.css reads this). */
+  --r2-b-phone-pad: 14px;
+}
+.shd > p {
+  max-width: 720px;
+  margin: 0;
+}
+/* `.sgm.stb`: the page's own tabs as a segmented control. `.sgm button` is the mockup's own button rule, and it comes
+   after `.arx button` there, so its size, weight and colour hold (unlike `.tab`'s). */
+.sgm {
+  display: inline-flex;
+  flex: none;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--r2-sf);
+  align-self: flex-start;
+}
+.sgm button {
+  white-space: nowrap;
+  height: var(--r2-c);
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid var(--r2-line2);
+  background: none;
+  font-size: var(--r2-fs-13);
+  font-weight: 500;
+  color: var(--r2-f2);
+  cursor: pointer;
+}
+.sgm button:last-child {
+  border-right: 0;
+}
+.sgm button:hover {
+  background: var(--r2-hov);
+}
+.sgm button.on {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+.sgmCount {
+  margin-left: 6px;
+  font-weight: 400;
+  color: var(--r2-f3);
+  font-variant-numeric: tabular-nums;
+}
+.sgm button.on .sgmCount {
+  color: var(--r2-for);
+}
+
 /* ---- fields (`.in`, `select.in`, `textarea.in`, `Find`) ------------------------------------------ */
 .in {
   height: var(--r2-c);

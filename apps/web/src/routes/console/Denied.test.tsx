@@ -12,7 +12,16 @@ describe('the Console 404 and Denied on R2 (D-160 R2-1b)', () => {
   it('the 404: its h1, its sentence, Go to Overview, and Search the admin, which opens the palette (R2-1c)', () => {
     const openPalette = vi.fn();
     inRouter(
-      <AdminChromeProvider value={{ openPalette, setRecord: () => {}, toast: () => {} }}>
+      <AdminChromeProvider
+        value={{
+          openPalette,
+          setRecord: () => {},
+          toast: () => {},
+          role: 'Owner',
+          counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
+          cohort: { id: 'dec26', label: 'December 2026 Cohort', choices: [], pick: () => {} },
+        }}
+      >
         <NotFound />
       </AdminChromeProvider>,
     );

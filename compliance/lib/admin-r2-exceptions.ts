@@ -54,13 +54,14 @@ export interface ApprovedException {
 
 export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
   // R2-2b (#138): Cohorts & Sessions on a phone. Its key facts: December 2026, Active, Wed, Dec 2 ·
-  // 12:00 PM MST, 2 of 6, 148 learners, Wednesdays, weekly.
+  // 12:00 PM MST, 2 of 6, 148 learners, Wednesdays, weekly. D-253: Cohort › Schedule, under the Cohort page's head
+  // and tabs, so its ref is 82px taller (2092 to 2174); the same key facts, the same ceiling.
   {
     cell: 'cohorts-sessions-390',
     width: 390,
-    height: 2092,
+    height: 2174,
     ceilingPx: 2766,
-    ceilingPct: 0.339,
+    ceilingPct: 0.3262,
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 138,

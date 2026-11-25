@@ -341,7 +341,7 @@ describe('what the first portal had and the mockup draws no screen for (D-182)',
     at('/learn');
     const line = (await screen.findByText('Previewing as Agent.')).closest<HTMLElement>('[role="status"]')!;
     expect(line).not.toBeNull();
-    expect(within(line).getByRole('link', { name: 'Exit Preview' })).toHaveAttribute('href', '/admin/curriculum');
+    expect(within(line).getByRole('link', { name: 'Exit Preview' })).toHaveAttribute('href', '/admin/program');
   });
 
   it('no demo controls outside a fixture demo, and no preview line for a learner', async () => {

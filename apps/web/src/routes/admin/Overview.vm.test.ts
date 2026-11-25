@@ -270,7 +270,7 @@ describe('overviewVM @g6', () => {
     });
 
     it('sends New AI Employee to the builder', () => {
-      expect(vm.newEmployeeTo).toBe('/admin/curriculum/new');
+      expect(vm.newEmployeeTo).toBe('/admin/program/weeks/new');
     });
   });
 

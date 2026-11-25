@@ -277,8 +277,9 @@ test.describe('staff, preview and masquerade @g6', () => {
     await expect.poll(() => pathOf(page.url())).toMatch(/^\/learn(\/employees\/finance)?$/);
     await expect(page.getByRole('status').filter({ hasText: 'Previewing as Team Owner.' })).toBeVisible();
     await page.getByRole('link', { name: 'Exit Preview' }).click();
-    await expect(page).toHaveURL(/\/admin\/curriculum$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Curriculum' })).toBeVisible();
+    // D-253 (R-5 Phase 1): the Curriculum page is Program › Curriculum, at `/admin/program`.
+    await expect(page).toHaveURL(/\/admin\/program$/);
+    await expect(page.getByRole('tablist', { name: 'Program' }).getByRole('tab', { name: /^Curriculum/ })).toHaveAttribute('aria-selected', 'true');
     await ctx.close();
   });
 
@@ -306,7 +307,8 @@ test.describe('staff, preview and masquerade @g6', () => {
   });
 
   test('@parity:C-14 @parity:SH-11 a masquerade starts where the learner lands, with the banner, and Exit comes back', async ({ browser }) => {
-    const { ctx, page } = await go(browser, '/admin/masquerade');
+    // D-253 (R-5 Phase 1): Masquerade is People › Masquerade.
+    const { ctx, page } = await go(browser, '/admin/people/masquerade');
     await page.getByRole('button', { name: 'Masquerade…' }).click();
     await page.getByRole('textbox', { name: 'Reason' }).fill('Ticket 4411: the seat invite never arrived.');
     await page.getByRole('button', { name: 'Start 15-minute session' }).click();
@@ -316,7 +318,7 @@ test.describe('staff, preview and masquerade @g6', () => {
     await expect(page.locator('[data-learner-v2] aside[aria-label="Primary"]')).toHaveCount(1);
     await expectAccessible(page);
     await banner.getByRole('button', { name: 'Exit masquerade' }).click();
-    await expect.poll(() => pathOf(page.url())).toBe('/admin/masquerade');
+    await expect.poll(() => pathOf(page.url())).toBe('/admin/people/masquerade');
     await ctx.close();
   });
 

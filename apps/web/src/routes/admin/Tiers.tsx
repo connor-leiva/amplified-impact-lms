@@ -33,6 +33,12 @@ import s from './Tiers.module.css';
 
 const NOT_YET = 'Not available yet';
 
+/** D-253: the mockup's head for Revenue › Plans & upgrades (it was "Tiers & Upgrades" over the cohort's revenue line). */
+export const TIERS_HEAD = {
+  title: 'Plans & upgrades',
+  description: 'What each plan costs and holds, and the teams asking to move between them.',
+} as const;
+
 export function Component() {
   const db = useDb();
   const mutate = useMutate();
@@ -84,7 +90,8 @@ export function Component() {
 
   return (
     <Page>
-      <PageHead title="Tiers & Upgrades" description={vm.summary} />
+      {/* D-253: Revenue › Plans & upgrades, in the mockup's words (its third pass). Its title is the tab's. */}
+      <PageHead title={TIERS_HEAD.title} description={TIERS_HEAD.description} />
 
       {vm.cards.length ? (
         <div className={k.g3}>

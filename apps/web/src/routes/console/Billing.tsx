@@ -22,7 +22,7 @@ import { useConsoleGate } from './useConsoleGate';
 import { useConsolePages, useConsoleRecord } from './useConsoleData';
 import {
   BILLING_COPY as C,
-  BILLING_TABS,
+  PAYMENT_TABS,
   actionTarget,
   billingSummaryVM,
   billingTabPath,
@@ -59,10 +59,23 @@ import type {
 const stripe = (url: string | null): MenuEntry[] =>
   url ? [{ label: C.menu.stripe, onSelect: () => void window.open(url, '_blank', 'noopener') }] : [];
 
+/** Revenue › Payments (`/admin/revenue/payments[/:tab]`): Billing's five lists. */
 export function Component() {
+  return <Billing part="payments" />;
+}
+
+/** Revenue › Summary (`/admin/revenue`): Billing's own Summary, until Phase 8. */
+export function Summary() {
+  return <Billing part="summary" />;
+}
+
+// D-253: one page in two tabs. The Summary has no head of its own (Revenue's head says what it is); Payments keeps
+// Billing's description (the mockup's words) and its lists as a segmented control, Customers first.
+function Billing({ part }: { part: 'summary' | 'payments' }) {
   const { tab: raw } = useParams();
   const [params] = useSearchParams();
-  const tab: BillingTab | null = raw === undefined ? 'summary' : isBillingTab(raw) && raw !== 'summary' ? raw : null;
+  const tab: BillingTab | null =
+    part === 'summary' ? 'summary' : raw === undefined ? 'customers' : isBillingTab(raw) && raw !== 'summary' ? raw : null;
   const gate = useConsoleGate('billing');
   const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
@@ -93,7 +106,7 @@ export function Component() {
     toast(C.action.toast[r.action]);
     setVersion((n) => n + 1);
   };
-  const tabs = BILLING_TABS.map((id) => ({
+  const tabs = PAYMENT_TABS.map((id) => ({
     id,
     label: C.tabs[id],
     ...(id === 'failed' && vm ? { count: vm.failedCount } : {}),
@@ -101,19 +114,23 @@ export function Component() {
 
   return (
     <Page>
-      <PageHead
-        title={C.title}
-        meta={ro ? <Pill tone="neutral">{C.readOnly}</Pill> : undefined}
-        description={C.description}
-      />
-      <Tabs tabs={tabs} value={tab} onChange={(t) => navigate(billingTabPath(t))} phone={phone} label={C.sections} />
+      {part === 'payments' ? (
+        <>
+          <PageHead
+            title={C.title}
+            meta={ro ? <Pill tone="neutral">{C.readOnly}</Pill> : undefined}
+            description={C.description}
+          />
+          <Tabs tabs={tabs} value={tab} onChange={(t) => navigate(billingTabPath(t))} phone={phone} label={C.sections} />
+        </>
+      ) : null}
       {gate.kind === 'error' ? (
         <LoadError failure={gate.failure} retry={gate.retry} />
       ) : tab === 'summary' ? (
         summary.status === 'error' && summary.failure ? (
           <LoadError failure={summary.failure} detail={summary.detail} retry={summary.retry} />
         ) : (
-          <Summary vm={vm} review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'} />
+          <SummaryView vm={vm} review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'} />
         )
       ) : api ? (
         <List key={tab} kind={tab} api={api} can={can} version={version} act={setActing} open={(href) => navigate(href)} />
@@ -125,7 +142,7 @@ export function Component() {
   );
 }
 
-function Summary({ vm, review }: { vm: BillingSummaryVM | null; review: boolean }) {
+function SummaryView({ vm, review }: { vm: BillingSummaryVM | null; review: boolean }) {
   const cols: Column<PlanRowVM>[] = [
     {
       key: 'plan',

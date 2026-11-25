@@ -124,10 +124,13 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
 
 test.describe('Usage on R2 (D-166) @g9 @console', () => {
   test('the six tiles, sign-ins per day and By workspace, and its filters', async ({ browser }) => {
+    // D-253: Revenue › Usage; the old address lands there.
     const { page, close } = await openAt(browser, '/admin/usage');
-    await expect(page.getByRole('heading', { level: 1, name: 'Usage' })).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/revenue\/usage(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Revenue' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Usage' })).toHaveAttribute('aria-selected', 'true');
     await expect(crumbs(page)).toHaveText('Admin/Revenue/Usage');
-    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Usage');
+    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Revenue');
     for (const t of ['1,648', '4,429', '7,622', '82%', '41.2 GB', 'of 100 GB bucket', '2,987'])
       await expect(page.locator('main').getByText(t, { exact: true })).toBeVisible();
     // The app's own clock (the fixture's "now") ends the range; the parity run freezes it at Dec 10.

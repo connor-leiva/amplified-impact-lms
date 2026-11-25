@@ -9,8 +9,9 @@ import type { CommunityList, CommunityMembers, CommunityPerson, CommunityThread 
 // `GET /api/community/:id`. Times through `fmt`: the list's "3 hr ago" (`fmt.activity`), a post's
 // "Thu, Nov 19 · 4:10 PM CT" (`fmt.when`, "Just now" under a minute, as the learner pages write it).
 
-export const COMMUNITY_HOME = '/admin/community';
-export const threadHref = (id: number | string): string => `${COMMUNITY_HOME}/${id}`;
+/** D-253: Cohort › Community, the cohort in the address (it was `/admin/community`). */
+export const communityHome = (cohortId: string): string => `/admin/cohort/${encodeURIComponent(cohortId)}/community`;
+export const threadHref = (cohortId: string, id: number | string): string => `${communityHome(cohortId)}/${id}`;
 
 /**
  * Every write is the mockup's `guard('account', …)`: the Roles matrix's "Send password reset or change email" row,
@@ -146,12 +147,12 @@ export interface CommunityRowVM {
  * The list's rows as the mockup lists them: pinned threads first ("Pinned to the top for the cohort"), then the newest
  * activity first, as the API sends them.
  */
-export function communityRows(list: CommunityList, now: number): CommunityRowVM[] {
+export function communityRows(list: CommunityList, now: number, cohortId: string): CommunityRowVM[] {
   const threads = [...list.threads].sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.activityAt - a.activityAt || b.id - a.id);
   return threads.map((t) => ({
     key: String(t.id),
     id: t.id,
-    href: threadHref(t.id),
+    href: threadHref(cohortId, t.id),
     title: t.title,
     excerpt: t.excerpt,
     spaceId: t.space,

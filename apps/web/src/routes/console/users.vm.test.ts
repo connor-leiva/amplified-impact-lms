@@ -51,7 +51,7 @@ describe('one user (spec § 7.4) on R2', () => {
       id: 'u_1042',
       email: 'elena@northshoregroup.example',
       workspace: 'Northshore Group',
-      workspaceHref: '/admin/workspaces/ws_northshore',
+      workspaceHref: '/admin/people/teams/ws_northshore',
       role: 'Team owner',
       tier: 'Team',
       last: 'Dec 10, 8:52 AM',

@@ -212,7 +212,8 @@ test.describe('learner portal v2, the week’s content and kit (D-184) @g9', () 
   });
 
   test('@parity:C-9 the builder’s live preview draws the learner portal’s week page and step player, and never leaves the builder', async ({ browser }) => {
-    const page = await open(browser, '/admin/curriculum/accelerator-week-1', 1440, 'admin');
+    // D-253 (R-5 Phase 1): a week's builder is at `/admin/program/weeks/:id`.
+    const page = await open(browser, '/admin/program/weeks/accelerator-week-1', 1440, 'admin');
     await page.getByRole('button', { name: /Preview/ }).first().click();
     const frame = page.getByTestId('course-preview');
     await expect(frame.locator('[data-learner-v2]')).toHaveCount(1);
@@ -221,7 +222,7 @@ test.describe('learner portal v2, the week’s content and kit (D-184) @g9', () 
     await expect(frame.getByRole('region', { name: 'Build Kit' })).toContainText('TEAM_NAME');
     await frame.getByRole('link', { name: /^Step 2,/ }).click();
     await expect(frame.getByRole('heading', { level: 1, name: week1.checklist[1]!.ch || week1.checklist[1]!.text })).toBeVisible();
-    await expect(page).toHaveURL(/\/admin\/curriculum\/accelerator-week-1/);
+    await expect(page).toHaveURL(/\/admin\/program\/weeks\/accelerator-week-1/);
     await page.context().close();
   });
 

@@ -174,7 +174,7 @@ export function Component() {
             <Card title={C.preview.title}>
               <p className={clsx(k.p, k.s2)}>
                 {C.preview.before}
-                <button type="button" className={clsx(k.lk, s.link)} onClick={() => navigate('/admin/curriculum')}>
+                <button type="button" className={clsx(k.lk, s.link)} onClick={() => navigate('/admin/program')}>
                   {C.preview.link}
                 </button>
                 {C.preview.after}

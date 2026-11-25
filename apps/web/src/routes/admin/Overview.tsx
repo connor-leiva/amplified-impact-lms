@@ -10,6 +10,7 @@ import { Bar, PageHead, Stat, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
+import { weekPath } from '../../shell/admin/addresses';
 import { overviewR2VM, overviewVM } from './Overview.vm';
 import type { OverviewReport } from './Overview.vm';
 import s from './Overview.module.css';
@@ -67,7 +68,7 @@ export function Component() {
             <Button header icon="r2Download" onClick={exportReport}>
               Export report
             </Button>
-            <ButtonLink header kind="primary" icon="r2Plus" to="/admin/curriculum/new">
+            <ButtonLink header kind="primary" icon="r2Plus" to={weekPath('new')}>
               New AI Employee
             </ButtonLink>
           </>

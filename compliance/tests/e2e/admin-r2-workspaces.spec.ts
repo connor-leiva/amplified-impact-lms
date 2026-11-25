@@ -37,11 +37,14 @@ const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]
 
 test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
   test('the list: the mockup’s workspaces, its filters, and a row opens its workspace', async ({ browser }) => {
+    // D-253: People › Teams; the old address lands there.
     const { page, close } = await openAt(browser, '/admin/workspaces');
+    await expect(page).toHaveURL(/\/admin\/people\/teams(\?|$)/);
     await expect(page.locator('aside[aria-label="Primary"]')).toHaveCount(1);
-    await expect(page.getByRole('heading', { level: 1, name: 'Workspaces' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Support/Workspaces');
-    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Workspaces');
+    await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Teams' })).toHaveAttribute('aria-selected', 'true');
+    await expect(crumbs(page)).toHaveText('Admin/People/Teams');
+    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('People');
     await expect(rows(page)).toHaveCount(7);
     await expect(rows(page).first()).toContainText('Northshore Group');
     await expect(rows(page).first()).toContainText('33 of 41');
@@ -67,16 +70,19 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await expect(page.getByRole('menuitem', { name: /Masquerade as owner/ })).toBeEnabled();
     await page.keyboard.press('Escape');
     await rows(page).first().getByRole('cell').nth(2).click();
-    await expect(page).toHaveURL(/\/admin\/workspaces\/ws_northshore(\?|$)/);
+    await expect(page).toHaveURL(/\/admin\/people\/teams\/ws_northshore(\?|$)/);
     await expect(page.getByRole('heading', { level: 1, name: 'Northshore Group' })).toBeVisible();
     await close();
   });
 
   test('a workspace: key facts, five tabs, and the way back', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/workspaces/ws_northshore');
-    await expect(crumbs(page)).toHaveText('Admin/Support/Workspaces/Northshore Group');
-    await expect(crumbs(page).getByRole('link', { name: 'Workspaces' })).toHaveAttribute('href', '/admin/workspaces');
-    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Workspaces');
+    const { page, close } = await openAt(browser, '/admin/people/teams/ws_northshore');
+    await expect(crumbs(page)).toHaveText('Admin/People/Teams/Northshore Group');
+    await expect(crumbs(page).getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/admin/people/teams');
+    await expect(crumbs(page).getByRole('link', { name: 'People' })).toHaveAttribute('href', '/admin/people');
+    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('People');
+    // The way back is Teams (the mockup's third pass).
+    await expect(page.getByRole('main').getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/admin/people/teams');
     await expect(page.getByText('Active', { exact: true }).first()).toBeVisible();
     for (const t of ['ws_northshore', 'Team Plan · 41 seats', '33 of 41', '$1,495', 'Dec 10, 8:52 AM'])
       await expect(page.locator('main').getByText(t, { exact: true }).first()).toBeVisible();
@@ -98,8 +104,8 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
       await expect(page.locator('main')).toContainText(text);
       await expectAccessible(page);
     }
-    await page.getByRole('link', { name: 'Workspaces' }).first().click();
-    await expect(page).toHaveURL(/\/admin\/workspaces(\?|$)/);
+    await page.getByRole('main').getByRole('link', { name: 'Teams' }).click();
+    await expect(page).toHaveURL(/\/admin\/people\/teams(\?|$)/);
     await close();
   });
 
@@ -167,15 +173,11 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await close();
   });
 
-  test('production’s sidebar lists Workspaces in Support (the parity fixture lists the whole NAV)', async ({
-    browser,
-  }) => {
-    const { page, close } = await openAt(browser, '/admin/workspaces');
-    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Workspaces' })).toBeVisible();
-    // D-162 3b: Masquerade is on in production too, for the Owner and Admins.
-    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Masquerade' })).toHaveCount(
-      1,
-    );
+  test('production’s sidebar lists People, with Teams a tab (D-253)', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/people/teams');
+    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
+    // D-162 3b: Masquerade is on in production too, for the Owner and Admins: a tab of People now.
+    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab', { name: 'Masquerade' })).toHaveCount(1);
     await close();
   });
 });

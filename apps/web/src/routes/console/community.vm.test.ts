@@ -29,7 +29,7 @@ afterEach(() => setViewerZone(null));
 describe('Admin › Community (D-238)', () => {
   it('counts as the mockup does: 4 threads, 3 waiting, 1 pinned, 1 hidden, 148 in 7 teams', async () => {
     const list = await make().api.community();
-    const rows = communityRows(list, NOW);
+    const rows = communityRows(list, NOW, 'dec26');
     expect(communityCounts(rows)).toEqual({ all: 5, threads: 4, waiting: 3, pinned: 1, hidden: 1 });
     expect(C.members(list.members!)).toBe('148 in 7 teams');
     expect(C.description('December 2026 Cohort')).toBe(
@@ -38,7 +38,7 @@ describe('Admin › Community (D-238)', () => {
   });
 
   it('draws each row in the mockup’s words and order: pinned first, then "3 hr ago" and on', async () => {
-    const rows = communityRows(await make().api.community(), NOW);
+    const rows = communityRows(await make().api.community(), NOW, 'dec26');
     expect(rows.map((r) => [r.title.slice(0, 24), r.space, r.by.name, r.replies, r.activity, r.waiting])).toEqual([
       ['Start here: how to ask s', 'General', 'Connor Leiva', 0, '2 days ago', false],
       ['Our bookkeeper keeps the', 'Week 0 · Foundations', 'Dana Whitlock', 2, '3 hr ago', true],
@@ -46,11 +46,11 @@ describe('Admin › Community (D-238)', () => {
       ['Win: the test hire ran w', 'Wins', 'Dana Whitlock', 0, '1 day ago', true],
       ['Test post, please ignore', 'General', 'Dana Whitlock', 0, '2 days ago', false],
     ]);
-    expect(rows[1]!.href).toBe('/admin/community/2');
+    expect(rows[1]!.href).toBe('/admin/cohort/dec26/community/2');
   });
 
   it('filters by tab, space and the find box (title and first post)', async () => {
-    const rows = communityRows(await make().api.community(), NOW);
+    const rows = communityRows(await make().api.community(), NOW, 'dec26');
     expect(filterCommunity(rows, 'waiting', '', '').map((r) => r.id)).toEqual([2, 3, 4]);
     expect(filterCommunity(rows, 'pinned', '', '').map((r) => r.id)).toEqual([1]);
     expect(filterCommunity(rows, 'hidden', '', '').map((r) => r.id)).toEqual([5]);
@@ -83,13 +83,13 @@ describe('Admin › Community (D-238)', () => {
   it('staff answer, and the thread no longer waits; a hidden reply or thread changes it as the server would', async () => {
     const { api, audits } = make();
     await api.replyThread(3, 'Yes, run it on both.');
-    let rows = communityRows(await api.community(), NOW);
+    let rows = communityRows(await api.community(), NOW, 'dec26');
     expect(rows.find((r) => r.id === 3)).toMatchObject({ waiting: false, replies: 1, activity: 'just now' });
     const t = communityThreadVM(await api.communityThread('3'), NOW);
     expect(t.posts[1]).toMatchObject({ when: 'Just now', who: { name: 'Connor Leiva', staff: true } });
     // Hide that reply: the member's word is the last the cohort sees again.
     await api.setPost(t.posts[1]!.id, { hidden: true });
-    rows = communityRows(await api.community(), NOW);
+    rows = communityRows(await api.community(), NOW, 'dec26');
     expect(rows.find((r) => r.id === 3)!.waiting).toBe(true);
     await api.setThread(3, { pinned: true });
     await api.setThread(3, { hidden: true });
@@ -98,7 +98,7 @@ describe('Admin › Community (D-238)', () => {
       ['community.pin', t.title, { pinned: true }],
       ['community.hide', t.title, { hidden: true }],
     ]);
-    expect(communityCounts(communityRows(await api.community(), NOW))).toMatchObject({ waiting: 2, pinned: 2, hidden: 2 });
+    expect(communityCounts(communityRows(await api.community(), NOW, 'dec26'))).toMatchObject({ waiting: 2, pinned: 2, hidden: 2 });
   });
 
   it('refuses as the server does: its own sentences, and the first post hides only with its thread', async () => {
@@ -112,12 +112,12 @@ describe('Admin › Community (D-238)', () => {
   it('a new thread is at the top; deleting its first post deletes the thread', async () => {
     const { api, audits } = make('st1');
     const { id } = await api.startThread({ space: 'wins', title: 'Office hours', body: 'Thursdays at noon.' });
-    const rows = communityRows(await api.community(), NOW);
+    const rows = communityRows(await api.community(), NOW, 'dec26');
     // Below the pinned thread, above the rest.
     expect(rows[1]).toMatchObject({ id, title: 'Office hours', space: 'Wins', waiting: false, by: { name: 'Casey Lin', staff: true } });
     const t = await api.communityThread(String(id));
     expect(await api.deletePost(t.thread.posts[0]!.id)).toEqual({ thread: true });
-    expect(communityRows(await api.community(), NOW).some((r) => r.id === id)).toBe(false);
+    expect(communityRows(await api.community(), NOW, 'dec26').some((r) => r.id === id)).toBe(false);
     // Your own post: nothing to audit. Someone else's: audited.
     expect(audits).toEqual([]);
     expect(await api.deletePost(104)).toEqual({ thread: false });

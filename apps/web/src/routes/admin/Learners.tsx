@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router';
-import { userPath, workspacePath } from '@ai/core';
+import { useNavigate, useParams } from 'react-router';
 
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/r2/Button';
@@ -19,6 +18,7 @@ import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
 import s from './Learners.module.css';
+import { personPath, teamPath } from '../../shell/admin/addresses';
 
 // Admin Learners & Teams `/admin/learners` on the Admin redesign R2 (D-160 R2-3): the signed-off
 // mockup's `Learners` (AdminRedesign.jsx), drawn from `learnersR2VM`. Every write is the same @ai/core
@@ -45,13 +45,15 @@ function Learners() {
   const phone = useViewportWidth() < 768;
   const navigate = useNavigate();
   const entry = useMasqueradeEntry();
+  // D-253: Cohort › People. The cohort is the address's (`/admin/cohort/:cohortId/people`); it was `dec26`'s alone.
+  const { cohortId = '' } = useParams();
 
   const [tab, setTab] = useState<'learners' | 'teams'>('learners');
   const [q, setQ] = useState('');
   const [tier, setTier] = useState<R2TierFilter>('All tiers');
   const [sel, setSel] = useState<string | null>(null);
 
-  const vm = useMemo(() => learnersR2VM(db, now, { tier, q }), [db, now, tier, q]);
+  const vm = useMemo(() => learnersR2VM(db, now, { tier, q }, cohortId), [db, now, tier, q, cohortId]);
   const person = useMemo(() => learnersVM(db, now, { ...LEARNERS_UI, sel }).drawer.person, [db, now, sel]);
   const details = person ? learnerR2Details(db, person) : null;
 
@@ -143,11 +145,11 @@ function Learners() {
 
   const learnerMenu = (u: LearnerR2Row): MenuEntry[] => [
     { label: 'Open learner details', onSelect: () => setSel(u.id) },
-    { label: 'Open user record', onSelect: () => navigate(userPath(u.id)) },
+    { label: 'Open user record', onSelect: () => navigate(personPath(u.id)) },
     ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: u.team }),
   ];
 
-  const cohortName = db.cohorts.find((c) => c.id === 'dec26')?.name ?? db.cohorts[0]?.name ?? 'current';
+  const cohortName = db.cohorts.find((c) => c.id === cohortId)?.name ?? 'current';
 
   return (
     <Page>
@@ -194,7 +196,7 @@ function Learners() {
           cols={teamCols}
           rows={vm.teams}
           rowKey={(t) => t.id}
-          menu={(t) => [{ label: 'Open workspace', onSelect: () => navigate(workspacePath(t.id)) }]}
+          menu={(t) => [{ label: 'Open workspace', onSelect: () => navigate(teamPath(t.id)) }]}
           empty={{ icon: 'r2Workspaces', title: 'No teams yet' }}
         />
       )}

@@ -103,7 +103,7 @@ describe('the router’s root during a session', () => {
     page('/admin/workspaces/ws_northshore');
     expect(await screen.findByRole('heading', { level: 1, name: 'Console is paused while you masquerade' })).toBeVisible();
     expect(screen.queryByText('A Console page')).toBeNull();
-    expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toHaveTextContent('Admin/Support/Workspaces');
+    expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toHaveTextContent('Admin/People/Teams');
     expect(screen.getByRole('main')).toHaveTextContent('Elena Vargas · Northshore Group');
     expect(screen.getByRole('main')).toHaveTextContent('15 of 60 minutes');
     expect(within(screen.getByRole('main')).getByRole('button', { name: 'Exit masquerade' })).toBeEnabled();

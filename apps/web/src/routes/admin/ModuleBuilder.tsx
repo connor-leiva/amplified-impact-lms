@@ -37,8 +37,11 @@ import type { BuilderR2Step } from './ModuleBuilder.vm';
 import { CoursePreview, DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
 import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen, weekKit, weekSessions } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
+import { weekPath } from '../../shell/admin/addresses';
+import { useRecordCrumb } from '../../shell/admin/chrome';
 
-// Admin Module Builder `/admin/curriculum/:employeeId` and `/admin/curriculum/new` on the Admin
+// Admin Module Builder `/admin/program/weeks/:employeeId` and `/admin/program/weeks/new` (D-253; they were
+// `/admin/curriculum/…`, which redirect) on the Admin
 // redesign R2 (D-160 R2-2): the signed-off mockup's `Builder` (AdminRedesign.jsx), drawn from
 // `builderR2VM`. The draft, the unsaved-changes prompt and every write (`saveModule`) are as before.
 //
@@ -109,6 +112,8 @@ export function Component() {
   const [stepAt, setStepAt] = useState<number | null>(null);
   const [removeAt, setRemoveAt] = useState<number | null>(null);
   const [previewing, setPreviewing] = useState(false);
+  // D-253: a week is a record of Program › Curriculum; the crumb names it (`Admin / Program / Curriculum / {name}`).
+  useRecordCrumb(st.draft.name || null);
 
   // A brand-new draft just saved: `/new` must not reseed over it while the navigation is in flight.
   const savedNew = useRef<string | null>(null);
@@ -168,7 +173,7 @@ export function Component() {
       if (isNew) {
         savedNew.current = saved.id;
         bypass.current = true;
-        void navigate(`/admin/curriculum/${saved.id}`);
+        void navigate(weekPath(saved.id));
       }
     },
     [act, navigate, st.base, st.draft, st.key],
@@ -203,7 +208,7 @@ export function Component() {
     else window.open(`${path}?preview=${role}`, '_blank', 'noopener');
   };
 
-  const open = (id: string) => void navigate(`/admin/curriculum/${id}`);
+  const open = (id: string) => void navigate(weekPath(id));
 
   const cols: Column<BuilderR2Step>[] = [
     {

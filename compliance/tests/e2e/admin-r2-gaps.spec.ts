@@ -108,8 +108,9 @@ test.describe('R2-gaps a: Curriculum › Duplicate and the Module Builder’s st
     await page.getByRole('button', { name: 'Add step' }).click();
     await page.getByRole('button', { name: 'Save changes' }).click();
     await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
-    // The parity snapshot lives in this tab only, so the check stays in the app (no reload).
-    await page.getByRole('navigation', { name: 'Admin' }).getByRole('button', { name: 'Curriculum' }).click();
+    // The parity snapshot lives in this tab only, so the check stays in the app (no reload). D-253: Curriculum is
+    // Program's first tab; the Program row opens it.
+    await page.getByRole('navigation', { name: 'Admin' }).getByRole('button', { name: /^Program/ }).click();
     await expect(rowOf(page, 'Sales AI Employee').first()).toContainText('7 steps');
     await close();
   });

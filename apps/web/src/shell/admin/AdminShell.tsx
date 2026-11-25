@@ -18,8 +18,11 @@ import { DemoControls } from '../DemoControls';
 import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
-import { adminNav, crumbTrail, groupHub, hubPages, type R2Group } from './adminNav';
+import { adminNav, crumbsOf, navPages, placeOf, type SystemGroup } from './adminNav';
 import { AdminChromeProvider } from './chrome';
+import type { AdminCohort } from './chrome';
+import { afterPick, cohortChoices, defaultCohortId } from './cohorts';
+import { cohortLabel } from '../../data/admin-shell';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { AcademyLogo } from './Wordmark';
@@ -29,8 +32,12 @@ import s from './AdminShell.module.css';
 
 // The admin AppShell of the Admin redesign R2 (D-160 R2-1b, BUILD-SPEC § 4), the mockup's frame: the
 // sidebar (244px, a 64px rail from 768 to 1199px, a 300px drawer on a phone), the 52px top bar with
-// `Admin / {group} / {page}`, the ⌘K trigger and the environment dot, and `main`. The learner shell
+// the breadcrumb, the ⌘K trigger and the environment dot, and `main`. The learner shell
 // (`../AppShell.tsx`) is unchanged; AppShell hands staff to this one.
+//
+// D-253 (R-5 Phase 1): the breadcrumb is `Admin / Cohort / Schedule` on one of the four pages (a record adds its
+// name), `Admin / Operations / Audit Log` on a system page. The cohort the admin is on is the address's on a cohort's
+// page; elsewhere the one looked at last in this tab, else the default (`cohorts.ts`). It is not stored.
 //
 // REQUIRED LANDMARKS (CLAUDE.md): `aside[aria-label="Primary"]` (on a phone it is in the drawer,
 // hidden until opened), a `header` holding `nav[aria-label="Breadcrumb"]` (visually hidden on a phone,
@@ -121,20 +128,35 @@ export function AdminShell() {
   // even back to the same address): going to any page resets it, and that page's group is the open one. View state
   // for the session: nothing is stored, and what an older build stored is left where it is, unread.
   const visit = location.key;
-  const [peeked, setPeeked] = useState<{ visit: string; group: R2Group | null } | null>(null);
+  const [peeked, setPeeked] = useState<{ visit: string; group: SystemGroup | null } | null>(null);
   const peek = peeked && peeked.visit === visit ? peeked.group : undefined;
+  const navRole = parity ? data.viewer.role : role;
+
+  // ---- the cohort the admin is on (D-253) ----------------------------------------------------------------------------
+  const place = placeOf(path);
+  const addressCohort = place?.cohortId && db.cohorts.some((c) => c.id === place.cohortId) ? place.cohortId : null;
+  const [lastCohort, setLastCohort] = useState<string | null>(null);
+  useEffect(() => {
+    if (addressCohort) setLastCohort(addressCohort);
+  }, [addressCohort]);
+  const known = (id: string | null) => (id && db.cohorts.some((c) => c.id === id) ? id : null);
+  const cohortId = addressCohort ?? known(lastCohort) ?? defaultCohortId(db.cohorts, now);
+  const current = db.cohorts.find((c) => c.id === cohortId) ?? null;
+
   const groups = useMemo(
     () =>
       adminNav({
         pathname: path,
-        role: parity ? data.viewer.role : role,
+        role: navRole,
         fullNav: data.fullNav,
         counts: data.counts,
+        cohortId: cohortId ?? '',
+        cohortDraft: current?.status === 'draft',
         peek,
       }),
-    [data, parity, path, peek, role],
+    [cohortId, current?.status, data, navRole, path, peek],
   );
-  const onPeek = useCallback((group: R2Group | null) => setPeeked({ visit, group }), [visit]);
+  const onPeek = useCallback((group: SystemGroup | null) => setPeeked({ visit, group }), [visit]);
 
   // ---- navigating ----------------------------------------------------------------------------------
   const go = useCallback(
@@ -167,7 +189,27 @@ export function AdminShell() {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToastMsg(null), 3200);
   }, []);
-  const chrome = useMemo(() => ({ openPalette, setRecord, toast: r2Toast }), [openPalette, r2Toast]);
+  const pickCohort = useCallback(
+    (id: string) => {
+      setLastCohort(id);
+      const to = afterPick(path, id);
+      if (to) go(to);
+    },
+    [go, path],
+  );
+  const cohort = useMemo<AdminCohort>(
+    () => ({
+      id: cohortId,
+      label: current ? cohortLabel(current) : '',
+      choices: cohortChoices(db.cohorts, cohortId),
+      pick: pickCohort,
+    }),
+    [cohortId, current, db.cohorts, pickCohort],
+  );
+  const chrome = useMemo(
+    () => ({ openPalette, setRecord, toast: r2Toast, role: navRole, counts: data.counts, cohort }),
+    [cohort, data.counts, navRole, openPalette, r2Toast],
+  );
 
   // Escape closes every layer the shell owns; ⌘K / Ctrl+K toggles the palette.
   useEffect(() => {
@@ -197,8 +239,7 @@ export function AdminShell() {
     if (band !== 'phone') setDrawerOpen(false);
   }, [band]);
 
-  const trail = crumbTrail(path);
-  const hub = trail && !trail.hub ? groupHub(trail.group, parity ? data.viewer.role : role, data.fullNav) : null;
+  const crumbs = crumbsOf(place, { record, cohortId: cohortId ?? '' });
 
   const shellApi = useMemo(() => ({ openLocked: () => {}, sidebarMode: mode, vw }), [mode, vw]);
 
@@ -214,7 +255,8 @@ export function AdminShell() {
 
   const sidebarProps = {
     data,
-    groups,
+    entries: groups,
+    cohort,
     go,
     onPeek,
     onProfile: () => setProfileOpen((v) => !v),
@@ -225,50 +267,22 @@ export function AdminShell() {
   const breadcrumb = (
     <nav aria-label="Breadcrumb" className={band === 'phone' ? s.srOnly : s.crumbs}>
       <span>Admin</span>
-      {trail?.hub ? (
-        <>
+      {crumbs.map((c, i) => (
+        <Fragment key={i}>
           <span aria-hidden="true">/</span>
-          <b className={s.here} aria-current="page">
-            {trail.group}
-          </b>
-        </>
-      ) : trail ? (
-        <>
-          <span aria-hidden="true">/</span>
-          {/* D-169: a group with a hub (Build) links its crumb there; drawn as the crumb's own text. */}
-          {hub ? (
-            <Link to={hub} className={s.crumbLink}>
-              {trail.group}
+          {c.kind === 'link' ? (
+            <Link to={c.to} className={s.crumbLink}>
+              {c.label}
             </Link>
+          ) : c.kind === 'group' ? (
+            <span>{c.label}</span>
           ) : (
-            <span>{trail.group}</span>
-          )}
-          <span aria-hidden="true">/</span>
-          {trail.parent ? (
-            <>
-              {trail.parentLink === false ? (
-                <b className={s.here}>{trail.page}</b>
-              ) : (
-                <Link to={trail.parent} className={s.crumbLink}>
-                  {trail.page}
-                </Link>
-              )}
-              {record ? (
-                <>
-                  <span aria-hidden="true">/</span>
-                  <b className={s.record} aria-current="page">
-                    {record}
-                  </b>
-                </>
-              ) : null}
-            </>
-          ) : (
-            <b className={s.here} aria-current="page">
-              {trail.page}
+            <b className={c.kind === 'record' ? s.record : s.here} aria-current="page">
+              {c.label}
             </b>
           )}
-        </>
-      ) : null}
+        </Fragment>
+      ))}
     </nav>
   );
 
@@ -340,7 +354,8 @@ export function AdminShell() {
 
         {paletteOpen ? (
           <Palette
-            pages={[...groups.flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, icon: r.icon, to: r.to }))), ...hubPages(parity ? data.viewer.role : role, data.fullNav)]}
+            pages={navPages(navRole, data.fullNav, cohortId ?? '')}
+            cohortId={cohortId ?? ''}
             modules={db.modules.map((m) => ({ id: m.id, name: m.name, status: m.status }))}
             phone={band === 'phone'}
             go={go}

@@ -329,7 +329,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
       mime: 'text/csv',
       toast: 'Cohort report exported',
     },
-    newEmployeeTo: '/admin/curriculum/new',
+    newEmployeeTo: '/admin/program/weeks/new',
   };
 }
 
@@ -487,7 +487,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
       sub: `${agents} Agent · ${teamSeats} Team`,
       subPhone: `${teamSeats} on Team Tier`,
       tone: null,
-      to: '/admin/learners',
+      to: `/admin/cohort/${COHORT_ID}/people`,
     },
     {
       key: 'deployed',
@@ -497,7 +497,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
       sub: started ? `+${recent} in the last 24 hours` : cohort ? `Counting starts ${adminMonthDay(cohort.start)}` : '—',
       subPhone: started ? `+${recent} in 24 hours` : cohort ? `Starts ${adminMonthDay(cohort.start)}` : '—',
       tone: started ? 'ok' : null,
-      to: '/admin/curriculum',
+      to: '/admin/program',
     },
     {
       key: 'completion',
@@ -522,7 +522,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
             : '—',
       subPhone: started && lastHeld ? `Session ${lastHeld.n}` : first ? `Opens ${adminMonthDay(first.start)}` : '—',
       tone: null,
-      to: '/admin/cohorts',
+      to: `/admin/cohort/${COHORT_ID}/schedule`,
     },
     {
       key: 'pipeline',
@@ -532,7 +532,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
       sub: openWord,
       subPhone: openWord,
       tone: pipe.length ? 'warn' : null,
-      to: '/admin/tiers',
+      to: '/admin/revenue/plans',
     },
   ];
 
