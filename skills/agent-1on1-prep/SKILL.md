@@ -58,13 +58,13 @@ Follow `references/prep-rules.md` for each part:
 ## 5. Hand It Back As A Page
 1. The run's `one_on_one_data.json` is the facts file: every number the page uses is in it or in the inputs. Never type a number by hand.
 2. Write `page.json` in OUTPUT_FOLDER: the sections in "Output, In This Order", using the section kinds in
-   `references/page-format.md` and the kind named beside each item there. The recap goes in one `drafts` section. Check Before Sending is the last section, a `checklist`.
-3. Write `words.json`: the headline (two short sentences) and three findings, the bottom line's three parts. No moves: the focus is the leader's call.
-4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts one_on_one_data.json --inputs <their files, and the leader's message saved to a file> --out OUTPUT_FOLDER/Agent-1on1-Prep-<Agent-Name>-<YYYY-MM-DD>.html` (the meeting's date). Clock times end in MT; outside Mountain time, add `--tz-label` with the team's zone.
+   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). The recap goes in one `drafts` section. Check Before Sending is the last section, a `checklist`.
+3. Write `words.json`: the headline (two short sentences) and three findings, the bottom line's three parts, each `status: quiet` with a short `chip` naming its part ("Pace", "Since 10/08", "Commitments"); never `on`, `off` or `hold` on the agent's numbers, which would read as a verdict. No moves: the focus is the leader's call.
+4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts one_on_one_data.json --inputs <their files, and the leader's message saved to a file> --out OUTPUT_FOLDER/Agent-1on1-Prep-<Agent-Name>-<YYYY-MM-DD>.html` (the meeting's date). Every clock time ends in MT, both ends of a range ("10:00 AM MT to 10:05 AM MT"); outside Mountain time, add `--tz-label` with the team's zone.
 5. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case,
    "industry standard", a line saying something was sent). Fix the words, never the check, and build again.
 6. Hand over the file at the path the build printed, with `one_on_one_data.md` beside it (Claude: the outputs folder, so it shows as a download. ChatGPT: the download link, and say "download it now, the link
-   expires"). Then four lines in the chat: the headline, the number that matters, the first thing to ask, and "check
+   expires"). A Data Check that comes from their files (a column to confirm, a goal left out, a month not totaled) stays on the page: say so in one line. Then four lines in the chat: the headline, the number that matters, the first open question, and "check
    every number against your files before you act."
 
 ## 6. Guardrails

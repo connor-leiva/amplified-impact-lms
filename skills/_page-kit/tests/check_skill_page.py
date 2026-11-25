@@ -39,7 +39,9 @@ KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(KIT, "scripts", "build_page.py")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}")
 PHONE = re.compile(r"(?<!\d)(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?!\d)")
-ACCOUNT = re.compile(r"(?i)\b(account|acct|routing|card|aba)\b[^.\n]{0,20}?\d{4,}|(?<![\d,.$])\d{9,}(?![\d,])")
+# A bank, card or routing number: named as one ("account number 1234", "routing #", "card no."), or a bare run
+# of nine or more digits. A chart-of-accounts code ("6010 Online Lead Programs") is not one.
+ACCOUNT = re.compile(r"(?i)\b(account|acct|routing|card|aba)\s*(number|num|no\.?|#)\s*[:#]?\s*\d{4,}|(?<![\d,.$])\d{9,}(?![\d,])")
 
 
 def main():

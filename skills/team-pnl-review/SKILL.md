@@ -67,13 +67,13 @@ Follow `references/review-rules.md`:
 ## 6. Hand It Back As A Page
 1. The run's `pnl_report.json` is the facts file, and `pnl_report.md` holds every figure as the run prints it: every number the page uses is in one of them. Never type a number by hand.
 2. Write `page.json` in OUTPUT_FOLDER: the sections in "Output, In This Order", using the section kinds in
-   `references/page-format.md` and the kind named beside each item there. Both drafts go in one `drafts` section. Check Before Sending is the last section, a `checklist`. A totals check that doesn't tie, and every gap that makes a figure provisional, goes in `dataCheck`.
-3. Write `words.json`: the headline (two short sentences), three findings (profit, the biggest change, the top flag), up to three moves taken from the questions, and `decide`: the one decision, as a choice with its numbers.
+   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). A `pct` value is the percent as `pnl_report.md` prints it (12.1, not the JSON's 0.121). Both drafts go in one `drafts` section. Check Before Sending is the last section, a `checklist`. A totals check that doesn't tie, and every gap that makes a figure provisional, goes in `dataCheck`.
+3. Write `words.json`: the headline (two short sentences), three findings (profit, the biggest change, the top flag), up to three moves taken from the questions, and `decide`: the one decision, as a choice with its numbers, in one plain sentence (a string, never an object).
 4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts pnl_report.json --inputs pnl_report.md <their CSV or text files> --out OUTPUT_FOLDER/Team-PnL-Review-<Team-Name>-<YYYY-MM>.html` (the P&L's last month).
 5. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case,
    "industry standard", a line saying something was sent). Fix the words, never the check, and build again.
 6. Hand over the file at the path the build printed, with `pnl_report.md` beside it (Claude: the outputs folder, so it shows as a download. ChatGPT: the download link, and say "download it now, the link
-   expires"). Then four lines in the chat: the headline, the number that matters, the first move, and "check
+   expires"). A Data Check that comes from their books (a totals check that doesn't tie, a month recorded net, a missing export) stays on the page: say so in one line. Then four lines in the chat: the headline, the number that matters, the first move, and "check
    every number against your files before you act."
 
 ## 7. Guardrails
