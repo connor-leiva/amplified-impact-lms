@@ -159,6 +159,15 @@ describe('the list of guides', () => {
   it('names a slug nobody wrote as a build error', () => {
     expect(() => guideFor('nope')).toThrow(/No guide has the slug "nope"/);
   });
+
+  it('gives every guide a self-referencing canonical on www', () => {
+    for (const guide of Object.values(GUIDES)) {
+      const page = parse(guide);
+      expect(page.querySelector('link[rel="canonical"]')?.getAttribute('href'), guide.slug).toBe(
+        `https://www.amplifiedimpact.io/${guide.slug}`,
+      );
+    }
+  });
 });
 
 describe.each(Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)('/%s', (slug) => {
@@ -171,6 +180,7 @@ describe.each(Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)('/%s', (slu
   it('names the page and its canonical address', () => {
     expect(text($('title'))).toBe(want.title);
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe(`https://www.amplifiedimpact.io/${slug}`);
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe(`https://www.amplifiedimpact.io/${slug}`);
     expect($$('h1').map(text)).toEqual([want.h1]);
   });
 

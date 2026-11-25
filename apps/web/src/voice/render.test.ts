@@ -27,6 +27,7 @@ describe('the head', () => {
   it('names the page and its canonical address', () => {
     expect(text($('title'))).toBe('Sounds Like You: Your AI Voice Profile · Amplified Impact');
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/voice-profile');
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/voice-profile');
   });
 });
 

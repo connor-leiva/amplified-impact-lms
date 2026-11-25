@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { apexOf, apexTarget } from '../src/routes/apex';
+import { apexOf, apexTarget, forwardedProto, isHealthcheck } from '../src/routes/apex';
 
 const WWW = 'www.amplifiedimpact.io';
 const APEX = 'amplifiedimpact.io';
@@ -108,6 +108,41 @@ describe('the bare domain (D-133)', () => {
     expect(apexTarget(WWW, 'http://evil.example/x')).toBe('https://www.amplifiedimpact.io/');
     // `//evil.example` stays a path on www.
     expect(apexTarget(WWW, '//evil.example/x').startsWith('https://www.amplifiedimpact.io/')).toBe(true);
+  });
+
+  it('301s http on www to https, and leaves https, learn, and the healthcheck alone', async () => {
+    const a = await boot(WWW);
+    const http = (url: string, host = WWW, method: 'GET' | 'HEAD' | 'POST' = 'GET') =>
+      a.inject({ method, url, headers: { host, 'x-forwarded-proto': 'http' } });
+
+    const pricing = await http('/pricing?src=qr');
+    expect([pricing.statusCode, pricing.headers.location]).toEqual([301, `https://${WWW}/pricing?src=qr`]);
+    const posted = await http('/api/checkout', WWW, 'POST');
+    expect([posted.statusCode, posted.headers.location]).toEqual([308, `https://${WWW}/api/checkout`]);
+    const health = await http('/api/health');
+    expect(health.statusCode).toBe(200);
+    expect(health.headers.location).toBeUndefined();
+
+    const secure = await a.inject({ method: 'GET', url: '/', headers: { host: WWW, 'x-forwarded-proto': 'https' } });
+    expect(secure.statusCode).toBe(200);
+    expect(secure.headers.location).toBeUndefined();
+
+    const learn = await http('/pricing', LEARN);
+    expect(learn.headers.location).toBeUndefined();
+    const port = await http('/about', `${WWW}:443`);
+    expect([port.statusCode, port.headers.location]).toEqual([301, `https://${WWW}/about`]);
+  });
+
+  it('reads only an explicit forwarded scheme, and knows the healthcheck', () => {
+    expect(forwardedProto(undefined)).toBeNull();
+    expect(forwardedProto('')).toBeNull();
+    expect(forwardedProto('HTTPS')).toBe('https');
+    expect(forwardedProto('http, https')).toBe('http');
+    expect(forwardedProto(['https', 'http'])).toBe('https');
+    expect(isHealthcheck('/api/health')).toBe(true);
+    expect(isHealthcheck('/api/health?x=1')).toBe(true);
+    expect(isHealthcheck('/api/health/live')).toBe(true);
+    expect(isHealthcheck('/api/healthy')).toBe(false);
   });
 
   it('lists the bare domain among production’s Railway domains, with learn and www', () => {

@@ -38,16 +38,47 @@ export function apexTarget(marketingHost: string, url: string): string {
   return `https://${marketingHost.trim().toLowerCase()}${path}`;
 }
 
+/**
+ * The scheme the edge says the client used (`x-forwarded-proto`), or null when the header is absent.
+ *
+ * Absent is the normal case for a direct connection and for Railway's healthcheck, which hits the
+ * container rather than the public edge. Only an explicit `http` is upgraded. `req.protocol` is not
+ * read: with no header it is `http` for `inject()`, and treating that as a signal would redirect
+ * every test and every internal probe.
+ */
+export function forwardedProto(header: string | string[] | undefined): string | null {
+  if (header === undefined) return null;
+  const raw = Array.isArray(header) ? header[0] : header;
+  const first = (raw ?? '').split(',')[0]?.trim().toLowerCase() ?? '';
+  return first === '' ? null : first;
+}
+
+/** Railway's healthcheck. A redirect here fails a deploy that is otherwise healthy. */
+export function isHealthcheck(url: string): boolean {
+  const path = url.split('?')[0] ?? '/';
+  return path === '/api/health' || path.startsWith('/api/health/');
+}
+
 export function registerApexRedirect(app: App): void {
   const marketing = (process.env.MARKETING_HOST ?? '').trim().toLowerCase();
   const apex = apexOf(marketing);
-  if (!apex) return;
+  if (marketing === '') return;
 
   app.addHook('onRequest', async (req: FastifyRequest, reply: FastifyReply) => {
     // `Host` can carry a port, and not every client lower-cases it.
     const requested = (req.headers.host ?? '').toLowerCase().split(':')[0];
-    if (requested !== apex) return;
-    const status = req.method === 'GET' || req.method === 'HEAD' ? 301 : 308;
-    await reply.redirect(apexTarget(marketing, req.url), status);
+    const toHttps = (req.method === 'GET' || req.method === 'HEAD' ? 301 : 308) as 301 | 308;
+
+    if (apex && requested === apex) {
+      await reply.redirect(apexTarget(marketing, req.url), toHttps);
+      return;
+    }
+
+    // http://www → https://www, path and query kept. Only when the edge says the client used http.
+    // `/api/health` is exempt: a probe that arrives as http with this Host must stay a 200.
+    // Other hosts (learn, the railway.app name) are left alone.
+    if (forwardedProto(req.headers['x-forwarded-proto']) === 'http' && requested === marketing && !isHealthcheck(req.url)) {
+      await reply.redirect(apexTarget(marketing, req.url), toHttps);
+    }
   });
 }

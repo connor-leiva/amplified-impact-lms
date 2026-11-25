@@ -4,7 +4,8 @@
 // two different sites: `learn` is the LMS behind an invite-only sign-in, `www` is public. This file
 // is the split, and it is deliberately the smallest thing that can express it: the homepage at `/`
 // (D-102, `apps/web/src/home/`, which replaced the "under construction" placeholder of D-029) and a
-// redirect for everything else that is not a public page.
+// real 404 for everything else that is not a public page. `/robots.txt` and `/sitemap.xml` are
+// answered first, by `routes/seo.ts`.
 //
 // WHY A HOOK AND NOT A ROUTE. Registering `GET /` would claim that path for EVERY host, and on the
 // app host `/` belongs to `@fastify/static`'s index — the SPA. Fastify has no clean way for a route
@@ -28,6 +29,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { App } from '../app';
 import { GUIDE_ALIASES, GUIDE_SLUGS } from './guide-list';
 import { SALES_PAGES } from './offer';
+import { notFoundPage } from './seo';
 
 /**
  * Paths that reach their real handler on the marketing host rather than the homepage.
@@ -60,8 +62,8 @@ import { SALES_PAGES } from './offer';
  * `/ai-101/`, `/RETOOL/`, `/Retool/`, `/terms/` and `/privacy/` have no route. A path that matched
  * here and had no route fell through to `@fastify/static`'s not-found handler, which answers with the
  * app's `index.html`: until D-051, `www.amplifiedimpact.io/retool/x` (or `/ai101/anything`) served the
- * LMS shell on the public host. Now a deeper or lookalike path goes to `/` like any other unknown one,
- * and so does `/terms-old`. The sprint's calendar file, `/ai101/carousel-sprint.ics`, is a file, so it
+ * LMS shell on the public host. Now a deeper or lookalike path is a 404, like any other unknown one,
+ * and so is `/terms-old`. The sprint's calendar file, `/ai101/carousel-sprint.ics`, is a file, so it
  * passes on its own.
  */
 const PUBLIC_PREFIX = exactPaths(
@@ -93,7 +95,7 @@ const ROOT = new Set(['/', '/index.html']);
 /**
  * Paths with a page of their own under another spelling: each sales page's trailing-slash spelling goes
  * to the page (D-111). `/pricing` itself sent visitors to `/offer` (D-102) until it became Programs and
- * Pricing. `/about` and `/contact` keep the catch-all's 302 to `/` until their pages land. 302, as
+ * Pricing. A trailing slash on a sales page still 302s to the page. 302, as
  * below: a 301 would be cached past the next change.
  */
 const MOVED: ReadonlyMap<string, string> = new Map(Object.keys(SALES_PAGES).map((path) => [`${path}/`, path]));
@@ -119,14 +121,13 @@ export interface MarketingOptions {
  * Serve the marketing host's homepage (D-102), and keep the app off that host.
  *
  * Everything that is not the homepage, a public page in `PUBLIC_PREFIX`, `/api/` or a real file
- * redirects to `/` (or, for an old path in `MOVED`, to its page) — so a link to
- * `www.amplifiedimpact.io/vault` lands on the homepage rather than
- * on the LMS sign-in screen, which is what a visitor who has never heard of the product would
- * otherwise be shown. A missing file answers 404. Nothing on this host reaches the app's shell.
+ * answers 404 with `notFoundPage()` (or, for a trailing slash in `MOVED`, 302s to its page) — so a
+ * link to `www.amplifiedimpact.io/vault` does not land on the LMS sign-in screen, and does not
+ * pretend to be the homepage. A 302 to `/` is a soft 404: search engines store it as another copy
+ * of `/`. A missing file answers a plain 404. Nothing on this host reaches the app's shell.
  *
- * 302 rather than 301, deliberately: these paths WILL mean something later, when `www` has a real
- * site with real pages. A 301 is cached by browsers more or less forever, so it would outlive the
- * reason for it and strand visitors on a placeholder after it had been replaced.
+ * The trailing-slash redirects stay 302 rather than 301: a 301 is cached by browsers more or less
+ * forever. The 404 itself is `no-store`, so a path that later becomes a page is not stuck.
  */
 export function registerMarketingHost(app: App, options: MarketingOptions): void {
   const host = (process.env.MARKETING_HOST ?? '').trim().toLowerCase();
@@ -187,6 +188,11 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
       return;
     }
 
-    await reply.code(302).redirect('/', 302);
+    await reply
+      .code(404)
+      .type('text/html; charset=utf-8')
+      .header('cache-control', 'no-store')
+      .header('x-robots-tag', 'noindex')
+      .send(notFoundPage());
   });
 }
