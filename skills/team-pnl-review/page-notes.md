@@ -33,7 +33,9 @@ Team owners, team leaders and the ops or finance person who reads the monthly P&
 
 ## What Comes Back
 
-- A three-sentence bottom line: profit for the period and the latest month, the biggest change, and the one decision.
+One page you can sort, search and print (an HTML file to download, the same layout every time), plus four lines in the chat: the headline, the number that matters, the first move, and a reminder to check every number against your files. The page holds, in this order:
+
+- The bottom line at the top: a two-sentence headline, three findings, up to three first moves and the one decision: profit for the period and the latest month, the biggest change, and the one decision.
 - How your books record commission income, month by month (gross with splits as a cost, or net), checked before any ratio, because a single net month throws off every ratio built on commission.
 - Income that doesn't come from your closings (fees you charge agents, revenue share or profit share from your brokerage) shown separately, outside company dollar.
 - Company dollar and margin by month, with the arithmetic shown.
@@ -42,7 +44,9 @@ Team owners, team leaders and the ops or finance person who reads the monthly P&
 - Cost per closing and return by lead source, only when you upload closings.
 - Anomalies: duplicate charges, new recurring vendors, charges in the wrong account, uncategorized items, owner draws in expenses, one-month spikes.
 - Questions for your bookkeeper and your CPA (and your broker, when a cap or fee question comes up), a one-page owner brief, and a draft email to your bookkeeper.
-- A Check Before Sending list, and the full calculation file (pnl_report.md) to share.
+- A Check Before Sending list you can tick (the ticks stay in your browser), and beside the page, the full calculation file (pnl_report.md) to share.
+
+Tables sort and search, every Show The Math opens the arithmetic, each draft has a Copy Draft button, and Print Or Save As PDF prints it on Letter paper. Nothing you do on the page changes your books or sends anything. A made-up sample: `evals/page/Team-PnL-Review-Sample.html` (screenshots and PDF beside it).
 
 ## What It Won't Do
 
@@ -57,7 +61,7 @@ Team owners, team leaders and the ops or finance person who reads the monthly P&
 
 - **Claude:** a plan with skills and code execution. Claude's help center says skills work on Free, Pro, Max, Ultra, Team and Enterprise and need code execution, which is on by default for Free, Pro, Max and Ultra (Settings > Capabilities > Code execution and file creation, called "Create and edit files" in the newer settings). Claude's docs list Pro and up for custom skills, so Free is unconfirmed. Upload the skill under Customize > Skills, "+", "+ Create skill", "Upload a skill." Sources: https://support.claude.com/en/articles/12512180-use-skills-in-claude (modified 2026-10-30) and https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude (modified 2026-11-05), checked 2026-11-08. Chat uploads can be up to 500 MB per file and 20 files per chat (https://support.claude.com/en/articles/8241126-uploading-files-to-claude, dated 2026-07-23, checked 2026-11-08).
 - **Connectors (optional):** the Intuit QuickBooks and Xero connectors in Claude's directory (both Anthropic verified; the QuickBooks one can also create and send invoices and import transactions, which this skill never uses), and the Sunburst by Sisu custom connector (needs a Sunburst subscription; Claude Free allows one custom connector). Sources: https://claude.com/marketplace/connectors/quickbooks, https://claude.com/marketplace/connectors/xero, https://kb-app.sisu.co/en/articles/17769635-connecting-sunburst-to-chatgpt-claude-grok-more, checked 2026-11-08. Exports work without any connector.
-- **ChatGPT version:** a ChatGPT Project with four files. To set it up: New project in the sidebar; add instructions.md (it downloads as team-pnl-review-instructions.md), pnl-terms.md, pnl-review-guide.md and pnl-analysis-code.md on the project's Sources tab; paste paste.txt into the project's instructions from the ••• menu, Project settings (OpenAI's Projects article and its February 23, 2026 release note, read through search excerpts; confirm the labels in a browser). It needs data analysis, which Free has only as "Limited"; Free allows 5 files per Project and 3 file uploads a day, and spreadsheets can be about 50 MB. Sources: https://chatgpt.com/pricing (read directly) and OpenAI help articles read through search excerpts (help.openai.com blocks direct reads): https://help.openai.com/en/articles/10169521-projects-in-chatgpt, https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq, https://help.openai.com/en/articles/8555545-file-uploads-faq. Confirm in a browser before publishing.
+- **ChatGPT version:** a ChatGPT Project with four files. To set it up: New project in the sidebar; add instructions.md (it downloads as team-pnl-review-instructions.md), pnl-review-guide.md (the terms are its last part), pnl-analysis-code.md and page-kit.md on the project's Sources tab; paste paste.txt into the project's instructions from the ••• menu, Project settings (OpenAI's Projects article and its February 23, 2026 release note, read through search excerpts; confirm the labels in a browser). It needs data analysis, which also builds the page (ChatGPT gives a download link that expires, so download the page right away), and which Free has only as "Limited"; Free allows 5 files per Project and 3 file uploads a day, and spreadsheets can be about 50 MB. Sources: https://chatgpt.com/pricing (read directly) and OpenAI help articles read through search excerpts (help.openai.com blocks direct reads): https://help.openai.com/en/articles/10169521-projects-in-chatgpt, https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq, https://help.openai.com/en/articles/8555545-file-uploads-faq. Confirm in a browser before publishing.
 - **Accounts:** QuickBooks, Xero or a bookkeeper who can export the P&L; optionally Sisu or a back office for closings.
 - **Cost:** nothing beyond your Claude or ChatGPT plan.
 
