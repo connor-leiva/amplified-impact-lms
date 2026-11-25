@@ -564,10 +564,14 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 - **Status words:** Draft, Scheduled, Active, Finished (after the last session until archived). Never written to
   `cohorts.status` (2.5 holds).
 - **Test sends:** the cohort field becomes a picker of the cohorts not archived. Sends go to
-  `accelerator-test@amplifiedimpact.io` only. Today the allowlist also takes `WELCOME_TEST_ALLOWLIST` (10.9).
+  `accelerator-test@amplifiedimpact.io` and the addresses in `WELCOME_TEST_ALLOWLIST`, as today (Connor kept the
+  variable, 10.9).
 - **Environment Flags and Email Log** stay in Operations, where Phase 1 left them.
 - **Auto-drafted words** (New cohort) start as December's words, each flagged "Read them once" until it is saved.
 - **Seats** have one source, Enrollment; every other seat count links to it.
+- **The frame's two tab labels** become Title Case here, not in #270 (Connor, 10.9): "Course settings" is "Course
+  Settings" and "Plans & upgrades" is "Plans & Upgrades", in the app and in the R2 reference, with the refs that show
+  those tabs rendered again.
 - **Hosts:** the cohort's Hosts (`shape.hosts`, Phase 2) is the one field. The Cohort page has no Instructor field. A
   week's own `instructor` is the program's and is not touched.
 
@@ -591,7 +595,8 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
   (`PriceBook`). The typed price field and the typed-vs-Stripe mismatch rule are gone. The code never creates a Stripe
   price or a Payment Link.
 - **January's lookup keys are new** and made by hand in Stripe. Today's carts are `founding: true` and carry the
-  founding keys; January's founding status is a setting on the cohort to be decided before Phase 5, not a constant.
+  founding keys; January's founding status is still undecided (Connor, 10.9): it is a setting on the cohort, decided before Phase 5,
+  never a constant.
 - **Link addresses live on the cohort record**, not in Railway variables (today `PAYMENT_LINK_COHORT_FULL` and
   `PAYMENT_LINK_COHORT_TWO_PAY`). December's are copied onto its record by Phase 5's data step, with its lookup keys,
   seats and included-time date (2027-05-04).
@@ -637,7 +642,9 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 - **The December test's tour check** must stay green: `tourVideoOf(GET /api/course)` returns the flagged tour for every
   December viewer who can open the course (owner, two-payment owner, the learner invited onto the owner's team, the early
   tester), for staff, and for staff masquerading as a team owner. That check is already in `december-others.ts`
-  (#271, fe309d3); the five viewers without the course get 403, as today.
+  (#271, fe309d3); the five viewers without the course get 403, as today. Its stand-in tour takes the title and file
+  name of v7, the tour Connor uploaded through the Module Builder, once Connor gives them (production's data is not
+  readable from here).
 - Data step: December's shared fields are **copied** to the program record, not moved (10.8).
 
 ### 10.7 Phase 7: People, and Utah Life
@@ -650,7 +657,10 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 ### 10.8 Every phase
 
 - **Copy.** Title Case every page, card and tab heading ("Plans & Upgrades", "Course Settings", "Dates and Release",
-  "Words From This Cohort"). Times on one line: "12:00 PM MT / 1:00 PM CT", through `fmt`. Never "Operator": "AI
+  "Words From This Cohort"). Times on one line: "12:00 PM MT / 1:00 PM CT", through `fmt`,
+  everywhere, the learner portal too (Connor, 10.9). The learner side, and `CLAUDE.md`'s time rule with it (today the
+  viewer's zone first and the program zone in parentheses), belong to the learner design session; R-5 uses the format
+  on every screen and email it builds. Never "Operator": "AI
   Implementer" ("No AI Implementer Named", "AI Implementer's Contact"). No em or en dashes, including as an empty cell's
   glyph: "Not answered", "None" or "Not set". No invented numbers; never "industry standard". The repo's rule is that copy
   matches the reference, so each phase brings these into the R2 reference for the screens it ports, under its decision
@@ -662,15 +672,15 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 - **Migrations** are additive only.
 - **Phase 8** also draws Revenue's "N failed" (Connor's call on #270).
 
-### 10.9 Asked back
+### 10.9 Asked back, and Connor's answers (Nov 25, 2026)
 
-1. **Title Case in #270.** The frame draws "Course settings" and "Plans & upgrades", as the mockup does. Changing them
-   means the R2 reference and the refs that show those tabs (about 22). In #270 now, or with Phase 3?
-2. **Times.** `CLAUDE.md` says the viewer's zone first and the program zone in parentheses. Is "12:00 PM MT / 1:00 PM
-   CT" for the admin only, with the learner portal as it is?
-3. **Test sends.** "Only `accelerator-test@`" drops `WELCOME_TEST_ALLOWLIST`, which adds addresses today. Drop it?
-4. **"The flagged v7 tour."** No video named v7 is in the repo; the December test's tour is a stand-in titled "How the
-   LMS Works". If v7 is production's file, its title and file name go on the stand-in.
-5. **The offer page's "Today and again in 30 days"** disagrees with the agreement and with Stripe. It is not R-5's
-   page; it is noted here for Connor.
-6. **January's founding status** needs an answer before Phase 5.
+1. **Title Case in #270?** *With Phase 3, not in #270* (10.3).
+2. **Times: admin only?** *"12:00 PM MT / 1:00 PM CT" everywhere, the learner portal too; the learner design session
+   handles the learner side* (10.8).
+3. **Test sends: drop `WELCOME_TEST_ALLOWLIST`?** *Keep it as is* (10.3).
+4. **"The flagged v7 tour."** *Connor uploaded v7 through the Module Builder; the test's stand-in just needs v7's
+   title and file name* (10.6). Still needed: the title and the file name.
+5. **The offer page's "Today and again in 30 days."** *Fix it: the second payment comes one month after the first,
+   the same day next month. A separate small pull request; `/agreement` untouched.* Done in #277: "Today and again in
+   one month", on /offer, /pricing and /team-build, which share the caption.
+6. **January's founding status.** *Still undecided* (10.5).
