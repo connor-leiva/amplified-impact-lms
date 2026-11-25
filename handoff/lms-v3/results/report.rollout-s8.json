@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s8",
-  "when": "2026-11-25T18:49:50.001Z",
+  "when": "2026-11-25T20:59:15.494Z",
   "threshold": 0.1,
   "report": [
     {
@@ -75,8 +75,8 @@
           4661
         ]
       },
-      "diffPixels": 84829,
-      "pct": 4.6092,
+      "diffPixels": 84811,
+      "pct": 4.6083,
       "strictPixels": 370132,
       "strictPct": 20.1114
     },

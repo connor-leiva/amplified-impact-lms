@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T18:47:27.958Z",
+  "when": "2026-11-25T20:56:53.375Z",
   "threshold": 0.1,
   "report": [
     {
@@ -705,8 +705,8 @@
           900
         ]
       },
-      "diffPixels": 30842,
-      "pct": 2.3798,
+      "diffPixels": 30849,
+      "pct": 2.3803,
       "strictPixels": 68566,
       "strictPct": 5.2906
     },
@@ -723,8 +723,8 @@
           900
         ]
       },
-      "diffPixels": 9365,
-      "pct": 0.7226,
+      "diffPixels": 9377,
+      "pct": 0.7235,
       "strictPixels": 24800,
       "strictPct": 1.9136
     },
@@ -741,8 +741,8 @@
           900
         ]
       },
-      "diffPixels": 12269,
-      "pct": 0.9467,
+      "diffPixels": 12283,
+      "pct": 0.9478,
       "strictPixels": 30107,
       "strictPct": 2.3231
     },
@@ -759,8 +759,8 @@
           900
         ]
       },
-      "diffPixels": 30842,
-      "pct": 2.3798,
+      "diffPixels": 30849,
+      "pct": 2.3803,
       "strictPixels": 68566,
       "strictPct": 5.2906
     },
@@ -777,8 +777,8 @@
           900
         ]
       },
-      "diffPixels": 30842,
-      "pct": 2.3798,
+      "diffPixels": 30849,
+      "pct": 2.3803,
       "strictPixels": 68566,
       "strictPct": 5.2906
     },
@@ -795,8 +795,8 @@
           900
         ]
       },
-      "diffPixels": 30842,
-      "pct": 2.3798,
+      "diffPixels": 30849,
+      "pct": 2.3803,
       "strictPixels": 68566,
       "strictPct": 5.2906
     },
@@ -813,8 +813,8 @@
           900
         ]
       },
-      "diffPixels": 34738,
-      "pct": 2.6804,
+      "diffPixels": 34745,
+      "pct": 2.6809,
       "strictPixels": 72634,
       "strictPct": 5.6045
     },
@@ -1353,8 +1353,8 @@
           844
         ]
       },
-      "diffPixels": 17694,
-      "pct": 5.3755,
+      "diffPixels": 17706,
+      "pct": 5.3791,
       "strictPixels": 35986,
       "strictPct": 10.9327
     },
@@ -1371,8 +1371,8 @@
           844
         ]
       },
-      "diffPixels": 5234,
-      "pct": 1.5901,
+      "diffPixels": 5251,
+      "pct": 1.5953,
       "strictPixels": 7742,
       "strictPct": 2.352
     },
@@ -1389,8 +1389,8 @@
           844
         ]
       },
-      "diffPixels": 25521,
-      "pct": 7.7534,
+      "diffPixels": 25532,
+      "pct": 7.7567,
       "strictPixels": 46117,
       "strictPct": 14.0105
     },

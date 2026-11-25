@@ -5,7 +5,7 @@
   "selector": null,
   "clock": "2026-11-20T21:18:00Z",
   "assume": "s1",
-  "when": "2026-11-25T18:51:14.031Z",
+  "when": "2026-11-25T21:00:38.906Z",
   "threshold": 0.1,
   "report": [
     {
@@ -39,8 +39,8 @@
           900
         ]
       },
-      "diffPixels": 27677,
-      "pct": 2.1356,
+      "diffPixels": 27684,
+      "pct": 2.1361,
       "strictPixels": 59861,
       "strictPct": 4.6189
     },
@@ -75,8 +75,8 @@
           844
         ]
       },
-      "diffPixels": 14736,
-      "pct": 4.4769,
+      "diffPixels": 14748,
+      "pct": 4.4805,
       "strictPixels": 27847,
       "strictPct": 8.46
     }
