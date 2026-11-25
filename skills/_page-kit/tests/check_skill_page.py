@@ -9,6 +9,8 @@ Reads skills/<name>/evals/page/build.json:
     out             the HTML to write, under evals/page/
     order           the section ids in the order of the skill's "Output, In This Order"
     never           strings that must appear nowhere on the page (left-out details, other people)
+    neverColumns    optional: {CSV file: [column, ...]}, every value in those columns joins `never`
+                    (client names, addresses, agents' names)
     dataCheck       optional: how many Data Check warnings the case should raise (default 0)
 
 Builds the page with the kit's own build_page.py (the copy every converted skill ships), then checks:
@@ -24,6 +26,7 @@ Builds the page with the kit's own build_page.py (the copy every converted skill
   7. marked as a sample with made-up data
 Writes the HTML and prints one PASS or FAIL line per check. Exit 1 on any FAIL.
 """
+import csv
 import importlib.util
 import json
 import os
@@ -95,8 +98,14 @@ def main():
     hits = EMAIL.findall(text) + PHONE.findall(text) + [m.group(0) for m in ACCOUNT.finditer(text)]
     case("no email address, phone number, or account, card or routing number", not hits, ", ".join(map(str, hits)))
 
-    never = [s for s in cfg.get("never", []) if s.lower() in data.lower() or s.lower() in text.lower()]
-    case("none of the left-out strings appear", not never, ", ".join(never))
+    banned = list(cfg.get("never", []))
+    for rel, cols in (cfg.get("neverColumns") or {}).items():
+        rows = list(csv.reader(open(at(rel), encoding="utf-8", newline="")))
+        head = next(i for i, r in enumerate(rows) if all(c in r for c in cols))
+        idx = [rows[head].index(c) for c in cols]
+        banned += sorted({r[i].strip() for r in rows[head + 1:] for i in idx if i < len(r) and r[i].strip()})
+    never = [s for s in banned if s.lower() in data.lower() or s.lower() in text.lower()]
+    case("none of the %d left-out strings appear" % len(banned), not never, ", ".join(never))
     case("marked as a sample with made-up data", bool(page.get("sample")))
 
     print("\n%d of %d passed. %s (%d KB)" % (sum(results), len(results), os.path.relpath(out, skill),
