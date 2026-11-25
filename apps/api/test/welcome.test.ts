@@ -116,9 +116,9 @@ describe('sendDueWelcomes', () => {
     expect(first.sent).toBe(1);
     const mail = outboxFor({ to: 'new@example.com', template: 'cohort-welcome' });
     expect(mail).toHaveLength(1);
-    expect(mail[0]?.subject).toBe('Your Access to the December 2026 Cohort Is Live');
-    expect(mail[0]?.html).toContain('Welcome! Week 0 Starts Now');
-    expect(mail[0]?.html).toContain('because you enrolled in the December 2026 Cohort.');
+    expect(mail[0]?.subject).toBe('🎉 Welcome to the December 2026 Cohort: You’re In');
+    expect(mail[0]?.html).toContain('Pat, You’re In!');
+    expect(mail[0]?.html).toContain('You’re getting this because you enrolled in the December 2026 Cohort.');
     expect(mail[0]?.html).toContain(' MT');
     expect(mail[0]?.html).not.toMatch(/[–—]/);
     const second = await sendDueWelcomes({ db: await database(), log, now: NOW });
@@ -180,68 +180,117 @@ describe('sendDueWelcomes', () => {
   });
 });
 
-describe('the welcome’s fixes: Week 0 from data, MT / CT, the branded wordmark', () => {
+describe('the welcome in the Week 0 Is Open email’s design, with everything from data', () => {
   const welcomeOf = async () => {
+    // The first live build as Connor's schedule has it (the demo seed's sessions survive the curriculum ensure).
+    await (await database()).update(sessions).set({ start: Date.parse('2026-12-02T19:00:00Z'), mins: 90 }).where(eq(sessions.id, 'dec26-s1'));
     await flag(true, ENABLED);
     await seedOwner('u_new', 'new@example.com', ENROLLED_LATE);
     await sendDueWelcomes({ db: await database(), log, now: NOW });
     const [mail] = outboxFor({ to: 'new@example.com', template: 'cohort-welcome' });
-    return mail?.html ?? '';
+    return { html: mail?.html ?? '', text: mail?.text ?? '' };
   };
-  /** The page's text, tags dropped and React's entities read back. */
+  /** The page's text, tags dropped. */
   const visible = (h: string) =>
     h
       .replace(/<style[\s\S]*?<\/style>/g, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<\/?(?:span|a)\b[^>]*>/g, '')
       .replace(/<[^>]+>/g, ' ')
-      .replace(/&#x27;/g, "'")
+      .replace(/&#847;|&zwnj;|&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
       .replace(/\s+/g, ' ');
+  const flagTour = async () =>
+    (await database()).execute(sql`
+      update modules set course = jsonb_set(course, '{media}', ${JSON.stringify([
+        {
+          type: 'video',
+          id: 'lms-tour',
+          title: 'How the LMS Works',
+          source: { upload: 'uploads/2026/12/tour.mp4', name: 'tour.mp4', size: 1000, type: 'video/mp4' },
+          transcript: { upload: 'uploads/2026/12/tour.vtt', name: 'tour.vtt', size: 10, type: 'text/vtt' },
+          tour: true,
+        },
+      ])}::jsonb) where id = 'accelerator-week-0'`);
 
-  it('says Week 0 is due Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT, from Week 0’s Due, and not at the first live build', async () => {
-    const text = visible(await welcomeOf());
-    expect(text).toContain('03 Finish Week 0 by Mon, Nov 30');
-    expect(text).toContain("That's Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT.");
-    expect(text).toContain('By Mon, Nov 30, your AI is set up');
-    expect(text).not.toContain('Finish Before Our First Live Build');
-    expect(text).not.toContain('By our first live build');
+  it('is the Week 0 Is Open email’s document: the band, the confetti, the card, the button, the list, the box, the sign-off', async () => {
+    const { html } = await welcomeOf();
+    expect(html).toContain(`src="${SKILL_EMAIL_LOGO_URL}"`);
+    expect(html).toContain('src="https://learn.amplifiedimpact.io/brand/week0-confetti.gif"');
+    expect(html).toContain('class="ai-gif"');
+    const text = visible(html);
+    expect(text).toContain('Amplified AI Accelerator · December 2026 Cohort Pat, You’re In! Welcome to the December 2026 Cohort.');
+    expect(text).toContain('Start here Week 0 Is Open');
+    expect(html).toContain('href="https://learn.amplifiedimpact.test/learn/week/0"');
+    expect(html).toContain('>Start Week 0</a>');
+    expect(text).toContain('Sign in, then click Week 0. If you still see the Skill Library, reload the page.');
+    expect(text).toContain('Mark your calendar Our First Live Build');
+    expect(text).toContain('Here’s to the journey ahead. We can’t wait to see what you build. Connor and the Amplified Impact team');
+    expect(text).toContain('Questions? Write to support@amplifiedimpact.io. Amplified Impact, LLC. You’re getting this because you enrolled in the December 2026 Cohort.');
+    expect(html).not.toMatch(/[–—]|&mdash;|&ndash;/);
+    expect(html).not.toMatch(/\bOperator\b/);
+  });
+
+  it('says Week 0 is due Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT, from Week 0’s Due, and the first live build from its session', async () => {
+    const { html, text } = await welcomeOf();
+    const v = visible(html);
+    expect(v).toContain('It’s due Mon, Nov 30, 2026 at 12:00 PM MT / 1:00 PM CT.');
+    expect(v).toContain('Our First Live Build Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT Finish Week 0 by Mon, Nov 30,');
+    expect(html).toContain('You’re in! Week 0 is open, and it’s due Mon, Nov 30 at 12:00 PM MT / 1:00 PM CT.&#847;');
+    expect(text).toContain('Wed, Dec 2, 12:00 to 1:30 PM MT / 1:00 to 2:30 PM CT');
   });
 
   it('counts six baseline tasks, the stored table’s rows, and never says seven', async () => {
-    const text = visible(await welcomeOf());
-    expect(text).toContain("you've timed the six tasks we'll measure against");
-    expect(text).not.toMatch(/\bseven\b/i);
+    const v = visible((await welcomeOf()).html);
+    expect(v).toContain('Time Your Six Tasks Start your time baseline: the six tasks we’ll measure against for the rest of the cohort.');
+    expect(v).not.toMatch(/\bseven\b/i);
   });
 
-  it('names Week 0 by the title the course page shows, read from the stored module', async () => {
-    expect(visible(await welcomeOf())).toContain('02 Start Week 0 · Foundations Foundations is the Week 0 course, and it has eight steps.');
+  it('names Week 0 by the title the course page shows, with its step count, read from the stored module', async () => {
+    expect(visible((await welcomeOf()).html)).toContain('Start Week 0 · Foundations Foundations is the Week 0 course, and it has eight steps.');
     resetOutbox();
-    await (await database()).delete(cohortEnrollments);
-    await (await database()).delete(consoleFlags);
-    await (await database()).execute(sql`update modules set course = jsonb_set(course, '{title}', '"Get Ready"') where id = 'accelerator-week-0'`);
-    await (await database()).delete(plans);
-    await (await database()).delete(accounts);
-    await (await database()).delete(teams).where(eq(teams.id, 't_u_new'));
-    await (await database()).delete(users).where(eq(users.id, 'u_new'));
-    const renamed = visible(await welcomeOf());
-    expect(renamed).toContain('02 Start Week 0 · Get Ready Get Ready is the Week 0 course');
+    const d = await database();
+    await d.delete(cohortEnrollments);
+    await d.delete(consoleFlags);
+    await d.execute(sql`update modules set course = jsonb_set(course, '{title}', '"Get Ready"') where id = 'accelerator-week-0'`);
+    await d.delete(plans);
+    await d.delete(accounts);
+    await d.delete(teams).where(eq(teams.id, 't_u_new'));
+    await d.delete(users).where(eq(users.id, 'u_new'));
+    const renamed = visible((await welcomeOf()).html);
+    expect(renamed).toContain('Start Week 0 · Get Ready Get Ready is the Week 0 course');
     expect(renamed).not.toContain('Foundations');
   });
 
-  it('shows every clock MT first, with the same time in CT after it', async () => {
-    const text = visible(await welcomeOf());
-    const mt = [...text.matchAll(/\d{1,2}:\d{2}(?: (?:AM|PM))?(?: to \d{1,2}:\d{2} (?:AM|PM))? MT/g)];
-    expect(mt.length).toBeGreaterThanOrEqual(5);
-    for (const m of mt) expect(text.slice((m.index ?? 0) + m[0].length), m[0]).toMatch(/^ \/ (?:[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}, )?\d{1,2}:\d{2}/);
-    expect(text).not.toMatch(/\bCT\b[^/]*\bMT\b(?! \/)/);
+  it('mentions the How the LMS Works tour only once it is flagged in Week 0’s Media (D-252)', async () => {
+    const before = await welcomeOf();
+    expect(before.html).not.toContain('How the LMS Works');
+    expect(visible(before.html)).toContain('01 Start Week 0 · Foundations');
+    resetOutbox();
+    const d = await database();
+    await d.delete(cohortEnrollments);
+    await d.delete(consoleFlags);
+    await d.delete(plans);
+    await d.delete(accounts);
+    await d.delete(teams).where(eq(teams.id, 't_u_new'));
+    await d.delete(users).where(eq(users.id, 'u_new'));
+    await flagTour();
+    const after = await welcomeOf();
+    expect(visible(after.html)).toContain('01 Watch How the LMS Works A quick tour of your new home for the Accelerator. It opens when you sign in');
+    expect(visible(after.html)).toContain('02 Start Week 0 · Foundations');
+    expect(after.text).toContain('01 Watch How the LMS Works: A quick tour of your new home for the Accelerator.');
   });
 
-  it('shows the branded emails’ white wordmark, 180 by 27, on their black band', async () => {
-    const html = await welcomeOf();
-    expect(html).toContain(`src="${SKILL_EMAIL_LOGO_URL}"`);
-    expect(html).toMatch(/<img[^>]*alt="Amplified Impact"[^>]*height="27"[^>]*>|<img[^>]*height="27"[^>]*alt="Amplified Impact"[^>]*>/);
-    expect(html).toContain('width="180"');
-    expect(html).toContain('background-color:#0a0d0c');
-    expect(html).not.toContain('/img/og/amplified-impact.png');
+  it('gives an owner with no password and no Google account a set-password link', async () => {
+    const { html } = await welcomeOf();
+    expect(html).toMatch(/First time signing in\? <a href="https:\/\/learn\.amplifiedimpact\.test\/set-password\?token=[^"]+"[^>]*>Set Your Password<\/a> first\. This link works once and expires in 72 hours\./);
+  });
+
+  it('shows every clock MT first, with the same time in CT after it', async () => {
+    const text = visible((await welcomeOf()).html);
+    const mt = [...text.matchAll(/\d{1,2}:\d{2}(?: (?:AM|PM))?(?: to \d{1,2}:\d{2} (?:AM|PM))? MT/g)];
+    expect(mt.length).toBeGreaterThanOrEqual(3);
+    for (const m of mt) expect(text.slice((m.index ?? 0) + m[0].length), m[0]).toMatch(/^ \/ (?:[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}, )?\d{1,2}:\d{2}/);
   });
 
   it('waits on the builder while Week 0 has no Due', async () => {

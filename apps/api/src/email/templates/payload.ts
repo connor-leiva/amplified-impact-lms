@@ -25,7 +25,6 @@
 // `index.tsx` re-exports both names, so every existing caller still imports them from
 // `./templates`.
 
-import type { WelcomeCopy } from '@ai/core';
 import type { SubjectData, TemplateName } from '../subjects';
 
 /**
@@ -69,10 +68,23 @@ export interface BodyData {
   'learner-nudge': { firstName: string; appUrl?: string | null };
 
   /**
-   * `copy` is the finished welcome (`buildWelcomeCopy`). The subject still reads `cohortName`, so
-   * the inbox line and the body cannot name two different cohorts.
+   * The cohort welcome, in the Week 0 Is Open email's design: Week 0's Due, title, step count and baseline count, the
+   * first live build, as instants and numbers from data (the email shows each time in MT and CT); whether the "How the
+   * LMS Works" tour is live (D-252); the reader's first name; and, for an owner with no password and no Google account,
+   * a set-password link. The subject reads `cohortName`, and so does the copy.
    */
-  'cohort-welcome': { copy: WelcomeCopy; appUrl?: string | null };
+  'cohort-welcome': {
+    firstName?: string;
+    week0DueAt: number;
+    week0Title: string;
+    week0Steps: number;
+    baselineTasks: number;
+    tour?: boolean;
+    liveBuildAt: number;
+    liveBuildMins: number;
+    setPasswordUrl?: string | null;
+    appUrl?: string | null;
+  };
   /**
    * The Week 0 Is Open email: Week 0's Due and the first live build, as instants (the email shows each in MT and CT),
    * and the reader's first name (absent or empty: no name in the heading).

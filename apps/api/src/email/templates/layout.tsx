@@ -33,10 +33,9 @@
 // any of the nine. DO NOT "fix" this file back to tokens; the test will tell you the same thing.
 // =================================================================================================
 
-import { Body, Button, Container, Head, Heading, Html, Img, Preview, Section, Text } from '@react-email/components';
+import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from '@react-email/components';
 import type { CSSProperties, ReactNode } from 'react';
 import { EMAIL_FONT_STACK, EMAIL_TOKENS } from '../tokens';
-import { BAND } from './branded-html';
 
 const T = EMAIL_TOKENS;
 
@@ -194,26 +193,6 @@ export interface EmailLayoutProps {
   cta: { label: string; href: string };
   /** The body paragraphs, as `<Para>` elements. */
   children?: ReactNode;
-  /**
-   * The cohort welcome names its own heading and preheader. Absent, both stay the subject, which is
-   * what every other template renders.
-   */
-  heading?: string;
-  preheader?: string;
-  /** A short line above the heading. Rendered as a span, so it is not the body's first paragraph. */
-  eyebrow?: string;
-  /**
-   * A hosted raster: the branded emails' white wordmark (180 by 27), drawn on their black band across the top of the
-   * card. Absent on every template but the cohort welcome, whose card is otherwise light.
-   */
-  logoSrc?: string;
-  /** Blocks after the button: the welcome's later sections. */
-  below?: ReactNode;
-  /**
-   * A fluid card, as the Week 0 email's panel is: `width: 100%` up to `max-width: 600px`, instead of § 8.1's fixed 560px
-   * column. The cohort welcome's alone; every other template keeps the column.
-   */
-  fluid?: boolean;
 }
 
 /**
@@ -236,76 +215,25 @@ export function Para({ children }: { children: ReactNode }) {
  * recorded as such in D-031. When it and a compliance footer arrive, they belong here — in one
  * place.
  */
-const eyebrowStyle: CSSProperties = {
-  display: 'block',
-  margin: '0 0 8px',
-  fontFamily: EMAIL_FONT_STACK,
-  fontSize: '12px',
-  lineHeight: '16px',
-  fontWeight: 600,
-  letterSpacing: '0.04em',
-  color: T['text-secondary'],
-};
-
-/** The wordmark at the branded emails' size. */
-const logoStyle: CSSProperties = { display: 'block', width: '180px', height: '27px', border: 0 };
-
-/**
- * The branded emails' black band (`branded-html.ts`, `#0a0d0c`), as the card's first row, edge to edge, so the white
- * wordmark never sits on white. The card keeps its width, border, radius and surface; its padding moves inside, under
- * the band (`bandedColumn`, `bandedInner`).
- */
-const logoBand: CSSProperties = {
-  padding: '32px 32px 28px',
-  borderRadius: '15px 15px 0 0',
-  backgroundColor: BAND,
-};
-const bandedColumn: CSSProperties = { ...column, padding: '0', overflow: 'hidden' };
-const bandedInner: CSSProperties = { padding: '32px' };
-
-/**
- * A fluid card's widest, the branded emails' panel width (`branded-html.ts`'s 600). A fluid card is as wide as the screen
- * up to this, so a phone never scrolls sideways for it; the fixed 560px column measured 592px wide on a 390px phone.
- */
-export const FLUID_MAX_WIDTH = 600;
-const fluidWidth: CSSProperties = { width: '100%', maxWidth: `${FLUID_MAX_WIDTH}px` };
-
-export function EmailLayout({ subject, cta: action, children, heading, preheader, eyebrow, logoSrc, below, fluid }: EmailLayoutProps) {
-  const card = logoSrc ? bandedColumn : column;
-  const inner = (
-    <>
-      {eyebrow ? (
-        <Section>
-          <span style={eyebrowStyle}>{eyebrow}</span>
-        </Section>
-      ) : null}
-      <Heading as="h1" style={h1}>
-        {heading ?? subject}
-      </Heading>
-      {children}
-      <Section style={ctaRow}>
-        <Button href={action.href} style={cta}>
-          {action.label}
-        </Button>
-      </Section>
-      {below}
-    </>
-  );
+export function EmailLayout({ subject, cta: action, children }: EmailLayoutProps) {
   return (
     <Html lang="en">
       <Head>
         <title>{subject}</title>
         <link rel="stylesheet" href={FONT_HREF} />
       </Head>
-      <Preview>{preheader ?? subject}</Preview>
+      <Preview>{subject}</Preview>
       <Body style={page}>
-        <Container style={fluid ? { ...card, ...fluidWidth } : card}>
-          {logoSrc ? (
-            <Section style={logoBand}>
-              <Img src={logoSrc} alt="Amplified Impact" width="180" height="27" style={logoStyle} />
-            </Section>
-          ) : null}
-          {logoSrc ? <Section style={bandedInner}>{inner}</Section> : inner}
+        <Container style={column}>
+          <Heading as="h1" style={h1}>
+            {subject}
+          </Heading>
+          {children}
+          <Section style={ctaRow}>
+            <Button href={action.href} style={cta}>
+              {action.label}
+            </Button>
+          </Section>
         </Container>
       </Body>
     </Html>

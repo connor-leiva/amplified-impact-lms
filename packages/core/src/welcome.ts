@@ -13,24 +13,25 @@
 // enrollment made after the switch-on time qualifies (`enrolledBeforeSwitch`). Turning the switch
 // on does not backfill. There is no bulk send; that would be a separate action if Connor asks for one.
 //
-// TIMES. Every date and clock in the copy comes from the cohort, its weeks and its sessions. Each
-// clock is Mountain Time first and Central Time after it, both computed from the instant
-// (`sessionTimeMtCtParts`, `dueTimeMtCt` in release.ts), so each zone's daylight saving is its own.
-// Nothing here names a calendar day of its own. The academy address and Connor's sign-off are the two
-// fixed lines.
+// THE WORDS. The email is the Week 0 Is Open email's design, and its words live with its template
+// (`apps/api/src/email/templates/cohort-welcome-html.ts`), as that email's do. This file gives it the
+// instants (`welcomeSchedule`), Week 0's facts (`welcomeWeek0`), the cohort's name with its noun
+// (`cohortLabel`) and the subject (`welcomeSubject`). Every clock the template shows is Mountain Time
+// first and Central Time after it, computed from these instants (`sessionTimeMtCt`, `dueTimeMtCt` in
+// release.ts), so each zone's daylight saving is its own. Nothing here names a calendar day of its own.
 //
 // WEEK 0 FROM DATA. Week 0's due date is the Week 0 module's Due (`modules.due_at`, the week
 // builder's "Due"), its name is the title the learner course page shows (`course.title`), and its
 // step count and the number of baseline tasks are read off its stored steps (`baselineTaskCount`).
 // While Week 0 has no Due, or its baseline table can't be read, the welcome waits on the builder
-// (`welcomeWeek0`) rather than name a day or a number of its own.
+// (`welcomeWeek0`) rather than name a day or a number of its own. Whether the "How the LMS Works" tour
+// is live is read the way the LMS reads it (`tourVideoOf`, D-252), so the email mentions the tour only
+// once staff have flagged it in Week 0's Media.
 
 import { courseOpensAt } from './curriculum-week';
 import type { CurriculumWeekRef } from './curriculum-week';
 import { COURSE_DEFAULT_TIME, zonedInputs, zonedInstant } from './course-actions';
 import type { StepPaths } from './course-types';
-import { countWord } from './learner';
-import { dueTimeMtCt, sessionTimeMtCtParts } from './release';
 import type { Cohort } from './types';
 
 /** The Console flag. Off until a flip turns it on. */
@@ -42,11 +43,6 @@ export const WELCOME_TEST_ADDRESS = 'accelerator-test@amplifiedimpact.io';
 /** The tag GoHighLevel gets after a real welcome is sent. */
 export const WELCOME_SENT_TAG = 'welcome-sent';
 
-/** The button's destination. The copy names this host. */
-export const ACADEMY_URL = 'https://learn.amplifiedimpact.io';
-
-// The logo is the branded emails' white wordmark on their black band (`SKILL_EMAIL_LOGO_URL`, apps/api's
-// `branded-html.ts`). The dark-on-light `WELCOME_LOGO_PATH` it replaced had no other importer, so it is gone.
 
 const MT = 'America/Denver';
 
@@ -64,6 +60,8 @@ export interface WelcomeWeek {
   steps?: number | null;
   /** The rows of the week's time-baseline table, when it has one (`baselineTaskCount`). */
   baselineTasks?: number | null;
+  /** D-252: the week's Media holds the flagged "How the LMS Works" tour (`tourVideoOf`). Only Week 0's can. */
+  tour?: boolean;
 }
 
 /**
@@ -103,6 +101,8 @@ export interface WelcomeWeek0 {
   title: string;
   steps: number;
   baselineTasks: number;
+  /** The "How the LMS Works" tour is live: it opens on sign-in until seen, and is pinned on Week 0 (D-252). */
+  tour: boolean;
 }
 
 export type WelcomeWeek0Result = { ok: true; week0: WelcomeWeek0 } | { ok: false; reason: 'no-week0' | 'no-week0-due' | 'no-baseline' };
@@ -116,7 +116,7 @@ export function welcomeWeek0(modules: readonly WelcomeWeek[]): WelcomeWeek0Resul
   if (dueAt === null) return { ok: false, reason: 'no-week0-due' };
   const baselineTasks = w.baselineTasks ?? null;
   if (!baselineTasks) return { ok: false, reason: 'no-baseline' };
-  return { ok: true, week0: { dueAt, title, steps: w.steps, baselineTasks } };
+  return { ok: true, week0: { dueAt, title, steps: w.steps, baselineTasks, tour: w.tour === true } };
 }
 
 export interface WelcomeSession {
@@ -186,8 +186,6 @@ export function welcomeTestAllowed(email: string, extra: readonly string[] = [])
   if (to === WELCOME_TEST_ADDRESS) return true;
   return extra.some((a) => a.trim().toLowerCase() === to);
 }
-
-const weekday = (t: number) => new Intl.DateTimeFormat('en-US', { timeZone: MT, weekday: 'long' }).format(t);
 
 export interface WelcomeSchedule {
   cohortName: string;
@@ -267,32 +265,6 @@ function clockOnDay(hhmm: string, day: number): number {
   return Number.isNaN(at) ? zonedInstant(date, COURSE_DEFAULT_TIME, MT) : at;
 }
 
-export interface WelcomeCopy {
-  cohortName: string;
-  subject: string;
-  preheader: string;
-  eyebrow: string;
-  heading: string;
-  cohortLine: string;
-  greeting: string;
-  intro: [string, string];
-  buttonLabel: string;
-  buttonHref: string;
-  orLine: string;
-  doHeading: string;
-  steps: { n: string; title: string; body: string }[];
-  /** Present only when the owner has not set a password (and has not linked Google). */
-  setPasswordUrl: string | null;
-  setPasswordLine: string | null;
-  weekHeading: string;
-  weekIntro: string;
-  rows: { label: string; body: string }[];
-  close: [string, string, string];
-  signoffName: string;
-  signoffRole: string;
-  footer: string;
-}
-
 /**
  * The cohort as the copy names it, with its noun: "December 2026" is "December 2026 Cohort", as the Week 0 email and the
  * admin's Learners page say it. A name that already ends in "Cohort" is left as it is.
@@ -302,77 +274,5 @@ export function cohortLabel(name: string): string {
   return /\bcohort$/i.test(n) ? n : `${n} Cohort`;
 }
 
-/** The welcome's subject: "Your Access to the December 2026 Cohort Is Live". The subject table and the copy share it. */
-export const welcomeSubject = (cohortName: string): string => `Your Access to the ${cohortLabel(cohortName)} Is Live`;
-
-/**
- * The welcome, with every date filled from `schedule` and Week 0's facts from `week0` (the Week 0 module). Each clock is
- * Mountain Time first and Central Time after it.
- */
-export function buildWelcomeCopy(schedule: WelcomeSchedule, week0: WelcomeWeek0, firstName: string, setPasswordUrl: string | null): WelcomeCopy {
-  const s1 = schedule.session1At;
-  const start = sessionTimeMtCtParts(s1);
-  const build = sessionTimeMtCtParts(s1, schedule.session1Mins);
-  const sWhen = start.day;
-  const open = sessionTimeMtCtParts(schedule.weekOpenAt ?? schedule.weekOpenClockAt);
-  const openLabel = schedule.weekOpenAt != null ? weekday(schedule.weekOpenAt) : 'Week Open';
-  const oh = schedule.officeHoursAt;
-  const ohTime = sessionTimeMtCtParts(oh);
-  const due = sessionTimeMtCtParts(week0.dueAt);
-  const weekName = `Week 0 · ${week0.title}`;
-  const name = schedule.cohortName.trim();
-  const label = cohortLabel(name);
-  const hi = firstName.trim();
-  return {
-    cohortName: name,
-    subject: welcomeSubject(name),
-    preheader: `You're in! Here's what to do before our first live build on ${sWhen}.`,
-    eyebrow: 'Amplified AI Accelerator',
-    heading: 'Welcome! Week 0 Starts Now',
-    cohortLine: `${label} Starts ${sWhen} · ${start.time}`,
-    greeting: hi ? `Hi ${hi},` : 'Hi,',
-    intro: [
-      "You're in! Your access to the Amplified AI Accelerator is live, and Week 0 starts now. I'm so glad you're here. We're about to build real AI hires for your business, together, and I can't wait to get started.",
-      `Week 0 is how we get every team to the same starting line. By ${due.day}, your AI is set up and connected to your tech, anything that could send or change something without your approval is turned off, you've made one practice hire, and you've timed the ${countWord(week0.baselineTasks)} tasks we'll measure against for the rest of the cohort.`,
-    ],
-    buttonLabel: 'Open The Academy',
-    buttonHref: ACADEMY_URL,
-    orLine: 'Or go to learn.amplifiedimpact.io',
-    doHeading: "Here's What To Do This Week",
-    steps: [
-      {
-        n: '01',
-        title: 'Sign In',
-        body: 'Go to learn.amplifiedimpact.io and sign in with the email address this message was sent to. Use the password you set from our other email.',
-      },
-      {
-        n: '02',
-        title: `Start ${weekName}`,
-        body: `${week0.title} is the Week 0 course, and it has ${countWord(week0.steps)} steps. A few belong to the owner and a few belong to your AI Implementer. The orientation video walks you through who does what.`,
-      },
-      {
-        n: '03',
-        title: `Finish Week 0 by ${due.day}`,
-        body: `That's ${dueTimeMtCt(week0.dueAt)}. Everything in ${week0.title} feeds our first live build, so I'd love for every team to walk in with it done and ready to build.`,
-      },
-    ],
-    setPasswordUrl,
-    setPasswordLine: setPasswordUrl ? 'If you have not set a password yet, set one here.' : null,
-    weekHeading: 'How Every Week Runs',
-    weekIntro: "Once we start, every week follows the same loop, so you always know what's coming.",
-    rows: [
-      { label: openLabel, body: `The week opens at ${open.time} with a playbook to read and load into your AI before the build.` },
-      { label: weekday(s1), body: `The live build from ${build.time}. ${schedule.session1Mins} minutes, building your next AI hire together.` },
-      { label: 'Later That Week', body: `Office hours ${weekday(oh)} at ${ohTime.time}, for anything that got stuck.` },
-      { label: 'Checkpoint', body: 'A quick check before the next build, so we both know the week is done.' },
-    ],
-    close: [
-      "Week 0 is a lot of setup, and you don't have to get through it alone. If you get stuck on any step, reply to this email and I'll help you through it. We've got you.",
-      "I'm excited to build this with you.",
-      `I appreciate you, and I'll see you ${sWhen}.`,
-    ],
-    signoffName: 'Connor Leiva',
-    signoffRole: 'Amplified Impact',
-    footer: `Amplified Impact, LLC. You're getting this because you enrolled in the ${label}.`,
-  };
-}
+/** The welcome's subject: "🎉 Welcome to the December 2026 Cohort: You’re In". The subject table and the template share it. */
+export const welcomeSubject = (cohortName: string): string => `🎉 Welcome to the ${cohortLabel(cohortName)}: You’re In`;
