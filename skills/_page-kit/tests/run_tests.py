@@ -106,6 +106,13 @@ p = json.loads(json.dumps(base)); p["closing"] = "Her split costs $1,550.00 a mo
 code, log, out = run(p, words, ["--allow-number", "1550"])
 case('a dollar amount ending in ".00" loses it, with a note', code == 0 and "Dropped .00" in log and "$1,550 a month" in open(out).read(), log)
 
+v = json.loads(json.dumps(visuals)); v["sections"][1]["items"][0]["math"] = "11 / 18 = 0.611"
+code, log, out = run(v, words)
+case("arithmetic written as one string still draws, as a one-line list", code == 0 and '"math": ["11 / 18 = 0.611"]' in open(out).read(), log)
+
+sheet = os.path.join(tempfile.mkdtemp(), "tracker.xlsx"); open(sheet, "wb").write(b"PK\x03\x04 99999 binary")
+code, log, _ = run(base, words, ["--inputs", sheet]); case("a spreadsheet passed as an input is not read as text", code == 0 and "Not read as text" in log, log)
+
 passed = sum(1 for _, ok in results if ok)
 print("\n%d of %d passed" % (passed, len(results)))
 sys.exit(0 if passed == len(results) else 1)

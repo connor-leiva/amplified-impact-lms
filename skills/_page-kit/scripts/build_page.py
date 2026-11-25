@@ -169,6 +169,18 @@ def headings(page):
     return [(w, t) for w, t in out if t]
 
 
+LISTS = ("math", "facts", "paragraphs")
+
+
+def as_lists(node):
+    """A field that holds lines ("math", "facts", "paragraphs") written as one string becomes a one-line list."""
+    if isinstance(node, dict):
+        return {k: ([v] if k in LISTS and isinstance(v, str) else as_lists(v)) for k, v in node.items()}
+    if isinstance(node, list):
+        return [as_lists(v) for v in node]
+    return node
+
+
 def apply_words(page, words, problems):
     if "headline" in words:
         hl = words["headline"]
@@ -371,7 +383,7 @@ def main():
     notes, problems, warnings = [], [], []
     if args.words:
         apply_words(page, load(args.words, "words file"), problems)
-    page = deep_clean(page, notes)
+    page = deep_clean(as_lists(page), notes)
     check_shape(page, problems)
 
     # numbers: facts and inputs are the only places a number may come from
@@ -380,6 +392,12 @@ def main():
         allowed |= numbers_in(json.dumps(load(fp, "facts file"), ensure_ascii=False))
     for ip in args.inputs:
         if os.path.exists(ip):
+            with open(ip, "rb") as f:
+                head = f.read(5)
+            if head.startswith(b"PK\x03\x04") or head.startswith(b"%PDF") or b"\x00" in head:
+                warnings.append("Not read as text, so its numbers were not loaded: %s. Pass the run's JSON with --facts, "
+                                "and text or CSV files with --inputs." % ip)
+                continue
             with open(ip, encoding="utf-8", errors="ignore") as f:
                 allowed |= numbers_in(f.read())
         else:

@@ -50,7 +50,7 @@ Leave a picture out when it needs a number the skill does not compute. Never inv
 
 Every section has `id`, `kind`, `label` (Title Case) and `finding` (one sentence), and may have:
 `note` (a sentence under the finding), `callout` (`{text, status, chip}`: the one thing that matters in
-the row, said big), `math` (plain lines of arithmetic, behind Show The Math), `detail` (`{label, columns,
+the row, said big), `math` (a list of plain lines of arithmetic, behind Show The Math; a list even for one line), `detail` (`{label, columns,
 rows, sort}`: a full table behind Show The Table), `collapsed: true` (the whole proof behind Show The
 Details) and `show` (in `questions` and `callouts`: how many stay open before Show All).
 
@@ -58,7 +58,7 @@ Details) and `show` (in `questions` and `callouts`: how many stay open before Sh
 |---|---|
 | `tiles` | `tiles`: `{label, value, unit, status, chip, means, note, bar, delta}`. `value` is already formatted ("$98,450"). `bar`: `{value, goal}`, both numbers from the facts. `delta`: `{dir, text}` with `dir` `up`, `down` or `flat` and the change in words ("Up $6,611 from August"). `means`: what the number means, in plain words. |
 | `table` | `columns`: `{key, label, type}` with type `text`, `num`, `usd`, `usd2` (cents), `pct`, `change` (a number shown with an arrow and "up" or "down"; set `format`) or `status`; `rows`: objects (numbers as numbers; a `pct` value is the percent, 12.1 for 12.1%, never 0.121), optional `_status` per row (it colors the row's chart column too) and `_partial` (hatched); optional `filters`, `sort` `{key, dir}`, `limit`. Optional `chart`: `{type, x, series, legend}` with `type` `columns` or `multiples`, `x` the column for the labels, `series` `[{key, label}]` (columns of this table), `legend` `[{label, status}]` for what a color or hatch means. |
-| `progress` | `items`: `{label, value, goal, valueText, goalText, pctText, status, chip, text, math}`. `value` and `goal` are numbers; the texts are what the reader sees. Section `goalLegend` says what the line marks. |
+| `progress` | `items`: `{label, value, goal, valueText, goalText, pctText, status, chip, text, math}`. `value` and `goal` are numbers; the texts are what the reader sees. With no goal, leave `goal` out: the number and its words show, with no bar. A measure with no total stays out (say why in the note). Section `goalLegend` says what the line marks. |
 | `meters` | `items`: `{label, value, target, valueText, targetText, status, chip, text}`. `value` and `target` are percents from 0 to 100. |
 | `bars` | `items`: `{label, text, bars: [{label, value, text, status}]}`. Section `scale`: `shared` (one scale for every row, the default) or `item` (each row its own, for rows in different units). |
 | `deltas` | `items`: `{label, from, to, fromLabel, toLabel, change, dir, text}`. Leave `dir` out where the skill's rules say not to call a move up or down. |

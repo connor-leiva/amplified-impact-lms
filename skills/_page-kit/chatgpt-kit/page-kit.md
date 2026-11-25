@@ -64,7 +64,7 @@ Leave a picture out when it needs a number the skill does not compute. Never inv
 
 Every section has `id`, `kind`, `label` (Title Case) and `finding` (one sentence), and may have:
 `note` (a sentence under the finding), `callout` (`{text, status, chip}`: the one thing that matters in
-the row, said big), `math` (plain lines of arithmetic, behind Show The Math), `detail` (`{label, columns,
+the row, said big), `math` (a list of plain lines of arithmetic, behind Show The Math; a list even for one line), `detail` (`{label, columns,
 rows, sort}`: a full table behind Show The Table), `collapsed: true` (the whole proof behind Show The
 Details) and `show` (in `questions` and `callouts`: how many stay open before Show All).
 
@@ -72,7 +72,7 @@ Details) and `show` (in `questions` and `callouts`: how many stay open before Sh
 |---|---|
 | `tiles` | `tiles`: `{label, value, unit, status, chip, means, note, bar, delta}`. `value` is already formatted ("$98,450"). `bar`: `{value, goal}`, both numbers from the facts. `delta`: `{dir, text}` with `dir` `up`, `down` or `flat` and the change in words ("Up $6,611 from August"). `means`: what the number means, in plain words. |
 | `table` | `columns`: `{key, label, type}` with type `text`, `num`, `usd`, `usd2` (cents), `pct`, `change` (a number shown with an arrow and "up" or "down"; set `format`) or `status`; `rows`: objects (numbers as numbers; a `pct` value is the percent, 12.1 for 12.1%, never 0.121), optional `_status` per row (it colors the row's chart column too) and `_partial` (hatched); optional `filters`, `sort` `{key, dir}`, `limit`. Optional `chart`: `{type, x, series, legend}` with `type` `columns` or `multiples`, `x` the column for the labels, `series` `[{key, label}]` (columns of this table), `legend` `[{label, status}]` for what a color or hatch means. |
-| `progress` | `items`: `{label, value, goal, valueText, goalText, pctText, status, chip, text, math}`. `value` and `goal` are numbers; the texts are what the reader sees. Section `goalLegend` says what the line marks. |
+| `progress` | `items`: `{label, value, goal, valueText, goalText, pctText, status, chip, text, math}`. `value` and `goal` are numbers; the texts are what the reader sees. With no goal, leave `goal` out: the number and its words show, with no bar. A measure with no total stays out (say why in the note). Section `goalLegend` says what the line marks. |
 | `meters` | `items`: `{label, value, target, valueText, targetText, status, chip, text}`. `value` and `target` are percents from 0 to 100. |
 | `bars` | `items`: `{label, text, bars: [{label, value, text, status}]}`. Section `scale`: `shared` (one scale for every row, the default) or `item` (each row its own, for rows in different units). |
 | `deltas` | `items`: `{label, from, to, fromLabel, toLabel, change, dir, text}`. Leave `dir` out where the skill's rules say not to call a move up or down. |
@@ -296,6 +296,18 @@ def headings(page):
     return [(w, t) for w, t in out if t]
 
 
+LISTS = ("math", "facts", "paragraphs")
+
+
+def as_lists(node):
+    """A field that holds lines ("math", "facts", "paragraphs") written as one string becomes a one-line list."""
+    if isinstance(node, dict):
+        return {k: ([v] if k in LISTS and isinstance(v, str) else as_lists(v)) for k, v in node.items()}
+    if isinstance(node, list):
+        return [as_lists(v) for v in node]
+    return node
+
+
 def apply_words(page, words, problems):
     if "headline" in words:
         hl = words["headline"]
@@ -498,7 +510,7 @@ def main():
     notes, problems, warnings = [], [], []
     if args.words:
         apply_words(page, load(args.words, "words file"), problems)
-    page = deep_clean(page, notes)
+    page = deep_clean(as_lists(page), notes)
     check_shape(page, problems)
 
     # numbers: facts and inputs are the only places a number may come from
@@ -507,6 +519,12 @@ def main():
         allowed |= numbers_in(json.dumps(load(fp, "facts file"), ensure_ascii=False))
     for ip in args.inputs:
         if os.path.exists(ip):
+            with open(ip, "rb") as f:
+                head = f.read(5)
+            if head.startswith(b"PK\x03\x04") or head.startswith(b"%PDF") or b"\x00" in head:
+                warnings.append("Not read as text, so its numbers were not loaded: %s. Pass the run's JSON with --facts, "
+                                "and text or CSV files with --inputs." % ip)
+                continue
             with open(ip, encoding="utf-8", errors="ignore") as f:
                 allowed |= numbers_in(f.read())
         else:
@@ -682,7 +700,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .strip dd { margin-top: 4px; font-size: 17px; font-weight: 500; }
 .data-check { margin: 18px 0 0; padding: 16px 18px; background: var(--bad-wash); border-left: 4px solid var(--bad); }
 .data-check-label { display: flex; gap: 8px; align-items: center; font: 500 13px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--bad-ink); }
+.data-check-label svg { width: 14px; height: 14px; flex: none; }
 .data-check li { margin-top: 6px; list-style: disc; margin-left: 20px; }
+.draw-error { padding: 14px 16px; background: var(--bad-wash); color: var(--bad-ink); border-left: 4px solid var(--bad); }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
 .chip svg { width: 12px; height: 12px; flex: none; }
 .chip.on { background: var(--good-wash); color: var(--good-ink); }
@@ -1137,6 +1157,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     return h('div.disc', btn, wrap);
   }
   function math(lines, title) {
+    if (typeof lines === 'string') lines = [lines];
     if (!lines || !lines.length) return null;
     return disclose('Show The Math', h('div.math-body', title ? h('p', title) : null, h('ul', lines.map(function (l) { return h('li', l); }))));
   }
@@ -1630,7 +1651,16 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       h('p', 'Nothing you do on this page changes your numbers or sends anything. Names you type, boxes you tick and options you pick stay in this browser only.')),
       lockup('div.lockup.lockup-end')];
   }
-  put(root, [top(), toc(), bottom(), (D.sections || []).map(section), end()]);
+  /* One section that cannot be drawn says so in place; every other section still draws. */
+  function safeSection(s, i) {
+    try { return section(s, i); } catch (e) {
+      if (window.console) console.error('Section "' + (s && (s.label || s.id)) + '" could not be drawn: ' + e.message);
+      return h('section.row', { id: 's-' + ((s && s.id) || i), 'aria-label': (s && s.label) || 'Section' },
+        h('div.rail', h('div.rail-in', h('p.eyebrow', h('span.sec-num', pad(i + 1)), (s && s.label) || ''))),
+        h('div.proof', h('p.draw-error', { role: 'alert' }, 'This part of the page could not be drawn. Ask for the page to be built again.')));
+    }
+  }
+  put(root, [top(), toc(), bottom(), (D.sections || []).map(safeSection), end()]);
 
   /* A long figure ("$8,841,500") steps its tile number down until it fits its tile, never below 22px. */
   function fitTiles(scope) {

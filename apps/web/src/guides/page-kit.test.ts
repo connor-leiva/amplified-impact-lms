@@ -109,6 +109,25 @@ describe('the page kit template', () => {
   });
 });
 
+describe('a page with one section it cannot draw', () => {
+  it('says so in that section and still draws every other section', () => {
+    const broken = JSON.parse(JSON.stringify(VISUALS));
+    broken.sections[1].items = 'not a list';
+    const errors: unknown[] = [];
+    const original = console.error;
+    console.error = (...args: unknown[]) => errors.push(args);
+    try {
+      const doc = draw(fill(broken));
+      expect(doc.querySelectorAll('section.row')).toHaveLength(VISUALS.sections.length);
+      expect(doc.querySelectorAll('.draw-error')).toHaveLength(1);
+      expect(doc.querySelector('.deck .qc')).not.toBeNull();
+      expect(errors).toHaveLength(1);
+    } finally {
+      console.error = original;
+    }
+  });
+});
+
 describe.each(listSkills().filter((name) => readManifest(name).pageKit === true))('skills/%s sample page', (name) => {
   const dir = join(SKILLS_DIR, name, 'evals', 'page');
   const pages = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.html')) : [];

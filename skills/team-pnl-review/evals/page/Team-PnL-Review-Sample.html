@@ -84,7 +84,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .strip dd { margin-top: 4px; font-size: 17px; font-weight: 500; }
 .data-check { margin: 18px 0 0; padding: 16px 18px; background: var(--bad-wash); border-left: 4px solid var(--bad); }
 .data-check-label { display: flex; gap: 8px; align-items: center; font: 500 13px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--bad-ink); }
+.data-check-label svg { width: 14px; height: 14px; flex: none; }
 .data-check li { margin-top: 6px; list-style: disc; margin-left: 20px; }
+.draw-error { padding: 14px 16px; background: var(--bad-wash); color: var(--bad-ink); border-left: 4px solid var(--bad); }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
 .chip svg { width: 12px; height: 12px; flex: none; }
 .chip.on { background: var(--good-wash); color: var(--good-ink); }
@@ -425,6 +427,8 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   /* A row may break between its items, never inside one, and its heading stays with what follows it. */
   .row, .summary, .proof, .found > ul { display: block; }
   .rail { margin-bottom: 16px; break-after: avoid; }
+  .rail, .rail-in { break-inside: avoid; }
+  .proof > :first-child { break-before: avoid; }
   .proof > * + *, .found li + li { margin-top: 14px; }
   .moves { margin-top: 20px; }
   .items li, .tl li, .draft, .check li, .tile, tr, .found li, .moves li, .decide, .co, .nt, .pl, .qc, .ch, .meter, .prog, .dl-row, .hbar-item, .ros-item, .mini, .chart, .callout, .memo-part, .math-body li { break-inside: avoid; }
@@ -537,6 +541,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     return h('div.disc', btn, wrap);
   }
   function math(lines, title) {
+    if (typeof lines === 'string') lines = [lines];
     if (!lines || !lines.length) return null;
     return disclose('Show The Math', h('div.math-body', title ? h('p', title) : null, h('ul', lines.map(function (l) { return h('li', l); }))));
   }
@@ -1030,7 +1035,16 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       h('p', 'Nothing you do on this page changes your numbers or sends anything. Names you type, boxes you tick and options you pick stay in this browser only.')),
       lockup('div.lockup.lockup-end')];
   }
-  put(root, [top(), toc(), bottom(), (D.sections || []).map(section), end()]);
+  /* One section that cannot be drawn says so in place; every other section still draws. */
+  function safeSection(s, i) {
+    try { return section(s, i); } catch (e) {
+      if (window.console) console.error('Section "' + (s && (s.label || s.id)) + '" could not be drawn: ' + e.message);
+      return h('section.row', { id: 's-' + ((s && s.id) || i), 'aria-label': (s && s.label) || 'Section' },
+        h('div.rail', h('div.rail-in', h('p.eyebrow', h('span.sec-num', pad(i + 1)), (s && s.label) || ''))),
+        h('div.proof', h('p.draw-error', { role: 'alert' }, 'This part of the page could not be drawn. Ask for the page to be built again.')));
+    }
+  }
+  put(root, [top(), toc(), bottom(), (D.sections || []).map(safeSection), end()]);
 
   /* A long figure ("$8,841,500") steps its tile number down until it fits its tile, never below 22px. */
   function fitTiles(scope) {
