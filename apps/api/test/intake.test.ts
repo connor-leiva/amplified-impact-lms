@@ -9,7 +9,7 @@ import type { App } from '../src/app';
 import { INTAKE_CONFLICT, INTAKE_OUT_OF_DATE } from '@ai/core/intake';
 import { STACK_CONFLICT } from '@ai/core/stack';
 import { WEEK0_STACK } from '@ai/core/seed/stack-v1';
-import { auditLog, teamIntake, teamStackCard, teams, users } from '../src/db/schema';
+import { auditLog, checklistState, teamIntake, teamStackCard, teams, users } from '../src/db/schema';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 import type { Database } from '../src/db/client';
 
@@ -30,6 +30,8 @@ beforeAll(async () => {
     intake: { ...WEEK0_INTAKE, sections: WEEK0_INTAKE.sections.map((x) => ({ ...x, questions: x.questions.map((q) => (required.has(q.id) ? { ...q, required: true } : q)) })) },
     stackCard: WEEK0_STACK,
   };
+  // D-253: step 1's item as it is live, titled "Send back your stack card", with no Form action.
+  week.checklist[0]!.paths = { claude: { blocks: [{ type: 'check', id: 's1-send-back', title: 'Send back your stack card' }] } };
   await resetDatabase(db);
   await handle.insert(teams).values([
     { id: 'team-a', name: 'Team A', ownerId: 'own-a', seats: 5, seq: 90 },
@@ -171,6 +173,19 @@ describe('two people on one stack card (H-10, D-248)', () => {
     expect(rowOf(card!.rows, 'Books').tool).not.toBe('Xero');
     expect((await putAs(ops, { rows: [], send: true })).statusCode).toBe(409);
     expect((await putAs(ops, { changes: { Books: { ...rowOf(card!.rows, 'Books'), who: 'my password' } }, base: { Books: rowOf(card!.rows, 'Books') } })).statusCode).toBe(422);
+  });
+});
+
+// D-253: Send Back ticks the live step 1 item, found by its title, for everyone on the team, and no one else.
+describe('Send Back ticks "Send back your stack card" (D-253)', () => {
+  it('checks the item for every teammate, as auto', async () => {
+    const owner = await app.signInAs('own-a');
+    const res = await app.inject({ method: 'PUT', url: '/api/stack', headers: { cookie: owner, 'content-type': 'application/json' }, payload: { changes: {}, base: {}, send: true } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().sentAt).toBe(Date.parse(NOW));
+    const ticks = await handle.select().from(checklistState).where(eq(checklistState.itemId, 's1-send-back'));
+    expect(ticks.map((t) => t.userId).sort()).toEqual(['op-a', 'ops-a', 'own-a']);
+    expect(ticks.every((t) => t.moduleId === WEEK0_MODULE_ID && t.checked && t.auto)).toBe(true);
   });
 });
 

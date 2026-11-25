@@ -48,6 +48,8 @@ export function IntakeCard({ draft, up }: WeekCardsProps) {
               <label>
                 Intro
                 <textarea value={form.intro ?? ''} onChange={(e) => set((f) => { f.intro = e.target.value; })} />
+                {/* D-253: what the learner's intake reads (`introBlocks`). */}
+                <span className={clsx(k.me, w.hint)}>Blank line for a new paragraph. Start a line with - for a list. **Bold**.</span>
               </label>
               {form.sections.map((section, s) => (
                 <Section key={s} section={section} onTitle={(title) => set((f) => { f.sections[s]!.title = title; })} onAsk={(i, q) => set((f) => { f.sections[s]!.questions[i] = q; })} onRemove={(i) => {

@@ -3,6 +3,7 @@
 
 import type { StackCardContent } from './course-types';
 import type { IntakeAnswers } from './intake';
+import { sessionTimeMtCt } from './release';
 import type { AIEmployee } from './types';
 
 export interface StackRow {
@@ -111,6 +112,12 @@ export function mergeStackEdit(
   return { rows, conflicts, secret: cleaned.secret };
 }
 
+/**
+ * Send Back's box on step 1, when no item's Form action opens the stack card: an item titled as one of these, in any
+ * case. D-253 adds the live title, "Send back your stack card", to the draft's "Fill in your stack card".
+ */
+const STACK_TITLES: readonly string[] = ['fill in your stack card', 'send back your stack card'];
+
 export function stackCheckTarget(mod: AIEmployee | undefined): { moduleId: string; stepId: string; itemId: string } | null {
   const step = mod?.checklist[0];
   if (!mod || !step) return null;
@@ -120,11 +127,25 @@ export function stackCheckTarget(mod: AIEmployee | undefined): { moduleId: strin
     return { moduleId: mod.id, stepId: step.id, itemId: b.action.itemId?.trim() || b.id };
   }
   for (const b of blocks) {
-    if (b.type === 'check' && b.title.trim().toLowerCase() === 'fill in your stack card') {
+    if (b.type === 'check' && STACK_TITLES.includes(b.title.trim().toLowerCase())) {
       return { moduleId: mod.id, stepId: step.id, itemId: b.id };
     }
   }
   return null;
+}
+
+/**
+ * D-253: what the Console's View stack card shows staff. One line a row (its source, tool, plan and who), then whether
+ * the team sent it back, with the time in Mountain and Central (`sessionTimeMtCt`, D-250). A team with no card yet
+ * reads as that alone.
+ */
+export function stackCardText(card: { rows: readonly StackRow[]; sentAt: number | null }): string {
+  if (!card.rows.length && card.sentAt === null) return 'No stack card yet.';
+  const rows = card.rows.map((r) => {
+    const who = typeof r.who === 'string' ? r.who.trim() : '';
+    return `${r.source}: ${r.tool} (${r.plan})${who ? `, Who: ${who}` : ''}`;
+  });
+  return [...rows, card.sentAt === null ? 'Not sent back yet' : `Sent back ${sessionTimeMtCt(card.sentAt)}`].join('\n');
 }
 
 export function stackCopy(card: StackCardContent | undefined): { path: string; label: string; text: string }[] {

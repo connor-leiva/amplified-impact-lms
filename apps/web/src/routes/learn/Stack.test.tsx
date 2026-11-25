@@ -7,6 +7,8 @@ import { ToasterProvider } from '../../components/primitives/Toaster';
 import { StackPage } from './Stack';
 import { LearnProvider } from './data';
 import { LEARNER_ID, learnState, PRELAUNCH_NOW } from './test/fixture';
+import s from './Intake.module.css';
+import l from './Learn.module.css';
 
 const card: StackCardContent = {
   sources: [
@@ -90,5 +92,36 @@ describe('the stack card (H-10)', () => {
     expect(tool).toHaveAttribute('readonly');
     expect(screen.getByRole('button', { name: 'Send Back' })).toBeDisabled();
     expect(puts).toHaveLength(1);
+  });
+});
+
+// D-253: the page in the learner frame, titled Stack Card, and once sent, when, in Mountain and Central.
+describe('the Stack Card page (D-253)', () => {
+  const SENT = Date.parse('2026-11-27T17:30:00Z');
+
+  it('is titled Stack Card, in the learner frame, and says nothing about sending before it is sent', async () => {
+    stub([() => json({ rows, sentAt: null })], () => json({ rows, sentAt: SENT }));
+    page();
+    const h1 = await screen.findByRole('heading', { level: 1, name: 'Stack Card' });
+    expect(h1.parentElement).toHaveClass(s.page!);
+    expect(h1.parentElement!.parentElement).toHaveClass(l.pg!);
+    await screen.findByRole('heading', { name: 'Books' });
+    expect(screen.queryByText(/^Sent back /)).toBeNull();
+  });
+
+  it('after Send Back, the button says Sent Back and the page says when, MT / CT', async () => {
+    stub([() => json({ rows, sentAt: null })], () => json({ rows, sentAt: SENT }));
+    page();
+    await screen.findByRole('heading', { name: 'Books' });
+    fireEvent.click(screen.getByRole('button', { name: 'Send Back' }));
+    expect(await screen.findByRole('button', { name: 'Sent Back' })).toBeInTheDocument();
+    expect(screen.getByText('Sent back Fri, Nov 27, 10:30 AM MT / 11:30 AM CT')).toHaveAttribute('role', 'status');
+  });
+
+  it('a card already sent says when it was, as it loads', async () => {
+    stub([() => json({ rows, sentAt: SENT })], () => json({ rows, sentAt: SENT }));
+    page();
+    expect(await screen.findByText('Sent back Fri, Nov 27, 10:30 AM MT / 11:30 AM CT')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sent Back' })).toBeInTheDocument();
   });
 });

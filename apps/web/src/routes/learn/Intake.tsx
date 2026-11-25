@@ -5,6 +5,7 @@
 // changed (`intake-sync.ts`), and a teammate's change to the same question stops the page with a reload message, what
 // was typed still on screen to copy. H-11 (D-248): a question not required says "Optional", as the v3 drawer does
 // (D-229), and a submit with a required answer missing names the questions, marks each and moves to the first.
+// D-253: the page sits in the learner frame (`l.pg`), and the intro keeps the lines staff typed (`IntroText`).
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
@@ -16,6 +17,7 @@ import type { IntakeAnswers } from '@ai/core/intake';
 import { cleanIntakeAnswers, intakeMissing, intakeQuestions } from '@ai/core/intake';
 import { Icon } from '../../components/Icon';
 import { useLearn } from './data';
+import { IntroText } from './IntroText';
 import { DOWNLOAD_ANSWERS_LABEL, downloadIntakePdf } from './intake-pdf';
 import { learnWeek } from './routes';
 import { v3For } from './lms-v3/v3';
@@ -256,73 +258,75 @@ export function IntakePage({ week }: { week: number }) {
   const editable = load.kind === 'ready';
   const gaps = intakeQuestions(form).filter((q) => missing.includes(q.id));
   return (
-    <div className={s.page}>
-      <Link className={l.back} to={learnWeek(week)}>
-        <Icon name="r2Back" size={14} strokeWidth={1.75} />
-        Back
-      </Link>
-      <h1 className={l.h0}>Week 0 Intake</h1>
-      {form.intro ? <p className={s.intro}>{form.intro}</p> : null}
-      {staff ? <p className={s.saved}>Preview: Answers Aren’t Saved</p> : null}
-      {stamp ? <p className={s.saved} role="status">{stamp}</p> : null}
-      {submittedAt ? <p className={s.saved}>Submitted {fmt.time(submittedAt)}</p> : null}
-      {load.kind === 'failed' ? (
-        <div className={s.failed}>
-          <p className={s.error} role="alert">{load.error}</p>
-          {load.retry ? (
-            <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setAttempt((n) => n + 1)}>
-              Retry
+    <div className={l.pg}>
+      <div className={s.page}>
+        <Link className={l.back} to={learnWeek(week)}>
+          <Icon name="r2Back" size={14} strokeWidth={1.75} />
+          Back
+        </Link>
+        <h1 className={l.h0}>Week 0 Intake</h1>
+        <IntroText text={form.intro} className={s.intro} />
+        {staff ? <p className={s.saved}>Preview: Answers Aren’t Saved</p> : null}
+        {stamp ? <p className={s.saved} role="status">{stamp}</p> : null}
+        {submittedAt ? <p className={s.saved}>Submitted {fmt.time(submittedAt)}</p> : null}
+        {load.kind === 'failed' ? (
+          <div className={s.failed}>
+            <p className={s.error} role="alert">{load.error}</p>
+            {load.retry ? (
+              <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setAttempt((n) => n + 1)}>
+                Retry
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        {error ? (
+          <div className={s.alert} role="alert" ref={alertRef} tabIndex={-1}>
+            <p className={s.error}>{error}</p>
+            {gaps.length ? (
+              <ul className={s.gaps}>
+                {gaps.map((q) => (
+                  <li key={q.id}>
+                    <a
+                      href={`#${fieldId(q)}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const el = document.getElementById(fieldId(q));
+                        el?.focus({ preventScroll: true });
+                        el?.scrollIntoView?.({ block: 'center' });
+                      }}
+                    >
+                      {q.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+        {load.kind !== 'loading' ? (
+          <fieldset className={s.lock} disabled={!editable}>
+            {form.sections.map((section) => (
+              <section key={section.title} className={s.section} aria-labelledby={`sec-${section.title}`}>
+                <h2 id={`sec-${section.title}`}>{section.title}</h2>
+                <IntroText text={section.intro} className={s.intro} />
+                {section.questions.map((q) => (
+                  <Field key={q.id} q={q} value={answers[q.id]} invalid={missing.includes(q.id)} readOnly={stale} onChange={(v) => onChange(q.id, v)} />
+                ))}
+              </section>
+            ))}
+          </fieldset>
+        ) : null}
+        <div className={s.acts}>
+          <button type="button" className={`${l.b} ${l.bp}`} disabled={!editable || stale} onClick={() => save(true)}>
+            Submit
+          </button>
+          {submittedAt && !staff ? (
+            <button type="button" className={l.b} onClick={downloadPdf} disabled={pdfBusy} aria-busy={pdfBusy || undefined}>
+              <Icon name="download" size={14} strokeWidth={1.75} />
+              {DOWNLOAD_ANSWERS_LABEL}
             </button>
           ) : null}
         </div>
-      ) : null}
-      {error ? (
-        <div className={s.alert} role="alert" ref={alertRef} tabIndex={-1}>
-          <p className={s.error}>{error}</p>
-          {gaps.length ? (
-            <ul className={s.gaps}>
-              {gaps.map((q) => (
-                <li key={q.id}>
-                  <a
-                    href={`#${fieldId(q)}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const el = document.getElementById(fieldId(q));
-                      el?.focus({ preventScroll: true });
-                      el?.scrollIntoView?.({ block: 'center' });
-                    }}
-                  >
-                    {q.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
-      {load.kind !== 'loading' ? (
-        <fieldset className={s.lock} disabled={!editable}>
-          {form.sections.map((section) => (
-            <section key={section.title} className={s.section} aria-labelledby={`sec-${section.title}`}>
-              <h2 id={`sec-${section.title}`}>{section.title}</h2>
-              {section.intro ? <p className={s.intro}>{section.intro}</p> : null}
-              {section.questions.map((q) => (
-                <Field key={q.id} q={q} value={answers[q.id]} invalid={missing.includes(q.id)} readOnly={stale} onChange={(v) => onChange(q.id, v)} />
-              ))}
-            </section>
-          ))}
-        </fieldset>
-      ) : null}
-      <div className={s.acts}>
-        <button type="button" className={`${l.b} ${l.bp}`} disabled={!editable || stale} onClick={() => save(true)}>
-          Submit
-        </button>
-        {submittedAt && !staff ? (
-          <button type="button" className={l.b} onClick={downloadPdf} disabled={pdfBusy} aria-busy={pdfBusy || undefined}>
-            <Icon name="download" size={14} strokeWidth={1.75} />
-            {DOWNLOAD_ANSWERS_LABEL}
-          </button>
-        ) : null}
       </div>
     </div>
   );

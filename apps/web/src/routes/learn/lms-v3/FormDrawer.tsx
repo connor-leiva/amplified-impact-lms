@@ -25,9 +25,12 @@
 // same foot words for what no save gave (the intake that didn't load, shown with the drawer locked).
 // D-246 adds one more, the same way: `ui.submittedPdfLabel`, a download button on the submitted banner (the intake's
 // "Download Your Answers (PDF)"). It shares Download PDF's state and action, so one file is made at a time.
+// D-253: the intro and a section's intro keep the lines staff typed (`IntroText`: paragraphs, "- " lists, bold). One
+// paragraph is the package's <p>, as before.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Icon } from './Icons';
+import { IntroText } from '../IntroText';
 import { Drawer, HairlineSweep, RollLabel, SignalMark, isReducedMotion, restartAnimation } from '@brand/ai-motion';
 import type { AsyncState, MotionStyle } from '@brand/ai-motion';
 import type { FormAnswers, FormDef, FormInitial, FormQuestion, FormStatus } from './types';
@@ -201,10 +204,10 @@ export function FormDrawer({ f: fm, open, onClose, locked = false }: { f: FormAp
               {ui.submittedPdfLabel ? <div style={BANNER_PDF}><AsyncBtn cls="wk-btn-secondary aim-async fm-banner-pdf" state={fm.pdf} icon="down" label={ui.submittedPdfLabel} done="Downloaded" onClick={fm.download} /></div> : null}
             </div></div>
           )}
-          {intake.intro && <p className="fm-intro aim-in" style={{ '--i': 1 } as MotionStyle}>{intake.intro}</p>}
+          <IntroText text={intake.intro} className="fm-intro aim-in" style={{ '--i': 1 } as MotionStyle} />
           {intake.sections.map((x, i) => (
             <section className="fm-sec aim-in" style={{ '--i': i + 2 } as MotionStyle} key={x.title}>
-              <div className="fm-sec-h"><h3 className="fm-sec-t"><span className="fm-no">{String(i + 1).padStart(2, '0')}</span>{x.title}</h3>{x.intro && <p className="fm-sec-d">{x.intro}</p>}</div>
+              <div className="fm-sec-h"><h3 className="fm-sec-t"><span className="fm-no">{String(i + 1).padStart(2, '0')}</span>{x.title}</h3><IntroText text={x.intro} className="fm-sec-d" /></div>
               {x.questions.map((f) => <Field key={f.id} f={f} fm={fm} locked={locked} />)}
             </section>
           ))}

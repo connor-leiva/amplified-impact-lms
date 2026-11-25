@@ -1,10 +1,13 @@
 /* D-196: the intake form. Tokens only. Fields are 44px tall. */
 
+/* D-253: the intake and the stack card sit in the learner frame (`.pg`: its top padding, side gutter and centring), as
+   the week and step pages do. The form keeps a readable column, the week head's width (`Checklist.module.css` `.head`),
+   left-aligned in the frame. */
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 720px;
+  max-width: 760px;
 }
 .intro,
 .help,
@@ -147,16 +150,4 @@
   background: var(--r2-sub);
   border-style: dashed;
   cursor: not-allowed;
-}
-
-/* Audit M-3 (D-248): on a phone the page runs edge to edge, so everything outside the question cards (Back, the title,
-   the intro, the saved line, the messages, Submit) takes the page's side gutter, as the cards' own text has. The cards
-   keep their width: their group steps back out by the same gutter. */
-@media (max-width: 767px) {
-  .page {
-    padding-inline: var(--r2-pad);
-  }
-  .lock {
-    margin-inline: calc(var(--r2-pad) * -1);
-  }
 }

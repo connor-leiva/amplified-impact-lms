@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
 import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
+import { stackCardText } from '@ai/core/stack';
 import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Page } from '../../components/r2/Page';
@@ -41,6 +42,9 @@ import type { MemberVM, WorkspaceTab } from './workspaces.vm';
 // is the app's own order records (Stripe's reads are the Billing PR); Usage is the last 7 days' counts
 // (D-166). "Masquerade as owner" and a member's "Masquerade…" open the reason dialog (D-162 3b): Owner
 // and Admin only.
+
+/** D-253: the intake and stack card text wraps inside its card on a phone (as the Audit Log's does) rather than running off it. */
+const WRAP = { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } as const;
 
 export function Component() {
   const { teamId = '' } = useParams();
@@ -210,13 +214,13 @@ export function Component() {
           </span>
         }
       >
-        {intake ? <pre className={k.mo}>{intake}</pre> : <span className={k.mu}>Not loaded</span>}
+        {intake ? <pre className={k.mo} style={WRAP}>{intake}</pre> : <span className={k.mu}>Not loaded</span>}
         <Button
           kind="quiet"
           onClick={() => {
             if (!api) return;
             api.teamStack(teamId).then(
-              (row) => setIntake(row.rows.map((r) => `${r.source}: ${r.tool} (${r.plan})`).join('\n') || 'No stack card yet.'),
+              (row) => setIntake(stackCardText(row)),
               () => setIntake('Could not load the stack card.'),
             );
           }}

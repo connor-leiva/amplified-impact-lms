@@ -2,10 +2,12 @@
 // H-10 (D-248): editable only once the card has loaded (a failed load says so, with Retry). Send Back sends only the
 // rows changed since the load, each as it was (`stackEdit`), so a teammate's other rows stay; a row they changed too
 // is refused (409) and the page says to reload, what was typed still on screen to copy.
+// D-253: titled Stack Card, in the learner frame; once sent, "Sent Back" and when, in MT / CT (`sessionTimeMtCt`).
 
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { isLockedWeek } from '@ai/core/course';
+import { sessionTimeMtCt } from '@ai/core/release';
 import type { StackCardContent } from '@ai/core/course-types';
 import { stackEdit } from '@ai/core/stack';
 import type { StackRow } from '@ai/core/stack';
@@ -24,6 +26,8 @@ export function StackPage({ week }: { week: number }) {
   const [error, setError] = useState<string | null>(null);
   const [example, setExample] = useState(false);
   const [sent, setSent] = useState(false);
+  // D-253: when the team sent the card back, shown in Mountain and Central (D-250). A staff preview sends nothing.
+  const [sentAt, setSentAt] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [retry, setRetry] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -54,6 +58,7 @@ export function StackPage({ week }: { week: number }) {
         base.current = body.rows;
         setRows(body.rows);
         setSent(body.sentAt !== null);
+        setSentAt(typeof body.sentAt === 'number' ? body.sentAt : null);
         setError(null);
         setLoaded(true);
       })
@@ -86,6 +91,7 @@ export function StackPage({ week }: { week: number }) {
         if (!res.ok) throw new Error(json.error || 'That did not save.');
         base.current = base.current.map((r) => edit.changes[r.source] ?? r);
         setSent(json.sentAt != null);
+        setSentAt(typeof json.sentAt === 'number' ? json.sentAt : null);
         setError(null);
       })
       .catch((e: Error) => setError(e.message));
@@ -93,63 +99,66 @@ export function StackPage({ week }: { week: number }) {
 
   if (!card) return <p className={s.intro}>This week has no stack card.</p>;
   return (
-    <div className={s.page}>
-      <Link className={l.back} to={learnWeek(week)}>
-        <Icon name="r2Back" size={14} strokeWidth={1.75} />
-        Back
-      </Link>
-      <h1 className={l.h0}>Stack card</h1>
-      <p className={s.help}>Never a password.</p>
-      {staff ? <p className={s.saved}>Preview: Answers Aren’t Saved</p> : null}
-      {error ? (
-        <div className={s.failed}>
-          <p className={s.error} role="alert">{error}</p>
-          {retry && !loaded ? (
-            <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setAttempt((n) => n + 1)}>
-              Retry
-            </button>
-          ) : null}
+    <div className={l.pg}>
+      <div className={s.page}>
+        <Link className={l.back} to={learnWeek(week)}>
+          <Icon name="r2Back" size={14} strokeWidth={1.75} />
+          Back
+        </Link>
+        <h1 className={l.h0}>Stack Card</h1>
+        <p className={s.help}>Never a password.</p>
+        {staff ? <p className={s.saved}>Preview: Answers Aren’t Saved</p> : null}
+        {sentAt !== null ? <p className={s.saved} role="status">Sent back {sessionTimeMtCt(sentAt)}</p> : null}
+        {error ? (
+          <div className={s.failed}>
+            <p className={s.error} role="alert">{error}</p>
+            {retry && !loaded ? (
+              <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setAttempt((n) => n + 1)}>
+                Retry
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        {(loaded ? rows : []).map((row, i) => {
+          const source = card.sources.find((s) => s.name === row.source);
+          return (
+            <section key={row.source} className={s.section}>
+              <h2>{row.source}</h2>
+              {source ? <p className={s.help}>Green: {source.green}. Yellow: {source.yellow}</p> : null}
+              <label className={s.field}>
+                Tool
+                <input value={row.tool} readOnly={stale} onChange={(e) => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, tool: e.target.value } : r)))} />
+              </label>
+              <label className={s.field}>
+                Who
+                <input value={row.who} readOnly={stale} onChange={(e) => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, who: e.target.value } : r)))} />
+              </label>
+              <label className={s.choice}>
+                <input type="radio" name={`plan-${i}`} disabled={stale} checked={row.plan === 'green'} onChange={() => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, plan: 'green' } : r)))} />
+                Green
+              </label>
+              <label className={s.choice}>
+                <input type="radio" name={`plan-${i}`} disabled={stale} checked={row.plan === 'yellow'} onChange={() => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, plan: 'yellow' } : r)))} />
+                Yellow
+              </label>
+            </section>
+          );
+        })}
+        <div className={s.acts}>
+          <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setExample(true)}>Show Example</button>
+          <button type="button" className={`${l.b} ${l.bp}`} disabled={!loaded || stale} onClick={send}>{sent ? 'Sent Back' : 'Send Back'}</button>
         </div>
-      ) : null}
-      {(loaded ? rows : []).map((row, i) => {
-        const source = card.sources.find((s) => s.name === row.source);
-        return (
-          <section key={row.source} className={s.section}>
-            <h2>{row.source}</h2>
-            {source ? <p className={s.help}>Green: {source.green}. Yellow: {source.yellow}</p> : null}
-            <label className={s.field}>
-              Tool
-              <input value={row.tool} readOnly={stale} onChange={(e) => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, tool: e.target.value } : r)))} />
-            </label>
-            <label className={s.field}>
-              Who
-              <input value={row.who} readOnly={stale} onChange={(e) => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, who: e.target.value } : r)))} />
-            </label>
-            <label className={s.choice}>
-              <input type="radio" name={`plan-${i}`} disabled={stale} checked={row.plan === 'green'} onChange={() => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, plan: 'green' } : r)))} />
-              Green
-            </label>
-            <label className={s.choice}>
-              <input type="radio" name={`plan-${i}`} disabled={stale} checked={row.plan === 'yellow'} onChange={() => setRows((cur) => cur.map((r, n) => (n === i ? { ...r, plan: 'yellow' } : r)))} />
-              Yellow
-            </label>
+        {example ? (
+          <section className={s.section} role="dialog" aria-modal="true" aria-label={card.exampleLabel}>
+            <h2>{card.exampleTeam}</h2>
+            <p className={s.saved}>{card.exampleLabel}</p>
+            {card.example.map((row) => (
+              <p key={row.source} className={s.help}>{row.source}: {row.tool}, {row.plan}, {row.who}</p>
+            ))}
+            <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setExample(false)}>Close</button>
           </section>
-        );
-      })}
-      <div className={s.acts}>
-        <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setExample(true)}>Show Example</button>
-        <button type="button" className={`${l.b} ${l.bp}`} disabled={!loaded || stale} onClick={send}>{sent ? 'Sent back' : 'Send Back'}</button>
+        ) : null}
       </div>
-      {example ? (
-        <section className={s.section} role="dialog" aria-modal="true" aria-label={card.exampleLabel}>
-          <h2>{card.exampleTeam}</h2>
-          <p className={s.saved}>{card.exampleLabel}</p>
-          {card.example.map((row) => (
-            <p key={row.source} className={s.help}>{row.source}: {row.tool}, {row.plan}, {row.who}</p>
-          ))}
-          <button type="button" className={`${l.b} ${l.bq}`} onClick={() => setExample(false)}>Close</button>
-        </section>
-      ) : null}
     </div>
   );
 }
