@@ -11,8 +11,9 @@ const sha = (p: string) => createHash('sha256').update(readFileSync(join(ROOT, p
 
 const FILES: [string, string, string][] = [
   ['apps/web/src/routes/learn/lms-v3/lms.tokens.css', 'handoff/lms-v3/src/lms.tokens.css', 'f067d092f27d68d0f9af463e28a22597bd85dac5e1d94fe3bcfdef77e907ab7d'],
-  // D-257 (Q-B7, Connor Nov 25): the "Done" chip, the drawer's kicker and its section numbers in forest, regenerated.
-  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', 'd11e5243b99f882f80ca7d2a81a28a84dbd101927c62893a0733a96c2feadf51'],
+  // D-257 (Connor, Nov 25): Q-B7, the "Done" chip, the drawer's kicker and its section numbers in forest; Q-B8, the
+  // phone's grid rows (the sidebar its own height, the page the rest). Both made in the mockup and regenerated.
+  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', '0da86e21583abb4118c3b896b2cc174f2e5b95b0695de92aa32499d4137e5509'],
   ['apps/web/src/routes/learn/lms-v3/icons.generated.js', 'handoff/lms-v3/src/components/icons.generated.js', '0fa73d8503a47fc367133acfb6ac9f36b7c5da2d37928707001d2002d9e59894'],
 ];
 
@@ -68,9 +69,10 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(sha(`design-reference/brand/${f}`)).toBe(want);
   });
 
-  // v7 was ab62643b…; D-257 (Q-B7) moves three text colours from --energy to --forest (Connor, Nov 25).
-  it('the package’s mockup is the approved revision (v7, with D-257’s darker green)', () => {
-    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('6f0b0d97d3ee5a8261cbfce052276966c28c2b069dd45209536ceb73d23dccf1');
+  // v7 was ab62643b…; D-257 (Connor, Nov 25): Q-B7 moves three text colours from --energy to --forest, and Q-B8 gives
+  // the phone's grid its rows.
+  it('the package’s mockup is the approved revision (v7, with D-257’s two changes)', () => {
+    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('1c9d186f64e746a1fbf4ab9af7fd31a220c1f4cd9423a17abd4737a61cd126b4');
   });
 });
 

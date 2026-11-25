@@ -325,7 +325,7 @@ html:has([data-ai]) body{margin:0;background:var(--sp-bone)}
 .sh-mut{color:var(--sp-ink-2)}
 .sh-acct{margin-left:auto}
 @media (max-width:900px){
-  .sh-app,.sh-app[data-collapsed="true"]{grid-template-columns:minmax(0,1fr)}
+  .sh-app,.sh-app[data-collapsed="true"]{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
   .sh-side{border-right:0;border-bottom:var(--sp-border)}
   .sh-side-in{position:static;height:auto}
   .sh-brand{padding:12px var(--sp-s3)}
