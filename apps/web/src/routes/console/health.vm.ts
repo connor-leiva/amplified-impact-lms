@@ -22,6 +22,7 @@ import type {
   SeatBar,
 } from '@ai/core';
 import type { HealthSample } from '../../data/console';
+import { teamPath } from '../../shell/admin/addresses';
 
 export const NONE = '—';
 
@@ -151,14 +152,14 @@ const DEPLOY_LABEL: Record<HealthDeployStatus, string> = {
 
 /** Each tile's screen, as the mockup's `go` sends it. */
 const TILE_TO: Record<HealthTileKey, string> = {
-  connectedBrowsers: '/admin/usage',
-  signInSuccess: '/admin/usage',
-  failedPayments: '/admin/billing/failed',
+  connectedBrowsers: '/admin/revenue/usage',
+  signInSuccess: '/admin/revenue/usage',
+  failedPayments: '/admin/revenue/payments/failed',
   failedWebhooks: '/admin/api/hooks',
   jobFailures: '/admin/jobs',
   openIncidents: '/admin/incidents',
-  mrr: '/admin/billing',
-  acceleratorSeats: '/admin/billing',
+  mrr: '/admin/revenue',
+  acceleratorSeats: '/admin/revenue',
 };
 
 const count = (n: number, bad: string): Pick<TileVM, 'sub' | 'tone'> => (n > 0 ? { sub: bad, tone: 'bad' } : { sub: C.none, tone: 'ok' });
@@ -214,7 +215,7 @@ export function attentionVM(a: HealthAttention): AttentionVM {
         title: `${a.customer ?? a.invoiceId} is past due`,
         meta: [a.plan, usdCents(a.amountCents), last].filter(Boolean).join(' · '),
         pill: statusOf('Past due'),
-        to: '/admin/billing/failed',
+        to: '/admin/revenue/payments/failed',
       };
     }
     case 'webhook':
@@ -247,7 +248,7 @@ export function attentionVM(a: HealthAttention): AttentionVM {
         title: `${a.name} is at ${a.used} of ${a.cap} seats`,
         meta: planLine(a.plan, a.cap),
         pill: statusOf('Waiting'),
-        to: `/admin/workspaces/${encodeURIComponent(a.teamId)}`,
+        to: teamPath(a.teamId),
       };
   }
 }
@@ -291,7 +292,7 @@ export function healthVM(r: HealthResponse, sample: HealthSample | null = null):
         r.seatPressure?.map((s) => ({
           key: s.key,
           name: s.name,
-          to: s.teamId ? `/admin/workspaces/${encodeURIComponent(s.teamId)}` : '/admin/billing',
+          to: s.teamId ? teamPath(s.teamId) : '/admin/revenue',
           pct: seatPct(s.used, s.cap),
           bar: seatBar(s.used, s.cap, s.kind),
           text: `${s.used} / ${s.cap}`,

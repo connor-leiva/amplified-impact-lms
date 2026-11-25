@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import clsx from 'clsx';
+import { useParams } from 'react-router';
 import { useToaster } from '../../components/primitives/Toaster';
 import { Button } from '../../components/r2/Button';
 import type { MenuEntry } from '../../components/r2/Menu';
@@ -9,7 +10,6 @@ import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Facts, PageHead, k } from '../../components/r2/kit';
-import { ADMIN_COHORT } from '../../data/admin-shell';
 import { refusal, useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import { addSessionArgsR2, blankSessionFormR2, cohortsR2VM, sessionArgsR2, sessionFormR2 } from './Cohorts.vm';
 import type { CohortsR2Row, SessionForm } from './Cohorts.vm';
@@ -34,7 +34,9 @@ export function Component() {
   const mutate = useMutate();
   const act = useAct();
   const { toast } = useToaster();
-  const vm = cohortsR2VM(db, now, ADMIN_COHORT);
+  // D-253: Cohort › Schedule. The cohort is the address's (`/admin/cohort/:cohortId/schedule`); `ADMIN_COHORT` went.
+  const { cohortId = '' } = useParams();
+  const vm = cohortsR2VM(db, now, cohortId);
 
   // `id: null` is Add session; otherwise the session Edit session changes.
   const [edit, setEdit] = useState<{ id: string | null; n: number; form: SessionForm; err: string } | null>(null);
@@ -64,7 +66,7 @@ export function Component() {
     if (!edit) return;
     const out =
       edit.id === null
-        ? await act('addSession', addSessionArgsR2(vm?.cohortId ?? ADMIN_COHORT, edit.form))
+        ? await act('addSession', addSessionArgsR2(vm?.cohortId ?? cohortId, edit.form))
         : await mutate('updateSession', sessionArgsR2(edit.id, edit.form));
     if (out.error) setEdit((e) => (e ? { ...e, err: out.error! } : e));
     else setEdit(null);
@@ -154,7 +156,7 @@ export function Component() {
         right={
           <>
             {/* D-237: the cohort's turned-in files, deleted when it ends (the agreement's Section 7). */}
-            <CohortFilesButton cohortId={vm?.cohortId ?? ADMIN_COHORT} />
+            <CohortFilesButton cohortId={vm?.cohortId ?? cohortId} />
             <Button header kind="primary" icon="r2Plus" onClick={() => setEdit({ id: null, n: 0, form: blankSessionFormR2(), err: '' })}>
               Add session
             </Button>

@@ -9,25 +9,27 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'build' | 'community';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'community';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
   roles: { title: 'Roles & Permissions', cap: 'ops.read', path: '/admin/roles' },
   // D-160 R2-1c (spec §§ 7.3–7.5).
-  workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
-  users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
+  // D-253: People › Teams and People › Everyone (each a tab now, its capability kept).
+  workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/people/teams' },
+  users: { title: 'Users', cap: 'users.read', path: '/admin/people' },
   search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
   // D-162 3b (spec § 6): any Console role opens it; Support sees why it can't start one.
-  masquerade: { title: 'Masquerade', cap: 'console.view', path: '/admin/masquerade' },
+  masquerade: { title: 'Masquerade', cap: 'console.view', path: '/admin/people/masquerade' },
   // D-163 (spec § 7.6).
-  billing: { title: 'Billing', cap: 'billing.read', path: '/admin/billing' },
+  // D-253: Revenue › Summary and Payments.
+  billing: { title: 'Billing', cap: 'billing.read', path: '/admin/revenue' },
   // D-165 (spec §§ 7.9-7.10).
   api: { title: 'API & Webhooks', cap: 'api.read', path: '/admin/api' },
   jobs: { title: 'Scheduled Jobs', cap: 'jobs.read', path: '/admin/jobs' },
   // D-166 (spec §§ 7.7, 7.15).
   email: { title: 'Email Log', cap: 'email.read', path: '/admin/email' },
-  usage: { title: 'Usage', cap: 'usage.read', path: '/admin/usage' },
+  usage: { title: 'Usage', cap: 'usage.read', path: '/admin/revenue/usage' },
   // D-167 (spec § 7.14).
   incidents: { title: 'Incidents', cap: 'incidents.read', path: '/admin/incidents' },
   // D-168 (spec §§ 7.11-7.13): the Operations pages, Owner and Admin (`ops.read`; Support none, D3).
@@ -35,11 +37,11 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   deploys: { title: 'Deploys & Commits', cap: 'ops.read', path: '/admin/deploys' },
   db: { title: 'DB Health', cap: 'ops.read', path: '/admin/db' },
   flags: { title: 'Environment Flags', cap: 'ops.read', path: '/admin/flags' },
-  // D-169 (spec §§ 7.1–7.2): System Health, the Console's home (D15), and the Build hub.
+  // D-169 (spec § 7.1): System Health, the Console's home (D15). D-253: the Build hub (§ 7.2) is Program now.
   health: { title: 'System Health', cap: 'console.view', path: '/admin/health' },
-  build: { title: 'Build', cap: 'console.view', path: '/admin/build' },
   // D-238 (B-45): every Console role reads it; writing is the 'account' row's (`COMMUNITY_WRITE_CAP`).
-  community: { title: 'Community', cap: 'console.view', path: '/admin/community' },
+  // D-253: Cohort › Community, at the cohort's own address (`/admin/cohort/:cohortId/community`).
+  community: { title: 'Community', cap: 'console.view', path: '/admin/cohort' },
 };
 
 /** The way out of Denied and the 404. */

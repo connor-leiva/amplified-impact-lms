@@ -6,17 +6,23 @@ import { initials } from '../../data/admin-shell';
 import type { AdminShellData } from '../../data/admin-shell';
 import { programLogo } from '../../home/program-logo';
 import { peekAfterClick } from './adminNav';
-import type { AdminNavGroup, R2Group } from './adminNav';
+import type { AdminNavEntry, SystemGroup } from './adminNav';
+import type { AdminCohort } from './chrome';
 import { AcademyLogo } from './Wordmark';
 import s from './AdminShell.module.css';
 
 // The admin sidebar (D-160 R2-1b, BUILD-SPEC § 4; D-239, ADMIN-SIDEBAR-SPEC.md): the mockup's `Sidebar`
 // (handoff/admin-mockup/AdminMock.jsx, "proposed"), in its three forms.
-//   full    244px: the academy logo, the cohort switcher with the program's own tile, six group rows (one open,
-//           its pages on a guide line), the rail toggle, the signed-in staff member.
-//   rail    64px (768–1199px by default): the logo through a 26px window (its "ai"), the tile, one icon per
-//           group with a fly-out of its pages, the toggle, the avatar. Each on the same centre line.
+//   full    244px: the academy logo, the cohort switcher with the program's own tile, the single rows (D-253:
+//           Overview, Program, Cohort, People, Revenue, each with what waits on it), a hairline, the groups that
+//           open (Operations, Access; one open, its pages on a guide line), the rail toggle, the signed-in staff member.
+//   rail    64px (768–1199px by default): the logo through a 26px window (its "ai"), the tile, one icon per row:
+//           a single row's opens its page, a group's has a fly-out of its pages. The toggle, the avatar. Each on the
+//           same centre line.
 //   drawer  the phone's 300px drawer: the full sidebar's rows, a Close button, no toggle, no travel.
+//
+// THE COHORT SWITCHER (D-253, the mockup's `CtxSwitch`): the program and the cohort the admin is on; its menu lists
+// every cohort that exists, a draft marked "· Draft", and picking one is the same choice as the Cohort page's title.
 //
 // THE TRAVEL (ADMIN-SIDEBAR-SPEC.md §4, the learner sidebar's move). Three things, so the width and the layout can
 // change at different moments: `narrow` (the column is 64px wide), the layout (`data-mode` rail or full) and
@@ -34,10 +40,12 @@ export type SidebarMode = 'full' | 'rail' | 'drawer';
 export interface SidebarProps {
   mode: SidebarMode;
   data: AdminShellData;
-  groups: readonly AdminNavGroup[];
+  entries: readonly AdminNavEntry[];
+  /** D-253: the cohort the admin is on, and the switcher's list. */
+  cohort: AdminCohort;
   go: (to: string) => void;
   /** D-239: a click on a group's row: open it (closing the rest), or close the open one (`null`). */
-  onPeek: (group: R2Group | null) => void;
+  onPeek: (group: SystemGroup | null) => void;
   onToggleRail: () => void;
   onProfile: () => void;
   profileOpen: boolean;
@@ -55,7 +63,7 @@ interface Flip {
 const tileSrc = (data: AdminShellData): string =>
   `data:image/svg+xml,${encodeURIComponent(programLogo(data.programKey, { variant: 'tile', size: 32, title: '' }))}`;
 
-export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfile, profileOpen, onClose, closeRef }: SidebarProps) {
+export function Sidebar({ mode, data, entries, cohort, go, onPeek, onToggleRail, onProfile, profileOpen, onClose, closeRef }: SidebarProps) {
   const drawer = mode === 'drawer';
   const want = mode === 'rail';
   const [rail, setLayout] = useState(want);
@@ -67,7 +75,7 @@ export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfil
   const was = useRef(want);
   const t1 = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const t2 = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const switcherName = `${data.program} · ${data.cohort}`;
+  const switcherName = `${data.program} · ${cohort.label}`;
 
   // The brand's tokens, read where they apply: a duration in ms, a curve as written.
   const ms = (v: string): number => (el.current ? parseFloat(getComputedStyle(el.current).getPropertyValue(v)) || 0 : 0);
@@ -173,16 +181,12 @@ export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfil
         label="Cohorts"
         placement="below-left"
         className={s.switchMenu}
-        items={[
-          { label: data.cohort, checked: true, onSelect: () => {} },
-          'separator',
-          { label: 'All cohorts', onSelect: () => go('/admin/cohorts') },
-        ]}
+        items={cohort.choices.map((c) => ({ label: c.label, checked: c.current, onSelect: () => cohort.pick(c.id) }))}
         trigger={(t) => (
           <button
             type="button"
             className={s.switcher}
-            aria-label={`Switch cohort. ${data.program}, ${data.cohort}`}
+            aria-label={`Switch cohort. ${data.program}, ${cohort.label}`}
             title={rail ? switcherName : undefined}
             onClick={t.toggle}
             {...t.props}
@@ -192,7 +196,7 @@ export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfil
               <>
                 <span className={s.switcherText}>
                   <span className={`${s.program} ${s.ellipsis}`}>{data.program}</span>
-                  <span className={`${s.cohort} ${s.ellipsis}`}>{data.cohort}</span>
+                  <span className={`${s.cohort} ${s.ellipsis}`}>{cohort.label}</span>
                 </span>
                 <span className={s.muted}>
                   <Icon name="r2Updown" size={14} strokeWidth={1.75} />
@@ -204,8 +208,47 @@ export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfil
       />
 
       <nav className={s.nav} aria-label="Admin">
-        {groups.map((g) =>
-          rail ? (
+        {entries.map((g) =>
+          g.kind === 'page' ? (
+            rail ? (
+              // D-253: a single row in the rail is one icon that opens its page, with no fly-out.
+              <button
+                key={g.label}
+                type="button"
+                className={s.row}
+                data-on={g.active ? 'true' : undefined}
+                title={g.label}
+                aria-label={g.label}
+                aria-current={g.active ? 'page' : undefined}
+                onClick={() => go(g.to)}
+              >
+                <span className={s.fl} data-fl={g.label}>
+                  <Icon name={g.icon} size={16} strokeWidth={1.75} />
+                </span>
+              </button>
+            ) : (
+              // D-253: a single row (`.gx.solo`): it opens its page; what waits on it is beside its name.
+              <button
+                key={g.label}
+                type="button"
+                className={s.group}
+                data-solo="true"
+                data-has={g.active ? 'true' : undefined}
+                aria-current={g.active ? 'page' : undefined}
+                onClick={() => go(g.to)}
+              >
+                <span className={s.fl} data-fl={g.label}>
+                  <Icon name={g.icon} size={16} strokeWidth={1.75} />
+                </span>
+                <span className={s.groupName}>{g.label}</span>
+                {g.roll ? (
+                  <span className={s.roll} data-draft={g.roll.draft ? 'true' : undefined}>
+                    {g.roll.text}
+                  </span>
+                ) : null}
+              </button>
+            )
+          ) : rail ? (
             <Menu
               key={g.label}
               label={g.label}
@@ -229,7 +272,7 @@ export function Sidebar({ mode, data, groups, go, onPeek, onToggleRail, onProfil
               )}
             />
           ) : (
-            <div key={g.label}>
+            <div key={g.label} className={g.sep ? s.sep : undefined}>
               <button
                 type="button"
                 className={s.group}

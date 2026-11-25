@@ -6,7 +6,7 @@
 // behind `import.meta.env.VITE_DATA_SOURCE === 'fixture'`, which Vite makes a constant, so the http
 // build has none of it (`admin-shell-build.test.ts`).
 
-import type { Db } from '@ai/core';
+import type { Cohort, Db } from '@ai/core';
 import type { ProgramKey } from '../home/program-logo';
 import type { ParityR2 } from './parity-r2';
 
@@ -16,15 +16,12 @@ export const PROGRAM = 'Amplified AI Accelerator';
 export const PROGRAM_KEY: ProgramKey = 'accelerator';
 /** The environment dot's label (BUILD-SPEC § 4). There is one environment, production. */
 export const ENVIRONMENT = 'Production';
-/** The cohort the admin shows when nothing else picks one (the shell's `DEFAULT_COHORT`). */
-export const ADMIN_COHORT = 'dec26';
 
 export interface AdminShellData {
   viewer: { name: string; role: string };
   program: string;
   /** D-239: the program's key, for its tile in the cohort switcher. */
   programKey: ProgramKey;
-  cohort: string;
   environment: string;
   /** `waiting` (D-239, D-238): Community threads whose last word is a member's (`useWaitingThreads`). */
   counts: { drafts: number; requests: number; incidents: number; waiting: number };
@@ -47,15 +44,15 @@ export const initials = (name: string): string =>
  * Community's threads waiting on staff (D-238, `useWaitingThreads`); each badge hides at zero.
  */
 /**
- * The cohort the admin shows, as the switcher's second line names it ("{name} Cohort"). D-238: a cohort's own name may
- * start with the program's ("{program} · {month year}", as production's does); the line under the program names the
- * cohort alone, as the mockup's does, so the program isn't said twice.
+ * A cohort's name as the switcher's second line and the Cohort page's title say it ("{name} Cohort"). D-238: a cohort's
+ * own name may start with the program's ("{program} · {month year}", as production's does); the line names the cohort
+ * alone, as the mockup's does, so the program isn't said twice. D-253: any cohort, the one the admin is on (it was
+ * `dec26`'s alone, `ADMIN_COHORT`, which goes: the cohort is in the address now).
  */
-export function adminCohortLabel(db: Db): string {
-  const cohort = db.cohorts.find((c) => c.id === ADMIN_COHORT) ?? db.cohorts[0];
-  if (!cohort) return '';
+export function cohortLabel(cohort: Pick<Cohort, 'name'>): string {
   const prefix = `${PROGRAM} · `;
-  return `${cohort.name.startsWith(prefix) ? cohort.name.slice(prefix.length) : cohort.name} Cohort`;
+  const name = cohort.name.startsWith(prefix) ? cohort.name.slice(prefix.length) : cohort.name;
+  return /\bcohort$/i.test(name) ? name : `${name} Cohort`;
 }
 
 export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0, waiting = 0): AdminShellData {
@@ -64,7 +61,6 @@ export function shellDataFrom(db: Db, staffId: string | null, role: string | nul
     viewer: { name: me?.name ?? '', role: role ?? me?.role ?? '' },
     program: PROGRAM,
     programKey: PROGRAM_KEY,
-    cohort: adminCohortLabel(db),
     environment: ENVIRONMENT,
     counts: {
       drafts: db.modules.filter((m) => m.status === 'draft').length,
@@ -81,7 +77,6 @@ export function shellDataFromParity(p: ParityR2): AdminShellData {
     viewer: { ...p.viewer },
     program: p.program,
     programKey: PROGRAM_KEY,
-    cohort: p.cohort,
     environment: p.environment,
     counts: { ...p.counts, waiting: 0 },
     fullNav: true,

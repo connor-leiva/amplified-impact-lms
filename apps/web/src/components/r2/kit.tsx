@@ -6,6 +6,7 @@ import type { AdminStatus, SeatBar } from '@ai/core';
 import { Icon } from '../Icon';
 import { Button, ButtonLink } from './Button';
 import { Empty } from './Empty';
+import { useInArea } from './area-context';
 import k from './kit.module.css';
 
 // The R2 kit's small pieces (D-160 R2-1c), each the mockup's own (AdminRedesign.jsx): the page head
@@ -14,7 +15,11 @@ import k from './kit.module.css';
 
 export { k };
 
-/** `Head`: an optional way back, the h1 with its status, the description, and the actions. */
+/**
+ * `Head`: an optional way back, the h1 with its status, the description, and the actions. D-253: inside one of the
+ * four pages' tabs a page shows its title once (the mockup's `AreaCtx`, `.shd`): it keeps its description and its
+ * actions, and drops its own h1, its status beside it and its way back.
+ */
 export function PageHead({
   title,
   meta,
@@ -22,12 +27,20 @@ export function PageHead({
   right,
   back,
 }: {
-  title: string;
+  title: ReactNode;
   meta?: ReactNode;
   description?: string;
   right?: ReactNode;
   back?: { to: string; label: string };
 }) {
+  const inArea = useInArea();
+  if (inArea)
+    return description || right ? (
+      <div className={k.shd}>
+        {description ? <p className={clsx(k.p, k.s2)}>{description}</p> : <span />}
+        {right ? <div className={k.row}>{right}</div> : null}
+      </div>
+    ) : null;
   return (
     <div className={clsx(k.col, k.colM)}>
       {back ? (
@@ -318,24 +331,31 @@ export interface TabDef<T extends string> {
   count?: number;
 }
 
-/** `Tabs`: an underlined tab list; on a phone, one select (the mockup's "Section"). */
+/**
+ * `Tabs`: an underlined tab list; on a phone, one select (the mockup's "Section"). D-253: inside one of the four pages'
+ * tabs, a page's own tabs are a segmented control (the mockup's `.sgm.stb`), and on a phone still the select.
+ */
 export function Tabs<T extends string>({
   tabs,
   value,
   onChange,
   phone,
   label,
+  className,
 }: {
   tabs: readonly TabDef<T>[];
   value: T;
   onChange: (v: T) => void;
   phone: boolean;
   label: string;
+  /** The tab list's (or the phone's select's) own class: one of the four pages' tabs scroll sideways (D-253). */
+  className?: string;
 }) {
+  const inArea = useInArea();
   if (phone)
     return (
       <select
-        className={clsx(k.in, k.select, k.full)}
+        className={clsx(k.in, k.select, k.full, className)}
         aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
@@ -347,8 +367,26 @@ export function Tabs<T extends string>({
         ))}
       </select>
     );
+  if (inArea)
+    return (
+      <div className={k.sgm} role="tablist" aria-label={label}>
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={value === t.id}
+            className={clsx(value === t.id && k.on)}
+            onClick={() => onChange(t.id)}
+          >
+            {t.label}
+            {t.count !== undefined ? <span className={k.sgmCount}>{t.count}</span> : null}
+          </button>
+        ))}
+      </div>
+    );
   return (
-    <div className={k.tabs} role="tablist" aria-label={label}>
+    <div className={clsx(k.tabs, className)} role="tablist" aria-label={label}>
       {tabs.map((t) => (
         <button
           key={t.id}

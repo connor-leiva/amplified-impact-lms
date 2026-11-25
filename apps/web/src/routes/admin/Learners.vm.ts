@@ -359,9 +359,13 @@ export interface LearnersR2VM {
   teams: TeamR2Row[];
 }
 
-export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: string }): LearnersR2VM {
+/**
+ * D-253: `cohortId` is the cohort in the address (Cohort › People); whether it has started decides "Not started". The
+ * rows and the counts are today's (every learner, every team); the cohort's own roster by rule 2 is Phase 7's.
+ */
+export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: string }, cohortId: string): LearnersR2VM {
   const base = db.base;
-  const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0] ?? null;
+  const cohort = db.cohorts.find((c) => c.id === cohortId) ?? null;
   const open = visibleModules(db).filter((m) => isOpen(m, now));
   const teamOf = (u: Learner) => (u.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined);
   const ql = ui.q.trim().toLowerCase();

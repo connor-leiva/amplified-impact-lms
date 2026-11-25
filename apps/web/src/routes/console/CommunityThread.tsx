@@ -19,7 +19,7 @@ import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
-import { COMMUNITY_COPY, COMMUNITY_HOME, COMMUNITY_WRITE_CAP, communityThreadVM, whoOf } from './community.vm';
+import { COMMUNITY_COPY, COMMUNITY_WRITE_CAP, communityHome, communityThreadVM, whoOf } from './community.vm';
 import type { PostVM, WhoVM } from './community.vm';
 import type { CommunityThread } from '@ai/core/community';
 import s from './Community.module.css';
@@ -51,7 +51,9 @@ function Who({ who, when }: { who: WhoVM; when?: string }) {
 type Asking = { post: PostVM } | null;
 
 export function Component() {
-  const { id = '' } = useParams();
+  // D-253: a thread of Cohort › Community (`/admin/cohort/:cohortId/community/:id`).
+  const { cohortId = '', id = '' } = useParams();
+  const home = communityHome(cohortId);
   const gate = useConsoleGate('community');
   const navigate = useNavigate();
   const now = useNow();
@@ -126,7 +128,7 @@ export function Component() {
       if (thread) {
         toast(C.toast.threadDeleted);
         window.dispatchEvent(new Event(COMMUNITY_CHANGED));
-        navigate(COMMUNITY_HOME);
+        navigate(home);
       } else done(C.toast.replyDeleted)();
     }, (e: unknown) => {
       setAsking(null);
@@ -187,7 +189,7 @@ export function Component() {
   return (
     <Page>
       <PageHead
-        back={{ to: COMMUNITY_HOME, label: T.back }}
+        back={{ to: home, label: T.back }}
         title={vm.title}
         meta={
           <span className={k.row} style={{ gap: 6 }}>

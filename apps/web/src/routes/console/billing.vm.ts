@@ -23,7 +23,6 @@ import {
   subscriptionStatusOf,
   usdCents,
   usdWhole,
-  workspacePath,
 } from '@ai/core';
 import type {
   AdminStatus,
@@ -41,19 +40,24 @@ import type {
 import { ConsoleError } from '../../data/console';
 import type { BillingSample } from '../../data/console';
 import { emailLogHref } from './email.vm';
+import { teamPath } from '../../shell/admin/addresses';
 
 export const BILLING_TABS = ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds'] as const;
 export type BillingTab = (typeof BILLING_TABS)[number];
 export const isBillingTab = (v: unknown): v is BillingTab =>
   typeof v === 'string' && (BILLING_TABS as readonly string[]).includes(v);
-export const billingTabPath = (t: BillingTab): string => (t === 'summary' ? '/admin/billing' : `/admin/billing/${t}`);
+/** D-253: the Summary is Revenue's (`/admin/revenue`, until Phase 8); the five lists are Revenue › Payments, Customers its own address. */
+export const billingTabPath = (t: BillingTab): string =>
+  t === 'summary' ? '/admin/revenue' : t === 'customers' ? '/admin/revenue/payments' : `/admin/revenue/payments/${t}`;
+/** Revenue › Payments' segments: the five lists. */
+export const PAYMENT_TABS = BILLING_TABS.filter((t): t is Exclude<BillingTab, 'summary'> => t !== 'summary');
 
 export const NONE = '—';
 
 export const BILLING_COPY = {
   title: 'Billing',
-  description:
-    'An operations view of Stripe. Prices, Payment Links, and the Accelerator cap are product rules and are not edited here.',
+  /** D-253: Revenue › Payments' words (the mockup's third pass). The Summary, Revenue's first tab, has no head of its own. */
+  description: 'The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here.',
   readOnly: 'Read-only for your role',
   sections: 'Section',
   tabs: {
@@ -229,7 +233,7 @@ interface RowBase {
   stripe: string | null;
 }
 
-const hrefOf = (w: BillingWorkspaceRef | null): string | null => (w ? workspacePath(w.teamId) : null);
+const hrefOf = (w: BillingWorkspaceRef | null): string | null => (w ? teamPath(w.teamId) : null);
 const mrrText = (c: number | null): string => (c === null ? 'One-time' : usdWhole(c));
 
 export interface CustomerVM extends RowBase {

@@ -8,7 +8,9 @@ import { expectAccessible } from '../../lib/a11y';
  * these read the mockup's words. The Summary's pixels are `pnpm parity:admin-r2`'s; these hold the
  * behaviour: the tabs at their own addresses, rows opening their workspace, "View in Stripe", the
  * actions' places (D-164 opens them: `admin-r2-billing-actions.spec.ts`), Support's read-only view,
- * Denied and the shared states. Every screen and state passes axe (zero serious or critical).
+ * Denied and the shared states. Every screen and state passes axe (zero serious or critical). D-253 (R-5 Phase 1): the
+ * Summary is Revenue › Summary (`/admin/revenue`, Billing's own until Phase 8) and the lists are Revenue › Payments
+ * (`/admin/revenue/payments[/:tab]`), their tabs a segmented control; every `/admin/billing…` address lands there.
  */
 
 const NOW = '2026-12-10T09:30:00-07:00';
@@ -38,11 +40,13 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     browser,
   }) => {
     const { page, close } = await openAt(browser, '/admin/billing');
-    await expect(page.getByRole('heading', { level: 1, name: 'Billing' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Revenue/Billing');
-    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Billing');
-    await expect(page.getByRole('tab', { name: /^Failed payments\s*3$/ })).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/revenue\?/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Revenue' })).toBeVisible();
+    await expect(crumbs(page)).toHaveText('Admin/Revenue/Summary');
+    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Revenue');
     await expect(page.getByRole('tab', { name: 'Summary' })).toHaveAttribute('aria-selected', 'true');
+    // The lists are Payments' (the Summary draws no segmented control of its own).
+    await expect(page.getByRole('tab', { name: /^Failed payments/ })).toHaveCount(0);
     // The Owner may act, so no read-only pill.
     await expect(page.getByText('Read-only for your role')).toHaveCount(0);
     for (const t of [
@@ -67,19 +71,21 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await expectAccessible(page);
     // A stat that goes somewhere is a link to its tab.
     await page.getByRole('link', { name: /Failed payments/ }).click();
-    await expect(page).toHaveURL(/\/admin\/billing\/failed(\?|$)/);
+    await expect(page).toHaveURL(/\/admin\/revenue\/payments\/failed(\?|$)/);
+    await expect(page.getByRole('tab', { name: /^Failed payments\s*3$/ })).toHaveAttribute('aria-selected', 'true');
     await expect(rows(page)).toHaveCount(3);
     await close();
   });
 
   test('the lists: each tab at its address, a row opens its workspace, and "View in Stripe"', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/billing/customers');
+    const { page, close } = await openAt(browser, '/admin/revenue/payments');
+    await expect(page.getByRole('tab', { name: 'Customers' })).toHaveAttribute('aria-selected', 'true');
     await expect(rows(page)).toHaveCount(7);
     await expect(rows(page).first()).toContainText('cus_Rk3NshoreA1');
     await expectAccessible(page);
     await page.getByRole('tab', { name: 'Subscriptions' }).click();
-    await expect(page).toHaveURL(/\/admin\/billing\/subscriptions(\?|$)/);
-    await expect(crumbs(page)).toHaveText('Admin/Revenue/Billing');
+    await expect(page).toHaveURL(/\/admin\/revenue\/payments\/subscriptions(\?|$)/);
+    await expect(crumbs(page)).toHaveText('Admin/Revenue/Payments');
     await expect(rows(page)).toHaveCount(6);
     await page.getByRole('tab', { name: 'Refunds' }).click();
     await expect(rows(page)).toHaveCount(1);
@@ -109,10 +115,10 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await page.keyboard.press('Escape');
     // A row opens its workspace.
     await rows(page).first().getByRole('cell').nth(1).click();
-    await expect(page).toHaveURL(/\/admin\/workspaces\/ws_northshore(\?|$)/);
+    await expect(page).toHaveURL(/\/admin\/people\/teams\/ws_northshore(\?|$)/);
 
     // Failed payments: "Open email log" opens the Email Log for the customer's workspace (D-166).
-    await page.goto(`${APP_BASE}/admin/billing/failed?as=admin`);
+    await page.goto(`${APP_BASE}/admin/revenue/payments/failed?as=admin`);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Open email log' }).click();
     await expect(page).toHaveURL(/\/admin\/email\?teamId=ws_tidewater&workspace=Tidewater/);
@@ -121,9 +127,13 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await close();
   });
 
-  test('Support reads billing: the read-only pill, and no refund or void at all', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/billing/invoices?console-role=Support');
-    await expect(page.getByText('Read-only for your role')).toBeVisible();
+  test('Support reads billing: no refund or void at all', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/revenue/payments/invoices?console-role=Support');
+    // D-253: inside a tab a page's head keeps its description and actions and drops its title, and the status
+    // beside the title with it (the mockup's `AreaCtx`), so the read-only pill is not drawn. Support still has no
+    // refund or void, and every tab of Revenue.
+    await expect(page.getByText('Read-only for your role')).toHaveCount(0);
+    await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText(['Summary', 'Payments', /^Plans & upgrades/, 'Usage']);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'View in Stripe' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: /Refund|Void/ })).toHaveCount(0);
@@ -173,10 +183,10 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
   });
 
   test('a workspace’s Billing tab opens Billing, as the mockup’s does', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/workspaces/ws_northshore');
+    const { page, close } = await openAt(browser, '/admin/people/teams/ws_northshore');
     await page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: 'Billing' }).click();
     await page.getByRole('link', { name: 'Open in Billing' }).click();
-    await expect(page).toHaveURL(/\/admin\/billing\/invoices(\?|$)/);
+    await expect(page).toHaveURL(/\/admin\/revenue\/payments\/invoices(\?|$)/);
     await expect(page.getByRole('tab', { name: 'Invoices' })).toHaveAttribute('aria-selected', 'true');
     await close();
   });

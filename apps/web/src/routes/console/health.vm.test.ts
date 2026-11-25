@@ -34,14 +34,14 @@ describe('healthVM (D-169)', () => {
     const vm = healthVM(health());
     expect(vm.pill).toEqual({ label: '1 open incident', tone: 'bad' });
     expect(vm.tiles.map((t) => [t.label, t.value, t.sub, t.tone, t.to])).toEqual([
-      ['Connected browsers', '37', 'on this server', null, '/admin/usage'],
-      ['Sign-in success', '98.6%', 'Healthy · 24h', 'ok', '/admin/usage'],
-      ['Failed payments', '3', 'Needs review', 'bad', '/admin/billing/failed'],
+      ['Connected browsers', '37', 'on this server', null, '/admin/revenue/usage'],
+      ['Sign-in success', '98.6%', 'Healthy · 24h', 'ok', '/admin/revenue/usage'],
+      ['Failed payments', '3', 'Needs review', 'bad', '/admin/revenue/payments/failed'],
       ['Failed webhooks', '4', '3 GHL, 1 Stripe', 'bad', '/admin/api/hooks'],
       ['Job failures, 24h', '1', 'ghl-orders', 'bad', '/admin/jobs'],
       ['Open incidents', '1', 'Sev 2 · INC-0007', 'bad', '/admin/incidents'],
-      ['MRR', '$18,516', '77 active subscriptions', null, '/admin/billing'],
-      ['Accelerator seats', '11 / 15', '4 left', null, '/admin/billing'],
+      ['MRR', '$18,516', '77 active subscriptions', null, '/admin/revenue'],
+      ['Accelerator seats', '11 / 15', '4 left', null, '/admin/revenue'],
     ]);
     // Seat pressure (never red: a full fixed-seat plan is grey), then the deploys.
     expect(vm.side.map((c) => [c.kind, c.title])).toEqual([
@@ -50,9 +50,9 @@ describe('healthVM (D-169)', () => {
     ]);
     const seats = vm.side[0]!;
     expect(seats.kind === 'seats' && seats.rows!.map((r) => [r.name, r.text, r.bar, r.to])).toEqual([
-      ['Copper Basin Realty', '2 / 2', 'full', '/admin/workspaces/ws_c'],
-      ['Hale & Marlowe Realty', '15 / 16', 'hot', '/admin/workspaces/ws_h'],
-      ['AI Accelerator', '11 / 15', 'ok', '/admin/billing'],
+      ['Copper Basin Realty', '2 / 2', 'full', '/admin/people/teams/ws_c'],
+      ['Hale & Marlowe Realty', '15 / 16', 'hot', '/admin/people/teams/ws_h'],
+      ['AI Accelerator', '11 / 15', 'ok', '/admin/revenue'],
     ]);
     expect(vm.side[1]).toEqual({
       kind: 'deploys',
@@ -183,7 +183,7 @@ describe('attentionVM (D-169)', () => {
       title: 'Hale & Marlowe Realty is at 15 of 16 seats',
       meta: 'Team Plan · 16 seats',
       pill: { label: 'Waiting', tone: 'warn' },
-      to: '/admin/workspaces/ws_halemarlowe',
+      to: '/admin/people/teams/ws_halemarlowe',
     });
   });
 });

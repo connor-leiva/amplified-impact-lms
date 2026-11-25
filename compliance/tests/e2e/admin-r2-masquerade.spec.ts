@@ -39,10 +39,13 @@ const reason = 'Ticket 4411: the seat invite never arrived.';
 
 test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
   test('the page: the picker, the recent sessions, the rules, and the way to Curriculum', async ({ browser }) => {
+    // D-253: People › Masquerade; the old address lands there. The page keeps its words under People's head.
     const { page, close } = await openAt(browser, '/admin/masquerade');
-    await expect(page.getByRole('heading', { level: 1, name: 'Masquerade' })).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/people\/masquerade(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Masquerade' })).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByText('Sign in as a user to see exactly what they see. Owner and Admin only, time-boxed, and audit-logged.')).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Support/Masquerade');
+    await expect(crumbs(page)).toHaveText('Admin/People/Masquerade');
     const pick = page.getByRole('combobox', { name: 'User' });
     await expect(pick.locator('option').first()).toHaveText('Elena Vargas · Northshore Group');
     await expect(page.getByText('You will be asked for a reason. You can also start from any user or workspace record.')).toBeVisible();
@@ -53,10 +56,10 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
     await expect(recent(page).nth(1)).toContainText('Expired');
     for (const rule of ['A written reason is required to start.', 'Start, stop, extend, and every blocked attempt go to the audit log.'])
       await expect(page.getByText(rule)).toBeVisible();
-    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Masquerade' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
     await expectAccessible(page);
     await page.getByRole('main').getByRole('button', { name: 'Curriculum' }).click();
-    await expect(page).toHaveURL(/\/admin\/curriculum$/);
+    await expect(page).toHaveURL(/\/admin\/program$/);
     await close();
   });
 
@@ -102,15 +105,17 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
 
     await page.goto(`${APP_BASE}/admin/workspaces`);
     await expect(page.getByRole('heading', { level: 1, name: 'Console is paused while you masquerade' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Support/Workspaces');
+    // D-253: the paused Console names the page asked for by its new place.
+    await expect(crumbs(page)).toHaveText('Admin/People/Teams');
     await expect(page.getByRole('main')).toContainText('Elena Vargas · Northshore Group');
     await expect(page.getByRole('main')).toContainText('15 of 60 minutes');
     await expect(page.getByRole('main').getByRole('table')).toHaveCount(0);
     await expectAccessible(page);
 
     await banner(page).getByRole('button', { name: 'Exit masquerade' }).click();
-    await expect(page).toHaveURL(`${APP_BASE}/admin/masquerade`);
-    await expect(page.getByRole('heading', { level: 1, name: 'Masquerade' })).toBeVisible();
+    // Back where it started: People › Masquerade.
+    await expect(page).toHaveURL(`${APP_BASE}/admin/people/masquerade`);
+    await expect(page.getByRole('tab', { name: 'Masquerade' })).toHaveAttribute('aria-selected', 'true');
     await expect(banner(page)).toHaveCount(0);
     await close();
   });
@@ -170,12 +175,13 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
 
   test('the learner view: the mockup’s "No masquerade session is active"', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/masquerade/learner-view');
-    await expect(crumbs(page)).toHaveText('Admin/Support/Masquerade/Learner view');
+    // D-253: the learner view keeps its address, a record of People › Masquerade.
+    await expect(crumbs(page)).toHaveText('Admin/People/Masquerade/Learner view');
     await expect(page.getByRole('heading', { level: 1, name: 'No masquerade session is active' })).toBeVisible();
     await expect(page.getByText('Start one from a user or workspace record.')).toBeVisible();
     await expectAccessible(page);
     await page.getByRole('button', { name: 'Go to Masquerade' }).click();
-    await expect(page).toHaveURL(/\/admin\/masquerade$/);
+    await expect(page).toHaveURL(/\/admin\/people\/masquerade$/);
     await close();
   });
 

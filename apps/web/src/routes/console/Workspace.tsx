@@ -169,7 +169,7 @@ export function Component() {
   return (
     <Page>
       <PageHead
-        back={{ to: '/admin/workspaces', label: C.back }}
+        back={{ to: '/admin/people/teams', label: C.back }}
         title={vm.title}
         meta={<Pill status={vm.status} />}
         right={

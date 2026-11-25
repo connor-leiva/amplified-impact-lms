@@ -29,8 +29,8 @@ describe('the Summary (the mockup’s `Billing()`)', () => {
     expect(vm.stats.map((s) => [s.label, s.value, s.sub ?? null, s.tone ?? null, s.to ?? null])).toEqual([
       ['MRR · sample', '$18,516', '+$695 this week', 'ok', null],
       ['Subscriptions', '77', 'Active', null, null],
-      ['Failed payments', '3', 'Needs review', 'bad', '/admin/billing/failed'],
-      ['Refunds, 30d', '$0', null, null, '/admin/billing/refunds'],
+      ['Failed payments', '3', 'Needs review', 'bad', '/admin/revenue/payments/failed'],
+      ['Refunds, 30d', '$0', null, null, '/admin/revenue/payments/refunds'],
     ]);
     expect(vm.plansTitle).toBe('Plan economics · sample figures');
     expect(vm.plans.map((p) => [p.plan, p.price, p.active, p.mrr])).toEqual([
@@ -59,7 +59,7 @@ describe('the Summary (the mockup’s `Billing()`)', () => {
     };
     const vm = billingSummaryVM(s, null);
     expect(vm.stats[0]).toEqual({ key: 'mrr', label: 'MRR', value: '$18,516' });
-    expect(vm.stats[2]).toEqual({ key: 'failed', label: 'Failed payments', value: '0', to: '/admin/billing/failed' });
+    expect(vm.stats[2]).toEqual({ key: 'failed', label: 'Failed payments', value: '0', to: '/admin/revenue/payments/failed' });
     expect(vm.plansTitle).toBe('Plan economics');
     expect(vm.accelerator.seats).toEqual({ pct: 100, bar: 'full', text: '15 of 15' });
     expect(vm.accelerator.second).toBe('$0');
@@ -79,17 +79,17 @@ describe('the Summary (the mockup’s `Billing()`)', () => {
       'Failed payments',
       'Refunds',
     ]);
-    expect(BILLING_COPY.description).toBe(
-      'An operations view of Stripe. Prices, Payment Links, and the Accelerator cap are product rules and are not edited here.',
-    );
+    // D-253: Revenue › Payments' words (the mockup's third pass).
+    expect(BILLING_COPY.description).toBe('The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here.');
     expect(BILLING_COPY.readOnly).toBe('Read-only for your role');
+    // D-253: the Summary is Revenue's; the lists are Revenue › Payments, Customers its own address.
     expect(BILLING_TABS.map(billingTabPath)).toEqual([
-      '/admin/billing',
-      '/admin/billing/customers',
-      '/admin/billing/subscriptions',
-      '/admin/billing/invoices',
-      '/admin/billing/failed',
-      '/admin/billing/refunds',
+      '/admin/revenue',
+      '/admin/revenue/payments',
+      '/admin/revenue/payments/subscriptions',
+      '/admin/revenue/payments/invoices',
+      '/admin/revenue/payments/failed',
+      '/admin/revenue/payments/refunds',
     ]);
     expect([isBillingTab('invoices'), isBillingTab('nope')]).toEqual([true, false]);
   });
@@ -104,7 +104,7 @@ describe('the lists', () => {
       plan: 'Team Plan · 41 seats',
       mrr: '$1,495',
       status: { label: 'Active', tone: 'ok' },
-      href: '/admin/workspaces/ws_northshore',
+      href: '/admin/people/teams/ws_northshore',
       stripe: 'https://dashboard.stripe.com/test/customers/cus_Rk3NshoreA1',
     });
     expect(customerVM(rows.customers[3]!).mrr).toBe('One-time');

@@ -15,3 +15,9 @@
     gap: 16px;
   }
 }
+/* D-253: inside a tab of one of the four pages (`.area .atb .pg`), the tab's own column. */
+.page.inArea {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+}

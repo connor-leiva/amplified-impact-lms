@@ -222,6 +222,16 @@
   color: var(--r2-bad);
   font-weight: 500;
 }
+/* D-253: a draft cohort's "Draft" on the Cohort row (`.gx .rb.dr`). */
+.roll[data-draft='true'] {
+  color: var(--r2-warn);
+}
+/* D-253: the hairline above the groups that open (`.gsep`): the single rows above it, the system pages below. */
+.sep {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--r2-line);
+}
 /* `.cv` */
 .chev {
   margin-left: auto;

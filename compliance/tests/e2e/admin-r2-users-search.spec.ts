@@ -39,9 +39,12 @@ const palette = (page: Page) => page.getByRole('dialog', { name: 'Command palett
 
 test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
   test('the list: the mockup’s people, by words and role; a row opens the person', async ({ browser }) => {
+    // D-253: People › Everyone; the old address lands there.
     const { page, close } = await openAt(browser, '/admin/users');
-    await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Support/Users');
+    await expect(page).toHaveURL(/\/admin\/people(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Everyone' })).toHaveAttribute('aria-selected', 'true');
+    await expect(crumbs(page)).toHaveText('Admin/People/Everyone');
     await expect(rows(page)).toHaveCount(8);
     await expect(rows(page).first()).toContainText('Elena Vargas');
     await expectAccessible(page);
@@ -86,7 +89,7 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
 
   test('a user: key facts, four tabs, identity and notes; the workspace is a link', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/users/u_1042');
-    await expect(crumbs(page)).toHaveText('Admin/Support/Users/Elena Vargas');
+    await expect(crumbs(page)).toHaveText('Admin/People/Everyone/Elena Vargas');
     for (const t of [
       'u_1042',
       'elena@northshoregroup.example',
@@ -151,27 +154,27 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
   test('a workspace’s members open their person; Learners & Teams open the user record and the workspace', async ({
     browser,
   }) => {
-    const { page, close } = await openAt(browser, '/admin/workspaces/ws_northshore');
+    const { page, close } = await openAt(browser, '/admin/people/teams/ws_northshore');
     await rows(page).first().getByRole('link', { name: 'Elena Vargas' }).click();
-    await expect(page).toHaveURL(/\/admin\/users\/u_1042/);
+    await expect(page).toHaveURL(/\/admin\/people\/u_1042/);
     await expect(page.getByRole('heading', { level: 1, name: 'Elena Vargas' })).toBeVisible();
     await page.goBack();
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Open user' }).click();
-    await expect(page).toHaveURL(/\/admin\/users\/u_1042/);
+    await expect(page).toHaveURL(/\/admin\/people\/u_1042/);
     await close();
 
     // A learner's id is their users.id and a team's its teams.id: the ids the Console pages take. (The
     // fixture's Console records are the mockup's, not the learner seed's, so only the address is read.)
-    const learners = await openAt(browser, '/admin/learners');
+    const learners = await openAt(browser, '/admin/cohort/dec26/people');
     await rows(learners.page).first().getByRole('button', { name: 'More actions' }).click();
     await learners.page.getByRole('menuitem', { name: 'Open user record' }).click();
-    await expect(learners.page).toHaveURL(/\/admin\/users\/[^/?]+/);
+    await expect(learners.page).toHaveURL(/\/admin\/people\/[^/?]+/);
     await learners.page.goBack();
     await learners.page.getByRole('tab', { name: /Teams/ }).click();
     await rows(learners.page).first().getByRole('button', { name: 'More actions' }).click();
     await learners.page.getByRole('menuitem', { name: 'Open workspace' }).click();
-    await expect(learners.page).toHaveURL(/\/admin\/workspaces\/[^/?]+/);
+    await expect(learners.page).toHaveURL(/\/admin\/people\/teams\/[^/?]+/);
     await learners.close();
   });
 
@@ -225,14 +228,15 @@ test.describe('Search and the ⌘K palette (D-160 R2-1c) @g9 @console', () => {
     ).toBeVisible();
     await expect(palette(page).getByRole('option').first()).toHaveAttribute('aria-selected', 'true');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/admin\/users\/u_1042/);
+    // D-253: the API's link, at its new address.
+    await expect(page).toHaveURL(/\/admin\/people\/u_1042/);
     await expect(palette(page)).toHaveCount(0);
 
     await page.keyboard.press('Meta+k');
     await box.fill('north');
     await expect(
       palette(page)
-        .getByRole('group', { name: 'Workspaces' })
+        .getByRole('group', { name: 'Teams' })
         .getByRole('option', { name: /Northshore Group/ }),
     ).toBeVisible();
     await page.keyboard.press('ArrowDown');
@@ -275,11 +279,11 @@ test.describe('Search and the ⌘K palette (D-160 R2-1c) @g9 @console', () => {
     await close();
   });
 
-  test('production’s sidebar lists Users with Workspaces in Support', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/users');
+  test('production’s sidebar lists People, whose tabs are Everyone and Teams (D-253)', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/people');
     const aside = page.locator('aside[aria-label="Primary"]');
-    await expect(aside.getByRole('button', { name: 'Workspaces' })).toBeVisible();
-    await expect(aside.getByRole('button', { name: 'Users' })).toBeVisible();
+    await expect(aside.getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab')).toHaveText(['Everyone', 'Teams', 'Masquerade']);
     await close();
   });
 });

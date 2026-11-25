@@ -1,4 +1,5 @@
-// Course settings `/admin/curriculum/course` (D-174, learner build PR 2c): what the cohort holds for
+// Course settings `/admin/program/course` (D-174, learner build PR 2c; D-253: Program › Course settings, a tab, so it
+// names no record in the crumb): what the cohort holds for
 // the whole course, editable in the builder. Reached from a course week's Course page card.
 //
 //   - Release plan: the cohort's name and cadence line, when the pre-launch preview opens and the time
@@ -21,7 +22,6 @@ import { Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
 import { useAct, useDb } from '../../data/hooks';
-import { useRecordCrumb } from '../../shell/admin/chrome';
 import { copyRows, courseCohort, hintPairs, pairsText, planArgs, planForm, textPairs } from './CourseSettings.vm';
 import type { PlanForm } from './CourseSettings.vm';
 import { listItems, listText, moveBy, removeAt } from './WeekBuilder.vm';
@@ -64,11 +64,10 @@ export function Component() {
   const db = useDb();
   const co = courseCohort(db);
   // The breadcrumb: Admin / Build / Curriculum / Course settings.
-  useRecordCrumb('Course settings');
   if (!co) {
     return (
       <Page>
-        <PageHead title="Course settings" back={{ to: '/admin/curriculum', label: 'Curriculum' }} />
+        <PageHead title="Course settings" back={{ to: '/admin/program', label: 'Curriculum' }} />
         <p className={k.p}>This database holds no course yet.</p>
       </Page>
     );
@@ -78,7 +77,7 @@ export function Component() {
       <PageHead
         title="Course settings"
         description="What the cohort holds for the whole course: when it opens, the pages every week shares, and the copy strings."
-        back={{ to: '/admin/curriculum', label: 'Curriculum' }}
+        back={{ to: '/admin/program', label: 'Curriculum' }}
       />
       <ReleasePlan key={`plan-${co.id}`} cohortId={co.id} initial={planForm(co)} />
       {co.course ? <SharedPages key={`pages-${co.id}`} cohortId={co.id} initial={co.course} /> : null}

@@ -8,8 +8,9 @@ import { expectAccessible } from '../../lib/a11y';
  * mockup's frame ("Live sessions", "p95 latency", "DB connections", "Services"); `?console-sample=off`
  * shows production's composition (spec § 7.1's tiles, Seat pressure, Recent deploys) from the same
  * data. Health's pixels are `pnpm parity:admin-r2`'s; these hold the behaviour: the links, the empty
- * state, the shared states, deploys hidden from Support, Denied, and the Build hub's links, cohort and
- * skills. Every screen and state passes axe (zero serious or critical).
+ * state, the shared states, deploys hidden from Support, Denied. Every screen and state passes axe (zero serious or
+ * critical). D-253 (R-5 Phase 1): System Health is Operations' first page, its links at the four pages' addresses;
+ * the Build hub is Program now (spec § 3), so `/admin/build` lands there.
  */
 
 const NOW = '2026-12-10T09:30:00-07:00';
@@ -34,13 +35,13 @@ test.describe('System Health on R2 (D-169) @g9 @console', () => {
   test('the mockup’s frame: the head, eight tiles, Needs attention, Services and the latest deploy', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/health');
     await expect(page.getByRole('heading', { level: 1, name: 'System Health' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Health/System Health');
+    await expect(crumbs(page)).toHaveText('Admin/Operations/System Health');
     await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('System Health');
     await expect(main(page).getByText('1 open incident', { exact: true })).toBeVisible();
     for (const [label, sub, to] of [
-      ['Live sessions', 'on /api/events', '/admin/usage'],
-      ['Sign-in success', 'Healthy · 24h', '/admin/usage'],
-      ['Failed payments', 'Needs review', '/admin/billing/failed'],
+      ['Live sessions', 'on /api/events', '/admin/revenue/usage'],
+      ['Sign-in success', 'Healthy · 24h', '/admin/revenue/usage'],
+      ['Failed payments', 'Needs review', '/admin/revenue/payments/failed'],
       ['Failed webhooks', '3 GHL, 1 Stripe', '/admin/api/hooks'],
       ['Job failures, 24h', 'ghl-orders', '/admin/jobs'],
       ['Open incidents', 'Sev 2 · INC-0007', '/admin/incidents'],
@@ -54,9 +55,9 @@ test.describe('System Health on R2 (D-169) @g9 @console', () => {
     const attention = card(page, 'Needs attention');
     for (const [title, href] of [
       ['GHL order sync failing with 401', '/admin/incidents/INC-0007'],
-      ['Tidewater Property Co. is past due', '/admin/billing/failed'],
+      ['Tidewater Property Co. is past due', '/admin/revenue/payments/failed'],
       ['Stripe subscription.updated used all 5 attempts', '/admin/api/hooks'],
-      ['Hale & Marlowe Realty is at 15 of 16 seats', '/admin/workspaces/ws_halemarlowe'],
+      ['Hale & Marlowe Realty is at 15 of 16 seats', '/admin/people/teams/ws_halemarlowe'],
     ])
       await expect(attention.getByRole('link', { name: title! })).toHaveAttribute('href', href!);
     await expect(attention).toContainText('Insiders · $97.00 · 2 retries left');
@@ -68,7 +69,7 @@ test.describe('System Health on R2 (D-169) @g9 @console', () => {
     // A tile is a link to its screen.
     await expectAccessible(page);
     await main(page).getByRole('link', { name: /^Failed payments/ }).click();
-    await expect(page).toHaveURL(/\/admin\/billing\/failed(\?|$)/);
+    await expect(page).toHaveURL(/\/admin\/revenue\/payments\/failed(\?|$)/);
     await close();
   });
 
@@ -94,7 +95,7 @@ test.describe('System Health on R2 (D-169) @g9 @console', () => {
     for (const gone of ['Live sessions', 'p95 latency', 'DB connections', 'Services']) await expect(main(page).getByText(gone, { exact: true })).toHaveCount(0);
     const seats = card(page, 'Seat pressure');
     await expect(seats.getByRole('link')).toHaveCount(5);
-    await expect(seats.getByRole('link', { name: 'Hale & Marlowe Realty' })).toHaveAttribute('href', '/admin/workspaces/ws_halemarlowe');
+    await expect(seats.getByRole('link', { name: 'Hale & Marlowe Realty' })).toHaveAttribute('href', '/admin/people/teams/ws_halemarlowe');
     await expect(seats).toContainText('15 / 16');
     await expect(card(page, 'Recent deploys')).toContainText('c41d8e0');
     await expectAccessible(page);
@@ -124,43 +125,26 @@ test.describe('System Health on R2 (D-169) @g9 @console', () => {
   });
 });
 
-test.describe('the Build hub (D-169, no mockup frame) @g9 @console', () => {
-  test('the five builder screens, the cohort with its cap locked, and the skill library read-only', async ({ browser }) => {
+test.describe('the Build hub is Program now (D-253, spec § 3) @g9 @console', () => {
+  test('its address lands on Program, whose tabs are the builder screens it listed', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/build');
-    await expect(page.getByRole('heading', { level: 1, name: 'Build' })).toBeVisible();
-    await expect(crumbs(page)).toHaveText('Admin/Build');
-    const screens = card(page, 'Builder screens');
-    for (const [name, href] of [
-      ['Curriculum', '/admin/curriculum'],
-      ['Module Builder', '/admin/curriculum/new'],
-      ['Resource Vault', '/admin/vault'],
-      ['Cohorts & Sessions', '/admin/cohorts'],
-      ['Announcements', '/admin/announcements'],
-    ])
-      await expect(screens.getByRole('link', { name: name! })).toHaveAttribute('href', href!);
-    const cohort = page.locator('main section').filter({ hasText: '15 seats. Product rule, view only.' });
-    await expect(cohort).toContainText('weekly live builds');
-    await expect(cohort).not.toContainText('Six weeks');
-    await expect(cohort.locator('button, input, select, textarea')).toHaveCount(0);
-    const skills = page.locator('main [role="table"]').filter({ hasText: 'Perfect Week' });
-    await expect(skills).toBeVisible();
-    // Read-only: no row opens anything, and no row has a menu.
-    await expect(skills.getByRole('button', { name: /More actions|Actions/ })).toHaveCount(0);
+    await expect(page).toHaveURL(/\/admin\/program(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Amplified AI Accelerator' })).toBeVisible();
+    await expect(crumbs(page)).toHaveText('Admin/Program/Curriculum');
+    await expect(page.getByRole('tablist', { name: 'Program' }).getByRole('tab')).toHaveText([/^Curriculum/, 'Course settings', 'Resource Vault']);
+    // Its "Module Builder" link was Curriculum's add button's address, which is the week page's now.
+    await expect(page.getByRole('link', { name: 'New AI Employee' })).toHaveAttribute('href', '/admin/program/weeks/new');
     await expectAccessible(page);
     await close();
   });
 
-  test('reached from the "Build" crumb on a Build screen and from the palette; not a link for an Instructor', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/curriculum');
-    await crumbs(page).getByRole('link', { name: 'Build' }).click();
-    await expect(page).toHaveURL(/\/admin\/build(\?|$)/);
+  test('no crumb or page of the palette names it, for any role', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/program');
+    await expect(crumbs(page).getByRole('link', { name: 'Build' })).toHaveCount(0);
     await page.keyboard.press('Control+k');
     const palette = page.getByRole('dialog', { name: 'Command palette' });
     await palette.getByRole('combobox', { name: 'Command palette search' }).fill('Build');
-    await expect(palette.getByRole('group', { name: 'Pages' }).getByRole('option', { name: /^Build/ })).toHaveCount(1);
+    await expect(palette.getByRole('group', { name: 'Pages' })).toHaveCount(0);
     await close();
-    const instructor = await openAt(browser, '/admin/curriculum?console-role=Instructor');
-    await expect(crumbs(instructor.page).getByRole('link', { name: 'Build' })).toHaveCount(0);
-    await instructor.close();
   });
 });

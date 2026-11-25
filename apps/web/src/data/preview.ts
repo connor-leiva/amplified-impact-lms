@@ -27,7 +27,7 @@ export type { PreviewAs };
 export const PREVIEW_ONLY = 'Preview only';
 export const PREVIEW_USER_ID = 'preview-learner';
 export const PREVIEW_TEAM_ID = 'preview-team';
-export const EXIT_PREVIEW_TO = '/admin/curriculum';
+export const EXIT_PREVIEW_TO = '/admin/program';
 
 /** The banner's words, by who is being previewed. */
 export const PREVIEW_LABEL: Readonly<Record<PreviewAs, string>> = { agent: 'Agent', owner: 'Team Owner' };

@@ -82,6 +82,7 @@
 
 @media (max-width: 767px) {
   .b {
-    padding: 0 16px;
+    /* D-253: 14px inside a tab's head (`.shd`, kit.module.css), as the mockup's sheet orders it. */
+    padding: 0 var(--r2-b-phone-pad, 16px);
   }
 }

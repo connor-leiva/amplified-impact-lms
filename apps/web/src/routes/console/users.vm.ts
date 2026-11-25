@@ -14,13 +14,12 @@ import {
   orderStatusOf,
   tierLabel,
   usdCents,
-  userPath,
   userStatusOf,
-  workspacePath,
 } from '@ai/core';
 import type { AdminStatus, ConsoleUserDetail, ConsoleUserRow, UserFilters } from '@ai/core';
 import { NONE, stampOrNever, welcomeWords } from './workspaces.vm';
 import type { Option } from './workspaces.vm';
+import { personPath, teamPath } from '../../shell/admin/addresses';
 
 export const USERS_COPY = {
   title: 'Users',
@@ -86,7 +85,7 @@ export const userRowVM = (u: ConsoleUserRow): UserRowVM => ({
   status: userStatusOf(u.status),
   last: stampOrNever(u.lastActive),
   lastAt: u.lastActive ?? 0,
-  href: userPath(u.id),
+  href: personPath(u.id),
 });
 
 // --- one user ------------------------------------------------------------------------------------
@@ -95,7 +94,8 @@ export const USER_TABS = ['orders', 'progress', 'emails', 'activity'] as const;
 export type UserTab = (typeof USER_TABS)[number];
 
 export const USER_COPY = {
-  back: 'Users',
+  /** D-253: a person's way back is People (the mockup's third pass). */
+  back: 'People',
   masquerade: 'Masquerade',
   masqueradeLater: 'Masquerade arrives with the Masquerade screen.',
   more: 'More actions',
@@ -220,7 +220,7 @@ export function userVM(d: ConsoleUserDetail): UserVM {
       id: u.id,
       email: u.email,
       workspace: u.workspace ?? NONE,
-      workspaceHref: u.teamId ? workspacePath(u.teamId) : null,
+      workspaceHref: u.teamId ? teamPath(u.teamId) : null,
       role: u.staffRole ?? u.role ?? NONE,
       tier: tierLabel(u.tier),
       last: stampOrNever(u.lastActive),
@@ -234,7 +234,7 @@ export function userVM(d: ConsoleUserDetail): UserVM {
       status: orderStatusOf(o.status),
       date: adminDate(o.createdAt),
       at: o.createdAt,
-      href: o.accountId && u.teamId ? workspacePath(u.teamId) : null,
+      href: o.accountId && u.teamId ? teamPath(u.teamId) : null,
     })),
     skillPurchases: (d.skillPurchases ?? []).map((p) => ({
       key: p.id,

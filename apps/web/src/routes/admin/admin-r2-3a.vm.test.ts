@@ -21,11 +21,12 @@ describe('overviewR2VM (D-160 R2-3a)', () => {
   it('prints the mockup’s head and tiles, in its words', () => {
     expect(vm.subline).toBe('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity');
     expect(vm.stats.map((s) => [s.label, s.value, s.sub, s.tone, s.to])).toEqual([
-      ['Active learners', '148', '104 Agent · 44 Team', null, '/admin/learners'],
-      ['AI Employees deployed', '190', '+6 in the last 24 hours', 'ok', '/admin/curriculum'],
+      // D-253: each tile opens its page at its new address.
+      ['Active learners', '148', '104 Agent · 44 Team', null, '/admin/cohort/dec26/people'],
+      ['AI Employees deployed', '190', '+6 in the last 24 hours', 'ok', '/admin/program'],
       ['Build completion', '33%', 'Of builds available', null, null],
-      ['Live attendance', '74%', 'Session 2 · 109 attended', null, '/admin/cohorts'],
-      ['Upgrade pipeline', '$8,000', '2 open requests', 'warn', '/admin/tiers'],
+      ['Live attendance', '74%', 'Session 2 · 109 attended', null, '/admin/cohort/dec26/schedule'],
+      ['Upgrade pipeline', '$8,000', '2 open requests', 'warn', '/admin/revenue/plans'],
     ]);
     expect(vm.stats.map((s) => [s.labelPhone, s.subPhone])).toEqual([
       ['Active learners', '44 on Team Tier'],
@@ -93,7 +94,7 @@ describe('learnersR2VM (D-160 R2-3a)', () => {
   const db = parityDb('/admin/learners');
 
   it('lists the mockup’s learners in its order, their builds of the builds open to their tier, MST stamps', () => {
-    const vm = learnersR2VM(db, NOW, { tier: 'All tiers', q: '' });
+    const vm = learnersR2VM(db, NOW, { tier: 'All tiers', q: '' }, 'dec26');
     expect([vm.learnersCount, vm.teamsCount, vm.started]).toEqual([148, 7, true]);
     expect(vm.rows.map((r) => [r.name, r.team, r.tier, `${r.deployed} of ${r.of}`, r.last])).toEqual([
       ['Elena Vargas', 'Northshore Group', 'Team', '4 of 5', 'Dec 10, 8:52 AM'],
@@ -108,13 +109,13 @@ describe('learnersR2VM (D-160 R2-3a)', () => {
   });
 
   it('filters by tier, and by name, email or team', () => {
-    expect(learnersR2VM(db, NOW, { tier: 'Agent', q: '' }).rows.map((r) => r.name)).toEqual(['Noor Haddad', 'Sam Whitlock']);
-    expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: 'northshore' }).rows).toHaveLength(2);
-    expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: 'tessa@' }).rows.map((r) => r.name)).toEqual(['Tessa Lindqvist']);
+    expect(learnersR2VM(db, NOW, { tier: 'Agent', q: '' }, 'dec26').rows.map((r) => r.name)).toEqual(['Noor Haddad', 'Sam Whitlock']);
+    expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: 'northshore' }, 'dec26').rows).toHaveLength(2);
+    expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: 'tessa@' }, 'dec26').rows.map((r) => r.name)).toEqual(['Tessa Lindqvist']);
   });
 
   it('lists the teams with their seats and pending invites', () => {
-    const t = learnersR2VM(db, NOW, { tier: 'All tiers', q: '' }).teams;
+    const t = learnersR2VM(db, NOW, { tier: 'All tiers', q: '' }, 'dec26').teams;
     expect(t[0]).toEqual({ id: 'ws_northshore', name: 'Northshore Group', owner: 'Elena Vargas', plan: '41 seats', used: 2, seats: 41, invites: 'None' });
     expect(t.find((x) => x.id === 'ws_fourthmeridian')!.owner).toBe('—');
   });

@@ -949,7 +949,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
       title={`Course page · Week ${c.week}`}
       right={
         <span className={clsx(k.row, k.nw)}>
-          <ButtonLink kind="quiet" to="/admin/curriculum/course">
+          <ButtonLink kind="quiet" to="/admin/program/course">
             Course settings
           </ButtonLink>
           <Button kind="quiet" onClick={() => setOpen(true)}>

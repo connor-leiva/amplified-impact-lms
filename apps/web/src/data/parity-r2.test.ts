@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { seed } from '@ai/core';
 import { INCIDENTS, INV, MODS0_STATUS, PARITY_R2, STAFF, UPGRADE_REQUESTS, SUPPORT_USERS, SUPPORT_WS, mockCents, mockStamp, readParityR2 } from './parity-r2';
-import { ENVIRONMENT, PROGRAM, initials, shellDataFrom, shellDataFromParity } from './admin-shell';
+import { ENVIRONMENT, PROGRAM, cohortLabel, initials, shellDataFrom, shellDataFromParity } from './admin-shell';
 
 // D-160 R2-1b: the R2 parity fixture is the mockup's own data, and the shell's data otherwise comes
 // from the snapshot.
@@ -29,15 +29,16 @@ describe('the R2 parity fixture (D-160 R2-1b)', () => {
 });
 
 describe('the admin shell’s data (D-160 R2-1b)', () => {
-  it('comes from the snapshot: the viewer, the cohort, the drafts and new requests, no incidents yet', () => {
+  it('comes from the snapshot: the viewer, the drafts and new requests, no incidents yet', () => {
     const db = seed('live');
     const d = shellDataFrom(db, 'st1', 'Owner');
     expect(d.viewer).toEqual({ name: 'Casey Lin', role: 'Owner' });
     expect(d.program).toBe(PROGRAM);
-    expect(d.cohort).toBe('December 2026 Cohort');
-    // D-238: production's cohort is named after the program too; the second line names the cohort alone.
-    const named = { ...db, cohorts: db.cohorts.map((c) => (c.id === 'dec26' ? { ...c, name: `${PROGRAM} · December 2026` } : c)) };
-    expect(shellDataFrom(named, 'st1', 'Owner').cohort).toBe('December 2026 Cohort');
+    // D-253: the switcher's cohort is the one the admin is on (the address's, `cohorts.ts`), not the shell data's.
+    expect('cohort' in d).toBe(false);
+    // D-238: production's cohort is named after the program too; the switcher's second line names the cohort alone.
+    expect(cohortLabel({ name: `${PROGRAM} · December 2026` })).toBe('December 2026 Cohort');
+    expect(cohortLabel(db.cohorts.find((c) => c.id === 'dec26')!)).toBe('December 2026 Cohort');
     expect(d.environment).toBe(ENVIRONMENT);
     // D-239: the program's key, for its own tile; `waiting` (Community threads) is 0 until R-3 counts them.
     expect(d.programKey).toBe('accelerator');
@@ -57,7 +58,6 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
       viewer: { name: 'Connor Leiva', role: 'Owner' },
       program: 'Amplified AI Accelerator',
       programKey: 'accelerator',
-      cohort: 'December 2026 Cohort',
       environment: 'Production',
       counts: { drafts: 6, requests: 2, incidents: 1, waiting: 0 },
       fullNav: true,

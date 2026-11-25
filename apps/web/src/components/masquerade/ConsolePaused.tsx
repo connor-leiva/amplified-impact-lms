@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import type { MasqueradeView } from '@ai/core';
 
@@ -11,7 +11,8 @@ import { KV, PageHead, Pill, k } from '../r2/kit';
 import { masquerade } from '../../data/masquerade';
 import { ENVIRONMENT } from '../../data/admin-shell';
 import { useAppReady, useViewportWidth } from '../../shell/hooks';
-import { crumbTrail } from '../../shell/admin/adminNav';
+import { movedAdminPath } from '../../shell/admin/addresses';
+import { crumbsOf, placeOf } from '../../shell/admin/adminNav';
 import { AcademyLogo } from '../../shell/admin/Wordmark';
 import { MASQ_COPY, activeVM, bannerVM } from '../../routes/console/masquerade.vm';
 import { ReasonDialog } from './ReasonDialog';
@@ -38,7 +39,9 @@ export default function ConsolePaused({ session, skew }: { session: MasqueradeVi
     return () => clearInterval(t);
   }, [skew]);
 
-  const trail = crumbTrail(pathname);
+  // D-253: the trail of the page asked for (at its new address, if it moved), without its record's name (the paused
+  // Console doesn't load it). Its crumbs are words here, not links, so no cohort is needed to write them.
+  const trail = crumbsOf(placeOf(movedAdminPath(pathname, '') ?? pathname), { cohortId: '' });
   const vm = activeVM(session, now);
   const extend = bannerVM(session, now, false).extend;
 
@@ -49,16 +52,18 @@ export default function ConsolePaused({ session, skew }: { session: MasqueradeVi
           <AcademyLogo />
           <nav aria-label="Breadcrumb" className={phone ? a.srOnly : a.crumbs}>
             <span>Admin</span>
-            {trail ? (
-              <>
+            {trail.map((c, i) => (
+              <Fragment key={i}>
                 <span aria-hidden="true">/</span>
-                <span>{trail.group}</span>
-                <span aria-hidden="true">/</span>
-                <b className={a.here} aria-current="page">
-                  {trail.page}
-                </b>
-              </>
-            ) : null}
+                {i === trail.length - 1 ? (
+                  <b className={a.here} aria-current="page">
+                    {c.label}
+                  </b>
+                ) : (
+                  <span>{c.label}</span>
+                )}
+              </Fragment>
+            ))}
           </nav>
           <span className={a.spacer} />
           {phone ? null : (

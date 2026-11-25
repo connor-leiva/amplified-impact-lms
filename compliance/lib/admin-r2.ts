@@ -47,11 +47,13 @@ export type Width = (typeof WIDTHS)[number];
 /**
  * The ref file stems, in the harness's order (`render-mockup.mjs` `ALL`, with its `NAME` renames:
  * `cohorts` → `cohorts-sessions`, `workspace` → `workspace-detail`), plus the Roles confirm frame.
- * 31 × 4 = 124 cells, one per PNG in `ref/MANIFEST.tsv`.
+ * 32 × 4 = 128 cells, one per PNG in `ref/MANIFEST.tsv`. D-253 (R-5 Phase 1): each stem keeps its name and is the
+ * same screen under its page's tab (`curriculum` is Program › Curriculum, `billing` Revenue › Summary, Billing's own);
+ * `payments` is new, Revenue › Payments (Billing's lists, its own tabs a segmented control).
  */
 export const SCREENS = [
   'overview', 'health', 'curriculum', 'builder', 'vault', 'cohorts-sessions', 'announce', 'learners',
-  'workspaces', 'users', 'masquerade', 'tiers', 'billing', 'usage', 'incidents', 'audit', 'api', 'jobs',
+  'workspaces', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
   'email', 'integrations', 'deploys', 'db', 'flags', 'roles', 'workspace-detail', 'user', 'incident', 'as',
   'missing', 'denied', 'roles-confirm',
 ] as const;
@@ -79,16 +81,17 @@ export interface Route {
 export const ROUTES: Partial<Record<Screen, Route>> = {
   missing: { path: '/admin/no-such-page' },
   denied: { path: '/admin/denied' },
-  // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does.
-  curriculum: { path: '/admin/curriculum' },
-  builder: { path: '/admin/curriculum/m1' },
-  vault: { path: '/admin/vault' },
-  'cohorts-sessions': { path: '/admin/cohorts' },
-  announce: { path: '/admin/announcements' },
+  // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does. D-253 (R-5 Phase 1):
+  // every screen at its new address, under its page's tab (`shell/admin/addresses.ts` sends each old one there).
+  curriculum: { path: '/admin/program' },
+  builder: { path: '/admin/program/weeks/m1' },
+  vault: { path: '/admin/program/vault' },
+  'cohorts-sessions': { path: '/admin/cohort/dec26/schedule' },
+  announce: { path: '/admin/cohort/dec26/announcements' },
   // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
   overview: { path: '/admin' },
-  learners: { path: '/admin/learners' },
-  tiers: { path: '/admin/tiers' },
+  learners: { path: '/admin/cohort/dec26/people' },
+  tiers: { path: '/admin/revenue/plans' },
   // R2-3b: the Audit Log and Roles & Permissions, editable (Connor, Nov 16, 2026, 8:27 AM MST).
   audit: { path: '/admin/audit' },
   roles: { path: '/admin/roles' },
@@ -113,23 +116,25 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   },
   // R2-1c (D-160): the Support records, on the mockup's own `WS` and `USERS` (the Console fixture
   // answers with them): Northshore Group and Elena Vargas are the mockup's detail records.
-  workspaces: { path: '/admin/workspaces' },
-  'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
-  users: { path: '/admin/users' },
-  user: { path: '/admin/users/u_1042' },
+  workspaces: { path: '/admin/people/teams' },
+  'workspace-detail': { path: '/admin/people/teams/ws_northshore' },
+  users: { path: '/admin/people' },
+  user: { path: '/admin/people/u_1042' },
   // D-162 3b (Masquerade on R2): the page, and the mockup's learner view (`as`), which with no session
   // (always, in the Console, by D2) is its "No masquerade session is active" empty state.
-  masquerade: { path: '/admin/masquerade' },
+  masquerade: { path: '/admin/people/masquerade' },
   as: { path: '/admin/masquerade/learner-view' },
-  // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`).
-  billing: { path: '/admin/billing' },
+  // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`). D-253: Revenue › Summary,
+  // Billing's own until Phase 8; and Revenue › Payments, Billing's lists from Customers.
+  billing: { path: '/admin/revenue' },
+  payments: { path: '/admin/revenue/payments' },
   // D-165: API & Webhooks (its Endpoints tab, the mockup's default `route.tab || 'endpoints'`) and
   // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
   api: { path: '/admin/api' },
   jobs: { path: '/admin/jobs' },
   // Console PR 7 (D-166): the Email Log and Usage, on the mockup's own `EMAILS` and `Usage` figures.
   email: { path: '/admin/email' },
-  usage: { path: '/admin/usage' },
+  usage: { path: '/admin/revenue/usage' },
   // D-167: Incidents and the mockup's detail record, INC-0007, on its `INCIDENTS` (the Console fixture
   // answers with them).
   incidents: { path: '/admin/incidents' },
@@ -194,8 +199,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // D-162 3b: Masquerade and its learner view (`as`), at all four widths.
   `masquerade-${w}`,
   `as-${w}`,
-  // R2-4a (D-163): Billing's Summary at all four widths.
+  // R2-4a (D-163): Billing's Summary at all four widths. D-253: Revenue › Payments at all four.
   `billing-${w}`,
+  `payments-${w}`,
   // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
   `api-${w}`,
   `jobs-${w}`,

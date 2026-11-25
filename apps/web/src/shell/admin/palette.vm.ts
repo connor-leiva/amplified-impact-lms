@@ -2,17 +2,21 @@
 // can answer. Pure.
 //
 //   Pages         the viewer's own sidebar rows, so a page the role can't open is never offered
-//                 (spec § 7.5: built client-side and filtered by capability)
+//                 (spec § 7.5: built client-side and filtered by capability). D-253: Overview, Program,
+//                 Cohort, People and Revenue first, then the system pages; once something is typed, the four
+//                 pages' tabs too ("Program › Curriculum", the mockup's third pass), each a tab the role may open.
 //   Users         the API's users group
-//   Workspaces    the API's workspaces group
-//   AI Employees  the snapshot's modules (Module Builder opens each)
+//   Teams         the API's workspaces group (D-253: the mockup's name for it now that Workspaces is People › Teams)
+//   Weeks         the snapshot's modules (the week page, today's Module Builder, opens each)
 //   Orders        the API's orders group, where the mockup has "Invoices": an order opens its
 //                 workspace or its buyer until Billing exists; one that opens nowhere is left out
 //
-// Empty, it shows five pages and two AI Employees (the mockup's `slice(0, g === 'Pages' ? 5 : 2)`);
-// the API's groups need two characters (spec § 7.5), and each group then shows six at most.
+// Empty, it shows five pages and two weeks (the mockup's `slice(0, g === 'Pages' ? 5 : 2)`);
+// the API's groups need two characters (spec § 7.5), and each group then shows six at most. The API still
+// writes the old addresses in its `href`s; each is opened at its new one (`currentAdminHref`, D-253).
 
 import type { IconName, SearchResults } from '@ai/core';
+import { currentAdminHref } from './addresses';
 
 export interface PaletteItem {
   key: string;
@@ -30,6 +34,8 @@ export interface PalettePage {
   label: string;
   icon: IconName;
   to: string;
+  /** One of the four pages' tabs: listed once something is typed. */
+  tab?: true;
 }
 
 export interface PaletteModule {
@@ -41,7 +47,7 @@ export interface PaletteModule {
 export const PALETTE_COPY = {
   label: 'Command palette',
   search: 'Command palette search',
-  placeholder: 'Search users, workspaces, AI Employees, invoices, pages',
+  placeholder: 'Search people, teams, weeks, invoices, pages',
   none: (q: string) => `No results for "${q}"`,
   noneBody: 'Try a name, an email, or an invoice ID.',
   navigate: 'Navigate',
@@ -57,22 +63,24 @@ export function paletteGroups(
   pages: readonly PalettePage[],
   modules: readonly PaletteModule[],
   api: SearchResults | null,
+  cohortId = '',
 ): PaletteGroup[] {
   const s = q.trim().toLowerCase();
   const m = (t: string) => !s || t.toLowerCase().includes(s);
+  const href = (h: string) => currentAdminHref(h, cohortId);
   const groups: PaletteGroup[] = [
     [
       'Pages',
-      pages.filter((p) => m(p.label)).map((p) => ({ key: `p:${p.id}`, icon: p.icon, label: p.label, to: p.to })),
+      pages.filter((p) => m(p.label) && (!p.tab || s)).map((p) => ({ key: `p:${p.id}`, icon: p.icon, label: p.label, to: p.to })),
     ],
     [
       'Users',
       (api?.users ?? [])
         .filter((h) => h.href)
-        .map((h) => ({ key: `u:${h.id}`, icon: 'r2Users' as const, label: h.label, detail: h.detail, to: h.href! })),
+        .map((h) => ({ key: `u:${h.id}`, icon: 'r2Users' as const, label: h.label, detail: h.detail, to: href(h.href!) })),
     ],
     [
-      'Workspaces',
+      'Teams',
       (api?.workspaces ?? [])
         .filter((h) => h.href)
         .map((h) => ({
@@ -80,11 +88,11 @@ export function paletteGroups(
           icon: 'r2Workspaces' as const,
           label: h.label,
           detail: h.detail,
-          to: h.href!,
+          to: href(h.href!),
         })),
     ],
     [
-      'AI Employees',
+      'Weeks',
       modules
         .filter((k) => m(k.name))
         .map((k) => ({
@@ -92,7 +100,7 @@ export function paletteGroups(
           icon: 'r2Curriculum' as const,
           label: k.name,
           detail: cap(k.status),
-          to: `/admin/curriculum/${encodeURIComponent(k.id)}`,
+          to: `/admin/program/weeks/${encodeURIComponent(k.id)}`,
         })),
     ],
     [
@@ -104,7 +112,7 @@ export function paletteGroups(
           icon: 'r2Billing' as const,
           label: h.label,
           detail: h.detail,
-          to: h.href!,
+          to: href(h.href!),
           mono: true,
         })),
     ],

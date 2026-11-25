@@ -54,8 +54,10 @@ test('every change in a preview is refused with Preview only, and nothing change
 test('Exit Preview goes back to the Curriculum page @g6', async ({ browser }) => {
   const { ctx, page } = await go(browser, '/employees/sales?preview=owner');
   await page.getByRole('link', { name: 'Exit Preview' }).click();
-  await expect(page).toHaveURL(/\/admin\/curriculum$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Curriculum' })).toBeVisible();
+  // D-253: Curriculum is Program's first tab, at /admin/program, under Program's head.
+  await expect(page).toHaveURL(/\/admin\/program$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Amplified AI Accelerator' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: /^Curriculum/ })).toHaveAttribute('aria-selected', 'true');
   await ctx.close();
 });
 

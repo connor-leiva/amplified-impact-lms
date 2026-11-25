@@ -26,7 +26,7 @@ export function Component() {
     <Page>
       <Box>
         <Empty icon="r2Masquerade" heading="h1" title={C.title} body={C.body}>
-          <Button style={{ marginTop: 10 }} onClick={() => navigate('/admin/masquerade')}>
+          <Button style={{ marginTop: 10 }} onClick={() => navigate('/admin/people/masquerade')}>
             {C.cta}
           </Button>
         </Empty>

@@ -21,7 +21,7 @@ describe('the Workspaces list (spec § 7.3) on R2', () => {
     expect(rows.map((r) => [r.name, r.id, r.owner, r.plan, r.seats.text, r.status.label, r.last])).toEqual(
       SUPPORT_WS.map((w) => [w.n, w.id, w.owner, w.plan, `${w.used} of ${w.cap}`, w.st, w.last]),
     );
-    expect(rows[0]!.href).toBe('/admin/workspaces/ws_northshore');
+    expect(rows[0]!.href).toBe('/admin/people/teams/ws_northshore');
   });
 
   it('colours each seat bar as BUILD-SPEC § 7 says: amber near the cap, grey when a fixed-seat plan is full', () => {
@@ -79,8 +79,8 @@ describe('one workspace (spec § 7.3) on R2', () => {
 
   it('lists its members with avatars, roles and statuses, each opening the person', () => {
     expect(vm.members.map((m) => [m.initials, m.name, m.email, m.role, m.status.label, m.href])).toEqual([
-      ['EV', 'Elena Vargas', 'elena@northshoregroup.example', 'Team owner', 'Active', '/admin/users/u_1042'],
-      ['MO', 'Marcus Oyelaran', 'marcus@northshoregroup.example', 'Agent', 'Active', '/admin/users/u_1043'],
+      ['EV', 'Elena Vargas', 'elena@northshoregroup.example', 'Team owner', 'Active', '/admin/people/u_1042'],
+      ['MO', 'Marcus Oyelaran', 'marcus@northshoregroup.example', 'Agent', 'Active', '/admin/people/u_1043'],
     ]);
   });
 

@@ -8,7 +8,8 @@ import { Empty } from '../../components/r2/Empty';
 import { Page } from '../../components/r2/Page';
 import { Find, PageHead, k } from '../../components/r2/kit';
 import { useDb, useViewer } from '../../data/hooks';
-import { adminNav } from '../../shell/admin/adminNav';
+import { navPages } from '../../shell/admin/adminNav';
+import { useAdminChrome } from '../../shell/admin/chrome';
 import { Denied } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
@@ -52,16 +53,12 @@ export function Component() {
   }, [settled, ready?.api, attempt]);
 
   const staffId = viewer.actor.kind === 'staff' ? viewer.actor.staffId : null;
+  const { cohort } = useAdminChrome();
+  // D-253: the pages the role may open, as the sidebar and the palette offer them (the four pages' tabs too).
   const pages = useMemo(() => {
     const role = ready?.me.role ?? db.staff.find((x) => x.id === staffId)?.role ?? null;
-    return adminNav({
-      pathname: '/admin/search',
-      role,
-      fullNav: false,
-      counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
-      peek: undefined,
-    }).flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, to: r.to })));
-  }, [db.staff, ready?.me.role, staffId]);
+    return navPages(role, false, cohort.id ?? '').map((p) => ({ id: p.id, label: p.label, to: p.to }));
+  }, [cohort.id, db.staff, ready?.me.role, staffId]);
   const sections = searchSections(settled, pages, api);
 
   if (gate.kind === 'hidden') return null;
