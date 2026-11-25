@@ -1,0 +1,1615 @@
+{
+ "masquerade": {
+  "after-last-session": {
+   "implementer": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "b00aacbc9e57a6a22a9604a7f8ce3b15d36d59e020b311a00368aee014027f3c",
+     "status": 200
+    },
+    "start": 201
+   },
+   "insiders": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "ded32ac4526dd479f337c5b92723fdb3f13cacc1a506053f2b3d6253802f0101",
+     "status": 200
+    },
+    "start": 201
+   },
+   "owner": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "b00aacbc9e57a6a22a9604a7f8ce3b15d36d59e020b311a00368aee014027f3c",
+     "status": 200
+    },
+    "start": 201
+   },
+   "skillBuyer": {
+    "actor": "learner",
+    "course": {
+     "sha": "1ff4716bdae2afc969b577bf5c55b22e1db5dc46dc30b52626c823303fd46df1",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "41e563dacd56e095929c7eb30617f61cf724a4988ad2fde0d82328d1c32285bf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanAgent": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "dc281f46865084151e0127d13d939d002c7c35b3f8919c89e83767034351c445",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "94588cd9b139174d9590887b46a5b9f578c317cdbd446663dc8a5dc0b66b600b",
+     "status": 200
+    },
+    "start": 201
+   },
+   "testEarly": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "5ce49851abb5ffcc62e81543ff266ef87d5f5a045f577279e4879082144b3b75",
+     "status": 200
+    },
+    "start": 201
+   },
+   "twoPayOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "243e1d4cca44ba883de680decec0656a79fa4f533f388db6f94a2f9e9a6a11e4",
+     "status": 200
+    },
+    "start": 201
+   },
+   "utahLife": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "87b94ecf8e5cfcefa0149c3eb473c20ab316892e23e6401987d97b38ab2783fd",
+     "status": 200
+    },
+    "start": 201
+   }
+  },
+  "dec2-build": {
+   "implementer": {
+    "actor": "learner",
+    "course": {
+     "sha": "b27fe3c627df111373175358dd512b9600a1ca289b52dfa08022f89d93afd0f1",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "143e950298f3b55b4b2012eb901828280a406470822478fd10df614b8b5a7076",
+     "status": 200
+    },
+    "start": 201
+   },
+   "insiders": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "ded32ac4526dd479f337c5b92723fdb3f13cacc1a506053f2b3d6253802f0101",
+     "status": 200
+    },
+    "start": 201
+   },
+   "owner": {
+    "actor": "learner",
+    "course": {
+     "sha": "b27fe3c627df111373175358dd512b9600a1ca289b52dfa08022f89d93afd0f1",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "143e950298f3b55b4b2012eb901828280a406470822478fd10df614b8b5a7076",
+     "status": 200
+    },
+    "start": 201
+   },
+   "skillBuyer": {
+    "actor": "learner",
+    "course": {
+     "sha": "1ff4716bdae2afc969b577bf5c55b22e1db5dc46dc30b52626c823303fd46df1",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "41e563dacd56e095929c7eb30617f61cf724a4988ad2fde0d82328d1c32285bf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanAgent": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "dc281f46865084151e0127d13d939d002c7c35b3f8919c89e83767034351c445",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "94588cd9b139174d9590887b46a5b9f578c317cdbd446663dc8a5dc0b66b600b",
+     "status": 200
+    },
+    "start": 201
+   },
+   "testEarly": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "5ce49851abb5ffcc62e81543ff266ef87d5f5a045f577279e4879082144b3b75",
+     "status": 200
+    },
+    "start": 201
+   },
+   "twoPayOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "b27fe3c627df111373175358dd512b9600a1ca289b52dfa08022f89d93afd0f1",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "bac06dfdede46e1c3e1bb6e36aebe14ce1992f1a56c91618ac91044c884f65bf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "utahLife": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "87b94ecf8e5cfcefa0149c3eb473c20ab316892e23e6401987d97b38ab2783fd",
+     "status": 200
+    },
+    "start": 201
+   }
+  },
+  "holiday-gap": {
+   "implementer": {
+    "actor": "learner",
+    "course": {
+     "sha": "64250160a9f93a8b5ac61c53b60076d6e56d4e4a599525a7b971575129141c91",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "541c7237099687bab8fb84d2c1022b371abbd302114b3e5e3cc6a77b85d78907",
+     "status": 200
+    },
+    "start": 201
+   },
+   "insiders": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "ded32ac4526dd479f337c5b92723fdb3f13cacc1a506053f2b3d6253802f0101",
+     "status": 200
+    },
+    "start": 201
+   },
+   "owner": {
+    "actor": "learner",
+    "course": {
+     "sha": "64250160a9f93a8b5ac61c53b60076d6e56d4e4a599525a7b971575129141c91",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "541c7237099687bab8fb84d2c1022b371abbd302114b3e5e3cc6a77b85d78907",
+     "status": 200
+    },
+    "start": 201
+   },
+   "skillBuyer": {
+    "actor": "learner",
+    "course": {
+     "sha": "1ff4716bdae2afc969b577bf5c55b22e1db5dc46dc30b52626c823303fd46df1",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "41e563dacd56e095929c7eb30617f61cf724a4988ad2fde0d82328d1c32285bf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanAgent": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "dc281f46865084151e0127d13d939d002c7c35b3f8919c89e83767034351c445",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "94588cd9b139174d9590887b46a5b9f578c317cdbd446663dc8a5dc0b66b600b",
+     "status": 200
+    },
+    "start": 201
+   },
+   "testEarly": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "5ce49851abb5ffcc62e81543ff266ef87d5f5a045f577279e4879082144b3b75",
+     "status": 200
+    },
+    "start": 201
+   },
+   "twoPayOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "64250160a9f93a8b5ac61c53b60076d6e56d4e4a599525a7b971575129141c91",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "6125ae7834afa9d941dd2724df75960c8db5032d7cbcc81aa0b1934bde2040ba",
+     "status": 200
+    },
+    "start": 201
+   },
+   "utahLife": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "87b94ecf8e5cfcefa0149c3eb473c20ab316892e23e6401987d97b38ab2783fd",
+     "status": 200
+    },
+    "start": 201
+   }
+  },
+  "in-preview": {
+   "implementer": {
+    "actor": "learner",
+    "course": {
+     "sha": "5dbbed1669c43194b1eea200469a82413836bc39ba57fdb7a4c77e4b9c68335c",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "2ec771e983035d5a4c00fb0756e90ff4d4b23763c7f113ffb40965865a672c97",
+     "status": 200
+    },
+    "start": 201
+   },
+   "insiders": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "ded32ac4526dd479f337c5b92723fdb3f13cacc1a506053f2b3d6253802f0101",
+     "status": 200
+    },
+    "start": 201
+   },
+   "owner": {
+    "actor": "learner",
+    "course": {
+     "sha": "5dbbed1669c43194b1eea200469a82413836bc39ba57fdb7a4c77e4b9c68335c",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "2ec771e983035d5a4c00fb0756e90ff4d4b23763c7f113ffb40965865a672c97",
+     "status": 200
+    },
+    "start": 201
+   },
+   "skillBuyer": {
+    "actor": "learner",
+    "course": {
+     "sha": "1ff4716bdae2afc969b577bf5c55b22e1db5dc46dc30b52626c823303fd46df1",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "41e563dacd56e095929c7eb30617f61cf724a4988ad2fde0d82328d1c32285bf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanAgent": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "dc281f46865084151e0127d13d939d002c7c35b3f8919c89e83767034351c445",
+     "status": 200
+    },
+    "start": 201
+   },
+   "teamPlanOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "94588cd9b139174d9590887b46a5b9f578c317cdbd446663dc8a5dc0b66b600b",
+     "status": 200
+    },
+    "start": 201
+   },
+   "testEarly": {
+    "actor": "learner",
+    "course": {
+     "sha": "198adff3cc99736d1d8061766bc64d228a51e3fa6cf998aad1ace1e7add74e40",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "5ce49851abb5ffcc62e81543ff266ef87d5f5a045f577279e4879082144b3b75",
+     "status": 200
+    },
+    "start": 201
+   },
+   "twoPayOwner": {
+    "actor": "learner",
+    "course": {
+     "sha": "5dbbed1669c43194b1eea200469a82413836bc39ba57fdb7a4c77e4b9c68335c",
+     "status": 200
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "112aa08a07f1efdcda354a373b9b8979c990776a2bfb809bea383eb7d09700cf",
+     "status": 200
+    },
+    "start": 201
+   },
+   "utahLife": {
+    "actor": "learner",
+    "course": {
+     "sha": "1bcf3f9677c306e89075526acfb0298b167ebf380178a29bd23937dc4c64eb8c",
+     "status": 403
+    },
+    "exit": 200,
+    "join": {
+     "dec26-fri-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-fri-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-oh8": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s1": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s2": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s3": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s4": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s5": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s6": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s7": "403 Blocked while masquerading. Exit to continue.",
+     "dec26-s8": "403 Blocked while masquerading. Exit to continue."
+    },
+    "snapshot": {
+     "differs": [],
+     "sha": "87b94ecf8e5cfcefa0149c3eb473c20ab316892e23e6401987d97b38ab2783fd",
+     "status": 200
+    },
+    "start": 201
+   }
+  }
+ },
+ "tour": {
+  "out": {
+   "after-last-session": {
+    "implementer": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "insiders": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "owner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "skillBuyer": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "staff": {
+     "course": 200,
+     "files": {},
+     "tour": "lms-tour"
+    },
+    "staff-as-owner": {
+     "course": 200,
+     "tour": "lms-tour"
+    },
+    "staff-as-owner-sets-seen": 403,
+    "teamPlanAgent": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "teamPlanOwner": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "testEarly": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "twoPayOwner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "utahLife": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    }
+   },
+   "dec2-build": {
+    "implementer": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "insiders": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "owner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "skillBuyer": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "staff": {
+     "course": 200,
+     "files": {},
+     "tour": "lms-tour"
+    },
+    "staff-as-owner": {
+     "course": 200,
+     "tour": "lms-tour"
+    },
+    "staff-as-owner-sets-seen": 403,
+    "teamPlanAgent": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "teamPlanOwner": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "testEarly": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "twoPayOwner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "utahLife": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    }
+   },
+   "holiday-gap": {
+    "implementer": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "insiders": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "owner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "skillBuyer": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "staff": {
+     "course": 200,
+     "files": {},
+     "tour": "lms-tour"
+    },
+    "staff-as-owner": {
+     "course": 200,
+     "tour": "lms-tour"
+    },
+    "staff-as-owner-sets-seen": 403,
+    "teamPlanAgent": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "teamPlanOwner": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "testEarly": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "twoPayOwner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "utahLife": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    }
+   },
+   "in-preview": {
+    "implementer": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "insiders": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "owner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "skillBuyer": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "staff": {
+     "course": 200,
+     "files": {},
+     "tour": "lms-tour"
+    },
+    "staff-as-owner": {
+     "course": 200,
+     "tour": "lms-tour"
+    },
+    "staff-as-owner-sets-seen": 403,
+    "teamPlanAgent": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "teamPlanOwner": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    },
+    "testEarly": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "twoPayOwner": {
+     "course": 200,
+     "files": {
+      "mp4": 200,
+      "poster": 200,
+      "vtt": 200
+     },
+     "tour": "lms-tour"
+    },
+    "utahLife": {
+     "course": 403,
+     "files": {
+      "mp4": 404,
+      "poster": 404,
+      "vtt": 404
+     },
+     "tour": null
+    }
+   }
+  },
+  "ownerSeen": true,
+  "ownerSetsSeen": 200,
+  "save": 200
+ }
+}
