@@ -425,6 +425,18 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       lockup('div.lockup.lockup-end')];
   }
   put(root, [top(), toc(), bottom(), (D.sections || []).map(section), end()]);
+
+  /* A long figure ("$8,841,500") steps its tile number down until it fits its tile, never below 22px. */
+  function fitTiles() {
+    Array.prototype.forEach.call(document.querySelectorAll('.tile-num'), function (n) {
+      n.style.fontSize = '';
+      var size = parseFloat(getComputedStyle(n).fontSize);
+      while (n.scrollWidth > n.parentNode.clientWidth && size > 22) { size -= 2; n.style.fontSize = size + 'px'; }
+    });
+  }
+  fitTiles();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTiles);
+  window.addEventListener('resize', fitTiles);
 })();
 </script>
 </body>

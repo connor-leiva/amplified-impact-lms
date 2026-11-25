@@ -1,13 +1,62 @@
 # Page Kit (for building the report page)
 
-Use this file only when the instructions say to build the page. In code (Python), save the first block
-below as build_page.py and the second as base-template.html, in the same folder, exactly as written.
-Do not change either file. Then run:
+Use this file only when the instructions say to build the page. In code (Python), save the block under
+"build_page.py" below as build_page.py and the block under "base-template.html" as base-template.html,
+in the same folder, exactly as written. Do not change either file. Write page.json and words.json as
+"Page Format" below says. Then run:
 
     python build_page.py page.json --words words.json --facts facts.json --template base-template.html --fonts none --out <File-Name>.html
 
 and give the person the download link for the .html file right away. The link stops working when the
 code session ends, so tell them to download it now. If the link fails, run the code again for a new link.
+
+## Page Format
+
+The two files below are build_page.py and base-template.html here, side by side in one folder.
+
+You write two small JSON files. `scripts/build_page.py` turns them into the page. Never open or edit
+`assets/base-template.html`.
+
+### page.json
+
+- `id`: skill, subject and period, for example `"agent-1on1-prep:marigold:2026-11-12"`. Keeps typed owners and ticked boxes apart between pages.
+- `report`: the skill name in Title Case. `subtitle`: one line, who and when (times end in MT).
+- `sample`: `"Practice File: Made-Up Example"` on any practice or made-up run. Leave it out on real runs.
+- `meta`: 2 to 5 `{label, value}` pairs (Title Case labels): who, period, as-of date, source.
+- `dataCheck`: list of warnings the analysis raised. They print in red at the top. Never drop one to make the page look clean.
+- `headline`, `findings`, `moves`, `decide`: put these in `words.json` instead (below).
+- `sections`: one per item of "Output, In This Order", in that order. Each: `id`, `kind`, `label` (Title Case), `finding` (one sentence), optional `note`, optional `math` (list of plain lines showing the arithmetic).
+
+| kind | fields |
+|---|---|
+| `tiles` | `tiles`: `{label, value, unit, status, note}`. Big numbers. `value` is already formatted ("$98,450"). |
+| `table` | `columns`: `{key, label, type}` with type `text`, `num`, `usd`, `pct` or `status`; `rows`: objects (numbers as numbers), optional `_status` per row; optional `filters` (column keys), `sort` `{key, dir}`, `limit` (rows before Show All). |
+| `list` | `items`: `{status, title, text, math}`. Flags, findings, questions. |
+| `timeline` | `items`: `{date, title, text, status}`. Dated plans and deadlines. |
+| `drafts` | `drafts`: `{label, to, channel, subject, body, flag}`. Every outgoing message. Subjects in Title Case. `channel` says where it goes ("Gmail draft", "FUB note"). |
+| `checklist` | `items`: `{text, source}`. Check Before Sending: every date, dollar amount, name and quoted fact in the drafts, with the file to check it against. Always the last section. |
+| `prose` | `paragraphs`: short plain paragraphs. Use rarely. |
+
+Statuses: `on` (good), `off` (problem), `hold` (Watch), `quiet` (No Data).
+
+### words.json
+
+```json
+{
+  "headline": ["Two short sentences.", "About six words each."],
+  "findings": [{"status": "off", "text": "One sentence with the number."}],
+  "moves": [{"title": "Imperative Title Case", "text": "How, with the number.", "tag": "What it fixes", "owner": ""}],
+  "sections": {"<section id>": {"finding": "...", "note": "..."}}
+}
+```
+
+Three findings, most important first. Up to three moves. `owner` only when a person was named.
+
+### Rules the build enforces
+
+Every number must be in `facts.json` or the user's files. No em or en dashes. Title Case headings. Every
+clock time followed by MT. Never "industry standard". No sentence saying anything was sent, posted or
+changed: you read and draft only. A page with drafts must end with a Check Before Sending checklist.
 
 ## build_page.py
 
@@ -742,6 +791,18 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       lockup('div.lockup.lockup-end')];
   }
   put(root, [top(), toc(), bottom(), (D.sections || []).map(section), end()]);
+
+  /* A long figure ("$8,841,500") steps its tile number down until it fits its tile, never below 22px. */
+  function fitTiles() {
+    Array.prototype.forEach.call(document.querySelectorAll('.tile-num'), function (n) {
+      n.style.fontSize = '';
+      var size = parseFloat(getComputedStyle(n).fontSize);
+      while (n.scrollWidth > n.parentNode.clientWidth && size > 22) { size -= 2; n.style.fontSize = size + 'px'; }
+    });
+  }
+  fitTiles();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTiles);
+  window.addEventListener('resize', fitTiles);
 })();
 </script>
 </body>

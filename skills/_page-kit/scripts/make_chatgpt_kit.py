@@ -4,8 +4,9 @@ make_chatgpt_kit.py: packs the shared page kit into ONE markdown file for a Chat
 
 A ChatGPT Project version holds 4 files (instructions, paste text, up to 3 more .md files) so it fits
 ChatGPT Free's 5-file limit. The page kit has to ride in one of those .md files. This writes
-page-kit.md: build_page.py and the LITE template (system fonts, no embedded Geist, so it stays small),
-each in its own fenced block, with the two lines the model runs to unpack them.
+page-kit.md: the page format (what to write in page.json and words.json), then build_page.py and the
+LITE template (system fonts, no embedded Geist, so it stays small), each in its own fenced block, with
+the lines the model runs to unpack them.
 
 Usage: python make_chatgpt_kit.py --out ../chatgpt-kit/page-kit.md
 """
@@ -15,17 +16,26 @@ ap = argparse.ArgumentParser(); ap.add_argument("--out", default=os.path.join(HE
 a = ap.parse_args()
 build = open(os.path.join(HERE, "build_page.py"), encoding="utf-8").read()
 tpl = open(os.path.join(HERE, "..", "assets", "base-template.html"), encoding="utf-8").read()
+fmt = open(os.path.join(HERE, "..", "references", "page-format.md"), encoding="utf-8").read()
+fmt = "\n".join("#" + l if l.startswith("#") else l for l in fmt.strip().splitlines()[1:]).strip()
 fence = "~~~~~~"
 body = """# Page Kit (for building the report page)
 
-Use this file only when the instructions say to build the page. In code (Python), save the first block
-below as build_page.py and the second as base-template.html, in the same folder, exactly as written.
-Do not change either file. Then run:
+Use this file only when the instructions say to build the page. In code (Python), save the block under
+"build_page.py" below as build_page.py and the block under "base-template.html" as base-template.html,
+in the same folder, exactly as written. Do not change either file. Write page.json and words.json as
+"Page Format" below says. Then run:
 
     python build_page.py page.json --words words.json --facts facts.json --template base-template.html --fonts none --out <File-Name>.html
 
 and give the person the download link for the .html file right away. The link stops working when the
 code session ends, so tell them to download it now. If the link fails, run the code again for a new link.
+
+## Page Format
+
+The two files below are build_page.py and base-template.html here, side by side in one folder.
+
+%(fmt)s
 
 ## build_page.py
 
@@ -38,7 +48,7 @@ code session ends, so tell them to download it now. If the link fails, run the c
 %(f)shtml
 %(tpl)s
 %(f)s
-""" % {"f": fence, "build": build.rstrip(), "tpl": tpl.rstrip()}
+""" % {"f": fence, "build": build.rstrip(), "tpl": tpl.rstrip(), "fmt": fmt}
 os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
 open(a.out, "w", encoding="utf-8").write(body)
 print("WROTE %s (%d KB)" % (os.path.abspath(a.out), round(len(body.encode()) / 1024)))

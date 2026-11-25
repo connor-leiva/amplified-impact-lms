@@ -408,6 +408,15 @@ export function pageKitErrors() {
         errors.push(`${PAGE_KIT_CHATGPT} does not hold today's ${rel}: run python3 skills/_page-kit/scripts/make_chatgpt_kit.py`);
       }
     }
+    // The page format rides in it too, its title dropped and its headings one level down.
+    const fmtPath = join(PAGE_KIT_DIR, 'references', 'page-format.md');
+    if (existsSync(fmtPath)) {
+      const lines = readFileSync(fmtPath, 'utf8').trim().split('\n').slice(1);
+      const fmt = lines.map((l) => (l.startsWith('#') ? `#${l}` : l)).join('\n').trim();
+      if (!text.includes(fmt)) {
+        errors.push(`${PAGE_KIT_CHATGPT} does not hold today's references/page-format.md: run python3 skills/_page-kit/scripts/make_chatgpt_kit.py`);
+      }
+    }
   }
   return errors;
 }
