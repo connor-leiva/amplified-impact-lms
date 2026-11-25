@@ -67,7 +67,7 @@
 .spacer {
   flex: 1;
 }
-/* D-184: the cohort line under the wordmark (the current portal's context line). */
+/* D-184: the cohort line under the logo (the current portal's context line). */
 .ctx {
   margin: -6px 0 8px;
   padding: 0 16px;
@@ -608,7 +608,9 @@ button.b {
   padding: 0;
 }
 .sb[data-rail='true'] .wmw {
-  width: 11px;
+  /* D-256: the academy lockup through the 26px window the v3 and admin rails use (D-233, D-239), its "ai";
+     it was 11px, the old wordmark's first glyph. */
+  width: 26px;
 }
 .sb[data-rail='true'] .lbl,
 .sb[data-rail='true'] .ctx,
@@ -643,7 +645,7 @@ button.b {
     gap: 4px;
     background: var(--r2-sf);
   }
-  /* The wordmark's link is a 44px tap target; the wordmark itself stays 22px tall. */
+  /* The logo's link is a 44px tap target; the academy lockup itself stays 34px tall (D-256). */
   .wmw {
     display: flex;
     align-items: center;

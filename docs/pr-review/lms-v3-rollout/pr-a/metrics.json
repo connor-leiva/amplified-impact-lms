@@ -1,0 +1,1360 @@
+{
+ "signin-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     471,
+     145,
+     161,
+     34
+    ],
+    "imgRect": [
+     471,
+     145,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     471,
+     145,
+     338,
+     34
+    ],
+    "barTag": "div.SignIn-module_brand_KdeK",
+    "clipRect": [
+     0,
+     0,
+     1280,
+     858.6
+    ]
+   }
+  ]
+ },
+ "signin-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     45,
+     145.7,
+     161,
+     34
+    ],
+    "imgRect": [
+     45,
+     145.7,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     45,
+     145.7,
+     300,
+     34
+    ],
+    "barTag": "div.SignIn-module_brand_KdeK",
+    "clipRect": [
+     0,
+     0,
+     390,
+     844
+    ]
+   }
+  ]
+ },
+ "forgot-password-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     471,
+     203.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     471,
+     203.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     471,
+     203.5,
+     338,
+     34
+    ],
+    "barTag": "div.SignIn-module_brand_KdeK",
+    "clipRect": [
+     0,
+     0,
+     1280,
+     800
+    ]
+   }
+  ]
+ },
+ "forgot-password-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     45,
+     233.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     45,
+     233.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     45,
+     233.5,
+     300,
+     34
+    ],
+    "barTag": "div.SignIn-module_brand_KdeK",
+    "clipRect": [
+     0,
+     0,
+     390,
+     844
+    ]
+   }
+  ]
+ },
+ "invite-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     473,
+     333.6,
+     161,
+     34
+    ],
+    "imgRect": [
+     473,
+     333.6,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     473,
+     333.6,
+     334,
+     34
+    ],
+    "barTag": "div.AcceptInvite-module_brand_vsiu",
+    "clipRect": null
+   }
+  ]
+ },
+ "invite-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     49,
+     325.8,
+     161,
+     34
+    ],
+    "imgRect": [
+     49,
+     325.8,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     49,
+     325.8,
+     292,
+     34
+    ],
+    "barTag": "div.AcceptInvite-module_brand_vsiu",
+    "clipRect": null
+   }
+  ]
+ },
+ "portal-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     247,
+     56
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     0,
+     0,
+     248,
+     800
+    ]
+   }
+  ]
+ },
+ "portal-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     -278,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     -278,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     -294,
+     0,
+     279,
+     64
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     -294,
+     0,
+     280,
+     844
+    ]
+   },
+   {
+    "slot": "head",
+    "kind": "head",
+    "slotRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     64
+    ],
+    "barTag": "header.AppShell-module_header_DH-h",
+    "clipRect": [
+     0,
+     0,
+     390,
+     844
+    ]
+   }
+  ]
+ },
+ "portal-dark-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     247,
+     56
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     0,
+     0,
+     248,
+     800
+    ]
+   }
+  ]
+ },
+ "portal-dark-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     -278,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     -278,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     -294,
+     0,
+     279,
+     64
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     -294,
+     0,
+     280,
+     844
+    ]
+   },
+   {
+    "slot": "head",
+    "kind": "head",
+    "slotRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     64
+    ],
+    "barTag": "header.AppShell-module_header_DH-h",
+    "clipRect": [
+     0,
+     0,
+     390,
+     844
+    ]
+   }
+  ]
+ },
+ "portal-laptop-1024.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     247,
+     56
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     0,
+     0,
+     248,
+     768
+    ]
+   }
+  ]
+ },
+ "portal-rail-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "mark",
+    "kind": "mark",
+    "slotRect": [
+     18,
+     13.5,
+     28,
+     28
+    ],
+    "imgRect": [
+     18,
+     13.5,
+     28,
+     28
+    ],
+    "imgFile": "IMG",
+    "barRect": [
+     0,
+     0,
+     63,
+     56
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     0,
+     0,
+     64,
+     800
+    ]
+   }
+  ]
+ },
+ "portal-drawer-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     279,
+     64
+    ],
+    "barTag": "div.AppShell-module_brand_T0xd",
+    "clipRect": [
+     0,
+     0,
+     280,
+     844
+    ]
+   },
+   {
+    "slot": "head",
+    "kind": "head",
+    "slotRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     66,
+     14.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     64
+    ],
+    "barTag": "header.AppShell-module_header_DH-h",
+    "clipRect": [
+     0,
+     0,
+     390,
+     844
+    ]
+   }
+  ]
+ },
+ "skill-library-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     200,
+     48,
+     880,
+     268.2
+    ],
+    "barTag": "header.SkillLibrary-module_head_C421",
+    "clipRect": null
+   }
+  ]
+ },
+ "skill-library-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     16,
+     32,
+     358,
+     331.4
+    ],
+    "barTag": "header.SkillLibrary-module_head_C421",
+    "clipRect": null
+   }
+  ]
+ },
+ "skill-guide-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     200,
+     48,
+     880,
+     176.2
+    ],
+    "barTag": "header.SkillGuide-module_head_HWz-",
+    "clipRect": null
+   }
+  ]
+ },
+ "skill-guide-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     16,
+     32,
+     358,
+     155.4
+    ],
+    "barTag": "header.SkillGuide-module_head_HWz-",
+    "clipRect": null
+   }
+  ]
+ },
+ "course-1280.png": {
+  "sideways": 0,
+  "title": "Amplified AI Accelerator",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     200,
+     48,
+     880,
+     216.2
+    ],
+    "barTag": "header.Course-module_head_kHpR",
+    "clipRect": null
+   }
+  ]
+ },
+ "course-390.png": {
+  "sideways": 0,
+  "title": "Amplified AI Accelerator",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     16,
+     32,
+     358,
+     262.9
+    ],
+    "barTag": "header.Course-module_head_kHpR",
+    "clipRect": null
+   }
+  ]
+ },
+ "course-week-1280.png": {
+  "sideways": 0,
+  "title": "Amplified AI Accelerator",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     48,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     200,
+     48,
+     880,
+     257.8
+    ],
+    "barTag": "header.Course-module_head_kHpR",
+    "clipRect": null
+   }
+  ]
+ },
+ "course-week-390.png": {
+  "sideways": 0,
+  "title": "Amplified AI Accelerator",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     16,
+     32,
+     358,
+     304.5
+    ],
+    "barTag": "header.Course-module_head_kHpR",
+    "clipRect": null
+   }
+  ]
+ },
+ "course-upcoming-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "course-upcoming-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "course-locked-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "course-locked-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "course-paused-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgRect": [
+     200,
+     72,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "course-paused-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     56,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": null,
+    "barTag": null,
+    "clipRect": null
+   }
+  ]
+ },
+ "crm-sync-1280.png": {
+  "sideways": 0,
+  "title": "CRM Sync \u00b7 Amplified Impact",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     136,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     136,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     136,
+     32,
+     1008,
+     172
+    ],
+    "barTag": "header.CrmSync-module_head_zsHw",
+    "clipRect": null
+   }
+  ]
+ },
+ "crm-sync-390.png": {
+  "sideways": 0,
+  "title": "CRM Sync \u00b7 Amplified Impact",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": "lockup",
+    "slotRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     32,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     16,
+     32,
+     358,
+     196
+    ],
+    "barTag": "header.CrmSync-module_head_zsHw",
+    "clipRect": null
+   }
+  ]
+ },
+ "console-paused-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     32,
+     57.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     32,
+     57.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     49,
+     1280,
+     52
+    ],
+    "barTag": "header.AdminShell-module_bar_yE1J",
+    "clipRect": null
+   }
+  ]
+ },
+ "console-paused-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     8,
+     99.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     8,
+     99.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     89,
+     390,
+     56
+    ],
+    "barTag": "header.AdminShell-module_bar_yE1J",
+    "clipRect": null
+   }
+  ]
+ },
+ "learner-v2-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     16,
+     9,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     9,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     243,
+     52
+    ],
+    "barTag": "div.LearnerShell-module_top_ueEx",
+    "clipRect": [
+     16,
+     9,
+     161,
+     34
+    ]
+   }
+  ]
+ },
+ "learner-v2-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     56
+    ],
+    "barTag": "header.LearnerShell-module_tb_99bv",
+    "clipRect": [
+     56,
+     5.5,
+     161,
+     44
+    ]
+   }
+  ]
+ },
+ "learner-v2-dark-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     16,
+     9,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     9,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     243,
+     52
+    ],
+    "barTag": "div.LearnerShell-module_top_ueEx",
+    "clipRect": [
+     16,
+     9,
+     161,
+     34
+    ]
+   }
+  ]
+ },
+ "learner-v2-dark-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     56
+    ],
+    "barTag": "header.LearnerShell-module_tb_99bv",
+    "clipRect": [
+     56,
+     5.5,
+     161,
+     44
+    ]
+   }
+  ]
+ },
+ "learner-v2-rail-1024.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "mark",
+    "kind": null,
+    "slotRect": [
+     18.5,
+     9,
+     161,
+     34
+    ],
+    "imgRect": [
+     18.5,
+     9,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     63,
+     52
+    ],
+    "barTag": "div.LearnerShell-module_top_ueEx",
+    "clipRect": [
+     18.5,
+     9,
+     26,
+     34
+    ]
+   }
+  ]
+ },
+ "learner-v2-collapsed-1280.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "mark",
+    "kind": null,
+    "slotRect": [
+     18.5,
+     9,
+     161,
+     34
+    ],
+    "imgRect": [
+     18.5,
+     9,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     63,
+     52
+    ],
+    "barTag": "div.LearnerShell-module_top_ueEx",
+    "clipRect": [
+     18.5,
+     9,
+     26,
+     34
+    ]
+   }
+  ]
+ },
+ "learner-v2-drawer-390.png": {
+  "sideways": 0,
+  "title": "Amplified Impact Academy",
+  "slots": [
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgRect": [
+     56,
+     10.5,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     390,
+     56
+    ],
+    "barTag": "header.LearnerShell-module_tb_99bv",
+    "clipRect": [
+     56,
+     5.5,
+     161,
+     44
+    ]
+   },
+   {
+    "slot": "lockup",
+    "kind": null,
+    "slotRect": [
+     16,
+     11,
+     161,
+     34
+    ],
+    "imgRect": [
+     16,
+     11,
+     161,
+     34
+    ],
+    "imgFile": "academy",
+    "barRect": [
+     0,
+     0,
+     319,
+     56
+    ],
+    "barTag": "div.LearnerShell-module_top_ueEx",
+    "clipRect": [
+     16,
+     6,
+     161,
+     44
+    ]
+   }
+  ]
+ }
+}

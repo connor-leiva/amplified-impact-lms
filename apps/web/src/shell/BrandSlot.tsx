@@ -1,23 +1,23 @@
-import lockupSvg from '../assets/brand/amplified-impact-wordmark.svg?raw';
-import lockupReversedSvg from '../assets/brand/amplified-impact-wordmark-reversed.svg?raw';
+import lockupSvg from '../assets/brand/amplified-impact-academy-app.svg?raw';
+import lockupReversedSvg from '../assets/brand/amplified-impact-academy-app-reversed.svg?raw';
 import mark from '../assets/brand/favicon.svg';
 import s from './BrandSlot.module.css';
 
-// D-156: the wordmark's drawing is about 7 KB, over Vite's 4 KB inline limit, so it is read as text and
+// D-156, D-256: the lockup's drawing is about 12 KB, over Vite's 4 KB inline limit, so it is read as text and
 // inlined here as a data: URI, as the smaller brand files are by Vite itself: no request (D-031), and
 // the CSP's `img-src 'self' data:` already allows it.
 const inline = (svg: string): string => `data:image/svg+xml,${encodeURIComponent(svg.trim())}`;
 const lockup = inline(lockupSvg);
 const lockupReversed = inline(lockupReversedSvg);
 
-// The brand row's logo, ported from design-reference/Amplified Impact LMS.dc.html (D-031, D-156).
+// The brand row's logo, ported from design-reference/Amplified Impact LMS.dc.html (D-031, D-156, D-256).
 //
-// D-156: the LMS now carries the Amplified Impact wordmark, the www kit's Logo 1 (apps/web/src/kit/
-// logo.ts, drawn as two brand files: near-black letters with the energy ring on light, cream with
-// mint on dark), so the first thing a learner or an admin sees reads as the same brand as www. It
-// replaced the `ai academy` app lockup in the expanded sidebar, the drawer and the screens outside
-// the shell; `head` is the same drawing at 20px for the phone's top bar, where the sidebar is hidden.
-// The rail keeps the favicon mark. What follows is D-031's reasoning, which still holds.
+// D-256 (R-2, B-42, Connor, Nov 20: "switch all the branding in the LMS to the academy logos"): the
+// `lockup` and `head` kinds are the brand's "ai academy" app lockup again, at 161×34, the light file
+// on light and the reversed file on dark, as the learner v3 sidebar (D-233) and the admin shell (D-239)
+// draw it. It replaces D-156's Amplified Impact wordmark (160×24, and 133×20 in the phone's top bar)
+// in the expanded sidebar, the drawer, the phone's top bar and every screen outside the shell. The
+// rail keeps the favicon mark. What follows is D-031's reasoning, which holds again.
 //
 // The Brand Guide's rule is "use the app lockup in the LMS sidebar, on login screens and in emails",
 // with a 160 px minimum, and "below each minimum, switch to the next drawing down". So the expanded
@@ -36,7 +36,7 @@ const lockupReversed = inline(lockupReversedSvg);
 // `data-brand-slot` stays on the wrapper — one per logo — as the CLAUDE.md landmark.
 
 export interface BrandSlotProps {
-  /** `lockup` is the 160×24 wordmark; `head` is the 133×20 wordmark for the phone's top bar; `mark` is the 28×28 favicon drawing for the rail. */
+  /** `lockup` is the 161×34 academy app lockup; `head` is the same lockup in the phone's top bar; `mark` is the 28×28 favicon drawing for the rail. */
   kind: 'lockup' | 'head' | 'mark';
 }
 

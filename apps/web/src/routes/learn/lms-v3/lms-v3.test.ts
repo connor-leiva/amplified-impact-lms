@@ -1,7 +1,7 @@
 // D-225: the v3 stylesheets and icon sprite are the package's, byte for byte. A value changes only when the mockup
 // changes and `npm run build` regenerates them in `handoff/lms-v3/src/`; then both copies move together.
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { communityFor, isCommunityPath, lmsV3Enabled, v3FrameAt, v3On } from './v3';
@@ -28,6 +28,43 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(want).toMatch(/^[0-9a-f]{64}$/);
     expect(sha(`apps/web/src/routes/learn/lms-v3/logos/${f}`)).toBe(want);
     expect(sha(`handoff/lms-v3/brand/logos/${f}`)).toBe(want);
+  });
+
+  // B-42 (R-2, D-256): every logo in brand/logos/SHA256SUMS, wherever the repo keeps a copy, is the brand's file byte
+  // for byte. Never redrawn, recoloured, cropped or re-exported (IMPLEMENTATION-SPEC.md §2.1).
+  const SUMS: [string, string][] = readFileSync(join(ROOT, 'handoff/lms-v3/brand/logos/SHA256SUMS'), 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .map((l) => {
+      const [hash, file] = l.split(/ {2}/);
+      return [file!, hash!];
+    });
+  const COPIES = [
+    'apps/web/src/assets/brand',
+    'design-reference/brand',
+    'apps/web/src/routes/learn/lms-v3/logos',
+    'handoff/lms-v3/mockup/logos',
+    'handoff/admin-mockup/logos',
+  ];
+  it('SHA256SUMS lists the five brand files', () => {
+    expect(SUMS.map(([f]) => f).sort()).toEqual([
+      'amplified-impact-academy-app-reversed.svg',
+      'amplified-impact-academy-app.svg',
+      'amplified-impact-academy-reversed.svg',
+      'amplified-impact-academy.svg',
+      'favicon.svg',
+    ]);
+    for (const [, hash] of SUMS) expect(hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+  it.each(SUMS)('every copy of %s', (f, want) => {
+    expect(sha(`handoff/lms-v3/brand/logos/${f}`)).toBe(want);
+    for (const dir of COPIES) if (existsSync(join(ROOT, dir, f))) expect(sha(`${dir}/${f}`), `${dir}/${f}`).toBe(want);
+  });
+  // The files `BrandSlot` and `AcademyLogo` draw are in both brand folders, the app's and the reference's.
+  it.each(['amplified-impact-academy-app.svg', 'amplified-impact-academy-app-reversed.svg', 'favicon.svg'])('%s is in both brand folders', (f) => {
+    const want = SUMS.find(([n]) => n === f)?.[1];
+    expect(sha(`apps/web/src/assets/brand/${f}`)).toBe(want);
+    expect(sha(`design-reference/brand/${f}`)).toBe(want);
   });
 
   it('the package’s mockup is the approved revision (v7)', () => {

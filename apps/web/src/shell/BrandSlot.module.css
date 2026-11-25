@@ -1,6 +1,6 @@
 /* The reference's brand row: `<div data-brand-slot style="flex:none; display:flex">` around one
-   `<img style="display:block; width:…; height:…">`: the 160×24 wordmark (D-156), 133×20 in the phone's top
-   bar, and the 28×28 mark. */
+   `<img style="display:block; width:…; height:…">`: the 161×34 academy app lockup (D-256), the same in the
+   phone's top bar, and the 28×28 mark. */
 
 .slot {
   flex: none;
@@ -11,14 +11,10 @@
   display: block;
 }
 
-.slot[data-kind='lockup'] .img {
-  width: 160px;
-  height: 24px;
-}
-
+.slot[data-kind='lockup'] .img,
 .slot[data-kind='head'] .img {
-  width: 133px;
-  height: 20px;
+  width: 161px;
+  height: 34px;
 }
 
 .slot[data-kind='mark'] .img {

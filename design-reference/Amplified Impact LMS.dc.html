@@ -355,8 +355,8 @@ class Component extends DCLogic {
     const phases = (lib ? lib.PHASES : [{ id: 'week0', label: 'Week 0'}, { id: 'live', label: 'Week 2'}, { id: 'post', label: 'After Cohort'}]).map(p => seg(phase === p.id, () => this.lib && this.setPhase(p.id), p.label));
     const base = {
       ic, roles, phases, expanded, collapsed, drawer, sb, drawerScrim: drawer && drawerOpen,
-      brand: expanded ? { src: prefs.theme === 'dark' ? 'brand/amplified-impact-wordmark-reversed.svg' : 'brand/amplified-impact-wordmark.svg', w: 160, h: 24 } : { src: 'brand/favicon.svg', w: 28, h: 28 },
-      brandHead: { src: prefs.theme === 'dark' ? 'brand/amplified-impact-wordmark-reversed.svg' : 'brand/amplified-impact-wordmark.svg', w: 133, h: 20 },
+      brand: expanded ? { src: prefs.theme === 'dark' ? 'brand/amplified-impact-academy-app-reversed.svg' : 'brand/amplified-impact-academy-app.svg', w: 161, h: 34 } : { src: 'brand/favicon.svg', w: 28, h: 28 },
+      brandHead: { src: prefs.theme === 'dark' ? 'brand/amplified-impact-academy-app-reversed.svg' : 'brand/amplified-impact-academy-app.svg', w: 161, h: 34 },
       demoInline: showDemo && vw >= 1360, demoCompact: showDemo && vw < 1360, demoOpen: this.state.demoOpen && showDemo, demoOpenStr: this.state.demoOpen ? 'true' : 'false',
       demoSummary: `${(roles.find(r => r.on === 'true') || {}).label} · ${(phases.find(p => p.on === 'true') || {}).label}`,
       toggleDemo: () => this.setState(s => ({ demoOpen: !s.demoOpen, profileOpen: false })),
