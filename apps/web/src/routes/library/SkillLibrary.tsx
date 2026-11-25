@@ -506,7 +506,12 @@ function SkillRow({ skill, groups, lockedLines }: { skill: LibrarySkill; groups:
   );
 }
 
-export function Component() {
+/**
+ * D-257 (Q-B2, Connor Nov 25): `framed` is this page inside the LMS v3 frame, for a learner without the course. The
+ * frame draws the one logo, so the page draws no logo and no ground of its own, and it is not a second `<main>`.
+ * Everything else is the page as it is. Without `framed` (the `/skill-library` route), nothing changes.
+ */
+export function Component({ framed = false }: { framed?: boolean } = {}) {
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
   // D-150: welcomes put away in this visit, hidden before the server has answered.
   const [dismissed, setDismissed] = useState<readonly string[]>([]);
@@ -539,10 +544,11 @@ export function Component() {
   // access group's member (Utah Life) and every plan's member above all, keeps this page exactly as it was.
   if (load.kind === 'ready' && load.buyer) return <Navigate to="/learn" replace />;
 
+  const Root = framed ? 'div' : 'main';
   return (
-    <main className={s.page}>
+    <Root className={framed ? s.framed : s.page}>
       <header className={s.head}>
-        <BrandSlot kind="lockup" />
+        {framed ? null : <BrandSlot kind="lockup" />}
         <h1 className={s.h1}>{COPY.title}</h1>
         <p className={s.sub}>{COPY.sub}</p>
         {load.kind === 'ready' ? (
@@ -649,7 +655,7 @@ export function Component() {
           );
         })
       )}
-    </main>
+    </Root>
   );
 }
 

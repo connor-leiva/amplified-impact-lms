@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Ref } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { fmt } from '@ai/core';
 import type { Learner } from '@ai/core';
@@ -39,7 +39,7 @@ import type { PlanItem } from '../../routes/learn/teamPlanContext';
 import { v6StepAt } from '../../routes/learn/step-page/v6';
 import { v3FrameAt } from '../../routes/learn/lms-v3/v3';
 import { v3PageAt } from '../../routes/learn/lms-v3/pages';
-import { currentOf } from '../../routes/learn/lms-v3/shell.vm';
+import { currentOf, programNameOf } from '../../routes/learn/lms-v3/shell.vm';
 import { TourProvider, useLmsTour } from '../../routes/learn/tour/Tour';
 import { isNoCourseLearner } from '../../routes/learn/audience';
 import s from './LearnerShell.module.css';
@@ -308,6 +308,15 @@ function PhoneStrip({ bar }: { bar: BarVM }) {
   );
 }
 
+/**
+ * D-257 (Q-B3): the program line of a learner without the course, their plan's name or their access group's, from
+ * `GET /api/skills`. Its own component, so only that learner's frame reads it.
+ */
+function NoCourseProgram({ children }: { children: (programName: string | undefined) => ReactNode }) {
+  const skills = useSkills();
+  return <>{children(skills.kind === 'ready' ? programNameOf(skills.payload) : undefined)}</>;
+}
+
 /** D-187: the Team Plan window, mounted only while it is open, so the library is asked only then. */
 function TeamPlan({ item, me, onClose }: { item: PlanItem; me: Learner | null; onClose: () => void }) {
   const db = useDb();
@@ -461,25 +470,29 @@ function Frame() {
   // line has no place in the mockup's frame (C-04), so that waits for Connor. D-231: staff open the Community in it.
   if (!gate && v3FrameAt(location.pathname, viewer, me)) {
     const cur = currentOf(location.pathname);
+    const frame = (programName?: string) => (
+      <Suspense fallback={null}>
+        <V3Frame
+          input={{ nav, side, rows, sessions: payload?.sessions ?? [], me, name, now, here: here?.title ?? (cur ? (HERE[cur] ?? '') : ''), noCourse, programName }}
+          pathname={location.pathname}
+          collapsed={prefs.sidebar === 'rail'}
+          onCollapse={(on) => prefs.set({ sidebar: on ? 'rail' : 'full' })}
+          menu={accountItems}
+          v3Page={v3PageAt(location.pathname, location.search, payload, rows, now)}
+          theme={prefs.theme}
+        >
+          <TeamPlanProvider value={openPlan}>
+            <TourProvider value={tour.api}>
+              <Outlet context={ctx} />
+            </TourProvider>
+          </TeamPlanProvider>
+        </V3Frame>
+      </Suspense>
+    );
     return (
       <>
-        <Suspense fallback={null}>
-          <V3Frame
-            input={{ nav, side, rows, sessions: payload?.sessions ?? [], me, name, now, here: here?.title ?? (cur ? (HERE[cur] ?? '') : ''), noCourse }}
-            pathname={location.pathname}
-            collapsed={prefs.sidebar === 'rail'}
-            onCollapse={(on) => prefs.set({ sidebar: on ? 'rail' : 'full' })}
-            menu={accountItems}
-            v3Page={v3PageAt(location.pathname, location.search, payload, rows, now)}
-            theme={prefs.theme}
-          >
-            <TeamPlanProvider value={openPlan}>
-              <TourProvider value={tour.api}>
-                <Outlet context={ctx} />
-              </TourProvider>
-            </TeamPlanProvider>
-          </V3Frame>
-        </Suspense>
+        {/* D-257 (Q-B3): a learner without the course's program line reads their plans (the read LearnGate made). */}
+        {noCourse ? <NoCourseProgram>{frame}</NoCourseProgram> : frame()}
         {item ? (
           <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
             <TeamPlan item={item} me={me} onClose={closePlan} />

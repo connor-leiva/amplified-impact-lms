@@ -23,21 +23,26 @@ export const SCHEDULE_V3 = {
   openWeek: (n: number): string => `Open Week ${n}`,
 } as const;
 
-/** A session's line state (B-37): its day until it starts, then Live now, then its replay, or Session ended. */
+/**
+ * A session's line state (B-37): its day until it starts, then Live now, then its replay, or Session ended. D-257 (Q-B6,
+ * Connor Nov 25: "show office hours replays as v3's Watch replay"): an office hour with its replay posted shows Watch
+ * replay too; one without a replay is Session ended, and only a live build waits on Replay processing.
+ */
 export function lineState(s: CourseSession, now: number): SessionState {
   const phase = sessionPhase(s, now);
   if (phase === 'live') return 'live';
   if (phase === 'ready') return 'join';
   if (phase === 'upcoming') return 'wait';
-  if (typeOf(s) !== 'live_build') return 'ended';
-  return phase === 'replay' ? 'replay' : 'processing';
+  if (phase === 'replay') return 'replay';
+  return typeOf(s) === 'live_build' ? 'processing' : 'ended';
 }
 
 /**
  * The gap rule for the Schedule (IMPLEMENTATION-SPEC.md §4.D, C-13): v3 draws only when no row needs a piece the
- * mockup doesn't have: "attended live", a session other than a live build with its recording posted ("Recording
- * Posted"), or a Join inside a row for a session that isn't the hero's. With no session left there is no hero to
- * draw either. Otherwise the whole Schedule is today's page.
+ * mockup doesn't have: a Join inside a row for a session that isn't the hero's. With no session left there is no hero
+ * to draw either. Otherwise the whole Schedule is today's page. D-257 (Connor, Nov 25): "attended live" is left off v3's
+ * rows (Q-B5), and an office hour's posted recording is v3's Watch replay (Q-B6, `lineState`), so neither keeps
+ * today's page any more.
  */
 export function v3ScheduleDraws(vm: ScheduleVM, sessions: readonly CourseSession[], now: number): boolean {
   if (vm.view !== 'weeks') return false;
@@ -46,7 +51,6 @@ export function v3ScheduleDraws(vm: ScheduleVM, sessions: readonly CourseSession
   for (const g of vm.weeks.groups)
     for (const it of g.items) {
       if (it.kind !== 'week') continue;
-      if (it.lines.some((l) => l.extra !== null || l.badge?.label === LABELS.recordingPosted)) return false;
       if (it.join && it.join.sessionId !== next.s.id) return false;
     }
   return true;

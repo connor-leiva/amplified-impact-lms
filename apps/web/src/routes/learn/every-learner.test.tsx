@@ -1,17 +1,18 @@
 // D-257: LMS v3 for every learner type (Connor, Nov 25, 2026: "v3 rolls out to EVERY learner type, not only the
 // cohort"). A learner without the course (the Agent Plan, the Team Plan, both Insiders, Utah Life, a paused or
-// not-yet-open buyer) is in the v3 frame once `VITE_LMS_V3=true`, with today's pages inside it and today's sidebar:
-// no Home, no Schedule, no Community, no empty Weeks group. With v3 off, D-182's routing is unchanged.
+// not-yet-open buyer) is in the v3 frame once `VITE_LMS_V3=true`, with today's pages inside it: Home, Skill library,
+// Team Hub when they have one, Resource vault, and no Schedule, Community or empty Weeks group. Their program line is
+// their plan's name or their group's (Connor's answers, Nov 25). With v3 off, D-182's routing is unchanged.
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
+import { MemoryRouter } from 'react-router';
 import { seed } from '@ai/core';
 import type { Db } from '@ai/core';
 import type { NavVM, SideVM } from './learn.vm';
 import { isCourseLearner, isNoCourseLearner, learnFrameFor, learnsInLms } from './audience';
 import { AppShell } from './lms-v3/AppShell';
 import type { Shell } from './lms-v3/AppShell';
-import { shellProps } from './lms-v3/shell.vm';
+import { programNameOf, shellProps } from './lms-v3/shell.vm';
 
 const withCourse = (): Db => seed('live');
 /** The scoped snapshot of a plan that opens no AI Employee: every module a draft, so `visibleModules` is empty. */
@@ -74,7 +75,7 @@ const side = (teamHub: boolean): SideVM => ({
   program: null,
   cohortOnly: null,
 });
-const props = (noCourse: boolean, teamHub: boolean) =>
+const props = (noCourse: boolean, teamHub: boolean, programName = 'Amplified Team Plan') =>
   shellProps({
     nav: nav(!noCourse),
     side: side(teamHub),
@@ -88,25 +89,49 @@ const props = (noCourse: boolean, teamHub: boolean) =>
     account: { open: false, onClick: () => undefined },
     saveIcs: () => undefined,
     noCourse,
+    programName,
   });
 
 describe('the v3 sidebar for a learner without the course (shellProps, noCourse)', () => {
-  it('lists what they have today: Skill library, Team Hub when they have one, Resource vault; no Home, Schedule or Community', () => {
-    expect(props(true, true).nav.map((n) => n.id)).toEqual(['library', 'team', 'vault']);
-    expect(props(true, false).nav.map((n) => n.id)).toEqual(['library', 'vault']);
+  it('lists Home, Skill library, Team Hub when they have one, Resource vault; no Schedule or Community (Q-B4)', () => {
+    expect(props(true, true).nav.map((n) => n.id)).toEqual(['home', 'library', 'team', 'vault']);
+    expect(props(true, false).nav.map((n) => n.id)).toEqual(['home', 'library', 'vault']);
   });
 
-  it('sends the logo to their Skill Library, has no weeks and no next session', () => {
+  it('sends the logo Home, has no weeks and no next session', () => {
     const s = props(true, false);
-    expect(s.homeHref).toBe('/learn/skills');
+    expect(s.homeHref).toBe('/learn');
     expect(s.weeks).toEqual([]);
     expect(s.next).toBeNull();
   });
 
-  it('leaves the course’s learner’s sidebar as it was: Home first, the logo Home', () => {
+  it('shows their plan’s name, or their group’s, in the program line (Q-B3)', () => {
+    expect(props(true, false, 'Amplified Agent Plan').cohort).toEqual(['Amplified Agent Plan', '']);
+    expect(props(true, false, 'Utah Life').cohort).toEqual(['Utah Life', '']);
+  });
+
+  it('leaves the course’s learner’s sidebar as it was', () => {
     const s = props(false, true);
     expect(s.nav.map((n) => n.id)).toEqual(['home', 'schedule', 'community', 'library', 'team', 'vault']);
     expect(s.homeHref).toBe('/learn');
+  });
+});
+
+describe('the program line’s name (programNameOf, Q-B3)', () => {
+  it('is the first plan that hasn’t ended, by its billing name', () => {
+    expect(programNameOf({ plans: [{ kind: 'agent_plan', status: 'active' }] })).toBe('Amplified Agent Plan');
+    expect(programNameOf({ plans: [{ kind: 'agents', status: 'active' }] })).toBe('Amplified Team Plan');
+    expect(programNameOf({ plans: [{ kind: 'insiders_agent', status: 'active' }] })).toBe('Amplified Insiders for Agents');
+    expect(programNameOf({ plans: [{ kind: 'agent_plan', status: 'ended' }, { kind: 'agents', status: 'active' }] })).toBe('Amplified Team Plan');
+  });
+
+  it('is the access group’s name for a member with no plan of their own', () => {
+    expect(programNameOf({ plans: [], accessGroups: [{ name: 'Utah Life' }] })).toBe('Utah Life');
+  });
+
+  it('is nothing when there is neither', () => {
+    expect(programNameOf({ plans: [], accessGroups: [] })).toBe('');
+    expect(programNameOf(null)).toBe('');
   });
 });
 
@@ -119,7 +144,7 @@ describe('the Weeks group (AppShell)', () => {
     expect(container.querySelector('#sh-weeks')).toBeNull();
     expect(screen.queryByRole('navigation', { name: 'Weeks' })).toBeNull();
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument();
-    expect(container.querySelector('.sh-logo')!.getAttribute('href')).toBe('/learn/skills');
+    expect(container.querySelector('.sh-logo')!.getAttribute('href')).toBe('/learn');
   });
 
   it('is drawn as before once there are weeks', () => {
@@ -129,37 +154,18 @@ describe('the Weeks group (AppShell)', () => {
   });
 });
 
-// The pages: Home sends them to their Skill Library (their landing, D-119), with the address's query kept so the
-// Team Plan window (`?plan=team`) still opens; the Skill Library is today's standalone page, unchanged.
+// The pages: the Skill Library is today's standalone page inside the frame, without its own logo and ground (Q-B2).
 const state = vi.hoisted(() => ({ db: null as unknown as Db, viewer: { actor: { kind: 'learner', userId: 'u_jamie' } } as { actor: { kind: string; userId?: string } } }));
 vi.mock('../../data/hooks', async (orig) => ({ ...(await orig<object>()), useDb: () => state.db, useViewer: () => state.viewer }));
-vi.mock('../library/SkillLibrary', async (orig) => ({ ...(await orig<object>()), Component: () => <p>today’s standalone Skill Library</p> }));
+vi.mock('../library/SkillLibrary', async (orig) => ({ ...(await orig<object>()), Component: ({ framed }: { framed?: boolean }) => <p>today’s standalone Skill Library{framed ? ', framed' : ''}</p> }));
 vi.mock('./skills-data', async (orig) => ({ ...(await orig<object>()), useSkills: () => ({ kind: 'loading' }) }));
 vi.mock('./data', async (orig) => ({
   ...(await orig<object>()),
   useLearn: () => ({ course: { kind: 'locked' }, db: state.db, viewer: state.viewer, now: Date.parse('2026-11-25T18:00:00Z') }),
 }));
 
-function Where() {
-  const { pathname, search } = useLocation();
-  return <p>at {pathname + search}</p>;
-}
 
 describe('the pages a learner without the course reaches', () => {
-  it('Home sends them to their Skill Library, keeping the query', async () => {
-    state.db = withoutCourse();
-    const { Component: Home } = await import('./Home');
-    render(
-      <MemoryRouter initialEntries={['/learn?plan=team']}>
-        <Routes>
-          <Route path="/learn" element={<Home />} />
-          <Route path="/learn/skills" element={<Where />} />
-        </Routes>
-      </MemoryRouter>,
-    );
-    expect(await screen.findByText('at /learn/skills?plan=team')).toBeInTheDocument();
-  });
-
   it('the Skill Library is today’s standalone page; the course’s learner keeps the members’ library', async () => {
     const { Component: Library } = await import('./Library');
     state.db = withoutCourse();
@@ -168,7 +174,7 @@ describe('the pages a learner without the course reaches', () => {
         <Library />
       </MemoryRouter>,
     );
-    expect(screen.getByText('today’s standalone Skill Library')).toBeInTheDocument();
+    expect(screen.getByText('today’s standalone Skill Library, framed')).toBeInTheDocument();
     unmount();
     state.db = withCourse();
     render(
@@ -176,7 +182,7 @@ describe('the pages a learner without the course reaches', () => {
         <Library />
       </MemoryRouter>,
     );
-    expect(screen.queryByText('today’s standalone Skill Library')).toBeNull();
+    expect(screen.queryByText(/today’s standalone Skill Library/)).toBeNull();
     expect(screen.getByRole('heading', { level: 1, name: 'Skill library' })).toBeInTheDocument();
   });
 });

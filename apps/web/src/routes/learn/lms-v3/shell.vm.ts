@@ -3,6 +3,7 @@
 // sessions and the clock, and draws what comes back. Every word here is the mockup's chrome; every title, time and
 // count comes from the course.
 import { fmt } from '@ai/core';
+import { PLAN_NAMES } from '@ai/core/offer';
 import type { Learner } from '@ai/core';
 import { joinableSession, progressOn, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
 import { calLinks } from '../../../components/calendar-links';
@@ -143,18 +144,30 @@ export interface ShellInput {
   account: { open: boolean; onClick: () => void };
   saveIcs: (s: CourseSession) => void;
   /**
-   * D-257: a learner whose plan opens no course (`isNoCourseLearner`). Their sidebar is the one they have today
-   * (Skill library, Team Hub when they have one, Resource vault): no Home, since their landing is the Skill Library
-   * (D-119), and the logo goes there; no Schedule, Community or Weeks, which are the cohort's.
+   * D-257: a learner whose plan opens no course (`isNoCourseLearner`): no Schedule, Community or Weeks, which are the
+   * cohort's. Home, Skill library, Team Hub when they have one, Resource vault (Connor, Nov 25, Q-B4: "add a Home row").
    */
   noCourse?: boolean;
+  /** D-257 (Q-B3): the program line of a learner without the course: their plan's name, or their access group's. */
+  programName?: string;
+}
+
+/**
+ * D-257 (Q-B3, Connor Nov 25: "show the plan's name in the program lines (e.g. 'Amplified Agent Plan'), or 'Utah Life'
+ * for that group"). The first plan that hasn't ended, by its billing name (`PLAN_NAMES`); else the access group's name;
+ * else nothing. Read off `GET /api/skills` (`plans`, `accessGroups`).
+ */
+export function programNameOf(a: { plans?: readonly { kind: string; status?: string }[]; accessGroups?: readonly { name: string }[] } | null | undefined): string {
+  const plan = (a?.plans ?? []).find((p) => p.status !== 'ended' && p.kind in PLAN_NAMES);
+  if (plan) return PLAN_NAMES[plan.kind as keyof typeof PLAN_NAMES];
+  return a?.accessGroups?.[0]?.name ?? '';
 }
 
 /** `AppShell`'s `shell` prop. */
 export function shellProps(x: ShellInput): Shell {
   const { nav, side } = x;
   const navRows: Shell['nav'] = [
-    ...(x.noCourse ? [] : [{ icon: 'home', label: nav.home.label, href: nav.home.href, id: 'home' }]),
+    { icon: 'home', label: nav.home.label, href: nav.home.href, id: 'home' },
     ...(nav.cohort ? [{ icon: 'cal', label: nav.schedule.label, href: nav.schedule.href, id: 'schedule' }] : []),
     ...(nav.cohort ? [{ icon: 'talk', label: SHELL_LABELS.community, href: learnCommunity(), id: 'community' }] : []),
     { icon: 'grid', label: nav.library.label, href: nav.library.href, id: 'library' },
@@ -162,10 +175,10 @@ export function shellProps(x: ShellInput): Shell {
     { icon: 'folder', label: nav.vault.label, href: nav.vault.href, id: 'vault' },
   ];
   return {
-    homeHref: x.noCourse ? nav.library.href : nav.home.href,
+    homeHref: nav.home.href,
     helpHref: nav.help.href,
     logo: { label: SHELL_LABELS.logo, app: x.logos.app },
-    cohort: [side.program ?? '', side.cohortOnly ?? ''],
+    cohort: x.noCourse ? [x.programName ?? '', ''] : [side.program ?? '', side.cohortOnly ?? ''],
     nav: navRows,
     weeksLabel: SHELL_LABELS.weeks,
     weeks: x.rows.map((r) => shellWeek(r, x.me)),

@@ -19,6 +19,15 @@
   padding: 48px max(16px, calc((100% - 880px) / 2)) 96px;
 }
 
+/* D-257 (Q-B2): the page inside the LMS v3 frame. The frame draws the logo and the background, so this is `.page`
+   without the ground or a full-screen height; the column and its gaps are the same. */
+.framed {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 48px max(16px, calc((100% - 880px) / 2)) 96px;
+}
+
 .head {
   display: flex;
   flex-direction: column;
