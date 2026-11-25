@@ -23,7 +23,7 @@ const FONTS = resolve(arg('fonts', join(R2, '..', 'fonts')));   // design-refere
 const OUT = resolve(arg('out', join(R2, 'ref')));
 const DPR = Number(arg('dpr', '1'));
 const WIDTHS = arg('widths', '1440,1280,1024,390').split(',').map(Number);
-const ALL = ['overview','health','curriculum','builder','vault','cohorts','announce','learners','workspaces','users','masquerade','tiers','billing','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
+const ALL = ['overview','health','curriculum','builder','vault','cohorts','announce','learners','workspaces','users','masquerade','tiers','billing','payments','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
 const sArg = arg('screens', 'all');
 const SCREENS = sArg === 'all' ? ALL : sArg.split(',');
 const NAME = { workspace: 'workspace-detail', cohorts: 'cohorts-sessions' };
@@ -54,6 +54,9 @@ async function open(w, h) {
   await p.goto('file://' + join(tmp, 'index.html'));
   await p.waitForSelector('.mk');
   await p.click(`.mk .sg button:text-is("${w}")`);
+  // D-253: the pointer leaves the frame, so no ref draws a hover. It rested where the width button was, which, once
+  // the toolbar is hidden, is over the breadcrumb at 1024: a crumb that links (`Program`, D-253's frame) drew hovered.
+  await p.mouse.move(0, 0);
   return p;
 }
 async function settle(p) { await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(400); }

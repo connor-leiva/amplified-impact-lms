@@ -5,7 +5,14 @@
    Everything else is byte-identical to the signed-off export (see BUILD-SPEC.md for its sha256), except:
    (3) D-239 (Nov 22, 2026, Connor: "Much much better!"): the sidebar is the approved one from handoff/admin-mockup/
        (ADMIN-SIDEBAR-SPEC.md): six rows, one open, the academy logo, the program's own tile, and the collapse that
-       travels. build_admin.py's three sidebar blocks, without its today/proposed switch, its new screens or its data. */
+       travels. build_admin.py's three sidebar blocks, without its today/proposed switch, its new screens or its data.
+   (4) D-253 (R-5 Phase 1, Nov 25, 2026, Connor: "This is perfect, create a handoff for Claude code for me."): the frame
+       from handoff/admin-mockup/ (ADMIN-RESTRUCTURE-SPEC.md § 3 and Phase 1): Overview, Program, Cohort, People and
+       Revenue as single rows, a hairline, then Operations (System Health first) and Access; four pages with tabs, each
+       tab one of today's screens with its title dropped and its own tabs as a segmented control; the cohort picker; the
+       crumbs; the palette's pages and tabs. build_admin.py's "third pass" edits that make the frame, without its new
+       screens (Cohort › Overview, Settings, Submissions, New cohort, Utah Life, Revenue › Summary, the new Curriculum).
+       Course settings and Community are the app's own pages (D-174, D-238), not drawn here; their tabs are. */
 /* Amplified Impact LMS — Admin redesign, round 2. One file: admin + console screens.
    Notes: "Design notes.md". Fonts: Geist + Geist Mono from Google Fonts for the mock; the product self-hosts. */
 import React from 'react';
@@ -280,6 +287,28 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .sw img.tile{width:32px;height:32px;border-radius:0;background:none}
 /* in the rail the switcher sits on the same centre line as the logo and the icons */
 .sb>.menu{display:flex}.sb .sw{margin:0 8px 8px}.sb.rail>.menu{justify-content:center}.sb.rail .sw{margin:0 0 8px;width:36px}.ph .sw img.tile{width:36px;height:36px}
+
+/* ---- D-253 (R-5 Phase 1): the frame, from handoff/admin-mockup/build_admin.py ("Nov 25" and "third pass: four pages with tabs") ---- */
+/* the cohort picker in the Cohort page's title */
+.cpk{display:inline-flex;align-items:center;gap:8px;height:var(--c);padding:0 8px 0 6px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);font-size:calc(var(--t) - 1px);font-weight:500;color:var(--ink);cursor:pointer;max-width:100%;box-shadow:0 1px 1px rgba(21,33,29,.04)}
+.cpk:hover{background:var(--hov)}.cpk>svg{color:var(--f3);flex:none}.cpk img{border-radius:5px;flex:none}
+.cpk.big{height:auto;padding:2px 8px 2px 0;margin:-2px 0;border-color:transparent;background:none;box-shadow:none;font:inherit;letter-spacing:inherit;border-radius:8px;gap:6px}
+.cpk.big:hover{background:var(--sub)}.cpk.big:hover>svg{color:var(--ink)}
+.hd h1 .menu{max-width:100%}
+/* D-253: on a phone the picker is a 44px target, as every other control there (the mockup's own .ph .lk); the mockup's is 36 */
+.ph .cpk.big{min-height:44px}
+/* a page's own tabs, inside a tab: a segmented control */
+.sgm{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:var(--sf);align-self:flex-start}
+.ph .sgm button{padding:0 9px}.sgm button{white-space:nowrap;height:var(--c);padding:0 12px;border:0;border-right:1px solid var(--line2);background:none;font-size:calc(var(--t) - 1px);font-weight:500;color:var(--f2);cursor:pointer}.sgm button:last-child{border-right:0}
+.sgm button:hover{background:var(--hov)}.sgm button.on{background:var(--tint);color:var(--for)}
+.area>.atb{display:flex;flex-direction:column;gap:20px;min-width:0}.ph .area>.atb{gap:16px}
+.area .atb .pg{padding:0;max-width:none;margin:0}
+.shd{display:flex;gap:12px 16px;align-items:center;justify-content:space-between;flex-wrap:wrap}.shd>p{max-width:720px;margin:0}.shd .b{height:var(--cp);padding:0 14px}
+.sgm.stb{flex:none}.sgm .tn{margin-left:6px;font-weight:400;color:var(--f3)}.sgm button.on .tn{color:var(--for)}
+.area>.tabs{overflow-x:auto;scrollbar-width:none}.area>.tabs .tab{white-space:nowrap;flex:none}
+/* the sidebar's single rows, and the hairline above the system pages */
+.gx.solo .rb{margin-left:auto}.gx .rb.dr{color:var(--warn)}
+.gsep{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 `;
 
 /* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
@@ -297,6 +326,7 @@ const P = {
   download: 'M12 4v11M7 11l5 5 5-5M5 20h14', panel: 'M4 5h16v14H4zM9 5v14', bolt: 'M13 3L5 14h6l-1 7 8-11h-6l1-7z', eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   up: 'M12 19V5M6 11l6-6 6 6', down: 'M12 5v14M6 13l6 6 6-6', file: 'M6 3h8l4 4v14H6zM14 3v4h4', play: 'M7 5l12 7-12 7V5z', refresh: 'M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4',
 };
+Object.assign(P, { program: P.curriculum, cohort: P.cohorts, people: P.users, revenue: P.usage });
 const I = ({ n, s = 16, w }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w || (n === 'more' || n === 'grip' ? 2.6 : 1.75)} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none' }}><path d={P[n] || P.file} /></svg>;
 
 /* ---------- sample data (fictional; "today" is Thu, Dec 10, 2026, MST) ---------- */
@@ -421,14 +451,15 @@ const PERMS0 = [
   ['export', 'Export audit and email logs', [1, 1, 1]], ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]], ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
 ];
 const NAV = [
-  ['Health', [['overview', 'Overview'], ['health', 'System Health']]],
-  ['Build', [['curriculum', 'Curriculum', 0, '6 draft'], ['builder', 'Module Builder'], ['vault', 'Resource Vault'], ['cohorts', 'Cohorts & Sessions'], ['announce', 'Announcements']]],
-  ['Support', [['learners', 'Learners & Teams'], ['workspaces', 'Workspaces'], ['users', 'Users'], ['masquerade', 'Masquerade']]],
-  ['Revenue', [['tiers', 'Tiers & Upgrades', 0, '2'], ['billing', 'Billing'], ['usage', 'Usage']]],
-  ['Operations', [['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
+  ['Overview', [['overview', 'Overview']]],
+  ['Program', [['program', 'Program']]],
+  ['Cohort', [['cohort', 'Cohort']]],
+  ['People', [['people', 'People']]],
+  ['Revenue', [['revenue', 'Revenue']]],
+  ['Operations', [['health', 'System Health'], ['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
   ['Access', [['roles', 'Roles & Permissions', 'ops']]],
 ];
-const PARENT = { workspace: 'workspaces', user: 'users', incident: 'incidents', as: 'masquerade' };
+const PARENT = { builder: 'program', workspace: 'people', user: 'people', incident: 'incidents', as: 'people' };
 const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeeded: 'ok', Live: 'ok', Published: 'ok', Connected: 'ok', Resolved: 'ok', Present: 'ok', Sent: 'ok', On: 'ok', Healthy: 'ok', Ready: 'ok', Approved: 'ok',
   Running: 'run', Retrying: 'run', Scheduled: 'info', Trialing: 'info', Queued: 'info', Acknowledged: 'info', Upcoming: 'info',
   Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
@@ -437,6 +468,7 @@ const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeede
 
 /* ---------- primitives ---------- */
 const Ctx = createContext(null);
+const AreaCtx = createContext(0);
 const useC = () => useContext(Ctx);
 const ini = n => n.split(' ').map(x => x[0]).join('').slice(0, 2);
 const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
@@ -458,6 +490,7 @@ function GBtn({ perm, label, go, k = '', ic, children }) {
 }
 function Head({ t, d, right, back, meta }) {
   const { go, ph } = useC();
+  if (useContext(AreaCtx)) return d || right ? <div className="shd">{d ? <p className="s2">{d}</p> : <span />}{right && <div className="row">{right}</div>}</div> : null;
   return <div className="col m">
     {back && <button className="b q" style={{ alignSelf: 'flex-start', marginLeft: -10, height: ph ? 44 : 28 }} onClick={() => go(back[0])}><I n="back" />{back[1]}</button>}
     <div className="hd"><div className="col s" style={{ flex: '1 1 320px' }}><div className="row" style={{ gap: 10 }}><h1>{t}</h1>{meta}</div>{d && <p className="s2" style={{ maxWidth: 720 }}>{d}</p>}</div>{right && <div className="row">{right}</div>}</div>
@@ -480,6 +513,7 @@ function Gate({ children, n, empty }) {
 }
 function Tabs({ tabs, v, on }) {
   const { ph } = useC();
+  if (useContext(AreaCtx) && !ph) return <div className="sgm stb" role="tablist">{tabs.map(([k, l, c]) => <button key={k} type="button" role="tab" aria-selected={v === k} className={v === k ? 'on' : ''} onClick={() => on(k)}>{l}{c !== undefined && <span className="tn">{c}</span>}</button>)}</div>;
   if (ph) return <select className="in" style={{ width: '100%' }} aria-label="Section" value={v} onChange={e => on(e.target.value)}>{tabs.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>;
   return <div className="tabs" role="tablist">{tabs.map(([k, l, c]) => <button key={k} role="tab" aria-selected={v === k} className={'tab' + (v === k ? ' on' : '')} onClick={() => on(k)}>{l}{c !== undefined && <span className="mu" style={{ marginLeft: 6, fontWeight: 400 }}>{c}</span>}</button>)}</div>;
 }
@@ -690,9 +724,10 @@ function Vault() {
   </div>;
 }
 
+const COHORT_SESSIONS = [['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST', 'Week 1', 'Sent', 'Ready', '82%'], ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST', 'Week 2', 'Sent', 'Ready', '74%'], ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST', 'Week 3', 'Scheduled', '—', '—'], ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST', 'Week 4', 'Scheduled', '—', '—'], ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST', 'Week 5', 'Draft', '—', '—'], ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST', 'Week 6', 'Draft', '—', '—']];
 function Cohorts() {
   const { guard, toast, started } = useC();
-  const S = [['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST', 'Week 1', 'Sent', 'Ready', '82%'], ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST', 'Week 2', 'Sent', 'Ready', '74%'], ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST', 'Week 3', 'Scheduled', '—', '—'], ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST', 'Week 4', 'Scheduled', '—', '—'], ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST', 'Week 5', 'Draft', '—', '—'], ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST', 'Week 6', 'Draft', '—', '—']];
+  const S = COHORT_SESSIONS;
   return <div className="pg">
     <Head t="Cohorts & Sessions" d="The cohort calendar and each live build on Zoom. All times are MST (America/Phoenix)." right={<GBtn k="p" ic="plus" perm="build" label="Add session" go={() => toast('Session editor opens here')}>Add session</GBtn>} />
     <Gate n={3}><Facts items={[['Cohort', 'December 2026'], ['Status', <St v={started ? 'Active' : 'Scheduled'} />], ['Opens', 'Wed, Dec 2 · 12:00 PM MST', 1], ['Week', started ? '2 of 6' : 'Not started'], ['Enrolled', '148 learners'], ['Cadence', 'Wednesdays, weekly', 1]]} /></Gate>
@@ -745,7 +780,7 @@ function Tiers() {
     ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
   const tog = m => guard('build', 'Change tier access for ' + m.n, () => { setMods(ms => ms.map(x => x.id === m.id ? { ...x, tier: x.tier === 'both' ? 'team' : 'both' } : x)); log('tier.access_change', m.n, m.tier === 'both' ? 'Agent + Team to Team only.' : 'Team only to Agent + Team.'); });
   return <div className="pg">
-    <Head t="Tiers & Upgrades" d="December 2026 Cohort revenue $148,445 · 104 Agent licenses · 7 teams" />
+    <Head t="Plans & upgrades" d="What each plan costs and holds, and the teams asking to move between them." />
     <Gate n={8}>
       <div className="g3">{T.map(t => <section key={t[0]} className="cd pd col" style={{ gap: 12 }}>
         <div className="row nw"><h2>{t[1]}</h2><Pill v={t[2]} tone="" /><span className="sp" /><span className="me">{t[4]}</span></div>
@@ -854,7 +889,7 @@ function Workspace() {
   const mem = USERS.filter(u => u.ws === w.n);
   const inv = INV.find(i => i.c === w.n);
   return <div className="pg">
-    <Head back={['workspaces', 'Workspaces']} t={w.n} meta={<Pill v={w.st} />} right={<Btn ic="masquerade" onClick={() => startMasq(USERS.find(u => u.n === w.owner))}>Masquerade as owner</Btn>} />
+    <Head back={['workspaces', 'Teams']} t={w.n} meta={<Pill v={w.st} />} right={<Btn ic="masquerade" onClick={() => startMasq(USERS.find(u => u.n === w.owner))}>Masquerade as owner</Btn>} />
     <Gate n={3}><Facts items={[['Workspace ID', <span className="mo">{w.id}</span>], ['Plan', w.plan], ['Seats', w.used + ' of ' + w.cap], ['Owner', w.owner], ['MRR', w.mrr], ['Last activity', w.last]]} /></Gate>
     <div className="gms">
       <div className="col">
@@ -896,7 +931,7 @@ function User() {
   if (!u) return <NotFound />;
   const w = WS.find(x => x.n === u.ws);
   return <div className="pg">
-    <Head back={['users', 'Users']} t={u.n} meta={<Pill v={u.st} />}
+    <Head back={['people', 'People']} t={u.n} meta={<Pill v={u.st} />}
       right={<><Btn ic="masquerade" onClick={() => startMasq(u)}>Masquerade</Btn><Menu items={[
         { l: 'Send password reset…', g: 1, fn: () => guard('account', 'Send password reset to ' + u.n, () => setDlg({ title: 'Send a password reset to ' + u.n + '?', body: 'Emails a reset link to ' + u.e + '. Their current password keeps working until they use it.', cta: 'Send reset email', yes: () => { log('user.password_reset', u.n, ''); toast('Reset email sent'); } })) },
         { l: 'Change email…', g: 1, fn: () => guard('account', 'Change email for ' + u.n, () => setDlg({ title: 'Change sign-in email for ' + u.n + '?', body: 'Current: ' + u.e + '. The new address must be verified before it takes effect.', cta: 'Send verification', needReason: 1, yes: r => { log('user.email_change', u.n, r); toast('Verification sent'); } })) }]} trigger={(t, o) => <button className="b" style={{ height: 'var(--cp)', width: 'var(--cp)', padding: 0 }} aria-label="More actions" aria-expanded={o} onClick={t}><I n="more" /></button>} /></>} />
@@ -949,16 +984,18 @@ function LearnerView() {
   </div>;
 }
 
-function Billing() {
+function Billing({ part }) {
   const { route, go, guard, setDlg, toast, log, can } = useC();
-  const [tab, setTab] = useState(route.tab || 'summary');
+  const sum = part === 'summary';
+  const [tab, setTab] = useState(sum ? 'summary' : route.tab || 'customers');
+  useEffect(() => { if (!sum && route.tab) setTab(route.tab); }, [route.tab]);
   const ro = !can('refund');
   const refund = i => guard('refund', 'Refund ' + i.id, () => setDlg({ title: 'Refund ' + i.amt + ' to ' + i.c + '?', body: 'Invoice ' + i.id + ', ' + i.card + '. The refund is sent to Stripe and cannot be reversed from the admin.', cta: 'Refund ' + i.amt, danger: 1, needReason: 1, yes: r => { log('billing.refund', i.id, i.amt + '. Reason: ' + r); toast('Refund sent to Stripe'); } }));
   const voidI = i => guard('refund', 'Void ' + i.id, () => setDlg({ title: 'Void invoice ' + i.id + '?', body: i.amt + ' for ' + i.c + '. The customer will no longer be asked to pay it.', cta: 'Void invoice', danger: 1, needReason: 1, yes: r => { log('billing.void', i.id, r); toast('Invoice voided'); } }));
   return <div className="pg">
-    <Head t="Billing" meta={ro && <Pill v="Read-only for your role" tone="" />} d="An operations view of Stripe. Prices, Payment Links, and the Accelerator cap are product rules and are not edited here." />
-    <Tabs v={tab} on={setTab} tabs={[['summary', 'Summary'], ['customers', 'Customers'], ['subs', 'Subscriptions'], ['invoices', 'Invoices'], ['failed', 'Failed payments', 3], ['refunds', 'Refunds']]} />
-    {tab === 'summary' && <><Gate n={3}><div className="g4"><Stat l="MRR · sample" v="$18,516" sub="+$695 this week" tone="ok" /><Stat l="Subscriptions" v="77" sub="Active" /><Stat l="Failed payments" v="3" sub="Needs review" tone="bad" go={() => setTab('failed')} /><Stat l="Refunds, 30d" v="$0" go={() => setTab('refunds')} /></div></Gate>
+    {!sum && <Head t="Billing" meta={ro && <Pill v="Read-only for your role" tone="" />} d="The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here." />}
+    {!sum && <Tabs v={tab} on={setTab} tabs={[['customers', 'Customers'], ['subs', 'Subscriptions'], ['invoices', 'Invoices'], ['failed', 'Failed payments', 3], ['refunds', 'Refunds']]} />}
+    {tab === 'summary' && <><Gate n={3}><div className="g4"><Stat l="MRR · sample" v="$18,516" sub="+$695 this week" tone="ok" /><Stat l="Subscriptions" v="77" sub="Active" /><Stat l="Failed payments" v="3" sub="Needs review" tone="bad" go={() => go('payments', null, 'failed')} /><Stat l="Refunds, 30d" v="$0" go={() => go('payments', null, 'refunds')} /></div></Gate>
       <Table title="Plan economics · sample figures" rows={[['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'], ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'], ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'], ['Insiders', '$97 monthly', '61 members', '$5,917'], ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time']]}
         cols={[{ k: 0, l: 'Plan', w: 'minmax(180px,1.4fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Price', w: 'minmax(160px,1fr)' }, { k: 2, l: 'Active', w: 'minmax(110px,1fr)' }, { k: 3, l: 'MRR', w: '96px', num: 1 }]} />
       <Gate><Card t="AI Accelerator" right={<St v="Active" />}><KV rows={[['Price', '$7,500, or two payments of $3,750'], ['Seats sold', <span className="row nw" style={{ maxWidth: 260 }}><Bar v={11} max={15} /><span className="tn">11 of 15</span></span>], ['Seat cap', <span className="row" style={{ gap: 6 }}><I n="lock" />15 seats. Product rule, view only.</span>], ['Collected', '$67,500'], ['Second payments due', '4 × $3,750 = $15,000']]} /></Card></Gate></>}
@@ -1128,15 +1165,95 @@ function Denied({ what }) {
   return <div className="pg"><div className="cd"><Empty ic="lock" t={'Your role can\'t open ' + (what || 'this page')} b={'You are signed in as ' + role + '. An Owner can change this in Roles & Permissions.'} /><div className="row" style={{ justifyContent: 'center', paddingBottom: 40, marginTop: -28 }}><Btn k="p" onClick={() => go('overview')}>Go to Overview</Btn></div></div></div>;
 }
 
+
+/* ---------- D-253 (R-5 Phase 1): four pages with tabs. Each tab is one of today's screens, so nothing is drawn twice:
+   inside a tab a screen's own title is dropped and its own tabs become a segmented control (Head, Tabs). A tab is drawn
+   once its page exists; Overview, Submissions and Settings (Cohort) and Utah Life (People) arrive in later phases. ---------- */
+const SOLO = { Overview: 1, Program: 1, Cohort: 1, People: 1, Revenue: 1 };
+const AREAS = {
+  program: [['curriculum', 'Curriculum'], ['settings', 'Course settings'], ['vault', 'Resource Vault']],
+  cohort: [['schedule', 'Schedule'], ['people', 'People'], ['community', 'Community'], ['announcements', 'Announcements']],
+  people: [['everyone', 'Everyone'], ['teams', 'Teams'], ['masquerade', 'Masquerade']],
+  revenue: [['summary', 'Summary'], ['payments', 'Payments'], ['plans', 'Plans & upgrades'], ['usage', 'Usage']],
+};
+const AREA_TABS = Object.fromEntries(Object.entries(AREAS).map(([k, v]) => [k, v.map(t => t[0])]));
+/* yesterday's page names still work: each one is a tab now */
+const ALIAS = { curriculum: ['program', 'curriculum'], course: ['program', 'settings'], vault: ['program', 'vault'], cohorts: ['cohort', 'schedule'], learners: ['cohort', 'people'], community: ['cohort', 'community'], announce: ['cohort', 'announcements'],
+  users: ['people', 'everyone'], workspaces: ['people', 'teams'], masquerade: ['people', 'masquerade'], billing: ['revenue', 'summary'], payments: ['revenue', 'payments'], tiers: ['revenue', 'plans'], usage: ['revenue', 'usage'] };
+const routeOf = (s, id, tab) => ALIAS[s] ? { s: ALIAS[s][0], tab: ALIAS[s][1], sub: tab, id } : AREA_TABS[s] ? (AREA_TABS[s].includes(tab) ? { s, tab, id } : { s, tab: AREA_TABS[s][0], sub: tab, id }) : { s, id, tab };
+const aliasOf = r => Object.keys(ALIAS).find(k => ALIAS[k][0] === r.s && ALIAS[k][1] === r.tab);
+/* the cohorts that exist. "New cohort…" arrives with the new-cohort page (Phase 3) */
+const COHORTS = [{ id: 'dec26', n: 'December 2026 Cohort', st: 'Active' }];
+const COH = COHORTS[0];
+/* the program's own tile (program-logo.ts, variant "tile"), never under 32px */
+const PTile = ({ s = 32 }) => <img className="tile" src={LOGO_ACCELERATOR} width={s} height={s} alt="" style={{ width: s, height: s, flex: 'none', borderRadius: Math.round(s * 0.22) }} />;
+
+function Area({ k, t, meta, d, right, counts = {}, children }) {
+  const c = useC(), tab = AREA_TABS[k].includes(c.route.tab) ? c.route.tab : AREA_TABS[k][0];
+  return <div className="pg area">
+    <Head t={t} meta={meta} d={d} right={right} />
+    <Tabs v={tab} on={v => c.go(k, null, v)} tabs={AREAS[k].map(([id, l]) => counts[id] === undefined ? [id, l] : [id, l, counts[id]])} />
+    <AreaCtx.Provider value={1}><Ctx.Provider value={{ ...c, route: { ...c.route, tab: c.route.sub, sub: undefined } }}><div className="atb" key={tab + '/' + (c.route.sub || '')}>{children(tab)}</div></Ctx.Provider></AreaCtx.Provider>
+  </div>;
+}
+/* a tab whose page is the app's own (Course settings, D-174; Community, D-238): drawn there, not in this reference */
+const OffRef = ({ what }) => <div className="cd"><Empty ic="file" t={what} b="This tab's page is the app's own and is not drawn in this reference." /></div>;
+function ProgramArea() {
+  const { mods } = useC();
+  return <Area k="program" t={<span className="row nw" style={{ gap: 10 }}><PTile />Amplified AI Accelerator</span>} meta={<Pill v="Program" tone="" />} d="What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." counts={{ curriculum: mods.length }}>
+    {tab => tab === 'settings' ? <OffRef what="Course settings" /> : tab === 'vault' ? <Vault /> : <Curriculum />}</Area>;
+}
+function CohortArea() {
+  // Schedule counts the cohort's sessions; People its teams, as Learners & Teams' own Teams tab does (7).
+  return <Area k="cohort" t={<CohortPick />} counts={{ schedule: COHORT_SESSIONS.length, people: 7 }}>
+    {tab => tab === 'people' ? <Learners /> : tab === 'community' ? <OffRef what="Community" /> : tab === 'announcements' ? <Announce /> : <Cohorts />}</Area>;
+}
+function PeopleArea() {
+  return <Area k="people" t="People" d="Everyone with a sign-in, across every product. Each person is counted once, under how they got in.">
+    {tab => tab === 'teams' ? <Workspaces /> : tab === 'masquerade' ? <Masquerade /> : <Users />}</Area>;
+}
+function RevenueArea() {
+  // Plans & upgrades counts the upgrade requests waiting (Tiers & Upgrades' own "2"). Summary is Billing's own until Phase 8.
+  return <Area k="revenue" t="Revenue" d="What has come in, what is still owed on a payment plan, and what repeats every month. Every figure is from Stripe and opens the payments behind it." counts={{ plans: 2 }}>
+    {tab => tab === 'payments' ? <Billing /> : tab === 'plans' ? <Tiers /> : tab === 'usage' ? <Usage /> : <Billing part="summary" />}</Area>;
+}
+
+/* ---------- which cohort: the sidebar's switcher, and the same choice in the Cohort page's title ---------- */
+function CtxSwitch({ r }) {
+  const { go, route } = useC();
+  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => { if (route.s !== 'cohort' && route.s !== 'overview') go('cohort'); } }));
+  return <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label={'Switch cohort. Amplified AI Accelerator, ' + COH.n} title={r ? 'Amplified AI Accelerator · ' + COH.n : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">{COH.n}</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>} items={items} />;
+}
+function CohortPick() {
+  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => {} }));
+  return <Menu lf trigger={(t, o) => <button className="cpk big" aria-expanded={o} aria-label={'Switch cohort. ' + COH.n} onClick={t}><span className="el">{COH.n}</span><I n="updown" s={18} /></button>} items={items} />;
+}
+
+/* ---------- the breadcrumb: Admin / the page / its tab / what is open ---------- */
+const DETAIL = { builder: 'curriculum', workspace: 'teams', user: 'everyone', as: 'masquerade' };
+const hereOf = (r, mods) => r.s === 'builder' ? (mods.find(m => m.id === (r.id || 'm1')) || {}).n : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'incident' ? r.id : '';
+function Crumbs() {
+  const { route, go, mods } = useC();
+  const par = PARENT[route.s], key = par || route.s, item = NAV.flatMap(g => g[1]).find(n => n[0] === key), grp = item && NAV.find(g => g[1].includes(item))[0];
+  const tk = par ? DETAIL[route.s] : route.tab, tabL = AREAS[key] && tk ? (AREAS[key].find(t => t[0] === tk) || [])[1] : null, here = par ? hereOf(route, mods) || 'Detail' : null;
+  const L = (l, fn) => <button className="lk" style={{ fontWeight: 400, color: 'var(--f3)' }} onClick={fn}>{l}</button>, S = <span aria-hidden="true">/</span>;
+  return <nav className="bc" aria-label="Breadcrumb"><span>Admin</span>
+    {grp && !SOLO[grp] && <>{S}<span>{grp}</span></>}
+    {item && <>{S}{tabL || here ? L(item[1], () => go(item[0])) : <b>{item[1]}</b>}</>}
+    {tabL && <>{S}{here ? L(tabL, () => go(key, null, tk)) : <b>{tabL}</b>}</>}
+    {here && <>{S}<b className="el">{here}</b></>}
+  </nav>;
+}
+
 /* ---------- command palette ---------- */
 function searchAll(q, can, mods) {
   const s = q.trim().toLowerCase(); const m = t => !s || t.toLowerCase().includes(s);
   return [
-    ['Pages', NAV.flatMap(g => g[1]).filter(n => m(n[1]) && (!n[2] || can(n[2]))).map(n => ({ ic: n[0], l: n[1], to: [n[0]] }))],
+    ['Pages', [...NAV.flatMap(g => g[1]).filter(n => m(n[1]) && (!n[2] || can(n[2]))).map(n => ({ ic: n[0], l: n[1], to: [n[0]] })), ...Object.entries(AREAS).flatMap(([k, ts]) => ts.map(t => ({ ic: k, l: k[0].toUpperCase() + k.slice(1) + ' › ' + t[1], to: [k, null, t[0]] }))).filter(x => s && m(x.l))]],
     ['Users', USERS.filter(u => m(u.n + u.e)).map(u => ({ ic: 'users', l: u.n, r: u.e, to: ['user', u.id] }))],
-    ['Workspaces', WS.filter(w => m(w.n + w.plan)).map(w => ({ ic: 'workspaces', l: w.n, r: w.plan, to: ['workspace', w.id] }))],
-    ['AI Employees', mods.filter(k => m(k.n)).map(k => ({ ic: 'curriculum', l: k.n, r: k.st, to: ['builder', k.id] }))],
-    ['Invoices', INV.filter(i => m(i.id + i.c)).map(i => ({ ic: 'billing', l: i.id, r: i.c + ' · ' + i.amt, to: ['billing', null, 'invoices'], mo: 1 }))],
+    ['Teams', WS.filter(w => m(w.n + w.plan)).map(w => ({ ic: 'workspaces', l: w.n, r: w.plan, to: ['workspace', w.id] }))],
+    ['Weeks', mods.filter(k => m(k.n)).map(k => ({ ic: 'curriculum', l: k.n, r: k.st, to: ['builder', k.id] }))],
+    ['Invoices', INV.filter(i => m(i.id + i.c)).map(i => ({ ic: 'billing', l: i.id, r: i.c + ' · ' + i.amt, to: ['payments', null, 'invoices'], mo: 1 }))],
   ].map(([g, items]) => [g, s ? items.slice(0, 6) : items.slice(0, g === 'Pages' ? 5 : 2)]).filter(g => g[1].length);
 }
 function Palette() {
@@ -1147,7 +1264,7 @@ function Palette() {
   let n = -1;
   return <div className="scrim top0" onMouseDown={e => { if (e.target === e.currentTarget) setPal(false); }}>
     <div className="modal" role="dialog" aria-modal="true" aria-label="Command palette" style={{ maxWidth: 600 }}>
-      <div className="row nw" style={{ padding: '4px 8px 4px 16px', borderBottom: '1px solid var(--line)', height: ph ? 56 : 48, color: 'var(--f3)' }}><I n="search" /><input autoFocus placeholder="Search users, workspaces, AI Employees, invoices, pages" aria-label="Command palette search" style={{ flex: 1, border: 0, background: 'none', boxShadow: 'none', height: '100%', fontSize: ph ? 16 : 15, color: 'var(--ink)', minWidth: 0 }} value={q} onChange={e => { setQ(e.target.value); setCur(0); }}
+      <div className="row nw" style={{ padding: '4px 8px 4px 16px', borderBottom: '1px solid var(--line)', height: ph ? 56 : 48, color: 'var(--f3)' }}><I n="search" /><input autoFocus placeholder="Search people, teams, weeks, invoices, pages" aria-label="Command palette search" style={{ flex: 1, border: 0, background: 'none', boxShadow: 'none', height: '100%', fontSize: ph ? 16 : 15, color: 'var(--ink)', minWidth: 0 }} value={q} onChange={e => { setQ(e.target.value); setCur(0); }}
         onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); setCur(Math.min(flat.length - 1, cur + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setCur(Math.max(0, cur - 1)); } if (e.key === 'Enter' && flat[cur]) pick(flat[cur]); }} />
         {ph ? <button className="ib" aria-label="Close" onClick={() => setPal(false)}><I n="x" /></button> : <span className="kbd" style={{ marginRight: 8 }}>esc</span>}</div>
       <div style={{ overflow: 'auto', maxHeight: 400, padding: 6 }}>
@@ -1178,7 +1295,7 @@ function Confirm({ d, onClose }) {
   </Modal>;
 }
 
-const SCREENS = { overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
+const SCREENS = { program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
 /* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
 const WM_VB = [41, -963.1, 7408, 1113.2];
 const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];
@@ -1187,15 +1304,19 @@ function WordmarkOld({ short, h = 22 }) {
   return <svg className="wm" role="img" aria-label="Amplified Impact" height={h} width={Math.round(h * w / WM_VB[3] * 10) / 10} viewBox={WM_VB[0] + ' ' + WM_VB[1] + ' ' + w + ' ' + WM_VB[3]} style={{ overflow: 'hidden' }}>{WM_PATHS.map((p, i) => <path key={i} fill={p.fill} d={p.d} />)}<circle fill="none" stroke="#1F8A5C" cx="4477" cy="-800" r="139.3" strokeWidth="47.7" /><circle fill="#1F8A5C" cx="4477" cy="-800" r="69.7" /></svg>;
 }
 function Wordmark({ short }) { return <span className={'wm' + (short ? ' wm-ai' : '')}><img src={LOGO_APP} width={161} height={34} alt="Amplified Impact Academy" /></span>; }
-const GIC = { Health: 'overview', Build: 'curriculum', Support: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
+const GIC = { Overview: 'overview', Program: 'curriculum', Cohort: 'cohorts', People: 'learners', Revenue: 'billing', Operations: 'health', Access: 'roles' };
 
 /* ---------- shell ---------- */
 function Sidebar({ rail, setRail, drawer, close }) {
-  const { route, go, can, staff, masq, ph, toast } = useC();
+  const { route, go, can, staff, masq, ph, mods } = useC();
   const active = PARENT[route.s] || route.s;
   const [peek, setPeek] = useState(undefined);   // the one group opened by hand (null: all shut); undefined: the group you are in
   useEffect(() => { setPeek(undefined); }, [active]);
-  const badge = n => n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[0] === 'tiers' && n[3] ? n[3] + ' requests' : n[3];
+  // Program: its draft weeks. Cohort: "N waiting" (Community threads) or "Draft"; this reference has no threads and no draft cohort.
+  // Revenue's "N failed" waits for a count Billing already holds (D-253): none is drawn yet. Upgrade requests are counted on
+  // Plans & upgrades, not on the row.
+  const drafts = mods.filter(m => m.st === 'Draft').length;
+  const badge = n => n[0] === 'program' ? (drafts ? drafts + ' draft' : '') : n[0] === 'cohort' ? (COH.st === 'Draft' ? 'Draft' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
   // Collapse and expand travel. Three things, so the width and the layout can change at different moments:
   //   nar   the column is 64px wide        r   the rail's layout (one icon per group)        anim   'collapsing' | 'expanding' while it moves
   // Closing: the column narrows (380 ms, the system's curve) and the logo's window closes to "ai" with it; for the first 160 ms
@@ -1227,16 +1348,17 @@ function Sidebar({ rail, setRail, drawer, close }) {
   // `nm-focus` is the mockup's name for this sidebar; its stylesheet keys today's sidebar's own fade on its absence.
   return <aside ref={sbEl} className={'sb' + (r ? ' rail' : '') + (nar ? ' nar' : '') + (anim ? ' a-' + anim : '') + ' nm-focus'}>
     <div className="sb-top"><Wordmark short={nar} />{drawer && <><span className="sp" /><button className="ib" aria-label="Close menu" onClick={close}><I n="x" s={20} /></button></>}</div>
-    <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label="Switch cohort. Amplified AI Accelerator, December 2026 Cohort" title={r ? 'Amplified AI Accelerator · December 2026 Cohort' : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">December 2026 Cohort</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>}
-      items={[{ l: 'December 2026 Cohort', on: 1, fn: () => {} }, { l: 'March 2027 Cohort · Draft', fn: () => toast('Switches the admin to the March 2027 cohort') }, '-', { l: 'All cohorts', fn: () => go('cohorts') }]} />
+    <CtxSwitch r={r} />
     <nav className={'nav' + (!r ? ' snf' : '')} aria-label="Admin">
       {masq && <button className={'ni' + (route.s === 'as' ? ' on' : '')} title="Learner view" onClick={() => go('as')}><I n="eye" />{!r && <>Learner view<span className="ct" style={{ background: 'var(--warnb)', borderColor: '#EBD9A8', color: 'var(--warn)' }}>Live</span></>}</button>}
       {NAV.map(([g, items], gi) => {
         const vis = items.filter(n => !n[2] || can(n[2])); if (!vis.length) return null;
         const has = vis.some(n => n[0] === active);
+        if (SOLO[g] && r) return <button key={g} className={'ni' + (has ? ' on' : '')} title={g} aria-label={g} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>;
+        if (SOLO[g]) return <button key={g} className={'gx solo' + (has ? ' has' : '')} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{badge(vis[0]) && <span className={'rb' + (vis[0][0] === 'cohort' && COH.st === 'Draft' ? ' dr' : '')}>{badge(vis[0])}</span>}</button>;
         if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
         const opn = peek === undefined ? has : peek === g, roll = vis.find(n => badge(n));
-        return <div key={g}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
+        return <div key={g} className={g === 'Operations' ? 'gsep' : undefined}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
           <div className={'gw' + (opn ? ' op' : '')}><div className="gwi"><div className="gkids">{vis.map(n => <button key={n[0]} tabIndex={opn ? 0 : -1} className={'gk' + (active === n[0] ? ' on' : '')} aria-current={active === n[0] ? 'page' : undefined} onClick={() => go(n[0])}><span className="el">{n[1]}</span>{badge(n) && <span className={'ct' + (n[0] === 'incidents' ? ' bad' : '')}>{badge(n)}</span>}</button>)}</div></div></div></div>;
       })}
     </nav>
@@ -1249,7 +1371,7 @@ function Sidebar({ rail, setRail, drawer, close }) {
 
 function AdminRedesign() {
   const [vp, setVp] = useState(1280), [ds, setDs] = useState('default'), [role, setRole] = useState('Owner'), [started, setStarted] = useState(true);
-  const [route, setRoute] = useState({ s: 'curriculum' });
+  const [route, setRoute] = useState(routeOf('curriculum'));
   const [masq, setMasq] = useState(null), [mq, setMq] = useState(null), [blocked, setBlocked] = useState(null);
   const [dlg, setDlg] = useState(null), [pal, setPal] = useState(false), [drawer, setDrawer] = useState(false), [tst, setTst] = useState(null), [prev, setPrev] = useState(null);
   const [audit, setAudit] = useState(AUDIT0), [perms, setPerms] = useState(PERMS0), [inc, setInc] = useState({}), [mods, setMods] = useState(MODS0);
@@ -1262,14 +1384,14 @@ function AdminRedesign() {
   const can = k => { const p = perms.find(x => x[0] === k); return !!p && !!p[2][ROLES.indexOf(role)]; };
   const toast = m => { setTst(m); clearTimeout(tt.current); tt.current = setTimeout(() => setTst(null), 3200); };
   const log = (act, tg, d) => setAudit(a => [{ t: 'Just now', actor: staff.n, act, tg, d: d || '' }, ...a]);
-  const go = (s, id, tab) => { setRoute({ s, id, tab }); setDrawer(false); if (mainRef.current) mainRef.current.scrollTop = 0; };
+  const go = (s, id, tab) => { setRoute(routeOf(s, id, tab)); setDrawer(false); if (mainRef.current) mainRef.current.scrollTop = 0; };
   const guard = (perm, label, fn) => {
     if (masq) { log('masquerade.blocked_action', masq.u.n, 'Tried: ' + label + '.'); setBlocked(label); return; }
     if (!can(perm)) { toast('Your role (' + role + ") can't do this: " + label); return; }
     fn();
   };
   const startMasq = u => { if (masq) return toast('Exit the current masquerade session first'); if (!can('masq')) return toast("Your role (" + role + ") can't start masquerade"); setMq({ u, mode: 'start' }); };
-  const endMasq = why => { if (!masq) return; log('masquerade.stop', masq.u.n, why + '.'); setMasq(null); setBlocked(null); toast('Masquerade ended. You are ' + staff.n + ' again.'); setRoute(r => r.s === 'as' ? { s: 'masquerade' } : r); };
+  const endMasq = why => { if (!masq) return; log('masquerade.stop', masq.u.n, why + '.'); setMasq(null); setBlocked(null); toast('Masquerade ended. You are ' + staff.n + ' again.'); setRoute(r => r.s === 'as' ? routeOf('masquerade') : r); };
   const on = !!masq, left = masq ? masq.left : null;
   useEffect(() => { if (!on) return; const t = setInterval(() => setMasq(m => m && { ...m, left: m.left - 1 }), 1000); return () => clearInterval(t); }, [on]);
   useEffect(() => { if (on && left <= 0) endMasq('Expired after time limit'); }, [left]);
@@ -1293,9 +1415,14 @@ function AdminRedesign() {
     <div className="mk" role="toolbar" aria-label="Mockup controls">
       <span style={{ fontWeight: 600 }}>Mockup</span>
       <span className="sg">{[1440, 1280, 1024, 390].map(v => <button key={v} className={vp === v ? 'on' : ''} onClick={() => { setVp(v); setRailP(null); }}>{v}</button>)}</span>
-      <select aria-label="Screen" value={route.s} onChange={e => pick(e.target.value)}>
-        {NAV.map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
-        <optgroup label="Detail and system"><option value="workspace">Workspace detail</option><option value="user">User detail</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
+      <select aria-label="Screen" value={aliasOf(route) || route.s} onChange={e => pick(e.target.value)}>
+        <optgroup label="Overview"><option value="overview">Overview</option></optgroup>
+        <optgroup label="Program"><option value="curriculum">Curriculum</option><option value="course">Course settings</option><option value="vault">Resource Vault</option></optgroup>
+        <optgroup label="Cohort"><option value="cohorts">Schedule</option><option value="learners">People</option><option value="community">Community</option><option value="announce">Announcements</option></optgroup>
+        <optgroup label="People"><option value="users">Everyone</option><option value="workspaces">Teams</option><option value="masquerade">Masquerade</option></optgroup>
+        <optgroup label="Revenue"><option value="billing">Summary</option><option value="payments">Payments</option><option value="tiers">Plans &amp; upgrades</option><option value="usage">Usage</option></optgroup>
+        {NAV.filter(g => !SOLO[g[0]]).map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
+        <optgroup label="Detail and system"><option value="builder">Program › a week (Module Builder)</option><option value="workspace">Workspace detail</option><option value="user">User detail</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
       </select>
       <select aria-label="Data state" value={ds} onChange={e => setDs(e.target.value)}><option value="default">State: default</option><option value="loading">State: loading</option><option value="empty">State: empty</option><option value="error">State: error</option></select>
       <select aria-label="Role" value={role} onChange={e => setRole(e.target.value)}>{ROLES.map(r => <option key={r} value={r}>Role: {r}</option>)}</select>
@@ -1316,7 +1443,7 @@ function AdminRedesign() {
             <div className="mainc">
               <header className="tb">
                 {ph ? <><button className="ib" aria-label="Open menu" onClick={() => setDrawer(true)}><I n="menu" s={22} /></button><Wordmark /><span className="sp" /><button className="ib" aria-label="Search" onClick={() => setPal(true)}><I n="search" s={20} /></button></>
-                  : <><nav className="bc" aria-label="Breadcrumb"><span>Admin</span>{group && <><span aria-hidden="true">/</span><span>{group}</span></>}{navItem && <><span aria-hidden="true">/</span>{PARENT[route.s] && route.s !== 'as' ? <button className="lk" style={{ fontWeight: 400, color: 'var(--f3)' }} onClick={() => go(navItem[0])}>{navItem[1]}</button> : <b>{navItem[1]}</b>}</>}{PARENT[route.s] && <><span aria-hidden="true">/</span><b className="el">{route.s === 'as' ? 'Learner view' : route.s === 'workspace' ? (WS.find(w => w.id === route.id) || {}).n : route.s === 'user' ? (USERS.find(u => u.id === route.id) || {}).n : route.id}</b></>}</nav>
+                  : <><Crumbs />
                     <span className="sp" /><button className="srch" onClick={() => setPal(true)}><I n="search" /><span style={{ flex: 1, textAlign: 'left' }}>Search or jump to…</span><span className="kbd">⌘K</span></button>
                     <span className="st ok" style={{ fontSize: 13, color: 'var(--f2)' }}><i />Production</span></>}
               </header>
