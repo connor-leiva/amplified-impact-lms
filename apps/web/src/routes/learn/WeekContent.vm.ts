@@ -15,6 +15,7 @@ import type { AIEmployee, SkillFile } from '@ai/core';
 import type { LearnerCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { PlaybookCard, SampleOutput, SeatCard, VideoBlock } from '@ai/core/course-types';
 import { skillPreview } from '@ai/core/files';
+import { isPinnedTour } from '@ai/core/lms-tour';
 import { SEAT_CARD_LABEL } from '@ai/core/seat-card';
 import { COPY, weekVM as courseWeekVM } from '../course/Course.vm';
 import type { CoursePayload, DownloadVM, Row } from '../course/Course.vm';
@@ -243,7 +244,8 @@ export function weekContentVM(p: CoursePayload, week: number, m?: Pick<AIEmploye
     section('readiness', COPY.readiness, [rowsPart(null, v.readiness)]),
     section('media', COPY.media, [
       listPart(null, v.media.filter((m): m is string => typeof m === 'string')),
-      videosPart(v.media.filter((m): m is VideoBlock => typeof m !== 'string')),
+      // D-252: Week 0's LMS tour is pinned at the top of the week (`TourCard`), so it isn't listed again here.
+      videosPart(v.media.filter((m): m is VideoBlock => typeof m !== 'string' && !isPinnedTour(week, m))),
       listPart(COPY.materials, v.materials),
     ]),
     sampleSection(w.sampleOutput),

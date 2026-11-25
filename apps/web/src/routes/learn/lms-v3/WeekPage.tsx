@@ -8,7 +8,7 @@
 //   onDeploy   (on) => void   persist "Mark as deployed" / Undo. The UI updates first.
 // D-225: `handoff/lms-v3/src/WeekPage.jsx`, converted to TSX and nothing else.
 import { useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { IconSprite, Icon } from './Icons';
 import { Hero } from './Hero';
 import { StepList } from './StepList';
@@ -18,7 +18,8 @@ import { SessionWhen } from './SchedulePage';
 import type { MotionStyle } from '@brand/ai-motion';
 import type { WeekLabels, WeekProps } from './types';
 
-export function WeekPage({ week, labels, onDeploy }: { week: WeekProps; labels: WeekLabels; onDeploy?: (on: boolean) => void }) {
+// D-252: `pinned` (Week 0's "How the LMS Works" card) sits above the Hero. Absent, the page is the package's as before.
+export function WeekPage({ week, labels, onDeploy, pinned }: { week: WeekProps; labels: WeekLabels; onDeploy?: (on: boolean) => void; pinned?: ReactNode }) {
   const [deployed, setDeployed] = useState(!!week.deployed);
   const [live, setLive] = useState('');
   const steps = week.steps;
@@ -52,6 +53,7 @@ export function WeekPage({ week, labels, onDeploy }: { week: WeekProps; labels: 
             {week.tags.map((t) => <span className="wk-tag" key={t.label}><Icon name={t.icon} />{t.label}</span>)}
           </div>
         </header>
+        {pinned}
         <Hero week={week} view={view} labels={labels} onDeploy={() => deploy(true)} onUndo={() => deploy(false)} />
         {/* D-234: a live week's sessions, as the locked week lists them, each line with the Schedule's state. */}
         {week.sessions?.length ? (

@@ -247,6 +247,16 @@ export interface VideoBlock {
   chapters?: VideoChapter[];
   /** Shows the badge "Draft video · narration coming". */
   draft?: boolean;
+  /**
+   * D-252: the video's length in seconds, read from the file when staff upload it in the Week Builder. Absent on a
+   * video uploaded before it, or a link; a player then reads the length off the `<video>` once its metadata loads.
+   */
+  durationS?: number;
+  /**
+   * D-252: the LMS tour: opens on sign-in until seen, pinned on Week 0. At most one in the course, only in Week 0's
+   * Media, an uploaded mp4 with a transcript (`tourIssues`). Staff tick it in the Week Builder.
+   */
+  tour?: true;
 }
 
 /** What a step's path is made of: the content blocks, (D-188) a video, and (D-190) checklist, callout and accordion blocks. */

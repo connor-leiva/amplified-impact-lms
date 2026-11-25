@@ -1,0 +1,231 @@
+/* D-252: "How the LMS Works", the sign-in modal and Week 0's pinned card. Tokens only (R2's and the learner frame's),
+   read through the learner scope the wrapper sets, so both draw the same in today's frame and in v3's. */
+
+/* The scope's own base paints its background (`:where`, no specificity): this one is a wrapper, not a page. */
+.scope {
+  background: transparent;
+}
+
+/* ---- the modal ---------------------------------------------------------------------------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--r2-scrim);
+}
+.dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 960px;
+  max-height: 100%;
+  overflow: hidden;
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  border: 1px solid var(--r2-line2);
+  border-radius: 14px;
+  box-shadow: var(--r2-sh-modal);
+}
+.dialog:focus-visible {
+  outline: none;
+  box-shadow: var(--r2-focus), var(--r2-sh-modal);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dialog {
+    animation: tour-in var(--aim-dur-quick) var(--aim-ease);
+  }
+}
+@keyframes tour-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.head {
+  flex: none;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 20px 24px 12px;
+}
+.words {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.title {
+  margin: 0;
+  font: 650 22px / 1.25 var(--r2-font);
+  letter-spacing: -0.01em;
+}
+.sub {
+  margin: 0;
+  color: var(--r2-f2);
+  font-size: 16px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.dur {
+  font-family: var(--r2-font-mono);
+  font-weight: 500;
+  color: var(--r2-ink);
+}
+.close {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin: -6px -10px 0 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--r2-f2);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .close:hover {
+    background: var(--r2-hov);
+    color: var(--r2-ink);
+  }
+}
+.close:focus-visible {
+  box-shadow: var(--r2-focus);
+}
+/* The player, its chapters and the transcript scroll; the head and the buttons stay. */
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 24px 16px;
+}
+/* The block's title is the dialog's own heading here. */
+.body figcaption {
+  display: none;
+}
+.foot {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--r2-line);
+  background: var(--r2-hov);
+}
+
+/* A phone: the whole screen, the video at 16:9 across it, and the two buttons stacked at the foot, always in view. */
+@media (max-width: 640px) {
+  .scrim {
+    padding: 0;
+    align-items: stretch;
+  }
+  .dialog {
+    max-width: none;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .head {
+    padding: 16px 16px 12px;
+  }
+  .title {
+    font-size: 20px;
+  }
+  .body {
+    padding: 0 16px 12px;
+  }
+  .foot {
+    flex-direction: column;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .foot > button {
+    width: 100%;
+  }
+}
+
+/* ---- Week 0's card ------------------------------------------------------------------------------------------------ */
+
+.card {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 16px;
+  background: var(--r2-sf);
+  color: var(--r2-ink);
+  border: 1px solid var(--r2-line);
+  border-radius: 14px;
+}
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--r2-for);
+  cursor: pointer;
+}
+.thumb:focus-visible {
+  box-shadow: var(--r2-focus);
+}
+.poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.go {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--r2-mint);
+  color: var(--r2-for);
+  box-shadow: var(--r2-sh-pop);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .go {
+    transition: transform var(--aim-dur-quick) var(--aim-ease);
+  }
+  .thumb:hover .go {
+    transform: scale(1.06);
+  }
+}
+.text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.cardTitle {
+  margin: 0;
+  font: 650 20px / 1.25 var(--r2-font);
+  letter-spacing: -0.01em;
+}
+@media (max-width: 640px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+}

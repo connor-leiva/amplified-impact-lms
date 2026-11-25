@@ -36,7 +36,20 @@ export interface VideoWatch {
 
 const GAP_S = 1.25;
 
-export function VideoView({ block, watch, onDuration }: { block: VideoBlock; watch?: VideoWatch; onDuration?: (seconds: number) => void }) {
+export interface VideoViewProps {
+  block: VideoBlock;
+  watch?: VideoWatch;
+  onDuration?: (seconds: number) => void;
+  /** D-252: the captions track shows by default (`<track default>`). Off for every other caller. */
+  captionsOn?: boolean;
+  /**
+   * D-252: the share of the video played so far, from 0 to 1, each time a played stretch grows: the merged played
+   * spans over the length (`watchedFraction`), so a seek adds nothing. Nothing is saved for it here.
+   */
+  onWatched?: (fraction: number) => void;
+}
+
+export function VideoView({ block, watch, onDuration, captionsOn = false, onWatched }: VideoViewProps) {
   const source = videoBlockSource(block, courseVideoUrl);
   const video = useRef<HTMLVideoElement | null>(null);
   const [failed, setFailed] = useState(false);
@@ -55,6 +68,8 @@ export function VideoView({ block, watch, onDuration }: { block: VideoBlock; wat
   savedRef.current = saved;
   const saveRef = useRef(onSave);
   saveRef.current = onSave;
+  const watchedRef = useRef(onWatched);
+  watchedRef.current = onWatched;
 
   const videoKey = videoIdOf(block);
   useLayoutEffect(() => {
@@ -71,7 +86,11 @@ export function VideoView({ block, watch, onDuration }: { block: VideoBlock; wat
 
     const sample = () => {
       const now = el.currentTime;
-      if (playing && Number.isFinite(now) && now > last && now - last <= GAP_S) spans = mergeSpans(spans, { start: last, end: now });
+      if (playing && Number.isFinite(now) && now > last && now - last <= GAP_S) {
+        spans = mergeSpans(spans, { start: last, end: now });
+        const dur = el.duration;
+        if (Number.isFinite(dur) && dur > 0) watchedRef.current?.(watchedFraction(spans, dur));
+      }
       if (Number.isFinite(now)) last = now;
       setTime(Number.isFinite(now) ? now : 0);
     };
@@ -195,7 +214,7 @@ export function VideoView({ block, watch, onDuration }: { block: VideoBlock; wat
       {...(block.id ? { 'data-video-id': block.id } : {})}
       {...(poster ? { poster } : {})}
     >
-      {block.transcript ? <track kind="captions" srcLang="en" label="English" src={courseVideoUrl(block.transcript.upload)} /> : null}
+      {block.transcript ? <track kind="captions" srcLang="en" label="English" src={courseVideoUrl(block.transcript.upload)} {...(captionsOn ? { default: true } : {})} /> : null}
     </video>
   );
   // The frame stays mounted once there is a poster, so hiding the image does not remount the video.
@@ -212,7 +231,7 @@ export function VideoView({ block, watch, onDuration }: { block: VideoBlock; wat
                 <Icon name="play" size={18} filled />
               </i>
               <span className={s.vt}>{playPill(title)}</span>
-              {duration !== null ? <small>{fmt.clock(duration)}</small> : null}
+              {(duration ?? block.durationS) ? <small>{fmt.clock(duration ?? block.durationS!)}</small> : null}
             </span>
           </button>
         </>

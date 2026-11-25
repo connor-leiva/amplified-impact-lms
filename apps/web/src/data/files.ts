@@ -74,3 +74,41 @@ export async function uploadFile(file: File, onProgress?: (fraction: number) => 
   }
   return out;
 }
+
+/**
+ * D-252: how long a chosen video is, in seconds to a tenth, read from the file itself in this tab (its metadata only,
+ * through an object URL that is let go once read). Null where it can't be read: no object URLs, a file the browser
+ * can't open, or no answer within `waitMs`. The Week Builder stores it on the block (`durationS`) as it uploads.
+ */
+export function videoDurationOf(file: Blob, waitMs = 15_000): Promise<number | null> {
+  const el = document.createElement('video');
+  // A browser that can't play an mp4 (or a test DOM, which plays nothing) has no length to read.
+  if (!el.canPlayType?.(VIDEO_MP4)) return Promise.resolve(null);
+  let url: string;
+  try {
+    url = URL.createObjectURL(file);
+  } catch {
+    return Promise.resolve(null);
+  }
+  return new Promise<number | null>((resolve) => {
+    let done = false;
+    const finish = (seconds: number | null) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      el.removeAttribute('src');
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* nothing to let go */
+      }
+      resolve(seconds !== null && Number.isFinite(seconds) && seconds > 0 ? Math.round(seconds * 10) / 10 : null);
+    };
+    const timer = setTimeout(() => finish(null), waitMs);
+    el.preload = 'metadata';
+    el.muted = true;
+    el.onloadedmetadata = () => finish(el.duration);
+    el.onerror = () => finish(null);
+    el.src = url;
+  });
+}
