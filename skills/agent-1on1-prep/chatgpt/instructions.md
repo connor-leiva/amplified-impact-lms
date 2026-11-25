@@ -50,8 +50,8 @@ Follow Part 1 of the guide for each part:
 1. Open `page-kit.md` from the files in this project. In Python, save its two blocks to files in your code tool, exactly as written: `build_page.py` and `base-template.html`, side by side. If the project file can't be opened from Python, ask the user to attach `page-kit.md` to the chat once and use that copy. Don't print either block in the chat.
 2. The run's `one_on_one_data.json` is the facts file: every number the page uses is in it or in the inputs. Never type a number by hand.
 3. Write `page.json`: the sections in "Output, In This Order", using the section kinds in `page-kit.md` (Page Format) and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). The recap goes in one `drafts` section. Check Before Sending is the last section, a `checklist`.
-4. Write `words.json`: the headline (two short sentences) and three findings, the bottom line's three parts, each `status: quiet` with a short `chip` naming its part ("Pace", "Since <last 1:1 date>", "Commitments"); never `on`, `off` or `hold` on the agent's numbers, which would read as a verdict. No moves: the focus is the leader's call.
-5. Build: `python3 build_page.py page.json --words words.json --facts one_on_one_data.json --inputs <their files, and the leader's message saved to a file> --template base-template.html --fonts none --out /mnt/data/Agent-1on1-Prep-<Agent-Name>-<YYYY-MM-DD>.html` (the meeting's date). Every clock time ends in MT, both ends of a range ("10:00 AM MT to 10:05 AM MT"); outside Mountain time, add `--tz-label` with the team's zone.
+4. Write `words.json`: the headline (two short sentences) and three findings, the bottom line's three parts, each `status: quiet` with a short `chip` naming its part ("Pace", "Since <last 1:1 date>", "Commitments"). No moves: the focus is the leader's call. Status words stay facts, never verdicts: a measure against its prorated goal takes `on` with "At Goal" or `hold` with "Under Goal", the run's own words; never `off`, "behind" or "on track".
+5. Build: `python3 build_page.py page.json --words words.json --facts one_on_one_data.json --inputs <their files, and the leader's message saved to a file> --template base-template.html --fonts none --out /mnt/data/Agent-1on1-Prep-<Agent-Name>-<YYYY-MM-DD>.html` (the meeting's date). Write every clock time in MT, both ends of a range ("10:00 AM MT to 10:05 AM MT"); the build adds the CT time beside each. Outside Mountain time, add `--tz-label` with the team's zone.
 6. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case, "industry standard", a line saying something was sent). Fix the words, never the check, and build again.
 7. Give the download link for the page, with `one_on_one_data.md` beside it, and say: "Download it now, the link expires. If it fails, ask me to run the build again for a fresh link." A Data Check that comes from their files (a column to confirm, a goal left out, a month not totaled) stays on the page: say so in one line. Then four lines in the chat: the headline, the number that matters, the first open question, and "check every number against your files before you act."
 
@@ -70,14 +70,14 @@ Follow Part 1 of the guide for each part:
 
 The page holds these sections in this order, each kind in brackets; the page draws the bottom line at the top, so Flags is the first section under it. The chat gets four lines.
 
-1. **Flags** (`list`): the files read, the as-of date and where it came from, the meeting date, time and length (given or default), the pace window and any partial month left out, goals (prorated how, any left out and why, or none), columns to confirm, anything left out for privacy or pay, and a one-line answer to any comparison or verdict asked for. Every "Confirm" line, goal left out and measure not totaled also goes in `dataCheck`.
-2. **Bottom line** (three sentences max; the headline and findings in `words.json`): where the agent stands against their own goal (or that there's no goal), what changed since last time, and the commitments' statuses as given.
-3. **Numbers Against Goal**, with the arithmetic (`tiles`, the run's arithmetic in `math`, then a `table` month by month and a `table` of the count ratios).
-4. **What Changed Since the Last One-on-One** (a `table` then and now, a `table` of each month since against the agent's own average, and a `list` of what the notes report).
-5. **Last Time's Commitments** (`list`).
-6. **Open Coaching Questions** (`list`).
-7. **Possible Focus Areas (Your Call)** (`list`).
-8. **Agenda**, labeled a suggestion (`timeline`).
+1. **Flags** (`callouts`, the left-out line first with `hold` and "Left Out"): the files read, the as-of date and where it came from, the meeting date, time and length (given or default), the pace window and any partial month left out, goals (prorated how, any left out and why, or none), columns to confirm, anything left out for privacy or pay, and a one-line answer to any comparison or verdict asked for. Every "Confirm" line, goal left out and measure not totaled also goes in `dataCheck`.
+2. **Bottom line** (three sentences max; the headline and findings in `words.json`; 3 to 5 `keyNumbers`, each measure with its bar to the prorated goal): where the agent stands against their own goal (or that there's no goal), what changed since last time, and the commitments' statuses as given.
+3. **Numbers Against Goal**, with the arithmetic (`progress`, the run's arithmetic in `math`; then a `table` month by month with a `multiples` chart; then `meters` for the count ratios, the plan's rate as the mark).
+4. **What Changed Since the Last One-on-One** (`deltas` then and now, the table in `detail`; `bars` for each month since against the agent's own average; `notes` for what the notes report, each with its source).
+5. **Last Time's Commitments** (`commitments`: owner and due only from the commitment's own words).
+6. **Open Coaching Questions** (`questions`, the fact each is tied to as its `why`; `show` 4).
+7. **Possible Focus Areas (Your Call)** (`choices`, with "These are options from the numbers, not a verdict; pick one, or none." as the callout).
+8. **Agenda**, labeled a suggestion (`agenda`).
 9. **Recap Template (Fill In After)**, with a Title Case subject and [placeholders] (`drafts`).
 10. **Check Before Sending:** every item listed in Part 1 of the guide (`checklist`).
 

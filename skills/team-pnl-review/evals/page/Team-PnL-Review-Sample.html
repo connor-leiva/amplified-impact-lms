@@ -18,17 +18,24 @@
 <style>
 /* Amplified Impact shared report page. One template for every skill.
    Bone ground, Black ink, Forest accent, flat surfaces, hairlines, no shadows.
-   Layout: the bottom line first, then one row per question, the finding on the left and the proof on the right.
-   Green and red appear only where something is on or off. Everything a run changes lives in the JSON block below.
-   Never restyle this file per skill: add a section kind here once, for every skill. */
+   Layout: the bottom line first (a plain headline, then the key numbers), then one row per question,
+   the finding on the left and the proof on the right. The summary stays open; tables, arithmetic and long
+   lists wait behind a Show The Details control. Each kind of thing looks like itself: an email is an email,
+   an agenda is a run of show, a question is a prompt card, a commitment is a pledge, a choice is a tile.
+   Green, amber and red appear only where something is on, on watch or off, always with a word or an icon.
+   Everything a run changes lives in the JSON block below. Never restyle this file per skill: add a section
+   kind here once, for every skill. */
 :root {
   color-scheme: light;
-  --surface: #f1f0eb; --raised: #fafaf7; --ink: #0a0d0c; --ink-2: #4d5350; --ink-3: #5e6461;
+  --surface: #f1f0eb; --raised: #fafaf7; --paper: #ffffff; --ink: #0a0d0c; --ink-2: #4d5350; --ink-3: #5e6461;
   --accent: #1f4d40; --line: #dad8d0; --line-2: #7c8580; --track: #dedcd3;
   --good: #1f8a5c; --good-ink: #1f4d40; --hold: #a88400; --hold-ink: #5f4a00; --bad: #a82a2a; --bad-ink: #7a1f14;
   --good-wash: color-mix(in srgb, var(--good) 14%, var(--surface));
   --hold-wash: color-mix(in srgb, var(--hold) 18%, var(--surface));
   --bad-wash: color-mix(in srgb, var(--bad) 12%, var(--surface));
+  --accent-wash: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  --hl: color-mix(in srgb, var(--accent) 16%, transparent);
+  --series-2: #9aa29e;
   --dark-bg: #0a0d0c; --dark-ink: #f1f0eb; --dark-ink-2: #a3aba7; --dark-accent: #6fd3a5; --dark-line: #262d2a;
   --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -36,24 +43,30 @@
 @media screen and (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --surface: #0a0d0c; --raised: #111614; --ink: #f5f5f2; --ink-2: #a3aba7; --ink-3: #7c8580;
+    --surface: #0a0d0c; --raised: #111614; --paper: #151b18; --ink: #f5f5f2; --ink-2: #a3aba7; --ink-3: #8b9490;
     --accent: #6fd3a5; --line: #1e2522; --line-2: #5c6762; --track: #232b28;
     --good: #6fd3a5; --good-ink: #6fd3a5; --hold: #e8c547; --hold-ink: #f0d57a; --bad: #f0705c; --bad-ink: #ffa392;
     --good-wash: color-mix(in srgb, var(--good) 20%, var(--surface));
     --hold-wash: color-mix(in srgb, var(--hold) 24%, var(--surface));
     --bad-wash: color-mix(in srgb, var(--bad) 24%, var(--surface));
+    --accent-wash: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    --hl: color-mix(in srgb, var(--accent) 22%, transparent);
+    --series-2: #5c6762;
     --dark-bg: #111614; --dark-line: #1e2522;
   }
 }
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-body { margin: 0; background: var(--surface); color: var(--ink); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
-h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+body { margin: 0; background: var(--surface); color: var(--ink); font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
 ul, ol { list-style: none; }
 button, input { font: inherit; color: inherit; }
 .page { max-width: 1180px; margin: 0 auto; padding: 0 32px 56px; }
 .label, .eyebrow { font: 400 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
 .eyebrow { color: var(--accent); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+strong.hl { font-weight: 500; color: var(--ink); background: var(--hl); padding: 0 .15em; }
 .lockup { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .lockup-end { border-bottom: 0; border-top: 1px solid var(--line); margin-top: 40px; }
 .lockup-by { font: 400 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
@@ -61,12 +74,11 @@ button, input { font: inherit; color: inherit; }
 .mark { width: 18px; height: 18px; }
 .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 28px 0 14px; flex-wrap: wrap; }
 .top-act { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.btn { height: 36px; padding: 0 14px; border: 1px solid var(--ink); background: transparent; border-radius: 0; cursor: pointer; font-size: 14px; }
+.btn { min-height: 36px; padding: 0 14px; border: 1px solid var(--ink); background: transparent; border-radius: 0; cursor: pointer; font-size: 14px; }
 .btn:hover { background: var(--ink); color: var(--surface); }
-.btn:focus-visible, .owner-in:focus-visible, .tbl-search:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (pointer: coarse) { .btn { height: 44px; } }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (pointer: coarse) { .btn, .disc-toggle, .vt, .why-toggle, .pick { min-height: 44px; } }
 .sample { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 10px; background: var(--hold-wash); color: var(--hold-ink); }
-.note-line { padding: 0 0 14px; color: var(--ink-2); font-size: 14px; }
 .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
 .strip > div { padding: 14px 16px 16px 0; }
 .strip dd { margin-top: 4px; font-size: 17px; font-weight: 500; }
@@ -74,17 +86,24 @@ button, input { font: inherit; color: inherit; }
 .data-check-label { display: flex; gap: 8px; align-items: center; font: 500 13px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--bad-ink); }
 .data-check li { margin-top: 6px; list-style: disc; margin-left: 20px; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
-.chip svg { width: 12px; height: 12px; }
+.chip svg { width: 12px; height: 12px; flex: none; }
 .chip.on { background: var(--good-wash); color: var(--good-ink); }
 .chip.off { background: var(--bad-wash); color: var(--bad-ink); }
 .chip.hold { background: var(--hold-wash); color: var(--hold-ink); }
 .chip.quiet { background: var(--track); color: var(--ink-2); }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.toc a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line-2); }
+.toc a:hover { color: var(--ink); }
+
+/* ----- the bottom line ----- */
 .bottom { padding: 40px 0 44px; border-bottom: 2px solid var(--ink); }
 .headline { margin-top: 10px; font-size: clamp(36px, 6vw, 68px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 500; max-width: 18ch; }
+.keys { margin-top: 32px; }
 .summary { display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px; margin-top: 36px; }
 .found { grid-column: span 5; }
 .found.wide { grid-column: span 12; }
-.found li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+.found > ul { margin-top: 10px; display: grid; gap: 10px; }
+.found.wide > ul { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .moves { grid-column: span 7; background: var(--dark-bg); color: var(--dark-ink); padding: 28px 30px 16px; }
 .moves .label { color: var(--dark-ink-2); }
 .moves li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; padding: 16px 0; border-top: 1px solid var(--dark-line); }
@@ -96,74 +115,319 @@ button, input { font: inherit; color: inherit; }
 .act-usd { font-family: var(--mono); color: var(--dark-accent); }
 .act-owner { display: inline-flex; gap: 8px; align-items: center; }
 .owner-in { background: transparent; border: 0; border-bottom: 1px dashed var(--dark-ink-2); color: var(--dark-ink); padding: 2px 0; width: 14ch; }
-.decide { margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--dark-line); }
-.decide p { margin-top: 6px; font-size: 19px; color: var(--dark-ink); }
-.row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px; padding: 40px 0; border-bottom: 1px solid var(--line); }
+.owner-in::placeholder { color: var(--dark-ink-2); }
+.decide { margin-top: 10px; padding: 18px 0 14px; border-top: 1px solid var(--dark-line); }
+.decide p { margin-top: 8px; font-size: 21px; line-height: 1.35; color: var(--dark-ink); }
+
+/* ----- rows: the rail on the left, the proof on the right ----- */
+.row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px; padding: 44px 0; border-bottom: 1px solid var(--line); }
 .rail { grid-column: span 4; }
-.rail-in { position: sticky; top: 20px; }
-.rail h2 { margin-top: 10px; font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 500; }
-.rail .note { margin-top: 12px; color: var(--ink-2); max-width: 40ch; }
-.proof { grid-column: span 8; display: grid; gap: 18px; min-width: 0; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.tile { background: var(--raised); padding: 16px 18px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.tile-fig { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
-.tile-num { font-size: 40px; line-height: 1; letter-spacing: -0.03em; font-weight: 500; font-variant-numeric: tabular-nums; }
-.tile-unit, .tile-note { margin-top: 6px; color: var(--ink-2); font-size: 14px; }
-.items li { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
-.items h3, .tl h3 { font-size: 17px; font-weight: 500; }
-.items p, .tl p { color: var(--ink-2); margin-top: 2px; }
-.tl li { display: grid; grid-template-columns: 120px 1fr auto; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line); }
-.tl-date { font: 400 13px/1.6 var(--mono); color: var(--accent); }
+.rail-in { position: sticky; top: 20px; border-left: 3px solid var(--accent); padding-left: 16px; }
+.sec-num { display: inline-block; margin-right: 10px; color: var(--ink-2); }
+.rail h2 { margin-top: 10px; font-size: 26px; line-height: 1.18; letter-spacing: -0.02em; font-weight: 500; }
+.rail .note { margin-top: 12px; color: var(--ink-2); max-width: 42ch; font-size: 16px; }
+.proof { grid-column: span 8; display: grid; gap: 20px; min-width: 0; align-content: start; }
+.muted { color: var(--ink-2); }
+
+/* Show The Details: one disclosure for tables, arithmetic and long lists. Print opens every one. */
+.disc-toggle { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; min-height: 32px; font: 500 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--accent); }
+.disc-toggle svg { width: 12px; height: 12px; transition: transform .15s; }
+.disc-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.disc-body { margin-top: 14px; display: grid; gap: 16px; }
+.math-body { padding: 14px 16px; background: var(--raised); border-left: 2px solid var(--accent); font: 400 13px/1.6 var(--mono); }
+.math-body p { margin-bottom: 8px; color: var(--ink-2); }
+.math-body li + li { margin-top: 4px; }
+
+/* Callout: the one thing that matters in a row, said big. */
+.callout { padding: 18px 22px; background: var(--accent-wash); border-left: 4px solid var(--accent); font-size: 21px; line-height: 1.38; letter-spacing: -0.01em; }
+.callout .chip { margin-bottom: 10px; }
+.callout.on { background: var(--good-wash); border-left-color: var(--good); }
+.callout.hold { background: var(--hold-wash); border-left-color: var(--hold); }
+.callout.off { background: var(--bad-wash); border-left-color: var(--bad); }
+
+/* Tiles and key numbers: the number, a word for its status, a bar when there is a goal, plain words under it. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.tile { background: var(--raised); padding: 16px 18px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.tile-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.tile-num { display: block; font-size: 40px; line-height: 1; letter-spacing: -0.03em; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.keys .tile-num { font-size: 44px; }
+.tile-unit { color: var(--ink-2); font-size: 14px; }
+.tile-means { font-size: 15px; line-height: 1.45; }
+.tile-note { color: var(--ink-2); font-size: 14px; }
+.delta { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 500; }
+.delta svg { width: 11px; height: 11px; flex: none; }
+
+/* Progress toward a goal: the bar, a line where the goal sits, the numbers in words. */
+.pbar { position: relative; height: 10px; background: var(--track); margin: 4px 0 2px; }
+.pbar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.pbar.on .pbar-fill { background: var(--good); }
+.pbar.hold .pbar-fill { background: var(--hold); }
+.pbar.off .pbar-fill { background: var(--bad); }
+.pbar-goal { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--ink); }
+.progress { display: grid; gap: 0; border-top: 2px solid var(--ink); }
+.prog { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 6px 24px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.prog h3 { font-size: 17px; font-weight: 500; }
+.prog .chip { margin-top: 6px; }
+.prog-nums { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; font-size: 15px; }
+.prog-nums b { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.prog-text { margin-top: 4px; font-size: 15px; color: var(--ink-2); }
+.legend-line { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.legend-line i { display: inline-block; width: 2px; height: 14px; background: var(--ink); }
+
+/* Meters: a ratio on a 0 to 100 track, with the plan's mark when there is one. */
+.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.meter { background: var(--raised); border: 1px solid var(--line); padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.meter h3 { font-size: 16px; font-weight: 500; }
+.meter-track { position: relative; height: 14px; background: var(--track); }
+.meter-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.meter.hold .meter-fill { background: var(--hold); }
+.meter.on .meter-fill { background: var(--good); }
+.meter.off .meter-fill { background: var(--bad); }
+.meter-mark { position: absolute; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background: var(--ink); }
+.meter-scale { display: flex; justify-content: space-between; font: 400 11px/1 var(--mono); color: var(--ink-2); }
+.meter-big { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.meter-text { font-size: 15px; color: var(--ink-2); }
+
+/* Bars: side-by-side amounts, each row with its own words. */
+.hbars { display: grid; gap: 18px; }
+.hbars.pairs { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px 28px; }
+.hbars.pairs .hbar { grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) auto; }
+.hbar-item h3 { font-size: 16px; font-weight: 500; }
+.hbar-item > p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
+.hbar { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 6px; font-size: 14px; }
+.hbar.solo { grid-template-columns: minmax(0, 1fr) auto; }
+.hbar-track { height: 16px; background: var(--track); position: relative; }
+.hbar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.hbar-fill.b2 { background: var(--series-2); }
+.hbar-fill.on { background: var(--good); } .hbar-fill.hold { background: var(--hold); } .hbar-fill.off { background: var(--bad); }
+.hbar-val { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+
+/* Deltas: then and now, the change in words. */
+.deltas { border-top: 2px solid var(--ink); }
+.dl-row { display: grid; grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) auto; gap: 6px 18px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.dl-row h3 { font-size: 16px; font-weight: 500; }
+.dl-move { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-variant-numeric: tabular-nums; }
+.dl-move .from { color: var(--ink-2); }
+.dl-move .to { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.dl-move svg { width: 14px; height: 14px; color: var(--ink-2); align-self: center; }
+.dl-change { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 500; padding: 3px 8px; background: var(--track); white-space: nowrap; }
+.dl-change svg { width: 11px; height: 11px; }
+.dl-text { grid-column: 2 / -1; font-size: 14px; color: var(--ink-2); }
+
+/* Charts: plain columns from the table's own rows. Every value is also in the table. */
+.chart { display: grid; gap: 8px; }
+.plot { position: relative; height: 190px; display: flex; gap: 6px; }
+.colg { position: relative; flex: 1 1 0; min-width: 0; }
+.bar { position: absolute; left: 12%; right: 12%; background: var(--accent); }
+.colg.n2 .bar.s1 { left: 6%; right: 52%; } .colg.n2 .bar.s2 { left: 52%; right: 6%; background: var(--series-2); }
+.bar.is-hold { background: var(--hold); } .bar.is-off { background: var(--bad); } .bar.is-on { background: var(--good); }
+.bar.partial { background: repeating-linear-gradient(135deg, var(--accent) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--accent); }
+.zero { position: absolute; left: 0; right: 0; height: 1px; background: var(--ink); }
+.val { position: absolute; left: -12px; right: -12px; text-align: center; font: 400 11px/1.3 var(--mono); color: var(--ink-2); white-space: nowrap; }
+.xaxis { display: flex; gap: 6px; }
+.xaxis span { flex: 1 1 0; min-width: 0; text-align: center; font: 400 11px/1.3 var(--mono); color: var(--ink-2); overflow: hidden; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { display: inline-block; width: 12px; height: 12px; background: var(--accent); }
+.sw.s2 { background: var(--series-2); } .sw.hold { background: var(--hold); } .sw.off { background: var(--bad); }
+.sw.partial { background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1px var(--accent); }
+.multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.mini { padding: 14px 16px 12px; background: var(--raised); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.mini-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.mini h3 { font-size: 15px; font-weight: 500; }
+.mini-last { font: 400 12px/1.3 var(--mono); color: var(--ink-2); white-space: nowrap; }
+.mini .plot { height: 64px; gap: 3px; }
+.xaxis.ends { justify-content: space-between; }
+.xaxis.ends span { flex: none; font-size: 10px; }
+.view-toggle { display: inline-flex; border: 1px solid var(--ink); justify-self: start; }
+.vt { min-height: 32px; padding: 0 14px; border: 0; background: transparent; cursor: pointer; font-size: 13px; }
+.vt[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+
+/* Tables: sort, search, filter, status bars; on a phone, a fade and a cue say there is more to the right. */
 .tbl-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .tbl-search { height: 36px; padding: 0 10px; border: 1px solid var(--line-2); background: var(--raised); min-width: 220px; }
 select { height: 36px; border: 1px solid var(--line-2); background: var(--raised); padding: 0 8px; }
 .tbl-count { font-size: 13px; color: var(--ink-2); }
+.tbl-box { display: grid; gap: 6px; }
+.tbl-frame { position: relative; }
 .tbl-wrap { overflow-x: auto; border-top: 2px solid var(--ink); }
+.tbl-box.is-over:not(.at-end) .tbl-frame::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 56px; pointer-events: none; background: linear-gradient(to right, transparent, var(--surface)); }
+.swipe-cue { display: none; gap: 6px; align-items: center; justify-self: end; font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.swipe-cue svg { width: 14px; height: 14px; }
+.tbl-box.is-over:not(.at-end) .swipe-cue { display: inline-flex; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { text-align: left; font: 400 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); padding: 10px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+th { text-align: left; font: 400 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); padding: 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
 th button { all: unset; cursor: pointer; }
 th[aria-sort="ascending"] button::after { content: " \2191"; }
 th[aria-sort="descending"] button::after { content: " \2193"; }
 td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.change { white-space: nowrap; }
+td.change svg { width: 10px; height: 10px; margin-right: 6px; }
 tr.is-off td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
 tr.is-hold td:first-child { box-shadow: inset 3px 0 0 var(--hold); }
 tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
 .more { justify-self: start; }
+
+/* Callouts: findings and flags, a status color with an icon and a word, never color alone. */
+.callouts { display: grid; gap: 10px; }
+.co { display: grid; grid-template-columns: 34px 1fr; gap: 14px; padding: 16px 18px; background: var(--raised); border: 1px solid var(--line); border-left: 4px solid var(--line-2); }
+.co-icon { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--track); color: var(--ink-2); }
+.co-icon svg { width: 14px; height: 14px; }
+.co h3 { font-size: 17px; font-weight: 500; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.co p { margin-top: 4px; font-size: 16px; color: var(--ink-2); }
+.co.on { border-left-color: var(--good); } .co.on .co-icon { background: var(--good-wash); color: var(--good-ink); }
+.co.hold { border-left-color: var(--hold); background: color-mix(in srgb, var(--hold) 7%, var(--raised)); } .co.hold .co-icon { background: var(--hold-wash); color: var(--hold-ink); }
+.co.off { border-left-color: var(--bad); background: color-mix(in srgb, var(--bad) 6%, var(--raised)); } .co.off .co-icon { background: var(--bad-wash); color: var(--bad-ink); }
+.found .co { padding: 14px 16px; }
+.found .co p { margin-top: 0; color: var(--ink); }
+
+/* Notes: what someone said or wrote, with who said it. */
+.notes { display: grid; gap: 14px; }
+.nt { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+.nt-q { font-size: 44px; line-height: .9; color: var(--accent); font-weight: 500; }
+.nt h3 { font-size: 16px; font-weight: 500; }
+.nt p { margin-top: 2px; }
+.nt-src { display: inline-block; margin-top: 6px; font: 400 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); border-top: 1px solid var(--line-2); padding-top: 4px; }
+
+/* Commitments: a pledge with the words as given, who owns it, when it is due, and its status as given. */
+.pledges { display: grid; gap: 0; border-top: 2px solid var(--ink); }
+.pl { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px dashed var(--line-2); }
+.pl-mark { width: 30px; height: 30px; border: 2px solid var(--ink); display: grid; place-items: center; font: 500 13px/1 var(--mono); }
+.pl.quiet .pl-mark { border-style: dashed; border-color: var(--line-2); color: var(--ink-2); }
+.pl-words { font-size: 19px; line-height: 1.4; letter-spacing: -0.01em; }
+.pl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag { display: inline-flex; gap: 6px; align-items: center; padding: 3px 9px; border: 1px solid var(--line-2); font-size: 13px; background: var(--paper); }
+.tag b { font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.pl-status { margin-top: 12px; padding: 10px 12px; background: var(--raised); border-left: 2px solid var(--line-2); font-size: 15px; }
+.pl-status .chip { margin-right: 8px; }
+.pl-fact { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
+
+/* Questions: a numbered prompt deck. The question is the card; Why Ask This opens the fact behind it. */
+.deck { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+.qc { position: relative; background: var(--paper); border: 1px solid var(--line); border-top: 6px solid var(--accent); padding: 18px 20px 14px; display: grid; gap: 10px; align-content: start; }
+.qc-num { font: 500 13px/1 var(--mono); letter-spacing: .12em; color: var(--accent); }
+.qc-tag { font: 400 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.qc-ask { font-size: 19px; line-height: 1.38; letter-spacing: -0.01em; font-weight: 500; }
+.why-toggle { all: unset; box-sizing: border-box; cursor: pointer; justify-self: start; display: inline-flex; gap: 6px; align-items: center; min-height: 30px; font-size: 13px; color: var(--accent); border-bottom: 1px dotted var(--accent); }
+.why-toggle svg { width: 11px; height: 11px; transition: transform .15s; }
+.why-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.why { padding: 10px 12px; background: var(--accent-wash); font-size: 15px; }
+.why b { display: block; font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+
+/* Choices: options side by side, each a tile you can mark as the one you picked. */
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.ch { background: var(--raised); border: 2px solid var(--line); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ch .pick { margin-top: auto; }
+.ch.picked { border-color: var(--accent); background: var(--accent-wash); }
+.ch-opt { font: 500 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.ch h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
+.ch-big { font-size: 30px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ch-big-label { font-size: 14px; color: var(--ink-2); }
+.ch-facts li { font-size: 14px; color: var(--ink-2); padding: 6px 0; border-top: 1px solid var(--line); }
+.ch-open { position: relative; margin-top: 4px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line-2); font-size: 15px; }
+.ch-open::before { content: ""; position: absolute; top: -7px; left: 18px; width: 12px; height: 12px; background: var(--paper); border-left: 1px solid var(--line-2); border-top: 1px solid var(--line-2); transform: rotate(45deg); }
+.ch-open b { display: block; font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 4px; }
+.pick { justify-self: start; min-height: 34px; padding: 0 12px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; }
+.pick[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+
+/* Agenda: a run of show. Time on the left, a track down the middle, each block as tall as its minutes. */
+.ros { background: var(--paper); border: 1px solid var(--line); }
+.ros-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.ros-head h3 { font-size: 17px; font-weight: 500; }
+.ros-when { font-size: 14px; color: var(--ink-2); }
+.ros-track { display: flex; height: 30px; margin: 14px 18px 4px; gap: 2px; }
+.ros-seg { display: grid; place-items: center; background: var(--accent); color: var(--surface); font: 500 12px/1 var(--mono); min-width: 22px; }
+.ros-seg:nth-child(even) { background: color-mix(in srgb, var(--accent) 62%, var(--paper)); color: var(--ink); }
+.ros-list { padding: 10px 18px 16px; }
+.ros-item { display: grid; grid-template-columns: 7.5rem 26px 1fr auto; gap: 0 14px; min-height: calc(var(--min, 5) * 6px + 56px); }
+.ros-time { font: 500 13px/1.35 var(--mono); padding-top: 2px; }
+.ros-time span { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.ros-rail { position: relative; }
+.ros-rail::before { content: ""; position: absolute; left: 12px; top: 22px; bottom: 0; width: 2px; background: var(--line-2); }
+.ros-item:last-child .ros-rail::before { display: none; }
+.ros-dot { position: relative; z-index: 1; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--surface); display: grid; place-items: center; font: 500 12px/1 var(--mono); }
+.ros-body { padding: 2px 0 18px; }
+.ros-body h4 { font-size: 17px; font-weight: 500; line-height: 1.3; }
+.ros-body p { font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+.ros-min { font: 500 12px/1 var(--mono); padding: 5px 8px; background: var(--track); height: max-content; white-space: nowrap; }
+
+/* Timeline and plain lists (kept for skills that use them). */
+.items li { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+.items h3, .tl h3 { font-size: 17px; font-weight: 500; }
+.items p, .tl p { color: var(--ink-2); margin-top: 2px; }
+.tl li { display: grid; grid-template-columns: 140px 1fr auto; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line); }
+.tl-date { font: 400 13px/1.6 var(--mono); color: var(--accent); }
+
+/* Drafts: an email looks like an email, a memo like a page. Placeholders are blanks to fill in. */
 .draft { border: 1px solid var(--line-2); background: var(--raised); }
 .draft-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .draft-meta { font-size: 13px; color: var(--ink-2); }
 .draft-meta b { color: var(--ink); font-weight: 500; }
-.draft-body { padding: 14px; white-space: pre-wrap; font-size: 15px; }
+.draft-body { padding: 14px; white-space: pre-wrap; font-size: 16px; }
 .draft-flag { padding: 8px 14px; font-size: 13px; background: var(--hold-wash); color: var(--hold-ink); }
+.ph { background: var(--hold-wash); color: var(--hold-ink); border-bottom: 1px dashed var(--hold-ink); padding: 0 .2em; font-weight: 500; }
+.memo { background: var(--paper); border: 1px solid var(--line-2); padding: 0 0 20px; }
+.memo-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 3px double var(--line-2); flex-wrap: wrap; }
+.memo-kind { font: 500 13px/1 var(--mono); letter-spacing: .3em; text-transform: uppercase; }
+.memo-title { padding: 18px 22px 4px; font-size: 22px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.25; }
+.memo-to { padding: 0 22px 10px; font-size: 13px; color: var(--ink-2); border-bottom: 1px solid var(--line); }
+.memo-part { padding: 12px 22px 0; }
+.memo-part h4 { font: 500 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.memo-part p { margin-top: 2px; font-size: 16px; }
+.memo-part ul { margin-top: 4px; }
+.memo-part li { position: relative; padding-left: 16px; font-size: 16px; }
+.memo-part li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; background: var(--accent); }
+
+/* Check Before Sending: tick boxes that remember, and a count of what is left. */
+.check-count { display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.check-count .pbar { margin: 0; height: 6px; }
 .check li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
-.check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.check input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--accent); }
 .check .src { display: block; color: var(--ink-2); font-size: 13px; }
 .check li.done span { text-decoration: line-through; color: var(--ink-2); }
 .prose p + p { margin-top: 10px; }
-.math-toggle svg, .chip svg { width: 12px; height: 12px; flex: none; }
-.math-toggle { all: unset; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; font: 400 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
-.math-body { margin-top: 10px; padding: 14px 16px; background: var(--raised); border-left: 2px solid var(--accent); font: 400 13px/1.6 var(--mono); }
-.math-body li + li { margin-top: 4px; }
 .end { padding-top: 32px; color: var(--ink-2); font-size: 14px; }
 .end p + p { margin-top: 6px; }
 .brand { font: 500 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
-.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.toc a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line-2); }
-.toc a:hover { color: var(--ink); }
-@media (max-width: 979px) { .found, .moves { grid-column: span 12; } .rail, .proof { grid-column: span 12; } .rail-in { position: static; } }
-@media (max-width: 639px) { .page { padding: 0 16px 40px; } .tl li { grid-template-columns: 1fr; gap: 4px; } .moves { padding: 22px 18px 10px; } }
+
+@media (max-width: 979px) {
+  .found, .moves { grid-column: span 12; } .rail, .proof { grid-column: span 12; } .rail-in { position: static; }
+}
+@media (max-width: 639px) {
+  body { font-size: 16px; }
+  .page { padding: 0 16px 40px; }
+  .moves { padding: 22px 18px 10px; }
+  .row { padding: 36px 0; }
+  .tl li { grid-template-columns: 1fr; gap: 4px; }
+  .prog, .dl-row { grid-template-columns: 1fr; }
+  .dl-text { grid-column: 1; }
+  .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar > .hbar-lab { grid-column: 1 / -1; }
+  .val { display: none; }
+  .ros-item { grid-template-columns: 5.6rem 26px 1fr; }
+  .ros-min { grid-column: 3; justify-self: start; margin-bottom: 14px; }
+  .callout { font-size: 19px; }
+  .qc-ask { font-size: 18px; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media print {
   @page { size: letter; margin: .55in; }
-  :root { --surface: #ffffff; }
+  :root { --surface: #ffffff; --paper: #ffffff; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { zoom: .78; }
   .page { max-width: none; padding: 0; }
-  .btn, .math-toggle, .tbl-tools, .note-line, .more, .toc { display: none !important; }
-  .math-body[hidden], tr[hidden] { display: revert !important; }
+  .btn, .disc-toggle, .why-toggle, .view-toggle, .pick, .tbl-tools, .more, .toc, .swipe-cue { display: none !important; }
+  .disc-body[hidden], .why[hidden], .pane[hidden], tr[hidden] { display: revert !important; }
+  .disc-body[hidden], .why[hidden], .pane[hidden] { display: grid !important; }
+  .tbl-wrap { overflow: visible; }
+  .tbl-box .tbl-frame::after { display: none !important; }
   .rail-in { position: static; }
-  .row, .items li, .tl li, .draft, .check li, .tile, tr, .found li, .moves li, .decide { break-inside: avoid; }
+  /* A row may break between its items, never inside one, and its heading stays with what follows it. */
+  .row, .summary, .proof, .found > ul { display: block; }
+  .rail { margin-bottom: 16px; break-after: avoid; }
+  .proof > * + *, .found li + li { margin-top: 14px; }
+  .moves { margin-top: 20px; }
+  .items li, .tl li, .draft, .check li, .tile, tr, .found li, .moves li, .decide, .co, .nt, .pl, .qc, .ch, .meter, .prog, .dl-row, .hbar-item, .ros-item, .mini, .chart, .callout, .memo-part, .math-body li { break-inside: avoid; }
   .owner-in { border-bottom-color: transparent; }
 }
 </style>
@@ -173,7 +437,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
 <noscript><p style="padding:24px">This page needs JavaScript turned on to draw its sections.</p></noscript>
 
 <!-- The only part that changes from run to run. build_page.py fills it in. -->
-<script type="application/json" id="page-data">{"id": "team-pnl-review:pinecone-and-puddle:2026-09", "report": "Team P&L Review", "subtitle": "Pinecone & Puddle Home Team, January to September 2026, from the QuickBooks P&L and the closed-deal export.", "sample": "Practice File: Made-Up Example", "meta": [{"label": "Team", "value": "Pinecone & Puddle Home Team"}, {"label": "Period", "value": "Jan to Sep 2026, 9 months"}, {"label": "Basis", "value": "Accrual, as printed"}, {"label": "Closings", "value": "77, from the closed-deal export"}, {"label": "Totals Check", "value": "Passed"}], "dataCheck": [], "headline": ["Net income was $41,233, a 12.1% margin.", "Brokerage fees fell from May on."], "sections": [{"id": "used", "kind": "list", "label": "What I Used", "finding": "The P&L by month and the closed-deal export, nine months, totals check passed.", "items": [{"title": "P&L", "text": "PRACTICE Team P&L by Month Jan-Sep 2026.xlsx, QuickBooks Profit and Loss, Jan 2026 to Sep 2026 (9 months), accrual basis as printed on the report, 27 accounts."}, {"title": "Production", "text": "PRACTICE Closed Deals Export Jan-Sep 2026.csv, 77 closings in those months. Columns used: Close Date, Status, GCI, Agent Split, Team Net, Referral Fee, Brokerage Fee, Lead Source. Left out: 2 pending deals and 1 canceled deal. Client names and addresses in the file were not used."}, {"status": "on", "chip": "Passed", "title": "Totals Check", "text": "Every month's accounts add up to the report's own Net Income and section totals."}, {"title": "Account Map", "text": "Every account read by its name or parent account; no fixes needed."}, {"status": "quiet", "chip": "Gaps", "title": "Not In These Files", "text": "No P&L Detail, so charge-level checks (duplicate charges, new vendors, a vendor in the wrong account) were not run. No budget. No prior-year months."}]}, {"id": "revenue", "kind": "table", "label": "How Revenue Is Recorded", "finding": "Gross every month.", "note": "Commission income is recorded before agent splits, and agent splits, referral fees and brokerage split and fees are all costs. The production file agrees: every month's commission income matches that month's GCI. Splits % and Brokerage % are each a share of commission income.", "columns": [{"key": "month", "label": "Month", "type": "text", "sortKey": "ym"}, {"key": "reads", "label": "Reads As", "type": "text"}, {"key": "commission", "label": "Commission", "type": "usd"}, {"key": "splits", "label": "Splits", "type": "usd"}, {"key": "referral", "label": "Referrals", "type": "usd"}, {"key": "brokerage", "label": "Brokerage", "type": "usd"}, {"key": "split_share", "label": "Splits %", "type": "pct"}, {"key": "brokerage_share", "label": "Brokerage %", "type": "pct"}], "rows": [{"month": "Jan 2026", "ym": "2026-01", "reads": "Gross", "commission": 75358.75, "splits": 34633.67, "referral": 12901.44, "brokerage": 4521.53, "split_share": 46.0, "brokerage_share": 6.0}, {"month": "Feb 2026", "ym": "2026-02", "reads": "Gross", "commission": 78617.5, "splits": 51101.38, "referral": 0.0, "brokerage": 4717.06, "split_share": 65.0, "brokerage_share": 6.0}, {"month": "Mar 2026", "ym": "2026-03", "reads": "Gross", "commission": 108476.25, "splits": 60930.96, "referral": 14736.32, "brokerage": 6508.58, "split_share": 56.2, "brokerage_share": 6.0}, {"month": "Apr 2026", "ym": "2026-04", "reads": "Gross", "commission": 122973.75, "splits": 77785.91, "referral": 3303.13, "brokerage": 7378.44, "split_share": 63.3, "brokerage_share": 6.0}, {"month": "May 2026", "ym": "2026-05", "reads": "Gross", "commission": 152885.0, "splits": 99375.27, "referral": 0.0, "brokerage": 4939.39, "split_share": 65.0, "brokerage_share": 3.2, "_status": "hold"}, {"month": "Jun 2026", "ym": "2026-06", "reads": "Gross", "commission": 143330.0, "splits": 83170.43, "referral": 15375.5, "brokerage": 2950.0, "split_share": 58.0, "brokerage_share": 2.1, "_status": "hold"}, {"month": "Jul 2026", "ym": "2026-07", "reads": "Gross", "commission": 152372.5, "splits": 89368.82, "referral": 14882.01, "brokerage": 2950.0, "split_share": 58.7, "brokerage_share": 1.9, "_status": "hold"}, {"month": "Aug 2026", "ym": "2026-08", "reads": "Gross", "commission": 118777.5, "splits": 56988.27, "referral": 13998.25, "brokerage": 2655.0, "split_share": 48.0, "brokerage_share": 2.2, "_status": "hold"}, {"month": "Sep 2026", "ym": "2026-09", "reads": "Gross", "commission": 124087.5, "splits": 69980.63, "referral": 0.0, "brokerage": 2360.0, "split_share": 56.4, "brokerage_share": 1.9, "_status": "hold"}], "sort": {"key": "month", "dir": "asc"}, "search": false, "mathTitle": "What it changes", "math": ["Splits vary from 46.0% to 65.0% of commission income (typical 58.0%). Months with more referral-fee deals or more of the team leader's own deals can run lower. The production file matches every month, so this doesn't point to a recording problem.", "Brokerage split and fees dropped. About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9% (the rows marked Watch). That can mean the team or its agents reached a brokerage cap, the fee schedule changed, or something is missing from the account. Only the broker knows the cap terms, so it goes to the broker as a question, along with when the cap year resets."]}, {"id": "dollar", "kind": "tiles", "label": "Company Dollar and Margin", "finding": "The team kept $41,233 on $339,367 of company dollar, a 12.1% margin.", "note": "Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar. Operating expenses stayed between $31,731 and $36,421 a month. Profit follows company dollar: the first quarter's company dollar of $22,799 to $26,300 a month didn't cover expenses. The team also collected 6,750.00 in fees charged to agents (Agent Fee Income), outside company dollar.", "tiles": [{"label": "Company Dollar", "value": "$339,367", "unit": "January to September 2026", "note": "339,366.76 / 1,076,878.75 = 31.5% of gross commission"}, {"label": "Net Income", "value": "$41,233", "unit": "January to September 2026"}, {"label": "Margin", "value": "12.1%", "unit": "net income / company dollar"}, {"label": "September Net Income", "value": "$19,091", "unit": "36.9% margin on $51,747 of company dollar"}], "mathTitle": "Company dollar and margin, month by month and for the period, as the run prints them", "math": ["Jan 2026: company dollar = 75,358.75 - 34,633.67 - 12,901.44 - 4,521.53 = 23,302.11; margin = -8,690.07 / 23,302.11 = -37.3%", "Feb 2026: company dollar = 78,617.50 - 51,101.38 - 0.00 - 4,717.06 = 22,799.06; margin = -8,182.07 / 22,799.06 = -35.9%", "Mar 2026: company dollar = 108,476.25 - 60,930.96 - 14,736.32 - 6,508.58 = 26,300.39; margin = -5,527.43 / 26,300.39 = -21.0%", "Apr 2026: company dollar = 122,973.75 - 77,785.91 - 3,303.13 - 7,378.44 = 34,506.27; margin = 938.82 / 34,506.27 = 2.7%", "May 2026: company dollar = 152,885.00 - 99,375.27 - 0.00 - 4,939.39 = 48,570.34; margin = 15,128.70 / 48,570.34 = 31.1%", "Jun 2026: company dollar = 143,330.00 - 83,170.43 - 15,375.50 - 2,950.00 = 41,834.07; margin = 8,933.25 / 41,834.07 = 21.4%", "Jul 2026: company dollar = 152,372.50 - 89,368.82 - 14,882.01 - 2,950.00 = 45,171.67; margin = 10,075.96 / 45,171.67 = 22.3%", "Aug 2026: company dollar = 118,777.50 - 56,988.27 - 13,998.25 - 2,655.00 = 45,135.98; margin = 9,464.69 / 45,135.98 = 21.0%", "Sep 2026: company dollar = 124,087.50 - 69,980.63 - 0.00 - 2,360.00 = 51,746.87; margin = 19,091.15 / 51,746.87 = 36.9%", "Period: company dollar = 1,076,878.75 - 623,335.34 - 75,196.65 - 38,980.00 = 339,366.76; margin = 41,233.00 / 339,366.76 = 12.1%", "Also in income, outside company dollar: fees charged to agents 6,750.00; other income 0.00.", "Advertising & Marketing:Online Lead Programs:Google PPC: 3,940.85 to 1,296.33 (-2,644.52)", "Transaction Coordinator Fees: 3,150.00 to 2,800.00 (-350.00)", "Advertising & Marketing:Listing Photos & Signs: 920.00 to 845.00 (-75.00)", "Meals: 198.60 to 244.05 (45.45)", "Advertising & Marketing:Client Appreciation: 285.00 to 330.00 (45.00)", "Rent & Office:Utilities: 238.71 to 207.46 (-31.25)", "Company dollar 339,366.76; operating expenses 304,883.76; net income 41,233.00; margin 41,233.00 / 339,366.76 = 12.1%.", "No prior-year months are in the file, so there is no year-over-year comparison.", "[P4 uncategorized] Uncategorized Expense holds 486.20 in Jul 2026.", "[P6 new_recurring_account] Software & Subscriptions:Video Editing App is new since Jun 2026 and recurs every month since: 79.00, 79.00, 79.00, 79.00.", "[P7 spike] Advertising & Marketing:Online Lead Programs:Google PPC in Aug 2026 is 3,940.85 against a usual 1,264.12 (+2,676.73).", "[P9 brokerage_share_drop] Brokerage split and fees fell from about 6.0% of commission income (Jan 2026 to Apr 2026) to: May 2026 3.2%, Jun 2026 2.1%, Jul 2026 1.9%, Aug 2026 2.2%, Sep 2026 1.9%.", "[P9 price_change] Advertising & Marketing:Online Lead Programs:Pumpkinpatch Portal changed from 2,500.00 to 3,000.00 a month starting Jul 2026.", "Columns used: close_date = 'Close Date'; status = 'Status'; gci = 'GCI'; agent_paid = 'Agent Split'; team = 'Team Net'; referral = 'Referral Fee'; brokerage = 'Brokerage Fee'; source = 'Lead Source'; side = 'Side'", "Rows left out: 2 (status Pending); 1 (status Cancelled)", "Closings counted in the P&L months: 77", "Operating expenses per closing = 304,883.76 / 77 = 3,959.53", "Lead generation per closing = 37,987.77 / 77 = 493.35", "Company dollar per closing = 339,366.76 / 77 = 4,407.36", "Net income per closing = 41,233.00 / 77 = 535.49", "Average GCI per closing (production file) = 1,076,878.75 / 77 = 13,985.44", "Company dollar as a share of gross commission (gross months): 339,366.76 / 1,076,878.75 = 31.5%."]}, {"id": "dollar-months", "kind": "table", "label": "Company Dollar and Margin by Month", "finding": "A loss in each of January, February and March, then a profit every month from April.", "note": "Rows marked Off are months with a net loss.", "columns": [{"key": "month", "label": "Month", "type": "text", "sortKey": "ym"}, {"key": "cd", "label": "Company Dollar", "type": "usd"}, {"key": "opex", "label": "Operating Expenses", "type": "usd"}, {"key": "net", "label": "Net Income", "type": "usd"}, {"key": "margin", "label": "Margin", "type": "pct"}], "rows": [{"month": "Jan 2026", "ym": "2026-01", "cd": 23302.11, "opex": 32742.18, "net": -8690.07, "margin": -37.3, "_status": "off"}, {"month": "Feb 2026", "ym": "2026-02", "cd": 22799.06, "opex": 31731.13, "net": -8182.07, "margin": -35.9, "_status": "off"}, {"month": "Mar 2026", "ym": "2026-03", "cd": 26300.39, "opex": 32577.82, "net": -5527.43, "margin": -21.0, "_status": "off"}, {"month": "Apr 2026", "ym": "2026-04", "cd": 34506.27, "opex": 34317.450000000004, "net": 938.82, "margin": 2.7}, {"month": "May 2026", "ym": "2026-05", "cd": 48570.34, "opex": 34191.64, "net": 15128.7, "margin": 31.1}, {"month": "Jun 2026", "ym": "2026-06", "cd": 41834.07000000001, "opex": 33650.82, "net": 8933.25, "margin": 21.4}, {"month": "Jul 2026", "ym": "2026-07", "cd": 45171.66999999999, "opex": 35845.71, "net": 10075.96, "margin": 22.3}, {"month": "Aug 2026", "ym": "2026-08", "cd": 45135.98, "opex": 36421.29, "net": 9464.69, "margin": 21.0}, {"month": "Sep 2026", "ym": "2026-09", "cd": 51746.869999999995, "opex": 33405.72, "net": 19091.15, "margin": 36.9}], "sort": {"key": "month", "dir": "asc"}, "search": false}, {"id": "mix", "kind": "table", "label": "Expense Mix", "finding": "People is 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.", "note": "People is salaries and wages, payroll taxes, health insurance, transaction coordinator fees and coaching and training. Agent splits are not in it.", "columns": [{"key": "cat", "label": "Category", "type": "text"}, {"key": "total", "label": "Period Total", "type": "usd"}, {"key": "share_cd", "label": "Share of Company Dollar", "type": "pct"}, {"key": "share_opex", "label": "Share of Operating Expenses", "type": "pct"}], "rows": [{"cat": "Lead generation", "total": 37987.77, "share_cd": 11.2, "share_opex": 12.5}, {"cat": "Marketing", "total": 14435.0, "share_cd": 4.3, "share_opex": 4.7}, {"cat": "People", "total": 184826.92, "share_cd": 54.5, "share_opex": 60.6}, {"cat": "Tech", "total": 12439.0, "share_cd": 3.7, "share_opex": 4.1}, {"cat": "Occupancy", "total": 39725.42, "share_cd": 11.7, "share_opex": 13.0}, {"cat": "Other", "total": 14983.45, "share_cd": 4.4, "share_opex": 4.9}, {"cat": "Uncategorized", "total": 486.2, "share_cd": 0.1, "share_opex": 0.2}], "sort": {"key": "total", "dir": "desc"}, "mathTitle": "Each category / company dollar, January to September 2026", "math": ["Lead generation: 37,987.77 / 339,366.76 = 11.2%", "Marketing: 14,435.00 / 339,366.76 = 4.3%", "People: 184,826.92 / 339,366.76 = 54.5%", "Tech: 12,439.00 / 339,366.76 = 3.7%", "Occupancy: 39,725.42 / 339,366.76 = 11.7%", "Other: 14,983.45 / 339,366.76 = 4.4%", "Uncategorized: 486.20 / 339,366.76 = 0.1%", "Total operating expenses: 304,883.76 / 339,366.76 = 89.8%"]}, {"id": "changed", "kind": "table", "label": "What Changed", "finding": "Biggest change: company dollar, 45,135.98 to 51,746.87 (6,610.89).", "note": "Referral fees went from 13,998.25 in August to 0.00 in September and brokerage split and fees from 2,655.00 to 2,360.00, while agent splits rose with commission income. Lead generation fell 2,644.52 because Google PPC came back from 3,940.85 in August to 1,296.33.", "columns": [{"key": "line", "label": "Line", "type": "text"}, {"key": "aug", "label": "Aug 2026", "type": "usd"}, {"key": "sep", "label": "Sep 2026", "type": "usd"}, {"key": "change", "label": "Change", "type": "text"}, {"key": "avg", "label": "Jan to Aug Average", "type": "usd"}], "rows": [{"line": "Company dollar", "aug": 45135.98, "sep": 51746.869999999995, "change": "51,746.87 - 45,135.98 = 6,610.89", "avg": 35952.48625}, {"line": "Lead generation", "aug": 6940.85, "sep": 4296.33, "change": "4,296.33 - 6,940.85 = -2,644.52", "avg": 4211.43}, {"line": "Marketing", "aug": 1655.0, "sep": 1625.0, "change": "1,625.00 - 1,655.00 = -30.00", "avg": 1601.25}, {"line": "People", "aug": 20691.88, "sep": 20341.88, "change": "20,341.88 - 20,691.88 = -350.00", "avg": 20560.63}, {"line": "Tech", "aug": 1426.0, "sep": 1426.0, "change": "1,426.00 - 1,426.00 = 0.00", "avg": 1376.625}, {"line": "Occupancy", "aug": 4438.71, "sep": 4407.46, "change": "4,407.46 - 4,438.71 = -31.25", "avg": 4414.745}, {"line": "Other", "aug": 1268.85, "sep": 1309.05, "change": "1,309.05 - 1,268.85 = 40.20", "avg": 1709.3}, {"line": "Net income", "aug": 9464.69, "sep": 19091.15, "change": "19,091.15 - 9,464.69 = 9,626.46", "avg": 2767.7312500000003}], "mathTitle": "Year to date", "math": ["Year to date (January to September 2026): company dollar 339,366.76; operating expenses 304,883.76; net income 41,233.00; margin 41,233.00 / 339,366.76 = 12.1%.", "No prior-year months are in the file, so there is no year-over-year comparison."]}, {"id": "closing", "kind": "table", "label": "Cost per Closing and Lead Sources", "finding": "From the 77 closed deals in the export: operating expenses per closing = 304,883.76 / 77 = 3,959.53.", "note": "Lanternfly Leads is pay at close: its referral fees ($75,197) are its cost, and the team's share is already after them, so the team kept 0.62 per $1 of fees. Pumpkinpatch Portal and Google PPC are paid up front; their spend is the P&L account with the same name. Spend in one month often produces closings months later, so treat this as a rough nine-month view, not a verdict on any source.", "columns": [{"key": "source", "label": "Source", "type": "text"}, {"key": "closings", "label": "Closings", "type": "num"}, {"key": "gci", "label": "GCI", "type": "usd"}, {"key": "team", "label": "Team's Share", "type": "usd"}, {"key": "spend", "label": "Spend", "type": "text"}, {"key": "return", "label": "Return", "type": "text"}], "rows": [{"source": "Sphere", "closings": 16.0, "gci": 237858.75, "team": 85356.52, "spend": "no spend line", "return": "n/a"}, {"source": "Lanternfly Leads", "closings": 16.0, "gci": 214847.5, "team": 46882.20999999999, "spend": "$75,197 in referral fees", "return": "46,882.21 / 75,196.65 = 0.62 per $1 of fees"}, {"source": "Pumpkinpatch Portal", "closings": 16.0, "gci": 212460.0, "team": 66930.64, "spend": "$24,000", "return": "(66,930.64 - 24,000.00) / 24,000.00 = 1.79 per $1 spent"}, {"source": "Google PPC", "closings": 11.0, "gci": 166072.5, "team": 63451.07, "spend": "$13,988", "return": "(63,451.07 - 13,987.77) / 13,987.77 = 3.54 per $1 spent"}, {"source": "Past Client", "closings": 8.0, "gci": 104097.5, "team": 33072.86, "spend": "no spend line", "return": "n/a"}, {"source": "Agent Generated", "closings": 7.0, "gci": 98307.5, "team": 31124.309999999998, "spend": "no spend line", "return": "n/a"}, {"source": "Open House", "closings": 3.0, "gci": 43235.0, "team": 12549.150000000001, "spend": "no spend line", "return": "n/a"}], "sort": {"key": "closings", "dir": "desc"}, "mathTitle": "Cost per closing, January to September 2026", "math": ["Operating expenses per closing = 304,883.76 / 77 = 3,959.53", "Lead generation per closing = 37,987.77 / 77 = 493.35", "Company dollar per closing = 339,366.76 / 77 = 4,407.36", "Net income per closing = 41,233.00 / 77 = 535.49", "Average GCI per closing (production file) = 1,076,878.75 / 77 = 13,985.44", "Monthly, operating expenses per closing ran from 3,108.33 (May, 11 closings) to 5,457.03 (January, 6 closings); the period figure is the one to use."]}, {"id": "anomalies", "kind": "list", "label": "Anomalies", "finding": "Five things to look at, most important first.", "note": "Charge-level checks need the QuickBooks Profit and Loss Detail export for the same months.", "items": [{"status": "hold", "title": "Brokerage Split and Fees Dropped", "text": "From 6.0% of commission income (January to April) to 3.2% in May and 1.9% to 2.2% since. A cap, a fee change or something missing? A question for your broker (below)."}, {"status": "hold", "title": "Uncategorized Expense", "text": "486.20 in July 2026."}, {"status": "hold", "title": "New Recurring Charge", "text": "Software & Subscriptions:Video Editing App, 79.00 a month since June 2026."}, {"status": "hold", "title": "One-Month Jump", "text": "Google PPC was 3,940.85 in August 2026 against a usual 1,264.12 (+2,676.73), back to 1,296.33 in September."}, {"status": "hold", "title": "Price Change", "text": "Pumpkinpatch Portal went from 2,500.00 to 3,000.00 a month starting July 2026."}]}, {"id": "q-bookkeeper", "kind": "list", "label": "Questions for the Bookkeeper", "finding": "Four questions about what was recorded, each with the numbers that raised it.", "items": [{"title": "Uncategorized Expense", "text": "Uncategorized Expense holds 486.20 in July. What is it, and which account should it move to?"}, {"title": "Video Editing App", "text": "Video Editing App started in June at 79.00 a month. Which subscription is it, and is it meant to continue?"}, {"title": "Google PPC in August", "text": "Google PPC was 3,940.85 in August, 2,676.73 above its usual month. Was that one campaign, or a billing catch-up?"}, {"title": "Brokerage Split and Fees", "text": "Brokerage split and fees dropped from 6.0% of commission income to 3.2% in May and 1.9% to 2.2% since. Is anything missing from that account from May on? (I'm asking the broker separately about a cap or fee change.)"}]}, {"id": "q-cpa", "kind": "list", "label": "Questions for the CPA", "finding": "None from these numbers.", "items": []}, {"id": "q-broker", "kind": "list", "label": "Questions for the Broker", "finding": "One question about the brokerage cap.", "items": [{"title": "Cap or Fee Change", "text": "Our brokerage split and fees were 6.0% of commission income from January to April 2026, 3.2% in May and 1.9% to 2.2% from June to September. Did the team or its agents reach a cap in May, or did the fee schedule change? When does the cap year reset?"}]}, {"id": "drafts", "kind": "drafts", "label": "Owner Brief and Email to the Bookkeeper", "finding": "Two drafts for you to read first. The brief may be shared with a partner, so it holds no one's pay.", "drafts": [{"label": "Owner Brief", "to": "You, and a partner if you share it", "channel": "One page", "subject": "Owner Brief: Pinecone & Puddle Home Team P&L, January to September 2026", "body": "Bottom Line: We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. Our decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month.\n\nProfit: Period net income $41,233 on company dollar of $339,367 (12.1%). September net income $19,091 on company dollar of $51,747 (36.9%).\n\nHow Revenue Is Recorded: Gross every month, and it matches our closed-deal export month by month.\n\nWhere the Money Goes: People 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.\n\nWhat Changed: Company dollar rose from $45,136 in August to $51,747 in September; Google PPC came back down from its August jump.\n\nWhat Needs a Look:\n- Brokerage fees down since May: asking the broker whether we reached a cap or the fee schedule changed.\n- 486.20 uncategorized in July.\n- Video Editing App, new at 79.00 a month since June.\n- Google PPC at 3,940.85 in August.\n\nCost per Closing: 3,959.53 in operating expenses per closing across 77 closings, with 4,407.36 of company dollar and 535.49 of net income per closing.\n\nLead Sources: Google PPC returned 3.54 per $1 spent and Pumpkinpatch Portal 1.79; Lanternfly Leads kept 0.62 per $1 of referral fees.\n\nThe Decision: Keep or cancel Pumpkinpatch Portal (3,000.00 a month since July; it was 2,500.00). For January to September it cost 24,000.00 and its 16 closings brought the team 66,930.64.\n\nWith the Bookkeeper: 4 questions sent; 1 question for the broker."}, {"label": "Email to the Bookkeeper", "to": "[Bookkeeper Name]", "channel": "Email draft", "subject": "Questions On The January To September P&L", "body": "Hi [Bookkeeper Name],\n\nI went through the January to September P&L against our closed-deal export. A few questions:\n\n1. Uncategorized Expense has 486.20 in July. What is it, and where should it go?\n2. Video Editing App started in June at 79.00 a month. Which subscription is it?\n3. Google PPC was 3,940.85 in August, well above its usual month. Was that one campaign, or a billing catch-up?\n4. Brokerage split and fees dropped to 3.2% of commission income in May and 1.9% to 2.2% since, from 6.0% before. Is anything missing from that account from May on?\n\nOnce the July item is moved, could you send an updated P&L by month as Excel?\n\nThanks,\n[Owner Name]", "flag": "Fill in [Bookkeeper Name] and [Owner Name] before sending."}]}, {"id": "check", "kind": "checklist", "label": "Check Before Sending", "finding": "Every figure in the drafts, traced to the analysis run (pnl_report.md), in the section named.", "items": [{"text": "Period net income and margin: $41,233 (41,233.00), 12.1%", "source": "Company Dollar and Margin, Period"}, {"text": "Period company dollar: $339,367 (339,366.76)", "source": "Company Dollar and Margin, Period"}, {"text": "September net income, company dollar, margin: $19,091, $51,747, 36.9%", "source": "Company Dollar and Margin, Sep 2026"}, {"text": "August company dollar: $45,136", "source": "Changes"}, {"text": "Referral fees 13,998.25 (Aug) to 0.00 (Sep); brokerage 2,655.00 to 2,360.00", "source": "Company Dollar and Margin, Aug and Sep 2026 lines"}, {"text": "Months with a loss: January, February, March", "source": "Company Dollar and Margin table"}, {"text": "Brokerage share: 6.0% (Jan to Apr), 3.2% in May, 1.9% to 2.2% since", "source": "How Revenue Is Recorded; Flags (brokerage_share_drop)"}, {"text": "Expense shares: People 54.5%, occupancy 11.7%, lead generation 11.2%", "source": "Expense Mix"}, {"text": "Uncategorized: 486.20, July 2026", "source": "Flags (uncategorized)"}, {"text": "Video Editing App: 79.00 a month since June 2026", "source": "Flags (new_recurring_account)"}, {"text": "Google PPC: 3,940.85 in August; usual 1,264.12; +2,676.73", "source": "Flags (spike)"}, {"text": "Pumpkinpatch Portal: 2,500.00 to 3,000.00 since July 2026; 24,000.00 spend; 16 closings; 66,930.64 team's share", "source": "Flags (price_change); Production, Lead Sources"}, {"text": "Cost per closing: 3,959.53; 4,407.36 and 535.49 per closing; 77 closings", "source": "Production, Cost per Closing"}, {"text": "Lead source returns: 3.54, 1.79, 0.62", "source": "Production, Lead Sources"}, {"text": "Placeholders: [Bookkeeper Name], [Owner Name]", "source": "fill in before sending"}, {"text": "Confirm the cap question with your broker before treating the lower brokerage fees as permanent.", "source": "your broker"}]}], "stamp": "Team P&L Review", "closing": "Every figure comes from the analysis run on your files, with its arithmetic. pnl_report.md holds every calculation, to share with your bookkeeper.", "findings": [{"status": "quiet", "chip": "Profit", "text": "The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months."}, {"status": "quiet", "chip": "Biggest Change", "text": "The biggest change in September was company dollar, up 6,610.89 from August."}, {"status": "hold", "text": "Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, a question for your broker."}], "moves": [{"title": "Ask Your Broker About the Brokerage Fee Drop", "text": "Did the team or its agents reach a cap in May, or did the fee schedule change? And when does the cap year reset?", "tag": "Brokerage split and fees", "owner": ""}, {"title": "Send Your Bookkeeper the Four Questions", "text": "The 486.20 uncategorized in July, the Video Editing App at 79.00 a month, Google PPC at 3,940.85 in August, and the brokerage account from May on. The email is drafted below.", "tag": "The books", "owner": ""}], "decide": "Keep or cancel Pumpkinpatch Portal: 3,000.00 a month since July 2026 (it was 2,500.00). For January to September it cost 24,000.00, and its 16 closings brought the team 66,930.64."}</script>
+<script type="application/json" id="page-data">{"id": "team-pnl-review:pinecone-and-puddle:2026-09", "report": "Team P&L Review", "subtitle": "Pinecone & Puddle Home Team, January to September 2026, from the QuickBooks P&L and the closed-deal export.", "sample": "Practice File: Made-Up Example", "meta": [{"label": "Team", "value": "Pinecone & Puddle Home Team"}, {"label": "Period", "value": "Jan to Sep 2026, 9 months"}, {"label": "Basis", "value": "Accrual, as printed"}, {"label": "Closings", "value": "77, from the closed-deal export"}, {"label": "Totals Check", "value": "Passed"}], "dataCheck": [], "headline": ["Net income was $41,233, a 12.1% margin.", "Brokerage fees fell from May on."], "keyNumbers": [{"label": "Net Income", "value": "$41,233", "means": "Kept January to September: a **12.1% margin** on company dollar."}, {"label": "September Net Income", "value": "$19,091", "delta": {"dir": "up", "text": "Up $9,626 from August"}, "means": "A 36.9% margin on $51,747 of company dollar."}, {"label": "Company Dollar", "value": "$339,367", "means": "What the team kept from commission, after splits and fees."}, {"label": "Brokerage Fees In September", "value": "1.9%", "status": "hold", "chip": "Watch", "delta": {"dir": "down", "text": "From 6.0% in January to April"}, "means": "Of commission income. **Ask your broker** why."}], "sections": [{"id": "used", "kind": "callouts", "label": "What I Used", "finding": "The P&L by month and the closed-deal export, nine months, totals check passed.", "items": [{"status": "on", "chip": "Passed", "title": "Totals Check", "text": "Every month's accounts add up to the report's own Net Income and section totals."}, {"title": "P&L", "text": "PRACTICE Team P&L by Month Jan-Sep 2026.xlsx, QuickBooks Profit and Loss, Jan 2026 to Sep 2026 (9 months), accrual basis as printed on the report, 27 accounts."}, {"title": "Production", "text": "PRACTICE Closed Deals Export Jan-Sep 2026.csv, 77 closings in those months. Columns used: Close Date, Status, GCI, Agent Split, Team Net, Referral Fee, Brokerage Fee, Lead Source. Left out: 2 pending deals and 1 canceled deal. Client names and addresses in the file were not used."}, {"status": "on", "chip": "No Fixes", "title": "Account Map", "text": "Every account read by its name or parent account."}, {"status": "quiet", "chip": "Gaps", "title": "Not In These Files", "text": "No P&L Detail, so charge-level checks (duplicate charges, new vendors, a vendor in the wrong account) were not run. No budget. No prior-year months."}]}, {"id": "revenue", "kind": "table", "label": "How Revenue Is Recorded", "finding": "Gross every month.", "note": "Commission income is recorded before agent splits, and agent splits, referral fees and brokerage split and fees are all costs. Splits % and Brokerage % are each a share of commission income.", "callout": {"status": "on", "chip": "Months Compare", "text": "The production file agrees: **every month's commission income matches that month's GCI**."}, "columns": [{"key": "month", "label": "Month", "type": "text", "sortKey": "ym"}, {"key": "reads", "label": "Reads As", "type": "text"}, {"key": "commission", "label": "Commission", "type": "usd"}, {"key": "splits", "label": "Splits", "type": "usd"}, {"key": "referral", "label": "Referrals", "type": "usd"}, {"key": "brokerage", "label": "Brokerage", "type": "usd"}, {"key": "split_share", "label": "Splits %", "type": "pct"}, {"key": "brokerage_share", "label": "Brokerage %", "type": "pct"}], "rows": [{"month": "Jan 2026", "ym": "2026-01", "reads": "Gross", "commission": 75358.75, "splits": 34633.67, "referral": 12901.44, "brokerage": 4521.53, "split_share": 46.0, "brokerage_share": 6.0}, {"month": "Feb 2026", "ym": "2026-02", "reads": "Gross", "commission": 78617.5, "splits": 51101.38, "referral": 0.0, "brokerage": 4717.06, "split_share": 65.0, "brokerage_share": 6.0}, {"month": "Mar 2026", "ym": "2026-03", "reads": "Gross", "commission": 108476.25, "splits": 60930.96, "referral": 14736.32, "brokerage": 6508.58, "split_share": 56.2, "brokerage_share": 6.0}, {"month": "Apr 2026", "ym": "2026-04", "reads": "Gross", "commission": 122973.75, "splits": 77785.91, "referral": 3303.13, "brokerage": 7378.44, "split_share": 63.3, "brokerage_share": 6.0}, {"month": "May 2026", "ym": "2026-05", "reads": "Gross", "commission": 152885.0, "splits": 99375.27, "referral": 0.0, "brokerage": 4939.39, "split_share": 65.0, "brokerage_share": 3.2, "_status": "hold"}, {"month": "Jun 2026", "ym": "2026-06", "reads": "Gross", "commission": 143330.0, "splits": 83170.43, "referral": 15375.5, "brokerage": 2950.0, "split_share": 58.0, "brokerage_share": 2.1, "_status": "hold"}, {"month": "Jul 2026", "ym": "2026-07", "reads": "Gross", "commission": 152372.5, "splits": 89368.82, "referral": 14882.01, "brokerage": 2950.0, "split_share": 58.7, "brokerage_share": 1.9, "_status": "hold"}, {"month": "Aug 2026", "ym": "2026-08", "reads": "Gross", "commission": 118777.5, "splits": 56988.27, "referral": 13998.25, "brokerage": 2655.0, "split_share": 48.0, "brokerage_share": 2.2, "_status": "hold"}, {"month": "Sep 2026", "ym": "2026-09", "reads": "Gross", "commission": 124087.5, "splits": 69980.63, "referral": 0.0, "brokerage": 2360.0, "split_share": 56.4, "brokerage_share": 1.9, "_status": "hold"}], "sort": {"key": "month", "dir": "asc"}, "search": false, "chart": {"type": "columns", "x": "month", "label": "Brokerage split and fees as a share of commission income, by month", "series": [{"key": "brokerage_share", "label": "Brokerage %"}], "legend": [{"status": "hold", "label": "May to September: the step-down to ask your broker about"}]}, "mathTitle": "What it changes", "math": ["Splits vary from 46.0% to 65.0% of commission income (typical 58.0%). Months with more referral-fee deals or more of the team leader's own deals can run lower. The production file matches every month, so this doesn't point to a recording problem.", "Brokerage split and fees dropped. About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9%. That can mean the team or its agents reached a brokerage cap, the fee schedule changed, or something is missing from the account. Only the broker knows the cap terms, so it goes to the broker as a question, along with when the cap year resets."]}, {"id": "dollar", "kind": "tiles", "label": "Company Dollar and Margin", "finding": "The team kept $41,233 on $339,367 of company dollar, a 12.1% margin.", "note": "Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar.", "tiles": [{"label": "Company Dollar", "value": "$339,367", "unit": "January to September 2026", "means": "What the team kept from **$1,076,879** of commission, after splits, referral fees and brokerage fees (31.5%)."}, {"label": "Operating Expenses", "value": "$304,884", "unit": "January to September 2026", "means": "What it cost to run the team: 89.8% of company dollar."}, {"label": "Net Income", "value": "$41,233", "unit": "January to September 2026", "means": "What was left: a **12.1% margin** on company dollar."}, {"label": "Fees Charged To Agents", "value": "$6,750", "unit": "Agent Fee Income", "means": "Outside company dollar, inside net income."}], "mathTitle": "Company dollar and margin, month by month and for the period, as the run prints them", "math": ["Jan 2026: company dollar = $75,358.75 - $34,633.67 - $12,901.44 - $4,521.53 = $23,302.11; margin = -$8,690.07 / $23,302.11 = -37.3%", "Feb 2026: company dollar = $78,617.50 - $51,101.38 - $0.00 - $4,717.06 = $22,799.06; margin = -$8,182.07 / $22,799.06 = -35.9%", "Mar 2026: company dollar = $108,476.25 - $60,930.96 - $14,736.32 - $6,508.58 = $26,300.39; margin = -$5,527.43 / $26,300.39 = -21.0%", "Apr 2026: company dollar = $122,973.75 - $77,785.91 - $3,303.13 - $7,378.44 = $34,506.27; margin = $938.82 / $34,506.27 = 2.7%", "May 2026: company dollar = $152,885.00 - $99,375.27 - $0.00 - $4,939.39 = $48,570.34; margin = $15,128.70 / $48,570.34 = 31.1%", "Jun 2026: company dollar = $143,330.00 - $83,170.43 - $15,375.50 - $2,950.00 = $41,834.07; margin = $8,933.25 / $41,834.07 = 21.4%", "Jul 2026: company dollar = $152,372.50 - $89,368.82 - $14,882.01 - $2,950.00 = $45,171.67; margin = $10,075.96 / $45,171.67 = 22.3%", "Aug 2026: company dollar = $118,777.50 - $56,988.27 - $13,998.25 - $2,655.00 = $45,135.98; margin = $9,464.69 / $45,135.98 = 21.0%", "Sep 2026: company dollar = $124,087.50 - $69,980.63 - $0.00 - $2,360.00 = $51,746.87; margin = $19,091.15 / $51,746.87 = 36.9%", "Period: company dollar = $1,076,878.75 - $623,335.34 - $75,196.65 - $38,980.00 = $339,366.76; margin = $41,233.00 / $339,366.76 = 12.1%", "Also in income, outside company dollar: fees charged to agents $6,750.00; other income $0.00.", "Advertising & Marketing:Online Lead Programs:Google PPC: $3,940.85 to $1,296.33 (-$2,644.52)", "Transaction Coordinator Fees: $3,150.00 to $2,800.00 (-$350.00)", "Advertising & Marketing:Listing Photos & Signs: $920.00 to $845.00 (-$75.00)", "Meals: $198.60 to $244.05 ($45.45)", "Advertising & Marketing:Client Appreciation: $285.00 to $330.00 ($45.00)", "Rent & Office:Utilities: $238.71 to $207.46 (-$31.25)", "Company dollar $339,366.76; operating expenses $304,883.76; net income $41,233.00; margin $41,233.00 / $339,366.76 = 12.1%.", "No prior-year months are in the file, so there is no year-over-year comparison.", "[P4 uncategorized] Uncategorized Expense holds $486.20 in Jul 2026.", "[P6 new_recurring_account] Software & Subscriptions:Video Editing App is new since Jun 2026 and recurs every month since: $79.00, $79.00, $79.00, $79.00.", "[P7 spike] Advertising & Marketing:Online Lead Programs:Google PPC in Aug 2026 is $3,940.85 against a usual $1,264.12 (+$2,676.73).", "[P9 brokerage_share_drop] Brokerage split and fees fell from about 6.0% of commission income (Jan 2026 to Apr 2026) to: May 2026 3.2%, Jun 2026 2.1%, Jul 2026 1.9%, Aug 2026 2.2%, Sep 2026 1.9%.", "[P9 price_change] Advertising & Marketing:Online Lead Programs:Pumpkinpatch Portal changed from $2,500.00 to $3,000.00 a month starting Jul 2026.", "Columns used: close_date = 'Close Date'; status = 'Status'; gci = 'GCI'; agent_paid = 'Agent Split'; team = 'Team Net'; referral = 'Referral Fee'; brokerage = 'Brokerage Fee'; source = 'Lead Source'; side = 'Side'", "Rows left out: 2 (status Pending); 1 (status Cancelled)", "Closings counted in the P&L months: 77", "Operating expenses per closing = $304,883.76 / 77 = $3,959.53", "Lead generation per closing = $37,987.77 / 77 = $493.35", "Company dollar per closing = $339,366.76 / 77 = $4,407.36", "Net income per closing = $41,233.00 / 77 = $535.49", "Average GCI per closing (production file) = $1,076,878.75 / 77 = $13,985.44", "Company dollar as a share of gross commission (gross months): $339,366.76 / $1,076,878.75 = 31.5%."]}, {"id": "dollar-months", "kind": "table", "label": "Company Dollar and Margin by Month", "finding": "A loss in each of January, February and March, then a profit every month from April.", "note": "Operating expenses stayed between $31,731 and $36,421 a month. Profit follows company dollar: the first quarter's company dollar of $22,799 to $26,300 a month didn't cover expenses.", "columns": [{"key": "month", "label": "Month", "type": "text", "sortKey": "ym"}, {"key": "cd", "label": "Company Dollar", "type": "usd"}, {"key": "opex", "label": "Operating Expenses", "type": "usd"}, {"key": "net", "label": "Net Income", "type": "usd"}, {"key": "margin", "label": "Margin", "type": "pct"}], "rows": [{"month": "Jan 2026", "ym": "2026-01", "cd": 23302.11, "opex": 32742.18, "net": -8690.07, "margin": -37.3, "_status": "off"}, {"month": "Feb 2026", "ym": "2026-02", "cd": 22799.06, "opex": 31731.13, "net": -8182.07, "margin": -35.9, "_status": "off"}, {"month": "Mar 2026", "ym": "2026-03", "cd": 26300.39, "opex": 32577.82, "net": -5527.43, "margin": -21.0, "_status": "off"}, {"month": "Apr 2026", "ym": "2026-04", "cd": 34506.27, "opex": 34317.450000000004, "net": 938.82, "margin": 2.7}, {"month": "May 2026", "ym": "2026-05", "cd": 48570.34, "opex": 34191.64, "net": 15128.7, "margin": 31.1}, {"month": "Jun 2026", "ym": "2026-06", "cd": 41834.07000000001, "opex": 33650.82, "net": 8933.25, "margin": 21.4}, {"month": "Jul 2026", "ym": "2026-07", "cd": 45171.66999999999, "opex": 35845.71, "net": 10075.96, "margin": 22.3}, {"month": "Aug 2026", "ym": "2026-08", "cd": 45135.98, "opex": 36421.29, "net": 9464.69, "margin": 21.0}, {"month": "Sep 2026", "ym": "2026-09", "cd": 51746.869999999995, "opex": 33405.72, "net": 19091.15, "margin": 36.9}], "sort": {"key": "month", "dir": "asc"}, "search": false, "chart": {"type": "columns", "x": "month", "label": "Net income by month", "series": [{"key": "net", "label": "Net Income"}], "legend": [{"status": "off", "label": "A month with a loss"}]}}, {"id": "mix", "kind": "bars", "label": "Expense Mix", "format": "pct", "finding": "People is 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.", "note": "People is salaries and wages, payroll taxes, health insurance, transaction coordinator fees and coaching and training. Agent splits are not in it.", "items": [{"label": "People", "text": "$184,827 for the period, 60.6% of operating expenses.", "bars": [{"value": 54.5, "text": "54.5% of company dollar"}]}, {"label": "Occupancy", "text": "$39,725 for the period, 13.0% of operating expenses.", "bars": [{"value": 11.7, "text": "11.7% of company dollar"}]}, {"label": "Lead Generation", "text": "$37,988 for the period, 12.5% of operating expenses.", "bars": [{"value": 11.2, "text": "11.2% of company dollar"}]}, {"label": "Other", "text": "$14,983 for the period, 4.9% of operating expenses.", "bars": [{"value": 4.4, "text": "4.4% of company dollar"}]}, {"label": "Marketing", "text": "$14,435 for the period, 4.7% of operating expenses.", "bars": [{"value": 4.3, "text": "4.3% of company dollar"}]}, {"label": "Tech", "text": "$12,439 for the period, 4.1% of operating expenses.", "bars": [{"value": 3.7, "text": "3.7% of company dollar"}]}, {"label": "Uncategorized", "text": "$486 for the period, 0.2% of operating expenses.", "bars": [{"value": 0.1, "text": "0.1% of company dollar"}]}], "detail": {"label": "Show The Table", "sort": {"key": "total", "dir": "desc"}, "columns": [{"key": "cat", "label": "Category", "type": "text"}, {"key": "total", "label": "Period Total", "type": "usd"}, {"key": "share_cd", "label": "Share of Company Dollar", "type": "pct"}, {"key": "share_opex", "label": "Share of Operating Expenses", "type": "pct"}], "rows": [{"cat": "Lead generation", "total": 37987.77, "share_cd": 11.2, "share_opex": 12.5}, {"cat": "Marketing", "total": 14435.0, "share_cd": 4.3, "share_opex": 4.7}, {"cat": "People", "total": 184826.92, "share_cd": 54.5, "share_opex": 60.6}, {"cat": "Tech", "total": 12439.0, "share_cd": 3.7, "share_opex": 4.1}, {"cat": "Occupancy", "total": 39725.42, "share_cd": 11.7, "share_opex": 13.0}, {"cat": "Other", "total": 14983.45, "share_cd": 4.4, "share_opex": 4.9}, {"cat": "Uncategorized", "total": 486.2, "share_cd": 0.1, "share_opex": 0.2}]}, "mathTitle": "Each category / company dollar, January to September 2026", "math": ["Lead generation: $37,987.77 / $339,366.76 = 11.2%", "Marketing: $14,435.00 / $339,366.76 = 4.3%", "People: $184,826.92 / $339,366.76 = 54.5%", "Tech: $12,439.00 / $339,366.76 = 3.7%", "Occupancy: $39,725.42 / $339,366.76 = 11.7%", "Other: $14,983.45 / $339,366.76 = 4.4%", "Uncategorized: $486.20 / $339,366.76 = 0.1%", "Total operating expenses: $304,883.76 / $339,366.76 = 89.8%"]}, {"id": "changed", "kind": "deltas", "label": "What Changed", "finding": "Biggest change: company dollar, up $6,611 from August to September.", "note": "Referral fees went from $13,998 in August to $0 in September and brokerage split and fees from $2,655 to $2,360, while agent splits rose with commission income. Lead generation fell $2,645 because Google PPC came back from $3,940.85 in August to $1,296.", "items": [{"label": "Company Dollar", "from": "$45,136", "fromLabel": "Aug", "to": "$51,747", "toLabel": "Sep", "change": "Up $6,611", "dir": "up", "text": "January to August average: $35,952 a month."}, {"label": "Lead Generation", "from": "$6,941", "fromLabel": "Aug", "to": "$4,296", "toLabel": "Sep", "change": "Down $2,645", "dir": "down", "text": "January to August average: $4,211 a month."}, {"label": "Marketing", "from": "$1,655", "fromLabel": "Aug", "to": "$1,625", "toLabel": "Sep", "change": "Down $30", "dir": "down", "text": "January to August average: $1,601 a month."}, {"label": "People", "from": "$20,692", "fromLabel": "Aug", "to": "$20,342", "toLabel": "Sep", "change": "Down $350", "dir": "down", "text": "January to August average: $20,561 a month."}, {"label": "Tech", "from": "$1,426", "fromLabel": "Aug", "to": "$1,426", "toLabel": "Sep", "change": "No change", "dir": "flat", "text": "January to August average: $1,377 a month."}, {"label": "Occupancy", "from": "$4,439", "fromLabel": "Aug", "to": "$4,407", "toLabel": "Sep", "change": "Down $31", "dir": "down", "text": "January to August average: $4,415 a month."}, {"label": "Other", "from": "$1,269", "fromLabel": "Aug", "to": "$1,309", "toLabel": "Sep", "change": "Up $40", "dir": "up", "text": "January to August average: $1,709 a month."}, {"label": "Net Income", "from": "$9,465", "fromLabel": "Aug", "to": "$19,091", "toLabel": "Sep", "change": "Up $9,626", "dir": "up", "text": "January to August average: $2,768 a month."}], "detail": {"label": "Show The Table", "columns": [{"key": "line", "label": "Line", "type": "text"}, {"key": "aug", "label": "Aug 2026", "type": "usd"}, {"key": "sep", "label": "Sep 2026", "type": "usd"}, {"key": "change", "label": "Change", "type": "text"}, {"key": "avg", "label": "Jan to Aug Average", "type": "usd"}], "rows": [{"line": "Company dollar", "aug": 45135.98, "sep": 51746.869999999995, "change": "$51,746.87 - $45,135.98 = $6,610.89", "avg": 35952.48625}, {"line": "Lead generation", "aug": 6940.85, "sep": 4296.33, "change": "$4,296.33 - $6,940.85 = -$2,644.52", "avg": 4211.43}, {"line": "Marketing", "aug": 1655.0, "sep": 1625.0, "change": "$1,625.00 - $1,655.00 = -$30.00", "avg": 1601.25}, {"line": "People", "aug": 20691.88, "sep": 20341.88, "change": "$20,341.88 - $20,691.88 = -$350.00", "avg": 20560.63}, {"line": "Tech", "aug": 1426.0, "sep": 1426.0, "change": "$1,426.00 - $1,426.00 = $0.00", "avg": 1376.625}, {"line": "Occupancy", "aug": 4438.71, "sep": 4407.46, "change": "$4,407.46 - $4,438.71 = -$31.25", "avg": 4414.745}, {"line": "Other", "aug": 1268.85, "sep": 1309.05, "change": "$1,309.05 - $1,268.85 = $40.20", "avg": 1709.3}, {"line": "Net income", "aug": 9464.69, "sep": 19091.15, "change": "$19,091.15 - $9,464.69 = $9,626.46", "avg": 2767.7312500000003}]}, "mathTitle": "Year to date", "math": ["Year to date (January to September 2026): company dollar $339,366.76; operating expenses $304,883.76; net income $41,233.00; margin $41,233.00 / $339,366.76 = 12.1%.", "No prior-year months are in the file, so there is no year-over-year comparison."]}, {"id": "closing", "kind": "bars", "label": "Cost per Closing and Lead Sources", "format": "usd", "finding": "Each lead source's share for the team, from the 77 closed deals in the export.", "callout": {"text": "Operating expenses per closing: **$3,960** across 77 closings, with $4,407 of company dollar and $535 of net income per closing."}, "note": "Lanternfly Leads is pay at close: its referral fees are its cost, and the team's share is already after them. Pumpkinpatch Portal and Google PPC are paid up front; their spend is the P&L account with the same name. Spend in one month often produces closings months later, so treat this as a rough nine-month view, not a verdict on any source.", "items": [{"label": "Sphere", "text": "16 closings, $237,859 of GCI. No spend line in the P&L.", "bars": [{"value": 85356.52, "text": "$85,357 team's share"}]}, {"label": "Lanternfly Leads", "text": "16 closings, $214,848 of GCI. Spend: $75,197 in referral fees. Kept $0.62 per $1 of fees.", "bars": [{"value": 46882.20999999999, "text": "$46,882 team's share"}]}, {"label": "Pumpkinpatch Portal", "text": "16 closings, $212,460 of GCI. Spend: $24,000. Returned $1.79 per $1 spent.", "bars": [{"value": 66930.64, "text": "$66,931 team's share"}]}, {"label": "Google PPC", "text": "11 closings, $166,072 of GCI. Spend: $13,988. Returned $3.54 per $1 spent.", "bars": [{"value": 63451.07, "text": "$63,451 team's share"}]}, {"label": "Past Client", "text": "8 closings, $104,098 of GCI. No spend line in the P&L.", "bars": [{"value": 33072.86, "text": "$33,073 team's share"}]}, {"label": "Agent Generated", "text": "7 closings, $98,308 of GCI. No spend line in the P&L.", "bars": [{"value": 31124.309999999998, "text": "$31,124 team's share"}]}, {"label": "Open House", "text": "3 closings, $43,235 of GCI. No spend line in the P&L.", "bars": [{"value": 12549.150000000001, "text": "$12,549 team's share"}]}], "detail": {"label": "Show The Table", "sort": {"key": "closings", "dir": "desc"}, "columns": [{"key": "source", "label": "Source", "type": "text"}, {"key": "closings", "label": "Closings", "type": "num"}, {"key": "gci", "label": "GCI", "type": "usd"}, {"key": "team", "label": "Team's Share", "type": "usd"}, {"key": "spend", "label": "Spend", "type": "text"}, {"key": "return", "label": "Return", "type": "text"}], "rows": [{"source": "Sphere", "closings": 16.0, "gci": 237858.75, "team": 85356.52, "spend": "no spend line", "return": "n/a"}, {"source": "Lanternfly Leads", "closings": 16.0, "gci": 214847.5, "team": 46882.20999999999, "spend": "$75,197", "return": "$46,882.21 / $75,196.65 = $0.62 per $1 of fees"}, {"source": "Pumpkinpatch Portal", "closings": 16.0, "gci": 212460.0, "team": 66930.64, "spend": "$24,000", "return": "($66,930.64 - $24,000.00) / $24,000.00 = $1.79 per $1 spent"}, {"source": "Google PPC", "closings": 11.0, "gci": 166072.5, "team": 63451.07, "spend": "$13,988", "return": "($63,451.07 - $13,987.77) / $13,987.77 = $3.54 per $1 spent"}, {"source": "Past Client", "closings": 8.0, "gci": 104097.5, "team": 33072.86, "spend": "no spend line", "return": "n/a"}, {"source": "Agent Generated", "closings": 7.0, "gci": 98307.5, "team": 31124.309999999998, "spend": "no spend line", "return": "n/a"}, {"source": "Open House", "closings": 3.0, "gci": 43235.0, "team": 12549.150000000001, "spend": "no spend line", "return": "n/a"}]}, "mathTitle": "Cost per closing, January to September 2026", "math": ["Operating expenses per closing = $304,883.76 / 77 = $3,959.53", "Lead generation per closing = $37,987.77 / 77 = $493.35", "Company dollar per closing = $339,366.76 / 77 = $4,407.36", "Net income per closing = $41,233.00 / 77 = $535.49", "Average GCI per closing (production file) = $1,076,878.75 / 77 = $13,985.44", "Monthly, operating expenses per closing ran from $3,108.33 (May, 11 closings) to $5,457.03 (January, 6 closings); the period figure is the one to use."]}, {"id": "anomalies", "kind": "callouts", "label": "Anomalies", "finding": "Five things to look at, most important first.", "note": "Charge-level checks need the QuickBooks Profit and Loss Detail export for the same months.", "items": [{"status": "hold", "chip": "Ask The Broker", "title": "Brokerage Split and Fees Dropped", "text": "From 6.0% of commission income (January to April) to 3.2% in May and 1.9% to 2.2% since. A cap, a fee change or something missing? A question for your broker (below)."}, {"status": "hold", "title": "Uncategorized Expense", "text": "$486.20 in July 2026."}, {"status": "hold", "title": "New Recurring Charge", "text": "Software & Subscriptions:Video Editing App, $79 a month since June 2026."}, {"status": "hold", "title": "One-Month Jump", "text": "Google PPC was $3,940.85 in August 2026 against a usual $1,264 (+$2,677), back to $1,296 in September."}, {"status": "hold", "title": "Price Change", "text": "Pumpkinpatch Portal went from $2,500 to $3,000 a month starting July 2026."}]}, {"id": "q-bookkeeper", "kind": "questions", "label": "Questions for the Bookkeeper", "finding": "Four questions about what was recorded, each with the numbers that raised it.", "items": [{"tag": "Uncategorized Expense", "ask": "Uncategorized Expense holds $486.20 in July. What is it, and which account should it move to?", "why": "Anomaly: an uncategorized expense, $486.20 in July 2026."}, {"tag": "Video Editing App", "ask": "Video Editing App started in June at $79 a month. Which subscription is it, and is it meant to continue?", "why": "Anomaly: a new recurring charge since June 2026."}, {"tag": "Google PPC in August", "ask": "Google PPC was $3,940.85 in August, $2,677 above its usual month. Was that one campaign, or a billing catch-up?", "why": "Anomaly: a one-month jump, back to $1,296 in September."}, {"tag": "Brokerage Split and Fees", "ask": "Brokerage split and fees dropped from 6.0% of commission income to 3.2% in May and 1.9% to 2.2% since. Is anything missing from that account from May on? (I'm asking the broker separately about a cap or fee change.)", "why": "The step-down marked Watch in How Revenue Is Recorded."}]}, {"id": "q-cpa", "kind": "prose", "label": "Questions for the CPA", "finding": "None from these numbers.", "paragraphs": ["Nothing in this run asks how something should be recorded or taxed."]}, {"id": "q-broker", "kind": "questions", "label": "Questions for the Broker", "finding": "One question about the brokerage cap.", "items": [{"tag": "Cap or Fee Change", "ask": "Our brokerage split and fees were 6.0% of commission income from January to April 2026, 3.2% in May and 1.9% to 2.2% from June to September. Did the team or its agents reach a cap in May, or did the fee schedule change? When does the cap year reset?", "why": "Only the broker knows the cap terms and when the cap year resets."}]}, {"id": "drafts", "kind": "drafts", "label": "Owner Brief and Email to the Bookkeeper", "finding": "Two drafts for you to read first. The brief may be shared with a partner, so it holds no one's pay.", "drafts": [{"label": "Owner Brief", "style": "memo", "to": "You, and a partner if you share it", "channel": "One page", "subject": "Owner Brief: Pinecone & Puddle Home Team P&L, January to September 2026", "body": "Bottom Line: We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. Our decision: keep or cancel Pumpkinpatch Portal at $3,000 a month.\nProfit: Period net income $41,233 on company dollar of $339,367 (12.1%). September net income $19,091 on company dollar of $51,747 (36.9%).\nHow Revenue Is Recorded: Gross every month, and it matches our closed-deal export month by month.\nWhere the Money Goes: People 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.\nWhat Changed: Company dollar rose from $45,136 in August to $51,747 in September; Google PPC came back down from its August jump.\nWhat Needs a Look:\n- Brokerage fees down since May: asking the broker whether we reached a cap or the fee schedule changed.\n- $486.20 uncategorized in July.\n- Video Editing App, new at $79 a month since June.\n- Google PPC at $3,940.85 in August.\nCost per Closing: $3,960 in operating expenses per closing across 77 closings, with $4,407 of company dollar and $535 of net income per closing.\nLead Sources: Google PPC returned $3.54 per $1 spent and Pumpkinpatch Portal $1.79; Lanternfly Leads kept $0.62 per $1 of referral fees.\nThe Decision: Keep or cancel Pumpkinpatch Portal ($3,000 a month since July; it was $2,500). For January to September it cost $24,000 and its 16 closings brought the team $66,931.\nWith the Bookkeeper: 4 questions to send; 1 question for the broker."}, {"label": "Email to the Bookkeeper", "to": "[Bookkeeper Name]", "channel": "Email draft", "subject": "Questions On The January To September P&L", "body": "Hi [Bookkeeper Name],\n\nI went through the January to September P&L against our closed-deal export. A few questions:\n\n1. Uncategorized Expense has $486.20 in July. What is it, and where should it go?\n2. Video Editing App started in June at $79 a month. Which subscription is it?\n3. Google PPC was $3,940.85 in August, well above its usual month. Was that one campaign, or a billing catch-up?\n4. Brokerage split and fees dropped to 3.2% of commission income in May and 1.9% to 2.2% since, from 6.0% before. Is anything missing from that account from May on?\n\nOnce the July item is moved, could you send an updated P&L by month as Excel?\n\nThanks,\n[Owner Name]", "flag": "Fill in [Bookkeeper Name] and [Owner Name] before sending."}]}, {"id": "check", "kind": "checklist", "label": "Check Before Sending", "finding": "Every figure in the drafts, traced to the analysis run (pnl_report.md), in the section named.", "items": [{"text": "Period net income and margin: $41,233, 12.1%", "source": "Company Dollar and Margin, Period"}, {"text": "Period company dollar: $339,367", "source": "Company Dollar and Margin, Period"}, {"text": "September net income, company dollar, margin: $19,091, $51,747, 36.9%", "source": "Company Dollar and Margin, Sep 2026"}, {"text": "August company dollar: $45,136", "source": "Changes"}, {"text": "Referral fees $13,998 (Aug) to $0 (Sep); brokerage $2,655 to $2,360", "source": "Company Dollar and Margin, Aug and Sep 2026 lines"}, {"text": "Months with a loss: January, February, March", "source": "Company Dollar and Margin table"}, {"text": "Brokerage share: 6.0% (Jan to Apr), 3.2% in May, 1.9% to 2.2% since", "source": "How Revenue Is Recorded; Flags (brokerage_share_drop)"}, {"text": "Expense shares: People 54.5%, occupancy 11.7%, lead generation 11.2%", "source": "Expense Mix"}, {"text": "Uncategorized: $486.20, July 2026", "source": "Flags (uncategorized)"}, {"text": "Video Editing App: $79 a month since June 2026", "source": "Flags (new_recurring_account)"}, {"text": "Google PPC: $3,940.85 in August; usual $1,264; +$2,677", "source": "Flags (spike)"}, {"text": "Pumpkinpatch Portal: $2,500 to $3,000 since July 2026; $24,000 spend; 16 closings; $66,931 team's share", "source": "Flags (price_change); Production, Lead Sources"}, {"text": "Cost per closing: $3,960; $4,407 and $535 per closing; 77 closings", "source": "Production, Cost per Closing"}, {"text": "Lead source returns: $3.54, $1.79, $0.62", "source": "Production, Lead Sources"}, {"text": "Placeholders: [Bookkeeper Name], [Owner Name]", "source": "fill in before sending"}, {"text": "Confirm the cap question with your broker before treating the lower brokerage fees as permanent.", "source": "your broker"}]}], "stamp": "Team P&L Review", "closing": "Every figure comes from the analysis run on your files, with its arithmetic. pnl_report.md holds every calculation, to share with your bookkeeper.", "findings": [{"status": "quiet", "chip": "Profit", "text": "The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months."}, {"status": "quiet", "chip": "Biggest Change", "text": "The biggest change in September was company dollar, **up $6,611** from August."}, {"status": "hold", "text": "Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, **a question for your broker**."}], "moves": [{"title": "Ask Your Broker About the Brokerage Fee Drop", "text": "Did the team or its agents reach a cap in May, or did the fee schedule change? And when does the cap year reset?", "tag": "Brokerage split and fees", "owner": ""}, {"title": "Send Your Bookkeeper the Four Questions", "text": "The $486.20 uncategorized in July, the Video Editing App at $79 a month, Google PPC at $3,940.85 in August, and the brokerage account from May on. The email is drafted below.", "tag": "The books", "owner": ""}], "decide": "Keep or cancel Pumpkinpatch Portal: $3,000 a month since July 2026 (it was $2,500). For January to September it cost $24,000, and its 16 closings brought the team $66,931."}</script>
 
 <script>
 (function () {
@@ -182,6 +446,8 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   var root = document.getElementById('page');
   var SVG = 'http://www.w3.org/2000/svg';
   var KEY = 'ai-page:' + (D.id || D.report || 'page') + ':';
+  var uid = 0;
+  function nextId(p) { return p + '-' + (++uid); }
 
   /* Text always goes in as text, never as markup. */
   function h(spec, attrs) {
@@ -204,20 +470,41 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); return node; }
   function store(k, v) { try { if (v == null) localStorage.removeItem(KEY + k); else localStorage.setItem(KEY + k, v); } catch (e) { /* storage off: kept for this visit only */ } }
   function recall(k) { try { return localStorage.getItem(KEY + k); } catch (e) { return null; } }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function plain(t) { return String(t == null ? '' : t).replace(/\*\*(.+?)\*\*/g, '$1'); }
+  /* **words** in any sentence become a highlighted phrase. Still text nodes, never markup. */
+  function rich(t) {
+    if (t == null || t === '') return null;
+    return String(t).split(/\*\*(.+?)\*\*/g).map(function (p, i) { return i % 2 ? h('strong.hl', p) : p; });
+  }
+  /* [Placeholders] in a draft become blanks to fill in. */
+  function blanks(t) {
+    return String(t || '').split(/(\[[^\]\n]{1,60}\])/g).map(function (p, i) { return i % 2 ? h('span.ph', p) : p; });
+  }
 
-  var PATHS = { on: 'M2.6 6.4 5 8.8 9.4 3.6', off: 'M3.2 3.2 8.8 8.8M8.8 3.2 3.2 8.8', hold: 'M2.5 6h7', quiet: 'M6 3v0M6 6v3', plus: 'M6 2v8M2 6h8', minus: 'M2 6h8' };
+  var PATHS = { on: 'M2.6 6.4 5 8.8 9.4 3.6', off: 'M3.2 3.2 8.8 8.8M8.8 3.2 3.2 8.8', hold: 'M2.5 6h7', quiet: 'M6 3v0M6 6v3', plus: 'M6 2v8M2 6h8', minus: 'M2 6h8',
+    chev: 'M2.5 4.5 6 8 9.5 4.5', right: 'M1.5 6h8.5M7 3l3 3-3 3', quote: 'M3 4h2.5v3L4 9.5M6.5 4H9v3L7.5 9.5', note: 'M3 2.5h6v7H3zM4.5 5h3M4.5 7h3' };
+  var SOLID = { up: 'M6 2.2 10.4 9.4H1.6z', down: 'M6 9.8 1.6 2.6h8.8z', flat: 'M1.5 4.5h9v3h-9z' };
   var WORD = { on: 'On', off: 'Off', hold: 'Watch', quiet: 'No Data' };
   function icon(name) {
     var s = document.createElementNS(SVG, 'svg');
-    s.setAttribute('viewBox', '0 0 12 12'); s.setAttribute('aria-hidden', 'true');
+    s.setAttribute('viewBox', '0 0 12 12'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
     var p = document.createElementNS(SVG, 'path');
-    p.setAttribute('d', PATHS[name] || PATHS.quiet); p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'currentColor');
-    p.setAttribute('stroke-width', '1.6'); p.setAttribute('stroke-linecap', 'round');
+    if (SOLID[name]) { p.setAttribute('d', SOLID[name]); p.setAttribute('fill', 'currentColor'); }
+    else {
+      p.setAttribute('d', PATHS[name] || PATHS.quiet); p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'currentColor');
+      p.setAttribute('stroke-width', '1.6'); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round');
+    }
     s.appendChild(p); return s;
   }
   function chip(status, text) {
     if (!status) return null;
     return h('span.chip.' + status, icon(status), h('span', text || WORD[status] || status));
+  }
+  /* The status word alone, beside an icon that is already there. */
+  function word(status, text) {
+    if (!status) return null;
+    return h('span.chip.' + status, text || WORD[status] || status);
   }
   function mark() {
     var s = document.createElementNS(SVG, 'svg');
@@ -233,24 +520,56 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       h('span.lockup-by', text.replace(/\s*Amplified Impact\s*$/, '')),
       h('span.wordmark', mark(), h('span', 'Amplified Impact')));
   }
-  var mathCount = 0;
+  /* Show The Details: a button that opens and closes what sits under it. Print opens every one. */
+  function disclose(label, body, open) {
+    var id = nextId('disc');
+    var wrap = h('div.disc-body', { id: id }, body);
+    if (!open) wrap.setAttribute('hidden', 'hidden');
+    var text = h('span', open ? label.replace(/^Show/, 'Hide') : label);
+    var btn = h('button.disc-toggle', { type: 'button', 'aria-expanded': String(!!open), 'aria-controls': id }, icon('chev'), text);
+    btn.addEventListener('click', function () {
+      var opening = wrap.hasAttribute('hidden');
+      if (opening) wrap.removeAttribute('hidden'); else wrap.setAttribute('hidden', 'hidden');
+      btn.setAttribute('aria-expanded', String(opening));
+      text.textContent = opening ? label.replace(/^Show/, 'Hide') : label;
+      if (opening) refresh(wrap);
+    });
+    return h('div.disc', btn, wrap);
+  }
   function math(lines, title) {
     if (!lines || !lines.length) return null;
-    var id = 'math-' + (++mathCount);
-    var body = h('div.math-body', { id: id, hidden: 'hidden' }, title ? h('p', title) : null, h('ul', lines.map(function (l) { return h('li', l); })));
-    var btn = h('button.math-toggle', { type: 'button', 'aria-expanded': 'false', 'aria-controls': id }, icon('plus'), h('span', 'Show The Math'));
-    btn.addEventListener('click', function () {
-      var opening = body.hasAttribute('hidden');
-      if (opening) body.removeAttribute('hidden'); else body.setAttribute('hidden', 'hidden');
-      btn.setAttribute('aria-expanded', String(opening));
-      clear(btn); put(btn, [icon(opening ? 'minus' : 'plus'), h('span', opening ? 'Hide The Math' : 'Show The Math')]);
-    });
-    return h('div', btn, body);
+    return disclose('Show The Math', h('div.math-body', title ? h('p', title) : null, h('ul', lines.map(function (l) { return h('li', l); }))));
   }
   function copyText(text, btn, label) {
     function done() { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = label; }, 1800); }
     function failed() { btn.textContent = 'Select And Copy By Hand'; setTimeout(function () { btn.textContent = label; }, 3000); }
     try { navigator.clipboard.writeText(text).then(done, failed); } catch (e) { failed(); }
+  }
+
+  /* ----- numbers ----- */
+  /* Whole dollars rounded half to even, as Python prints them, so a figure on the page matches the run's own file. */
+  function whole(v) { var r = Math.round(v); return Math.abs(v % 1) === 0.5 ? 2 * Math.round(v / 2) : r; }
+  function fmt(v, type) {
+    if (v == null || v === '') return '';
+    if (typeof v !== 'number') return String(v);
+    if (type === 'usd') return (v < 0 ? '−$' : '$') + Math.abs(whole(v)).toLocaleString('en-US');
+    if (type === 'usd2') return (v < 0 ? '−$' : '$') + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (type === 'pct') return (v < 0 ? '−' : '') + Math.abs(Math.round(v * 10) / 10).toFixed(1) + '%';
+    if (type === 'num') return v.toLocaleString('en-US');
+    return String(v);
+  }
+  function share(v, max) { return max > 0 ? Math.max(0, Math.min(100, v / max * 100)) : 0; }
+  /* A bar toward a goal: the track runs to the larger of the two, the line marks the goal. */
+  function goalBar(value, goal, status) {
+    var top = Math.max(value, goal);
+    var bar = h('div.pbar' + (status ? '.' + status : ''), { 'aria-hidden': 'true' }, h('span.pbar-fill'), goal > 0 ? h('span.pbar-goal') : null);
+    bar.firstChild.style.width = share(value, top) + '%';
+    if (goal > 0) bar.lastChild.style.left = share(goal, top) + '%';
+    return bar;
+  }
+  function deltaLine(d) {
+    var dir = d.dir === 'up' || d.dir === 'down' ? d.dir : 'flat';
+    return h('p.delta.' + dir, d.dir ? icon(dir) : icon('right'), h('span', rich(d.text || fmt(d.value, d.format))));
   }
 
   /* ----- top: lockup, data check, title, buttons, meta strip ----- */
@@ -260,15 +579,20 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     if (D.sample) out.push(D.sample);
     if (D.dataCheck && D.dataCheck.length) { out.push('', 'Data Check'); D.dataCheck.forEach(function (t) { out.push('- ' + t); }); }
     out.push('', 'Bottom Line: ' + (D.headline || []).join(' '));
-    if (D.findings && D.findings.length) { out.push('', 'What We Found'); D.findings.forEach(function (f) { out.push('- ' + (f.chip || WORD[f.status] || '') + ': ' + f.text); }); }
+    if (D.keyNumbers && D.keyNumbers.length) {
+      out.push('', 'Key Numbers');
+      D.keyNumbers.forEach(function (k) { out.push('- ' + k.label + ': ' + k.value + (k.chip || k.status ? ' (' + (k.chip || WORD[k.status]) + ')' : '') + (k.means ? '. ' + plain(k.means) : '')); });
+    }
+    if (D.findings && D.findings.length) { out.push('', 'What We Found'); D.findings.forEach(function (f) { out.push('- ' + (f.chip || WORD[f.status] || '') + ': ' + plain(f.text)); }); }
     if (D.moves && D.moves.length) {
       out.push('', D.movesLabel || 'First Moves');
       D.moves.forEach(function (m, i) {
         var o = owners[i] && owners[i].value ? ' Owner: ' + owners[i].value + '.' : '';
-        out.push((i + 1) + '. ' + m.title + (m.size ? ' (' + m.size + ')' : '') + ' ' + (m.text || '') + o);
+        out.push((i + 1) + '. ' + m.title + (m.size ? ' (' + m.size + ')' : '') + ' ' + plain(m.text || '') + o);
       });
     }
-    if (D.decide) out.push('', 'Decide: ' + D.decide);
+    if (D.decide) out.push('', 'Decide: ' + plain(D.decide));
+    picks.forEach(function (p) { if (p.get()) out.push('', p.label + ': ' + p.get()); });
     return out.join('\n');
   }
   function top() {
@@ -290,16 +614,34 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
     if (list.length < 4) return null;
     return h('nav.toc', { 'aria-label': 'Sections' }, list.map(function (s, i) { return h('a', { href: '#s-' + (s.id || i) }, s.label); }));
   }
-  /* ----- the bottom line: headline, what we found, first moves with editable owners, decide ----- */
+  function tile(t, key) {
+    return h('div.tile' + (key ? '.key' : ''),
+      h('div.tile-head', h('p.label', t.label), chip(t.status, t.chip)),
+      h('span.tile-num', t.value),
+      t.bar ? goalBar(t.bar.value, t.bar.goal, t.status) : null,
+      t.delta ? deltaLine(t.delta) : null,
+      t.unit ? h('p.tile-unit', rich(t.unit)) : null,
+      t.means ? h('p.tile-means', rich(t.means)) : null,
+      t.note ? h('p.tile-note', rich(t.note)) : null);
+  }
+  function callout(f, tag) {
+    var st = f.status || '';
+    return h((tag || 'div') + '.co' + (st ? '.' + st : ''),
+      h('span.co-icon', icon(f.icon || (st === 'quiet' || !st ? 'quiet' : st))),
+      h('div', f.title ? h('h3', f.title, word(st, f.chip)) : (f.chip || st ? h('h3', word(st, f.chip)) : null), f.text ? h('p', rich(f.text)) : null));
+  }
+  /* ----- the bottom line: headline, key numbers, what we found, first moves with editable owners, decide ----- */
   function bottom() {
     var hasMoves = D.moves && D.moves.length;
+    var hasFound = D.findings && D.findings.length;
     return h('section.bottom', { 'aria-label': 'Bottom Line' },
       h('p.eyebrow', 'Bottom Line'),
       h('h1.headline', (D.headline || []).map(function (l) { return h('span', l + ' '); })),
-      (D.findings && D.findings.length) || hasMoves ? h('div.summary',
-        D.findings && D.findings.length ? h('div.found' + (hasMoves ? '' : '.wide'),
+      D.keyNumbers && D.keyNumbers.length ? h('div.keys.tiles', { role: 'group', 'aria-label': 'Key Numbers' }, D.keyNumbers.map(function (k) { return tile(k, true); })) : null,
+      hasFound || hasMoves || D.decide ? h('div.summary',
+        hasFound ? h('div.found' + (hasMoves ? '' : '.wide'),
           h('h2.label', 'What We Found'),
-          h('ul', D.findings.map(function (f) { return h('li', chip(f.status, f.chip), h('span', f.text)); }))) : null,
+          h('ul', D.findings.map(function (f) { return callout({ status: f.status, chip: f.chip, text: f.text }, 'li'); }))) : null,
         hasMoves ? h('div.moves',
           h('h2.label', D.movesLabel || 'First Moves'),
           h('ol', D.moves.map(function (m, i) {
@@ -308,31 +650,24 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
             var saved = recall('owner-' + i); if (saved != null) input.value = saved;
             input.addEventListener('input', function () { store('owner-' + i, input.value); });
             owners[i] = input;
-            return h('li', h('span.idx', { 'aria-hidden': 'true' }, (i < 9 ? '0' : '') + (i + 1)), h('div',
-              h('h3', m.title), m.text ? h('p', m.text) : null,
+            return h('li', h('span.idx', { 'aria-hidden': 'true' }, pad(i + 1)), h('div',
+              h('h3', m.title), m.text ? h('p', rich(m.text)) : null,
               h('div.act-meta', m.tag ? h('span', m.tag) : null, m.size ? h('span.act-usd', m.size) : null,
                 h('label.act-owner', { 'for': id }, h('span', 'Owner'), input))));
           })),
-          D.decide ? h('div.decide', h('span.label', 'Decide'), h('p', D.decide)) : null) : null) : null);
+          D.decide ? h('div.decide', h('span.label', 'Decide'), h('p', rich(D.decide))) : null) : null,
+        !hasMoves && D.decide ? h('div.found.wide', h('h2.label', 'Decide'), h('blockquote.callout', rich(D.decide))) : null) : null);
   }
+
   /* ----- section kinds. Add a kind here once and every skill can use it. ----- */
-  /* Whole dollars rounded half to even, as Python prints them, so a figure on the page matches the run's own file. */
-  function whole(v) { var r = Math.round(v); return Math.abs(v % 1) === 0.5 ? 2 * Math.round(v / 2) : r; }
-  function fmt(v, type) {
-    if (v == null || v === '') return '';
-    if (typeof v !== 'number') return String(v);
-    if (type === 'usd') return (v < 0 ? '\u2212$' : '$') + Math.abs(whole(v)).toLocaleString('en-US');
-    if (type === 'pct') return (v < 0 ? '\u2212' : '') + Math.abs(Math.round(v * 10) / 10).toFixed(1) + '%';
-    if (type === 'num') return v.toLocaleString('en-US');
-    return String(v);
-  }
   function tableView(s) {
     var cols = s.columns || [], rows = (s.rows || []).slice();
     var st = { q: '', f: {}, key: s.sort ? s.sort.key : null, dir: s.sort && s.sort.dir === 'asc' ? 1 : -1, all: false };
     var limit = s.limit || 25;
+    var numeric = function (c) { return c.type === 'usd' || c.type === 'usd2' || c.type === 'num' || c.type === 'pct' || c.type === 'change'; };
     var tbody = h('tbody'), count = h('span.tbl-count', { role: 'status' }), more = h('button.btn.more', { type: 'button' }, 'Show All Rows');
     var heads = cols.map(function (c) {
-      var th = h('th' + (c.type === 'usd' || c.type === 'num' || c.type === 'pct' ? '.num' : ''), { scope: 'col' });
+      var th = h('th' + (numeric(c) ? '.num' : ''), { scope: 'col' });
       var b = h('button', { type: 'button' }, c.label);
       b.addEventListener('click', function () { if (st.key === c.key) st.dir = -st.dir; else { st.key = c.key; st.dir = (c.type === 'text' || !c.type) ? 1 : -1; } draw(); });
       th.appendChild(b); return th;
@@ -352,6 +687,16 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       tools.push(sel);
     });
     more.addEventListener('click', function () { st.all = true; draw(); });
+    function cell(c, r) {
+      var v = r[c.key];
+      if (c.type === 'status') return h('td', chip(v, r._chip));
+      if (c.type === 'change') {
+        if (typeof v !== 'number') return h('td.num.change', v == null ? '' : String(v));
+        var dir = v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+        return h('td.num.change', icon(dir), h('span', (v > 0 ? 'up ' : v < 0 ? 'down ' : 'no change ') + (v === 0 ? '' : fmt(Math.abs(v), c.format || 'num'))));
+      }
+      return h('td' + (numeric(c) ? '.num' : ''), fmt(v, c.type));
+    }
     function draw() {
       var shown = rows.filter(function (r) {
         if (st.q && cols.map(function (c) { return String(r[c.key] == null ? '' : r[c.key]); }).join(' ').toLowerCase().indexOf(st.q) < 0) return false;
@@ -367,11 +712,7 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       heads.forEach(function (th, i) { th.setAttribute('aria-sort', cols[i].key === st.key ? (st.dir > 0 ? 'ascending' : 'descending') : 'none'); });
       clear(tbody);
       shown.forEach(function (r, i) {
-        var tr = h('tr' + (r._status ? '.is-' + r._status : ''), cols.map(function (c) {
-          var v = r[c.key];
-          if (c.type === 'status') return h('td', chip(v, r._chip));
-          return h('td' + (c.type === 'usd' || c.type === 'num' || c.type === 'pct' ? '.num' : ''), fmt(v, c.type));
-        }));
+        var tr = h('tr' + (r._status ? '.is-' + r._status : ''), cols.map(function (c) { return cell(c, r); }));
         if (!st.all && i >= limit) tr.setAttribute('hidden', 'hidden');
         tbody.appendChild(tr);
       });
@@ -379,73 +720,334 @@ tr.is-on td:first-child { box-shadow: inset 3px 0 0 var(--good); }
       more.style.display = !st.all && shown.length > limit ? '' : 'none';
     }
     draw();
-    return [tools.length ? h('div.tbl-tools', tools, count) : null,
-      h('div.tbl-wrap', h('table', s.caption ? h('caption.label', { style: 'text-align:left;padding:8px 0' }, s.caption) : null, h('thead', h('tr', heads)), tbody)), more];
+    var wrap = h('div.tbl-wrap', { tabindex: '0', role: 'region', 'aria-label': (s.label || 'Table') + ', scrolls sideways' },
+      h('table', s.caption ? h('caption.label', { style: 'text-align:left;padding:8px 0' }, s.caption) : null, h('thead', h('tr', heads)), tbody));
+    var box = h('div.tbl-box', h('div.tbl-frame', wrap), h('p.swipe-cue', { 'aria-hidden': 'true' }, h('span', 'Swipe to see more'), icon('right')));
+    wrap.addEventListener('scroll', function () { scrollState(box); }, { passive: true });
+    return [tools.length ? h('div.tbl-tools', tools, count) : null, box, more];
   }
-  function tilesView(s) {
-    return h('div.tiles', (s.tiles || []).map(function (t) {
-      return h('div.tile', h('p.label', t.label), h('div.tile-fig', h('span.tile-num', t.value), chip(t.status, t.chip)),
-        t.unit ? h('p.tile-unit', t.unit) : null, t.note ? h('p.tile-note', t.note) : null);
-    }));
+  function scrollState(box) {
+    var w = box.querySelector('.tbl-wrap'); if (!w) return;
+    box.classList.toggle('is-over', w.scrollWidth > w.clientWidth + 2);
+    box.classList.toggle('at-end', w.scrollLeft + w.clientWidth >= w.scrollWidth - 2);
   }
+  function short(label) { var m = /^([A-Za-z]{3})[A-Za-z]* \d{4}/.exec(String(label)); return m ? m[1] : String(label); }
+  /* Columns over the table's rows. A row's status colors its bars; a partial row is hatched. */
+  function columns(rows, c, series, small) {
+    var vals = [];
+    rows.forEach(function (r) { series.forEach(function (se) { var v = r[se.key]; if (typeof v === 'number') vals.push(v); }); });
+    var max = Math.max.apply(null, [0].concat(vals)), min = Math.min.apply(null, [0].concat(vals)), span = (max - min) || 1;
+    var zero = -min / span * 100;
+    var plot = h('div.plot', { 'aria-hidden': 'true' });
+    rows.forEach(function (r) {
+      var g = h('div.colg' + (series.length > 1 ? '.n2' : ''));
+      series.forEach(function (se, i) {
+        var v = r[se.key]; if (typeof v !== 'number') return;
+        var b = h('span.bar.s' + (i + 1) + (r._partial ? '.partial' : '') + (r._status && series.length === 1 ? '.is-' + r._status : ''),
+          { title: r[c.x] + ': ' + se.label + ' ' + fmt(v, se.format || c.format) });
+        b.style.height = Math.abs(v) / span * 100 + '%';
+        if (v >= 0) b.style.bottom = zero + '%'; else b.style.top = (100 - zero) + '%';
+        g.appendChild(b);
+        if (!small && series.length === 1 && c.values !== false) {
+          var lab = h('span.val', fmt(v, se.format || c.format));
+          /* Above the bar; for a negative bar, just above the zero line, so it never meets the month labels. */
+          lab.style.bottom = 'calc(' + (v >= 0 ? zero + Math.abs(v) / span * 100 : zero) + '% + 2px)';
+          g.appendChild(lab);
+        }
+      });
+      plot.appendChild(g);
+    });
+    var z = h('span.zero'); z.style.bottom = zero + '%'; plot.appendChild(z);
+    var axis = small && rows.length ? h('div.xaxis.ends', { 'aria-hidden': 'true' }, h('span', short(rows[0][c.x])), h('span', short(rows[rows.length - 1][c.x])))
+      : h('div.xaxis', { 'aria-hidden': 'true' }, rows.map(function (r) { return h('span', short(r[c.x])); }));
+    return [plot, axis];
+  }
+  function chartView(s) {
+    var c = s.chart, rows = s.rows || [];
+    var colType = function (k) { var col = (s.columns || []).filter(function (x) { return x.key === k; })[0]; return col ? col.type : 'num'; };
+    var series = (c.series || []).map(function (se) { return { key: se.key, label: se.label, format: se.format || colType(se.key) }; });
+    var says = (c.label || s.label) + '. Every value is in the table under Table.';
+    var legend = [];
+    if (c.type !== 'multiples' && series.length > 1) series.forEach(function (se, i) { legend.push(h('span', h('i.sw' + (i ? '.s2' : '')), se.label)); });
+    (c.legend || []).forEach(function (l) { legend.push(h('span', h('i.sw.' + (l.status || 'partial')), l.label)); });
+    if (c.type === 'multiples') {
+      return h('figure.chart', { role: 'img', 'aria-label': says },
+        h('div.multiples', series.map(function (se) {
+          var last = rows.filter(function (r) { return !r._partial && typeof r[se.key] === 'number'; }).slice(-1)[0];
+          return h('div.mini', h('div.mini-head', h('h3', se.label), last ? h('span.mini-last', short(last[c.x]) + ': ' + fmt(last[se.key], se.format)) : null),
+            columns(rows, c, [se], true));
+        })),
+        legend.length ? h('div.legend', legend) : null);
+    }
+    return h('figure.chart', { role: 'img', 'aria-label': says }, columns(rows, c, series, false), legend.length ? h('div.legend', legend) : null);
+  }
+  function tableKind(s) {
+    if (!s.chart) return tableView(s);
+    var chartPane = h('div.pane', chartView(s));
+    var tablePane = h('div.pane', { hidden: 'hidden' }, tableView(s));
+    var bChart = h('button.vt', { type: 'button', 'aria-pressed': 'true' }, 'Chart');
+    var bTable = h('button.vt', { type: 'button', 'aria-pressed': 'false' }, 'Table');
+    function show(chartOn) {
+      if (chartOn) { chartPane.removeAttribute('hidden'); tablePane.setAttribute('hidden', 'hidden'); }
+      else { tablePane.removeAttribute('hidden'); chartPane.setAttribute('hidden', 'hidden'); refresh(tablePane); }
+      bChart.setAttribute('aria-pressed', String(chartOn)); bTable.setAttribute('aria-pressed', String(!chartOn));
+    }
+    bChart.addEventListener('click', function () { show(true); });
+    bTable.addEventListener('click', function () { show(false); });
+    return [h('div.view-toggle', { role: 'group', 'aria-label': 'Show ' + s.label + ' as' }, bChart, bTable), chartPane, tablePane];
+  }
+  function tilesView(s) { return h('div.tiles', (s.tiles || []).map(function (t) { return tile(t); })); }
   function listView(s) {
     return h('ul.items', (s.items || []).map(function (it) {
-      return h('li', it.status ? chip(it.status, it.chip) : h('span'), h('div', it.title ? h('h3', it.title) : null, it.text ? h('p', it.text) : null, math(it.math)));
+      return h('li', it.status ? chip(it.status, it.chip) : h('span'), h('div', it.title ? h('h3', it.title) : null, it.text ? h('p', rich(it.text)) : null, math(it.math)));
     }));
   }
   function timelineView(s) {
     return h('ol.tl', (s.items || []).map(function (it) {
-      return h('li', h('span.tl-date', it.date || ''), h('div', h('h3', it.title), it.text ? h('p', it.text) : null), chip(it.status, it.chip));
+      return h('li', h('span.tl-date', it.date || ''), h('div', h('h3', it.title), it.text ? h('p', rich(it.text)) : null), chip(it.status, it.chip));
     }));
+  }
+  /* More than `show` items: the first ones stay open, the rest wait behind Show All. */
+  function firstFew(s, items, render, wrapSpec, noun) {
+    var n = s.show || items.length;
+    var shown = h(wrapSpec, items.slice(0, n).map(render));
+    if (items.length <= n) return shown;
+    return [shown, disclose('Show All ' + items.length + ' ' + (noun || 'Items'), h(wrapSpec, items.slice(n).map(function (it, i) { return render(it, i + n); })))];
+  }
+  function calloutsView(s) {
+    return firstFew(s, s.items || [], function (it) { return callout(it); }, 'div.callouts', s.noun);
+  }
+  function notesView(s) {
+    return h('div.notes', (s.items || []).map(function (it) {
+      return h('figure.nt', h('span.nt-q', { 'aria-hidden': 'true' }, '“'),
+        h('div', it.title ? h('h3', it.title) : null, h('p', rich(it.text)), it.source ? h('figcaption.nt-src', it.source) : null));
+    }));
+  }
+  function pledgesView(s) {
+    return h('ol.pledges', (s.items || []).map(function (it, i) {
+      return h('li.pl' + (it.status ? '.' + it.status : ''),
+        h('span.pl-mark', { 'aria-hidden': 'true' }, it.status === 'quiet' ? '?' : String(i + 1)),
+        h('div',
+          it.title ? h('p.label', it.title) : null,
+          h('p.pl-words', '“' + it.words + '”'),
+          it.owner || it.due ? h('div.pl-chips', it.owner ? h('span.tag', h('b', 'Owner'), it.owner) : null, it.due ? h('span.tag', h('b', 'Due'), it.due) : null) : null,
+          h('p.pl-status', chip(it.status, it.chip), h('span', rich(it.statusText || 'No status given.'))),
+          it.fact ? h('p.pl-fact', rich(it.fact)) : null));
+    }));
+  }
+  function questionsView(s) {
+    function card(it, i) {
+      var why = null, btn = null;
+      if (it.why) {
+        var id = nextId('why');
+        why = h('div.why', { id: id, hidden: 'hidden' }, h('b', it.whyLabel || 'Why Ask This'), rich(it.why));
+        btn = h('button.why-toggle', { type: 'button', 'aria-expanded': 'false', 'aria-controls': id }, icon('chev'), h('span', it.whyLabel || 'Why Ask This'));
+        btn.addEventListener('click', function () {
+          var opening = why.hasAttribute('hidden');
+          if (opening) why.removeAttribute('hidden'); else why.setAttribute('hidden', 'hidden');
+          btn.setAttribute('aria-expanded', String(opening));
+        });
+      }
+      return h('article.qc', h('p.qc-num', pad(i + 1) + (it.tag ? '' : '')), it.tag ? h('p.qc-tag', it.tag) : null, h('p.qc-ask', it.ask), btn, why);
+    }
+    return firstFew(s, s.items || [], card, 'div.deck', s.noun || 'Questions');
+  }
+  var picks = [];
+  function choicesView(s) {
+    var key = 'pick-' + (s.id || 'choices');
+    var tiles = [], buttons = [];
+    var saved = recall(key);
+    function set(idx) {
+      tiles.forEach(function (t, i) { t.classList.toggle('picked', i === idx); buttons[i].setAttribute('aria-pressed', String(i === idx)); buttons[i].textContent = i === idx ? 'Picked' : 'Pick This One'; });
+      store(key, idx == null ? null : String(idx));
+    }
+    var items = s.items || [];
+    items.forEach(function (it, i) {
+      var b = s.pickable === false ? null : h('button.pick', { type: 'button', 'aria-pressed': 'false' }, 'Pick This One');
+      if (b) b.addEventListener('click', function () { set(b.getAttribute('aria-pressed') === 'true' ? null : i); });
+      buttons.push(b);
+      tiles.push(h('article.ch',
+        h('p.ch-opt', it.option || 'Option ' + (i + 1)),
+        h('h3', it.title),
+        it.big ? h('div', h('p.ch-big', it.big), it.bigLabel ? h('p.ch-big-label', it.bigLabel) : null) : null,
+        it.bar ? goalBar(it.bar.value, it.bar.goal, it.status) : null,
+        it.facts && it.facts.length ? h('ul.ch-facts', it.facts.map(function (f) { return h('li', rich(f)); })) : null,
+        it.open ? h('div.ch-open', h('b', it.openLabel || 'To Open It'), rich(it.open)) : null,
+        b));
+    });
+    if (s.pickable !== false) {
+      picks.push({ label: s.pickLabel || 'Picked', get: function () { var v = recall(key); return v == null || !items[+v] ? '' : items[+v].title; } });
+      if (saved != null && items[+saved]) set(+saved);
+    }
+    return h('div.choices', tiles);
+  }
+  function agendaView(s) {
+    var items = s.items || [];
+    var total = 0; items.forEach(function (it) { total += +it.minutes || 0; });
+    var track = h('div.ros-track', { 'aria-hidden': 'true' }, items.map(function (it, i) {
+      var seg = h('span.ros-seg', { title: it.title + ', ' + it.minutes + ' minutes' }, String(i + 1));
+      seg.style.flex = (+it.minutes || 1) + ' 1 0'; return seg;
+    }));
+    return h('div.ros', { role: 'group', 'aria-label': s.label },
+      h('div.ros-head', h('h3', s.agendaTitle || 'Run Of Show'), s.when ? h('span.ros-when', s.when) : null),
+      track,
+      h('ol.ros-list', items.map(function (it, i) {
+        var times = String(it.time || '').split(' / ');
+        var row = h('li.ros-item',
+          h('p.ros-time', times[0], times[1] ? h('span', times[1]) : null),
+          h('div.ros-rail', h('span.ros-dot', { 'aria-hidden': 'true' }, String(i + 1))),
+          h('div.ros-body', h('h4', it.title), it.text ? h('p', rich(it.text)) : null),
+          it.minutes ? h('span.ros-min', it.minutes + ' min') : null);
+        row.style.setProperty('--min', Math.min(+it.minutes || 5, 20));
+        return row;
+      })));
+  }
+  function progressView(s) {
+    return [s.goalLegend ? h('p.legend-line', h('i'), h('span', s.goalLegend)) : null,
+      h('div.progress', (s.items || []).map(function (it) {
+        return h('div.prog',
+          h('div', h('h3', it.label), chip(it.status, it.chip)),
+          h('div', typeof it.goal === 'number' ? goalBar(it.value, it.goal, it.status) : null,
+            h('p.prog-nums', h('b', it.valueText || fmt(it.value, 'num')), it.goalText ? h('span', it.goalText) : null, it.pctText ? h('span', it.pctText) : null),
+            it.text ? h('p.prog-text', rich(it.text)) : null, math(it.math)));
+      }))];
+  }
+  function metersView(s) {
+    return h('div.meters', (s.items || []).map(function (it) {
+      var track = h('div.meter-track', { 'aria-hidden': 'true' }, h('span.meter-fill'));
+      track.firstChild.style.width = share(it.value, 100) + '%';
+      if (typeof it.target === 'number') { var m = h('span.meter-mark'); m.style.left = share(it.target, 100) + '%'; track.appendChild(m); }
+      return h('div.meter' + (it.status ? '.' + it.status : ''),
+        h('div.tile-head', h('h3', it.label), chip(it.status, it.chip)),
+        h('p.meter-big', it.valueText || fmt(it.value, 'pct')),
+        track, h('div.meter-scale', { 'aria-hidden': 'true' }, h('span', '0%'), h('span', '100%')),
+        it.targetText ? (typeof it.target === 'number' ? h('p.meter-text', h('span.legend-line', h('i'), h('span', it.targetText))) : h('p.meter-text', it.targetText)) : null,
+        it.text ? h('p.meter-text', rich(it.text)) : null);
+    }));
+  }
+  function barsView(s) {
+    var items = s.items || [];
+    var all = []; items.forEach(function (it) { (it.bars || []).forEach(function (b) { all.push(b.value); }); });
+    var shared = Math.max.apply(null, [0].concat(all));
+    var pairs = items.length > 2 && items.every(function (it) { return (it.bars || []).length > 1; });
+    return h('div.hbars' + (pairs ? '.pairs' : ''), items.map(function (it) {
+      var bars = it.bars || [];
+      var top = s.scale === 'item' ? Math.max.apply(null, [0].concat(bars.map(function (b) { return b.value; }))) : shared;
+      var solo = bars.length === 1 && !bars[0].label;
+      return h('div.hbar-item', h('h3', it.label), it.text ? h('p', rich(it.text)) : null,
+        bars.map(function (b, i) {
+          var fill = h('span.hbar-fill' + (i ? '.b2' : '') + (b.status ? '.' + b.status : ''));
+          fill.style.width = share(b.value, top) + '%';
+          return h('div.hbar' + (solo ? '.solo' : ''), solo ? null : h('span.hbar-lab', b.label),
+            h('span.hbar-track', { 'aria-hidden': 'true' }, fill), h('span.hbar-val', b.text || fmt(b.value, s.format)));
+        }));
+    }));
+  }
+  function deltasView(s) {
+    return h('div.deltas', (s.items || []).map(function (it) {
+      var dir = it.dir === 'up' || it.dir === 'down' || it.dir === 'flat' ? it.dir : '';
+      return h('div.dl-row',
+        h('h3', it.label),
+        h('p.dl-move', it.from != null ? h('span.from', it.fromLabel ? it.fromLabel + ' ' + it.from : it.from) : null, it.from != null ? icon('right') : null,
+          h('span.to', it.toLabel ? it.toLabel + ' ' + it.to : it.to)),
+        it.change ? h('span.dl-change', dir ? icon(dir) : null, h('span', it.change)) : h('span'),
+        it.text ? h('p.dl-text', rich(it.text)) : null);
+    }));
+  }
+  function memoView(d) {
+    var parts = [], cur = null;
+    String(d.body || '').split('\n').forEach(function (line) {
+      var m = /^([A-Z][A-Za-z&' ]{1,40}):\s*(.*)$/.exec(line);
+      if (m) { cur = { head: m[1], lines: m[2] ? [m[2]] : [], bullets: [] }; parts.push(cur); }
+      else if (/^- /.test(line) && cur) cur.bullets.push(line.slice(2));
+      else if (line.trim() && cur) cur.lines.push(line);
+      else if (line.trim()) { cur = { head: '', lines: [line], bullets: [] }; parts.push(cur); }
+    });
+    return parts.map(function (p) {
+      return h('div.memo-part', p.head ? h('h4', p.head) : null, p.lines.map(function (l) { return h('p', blanks(l)); }),
+        p.bullets.length ? h('ul', p.bullets.map(function (b) { return h('li', blanks(b)); })) : null);
+    });
   }
   function draftsView(s) {
     return (s.drafts || []).map(function (d) {
       var btn = h('button.btn', { type: 'button' }, 'Copy Draft');
       var text = (d.subject ? 'Subject: ' + d.subject + '\n\n' : '') + (d.body || '');
       btn.addEventListener('click', function () { copyText(text, btn, 'Copy Draft'); });
+      if (d.style === 'memo') {
+        return h('article.memo',
+          h('div.memo-top', h('span.memo-kind', d.label || 'Memo'), btn),
+          d.subject ? h('h3.memo-title', d.subject) : null,
+          h('p.memo-to', d.to ? 'For: ' + d.to : null, d.channel ? (d.to ? ' · ' : '') + d.channel : null),
+          memoView(d),
+          d.flag ? h('p.draft-flag', { style: 'margin-top:14px' }, d.flag) : null);
+      }
       return h('article.draft',
-        h('div.draft-head', h('div.draft-meta', h('b', d.label || 'Draft'), d.to ? ' \u00b7 To: ' + d.to : '', d.channel ? ' \u00b7 ' + d.channel : ''), btn),
+        h('div.draft-head', h('div.draft-meta', h('b', d.label || 'Draft'), d.to ? ' · To: ' + d.to : '', d.channel ? ' · ' + d.channel : ''), btn),
         d.subject ? h('div.draft-meta', { style: 'padding:10px 14px 0' }, h('b', 'Subject: '), d.subject) : null,
-        h('div.draft-body', d.body || ''),
+        h('div.draft-body', blanks(d.body)),
         d.flag ? h('p.draft-flag', d.flag) : null);
     });
   }
   function checklistView(s) {
-    return h('ul.check', (s.items || []).map(function (it, i) {
+    var items = s.items || [];
+    var countText = h('span'), bar = h('div.pbar', { 'aria-hidden': 'true' }, h('span.pbar-fill'));
+    var boxes = [];
+    function tally() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      countText.textContent = n + ' of ' + items.length + ' checked';
+      bar.firstChild.style.width = share(n, items.length) + '%';
+    }
+    var list = h('ul.check', items.map(function (it, i) {
       var id = (s.id || 'check') + '-' + i;
-      var box = h('input', { type: 'checkbox', id: id });
-      var li = h('li', box, h('label', { 'for': id }, h('span', it.text), it.source ? h('span.src', 'Check against: ' + it.source) : null));
+      var box = h('input', { type: 'checkbox', id: id }); boxes.push(box);
+      var li = h('li', box, h('label', { 'for': id }, h('span', rich(it.text)), it.source ? h('span.src', 'Check against: ' + it.source) : null));
       if (recall(id) === '1') { box.checked = true; li.classList.add('done'); }
-      box.addEventListener('change', function () { store(id, box.checked ? '1' : null); li.classList.toggle('done', box.checked); });
+      box.addEventListener('change', function () { store(id, box.checked ? '1' : null); li.classList.toggle('done', box.checked); tally(); });
       return li;
     }));
+    tally();
+    return [h('div.check-count', { 'aria-live': 'polite' }, countText, bar), list];
   }
-  function proseView(s) { return h('div.prose', (s.paragraphs || []).map(function (p) { return h('p', p); })); }
-  var KINDS = { table: tableView, tiles: tilesView, list: listView, timeline: timelineView, drafts: draftsView, checklist: checklistView, prose: proseView };
+  function proseView(s) { return h('div.prose', (s.paragraphs || []).map(function (p) { return h('p', rich(p)); })); }
+  var KINDS = { table: tableKind, tiles: tilesView, list: listView, timeline: timelineView, drafts: draftsView, checklist: checklistView, prose: proseView,
+    progress: progressView, meters: metersView, bars: barsView, deltas: deltasView, callouts: calloutsView, notes: notesView,
+    commitments: pledgesView, questions: questionsView, choices: choicesView, agenda: agendaView };
   function section(s, i) {
     var view = KINDS[s.kind]; if (!view) return null;
+    var body = view(s);
+    var c = s.callout;
     return h('section.row', { id: 's-' + (s.id || i), 'aria-label': s.label },
-      h('div.rail', h('div.rail-in', h('p.eyebrow', s.label), s.finding ? h('h2', s.finding) : null, s.note ? h('p.note', s.note) : null, s.flag ? chip(s.flag.status, s.flag.text) : null)),
-      h('div.proof', view(s), math(s.math, s.mathTitle)));
+      h('div.rail', h('div.rail-in', h('p.eyebrow', h('span.sec-num', pad(i + 1)), s.label), s.finding ? h('h2', rich(s.finding)) : null,
+        s.note ? h('p.note', rich(s.note)) : null, s.flag ? chip(s.flag.status, s.flag.text) : null)),
+      h('div.proof',
+        c ? h('blockquote.callout' + (c.status ? '.' + c.status : ''), c.status ? chip(c.status, c.chip) : null, h('p', rich(c.text || c))) : null,
+        s.collapsed ? disclose(s.collapsedLabel || 'Show The Details', body) : body,
+        s.detail ? disclose(s.detail.label || 'Show The Table', tableView(Object.assign({}, s.detail, { label: s.label + ', Full Table' }))) : null,
+        math(s.math, s.mathTitle)));
   }
   function end() {
     return [h('div.end', h('p.brand', D.stamp || D.report), D.closing ? h('p', D.closing) : null, D.sample ? h('p', D.sample) : null,
-      h('p', 'Nothing you do on this page changes your numbers or sends anything. Names you type and boxes you tick stay in this browser only.')),
+      h('p', 'Nothing you do on this page changes your numbers or sends anything. Names you type, boxes you tick and options you pick stay in this browser only.')),
       lockup('div.lockup.lockup-end')];
   }
   put(root, [top(), toc(), bottom(), (D.sections || []).map(section), end()]);
 
   /* A long figure ("$8,841,500") steps its tile number down until it fits its tile, never below 22px. */
-  function fitTiles() {
-    Array.prototype.forEach.call(document.querySelectorAll('.tile-num'), function (n) {
+  function fitTiles(scope) {
+    Array.prototype.forEach.call((scope || document).querySelectorAll('.tile-num'), function (n) {
       n.style.fontSize = '';
+      if (!n.offsetParent) return;
       var size = parseFloat(getComputedStyle(n).fontSize);
-      while (n.scrollWidth > n.parentNode.clientWidth && size > 22) { size -= 2; n.style.fontSize = size + 'px'; }
+      while (n.scrollWidth > n.parentNode.clientWidth - 36 && size > 22) { size -= 2; n.style.fontSize = size + 'px'; }
     });
   }
-  fitTiles();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTiles);
-  window.addEventListener('resize', fitTiles);
+  function refresh(scope) {
+    fitTiles(scope);
+    Array.prototype.forEach.call((scope || document).querySelectorAll('.tbl-box'), scrollState);
+  }
+  refresh();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { refresh(); });
+  window.addEventListener('resize', function () { refresh(); });
 })();
 </script>
 </body>

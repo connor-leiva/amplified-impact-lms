@@ -8,6 +8,7 @@ source drift apart. Never edit a file in `downloads/` by hand: edit the source h
 ```
 skills/
   _shared/                 canonical references, copied into each skill that lists them (skill.json "shared")
+  _page-kit/               the shared page kit, shipped inside each skill with skill.json "pageKit" (below)
   <name>/
     skill.json             the build manifest (below)
     SKILL.md               what Claude reads
@@ -55,7 +56,39 @@ Never shipped in the Claude skill: `skill.json`, `chatgpt/`, `grok/`, `practice/
 `name` is the folder and the skill's `name`. `page` is the page slug, which is also the sign-up source
 and the GoHighLevel tag; it equals `name` except where a skill already had another name
 (`content-opportunity-research` is the Content Strategist, at `/content-strategist`). `apps` lists
-`chatgpt` only when `chatgpt/` exists, and `grok` only when `grok/` exists.
+`chatgpt` only when `chatgpt/` exists, and `grok` only when `grok/` exists. `"pageKit": true` marks a skill
+that hands back a page (below).
+
+## Page Kit
+
+A skill with `"pageKit": true` hands back one HTML page the owner can sort, search and print, plus four lines in
+the chat, instead of a long reply. The kit lives once, in `skills/_page-kit/`, and is never copied into a skill
+folder: the build adds `scripts/build_page.py`, `assets/base-template.html`, `assets/fonts.css`,
+`assets/FONT-LICENSE.txt` and `references/page-format.md` to the Claude ZIP, and `chatgpt-kit/page-kit.md`
+(the page format, the build and the template in one file, from `scripts/make_chatgpt_kit.py`) to the ChatGPT
+ZIP as one of its 4 files. `_page-kit` is not a skill. Its shipped copies are held to it by the drift test.
+
+- **The page.** A plain headline and 3 to 5 key numbers first, then one row per item of "Output, In This
+  Order". Numbers become pictures where a picture reads faster (progress bars, meters, bars, charts), and each
+  real-world element keeps its own form: an email, a memo, a run of show, a prompt deck, a pledge, choice tiles,
+  status callouts. Details wait behind Show The Details. `references/page-format.md` says which kind fits which
+  output; the model reads it, writes `page.json` and `words.json`, and runs the build.
+- **The build** stops on a number not in the facts or the user's files, a clock time without MT (it adds the
+  CT time beside each), a heading not in Title Case, "industry standard", a line saying something was sent, a
+  page with drafts and no Check Before Sending, more than five key numbers, and a section missing its own
+  fields. It drops em and en dashes and ".00" with a note.
+- **Converting a skill:** set `"pageKit": true` and bump the version; in SKILL.md add "Before You Start: Code"
+  after the purpose and "Hand It Back As A Page" as the last step, and name each output item's kind in
+  "Output, In This Order"; give the ChatGPT version the same step (it must name `page-kit.md`); describe the
+  page in `page-notes.md`; build a sample page from the practice files under `evals/page/` with its
+  `build.json`, and check and shoot it:
+  `python3 skills/_page-kit/tests/check_skill_page.py skills/<name>` (it builds clean, every number on it
+  traces, sections in order, offline, no contact or account details) and
+  `node skills/_page-kit/tests/shoot_page.cjs skills/<name>/evals/page/<Page>.html` (1280, 390 and expanded
+  screenshots, a Letter PDF).
+- **Tests:** `python3 skills/_page-kit/tests/run_tests.py` (the build's checks, in CI) and
+  `apps/web/src/guides/page-kit.test.ts` (every section kind draws in its own form, and every committed sample
+  page draws with no script error).
 
 ## grok/ (D-108)
 

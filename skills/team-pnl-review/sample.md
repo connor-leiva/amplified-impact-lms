@@ -1,6 +1,6 @@
 # Team P&L Review: Pinecone & Puddle Home Team, January to September 2026
 
-*The skill now hands this back as one page, with the same sections in the same order: see `evals/page/Team-PnL-Review-Sample.html` and its screenshots (`Team-PnL-Review-Sample-1280.png`, `Team-PnL-Review-Sample-390.png`) and PDF beside it. The text below is the same run's content as text.*
+*The skill now hands this back as one page, with the same sections in the same order: see `evals/page/Team-PnL-Review-Sample.html` and its screenshots (`Team-PnL-Review-Sample-1280.png`, `Team-PnL-Review-Sample-390.png`, and `Team-PnL-Review-Sample-1280-expanded.png` with every section opened) and PDF beside it. The text below is the same run's content as text.*
 
 **Bottom line:** The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months. The biggest change in September was company dollar, up 6,610.89 from August, and brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, a question for your broker. The one decision: keep or cancel Pumpkinpatch Portal (3,000.00 a month since July 2026; it was 2,500.00).
 

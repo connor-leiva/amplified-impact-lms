@@ -2,7 +2,7 @@
 
 *Made-up example: what the skill returned for the three practice files and the practice prompt, run on 2026-11-10 and graded in evals/runs/case-1/grading.md (10 of 10 expectations, every objective check passing). Every team, agent, brokerage, street and number is made up. The prompt names the day the numbers were pulled (November 10, 2026), so a run on another day should match it.*
 
-*The skill now hands this back as one page, with the same sections in the same order: see `evals/page/Agent-1on1-Prep-Sample.html` and its screenshots (`Agent-1on1-Prep-Sample-1280.png`, `Agent-1on1-Prep-Sample-390.png`) and PDF beside it. The text below is the same run's content as text.*
+*The skill now hands this back as one page, with the same sections in the same order: see `evals/page/Agent-1on1-Prep-Sample.html` and its screenshots (`Agent-1on1-Prep-Sample-1280.png`, `Agent-1on1-Prep-Sample-390.png`, and `Agent-1on1-Prep-Sample-1280-expanded.png` with every section opened) and PDF beside it. The text below is the same run's content as text.*
 
 Prompt: "Prep my one-on-one with Marigold Fizzwhistle, Thursday, November 12 at 10:00 AM, 30 minutes. Attached: her Sisu numbers (pulled November 10, 2026), her 2026 goals and my notes from our last one-on-one. My notes for this one: she texted me on 10/29 that she finished calling the Q3 buyers. I haven't seen the listing presentation draft yet. She says the 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads."
 

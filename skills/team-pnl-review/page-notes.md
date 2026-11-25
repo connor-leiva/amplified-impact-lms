@@ -46,7 +46,7 @@ One page you can sort, search and print (an HTML file to download, the same layo
 - Questions for your bookkeeper and your CPA (and your broker, when a cap or fee question comes up), a one-page owner brief, and a draft email to your bookkeeper.
 - A Check Before Sending list you can tick (the ticks stay in your browser), and beside the page, the full calculation file (pnl_report.md) to share.
 
-Tables sort and search, every Show The Math opens the arithmetic, each draft has a Copy Draft button, and Print Or Save As PDF prints it on Letter paper. Nothing you do on the page changes your books or sends anything. A made-up sample: `evals/page/Team-PnL-Review-Sample.html` (screenshots and PDF beside it).
+The page opens with a plain headline and four key numbers (net income, September with its change from August, company dollar, and the brokerage fee step-down marked Watch), then charts where they read faster: brokerage fees by month, net income by month with loss months in red, expense mix and lead sources as bars, and what changed as up and down arrows in words. Anomalies are Watch callouts, questions are a numbered deck with the flag behind each, the owner brief looks like a memo and the bookkeeper email like an email. Dollar amounts are whole dollars ("$6,611") except a charge your bookkeeper will look up ("$486.20"). Tables and the arithmetic wait behind Show The Details; Print Or Save As PDF opens everything on Letter paper. Nothing you do on the page changes your books or sends anything. A made-up sample: `evals/page/Team-PnL-Review-Sample.html` (screenshots, an expanded screenshot and a PDF beside it).
 
 ## What It Won't Do
 

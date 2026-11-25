@@ -27,89 +27,175 @@
  ],
  "dataCheck": [],
  "headline": [],
+ "keyNumbers": [
+  {
+   "label": "Closed Units",
+   "value": "20",
+   "status": "on",
+   "chip": "At Goal",
+   "bar": {
+    "value": 20.0,
+    "goal": 20.0
+   },
+   "means": "**20 closings** through October. Her prorated goal by now: 20.0 (100.0%)."
+  },
+  {
+   "label": "Signed",
+   "value": "33",
+   "status": "hold",
+   "chip": "Under Goal",
+   "bar": {
+    "value": 33.0,
+    "goal": 40.0
+   },
+   "means": "**33 signed agreements** through October. Her prorated goal by now: 40.0 (82.5%)."
+  },
+  {
+   "label": "Appointments Set",
+   "value": "85",
+   "status": "hold",
+   "chip": "Under Goal",
+   "bar": {
+    "value": 85.0,
+    "goal": 100.0
+   },
+   "means": "**85 appointments set** through October. Her prorated goal by now: 100.0 (85.0%)."
+  },
+  {
+   "label": "GCI",
+   "value": "$221,035",
+   "status": "hold",
+   "chip": "Under Goal",
+   "bar": {
+    "value": 221035.0,
+    "goal": 225000.0
+   },
+   "means": "**$221,035** of GCI through October. Her prorated goal by now: $225,000 (98.2%)."
+  }
+ ],
  "sections": [
   {
    "id": "flags",
-   "kind": "list",
+   "kind": "callouts",
    "label": "Flags",
+   "show": 3,
+   "noun": "Flags",
    "finding": "What was read, the dates it runs on, and what was left out.",
    "items": [
     {
-     "title": "Files Read",
-     "text": "PRACTICE Sisu Monthly Numbers Marigold Fizzwhistle 2026-11-10.csv (one row per month, January to November 2026), PRACTICE Marigold Fizzwhistle 2026 Goals.md, PRACTICE Last 1on1 Notes 2026-10-08.txt, and your notes for this one-on-one from your message."
-    },
-    {
-     "title": "As Of 11/10/2026",
-     "text": "You said the numbers were pulled November 10, 2026, and the file name carries 2026-11-10. The pace window is January through October 2026 (10 months, the last full month). November 2026 is a partial month: shown apart and left out of the pace math."
-    },
-    {
-     "title": "Meeting",
-     "text": "Thursday, November 12, 2026, 10:00 AM MT, 30 minutes, from your message."
+     "status": "hold",
+     "chip": "Left Out",
+     "title": "Personal And Pay Details",
+     "text": "2 personal or pay details from her goals file. They don't appear anywhere below; **whether and how to raise them is yours**."
     },
     {
      "title": "Goals",
      "text": "Her seven 2026 annual production goals and two planned rates, each found word for word in her goals file. The file has no monthly goals, so each annual goal is prorated evenly by month (no seasonality). Sisu's own Personal Pacer may spread her goals differently; Sisu is the source of record for its pacer."
     },
     {
-     "title": "Columns",
-     "text": "Every measure was read by its own column name; nothing to confirm."
+     "title": "Meeting",
+     "text": "Thursday, November 12, 2026, 10:00 AM MT, 30 minutes, from your message."
     },
     {
-     "status": "hold",
-     "chip": "Left Out",
-     "title": "Personal And Pay Details",
-     "text": "2 personal or pay details from her goals file. They don't appear anywhere below; whether and how to raise them is yours."
+     "title": "As Of 11/10/2026",
+     "text": "You said the numbers were pulled November 10, 2026, and the file name carries 2026-11-10. The pace window is January through October 2026 (10 months, the last full month). November 2026 is a partial month: shown apart and left out of the pace math."
+    },
+    {
+     "status": "on",
+     "chip": "Nothing To Confirm",
+     "title": "Columns",
+     "text": "Every measure was read by its own column name."
+    },
+    {
+     "title": "Files Read",
+     "text": "PRACTICE Sisu Monthly Numbers Marigold Fizzwhistle 2026-11-10.csv (one row per month, January to November 2026), PRACTICE Marigold Fizzwhistle 2026 Goals.md, PRACTICE Last 1on1 Notes 2026-10-08.txt, and your notes for this one-on-one from your message."
     }
    ]
   },
   {
    "id": "numbers",
-   "kind": "tiles",
+   "kind": "progress",
    "label": "Numbers Against Goal",
    "finding": "January through October 2026 (10 months), against her 2026 goals prorated evenly: each annual goal x 10 / 12.",
-   "note": "\"To reach the annual goal\" (in the arithmetic) is what her goal needs in November and December, not a forecast.",
-   "tiles": [
+   "note": "\"Reaching\" is what her goal needs in November and December, not a forecast.",
+   "goalLegend": "The line marks her prorated goal to date. Green: at it. Amber: under it.",
+   "items": [
     {
      "label": "Appointments Set",
-     "value": "85",
-     "unit": "Prorated goal: 100.0",
-     "note": "85.0% of the prorated goal"
+     "value": 85.0,
+     "goal": 100.0,
+     "valueText": "85",
+     "goalText": "of a prorated 100.0",
+     "pctText": "85.0%",
+     "status": "hold",
+     "chip": "Under Goal",
+     "text": "**15.0 under** the prorated goal. Reaching 120 by December needs 17.5 a month."
     },
     {
      "label": "Appointments Met",
-     "value": "72",
-     "unit": "Prorated goal: 80.0",
-     "note": "90.0% of the prorated goal"
+     "value": 72.0,
+     "goal": 80.0,
+     "valueText": "72",
+     "goalText": "of a prorated 80.0",
+     "pctText": "90.0%",
+     "status": "hold",
+     "chip": "Under Goal",
+     "text": "**8.0 under** the prorated goal. Reaching 96 by December needs 12.0 a month."
     },
     {
      "label": "Signed",
-     "value": "33",
-     "unit": "Prorated goal: 40.0",
-     "note": "82.5% of the prorated goal"
+     "value": 33.0,
+     "goal": 40.0,
+     "valueText": "33",
+     "goalText": "of a prorated 40.0",
+     "pctText": "82.5%",
+     "status": "hold",
+     "chip": "Under Goal",
+     "text": "**7.0 under** the prorated goal. Reaching 48 by December needs 7.5 a month."
     },
     {
      "label": "Under Contract",
-     "value": "25",
-     "unit": "Prorated goal: 25.0",
-     "note": "100.0% of the prorated goal"
+     "value": 25.0,
+     "goal": 25.0,
+     "valueText": "25",
+     "goalText": "of a prorated 25.0",
+     "pctText": "100.0%",
+     "status": "on",
+     "chip": "At Goal",
+     "text": "**At the prorated goal.** Reaching 30 by December needs 2.5 a month."
     },
     {
      "label": "Closed Units",
-     "value": "20",
-     "unit": "Prorated goal: 20.0",
-     "note": "100.0% of the prorated goal"
+     "value": 20.0,
+     "goal": 20.0,
+     "valueText": "20",
+     "goalText": "of a prorated 20.0",
+     "pctText": "100.0%",
+     "status": "on",
+     "chip": "At Goal",
+     "text": "**At the prorated goal.** Reaching 24 by December needs 2.0 a month."
     },
     {
      "label": "Closed Volume",
-     "value": "$8,841,500",
-     "unit": "Prorated goal: $9,000,000",
-     "note": "98.2% of the prorated goal"
+     "value": 8841500.0,
+     "goal": 9000000.0,
+     "valueText": "$8,841,500",
+     "goalText": "of a prorated $9,000,000",
+     "pctText": "98.2%",
+     "status": "hold",
+     "chip": "Under Goal",
+     "text": "**$158,500 under** the prorated goal. Reaching $10,800,000 by December needs $979,250 a month."
     },
     {
      "label": "GCI",
-     "value": "$221,035",
-     "unit": "Prorated goal: $225,000",
-     "note": "98.2% of the prorated goal"
+     "value": 221035.0,
+     "goal": 225000.0,
+     "valueText": "$221,035",
+     "goalText": "of a prorated $225,000",
+     "pctText": "98.2%",
+     "status": "hold",
+     "chip": "Under Goal",
+     "text": "**$3,965 under** the prorated goal. Reaching $270,000 by December needs $24,482 a month."
     }
    ],
    "mathTitle": "Every sum, prorated goal, pace and difference, from the run",
@@ -155,8 +241,8 @@
    "id": "months",
    "kind": "table",
    "label": "Month By Month",
-   "finding": "Each year-to-date figure is the sum of its column, January through October 2026.",
-   "note": "Appointments set and met, signed, under contract, closed units, closed volume and GCI, as exported. November 2026 is a partial month: shown apart and left out of the pace math.",
+   "finding": "Each measure by month, January to November 2026.",
+   "note": "Each year-to-date figure is the sum of its column, January through October 2026.",
    "columns": [
     {
      "key": "month",
@@ -321,7 +407,7 @@
      "closed_units": 1.0,
      "closed_volume": 445000.0,
      "gci": 11125.0,
-     "_status": "quiet"
+     "_partial": true
     }
    ],
    "sort": {
@@ -329,6 +415,45 @@
     "dir": "asc"
    },
    "search": false,
+   "chart": {
+    "type": "multiples",
+    "x": "month",
+    "series": [
+     {
+      "key": "appointments_set",
+      "label": "Appointments Set"
+     },
+     {
+      "key": "appointments_met",
+      "label": "Appointments Met"
+     },
+     {
+      "key": "signed",
+      "label": "Signed"
+     },
+     {
+      "key": "under_contract",
+      "label": "Under Contract"
+     },
+     {
+      "key": "closed_units",
+      "label": "Closed Units"
+     },
+     {
+      "key": "closed_volume",
+      "label": "Closed Volume"
+     },
+     {
+      "key": "gci",
+      "label": "GCI"
+     }
+    ],
+    "legend": [
+     {
+      "label": "November 2026, partial: left out of the pace math"
+     }
+    ]
+   },
    "math": [
     "Appointments Set: 9 + 10 + 12 + 11 + 10 + 8 + 7 + 6 + 7 + 5 = 85",
     "Appointments Met: 7 + 8 + 10 + 9 + 9 + 7 + 6 + 5 + 6 + 5 = 72",
@@ -341,342 +466,532 @@
   },
   {
    "id": "ratios",
-   "kind": "table",
+   "kind": "meters",
    "label": "Count Ratios",
    "finding": "Appointments met to signed is 33 / 72 = 45.8%, under her plan's 50%.",
    "note": "Each ratio divides one year-to-date count by another for the same months, so an agreement signed in March may come from a February appointment. They are a rough read for the conversation; Sisu's own conversion figures stay the source of record.",
-   "columns": [
+   "items": [
     {
-     "key": "ratio",
-     "label": "Ratio",
-     "type": "text"
+     "label": "Set To Met",
+     "value": 84.7,
+     "valueText": "84.7%",
+     "text": "72 of 85 appointments set were met (72 / 85 = 84.7%).",
+     "targetText": "Her plan doesn't state this rate."
     },
     {
-     "key": "ytd",
-     "label": "Year To Date",
-     "type": "text"
+     "label": "Met To Signed",
+     "value": 45.8,
+     "valueText": "45.8%",
+     "text": "33 of 72 appointments met ended in a signed agreement (33 / 72 = 45.8%).",
+     "target": 50.0,
+     "targetText": "Her plan: 50% (\"Appointment met to signed: 50%\")",
+     "status": "hold",
+     "chip": "Under Her Plan"
     },
     {
-     "key": "plan",
-     "label": "Her Plan",
-     "type": "text"
-    }
-   ],
-   "rows": [
-    {
-     "ratio": "Appointments set to met",
-     "ytd": "72 / 85 = 84.7%",
-     "plan": "not stated"
+     "label": "Signed To Under Contract",
+     "value": 75.8,
+     "valueText": "75.8%",
+     "text": "25 of 33 signed agreements went under contract (25 / 33 = 75.8%).",
+     "targetText": "Her plan doesn't state this rate."
     },
     {
-     "ratio": "Appointments met to signed",
-     "ytd": "33 / 72 = 45.8%",
-     "plan": "50% (\"Appointment met to signed: 50%\"): under it"
-    },
-    {
-     "ratio": "Signed to under contract",
-     "ytd": "25 / 33 = 75.8%",
-     "plan": "not stated"
-    },
-    {
-     "ratio": "Under contract to closed",
-     "ytd": "20 / 25 = 80.0%",
-     "plan": "80% (\"Under contract to closed: 80%\"): at it"
+     "label": "Under Contract To Closed",
+     "value": 80.0,
+     "valueText": "80.0%",
+     "text": "20 of 25 under contract closed (20 / 25 = 80.0%).",
+     "target": 80.0,
+     "targetText": "Her plan: 80% (\"Under contract to closed: 80%\")",
+     "status": "on",
+     "chip": "At Her Plan"
     }
    ]
   },
   {
    "id": "changed",
-   "kind": "table",
+   "kind": "deltas",
    "label": "What Changed Since the Last One-on-One",
    "finding": "Your last one-on-one was 10/08/2026; its numbers ran through September 2026. October 2026 is the month added since.",
-   "note": "Both \"then\" and \"now\" come from this export. If an earlier month was changed in Sisu since 10/08/2026, the \"then\" column can differ from what you saw that day.",
-   "columns": [
+   "note": "Both \"then\" and \"now\" come from this export. If an earlier month was changed in Sisu since 10/08/2026, the \"then\" figures can differ from what you saw that day.",
+   "items": [
     {
-     "key": "measure",
-     "label": "Measure",
-     "type": "text"
+     "label": "Appointments Set",
+     "from": "80",
+     "fromLabel": "Through Sep",
+     "to": "85",
+     "toLabel": "Through Oct",
+     "change": "October added 5",
+     "text": "Share of her prorated goal: 88.9% then, 85.0% now."
     },
     {
-     "key": "then",
-     "label": "Through Sep 2026",
-     "type": "text"
+     "label": "Appointments Met",
+     "from": "67",
+     "fromLabel": "Through Sep",
+     "to": "72",
+     "toLabel": "Through Oct",
+     "change": "October added 5",
+     "text": "Share of her prorated goal: 93.1% then, 90.0% now."
     },
     {
-     "key": "oct",
-     "label": "Oct 2026",
-     "type": "text"
+     "label": "Signed",
+     "from": "31",
+     "fromLabel": "Through Sep",
+     "to": "33",
+     "toLabel": "Through Oct",
+     "change": "October added 2",
+     "text": "Share of her prorated goal: 86.1% then, 82.5% now."
     },
     {
-     "key": "now",
-     "label": "Through Oct 2026",
-     "type": "text"
+     "label": "Under Contract",
+     "from": "22",
+     "fromLabel": "Through Sep",
+     "to": "25",
+     "toLabel": "Through Oct",
+     "change": "October added 3",
+     "text": "Share of her prorated goal: 97.8% then, 100.0% now."
     },
     {
-     "key": "pace_then",
-     "label": "Pace Then",
-     "type": "text"
+     "label": "Closed Units",
+     "from": "18",
+     "fromLabel": "Through Sep",
+     "to": "20",
+     "toLabel": "Through Oct",
+     "change": "October added 2",
+     "text": "Share of her prorated goal: 100.0% then, 100.0% now."
     },
     {
-     "key": "pace_now",
-     "label": "Pace Now",
-     "type": "text"
+     "label": "Closed Volume",
+     "from": "$7,973,500",
+     "fromLabel": "Through Sep",
+     "to": "$8,841,500",
+     "toLabel": "Through Oct",
+     "change": "October added $868,000",
+     "text": "Share of her prorated goal: 98.4% then, 98.2% now."
+    },
+    {
+     "label": "GCI",
+     "from": "$199,335",
+     "fromLabel": "Through Sep",
+     "to": "$221,035",
+     "toLabel": "Through Oct",
+     "change": "October added $21,700",
+     "text": "Share of her prorated goal: 98.4% then, 98.2% now."
     }
    ],
-   "rows": [
-    {
-     "measure": "Appointments Set",
-     "then": "80",
-     "oct": "5",
-     "now": "85",
-     "pace_then": "80 / 90.0 = 88.9%",
-     "pace_now": "85 / 100.0 = 85.0%"
-    },
-    {
-     "measure": "Appointments Met",
-     "then": "67",
-     "oct": "5",
-     "now": "72",
-     "pace_then": "67 / 72.0 = 93.1%",
-     "pace_now": "72 / 80.0 = 90.0%"
-    },
-    {
-     "measure": "Signed",
-     "then": "31",
-     "oct": "2",
-     "now": "33",
-     "pace_then": "31 / 36.0 = 86.1%",
-     "pace_now": "33 / 40.0 = 82.5%"
-    },
-    {
-     "measure": "Under Contract",
-     "then": "22",
-     "oct": "3",
-     "now": "25",
-     "pace_then": "22 / 22.5 = 97.8%",
-     "pace_now": "25 / 25.0 = 100.0%"
-    },
-    {
-     "measure": "Closed Units",
-     "then": "18",
-     "oct": "2",
-     "now": "20",
-     "pace_then": "18 / 18.0 = 100.0%",
-     "pace_now": "20 / 20.0 = 100.0%"
-    },
-    {
-     "measure": "Closed Volume",
-     "then": "$7,973,500",
-     "oct": "$868,000",
-     "now": "$8,841,500",
-     "pace_then": "$7,973,500 / $8,100,000 = 98.4%",
-     "pace_now": "$8,841,500 / $9,000,000 = 98.2%"
-    },
-    {
-     "measure": "GCI",
-     "then": "$199,335",
-     "oct": "$21,700",
-     "now": "$221,035",
-     "pace_then": "$199,335 / $202,500 = 98.4%",
-     "pace_now": "$221,035 / $225,000 = 98.2%"
-    }
-   ]
+   "detail": {
+    "label": "Show The Table",
+    "columns": [
+     {
+      "key": "measure",
+      "label": "Measure",
+      "type": "text"
+     },
+     {
+      "key": "then",
+      "label": "Through Sep 2026",
+      "type": "text"
+     },
+     {
+      "key": "oct",
+      "label": "Oct 2026",
+      "type": "text"
+     },
+     {
+      "key": "now",
+      "label": "Through Oct 2026",
+      "type": "text"
+     },
+     {
+      "key": "pace_then",
+      "label": "Pace Then",
+      "type": "text"
+     },
+     {
+      "key": "pace_now",
+      "label": "Pace Now",
+      "type": "text"
+     }
+    ],
+    "rows": [
+     {
+      "measure": "Appointments Set",
+      "then": "80",
+      "oct": "5",
+      "now": "85",
+      "pace_then": "80 / 90.0 = 88.9%",
+      "pace_now": "85 / 100.0 = 85.0%"
+     },
+     {
+      "measure": "Appointments Met",
+      "then": "67",
+      "oct": "5",
+      "now": "72",
+      "pace_then": "67 / 72.0 = 93.1%",
+      "pace_now": "72 / 80.0 = 90.0%"
+     },
+     {
+      "measure": "Signed",
+      "then": "31",
+      "oct": "2",
+      "now": "33",
+      "pace_then": "31 / 36.0 = 86.1%",
+      "pace_now": "33 / 40.0 = 82.5%"
+     },
+     {
+      "measure": "Under Contract",
+      "then": "22",
+      "oct": "3",
+      "now": "25",
+      "pace_then": "22 / 22.5 = 97.8%",
+      "pace_now": "25 / 25.0 = 100.0%"
+     },
+     {
+      "measure": "Closed Units",
+      "then": "18",
+      "oct": "2",
+      "now": "20",
+      "pace_then": "18 / 18.0 = 100.0%",
+      "pace_now": "20 / 20.0 = 100.0%"
+     },
+     {
+      "measure": "Closed Volume",
+      "then": "$7,973,500",
+      "oct": "$868,000",
+      "now": "$8,841,500",
+      "pace_then": "$7,973,500 / $8,100,000 = 98.4%",
+      "pace_now": "$8,841,500 / $9,000,000 = 98.2%"
+     },
+     {
+      "measure": "GCI",
+      "then": "$199,335",
+      "oct": "$21,700",
+      "now": "$221,035",
+      "pace_then": "$199,335 / $202,500 = 98.4%",
+      "pace_now": "$221,035 / $225,000 = 98.2%"
+     }
+    ]
+   }
   },
   {
    "id": "averages",
-   "kind": "table",
+   "kind": "bars",
    "label": "October Against Her Own Average",
+   "scale": "item",
    "finding": "October 2026 for each measure, beside her own monthly average for January to September 2026.",
-   "columns": [
+   "note": "Her own months only: no other agent and no typical number.",
+   "items": [
     {
-     "key": "measure",
-     "label": "Measure",
-     "type": "text"
+     "label": "Appointments Set",
+     "text": "80 / 9 = 8.9 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 8.88888888888889,
+       "text": "8.9 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 5.0,
+       "text": "5"
+      }
+     ]
     },
     {
-     "key": "avg",
-     "label": "Monthly Average, Jan To Sep",
-     "type": "text"
+     "label": "Appointments Met",
+     "text": "67 / 9 = 7.4 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 7.444444444444445,
+       "text": "7.4 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 5.0,
+       "text": "5"
+      }
+     ]
     },
     {
-     "key": "oct",
-     "label": "October 2026",
-     "type": "text"
-    }
-   ],
-   "rows": [
-    {
-     "measure": "Appointments Set",
-     "avg": "80 / 9 = 8.9 a month",
-     "oct": "5"
+     "label": "Signed",
+     "text": "31 / 9 = 3.4 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 3.4444444444444446,
+       "text": "3.4 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 2.0,
+       "text": "2"
+      }
+     ]
     },
     {
-     "measure": "Appointments Met",
-     "avg": "67 / 9 = 7.4 a month",
-     "oct": "5"
+     "label": "Under Contract",
+     "text": "22 / 9 = 2.4 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 2.4444444444444446,
+       "text": "2.4 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 3.0,
+       "text": "3"
+      }
+     ]
     },
     {
-     "measure": "Signed",
-     "avg": "31 / 9 = 3.4 a month",
-     "oct": "2"
+     "label": "Closed Units",
+     "text": "18 / 9 = 2.0 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 2.0,
+       "text": "2.0 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 2.0,
+       "text": "2"
+      }
+     ]
     },
     {
-     "measure": "Under Contract",
-     "avg": "22 / 9 = 2.4 a month",
-     "oct": "3"
+     "label": "Closed Volume",
+     "text": "$7,973,500 / 9 = $885,944 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 885944.4444444445,
+       "text": "$885,944 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 868000.0,
+       "text": "$868,000"
+      }
+     ]
     },
     {
-     "measure": "Closed Units",
-     "avg": "18 / 9 = 2.0 a month",
-     "oct": "2"
-    },
-    {
-     "measure": "Closed Volume",
-     "avg": "$7,973,500 / 9 = $885,944 a month",
-     "oct": "$868,000"
-    },
-    {
-     "measure": "GCI",
-     "avg": "$199,335 / 9 = $22,148 a month",
-     "oct": "$21,700"
+     "label": "GCI",
+     "text": "$199,335 / 9 = $22,148 a month",
+     "bars": [
+      {
+       "label": "Jan to Sep average",
+       "value": 22148.333333333332,
+       "text": "$22,148 a month"
+      },
+      {
+       "label": "October 2026",
+       "value": 21700.0,
+       "text": "$21,700"
+      }
+     ]
     }
    ]
   },
   {
    "id": "notes",
-   "kind": "list",
+   "kind": "notes",
    "label": "What Changed, From Your Notes",
    "finding": "What your notes and your message report, each with its source.",
    "items": [
     {
      "title": "The Q3 Buyer Calls",
-     "text": "She texted you on 10/29 that she finished calling the Q3 buyers (commitment 1)."
+     "text": "She texted you on 10/29 that she finished calling the Q3 buyers (commitment 1).",
+     "source": "Your notes, in your message"
     },
     {
      "title": "The 10/18 Open House",
-     "text": "She says the 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads. That's her report, from your notes; the export doesn't show leads."
+     "text": "She says the 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads. That's her report; the export doesn't show leads.",
+     "source": "She says, in your notes"
     },
     {
      "title": "The Listing Presentation",
-     "text": "You haven't seen the listing presentation draft yet (commitment 3)."
+     "text": "You haven't seen the listing presentation draft yet (commitment 3).",
+     "source": "Your notes, in your message"
     }
    ]
   },
   {
    "id": "commitments",
-   "kind": "list",
+   "kind": "commitments",
    "label": "Last Time's Commitments",
    "finding": "Word for word from PRACTICE Last 1on1 Notes 2026-10-08.txt (Marigold's commitments).",
    "note": "Each status is exactly as given, with its source. Nothing is marked from the numbers or the dates.",
    "items": [
     {
      "title": "Commitment 1",
-     "text": "\"Call or text the 14 buyers she met in Q3 who haven't signed, by October 31.\" Status, as given: \"she texted me on 10/29 that she finished calling the Q3 buyers\" (your notes, in your message). From the numbers: nothing in the export."
+     "words": "Call or text the 14 buyers she met in Q3 who haven't signed, by October 31.",
+     "owner": "Marigold",
+     "due": "October 31",
+     "statusText": "Status, as given: \"she texted me on 10/29 that she finished calling the Q3 buyers\" (your notes, in your message).",
+     "fact": "From the numbers: nothing in the export."
     },
     {
+     "title": "Commitment 2",
+     "words": "Set at least 8 appointments in October.",
+     "owner": "Marigold",
+     "due": "October",
      "status": "quiet",
      "chip": "No Status Given",
-     "title": "Commitment 2",
-     "text": "\"Set at least 8 appointments in October.\" No status given. From the numbers: The export shows 5 appointments set in October 2026."
+     "statusText": "No status given.",
+     "fact": "From the numbers: The export shows 5 appointments set in October 2026."
     },
     {
      "title": "Commitment 3",
-     "text": "\"Send Cosmo a draft of her updated listing presentation before our next one-on-one.\" Status, as given: \"I haven't seen the listing presentation draft yet\" (your notes, in your message). From the numbers: nothing in the export."
+     "words": "Send Cosmo a draft of her updated listing presentation before our next one-on-one.",
+     "owner": "Marigold",
+     "due": "Before this one-on-one",
+     "statusText": "Status, as given: \"I haven't seen the listing presentation draft yet\" (your notes, in your message).",
+     "fact": "From the numbers: nothing in the export."
     }
    ]
   },
   {
    "id": "questions",
-   "kind": "list",
+   "kind": "questions",
    "label": "Open Coaching Questions",
-   "finding": "Eight open questions, in the order of the agenda, each tied to one number, commitment or note.",
+   "show": 4,
+   "noun": "Questions",
+   "finding": "Eight open questions in the order of the agenda, each tied to one number, commitment or note.",
+   "note": "Ask for her view: what, how, which. Never a question about health, family, pay or another agent.",
    "items": [
     {
-     "title": "October's Closings",
-     "text": "October added 2 closings and 3 under contract. Which of those are you proudest of, and what made it work?"
+     "tag": "Her Wins",
+     "ask": "October added 2 closings and 3 under contract. Which of those are you proudest of, and what made it work?",
+     "why": "The agenda starts with her wins. October 2026 in the export: 2 closings, 3 under contract."
     },
     {
-     "title": "Commitment 1",
-     "text": "You finished calling the 14 Q3 buyers who hadn't signed. What came out of those calls, and which of them are worth another conversation?"
+     "tag": "Commitment 1",
+     "ask": "You finished calling the 14 Q3 buyers who hadn't signed. What came out of those calls, and which of them are worth another conversation?",
+     "why": "Your notes say she finished the Q3 buyer calls."
     },
     {
-     "title": "Commitment 2",
-     "text": "Commitment 2 was at least 8 appointments set in October, and the export shows 5. How do you see October, and what did it tell you about where your appointments come from?"
+     "tag": "Commitment 2",
+     "ask": "Commitment 2 was at least 8 appointments set in October, and the export shows 5. How do you see October, and what did it tell you about where your appointments come from?",
+     "why": "Commitment 2 has no status given, so this asks for her update instead of marking it."
     },
     {
-     "title": "Commitment 3",
-     "text": "Where are you with the listing presentation draft?"
+     "tag": "Commitment 3",
+     "ask": "Where are you with the listing presentation draft?",
+     "why": "Your notes say you haven't seen the draft yet."
     },
     {
-     "title": "Met To Signed",
-     "text": "Of 72 appointments met this year, 33 signed (33 / 72 = 45.8%), and your plan used 50%. What happens in the appointments that don't end in a signed agreement?"
+     "tag": "Met To Signed",
+     "ask": "Of 72 appointments met this year, 33 signed (33 / 72 = 45.8%), and your plan used 50%. What happens in the appointments that don't end in a signed agreement?",
+     "why": "Met to signed is the one ratio under her plan's own rate."
     },
     {
-     "title": "Where Appointments Come From",
-     "text": "October had 5 appointments set, against your January to September average of 80 / 9 = 8.9 a month. Where did your appointments come from in the spring, and where are they coming from now?"
+     "tag": "Where Appointments Come From",
+     "ask": "October had 5 appointments set, against your January to September average of 80 / 9 = 8.9 a month. Where did your appointments come from in the spring, and where are they coming from now?",
+     "why": "October against her own monthly average, from the run."
     },
     {
-     "title": "The 10/18 Open House",
-     "text": "The 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads, you said. What's the next step with each?"
+     "tag": "The 10/18 Open House",
+     "ask": "The 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads, you said. What's the next step with each?",
+     "why": "Her report, from your notes. The export doesn't show leads."
     },
     {
-     "title": "What She Wants Next",
-     "text": "What do you want to focus on for November and December, and what do you need from me before our next one-on-one?"
+     "tag": "What She Wants Next",
+     "ask": "What do you want to focus on for November and December, and what do you need from me before our next one-on-one?",
+     "why": "The prep always ends with what she wants to focus on and what she needs from you."
     }
    ]
   },
   {
    "id": "focus",
-   "kind": "list",
+   "kind": "choices",
    "label": "Possible Focus Areas (Your Call)",
+   "pickLabel": "Focus picked",
    "finding": "Three options from the run's focus candidates, in its order.",
-   "note": "These are options from the numbers, not a verdict; pick one, or none.",
+   "callout": {
+    "text": "These are options from the numbers, not a verdict; **pick one, or none**."
+   },
    "items": [
     {
      "title": "Signed Agreements",
-     "text": "33 / 40.0 = 82.5% of the prorated goal (48 x 10 / 12 = 40.0). Appointments met to signed is 33 / 72 = 45.8%, under her plan's 50%. October: 2, against her January to September average of 31 / 9 = 3.4 a month. To open it: \"Walk me through a recent appointment that didn't end in a signed agreement. What happened at the end?\""
+     "big": "82.5%",
+     "bigLabel": "of her prorated goal: 33 of 40.0",
+     "bar": {
+      "value": 33,
+      "goal": 40.0
+     },
+     "status": "hold",
+     "facts": [
+      "Met to signed: 33 / 72 = 45.8%, under her plan's 50%.",
+      "October: 2, against her January to September average of 31 / 9 = 3.4 a month."
+     ],
+     "open": "Walk me through a recent appointment that didn't end in a signed agreement. What happened at the end?"
     },
     {
      "title": "Appointments Set",
-     "text": "85 / 100.0 = 85.0% of the prorated goal (120 x 10 / 12 = 100.0). October: 5, against 80 / 9 = 8.9 a month. To open it: \"Which sources gave you appointments in the spring, and which ones are you working now?\""
+     "big": "85.0%",
+     "bigLabel": "of her prorated goal: 85 of 100.0",
+     "bar": {
+      "value": 85,
+      "goal": 100.0
+     },
+     "status": "hold",
+     "facts": [
+      "October: 5, against 80 / 9 = 8.9 a month."
+     ],
+     "open": "Which sources gave you appointments in the spring, and which ones are you working now?"
     },
     {
      "title": "Appointments Met",
-     "text": "72 / 80.0 = 90.0% of the prorated goal (96 x 10 / 12 = 80.0). October: 5, against 67 / 9 = 7.4 a month. To open it: \"What happens between setting an appointment and meeting?\""
+     "big": "90.0%",
+     "bigLabel": "of her prorated goal: 72 of 80.0",
+     "bar": {
+      "value": 72,
+      "goal": 80.0
+     },
+     "status": "hold",
+     "facts": [
+      "October: 5, against 67 / 9 = 7.4 a month."
+     ],
+     "open": "What happens between setting an appointment and meeting?"
     }
    ]
   },
   {
    "id": "agenda",
-   "kind": "timeline",
+   "kind": "agenda",
    "label": "Agenda",
+   "agendaTitle": "Run Of Show",
    "finding": "A suggested order; change it to yours.",
-   "note": "30 minutes, from your message.",
+   "when": "Thursday, November 12, 2026, 30 minutes",
    "items": [
     {
-     "date": "10:00 AM MT",
+     "time": "10:00 AM MT",
+     "minutes": 5,
      "title": "Her Wins And What's On Her Mind",
-     "text": "To 10:05 AM MT, 5 minutes. She goes first."
+     "text": "She goes first."
     },
     {
-     "date": "10:05 AM MT",
-     "title": "Numbers Against Her Goal",
-     "text": "To 10:10 AM MT, 5 minutes."
+     "time": "10:05 AM MT",
+     "minutes": 5,
+     "title": "Numbers Against Her Goal"
     },
     {
-     "date": "10:10 AM MT",
-     "title": "Last Time's Commitments",
-     "text": "To 10:15 AM MT, 5 minutes."
+     "time": "10:10 AM MT",
+     "minutes": 5,
+     "title": "Last Time's Commitments"
     },
     {
-     "date": "10:15 AM MT",
-     "title": "The Focus You Pick",
-     "text": "To 10:25 AM MT, 10 minutes."
+     "time": "10:15 AM MT",
+     "minutes": 10,
+     "title": "The Focus You Pick"
     },
     {
-     "date": "10:25 AM MT",
-     "title": "New Commitments, What She Needs From You, And The Next One-On-One's Date",
-     "text": "To 10:30 AM MT, 5 minutes."
+     "time": "10:25 AM MT",
+     "minutes": 5,
+     "title": "New Commitments And Next Steps",
+     "text": "Her new commitments, what she needs from you, and the next one-on-one's date."
     }
    ]
   },

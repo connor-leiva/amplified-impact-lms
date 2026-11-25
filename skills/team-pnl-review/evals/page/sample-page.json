@@ -27,13 +27,51 @@
  ],
  "dataCheck": [],
  "headline": [],
+ "keyNumbers": [
+  {
+   "label": "Net Income",
+   "value": "$41,233",
+   "means": "Kept January to September: a **12.1% margin** on company dollar."
+  },
+  {
+   "label": "September Net Income",
+   "value": "$19,091",
+   "delta": {
+    "dir": "up",
+    "text": "Up $9,626 from August"
+   },
+   "means": "A 36.9% margin on $51,747 of company dollar."
+  },
+  {
+   "label": "Company Dollar",
+   "value": "$339,367",
+   "means": "What the team kept from commission, after splits and fees."
+  },
+  {
+   "label": "Brokerage Fees In September",
+   "value": "1.9%",
+   "status": "hold",
+   "chip": "Watch",
+   "delta": {
+    "dir": "down",
+    "text": "From 6.0% in January to April"
+   },
+   "means": "Of commission income. **Ask your broker** why."
+  }
+ ],
  "sections": [
   {
    "id": "used",
-   "kind": "list",
+   "kind": "callouts",
    "label": "What I Used",
    "finding": "The P&L by month and the closed-deal export, nine months, totals check passed.",
    "items": [
+    {
+     "status": "on",
+     "chip": "Passed",
+     "title": "Totals Check",
+     "text": "Every month's accounts add up to the report's own Net Income and section totals."
+    },
     {
      "title": "P&L",
      "text": "PRACTICE Team P&L by Month Jan-Sep 2026.xlsx, QuickBooks Profit and Loss, Jan 2026 to Sep 2026 (9 months), accrual basis as printed on the report, 27 accounts."
@@ -44,13 +82,9 @@
     },
     {
      "status": "on",
-     "chip": "Passed",
-     "title": "Totals Check",
-     "text": "Every month's accounts add up to the report's own Net Income and section totals."
-    },
-    {
+     "chip": "No Fixes",
      "title": "Account Map",
-     "text": "Every account read by its name or parent account; no fixes needed."
+     "text": "Every account read by its name or parent account."
     },
     {
      "status": "quiet",
@@ -65,7 +99,12 @@
    "kind": "table",
    "label": "How Revenue Is Recorded",
    "finding": "Gross every month.",
-   "note": "Commission income is recorded before agent splits, and agent splits, referral fees and brokerage split and fees are all costs. The production file agrees: every month's commission income matches that month's GCI. Splits % and Brokerage % are each a share of commission income.",
+   "note": "Commission income is recorded before agent splits, and agent splits, referral fees and brokerage split and fees are all costs. Splits % and Brokerage % are each a share of commission income.",
+   "callout": {
+    "status": "on",
+    "chip": "Months Compare",
+    "text": "The production file agrees: **every month's commission income matches that month's GCI**."
+   },
    "columns": [
     {
      "key": "month",
@@ -220,10 +259,27 @@
     "dir": "asc"
    },
    "search": false,
+   "chart": {
+    "type": "columns",
+    "x": "month",
+    "label": "Brokerage split and fees as a share of commission income, by month",
+    "series": [
+     {
+      "key": "brokerage_share",
+      "label": "Brokerage %"
+     }
+    ],
+    "legend": [
+     {
+      "status": "hold",
+      "label": "May to September: the step-down to ask your broker about"
+     }
+    ]
+   },
    "mathTitle": "What it changes",
    "math": [
     "Splits vary from 46.0% to 65.0% of commission income (typical 58.0%). Months with more referral-fee deals or more of the team leader's own deals can run lower. The production file matches every month, so this doesn't point to a recording problem.",
-    "Brokerage split and fees dropped. About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9% (the rows marked Watch). That can mean the team or its agents reached a brokerage cap, the fee schedule changed, or something is missing from the account. Only the broker knows the cap terms, so it goes to the broker as a question, along with when the cap year resets."
+    "Brokerage split and fees dropped. About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9%. That can mean the team or its agents reached a brokerage cap, the fee schedule changed, or something is missing from the account. Only the broker knows the cap terms, so it goes to the broker as a question, along with when the cap year resets."
    ]
   },
   {
@@ -231,65 +287,68 @@
    "kind": "tiles",
    "label": "Company Dollar and Margin",
    "finding": "The team kept $41,233 on $339,367 of company dollar, a 12.1% margin.",
-   "note": "Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar. Operating expenses stayed between $31,731 and $36,421 a month. Profit follows company dollar: the first quarter's company dollar of $22,799 to $26,300 a month didn't cover expenses. The team also collected 6,750.00 in fees charged to agents (Agent Fee Income), outside company dollar.",
+   "note": "Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar.",
    "tiles": [
     {
      "label": "Company Dollar",
      "value": "$339,367",
      "unit": "January to September 2026",
-     "note": "339,366.76 / 1,076,878.75 = 31.5% of gross commission"
+     "means": "What the team kept from **$1,076,879** of commission, after splits, referral fees and brokerage fees (31.5%)."
+    },
+    {
+     "label": "Operating Expenses",
+     "value": "$304,884",
+     "unit": "January to September 2026",
+     "means": "What it cost to run the team: 89.8% of company dollar."
     },
     {
      "label": "Net Income",
      "value": "$41,233",
-     "unit": "January to September 2026"
+     "unit": "January to September 2026",
+     "means": "What was left: a **12.1% margin** on company dollar."
     },
     {
-     "label": "Margin",
-     "value": "12.1%",
-     "unit": "net income / company dollar"
-    },
-    {
-     "label": "September Net Income",
-     "value": "$19,091",
-     "unit": "36.9% margin on $51,747 of company dollar"
+     "label": "Fees Charged To Agents",
+     "value": "$6,750",
+     "unit": "Agent Fee Income",
+     "means": "Outside company dollar, inside net income."
     }
    ],
    "mathTitle": "Company dollar and margin, month by month and for the period, as the run prints them",
    "math": [
-    "Jan 2026: company dollar = 75,358.75 - 34,633.67 - 12,901.44 - 4,521.53 = 23,302.11; margin = -8,690.07 / 23,302.11 = -37.3%",
-    "Feb 2026: company dollar = 78,617.50 - 51,101.38 - 0.00 - 4,717.06 = 22,799.06; margin = -8,182.07 / 22,799.06 = -35.9%",
-    "Mar 2026: company dollar = 108,476.25 - 60,930.96 - 14,736.32 - 6,508.58 = 26,300.39; margin = -5,527.43 / 26,300.39 = -21.0%",
-    "Apr 2026: company dollar = 122,973.75 - 77,785.91 - 3,303.13 - 7,378.44 = 34,506.27; margin = 938.82 / 34,506.27 = 2.7%",
-    "May 2026: company dollar = 152,885.00 - 99,375.27 - 0.00 - 4,939.39 = 48,570.34; margin = 15,128.70 / 48,570.34 = 31.1%",
-    "Jun 2026: company dollar = 143,330.00 - 83,170.43 - 15,375.50 - 2,950.00 = 41,834.07; margin = 8,933.25 / 41,834.07 = 21.4%",
-    "Jul 2026: company dollar = 152,372.50 - 89,368.82 - 14,882.01 - 2,950.00 = 45,171.67; margin = 10,075.96 / 45,171.67 = 22.3%",
-    "Aug 2026: company dollar = 118,777.50 - 56,988.27 - 13,998.25 - 2,655.00 = 45,135.98; margin = 9,464.69 / 45,135.98 = 21.0%",
-    "Sep 2026: company dollar = 124,087.50 - 69,980.63 - 0.00 - 2,360.00 = 51,746.87; margin = 19,091.15 / 51,746.87 = 36.9%",
-    "Period: company dollar = 1,076,878.75 - 623,335.34 - 75,196.65 - 38,980.00 = 339,366.76; margin = 41,233.00 / 339,366.76 = 12.1%",
-    "Also in income, outside company dollar: fees charged to agents 6,750.00; other income 0.00.",
-    "Advertising & Marketing:Online Lead Programs:Google PPC: 3,940.85 to 1,296.33 (-2,644.52)",
-    "Transaction Coordinator Fees: 3,150.00 to 2,800.00 (-350.00)",
-    "Advertising & Marketing:Listing Photos & Signs: 920.00 to 845.00 (-75.00)",
-    "Meals: 198.60 to 244.05 (45.45)",
-    "Advertising & Marketing:Client Appreciation: 285.00 to 330.00 (45.00)",
-    "Rent & Office:Utilities: 238.71 to 207.46 (-31.25)",
-    "Company dollar 339,366.76; operating expenses 304,883.76; net income 41,233.00; margin 41,233.00 / 339,366.76 = 12.1%.",
+    "Jan 2026: company dollar = $75,358.75 - $34,633.67 - $12,901.44 - $4,521.53 = $23,302.11; margin = -$8,690.07 / $23,302.11 = -37.3%",
+    "Feb 2026: company dollar = $78,617.50 - $51,101.38 - $0.00 - $4,717.06 = $22,799.06; margin = -$8,182.07 / $22,799.06 = -35.9%",
+    "Mar 2026: company dollar = $108,476.25 - $60,930.96 - $14,736.32 - $6,508.58 = $26,300.39; margin = -$5,527.43 / $26,300.39 = -21.0%",
+    "Apr 2026: company dollar = $122,973.75 - $77,785.91 - $3,303.13 - $7,378.44 = $34,506.27; margin = $938.82 / $34,506.27 = 2.7%",
+    "May 2026: company dollar = $152,885.00 - $99,375.27 - $0.00 - $4,939.39 = $48,570.34; margin = $15,128.70 / $48,570.34 = 31.1%",
+    "Jun 2026: company dollar = $143,330.00 - $83,170.43 - $15,375.50 - $2,950.00 = $41,834.07; margin = $8,933.25 / $41,834.07 = 21.4%",
+    "Jul 2026: company dollar = $152,372.50 - $89,368.82 - $14,882.01 - $2,950.00 = $45,171.67; margin = $10,075.96 / $45,171.67 = 22.3%",
+    "Aug 2026: company dollar = $118,777.50 - $56,988.27 - $13,998.25 - $2,655.00 = $45,135.98; margin = $9,464.69 / $45,135.98 = 21.0%",
+    "Sep 2026: company dollar = $124,087.50 - $69,980.63 - $0.00 - $2,360.00 = $51,746.87; margin = $19,091.15 / $51,746.87 = 36.9%",
+    "Period: company dollar = $1,076,878.75 - $623,335.34 - $75,196.65 - $38,980.00 = $339,366.76; margin = $41,233.00 / $339,366.76 = 12.1%",
+    "Also in income, outside company dollar: fees charged to agents $6,750.00; other income $0.00.",
+    "Advertising & Marketing:Online Lead Programs:Google PPC: $3,940.85 to $1,296.33 (-$2,644.52)",
+    "Transaction Coordinator Fees: $3,150.00 to $2,800.00 (-$350.00)",
+    "Advertising & Marketing:Listing Photos & Signs: $920.00 to $845.00 (-$75.00)",
+    "Meals: $198.60 to $244.05 ($45.45)",
+    "Advertising & Marketing:Client Appreciation: $285.00 to $330.00 ($45.00)",
+    "Rent & Office:Utilities: $238.71 to $207.46 (-$31.25)",
+    "Company dollar $339,366.76; operating expenses $304,883.76; net income $41,233.00; margin $41,233.00 / $339,366.76 = 12.1%.",
     "No prior-year months are in the file, so there is no year-over-year comparison.",
-    "[P4 uncategorized] Uncategorized Expense holds 486.20 in Jul 2026.",
-    "[P6 new_recurring_account] Software & Subscriptions:Video Editing App is new since Jun 2026 and recurs every month since: 79.00, 79.00, 79.00, 79.00.",
-    "[P7 spike] Advertising & Marketing:Online Lead Programs:Google PPC in Aug 2026 is 3,940.85 against a usual 1,264.12 (+2,676.73).",
+    "[P4 uncategorized] Uncategorized Expense holds $486.20 in Jul 2026.",
+    "[P6 new_recurring_account] Software & Subscriptions:Video Editing App is new since Jun 2026 and recurs every month since: $79.00, $79.00, $79.00, $79.00.",
+    "[P7 spike] Advertising & Marketing:Online Lead Programs:Google PPC in Aug 2026 is $3,940.85 against a usual $1,264.12 (+$2,676.73).",
     "[P9 brokerage_share_drop] Brokerage split and fees fell from about 6.0% of commission income (Jan 2026 to Apr 2026) to: May 2026 3.2%, Jun 2026 2.1%, Jul 2026 1.9%, Aug 2026 2.2%, Sep 2026 1.9%.",
-    "[P9 price_change] Advertising & Marketing:Online Lead Programs:Pumpkinpatch Portal changed from 2,500.00 to 3,000.00 a month starting Jul 2026.",
+    "[P9 price_change] Advertising & Marketing:Online Lead Programs:Pumpkinpatch Portal changed from $2,500.00 to $3,000.00 a month starting Jul 2026.",
     "Columns used: close_date = 'Close Date'; status = 'Status'; gci = 'GCI'; agent_paid = 'Agent Split'; team = 'Team Net'; referral = 'Referral Fee'; brokerage = 'Brokerage Fee'; source = 'Lead Source'; side = 'Side'",
     "Rows left out: 2 (status Pending); 1 (status Cancelled)",
     "Closings counted in the P&L months: 77",
-    "Operating expenses per closing = 304,883.76 / 77 = 3,959.53",
-    "Lead generation per closing = 37,987.77 / 77 = 493.35",
-    "Company dollar per closing = 339,366.76 / 77 = 4,407.36",
-    "Net income per closing = 41,233.00 / 77 = 535.49",
-    "Average GCI per closing (production file) = 1,076,878.75 / 77 = 13,985.44",
-    "Company dollar as a share of gross commission (gross months): 339,366.76 / 1,076,878.75 = 31.5%."
+    "Operating expenses per closing = $304,883.76 / 77 = $3,959.53",
+    "Lead generation per closing = $37,987.77 / 77 = $493.35",
+    "Company dollar per closing = $339,366.76 / 77 = $4,407.36",
+    "Net income per closing = $41,233.00 / 77 = $535.49",
+    "Average GCI per closing (production file) = $1,076,878.75 / 77 = $13,985.44",
+    "Company dollar as a share of gross commission (gross months): $339,366.76 / $1,076,878.75 = 31.5%."
    ]
   },
   {
@@ -297,7 +356,7 @@
    "kind": "table",
    "label": "Company Dollar and Margin by Month",
    "finding": "A loss in each of January, February and March, then a profit every month from April.",
-   "note": "Rows marked Off are months with a net loss.",
+   "note": "Operating expenses stayed between $31,731 and $36,421 a month. Profit follows company dollar: the first quarter's company dollar of $22,799 to $26,300 a month didn't cover expenses.",
    "columns": [
     {
      "key": "month",
@@ -407,377 +466,642 @@
     "key": "month",
     "dir": "asc"
    },
-   "search": false
+   "search": false,
+   "chart": {
+    "type": "columns",
+    "x": "month",
+    "label": "Net income by month",
+    "series": [
+     {
+      "key": "net",
+      "label": "Net Income"
+     }
+    ],
+    "legend": [
+     {
+      "status": "off",
+      "label": "A month with a loss"
+     }
+    ]
+   }
   },
   {
    "id": "mix",
-   "kind": "table",
+   "kind": "bars",
    "label": "Expense Mix",
+   "format": "pct",
    "finding": "People is 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.",
    "note": "People is salaries and wages, payroll taxes, health insurance, transaction coordinator fees and coaching and training. Agent splits are not in it.",
-   "columns": [
+   "items": [
     {
-     "key": "cat",
-     "label": "Category",
-     "type": "text"
+     "label": "People",
+     "text": "$184,827 for the period, 60.6% of operating expenses.",
+     "bars": [
+      {
+       "value": 54.5,
+       "text": "54.5% of company dollar"
+      }
+     ]
     },
     {
+     "label": "Occupancy",
+     "text": "$39,725 for the period, 13.0% of operating expenses.",
+     "bars": [
+      {
+       "value": 11.7,
+       "text": "11.7% of company dollar"
+      }
+     ]
+    },
+    {
+     "label": "Lead Generation",
+     "text": "$37,988 for the period, 12.5% of operating expenses.",
+     "bars": [
+      {
+       "value": 11.2,
+       "text": "11.2% of company dollar"
+      }
+     ]
+    },
+    {
+     "label": "Other",
+     "text": "$14,983 for the period, 4.9% of operating expenses.",
+     "bars": [
+      {
+       "value": 4.4,
+       "text": "4.4% of company dollar"
+      }
+     ]
+    },
+    {
+     "label": "Marketing",
+     "text": "$14,435 for the period, 4.7% of operating expenses.",
+     "bars": [
+      {
+       "value": 4.3,
+       "text": "4.3% of company dollar"
+      }
+     ]
+    },
+    {
+     "label": "Tech",
+     "text": "$12,439 for the period, 4.1% of operating expenses.",
+     "bars": [
+      {
+       "value": 3.7,
+       "text": "3.7% of company dollar"
+      }
+     ]
+    },
+    {
+     "label": "Uncategorized",
+     "text": "$486 for the period, 0.2% of operating expenses.",
+     "bars": [
+      {
+       "value": 0.1,
+       "text": "0.1% of company dollar"
+      }
+     ]
+    }
+   ],
+   "detail": {
+    "label": "Show The Table",
+    "sort": {
      "key": "total",
-     "label": "Period Total",
-     "type": "usd"
+     "dir": "desc"
     },
-    {
-     "key": "share_cd",
-     "label": "Share of Company Dollar",
-     "type": "pct"
-    },
-    {
-     "key": "share_opex",
-     "label": "Share of Operating Expenses",
-     "type": "pct"
-    }
-   ],
-   "rows": [
-    {
-     "cat": "Lead generation",
-     "total": 37987.77,
-     "share_cd": 11.2,
-     "share_opex": 12.5
-    },
-    {
-     "cat": "Marketing",
-     "total": 14435.0,
-     "share_cd": 4.3,
-     "share_opex": 4.7
-    },
-    {
-     "cat": "People",
-     "total": 184826.92,
-     "share_cd": 54.5,
-     "share_opex": 60.6
-    },
-    {
-     "cat": "Tech",
-     "total": 12439.0,
-     "share_cd": 3.7,
-     "share_opex": 4.1
-    },
-    {
-     "cat": "Occupancy",
-     "total": 39725.42,
-     "share_cd": 11.7,
-     "share_opex": 13.0
-    },
-    {
-     "cat": "Other",
-     "total": 14983.45,
-     "share_cd": 4.4,
-     "share_opex": 4.9
-    },
-    {
-     "cat": "Uncategorized",
-     "total": 486.2,
-     "share_cd": 0.1,
-     "share_opex": 0.2
-    }
-   ],
-   "sort": {
-    "key": "total",
-    "dir": "desc"
+    "columns": [
+     {
+      "key": "cat",
+      "label": "Category",
+      "type": "text"
+     },
+     {
+      "key": "total",
+      "label": "Period Total",
+      "type": "usd"
+     },
+     {
+      "key": "share_cd",
+      "label": "Share of Company Dollar",
+      "type": "pct"
+     },
+     {
+      "key": "share_opex",
+      "label": "Share of Operating Expenses",
+      "type": "pct"
+     }
+    ],
+    "rows": [
+     {
+      "cat": "Lead generation",
+      "total": 37987.77,
+      "share_cd": 11.2,
+      "share_opex": 12.5
+     },
+     {
+      "cat": "Marketing",
+      "total": 14435.0,
+      "share_cd": 4.3,
+      "share_opex": 4.7
+     },
+     {
+      "cat": "People",
+      "total": 184826.92,
+      "share_cd": 54.5,
+      "share_opex": 60.6
+     },
+     {
+      "cat": "Tech",
+      "total": 12439.0,
+      "share_cd": 3.7,
+      "share_opex": 4.1
+     },
+     {
+      "cat": "Occupancy",
+      "total": 39725.42,
+      "share_cd": 11.7,
+      "share_opex": 13.0
+     },
+     {
+      "cat": "Other",
+      "total": 14983.45,
+      "share_cd": 4.4,
+      "share_opex": 4.9
+     },
+     {
+      "cat": "Uncategorized",
+      "total": 486.2,
+      "share_cd": 0.1,
+      "share_opex": 0.2
+     }
+    ]
    },
    "mathTitle": "Each category / company dollar, January to September 2026",
    "math": [
-    "Lead generation: 37,987.77 / 339,366.76 = 11.2%",
-    "Marketing: 14,435.00 / 339,366.76 = 4.3%",
-    "People: 184,826.92 / 339,366.76 = 54.5%",
-    "Tech: 12,439.00 / 339,366.76 = 3.7%",
-    "Occupancy: 39,725.42 / 339,366.76 = 11.7%",
-    "Other: 14,983.45 / 339,366.76 = 4.4%",
-    "Uncategorized: 486.20 / 339,366.76 = 0.1%",
-    "Total operating expenses: 304,883.76 / 339,366.76 = 89.8%"
+    "Lead generation: $37,987.77 / $339,366.76 = 11.2%",
+    "Marketing: $14,435.00 / $339,366.76 = 4.3%",
+    "People: $184,826.92 / $339,366.76 = 54.5%",
+    "Tech: $12,439.00 / $339,366.76 = 3.7%",
+    "Occupancy: $39,725.42 / $339,366.76 = 11.7%",
+    "Other: $14,983.45 / $339,366.76 = 4.4%",
+    "Uncategorized: $486.20 / $339,366.76 = 0.1%",
+    "Total operating expenses: $304,883.76 / $339,366.76 = 89.8%"
    ]
   },
   {
    "id": "changed",
-   "kind": "table",
+   "kind": "deltas",
    "label": "What Changed",
-   "finding": "Biggest change: company dollar, 45,135.98 to 51,746.87 (6,610.89).",
-   "note": "Referral fees went from 13,998.25 in August to 0.00 in September and brokerage split and fees from 2,655.00 to 2,360.00, while agent splits rose with commission income. Lead generation fell 2,644.52 because Google PPC came back from 3,940.85 in August to 1,296.33.",
-   "columns": [
+   "finding": "Biggest change: company dollar, up $6,611 from August to September.",
+   "note": "Referral fees went from $13,998 in August to $0 in September and brokerage split and fees from $2,655 to $2,360, while agent splits rose with commission income. Lead generation fell $2,645 because Google PPC came back from $3,940.85 in August to $1,296.",
+   "items": [
     {
-     "key": "line",
-     "label": "Line",
-     "type": "text"
+     "label": "Company Dollar",
+     "from": "$45,136",
+     "fromLabel": "Aug",
+     "to": "$51,747",
+     "toLabel": "Sep",
+     "change": "Up $6,611",
+     "dir": "up",
+     "text": "January to August average: $35,952 a month."
     },
     {
-     "key": "aug",
-     "label": "Aug 2026",
-     "type": "usd"
+     "label": "Lead Generation",
+     "from": "$6,941",
+     "fromLabel": "Aug",
+     "to": "$4,296",
+     "toLabel": "Sep",
+     "change": "Down $2,645",
+     "dir": "down",
+     "text": "January to August average: $4,211 a month."
     },
     {
-     "key": "sep",
-     "label": "Sep 2026",
-     "type": "usd"
+     "label": "Marketing",
+     "from": "$1,655",
+     "fromLabel": "Aug",
+     "to": "$1,625",
+     "toLabel": "Sep",
+     "change": "Down $30",
+     "dir": "down",
+     "text": "January to August average: $1,601 a month."
     },
     {
-     "key": "change",
-     "label": "Change",
-     "type": "text"
+     "label": "People",
+     "from": "$20,692",
+     "fromLabel": "Aug",
+     "to": "$20,342",
+     "toLabel": "Sep",
+     "change": "Down $350",
+     "dir": "down",
+     "text": "January to August average: $20,561 a month."
     },
     {
-     "key": "avg",
-     "label": "Jan to Aug Average",
-     "type": "usd"
+     "label": "Tech",
+     "from": "$1,426",
+     "fromLabel": "Aug",
+     "to": "$1,426",
+     "toLabel": "Sep",
+     "change": "No change",
+     "dir": "flat",
+     "text": "January to August average: $1,377 a month."
+    },
+    {
+     "label": "Occupancy",
+     "from": "$4,439",
+     "fromLabel": "Aug",
+     "to": "$4,407",
+     "toLabel": "Sep",
+     "change": "Down $31",
+     "dir": "down",
+     "text": "January to August average: $4,415 a month."
+    },
+    {
+     "label": "Other",
+     "from": "$1,269",
+     "fromLabel": "Aug",
+     "to": "$1,309",
+     "toLabel": "Sep",
+     "change": "Up $40",
+     "dir": "up",
+     "text": "January to August average: $1,709 a month."
+    },
+    {
+     "label": "Net Income",
+     "from": "$9,465",
+     "fromLabel": "Aug",
+     "to": "$19,091",
+     "toLabel": "Sep",
+     "change": "Up $9,626",
+     "dir": "up",
+     "text": "January to August average: $2,768 a month."
     }
    ],
-   "rows": [
-    {
-     "line": "Company dollar",
-     "aug": 45135.98,
-     "sep": 51746.869999999995,
-     "change": "51,746.87 - 45,135.98 = 6,610.89",
-     "avg": 35952.48625
-    },
-    {
-     "line": "Lead generation",
-     "aug": 6940.85,
-     "sep": 4296.33,
-     "change": "4,296.33 - 6,940.85 = -2,644.52",
-     "avg": 4211.43
-    },
-    {
-     "line": "Marketing",
-     "aug": 1655.0,
-     "sep": 1625.0,
-     "change": "1,625.00 - 1,655.00 = -30.00",
-     "avg": 1601.25
-    },
-    {
-     "line": "People",
-     "aug": 20691.88,
-     "sep": 20341.88,
-     "change": "20,341.88 - 20,691.88 = -350.00",
-     "avg": 20560.63
-    },
-    {
-     "line": "Tech",
-     "aug": 1426.0,
-     "sep": 1426.0,
-     "change": "1,426.00 - 1,426.00 = 0.00",
-     "avg": 1376.625
-    },
-    {
-     "line": "Occupancy",
-     "aug": 4438.71,
-     "sep": 4407.46,
-     "change": "4,407.46 - 4,438.71 = -31.25",
-     "avg": 4414.745
-    },
-    {
-     "line": "Other",
-     "aug": 1268.85,
-     "sep": 1309.05,
-     "change": "1,309.05 - 1,268.85 = 40.20",
-     "avg": 1709.3
-    },
-    {
-     "line": "Net income",
-     "aug": 9464.69,
-     "sep": 19091.15,
-     "change": "19,091.15 - 9,464.69 = 9,626.46",
-     "avg": 2767.7312500000003
-    }
-   ],
+   "detail": {
+    "label": "Show The Table",
+    "columns": [
+     {
+      "key": "line",
+      "label": "Line",
+      "type": "text"
+     },
+     {
+      "key": "aug",
+      "label": "Aug 2026",
+      "type": "usd"
+     },
+     {
+      "key": "sep",
+      "label": "Sep 2026",
+      "type": "usd"
+     },
+     {
+      "key": "change",
+      "label": "Change",
+      "type": "text"
+     },
+     {
+      "key": "avg",
+      "label": "Jan to Aug Average",
+      "type": "usd"
+     }
+    ],
+    "rows": [
+     {
+      "line": "Company dollar",
+      "aug": 45135.98,
+      "sep": 51746.869999999995,
+      "change": "$51,746.87 - $45,135.98 = $6,610.89",
+      "avg": 35952.48625
+     },
+     {
+      "line": "Lead generation",
+      "aug": 6940.85,
+      "sep": 4296.33,
+      "change": "$4,296.33 - $6,940.85 = -$2,644.52",
+      "avg": 4211.43
+     },
+     {
+      "line": "Marketing",
+      "aug": 1655.0,
+      "sep": 1625.0,
+      "change": "$1,625.00 - $1,655.00 = -$30.00",
+      "avg": 1601.25
+     },
+     {
+      "line": "People",
+      "aug": 20691.88,
+      "sep": 20341.88,
+      "change": "$20,341.88 - $20,691.88 = -$350.00",
+      "avg": 20560.63
+     },
+     {
+      "line": "Tech",
+      "aug": 1426.0,
+      "sep": 1426.0,
+      "change": "$1,426.00 - $1,426.00 = $0.00",
+      "avg": 1376.625
+     },
+     {
+      "line": "Occupancy",
+      "aug": 4438.71,
+      "sep": 4407.46,
+      "change": "$4,407.46 - $4,438.71 = -$31.25",
+      "avg": 4414.745
+     },
+     {
+      "line": "Other",
+      "aug": 1268.85,
+      "sep": 1309.05,
+      "change": "$1,309.05 - $1,268.85 = $40.20",
+      "avg": 1709.3
+     },
+     {
+      "line": "Net income",
+      "aug": 9464.69,
+      "sep": 19091.15,
+      "change": "$19,091.15 - $9,464.69 = $9,626.46",
+      "avg": 2767.7312500000003
+     }
+    ]
+   },
    "mathTitle": "Year to date",
    "math": [
-    "Year to date (January to September 2026): company dollar 339,366.76; operating expenses 304,883.76; net income 41,233.00; margin 41,233.00 / 339,366.76 = 12.1%.",
+    "Year to date (January to September 2026): company dollar $339,366.76; operating expenses $304,883.76; net income $41,233.00; margin $41,233.00 / $339,366.76 = 12.1%.",
     "No prior-year months are in the file, so there is no year-over-year comparison."
    ]
   },
   {
    "id": "closing",
-   "kind": "table",
+   "kind": "bars",
    "label": "Cost per Closing and Lead Sources",
-   "finding": "From the 77 closed deals in the export: operating expenses per closing = 304,883.76 / 77 = 3,959.53.",
-   "note": "Lanternfly Leads is pay at close: its referral fees ($75,197) are its cost, and the team's share is already after them, so the team kept 0.62 per $1 of fees. Pumpkinpatch Portal and Google PPC are paid up front; their spend is the P&L account with the same name. Spend in one month often produces closings months later, so treat this as a rough nine-month view, not a verdict on any source.",
-   "columns": [
+   "format": "usd",
+   "finding": "Each lead source's share for the team, from the 77 closed deals in the export.",
+   "callout": {
+    "text": "Operating expenses per closing: **$3,960** across 77 closings, with $4,407 of company dollar and $535 of net income per closing."
+   },
+   "note": "Lanternfly Leads is pay at close: its referral fees are its cost, and the team's share is already after them. Pumpkinpatch Portal and Google PPC are paid up front; their spend is the P&L account with the same name. Spend in one month often produces closings months later, so treat this as a rough nine-month view, not a verdict on any source.",
+   "items": [
     {
-     "key": "source",
-     "label": "Source",
-     "type": "text"
+     "label": "Sphere",
+     "text": "16 closings, $237,859 of GCI. No spend line in the P&L.",
+     "bars": [
+      {
+       "value": 85356.52,
+       "text": "$85,357 team's share"
+      }
+     ]
     },
     {
+     "label": "Lanternfly Leads",
+     "text": "16 closings, $214,848 of GCI. Spend: $75,197 in referral fees. Kept $0.62 per $1 of fees.",
+     "bars": [
+      {
+       "value": 46882.20999999999,
+       "text": "$46,882 team's share"
+      }
+     ]
+    },
+    {
+     "label": "Pumpkinpatch Portal",
+     "text": "16 closings, $212,460 of GCI. Spend: $24,000. Returned $1.79 per $1 spent.",
+     "bars": [
+      {
+       "value": 66930.64,
+       "text": "$66,931 team's share"
+      }
+     ]
+    },
+    {
+     "label": "Google PPC",
+     "text": "11 closings, $166,072 of GCI. Spend: $13,988. Returned $3.54 per $1 spent.",
+     "bars": [
+      {
+       "value": 63451.07,
+       "text": "$63,451 team's share"
+      }
+     ]
+    },
+    {
+     "label": "Past Client",
+     "text": "8 closings, $104,098 of GCI. No spend line in the P&L.",
+     "bars": [
+      {
+       "value": 33072.86,
+       "text": "$33,073 team's share"
+      }
+     ]
+    },
+    {
+     "label": "Agent Generated",
+     "text": "7 closings, $98,308 of GCI. No spend line in the P&L.",
+     "bars": [
+      {
+       "value": 31124.309999999998,
+       "text": "$31,124 team's share"
+      }
+     ]
+    },
+    {
+     "label": "Open House",
+     "text": "3 closings, $43,235 of GCI. No spend line in the P&L.",
+     "bars": [
+      {
+       "value": 12549.150000000001,
+       "text": "$12,549 team's share"
+      }
+     ]
+    }
+   ],
+   "detail": {
+    "label": "Show The Table",
+    "sort": {
      "key": "closings",
-     "label": "Closings",
-     "type": "num"
+     "dir": "desc"
     },
-    {
-     "key": "gci",
-     "label": "GCI",
-     "type": "usd"
-    },
-    {
-     "key": "team",
-     "label": "Team's Share",
-     "type": "usd"
-    },
-    {
-     "key": "spend",
-     "label": "Spend",
-     "type": "text"
-    },
-    {
-     "key": "return",
-     "label": "Return",
-     "type": "text"
-    }
-   ],
-   "rows": [
-    {
-     "source": "Sphere",
-     "closings": 16.0,
-     "gci": 237858.75,
-     "team": 85356.52,
-     "spend": "no spend line",
-     "return": "n/a"
-    },
-    {
-     "source": "Lanternfly Leads",
-     "closings": 16.0,
-     "gci": 214847.5,
-     "team": 46882.20999999999,
-     "spend": "$75,197 in referral fees",
-     "return": "46,882.21 / 75,196.65 = 0.62 per $1 of fees"
-    },
-    {
-     "source": "Pumpkinpatch Portal",
-     "closings": 16.0,
-     "gci": 212460.0,
-     "team": 66930.64,
-     "spend": "$24,000",
-     "return": "(66,930.64 - 24,000.00) / 24,000.00 = 1.79 per $1 spent"
-    },
-    {
-     "source": "Google PPC",
-     "closings": 11.0,
-     "gci": 166072.5,
-     "team": 63451.07,
-     "spend": "$13,988",
-     "return": "(63,451.07 - 13,987.77) / 13,987.77 = 3.54 per $1 spent"
-    },
-    {
-     "source": "Past Client",
-     "closings": 8.0,
-     "gci": 104097.5,
-     "team": 33072.86,
-     "spend": "no spend line",
-     "return": "n/a"
-    },
-    {
-     "source": "Agent Generated",
-     "closings": 7.0,
-     "gci": 98307.5,
-     "team": 31124.309999999998,
-     "spend": "no spend line",
-     "return": "n/a"
-    },
-    {
-     "source": "Open House",
-     "closings": 3.0,
-     "gci": 43235.0,
-     "team": 12549.150000000001,
-     "spend": "no spend line",
-     "return": "n/a"
-    }
-   ],
-   "sort": {
-    "key": "closings",
-    "dir": "desc"
+    "columns": [
+     {
+      "key": "source",
+      "label": "Source",
+      "type": "text"
+     },
+     {
+      "key": "closings",
+      "label": "Closings",
+      "type": "num"
+     },
+     {
+      "key": "gci",
+      "label": "GCI",
+      "type": "usd"
+     },
+     {
+      "key": "team",
+      "label": "Team's Share",
+      "type": "usd"
+     },
+     {
+      "key": "spend",
+      "label": "Spend",
+      "type": "text"
+     },
+     {
+      "key": "return",
+      "label": "Return",
+      "type": "text"
+     }
+    ],
+    "rows": [
+     {
+      "source": "Sphere",
+      "closings": 16.0,
+      "gci": 237858.75,
+      "team": 85356.52,
+      "spend": "no spend line",
+      "return": "n/a"
+     },
+     {
+      "source": "Lanternfly Leads",
+      "closings": 16.0,
+      "gci": 214847.5,
+      "team": 46882.20999999999,
+      "spend": "$75,197",
+      "return": "$46,882.21 / $75,196.65 = $0.62 per $1 of fees"
+     },
+     {
+      "source": "Pumpkinpatch Portal",
+      "closings": 16.0,
+      "gci": 212460.0,
+      "team": 66930.64,
+      "spend": "$24,000",
+      "return": "($66,930.64 - $24,000.00) / $24,000.00 = $1.79 per $1 spent"
+     },
+     {
+      "source": "Google PPC",
+      "closings": 11.0,
+      "gci": 166072.5,
+      "team": 63451.07,
+      "spend": "$13,988",
+      "return": "($63,451.07 - $13,987.77) / $13,987.77 = $3.54 per $1 spent"
+     },
+     {
+      "source": "Past Client",
+      "closings": 8.0,
+      "gci": 104097.5,
+      "team": 33072.86,
+      "spend": "no spend line",
+      "return": "n/a"
+     },
+     {
+      "source": "Agent Generated",
+      "closings": 7.0,
+      "gci": 98307.5,
+      "team": 31124.309999999998,
+      "spend": "no spend line",
+      "return": "n/a"
+     },
+     {
+      "source": "Open House",
+      "closings": 3.0,
+      "gci": 43235.0,
+      "team": 12549.150000000001,
+      "spend": "no spend line",
+      "return": "n/a"
+     }
+    ]
    },
    "mathTitle": "Cost per closing, January to September 2026",
    "math": [
-    "Operating expenses per closing = 304,883.76 / 77 = 3,959.53",
-    "Lead generation per closing = 37,987.77 / 77 = 493.35",
-    "Company dollar per closing = 339,366.76 / 77 = 4,407.36",
-    "Net income per closing = 41,233.00 / 77 = 535.49",
-    "Average GCI per closing (production file) = 1,076,878.75 / 77 = 13,985.44",
-    "Monthly, operating expenses per closing ran from 3,108.33 (May, 11 closings) to 5,457.03 (January, 6 closings); the period figure is the one to use."
+    "Operating expenses per closing = $304,883.76 / 77 = $3,959.53",
+    "Lead generation per closing = $37,987.77 / 77 = $493.35",
+    "Company dollar per closing = $339,366.76 / 77 = $4,407.36",
+    "Net income per closing = $41,233.00 / 77 = $535.49",
+    "Average GCI per closing (production file) = $1,076,878.75 / 77 = $13,985.44",
+    "Monthly, operating expenses per closing ran from $3,108.33 (May, 11 closings) to $5,457.03 (January, 6 closings); the period figure is the one to use."
    ]
   },
   {
    "id": "anomalies",
-   "kind": "list",
+   "kind": "callouts",
    "label": "Anomalies",
    "finding": "Five things to look at, most important first.",
    "note": "Charge-level checks need the QuickBooks Profit and Loss Detail export for the same months.",
    "items": [
     {
      "status": "hold",
+     "chip": "Ask The Broker",
      "title": "Brokerage Split and Fees Dropped",
      "text": "From 6.0% of commission income (January to April) to 3.2% in May and 1.9% to 2.2% since. A cap, a fee change or something missing? A question for your broker (below)."
     },
     {
      "status": "hold",
      "title": "Uncategorized Expense",
-     "text": "486.20 in July 2026."
+     "text": "$486.20 in July 2026."
     },
     {
      "status": "hold",
      "title": "New Recurring Charge",
-     "text": "Software & Subscriptions:Video Editing App, 79.00 a month since June 2026."
+     "text": "Software & Subscriptions:Video Editing App, $79 a month since June 2026."
     },
     {
      "status": "hold",
      "title": "One-Month Jump",
-     "text": "Google PPC was 3,940.85 in August 2026 against a usual 1,264.12 (+2,676.73), back to 1,296.33 in September."
+     "text": "Google PPC was $3,940.85 in August 2026 against a usual $1,264 (+$2,677), back to $1,296 in September."
     },
     {
      "status": "hold",
      "title": "Price Change",
-     "text": "Pumpkinpatch Portal went from 2,500.00 to 3,000.00 a month starting July 2026."
+     "text": "Pumpkinpatch Portal went from $2,500 to $3,000 a month starting July 2026."
     }
    ]
   },
   {
    "id": "q-bookkeeper",
-   "kind": "list",
+   "kind": "questions",
    "label": "Questions for the Bookkeeper",
    "finding": "Four questions about what was recorded, each with the numbers that raised it.",
    "items": [
     {
-     "title": "Uncategorized Expense",
-     "text": "Uncategorized Expense holds 486.20 in July. What is it, and which account should it move to?"
+     "tag": "Uncategorized Expense",
+     "ask": "Uncategorized Expense holds $486.20 in July. What is it, and which account should it move to?",
+     "why": "Anomaly: an uncategorized expense, $486.20 in July 2026."
     },
     {
-     "title": "Video Editing App",
-     "text": "Video Editing App started in June at 79.00 a month. Which subscription is it, and is it meant to continue?"
+     "tag": "Video Editing App",
+     "ask": "Video Editing App started in June at $79 a month. Which subscription is it, and is it meant to continue?",
+     "why": "Anomaly: a new recurring charge since June 2026."
     },
     {
-     "title": "Google PPC in August",
-     "text": "Google PPC was 3,940.85 in August, 2,676.73 above its usual month. Was that one campaign, or a billing catch-up?"
+     "tag": "Google PPC in August",
+     "ask": "Google PPC was $3,940.85 in August, $2,677 above its usual month. Was that one campaign, or a billing catch-up?",
+     "why": "Anomaly: a one-month jump, back to $1,296 in September."
     },
     {
-     "title": "Brokerage Split and Fees",
-     "text": "Brokerage split and fees dropped from 6.0% of commission income to 3.2% in May and 1.9% to 2.2% since. Is anything missing from that account from May on? (I'm asking the broker separately about a cap or fee change.)"
+     "tag": "Brokerage Split and Fees",
+     "ask": "Brokerage split and fees dropped from 6.0% of commission income to 3.2% in May and 1.9% to 2.2% since. Is anything missing from that account from May on? (I'm asking the broker separately about a cap or fee change.)",
+     "why": "The step-down marked Watch in How Revenue Is Recorded."
     }
    ]
   },
   {
    "id": "q-cpa",
-   "kind": "list",
+   "kind": "prose",
    "label": "Questions for the CPA",
    "finding": "None from these numbers.",
-   "items": []
+   "paragraphs": [
+    "Nothing in this run asks how something should be recorded or taxed."
+   ]
   },
   {
    "id": "q-broker",
-   "kind": "list",
+   "kind": "questions",
    "label": "Questions for the Broker",
    "finding": "One question about the brokerage cap.",
    "items": [
     {
-     "title": "Cap or Fee Change",
-     "text": "Our brokerage split and fees were 6.0% of commission income from January to April 2026, 3.2% in May and 1.9% to 2.2% from June to September. Did the team or its agents reach a cap in May, or did the fee schedule change? When does the cap year reset?"
+     "tag": "Cap or Fee Change",
+     "ask": "Our brokerage split and fees were 6.0% of commission income from January to April 2026, 3.2% in May and 1.9% to 2.2% from June to September. Did the team or its agents reach a cap in May, or did the fee schedule change? When does the cap year reset?",
+     "why": "Only the broker knows the cap terms and when the cap year resets."
     }
    ]
   },
@@ -789,17 +1113,18 @@
    "drafts": [
     {
      "label": "Owner Brief",
+     "style": "memo",
      "to": "You, and a partner if you share it",
      "channel": "One page",
      "subject": "Owner Brief: Pinecone & Puddle Home Team P&L, January to September 2026",
-     "body": "Bottom Line: We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. Our decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month.\n\nProfit: Period net income $41,233 on company dollar of $339,367 (12.1%). September net income $19,091 on company dollar of $51,747 (36.9%).\n\nHow Revenue Is Recorded: Gross every month, and it matches our closed-deal export month by month.\n\nWhere the Money Goes: People 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.\n\nWhat Changed: Company dollar rose from $45,136 in August to $51,747 in September; Google PPC came back down from its August jump.\n\nWhat Needs a Look:\n- Brokerage fees down since May: asking the broker whether we reached a cap or the fee schedule changed.\n- 486.20 uncategorized in July.\n- Video Editing App, new at 79.00 a month since June.\n- Google PPC at 3,940.85 in August.\n\nCost per Closing: 3,959.53 in operating expenses per closing across 77 closings, with 4,407.36 of company dollar and 535.49 of net income per closing.\n\nLead Sources: Google PPC returned 3.54 per $1 spent and Pumpkinpatch Portal 1.79; Lanternfly Leads kept 0.62 per $1 of referral fees.\n\nThe Decision: Keep or cancel Pumpkinpatch Portal (3,000.00 a month since July; it was 2,500.00). For January to September it cost 24,000.00 and its 16 closings brought the team 66,930.64.\n\nWith the Bookkeeper: 4 questions sent; 1 question for the broker."
+     "body": "Bottom Line: We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. Our decision: keep or cancel Pumpkinpatch Portal at $3,000 a month.\nProfit: Period net income $41,233 on company dollar of $339,367 (12.1%). September net income $19,091 on company dollar of $51,747 (36.9%).\nHow Revenue Is Recorded: Gross every month, and it matches our closed-deal export month by month.\nWhere the Money Goes: People 54.5% of company dollar, occupancy 11.7%, lead generation 11.2%.\nWhat Changed: Company dollar rose from $45,136 in August to $51,747 in September; Google PPC came back down from its August jump.\nWhat Needs a Look:\n- Brokerage fees down since May: asking the broker whether we reached a cap or the fee schedule changed.\n- $486.20 uncategorized in July.\n- Video Editing App, new at $79 a month since June.\n- Google PPC at $3,940.85 in August.\nCost per Closing: $3,960 in operating expenses per closing across 77 closings, with $4,407 of company dollar and $535 of net income per closing.\nLead Sources: Google PPC returned $3.54 per $1 spent and Pumpkinpatch Portal $1.79; Lanternfly Leads kept $0.62 per $1 of referral fees.\nThe Decision: Keep or cancel Pumpkinpatch Portal ($3,000 a month since July; it was $2,500). For January to September it cost $24,000 and its 16 closings brought the team $66,931.\nWith the Bookkeeper: 4 questions to send; 1 question for the broker."
     },
     {
      "label": "Email to the Bookkeeper",
      "to": "[Bookkeeper Name]",
      "channel": "Email draft",
      "subject": "Questions On The January To September P&L",
-     "body": "Hi [Bookkeeper Name],\n\nI went through the January to September P&L against our closed-deal export. A few questions:\n\n1. Uncategorized Expense has 486.20 in July. What is it, and where should it go?\n2. Video Editing App started in June at 79.00 a month. Which subscription is it?\n3. Google PPC was 3,940.85 in August, well above its usual month. Was that one campaign, or a billing catch-up?\n4. Brokerage split and fees dropped to 3.2% of commission income in May and 1.9% to 2.2% since, from 6.0% before. Is anything missing from that account from May on?\n\nOnce the July item is moved, could you send an updated P&L by month as Excel?\n\nThanks,\n[Owner Name]",
+     "body": "Hi [Bookkeeper Name],\n\nI went through the January to September P&L against our closed-deal export. A few questions:\n\n1. Uncategorized Expense has $486.20 in July. What is it, and where should it go?\n2. Video Editing App started in June at $79 a month. Which subscription is it?\n3. Google PPC was $3,940.85 in August, well above its usual month. Was that one campaign, or a billing catch-up?\n4. Brokerage split and fees dropped to 3.2% of commission income in May and 1.9% to 2.2% since, from 6.0% before. Is anything missing from that account from May on?\n\nOnce the July item is moved, could you send an updated P&L by month as Excel?\n\nThanks,\n[Owner Name]",
      "flag": "Fill in [Bookkeeper Name] and [Owner Name] before sending."
     }
    ]
@@ -811,11 +1136,11 @@
    "finding": "Every figure in the drafts, traced to the analysis run (pnl_report.md), in the section named.",
    "items": [
     {
-     "text": "Period net income and margin: $41,233 (41,233.00), 12.1%",
+     "text": "Period net income and margin: $41,233, 12.1%",
      "source": "Company Dollar and Margin, Period"
     },
     {
-     "text": "Period company dollar: $339,367 (339,366.76)",
+     "text": "Period company dollar: $339,367",
      "source": "Company Dollar and Margin, Period"
     },
     {
@@ -827,7 +1152,7 @@
      "source": "Changes"
     },
     {
-     "text": "Referral fees 13,998.25 (Aug) to 0.00 (Sep); brokerage 2,655.00 to 2,360.00",
+     "text": "Referral fees $13,998 (Aug) to $0 (Sep); brokerage $2,655 to $2,360",
      "source": "Company Dollar and Margin, Aug and Sep 2026 lines"
     },
     {
@@ -843,27 +1168,27 @@
      "source": "Expense Mix"
     },
     {
-     "text": "Uncategorized: 486.20, July 2026",
+     "text": "Uncategorized: $486.20, July 2026",
      "source": "Flags (uncategorized)"
     },
     {
-     "text": "Video Editing App: 79.00 a month since June 2026",
+     "text": "Video Editing App: $79 a month since June 2026",
      "source": "Flags (new_recurring_account)"
     },
     {
-     "text": "Google PPC: 3,940.85 in August; usual 1,264.12; +2,676.73",
+     "text": "Google PPC: $3,940.85 in August; usual $1,264; +$2,677",
      "source": "Flags (spike)"
     },
     {
-     "text": "Pumpkinpatch Portal: 2,500.00 to 3,000.00 since July 2026; 24,000.00 spend; 16 closings; 66,930.64 team's share",
+     "text": "Pumpkinpatch Portal: $2,500 to $3,000 since July 2026; $24,000 spend; 16 closings; $66,931 team's share",
      "source": "Flags (price_change); Production, Lead Sources"
     },
     {
-     "text": "Cost per closing: 3,959.53; 4,407.36 and 535.49 per closing; 77 closings",
+     "text": "Cost per closing: $3,960; $4,407 and $535 per closing; 77 closings",
      "source": "Production, Cost per Closing"
     },
     {
-     "text": "Lead source returns: 3.54, 1.79, 0.62",
+     "text": "Lead source returns: $3.54, $1.79, $0.62",
      "source": "Production, Lead Sources"
     },
     {

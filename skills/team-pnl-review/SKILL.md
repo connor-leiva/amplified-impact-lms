@@ -67,7 +67,7 @@ Follow `references/review-rules.md`:
 ## 6. Hand It Back As A Page
 1. The run's `pnl_report.json` is the facts file, and `pnl_report.md` holds every figure as the run prints it: every number the page uses is in one of them. Never type a number by hand.
 2. Write `page.json` in OUTPUT_FOLDER: the sections in "Output, In This Order", using the section kinds in
-   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). A `pct` value is the percent as `pnl_report.md` prints it (12.1, not the JSON's 0.121). Both drafts go in one `drafts` section. Check Before Sending is the last section, a `checklist`. A totals check that doesn't tie, and every gap that makes a figure provisional, goes in `dataCheck`.
+   `references/page-format.md` and the kind named beside each item there (an item naming several kinds becomes that many sections, in order). A `pct` value is the percent as `pnl_report.md` prints it (12.1, not the JSON's 0.121). Both drafts go in one `drafts` section. Check Before Sending is the last section, a `checklist`. A totals check that doesn't tie, and every gap that makes a figure provisional, goes in `dataCheck`. On the page, dollar amounts in sentences, tiles and drafts are whole dollars with "$" ("$6,611"); a charge the bookkeeper will look up keeps its cents ("$486.20"); the arithmetic keeps the run's cents, with "$".
 3. Write `words.json`: the headline (two short sentences), three findings (profit, the biggest change, the top flag), up to three moves taken from the questions, and `decide`: the one decision, as a choice with its numbers, in one plain sentence (a string, never an object).
 4. Build: `python3 SKILL_FOLDER/scripts/build_page.py page.json --words words.json --facts pnl_report.json --inputs pnl_report.md <their CSV or text files> --out OUTPUT_FOLDER/Team-PnL-Review-<Team-Name>-<YYYY-MM>.html` (the P&L's last month).
 5. BUILD STOPPED lists what to fix (a number not in the facts, a time without MT, a heading not in Title Case,
@@ -89,16 +89,16 @@ Follow `references/review-rules.md`:
 
 The page holds these sections in this order, each kind in brackets; the bottom line sits at the top of the page. The chat gets four lines.
 
-1. **Bottom line** (three sentences max; the headline, findings, moves and `decide` in `words.json`): profit for the period and the latest month, the biggest change, and the one decision.
-2. **What I Used** (`list`): files, months, basis, totals check, the account fixes made, and every gap and placeholder.
-3. **How Revenue Is Recorded** (`table` by month, with how each month reads): the verdict, the month table, and what it changes.
-4. **Company Dollar and Margin**, with the arithmetic (`tiles`, the arithmetic in `math`, then a `table` by month).
-5. **Expense Mix**, with the arithmetic (`table` by category, the arithmetic in `math`).
-6. **What Changed** (`table`): month over month, against the average, year to date, budget if given.
-7. **Cost per Closing and Lead Sources** (`table` of lead sources, cost per closing in `math`), or the line saying why they were skipped (`list`).
-8. **Anomalies**, most important first (`list`).
-9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker** (a `list` each).
-10. **Owner Brief** (draft) and 11. **Email to the Bookkeeper** (draft), together in one `drafts` section.
+1. **Bottom line** (three sentences max; the headline, findings, moves and `decide` in `words.json`; 3 to 5 `keyNumbers`: net income, the latest month with its change, company dollar, the top flag as Watch): profit for the period and the latest month, the biggest change, and the one decision.
+2. **What I Used** (`callouts`: the totals check `on` with "Passed" or `off`, gaps `quiet`): files, months, basis, totals check, the account fixes made, and every gap and placeholder.
+3. **How Revenue Is Recorded** (`table` by month, with how each month reads, a `columns` chart of the share that moved, and the verdict as the callout): the verdict, the month table, and what it changes.
+4. **Company Dollar and Margin**, with the arithmetic (`tiles`, each with what it means, the arithmetic in `math`; then a `table` by month with a `columns` chart of net income, a loss month `off`).
+5. **Expense Mix**, with the arithmetic (`bars` by category, largest first, the table in `detail`, the arithmetic in `math`).
+6. **What Changed** (`deltas`, up or down in words, the table in `detail`): month over month, against the average, year to date, budget if given.
+7. **Cost per Closing and Lead Sources** (`bars` of each source's share, cost per closing as the callout, the table in `detail`), or the line saying why they were skipped (`callouts`).
+8. **Anomalies**, most important first (`callouts`, each `hold`).
+9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker** (`questions` each, the flag behind it as `why`; with none, `prose`).
+10. **Owner Brief** (draft, `"style": "memo"`) and 11. **Email to the Bookkeeper** (draft), together in one `drafts` section.
 12. **Check Before Sending** (`checklist`): every dollar amount, percentage, date, month and account name in items 10 and 11, each traced to the run, plus any placeholder.
 
 Attach `pnl_report.md` beside the page so the owner or bookkeeper can see every calculation.

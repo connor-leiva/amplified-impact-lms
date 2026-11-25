@@ -2,12 +2,12 @@
   "headline": ["Net income was $41,233, a 12.1% margin.", "Brokerage fees fell from May on."],
   "findings": [
     {"status": "quiet", "chip": "Profit", "text": "The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months."},
-    {"status": "quiet", "chip": "Biggest Change", "text": "The biggest change in September was company dollar, up 6,610.89 from August."},
-    {"status": "hold", "text": "Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, a question for your broker."}
+    {"status": "quiet", "chip": "Biggest Change", "text": "The biggest change in September was company dollar, **up $6,611** from August."},
+    {"status": "hold", "text": "Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, **a question for your broker**."}
   ],
   "moves": [
     {"title": "Ask Your Broker About the Brokerage Fee Drop", "text": "Did the team or its agents reach a cap in May, or did the fee schedule change? And when does the cap year reset?", "tag": "Brokerage split and fees", "owner": ""},
-    {"title": "Send Your Bookkeeper the Four Questions", "text": "The 486.20 uncategorized in July, the Video Editing App at 79.00 a month, Google PPC at 3,940.85 in August, and the brokerage account from May on. The email is drafted below.", "tag": "The books", "owner": ""}
+    {"title": "Send Your Bookkeeper the Four Questions", "text": "The $486.20 uncategorized in July, the Video Editing App at $79 a month, Google PPC at $3,940.85 in August, and the brokerage account from May on. The email is drafted below.", "tag": "The books", "owner": ""}
   ],
-  "decide": "Keep or cancel Pumpkinpatch Portal: 3,000.00 a month since July 2026 (it was 2,500.00). For January to September it cost 24,000.00, and its 16 closings brought the team 66,930.64."
+  "decide": "Keep or cancel Pumpkinpatch Portal: $3,000 a month since July 2026 (it was $2,500). For January to September it cost $24,000, and its 16 closings brought the team $66,931."
 }

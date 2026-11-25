@@ -48,7 +48,7 @@ One page you can sort, search and print (an HTML file to download, the same layo
 - A recap template to fill in after, with [placeholders] and a Copy Draft button.
 - A Check Before Sending list you can tick (the ticks stay in your browser), and beside the page, the file with every sum (one_on_one_data.md).
 
-Tables sort and search, every Show The Math opens the arithmetic, and Print Or Save As PDF prints it on Letter paper. Nothing you do on the page changes your numbers or sends anything. A made-up sample: `evals/page/Agent-1on1-Prep-Sample.html` (screenshots and PDF beside it).
+The page opens with a plain headline and four key numbers, each with a bar toward her prorated goal and the words "At Goal" or "Under Goal". Numbers are drawn where a picture reads faster: progress bars, ratio meters with her plan's mark, small monthly charts, then-and-now rows. Commitments look like pledges with owner and due chips, questions like a numbered deck (Why Ask This shows the fact behind each), focus options like tiles you can pick, the agenda like a run of show with times in MT and CT, and the recap like an email with its blanks highlighted. Tables, the arithmetic and the rest of the questions wait behind Show The Details; Print Or Save As PDF opens everything on Letter paper. Nothing you do on the page changes your numbers or sends anything. A made-up sample: `evals/page/Agent-1on1-Prep-Sample.html` (screenshots, an expanded screenshot and a PDF beside it).
 
 ## What It Won't Do
 
