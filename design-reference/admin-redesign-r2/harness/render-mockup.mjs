@@ -23,10 +23,15 @@ const FONTS = resolve(arg('fonts', join(R2, '..', 'fonts')));   // design-refere
 const OUT = resolve(arg('out', join(R2, 'ref')));
 const DPR = Number(arg('dpr', '1'));
 const WIDTHS = arg('widths', '1440,1280,1024,390').split(',').map(Number);
-const ALL = ['overview','health','curriculum','builder','vault','cohorts','announce','learners','workspaces','users','masquerade','tiers','billing','payments','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
+// D-255 (R-5 Phase 3): `cohorts` is Cohort › Schedule now (its old Cohorts & Sessions refs retire); `cohortov` and
+// `cohortset` are December's Overview and Settings; `newcohort` is New cohort; `january`, `janschedule` and `jansettings`
+// are January, created; and four dialogs on January's Settings (`DIALOGS`, a viewport frame each, as roles-confirm).
+const ALL = ['overview','health','curriculum','builder','vault','cohortov','cohorts','cohortset','newcohort','january','janschedule','jansettings','announce','learners','workspaces','users','masquerade','tiers','billing','payments','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
 const sArg = arg('screens', 'all');
 const SCREENS = sArg === 'all' ? ALL : sArg.split(',');
-const NAME = { workspace: 'workspace-detail', cohorts: 'cohorts-sessions' };
+const NAME = { workspace: 'workspace-detail', cohorts: 'cohort-schedule', cohortov: 'cohort-overview', cohortset: 'cohort-settings', newcohort: 'new-cohort', january: 'january-overview', janschedule: 'january-schedule', jansettings: 'january-settings' };
+/** A dialog's ref: the screen it opens on, the button that opens it (its exact text) and which of them. */
+const DIALOGS = { 'january-shape': ['jansettings', 'Edit', 0], 'january-weeks': ['jansettings', '6 of the program’s 8', 0], 'january-dates': ['jansettings', 'Edit', 1], 'january-words': ['jansettings', 'Edit words', 0] };
 const PHONE_H = 844, DESK_H = 900;                    // viewport heights for the modal (confirm) frames
 
 const tmp = mkdtempSync(join(tmpdir(), 'mock-r2-'));
@@ -69,6 +74,21 @@ for (const w of WIDTHS) {
     await settle(p);
     const f = `${NAME[s] || s}-${w}.png`;
     await (await p.$('.ax')).screenshot({ path: join(OUT, f), animations: 'disabled', caret: 'hide' });
+    made.push(f); await p.close();
+  }
+  for (const [name, [screen, label, nth]] of Object.entries(DIALOGS)) {
+    if (!SCREENS.includes(screen)) continue;
+    // A dialog: a viewport frame at the page top with it open, as the Roles confirm frame is.
+    const h = w < 768 ? PHONE_H : DESK_H;
+    const p = await open(w, h);
+    await p.selectOption('select[aria-label="Screen"]', screen);
+    await p.addStyleTag({ content: BASE + `.arx{height:auto!important}.stg{overflow:visible!important}.hold{height:auto!important}.ax{position:relative!important;height:${h}px!important}` });
+    await settle(p);
+    await p.locator('.ax .main button').filter({ hasText: new RegExp('^' + label + '$') }).nth(nth).click();
+    await p.waitForSelector('.ax .scrim');
+    await p.evaluate(() => { document.querySelector('.ax .main').scrollTop = 0; }); await settle(p);
+    const f = `${name}-${w}.png`;
+    await p.screenshot({ path: join(OUT, f), clip: { x: 0, y: 0, width: w, height: h }, animations: 'disabled', caret: 'hide' });
     made.push(f); await p.close();
   }
   if (SCREENS.includes('roles')) {

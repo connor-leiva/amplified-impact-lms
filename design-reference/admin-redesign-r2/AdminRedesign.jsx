@@ -309,6 +309,45 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 /* the sidebar's single rows, and the hairline above the system pages */
 .gx.solo .rb{margin-left:auto}.gx .rb.dr{color:var(--warn)}
 .gsep{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+
+/* ---- D-255 (R-5 Phase 3): the Cohort page's tabs and New cohort, from build_admin.py ("Nov 25", "third pass") ---- */
+.fx>.fxl{background:var(--sf);border:0;padding:12px 34px 12px 20px;display:flex;flex-direction:column;gap:2px;flex:1 0 auto;max-width:100%;white-space:nowrap;text-align:left;cursor:pointer;position:relative;color:inherit;transition:background-color .12s}
+.fx>.fxl:hover{background:var(--hov)}.fx>.fxl>svg{position:absolute;right:14px;top:50%;margin-top:-6px;color:var(--line2);transition:color .12s,transform .12s}.fx>.fxl:hover>svg{color:var(--for);transform:translateX(2px)}
+.ph .fx>.fxl{padding:12px 26px 12px 12px;min-width:0}.ph .fx>.fxl>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}.ph .fx>.fxl>span:nth-child(2){font-size:16px}.ph .fx>.fxl>svg{right:8px}
+.ph .fx>.fxl:last-child:nth-child(odd){grid-column:1/-1}
+.fat{font-weight:400;font-size:var(--m);line-height:var(--ml);color:var(--f3);margin-top:-4px}
+.lns{display:flex;flex-direction:column;gap:6px}
+.wkl{display:flex;flex-direction:column}.wkl>*+*{border-top:1px solid var(--line)}
+.wn{width:28px;height:28px;border-radius:8px;background:var(--tint);color:var(--for);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none;font-variant-numeric:tabular-nums}
+.wn.sm{width:24px;height:24px;border-radius:6px;font-size:12px;background:var(--sub);color:var(--f2)}.wn.sm.pk{background:var(--tint);color:var(--for)}
+.rnw,.nyr,.rdy{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font-size:calc(var(--t) - 1px)}
+.rnw{padding:8px;margin:-4px -8px;width:calc(100% + 16px);border-radius:8px}.rnw:hover{background:var(--sub)}.rnw>svg:last-child,.nyr>svg:last-child{color:var(--line2);flex:none}.rnw:hover>svg:last-child,.nyr:hover>svg:last-child{color:var(--for)}
+.nyr{padding:12px 16px 12px 20px;min-height:60px}.nyr:hover{background:var(--hov)}.nyr.rn{min-height:52px;padding-block:8px}
+.nyr.now{background:linear-gradient(90deg,var(--tint),transparent 60%)}.ph .nyr{padding:12px 16px}
+.mt.bad{background:var(--badb);color:var(--bad)}.mt.warn{background:var(--warnb);color:var(--warn)}
+.rdy{padding:6px 8px;margin:-2px -8px;width:calc(100% + 16px);border-radius:8px;gap:10px}.rdy:hover{background:var(--sub)}
+.rdn{flex:none;white-space:nowrap;text-align:right;min-width:44px}
+.dt{width:36px;height:40px;border-radius:8px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;line-height:1}.dt b{font-size:15px;font-weight:600}.dt span{font-size:10px;color:var(--f3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.stp2{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);align-self:flex-start;height:var(--c)}.stp2 b{min-width:28px;text-align:center;font-weight:600}.stp2 button{height:calc(var(--c) - 2px);min-width:32px;border:0;background:none;border-radius:7px;font-size:16px;color:var(--f2);cursor:pointer}.stp2 button:disabled{opacity:.35;cursor:default}
+.slt{display:flex;align-items:center;gap:4px}.slt .in{flex:1 1 0;min-width:0;font-weight:400}.ph .slt{flex-wrap:wrap}.ph .slt .in{flex:1 1 40%}
+.ckr{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:calc(var(--t) - 1px)}.ckr input{margin:3px 0 0;width:16px;height:16px;accent-color:var(--for);flex:none}
+.skf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}.skf>div{background:var(--sf);padding:10px 12px;display:flex;flex-direction:column}.skf b{font-size:20px;line-height:26px;font-weight:600}
+.skc{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:var(--tint);color:var(--for);font-size:var(--m);font-weight:500;white-space:nowrap}
+.skc.alt{background:var(--infob);color:var(--info)}.skc.off{background:var(--sub);color:var(--f3)}
+.ncl{display:flex;flex-direction:column;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px 12px;gap:10px;font-weight:400}.ncw{display:flex;align-items:flex-start;gap:10px}
+.ncl.free{max-height:none;overflow:visible}
+.tdc{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.tdo.ok .tdc{background:#2E9A63;border-color:#2E9A63}.tdo.ok .w5{color:var(--f2);font-weight:400}
+.set2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.lap .set2,.ph .set2{grid-template-columns:minmax(0,1fr)}
+.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr)}
+.cfl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px;font-weight:400}
+.wpl{display:flex;flex-direction:column}.wpl>*+*{border-top:1px solid var(--line)}
+.wpk{display:flex;align-items:center;gap:12px;padding:10px 20px;min-height:56px;cursor:pointer;font-size:calc(var(--t) - 1px)}.wpk:hover{background:var(--hov)}.ph .wpk{padding:10px 16px;flex-wrap:wrap}
+.wpk input{width:16px;height:16px;accent-color:var(--for);flex:none;margin:0}.wpk:not(.on) .w5,.wpk:not(.on) .me{color:var(--f3)}.wpk:not(.on) .w5{font-weight:400}
+.ewl{display:flex;flex-direction:column;gap:6px;margin-top:2px}.ewr{display:grid;grid-template-columns:24px minmax(0,1fr) 150px 150px;gap:8px;align-items:center;font-weight:400}.ewf{display:block;min-width:0}.ewf .in{min-width:0;width:100%}.ewk{display:none}
+.ewh{color:var(--f3);font-size:var(--m);line-height:var(--ml)}
+.ph .ewh{display:none}.ph .ewl{gap:14px}.ph .ewr{grid-template-columns:24px minmax(0,1fr);row-gap:6px}.ph .ewf{grid-column:2;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center}.ph .ewk{display:block;color:var(--f3)}
+.nsk{position:sticky;top:0}.ph .nsk{position:static}
 `;
 
 /* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
@@ -459,7 +498,7 @@ const NAV = [
   ['Operations', [['health', 'System Health'], ['incidents', 'Incidents', 0, '1'], ['audit', 'Audit Log'], ['api', 'API & Webhooks'], ['jobs', 'Scheduled Jobs'], ['email', 'Email Log'], ['integrations', 'Integrations', 'ops'], ['deploys', 'Deploys & Commits', 'ops'], ['db', 'DB Health', 'ops'], ['flags', 'Environment Flags', 'ops']]],
   ['Access', [['roles', 'Roles & Permissions', 'ops']]],
 ];
-const PARENT = { builder: 'program', workspace: 'people', user: 'people', incident: 'incidents', as: 'people' };
+const PARENT = { builder: 'program', workspace: 'people', user: 'people', incident: 'incidents', as: 'people', newcohort: 'cohort' };
 const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeeded: 'ok', Live: 'ok', Published: 'ok', Connected: 'ok', Resolved: 'ok', Present: 'ok', Sent: 'ok', On: 'ok', Healthy: 'ok', Ready: 'ok', Approved: 'ok',
   Running: 'run', Retrying: 'run', Scheduled: 'info', Trialing: 'info', Queued: 'info', Acknowledged: 'info', Upcoming: 'info',
   Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
@@ -780,7 +819,7 @@ function Tiers() {
     ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
   const tog = m => guard('build', 'Change tier access for ' + m.n, () => { setMods(ms => ms.map(x => x.id === m.id ? { ...x, tier: x.tier === 'both' ? 'team' : 'both' } : x)); log('tier.access_change', m.n, m.tier === 'both' ? 'Agent + Team to Team only.' : 'Team only to Agent + Team.'); });
   return <div className="pg">
-    <Head t="Plans & upgrades" d="What each plan costs and holds, and the teams asking to move between them." />
+    <Head t="Plans & Upgrades" d="What each plan costs and holds, and the teams asking to move between them." />
     <Gate n={8}>
       <div className="g3">{T.map(t => <section key={t[0]} className="cd pd col" style={{ gap: 12 }}>
         <div className="row nw"><h2>{t[1]}</h2><Pill v={t[2]} tone="" /><span className="sp" /><span className="me">{t[4]}</span></div>
@@ -1171,20 +1210,22 @@ function Denied({ what }) {
    once its page exists; Overview, Submissions and Settings (Cohort) and Utah Life (People) arrive in later phases. ---------- */
 const SOLO = { Overview: 1, Program: 1, Cohort: 1, People: 1, Revenue: 1 };
 const AREAS = {
-  program: [['curriculum', 'Curriculum'], ['settings', 'Course settings'], ['vault', 'Resource Vault']],
-  cohort: [['schedule', 'Schedule'], ['people', 'People'], ['community', 'Community'], ['announcements', 'Announcements']],
+  program: [['curriculum', 'Curriculum'], ['settings', 'Course Settings'], ['vault', 'Resource Vault']],
+  cohort: [['overview', 'Overview'], ['schedule', 'Schedule'], ['people', 'People'], ['community', 'Community'], ['announcements', 'Announcements'], ['settings', 'Settings']],
   people: [['everyone', 'Everyone'], ['teams', 'Teams'], ['masquerade', 'Masquerade']],
-  revenue: [['summary', 'Summary'], ['payments', 'Payments'], ['plans', 'Plans & upgrades'], ['usage', 'Usage']],
+  revenue: [['summary', 'Summary'], ['payments', 'Payments'], ['plans', 'Plans & Upgrades'], ['usage', 'Usage']],
 };
 const AREA_TABS = Object.fromEntries(Object.entries(AREAS).map(([k, v]) => [k, v.map(t => t[0])]));
 /* yesterday's page names still work: each one is a tab now */
-const ALIAS = { curriculum: ['program', 'curriculum'], course: ['program', 'settings'], vault: ['program', 'vault'], cohorts: ['cohort', 'schedule'], learners: ['cohort', 'people'], community: ['cohort', 'community'], announce: ['cohort', 'announcements'],
+const ALIAS = { curriculum: ['program', 'curriculum'], course: ['program', 'settings'], vault: ['program', 'vault'], cohorts: ['cohort', 'schedule'], cohortov: ['cohort', 'overview'], cohortset: ['cohort', 'settings'], learners: ['cohort', 'people'], community: ['cohort', 'community'], announce: ['cohort', 'announcements'],
   users: ['people', 'everyone'], workspaces: ['people', 'teams'], masquerade: ['people', 'masquerade'], billing: ['revenue', 'summary'], payments: ['revenue', 'payments'], tiers: ['revenue', 'plans'], usage: ['revenue', 'usage'] };
 const routeOf = (s, id, tab) => ALIAS[s] ? { s: ALIAS[s][0], tab: ALIAS[s][1], sub: tab, id } : AREA_TABS[s] ? (AREA_TABS[s].includes(tab) ? { s, tab, id } : { s, tab: AREA_TABS[s][0], sub: tab, id }) : { s, id, tab };
 const aliasOf = r => Object.keys(ALIAS).find(k => ALIAS[k][0] === r.s && ALIAS[k][1] === r.tab);
 /* the cohorts that exist. "New cohort…" arrives with the new-cohort page (Phase 3) */
 const COHORTS = [{ id: 'dec26', n: 'December 2026 Cohort', st: 'Active' }];
 const COH = COHORTS[0];
+/* D-255: the picker lists the cohorts not archived, a draft marked, then "New cohort…" (January, once created) */
+const pickItems = go => [...Object.values(P3_COH).filter(c => c.id === 'dec26' || P3C === c).map(c => ({ l: c.n + (c.draft ? ' · Draft' : ''), on: c === P3C, fn: () => { P3C = c; go('cohort'); } })), '-', { l: 'New cohort…', fn: () => go('newcohort') }];
 /* the program's own tile (program-logo.ts, variant "tile"), never under 32px */
 const PTile = ({ s = 32 }) => <img className="tile" src={LOGO_ACCELERATOR} width={s} height={s} alt="" style={{ width: s, height: s, flex: 'none', borderRadius: Math.round(s * 0.22) }} />;
 
@@ -1201,12 +1242,17 @@ const OffRef = ({ what }) => <div className="cd"><Empty ic="file" t={what} b="Th
 function ProgramArea() {
   const { mods } = useC();
   return <Area k="program" t={<span className="row nw" style={{ gap: 10 }}><PTile />Amplified AI Accelerator</span>} meta={<Pill v="Program" tone="" />} d="What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." counts={{ curriculum: mods.length }}>
-    {tab => tab === 'settings' ? <OffRef what="Course settings" /> : tab === 'vault' ? <Vault /> : <Curriculum />}</Area>;
+    {tab => tab === 'settings' ? <OffRef what="Course Settings" /> : tab === 'vault' ? <Vault /> : <Curriculum />}</Area>;
 }
 function CohortArea() {
-  // Schedule counts the cohort's sessions; People its teams, as Learners & Teams' own Teams tab does (7).
-  return <Area k="cohort" t={<CohortPick />} counts={{ schedule: COHORT_SESSIONS.length, people: 7 }}>
-    {tab => tab === 'people' ? <Learners /> : tab === 'community' ? <OffRef what="Community" /> : tab === 'announcements' ? <Announce /> : <Cohorts />}</Area>;
+  // Schedule counts the cohort's sessions; People its teams, as Learners & Teams' own Teams tab does (7). D-255: the head's status
+  // word (Draft, Scheduled, Active, Finished), its shape line, Preview (the staff preview) and its menu; Open enrollment is Phase 5's.
+  const { go, toast } = useC();
+  const c = P3C;
+  return <Area k="cohort" t={<CohortPick />} meta={<St v={c.st} />} d={p3Line(c)}
+    right={<><Btn ic="eye" onClick={() => toast('Opens the staff preview of this cohort')}>Preview</Btn><Menu items={[{ l: 'New cohort…', fn: () => go('newcohort') }, { l: 'All settings', fn: () => go('cohortset') }]} /></>}
+    counts={{ schedule: c.ses.length, people: 7 }}>
+    {tab => tab === 'people' ? <Learners /> : tab === 'community' ? <OffRef what="Community" /> : tab === 'announcements' ? <Announce /> : tab === 'schedule' ? <CohortSchedule /> : tab === 'settings' ? <CohortSettings /> : <CohortOverview />}</Area>;
 }
 function PeopleArea() {
   return <Area k="people" t="People" d="Everyone with a sign-in, across every product. Each person is counted once, under how they got in.">
@@ -1218,20 +1264,289 @@ function RevenueArea() {
     {tab => tab === 'payments' ? <Billing /> : tab === 'plans' ? <Tiers /> : tab === 'usage' ? <Usage /> : <Billing part="summary" />}</Area>;
 }
 
+/* ---------- D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings, and New cohort ----------
+   Ported from handoff/admin-mockup/p3-cohort.jsx and p3-model.jsx, with PLAN.md § 10's words: Title Case headings, one
+   line of times in MT and CT ("12:00 PM MT / 1:00 PM CT"), no dashes, December's words copied to a new cohort and flagged
+   "Read them once", "Before it opens" as Open enrollment's refusals in order, no price (Phase 5). The data is this
+   reference's December (six Wednesday builds) and the program's weeks (P3_WEEKS); January is laid out by New cohort's own
+   rule (`p3Plan`, the app's `layOut`) from Connor's example. */
+const P3_WEEKS = [
+  { id: 'accelerator-week-0', n: 0, t: 'Foundations', o: 'The office is ready for its first hire.', steps: 8 },
+  { id: 'accelerator-week-1', n: 1, t: 'Where the Money Goes', o: 'A year of spend on one standard chart.', steps: 7 },
+  { id: 'accelerator-week-2', n: 2, t: 'Leads That Pay', o: 'Every lead source ranked by what it returns.', steps: 7 },
+  { id: 'accelerator-week-3', n: 3, t: 'Numbers on the 5th', o: 'A monthly report that builds itself.', steps: 6 },
+  { id: 'accelerator-week-4', n: 4, t: 'Protect the Pipeline', o: 'No file goes quiet without someone knowing.', steps: 5 },
+  { id: 'accelerator-week-5', n: 5, t: 'Coach from Evidence', o: 'One-on-ones that start from the numbers.', steps: 4 },
+  { id: 'accelerator-week-6', n: 6, t: 'Delegate an Outcome', o: 'A hire that owns a result, not a task.', steps: 3 },
+  { id: 'accelerator-week-7', n: 7, t: 'Make the Workflow Repeatable', o: 'What worked, written down so it runs again.', steps: 2 },
+  { id: 'accelerator-week-8', n: 8, t: 'Sustain and Expand', o: 'The next three hires, in order.', steps: 2 },
+];
+const P3_BUILD = P3_WEEKS.filter(w => w.n > 0);
+/* December's words, as its course holds them (this reference's sample) */
+const DEC_WORDS = { promise: 'Nine weeks. One hire a week. Built live, on your own numbers.', how: ['A week opens on Sunday.', 'We build its hire together on Wednesday.', 'You run it on your own data and turn in what it made.', 'Office hours are Thursday.'], holiday: 'No sessions the weeks of Dec 21 and Dec 28. Week 4 opens Sun, Jan 3.' };
+/* time in Mountain, with Central after it: the app's fmt.mtDay, fmt.mtCt */
+const MTZ = 'America/Denver', CTZ = 'America/Chicago';
+const tOf = (t, z) => new Date(t).toLocaleTimeString('en-US', { timeZone: z, hour: 'numeric', minute: '2-digit' });
+const dIn = (t, z, o) => new Date(t).toLocaleDateString('en-US', { timeZone: z, ...o });
+const mtDay = t => dIn(t, MTZ, { weekday: 'short', month: 'short', day: 'numeric' });
+const mtDate = t => dIn(t, MTZ, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+const mtCt = t => tOf(t, MTZ) + ' MT / ' + (dIn(t, MTZ, { day: 'numeric' }) === dIn(t, CTZ, { day: 'numeric' }) ? '' : dIn(t, CTZ, { weekday: 'short', month: 'short', day: 'numeric' }) + ', ') + tOf(t, CTZ) + ' CT';
+/* an instant from a date and time typed in Mountain time (winter here: UTC-7; the app's zonedInstant) */
+const zAt = (date, time) => Date.parse(date + 'T' + time + ':00-07:00');
+const dayAdd = (date, n) => new Date(Date.parse(date + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+const P3_KIND = { live_build: 'Live build', office_hours: 'Office hours', other: 'Working session' };
+const P3_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const P3_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const lenOf = m => { const h = Math.floor(m / 60), r = m % 60; return h ? h + ' hr' + (r ? ' ' + r + ' min' : '') : r + ' min'; };
+/* lay a shape out (the app's layOut, the mockup's planOf): Week 1 opens on `start` at noon, each week seven days later,
+   the setup week seven days before; one session per slot on the first matching weekday on or after its opening */
+function p3Plan({ start, setup, picks, slots }) {
+  const weeks = [], ses = [];
+  const setupOpens = setup ? zAt(dayAdd(start, -7), '12:00') : null;
+  if (setup) weeks.push({ ...P3_WEEKS[0], n: 0, opens: null, ses: [] });
+  P3_BUILD.filter(w => picks.includes(w.id)).forEach((w, i) => {
+    const opens = dayAdd(start, 7 * i);
+    const wd = new Date(opens + 'T00:00:00Z').getUTCDay();
+    const mine = slots.map(sl => ({ week: w, n: i + 1, kind: sl.kind, mins: sl.mins, title: w.t + ' · ' + P3_KIND[sl.kind], start: zAt(dayAdd(opens, (sl.day - wd + 7) % 7), sl.time) }));
+    weeks.push({ ...w, n: i + 1, opens: zAt(opens, '12:00'), ses: mine });
+    ses.push(...mine);
+  });
+  ses.sort((a, b) => a.start - b.start);
+  return { weeks, ses, setupOpens };
+}
+const JAN_SLOTS = [{ day: 2, time: '12:00', kind: 'live_build', mins: 90 }, { day: 4, time: '12:00', kind: 'office_hours', mins: 60 }];
+const JAN_PLAN = p3Plan({ start: '2027-01-03', setup: true, picks: P3_BUILD.slice(0, 6).map(w => w.id), slots: JAN_SLOTS });
+/* December, as this reference has it: six Wednesday builds, no course weeks of its own */
+const DEC_SES = COHORT_SESSIONS.map((s, i) => ({ title: s[0].replace(/^Session \d+ · /, ''), kind: null, week: null, start: zAt(['2026-12-02', '2026-12-09', '2026-12-16', '2026-12-23', '2026-12-30', '2027-01-06'][i], '12:00'), mins: 60, zoom: i < 4 }));
+const P3_COH = {
+  dec26: { id: 'dec26', n: 'December 2026 Cohort', name: 'December 2026', st: 'Active', draft: false, weeks: [], ses: DEC_SES, slots: [], setup: false, opens: null, preview: null, words: DEC_WORDS, unread: false, hosts: 'Connor Leiva', included: null, cap: 200, w1: null },
+  jan27: { id: 'jan27', n: 'January 2027 Cohort', st: 'Draft', draft: true, weeks: JAN_PLAN.weeks, ses: JAN_PLAN.ses.map(s => ({ ...s, zoom: false })), slots: JAN_SLOTS, setup: true, opens: JAN_PLAN.setupOpens, preview: JAN_PLAN.setupOpens, words: DEC_WORDS, unread: true, hosts: 'Connor Leiva and Spring', included: '2027-05-10', cap: 200, w1: JAN_PLAN.weeks[1].opens },
+};
+let P3C = P3_COH.dec26;
+const NOW_P3 = Date.parse('2026-12-10T16:30:00Z');
+const p3Shape = c => c.weeks.filter(w => w.n > 0).length;
+const p3Meets = sl => !sl.length ? 'Self-paced' : sl.length === 1 ? 'once a week' : sl.length === 2 ? 'twice a week' : sl.length + ' times a week';
+const p3Rhythm = sl => { const p = [...sl].sort((a, b) => a.day - b.day).map(s => P3_DOW[s.day] + ' ' + P3_KIND[s.kind].toLowerCase()); return p.length <= 1 ? (p[0] || 'Self-paced') : p.slice(0, -1).join(', ') + ' and ' + p[p.length - 1]; };
+const p3Line = c => ['Amplified AI Accelerator', p3Shape(c) ? p3Shape(c) + ' weeks of building · ' + p3Meets(c.slots) : null, c.opens ? 'opens ' + mtDay(c.opens) : null].filter(Boolean).join(' · ');
+const includedLine = d => mtDate(zAt(d, '12:00'));
+/* the same-time sessions: one of this cohort's at the instant of another cohort's (none here: December meets Wednesdays) */
+const p3Clash = c => c.ses.filter(s => Object.values(P3_COH).some(o => o !== c && o.ses.some(x => x.start === s.start)));
+/* Before it opens: Open enrollment's refusals, in its order (the app's beforeItOpens) */
+function p3Before(c) {
+  const b = c.weeks.filter(w => w.n > 0), clash = p3Clash(c).length, zoom = c.ses.filter(s => s.zoom).length;
+  const L = [
+    ['Shape', p3Shape(c) + ' weeks of building · ' + p3Meets(c.slots) + (c.setup ? ', after a setup week' : ''), true, 'cohortset'],
+    ['Its weeks', b.length + ' of ' + b.length + ' are published', b.length > 0, 'curriculum'],
+    ['Sessions', c.ses.length + ' on the calendar' + (clash ? '. ' + clash + ' are at the same time as December’s office hours.' : ''), c.ses.length > 0 && !clash, 'cohorts'],
+    ['Zoom links', zoom + ' of ' + c.ses.length + ' sessions have one', c.ses.length > 0 && zoom === c.ses.length, 'cohorts'],
+    ['Week 0 due date', 'Not set', false, 'cohortset'],
+    ['Stripe price found for each lookup key', 'None yet. Prices and Payment Links are made in Stripe.', false, 'cohortset'],
+    ['Payment Links entered', 'None yet', false, 'cohortset'],
+    ['Included time ends', c.included ? includedLine(c.included) : 'Not set', !!c.included, 'cohortset'],
+    ['Words learners see', c.unread ? 'Copied from December: the promise, how it works and the holiday note. Read them once.' : 'The promise, how it works and the holiday note', !c.unread, 'cohortset'],
+    ['Test emails sent', 'Not yet: the welcome and Week 0 Is Open', false, 'flags'],
+    ['Open enrollment', 'Off. Turn it on when the rest is done.', false, 'cohortset'],
+  ];
+  return L;
+}
+/* a fact that opens what it counts (`.fx>.fxl`) */
+const LFacts = ({ items }) => { const { go, ph } = useC(); return <div className="cd fx">{items.map(([k, v, to, short]) => to ? <button key={k} className="fxl" onClick={() => typeof to === 'function' ? to() : go(to)}><span className="me">{k}</span><span className="w5 el">{ph && short ? short : v}</span><I n="chev" s={12} w={2.2} /></button> : <div key={k}><span className="me">{k}</span><span className="w5 el">{v}</span></div>)}</div>; };
+const Wn = ({ n, sm, pk }) => <span className={'wn' + (sm ? ' sm' : '') + (pk ? ' pk' : '')}>{n}</span>;
+
+function CohortOverview() {
+  const { go } = useC();
+  const c = P3C, next = c.ses.find(s => s.start + s.mins * 6e4 > NOW_P3);
+  const todo = c.draft ? p3Before(c) : null, done = todo ? todo.filter(t => t[2]).length : 0;
+  const runCur = [...c.weeks].reverse().find(w => w.opens !== null && w.opens <= NOW_P3);
+  const coming = c.ses.filter(s => s.start + s.mins * 6e4 > NOW_P3).slice(0, 3);
+  const noZoom = c.ses.filter(s => !s.zoom && s.start > NOW_P3);
+  const need = c.draft ? null : [noZoom.length ? ['cohorts', noZoom.length + ' sessions have no Zoom link', 'The next one without a link is ' + mtDay(noZoom[0].start) + '.', 'warn'] : null].filter(Boolean);
+  return <div className="col">
+    <LFacts items={[['Opens', c.opens ? mtDay(c.opens) + ' · ' + mtCt(c.opens) : 'Not set', 'cohortset', c.opens ? mtDay(c.opens) : 'Not set'], ['Shape', p3Shape(c) + ' weeks · ' + p3Meets(c.slots), 'cohortset'], ['Teams', '0 of ' + c.cap + ' seats', 'cohortset'], ['Learners', '0', 'learners'], ['Next session', next ? mtDay(next.start) : 'None yet', 'cohorts']]} />
+    <div className="gms">
+      <div className="col">
+        {todo ? <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Before It Opens</h2><span className="me">{done} of {todo.length} done</span></div>{todo.length - done > 0 ? <span className="pl warn">{todo.length - done} left</span> : <span className="pl ok">Ready</span>}</div>
+          <div className="wkl">{todo.map(t => <button key={t[0]} className={'nyr tdo' + (t[2] ? ' ok' : '')} onClick={() => go(t[3])}><span className="tdc">{t[2] && <I n="check" s={12} w={2.6} />}</span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{t[0]}</span><span className="me">{t[1]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div></section>
+          : need.length > 0 && <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Needs You</h2><span className="me">Before the next live build</span></div><span className="pl warn">{need.length}</span></div>
+            <div className="wkl">{need.map(n => <button key={n[1]} className="nyr" onClick={() => go(n[0])}><span className={'mt ' + n[3]}><I n={n[0]} /></span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{n[1]}</span><span className="me">{n[2]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div></section>}
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>The Run</h2><span className="me">The weeks this cohort takes, when each opens, and when you meet</span></div><Btn>Change weeks</Btn></div>
+          <div className="wkl">{c.weeks.map((w, i) => { const now = runCur ? runCur === w : i === 0; const opens = w.opens !== null ? mtDay(w.opens) : w.n === 0 && c.preview ? mtDay(c.preview) : 'with the course';
+            return <button key={w.id} className={'nyr rn' + (now ? ' now' : '')} onClick={() => go('builder')}><Wn n={w.n} /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me el">{'Opens ' + opens + (w.ses.length ? ' · ' + (c.draft ? 'Meets ' : 'Live build ') + w.ses.map(s => mtDay(s.start)).join(' and ') : ' · Self-paced')}</span></span>{now ? <span className="pl ok">{runCur ? 'This week' : 'Opens first'}</span> : <span className="me">Published</span>}<I n="chev" s={12} w={2.2} /></button>; })}</div></section>
+      </div>
+      <div className="col">
+        <Card t="Seats" right={<Btn onClick={() => go('learners')}>People</Btn>}><div className="col m"><button className="rdy" onClick={() => go('cohortset')}><span style={{ flex: '0 0 96px' }}>Seats taken</span><Bar v={0} max={c.cap} /><span className="tn w5 rdn">0 of {c.cap}</span></button><p className="me">{c.draft ? 'No one yet. Enrollment is closed.' : 'Enrollment is open. A team that buys a seat lands here.'}</p></div></Card>
+        <Card t="Coming Up" right={<Btn onClick={() => go('cohorts')}>Schedule</Btn>}><div className="col m">{coming.length ? coming.map((s, i) => { const [dow, mon, dd] = mtDay(s.start).replace(',', '').split(' ');
+          return <button key={i} className="rnw" onClick={() => go('cohorts')}><span className="dt"><b>{dd}</b><span>{mon}</span></span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{s.title}</span><span className="me">{dow + ' · ' + mtCt(s.start)}</span></span>{p3Clash(c).includes(s) ? <span className="pl warn">Same time</span> : !s.zoom && <span className="pl warn">No link</span>}</button>; }) : <p className="s2">No sessions yet.</p>}</div></Card>
+        <Card t="This Cohort’s Shape" right={<Btn onClick={() => go('cohortset')}>Settings</Btn>}><div className="kvs"><KV rows={[['Promise', c.words.promise], ['Meets', p3Rhythm(c.slots)], ['Seats', <button className="lk" onClick={() => go('cohortset')}>{c.cap} teams</button>], ['Price', <span className="pl warn">Not set</span>]]} /></div></Card>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- Cohort › Schedule: every session, in one place (Delete turned-in files moved to Settings › Clean-Up) ---------- */
+function CohortSchedule() {
+  const { go, toast } = useC();
+  const c = P3C, [f, setF] = useState('All sessions');
+  const clash = p3Clash(c), noZoom = c.ses.filter(s => !s.zoom).length, first = c.ses.find(s => s.start + s.mins * 6e4 > NOW_P3);
+  const rows = c.ses.filter(s => f === 'All sessions' || (f === 'Without a Zoom link' ? !s.zoom : f === 'Same time as another cohort' ? clash.includes(s) : f === 'Live builds' ? s.kind === 'live_build' : s.kind === 'office_hours'));
+  return <div className="col">
+    <LFacts items={[['On the calendar', c.ses.length + ' of ' + p3Shape(c) * c.slots.length + ' sessions'], ['Rhythm', p3Rhythm(c.slots), 'cohortset'], ['Without a Zoom link', String(noZoom), () => setF('Without a Zoom link')], clash.length ? ['Same time as another cohort', String(clash.length), () => setF('Same time as another cohort')] : ['Next', first ? mtDay(first.start) + ' · ' + mtCt(first.start) : 'None yet']]} />
+    <div className="row"><Sel label="Kind" v={f} on={setF} opts={['All sessions', 'Live builds', 'Office hours', 'Without a Zoom link', ...(clash.length ? ['Same time as another cohort'] : [])]} /><span className="sp" /><GBtn k="p" ic="plus" perm="build" label="Add session" go={() => toast('Session editor opens here')}>Add session</GBtn></div>
+    <Table rows={rows} onRow={() => toast('Session editor opens here')} empty={{ ic: 'cohorts', t: 'No sessions match', b: 'Try another filter.' }}
+      cols={[{ k: 'title', l: 'Session', w: 'minmax(240px,1.6fr)', r: s => <Two a={s.title} b={s.kind ? P3_KIND[s.kind] : 'Session'} /> }, { k: 'start', l: 'When', w: '230px', ns: 1, r: s => <Two a={mtDay(s.start)} b={mtCt(s.start)} /> },
+        { k: 'week', l: 'Week', w: 'minmax(200px,1.2fr)', hide: 'lap', r: s => s.week ? <button className="lk el" onClick={e => { e.stopPropagation(); go('builder'); }}>{'Week ' + s.n + ' · ' + s.week.t}</button> : <span className="mu">None</span> },
+        { k: 'zoom', l: 'Zoom link', w: '160px', r: s => s.zoom ? <St v="Ready" /> : <St v="No link yet" tone="warn" /> }, { k: 'inv', l: 'Reminder', w: '112px', r: s => !s.zoom ? <St v="Draft" tone="off" /> : NOW_P3 >= s.start - 864e5 ? <St v="Sent" /> : <St v="Scheduled" tone="info" /> }]}
+      menu={() => [{ l: 'Edit session', g: 1, fn: () => toast('Session editor opens here') }, { l: 'Open the week', fn: () => go('builder') }, { l: 'Attach replay', g: 1, fn: () => toast('Replay picker opens here') }, '-', { l: 'Delete session', fn: () => toast('Deleted') }]} />
+    <p className="me">Sessions are edited here and nowhere else. A week shows its sessions but doesn’t change them. Times are Mountain, with Central after each for what learners see.</p>
+  </div>;
+}
+
+/* the shape's fields (`ShapeFields`), the week picker (`WeekPick`) and the calendar a shape makes (`PlanList`) */
+const P3_SEL = { day: [[1, 'Monday'], [2, 'Tuesday'], [3, 'Wednesday'], [4, 'Thursday'], [5, 'Friday']], time: [['09:00', '9:00 AM'], ['10:00', '10:00 AM'], ['11:00', '11:00 AM'], ['12:00', '12:00 PM'], ['13:00', '1:00 PM'], ['14:00', '2:00 PM'], ['15:00', '3:00 PM']], kind: [['live_build', 'Live build'], ['office_hours', 'Office hours'], ['other', 'Working session']] };
+const VSel = ({ v, on, opts, label, off }) => <select className="in" aria-label={label} disabled={off} value={v} onChange={e => on(e.target.value)}>{opts.map(o => <option key={o[0]} value={o[0]}>{o[1]}</option>)}</select>;
+function ShapeFields({ f, up, off }) {
+  const slot = (i, p) => up({ slots: f.slots.map((s, j) => j === i ? { ...s, ...p } : s) });
+  return <div className="col">
+    <div className="row" style={{ gap: 24, alignItems: 'flex-start' }}>
+      <div className="lab"><span>Weeks of building</span><span className="stp2"><button type="button" aria-label="One week fewer" disabled={off || f.picks.length <= 1}>−</button><b className="tn">{f.picks.length}</b><button type="button" aria-label="One week more" disabled={off || f.picks.length >= P3_BUILD.length}>+</button></span></div>
+      <div className="lab"><span>You meet</span>{off ? <span className="s2">{f.slots.length === 1 ? 'Once a week' : f.slots.length === 2 ? 'Twice a week' : f.slots.length + ' times'}</span> : <span className="sgm" role="group" aria-label="You meet">{[[1, 'Once a week'], [2, 'Twice a week'], [3, 'Three times']].map(o => <button key={o[0]} type="button" className={f.slots.length === o[0] ? 'on' : ''} aria-pressed={f.slots.length === o[0]}>{o[1]}</button>)}</span>}</div>
+    </div>
+    <div className="lab"><span>When</span><span className="fat">Mountain time. Learners see Central, one hour later.</span>
+      <div className="lns">{f.slots.map((s, i) => <div key={i} className="slt"><VSel label={'Day ' + (i + 1)} off={off} v={s.day} on={v => slot(i, { day: +v })} opts={P3_SEL.day} /><VSel label={'Time ' + (i + 1)} off={off} v={s.time} on={v => slot(i, { time: v })} opts={P3_SEL.time} /><VSel label={'Kind ' + (i + 1)} off={off} v={s.kind} on={v => slot(i, { kind: v })} opts={P3_SEL.kind} /></div>)}</div></div>
+    <label className="ckr"><input type="checkbox" checked={f.setup} disabled={off} onChange={e => up({ setup: e.target.checked })} /><span className="col" style={{ gap: 0 }}><span className="w5">Start with a setup week</span><span className="me">Week 0, self-paced, opens a week before Week 1. Teams fill in their intake and get their AI ready.</span></span></label>
+  </div>;
+}
+function WeekPick({ picks, on }) {
+  return <div className="wpl">{P3_BUILD.map(w => { const i = picks.indexOf(w.id), onn = i >= 0;
+    return <label key={w.id} className={'wpk' + (onn ? ' on' : '')}><input type="checkbox" checked={onn} disabled={onn && picks.length === 1} onChange={() => on(P3_BUILD.map(x => x.id).filter(id => id === w.id ? !onn : picks.includes(id)))} />
+      <Wn n={onn ? i + 1 : '·'} sm pk={onn} /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me el">{w.o}</span></span><span className="pl ok">Published</span></label>; })}</div>;
+}
+function PlanList({ plan, free }) {
+  return <div className={'ncl' + (free ? ' free' : '')}>{plan.weeks.map(w => { const o = w.opens !== null ? w.opens : plan.setupOpens;
+    return <div key={w.id} className="ncw"><Wn n={w.n} sm pk /><span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me">{o !== null ? 'Opens ' + mtDay(o) : 'Opens with the course'}</span>
+      <span className="row" style={{ gap: 6 }}>{w.ses.length ? w.ses.map((s, i) => <span key={i} className={'skc' + (s.kind === 'live_build' ? '' : ' alt')}>{mtDay(s.start).replace(',', '') + ' · ' + tOf(s.start, MTZ).replace(':00', '') + ' MT · ' + P3_KIND[s.kind]}</span>) : <span className="skc off">Self-paced</span>}</span></span></div>; })}</div>;
+}
+
+/* ---------- Cohort › Settings: its shape, its dates, its seats, its words, its clean-up ---------- */
+function CohortSettings() {
+  const { go, toast, setDlg } = useC();
+  const c = P3C, [dlg, setD] = useState(null);
+  const rows = [['Length', p3Shape(c) + ' weeks of building' + (c.setup ? ', after a setup week' : '')], ...c.slots.map((s, i) => [i ? 'And' : 'Meets', P3_DAYS[s.day] + ' · ' + mtCt(zAt('2027-01-05', s.time)) + ' · ' + P3_KIND[s.kind] + ' · ' + lenOf(s.mins)])];
+  const later = c.weeks.filter(w => w.n >= 2 && w.opens !== null);
+  const setup = c.weeks.find(w => w.n === 0);
+  return <div className="col">
+    <div className="set2">
+      <div className="col">
+        <Card t="Shape" sub="How long it runs and how often you meet" right={<Btn onClick={() => setD('shape')}>Edit</Btn>}>
+          <div className="kvs"><KV rows={[...rows, ['Its weeks', <button className="lk" onClick={() => setD('weeks')}>{p3Shape(c)} of the program’s {P3_BUILD.length}</button>], ['Hosts', c.hosts]]} /></div>
+          <p className="me" style={{ marginTop: 12 }}>{c.draft ? 'Change the shape and the sessions that haven’t happened are laid out again. Past sessions keep their dates.' : 'This cohort’s shape is read from its own sessions. Only its hosts change here.'}</p></Card>
+        <Card t="Dates and Release" right={<Btn onClick={() => setD('dates')}>Edit</Btn>}><div className="kvs"><KV rows={[
+          ['Week 1 opens', c.w1 ? mtDay(c.w1) + ' · ' + mtCt(c.w1) : 'Not set'],
+          ...(later.length ? [['A week opens', 'Every ' + P3_DAYS[new Date(later[0].opens).getUTCDay()] + ' · ' + mtCt(later[0].opens)]] : []),
+          [setup ? 'Setup week opens' : 'Preview opens', c.preview ? mtDay(c.preview) + ' · ' + mtCt(c.preview) : 'Not set'],
+          ...(setup ? [['Week 0 is due', 'Not set']] : []),
+          ['Welcome email', 'When a team is enrolled'], ['Included time ends', c.included ? includedLine(c.included) : 'Not set'],
+          ['Session reminders', 'The day before and an hour before, in MT and CT'], ['Time zone', 'Mountain in the admin. Learners see Central.']]} /></div></Card>
+      </div>
+      <div className="col">
+        <Card t="Enrollment" right={<St v={c.draft ? 'Closed' : 'Open'} tone={c.draft ? 'off' : 'ok'} />}>
+          <div className="kvs"><KV rows={[['Seats', <button className="lk" onClick={() => go('learners')}>0 of {c.cap} taken</button>], ['A seat is', 'A team: an owner and an AI Implementer'], ['Price', <span className="pl warn">Not set</span>], ['Who lands here', 'A team that buys a seat while enrollment is open']]} /></div>
+          <p className="me" style={{ marginTop: 12 }}>Prices and Payment Links are made in Stripe.</p></Card>
+        <Card t="Words From This Cohort" sub="Learners see them on Home and the Schedule."><div className="col m">
+          {c.unread && <span style={{ alignSelf: 'flex-start' }}><span className="pl warn">Read them once</span></span>}
+          <div className="cfx"><span className="me">Name</span><span>{c.name || c.n}</span></div>
+          <div className="cfx"><span className="me">The promise</span><span>{c.words.promise}</span></div>
+          <div className="cfx"><span className="me">How it works</span><ul className="cfl">{c.words.how.map(h => <li key={h}>{h}</li>)}</ul></div>
+          <div className="cfx"><span className="me">Holiday note</span><span>{c.words.holiday || 'None. Every week has its sessions.'}</span></div>
+          <div className="row"><Btn onClick={() => setD('words')}>Edit words</Btn><button className="lk me" onClick={() => go('course')}>What every cohort shares is in Course Settings</button></div>
+        </div></Card>
+        <Card t="Clean-Up"><div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Delete turned-in files</span><span className="me">Removes every file teams turned in. The record that they turned it in stays.</span></span><Btn onClick={() => toast('Counting the files…')}>Delete…</Btn></div></Card>
+      </div>
+    </div>
+    {dlg === 'shape' && <Modal title={'Shape of the ' + c.n} w={640} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save shape</Btn></>}>
+      <ShapeFields f={{ picks: c.weeks.filter(w => w.n > 0).map(w => w.id), slots: c.slots, setup: c.setup }} up={() => {}} off={!c.draft} />
+      <label className="lab">Hosts<input className="in" defaultValue={c.hosts} /></label>
+      {c.draft && <div className="lab"><span>What this makes</span><PlanList plan={JAN_PLAN} /></div>}
+    </Modal>}
+    {dlg === 'weeks' && <Modal title={'The Weeks the ' + c.n + ' Runs'} w={620} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save</Btn></>}>
+      <p className="s2">Pick from the program’s weeks. What a week teaches is the same for every cohort. Its date is this cohort’s.</p>
+      <div className="cd" style={{ boxShadow: 'none' }}><WeekPick picks={c.weeks.filter(w => w.n > 0).map(w => w.id)} on={() => {}} /></div>
+      <p className="me">{p3Shape(c)} weeks of building{c.setup ? ', after the setup week' : ''}.</p>
+    </Modal>}
+    {dlg === 'dates' && <Modal title="Dates and Release" w={560} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save</Btn></>}>
+      <div className="g2"><label className="lab">Week 1 opens<input className="in" type="date" defaultValue="2027-01-03" /></label><label className="lab">A week opens at (MT)<input className="in" type="time" defaultValue="12:00" /></label></div>
+      <div className="g2"><label className="lab">{setup ? 'Setup week opens' : 'Preview opens'}<input className="in" type="date" defaultValue="2026-12-27" /></label><label className="lab">Time (MT)<input className="in" type="time" defaultValue="12:00" /></label></div>
+      <div className="g2"><label className="lab">Welcome email sends at (MT)<input className="in" type="date" /></label><label className="lab">Time (MT)<input className="in" type="time" defaultValue="12:00" /></label></div>
+      <p className="me">To move the whole cohort, change when Week 1 opens. Every week and session after it moves by the same number of days.</p>
+      <label className="lab">Included time ends<span className="fat">A seat’s included time ends at the start of this day, Central time.</span><input className="in" type="date" defaultValue={c.included || ''} /></label>
+      <div className="lab"><span>Each week</span><span className="fat">Move one week on its own, for a holiday break. Its sessions that haven’t happened move with it.</span>
+        <div className="ewl"><div className="ewr ewh" aria-hidden="true"><span /><span /><span>Opens</span><span>Due</span></div>
+          {c.weeks.map(w => <div key={w.id} className="ewr"><Wn n={w.n} sm /><span className="el">{w.t}</span><label className="ewf"><span className="ewk">Opens</span>{w.n === 0 ? <span className="me">Set above</span> : <input className="in" type="date" aria-label={'Week ' + w.n + ' opens'} defaultValue={new Date(w.opens - 7 * 36e5).toISOString().slice(0, 10)} />}</label><label className="ewf"><span className="ewk">Due</span><input className="in" type="date" aria-label={'Week ' + w.n + ' is due'} /></label></div>)}</div></div>
+    </Modal>}
+    {dlg === 'words' && <Modal title="Words From This Cohort" w={560} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save words</Btn></>}>
+      <label className="lab">Name<input className="in" defaultValue={c.name || c.n} /></label>
+      <label className="lab">The promise<span className="fat">One line. Learners see it on Home, under the program’s name.</span><input className="in" defaultValue={c.words.promise} /></label>
+      <label className="lab">How it works<span className="fat">A line each.</span><textarea className="in" rows={5} defaultValue={c.words.how.join('\n')} /></label>
+      <label className="lab">Holiday note<textarea className="in" rows={2} defaultValue={c.words.holiday} /></label>
+    </Modal>}
+  </div>;
+}
+
+/* ---------- New cohort: say its shape and when it starts; see what that makes ---------- */
+function NewCohort() {
+  const { go, toast } = useC();
+  const [f, setF] = useState({ start: '2027-01-03', setup: true, picks: P3_BUILD.slice(0, 6).map(w => w.id), slots: JAN_SLOTS, hosts: 'Connor Leiva and Spring', from: 'dec26' });
+  const up = p => setF({ ...f, ...p });
+  const pl = p3Plan(f), first = pl.ses[0], last = pl.ses[pl.ses.length - 1];
+  return <div className="pg">
+    <Head back={['cohort', 'Cohort']} t="New Cohort" d="One group going through the program. Say how long it runs, how often you meet and when it starts. The portal lays out the weeks and the sessions. You can change any of it afterwards." />
+    <div className="gms">
+      <div className="col">
+        <Card t="The Cohort"><div className="col">
+          <div className="g2"><label className="lab">Name<input className="in" defaultValue="January 2027 Cohort" /></label>
+            <div className="lab"><span>Start from</span><Sel label="Start from" v="December 2026 Cohort" on={() => {}} opts={['December 2026 Cohort', 'A blank cohort']} /></div></div>
+          <label className="lab">The promise<span className="fat">One line. Learners see it on Home, under the program’s name.</span><input className="in" defaultValue={DEC_WORDS.promise} /></label>
+          <p className="me">Copied from December: its seats, its intake form, its emails and its community rules. Nothing about December changes.</p>
+        </div></Card>
+        <Card t="Its Shape" sub="How long it runs and how often you meet"><ShapeFields f={f} up={up} /></Card>
+        <Card t="When It Starts"><div className="g2"><label className="lab">Week 1 opens<input className="in" type="date" value={f.start} onChange={e => e.target.value && up({ start: e.target.value })} /></label>
+          <div className="lab"><span>That makes</span><span className="s2" style={{ fontWeight: 400 }}>{pl.setupOpens ? 'The setup week opens ' + mtDay(pl.setupOpens) + '. ' : ''}{first ? 'The first session is ' + mtDay(first.start) + ' and the last is ' + mtDay(last.start) + '.' : 'No sessions yet.'}</span></div></div></Card>
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>What It Covers</h2><span className="me">Pick from the program’s weeks. They keep the curriculum’s order.</span></div><span className="pl ok">{f.picks.length} of {P3_BUILD.length} weeks</span></div>
+          <WeekPick picks={f.picks} on={p => up({ picks: p })} /></section>
+        <Card t="Seats, Time and Hosts"><div className="col">
+          <div className="g2"><div className="lab"><span>Seats</span><span className="fat">A seat is a team: an owner and an AI Implementer.</span><span className="s2" style={{ fontWeight: 400 }}>{P3_COH.dec26.cap + ', copied from December'}</span></div>
+            <label className="lab">Included time ends<span className="fat">90 days after the last live build.</span><input className="in" type="date" defaultValue="2027-05-10" /></label></div>
+          <label className="lab">Hosts<input className="in" value={f.hosts} onChange={e => up({ hosts: e.target.value })} /></label>
+        </div></Card>
+      </div>
+      <div className="col">
+        <section className="cd nsk"><div className="cdb col">
+          <div className="row nw" style={{ gap: 12, alignItems: 'flex-start' }}><PTile s={40} /><div className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w6" style={{ fontSize: 16 }}>January 2027 Cohort</span><span className="me">Amplified AI Accelerator</span></div></div>
+          <div className="skf"><div><b className="tn">{f.picks.length}</b><span className="me">weeks of building</span></div><div><b className="tn">{pl.ses.length}</b><span className="me">sessions</span></div><div><b className="tn">{P3_COH.dec26.cap}</b><span className="me">team seats</span></div></div>
+          <PlanList plan={pl} free />
+          <Btn k="p" onClick={() => { P3C = P3_COH.jan27; toast('January 2027 Cohort created as a draft'); go('cohort'); }}>Create cohort</Btn>
+          <p className="me">Creates a draft. No one is enrolled, nothing is for sale and no one is emailed.</p>
+        </div></section>
+      </div>
+    </div>
+  </div>;
+}
+
 /* ---------- which cohort: the sidebar's switcher, and the same choice in the Cohort page's title ---------- */
 function CtxSwitch({ r }) {
   const { go, route } = useC();
-  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => { if (route.s !== 'cohort' && route.s !== 'overview') go('cohort'); } }));
-  return <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label={'Switch cohort. Amplified AI Accelerator, ' + COH.n} title={r ? 'Amplified AI Accelerator · ' + COH.n : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">{COH.n}</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>} items={items} />;
+  const items = pickItems(go);
+  return <Menu lf trigger={(t, o) => <button className="sw" aria-expanded={o} aria-label={'Switch cohort. Amplified AI Accelerator, ' + P3C.n} title={r ? 'Amplified AI Accelerator · ' + P3C.n : undefined} onClick={t}><img className="tile" data-fl="tile" src={LOGO_ACCELERATOR} width={32} height={32} alt="" />{!r && <><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5 el sw1">Amplified AI Accelerator</span><span className="el sw2">{P3C.n}</span></span><span className="mu" style={{ display: 'flex' }}><I n="updown" s={14} /></span></>}</button>} items={items} />;
 }
 function CohortPick() {
-  const items = COHORTS.map(c => ({ l: c.n + (c.st === 'Draft' ? ' · Draft' : ''), on: c === COH, fn: () => {} }));
-  return <Menu lf trigger={(t, o) => <button className="cpk big" aria-expanded={o} aria-label={'Switch cohort. ' + COH.n} onClick={t}><span className="el">{COH.n}</span><I n="updown" s={18} /></button>} items={items} />;
+  const { go } = useC();
+  const items = pickItems(go);
+  return <Menu lf trigger={(t, o) => <button className="cpk big" aria-expanded={o} aria-label={'Switch cohort. ' + P3C.n} onClick={t}><span className="el">{P3C.n}</span><I n="updown" s={18} /></button>} items={items} />;
 }
 
 /* ---------- the breadcrumb: Admin / the page / its tab / what is open ---------- */
 const DETAIL = { builder: 'curriculum', workspace: 'teams', user: 'everyone', as: 'masquerade' };
-const hereOf = (r, mods) => r.s === 'builder' ? (mods.find(m => m.id === (r.id || 'm1')) || {}).n : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'incident' ? r.id : '';
+const hereOf = (r, mods) => r.s === 'builder' ? (mods.find(m => m.id === (r.id || 'm1')) || {}).n : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'newcohort' ? 'New Cohort' : r.s === 'incident' ? r.id : '';
 function Crumbs() {
   const { route, go, mods } = useC();
   const par = PARENT[route.s], key = par || route.s, item = NAV.flatMap(g => g[1]).find(n => n[0] === key), grp = item && NAV.find(g => g[1].includes(item))[0];
@@ -1295,7 +1610,7 @@ function Confirm({ d, onClose }) {
   </Modal>;
 }
 
-const SCREENS = { program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
+const SCREENS = { newcohort: NewCohort, program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
 /* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
 const WM_VB = [41, -963.1, 7408, 1113.2];
 const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];
@@ -1316,7 +1631,7 @@ function Sidebar({ rail, setRail, drawer, close }) {
   // Revenue's "N failed" waits for a count Billing already holds (D-253): none is drawn yet. Upgrade requests are counted on
   // Plans & upgrades, not on the row.
   const drafts = mods.filter(m => m.st === 'Draft').length;
-  const badge = n => n[0] === 'program' ? (drafts ? drafts + ' draft' : '') : n[0] === 'cohort' ? (COH.st === 'Draft' ? 'Draft' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
+  const badge = n => n[0] === 'program' ? (drafts ? drafts + ' draft' : '') : n[0] === 'cohort' ? (P3C.draft ? 'Draft' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
   // Collapse and expand travel. Three things, so the width and the layout can change at different moments:
   //   nar   the column is 64px wide        r   the rail's layout (one icon per group)        anim   'collapsing' | 'expanding' while it moves
   // Closing: the column narrows (380 ms, the system's curve) and the logo's window closes to "ai" with it; for the first 160 ms
@@ -1355,7 +1670,7 @@ function Sidebar({ rail, setRail, drawer, close }) {
         const vis = items.filter(n => !n[2] || can(n[2])); if (!vis.length) return null;
         const has = vis.some(n => n[0] === active);
         if (SOLO[g] && r) return <button key={g} className={'ni' + (has ? ' on' : '')} title={g} aria-label={g} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>;
-        if (SOLO[g]) return <button key={g} className={'gx solo' + (has ? ' has' : '')} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{badge(vis[0]) && <span className={'rb' + (vis[0][0] === 'cohort' && COH.st === 'Draft' ? ' dr' : '')}>{badge(vis[0])}</span>}</button>;
+        if (SOLO[g]) return <button key={g} className={'gx solo' + (has ? ' has' : '')} aria-current={has ? 'page' : undefined} onClick={() => go(vis[0][0])}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{badge(vis[0]) && <span className={'rb' + (vis[0][0] === 'cohort' && P3C.draft ? ' dr' : '')}>{badge(vis[0])}</span>}</button>;
         if (r) return <Menu key={g} rt trigger={(t, o) => <button className={'ni' + (has ? ' on' : '')} title={g} aria-label={g + ' menu'} aria-expanded={o} onClick={t}><span className="fl" data-fl={g}><I n={GIC[g]} /></span></button>} items={vis.map(n => ({ l: n[1], ic: n[0], on: active === n[0], fn: () => go(n[0]) }))} />;
         const opn = peek === undefined ? has : peek === g, roll = vis.find(n => badge(n));
         return <div key={g} className={g === 'Operations' ? 'gsep' : undefined}><button className={'gx' + (has ? ' has' : '') + (opn ? ' op' : '')} aria-expanded={opn} onClick={() => setPeek(opn ? null : g)}><span className="fl" data-fl={g}><I n={GIC[g]} /></span><span className="el">{g}</span>{!opn && roll && <span className={'rb' + (roll[0] === 'incidents' ? ' bad' : '')}>{badge(roll)}</span>}<span className="cv"><I n="chev" s={12} w={2.2} /></span></button>
@@ -1409,18 +1724,18 @@ function AdminRedesign() {
   const group = (NAV.find(g => g[1].includes(navItem)) || [])[0];
   const Screen = SCREENS[route.s];
   const ctx = { ph, lap, wide: vp >= 1400, ds, setDs, role, can, staff, route, go, masq, startMasq, endMasq, guard, toast, log, setDlg, audit, perms, setPerms, inc, setInc, setPal, started, mods, setMods, setPrev };
-  const pick = v => go(v, { workspace: 'ws_northshore', user: 'u_1042', incident: 'INC-0007' }[v]);
+  const pick = v => { const jan = { january: 'cohortov', janschedule: 'cohorts', jansettings: 'cohortset' }[v]; P3C = jan ? P3_COH.jan27 : P3_COH.dec26; go(jan || v, { workspace: 'ws_northshore', user: 'u_1042', incident: 'INC-0007' }[v]); };
   return <div className="arx">
     <style>{CSS}</style>
     <div className="mk" role="toolbar" aria-label="Mockup controls">
       <span style={{ fontWeight: 600 }}>Mockup</span>
       <span className="sg">{[1440, 1280, 1024, 390].map(v => <button key={v} className={vp === v ? 'on' : ''} onClick={() => { setVp(v); setRailP(null); }}>{v}</button>)}</span>
-      <select aria-label="Screen" value={aliasOf(route) || route.s} onChange={e => pick(e.target.value)}>
+      <select aria-label="Screen" value={P3C.draft && route.s === 'cohort' ? { overview: 'january', schedule: 'janschedule', settings: 'jansettings' }[route.tab] || aliasOf(route) : aliasOf(route) || route.s} onChange={e => pick(e.target.value)}>
         <optgroup label="Overview"><option value="overview">Overview</option></optgroup>
-        <optgroup label="Program"><option value="curriculum">Curriculum</option><option value="course">Course settings</option><option value="vault">Resource Vault</option></optgroup>
-        <optgroup label="Cohort"><option value="cohorts">Schedule</option><option value="learners">People</option><option value="community">Community</option><option value="announce">Announcements</option></optgroup>
+        <optgroup label="Program"><option value="curriculum">Curriculum</option><option value="course">Course Settings</option><option value="vault">Resource Vault</option></optgroup>
+        <optgroup label="Cohort"><option value="cohortov">Overview</option><option value="cohorts">Schedule</option><option value="learners">People</option><option value="community">Community</option><option value="announce">Announcements</option><option value="cohortset">Settings</option><option value="newcohort">New cohort</option><option value="january">January, created (Overview)</option><option value="janschedule">January, created (Schedule)</option><option value="jansettings">January, created (Settings)</option></optgroup>
         <optgroup label="People"><option value="users">Everyone</option><option value="workspaces">Teams</option><option value="masquerade">Masquerade</option></optgroup>
-        <optgroup label="Revenue"><option value="billing">Summary</option><option value="payments">Payments</option><option value="tiers">Plans &amp; upgrades</option><option value="usage">Usage</option></optgroup>
+        <optgroup label="Revenue"><option value="billing">Summary</option><option value="payments">Payments</option><option value="tiers">Plans &amp; Upgrades</option><option value="usage">Usage</option></optgroup>
         {NAV.filter(g => !SOLO[g[0]]).map(g => <optgroup key={g[0]} label={g[0]}>{g[1].map(n => <option key={n[0]} value={n[0]}>{n[1]}</option>)}</optgroup>)}
         <optgroup label="Detail and system"><option value="builder">Program › a week (Module Builder)</option><option value="workspace">Workspace detail</option><option value="user">User detail</option><option value="incident">Incident detail</option><option value="as">Learner view (masquerade)</option><option value="missing">404</option><option value="denied">Access denied</option></optgroup>
       </select>

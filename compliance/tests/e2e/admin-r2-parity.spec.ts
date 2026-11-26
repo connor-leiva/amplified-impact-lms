@@ -52,7 +52,8 @@ test.describe('admin-r2 setup', () => {
     const cells = APPROVED_EXCEPTIONS.map((e) => e.cell);
     // Decision A's three, and the later screens with the same key-facts component (Nov 17): incident-390
     // (#152) and flags-390 (#151).
-    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'flags-390', 'incident-390', 'user-390', 'workspace-detail-390']);
+    // D-255: Cohorts & Sessions is Cohort › Schedule (`cohort-schedule-390`), the same screen and key facts.
+    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohort-schedule-390', 'flags-390', 'incident-390', 'user-390', 'workspace-detail-390']);
     expect(cells.every((c) => (ALLOWED_EXCEPTION_CELLS as readonly string[]).includes(c)), `only ${ALLOWED_EXCEPTION_CELLS.join(', ')}`).toBe(true);
     expect(new Set(cells).size, 'no cell listed twice').toBe(cells.length);
     expect(exceptionProblems()).toEqual([]);
@@ -69,7 +70,7 @@ test.describe('admin-r2 setup', () => {
     // The closed list rejects anything else: another cell, another width, a ceiling at 0.5% or more.
     const base = APPROVED_EXCEPTIONS[0]!;
     expect(exceptionProblems([{ ...base, cell: 'roles-390' as never }])).not.toEqual([]);
-    expect(exceptionProblems([{ ...base, cell: 'cohorts-sessions-1440' as never, width: 1440 as never }])).not.toEqual([]);
+    expect(exceptionProblems([{ ...base, cell: 'cohort-schedule-1440' as never, width: 1440 as never }])).not.toEqual([]);
     expect(exceptionProblems([{ ...base, ceilingPx: Math.ceil(0.005 * base.width * base.height), ceilingPct: 0.5 }])).not.toEqual([]);
     expect(exceptionProblems([base, base])).not.toEqual([]);
     // A listed cell passes only with identical dims and at most its ceiling.
