@@ -6,8 +6,8 @@ import { expectAccessible } from '../../lib/a11y';
 import { createCohortFromShape } from '../../../packages/core/src/cohort-actions';
 import { courseFor, courseSessions } from '../../../packages/core/src/course';
 import { DB_KEY } from '../../../packages/core/src/constants';
-import { seed } from '../../../packages/core/src/seed';
-import type { Db } from '../../../packages/core/src/types';
+import { scopeSnapshot } from '../../../packages/core/src/scope';
+import type { Db, Learner } from '../../../packages/core/src/types';
 import { planContentV2 } from '../../../packages/core/seed/content-v2';
 import { planCopyV1 } from '../../../packages/core/seed/copy-v1';
 import { seedProduction } from '../../../packages/core/seed/curriculum';
@@ -18,34 +18,41 @@ import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 // action, and December), and the fixture's learner placed in that cohort:
 //   - the January learner sees January's weeks (1 to 6) on January's dates, its own cadence, and its own calendar file;
 //     a week January doesn't take is no page of theirs, by its address or by an old `/employees/:id` one;
-//   - the December learner sees December, as before.
+//   - the December learner sees December, as before;
+//   - a cohort that skips weeks (the curriculum's 3 and 6) numbers them its own way, with no run in the learner's
+//     snapshot (D-255 leaves it out): its Week 3 is the curriculum's Week 4, by its address and an old one. A fallback
+//     to the curriculum's `accelerator-week-N` would fail here, where it would not for January (Weeks 1 to 6).
 // The API's own proof (each refused the other's sessions, threads, files and replays) is `apps/api/test/
 // learner-cohort.test.ts`; this is what the screens draw from it.
 
 const NOW = '2026-11-25T12:00:00-07:00';
 const at = Date.parse(NOW);
 const deployed = planContentV2(planCopyV1(planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db).db).db;
-const made = createCohortFromShape(
-  deployed,
-  { kind: 'staff', staffId: 'st_owner' },
-  {
-    name: 'January 2027 Cohort',
-    start: '2027-01-03',
-    sourceCohortId: 'dec26',
-    picks: [1, 2, 3, 4, 5, 6].map((n) => `accelerator-week-${n}`),
-    shape: {
-      setupWeek: true,
-      slots: [
-        { day: 2, time: '12:00', kind: 'live_build', mins: 90 },
-        { day: 4, time: '12:00', kind: 'office_hours', mins: 60 },
-      ],
-      hosts: 'Connor Leiva and Spring',
+const cohortOf = (db: Db, name: string, picks: number[], tag: string) =>
+  createCohortFromShape(
+    db,
+    { kind: 'staff', staffId: 'st_owner' },
+    {
+      name,
+      start: '2027-01-03',
+      sourceCohortId: 'dec26',
+      picks: picks.map((n) => `accelerator-week-${n}`),
+      shape: {
+        setupWeek: true,
+        slots: [
+          { day: 2, time: '12:00', kind: 'live_build', mins: 90 },
+          { day: 4, time: '12:00', kind: 'office_hours', mins: 60 },
+        ],
+        hosts: 'Connor Leiva and Spring',
+      },
     },
-  },
-  { now: at, id: ((n) => (p: string) => `${p}_e${n++}`)(1) },
-);
-const both = made.db;
+    { now: at, id: ((n) => (p: string) => `${p}_${tag}${n++}`)(1) },
+  );
+const made = cohortOf(deployed, 'January 2027 Cohort', [1, 2, 3, 4, 5, 6], 'e');
 const JAN = made.cohort!.cohortId;
+const odd = cohortOf(made.db, 'Odd Weeks 2027', [1, 2, 4, 5, 7, 8], 'o');
+const ODD = odd.cohort!.cohortId;
+const both = odd.db;
 
 const payloadOf = (cohortId: string) => ({
   open: true,
@@ -56,15 +63,24 @@ const payloadOf = (cohortId: string) => ({
   copy: Object.fromEntries((both.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value])),
 });
 
-/** The fixture's snapshot with its learner (Jamie) in a cohort: January's row and sessions added when it is January. */
+/** The fixture's persona (`?as=agent`), in a cohort. */
+const jamie = (cohortId: string): Learner => ({
+  id: 'u_jamie',
+  name: 'Jamie Rivera',
+  email: 'jamie@example.com',
+  tier: 'team',
+  role: 'Team Owner',
+  teamId: null,
+  cohortId,
+  joined: at,
+  last: null,
+  status: 'active',
+  progress: {},
+});
+
+/** Jamie's snapshot as the API scopes it for a learner in that cohort (`scopeSnapshot`): its weeks, sessions, no run. */
 function snapshotIn(cohortId: string): string {
-  const db: Db = seed('live');
-  if (cohortId !== 'dec26') {
-    db.cohorts.push(both.cohorts.find((c) => c.id === cohortId)!);
-    db.sessions.push(...both.sessions.filter((s) => s.cohortId === cohortId));
-  }
-  db.users = db.users.map((u) => (u.id === 'u_jamie' ? { ...u, cohortId } : u));
-  return JSON.stringify(db);
+  return JSON.stringify(scopeSnapshot({ ...both, users: [jamie(cohortId)] }, { kind: 'learner', userId: 'u_jamie' }, { accelerator: true, at, preview: true }));
 }
 
 async function visit(browser: Browser, cohortId: string, path: string, width = 1440): Promise<Page> {
@@ -116,6 +132,21 @@ test.describe('the learner portal reads its own cohort (R-5 Phase 4) @g9', () =>
     const old = await visit(browser, JAN, '/employees/accelerator-week-7');
     await expect.poll(() => pathOf(old)).toBe('/learn');
     await old.context().close();
+  });
+
+  test('a cohort that skips weeks: its Week 3 is the curriculum’s Week 4, by its address and by an old one', async ({ browser }) => {
+    const week3 = await visit(browser, ODD, '/learn/week/3');
+    await expect(week3.locator('h1')).toContainText(title(4));
+    await week3.context().close();
+
+    const old = await visit(browser, ODD, '/employees/accelerator-week-4');
+    await expect.poll(() => pathOf(old)).toBe('/learn/week/3');
+    await expect(old.locator('h1')).toContainText(title(4));
+    await old.context().close();
+
+    const skipped = await visit(browser, ODD, '/employees/accelerator-week-3');
+    await expect.poll(() => pathOf(skipped)).toBe('/learn');
+    await skipped.context().close();
   });
 
   test('December’s weeks are 0 to 8, as before', async ({ browser }) => {
