@@ -98,7 +98,7 @@ describe('the hero', () => {
       ['Pay in full · $7,500', `%%link:${full}%%`, 'btn btn-primary pay-btn'],
       ['2 payments · $3,750/mo', `%%link:${two}%%`, 'btn btn-primary pay-btn'],
     ]);
-    expect($$('.act-link .pay-caption', b).map(text)).toEqual(['One payment today', 'Today and again in 30 days']);
+    expect($$('.act-link .pay-caption', b).map(text)).toEqual(['One payment today', 'Today and again in one month']);
     expect($$('.act-link .pay-tax', b).map(text)).toEqual(['plus applicable tax']);
     expect(text(b)).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
     // Both live in `.act-link`, shown only for a live cart; the waitlist when closed or sold out.
