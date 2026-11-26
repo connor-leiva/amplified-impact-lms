@@ -195,6 +195,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `email` and `usage` at all four; D-167: `incidents` at all four, `incident` at 1440, 1280 and 1024
  * (and 390 as an approved exception); Console PR 9 (D-168): `integrations`, `deploys` and `db` at all four,
  * `flags` at 1440, 1280 and 1024 (and 390 as an approved exception); Console PR 10 (D-169): `health` at
+ * all four. D-255 (R-5 Phase 3): `cohorts-sessions` is `cohort-schedule` (1440, 1280 and 1024, and 390 as an approved
+ * exception); `cohort-overview`, `cohort-settings`, `new-cohort`, the three `january-*` tabs and its four dialogs at
  * all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
