@@ -6,7 +6,7 @@
 // output this phase adds is checked twice here: with December's run absent (main today) and with that run stored
 // (`withDecemberRun`, built the way the data step builds it), and must be identical.
 import { describe, expect, it } from 'vitest';
-import { createCohortFromShape, scopeSnapshot } from '../src';
+import { cohortLine, createCohortFromShape, scopeSnapshot, setViewerZone } from '../src';
 import type { Actor, Announcement, CohortSlot, CohortWeek, Ctx, Db, Learner } from '../src';
 import type { CohortCourse } from '../src/course-types';
 import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID, isCourseWeek } from '../src/accelerator';
@@ -243,6 +243,19 @@ describe('a cohort with a run of its own (January)', () => {
     // The start in the cohort's zone decides: 11:00 PM MT on Jan 31 is Feb 1 in UTC.
     expect(ghlCohortValue({ id: 'c_x', start: MT('2027-01-31T23:00:00'), timezone: 'America/Denver' })).toBe('jan27');
     expect(ghlCohortValue(null)).toBe('dec26');
+  });
+
+  it('the sidebar’s cohort line keeps a name’s noun once: “January 2027 Cohort”, December’s as before', () => {
+    const { db, id } = withJanuary();
+    setViewerZone('America/Denver');
+    try {
+      expect(cohortLine(db.cohorts.find((c) => c.id === id)!, NOV25, db.sessions)).toBe('January 2027 Cohort · Starts Jan 3');
+      expect(cohortLine(db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!, NOV25, db.sessions)).toBe(
+        'Amplified AI Accelerator · December 2026 Cohort · Starts Dec 2',
+      );
+    } finally {
+      setViewerZone(null);
+    }
   });
 
   it('the Week 0 subject’s cohort, without its year', () => {
