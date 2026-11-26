@@ -2,7 +2,8 @@
 
 The learner portal as **January's test team** and as **a December team**, side by side, from a real API on a seeded
 database. The fixture build has no course API, so these are the http build: Chromium at device scale 2, America/Denver,
-each page its whole length, at **1280** and **390**.
+each page its whole length, at **1280** and **390**. Taken on `main` @ e3a25d6 with this branch rebased on it, so they
+show main's look: LMS v3 for every learner type (D-257) and each time on one line, "12:00 PM MT / 1:00 PM CT" (D-259).
 
 | File | Page | What it shows |
 |---|---|---|
@@ -32,9 +33,10 @@ each page its whole length, at **1280** and **390**.
    test in) on the real clock (Thu, Nov 26, 2026).
 7. `node handoff/admin-mockup/compare/r5-phase4/shoot.mjs <base> <December owner's id> <test team's id>`.
 
-`VITE_LMS_V3=true` puts both teams in the same frame: the test team, a test account, gets the v3 pages whatever the flag
-says (D-226), and the Community is a v3 page. With the flag off, a December team gets today's v2 pages, which read their
-cohort the same way.
+The `VITE_LMS_V3=true` note still applies after D-257: v3 is still a build flag, which Phase 11's flip turns on. With it
+on, every learner type gets the v3 frame, as here; the test team, a test account, gets it whatever the flag says
+(D-226), and the Community is a v3 page. With it off, a December team gets today's v2 pages (and no Community), which
+read their cohort the same way.
 
 ## What to look at
 
