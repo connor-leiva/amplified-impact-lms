@@ -40,6 +40,7 @@ export * from './course-rules';
 export * from './course-actions';
 export * from './cohort-run';
 export * from './cohort-actions';
+export * from './cohort-page';
 export * from './release';
 export * from './welcome';
 export * from './week0-open';
