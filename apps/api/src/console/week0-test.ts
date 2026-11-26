@@ -13,6 +13,7 @@ import { getDb } from '../db/client';
 import { cohorts, sessions, users } from '../db/schema';
 import { send } from '../email/transport';
 import { readWeeks, sessionOf } from '../jobs/enrollments';
+import { week0Subject } from '../jobs/week0-open';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { extraAllowlist } from './welcome';
@@ -36,7 +37,7 @@ export function registerWeek0TestRoute(scope: FastifyInstance, limits: { write: 
       const [cohort] = await db.select().from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
       if (!cohort) return consoleError(reply, 'not_found', 'No cohort with that id.');
       const sessionRows = await db.select().from(sessions).where(eq(sessions.cohortId, cohortId));
-      const weeks = await readWeeks(db);
+      const weeks = await readWeeks(db, cohortId);
       const built = welcomeSchedule(cohort, weeks, sessionRows.map(sessionOf));
       if (!built.ok) return consoleError(reply, 'invalid_body', 'This cohort has no live build yet, so the Week 0 email cannot be filled in.');
       const due = week0DueAt(weeks);
@@ -45,7 +46,7 @@ export function registerWeek0TestRoute(scope: FastifyInstance, limits: { write: 
       const result = await send({
         template: 'week0-open',
         to,
-        data: { firstName: firstNameOf(user?.name ?? ''), week0DueAt: due, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins },
+        data: { firstName: firstNameOf(user?.name ?? ''), week0DueAt: due, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins, ...week0Subject(cohort) },
       });
       await audit(req, {
         action: 'week0.test_send',

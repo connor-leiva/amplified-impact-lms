@@ -23,6 +23,7 @@
 // So the nine-row table in § 8.1 and this file cannot drift in either direction.
 
 import { sessionTimeMtCt, welcomeSubject } from '@ai/core';
+import { DEFAULT_WEEK0_LABEL, week0CohortLabel } from '@ai/core/cohort-learner';
 
 /**
  * The nine templates in § 8.1's table, in table order.
@@ -98,7 +99,9 @@ export interface SubjectData {
   'learner-nudge': NoSubjectData;
 
   'cohort-welcome': { cohortName: string };
-  'week0-open': NoSubjectData;
+  // R-5 Phase 4 (D-260): the cohort's stored name, named without its year ("January Cohort"). Absent for December,
+  // whose line is Connor's.
+  'week0-open': { cohortName?: string };
 }
 
 /**
@@ -141,8 +144,9 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
 
   // The cohort with its noun ("December 2026 Cohort"), in title case with "to the" lower: `welcomeSubject` (@ai/core).
   'cohort-welcome': (d) => welcomeSubject(d.cohortName),
-  // Connor's approved line. "December Cohort" is literal: the cohort's name ("December 2026") reads badly here.
-  'week0-open': () => '🎉 Welcome to the December Cohort: Week 0 Is Open',
+  // Connor's approved line. "December Cohort" is December's name without its year: "December 2026" reads badly here.
+  // R-5 Phase 4 (D-260, PLAN.md § 10.4): another cohort's name, the same way ("January Cohort"); December's is unchanged.
+  'week0-open': (d) => `🎉 Welcome to the ${d.cohortName ? week0CohortLabel(d.cohortName) : DEFAULT_WEEK0_LABEL}: Week 0 Is Open`,
 };
 
 /**

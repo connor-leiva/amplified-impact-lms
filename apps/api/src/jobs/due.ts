@@ -77,8 +77,9 @@ import {
   sessionState,
 } from '@ai/core';
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
-import { isCourseWeek } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, isCourseWeek } from '@ai/core/accelerator';
 import type { CourseRoster } from '@ai/core/accelerator';
+import { announcementInCohort, nextMeetingDay } from '@ai/core/cohort-learner';
 import { firstNameOf, sessionLabel } from '@ai/core';
 import { jobKey } from './keys';
 import type { JobName } from './keys';
@@ -451,7 +452,11 @@ function buildNotFinished48h(db: Db, now: number, accelerator?: CourseAudience):
  * series (the AI Accelerator) it is the weekday of the cohort's next build, in the program's zone;
  * for every other cohort it is absent, and the template keeps the prototype's Thursday.
  */
-export function digestDay(db: Db, u: Learner, now: number): string | undefined {
+export function digestDay(db: Db, u: Learner, now: number): string | null | undefined {
+  // R-5 Phase 4 (D-260, PLAN.md § 10.4): a cohort laid out from a shape names its own next meeting's day, or none
+  // (`null`) once it meets no more (`nextMeetingDay`). December, which stores no shape, keeps the rule below.
+  const co = db.cohorts.find((c) => c.id === u.cohortId);
+  if (co && co.id !== DEFAULT_COHORT_ID && co.shape !== undefined) return nextMeetingDay(co, db.sessions, now);
   if (!hasOfficeHoursSeries(db.sessions, u.cohortId)) return undefined;
   const next = db.sessions
     .filter((s) => s.cohortId === u.cohortId && sessionKind(s) === 'build' && s.start > now)
@@ -482,7 +487,7 @@ function weeklyDigest(db: Db, now: number): Send[] {
       // the key (`weekly-digest:2026-12-07:u_alex`) — they simply are not things an inbox sees.
       // When the template grows a roster, `BodyData['weekly-digest']` grows with it and this line
       // stops compiling until it supplies one, which is the whole point of the tightened type.
-      data: ((day) => (day ? { before: day } : {}))(digestDay(db, u, now)),
+      data: ((day) => (day === null ? { before: null } : day ? { before: day } : {}))(digestDay(db, u, now)),
     });
   }
   return out;
@@ -540,7 +545,9 @@ export function announcementSends(db: Db, a: Announcement): Send[] {
   if (!a.channels.includes('email')) return [];
   const sends: Send[] = [];
   for (const u of db.users) {
-    if (!mailable(u) || !inAudience(a, u)) continue;
+    // R-5 Phase 4 (D-260): an announcement about a session goes to that session's cohort (`announcementInCohort`), as
+    // the in-app banner does (`scope.ts`).
+    if (!mailable(u) || !inAudience(a, u) || !announcementInCohort(a, db.sessions, u.cohortId)) continue;
     sends.push({
       job: 'announcement',
       key: jobKey('announcement', a.id, u.id),

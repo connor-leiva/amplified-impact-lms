@@ -120,7 +120,7 @@ afterAll(() => {
 
 describe('Week 0 from the stored course', () => {
   it('reads Week 0’s Due, title, steps and baseline count off the module, and the count matches the seeded table', async () => {
-    const week0 = (await readWeeks(await database())).find((w) => w.week === 0)!;
+    const week0 = (await readWeeks(await database(), 'dec26')).find((w) => w.week === 0)!;
     expect(week0.dueAt).toBe(Date.parse('2026-11-30T19:00:00Z'));
     expect(week0.title).toBe('Foundations');
     expect(week0.steps).toBe(8);

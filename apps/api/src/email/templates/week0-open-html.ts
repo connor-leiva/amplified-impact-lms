@@ -11,6 +11,7 @@
 // the footer), plus the rows this design adds there (`confettiRow`, `bandIntroRow`, `launchListRows`, `darkBoxRow`,
 // `closingRow`). React Email is not used, as for the other learner emails: it would wrap and restyle the document.
 
+import { week0CohortLabel, week0CohortName } from '@ai/core/cohort-learner';
 import { SUPPORT_EMAIL } from '@ai/core/offer';
 import { dueTimeMtCt, sessionTimeMtCt } from '@ai/core/release';
 import { LEARN_ORIGIN } from '@ai/core/skill-guides';
@@ -41,6 +42,12 @@ export interface Week0OpenInput {
   liveBuildAt: number;
   liveBuildMins: number;
   appUrl?: string | null;
+  /**
+   * R-5 Phase 4 (D-260): the stored name of a cohort other than December, which the email names where Connor's copy
+   * names December ("January 2027 Cohort"; the title without its year, "January Cohort", as the subject). Absent:
+   * December's words, byte for byte.
+   */
+  cohortName?: string;
 }
 
 /** The words, in one place: Connor's, as approved. Title Case headings, no em dashes, "MT" with every clock. */
@@ -71,7 +78,22 @@ export const WEEK0_OPEN_COPY = {
   from: 'Connor and the Amplified Impact team',
 } as const;
 
-const C = WEEK0_OPEN_COPY;
+/**
+ * The words for one email: Connor's, with another cohort's name where his name December (R-5 Phase 4, D-260). Only the
+ * cohort's name changes; every other word is his.
+ */
+function copyOf(input: Pick<Week0OpenInput, 'cohortName'>): typeof WEEK0_OPEN_COPY {
+  if (!input.cohortName) return WEEK0_OPEN_COPY;
+  const full = week0CohortName(input.cohortName);
+  const swap = (s: string): string => s.split('December 2026 Cohort').join(full);
+  return {
+    ...WEEK0_OPEN_COPY,
+    title: `Welcome to the ${week0CohortLabel(input.cohortName)}: Week 0 Is Open`,
+    eyebrow: swap(WEEK0_OPEN_COPY.eyebrow),
+    intro: swap(WEEK0_OPEN_COPY.intro),
+    gifAlt: swap(WEEK0_OPEN_COPY.gifAlt),
+  } as typeof WEEK0_OPEN_COPY;
+}
 
 /** Each zone's half of a time kept on one line, so a phone breaks it after the slash (`keepTimeHalves`). */
 const keepHalves = keepTimeHalves;
@@ -89,6 +111,8 @@ function times(input: Week0OpenInput): { dueShort: string; dueLong: string; buil
 
 export function week0OpenHtml(input: Week0OpenInput): string {
   const t = times(input);
+  // A cohort's name is staff's typing: escaped before it joins Connor's words in the HTML.
+  const C = copyOf(input.cohortName ? { cohortName: esc(input.cohortName) } : {});
   return brandedEmailHtml({
     title: C.title,
     preheader: esc(C.preheader(t.dueShort)),
@@ -111,6 +135,7 @@ export function week0OpenHtml(input: Week0OpenInput): string {
 
 export function week0OpenText(input: Week0OpenInput): string {
   const t = times(input);
+  const C = copyOf(input);
   return [
     C.heading(input.firstName.trim()),
     '',
