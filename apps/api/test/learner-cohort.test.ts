@@ -14,6 +14,8 @@ import { and, eq } from 'drizzle-orm';
 import type { Db } from '@ai/core';
 import { zonedInputs } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { viewWeekModules, viewWeekOf } from '@ai/core/cohort-learner';
+import { SUBMISSION_ERRORS } from '@ai/core/submissions';
 import type { LearnerCourse } from '@ai/core/course';
 import type { CommunityList } from '@ai/core/community';
 import type { VideoBlock } from '@ai/core/course-types';
@@ -91,6 +93,16 @@ async function decemberTeam(): Promise<void> {
   await handle.insert(accounts).values({ id: 'a_dec', teamId: 't_dec', ownerUserId: 'u_dec', ownerEmail: 'dec@example.test', name: 'December Realty', createdAt: NOV25, inviteSentAt: NOV25 });
   await handle.insert(orders).values({ id: 'o_dec', plan: 'cohort', option: 'full', origin: 'payment_link', status: 'paid', name: 'Dana December', email: 'dec@example.test', paymentsMade: 1, paidAt: NOV25, amountTotal: 750000, accountId: 'a_dec', createdAt: NOV25 });
   await handle.insert(plans).values({ id: 'p_dec', accountId: 'a_dec', kind: 'cohort', option: 'full', seats: 5, cohortId: DEFAULT_COHORT_ID, status: 'active', startsAt: MT('2026-12-02T12:00:00'), orderId: 'o_dec', createdAt: NOV25 });
+}
+
+/** A January buyer, as Phase 5 will provision one (a plan in January): not a test account, so no early access. */
+async function januaryBuyer(): Promise<string> {
+  await handle.insert(users).values({ id: 'u_janbuyer', email: 'buyer@january.example.test', name: 'Jan Buyer', kind: 'learner', tier: 'team', role: 'Team Owner', teamId: 't_janbuyer', cohortId: jan, status: 'active', joined: NOV25, seq: 95 });
+  await handle.insert(teams).values({ id: 't_janbuyer', name: 'January Realty', ownerId: 'u_janbuyer', seats: 5, seq: 95 });
+  await handle.insert(accounts).values({ id: 'a_janbuyer', teamId: 't_janbuyer', ownerUserId: 'u_janbuyer', ownerEmail: 'buyer@january.example.test', name: 'January Realty', createdAt: NOV25 });
+  await handle.insert(orders).values({ id: 'o_janbuyer', plan: 'cohort', option: 'full', origin: 'payment_link', status: 'paid', name: 'Jan Buyer', email: 'buyer@january.example.test', paymentsMade: 1, paidAt: NOV25, amountTotal: 750000, accountId: 'a_janbuyer', createdAt: NOV25 });
+  await handle.insert(plans).values({ id: 'p_janbuyer', accountId: 'a_janbuyer', kind: 'cohort', option: 'full', seats: 5, cohortId: jan, status: 'active', startsAt: NOV25, orderId: 'o_janbuyer', createdAt: NOV25 });
+  return 'u_janbuyer';
 }
 
 const placeTestTeam = (over: Record<string, string> = {}) =>
@@ -184,13 +196,17 @@ describe('the test team sees only January; a December team sees only December', 
     expect(body.course.intro).toEqual(decBody.course.intro);
   });
 
-  it('its own promise, how it works and holiday note, once January stores them; December’s are untouched', async () => {
+  it('its own promise, how it works and holiday note, once staff save them in Edit words; December’s are untouched', async () => {
     const [dec] = await handle.select({ course: cohorts.course }).from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID));
     const decWords = dec!.course as LearnerCourse;
-    await handle
-      .update(cohorts)
-      .set({ course: { intro: { sub: 'Six weeks. One hire a week.', how: ['A week opens on Sunday.', 'We build its hire together on Tuesday.'], holiday: '' } } })
-      .where(eq(cohorts.id, jan));
+    // Cohort › Settings › Edit words (D-255): January's own words, stored on January (`cohorts.words`).
+    const saved = await app.inject({
+      method: 'POST',
+      url: '/api/admin/actions/saveCohortWords',
+      headers: { cookie: await app.signInAs('st_owner'), 'content-type': 'application/json' },
+      payload: JSON.stringify({ cohortId: jan, name: JANUARY.name, promise: 'Six weeks. One hire a week.', how: ['A week opens on Sunday.', 'We build its hire together on Tuesday.'], holiday: '' }),
+    });
+    expect(saved.statusCode, saved.body).toBe(200);
     await appAt(DEC2);
     const mine = ((await get('jan', '/api/course')).json() as { course: LearnerCourse }).course;
     expect(mine.intro.sub).toBe('Six weeks. One hire a week.');
@@ -203,6 +219,39 @@ describe('the test team sees only January; a December team sees only December', 
     expect(theirs.intro.sub).toBe(decWords.intro.sub);
     expect(theirs.intro.how).toEqual(decWords.intro.how);
     expect(theirs.intro.holiday).toBe(decWords.intro.holiday);
+  });
+
+  it('a cohort that skips weeks: the course and the snapshot number its weeks its own way, with no run in the snapshot', async () => {
+    // A cohort that skips the curriculum's Weeks 3 and 6, and a second test team placed in it, through the real paths.
+    const odd = await app.inject({
+      method: 'POST',
+      url: '/api/admin/actions/createCohortFromShape',
+      headers: { cookie: await app.signInAs('st_owner'), 'content-type': 'application/json' },
+      payload: JSON.stringify({ ...JANUARY, name: 'Odd Weeks 2027', picks: [W[1], W[2], W[4], W[5], W[7], W[8]] }),
+    });
+    expect(odd.statusCode, odd.body).toBe(200);
+    const oddId = (odd.json() as { cohort: { cohortId: string } }).cohort.cohortId;
+    expect(await placeTestTeam({ SEED_TEST_MEMBER_EMAIL: 'odd@january.example.test', SEED_TEST_MEMBER_COHORT: oddId })).toEqual({ status: 'created', kind: 'accelerator' });
+    const [u] = await handle.select({ id: users.id }).from(users).where(eq(users.email, 'odd@january.example.test'));
+    await appAt(DEC2);
+    cookie.set('odd', await app.signInAs(u!.id));
+    const course = ((await get('odd', '/api/course')).json() as { course: LearnerCourse }).course;
+    const snap = (await get('odd', '/api/snapshot')).json() as Db;
+    expect(snap.cohorts[0]).not.toHaveProperty('run');
+    const ids = viewWeekModules(course.weeks.map((w) => w.week), snap.modules)!;
+    expect([...ids]).toEqual([
+      [0, W[0]],
+      [1, W[1]],
+      [2, W[2]],
+      [3, W[4]],
+      [4, W[5]],
+      [5, W[7]],
+      [6, W[8]],
+    ]);
+    // The curriculum's ids would be wrong for this cohort: a fallback to them fails here.
+    expect(ids.get(3)).not.toBe(W[3]);
+    expect(course.weeks[3]!.title).toBe((await loadDb()).modules.find((m) => m.id === W[4])!.course!.title);
+    expect(viewWeekOf(snap.modules, W[4]!)).toBe(3);
   });
 
   it('the snapshot: their own cohort, its sessions and its weeks, and none of the other’s', async () => {
@@ -310,6 +359,24 @@ describe('neither can reach the other’s sessions, threads, files or replays by
     });
   });
 
+  it('turn in opens with the week as the learner’s cohort opens it, not its module’s own date', async () => {
+    // Sat, Jan 2, in January's preview (it opened with its setup week, Sun, Dec 27): Week 1 opened Sun, Nov 29 for
+    // December (its module says so, and Phase 3 mirrors December's run onto it), and opens Sun, Jan 3 for January. A
+    // January buyer (no early access) waits for January's date; on Jan 4 it is open. An empty turn in tells the two
+    // apart: a week not open asks for nothing ("not asked"); an open one asks for a file. The seat card's route reads
+    // the week the same way (`weekOf`), though no week of this course asks for the card's form yet.
+    const buyer = await januaryBuyer();
+    const turnIn = async (who: string, n: number) =>
+      ((await post(who, '/api/submissions', { moduleId: W[n], kind: 'checkpoint', files: [] })).json() as { error: string }).error;
+    await appAt(MT('2027-01-02T12:00:00'));
+    cookie.set('buyer', await app.signInAs(buyer));
+    expect(await turnIn('dec', 1)).toBe(SUBMISSION_ERRORS.needFile);
+    expect(await turnIn('buyer', 1)).toBe(SUBMISSION_ERRORS.notAsked);
+    await appAt(MT('2027-01-04T12:00:00'));
+    cookie.set('buyer', await app.signInAs(buyer));
+    expect(await turnIn('buyer', 1)).toBe(SUBMISSION_ERRORS.needFile);
+  });
+
   it('the calendar file: each cohort’s own, and the other’s is missing', async () => {
     await appAt(DEC2);
     const url = `/calendar/schedule.ics?cohort=${encodeURIComponent(jan)}`;
@@ -414,12 +481,7 @@ describe('the emails, GoHighLevel and the digest read the cohort', () => {
   });
 
   it('GoHighLevel’s Cohort field: "jan27" for a January plan, "dec26" for December’s', async () => {
-    // A January buyer, as Phase 5 will provision one (a plan in January). Not a test account, so the field is written.
-    await handle.insert(users).values({ id: 'u_janbuyer', email: 'buyer@january.example.test', name: 'Jan Buyer', kind: 'learner', tier: 'team', role: 'Team Owner', teamId: 't_janbuyer', cohortId: jan, status: 'active', joined: NOV25, seq: 95 });
-    await handle.insert(teams).values({ id: 't_janbuyer', name: 'January Realty', ownerId: 'u_janbuyer', seats: 5, seq: 95 });
-    await handle.insert(accounts).values({ id: 'a_janbuyer', teamId: 't_janbuyer', ownerUserId: 'u_janbuyer', ownerEmail: 'buyer@january.example.test', name: 'January Realty', createdAt: NOV25 });
-    await handle.insert(orders).values({ id: 'o_janbuyer', plan: 'cohort', option: 'full', origin: 'payment_link', status: 'paid', name: 'Jan Buyer', email: 'buyer@january.example.test', paymentsMade: 1, paidAt: NOV25, amountTotal: 750000, accountId: 'a_janbuyer', createdAt: NOV25 });
-    await handle.insert(plans).values({ id: 'p_janbuyer', accountId: 'a_janbuyer', kind: 'cohort', option: 'full', seats: 5, cohortId: jan, status: 'active', startsAt: NOV25, orderId: 'o_janbuyer', createdAt: NOV25 });
+    await januaryBuyer();
     expect((await contactState(handle, 'buyer@january.example.test')).fields.cohort).toBe('jan27');
     expect((await contactState(handle, 'dec@example.test')).fields.cohort).toBe('dec26');
   });
