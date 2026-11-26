@@ -16,11 +16,11 @@
 //
 // Pure: no clock, no random source.
 
-import { ACCELERATOR_WEEKS, DEFAULT_COHORT_ID, acceleratorModuleId, cohortOpensAt } from './accelerator';
+import { ACCELERATOR_WEEKS, DEFAULT_COHORT_ID, acceleratorModuleId, cohortOpensAt, isCourseWeek } from './accelerator';
 import { COURSE_TZ } from './course-actions';
 import { SCHEDULE_ICS_PATH } from './schedule';
 import type { CohortCourse } from './course-types';
-import type { Announcement, Cohort, Db, Session } from './types';
+import type { AIEmployee, Announcement, Cohort, Db, Session } from './types';
 
 // ================================================================================================
 // A week's number in a cohort, and its module
@@ -42,7 +42,55 @@ export function weekModuleId(cohort: Pick<Cohort, 'run'> | null | undefined, n: 
  */
 export function weekOfModuleIn(cohort: Pick<Cohort, 'run'> | null | undefined, moduleId: string): number | null {
   if (cohort?.run) return cohort.run.find((w) => w.moduleId === moduleId)?.n ?? null;
-  return ACCELERATOR_WEEKS.find((w) => acceleratorModuleId(w) === moduleId) ?? null;
+  return curriculumWeekOf(moduleId);
+}
+
+/** A course week's number in the curriculum, by its id (`accelerator-week-3` is 3), or null for no course week. */
+const curriculumWeekOf = (moduleId: string): number | null =>
+  ACCELERATOR_WEEKS.find((w) => acceleratorModuleId(w) === moduleId) ?? null;
+
+// ------------------------------------------------------------------------------------------------
+// The same, in the browser: from the learner's own snapshot and course, without the run
+// ------------------------------------------------------------------------------------------------
+//
+// A learner's snapshot leaves the run out (`cohortForLearner`, D-255), so December's snapshot reads as it did before its
+// run was stored. It needs none: the snapshot's course-week modules ARE the viewer's cohort's view (D-254: the weeks
+// it takes and no others), and a run keeps the curriculum's order (`layOut` and `saveCohortShape` number the picked
+// weeks 1 to N in that order, after the setup week's 0; `saveCohortRun` moves dates, never order). So the k-th week
+// `GET /api/course` lists is the k-th course-week module of the snapshot.
+
+/** The snapshot's course-week modules (the viewer's cohort's weeks), in the curriculum's order. */
+export function viewWeekIds(modules: readonly Pick<AIEmployee, 'id' | 'status'>[]): string[] {
+  return modules
+    .filter((m) => isCourseWeek(m.id) && m.status !== 'draft')
+    .map((m) => m.id)
+    .sort((a, b) => (curriculumWeekOf(a) ?? 0) - (curriculumWeekOf(b) ?? 0));
+}
+
+/**
+ * Each week of the viewer's course (its numbers, as `GET /api/course` sends them) paired with its module, by their
+ * order: the k-th week is the k-th of `viewWeekIds`. Null when the two lists don't line up (a snapshot without the
+ * course's modules, as the prototype's fixture is); the caller then reads the curriculum's ids, as before R-5.
+ */
+export function viewWeekModules(weeks: readonly number[], modules: readonly Pick<AIEmployee, 'id' | 'status'>[]): Map<number, string> | null {
+  const ids = viewWeekIds(modules);
+  if (ids.length !== weeks.length) return null;
+  const sorted = [...weeks].sort((a, b) => a - b);
+  return new Map(sorted.map((n, k) => [n, ids[k]!]));
+}
+
+/**
+ * A module's week number in the viewer's cohort, from the snapshot alone (an old `/employees/:id` address, before the
+ * course has loaded): its place among `viewWeekIds`, numbered from 0 when the cohort takes the setup week (the
+ * curriculum's Week 0) and from 1 when it doesn't, as a run numbers them. Null for a week the cohort doesn't take. A
+ * snapshot that holds no course week at all (the prototype's fixture) reads the curriculum's number, as before.
+ */
+export function viewWeekOf(modules: readonly Pick<AIEmployee, 'id' | 'status'>[], moduleId: string): number | null {
+  const ids = viewWeekIds(modules);
+  if (!ids.length) return curriculumWeekOf(moduleId);
+  const k = ids.indexOf(moduleId);
+  if (k < 0) return null;
+  return curriculumWeekOf(ids[0]!) === 0 ? k : k + 1;
 }
 
 // ================================================================================================
@@ -67,34 +115,36 @@ export const programCourse = (db: Pick<Db, 'cohorts'>): CohortCourse | null =>
 type OwnWords = Partial<Pick<CohortCourse['intro'], 'sub' | 'how' | 'holiday'>>;
 
 /**
+ * A cohort's own three words: the ones it saved (`Cohort.words`, D-255: a new cohort's, drafted at New cohort and
+ * edited in Edit words), else its course's intro (where December's live, and Edit words writes them for it).
+ */
+const ownWordsOf = (c: Pick<Cohort, 'words' | 'course'>): OwnWords | undefined =>
+  c.words ? { sub: c.words.promise, how: c.words.how, holiday: c.words.holiday } : c.course?.intro;
+
+/**
  * The course's words for one cohort, as `GET /api/course` sends them, or null while there are none (no program words,
- * or no such cohort). `intro.sub`, `intro.how` and `intro.holiday` are the cohort's own, read from its row's `course`
- * when it stores them; everything else is the program's shared words (`programCourse`). A cohort that stores no words
- * of its own reads the program's for those three too, as Connor's amendment drafts a new cohort's words (PLAN § 10.3:
- * "start as December's words"). Then `{first live build}` is filled from the cohort (`fillFirstLiveBuild`).
+ * or no such cohort). `intro.sub`, `intro.how` and `intro.holiday` are the cohort's own (`ownWordsOf`); everything else
+ * is the program's shared words (`programCourse`). A cohort with none of its own reads the program's three too, as
+ * Connor's amendment drafts a new cohort's words (PLAN § 10.3: "start as December's words"). Then `{first live build}`
+ * is filled from the cohort (`fillFirstLiveBuild`).
  *
- * December's is December's own row, unchanged: the very same object while no word carries the token.
+ * December's own words are the program row's own, so its words are that very object while no word carries the token.
  */
 export function cohortCourseCopy(db: Pick<Db, 'cohorts'> & Partial<Pick<Db, 'sessions'>>, cohortId: string): CohortCourse | null {
   const program = programCourse(db);
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!program || !cohort) return null;
-  const words = cohort.id === DEFAULT_COHORT_ID ? program : withOwnWords(program, cohort.course?.intro);
-  return fillFirstLiveBuild(words, () => firstLiveBuildDay(cohort, db.sessions ?? []));
+  return fillFirstLiveBuild(withOwnWords(program, ownWordsOf(cohort)), () => firstLiveBuildDay(cohort, db.sessions ?? []));
 }
 
-/** The program's words with a cohort's own three in their places. None stored: the program's, the same object. */
+/** The program's words with a cohort's own three in their places; the program's, the same object, when they are its own. */
 function withOwnWords(program: CohortCourse, own: OwnWords | undefined): CohortCourse {
   if (!own) return program;
-  return {
-    ...program,
-    intro: {
-      ...program.intro,
-      sub: typeof own.sub === 'string' ? own.sub : program.intro.sub,
-      how: Array.isArray(own.how) ? own.how : program.intro.how,
-      holiday: typeof own.holiday === 'string' ? own.holiday : program.intro.holiday,
-    },
-  };
+  const sub = typeof own.sub === 'string' ? own.sub : program.intro.sub;
+  const how = Array.isArray(own.how) ? own.how : program.intro.how;
+  const holiday = typeof own.holiday === 'string' ? own.holiday : program.intro.holiday;
+  if (sub === program.intro.sub && how === program.intro.how && holiday === program.intro.holiday) return program;
+  return { ...program, intro: { ...program.intro, sub, how, holiday } };
 }
 
 /**

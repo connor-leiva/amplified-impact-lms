@@ -1,16 +1,19 @@
 // R-5 Phase 4 (D-261): the learner side reads its own cohort. Pure, over the production seed (December as the launch
 // seed put it, with the release plan's dates) and Connor's January made by the real admin action.
 //
-// THE OVERLAP WITH PHASE 3. Phase 3 writes December's run with a one-time data step, from its modules' own `opens`,
-// `due_at` and week numbers, after which `cohortView(db, 'dec26')` is no longer the very same object. Every December
-// output this phase adds is checked twice here: with December's run absent (main today) and with that run stored
-// (`withDecemberRun`, built the way the data step builds it), and must be identical.
+// THE OVERLAP WITH PHASE 3. Phase 3 writes December's run with a one-time data step (`planDecemberRunV1`,
+// `2026-11-26-december-run`, D-255), from its modules' own `opens`, `due_at` and week numbers, after which
+// `cohortView(db, 'dec26')` is no longer the very same object. Every December output this phase adds is checked twice
+// here: with December's run absent and with that data step applied (`withDecemberRun`), and must be identical.
 import { describe, expect, it } from 'vitest';
 import { cohortLine, createCohortFromShape, scopeSnapshot, setViewerZone } from '../src';
-import type { Actor, Announcement, CohortSlot, CohortWeek, Ctx, Db, Learner } from '../src';
-import type { CohortCourse } from '../src/course-types';
-import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID, isCourseWeek } from '../src/accelerator';
+import type { Actor, Announcement, CohortSlot, Ctx, Db, Learner } from '../src';
+import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID, acceleratorModuleId } from '../src/accelerator';
+import { planDecemberRunV1 } from '../seed/december-run-v1';
 import {
+  viewWeekIds,
+  viewWeekModules,
+  viewWeekOf,
   DEFAULT_WEEK0_LABEL,
   FIRST_LIVE_BUILD_NONE,
   FIRST_LIVE_BUILD_TOKEN,
@@ -40,22 +43,11 @@ const ctx = (now: number): Ctx => {
 
 const prod = (): Db => planReleaseV1(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } })).db;
 
-/**
- * December's run, as Phase 3's data step writes it: every course week module of December, by its own week number,
- * opening and due date (PLAN.md, Phase notes: "built from its modules' `opens`, `due_at` and week numbers").
- */
-function decemberRun(db: Db): CohortWeek[] {
-  return db.modules
-    .filter((m) => m.kind === 'week' && m.course !== undefined && isCourseWeek(m.id))
-    .sort((a, b) => a.course!.week - b.course!.week)
-    .map((m) => ({ moduleId: m.id, n: m.course!.week, opensAt: m.opens, dueAt: m.dueAt ?? null }));
-}
-
+/** December with its run written by Phase 3's own data step (D-255), which must write it here. */
 const withDecemberRun = (db: Db): Db => {
-  const next = structuredClone(db);
-  const dec = next.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!;
-  dec.run = decemberRun(db);
-  return next;
+  const out = planDecemberRunV1(structuredClone(db));
+  expect(out.changes).toHaveLength(1);
+  return out.db;
 };
 
 const JAN_SLOTS: CohortSlot[] = [
@@ -198,14 +190,16 @@ describe('a cohort with a run of its own (January)', () => {
     const db = structuredClone(made.db);
     const id = made.id;
     const program = programCourse(db)!;
-    // A cohort that stores no words reads the program's (PLAN § 10.3: a new cohort's words start as December's).
-    expect(cohortCourseCopy(db, id)).toBe(program);
+    // New cohort drafts its words as December's (PLAN § 10.3, D-255's `Cohort.words`), so they read as the program's.
+    expect(cohortCourseCopy(db, id)).toEqual(program);
     expect(courseFor(db, NOV25, 'staff', id)).not.toBeNull();
-
+    // A cohort with no words of its own at all reads the program's, the same object.
     const jan = db.cohorts.find((c) => c.id === id)!;
-    jan.course = {
-      intro: { sub: 'Six weeks. One hire a week.', how: ['A week opens on Sunday.'], holiday: '' },
-    } as unknown as CohortCourse;
+    delete jan.words;
+    expect(cohortCourseCopy(db, id)).toBe(program);
+
+    // Its own, saved the way Edit words saves them (`Cohort.words`), reach its learners.
+    jan.words = { promise: 'Six weeks. One hire a week.', how: ['A week opens on Sunday.'], holiday: '' };
     const words = cohortCourseCopy(db, id)!;
     expect(words.intro.sub).toBe('Six weeks. One hire a week.');
     expect(words.intro.how).toEqual(['A week opens on Sunday.']);
@@ -256,6 +250,35 @@ describe('a cohort with a run of its own (January)', () => {
     } finally {
       setViewerZone(null);
     }
+  });
+
+  it('in the browser, without the run: the n-th week of the course is the n-th course week of the snapshot', () => {
+    const { db, id } = withJanuary(prod(), { name: 'Odd Weeks 2027', picks: [W[1]!, W[2]!, W[4]!, W[5]!, W[7]!, W[8]!] });
+    const me = learner('u_odd', id);
+    const snap = scopeSnapshot({ ...db, users: [me] }, { kind: 'learner', userId: 'u_odd' }, { accelerator: true, at: NOV25, early: true });
+    // The learner's snapshot carries no run (D-255) ...
+    expect(snap.cohorts[0]).not.toHaveProperty('run');
+    // ... and needs none: its course weeks are the cohort's view, in the curriculum's order.
+    expect(viewWeekIds(snap.modules)).toEqual([W[0], W[1], W[2], W[4], W[5], W[7], W[8]]);
+    const weeks = courseFor(db, NOV25, 'staff', id)!.weeks.map((w) => w.week);
+    const ids = viewWeekModules(weeks, snap.modules)!;
+    expect([...ids]).toEqual([0, 1, 2, 3, 4, 5, 6].map((n) => [n, weekModuleId(db.cohorts.find((c) => c.id === id), n)]));
+    // A fallback to the curriculum's ids would be wrong here.
+    expect(ids.get(3)).not.toBe(acceleratorModuleId(3));
+    expect(viewWeekOf(snap.modules, W[4]!)).toBe(3);
+    expect(viewWeekOf(snap.modules, W[3]!)).toBeNull();
+    // Without a setup week, the first week is 1.
+    const noSetup = withJanuary(prod(), { name: 'No Setup 2027', picks: [W[2]!, W[4]!], shape: { ...JAN.shape, setupWeek: false } });
+    const snap2 = scopeSnapshot({ ...noSetup.db, users: [learner('u_ns', noSetup.id)] }, { kind: 'learner', userId: 'u_ns' }, { accelerator: true, at: NOV25, early: true });
+    expect(viewWeekOf(snap2.modules, W[4]!)).toBe(2);
+    // December, with its run stored or not, and a snapshot with no course weeks: the curriculum's numbers.
+    for (const d of [prod(), withDecemberRun(prod())]) {
+      const s = scopeSnapshot({ ...d, users: [learner('u_dec', DEFAULT_COHORT_ID)] }, { kind: 'learner', userId: 'u_dec' }, { accelerator: true, at: NOV25 });
+      expect([...viewWeekModules([0, 1, 2, 3, 4, 5, 6, 7, 8], s.modules)!]).toEqual(W.map((m, n) => [n, m]));
+      expect(viewWeekOf(s.modules, W[7]!)).toBe(7);
+    }
+    expect(viewWeekModules([0, 1], [])).toBeNull();
+    expect(viewWeekOf([], W[7]!)).toBe(7);
   });
 
   it('the Week 0 subject’s cohort, without its year', () => {
