@@ -39,11 +39,18 @@ const sessionsOf = (
     .filter((s) => s.cohortId === cohortId && s.moduleId === moduleId && s.kind !== undefined && kinds.includes(s.kind))
     .sort((a, b) => a.start - b.start);
 
-/** A week module as a cohort with a stored run has it. */
+/**
+ * A week module as a cohort with a stored run has it.
+ *
+ * D-255 (Phase 3): the week's office hours page names the week's office hours, and a goal-planning session only when the
+ * week has none (December's Weeks 2 and 3 have both: the page describes Friday's office hours, `dec26-fri-oh2`, not
+ * Thursday's goal planning). And the module keeps its own key order (`dueAt` stays where it was), so December, once its
+ * run is written, reads exactly as it did before (`december.test.ts`).
+ */
 function seenThrough(m: AIEmployee, w: CohortWeek, cohortId: string, sessions: readonly Session[]): AIEmployee {
   const build = sessionsOf(sessions, cohortId, m.id, ['live_build'])[0];
-  const hours = sessionsOf(sessions, cohortId, m.id, ['office_hours', 'goal_planning'])[0];
-  const { dueAt: _due, ...rest } = m;
+  const hours =
+    sessionsOf(sessions, cohortId, m.id, ['office_hours'])[0] ?? sessionsOf(sessions, cohortId, m.id, ['goal_planning'])[0];
   const course = m.course
     ? {
         ...m.course,
@@ -55,14 +62,16 @@ function seenThrough(m: AIEmployee, w: CohortWeek, cohortId: string, sessions: r
           : m.course.officeHours,
       }
     : m.course;
-  return {
-    ...rest,
+  const out: AIEmployee = {
+    ...m,
     status: m.status === 'draft' ? 'draft' : w.opensAt !== null ? 'scheduled' : 'published',
     opens: w.opensAt,
     session: build?.n ?? null,
-    ...(w.dueAt !== null ? { dueAt: w.dueAt } : {}),
-    ...(course ? { course } : {}),
   };
+  if (w.dueAt !== null) out.dueAt = w.dueAt;
+  else delete out.dueAt;
+  if (course) out.course = course;
+  return out;
 }
 
 /**

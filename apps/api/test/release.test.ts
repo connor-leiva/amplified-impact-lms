@@ -283,12 +283,14 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       // D-243: the AI Implementer, in the nine weeks and the cohort's pages (10 records). Named: Week 0 Step 1's line,
       // since the seed gives Step 1 no sentence that says who the person is.
       [DATA_MIGRATIONS[15]!.id, 10, 1],
+      // D-255: December's run, written once from its own week modules (the cohort's one row).
+      [DATA_MIGRATIONS[16]!.id, 1, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
     expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7 + 10).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7 + 10 + 1).fill('curriculum.migrate'));
     expect(after.cohorts.find((c) => c.id === 'dec26')!.course!.glossary).toHaveLength(31);
     expect(after.modules.find((m) => m.id === 'accelerator-week-0')!.course!.startHere?.title).toBe('Start Here: Week 0');
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });

@@ -101,8 +101,12 @@ const redactSession = (session: Session, w: ReplayWeek = { access: false, open: 
  * snapshot never carries them, so moving the words from code into the database opens no second door:
  * a buyer before the first live build, a Utah Life member or any other plan reads none of them here,
  * and a buyer reads them where they always have. Staff (the curriculum builder) see every word.
+ *
+ * D-255 (R-5 Phase 3): nor the cohort's stored run, which is staff's record of its dates. A learner reads their weeks
+ * already seen through it (the snapshot's modules are the cohort's view), so the run itself tells them nothing new, and
+ * December's, written by its data step, leaves its learners' snapshot exactly as it was.
  */
-const cohortForLearner = ({ course: _course, ...c }: Cohort): Cohort => c;
+const cohortForLearner = ({ course: _course, run: _run, ...c }: Cohort): Cohort => c;
 const moduleForLearner = ({ course: _course, ...m }: AIEmployee): AIEmployee => m;
 
 const redactResource = (r: Resource): Resource => {
