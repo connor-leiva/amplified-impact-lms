@@ -2,9 +2,8 @@
 // names no record in the crumb): what the cohort holds for
 // the whole course, editable in the builder. Reached from a course week's Course page card.
 //
-//   - Release plan: the cohort's name and cadence line, when the pre-launch preview opens and the time
-//     a week opens by default, in Mountain Time (the zone itself stays Mountain; the brief leaves the
-//     picker out). Saved with `saveCohortPlan`.
+//   - Release plan: D-255 moved it to the cohort (Cohort › Settings › Dates and Release, and its name to Edit words);
+//     here it is a read-only line that links there.
 //   - Shared pages: what every week shares (the course intro, the shared rules, the before and after
 //     pages), in a draft of its own; "Save pages" saves it whole with `saveCohortCourse`.
 //   - Copy strings: the learner-facing lines kept by key (Utah Life's lock line among them), each saved
@@ -14,6 +13,9 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { Link } from 'react-router';
+import { useAdminChrome } from '../../shell/admin/chrome';
+import { cohortLabel } from '../../data/admin-shell';
 import type { CopyString } from '@ai/core';
 import type { CohortCourse, GlossaryTerm } from '@ai/core/course-types';
 import { Button } from '../../components/r2/Button';
@@ -22,8 +24,7 @@ import { Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
 import { useAct, useDb } from '../../data/hooks';
-import { copyRows, courseCohort, hintPairs, pairsText, planArgs, planForm, textPairs } from './CourseSettings.vm';
-import type { PlanForm } from './CourseSettings.vm';
+import { copyRows, courseCohort, hintPairs, pairsText, textPairs } from './CourseSettings.vm';
 import { listItems, listText, moveBy, removeAt } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import w from './WeekBuilder.module.css';
@@ -62,6 +63,7 @@ function Area({ label, value, onChange, rows = 3, note }: { label: string; value
 
 export function Component() {
   const db = useDb();
+  const { cohort } = useAdminChrome();
   const co = courseCohort(db);
   // The breadcrumb: Admin / Build / Curriculum / Course settings.
   if (!co) {
@@ -79,54 +81,24 @@ export function Component() {
         description="What the cohort holds for the whole course: when it opens, the pages every week shares, and the copy strings."
         back={{ to: '/admin/program', label: 'Curriculum' }}
       />
-      <ReleasePlan key={`plan-${co.id}`} cohortId={co.id} initial={planForm(co)} />
+      {/* D-255 (PLAN.md § 10.3): the release plan is each cohort's own now, edited on Cohort › Settings › Dates and
+          Release; here, a read-only line that links there. */}
+      <ReleaseLine cohortId={cohort.id ?? co.id} label={cohort.id && cohort.label ? cohort.label : cohortLabel(co)} />
       {co.course ? <SharedPages key={`pages-${co.id}`} cohortId={co.id} initial={co.course} /> : null}
       <CopyStrings rows={copyRows(db)} />
     </Page>
   );
 }
 
-function ReleasePlan({ cohortId, initial }: { cohortId: string; initial: PlanForm }) {
-  const act = useAct();
-  const [f, setF] = useState(initial);
-  const [error, setError] = useState('');
-  const save = async () => {
-    const out = await act('saveCohortPlan', planArgs(cohortId, f));
-    setError(out.error ?? '');
-  };
+/** D-255: the release plan's read-only line: where each cohort's dates, preview and welcome email are set. */
+function ReleaseLine({ cohortId, label }: { cohortId: string; label: string }) {
   return (
-    <Card
-      title="Release plan"
-      right={
-        <Button kind="primary" onClick={() => void save()}>
-          Save plan
-        </Button>
-      }
-    >
-      <div className={k.col}>
-        <Errors error={error} />
-        <Field label="Cohort name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
-        <Field label="Cadence" value={f.cadence} onChange={(v) => setF({ ...f, cadence: v })} hint="Wednesday builds at 12:00 PM MT" />
-        <div className={clsx(k.row, k.nw, w.dt)}>
-          <span className={k.sp}>
-            <Field label="Preview opens (MT)" type="date" value={f.previewDate} onChange={(v) => setF({ ...f, previewDate: v })} />
-          </span>
-          <span className={k.sp}>
-            <Field label="Time" type="time" value={f.previewTime} onChange={(v) => setF({ ...f, previewTime: v })} />
-          </span>
-        </div>
-        <Field label="A week opens at (MT)" type="time" value={f.defaultOpenTime} onChange={(v) => setF({ ...f, defaultOpenTime: v })} />
-        <div className={clsx(k.row, k.nw, w.dt)}>
-          <span className={k.sp}>
-            <Field label="Welcome email sends at (MT)" type="date" value={f.welcomeDate} onChange={(v) => setF({ ...f, welcomeDate: v })} />
-          </span>
-          <span className={k.sp}>
-            <Field label="Time" type="time" value={f.welcomeTime} onChange={(v) => setF({ ...f, welcomeTime: v })} />
-          </span>
-        </div>
-        <p className={clsx(k.p, k.me)}>Times are Mountain Time. Leave the preview date empty for no preview. Leave the welcome date empty to send when access opens.</p>
-      </div>
-    </Card>
+    <div className={clsx(k.note, k.row)}>
+      <span className={clsx(k.s2, k.sp)}>The release plan is each cohort’s own: when its weeks open, its preview and its welcome email.</span>
+      <Link className={k.lk} to={`/admin/cohort/${encodeURIComponent(cohortId)}/settings#dates`}>
+        {label.replace(/ Cohort$/, '')} › Settings
+      </Link>
+    </div>
   );
 }
 

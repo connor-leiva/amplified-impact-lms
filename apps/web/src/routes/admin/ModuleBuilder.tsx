@@ -34,8 +34,9 @@ import {
   seedDraft,
 } from './ModuleBuilder.vm';
 import type { BuilderR2Step } from './ModuleBuilder.vm';
-import { CoursePreview, DateTime, StepWeekFields, WeekCards } from './WeekBuilder';
-import { TONES, TONE_LABELS, draftIssues, isWeekDraft, mtWhen, weekKit, weekSessions } from './WeekBuilder.vm';
+import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
+import { WhereItRuns } from './cohort/WhereItRuns';
+import { TONES, TONE_LABELS, draftIssues, isWeekDraft, weekKit, weekSessions } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import { weekPath } from '../../shell/admin/addresses';
 import { useRecordCrumb } from '../../shell/admin/chrome';
@@ -154,6 +155,9 @@ export function Component() {
       const isNew = !st.key;
       const draft = structuredClone(st.draft);
       if (status === 'scheduled' && !draft.opens) draft.opens = DEFAULT_OPENS;
+      // D-255: a course week's dates are its cohort's. Publishing a scheduled week keeps it scheduled on its date; the
+      // builder neither dates nor undates it (one editor at a time).
+      if (status === 'published' && isWeekDraft(draft) && db.modules.find((m) => m.id === draft.id)?.status === 'scheduled') status = 'scheduled';
       let out: Awaited<ReturnType<typeof act>>;
       try {
         out = await act('saveBuilderModule', { draft, status, base: st.base });
@@ -429,7 +433,7 @@ export function Component() {
                     <Menu
                       label="Status"
                       placement="below-left"
-                      items={STATUSES.map(([key, label]) => ({
+                      items={STATUSES.filter(([key]) => !week || key !== 'scheduled' || d.status === 'scheduled').map(([key, label]) => ({
                         label,
                         checked: d.status === key,
                         disabled: saving,
@@ -475,18 +479,15 @@ export function Component() {
                     <span className={k.mu}>Self-paced</span>
                   ),
                 },
-                {
-                  label: 'Opens',
-                  value:
-                    week && week.status === 'scheduled' && week.opens ? (
-                      mtWhen(week.opens)
-                    ) : vm.opens.muted ? (
-                      <span className={k.mu}>{vm.opens.text}</span>
-                    ) : (
-                      vm.opens.text
-                    ),
-                },
-                ...(week ? [{ label: 'Due', value: week.dueAt ? mtWhen(week.dueAt) : <span className={k.mu}>Not set</span> }] : []),
+                // D-255: a course week's Opens and Due are its cohort's; they are under Where it runs, below.
+                ...(week
+                  ? []
+                  : [
+                      {
+                        label: 'Opens',
+                        value: vm.opens.muted ? <span className={k.mu}>{vm.opens.text}</span> : vm.opens.text,
+                      },
+                    ]),
                 {
                   label: 'Skill guide',
                   value: vm.linked ? (
@@ -500,6 +501,7 @@ export function Component() {
                 },
               ]}
             />
+            {week ? <WhereItRuns db={db} moduleId={week.id} /> : null}
             <p className={clsx(k.p, k.me)}>
               Preview as Learner opens a read-only copy in a new tab. It is not masquerade and is not audit-logged.
             </p>
@@ -590,27 +592,8 @@ export function Component() {
           </label>
           {week ? (
             <>
-              {week.status === 'scheduled' ? (
-                <DateTime
-                  label="Opens"
-                  value={week.opens}
-                  onChange={(t) =>
-                    up((x) => {
-                      x.opens = t;
-                    })
-                  }
-                />
-              ) : null}
-              <DateTime
-                label="Due"
-                value={week.dueAt}
-                onChange={(t) =>
-                  up((x) => {
-                    if (t === null) delete x.dueAt;
-                    else x.dueAt = t;
-                  })
-                }
-              />
+              {/* D-255: one editor at a time. A week's Opens and Due are its cohort's (Cohort › Settings › Dates and
+                  Release), shown under Where it runs in the Settings card, each a link there. */}
               <label className={s.lab}>
                 Tone
                 <Sel

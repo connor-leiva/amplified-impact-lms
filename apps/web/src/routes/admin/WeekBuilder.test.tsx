@@ -110,42 +110,14 @@ describe('the course-week cards (D-174)', () => {
     expect(draft().course.sampleOutput).toMatchObject({ madeUpLabel: 'Made-up data', blocks: [{ type: 'table', head: ['Source', 'Cost'] }] });
   });
 
-  it('lists the week’s sessions in Mountain Time and saves a new one at once, through its audited action', async () => {
-    const { act, db, week, user } = setup();
-    expect(screen.getByRole('heading', { name: 'Sessions · 2' })).toBeInTheDocument();
-    expect(screen.getAllByText(/ MT · \d+ min$/)).toHaveLength(2);
-    // The two sessions the week's pages name can't be removed here; they can be edited.
-    for (const id of ['dec26-s2', 'dec26-oh2']) {
-      const title = db.sessions.find((x) => x.id === id)!.title;
-      expect(screen.queryByRole('button', { name: `Remove ${title}` })).toBeNull();
-      expect(screen.getByRole('button', { name: `Edit ${title}` })).toBeInTheDocument();
-    }
-    await user.click(screen.getByRole('button', { name: 'Add session' }));
-    const dialog = screen.getByRole('dialog', { name: 'Add session' });
-    await user.type(within(dialog).getByRole('textbox', { name: 'Title' }), 'Lead Source Review Office Hours');
-    const date = within(dialog).getByLabelText('Date (MT)');
-    await user.type(date, '2026-12-11');
-    await user.click(within(dialog).getByRole('button', { name: 'Save session' }));
-    expect(act).toHaveBeenCalledWith('saveSession', {
-      cohortId: 'dec26',
-      moduleId: week.id,
-      kind: 'office_hours',
-      title: 'Lead Source Review Office Hours',
-      date: '2026-12-11',
-      time: '12:00',
-      mins: '60',
-      zoom: '',
-      replayVisibility: null,
-    });
-  });
-
-  it('shows the server’s refusal in the session dialog, and keeps it open', async () => {
-    const { act, user } = setup();
-    act.mockResolvedValueOnce({ error: 'Pick a date and a start time.' });
-    await user.click(screen.getByRole('button', { name: 'Add session' }));
-    const dialog = screen.getByRole('dialog', { name: 'Add session' });
-    await user.click(within(dialog).getByRole('button', { name: 'Save session' }));
-    expect(await within(dialog).findByRole('alert')).toHaveTextContent('Pick a date and a start time.');
+  it('lists the week’s sessions read-only, each a link to its cohort’s Schedule, where sessions are edited (D-255)', () => {
+    const { db, week } = setup();
+    const rows = db.sessions.filter((x) => x.moduleId === week.id);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: `Sessions · ${rows.length}` })).toBeInTheDocument();
+    for (const r of rows) expect(screen.getByRole('link', { name: new RegExp(r.title) })).toHaveAttribute('href', '/admin/cohort/dec26/schedule');
+    expect(screen.queryByRole('button', { name: 'Add session' })).toBeNull();
+    expect(screen.getAllByText(/ MT \/ .* CT/).length).toBeGreaterThan(0);
   });
 });
 

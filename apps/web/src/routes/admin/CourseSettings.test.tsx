@@ -48,11 +48,11 @@ describe('Course settings’ view-model (D-174)', () => {
 });
 
 describe('Course settings (D-174)', () => {
-  it('saves the release plan through its audited action', async () => {
-    const { act, user } = show();
-    await user.type(screen.getByLabelText('Preview opens (MT)'), '2026-11-18');
-    await user.click(screen.getByRole('button', { name: 'Save plan' }));
-    expect(act).toHaveBeenCalledWith('saveCohortPlan', expect.objectContaining({ cohortId: 'dec26', previewOpens: { date: '2026-11-18', time: '12:00' }, defaultOpenTime: '12:00' }));
+  it('shows the release plan as a read-only line that opens the cohort’s Dates and Release (D-255)', () => {
+    show();
+    expect(screen.queryByRole('button', { name: 'Save plan' })).toBeNull();
+    expect(screen.queryByLabelText('Preview opens (MT)')).toBeNull();
+    expect(screen.getByRole('link', { name: /› Settings$/ })).toHaveAttribute('href', '/admin/cohort/dec26/settings#dates');
   });
 
   it('saves the shared pages whole, only once something changed, and shows a refusal', async () => {
