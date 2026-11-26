@@ -29,7 +29,10 @@
 // it in the same minute, D-028), `Referrer-Policy: same-origin` so a plain form post carries a real
 // Origin, `noindex` in the page itself. Unlike them, `no-store`: the page holds live prices.
 
-import { BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL, SCHEDULE_ICS_PATH, calendarFiles } from './offer-calendar';
+import { BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL, SCHEDULE_ICS_PATH, calendarFiles, cohortScheduleIcs } from './offer-calendar';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { requireSession } from '../auth';
+import { viewerCohortId } from '../lib/course-access';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/client';
@@ -343,8 +346,23 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     [OFFICE_HOURS_ICS_PATH, 'officeHours'],
     [SCHEDULE_ICS_PATH, 'schedule'],
   ] as const) {
-    app.get(path, { config: { rateLimit: false } }, async (_req, reply): Promise<FastifyReply> => {
+    app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
       if (!options.database) return reply.code(404).send({ error: 'Not found' });
+      // R-5 Phase 4 (D-260): the learner portal's "Add all to calendar" for a cohort other than December names it
+      // (`?cohort=`, `scheduleIcsPath`). That file is its learners' alone (staff may read it): signed in, and never
+      // kept by anything between. Without one, December's file, exactly as before.
+      const cohort = pick === 'schedule' ? queryOf(req).cohort : undefined;
+      if (cohort && cohort !== DEFAULT_COHORT_ID) {
+        await requireSession.call(app, req, reply);
+        if (reply.sent) return reply;
+        const viewer = req.viewer;
+        const mine =
+          !!viewer &&
+          (viewer.user.kind === 'staff' || viewer.user.cohortId === cohort || (await viewerCohortId(getDb(), viewer.user.id)) === cohort);
+        const file = mine ? await cohortScheduleIcs(cohort) : null;
+        if (!file) return reply.code(404).send({ error: 'Not found' });
+        return reply.code(200).type('text/calendar; charset=utf-8').header('cache-control', 'private, no-store').send(file);
+      }
       const files = await calendarFiles();
       return reply.code(200).type('text/calendar; charset=utf-8').header('cache-control', 'public, max-age=3600').send(files[pick]);
     });
