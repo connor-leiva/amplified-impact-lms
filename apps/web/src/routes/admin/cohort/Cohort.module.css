@@ -211,11 +211,12 @@ a.plain {
   line-height: 1;
 }
 .dt b {
-  font-size: 15px;
+  /* D-156: the mockup's raw sizes as size tokens, 16px on a phone (the LMS type floor). */
+  font-size: var(--r2-fs-15);
   font-weight: 600;
 }
 .dt span {
-  font-size: 10px;
+  font-size: var(--r2-fs-10);
   color: var(--r2-f3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -230,7 +231,7 @@ a.plain {
   background: var(--r2-tint);
   color: var(--r2-for);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--r2-fs-13);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,7 +246,7 @@ a.plain {
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--r2-fs-12);
   background: var(--r2-sub);
   color: var(--r2-f2);
 }
