@@ -25,6 +25,7 @@
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { DEFAULT_COHORT_ID, NOT_IN_PLAN, acceleratorPaused } from '@ai/core/accelerator';
+import { previewDb } from '@ai/core/cohort-page';
 import { courseFor, courseOutline, courseSessions } from '@ai/core/course';
 import { skillOnlyBuyer } from '@ai/core/offer';
 import { courseUpcoming } from '@ai/core/release';
@@ -47,14 +48,16 @@ export const NOT_YET = 'Your AI Accelerator opens at the first live build.';
 export const NOT_LOADED = 'The AI Accelerator’s course isn’t loaded yet.';
 
 export function registerCourseRoute(app: FastifyInstance): void {
-  app.get(COURSE_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
+  app.get<{ Querystring: { cohort?: string } }>(COURSE_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
     const { actor } = viewerOrThrow(req);
     const db = getDb();
     reply.header('cache-control', 'no-store');
     const now = clock.now();
     let entry: CourseEntry | 'staff' = 'staff';
-    // R-5 (D-254): the viewer's own cohort's course. Staff read the default cohort's, as they always have.
-    const cohortId = actor.kind === 'learner' ? await viewerCohortId(db, actor.userId) : DEFAULT_COHORT_ID;
+    // R-5 (D-254): the viewer's own cohort's course. Staff read the default cohort's, as they always have, or, from the
+    // Cohort page's Preview (D-255), the cohort its `?cohort=` names. A learner's `?cohort=` is ignored.
+    const asked = actor.kind === 'staff' && typeof req.query.cohort === 'string' && req.query.cohort ? req.query.cohort : null;
+    const cohortId = actor.kind === 'learner' ? await viewerCohortId(db, actor.userId) : (asked ?? DEFAULT_COHORT_ID);
     if (actor.kind === 'learner') {
       // D-175: a learner enters the course when it opens for their plan (D-153), or before that once the
       // cohort's pre-launch preview opens. Each week then opens on its own date.
@@ -74,7 +77,10 @@ export function registerCourseRoute(app: FastifyInstance): void {
         return reply.code(403).send({ open: false, error: NOT_IN_PLAN, ...(outline ? { outline } : {}) });
       }
     }
-    const snapshot = await loadDb(db);
+    const loaded = await loadDb(db);
+    // D-255: a staff preview of a cohort whose course words are not its own reads the default cohort's with its own
+    // words in their places (`previewDb`). Never for a learner, and never written.
+    const snapshot = asked ? previewDb(loaded, cohortId) : loaded;
     const course = courseFor(snapshot, now, entry, cohortId);
     if (!course) return reply.code(503).send({ open: false, error: NOT_LOADED });
     return reply.code(200).send({

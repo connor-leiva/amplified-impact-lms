@@ -640,6 +640,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
+  // D-255 (R-5 Phase 3): what the Cohort page reads beyond the snapshot. Signed in, then staff with `cohorts`.
+  { path: '/api/admin/cohorts/:cohortId/facts', methods: 'GET, HEAD', guard: 'session' },
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // D-229 (B-18): the intake as a PDF. Signed in, then the owner and the operator.
@@ -1197,6 +1199,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             }),
           '/api/billing/portal': () => app.inject({ method: 'GET', url: '/api/billing/portal' }),
           '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
+          '/api/admin/cohorts/:cohortId/facts': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/facts' }),
           // D-132's account page.
           '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
           '/api/auth/password/change': () =>
@@ -1595,8 +1598,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 86 with D-229's re-queue of a team's intake for GHL. 91 with the Community's five (D-231), 96 with Turn in's
     // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
     // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge. 105 with the cohort welcome's
-    // test send. 106 with the Week 0 Is Open email's test send.
-    expect(EXECUTED.unauthenticated).toBe(106);
+    // test send. 106 with the Week 0 Is Open email's test send. 107 with the Cohort page's facts (D-255).
+    expect(EXECUTED.unauthenticated).toBe(107);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1624,7 +1627,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // form's (D-236), probed unauthenticated. And + 2 for D-237's turned-in files, probed unauthenticated.
     // And + 1 for a single skill's checkout, probed unauthenticated. And + 2 for D-247's Resend Invite and Send Nudge,
     // probed unauthenticated. And + 1 for the cohort welcome's test send, probed unauthenticated. And + 1 for the Week 0
-    // Is Open email's test send, probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1);
+    // Is Open email's test send, probed unauthenticated. And + 1 for the Cohort page's facts (D-255), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1);
   });
 });

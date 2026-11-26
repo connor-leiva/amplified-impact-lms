@@ -37,6 +37,7 @@ import { builderDraft, cohortCourse } from './schemas';
 import { statusForMutationError } from './mutate';
 import { claimSendNowEmails, sendClaimed, withSendNowToast } from '../email/announce-now';
 import type { SendNowClaim } from '../email/announce-now';
+import { cohortFactsOf } from '../lib/cohort-facts';
 
 export const ADMIN_ACTIONS_PATH = '/api/admin/actions/:name';
 
@@ -70,6 +71,8 @@ const cohortSlot = z.strictObject({
   mins: z.number().int(),
 });
 const cohortShape = z.strictObject({ setupWeek: z.boolean(), slots: z.array(cohortSlot).max(7), hosts: text(300) });
+/** R-5 Phase 3 (D-255): a cohort's words as Edit words and New cohort send them. */
+const cohortWords = z.strictObject({ promise: text(500), how: z.array(text(500)).max(12), holiday: text(500) });
 
 /** D-188: the file a browser put in the bucket, as the Vault sends it. Its key is one the upload route mints. */
 const vaultFile = z.strictObject({ key: z.string().regex(UPLOAD_KEY), name: text(200).min(1), size: z.number().int().positive(), type: text(120) });
@@ -130,13 +133,27 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
   saveCohortCourse: z.strictObject({ cohortId: id, course: cohortCourse }),
   saveCopyString: z.strictObject({ key: text(120), value: text(2000), audience: z.enum(['learner', 'staff']) }),
   // R-5 (D-254): a cohort owns its run and its shape (`cohort-actions.ts`).
-  createCohortFromShape: z.strictObject({ name: text(200), start: text(10), sourceCohortId: id, picks: z.array(id).max(40), shape: cohortShape }),
+  createCohortFromShape: z.strictObject({
+    name: text(200),
+    start: text(10),
+    sourceCohortId: id,
+    picks: z.array(id).max(40),
+    shape: cohortShape,
+    // R-5 Phase 3 (D-255): the words it starts with (absent: the source's), and when its included time ends.
+    words: cohortWords.nullable().optional(),
+    includedUntil: text(10).nullable().optional(),
+  }),
   saveCohortShape: z.strictObject({ cohortId: id, picks: z.array(id).max(40), shape: cohortShape }),
   saveCohortRun: z.strictObject({
     cohortId: id,
     weeks: z.array(z.strictObject({ moduleId: id, opens: dateTime.nullable(), due: dateTime.nullable() })).max(40),
   }),
   addCohortSessions: z.strictObject({ cohortId: id }),
+  // R-5 Phase 3 (D-255): the Cohort page's Settings.
+  saveCohortWords: z.strictObject({ cohortId: id, name: text(200), promise: text(500), how: z.array(text(500)).max(12), holiday: text(500) }),
+  saveCohortIncluded: z.strictObject({ cohortId: id, date: text(10).nullable() }),
+  saveCohortHosts: z.strictObject({ cohortId: id, hosts: text(300) }),
+  keepCohortOverlap: z.strictObject({ cohortId: id }),
 };
 
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;
@@ -179,7 +196,11 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
           // `/api/mutate`'s lock: every write in the system is serialized behind it.
           await tx.execute(sql`select pg_advisory_xact_lock(42)`);
           const before = await loadDb(tx);
-          const out = ACTIONS[name](before, viewer.actor, parsed.data as never, { now, id: ids });
+          // D-255: what a cohort write needs beyond the snapshot (its plans, for the included time's freeze).
+          const cohortId = (parsed.data as { cohortId?: unknown }).cohortId;
+          const cohortFacts =
+            name === 'saveCohortIncluded' && typeof cohortId === 'string' ? { [cohortId]: await cohortFactsOf(tx, cohortId) } : undefined;
+          const out = ACTIONS[name](before, viewer.actor, parsed.data as never, { now, id: ids, ...(cohortFacts ? { cohortFacts } : {}) });
           if (out.error) return { ok: false, status: 422, body: { error: out.error } };
           await persistDiff(tx, before, out.db);
           // D-188: the stored file goes on the row here, beside the snapshot's columns (which never hold

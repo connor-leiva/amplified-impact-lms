@@ -309,6 +309,13 @@
       "when": 1796700000000,
       "tag": "0043_cohort_run",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1796800000000,
+      "tag": "0044_cohort_page",
+      "breakpoints": true
     }
   ]
 }

@@ -51,6 +51,8 @@ export interface ViewerPrefs {
   theme?: 'light' | 'dark';
   /** D-185: the learner portal v2's desktop sidebar, full or the rail. */
   sidebar?: 'full' | 'rail';
+  /** D-255: the cohort a staff member looked at last in the admin (spec § 3), by id. */
+  cohort?: string;
 }
 
 /** § 7.5's `{ actor, role }`. */
@@ -96,6 +98,7 @@ export function normalizePrefs(value: unknown): ViewerPrefs {
   if (typeof raw.tz === 'string' && raw.tz.trim() !== '') out.tz = raw.tz;
   if (raw.theme === 'light' || raw.theme === 'dark') out.theme = raw.theme;
   if (raw.sidebar === 'full' || raw.sidebar === 'rail') out.sidebar = raw.sidebar;
+  if (typeof raw.cohort === 'string' && raw.cohort.trim() !== '' && raw.cohort.length <= 64) out.cohort = raw.cohort;
   return out;
 }
 
