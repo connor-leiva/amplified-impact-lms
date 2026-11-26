@@ -2,6 +2,8 @@
 node_modules/
 harness/public/app.js
 harness/public/app.css
+# Copied from mockup/logos by `npm run build` (harness/build.mjs).
+harness/public/logos/
 # A local run's screenshots (results/report.json, the author's runs, is kept).
 results/*.png
 # The review scripts' images (their .md and .json reports are kept).

@@ -45,9 +45,20 @@ export const loadPrefs = (): Prefs => {
  */
 let learnerScope: string | null = null;
 
+/**
+ * D-260 (Connor, Nov 25, Q-C3): while an LMS v3 frame is on screen (the members' or the $37 buyer's), the learner
+ * portal draws light, whatever the person's theme, until the dark-mode pass. The frame says so (`setFrameLight`); the
+ * person's choice is kept, and comes back outside the frame (the step page, today's shell).
+ */
+let frameLight = false;
+
+/** The root's theme: the device's outside the learner portal; in it, the person's, or light inside a v3 frame. */
+const rootTheme = (p: Prefs): 'light' | 'dark' =>
+  learnerScope === null ? (p.theme === 'dark' ? 'dark' : 'light') : frameLight ? 'light' : learnerTheme(learnerScope, p);
+
 export function applyPrefs(p: Prefs) {
   const d = document.documentElement;
-  d.dataset.theme = learnerScope === null ? (p.theme === 'dark' ? 'dark' : 'light') : learnerTheme(learnerScope, p);
+  d.dataset.theme = rootTheme(p);
   setViewerZone(p.tz ?? null);
 }
 
@@ -55,9 +66,13 @@ export function applyPrefs(p: Prefs) {
 export function setLearnerScope(userId: string | null): void {
   learnerScope = userId;
   // The theme only: the zone is the device's either way, and is already applied.
-  const p = loadPrefs();
-  document.documentElement.dataset.theme =
-    userId === null ? (p.theme === 'dark' ? 'dark' : 'light') : learnerTheme(userId, p);
+  document.documentElement.dataset.theme = rootTheme(loadPrefs());
+}
+
+/** D-260: a v3 frame is on screen (true) or has gone (false); the root's theme follows. */
+export function setFrameLight(on: boolean): void {
+  frameLight = on;
+  document.documentElement.dataset.theme = rootTheme(loadPrefs());
 }
 
 export function savePrefs(patch: Partial<Prefs>): Prefs {

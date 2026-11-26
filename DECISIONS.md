@@ -7900,3 +7900,73 @@ No migration, env var, Railway variable, Stripe, billing data, role, tier, permi
 - **The intake intro (from #269, renumbered here).** `introBlocks` in `@ai/core/intake` reads an intro as staff type it: a blank line starts a paragraph, consecutive "- " lines are one bulleted list, `**text**` is bold, a single line break stays one, a stray `**` stays as text, and nothing else is read (no HTML, no links). `IntroText` draws the blocks as React elements, never as HTML, for the intro and each section's intro in the v3 form drawer and on `Intake.tsx` while that page exists. A one-paragraph intro is the same `<p>`, class and words as before, so the drawer's equality test still matches the package's. The Week Builder's Intake card says, under the Intro box: "Blank line for a new paragraph. Start a line with - for a list. **Bold**." Nothing else from #269 (its frame, its Stack card copy, its console view) is in this change.
 - **Tests and tools.** `every-learner.test.tsx`; `pnpm e2e:v3`, a both-flags-on fixture build (`build:fixture:v3`, port 4175) running `lms-v3-every-learner.spec.ts` for five kinds, the $37 buyer and the cohort; the intro's tests from #269. `compliance/lms-v3/personas.ts` seeds one learner of each kind on a development database only; `compliance/lms-v3/week-draws.ts` lists, read only, which open weeks' Media would keep today's page.
 - No migration, env var, Railway variable, Stripe, GHL, billing, plans, users, roles, tiers or `audit_log` change. No email is sent. No golden, mask or tolerance moves.
+
+## D-258 · The build guard attests LMS v3: `parity:learner` runs the v3 screens
+
+**Date:** 2026-11-25
+**Asked for by:** Connor Leiva (repository owner), Nov 25, 2026, in the LMS v3 rollout request, Phase 11 step 3: "Update `parity-learner` so the guard attests the v3 screens, through a new DECISIONS entry, without editing results." It is IMPLEMENTATION-SPEC.md Phase 11 step 3. **Number:** the next after this rollout's D-256 (the logo) and D-257 (every learner type); D-253 and D-254 are R-5's, and D-255 went unused.
+
+- **Why.** A production build with `VITE_LEARNER_V2=true` waits for CI's `parity-learner` job on its commit (`learner-parity-guard.ts`, D-182). That job ran the learner portal with v3 off, so a build with `VITE_LMS_V3=true` shipped screens no guarded job had checked.
+- **What changes.** `pnpm parity:learner` (`compliance/parity/run.ts`) gains two steps, after the tagged ones and before the meta-test:
+  - **the LMS v3 screens, both flags on:** the `e2e-v3` project (`LMS_V3=1`, `dist-fixture-v3`, every `lms-v3-*` spec: every learner type in the v3 frame, D-257);
+  - **the LMS v3 unit tests in apps/web:** `src/routes/learn/lms-v3` (the package's HTML-equality tests, the view-models, the gap rules, the drawers), `every-learner.test.tsx` and `IntroText.test.tsx`.
+  The suite exits non-zero if either fails, so the guard now refuses a build whose v3 screens regress.
+- **What does not change.** The guard itself, the job's name and its conclusion contract. The manifest (`learner-parity.json`), `signed-off-drops.md`, the meta-test and every result under `compliance/parity/results`: the new steps carry no `@parity:` tag, so nothing the meta-test reads moves. No golden, mask or tolerance.
+- **What it does not attest.** The pixel gate against the mockup (`handoff/lms-v3/diff/pixel-diff.mjs`) needs a database and a running API, so it stays a release check (Phase 11 steps 1, 4 and 5), not a CI job. On today's `main` it cannot reach zero against the v7 mockup, because D-243's words and D-249's dates came after it was drawn. `docs/pr-review/lms-v3-rollout/gate/RESULTS.md` has the run and the causes.
+
+## D-259 · The learner portal's times on one line, "12:00 PM MT / 1:00 PM CT", with LMS v3 on
+
+**Date:** 2026-11-25
+**Asked for by:** Connor Leiva (repository owner), Nov 25, 2026, answering PR C's Q-C5: "Times everywhere in the learner portal use one line: "12:00 PM MT / 1:00 PM CT". Put that in PR C (or a separate PR), with screenshots." **Number:** the next after D-258.
+
+- **What it supersedes, in the learner portal with LMS v3 on:** CLAUDE.md's time rule ("The viewer's zone comes first and the program zone follows in parentheses"), and D-175's Mountain-only course line (`mountainWhen`, "Wed, Dec 9 · 12:00 PM MT"). D-250 already prints this line in the emails, so the portal now matches them. CLAUDE.md's "always use `fmt.*`" still holds: the switch is inside `fmt`.
+- **How (`packages/core/src/time.ts`).** `setTimeStyle('mtct')`: `fmt.time`, `fmt.timeOnly`, `fmt.clockTime`, `fmt.when`, `fmt.abs` and `mountainWhen` print `mtCtTime`, "12:00 PM MT / 1:00 PM CT": each zone's own clock read off the instant, so each zone's daylight saving is its own. Where Central's clock falls on the next day, its day comes with it ("11:30 PM MT / Thu, Dec 3, 12:30 AM CT"), as D-250's `sessionTimeMtCtParts` does, and a test holds the two to the same text. Every date (`fmt.day`, `date`, `dayPlain`, `weekday`, `weekdayShort`) is Mountain Time's, so the day always agrees with the time. Relative times ("in 2 hours", "5 min ago") and video clocks are unchanged. The default, `'viewer'`, is the rule as it was.
+- **Where (`apps/web/src/lib/timeStyle.ts`).** The router's root (`shell/MasqueradeRoot.tsx`) sets the style as it renders, before any page draws: `'mtct'` on every page but `/admin` when the build has `VITE_LMS_V3=true`. That covers the v3 frame and every page inside it: v3's pages, today's Home, Skill Library, Vault, Team Hub, Account, and the step page. It also covers the buyer's LMS and the pages outside a shell (the Skill Library, a guide, `/course`). **The admin console keeps `fmt`'s rule, and with v3 off nothing changes:** today's pages, the design reference's goldens and `parity:learner`'s results all read as before. The API never sets the style, so the emails are D-250's, unchanged.
+- **The drawers' stamps.** B-17 printed these with no zone ("Saved Thu 4:02 PM", "Submitted Nov 20, 3:18 PM", the seat card's and Turn in's). In the learner portal with v3 on they now read the one line too: "Saved Thu 3:02 PM MT / 4:02 PM CT". The form drawer's own live stamp uses `fmt` there. Everywhere else it is the package's `toLocaleString` stamp, unchanged, and `FormDrawer.equality.test.tsx` still holds it to the package's.
+- **The $37 buyer's office hours** (typed copy, D-241): "Weekly office hours, Thursdays at 12:00 PM MT / 1:00 PM CT", "Every Thursday, 12:00 PM MT / 1:00 PM CT, 60 minutes.", the tag "12:00 PM MT / 1:00 PM CT, 60 minutes" and the tile's "12:00 PM MT / 1:00 PM CT". This applies with v3 on. The buyer's LMS also runs with v3 off, and then its words are as they were.
+- **Words staff type keep their words.** These name one zone, and Connor edits them in the console, not in code:
+  - the cohort's cadence, which is the Schedule's lede (Console › Cohorts; seeded "Wed builds and Thu office hours · 1:00 PM CT");
+  - the `schedule.subtitle` copy string, which replaces the cadence when set;
+  - the Week Builder content listed in PR C (Week 0's Start Here, the seat card's Runs lines, Week 1 step 6's Turn in item).
+- **The mockup.** The v7 mockup draws "1:00 PM CT", as v3 printed it for a Central viewer. The longer line moves more pixels away from it on the Schedule, the week pages and the top bar. This entry doesn't change the mockup: its times are the package's sample data, and a v8 would carry D-243's words, D-249's dates and this line together (PR C's Q-C1).
+- **At 390 px** two lines now wrap: the Schedule hero's meta (the length and "Zoom" go to a second line) and the locked week's mono kicker ("OPENS SUN, NOV 29 · 12:00 PM MT /" over "1:00 PM CT", at `lms.css`'s tight leading, copied verbatim). Nothing overlaps, and nothing scrolls sideways (tested).
+- **One mockup change, for the form drawer on a phone.** The drawer's meter row (bar, count, stamp) can't wrap, and its stamp is `nowrap`. At 390 even the shortest new stamp, "Saved 3:02 PM MT / 4:02 PM CT", was cut off at the screen's edge: about 190 px of text with about 145 px left. The mockup's phone rule (`max-width:640px`) gains `.fm-meter{flex-wrap:wrap}`, so a stamp that doesn't fit drops to its own row, still right-aligned. As Q-B7 and Q-B8 were (D-257), it was made in `handoff/lms-v3/mockup/index.html`, regenerated by `npm run build` and copied byte for byte. No mockup state moves: its own stamps ("Saved Thu 4:02 PM", "Saved 10:32 PM") end exactly at the meter's edge at 360, 390 and 640, so they never wrap. The mockup's sha256 is now `1b150f32e4f08260531659eaf077d0564cf296732d86b890db40b2c8da3185b5` and `lms.css`'s `05e0c2345eb90057064b495dd59643ecf0e22f8e35d9cd1026e99f1a84170d79` (`lms-v3.test.ts`). Every other time on the one line was measured unclipped at 390, 1024, 1280 and 1440 (the v3 pages, Home, a step page, the intake drawer, Turn in and the seat card drawer). Connor kept this rule (PR C's Q-C7, Nov 26; D-260).
+- **Tests.**
+  - Core `time-style.test.ts`: each `fmt` function, viewers in six zones, daylight saving, Central's next day, Mountain's day, the default unchanged, and the same text as D-250's helper.
+  - Web `lms-v3/times.test.ts`: `timeStyleFor`, the Schedule's hero, the week page's live-build and due tags, the drawers' stamps and `mountainWhen`.
+  - Web `lms-v3/times-drawer.test.tsx`: the form drawer's own save and submit stamps.
+  - E2e `lms-v3-times.spec.ts` in `pnpm e2e:v3`: for viewers in Eastern, Pacific and Hawaii time, every time on Home, the Schedule, a locked week, the Community and a step page reads the one line. The Schedule's and the locked week's next build appear word for word, along with the buyer's office hours, and nothing scrolls sideways at 390.
+  - D-258's steps run all of these in `parity:learner`.
+- No migration, env var, Railway variable, Stripe, GHL, billing, plans, users, roles, tiers or `audit_log` change. No email changes. No golden, mask or tolerance moves.
+
+## D-260 · Connor's calls on the rollout's acceptance, and today's pages light inside the v3 frame
+
+**Date:** 2026-11-26
+**Asked for by:** Connor Leiva (repository owner), Nov 25, 2026, answering PR C's questions: "Q-C1 accept the listed pixel differences (AI Implementer and the Nov 29 date) for the flip. Q-C2 the local run stands in for the deployed preview, plus the read-only production check. Q-C3 force today's pages light inside the v3 frame for learners with Dark theme until the dark-mode pass. Q-C4 leave the Stack Card margin as is." **Number:** the next after D-259.
+
+- **Q-C1, the pixel gate.** The flip goes ahead with the differences the gate lists against the v7 mockup:
+  - D-243's "AI Implementer";
+  - D-249's dates (Week 1 opens Sun, Nov 29);
+  - D-259's longer time line, which follows from Connor's Nov 25 answer on times.
+
+  No v8 mockup is drawn for them now. The gate (`handoff/lms-v3/diff/pixel-diff.mjs`), its pass bar and its reference are unchanged. `docs/pr-review/lms-v3-rollout/gate/RESULTS.md` lists every check that differs, with its cause.
+- **Q-C2, the deployed preview.** The local run on the flag-on http build stands in for Phase 11's deployed preview. The read-only production check (Phase 11 Step 4, as PR C's description gives it) is still run, by someone with the test learner's password, before and after the flip. It sends only reads, with no reset and no `prepare.ts` against production.
+- **Q-C3, the dark theme (C-02).** Inside the v3 frame everything draws light, whatever the person's Theme, until the dark-mode pass. Before this, a Dark-theme learner saw today's pages (Home, the Skill Library, a skill, Account, the Team Hub, the Vault, the Stack Card page) dark inside the light frame.
+  - **The root.** `lib/prefs.ts` gains `setFrameLight`. While a v3 frame is on screen, the root's `data-theme`, which the design tokens read, is light. A later choice of Dark (or any other write) keeps it light inside the frame, and the person's choice is kept: it comes back outside the frame, and for the dark-mode pass. `useFrameLight` (`shell/learner/useLearnerPrefs.ts`) sets it before paint, so no dark page flashes.
+  - **The members' frame.** `LearnerShell` works out which frame draws a page (`v6Step`, `inV3`) before anything else. In the v3 frame, today's pages, the account menu, the Team Plan window and the "How the LMS Works" tour are drawn `data-lv-theme="light"`.
+  - **The $37 buyer's LMS** is the v3 frame too (D-241, "Light only"), so its two today's pages (a skill's guided setup and Account) and its account menu draw light as well.
+  - **Unchanged:**
+    - the v6 step page, which has no frame (D-210), keeps the person's theme, and so does today's shell with v3 off;
+    - the Theme choice stays in the account menu and is still saved.
+- **Q-C4, the Stack Card page.** Its margin inside the v3 frame stays as it is; nothing changes.
+- **Q-C7 and Q-C8, kept as they ship** (Connor, Nov 26: "Keep Q-C7 and Q-C8 as they ship now"):
+  - Q-C7: the form drawer's meter wraps on a phone (D-259's mockup rule), so the longer save stamp drops to its own row;
+  - Q-C8: Turn in's drawer is still loaded on its first open (`lazy`, as the seat card's, D-236). Its first slide-in starts about a quarter of a second after the mockup's (PR C's Step 2), and that is accepted.
+- **Tests.**
+  - `lib/prefs.test.ts`: the root draws light while a frame is on screen, the person's Dark comes back after, and today's portal keeps the device's theme.
+  - `compliance/tests/e2e/lms-v3-dark.spec.ts` (`pnpm e2e:v3`), for a Dark-theme learner:
+    - Home, the Vault, the Skill Library and Account draw light (the root, every wrapper, the page's own background);
+    - the account menu draws light, and Dark is still checked in it;
+    - the step page keeps Dark;
+    - the buyer's Account page draws light.
+- No migration, env var, Railway variable, Stripe, GHL, billing, plans, users, roles, tiers or `audit_log` change. No email is sent. No golden, mask or tolerance moves.

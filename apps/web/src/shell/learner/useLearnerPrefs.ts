@@ -9,6 +9,7 @@ import {
   learnerTheme,
   loadPrefs,
   saveLearnerPrefs,
+  setFrameLight,
   setLearnerScope,
 } from '../../lib/prefs';
 import type { LearnerPrefs } from '../../lib/prefs';
@@ -112,4 +113,16 @@ export function useLearnerPrefs(viewer: Viewer): LearnerPrefsApi {
   );
 
   return { ...state, set };
+}
+
+/**
+ * D-260 (Connor, Q-C3): while a v3 frame is on screen (`on`), the root draws light whatever this person's theme, until
+ * the dark-mode pass; set before paint, so a Dark-theme learner never sees a dark page flash inside the light frame.
+ */
+export function useFrameLight(on: boolean): void {
+  useLayoutEffect(() => {
+    if (!on) return undefined;
+    setFrameLight(true);
+    return () => setFrameLight(false);
+  }, [on]);
 }

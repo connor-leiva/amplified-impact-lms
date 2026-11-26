@@ -25,7 +25,7 @@ import { useDb, useNow, useViewer } from '../../../data/hooks';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../../data/session';
 import { useAppReady } from '../../../shell/hooks';
 import { themeVM } from '../../../shell/learner/shell.vm';
-import { useLearnerPrefs } from '../../../shell/learner/useLearnerPrefs';
+import { useFrameLight, useLearnerPrefs } from '../../../shell/learner/useLearnerPrefs';
 import { paymentLinks, startSkillCheckout } from '../../library/SkillPurchase';
 import { LearnProvider } from '../data';
 import type { LearnContext } from '../data';
@@ -120,6 +120,9 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
   const navigate = useNavigate();
   const { toast } = useToaster();
   const prefs = useLearnerPrefs(viewer);
+  // D-260 (Connor, Q-C3): the buyer's LMS is the v3 frame, so it draws light whatever the person's theme, until the
+  // dark-mode pass: the root, today's pages inside it (a skill's guided setup, Account) and the account menu.
+  useFrameLight(true);
   const theme = themeVM(prefs.theme);
   const linksQ = useQuery({ queryKey: LINKS_KEY, queryFn: paymentLinks, staleTime: Infinity });
   const links = (linksQ.data ?? {}) as Links;
@@ -222,14 +225,14 @@ function Frame({ skills }: { skills: BuyerSkill[] }) {
           {v3 ? (
             <div data-ai={view.kind}>{page}</div>
           ) : (
-            <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme} style={TODAY_TAP}>
+            <div data-r2-scope="" data-learner-v2="" data-lv-theme="light" style={TODAY_TAP}>
               <Suspense fallback={null}>{page}</Suspense>
             </div>
           )}
         </AppShell>
       </div>
       {anchor ? (
-        <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme} style={anchor}>
+        <div data-r2-scope="" data-learner-v2="" data-lv-theme="light" style={anchor}>
           <Menu
             label={LABELS.account}
             items={menu}

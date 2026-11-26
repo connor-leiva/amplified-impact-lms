@@ -1,0 +1,85 @@
+{
+  "target": {
+    "week": "http://127.0.0.1:4300/learn/week/1/step/4",
+    "schedule": null,
+    "community": null,
+    "thread": null,
+    "turnin": "http://127.0.0.1:4300/learn/week/1/step/4"
+  },
+  "reference": "http://localhost:4182/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "when": "2026-11-26T01:21:13.563Z",
+  "done": true,
+  "report": [
+    {
+      "view": "week-turnin",
+      "width": 1440,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1280,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 1100,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 900,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 820,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 28,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 640,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 18,
+      "different": []
+    },
+    {
+      "view": "week-turnin",
+      "width": 390,
+      "pieces": {
+        "target": 13,
+        "reference": 13
+      },
+      "compared": 18,
+      "different": []
+    }
+  ]
+}

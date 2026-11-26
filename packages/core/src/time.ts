@@ -1,4 +1,4 @@
-// Time: viewer zone first, program zone (CT) in parentheses.
+// Time: viewer zone first, program zone (CT) in parentheses; in the learner portal with LMS v3 on, MT / CT (D-259).
 // Ported verbatim from design-reference/lms-data.js lines 134-188.
 // The only deviation is that `zoneAbbr` cannot fall back to Date.now() (packages/core is pure),
 // so its `t` argument defaults to 0. Every call site in the reference passes a real `t`.
@@ -20,6 +20,26 @@ export const autoZone = (): string => {
 };
 
 export const viewerZone = (): string => VIEW_TZ || autoZone();
+
+/**
+ * D-259: how a time reads. `'viewer'` is the reference's rule above (the viewer's zone first, the program's in
+ * parentheses), and the admin console's. `'mtct'` is the learner portal's once LMS v3 is on (Connor, Nov 25: "Times
+ * everywhere in the learner portal use one line: '12:00 PM MT / 1:00 PM CT'"): Mountain then Central, each read off
+ * the instant, whatever the viewer's zone, and every date Mountain Time's. The web app's root sets it per page
+ * (`apps/web/src/lib/timeStyle.ts`); nothing else does, so the API and every test keep `'viewer'`.
+ */
+export type TimeStyle = 'viewer' | 'mtct';
+
+let STYLE: TimeStyle = 'viewer';
+
+export function setTimeStyle(s: TimeStyle): void {
+  STYLE = s;
+}
+
+export const timeStyle = (): TimeStyle => STYLE;
+
+/** Mountain Time, the zone the course's copy names first (D-175, D-250). */
+export const MOUNTAIN_TZ = 'America/Denver';
 
 export const ZONES: [string, string][] = [
   ['', 'Auto'],
@@ -78,6 +98,21 @@ const dOf = (t: number, z: string, o: Intl.DateTimeFormatOptions): string =>
 const sameClock = (t: number, a: string, b: string): boolean =>
   tOf(t, a) === tOf(t, b) && dOf(t, a, { day: 'numeric' }) === dOf(t, b, { day: 'numeric' });
 
+/**
+ * D-259: "12:00 PM MT / 1:00 PM CT", one instant in Mountain and then Central Time, each zone's own clock (so each
+ * zone's daylight saving is its own), as D-250's emails print it. Where Central's clock falls on another day, its day
+ * comes with it: "11:30 PM MT / Thu, Dec 3, 12:30 AM CT".
+ */
+export function mtCtTime(t: number): string {
+  const day = { weekday: 'short', month: 'short', day: 'numeric' } as const;
+  const ct = `${tOf(t, PROGRAM_TZ)} ${zoneAbbr(PROGRAM_TZ, t)}`;
+  const ctDay = dOf(t, PROGRAM_TZ, day);
+  return `${tOf(t, MOUNTAIN_TZ)} MT / ${ctDay === dOf(t, MOUNTAIN_TZ, day) ? ct : `${ctDay}, ${ct}`}`;
+}
+
+/** The zone a date is read in: the viewer's, or Mountain Time's in the learner portal (D-259). */
+const dayZone = (): string => (STYLE === 'mtct' ? MOUNTAIN_TZ : viewerZone());
+
 export interface Fmt {
   date: (t: number) => string;
   day: (t: number) => string;
@@ -85,7 +120,10 @@ export interface Fmt {
   weekday: (t: number) => string;
   /** "Thu", the viewer's weekday, short (D-229: the form's "Saved Thu 4:02 PM"). */
   weekdayShort: (t: number) => string;
-  /** "4:02 PM", the viewer's clock time with no zone (D-229: the form's save and submit stamps, as the mockup prints them). */
+  /**
+   * "4:02 PM", the viewer's clock time with no zone (D-229: the form's save and submit stamps, as the mockup prints
+   * them). In the learner portal with LMS v3 on (D-259), the one line, "4:02 PM MT / 5:02 PM CT", as every time there.
+   */
   clockTime: (t: number) => string;
   time: (t: number) => string;
   timeOnly: (t: number) => string;
@@ -111,22 +149,23 @@ export interface Fmt {
 }
 
 export const fmt: Fmt = {
-  date: (t) => dOf(t, viewerZone(), { month: 'short', day: 'numeric' }),
-  day: (t) => dOf(t, viewerZone(), { weekday: 'short', month: 'short', day: 'numeric' }),
+  date: (t) => dOf(t, dayZone(), { month: 'short', day: 'numeric' }),
+  day: (t) => dOf(t, dayZone(), { weekday: 'short', month: 'short', day: 'numeric' }),
   dayPlain: (t) =>
-    dOf(t, viewerZone(), { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', ''),
-  weekday: (t) => dOf(t, viewerZone(), { weekday: 'long' }),
-  weekdayShort: (t) => dOf(t, viewerZone(), { weekday: 'short' }),
-  clockTime: (t) => tOf(t, viewerZone()),
+    dOf(t, dayZone(), { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', ''),
+  weekday: (t) => dOf(t, dayZone(), { weekday: 'long' }),
+  weekdayShort: (t) => dOf(t, dayZone(), { weekday: 'short' }),
+  clockTime: (t) => (STYLE === 'mtct' ? mtCtTime(t) : tOf(t, viewerZone())),
   time: (t) => {
+    if (STYLE === 'mtct') return mtCtTime(t);
     const v = viewerZone(),
       prog = `${tOf(t, PROGRAM_TZ)} ${zoneAbbr(PROGRAM_TZ, t)}`;
     return sameClock(t, v, PROGRAM_TZ) ? prog : `${tOf(t, v)} ${zoneAbbr(v, t)} (${prog})`;
   },
-  timeOnly: (t) => `${tOf(t, viewerZone())} ${zoneAbbr(viewerZone(), t)}`,
+  timeOnly: (t) => (STYLE === 'mtct' ? mtCtTime(t) : `${tOf(t, viewerZone())} ${zoneAbbr(viewerZone(), t)}`),
   when: (t) => `${fmt.day(t)} · ${fmt.time(t)}`,
   abs: (t) =>
-    `${dOf(t, viewerZone(), { month: 'short', day: 'numeric', year: 'numeric' })}, ${fmt.time(t)}`,
+    `${dOf(t, dayZone(), { month: 'short', day: 'numeric', year: 'numeric' })}, ${fmt.time(t)}`,
   clock: (s) => {
     s = Math.max(0, Math.floor(s));
     const h = Math.floor(s / 3600),

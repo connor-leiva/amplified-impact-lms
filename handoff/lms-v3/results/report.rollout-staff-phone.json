@@ -1,0 +1,73 @@
+{
+  "target": "http://127.0.0.1:4300/learn/community",
+  "targetSchedule": null,
+  "reference": "http://localhost:4179/mockup/index.html",
+  "selector": null,
+  "clock": "2026-11-20T21:18:00Z",
+  "assume": "s1",
+  "when": "2026-11-25T23:06:27.856Z",
+  "threshold": 0.1,
+  "report": [
+    {
+      "viewport": "phone-390",
+      "state": "cm-list-staff",
+      "size": {
+        "target": [
+          390,
+          1823
+        ],
+        "reference": [
+          390,
+          1823
+        ]
+      },
+      "diffPixels": 347,
+      "pct": 0.0488,
+      "strictPixels": 917,
+      "strictPct": 0.129
+    },
+    {
+      "viewport": "phone-390",
+      "state": "th-staff",
+      "size": {
+        "target": [
+          390,
+          1753
+        ],
+        "reference": [
+          390,
+          1682
+        ]
+      },
+      "diffPixels": 39960,
+      "pct": 5.8449,
+      "strictPixels": 170165,
+      "strictPct": 24.8899
+    }
+  ],
+  "skipped": [
+    "phone-390-cm-list",
+    "phone-390-cm-space-week",
+    "phone-390-cm-space-wins",
+    "phone-390-cm-compose-open",
+    "phone-390-cm-compose-space-kept",
+    "phone-390-cm-compose-errors",
+    "phone-390-cm-compose-busy",
+    "phone-390-cm-compose-posted",
+    "phone-390-cm-posted-then-list",
+    "phone-390-th-open",
+    "phone-390-th-own",
+    "phone-390-th-pinned",
+    "phone-390-th-edit",
+    "phone-390-th-edit-saved",
+    "phone-390-th-delete-ask",
+    "phone-390-th-delete-yes",
+    "phone-390-th-delete-thread",
+    "phone-390-th-reply-error",
+    "phone-390-th-reply-posted",
+    "phone-390-th-staff-pin",
+    "phone-390-th-staff-hide-reply",
+    "phone-390-th-staff-hide-thread",
+    "phone-390-th-staff-hidden-thread"
+  ]
+}

@@ -1,0 +1,2644 @@
+# Piece review (local-rollout)
+
+Target: http://127.0.0.1:4300/learn/week/0, http://127.0.0.1:4300/learn/schedule, http://127.0.0.1:4300/learn/community, http://127.0.0.1:4300/learn/community/2. Reference: the mockup. Clock 2026-11-20T21:18:00Z.
+Pass: every piece the same size, and 0 different pixels (pixelmatch 0.1, anti-aliasing ignored), at rest, hovered, focused and pressed.
+
+| View | Width | Pieces (target / reference) | Compared | Result |
+|---|---|---|---|---|
+| week | 1440 | 120 / 120 | 291 | **59 different** |
+| week | 1280 | 120 / 120 | 291 | **72 different** |
+| week | 1100 | 120 / 120 | 291 | **67 different** |
+| week | 900 | 89 / 89 | 209 | **64 different** |
+| week | 820 | 89 / 89 | 209 | **64 different** |
+| week | 640 | 89 / 89 | 129 | **36 different** |
+| week | 390 | 89 / 89 | 129 | **52 different** |
+| week-collapsed | 1440 | 120 / 120 | 291 | **59 different** |
+| week-collapsed | 1280 | 120 / 120 | 291 | **59 different** |
+| week-collapsed | 1100 | 120 / 120 | 291 | **59 different** |
+| week-calendar | 1440 | 4 / 4 | 13 | **12 different** |
+| week-calendar | 1280 | 4 / 4 | 13 | **12 different** |
+| week-calendar | 1100 | 4 / 4 | 13 | **13 different** |
+| week-calendar | 900 | 4 / 4 | 13 | **13 different** |
+| week-calendar | 820 | 4 / 4 | 13 | **13 different** |
+| week-calendar | 640 | 4 / 4 | 8 | **8 different** |
+| week-calendar | 390 | 4 / 4 | 8 | all 0 |
+| week-form | 1440 | 121 / 121 | 250 | **219 different** |
+| week-form | 1280 | 121 / 121 | 250 | **219 different** |
+| week-form | 1100 | 121 / 121 | 250 | **219 different** |
+| week-form | 900 | 121 / 121 | 250 | **219 different** |
+| week-form | 820 | 121 / 121 | 250 | **219 different** |
+| week-form | 640 | 121 / 121 | 164 | **157 different** |
+| week-form | 390 | 121 / 121 | 164 | **157 different** |
+| schedule | 1440 | 73 / 73 | 178 | **22 different** |
+| schedule | 1280 | 73 / 73 | 178 | **22 different** |
+| schedule | 1100 | 73 / 73 | 178 | **64 different** |
+| schedule | 900 | 42 / 42 | 96 | **63 different** |
+| schedule | 820 | 42 / 42 | 96 | **7 different** |
+| schedule | 640 | 42 / 42 | 60 | **7 different** |
+| schedule | 390 | 42 / 42 | 60 | **27 different** |
+| community | 1440 | 63 / 63 | 156 | **4 different** |
+| community | 1280 | 63 / 63 | 156 | **4 different** |
+| community | 1100 | 63 / 63 | 156 | **11 different** |
+| community | 900 | 32 / 32 | 74 | **9 different** |
+| community | 820 | 32 / 32 | 74 | **9 different** |
+| community | 640 | 32 / 32 | 46 | **5 different** |
+| community | 390 | 32 / 32 | 46 | **1 different** |
+| community-start | 1440 | 18 / 18 | 39 | all 0 |
+| community-start | 1280 | 18 / 18 | 39 | all 0 |
+| community-start | 1100 | 18 / 18 | 39 | all 0 |
+| community-start | 900 | 18 / 18 | 39 | all 0 |
+| community-start | 820 | 18 / 18 | 39 | all 0 |
+| community-start | 640 | 18 / 18 | 25 | all 0 |
+| community-start | 390 | 18 / 18 | 25 | all 0 |
+| thread | 1440 | 61 / 61 | 142 | **15 different** |
+| thread | 1280 | 61 / 61 | 142 | **15 different** |
+| thread | 1100 | 61 / 61 | 142 | **22 different** |
+| thread | 900 | 30 / 30 | 60 | **20 different** |
+| thread | 820 | 30 / 30 | 60 | **20 different** |
+| thread | 640 | 30 / 30 | 40 | **16 different** |
+| thread | 390 | 30 / 30 | 40 | **18 different** |
+
+## week at 1440
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 1603 px
+- piece 27 a.wk-step, hover: 1567 px
+- piece 27 a.wk-step, focus: 1603 px
+- piece 27 a.wk-step, pressed: 1567 px
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 313 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 313 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 331 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 331 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 328 px
+- piece 34 a.wk-step, hover: 324 px
+- piece 34 a.wk-step, focus: 328 px
+- piece 34 a.wk-step, pressed: 324 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 313 px
+- piece .wk-step 6 a.wk-step, rest: 331 px
+- piece .wk-step 7 a.wk-step, rest: 328 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 7122 px
+- piece #view-week 0 #view-week, rest: 7122 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4886 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3191 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week at 1280
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 4197 px, target 614×110 vs reference 614×81
+- piece 27 a.wk-step, hover: 3853 px, target 614×110 vs reference 614×81
+- piece 27 a.wk-step, focus: 4197 px, target 614×110 vs reference 614×81
+- piece 27 a.wk-step, pressed: 3853 px, target 614×110 vs reference 614×81
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 313 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 313 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 331 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 331 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 383 px
+- piece 34 a.wk-step, hover: 376 px
+- piece 34 a.wk-step, focus: 383 px
+- piece 34 a.wk-step, pressed: 376 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece 54 summary, rest: 14 px
+- piece 54 summary, hover: 13 px
+- piece 54 summary, focus: 14 px
+- piece 54 summary, pressed: 13 px
+- piece 55 summary, rest: 886 px
+- piece 55 summary, hover: 293 px
+- piece 55 summary, focus: 886 px
+- piece 55 summary, pressed: 293 px
+- piece #sh-weeks > li 0 li, rest: 266 px
+- piece #sh-weeks > li 1 li, rest: 337 px
+- piece .wk-step 0 a.wk-step, rest: 4197 px, target 614×110 vs reference 614×81
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 313 px
+- piece .wk-step 6 a.wk-step, rest: 331 px
+- piece .wk-step 7 a.wk-step, rest: 383 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece .wk-acc 5 details.wk-acc, rest: 603 px
+- piece .wk-acc 6 details.wk-acc, rest: 886 px
+- piece #sh-side 0 #sh-side, rest: 29 px, target 248×2457 vs reference 248×2428
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 76611 px, target 1032×2401 vs reference 1032×2372
+- piece #view-week 0 #view-week, rest: 76611 px, target 1032×2401 vs reference 1032×2372
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 50769 px, target 616×1087 vs reference 616×1058
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 49074 px, target 616×1003 vs reference 616×974
+- piece #reference 0 #reference, rest: 1963 px
+- piece #wk-accs 0 #wk-accs, rest: 1963 px
+
+## week at 1100
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 20 a, rest: 108 px
+- piece 20 a, hover: 102 px
+- piece 20 a, focus: 108 px
+- piece 20 a, pressed: 106 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 1603 px
+- piece 27 a.wk-step, hover: 1567 px
+- piece 27 a.wk-step, focus: 1603 px
+- piece 27 a.wk-step, pressed: 1567 px
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 312 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 312 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 330 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 330 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 327 px
+- piece 34 a.wk-step, hover: 324 px
+- piece 34 a.wk-step, focus: 327 px
+- piece 34 a.wk-step, pressed: 324 px
+- piece 45 button.wk-btn.wk-btn-secondary, pressed: 4 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 312 px
+- piece .wk-step 6 a.wk-step, rest: 330 px
+- piece .wk-step 7 a.wk-step, rest: 327 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-side 0 #sh-side, rest: 15235 px, target 248×3370 vs reference 248×3352
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+- piece #sh-here 0 #sh-here, rest: 110 px
+- piece #main 0 #main, rest: 7119 px
+- piece #view-week 0 #view-week, rest: 7119 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4883 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3188 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week at 900
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece 7 button.wk-seg-b, rest: 56 px
+- piece 7 button.wk-seg-b, hover: 56 px
+- piece 7 button.wk-seg-b, focus: 56 px
+- piece 7 button.wk-seg-b, pressed: 56 px
+- piece 8 button.wk-seg-b, rest: 74 px
+- piece 8 button.wk-seg-b, hover: 80 px
+- piece 8 button.wk-seg-b, focus: 74 px
+- piece 8 button.wk-seg-b, pressed: 80 px
+- piece 9 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 10 a.wk-step, rest: 1603 px
+- piece 10 a.wk-step, hover: 1567 px
+- piece 10 a.wk-step, focus: 1603 px
+- piece 10 a.wk-step, pressed: 1567 px
+- piece 11 a.wk-step, rest: 285 px
+- piece 11 a.wk-step, hover: 283 px
+- piece 11 a.wk-step, focus: 285 px
+- piece 11 a.wk-step, pressed: 283 px
+- piece 13 a.wk-step, rest: 331 px
+- piece 13 a.wk-step, hover: 327 px
+- piece 13 a.wk-step, focus: 331 px
+- piece 13 a.wk-step, pressed: 327 px
+- piece 15 a.wk-step, rest: 312 px
+- piece 15 a.wk-step, hover: 307 px
+- piece 15 a.wk-step, focus: 312 px
+- piece 15 a.wk-step, pressed: 307 px
+- piece 16 a.wk-step, rest: 330 px
+- piece 16 a.wk-step, hover: 328 px
+- piece 16 a.wk-step, focus: 330 px
+- piece 16 a.wk-step, pressed: 328 px
+- piece 17 a.wk-step, rest: 327 px
+- piece 17 a.wk-step, hover: 324 px
+- piece 17 a.wk-step, focus: 327 px
+- piece 17 a.wk-step, pressed: 324 px
+- piece 33 summary, rest: 473 px
+- piece 33 summary, hover: 473 px
+- piece 33 summary, focus: 473 px
+- piece 33 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 312 px
+- piece .wk-step 6 a.wk-step, rest: 330 px
+- piece .wk-step 7 a.wk-step, rest: 327 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 783×57 vs reference 685×33
+- piece #main 0 #main, rest: 7119 px
+- piece #view-week 0 #view-week, rest: 7119 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4883 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3188 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week at 820
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece 7 button.wk-seg-b, rest: 56 px
+- piece 7 button.wk-seg-b, hover: 56 px
+- piece 7 button.wk-seg-b, focus: 56 px
+- piece 7 button.wk-seg-b, pressed: 56 px
+- piece 8 button.wk-seg-b, rest: 74 px
+- piece 8 button.wk-seg-b, hover: 80 px
+- piece 8 button.wk-seg-b, focus: 74 px
+- piece 8 button.wk-seg-b, pressed: 80 px
+- piece 9 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 9 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 10 a.wk-step, rest: 1603 px
+- piece 10 a.wk-step, hover: 1567 px
+- piece 10 a.wk-step, focus: 1603 px
+- piece 10 a.wk-step, pressed: 1567 px
+- piece 11 a.wk-step, rest: 285 px
+- piece 11 a.wk-step, hover: 283 px
+- piece 11 a.wk-step, focus: 285 px
+- piece 11 a.wk-step, pressed: 283 px
+- piece 13 a.wk-step, rest: 332 px
+- piece 13 a.wk-step, hover: 327 px
+- piece 13 a.wk-step, focus: 332 px
+- piece 13 a.wk-step, pressed: 327 px
+- piece 15 a.wk-step, rest: 312 px
+- piece 15 a.wk-step, hover: 307 px
+- piece 15 a.wk-step, focus: 312 px
+- piece 15 a.wk-step, pressed: 307 px
+- piece 16 a.wk-step, rest: 330 px
+- piece 16 a.wk-step, hover: 328 px
+- piece 16 a.wk-step, focus: 330 px
+- piece 16 a.wk-step, pressed: 328 px
+- piece 17 a.wk-step, rest: 327 px
+- piece 17 a.wk-step, hover: 324 px
+- piece 17 a.wk-step, focus: 327 px
+- piece 17 a.wk-step, pressed: 324 px
+- piece 33 summary, rest: 473 px
+- piece 33 summary, hover: 473 px
+- piece 33 summary, focus: 473 px
+- piece 33 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 332 px
+- piece .wk-step 5 a.wk-step, rest: 312 px
+- piece .wk-step 6 a.wk-step, rest: 330 px
+- piece .wk-step 7 a.wk-step, rest: 327 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+- piece #main 0 #main, rest: 7120 px
+- piece #view-week 0 #view-week, rest: 7120 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4884 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3189 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week at 640
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 310 px
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 316 px
+- piece 3 a, rest: 7 px
+- piece 3 a, focus: 7 px
+- piece 9 button.wk-seg-b, rest: 381 px
+- piece 9 button.wk-seg-b, focus: 381 px
+- piece 10 a.wk-step, rest: 1603 px
+- piece 10 a.wk-step, focus: 1603 px
+- piece 11 a.wk-step, rest: 285 px
+- piece 11 a.wk-step, focus: 285 px
+- piece 13 a.wk-step, rest: 332 px
+- piece 13 a.wk-step, focus: 332 px
+- piece 15 a.wk-step, rest: 312 px
+- piece 15 a.wk-step, focus: 312 px
+- piece 16 a.wk-step, rest: 330 px
+- piece 16 a.wk-step, focus: 330 px
+- piece 17 a.wk-step, rest: 328 px
+- piece 17 a.wk-step, focus: 328 px
+- piece 33 summary, rest: 473 px
+- piece 33 summary, focus: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 332 px
+- piece .wk-step 5 a.wk-step, rest: 312 px
+- piece .wk-step 6 a.wk-step, rest: 330 px
+- piece .wk-step 7 a.wk-step, rest: 328 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 1287 px
+- piece #main 0 #main, rest: 185240 px, target 640×3837 vs reference 640×3801
+- piece #view-week 0 #view-week, rest: 185240 px, target 640×3837 vs reference 640×3801
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 3571 px
+- piece #wk-seg 0 #wk-seg, rest: 381 px
+- piece #wk-steps 0 #wk-steps, rest: 3190 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week at 390
+
+- piece 9 button.wk-seg-b, rest: 499 px
+- piece 9 button.wk-seg-b, focus: 499 px
+- piece 10 a.wk-step, rest: 1422 px
+- piece 10 a.wk-step, focus: 1422 px
+- piece 11 a.wk-step, rest: 313 px
+- piece 11 a.wk-step, focus: 313 px
+- piece 13 a.wk-step, rest: 3994 px, target 356×207 vs reference 356×178
+- piece 13 a.wk-step, focus: 3994 px, target 356×207 vs reference 356×178
+- piece 15 a.wk-step, rest: 4183 px, target 356×186 vs reference 356×157
+- piece 15 a.wk-step, focus: 4183 px, target 356×186 vs reference 356×157
+- piece 16 a.wk-step, rest: 320 px
+- piece 16 a.wk-step, focus: 320 px
+- piece 17 a.wk-step, rest: 320 px
+- piece 17 a.wk-step, focus: 320 px
+- piece 28 button.wk-btn.wk-btn-secondary, rest: 408 px, target 81×33 vs reference 81×32
+- piece 28 button.wk-btn.wk-btn-secondary, focus: 430 px, target 81×33 vs reference 81×32
+- piece 29 button.wk-btn.wk-btn-secondary, rest: 385 px, target 82×33 vs reference 82×32
+- piece 29 button.wk-btn.wk-btn-secondary, focus: 407 px, target 82×33 vs reference 82×32
+- piece 30 a.wk-btn.wk-btn-secondary, rest: 1227 px, target 316×41 vs reference 316×40
+- piece 30 a.wk-btn.wk-btn-secondary, focus: 1250 px, target 316×41 vs reference 316×40
+- piece 33 summary, rest: 809 px, target 356×55 vs reference 356×56
+- piece 33 summary, focus: 809 px, target 356×55 vs reference 356×56
+- piece 34 summary, rest: 1376 px, target 356×56 vs reference 356×55
+- piece 34 summary, focus: 1376 px, target 356×56 vs reference 356×55
+- piece 38 summary, rest: 345 px
+- piece 38 summary, focus: 345 px
+- piece 39 #wk-nextweek, rest: 1098 px
+- piece 39 #wk-nextweek, focus: 1134 px
+- piece .wk-step 0 a.wk-step, rest: 1422 px
+- piece .wk-step 1 a.wk-step, rest: 313 px
+- piece .wk-step 3 a.wk-step, rest: 3994 px, target 356×207 vs reference 356×178
+- piece .wk-step 5 a.wk-step, rest: 3482 px, target 356×186 vs reference 356×157
+- piece .wk-step 6 a.wk-step, rest: 320 px
+- piece .wk-step 7 a.wk-step, rest: 676 px
+- piece .wk-step 8 #wk-finish, rest: 1724 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px, target 358×57 vs reference 358×58
+- piece .wk-acc 2 details.wk-acc, rest: 1040 px, target 358×58 vs reference 358×57
+- piece .wk-acc 6 details.wk-acc, rest: 14 px
+- piece .wk-card 0 section.wk-card.aim-rise, rest: 1760 px
+- piece .wk-card 1 section.wk-card.aim-rise, rest: 3248 px, target 358×181 vs reference 358×180
+- piece #sh-next 0 #sh-next, rest: 347 px
+- piece #main 0 #main, rest: 77494 px, target 390×4473 vs reference 390×4415
+- piece #view-week 0 #view-week, rest: 77494 px, target 390×4473 vs reference 390×4415
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 31885 px, target 358×1851 vs reference 358×1793
+- piece #wk-seg 0 #wk-seg, rest: 499 px
+- piece #wk-steps 0 #wk-steps, rest: 31386 px, target 358×1706 vs reference 358×1648
+- piece #wk-finish 0 #wk-finish, rest: 1724 px
+- piece #wk-kit 0 #wk-kit, rest: 1437 px
+- piece #reference 0 #reference, rest: 818 px
+- piece #wk-accs 0 #wk-accs, rest: 818 px
+- piece #wk-nextweek 0 #wk-nextweek, rest: 1098 px
+
+## week-collapsed at 1440
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 1603 px
+- piece 27 a.wk-step, hover: 1567 px
+- piece 27 a.wk-step, focus: 1603 px
+- piece 27 a.wk-step, pressed: 1567 px
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 313 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 313 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 331 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 331 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 328 px
+- piece 34 a.wk-step, hover: 324 px
+- piece 34 a.wk-step, focus: 328 px
+- piece 34 a.wk-step, pressed: 324 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 313 px
+- piece .wk-step 6 a.wk-step, rest: 331 px
+- piece .wk-step 7 a.wk-step, rest: 328 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 958 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 7125 px
+- piece #view-week 0 #view-week, rest: 7125 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4889 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3191 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week-collapsed at 1280
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 1603 px
+- piece 27 a.wk-step, hover: 1567 px
+- piece 27 a.wk-step, focus: 1603 px
+- piece 27 a.wk-step, pressed: 1567 px
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 313 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 313 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 331 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 331 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 328 px
+- piece 34 a.wk-step, hover: 324 px
+- piece 34 a.wk-step, focus: 328 px
+- piece 34 a.wk-step, pressed: 324 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 313 px
+- piece .wk-step 6 a.wk-step, rest: 331 px
+- piece .wk-step 7 a.wk-step, rest: 328 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 958 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 7122 px
+- piece #view-week 0 #view-week, rest: 7122 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4886 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3191 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week-collapsed at 1100
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 24 button.wk-seg-b, rest: 56 px
+- piece 24 button.wk-seg-b, hover: 56 px
+- piece 24 button.wk-seg-b, focus: 56 px
+- piece 24 button.wk-seg-b, pressed: 56 px
+- piece 25 button.wk-seg-b, rest: 74 px
+- piece 25 button.wk-seg-b, hover: 80 px
+- piece 25 button.wk-seg-b, focus: 74 px
+- piece 25 button.wk-seg-b, pressed: 80 px
+- piece 26 button.wk-seg-b, rest: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, hover: 1668 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, focus: 1640 px, target 142×33 vs reference 100×33
+- piece 26 button.wk-seg-b, pressed: 1668 px, target 142×33 vs reference 100×33
+- piece 27 a.wk-step, rest: 1603 px
+- piece 27 a.wk-step, hover: 1567 px
+- piece 27 a.wk-step, focus: 1603 px
+- piece 27 a.wk-step, pressed: 1567 px
+- piece 28 a.wk-step, rest: 285 px
+- piece 28 a.wk-step, hover: 283 px
+- piece 28 a.wk-step, focus: 285 px
+- piece 28 a.wk-step, pressed: 283 px
+- piece 30 a.wk-step, rest: 331 px
+- piece 30 a.wk-step, hover: 327 px
+- piece 30 a.wk-step, focus: 331 px
+- piece 30 a.wk-step, pressed: 327 px
+- piece 32 a.wk-step, rest: 312 px
+- piece 32 a.wk-step, hover: 307 px
+- piece 32 a.wk-step, focus: 312 px
+- piece 32 a.wk-step, pressed: 307 px
+- piece 33 a.wk-step, rest: 330 px
+- piece 33 a.wk-step, hover: 328 px
+- piece 33 a.wk-step, focus: 330 px
+- piece 33 a.wk-step, pressed: 328 px
+- piece 34 a.wk-step, rest: 327 px
+- piece 34 a.wk-step, hover: 324 px
+- piece 34 a.wk-step, focus: 327 px
+- piece 34 a.wk-step, pressed: 324 px
+- piece 50 summary, rest: 473 px
+- piece 50 summary, hover: 473 px
+- piece 50 summary, focus: 473 px
+- piece 50 summary, pressed: 473 px
+- piece .wk-step 0 a.wk-step, rest: 1603 px
+- piece .wk-step 1 a.wk-step, rest: 285 px
+- piece .wk-step 3 a.wk-step, rest: 331 px
+- piece .wk-step 5 a.wk-step, rest: 312 px
+- piece .wk-step 6 a.wk-step, rest: 330 px
+- piece .wk-step 7 a.wk-step, rest: 327 px
+- piece .wk-acc 1 details.wk-acc, rest: 473 px
+- piece #sh-next 0 #sh-next, rest: 958 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 7119 px
+- piece #view-week 0 #view-week, rest: 7119 px
+- piece #wk-hero 0 #wk-hero, rest: 356 px
+- piece #steps 0 #steps, rest: 4883 px
+- piece #wk-seg 0 #wk-seg, rest: 1852 px, target 290×39 vs reference 248×39
+- piece #wk-steps 0 #wk-steps, rest: 3188 px
+- piece #reference 0 #reference, rest: 473 px
+- piece #wk-accs 0 #wk-accs, rest: 473 px
+
+## week-calendar at 1440
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 9 px
+- piece 0 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 1 a, rest: 33 px
+- piece 1 a, hover: 33 px
+- piece 1 a, focus: 33 px
+- piece 2 a, rest: 6 px
+- piece 2 a, hover: 6 px
+- piece 2 a, focus: 6 px
+- piece 3 a, rest: 9 px
+- piece 3 a, hover: 9 px
+- piece 3 a, focus: 9 px
+
+## week-calendar at 1280
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 9 px
+- piece 0 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece 1 a, rest: 33 px
+- piece 1 a, hover: 33 px
+- piece 1 a, focus: 33 px
+- piece 2 a, rest: 6 px
+- piece 2 a, hover: 6 px
+- piece 2 a, focus: 6 px
+- piece 3 a, rest: 9 px
+- piece 3 a, hover: 9 px
+- piece 3 a, focus: 9 px
+
+## week-calendar at 1100
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 465 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, hover: 441 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 455 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 1 a, rest: 468 px, target 218×35 vs reference 219×35
+- piece 1 a, hover: 467 px, target 218×35 vs reference 219×35
+- piece 1 a, focus: 468 px, target 218×35 vs reference 219×35
+- piece 2 a, rest: 532 px, target 218×35 vs reference 219×35
+- piece 2 a, hover: 528 px, target 218×35 vs reference 219×35
+- piece 2 a, focus: 532 px, target 218×35 vs reference 219×35
+- piece 3 a, rest: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, hover: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, focus: 267 px, target 218×35 vs reference 219×36
+
+## week-calendar at 900
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 465 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, hover: 441 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 455 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 1 a, rest: 468 px, target 218×35 vs reference 219×35
+- piece 1 a, hover: 467 px, target 218×35 vs reference 219×35
+- piece 1 a, focus: 468 px, target 218×35 vs reference 219×35
+- piece 2 a, rest: 532 px, target 218×35 vs reference 219×35
+- piece 2 a, hover: 528 px, target 218×35 vs reference 219×35
+- piece 2 a, focus: 532 px, target 218×35 vs reference 219×35
+- piece 3 a, rest: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, hover: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, focus: 267 px, target 218×35 vs reference 219×36
+
+## week-calendar at 820
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 465 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, hover: 441 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 455 px, target 175×32 vs reference 175×33
+- piece 0 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 1 a, rest: 468 px, target 218×35 vs reference 219×35
+- piece 1 a, hover: 467 px, target 218×35 vs reference 219×35
+- piece 1 a, focus: 468 px, target 218×35 vs reference 219×35
+- piece 2 a, rest: 532 px, target 218×35 vs reference 219×35
+- piece 2 a, hover: 528 px, target 218×35 vs reference 219×35
+- piece 2 a, focus: 532 px, target 218×35 vs reference 219×35
+- piece 3 a, rest: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, hover: 267 px, target 218×35 vs reference 219×36
+- piece 3 a, focus: 267 px, target 218×35 vs reference 219×36
+
+## week-calendar at 640
+
+- piece 0 button.wk-btn.wk-btn-ghost, rest: 319 px
+- piece 0 button.wk-btn.wk-btn-ghost, focus: 311 px
+- piece 1 a, rest: 385 px, target 219×35 vs reference 218×35
+- piece 1 a, focus: 390 px, target 219×35 vs reference 218×35
+- piece 2 a, rest: 396 px, target 219×35 vs reference 218×35
+- piece 2 a, focus: 401 px, target 219×35 vs reference 218×35
+- piece 3 a, rest: 173 px, target 219×35 vs reference 218×35
+- piece 3 a, focus: 179 px, target 219×35 vs reference 218×35
+
+## week-form at 1440
+
+- piece 1 #fm-name, rest: 1978 px
+- piece 1 #fm-name, hover: 1978 px
+- piece 1 #fm-name, focus: 2039 px
+- piece 1 #fm-name, pressed: 2039 px
+- piece 2 #fm-team, rest: 1978 px
+- piece 2 #fm-team, hover: 1978 px
+- piece 2 #fm-team, focus: 2039 px
+- piece 2 #fm-team, pressed: 2039 px
+- piece 3 #fm-size, rest: 1978 px
+- piece 3 #fm-size, hover: 1978 px
+- piece 3 #fm-size, focus: 2039 px
+- piece 3 #fm-size, pressed: 2039 px
+- piece 4 #fm-lead-desk, rest: 1978 px
+- piece 4 #fm-lead-desk, hover: 1978 px
+- piece 4 #fm-lead-desk, focus: 2039 px
+- piece 4 #fm-lead-desk, pressed: 2039 px
+- piece 5 #fm-cadence, rest: 2803 px
+- piece 5 #fm-cadence, hover: 2803 px
+- piece 5 #fm-cadence, focus: 2863 px
+- piece 5 #fm-cadence, pressed: 2863 px
+- piece 6 #fm-one-on-ones, rest: 2001 px
+- piece 6 #fm-one-on-ones, hover: 2001 px
+- piece 6 #fm-one-on-ones, focus: 2061 px
+- piece 6 #fm-one-on-ones, pressed: 2061 px
+- piece 7 input, rest: 219 px
+- piece 7 input, hover: 272 px
+- piece 7 input, focus: 219 px
+- piece 8 input, rest: 223 px
+- piece 8 input, hover: 223 px
+- piece 8 input, focus: 223 px
+- piece 9 #fm-operator-name, rest: 1978 px
+- piece 9 #fm-operator-name, hover: 1978 px
+- piece 9 #fm-operator-name, focus: 2039 px
+- piece 9 #fm-operator-name, pressed: 2039 px
+- piece 10 input, rest: 163 px
+- piece 10 input, hover: 212 px
+- piece 10 input, focus: 163 px
+- piece 10 input, pressed: 211 px, target 49×33 vs reference 49×34
+- piece 11 input, rest: 237 px
+- piece 11 input, hover: 290 px
+- piece 11 input, focus: 237 px
+- piece 11 input, pressed: 316 px, target 74×33 vs reference 74×34
+- piece 12 input, rest: 206 px
+- piece 12 input, hover: 206 px
+- piece 12 input, focus: 206 px
+- piece 13 input, rest: 299 px
+- piece 13 input, hover: 355 px
+- piece 13 input, focus: 299 px
+- piece 14 input, rest: 340 px
+- piece 14 input, hover: 389 px
+- piece 14 input, focus: 340 px
+- piece 15 input, rest: 388 px
+- piece 15 input, hover: 441 px
+- piece 15 input, focus: 388 px
+- piece 16 input, rest: 417 px
+- piece 16 input, hover: 474 px
+- piece 16 input, focus: 417 px
+- piece 17 input, rest: 416 px
+- piece 17 input, hover: 469 px
+- piece 17 input, focus: 416 px
+- piece 18 input, rest: 382 px
+- piece 18 input, hover: 431 px
+- piece 18 input, focus: 382 px
+- piece 19 input, rest: 603 px
+- piece 19 input, hover: 656 px
+- piece 19 input, focus: 603 px
+- piece 20 input, rest: 645 px
+- piece 20 input, hover: 698 px
+- piece 20 input, focus: 645 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, hover: 1773 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, pressed: 1898 px, target 293×34 vs reference 251×33
+- piece 22 input, rest: 693 px
+- piece 22 input, hover: 738 px
+- piece 22 input, focus: 693 px
+- piece 22 input, pressed: 979 px, target 157×34 vs reference 157×33
+- piece 23 input, rest: 890 px
+- piece 23 input, hover: 939 px
+- piece 23 input, focus: 890 px
+- piece 23 input, pressed: 1039 px, target 209×34 vs reference 209×33
+- piece 24 input, rest: 163 px
+- piece 24 input, hover: 212 px
+- piece 24 input, focus: 163 px
+- piece 24 input, pressed: 21 px, target 49×34 vs reference 49×33
+- piece 25 input, rest: 101 px
+- piece 25 input, hover: 158 px
+- piece 25 input, focus: 101 px
+- piece 25 input, pressed: 17 px, target 46×34 vs reference 46×33
+- piece 26 input, rest: 452 px
+- piece 26 input, hover: 501 px
+- piece 26 input, focus: 452 px
+- piece 26 input, pressed: 99 px, target 129×34 vs reference 129×33
+- piece 27 input, rest: 301 px
+- piece 27 input, hover: 301 px
+- piece 27 input, focus: 301 px
+- piece 28 input, rest: 686 px
+- piece 28 input, hover: 739 px
+- piece 28 input, focus: 686 px
+- piece 29 input, rest: 179 px
+- piece 29 input, hover: 228 px
+- piece 29 input, focus: 179 px
+- piece 30 input, rest: 698 px
+- piece 30 input, hover: 749 px
+- piece 30 input, focus: 698 px
+- piece 31 input, rest: 525 px
+- piece 31 input, hover: 576 px
+- piece 31 input, focus: 525 px
+- piece 32 #fm-books-close, rest: 2001 px
+- piece 32 #fm-books-close, hover: 2001 px
+- piece 32 #fm-books-close, focus: 2061 px
+- piece 32 #fm-books-close, pressed: 2061 px
+- piece 33 #fm-sisu, rest: 2012 px
+- piece 33 #fm-sisu, hover: 2012 px
+- piece 33 #fm-sisu, focus: 2060 px
+- piece 33 #fm-sisu, pressed: 2060 px
+- piece 34 #fm-crm, rest: 2001 px
+- piece 34 #fm-crm, hover: 2001 px
+- piece 34 #fm-crm, focus: 2061 px
+- piece 34 #fm-crm, pressed: 2061 px
+- piece 35 input, rest: 163 px
+- piece 35 input, hover: 212 px
+- piece 35 input, focus: 163 px
+- piece 36 input, rest: 101 px
+- piece 36 input, hover: 158 px
+- piece 36 input, focus: 101 px
+- piece 37 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, hover: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, focus: 2037 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, pressed: 2037 px, target 504×44 vs reference 504×45
+- piece 38 #fm-tasks, rest: 2012 px
+- piece 38 #fm-tasks, hover: 2012 px
+- piece 38 #fm-tasks, focus: 2060 px
+- piece 38 #fm-tasks, pressed: 2060 px
+- piece 39 #fm-problems, rest: 2001 px
+- piece 39 #fm-problems, hover: 2001 px
+- piece 39 #fm-problems, focus: 2055 px
+- piece 39 #fm-problems, pressed: 2055 px
+- piece 40 #fm-access, rest: 2001 px
+- piece 40 #fm-access, hover: 2001 px
+- piece 40 #fm-access, focus: 2061 px
+- piece 40 #fm-access, pressed: 2061 px
+- piece .fm-field 0 div.fm-field, rest: 2303 px
+- piece .fm-field 1 div.fm-field, rest: 2547 px
+- piece .fm-field 2 div.fm-field, rest: 2910 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 504×92 vs reference 504×93
+- piece .fm-field 4 div.fm-field, rest: 3649 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 504×141 vs reference 504×140
+- piece .fm-field 6 div.fm-field, rest: 1689 px
+- piece .fm-field 7 div.fm-field, rest: 2157 px, target 504×93 vs reference 504×92
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5425 px
+- piece .fm-field 11 div.fm-field, rest: 5410 px
+- piece .fm-field 12 div.fm-field, rest: 1535 px, target 504×86 vs reference 504×85
+- piece .fm-field 13 div.fm-field, rest: 3897 px
+- piece .fm-field 14 div.fm-field, rest: 3097 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 504×141 vs reference 504×140
+- piece .fm-field 16 div.fm-field, rest: 1171 px, target 504×158 vs reference 504×159
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2497 px
+- piece .fm-field 20 div.fm-field, rest: 2390 px
+- piece .fm-field 21 div.fm-field, rest: 2613 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 253 px
+- piece .fm-chip 5 label.fm-chip, rest: 372 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 591 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 851 px
+- piece .fm-chip 12 label.fm-chip, rest: 937 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 973 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 983 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 1978 px
+- piece #fm-team 0 #fm-team, rest: 1978 px
+- piece #fm-size 0 #fm-size, rest: 1978 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 504×19 vs reference 504×20
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1978 px
+- piece #fm-cadence 0 #fm-cadence, rest: 2803 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2001 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 632 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 878 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 504×20 vs reference 504×19
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1978 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 1443 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1535 px, target 504×44 vs reference 504×43
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2001 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2001 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 956 px, target 504×37 vs reference 504×38
+- piece #fm-crm 0 #fm-crm, rest: 2012 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece #fm-tasks 0 #fm-tasks, rest: 2001 px
+- piece #fm-problems 0 #fm-problems, rest: 2001 px
+- piece #fm-access 0 #fm-access, rest: 2001 px
+
+## week-form at 1280
+
+- piece 1 #fm-name, rest: 1978 px
+- piece 1 #fm-name, hover: 1978 px
+- piece 1 #fm-name, focus: 2039 px
+- piece 1 #fm-name, pressed: 2039 px
+- piece 2 #fm-team, rest: 1978 px
+- piece 2 #fm-team, hover: 1978 px
+- piece 2 #fm-team, focus: 2039 px
+- piece 2 #fm-team, pressed: 2039 px
+- piece 3 #fm-size, rest: 1978 px
+- piece 3 #fm-size, hover: 1978 px
+- piece 3 #fm-size, focus: 2039 px
+- piece 3 #fm-size, pressed: 2039 px
+- piece 4 #fm-lead-desk, rest: 1978 px
+- piece 4 #fm-lead-desk, hover: 1978 px
+- piece 4 #fm-lead-desk, focus: 2039 px
+- piece 4 #fm-lead-desk, pressed: 2039 px
+- piece 5 #fm-cadence, rest: 2803 px
+- piece 5 #fm-cadence, hover: 2803 px
+- piece 5 #fm-cadence, focus: 2863 px
+- piece 5 #fm-cadence, pressed: 2863 px
+- piece 6 #fm-one-on-ones, rest: 2001 px
+- piece 6 #fm-one-on-ones, hover: 2001 px
+- piece 6 #fm-one-on-ones, focus: 2061 px
+- piece 6 #fm-one-on-ones, pressed: 2061 px
+- piece 7 input, rest: 219 px
+- piece 7 input, hover: 272 px
+- piece 7 input, focus: 219 px
+- piece 8 input, rest: 223 px
+- piece 8 input, hover: 223 px
+- piece 8 input, focus: 223 px
+- piece 9 #fm-operator-name, rest: 1978 px
+- piece 9 #fm-operator-name, hover: 1978 px
+- piece 9 #fm-operator-name, focus: 2039 px
+- piece 9 #fm-operator-name, pressed: 2039 px
+- piece 10 input, rest: 163 px
+- piece 10 input, hover: 212 px
+- piece 10 input, focus: 163 px
+- piece 10 input, pressed: 211 px, target 49×33 vs reference 49×34
+- piece 11 input, rest: 237 px
+- piece 11 input, hover: 290 px
+- piece 11 input, focus: 237 px
+- piece 11 input, pressed: 316 px, target 74×33 vs reference 74×34
+- piece 12 input, rest: 206 px
+- piece 12 input, hover: 206 px
+- piece 12 input, focus: 206 px
+- piece 13 input, rest: 299 px
+- piece 13 input, hover: 355 px
+- piece 13 input, focus: 299 px
+- piece 14 input, rest: 340 px
+- piece 14 input, hover: 389 px
+- piece 14 input, focus: 340 px
+- piece 15 input, rest: 388 px
+- piece 15 input, hover: 441 px
+- piece 15 input, focus: 388 px
+- piece 16 input, rest: 417 px
+- piece 16 input, hover: 474 px
+- piece 16 input, focus: 417 px
+- piece 17 input, rest: 416 px
+- piece 17 input, hover: 469 px
+- piece 17 input, focus: 416 px
+- piece 18 input, rest: 382 px
+- piece 18 input, hover: 431 px
+- piece 18 input, focus: 382 px
+- piece 19 input, rest: 603 px
+- piece 19 input, hover: 656 px
+- piece 19 input, focus: 603 px
+- piece 20 input, rest: 645 px
+- piece 20 input, hover: 698 px
+- piece 20 input, focus: 645 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, hover: 1773 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, pressed: 1898 px, target 293×34 vs reference 251×33
+- piece 22 input, rest: 693 px
+- piece 22 input, hover: 738 px
+- piece 22 input, focus: 693 px
+- piece 22 input, pressed: 979 px, target 157×34 vs reference 157×33
+- piece 23 input, rest: 890 px
+- piece 23 input, hover: 939 px
+- piece 23 input, focus: 890 px
+- piece 23 input, pressed: 1039 px, target 209×34 vs reference 209×33
+- piece 24 input, rest: 163 px
+- piece 24 input, hover: 212 px
+- piece 24 input, focus: 163 px
+- piece 24 input, pressed: 21 px, target 49×34 vs reference 49×33
+- piece 25 input, rest: 101 px
+- piece 25 input, hover: 158 px
+- piece 25 input, focus: 101 px
+- piece 25 input, pressed: 17 px, target 46×34 vs reference 46×33
+- piece 26 input, rest: 452 px
+- piece 26 input, hover: 501 px
+- piece 26 input, focus: 452 px
+- piece 26 input, pressed: 99 px, target 129×34 vs reference 129×33
+- piece 27 input, rest: 301 px
+- piece 27 input, hover: 301 px
+- piece 27 input, focus: 301 px
+- piece 28 input, rest: 686 px
+- piece 28 input, hover: 739 px
+- piece 28 input, focus: 686 px
+- piece 29 input, rest: 179 px
+- piece 29 input, hover: 228 px
+- piece 29 input, focus: 179 px
+- piece 30 input, rest: 698 px
+- piece 30 input, hover: 749 px
+- piece 30 input, focus: 698 px
+- piece 31 input, rest: 525 px
+- piece 31 input, hover: 576 px
+- piece 31 input, focus: 525 px
+- piece 32 #fm-books-close, rest: 2001 px
+- piece 32 #fm-books-close, hover: 2001 px
+- piece 32 #fm-books-close, focus: 2061 px
+- piece 32 #fm-books-close, pressed: 2061 px
+- piece 33 #fm-sisu, rest: 2012 px
+- piece 33 #fm-sisu, hover: 2012 px
+- piece 33 #fm-sisu, focus: 2060 px
+- piece 33 #fm-sisu, pressed: 2060 px
+- piece 34 #fm-crm, rest: 2001 px
+- piece 34 #fm-crm, hover: 2001 px
+- piece 34 #fm-crm, focus: 2061 px
+- piece 34 #fm-crm, pressed: 2061 px
+- piece 35 input, rest: 163 px
+- piece 35 input, hover: 212 px
+- piece 35 input, focus: 163 px
+- piece 36 input, rest: 101 px
+- piece 36 input, hover: 158 px
+- piece 36 input, focus: 101 px
+- piece 37 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, hover: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, focus: 2037 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, pressed: 2037 px, target 504×44 vs reference 504×45
+- piece 38 #fm-tasks, rest: 2012 px
+- piece 38 #fm-tasks, hover: 2012 px
+- piece 38 #fm-tasks, focus: 2060 px
+- piece 38 #fm-tasks, pressed: 2060 px
+- piece 39 #fm-problems, rest: 2001 px
+- piece 39 #fm-problems, hover: 2001 px
+- piece 39 #fm-problems, focus: 2055 px
+- piece 39 #fm-problems, pressed: 2055 px
+- piece 40 #fm-access, rest: 2001 px
+- piece 40 #fm-access, hover: 2001 px
+- piece 40 #fm-access, focus: 2061 px
+- piece 40 #fm-access, pressed: 2061 px
+- piece .fm-field 0 div.fm-field, rest: 2303 px
+- piece .fm-field 1 div.fm-field, rest: 2547 px
+- piece .fm-field 2 div.fm-field, rest: 2910 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 504×92 vs reference 504×93
+- piece .fm-field 4 div.fm-field, rest: 3649 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 504×141 vs reference 504×140
+- piece .fm-field 6 div.fm-field, rest: 1689 px
+- piece .fm-field 7 div.fm-field, rest: 2157 px, target 504×93 vs reference 504×92
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5425 px
+- piece .fm-field 11 div.fm-field, rest: 5410 px
+- piece .fm-field 12 div.fm-field, rest: 1535 px, target 504×86 vs reference 504×85
+- piece .fm-field 13 div.fm-field, rest: 3897 px
+- piece .fm-field 14 div.fm-field, rest: 3097 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 504×141 vs reference 504×140
+- piece .fm-field 16 div.fm-field, rest: 1171 px, target 504×158 vs reference 504×159
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2497 px
+- piece .fm-field 20 div.fm-field, rest: 2390 px
+- piece .fm-field 21 div.fm-field, rest: 2613 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 253 px
+- piece .fm-chip 5 label.fm-chip, rest: 372 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 591 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 851 px
+- piece .fm-chip 12 label.fm-chip, rest: 937 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 973 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 983 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 1978 px
+- piece #fm-team 0 #fm-team, rest: 1978 px
+- piece #fm-size 0 #fm-size, rest: 1978 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 504×19 vs reference 504×20
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1978 px
+- piece #fm-cadence 0 #fm-cadence, rest: 2803 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2001 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 632 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 878 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 504×20 vs reference 504×19
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1978 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 1443 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1535 px, target 504×44 vs reference 504×43
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2001 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2001 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 956 px, target 504×37 vs reference 504×38
+- piece #fm-crm 0 #fm-crm, rest: 2012 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece #fm-tasks 0 #fm-tasks, rest: 2001 px
+- piece #fm-problems 0 #fm-problems, rest: 2001 px
+- piece #fm-access 0 #fm-access, rest: 2001 px
+
+## week-form at 1100
+
+- piece 1 #fm-name, rest: 1978 px
+- piece 1 #fm-name, hover: 1978 px
+- piece 1 #fm-name, focus: 2039 px
+- piece 1 #fm-name, pressed: 2039 px
+- piece 2 #fm-team, rest: 1978 px
+- piece 2 #fm-team, hover: 1978 px
+- piece 2 #fm-team, focus: 2039 px
+- piece 2 #fm-team, pressed: 2039 px
+- piece 3 #fm-size, rest: 1978 px
+- piece 3 #fm-size, hover: 1978 px
+- piece 3 #fm-size, focus: 2039 px
+- piece 3 #fm-size, pressed: 2039 px
+- piece 4 #fm-lead-desk, rest: 1978 px
+- piece 4 #fm-lead-desk, hover: 1978 px
+- piece 4 #fm-lead-desk, focus: 2039 px
+- piece 4 #fm-lead-desk, pressed: 2039 px
+- piece 5 #fm-cadence, rest: 2803 px
+- piece 5 #fm-cadence, hover: 2803 px
+- piece 5 #fm-cadence, focus: 2863 px
+- piece 5 #fm-cadence, pressed: 2863 px
+- piece 6 #fm-one-on-ones, rest: 2001 px
+- piece 6 #fm-one-on-ones, hover: 2001 px
+- piece 6 #fm-one-on-ones, focus: 2061 px
+- piece 6 #fm-one-on-ones, pressed: 2061 px
+- piece 7 input, rest: 219 px
+- piece 7 input, hover: 272 px
+- piece 7 input, focus: 219 px
+- piece 8 input, rest: 223 px
+- piece 8 input, hover: 223 px
+- piece 8 input, focus: 223 px
+- piece 9 #fm-operator-name, rest: 1978 px
+- piece 9 #fm-operator-name, hover: 1978 px
+- piece 9 #fm-operator-name, focus: 2039 px
+- piece 9 #fm-operator-name, pressed: 2039 px
+- piece 10 input, rest: 163 px
+- piece 10 input, hover: 212 px
+- piece 10 input, focus: 163 px
+- piece 10 input, pressed: 211 px, target 49×33 vs reference 49×34
+- piece 11 input, rest: 237 px
+- piece 11 input, hover: 290 px
+- piece 11 input, focus: 237 px
+- piece 11 input, pressed: 316 px, target 74×33 vs reference 74×34
+- piece 12 input, rest: 206 px
+- piece 12 input, hover: 206 px
+- piece 12 input, focus: 206 px
+- piece 13 input, rest: 299 px
+- piece 13 input, hover: 355 px
+- piece 13 input, focus: 299 px
+- piece 14 input, rest: 340 px
+- piece 14 input, hover: 389 px
+- piece 14 input, focus: 340 px
+- piece 15 input, rest: 388 px
+- piece 15 input, hover: 441 px
+- piece 15 input, focus: 388 px
+- piece 16 input, rest: 417 px
+- piece 16 input, hover: 474 px
+- piece 16 input, focus: 417 px
+- piece 17 input, rest: 416 px
+- piece 17 input, hover: 469 px
+- piece 17 input, focus: 416 px
+- piece 18 input, rest: 382 px
+- piece 18 input, hover: 431 px
+- piece 18 input, focus: 382 px
+- piece 19 input, rest: 603 px
+- piece 19 input, hover: 656 px
+- piece 19 input, focus: 603 px
+- piece 20 input, rest: 645 px
+- piece 20 input, hover: 698 px
+- piece 20 input, focus: 645 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, hover: 1773 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, pressed: 1898 px, target 293×34 vs reference 251×33
+- piece 22 input, rest: 693 px
+- piece 22 input, hover: 738 px
+- piece 22 input, focus: 693 px
+- piece 22 input, pressed: 978 px, target 157×34 vs reference 157×33
+- piece 23 input, rest: 890 px
+- piece 23 input, hover: 939 px
+- piece 23 input, focus: 890 px
+- piece 23 input, pressed: 1039 px, target 209×34 vs reference 209×33
+- piece 24 input, rest: 163 px
+- piece 24 input, hover: 212 px
+- piece 24 input, focus: 163 px
+- piece 24 input, pressed: 21 px, target 49×34 vs reference 49×33
+- piece 25 input, rest: 101 px
+- piece 25 input, hover: 158 px
+- piece 25 input, focus: 101 px
+- piece 25 input, pressed: 17 px, target 46×34 vs reference 46×33
+- piece 26 input, rest: 452 px
+- piece 26 input, hover: 501 px
+- piece 26 input, focus: 452 px
+- piece 26 input, pressed: 99 px, target 129×34 vs reference 129×33
+- piece 27 input, rest: 301 px
+- piece 27 input, hover: 301 px
+- piece 27 input, focus: 301 px
+- piece 28 input, rest: 686 px
+- piece 28 input, hover: 739 px
+- piece 28 input, focus: 686 px
+- piece 29 input, rest: 179 px
+- piece 29 input, hover: 228 px
+- piece 29 input, focus: 179 px
+- piece 30 input, rest: 698 px
+- piece 30 input, hover: 749 px
+- piece 30 input, focus: 698 px
+- piece 31 input, rest: 525 px
+- piece 31 input, hover: 576 px
+- piece 31 input, focus: 525 px
+- piece 32 #fm-books-close, rest: 2001 px
+- piece 32 #fm-books-close, hover: 2001 px
+- piece 32 #fm-books-close, focus: 2061 px
+- piece 32 #fm-books-close, pressed: 2061 px
+- piece 33 #fm-sisu, rest: 2012 px
+- piece 33 #fm-sisu, hover: 2012 px
+- piece 33 #fm-sisu, focus: 2060 px
+- piece 33 #fm-sisu, pressed: 2060 px
+- piece 34 #fm-crm, rest: 2001 px
+- piece 34 #fm-crm, hover: 2001 px
+- piece 34 #fm-crm, focus: 2061 px
+- piece 34 #fm-crm, pressed: 2061 px
+- piece 35 input, rest: 163 px
+- piece 35 input, hover: 212 px
+- piece 35 input, focus: 163 px
+- piece 36 input, rest: 101 px
+- piece 36 input, hover: 158 px
+- piece 36 input, focus: 101 px
+- piece 37 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, hover: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, focus: 2037 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, pressed: 2037 px, target 504×44 vs reference 504×45
+- piece 38 #fm-tasks, rest: 2012 px
+- piece 38 #fm-tasks, hover: 2012 px
+- piece 38 #fm-tasks, focus: 2060 px
+- piece 38 #fm-tasks, pressed: 2060 px
+- piece 39 #fm-problems, rest: 2001 px
+- piece 39 #fm-problems, hover: 2001 px
+- piece 39 #fm-problems, focus: 2055 px
+- piece 39 #fm-problems, pressed: 2055 px
+- piece 40 #fm-access, rest: 2001 px
+- piece 40 #fm-access, hover: 2001 px
+- piece 40 #fm-access, focus: 2061 px
+- piece 40 #fm-access, pressed: 2061 px
+- piece .fm-field 0 div.fm-field, rest: 2303 px
+- piece .fm-field 1 div.fm-field, rest: 2547 px
+- piece .fm-field 2 div.fm-field, rest: 2910 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 504×92 vs reference 504×93
+- piece .fm-field 4 div.fm-field, rest: 3649 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 504×141 vs reference 504×140
+- piece .fm-field 6 div.fm-field, rest: 1689 px
+- piece .fm-field 7 div.fm-field, rest: 2157 px, target 504×93 vs reference 504×92
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5425 px
+- piece .fm-field 11 div.fm-field, rest: 5410 px
+- piece .fm-field 12 div.fm-field, rest: 1535 px, target 504×86 vs reference 504×85
+- piece .fm-field 13 div.fm-field, rest: 3897 px
+- piece .fm-field 14 div.fm-field, rest: 3097 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 504×141 vs reference 504×140
+- piece .fm-field 16 div.fm-field, rest: 1171 px, target 504×158 vs reference 504×159
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2497 px
+- piece .fm-field 20 div.fm-field, rest: 2390 px
+- piece .fm-field 21 div.fm-field, rest: 2613 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 253 px
+- piece .fm-chip 5 label.fm-chip, rest: 372 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 591 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 851 px
+- piece .fm-chip 12 label.fm-chip, rest: 937 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 973 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 983 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 1978 px
+- piece #fm-team 0 #fm-team, rest: 1978 px
+- piece #fm-size 0 #fm-size, rest: 1978 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 504×19 vs reference 504×20
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1978 px
+- piece #fm-cadence 0 #fm-cadence, rest: 2803 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2001 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 632 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 878 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 504×20 vs reference 504×19
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1978 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 1443 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1535 px, target 504×44 vs reference 504×43
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2001 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2001 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 956 px, target 504×37 vs reference 504×38
+- piece #fm-crm 0 #fm-crm, rest: 2012 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece #fm-tasks 0 #fm-tasks, rest: 2001 px
+- piece #fm-problems 0 #fm-problems, rest: 2001 px
+- piece #fm-access 0 #fm-access, rest: 2001 px
+
+## week-form at 900
+
+- piece 1 #fm-name, rest: 1978 px
+- piece 1 #fm-name, hover: 1978 px
+- piece 1 #fm-name, focus: 2039 px
+- piece 1 #fm-name, pressed: 2039 px
+- piece 2 #fm-team, rest: 1978 px
+- piece 2 #fm-team, hover: 1978 px
+- piece 2 #fm-team, focus: 2039 px
+- piece 2 #fm-team, pressed: 2039 px
+- piece 3 #fm-size, rest: 1978 px
+- piece 3 #fm-size, hover: 1978 px
+- piece 3 #fm-size, focus: 2039 px
+- piece 3 #fm-size, pressed: 2039 px
+- piece 4 #fm-lead-desk, rest: 1978 px
+- piece 4 #fm-lead-desk, hover: 1978 px
+- piece 4 #fm-lead-desk, focus: 2039 px
+- piece 4 #fm-lead-desk, pressed: 2039 px
+- piece 5 #fm-cadence, rest: 2803 px
+- piece 5 #fm-cadence, hover: 2803 px
+- piece 5 #fm-cadence, focus: 2863 px
+- piece 5 #fm-cadence, pressed: 2863 px
+- piece 6 #fm-one-on-ones, rest: 2001 px
+- piece 6 #fm-one-on-ones, hover: 2001 px
+- piece 6 #fm-one-on-ones, focus: 2061 px
+- piece 6 #fm-one-on-ones, pressed: 2061 px
+- piece 7 input, rest: 219 px
+- piece 7 input, hover: 272 px
+- piece 7 input, focus: 219 px
+- piece 8 input, rest: 223 px
+- piece 8 input, hover: 223 px
+- piece 8 input, focus: 223 px
+- piece 9 #fm-operator-name, rest: 1978 px
+- piece 9 #fm-operator-name, hover: 1978 px
+- piece 9 #fm-operator-name, focus: 2039 px
+- piece 9 #fm-operator-name, pressed: 2039 px
+- piece 10 input, rest: 163 px
+- piece 10 input, hover: 212 px
+- piece 10 input, focus: 163 px
+- piece 10 input, pressed: 211 px, target 49×33 vs reference 49×34
+- piece 11 input, rest: 237 px
+- piece 11 input, hover: 290 px
+- piece 11 input, focus: 237 px
+- piece 11 input, pressed: 316 px, target 74×33 vs reference 74×34
+- piece 12 input, rest: 206 px
+- piece 12 input, hover: 206 px
+- piece 12 input, focus: 206 px
+- piece 13 input, rest: 299 px
+- piece 13 input, hover: 355 px
+- piece 13 input, focus: 299 px
+- piece 14 input, rest: 340 px
+- piece 14 input, hover: 389 px
+- piece 14 input, focus: 340 px
+- piece 15 input, rest: 388 px
+- piece 15 input, hover: 441 px
+- piece 15 input, focus: 388 px
+- piece 16 input, rest: 417 px
+- piece 16 input, hover: 474 px
+- piece 16 input, focus: 417 px
+- piece 17 input, rest: 416 px
+- piece 17 input, hover: 469 px
+- piece 17 input, focus: 416 px
+- piece 18 input, rest: 382 px
+- piece 18 input, hover: 431 px
+- piece 18 input, focus: 382 px
+- piece 19 input, rest: 603 px
+- piece 19 input, hover: 656 px
+- piece 19 input, focus: 603 px
+- piece 20 input, rest: 645 px
+- piece 20 input, hover: 698 px
+- piece 20 input, focus: 645 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, hover: 1773 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, pressed: 1898 px, target 293×34 vs reference 251×33
+- piece 22 input, rest: 693 px
+- piece 22 input, hover: 738 px
+- piece 22 input, focus: 693 px
+- piece 22 input, pressed: 978 px, target 157×34 vs reference 157×33
+- piece 23 input, rest: 890 px
+- piece 23 input, hover: 939 px
+- piece 23 input, focus: 890 px
+- piece 23 input, pressed: 1039 px, target 209×34 vs reference 209×33
+- piece 24 input, rest: 163 px
+- piece 24 input, hover: 212 px
+- piece 24 input, focus: 163 px
+- piece 24 input, pressed: 21 px, target 49×34 vs reference 49×33
+- piece 25 input, rest: 101 px
+- piece 25 input, hover: 158 px
+- piece 25 input, focus: 101 px
+- piece 25 input, pressed: 17 px, target 46×34 vs reference 46×33
+- piece 26 input, rest: 452 px
+- piece 26 input, hover: 501 px
+- piece 26 input, focus: 452 px
+- piece 26 input, pressed: 99 px, target 129×34 vs reference 129×33
+- piece 27 input, rest: 301 px
+- piece 27 input, hover: 301 px
+- piece 27 input, focus: 301 px
+- piece 28 input, rest: 686 px
+- piece 28 input, hover: 739 px
+- piece 28 input, focus: 686 px
+- piece 29 input, rest: 179 px
+- piece 29 input, hover: 228 px
+- piece 29 input, focus: 179 px
+- piece 30 input, rest: 698 px
+- piece 30 input, hover: 749 px
+- piece 30 input, focus: 698 px
+- piece 31 input, rest: 525 px
+- piece 31 input, hover: 576 px
+- piece 31 input, focus: 525 px
+- piece 32 #fm-books-close, rest: 2001 px
+- piece 32 #fm-books-close, hover: 2001 px
+- piece 32 #fm-books-close, focus: 2061 px
+- piece 32 #fm-books-close, pressed: 2061 px
+- piece 33 #fm-sisu, rest: 2012 px
+- piece 33 #fm-sisu, hover: 2012 px
+- piece 33 #fm-sisu, focus: 2060 px
+- piece 33 #fm-sisu, pressed: 2060 px
+- piece 34 #fm-crm, rest: 2001 px
+- piece 34 #fm-crm, hover: 2001 px
+- piece 34 #fm-crm, focus: 2061 px
+- piece 34 #fm-crm, pressed: 2061 px
+- piece 35 input, rest: 163 px
+- piece 35 input, hover: 212 px
+- piece 35 input, focus: 163 px
+- piece 36 input, rest: 101 px
+- piece 36 input, hover: 158 px
+- piece 36 input, focus: 101 px
+- piece 37 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, hover: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, focus: 2037 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, pressed: 2037 px, target 504×44 vs reference 504×45
+- piece 38 #fm-tasks, rest: 2012 px
+- piece 38 #fm-tasks, hover: 2012 px
+- piece 38 #fm-tasks, focus: 2060 px
+- piece 38 #fm-tasks, pressed: 2060 px
+- piece 39 #fm-problems, rest: 2001 px
+- piece 39 #fm-problems, hover: 2001 px
+- piece 39 #fm-problems, focus: 2055 px
+- piece 39 #fm-problems, pressed: 2055 px
+- piece 40 #fm-access, rest: 2001 px
+- piece 40 #fm-access, hover: 2001 px
+- piece 40 #fm-access, focus: 2061 px
+- piece 40 #fm-access, pressed: 2061 px
+- piece .fm-field 0 div.fm-field, rest: 2303 px
+- piece .fm-field 1 div.fm-field, rest: 2547 px
+- piece .fm-field 2 div.fm-field, rest: 2910 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 504×92 vs reference 504×93
+- piece .fm-field 4 div.fm-field, rest: 3649 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 504×141 vs reference 504×140
+- piece .fm-field 6 div.fm-field, rest: 1689 px
+- piece .fm-field 7 div.fm-field, rest: 2157 px, target 504×93 vs reference 504×92
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5425 px
+- piece .fm-field 11 div.fm-field, rest: 5410 px
+- piece .fm-field 12 div.fm-field, rest: 1535 px, target 504×86 vs reference 504×85
+- piece .fm-field 13 div.fm-field, rest: 3897 px
+- piece .fm-field 14 div.fm-field, rest: 3097 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 504×141 vs reference 504×140
+- piece .fm-field 16 div.fm-field, rest: 1171 px, target 504×158 vs reference 504×159
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2497 px
+- piece .fm-field 20 div.fm-field, rest: 2390 px
+- piece .fm-field 21 div.fm-field, rest: 2613 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 253 px
+- piece .fm-chip 5 label.fm-chip, rest: 372 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 591 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 851 px
+- piece .fm-chip 12 label.fm-chip, rest: 937 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 973 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 983 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 1978 px
+- piece #fm-team 0 #fm-team, rest: 1978 px
+- piece #fm-size 0 #fm-size, rest: 1978 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 504×19 vs reference 504×20
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1978 px
+- piece #fm-cadence 0 #fm-cadence, rest: 2803 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2001 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 632 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 878 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 504×20 vs reference 504×19
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1978 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 1443 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1535 px, target 504×44 vs reference 504×43
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2001 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2001 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 956 px, target 504×37 vs reference 504×38
+- piece #fm-crm 0 #fm-crm, rest: 2012 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece #fm-tasks 0 #fm-tasks, rest: 2001 px
+- piece #fm-problems 0 #fm-problems, rest: 2001 px
+- piece #fm-access 0 #fm-access, rest: 2001 px
+
+## week-form at 820
+
+- piece 1 #fm-name, rest: 1978 px
+- piece 1 #fm-name, hover: 1978 px
+- piece 1 #fm-name, focus: 2039 px
+- piece 1 #fm-name, pressed: 2039 px
+- piece 2 #fm-team, rest: 1978 px
+- piece 2 #fm-team, hover: 1978 px
+- piece 2 #fm-team, focus: 2039 px
+- piece 2 #fm-team, pressed: 2039 px
+- piece 3 #fm-size, rest: 1978 px
+- piece 3 #fm-size, hover: 1978 px
+- piece 3 #fm-size, focus: 2039 px
+- piece 3 #fm-size, pressed: 2039 px
+- piece 4 #fm-lead-desk, rest: 1978 px
+- piece 4 #fm-lead-desk, hover: 1978 px
+- piece 4 #fm-lead-desk, focus: 2039 px
+- piece 4 #fm-lead-desk, pressed: 2039 px
+- piece 5 #fm-cadence, rest: 2803 px
+- piece 5 #fm-cadence, hover: 2803 px
+- piece 5 #fm-cadence, focus: 2863 px
+- piece 5 #fm-cadence, pressed: 2863 px
+- piece 6 #fm-one-on-ones, rest: 2001 px
+- piece 6 #fm-one-on-ones, hover: 2001 px
+- piece 6 #fm-one-on-ones, focus: 2061 px
+- piece 6 #fm-one-on-ones, pressed: 2061 px
+- piece 7 input, rest: 219 px
+- piece 7 input, hover: 272 px
+- piece 7 input, focus: 219 px
+- piece 8 input, rest: 223 px
+- piece 8 input, hover: 223 px
+- piece 8 input, focus: 223 px
+- piece 9 #fm-operator-name, rest: 1978 px
+- piece 9 #fm-operator-name, hover: 1978 px
+- piece 9 #fm-operator-name, focus: 2039 px
+- piece 9 #fm-operator-name, pressed: 2039 px
+- piece 10 input, rest: 163 px
+- piece 10 input, hover: 212 px
+- piece 10 input, focus: 163 px
+- piece 10 input, pressed: 211 px, target 49×33 vs reference 49×34
+- piece 11 input, rest: 237 px
+- piece 11 input, hover: 290 px
+- piece 11 input, focus: 237 px
+- piece 11 input, pressed: 316 px, target 74×33 vs reference 74×34
+- piece 12 input, rest: 206 px
+- piece 12 input, hover: 206 px
+- piece 12 input, focus: 206 px
+- piece 13 input, rest: 299 px
+- piece 13 input, hover: 355 px
+- piece 13 input, focus: 299 px
+- piece 14 input, rest: 340 px
+- piece 14 input, hover: 389 px
+- piece 14 input, focus: 340 px
+- piece 15 input, rest: 388 px
+- piece 15 input, hover: 441 px
+- piece 15 input, focus: 388 px
+- piece 16 input, rest: 417 px
+- piece 16 input, hover: 474 px
+- piece 16 input, focus: 417 px
+- piece 17 input, rest: 416 px
+- piece 17 input, hover: 469 px
+- piece 17 input, focus: 416 px
+- piece 18 input, rest: 382 px
+- piece 18 input, hover: 431 px
+- piece 18 input, focus: 382 px
+- piece 19 input, rest: 603 px
+- piece 19 input, hover: 656 px
+- piece 19 input, focus: 603 px
+- piece 20 input, rest: 645 px
+- piece 20 input, hover: 698 px
+- piece 20 input, focus: 645 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, hover: 1773 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, pressed: 1898 px, target 293×34 vs reference 251×33
+- piece 22 input, rest: 693 px
+- piece 22 input, hover: 738 px
+- piece 22 input, focus: 693 px
+- piece 22 input, pressed: 978 px, target 157×34 vs reference 157×33
+- piece 23 input, rest: 890 px
+- piece 23 input, hover: 939 px
+- piece 23 input, focus: 890 px
+- piece 23 input, pressed: 1039 px, target 209×34 vs reference 209×33
+- piece 24 input, rest: 163 px
+- piece 24 input, hover: 212 px
+- piece 24 input, focus: 163 px
+- piece 24 input, pressed: 21 px, target 49×34 vs reference 49×33
+- piece 25 input, rest: 101 px
+- piece 25 input, hover: 158 px
+- piece 25 input, focus: 101 px
+- piece 25 input, pressed: 17 px, target 46×34 vs reference 46×33
+- piece 26 input, rest: 452 px
+- piece 26 input, hover: 501 px
+- piece 26 input, focus: 452 px
+- piece 26 input, pressed: 99 px, target 129×34 vs reference 129×33
+- piece 27 input, rest: 301 px
+- piece 27 input, hover: 301 px
+- piece 27 input, focus: 301 px
+- piece 28 input, rest: 686 px
+- piece 28 input, hover: 739 px
+- piece 28 input, focus: 686 px
+- piece 29 input, rest: 179 px
+- piece 29 input, hover: 228 px
+- piece 29 input, focus: 179 px
+- piece 30 input, rest: 698 px
+- piece 30 input, hover: 749 px
+- piece 30 input, focus: 698 px
+- piece 31 input, rest: 525 px
+- piece 31 input, hover: 576 px
+- piece 31 input, focus: 525 px
+- piece 32 #fm-books-close, rest: 2001 px
+- piece 32 #fm-books-close, hover: 2001 px
+- piece 32 #fm-books-close, focus: 2061 px
+- piece 32 #fm-books-close, pressed: 2061 px
+- piece 33 #fm-sisu, rest: 2012 px
+- piece 33 #fm-sisu, hover: 2012 px
+- piece 33 #fm-sisu, focus: 2060 px
+- piece 33 #fm-sisu, pressed: 2060 px
+- piece 34 #fm-crm, rest: 2001 px
+- piece 34 #fm-crm, hover: 2001 px
+- piece 34 #fm-crm, focus: 2061 px
+- piece 34 #fm-crm, pressed: 2061 px
+- piece 35 input, rest: 163 px
+- piece 35 input, hover: 212 px
+- piece 35 input, focus: 163 px
+- piece 36 input, rest: 101 px
+- piece 36 input, hover: 158 px
+- piece 36 input, focus: 101 px
+- piece 37 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, hover: 1978 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, focus: 2037 px, target 504×44 vs reference 504×45
+- piece 37 #fm-google-other, pressed: 2037 px, target 504×44 vs reference 504×45
+- piece 38 #fm-tasks, rest: 2012 px
+- piece 38 #fm-tasks, hover: 2012 px
+- piece 38 #fm-tasks, focus: 2060 px
+- piece 38 #fm-tasks, pressed: 2060 px
+- piece 39 #fm-problems, rest: 2001 px
+- piece 39 #fm-problems, hover: 2001 px
+- piece 39 #fm-problems, focus: 2055 px
+- piece 39 #fm-problems, pressed: 2055 px
+- piece 40 #fm-access, rest: 2001 px
+- piece 40 #fm-access, hover: 2001 px
+- piece 40 #fm-access, focus: 2061 px
+- piece 40 #fm-access, pressed: 2061 px
+- piece .fm-field 0 div.fm-field, rest: 2303 px
+- piece .fm-field 1 div.fm-field, rest: 2547 px
+- piece .fm-field 2 div.fm-field, rest: 2910 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 504×92 vs reference 504×93
+- piece .fm-field 4 div.fm-field, rest: 3649 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 504×141 vs reference 504×140
+- piece .fm-field 6 div.fm-field, rest: 1689 px
+- piece .fm-field 7 div.fm-field, rest: 2157 px, target 504×93 vs reference 504×92
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5425 px
+- piece .fm-field 11 div.fm-field, rest: 5410 px
+- piece .fm-field 12 div.fm-field, rest: 1535 px, target 504×86 vs reference 504×85
+- piece .fm-field 13 div.fm-field, rest: 3897 px
+- piece .fm-field 14 div.fm-field, rest: 3097 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 504×141 vs reference 504×140
+- piece .fm-field 16 div.fm-field, rest: 1171 px, target 504×158 vs reference 504×159
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2497 px
+- piece .fm-field 20 div.fm-field, rest: 2390 px
+- piece .fm-field 21 div.fm-field, rest: 2613 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 253 px
+- piece .fm-chip 5 label.fm-chip, rest: 372 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 591 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 851 px
+- piece .fm-chip 12 label.fm-chip, rest: 937 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 973 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 983 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 1978 px
+- piece #fm-team 0 #fm-team, rest: 1978 px
+- piece #fm-size 0 #fm-size, rest: 1978 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 504×19 vs reference 504×20
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1978 px
+- piece #fm-cadence 0 #fm-cadence, rest: 2803 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2001 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 632 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 878 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 504×20 vs reference 504×19
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1978 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 1443 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1535 px, target 504×44 vs reference 504×43
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2001 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2001 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 956 px, target 504×37 vs reference 504×38
+- piece #fm-crm 0 #fm-crm, rest: 2012 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1978 px, target 504×44 vs reference 504×45
+- piece #fm-tasks 0 #fm-tasks, rest: 2001 px
+- piece #fm-problems 0 #fm-problems, rest: 2001 px
+- piece #fm-access 0 #fm-access, rest: 2001 px
+
+## week-form at 640
+
+- piece 1 #fm-name, rest: 2362 px
+- piece 1 #fm-name, focus: 2423 px
+- piece 2 #fm-team, rest: 2362 px
+- piece 2 #fm-team, focus: 2423 px
+- piece 3 #fm-size, rest: 2362 px
+- piece 3 #fm-size, focus: 2423 px
+- piece 4 #fm-lead-desk, rest: 2362 px
+- piece 4 #fm-lead-desk, focus: 2423 px
+- piece 5 #fm-cadence, rest: 3492 px
+- piece 5 #fm-cadence, focus: 3552 px
+- piece 6 #fm-one-on-ones, rest: 2385 px
+- piece 6 #fm-one-on-ones, focus: 2445 px
+- piece 7 input, rest: 219 px
+- piece 7 input, focus: 297 px
+- piece 8 input, rest: 223 px
+- piece 8 input, focus: 280 px
+- piece 9 #fm-operator-name, rest: 2362 px
+- piece 9 #fm-operator-name, focus: 2423 px
+- piece 10 input, rest: 163 px
+- piece 10 input, focus: 237 px
+- piece 11 input, rest: 237 px
+- piece 11 input, focus: 314 px
+- piece 12 input, rest: 139 px
+- piece 12 input, focus: 196 px
+- piece 13 input, rest: 287 px
+- piece 13 input, focus: 365 px
+- piece 14 input, rest: 340 px
+- piece 14 input, focus: 414 px
+- piece 15 input, rest: 388 px
+- piece 15 input, focus: 464 px
+- piece 16 input, rest: 415 px
+- piece 16 input, focus: 495 px
+- piece 17 input, rest: 416 px
+- piece 17 input, focus: 494 px
+- piece 18 input, rest: 381 px
+- piece 18 input, focus: 459 px
+- piece 19 input, rest: 615 px
+- piece 19 input, focus: 693 px
+- piece 20 input, rest: 634 px
+- piece 20 input, focus: 708 px
+- piece 21 input, rest: 1726 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1821 px, target 305×35 vs reference 261×35
+- piece 22 input, rest: 713 px
+- piece 22 input, focus: 790 px
+- piece 23 input, rest: 890 px
+- piece 23 input, focus: 964 px
+- piece 24 input, rest: 163 px
+- piece 24 input, focus: 237 px
+- piece 25 input, rest: 101 px
+- piece 25 input, focus: 180 px
+- piece 26 input, rest: 452 px
+- piece 26 input, focus: 526 px
+- piece 27 input, rest: 297 px
+- piece 27 input, focus: 354 px
+- piece 28 input, rest: 686 px
+- piece 28 input, focus: 764 px
+- piece 29 input, rest: 179 px
+- piece 29 input, focus: 253 px
+- piece 30 input, rest: 683 px
+- piece 30 input, focus: 761 px
+- piece 31 input, rest: 524 px
+- piece 31 input, focus: 598 px
+- piece 32 #fm-books-close, rest: 2396 px
+- piece 32 #fm-books-close, focus: 2444 px
+- piece 33 #fm-sisu, rest: 2385 px
+- piece 33 #fm-sisu, focus: 2445 px
+- piece 34 #fm-crm, rest: 2385 px
+- piece 34 #fm-crm, focus: 2445 px
+- piece 35 input, rest: 163 px
+- piece 35 input, focus: 237 px
+- piece 36 input, rest: 101 px
+- piece 36 input, focus: 183 px
+- piece 37 #fm-google-other, rest: 2362 px, target 600×45 vs reference 600×44
+- piece 37 #fm-google-other, focus: 2421 px, target 600×45 vs reference 600×44
+- piece 38 #fm-tasks, rest: 2385 px
+- piece 38 #fm-tasks, focus: 2445 px
+- piece 39 #fm-problems, rest: 2396 px
+- piece 39 #fm-problems, focus: 2444 px
+- piece 40 #fm-access, rest: 2385 px
+- piece 40 #fm-access, focus: 2445 px
+- piece .fm-field 0 div.fm-field, rest: 2687 px
+- piece .fm-field 1 div.fm-field, rest: 2931 px
+- piece .fm-field 2 div.fm-field, rest: 3294 px
+- piece .fm-field 3 div.fm-field, rest: 916 px, target 600×93 vs reference 600×92
+- piece .fm-field 4 div.fm-field, rest: 4799 px
+- piece .fm-field 5 div.fm-field, rest: 576 px, target 600×140 vs reference 600×141
+- piece .fm-field 6 div.fm-field, rest: 2089 px
+- piece .fm-field 7 div.fm-field, rest: 2253 px, target 600×92 vs reference 600×93
+- piece .fm-field 8 div.fm-field, rest: 1223 px
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5469 px
+- piece .fm-field 11 div.fm-field, rest: 5279 px
+- piece .fm-field 12 div.fm-field, rest: 1501 px, target 600×85 vs reference 600×86
+- piece .fm-field 13 div.fm-field, rest: 4262 px
+- piece .fm-field 14 div.fm-field, rest: 3994 px
+- piece .fm-field 15 div.fm-field, rest: 383 px, target 600×140 vs reference 600×141
+- piece .fm-field 16 div.fm-field, rest: 2040 px, target 600×159 vs reference 600×158
+- piece .fm-field 17 div.fm-field, rest: 1430 px
+- piece .fm-field 18 div.fm-field, rest: 725 px
+- piece .fm-field 19 div.fm-field, rest: 2881 px
+- piece .fm-field 20 div.fm-field, rest: 3261 px
+- piece .fm-field 21 div.fm-field, rest: 2997 px
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 227 px
+- piece .fm-chip 5 label.fm-chip, rest: 409 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 589 px
+- piece .fm-chip 9 label.fm-chip, rest: 602 px
+- piece .fm-chip 10 label.fm-chip, rest: 556 px
+- piece .fm-chip 11 label.fm-chip, rest: 863 px
+- piece .fm-chip 12 label.fm-chip, rest: 926 px
+- piece .fm-chip 13 label.fm-chip, rest: 2240 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 993 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 215 px
+- piece .fm-chip 17 label.fm-chip, rest: 143 px
+- piece .fm-chip 18 label.fm-chip, rest: 670 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 245 px
+- piece .fm-chip 22 label.fm-chip, rest: 969 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 918 px
+- piece #fm-name 0 #fm-name, rest: 2362 px
+- piece #fm-team 0 #fm-team, rest: 2362 px
+- piece #fm-size 0 #fm-size, rest: 2362 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 241 px, target 600×20 vs reference 600×19
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 2362 px
+- piece #fm-cadence 0 #fm-cadence, rest: 3492 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 2385 px
+- piece #fm-operator-l 0 #fm-operator-l, rest: 1231 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 374 px
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px, target 600×19 vs reference 600×20
+- piece #fm-operator-name 0 #fm-operator-name, rest: 2362 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 939 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1501 px, target 600×43 vs reference 600×44
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 2385 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 1002 px
+- piece #fm-sisu 0 #fm-sisu, rest: 2385 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 1225 px, target 600×38 vs reference 600×37
+- piece #fm-crm 0 #fm-crm, rest: 2396 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1090 px
+- piece #fm-google-other 0 #fm-google-other, rest: 2362 px, target 600×45 vs reference 600×44
+- piece #fm-tasks 0 #fm-tasks, rest: 2385 px
+- piece #fm-problems 0 #fm-problems, rest: 2385 px
+- piece #fm-access 0 #fm-access, rest: 2385 px
+
+## week-form at 390
+
+- piece 1 #fm-name, rest: 1362 px
+- piece 1 #fm-name, focus: 1423 px
+- piece 2 #fm-team, rest: 1362 px
+- piece 2 #fm-team, focus: 1423 px
+- piece 3 #fm-size, rest: 1362 px
+- piece 3 #fm-size, focus: 1423 px
+- piece 4 #fm-lead-desk, rest: 1362 px
+- piece 4 #fm-lead-desk, focus: 1423 px
+- piece 5 #fm-cadence, rest: 1928 px
+- piece 5 #fm-cadence, focus: 1975 px
+- piece 6 #fm-one-on-ones, rest: 1393 px, target 350×92 vs reference 350×93
+- piece 6 #fm-one-on-ones, focus: 1445 px, target 350×92 vs reference 350×93
+- piece 7 input, rest: 219 px
+- piece 7 input, focus: 297 px
+- piece 8 input, rest: 223 px
+- piece 8 input, focus: 280 px
+- piece 9 #fm-operator-name, rest: 1362 px
+- piece 9 #fm-operator-name, focus: 1423 px
+- piece 10 input, rest: 163 px
+- piece 10 input, focus: 237 px
+- piece 11 input, rest: 237 px
+- piece 11 input, focus: 313 px
+- piece 12 input, rest: 139 px
+- piece 12 input, focus: 197 px
+- piece 13 input, rest: 287 px
+- piece 13 input, focus: 366 px
+- piece 14 input, rest: 340 px
+- piece 14 input, focus: 414 px
+- piece 15 input, rest: 388 px
+- piece 15 input, focus: 464 px
+- piece 16 input, rest: 415 px
+- piece 16 input, focus: 495 px
+- piece 17 input, rest: 427 px
+- piece 17 input, focus: 505 px
+- piece 18 input, rest: 384 px
+- piece 18 input, focus: 460 px
+- piece 19 input, rest: 615 px
+- piece 19 input, focus: 693 px
+- piece 20 input, rest: 634 px
+- piece 20 input, focus: 708 px
+- piece 21 input, rest: 1742 px, target 305×35 vs reference 261×35
+- piece 21 input, focus: 1837 px, target 305×35 vs reference 261×35
+- piece 22 input, rest: 630 px
+- piece 22 input, focus: 708 px
+- piece 23 input, rest: 890 px
+- piece 23 input, focus: 964 px
+- piece 24 input, rest: 166 px
+- piece 24 input, focus: 238 px
+- piece 25 input, rest: 103 px
+- piece 25 input, focus: 185 px
+- piece 26 input, rest: 455 px
+- piece 26 input, focus: 527 px
+- piece 27 input, rest: 297 px
+- piece 27 input, focus: 354 px
+- piece 28 input, rest: 686 px
+- piece 28 input, focus: 764 px
+- piece 29 input, rest: 173 px
+- piece 29 input, focus: 251 px
+- piece 30 input, rest: 689 px
+- piece 30 input, focus: 758 px
+- piece 31 input, rest: 524 px
+- piece 31 input, focus: 598 px
+- piece 32 #fm-books-close, rest: 1385 px
+- piece 32 #fm-books-close, focus: 1445 px
+- piece 33 #fm-sisu, rest: 1385 px
+- piece 33 #fm-sisu, focus: 1445 px
+- piece 34 #fm-crm, rest: 1385 px
+- piece 34 #fm-crm, focus: 1445 px
+- piece 35 input, rest: 163 px
+- piece 35 input, focus: 237 px
+- piece 36 input, rest: 101 px
+- piece 36 input, focus: 181 px
+- piece 37 #fm-google-other, rest: 1360 px
+- piece 37 #fm-google-other, focus: 1423 px
+- piece 38 #fm-tasks, rest: 1385 px
+- piece 38 #fm-tasks, focus: 1445 px
+- piece 39 #fm-problems, rest: 1385 px
+- piece 39 #fm-problems, focus: 1445 px
+- piece 40 #fm-access, rest: 1385 px
+- piece 40 #fm-access, focus: 1445 px
+- piece .fm-field 0 div.fm-field, rest: 1687 px
+- piece .fm-field 1 div.fm-field, rest: 1931 px
+- piece .fm-field 2 div.fm-field, rest: 1250 px, target 350×94 vs reference 350×93
+- piece .fm-field 3 div.fm-field, rest: 1891 px
+- piece .fm-field 4 div.fm-field, rest: 2237 px, target 350×141 vs reference 350×142
+- piece .fm-field 5 div.fm-field, rest: 1006 px
+- piece .fm-field 6 div.fm-field, rest: 1005 px, target 350×84 vs reference 350×85
+- piece .fm-field 7 div.fm-field, rest: 2142 px
+- piece .fm-field 8 div.fm-field, rest: 687 px, target 350×65 vs reference 350×64
+- piece .fm-field 9 div.fm-field, rest: 1269 px
+- piece .fm-field 10 div.fm-field, rest: 5449 px
+- piece .fm-field 11 div.fm-field, rest: 4970 px
+- piece .fm-field 12 div.fm-field, rest: 2545 px
+- piece .fm-field 13 div.fm-field, rest: 4012 px
+- piece .fm-field 14 div.fm-field, rest: 1589 px, target 350×162 vs reference 350×163
+- piece .fm-field 15 div.fm-field, rest: 1083 px, target 350×159 vs reference 350×158
+- piece .fm-field 16 div.fm-field, rest: 1199 px, target 350×176 vs reference 350×177
+- piece .fm-field 17 div.fm-field, rest: 1429 px
+- piece .fm-field 18 div.fm-field, rest: 731 px, target 350×94 vs reference 350×93
+- piece .fm-field 19 div.fm-field, rest: 1548 px
+- piece .fm-field 20 div.fm-field, rest: 2261 px
+- piece .fm-field 21 div.fm-field, rest: 619 px, target 350×121 vs reference 350×120
+- piece .fm-chip 0 label.fm-chip, rest: 329 px
+- piece .fm-chip 1 label.fm-chip, rest: 379 px
+- piece .fm-chip 2 label.fm-chip, rest: 215 px
+- piece .fm-chip 3 label.fm-chip, rest: 339 px
+- piece .fm-chip 4 label.fm-chip, rest: 227 px
+- piece .fm-chip 5 label.fm-chip, rest: 409 px
+- piece .fm-chip 6 label.fm-chip, rest: 490 px
+- piece .fm-chip 7 label.fm-chip, rest: 550 px
+- piece .fm-chip 8 label.fm-chip, rest: 589 px
+- piece .fm-chip 9 label.fm-chip, rest: 613 px
+- piece .fm-chip 10 label.fm-chip, rest: 558 px
+- piece .fm-chip 11 label.fm-chip, rest: 863 px
+- piece .fm-chip 12 label.fm-chip, rest: 926 px
+- piece .fm-chip 13 label.fm-chip, rest: 2257 px, target 307×37 vs reference 263×37
+- piece .fm-chip 14 label.fm-chip, rest: 904 px
+- piece .fm-chip 15 label.fm-chip, rest: 1274 px
+- piece .fm-chip 16 label.fm-chip, rest: 217 px
+- piece .fm-chip 17 label.fm-chip, rest: 145 px
+- piece .fm-chip 18 label.fm-chip, rest: 672 px
+- piece .fm-chip 19 label.fm-chip, rest: 541 px
+- piece .fm-chip 20 label.fm-chip, rest: 966 px
+- piece .fm-chip 21 label.fm-chip, rest: 237 px
+- piece .fm-chip 22 label.fm-chip, rest: 977 px
+- piece .fm-chip 23 label.fm-chip, rest: 734 px
+- piece .fm-chip 24 label.fm-chip, rest: 215 px
+- piece .fm-chip 25 label.fm-chip, rest: 143 px
+- piece .fm-head 0 header.fm-head.aim-in, rest: 1545 px, target 390×216 vs reference 390×184
+- piece #fm-name 0 #fm-name, rest: 1362 px
+- piece #fm-team 0 #fm-team, rest: 1362 px
+- piece #fm-size 0 #fm-size, rest: 1362 px
+- piece #fm-lead-desk-hint 0 #fm-lead-desk-hint, rest: 591 px
+- piece #fm-lead-desk 0 #fm-lead-desk, rest: 1362 px
+- piece #fm-cadence 0 #fm-cadence, rest: 1920 px
+- piece #fm-one-on-ones-hint 0 #fm-one-on-ones-hint, rest: 430 px
+- piece #fm-one-on-ones 0 #fm-one-on-ones, rest: 1388 px, target 350×92 vs reference 350×93
+- piece #fm-operator-l 0 #fm-operator-l, rest: 631 px
+- piece #fm-operator-hint 0 #fm-operator-hint, rest: 374 px, target 350×19 vs reference 350×20
+- piece #fm-operator-name-hint 0 #fm-operator-name-hint, rest: 341 px
+- piece #fm-operator-name 0 #fm-operator-name, rest: 1362 px
+- piece #fm-invited-l 0 #fm-invited-l, rest: 687 px, target 350×23 vs reference 350×22
+- piece #fm-ai-l 0 #fm-ai-l, rest: 655 px
+- piece #fm-plan-l 0 #fm-plan-l, rest: 958 px
+- piece #fm-account-l 0 #fm-account-l, rest: 619 px
+- piece #fm-chatgpt-admin-l 0 #fm-chatgpt-admin-l, rest: 1538 px
+- piece #fm-books-l 0 #fm-books-l, rest: 504 px
+- piece #fm-books-close 0 #fm-books-close, rest: 1385 px
+- piece #fm-sisu-hint 0 #fm-sisu-hint, rest: 700 px, target 350×38 vs reference 350×37
+- piece #fm-sisu 0 #fm-sisu, rest: 1385 px
+- piece #fm-crm-hint 0 #fm-crm-hint, rest: 984 px, target 350×55 vs reference 350×56
+- piece #fm-crm 0 #fm-crm, rest: 1385 px
+- piece #fm-google-l 0 #fm-google-l, rest: 1089 px
+- piece #fm-google-other 0 #fm-google-other, rest: 1360 px
+- piece #fm-tasks 0 #fm-tasks, rest: 1385 px
+- piece #fm-problems 0 #fm-problems, rest: 1385 px
+- piece #fm-access 0 #fm-access, rest: 1385 px
+
+## schedule at 1440
+
+- piece 34 a.sc-a, rest: 569 px
+- piece 34 a.sc-a, hover: 561 px
+- piece 34 a.sc-a, focus: 569 px
+- piece 34 a.sc-a, pressed: 561 px
+- piece #sh-weeks > li 0 li, rest: 252 px
+- piece #sh-weeks > li 1 li, rest: 449 px
+- piece #sh-weeks > li 2 li, rest: 332 px
+- piece #sh-weeks > li 3 li, rest: 336 px
+- piece #sh-weeks > li 4 li, rest: 349 px
+- piece #sh-weeks > li 5 li, rest: 237 px, target 203×51 vs reference 203×50
+- piece #sh-weeks > li 6 li, rest: 416 px
+- piece #sh-weeks > li 7 li, rest: 561 px, target 203×50 vs reference 203×51
+- piece #sh-weeks > li 8 li, rest: 400 px
+- piece .sc-week 0 li.sc-week, rest: 763 px
+- piece .sc-week 1 li.sc-week, rest: 356 px
+- piece .sc-week 8 li.sc-week, rest: 5512 px, target 1118×169 vs reference 1118×148
+- piece .sc-week 9 li.sc-week, rest: 4213 px
+- piece #sh-side 0 #sh-side, rest: 21 px, target 248×2351 vs reference 248×2329
+- piece #main 0 #main, rest: 16710 px, target 1192×2295 vs reference 1192×2273
+- piece #view-schedule 0 #view-schedule, rest: 16710 px, target 1192×2295 vs reference 1192×2273
+- piece #sc-hero 0 #sc-hero, rest: 767 px
+- piece #sc-groups 0 #sc-groups, rest: 17065 px, target 1120×1758 vs reference 1120×1736
+
+## schedule at 1280
+
+- piece 34 a.sc-a, rest: 569 px
+- piece 34 a.sc-a, hover: 561 px
+- piece 34 a.sc-a, focus: 569 px
+- piece 34 a.sc-a, pressed: 561 px
+- piece #sh-weeks > li 0 li, rest: 252 px
+- piece #sh-weeks > li 1 li, rest: 449 px
+- piece #sh-weeks > li 2 li, rest: 332 px
+- piece #sh-weeks > li 3 li, rest: 336 px
+- piece #sh-weeks > li 4 li, rest: 349 px
+- piece #sh-weeks > li 5 li, rest: 237 px, target 203×51 vs reference 203×50
+- piece #sh-weeks > li 6 li, rest: 416 px
+- piece #sh-weeks > li 7 li, rest: 561 px, target 203×50 vs reference 203×51
+- piece #sh-weeks > li 8 li, rest: 400 px
+- piece .sc-week 0 li.sc-week, rest: 763 px
+- piece .sc-week 1 li.sc-week, rest: 356 px
+- piece .sc-week 8 li.sc-week, rest: 5360 px, target 966×169 vs reference 966×148
+- piece .sc-week 9 li.sc-week, rest: 3909 px
+- piece #sh-side 0 #sh-side, rest: 21 px, target 248×2351 vs reference 248×2329
+- piece #main 0 #main, rest: 16254 px, target 1032×2295 vs reference 1032×2273
+- piece #view-schedule 0 #view-schedule, rest: 16254 px, target 1032×2295 vs reference 1032×2273
+- piece #sc-hero 0 #sc-hero, rest: 767 px
+- piece #sc-groups 0 #sc-groups, rest: 16457 px, target 968×1758 vs reference 968×1736
+
+## schedule at 1100
+
+- piece 24 button.wk-btn.wk-btn-accent, rest: 752 px
+- piece 24 button.wk-btn.wk-btn-accent, hover: 740 px
+- piece 24 button.wk-btn.wk-btn-accent, focus: 752 px
+- piece 24 button.wk-btn.wk-btn-accent, pressed: 685 px
+- piece 25 #sc-what, rest: 328 px
+- piece 25 #sc-what, hover: 316 px
+- piece 25 #sc-what, focus: 328 px
+- piece 25 #sc-what, pressed: 325 px
+- piece 26 a.sc-a, rest: 365 px
+- piece 26 a.sc-a, hover: 365 px
+- piece 26 a.sc-a, focus: 365 px
+- piece 26 a.sc-a, pressed: 365 px
+- piece 27 a.sc-a, rest: 587 px
+- piece 27 a.sc-a, hover: 584 px
+- piece 27 a.sc-a, focus: 587 px
+- piece 27 a.sc-a, pressed: 584 px
+- piece 28 a.sc-a, rest: 505 px
+- piece 28 a.sc-a, hover: 500 px
+- piece 28 a.sc-a, focus: 505 px
+- piece 28 a.sc-a, pressed: 500 px
+- piece 29 a.sc-a, rest: 453 px
+- piece 29 a.sc-a, hover: 449 px
+- piece 29 a.sc-a, focus: 453 px
+- piece 29 a.sc-a, pressed: 449 px
+- piece 30 a.sc-a, rest: 497 px
+- piece 30 a.sc-a, hover: 492 px
+- piece 30 a.sc-a, focus: 497 px
+- piece 30 a.sc-a, pressed: 492 px
+- piece 31 a.sc-a, rest: 566 px
+- piece 31 a.sc-a, hover: 563 px
+- piece 31 a.sc-a, focus: 566 px
+- piece 31 a.sc-a, pressed: 563 px
+- piece 32 a.sc-a, rest: 569 px, target 249×24 vs reference 249×23
+- piece 32 a.sc-a, hover: 560 px, target 249×24 vs reference 249×23
+- piece 32 a.sc-a, focus: 569 px, target 249×24 vs reference 249×23
+- piece 32 a.sc-a, pressed: 560 px, target 249×24 vs reference 249×23
+- piece 33 a.sc-a, rest: 783 px
+- piece 33 a.sc-a, hover: 775 px
+- piece 33 a.sc-a, focus: 783 px
+- piece 33 a.sc-a, pressed: 775 px
+- piece 34 a.sc-a, rest: 569 px
+- piece 34 a.sc-a, hover: 561 px
+- piece 34 a.sc-a, focus: 569 px
+- piece 34 a.sc-a, pressed: 561 px
+- piece .sc-week 0 li.sc-week, rest: 2140 px
+- piece .sc-week 1 li.sc-week, rest: 4373 px
+- piece .sc-week 2 li.sc-week, rest: 4168 px
+- piece .sc-week 3 li.sc-week, rest: 4990 px, target 786×195 vs reference 786×196
+- piece .sc-week 4 li.sc-week.sc-break, rest: 2477 px
+- piece .sc-week 5 li.sc-week, rest: 4092 px, target 786×168 vs reference 786×169
+- piece .sc-week 6 li.sc-week, rest: 4538 px, target 786×170 vs reference 786×169
+- piece .sc-week 7 li.sc-week, rest: 3613 px, target 786×170 vs reference 786×169
+- piece .sc-week 8 li.sc-week, rest: 5327 px, target 786×169 vs reference 786×170
+- piece .sc-week 9 li.sc-week, rest: 4165 px, target 786×168 vs reference 786×169
+- piece .sc-break 0 li.sc-week.sc-break, rest: 2477 px
+- piece #sh-side 0 #sh-side, rest: 14827 px, target 248×2508 vs reference 248×2486
+- piece #main 0 #main, rest: 119109 px, target 852×2452 vs reference 852×2430
+- piece #view-schedule 0 #view-schedule, rest: 119109 px, target 852×2452 vs reference 852×2430
+- piece #sc-hero 0 #sc-hero, rest: 22419 px, target 488×372 vs reference 488×349
+- piece #sc-what 0 #sc-what, rest: 328 px
+- piece #sc-count-l 0 #sc-count-l, rest: 38 px
+- piece #sc-count 0 #sc-count, rest: 161 px
+- piece #sc-h 0 #sc-h, rest: 98 px
+- piece #sc-groups 0 #sc-groups, rest: 30016 px, target 788×1801 vs reference 788×1802
+
+## schedule at 900
+
+- piece 7 button.wk-btn.wk-btn-accent, rest: 752 px
+- piece 7 button.wk-btn.wk-btn-accent, hover: 740 px
+- piece 7 button.wk-btn.wk-btn-accent, focus: 752 px
+- piece 7 button.wk-btn.wk-btn-accent, pressed: 685 px
+- piece 8 #sc-what, rest: 328 px
+- piece 8 #sc-what, hover: 316 px
+- piece 8 #sc-what, focus: 328 px
+- piece 8 #sc-what, pressed: 325 px
+- piece 9 a.sc-a, rest: 365 px
+- piece 9 a.sc-a, hover: 365 px
+- piece 9 a.sc-a, focus: 365 px
+- piece 9 a.sc-a, pressed: 365 px
+- piece 10 a.sc-a, rest: 587 px
+- piece 10 a.sc-a, hover: 584 px
+- piece 10 a.sc-a, focus: 587 px
+- piece 10 a.sc-a, pressed: 584 px
+- piece 11 a.sc-a, rest: 505 px
+- piece 11 a.sc-a, hover: 500 px
+- piece 11 a.sc-a, focus: 505 px
+- piece 11 a.sc-a, pressed: 500 px
+- piece 12 a.sc-a, rest: 453 px
+- piece 12 a.sc-a, hover: 449 px
+- piece 12 a.sc-a, focus: 453 px
+- piece 12 a.sc-a, pressed: 449 px
+- piece 13 a.sc-a, rest: 497 px
+- piece 13 a.sc-a, hover: 492 px
+- piece 13 a.sc-a, focus: 497 px
+- piece 13 a.sc-a, pressed: 492 px
+- piece 14 a.sc-a, rest: 566 px
+- piece 14 a.sc-a, hover: 563 px
+- piece 14 a.sc-a, focus: 566 px
+- piece 14 a.sc-a, pressed: 563 px
+- piece 15 a.sc-a, rest: 569 px
+- piece 15 a.sc-a, hover: 560 px
+- piece 15 a.sc-a, focus: 569 px
+- piece 15 a.sc-a, pressed: 560 px
+- piece 16 a.sc-a, rest: 783 px
+- piece 16 a.sc-a, hover: 775 px
+- piece 16 a.sc-a, focus: 783 px
+- piece 16 a.sc-a, pressed: 775 px
+- piece 17 a.sc-a, rest: 569 px
+- piece 17 a.sc-a, hover: 561 px
+- piece 17 a.sc-a, focus: 569 px
+- piece 17 a.sc-a, pressed: 561 px
+- piece .sc-week 0 li.sc-week, rest: 1614 px
+- piece .sc-week 1 li.sc-week, rest: 4396 px
+- piece .sc-week 2 li.sc-week, rest: 4347 px
+- piece .sc-week 3 li.sc-week, rest: 4174 px, target 834×196 vs reference 834×195
+- piece .sc-week 4 li.sc-week.sc-break, rest: 2620 px
+- piece .sc-week 5 li.sc-week, rest: 4215 px, target 834×169 vs reference 834×168
+- piece .sc-week 6 li.sc-week, rest: 4384 px, target 834×169 vs reference 834×170
+- piece .sc-week 7 li.sc-week, rest: 4533 px, target 834×170 vs reference 834×169
+- piece .sc-week 8 li.sc-week, rest: 5611 px
+- piece .sc-week 9 li.sc-week, rest: 4164 px, target 834×169 vs reference 834×168
+- piece .sc-break 0 li.sc-week.sc-break, rest: 2620 px
+- piece #main 0 #main, rest: 122099 px, target 900×2417 vs reference 900×2394
+- piece #view-schedule 0 #view-schedule, rest: 122099 px, target 900×2417 vs reference 900×2394
+- piece #sc-hero 0 #sc-hero, rest: 23715 px, target 536×336 vs reference 536×314
+- piece #sc-what 0 #sc-what, rest: 328 px
+- piece #sc-count-l 0 #sc-count-l, rest: 235 px, target 235×15 vs reference 235×14
+- piece #sc-count 0 #sc-count, rest: 235 px, target 235×57 vs reference 235×56
+- piece #sc-h 0 #sc-h, rest: 98 px
+- piece #sc-groups 0 #sc-groups, rest: 30720 px, target 836×1802 vs reference 836×1801
+
+## schedule at 820
+
+- piece .sc-week 0 li.sc-week, rest: 763 px
+- piece .sc-week 1 li.sc-week, rest: 356 px
+- piece .sc-week 8 li.sc-week, rest: 1466 px
+- piece #main 0 #main, rest: 3352 px
+- piece #view-schedule 0 #view-schedule, rest: 3352 px
+- piece #sc-hero 0 #sc-hero, rest: 767 px
+- piece #sc-groups 0 #sc-groups, rest: 2585 px
+
+## schedule at 640
+
+- piece .sc-week 0 li.sc-week, rest: 763 px
+- piece .sc-week 1 li.sc-week, rest: 347 px
+- piece .sc-week 8 li.sc-week, rest: 1466 px
+- piece #main 0 #main, rest: 3343 px
+- piece #view-schedule 0 #view-schedule, rest: 3343 px
+- piece #sc-hero 0 #sc-hero, rest: 767 px
+- piece #sc-groups 0 #sc-groups, rest: 2576 px
+
+## schedule at 390
+
+- piece 11 a.sc-a, rest: 505 px
+- piece 11 a.sc-a, focus: 505 px
+- piece 12 a.sc-a, rest: 453 px
+- piece 12 a.sc-a, focus: 453 px
+- piece 13 a.sc-a, rest: 497 px
+- piece 13 a.sc-a, focus: 497 px
+- piece 14 a.sc-a, rest: 566 px
+- piece 14 a.sc-a, focus: 566 px
+- piece 16 a.sc-a, rest: 0 px, target 264×46 vs reference 264×47
+- piece 16 a.sc-a, focus: 0 px, target 264×46 vs reference 264×47
+- piece 17 a.sc-a, rest: 569 px
+- piece 17 a.sc-a, focus: 569 px
+- piece .sc-week 0 li.sc-week, rest: 733 px
+- piece .sc-week 1 li.sc-week, rest: 2822 px, target 356×256 vs reference 356×236
+- piece .sc-week 2 li.sc-week, rest: 3188 px
+- piece .sc-week 3 li.sc-week, rest: 2848 px, target 356×325 vs reference 356×326
+- piece .sc-week 4 li.sc-week.sc-break, rest: 1864 px
+- piece .sc-week 5 li.sc-week, rest: 2165 px, target 356×257 vs reference 356×258
+- piece .sc-week 6 li.sc-week, rest: 2952 px, target 356×259 vs reference 356×258
+- piece .sc-week 7 li.sc-week, rest: 1358 px
+- piece .sc-week 8 li.sc-week, rest: 2739 px, target 356×320 vs reference 356×321
+- piece .sc-week 9 li.sc-week, rest: 1964 px, target 356×257 vs reference 356×258
+- piece .sc-break 0 li.sc-week.sc-break, rest: 1864 px
+- piece #main 0 #main, rest: 67375 px, target 390×3645 vs reference 390×3626
+- piece #view-schedule 0 #view-schedule, rest: 67375 px, target 390×3645 vs reference 390×3626
+- piece #sc-hero 0 #sc-hero, rest: 763 px
+- piece #sc-groups 0 #sc-groups, rest: 66972 px, target 358×2768 vs reference 358×2749
+
+## community at 1440
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+
+## community at 1280
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+
+## community at 1100
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 20 a, rest: 108 px
+- piece 20 a, hover: 102 px
+- piece 20 a, focus: 108 px
+- piece 20 a, pressed: 106 px
+- piece #sh-side 0 #sh-side, rest: 15148 px, target 248×1166 vs reference 248×1148
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+- piece #sh-here 0 #sh-here, rest: 103 px
+
+## community at 900
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 783×57 vs reference 685×33
+
+## community at 820
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+
+## community at 640
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 310 px
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 316 px
+- piece 3 a, rest: 7 px
+- piece 3 a, focus: 7 px
+- piece #sh-next 0 #sh-next, rest: 1287 px
+
+## community at 390
+
+- piece #sh-next 0 #sh-next, rest: 347 px
+
+## thread at 1440
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 949 px, target 320×172 vs reference 320×151
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 1515 px
+- piece #view-thread 0 #view-thread, rest: 1515 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 637 px, target 318×119 vs reference 318×98
+
+## thread at 1280
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 10 px
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 9 px
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 10 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 949 px, target 320×172 vs reference 320×151
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-next 0 #sh-next, rest: 959 px, target 784×33 vs reference 685×33
+- piece #main 0 #main, rest: 1515 px
+- piece #view-thread 0 #view-thread, rest: 1515 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 637 px, target 318×119 vs reference 318×98
+
+## thread at 1100
+
+- piece 19 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 19 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 20 a, rest: 108 px
+- piece 20 a, hover: 102 px
+- piece 20 a, focus: 108 px
+- piece 20 a, pressed: 106 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 320 px
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-side 0 #sh-side, rest: 14703 px, target 248×1301 vs reference 248×1283
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+- piece #sh-here 0 #sh-here, rest: 103 px
+- piece #main 0 #main, rest: 1206 px
+- piece #view-thread 0 #view-thread, rest: 1206 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 320 px
+
+## thread at 900
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 320 px
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 783×57 vs reference 685×33
+- piece #main 0 #main, rest: 1206 px
+- piece #view-thread 0 #view-thread, rest: 1206 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 320 px
+
+## thread at 820
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, hover: 442 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 446 px, target 175×32 vs reference 175×33
+- piece 2 button.wk-btn.wk-btn-ghost, pressed: 0 px, target 168×32 vs reference 168×31
+- piece 3 a, rest: 108 px
+- piece 3 a, hover: 102 px
+- piece 3 a, focus: 108 px
+- piece 3 a, pressed: 106 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 320 px
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-next 0 #sh-next, rest: 2899 px, target 703×57 vs reference 685×33
+- piece #main 0 #main, rest: 1206 px
+- piece #view-thread 0 #view-thread, rest: 1206 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 320 px
+
+## thread at 640
+
+- piece 2 button.wk-btn.wk-btn-ghost, rest: 310 px
+- piece 2 button.wk-btn.wk-btn-ghost, focus: 316 px
+- piece 3 a, rest: 7 px
+- piece 3 a, focus: 7 px
+- piece .wk-card 0 #cm-first, rest: 267 px
+- piece .wk-card 1 #cm-replies, rest: 619 px
+- piece .wk-card 3 section.wk-card, rest: 320 px
+- piece .cm-post 0 article.cm-post, rest: 267 px
+- piece .cm-post 1 article.cm-post, rest: 256 px
+- piece .cm-post 2 article.cm-post, rest: 363 px
+- piece #sh-next 0 #sh-next, rest: 1287 px
+- piece #main 0 #main, rest: 1206 px
+- piece #view-thread 0 #view-thread, rest: 1206 px
+- piece #cm-first 0 #cm-first, rest: 267 px
+- piece #cm-replies 0 #cm-replies, rest: 619 px
+- piece #cm-about 0 #cm-about, rest: 320 px
+
+## thread at 390
+
+- piece 6 button.wk-btn.wk-btn-ghost, rest: 63 px
+- piece 6 button.wk-btn.wk-btn-ghost, focus: 69 px
+- piece 7 button.wk-btn.wk-btn-ghost, rest: 136 px
+- piece 7 button.wk-btn.wk-btn-ghost, focus: 141 px
+- piece .wk-card 0 #cm-first, rest: 4457 px, target 358×213 vs reference 358×196
+- piece .wk-card 1 #cm-replies, rest: 10515 px, target 358×453 vs reference 358×420
+- piece .wk-card 2 section.wk-card.aim-rise, rest: 3233 px, target 358×238 vs reference 358×237
+- piece .wk-card 3 section.wk-card, rest: 1613 px, target 358×168 vs reference 358×148
+- piece .cm-post 0 article.cm-post, rest: 4115 px, target 356×211 vs reference 356×194
+- piece .cm-post 1 article.cm-post, rest: 5002 px, target 356×214 vs reference 356×198
+- piece .cm-post 2 article.cm-post, rest: 3928 px, target 356×187 vs reference 356×170
+- piece #sh-next 0 #sh-next, rest: 347 px
+- piece #main 0 #main, rest: 35000 px, target 390×1386 vs reference 390×1315
+- piece #view-thread 0 #view-thread, rest: 35000 px, target 390×1386 vs reference 390×1315
+- piece #cm-first 0 #cm-first, rest: 4457 px, target 358×213 vs reference 358×196
+- piece #cm-replies 0 #cm-replies, rest: 10164 px, target 358×453 vs reference 358×420
+- piece #cm-reply-h 0 #cm-reply-h, rest: 91 px, target 50×25 vs reference 50×24
+- piece #cm-about 0 #cm-about, rest: 1842 px, target 356×115 vs reference 356×94
+

@@ -1,0 +1,608 @@
+{
+  "target": {
+    "week": "http://127.0.0.1:4300/learn/week/0",
+    "schedule": "http://127.0.0.1:4300/learn/schedule",
+    "community": "http://127.0.0.1:4300/learn/community",
+    "thread": "http://127.0.0.1:4300/learn/community/2",
+    "turnin": null
+  },
+  "reference": "http://localhost:4184/mockup/index.html",
+  "clock": "2026-11-20T21:18:00Z",
+  "frames": [
+    0,
+    60,
+    120,
+    240,
+    400,
+    560,
+    900
+  ],
+  "when": "2026-11-26T01:18:28.832Z",
+  "report": [
+    {
+      "part": "props",
+      "view": "week",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "arrival",
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "filter-operator",
+      "different": [
+        "0 ms: 2439 px",
+        "60 ms: 3220 px",
+        "120 ms: 3347 px",
+        "240 ms: 3071 px",
+        "400 ms: 3070 px",
+        "560 ms: 3079 px",
+        "900 ms: 3079 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "filter-operator",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 3079 px",
+        "prefers-reduced-motion, 1.2 s after the start: 3079 px",
+        ".aim-reduced, 50 ms after the start: 3079 px",
+        ".aim-reduced, 1.2 s after the start: 3079 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-open",
+      "different": [
+        "0 ms: 473 px",
+        "60 ms: 473 px",
+        "120 ms: 473 px",
+        "240 ms: 473 px",
+        "400 ms: 473 px",
+        "560 ms: 473 px",
+        "900 ms: 473 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 473 px",
+        "prefers-reduced-motion, 1.2 s after the start: 473 px",
+        ".aim-reduced, 50 ms after the start: 473 px",
+        ".aim-reduced, 1.2 s after the start: 473 px"
+      ],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-close",
+      "different": [
+        "0 ms: 473 px",
+        "60 ms: 473 px",
+        "120 ms: 473 px",
+        "240 ms: 473 px",
+        "400 ms: 473 px",
+        "560 ms: 473 px",
+        "900 ms: 473 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "accordion-close",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 473 px",
+        "prefers-reduced-motion, 1.2 s after the start: 473 px",
+        ".aim-reduced, 50 ms after the start: 473 px",
+        ".aim-reduced, 1.2 s after the start: 473 px"
+      ],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-collapse",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-collapse",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-expand",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "rail-expand",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-open",
+      "different": [
+        "0 ms: 6313 px",
+        "60 ms: 7467 px",
+        "120 ms: 7913 px",
+        "240 ms: 8401 px",
+        "400 ms: 8415 px",
+        "560 ms: 8454 px",
+        "900 ms: 8454 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 8454 px",
+        "prefers-reduced-motion, 1.2 s after the start: 8454 px",
+        ".aim-reduced, 50 ms after the start: 8454 px",
+        ".aim-reduced, 1.2 s after the start: 8454 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-close",
+      "different": [
+        "0 ms: 9255 px",
+        "60 ms: 9255 px",
+        "120 ms: 8663 px",
+        "240 ms: 7268 px",
+        "400 ms: 7309 px",
+        "560 ms: 7268 px",
+        "900 ms: 7268 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "calendar-close",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 7268 px",
+        "prefers-reduced-motion, 1.2 s after the start: 7268 px",
+        ".aim-reduced, 50 ms after the start: 7268 px",
+        ".aim-reduced, 1.2 s after the start: 7268 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-in",
+      "different": [
+        "240 ms: 2382 px",
+        "400 ms: 26784 px",
+        "560 ms: 28288 px",
+        "900 ms: 28239 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-in",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 28239 px",
+        "prefers-reduced-motion, 1.2 s after the start: 28239 px",
+        ".aim-reduced, 50 ms after the start: 28239 px",
+        ".aim-reduced, 1.2 s after the start: 28239 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-out",
+      "different": [
+        "0 ms: 28239 px",
+        "60 ms: 26509 px",
+        "120 ms: 18740 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 1440,
+      "motion": "form-out",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "schedule",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "schedule",
+      "width": 1440,
+      "motion": "schedule-calendar-open",
+      "different": [
+        "0 ms: 767 px",
+        "60 ms: 767 px",
+        "120 ms: 767 px",
+        "240 ms: 767 px",
+        "400 ms: 767 px",
+        "560 ms: 767 px",
+        "900 ms: 767 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "schedule",
+      "width": 1440,
+      "motion": "schedule-calendar-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 767 px",
+        "prefers-reduced-motion, 1.2 s after the start: 767 px",
+        ".aim-reduced, 50 ms after the start: 767 px",
+        ".aim-reduced, 1.2 s after the start: 767 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "community",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "community",
+      "width": 1440,
+      "motion": "compose-in",
+      "different": [
+        "400 ms: 8 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "community",
+      "width": 1440,
+      "motion": "compose-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "thread",
+      "width": 1440,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "thread",
+      "width": 1440,
+      "motion": "reply-focus",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "thread",
+      "width": 1440,
+      "motion": "reply-focus",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "week",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "arrival",
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "filter-operator",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "filter-operator",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-open",
+      "different": [
+        "0 ms: 487 px",
+        "60 ms: 475 px",
+        "120 ms: 1339 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 818 px",
+        ".aim-reduced, 50 ms after the start: 818 px"
+      ],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-close",
+      "different": [
+        "120 ms: 473 px",
+        "240 ms: 487 px",
+        "400 ms: 487 px",
+        "560 ms: 487 px",
+        "900 ms: 487 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "accordion-close",
+      "different": [
+        "prefers-reduced-motion, 1.2 s after the start: 487 px",
+        ".aim-reduced, 1.2 s after the start: 487 px"
+      ],
+      "note": "still moving at 50 ms (as the mockup): prefers-reduced-motion on the target, prefers-reduced-motion on the reference, .aim-reduced on the target, .aim-reduced on the reference"
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-open",
+      "different": [
+        "0 ms: 1467 px",
+        "60 ms: 1467 px",
+        "120 ms: 1467 px",
+        "240 ms: 1467 px",
+        "400 ms: 1467 px",
+        "560 ms: 1467 px",
+        "900 ms: 1467 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 1467 px",
+        "prefers-reduced-motion, 1.2 s after the start: 1467 px",
+        ".aim-reduced, 50 ms after the start: 1467 px",
+        ".aim-reduced, 1.2 s after the start: 1467 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-close",
+      "different": [
+        "0 ms: 1467 px",
+        "60 ms: 1467 px",
+        "120 ms: 1467 px",
+        "240 ms: 1467 px",
+        "400 ms: 1467 px",
+        "560 ms: 1467 px",
+        "900 ms: 1467 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "calendar-close",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 1467 px",
+        "prefers-reduced-motion, 1.2 s after the start: 1467 px",
+        ".aim-reduced, 50 ms after the start: 1467 px",
+        ".aim-reduced, 1.2 s after the start: 1467 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "nav-menu-open",
+      "different": [
+        "0 ms: 347 px",
+        "60 ms: 347 px",
+        "120 ms: 347 px",
+        "240 ms: 347 px",
+        "400 ms: 347 px",
+        "560 ms: 347 px",
+        "900 ms: 347 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "nav-menu-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 347 px",
+        "prefers-reduced-motion, 1.2 s after the start: 347 px",
+        ".aim-reduced, 50 ms after the start: 347 px",
+        ".aim-reduced, 1.2 s after the start: 347 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "form-in",
+      "different": [
+        "240 ms: 6130 px",
+        "400 ms: 25647 px",
+        "560 ms: 26511 px",
+        "900 ms: 26496 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "form-in",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 26496 px",
+        "prefers-reduced-motion, 1.2 s after the start: 26496 px",
+        ".aim-reduced, 50 ms after the start: 26496 px",
+        ".aim-reduced, 1.2 s after the start: 26496 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "frames",
+      "view": "week",
+      "width": 390,
+      "motion": "form-out",
+      "different": [
+        "0 ms: 26496 px",
+        "60 ms: 24990 px",
+        "120 ms: 16044 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "week",
+      "width": 390,
+      "motion": "form-out",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "schedule",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "schedule",
+      "width": 390,
+      "motion": "schedule-calendar-open",
+      "different": [
+        "0 ms: 763 px",
+        "60 ms: 763 px",
+        "120 ms: 763 px",
+        "240 ms: 763 px",
+        "400 ms: 763 px",
+        "560 ms: 763 px",
+        "900 ms: 763 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "schedule",
+      "width": 390,
+      "motion": "schedule-calendar-open",
+      "different": [
+        "prefers-reduced-motion, 50 ms after the start: 763 px",
+        "prefers-reduced-motion, 1.2 s after the start: 763 px",
+        ".aim-reduced, 50 ms after the start: 763 px",
+        ".aim-reduced, 1.2 s after the start: 763 px"
+      ],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "community",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "community",
+      "width": 390,
+      "motion": "compose-in",
+      "different": [
+        "120 ms: 1 px"
+      ]
+    },
+    {
+      "part": "reduced",
+      "view": "community",
+      "width": 390,
+      "motion": "compose-in",
+      "different": [],
+      "note": ""
+    },
+    {
+      "part": "props",
+      "view": "thread",
+      "width": 390,
+      "different": []
+    },
+    {
+      "part": "frames",
+      "view": "thread",
+      "width": 390,
+      "motion": "reply-focus",
+      "different": []
+    },
+    {
+      "part": "reduced",
+      "view": "thread",
+      "width": 390,
+      "motion": "reply-focus",
+      "different": [],
+      "note": ""
+    }
+  ]
+}
