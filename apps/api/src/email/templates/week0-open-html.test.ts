@@ -64,6 +64,32 @@ describe('the Week 0 Is Open email: snapshots', () => {
   });
 });
 
+// R-5 Phase 4 (D-260, PLAN.md § 10.4): January's, beside December's, which stays as it is. January's Week 0 is due Sat,
+// Jan 2, 2027 at 12:00 PM MT and its first live build is Tue, Jan 5 (Connor's January, read through its run).
+describe('the Week 0 Is Open email: January’s snapshots, beside December’s', () => {
+  const JAN = input({ week0DueAt: Date.parse('2027-01-02T19:00:00Z'), liveBuildAt: Date.parse('2027-01-05T19:00:00Z'), cohortName: 'January 2027 Cohort' });
+  it('renders the HTML', async () => {
+    await expect(week0OpenHtml(JAN)).toMatchFileSnapshot('./__snapshots__/week0-open-january.html');
+  });
+  it('renders the plain text', async () => {
+    await expect(week0OpenText(JAN)).toMatchFileSnapshot('./__snapshots__/week0-open-january.txt');
+  });
+  it('names January where Connor’s copy names December, and changes no other word', () => {
+    const jan = week0OpenHtml(JAN);
+    expect(visible(jan)).toContain('Welcome to the January Cohort: Week 0 Is Open');
+    expect(visible(jan)).toContain('Amplified AI Accelerator · January 2027 Cohort');
+    expect(visible(jan)).toContain('the founding members of the January 2027 Cohort');
+    expect(jan).not.toContain('December');
+    // Every word but January's name and the dates is December's.
+    const words = (h: string) => visible(h).replace(/(December|January) (2026|2027) Cohort|(December|January) Cohort/g, 'X').replace(/[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}(, \d{4})?/g, 'D');
+    expect(words(jan)).toBe(words(week0OpenHtml(input({ week0DueAt: Date.parse('2027-01-02T19:00:00Z'), liveBuildAt: Date.parse('2027-01-05T19:00:00Z') }))));
+    expectMtCt(visible(jan));
+  });
+  it('escapes the cohort’s name', () => {
+    expect(week0OpenHtml(input({ cohortName: 'January <b>2027</b>' }))).not.toContain('<b>');
+  });
+});
+
 describe('the Week 0 Is Open email: times from instants, MT first', () => {
   it('says Week 0 is due Mon, Nov 30, 2026 at 12:00 PM MT / 1:00 PM CT, from 2026-11-30T19:00:00Z', () => {
     expect(visible(html)).toContain('Week 0 is due Mon, Nov 30, 2026 at 12:00 PM MT / 1:00 PM CT.');
