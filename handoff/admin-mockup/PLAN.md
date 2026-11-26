@@ -33,6 +33,10 @@ Phases 1 and 2 can start once you have read this. Neither needs an answer above.
 **Nov 25, 2026.** Connor answered Q-21, Q-22, Q-26, Q-29, Q-30, Q-33 and part of Q-31, and amended the plan. Section 10
 holds both. Where section 10 and an earlier section differ, section 10 wins.
 
+**Nov 26, 2026.** Connor decided that January is a founding cohort (`founding: true`, like December), with its new lookup
+keys still made by hand in Stripe, and that "jan27" is added to GoHighLevel's AI Cohort field outside the code (10.1,
+10.4, 10.5, 10.9).
+
 ---
 
 ## 2. Where the spec, the mockup and the code disagree
@@ -518,13 +522,13 @@ changed by this section, except where 10.9 asks.
 
 | # | Answer | Lands in |
 |---|---|---|
-| Q-21 | January's price is not set. Connor or Spring create it by hand in Stripe under **new** lookup keys (not `cohort_founding_full` or `cohort_founding_two_pay`). Whether January is "founding" is undecided, so nothing hard-codes founding for January. | Phase 5 |
+| Q-21 | January's price is not set. Connor or Spring create it by hand in Stripe under **new** lookup keys (not `cohort_founding_full` or `cohort_founding_two_pay`); the code never creates a price, a lookup key or a Payment Link. **January is a founding cohort** (Connor, Nov 26): `founding: true`, like December, held as a setting on the cohort, never a constant. | Phase 5 |
 | Q-22 | A seat's included time ends **90 days after the last build**: May 10, 2027 on the sample schedule (last build Tue, Feb 9). It is a date stored on the cohort, prefilled to last build + 90 days, and frozen once the first seat sells. | Phases 3 and 5 |
 | Q-26 | Dates and release gets **"Welcome email sends at (MT)"**, an editable date and time. The cadence line is written from the shape on every shape save, so it has no field of its own. | Phase 3 |
 | Q-29 | After a cohort's last session and until it is archived, its status reads **"Finished"**. | Phase 3 |
 | Q-30 | The price is read-only, from Stripe. The dialog says: "Prices and Payment Links are made in Stripe. This shows Stripe's price for this cohort." | Phase 5 |
 | Q-31, in part | Week 0's Course page keeps Media, every video field and "Show as the LMS Tour on Sign-In" exactly as today. Week 0 keeps the Intake and Stack Card editors as a seventh section, "Forms". The other placements in 6.1 and 6.2 stand as proposed until Connor says otherwise. | Phase 6 |
-| Q-33 | January sends a new value in GoHighLevel's Cohort field. All GoHighLevel workflows are off, the code writes nothing else to GoHighLevel, and Connor and Spring set GoHighLevel up. | Phase 4 |
+| Q-33 | January sends a new value in GoHighLevel's Cohort field: "jan27". Connor or Spring add "jan27" as an option of the AI Cohort field in GoHighLevel, outside the code (Connor, Nov 26). All GoHighLevel workflows are off, and the code writes nothing else to GoHighLevel. | Phase 4 |
 
 Still open: Q-27 (the "Every Sunday" line) and Q-28 (December's shape, derived or stored), which Phase 3 needs; Q-23,
 Q-24, Q-25 and Q-20. Q-32 is read as **yes**: the amendment adds to the December test and asks for January's snapshot
@@ -586,17 +590,23 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 - **Snapshot tests for January** sit beside December's, which stay unchanged.
 - **GoHighLevel** (Q-33): `orderFieldValues` (`integrations/ghl.ts:589`) sends the plan's cohort instead of
   `ACCELERATOR_COHORT_ID`. A new cohort's id is random (`c_…`), so the value is the cohort's month and two-digit year
-  in its zone: "dec26" for December, the value it sends today, and "jan27" for January. Connor and Spring add "jan27" in
-  GoHighLevel if the field is a dropdown. The code writes nothing else to GoHighLevel, and every workflow stays off.
+  in its zone: "dec26" for December, the value it sends today, and "jan27" for January. "jan27" is added as an option
+  of the AI Cohort field in GoHighLevel outside the code, by Connor or Spring (Connor, Nov 26). The code writes nothing
+  else to GoHighLevel, and every workflow stays off.
 
 ### 10.5 Phase 5: selling a seat
 
 - **The price is read-only.** The cohort holds its lookup keys; Revenue and the cohort show Stripe's amount for each
   (`PriceBook`). The typed price field and the typed-vs-Stripe mismatch rule are gone. The code never creates a Stripe
   price or a Payment Link.
-- **January's lookup keys are new** and made by hand in Stripe. Today's carts are `founding: true` and carry the
-  founding keys; January's founding status is still undecided (Connor, 10.9): it is a setting on the cohort, decided before Phase 5,
-  never a constant.
+- **January's lookup keys are new** and made by hand in Stripe by Connor or Spring; the code reads them and never
+  creates one. Today's carts are `founding: true` and carry the founding keys. **January is founding too** (Connor,
+  Nov 26): `founding: true`, held as a setting on the cohort, never a constant, with its own new keys.
+- **What founding does in the code today** (`packages/core/src/offer.ts` `Cart.founding`, `billing/config.ts`
+  `foundingOpen`): a founding cart sells only until `FOUNDING_CLOSES_AT`, one instant for the whole offer (by default
+  Mon, Nov 30, 2026, 11:59 PM MT; production's value is not readable from here), and the seat cap turns a link back on
+  only while founding is open. Read as it is, January's founding carts would close with December's. Phase 5 needs a
+  founding close for each cohort, read from the cohort (Q-34, 10.9).
 - **Link addresses live on the cohort record**, not in Railway variables (today `PAYMENT_LINK_COHORT_FULL` and
   `PAYMENT_LINK_COHORT_TWO_PAY`). December's are copied onto its record by Phase 5's data step, with its lookup keys,
   seats and included-time date (2027-05-04).
@@ -683,4 +693,8 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 5. **The offer page's "Today and again in 30 days."** *Fix it: the second payment comes one month after the first,
    the same day next month. A separate small pull request; `/agreement` untouched.* Done in #277: "Today and again in
    one month", on /offer, /pricing and /team-build, which share the caption.
-6. **January's founding status.** *Still undecided* (10.5).
+6. **January's founding status.** *Still undecided* on Nov 25. *January is founding* (Connor, Nov 26): `founding:
+   true`, like December, with new lookup keys made by hand (10.1, 10.5).
+7. **Q-34, before Phase 5: when January's founding closes.** Today one `FOUNDING_CLOSES_AT` closes every founding cart,
+   December's and January's alike (10.5). Does January's founding close on a date of its own, held on the cohort, and
+   which date?
