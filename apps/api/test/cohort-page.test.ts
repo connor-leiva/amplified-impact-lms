@@ -159,6 +159,20 @@ describe('the cohort facts route and Open enrollment', () => {
     const [jan] = await handle.select().from(cohorts).where(eq(cohorts.id, id));
     expect(jan!.status).toBe('draft');
   });
+
+  it('answers Open enrollment on December as before, though the data step wrote its run', async () => {
+    const [before] = await handle.select().from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID));
+    expect(before!.run, 'the data step wrote December’s run').not.toBeNull();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/mutate/openEnrollment',
+      headers: { cookie: await app.signInAs('st_owner'), 'content-type': 'application/json' },
+      payload: JSON.stringify({ cohortId: DEFAULT_COHORT_ID }),
+    });
+    expect((res.json() as { error: string }).error).toBe('Only a draft cohort can open for enrollment.');
+    const [after] = await handle.select().from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID));
+    expect(after!.status).toBe(before!.status);
+  });
 });
 
 describe('Preview, and the last cohort looked at', () => {

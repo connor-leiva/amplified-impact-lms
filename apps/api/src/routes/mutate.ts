@@ -279,11 +279,12 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
 
           const before = await loadDb(tx);
           // D-255 (R-5 Phase 3): Open enrollment is refused, with its reason, until "Before it opens" is done (PLAN.md
-          // § 10.3: one function answers both). For a cohort that owns its run; the prototype's cohorts without one
-          // (the demo seed's, which the oracle pins) open as they always have.
+          // § 10.3: one function answers both). For a draft cohort that owns its run; the prototype's cohorts without one
+          // (the demo seed's, which the oracle pins) open as they always have, and a cohort past its draft (December,
+          // whose run the data step writes) keeps the mutation's own answer, word for word.
           if (name === 'openEnrollment') {
             const target = before.cohorts.find((c) => c.id === (parsed.data as { cohortId: string }).cohortId);
-            if (target?.run) {
+            if (target?.run && target.status === 'draft') {
               const refusal = openEnrollmentRefusal(before, target.id, await cohortFactsOf(tx, target.id));
               if (refusal) return { ok: false, status: 422, body: { error: refusal } };
             }
