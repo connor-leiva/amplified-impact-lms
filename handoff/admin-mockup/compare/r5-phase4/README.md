@@ -4,6 +4,8 @@ The learner portal as **January's test team** and as **a December team**, side b
 database. The fixture build has no course API, so these are the http build: Chromium at device scale 2, America/Denver,
 each page its whole length, at **1280** and **390**. Taken on `main` @ e3a25d6 with this branch rebased on it, so they
 show main's look: LMS v3 for every learner type (D-257) and each time on one line, "12:00 PM MT / 1:00 PM CT" (D-259).
+Retaken the same way on `main` @ 4c9e4d58 (Phase 3, D-255) with this branch rebased on it: all 16 are pixel-identical
+to these, so they stand.
 
 | File | Page | What it shows |
 |---|---|---|
@@ -22,8 +24,8 @@ show main's look: LMS v3 for every learner type (D-257) and each time on one lin
    (`applyDataMigrations`), and December's preview opening Mon, Nov 23 at 9:00 AM MT (the December test's own choice).
 2. A December team, bought in full on Nov 14 and provisioned by the webhook's own function (`provisionOrder`).
 3. Connor's January, made on Nov 25 through the real admin action (`POST /api/admin/actions/createCohortFromShape`:
-   six weeks, Tuesday live build and Thursday office hours at 12:00 PM MT, Week 1 opening Sun, Jan 3). It stores no
-   words of its own yet, so it reads the program's (December's row), as PLAN.md § 10.3 drafts a new cohort's words.
+   six weeks, Tuesday live build and Thursday office hours at 12:00 PM MT, Week 1 opening Sun, Jan 3). New cohort
+   drafts its words as December's (`cohorts.words`, D-255), as PLAN.md § 10.3 says, and its learners read that draft.
 4. The test team, placed in January by hand: the deploy's own step, `seedTestMember`, with
    `SEED_TEST_MEMBER_KIND=accelerator` and `SEED_TEST_MEMBER_COHORT=<January's id>`. A test account with early access
    (D-202), so every January week is open to it; it is no seat, and nothing is sent to it or to GoHighLevel.
@@ -45,4 +47,5 @@ read their cohort the same way.
 - Words that are lesson content still name December where the lesson does: Week 0's outcome "Every team at the same
   starting line by Mon, Nov 30", and Week 1's step "Save the live build" (Wed, Dec 2). The spec leaves lesson content
   to Connor and Spring's read before January opens (§ 8); D-261 lists both.
-- January's promise, how it works and holiday note are December's until January stores its own (Phase 3's Edit words).
+- January's promise, how it works and holiday note are New cohort's draft, December's three, until staff save January's
+  own in Edit words (D-255).
