@@ -16,8 +16,8 @@ import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseKitItem, LearnerCourseWeek, LockedCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { CourseSkill } from '@ai/core/course-types';
-import { cohortOfViewer, duration, joinableSession, progressOnModule, sessionEndsAt, sessionPhase, stepCount, upcomingSessions, weekState, weekSteps } from '@ai/core/learner';
-import { weekModuleId } from '@ai/core/cohort-learner';
+import { duration, joinableSession, progressOnModule, sessionEndsAt, sessionPhase, stepCount, upcomingSessions, weekState, weekSteps } from '@ai/core/learner';
+import { viewWeekModules } from '@ai/core/cohort-learner';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
@@ -126,12 +126,13 @@ export function weekStatusText(r: Pick<WeekRow, 'open'>, key: 'not_started' | 'b
   return r.open?.statusLabels?.[key]?.trim() || fallback;
 }
 
-export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'> & Partial<Pick<Db, 'cohorts'>>, me: Learner | null): WeekRow[] {
-  // R-5 Phase 4 (D-261): a week's number is the viewer's cohort's (`GET /api/course` numbers them so); its module is
-  // that cohort's week N (`weekModuleId`).
-  const cohort = db.cohorts ? cohortOfViewer({ cohorts: db.cohorts }, me) : undefined;
+export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'>, me: Learner | null): WeekRow[] {
+  // R-5 Phase 4 (D-261): a week's number is the viewer's cohort's (`GET /api/course` numbers them so), and its module is
+  // the same place among the snapshot's course weeks, which are that cohort's (`viewWeekModules`). A snapshot without
+  // them (the prototype's fixture) reads the curriculum's ids, as before.
+  const ids = viewWeekModules(p.course.weeks.map((w) => w.week), db.modules);
   return p.course.weeks.map((w: LearnerCourseWeek): WeekRow => {
-    const moduleId = weekModuleId(cohort, w.week) ?? acceleratorModuleId(w.week);
+    const moduleId = ids?.get(w.week) ?? acceleratorModuleId(w.week);
     const module = db.modules.find((m) => m.id === moduleId);
     if (isLockedWeek(w)) {
       return {

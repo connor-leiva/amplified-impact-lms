@@ -9,9 +9,8 @@ import { Link, Navigate, useParams } from 'react-router';
 import type { LocalChecks } from '@ai/core/checklist';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import { localToggle, localWatch } from '@ai/core/checklist';
-import { weekModuleId } from '@ai/core/cohort-learner';
 import { intakeFileIds, mayEditIntake } from '@ai/core/intake';
-import { cohortOfViewer, learnerOf } from '@ai/core/learner';
+import { learnerOf } from '@ai/core/learner';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseIntake, SeatCard } from '@ai/core/course-types';
 import { seatCardAskOf, seatCardRole } from '@ai/core/seat-card';
@@ -339,8 +338,9 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   // requests per check, which helped spend § 9.4's per-minute budget.
   const meId = me?.id ?? null;
   const meRole = me?.role ?? null;
-  // R-5 Phase 4 (D-261): the week's module in the learner's own cohort (its run's week N).
-  const weekModule = week === null ? null : (weekModuleId(cohortOfViewer(db, me), week) ?? acceleratorModuleId(week));
+  // R-5 Phase 4 (D-261): the week's module in the learner's own cohort (its week row's, `weekRows`).
+  const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
+  const weekModule = week === null ? null : (rows.find((r) => r.week === week)?.moduleId ?? acceleratorModuleId(week));
   useEffect(() => {
     if (isFixture || staff || preview || week === null || !meId || !meRole || !mayEditIntake(meRole)) return;
     let stop = false;
@@ -376,7 +376,6 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
       stop = true;
     };
   }, [staff, preview, week, weekModule, meId, meRole]);
-  const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
   const vm = stepVM(course.payload, row, step, viewer.actor, now, {

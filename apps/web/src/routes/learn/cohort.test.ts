@@ -2,10 +2,14 @@
 // own way (its Week 3 is the curriculum's Week 4) shows that numbering everywhere a week's number turns into a module:
 // the week rows and their progress, an old `/employees/:id` address, and the replays; its Schedule's calendar file,
 // the vault's lock and the course's next opening are its own. December's are as before.
+//
+// The learner's snapshot carries no run (D-255, `cohortForLearner`): the numbering comes from the course and the
+// snapshot's own weeks (`viewWeekModules`, `viewWeekOf`), and these tests would fail if it fell back to the curriculum's
+// `accelerator-week-N`, since this cohort skips the curriculum's Weeks 3 and 6.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createCohortFromShape, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { ACCELERATOR_MODULE_IDS, DEFAULT_COHORT_ID, acceleratorModuleId } from '@ai/core/accelerator';
 import { courseFor, courseSessions } from '@ai/core/course';
 import { cohortOfViewer, learnerOf } from '@ai/core/learner';
 import { scopeSnapshot } from '@ai/core/scope';
@@ -86,16 +90,20 @@ describe('a learner in a cohort with its own run', () => {
     expect(rows[3]!.module?.id).toBe(W[4]);
     expect(rows[3]!.done).toBe(1);
     expect(rows[4]!.done).toBe(0);
+    // The run is not in the snapshot, and the curriculum's ids would be wrong here: the numbering is the view's.
+    expect(db.cohorts[0]).not.toHaveProperty('run');
+    expect(rows[3]!.moduleId).not.toBe(acceleratorModuleId(3));
   });
 
   it('an old /employees address goes to the week the cohort numbers it, and a week it doesn’t take goes Home', () => {
-    const { db, me } = oddWeeks();
-    const cohort = cohortOfViewer(db, me);
-    expect(learnerPathFor('/employees/accelerator-week-4', cohort)).toBe('/learn/week/3');
-    expect(learnerPathFor('/employees/accelerator-week-8', cohort)).toBe('/learn/week/6');
-    expect(learnerPathFor('/employees/accelerator-week-3', cohort)).toBe('/learn');
-    expect(weekOfModule(W[7]!, cohort)).toBe('/learn/week/5');
-    // With no stored run (December): the curriculum's numbers, as before.
+    const { db } = oddWeeks();
+    expect(learnerPathFor('/employees/accelerator-week-4', db.modules)).toBe('/learn/week/3');
+    expect(learnerPathFor('/employees/accelerator-week-8', db.modules)).toBe('/learn/week/6');
+    expect(learnerPathFor('/employees/accelerator-week-3', db.modules)).toBe('/learn');
+    expect(weekOfModule(W[7]!, db.modules)).toBe('/learn/week/5');
+    // December's learner: the curriculum's numbers, as before; and with no course weeks given, the same.
+    const dec = learnState(NOV25, true, { 0: ['c1'] });
+    expect(learnerPathFor('/employees/accelerator-week-3', dec.db.modules)).toBe('/learn/week/3');
     expect(learnerPathFor('/employees/accelerator-week-3')).toBe('/learn/week/3');
   });
 

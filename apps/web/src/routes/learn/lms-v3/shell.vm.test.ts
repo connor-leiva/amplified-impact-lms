@@ -50,6 +50,8 @@ const row = (over: Partial<WeekRow>): WeekRow =>
     open: null,
     locked: null,
     module: undefined,
+    // R-5 Phase 4 (D-261): the week's module in the viewer's cohort, which its progress is read by.
+    moduleId: 'accelerator-week-0',
     ...over,
   }) as WeekRow;
 const learner = (deployedAt: number | null): Learner =>
