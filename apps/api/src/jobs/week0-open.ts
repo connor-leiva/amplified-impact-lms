@@ -40,7 +40,7 @@ import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from '.
 type CohortRow = typeof cohorts.$inferSelect;
 
 /**
- * R-5 Phase 4 (D-260, PLAN.md § 10.4): the cohort the email names, by its stored name (the subject without its year,
+ * R-5 Phase 4 (D-261, PLAN.md § 10.4): the cohort the email names, by its stored name (the subject without its year,
  * "January Cohort"; the body with it). December's sends nothing new, so its data, its subject (Connor's approved line)
  * and its body stay byte-identical; a cohort the row no longer finds is named as December's always was.
  */
@@ -129,7 +129,7 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
   const cohortIds = [...new Set(pending.map((r) => r.cohort_id))];
   const cohortRows = await db.select().from(cohorts).where(inArray(cohorts.id, cohortIds));
   const sessionRows = await db.select().from(sessions).where(inArray(sessions.cohortId, cohortIds));
-  // R-5 Phase 4 (D-260, PLAN.md 2.10): each cohort's own weeks, through its run, so its Week 0 due date is its own.
+  // R-5 Phase 4 (D-261, PLAN.md 2.10): each cohort's own weeks, through its run, so its Week 0 due date is its own.
   const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
   const cohortWeeks = (cohortId: string): Promise<WelcomeWeek[]> => {
     let w = weeksByCohort.get(cohortId);

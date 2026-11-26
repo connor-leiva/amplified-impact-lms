@@ -339,7 +339,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   // requests per check, which helped spend § 9.4's per-minute budget.
   const meId = me?.id ?? null;
   const meRole = me?.role ?? null;
-  // R-5 Phase 4 (D-260): the week's module in the learner's own cohort (its run's week N).
+  // R-5 Phase 4 (D-261): the week's module in the learner's own cohort (its run's week N).
   const weekModule = week === null ? null : (weekModuleId(cohortOfViewer(db, me), week) ?? acceleratorModuleId(week));
   useEffect(() => {
     if (isFixture || staff || preview || week === null || !meId || !meRole || !mayEditIntake(meRole)) return;

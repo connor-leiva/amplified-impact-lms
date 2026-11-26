@@ -1,4 +1,4 @@
-// R-5 Phase 4 (D-260): the learner portal reads its own cohort. A cohort whose run numbers the curriculum's weeks its
+// R-5 Phase 4 (D-261): the learner portal reads its own cohort. A cohort whose run numbers the curriculum's weeks its
 // own way (its Week 3 is the curriculum's Week 4) shows that numbering everywhere a week's number turns into a module:
 // the week rows and their progress, an old `/employees/:id` address, and the replays; its Schedule's calendar file,
 // the vault's lock and the course's next opening are its own. December's are as before.

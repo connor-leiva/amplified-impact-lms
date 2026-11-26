@@ -1,4 +1,4 @@
-// R-5 Phase 4 (D-260): the learner side reads its own cohort. Pure, over the production seed (December as the launch
+// R-5 Phase 4 (D-261): the learner side reads its own cohort. Pure, over the production seed (December as the launch
 // seed put it, with the release plan's dates) and Connor's January made by the real admin action.
 //
 // THE OVERLAP WITH PHASE 3. Phase 3 writes December's run with a one-time data step, from its modules' own `opens`,

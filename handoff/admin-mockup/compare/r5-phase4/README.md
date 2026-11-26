@@ -1,4 +1,4 @@
-# R-5 Phase 4, the learner side reads its own cohort (D-260)
+# R-5 Phase 4, the learner side reads its own cohort (D-261)
 
 The learner portal as **January's test team** and as **a December team**, side by side, from a real API on a seeded
 database. The fixture build has no course API, so these are the http build: Chromium at device scale 2, America/Denver,
@@ -42,5 +42,5 @@ cohort the same way.
   replays appears on them, and the reverse.
 - Words that are lesson content still name December where the lesson does: Week 0's outcome "Every team at the same
   starting line by Mon, Nov 30", and Week 1's step "Save the live build" (Wed, Dec 2). The spec leaves lesson content
-  to Connor and Spring's read before January opens (§ 8); D-260 lists both.
+  to Connor and Spring's read before January opens (§ 8); D-261 lists both.
 - January's promise, how it works and holiday note are December's until January stores its own (Phase 3's Edit words).

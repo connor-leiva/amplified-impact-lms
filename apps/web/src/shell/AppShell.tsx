@@ -132,7 +132,7 @@ function Shell() {
   const lockedItems = useMemo<LockedItem[]>(
     () =>
       lockedMods.map((m) => {
-        // R-5 Phase 4 (D-260): the learner's own cohort's session; no learner, no session.
+        // R-5 Phase 4 (D-261): the learner's own cohort's session; no learner, no session.
         const sess = m.session && user ? sessionFor(db, user.cohortId, m.session) : null;
         return {
           id: m.id,
@@ -244,7 +244,7 @@ function Shell() {
     return user ? portalNav(db, user, route, now, collapsed, empOpen) : [];
   }, [collapsed, db, empOpen, isAdmin, navRole, now, route, user]);
 
-  // R-5 Phase 4 (D-260): the learner's own cohort (their snapshot carries only it, D-254).
+  // R-5 Phase 4 (D-261): the learner's own cohort (their snapshot carries only it, D-254).
   const cohort = db.cohorts.find((c) => c.id === user?.cohortId) ?? db.cohorts[0];
   // A learner with no AI Employee (D-119) has no cohort line: nothing in the cohort is theirs.
   const contextLine =

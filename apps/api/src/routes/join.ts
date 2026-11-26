@@ -162,7 +162,7 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // live build opens the course at its own start (`COURSE_OPENS_AT`), and its Join opens 15 minutes
       // before, like every session's. Only the time moves: a plan that is ended or paused stays shut, and
       // the course itself still opens at `COURSE_OPENS_AT`.
-      // R-5 Phase 4 (D-260): the session's week as the learner's own cohort has it (`cohortView`), the view their
+      // R-5 Phase 4 (D-261): the session's week as the learner's own cohort has it (`cohortView`), the view their
       // snapshot is drawn from. The same modules for a cohort with no stored run.
       const mine = cohortView(db, me.cohortId);
       const owner = moduleForSession(mine, session);

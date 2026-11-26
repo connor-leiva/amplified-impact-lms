@@ -453,7 +453,7 @@ function buildNotFinished48h(db: Db, now: number, accelerator?: CourseAudience):
  * for every other cohort it is absent, and the template keeps the prototype's Thursday.
  */
 export function digestDay(db: Db, u: Learner, now: number): string | null | undefined {
-  // R-5 Phase 4 (D-260, PLAN.md § 10.4): a cohort laid out from a shape names its own next meeting's day, or none
+  // R-5 Phase 4 (D-261, PLAN.md § 10.4): a cohort laid out from a shape names its own next meeting's day, or none
   // (`null`) once it meets no more (`nextMeetingDay`). December, which stores no shape, keeps the rule below.
   const co = db.cohorts.find((c) => c.id === u.cohortId);
   if (co && co.id !== DEFAULT_COHORT_ID && co.shape !== undefined) return nextMeetingDay(co, db.sessions, now);
@@ -545,7 +545,7 @@ export function announcementSends(db: Db, a: Announcement): Send[] {
   if (!a.channels.includes('email')) return [];
   const sends: Send[] = [];
   for (const u of db.users) {
-    // R-5 Phase 4 (D-260): an announcement about a session goes to that session's cohort (`announcementInCohort`), as
+    // R-5 Phase 4 (D-261): an announcement about a session goes to that session's cohort (`announcementInCohort`), as
     // the in-app banner does (`scope.ts`).
     if (!mailable(u) || !inAudience(a, u) || !announcementInCohort(a, db.sessions, u.cohortId)) continue;
     sends.push({

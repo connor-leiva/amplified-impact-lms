@@ -12,7 +12,7 @@
 // `users.is_test` keeps it out of the seat, enrollment and revenue counts. `users.early_access` opens
 // the course before its dates. An address that already has a user keeps its password.
 //
-// R-5 Phase 4 (D-260): `SEED_TEST_MEMBER_COHORT=<cohort id>` places that Accelerator test team in another
+// R-5 Phase 4 (D-261): `SEED_TEST_MEMBER_COHORT=<cohort id>` places that Accelerator test team in another
 // cohort by hand (PLAN.md, Phase 4's test team): its plan's `cohort_id` and its owner's `users.cohort_id` are
 // that cohort's, which is how the learner side finds a viewer's cohort. Unset, or December's id, it is
 // December, as before. It names a cohort the database already holds (made in Cohort › New cohort), only with
@@ -63,7 +63,7 @@ export interface SeedTestMemberInput {
   password: string;
   name: string;
   kind: SeedTestMemberKind | 'invalid';
-  /** R-5 Phase 4 (D-260): the cohort an Accelerator test team is placed in (`SEED_TEST_MEMBER_COHORT`); absent, December. */
+  /** R-5 Phase 4 (D-261): the cohort an Accelerator test team is placed in (`SEED_TEST_MEMBER_COHORT`); absent, December. */
   cohortId?: string;
 }
 
@@ -189,7 +189,7 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
     kind: 'cohort',
     option: 'full',
     seats: ACCELERATOR.seats,
-    // R-5 Phase 4 (D-260): the cohort it is placed in; December's (`dates.cohortId`) when none is named.
+    // R-5 Phase 4 (D-261): the cohort it is placed in; December's (`dates.cohortId`) when none is named.
     cohortId: cohortId === DEFAULT_COHORT_ID ? dates.cohortId : cohortId,
     status: 'active',
     startsAt: dates.startsAt,
@@ -211,7 +211,7 @@ async function seedAccelerator(tx: Database, email: string, name: string, passwo
   const at = clock.now();
   const existing = await userByEmail(tx, email);
   if (existing?.kind === 'staff') return { status: 'skipped', reason: 'refused' };
-  // R-5 Phase 4 (D-260): another cohort is one the database holds, and an address already in a different cohort
+  // R-5 Phase 4 (D-261): another cohort is one the database holds, and an address already in a different cohort
   // stays where it is: nothing is moved.
   if (cohortId !== DEFAULT_COHORT_ID) {
     const [cohort] = await tx.select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
@@ -266,7 +266,7 @@ export async function seedTestMember(db: Database, env: NodeJS.ProcessEnv = proc
   if (!emailDomainOf(email)) return { status: 'skipped', reason: 'email' };
   if (passwordProblem(input.password)) return { status: 'skipped', reason: 'password' };
   if (input.kind === 'invalid') return { status: 'skipped', reason: 'kind' };
-  // R-5 Phase 4 (D-260): only an Accelerator test team is in a cohort; a Utah Life agent is in none.
+  // R-5 Phase 4 (D-261): only an Accelerator test team is in a cohort; a Utah Life agent is in none.
   if (input.cohortId !== undefined && input.kind !== 'accelerator') return { status: 'skipped', reason: 'cohort' };
   try {
     return await db.transaction(async (tx) => {

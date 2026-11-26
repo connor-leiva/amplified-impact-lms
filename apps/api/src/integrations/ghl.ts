@@ -584,7 +584,7 @@ export const PLAN_NAMES_FOR_GHL: Readonly<Record<string, string>> = PLAN_NAMES;
 
 /**
  * An order's field values: its plan's name, the cohort for the Accelerator, the amount and the day it was paid. R-5
- * Phase 4 (D-260, PLAN.md § 10.4, Q-33): the cohort is the plan's, as `ghlCohortValue` writes it ("dec26" for
+ * Phase 4 (D-261, PLAN.md § 10.4, Q-33): the cohort is the plan's, as `ghlCohortValue` writes it ("dec26" for
  * December, the value it has always sent; "jan27" for January). Absent, December's, as before.
  */
 export function orderFieldValues(o: { plan: string; amountTotal: number | null; paidAt: number | null; cohort?: string }): FieldValues {

@@ -35,7 +35,7 @@ export function previewTarget(href: string | null): { week: number; step: number
 
 export function LearnerWeekPreview({ payload, db, week, now }: { payload: CoursePayload; db: Db; week: number; now: number }) {
   const [step, setStep] = useState<number | null>(null);
-  // R-5 Phase 4 (D-260): the builder previews December's sessions, as it always has, until Phase 6 lets staff pick
+  // R-5 Phase 4 (D-261): the builder previews December's sessions, as it always has, until Phase 6 lets staff pick
   // the cohort to preview (PLAN.md § 5.4).
   const ctx: LearnContext = { course: { kind: 'ready', payload }, db, viewer: STAFF, now, previewCohortId: DEFAULT_COHORT_ID };
   const onClickCapture = (e: MouseEvent<HTMLDivElement>) => {

@@ -111,7 +111,7 @@ export interface WeekRow {
   /** The snapshot's module for the week, when the snapshot has it (its icon, tone, due date, step ids). */
   module: AIEmployee | undefined;
   /**
-   * R-5 Phase 4 (D-260): the week's module id in the viewer's cohort (its run's week N; `accelerator-week-N` for a
+   * R-5 Phase 4 (D-261): the week's module id in the viewer's cohort (its run's week N; `accelerator-week-N` for a
    * cohort with no stored run, December today), which the learner's progress, checks and video marks are keyed by.
    */
   moduleId: string;
@@ -127,7 +127,7 @@ export function weekStatusText(r: Pick<WeekRow, 'open'>, key: 'not_started' | 'b
 }
 
 export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'> & Partial<Pick<Db, 'cohorts'>>, me: Learner | null): WeekRow[] {
-  // R-5 Phase 4 (D-260): a week's number is the viewer's cohort's (`GET /api/course` numbers them so); its module is
+  // R-5 Phase 4 (D-261): a week's number is the viewer's cohort's (`GET /api/course` numbers them so); its module is
   // that cohort's week N (`weekModuleId`).
   const cohort = db.cohorts ? cohortOfViewer({ cohorts: db.cohorts }, me) : undefined;
   return p.course.weeks.map((w: LearnerCourseWeek): WeekRow => {
@@ -282,7 +282,7 @@ export function weekOfPath(pathname: string): number | null {
 }
 
 /**
- * R-5 Phase 4 (D-260): when the course opens for this learner, the start of their own cohort's first live build
+ * R-5 Phase 4 (D-261): when the course opens for this learner, the start of their own cohort's first live build
  * (`cohortOpensAt`: December's is D-153's `COURSE_OPENS_AT`). With no learner row (staff previewing), December's,
  * as before.
  */
@@ -293,7 +293,7 @@ export const courseOpensAtFor = (db: Pick<Db, 'sessions'>, me: Pick<Learner, 'co
  * When the vault opens, as its lock says it: when the pre-launch preview ends, the course's own opening at
  * the first live build (D-153, `COURSE_OPENS_AT`), which is what unlocks it. D-249: not the first locked
  * week's opening any more, since Week 1 now opens inside the preview (Sun, Nov 29) and the vault stays
- * locked until Wed, Dec 2. R-5 Phase 4 (D-260): the viewer's cohort's opening (`courseOpensAtFor`).
+ * locked until Wed, Dec 2. R-5 Phase 4 (D-261): the viewer's cohort's opening (`courseOpensAtFor`).
  */
 function vaultOpens(p: CoursePayload, opensAt: number): string | null {
   return opensText({ opensAt: Number.isFinite(opensAt) ? opensAt : null }, p.copy);

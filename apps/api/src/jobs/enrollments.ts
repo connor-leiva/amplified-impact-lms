@@ -6,7 +6,7 @@
 //   - `recordSwitchOn`: a flag row that is on without a switch-on time takes its last flip's time, once.
 //   - `readWeeks` / `weeksOf` / `sessionOf`: the course's weeks and sessions as `welcomeSchedule` and `welcomeWeek0`
 //     read them, Week 0's Due, title, step count, baseline count and whether its "How the LMS Works" tour is live.
-//     R-5 Phase 4 (D-260, PLAN.md 2.10): one cohort's weeks, through its run (`cohortView`), so January's welcome and
+//     R-5 Phase 4 (D-261, PLAN.md 2.10): one cohort's weeks, through its run (`cohortView`), so January's welcome and
 //     Week 0 Is Open read January's Week 0 due date and Week 1 sessions. A cohort with no stored run (December until
 //     Phase 3 writes its run) reads the modules exactly as before.
 
@@ -90,7 +90,7 @@ export function weeksOf(rows: readonly ModuleRow[]): WelcomeWeek[] {
 }
 
 /**
- * Every module, as `weeksOf` reads it, seen through one cohort's run (R-5 Phase 4, D-260): its weeks numbered, dated
+ * Every module, as `weeksOf` reads it, seen through one cohort's run (R-5 Phase 4, D-261): its weeks numbered, dated
  * and paired with its own sessions as `cohortView` has them, and the weeks it doesn't take left out. A cohort with no
  * stored run reads the modules as they are, exactly as before.
  */

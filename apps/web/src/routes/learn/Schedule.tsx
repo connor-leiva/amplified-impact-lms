@@ -417,7 +417,7 @@ export function Component() {
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   // The schedule is a cohort piece: a plan without the course has none, and goes Home.
   if (!payload) return <Navigate to={learnHome()} replace />;
-  // R-5 Phase 4 (D-260): the viewer's own cohort.
+  // R-5 Phase 4 (D-261): the viewer's own cohort.
   const cohort = me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
   const vm = scheduleVM(payload, rows, cohort, viewOf(params.get('view')), now);
   // D-227: the v3 Schedule, for a learner v3 draws for, when nothing on it needs a piece the mockup doesn't draw

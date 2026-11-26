@@ -41,7 +41,7 @@ interface OrderFacts {
   refunded_at: string | number | null;
   created_at: string | number;
   plan_status: string | null;
-  /** R-5 Phase 4 (D-260): the plan's cohort, its start and zone, for GoHighLevel's Cohort field (`ghlCohortValue`). */
+  /** R-5 Phase 4 (D-261): the plan's cohort, its start and zone, for GoHighLevel's Cohort field (`ghlCohortValue`). */
   cohort_id?: string | null;
   cohort_start?: string | number | null;
   cohort_timezone?: string | null;
@@ -61,7 +61,7 @@ export function orderStage(o: Pick<OrderFacts, 'status' | 'paid_at' | 'payment_f
   return null;
 }
 
-/** R-5 Phase 4 (D-260): GoHighLevel's Cohort value for an order's plan's cohort; December's for none. */
+/** R-5 Phase 4 (D-261): GoHighLevel's Cohort value for an order's plan's cohort; December's for none. */
 const cohortValueOf = (o: Pick<OrderFacts, 'cohort_id' | 'cohort_start' | 'cohort_timezone'>): string =>
   ghlCohortValue(
     o.cohort_id && o.cohort_start !== null && o.cohort_start !== undefined

@@ -156,7 +156,7 @@ describe('email subjects @g8', () => {
     expect(SUBJECTS['week0-open']({})).not.toContain('December 2026');
   });
 
-  // R-5 Phase 4 (D-260, PLAN.md § 10.4): another cohort's subject uses its name without its year.
+  // R-5 Phase 4 (D-261, PLAN.md § 10.4): another cohort's subject uses its name without its year.
   it('names January’s Week 0 Is Open email by January’s name without its year', () => {
     expect(SUBJECTS['week0-open']({ cohortName: 'January 2027 Cohort' })).toBe('🎉 Welcome to the January Cohort: Week 0 Is Open');
     expect(SUBJECTS['week0-open']({ cohortName: 'Amplified AI Accelerator · January 2027' })).toBe('🎉 Welcome to the January Cohort: Week 0 Is Open');

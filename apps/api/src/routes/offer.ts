@@ -348,7 +348,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
   ] as const) {
     app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
       if (!options.database) return reply.code(404).send({ error: 'Not found' });
-      // R-5 Phase 4 (D-260): the learner portal's "Add all to calendar" for a cohort other than December names it
+      // R-5 Phase 4 (D-261): the learner portal's "Add all to calendar" for a cohort other than December names it
       // (`?cohort=`, `scheduleIcsPath`). That file is its learners' alone (staff may read it): signed in, and never
       // kept by anything between. Without one, December's file, exactly as before.
       const cohort = pick === 'schedule' ? queryOf(req).cohort : undefined;

@@ -10,7 +10,7 @@
 //      from Week 0's Media video ticked "Show as the LMS Tour on Sign-In", and a masquerading staff viewer sees what
 //      the learner sees. Their own golden is `fixtures/december/others.json`, captured on `main` @ 038cd39, before
 //      Phase 2 changed anything; `golden.json` is untouched.
-//   3. R-5 Phase 4 (D-260): January's test team (the deploy's `seedTestMember`, placed in January by hand) sees only
+//   3. R-5 Phase 4 (D-261): January's test team (the deploy's `seedTestMember`, placed in January by hand) sees only
 //      January, and neither it nor December's people can reach the other cohort's sessions by address. Plain
 //      assertions, with no golden of their own: `others.json` is unchanged by this phase.
 //
@@ -44,7 +44,7 @@ import { loadDb } from './helpers';
 /** The domain every person this hook adds is at. Mail and reminders to it are not December's. */
 export const OTHER_COHORT_DOMAINS: readonly string[] = ['january.example.test'];
 
-/** R-5 Phase 4 (D-260): the test team placed in January by hand (a D-202 test account; never a seat). */
+/** R-5 Phase 4 (D-261): the test team placed in January by hand (a D-202 test account; never a seat). */
 const JANUARY_TEST_TEAM = 'test-team@january.example.test';
 
 let world: Database | null = null;
@@ -70,7 +70,7 @@ export async function addOtherCohorts(db: Database, now: number): Promise<void> 
   } finally {
     await app.close();
   }
-  // R-5 Phase 4 (D-260): the test team, placed in January by hand, the way the deploy's step places it
+  // R-5 Phase 4 (D-261): the test team, placed in January by hand, the way the deploy's step places it
   // (`SEED_TEST_MEMBER_COHORT`). A test account with early access: no seat, no email, nothing sent to GoHighLevel.
   const placed = await seedTestMember(db, {
     SEED_TEST_MEMBER_EMAIL: JANUARY_TEST_TEAM,
@@ -407,7 +407,7 @@ async function beyondTheGolden(db: Database): Promise<void> {
     delete process.env.FIXED_NOW;
   }
 
-  // ---- 3. R-5 Phase 4 (D-260): January's test team sees only January; neither side reaches the other's sessions --
+  // ---- 3. R-5 Phase 4 (D-261): January's test team sees only January; neither side reaches the other's sessions --
   await check('January’s test team sees only January', async () => {
     const jan = januaryId!;
     const [team] = await db.select({ id: users.id, cohortId: users.cohortId }).from(users).where(eq(users.email, JANUARY_TEST_TEAM));

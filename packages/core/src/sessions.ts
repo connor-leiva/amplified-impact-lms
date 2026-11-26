@@ -83,7 +83,7 @@ export const sessionState = (s: SessionTiming | null | undefined, now: number, f
 };
 
 /**
- * A learner's sessions: their own cohort's, the ones whose AI Employee they can open. R-5 Phase 4 (D-260): no viewer is
+ * A learner's sessions: their own cohort's, the ones whose AI Employee they can open. R-5 Phase 4 (D-261): no viewer is
  * in no cohort, so it lists none; the reference fell back to `dec26` there, which only a viewer with no learner row
  * (the admin's sample session, whose time is all it reads) ever reached.
  */
@@ -141,7 +141,7 @@ export const cohortWeek = (co: Cohort, now: number, sessions?: readonly Session[
 };
 
 /**
- * The word "Cohort" is appended here, so `co.name` is `December 2026`, not `December 2026 Cohort`. R-5 Phase 4 (D-260):
+ * The word "Cohort" is appended here, so `co.name` is `December 2026`, not `December 2026 Cohort`. R-5 Phase 4 (D-261):
  * a cohort made in New cohort is named with its noun ("January 2027 Cohort", as the mockup names it), and keeps it once.
  */
 export const cohortLine = (co: Cohort, now: number, sessions?: readonly Session[]): string => {

@@ -13,7 +13,7 @@ import { planCopyV1 } from '../../../packages/core/seed/copy-v1';
 import { seedProduction } from '../../../packages/core/seed/curriculum';
 import { planReleaseV1 } from '../../../packages/core/seed/release-plan-v1';
 
-// R-5 Phase 4 (D-260): the learner portal reads its own cohort. In the flag-on fixture build (`pnpm e2e:learn`), with
+// R-5 Phase 4 (D-261): the learner portal reads its own cohort. In the flag-on fixture build (`pnpm e2e:learn`), with
 // `GET /api/course` answered as the API answers each cohort's learner (Connor's January, made by the real admin
 // action, and December), and the fixture's learner placed in that cohort:
 //   - the January learner sees January's weeks (1 to 6) on January's dates, its own cadence, and its own calendar file;

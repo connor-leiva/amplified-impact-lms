@@ -99,7 +99,7 @@ export interface SubjectData {
   'learner-nudge': NoSubjectData;
 
   'cohort-welcome': { cohortName: string };
-  // R-5 Phase 4 (D-260): the cohort's stored name, named without its year ("January Cohort"). Absent for December,
+  // R-5 Phase 4 (D-261): the cohort's stored name, named without its year ("January Cohort"). Absent for December,
   // whose line is Connor's.
   'week0-open': { cohortName?: string };
 }
@@ -145,7 +145,7 @@ export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string }
   // The cohort with its noun ("December 2026 Cohort"), in title case with "to the" lower: `welcomeSubject` (@ai/core).
   'cohort-welcome': (d) => welcomeSubject(d.cohortName),
   // Connor's approved line. "December Cohort" is December's name without its year: "December 2026" reads badly here.
-  // R-5 Phase 4 (D-260, PLAN.md § 10.4): another cohort's name, the same way ("January Cohort"); December's is unchanged.
+  // R-5 Phase 4 (D-261, PLAN.md § 10.4): another cohort's name, the same way ("January Cohort"); December's is unchanged.
   'week0-open': (d) => `🎉 Welcome to the ${d.cohortName ? week0CohortLabel(d.cohortName) : DEFAULT_WEEK0_LABEL}: Week 0 Is Open`,
 };
 

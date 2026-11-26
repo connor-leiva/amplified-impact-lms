@@ -256,7 +256,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
 
     case 'weekly-digest': {
       const subject = SUBJECTS['weekly-digest']({});
-      // R-5 Phase 4 (D-260): `before: null` is a cohort that meets no more, whose digest names no day.
+      // R-5 Phase 4 (D-261): `before: null` is a cohort that meets no more, whose digest names no day.
       return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={data.before === null ? null : optStr(data, 'before')} /> };
     }
 
@@ -329,7 +329,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
         liveBuildAt: num(template, data, 'liveBuildAt'),
         liveBuildMins: num(template, data, 'liveBuildMins'),
         appUrl,
-        // R-5 Phase 4 (D-260): the cohort the email names, when it isn't December.
+        // R-5 Phase 4 (D-261): the cohort the email names, when it isn't December.
         ...(optStr(data, 'cohortName') ? { cohortName: optStr(data, 'cohortName')! } : {}),
       };
       return {

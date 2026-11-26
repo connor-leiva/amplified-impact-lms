@@ -198,7 +198,7 @@ function planVM(read: AccountRead, me: Learner | null, db: Pick<Db, 'cohorts'>, 
   if (plan) {
     const line: string[] = [];
     if (plan.kind === 'cohort') {
-      // R-5 Phase 4 (D-260): the viewer's own cohort.
+      // R-5 Phase 4 (D-261): the viewer's own cohort.
       const cohort = me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
       if (cohort) line.push(`${monthYear(cohort.start)} cohort`);
       const range = course.kind === 'ready' ? liveRange(course.payload.sessions) : null;

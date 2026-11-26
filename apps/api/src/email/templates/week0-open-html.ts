@@ -43,7 +43,7 @@ export interface Week0OpenInput {
   liveBuildMins: number;
   appUrl?: string | null;
   /**
-   * R-5 Phase 4 (D-260): the stored name of a cohort other than December, which the email names where Connor's copy
+   * R-5 Phase 4 (D-261): the stored name of a cohort other than December, which the email names where Connor's copy
    * names December ("January 2027 Cohort"; the title without its year, "January Cohort", as the subject). Absent:
    * December's words, byte for byte.
    */
@@ -79,7 +79,7 @@ export const WEEK0_OPEN_COPY = {
 } as const;
 
 /**
- * The words for one email: Connor's, with another cohort's name where his name December (R-5 Phase 4, D-260). Only the
+ * The words for one email: Connor's, with another cohort's name where his name December (R-5 Phase 4, D-261). Only the
  * cohort's name changes; every other word is his.
  */
 function copyOf(input: Pick<Week0OpenInput, 'cohortName'>): typeof WEEK0_OPEN_COPY {

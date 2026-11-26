@@ -1,4 +1,4 @@
-// R-5 Phase 4 (D-260): the learner side reads its own cohort, through the real API (ADMIN-RESTRUCTURE-SPEC.md Phase
+// R-5 Phase 4 (D-261): the learner side reads its own cohort, through the real API (ADMIN-RESTRUCTURE-SPEC.md Phase
 // 4, PLAN.md § 10.4).
 //
 // The world: December as the launch seed and the release plan make it, a December team that bought it, Connor's

@@ -204,7 +204,7 @@ export function portalNav(
     item('sessions', 'Sessions', 'radio', NAV_PATHS.sessions, at(NAV_PATHS.sessions)),
     // The AI Accelerator's pages (D-110), for a learner whose snapshot carries the course: the
     // snapshot only does when their plan opens it. Never in the prototype, which has no course.
-    // R-5 Phase 4 (D-260): the learner's snapshot carries their own cohort's weeks (D-254), so this is their course.
+    // R-5 Phase 4 (D-261): the learner's snapshot carries their own cohort's weeks (D-254), so this is their course.
     ...(mods.some((m) => isCourseWeek(m.id)) ? [item('course', 'Course', 'book', COURSE_PATH, false)] : []),
   ];
 

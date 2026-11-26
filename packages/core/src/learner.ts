@@ -40,13 +40,13 @@ export type WeekState = 'locked' | 'not_started' | 'in_progress' | 'built';
 
 /**
  * The viewer's cohort, as their snapshot carries it (their own, D-254), or undefined (staff previewing, who have no
- * learner row). R-5 Phase 4 (D-260): what a week's number means is this cohort's run (`weekModuleId`).
+ * learner row). R-5 Phase 4 (D-261): what a week's number means is this cohort's run (`weekModuleId`).
  */
 export const cohortOfViewer = (db: Pick<Db, 'cohorts'>, me: Pick<Learner, 'cohortId'> | null): Cohort | undefined =>
   me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
 
 /**
- * The snapshot's module for a course week, when the snapshot carries it. R-5 Phase 4 (D-260): the week is the viewer's
+ * The snapshot's module for a course week, when the snapshot carries it. R-5 Phase 4 (D-261): the week is the viewer's
  * cohort's (`weekModuleId`: its run's week `n`, or `accelerator-week-N` for a cohort with no stored run, as today).
  */
 export const weekModuleOf = (db: Pick<Db, 'modules'>, week: number, cohort?: Pick<Cohort, 'run'> | null): AIEmployee | undefined => {

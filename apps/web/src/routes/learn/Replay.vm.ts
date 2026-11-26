@@ -59,7 +59,7 @@ export interface ReplayWho {
   db: Db;
   me: Learner | null;
   /**
-   * R-5 Phase 4 (D-260): the cohort a preview is of, for a viewer with no learner row (the curriculum builder's live
+   * R-5 Phase 4 (D-261): the cohort a preview is of, for a viewer with no learner row (the curriculum builder's live
    * preview, D-184). A learner's is always their own (`me.cohortId`); there is no fallback to December.
    */
   cohortId?: string;

@@ -21,7 +21,7 @@
 //   the old shell
 //
 // Each keeps the address's query and fragment (`?as=`, `?now=` and `?preview=` among them). PURE, apart
-// from the three small route components at the end, and none of it reads data: R-5 Phase 4 (D-260) hands
+// from the three small route components at the end, and none of it reads data: R-5 Phase 4 (D-261) hands
 // `learnerPathFor` the learner's cohort, whose run says which week a module is (`weekOfModuleIn`).
 
 import { Navigate, useLocation, useParams } from 'react-router';
@@ -32,7 +32,7 @@ import { learnEmployee, learnHome, learnSchedule, learnSkill, learnSkills, learn
 import { teamPlanHref } from './TeamPlan.vm';
 
 /**
- * A course week's page, from its module's id, or null for any other id. R-5 Phase 4 (D-260): the week the
+ * A course week's page, from its module's id, or null for any other id. R-5 Phase 4 (D-261): the week the
  * learner's cohort numbers it (`weekOfModuleIn`: its run's, or `accelerator-week-3` as Week 3 for a cohort with
  * no stored run, as before); a week their cohort doesn't take is no page of theirs. By the cohort's run alone,
  * not the course: the week's page itself says whether it is open, locked or not theirs.
@@ -108,7 +108,7 @@ export function LibraryRedirect() {
   return <Keep to={libraryPathFor(slug)} />;
 }
 
-/** A learner in the first portal's shell, sent on (`learnerPathFor`), with their cohort (R-5 Phase 4, D-260). */
+/** A learner in the first portal's shell, sent on (`learnerPathFor`), with their cohort (R-5 Phase 4, D-261). */
 export function LearnerRedirect({ cohort }: { cohort?: Pick<Cohort, 'run'> | null }) {
   const { pathname } = useLocation();
   return <Keep to={learnerPathFor(pathname, cohort)} />;

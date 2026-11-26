@@ -303,7 +303,7 @@ function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
     .map((m) => (canOpenModule(me, m, access?.accelerator) ? m : redactModule(m)))
     .map(moduleForLearner);
   let resources = db.resources.filter((r) => r.status === 'published').map(redactResource);
-  // R-5 Phase 4 (D-260): a kit item of a course week this learner's cohort doesn't take is theirs only as the vault's
+  // R-5 Phase 4 (D-261): a kit item of a course week this learner's cohort doesn't take is theirs only as the vault's
   // own (`published`), as a week that never opens for them. A cohort with no stored run takes every week: no change.
   const taken = new Set(db.modules.map((m) => m.id));
   resources = resources.filter((r) => !r.module || !isCourseWeek(r.module) || taken.has(r.module) || kitVisible(r, false, false));
@@ -335,7 +335,7 @@ function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
       .map((u) => (u.id === me.id ? u : redactTeammate(u, showEmail))),
     teams: db.teams.filter((t) => teamId !== null && t.id === teamId),
     resources,
-    // R-5 Phase 4 (D-260): an announcement about a session is that session's cohort's (`announcementInCohort`).
+    // R-5 Phase 4 (D-261): an announcement about a session is that session's cohort's (`announcementInCohort`).
     announcements: db.announcements.filter((a) => forAudience(a, me) && announcementInCohort(a, db.sessions, me.cohortId)),
     dismissed: Object.fromEntries(Object.entries(db.dismissed ?? {}).filter(([k]) => k.startsWith(mine))),
     reminders: db.reminders,

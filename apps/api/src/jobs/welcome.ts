@@ -117,7 +117,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 
   const cohortRows = await db.select().from(cohorts);
   const sessionRows = await db.select().from(sessions);
-  // R-5 Phase 4 (D-260): each cohort's own weeks, through its run (`readWeeks`), read once a tick per cohort.
+  // R-5 Phase 4 (D-261): each cohort's own weeks, through its run (`readWeeks`), read once a tick per cohort.
   const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
   const cohortWeeks = (cohortId: string): Promise<WelcomeWeek[]> => {
     let w = weeksByCohort.get(cohortId);

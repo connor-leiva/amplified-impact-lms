@@ -54,7 +54,7 @@ export function courseWeekOf(m: WeekModule): CourseWeek {
 
 /**
  * The whole course, from a snapshot, or null when there are no words for it (the seed hasn't run). R-5 Phase 4
- * (D-260): the words are the program's, with the cohort's own promise, how it works and holiday note
+ * (D-261): the words are the program's, with the cohort's own promise, how it works and holiday note
  * (`cohortCourseCopy`); December's are its own row's, as before.
  */
 export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string = DEFAULT_COHORT_ID): CourseContent | null {
@@ -136,7 +136,7 @@ export function courseFor(
   viewer: CourseEntry | 'staff',
   cohortId: string = DEFAULT_COHORT_ID,
 ): LearnerCourse | null {
-  // R-5 Phase 4 (D-260): the program's words with the cohort's own three (`cohortCourseCopy`).
+  // R-5 Phase 4 (D-261): the program's words with the cohort's own three (`cohortCourseCopy`).
   const words = cohortCourseCopy(db, cohortId);
   if (!words) return null;
   const staff = viewer === 'staff';

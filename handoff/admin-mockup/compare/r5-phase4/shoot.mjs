@@ -1,4 +1,4 @@
-// R-5 Phase 4 (D-260): the learner portal as January's test team and as a December team, from a real API on a seeded
+// R-5 Phase 4 (D-261): the learner portal as January's test team and as a December team, from a real API on a seeded
 // database (README.md says how the database and the server were made). Usage, with the API on BASE:
 //
 //   node handoff/admin-mockup/compare/r5-phase4/shoot.mjs <base> <december user id> <january user id>

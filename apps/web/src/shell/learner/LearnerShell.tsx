@@ -342,7 +342,7 @@ const HERE: Record<string, string> = {
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
-  // R-5 Phase 4 (D-260): when the course opens for this learner's own cohort.
+  // R-5 Phase 4 (D-261): when the course opens for this learner's own cohort.
   const opensAt = courseOpensAtFor(db, learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null));
   const loaded = useCourse(opensAt);
   // D-183: every 15 seconds, as the current portal's Sessions page ticks, so Join appears 15 minutes before

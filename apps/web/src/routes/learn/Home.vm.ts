@@ -497,7 +497,7 @@ export function homeVM(
 ): HomeVM {
   const hello = { greeting: greeting(name, now), banner: db ? bannerVM(db, me, now) : null, post: null, recent: null };
   if (load.kind === 'ready') {
-    // R-5 Phase 4 (D-260): the viewer's own cohort; staff previewing have none.
+    // R-5 Phase 4 (D-261): the viewer's own cohort; staff previewing have none.
     const cohort = me ? cohorts.find((c) => c.id === me.cohortId) : undefined;
     const modules = rows.map((r) => r.module).filter((m): m is NonNullable<typeof m> => !!m);
     const post = postVM(load.payload, cohort, modules, now, rows);

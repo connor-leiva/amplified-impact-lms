@@ -473,7 +473,7 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       }
       // D-175: a kit item (a vault row attached to a course week) follows its week, by its visibility,
       // exactly as the learner's snapshot does: one they can't see yet is a 404, as a hidden row is.
-      // R-5 Phase 4 (D-260): the week as the viewer's cohort has it (its opening there). A week their cohort doesn't
+      // R-5 Phase 4 (D-261): the week as the viewer's cohort has it (its opening there). A week their cohort doesn't
       // take never opens for them, so its kit is theirs only as the vault's own (`published`), as their snapshot says.
       if (me && resource.module && isCourseWeek(resource.module)) {
         const now = clock.now();
@@ -528,7 +528,7 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       const me = learnerFor(db, req);
       if (!me) return reply.code(403).send({ error: LEARNERS_ONLY });
 
-      // R-5 Phase 4 (D-260): a course week as the viewer's cohort has it; a week their cohort doesn't take is a 404, as
+      // R-5 Phase 4 (D-261): a course week as the viewer's cohort has it; a week their cohort doesn't take is a 404, as
       // their snapshot doesn't carry it.
       const mine = isCourseWeek(moduleId) ? cohortView(db, await viewerCohortId(getDb(), me.id)) : db;
       const employee = visibleModules(mine).find((m) => m.id === moduleId);
@@ -587,7 +587,7 @@ export function registerFilesRoutes(app: FastifyInstance): void {
         const now = clock.now();
         const entry = await courseEntryFor(getDb(), actor.userId, now);
         if (entry.open) {
-          // R-5 Phase 4 (D-260): the viewer's own cohort's course, as `GET /api/course` hands it to them.
+          // R-5 Phase 4 (D-261): the viewer's own cohort's course, as `GET /api/course` hands it to them.
           for (const w of courseFor(db, now, entry, await viewerCohortId(getDb(), actor.userId))?.weeks ?? []) {
             if ('locked' in w) continue;
             found = uploadInWeek({ media: w.media, checklist: w.module.checklist }, key);

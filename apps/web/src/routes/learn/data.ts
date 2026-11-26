@@ -89,7 +89,7 @@ const MAX_WAIT = 2_147_483_647;
 /**
  * The next instant a locked week opens, or (D-249) the pre-launch preview ends, after `now`, or null. The
  * preview ends at the course's own opening, the first live build (`COURSE_OPENS_AT`), which Week 1's
- * opening no longer marks now that Week 1 opens inside the preview. R-5 Phase 4 (D-260): `opensAt` is the
+ * opening no longer marks now that Week 1 opens inside the preview. R-5 Phase 4 (D-261): `opensAt` is the
  * viewer's own cohort's opening (`courseOpensAtFor`); absent, December's.
  */
 export function nextOpening(load: CourseLoad, now: number, opensAt: number = COURSE_OPENS_AT): number | null {
@@ -107,7 +107,7 @@ export interface LearnContext {
   viewer: Viewer;
   now: number;
   /**
-   * R-5 Phase 4 (D-260): the cohort a preview draws, for a viewer with no learner row (the curriculum builder's live
+   * R-5 Phase 4 (D-261): the cohort a preview draws, for a viewer with no learner row (the curriculum builder's live
    * preview, D-184). A learner's screens read their own cohort and never this.
    */
   previewCohortId?: string;

@@ -255,7 +255,7 @@ export async function calendarFiles(): Promise<{ builds: string; officeHours: st
 }
 
 /**
- * R-5 Phase 4 (D-260): another cohort's whole schedule in one file, its learners' "Add all to calendar". The same
+ * R-5 Phase 4 (D-261): another cohort's whole schedule in one file, its learners' "Add all to calendar". The same
  * calendar and the same words as December's file: a build is "Amplified AI Accelerator Live Build, Week N: <title>",
  * its week the cohort's own (its run); office hours read as December's do; any other session is its own title. Every
  * UID names the session, so no event of December's is touched. December's own file is `calendarFiles`, unchanged.

@@ -540,7 +540,7 @@ export function scheduleVM(
         { key: 'calendar', label: SCHEDULE.calendar, href: learnSchedule('calendar'), on: view === 'calendar' },
       ],
     },
-    // R-5 Phase 4 (D-260): the viewer's own cohort's file (`scheduleIcsPath`): December's is the welcome page's, as before.
+    // R-5 Phase 4 (D-261): the viewer's own cohort's file (`scheduleIcsPath`): December's is the welcome page's, as before.
     addAll: p.sessions.length ? { label: LABELS.addAll, href: scheduleIcsPath(cohort?.id ?? null) } : null,
     hero: hero(p, rows, now),
     weeks: weeksView(p, rows, breaks, note, nowWeek, now),

@@ -15,7 +15,7 @@ import { LMS_V3 } from '../lms-v3/v3';
 
 function Learner({ userId }: { userId: string }) {
   const db = useDb();
-  // R-5 Phase 4 (D-260): their own cohort, whose run says which week an old `/employees/:id` address is.
+  // R-5 Phase 4 (D-261): their own cohort, whose run says which week an old `/employees/:id` address is.
   return hasPortal(db) || LMS_V3 ? <LearnerRedirect cohort={cohortOfViewer(db, learnerOf(db, userId))} /> : <AppShell />;
 }
 

@@ -1,4 +1,4 @@
-// R-5 Phase 4 (D-260): the learner side reads its own cohort (handoff/admin-mockup/ADMIN-RESTRUCTURE-SPEC.md Phase 4,
+// R-5 Phase 4 (D-261): the learner side reads its own cohort (handoff/admin-mockup/ADMIN-RESTRUCTURE-SPEC.md Phase 4,
 // PLAN.md § 10.4).
 //
 // Phase 2 (D-254) gave each cohort its run and routed the course, the snapshot and the learner's writes through the

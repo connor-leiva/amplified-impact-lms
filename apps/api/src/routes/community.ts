@@ -100,7 +100,7 @@ async function memberOf(req: FastifyRequest, now: number): Promise<Member | null
     entry = await courseEntryFor(getDb(), viewer.user.id, now);
     if (!entry.open) return null;
   }
-  // R-5 Phase 4 (D-260): the viewer's own cohort (`viewerCohortId`), its threads and its weeks as its run has them.
+  // R-5 Phase 4 (D-261): the viewer's own cohort (`viewerCohortId`), its threads and its weeks as its run has them.
   // Staff read the default cohort's, as they always have.
   const cohortId = staff ? DEFAULT_COHORT_ID : await viewerCohortId(getDb(), viewer.user.id);
   // The spaces: General, a space for each week open to this viewer, Wins. Staff get the weeks open by their
