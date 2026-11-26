@@ -5,12 +5,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { and, eq, sql } from 'drizzle-orm';
 import { WEEK0_OPEN_FLAG, WELCOME_TEST_ADDRESS } from '@ai/core';
-import { acceleratorModuleId } from '@ai/core/accelerator';
 import { SIX_TASK_BASELINE } from '@ai/core/seed/weeks-0-3-v2';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
-import { accessGroupMembers, accessGroups, accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, modules, plans, sessions, skillPurchases, teams, users } from '../src/db/schema';
+import { accessGroupMembers, accessGroups, accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, plans, sessions, skillPurchases, teams, users } from '../src/db/schema';
 import { invalidateConsoleFlags } from '../src/console/flags';
 import { renderTemplate } from '../src/email/templates';
 import { outboxFor, resetOutbox, resetRenderer, setRenderer } from '../src/email/transport';
@@ -19,7 +18,7 @@ import { sendWeek0Open } from '../src/jobs/week0-open';
 import { sendDueWelcomes } from '../src/jobs/welcome';
 import { settleObserved } from '../src/lib/observe';
 import { resetDatabase, testDatabase } from './helpers';
-import { liveWithCourse } from './accelerator-course';
+import { liveWithCourse, setWeek0Due } from './accelerator-course';
 
 const ENROLLED = Date.parse('2026-11-20T15:00:00Z');
 const SWITCH_ON = Date.parse('2026-11-25T16:00:00Z');
@@ -257,7 +256,7 @@ describe('sendWeek0Open: when it goes', () => {
 
   it('waits on the builder while Week 0 has no Due, and never guesses a date', async () => {
     await week0On();
-    await (await database()).update(modules).set({ dueAt: null }).where(eq(modules.id, acceleratorModuleId(0)));
+    await setWeek0Due(await database(), 'dec26', null);
     await seedOwner('u_owner', 'owner@example.com', ENROLLED);
     const out = await tick();
     expect(out).toMatchObject({ sent: 0, waiting: 1 });
@@ -267,7 +266,7 @@ describe('sendWeek0Open: when it goes', () => {
 
   it('reads a Due the builder changed', async () => {
     await week0On();
-    await (await database()).update(modules).set({ dueAt: Date.parse('2026-12-01T17:30:00Z') }).where(eq(modules.id, acceleratorModuleId(0)));
+    await setWeek0Due(await database(), 'dec26', Date.parse('2026-12-01T17:30:00Z'));
     await seedOwner('u_owner', 'owner@example.com', ENROLLED);
     await tick();
     expect(mailTo('owner@example.com')[0]?.text).toContain('Week 0 is due Tue, Dec 1, 2026 at 10:30 AM MT / 11:30 AM CT.');
@@ -429,7 +428,7 @@ describe('the Console: the flip and the test send', () => {
   });
 
   it('refuses while Week 0 has no Due', async () => {
-    await (await database()).update(modules).set({ dueAt: null }).where(eq(modules.id, acceleratorModuleId(0)));
+    await setWeek0Due(await database(), 'dec26', null);
     const res = await post({ to: WELCOME_TEST_ADDRESS, cohortId: 'dec26' });
     expect(res.statusCode).toBe(400);
     expect(mailTo(WELCOME_TEST_ADDRESS)).toHaveLength(0);
