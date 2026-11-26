@@ -35,7 +35,8 @@ holds both. Where section 10 and an earlier section differ, section 10 wins.
 
 **Nov 26, 2026.** Connor decided that January is a founding cohort (`founding: true`, like December), with its new lookup
 keys still made by hand in Stripe, and that "jan27" is added to GoHighLevel's AI Cohort field outside the code (10.1,
-10.4, 10.5, 10.9).
+10.4, 10.5, 10.9). The same day he set the rule that nothing cohort-specific is hard-coded: every per-cohort value is a
+setting on the cohort, editable on the Cohort page (10.10). Q-34 is answered there.
 
 ---
 
@@ -605,8 +606,9 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
 - **What founding does in the code today** (`packages/core/src/offer.ts` `Cart.founding`, `billing/config.ts`
   `foundingOpen`): a founding cart sells only until `FOUNDING_CLOSES_AT`, one instant for the whole offer (by default
   Mon, Nov 30, 2026, 11:59 PM MT; production's value is not readable from here), and the seat cap turns a link back on
-  only while founding is open. Read as it is, January's founding carts would close with December's. Phase 5 needs a
-  founding close for each cohort, read from the cohort (Q-34, 10.9).
+  only while founding is open. Read as it is, January's founding carts would close with December's. **Q-34, answered
+  (Connor, Nov 26):** January's founding close is its own setting on the cohort, edited on the Cohort page, not tied to
+  December's Nov 30 (10.10).
 - **Link addresses live on the cohort record**, not in Railway variables (today `PAYMENT_LINK_COHORT_FULL` and
   `PAYMENT_LINK_COHORT_TWO_PAY`). December's are copied onto its record by Phase 5's data step, with its lookup keys,
   seats and included-time date (2027-05-04).
@@ -695,6 +697,69 @@ tests beside December's unchanged ones, which is what 3.4 proposed.
    one month", on /offer, /pricing and /team-build, which share the caption.
 6. **January's founding status.** *Still undecided* on Nov 25. *January is founding* (Connor, Nov 26): `founding:
    true`, like December, with new lookup keys made by hand (10.1, 10.5).
-7. **Q-34, before Phase 5: when January's founding closes.** Today one `FOUNDING_CLOSES_AT` closes every founding cart,
-   December's and January's alike (10.5). Does January's founding close on a date of its own, held on the cohort, and
-   which date?
+7. **Q-34: when January's founding closes.** Today one `FOUNDING_CLOSES_AT` closes every founding cart, December's and
+   January's alike (10.5). *Its own editable setting on the cohort, not tied to December's Nov 30* (Connor, Nov 26;
+   10.10). Its date is set on the Cohort page once Phase 5 builds the field.
+
+### 10.10 Nothing cohort-specific is hard-coded (Connor, Nov 26, 2026)
+
+**The rule.** The point of R-5 is that Connor can launch a new cohort whenever he wants, so nothing cohort-specific is
+hard-coded. Every per-cohort value is a setting on the cohort, editable on the admin Cohort page by Connor or Spring.
+The constants that hold December's values today (`FOUNDING_CLOSES_AT`, `INSIDERS_FIRST_CHARGE_AT`,
+`COHORT_ONE_LIVE_UNTIL` and the like) are replaced by reads from the cohort, and December's current values become its
+stored settings, so every December output stays byte-identical.
+
+**How each phase applies it.**
+- A setting becomes editable in the same phase that makes the code read it, so an edit never does nothing. The
+  exception is a field only a cohort that can't sell yet uses (January before Phase 5): it is stored and shown, and
+  the code reads it from the phase named below.
+- December's values are copied onto its record by a data step with a rollback (10.8): the step writes only where the
+  stored value reads back exactly as the constant does, and names any it leaves alone. The December test (with Phase
+  5's capture of Stripe writes 1 and 2, 10.5) proves the outputs did not move.
+- Production's own values are copied, not the code's defaults: where a variable overrides a constant today
+  (`FOUNDING_CLOSES_AT`, `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`), Phase 5's data step reads the
+  value production runs with at deploy time, which is not readable from here.
+- Phase 5 adds a check that fails on a new hard-coded cohort id or cohort date outside a short allowlist of what is
+  still to move (below), and the allowlist shrinks phase by phase.
+
+**The settings, and which phase makes each one editable.**
+
+| Setting | Where it is today | December's stored value | Stored on the cohort | Editable on the Cohort page |
+|---|---|---|---|---|
+| Founding, yes or no | `Cart.founding` on `cohort-full` and `cohort-two-pay` (`packages/core/src/offer.ts`) | yes | Phase 5 (new column) | Phase 5, Settings › Enrollment ("Sells through") |
+| Founding close, date and time, shown "MT / CT" | `FOUNDING_CLOSES_AT`, default `DEFAULT_FOUNDING_CLOSES_AT`; `foundingOpen` (`billing/config.ts`); the seat cap's reopen | production's `FOUNDING_CLOSES_AT`, by default Mon, Nov 30, 2026, 11:59 PM MT / Tue, Dec 1, 12:59 AM CT | Phase 5 (new column) | Phase 5, Settings › Enrollment. January's is its own (Q-34) |
+| Included-time end | `INSIDERS_FIRST_CHARGE_AT`, `COHORT_ONE_LIVE_UNTIL`, `COHORT_ONE.afterDays` | 2027-05-04 (its instant is the start of that day in America/Chicago, the constant's) | Phase 3 (`included_until`, #279); December's by Phase 5's data step | Phase 3, Settings › Dates and Release (#279), frozen once a seat sells; the Stripe writes and plan dates read it from Phase 5 |
+| Stripe lookup keys | `CARTS['cohort-full'].items` and `CARTS['cohort-two-pay'].items` | `cohort_founding_full` and `membership_monthly_team_leader`; `cohort_founding_two_pay` | Phase 5 (new column) | Phase 5, Settings › Enrollment. The keys are made by hand in Stripe; the code reads them and never creates one |
+| Payment Link addresses | `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY` (Railway variables) | production's two links | Phase 5 (new column) | Phase 5, Settings › Enrollment |
+| Seat cap | `COHORT_SEATS` (15): the cap, `SOLD_OUT_MESSAGE` ("All 15 founding seats"), the offer page's seat numbers (`founding.ts`), Billing's and Health's caps, and the marketing pages' seat dots | 15, already stored as December's `capacity` | stored today (`cohorts.capacity`) | Phase 5, Settings › Enrollment. Revenue's "15 seats. Product rule, view only." card then reads the cohort's cap |
+| Week 1 open | the run's Week 1 opening (December's from Phase 3's data step); `COURSE_OPENS_AT` for when the course opens | Sun, Nov 29, as the release plan set it (D-249) | Phase 2 (`run`); December's by Phase 3's data step | Phase 3, Settings › Dates and Release (#279) |
+| Week open time | `cohorts.default_open_time`, else `COURSE_DEFAULT_TIME` | its stored value | stored today | Phase 3, "A week opens at (MT)" (#279) |
+| Welcome email time | `cohorts.welcome_sends_at`, else the preview's opening | its stored value | stored today | Phase 3, "Welcome email sends at (MT)" (#279) |
+| Hosts | `shape.hosts` (Phase 2); `cohorts.hosts` for December (Phase 3) | its stored value | Phases 2 and 3 | Phase 3, Settings › Shape (#279) |
+| GoHighLevel cohort value | `orderFieldValues` sends `DEFAULT_COHORT_ID` (`main`); #278 derives it ("dec26" by id, else month and two-digit year) | "dec26" | Phase 5 (new column); New cohort prefills it with #278's month and year ("jan27") | Phase 5, Settings › Enrollment. No January order reaches GoHighLevel before Phase 5 sells a January seat |
+
+**The other December constants and branches, and the phase that replaces each.**
+
+| Today | Becomes | Phase |
+|---|---|---|
+| `initialPlanDates` (`offer.ts`): every cohort plan's `cohortId` is `dec26`, `startsAt` is `COHORT_ONE.firstBuildAt`, and `paidThrough` and `liveUntil` are `COHORT_ONE_LIVE_UNTIL` | the cohort being sold: its id, its course opening and its included-time end | 5 |
+| Stripe writes 1 and 2 and `invoicePaid`'s cap read `INSIDERS_FIRST_CHARGE_AT` (10.5) | the cohort's included-time end | 5 |
+| `COURSE_OPENS_AT` (`COHORT_ONE.firstBuildAt`), and `cohortOpensAt` and `opensAtOf` answering it for December by id | every cohort's first live build, read the same way; the data step checks December's reads back as the constant's instant and names it if not | 5 |
+| Which cohort the offer page and its welcome page sell (December's, by id), and the public calendar files (`calendarFiles`, December's sessions) | the cohort whose enrollment is open | 5 |
+| The marketing pages' cohort facts: the founding deadline (`DEFAULT_FOUNDING_CLOSES_AT`), the seat dots (`COHORT_SEATS`) and the Insiders start date (`INSIDERS_FIRST_CHARGE_AT`, home timeline) | the cohort on sale, through `GET /api/offer` | 5 |
+| #278's December branches: GoHighLevel's "dec26" by id, Week 0 Is Open's December label and body words, the digest's D-110 rule, the course words read from December's row, and the calendar file's December address | reads of December's stored settings (GoHighLevel value, Phase 5), of the cohort's name and meeting days (Phase 5), and of the program record (Phase 6) | 5 and 6 |
+| #279's December branches: saving December's run also writes its dates onto its modules (for the readers not yet on the run); New cohort copies from December by id (`SOURCE_COHORT_ID`); December's shape is derived, not stored (Q-28); December's words live in its course | the mirror goes once every reader reads the run (Phase 4's rebase onto #279 lists the readers left); New cohort's "Start from" lists any cohort (Phase 5); December's stored shape once Q-28 is answered; the program record (Phase 6) | 4, 5 and 6 |
+| December's sessions taking their kind from their id (`sessionKind`, D-254) | kept, by Connor's Nov 25 call that December must not move; it is on the allowlist until he says otherwise | none yet |
+
+**Not cohort-specific, so not moved by R-5:** the Team Plan's and the Agent Plan's dates (`AGENTS_FIRST_CHARGE_AT`,
+`AGENTS_SKILLS_FROM`, `AGENT_PLAN_FIRST_CHARGE_AT`), the program's weeks (`ACCELERATOR_WEEKS`), the support addresses,
+and the admin's zone (`COURSE_TZ`). `FOUNDING_CLOSES_AT` also closes the Team Plan's founding carts today
+(`agents-upto15`, `agents-16to40`); after Phase 5 it closes only those, and a cohort's founding close is the cohort's.
+
+**What this changes in the open pull requests.** Nothing has to change before they merge:
+- #279 (Phase 3) already makes five of the eleven settings editable: included-time end, Week 1 open, week open time,
+  welcome email time and hosts.
+- #278 (Phase 4) derives GoHighLevel's value. That derivation becomes New cohort's prefill when Phase 5 stores the
+  value, and no January order can reach GoHighLevel before then.
+- The six Phase 5 settings (founding, founding close, lookup keys, Payment Links, seat cap, GoHighLevel value) are
+  edited on Settings › Enrollment, which Phase 3 draws read-only today.
