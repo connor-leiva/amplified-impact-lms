@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Icon } from '../../../components/Icon';
-import { Button, buttonClass } from '../../../components/r2/Button';
+import { buttonClass } from '../../../components/r2/Button';
 import { Menu } from '../../../components/r2/Menu';
+import { k } from '../../../components/r2/kit';
 import { Status } from '../../../components/r2/Status';
 import { useDb, useNow } from '../../../data/hooks';
 import { useAdminChrome } from '../../../shell/admin/chrome';
@@ -71,9 +72,9 @@ export function Component() {
               { label: 'All settings', onSelect: () => void navigate(cohortPath(co.id, 'settings')) },
             ]}
             trigger={(t) => (
-              <Button header style={{ width: 'var(--r2-cp)', padding: 0 }} aria-label={`More for the ${head.label}`} {...t.props} onClick={t.toggle}>
+              <button type="button" className={k.ib} aria-label={`More for the ${head.label}`} {...t.props} onClick={t.toggle}>
                 <Icon name="r2More" size={16} strokeWidth={2.6} />
-              </Button>
+              </button>
             )}
           />
         </>

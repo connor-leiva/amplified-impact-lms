@@ -43,7 +43,9 @@ export function Component() {
               <div className={c.wkl}>
                 {vm.before.lines.map((l) => (
                   <Link key={l.key} to={l.to} className={clsx(c.nyr, c.tdo, l.done && (l.warn ? c.warn : c.ok))}>
-                    <span className={c.tdc}>{l.done ? <Icon name={l.warn ? 'r2Incidents' : 'r2Check'} size={12} strokeWidth={2.6} /> : null}</span>
+                    <span className={c.tdc}>
+                      {l.done ? <Icon name={l.warn ? 'r2Incidents' : 'r2Check'} size={12} strokeWidth={2.6} /> : null}
+                    </span>
                     <span className={clsx(k.col, k.col0, c.grow)}>
                       <span className={clsx(k.w5, c.tdLabel)}>{l.label}</span>
                       <span className={k.me}>{l.detail}</span>
@@ -96,7 +98,13 @@ export function Component() {
                     <span className={clsx(k.w5, k.el)}>{w.title}</span>
                     <span className={clsx(k.me, k.el)}>{w.line}</span>
                   </span>
-                  {w.now ? <Pill tone="ok">{w.now}</Pill> : !w.published ? <Pill>Draft</Pill> : <span className={k.me}>Published</span>}
+                  {w.now ? (
+                    <Pill tone="ok">{w.now}</Pill>
+                  ) : !w.published ? (
+                    <Pill>Draft</Pill>
+                  ) : (
+                    <span className={k.me}>Published</span>
+                  )}
                   <Icon name="r2Chev" size={12} strokeWidth={2.2} />
                 </Link>
               ))}
@@ -122,7 +130,7 @@ export function Component() {
             <Card title="Seats" right={<ButtonLink to={cohortPath(cohortId, 'people')}>People</ButtonLink>}>
               <div className={clsx(k.col, k.colM)}>
                 <Link to={enrollmentPath(cohortId)} className={c.rdy}>
-                  <span className={c.rdyLabel}>Seats taken</span>
+                  <span className={clsx(c.rdyLabel, c.seats)}>Seats taken</span>
                   <Bar pct={vm.seats.cap ? (100 * (vm.seats.taken ?? 0)) / vm.seats.cap : 0} />
                   <span className={clsx(k.tn, k.w5, c.rdn)}>
                     {vm.seats.taken ?? 0} of {vm.seats.cap}
@@ -153,16 +161,28 @@ export function Component() {
               )}
             </div>
           </Card>
-          <Card title="This Cohort’s Shape" right={<ButtonLink to={cohortPath(cohortId, 'settings')}>Settings</ButtonLink>}>
-            <KV
-              stacked
-              rows={[
-                { label: 'Promise', value: vm.shape.promise },
-                { label: 'Meets', value: vm.shape.meets },
-                { label: 'Seats', value: <Link className={k.lk} to={enrollmentPath(cohortId)}>{vm.shape.seats}</Link> },
-                { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
-              ]}
-            />
+          <Card
+            title="This Cohort’s Shape"
+            right={<ButtonLink to={cohortPath(cohortId, 'settings')}>Settings</ButtonLink>}
+          >
+            <div className={c.kvTail}>
+              <KV
+                stacked
+                rows={[
+                  { label: 'Promise', value: vm.shape.promise },
+                  { label: 'Meets', value: vm.shape.meets },
+                  {
+                    label: 'Seats',
+                    value: (
+                      <Link className={k.lk} to={enrollmentPath(cohortId)}>
+                        {vm.shape.seats}
+                      </Link>
+                    ),
+                  },
+                  { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
+                ]}
+              />
+            </div>
           </Card>
         </div>
       </div>

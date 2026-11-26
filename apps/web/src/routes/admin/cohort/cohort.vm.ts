@@ -32,7 +32,16 @@ import {
   weekOpensLine,
   zonedInputs,
 } from '@ai/core';
-import type { BeforeKey, CohortFacts, CohortSlot, CohortStatusWord, Db, LaidSession, Session, SessionType } from '@ai/core';
+import type {
+  BeforeKey,
+  CohortFacts,
+  CohortSlot,
+  CohortStatusWord,
+  Db,
+  LaidSession,
+  Session,
+  SessionType,
+} from '@ai/core';
 import { PROGRAM, cohortLabel } from '../../../data/admin-shell';
 
 const MT = 'America/Denver';
@@ -46,7 +55,13 @@ export const FLAGS_PATH = '/admin/flags';
 /** The Enrollment card on Settings: the one source of seats (PLAN.md § 10.3). */
 export const enrollmentPath = (id: string): string => `${cohortPath(id, 'settings')}#enrollment`;
 
-const STATUS_TONE: Record<CohortStatusWord, Tone> = { Draft: 'warn', Scheduled: 'info', Active: 'ok', Finished: 'off' };
+// The mockup's `TONE`: Draft is `off`, Scheduled `info`, Active `ok`; Finished has none, so it is plain.
+const STATUS_TONE: Record<CohortStatusWord, Tone> = {
+  Draft: 'off',
+  Scheduled: 'info',
+  Active: 'ok',
+  Finished: 'neutral',
+};
 
 /** "1 hr 30 min", "1 hr", "45 min". */
 export const lengthLine = (mins: number): string => {
@@ -55,7 +70,8 @@ export const lengthLine = (mins: number): string => {
   return h ? `${h} hr${m ? ` ${m} min` : ''}` : `${m} min`;
 };
 
-const sessionsOf = (db: Db, id: string): Session[] => db.sessions.filter((s) => s.cohortId === id).sort((a, b) => a.start - b.start);
+const sessionsOf = (db: Db, id: string): Session[] =>
+  db.sessions.filter((s) => s.cohortId === id).sort((a, b) => a.start - b.start);
 
 // ================================================================================================
 // The head: the picker, the status word, the shape line
@@ -78,7 +94,14 @@ export function cohortHeadVM(db: Db, cohortId: string, now: number): CohortHeadV
   return {
     label: cohortLabel(co),
     status: { label: status, tone: STATUS_TONE[status] },
-    line: [PROGRAM, shape ? shapeLine(shape.shape) : null, opens !== null ? `opens ${fmt.mtDay(opens)}` : null].filter(Boolean).join(' · '),
+    // The mockup's `p3Line`: a cohort with no building weeks has no shape to say.
+    line: [
+      PROGRAM,
+      shape && shape.shape.buildWeeks ? shapeLine(shape.shape) : null,
+      opens !== null ? `opens ${fmt.mtDay(opens)}` : null,
+    ]
+      .filter(Boolean)
+      .join(' · '),
     draft: co.status === 'draft',
   };
 }
@@ -175,7 +198,11 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
       short: opens !== null ? fmt.mtDay(opens) : 'Not set',
       to: `${settings}#dates`,
     },
-    { label: 'Shape', value: shape ? `${shape.shape.buildWeeks} weeks · ${meetsHowOften(shape.shape.slots)}` : 'Not set', to: settings },
+    {
+      label: 'Shape',
+      value: shape ? `${shape.shape.buildWeeks} weeks · ${meetsHowOften(shape.shape.slots)}` : 'Not set',
+      to: settings,
+    },
     { label: 'Teams', value: `${teams ?? 0} of ${co.capacity} seats`, to: enrollmentPath(cohortId) },
     { label: 'Learners', value: String(facts?.learners ?? 0), to: cohortPath(cohortId, 'people') },
     { label: 'Next session', value: next ? fmt.mtDay(next.start) : 'None yet', to: cohortPath(cohortId, 'schedule') },
@@ -185,7 +212,14 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
   const to = BEFORE_TO(cohortId);
   const before = b
     ? {
-        lines: b.lines.map((l) => ({ key: l.key, label: l.label, detail: l.detail, done: l.done, warn: !!l.warn, to: to[l.key] })),
+        lines: b.lines.map((l) => ({
+          key: l.key,
+          label: l.label,
+          detail: l.detail,
+          done: l.done,
+          warn: !!l.warn,
+          to: to[l.key],
+        })),
         done: b.done,
         total: b.lines.length,
         left: b.lines.length - b.done,
@@ -232,7 +266,12 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
   const current = [...rows].reverse().find((w) => w.opensAt !== null && w.opensAt <= now) ?? null;
   const run: RunRowVM[] = rows.map((w) => {
     const meets = w.sessions.map((s) => fmt.mtDay(s.start)).join(' and ');
-    const opensWhen = w.opensAt !== null ? fmt.mtDay(w.opensAt) : w.n === 0 && co.previewOpensAt !== undefined ? fmt.mtDay(co.previewOpensAt) : 'with the course';
+    const opensWhen =
+      w.opensAt !== null
+        ? fmt.mtDay(w.opensAt)
+        : w.n === 0 && co.previewOpensAt !== undefined
+          ? fmt.mtDay(co.previewOpensAt)
+          : 'with the course';
     return {
       id: w.moduleId,
       n: w.n,
@@ -280,7 +319,10 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
     seats: {
       taken: teams,
       cap: co.capacity,
-      note: co.status === 'draft' ? 'No one yet. Enrollment is closed.' : 'Enrollment is open. A team that buys a seat lands here.',
+      note:
+        co.status === 'draft'
+          ? 'No one yet. Enrollment is closed.'
+          : 'Enrollment is open. A team that buys a seat lands here.',
     },
     coming,
     shape: {
@@ -295,7 +337,8 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
 // Schedule
 // ================================================================================================
 
-export type ScheduleFilter = 'All sessions' | 'Live builds' | 'Office hours' | 'Without a Zoom link' | 'Same time as another cohort';
+export type ScheduleFilter =
+  'All sessions' | 'Live builds' | 'Office hours' | 'Without a Zoom link' | 'Same time as another cohort';
 
 export interface ScheduleRowVM {
   id: string;
@@ -363,7 +406,11 @@ export function scheduleVM(db: Db, cohortId: string, now: number): ScheduleVM | 
         : s.zoom.trim()
           ? { label: 'Ready', tone: 'ok' }
           : { label: 'No link yet', tone: 'warn' },
-      reminder: !s.zoom.trim() ? { label: 'Draft', tone: 'off' } : now >= s.start - 864e5 ? { label: 'Sent', tone: 'ok' } : { label: 'Scheduled', tone: 'info' },
+      reminder: !s.zoom.trim()
+        ? { label: 'Draft', tone: 'off' }
+        : now >= s.start - 864e5
+          ? { label: 'Sent', tone: 'ok' }
+          : { label: 'Scheduled', tone: 'info' },
       clash: clashes.has(s.start),
       hasZoom: !!s.zoom.trim(),
       sessionKind: s.kind ?? null,
@@ -385,11 +432,22 @@ export function scheduleVM(db: Db, cohortId: string, now: number): ScheduleVM | 
         ? { label: 'Same time as another cohort', value: String(clash) }
         : { label: 'Next', value: first ? `${fmt.mtDay(first.start)} · ${fmt.mtCt(first.start)}` : 'None yet' },
     ],
-    filters: ['All sessions', 'Live builds', 'Office hours', 'Without a Zoom link', ...(clash ? (['Same time as another cohort'] as const) : [])],
+    filters: [
+      'All sessions',
+      'Live builds',
+      'Office hours',
+      'Without a Zoom link',
+      ...(clash ? (['Same time as another cohort'] as const) : []),
+    ],
     rows: out,
     missing:
       empty.length && slots.length && shape?.stored
-        ? { first: empty[0]!.n, last: empty[empty.length - 1]!.n, add: empty.length * slots.length, rhythm: rhythmWords(slots) }
+        ? {
+            first: empty[0]!.n,
+            last: empty[empty.length - 1]!.n,
+            add: empty.length * slots.length,
+            rhythm: rhythmWords(slots),
+          }
         : null,
     clash: clash ? { n: clash, words: clashWords(db, cohortId), kept: co.overlapOkAt !== undefined } : null,
   };
@@ -430,7 +488,13 @@ export function filterRows(rows: readonly ScheduleRowVM[], f: ScheduleFilter): S
 // ================================================================================================
 
 export interface SettingsVM {
-  shape: { rows: { label: string; value: string }[]; weeks: string; hosts: string; stored: boolean; setupWeek: boolean };
+  shape: {
+    rows: { label: string; value: string }[];
+    weeks: string;
+    hosts: string;
+    stored: boolean;
+    setupWeek: boolean;
+  };
   dates: { label: string; value: string }[];
   enrollment: { seats: string; open: boolean };
   words: { name: string; promise: string; how: string[]; holiday: string; unread: boolean } | null;
@@ -453,7 +517,10 @@ export function settingsVM(db: Db, cohortId: string, facts: CohortFacts | null):
     shape: {
       rows: shape
         ? [
-            { label: 'Length', value: `${shape.buildWeeks} weeks of building${shape.setupWeek ? ', after a setup week' : ''}` },
+            {
+              label: 'Length',
+              value: `${shape.buildWeeks} weeks of building${shape.setupWeek ? ', after a setup week' : ''}`,
+            },
             ...shape.slots.map((s, i) => ({ label: i ? 'And' : 'Meets', value: slotLine(s, tz) })),
           ]
         : [],
@@ -467,19 +534,34 @@ export function settingsVM(db: Db, cohortId: string, facts: CohortFacts | null):
       ...(later ? [{ label: 'A week opens', value: later }] : []),
       {
         label: setup ? 'Setup week opens' : 'Preview opens',
-        value: co.previewOpensAt !== undefined ? `${fmt.mtDay(co.previewOpensAt)} · ${fmt.mtCt(co.previewOpensAt)}` : 'Not set',
+        value:
+          co.previewOpensAt !== undefined
+            ? `${fmt.mtDay(co.previewOpensAt)} · ${fmt.mtCt(co.previewOpensAt)}`
+            : 'Not set',
       },
-      ...(setup ? [{ label: 'Week 0 is due', value: setup.dueAt !== null ? `${fmt.mtDay(setup.dueAt)} · ${fmt.mtCt(setup.dueAt)}` : 'Not set' }] : []),
+      ...(setup
+        ? [
+            {
+              label: 'Week 0 is due',
+              value: setup.dueAt !== null ? `${fmt.mtDay(setup.dueAt)} · ${fmt.mtCt(setup.dueAt)}` : 'Not set',
+            },
+          ]
+        : []),
       {
         label: 'Welcome email',
-        value: co.welcomeSendsAt !== undefined ? `${fmt.mtDay(co.welcomeSendsAt)} · ${fmt.mtCt(co.welcomeSendsAt)}` : 'When a team is enrolled',
+        value:
+          co.welcomeSendsAt !== undefined
+            ? `${fmt.mtDay(co.welcomeSendsAt)} · ${fmt.mtCt(co.welcomeSendsAt)}`
+            : 'When a team is enrolled',
       },
       { label: 'Included time ends', value: co.includedUntil ? includedLine(co.includedUntil) : 'Not set' },
       { label: 'Session reminders', value: 'The day before and an hour before, in MT and CT' },
       { label: 'Time zone', value: 'Mountain in the admin. Learners see Central.' },
     ],
     enrollment: { seats: `${facts?.teams ?? 0} of ${co.capacity} taken`, open: co.status !== 'draft' },
-    words: words ? { name: words.name, promise: words.promise, how: words.how, holiday: words.holiday, unread: words.unread } : null,
+    words: words
+      ? { name: words.name, promise: words.promise, how: words.how, holiday: words.holiday, unread: words.unread }
+      : null,
     includedFrozen: (facts?.plans ?? 0) > 0,
   };
 }
@@ -509,8 +591,10 @@ export interface DatesForm {
   weeks: DatesWeekForm[];
 }
 
-const dateOf = (t: number | null | undefined, tz: string): string => (t === null || t === undefined ? '' : zonedInputs(t, tz).date);
-const timeOf = (t: number | null | undefined, tz: string): string => (t === null || t === undefined ? '' : zonedInputs(t, tz).time);
+const dateOf = (t: number | null | undefined, tz: string): string =>
+  t === null || t === undefined ? '' : zonedInputs(t, tz).date;
+const timeOf = (t: number | null | undefined, tz: string): string =>
+  t === null || t === undefined ? '' : zonedInputs(t, tz).time;
 
 export function datesForm(db: Db, cohortId: string): DatesForm | null {
   const co = db.cohorts.find((c) => c.id === cohortId);
@@ -557,10 +641,20 @@ export function runArgs(cohortId: string, f: DatesForm, stored: ReturnType<typeo
     cohortId,
     weeks: f.weeks.map((w) => {
       const was = stored.find((x) => x.moduleId === w.moduleId);
-      const time = (t: number | null | undefined, fallback: string) => (t === null || t === undefined ? fallback : zonedInputs(t, tz).time);
+      const time = (t: number | null | undefined, fallback: string) =>
+        t === null || t === undefined ? fallback : zonedInputs(t, tz).time;
       return {
         moduleId: w.moduleId,
-        opens: w.setup || !w.opens ? null : { date: w.opens, time: was && was.opensAt !== null && dateOf(was.opensAt, tz) === w.opens ? time(was.opensAt, f.openTime) : f.openTime },
+        opens:
+          w.setup || !w.opens
+            ? null
+            : {
+                date: w.opens,
+                time:
+                  was && was.opensAt !== null && dateOf(was.opensAt, tz) === w.opens
+                    ? time(was.opensAt, f.openTime)
+                    : f.openTime,
+              },
         due: w.due ? { date: w.due, time: time(was?.dueAt, f.openTime) } : null,
       };
     }),
@@ -613,19 +707,41 @@ export interface NewCohortVM {
   laid: LaidSession[];
 }
 
-const MON_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MON_FULL = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
-export function newCohortVM(db: Db, f: NewCohortForm, sourcePromise: string): NewCohortVM {
+/** `selfId`: the cohort whose shape this is, when it exists (the Shape dialog), so its own sessions are no clash. */
+export function newCohortVM(
+  db: Db,
+  f: NewCohortForm,
+  sourcePromise: string,
+  selfId: string | null = null,
+): NewCohortVM {
   const startMs = Date.parse(`${f.start}T12:00:00Z`);
-  const autoName = Number.isNaN(startMs) ? 'New Cohort' : `${MON_FULL[new Date(startMs).getUTCMonth()]} ${new Date(startMs).getUTCFullYear()} Cohort`;
+  const autoName = Number.isNaN(startMs)
+    ? 'New Cohort'
+    : `${MON_FULL[new Date(startMs).getUTCMonth()]} ${new Date(startMs).getUTCFullYear()} Cohort`;
   const name = f.name === null ? autoName : f.name;
   const input = { start: f.start, setupWeek: f.setupWeek, picks: f.picks, slots: f.slots };
   const problem = layoutProblem(db, input);
   const layout = problem ? null : layOut(db, input);
-  const warnings = layout ? layoutWarnings(db, null, layout.sessions) : [];
+  const warnings = layout ? layoutWarnings(db, selfId, layout.sessions) : [];
   const clashAt = new Set(warnings.filter((w) => w.kind === 'same_time').map((w) => w.start));
   const holidayAt = new Map(warnings.flatMap((w) => (w.kind === 'holiday' ? [[w.start, w.holiday] as const] : [])));
-  const titleOf = (id: string) => programWeeks(db).find((w) => w.id === id)?.title ?? db.modules.find((m) => m.id === id)?.course?.title ?? id;
+  const titleOf = (id: string) =>
+    programWeeks(db).find((w) => w.id === id)?.title ?? db.modules.find((m) => m.id === id)?.course?.title ?? id;
   const plan: PlanWeekVM[] = layout
     ? layout.weeks.map((w) => {
         const mine = layout.sessions.filter((s) => s.moduleId === w.moduleId);
@@ -640,7 +756,11 @@ export function newCohortVM(db: Db, f: NewCohortForm, sourcePromise: string): Ne
             return {
               label: `${fmt.mtDay(s.start).replace(',', '')} · ${fmt.mtTime(s.start).replace(':00', '')} · ${LAYOUT_KIND_LABEL[s.kind]}`,
               tone: clash ? ('warn' as const) : s.kind === 'live_build' ? ('build' as const) : ('alt' as const),
-              ...(clash ? { title: 'Same time as another cohort’s session' } : holidayAt.has(s.start) ? { title: holidayAt.get(s.start)! } : {}),
+              ...(clash
+                ? { title: 'Same time as another cohort’s session' }
+                : holidayAt.has(s.start)
+                  ? { title: holidayAt.get(s.start)! }
+                  : {}),
             };
           }),
         };
@@ -660,7 +780,9 @@ export function newCohortVM(db: Db, f: NewCohortForm, sourcePromise: string): Ne
     lastSession: last ? fmt.mtDay(last.start) : null,
     plan,
     sessions: ses.length,
-    clash: clashAt.size ? { n: ses.filter((s) => clashAt.has(s.start)).length, words: clashWordsFor(db, warnings) } : null,
+    clash: clashAt.size
+      ? { n: ses.filter((s) => clashAt.has(s.start)).length, words: clashWordsFor(db, warnings) }
+      : null,
     holidays: [...holidayAt].map(([t, h]) => `${fmt.mtDay(t)} is ${h}`),
     drafts,
     problem,
@@ -694,7 +816,9 @@ export function otherRhythmLine(db: Db, warnings: ReturnType<typeof layoutWarnin
   const last = ses[ses.length - 1];
   if (!shape || !shape.shape.slots.length || !last) return null;
   const times = [...new Set(shape.shape.slots.map((s) => s.time))];
-  const kinds = shape.shape.slots.map((s) => `${DAY_NAME[s.day]} ${s.kind === 'live_build' ? 'build' : LAYOUT_KIND_LABEL[s.kind].toLowerCase()}`).join(' and ');
+  const kinds = shape.shape.slots
+    .map((s) => `${DAY_NAME[s.day]} ${s.kind === 'live_build' ? 'build' : LAYOUT_KIND_LABEL[s.kind].toLowerCase()}`)
+    .join(' and ');
   const at = times.length === 1 ? ` are at ${fmt.mtTime(Date.parse(`2027-01-05T${times[0]}:00-07:00`))}` : '';
   return `Its ${kinds}${at} through ${fmt.mtDay(last.start)}.`;
 }

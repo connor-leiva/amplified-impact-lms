@@ -77,8 +77,10 @@
   text-align: left;
   cursor: pointer;
   color: inherit;
+  /* The mockup sets these rows' size a pixel under the body's and pulls `.rnw` and `.rdy` out by their padding, but its
+     button reset (`.arx button{font:inherit;margin:0}`) outranks both, so it draws them at the body's size and in
+     place, a row that runs 16px past its card's padding. The build draws what the mockup draws. */
   font: inherit;
-  font-size: calc(var(--r2-t) - 1px);
   text-decoration: none;
 }
 .nyr {
@@ -106,7 +108,6 @@
 }
 .rnw {
   padding: 8px;
-  margin: -4px -8px;
   width: calc(100% + 16px);
   border-radius: 8px;
 }
@@ -115,7 +116,6 @@
 }
 .rdy {
   padding: 6px 8px;
-  margin: -2px -8px;
   width: calc(100% + 16px);
   border-radius: 8px;
   gap: 10px;
@@ -125,6 +125,20 @@
 }
 .rdyLabel {
   flex: 0 0 116px;
+}
+/* The mockup's Seats taken label is narrower than a readiness row's. */
+.rdyLabel.seats {
+  flex-basis: 96px;
+}
+/* A link the mockup draws as a `.lk` button, which its button reset (`.arx button{font:inherit;color:inherit}`) sets in
+   the text around it: the body's size, weight and colour. */
+a.plain {
+  font: inherit;
+  color: inherit;
+}
+/* The mockup's `.kvs .kv dd{margin-bottom:10px}` keeps its last value's margin too (the kit's stacked KV drops it). */
+.kvTail {
+  padding-bottom: 10px;
 }
 .rdn {
   flex: none;
@@ -589,15 +603,24 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .fx > div,
+  /* `.ph .fx>div` and `.ph .fx>.fxl`: a fact that opens nothing keeps 10px on its right, one with a chevron 26px. Its
+     value stays at the 16px phone floor, where the mockup sets 15px (D-160's decision A). */
+  .fx > div {
+    padding: 12px 10px 12px 12px;
+    min-width: 0;
+  }
   .fxl {
     padding: 12px 26px 12px 12px;
     min-width: 0;
   }
+  .fx > div > span,
   .fxl > span {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .fx > div:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
   .fxl > span:nth-child(2) {
     font-size: 16px;
@@ -623,8 +646,13 @@
   .g2 {
     grid-template-columns: minmax(0, 1fr);
   }
-  .nyr {
+  /* `.ph .nyr` comes after `.nyr.rn` in the mockup and ties it, so a run row is 12px all round on a phone too. */
+  .nyr,
+  .nyr.rn {
     padding: 12px 16px;
+  }
+  .lab {
+    font-size: 16px;
   }
   .wpk {
     padding: 10px 16px;
@@ -659,12 +687,13 @@
   .sticky {
     position: static;
   }
-  .rdyLabel {
-    flex-basis: 96px;
-  }
   .stp2,
   .stp2 button,
   .seg button {
     min-height: 44px;
+  }
+  /* `.ph .sgm button` */
+  .seg button {
+    padding: 0 9px;
   }
 }

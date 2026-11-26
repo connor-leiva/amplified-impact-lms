@@ -37,22 +37,28 @@ export function Component() {
       <div className={c.set2}>
         <div className={k.col}>
           <div id="cohort-shape" className={c.anchor}>
-            <Card title="Shape" sub="How long it runs and how often you meet" right={<Button onClick={() => setOpen('shape')}>Edit</Button>}>
-              <KV
-                stacked
-                rows={[
-                  ...vm.shape.rows,
-                  {
-                    label: 'Its weeks',
-                    value: (
-                      <button type="button" className={k.lk} onClick={() => setOpen('weeks')}>
-                        {vm.shape.weeks}
-                      </button>
-                    ),
-                  },
-                  { label: 'Hosts', value: vm.shape.hosts },
-                ]}
-              />
+            <Card
+              title="Shape"
+              sub="How long it runs and how often you meet"
+              right={<Button onClick={() => setOpen('shape')}>Edit</Button>}
+            >
+              <div className={c.kvTail}>
+                <KV
+                  stacked
+                  rows={[
+                    ...vm.shape.rows,
+                    {
+                      label: 'Its weeks',
+                      value: (
+                        <button type="button" className={k.lk} onClick={() => setOpen('weeks')}>
+                          {vm.shape.weeks}
+                        </button>
+                      ),
+                    },
+                    { label: 'Hosts', value: vm.shape.hosts },
+                  ]}
+                />
+              </div>
               <p className={clsx(k.p, k.me)} style={{ marginTop: 12 }}>
                 {vm.shape.stored
                   ? 'Change the shape and the sessions that haven’t happened are laid out again. Past sessions keep their dates.'
@@ -62,29 +68,36 @@ export function Component() {
           </div>
           <div id="cohort-dates" className={c.anchor}>
             <Card title="Dates and Release" right={<Button onClick={() => setOpen('dates')}>Edit</Button>}>
-              <KV stacked rows={vm.dates} />
+              <div className={c.kvTail}>
+                <KV stacked rows={vm.dates} />
+              </div>
             </Card>
           </div>
         </div>
         <div className={k.col}>
           <div id="cohort-enrollment" className={c.anchor}>
-            <Card title="Enrollment" right={<Status tone={vm.enrollment.open ? 'ok' : 'off'}>{vm.enrollment.open ? 'Open' : 'Closed'}</Status>}>
-              <KV
-                stacked
-                rows={[
-                  {
-                    label: 'Seats',
-                    value: (
-                      <Link className={k.lk} to={cohortPath(cohortId, 'people')}>
-                        {vm.enrollment.seats}
-                      </Link>
-                    ),
-                  },
-                  { label: 'A seat is', value: 'A team: an owner and an AI Implementer' },
-                  { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
-                  { label: 'Who lands here', value: 'A team that buys a seat while enrollment is open' },
-                ]}
-              />
+            <Card
+              title="Enrollment"
+              right={<Status tone={vm.enrollment.open ? 'ok' : 'off'}>{vm.enrollment.open ? 'Open' : 'Closed'}</Status>}
+            >
+              <div className={c.kvTail}>
+                <KV
+                  stacked
+                  rows={[
+                    {
+                      label: 'Seats',
+                      value: (
+                        <Link className={k.lk} to={cohortPath(cohortId, 'people')}>
+                          {vm.enrollment.seats}
+                        </Link>
+                      ),
+                    },
+                    { label: 'A seat is', value: 'A team: an owner and an AI Implementer' },
+                    { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
+                    { label: 'Who lands here', value: 'A team that buys a seat while enrollment is open' },
+                  ]}
+                />
+              </div>
               <p className={clsx(k.p, k.me)} style={{ marginTop: 12 }}>
                 Prices and Payment Links are made in Stripe.
               </p>
@@ -126,7 +139,7 @@ export function Component() {
                   <Button aria-label="Edit this cohort’s words" onClick={() => setOpen('words')}>
                     Edit words
                   </Button>
-                  <Link className={clsx(k.lk, k.me)} to="/admin/program/course">
+                  <Link className={clsx(k.lk, c.plain)} to="/admin/program/course">
                     What every cohort shares is in Course Settings
                   </Link>
                 </div>
@@ -137,7 +150,9 @@ export function Component() {
             <div className={c.cleanRow}>
               <span className={clsx(k.col, k.col0, c.grow)}>
                 <span className={k.w5}>Delete turned-in files</span>
-                <span className={k.me}>Removes every file teams turned in. The record that they turned it in stays.</span>
+                <span className={k.me}>
+                  Removes every file teams turned in. The record that they turned it in stays.
+                </span>
               </span>
               <CohortFilesButton cohortId={cohortId} label="Delete…" />
             </div>
@@ -146,7 +161,9 @@ export function Component() {
       </div>
       {open === 'shape' ? <ShapeDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
       {open === 'weeks' ? <WeeksDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
-      {open === 'dates' ? <DatesDialog cohortId={cohortId} frozen={vm.includedFrozen} onClose={() => setOpen(null)} /> : null}
+      {open === 'dates' ? (
+        <DatesDialog cohortId={cohortId} frozen={vm.includedFrozen} onClose={() => setOpen(null)} />
+      ) : null}
       {open === 'words' ? <WordsDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
     </div>
   );

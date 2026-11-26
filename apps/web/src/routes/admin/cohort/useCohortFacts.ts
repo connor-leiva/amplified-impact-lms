@@ -8,7 +8,14 @@ import type { CohortFacts } from '@ai/core';
 // The fixture build has no server, so it answers none sold, none sent: the facts of a cohort nobody has touched.
 
 const FIXTURE = import.meta.env.VITE_DATA_SOURCE === 'fixture';
-const NONE: CohortFacts = { testSends: { welcome: false, week0: false }, plans: 0, teams: 0, learners: 0, intakeNotStarted: 0, intakeGhlFailed: 0 };
+const NONE: CohortFacts = {
+  testSends: { welcome: false, week0: false },
+  plans: 0,
+  teams: 0,
+  learners: 0,
+  intakeNotStarted: 0,
+  intakeGhlFailed: 0,
+};
 
 export const cohortFactsPath = (cohortId: string): string => `/api/admin/cohorts/${encodeURIComponent(cohortId)}/facts`;
 

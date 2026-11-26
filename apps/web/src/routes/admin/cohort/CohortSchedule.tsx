@@ -37,7 +37,16 @@ interface SessionForm {
   replayVisibility: ReplayVisibility | null;
 }
 
-const BLANK: SessionForm = { kind: 'office_hours', moduleId: '', title: '', date: '', time: '12:00', mins: '60', zoom: '', replayVisibility: null };
+const BLANK: SessionForm = {
+  kind: 'office_hours',
+  moduleId: '',
+  title: '',
+  date: '',
+  time: '12:00',
+  mins: '60',
+  zoom: '',
+  replayVisibility: null,
+};
 
 export function Component() {
   const { cohortId = '' } = useParams();
@@ -126,7 +135,14 @@ export function Component() {
     ...(r.primary
       ? [
           'separator' as const,
-          { label: r.primary.label, onSelect: () => void mutate(r.primary!.mutation, { sessionId: r.id }).then((o) => { const e = refusal(o); if (e) toast(e, 'warn'); }) },
+          {
+            label: r.primary.label,
+            onSelect: () =>
+              void mutate(r.primary!.mutation, { sessionId: r.id }).then((o) => {
+                const e = refusal(o);
+                if (e) toast(e, 'warn');
+              }),
+          },
         ]
       : []),
     'separator' as const,
@@ -154,7 +170,7 @@ export function Component() {
       value: (r) => r.day,
       cell: (r) => (
         <div className={clsx(k.col, k.col0)}>
-          <span className={k.el}>{r.day}</span>
+          <span className={clsx(k.w5, k.el)}>{r.day}</span>
           <span className={clsx(k.me, k.el)}>{r.time}</span>
         </div>
       ),
@@ -174,15 +190,33 @@ export function Component() {
           <span className={k.mu}>None</span>
         ),
     },
-    { key: 'zoom', label: 'Zoom link', width: '160px', value: (r) => r.zoom.label, cell: (r) => <Status tone={r.zoom.tone === 'warn' ? 'warn' : 'ok'}>{r.zoom.label}</Status> },
-    { key: 'reminder', label: 'Reminder', width: '112px', value: (r) => r.reminder.label, cell: (r) => <Status tone={r.reminder.tone === 'info' ? 'info' : r.reminder.tone === 'ok' ? 'ok' : 'off'}>{r.reminder.label}</Status> },
+    {
+      key: 'zoom',
+      label: 'Zoom link',
+      width: '160px',
+      value: (r) => r.zoom.label,
+      cell: (r) => <Status tone={r.zoom.tone === 'warn' ? 'warn' : 'ok'}>{r.zoom.label}</Status>,
+    },
+    {
+      key: 'reminder',
+      label: 'Reminder',
+      width: '112px',
+      value: (r) => r.reminder.label,
+      cell: (r) => (
+        <Status tone={r.reminder.tone === 'info' ? 'info' : r.reminder.tone === 'ok' ? 'ok' : 'off'}>
+          {r.reminder.label}
+        </Status>
+      ),
+    },
   ];
 
   return (
     <div className={k.col}>
       <LinkFacts
         items={vm.facts.map((f) =>
-          f.label === 'Without a Zoom link' || f.label === 'Same time as another cohort' ? { ...f, to: `?show=${encodeURIComponent(f.label)}` } : f,
+          f.label === 'Without a Zoom link' || f.label === 'Same time as another cohort'
+            ? { ...f, to: `?show=${encodeURIComponent(f.label)}` }
+            : f,
         )}
       />
       {vm.missing ? (
@@ -220,7 +254,6 @@ export function Component() {
         <span className={k.sp} />
         <Button
           kind="primary"
-          header
           icon="r2Plus"
           onClick={() => {
             setError('');
@@ -241,7 +274,8 @@ export function Component() {
         empty={{ icon: 'r2Cohorts', title: 'No sessions match', body: 'Try another filter.' }}
       />
       <p className={clsx(k.p, k.me)}>
-        Sessions are edited here and nowhere else. A week shows its sessions but doesn’t change them. Times are Mountain, with Central after each for what learners see.
+        Sessions are edited here and nowhere else. A week shows its sessions but doesn’t change them. Times are
+        Mountain, with Central after each for what learners see.
       </p>
 
       {form ? (
@@ -267,7 +301,11 @@ export function Component() {
             </div>
           ) : null}
           <Field label="Kind">
-            <Sel className={k.full} value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as SessionType })}>
+            <Sel
+              className={k.full}
+              value={form.kind}
+              onChange={(e) => setForm({ ...form, kind: e.target.value as SessionType })}
+            >
               {Object.entries(SESSION_KIND_LABELS).map(([v, l]) => (
                 <option key={v} value={v}>
                   {l}
@@ -276,7 +314,11 @@ export function Component() {
             </Sel>
           </Field>
           <Field label="Week">
-            <Sel className={k.full} value={form.moduleId} onChange={(e) => setForm({ ...form, moduleId: e.target.value })}>
+            <Sel
+              className={k.full}
+              value={form.moduleId}
+              onChange={(e) => setForm({ ...form, moduleId: e.target.value })}
+            >
               <option value="">None</option>
               {weeks.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -290,14 +332,29 @@ export function Component() {
           </Field>
           <div className={c.g2}>
             <Field label="Date (MT)">
-              <input className={k.in} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+              <input
+                className={k.in}
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+              />
             </Field>
             <Field label="Start (MT)">
-              <input className={k.in} type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+              <input
+                className={k.in}
+                type="time"
+                value={form.time}
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+              />
             </Field>
           </div>
           <Field label="Length (minutes)">
-            <input className={k.in} inputMode="numeric" value={form.mins} onChange={(e) => setForm({ ...form, mins: e.target.value })} />
+            <input
+              className={k.in}
+              inputMode="numeric"
+              value={form.mins}
+              onChange={(e) => setForm({ ...form, mins: e.target.value })}
+            />
           </Field>
           <Field label="Zoom link">
             <input className={k.in} value={form.zoom} onChange={(e) => setForm({ ...form, zoom: e.target.value })} />
@@ -306,7 +363,9 @@ export function Component() {
             <Sel
               className={k.full}
               value={form.replayVisibility ?? ''}
-              onChange={(e) => setForm({ ...form, replayVisibility: (e.target.value || null) as ReplayVisibility | null })}
+              onChange={(e) =>
+                setForm({ ...form, replayVisibility: (e.target.value || null) as ReplayVisibility | null })
+              }
             >
               <option value="">Not set</option>
               {Object.entries(REPLAY_LABELS).map(([v, l]) => (

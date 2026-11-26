@@ -69,7 +69,12 @@ export function Component() {
         sourceCohortId: DEFAULT_COHORT_ID,
         picks: f.picks,
         shape: { setupWeek: f.setupWeek, slots: f.slots, hosts: f.hosts },
-        words: f.from && source ? { promise: vm.promise, how: source.how, holiday: source.holiday } : f.from ? undefined : { promise: vm.promise, how: [], holiday: '' },
+        words:
+          f.from && source
+            ? { promise: vm.promise, how: source.how, holiday: source.holiday }
+            : f.from
+              ? undefined
+              : { promise: vm.promise, how: [], holiday: '' },
         includedUntil: vm.included || null,
       });
       if (out.error) return setError(out.error);
@@ -97,7 +102,11 @@ export function Component() {
                 </Field>
                 <div className={c.lab}>
                   <span>Start from</span>
-                  <Sel aria-label="Start from" value={f.from} onChange={(e) => up({ from: e.target.value === DEFAULT_COHORT_ID ? DEFAULT_COHORT_ID : '' })}>
+                  <Sel
+                    aria-label="Start from"
+                    value={f.from}
+                    onChange={(e) => up({ from: e.target.value === DEFAULT_COHORT_ID ? DEFAULT_COHORT_ID : '' })}
+                  >
                     <option value={DEFAULT_COHORT_ID}>{from ? cohortLabel(from) : DEFAULT_COHORT_ID}</option>
                     <option value="">A blank cohort</option>
                   </Sel>
@@ -106,7 +115,12 @@ export function Component() {
               <Field label="The promise" hint="One line. Learners see it on Home, under the program’s name.">
                 <input className={k.in} value={vm.promise} onChange={(e) => up({ promise: e.target.value })} />
               </Field>
-              {f.from ? <p className={clsx(k.p, k.me)}>Copied from December: its seats, its intake form, its emails and its community rules. Nothing about December changes.</p> : null}
+              {f.from ? (
+                <p className={clsx(k.p, k.me)}>
+                  Copied from December: its seats, its intake form, its emails and its community rules. Nothing about
+                  December changes.
+                </p>
+              ) : null}
             </div>
           </Card>
           <Card title="Its Shape" sub="How long it runs and how often you meet">
@@ -115,13 +129,20 @@ export function Component() {
           <Card title="When It Starts">
             <div className={c.g2}>
               <Field label="Week 1 opens">
-                <input className={k.in} type="date" value={f.start} onChange={(e) => e.target.value && up({ start: e.target.value })} />
+                <input
+                  className={k.in}
+                  type="date"
+                  value={f.start}
+                  onChange={(e) => e.target.value && up({ start: e.target.value })}
+                />
               </Field>
               <div className={c.lab}>
                 <span>That makes</span>
                 <span className={k.s2} style={{ fontWeight: 400 }}>
                   {vm.setupOpens ? `The setup week opens ${vm.setupOpens}. ` : ''}
-                  {vm.firstSession ? `The first session is ${vm.firstSession} and the last is ${vm.lastSession}.` : 'No sessions yet.'}
+                  {vm.firstSession
+                    ? `The first session is ${vm.firstSession} and the last is ${vm.lastSession}.`
+                    : 'No sessions yet.'}
                 </span>
               </div>
             </div>
@@ -140,7 +161,8 @@ export function Component() {
             {vm.drafts > 0 ? (
               <div className={k.cdb} style={{ borderTop: '1px solid var(--r2-line)' }}>
                 <p className={clsx(k.p, k.me)}>
-                  {vm.drafts} of these {vm.drafts === 1 ? 'is' : 'are'} still {vm.drafts === 1 ? 'a draft' : 'drafts'} in the curriculum. A draft week stays locked for learners until it is published.
+                  {vm.drafts} of these {vm.drafts === 1 ? 'is' : 'are'} still {vm.drafts === 1 ? 'a draft' : 'drafts'}{' '}
+                  in the curriculum. A draft week stays locked for learners until it is published.
                 </p>
               </div>
             ) : null}
@@ -156,7 +178,12 @@ export function Component() {
                   </span>
                 </div>
                 <Field label="Included time ends" hint="90 days after the last live build.">
-                  <input className={k.in} type="date" value={vm.included} onChange={(e) => up({ included: e.target.value })} />
+                  <input
+                    className={k.in}
+                    type="date"
+                    value={vm.included}
+                    onChange={(e) => up({ included: e.target.value })}
+                  />
                 </Field>
               </div>
               <Field label="Hosts">
@@ -215,7 +242,9 @@ export function Component() {
               <Button kind="primary" disabled={busy || !!vm.problem} onClick={() => void create()}>
                 Create cohort
               </Button>
-              <p className={clsx(k.p, k.me)}>Creates a draft. No one is enrolled, nothing is for sale and no one is emailed.</p>
+              <p className={clsx(k.p, k.me)}>
+                Creates a draft. No one is enrolled, nothing is for sale and no one is emailed.
+              </p>
             </div>
           </section>
         </div>

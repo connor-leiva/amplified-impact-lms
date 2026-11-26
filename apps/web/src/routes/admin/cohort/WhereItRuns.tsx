@@ -28,7 +28,9 @@ export function whereItRuns(db: Db, moduleId: string): WhereRow[] {
     .flatMap((co) => {
       const w = cohortRun(db, co.id).find((x) => x.module.id === moduleId);
       if (!w) return [];
-      const meets = db.sessions.filter((s) => s.cohortId === co.id && s.moduleId === moduleId).sort((a, b) => a.start - b.start);
+      const meets = db.sessions
+        .filter((s) => s.cohortId === co.id && s.moduleId === moduleId)
+        .sort((a, b) => a.start - b.start);
       const opens = w.opensAt ?? (w.n === 0 ? (co.previewOpensAt ?? null) : null);
       return [
         {
@@ -74,7 +76,10 @@ export function WhereItRuns({ db, moduleId }: { db: Db; moduleId: string }) {
 export function WeekSessionsReadOnly({ db, moduleId }: { db: Db; moduleId: string }) {
   const rows = db.sessions.filter((s) => s.moduleId === moduleId).sort((a, b) => a.start - b.start);
   return (
-    <Card title={`Sessions · ${rows.length}`} sub="Sessions belong to the cohort. This week only says what happens in them.">
+    <Card
+      title={`Sessions · ${rows.length}`}
+      sub="Sessions belong to the cohort. This week only says what happens in them."
+    >
       <div className={clsx(k.col, k.colM)}>
         {rows.length ? (
           rows.map((s) => {

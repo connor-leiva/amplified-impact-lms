@@ -29,7 +29,7 @@ export function useDialog(onClose: () => void, lock?: boolean) {
   useEffect(() => {
     const was = document.activeElement as HTMLElement | null;
     const q = (sel: string) => ref.current?.querySelector<HTMLElement>(sel) ?? null;
-    (q('[autofocus]') ?? q('input, textarea, select') ?? q('button'))?.focus();
+    (q('[autofocus], [data-autofocus]') ?? q('input, textarea, select') ?? q('button'))?.focus();
     return () => was?.focus?.();
   }, []);
   useEffect(() => {
@@ -65,9 +65,14 @@ export interface ModalProps {
   lock?: boolean;
   /** Max width, when not 480px. */
   width?: number;
+  /**
+   * D-255: focus starts on Close, not on the first field, for a dialog whose mockup autofocuses none (the Cohort page's
+   * Shape, Weeks, Dates and Words), so a field is not shown focused before it is reached.
+   */
+  focusClose?: boolean;
 }
 
-export function Modal({ title, children, foot, onClose, lock, width }: ModalProps) {
+export function Modal({ title, children, foot, onClose, lock, width, focusClose }: ModalProps) {
   const { ref, onKeyDown } = useDialog(onClose, lock);
   return (
     <div
@@ -88,7 +93,7 @@ export function Modal({ title, children, foot, onClose, lock, width }: ModalProp
         <div className={s.mh}>
           <h2 className={s.title}>{title}</h2>
           {!lock ? (
-            <button type="button" className={s.close} aria-label="Close" onClick={onClose}>
+            <button type="button" className={s.close} aria-label="Close" onClick={onClose} data-autofocus={focusClose ? '' : undefined}>
               <Icon name="r2X" size={16} strokeWidth={1.75} />
             </button>
           ) : null}

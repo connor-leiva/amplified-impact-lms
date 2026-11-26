@@ -38,13 +38,19 @@ export function WeeksDialog({ cohortId, onClose }: { cohortId: string; onClose: 
   const co = db.cohorts.find((x) => x.id === cohortId)!;
   const view = cohortShapeOf(db, cohortId);
   const weeks = programWeeks(db);
-  const picked = runRows(db, cohortId).filter((w) => w.n > 0).map((w) => w.moduleId);
+  const picked = runRows(db, cohortId)
+    .filter((w) => w.n > 0)
+    .map((w) => w.moduleId);
   const [picks, setPicks] = useState(picked);
   const [error, setError] = useState(view?.stored ? '' : DERIVED_SHAPE);
   const words = cohortWordsOf(db, cohortId);
   const save = async () => {
     if (!view?.stored) return;
-    const out = await act('saveCohortShape', { cohortId, picks, shape: shapeArgs({ picks, slots: view.shape.slots, setupWeek: view.shape.setupWeek }, view.shape.hosts) });
+    const out = await act('saveCohortShape', {
+      cohortId,
+      picks,
+      shape: shapeArgs({ picks, slots: view.shape.slots, setupWeek: view.shape.setupWeek }, view.shape.hosts),
+    });
     if (out.error) setError(out.error);
     else onClose();
   };
@@ -53,6 +59,7 @@ export function WeeksDialog({ cohortId, onClose }: { cohortId: string; onClose: 
       title={`The Weeks the ${cohortLabel(co)} Runs`}
       width={620}
       onClose={onClose}
+      focusClose
       foot={
         <>
           <Button onClick={onClose}>Cancel</Button>
@@ -62,13 +69,17 @@ export function WeeksDialog({ cohortId, onClose }: { cohortId: string; onClose: 
         </>
       }
     >
-      <p className={clsx(k.p, k.s2)}>Pick from the program’s weeks. What a week teaches is the same for every cohort. Its date is this cohort’s.</p>
+      <p className={clsx(k.p, k.s2)}>
+        Pick from the program’s weeks. What a week teaches is the same for every cohort. Its date is this cohort’s.
+      </p>
       <div className={k.cd}>
         <WeekPick weeks={weeks} picks={picks} onChange={setPicks} />
       </div>
       <p className={clsx(k.p, k.me)}>
         {picks.length} weeks of building{view?.shape.setupWeek ? ', after the setup week' : ''}.
-        {picks.length !== picked.length && words?.promise ? ` The promise says ${words.promise.split('.')[0]!.toLowerCase()}. Change it in Settings if it no longer fits.` : ''}
+        {picks.length !== picked.length && words?.promise
+          ? ` The promise says ${words.promise.split('.')[0]!.toLowerCase()}. Change it in Settings if it no longer fits.`
+          : ''}
       </p>
       <Errors error={error} />
     </Modal>
@@ -83,17 +94,39 @@ export function ShapeDialog({ cohortId, onClose }: { cohortId: string; onClose: 
   const view = cohortShapeOf(db, cohortId)!;
   const ids = programWeeks(db).map((w) => w.id);
   const rows = runRows(db, cohortId);
-  const [f, setF] = useState<ShapeForm>({ picks: rows.filter((w) => w.n > 0).map((w) => w.moduleId), slots: view.shape.slots.map((s) => ({ ...s })), setupWeek: view.shape.setupWeek });
+  const [f, setF] = useState<ShapeForm>({
+    picks: rows.filter((w) => w.n > 0).map((w) => w.moduleId),
+    slots: view.shape.slots.map((s) => ({ ...s })),
+    setupWeek: view.shape.setupWeek,
+  });
   const [hosts, setHosts] = useState(view.shape.hosts);
   const [error, setError] = useState('');
   const w1 = rows.find((w) => w.n === 1)?.opensAt ?? null;
   const start = w1 !== null ? zonedInputs(w1, co.timezone ?? 'America/Denver').date : '';
   const plan = useMemo(
-    () => newCohortVM(db, { name: co.name, from: '', promise: '', setupWeek: f.setupWeek, picks: f.picks, slots: f.slots, start, included: '', hosts }, '').plan,
-    [db, co.name, f, start, hosts],
+    () =>
+      newCohortVM(
+        db,
+        {
+          name: co.name,
+          from: '',
+          promise: '',
+          setupWeek: f.setupWeek,
+          picks: f.picks,
+          slots: f.slots,
+          start,
+          included: '',
+          hosts,
+        },
+        '',
+        cohortId,
+      ).plan,
+    [db, co.name, f, start, hosts, cohortId],
   );
   const save = async () => {
-    const out = view.stored ? await act('saveCohortShape', { cohortId, picks: f.picks, shape: shapeArgs(f, hosts) }) : await act('saveCohortHosts', { cohortId, hosts });
+    const out = view.stored
+      ? await act('saveCohortShape', { cohortId, picks: f.picks, shape: shapeArgs(f, hosts) })
+      : await act('saveCohortHosts', { cohortId, hosts });
     if (out.error) setError(out.error);
     else onClose();
   };
@@ -102,6 +135,7 @@ export function ShapeDialog({ cohortId, onClose }: { cohortId: string; onClose: 
       title={`Shape of the ${cohortLabel(co)}`}
       width={640}
       onClose={onClose}
+      focusClose
       foot={
         <>
           <Button onClick={onClose}>Cancel</Button>
@@ -143,7 +177,8 @@ export function DatesDialog({ cohortId, frozen, onClose }: { cohortId: string; f
   const [busy, setBusy] = useState(false);
   const setup = f.weeks.some((w) => w.setup);
   const up = (p: Partial<DatesForm>) => setF({ ...f, ...p });
-  const week = (i: number, p: Partial<DatesForm['weeks'][number]>) => setF({ ...f, weeks: f.weeks.map((w, j) => (j === i ? { ...w, ...p } : w)) });
+  const week = (i: number, p: Partial<DatesForm['weeks'][number]>) =>
+    setF({ ...f, weeks: f.weeks.map((w, j) => (j === i ? { ...w, ...p } : w)) });
   const save = async () => {
     setBusy(true);
     setError('');
@@ -183,6 +218,7 @@ export function DatesDialog({ cohortId, frozen, onClose }: { cohortId: string; f
       title="Dates and Release"
       width={560}
       onClose={onClose}
+      focusClose
       lock={busy}
       foot={
         <>
@@ -203,27 +239,65 @@ export function DatesDialog({ cohortId, frozen, onClose }: { cohortId: string; f
       </div>
       <div className={c.g2}>
         <Field label={setup ? 'Setup week opens' : 'Preview opens'}>
-          <input className={k.in} type="date" value={f.previewDate} onChange={(e) => up({ previewDate: e.target.value })} />
+          <input
+            className={k.in}
+            type="date"
+            value={f.previewDate}
+            onChange={(e) => up({ previewDate: e.target.value })}
+          />
         </Field>
         <Field label="Time (MT)">
-          <input className={k.in} type="time" value={f.previewTime} onChange={(e) => up({ previewTime: e.target.value })} />
+          <input
+            className={k.in}
+            type="time"
+            value={f.previewTime}
+            onChange={(e) => up({ previewTime: e.target.value })}
+          />
         </Field>
       </div>
       <div className={c.g2}>
         <Field label="Welcome email sends at (MT)">
-          <input className={k.in} type="date" value={f.welcomeDate} onChange={(e) => up({ welcomeDate: e.target.value })} />
+          <input
+            className={k.in}
+            type="date"
+            value={f.welcomeDate}
+            onChange={(e) => up({ welcomeDate: e.target.value })}
+          />
         </Field>
         <Field label="Time (MT)">
-          <input className={k.in} type="time" value={f.welcomeTime} onChange={(e) => up({ welcomeTime: e.target.value })} />
+          <input
+            className={k.in}
+            type="time"
+            value={f.welcomeTime}
+            onChange={(e) => up({ welcomeTime: e.target.value })}
+          />
         </Field>
       </div>
-      <p className={clsx(k.p, k.me)}>To move the whole cohort, change when Week 1 opens. Every week and session after it moves by the same number of days.</p>
-      <Field label="Included time ends" hint={frozen ? 'A seat in this cohort is sold, so its included time stays as it is.' : 'A seat’s included time ends at the start of this day, Central time.'}>
-        <input className={k.in} type="date" value={f.included} disabled={frozen} onChange={(e) => up({ included: e.target.value })} />
+      <p className={clsx(k.p, k.me)}>
+        To move the whole cohort, change when Week 1 opens. Every week and session after it moves by the same number of
+        days.
+      </p>
+      <Field
+        label="Included time ends"
+        hint={
+          frozen
+            ? 'A seat in this cohort is sold, so its included time stays as it is.'
+            : 'A seat’s included time ends at the start of this day, Central time.'
+        }
+      >
+        <input
+          className={k.in}
+          type="date"
+          value={f.included}
+          disabled={frozen}
+          onChange={(e) => up({ included: e.target.value })}
+        />
       </Field>
       <div className={c.lab}>
         <span>Each week</span>
-        <span className={c.fat}>Move one week on its own, for a holiday break. Its sessions that haven’t happened move with it.</span>
+        <span className={c.fat}>
+          Move one week on its own, for a holiday break. Its sessions that haven’t happened move with it.
+        </span>
         <div className={c.ewl}>
           <div className={clsx(c.ewr, c.ewh)} aria-hidden="true">
             <span />
@@ -240,12 +314,24 @@ export function DatesDialog({ cohortId, frozen, onClose }: { cohortId: string; f
                 {w.setup ? (
                   <span className={k.me}>Set above</span>
                 ) : (
-                  <input className={k.in} type="date" aria-label={`Week ${w.n} opens`} value={w.opens} onChange={(e) => week(i, { opens: e.target.value })} />
+                  <input
+                    className={k.in}
+                    type="date"
+                    aria-label={`Week ${w.n} opens`}
+                    value={w.opens}
+                    onChange={(e) => week(i, { opens: e.target.value })}
+                  />
                 )}
               </label>
               <label className={c.ewf}>
                 <span className={c.ewk}>Due</span>
-                <input className={k.in} type="date" aria-label={`Week ${w.n} is due`} value={w.due} onChange={(e) => week(i, { due: e.target.value })} />
+                <input
+                  className={k.in}
+                  type="date"
+                  aria-label={`Week ${w.n} is due`}
+                  value={w.due}
+                  onChange={(e) => week(i, { due: e.target.value })}
+                />
               </label>
             </div>
           ))}
@@ -277,6 +363,7 @@ export function WordsDialog({ cohortId, onClose }: { cohortId: string; onClose: 
       title="Words From This Cohort"
       width={560}
       onClose={onClose}
+      focusClose
       foot={
         <>
           <Button onClick={onClose}>Cancel</Button>

@@ -44,16 +44,42 @@ export function LinkFacts({ items }: { items: readonly FactVM[] }) {
 }
 
 /** `Wn`: a week's number, muted for a draft. */
-export function Wn({ n, draft, small, picked }: { n: number | string; draft?: boolean; small?: boolean; picked?: boolean }) {
+export function Wn({
+  n,
+  draft,
+  small,
+  picked,
+}: {
+  n: number | string;
+  draft?: boolean;
+  small?: boolean;
+  picked?: boolean;
+}) {
   return <span className={clsx(c.wn, small && c.sm, picked && c.pk, draft && !small && c.off)}>{n}</span>;
 }
 
 /** `Seg`: a segmented choice. */
-export function Seg<T extends string | number>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: readonly (readonly [T, string])[]; label: string }) {
+export function Seg<T extends string | number>({
+  value,
+  onChange,
+  options,
+  label,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: readonly (readonly [T, string])[];
+  label: string;
+}) {
   return (
     <span className={c.seg} role="group" aria-label={label}>
       {options.map(([v, l]) => (
-        <button key={String(v)} type="button" className={clsx(value === v && c.on)} aria-pressed={value === v} onClick={() => onChange(v)}>
+        <button
+          key={String(v)}
+          type="button"
+          className={clsx(value === v && c.on)}
+          aria-pressed={value === v}
+          onClick={() => onChange(v)}
+        >
           {l}
         </button>
       ))}
@@ -93,7 +119,17 @@ export interface ShapeForm {
 }
 
 /** `ShapeFields`: how long it runs and how often you meet. `ids` are the program's building weeks, in order. */
-export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Partial<ShapeForm>) => void; ids: readonly string[]; locked?: boolean }) {
+export function ShapeFields({
+  f,
+  up,
+  ids,
+  locked,
+}: {
+  f: ShapeForm;
+  up: (p: Partial<ShapeForm>) => void;
+  ids: readonly string[];
+  locked?: boolean;
+}) {
   const weeks = (n: number) => {
     const p = [...f.picks];
     while (p.length > n) p.pop();
@@ -104,7 +140,8 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
     }
     up({ picks: ids.filter((id) => p.includes(id)) });
   };
-  const slot = (i: number, patch: Partial<CohortSlot>) => up({ slots: f.slots.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+  const slot = (i: number, patch: Partial<CohortSlot>) =>
+    up({ slots: f.slots.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
   const times = (n: number) => up({ slots: Array.from({ length: n }, (_, i) => f.slots[i] ?? slotFor(i)) });
   return (
     <div className={k.col}>
@@ -112,7 +149,12 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
         <div className={c.lab}>
           <span>Weeks of building</span>
           <span className={c.stp2}>
-            <button type="button" aria-label="One week fewer" disabled={locked || f.picks.length <= 1} onClick={() => weeks(f.picks.length - 1)}>
+            <button
+              type="button"
+              aria-label="One week fewer"
+              disabled={locked || f.picks.length <= 1}
+              onClick={() => weeks(f.picks.length - 1)}
+            >
               −
             </button>
             <b className={k.tn}>{f.picks.length}</b>
@@ -120,7 +162,11 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
               type="button"
               aria-label="One week more"
               disabled={locked || f.picks.length >= ids.length}
-              title={f.picks.length >= ids.length ? `The curriculum has ${ids.length} building weeks. Add one there first.` : undefined}
+              title={
+                f.picks.length >= ids.length
+                  ? `The curriculum has ${ids.length} building weeks. Add one there first.`
+                  : undefined
+              }
               onClick={() => weeks(f.picks.length + 1)}
             >
               +
@@ -130,7 +176,9 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
         <div className={c.lab}>
           <span>You meet</span>
           {locked ? (
-            <span className={k.s2}>{f.slots.length === 1 ? 'Once a week' : f.slots.length === 2 ? 'Twice a week' : `${f.slots.length} times`}</span>
+            <span className={k.s2}>
+              {f.slots.length === 1 ? 'Once a week' : f.slots.length === 2 ? 'Twice a week' : `${f.slots.length} times`}
+            </span>
           ) : (
             <Seg
               label="You meet"
@@ -151,14 +199,24 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
         <div className={c.lns}>
           {f.slots.map((s, i) => (
             <div key={i} className={c.slt}>
-              <Sel aria-label={`Day ${i + 1}`} disabled={locked} value={String(s.day)} onChange={(e) => slot(i, { day: Number(e.target.value) as CohortSlot['day'] })}>
+              <Sel
+                aria-label={`Day ${i + 1}`}
+                disabled={locked}
+                value={String(s.day)}
+                onChange={(e) => slot(i, { day: Number(e.target.value) as CohortSlot['day'] })}
+              >
                 {DAYS.map(([d, l]) => (
                   <option key={d} value={d}>
                     {l}
                   </option>
                 ))}
               </Sel>
-              <Sel aria-label={`Time ${i + 1}`} disabled={locked} value={s.time} onChange={(e) => slot(i, { time: e.target.value })}>
+              <Sel
+                aria-label={`Time ${i + 1}`}
+                disabled={locked}
+                value={s.time}
+                onChange={(e) => slot(i, { time: e.target.value })}
+              >
                 {TIMES.map(([v, l]) => (
                   <option key={v} value={v}>
                     {l}
@@ -185,10 +243,17 @@ export function ShapeFields({ f, up, ids, locked }: { f: ShapeForm; up: (p: Part
         </div>
       </div>
       <label className={c.ckr}>
-        <input type="checkbox" checked={f.setupWeek} disabled={locked} onChange={(e) => up({ setupWeek: e.target.checked })} />
+        <input
+          type="checkbox"
+          checked={f.setupWeek}
+          disabled={locked}
+          onChange={(e) => up({ setupWeek: e.target.checked })}
+        />
         <span className={clsx(k.col, k.col0)}>
           <span className={k.w5}>Start with a setup week</span>
-          <span className={k.me}>Week 0, self-paced, opens a week before Week 1. Teams fill in their intake and get their AI ready.</span>
+          <span className={k.me}>
+            Week 0, self-paced, opens a week before Week 1. Teams fill in their intake and get their AI ready.
+          </span>
         </span>
       </label>
     </div>
@@ -204,7 +269,15 @@ export interface PickWeek {
 }
 
 /** `WeekPick`: which of the program's weeks the cohort runs. They keep the curriculum's order. */
-export function WeekPick({ weeks, picks, onChange }: { weeks: readonly PickWeek[]; picks: readonly string[]; onChange: (p: string[]) => void }) {
+export function WeekPick({
+  weeks,
+  picks,
+  onChange,
+}: {
+  weeks: readonly PickWeek[];
+  picks: readonly string[];
+  onChange: (p: string[]) => void;
+}) {
   const ids = weeks.map((w) => w.id);
   return (
     <div className={c.wpl}>
@@ -224,7 +297,11 @@ export function WeekPick({ weeks, picks, onChange }: { weeks: readonly PickWeek[
               <span className={clsx(k.w5, k.el, c.wpTitle)}>{w.title}</span>
               <span className={clsx(k.me, k.el, c.wpSub)}>{w.outcome}</span>
             </span>
-            {w.published ? <Pill tone="ok">Published</Pill> : <Pill tone={w.steps ? 'neutral' : 'warn'}>{w.steps ? `Draft · ${w.steps} steps` : 'Not built yet'}</Pill>}
+            {w.published ? (
+              <Pill tone="ok">Published</Pill>
+            ) : (
+              <Pill tone={w.steps ? 'neutral' : 'warn'}>{w.steps ? `Draft · ${w.steps} steps` : 'Not built yet'}</Pill>
+            )}
           </label>
         );
       })}
@@ -236,7 +313,10 @@ export function WeekPick({ weeks, picks, onChange }: { weeks: readonly PickWeek[
 export function PlanList({ plan, free }: { plan: readonly PlanWeekVM[]; free?: boolean }) {
   return (
     // A list that scrolls is a region a keyboard can reach (axe's scrollable-region-focusable); the free one grows.
-    <div className={clsx(c.ncl, free && c.free)} {...(free ? {} : { tabIndex: 0, role: 'region', 'aria-label': 'What this makes' })}>
+    <div
+      className={clsx(c.ncl, free && c.free)}
+      {...(free ? {} : { tabIndex: 0, role: 'region', 'aria-label': 'What this makes' })}
+    >
       {plan.map((w) => (
         <div key={w.id} className={c.ncw}>
           <Wn n={w.n} small picked />
@@ -246,7 +326,11 @@ export function PlanList({ plan, free }: { plan: readonly PlanWeekVM[]; free?: b
             <span className={c.chips}>
               {w.sessions.length ? (
                 w.sessions.map((s, i) => (
-                  <span key={i} className={clsx(c.skc, s.tone === 'alt' && c.alt, s.tone === 'warn' && c.warn)} title={s.title}>
+                  <span
+                    key={i}
+                    className={clsx(c.skc, s.tone === 'alt' && c.alt, s.tone === 'warn' && c.warn)}
+                    title={s.title}
+                  >
                     {s.label}
                   </span>
                 ))

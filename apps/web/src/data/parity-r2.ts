@@ -593,6 +593,40 @@ export function mockStamp(s: string): number {
 }
 
 /** A mockup amount ("$1,495.00") as cents. */
+/**
+ * D-255 (R-5 Phase 3): `P3_WEEKS`, the program's weeks as the Cohort page and New cohort list them: id, week, title,
+ * outcome, steps. Week 0 is the setup week; all are published.
+ */
+export const P3_WEEKS: readonly (readonly [id: string, week: number, title: string, outcome: string, steps: number])[] = [
+  ['accelerator-week-0', 0, 'Foundations', 'The office is ready for its first hire.', 8],
+  ['accelerator-week-1', 1, 'Where the Money Goes', 'A year of spend on one standard chart.', 7],
+  ['accelerator-week-2', 2, 'Leads That Pay', 'Every lead source ranked by what it returns.', 7],
+  ['accelerator-week-3', 3, 'Numbers on the 5th', 'A monthly report that builds itself.', 6],
+  ['accelerator-week-4', 4, 'Protect the Pipeline', 'No file goes quiet without someone knowing.', 5],
+  ['accelerator-week-5', 5, 'Coach from Evidence', 'One-on-ones that start from the numbers.', 4],
+  ['accelerator-week-6', 6, 'Delegate an Outcome', 'A hire that owns a result, not a task.', 3],
+  ['accelerator-week-7', 7, 'Make the Workflow Repeatable', 'What worked, written down so it runs again.', 2],
+  ['accelerator-week-8', 8, 'Sustain and Expand', 'The next three hires, in order.', 2],
+];
+
+/** `DEC_WORDS`: December's words, as its course holds them in the mockup. */
+export const DEC_WORDS = {
+  promise: 'Nine weeks. One hire a week. Built live, on your own numbers.',
+  how: [
+    'A week opens on Sunday.',
+    'We build its hire together on Wednesday.',
+    'You run it on your own data and turn in what it made.',
+    'Office hours are Thursday.',
+  ],
+  holiday: 'No sessions the weeks of Dec 21 and Dec 28. Week 4 opens Sun, Jan 3.',
+};
+
+/** `JAN_SLOTS`: January's meetings, a Tuesday build and Thursday office hours, both at 12:00 PM MT. */
+export const JAN_SLOTS = [
+  { day: 2, time: '12:00', kind: 'live_build', mins: 90 },
+  { day: 4, time: '12:00', kind: 'office_hours', mins: 60 },
+] as const;
+
 export const mockCents = (s: string): number => Math.round(Number(s.replace(/[$,]/g, '')) * 100);
 
 /** The parity fixture, as the shell reads it. */
