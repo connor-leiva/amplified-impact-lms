@@ -2,6 +2,8 @@
 // course and for staff (as before), and for a learner without it the first portal's page for the address
 // (`firstPortalPathFor`: the Skill Library, a skill's guide, the vault, the Team Hub, `/account`), with
 // its query and fragment kept, so they keep exactly what `main` serves them.
+// D-257: with LMS v3 on, a learner without the course (a $37 buyer aside) has the learner portal in the v3 frame
+// instead, with the pages they have today inside it (`learnFrameFor`).
 
 import { Suspense, lazy } from 'react';
 import { Navigate, useLocation } from 'react-router';
@@ -9,7 +11,7 @@ import { skillOnlyBuyer } from '@ai/core/offer';
 import { useDb, useViewer } from '../../../data/hooks';
 import { Component as LearnerShell } from '../../../shell/learner/LearnerShell';
 import { hasPortal } from '../../../shell/navModel';
-import { firstPortalPathFor } from '../audience';
+import { firstPortalPathFor, learnFrameFor } from '../audience';
 import { useSkills } from '../skills-data';
 
 // Lazily, so the buyer's stylesheets (the v3 shell's among them) reach only a buyer, as the members' v3 frame's do.
@@ -20,12 +22,14 @@ function NoCourse() {
   const skills = useSkills();
   const { pathname, search, hash } = useLocation();
   if (skills.kind === 'loading') return null;
-  if (skills.kind === 'ready' && skillOnlyBuyer(skills.payload))
+  const frame = learnFrameFor({ course: false, buyer: skills.kind === 'ready' && skillOnlyBuyer(skills.payload) });
+  if (frame === 'buyer')
     return (
       <Suspense fallback={null}>
         <Buyer />
       </Suspense>
     );
+  if (frame === 'portal') return <LearnerShell />;
   return <Navigate to={`${firstPortalPathFor(pathname)}${search}${hash}`} replace />;
 }
 

@@ -143,6 +143,8 @@ describe('lineState (B-37)', () => {
     expect(lineState(session(), B1 + 120 * MIN)).toBe('processing');
     expect(lineState(session({ replay: 'ready' }), B1 + 120 * MIN)).toBe('replay');
     expect(lineState(session({ kind: 'office_hours' }), B1 + 120 * MIN)).toBe('ended');
+    // D-257 (Q-B6): an office hour's posted recording is Watch replay, as a live build's is.
+    expect(lineState(session({ kind: 'office_hours', replay: 'ready' }), B1 + 120 * MIN)).toBe('replay');
   });
 });
 
@@ -162,7 +164,7 @@ describe('v3ScheduleDraws (C-13)', () => {
       v3ScheduleDraws(scheduleVM(st.payload, rows, st.db.cohorts[0], 'calendar', st.now), st.payload.sessions, st.now),
     ).toBe(false);
   });
-  it('“attended live” keeps today’s page', () => {
+  it('D-257 (Q-B5): “attended live” no longer keeps today’s page; v3 leaves it off its rows', () => {
     const st = asShell(
       learnState(Date.parse('2026-12-03T16:00:00Z'), false, { 0: ['c1'] }, 15, (d) => {
         const s = sessionIn(d, 'dec26-s1');
@@ -170,7 +172,8 @@ describe('v3ScheduleDraws (C-13)', () => {
         s.attended = 12;
       }),
     );
-    expect(v3ScheduleDraws(vmOf(st), st.payload.sessions, st.now)).toBe(false);
+    expect(v3ScheduleDraws(vmOf(st), st.payload.sessions, st.now)).toBe(true);
+    expect(JSON.stringify(props(st, st.now))).not.toContain('attended live');
   });
   it('nothing left to come: no hero, today’s page', () => {
     const st = prelaunchState();

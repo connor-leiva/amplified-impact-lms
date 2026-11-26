@@ -11,7 +11,9 @@ const sha = (p: string) => createHash('sha256').update(readFileSync(join(ROOT, p
 
 const FILES: [string, string, string][] = [
   ['apps/web/src/routes/learn/lms-v3/lms.tokens.css', 'handoff/lms-v3/src/lms.tokens.css', 'f067d092f27d68d0f9af463e28a22597bd85dac5e1d94fe3bcfdef77e907ab7d'],
-  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', 'd0bb864c74f984f0b58546560953a57d2c993c75f60a8bf1341cae05e6a8a869'],
+  // D-257 (Connor, Nov 25): Q-B7, the "Done" chip, the drawer's kicker and its section numbers in forest; Q-B8, the
+  // phone's grid rows (the sidebar its own height, the page the rest). Both made in the mockup and regenerated.
+  ['apps/web/src/routes/learn/lms-v3/lms.css', 'handoff/lms-v3/src/lms.css', '0da86e21583abb4118c3b896b2cc174f2e5b95b0695de92aa32499d4137e5509'],
   ['apps/web/src/routes/learn/lms-v3/icons.generated.js', 'handoff/lms-v3/src/components/icons.generated.js', '0fa73d8503a47fc367133acfb6ac9f36b7c5da2d37928707001d2002d9e59894'],
 ];
 
@@ -67,8 +69,10 @@ describe('the v3 files are the package’s, byte for byte (D-225)', () => {
     expect(sha(`design-reference/brand/${f}`)).toBe(want);
   });
 
-  it('the package’s mockup is the approved revision (v7)', () => {
-    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('ab62643b34ce0d4d060b9004aeb695c0f264303410cacdf482247527b96d9d1d');
+  // v7 was ab62643b…; D-257 (Connor, Nov 25): Q-B7 moves three text colours from --energy to --forest, and Q-B8 gives
+  // the phone's grid its rows.
+  it('the package’s mockup is the approved revision (v7, with D-257’s two changes)', () => {
+    expect(sha('handoff/lms-v3/mockup/index.html')).toBe('1c9d186f64e746a1fbf4ab9af7fd31a220c1f4cd9423a17abd4737a61cd126b4');
   });
 });
 

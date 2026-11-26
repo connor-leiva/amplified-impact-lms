@@ -11,6 +11,7 @@ import { ToasterProvider } from '../../components/primitives/Toaster';
 import { IntakePage } from './Intake';
 import { LearnProvider } from './data';
 import { LEARNER_ID, learnState, PRELAUNCH_NOW } from './test/fixture';
+import s from './Intake.module.css';
 
 const form: CourseIntake = {
   intro: 'A short intro.',
@@ -27,9 +28,9 @@ const form: CourseIntake = {
   ],
 };
 
-function page(staff = false) {
+function page(staff = false, intake: CourseIntake = form) {
   const st = learnState(PRELAUNCH_NOW, true, {});
-  (st.payload.course.weeks[0] as { intake?: CourseIntake }).intake = form;
+  (st.payload.course.weeks[0] as { intake?: CourseIntake }).intake = intake;
   const viewer = staff
     ? { actor: { kind: 'staff' as const, staffId: 's1' }, role: 'admin' as const }
     : { actor: { kind: 'learner' as const, userId: LEARNER_ID }, role: 'learner' as const };
@@ -267,5 +268,32 @@ describe('the page’s side gutter on a phone (audit M-3, D-248)', () => {
     expect(css).toMatch(/@media \(max-width: 767px\) \{\s*\.page \{\s*padding-inline: var\(--r2-pad\);\s*\}\s*\.lock \{\s*margin-inline: calc\(var\(--r2-pad\) \* -1\);\s*\}\s*\}/);
     // Nothing else sets a side gutter, so 768px and up are as they were.
     expect(css.match(/padding-inline|margin-inline/g)).toHaveLength(2);
+  });
+});
+
+// The intake intro's formatting (ported from #269, D-257): the intro keeps the lines staff typed (`IntroText`).
+describe('the intake page’s intro in its lines', () => {
+  it('renders a one-paragraph intro as one paragraph, as before', async () => {
+    stub([() => loaded()]);
+    page();
+    const intro = await screen.findByText('A short intro.');
+    expect(intro.tagName).toBe('P');
+    expect(intro).toHaveClass(s.intro!);
+  });
+
+  it('keeps the paragraphs, the list and the bold staff typed, in the intro and a section’s intro', async () => {
+    stub([() => loaded()]);
+    page(false, {
+      ...form,
+      intro: 'Welcome to Week 0.\n\nThree words you’ll see a lot:\n- **AI Implementer.** The person who sets it up.\n- **Draft.** Nothing sends on its own.',
+      sections: [{ ...form.sections[0]!, intro: 'First line.\nSecond line.' }],
+    });
+    const lead = await screen.findByText('Welcome to Week 0.');
+    const root = lead.parentElement!;
+    expect(root).toHaveClass(s.intro!);
+    expect([...root.children].map((c) => c.tagName)).toEqual(['P', 'P', 'UL']);
+    expect([...root.querySelectorAll('li strong')].map((b) => b.textContent)).toEqual(['AI Implementer.', 'Draft.']);
+    expect(document.body.innerHTML).toContain('First line.<br>Second line.');
+    expect(document.body.textContent).not.toContain('**');
   });
 });

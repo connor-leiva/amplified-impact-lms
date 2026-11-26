@@ -84,3 +84,34 @@ describe('the v3 intake drawer (H-10)', () => {
     expect(screen.queryByText('Saving')).toBeNull();
   });
 });
+
+// D-257: the drawer keeps the intro's lines as the intake page does (`IntroText`). One paragraph is the package's <p>
+// (FormDrawer.equality.test.tsx compares it with the package's own drawer).
+describe('the v3 intake drawer’s intro (D-257)', () => {
+  function Intro({ text, section }: { text: string; section?: string }) {
+    const form: CourseIntake = { intro: text, sections: [{ ...intake.sections[0]!, ...(section ? { intro: section } : {}) }] };
+    const f = useIntakeForm(form, NOW, true);
+    return f ? <FormDrawer f={f} open onClose={() => undefined} locked={f.locked} /> : null;
+  }
+
+  it('renders paragraphs, a list and bold in the intro and a section’s intro', async () => {
+    stub([() => json({ answers: {}, updatedAt: null, submittedAt: null })]);
+    render(<Intro text={'Welcome to Week 0.\n\nThree words you’ll see a lot:\n- **AI Implementer.** The person who sets it up.\n- **Draft.** Nothing sends on its own.'} section={'First line.\nSecond line.'} />);
+    const intro = document.querySelector('.fm-intro')!;
+    expect(intro.tagName).toBe('DIV');
+    expect([...intro.children].map((c) => c.tagName)).toEqual(['P', 'P', 'UL']);
+    expect([...intro.querySelectorAll('li strong')].map((b) => b.textContent)).toEqual(['AI Implementer.', 'Draft.']);
+    expect(document.querySelector('.fm-sec-d')!.innerHTML).toBe('First line.<br>Second line.');
+    // The section after it still reads as the intro's next sibling, so the package's rule draws its top line.
+    expect(intro.nextElementSibling).toHaveClass('fm-sec');
+    await waitFor(() => expect(field('name')).not.toHaveAttribute('readonly'));
+  });
+
+  it('renders a one-paragraph intro as the package’s <p>', async () => {
+    stub([() => json({ answers: {}, updatedAt: null, submittedAt: null })]);
+    render(<Intro text="A short intro." />);
+    const intro = document.querySelector('.fm-intro')!;
+    expect(intro.outerHTML).toBe('<p class="fm-intro aim-in" style="--i: 1;">A short intro.</p>');
+    await waitFor(() => expect(field('name')).not.toHaveAttribute('readonly'));
+  });
+});

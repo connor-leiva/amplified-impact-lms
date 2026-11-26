@@ -1,6 +1,6 @@
 // D-196: the intake's questions, who may edit, and which box a submit checks.
 import { describe, expect, it } from 'vitest';
-import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds, intakeIssues, intakeItemOn, intakeMissing, mayEditIntake, unlistedIntakeFiles } from '../src/intake';
+import { cleanIntakeAnswers, intakeCheckTarget, intakeFileIds, intakeIssues, intakeItemOn, intakeMissing, introBlocks, mayEditIntake, unlistedIntakeFiles } from '../src/intake';
 import { WEEK0_INTAKE, planIntakeV1 } from '../seed/intake-v1';
 import { WEEK0_MODULE_ID } from '../seed/start-here-v1';
 import { copyIssues, moduleCopyFields } from '../src/course-rules';
@@ -113,5 +113,64 @@ describe('the static intake PDF is no longer a step file (D-246)', () => {
     expect(intakeItemOn(mod, { intake }, 'c2')).toBeNull();
     expect(intakeItemOn(mod, {}, 'c1')).toBeNull();
     expect(intakeItemOn(mod, { intake }, null)).toBeNull();
+  });
+});
+
+// D-257: the intro keeps the lines staff typed in the Week Builder.
+describe('introBlocks (D-257)', () => {
+  it('reads a one-paragraph intro as one paragraph of one run, the words as typed', () => {
+    expect(introBlocks(WEEK0_INTAKE.intro)).toEqual([{ kind: 'paragraph', lines: [[{ text: WEEK0_INTAKE.intro }]] }]);
+    expect(introBlocks('A short intro.')).toEqual([{ kind: 'paragraph', lines: [[{ text: 'A short intro.' }]] }]);
+  });
+
+  it('reads nothing from nothing', () => {
+    expect(introBlocks(undefined)).toEqual([]);
+    expect(introBlocks('')).toEqual([]);
+    expect(introBlocks(' \n\n  ')).toEqual([]);
+  });
+
+  it('starts a paragraph at a blank line, and keeps a single line break inside one', () => {
+    expect(introBlocks('First line.\nSecond line.\n\n  \nNext paragraph.\r\n\r\nLast.')).toEqual([
+      { kind: 'paragraph', lines: [[{ text: 'First line.' }], [{ text: 'Second line.' }]] },
+      { kind: 'paragraph', lines: [[{ text: 'Next paragraph.' }]] },
+      { kind: 'paragraph', lines: [[{ text: 'Last.' }]] },
+    ]);
+  });
+
+  it('makes consecutive "- " lines one bulleted list, with or without a blank line before it', () => {
+    expect(introBlocks('Three words you’ll see a lot:\n- **AI Implementer.** Sets it up.\n- **AI hire.** One job.\n\n- **Draft.** Nothing sends.\nAfter.')).toEqual([
+      { kind: 'paragraph', lines: [[{ text: 'Three words you’ll see a lot:' }]] },
+      {
+        kind: 'list',
+        items: [
+          [{ text: 'AI Implementer.', bold: true }, { text: ' Sets it up.' }],
+          [{ text: 'AI hire.', bold: true }, { text: ' One job.' }],
+        ],
+      },
+      { kind: 'list', items: [[{ text: 'Draft.', bold: true }, { text: ' Nothing sends.' }]] },
+      { kind: 'paragraph', lines: [[{ text: 'After.' }]] },
+    ]);
+    // A dash with no space after it is text, and an empty bullet is dropped.
+    expect(introBlocks('-not a bullet\n- \n- one')).toEqual([
+      { kind: 'paragraph', lines: [[{ text: '-not a bullet' }]] },
+      { kind: 'list', items: [[{ text: 'one' }]] },
+    ]);
+  });
+
+  it('makes **text** bold, and leaves a stray ** as text', () => {
+    expect(introBlocks('Read **this** and **that**.')).toEqual([
+      { kind: 'paragraph', lines: [[{ text: 'Read ' }, { text: 'this', bold: true }, { text: ' and ' }, { text: 'that', bold: true }, { text: '.' }]] },
+    ]);
+    expect(introBlocks('A stray ** here.')).toEqual([{ kind: 'paragraph', lines: [[{ text: 'A stray ** here.' }]] }]);
+    expect(introBlocks('**Bold** then a stray **')).toEqual([{ kind: 'paragraph', lines: [[{ text: 'Bold', bold: true }, { text: ' then a stray **' }]] }]);
+    expect(introBlocks('Empty **** and ** ** stay.')).toEqual([{ kind: 'paragraph', lines: [[{ text: 'Empty **** and ** ** stay.' }]] }]);
+    // Bold never runs across a line break.
+    expect(introBlocks('**one\ntwo**')).toEqual([{ kind: 'paragraph', lines: [[{ text: '**one' }], [{ text: 'two**' }]] }]);
+  });
+
+  it('passes no HTML and no links through: they are text', () => {
+    expect(introBlocks('<b>Hi</b> <a href="https://example.com">link</a> [x](https://example.com) <script>alert(1)</script>')).toEqual([
+      { kind: 'paragraph', lines: [[{ text: '<b>Hi</b> <a href="https://example.com">link</a> [x](https://example.com) <script>alert(1)</script>' }]] },
+    ]);
   });
 });

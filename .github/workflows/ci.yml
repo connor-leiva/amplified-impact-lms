@@ -99,7 +99,7 @@ jobs:
       # so CI is green per phase and turns red the moment a shipped phase regresses.
       - id: phase
         run: echo "gate=$(cat .phase)" >> "$GITHUB_OUTPUT"
-      - run: pnpm compliance && pnpm e2e
+      - run: pnpm compliance && pnpm e2e && pnpm e2e:v3
         env:
           GATE: ${{ steps.phase.outputs.gate }}
           # `.phase` is 9, and GATE >= 7 turns http parity ON (compliance/lib/prepare.ts) — which

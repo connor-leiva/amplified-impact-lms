@@ -408,6 +408,7 @@ export function Component() {
   const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
   const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
   const vm = homeVM(course, rows, db.cohorts, me, me?.name ?? staff?.name ?? '', now, db, hires);
+  // D-257 (Q-B4): a learner without the course has this Home too (Home without the cohort's pieces, `homeVM`).
   return <Body vm={vm} now={now} />;
 }
 

@@ -10,6 +10,8 @@
     "preview:fixture": "pnpm build:fixture && vite preview --outDir dist-fixture",
     "build:fixture:v2": "node ../../scripts/with-env.mjs VITE_LEARNER_V2=true vite build --mode fixture --outDir dist-fixture-v2 && vite build -c vite.ai101.config.ts --outDir dist-fixture-v2",
     "preview:fixture:v2": "pnpm build:fixture:v2 && vite preview --outDir dist-fixture-v2",
+    "build:fixture:v3": "node ../../scripts/with-env.mjs VITE_LEARNER_V2=true VITE_LMS_V3=true vite build --mode fixture --outDir dist-fixture-v3 && vite build -c vite.ai101.config.ts --outDir dist-fixture-v3",
+    "preview:fixture:v3": "pnpm build:fixture:v3 && vite preview --outDir dist-fixture-v3",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

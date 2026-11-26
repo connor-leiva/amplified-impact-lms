@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
-import { REF_BASE, APP_BASE, APP_PORT, HTTP_BASE, HTTP_PARITY, HTTP_PORT, LEARNER_V2_RUN } from './lib/prepare';
+import { REF_BASE, APP_BASE, APP_PORT, HTTP_BASE, HTTP_PARITY, HTTP_PORT, LEARNER_V2_RUN, LMS_V3_RUN } from './lib/prepare';
 import { PHASE_NOW, SCENARIOS } from './lib/scenarios';
 
 // The reference prototype is the test oracle. `capture` and `harness` only need it;
@@ -19,7 +19,7 @@ const referenceServer = {
 // parity scenario compares the first portal with its goldens; `LEARNER_V2=1` (`pnpm e2e:learn`) serves the
 // flag-on build on 4174, where the `learn-v2*` specs run. `APP_PORT` reaches `vite preview` through the env.
 const appServer = {
-  command: LEARNER_V2_RUN ? 'pnpm --filter @ai/web preview:fixture:v2' : 'pnpm --filter @ai/web preview:fixture',
+  command: LMS_V3_RUN ? 'pnpm --filter @ai/web preview:fixture:v3' : LEARNER_V2_RUN ? 'pnpm --filter @ai/web preview:fixture:v2' : 'pnpm --filter @ai/web preview:fixture',
   url: APP_BASE,
   reuseExistingServer: !process.env.CI,
   timeout: 180_000,
@@ -136,6 +136,10 @@ const LEARN_V2_SPECS = /e2e\/learn-v2[^/]*\.spec\.ts$/;
  */
 const learnerV2E2e = { name: 'e2e-learn', testMatch: LEARN_V2_SPECS };
 
+/** D-257: LMS v3 for every learner type, against `dist-fixture-v3` (`LMS_V3=1`, `pnpm e2e:v3`). */
+const LMS_V3_SPECS = /e2e\/lms-v3-[^/]*\.spec\.ts$/;
+const lmsV3E2e = { name: 'e2e-v3', testMatch: LMS_V3_SPECS };
+
 // Deterministic rasterization. Without these, Chromium's text anti-aliasing varies between runs
 // (subpixel LCD filtering and CPU-dependent Skia paths), so a second capture of the same reference
 // produces a few hundred differing pixels and Gate 0's zero-diff requirement cannot hold.
@@ -167,7 +171,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'report' }]],
   use: { launchOptions: { args: DETERMINISTIC_RENDER } },
   expect: { toMatchSnapshot: { maxDiffPixelRatio: 0.01, threshold: 0.15 } },
-  projects: LEARNER_V2_RUN ? [learnerV2E2e] : [
+  projects: LMS_V3_RUN ? [lmsV3E2e] : LEARNER_V2_RUN ? [learnerV2E2e] : [
     { name: 'reference', testMatch: /capture\.spec\.ts/ },
     { name: 'harness', testMatch: /harness\.spec\.ts/ },
     ...(HTTP_PARITY ? [parityHttp] : []),
@@ -186,7 +190,7 @@ export default defineConfig({
       // both suites run and both report, and neither can silence the other.
     },
     // D-182: every e2e spec but the learner portal's, which need the flag-on build (`e2e-learn` below).
-    { name: 'e2e', testMatch: /e2e\/.*\.spec\.ts/, testIgnore: [/admin-r2-parity\.spec\.ts$/, LEARN_V2_SPECS] },
+    { name: 'e2e', testMatch: /e2e\/.*\.spec\.ts/, testIgnore: [/admin-r2-parity\.spec\.ts$/, LEARN_V2_SPECS, LMS_V3_SPECS] },
   ],
   webServer: [
     referenceServer,

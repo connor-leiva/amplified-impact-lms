@@ -4,15 +4,17 @@
 // `/employees/:id` to its week, `/team`, `/vault`, `/team-tier`), with its query and fragment kept. Worked
 // out while rendering, so nothing of the first portal is drawn on the way. Its own module so the route's
 // lazy load (and its stale-chunk recovery, D-170) still carries the first portal's shell.
+// D-257: with LMS v3 on, a learner without the course is sent on the same way: the LMS is theirs too.
 
 import { useDb, useViewer } from '../../../data/hooks';
 import { Component as AppShell } from '../../../shell/AppShell';
 import { hasPortal } from '../../../shell/navModel';
 import { LearnerRedirect } from '../redirects';
+import { LMS_V3 } from '../lms-v3/v3';
 
 function Learner() {
   const db = useDb();
-  return hasPortal(db) ? <LearnerRedirect /> : <AppShell />;
+  return hasPortal(db) || LMS_V3 ? <LearnerRedirect /> : <AppShell />;
 }
 
 export function Component() {
