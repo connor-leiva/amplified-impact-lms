@@ -122,6 +122,8 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
 
 test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-160 R2-2b, D-255) @g9 @r2', () => {
   test('each passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, with no CT', async ({ browser }) => {
+    // Twelve pages, each scanned by axe: about 29s alone, past the 30s default on a busy machine (D-255).
+    test.setTimeout(90_000);
     for (const [path, h1, tab] of [
       ['/admin/program/vault', 'Amplified AI Accelerator', 'Resource Vault'],
       ['/admin/cohort/dec26/schedule', 'December 2026 Cohort', 'Schedule'],
