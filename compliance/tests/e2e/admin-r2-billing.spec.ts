@@ -134,7 +134,7 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     // refund or void, and every tab of Revenue.
     await expect(page.getByText('Read-only for your role')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: 'Billing' })).toHaveCount(0);
-    await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText(['Summary', 'Payments', /^Plans & upgrades/, 'Usage']);
+    await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText(['Summary', 'Payments', /^Plans & Upgrades/, 'Usage']);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'View in Stripe' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: /Refund|Void/ })).toHaveCount(0);

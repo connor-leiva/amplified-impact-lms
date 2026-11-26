@@ -100,9 +100,9 @@ test('go live, end, publish replay flows through to the portal @g6', async ({ br
   await open(learner, '/?as=agent');
   await open(admin, '/admin/cohorts?as=admin');
 
-  // D-160 R2-2b: each step is in the session's "…" menu on the R2 Cohorts & Sessions screen.
+  // D-160 R2-2b: each step is in the session's "…" menu. D-255: on Cohort › Schedule, where a row is its title.
   const step = async (label: string) => {
-    await admin.getByRole('row').filter({ hasText: 'Session 3 ·' }).getByRole('button', { name: 'More actions' }).click();
+    await admin.getByRole('row').filter({ hasText: 'The Living Database' }).getByRole('button', { name: 'More actions' }).click();
     await admin.getByRole('menuitem', { name: label }).click();
   };
   await step('Go Live');
@@ -118,10 +118,11 @@ test('editing a session time moves the learner countdown @g6', async ({ browser 
   await open(learner, '/?as=agent');
   await open(admin, '/admin/cohorts?as=admin');
 
-  // D-160 R2-2b: Edit session is in the session's "…" menu, and its time is MST (2:00 PM MST is 3:00 PM CT).
-  await admin.getByRole('row').filter({ hasText: 'Session 3 ·' }).getByRole('button', { name: 'More actions' }).click();
+  // D-160 R2-2b: Edit session is in the session's "…" menu. D-255: on Cohort › Schedule, its time Mountain (2:00 PM MT
+  // is 3:00 PM CT).
+  await admin.getByRole('row').filter({ hasText: 'The Living Database' }).getByRole('button', { name: 'More actions' }).click();
   await admin.getByRole('menuitem', { name: 'Edit session' }).click();
-  await admin.getByLabel('Start time (MST)').fill('14:00');
+  await admin.getByLabel('Start (MT)').fill('14:00');
   await admin.getByRole('button', { name: 'Save session' }).click();
   await expect(learner.getByText(/Wed, Dec 9 · 3:00 PM CT/).first()).toBeVisible();
   await close();

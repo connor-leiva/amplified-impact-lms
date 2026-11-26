@@ -66,7 +66,7 @@ test.describe('the admin frame (D-253) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/cohort/dec26/people');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('December 2026 Cohort');
     await expect(crumbs(page)).toHaveText('Admin/Cohort/People');
-    await expect(page.getByRole('tablist', { name: 'Cohort' }).getByRole('tab')).toHaveText([/^Schedule\d+$/, /^People\d+$/, /^Community/, 'Announcements']);
+    await expect(page.getByRole('tablist', { name: 'Cohort' }).getByRole('tab')).toHaveText(['Overview', /^Schedule\d+$/, /^People\d+$/, /^Community/, 'Announcements', 'Settings']);
     // Learners & Teams keeps its description; its Learners and Teams are a segmented control under it.
     await expect(page.locator('main')).toContainText('Everyone enrolled in the December 2026 Cohort, with build progress.');
     await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab')).toHaveText([/^Learners/, /^Teams/]);
@@ -83,7 +83,9 @@ test.describe('the admin frame (D-253) @g9 @console', () => {
     await page.getByRole('heading', { level: 1 }).getByRole('button', { name: 'Switch cohort. December 2026 Cohort' }).click();
     const menu = page.getByRole('menu', { name: 'Cohorts' });
     await expect(menu.getByRole('menuitem').first()).toHaveText('December 2026 Cohort');
-    await expect(menu.getByRole('menuitem', { name: /New cohort|All cohorts/ })).toHaveCount(0);
+    // D-255 (R-5 Phase 3): the picker ends with "New cohort…" for staff who may create one; still no "All cohorts".
+    await expect(menu.getByRole('menuitem').last()).toHaveText('New cohort…');
+    await expect(menu.getByRole('menuitem', { name: /All cohorts/ })).toHaveCount(0);
     await expectAccessible(page);
     await menu.getByRole('menuitem', { name: /February 2027 Cohort/ }).click();
     await expect.poll(() => new URL(page.url()).pathname).toMatch(/^\/admin\/cohort\/[^/]+\/announcements$/);
@@ -116,10 +118,11 @@ test.describe('the admin frame (D-253) @g9 @console', () => {
     await expect(palette.getByRole('combobox', { name: 'Command palette search' })).toHaveAttribute('placeholder', 'Search people, teams, weeks, invoices, pages');
     await expect(palette.getByRole('group', { name: 'Pages' }).getByRole('option')).toHaveText(['Overview', 'Program', 'Cohort', 'People', 'Revenue']);
     await palette.getByRole('combobox', { name: 'Command palette search' }).fill('settings');
-    await expect(palette.getByRole('group', { name: 'Pages' }).getByRole('option')).toHaveText(['Program › Course settings']);
+    // D-255: Title Case tab labels, and the Cohort page's own Settings tab.
+    await expect(palette.getByRole('group', { name: 'Pages' }).getByRole('option')).toHaveText(['Program › Course Settings', 'Cohort › Settings']);
     await page.keyboard.press('Enter');
     await expect.poll(() => new URL(page.url()).pathname).toBe('/admin/program/course');
-    await expect(crumbs(page)).toHaveText('Admin/Program/Course settings');
+    await expect(crumbs(page)).toHaveText('Admin/Program/Course Settings');
     await close();
   });
 

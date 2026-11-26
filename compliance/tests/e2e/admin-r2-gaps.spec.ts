@@ -155,37 +155,40 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
     await close();
   });
 
-  test('Cohorts: Add session adds the next session in MST; Attach replay takes a past session’s link', async ({ browser }) => {
+  // D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule, its times Mountain with Central after them.
+  test('Schedule: Add Session adds office hours at 12:00 PM MT; Attach replay takes a past session’s link', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/cohorts');
+    await expect.poll(() => new URL(page.url()).pathname).toBe('/admin/cohort/dec26/schedule');
     await page.getByRole('button', { name: 'Add session' }).click();
-    const add = page.getByRole('dialog', { name: 'Add session' });
-    await expect(add.getByLabel('Start time (MST)')).toHaveValue('12:00');
-    await expect(add.getByLabel('Duration (minutes)')).toHaveValue('75');
+    const add = page.getByRole('dialog', { name: 'Add Session' });
+    await expect(add.getByLabel('Start (MT)')).toHaveValue('12:00');
+    await expect(add.getByLabel('Length (minutes)')).toHaveValue('60');
     await expectAccessible(page);
-    await add.getByRole('button', { name: 'Add session' }).click();
+    await add.getByRole('button', { name: 'Save session' }).click();
     await expect(add.getByRole('alert')).toHaveText('Add a title.');
     await add.getByLabel('Title').fill('Office Hours');
-    await add.getByLabel('Date').fill('2027-01-13');
-    await add.getByRole('button', { name: 'Add session' }).click();
+    await add.getByLabel('Date (MT)').fill('2027-01-13');
+    await add.getByRole('button', { name: 'Save session' }).click();
     await expect(add).toHaveCount(0);
-    const added = rowOf(page, 'Session 7 · Office Hours');
-    await expect(added).toContainText('Wed, Jan 13 · 12:00 PM MST');
+    const added = rowOf(page, 'Office Hours');
+    await expect(added).toContainText('Wed, Jan 13');
+    await expect(added).toContainText('12:00 PM MT / 1:00 PM CT');
     await expect(added).toContainText('Draft');
 
     // A session still to come: Attach replay is there, and disabled.
-    await rowOf(page, 'Session 4 ·').getByRole('button', { name: 'More actions' }).click();
+    await rowOf(page, 'Scorecard Live Build').getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'Attach replay' })).toBeDisabled();
     await page.keyboard.press('Escape');
 
-    await rowOf(page, 'Session 2 ·').getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText(['Edit session', 'Copy join link', 'Attach replay']);
+    await rowOf(page, 'Morning Brief Live Build').getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menu').getByRole('menuitem').first()).toHaveText('Edit session');
     await page.getByRole('menuitem', { name: 'Attach replay' }).click();
     const attach = page.getByRole('dialog', { name: 'Attach replay' });
     await expectAccessible(page);
-    await attach.getByLabel('Replay link for Session 2').fill('http://example.com/replay');
+    await attach.getByLabel('Replay link for Morning Brief Live Build').fill('http://example.com/replay');
     await attach.getByRole('button', { name: 'Attach replay' }).click();
     await expect(attach.getByRole('alert')).toHaveText('Enter the replay’s https:// link.');
-    await attach.getByLabel('Replay link for Session 2').fill('https://example.com/replays/session-2');
+    await attach.getByLabel('Replay link for Morning Brief Live Build').fill('https://example.com/replays/session-2');
     await attach.getByRole('button', { name: 'Attach replay' }).click();
     await expect(attach).toHaveCount(0);
     await expect(page.getByText('Session 2 replay attached')).toBeVisible();
