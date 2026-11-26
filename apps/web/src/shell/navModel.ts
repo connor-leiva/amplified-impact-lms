@@ -9,7 +9,7 @@
 // impossible for a locked child to navigate (SCREENS § 2.1, phase 04 gate).
 
 import { ICONS, buildOf, canAccess, consoleCan, fmt, isOpen, visibleModules } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { isCourseWeek } from '@ai/core/accelerator';
 import type { AIEmployee, ConsoleCap, Db, IconName, Learner } from '@ai/core';
 import type { NavItemToken } from '../components/NavItem';
 
@@ -204,7 +204,8 @@ export function portalNav(
     item('sessions', 'Sessions', 'radio', NAV_PATHS.sessions, at(NAV_PATHS.sessions)),
     // The AI Accelerator's pages (D-110), for a learner whose snapshot carries the course: the
     // snapshot only does when their plan opens it. Never in the prototype, which has no course.
-    ...(mods.some((m) => isAcceleratorModule(m.id)) ? [item('course', 'Course', 'book', COURSE_PATH, false)] : []),
+    // R-5 Phase 4 (D-260): the learner's snapshot carries their own cohort's weeks (D-254), so this is their course.
+    ...(mods.some((m) => isCourseWeek(m.id)) ? [item('course', 'Course', 'book', COURSE_PATH, false)] : []),
   ];
 
   const head: NavEntry = {

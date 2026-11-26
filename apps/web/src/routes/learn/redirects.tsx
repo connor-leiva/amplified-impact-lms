@@ -21,22 +21,25 @@
 //   the old shell
 //
 // Each keeps the address's query and fragment (`?as=`, `?now=` and `?preview=` among them). PURE, apart
-// from the three small route components at the end, and none of it reads data.
+// from the three small route components at the end, and none of it reads data: R-5 Phase 4 (D-260) hands
+// `learnerPathFor` the learner's cohort, whose run says which week a module is (`weekOfModuleIn`).
 
 import { Navigate, useLocation, useParams } from 'react-router';
-import { ACCELERATOR_WEEKS, acceleratorModuleId } from '@ai/core/accelerator';
+import { weekOfModuleIn } from '@ai/core/cohort-learner';
+import type { Cohort } from '@ai/core';
 import { weekFromParam } from '../course/Course.vm';
 import { learnEmployee, learnHome, learnSchedule, learnSkill, learnSkills, learnTeam, learnVault, learnWeek } from './routes';
 import { teamPlanHref } from './TeamPlan.vm';
 
 /**
- * A course week's page, from its module's id (`accelerator-week-3` is Week 3), or null for any other id.
- * By the id alone, not the snapshot: a learner's snapshot carries a week's module without its course
- * words, and the week's page itself says whether it is open, locked or not theirs.
+ * A course week's page, from its module's id, or null for any other id. R-5 Phase 4 (D-260): the week the
+ * learner's cohort numbers it (`weekOfModuleIn`: its run's, or `accelerator-week-3` as Week 3 for a cohort with
+ * no stored run, as before); a week their cohort doesn't take is no page of theirs. By the cohort's run alone,
+ * not the course: the week's page itself says whether it is open, locked or not theirs.
  */
-export function weekOfModule(moduleId: string): string | null {
-  const week = ACCELERATOR_WEEKS.find((w) => acceleratorModuleId(w) === moduleId);
-  return week === undefined ? null : learnWeek(week);
+export function weekOfModule(moduleId: string, cohort?: Pick<Cohort, 'run'> | null): string | null {
+  const week = weekOfModuleIn(cohort, moduleId);
+  return week === null ? null : learnWeek(week);
 }
 
 const EMPLOYEE = /^\/employees\/([^/]+)\/?$/;
@@ -46,7 +49,7 @@ const EMPLOYEE = /^\/employees\/([^/]+)\/?$/;
  * `/team`, `/vault`, `/team-tier`, or anything else it used to catch). Staff never come here: the admin
  * shell keeps them.
  */
-export function learnerPathFor(pathname: string): string {
+export function learnerPathFor(pathname: string, cohort?: Pick<Cohort, 'run'> | null): string {
   const p = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
   if (p === '/sessions') return learnSchedule();
   if (p === '/team') return learnTeam();
@@ -58,7 +61,7 @@ export function learnerPathFor(pathname: string): string {
     if (id === null) return learnHome();
     // A course week's page; a week id that is no week, Home; any other AI Employee, its own page (D-186),
     // which sends an id it doesn't know Home too.
-    return weekOfModule(id) ?? (id.startsWith('accelerator-week-') ? learnHome() : learnEmployee(id));
+    return weekOfModule(id, cohort) ?? (id.startsWith('accelerator-week-') ? learnHome() : learnEmployee(id));
   }
   return learnHome();
 }
@@ -105,8 +108,8 @@ export function LibraryRedirect() {
   return <Keep to={libraryPathFor(slug)} />;
 }
 
-/** A learner in the first portal's shell, sent on (`learnerPathFor`). */
-export function LearnerRedirect() {
+/** A learner in the first portal's shell, sent on (`learnerPathFor`), with their cohort (R-5 Phase 4, D-260). */
+export function LearnerRedirect({ cohort }: { cohort?: Pick<Cohort, 'run'> | null }) {
   const { pathname } = useLocation();
-  return <Keep to={learnerPathFor(pathname)} />;
+  return <Keep to={learnerPathFor(pathname, cohort)} />;
 }

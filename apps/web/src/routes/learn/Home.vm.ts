@@ -7,7 +7,7 @@
 
 import { communityUrl, fmt } from '@ai/core';
 import type { Cohort, Db, IconName, IcsEvent, Learner } from '@ai/core';
-import { ACCELERATOR_COHORT_ID, ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
+import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import { countWord, countdown, currentWeek, firstName, inAppAnnouncement, joinableSession, monthYear, partOfDay, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
 import { COPY as COURSE_COPY } from '../course/Course.vm';
 import { PRE_LAUNCH, whenOf } from '../library/PreLaunch';
@@ -497,7 +497,8 @@ export function homeVM(
 ): HomeVM {
   const hello = { greeting: greeting(name, now), banner: db ? bannerVM(db, me, now) : null, post: null, recent: null };
   if (load.kind === 'ready') {
-    const cohort = cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
+    // R-5 Phase 4 (D-260): the viewer's own cohort; staff previewing have none.
+    const cohort = me ? cohorts.find((c) => c.id === me.cohortId) : undefined;
     const modules = rows.map((r) => r.module).filter((m): m is NonNullable<typeof m> => !!m);
     const post = postVM(load.payload, cohort, modules, now, rows);
     const home = courseHome(load.payload, rows, cohort, now);

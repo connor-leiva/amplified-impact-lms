@@ -21,11 +21,11 @@ import { JoinStrip } from './parts';
 import s from './Learn.module.css';
 
 function useLive() {
-  const { course, db, viewer, now } = useLearn();
+  const { course, db, viewer, now, previewCohortId } = useLearn();
   const me = learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null);
   const payload = course.kind === 'ready' ? course.payload : null;
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
-  const who: ReplayWho = { db, me };
+  const who: ReplayWho = { db, me, ...(previewCohortId ? { cohortId: previewCohortId } : {}) };
   return { payload, rows, who, now };
 }
 

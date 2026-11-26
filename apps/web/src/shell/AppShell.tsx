@@ -40,8 +40,6 @@ import s from './AppShell.module.css';
 const ADMIN_ROOT = '/admin';
 const EMP_PREFIX = '/employees/';
 const BUILDER_PREFIX = '/admin/curriculum/';
-/** The reference's fallback cohort when a viewer has none (admin). */
-const DEFAULT_COHORT = 'dec26';
 
 /** The reference's `--nav-hover` / `--nav-active`, set on the aside and consumed by NavItem. */
 const NAV_VARS = {
@@ -134,7 +132,8 @@ function Shell() {
   const lockedItems = useMemo<LockedItem[]>(
     () =>
       lockedMods.map((m) => {
-        const sess = m.session ? sessionFor(db, user?.cohortId ?? DEFAULT_COHORT, m.session) : null;
+        // R-5 Phase 4 (D-260): the learner's own cohort's session; no learner, no session.
+        const sess = m.session && user ? sessionFor(db, user.cohortId, m.session) : null;
         return {
           id: m.id,
           name: m.name,
@@ -245,7 +244,8 @@ function Shell() {
     return user ? portalNav(db, user, route, now, collapsed, empOpen) : [];
   }, [collapsed, db, empOpen, isAdmin, navRole, now, route, user]);
 
-  const cohort = db.cohorts.find((c) => c.id === (user?.cohortId ?? DEFAULT_COHORT)) ?? db.cohorts[0];
+  // R-5 Phase 4 (D-260): the learner's own cohort (their snapshot carries only it, D-254).
+  const cohort = db.cohorts.find((c) => c.id === user?.cohortId) ?? db.cohorts[0];
   // A learner with no AI Employee (D-119) has no cohort line: nothing in the cohort is theirs.
   const contextLine =
     !cohort || (!isAdmin && mods.length === 0)

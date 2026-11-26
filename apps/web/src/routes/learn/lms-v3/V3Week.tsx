@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router';
 import { ics } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
-import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { CourseIntake } from '@ai/core/course-types';
 import { intakeCheckTarget, intakeFileIds } from '@ai/core/intake';
 import { LMS_TOUR_WEEK, tourVideoOf } from '@ai/core/lms-tour';
@@ -100,7 +99,7 @@ export function V3Week({
     formItem: standIn,
     now,
   });
-  const moduleId = acceleratorModuleId(r.week);
+  const moduleId = r.moduleId;
   // D-252: Week 0's LMS tour, pinned above the hero.
   const tour = r.week === LMS_TOUR_WEEK ? tourVideoOf(p.course) : null;
   return (

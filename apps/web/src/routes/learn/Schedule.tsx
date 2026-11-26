@@ -8,7 +8,6 @@
 
 import { Fragment, useMemo, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import { learnerOf } from '@ai/core/learner';
 import { Icon } from '../../components/Icon';
 import { useLearn } from './data';
@@ -418,7 +417,8 @@ export function Component() {
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   // The schedule is a cohort piece: a plan without the course has none, and goes Home.
   if (!payload) return <Navigate to={learnHome()} replace />;
-  const cohort = db.cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
+  // R-5 Phase 4 (D-260): the viewer's own cohort.
+  const cohort = me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
   const vm = scheduleVM(payload, rows, cohort, viewOf(params.get('view')), now);
   // D-227: the v3 Schedule, for a learner v3 draws for, when nothing on it needs a piece the mockup doesn't draw
   // (`v3ScheduleDraws`); otherwise, and for the Calendar view, today's page whole.

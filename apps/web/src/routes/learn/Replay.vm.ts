@@ -7,7 +7,6 @@
 // (the session's title) from the API.
 
 import { fmt, parseVtt, sessionFor } from '@ai/core';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import type { AIEmployee, Db, Learner } from '@ai/core';
 import { replayUrl } from '../../components/replay/engine';
 import { replayVM } from '../../components/replay/replay.vm';
@@ -59,7 +58,15 @@ export type WeekSessionVM =
 export interface ReplayWho {
   db: Db;
   me: Learner | null;
+  /**
+   * R-5 Phase 4 (D-260): the cohort a preview is of, for a viewer with no learner row (the curriculum builder's live
+   * preview, D-184). A learner's is always their own (`me.cohortId`); there is no fallback to December.
+   */
+  cohortId?: string;
 }
+
+/** Whose sessions a replay reads: the learner's own cohort, else the cohort the preview names, else none. */
+const cohortOfWho = (who: ReplayWho): string => who.me?.cohortId ?? who.cohortId ?? '';
 
 /**
  * The module with its transcript: the stored one, else the WebVTT § 8.3's `publishReplay` stores as
@@ -82,7 +89,7 @@ export function withTranscript(m: AIEmployee): AIEmployee {
  * live build, which the learner's snapshot carries once it is published to them (`learnerReplayUrl`).
  */
 export function weekSource(who: ReplayWho, m: AIEmployee): ReplaySource {
-  const cohortId = who.me?.cohortId ?? ACCELERATOR_COHORT_ID;
+  const cohortId = cohortOfWho(who);
   const sess = m.session ? sessionFor(who.db, cohortId, m.session) : null;
   return replaySource(replayUrl(m), sess?.replayUrl);
 }
@@ -93,7 +100,7 @@ export function weekSource(who: ReplayWho, m: AIEmployee): ReplaySource {
  * own length once its metadata has loaded, until when the seek bar is indeterminate and the chapters wait.
  */
 export function weekReplay(who: ReplayWho, m: AIEmployee, now: number, ui: ReplayUi, dur?: number): ReplayVM {
-  const cohortId = who.me?.cohortId ?? ACCELERATOR_COHORT_ID;
+  const cohortId = cohortOfWho(who);
   const source = weekSource(who, m);
   return replayVM(who.db, cohortId, who.me?.progress?.[m.id]?.steps ?? [], withTranscript(m), now, ui, { source: !!source, ...(dur ? { dur } : {}) });
 }
@@ -135,7 +142,7 @@ export function weekLiveVM(p: CoursePayload, rows: readonly WeekRow[], who: Repl
   // The server already sends a locked week's replay only when it is Published (`scope.ts`); the same rule
   // here keeps a snapshot that wasn't scoped (the fixture build's) from showing one early.
   const m = row.module;
-  const sess = m?.session ? sessionFor(who.db, who.me?.cohortId ?? ACCELERATOR_COHORT_ID, m.session) : null;
+  const sess = m?.session ? sessionFor(who.db, cohortOfWho(who), m.session) : null;
   return sess && replayVisibleTo(sess, { access: true, open: false }) ? vm : null;
 }
 
