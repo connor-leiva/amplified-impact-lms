@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { LAYOUT_KIND_LABEL } from '@ai/core';
+import { LAYOUT_KIND_LABEL, MOUNTAIN_TZ, PROGRAM_TZ, ZONES } from '@ai/core';
 import type { CohortSlot, SessionType } from '@ai/core';
 import { Icon } from '../../../components/Icon';
 import { Pill, Sel, k } from '../../../components/r2/kit';
@@ -104,6 +104,11 @@ const TIMES: readonly (readonly [string, string])[] = [
   ['15:00', '3:00 PM'],
 ];
 const KINDS: readonly SessionType[] = ['live_build', 'office_hours', 'other'];
+/** A zone's name in the time module's list ("Mountain", "Central"). */
+const zoneWord = (zone: string): string => ZONES.find(([id]) => id === zone)?.[1] ?? zone;
+/** The mockup's hint under When, "Mountain time. Learners see Central, one hour later.", its zones named by the time
+ * module (course words are data, D-173: the glossary's "Mountain time" is the course's, not this hint's). */
+const WHEN_HINT = `${zoneWord(MOUNTAIN_TZ)} time. Learners see ${zoneWord(PROGRAM_TZ)}, one hour later.`;
 /** A new meeting, as the mockup's `times` adds one: Tuesday, then Thursday, then Friday; a build first, then office hours. */
 const slotFor = (i: number): CohortSlot => ({
   day: ([2, 4, 5] as const)[i] ?? 5,
@@ -195,7 +200,7 @@ export function ShapeFields({
       </div>
       <div className={c.lab}>
         <span>When</span>
-        <span className={c.fat}>Mountain time. Learners see Central, one hour later.</span>
+        <span className={c.fat}>{WHEN_HINT}</span>
         <div className={c.lns}>
           {f.slots.map((s, i) => (
             <div key={i} className={c.slt}>
