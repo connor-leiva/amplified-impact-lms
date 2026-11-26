@@ -9,7 +9,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import { PreLaunch } from '../library/PreLaunch';
@@ -31,9 +31,11 @@ export type Load =
   | { kind: 'upcoming'; opensAt: number }
   | { kind: 'failed' };
 
-export async function loadCourse(): Promise<Load> {
+/** D-255: `cohort` is the Cohort page's Preview: staff see that cohort's course (`/course?cohort=`); a learner's is ignored. */
+export async function loadCourse(cohort?: string | null): Promise<Load> {
   try {
-    const res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
+    const url = cohort ? `/api/course?cohort=${encodeURIComponent(cohort)}` : '/api/course';
+    const res = await fetch(url, { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (res.status === 403) {
       // D-143: paused until a payment goes through, which says something different from "not in your plan".
@@ -463,17 +465,19 @@ function Week({ vm }: { vm: WeekVM }) {
 
 export function Component() {
   const { week } = useParams();
+  const [params] = useSearchParams();
+  const cohort = params.get('cohort');
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
 
   useEffect(() => {
     let alive = true;
-    void loadCourse().then((next) => {
+    void loadCourse(cohort).then((next) => {
       if (alive) setLoad(next);
     });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [cohort]);
 
   // Outside `AppShell`, so this route marks the body ready itself, as /skill-library does.
   useEffect(() => {

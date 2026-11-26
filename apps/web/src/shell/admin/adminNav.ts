@@ -116,7 +116,8 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
     tabs: [
       { id: 'curriculum', label: 'Curriculum', was: 'curriculum' },
       // D-174's page, in no nav until now; reachable here (spec Phase 1).
-      { id: 'settings', label: 'Course settings', was: 'course-settings' },
+      // D-255 (PLAN.md § 10.8): Title Case, as every tab heading.
+      { id: 'settings', label: 'Course Settings', was: 'course-settings' },
       { id: 'vault', label: 'Resource Vault', was: 'vault' },
     ],
   },
@@ -125,11 +126,15 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
     label: 'Cohort',
     icon: 'r2Cohorts',
     paletteIcon: 'r2Cohorts',
+    // D-255 (R-5 Phase 3): Overview, first, at the cohort's own address, and Settings, last. Both are the Cohorts row's
+    // (`was: 'cohorts'`), as Schedule is. Submissions is Phase 7's.
     tabs: [
+      { id: 'overview', label: 'Overview', was: 'cohorts' },
       { id: 'schedule', label: 'Schedule', was: 'cohorts' },
       { id: 'people', label: 'People', was: 'learners' },
       { id: 'community', label: 'Community', was: 'community', cap: 'console.view' },
       { id: 'announcements', label: 'Announcements', was: 'announce' },
+      { id: 'settings', label: 'Settings', was: 'cohorts' },
     ],
   },
   people: {
@@ -153,7 +158,7 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
       // Billing's own Summary, until Phase 8; its five lists are Payments.
       { id: 'summary', label: 'Summary', was: 'billing', cap: 'billing.read' },
       { id: 'payments', label: 'Payments', was: 'billing', cap: 'billing.read' },
-      { id: 'plans', label: 'Plans & upgrades', was: 'tiers' },
+      { id: 'plans', label: 'Plans & Upgrades', was: 'tiers' },
       { id: 'usage', label: 'Usage', was: 'usage', cap: 'usage.read' },
     ],
   },
@@ -176,7 +181,7 @@ export function tabPath(area: AreaId, tab: string, cohortId: string): string {
     case 'program':
       return tab === 'settings' ? '/admin/program/course' : tab === 'vault' ? '/admin/program/vault' : '/admin/program';
     case 'cohort':
-      return `${cohortBase(cohortId)}/${tab}`;
+      return tab === 'overview' ? cohortBase(cohortId) : `${cohortBase(cohortId)}/${tab}`;
     case 'people':
       return tab === 'everyone' ? '/admin/people' : `/admin/people/${tab}`;
     case 'revenue':
@@ -201,6 +206,8 @@ export interface Place {
   cohortId?: string;
   /** A record under the row or tab (a team, a person, an incident, a thread, a week): its crumb is its name. */
   record?: true;
+  /** D-255: New cohort, `/admin/cohort/new`: "Admin / Cohort / New Cohort". */
+  newCohort?: true;
 }
 
 const norm = (pathname: string): string => {
@@ -227,6 +234,8 @@ export function placeOf(pathname: string): Place | null {
     if (b === 'weeks' && one(c) && d === undefined) return at('curriculum', true);
     return null;
   }
+  // D-255: New cohort (`/admin/cohort/new`), a page of the Cohort row's, named in the crumb as a record is.
+  if (a === 'cohort' && b === 'new' && c === undefined) return { row: 'cohort', group: 'Cohort', area: 'cohort', record: true, newCohort: true };
   if (a === 'cohort' && b !== undefined) {
     const at = (tab: string | undefined, record?: true): Place => ({
       row: 'cohort',
@@ -487,6 +496,12 @@ export function crumbsOf(place: Place | null, opts: { record?: string | null; co
   if (!place) return [];
   const name = place.record && opts.record ? opts.record : null;
   if (place.row === 'overview') return [{ kind: 'here', label: OVERVIEW.label }];
+  // D-255: "Admin / Cohort / New Cohort" (the mockup's `hereOf`, in Title Case).
+  if (place.newCohort)
+    return [
+      { kind: 'link', label: AREAS.cohort.label, to: areaPath('cohort', opts.cohortId) },
+      { kind: 'record', label: 'New Cohort' },
+    ];
   if (place.area) {
     const area = AREAS[place.area];
     const cohortId = place.cohortId ?? opts.cohortId;

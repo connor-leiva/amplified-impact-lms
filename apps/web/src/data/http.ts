@@ -195,6 +195,7 @@ export function appearanceOf(value: unknown): AppearancePrefs {
   const out: AppearancePrefs = {};
   if (raw.theme === 'light' || raw.theme === 'dark') out.theme = raw.theme;
   if (raw.sidebar === 'full' || raw.sidebar === 'rail') out.sidebar = raw.sidebar;
+  if (typeof raw.cohort === 'string' && raw.cohort !== '' && raw.cohort.length <= 64) out.cohort = raw.cohort;
   return out;
 }
 

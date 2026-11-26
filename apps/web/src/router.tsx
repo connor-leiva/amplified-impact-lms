@@ -127,16 +127,20 @@ const routes: RouteObject[] = [
       { path: 'admin/program/weeks/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
       // Cohort: the cohort is in the address. `/admin/cohort` goes to the one the admin is on.
       { path: 'admin/cohort', lazy: () => import('./routes/admin/areas/CohortHome') },
+      // D-255 (R-5 Phase 3): New cohort, a page of the Cohort row's. A static path, so it ranks above `:cohortId`.
+      { path: 'admin/cohort/new', lazy: () => import('./routes/admin/cohort/NewCohort') },
       {
         path: 'admin/cohort/:cohortId',
         lazy: () => import('./routes/admin/areas/CohortArea'),
         children: [
-          { index: true, lazy: () => import('./routes/admin/Cohorts') },
-          { path: 'schedule', lazy: () => import('./routes/admin/Cohorts') },
+          // D-255: Overview at the cohort's own address, Schedule (the mockup's table), and Settings.
+          { index: true, lazy: () => import('./routes/admin/cohort/CohortOverview') },
+          { path: 'schedule', lazy: () => import('./routes/admin/cohort/CohortSchedule') },
           { path: 'people', lazy: () => import('./routes/admin/Learners') },
           // D-238 (B-45): the cohort's Community, and a thread.
           { path: 'community', lazy: () => import('./routes/console/Community') },
           { path: 'announcements', lazy: () => import('./routes/admin/Announcements') },
+          { path: 'settings', lazy: () => import('./routes/admin/cohort/CohortSettings') },
         ],
       },
       { path: 'admin/cohort/:cohortId/community/:id', lazy: () => import('./routes/console/CommunityThread') },

@@ -40,7 +40,7 @@ describe('the ⌘K palette (spec § 7.5)', () => {
         { key: 'p:people:masquerade', icon: 'r2Users', label: 'People › Masquerade', to: '/admin/people/masquerade' },
       ],
     ]);
-    expect(paletteGroups('course set', PAGES, MODS, null)[0]![1].map((p) => [p.label, p.to])).toEqual([['Program › Course settings', '/admin/program/course']]);
+    expect(paletteGroups('course set', PAGES, MODS, null)[0]![1].map((p) => [p.label, p.to])).toEqual([['Program › Course Settings', '/admin/program/course']]);
   });
 
   it('with words, filters pages and weeks and adds the API’s people, teams and orders, at their new addresses', () => {

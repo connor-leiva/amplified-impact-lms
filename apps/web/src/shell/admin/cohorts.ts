@@ -11,7 +11,7 @@
 import type { Cohort } from '@ai/core';
 import { cohortLabel } from '../../data/admin-shell';
 
-type CohortLike = Pick<Cohort, 'id' | 'name' | 'start' | 'end' | 'status'>;
+type CohortLike = Pick<Cohort, 'id' | 'name' | 'start' | 'end' | 'status' | 'archivedAt'>;
 
 /** The cohort `/admin/cohort` opens: running (started, not ended, not a draft), else the next to start, else the newest. */
 export function defaultCohortId(cohorts: readonly CohortLike[], now: number): string | null {
@@ -30,9 +30,10 @@ export interface CohortChoice {
   current: boolean;
 }
 
-/** The pickers' list: every cohort that exists, in start order, the one the admin is on checked. */
+/** The pickers' list: every cohort that is not archived (D-255), in start order, the one the admin is on checked. */
 export function cohortChoices(cohorts: readonly CohortLike[], currentId: string | null): CohortChoice[] {
   return [...cohorts]
+    .filter((c) => c.archivedAt === undefined)
     .sort((a, b) => a.start - b.start)
     .map((c) => ({ id: c.id, label: cohortLabel(c) + (c.status === 'draft' ? ' · Draft' : ''), current: c.id === currentId }));
 }

@@ -186,7 +186,8 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     fireEvent.click(soloRows()[2]!);
     await screen.findByText('the schedule page');
     expect(router.state.location.pathname).toBe('/admin/cohort/dec26');
-    expect(crumbs()).toBe('Admin/Cohort/Schedule');
+    // D-255: the cohort's own address is its Overview.
+    expect(crumbs()).toBe('Admin/Cohort/Overview');
   });
 
   it('on a page that is on no row (the 404), every group is shut and the crumbs say `Admin`', async () => {
@@ -371,11 +372,12 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     const menu = await screen.findByRole('menu', { name: 'Cohorts' });
     // Every cohort that exists, in start order (the fixture has two more), a draft marked; the current one checked.
     const items = within(menu).getAllByRole('menuitem').map((m) => m.textContent);
-    expect(items).toHaveLength(state.db.cohorts.length);
+    // D-255: then "New cohort…", for a role with the cohorts permission. No "All cohorts".
+    expect(items).toHaveLength(state.db.cohorts.length + 1);
     expect(items.slice(0, 1)).toEqual(['December 2026 Cohort']);
     expect(items).toContain('January 2027 Cohort · Draft');
-    // No "New cohort…" until its page exists (Phase 3), and no "All cohorts".
-    expect(within(menu).queryByRole('menuitem', { name: /New cohort|All cohorts/ })).toBeNull();
+    expect(items.at(-1)).toBe('New cohort…');
+    expect(within(menu).queryByRole('menuitem', { name: /All cohorts/ })).toBeNull();
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'January 2027 Cohort · Draft' }));
     // Picking keeps the tab.
     await waitFor(() => expect(router.state.location.pathname).toBe('/admin/cohort/jan27/people'));
@@ -415,7 +417,7 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(lists).toHaveLength(2);
     const sessions = state.db.sessions.filter((x) => x.cohortId === 'dec26').length;
     const teams = state.db.base.teams + state.db.teams.length;
-    expect(within(lists[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual([`Schedule${sessions}`, `People${teams}`, 'Community', 'Announcements']);
+    expect(within(lists[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual(['Overview', `Schedule${sessions}`, `People${teams}`, 'Community', 'Announcements', 'Settings']);
     expect(within(lists[0]!).getByRole('tab', { name: /^Schedule/ })).toHaveAttribute('aria-selected', 'true');
     expect(lists[1]!.className).toMatch(/sgm/);
     expect(within(lists[1]!).getAllByRole('tab').map((t) => t.textContent)).toEqual(['First3', 'Second']);
@@ -432,7 +434,7 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(screen.getByText('What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates.')).toBeInTheDocument();
     expect(within(screen.getAllByRole('tablist')[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual([
       `Curriculum${state.db.modules.length}`,
-      'Course settings',
+      'Course Settings',
       'Resource Vault',
     ]);
     await act(async () => {
@@ -476,7 +478,7 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     fireEvent.click(soloRows()[3]!);
     await screen.findByText('the tiers page');
     expect(router.state.location.pathname).toBe('/admin/revenue/plans');
-    expect(within(screen.getAllByRole('tablist')[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual([expect.stringMatching(/^Plans & upgrades\d*$/)]);
+    expect(within(screen.getAllByRole('tablist')[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual([expect.stringMatching(/^Plans & Upgrades\d*$/)]);
   });
 
   it('sends every old address to its new one, its query kept (D-253)', async () => {
