@@ -44,7 +44,7 @@ import { TourProvider, useLmsTour } from '../../routes/learn/tour/Tour';
 import { isNoCourseLearner } from '../../routes/learn/audience';
 import s from './LearnerShell.module.css';
 import { PHONE, sidebarVM, themeVM } from './shell.vm';
-import { useLearnerPrefs } from './useLearnerPrefs';
+import { useFrameLight, useLearnerPrefs } from './useLearnerPrefs';
 
 // The learner shell of the learner portal v2 (D-177), the signed-off learner mockup's frame
 // (docs/design/learner-v2): the 244px sidebar (Home, Schedule, Skill library, Resource vault, the AI
@@ -402,8 +402,19 @@ function Frame() {
   }, [location.pathname]);
 
   useAppReady();
+  // D-257: a learner without the course (in the v3 frame once v3 is on) keeps today's rule for the Team Hub: no Team
+  // Plan window from its address (`/learn/team` sends them to their Skill Library, as `/team` did).
+  const noCourse = isNoCourseLearner(viewer, db);
+  const gate = noCourse ? null : teamGateFor(location.pathname, db, me);
+  // Which frame draws this page: the v6 step page's own (D-210), the v3 shell (D-226), or today's.
+  const v6Step = !gate && v6StepAt(location.pathname, payload, rows, viewer.actor, me, now);
+  const inV3 = !gate && !v6Step && v3FrameAt(location.pathname, viewer, me);
+  // D-260 (Connor, Q-C3): inside the v3 frame everything draws light, whatever this person's theme, until the
+  // dark-mode pass: the root (`useFrameLight`), today's pages, the account menu and the windows the frame opens.
+  useFrameLight(inV3);
+  const shown: 'light' | 'dark' = inV3 ? 'light' : prefs.theme;
   // D-252: "How the LMS Works", once per page load for a learner in the course who hasn't seen it, and Week 0's card.
-  const tour = useLmsTour({ viewer, me, course, theme: prefs.theme });
+  const tour = useLmsTour({ viewer, me, course, theme: shown });
 
   const signOut = useCallback(() => {
     void endSession().then((ok) => {
@@ -424,10 +435,6 @@ function Frame() {
   const [clicked, setClicked] = useState<PlanItem | null>(null);
   const addressed = planItemOf(location.search);
   const item = clicked ?? addressed;
-  // D-257: a learner without the course (in the v3 frame once v3 is on) keeps today's rule for the Team Hub: no Team
-  // Plan window from its address (`/learn/team` sends them to their Skill Library, as `/team` did).
-  const noCourse = isNoCourseLearner(viewer, db);
-  const gate = noCourse ? null : teamGateFor(location.pathname, db, me);
   const closePlan = useCallback(() => {
     setClicked(null);
     if (addressed) navigate({ pathname: location.pathname, search: withoutPlan(location.search), hash: location.hash }, { replace: true });
@@ -451,7 +458,7 @@ function Frame() {
 
   // D-210: a step that draws the v6 step page has no app chrome (no sidebar, top bar or drawer). The step
   // route asks the same rule (`v6StepAt`), so the two always agree; with VITE_STEP_PAGE_V6 off it is never true.
-  if (!gate && v6StepAt(location.pathname, payload, rows, viewer.actor, me, now)) {
+  if (v6Step) {
     // The frame stays (its tokens and the person's theme, D-185); only the sidebar, top bar and drawer go.
     return (
       <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
@@ -468,7 +475,7 @@ function Frame() {
 
   // D-226: the v3 shell, for a learner it draws for. A staff member's preview keeps today's shell: its "Previewing as"
   // line has no place in the mockup's frame (C-04), so that waits for Connor. D-231: staff open the Community in it.
-  if (!gate && v3FrameAt(location.pathname, viewer, me)) {
+  if (inV3) {
     const cur = currentOf(location.pathname);
     const frame = (programName?: string) => (
       <Suspense fallback={null}>
@@ -479,7 +486,7 @@ function Frame() {
           onCollapse={(on) => prefs.set({ sidebar: on ? 'rail' : 'full' })}
           menu={accountItems}
           v3Page={v3PageAt(location.pathname, location.search, payload, rows, now)}
-          theme={prefs.theme}
+          theme={shown}
         >
           <TeamPlanProvider value={openPlan}>
             <TourProvider value={tour.api}>
@@ -494,7 +501,7 @@ function Frame() {
         {/* D-257 (Q-B3): a learner without the course's program line reads their plans (the read LearnGate made). */}
         {noCourse ? <NoCourseProgram>{frame}</NoCourseProgram> : frame()}
         {item ? (
-          <div data-r2-scope="" data-learner-v2="" data-lv-theme={prefs.theme}>
+          <div data-r2-scope="" data-learner-v2="" data-lv-theme={shown}>
             <TeamPlan item={item} me={me} onClose={closePlan} />
           </div>
         ) : null}

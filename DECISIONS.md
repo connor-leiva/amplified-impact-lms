@@ -7938,3 +7938,32 @@ No migration, env var, Railway variable, Stripe, billing data, role, tier, permi
   - E2e `lms-v3-times.spec.ts` in `pnpm e2e:v3`: for viewers in Eastern, Pacific and Hawaii time, every time on Home, the Schedule, a locked week, the Community and a step page reads the one line. The Schedule's and the locked week's next build appear word for word, along with the buyer's office hours, and nothing scrolls sideways at 390.
   - D-258's steps run all of these in `parity:learner`.
 - No migration, env var, Railway variable, Stripe, GHL, billing, plans, users, roles, tiers or `audit_log` change. No email changes. No golden, mask or tolerance moves.
+
+## D-260 · Connor's calls on the rollout's acceptance, and today's pages light inside the v3 frame
+
+**Date:** 2026-11-26
+**Asked for by:** Connor Leiva (repository owner), Nov 25, 2026, answering PR C's questions: "Q-C1 accept the listed pixel differences (AI Implementer and the Nov 29 date) for the flip. Q-C2 the local run stands in for the deployed preview, plus the read-only production check. Q-C3 force today's pages light inside the v3 frame for learners with Dark theme until the dark-mode pass. Q-C4 leave the Stack Card margin as is." **Number:** the next after D-259.
+
+- **Q-C1, the pixel gate.** The flip goes ahead with the differences the gate lists against the v7 mockup:
+  - D-243's "AI Implementer";
+  - D-249's dates (Week 1 opens Sun, Nov 29);
+  - D-259's longer time line, which follows from Connor's Nov 25 answer on times.
+
+  No v8 mockup is drawn for them now. The gate (`handoff/lms-v3/diff/pixel-diff.mjs`), its pass bar and its reference are unchanged. `docs/pr-review/lms-v3-rollout/gate/RESULTS.md` lists every check that differs, with its cause.
+- **Q-C2, the deployed preview.** The local run on the flag-on http build stands in for Phase 11's deployed preview. The read-only production check (Phase 11 Step 4, as PR C's description gives it) is still run, by someone with the test learner's password, before and after the flip. It sends only reads, with no reset and no `prepare.ts` against production.
+- **Q-C3, the dark theme (C-02).** Inside the v3 frame everything draws light, whatever the person's Theme, until the dark-mode pass. Before this, a Dark-theme learner saw today's pages (Home, the Skill Library, a skill, Account, the Team Hub, the Vault, the Stack Card page) dark inside the light frame.
+  - **The root.** `lib/prefs.ts` gains `setFrameLight`. While a v3 frame is on screen, the root's `data-theme`, which the design tokens read, is light. A later choice of Dark (or any other write) keeps it light inside the frame, and the person's choice is kept: it comes back outside the frame, and for the dark-mode pass. `useFrameLight` (`shell/learner/useLearnerPrefs.ts`) sets it before paint, so no dark page flashes.
+  - **The members' frame.** `LearnerShell` works out which frame draws a page (`v6Step`, `inV3`) before anything else. In the v3 frame, today's pages, the account menu, the Team Plan window and the "How the LMS Works" tour are drawn `data-lv-theme="light"`.
+  - **The $37 buyer's LMS** is the v3 frame too (D-241, "Light only"), so its two today's pages (a skill's guided setup and Account) and its account menu draw light as well.
+  - **Unchanged:**
+    - the v6 step page, which has no frame (D-210), keeps the person's theme, and so does today's shell with v3 off;
+    - the Theme choice stays in the account menu and is still saved.
+- **Q-C4, the Stack Card page.** Its margin inside the v3 frame stays as it is; nothing changes.
+- **Tests.**
+  - `lib/prefs.test.ts`: the root draws light while a frame is on screen, the person's Dark comes back after, and today's portal keeps the device's theme.
+  - `compliance/tests/e2e/lms-v3-dark.spec.ts` (`pnpm e2e:v3`), for a Dark-theme learner:
+    - Home, the Vault, the Skill Library and Account draw light (the root, every wrapper, the page's own background);
+    - the account menu draws light, and Dark is still checked in it;
+    - the step page keeps Dark;
+    - the buyer's Account page draws light.
+- No migration, env var, Railway variable, Stripe, GHL, billing, plans, users, roles, tiers or `audit_log` change. No email is sent. No golden, mask or tolerance moves.

@@ -31,5 +31,5 @@ None scrolls sideways.
 | Community and a thread | `community-*.png`, `thread-*.png` | The v3 pages, with the package's sample threads. |
 | The Schedule | `schedule-*.png` | The v3 Schedule. Every time on it reads "12:00 PM MT / 1:00 PM CT" (D-259), except the lede, which is the cohort's cadence as staff typed it. |
 | A locked week | `locked-week-*.png` | Week 1, locked, "Opens Sun, Nov 29" (D-249). |
-| Dark mode: Home | `dark-home-*.png` | The learner's Theme is Dark. **Home draws dark inside the light v3 frame.** The same goes for every page under the shell that isn't a v3 page (the Skill Library, a skill, Account, Team Hub, the Vault): the frame hands today's pages the learner's theme. |
+| Dark mode: Home | `dark-home-*.png` | The learner's Theme is Dark. **Home draws light inside the v3 frame** (D-260, Connor's Q-C3: today's pages light inside the frame until the dark-mode pass). So do the Skill Library, a skill, Account, Team Hub, the Vault and the Stack Card page; the step page, which has no frame, keeps Dark. |
 | Dark mode: Week 0 | `dark-week-0-*.png` | A v3 page stays light, as C-02 says. |

@@ -10,6 +10,7 @@ import {
   learnerTheme,
   loadLearnerPrefs,
   saveLearnerPrefs,
+  setFrameLight,
   setLearnerScope,
 } from './prefs';
 
@@ -131,6 +132,34 @@ describe('prefs @g1', () => {
       expect(root().dataset.theme).toBe('light');
       setLearnerScope(null);
       expect(root().dataset.theme).toBe('light');
+    });
+
+    // D-260 (Connor, Q-C3): inside a v3 frame the portal draws light, whatever the person's theme, until the dark pass.
+    it('draws the root light while a v3 frame is on screen, and the person’s theme again once it goes', () => {
+      savePrefs({ theme: 'light' });
+      saveLearnerPrefs('u_jamie', { theme: 'dark' });
+      setLearnerScope('u_jamie');
+      expect(root().dataset.theme).toBe('dark');
+      setFrameLight(true);
+      expect(root().dataset.theme).toBe('light');
+      // A later write, or the person choosing Dark again, keeps it light inside the frame; the choice is still kept.
+      savePrefs({ tz: 'America/Chicago' });
+      saveLearnerPrefs('u_jamie', { theme: 'dark' });
+      applyPrefs(loadPrefs());
+      expect(root().dataset.theme).toBe('light');
+      expect(learnerTheme('u_jamie')).toBe('dark');
+      setFrameLight(false);
+      expect(root().dataset.theme).toBe('dark');
+      setLearnerScope(null);
+      expect(root().dataset.theme).toBe('light');
+    });
+
+    it('leaves today’s portal (no learner on screen) on the device’s theme, frame or not', () => {
+      savePrefs({ theme: 'dark' });
+      setFrameLight(true);
+      expect(root().dataset.theme).toBe('dark');
+      setFrameLight(false);
+      expect(root().dataset.theme).toBe('dark');
     });
 
     it('ignores anything stored that is not one of the two values', () => {
