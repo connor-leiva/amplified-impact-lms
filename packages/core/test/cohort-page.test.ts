@@ -135,7 +135,7 @@ describe('December’s run, written once by a data step (the one December rewrit
   it('keeps the run out of a learner’s snapshot (December’s learners read the same snapshot)', () => {
     const db = withRun();
     const learner = { ...db.staff[0]!, id: 'u1' };
-    db.users.push({ id: learner.id, name: 'A', email: 'a@example.test', tier: 'team', role: 'Owner', teamId: null, cohortId: DEFAULT_COHORT_ID, joined: 0, last: null, status: 'active', progress: {} } as Db['users'][number]);
+    db.users.push({ id: learner.id, name: 'A', email: 'a@example.test', tier: 'team', role: 'Team Owner', teamId: null, cohortId: DEFAULT_COHORT_ID, joined: 0, last: null, status: 'active', progress: {} } as Db['users'][number]);
     const snap = scopeSnapshot(db, { kind: 'learner', userId: learner.id }, { accelerator: true, at: MT('2026-12-02T12:30:00'), preview: false });
     expect(snap.cohorts[0]!.run).toBeUndefined();
     expect(decemberRunOf(db)).toHaveLength(9);
@@ -269,7 +269,9 @@ describe('Before it opens: Open enrollment’s refusals, in order, one function 
   });
 
   it('every line but Stripe and the links can be done in Phase 3, so Open enrollment still refuses (§ 10.2)', () => {
-    let { db, id } = withJanuary();
+    const january = withJanuary();
+    const id = january.id;
+    let db = january.db;
     db = keepCohortOverlap(db, OWNER, { cohortId: id }, mkCtx()).db;
     db = { ...db, sessions: db.sessions.map((s) => (s.cohortId === id ? { ...s, zoom: 'https://zoom.example/j/1' } : s)) };
     const run = db.cohorts.find((c) => c.id === id)!.run!;
