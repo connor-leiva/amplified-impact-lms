@@ -13,7 +13,7 @@ import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm } from '../../components/r2/Modal';
 import { Status } from '../../components/r2/Status';
-import { Facts, PageHead, Pill, k } from '../../components/r2/kit';
+import { Facts, PageHead, Pill, Sel, k } from '../../components/r2/kit';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi } from '../../data/console';
 import type { OpsEnv } from '@ai/core';
@@ -107,9 +107,11 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
 
 /** One email's test send, to the allowlist only: the welcome's, and the Week 0 Is Open email's, the same control. */
 function TestSend({ title, failed, send }: { title: string; failed: string; send: (to: string, cohortId: string) => Promise<{ ok: true; subject: string }> }) {
-  const { toast } = useAdminChrome();
+  const { toast, cohort } = useAdminChrome();
   const [to, setTo] = useState('accelerator-test@amplifiedimpact.io');
-  const [cohortId, setCohortId] = useState('dec26');
+  // D-255 (PLAN.md § 10.3): the cohort is picked from the cohorts not archived (the pickers' list), the one the admin
+  // is on first. "Before it opens" counts a test send for the cohort it was sent for.
+  const [cohortId, setCohortId] = useState(cohort.id ?? cohort.choices[0]?.id ?? 'dec26');
   const [busy, setBusy] = useState(false);
   return (
     <Card title={title} sub="Only accelerator-test@amplifiedimpact.io, unless an allowlist adds another address. This does not email a learner.">
@@ -120,7 +122,13 @@ function TestSend({ title, failed, send }: { title: string; failed: string; send
         </label>
         <label className={k.col}>
           <span className={k.me}>Cohort</span>
-          <input className={k.in} value={cohortId} onChange={(e) => setCohortId(e.target.value)} />
+          <Sel className={k.full} value={cohortId} onChange={(e) => setCohortId(e.target.value)}>
+            {(cohort.choices.length ? cohort.choices : [{ id: cohortId, label: cohortId }]).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </Sel>
         </label>
         <Button
           kind="primary"

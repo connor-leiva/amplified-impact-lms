@@ -101,10 +101,10 @@ describe('the admin sidebar (D-253: the frame)', () => {
 
   it('draws each page’s tabs this phase: those whose page exists', () => {
     const tabs = (a: (typeof AREA_IDS)[number]) => AREAS[a].tabs.map((t) => t.label);
-    expect(tabs('program')).toEqual(['Curriculum', 'Course settings', 'Resource Vault']);
-    expect(tabs('cohort')).toEqual(['Schedule', 'People', 'Community', 'Announcements']);
+    expect(tabs('program')).toEqual(['Curriculum', 'Course Settings', 'Resource Vault']);
+    expect(tabs('cohort')).toEqual(['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings']);
     expect(tabs('people')).toEqual(['Everyone', 'Teams', 'Masquerade']);
-    expect(tabs('revenue')).toEqual(['Summary', 'Payments', 'Plans & upgrades', 'Usage']);
+    expect(tabs('revenue')).toEqual(['Summary', 'Payments', 'Plans & Upgrades', 'Usage']);
   });
 
   it('keeps Staff & Roles under Access in production, and leaves it out of the parity fixture (D11, the reference’s NAV)', () => {
@@ -129,25 +129,25 @@ describe('the admin sidebar (D-253: the frame)', () => {
     const tabsFor = (role: string) => Object.fromEntries(AREA_IDS.map((a) => [a, areaTabs(a, role).map((t) => t.label)]));
     expect(tabsFor('Owner')).toEqual(tabsFor('Admin'));
     expect(tabsFor('Owner')).toEqual({
-      program: ['Curriculum', 'Course settings', 'Resource Vault'],
-      cohort: ['Schedule', 'People', 'Community', 'Announcements'],
+      program: ['Curriculum', 'Course Settings', 'Resource Vault'],
+      cohort: ['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings'],
       people: ['Everyone', 'Teams', 'Masquerade'],
-      revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'],
+      revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'],
     });
     // Support: Masquerade is the Owner's and Admin's (D-162 3b); Support reads billing (D3).
     expect(tabsFor('Support')).toEqual({
-      program: ['Curriculum', 'Course settings', 'Resource Vault'],
-      cohort: ['Schedule', 'People', 'Community', 'Announcements'],
+      program: ['Curriculum', 'Course Settings', 'Resource Vault'],
+      cohort: ['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings'],
       people: ['Everyone', 'Teams'],
-      revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'],
+      revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'],
     });
     // Instructor and Content Editor have no Console capability: no Community, no People page, Revenue is Plans & upgrades.
     for (const role of ['Instructor', 'Content Editor']) {
       expect(tabsFor(role), role).toEqual({
-        program: ['Curriculum', 'Course settings', 'Resource Vault'],
-        cohort: ['Schedule', 'People', 'Announcements'],
+        program: ['Curriculum', 'Course Settings', 'Resource Vault'],
+        cohort: ['Overview', 'Schedule', 'People', 'Announcements', 'Settings'],
         people: [],
-        revenue: ['Plans & upgrades'],
+        revenue: ['Plans & Upgrades'],
       });
       expect(labels(nav({ role, fullNav: false })), role).toEqual(['Overview', 'Program', 'Cohort', 'Revenue', ['Access', 'Staff & Roles']]);
       // Its Revenue row opens the one tab it may open.
@@ -253,10 +253,12 @@ describe('the four pages’ addresses (spec § 3)', () => {
       '/admin/program',
       '/admin/program/course',
       '/admin/program/vault',
+      '/admin/cohort/dec26',
       '/admin/cohort/dec26/schedule',
       '/admin/cohort/dec26/people',
       '/admin/cohort/dec26/community',
       '/admin/cohort/dec26/announcements',
+      '/admin/cohort/dec26/settings',
       '/admin/people',
       '/admin/people/teams',
       '/admin/people/masquerade',
@@ -265,8 +267,10 @@ describe('the four pages’ addresses (spec § 3)', () => {
       '/admin/revenue/plans',
       '/admin/revenue/usage',
     ]);
-    // Every tab's address is the place of that tab.
-    for (const a of AREA_IDS) for (const t of AREAS[a].tabs) expect(placeOf(tabPath(a, t.id, 'dec26')), `${a}:${t.id}`).toMatchObject({ area: a, tab: t.id });
+    // Every tab's address is the place of that tab (a page's first tab is its own address, which names no tab).
+    for (const a of AREA_IDS)
+      for (const t of AREAS[a].tabs)
+        expect(placeOf(tabPath(a, t.id, 'dec26')), `${a}:${t.id}`).toMatchObject(a === 'cohort' && t.id === 'overview' ? { area: a } : { area: a, tab: t.id });
   });
 
   it('knows a place by its address, and no place for one that is no page', () => {
@@ -278,7 +282,10 @@ describe('the four pages’ addresses (spec § 3)', () => {
     expect(placeOf('/admin/people/teams/ws_1')).toMatchObject({ area: 'people', tab: 'teams', record: true });
     expect(placeOf('/admin/revenue/payments/invoices')).toEqual({ row: 'revenue', group: 'Revenue', area: 'revenue', tab: 'payments' });
     expect(placeOf('/admin/incidents/INC-0007')).toEqual({ row: 'incidents', group: 'Operations', record: true });
-    for (const p of ['/admin/no-such-page', '/admin/cohort', '/admin/cohort/dec26/settings', '/admin/program/weeks', '/admin/people/u_1/x', '/admin/revenue/summary', '/admin/denied', '/sessions'])
+    // D-255: New cohort is a page of the Cohort row's, named in the crumb.
+    expect(placeOf('/admin/cohort/new')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', record: true, newCohort: true });
+    expect(placeOf('/admin/cohort/dec26/settings')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', tab: 'settings' });
+    for (const p of ['/admin/no-such-page', '/admin/cohort', '/admin/cohort/dec26/submissions', '/admin/program/weeks', '/admin/people/u_1/x', '/admin/revenue/summary', '/admin/denied', '/sessions'])
       expect(placeOf(p), p).toBeNull();
   });
 });
@@ -288,9 +295,11 @@ describe('the breadcrumb (the mockup’s Crumbs)', () => {
     crumbsOf(placeOf(path), { record: record ?? null, cohortId: 'dec26' }).map((c) => (c.kind === 'link' ? `[${c.label}](${c.to})` : `${c.kind}:${c.label}`));
   it('is Admin / Cohort / Schedule on a tab, the page a link to its own address', () => {
     expect(trail('/admin/cohort/dec26/schedule')).toEqual(['[Cohort](/admin/cohort/dec26)', 'here:Schedule']);
-    expect(trail('/admin/cohort/dec26')).toEqual(['[Cohort](/admin/cohort/dec26)', 'here:Schedule']);
+    expect(trail('/admin/cohort/dec26')).toEqual(['[Cohort](/admin/cohort/dec26)', 'here:Overview']);
+    expect(trail('/admin/cohort/dec26/settings')).toEqual(['[Cohort](/admin/cohort/dec26)', 'here:Settings']);
+    expect(trail('/admin/cohort/new')).toEqual(['[Cohort](/admin/cohort/dec26)', 'record:New Cohort']);
     expect(trail('/admin/program')).toEqual(['[Program](/admin/program)', 'here:Curriculum']);
-    expect(trail('/admin/program/course')).toEqual(['[Program](/admin/program)', 'here:Course settings']);
+    expect(trail('/admin/program/course')).toEqual(['[Program](/admin/program)', 'here:Course Settings']);
     expect(trail('/admin/revenue/payments/failed')).toEqual(['[Revenue](/admin/revenue)', 'here:Payments']);
     expect(trail('/admin')).toEqual(['here:Overview']);
   });
@@ -336,18 +345,20 @@ describe('the palette’s pages (spec Phase 1: the four pages and their tabs)', 
     ]);
     expect(owner.filter((p) => p.tab).map((p) => p.label)).toEqual([
       'Program › Curriculum',
-      'Program › Course settings',
+      'Program › Course Settings',
       'Program › Resource Vault',
+      'Cohort › Overview',
       'Cohort › Schedule',
       'Cohort › People',
       'Cohort › Community',
       'Cohort › Announcements',
+      'Cohort › Settings',
       'People › Everyone',
       'People › Teams',
       'People › Masquerade',
       'Revenue › Summary',
       'Revenue › Payments',
-      'Revenue › Plans & upgrades',
+      'Revenue › Plans & Upgrades',
       'Revenue › Usage',
     ]);
     expect(owner.find((p) => p.label === 'Cohort › People')).toMatchObject({ to: '/admin/cohort/dec26/people', icon: 'r2Cohorts' });
@@ -358,7 +369,7 @@ describe('the palette’s pages (spec Phase 1: the four pages and their tabs)', 
     expect(instructor).not.toContain('People');
     expect(instructor).not.toContain('Cohort › Community');
     expect(instructor).not.toContain('Revenue › Payments');
-    expect(instructor).toContain('Revenue › Plans & upgrades');
+    expect(instructor).toContain('Revenue › Plans & Upgrades');
     for (const p of navPages('Support', false, 'dec26')) if (p.id === 'people:masquerade') throw new Error('Support offered Masquerade');
     expect(navPages('Owner', true, 'dec26').map((p) => p.label)).not.toContain('Staff & Roles');
     expect(consoleCan('Support', 'masquerade.start')).toBe(false);

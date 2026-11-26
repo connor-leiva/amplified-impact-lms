@@ -394,10 +394,10 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
   EXPECT.Instructor = [['Overview'], ['Program'], ['Cohort'], ['Revenue'], ['Access', 'Staff & Roles']];
   /** The tabs of People and Revenue each role is drawn (the rest are every role's). */
   const TABS: Record<string, { People: string[]; Revenue: string[] }> = {
-    Owner: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
-    Admin: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
-    Support: { People: ['Everyone', 'Teams'], Revenue: ['Summary', 'Payments', 'Plans & upgrades', 'Usage'] },
-    Instructor: { People: [], Revenue: ['Plans & upgrades'] },
+    Owner: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'] },
+    Admin: { People: ['Everyone', 'Teams', 'Masquerade'], Revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'] },
+    Support: { People: ['Everyone', 'Teams'], Revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'] },
+    Instructor: { People: [], Revenue: ['Plans & Upgrades'] },
   };
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {

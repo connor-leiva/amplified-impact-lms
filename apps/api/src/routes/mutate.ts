@@ -77,7 +77,7 @@
 // result still has an Owner, then the write and its ONE `ok` audit row, together. Each refusal writes
 // one `denied` row, and so does core's own 403 for a staff member. `console/staff-writes.ts`.
 
-import { MutationError, buildWriteRecordOf, isBuildConfirmWrite } from '@ai/core';
+import { MutationError, buildWriteRecordOf, isBuildConfirmWrite, openEnrollmentRefusal } from '@ai/core';
 import type { Actor, Ctx, Db, Effect, Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { sql } from 'drizzle-orm';
@@ -95,6 +95,7 @@ import { clock, newIds } from '../lib/clock';
 import { recordStaffRefusal, refuseOwnerlessResult, refuseStaffWrite, staffWriteContext, writeStaffChange } from '../console/staff-writes';
 import { audit } from '../console/audit';
 import { viewerAccessFor } from '../lib/course-access';
+import { cohortFactsOf } from '../lib/cohort-facts';
 import { claimSendNowEmails, sendClaimed, withSendNowToast } from '../email/announce-now';
 import type { SendNowClaim } from '../email/announce-now';
 import { staffActor } from '../console/guard';
@@ -277,6 +278,17 @@ export function registerMutateRoute(app: FastifyInstance, { broadcast }: MutateR
           await tx.execute(sql`select pg_advisory_xact_lock(42)`);
 
           const before = await loadDb(tx);
+          // D-255 (R-5 Phase 3): Open enrollment is refused, with its reason, until "Before it opens" is done (PLAN.md
+          // § 10.3: one function answers both). For a draft cohort that owns its run; the prototype's cohorts without one
+          // (the demo seed's, which the oracle pins) open as they always have, and a cohort past its draft (December,
+          // whose run the data step writes) keeps the mutation's own answer, word for word.
+          if (name === 'openEnrollment') {
+            const target = before.cohorts.find((c) => c.id === (parsed.data as { cohortId: string }).cohortId);
+            if (target?.run && target.status === 'draft') {
+              const refusal = openEnrollmentRefusal(before, target.id, await cohortFactsOf(tx, target.id));
+              if (refusal) return { ok: false, status: 422, body: { error: refusal } };
+            }
+          }
           if (staffWrite) {
             staffBefore = before.staff;
             // Under the lock, so the Owners counted are the Owners there are. A refusal commits its

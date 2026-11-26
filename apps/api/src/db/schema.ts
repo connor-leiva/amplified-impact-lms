@@ -66,8 +66,12 @@ export const cohorts = pgTable('cohorts', {
   // R-5 (D-254, migration 0043): the cohort owns its run and its shape. All nullable, no default: a null reads back as
   // an absent key, so every cohort made before reads exactly as before (December's run is written in Phase 3).
   run: jsonb('run'), shape: jsonb('shape'), programId: text('program_id'), archivedAt: ts('archived_at'),
+  // R-5 Phase 3 (D-255, migration 0044): the Cohort page's own facts. All nullable, no default (D-173).
+  includedUntil: text('included_until'), wordsCheckedAt: ts('words_checked_at'), overlapOkAt: ts('overlap_ok_at'), words: jsonb('words'), hosts: text('hosts'),
 }, (t) => [
   check('cohorts_default_open_time', sql`${t.defaultOpenTime} is null or ${t.defaultOpenTime} ~ '^[0-2][0-9]:[0-5][0-9]$'`),
+  // D-255: a calendar date, not an instant (§ 7.2), so text in its one shape.
+  check('cohorts_included_until', sql`${t.includedUntil} is null or ${t.includedUntil} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
 ]);
 // D-172: `replay_url`, the recording a past session's Attach replay records (nullable; nothing learner-facing reads it yet).
 export const sessions = pgTable('sessions', {

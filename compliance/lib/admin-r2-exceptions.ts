@@ -26,14 +26,15 @@
 // (`admin-r2-parity.spec.ts`, "approved exceptions"). Each PR adds its own cell when it lands: R2-2b
 // (#138) `cohorts-sessions-390`, R2-1c part 1 (#136) `workspace-detail-390`, R2-1c part 2 (#141)
 // `user-390`, Console PR 8 (#152, D-167) `incident-390` and Console PR 9 (#151, D-168) `flags-390`,
-// later screens with the same key facts.
+// later screens with the same key facts. D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule, so its cell is
+// `cohort-schedule-390` (its `cohorts-sessions` refs retire), the same screen with the same key-facts component.
 
 /** Where the decision is recorded. */
 export const EXCEPTION_DECISION = 'D-160, Connor, Nov 16, 2026, 8:27 AM MST' as const;
 /** The one reason decision A accepts. */
 export const EXCEPTION_REASON = '15px vs 16px phone key-facts text; the build keeps the 16px floor' as const;
 /** The cells decision A names, and the later ones it covers by name. The list below holds these and nothing else. */
-export const ALLOWED_EXCEPTION_CELLS = ['cohorts-sessions-390', 'workspace-detail-390', 'user-390', 'incident-390', 'flags-390'] as const;
+export const ALLOWED_EXCEPTION_CELLS = ['cohort-schedule-390', 'workspace-detail-390', 'user-390', 'incident-390', 'flags-390'] as const;
 /** Every ceiling must be under this % of the cell's pixels. */
 export const EXCEPTION_CEILING_LIMIT_PCT = 0.5;
 
@@ -55,13 +56,15 @@ export interface ApprovedException {
 export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
   // R2-2b (#138): Cohorts & Sessions on a phone. Its key facts: December 2026, Active, Wed, Dec 2 ·
   // 12:00 PM MST, 2 of 6, 148 learners, Wednesdays, weekly. D-253: Cohort › Schedule, under the Cohort page's head
-  // and tabs, so its ref is 82px taller (2092 to 2174); the same key facts, the same ceiling.
+  // and tabs, so its ref is 82px taller (2092 to 2174); the same key facts, the same ceiling. D-255 (R-5 Phase 3): the
+  // Schedule tab's own key facts (On the calendar, Rhythm, Without a Zoom link, Next), two of them links at 16px in
+  // the mockup too; the other two are this cell's whole diff (y 356–442), 0 px with the mockup's 15px applied.
   {
-    cell: 'cohorts-sessions-390',
+    cell: 'cohort-schedule-390',
     width: 390,
-    height: 2174,
-    ceilingPx: 2766,
-    ceilingPct: 0.3262,
+    height: 2010,
+    ceilingPx: 1037,
+    ceilingPct: 0.1323,
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 138,

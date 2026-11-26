@@ -129,7 +129,17 @@ export interface Cohort {
    * written. `programId` names the program it runs (one today); `archivedAt` hides it from the pickers.
    */
   run?: CohortWeek[]; shape?: CohortShape; programId?: string; archivedAt?: number;
+  /**
+   * R-5 Phase 3 (D-255), all optional and absent on every cohort made before: the words only this group reads, for a
+   * cohort whose course words are not its own (a new cohort's; December's are its `course.intro`); when they were
+   * saved, which clears "Read them once" (`words_checked_at`); when staff kept its sessions at the same time as another
+   * cohort's (`overlap_ok_at`); the day its seats' included time ends (`YYYY-MM-DD`, its instant the start of that day
+   * in America/Chicago); and its hosts, for a cohort whose shape is not stored (December's, Q-28).
+   */
+  words?: CohortWords; wordsCheckedAt?: number; overlapOkAt?: number; includedUntil?: string; hosts?: string;
 }
+/** R-5 Phase 3 (D-255): the words a cohort's learners read that are only theirs: the promise, how it works, the holiday note. */
+export interface CohortWords { promise: string; how: string[]; holiday: string }
 /**
  * R-5 (D-254): one week of a cohort's run: the program's week module it takes, its number in this cohort, and when it
  * opens and is due for this cohort (epoch ms; null when it is open with the course, or has no due date).

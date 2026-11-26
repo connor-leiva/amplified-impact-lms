@@ -21,6 +21,7 @@ export function Area({
   title,
   meta,
   description,
+  right,
   cohortId,
   counts,
 }: {
@@ -28,6 +29,8 @@ export function Area({
   title: ReactNode;
   meta?: ReactNode;
   description?: string;
+  /** D-255: the page's own actions, beside its title (the Cohort page's Preview and its menu). */
+  right?: ReactNode;
   cohortId: string;
   counts: TabCounts;
 }) {
@@ -44,7 +47,7 @@ export function Area({
   if (!tabs.some((t) => t.id === value)) return <Outlet />;
   return (
     <Page>
-      <PageHead title={title} meta={meta} description={description} />
+      <PageHead title={title} meta={meta} description={description} right={right} />
       <Tabs
         className={a.tabs}
         label={AREAS[area].label}

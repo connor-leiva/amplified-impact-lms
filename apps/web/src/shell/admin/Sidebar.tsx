@@ -181,7 +181,11 @@ export function Sidebar({ mode, data, entries, cohort, go, onPeek, onToggleRail,
         label="Cohorts"
         placement="below-left"
         className={s.switchMenu}
-        items={cohort.choices.map((c) => ({ label: c.label, checked: c.current, onSelect: () => cohort.pick(c.id) }))}
+        items={[
+          ...cohort.choices.map((c) => ({ label: c.label, checked: c.current, onSelect: () => cohort.pick(c.id) })),
+          // D-255: the mockup's `CtxSwitch` ends with "New cohort…".
+          ...(cohort.create ? (['separator', { label: 'New cohort…', onSelect: cohort.create }] as const) : []),
+        ]}
         trigger={(t) => (
           <button
             type="button"

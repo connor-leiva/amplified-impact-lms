@@ -146,6 +146,17 @@ export interface Fmt {
   isoDate: (t: number) => string;
   isoTime: (t: number) => string;
   fromCT: (date: string, time?: string) => number;
+  /**
+   * D-255 (R-5 Phase 3, PLAN.md § 10.8): the admin's cohort times, in Mountain Time with Central after it on one line.
+   * `mtDay` "Wed, Dec 9" (Mountain's day), `mtDate` "Mon, May 10, 2027", `mtTime` "12:00 PM MT", `mtCt` "12:00 PM MT /
+   * 1:00 PM CT" (D-259's `mtCtTime`), `mtWhen` "Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT". Each zone's own daylight
+   * saving, from the instant.
+   */
+  mtDay: (t: number) => string;
+  mtDate: (t: number) => string;
+  mtTime: (t: number) => string;
+  mtCt: (t: number) => string;
+  mtWhen: (t: number) => string;
 }
 
 export const fmt: Fmt = {
@@ -230,4 +241,10 @@ export const fmt: Fmt = {
   isoDate: (t) => new Date(t - 6 * 3600e3).toISOString().slice(0, 10),
   isoTime: (t) => new Date(t - 6 * 3600e3).toISOString().slice(11, 16),
   fromCT: (date, time) => Date.parse(`${date}T${time || '13:00'}:00-06:00`),
+  mtDay: (t) => dOf(t, MOUNTAIN_TZ, { weekday: 'short', month: 'short', day: 'numeric' }),
+  mtDate: (t) => dOf(t, MOUNTAIN_TZ, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+  mtTime: (t) => `${tOf(t, MOUNTAIN_TZ)} MT`,
+  // D-259's one line, the learner portal's (`mtCtTime`): the admin and the learner read a time alike.
+  mtCt: (t) => mtCtTime(t),
+  mtWhen: (t) => `${fmt.mtDay(t)} · ${fmt.mtCt(t)}`,
 };

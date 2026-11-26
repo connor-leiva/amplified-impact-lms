@@ -13,7 +13,7 @@
 
 import { useId, useRef, useState } from 'react';
 import clsx from 'clsx';
-import type { AIEmployee, Db, ReplayVisibility, ResourceKind, ResourcePlatform, ResourceVisibility, SessionType, Step } from '@ai/core';
+import type { AIEmployee, Db, ResourceKind, ResourcePlatform, ResourceVisibility, Step } from '@ai/core';
 import type { AccordionBlock, AgendaItem, CalloutBlock, CheckAction, CheckBlock, ContentBlock, CourseSkill, LockedCopy, PathBlock, PlaybookCard, SampleOutput, SeatCard, SkillRole, VideoBlock } from '@ai/core/course-types';
 import { titleWords } from '@ai/core/checklist';
 import { LMS_TOUR_MODULE_ID, chapterText, parseChapters } from '@ai/core';
@@ -54,9 +54,7 @@ import {
   mediaLines,
   mediaVideos,
   PLATFORM_LABELS,
-  REPLAY_LABELS,
   RESOURCE_KIND_LABELS,
-  SESSION_KIND_LABELS,
   VISIBILITY_LABELS,
   PREVIEW_AS_LABELS,
   listItems,
@@ -73,12 +71,12 @@ import {
   tableText,
   unattached,
   weekKit,
-  weekSessions,
   withDraft,
 } from './WeekBuilder.vm';
-import type { KitRow, PreviewAs, WeekDraft, WeekSessionRow } from './WeekBuilder.vm';
+import type { KitRow, PreviewAs, WeekDraft } from './WeekBuilder.vm';
 import s from './ModuleBuilder.module.css';
 import w from './WeekBuilder.module.css';
+import { WeekSessionsReadOnly } from './cohort/WhereItRuns';
 
 /** D-236: the seat card's "Item to check" (its placeholder): saving it ready checks this item; signing, the one named. */
 const SEAT_CARD_ITEM_HINT = 'The item the owner’s signature checks, as w1s6c-sign. Blank uses this item.';
@@ -933,7 +931,8 @@ export function WeekCards(props: WeekCardsProps) {
       <AgendaCard {...props} which="liveBuild" />
       <AgendaCard {...props} which="officeHours" />
       <HireCardsCard {...props} />
-      <WeekSessionsCard {...props} />
+      {/* D-255: sessions are edited in the cohort's Schedule; here, read-only, each a link there. */}
+      <WeekSessionsReadOnly db={props.db} moduleId={props.draft.id} />
       <SkillsCard {...props} />
       <KitCard {...props} />
     </>
@@ -1379,127 +1378,7 @@ function StatusLabelFields({ labels, onChange }: { labels: Readonly<Record<strin
   );
 }
 
-// --- the week's sessions (saved at once) -----------------------------------------------------------
-
-interface SessionForm {
-  id?: string;
-  kind: SessionType;
-  title: string;
-  date: string;
-  time: string;
-  mins: string;
-  zoom: string;
-  replayVisibility: ReplayVisibility | null;
-}
-
-const formOf = (r: WeekSessionRow): SessionForm => ({
-  id: r.id,
-  kind: r.session.kind ?? 'other',
-  title: r.session.title,
-  ...mtInputs(r.session.start),
-  mins: String(r.session.mins),
-  zoom: r.session.zoom,
-  replayVisibility: r.session.replayVisibility ?? null,
-});
-
-function WeekSessionsCard({ db, draft, act }: WeekCardsProps) {
-  const rows = weekSessions(db, draft);
-  const [form, setForm] = useState<SessionForm | null>(null);
-  const [error, setError] = useState('');
-  const [del, setDel] = useState<WeekSessionRow | null>(null);
-  const cohortId = rows[0]?.session.cohortId ?? db.cohorts[0]?.id ?? '';
-  const save = async () => {
-    if (!form) return;
-    const out = await act('saveSession', {
-      ...(form.id ? { id: form.id } : {}),
-      cohortId,
-      moduleId: draft.id,
-      kind: form.kind,
-      title: form.title,
-      date: form.date,
-      time: form.time,
-      mins: form.mins,
-      zoom: form.zoom,
-      replayVisibility: form.replayVisibility,
-    });
-    if (out.error) setError(out.error);
-    else {
-      setForm(null);
-      setError('');
-    }
-  };
-  return (
-    <Card
-      title={`Sessions · ${rows.length}`}
-      pad={false}
-      right={
-        <Button kind="quiet" icon="r2Plus" onClick={() => setForm({ kind: 'office_hours', title: '', date: '', time: '12:00', mins: '60', zoom: '', replayVisibility: null })}>
-          Add session
-        </Button>
-      }
-    >
-      {rows.length === 0 ? <p className={clsx(k.p, k.mu, w.pad)}>No sessions yet.</p> : null}
-      {rows.map((r) => (
-        <Row key={r.id} label={r.title} onEdit={() => setForm(formOf(r))} onRemove={r.named ? undefined : () => setDel(r)}>
-          <Pill>{r.kind}</Pill> <b>{r.title}</b>
-          <span className={clsx(k.me, w.sub)}>
-            {r.when} · {r.mins} min
-          </span>
-        </Row>
-      ))}
-      <p className={clsx(k.p, k.me, w.pad)}>Sessions save as soon as you save the dialog. Times are Mountain Time.</p>
-      {form ? (
-        <Modal
-          title={form.id ? 'Edit session' : 'Add session'}
-          onClose={() => setForm(null)}
-          foot={
-            <>
-              <Button onClick={() => setForm(null)}>Cancel</Button>
-              <Button kind="primary" onClick={() => void save()}>
-                Save session
-              </Button>
-            </>
-          }
-        >
-          {error ? (
-            <div role="alert" className={s.alert}>
-              {error.split('\n').map((e) => (
-                <p key={e} className={k.p}>
-                  {e}
-                </p>
-              ))}
-            </div>
-          ) : null}
-          <Choice label="Kind" value={form.kind} options={SESSION_KIND_LABELS} onChange={(v) => setForm({ ...form, kind: v ?? 'other' })} />
-          <Line label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
-          <div className={clsx(k.row, k.nw)}>
-            <label className={clsx(s.lab, k.sp)}>
-              Date (MT)
-              <input className={k.in} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-            </label>
-            <label className={clsx(s.lab, k.sp)}>
-              Start (MT)
-              <input className={k.in} type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
-            </label>
-          </div>
-          <Line label="Length (minutes)" value={form.mins} onChange={(v) => setForm({ ...form, mins: v })} />
-          <Line label="Zoom link" value={form.zoom} onChange={(v) => setForm({ ...form, zoom: v })} />
-          <Choice label="Replay" value={form.replayVisibility} options={REPLAY_LABELS} none="Not set" onChange={(v) => setForm({ ...form, replayVisibility: v })} />
-        </Modal>
-      ) : null}
-      {del ? (
-        <Confirm
-          title={`Delete “${del.title}”?`}
-          body="The session leaves the calendar now. A session that has run stays on the record and can’t be deleted."
-          cta="Delete session"
-          danger
-          onConfirm={() => void act('deleteSession', { id: del.id })}
-          onClose={() => setDel(null)}
-        />
-      ) : null}
-    </Card>
-  );
-}
+// --- the week's sessions: D-255 moved their editing to the cohort's Schedule (`cohort/WhereItRuns.tsx`) ---------
 
 // --- the week's kit skills (saved with the module) ------------------------------------------------
 

@@ -120,8 +120,10 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
   });
 });
 
-test.describe('Resource Vault, Cohorts & Sessions and Announcements on R2 (D-160 R2-2b) @g9 @r2', () => {
+test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-160 R2-2b, D-255) @g9 @r2', () => {
   test('each passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, with no CT', async ({ browser }) => {
+    // Twelve pages, each scanned by axe: about 29s alone, past the 30s default on a busy machine (D-255).
+    test.setTimeout(90_000);
     for (const [path, h1, tab] of [
       ['/admin/program/vault', 'Amplified AI Accelerator', 'Resource Vault'],
       ['/admin/cohort/dec26/schedule', 'December 2026 Cohort', 'Schedule'],
@@ -133,26 +135,27 @@ test.describe('Resource Vault, Cohorts & Sessions and Announcements on R2 (D-160
         // D-253: each is a tab; the page's own h1 is its page's (Program, or the cohort's picker).
         await expect(page.getByRole('heading', { level: 1 })).toHaveText(h1);
         if (w >= 768) await expect(page.getByRole('tab', { name: new RegExp(`^${tab}`) })).toHaveAttribute('aria-selected', 'true');
-        await noCentral(page);
+        // D-255 (R-5 Phase 3, PLAN.md § 10.8): the Schedule writes each time in Mountain with Central after it, what
+        // learners see; the others still have no Central.
+        if (tab !== 'Schedule') await noCentral(page);
         await expectAccessible(page);
         await close();
       }
   });
 
-  test('Cohorts: one zone, MST, in the header; Attendance’s and Replay’s "—" are both muted', async ({ browser }) => {
+  // D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule. Mountain, with Central after it for what learners
+  // see (PLAN.md § 10.8); no dash in an empty cell, a muted "None".
+  test('Schedule: Mountain with Central after it, an empty Week is a muted "None", and Edit Session is in MT', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/cohort/dec26/schedule', 1440);
-    await expect(page.locator('main')).toContainText(
-      'The cohort calendar and each live build on Zoom. All times are MST (America/Phoenix).',
-    );
-    const s3 = page.getByRole('row').filter({ hasText: 'Session 3 · Database Live Build' });
-    const dashes = s3.getByText('—', { exact: true });
-    await expect(dashes).toHaveCount(2);
-    const colors = await dashes.evaluateAll((els) => els.map((e) => getComputedStyle(e).color));
-    expect(colors).toEqual(['rgb(95, 106, 100)', 'rgb(95, 106, 100)']);
+    await expect(page.locator('main')).toContainText('Times are Mountain, with Central after each for what learners see.');
+    const s3 = page.getByRole('row').filter({ hasText: 'Database Live Build' });
+    await expect(s3).toContainText('12:00 PM MT / 1:00 PM CT');
+    await expect(s3.getByText('—', { exact: true })).toHaveCount(0);
+    expect(await s3.getByText('None', { exact: true }).evaluate((e) => getComputedStyle(e).color)).toBe('rgb(95, 106, 100)');
     await s3.getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Edit session' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Edit Session 3' });
-    await expect(dialog.getByLabel('Start time (MST)')).toHaveValue('12:00');
+    const dialog = page.getByRole('dialog', { name: 'Edit Session' });
+    await expect(dialog.getByLabel('Start (MT)')).toHaveValue('12:00');
     await expectAccessible(page);
     await close();
   });

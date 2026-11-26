@@ -182,7 +182,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt', 'includedUntil', 'wordsCheckedAt', 'overlapOkAt', 'words', 'hosts'],
   sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility', 'slot'],
   modules: [
     'id',
@@ -341,6 +341,11 @@ const cohortRow = (c: Cohort): Row => ({
   shape: col(c.shape),
   programId: col(c.programId),
   archivedAt: col(c.archivedAt),
+  includedUntil: col(c.includedUntil),
+  wordsCheckedAt: col(c.wordsCheckedAt),
+  overlapOkAt: col(c.overlapOkAt),
+  words: col(c.words),
+  hosts: col(c.hosts),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -666,6 +671,11 @@ export function fromRows(rows: Rows): Db {
           shape: r.shape,
           programId: r.programId,
           archivedAt: r.archivedAt,
+          includedUntil: r.includedUntil,
+          wordsCheckedAt: r.wordsCheckedAt,
+          overlapOkAt: r.overlapOkAt,
+          words: r.words,
+          hosts: r.hosts,
         },
       ),
     ),

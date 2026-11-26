@@ -9,6 +9,7 @@
 // data step writes it, so every action below refuses it, inline, and December's rows cannot move through them.
 
 import { produce } from 'immer';
+import { DEFAULT_COHORT_ID } from './accelerator';
 import { requirePerm } from './can';
 import { layOut, layoutProblem, layoutWarnings, meetsLine, relayout } from './cohort-run';
 import type { LaidSession, Layout, LayoutWarning, Relayout } from './cohort-run';
@@ -17,7 +18,8 @@ import { cohortCopyFields, copyIssues, changedFields, diffSummary, issueLine } f
 import { MutationError } from './mutations';
 import type { Actor, Ctx } from './mutations';
 import type { AdminOutcome } from './admin-actions';
-import type { Cohort, CohortShape, CohortSlot, CohortWeek, Db, Session } from './types';
+import { draftWords, includedDefault } from './cohort-page';
+import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
 
 /** What a cohort write hands back beside its toast: the cohort, the layout's warnings, and what was left alone. */
 export interface CohortActionResult {
@@ -51,6 +53,30 @@ function refuseCopy(
 
 const NO_RUN =
   'This cohort’s weeks are still read from the curriculum. Its run is written before it can be laid out here.';
+
+/** D-255 (Q-28): December's shape is derived for display from its run and sessions, and never stored. */
+export const DERIVED_SHAPE = 'This cohort’s shape is read from its own sessions. Only its hosts change here.';
+
+const isDay = (d: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
+
+/** A cohort's words as a form sends them, trimmed, with empty lines of how it works dropped. */
+const cleanWords = (w: CohortWords): CohortWords => ({
+  promise: (w.promise || '').trim(),
+  how: (w.how ?? []).map((x) => x.trim()).filter(Boolean),
+  holiday: (w.holiday || '').trim(),
+});
+
+/** The copy rules on a cohort's words, as they would sit in its course's intro. */
+function refuseWordsCopy(prev: CohortWords | null, next: CohortWords): string | null {
+  const fields = (w: CohortWords) =>
+    [
+      { path: 'words.promise', label: 'The promise', text: w.promise },
+      ...w.how.map((h, i) => ({ path: `words.how[${i}]`, label: `How it works ${i + 1}`, text: h })),
+      { path: 'words.holiday', label: 'Holiday note', text: w.holiday },
+    ].filter((f) => f.text.trim() !== '');
+  const issues = copyIssues(changedFields(prev ? fields(prev) : [], fields(next)));
+  return issues.length ? issues.map(issueLine).join('\n') : null;
+}
 
 const tzOf = (co: Pick<Cohort, 'timezone'>): string => co.timezone ?? COURSE_TZ;
 
@@ -104,7 +130,20 @@ const runSummary = (co: Cohort) => ({
 export function createCohortFromShape(
   db: Db,
   a: Actor,
-  args: { name: string; start: string; sourceCohortId: string; picks: string[]; shape: ShapeArgs },
+  args: {
+    name: string;
+    start: string;
+    sourceCohortId: string;
+    picks: string[];
+    shape: ShapeArgs;
+    /**
+     * D-255: the words it starts with. Absent: the source cohort's, flagged "Read them once" until saved (PLAN.md
+     * § 10.3). Null: none (a blank cohort). Given: these, still flagged until saved.
+     */
+    words?: CohortWords | null;
+    /** D-255: the day its included time ends (`YYYY-MM-DD`). Absent: its last live build + 90 days. Null: none. */
+    includedUntil?: string | null;
+  },
   c: Ctx,
 ): AdminOutcome {
   requirePerm(db, a, 'cohorts');
@@ -129,6 +168,14 @@ export function createCohortFromShape(
   const cadence = meetsLine(args.shape.slots);
   const copy = refuseCopy(null, { name, cadence });
   if (copy) return { db, error: copy };
+  const words = args.words === undefined ? draftWords(db, source.id) : args.words === null ? null : cleanWords(args.words);
+  if (words) {
+    const wordsCopy = refuseWordsCopy(null, words);
+    if (wordsCopy) return { db, error: wordsCopy };
+  }
+  const includedUntil =
+    args.includedUntil === undefined ? includedDefault(layout.sessions, tz) : args.includedUntil === null ? null : args.includedUntil;
+  if (includedUntil !== null && !isDay(includedUntil)) return { db, error: 'Pick the day its included time ends.' };
 
   const id = c.id('c');
   const shape: CohortShape = {
@@ -153,6 +200,8 @@ export function createCohortFromShape(
     ...(layout.setupOpensAt !== null ? { previewOpensAt: layout.setupOpensAt } : {}),
     run: layout.weeks,
     shape,
+    ...(words ? { words } : {}),
+    ...(includedUntil ? { includedUntil } : {}),
   };
   const rows = layout.sessions.map((s, i) => rowOf(s, id, c.id('s'), i + 1));
   const next = produce(db, (d) => {
@@ -174,6 +223,8 @@ export function createCohortFromShape(
         timezone: tz,
         defaultOpenTime: openTime,
         sessions: rows.length,
+        words: words ?? null,
+        includedUntil: includedUntil ?? null,
       },
     },
   };
@@ -249,6 +300,8 @@ export function saveCohortShape(
   requirePerm(db, a, 'cohorts');
   const co = cohortOf(db, args.cohortId);
   if (!co.run) return { db, error: NO_RUN };
+  // D-255 (Q-28): a cohort whose shape is read off its sessions (December's) is never laid out by a shape.
+  if (!co.shape) return { db, error: DERIVED_SHAPE };
   const start = week1Of(co);
   if (!start) return { db, error: 'Set when Week 1 opens first.' };
   const input = {
@@ -345,6 +398,18 @@ export function saveCohortRun(
   const next = produce(db, (d) => {
     const x = d.cohorts.find((y) => y.id === co.id)!;
     x.run = weeks;
+    // D-255: December's weeks are its modules' own dates too (its run was written from them, and every reader not yet
+    // on the run reads them: the reminders, the emails). One editor at a time: the week builder no longer edits them,
+    // so a save here keeps them in step, as the week builder's own save did.
+    if (co.id === DEFAULT_COHORT_ID)
+      for (const w of weeks) {
+        const m = d.modules.find((y) => y.id === w.moduleId);
+        if (!m) continue;
+        m.opens = w.opensAt;
+        if (m.status !== 'draft') m.status = w.opensAt !== null ? 'scheduled' : 'published';
+        if (w.dueAt !== null) m.dueAt = w.dueAt;
+        else delete m.dueAt;
+      }
     for (const s of d.sessions) {
       const by = s.cohortId === co.id && s.moduleId ? moves.get(s.moduleId) : undefined;
       if (by === undefined || s.start <= c.now || s.live || s.attended !== null || s.replay !== null) continue;
@@ -443,6 +508,139 @@ export function addCohortSessions(db: Db, a: Actor, args: { cohortId: string }, 
       target: { type: 'cohort', id: co.id, label: co.name },
       before: null,
       after: { sessions: rows.map((s) => ({ id: s.id, title: s.title, start: s.start, slot: s.slot ?? null })) },
+    },
+  };
+}
+
+// ================================================================================================
+// D-255 (R-5 Phase 3): the rest of Cohort › Settings
+// ================================================================================================
+
+/**
+ * Edit words (Settings › Words From This Cohort): the cohort's name and the three words only its learners read. A cohort
+ * whose course holds its words (December) keeps them there (`course.intro.sub`, `.how`, `.holiday`); any other keeps
+ * its own (`Cohort.words`). Saving clears "Read them once" (`words_checked_at`). The copy rules apply to what changed.
+ */
+export function saveCohortWords(
+  db: Db,
+  a: Actor,
+  args: { cohortId: string; name: string; promise: string; how: string[]; holiday: string },
+  c: Ctx,
+): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  const name = (args.name || '').trim();
+  if (!name) return { db, error: 'Give the cohort a name.' };
+  if (db.cohorts.some((x) => x.id !== co.id && x.name.trim().toLowerCase() === name.toLowerCase()))
+    return { db, error: 'A cohort already has that name.' };
+  const words = cleanWords({ promise: args.promise, how: args.how, holiday: args.holiday });
+  if (!words.promise) return { db, error: 'Write the promise.' };
+  const nameCopy = refuseCopy({ name: co.name, cadence: co.cadence }, { name, cadence: co.cadence });
+  if (nameCopy) return { db, error: nameCopy };
+  const before: CohortWords | null = co.words
+    ? co.words
+    : co.course
+      ? { promise: co.course.intro.sub, how: co.course.intro.how, holiday: co.course.intro.holiday }
+      : null;
+  const wordsCopy = refuseWordsCopy(before, words);
+  if (wordsCopy) return { db, error: wordsCopy };
+  const next = produce(db, (d) => {
+    const x = d.cohorts.find((y) => y.id === co.id)!;
+    x.name = name;
+    if (x.course && !x.words) {
+      x.course.intro.sub = words.promise;
+      x.course.intro.how = words.how;
+      x.course.intro.holiday = words.holiday;
+    } else x.words = words;
+    x.wordsCheckedAt = c.now;
+  });
+  return {
+    db: next,
+    toast: { msg: `${name}’s words saved`, tone: 'success' },
+    audit: {
+      action: 'cohort.words_save',
+      target: { type: 'cohort', id: co.id, label: name },
+      before: { name: co.name, words: before, wordsCheckedAt: co.wordsCheckedAt ?? null },
+      after: { name, words, wordsCheckedAt: c.now },
+    },
+  };
+}
+
+/** Why a cohort's included time can no longer change: a cohort plan is placed in it (Q-22, PLAN.md § 10.5). */
+export const INCLUDED_FROZEN = 'A seat in this cohort is sold, so its included time stays as it is.';
+
+/**
+ * The day a seat's included time ends (Settings › Dates and Release). Its instant is the start of that day in
+ * America/Chicago (`includedUntilAt`). Refused once the cohort has a cohort plan: the first sale freezes it.
+ */
+export function saveCohortIncluded(db: Db, a: Actor, args: { cohortId: string; date: string | null }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  if ((c.cohortFacts?.[co.id]?.plans ?? 0) > 0) return { db, error: INCLUDED_FROZEN };
+  const date = args.date === null ? null : (args.date || '').trim();
+  if (date !== null && !isDay(date)) return { db, error: 'Pick the day its included time ends.' };
+  if ((co.includedUntil ?? null) === date) return { db, error: 'Nothing changed.' };
+  const next = produce(db, (d) => {
+    const x = d.cohorts.find((y) => y.id === co.id)!;
+    if (date === null) delete x.includedUntil;
+    else x.includedUntil = date;
+  });
+  return {
+    db: next,
+    toast: { msg: `${co.name}’s included time saved`, tone: 'success' },
+    audit: {
+      action: 'cohort.included_save',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: { includedUntil: co.includedUntil ?? null },
+      after: { includedUntil: date },
+    },
+  };
+}
+
+/** A cohort's hosts (Settings › Shape): its stored shape's, or, for a shape read off its sessions (December's), its own. */
+export function saveCohortHosts(db: Db, a: Actor, args: { cohortId: string; hosts: string }, _c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  const hosts = (args.hosts || '').trim();
+  const was = co.shape?.hosts ?? co.hosts ?? '';
+  if (hosts === was) return { db, error: 'Nothing changed.' };
+  const next = produce(db, (d) => {
+    const x = d.cohorts.find((y) => y.id === co.id)!;
+    if (x.shape) x.shape.hosts = hosts;
+    else if (hosts) x.hosts = hosts;
+    else delete x.hosts;
+  });
+  return {
+    db: next,
+    toast: { msg: `${co.name}’s hosts saved`, tone: 'success' },
+    audit: {
+      action: 'cohort.hosts_save',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: { hosts: was || null },
+      after: { hosts: hosts || null },
+    },
+  };
+}
+
+/**
+ * Keep the sessions that are at the same time as another cohort's (Q-24: the portal warns and allows either). Recorded
+ * once (`overlap_ok_at`), so "Before it opens" counts the Sessions line done.
+ */
+export function keepCohortOverlap(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  if (co.overlapOkAt !== undefined) return { db, error: 'They are already kept.' };
+  const next = produce(db, (d) => {
+    d.cohorts.find((y) => y.id === co.id)!.overlapOkAt = c.now;
+  });
+  return {
+    db: next,
+    toast: { msg: 'Kept at the same time', tone: 'success' },
+    audit: {
+      action: 'cohort.overlap_keep',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: { overlapOkAt: null },
+      after: { overlapOkAt: c.now },
     },
   };
 }

@@ -36,12 +36,15 @@ afterAll(async () => {
 describe('the deploy’s preview and the step (D-243)', () => {
   it('previews every field the step would change, writes nothing, then the deploy runs it once with an audit row per record', { timeout: 180_000 }, async () => {
     await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
-    // Production as it is before this deploy: every earlier step has run.
-    await applyDataMigrations(handle, Date.parse(NOW), DATA_MIGRATIONS.slice(0, -1));
+    // Production as it is before this deploy: every earlier step has run. D-255: the steps after it (December's run)
+    // are left out, so this deploy is the AI Implementer step alone.
+    const at = DATA_MIGRATIONS.findIndex((s) => s.id === AI_IMPLEMENTER_V1);
+    const upTo = DATA_MIGRATIONS.slice(0, at + 1);
+    await applyDataMigrations(handle, Date.parse(NOW), DATA_MIGRATIONS.slice(0, at));
     const before = await loadDb();
     const ran = (await handle.select().from(dataMigrations)).length;
 
-    const preview = await previewDataMigrations(handle);
+    const preview = await previewDataMigrations(handle, upTo);
     expect(preview.map((p) => p.id)).toEqual([AI_IMPLEMENTER_V1]);
     expect(preview[0]!.changes).toHaveLength(10);
     expect(preview[0]!.skipped.map((s) => s.id)).toEqual(['accelerator-week-0.step-1.line']);
@@ -54,14 +57,14 @@ describe('the deploy’s preview and the step (D-243)', () => {
     expect(text).toContain(PERSON_NOT_SOFTWARE);
     expect(text).toContain('!! accelerator-week-0.step-1.line: ');
 
-    const [report] = await applyDataMigrations(handle, Date.parse(NOW));
+    const [report] = await applyDataMigrations(handle, Date.parse(NOW), upTo);
     expect([report!.id, report!.changed, report!.skipped.length]).toEqual([AI_IMPLEMENTER_V1, 10, 1]);
     expect(await loadDb()).toEqual(planAiImplementerV1(before).db);
-    const rows = await handle.select().from(auditLog).where(eq(auditLog.reason, DATA_MIGRATIONS.at(-1)!.describe));
+    const rows = await handle.select().from(auditLog).where(eq(auditLog.reason, upTo.at(-1)!.describe));
     expect(rows).toHaveLength(10);
     expect(new Set(rows.map((r) => r.targetType))).toEqual(new Set(['module', 'cohort']));
-    expect(await applyDataMigrations(handle, Date.parse(NOW))).toEqual([]);
-    expect(await previewDataMigrations(handle)).toEqual([]);
+    expect(await applyDataMigrations(handle, Date.parse(NOW), upTo)).toEqual([]);
+    expect(await previewDataMigrations(handle, upTo)).toEqual([]);
     expect(previewText([])).toBe('Every data step has already run. Nothing would change.\n');
   });
 

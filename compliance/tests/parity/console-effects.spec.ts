@@ -65,11 +65,16 @@ async function console_(p: Pair, path: string, now: NowKey = 'week1'): Promise<v
   await visit(p.admin, path, 'admin', now);
 }
 
-/** A session's "…" menu on Cohorts & Sessions, then one of its items. */
+/**
+ * A session's "…" menu, then one of its items. D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule, where a
+ * row is the session's title (Session 1 is "Map Your Spend Live Build", Session 2 "Lead Source Review Live Build").
+ */
+const SESSION_1 = 'Map Your Spend Live Build';
+const SESSION_2 = 'Lead Source Review Live Build';
 async function sessionAction(admin: Page, session: string, item: string): Promise<void> {
   await admin
     .getByRole('row')
-    .filter({ hasText: `${session} ·` })
+    .filter({ hasText: session })
     .getByRole('button', { name: 'More actions' })
     .click();
   await admin.getByRole('menuitem', { name: item }).click();
@@ -93,11 +98,11 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
     const loads = noReload(p.learner);
     await expect(liveNow(p.learner)).toHaveCount(0);
     await console_(p, '/admin/cohorts');
-    await sessionAction(p.admin, 'Session 2', 'Go Live');
+    await sessionAction(p.admin, SESSION_2, 'Go Live');
     await expect.poll(async () => (await storedDb(p.learner)).sessions.find((x) => x.id === S2)?.live).toBe(true);
     await expect(liveNow(p.learner)).toBeVisible();
     await expect(joinButton(p.learner)).toBeVisible();
-    await sessionAction(p.admin, 'Session 2', 'End Session');
+    await sessionAction(p.admin, SESSION_2, 'End Session');
     await expect.poll(async () => (await storedDb(p.learner)).sessions.find((x) => x.id === S2)?.live).toBe(false);
     await expect(liveNow(p.learner)).toHaveCount(0);
     await expect(p.learner.getByRole('button', { name: /^Join/ })).toHaveCount(0);
@@ -121,8 +126,8 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
     const loads = noReload(p.learner);
     await expect(p.learner.locator('video')).toHaveCount(0);
     await console_(p, '/admin/cohorts');
-    await sessionAction(p.admin, 'Session 1', 'Attach replay');
-    await p.admin.getByLabel('Replay link for Session 1').fill('https://stream.example.test/dec26-s1/playlist.m3u8');
+    await sessionAction(p.admin, SESSION_1, 'Attach replay');
+    await p.admin.getByLabel(`Replay link for ${SESSION_1}`).fill('https://stream.example.test/dec26-s1/playlist.m3u8');
     await p.admin.getByRole('dialog', { name: 'Attach replay' }).getByRole('button', { name: 'Attach replay' }).click();
     await expect(p.admin.getByRole('dialog', { name: 'Attach replay' })).toHaveCount(0);
     // Attaching marks the replay ready for learners (D-172), which is what Publish Replay does for a recording.
@@ -139,8 +144,8 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
     const next = p.learner.getByRole('region', { name: 'Lead Source Review Live Build' });
     await expect(next).toContainText('12:00 PM MT');
     await console_(p, '/admin/cohorts');
-    await sessionAction(p.admin, 'Session 2', 'Edit session');
-    await p.admin.getByLabel('Start time (MST)').fill('14:00');
+    await sessionAction(p.admin, SESSION_2, 'Edit session');
+    await p.admin.getByLabel('Start (MT)').fill('14:00');
     await p.admin.getByRole('button', { name: 'Save session' }).click();
     await expect
       .poll(async () => (await storedDb(p.learner)).sessions.find((x) => x.id === S2)?.start)

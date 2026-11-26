@@ -17,7 +17,7 @@
 // Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
 // figure is still the production view-model's, printed from this snapshot.
 
-import { EDITABLE_ROLES, roleRowCeiling, roleRowOf, seed } from '@ai/core';
+import { EDITABLE_ROLES, createCohortFromShape, roleRowCeiling, roleRowOf, seed } from '@ai/core';
 import type {
   AIEmployee,
   Announcement,
@@ -42,11 +42,14 @@ import {
   AUDIT0,
   BUILDER_FILES,
   BUILDER_STEPS,
+  DEC_WORDS,
+  JAN_SLOTS,
   MODS0,
   OVERVIEW_ACTIVITY,
   OVERVIEW_FUNNEL,
   OVERVIEW_PTS,
   OVERVIEW_RECENT,
+  P3_WEEKS,
   PERMS0,
   ROLES,
   STAFF,
@@ -295,6 +298,10 @@ export function parityDb(path = '/admin/curriculum'): Db {
     status: 'live',
     enrolled: 148,
     cadence: 'Wednesdays, weekly',
+    // D-255 (R-5 Phase 3): the mockup's December words (`DEC_WORDS`, read once) and its host, for the Cohort page.
+    words: { ...DEC_WORDS, how: [...DEC_WORDS.how] },
+    wordsCheckedAt: mst('2026-11-25T09:00:00'),
+    hosts: 'Connor Leiva',
   });
   db.cohorts = [cohort];
   db.sessions = SESSIONS.map(([title, day, zoom, attended], i): Session => ({
@@ -335,7 +342,100 @@ export function parityDb(path = '/admin/curriculum'): Db {
     teams: 0,
     mod: { ...CURRICULUM_BASE },
   };
-  return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
+  const at = path.replace(/\/+$/, '');
+  if (COHORT_PAGE.test(at)) cohortPageDb(db, at);
+  return at === '/admin' ? overviewDb(db) : db;
+}
+
+// ------------------------------------------------------------------------------------------------
+// D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings, and New cohort
+// ------------------------------------------------------------------------------------------------
+
+/** The addresses that read the program's weeks: a cohort's Overview, Schedule and Settings, and New cohort. */
+const COHORT_PAGE = /^\/admin\/cohort\/(new|[^/]+(\/schedule|\/settings)?)$/;
+
+/** A course week of the mockup's program (`P3_WEEKS`), published, with its steps. */
+function courseWeekOf([id, week, title, outcome, n]: (typeof P3_WEEKS)[number], i: number): AIEmployee {
+  return {
+    id,
+    kind: 'week',
+    name: title,
+    short: title,
+    tier: 'team',
+    icon: 'r2Program' as IconName,
+    forWho: '',
+    headline: '',
+    outcome,
+    outputs: ['', '', ''],
+    platform: 'Claude Project',
+    runLabel: '',
+    build: 0,
+    session: null,
+    status: 'published',
+    opens: null,
+    order: MODS0.length + i + 1,
+    dur: 0,
+    instructor: '',
+    transcript: [],
+    notes: '',
+    prompt: '',
+    files: [],
+    resources: [],
+    checklist: steps(n),
+    course: {
+      week,
+      title,
+      question: '',
+      why: [],
+      owner: '',
+      operator: '',
+      time: { owner: '', operator: '' },
+      skills: [],
+      liveBuild: null,
+      officeHours: null,
+      homework: { byWeekEnd: [], assignment: [], acceptance: [], useEvidence: '' },
+      media: [],
+      materials: [],
+    },
+  };
+}
+
+/** January, as the mockup has it once created (`P3_COH.jan27`): New cohort's own action, on the mockup's choices. */
+const JANUARY = 'jan27';
+function januaryOf(db: Db): Db {
+  const ids: Record<string, number> = {};
+  const out = createCohortFromShape(
+    db,
+    { kind: 'staff', staffId: 'st1' },
+    {
+      name: 'January 2027 Cohort',
+      start: '2027-01-03',
+      sourceCohortId: COHORT,
+      picks: P3_WEEKS.filter(([, w]) => w > 0)
+        .slice(0, 6)
+        .map(([id]) => id),
+      shape: { setupWeek: true, slots: JAN_SLOTS.map((x) => ({ ...x })), hosts: 'Connor Leiva and Spring' },
+    },
+    {
+      now: mst('2026-12-10T09:30:00'),
+      id: (prefix) => (prefix === 'c' ? JANUARY : `${JANUARY}-${prefix}${(ids[prefix] = (ids[prefix] ?? 0) + 1)}`),
+    },
+  );
+  return out.db;
+}
+
+/**
+ * The mockup's program weeks, and December as the mockup draws it: six Wednesday builds and no course weeks of its own
+ * (`DEC_SES`), so a run with none. On January's addresses, January too.
+ */
+function cohortPageDb(db: Db, at: string): void {
+  db.modules = [...db.modules, ...P3_WEEKS.map(courseWeekOf)];
+  db.cohorts[0]!.run = [];
+  if (at.startsWith(`/admin/cohort/${JANUARY}`)) {
+    const next = januaryOf(db);
+    db.cohorts = next.cohorts;
+    db.sessions = next.sessions;
+  }
 }
 
 /**

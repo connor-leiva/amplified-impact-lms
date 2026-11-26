@@ -215,6 +215,12 @@ export const AUDIT_ACTIONS = [
   'cohort.shape_save',
   'cohort.run_save',
   'cohort.sessions_add',
+  // R-5 Phase 3 (D-255): the Cohort page's Settings: its words, its included time, its hosts, and keeping its sessions
+  // at the same time as another cohort's.
+  'cohort.words_save',
+  'cohort.included_save',
+  'cohort.hosts_save',
+  'cohort.overlap_keep',
   'copy.save',
   // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
   'curriculum.migrate',

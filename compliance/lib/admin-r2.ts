@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
-import type { Browser, Page } from '@playwright/test';
+import type { Browser, Locator, Page } from '@playwright/test';
 
 // ================================================================================================
 // ADMIN REDESIGN R2: pixel parity against the signed-off mockup (D-160, BUILD-SPEC § 6)
@@ -46,16 +46,20 @@ export type Width = (typeof WIDTHS)[number];
 
 /**
  * The ref file stems, in the harness's order (`render-mockup.mjs` `ALL`, with its `NAME` renames:
- * `cohorts` → `cohorts-sessions`, `workspace` → `workspace-detail`), plus the Roles confirm frame.
- * 32 × 4 = 128 cells, one per PNG in `ref/MANIFEST.tsv`. D-253 (R-5 Phase 1): each stem keeps its name and is the
- * same screen under its page's tab (`curriculum` is Program › Curriculum, `billing` Revenue › Summary, Billing's own);
- * `payments` is new, Revenue › Payments (Billing's lists, its own tabs a segmented control).
+ * `workspace` → `workspace-detail`), plus its dialog frames. 42 × 4 = 168 cells, one per PNG in `ref/MANIFEST.tsv`.
+ * D-253 (R-5 Phase 1): each stem keeps its name and is the same screen under its page's tab (`curriculum` is Program ›
+ * Curriculum, `billing` Revenue › Summary, Billing's own); `payments` is new, Revenue › Payments (Billing's lists, its
+ * own tabs a segmented control). D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings for December
+ * (`cohort-*`; Schedule replaces Cohorts & Sessions, whose `cohorts-sessions` refs retire), New cohort, January once
+ * created (`january-*`), and four dialogs on January's Settings (Shape, its weeks, Dates and Release, Words), each a
+ * viewport frame as the Roles confirm is.
  */
 export const SCREENS = [
-  'overview', 'health', 'curriculum', 'builder', 'vault', 'cohorts-sessions', 'announce', 'learners',
+  'overview', 'health', 'curriculum', 'builder', 'vault', 'cohort-overview', 'cohort-schedule', 'cohort-settings',
+  'new-cohort', 'january-overview', 'january-schedule', 'january-settings', 'announce', 'learners',
   'workspaces', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
   'email', 'integrations', 'deploys', 'db', 'flags', 'roles', 'workspace-detail', 'user', 'incident', 'as',
-  'missing', 'denied', 'roles-confirm',
+  'missing', 'denied', 'january-shape', 'january-weeks', 'january-dates', 'january-words', 'roles-confirm',
 ] as const;
 export type Screen = (typeof SCREENS)[number];
 
@@ -78,6 +82,22 @@ export interface Route {
  * which the fixture build serves at `/admin/denied` (fixture only; the http build has no such route).
  * Each later R2 PR adds the screens it builds.
  */
+/** A dialog on January's Settings, opened by clicking `opener`, as the harness's `DIALOGS` frames are. */
+function januaryDialog(opener: (page: Page) => Locator): Route {
+  return {
+    path: '/admin/cohort/jan27/settings',
+    frame: 'viewport',
+    prepare: async (page) => {
+      await opener(page).click();
+      await page.getByRole('dialog').waitFor();
+      // The harness's `main.scrollTop = 0`: the frame is the page top with the dialog open.
+      await page.evaluate(() => {
+        for (const el of [document.scrollingElement, ...Array.from(document.querySelectorAll('*'))]) if (el && el.scrollTop) el.scrollTop = 0;
+      });
+    },
+  };
+}
+
 export const ROUTES: Partial<Record<Screen, Route>> = {
   missing: { path: '/admin/no-such-page' },
   denied: { path: '/admin/denied' },
@@ -86,8 +106,22 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   curriculum: { path: '/admin/program' },
   builder: { path: '/admin/program/weeks/m1' },
   vault: { path: '/admin/program/vault' },
-  'cohorts-sessions': { path: '/admin/cohort/dec26/schedule' },
   announce: { path: '/admin/cohort/dec26/announcements' },
+  // D-255 (R-5 Phase 3): the Cohort page's own tabs for December, New cohort, and January once created (the parity
+  // snapshot creates it with New cohort's action on January's addresses, `parity-r2-db.ts`).
+  'cohort-overview': { path: '/admin/cohort/dec26' },
+  'cohort-schedule': { path: '/admin/cohort/dec26/schedule' },
+  'cohort-settings': { path: '/admin/cohort/dec26/settings' },
+  'new-cohort': { path: '/admin/cohort/new' },
+  'january-overview': { path: '/admin/cohort/jan27' },
+  'january-schedule': { path: '/admin/cohort/jan27/schedule' },
+  'january-settings': { path: '/admin/cohort/jan27/settings' },
+  // The harness's `DIALOGS`: January's Settings with a dialog open, a viewport frame at the page top. It clicks the
+  // button that opens it and leaves the pointer there; so does this.
+  'january-shape': januaryDialog((page) => page.getByRole('button', { name: 'Edit', exact: true }).first()),
+  'january-weeks': januaryDialog((page) => page.getByRole('button', { name: '6 of the program’s 8', exact: true })),
+  'january-dates': januaryDialog((page) => page.getByRole('button', { name: 'Edit', exact: true }).nth(1)),
+  'january-words': januaryDialog((page) => page.getByRole('button', { name: 'Edit this cohort’s words', exact: true })),
   // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
   overview: { path: '/admin' },
   learners: { path: '/admin/cohort/dec26/people' },
@@ -161,6 +195,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `email` and `usage` at all four; D-167: `incidents` at all four, `incident` at 1440, 1280 and 1024
  * (and 390 as an approved exception); Console PR 9 (D-168): `integrations`, `deploys` and `db` at all four,
  * `flags` at 1440, 1280 and 1024 (and 390 as an approved exception); Console PR 10 (D-169): `health` at
+ * all four. D-255 (R-5 Phase 3): `cohorts-sessions` is `cohort-schedule` (1440, 1280 and 1024, and 390 as an approved
+ * exception); `cohort-overview`, `cohort-settings`, `new-cohort`, the three `january-*` tabs and its four dialogs at
  * all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
@@ -169,12 +205,24 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
   `curriculum-${w}`,
   `builder-${w}`,
-  // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
-  // cohorts-sessions-390 is not here: the mockup draws its key-fact values at 15px on a phone, under the
-  // 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
+  // R2-2b (D-160): the Resource Vault and Announcements at all four widths. D-255: Cohort › Schedule (Cohorts &
+  // Sessions until R-5 Phase 3) at three. cohort-schedule-390 is not here: the mockup draws its key-fact values at
+  // 15px on a phone, under the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`).
   `vault-${w}`,
   `announce-${w}`,
-  ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
+  ...(w === 390 ? [] : [`cohort-schedule-${w}`]),
+  // D-255 (R-5 Phase 3): the Cohort page's Overview and Settings, New cohort, January's three tabs and its four
+  // dialogs, at all four widths.
+  `cohort-overview-${w}`,
+  `cohort-settings-${w}`,
+  `new-cohort-${w}`,
+  `january-overview-${w}`,
+  `january-schedule-${w}`,
+  `january-settings-${w}`,
+  `january-shape-${w}`,
+  `january-weeks-${w}`,
+  `january-dates-${w}`,
+  `january-words-${w}`,
   // R2-3a (D-160): the Overview, Learners & Teams and Tiers & Upgrades, at all four widths.
   `overview-${w}`,
   `learners-${w}`,

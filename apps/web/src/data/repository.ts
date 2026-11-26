@@ -91,6 +91,8 @@ export type JoinTicket =
 export interface AppearancePrefs {
   theme?: 'light' | 'dark';
   sidebar?: 'full' | 'rail';
+  /** D-255 (R-5 Phase 3): the cohort a staff member looked at last in the admin, by id. */
+  cohort?: string;
 }
 
 // ---------------------------------------------------------------------------------------------

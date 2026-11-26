@@ -28,6 +28,7 @@ import { RELEASE_PLAN_V1, planReleaseV1 } from '@ai/core/seed/release-plan-v1';
 import { WEEKS_1_2_V1, planWeeks12V1 } from '@ai/core/seed/weeks-1-2-steps-v1';
 import { SEAT_CARD_ONE_COPY_V1, planSeatCardOneCopyV1 } from '@ai/core/seed/seat-card-one-copy-v1';
 import { AI_IMPLEMENTER_V1, planAiImplementerV1 } from '@ai/core/seed/ai-implementer-v1';
+import { DECEMBER_RUN_V1, planDecemberRunV1 } from '@ai/core/seed/december-run-v1';
 import { audit } from '../console/audit';
 import type { Database } from './client';
 import { loadDb, persistDiff } from './io';
@@ -121,6 +122,11 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: AI_IMPLEMENTER_V1,
     describe: 'The operator is the AI Implementer: the word in the course, staff edits included, and the line where the role is defined (D-243)',
     plan: planAiImplementerV1,
+  },
+  {
+    id: DECEMBER_RUN_V1,
+    describe: 'R-5 Phase 3: December’s run written from its own week modules, so its dates are edited on the cohort; nothing it reads moves (D-255)',
+    plan: planDecemberRunV1,
   },
 ];
 

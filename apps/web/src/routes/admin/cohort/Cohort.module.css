@@ -1,0 +1,700 @@
+/* D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings, and New cohort. The classes are the mockup's
+   (handoff/admin-mockup/build_admin.py, "Nov 25" and "third pass"), in the R2 tokens: `.fxl`, `.wkl`, `.nyr`, `.tdo`,
+   `.rnw`, `.dt`, `.rdy`, `.set2`, `.cfx`, `.wpl`, `.wpk`, `.wn`, `.ewl`, `.ewr`, `.skf`, `.ncl`, `.skc`, `.ckr`, `.stp2`,
+   `.slt`, `.fat`, `.lab`, `.g2`. Spacing and radii are the mockup's px. */
+
+/* ---- a fact that opens the list it counts (`.fx>.fxl`) ---------------------------------------- */
+.fx {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--r2-line);
+  overflow: hidden;
+  border: 1px solid var(--r2-line);
+  border-radius: 12px;
+  box-shadow: var(--r2-sh-card);
+  min-width: 0;
+}
+.fx > div,
+.fxl {
+  background: var(--r2-sf);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 0 auto;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.fxl {
+  border: 0;
+  padding: 12px 34px 12px 20px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.12s;
+}
+.fxl:hover {
+  background: var(--r2-hov);
+}
+.fxl > svg {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  margin-top: -6px;
+  color: var(--r2-line2);
+  transition:
+    color 0.12s,
+    transform 0.12s;
+}
+.fxl:hover > svg {
+  color: var(--r2-for);
+  transform: translateX(2px);
+}
+.fxShort {
+  display: none;
+}
+
+/* ---- lists that open something (`.wkl`, `.nyr`, `.rnw`, `.rdy`) -------------------------------- */
+.wkl {
+  display: flex;
+  flex-direction: column;
+}
+.wkl > * + * {
+  border-top: 1px solid var(--r2-line);
+}
+.nyr,
+.rnw,
+.rdy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  /* The mockup sets these rows' size a pixel under the body's and pulls `.rnw` and `.rdy` out by their padding, but its
+     button reset (`.arx button{font:inherit;margin:0}`) outranks both, so it draws them at the body's size and in
+     place, a row that runs 16px past its card's padding. The build draws what the mockup draws. */
+  font: inherit;
+  text-decoration: none;
+}
+.nyr {
+  padding: 12px 16px 12px 20px;
+  min-height: 60px;
+}
+.nyr:hover {
+  background: var(--r2-hov);
+}
+.nyr.rn {
+  min-height: 52px;
+  padding-block: 8px;
+}
+.nyr.now {
+  background: linear-gradient(90deg, var(--r2-tint), transparent 60%);
+}
+.nyr > svg:last-child,
+.rnw > svg:last-child {
+  color: var(--r2-line2);
+  flex: none;
+}
+.nyr:hover > svg:last-child,
+.rnw:hover > svg:last-child {
+  color: var(--r2-for);
+}
+.rnw {
+  padding: 8px;
+  width: calc(100% + 16px);
+  border-radius: 8px;
+}
+.rnw:hover {
+  background: var(--r2-sub);
+}
+.rdy {
+  padding: 6px 8px;
+  width: calc(100% + 16px);
+  border-radius: 8px;
+  gap: 10px;
+}
+.rdy:hover {
+  background: var(--r2-sub);
+}
+.rdyLabel {
+  flex: 0 0 116px;
+}
+/* The mockup's Seats taken label is narrower than a readiness row's. */
+.rdyLabel.seats {
+  flex-basis: 96px;
+}
+/* A link the mockup draws as a `.lk` button, which its button reset (`.arx button{font:inherit;color:inherit}`) sets in
+   the text around it: the body's size, weight and colour. */
+a.plain {
+  font: inherit;
+  color: inherit;
+}
+/* The mockup's `.kvs .kv dd{margin-bottom:10px}` keeps its last value's margin too (the kit's stacked KV drops it). */
+.kvTail {
+  padding-bottom: 10px;
+}
+.rdn {
+  flex: none;
+  white-space: nowrap;
+  text-align: right;
+  min-width: 44px;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* the icon tile of a needs-you row (`.mt`, with its tones) */
+.mt {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+.mt.bad {
+  background: var(--r2-badb);
+  color: var(--r2-bad);
+}
+.mt.warn {
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+}
+
+/* a to-do's ring, ticked when done (`.tdc`, `.tdo.ok`) */
+.tdc {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--r2-line2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--r2-on-for);
+}
+.tdo.ok .tdc {
+  background: var(--r2-dot-ok);
+  border-color: var(--r2-dot-ok);
+}
+.tdo.ok .tdLabel {
+  color: var(--r2-f2);
+  font-weight: 400;
+}
+.tdo.warn .tdc {
+  background: var(--r2-dot-warn);
+  border-color: var(--r2-dot-warn);
+}
+
+/* a date tile (`.dt`) */
+.dt {
+  width: 36px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--r2-line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  line-height: 1;
+}
+.dt b {
+  /* D-156: the mockup's raw sizes as size tokens, 16px on a phone (the LMS type floor). */
+  font-size: var(--r2-fs-15);
+  font-weight: 600;
+}
+.dt span {
+  font-size: var(--r2-fs-10);
+  color: var(--r2-f3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+/* a week's number (`.wn`) */
+.wn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  font-weight: 600;
+  font-size: var(--r2-fs-13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.wn.off {
+  background: var(--r2-sub);
+  color: var(--r2-f3);
+}
+.wn.sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: var(--r2-fs-12);
+  background: var(--r2-sub);
+  color: var(--r2-f2);
+}
+.wn.sm.pk {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+
+/* ---- Settings: two columns of cards (`.set2`), the words (`.cfx`) ------------------------------- */
+.set2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.cfx {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 4px 16px;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.cfl {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 400;
+}
+.cleanRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.flag {
+  align-self: flex-start;
+}
+
+/* ---- forms: a label over its field (`.lab`), two side by side (`.g2`), the hint (`.fat`) -------- */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: calc(var(--r2-t) - 1px);
+  font-weight: 500;
+  min-width: 0;
+}
+.g2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.fat {
+  font-weight: 400;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+  margin-top: -4px;
+}
+.lns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.slt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.slt > * {
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: 400;
+}
+.ckr {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.ckr input {
+  margin: 3px 0 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--r2-for);
+  flex: none;
+}
+.stp2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  background: var(--r2-sf);
+  align-self: flex-start;
+  height: var(--r2-c);
+}
+.stp2 b {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 600;
+}
+.stp2 button {
+  height: calc(var(--r2-c) - 2px);
+  min-width: 32px;
+  border: 0;
+  background: none;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--r2-f2);
+  cursor: pointer;
+}
+.stp2 button:hover {
+  background: var(--r2-hov);
+}
+.stp2 button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--r2-line2);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--r2-sf);
+  align-self: flex-start;
+}
+.seg button {
+  white-space: nowrap;
+  height: var(--r2-c);
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid var(--r2-line2);
+  background: none;
+  font: inherit;
+  font-size: calc(var(--r2-t) - 1px);
+  font-weight: 500;
+  color: var(--r2-f2);
+  cursor: pointer;
+}
+.seg button:last-child {
+  border-right: 0;
+}
+.seg button:hover {
+  background: var(--r2-hov);
+}
+.seg button.on {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+.shapeRow {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* ---- picking a cohort's weeks (`.wpl`, `.wpk`) ------------------------------------------------- */
+.wpl {
+  display: flex;
+  flex-direction: column;
+}
+.wpl > * + * {
+  border-top: 1px solid var(--r2-line);
+}
+.wpk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  min-height: 56px;
+  cursor: pointer;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.wpk:hover {
+  background: var(--r2-hov);
+}
+.wpk input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--r2-for);
+  flex: none;
+  margin: 0;
+}
+.wpk:not(.on) .wpTitle,
+.wpk:not(.on) .wpSub {
+  color: var(--r2-f3);
+}
+.wpk:not(.on) .wpTitle {
+  font-weight: 400;
+}
+
+/* ---- each week's dates (`.ewl`, `.ewr`) -------------------------------------------------------- */
+.ewl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+.ewr {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 150px 150px;
+  gap: 8px;
+  align-items: center;
+  font-weight: 400;
+}
+.ewf {
+  display: block;
+  min-width: 0;
+}
+.ewf > input {
+  min-width: 0;
+  width: 100%;
+}
+.ewk {
+  display: none;
+}
+.ewh {
+  color: var(--r2-f3);
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+}
+
+/* ---- New cohort's preview: three figures (`.skf`), the calendar (`.ncl`, `.ncw`, `.skc`) -------- */
+.skf {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--r2-line);
+  border: 1px solid var(--r2-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.skf > div {
+  background: var(--r2-sf);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.skf b {
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.ncl {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--r2-line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  gap: 10px;
+  font-weight: 400;
+  max-height: 300px;
+  overflow: auto;
+}
+.ncl.free {
+  max-height: none;
+  overflow: visible;
+}
+.ncw {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.skc {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  font-size: var(--r2-m);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.skc.alt {
+  background: var(--r2-infob);
+  color: var(--r2-info);
+}
+.skc.off {
+  background: var(--r2-sub);
+  color: var(--r2-f3);
+}
+.skc.warn {
+  background: var(--r2-warnb);
+  color: var(--r2-warn);
+}
+.nameRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+.tile {
+  display: block;
+  flex: none;
+  border-radius: 9px;
+}
+.bigName {
+  font-size: 16px;
+  font-weight: 600;
+}
+.warnNote {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--r2-warn-line);
+  background: var(--r2-warnb);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.infoNote {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.noteText {
+  flex: 1;
+  min-width: 180px;
+}
+.sticky {
+  position: sticky;
+  top: 0;
+}
+.err {
+  color: var(--r2-bad);
+}
+.anchor {
+  scroll-margin-top: 16px;
+}
+
+/* ---- a laptop (768px to 1199px): Settings in one column ---------------------------------------- */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .set2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- a phone (767px and under, the mockup's `.ph`) --------------------------------------------- */
+@media (max-width: 767px) {
+  .fx {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* `.ph .fx>div` and `.ph .fx>.fxl`: a fact that opens nothing keeps 10px on its right, one with a chevron 26px. Its
+     value stays at the 16px phone floor, where the mockup sets 15px (D-160's decision A). */
+  .fx > div {
+    padding: 12px 10px 12px 12px;
+    min-width: 0;
+  }
+  .fxl {
+    padding: 12px 26px 12px 12px;
+    min-width: 0;
+  }
+  .fx > div > span,
+  .fxl > span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fx > div:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .fxl > span:nth-child(2) {
+    font-size: 16px;
+  }
+  .fxl > svg {
+    right: 8px;
+  }
+  .fxl:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .fxLong {
+    display: none;
+  }
+  .fxShort {
+    display: inline;
+  }
+  .set2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cfx {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .g2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* `.ph .nyr` comes after `.nyr.rn` in the mockup and ties it, so a run row is 12px all round on a phone too. */
+  .nyr,
+  .nyr.rn {
+    padding: 12px 16px;
+  }
+  .lab {
+    font-size: 16px;
+  }
+  .wpk {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+  .slt {
+    flex-wrap: wrap;
+  }
+  .slt > * {
+    flex: 1 1 40%;
+  }
+  .ewh {
+    display: none;
+  }
+  .ewl {
+    gap: 14px;
+  }
+  .ewr {
+    grid-template-columns: 24px minmax(0, 1fr);
+    row-gap: 6px;
+  }
+  .ewf {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+  }
+  .ewk {
+    display: block;
+    color: var(--r2-f3);
+  }
+  .sticky {
+    position: static;
+  }
+  .stp2,
+  .stp2 button,
+  .seg button {
+    min-height: 44px;
+  }
+  /* `.ph .sgm button` */
+  .seg button {
+    padding: 0 9px;
+  }
+}

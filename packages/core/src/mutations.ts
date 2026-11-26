@@ -18,6 +18,7 @@ import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
 import { NOT_IN_PLAN, isCourseWeek } from './accelerator';
 import { cohortView } from './cohort-run';
+import type { CohortFacts } from './cohort-page';
 import { LMS_TOUR_MODULE_ID, LMS_TOUR_PREF } from './lms-tour';
 import { canOpenModule } from './release';
 import { buildOf, isOpen, progressOf, runtimeOf } from './status';
@@ -68,6 +69,12 @@ export interface Ctx {
    * cannot pass it.
    */
   early?: boolean;
+  /**
+   * D-255 (R-5 Phase 3): what the record holds about cohorts beyond the snapshot, where a cohort write needs it: how
+   * many cohort plans each cohort has (`plans.cohort_id`; once one is sold, its included time is frozen) and its test
+   * sends (`audit_log`). The API reads it for the cohort actions; absent (the fixture build), none.
+   */
+  cohortFacts?: Readonly<Record<string, CohortFacts>>;
 }
 
 export type Actor = { kind: 'learner'; userId: string } | { kind: 'staff'; staffId: string };

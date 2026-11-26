@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { avatarColor, consoleCan, fmt, nextSession } from '@ai/core';
+import { avatarColor, can, consoleCan, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
 // D-239: the sidebar's travel reads the brand's motion tokens (--aim-dur-*, --aim-ease*), defined on :root here.
@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon';
 import { Status } from '../../components/r2/Status';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
+import { repo } from '../../data/boot';
 import { fixtureConsoleRole } from '../../data/console';
 import { masqueradeActive } from '../../data/masquerade';
 import { PARITY_POSSIBLE, parityR2, shellDataFrom, shellDataFromParity } from '../../data/admin-shell';
@@ -136,9 +137,32 @@ export function AdminShell() {
   const place = placeOf(path);
   const addressCohort = place?.cohortId && db.cohorts.some((c) => c.id === place.cohortId) ? place.cohortId : null;
   const [lastCohort, setLastCohort] = useState<string | null>(null);
+  // D-255 (spec § 3): the cohort a staff member looked at last is remembered for them (`users.prefs.cohort`, through
+  // `PATCH /api/me/prefs`), so a new visit starts on it. Read once; written when the address names another cohort. The
+  // fixture build keeps none (its `savePrefs` writes nothing).
+  const remembered = useRef<string | null | undefined>(undefined);
   useEffect(() => {
-    if (addressCohort) setLastCohort(addressCohort);
-  }, [addressCohort]);
+    let alive = true;
+    void repo
+      .prefs()
+      .then((p) => {
+        remembered.current = p.cohort ?? null;
+        if (alive && p.cohort) setLastCohort((was) => was ?? p.cohort!);
+      })
+      .catch(() => {
+        remembered.current = null;
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  useEffect(() => {
+    if (!addressCohort) return;
+    setLastCohort(addressCohort);
+    if (remembered.current === undefined || remembered.current === addressCohort || parity) return;
+    remembered.current = addressCohort;
+    void repo.savePrefs({ cohort: addressCohort }).catch(() => undefined);
+  }, [addressCohort, parity]);
   const known = (id: string | null) => (id && db.cohorts.some((c) => c.id === id) ? id : null);
   const cohortId = addressCohort ?? known(lastCohort) ?? defaultCohortId(db.cohorts, now);
   const current = db.cohorts.find((c) => c.id === cohortId) ?? null;
@@ -197,14 +221,17 @@ export function AdminShell() {
     },
     [go, path],
   );
+  // D-255: "New cohort…" for a role with the `cohorts` permission (the Cohorts row's), as New cohort's page checks.
+  const mayCreate = can(db, viewer.actor, 'cohorts');
   const cohort = useMemo<AdminCohort>(
     () => ({
       id: cohortId,
       label: current ? cohortLabel(current) : '',
       choices: cohortChoices(db.cohorts, cohortId),
       pick: pickCohort,
+      create: mayCreate ? () => go('/admin/cohort/new') : null,
     }),
-    [cohortId, current, db.cohorts, pickCohort],
+    [cohortId, current, db.cohorts, go, mayCreate, pickCohort],
   );
   const chrome = useMemo(
     () => ({ openPalette, setRecord, toast: r2Toast, role: navRole, counts: data.counts, cohort }),

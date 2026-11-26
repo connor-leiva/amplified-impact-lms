@@ -131,7 +131,7 @@ test.describe('the Build hub is Program now (D-253, spec § 3) @g9 @console', ()
     await expect(page).toHaveURL(/\/admin\/program(\?|$)/);
     await expect(page.getByRole('heading', { level: 1, name: 'Amplified AI Accelerator' })).toBeVisible();
     await expect(crumbs(page)).toHaveText('Admin/Program/Curriculum');
-    await expect(page.getByRole('tablist', { name: 'Program' }).getByRole('tab')).toHaveText([/^Curriculum/, 'Course settings', 'Resource Vault']);
+    await expect(page.getByRole('tablist', { name: 'Program' }).getByRole('tab')).toHaveText([/^Curriculum/, 'Course Settings', 'Resource Vault']);
     // Its "Module Builder" link was Curriculum's add button's address, which is the week page's now.
     await expect(page.getByRole('link', { name: 'New AI Employee' })).toHaveAttribute('href', '/admin/program/weeks/new');
     await expectAccessible(page);

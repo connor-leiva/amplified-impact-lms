@@ -16,6 +16,8 @@ export interface AdminCohort {
   choices: CohortChoice[];
   /** Picking one (the mockup's `CtxSwitch`): the same tab of it on a cohort's page, its page elsewhere. */
   pick: (id: string) => void;
+  /** D-255: "New cohort…" after the cohorts, for a role with the `cohorts` permission; null otherwise. */
+  create: (() => void) | null;
 }
 
 export interface AdminChrome {
@@ -33,7 +35,7 @@ const Ctx = createContext<AdminChrome>({
   toast: () => {},
   role: null,
   counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
-  cohort: { id: null, label: '', choices: [], pick: () => {} },
+  cohort: { id: null, label: '', choices: [], pick: () => {}, create: null },
 });
 
 export const AdminChromeProvider = Ctx.Provider;

@@ -60,8 +60,8 @@ describe('the R2 tokens (D-160 R2-1b)', () => {
 
   it('holds the phone floor by construction: type ≥ 16px, controls ≥ 44px, primaries ≥ 48px', () => {
     const type = [...base.keys()].filter((k) => /^--r2-(t|m|mo|sh|h|fs-\d+)$/.test(k));
-    // R2-1c adds --r2-fs-15, the palette's query (15px, 16px on a phone).
-    expect(type.length).toBe(9);
+    // R2-1c adds --r2-fs-15, the palette's query (15px, 16px on a phone); D-255 --r2-fs-10, a date tile's month.
+    expect(type.length).toBe(10);
     for (const k of type) {
       if (px(base.get(k)) < 16) expect(px(phone.get(k)), k).toBeGreaterThanOrEqual(16);
     }

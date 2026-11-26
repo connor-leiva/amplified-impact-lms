@@ -27,7 +27,16 @@ import { fmt } from './time';
 import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, tourIssues, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
-import { addCohortSessions, createCohortFromShape, saveCohortRun, saveCohortShape } from './cohort-actions';
+import {
+  addCohortSessions,
+  createCohortFromShape,
+  keepCohortOverlap,
+  saveCohortHosts,
+  saveCohortIncluded,
+  saveCohortRun,
+  saveCohortShape,
+  saveCohortWords,
+} from './cohort-actions';
 import type { CohortActionResult } from './cohort-actions';
 import { moduleVersion } from './module-version';
 import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, Session, Step, Tier } from './types';
@@ -770,6 +779,11 @@ export const ADMIN_ACTIONS = {
   saveCohortShape,
   saveCohortRun,
   addCohortSessions,
+  // R-5 Phase 3 (D-255): the Cohort page's Settings.
+  saveCohortWords,
+  saveCohortIncluded,
+  saveCohortHosts,
+  keepCohortOverlap,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

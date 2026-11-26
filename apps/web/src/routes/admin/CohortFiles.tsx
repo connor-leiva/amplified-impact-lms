@@ -44,7 +44,8 @@ export function cohortFilesQuestion(c: CohortFilesCount): string {
 
 const path = (cohortId: string) => `/api/admin/cohorts/${encodeURIComponent(cohortId)}/turned-in-files`;
 
-export function CohortFilesButton({ cohortId }: { cohortId: string }) {
+/** D-255: on Cohort › Settings › Clean-Up its button says "Delete…" (the mockup's), beside the row that names it. */
+export function CohortFilesButton({ cohortId, label }: { cohortId: string; label?: string }) {
   const { toast } = useToaster();
   const [open, setOpen] = useState(false);
   const [count, setCount] = useState<CohortFilesCount | 'loading' | 'failed'>('loading');
@@ -82,8 +83,8 @@ export function CohortFilesButton({ cohortId }: { cohortId: string }) {
   const some = !!ready && ready.files > 0;
   return (
     <>
-      <Button header onClick={() => void start()}>
-        {COHORT_FILES.button}
+      <Button header={!label} aria-label={label ? COHORT_FILES.button : undefined} onClick={() => void start()}>
+        {label ?? COHORT_FILES.button}
       </Button>
       {open ? (
         <Modal

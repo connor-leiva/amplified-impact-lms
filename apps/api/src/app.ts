@@ -109,6 +109,7 @@ import type { ConsoleDeps } from './console/routes';
 import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
+import { registerCohortFactsRoute } from './routes/cohort-facts';
 import { registerIntakeRoute } from './routes/intake';
 import { registerCommunityRoutes } from './routes/community';
 import { registerSubmissionRoutes } from './routes/submissions';
@@ -693,6 +694,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerBillingRoutes(app, { stripe: offerStripe, config: offerConfig });
     // The AI Accelerator's pages (D-110): signed in, and only for a plan that opens the course.
     registerCourseRoute(app);
+    // R-5 Phase 3 (D-255): what the Cohort page needs beyond the snapshot. Staff with the `cohorts` permission.
+    registerCohortFactsRoute(app);
     registerIntakeRoute(app);
     registerStackRoute(app);
     registerPersonalizeRoute(app);
