@@ -82,8 +82,14 @@ export const sessionState = (s: SessionTiming | null | undefined, now: number, f
   return s.replay === 'ready' ? ('replay' as const) : ('processing' as const);
 };
 
+/**
+ * A learner's sessions: their own cohort's, the ones whose AI Employee they can open. R-5 Phase 4 (D-260): no viewer is
+ * in no cohort, so it lists none; the reference fell back to `dec26` there, which only a viewer with no learner row
+ * (the admin's sample session, whose time is all it reads) ever reached.
+ */
 export const accessibleSessions = (db: Db, u: Learner | null | undefined): Session[] => {
-  const cid = (u && u.cohortId) || DEFAULT_COHORT_ID;
+  const cid = u?.cohortId;
+  if (!cid) return [];
   return db.sessions
     .filter((s) => s.cohortId === cid)
     .filter((s) => {

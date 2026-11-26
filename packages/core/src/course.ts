@@ -5,6 +5,7 @@
 // `GET /api/course` has always sent, so the course page renders exactly as before. No words here.
 
 import { DEFAULT_COHORT_ID, isCourseWeek } from './accelerator';
+import { cohortCourseCopy } from './cohort-learner';
 import { cohortView } from './cohort-run';
 import type { CohortCourse, CourseContent, CourseWeek, LockedCopy, ModuleCourse } from './course-types';
 import { kitVisible, weekOpenFor } from './release';
@@ -51,11 +52,15 @@ export function courseWeekOf(m: WeekModule): CourseWeek {
   };
 }
 
-/** The whole course, from a snapshot, or null when the cohort holds none (the seed hasn't run). */
+/**
+ * The whole course, from a snapshot, or null when there are no words for it (the seed hasn't run). R-5 Phase 4
+ * (D-260): the words are the program's, with the cohort's own promise, how it works and holiday note
+ * (`cohortCourseCopy`); December's are its own row's, as before.
+ */
 export function courseFromSnapshot(db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string = DEFAULT_COHORT_ID): CourseContent | null {
-  const cohort = db.cohorts.find((c) => c.id === cohortId);
-  if (!cohort?.course) return null;
-  return { ...cohort.course, weeks: courseWeekModules(viewOf(db, cohortId)).map(courseWeekOf) };
+  const words = cohortCourseCopy(db, cohortId);
+  if (!words) return null;
+  return { ...words, weeks: courseWeekModules(viewOf(db, cohortId)).map(courseWeekOf) };
 }
 
 /** A cohort's view of the week modules (`cohortView`): the same modules for a cohort with no stored run. */
@@ -115,7 +120,7 @@ const lockedWeekOf = (m: WeekModule): LockedCourseWeek => ({
  * learner in the course gets for a week that hasn't opened (`lockedWeekOf`). Null when the database holds no course.
  */
 export function courseOutline(db: Pick<Db, 'cohorts' | 'modules'> & Partial<Pick<Db, 'sessions'>>, cohortId: string = DEFAULT_COHORT_ID): LockedCourseWeek[] | null {
-  if (!db.cohorts.find((c) => c.id === cohortId)?.course) return null;
+  if (!cohortCourseCopy(db, cohortId)) return null;
   return courseWeekModules(viewOf(db, cohortId)).map(lockedWeekOf);
 }
 
@@ -131,8 +136,9 @@ export function courseFor(
   viewer: CourseEntry | 'staff',
   cohortId: string = DEFAULT_COHORT_ID,
 ): LearnerCourse | null {
-  const cohort = db.cohorts.find((c) => c.id === cohortId);
-  if (!cohort?.course) return null;
+  // R-5 Phase 4 (D-260): the program's words with the cohort's own three (`cohortCourseCopy`).
+  const words = cohortCourseCopy(db, cohortId);
+  if (!words) return null;
   const staff = viewer === 'staff';
   const weeks = courseWeekModules(viewOf(db, cohortId)).map((m): LearnerCourseWeek => {
     const open = staff || weekOpenFor(m, now, viewer);
@@ -143,7 +149,7 @@ export function courseFor(
     const week = courseWeekOf(m);
     return kit.length ? { ...week, kit } : week;
   });
-  return { ...cohort.course, weeks };
+  return { ...words, weeks };
 }
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL: only the join route hands that out. */

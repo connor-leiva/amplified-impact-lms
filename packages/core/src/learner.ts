@@ -11,14 +11,15 @@
 // two up by position, and only while each step's words agree, so a step is never ticked under the
 // wrong id.
 
-import { acceleratorModuleId, isAcceleratorModule } from './accelerator';
+import { isAcceleratorModule } from './accelerator';
+import { weekModuleId } from './cohort-learner';
 import { isLockedWeek } from './course';
 import type { CourseSessionRow, LearnerCourseWeek, OpenCourseWeek } from './course';
 import { joinMode, moduleForSession, sessionState } from './sessions';
 import { implementerWords } from './role-words';
 import type { SessionTiming } from './sessions';
 import { viewerZone } from './time';
-import type { AIEmployee, Announcement, Db, Learner, Progress, Session, Step } from './types';
+import type { AIEmployee, Announcement, Cohort, Db, Learner, Progress, Session, Step } from './types';
 
 /** One step of an open week, as the learner screens use it. */
 export interface LearnerStep {
@@ -37,16 +38,33 @@ export interface LearnerStep {
 /** Where a learner stands on a week. */
 export type WeekState = 'locked' | 'not_started' | 'in_progress' | 'built';
 
-/** The snapshot's module for a course week, when the snapshot carries it. */
-export const weekModuleOf = (db: Pick<Db, 'modules'>, week: number): AIEmployee | undefined =>
-  db.modules.find((m) => m.id === acceleratorModuleId(week));
+/**
+ * The viewer's cohort, as their snapshot carries it (their own, D-254), or undefined (staff previewing, who have no
+ * learner row). R-5 Phase 4 (D-260): what a week's number means is this cohort's run (`weekModuleId`).
+ */
+export const cohortOfViewer = (db: Pick<Db, 'cohorts'>, me: Pick<Learner, 'cohortId'> | null): Cohort | undefined =>
+  me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
+
+/**
+ * The snapshot's module for a course week, when the snapshot carries it. R-5 Phase 4 (D-260): the week is the viewer's
+ * cohort's (`weekModuleId`: its run's week `n`, or `accelerator-week-N` for a cohort with no stored run, as today).
+ */
+export const weekModuleOf = (db: Pick<Db, 'modules'>, week: number, cohort?: Pick<Cohort, 'run'> | null): AIEmployee | undefined => {
+  const id = weekModuleId(cohort, week);
+  return id === null ? undefined : db.modules.find((m) => m.id === id);
+};
 
 /** The signed-in learner's row in their snapshot, or null (staff, or no row). */
 export const learnerOf = (db: Pick<Db, 'users'>, userId: string | null): Learner | null =>
   userId === null ? null : (db.users.find((u) => u.id === userId) ?? null);
 
-/** A learner's progress on a course week, when there is any. */
-export const progressOn = (me: Learner | null, week: number): Progress | undefined => me?.progress?.[acceleratorModuleId(week)];
+/** A learner's progress on a module, when there is any. */
+export const progressOnModule = (me: Learner | null, moduleId: string | null): Progress | undefined =>
+  moduleId === null ? undefined : me?.progress?.[moduleId];
+
+/** A learner's progress on a course week of their cohort (`weekModuleId`), when there is any. */
+export const progressOn = (me: Learner | null, week: number, cohort?: Pick<Cohort, 'run'> | null): Progress | undefined =>
+  progressOnModule(me, weekModuleId(cohort, week));
 
 /**
  * An open week's steps, each with its id (from the snapshot's module, by position, while the words
