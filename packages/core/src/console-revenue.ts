@@ -539,3 +539,13 @@ export function buildRevenueSummary(f: RevenueFacts): RevenueSummary {
 /** The label Coming in gives a line: the Console's, the Accelerator's short ("Accelerator", the mockup's). */
 export const comingLineLabel = (line: BillingLine | null): string | null =>
   line === null ? null : line === 'cohort' ? 'Accelerator' : CONSOLE_PLAN_LABELS[line === 'agents16' || line === 'agents41' ? 'agents' : line];
+
+/** A chart month's name: "Dec" (`short`) or "December" (`long`). */
+export function revenueMonthLabel(month: string, style: 'short' | 'long'): string {
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  return new Intl.DateTimeFormat('en-US', { month: style, timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, 15)));
+}
+
+/** "Aug 2026": the month of an instant, in the admin's zone (Cash collected's "Since Aug 2026"). */
+export const adminMonthYear = (t: number): string =>
+  new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric', timeZone: ADMIN_TZ }).format(new Date(t));
