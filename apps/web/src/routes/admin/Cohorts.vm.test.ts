@@ -244,7 +244,10 @@ describe('cohortsVM @g6', () => {
 
 describe('cohortsR2VM (D-160 R2-2b)', () => {
   const NOW = Date.parse('2026-12-10T16:30:00Z');
+  // The retired Cohorts & Sessions screen read a running cohort as `live`. R-5 Phase 5 (D-262) keeps the parity
+  // world's December `enrolling` (taking sales, as its Enrollment card says), so this vm is read on its old status.
   const db = parityDb();
+  db.cohorts = db.cohorts.map((c) => (c.id === 'dec26' ? { ...c, status: 'live' as const } : c));
   const vm = cohortsR2VM(db, NOW, 'dec26')!;
 
   it('has the cohort’s key facts', () => {

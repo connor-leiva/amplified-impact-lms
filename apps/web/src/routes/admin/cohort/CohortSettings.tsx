@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Link, useLocation, useParams } from 'react-router';
+import { enrollmentRefusal } from '@ai/core';
 import { Button } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
+import { Confirm } from '../../../components/r2/Modal';
 import { KV, Pill, k } from '../../../components/r2/kit';
+import { useToaster } from '../../../components/primitives/Toaster';
 import { Status } from '../../../components/r2/Status';
-import { useDb } from '../../../data/hooks';
+import { cohortLabel } from '../../../data/admin-shell';
+import { useAct, useDb } from '../../../data/hooks';
 import { CohortFilesButton } from '../CohortFiles';
-import { cohortPath, settingsVM } from './cohort.vm';
-import { DatesDialog, ShapeDialog, WeeksDialog, WordsDialog } from './dialogs';
+import { cohortPath, openEnrollmentBody, settingsVM } from './cohort.vm';
+import { DatesDialog, EnrollmentDialog, PriceDialog, ShapeDialog, WeeksDialog, WordsDialog } from './dialogs';
 import { useCohortFacts } from './useCohortFacts';
 import c from './Cohort.module.css';
 
@@ -16,8 +20,14 @@ import c from './Cohort.module.css';
 // and its weeks), Dates and Release (PLAN.md § 10.3), Enrollment (read-only until Phase 5: the one source of seats),
 // Words From This Cohort (Edit words), and Clean-up, which holds Delete turned-in files (D-237), moved off Schedule.
 // Archive is Phase 9's and is not drawn.
+//
+// R-5 Phase 5 (D-262): Enrollment is what the cohort sells through (PLAN.md § 10.5's "Sells through"): its seats, its
+// price (Stripe's, under its lookup keys, Q-30), two payments (Stripe's schedule), founding and when it closes, its
+// Payment Links and GoHighLevel's value; and the mockup's Open enrollment or Close enrollment, Set the price, and Edit
+// enrollment. Each saves through an audited admin action on the `billing` permission; Open is refused, in its dialog,
+// with Before It Opens' first line not done.
 
-type Open = 'shape' | 'weeks' | 'dates' | 'words' | null;
+type Open = 'shape' | 'weeks' | 'dates' | 'words' | 'price' | 'enroll' | 'open' | 'close' | null;
 
 export function Component() {
   const { cohortId = '' } = useParams();
@@ -26,12 +36,30 @@ export function Component() {
   const facts = useCohortFacts(cohortId);
   const vm = useMemo(() => settingsVM(db, cohortId, facts), [db, cohortId, facts]);
   const [open, setOpen] = useState<Open>(null);
+  const [busy, setBusy] = useState(false);
+  const [refused, setRefused] = useState<string | null>(null);
+  const act = useAct();
+  const { toast } = useToaster();
   // An address that names a card (`#dates`, `#enrollment`, `#words`) scrolls it into view, as a "Before it opens" line does.
   useEffect(() => {
     if (!hash) return;
     document.getElementById(`cohort-${hash.slice(1)}`)?.scrollIntoView({ block: 'start' });
   }, [hash]);
   if (!vm) return null;
+  const co = db.cohorts.find((x) => x.id === cohortId)!;
+  const enrollAct = async (name: 'openCohortEnrollment' | 'closeCohortEnrollment') => {
+    setBusy(true);
+    try {
+      const out = await act(name, { cohortId });
+      if (out.error) setRefused(out.error);
+      else {
+        setOpen(null);
+        if (out.toast) toast(out.toast.msg);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <div className={k.col}>
       <div className={c.set2}>
@@ -93,14 +121,26 @@ export function Component() {
                       ),
                     },
                     { label: 'A seat is', value: 'A team: an owner and an AI Implementer' },
-                    { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
+                    { label: 'Price', value: vm.enrollment.price.warn ? <Pill tone="warn">{vm.enrollment.price.text}</Pill> : vm.enrollment.price.text },
+                    { label: 'Two payments', value: vm.enrollment.twoPay },
+                    { label: 'Founding', value: vm.enrollment.founding },
+                    { label: 'Payment Links', value: vm.enrollment.links.warn ? <Pill tone="warn">{vm.enrollment.links.text}</Pill> : vm.enrollment.links.text },
+                    { label: 'GoHighLevel', value: vm.enrollment.ghl },
                     { label: 'Who lands here', value: 'A team that buys a seat while enrollment is open' },
                   ]}
                 />
               </div>
-              <p className={clsx(k.p, k.me)} style={{ marginTop: 12 }}>
-                Prices and Payment Links are made in Stripe.
-              </p>
+              <div className={k.row} style={{ marginTop: 12 }}>
+                {vm.enrollment.open ? (
+                  <Button onClick={() => (setRefused(null), setOpen('close'))}>Close enrollment</Button>
+                ) : (
+                  <Button kind="primary" onClick={() => (setRefused(enrollmentRefusal(db, cohortId, facts ?? undefined)), setOpen('open'))}>
+                    Open enrollment
+                  </Button>
+                )}
+                <Button onClick={() => setOpen('price')}>{vm.enrollment.priceButton}</Button>
+                <Button onClick={() => setOpen('enroll')}>Edit enrollment</Button>
+              </div>
             </Card>
           </div>
           <div id="cohort-words" className={c.anchor}>
@@ -165,6 +205,32 @@ export function Component() {
         <DatesDialog cohortId={cohortId} frozen={vm.includedFrozen} onClose={() => setOpen(null)} />
       ) : null}
       {open === 'words' ? <WordsDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
+      {open === 'price' ? <PriceDialog cohortId={cohortId} facts={facts} onClose={() => setOpen(null)} /> : null}
+      {open === 'enroll' ? <EnrollmentDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
+      {open === 'open' ? (
+        <Confirm
+          title={`Open enrollment for the ${cohortLabel(co)}?`}
+          body={openEnrollmentBody(db, cohortId)}
+          cta="Open enrollment"
+          keepOpen
+          busy={busy}
+          error={refused}
+          onConfirm={() => void enrollAct('openCohortEnrollment')}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
+      {open === 'close' ? (
+        <Confirm
+          title={`Close enrollment for the ${cohortLabel(co)}?`}
+          body={`No new team can buy a seat in this cohort. The ${facts?.teams ?? 0} already in it are not affected.`}
+          cta="Close enrollment"
+          keepOpen
+          busy={busy}
+          error={refused}
+          onConfirm={() => void enrollAct('closeCohortEnrollment')}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
     </div>
   );
 }

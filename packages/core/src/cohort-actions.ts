@@ -20,6 +20,7 @@ import { MutationError } from './mutations';
 import type { Actor, Ctx } from './mutations';
 import type { AdminOutcome } from './admin-actions';
 import { NO_FACTS, beforeItOpens, draftWords, includedDefault } from './cohort-page';
+import type { CohortFacts } from './cohort-page';
 import { ghlMonthValue } from './cohort-learner';
 import { cohortSelling } from './cohort-selling';
 import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
@@ -665,6 +666,19 @@ export function keepCohortOverlap(db: Db, a: Actor, args: { cohortId: string }, 
 export const ALREADY_OPEN = 'Enrollment is already open.';
 
 /**
+ * Why Open enrollment would be refused now, or null: for a draft, Before It Opens' first line not done (PLAN § 10.3);
+ * for a cohort closed after it opened, its two Stripe lines. The Cohort page's dialog shows the same words.
+ */
+export function enrollmentRefusal(db: Db, cohortId: string, facts: CohortFacts = NO_FACTS): string | null {
+  const co = db.cohorts.find((x) => x.id === cohortId);
+  if (!co) return 'No such cohort.';
+  const before = beforeItOpens(db, cohortId, facts);
+  if (co.status === 'draft') return before.refusal;
+  const left = before.lines.find((l) => (l.key === 'stripe' || l.key === 'links') && !l.done);
+  return left ? `${left.label}: ${left.detail}` : null;
+}
+
+/**
  * Open enrollment: `draft` to `enrolling`, refused, with its reason, until Before It Opens is done (`beforeItOpens`:
  * the checklist and the refusal are one function, PLAN § 10.3). A cohort closed after it opened (`live`) opens again
  * once its two Stripe lines are done (its prices found and its links naming it): the rest of its checklist was done
@@ -675,9 +689,7 @@ export function openCohortEnrollment(db: Db, a: Actor, args: { cohortId: string 
   const co = cohortOf(db, args.cohortId);
   if (co.status === 'enrolling') return { db, error: ALREADY_OPEN };
   if (co.status === 'completed') return { db, error: 'This cohort is over.' };
-  const before = beforeItOpens(db, co.id, c.cohortFacts?.[co.id] ?? NO_FACTS);
-  const stripeLeft = before.lines.find((l) => (l.key === 'stripe' || l.key === 'links') && !l.done);
-  const refusal = co.status === 'draft' ? before.refusal : stripeLeft ? `${stripeLeft.label}: ${stripeLeft.detail}` : null;
+  const refusal = enrollmentRefusal(db, co.id, c.cohortFacts?.[co.id] ?? NO_FACTS);
   if (refusal) return { db, error: refusal };
   const next = produce(db, (d) => {
     d.cohorts.find((y) => y.id === co.id)!.status = 'enrolling';

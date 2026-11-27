@@ -179,7 +179,7 @@ export function Component() {
                       </Link>
                     ),
                   },
-                  { label: 'Price', value: <Pill tone="warn">Not set</Pill> },
+                  { label: 'Price', value: vm.shape.price ?? <Pill tone="warn">Not set</Pill> },
                 ]}
               />
             </div>

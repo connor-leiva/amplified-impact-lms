@@ -1,4 +1,5 @@
 import { ADMIN_ACTIONS, DB_KEY, DB_V, seed, type Db, type Phase } from '@ai/core';
+import { fixtureCohortFacts } from './fixture-cohort-facts';
 import type { Outcome } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { MutationError, resendInviteTarget } from '@ai/core';
@@ -104,7 +105,11 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase, parity:
     // browser (the Console's fixture keeps its own); the server writes the row in http mode.
     async act<K extends AdminActionName>(name: K, args: AdminActionArgs<K>): Promise<MutationResult> {
       const fn = ADMIN_ACTIONS[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: AdminActionArgs<K>, c: Ctx) => Outcome;
-      return apply((c) => fn(db, PERSONA[role], args, c));
+      // R-5 Phase 5 (D-262): a cohort write reads the fixture's facts (Open enrollment's Before It Opens, a seat cap's
+      // seats sold), as the API reads the record's.
+      const cohortId = (args as { cohortId?: unknown }).cohortId;
+      const facts = typeof cohortId === 'string' ? { cohortFacts: { [cohortId]: fixtureCohortFacts(db, cohortId) } } : {};
+      return apply((c) => fn(db, PERSONA[role], args, { ...c, ...facts }));
     },
     // D-247 (H-9): there is no email here. The demo answers as the prototype does: Send Nudge is core's
     // `nudgeLearners` (its stamp and its toast), and Resend Invite is its own confirmation, after the

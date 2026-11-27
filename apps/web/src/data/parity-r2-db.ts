@@ -295,13 +295,18 @@ export function parityDb(path = '/admin/curriculum'): Db {
     start: mst('2026-12-02T12:00:00'),
     end: mst('2027-01-06T13:00:00'),
     weeks: 6,
-    status: 'live',
+    // R-5 Phase 5 (D-262): taking sales, as the mockup's December is (its Enrollment card reads Open): `enrolling`.
+    status: 'enrolling',
     enrolled: 148,
     cadence: 'Wednesdays, weekly',
     // D-255 (R-5 Phase 3): the mockup's December words (`DEC_WORDS`, read once) and its host, for the Cohort page.
     words: { ...DEC_WORDS, how: [...DEC_WORDS.how] },
     wordsCheckedAt: mst('2026-11-25T09:00:00'),
     hosts: 'Connor Leiva',
+    // R-5 Phase 5 (D-262): the two Payment Links it sells through, as its record holds them once its data step has run
+    // (sample addresses: the fixture has no Stripe).
+    linkFull: 'https://buy.stripe.com/test_dec26_full',
+    linkTwoPay: 'https://buy.stripe.com/test_dec26_two',
   });
   db.cohorts = [cohort];
   db.sessions = SESSIONS.map(([title, day, zoom, attended], i): Session => ({

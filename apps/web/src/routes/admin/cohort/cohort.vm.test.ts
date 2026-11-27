@@ -2,7 +2,7 @@
 // Weeks 0 to 3's sessions and December's run) with Connor's January created through the admin action.
 import { describe, expect, it } from 'vitest';
 import { createCohortFromShape } from '@ai/core';
-import type { Db } from '@ai/core';
+import type { CohortFacts, Db, StripePrice } from '@ai/core';
 import { seedProduction } from '@ai/core/seed/curriculum';
 import { planContentV2 } from '@ai/core/seed/content-v2';
 import { planDecemberRunV1 } from '@ai/core/seed/december-run-v1';
@@ -17,6 +17,11 @@ import {
   runArgs,
   scheduleVM,
   settingsVM,
+  enrollmentVM,
+  enrollmentForm,
+  keyPriceLine,
+  openEnrollmentBody,
+  priceForm,
 } from './cohort.vm';
 import type { NewCohortForm } from './cohort.vm';
 import { runRows } from '@ai/core';
@@ -262,5 +267,65 @@ describe('New cohort’s preview', () => {
     expect(tones(null).filter((t) => t === 'warn')).toHaveLength(12);
     // With it, only the five Thursdays at December's office hours.
     expect(tones(jan).filter((t) => t === 'warn')).toHaveLength(5);
+  });
+});
+
+describe('Settings › Enrollment (R-5 Phase 5, D-262): what a cohort sells through', () => {
+  const stripe = (price: Record<string, StripePrice | null>): CohortFacts => ({
+    testSends: { welcome: false, week0: false },
+    plans: 0,
+    teams: 3,
+    stripe: { prices: 'ok', price, links: 'ok', link: {} },
+  });
+  const DEC_PRICES = {
+    cohort_founding_full: { unitAmount: 750000, currency: 'usd', interval: null },
+    cohort_founding_two_pay: { unitAmount: 375000, currency: 'usd', interval: 'month' as const, intervalCount: 1 },
+    membership_monthly_team_leader: { unitAmount: 16900, currency: 'usd', interval: 'month' as const, intervalCount: 1 },
+  };
+
+  it('December: Stripe’s price, its two payments as Stripe schedules them, founding until Nov 30, open', () => {
+    const { db } = world();
+    expect(enrollmentVM(db, 'dec26', stripe(DEC_PRICES))).toEqual({
+      open: true,
+      seats: '3 of 15 taken',
+      price: { text: '$7,500', warn: false },
+      twoPay: 'Offered. $3,750 at checkout and $3,750 one month later.',
+      founding: 'Yes, until Mon, Nov 30 · 11:59 PM MT / Tue, Dec 1, 12:59 AM CT',
+      links: { text: 'Not set', warn: true },
+      ghl: 'dec26',
+      priceButton: 'Change the price',
+      shapePrice: '$7,500, or two payments',
+    });
+    // Stripe not asked yet: the price says so, never a number of its own.
+    expect(enrollmentVM(db, 'dec26', null).price).toEqual({ text: 'Not found yet', warn: true });
+  });
+
+  it('January, created: nothing entered, closed, its GoHighLevel value prefilled', () => {
+    const { db, jan } = world();
+    const vm = enrollmentVM(db, jan, stripe({}));
+    expect(vm).toMatchObject({
+      open: false,
+      price: { text: 'Not set', warn: true },
+      twoPay: 'Offered. Set its price to see Stripe’s schedule.',
+      founding: 'Yes. No close is set.',
+      links: { text: 'Not set', warn: true },
+      ghl: 'jan27',
+      priceButton: 'Set the price',
+      shapePrice: null,
+    });
+    expect(priceForm(db, jan)).toEqual({ full: '', rollover: '', twoPay: '', offerTwoPay: true });
+    expect(enrollmentForm(db, jan)).toEqual({ founding: true, closesDate: '', closesTime: '23:59', linkFull: '', linkTwoPay: '', capacity: '15', ghl: 'jan27' });
+    expect(openEnrollmentBody(db, jan)).toBe(
+      'From now on, a team that buys a seat is placed in this cohort, up to 15 seats. They get the welcome email and can start the setup week on Sun, Dec 27.',
+    );
+  });
+
+  it('the price dialog says what Stripe has under a saved key, and that a typed one is looked up once saved', () => {
+    const facts = stripe(DEC_PRICES);
+    expect(keyPriceLine(facts, 'cohort_founding_full', 'cohort_founding_full')).toBe('Stripe: $7,500 once');
+    expect(keyPriceLine(facts, 'membership_monthly_team_leader', 'membership_monthly_team_leader')).toBe('Stripe: $169 a month');
+    expect(keyPriceLine(facts, 'cohort_founding_full', 'jan27_full')).toBe('Save to look it up in Stripe.');
+    expect(keyPriceLine(stripe({ k: null }), 'k', 'k')).toBe('Not found in Stripe');
+    expect(keyPriceLine(facts, null, '')).toBe('Not set');
   });
 });

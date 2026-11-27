@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router';
-import { can, cohortWordsOf, layoutWarnings, programWeeks } from '@ai/core';
-import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { can, cohortShortName, cohortWordsOf, defaultSourceId, layoutWarnings, newCohortSources, programWeeks } from '@ai/core';
 import { Icon } from '../../../components/Icon';
 import { Button } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
@@ -22,13 +21,17 @@ import c from './Cohort.module.css';
 // another cohort's, a U.S. federal holiday). "Create cohort" makes the draft (`createCohortFromShape`) and opens its
 // Overview. Its words start as December's, flagged "Read them once" (PLAN.md § 10.3), and its included time is
 // prefilled to the last live build + 90 days. No price: Phase 5's, read from Stripe.
+//
+// R-5 Phase 5 (D-262, PLAN § 10.10): "Start from" lists every cohort that is not archived, not December by id; it opens
+// on the newest past its draft (the one running now). A new cohort copies its source's seats, founding and two
+// payments, and its GoHighLevel value is prefilled from its own start ("jan27").
 
 const TILE = `data:image/svg+xml,${encodeURIComponent(programLogo(PROGRAM_KEY, { variant: 'tile', size: 40, title: '' }))}`;
 
 /** Connor's example: six weeks of building, twice a week, starting in early January (the mockup's `JAN_F`). */
 const START: NewCohortForm = {
   name: null,
-  from: DEFAULT_COHORT_ID,
+  from: '',
   promise: null,
   setupWeek: true,
   picks: [],
@@ -48,16 +51,21 @@ export function Component() {
   const navigate = useNavigate();
   const weeks = useMemo(() => programWeeks(db), [db]);
   const ids = weeks.map((w) => w.id);
-  const [f, setF] = useState<NewCohortForm>(() => ({ ...START, picks: ids.slice(0, 6) }));
+  const sources = useMemo(() => newCohortSources(db), [db]);
+  const fallback = defaultSourceId(db) ?? '';
+  const [f, setF] = useState<NewCohortForm>(() => ({ ...START, from: fallback, picks: ids.slice(0, 6) }));
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const source = cohortWordsOf(db, DEFAULT_COHORT_ID);
+  // A blank cohort still takes its seats, zone and open time from a cohort: the one "Start from" opens on.
+  const sourceId = f.from || fallback;
+  const source = cohortWordsOf(db, sourceId);
   const vm = useMemo(() => newCohortVM(db, f, source?.promise ?? ''), [db, f, source?.promise]);
   const warnings = useMemo(() => layoutWarnings(db, null, vm.laid), [db, vm.laid]);
   const other = useMemo(() => otherRhythmLine(db, warnings), [db, warnings]);
   const up = (p: Partial<NewCohortForm>) => setF({ ...f, ...p });
   if (!can(db, viewer.actor, 'cohorts')) return <Denied what="New Cohort" role={viewer.role} />;
-  const from = db.cohorts.find((x) => x.id === DEFAULT_COHORT_ID);
+  const picked = sources.find((x) => x.id === f.from);
+  const seatsFrom = sources.find((x) => x.id === sourceId);
 
   const create = async () => {
     setBusy(true);
@@ -66,7 +74,7 @@ export function Component() {
       const out = await act('createCohortFromShape', {
         name: (vm.name.trim() || vm.autoName).trim(),
         start: f.start,
-        sourceCohortId: DEFAULT_COHORT_ID,
+        sourceCohortId: sourceId,
         picks: f.picks,
         shape: { setupWeek: f.setupWeek, slots: f.slots, hosts: f.hosts },
         words:
@@ -102,12 +110,12 @@ export function Component() {
                 </Field>
                 <div className={c.lab}>
                   <span>Start from</span>
-                  <Sel
-                    aria-label="Start from"
-                    value={f.from}
-                    onChange={(e) => up({ from: e.target.value === DEFAULT_COHORT_ID ? DEFAULT_COHORT_ID : '' })}
-                  >
-                    <option value={DEFAULT_COHORT_ID}>{from ? cohortLabel(from) : DEFAULT_COHORT_ID}</option>
+                  <Sel aria-label="Start from" value={f.from} onChange={(e) => up({ from: e.target.value })}>
+                    {sources.map((x) => (
+                      <option key={x.id} value={x.id}>
+                        {cohortLabel(x)}
+                      </option>
+                    ))}
                     <option value="">A blank cohort</option>
                   </Sel>
                 </div>
@@ -115,10 +123,10 @@ export function Component() {
               <Field label="The promise" hint="One line. Learners see it on Home, under the program’s name.">
                 <input className={k.in} value={vm.promise} onChange={(e) => up({ promise: e.target.value })} />
               </Field>
-              {f.from ? (
+              {picked ? (
                 <p className={clsx(k.p, k.me)}>
-                  Copied from December: its seats, its intake form, its emails and its community rules. Nothing about
-                  December changes.
+                  Copied from {cohortShortName(picked)}: its seats, its intake form, its emails and its community rules.
+                  Nothing about {cohortShortName(picked)} changes.
                 </p>
               ) : null}
             </div>
@@ -174,7 +182,7 @@ export function Component() {
                   <span>Seats</span>
                   <span className={c.fat}>A seat is a team: an owner and an AI Implementer.</span>
                   <span className={k.s2} style={{ fontWeight: 400 }}>
-                    {from?.capacity ?? 0}, copied from December
+                    {seatsFrom?.capacity ?? 0}, copied from {seatsFrom ? cohortShortName(seatsFrom) : 'December'}
                   </span>
                 </div>
                 <Field label="Included time ends" hint="90 days after the last live build.">
@@ -212,7 +220,7 @@ export function Component() {
                   <span className={k.me}>sessions</span>
                 </div>
                 <div>
-                  <b className={k.tn}>{from?.capacity ?? 0}</b>
+                  <b className={k.tn}>{seatsFrom?.capacity ?? 0}</b>
                   <span className={k.me}>team seats</span>
                 </div>
               </div>

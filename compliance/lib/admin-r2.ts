@@ -52,14 +52,16 @@ export type Width = (typeof WIDTHS)[number];
  * own tabs a segmented control). D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings for December
  * (`cohort-*`; Schedule replaces Cohorts & Sessions, whose `cohorts-sessions` refs retire), New cohort, January once
  * created (`january-*`), and four dialogs on January's Settings (Shape, its weeks, Dates and Release, Words), each a
- * viewport frame as the Roles confirm is.
+ * viewport frame as the Roles confirm is. D-262 (R-5 Phase 5): January's price dialog, Edit enrollment and Open
+ * enrollment (refused, with Before It Opens' first line), and December's Close enrollment: 46 × 4 = 184 cells.
  */
 export const SCREENS = [
   'overview', 'health', 'curriculum', 'builder', 'vault', 'cohort-overview', 'cohort-schedule', 'cohort-settings',
   'new-cohort', 'january-overview', 'january-schedule', 'january-settings', 'announce', 'learners',
   'workspaces', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
   'email', 'integrations', 'deploys', 'db', 'flags', 'roles', 'workspace-detail', 'user', 'incident', 'as',
-  'missing', 'denied', 'january-shape', 'january-weeks', 'january-dates', 'january-words', 'roles-confirm',
+  'missing', 'denied', 'january-shape', 'january-weeks', 'january-dates', 'january-words', 'january-price',
+  'january-enrollment', 'january-open', 'cohort-close', 'roles-confirm',
 ] as const;
 export type Screen = (typeof SCREENS)[number];
 
@@ -83,9 +85,9 @@ export interface Route {
  * Each later R2 PR adds the screens it builds.
  */
 /** A dialog on January's Settings, opened by clicking `opener`, as the harness's `DIALOGS` frames are. */
-function januaryDialog(opener: (page: Page) => Locator): Route {
+function januaryDialog(opener: (page: Page) => Locator, path = '/admin/cohort/jan27/settings'): Route {
   return {
-    path: '/admin/cohort/jan27/settings',
+    path,
     frame: 'viewport',
     prepare: async (page) => {
       await opener(page).click();
@@ -122,6 +124,11 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   'january-weeks': januaryDialog((page) => page.getByRole('button', { name: '6 of the program’s 8', exact: true })),
   'january-dates': januaryDialog((page) => page.getByRole('button', { name: 'Edit', exact: true }).nth(1)),
   'january-words': januaryDialog((page) => page.getByRole('button', { name: 'Edit this cohort’s words', exact: true })),
+  // D-262 (R-5 Phase 5): the Enrollment card's dialogs, January's three and December's Close enrollment.
+  'january-price': januaryDialog((page) => page.getByRole('button', { name: 'Set the price', exact: true })),
+  'january-enrollment': januaryDialog((page) => page.getByRole('button', { name: 'Edit enrollment', exact: true })),
+  'january-open': januaryDialog((page) => page.getByRole('button', { name: 'Open enrollment', exact: true })),
+  'cohort-close': januaryDialog((page) => page.getByRole('button', { name: 'Close enrollment', exact: true }), '/admin/cohort/dec26/settings'),
   // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
   overview: { path: '/admin' },
   learners: { path: '/admin/cohort/dec26/people' },
@@ -223,6 +230,11 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `january-weeks-${w}`,
   `january-dates-${w}`,
   `january-words-${w}`,
+  // D-262 (R-5 Phase 5): the Enrollment card's dialogs, at all four widths.
+  `january-price-${w}`,
+  `january-enrollment-${w}`,
+  `january-open-${w}`,
+  `cohort-close-${w}`,
   // R2-3a (D-160): the Overview, Learners & Teams and Tiers & Upgrades, at all four widths.
   `overview-${w}`,
   `learners-${w}`,
