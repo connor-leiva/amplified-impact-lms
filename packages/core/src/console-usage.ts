@@ -71,6 +71,11 @@ export interface EmailLogRow extends EmailDelivery {
   /** The send's outcome, an `EmailStatus`. Its delivery, once reported, is `delivery`. */
   status: string;
   errorKind: string | null;
+  /**
+   * D-264: present, and true, only on a cohort observer's copy of a cohort-wide email (`email_log.observer_copy`).
+   * Listed like any send, and never counted in the delivery rollup (`rollupOf`), which is about learners' email.
+   */
+  observerCopy?: true;
 }
 
 /** The list's filters, as the query string and the export body carry them. */

@@ -30,6 +30,9 @@
 //
 // WEEK 0 FROM DATA. The copy's Week 0 due date, name, step count and baseline count come from the
 // Week 0 module (`welcomeWeek0`). While Week 0 has no Due, the welcome waits on the builder.
+//
+// OBSERVERS (D-264). A cohort's first sent welcome is copied to each cohort observer, once (`cohortCopier`): with no
+// first name and NEVER the owner's set-password link, which becomes an inert placeholder. No token is minted for it.
 
 import { and, eq, sql } from 'drizzle-orm';
 import { COHORT_WELCOME_FLAG, enrolledBeforeSwitch, firstNameOf, otherEmailReached, welcomeDecision, welcomeSchedule, welcomeWeek0 } from '@ai/core';
@@ -41,6 +44,7 @@ import { authTokens, cohortEnrollments, cohorts, consoleFlags, emailLog, googleI
 import { absolute, setPasswordPath } from '../email/templates/links';
 import { SUBJECTS } from '../email/subjects';
 import { send } from '../email/transport';
+import { cohortCopier } from '../email/observers';
 import type { BillingLog } from '../billing/provision';
 import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments, welcomeEmailData } from './enrollments';
 
@@ -117,6 +121,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 
   const cohortRows = await db.select().from(cohorts);
   const sessionRows = await db.select().from(sessions);
+  const observers = cohortCopier(db, now, log);
   // R-5 Phase 4 (D-261): each cohort's own weeks, through its run (`readWeeks`), read once a tick per cohort.
   const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
   const cohortWeeks = (cohortId: string): Promise<WelcomeWeek[]> => {
@@ -195,17 +200,16 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       await db.insert(authTokens).values({ tokenHash: hashToken(token), email: row.email, purpose: 'set_password', expiresAt: expiryFor('set_password', now) });
       setPasswordUrl = absolute(setPasswordPath(token));
     }
-    const result = await send({
-      template: 'cohort-welcome',
-      to: row.email,
-      data: welcomeEmailData(built.schedule.cohortName, built.schedule, week0.week0, firstNameOf(row.name), setPasswordUrl),
-    });
+    const data = welcomeEmailData(built.schedule.cohortName, built.schedule, week0.week0, firstNameOf(row.name), setPasswordUrl);
+    const result = await send({ template: 'cohort-welcome', to: row.email, data });
     if (result.ok) {
       await db
         .update(cohortEnrollments)
         .set({ welcomeStatus: 'sent', welcomeSentAt: now, welcomeError: null })
         .where(and(eq(cohortEnrollments.userId, row.user_id), eq(cohortEnrollments.cohortId, row.cohort_id)));
       run.sent += 1;
+      // D-264: this cohort's welcome, copied to each observer once, its set-password link an inert placeholder.
+      await observers.copy('cohort-welcome', cohort.id, data);
     } else {
       await db
         .update(cohortEnrollments)

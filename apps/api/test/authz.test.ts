@@ -751,6 +751,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/flags/:key', methods: 'POST', guard: 'session' },
   { path: '/api/console/welcome/test', methods: 'POST', guard: 'session' },
   { path: '/api/console/week0/test', methods: 'POST', guard: 'session' },
+  // D-264: the cohort observer addresses (read ops.read, save flags.write).
+  { path: '/api/console/email-observers', methods: 'GET, HEAD, POST', guard: 'session' },
   { path: '/api/console/integrations', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/integrations/:id/check', methods: 'POST', guard: 'session' },
   { path: '/api/console/deploys', methods: 'GET, HEAD', guard: 'session' },
@@ -1392,6 +1394,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
               payload: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
             }),
+          '/api/console/email-observers': () => app.inject({ method: 'GET', url: '/api/console/email-observers' }),
           '/api/console/integrations': () => app.inject({ method: 'GET', url: '/api/console/integrations' }),
           '/api/console/integrations/:id/check': () =>
             app.inject({ method: 'POST', url: '/api/console/integrations/resend/check', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
@@ -1615,8 +1618,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
     // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge. 105 with the cohort welcome's
     // test send. 106 with the Week 0 Is Open email's test send. 107 with the Cohort page's facts (D-255). 109 with
-    // Comp a team's two.
-    expect(EXECUTED.unauthenticated).toBe(109);
+    // Comp a team's two. 110 with the cohort observer addresses (D-264).
+    expect(EXECUTED.unauthenticated).toBe(110);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes. And Resend's webhook (D-263).
@@ -1647,6 +1650,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Is Open email's test send, probed unauthenticated. And + 1 for the Cohort page's facts (D-255), probed unauthenticated.
     // And + 2 for Comp a team's cohorts list and comp, probed unauthenticated.
     // And + 1 for Resend's webhook (D-263), probed as exempt.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1);
+    // And + 1 for the cohort observer addresses (D-264), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 1);
   });
 });

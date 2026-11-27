@@ -45,6 +45,7 @@ import type {
   EmailLogPage,
   DbHealthView,
   DeploysView,
+  EmailObserversView,
   FlagFlipResult,
   IntegrationView,
   OpsEnv,
@@ -230,6 +231,13 @@ export interface ConsoleApi {
   sendWelcomeTest(to: string, cohortId: string): Promise<{ ok: true; subject: string }>;
   /** One Week 0 Is Open email, to the same allowlist. Does not mark a learner sent. */
   sendWeek0Test(to: string, cohortId: string): Promise<{ ok: true; subject: string }>;
+  /**
+   * D-264: the cohort observer addresses in force (`ops.read`). Null where this build has none to show: the fixture,
+   * whose mockup draws no such card.
+   */
+  emailObservers(): Promise<EmailObserversView | null>;
+  /** D-264: save them (`flags.write`). `[]` sends no copies; `null` forgets the saved list, so the env var applies. */
+  saveEmailObservers(addresses: string[] | null): Promise<EmailObserversView>;
   integrations(): Promise<IntegrationView[]>;
   checkIntegration(id: ProbeIntegration): Promise<ProbeResult>;
   deploys(): Promise<DeploysView>;
@@ -470,6 +478,9 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       json<FlagFlipResult>(await request(fetchImpl, `/api/console/flags/${encodeURIComponent(key)}`, JSON_POST(typed === undefined ? { on } : { on, typed }))),
     sendWelcomeTest: async (to, cohortId) => json<{ ok: true; subject: string }>(await request(fetchImpl, '/api/console/welcome/test', JSON_POST({ to, cohortId }))),
     sendWeek0Test: async (to, cohortId) => json<{ ok: true; subject: string }>(await request(fetchImpl, '/api/console/week0/test', JSON_POST({ to, cohortId }))),
+    emailObservers: async () => (await json<{ observers: EmailObserversView }>(await request(fetchImpl, '/api/console/email-observers'))).observers,
+    saveEmailObservers: async (addresses) =>
+      (await json<{ observers: EmailObserversView }>(await request(fetchImpl, '/api/console/email-observers', JSON_POST({ addresses })))).observers,
     integrations: async () => (await json<{ integrations: IntegrationView[] }>(await request(fetchImpl, '/api/console/integrations'))).integrations,
     checkIntegration: async (id) => (await json<{ result: ProbeResult }>(await request(fetchImpl, `/api/console/integrations/${id}/check`, JSON_POST({})))).result,
     deploys: async () => json<DeploysView>(await request(fetchImpl, '/api/console/deploys')),

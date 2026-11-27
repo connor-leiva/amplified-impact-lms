@@ -96,10 +96,11 @@ describe('the email log is written after each send, and never in its way (spec Â
     expect(row).toMatchObject({ to: 'Jamie@OrtizHomes.com', userId: 'u_jamie', template: 'sign-in', provider: 'outbox', providerId: null, status: 'skipped', errorKind: null, at: NOW });
     expect(row!.subject).toBe(res.subject);
     // No column for a body, and nothing of it in the row: the token is in the body only.
-    // D-263 adds the delivery Resend reports, and still no column that could hold a body.
+    // D-263 adds the delivery Resend reports, and D-264 `observer_copy` (a cohort observer's copy); still no column
+    // that could hold a body.
     expect(getTableConfig(emailLog).columns.map((c) => c.name).sort()).toEqual([
       'at', 'bounce_message', 'bounce_sub_type', 'bounce_type', 'bounced_at', 'click_count', 'clicked_first_at', 'clicked_last_at', 'clicked_link',
-      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'open_count', 'opened_first_at', 'opened_last_at',
+      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'observer_copy', 'open_count', 'opened_first_at', 'opened_last_at',
       'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id',
     ]);
     expect(JSON.stringify(row)).not.toContain('tok-SECRET-123');

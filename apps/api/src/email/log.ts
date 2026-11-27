@@ -27,10 +27,12 @@ export interface EmailLogEntry {
   providerId: string | null;
   status: EmailStatus;
   errorKind: EmailErrorKind | null;
+  /** D-264: present, and true, only on a cohort observer's copy, so a learner's row is exactly what it was. */
+  observerCopy?: true;
 }
 
 /** A send as its log row: `sent` only when production's Resend took it, `skipped` when nothing left the server. */
-export function emailLogEntry({ result, providerId }: SendRecord, at: number): EmailLogEntry {
+export function emailLogEntry({ result, providerId, observerCopy }: SendRecord, at: number): EmailLogEntry {
   const provider: EmailProvider = result.mode === 'production' ? 'resend' : result.mode === 'test' ? 'outbox' : 'log';
   const status: EmailStatus = !result.ok ? 'failed' : result.mode === 'production' ? 'sent' : 'skipped';
   return {
@@ -42,18 +44,26 @@ export function emailLogEntry({ result, providerId }: SendRecord, at: number): E
     providerId: status === 'sent' ? providerId : null,
     status,
     errorKind: result.ok ? null : emailErrorKind(result.error ?? ''),
+    ...(observerCopy ? { observerCopy: true as const } : {}),
   };
 }
 
-/** `transport.send()`'s observer: one row per send, never awaited by it. */
+/**
+ * `transport.send()`'s observer: one row per send, never awaited by it.
+ *
+ * D-264: an observer's copy is marked (`observer_copy`) and names no user, even when the address is a staff member's
+ * account: it is a copy of the cohort's email, not that person's own, so neither a person's nor a workspace's emails
+ * and no learner count ever include it.
+ */
 export function logSend(record: SendRecord): void {
   const e = emailLogEntry(record, clock.now());
+  const observerCopy = e.observerCopy === true;
   observe('email log', async () => {
     const db = getDb();
     await db.execute(sql`
-      insert into email_log (at, "to", user_id, template, subject, provider, provider_id, status, error_kind)
-      values (${e.at}, ${e.to}, (select u.id from users u where u.email = lower(btrim(${e.to})) limit 1),
-        ${e.template}, ${e.subject}, ${e.provider}, ${e.providerId}, ${e.status}, ${e.errorKind})
+      insert into email_log (at, "to", user_id, template, subject, provider, provider_id, status, error_kind, observer_copy)
+      values (${e.at}, ${e.to}, ${observerCopy ? null : sql`(select u.id from users u where u.email = lower(btrim(${e.to})) limit 1)`},
+        ${e.template}, ${e.subject}, ${e.provider}, ${e.providerId}, ${e.status}, ${e.errorKind}, ${observerCopy})
     `);
     if (e.providerId) await refoldLogged(db, e.providerId);
   });

@@ -23,6 +23,8 @@ import type { Send } from '../jobs/due';
 // import here made `schedules.ts` read the scheduler's `TICK_MS` before it existed and the API not boot.
 import type { SchedulerLog, SchedulerTx } from '../jobs/scheduler';
 import { emailReady } from './ready';
+import { claimObserverCopiesFor, sendObserverCopies } from './observers';
+import type { ObserverCopy, SavepointTx } from './observers';
 import { send } from './transport';
 import type { SendRequest, TemplateName } from './transport';
 
@@ -31,23 +33,32 @@ export interface SendNowClaim {
   announcement: Announcement;
   off: boolean;
   sends: Send[];
+  /**
+   * D-264: the cohort observers' copies of this announcement, claimed in the same transaction (`email/observers.ts`):
+   * one per observer, shared with the scheduled path's ledger key. Never counted in the toast.
+   */
+  observerCopies: ObserverCopy[];
 }
 
 /**
  * Inside the write's transaction, after `persistDiff`: claim the ledger keys for every announcement the
  * write moved to `sent` with the Email channel on. Returns nothing for any other write.
  */
-export async function claimSendNowEmails(tx: SchedulerTx, before: Db, after: Db, now: number, log: SchedulerLog): Promise<SendNowClaim[]> {
+export async function claimSendNowEmails(tx: SchedulerTx & SavepointTx, before: Db, after: Db, now: number, log: SchedulerLog): Promise<SendNowClaim[]> {
   const claims: SendNowClaim[] = [];
   for (const a of newlySentWithEmail(before, after)) {
     if (!emailReady()) {
-      claims.push({ announcement: a, off: true, sends: [] });
+      claims.push({ announcement: a, off: true, sends: [], observerCopies: [] });
       continue;
     }
     const owed = announcementSends(after, a);
     const { recordSends } = await import('../jobs/scheduler');
     const recorded = await recordSends(tx, owed, now, log);
-    claims.push({ announcement: a, off: false, sends: owed.filter((s) => recorded.has(s.key)) });
+    const sends = owed.filter((s) => recorded.has(s.key));
+    // D-264: an announcement is one cohort send whatever cohorts it reaches, so the cohort a copy is filed under is moot.
+    // In a savepoint: a failure there never costs the learners this announcement's email.
+    const observerCopies = await claimObserverCopiesFor(tx, sends, () => null, now, log);
+    claims.push({ announcement: a, off: false, sends, observerCopies });
   }
   return claims;
 }
@@ -72,6 +83,8 @@ export async function sendClaimed(claims: readonly SendNowClaim[], log: Schedule
       }
     }
   }
+  // D-264: the observers' copies, after every learner's, and outside `sent` and `failed`: the toast counts learners.
+  for (const claim of claims) if (claim.observerCopies.length) await sendObserverCopies(claim.observerCopies, log);
   return { outcome: claims.every((c) => c.off) ? 'off' : 'sent', sent, failed };
 }
 

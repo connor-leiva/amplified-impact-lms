@@ -257,11 +257,14 @@ export const NO_ROLLUP: EmailRollupCounts = { sent: 0, delivered: 0, delayed: 0,
 
 const REACHED: ReadonlySet<string> = new Set(['delivered', 'complained']);
 
-/** The rollup's counts from rows in hand (the fixture, and the API's SQL is tested against it). */
-export function rollupOf(rows: readonly { status: string; delivery: string | null; openCount: number; clickCount: number }[]): EmailRollupCounts {
+/**
+ * The rollup's counts from rows in hand (the fixture, and the API's SQL is tested against it). D-264: a cohort
+ * observer's copy is not a learner's email, so it is never counted.
+ */
+export function rollupOf(rows: readonly { status: string; delivery: string | null; openCount: number; clickCount: number; observerCopy?: boolean }[]): EmailRollupCounts {
   const c = { ...NO_ROLLUP };
   for (const r of rows) {
-    if (r.status !== 'sent') continue;
+    if (r.status !== 'sent' || r.observerCopy === true) continue;
     c.sent += 1;
     const reached = r.delivery !== null && REACHED.has(r.delivery);
     if (reached) c.delivered += 1;

@@ -64,6 +64,8 @@
 
 import { subjectFor } from './subjects';
 import type { TemplateName } from './subjects';
+// D-264: a leaf (core's lists and a type), so the transport can refuse an observer copy of a personal email.
+import { observerMayReceive } from './observer-templates';
 // Type-only, and `templates/payload.ts` is a leaf module that imports nothing but `./subjects`, so
 // naming the payload type here adds no runtime edge and does not pull the React Email renderer
 // into the transport. See that file's header for why the types live there and not in this module.
@@ -109,6 +111,12 @@ export interface SendRequest<K extends TemplateName> {
   template: K;
   to: string;
   data: EmailData<K>;
+  /**
+   * D-264: this send is a cohort observer's copy (`observers.ts`), not a learner's email. The email log marks its row
+   * so no learner count includes it, and the outbox entry says so. Refused for a template an observer may never get
+   * (`observer-templates.ts`): a copy of a sign-in or password email is a copy of someone's key.
+   */
+  observer?: boolean;
 }
 
 /** What a React Email template resolves to. */
@@ -146,6 +154,8 @@ export interface OutboxEntry {
   html: string | null;
   /** The plain-text alternative, when the template produced one. */
   text?: string;
+  /** D-264: present, and true, only on a cohort observer's copy. */
+  observerCopy?: true;
 }
 
 export interface SendResult {
@@ -312,6 +322,8 @@ function fail(
 export interface SendRecord {
   result: SendResult;
   providerId: string | null;
+  /** D-264: present, and true, only on a cohort observer's copy. */
+  observerCopy?: true;
 }
 
 /** Called once after every `send()`, with what happened. It must not throw, and it is never awaited. */
@@ -344,7 +356,7 @@ export async function send<K extends TemplateName>(request: SendRequest<K>): Pro
   const result = await deliver(request, sent);
   if (observer) {
     try {
-      observer({ result, providerId: sent.providerId });
+      observer({ result, providerId: sent.providerId, ...(request.observer ? { observerCopy: true as const } : {}) });
     } catch {
       // Decision 1 holds for the log too: nothing about recording a send may undo or fail it.
     }
@@ -354,13 +366,16 @@ export async function send<K extends TemplateName>(request: SendRequest<K>): Pro
 
 /** `send` itself, as it was before the log: `sent.providerId` is set when Resend accepts it. */
 async function deliver<K extends TemplateName>(
-  { template, to, data }: SendRequest<K>,
+  { template, to, data, observer: observerCopy }: SendRequest<K>,
   sent: { providerId: string | null },
 ): Promise<SendResult> {
   const mode = resolveMode();
 
   const badRecipient = invalidRecipient(to);
   if (badRecipient) return fail(mode, template, String(to), '', badRecipient);
+  // D-264: the last line before an inbox for an observer, too. Whatever a caller builds, a copy of a sign-in, password,
+  // invite, nudge or receipt email never leaves here.
+  if (observerCopy && !observerMayReceive(template)) return fail(mode, template, to, '', `${template} is never sent to a cohort observer`);
 
   let subject: string;
   try {
@@ -395,6 +410,7 @@ async function deliver<K extends TemplateName>(
         data: Object.freeze({ ...data } as Record<string, unknown>),
         html,
         ...(text ? { text } : {}),
+        ...(observerCopy ? { observerCopy: true as const } : {}),
       }),
     );
     return { ok: true, mode, template, to, subject };
@@ -404,7 +420,7 @@ async function deliver<K extends TemplateName>(
     // § 8.1: "In development it logs to the console." The body is summarised rather than printed —
     // a 560 px React Email table is thousands of characters and would bury the line that matters.
     console.log(
-      `[email:dev] ${template} → ${to} · ${JSON.stringify(subject)}` +
+      `[email:dev] ${template}${observerCopy ? ' (observer copy)' : ''} → ${to} · ${JSON.stringify(subject)}` +
         (html === null ? ' · no renderer registered' : ` · ${html.length} chars of HTML`),
     );
     return { ok: true, mode, template, to, subject };

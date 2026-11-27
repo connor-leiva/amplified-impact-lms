@@ -779,6 +779,10 @@ export const emailLog = pgTable('email_log', {
   clickedFirstAt: ts('clicked_first_at'),
   clickedLastAt: ts('clicked_last_at'),
   clickedLink: text('clicked_link'),
+  // D-264 (migration 0047): an observer's copy of a cohort-wide email (`email/observers.ts`). Never a learner's
+  // delivery, so neither the Usage screen's "emails sent" nor the Email Log's delivery rollup counts it. False on every
+  // row written before it.
+  observerCopy: boolean('observer_copy').notNull().default(false),
 }, (t) => [
   index('email_log_at_idx').on(t.at),
   index('email_log_user_idx').on(t.userId),
@@ -904,3 +908,34 @@ export const consoleFlags = pgTable('console_flags', {
 }, (t) => [
   check('console_flags_key', sql`${t.key} in ('masquerade_enabled', 'cohort_welcome_email', 'week0_open_email')`),
 ]);
+
+// ================================================================================================
+// D-264: cohort observer emails (migration 0047)
+// ================================================================================================
+// `console_settings`: the Console's saved settings that are not on/off flags, one row per key in a closed list the
+// CHECK repeats. One key today, `cohort_observer_emails`, whose `value` is `{ addresses: string[] }`. No row reads as
+// "not saved here", so `COHORT_OBSERVER_EMAILS` applies; a saved empty list turns the copies off. Every save is one
+// audit row (`email_observers.save`). `updated_at` is `clock.now()`, epoch ms. Not part of a `Db`, never in a snapshot.
+export const consoleSettings = pgTable('console_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').notNull(),
+  updatedAt: ts('updated_at'),
+  updatedBy: text('updated_by'),
+}, (t) => [
+  check('console_settings_key', sql`${t.key} in ('cohort_observer_emails')`),
+]);
+
+// `observer_copies`: the observer copies' ledger, `job_runs`' twin for observers and kept apart from it so the
+// learners' ledger (and anything that counts it) never holds an observer. One row per (kind, unit, address): `kind`
+// the job or email (`session-24h`, `build-48h`, `week0-open`, `cohort-welcome`, ...), `unit` the cohort send it copies
+// (a session in its cohort, a week's digest in a cohort, an announcement, a cohort's Week 0 email or welcome). Claimed
+// with `on conflict do nothing` before the send, as `job_runs` is, so a second tick or replica sends nothing new.
+// `sent_at` is epoch ms. Not a `Db` record, never in a snapshot.
+export const observerCopies = pgTable('observer_copies', {
+  kind: text('kind').notNull(),
+  unit: text('unit').notNull(),
+  address: text('address').notNull(),
+  cohortId: text('cohort_id'),
+  template: text('template').notNull(),
+  sentAt: ts('sent_at').notNull(),
+}, (t) => [primaryKey({ columns: [t.kind, t.unit, t.address] })]);

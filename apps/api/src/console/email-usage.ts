@@ -166,14 +166,17 @@ const toEmailRow = (r: EmailRaw): EmailLogRow => ({
   clickedFirstAt: num0(r.clickedFirstAt),
   clickedLastAt: num0(r.clickedLastAt),
   clickedLink: r.clickedLink,
+  // D-264: marked only on a cohort observer's copy, so a learner's row reads exactly as it did.
+  ...(r.observerCopy ? { observerCopy: true as const } : {}),
 });
 
 /**
  * The rollup's counts over every row the filters pick (D-263), as `rollupOf` counts rows in hand: sends
- * Resend took, deliveries with complaints among them, and opens and clicks only on delivered rows.
+ * Resend took, deliveries with complaints among them, and opens and clicks only on delivered rows. D-264: a cohort
+ * observer's copy is never counted (every count below starts from `sent`), so the rollup stays the learners'.
  */
 export async function readEmailRollup(db: Database, f: EmailLogFilters): Promise<EmailRollupCounts> {
-  const sent = sql`${emailLog.status} = 'sent'`;
+  const sent = sql`${emailLog.status} = 'sent' and ${emailLog.observerCopy} = false`;
   const reached = sql`${sent} and ${emailLog.deliveryStatus} in ('delivered', 'complained')`;
   const [r] = await db
     .select({
@@ -286,7 +289,8 @@ export async function usageReport(db: Database, q: UsageQuery, now: number, read
     db.execute(sql`select day, sum(count)::int as n from usage_daily where ${where} and kind = 'sign_in' group by day`) as unknown as Promise<{ day: string; n: number }[]>,
     db.execute(sql`select team_id, sum(count)::int as n from usage_daily where ${inRange} and kind = 'sign_in' and team_id is not null group by team_id`) as unknown as Promise<{ team_id: string; n: number }[]>,
     db.execute(sql`select min(day) as day from usage_daily`) as unknown as Promise<{ day: string | null }[]>,
-    db.execute(sql`select count(*)::int as n from email_log where status = 'sent' and at >= ${start} and at < ${end}${userScope ? sql` and ${userScope}` : sql``}`) as unknown as Promise<{ n: number }[]>,
+    // D-264: a cohort observer's copy is not a learner's email, so it is never counted here.
+    db.execute(sql`select count(*)::int as n from email_log where status = 'sent' and observer_copy = false and at >= ${start} and at < ${end}${userScope ? sql` and ${userScope}` : sql``}`) as unknown as Promise<{ n: number }[]>,
     q.teamId === undefined && q.planKind === undefined ? storageSize(readStorage, now) : Promise.resolve(null),
   ]);
 
