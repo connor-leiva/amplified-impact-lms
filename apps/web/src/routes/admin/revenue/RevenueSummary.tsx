@@ -176,7 +176,7 @@ function Summary({ vm, phone }: { vm: RevenueVM; phone: boolean }) {
           {vm.cards.map((cd) => (
             <Card key={cd.cohortId} title={cd.title} sub={cd.sub} right={<ButtonLink to={cd.people}>{C.card.people}</ButtonLink>}>
               <div className={clsx(k.col, k.colM)}>
-                <Link to={cd.enrollment} className={c.rdy}>
+                <Link to={cd.enrollment} className={clsx(c.rdy, r.seatsTap)}>
                   <span className={clsx(c.rdyLabel, c.seats)}>{C.card.sold}</span>
                   <Bar pct={cd.seats.pct} kind={cd.seats.bar} />
                   <span className={clsx(k.tn, k.w5, c.rdn)} data-number="">

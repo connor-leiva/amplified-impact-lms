@@ -340,6 +340,8 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .nyr.now{background:linear-gradient(90deg,var(--tint),transparent 60%)}.ph .nyr{padding:12px 16px}
 .mt.bad{background:var(--badb);color:var(--bad)}.mt.warn{background:var(--warnb);color:var(--warn)}
 .rdy{padding:6px 8px;margin:-2px -8px;width:calc(100% + 16px);border-radius:8px;gap:10px}.rdy:hover{background:var(--sub)}
+/* D-269: a cohort card's Seats sold row opens Enrollment, so on a phone it is a 44px target, as the mockup's own .ph .lk */
+.ph .rvs{min-height:44px}
 .rdn{flex:none;white-space:nowrap;text-align:right;min-width:44px}
 /* D-268 (R-5 Phase 7): People's audiences, chips to filter by and a square beside each way in (the mockup's third pass) */
 .chs{display:flex;flex-wrap:wrap;gap:6px}
@@ -1487,7 +1489,7 @@ function Revenue() {
       </Card>
       <div className="col">
         <Card t="AI Accelerator" sub={P3_COH.dec26.n} right={<Btn onClick={() => { P3C = P3_COH.dec26; go('learners'); }}>People</Btn>}><div className="col m">
-          <button className="rdy" onClick={() => { P3C = P3_COH.dec26; go('cohortset'); }}><span style={{ flex: '0 0 96px' }}>Seats sold</span><Bar v={7} max={P3_COH.dec26.cap} fx /><span className="tn w5 rdn">7 of {P3_COH.dec26.cap}</span></button>
+          <button className="rdy rvs" onClick={() => { P3C = P3_COH.dec26; go('cohortset'); }}><span style={{ flex: '0 0 96px' }}>Seats sold</span><Bar v={7} max={P3_COH.dec26.cap} fx /><span className="tn w5 rdn">7 of {P3_COH.dec26.cap}</span></button>
           <div className="kvs"><KV rows={[['Paid in full', '5 teams · $37,500'], ['On two payments', '2 teams · $7,500 in, $7,500 to come'], ['Refunds', 'None']]} /></div></div></Card>
         <Card t="Refunds" sub="Last 30 days" right={<Btn onClick={() => go('payments', null, 'refunds')}>Open</Btn>}><span className="fig">$0</span><p className="me">None</p></Card>
       </div>

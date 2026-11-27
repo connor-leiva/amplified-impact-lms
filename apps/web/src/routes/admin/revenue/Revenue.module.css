@@ -71,4 +71,9 @@
     gap: 6px;
     height: 180px;
   }
+  /* A cohort card's Seats sold row opens Enrollment: on a phone a 44px target, as every other control there (the
+     reference's `.ph .rvs`, its own `.ph .lk`). */
+  .seatsTap {
+    min-height: 44px;
+  }
 }
