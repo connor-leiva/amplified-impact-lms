@@ -6,7 +6,6 @@ import { Button } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
 import { Confirm } from '../../../components/r2/Modal';
 import { KV, Pill, k } from '../../../components/r2/kit';
-import { useToaster } from '../../../components/primitives/Toaster';
 import { Status } from '../../../components/r2/Status';
 import { cohortLabel } from '../../../data/admin-shell';
 import { useAct, useDb } from '../../../data/hooks';
@@ -39,7 +38,6 @@ export function Component() {
   const [busy, setBusy] = useState(false);
   const [refused, setRefused] = useState<string | null>(null);
   const act = useAct();
-  const { toast } = useToaster();
   // An address that names a card (`#dates`, `#enrollment`, `#words`) scrolls it into view, as a "Before it opens" line does.
   useEffect(() => {
     if (!hash) return;
@@ -51,11 +49,9 @@ export function Component() {
     setBusy(true);
     try {
       const out = await act(name, { cohortId });
+      // `useAct` shows the action's toast.
       if (out.error) setRefused(out.error);
-      else {
-        setOpen(null);
-        if (out.toast) toast(out.toast.msg);
-      }
+      else setOpen(null);
     } finally {
       setBusy(false);
     }
