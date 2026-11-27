@@ -338,6 +338,9 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
   // requests per check, which helped spend § 9.4's per-minute budget.
   const meId = me?.id ?? null;
   const meRole = me?.role ?? null;
+  // R-5 Phase 4 (D-261): the week's module in the learner's own cohort (its week row's, `weekRows`).
+  const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
+  const weekModule = week === null ? null : (rows.find((r) => r.week === week)?.moduleId ?? acceleratorModuleId(week));
   useEffect(() => {
     if (isFixture || staff || preview || week === null || !meId || !meRole || !mayEditIntake(meRole)) return;
     let stop = false;
@@ -357,7 +360,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
         const body = (await res.json()) as { name?: string | null; steps?: { moduleId: string; stepId: string; done: number; total: number }[] };
         if (stop || !body.name) return;
         const byStep: Record<string, { done: number; total: number }> = {};
-        const moduleId = acceleratorModuleId(week);
+        const moduleId = weekModule;
         for (const row of body.steps ?? []) {
           if (row.moduleId !== moduleId) continue;
           byStep[row.stepId] = { done: row.done, total: row.total };
@@ -372,8 +375,7 @@ export function StepPage({ week, step, preview = false }: { week: number | null;
     return () => {
       stop = true;
     };
-  }, [staff, preview, week, meId, meRole]);
-  const rows = useMemo(() => (course.kind === 'ready' ? weekRows(course.payload, db, me) : []), [course, db, me]);
+  }, [staff, preview, week, weekModule, meId, meRole]);
   if (course.kind !== 'ready') return preview ? null : <Navigate to={learnHome()} replace />;
   const row = rows.find((r) => r.week === week);
   const vm = stepVM(course.payload, row, step, viewer.actor, now, {

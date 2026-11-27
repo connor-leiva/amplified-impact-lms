@@ -48,7 +48,7 @@
 // blocks the contact and its tags, which are written first. They live at the end of this file.
 
 import { createHash } from 'node:crypto';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import { WELCOME_SENT_TAG } from '@ai/core';
 import { PLAN_NAMES } from '@ai/core/offer';
 import { GUIDE_SLUGS } from '../routes/guide-list';
@@ -582,11 +582,15 @@ export function chicagoDate(ms: number): string {
 /** Each plan's display name (`PLAN_NAMES`), keyed by any string so an unknown plan reads as undefined. */
 export const PLAN_NAMES_FOR_GHL: Readonly<Record<string, string>> = PLAN_NAMES;
 
-/** An order's field values: its plan's name, the cohort for the Accelerator, the amount and the day it was paid. */
-export function orderFieldValues(o: { plan: string; amountTotal: number | null; paidAt: number | null }): FieldValues {
+/**
+ * An order's field values: its plan's name, the cohort for the Accelerator, the amount and the day it was paid. R-5
+ * Phase 4 (D-261, PLAN.md § 10.4, Q-33): the cohort is the plan's, as `ghlCohortValue` writes it ("dec26" for
+ * December, the value it has always sent; "jan27" for January). Absent, December's, as before.
+ */
+export function orderFieldValues(o: { plan: string; amountTotal: number | null; paidAt: number | null; cohort?: string }): FieldValues {
   const out: FieldValues = {};
   if (Object.hasOwn(PLAN_NAMES_FOR_GHL, o.plan)) out.offer = PLAN_NAMES_FOR_GHL[o.plan]!;
-  if (o.plan === 'cohort') out.cohort = ACCELERATOR_COHORT_ID;
+  if (o.plan === 'cohort') out.cohort = o.cohort ?? DEFAULT_COHORT_ID;
   if (typeof o.amountTotal === 'number' && o.amountTotal > 0) out.amount = Math.round(o.amountTotal) / 100;
   if (typeof o.paidAt === 'number') out.purchaseDate = chicagoDate(o.paidAt);
   return out;

@@ -347,13 +347,15 @@ describe('the Settings writes', () => {
 describe('Preview: the staff preview of a cohort’s course', () => {
   it('January reads December’s course with its own words in their places; December reads its own', () => {
     const { db, id } = withJanuary();
-    expect(courseFor(db, MT('2027-01-05T12:00:00'), 'staff', id)).toBeNull();
     const words = saveCohortWords(db, OWNER, { cohortId: id, name: 'January 2027 Cohort', promise: 'Six weeks.', how: ['Sundays.'], holiday: '' }, mkCtx()).db;
     const course = courseFor(previewDb(words, id), MT('2027-01-05T12:00:00'), 'staff', id)!;
     expect(course.intro.sub).toBe('Six weeks.');
     expect(course.intro.how).toEqual(['Sundays.']);
     expect(course.weeks.map((w) => w.week)).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(previewDb(db, DEFAULT_COHORT_ID)).toBe(db);
+    // R-5 Phase 4 (D-261): January's learners read the very course the preview shows (`cohortCourseCopy` reads its
+    // saved words), so the course is no longer missing for a cohort without a course row of its own.
+    expect(courseFor(words, MT('2027-01-05T12:00:00'), 'staff', id)).toEqual(course);
   });
 });
 

@@ -26,6 +26,8 @@
 
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { WEEK0_OPEN_FLAG, WEEK0_OPEN_TEMPLATE, enrolledAtSwitch, firstNameOf, otherEmailReached, week0DueAt, week0OpenDecision, welcomeSchedule } from '@ai/core';
+import type { WelcomeWeek } from '@ai/core';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
 import { cohortEnrollments, cohorts, consoleFlags, emailLog, sessions, users } from '../db/schema';
@@ -34,6 +36,17 @@ import { send } from '../email/transport';
 import type { BillingLog } from '../billing/provision';
 import { week0RosterOf } from '../lib/course-access';
 import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from './enrollments';
+
+type CohortRow = typeof cohorts.$inferSelect;
+
+/**
+ * R-5 Phase 4 (D-261, PLAN.md § 10.4): the cohort the email names, by its stored name (the subject without its year,
+ * "January Cohort"; the body with it). December's sends nothing new, so its data, its subject (Connor's approved line)
+ * and its body stay byte-identical; a cohort the row no longer finds is named as December's always was.
+ */
+export function week0Subject(cohort: Pick<CohortRow, 'id' | 'name'> | undefined): { cohortName?: string } {
+  return cohort && cohort.id !== DEFAULT_COHORT_ID ? { cohortName: cohort.name } : {};
+}
 
 /** A claim still open after this is treated as lost, and not sent again. */
 const CLAIM_LEASE_MS = 15 * 60_000;
@@ -116,19 +129,24 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
   const cohortIds = [...new Set(pending.map((r) => r.cohort_id))];
   const cohortRows = await db.select().from(cohorts).where(inArray(cohorts.id, cohortIds));
   const sessionRows = await db.select().from(sessions).where(inArray(sessions.cohortId, cohortIds));
-  const weeks = await readWeeks(db);
-  const dueAt = week0DueAt(weeks);
+  // R-5 Phase 4 (D-261, PLAN.md 2.10): each cohort's own weeks, through its run, so its Week 0 due date is its own.
+  const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
+  const cohortWeeks = (cohortId: string): Promise<WelcomeWeek[]> => {
+    let w = weeksByCohort.get(cohortId);
+    if (!w) weeksByCohort.set(cohortId, (w = readWeeks(db, cohortId)));
+    return w;
+  };
 
   for (const row of pending) {
     // THE RULE, first: an enrollment made after the switch-on time is the welcome's, never this email's.
     if (!enrolledAtSwitch(num(row.enrolled_at), enabledAt)) {
-      await markSkipped(db, row, now, 'enrolled_after_switch');
+      await markSkipped(db, row, now, 'enrolled_after_switch', cohortRows.find((c) => c.id === row.cohort_id));
       run.skipped += 1;
       continue;
     }
     // Never both: the cohort welcome already reached this owner.
     if (otherEmailReached(row.welcome_status, row.welcome_error)) {
-      await markSkipped(db, row, now, 'welcome_sent');
+      await markSkipped(db, row, now, 'welcome_sent', cohortRows.find((c) => c.id === row.cohort_id));
       run.skipped += 1;
       continue;
     }
@@ -147,6 +165,8 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
       run.waiting += 1;
       continue;
     }
+    const weeks = await cohortWeeks(cohort.id);
+    const dueAt = week0DueAt(weeks);
     const built = welcomeSchedule(
       { name: cohort.name, start: cohort.start, previewOpensAt: cohort.previewOpensAt, welcomeSendsAt: cohort.welcomeSendsAt, defaultOpenTime: cohort.defaultOpenTime },
       weeks,
@@ -172,7 +192,7 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
     const result = await send({
       template: 'week0-open',
       to: row.email,
-      data: { firstName: firstNameOf(row.name), week0DueAt: dueAt, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins },
+      data: { firstName: firstNameOf(row.name), week0DueAt: dueAt, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins, ...week0Subject(cohort) },
     });
     const where = and(eq(cohortEnrollments.userId, row.user_id), eq(cohortEnrollments.cohortId, row.cohort_id));
     if (result.ok) {
@@ -190,7 +210,7 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
 }
 
 /** Mark a row skipped, once, and write its `email_log` line. A send's line is the email observer's. */
-async function markSkipped(db: Database, row: PendingRow, now: number, reason: SkipReason): Promise<void> {
+async function markSkipped(db: Database, row: PendingRow, now: number, reason: SkipReason, cohort: Pick<CohortRow, 'id' | 'name'> | undefined): Promise<void> {
   const marked = await db
     .update(cohortEnrollments)
     .set({ week0Status: 'skipped', week0Error: reason })
@@ -202,7 +222,7 @@ async function markSkipped(db: Database, row: PendingRow, now: number, reason: S
     to: row.email,
     userId: row.user_id,
     template: WEEK0_OPEN_TEMPLATE,
-    subject: SUBJECTS['week0-open']({}).slice(0, 200),
+    subject: SUBJECTS['week0-open'](week0Subject(cohort)).slice(0, 200),
     provider: 'log',
     providerId: null,
     status: 'skipped',

@@ -156,6 +156,15 @@ describe('email subjects @g8', () => {
     expect(SUBJECTS['week0-open']({})).not.toContain('December 2026');
   });
 
+  // R-5 Phase 4 (D-261, PLAN.md § 10.4): another cohort's subject uses its name without its year.
+  it('names January’s Week 0 Is Open email by January’s name without its year', () => {
+    expect(SUBJECTS['week0-open']({ cohortName: 'January 2027 Cohort' })).toBe('🎉 Welcome to the January Cohort: Week 0 Is Open');
+    expect(SUBJECTS['week0-open']({ cohortName: 'Amplified AI Accelerator · January 2027' })).toBe('🎉 Welcome to the January Cohort: Week 0 Is Open');
+    // December's own name gives December's line, word for word.
+    expect(SUBJECTS['week0-open']({ cohortName: 'Amplified AI Accelerator · December 2026' })).toBe(SUBJECTS['week0-open']({}));
+    expect(SUBJECTS['week0-open']({ cohortName: 'January 2027 Cohort' })).not.toMatch(/[–—]|2027/);
+  });
+
   it('names D-247’s two learner emails: the invite as the set-password email, the nudge plainly', () => {
     expect(SUBJECTS['learner-invite']({})).toBe('Set your Amplified Impact password');
     expect(SUBJECTS['learner-nudge']({})).toBe('Pick up where you left off');

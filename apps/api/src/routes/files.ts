@@ -153,8 +153,8 @@
 // hand it to the next viewer on a shared machine. `app.ts`'s `scrubUrl` is the other half of the
 // same rule, for the log.
 
-import { can, canAccess, kitVisible, visibleModules, weekOpenFor } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { can, canAccess, cohortView, kitVisible, visibleModules, weekOpenFor } from '@ai/core';
+import { isCourseWeek } from '@ai/core/accelerator';
 import type { AIEmployee, Db, Learner, Resource } from '@ai/core';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -163,7 +163,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { resources as resourceTable } from '../db/schema';
 import { clock } from '../lib/clock';
-import { courseEntryFor } from '../lib/course-access';
+import { courseEntryFor, viewerCohortId } from '../lib/course-access';
 import {
   ObjectMissingError,
   RangeNotSatisfiableError,
@@ -473,11 +473,13 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       }
       // D-175: a kit item (a vault row attached to a course week) follows its week, by its visibility,
       // exactly as the learner's snapshot does: one they can't see yet is a 404, as a hidden row is.
-      if (me && resource.module && isAcceleratorModule(resource.module)) {
+      // R-5 Phase 4 (D-261): the week as the viewer's cohort has it (its opening there). A week their cohort doesn't
+      // take never opens for them, so its kit is theirs only as the vault's own (`published`), as their snapshot says.
+      if (me && resource.module && isCourseWeek(resource.module)) {
         const now = clock.now();
         const entry = await courseEntryFor(getDb(), me.id, now);
-        const week = db.modules.find((m) => m.id === resource.module);
-        if (!kitVisible(resource, !!week && weekOpenFor(week, now, entry), entry.preview))
+        const week = cohortView(db, await viewerCohortId(getDb(), me.id)).modules.find((m) => m.id === resource.module);
+        if (!(week ? kitVisible(resource, weekOpenFor(week, now, entry), entry.preview) : kitVisible(resource, false, false)))
           return reply.code(404).send({ error: NOT_FOUND });
       }
       if (me && !accessFor(me, resource)) return reply.code(403).send({ error: TIER_REFUSED });
@@ -526,11 +528,14 @@ export function registerFilesRoutes(app: FastifyInstance): void {
       const me = learnerFor(db, req);
       if (!me) return reply.code(403).send({ error: LEARNERS_ONLY });
 
-      const employee = visibleModules(db).find((m) => m.id === moduleId);
+      // R-5 Phase 4 (D-261): a course week as the viewer's cohort has it; a week their cohort doesn't take is a 404, as
+      // their snapshot doesn't carry it.
+      const mine = isCourseWeek(moduleId) ? cohortView(db, await viewerCohortId(getDb(), me.id)) : db;
+      const employee = visibleModules(mine).find((m) => m.id === moduleId);
       if (!employee) return reply.code(404).send({ error: NOT_FOUND });
       // D-175: a course week's files open with the week, for a learner who may enter the course (the
       // snapshot carries a locked week with no files at all). Every other AI Employee is as before.
-      const week = isAcceleratorModule(employee.id);
+      const week = isCourseWeek(employee.id);
       if (week && !weekOpenFor(employee, clock.now(), await courseEntryFor(getDb(), me.id, clock.now()))) {
         return reply.code(404).send({ error: NOT_FOUND });
       }
@@ -582,14 +587,15 @@ export function registerFilesRoutes(app: FastifyInstance): void {
         const now = clock.now();
         const entry = await courseEntryFor(getDb(), actor.userId, now);
         if (entry.open) {
-          for (const w of courseFor(db, now, entry)?.weeks ?? []) {
+          // R-5 Phase 4 (D-261): the viewer's own cohort's course, as `GET /api/course` hands it to them.
+          for (const w of courseFor(db, now, entry, await viewerCohortId(getDb(), actor.userId))?.weeks ?? []) {
             if ('locked' in w) continue;
             found = uploadInWeek({ media: w.media, checklist: w.module.checklist }, key);
             if (found) break;
           }
         }
       } else {
-        for (const m of db.modules.filter((x) => isWeekModule(x) && isAcceleratorModule(x.id))) {
+        for (const m of db.modules.filter((x) => isWeekModule(x) && isCourseWeek(x.id))) {
           found = uploadInWeek({ media: m.course?.media ?? [], checklist: m.checklist }, key);
           if (found) break;
         }

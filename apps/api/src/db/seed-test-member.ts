@@ -12,6 +12,14 @@
 // `users.is_test` keeps it out of the seat, enrollment and revenue counts. `users.early_access` opens
 // the course before its dates. An address that already has a user keeps its password.
 //
+// R-5 Phase 4 (D-261): `SEED_TEST_MEMBER_COHORT=<cohort id>` places that Accelerator test team in another
+// cohort by hand (PLAN.md, Phase 4's test team): its plan's `cohort_id` and its owner's `users.cohort_id` are
+// that cohort's, which is how the learner side finds a viewer's cohort. Unset, or December's id, it is
+// December, as before. It names a cohort the database already holds (made in Cohort › New cohort), only with
+// the Accelerator kind, and only for an address with no user yet or one already in that cohort: an address
+// in another cohort is left as it is (skipped, nothing written), so no existing row is moved. The test team
+// never counts as a seat (`is_test`), and nothing is sent to it or to GoHighLevel, as before.
+//
 // THE ACCOUNT IS THE ONE A VERIFIED ACCESS-GROUP ADDRESS GETS. `createGroupMember` is the insert
 // `provisionGroupMember` runs (a learner, Agent tier, owner of a team of one, not staff). `recordVerified`
 // is what spending a link writes, which is what lets the group's domain grant Utah Life on the next
@@ -35,7 +43,7 @@ import { clock, randomIds } from '../lib/clock';
 import { finishPasswordSet } from '../routes/password';
 import type { Database } from './client';
 import { loadDb, persistDiff } from './io';
-import { accounts, emailVerifications, orders, plans, users } from './schema';
+import { accounts, cohorts, emailVerifications, orders, plans, users } from './schema';
 
 /** The audit row's actor. `actor_source` can only be `system`; this names the step. */
 export const SEED_TEST_MEMBER_ACTOR = 'system:seed-test-member';
@@ -46,7 +54,7 @@ export type SeedTestMemberOutcome =
   | { status: 'created'; kind?: 'accelerator' }
   | { status: 'ensured' }
   | { status: 'unchanged' }
-  | { status: 'skipped'; reason: 'exists' | 'email' | 'password' | 'kind' | 'refused' | 'error'; detail?: string };
+  | { status: 'skipped'; reason: 'exists' | 'email' | 'password' | 'kind' | 'cohort' | 'refused' | 'error'; detail?: string };
 
 export type SeedTestMemberKind = 'utah' | 'accelerator';
 
@@ -55,6 +63,8 @@ export interface SeedTestMemberInput {
   password: string;
   name: string;
   kind: SeedTestMemberKind | 'invalid';
+  /** R-5 Phase 4 (D-261): the cohort an Accelerator test team is placed in (`SEED_TEST_MEMBER_COHORT`); absent, December. */
+  cohortId?: string;
 }
 
 const NAME_MAX = 200;
@@ -70,7 +80,14 @@ export function readSeedTestMember(env: NodeJS.ProcessEnv = process.env): SeedTe
   const name = env.SEED_TEST_MEMBER_NAME;
   const kindRaw = (env.SEED_TEST_MEMBER_KIND ?? '').trim().toLowerCase();
   const kind = kindRaw === '' ? 'utah' : kindRaw === 'accelerator' ? 'accelerator' : 'invalid';
-  return { email: email.trim(), password, name: name === undefined || name.trim() === '' ? 'Connor Test' : name.trim().slice(0, NAME_MAX), kind };
+  const cohortId = (env.SEED_TEST_MEMBER_COHORT ?? '').trim();
+  return {
+    email: email.trim(),
+    password,
+    name: name === undefined || name.trim() === '' ? 'Connor Test' : name.trim().slice(0, NAME_MAX),
+    kind,
+    ...(cohortId !== '' && cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {}),
+  };
 }
 
 /** The deploy log's one line, or null when the variables were unset. Never the address or the password. */
@@ -85,6 +102,7 @@ export function seedTestMemberLine(out: SeedTestMemberOutcome): string | null {
     email: 'The email is not usable.',
     password: 'The password does not meet the sign-in rules.',
     kind: 'The kind is not one this step knows.',
+    cohort: 'The cohort is not one this test account can be placed in.',
     refused: 'That address cannot be a learner.',
     error: `An error stopped it (${out.detail ?? 'unknown'}).`,
   }[out.reason];
@@ -115,12 +133,12 @@ async function ensureVerified(tx: Database, email: string, now: number): Promise
  * account's invite is marked sent so the held-invite loop does not mail it. Returns whether this
  * call wrote the plan.
  */
-async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string, name: string, now: number): Promise<boolean> {
+async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string, name: string, now: number, cohortId: string): Promise<boolean> {
   let teamId = user.teamId;
   let userId = user.id;
   if (!teamId) {
     const before = await loadDb(tx);
-    const owner = provisionOwner(before, { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: DEFAULT_COHORT_ID }, { now, id: randomIds() });
+    const owner = provisionOwner(before, { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId }, { now, id: randomIds() });
     if (!owner.ok) return false;
     if (owner.db !== before) await persistDiff(tx, before, owner.db);
     teamId = owner.teamId;
@@ -171,7 +189,8 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
     kind: 'cohort',
     option: 'full',
     seats: ACCELERATOR.seats,
-    cohortId: dates.cohortId,
+    // R-5 Phase 4 (D-261): the cohort it is placed in; December's (`dates.cohortId`) when none is named.
+    cohortId: cohortId === DEFAULT_COHORT_ID ? dates.cohortId : cohortId,
     status: 'active',
     startsAt: dates.startsAt,
     paidThrough: dates.paidThrough,
@@ -188,17 +207,24 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
  * count as a seat, with early access. An address that already has a user keeps its password and
  * gains only the flag and the enrollment it does not already have.
  */
-async function seedAccelerator(tx: Database, email: string, name: string, password: string): Promise<SeedTestMemberOutcome> {
+async function seedAccelerator(tx: Database, email: string, name: string, password: string, cohortId: string = DEFAULT_COHORT_ID): Promise<SeedTestMemberOutcome> {
   const at = clock.now();
   const existing = await userByEmail(tx, email);
   if (existing?.kind === 'staff') return { status: 'skipped', reason: 'refused' };
+  // R-5 Phase 4 (D-261): another cohort is one the database holds, and an address already in a different cohort
+  // stays where it is: nothing is moved.
+  if (cohortId !== DEFAULT_COHORT_ID) {
+    const [cohort] = await tx.select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
+    if (!cohort) return { status: 'skipped', reason: 'cohort' };
+    if (existing && existing.cohortId !== cohortId) return { status: 'skipped', reason: 'cohort' };
+  }
   let user = existing;
   let created = false;
   if (!user) {
     const before = await loadDb(tx);
     const owner = provisionOwner(
       before,
-      { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId: DEFAULT_COHORT_ID },
+      { email, name, teamName: name, seats: ACCELERATOR.seats, tier: 'team', cohortId },
       { now: at, id: randomIds() },
     );
     if (!owner.ok) return { status: 'skipped', reason: 'refused' };
@@ -210,7 +236,7 @@ async function seedAccelerator(tx: Database, email: string, name: string, passwo
   }
   const flagged = await flagTestLearner(tx, user.id);
   const verified = await ensureVerified(tx, email, at);
-  const enrolled = await ensureAcceleratorPlan(tx, user, email, name, at);
+  const enrolled = await ensureAcceleratorPlan(tx, user, email, name, at, cohortId);
   if (!created && !flagged && !verified && !enrolled) return { status: 'unchanged' };
   await audit(
     null,
@@ -219,7 +245,7 @@ async function seedAccelerator(tx: Database, email: string, name: string, passwo
       outcome: 'ok',
       actor: { source: 'system', role: SEED_TEST_MEMBER_ACTOR },
       target: { type: 'user', id: user.id },
-      after: { email, kind: 'accelerator' },
+      after: { email, kind: 'accelerator', ...(cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {}) },
     },
     tx,
   );
@@ -240,11 +266,13 @@ export async function seedTestMember(db: Database, env: NodeJS.ProcessEnv = proc
   if (!emailDomainOf(email)) return { status: 'skipped', reason: 'email' };
   if (passwordProblem(input.password)) return { status: 'skipped', reason: 'password' };
   if (input.kind === 'invalid') return { status: 'skipped', reason: 'kind' };
+  // R-5 Phase 4 (D-261): only an Accelerator test team is in a cohort; a Utah Life agent is in none.
+  if (input.cohortId !== undefined && input.kind !== 'accelerator') return { status: 'skipped', reason: 'cohort' };
   try {
     return await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(42)`);
       // Under the lock every mutation takes, so a second deploy waits and then finds the user.
-      if (input.kind === 'accelerator') return seedAccelerator(tx as unknown as Database, email, input.name, input.password);
+      if (input.kind === 'accelerator') return seedAccelerator(tx as unknown as Database, email, input.name, input.password, input.cohortId);
       if (await userByEmail(tx, email)) return { status: 'skipped', reason: 'exists' } as const;
       const at = clock.now();
       const id = await createGroupMember(tx, email, at, input.name);

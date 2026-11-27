@@ -13,6 +13,7 @@
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
 import { isCourseWeek } from './accelerator';
+import { announcementInCohort } from './cohort-learner';
 import { cohortView } from './cohort-run';
 import { canOpenModule, kitVisible } from './release';
 import { can } from './can';
@@ -302,6 +303,10 @@ function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
     .map((m) => (canOpenModule(me, m, access?.accelerator) ? m : redactModule(m)))
     .map(moduleForLearner);
   let resources = db.resources.filter((r) => r.status === 'published').map(redactResource);
+  // R-5 Phase 4 (D-261): a kit item of a course week this learner's cohort doesn't take is theirs only as the vault's
+  // own (`published`), as a week that never opens for them. A cohort with no stored run takes every week: no change.
+  const taken = new Set(db.modules.map((m) => m.id));
+  resources = resources.filter((r) => !r.module || !isCourseWeek(r.module) || taken.has(r.module) || kitVisible(r, false, false));
   // The AI Accelerator, only for a plan that opens it (D-110). Dropped, not redacted: a redacted
   // module keeps its notes and checklist, which here are the course itself. A vault item attached to
   // one of its weeks goes with it unless it is published to everyone (D-175).
@@ -330,7 +335,8 @@ function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
       .map((u) => (u.id === me.id ? u : redactTeammate(u, showEmail))),
     teams: db.teams.filter((t) => teamId !== null && t.id === teamId),
     resources,
-    announcements: db.announcements.filter((a) => forAudience(a, me)),
+    // R-5 Phase 4 (D-261): an announcement about a session is that session's cohort's (`announcementInCohort`).
+    announcements: db.announcements.filter((a) => forAudience(a, me) && announcementInCohort(a, db.sessions, me.cohortId)),
     dismissed: Object.fromEntries(Object.entries(db.dismissed ?? {}).filter(([k]) => k.startsWith(mine))),
     reminders: db.reminders,
     tiers: db.tiers,

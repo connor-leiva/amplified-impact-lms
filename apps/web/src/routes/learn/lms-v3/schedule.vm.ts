@@ -4,7 +4,7 @@
 // session line's state (B-37) and the hero's modes (B-07).
 import { fmt } from '@ai/core';
 import type { Learner } from '@ai/core';
-import { duration, progressOn, sessionPhase } from '@ai/core/learner';
+import { duration, progressOnModule, sessionPhase } from '@ai/core/learner';
 import type { CourseSession } from '../../course/Course.vm';
 import { LABELS, dateTile } from '../learn.vm';
 import type { WeekRow } from '../learn.vm';
@@ -116,7 +116,7 @@ function weekRow(
       }))
     : it.lines.map((l) => ({ icon: l.key === 'due' ? 'clock' : 'users', title: l.text }));
   const locked = r?.state === 'locked';
-  const deployed = !!r && !locked && !!progressOn(me, r.week)?.deployedAt;
+  const deployed = !!r && !locked && !!progressOnModule(me, r.moduleId)?.deployedAt;
   const done = r && !locked ? r.done : 0;
   return {
     week: it.week,

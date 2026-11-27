@@ -14,8 +14,8 @@
 import { fmt } from '@ai/core';
 import type { Cohort, IconName, IcsEvent, SessionType } from '@ai/core';
 import { countWord, currentWeek, duration, joinableSession, liveSessionAt, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
+import { scheduleIcsPath } from '@ai/core/cohort-learner';
 import {
-  SCHEDULE_ICS_PATH,
   buildBreaks,
   civilDate,
   civilMonthName,
@@ -521,7 +521,7 @@ function calendarView(
 export function scheduleVM(
   p: CoursePayload,
   rows: readonly WeekRow[],
-  cohort: Pick<Cohort, 'cadence'> | undefined,
+  cohort: (Pick<Cohort, 'cadence'> & Partial<Pick<Cohort, 'id'>>) | undefined,
   view: ScheduleView,
   now: number,
 ): ScheduleVM {
@@ -540,7 +540,8 @@ export function scheduleVM(
         { key: 'calendar', label: SCHEDULE.calendar, href: learnSchedule('calendar'), on: view === 'calendar' },
       ],
     },
-    addAll: p.sessions.length ? { label: LABELS.addAll, href: SCHEDULE_ICS_PATH } : null,
+    // R-5 Phase 4 (D-261): the viewer's own cohort's file (`scheduleIcsPath`): December's is the welcome page's, as before.
+    addAll: p.sessions.length ? { label: LABELS.addAll, href: scheduleIcsPath(cohort?.id ?? null) } : null,
     hero: hero(p, rows, now),
     weeks: weeksView(p, rows, breaks, note, nowWeek, now),
     calendar: calendarView(p, breaks, note, now),

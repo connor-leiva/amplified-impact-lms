@@ -6,15 +6,18 @@
 //   - `recordSwitchOn`: a flag row that is on without a switch-on time takes its last flip's time, once.
 //   - `readWeeks` / `weeksOf` / `sessionOf`: the course's weeks and sessions as `welcomeSchedule` and `welcomeWeek0`
 //     read them, Week 0's Due, title, step count, baseline count and whether its "How the LMS Works" tour is live.
+//     R-5 Phase 4 (D-261, PLAN.md 2.10): one cohort's weeks, through its run (`cohortView`), so January's welcome and
+//     Week 0 Is Open read January's Week 0 due date and Week 1 sessions. A cohort with no stored run (December until
+//     Phase 3 writes its run) reads the modules exactly as before.
 
 import { and, eq, sql } from 'drizzle-orm';
-import { baselineTaskCount } from '@ai/core';
-import type { WelcomeSchedule, WelcomeSession, WelcomeWeek, WelcomeWeek0 } from '@ai/core';
+import { baselineTaskCount, cohortView } from '@ai/core';
+import type { AIEmployee, Cohort, Session, WelcomeSchedule, WelcomeSession, WelcomeWeek, WelcomeWeek0 } from '@ai/core';
 import type { EmailPayload } from '../email/templates/payload';
 import type { MediaItem, StepPaths } from '@ai/core/course-types';
 import { tourVideoOf } from '@ai/core/lms-tour';
 import type { Database } from '../db/client';
-import { cohortEnrollments, consoleFlags, modules } from '../db/schema';
+import { cohortEnrollments, cohorts, consoleFlags, modules, sessions } from '../db/schema';
 
 /** Insert an enrollment row for every owner with a live cohort plan. A row already there is left as it is. */
 export async function upsertCohortEnrollments(db: Database): Promise<void> {
@@ -86,12 +89,41 @@ export function weeksOf(rows: readonly ModuleRow[]): WelcomeWeek[] {
   });
 }
 
-/** Every module, as `weeksOf` reads it. */
-export async function readWeeks(db: Pick<Database, 'select'>): Promise<WelcomeWeek[]> {
+/**
+ * Every module, as `weeksOf` reads it, seen through one cohort's run (R-5 Phase 4, D-261): its weeks numbered, dated
+ * and paired with its own sessions as `cohortView` has them, and the weeks it doesn't take left out. A cohort with no
+ * stored run reads the modules as they are, exactly as before.
+ */
+export async function readWeeks(db: Pick<Database, 'select'>, cohortId: string): Promise<WelcomeWeek[]> {
   const rows = await db
-    .select({ status: modules.status, opens: modules.opens, dueAt: modules.dueAt, checklist: modules.checklist, course: modules.course })
+    .select({
+      id: modules.id,
+      kind: modules.kind,
+      status: modules.status,
+      opens: modules.opens,
+      dueAt: modules.dueAt,
+      session: modules.session,
+      checklist: modules.checklist,
+      course: modules.course,
+    })
     .from(modules);
-  return weeksOf(rows);
+  const [cohort] = await db.select({ id: cohorts.id, run: cohorts.run }).from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
+  if (!cohort?.run) return weeksOf(rows);
+  const own = await db
+    .select({ id: sessions.id, cohortId: sessions.cohortId, n: sessions.n, start: sessions.start, kind: sessions.kind, moduleId: sessions.moduleId })
+    .from(sessions)
+    .where(eq(sessions.cohortId, cohortId));
+  // `cohortView` reads a module's id, kind, status, opens, due date, session and course, and a session's cohort,
+  // module, kind and start: the columns read above. The casts only say so.
+  const view = cohortView(
+    {
+      cohorts: [{ id: cohort.id, run: cohort.run } as unknown as Cohort],
+      modules: rows as unknown as AIEmployee[],
+      sessions: own.map((x) => ({ ...x, kind: x.kind ?? undefined, moduleId: x.moduleId ?? undefined })) as unknown as Session[],
+    },
+    cohortId,
+  );
+  return weeksOf(view.modules as unknown as ModuleRow[]);
 }
 
 export function sessionOf(s: { id: string; n: number; start: number; mins: number; kind: string | null }): WelcomeSession {

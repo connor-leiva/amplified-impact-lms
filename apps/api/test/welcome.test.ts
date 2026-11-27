@@ -7,7 +7,7 @@ import { WELCOME_SENT_TAG, WELCOME_TEST_ADDRESS } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
-import { accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, modules, plans, sessions, teams, users } from '../src/db/schema';
+import { accounts, auditLog, cohortEnrollments, cohorts, consoleFlags, emailLog, plans, sessions, teams, users } from '../src/db/schema';
 import { SKILL_EMAIL_LOGO_URL } from '../src/email/templates/branded-html';
 import { invalidateConsoleFlags } from '../src/console/flags';
 import { renderTemplate } from '../src/email/templates';
@@ -17,7 +17,7 @@ import { runGhlWelcomeSync } from '../src/jobs/ghl-welcome';
 import { sendDueWelcomes } from '../src/jobs/welcome';
 import { settleObserved } from '../src/lib/observe';
 import { resetDatabase, testDatabase } from './helpers';
-import { liveWithCourse } from './accelerator-course';
+import { liveWithCourse, setWeek0Due } from './accelerator-course';
 
 const ENABLED = Date.parse('2026-12-09T15:00:00Z');
 const ENROLLED_EARLY = Date.parse('2026-11-01T15:00:00Z');
@@ -294,7 +294,7 @@ describe('the welcome in the Week 0 Is Open email’s design, with everything fr
   });
 
   it('waits on the builder while Week 0 has no Due', async () => {
-    await (await database()).update(modules).set({ dueAt: null }).where(eq(modules.id, 'accelerator-week-0'));
+    await setWeek0Due(await database(), 'dec26', null);
     await flag(true, ENABLED);
     await seedOwner('u_new', 'new@example.com', ENROLLED_LATE);
     const out = await sendDueWelcomes({ db: await database(), log, now: NOW });

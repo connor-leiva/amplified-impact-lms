@@ -10,6 +10,9 @@
 //      from Week 0's Media video ticked "Show as the LMS Tour on Sign-In", and a masquerading staff viewer sees what
 //      the learner sees. Their own golden is `fixtures/december/others.json`, captured on `main` @ 038cd39, before
 //      Phase 2 changed anything; `golden.json` is untouched.
+//   3. R-5 Phase 4 (D-261): January's test team (the deploy's `seedTestMember`, placed in January by hand) sees only
+//      January, and neither it nor December's people can reach the other cohort's sessions by address. Plain
+//      assertions, with no golden of their own: `others.json` is unchanged by this phase.
 //
 // WHY AN `afterAll`. Ticking the tour is a staff save of Week 0, which changes Week 0's stored row, so it must not run
 // before December's sections read that row. Every test of a file runs before its `afterAll` hooks, so these checks
@@ -33,6 +36,7 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import type { Database } from '../src/db/client';
 import { accounts, learnerPrefs, sessions, teams, users } from '../src/db/schema';
+import { seedTestMember } from '../src/db/seed-test-member';
 import { resetS3 } from '../src/storage';
 import { startFakeBucket } from './fake-bucket';
 import { loadDb } from './helpers';
@@ -40,7 +44,11 @@ import { loadDb } from './helpers';
 /** The domain every person this hook adds is at. Mail and reminders to it are not December's. */
 export const OTHER_COHORT_DOMAINS: readonly string[] = ['january.example.test'];
 
+/** R-5 Phase 4 (D-261): the test team placed in January by hand (a D-202 test account; never a seat). */
+const JANUARY_TEST_TEAM = 'test-team@january.example.test';
+
 let world: Database | null = null;
+let januaryId: string | null = null;
 
 export async function addOtherCohorts(db: Database, now: number): Promise<void> {
   world = db;
@@ -58,9 +66,20 @@ export async function addOtherCohorts(db: Database, now: number): Promise<void> 
       payload: JSON.stringify(JANUARY),
     });
     if (res.statusCode !== 200) throw new Error(`January was not created: ${res.statusCode} ${res.body}`);
+    januaryId = (res.json() as { cohort: { cohortId: string } }).cohort.cohortId;
   } finally {
     await app.close();
   }
+  // R-5 Phase 4 (D-261): the test team, placed in January by hand, the way the deploy's step places it
+  // (`SEED_TEST_MEMBER_COHORT`). A test account with early access: no seat, no email, nothing sent to GoHighLevel.
+  const placed = await seedTestMember(db, {
+    SEED_TEST_MEMBER_EMAIL: JANUARY_TEST_TEAM,
+    SEED_TEST_MEMBER_PASSWORD: 'a-long-test-password-1',
+    SEED_TEST_MEMBER_NAME: 'January Test Team',
+    SEED_TEST_MEMBER_KIND: 'accelerator',
+    SEED_TEST_MEMBER_COHORT: januaryId!,
+  });
+  if (placed.status !== 'created') throw new Error(`January's test team was not placed: ${JSON.stringify(placed)}`);
 }
 
 /** Connor's January, as the New cohort page sends it. */
@@ -387,6 +406,41 @@ async function beyondTheGolden(db: Database): Promise<void> {
     await bucket.close();
     delete process.env.FIXED_NOW;
   }
+
+  // ---- 3. R-5 Phase 4 (D-261): January's test team sees only January; neither side reaches the other's sessions --
+  await check('January’s test team sees only January', async () => {
+    const jan = januaryId!;
+    const [team] = await db.select({ id: users.id, cohortId: users.cohortId }).from(users).where(eq(users.email, JANUARY_TEST_TEAM));
+    expect(team?.cohortId, 'the test team is in January').toBe(jan);
+    const janSessions = (await db.select({ id: sessions.id }).from(sessions).where(eq(sessions.cohortId, jan))).map((s) => s.id).sort();
+    expect(janSessions, 'January’s twelve sessions').toHaveLength(12);
+    for (const [name, t] of Object.entries(INSTANTS)) {
+      const { app, cookie } = await appAt(t);
+      const mine = await app.signInAs(team!.id);
+      const course = await getAs(app, mine, '/api/course');
+      expect(course.statusCode, `${name}: the test team's course`).toBe(200);
+      const body = course.json() as { course: { weeks: { week: number }[] }; sessions: { id: string }[] };
+      expect(body.course.weeks.map((w) => w.week), `${name}: January's weeks`).toEqual([0, 1, 2, 3, 4, 5, 6]);
+      expect(body.sessions.map((s) => s.id).sort(), `${name}: January's sessions`).toEqual(janSessions);
+      const snap = (await getAs(app, mine, '/api/snapshot')).json() as Db;
+      expect(snap.cohorts.map((c) => c.id), `${name}: the test team's snapshot`).toEqual([jan]);
+      expect(snap.sessions.map((s) => s.id).sort(), `${name}: the test team's snapshot sessions`).toEqual(janSessions);
+      for (const id of decSessions) {
+        const res = await getAs(app, mine, `/api/sessions/${id}/join`);
+        expect([res.statusCode, res.json()], `${name}: the test team joins ${id}`).toEqual([404, { error: `No session ${id}` }]);
+      }
+      for (const l of LEARNERS) {
+        const theirs = (await getAs(app, cookie.get(l)!, '/api/snapshot')).json() as Partial<Db>;
+        expect(theirs.sessions?.some((s) => s.cohortId === jan) ?? false, `${name}: ${l}'s snapshot holds none of January's`).toBe(false);
+        for (const id of janSessions) {
+          const res = await getAs(app, cookie.get(l)!, `/api/sessions/${id}/join`);
+          expect([res.statusCode, res.json()], `${name}: ${l} joins January's ${id}`).toEqual([404, { error: `No session ${id}` }]);
+        }
+      }
+      await app.close();
+    }
+    delete process.env.FIXED_NOW;
+  });
 
   if (CAPTURE) {
     mkdirSync(dirname(GOLDEN), { recursive: true });

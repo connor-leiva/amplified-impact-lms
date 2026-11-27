@@ -70,6 +70,23 @@ describe('the cohort welcome: snapshots', () => {
   });
 });
 
+// R-5 Phase 4 (D-261, PLAN.md § 10.4): January's, beside December's, which stays as it is: its name, its Week 0 due
+// date (Sat, Jan 2, 2027 at 12:00 PM MT, from its run) and its first live build (Tue, Jan 5).
+describe('the cohort welcome: January’s snapshots, beside December’s', () => {
+  const JAN = input({ cohortName: 'January 2027 Cohort', week0DueAt: Date.parse('2027-01-02T19:00:00Z'), liveBuildAt: Date.parse('2027-01-05T19:00:00Z') });
+  it('renders the HTML', async () => {
+    await expect(cohortWelcomeHtml(JAN)).toMatchFileSnapshot('./__snapshots__/cohort-welcome-january.html');
+  });
+  it('renders the plain text', async () => {
+    await expect(cohortWelcomeText(JAN)).toMatchFileSnapshot('./__snapshots__/cohort-welcome-january.txt');
+  });
+  it('names January, never December', () => {
+    expect(visible(cohortWelcomeHtml(JAN))).toContain('January 2027 Cohort');
+    expect(cohortWelcomeHtml(JAN)).not.toContain('December');
+    expect(cohortWelcomeText(JAN)).not.toContain('December');
+  });
+});
+
 describe('the cohort welcome: the Week 0 Is Open email’s document', () => {
   it('shares that email’s head, panel, dark band, wordmark and confetti row', () => {
     const shellOf = (h: string) => h.slice(h.indexOf('<meta charset'), h.indexOf('<title>')) + h.slice(h.indexOf('</title>'), h.indexOf('opacity:0;">'));

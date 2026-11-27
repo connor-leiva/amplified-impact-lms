@@ -34,15 +34,16 @@ export interface WeeklyDigestEmailProps {
   /**
    * The day the week's review is for. Thursday by default, as above; the AI Accelerator's cohort
    * builds on Wednesdays, so its digest names its next build's day instead (D-110, the follow-up
-   * this header flagged).
+   * this header flagged). R-5 Phase 4 (D-261, PLAN.md § 10.4): a cohort laid out from a shape names
+   * its own next meeting's day, or, with no meeting left, `null`: no day, and no review before one.
    */
-  before?: string;
+  before?: string | null;
 }
 
 export function WeeklyDigestEmail({ subject, appUrl, before = 'Thursday' }: WeeklyDigestEmailProps) {
   return (
     <EmailLayout subject={subject} cta={{ label: 'Open Team Hub', href: absolute(ROUTES.team, appUrl) }}>
-      <Para>{`Who has built, who is stuck, and what to review before ${before}.`}</Para>
+      <Para>{before === null ? 'Who has built and who is stuck.' : `Who has built, who is stuck, and what to review before ${before}.`}</Para>
     </EmailLayout>
   );
 }

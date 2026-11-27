@@ -23,7 +23,8 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, asc, count, desc, eq, gte, inArray, isNull } from 'drizzle-orm';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { cohortView } from '@ai/core/cohort-run';
 import {
   COMMUNITY_ERRORS,
   COMMUNITY_PATH,
@@ -51,7 +52,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { communityPosts, communityThreads, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
-import { courseEntryFor } from '../lib/course-access';
+import { courseEntryFor, viewerCohortId } from '../lib/course-access';
 
 export { COMMUNITY_PATH };
 export const COMMUNITY_THREAD_PATH = `${COMMUNITY_PATH}/:id`;
@@ -99,14 +100,17 @@ async function memberOf(req: FastifyRequest, now: number): Promise<Member | null
     entry = await courseEntryFor(getDb(), viewer.user.id, now);
     if (!entry.open) return null;
   }
+  // R-5 Phase 4 (D-261): the viewer's own cohort (`viewerCohortId`), its threads and its weeks as its run has them.
+  // Staff read the default cohort's, as they always have.
+  const cohortId = staff ? DEFAULT_COHORT_ID : await viewerCohortId(getDb(), viewer.user.id);
   // The spaces: General, a space for each week open to this viewer, Wins. Staff get the weeks open by their
   // dates, the cohort's own (a test account's early access is its own, and opens more).
   const snapshot = await loadDb(getDb());
-  const weeks = courseWeekModules(snapshot);
+  const weeks = courseWeekModules(cohortView(snapshot, cohortId));
   const open = weeks.filter((m) => weekOpenFor(m, now, entry ?? { open: true, preview: false }));
   const spaces = spacesFor(open.map((m) => ({ week: m.course.week, title: m.course.title })));
   const allSpaces = spacesFor(weeks.map((m) => ({ week: m.course.week, title: m.course.title })));
-  return { id: viewer.user.id, staff, cohortId: ACCELERATOR_COHORT_ID, spaces, allSpaces, viewer };
+  return { id: viewer.user.id, staff, cohortId, spaces, allSpaces, viewer };
 }
 
 /** Each author once: the name and the team the cohort sees (staff: "Amplified Impact"). */

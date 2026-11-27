@@ -5,7 +5,7 @@ import { fmt } from '@ai/core';
 import type { ChecklistMark, Learner } from '@ai/core';
 import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import { isPinnedTour } from '@ai/core/lms-tour';
-import { progressOn, stepRoles } from '@ai/core/learner';
+import { progressOnModule, stepRoles } from '@ai/core/learner';
 import type { LearnerStep, StepRole } from '@ai/core/learner';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
 import type { CourseSkill } from '@ai/core/course-types';
@@ -455,7 +455,7 @@ export function weekProps(x: WeekInput): WeekProps {
         summary: `${operators} ${operators === 1 ? 'step' : 'steps'} for the AI Implementer, about ${hrs(mins('operator'))}.`,
       },
     ],
-    deployed: !!progressOn(x.me, r.week)?.deployedAt,
+    deployed: !!progressOnModule(x.me, r.moduleId)?.deployedAt,
     deployedWhen: w.homework.acceptance.join(' '),
     platform: w.module.platform,
     next: next

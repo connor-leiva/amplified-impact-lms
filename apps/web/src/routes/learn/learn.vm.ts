@@ -9,14 +9,16 @@
 // (the viewer's zone first, the program's in parentheses); a locked week's opening reads the course's
 // own way, through `opensText` (Mountain Time, from the `locked.opens` copy string).
 
-import { ACCELERATOR_SUPPORT_EMAIL, COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { ACCELERATOR_SUPPORT_EMAIL, COURSE_OPENS_AT, cohortOpensAt } from '@ai/core/accelerator';
 import { PLAN_NAMES } from '@ai/core/offer';
 import { cohortLine, fmt, mountainWhen } from '@ai/core';
 import type { AIEmployee, Db, IconName, IcsEvent, Learner, ResourceKind } from '@ai/core';
 import { isLockedWeek } from '@ai/core/course';
 import type { CourseKitItem, LearnerCourseWeek, LockedCourseWeek, OpenCourseWeek } from '@ai/core/course';
 import type { CourseSkill } from '@ai/core/course-types';
-import { duration, joinableSession, progressOn, sessionEndsAt, sessionPhase, stepCount, upcomingSessions, weekModuleOf, weekState, weekSteps } from '@ai/core/learner';
+import { duration, joinableSession, progressOnModule, sessionEndsAt, sessionPhase, stepCount, upcomingSessions, weekState, weekSteps } from '@ai/core/learner';
+import { viewWeekModules } from '@ai/core/cohort-learner';
+import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { LearnerStep, WeekState } from '@ai/core/learner';
 import { guideHref, inLibrary, opensText } from '../course/Course.vm';
 import type { CoursePayload, CourseSession } from '../course/Course.vm';
@@ -108,6 +110,11 @@ export interface WeekRow {
   locked: LockedCourseWeek | null;
   /** The snapshot's module for the week, when the snapshot has it (its icon, tone, due date, step ids). */
   module: AIEmployee | undefined;
+  /**
+   * R-5 Phase 4 (D-261): the week's module id in the viewer's cohort (its run's week N; `accelerator-week-N` for a
+   * cohort with no stored run, December today), which the learner's progress, checks and video marks are keyed by.
+   */
+  moduleId: string;
 }
 
 /** Every week of the course, in order, each with this learner's place in it. */
@@ -120,8 +127,13 @@ export function weekStatusText(r: Pick<WeekRow, 'open'>, key: 'not_started' | 'b
 }
 
 export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'>, me: Learner | null): WeekRow[] {
+  // R-5 Phase 4 (D-261): a week's number is the viewer's cohort's (`GET /api/course` numbers them so), and its module is
+  // the same place among the snapshot's course weeks, which are that cohort's (`viewWeekModules`). A snapshot without
+  // them (the prototype's fixture) reads the curriculum's ids, as before.
+  const ids = viewWeekModules(p.course.weeks.map((w) => w.week), db.modules);
   return p.course.weeks.map((w: LearnerCourseWeek): WeekRow => {
-    const module = weekModuleOf(db, w.week);
+    const moduleId = ids?.get(w.week) ?? acceleratorModuleId(w.week);
+    const module = db.modules.find((m) => m.id === moduleId);
     if (isLockedWeek(w)) {
       return {
         week: w.week,
@@ -138,9 +150,10 @@ export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'>, me: Learner 
         open: null,
         locked: w,
         module,
+        moduleId,
       };
     }
-    const steps = weekSteps(w, module, progressOn(me, w.week));
+    const steps = weekSteps(w, module, progressOnModule(me, moduleId));
     const { done, total } = stepCount(steps);
     return {
       week: w.week,
@@ -157,6 +170,7 @@ export function weekRows(p: CoursePayload, db: Pick<Db, 'modules'>, me: Learner 
       open: w,
       locked: null,
       module,
+      moduleId,
     };
   });
 }
@@ -269,27 +283,35 @@ export function weekOfPath(pathname: string): number | null {
 }
 
 /**
+ * R-5 Phase 4 (D-261): when the course opens for this learner, the start of their own cohort's first live build
+ * (`cohortOpensAt`: December's is D-153's `COURSE_OPENS_AT`). With no learner row (staff previewing), December's,
+ * as before.
+ */
+export const courseOpensAtFor = (db: Pick<Db, 'sessions'>, me: Pick<Learner, 'cohortId'> | null): number =>
+  me ? cohortOpensAt(me.cohortId, db.sessions) : COURSE_OPENS_AT;
+
+/**
  * When the vault opens, as its lock says it: when the pre-launch preview ends, the course's own opening at
  * the first live build (D-153, `COURSE_OPENS_AT`), which is what unlocks it. D-249: not the first locked
  * week's opening any more, since Week 1 now opens inside the preview (Sun, Nov 29) and the vault stays
- * locked until Wed, Dec 2.
+ * locked until Wed, Dec 2. R-5 Phase 4 (D-261): the viewer's cohort's opening (`courseOpensAtFor`).
  */
-function vaultOpens(p: CoursePayload): string | null {
-  return opensText({ opensAt: COURSE_OPENS_AT }, p.copy);
+function vaultOpens(p: CoursePayload, opensAt: number): string | null {
+  return opensText({ opensAt: Number.isFinite(opensAt) ? opensAt : null }, p.copy);
 }
 
 /**
  * The shell's nav. D-186: `hires` are the non-course AI Employees' rows (`Hire.vm.ts` `hireNav`), listed in
  * the AI employees group after the course's weeks, for a learner in the course.
  */
-export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathname: string, hires: readonly NavEmployeeVM[] = []): NavVM {
+export function navVM(p: CoursePayload | null, rows: readonly WeekRow[], pathname: string, hires: readonly NavEmployeeVM[] = [], opensAt: number = COURSE_OPENS_AT): NavVM {
   const on = weekOfPath(pathname);
   return {
     cohort: p !== null,
     home: { label: LABELS.home, href: learnHome(), active: pathname === learnHome() || pathname === `${learnHome()}/` },
     schedule: { label: LABELS.schedule, href: learnSchedule(), active: pathname === learnSchedule() },
     library: { label: LABELS.library, href: learnSkills(), active: pathname === learnSkills() || pathname.startsWith(`${learnSkills()}/`) },
-    vault: { label: LABELS.vault, href: learnVault(), locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p) : null, active: pathname === learnVault() },
+    vault: { label: LABELS.vault, href: learnVault(), locked: !!p?.prelaunch, title: p?.prelaunch ? vaultOpens(p, opensAt) : null, active: pathname === learnVault() },
     employees: p
       ? {
           label: LABELS.employees,

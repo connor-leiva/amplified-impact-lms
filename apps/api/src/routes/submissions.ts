@@ -23,7 +23,7 @@
 import { randomUUID } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
-import { can } from '@ai/core';
+import { can, cohortView } from '@ai/core';
 import { isWeekModule } from '@ai/core/course';
 import { weekOpenFor } from '@ai/core/release';
 import {
@@ -47,7 +47,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { cohorts, submissions, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
-import { courseEntryFor } from '../lib/course-access';
+import { courseEntryFor, viewerCohortId } from '../lib/course-access';
 import { checkTeam } from './intake';
 import { ObjectMissingError, StorageKeyError, contentDisposition, deleteSubmissionObject, getObject, headObject, presignPut } from '../storage';
 
@@ -127,7 +127,9 @@ async function staffReader(viewer: SessionViewer): Promise<boolean> {
 /** The step that asks for this kind in a week open to this learner, or null. */
 async function askOf(moduleId: unknown, kind: SubmissionKind, me: Member, now: number): Promise<SubmissionAsk | null> {
   if (typeof moduleId !== 'string') return null;
-  const snapshot = await loadDb(getDb());
+  // R-5 Phase 4 (D-261): the week as the learner's own cohort has it (`cohortView`): its opening there, and none for a
+  // week their cohort doesn't take.
+  const snapshot = cohortView(await loadDb(getDb()), await viewerCohortId(getDb(), me.id));
   const mod = snapshot.modules.find((m) => m.id === moduleId);
   if (!mod || !isWeekModule(mod)) return null;
   const entry = await courseEntryFor(getDb(), me.id, now);

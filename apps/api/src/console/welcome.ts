@@ -43,7 +43,7 @@ export function registerWelcomeTestRoute(scope: FastifyInstance, limits: { write
       const [cohort] = await db.select().from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
       if (!cohort) return consoleError(reply, 'not_found', 'No cohort with that id.');
       const sessionRows = await db.select().from(sessions).where(eq(sessions.cohortId, cohortId));
-      const weeks = await readWeeks(db);
+      const weeks = await readWeeks(db, cohortId);
       const built = welcomeSchedule(cohort, weeks, sessionRows.map(sessionOf));
       if (!built.ok) return consoleError(reply, 'invalid_body', 'This cohort has no live build and office hours yet, so the welcome cannot be filled in.');
       const week0 = welcomeWeek0(weeks);

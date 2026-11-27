@@ -11,7 +11,7 @@
 // Nothing here emails anyone, and nothing goes to GHL.
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, asc, eq, inArray } from 'drizzle-orm';
-import { can } from '@ai/core';
+import { can, cohortView } from '@ai/core';
 import { isWeekModule } from '@ai/core/course';
 import type { SeatCard } from '@ai/core/course-types';
 import { weekOpenFor } from '@ai/core/release';
@@ -24,7 +24,7 @@ import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { cohorts, teamSeatCards, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
-import { courseEntryFor } from '../lib/course-access';
+import { courseEntryFor, viewerCohortId } from '../lib/course-access';
 import { seatCardPdfHtml, seatCardPdfName, renderPdf } from '../pdf/render';
 import { checkTeam, sendPdf } from './intake';
 
@@ -60,7 +60,9 @@ async function memberOf(userId: string): Promise<Member | null> {
 /** The week, its seat card and where it asks for it, when the week is open to this learner. Null otherwise. */
 async function weekOf(moduleId: unknown, me: Member, now: number): Promise<{ mod: AIEmployee; card: SeatCard; ask: SeatCardAsk } | null> {
   if (typeof moduleId !== 'string' || !moduleId) return null;
-  const snapshot = await loadDb(getDb());
+  // R-5 Phase 4 (D-261): the week as the learner's own cohort has it (`cohortView`): its opening there, and none for a
+  // week their cohort doesn't take.
+  const snapshot = cohortView(await loadDb(getDb()), await viewerCohortId(getDb(), me.id));
   const mod = snapshot.modules.find((m) => m.id === moduleId);
   if (!mod || !isWeekModule(mod)) return null;
   const card = mod.course?.seatCard;

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { MemoryRouter, useInRouterContext } from 'react-router';
 import type { Db } from '@ai/core';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import '../../styles/r2.css';
 import '../../styles/learner-v2.css';
 // D-214: the brand's motion tokens and rise (Amplified Impact Motion v1), for every page in the learner frame,
@@ -34,7 +35,9 @@ export function previewTarget(href: string | null): { week: number; step: number
 
 export function LearnerWeekPreview({ payload, db, week, now }: { payload: CoursePayload; db: Db; week: number; now: number }) {
   const [step, setStep] = useState<number | null>(null);
-  const ctx: LearnContext = { course: { kind: 'ready', payload }, db, viewer: STAFF, now };
+  // R-5 Phase 4 (D-261): the builder previews December's sessions, as it always has, until Phase 6 lets staff pick
+  // the cohort to preview (PLAN.md § 5.4).
+  const ctx: LearnContext = { course: { kind: 'ready', payload }, db, viewer: STAFF, now, previewCohortId: DEFAULT_COHORT_ID };
   const onClickCapture = (e: MouseEvent<HTMLDivElement>) => {
     const a = (e.target as HTMLElement).closest('a');
     if (!a || !e.currentTarget.contains(a)) return;

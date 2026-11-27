@@ -97,8 +97,8 @@
 // traffic ever concentrates (134 learners clicking inside the same minute), the fix is a
 // `sessions`+`modules`+`users` read through the same codec, not a second decoder.
 
-import { canOpenModule, joinMode, moduleForSession } from '@ai/core';
-import { isAcceleratorModule } from '@ai/core/accelerator';
+import { canOpenModule, cohortView, joinMode, moduleForSession } from '@ai/core';
+import { isCourseWeek } from '@ai/core/accelerator';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
@@ -162,9 +162,12 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // live build opens the course at its own start (`COURSE_OPENS_AT`), and its Join opens 15 minutes
       // before, like every session's. Only the time moves: a plan that is ended or paused stays shut, and
       // the course itself still opens at `COURSE_OPENS_AT`.
-      const owner = moduleForSession(db, session);
+      // R-5 Phase 4 (D-261): the session's week as the learner's own cohort has it (`cohortView`), the view their
+      // snapshot is drawn from. The same modules for a cohort with no stored run.
+      const mine = cohortView(db, me.cohortId);
+      const owner = moduleForSession(mine, session);
       const planAt = joinMode(session, now) === 'disabled' ? now : now + JOIN_WINDOW_MS;
-      const course = owner && isAcceleratorModule(owner.id) ? await acceleratorAccess(getDb(), me.id, planAt) : undefined;
+      const course = owner && isCourseWeek(owner.id) ? await acceleratorAccess(getDb(), me.id, planAt) : undefined;
       if (course === false) {
         return reply.code(404).send({ error: `No session ${id}` });
       }
@@ -180,7 +183,7 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // would make the portal list a session this route then refuses.
       // D-186: a course week's build follows course access (checked just above), not the tier, so an Agent
       // tier learner who bought the course joins it; every other session's module follows the tier.
-      const employee = moduleForSession(db, session);
+      const employee = moduleForSession(mine, session);
       if (employee && !canOpenModule(me, employee, course)) {
         return reply.code(403).send({ error: TIER_REQUIRED });
       }

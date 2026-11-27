@@ -70,11 +70,11 @@ export const COURSE_KEY = ['learn', 'course'] as const;
  * (or, before the preview, the course's; in it, the preview's end) passes while the tab is open, it is
  * refetched then, so the week opens on screen. A refetch keeps the page on screen while it runs.
  */
-export function useCourse(): CourseLoad {
+export function useCourse(opensAt: number = COURSE_OPENS_AT): CourseLoad {
   const qc = useQueryClient();
   const load = useSuspenseQuery({ queryKey: COURSE_KEY, queryFn: fetchCourse, staleTime: Infinity }).data;
   useEffect(() => repo.subscribe(() => void qc.invalidateQueries({ queryKey: COURSE_KEY }, { cancelRefetch: false })), [qc]);
-  const at = nextOpening(load, clock.now());
+  const at = nextOpening(load, clock.now(), opensAt);
   useEffect(() => {
     if (at === null) return;
     const id = setTimeout(() => void qc.invalidateQueries({ queryKey: COURSE_KEY }), Math.min(MAX_WAIT, Math.max(0, at - clock.now()) + 1000));
@@ -89,11 +89,12 @@ const MAX_WAIT = 2_147_483_647;
 /**
  * The next instant a locked week opens, or (D-249) the pre-launch preview ends, after `now`, or null. The
  * preview ends at the course's own opening, the first live build (`COURSE_OPENS_AT`), which Week 1's
- * opening no longer marks now that Week 1 opens inside the preview.
+ * opening no longer marks now that Week 1 opens inside the preview. R-5 Phase 4 (D-261): `opensAt` is the
+ * viewer's own cohort's opening (`courseOpensAtFor`); absent, December's.
  */
-export function nextOpening(load: CourseLoad, now: number): number | null {
+export function nextOpening(load: CourseLoad, now: number, opensAt: number = COURSE_OPENS_AT): number | null {
   if (load.kind !== 'ready') return load.kind === 'upcoming' && load.opensAt > now ? load.opensAt : null;
-  const at = [...load.payload.course.weeks.map((w) => (isLockedWeek(w) ? w.opensAt : null)), load.payload.prelaunch ? COURSE_OPENS_AT : null]
+  const at = [...load.payload.course.weeks.map((w) => (isLockedWeek(w) ? w.opensAt : null)), load.payload.prelaunch && Number.isFinite(opensAt) ? opensAt : null]
     .filter((t): t is number => t !== null && t > now)
     .sort((a, b) => a - b)[0];
   return at ?? null;
@@ -105,6 +106,11 @@ export interface LearnContext {
   db: Db;
   viewer: Viewer;
   now: number;
+  /**
+   * R-5 Phase 4 (D-261): the cohort a preview draws, for a viewer with no learner row (the curriculum builder's live
+   * preview, D-184). A learner's screens read their own cohort and never this.
+   */
+  previewCohortId?: string;
 }
 
 /**

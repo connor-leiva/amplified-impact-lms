@@ -55,7 +55,7 @@ export interface BodyData {
   'replay-ready': { employee: string; moduleId: string; appUrl?: string | null };
   'build-reminder': { moduleId: string; steps: number; total?: number; appUrl?: string | null };
   /** `before`: the day to review before. Absent: Thursday, the prototype's. The AI Accelerator's is its build day (D-110). */
-  'weekly-digest': { appUrl?: string | null; before?: string };
+  'weekly-digest': { appUrl?: string | null; before?: string | null };
   'skill-purchase': {
     sets: 'owner_ops' | 'agent' | 'both';
     firstName: string;

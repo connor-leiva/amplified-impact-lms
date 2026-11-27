@@ -21,8 +21,9 @@
 // and a refunded buyer moves back to Purchased only when a paid order that is not refunded exists.
 
 import { sql } from 'drizzle-orm';
+import { ghlCohortValue } from '@ai/core/cohort-learner';
 import type { Database } from '../db/client';
-import { ai101Waitlist, orders, plans } from '../db/schema';
+import { ai101Waitlist, cohorts, orders, plans } from '../db/schema';
 import { FREE_SKILL_SOURCES, LMS_SIGNED_IN, PLAN_NAMES_FOR_GHL, orderFieldValues, setContactFields, upsertOpportunity } from '../integrations/ghl';
 import type { ExtraResult, FieldValues, GhlConfig, GhlFailureKind, GhlStep, OpportunityTarget, StageKey, Fetch } from '../integrations/ghl';
 
@@ -40,6 +41,10 @@ interface OrderFacts {
   refunded_at: string | number | null;
   created_at: string | number;
   plan_status: string | null;
+  /** R-5 Phase 4 (D-261): the plan's cohort, its start and zone, for GoHighLevel's Cohort field (`ghlCohortValue`). */
+  cohort_id?: string | null;
+  cohort_start?: string | number | null;
+  cohort_timezone?: string | null;
 }
 
 const num = (v: string | number | null): number | null => (v === null ? null : Number(v));
@@ -56,6 +61,14 @@ export function orderStage(o: Pick<OrderFacts, 'status' | 'paid_at' | 'payment_f
   return null;
 }
 
+/** R-5 Phase 4 (D-261): GoHighLevel's Cohort value for an order's plan's cohort; December's for none. */
+const cohortValueOf = (o: Pick<OrderFacts, 'cohort_id' | 'cohort_start' | 'cohort_timezone'>): string =>
+  ghlCohortValue(
+    o.cohort_id && o.cohort_start !== null && o.cohort_start !== undefined
+      ? { id: o.cohort_id, start: Number(o.cohort_start), ...(o.cohort_timezone ? { timezone: o.cohort_timezone } : {}) }
+      : null,
+  );
+
 /** Which state wins when a contact has several: the one that needs someone's attention first. */
 const PRIORITY: readonly StageKey[] = ['paymentFailed', 'purchased', 'refunded', 'canceled', 'checkoutStarted', 'freeSkills', 'lead'];
 
@@ -68,8 +81,10 @@ export interface ContactState {
 export async function contactState(db: Database, email: string): Promise<ContactState> {
   const rows = (await db.execute(sql`
     select o.id, o.plan, o.status, o.amount_total, o.paid_at, o.payment_failed_at, o.membership_ended_at,
-           o.refunded_at, o.created_at, p.status as plan_status
+           o.refunded_at, o.created_at, p.status as plan_status,
+           c.id as cohort_id, c.start as cohort_start, c.timezone as cohort_timezone
       from ${orders} o left join ${plans} p on p.order_id = o.id
+      left join ${cohorts} c on c.id = p.cohort_id
      where lower(o.email) = lower(${email}) and o.status <> 'pending'`)) as unknown as OrderFacts[];
   const signUps = (await db.execute(sql`select source from ${ai101Waitlist} where lower(email) = lower(${email})`)) as unknown as { source: string }[];
 
@@ -90,7 +105,7 @@ export async function contactState(db: Database, email: string): Promise<Contact
     const bought = stage !== 'checkoutStarted';
     return {
       target: { stage, name, ...(bought && amount !== undefined ? { monetaryValue: amount } : {}) },
-      fields: bought ? orderFieldValues({ plan: primary.plan, amountTotal: primary.amount_total, paidAt: num(primary.paid_at) }) : {},
+      fields: bought ? orderFieldValues({ plan: primary.plan, amountTotal: primary.amount_total, paidAt: num(primary.paid_at), cohort: cohortValueOf(primary) }) : {},
     };
   }
   return { target: null, fields: {} };

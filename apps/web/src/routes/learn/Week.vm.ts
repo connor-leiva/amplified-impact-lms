@@ -8,7 +8,6 @@
 
 import { fmt } from '@ai/core';
 import type { ChecklistMark, IconName, IcsEvent } from '@ai/core';
-import { acceleratorModuleId } from '@ai/core/accelerator';
 import { isCheck, stepChecklistStatus, waitingOn } from '@ai/core/checklist';
 import { unlistedIntakeFiles } from '@ai/core/intake';
 import type { CheckBlock, PathBlock, StartHere } from '@ai/core/course-types';
@@ -140,7 +139,7 @@ const SAID: Record<StartHereRowVM['status'], string> = {
  * Here card's rows and the v3 week page's step list read the same rule.
  */
 export function weekStepStatuses(r: WeekRow, checks: readonly ChecklistMark[]): { status: StartHereRowVM['status']; waitsOn: number | null }[] {
-  const moduleId = acceleratorModuleId(r.week);
+  const moduleId = r.moduleId;
   const isOn = (stepId: string, itemId: string): boolean => checks.some((c) => c.moduleId === moduleId && c.stepId === stepId && c.itemId === itemId && c.checked);
   const satisfied = (stepN: number, itemId: string): boolean => {
     const other = r.steps[stepN - 1];

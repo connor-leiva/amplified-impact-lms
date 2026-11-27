@@ -25,10 +25,11 @@
 import { asc, eq } from 'drizzle-orm';
 import { DEFAULT_COHORT_ID, acceleratorModuleId, officeHoursSessionId } from '@ai/core/accelerator';
 import { sessionKind, sessionWeek } from '@ai/core';
+import { weekOfModuleIn } from '@ai/core/cohort-learner';
 import { SCHEDULE_ICS_PATH } from '@ai/core/schedule';
-import type { Session } from '@ai/core';
+import type { CohortWeek, Session } from '@ai/core';
 import { getDb } from '../db/client';
-import { modules as modulesTable, sessions as sessionsTable } from '../db/schema';
+import { cohorts as cohortsTable, modules as modulesTable, sessions as sessionsTable } from '../db/schema';
 import { foldLine } from './ai101-calendar';
 
 const CRLF = '\r\n';
@@ -206,8 +207,8 @@ export function scheduleIcs(sessions: readonly Session[], instructorOf: (s: Sess
   );
 }
 
-/** The files, from cohort `dec26`'s sessions and week modules as the database holds them. */
-export async function calendarFiles(): Promise<{ builds: string; officeHours: string; schedule: string }> {
+/** A cohort's sessions as the files read them, by start, and each week module's instructor. */
+async function readCalendar(cohortId: string): Promise<{ sessions: Session[]; instructor: Map<string, string> }> {
   const db = getDb();
   const [rows, weeks] = await Promise.all([
     db
@@ -222,7 +223,7 @@ export async function calendarFiles(): Promise<{ builds: string; officeHours: st
         moduleId: sessionsTable.moduleId,
       })
       .from(sessionsTable)
-      .where(eq(sessionsTable.cohortId, DEFAULT_COHORT_ID))
+      .where(eq(sessionsTable.cohortId, cohortId))
       .orderBy(asc(sessionsTable.start)),
     db.select({ id: modulesTable.id, instructor: modulesTable.instructor }).from(modulesTable).where(eq(modulesTable.kind, 'week')),
   ]);
@@ -243,7 +244,50 @@ export async function calendarFiles(): Promise<{ builds: string; officeHours: st
       ...(r.moduleId ? { moduleId: r.moduleId } : {}),
     }),
   );
-  const instructor = new Map(weeks.map((m) => [m.id, m.instructor]));
+  return { sessions, instructor: new Map(weeks.map((m) => [m.id, m.instructor])) };
+}
+
+/** The files, from cohort `dec26`'s sessions and week modules as the database holds them. */
+export async function calendarFiles(): Promise<{ builds: string; officeHours: string; schedule: string }> {
+  const { sessions, instructor } = await readCalendar(DEFAULT_COHORT_ID);
   const instructorOf = (s: Session): string | undefined => instructor.get(s.moduleId ?? acceleratorModuleId(sessionWeek(s)));
   return { builds: buildsIcs(sessions, instructorOf), officeHours: officeHoursIcs(sessions), schedule: scheduleIcs(sessions, instructorOf) };
+}
+
+/**
+ * R-5 Phase 4 (D-261): another cohort's whole schedule in one file, its learners' "Add all to calendar". The same
+ * calendar and the same words as December's file: a build is "Amplified AI Accelerator Live Build, Week N: <title>",
+ * its week the cohort's own (its run); office hours read as December's do; any other session is its own title. Every
+ * UID names the session, so no event of December's is touched. December's own file is `calendarFiles`, unchanged.
+ * Null for a cohort the database does not hold.
+ */
+export async function cohortScheduleIcs(cohortId: string): Promise<string | null> {
+  if (cohortId === DEFAULT_COHORT_ID) return (await calendarFiles()).schedule;
+  const [cohort] = await getDb().select({ id: cohortsTable.id, run: cohortsTable.run }).from(cohortsTable).where(eq(cohortsTable.id, cohortId)).limit(1);
+  if (!cohort) return null;
+  const run = (cohort.run ?? undefined) as CohortWeek[] | undefined;
+  const { sessions, instructor } = await readCalendar(cohortId);
+  const events = sessions.map((s): CalEvent => {
+    const week = (s.moduleId ? weekOfModuleIn({ ...(run ? { run } : {}) }, s.moduleId) : null) ?? sessionWeek(s);
+    if (typeOf(s) === 'live_build') {
+      const who = s.moduleId ? instructor.get(s.moduleId) : undefined;
+      return {
+        uid: `accelerator-build-${s.id}`,
+        start: s.start,
+        end: endOf(s),
+        summary: `Amplified AI Accelerator Live Build, Week ${week}: ${s.title.replace(/ (· )?Live [Bb]uild$/, '')}`,
+        description: `${s.mins} minute live build${who ? ` with ${who}` : ''}. ${JOIN}`,
+      };
+    }
+    if (typeOf(s) === 'office_hours')
+      return {
+        uid: `office-hours-${s.id}`,
+        start: s.start,
+        end: endOf(s),
+        summary: 'Amplified Impact Office Hours',
+        description: `${s.mins} minutes of office hours. Bring a real file and get help. ${JOIN}`,
+      };
+    return { uid: `session-${s.id}`, start: s.start, end: endOf(s), summary: s.title, description: `${s.mins} minutes. ${JOIN}` };
+  });
+  return calendar('Amplified AI Accelerator Schedule', events.sort((a, b) => a.start - b.start));
 }

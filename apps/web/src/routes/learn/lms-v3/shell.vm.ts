@@ -5,7 +5,7 @@
 import { fmt } from '@ai/core';
 import { PLAN_NAMES } from '@ai/core/offer';
 import type { Learner } from '@ai/core';
-import { joinableSession, progressOn, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
+import { joinableSession, progressOnModule, sessionEndsAt, sessionPhase, upcomingSessions } from '@ai/core/learner';
 import { calLinks } from '../../../components/calendar-links';
 import type { CourseSession } from '../../course/Course.vm';
 import { LABELS, weekOfPath } from '../learn.vm';
@@ -67,7 +67,7 @@ export function currentOf(pathname: string): string | undefined {
  */
 export function shellWeek(r: WeekRow, me: Learner | null): ShellWeek {
   const locked = r.state === 'locked';
-  const deployed = !locked && !!progressOn(me, r.week)?.deployedAt;
+  const deployed = !locked && !!progressOnModule(me, r.moduleId)?.deployedAt;
   return {
     n: r.week,
     title: r.title,

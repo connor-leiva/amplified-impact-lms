@@ -14,7 +14,8 @@ import { LMS_V3 } from '../lms-v3/v3';
 
 function Learner() {
   const db = useDb();
-  return hasPortal(db) || LMS_V3 ? <LearnerRedirect /> : <AppShell />;
+  // R-5 Phase 4 (D-261): their snapshot's weeks, their own cohort's, say which week an old `/employees/:id` address is.
+  return hasPortal(db) || LMS_V3 ? <LearnerRedirect modules={db.modules} /> : <AppShell />;
 }
 
 export function Component() {

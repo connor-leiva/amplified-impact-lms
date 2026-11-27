@@ -33,6 +33,7 @@
 
 import { and, eq, sql } from 'drizzle-orm';
 import { COHORT_WELCOME_FLAG, enrolledBeforeSwitch, firstNameOf, otherEmailReached, welcomeDecision, welcomeSchedule, welcomeWeek0 } from '@ai/core';
+import type { WelcomeWeek } from '@ai/core';
 import { expiryFor, hashToken, mintToken } from '../auth/tokens';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
@@ -116,7 +117,13 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
 
   const cohortRows = await db.select().from(cohorts);
   const sessionRows = await db.select().from(sessions);
-  const weeks = await readWeeks(db);
+  // R-5 Phase 4 (D-261): each cohort's own weeks, through its run (`readWeeks`), read once a tick per cohort.
+  const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
+  const cohortWeeks = (cohortId: string): Promise<WelcomeWeek[]> => {
+    let w = weeksByCohort.get(cohortId);
+    if (!w) weeksByCohort.set(cohortId, (w = readWeeks(db, cohortId)));
+    return w;
+  };
 
   for (const row of pending) {
     const cohort = cohortRows.find((c) => c.id === row.cohort_id);
@@ -143,6 +150,7 @@ export async function sendDueWelcomes(options: { db?: Database; log: BillingLog;
       continue;
     }
     const sess = sessionRows.filter((s) => s.cohortId === cohort.id).map(sessionOf);
+    const weeks = await cohortWeeks(cohort.id);
     const built = welcomeSchedule(
       { name: cohort.name, start: cohort.start, previewOpensAt: cohort.previewOpensAt, welcomeSendsAt: cohort.welcomeSendsAt, defaultOpenTime: cohort.defaultOpenTime },
       weeks,

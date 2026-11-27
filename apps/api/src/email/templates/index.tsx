@@ -256,7 +256,8 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
 
     case 'weekly-digest': {
       const subject = SUBJECTS['weekly-digest']({});
-      return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={optStr(data, 'before')} /> };
+      // R-5 Phase 4 (D-261): `before: null` is a cohort that meets no more, whose digest names no day.
+      return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={data.before === null ? null : optStr(data, 'before')} /> };
     }
 
     case 'skill-purchase': {
@@ -328,8 +329,15 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
         liveBuildAt: num(template, data, 'liveBuildAt'),
         liveBuildMins: num(template, data, 'liveBuildMins'),
         appUrl,
+        // R-5 Phase 4 (D-261): the cohort the email names, when it isn't December.
+        ...(optStr(data, 'cohortName') ? { cohortName: optStr(data, 'cohortName')! } : {}),
       };
-      return { subject: SUBJECTS['week0-open']({}), element: <span />, html: week0OpenHtml(input), text: week0OpenText(input) };
+      return {
+        subject: SUBJECTS['week0-open'](input.cohortName ? { cohortName: input.cohortName } : {}),
+        element: <span />,
+        html: week0OpenHtml(input),
+        text: week0OpenText(input),
+      };
     }
 
     default: {

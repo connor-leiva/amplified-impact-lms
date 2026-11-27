@@ -27,7 +27,7 @@ import { AcademyLogo } from '../admin/Wordmark';
 import { useCourse } from '../../routes/learn/data';
 import type { LearnContext } from '../../routes/learn/data';
 import { saveIcs } from '../../routes/learn/ics';
-import { HUE, LABELS, barVM, hasTeamHub, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
+import { HUE, LABELS, barVM, courseOpensAtFor, hasTeamHub, navVM, sideVM, weekOfPath, weekRows } from '../../routes/learn/learn.vm';
 import type { BarVM, NavVM, SideVM } from '../../routes/learn/learn.vm';
 import { hireNav, hireOfPath, hireRows } from '../../routes/learn/Hire.vm';
 import { learnAccount, learnHome, learnSchedule, learnTeam } from '../../routes/learn/routes';
@@ -342,7 +342,9 @@ const HERE: Record<string, string> = {
 function Frame() {
   const db = useDb();
   const viewer = useViewer();
-  const loaded = useCourse();
+  // R-5 Phase 4 (D-261): when the course opens for this learner's own cohort.
+  const opensAt = courseOpensAtFor(db, learnerOf(db, viewer.actor.kind === 'learner' ? viewer.actor.userId : null));
+  const loaded = useCourse(opensAt);
   // D-183: every 15 seconds, as the current portal's Sessions page ticks, so Join appears 15 minutes before
   // a session starts without a reload.
   const now = useNow(15_000);
@@ -372,7 +374,7 @@ function Frame() {
   const rows = useMemo(() => (payload ? weekRows(payload, db, me) : []), [payload, db, me]);
   // D-186: the non-course AI Employees, after the course's weeks in the AI employees group.
   const hires = useMemo(() => hireRows(db, me, now), [db, me, now]);
-  const nav = navVM(payload, rows, location.pathname, hires.map((h) => hireNav(h, location.pathname)));
+  const nav = navVM(payload, rows, location.pathname, hires.map((h) => hireNav(h, location.pathname)), opensAt);
   const bar = barVM(payload, now);
   const side = sideVM(db, me, payload, location.pathname, now);
 

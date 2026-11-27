@@ -82,8 +82,14 @@ export const sessionState = (s: SessionTiming | null | undefined, now: number, f
   return s.replay === 'ready' ? ('replay' as const) : ('processing' as const);
 };
 
+/**
+ * A learner's sessions: their own cohort's, the ones whose AI Employee they can open. R-5 Phase 4 (D-261): no viewer is
+ * in no cohort, so it lists none; the reference fell back to `dec26` there, which only a viewer with no learner row
+ * (the admin's sample session, whose time is all it reads) ever reached.
+ */
 export const accessibleSessions = (db: Db, u: Learner | null | undefined): Session[] => {
-  const cid = (u && u.cohortId) || DEFAULT_COHORT_ID;
+  const cid = u?.cohortId;
+  if (!cid) return [];
   return db.sessions
     .filter((s) => s.cohortId === cid)
     .filter((s) => {
@@ -134,13 +140,17 @@ export const cohortWeek = (co: Cohort, now: number, sessions?: readonly Session[
   return Math.floor((now - monday) / (7 * 86400e3)) + 1;
 };
 
-/** The word "Cohort" is appended here, so `co.name` is `December 2026`, not `December 2026 Cohort`. */
+/**
+ * The word "Cohort" is appended here, so `co.name` is `December 2026`, not `December 2026 Cohort`. R-5 Phase 4 (D-261):
+ * a cohort made in New cohort is named with its noun ("January 2027 Cohort", as the mockup names it), and keeps it once.
+ */
 export const cohortLine = (co: Cohort, now: number, sessions?: readonly Session[]): string => {
   const w = cohortWeek(co, now, sessions),
-    weeks = co.weeks || 6;
-  if (w < 1) return `${co.name} Cohort · Starts ${fmt.date(co.start)}`;
-  if (w > weeks) return `${co.name} Cohort · Completed`;
-  return `${co.name} Cohort · Week ${w} of ${weeks}`;
+    weeks = co.weeks || 6,
+    name = /\bcohort$/i.test(co.name.trim()) ? co.name : `${co.name} Cohort`;
+  if (w < 1) return `${name} · Starts ${fmt.date(co.start)}`;
+  if (w > weeks) return `${name} · Completed`;
+  return `${name} · Week ${w} of ${weeks}`;
 };
 
 // ---------- Next Live Session card: one of five variants ----------

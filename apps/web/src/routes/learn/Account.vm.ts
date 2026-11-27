@@ -18,7 +18,6 @@
 
 import { fmt } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
 import { dateYear, dayYear, monthYear } from '@ai/core/learner';
 import { BILLING_TZ, PLAN_KINDS, PLAN_NAMES } from '@ai/core/offer';
 import type { PlanKind } from '@ai/core/offer';
@@ -199,7 +198,8 @@ function planVM(read: AccountRead, me: Learner | null, db: Pick<Db, 'cohorts'>, 
   if (plan) {
     const line: string[] = [];
     if (plan.kind === 'cohort') {
-      const cohort = db.cohorts.find((c) => c.id === (me?.cohortId ?? ACCELERATOR_COHORT_ID));
+      // R-5 Phase 4 (D-261): the viewer's own cohort.
+      const cohort = me ? db.cohorts.find((c) => c.id === me.cohortId) : undefined;
       if (cohort) line.push(`${monthYear(cohort.start)} cohort`);
       const range = course.kind === 'ready' ? liveRange(course.payload.sessions) : null;
       if (range) line.push(range);

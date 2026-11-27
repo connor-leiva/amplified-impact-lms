@@ -351,12 +351,14 @@ describe('sessionsVM @g5', () => {
   });
 
   describe('no learner (the admin frame before the shell redirects)', () => {
-    it('renders the default cohort without throwing', () => {
+    it('renders the first cohort without throwing, and none of its sessions is anyone’s', () => {
       const db = seed('live');
       const vm = sessionsVM(db, null, WEEK2);
       expect(vm.sub).toBe('December 2026 Cohort · 6 live builds · Tue & Thu · 1:00 PM CT');
       expect(vm.rows).toHaveLength(6);
-      expect(vm.att).toEqual({ attended: 2, held: 2 });
+      // R-5 Phase 4 (D-261): a viewer with no learner row is in no cohort (`accessibleSessions` no longer falls back
+      // to December's), so nothing counts as attended by them.
+      expect(vm.att).toEqual({ attended: 0, held: 0 });
     });
   });
 });

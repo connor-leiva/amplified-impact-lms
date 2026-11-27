@@ -16,7 +16,6 @@ import type { RichText } from '@ai/core/rich-text';
 import { cardTerms, markSequence } from '@ai/core/glossary';
 import type { GlossarySpan } from '@ai/core/glossary';
 import type { CourseKitItem, OpenCourseWeek } from '@ai/core/course';
-import { acceleratorModuleId } from '@ai/core/accelerator';
 import { checkVisible, conditionMet, gateRemaining, itemChecked, pathHasCheck, pathRegions, progressCounts, waitingOn, weekHasCheck } from '@ai/core/checklist';
 import { pathFromAnswers } from '@ai/core/personalize';
 import { formButtonLabel } from '@ai/core/form-button';
@@ -382,7 +381,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
     paths,
     prev: s.n > 1 ? learnStep(r.week, s.n - 1) : null,
     next: s.n < r.total ? learnStep(r.week, s.n + 1) : null,
-    mark: { moduleId: acceleratorModuleId(r.week), stepId: s.id, done: s.done, disabled: s.id === null || actor.kind !== 'learner' },
+    mark: { moduleId: r.moduleId, stepId: s.id, done: s.done, disabled: s.id === null || actor.kind !== 'learner' },
     forStep: asideRows(aside, chosenTab(tabs, opts)),
     aside,
     help: helpVM(p, now),
@@ -397,7 +396,7 @@ export function stepVM(p: CoursePayload, r: WeekRow | undefined, n: number | nul
   const glossary = p.course.glossary?.length ? p.course.glossary : undefined;
   const withGlossary: StepVM = glossary ? { ...base, glossary, pathMarks: pathMarksOf(paths, glossary, s.n) } : base;
   const watched = (opts?.videoProgress ?? [])
-    .filter((row) => row.moduleId === acceleratorModuleId(r.week))
+    .filter((row) => row.moduleId === r.moduleId)
     .map(({ videoId, maxPct, lastPositionS }) => ({ videoId, maxPct, lastPositionS }));
   return watched.length ? { ...withGlossary, videoProgress: watched } : withGlossary;
 }
@@ -626,7 +625,7 @@ interface LayoutCtx {
  */
 function checklistOf(p: CoursePayload, r: WeekRow, s: LearnerStep, actor: Actor, now: number, opts: StepVMOptions | undefined, glossary: readonly GlossaryTerm[] | undefined): { pills: PillVM[]; layouts: Partial<Record<Platform, ChecklistLayoutVM>> } | Record<string, never> {
   if (!r.open || !weekHasCheck(r.steps.map((x) => x.step))) return {};
-  const moduleId = acceleratorModuleId(r.week);
+  const moduleId = r.moduleId;
   const checks = opts?.checks ?? [];
   const isOn = (stepId: string, itemId: string): boolean => checks.some((c) => c.moduleId === moduleId && c.stepId === stepId && c.itemId === itemId && c.checked);
   const blocksOf = (step: LearnerStep): PathBlock[] => [...(step.step.paths?.claude?.blocks ?? []), ...(step.step.paths?.chatgpt?.blocks ?? [])];
