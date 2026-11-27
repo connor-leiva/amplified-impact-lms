@@ -2,7 +2,6 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { phaseNow, seed, setViewerZone } from '@ai/core';
 import type { AIEmployee, Db } from '@ai/core';
 import {
-  DEFAULT_OPENS,
   moduleBuilderVM,
   moveStep,
   nextFile,
@@ -16,6 +15,9 @@ import {
   opensFrom,
   opensInput,
 } from './ModuleBuilder.vm';
+
+/** An instant to schedule a module on (the reference's literal, moved here from the view-model, D-265). */
+const DEFAULT_OPENS = Date.parse('2026-12-21T09:00:00-06:00');
 import { parityDb } from '../../data/parity-r2-db';
 import { BUILDER_FILES, BUILDER_STEPS, MODS0 } from '../../data/parity-r2';
 import type { ModuleBuilderUi } from './ModuleBuilder.vm';

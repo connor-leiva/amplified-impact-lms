@@ -144,6 +144,8 @@ const routes: RouteObject[] = [
         ],
       },
       { path: 'admin/cohort/:cohortId/community/:id', lazy: () => import('./routes/console/CommunityThread') },
+      // D-265 (R-5 Phase 6): what teams turned in, the staff cards that left the week page (Phase 7 draws its tab).
+      { path: 'admin/cohort/:cohortId/submissions', lazy: () => import('./routes/admin/cohort/CohortSubmissions') },
       // People: Everyone (Users), Teams (Workspaces) and Masquerade; a person and a team are records (D-160 R2-1c).
       {
         path: 'admin/people',

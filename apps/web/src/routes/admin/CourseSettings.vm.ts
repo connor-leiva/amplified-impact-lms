@@ -1,4 +1,4 @@
-// Course settings (D-174, learner build PR 2c): what the cohort holds for the whole course. Pure
+// Course settings (D-174, learner build PR 2c; D-265: the program's, Program › Course Settings): what every cohort shares. Pure
 // helpers for the screen: the release plan as its inputs show it, the label-and-text lists as staff
 // type them, and the copy strings in key order. No course words here, only labels.
 
@@ -6,8 +6,6 @@ import { COURSE_TZ, zonedInputs } from '@ai/core';
 import type { Cohort, CopyString, Db } from '@ai/core';
 import type { LabelHint, LabelText } from '@ai/core/course-types';
 
-/** The cohort the course belongs to: cohort one (`dec26`), the only production cohort. */
-export const courseCohort = (db: Pick<Db, 'cohorts'>, id = 'dec26'): Cohort | null => db.cohorts.find((c) => c.id === id) ?? null;
 
 export interface PlanForm {
   name: string;

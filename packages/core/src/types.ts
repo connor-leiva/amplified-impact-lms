@@ -212,6 +212,11 @@ export interface Db {
   roster?: CohortRoster;
   /** R-5 audit (D-267): each access group (Utah Life) and its people outside every cohort, in staff's snapshot only. */
   groups?: AccessGroupView[];
+  /**
+   * R-5 Phase 6 (D-265): the program record, what every cohort runs (one today, `accelerator`). Optional: absent until
+   * the data step `2026-11-28-program` copies December's shared words onto it, and in every fixture.
+   */
+  programs?: Program[];
 }
 
 /** R-5 audit (D-267): an access group as People › its tab shows it, from `access_groups` and its members. */
@@ -237,4 +242,10 @@ export interface AccessGroupMember {
   /** Still `invited`: they haven't followed their link. */
   invited: boolean;
 }
+/**
+ * R-5 Phase 6 (D-265): a program, what is taught (spec § 2: "A program is what you teach"). `course` is what every
+ * cohort that runs it shares: the course intro, the rules, the before and after pages and the glossary (`CohortCourse`,
+ * the shape December's `cohorts.course` has always had). Absent `course` reads as no copy yet.
+ */
+export interface Program { id: string; name: string; course?: CohortCourse }
 export const ZERO_BASE: Baseline = { learners: 0, agent: 0, teamSeats: 0, teams: 0, mod: {}, daily: [0] };

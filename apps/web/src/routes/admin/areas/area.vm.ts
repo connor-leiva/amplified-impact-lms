@@ -39,7 +39,8 @@ export type TabCounts = Partial<Record<string, number>>;
 
 /** Each tab's count, by tab id; a tab with none is absent. */
 export function areaCounts(db: Db, area: AreaId, cohortId: string, counts: NavCounts): TabCounts {
-  if (area === 'program') return { curriculum: sortedModules(db).length };
+  // D-265 (R-5 Phase 6): Curriculum is the program's weeks.
+  if (area === 'program') return { curriculum: sortedModules(db).filter((m) => m.kind === 'week').length };
   if (area === 'cohort')
     return {
       schedule: db.sessions.filter((s) => s.cohortId === cohortId).length,

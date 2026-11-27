@@ -1,66 +1,97 @@
 import { useCallback, useRef, useState } from 'react';
-import { useBlocker, useNavigate, useParams } from 'react-router';
+import { Link, useBlocker, useNavigate, useParams, useSearchParams } from 'react-router';
 import clsx from 'clsx';
-import { MODULE_ICONS, addStep, can, duplicateStep, moduleVersion, moduleVideos, publishNeededMessage, removeStep, savePublishes } from '@ai/core';
-import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
+import {
+  MODULE_ICONS,
+  addStep,
+  can,
+  duplicateStep,
+  fmt,
+  moduleVersion,
+  moduleVideos,
+  programCourse,
+  publishNeededMessage,
+  removeStep,
+  savePublishes,
+} from '@ai/core';
 import type { AIEmployee, Db, ModuleStatus } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
 import { useToaster } from '../../components/primitives/Toaster';
-import { Button } from '../../components/r2/Button';
+import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Menu } from '../../components/r2/Menu';
 import { Confirm, Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
-import { Table } from '../../components/r2/Table';
-import type { Column } from '../../components/r2/Table';
 import { TierPill } from '../../components/r2/TierPill';
-import { KV, PageHead, Pill, Sel, TextArea, k } from '../../components/r2/kit';
+import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
+import { cohortLabel } from '../../data/admin-shell';
 import { isFixture } from '../../data/boot';
 import { useAct, useDb, useNow, useViewer } from '../../data/hooks';
 import { clock } from '../../lib/clock';
 import { useViewportWidth } from '../../shell/hooks';
 import {
-  DEFAULT_OPENS,
   builderR2VM,
   moveStepTo,
+  newWeekDraft,
   nextFile,
   normalizeSaved,
-  opensFrom,
-  opensInput,
   parseMinutes,
   parseReplayAt,
   seedDraft,
 } from './ModuleBuilder.vm';
-import type { BuilderR2Step } from './ModuleBuilder.vm';
-import { CoursePreview, StepWeekFields, WeekCards } from './WeekBuilder';
+import {
+  AgendaCard,
+  CoursePageCard,
+  CoursePreview,
+  HireCardsCard,
+  KitCard,
+  SkillsCard,
+  StepWeekFields,
+} from './WeekBuilder';
+import { IntakeCard } from './IntakeCard';
+import { StackCard } from './StackCard';
 import { WhereItRuns } from './cohort/WhereItRuns';
+import { cohortPath } from './cohort/cohort.vm';
 import { TONES, TONE_LABELS, draftIssues, isWeekDraft, weekKit, weekSessions } from './WeekBuilder.vm';
+import {
+  WEEK_SECTIONS,
+  neighbours,
+  runsOf,
+  sectionCounts,
+  sectionOf,
+  stepRows,
+  weekSections,
+  weekTitle,
+} from './program/program.vm';
+import type { WeekSection } from './program/program.vm';
 import s from './ModuleBuilder.module.css';
+import c from './cohort/Cohort.module.css';
+import p from './program/Program.module.css';
 import { weekPath } from '../../shell/admin/addresses';
-import { useRecordCrumb } from '../../shell/admin/chrome';
+import { useAdminChrome, useRecordCrumb } from '../../shell/admin/chrome';
 
-// Admin Module Builder `/admin/program/weeks/:employeeId` and `/admin/program/weeks/new` (D-253; they were
-// `/admin/curriculum/…`, which redirect) on the Admin
-// redesign R2 (D-160 R2-2): the signed-off mockup's `Builder` (AdminRedesign.jsx), drawn from
-// `builderR2VM`. The draft, the unsaved-changes prompt and every write (`saveModule`) are as before.
+/** A section's name in the rail. */
+const sectionLabel = (id: WeekSection): string => WEEK_SECTIONS.find((x) => x.id === id)!.label;
+
+// D-265 (R-5 Phase 6): Program › a week (`/admin/program/weeks/:moduleId`, `/admin/program/weeks/new`), the mockup's
+// `WeekEdit`: today's week builder regrouped into sections down the left, one on screen at a time (`?section=`): Basics,
+// Steps, Course Page, Live Sessions, Hire Cards, Kit, and on the setup week a seventh, Forms (PLAN.md § 10.1 Q-31,
+// § 10.6). No field is added or removed (PLAN § 6.1's placements):
 //
-//   - The left list (a select on a phone) opens another AI Employee.
-//   - Name and Summary (the outcome line) edit in place; each step's title edits in its row; the drag
-//     handle (or Alt with an arrow key) reorders the six steps; Attach adds a file.
-//   - Settings: Status is a menu (Draft, Scheduled, Published), which saves with that status, so
-//     Published runs the publish checks; Tier access is the tier pill.
-//   - Save changes / Saved saves the draft with its status.
-//   - The fields the mockup does not draw (sidebar label, headline, for, icon, outputs, live session,
-//     opening day, platform, run label, notes, system prompt, removing a file) are in "Edit details",
-//     the AI Employee's icon tile; a step's hint, chapter, replay time and minutes in its "…" menu.
-//   - D-172: Add step appends the mockup's new step (Build, "New step", 5 min); a step's "…" adds the
-//     mockup's Duplicate step (a copy, last) and Remove step (after a confirm). Each changes the draft,
-//     as every other edit here does, so Discard undoes it; Save changes persists the draft through
-//     `saveBuilderModule` (core's `saveModule`, learners' checks kept on their steps, one audited
-//     `module.save` row). Connor's request (Nov 16) supersedes phase 06 § 6.3's "exactly 6 steps";
-//     publishing still needs six titled steps (`saveModule`'s check).
+//   - Head: back to Curriculum, the week's status, the previous and next week, Preview, Save changes.
+//   - Basics: Title and Outcome; Where It Runs (each cohort's week number, opening and due date, a link to that cohort's
+//     Dates and Release, where they are edited, D-255); then what "Edit details" held (sidebar label, headline, for,
+//     icon, the three outputs, run label, platform, tier access, tone, notes, system prompt).
+//   - Steps: in order; a step opens its words, who does it, its time and both paths (`StepWeekFields`).
+//   - Course Page, Live Sessions (the admin's cohort's sessions, read-only, each a link to Schedule, spec § 4 rule 4;
+//     then each run of show), Hire Cards, Kit (skills, vault items, the module's files), Forms (Week 0's intake and
+//     stack card). `SubmissionsCard` and `SeatCardsCard` left for Cohort › Submissions (PLAN § 6.1).
+//
+// The draft, the unsaved-changes prompt (phase 06 § 6.3) and every write (`saveBuilderModule`, one audited
+// `module.save` row, D-247's version check) are as before. A course week's Opens and Due are its cohorts'; the save
+// keeps the stored ones (D-265). "Add a week" starts a draft week (`newWeekDraft`).
 
 type TextKey = 'short' | 'headline' | 'forWho' | 'prompt' | 'notes' | 'platform' | 'runLabel';
 
@@ -84,17 +115,11 @@ const versionOf = (db: Db, id: string | null): string | null => {
 
 const seedState = (db: Db, id: string | null): BuilderState => ({
   key: id ?? '',
-  draft: seedDraft(db, id, clock.now()),
+  draft: id ? seedDraft(db, id, clock.now()) : newWeekDraft(db, clock.now()),
   dirty: false,
   errors: [],
   base: versionOf(db, id),
 });
-
-const STATUSES: readonly [ModuleStatus, string][] = [
-  ['draft', 'Draft'],
-  ['scheduled', 'Scheduled'],
-  ['published', 'Published'],
-];
 
 export function Component() {
   const db = useDb();
@@ -105,16 +130,18 @@ export function Component() {
   const { toast } = useToaster();
   const params = useParams();
   const phone = useViewportWidth() < 768;
+  const [search, setSearch] = useSearchParams();
+  // D-265: the builder previews, counts and links sessions in the admin's own cohort (the picker's, D-253).
+  const cohortId = useAdminChrome().cohort.id;
 
   const raw = params.employeeId;
   const routeId = !raw || raw === 'new' ? null : raw;
   const [st, setSt] = useState<BuilderState>(() => seedState(db, routeId));
-  const [details, setDetails] = useState(false);
   const [stepAt, setStepAt] = useState<number | null>(null);
   const [removeAt, setRemoveAt] = useState<number | null>(null);
   const [previewing, setPreviewing] = useState(false);
   // D-253: a week is a record of Program › Curriculum; the crumb names it (`Admin / Program / Curriculum / {name}`).
-  useRecordCrumb(st.draft.name || null);
+  useRecordCrumb(weekTitle(st.draft) || null);
 
   // A brand-new draft just saved: `/new` must not reseed over it while the navigation is in flight.
   const savedNew = useRef<string | null>(null);
@@ -122,12 +149,13 @@ export function Component() {
   if (st.key !== (routeId ?? '') && savedNew.current === null) setSt(seedState(db, routeId));
 
   const bypass = useRef(false);
-  const blocker = useBlocker(() => {
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     if (bypass.current) {
       bypass.current = false;
       return false;
     }
-    return st.dirty;
+    // D-265: moving between the week's sections (`?section=`) keeps the draft, so only leaving the week asks.
+    return st.dirty && currentLocation.pathname !== nextLocation.pathname;
   });
 
   const up = useCallback((fn: (d: AIEmployee) => void) => {
@@ -154,10 +182,14 @@ export function Component() {
       setSaving(true);
       const isNew = !st.key;
       const draft = structuredClone(st.draft);
-      if (status === 'scheduled' && !draft.opens) draft.opens = DEFAULT_OPENS;
       // D-255: a course week's dates are its cohort's. Publishing a scheduled week keeps it scheduled on its date; the
       // builder neither dates nor undates it (one editor at a time).
-      if (status === 'published' && isWeekDraft(draft) && db.modules.find((m) => m.id === draft.id)?.status === 'scheduled') status = 'scheduled';
+      if (
+        status === 'published' &&
+        isWeekDraft(draft) &&
+        db.modules.find((m) => m.id === draft.id)?.status === 'scheduled'
+      )
+        status = 'scheduled';
       let out: Awaited<ReturnType<typeof act>>;
       try {
         out = await act('saveBuilderModule', { draft, status, base: st.base });
@@ -184,7 +216,7 @@ export function Component() {
   );
 
   const d = st.draft;
-  const vm = builderR2VM(db, d, { dirty: st.dirty, saved: !!st.key }, now);
+  const vm = builderR2VM(db, d, { dirty: st.dirty, saved: !!st.key }, now, cohortId ?? undefined);
   // D-174: a course week gets the course's cards; an AI Employee is drawn as the R2 mockup draws it.
   const week = isWeekDraft(d) ? d : null;
   // D-174: what Save would be refused for, while staff type (the copy rules on what changed).
@@ -193,7 +225,12 @@ export function Component() {
   // D-247 (H-8): a published or scheduled module saves only with the Publish modules permission. Said up
   // front, in the notice the builder already uses, so nobody edits for ten minutes and then learns it.
   const storedStatus = db.modules.find((m) => m.id === d.id)?.status;
-  const needsPublish = !!st.key && storedStatus !== undefined && storedStatus !== 'draft' && savePublishes(d) && !can(db, viewer.actor, 'publish');
+  const needsPublish =
+    !!st.key &&
+    storedStatus !== undefined &&
+    storedStatus !== 'draft' &&
+    savePublishes(d) &&
+    !can(db, viewer.actor, 'publish');
 
   /** Preview as Learner: the published AI Employee as the learner its tier calls for (phase 06 § 6.4). */
   const preview = () => {
@@ -214,64 +251,89 @@ export function Component() {
 
   const open = (id: string) => void navigate(weekPath(id));
 
-  const cols: Column<BuilderR2Step>[] = [
-    {
-      key: 'step',
-      label: 'Step',
-      width: 'minmax(0,1fr)',
-      value: (r) => r.text,
-      cell: (r) => {
-        const i = Number(r.key);
-        return (
-          <TextArea
-            rows={1}
-            className={s.step}
-            aria-label={`Step ${i + 1} title`}
-            title={r.text}
-            value={r.text}
-            onChange={(e) => {
-              const v = e.target.value;
-              up((x) => {
-                // D-212: on a course week the title the learner sees is `ch` (learn.vm's stepTitle), so the
-                // title edits it; an AI Employee's step keeps its text.
-                if (x.kind === 'week') x.checklist[i]!.ch = v;
-                else x.checklist[i]!.text = v;
-              });
-            }}
-          />
-        );
-      },
-    },
-    {
-      key: 'type',
-      label: 'Type',
-      width: '64px',
-      value: (r) => r.kind,
-      cell: (r) => (r.kind ? <Pill>{r.kind}</Pill> : null),
-    },
-    { key: 'len', label: 'Length', width: '48px', num: true, value: (r) => r.length },
-  ];
-
   const step = stepAt !== null ? d.checklist[stepAt] : null;
+  const steps = stepRows(d);
+  const sections = weekSections(d);
+  const sec = sectionOf(d, search.get('section'));
+  const counts = sectionCounts(db, d, cohortId);
+  const near = neighbours(db, d.id);
+  const title = weekTitle(d);
+  const goSection = (v: WeekSection) =>
+    setSearch(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (v === 'steps') next.delete('section');
+        else next.set('section', v);
+        return next;
+      },
+      { replace: true },
+    );
+  const discard = () => setSt(seedState(db, routeId));
+  const field = (label: string, at: string | null, value: string, on: (v: string) => void, rows?: number) => (
+    <label className={c.lab}>
+      {label}
+      {at ? <span className={c.fat}>Learners see it on {at}</span> : null}
+      {rows ? (
+        <TextArea rows={rows} value={value} onChange={(e) => on(e.target.value)} />
+      ) : (
+        <input className={k.in} value={value} onChange={(e) => on(e.target.value)} />
+      )}
+    </label>
+  );
+  const mySessions = cohortId
+    ? db.sessions.filter((x) => x.cohortId === cohortId && x.moduleId === d.id).sort((a, b) => a.start - b.start)
+    : [];
+  const myCohort = cohortId ? (db.cohorts.find((x) => x.id === cohortId) ?? null) : null;
+  const runsHere = week && myCohort ? runsOf(db, d.id).some((r) => r.cohortId === myCohort.id) : false;
 
   return (
     <Page>
       <PageHead
-        title="Module Builder"
-        description="Edit one AI Employee: its steps, files, tier access, and live session."
+        back={{ to: '/admin/program', label: 'Curriculum' }}
+        title={title}
+        meta={
+          <Status tone={d.status === 'draft' ? 'off' : 'ok'}>{d.status === 'draft' ? 'Draft' : 'Published'}</Status>
+        }
+        description={d.outcome || undefined}
         right={
           <>
+            <span className={clsx(k.row, k.nw)} style={{ gap: 0 }}>
+              <button
+                type="button"
+                className={k.ib}
+                aria-label="Previous week"
+                disabled={!near.prev}
+                onClick={() => near.prev && open(near.prev)}
+              >
+                <Icon name="r2Back" size={16} strokeWidth={1.75} />
+              </button>
+              <button
+                type="button"
+                className={clsx(k.ib, p.flip)}
+                aria-label="Next week"
+                disabled={!near.next}
+                onClick={() => near.next && open(near.next)}
+              >
+                <Icon name="r2Back" size={16} strokeWidth={1.75} />
+              </button>
+            </span>
             <Button header icon="r2Eye" onClick={preview}>
-              Preview as Learner
+              Preview
             </Button>
-            <Button header kind="primary" disabled={saving} aria-busy={saving || undefined} onClick={() => void save()}>
-              {vm.saveLabel}
+            <Button
+              header
+              kind="primary"
+              disabled={saving || (!st.dirty && !!st.key)}
+              aria-busy={saving || undefined}
+              onClick={() => void save()}
+            >
+              Save changes
             </Button>
           </>
         }
       />
       {st.errors.length ? (
-        <div role="alert" className={s.alert}>
+        <div role="alert" className={p.alert}>
           {st.errors.map((e) => (
             <p key={e} className={k.p}>
               {e}
@@ -280,12 +342,12 @@ export function Component() {
         </div>
       ) : null}
       {needsPublish && !st.errors.length ? (
-        <div role="status" className={s.alert}>
+        <div role="status" className={p.alert}>
           <p className={k.p}>{publishNeededMessage(d)}</p>
         </div>
       ) : null}
       {issues.length && !st.errors.length ? (
-        <div role="status" className={s.alert}>
+        <div role="status" className={p.alert}>
           <p className={k.p}>Fix these before you save:</p>
           {issues.map((e) => (
             <p key={e} className={k.p}>
@@ -294,384 +356,364 @@ export function Component() {
           ))}
         </div>
       ) : null}
-      <div className={s.bb}>
+      <div className={p.srg}>
         {phone ? (
-          <Sel className={k.full} aria-label="AI Employee" value={st.key || ''} onChange={(e) => open(e.target.value)}>
-            {st.key ? null : <option value="">{d.name}</option>}
-            {vm.list.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.name}
+          <Sel
+            className={k.full}
+            aria-label="Section"
+            value={sec}
+            onChange={(e) => goSection(e.target.value as WeekSection)}
+          >
+            {sections.map((id) => (
+              <option key={id} value={id}>
+                {sectionLabel(id)}
+                {counts[id] !== undefined ? ` · ${counts[id]}` : ''}
               </option>
             ))}
           </Sel>
         ) : (
-          <nav className={clsx(k.cd, s.list)} aria-label="AI Employees">
-            {vm.list.map((x) => (
+          <nav className={p.srl} aria-label="Sections">
+            {sections.map((id) => (
               <button
-                key={x.id}
+                key={id}
                 type="button"
-                className={clsx(s.ni, x.on && s.on)}
-                aria-current={x.on ? 'page' : undefined}
-                onClick={() => open(x.id)}
+                className={clsx(p.srb, sec === id && p.on)}
+                aria-current={sec === id ? 'true' : undefined}
+                onClick={() => goSection(id)}
               >
-                <Status tone={x.tone} />
-                <span className={k.el}>{x.name}</span>
+                <span className={p.srbLabel}>{sectionLabel(id)}</span>
+                {counts[id] !== undefined ? <span className={p.srbCount}>{counts[id]}</span> : null}
               </button>
             ))}
           </nav>
         )}
         <div className={k.col}>
-          <section className={clsx(k.cd, s.pd, k.col, k.colM)}>
-            <div className={clsx(k.row, k.nw)}>
-              <button
-                type="button"
-                className={s.tile}
-                aria-label="Edit details"
-                title="Edit details"
-                onClick={() => setDetails(true)}
-              >
-                <span className={s.mt}>
-                  <Icon name={vm.icon} size={16} strokeWidth={1.75} />
-                </span>
-              </button>
-              <input
-                className={clsx(k.in, s.ine, s.name)}
-                aria-label="Name"
-                value={d.name}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  up((x) => {
-                    x.name = v;
-                  });
-                }}
-              />
-            </div>
-            <input
-              className={clsx(k.in, s.ine)}
-              aria-label="Summary"
-              value={d.outcome}
-              onChange={(e) => {
-                const v = e.target.value;
-                up((x) => {
-                  x.outcome = v;
-                });
-              }}
-            />
-          </section>
-          <Table
-            label="Steps"
-            title={`Steps · ${vm.steps.length}`}
-            right={
-              <Button
-                kind="quiet"
-                icon="r2Plus"
-                onClick={() =>
-                  up((x) => {
-                    x.checklist = addStep(x.checklist);
-                  })
-                }
-              >
-                Add step
-              </Button>
-            }
-            cols={cols}
-            rows={vm.steps}
-            rowKey={(r) => r.key}
-            onMove={(a, b) =>
-              up((x) => {
-                x.checklist = moveStepTo(x.checklist, a, b);
-              })
-            }
-            menu={(r) => [
-              { label: 'Edit step details', onSelect: () => setStepAt(Number(r.key)) },
-              {
-                label: 'Duplicate step',
-                onSelect: () =>
-                  up((x) => {
-                    x.checklist = duplicateStep(x.checklist, Number(r.key));
-                  }),
-              },
-              { label: 'Remove step', danger: true, onSelect: () => setRemoveAt(Number(r.key)) },
-            ]}
-            empty={{ icon: 'r2Builder', title: 'No steps yet' }}
-          />
-          <Card
-            title={`Files · ${vm.files.length}`}
-            pad={false}
-            right={
-              <Button
-                kind="quiet"
-                icon="r2Plus"
-                onClick={() =>
-                  up((x) => {
-                    x.files.push(nextFile(x));
-                  })
-                }
-              >
-                Attach
-              </Button>
-            }
-          >
-            {vm.files.map((f, i) => (
-              <div key={`${i}:${f.name}`} className={k.li}>
-                <Icon name="r2File" size={16} strokeWidth={1.75} />
-                <span className={clsx(k.mo, k.el, k.sp)}>{f.name}</span>
-                <span className={k.mu}>{f.desc}</span>
-                <span className={clsx(k.me, k.tn, s.size)}>{f.size}</span>
+          {sec === 'basics' ? (
+            <Card title="Basics" sub="What the week is called and what it is for.">
+              <div className={k.col}>
+                {field('Title', 'the sidebar and the week page', d.name, (v) => up((x) => void (x.name = v)))}
+                {field('Outcome', 'the week page, under the title', d.outcome, (v) => up((x) => void (x.outcome = v)))}
+                {week ? <WhereItRuns db={db} moduleId={week.id} /> : null}
+                {week && cohortId ? (
+                  <p className={clsx(k.p, k.me)}>
+                    What teams turned in for this week is on{' '}
+                    <Link
+                      className={clsx(k.lk, p.inlink)}
+                      to={`${cohortPath(cohortId, 'submissions')}?week=${encodeURIComponent(week.id)}`}
+                    >
+                      Cohort › Submissions
+                    </Link>
+                    .
+                  </p>
+                ) : null}
+                {field('Sidebar label', null, d.short, (v) => setText('short', v))}
+                {field('Outcome headline', null, d.headline, (v) => setText('headline', v))}
+                {field('For', null, d.forWho, (v) => setText('forWho', v))}
+                <div className={c.lab} role="group" aria-label="Icon">
+                  Icon
+                  <div className={k.row}>
+                    {MODULE_ICONS.map((ic) => (
+                      <button
+                        key={ic}
+                        type="button"
+                        className={clsx(s.tile, s.mt, d.icon === ic && s.mtOn)}
+                        aria-label={`Icon ${ic}`}
+                        aria-pressed={d.icon === ic}
+                        onClick={() => up((x) => void (x.icon = ic))}
+                      >
+                        <Icon name={ic} size={16} strokeWidth={1.75} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {d.outputs.map((o, i) => (
+                  <label key={i} className={c.lab}>
+                    {`Output ${i + 1}`}
+                    <input
+                      className={k.in}
+                      placeholder="What it produces"
+                      value={o}
+                      onChange={(e) => up((x) => void (x.outputs[i] = e.target.value))}
+                    />
+                  </label>
+                ))}
+                {field('Run button label', null, d.runLabel, (v) => setText('runLabel', v))}
+                {field('Platform', null, d.platform, (v) => setText('platform', v))}
+                <div className={c.lab}>
+                  Tier access
+                  <span>
+                    <TierPill tier={d.tier} onChange={(t) => up((x) => void (x.tier = t))} />
+                  </span>
+                </div>
+                {week ? (
+                  <label className={c.lab}>
+                    Tone
+                    <Sel
+                      className={k.full}
+                      value={week.tone ?? ''}
+                      onChange={(e) =>
+                        up((x) => (e.target.value ? void (x.tone = e.target.value) : void delete x.tone))
+                      }
+                    >
+                      <option value="">Not set</option>
+                      {TONES.map((t) => (
+                        <option key={t} value={t}>
+                          {TONE_LABELS[t]}
+                        </option>
+                      ))}
+                    </Sel>
+                  </label>
+                ) : (
+                  <label className={c.lab}>
+                    Live session
+                    <Sel
+                      className={k.full}
+                      value={d.session ? String(d.session) : ''}
+                      onChange={(e) => up((x) => void (x.session = e.target.value ? Number(e.target.value) : null))}
+                    >
+                      {vm.sessionOptions.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </Sel>
+                  </label>
+                )}
+                {field('Instructor notes', null, d.notes, (v) => setText('notes', v), 3)}
+                <label className={c.lab}>
+                  System prompt
+                  <TextArea
+                    rows={6}
+                    className={k.mo}
+                    value={d.prompt}
+                    onChange={(e) => setText('prompt', e.target.value)}
+                  />
+                </label>
               </div>
-            ))}
-          </Card>
-          {week ? <WeekCards db={db} draft={week} up={up} act={act} /> : null}
-        </div>
-        <Card title="Settings">
-          <div className={clsx(k.col, s.kvs)}>
-            <KV
-              rows={[
-                {
-                  label: 'Status',
-                  value: (
-                    <Menu
-                      label="Status"
-                      placement="below-left"
-                      items={STATUSES.filter(([key]) => !week || key !== 'scheduled' || d.status === 'scheduled').map(([key, label]) => ({
-                        label,
-                        checked: d.status === key,
-                        disabled: saving,
-                        onSelect: () => void save(key),
-                      }))}
-                      trigger={(t) => (
+            </Card>
+          ) : null}
+          {sec === 'steps' ? (
+            <section className={k.cd} aria-label="Steps">
+              <div className={k.cdh}>
+                <div className={clsx(k.col, k.colS, p.grow)} style={{ gap: 0 }}>
+                  <h2 className={k.h2}>Steps</h2>
+                  <span className={k.me}>
+                    {steps.length ? 'In order. A learner ticks each one off.' : 'This week has no steps yet.'}
+                  </span>
+                </div>
+                <Button icon="r2Plus" onClick={() => up((x) => void (x.checklist = addStep(x.checklist)))}>
+                  Add a step
+                </Button>
+              </div>
+              {steps.length ? (
+                <div className={c.wkl}>
+                  {steps.map((r, i) => (
+                    <div key={r.key} className={clsx(p.wkr, p.stp)} data-step={i + 1}>
+                      {!phone ? (
                         <button
                           type="button"
-                          className={s.plain}
-                          aria-label={`Status: ${vm.status.label}`}
-                          disabled={saving}
-                          {...t.props}
-                          onClick={t.toggle}
+                          className={p.grp}
+                          aria-label={`Move step ${i + 1}: press Alt with an arrow key`}
+                          onKeyDown={(e) => {
+                            if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                            e.preventDefault();
+                            const to = e.key === 'ArrowUp' ? i - 1 : i + 1;
+                            if (to >= 0 && to < steps.length)
+                              up((x) => void (x.checklist = moveStepTo(x.checklist, i, to)));
+                          }}
                         >
-                          <Status tone={vm.status.tone}>{vm.status.label}</Status>
+                          <Icon name="r2Grip" size={14} strokeWidth={2.6} />
                         </button>
-                      )}
-                    />
-                  ),
-                },
-                {
-                  label: 'Tier access',
-                  value: (
-                    <TierPill
-                      tier={vm.tier}
-                      onChange={(t) =>
-                        up((x) => {
-                          x.tier = t;
-                        })
-                      }
-                    />
-                  ),
-                },
-                {
-                  label: 'Live session',
-                  value: vm.session ? (
-                    <span>
-                      {vm.session.title}
-                      <br />
-                      <span className={k.me}>{vm.session.when}</span>
-                    </span>
-                  ) : (
-                    <span className={k.mu}>Self-paced</span>
-                  ),
-                },
-                // D-255: a course week's Opens and Due are its cohort's; they are under Where it runs, below.
-                ...(week
-                  ? []
-                  : [
-                      {
-                        label: 'Opens',
-                        value: vm.opens.muted ? <span className={k.mu}>{vm.opens.text}</span> : vm.opens.text,
-                      },
-                    ]),
-                {
-                  label: 'Skill guide',
-                  value: vm.linked ? (
-                    <span className={clsx(k.row, s.linked)}>
-                      <Icon name="r2Check" size={16} strokeWidth={1.75} />
-                      Linked
-                    </span>
-                  ) : (
-                    <span className={k.mu}>Not linked</span>
-                  ),
-                },
-              ]}
-            />
-            {week ? <WhereItRuns db={db} moduleId={week.id} /> : null}
-            <p className={clsx(k.p, k.me)}>
-              Preview as Learner opens a read-only copy in a new tab. It is not masquerade and is not audit-logged.
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {details ? (
-        <Modal
-          title="Edit details"
-          width={560}
-          onClose={() => setDetails(false)}
-          foot={
-            <Button kind="primary" onClick={() => setDetails(false)}>
-              Done
-            </Button>
-          }
-        >
-          <label className={s.lab}>
-            Sidebar label
-            <input className={k.in} value={d.short} onChange={(e) => setText('short', e.target.value)} />
-          </label>
-          <label className={s.lab}>
-            Outcome headline
-            <input className={k.in} value={d.headline} onChange={(e) => setText('headline', e.target.value)} />
-          </label>
-          <label className={s.lab}>
-            For
-            <input className={k.in} value={d.forWho} onChange={(e) => setText('forWho', e.target.value)} />
-          </label>
-          <div className={s.lab} role="group" aria-label="Icon">
-            Icon
-            <div className={k.row}>
-              {MODULE_ICONS.map((ic) => (
-                <button
-                  key={ic}
-                  type="button"
-                  className={clsx(s.tile, s.mt, d.icon === ic && s.mtOn)}
-                  aria-label={`Icon ${ic}`}
-                  aria-pressed={d.icon === ic}
-                  onClick={() =>
-                    up((x) => {
-                      x.icon = ic;
-                    })
-                  }
-                >
-                  <Icon name={ic} size={16} strokeWidth={1.75} />
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* D-218: an AI Employee's hire page reads its outputs and run label; a course week's built hero lists
-              its outputs and makes the run label its action (to the week's flagship skill). */}
-          {d.outputs.map((o, i) => (
-            <label key={i} className={s.lab}>
-              {`Output ${i + 1}`}
-              <input
-                className={k.in}
-                placeholder="What it produces"
-                value={o}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  up((x) => {
-                    x.outputs[i] = v;
-                  });
-                }}
-              />
-            </label>
-          ))}
-          <label className={s.lab}>
-            Live session
-            <Sel
-              className={k.full}
-              value={d.session ? String(d.session) : ''}
-              onChange={(e) => {
-                const v = e.target.value;
-                up((x) => {
-                  x.session = v ? Number(v) : null;
-                });
-              }}
-            >
-              {vm.sessionOptions.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </Sel>
-          </label>
-          {week ? (
-            <>
-              {/* D-255: one editor at a time. A week's Opens and Due are its cohort's (Cohort › Settings › Dates and
-                  Release), shown under Where it runs in the Settings card, each a link there. */}
-              <label className={s.lab}>
-                Tone
-                <Sel
-                  className={k.full}
-                  value={week.tone ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    up((x) => {
-                      if (v) x.tone = v;
-                      else delete x.tone;
-                    });
-                  }}
-                >
-                  <option value="">Not set</option>
-                  {TONES.map((t) => (
-                    <option key={t} value={t}>
-                      {TONE_LABELS[t]}
-                    </option>
+                      ) : null}
+                      <span className={clsx(c.wn, c.sm)}>{i + 1}</span>
+                      <button type="button" className={p.wkm} onClick={() => setStepAt(i)}>
+                        <span className={clsx(k.w5, k.el, p.wkt)}>{r.title}</span>
+                        <span className={clsx(k.me, k.el)}>{r.doneWhen}</span>
+                      </button>
+                      <div className={p.wkc}>
+                        <span className={p.who}>
+                          {r.who.map((x) => (
+                            <span key={x} className={clsx(k.pl, x === 'Owner' ? k.info : k.ok)}>
+                              {x}
+                            </span>
+                          ))}
+                        </span>
+                      </div>
+                      <div className={clsx(p.wks, k.tn)}>{r.time}</div>
+                      <Menu
+                        className={p.menu}
+                        label={`Actions for step ${i + 1}`}
+                        items={[
+                          { label: 'Edit step', onSelect: () => setStepAt(i) },
+                          {
+                            label: 'Move up',
+                            disabled: i === 0,
+                            onSelect: () => up((x) => void (x.checklist = moveStepTo(x.checklist, i, i - 1))),
+                          },
+                          {
+                            label: 'Move down',
+                            disabled: i === steps.length - 1,
+                            onSelect: () => up((x) => void (x.checklist = moveStepTo(x.checklist, i, i + 1))),
+                          },
+                          {
+                            label: 'Duplicate step',
+                            onSelect: () => up((x) => void (x.checklist = duplicateStep(x.checklist, i))),
+                          },
+                          'separator',
+                          { label: 'Remove step', danger: true, onSelect: () => setRemoveAt(i) },
+                        ]}
+                        placement={i >= steps.length - 2 ? 'above' : 'below-right'}
+                        trigger={(t) => (
+                          <button
+                            type="button"
+                            className={k.ib}
+                            aria-label="More actions"
+                            {...t.props}
+                            onClick={t.toggle}
+                          >
+                            <Icon name="r2More" size={16} strokeWidth={2.6} />
+                          </button>
+                        )}
+                      />
+                    </div>
                   ))}
-                </Sel>
-              </label>
+                </div>
+              ) : (
+                <div className={k.cdb}>
+                  <p className={clsx(k.p, k.s2)}>Add the first step, or duplicate a built week and change it.</p>
+                </div>
+              )}
+            </section>
+          ) : null}
+          {sec === 'page' && week ? (
+            <>
+              <CoursePageCard db={db} draft={week} up={up} act={act} />
+              <p className={clsx(k.p, k.me)}>
+                What every week shares (the course intro, the rules, the glossary) is in{' '}
+                <Link className={clsx(k.lk, p.inlink)} to="/admin/program/course">
+                  Course Settings
+                </Link>
+                .
+              </p>
             </>
           ) : null}
-          {d.status === 'scheduled' && !week ? (
-            <label className={s.lab}>
-              Opens (MT)
-              <input
-                className={k.in}
-                type="date"
-                value={opensInput(d.opens)}
-                onChange={(e) => {
-                  const v = opensFrom(e.target.value);
-                  up((x) => {
-                    x.opens = v;
-                  });
-                }}
-              />
-            </label>
+          {sec === 'live' && week ? (
+            <>
+              <section className={k.cd} aria-label="Live Sessions">
+                <div className={k.cdh}>
+                  <div className={clsx(k.col, k.colS, p.grow)} style={{ gap: 0 }}>
+                    <h2 className={k.h2}>Live Sessions</h2>
+                    <span className={k.me}>
+                      Sessions belong to the cohort. This week only says what happens in them.
+                    </span>
+                  </div>
+                  {cohortId ? <ButtonLink to={cohortPath(cohortId, 'schedule')}>Open Schedule</ButtonLink> : null}
+                </div>
+                {mySessions.length ? (
+                  <div className={c.wkl}>
+                    {mySessions.map((x) => (
+                      <div key={x.id} className={clsx(p.wkr, p.stp)}>
+                        <span className={c.mt}>
+                          <Icon
+                            name={x.kind === 'live_build' ? 'r2Play' : 'r2Community'}
+                            size={16}
+                            strokeWidth={1.75}
+                          />
+                        </span>
+                        <Link className={p.wkm} to={cohortPath(x.cohortId, 'schedule')}>
+                          <span className={clsx(k.w5, k.el, p.wkt)}>{x.title}</span>
+                          <span className={clsx(k.me, k.el)}>
+                            {fmt.mtDay(x.start)} · {fmt.mtCt(x.start)}
+                          </span>
+                        </Link>
+                        <div className={p.wks}>
+                          {x.zoom ? <Status tone="ok">Ready</Status> : <Status tone="warn">Waiting</Status>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={k.cdb}>
+                    <p className={clsx(k.p, k.s2)}>
+                      {week.course.week === 0
+                        ? 'The setup week is self-paced. It has no sessions.'
+                        : myCohort
+                          ? runsHere
+                            ? `The ${cohortLabel(myCohort)} has no sessions for this week yet. `
+                            : `The ${cohortLabel(myCohort)} doesn’t run this week. `
+                          : ''}
+                      {week.course.week > 0 && myCohort && runsHere ? (
+                        <Link className={clsx(k.lk, p.inlink)} to={cohortPath(myCohort.id, 'schedule')}>
+                          Add them in Schedule
+                        </Link>
+                      ) : null}
+                    </p>
+                  </div>
+                )}
+              </section>
+              <AgendaCard db={db} draft={week} up={up} act={act} which="liveBuild" />
+              <AgendaCard db={db} draft={week} up={up} act={act} which="officeHours" />
+            </>
           ) : null}
-          <label className={s.lab}>
-            Platform
-            <input className={k.in} value={d.platform} onChange={(e) => setText('platform', e.target.value)} />
-          </label>
-          <label className={s.lab}>
-            Run button label
-            <input className={k.in} value={d.runLabel} onChange={(e) => setText('runLabel', e.target.value)} />
-          </label>
-          <label className={s.lab}>
-            Instructor notes
-            <TextArea rows={3} value={d.notes} onChange={(e) => setText('notes', e.target.value)} />
-          </label>
-          <label className={s.lab}>
-            System prompt
-            <TextArea rows={6} className={k.mo} value={d.prompt} onChange={(e) => setText('prompt', e.target.value)} />
-          </label>
-          {d.files.length ? (
-            <div className={s.lab} role="group" aria-label="Files">
-              Files
-              {d.files.map((f, i) => (
-                <span key={`${i}:${f.name}`} className={clsx(k.row, k.nw)}>
-                  <span className={clsx(k.mo, k.el, k.sp)}>{f.name}</span>
-                  <Button
-                    kind="quiet"
-                    aria-label={`Remove ${f.name}`}
-                    onClick={() =>
-                      up((x) => {
-                        x.files.splice(i, 1);
-                      })
-                    }
-                  >
-                    Remove
+          {sec === 'cards' && week ? <HireCardsCard db={db} draft={week} up={up} act={act} /> : null}
+          {sec === 'kit' ? (
+            <>
+              {week ? <SkillsCard db={db} draft={week} up={up} act={act} /> : null}
+              {week ? <KitCard db={db} draft={week} up={up} act={act} /> : null}
+              <Card
+                title={`Files · ${vm.files.length}`}
+                pad={false}
+                right={
+                  <Button kind="quiet" icon="r2Plus" onClick={() => up((x) => void x.files.push(nextFile(x)))}>
+                    Attach
                   </Button>
-                </span>
-              ))}
+                }
+              >
+                {vm.files.map((f, i) => (
+                  <div key={`${i}:${f.name}`} className={k.li}>
+                    <Icon name="r2File" size={16} strokeWidth={1.75} />
+                    <span className={clsx(k.mo, k.el, k.sp)}>{f.name}</span>
+                    <span className={k.mu}>{f.desc}</span>
+                    <span className={clsx(k.me, k.tn, s.size)}>{f.size}</span>
+                    <Button
+                      kind="quiet"
+                      aria-label={`Remove ${f.name}`}
+                      onClick={() => up((x) => void x.files.splice(i, 1))}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <div className={k.cdb}>
+                  <span className={clsx(k.row, k.me)}>Skill guide: {vm.linked ? 'Linked' : 'Not linked'}</span>
+                </div>
+              </Card>
+              <p className={clsx(k.p, k.me)}>
+                Files live in the{' '}
+                <Link className={clsx(k.lk, p.inlink)} to="/admin/program/vault">
+                  Resource Vault
+                </Link>
+                . A week only points at them.
+              </p>
+            </>
+          ) : null}
+          {sec === 'forms' && week ? (
+            <>
+              <IntakeCard db={db} draft={week} up={up} act={act} />
+              <StackCard db={db} draft={week} up={up} act={act} />
+            </>
+          ) : null}
+          {st.dirty ? (
+            <div className={p.svb} role="status">
+              <span className={p.svbText}>Unsaved changes to {title}</span>
+              <Button onClick={discard}>Discard</Button>
+              <Button kind="primary" disabled={saving} onClick={() => void save()}>
+                Save changes
+              </Button>
             </div>
           ) : null}
-        </Modal>
-      ) : null}
+        </div>
+      </div>
 
       {step && stepAt !== null ? (
         <Modal
@@ -684,48 +726,50 @@ export function Component() {
             </Button>
           }
         >
-          <label className={s.lab}>
+          <label className={c.lab}>
+            Title
+            <input
+              className={k.in}
+              value={d.kind === 'week' ? step.ch || step.text : step.text}
+              onChange={(e) => {
+                const v = e.target.value;
+                // D-212: on a course week the title the learner sees is `ch`, so the title edits it.
+                up((x) =>
+                  x.kind === 'week' ? void (x.checklist[stepAt]!.ch = v) : void (x.checklist[stepAt]!.text = v),
+                );
+              }}
+            />
+          </label>
+          <label className={c.lab}>
             Hint
             <input
               className={k.in}
               placeholder="Optional hint"
               value={step.hint}
-              onChange={(e) => {
-                const v = e.target.value;
-                up((x) => {
-                  x.checklist[stepAt]!.hint = v;
-                });
-              }}
+              onChange={(e) => up((x) => void (x.checklist[stepAt]!.hint = e.target.value))}
             />
           </label>
-          <label className={s.lab}>
+          <label className={c.lab}>
             Chapter
             <input
               className={k.in}
               value={step.ch}
-              onChange={(e) => {
-                const v = e.target.value;
-                up((x) => {
-                  x.checklist[stepAt]!.ch = v;
-                });
-              }}
+              onChange={(e) => up((x) => void (x.checklist[stepAt]!.ch = e.target.value))}
             />
           </label>
           <div className={clsx(k.row, k.nw)}>
-            <label className={clsx(s.lab, k.sp)}>
+            <label className={clsx(c.lab, k.sp)}>
               Replay at
               <input
                 className={k.in}
                 defaultValue={`${Math.floor(step.t / 60)}:${String(step.t % 60).padStart(2, '0')}`}
                 onChange={(e) => {
                   const v = parseReplayAt(e.target.value);
-                  up((x) => {
-                    x.checklist[stepAt]!.t = v;
-                  });
+                  up((x) => void (x.checklist[stepAt]!.t = v));
                 }}
               />
             </label>
-            <label className={clsx(s.lab, k.sp)}>
+            <label className={clsx(c.lab, k.sp)}>
               Minutes
               <input
                 className={k.in}
@@ -734,9 +778,7 @@ export function Component() {
                 value={step.mins}
                 onChange={(e) => {
                   const v = parseMinutes(e.target.value);
-                  up((x) => {
-                    x.checklist[stepAt]!.mins = v;
-                  });
+                  up((x) => void (x.checklist[stepAt]!.mins = v));
                 }}
               />
             </label>
@@ -744,27 +786,27 @@ export function Component() {
           {week ? (
             <StepWeekFields
               step={step}
-              picks={
-                week
-                  ? {
-                      kit: weekKit(db, week).map((item) => ({ id: item.id, title: item.title })),
-                      sessions: weekSessions(db, week).map((item) => ({ id: item.id, title: item.title })),
-                      glossary: (db.cohorts.find((c) => c.id === ACCELERATOR_COHORT_ID)?.course?.glossary ?? []).map((t) => ({ id: t.id, term: t.term })),
-                      videoIds: moduleVideos(d).flatMap((v) => (v.block.id ? [v.block.id] : [])),
-                    }
-                  : undefined
-              }
-              onChange={(fn) =>
-                up((x) => {
-                  fn(x.checklist[stepAt]!);
-                })
-              }
+              picks={{
+                kit: weekKit(db, week).map((item) => ({ id: item.id, title: item.title })),
+                sessions: weekSessions(db, week).map((item) => ({ id: item.id, title: item.title })),
+                glossary: (programCourse(db)?.glossary ?? []).map((t) => ({ id: t.id, term: t.term })),
+                videoIds: moduleVideos(d).flatMap((v) => (v.block.id ? [v.block.id] : [])),
+              }}
+              onChange={(fn) => up((x) => void fn(x.checklist[stepAt]!))}
             />
           ) : null}
         </Modal>
       ) : null}
 
-      {week && previewing ? <CoursePreview db={db} draft={week} phone={phone} onClose={() => setPreviewing(false)} /> : null}
+      {week && previewing ? (
+        <CoursePreview
+          db={db}
+          draft={week}
+          phone={phone}
+          cohortId={cohortId ?? undefined}
+          onClose={() => setPreviewing(false)}
+        />
+      ) : null}
 
       {/* D-172: Remove step asks first (Connor's request). The step leaves the draft; Save changes persists it. */}
       {removeAt !== null && d.checklist[removeAt] ? (
@@ -775,9 +817,7 @@ export function Component() {
           danger
           onConfirm={() => {
             const at = removeAt;
-            up((x) => {
-              x.checklist = removeStep(x.checklist, at);
-            });
+            up((x) => void (x.checklist = removeStep(x.checklist, at)));
           }}
           onClose={() => setRemoveAt(null)}
         />

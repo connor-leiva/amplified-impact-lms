@@ -90,8 +90,6 @@ const PILLS: Record<ModuleStatus, { tone: TokenTone; icon: TokenGlyph; label: st
   draft: { tone: 'neutral', icon: 'ring', label: 'Draft' },
 };
 
-/** Picking `Scheduled` with no date yet seeds this instant. The reference's literal. */
-export const DEFAULT_OPENS = Date.parse('2026-12-21T09:00:00-06:00');
 
 /** The three demo uploads the dashed drop zone cycles through. The reference's `demoFiles`. */
 const DEMO_FILES: readonly [SkillFile['type'], string, string][] = [
@@ -117,6 +115,37 @@ export function seedDraft(db: Db, id: string | null, now: number): AIEmployee {
   const outputs = d.outputs ?? [];
   d.outputs = [0, 1, 2].map((i) => outputs[i] || '');
   return d;
+}
+
+/**
+ * D-265: "Add a week" (the mockup's: "Adds a week at the end as a draft and opens it"): a blank draft that is a week, its
+ * number one past the program's last, with no steps yet. Its dates are whichever cohorts take it.
+ */
+export function newWeekDraft(db: Db, now: number): AIEmployee {
+  const d = seedDraft(db, null, now);
+  const week = Math.max(-1, ...db.modules.flatMap((m) => (m.kind === 'week' && m.course ? [m.course.week] : []))) + 1;
+  return {
+    ...d,
+    name: 'New week',
+    short: 'New week',
+    checklist: [],
+    kind: 'week',
+    course: {
+      week,
+      title: '',
+      question: '',
+      why: [],
+      owner: '',
+      operator: '',
+      time: { owner: '', operator: '' },
+      skills: [],
+      liveBuild: null,
+      officeHours: null,
+      homework: { byWeekEnd: [], assignment: [], acceptance: [], useEvidence: '' },
+      media: [],
+      materials: [],
+    },
+  };
 }
 
 /** The reference's `parseT`: `h:mm:ss`, `mm:ss` or bare seconds → seconds. */
@@ -295,10 +324,13 @@ export interface ModuleBuilderVM {
   portal: PortalLinkVM;
 }
 
-export function moduleBuilderVM(db: Db, d: AIEmployee, now: number, ui: ModuleBuilderUi): ModuleBuilderVM {
+/** D-265: the cohort a builder previews against when none is named: the first in the database (the prototype's one). */
+const firstCohortId = (db: Pick<Db, 'cohorts'>): string => db.cohorts[0]?.id ?? '';
+
+export function moduleBuilderVM(db: Db, d: AIEmployee, now: number, ui: ModuleBuilderUi, cohortId: string = firstCohortId(db)): ModuleBuilderVM {
   const team = d.tier === 'team';
-  // Every cohort runs the same six builds, so the builder always previews against `dec26`.
-  const sess = d.session ? sessionFor(db, 'dec26', d.session) : null;
+  // D-265: the builder previews against the cohort it is handed (the admin's own), no longer December's by id.
+  const sess = d.session ? sessionFor(db, cohortId, d.session) : null;
   const clash = d.session ? db.modules.find((x) => x.id !== d.id && x.session === d.session) : null;
   const sst = sess ? sessionState(sess, now) : 'none';
 
@@ -396,7 +428,7 @@ export function moduleBuilderVM(db: Db, d: AIEmployee, now: number, ui: ModuleBu
     pvLocked: ui.pv === 'locked',
     pvHeader: ui.pv === 'header',
     // The real card, from the real `cardVM`, against a synthetic viewer at the previewed tier.
-    card: cardVM(db, { tier: ui.pvTier, progress: {}, cohortId: 'dec26' }, { ...d, build: totalMins }, now),
+    card: cardVM(db, { tier: ui.pvTier, progress: {}, cohortId }, { ...d, build: totalMins }, now),
     lockedItems: [
       {
         id: d.id,
@@ -467,8 +499,8 @@ const R2_TONE: Record<ModuleStatus, ['Published' | 'Scheduled' | 'Draft', 'ok' |
   draft: ['Draft', 'off'],
 };
 
-export function builderR2VM(db: Db, d: AIEmployee, ui: { dirty: boolean; saved: boolean }, now: number): BuilderR2VM {
-  const sess = d.session ? sessionFor(db, 'dec26', d.session) : null;
+export function builderR2VM(db: Db, d: AIEmployee, ui: { dirty: boolean; saved: boolean }, now: number, cohortId: string = firstCohortId(db)): BuilderR2VM {
+  const sess = d.session ? sessionFor(db, cohortId, d.session) : null;
   const [label, tone] = R2_TONE[d.status];
   return {
     list: sortedModules(db).map((m) => ({ id: m.id, name: m.name, tone: R2_TONE[m.status][1], on: m.id === d.id })),
@@ -499,7 +531,7 @@ export function builderR2VM(db: Db, d: AIEmployee, ui: { dirty: boolean; saved: 
     sessionOptions: [
       { value: '', label: 'Self-paced' },
       ...db.sessions
-        .filter((s) => s.cohortId === 'dec26')
+        .filter((s) => s.cohortId === cohortId)
         .sort((a, b) => a.n - b.n)
         .map((s) => ({ value: String(s.n), label: `Session ${s.n} · ${s.title}` })),
     ],

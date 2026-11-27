@@ -110,10 +110,13 @@ const redactSession = (session: Session, w: ReplayWeek = { access: false, open: 
  * D-262 (R-5 Phase 5): nor what the cohort sells through (its founding and its close, its lookup keys, two payments,
  * its Payment Links, its GoHighLevel value, when its enrollment was closed) or its included-time end: staff's record of how a seat is sold, which no
  * learner page reads. December's, written by Phase 5's data step, leaves its learners' snapshot exactly as it was.
+ *
+ * D-265 (R-5 Phase 6): nor which program the cohort runs: staff's record, which no learner page reads.
  */
 const cohortForLearner = ({
   course: _course,
   run: _run,
+  programId: _programId,
   includedUntil: _includedUntil,
   founding: _founding,
   foundingClosesAt: _foundingClosesAt,

@@ -26,7 +26,7 @@ import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm, Modal } from '../../components/r2/Modal';
 import { KV, Pill, Sel, Tabs, TextArea, k } from '../../components/r2/kit';
-import { COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, courseOpensAt } from '@ai/core/accelerator';
 import { CourseBody } from '../course/Course';
 import { ROLE_LABEL } from '../course/Course.vm';
 import { LearnerWeekPreview } from '../learn/Preview';
@@ -939,7 +939,7 @@ export function WeekCards(props: WeekCardsProps) {
   );
 }
 
-function CoursePageCard({ draft, up }: WeekCardsProps) {
+export function CoursePageCard({ draft, up }: WeekCardsProps) {
   const [open, setOpen] = useState(false);
   const c = draft.course;
   const set = (fn: (c: WeekDraft['course']) => void) => up((d) => fn(d.course!));
@@ -1055,7 +1055,7 @@ function CoursePageCard({ draft, up }: WeekCardsProps) {
 
 const minutes = (a: AgendaItem): string => `${a.from} to ${a.to} min`;
 
-function AgendaCard({ draft, up, which }: WeekCardsProps & { which: 'liveBuild' | 'officeHours' }) {
+export function AgendaCard({ draft, up, which }: WeekCardsProps & { which: 'liveBuild' | 'officeHours' }) {
   const [rowAt, setRowAt] = useState<number | null>(null);
   const [page, setPage] = useState(false);
   const c = draft.course;
@@ -1211,7 +1211,7 @@ const EMPTY: { [K in CardKey]: NonNullable<WeekDraft['course'][K]> } = {
  */
 const SHOWN_CARDS: readonly CardKey[] = ['seatCard', 'playbookCard', 'sampleOutput', 'lockedCopy', 'statusLabels'];
 
-function HireCardsCard({ draft, up }: WeekCardsProps) {
+export function HireCardsCard({ draft, up }: WeekCardsProps) {
   const [open, setOpen] = useState<CardKey | null>(null);
   const [drop, setDrop] = useState<CardKey | null>(null);
   const c = draft.course;
@@ -1386,7 +1386,7 @@ function StatusLabelFields({ labels, onChange }: { labels: Readonly<Record<strin
  * D-221: the Library skills a week's kit lists. The week page tags each with its role and Free, a step that
  * links one shows it in its aside, and a built week's run button opens the flagship's page.
  */
-function SkillsCard({ draft, up }: WeekCardsProps) {
+export function SkillsCard({ draft, up }: WeekCardsProps) {
   const [at, setOpenAt] = useState<number | null>(null);
   const rows = draft.course.skills;
   const setRows = (next: CourseSkill[]) =>
@@ -1471,7 +1471,7 @@ interface KitForm {
   platform: ResourcePlatform | null;
 }
 
-function KitCard({ db, draft, act }: WeekCardsProps) {
+export function KitCard({ db, draft, act }: WeekCardsProps) {
   const rows = weekKit(db, draft);
   const free = unattached(db);
   const [form, setForm] = useState<KitForm | null>(null);
@@ -1564,10 +1564,23 @@ export type { WeekDraft };
  * and a buyer before launch. The pages are the real ones, given the draft instead of the API's answer; a
  * plan without the course and a buyer before the preview still see the course page's own words for it.
  */
-export function CoursePreview({ db, draft, phone, onClose }: { db: Db; draft: WeekDraft; phone: boolean; onClose: () => void }) {
+export function CoursePreview({
+  db,
+  draft,
+  phone,
+  onClose,
+  cohortId = DEFAULT_COHORT_ID,
+}: {
+  db: Db;
+  draft: WeekDraft;
+  phone: boolean;
+  onClose: () => void;
+  /** D-265: the cohort the preview reads (the admin's own). */
+  cohortId?: string;
+}) {
   const [as, setAs] = useState<PreviewAs>('owner');
   const now = useNow(30_000);
-  const load = previewLoad(db, draft, as, COURSE_OPENS_AT);
+  const load = previewLoad(db, draft, as, courseOpensAt(cohortId, db.sessions), cohortId);
   return (
     <Modal
       title={`Preview · Week ${draft.course.week}`}

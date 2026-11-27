@@ -13,6 +13,7 @@
 
 import { produce } from 'immer';
 import { requirePerm } from './can';
+import { DEFAULT_PROGRAM_ID, programCourse } from './program';
 import type { CohortCourse } from './course-types';
 import { glossaryIssues, normalizeGlossary } from './glossary';
 import { changedFields, cohortCopyFields, copyIssues, copyStringField, diffSummary, issueLine } from './course-rules';
@@ -305,6 +306,52 @@ export function saveCohortCourse(db: Db, a: Actor, args: { cohortId: string; cou
     audit: { action: 'cohort.course_save', target: { type: 'cohort', id: co.id, label: co.name }, after: diffSummary(co.course ?? {}, course) },
   };
 }
+
+/**
+ * R-5 Phase 6 (D-265): what every cohort shares, saved on the program record (Program › Course Settings). The same
+ * checks as `saveCohortCourse`, which wrote December's row before the program existed: the community link, the
+ * glossary and the copy rules on what changed. The permission is `curriculum` (spec § 4 rule 5: "weeks and Course
+ * settings are `curriculum`"); one audit row, `program.course_save`. With no record yet (a database whose program step
+ * has not run), the save makes it from what was saved, which was read from December's row (`programCourse`).
+ */
+export function saveProgramCourse(db: Db, a: Actor, args: { programId: string; course: CohortCourse }, _c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'curriculum');
+  if (args.programId !== DEFAULT_PROGRAM_ID && !db.programs?.some((p) => p.id === args.programId)) throw new MutationError('not_found', 'No such program');
+  const stored = db.programs?.find((p) => p.id === args.programId) ?? null;
+  const was = stored?.course ?? programCourse(db) ?? undefined;
+  const community = (args.course.intro.community ?? '').trim();
+  if (community && !communityUrl(community)) return { db, error: 'A community link is a web address that starts with https://.' };
+  const course = structuredClone(args.course);
+  if (community) course.intro.community = community;
+  else delete course.intro.community;
+  if (args.course.glossary === undefined) {
+    if (was?.glossary) course.glossary = structuredClone(was.glossary);
+    else delete course.glossary;
+  } else {
+    const cleaned = normalizeGlossary(args.course.glossary);
+    const problems = glossaryIssues(cleaned);
+    if (problems.length) return { db, error: problems.join('\n') };
+    if (cleaned.length) course.glossary = cleaned;
+    else delete course.glossary;
+  }
+  const name = stored?.name ?? (course.intro.title.trim() || PROGRAM_NAME);
+  const copy = refuseCopy(cohortCopyFields({ name, cadence: '', ...(was ? { course: was } : {}) }), cohortCopyFields({ name, cadence: '', course }));
+  if (copy) return { db, error: copy };
+  const next = produce(db, (d) => {
+    const list = (d.programs ??= []);
+    const p = list.find((x) => x.id === args.programId);
+    if (p) p.course = course;
+    else list.push({ id: args.programId, name, course });
+  });
+  return {
+    db: next,
+    toast: { msg: 'Course pages saved', tone: 'success' },
+    audit: { action: 'program.course_save', target: { type: 'program', id: args.programId, label: name }, after: diffSummary(was ?? {}, course) },
+  };
+}
+
+/** The program's name when its record is made by a save, before the course has a title of its own. */
+export const PROGRAM_NAME = 'Amplified AI Accelerator';
 
 /**
  * D-187: a cohort community link as the learner portal may open it: an absolute http or https address,

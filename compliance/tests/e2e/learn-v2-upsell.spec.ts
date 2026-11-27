@@ -191,17 +191,16 @@ test.describe('learner portal v2: replay visibility in a locked week (D-187) @g9
 });
 
 test.describe('the Console’s Preview as Learner at 1440 (D-187) @g9', () => {
-  test('Curriculum’s row eye takes a click from rest and lands on the preview @parity:C-15', async ({ browser }) => {
+  test('a week’s Preview takes a click from rest and lands on the preview @parity:C-15', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: 'America/Denver' });
     const page = await ctx.newPage();
-    await page.goto(fixtureUrl('/admin/curriculum', 'admin'));
+    // D-265 (R-5 Phase 6): the R2 Curriculum table and its row eye are gone; Program › Curriculum lists the program's
+    // weeks (this fixture's prototype holds AI Employees, none a week), and a week's head carries Preview. A published
+    // AI Employee's page, from rest.
+    await page.goto(fixtureUrl('/admin/program/weeks/sales', 'admin'));
     await page.waitForSelector('body[data-app-ready="true"]');
-    // A published row whose Deployed percent sits just left of the actions: the cell that used to cover it.
-    const row = page.getByRole('row').filter({ hasText: '%' }).nth(1);
-    const eye = row.getByRole('button', { name: 'Preview as Learner' });
-    // No hover first: Playwright's own check fails if another element would take the click.
     await page.mouse.move(0, 0);
-    await eye.click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Preview', exact: true }).click({ timeout: 5000 });
     await page.waitForURL((u) => !u.pathname.startsWith('/admin'));
     await page.waitForSelector('body[data-app-ready="true"]');
     expect(new URL(page.url()).searchParams.get('as')).toMatch(/^(agent|owner)$/);

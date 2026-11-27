@@ -238,6 +238,10 @@ export const resources = pgTable('resources', {
 // D-173: learner-facing copy the builder edits, by key (`locked.utah_life`, `locked.opens`, ...). A `Db`
 // record (`Db.copy`), so it round-trips through the codec and the mutate route like any other.
 export const copyStrings = pgTable('copy_strings', { key: text('key').primaryKey(), value: text('value').notNull(), audience: text('audience').notNull() });
+// R-5 Phase 6 (D-265): the program record, what every cohort runs (one today, `accelerator`): its name and the course
+// words every cohort shares (`CohortCourse`). A `Db` record (`Db.programs`). Written once by the data step
+// `2026-11-28-program`, a copy of December's `cohorts.course` (which stays as it is), then by Course Settings.
+export const programs = pgTable('programs', { id: text('id').primaryKey(), name: text('name').notNull(), course: jsonb('course') });
 // D-175: one-time data steps the deploy's curriculum ensure runs (a release plan, a content load), each
 // once, by id: a row here means it ran, with what it changed and what it left for the PM. Not part of a
 // snapshot; read and written only by `db/data-migrations.ts`.

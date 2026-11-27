@@ -30,6 +30,7 @@ import { SEAT_CARD_ONE_COPY_V1, planSeatCardOneCopyV1 } from '@ai/core/seed/seat
 import { AI_IMPLEMENTER_V1, planAiImplementerV1 } from '@ai/core/seed/ai-implementer-v1';
 import { DECEMBER_RUN_V1, planDecemberRunV1 } from '@ai/core/seed/december-run-v1';
 import { DECEMBER_SELLING_V1, planDecemberSellingV1 } from '@ai/core/seed/december-selling-v1';
+import { PROGRAM_V1, planProgramV1 } from '@ai/core/seed/program-v1';
 import { sellingEnvOf } from '@ai/core/cohort-selling';
 import { readOfferConfig } from '../billing/config';
 import { audit } from '../console/audit';
@@ -138,6 +139,12 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     // Production's own values, as the deploy reads them (PLAN § 10.10): `FOUNDING_CLOSES_AT` and the two
     // `PAYMENT_LINK_COHORT_*`, exactly as `readOfferConfig` reads them, so what is stored reads back as they do.
     plan: (db) => planDecemberSellingV1(db, sellingEnvOf(readOfferConfig(process.env))),
+  },
+  {
+    id: PROGRAM_V1,
+    describe:
+      'R-5 Phase 6: December’s shared course words copied onto the program record, which Course Settings edits from now on; December’s row keeps them, and nothing any cohort reads moves (D-265)',
+    plan: planProgramV1,
   },
 ];
 

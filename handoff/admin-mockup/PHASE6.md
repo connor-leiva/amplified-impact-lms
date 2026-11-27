@@ -22,7 +22,7 @@ decide it again. The decision entry is D-265.
 
 | Piece | What it is |
 |---|---|
-| Table `programs` (migration `0049_program.sql`, journal idx 49) | `id` text primary key, `name` text, `course` jsonb (nullable). Additive: a new table, no row written by the migration |
+| Table `programs` (migration `0049_program.sql`, journal idx 49, after the audit fixes' 0048) | `id` text primary key, `name` text, `course` jsonb (nullable). Additive: a new table, no row written by the migration |
 | `Program` (core `types.ts`) | `{ id, name, course? }`; `Db.programs?` (absent reads as none, D-173) |
 | The one program | `DEFAULT_PROGRAM_ID = 'accelerator'` (spec: "`id: 'accelerator'`, its name, the shared `course`") |
 | Each cohort names its program | `Cohort.programId` (the column is Phase 2's). New cohort writes the source cohort's program. A cohort with none (December) runs the one program; no December row is written, and the learner's snapshot leaves `programId` out as it leaves out `run` (D-255), so December's snapshot is byte-identical |
@@ -67,7 +67,7 @@ builder tab opened before a date moved saves without putting the old date back.
 All four under Program (`/admin/program`, `/course`, `/vault`, a week at `/admin/program/weeks/:id`), from
 `p3-areas.jsx` (`Curriculum3`, `WeekEdit`) and `ia-screens.jsx` (`CourseSet`). Headings in Title Case (§ 10.8).
 
-- **Curriculum** (`Curriculum3`): the Weeks card, one row per module in the curriculum's order (its week number,
+- **Curriculum** (`Curriculum3`): the Weeks card, one row per week (module of kind `week`) in the curriculum's order (its week number,
   title and outcome; its steps and their time; where it runs, one link per cohort not archived that takes it, "December
   2026 · Week 1"; Published, or Publish while a draft), reorder, "Add a week" (opens what it opened, `weeks/new`, as
   Phase 1 left it), each row's menu (Open week, Preview as a learner, Duplicate, Publish or Unpublish). Below:

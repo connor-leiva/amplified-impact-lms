@@ -15,8 +15,16 @@ const NOW = '2026-12-10T16:30:00.000Z';
  * The page as the admin. `parity` (the default) is the mockup's data; without it, the ordinary fixture
  * (the seed), whose AI Employees carry everything the publish checks need, so a save goes through.
  */
-async function openAt(browser: Browser, path: string, width = 1280, parity = true): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Phoenix', viewport: { width, height: width < 768 ? 844 : 900 } });
+async function openAt(
+  browser: Browser,
+  path: string,
+  width = 1280,
+  parity = true,
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Phoenix',
+    viewport: { width, height: width < 768 ? 844 : 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
   const sep = path.includes('?') ? '&' : '?';
@@ -27,97 +35,110 @@ async function openAt(browser: Browser, path: string, width = 1280, parity = tru
 
 const rowOf = (page: Page, name: string) => page.getByRole('row').filter({ hasText: name });
 
-test.describe('R2-gaps a: Curriculum › Duplicate and the Module Builder’s steps (D-172) @g9 @r2', () => {
-  test('Curriculum: a row’s "…" › Duplicate adds a draft copy and says so', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/curriculum');
-    const row = rowOf(page, 'Sales AI Employee').first();
-    await row.getByRole('button', { name: 'More actions' }).click();
+test.describe('R2-gaps a: Curriculum › Duplicate and a week’s steps (D-172; D-265, Program) @g9 @r2', () => {
+  const weekRow = (page: Page, title: string) => page.locator('main [data-week]').filter({ hasText: title });
+  const stepRows = (page: Page) => page.locator('main section[aria-label="Steps"] [data-step]');
+
+  test('Curriculum: a week’s "…" › Duplicate adds a draft copy and says so', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/program');
+    await weekRow(page, 'Where the Money Goes').first().getByRole('button', { name: 'More actions' }).click();
     const menu = page.getByRole('menu');
-    await expect(menu.getByRole('menuitem')).toHaveText(['Edit in Module Builder', 'Preview as Learner', 'Duplicate', 'Unpublish']);
+    await expect(menu.getByRole('menuitem')).toHaveText([
+      'Open week',
+      'Preview as a learner',
+      'Duplicate',
+      'Unpublish',
+    ]);
     await expectAccessible(page);
     await menu.getByRole('menuitem', { name: 'Duplicate' }).click();
     await expect(page.getByText('Duplicated as a draft')).toBeVisible();
-    const copy = rowOf(page, 'Sales AI Employee (copy)');
+    const copy = weekRow(page, 'Where the Money Goes (copy)');
     await expect(copy).toHaveCount(1);
-    await expect(copy).toContainText('Draft');
-    await expect(copy).toContainText('Hidden from learners');
+    await expect(copy.getByRole('button', { name: 'Publish' })).toBeVisible();
+    await expect(copy).toContainText('No cohort runs it');
     await close();
   });
 
-  test('Builder: Add step, Duplicate step and Remove step change the draft; Save changes keeps them', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/curriculum/sales', 1280, false);
-    const steps = page.getByRole('heading', { name: /^Steps · / });
-    await expect(steps).toHaveText('Steps · 6');
-    await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
+  test('a week: Add a step, Duplicate step and Remove step change the draft; Save changes keeps them', async ({
+    browser,
+  }) => {
+    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-1');
+    const count = page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Steps/ });
+    await expect(count).toHaveText('Steps7');
+    await expect(page.getByRole('button', { name: 'Save changes' })).toBeDisabled();
 
-    await page.getByRole('button', { name: 'Add step' }).click();
-    await expect(steps).toHaveText('Steps · 7');
-    await expect(page.getByRole('textbox', { name: 'Step 7 title' })).toHaveValue('New step');
-    await expect(rowOf(page, 'New step').last()).toContainText('Build');
-    await expect(rowOf(page, 'New step').last()).toContainText('5 min');
-    await expect(page.getByRole('button', { name: 'Save changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Add a step' }).click();
+    await expect(count).toHaveText('Steps8');
+    await expect(stepRows(page).last()).toContainText('New step');
+    await expect(page.getByText('Unsaved changes to Where the Money Goes')).toBeVisible();
 
     // Duplicate step 3: a copy, last.
-    const third = await page.getByRole('textbox', { name: 'Step 3 title' }).inputValue();
-    await page.getByRole('row').filter({ has: page.getByRole('textbox', { name: 'Step 3 title' }) }).getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText(['Edit step details', 'Duplicate step', 'Remove step']);
+    const third = (await stepRows(page).nth(2).getByRole('button').nth(1).innerText()).split('\n')[0]!;
+    await stepRows(page).nth(2).getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText([
+      'Edit step',
+      'Move up',
+      'Move down',
+      'Duplicate step',
+      'Remove step',
+    ]);
     await expectAccessible(page);
     await page.getByRole('menuitem', { name: 'Duplicate step' }).click();
-    await expect(steps).toHaveText('Steps · 8');
-    await expect(page.getByRole('textbox', { name: 'Step 8 title' })).toHaveValue(third);
+    await expect(count).toHaveText('Steps9');
+    await expect(stepRows(page).last()).toContainText(third);
 
     // Remove step 2, after the confirm; Cancel first changes nothing.
-    const second = await page.getByRole('textbox', { name: 'Step 2 title' }).inputValue();
     const removeVia = async () => {
-      await page.getByRole('row').filter({ has: page.getByRole('textbox', { name: 'Step 2 title' }) }).getByRole('button', { name: 'More actions' }).click();
+      await stepRows(page).nth(1).getByRole('button', { name: 'More actions' }).click();
       await page.getByRole('menuitem', { name: 'Remove step' }).click();
     };
     await removeVia();
     const dialog = page.getByRole('dialog', { name: 'Remove step 2?' });
-    await expect(dialog).toContainText(`“${second}” is removed when you save. Learners’ checks on it are cleared.`);
+    await expect(dialog).toContainText('is removed when you save. Learners’ checks on it are cleared.');
     await expect(dialog).toContainText('This action is audit-logged.');
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Cancel' }).click();
-    await expect(steps).toHaveText('Steps · 8');
+    await expect(count).toHaveText('Steps9');
     await removeVia();
     await page.getByRole('dialog', { name: 'Remove step 2?' }).getByRole('button', { name: 'Remove step' }).click();
-    await expect(steps).toHaveText('Steps · 7');
-    await expect(page.getByRole('textbox', { name: 'Step 2 title' })).not.toHaveValue(second);
+    await expect(count).toHaveText('Steps8');
 
-    await page.getByRole('button', { name: 'Save changes' }).click();
-    await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
-    await expect(steps).toHaveText('Steps · 7');
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await expect(page.getByText('Unsaved changes to Where the Money Goes')).toHaveCount(0);
+    await expect(count).toHaveText('Steps8');
     await close();
   });
 
-  test('Builder: Discard undoes an unsaved Add step', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/curriculum/m1');
-    await page.getByRole('button', { name: 'Add step' }).click();
-    await expect(page.getByRole('heading', { name: 'Steps · 7' })).toBeVisible();
-    await page.getByRole('navigation', { name: 'AI Employees' }).getByRole('button', { name: 'Sales AI Employee' }).click();
+  test('a week: Discard undoes an unsaved Add a step', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-1');
+    const count = page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Steps/ });
+    await page.getByRole('button', { name: 'Add a step' }).click();
+    await expect(count).toHaveText('Steps8');
+    await page.getByRole('button', { name: 'Next week' }).click();
     const ask = page.getByRole('dialog', { name: 'Discard unsaved changes?' });
     await ask.getByRole('button', { name: 'Discard' }).click();
-    await expect(page.getByRole('heading', { name: 'Steps · 6' })).toBeVisible();
-    await page.getByRole('navigation', { name: 'AI Employees' }).getByRole('button', { name: 'Marketing AI Employee' }).click();
-    await expect(page.getByRole('heading', { name: 'Steps · 6' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Leads That Pay');
+    await page.getByRole('button', { name: 'Previous week' }).click();
+    await expect(count).toHaveText('Steps7');
     await close();
   });
 
-  test('Builder: a saved step count reaches Curriculum', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/curriculum/sales', 1280, false);
-    await page.getByRole('button', { name: 'Add step' }).click();
-    await page.getByRole('button', { name: 'Save changes' }).click();
-    await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
-    // The parity snapshot lives in this tab only, so the check stays in the app (no reload). D-253: Curriculum is
-    // Program's first tab; the Program row opens it.
-    await page.getByRole('navigation', { name: 'Admin' }).getByRole('button', { name: /^Program/ }).click();
-    await expect(rowOf(page, 'Sales AI Employee').first()).toContainText('7 steps');
+  test('a week: a saved step count reaches Curriculum', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-1');
+    await page.getByRole('button', { name: 'Add a step' }).click();
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await expect(page.getByText('Unsaved changes to Where the Money Goes')).toHaveCount(0);
+    // The parity snapshot lives in this tab only, so the check stays in the app (no reload).
+    await page.getByRole('link', { name: 'Curriculum' }).first().click();
+    await expect(weekRow(page, 'Where the Money Goes').first()).toContainText('8 steps');
     await close();
   });
 });
 
 test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcements (D-172) @g9 @r2', () => {
-  test('Vault: the hover Download saves the file; Edit details changes the row and its Attached to', async ({ browser }) => {
+  test('Vault: the hover Download saves the file; Edit details changes the row and its Attached to', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/vault');
     const row = rowOf(page, 'Standard chart of accounts');
     await row.hover();
@@ -130,7 +151,13 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
 
     await row.getByRole('button', { name: 'More actions' }).click();
     const menu = page.getByRole('menu');
-    await expect(menu.getByRole('menuitem')).toHaveText(['Edit details', 'Replace file', 'Give Agent + Team access', 'Hide from learners', 'Remove from vault']);
+    await expect(menu.getByRole('menuitem')).toHaveText([
+      'Edit details',
+      'Replace file',
+      'Give Agent + Team access',
+      'Hide from learners',
+      'Remove from vault',
+    ]);
     // D-188: Replace file works now (a real upload); `vault-upload.spec.ts` drives it.
     await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toBeEnabled();
     await expectAccessible(page);
@@ -156,7 +183,9 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
   });
 
   // D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule, its times Mountain with Central after them.
-  test('Schedule: Add Session adds office hours at 12:00 PM MT; Attach replay takes a past session’s link', async ({ browser }) => {
+  test('Schedule: Add Session adds office hours at 12:00 PM MT; Attach replay takes a past session’s link', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/cohorts');
     await expect.poll(() => new URL(page.url()).pathname).toBe('/admin/cohort/dec26/schedule');
     await page.getByRole('button', { name: 'Add session' }).click();
@@ -195,7 +224,9 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
     await close();
   });
 
-  test('Announcements: Save draft adds a draft; Edit is for drafts and scheduled ones; Duplicate copies as a draft', async ({ browser }) => {
+  test('Announcements: Save draft adds a draft; Edit is for drafts and scheduled ones; Duplicate copies as a draft', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/announcements');
     await page.getByRole('button', { name: 'New announcement' }).click();
     const dialog = page.getByRole('dialog', { name: 'New announcement' });
@@ -234,7 +265,9 @@ test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcemen
 });
 
 test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite staff and Change role… (D-172) @g9 @r2', () => {
-  test('Audit Log: Export selected saves exactly the selected rows, and the export is in the log', async ({ browser }) => {
+  test('Audit Log: Export selected saves exactly the selected rows, and the export is in the log', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
     const table = page.getByRole('table', { name: 'Audit log entries' });
     const boxes = table.getByRole('checkbox', { name: 'Select row' });
@@ -245,7 +278,11 @@ test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite
     await page.getByRole('button', { name: 'Export selected' }).click();
     const file = await saved;
     expect(file.suggestedFilename()).toMatch(/^audit-log-\d{4}-\d{2}-\d{2}\.csv$/);
-    const csv = await (await file.createReadStream()).toArray().then((c) => Buffer.concat(c as Buffer[]).toString('utf8'));
+    const csv = await (
+      await file.createReadStream()
+    )
+      .toArray()
+      .then((c) => Buffer.concat(c as Buffer[]).toString('utf8'));
     const lines = csv.trim().split('\n');
     expect(lines).toHaveLength(3);
     expect(lines[1]).toContain('job.run_now');
@@ -256,7 +293,11 @@ test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite
 
   test('Audit Log: a role that may not export (Support) gets no Export selected', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit?console-role=Support');
-    await page.getByRole('table', { name: 'Audit log entries' }).getByRole('checkbox', { name: 'Select row' }).first().check();
+    await page
+      .getByRole('table', { name: 'Audit log entries' })
+      .getByRole('checkbox', { name: 'Select row' })
+      .first()
+      .check();
     await expect(page.getByText('1 selected')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Export selected' })).toHaveCount(0);
     await close();
@@ -268,7 +309,11 @@ test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite
       // A phone card has no row role: the innermost block holding the name and its "…".
       const staffRow = (name: string) =>
         width < 768
-          ? page.locator('main div').filter({ hasText: name }).filter({ has: page.getByRole('button', { name: 'More actions' }) }).last()
+          ? page
+              .locator('main div')
+              .filter({ hasText: name })
+              .filter({ has: page.getByRole('button', { name: 'More actions' }) })
+              .last()
           : rowOf(page, name);
       // The Owner's own row: fixed.
       await staffRow('Connor Leiva (you)').getByRole('button', { name: 'More actions' }).click();
@@ -294,11 +339,18 @@ test.describe('R2-gaps c: the Audit Log’s Export selected, and Roles’ Invite
     }
   });
 
-  test('Roles: Invite staff is a form, then the confirm; the new member is on staff; a bad address is refused', async ({ browser }) => {
+  test('Roles: Invite staff is a form, then the confirm; the new member is on staff; a bad address is refused', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/roles');
     await page.getByRole('button', { name: 'Invite staff' }).click();
     const form = page.getByRole('dialog', { name: 'Invite staff' });
-    await expect(form.getByLabel('Role').locator('option')).toHaveText(['Admin', 'Instructor', 'Content Editor', 'Support']);
+    await expect(form.getByLabel('Role').locator('option')).toHaveText([
+      'Admin',
+      'Instructor',
+      'Content Editor',
+      'Support',
+    ]);
     await expectAccessible(page);
     await form.getByLabel('Email').fill('not-an-email');
     await form.getByRole('button', { name: 'Continue' }).click();

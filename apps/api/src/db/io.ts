@@ -92,6 +92,7 @@ const TABLES: Record<TableName, PgTable> = {
   permissions: schema.permissions,
   activity: schema.activity,
   copyStrings: schema.copyStrings,
+  programs: schema.programs,
 };
 
 /**

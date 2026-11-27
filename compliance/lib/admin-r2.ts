@@ -54,10 +54,12 @@ export type Width = (typeof WIDTHS)[number];
  * created (`january-*`), and four dialogs on January's Settings (Shape, its weeks, Dates and Release, Words), each a
  * viewport frame as the Roles confirm is. D-262 (R-5 Phase 5): January's price dialog, Edit enrollment and Open
  * enrollment (refused, with Before It Opens' first line), and December's Close enrollment: 46 × 4 = 184 cells. R-5 audit
- * (D-267): People › Utah Life (`utah-life`), the access group's read-only tab: 47 × 4 = 188 cells.
+ * (D-267): People › Utah Life (`utah-life`), the access group's read-only tab: 47 × 4 = 188 cells. D-265 (R-5 Phase 6):
+ * `curriculum` is the program's weeks, `builder` a week in sections, and Program › Course Settings is drawn
+ * (`course-settings`): 48 × 4 = 192 cells.
  */
 export const SCREENS = [
-  'overview', 'health', 'curriculum', 'builder', 'vault', 'cohort-overview', 'cohort-schedule', 'cohort-settings',
+  'overview', 'health', 'curriculum', 'builder', 'vault', 'course-settings', 'cohort-overview', 'cohort-schedule', 'cohort-settings',
   'new-cohort', 'january-overview', 'january-schedule', 'january-settings', 'announce', 'learners',
   'workspaces', 'utah-life', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
   'email', 'integrations', 'deploys', 'db', 'flags', 'roles', 'workspace-detail', 'user', 'incident', 'as',
@@ -107,8 +109,11 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does. D-253 (R-5 Phase 1):
   // every screen at its new address, under its page's tab (`shell/admin/addresses.ts` sends each old one there).
   curriculum: { path: '/admin/program' },
-  builder: { path: '/admin/program/weeks/m1' },
+  // D-265 (R-5 Phase 6): a week is a course week, the mockup's Week 1 (its `route.id || 'accelerator-week-1'`), at its
+  // Steps; Course Settings at its Course Intro.
+  builder: { path: '/admin/program/weeks/accelerator-week-1' },
   vault: { path: '/admin/program/vault' },
+  'course-settings': { path: '/admin/program/course' },
   announce: { path: '/admin/cohort/dec26/announcements' },
   // D-255 (R-5 Phase 3): the Cohort page's own tabs for December, New cohort, and January once created (the parity
   // snapshot creates it with New cohort's action on January's addresses, `parity-r2-db.ts`).
@@ -215,6 +220,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
   `curriculum-${w}`,
   `builder-${w}`,
+  // D-265 (R-5 Phase 6): Program › Course Settings, at all four widths.
+  `course-settings-${w}`,
   // R2-2b (D-160): the Resource Vault and Announcements at all four widths. D-255: Cohort › Schedule (Cohorts &
   // Sessions until R-5 Phase 3) at three. cohort-schedule-390 is not here: the mockup draws its key-fact values at
   // 15px on a phone, under the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`).

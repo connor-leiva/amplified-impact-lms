@@ -30,7 +30,7 @@ import type {
   Session,
   SessionType,
 } from '@ai/core';
-import { acceleratorModuleId } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, acceleratorModuleId } from '@ai/core/accelerator';
 import type { ContentBlock, CourseContent, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
 import { courseFor, courseFromSnapshot, courseSessions } from '@ai/core/course';
 import type { CourseKitItem } from '@ai/core/course';
@@ -374,7 +374,13 @@ function withOpenWeekKit(db: Db, course: CourseContent): CourseContent {
  * course (the same page today; PR 5's learner pages show each their own work). A Utah Life member's
  * plan doesn't include the course. Before launch, a buyer gets the welcome with the opening date.
  */
-export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: number): Load {
+export function previewLoad(
+  db: Db,
+  draft: WeekDraft,
+  as: PreviewAs,
+  opensAt: number,
+  cohortId: string = DEFAULT_COHORT_ID,
+): Load {
   if (as === 'utah') return { kind: 'locked' };
   const next = withDraft(db, draft);
   const copy = Object.fromEntries(
@@ -383,16 +389,17 @@ export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: nu
   if (as === 'prelaunch') {
     // D-175: once the cohort has a preview date, a buyer before launch is in the preview, as of that
     // moment: Week 0 open, every week scheduled later locked with its date. With none, the welcome.
-    const at = next.cohorts.find((c) => c.id === 'dec26')?.previewOpensAt;
+    // D-265: the cohort the builder previews (the admin's own), no longer December's by id.
+    const at = next.cohorts.find((c) => c.id === cohortId)?.previewOpensAt;
     if (at === undefined) return { kind: 'upcoming', opensAt };
-    const preview = courseFor(next, at, { open: true, preview: true });
+    const preview = courseFor(next, at, { open: true, preview: true }, cohortId);
     if (!preview) return { kind: 'failed' };
     return {
       kind: 'ready',
       payload: { open: true, preview: false, prelaunch: true, course: preview, sessions: courseSessions(next), copy },
     };
   }
-  const course = courseFromSnapshot(next);
+  const course = courseFromSnapshot(next, cohortId);
   if (!course) return { kind: 'failed' };
   return {
     kind: 'ready',

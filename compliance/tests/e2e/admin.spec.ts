@@ -19,7 +19,10 @@ async function pair(browser: Browser): Promise<{ admin: Page; learner: Page; clo
     await p.clock.setFixedTime(new Date(NOW));
     await p.addInitScript(() => {
       if (!localStorage.getItem('ai-lms-prefs'))
-        localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' }));
+        localStorage.setItem(
+          'ai-lms-prefs',
+          JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' }),
+        );
     });
   }
   return { admin, learner, close: () => ctx.close() };
@@ -30,34 +33,49 @@ const open = async (page: Page, path: string) => {
   await page.locator('[data-app-ready="true"]').waitFor();
 };
 
-test('publishing a new AI Employee appears in the portal without a reload @g6', async ({ browser }) => {
+test('publishing a new week appears in the portal without a reload @g6', async ({ browser }) => {
   const { admin, learner, close } = await pair(browser);
   await open(learner, '/?as=agent');
-  await open(admin, '/admin/curriculum/new?as=admin');
+  await open(admin, '/admin/program/weeks/new?as=admin');
 
-  // D-160 R2-2: the R2 Module Builder. Name and Summary (the outcome line) edit in place; the outputs
-  // are in Edit details (the icon tile); Status's menu publishes.
-  await admin.getByLabel('Name', { exact: true }).fill('Listing Coordinator AI Employee');
-  await admin.getByLabel('Summary', { exact: true }).fill('Paste a listing → a coordinator checklist.');
-  await admin.getByRole('button', { name: 'Edit details' }).click();
-  const details = admin.getByRole('dialog', { name: 'Edit details' });
+  // D-265 (R-5 Phase 6): Program › a week. Add a week starts a draft week; Basics holds its title, outcome, sidebar label
+  // and outputs; Steps adds its steps; Save changes saves the draft; Curriculum's Publish publishes it.
+  await admin.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Basics' }).click();
+  await admin.getByRole('textbox', { name: /^Title/ }).fill('Listing Coordinator AI Employee');
+  await admin
+    .getByRole('textbox', { name: /^Outcome/ })
+    .first()
+    .fill('Paste a listing → a coordinator checklist.');
+  await admin.getByRole('textbox', { name: 'Sidebar label' }).fill('Listing Coordinator');
   for (const [i, v] of ['Checklist', 'Vendor emails', 'Timeline'].entries())
-    await details.getByLabel(`Output ${i + 1}`).fill(v);
-  await details.getByRole('button', { name: 'Done' }).click();
-  for (let i = 0; i < 6; i++) await admin.getByRole('textbox', { name: `Step ${i + 1} title` }).fill(`Step ${i + 1}`);
-  await admin.getByRole('button', { name: 'Status: Draft' }).click();
-  await admin.getByRole('menuitem', { name: 'Published' }).click();
+    await admin.getByLabel(`Output ${i + 1}`).fill(v);
+  await admin
+    .getByRole('navigation', { name: 'Sections' })
+    .getByRole('button', { name: /^Steps/ })
+    .click();
+  for (let i = 0; i < 6; i++) await admin.getByRole('button', { name: 'Add a step' }).click();
+  await admin.getByRole('button', { name: 'Save changes' }).first().click();
+  await expect(admin).toHaveURL(/\/admin\/program\/weeks\/m/);
+  await admin.getByRole('link', { name: 'Curriculum' }).first().click();
+  const row = admin.locator('main [data-week]').filter({ hasText: 'Listing Coordinator AI Employee' });
+  await row.getByRole('button', { name: 'Publish', exact: true }).click();
+  await admin.getByRole('dialog').getByRole('button', { name: 'Publish', exact: true }).click();
 
   await expect(admin.getByText('Listing Coordinator AI Employee is live in the learner portal')).toBeVisible();
-  await expect(learner.getByText('Listing Coordinator AI Employee').first()).toBeVisible();
+  await expect(learner.getByText('Listing Coordinator').first()).toBeVisible();
   await close();
 });
 
-test('the builder blocks an incomplete draft with the exact messages @g6', async ({ browser }) => {
+test('the builder blocks an incomplete published week with the exact messages @g6', async ({ browser }) => {
   const { admin, close } = await pair(browser);
-  await open(admin, '/admin/curriculum/new?as=admin');
-  await admin.getByRole('button', { name: 'Status: Draft' }).click();
-  await admin.getByRole('menuitem', { name: 'Published' }).click();
+  // D-265: a published module's save runs the publish checks, as Status's Published did before the week page.
+  await open(admin, '/admin/program/weeks/marketing?section=basics&as=admin');
+  await admin
+    .getByRole('textbox', { name: /^Outcome/ })
+    .first()
+    .fill('');
+  await admin.getByLabel('Output 1').fill('');
+  await admin.getByRole('button', { name: 'Save changes' }).first().click();
   for (const msg of ['Add the outcome line. Learners see it under the title.', 'Add all three outputs.'])
     await expect(admin.getByText(msg)).toBeVisible();
   await close();
@@ -66,13 +84,16 @@ test('the builder blocks an incomplete draft with the exact messages @g6', async
 test('gating an AI Employee to Team only locks it for agents @g6', async ({ browser }) => {
   const { admin, learner, close } = await pair(browser);
   await open(learner, '/?as=agent');
-  await open(admin, '/admin/curriculum?as=admin');
-
-  // D-160 R2-2: the tier pill is a menu. The Database row is the third Agent + Team one.
-  await admin.getByRole('button', { name: 'Tier access: Agent + Team' }).nth(2).click();
+  // D-265: tier access is in the week's Basics (PLAN § 6.1), the tier pill a menu; Save changes saves it.
+  await open(admin, '/admin/program/weeks/database?section=basics&as=admin');
+  await admin.getByRole('button', { name: 'Tier access: Agent + Team' }).click();
   await admin.getByRole('menuitem', { name: 'Team only' }).click();
+  await admin.getByRole('button', { name: 'Save changes' }).first().click();
   await expect(
-    learner.locator('aside[aria-label="Primary"]').getByRole('button', { name: /Database/ }).getByTitle('Team tier'),
+    learner
+      .locator('aside[aria-label="Primary"]')
+      .getByRole('button', { name: /Database/ })
+      .getByTitle('Team tier'),
   ).toBeVisible();
   await close();
 });
@@ -102,7 +123,11 @@ test('go live, end, publish replay flows through to the portal @g6', async ({ br
 
   // D-160 R2-2b: each step is in the session's "…" menu. D-255: on Cohort › Schedule, where a row is its title.
   const step = async (label: string) => {
-    await admin.getByRole('row').filter({ hasText: 'The Living Database' }).getByRole('button', { name: 'More actions' }).click();
+    await admin
+      .getByRole('row')
+      .filter({ hasText: 'The Living Database' })
+      .getByRole('button', { name: 'More actions' })
+      .click();
     await admin.getByRole('menuitem', { name: label }).click();
   };
   await step('Go Live');
@@ -120,7 +145,11 @@ test('editing a session time moves the learner countdown @g6', async ({ browser 
 
   // D-160 R2-2b: Edit session is in the session's "…" menu. D-255: on Cohort › Schedule, its time Mountain (2:00 PM MT
   // is 3:00 PM CT).
-  await admin.getByRole('row').filter({ hasText: 'The Living Database' }).getByRole('button', { name: 'More actions' }).click();
+  await admin
+    .getByRole('row')
+    .filter({ hasText: 'The Living Database' })
+    .getByRole('button', { name: 'More actions' })
+    .click();
   await admin.getByRole('menuitem', { name: 'Edit session' }).click();
   await admin.getByLabel('Start (MT)').fill('14:00');
   await admin.getByRole('button', { name: 'Save session' }).click();
@@ -149,7 +178,11 @@ test('converting an upgrade request unlocks the team employees for that learner 
   const { admin, close } = await pair(browser);
   await open(admin, '/admin/tiers?as=admin');
   // D-160 R2-3a: a request's actions are in its "…"; the first is the oldest open request's.
-  await admin.getByRole('table', { name: 'Upgrade requests' }).getByRole('button', { name: 'More actions' }).first().click();
+  await admin
+    .getByRole('table', { name: 'Upgrade requests' })
+    .getByRole('button', { name: 'More actions' })
+    .first()
+    .click();
   await admin.getByRole('menuitem', { name: 'Convert to Team' }).click();
   await expect(admin.getByText(/is on Team Tier\. All six AI Employees are unlocked in their portal\./)).toBeVisible();
   await close();
@@ -159,7 +192,10 @@ test('the Owner permission column is fixed @g6', async ({ browser }) => {
   const { admin, close } = await pair(browser);
   await open(admin, '/admin/staff?as=admin');
   // D-160 R2-3a: the Owner's box is fixed: checked, and disabled.
-  const ownerCell = admin.getByRole('row', { name: /Publish modules/ }).getByRole('checkbox').first();
+  const ownerCell = admin
+    .getByRole('row', { name: /Publish modules/ })
+    .getByRole('checkbox')
+    .first();
   await expect(ownerCell).toBeChecked();
   await expect(ownerCell).toBeDisabled();
   await close();

@@ -14,6 +14,7 @@ import { planCopyV2 } from '../../packages/core/seed/copy-v2';
 import { planCopyV3 } from '../../packages/core/seed/copy-v3';
 import { seedProduction } from '../../packages/core/seed/curriculum';
 import { planDecemberRunV1 } from '../../packages/core/seed/december-run-v1';
+import { planProgramV1 } from '../../packages/core/seed/program-v1';
 import { planDecemberSellingV1 } from '../../packages/core/seed/december-selling-v1';
 import { DEFAULT_FOUNDING_CLOSES_AT } from '../../packages/core/src/offer';
 import type { SellingEnv } from '../../packages/core/src/cohort-selling';
@@ -58,6 +59,8 @@ const STEPS: readonly ((db: Db) => { db: Db })[] = [
   planAiImplementerV1,
   planDecemberRunV1,
   (db) => planDecemberSellingV1(db, LAUNCH_SELLING_ENV),
+  // D-265 (R-5 Phase 6): December's shared course words copied onto the program record.
+  planProgramV1,
 ];
 
 /** The launch database: December as production has it, before anyone bought, with the fixture's admin as its Owner. */

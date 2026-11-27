@@ -815,6 +815,15 @@ export function saveModule(db: Db, a: Actor, args: { draft: AIEmployee; status?:
   }
   if (errors.length) return { db, error: errors.join('\n') };
 
+  // R-5 Phase 6 (D-265; #278's open item): a course week's Opens and Due are its cohorts', set in Cohort › Settings ›
+  // Dates and Release (`saveCohortRun`), so a save keeps the stored ones whatever the draft says. Not a refusal: a
+  // builder opened before a date moved saves without putting the old date back.
+  const was = db.modules.find((x) => x.id === m.id);
+  if (was && isCourseWeek(m.id)) {
+    m.opens = was.opens;
+    if (was.dueAt === undefined) delete m.dueAt;
+    else m.dueAt = was.dueAt;
+  }
   if (args.status) m.status = args.status;
   if (m.status === 'published') m.opens = null;
   m.checklist = (m.checklist || []).map((s, i) => ({ ...s, id: 'c' + (i + 1) }));

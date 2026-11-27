@@ -1,9 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { phaseNow, seed, setViewerZone, ZERO_BASE } from '@ai/core';
 import type { Db } from '@ai/core';
-import { curriculumR2VM, curriculumVM, movesFor, previewUrl, tierWords, type CurriculumRow } from './Curriculum.vm';
-import { parityDb } from '../../data/parity-r2-db';
-import { MODS0 } from '../../data/parity-r2';
+import { curriculumVM, movesFor, previewUrl, tierWords, type CurriculumRow } from './Curriculum.vm';
 
 // Admin Curriculum at the three demo instants, Week 2 first (phase 06 § 6.1).
 //
@@ -271,85 +269,9 @@ describe('curriculumVM @g6', () => {
   });
 });
 
-// ================================================================================================
-// R2 (D-160 R2-2): the mockup's Curriculum, from the parity snapshot and from the ordinary fixture.
-// ================================================================================================
-
-describe('curriculumR2VM (D-160 R2-2)', () => {
-  const NOW = Date.parse('2026-12-10T16:30:00Z'); // the mockup's "now": Thu, Dec 10, 9:30 AM MT / 10:30 AM CT
-  const vm = curriculumR2VM(parityDb(), NOW);
-  const row = (id: string) => vm.rows.find((r) => r.id === id)!;
-
-  it('has the mockup’s summary, with the drafts kept together', () => {
-    expect(vm.summary).toBe('15 AI Employees · 3 in Agent Tier, all in Team Tier · 6\u00A0draft');
-    expect(vm.summaryPhone).toBe('15 AI Employees · 3 in Agent\u00A0Tier\u00A0·\u00A06\u00A0draft');
-    expect(vm.started).toBe(true);
-  });
-
-  it('lists MODS0 in order, with statuses, lines and Deployed', () => {
-    expect(vm.rows.map((r) => r.name)).toEqual(MODS0.map((m) => m.n));
-    expect(vm.rows.map((r) => r.statusLabel)).toEqual(MODS0.map((m) => m.st));
-    expect(row('m1')).toMatchObject({
-      order: 1,
-      statusLine: '6 steps · 3 files',
-      deployed: 66,
-      tier: 'agent',
-      icon: 'r2Announce',
-    });
-    expect(row('m6')).toMatchObject({
-      statusLine: 'Opens Dec 14',
-      deployed: null,
-      depLabel: 'Not started',
-      statusTone: 'info',
-    });
-    expect(row('m10')).toMatchObject({
-      statusLine: 'Hidden from learners',
-      deployed: null,
-      depLabel: 'Not published',
-      statusTone: 'off',
-    });
-    expect(vm.rows.filter((r) => r.deployed !== null).map((r) => r.deployed)).toEqual([66, 91, 74, 35, 38]);
-  });
-
-  it('prints each live session in MT and CT, in every form the table needs (D-267)', () => {
-    expect(row('m3').session).toEqual({
-      title: 'Session 1 · Lead-Source ROI Live Build',
-      when: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
-      full: 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
-      short: 'Lead-Source ROI',
-      date: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
-      brief: 'Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
-      n: 'Session 1',
-      day: 'Wed, Dec 2',
-    });
-    expect(row('m7').session!.when).toBe('Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT');
-    expect(row('m13').session!.short).toBe('Handoff');
-    expect(row('m1').session).toBeNull();
-    for (const r of vm.rows) expect(JSON.stringify(r)).not.toMatch(/\bMST\b/); // D-267: MT, with CT after it
-  });
-
-  it('writes the phone card’s meta line as the mockup does', () => {
-    expect(row('m1').meta).toBe('Self-paced · 66% deployed');
-    expect(row('m3').meta).toBe('Session 1 · Wed, Dec 2 · 74% deployed');
-    expect(row('m7').meta).toBe('Session 3 · Wed, Dec 16');
-    expect(row('m11').meta).toBe('Hidden from learners · Wed, Dec 30');
-    expect(row('m12').meta).toBe('Hidden from learners · Self-paced');
-  });
-
-  it('before the cohort opens, nothing is deployed yet', () => {
-    const early = curriculumR2VM(parityDb(), Date.parse('2026-11-20T16:00:00Z'));
-    expect(early.started).toBe(false);
-    expect(early.rows[0]).toMatchObject({ deployed: null, depLabel: 'Not started', meta: 'Self-paced · Not started' });
-  });
-
-  it('reads the ordinary fixture the same way, the baseline included (phase 06 § 6.2)', () => {
-    const live = curriculumR2VM(seed('live'), WEEK2);
-    expect(live.rows.map((r) => r.id)).toEqual(['marketing', 'sales', 'database', 'meetings', 'finance', 'operations']);
-    expect(live.rows.map((r) => r.publishes)).toEqual(curriculumVM(seed('live'), WEEK2).rows.map((r) => r.publishes));
-    const zero = curriculumR2VM({ ...seed('live'), base: ZERO_BASE, users: [] }, WEEK2);
-    expect(zero.rows.filter((r) => r.status === 'published').every((r) => r.deployed === 0)).toBe(true);
-  });
-
+// D-265 (R-5 Phase 6): the R2 Curriculum's view-model went with its screen (Program › Curriculum is the program's
+// weeks, `program/program.vm.ts`); the helpers it shared stay.
+describe('the helpers Curriculum shares', () => {
   it('turns a drag into one-place moves', () => {
     expect(movesFor(4, 1)).toEqual({ dir: -1, times: 3 });
     expect(movesFor(0, 2)).toEqual({ dir: 1, times: 2 });

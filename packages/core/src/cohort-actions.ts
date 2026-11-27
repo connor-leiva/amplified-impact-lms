@@ -22,6 +22,7 @@ import type { AdminOutcome } from './admin-actions';
 import { NO_FACTS, beforeItOpens, draftWords, includedDefault } from './cohort-page';
 import type { CohortFacts } from './cohort-page';
 import { ghlMonthValue } from './cohort-learner';
+import { programIdOf } from './program';
 import { cohortSelling, enrollmentOpen } from './cohort-selling';
 import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
 
@@ -204,6 +205,8 @@ export function createCohortFromShape(
     ...(layout.setupOpensAt !== null ? { previewOpensAt: layout.setupOpensAt } : {}),
     run: layout.weeks,
     shape,
+    // R-5 Phase 6 (D-265): each cohort names its program, its source's (the one program, `accelerator`, today).
+    programId: programIdOf(source),
     ...(words ? { words } : {}),
     ...(includedUntil ? { includedUntil } : {}),
   };

@@ -1193,6 +1193,92 @@ export const JAN_SLOTS = [
   { day: 4, time: '12:00', kind: 'office_hours', mins: 60 },
 ] as const;
 
+// ------------------------------------------------------------------------------------------------
+// D-265 (R-5 Phase 6): Program's pages (the R2 reference's `P6_LIB`, `P6_DEC_RUN`, `P6_DEC_SES`, `P6_WK_STEPS`,
+// `P6_W0_STEPS`, `P6_GLOSS`, `P6_WORDS`, and `CourseSet`'s words), from the mockup's `ACC_WEEKS` and friends.
+// ------------------------------------------------------------------------------------------------
+
+/** Each week's status (a week the mockup calls Scheduled is a `scheduled` module, which Curriculum reads Published), its steps' minutes and its kit's files. */
+export const P6_WEEKS: readonly (readonly [status: 'published' | 'scheduled' | 'draft', mins: readonly number[], files: number])[] = [
+  ['published', [10, 30, 20, 20, 30, 30, 10, 20], 5],
+  ['published', [15, 60, 30, 15, 10, 15, 5], 3],
+  ['scheduled', [15, 60, 30, 15, 10, 25, 5], 2],
+  ['draft', [15, 60, 30, 15, 10, 10], 1],
+  ['draft', [15, 60, 20, 15, 10], 0],
+  ['draft', [15, 45, 20, 10], 0],
+  ['draft', [15, 30, 15], 0],
+  ['draft', [], 0],
+  ['draft', [], 0],
+];
+
+/** A week's steps: the title, who does it, its time, and when it is done. */
+export const P6_W0_STEPS: readonly (readonly [string, string, string, string])[] = [
+  ['Fill In Your Intake and Name Your AI Implementer', 'Owner', '10 min', 'Intake in, AI Implementer invited, stack card sent back.'],
+  ['Watch the Orientation', 'Owner, AI Implementer', '30 min', 'Both know how a week runs and what a hire is.'],
+  ['Start Your Time Baseline', 'Owner', '20 min', 'Six tasks timed per occurrence, or marked not done today.'],
+  ['Get Your AI Ready', 'AI Implementer', '20 min', 'Paid plan, training off, skills on, both cohort skills pass their self-test.'],
+  ['Set Up Your AI Brain', 'Owner, AI Implementer', '30 min', 'A new chat knows the business.'],
+  ['Connect Your Data', 'AI Implementer', '30 min', 'Each green source answers a test question.'],
+  ['Lock the Guardrails', 'AI Implementer', '10 min', 'Every write tool blocked except drafts and saves.'],
+  ['Run the Ready Check and Your Test Hire', 'AI Implementer', '20 min', 'Ready Check is green and the test hire ran.'],
+];
+export const P6_WK_STEPS: readonly (readonly [string, string, string, string])[] = [
+  ['Read the Week and Pick Your Data', 'Owner', '15 min', 'The export this week needs is in the AI Office.'],
+  ['Join the Live Build', 'Owner, AI Implementer', '1 hr 30 min', 'The hire ran once on your own data.'],
+  ['Run It Again on Your Own', 'AI Implementer', '30 min', 'A second run matches the first.'],
+  ['Check the Output with the Rubric', 'Owner', '15 min', 'Every rubric line is a yes or has a note.'],
+  ['Turn In Your Report', 'AI Implementer', '10 min', 'The report is turned in from the step.'],
+  ['Bring One Question to Office Hours', 'Owner, AI Implementer', '1 hr', 'The question is posted or asked live.'],
+  ['Mark the Hire as Deployed', 'Owner', '5 min', 'The week shows Deployed.'],
+];
+/** A week's kit: its two skills and its files' names. */
+export const P6_KIT_SKILLS = ['Map Your Spend', 'Lead Source Review'] as const;
+export const P6_KIT_FILES = ['Week checklist', 'Report template', 'Rubric', 'Sample week', 'Time baseline'] as const;
+
+/** The glossary: term, short definition, also matches, first step. */
+export const P6_GLOSS: readonly (readonly [string, string, string, string])[] = [
+  ['AI Employee', 'A piece of work your AI does on a schedule, with a seat card.', 'hire, AI hire', 'Week 0 · Step 2'],
+  ['AI Implementer', 'The person on your team who sets the hires up and keeps them running.', 'implementer', 'Week 0 · Step 1'],
+  ['AI Brain', 'What your AI knows about your business before you ask it anything.', 'brain', 'Week 0 · Step 5'],
+  ['Seat card', 'One page: what a hire does, for whom, and what it never touches.', '', 'Week 1 · Step 2'],
+  ['Playbook card', 'How to run a hire, check it and fix it.', 'playbook', 'Week 1 · Step 2'],
+  ['Guardrails', 'The settings that stop your AI from sending or changing anything on its own.', '', 'Week 0 · Step 7'],
+  ['Ready Check', 'A short test that says your setup is ready for a hire.', '', 'Week 0 · Step 8'],
+  ['Stack card', 'The tools your team runs on, on one page.', '', 'Week 0 · Step 1'],
+  ['Time baseline', 'How long six tasks take today, so you can see what changed.', 'baseline', 'Week 0 · Step 3'],
+  ['Evidence packet', 'What you turn in to show a hire works.', 'evidence', 'Week 1 · Step 5'],
+];
+/** The copy strings: key, what it says, who reads it. */
+export const P6_WORDS: readonly (readonly [string, string, 'learner' | 'staff'])[] = [
+  ['locked.opens', 'Opens {date}', 'learner'],
+  ['locked.utah_life', 'Not included with Utah Life access', 'learner'],
+  ['community.nothing_emailed', 'Nothing is emailed.', 'learner'],
+  ['turnin.goes_to', 'Goes to Connor’s team. Nothing is emailed.', 'learner'],
+  ['week.done', 'Deployed', 'learner'],
+  ['staff.preview', 'Previewing as a learner. Nothing you do here is saved.', 'staff'],
+];
+/** `CourseSet`'s words, the program's shared course as the mockup fills its fields. */
+export const P6_COURSE = {
+  title: 'Amplified AI Accelerator',
+  instructor: 'Connor Leiva',
+  owner: 'You decide what the hire is for and whether its work is good enough to use.',
+  operator: 'You set the hire up, run it, and keep it running. On a small team this can be the owner.',
+  scope: 'We build the hires in this course. We don’t set up your CRM or your books.',
+  support: 'Ask in the Community first. For anything private, email the team.',
+  officeHoursRules: ['Bring one question.', 'Share your screen, not your client’s name.', 'If we can’t fix it in ten minutes, we take it to a thread.'],
+  evidence: ['The report the hire made.', 'The rubric, filled in.', 'One sentence on what you would change.'],
+  missedAWeek: 'Watch the replay, run the hire, and turn it in. Nothing locks behind you.',
+  intake: ['Fill in the intake before {first live build}.', 'Name your AI Implementer and invite them.'],
+  practiceSetNote: 'Use the practice set until your own export is ready. It is made-up data.',
+  safeSharing: ['No client names in a thread.', 'No passwords or keys, ever.', 'Screenshots with numbers are fine. Screenshots with people are not.'],
+  graduation: ['{weeks of building} hires deployed.', 'A seat card and a playbook card for each.', 'Your next three hires, in order.'],
+  graduationNote: 'You keep everything you built, and the portal stays open to you.',
+  paths: ['Keep going with the Team Plan.', 'Bring your agents in on the Agent Plan.'],
+  noPaywall: 'Nothing you built here locks when the cohort ends.',
+  joinLabel: 'Join on Zoom',
+  joinNote: 'Opens 15 minutes before we start.',
+} as const;
+
 export const mockCents = (s: string): number => Math.round(Number(s.replace(/[$,]/g, '')) * 100);
 
 /** The parity fixture, as the shell reads it. */

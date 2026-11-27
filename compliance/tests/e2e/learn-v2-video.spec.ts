@@ -92,8 +92,9 @@ async function open(browser: Browser, path: string, width: number, as: 'agent' |
 test.describe('a course video block (D-188)', () => {
   test('the builder adds a link video and an uploaded mp4 to a step, recorded without a bucket, and saves', async ({ browser }) => {
     const { page, uploads } = await open(browser, '/admin/curriculum/accelerator-week-2', 1440, 'admin');
-    await page.getByRole('row').filter({ has: page.getByRole('textbox', { name: 'Step 1 title' }) }).getByRole('button', { name: 'More actions' }).click();
-    await page.getByRole('menuitem', { name: 'Edit step details' }).click();
+    // D-265 (R-5 Phase 6): a week's Steps list; a step's "…" › Edit step opens its fields.
+    await page.locator('main [data-step="1"]').getByRole('button', { name: 'More actions' }).click();
+    await page.getByRole('menuitem', { name: 'Edit step' }).click();
     const dialog = page.getByRole('dialog', { name: 'Step 1' });
 
     // A link, in the ChatGPT path.
@@ -117,8 +118,8 @@ test.describe('a course video block (D-188)', () => {
     expect(uploads).toEqual([]);
 
     await dialog.getByRole('button', { name: 'Done' }).click();
-    await page.getByRole('button', { name: 'Save changes' }).click();
-    await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await expect(page.getByText(/^Unsaved changes to /)).toHaveCount(0);
 
     // The live preview shows both: the upload in a <video> from this origin (this tab's own copy, until a
     // reload, then the API's address), the link as Watch.

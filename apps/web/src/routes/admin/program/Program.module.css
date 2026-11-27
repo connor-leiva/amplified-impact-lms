@@ -1,0 +1,337 @@
+/* D-265 (R-5 Phase 6): Program's pages, the mockup's own rules (handoff/admin-mockup/build_admin.py, "third pass"; the R2
+   reference's D-265 block), in the R2 tokens: a section list down the left (`.srg`, `.srl`, `.srb`), an ordered list
+   that opens (`.wkr`, `.wkm`, `.wkc`, `.wks`), a line editor (`.ln`, `.grp`), the "From the cohort" block (`.cfb`) and the
+   unsaved-changes bar (`.svb`). Spacing and radii are the mockup's px. Shared pieces (`.wkl`, `.wn`, `.rnw`, `.set2`,
+   `.lab`, `.fat`, `.lns`, `.g2`, `.cfl`) are Cohort.module.css's. */
+
+/* ---- a section list down the left, one section on screen at a time ----------------------------- */
+.srg {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.srl {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  position: sticky;
+  top: 0;
+}
+/* The mockup sets a section a pixel under the body's size and in its second ink, but its button reset
+   (`.arx button{font:inherit;color:inherit;margin:0}`) outranks a single class, so it draws them at the body's size and
+   ink; the current one, two classes, keeps its tint and weight. The build draws what the reference draws (D-239). */
+.srb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--r2-c);
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+.srb:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.srb.on {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  font-weight: 500;
+}
+.srbLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.srbCount {
+  font-size: var(--r2-m);
+  color: var(--r2-f3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.railCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---- an ordered list that opens: a week, a step, a session ------------------------------------- */
+.grp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: var(--r2-c);
+  color: var(--r2-line2);
+  cursor: grab;
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+.wkr:hover .grp,
+.ln:hover .grp {
+  color: var(--r2-f3);
+}
+.wkr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 8px;
+  min-height: 60px;
+}
+.wkr.stp {
+  padding-left: 12px;
+}
+.wkr:hover {
+  background: var(--r2-hov);
+}
+.wkr.dragging {
+  opacity: 0.6;
+}
+.wkm {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.wkm:hover .wkt {
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+}
+.wkc {
+  flex: 0 0 104px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.wkc.wkd {
+  flex-basis: 172px;
+}
+.stp .wkc {
+  flex: 0 0 196px;
+}
+.stp .wkc .who {
+  flex-wrap: nowrap;
+}
+.wks {
+  flex: 0 0 96px;
+  display: flex;
+  justify-content: flex-start;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.who {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+/* `.lk.a`: a link in the forest ink */
+.lka {
+  color: var(--r2-for);
+}
+/* a link inside a sentence: underlined, so it is not told from its words by colour alone (axe's link-in-text-block) */
+.inlink {
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+}
+/* `.lk.uin`: a cohort's week, a quiet link */
+.uin {
+  font-weight: 400;
+  color: var(--r2-f2);
+}
+.uir {
+  margin: 0;
+  width: 100%;
+  border: 1px solid var(--r2-line);
+  padding: 8px 12px;
+}
+.menu {
+  flex: none;
+}
+/* the head's Next week: the Back arrow, mirrored (the mockup's `scaleX(-1)`) */
+.flip svg {
+  transform: scaleX(-1);
+}
+
+/* ---- a list of lines, each its own field ------------------------------------------------------- */
+.ln {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ln > input {
+  flex: 1;
+  font-weight: 400;
+}
+.addLine {
+  align-self: flex-start;
+  margin-left: -10px;
+}
+
+/* ---- a word that is the cohort's, shown where the program's are edited ------------------------- */
+.cfb {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px dashed var(--r2-line2);
+  border-radius: 10px;
+  background: var(--r2-hov);
+  font-size: calc(var(--r2-t) - 1px);
+}
+.cfbText {
+  font-weight: 400;
+}
+
+/* ---- unsaved changes: one bar, at the bottom of what you are editing ---------------------------- */
+.svb {
+  position: sticky;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 10px 16px;
+  background: var(--r2-ink);
+  color: var(--r2-svb-ink);
+  border-radius: 12px;
+  box-shadow: var(--r2-sh-toast);
+  font-size: calc(var(--r2-t) - 1px);
+  z-index: 3;
+}
+.svbText {
+  flex: 1;
+  font-weight: 500;
+}
+.svb > button {
+  border-color: var(--r2-svb-line);
+  background: var(--r2-svb-button);
+  color: var(--r2-svb-ink);
+  box-shadow: none;
+}
+.svb > button:hover {
+  background: var(--r2-svb-button-hover);
+  color: var(--r2-svb-ink);
+}
+/* the bar's last button is its primary, Save changes (`.svb .b.p`) */
+.svb > button:last-child {
+  background: var(--r2-mint);
+  border-color: var(--r2-mint);
+  color: var(--r2-ink);
+}
+.svb > button:last-child:hover {
+  background: var(--r2-mint-hover);
+}
+
+.alert {
+  border: 1px solid var(--r2-bad-line);
+  background: var(--r2-badb);
+  color: var(--r2-bad);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+/* `.kvs .kv dd`: the mockup keeps the last pair's 10px under it too (the kit's `KV stacked` drops it, D-169) */
+.kvsLast dl dd:last-child {
+  margin-bottom: 10px;
+}
+.selfStart {
+  align-self: flex-start;
+}
+.block {
+  display: block;
+}
+.cl2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cardName {
+  font-size: 17px;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- a laptop (768px to 1199px) ------------------------------------------------------------------ */
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* `.lap .wkc` comes after `.stp .wkc` in the mockup and ties it, so a step's "who" column is 120px here too. */
+  .wkc,
+  .stp .wkc {
+    flex-basis: 120px;
+  }
+  .wkc.wkd {
+    display: none;
+  }
+}
+
+/* ---- a phone (767px and under): a row is two lines, what it is and its menu, then where it stands ---- */
+@media (max-width: 767px) {
+  .srg {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .wkr {
+    flex-wrap: wrap;
+    padding: 12px 12px 12px 16px;
+    gap: 8px 12px;
+  }
+  .wkm {
+    order: 1;
+    flex: 1 1 calc(100% - 100px);
+  }
+  .wkr > .menu {
+    order: 2;
+  }
+  .wkc {
+    display: none;
+  }
+  .wkc.wkd,
+  .stp .wkc {
+    display: flex;
+    order: 3;
+    flex: 1 1 auto;
+    margin-left: 40px;
+  }
+  .stp .wkc {
+    margin-left: 36px;
+  }
+  .wks {
+    order: 4;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+  /* The 16px phone floor (D-156, D-160's decision A): the mockup sets these columns a pixel under the phone's body size
+     (15px); the build keeps the floor, as `.ph .b` does for a button in them. */
+  .wkc,
+  .wks {
+    font-size: var(--r2-t);
+  }
+}
