@@ -10,7 +10,7 @@ import type { App } from '../src/app';
 import { provisionGroupMember } from '../src/billing/access-groups';
 import { BILLING_PATHS } from '../src/console/billing';
 import type { ConsoleStripe, ReadInvoice } from '../src/console/stripe-read';
-import { accessGroups, accounts, orders, plans, skillPurchases, teams, users } from '../src/db/schema';
+import { accessGroups, accounts, cohorts, orders, plans, skillPurchases, teams, users } from '../src/db/schema';
 import { fakeConsoleStripe } from './fake-console-stripe';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -55,9 +55,9 @@ let app: App | null = null;
 let fake: ReturnType<typeof fakeConsoleStripe>;
 let cookie: string;
 
-async function start(stripe: ConsoleStripe | null = fake.stripe): Promise<void> {
+async function start(stripe: ConsoleStripe | null = fake.stripe, cache = false): Promise<void> {
   await app?.close();
-  app = await build({ logger: false, consoleBilling: { stripe, mode: 'test' } });
+  app = await build({ logger: false, consoleBilling: { stripe, mode: 'test', cache } });
   cookie = await app.signInAs('st1');
 }
 const get = async (url: string) => app!.inject({ method: 'GET', url, headers: { cookie } });
@@ -117,10 +117,11 @@ beforeEach(async () => {
       inv('in_two', 'cus_two', 'sub_two', 375_000, NOW - 9 * DAY, { billingReason: 'subscription_create' }),
       inv('in_jan', 'cus_jan', 'sub_jan', 750_000, NOW - 3 * DAY, { billingReason: 'subscription_create' }),
       inv('in_plan', 'cus_plan', 'sub_plan', 69_500, NOW - 25 * DAY, { billingReason: 'subscription_create' }),
-      inv('in_tester', 'cus_tester', 'sub_tester', 750_000, NOW - 4 * DAY, { billingReason: 'subscription_create' }),
+      inv('in_tester', 'cus_tester', 'sub_tester', 750_000, NOW - 4 * DAY, { billingReason: 'subscription_create', paymentIntentId: 'pi_tester' }),
       inv('in_failed', 'cus_plan', 'sub_plan', 0, NOW - 2 * DAY, { status: 'open', amountPaidCents: 0, amountRemainingCents: 69_500, attemptCount: 1, nextPaymentAttempt: NOW + DAY, paidAt: null }),
     ],
-    refunds: [{ id: 're_tester', amountCents: 750_000, chargeId: null, paymentIntentId: null, invoiceId: 'in_tester', created: NOW - DAY, status: 'succeeded', reason: null, metadata: {} }],
+    // Found by its payment in the paid invoices (Revenue never asks Stripe which invoice a refund refunded).
+    refunds: [{ id: 're_tester', amountCents: 750_000, chargeId: null, paymentIntentId: 'pi_tester', invoiceId: null, created: NOW - DAY, status: 'succeeded', reason: null, metadata: {} }],
   });
   await start();
 });
@@ -191,6 +192,39 @@ describe('Revenue › Summary (D-269) @console', () => {
     expect(withAgents.skills).toEqual(without.skills);
     expect(withAgents.cash).toEqual(without.cash);
     expect(withAgents.stillToCollect).toEqual(without.stillToCollect);
+  });
+
+  it('reads Stripe through the cached client, a fixed handful of list reads: never per row, order, refund or cohort', async () => {
+    // Production's client: the 10-minute cache over the read client (`cachedConsoleStripe`).
+    await start(fake.stripe, true);
+    await revenue();
+    const once = [...fake.calls];
+    // Four list reads, one page each here; nothing retrieved one at a time (no invoice, charge or customer by id).
+    expect([...once].sort()).toEqual(['listInvoices', 'listInvoices', 'listRefunds', 'listSubscriptions']);
+    // Loaded again, and for the other period: no new Stripe call (the summary's own memo, then the client's cache).
+    await revenue();
+    await revenue('month');
+    expect(fake.calls).toEqual(once);
+    // The open invoices are Billing's own read: its summary asks for them from the same cache.
+    const before = fake.calls.length;
+    await get(P.billingSummary);
+    expect(fake.calls.slice(before).filter((c) => c === 'listInvoices')).toEqual([]);
+
+    // More orders, seats and cohorts in the database read no more from Stripe.
+    const db = await testDatabase();
+    await db.insert(cohorts).values([0, 1, 2].map((i) => ({ id: `c_more${i}`, name: `More ${i}`, start: NOW + (40 + i) * DAY, end: NOW + (90 + i) * DAY, status: 'enrolling', capacity: 15, cadence: '' })));
+    for (const i of [0, 1, 2, 3, 4, 5]) {
+      await db.insert(users).values({ id: `u_more${i}`, email: `more${i}@example.test`, name: `More ${i}`, kind: 'learner', tier: 'team', role: 'Team Owner', teamId: `t_more${i}`, cohortId: DEFAULT_COHORT_ID, status: 'active', joined: NOW - DAY, seq: 300 + i });
+      await db.insert(teams).values({ id: `t_more${i}`, name: `More ${i}`, ownerId: `u_more${i}`, seats: 5, seq: 300 + i });
+      await db.insert(accounts).values({ id: `a_more${i}`, teamId: `t_more${i}`, ownerUserId: `u_more${i}`, ownerEmail: `more${i}@example.test`, name: `More ${i}`, stripeCustomerId: `cus_more${i}`, createdAt: NOW - DAY });
+      await db.insert(orders).values({ id: `o_more${i}`, plan: 'cohort', option: 'two_pay', origin: 'payment_link', currency: 'usd', status: 'paid', amountTotal: 375_000, paymentsMade: 1, accountId: `a_more${i}`, stripeCustomerId: `cus_more${i}`, stripeSubscriptionId: `sub_more${i}`, cohortId: `c_more${i % 3}`, createdAt: NOW - DAY });
+      await db.insert(plans).values({ id: `p_more${i}`, accountId: `a_more${i}`, kind: 'cohort', option: 'two_pay', seats: 5, status: 'active', cohortId: `c_more${i % 3}`, startsAt: NOW, orderId: `o_more${i}`, createdAt: NOW - DAY });
+    }
+    fake.calls.length = 0;
+    await start(fake.stripe, true);
+    const more = await revenue();
+    expect(more.cohorts.filter((c) => c.cohortId.startsWith('c_more')).map((c) => c.sold)).toEqual([2, 2, 2]);
+    expect([...fake.calls].sort()).toEqual([...once].sort());
   });
 
   it('the sidebar’s "N failed" is memory only: null until a summary or Revenue is read, then its count', async () => {

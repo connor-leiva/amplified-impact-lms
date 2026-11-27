@@ -2,9 +2,12 @@
 // Billing's routes, `billing.ts`, `billing.read`) reads them here and answers core's `buildRevenueSummary`.
 //
 // WHAT IT READS: only what Billing already reads (ADMIN-RESTRUCTURE-SPEC.md, Phase 8). Stripe, through the Console's
-// read client, cached (`console/stripe-read.ts`): every subscription, every paid and open invoice, every refund (with the
-// invoice it refunded, as the Refunds list reads it). No new Stripe scope, no new kind of Stripe object, no write. The
-// database: `orders`, `plans` (`countedCohortSeat`), `accounts`, `users`, `teams`, `skill_purchases`, `cohorts`.
+// cached read client (`cachedConsoleStripe`, 10 minutes), four list reads and nothing else: every subscription, every
+// paid invoice, every open invoice (Billing's own read, `openInvoices`, so the two share one cached answer) and every
+// refund. Never a Stripe call per row, customer, order, refund or cohort (D-269): a refund finds the invoice it refunded
+// by its payment in the paid invoices already read, and every per-row figure comes from those lists or the database. No
+// new Stripe scope, no new kind of Stripe object, no write. The database: `orders`, `plans` (`countedCohortSeat`),
+// `accounts`, `users`, `teams`, `skill_purchases`, `cohorts`.
 //
 // WHO IS LEFT OUT (D-269): a Stripe customer whose account's owner is a test account (D-202), or whose team is an access
 // group's team of one (D-268's `groupTeamOfOne`: no plan row, one member, whose address is in a group); and those
@@ -20,7 +23,7 @@ import { sellingOfMany } from '../billing/cohort-sale';
 import { countedCohortSeat } from '../billing/provision';
 import type { Database } from '../db/client';
 import { cohorts, orders, plans } from '../db/schema';
-import { readAll } from './billing';
+import { openInvoices, readAll } from './billing';
 import { inGroupSql } from './records';
 import { StripeReadError, StripeScopeError } from './stripe-read';
 import type { ConsoleStripe, ReadInvoice } from './stripe-read';
@@ -29,13 +32,12 @@ import type { ConsoleStripe, ReadInvoice } from './stripe-read';
 async function stripeFacts(stripe: ConsoleStripe | null): Promise<RevenueStripeFacts | RevenueStripeError> {
   if (!stripe) return { reason: 'not_connected' };
   try {
-    const invoices = (status: 'paid' | 'open') =>
-      readAll<ReadInvoice>((after) => stripe.listInvoices({ status, limit: 100, startingAfter: after }), (i) => i.id);
     const [subscriptions, paid, open, refunds] = await Promise.all([
       readAll<BillingSubscription>((after) => stripe.listSubscriptions({ status: 'all', limit: 100, startingAfter: after }), (s) => s.id),
-      invoices('paid'),
-      invoices('open'),
-      readAll((after) => stripe.listRefunds({ limit: 100, startingAfter: after, withInvoice: true }), (r) => r.id),
+      readAll<ReadInvoice>((after) => stripe.listInvoices({ status: 'paid', limit: 100, startingAfter: after }), (i) => i.id),
+      openInvoices(stripe),
+      // No `withInvoice`: that asks Stripe once per refund. Core finds the invoice by the refund's payment instead.
+      readAll((after) => stripe.listRefunds({ limit: 100, startingAfter: after }), (r) => r.id),
     ]);
     return { subscriptions, paid, open, refunds };
   } catch (e) {

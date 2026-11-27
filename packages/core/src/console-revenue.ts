@@ -57,6 +57,9 @@ export interface RevenueInvoice {
   nextPaymentAttempt: number | null;
   /** Stripe's `billing_reason`: `subscription_create` is the checkout's own invoice. */
   billingReason?: string | null;
+  /** The payment it was paid with (its payment intent, else its charge): how a refund finds the invoice it refunded. */
+  paymentIntentId?: string | null;
+  chargeId?: string | null;
 }
 
 export interface RevenueRefund {
@@ -64,9 +67,13 @@ export interface RevenueRefund {
   amountCents: number;
   status: string | null;
   created: number;
-  /** The invoice whose payment it refunded, when Stripe has one (a subscription's charge). */
+  /**
+   * The invoice whose payment it refunded, when the read names it. Revenue never asks for it (that is a Stripe call per
+   * refund, D-269): it finds the invoice by the refund's payment intent or charge in the paid invoices it already holds.
+   */
   invoiceId: string | null;
   paymentIntentId: string | null;
+  chargeId?: string | null;
 }
 
 /** An order, as the line rule reads it: `orders` (and a plan's subscription when the order names none). */
@@ -434,11 +441,19 @@ export function buildRevenueSummary(f: RevenueFacts): RevenueSummary {
   const refunds = st.refunds.filter((r) => r.status !== 'failed' && r.status !== 'canceled');
   const refundRows: { r: RevenueRefund; name: string | null }[] = [];
   const allPaid = new Set(st.paid.map((i) => i.id));
+  // The paid invoices by the payment each was paid with, from the same list read (no Stripe call per refund).
+  const byPayment = new Map<string, string>();
+  for (const inv of st.paid) {
+    if (inv.paymentIntentId) byPayment.set(`pi:${inv.paymentIntentId}`, inv.id);
+    if (inv.chargeId) byPayment.set(`ch:${inv.chargeId}`, inv.id);
+  }
   for (const r of refunds) {
     if (r.paymentIntentId && f.excludedSkillPayments.has(r.paymentIntentId)) continue;
-    const paid = r.invoiceId ? paidById.get(r.invoiceId) : undefined;
+    const invoiceId =
+      r.invoiceId ?? (r.paymentIntentId ? byPayment.get(`pi:${r.paymentIntentId}`) : undefined) ?? (r.chargeId ? byPayment.get(`ch:${r.chargeId}`) : undefined) ?? null;
+    const paid = invoiceId ? paidById.get(invoiceId) : undefined;
     // The refund of an invoice left out (a test account's, the smoke test's) is left out with it.
-    if (r.invoiceId && !paid && allPaid.has(r.invoiceId)) continue;
+    if (invoiceId && !paid && allPaid.has(invoiceId)) continue;
     const skill = !paid && !!r.paymentIntentId && skillByPi.has(r.paymentIntentId);
     add(r.created, -r.amountCents, paid?.line ?? null, paid?.cohortId ?? null, skill);
     refundRows.push({ r, name: paid?.name ?? null });

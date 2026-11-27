@@ -798,7 +798,7 @@
 .toneBad {
   color: var(--r2-bad);
 }
-/* D-269: the mockup's blue line (Revenue's Still to collect), and a tile that is a button (`button.stat`). */
+/* D-269: the mockup's info-toned line (Revenue's Still to collect), and a tile that is a button (`button.stat`). */
 .toneInfo {
   color: var(--r2-info);
 }

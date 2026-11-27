@@ -97,8 +97,9 @@ const sub = (id: string, status: string, items: BillingSubscription['items'], ov
 const paid = (id: string, n: number, cents: number, when: string, reason = 'subscription_cycle'): ReadInvoice => ({
   id: `in_${id}${n}`, customerId: `cus_${id}`, customerName: null, subscriptionId: `sub_${id}`, status: 'paid', totalCents: cents, amountPaidCents: cents, amountRemainingCents: 0, attemptCount: 0, created: at(when), paidAt: at(when), nextPaymentAttempt: null, billingReason: reason, paymentIntentId: `pi_${id}${n}`, chargeId: null,
 });
-const refund = (id: string, cents: number, invoiceId: string, when: string): ReadRefund => ({
-  id, amountCents: cents, chargeId: null, paymentIntentId: null, invoiceId, created: at(when), status: 'succeeded', reason: 'requested_by_customer', metadata: {},
+// A refund names the payment it refunded; Revenue finds the invoice by it (D-269: no Stripe call per refund).
+const refund = (id: string, cents: number, payment: string, when: string): ReadRefund => ({
+  id, amountCents: cents, chargeId: null, paymentIntentId: payment, invoiceId: null, created: at(when), status: 'succeeded', reason: 'requested_by_customer', metadata: {},
 });
 const fake = fakeConsoleStripe({
   subscriptions: [
@@ -133,7 +134,7 @@ const fake = fakeConsoleStripe({
       status: 'open', amountPaidCents: 0, amountRemainingCents: 16_900, attemptCount: 1, paidAt: null, nextPaymentAttempt: at('2026-12-12T16:00:00Z'),
     },
   ],
-  refunds: [refund('re_fourth', 69_500, 'in_fourth3', '2026-11-25T23:44:00Z'), refund('re_tester', 750_000, 'in_tester1', '2026-12-02T17:00:00Z')],
+  refunds: [refund('re_fourth', 69_500, 'pi_fourth3', '2026-11-25T23:44:00Z'), refund('re_tester', 750_000, 'pi_tester1', '2026-12-02T17:00:00Z')],
 });
 
 const webDist = fileURLToPath(new URL('../../../../apps/web/dist', import.meta.url));
