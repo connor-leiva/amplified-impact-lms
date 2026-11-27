@@ -8168,3 +8168,23 @@ No migration, env var, Railway variable, Stripe, billing data, role, tier, permi
       - Errors and toasts: "“{key}” is not a lookup key. Copy it from the price in Stripe.", "Enter two payments’ lookup key, or don’t offer two payments.", "Pick a date and a time founding closes.", "A Payment Link is its https address, as Stripe shows it.", "Seats is a whole number, 1 or more.", "{n} seats are sold, so the cap can’t be lower.", "GoHighLevel’s value is letters and digits, like jan27.", "Nothing changed.", "Enrollment is already open.", "Enrollment is already closed.", "This cohort is over.", "Price saved", "Enrollment saved", "Enrollment is open", "Enrollment is closed".
       - Elsewhere: New cohort's "Copied from {cohort}"; a cohort that is not founding: "All {n} seats are taken. Join the waitlist at amplifiedimpact.io/offer to hear first about the next cohort." and Week 0 Is Open's "one of the members of"; and the logs "a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up" and the data step's status line.
 - No Stripe price, Payment Link or GoHighLevel change, and no real Stripe or GoHighLevel call. No golden, mask or tolerance moves. `audit_log` only gains rows.
+
+## D-266 · Hotfix: December sells exactly as it did before #281
+
+**Date:** 2026-11-27
+**Asked for by:** Connor Leiva (repository owner), 12:40 AM MT: "after #281 deployed, production GET /api/offer returns cohort-full and cohort-two-pay as state 'closed' (founding open until Nov 30, 11 of 15 seats left), and /offer and /forum hide both AI Accelerator Payment Links. Before #281 these were 'link'. ... Fix so December sells exactly as before (December byte-identical): December counts as on sale whenever it did before R-5. Add a test against a production-shaped December record (status as in prod, data step applied) asserting both cohort carts read 'link' with D-154's links."
+
+- **The cause.** #281 (D-262) made the offer sell only a cohort whose enrollment is open, and read "open" as `status = 'enrolling'`. Production's December record is not `enrolling`, so the offer found no cohort on sale and both Accelerator carts read `closed`. The 2026-11-27-december-selling data step changed no status; it did not cause this. D-262's "check December is `enrolling` before deploy" was the only guard, and it was not enough.
+- **The fix** (`enrollmentOpen`, `packages/core/src/cohort-selling.ts`). A cohort is taking sales when it is not archived, Close enrollment has not been pressed (`enrollment_closed_at`), and it is either `enrolling` or December, the default cohort.
+  - December sold before R-5 whatever its status said. A checkout with no `ai_cohort` lands in it forever. So its sale never reads its status now either.
+  - Archive and Close are R-5's own, so honoring them moves nothing December did before.
+  - Every other cohort still needs `enrolling` (Open enrollment), as D-262 built it.
+  - The same rule feeds the seat cap's reopen (D-154: before R-5 it read only `OFFER_OPEN` and the founding close) and provisioning's closed-cohort log.
+  - Open enrollment on a cohort closed by hand reopens it whatever its status, so a December closed by mistake can be reopened (its two Stripe lines still decide, as for any closed cohort, D-262 item 19). Open on a December that is already on sale answers "Enrollment is already open."
+- **The hard-code check** names the December comparison; it is on the allowlist with its reason, until Connor decides December's sale may read its status.
+- **The data step's** status line now says December still sells; it is informational only, and production's run is already recorded.
+- **Tests.**
+  - Core: December sells under `live`, `completed`, `draft` and `enrolling`; Close and archive stop it; another cohort sells only when `enrolling`; a December closed by hand can be reopened.
+  - API: a production-shaped December (the launch seed, its status set to each of `live`, `enrolling`, `completed` and `draft`, and every data step run with production's two `PAYMENT_LINK_COHORT_*` variables) answers `GET /api/offer` with both cohort carts `link` and December's two Payment Links, 15 seats, and the seat cap turns a link it had turned off back on when a seat frees, as D-154 did. Against #281's rule the `live`, `completed` and `draft` cases fail.
+- **December stays byte-identical.** `december.test.ts`, `golden.json` and `others.json` are unchanged and pass.
+- No migration, no Stripe or GoHighLevel change, no Railway variable change.

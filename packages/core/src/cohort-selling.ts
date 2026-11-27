@@ -173,7 +173,7 @@ export const soldOutMessage = (s: Pick<CohortSelling, 'capacity' | 'founding'>):
 
 /**
  * The cohort the offer page, its welcome page and the calendar files sell (§ 10.10): the cohort whose enrollment is
- * open (`enrollmentOpen`: `enrolling`, not archived, not closed). With two or more open, the next cohort to start (Connor, Nov 26, 2026): of those
+ * open (`enrollmentOpen`: `enrolling` or December, not archived, not closed). With two or more open, the next cohort to start (Connor, Nov 26, 2026): of those
  * whose `start` is still ahead at `now`, the soonest. When every open cohort has already started, there is no next one,
  * so the one that started last sells (D-262). With none open, null: the Accelerator's carts read "closed". A database
  * that holds no cohort at all (a test database, a fresh one) sells December, as before R-5.
@@ -188,11 +188,14 @@ export function cohortOnSale(db: Pick<Db, 'cohorts'>, now: number): string | nul
 }
 
 /**
- * Whether a cohort is taking sales: `enrolling`, not archived, and Close enrollment not pressed (`enrollmentClosedAt`).
- * Close writes that marker and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`).
+ * Whether a cohort is taking sales: not archived, Close enrollment not pressed (`enrollmentClosedAt`), and either
+ * `enrolling` or December, the default cohort. December sold before R-5 whatever its status said, and a checkout with
+ * no `ai_cohort` lands in it forever, so its sale does not read its status (hotfix D-266: production's December is not
+ * `enrolling`, and #281 closed its carts). Archive and Close are R-5's own, so honoring them moves nothing December did
+ * before. Close writes its marker and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`).
  */
-export const enrollmentOpen = (co: Pick<Cohort, 'status' | 'archivedAt' | 'enrollmentClosedAt'> | undefined): boolean =>
-  !!co && co.status === 'enrolling' && co.archivedAt === undefined && co.enrollmentClosedAt === undefined;
+export const enrollmentOpen = (co: Pick<Cohort, 'id' | 'status' | 'archivedAt' | 'enrollmentClosedAt'> | undefined): boolean =>
+  !!co && co.archivedAt === undefined && co.enrollmentClosedAt === undefined && (co.status === 'enrolling' || co.id === DEFAULT_COHORT_ID);
 
 // ================================================================================================
 // A seat's plan: the cohort it is sold in

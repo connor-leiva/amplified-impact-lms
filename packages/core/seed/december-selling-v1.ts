@@ -13,8 +13,8 @@
 // today (`cohortSelling` before and after must be equal; the included-time day's instant is `INSIDERS_FIRST_CHARGE_AT`).
 // A field already set, a link variable that is unset or not an https address, a seat cap that is not 15, and a first
 // live build that is not D-153's instant are left alone and named in the step's summary, for the PM. So is a status
-// other than `enrolling`: from Phase 5 the offer sells only a cohort whose enrollment is open, so December must be
-// `enrolling` (production's is, from the launch seed) for its carts to stay open.
+// other than `enrolling`, for the record only: December's sale does not read its status (hotfix D-266; production's
+// December is not `enrolling`, and #281 had closed its carts).
 //
 // ROLLBACK. `undoDecemberSellingV1` clears what the step wrote (each field still holding the value it wrote), so every
 // read falls back to the constants and the environment, which hold the same values: nothing moves either way. In SQL:
@@ -96,7 +96,7 @@ export function planDecemberSellingV1(db: Db, env: SellingEnv): DataStepOutcome 
   if (co.status !== 'enrolling')
     skipped.push({
       id: `${co.id}.status`,
-      reason: `left as it is: its status is ${co.status}, not enrolling, so the offer sells no cohort until its enrollment is opened`,
+      reason: `left as it is: its status is ${co.status}, not enrolling; December still sells, as its sale does not read its status (D-266)`,
     });
   if (includedEndAt(DECEMBER_INCLUDED_UNTIL) !== INSIDERS_FIRST_CHARGE_AT)
     skipped.push({ id: `${co.id}.includedUntil`, reason: 'left as it is: 2027-05-04 does not start at INSIDERS_FIRST_CHARGE_AT' });

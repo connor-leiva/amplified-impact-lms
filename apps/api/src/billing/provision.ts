@@ -241,7 +241,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
           .from(cohorts)
           .where(eq(cohorts.id, cohortId))
           .limit(1);
-        if (row && !enrollmentOpen({ status: row.status as 'enrolling', archivedAt: row.archivedAt ?? undefined, enrollmentClosedAt: row.enrollmentClosedAt ?? undefined }))
+        if (row && !enrollmentOpen({ id: cohortId, status: row.status as 'enrolling', archivedAt: row.archivedAt ?? undefined, enrollmentClosedAt: row.enrollmentClosedAt ?? undefined }))
           log.error({ order: order.id, cohort: cohortId, status: row.status }, 'a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up');
       }
       await placeTeam(tx, acct.teamId, order.id, now, log);

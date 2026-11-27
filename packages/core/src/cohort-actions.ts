@@ -698,10 +698,11 @@ export function openCohortEnrollment(db: Db, a: Actor, args: { cohortId: string 
   const co = cohortOf(db, args.cohortId);
   if (enrollmentOpen(co)) return { db, error: ALREADY_OPEN };
   if (co.status === 'completed' || co.archivedAt !== undefined) return { db, error: 'This cohort is over.' };
-  if (co.status === 'live') return { db, error: 'Only a draft cohort can open for enrollment.' };
+  // A cohort closed after it opened reopens whatever its status (December's is not `enrolling` in production, D-266).
+  const reopen = co.enrollmentClosedAt !== undefined;
+  if (!reopen && co.status !== 'draft') return { db, error: 'Only a draft cohort can open for enrollment.' };
   const refusal = enrollmentRefusal(db, co.id, c.cohortFacts?.[co.id] ?? NO_FACTS);
   if (refusal) return { db, error: refusal };
-  const reopen = co.status === 'enrolling';
   const next = produce(db, (d) => {
     const x = d.cohorts.find((y) => y.id === co.id)!;
     if (reopen) delete x.enrollmentClosedAt;

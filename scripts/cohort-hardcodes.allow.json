@@ -265,6 +265,13 @@
       "count": 1,
       "reason": "#282's comp form opens on December when it is listed. Left as #282 built it.",
       "phase": "none yet: until Connor decides which cohort the comp form opens on"
+    },
+    {
+      "file": "packages/core/src/cohort-selling.ts",
+      "match": "co.id === DEFAULT_COHORT_ID);",
+      "count": 1,
+      "reason": "Hotfix D-266: December sold before R-5 whatever its status said (production's record is not enrolling), and a checkout with no ai_cohort lands in it forever, so its sale never reads its status. Archive and Close, both R-5's, still stop it.",
+      "phase": "none yet: until Connor decides December's sale may read its status"
     }
   ],
   "notCohort": [
