@@ -24,6 +24,12 @@ const SCREENS = [
   '/admin/program/vault',
   '/admin/cohort/dec26',
   '/admin/cohort/dec26/submissions',
+  // D-268 (R-5 Phase 7): Cohort › Submissions' other three views, Cohort › People's Learners and January's People.
+  '/admin/cohort/dec26/submissions?view=teams',
+  '/admin/cohort/dec26/submissions?view=asks',
+  '/admin/cohort/dec26/submissions?view=files',
+  '/admin/cohort/dec26/people?tab=learners',
+  '/admin/cohort/jan27/people',
   '/admin/cohort/dec26/schedule',
   '/admin/cohort/dec26/people',
   '/admin/cohort/dec26/announcements',

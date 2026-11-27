@@ -376,6 +376,9 @@ export function parityDb(path = '/admin/curriculum'): Db {
   ];
   const at = path.replace(/\/+$/, '');
   if (COHORT_PAGE.test(at)) cohortPageDb(db, at);
+  // D-268 (R-5 Phase 7): Utah Life's "What They Can Open" quotes the line a locked skill shows its members, a copy
+  // string (Words): the reference's own Words, as Program › Course Settings holds them.
+  if (/^\/admin\/people\/groups\//.test(at)) db.copy = P6_WORDS.map(([key, value, audience]) => ({ key, value, audience }));
   if (PROGRAM_PAGE.test(at)) programPageDb(db);
   return at === '/admin' ? overviewDb(db) : db;
 }

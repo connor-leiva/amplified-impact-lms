@@ -39,8 +39,8 @@
       "file": "packages/core/src/cohort-actions.ts",
       "match": "if (co.id === DEFAULT_COHORT_ID)",
       "count": 1,
-      "reason": "Saving December's run mirrors its dates onto its modules for the admin readers not yet on the run (D-255, D-261 item 2). D-265: Curriculum and the week page read the run now; the learner list (Phase 7), the dashboard (Phase 9), build-audit.ts and curriculum-week.ts still read a module's dates.",
-      "phase": "9: once the learner list (Phase 7) and the dashboard (Phase 9) read the run"
+      "reason": "Saving December's run mirrors its dates onto its modules for the admin readers not yet on the run (D-255, D-261 item 2). D-265: Curriculum and the week page read the run now. D-268 (Phase 7): the learner list (Cohort › People) reads the run now too; the dashboard (Phase 9), build-audit.ts and curriculum-week.ts still read a module's dates.",
+      "phase": "9: once the dashboard (Phase 9), build-audit.ts and curriculum-week.ts read the run"
     },
     {
       "file": "packages/core/src/sessions.ts",

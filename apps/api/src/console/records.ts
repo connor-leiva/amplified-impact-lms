@@ -21,9 +21,14 @@ import {
   isPlanKind,
   isUserKind,
   mergeActivity,
+  gotInOf,
+  groupTeamOfOne,
   nearCap,
+  parseGotIn,
+  payingOf,
   planSets,
   primaryPlan,
+  sortGotIn,
 } from '@ai/core';
 import type {
   CohortWelcomeStatus,
@@ -33,6 +38,8 @@ import type {
   ConsoleProgress,
   ConsoleUserDetail,
   ConsoleUserRow,
+  GotInCount,
+  PeopleAudiences,
   StaffRole,
   UserExportRow,
   UserFilters,
@@ -64,6 +71,7 @@ import {
 } from '../db/schema';
 import { inGroup, normalizeAddress } from '../billing/access-groups';
 import type { AccessGroup } from '../billing/access-groups';
+import { clock } from '../lib/clock';
 
 // --- cursors -------------------------------------------------------------------------------------
 
@@ -97,6 +105,41 @@ export const liveArray = sql`array[${sql.join(
   LIVE_PLAN_STATUSES.map((k) => sql`${k}`),
   sql`, `,
 )}]::text[]`;
+
+/**
+ * R-5 Phase 7 (D-268): whether the address `email` (a SQL expression) is in the access group `g`, by D-148's rule as
+ * `inGroup` reads it: the group has not expired, and the address is on its list or at its exact domain (one `@`, not
+ * first or last). Verification aside, as D-267's Utah Life tab reads who is in a group.
+ */
+export const inGroupSql = (email: SQL, now: number) => sql`(g.expires_at is null or g.expires_at > ${now}) and (
+  exists (select 1 from access_group_members gm where gm.group_id = g.id and gm.email = lower(trim(${email})))
+  or (g.email_domain is not null and position('@' in lower(trim(${email}))) > 1 and lower(trim(${email})) not like '%@%@%'
+      and split_part(lower(trim(${email})), '@', 2) = g.email_domain)
+)`;
+
+/**
+ * R-5 Phase 7 (D-268): what decides how a user `u` got in (`gotInOf`): `pp`, the primary plan of their team (any status,
+ * ranked as `primaryPlan` ranks); `sk`, a skill purchase of theirs; `gg`, the first access group by name they are in.
+ */
+const gotInJoins = (now: number) => sql`
+  left join lateral (
+    select p.kind from plans p join accounts a on a.id = p.account_id
+    where a.team_id = u.team_id
+    order by (p.status = any(${liveArray})) desc, array_position(${priorityArray}, p.kind) nulls last, p.created_at desc
+    limit 1
+  ) pp on true
+  left join lateral (select true as yes from skill_purchases s where s.user_id = u.id limit 1) sk on true
+  left join lateral (select g.id, g.name from access_groups g where ${inGroupSql(sql`u.email`, now)} order by g.name, g.id limit 1) gg on true`;
+
+/** The `GotIn` key's condition, over `gotInJoins`' columns. */
+function gotInWhere(key: string): SQL | null {
+  const k = parseGotIn(key);
+  if (!k) return null;
+  if (k.kind === 'plan') return sql`pp.kind = ${k.id}`;
+  if (k.kind === 'skill') return sql`(pp.kind is null and sk.yes is true)`;
+  if (k.kind === 'group') return sql`(pp.kind is null and sk.yes is null and gg.id = ${k.id})`;
+  return sql`(pp.kind is null and sk.yes is null and gg.id is null)`;
+}
 
 type OrderRow = typeof orders.$inferSelect;
 type PlanRow = typeof plans.$inferSelect;
@@ -191,10 +234,21 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
   }
   if (f.plan !== undefined) where.push(sql`pp.kind = ${f.plan}`);
   if (f.status !== undefined) where.push(sql`pp.status = ${f.status}`);
+  // R-5 Phase 7 (D-268): People › Teams' Product, a team holding a live plan of the kind.
+  if (f.holds !== undefined) where.push(sql`${f.holds} = any(holds.kinds)`);
+  // R-5 Phase 7 (D-268): an access group's team of one is not a team here (`groupTeamOfOne`): no plan row, one member,
+  // whose address is in a group.
+  const now = clock.now();
+  where.push(sql`not (
+    not exists (select 1 from plans p join accounts a on a.id = p.account_id where a.team_id = t.id)
+    and (select count(*) from users m where m.team_id = t.id) = 1
+    and exists (select 1 from users m join access_groups g on ${inGroupSql(sql`m.email`, now)} where m.team_id = t.id)
+  )`);
   if (opts.after) where.push(sql`(lower(t.name), t.id) > (${opts.after.name}, ${opts.after.id})`);
   const whereSql = where.length ? sql`where ${sql.join(where, sql` and `)}` : sql``;
   const raw = (await db.execute(sql`
     select t.id, t.name, t.seats, t.owner_id, o.name as owner_name, o.email as owner_email, pp.kind, pp.status,
+      pp.option, pp.origin, pp.payments_made, pp.amount_total, holds.kinds as holds,
       (select count(*)::int from users m where m.team_id = t.id) as used,
       (select max(m.last) from users m where m.team_id = t.id) as last,
       exists (
@@ -206,11 +260,16 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
     from teams t
     left join users o on o.id = t.owner_id
     left join lateral (
-      select p.kind, p.status from plans p join accounts a on a.id = p.account_id
+      select p.kind, p.status, p.option, ord.origin, ord.payments_made, ord.amount_total from plans p join accounts a on a.id = p.account_id
+      left join orders ord on ord.id = p.order_id
       where a.team_id = t.id
       order by (p.status = any(${liveArray})) desc, array_position(${priorityArray}, p.kind) nulls last, p.created_at desc
       limit 1
     ) pp on true
+    left join lateral (
+      select coalesce(array_agg(distinct p.kind), '{}') as kinds from plans p join accounts a on a.id = p.account_id
+      where a.team_id = t.id and p.status = any(${liveArray})
+    ) holds on true
     ${whereSql}
     order by lower(t.name), t.id
     limit ${opts.limit + 1}
@@ -226,6 +285,11 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
     used: number;
     last: string | number | null;
     comped: boolean;
+    option: string | null;
+    origin: string | null;
+    payments_made: number | null;
+    amount_total: number | string | null;
+    holds: string[] | null;
   }[];
   const rows = raw.slice(0, opts.limit).map((r): WorkspaceRow => {
     const kind = isPlanKind(r.kind) ? r.kind : null;
@@ -244,6 +308,8 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
       nearCap: nearCap(used, r.seats),
       lastActivity: n(r.last),
       comped: r.comped === true,
+      holds: PLAN_PRIORITY.filter((k) => (r.holds ?? []).includes(k)).map((k) => CONSOLE_PLAN_LABELS[k]),
+      paying: payingOf({ kind, status: r.status, option: r.option, origin: r.origin, paymentsMade: n(r.payments_made), amountTotal: n(r.amount_total) }),
     };
   });
   const last = rows[rows.length - 1];
@@ -331,6 +397,10 @@ function userWhere(f: UserFilters): SQL[] {
   if (f.role !== undefined) where.push(sql`(u.role = ${f.role} or u.staff_role = ${f.role})`);
   if (f.kind !== undefined) where.push(sql`u.kind = ${f.kind}`);
   if (f.ids !== undefined && f.ids.length) where.push(sql`u.id in (${sql.join(f.ids.map((id) => sql`${id}`), sql`, `)})`);
+  if (f.gotIn !== undefined) {
+    const g = gotInWhere(f.gotIn);
+    if (g) where.push(g);
+  }
   return where;
 }
 
@@ -346,7 +416,19 @@ type UserListRow = {
   status: string | null;
   last: string | number | null;
   joined: string | number | null;
+  plan_kind: string | null;
+  skill_buyer: boolean | null;
+  group_id: string | null;
+  group_name: string | null;
 };
+
+/** How a listed user got in (`gotInOf`), from the row's `gotInJoins` columns. */
+const gotInOfRow = (r: Pick<UserListRow, 'plan_kind' | 'skill_buyer' | 'group_id' | 'group_name'>) =>
+  gotInOf({
+    planKind: isPlanKind(r.plan_kind) ? r.plan_kind : null,
+    skillBuyer: r.skill_buyer === true,
+    group: r.group_id !== null ? { id: r.group_id, name: r.group_name ?? r.group_id } : null,
+  });
 
 function userRowOf(r: UserListRow): UserExportRow {
   const kind = isUserKind(r.kind) ? r.kind : 'learner';
@@ -369,8 +451,10 @@ async function readUsers(db: Database, f: UserFilters, opts: { after?: NameCurso
   if (opts.after) where.push(sql`(lower(u.name), u.id) > (${opts.after.name}, ${opts.after.id})`);
   const whereSql = where.length ? sql`where ${sql.join(where, sql` and `)}` : sql``;
   return (await db.execute(sql`
-    select u.id, u.name, u.email, u.kind, u.role, u.staff_role, u.team_id, t.name as team_name, u.status, u.last, u.joined
+    select u.id, u.name, u.email, u.kind, u.role, u.staff_role, u.team_id, t.name as team_name, u.status, u.last, u.joined,
+      pp.kind as plan_kind, sk.yes as skill_buyer, gg.id as group_id, gg.name as group_name
     from users u left join teams t on t.id = u.team_id
+    ${gotInJoins(clock.now())}
     ${whereSql}
     order by lower(u.name), u.id
     limit ${opts.limit}
@@ -379,9 +463,10 @@ async function readUsers(db: Database, f: UserFilters, opts: { after?: NameCurso
 
 export async function listUsers(db: Database, f: UserFilters, opts: { after?: NameCursor | null; limit: number }): Promise<{ rows: ConsoleUserRow[]; next: NameCursor | null }> {
   const raw = await readUsers(db, f, { after: opts.after, limit: opts.limit + 1 });
-  const rows = raw.slice(0, opts.limit).map((r) => {
+  const rows = raw.slice(0, opts.limit).map((r): ConsoleUserRow => {
     const { joined: _joined, ...row } = userRowOf(r);
-    return row;
+    // R-5 Phase 7 (D-268): how a learner got in; staff got in through no plan.
+    return row.kind === 'learner' ? { ...row, gotIn: gotInOfRow(r) } : row;
   });
   const last = rows[rows.length - 1];
   return { rows, next: raw.length > opts.limit && last ? { name: last.name.toLowerCase(), id: last.id } : null };
@@ -390,8 +475,53 @@ export async function listUsers(db: Database, f: UserFilters, opts: { after?: Na
 export async function countUsers(db: Database, f: UserFilters): Promise<number> {
   const where = userWhere(f);
   const whereSql = where.length ? sql`where ${sql.join(where, sql` and `)}` : sql``;
-  const [row] = (await db.execute(sql`select count(*)::int as n from users u left join teams t on t.id = u.team_id ${whereSql}`)) as unknown as { n: number }[];
+  const [row] = (await db.execute(sql`select count(*)::int as n from users u left join teams t on t.id = u.team_id ${gotInJoins(clock.now())} ${whereSql}`)) as unknown as { n: number }[];
   return Number(row?.n ?? 0);
+}
+
+/**
+ * R-5 Phase 7 (D-268): People's counts. Every learner, each counted once under how they got in (`gotInOf`), one chip per
+ * answer some learner has; the teams People › Teams lists; and each access group's teams of one it leaves out.
+ */
+export async function peopleAudiences(db: Database, now: number): Promise<PeopleAudiences> {
+  const learners = (await db.execute(sql`
+    select u.id, pp.kind as plan_kind, sk.yes as skill_buyer, gg.id as group_id, gg.name as group_name
+    from users u ${gotInJoins(now)}
+    where u.kind = 'learner'
+  `)) as unknown as Pick<UserListRow, 'id' | 'plan_kind' | 'skill_buyer' | 'group_id' | 'group_name'>[];
+  const chips = new Map<string, GotInCount>();
+  for (const r of learners) {
+    const g = gotInOfRow(r);
+    const c = chips.get(g.key) ?? { ...g, count: 0 };
+    c.count += 1;
+    chips.set(g.key, c);
+  }
+  const teamRows = (await db.execute(sql`
+    select t.id,
+      (select count(*)::int from plans p join accounts a on a.id = p.account_id where a.team_id = t.id) as plans,
+      (select count(*)::int from users m where m.team_id = t.id) as members,
+      gm.id as group_id, gm.name as group_name
+    from teams t
+    left join lateral (
+      select g.id, g.name from users m join access_groups g on ${inGroupSql(sql`m.email`, now)}
+      where m.team_id = t.id order by g.name, g.id limit 1
+    ) gm on true
+  `)) as unknown as { id: string; plans: number; members: number; group_id: string | null; group_name: string | null }[];
+  const left = new Map<string, { id: string; name: string; count: number }>();
+  let teamsListed = 0;
+  for (const t of teamRows) {
+    if (t.group_id !== null && groupTeamOfOne({ plans: Number(t.plans), members: Number(t.members), memberInGroup: true })) {
+      const e = left.get(t.group_id) ?? { id: t.group_id, name: t.group_name ?? t.group_id, count: 0 };
+      e.count += 1;
+      left.set(t.group_id, e);
+    } else teamsListed += 1;
+  }
+  return {
+    total: learners.length,
+    chips: sortGotIn([...chips.values()]),
+    teams: teamsListed,
+    leftOut: [...left.values()].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)),
+  };
 }
 
 /** Every matching user, for the export: `max` at most. */

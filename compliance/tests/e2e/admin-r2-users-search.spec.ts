@@ -43,47 +43,51 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/users');
     await expect(page).toHaveURL(/\/admin\/people(\?|$)/);
     await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Everyone' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('tab', { name: /^Everyone/ })).toHaveAttribute('aria-selected', 'true');
     await expect(crumbs(page)).toHaveText('Admin/People/Everyone');
-    await expect(rows(page)).toHaveCount(8);
+    // D-268 (R-5 Phase 7): People › Everyone, with "Got in through" and its chips (the mockup's PeoplePg): each person
+    // once, Utah Life's agents among them.
+    await expect(rows(page)).toHaveCount(16);
     await expect(rows(page).first()).toContainText('Elena Vargas');
+    await expect(rows(page).first()).toContainText('Team Plan');
+    await expect(rows(page).first()).toContainText('Dec 10, 8:52 AM MT / 9:52 AM CT');
     await expectAccessible(page);
-    await page.getByRole('combobox', { name: 'Role' }).selectOption({ label: 'Agent' });
-    await expect(rows(page)).toHaveCount(2);
-    await page.getByRole('combobox', { name: 'Role' }).selectOption({ label: 'Any role' });
-    await page.getByRole('textbox', { name: 'Filter name, email, workspace' }).fill('tidewater');
+    const chips = page.getByRole('group', { name: 'Audience' });
+    await expect(chips.getByRole('button')).toHaveText(['Everyone16', 'AI Accelerator1', 'Team Plan5', 'Agent Plan1', 'Insiders1', 'Utah Life8']);
+    await chips.getByRole('button', { name: /^Utah Life/ }).click();
+    await expect(chips.getByRole('button', { name: /^Utah Life/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(rows(page)).toHaveCount(8);
+    await expect(page.locator('main')).toContainText('Showing 8 of 8.');
+    await chips.getByRole('button', { name: /^Everyone/ }).click();
+    await page.getByRole('textbox', { name: 'Find a person by name or email' }).fill('tidewater');
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first()).toContainText('Past due');
-    await page.getByRole('textbox', { name: 'Filter name, email, workspace' }).fill('');
-    await expect(rows(page)).toHaveCount(8);
+    await page.getByRole('textbox', { name: 'Find a person by name or email' }).fill('');
+    await expect(rows(page)).toHaveCount(16);
+    // A Utah Life agent opens Utah Life, as the mockup's does.
+    await rows(page).nth(8).getByRole('link', { name: 'Utah Life agent' }).click();
+    await expect(page).toHaveURL(/\/admin\/people\/groups\/utah-life(\?|$)/);
+    await page.goBack();
     await rows(page).first().getByRole('link', { name: 'Elena Vargas' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Elena Vargas' })).toBeVisible();
     await close();
   });
 
-  test('Export selected downloads exactly the chosen rows, and is the Owner’s and Admin’s', async ({ browser }) => {
+  test('Export downloads the list on screen, and is the Owner’s and Admin’s (D-268: the mockup’s Export)', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/users');
-    await rows(page).nth(0).getByRole('checkbox', { name: 'Select row' }).check();
-    await rows(page).nth(5).getByRole('checkbox', { name: 'Select row' }).check();
-    await expect(page.getByText('2 selected')).toBeVisible();
-    await expectAccessible(page);
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      page.getByRole('button', { name: 'Export selected' }).click(),
-    ]);
+    await page.getByRole('textbox', { name: 'Find a person by name or email' }).fill('tidewater');
+    await expect(rows(page)).toHaveCount(1);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export' }).click()]);
     expect(download.suggestedFilename()).toMatch(/^users-\d{4}-\d{2}-\d{2}\.csv$/);
     const csv = await readFile((await download.path())!, 'utf8');
     const lines = csv.trimEnd().split('\r\n');
     expect(lines[0]).toBe('"id","name","email","kind","role","team_id","workspace","status","joined","last_active"');
-    expect(lines.slice(1).map((l) => l.split(',')[0])).toEqual(['"u_1042"', '"u_1104"']);
+    expect(lines.slice(1).map((l) => l.split(',')[0])).toEqual(['"u_1104"']);
     await expect(page.getByRole('status').filter({ hasText: 'Export started. It is in the audit log.' })).toBeVisible();
-    await page.getByRole('button', { name: 'Clear' }).click();
-    await expect(page.getByText('2 selected')).toHaveCount(0);
     await close();
 
     const support = await openAt(browser, '/admin/users?console-role=Support');
-    await rows(support.page).first().getByRole('checkbox', { name: 'Select row' }).check();
-    await expect(support.page.getByRole('button', { name: 'Export selected' })).toBeDisabled();
+    await expect(support.page.getByRole('button', { name: 'Export' })).toBeDisabled();
     await support.close();
   });
 
@@ -166,15 +170,16 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
 
     // A learner's id is their users.id and a team's its teams.id: the ids the Console pages take. (The
     // fixture's Console records are the mockup's, not the learner seed's, so only the address is read.)
+    // D-268 (R-5 Phase 7): Cohort › People, Teams first: a team's menu opens the team, a learner's the person.
     const learners = await openAt(browser, '/admin/cohort/dec26/people');
     await rows(learners.page).first().getByRole('button', { name: 'More actions' }).click();
-    await learners.page.getByRole('menuitem', { name: 'Open user record' }).click();
-    await expect(learners.page).toHaveURL(/\/admin\/people\/[^/?]+/);
-    await learners.page.goBack();
-    await learners.page.getByRole('tab', { name: /Teams/ }).click();
-    await rows(learners.page).first().getByRole('button', { name: 'More actions' }).click();
-    await learners.page.getByRole('menuitem', { name: 'Open workspace' }).click();
+    await learners.page.getByRole('menuitem', { name: 'Open team' }).click();
     await expect(learners.page).toHaveURL(/\/admin\/people\/teams\/[^/?]+/);
+    await learners.page.goBack();
+    await learners.page.getByRole('tab', { name: /Learners/ }).click();
+    await rows(learners.page).first().getByRole('button', { name: 'More actions' }).click();
+    await learners.page.getByRole('menuitem', { name: 'Open person' }).click();
+    await expect(learners.page).toHaveURL(/\/admin\/people\/[^/?]+/);
     await learners.close();
   });
 
@@ -187,11 +192,12 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
     await missing.close();
   });
 
-  test('on a phone: cards with 44px checkboxes, and the user’s Section select', async ({ browser }) => {
+  test('on a phone: cards, the audience chips, and the user’s Section select', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/users', { width: 390 });
     await expect(page.locator('main [role="table"]')).toHaveCount(0);
-    await page.getByRole('checkbox', { name: 'Select row' }).first().check();
-    await expect(page.getByText('1 selected')).toBeVisible();
+    // D-268: People › Everyone has no row selection (the mockup's PeoplePg); its chips scroll sideways on a phone.
+    await expect(page.getByRole('group', { name: 'Audience' }).getByRole('button', { name: /^Utah Life/ })).toBeAttached();
+    await expect(page.locator('main').getByText('Elena Vargas')).toBeVisible();
     await expectAccessible(page);
     await page.goto(`${APP_BASE}/admin/users/u_1042?as=admin`);
     await page.getByRole('combobox', { name: 'Section' }).selectOption({ label: 'Activity' });
@@ -283,11 +289,8 @@ test.describe('Search and the ⌘K palette (D-160 R2-1c) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/people');
     const aside = page.locator('aside[aria-label="Primary"]');
     await expect(aside.getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab')).toHaveText([
-      'Everyone',
-      'Teams',
-      'Masquerade',
-    ]);
+    // D-268: Everyone and Teams carry their counts.
+    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab')).toHaveText([/^Everyone\d+$/, /^Teams\d+$/, 'Masquerade']);
     await close();
   });
 });

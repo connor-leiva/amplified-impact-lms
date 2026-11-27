@@ -852,6 +852,20 @@ export const usageDaily = pgTable('usage_daily', {
   check('usage_daily_count', sql`${t.count} > 0`),
 ]);
 
+// R-5 Phase 7 (D-268): which skill a learner opened, per program-zone day (migration 0050). One fire-and-forget upsert
+// per guide view beside `usage_daily`'s (`lib/usage.ts`, `recordSkillOpen`), skipped during a masquerade. People › Utah
+// Life's "Most opened" reads its last 30 days. Not a `Db` record.
+export const skillOpensDaily = pgTable('skill_opens_daily', {
+  day: text('day').notNull(),
+  userId: text('user_id').notNull(),
+  skillId: text('skill_id').notNull(),
+  count: integer('count').notNull().default(1),
+}, (t) => [
+  primaryKey({ columns: [t.day, t.userId, t.skillId] }),
+  check('skill_opens_daily_day', sql`${t.day} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
+  check('skill_opens_daily_count', sql`${t.count} > 0`),
+]);
+
 // ================================================================================================
 // THE ADMIN CONSOLE'S INCIDENTS (D-167, spec § 7.14)
 // ================================================================================================

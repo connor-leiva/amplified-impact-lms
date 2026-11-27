@@ -129,6 +129,9 @@ describe('workspaces (spec § 7.3) @console', () => {
       nearCap: false,
       lastActivity: 1796661060000,
       comped: false,
+      // R-5 Phase 7 (D-268): what it holds while live, and what it pays.
+      holds: ['AI Accelerator', 'Insiders'],
+      paying: 'Paid in full',
     });
     // A lapsed Team Plan loses to a running Insiders; a team with no account has no plan.
     expect(page.rows.find((r) => r.teamId === 'harbor')).toMatchObject({ planKind: 'membership', planLabel: 'Insiders', planStatus: 'active' });
@@ -254,6 +257,8 @@ describe('users (spec § 7.4) @console', () => {
       workspace: 'Individual',
       status: 'active',
       lastActive: 1796659080000,
+      // R-5 Phase 7 (D-268): how they got in.
+      gotIn: expect.objectContaining({ kind: expect.any(String), label: expect.any(String) }),
     });
     expect(rows.find((r) => r.id === 'u_sarah')).toMatchObject({ workspace: 'Northline Realty Team', role: 'Sales Agent' });
     expect(rows.find((r) => r.id === 'st4')).toMatchObject({ kind: 'staff', role: 'Support', workspace: null });

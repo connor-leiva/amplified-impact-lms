@@ -127,11 +127,13 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
     icon: 'r2Cohorts',
     paletteIcon: 'r2Cohorts',
     // D-255 (R-5 Phase 3): Overview, first, at the cohort's own address, and Settings, last. Both are the Cohorts row's
-    // (`was: 'cohorts'`), as Schedule is. Submissions is Phase 7's.
+    // (`was: 'cohorts'`), as Schedule is. R-5 Phase 7 (D-268): Submissions, after People (the mockup's `CohortArea`); what
+    // teams turned in was the week builder's (`was: 'curriculum'`, no Console capability).
     tabs: [
       { id: 'overview', label: 'Overview', was: 'cohorts' },
       { id: 'schedule', label: 'Schedule', was: 'cohorts' },
       { id: 'people', label: 'People', was: 'learners' },
+      { id: 'submissions', label: 'Submissions', was: 'curriculum' },
       { id: 'community', label: 'Community', was: 'community', cap: 'console.view' },
       { id: 'announcements', label: 'Announcements', was: 'announce' },
       { id: 'settings', label: 'Settings', was: 'cohorts' },
@@ -277,8 +279,6 @@ export function placeOf(pathname: string): Place | null {
     if (c === undefined) return at(undefined);
     if (d === undefined && AREAS.cohort.tabs.some((t) => t.id === c)) return at(c);
     if (c === 'community' && one(d) && e === undefined) return at('community', true);
-    // D-265 (R-5 Phase 6): what teams turned in, a page of the Cohort row's until Phase 7 draws its tab ("Admin / Cohort / Submissions").
-    if (c === 'submissions' && d === undefined) return { ...at(undefined), page: 'Submissions' };
     return null;
   }
   if (a === 'people') {

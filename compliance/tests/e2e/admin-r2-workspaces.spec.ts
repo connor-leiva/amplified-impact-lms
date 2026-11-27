@@ -42,27 +42,27 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await expect(page).toHaveURL(/\/admin\/people\/teams(\?|$)/);
     await expect(page.locator('aside[aria-label="Primary"]')).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Teams' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('tab', { name: /^Teams/ })).toHaveAttribute('aria-selected', 'true');
     await expect(crumbs(page)).toHaveText('Admin/People/Teams');
     await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('People');
     await expect(rows(page)).toHaveCount(7);
     await expect(rows(page).first()).toContainText('Northshore Group');
     await expect(rows(page).first()).toContainText('33 of 41');
+    // D-268 (R-5 Phase 7): People › Teams (the mockup's TeamsPg): what each team holds and pays; Utah Life's agents are
+    // not teams, and the line under the table says so.
+    await expect(rows(page).first()).toContainText('$1,495 a month');
+    await expect(page.locator('main')).toContainText('8 Utah Life agents are not listed here.');
     await expectAccessible(page);
 
-    await page.getByRole('combobox', { name: 'Plan' }).selectOption({ label: 'Insiders' });
+    await page.getByRole('combobox', { name: 'Product' }).selectOption({ label: 'Insiders' });
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first()).toContainText('Past due');
-    await page.getByRole('combobox', { name: 'Plan' }).selectOption({ label: 'All plans' });
-    await page.getByRole('combobox', { name: 'Status' }).selectOption({ label: 'Trialing' });
-    await expect(rows(page)).toHaveCount(1);
-    await expect(rows(page).first()).toContainText('Lantern Street Partners');
-    await page.getByRole('combobox', { name: 'Status' }).selectOption({ label: 'Any status' });
-    await page.getByRole('textbox', { name: 'Filter workspace or owner' }).fill('nobody at all');
+    await page.getByRole('combobox', { name: 'Product' }).selectOption({ label: 'All products' });
+    await page.getByRole('textbox', { name: 'Find a team or its owner' }).fill('nobody at all');
     await expect(page.getByText('No matches')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Filter workspace or owner' }).fill('priya');
+    await page.getByRole('textbox', { name: 'Find a team or its owner' }).fill('priya');
     await expect(rows(page)).toHaveCount(1);
-    await page.getByRole('textbox', { name: 'Filter workspace or owner' }).fill('');
+    await page.getByRole('textbox', { name: 'Find a team or its owner' }).fill('');
     await expect(rows(page)).toHaveCount(7);
 
     // A row's "…" holds its actions; "Masquerade as owner…" is live since D-162 3b (Owner and Admin).
@@ -149,7 +149,7 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
   test('its states: loading, empty, error and "Too many requests"', async ({ browser }) => {
     const cases = [
       ['loading', null],
-      ['empty', 'No workspaces yet'],
+      ['empty', 'No team matches'],
       ['error', 'This didn’t load.'],
       ['rate_limited', 'Too many requests.'],
     ] as const;

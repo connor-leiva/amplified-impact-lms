@@ -17,8 +17,10 @@ import {
   SEARCH_GROUP_MAX,
   SKILL_SET_LABELS,
   consoleCan,
+  gotInOf,
   mergeActivity,
   nearCap,
+  sortGotIn,
   userPath,
   workspacePath,
 } from '@ai/core';
@@ -28,6 +30,9 @@ import type {
   ConsolePlan,
   ConsoleUserDetail,
   ConsoleUserRow,
+  AccessGroupDetail,
+  GotInCount,
+  PeopleAudiences,
   MasqueradeHistoryRow,
   SearchResults,
   StaffNote,
@@ -49,6 +54,8 @@ import {
   SUPPORT_USERS,
   SUPPORT_WS,
   USER_NOTES,
+  UTAH_LIFE,
+  UTAH_LIFE_MORE,
   WORKSPACE_NOTES,
   mockCents,
   mockStamp,
@@ -104,6 +111,21 @@ export function fixtureRecords(): FixtureRecords {
     lastActive: mockStamp(u.last),
     joined,
     tier: u.tier.toLowerCase(),
+  }));
+  // R-5 Phase 7 (D-268): Utah Life's agents are learners too (People › Everyone lists them, under the group), each on a
+  // team of one with no name and no plan (`createGroupMember`), so People › Teams leaves them out.
+  const agents: FixtureUser[] = UTAH_LIFE.members.map(([email, last], i) => ({
+    id: `u_ul${i + 1}`,
+    name: '',
+    email,
+    kind: 'learner',
+    role: 'Agent',
+    teamId: null,
+    workspace: null,
+    status: last === null ? 'invited' : 'active',
+    lastActive: last === null ? null : mockStamp(last),
+    joined,
+    tier: 'agent',
   }));
   const staff: FixtureUser[] = STAFF.map((s, i) => ({
     id: STAFF_IDS[i]!,
@@ -182,7 +204,7 @@ export function fixtureRecords(): FixtureRecords {
     ...WORKSPACE_NOTES.map((n, i) => note(String(20 - i), 'workspace', 'ws_northshore', n)),
     ...USER_NOTES.map((n, i) => note(String(10 - i), 'user', 'u_1042', n)),
   ];
-  return { ws: SUPPORT_WS, users: [...learners, ...staff], plans, orders, notes };
+  return { ws: SUPPORT_WS, users: [...learners, ...agents, ...staff], plans, orders, notes };
 }
 
 // --- reading them as the API does ---------------------------------------------------------------
@@ -223,6 +245,9 @@ const rowOf = (r: FixtureRecords, w: Ws): WorkspaceRow => {
     seatCap: w.cap,
     nearCap: nearCap(w.used, w.cap),
     lastActivity: mockStamp(w.last),
+    // R-5 Phase 7 (D-268): what it holds (its plan, while live) and what it pays (the mockup's MRR, a month).
+    holds: ['active', 'trialing', 'past_due'].includes(p.status) ? [p.label] : [],
+    paying: p.kind === 'cohort' ? 'Paid in full' : p.status === 'active' || p.status === 'past_due' ? `${w.mrr} a month` : '$0',
   };
 };
 
@@ -233,7 +258,8 @@ export function fixtureWorkspaceRows(r: FixtureRecords, f: WorkspaceFilters): Wo
       (w) =>
         (f.q === undefined || w.teamId === f.q || has([w.name, w.ownerName, w.ownerEmail], f.q)) &&
         (f.plan === undefined || w.planKind === f.plan) &&
-        (f.status === undefined || w.planStatus === f.status),
+        (f.status === undefined || w.planStatus === f.status) &&
+        (f.holds === undefined || (w.holds ?? []).includes(CONSOLE_PLAN_LABELS[f.holds])),
     );
 }
 
@@ -306,6 +332,12 @@ export function fixtureWorkspace(r: FixtureRecords, teamId: string): WorkspaceDe
 
 const wantsRole = (role: string | null, want: string | undefined) => want === undefined || lower(role) === lower(want);
 
+/** R-5 Phase 7 (D-268): how a fixture learner got in, as the API's `gotInOf` answers: their team's plan, else Utah Life. */
+function gotInOfUser(r: FixtureRecords, u: FixtureUser) {
+  const w = r.ws.find((x) => x.id === u.teamId);
+  return gotInOf({ planKind: w ? planKindOf(w.plan) : null, skillBuyer: false, group: w ? null : { id: UTAH_LIFE.id, name: UTAH_LIFE.name } });
+}
+
 export function fixtureUserRows(r: FixtureRecords, f: UserFilters): ConsoleUserRow[] {
   return r.users
     .filter(
@@ -313,9 +345,49 @@ export function fixtureUserRows(r: FixtureRecords, f: UserFilters): ConsoleUserR
         (f.q === undefined || u.id === f.q || has([u.name, u.email, u.workspace], f.q)) &&
         wantsRole(u.role, f.role) &&
         (f.kind === undefined || u.kind === f.kind) &&
-        (f.ids === undefined || f.ids.includes(u.id)),
+        (f.ids === undefined || f.ids.includes(u.id)) &&
+        (f.gotIn === undefined || (u.kind === 'learner' && gotInOfUser(r, u).key === f.gotIn)),
     )
-    .map(({ joined: _j, tier: _t, ...row }) => row);
+    .map(({ joined: _j, tier: _t, ...row }) => (row.kind === 'learner' ? { ...row, gotIn: gotInOfUser(r, { ...row, joined: _j, tier: _t }) } : row));
+}
+
+/** R-5 Phase 7 (D-268): People's counts, as `GET /api/console/users/audiences` answers them. */
+export function fixtureAudiences(r: FixtureRecords): PeopleAudiences {
+  const learners = r.users.filter((u) => u.kind === 'learner');
+  const chips = new Map<string, GotInCount>();
+  for (const u of learners) {
+    const g = gotInOfUser(r, u);
+    const c = chips.get(g.key) ?? { ...g, count: 0 };
+    c.count += 1;
+    chips.set(g.key, c);
+  }
+  const agents = learners.filter((u) => u.teamId === null).length;
+  return {
+    total: learners.length,
+    chips: sortGotIn([...chips.values()]),
+    teams: r.ws.length,
+    leftOut: agents ? [{ id: UTAH_LIFE.id, name: UTAH_LIFE.name, count: agents }] : [],
+  };
+}
+
+/** R-5 Phase 7 (D-268): People › Utah Life, as `GET /api/console/groups/:groupId` answers it. */
+export function fixtureGroup(r: FixtureRecords, groupId: string, ended: number | null): AccessGroupDetail | null {
+  if (groupId !== UTAH_LIFE.id) return null;
+  return {
+    id: UTAH_LIFE.id,
+    name: UTAH_LIFE.name,
+    plan: UTAH_LIFE.plan,
+    emailDomain: UTAH_LIFE.emailDomain,
+    createdAt: mockStamp(UTAH_LIFE_MORE.since),
+    expiresAt: ended,
+    agents: r.users
+      .filter((u) => u.kind === 'learner' && u.teamId === null)
+      .map((u) => {
+        const [first, opened] = UTAH_LIFE_MORE.agents[u.email] ?? [null, 0];
+        return { userId: u.id, name: u.name, email: u.email, firstSignIn: first ? mockStamp(first) : null, last: u.lastActive, invited: u.status === 'invited', skillsOpened: opened };
+      }),
+    mostOpened: UTAH_LIFE_MORE.mostOpened.map(([skillId, title, count]) => ({ skillId, title, count })),
+  };
 }
 
 export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetail | null {

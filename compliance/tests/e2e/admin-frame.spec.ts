@@ -66,12 +66,13 @@ test.describe('the admin frame (D-253) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/cohort/dec26/people');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('December 2026 Cohort');
     await expect(crumbs(page)).toHaveText('Admin/Cohort/People');
-    await expect(page.getByRole('tablist', { name: 'Cohort' }).getByRole('tab')).toHaveText(['Overview', /^Schedule\d+$/, /^People\d+$/, /^Community/, 'Announcements', 'Settings']);
-    // Learners & Teams keeps its description; its Learners and Teams are a segmented control under it.
-    await expect(page.locator('main')).toContainText('Everyone enrolled in the December 2026 Cohort, with build progress.');
-    await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab')).toHaveText([/^Learners/, /^Teams/]);
-    await page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: /^Teams/ }).click();
-    await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: /^Teams/ })).toHaveAttribute('aria-selected', 'true');
+    // D-268 (R-5 Phase 7): Submissions is a tab now, after People.
+    await expect(page.getByRole('tablist', { name: 'Cohort' }).getByRole('tab')).toHaveText(['Overview', /^Schedule\d+$/, /^People\d+$/, 'Submissions', /^Community/, 'Announcements', 'Settings']);
+    // Cohort › People (the mockup's CohortPeople): its Teams and Learners are a segmented control, Teams first.
+    await expect(page.locator('main')).toContainText('This is the cohort’s roster: who is in it and how far along they are.');
+    await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab')).toHaveText([/^Teams/, /^Learners/]);
+    await page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: /^Learners/ }).click();
+    await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: /^Learners/ })).toHaveAttribute('aria-selected', 'true');
     // Revenue › Payments: Billing's lists as a segmented control, Customers first.
     await page.goto(`${APP_BASE}/admin/revenue/payments?as=admin`);
     await expect(page.getByRole('tablist', { name: 'Section' }).getByRole('tab')).toHaveText(['Customers', 'Subscriptions', 'Invoices', /^Failed payments/, 'Refunds']);

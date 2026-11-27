@@ -137,6 +137,8 @@ const routes: RouteObject[] = [
           { index: true, lazy: () => import('./routes/admin/cohort/CohortOverview') },
           { path: 'schedule', lazy: () => import('./routes/admin/cohort/CohortSchedule') },
           { path: 'people', lazy: () => import('./routes/admin/Learners') },
+          // R-5 Phase 7 (D-268): what teams told you and sent you (the mockup's `CohortSubs`), a tab now.
+          { path: 'submissions', lazy: () => import('./routes/admin/cohort/CohortSubmissions') },
           // D-238 (B-45): the cohort's Community, and a thread.
           { path: 'community', lazy: () => import('./routes/console/Community') },
           { path: 'announcements', lazy: () => import('./routes/admin/Announcements') },
@@ -144,8 +146,6 @@ const routes: RouteObject[] = [
         ],
       },
       { path: 'admin/cohort/:cohortId/community/:id', lazy: () => import('./routes/console/CommunityThread') },
-      // D-265 (R-5 Phase 6): what teams turned in, the staff cards that left the week page (Phase 7 draws its tab).
-      { path: 'admin/cohort/:cohortId/submissions', lazy: () => import('./routes/admin/cohort/CohortSubmissions') },
       // People: Everyone (Users), Teams (Workspaces) and Masquerade; a person and a team are records (D-160 R2-1c).
       {
         path: 'admin/people',

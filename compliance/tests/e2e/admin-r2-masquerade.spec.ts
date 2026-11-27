@@ -160,7 +160,8 @@ test.describe('Masquerade on R2 (D-162 3b) @g9 @console', () => {
     await page.getByRole('menuitem', { name: 'Masquerade…' }).click();
     await cancel('Marcus Oyelaran');
 
-    await page.goto(`${APP_BASE}/admin/learners`);
+    // D-268: Cohort › People opens on its Teams; a learner's menu is on its Learners.
+    await page.goto(`${APP_BASE}/admin/learners?tab=learners`);
     await page.locator('main [role="row"]').filter({ has: page.locator('[role="cell"]') }).first().getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Masquerade…' }).click();
     await expect(page.getByRole('dialog', { name: /^Masquerade as / })).toBeVisible();

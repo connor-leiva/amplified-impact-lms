@@ -1,0 +1,169 @@
+/* R-5 Phase 7 (D-268): People › Everyone's audience chips and pills, Teams' holds, and Utah Life's cards, as the
+   mockup draws them (handoff/admin-mockup/build_admin.py, third pass: `.chs`, `.ch`, `.pl.aud`, `.rdy`, `.mt`). */
+
+/* `.chs`: chips to filter by, one per way in, each with its count. */
+.chs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: var(--r2-c);
+  padding: 0 12px;
+  border: 1px solid var(--r2-line2);
+  border-radius: 999px;
+  background: var(--r2-sf);
+  /* the reference's `.arx button { font: inherit; color: inherit }` outranks `.ch`'s own size, weight and colour */
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  margin: 0;
+}
+.ch:hover {
+  color: var(--r2-ink);
+  background: var(--r2-hov);
+}
+.ch.on {
+  background: var(--r2-ink);
+  border-color: var(--r2-ink);
+  color: var(--r2-on-for);
+}
+.ch:focus-visible {
+  outline: 2px solid var(--r2-for);
+  outline-offset: 2px;
+}
+.chn {
+  font-weight: 400;
+  color: var(--r2-f3);
+  font-variant-numeric: tabular-nums;
+}
+.ch.on .chn {
+  color: var(--r2-chip-on-count);
+}
+
+/* An audience's 8px square: `.ch i`, `.pl.aud i`. It sits beside its words, never alone. */
+.sq {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+  display: block;
+}
+.for {
+  background: var(--r2-for);
+}
+.ok {
+  background: var(--r2-dot-ok);
+}
+.mint {
+  background: var(--r2-mint);
+}
+.info {
+  background: var(--r2-dot-info);
+}
+.warn {
+  background: var(--r2-dot-warn);
+}
+.off {
+  background: var(--r2-dot-off);
+}
+
+@media (max-width: 767px) {
+  .chs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--r2-pad));
+    padding: 0 var(--r2-pad) 2px;
+    scrollbar-width: none;
+  }
+  .chs::-webkit-scrollbar {
+    display: none;
+  }
+  .ch {
+    flex: none;
+  }
+}
+
+/* Teams' Holds: the plans a team holds, side by side. */
+.holds {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Utah Life's cards: a check or a lock beside a line (`.mt`, `.mt.off`), and the Most opened rows (`.rdy`). */
+.mt {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.mt.mtOff {
+  background: var(--r2-sub);
+  color: var(--r2-f3);
+}
+.canRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.canText {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+.rdy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% + 16px);
+  padding: 6px 8px;
+  margin: -2px -8px;
+  border-radius: 8px;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.rdyName {
+  flex: 0 0 176px;
+  min-width: 0;
+}
+.rdn {
+  min-width: 24px;
+  text-align: right;
+  flex: none;
+}
+.left {
+  align-self: flex-start;
+}
+
+/* A link inside a sentence (`.lk.a.inl` in the reference): forest, and underlined so it is not told from its words by
+   colour alone (axe's link-in-text-block). It stays in its line on a phone. */
+.inl {
+  color: var(--r2-for);
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+}
+/* `.lk.a`: a link in the forest ink */
+.lka {
+  color: var(--r2-for);
+}
+/* Where They Are Counted: the reference's `.kvs .kv dd` keeps its 10px under the last value too */
+.kvsLast dl dd:last-child {
+  margin-bottom: 10px;
+}

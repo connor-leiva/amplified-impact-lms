@@ -13,6 +13,9 @@
 //   secondPayments  R-5 audit (D-267): of those teams' two-payment seats, the second payments still to come: how many,
 //               each one's amount when they agree, and the next one's date (`secondPaymentAt`, a month after the first).
 //
+//   teamRows    R-5 Phase 7 (D-268): one row per roster team for Cohort › People: its live cohort plan's payment (paid in
+//               full, on two payments with how many made, or a comp) and its intake (submitted, a draft, not started).
+//
 //   stripe      R-5 Phase 5 (D-262): what Stripe says about the cohort's lookup keys (its active price under each, through
 //               the price cache, `PriceBook`) and its Payment Links (each stored address found in Stripe, and the cohort
 //               its metadata names, `ai_cohort`). Read only: Prices: Read and Payment Links: Read on the restricted key.
@@ -144,6 +147,25 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
         .from(teamIntake)
         .where(inArray(teamIntake.teamId, live))
     : [];
+  // R-5 Phase 7 (D-268): each roster team's live cohort plan for this cohort (a comp included: it is placed like any seat).
+  const seats = live.length
+    ? await db
+        .select({ teamId: accounts.teamId, option: plans.option, origin: orders.origin, paymentsMade: orders.paymentsMade, createdAt: plans.createdAt })
+        .from(plans)
+        .innerJoin(accounts, eq(accounts.id, plans.accountId))
+        .leftJoin(orders, eq(orders.id, plans.orderId))
+        .where(and(eq(plans.kind, 'cohort'), eq(plans.cohortId, cohortId), ne(plans.status, 'ended'), inArray(accounts.teamId, live)))
+    : [];
+  const teamRows: NonNullable<CohortFacts['teamRows']> = {};
+  for (const t of live) {
+    const seat = seats.filter((p) => p.teamId === t).sort((a, b) => Number(b.createdAt) - Number(a.createdAt))[0];
+    const row = intake.find((r) => r.teamId === t);
+    teamRows[t] = {
+      pay: !seat ? null : seat.origin === 'comp' ? 'comp' : seat.option === 'two_pay' ? 'two_pay' : 'full',
+      paymentsMade: Number(seat?.paymentsMade ?? 0),
+      intake: !row ? 'not_started' : row.submittedAt !== null ? 'submitted' : 'draft',
+    };
+  }
   return {
     testSends: {
       welcome: sends.some((s) => s.action === 'welcome.test_send'),
@@ -162,6 +184,7 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
       each: amounts.length === 1 && amounts[0] !== null ? Number(amounts[0]) : null,
       next: dues.length ? Math.min(...dues) : null,
     },
+    teamRows,
     ...(stripe ? { stripe: await stripe(db, cohortId) } : {}),
   };
 }

@@ -28,6 +28,9 @@
 }
 .fxl {
   border: 0;
+  /* D-268: a fact can be a button (Utah Life's counts), as the mockup's `LFacts` draws it */
+  font: inherit;
+  margin: 0;
   padding: 12px 34px 12px 20px;
   text-align: left;
   cursor: pointer;
@@ -696,5 +699,47 @@ a.plain {
   /* `.ph .sgm button` */
   .seg button {
     padding: 0 9px;
+  }
+}
+
+/* ---- R-5 Phase 7 (D-268): Cohort › Submissions (`.ty`, `.qa`, the mockup's intake views) ----------------- */
+.stw {
+  gap: 2px;
+  align-items: flex-start;
+}
+.barc {
+  gap: 10px;
+}
+.barn {
+  min-width: 56px;
+  text-align: right;
+  flex: none;
+  white-space: nowrap;
+}
+.ty {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 20px;
+  align-items: center;
+  gap: 10px;
+  color: var(--r2-f2);
+}
+.ty > :last-child {
+  text-align: right;
+  color: var(--r2-ink);
+}
+.qa {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+  gap: 8px 20px;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--r2-line);
+}
+.qa p {
+  margin: 0;
+  max-width: 720px;
+}
+@media (max-width: 767px) {
+  .qa {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

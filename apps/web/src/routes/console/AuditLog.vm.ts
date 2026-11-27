@@ -131,6 +131,8 @@ const GROUP_LABELS: Record<string, string> = {
   cohort: 'Cohorts',
   // D-265: Course Settings saves the program record.
   program: 'Program',
+  // D-268: an access group's two writes (People › Utah Life).
+  access_group: 'Access Groups',
   copy: 'Copy Strings',
   // D-175: the deploy's one-time data steps on the course (the release plan).
   curriculum: 'Curriculum',

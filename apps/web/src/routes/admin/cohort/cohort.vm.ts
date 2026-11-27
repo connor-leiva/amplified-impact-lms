@@ -129,6 +129,8 @@ export interface FactVM {
   /** The value on a phone, where it differs (the mockup's `ph ? …`). */
   short?: string;
   to?: string;
+  /** R-5 Phase 7 (D-268): a fact that opens a list on the same page (Utah Life's counts open its Agents table). */
+  onClick?: () => void;
 }
 
 export interface TodoVM {

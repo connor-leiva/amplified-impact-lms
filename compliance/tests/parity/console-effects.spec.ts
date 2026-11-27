@@ -66,6 +66,16 @@ async function console_(p: Pair, path: string, now: NowKey = 'week1'): Promise<v
 }
 
 /**
+ * A learner's details (the drawer with Upgrade to Team Tier and Send Nudge). D-268 (R-5 Phase 7): Learners & Teams is
+ * Cohort › People, which opens on Teams; on its Learners a row opens the person, and the details are on the row's menu.
+ */
+async function learnerDetails(admin: Page, name: string): Promise<void> {
+  await visit(admin, '/admin/cohort/dec26/people?tab=learners', 'admin', 'week1');
+  await admin.getByRole('row').filter({ hasText: name }).first().getByRole('button', { name: 'More actions' }).click();
+  await admin.getByRole('menuitem', { name: 'Open learner details' }).click();
+}
+
+/**
  * A session's "…" menu, then one of its items. D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule, where a
  * row is the session's title (Session 1 is "Map Your Spend Live Build", Session 2 "Lead Source Review Live Build").
  */
@@ -257,8 +267,7 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
       return item > 0;
     };
     expect(await teamHub(p.learner)).toBe(false);
-    await console_(p, '/admin/learners');
-    await p.admin.getByRole('row').filter({ hasText: 'Jamie Ortiz' }).first().click();
+    await learnerDetails(p.admin, 'Jamie Ortiz');
     await p.admin.getByRole('button', { name: 'Upgrade to Team Tier' }).click();
     await expect.poll(() => teamHub(p.learner)).toBe(true);
     expect(loads()).toBe(0);
@@ -267,8 +276,7 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
 
   test('a nudge sends the build reminder, whose link lands on the week’s steps @parity:C-12', async ({ browser }) => {
     const p = await pair(browser, '/learn');
-    await console_(p, '/admin/learners');
-    await p.admin.getByRole('row').filter({ hasText: 'Jamie Ortiz' }).first().click();
+    await learnerDetails(p.admin, 'Jamie Ortiz');
     await p.admin.getByRole('button', { name: /Send Nudge/ }).click();
     await expect
       .poll(async () => (await storedDb(p.admin)).users.find((u) => u.id === 'u_jamie')?.nudged ?? null)

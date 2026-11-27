@@ -569,6 +569,12 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       // Comp a team: the cohorts list and the comp, read and write alike.
       { method: 'GET', url: CONSOLE_PATHS.compCohorts },
       { method: 'POST', url: CONSOLE_PATHS.compTeam },
+      // R-5 Phase 7 (D-268): People's counts, and an access group's tab, its two writes and its export.
+      { method: 'GET', url: CONSOLE_PATHS.audiences },
+      { method: 'GET', url: '/api/console/groups/utah-life' },
+      { method: 'POST', url: '/api/console/groups/utah-life/addresses' },
+      { method: 'POST', url: '/api/console/groups/utah-life/end' },
+      { method: 'POST', url: '/api/console/groups/utah-life/export' },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);
