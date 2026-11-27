@@ -65,7 +65,7 @@ export const FLAGS_PATH = '/admin/flags';
 export const enrollmentPath = (id: string): string => `${cohortPath(id, 'settings')}#enrollment`;
 
 // The mockup's `TONE`: Draft is `off`, Scheduled `info`, Active `ok`; Finished has none, so it is plain.
-const STATUS_TONE: Record<CohortStatusWord, Tone> = {
+export const STATUS_TONE: Record<CohortStatusWord, Tone> = {
   Draft: 'off',
   Scheduled: 'info',
   Active: 'ok',

@@ -5,6 +5,8 @@
 //                 (spec § 7.5: built client-side and filtered by capability). D-253: Overview, Program,
 //                 Cohort, People and Revenue first, then the system pages; once something is typed, the four
 //                 pages' tabs too ("Program › Curriculum", the mockup's third pass), each a tab the role may open.
+//   Cohorts       R-5 Phase 9 (D-270): the snapshot's cohorts that are not archived, each opening its page (the spec's
+//                 "the palette finds cohorts, weeks, teams and people")
 //   Users         the API's users group
 //   Teams         the API's workspaces group (D-253: the mockup's name for it now that Workspaces is People › Teams)
 //   Weeks         the snapshot's modules (the week page, today's Module Builder, opens each)
@@ -38,6 +40,13 @@ export interface PalettePage {
   tab?: true;
 }
 
+/** R-5 Phase 9 (D-270): a cohort the palette can open: its name, its status word, its page. */
+export interface PaletteCohort {
+  id: string;
+  label: string;
+  status: string;
+}
+
 export interface PaletteModule {
   id: string;
   name: string;
@@ -64,6 +73,7 @@ export function paletteGroups(
   modules: readonly PaletteModule[],
   api: SearchResults | null,
   cohortId = '',
+  cohorts: readonly PaletteCohort[] = [],
 ): PaletteGroup[] {
   const s = q.trim().toLowerCase();
   const m = (t: string) => !s || t.toLowerCase().includes(s);
@@ -72,6 +82,18 @@ export function paletteGroups(
     [
       'Pages',
       pages.filter((p) => m(p.label) && (!p.tab || s)).map((p) => ({ key: `p:${p.id}`, icon: p.icon, label: p.label, to: p.to })),
+    ],
+    [
+      'Cohorts',
+      cohorts
+        .filter((co) => m(co.label))
+        .map((co) => ({
+          key: `c:${co.id}`,
+          icon: 'r2Cohorts' as const,
+          label: co.label,
+          detail: co.status,
+          to: `/admin/cohort/${encodeURIComponent(co.id)}`,
+        })),
     ],
     [
       'Users',

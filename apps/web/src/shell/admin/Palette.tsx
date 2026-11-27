@@ -8,7 +8,7 @@ import { k } from '../../components/r2/kit';
 import { modalStyles as m, useDialog } from '../../components/r2/Modal';
 import { consoleApi } from '../../data/console';
 import { PALETTE_COPY, paletteGroups } from './palette.vm';
-import type { PaletteItem, PaletteModule, PalettePage } from './palette.vm';
+import type { PaletteCohort, PaletteItem, PaletteModule, PalettePage } from './palette.vm';
 import shell from './AdminShell.module.css';
 import s from './Palette.module.css';
 
@@ -22,6 +22,7 @@ import s from './Palette.module.css';
 export function Palette({
   pages,
   modules,
+  cohorts = [],
   phone,
   go,
   onClose,
@@ -29,6 +30,8 @@ export function Palette({
 }: {
   pages: readonly PalettePage[];
   modules: readonly PaletteModule[];
+  /** R-5 Phase 9 (D-270): the cohorts that are not archived. */
+  cohorts?: readonly PaletteCohort[];
   phone: boolean;
   /** D-253: the cohort a moved address of the API's opens in. */
   cohortId?: string;
@@ -62,7 +65,7 @@ export function Palette({
     };
   }, [q]);
 
-  const groups = useMemo(() => paletteGroups(q, pages, modules, api, cohortId), [q, pages, modules, api, cohortId]);
+  const groups = useMemo(() => paletteGroups(q, pages, modules, api, cohortId, cohorts), [q, pages, modules, api, cohortId, cohorts]);
   const flat = groups.flatMap(([, items]) => items);
   const pick = (it: PaletteItem) => {
     onClose();

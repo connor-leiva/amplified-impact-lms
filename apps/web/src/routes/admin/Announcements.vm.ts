@@ -46,17 +46,23 @@ export interface AnnouncementForm {
 }
 
 /**
- * The reference's initial `state.f`, verbatim — including the literal `2026-12-09T09:00` default
- * schedule, which is a constant in the prototype and not a clock read.
+ * The schedule a new announcement starts on: the next day at 9:00 AM Central, as a `datetime-local` value in Central
+ * Time (the reference's own was a typed day, `2026-12-09T09:00`; R-5 Phase 9, D-270, PLAN § 10.10: no date in code).
  */
-export const blankAnnouncementForm = (): AnnouncementForm => ({
+export function defaultScheduleCt(now: number): string {
+  const day = fmt.isoDate(now + 864e5);
+  return `${day}T09:00`;
+}
+
+/** The reference's initial `state.f`; its default schedule is the next day's morning (`defaultScheduleCt`). */
+export const blankAnnouncementForm = (now: number): AnnouncementForm => ({
   title: '',
   body: '',
   audience: 'all',
   inapp: true,
   email: true,
   when: 'now',
-  at: '2026-12-09T09:00',
+  at: defaultScheduleCt(now),
   severity: 'info',
   action: '',
 });
@@ -323,7 +329,7 @@ export function atForSend(mstLocal: string): string {
   return Number.isNaN(t) ? mstLocal : `${fmt.isoDate(t)}T${fmt.isoTime(t)}`;
 }
 
-/** The composer's default schedule, `2026-12-09T09:00` CT, in MST. */
+/** The composer's default schedule, a Central `datetime-local` value, in MT. */
 export const defaultScheduleMst = (ctLocal: string): string => {
   const t = Date.parse(`${ctLocal}:00-06:00`);
   if (Number.isNaN(t)) return ctLocal;
@@ -339,7 +345,7 @@ export const defaultScheduleMst = (ctLocal: string): string => {
 export const editable = (a: Pick<Announcement, 'status'>): boolean => a.status !== 'sent';
 
 /** The dialog filled in from a row: its fields, a scheduled one's time in MST. */
-export function announcementFormOf(a: Announcement): AnnouncementForm {
+export function announcementFormOf(a: Announcement, now: number): AnnouncementForm {
   const { date, time } = toAdminLocal(a.at);
   return {
     title: a.title,
@@ -348,7 +354,7 @@ export function announcementFormOf(a: Announcement): AnnouncementForm {
     inapp: a.channels.includes('inapp'),
     email: a.channels.includes('email'),
     when: a.status === 'scheduled' ? 'later' : 'now',
-    at: a.status === 'scheduled' ? `${date}T${time}` : defaultScheduleMst(blankAnnouncementForm().at),
+    at: a.status === 'scheduled' ? `${date}T${time}` : defaultScheduleMst(blankAnnouncementForm(now).at),
     severity: a.severity,
     action: a.action ?? '',
   };

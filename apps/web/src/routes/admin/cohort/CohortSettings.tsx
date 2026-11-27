@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Link, useLocation, useParams } from 'react-router';
-import { CLOSE_LINKS_WARNING, enrollmentRefusal } from '@ai/core';
+import { CLOSE_LINKS_WARNING, archiveRefusal, enrollmentRefusal } from '@ai/core';
 import { Button } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
 import { Confirm } from '../../../components/r2/Modal';
 import { KV, Pill, k } from '../../../components/r2/kit';
 import { Status } from '../../../components/r2/Status';
 import { cohortLabel } from '../../../data/admin-shell';
-import { useAct, useDb } from '../../../data/hooks';
+import { useAct, useDb, useNow } from '../../../data/hooks';
+import { useAdminChrome } from '../../../shell/admin/chrome';
 import { CohortFilesButton } from '../CohortFiles';
 import { cohortPath, openEnrollmentBody, settingsVM } from './cohort.vm';
 import { DatesDialog, EnrollmentDialog, PriceDialog, ShapeDialog, WeeksDialog, WordsDialog } from './dialogs';
@@ -18,7 +19,7 @@ import c from './Cohort.module.css';
 // D-255 (R-5 Phase 3): Cohort › Settings (`/admin/cohort/:cohortId/settings`), the mockup's `CohortSettings`: Shape (Edit,
 // and its weeks), Dates and Release (PLAN.md § 10.3), Enrollment (read-only until Phase 5: the one source of seats),
 // Words From This Cohort (Edit words), and Clean-up, which holds Delete turned-in files (D-237), moved off Schedule.
-// Archive is Phase 9's and is not drawn.
+// R-5 Phase 9 (D-270): and Archive this cohort, after its last session, confirmed in a dialog (`archiveCohort`).
 //
 // R-5 Phase 5 (D-262): Enrollment is what the cohort sells through (PLAN.md § 10.5's "Sells through"): its seats, its
 // price (Stripe's, under its lookup keys, Q-30), two payments (Stripe's schedule), founding and when it closes, its
@@ -26,7 +27,7 @@ import c from './Cohort.module.css';
 // enrollment. Each saves through an audited admin action on the `billing` permission; Open is refused, in its dialog,
 // with Before It Opens' first line not done.
 
-type Open = 'shape' | 'weeks' | 'dates' | 'words' | 'price' | 'enroll' | 'open' | 'close' | null;
+type Open = 'shape' | 'weeks' | 'dates' | 'words' | 'price' | 'enroll' | 'open' | 'close' | 'archive' | null;
 
 export function Component() {
   const { cohortId = '' } = useParams();
@@ -38,6 +39,8 @@ export function Component() {
   const [busy, setBusy] = useState(false);
   const [refused, setRefused] = useState<string | null>(null);
   const act = useAct();
+  const now = useNow();
+  const { toast } = useAdminChrome();
   // An address that names a card (`#dates`, `#enrollment`, `#words`) scrolls it into view, as a "Before it opens" line does.
   useEffect(() => {
     if (!hash) return;
@@ -45,7 +48,7 @@ export function Component() {
   }, [hash]);
   if (!vm) return null;
   const co = db.cohorts.find((x) => x.id === cohortId)!;
-  const enrollAct = async (name: 'openCohortEnrollment' | 'closeCohortEnrollment') => {
+  const enrollAct = async (name: 'openCohortEnrollment' | 'closeCohortEnrollment' | 'archiveCohort') => {
     setBusy(true);
     try {
       const out = await act(name, { cohortId });
@@ -183,14 +186,35 @@ export function Component() {
             </Card>
           </div>
           <Card title="Clean-Up">
-            <div className={c.cleanRow}>
-              <span className={clsx(k.col, k.col0, c.grow)}>
-                <span className={k.w5}>Delete turned-in files</span>
-                <span className={k.me}>
-                  Removes every file teams turned in. The record that they turned it in stays.
+            <div className={clsx(k.col, k.colM)}>
+              <div className={c.cleanRow}>
+                <span className={clsx(k.col, k.col0, c.grow)}>
+                  <span className={k.w5}>Delete turned-in files</span>
+                  <span className={k.me}>
+                    Removes every file teams turned in. The record that they turned it in stays.
+                  </span>
                 </span>
-              </span>
-              <CohortFilesButton cohortId={cohortId} label="Delete…" />
+                <CohortFilesButton cohortId={cohortId} label="Delete…" />
+              </div>
+              {/* R-5 Phase 9 (D-270): the mockup's second row. A cohort that can't be archived yet says why, as the mockup's toast does. */}
+              <div className={c.cleanRow}>
+                <span className={clsx(k.col, k.col0, c.grow)}>
+                  <span className={k.w5}>Archive this cohort</span>
+                  <span className={k.me}>Hides it from the switcher when it is over. Its people, files and payments are kept.</span>
+                </span>
+                <Button
+                  onClick={() => {
+                    const why = archiveRefusal(db, cohortId, now);
+                    if (why) toast(why);
+                    else {
+                      setRefused(null);
+                      setOpen('archive');
+                    }
+                  }}
+                >
+                  Archive…
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
@@ -225,6 +249,18 @@ export function Component() {
           busy={busy}
           error={refused}
           onConfirm={() => void enrollAct('closeCohortEnrollment')}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
+      {open === 'archive' ? (
+        <Confirm
+          title={`Archive the ${cohortLabel(co)}?`}
+          body="It leaves the switcher and the cohort lists. Its people, files and payments are kept, and nothing is sent to anyone."
+          cta="Archive"
+          keepOpen
+          busy={busy}
+          error={refused}
+          onConfirm={() => void enrollAct('archiveCohort')}
           onClose={() => setOpen(null)}
         />
       ) : null}

@@ -175,7 +175,6 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
 
   it('builds cohort one on Wednesdays, Dec 2 to Feb 3, with Insiders 90 days after the last build', () => {
     expect(dayIn(COHORT_ONE.firstBuildAt, 'America/Chicago')).toBe('Wednesday, December 2, 2026');
-    expect(dayIn(COHORT_ONE.lastBuildAt, 'America/Chicago')).toBe('Wednesday, February 3, 2027');
     const lastBuildDay = Date.parse('2027-02-03T00:00:00-06:00');
     expect(Math.round((INSIDERS_FIRST_CHARGE_AT - lastBuildDay) / DAY)).toBe(90);
     expect(COHORT_ONE_LIVE_UNTIL).toBe(INSIDERS_FIRST_CHARGE_AT);

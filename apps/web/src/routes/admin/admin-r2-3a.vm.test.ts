@@ -2,99 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { ZERO_BASE, seed } from '@ai/core';
 import type { Db } from '@ai/core';
 import { parityDb } from '../../data/parity-r2-db';
-import { overviewR2VM } from './Overview.vm';
 import { learnerR2Details, learnersR2VM, learnersVM, LEARNERS_UI } from './Learners.vm';
 import { tiersR2VM } from './Tiers.vm';
 import { staffR2VM } from './Staff.vm';
 
-// D-160 R2-3a: the Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles view-models of the
+// D-160 R2-3a: Learners & Teams, Tiers & Upgrades and Staff & Roles view-models of the
 // Admin redesign R2. On the parity snapshot they print the mockup's words and figures (its pixels are
 // proved by `pnpm parity:admin-r2`); on the ordinary and the production-shaped snapshot (ZERO_BASE,
 // what the API returns) they print only what the rows say.
 
 const NOW = Date.parse('2026-12-10T16:30:00.000Z');
 const zero = (db: Db): Db => ({ ...db, base: { ...ZERO_BASE } });
-
-describe('overviewR2VM (D-160 R2-3a)', () => {
-  const vm = overviewR2VM(parityDb('/admin'), NOW);
-
-  it('prints the mockup’s head and tiles, in its words', () => {
-    expect(vm.subline).toBe('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity');
-    expect(vm.stats.map((s) => [s.label, s.value, s.sub, s.tone, s.to])).toEqual([
-      // D-253: each tile opens its page at its new address.
-      ['Active learners', '148', '104 Agent · 44 Team', null, '/admin/cohort/dec26/people'],
-      ['AI Employees deployed', '190', '+6 in the last 24 hours', 'ok', '/admin/program'],
-      // R-5 audit (D-267): every number opens the list it counts; Build completion opens the builds.
-      ['Build completion', '33%', 'Of builds available', null, '/admin/program'],
-      ['Live attendance', '74%', 'Session 2 · 109 attended', null, '/admin/cohort/dec26/schedule'],
-      ['Upgrade pipeline', '$8,000', '2 open requests', 'warn', '/admin/revenue/plans'],
-    ]);
-    expect(vm.stats.map((s) => [s.labelPhone, s.subPhone])).toEqual([
-      ['Active learners', '44 on Team Tier'],
-      ['Deployed', '+6 in 24 hours'],
-      ['Completion', 'Of open builds'],
-      ['Attendance', 'Session 2'],
-      ['Upgrade pipeline', '2 open requests'],
-    ]);
-  });
-
-  it('charts the deployments from the first build, to the last day with one, on the old scale', () => {
-    expect(vm.chart!.total).toBe('190 total');
-    expect(vm.chart!.labels).toEqual(['Dec 2', 'Dec 3', 'Dec 4', 'Dec 5', 'Dec 6', 'Dec 7', 'Dec 8']);
-    expect(vm.chart!.labelsPhone).toEqual(['Dec 2', 'Dec 4', 'Dec 6', 'Dec 8']);
-    // The mockup's `i * 100, 200 - v * 0.95`.
-    expect(vm.chart!.line.split(' ').map((p) => p.split(',').map(Number))).toEqual(
-      [22, 58, 96, 121, 150, 178, 190].map((v, i) => [i * 100, expect.closeTo(200 - v * 0.95, 6)]),
-    );
-  });
-
-  it('lists the five latest events, the five most deployed open builds, and each session held then the next', () => {
-    expect(vm.feed.map((e) => [e.who, e.ago, e.tone])).toEqual([
-      ['Sarah Collins', '38 min ago', 'ok'],
-      ['Rosa Delgado', '2 hours ago', 'ok'],
-      ['Natasha Reed', '2 hours ago', 'ok'],
-      ['Devon Price', '14 hours ago', 'ok'],
-      ['Kenji Watanabe', '18 hours ago', 'warn'],
-    ]);
-    expect(vm.funnel.map((f) => [f.name, f.pct, f.of])).toEqual([
-      ['Marketing', '66%', '· 98 of 148'],
-      ['Sales', '35%', '· 52 of 148'],
-      ['Week 1 · Know the Business', '75%', '· 33 of 44'],
-      ['Week 2 · Own the Day', '39%', '· 17 of 44'],
-      ['Database', '0%', '· 0 of 148'],
-    ]);
-    expect(vm.attendance).toEqual([
-      { key: 'dec26-s1', label: 'Session 1 · Dec 2', pct: 82 },
-      { key: 'dec26-s2', label: 'Session 2 · Dec 9', pct: 74 },
-      { key: 'dec26-s3', label: 'Session 3 · Dec 16', pct: null },
-    ]);
-  });
-
-  it('before the cohort opens: no chart, no feed, "Not started" and the opening in MT and CT', () => {
-    const before = overviewR2VM(parityDb('/admin'), Date.parse('2026-11-30T16:00:00Z'));
-    expect(before.started).toBe(false);
-    expect(before.chart).toBeNull();
-    expect(before.feed).toEqual([]);
-    // R-5 audit (D-267): times in MT with CT after (`fmt.mtCt`); this world's December has no run, so it reads its opening.
-    expect(before.subline).toBe(
-      'December 2026 Cohort · Opens Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · 148 learners enrolled',
-    );
-    expect(before.stats[1]!.sub).toBe('Counting starts Dec 2');
-    expect(before.notStarted).toBe(
-      'Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MT / 1:00 PM CT.',
-    );
-  });
-
-  it('with the API’s ZERO_BASE, every figure is the modelled rows’ own', () => {
-    const db = zero(seed('live'));
-    const z = overviewR2VM(db, Date.parse('2026-12-07T16:42:00Z'));
-    const users = db.users.filter((u) => u.status !== 'invited');
-    expect(z.stats[0]!.value).toBe(String(users.length));
-    const deployed = users.reduce((a, u) => a + Object.values(u.progress).filter((p) => p.deployedAt).length, 0);
-    expect(z.chart!.total).toBe(`${deployed} total`);
-    expect(z.stats[1]!.value).toBe(String(deployed));
-  });
-});
 
 describe('learnersR2VM (D-160 R2-3a)', () => {
   const db = parityDb('/admin/learners');

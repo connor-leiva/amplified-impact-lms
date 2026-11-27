@@ -11,10 +11,10 @@
 // cohort's lookup keys and whether each of its Payment Links names it, which the Enrollment card shows.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { eq, inArray } from 'drizzle-orm';
+import { asc, eq, inArray, isNull } from 'drizzle-orm';
 import { can } from '@ai/core';
 import { intakeQuestions } from '@ai/core/intake';
-import type { CohortIntakeRow } from '@ai/core';
+import type { AdminOverviewFacts, CohortFacts, CohortIntakeRow } from '@ai/core';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
@@ -29,6 +29,12 @@ export const COHORT_FACTS_PATH = '/api/admin/cohorts/:cohortId/facts';
 export const cohortFactsPath = (cohortId: string): string => `/api/admin/cohorts/${encodeURIComponent(cohortId)}/facts`;
 /** R-5 Phase 7 (D-268): Cohort › Submissions' intake, every roster team's (audited once, `intake.read`). */
 export const COHORT_INTAKE_PATH = '/api/admin/cohorts/:cohortId/intake';
+/**
+ * R-5 Phase 9 (D-270): the Overview's one read for every cohort not archived: each one's facts, as the facts route answers
+ * them but without Stripe (no Stripe call per page or per cohort: a draft's two Stripe lines are read on its Settings).
+ * The roster is read once for all of them (D-267's rule).
+ */
+export const ADMIN_OVERVIEW_PATH = '/api/admin/overview';
 
 /** R-5 Phase 5 (D-262): with a Stripe reader, the facts also say what Stripe has under the cohort's keys and links. */
 export function registerCohortFactsRoute(app: FastifyInstance, stripe?: StripeFactsReader): void {
@@ -41,6 +47,24 @@ export function registerCohortFactsRoute(app: FastifyInstance, stripe?: StripeFa
     const [row] = await db.select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, req.params.cohortId)).limit(1);
     if (!row) return reply.code(404).send({ error: 'No such cohort.' });
     return reply.code(200).send(await cohortFactsOf(db, row.id, stripe));
+  });
+
+  // R-5 Phase 9 (D-270): every cohort's facts for the Overview, without Stripe. The same permission as the facts.
+  app.get(ADMIN_OVERVIEW_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
+    const { actor } = viewerOrThrow(req);
+    reply.header('cache-control', 'no-store');
+    const db = getDb();
+    if (actor.kind !== 'staff' || !can(await loadDb(db), actor, 'cohorts'))
+      return reply.code(403).send({ error: 'You don’t have permission to do that.' });
+    const rows = await db.select({ id: cohorts.id }).from(cohorts).where(isNull(cohorts.archivedAt)).orderBy(asc(cohorts.start), asc(cohorts.id));
+    const roster = await cohortRoster(db);
+    const out: Record<string, CohortFacts> = {};
+    for (const r of rows) {
+      // Cohort › People's rows are its own page's; the Overview counts.
+      const { teamRows: _rows, ...facts } = await cohortFactsOf(db, r.id, undefined, roster);
+      out[r.id] = facts;
+    }
+    return reply.code(200).send({ cohorts: out } satisfies AdminOverviewFacts);
   });
 
   // R-5 Phase 7 (D-268): every roster team's Week 0 intake (D-267's rule), for Cohort › Submissions' two intake views.

@@ -178,6 +178,8 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
   }),
   openCohortEnrollment: z.strictObject({ cohortId: id }),
   closeCohortEnrollment: z.strictObject({ cohortId: id }),
+  // R-5 Phase 9 (D-270): Settings › Clean-Up's archive.
+  archiveCohort: z.strictObject({ cohortId: id }),
 };
 
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;

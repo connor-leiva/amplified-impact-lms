@@ -10,12 +10,9 @@
 // `req`, `STAFF`); every Deployed figure is the baseline plus those learners' builds, and the baseline
 // is chosen so each prints the mockup's `dep` (66 of 100 is 66%).
 //
-// ONE SCREEN'S OWN FIGURES (R2-3). The mockup hard-codes each screen's numbers, and the Overview's
-// disagree with Curriculum's (its funnel has Week 1 at 33 of 44, 75%; Curriculum has 74%) and with
-// themselves (190 deployed, a funnel that adds to 200). So the Overview (`/admin`) gets its own
-// baseline: `overviewDb` gives it the funnel's, the chart's and the "+6" aggregates, opens the
-// Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
-// figure is still the production view-model's, printed from this snapshot.
+// ONE SCREEN'S OWN WORLD. R-5 Phase 9 (D-270): the Overview (`/admin`) is the mockup's `Home` now, and `overviewDb` gives
+// it the program as Program's pages have it, January created as a draft, and a roster. Every figure is still the
+// production view-model's, printed from this snapshot.
 
 import { EDITABLE_ROLES, createCohortFromShape, roleRowCeiling, roleRowOf, seed } from '@ai/core';
 import type {
@@ -46,9 +43,6 @@ import {
   JAN_SLOTS,
   MODS0,
   OVERVIEW_ACTIVITY,
-  OVERVIEW_FUNNEL,
-  OVERVIEW_PTS,
-  OVERVIEW_RECENT,
   P3_WEEKS,
   P6_COURSE,
   P6_GLOSS,
@@ -280,22 +274,21 @@ const CURRICULUM_BASE: Db['base']['mod'] = {
   m5: [37, 58, 0],
 };
 
-/** The Overview's own figures (see above). */
+/**
+ * R-5 Phase 9 (D-270): the Overview (`/admin`), as the R2 reference's `Overview` draws it: the program as its pages have
+ * it (`programPageDb`: the nine course weeks with the mockup's statuses, December running all nine on the mockup's dates
+ * with its first four weeks' sessions), January created as a draft (New cohort's own action, as on `/admin/revenue`),
+ * and the roster the API would send (D-267): December's one AI Accelerator team (Copper Basin Realty, the reference's
+ * People › Everyone has its one person there), January's none. Every figure is still the production view-model's.
+ */
 function overviewDb(db: Db): Db {
-  const pool = (id: string) =>
-    db.users.filter((u) => db.modules.find((m) => m.id === id)!.tier === 'agent' || u.tier === 'team').length;
-  for (const u of db.users) u.progress = {};
-  const m6 = db.modules.find((m) => m.id === 'm6')!;
-  Object.assign(m6, { status: 'published', opens: null });
-  db.base = {
-    ...db.base,
-    mod: {
-      ...Object.fromEntries(OVERVIEW_FUNNEL.map(([id, d, p, n]) => [id, [d, p, n - d - p - pool(id)]])),
-      // Week 0 is open, and counts toward the builds available, but nobody has started it.
-      m2: [0, 0, 44 - pool('m2')],
-    },
-    daily: [...OVERVIEW_PTS],
-    recent: OVERVIEW_RECENT,
+  programPageDb(db);
+  const jan = januaryOf(db);
+  db.cohorts = jan.cohorts;
+  db.sessions = jan.sessions;
+  db.roster = {
+    [COHORT]: { teams: ['ws_copperbasin'], learners: ['u_1090'] },
+    [JANUARY]: { teams: [], learners: [] },
   };
   return db;
 }

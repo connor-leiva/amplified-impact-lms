@@ -70,6 +70,22 @@ describe('the ⌘K palette (spec § 7.5)', () => {
     ]);
   });
 
+  it('finds cohorts (R-5 Phase 9, D-270): each opens its page, its status beside it; two while empty, as the other groups', () => {
+    const cohorts = [
+      { id: 'dec26', label: 'December 2026 Cohort', status: 'Active' },
+      { id: 'jan27', label: 'January 2027 Cohort', status: 'Draft' },
+      { id: 'mar27', label: 'March 2027 Cohort', status: 'Draft' },
+    ];
+    const empty = paletteGroups('', PAGES, MODS, null, 'dec26', cohorts);
+    expect(empty.map(([name, items]) => [name, items.length])).toEqual([
+      ['Pages', 5],
+      ['Cohorts', 2],
+      ['Weeks', 2],
+    ]);
+    const jan = paletteGroups('january', PAGES, MODS, null, 'dec26', cohorts).find(([name]) => name === 'Cohorts')!;
+    expect(jan[1]).toEqual([{ key: 'c:jan27', icon: 'r2Cohorts', label: 'January 2027 Cohort', detail: 'Draft', to: '/admin/cohort/jan27' }]);
+  });
+
   it('has the mockup’s words', () => {
     expect(PALETTE_COPY.placeholder).toBe('Search people, teams, weeks, invoices, pages');
     expect(PALETTE_COPY.none('zz')).toBe('No results for "zz"');

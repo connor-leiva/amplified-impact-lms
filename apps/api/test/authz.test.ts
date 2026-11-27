@@ -646,6 +646,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/admin/cohorts/:cohortId/facts', methods: 'GET, HEAD', guard: 'session' },
   // R-5 Phase 7 (D-268): every roster team's intake, for Cohort › Submissions.
   { path: '/api/admin/cohorts/:cohortId/intake', methods: 'GET, HEAD', guard: 'session' },
+  // R-5 Phase 9 (D-270): every cohort's facts, for the Overview, without Stripe. Signed in, then staff with `cohorts`.
+  { path: '/api/admin/overview', methods: 'GET, HEAD', guard: 'session' },
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // D-229 (B-18): the intake as a PDF. Signed in, then the owner and the operator.
@@ -1217,6 +1219,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
           '/api/admin/cohorts/:cohortId/facts': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/facts' }),
           '/api/admin/cohorts/:cohortId/intake': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/intake' }),
+          '/api/admin/overview': () => app.inject({ method: 'GET', url: '/api/admin/overview' }),
           // D-132's account page.
           '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
           '/api/auth/password/change': () =>

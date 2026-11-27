@@ -9,7 +9,8 @@ import { teamHubVM } from '../portal/TeamHub.vm';
 import { areaCounts } from './areas/area.vm';
 import { cohortPeopleVM } from './cohort/people.vm';
 import { learnersR2VM } from './Learners.vm';
-import { overviewR2VM, overviewVM } from './Overview.vm';
+import { homeVM } from './Overview.vm';
+import type { HomeInput } from './Overview.vm';
 import { accessGroupVM, groupDescription } from './people/accessGroup.vm';
 
 const NOW = Date.parse('2026-12-10T16:30:00.000Z');
@@ -30,43 +31,47 @@ function withRoster(): { db: Db; cohortId: string; counted: string[]; team: stri
   };
 }
 
-describe('the Overview: the selected cohort, by its roster (Connor)', () => {
-  it('counts learners and Team Tier seats from the roster, and links the selected cohort', () => {
+/** The Overview's inputs for a cohort, as the page hands them over (R-5 Phase 9, D-270): every page open, nothing read yet. */
+function home(db: Db, cohortId: string, over: Partial<HomeInput> = {}): HomeInput {
+  return {
+    db,
+    now: NOW,
+    cohortId,
+    open: { program: true, cohort: true, people: true, revenue: true },
+    facts: null,
+    waiting: {},
+    audiences: null,
+    revenue: null,
+    counts: COUNTS,
+    canBilling: true,
+    canPlans: true,
+    ...over,
+  };
+}
+
+describe('the Overview: the selected cohort, by its roster (Connor; R-5 Phase 9, D-270)', () => {
+  it('counts the cohort’s Teams and Learners from the roster, and links the selected cohort', () => {
     const { db, cohortId, counted } = withRoster();
-    const vm = overviewR2VM(db, NOW, cohortId);
-    const people = db.users.filter((u) => counted.includes(u.id) && u.status !== 'invited' && u.test !== true);
-    expect(vm.stats[0]).toMatchObject({
-      key: 'learners',
-      value: String(people.length),
-      to: `/admin/cohort/${cohortId}/people`,
-    });
-    expect(vm.stats[0]!.subPhone).toBe(`${people.filter((u) => u.tier === 'team').length} on Team Tier`);
-    expect(vm.stats.find((s) => s.key === 'completion')!.to).toBe('/admin/program');
-    expect(vm.stats.find((s) => s.key === 'attendance')!.to).toBe(`/admin/cohort/${cohortId}/schedule`);
-    // A cohort nobody is rostered in: no learners, whatever its rows say.
-    expect(overviewR2VM({ ...db, roster: {} }, NOW, cohortId).stats[0]!.value).toBe('0');
+    const audiences = { total: 40, chips: [], teams: 3, leftOut: [] };
+    const vm = homeVM(home(db, cohortId, { audiences }));
+    const cohort = vm.tiles.find((t) => t.key === 'cohort')!;
+    expect(cohort.to).toBe(`/admin/cohort/${cohortId}`);
+    expect(cohort.line).toContain(`1 of ${db.cohorts[0]!.capacity} seats`);
+    expect(vm.tiles.find((t) => t.key === 'people')!.line).toBe(`${counted.length} in the cohort`);
+    // A cohort nobody is rostered in: no teams and no learners, whatever its rows say.
+    const empty = homeVM(home({ ...db, roster: {} }, cohortId, { audiences }));
+    expect(empty.tiles.find((t) => t.key === 'cohort')!.line).toContain(`0 of ${db.cohorts[0]!.capacity} seats`);
+    expect(empty.tiles.find((t) => t.key === 'people')!.line).toBe('0 in the cohort');
   });
 
-  it('a cohort whose run holds no Week 1 reads its own opening, in MT and CT, and how many are enrolled', () => {
-    const { db, cohortId } = withRoster();
-    const T = (local: string) => Date.parse(`${local}-07:00`);
-    const co = {
-      ...db.cohorts[0]!,
-      name: 'December 2026',
-      start: T('2026-12-02T12:00:00'),
-      run: [] as NonNullable<Db['cohorts'][number]['run']>,
-    };
-    // Its run holds no Week 1, so the header reads the cohort's own opening (`curriculum-week.vm.test.ts` reads Week 1's).
-    const plain = overviewR2VM({ ...db, cohorts: [co] }, T('2026-11-27T12:00:00'), cohortId);
-    expect(plain.subline).toMatch(/^December 2026 Cohort · Opens .* · \d+ learners enrolled$/);
-    expect(plain.subline).toContain(' MT / ');
-    expect(plain.subline).not.toContain('MST');
-  });
-
-  it('names the report after the cohort, not a typed one', () => {
-    const { db, cohortId } = withRoster();
-    expect(overviewVM(db, NOW, cohortId).report.name).toMatch(/^cohort-report-[a-z]{3}-20\d\d\.csv$/);
-    expect(overviewVM(parityDb('/admin'), NOW, 'dec26').report.name).toBe('cohort-report-dec-2026.csv');
+  it('prints every time in MT and CT, never MST', () => {
+    const vm = homeVM(home(parityDb('/admin'), 'dec26'));
+    const lines = vm.coming.map((c) => c.line);
+    expect(lines.length).toBeGreaterThan(0);
+    for (const l of lines) {
+      expect(l).toMatch(/\d{1,2}:\d{2} [AP]M MT \/ \d{1,2}:\d{2} [AP]M CT/);
+      expect(l).not.toContain('MST');
+    }
   });
 });
 
@@ -195,12 +200,12 @@ describe('Utah Life agents are never December’s learners (D-268)', () => {
     }
   });
 
-  it('every Overview and Cohort › People figure reads the same with eight active agents as with none', () => {
+  it('every Overview and Cohort › People figure reads the same with eight active agents as with none (D-268, D-270)', () => {
     const none = december(0).db;
     const { db } = december(8);
     const cohortId = db.cohorts[0]!.id;
-    expect(overviewR2VM(db, NOW, cohortId)).toEqual(overviewR2VM(none, NOW, cohortId));
-    expect(overviewVM(db, NOW, cohortId)).toEqual(overviewVM(none, NOW, cohortId));
+    // R-5 Phase 9 (D-270): the Overview's tiles, Needs You, Cohorts and Coming Up; People's own count is below.
+    expect(homeVM(home(db, cohortId))).toEqual(homeVM(home(none, cohortId)));
     expect(cohortPeopleVM(db, cohortId, NOW, null)).toEqual(cohortPeopleVM(none, cohortId, NOW, null));
     expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: '' }, cohortId)).toEqual(learnersR2VM(none, NOW, { tier: 'All tiers', q: '' }, cohortId));
     expect(areaCounts(db, 'cohort', cohortId, COUNTS)).toEqual(areaCounts(none, 'cohort', cohortId, COUNTS));

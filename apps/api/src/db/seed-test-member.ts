@@ -65,7 +65,10 @@ export interface SeedTestMemberInput {
   password: string;
   name: string;
   kind: SeedTestMemberKind | 'invalid';
-  /** R-5 Phase 4 (D-261): the cohort an Accelerator test team is placed in (`SEED_TEST_MEMBER_COHORT`); absent, December. */
+  /**
+   * R-5 Phase 4 (D-261): the cohort an Accelerator test team is placed in (`SEED_TEST_MEMBER_COHORT`); absent, the default
+   * cohort (`DEFAULT_COHORT_ID`). R-5 Phase 9 (D-270): a cohort named is kept as named, December's id included.
+   */
   cohortId?: string;
 }
 
@@ -88,7 +91,7 @@ export function readSeedTestMember(env: NodeJS.ProcessEnv = process.env): SeedTe
     password,
     name: name === undefined || name.trim() === '' ? 'Connor Test' : name.trim().slice(0, NAME_MAX),
     kind,
-    ...(cohortId !== '' && cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {}),
+    ...(cohortId !== '' ? { cohortId } : {}),
   };
 }
 
@@ -210,13 +213,15 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
  * count as a seat, with early access. An address that already has a user keeps its password and
  * gains only the flag and the enrollment it does not already have.
  */
-async function seedAccelerator(tx: Database, email: string, name: string, password: string, cohortId: string = DEFAULT_COHORT_ID): Promise<SeedTestMemberOutcome> {
+async function seedAccelerator(tx: Database, email: string, name: string, password: string, named?: string): Promise<SeedTestMemberOutcome> {
   const at = clock.now();
   const existing = await userByEmail(tx, email);
   if (existing?.kind === 'staff') return { status: 'skipped', reason: 'refused' };
-  // R-5 Phase 4 (D-261): another cohort is one the database holds, and an address already in a different cohort
-  // stays where it is: nothing is moved.
-  if (cohortId !== DEFAULT_COHORT_ID) {
+  // No cohort named: the default cohort, which a test database may not hold (D-261), so it is not looked for.
+  const cohortId = named ?? DEFAULT_COHORT_ID;
+  // R-5 Phase 4 (D-261): a cohort named is one the database holds, and an address already in a different cohort
+  // stays where it is: nothing is moved. R-5 Phase 9 (D-270): by whether one was named, not by which (PLAN § 10.10).
+  if (named !== undefined) {
     const [cohort] = await tx.select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
     if (!cohort) return { status: 'skipped', reason: 'cohort' };
     if (existing && existing.cohortId !== cohortId) return { status: 'skipped', reason: 'cohort' };
@@ -248,7 +253,7 @@ async function seedAccelerator(tx: Database, email: string, name: string, passwo
       outcome: 'ok',
       actor: { source: 'system', role: SEED_TEST_MEMBER_ACTOR },
       target: { type: 'user', id: user.id },
-      after: { email, kind: 'accelerator', ...(cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {}) },
+      after: { email, kind: 'accelerator', ...(named !== undefined ? { cohortId } : {}) },
     },
     tx,
   );

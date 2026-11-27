@@ -445,18 +445,6 @@ export const TIER_CARDS = [
   ],
 ] as const;
 
-/** The Overview's chart (`pts`): AI Employees deployed, cumulative, Dec 2 to Dec 8. */
-export const OVERVIEW_PTS = [22, 58, 96, 121, 150, 178, 190] as const;
-
-/** The Overview's funnel (`funnel`): module id, deployed, in progress, eligible. */
-export const OVERVIEW_FUNNEL = [
-  ['m1', 98, 22, 148],
-  ['m4', 52, 31, 148],
-  ['m3', 33, 6, 44],
-  ['m5', 17, 12, 44],
-  ['m6', 0, 0, 148],
-] as const;
-
 /** The Overview's Live activity: who, what, minutes before "now", tone. */
 export const OVERVIEW_ACTIVITY = [
   ['Sarah Collins', 'deployed Database AI Employee', 38, 'success'],
@@ -466,8 +454,6 @@ export const OVERVIEW_ACTIVITY = [
   ['Kenji Watanabe', 'requested a Team tier upgrade', 1108, 'warn'],
 ] as const;
 
-/** The Overview's "+6 in the last 24 hours". */
-export const OVERVIEW_RECENT = 6;
 
 /**
  * `AUDIT0` (R2-3b): the Audit Log's rows, newest first: time, actor, action, target, detail. Four of

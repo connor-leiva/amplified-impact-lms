@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Button } from '../../components/r2/Button';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
@@ -34,7 +34,16 @@ export function Component() {
   const gate = useConsoleGate('users');
   const navigate = useNavigate();
   const { toast, cohort } = useAdminChrome();
-  const [gotIn, setGotIn] = useState('');
+  // R-5 Phase 9 (D-270): the filter is in the address (`?gotIn=plan:cohort`), so the Overview's audience bar opens People
+  // filtered, and a filtered list can be linked to.
+  const [params, setParams] = useSearchParams();
+  const gotIn = (params.get('gotIn') ?? '').slice(0, 100);
+  const setGotIn = (key: string) => {
+    const next = new URLSearchParams(params);
+    if (key) next.set('gotIn', key);
+    else next.delete('gotIn');
+    setParams(next, { replace: true });
+  };
   const [text, setText] = useState('');
   const [exporting, setExporting] = useState(false);
   const q = useSettled(text);

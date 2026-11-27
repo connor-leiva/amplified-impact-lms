@@ -1,367 +1,142 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ZERO_BASE, phaseNow, seed, setViewerZone } from '@ai/core';
-import type { Db } from '@ai/core';
-import { overviewVM } from './Overview.vm';
+// R-5 Phase 9 (D-270): the Overview's view-model (`homeVM`), the mockup's `Home`. On the parity world (`parityDb('/admin')`,
+// the fixture's audiences and Revenue's figures) it prints the R2 reference's Overview, word for word (its pixels are
+// `pnpm parity:admin-r2`'s); elsewhere it prints only what the rows say, and "Unavailable", never a zero, for what it
+// could not read.
+import { describe, expect, it } from 'vitest';
+import { ZERO_BASE, seed } from '@ai/core';
+import type { CohortFacts, Db } from '@ai/core';
+import { parityDb } from '../../data/parity-r2-db';
+import { fixtureCohortFacts } from '../../data/fixture-cohort-facts';
+import { fixtureAudiences, fixtureRecords } from '../../data/console-fixture-records';
+import { fixtureRevenueSummary } from '../../data/console-fixture-billing';
+import { homeVM } from './Overview.vm';
+import type { HomeInput } from './Overview.vm';
 
-// Casey Lin's Overview at the demo instants. Every expectation is a LITERAL, generated once from
-// design-reference/Admin Overview.dc.html driven by design-reference/lms-data.js, then pinned
-// (phase 06 § 6.1). Recomputing them here would only prove the port agrees with itself.
-//
-// The point of most of these numbers is `db.base` — the aggregate for the 134 learners the fixture
-// does not model (phase 06 § 6.2). `148` is `134 + 14`, `98` deployed Marketing builds is `88 + 10`,
-// and the chart's `190` is `base.daily[6] = 171` plus the 19 modelled deployments. The ZERO_BASE
-// block at the bottom is the same code reading what the API returns in http mode, which is how we
-// know the baseline is added rather than hard-coded.
+const NOW = Date.parse('2026-12-10T16:30:00.000Z');
+const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 0, failed: 3 };
+const OPEN = { program: true, cohort: true, people: true, revenue: true };
 
-const WEEK0 = phaseNow('week0'); // Fri 2026-11-27 10:42 CT
-const WEEK2 = phaseNow('live'); // Mon 2026-12-07 10:42 CT
+function parity(over: Partial<HomeInput> = {}): HomeInput {
+  const db = parityDb('/admin');
+  const facts: Record<string, CohortFacts> = Object.fromEntries(db.cohorts.map((c) => [c.id, fixtureCohortFacts(db, c.id)]));
+  return {
+    db,
+    now: NOW,
+    cohortId: 'dec26',
+    open: OPEN,
+    facts,
+    waiting: { dec26: 0 },
+    audiences: fixtureAudiences(fixtureRecords()),
+    revenue: fixtureRevenueSummary(NOW, 'all', db.cohorts.map((c) => ({ id: c.id, capacity: c.capacity }))),
+    counts: COUNTS,
+    canBilling: true,
+    canPlans: true,
+    ...over,
+  };
+}
 
-/** The same snapshot the API hands back: no unmodelled learners at all. */
-const zeroBase = (db: Db): Db => ({ ...db, base: ZERO_BASE });
+describe('homeVM on the parity world: the R2 reference’s Overview (D-270)', () => {
+  const vm = homeVM(parity());
 
-describe('overviewVM @g6', () => {
-  // `fmt.date` and `fmt.ago` read the viewer zone, so pin it: `Dec 9` must not depend on the
-  // machine running the test.
-  beforeAll(() => setViewerZone('America/Chicago'));
-  afterAll(() => setViewerZone(null));
-
-  describe('Week 2 · the parity instant', () => {
-    const vm = overviewVM(seed('live'), WEEK2);
-
-    it('reads the cohort line and the live-activity note', () => {
-      expect(vm.subline).toBe('December 2026 Cohort · Week 2 of 6 · Updated Live from Learner Activity');
-    });
-
-    it('counts 148 learners: the 134 in the baseline plus the 14 modelled seats', () => {
-      expect(vm.kpis[0]).toEqual({
-        key: 'learners',
-        label: 'Active Learners',
-        value: '148',
-        sub: '104 Agent · 44 Team seats',
-        subTone: 'tertiary',
-      });
-    });
-
-    it('counts 190 deployments and the 6 from the last 24 hours, in the success colour', () => {
-      expect(vm.kpis[1]).toEqual({
-        key: 'deployed',
-        label: 'AI Employees Deployed',
-        value: '190',
-        sub: '+6 in the last 24 hours',
-        subTone: 'success',
-      });
-    });
-
-    it('divides the 190 deployments by the 576 builds available', () => {
-      expect(vm.kpis[2]).toEqual({
-        key: 'completion',
-        label: 'Build Completion',
-        value: '33%',
-        sub: 'Deployed ÷ builds available',
-        subTone: 'tertiary',
-      });
-    });
-
-    it('reads attendance off the last held session, against all 148 learners', () => {
-      expect(vm.kpis[3]).toEqual({
-        key: 'attendance',
-        label: 'Live Attendance',
-        value: '74%',
-        sub: 'Session 2 · 109 attended',
-        subTone: 'tertiary',
-      });
-    });
-
-    it('prices the two open upgrade requests at the uplift each, and turns the sub amber', () => {
-      expect(vm.kpis[4]).toEqual({
-        key: 'pipeline',
-        label: 'Upgrade Pipeline',
-        value: '$8,000',
-        sub: '2 open requests · Agent → Team',
-        subTone: 'locked',
-      });
-    });
-
-    it('adds base.mod to every funnel row, in curriculum order', () => {
-      expect(vm.funnel).toEqual([
-        {
-          key: 'marketing',
-          name: 'Marketing',
-          icon: 'megaphone',
-          team: false,
-          d: '98',
-          n: '148',
-          pct: '66%',
-          wd: '66.21621621621621%',
-          wp: '19.594594594594593%',
-        },
-        {
-          key: 'sales',
-          name: 'Sales',
-          icon: 'zap',
-          team: false,
-          d: '58',
-          n: '148',
-          pct: '39%',
-          wd: '39.189189189189186%',
-          wp: '28.37837837837838%',
-        },
-        {
-          key: 'database',
-          name: 'Database',
-          icon: 'database',
-          team: false,
-          d: '24',
-          n: '148',
-          pct: '16%',
-          wd: '16.216216216216218%',
-          wp: '20.945945945945947%',
-        },
-        {
-          key: 'meetings',
-          name: 'Meetings',
-          icon: 'mic',
-          team: true,
-          d: '8',
-          n: '44',
-          pct: '18%',
-          wd: '18.181818181818183%',
-          wp: '22.727272727272727%',
-        },
-        {
-          key: 'finance',
-          name: 'Finance',
-          icon: 'dollar',
-          team: true,
-          d: '2',
-          n: '44',
-          pct: '5%',
-          wd: '4.545454545454546%',
-          wp: '11.363636363636363%',
-        },
-        {
-          key: 'operations',
-          name: 'Operations',
-          icon: 'workflow',
-          team: true,
-          d: '0',
-          n: '44',
-          pct: '0%',
-          wd: '0%',
-          wp: '0%',
-        },
-      ]);
-    });
-
-    it('sizes a team-tier funnel row against the 44 team seats, not the 148 learners', () => {
-      expect(vm.funnel.filter((f) => f.team).map((f) => f.n)).toEqual(['44', '44', '44']);
-    });
-
-    it('plots one point per day from Dec 1, each base.daily plus the deployments by that evening', () => {
-      // base.daily = [0, 41, 78, 102, 131, 158, 171]; modelled cumulative = [4, 9, 12, 13, 13, 16, 19].
-      expect(vm.chart.delta).toBe('190 total');
-      expect(vm.chart.labels).toEqual(['Dec 1', 'Dec 2', 'Dec 3', 'Dec 4', 'Dec 5', 'Dec 6', 'Dec 7']);
-      expect(vm.chart.line).toBe(
-        'M0.0 196.2 L100.0 152.5 L200.0 114.5 L300.0 90.8 L400.0 63.2 L500.0 34.7 L600.0 19.5',
-      );
-    });
-
-    it('closes the area down the baseline and puts the grid at 25, 50 and 75 percent', () => {
-      expect(vm.chart.area).toBe(`${vm.chart.line} L600 200 L0 200 Z`);
-      expect(vm.chart.grid).toEqual([152.5, 105, 57.5]);
-    });
-
-    it('lists the six activity events newest first, with their tones and relative times', () => {
-      expect(vm.feed).toEqual([
-        { key: 'e1', who: 'Sarah Collins', what: 'deployed Database AI Employee', ago: '38 min ago', tone: 'success' },
-        { key: 'e2', who: 'Rosa Delgado', what: 'deployed Database AI Employee', ago: '2 hours ago', tone: 'success' },
-        { key: 'e3', who: 'Natasha Reed', what: 'deployed Meetings AI Employee', ago: '2 hours ago', tone: 'success' },
-        { key: 'e4', who: 'Devon Price', what: 'deployed Sales AI Employee', ago: '14 hours ago', tone: 'success' },
-        { key: 'e5', who: 'Kenji Watanabe', what: 'requested a Team tier upgrade', ago: '18 hours ago', tone: 'warn' },
-        { key: 'e6', who: 'Casey Lin', what: 'moved Session 3 to Wed Dec 9', ago: '19 hours ago', tone: 'info' },
-      ]);
-    });
-
-    it('bars the two held sessions against all 148 learners and dashes the four to come', () => {
-      expect(vm.att).toEqual([
-        { key: 'dec26-s1', n: 1, label: '82%', title: 'Session 1 · The Autonomous Agent', h: '82%', held: true },
-        { key: 'dec26-s2', n: 2, label: '74%', title: 'Session 2 · Speed to Lead', h: '74%', held: true },
-        { key: 'dec26-s3', n: 3, label: 'Dec 9', title: 'Session 3 · The Living Database', h: '18%', held: false },
-        {
-          key: 'dec26-s4',
-          n: 4,
-          label: 'Dec 10',
-          title: 'Session 4 · The Meeting That Runs Itself',
-          h: '18%',
-          held: false,
-        },
-        { key: 'dec26-s5', n: 5, label: 'Dec 15', title: 'Session 5 · Numbers on Autopilot', h: '18%', held: false },
-        { key: 'dec26-s6', n: 6, label: 'Dec 17', title: 'Session 6 · Contract to Close', h: '18%', held: false },
-      ]);
-    });
-
-    it('footnotes only the sessions with replay views', () => {
-      expect(vm.replayViews).toBe('S1 312 · S2 188');
-    });
-
-    it('flags the two learners who have started nothing, and only those two', () => {
-      expect(vm.noRisk).toBe(false);
-      expect(vm.risk).toEqual([
-        {
-          id: 'u_lena',
-          name: 'Lena Brooks',
-          sub: 'Team Tier · Northline Realty Team · last active 1 week ago',
-          reason: 'No build started',
-          first: true,
-          btn: 'Send nudge',
-          nudged: false,
-        },
-        {
-          id: 'u_omar',
-          name: 'Omar Haddad',
-          sub: 'Agent Tier · last active 1 week ago',
-          reason: 'No build started',
-          first: false,
-          btn: 'Send nudge',
-          nudged: false,
-        },
-      ]);
-      expect(vm.nudgeAllIds).toEqual(['u_lena', 'u_omar']);
-    });
-
-    it('reports a learner who has built something but gone quiet as inactive instead', () => {
-      const db = seed('live');
-      db.users.find((u) => u.id === 'u_ben')!.last = WEEK2 - 6 * 86400000;
-      const row = overviewVM(db, WEEK2).risk.find((r) => r.id === 'u_ben');
-      expect(row?.reason).toBe('Inactive 5+ days');
-      expect(row?.sub).toBe('Agent Tier · last active 6 days ago');
-    });
-
-    it('turns a nudged row into its relative time', () => {
-      const db = seed('live');
-      db.users.find((u) => u.id === 'u_lena')!.nudged = WEEK2 - 3600000;
-      const row = overviewVM(db, WEEK2).risk[0]!;
-      expect(row.btn).toBe('Nudged 1 hour ago');
-      expect(row.nudged).toBe(true);
-    });
-
-    it('says everyone is moving when nothing is at risk', () => {
-      const db = seed('live');
-      db.users = db.users.filter((u) => u.id !== 'u_lena' && u.id !== 'u_omar');
-      const quiet = overviewVM(db, WEEK2);
-      expect(quiet.risk).toEqual([]);
-      expect(quiet.noRisk).toBe(true);
-      expect(quiet.nudgeAllIds).toEqual([]);
-    });
-
-    it('exports the funnel with the baseline folded in, one row per AI Employee', () => {
-      expect(vm.report.name).toBe('cohort-report-dec-2026.csv');
-      expect(vm.report.mime).toBe('text/csv');
-      expect(vm.report.toast).toBe('Cohort report exported');
-      expect(vm.report.content.split('\n')).toEqual([
-        '"AI Employee","Deployed","In progress","Eligible learners"',
-        '"Marketing AI Employee","98","29","148"',
-        '"Sales AI Employee","58","42","148"',
-        '"Database AI Employee","24","31","148"',
-        '"Meetings AI Employee","8","10","44"',
-        '"Finance AI Employee","2","5","44"',
-        '"Operations AI Employee","0","0","44"',
-      ]);
-    });
-
-    it('sends New AI Employee to the builder', () => {
-      expect(vm.newEmployeeTo).toBe('/admin/program/weeks/new');
-    });
+  it('draws four tiles, each opening its page', () => {
+    expect(vm.tiles.map((t) => [t.label, t.value, t.line, t.to])).toEqual([
+      ['Program', 'AI Accelerator', '9 weeks · 3 published, 6 in draft', '/admin/program'],
+      ['Cohort', 'December 2026', 'Week 2 of 2 · 1 of 200 seats', '/admin/cohort/dec26'],
+      ['People', '16 with a sign-in', '1 in the cohort · 8 Utah Life, kept apart', '/admin/people'],
+      ['Revenue', '$82,694 collected', '$7,500 still to collect · $12,429 a month', '/admin/revenue'],
+    ]);
   });
 
-  describe('Week 0 · nothing held, nothing built', () => {
-    const vm = overviewVM(seed('week0'), WEEK0);
-
-    it('says the cohort has not started, and still counts the 148 enrolled seats', () => {
-      expect(vm.subline).toBe('December 2026 Cohort · Starts Dec 1 · Updated Live from Learner Activity');
-      expect(vm.kpis.map((k) => [k.label, k.value, k.sub])).toEqual([
-        ['Active Learners', '148', '104 Agent · 44 Team seats'],
-        ['AI Employees Deployed', '0', '+0 in the last 24 hours'],
-        ['Build Completion', '0%', 'Deployed ÷ builds available'],
-        ['Live Attendance', '—', 'No sessions yet'],
-        ['Upgrade Pipeline', '$0', '0 open requests · Agent → Team'],
-      ]);
-      expect(vm.kpis[4]!.subTone).toBe('tertiary');
-    });
-
-    it('keeps the eligible pools at 148 and 44 while every build sits at zero', () => {
-      expect(vm.funnel.map((f) => [f.n, f.pct, f.wd])).toEqual([
-        ['148', '0%', '0%'],
-        ['148', '0%', '0%'],
-        ['148', '0%', '0%'],
-        ['44', '0%', '0%'],
-        ['44', '0%', '0%'],
-        ['44', '0%', '0%'],
-      ]);
-    });
-
-    it('still draws seven days, flat on the baseline, before the cohort opens', () => {
-      expect(vm.chart.delta).toBe('0 total');
-      expect(vm.chart.labels).toHaveLength(7);
-      expect(vm.chart.line).toBe(
-        'M0.0 200.0 L100.0 200.0 L200.0 200.0 L300.0 200.0 L400.0 200.0 L500.0 200.0 L600.0 200.0',
-      );
-    });
-
-    it('dashes all six sessions and has no replay views', () => {
-      expect(vm.att.map((a) => [a.label, a.held])).toEqual([
-        ['Dec 1', false],
-        ['Dec 3', false],
-        ['Dec 8', false],
-        ['Dec 10', false],
-        ['Dec 15', false],
-        ['Dec 17', false],
-      ]);
-      expect(vm.replayViews).toBe('—');
-    });
-
-    it('flags every learner, because nobody has started', () => {
-      expect(vm.risk).toHaveLength(14);
-      expect(vm.risk.every((r) => r.reason === 'No build started')).toBe(true);
-      expect(vm.risk.filter((r) => r.first)).toHaveLength(1);
-    });
+  it('groups Needs You by cohort, in start order, then payments and the system, each row opening its place', () => {
+    expect(vm.needs.groups.map((g) => [g.label, g.rows.map((r) => r.title)])).toEqual([
+      ['December 2026 Cohort', ['5 sessions have no Zoom link']],
+      [
+        'January 2027 Cohort · Draft',
+        ['Sessions', 'Zoom links', 'Week 0 due date', 'Stripe price found for each lookup key', 'Payment Links entered', 'Words learners see', 'Test emails sent', 'Open enrollment'],
+      ],
+      ['Payments and system', ['3 payments failed', '2 teams asked to move up a plan', '1 incident is open']],
+    ]);
+    expect(vm.needs.total).toBe(12);
+    const system = vm.needs.groups[2]!.rows;
+    expect(system.map((r) => [r.detail, r.to])).toEqual([
+      ['Stripe is retrying one. Two need a new card.', '/admin/revenue/payments/failed'],
+      ['From Kenji Watanabe and Jordan Hale.', '/admin/revenue/plans'],
+      ['Open it in Operations.', '/admin/incidents'],
+    ]);
+    expect(vm.needs.groups[0]!.rows[0]).toMatchObject({ detail: 'The next one without a link is Thu, Dec 10.', to: '/admin/cohort/dec26/schedule' });
+    expect(vm.needs.groups[1]!.rows[0]).toMatchObject({ detail: '12 on the calendar. 1 are at the same time as December’s office hours.', to: '/admin/cohort/jan27/schedule' });
   });
 
-  describe('http mode · the API returns ZERO_BASE', () => {
-    const vm = overviewVM(zeroBase(seed('live')), WEEK2);
+  it('draws who has a sign-in, each segment opening People filtered', () => {
+    expect(vm.audience!.line).toBe('16 people, each counted once. Utah Life agents are kept out of the learner count and out of revenue.');
+    expect(vm.audience!.segments.map((s) => [s.label, s.count, s.to])).toEqual([
+      ['AI Accelerator', 1, '/admin/people?gotIn=plan%3Acohort'],
+      ['Team Plan', 5, '/admin/people?gotIn=plan%3Aagents'],
+      ['Agent Plan', 1, '/admin/people?gotIn=plan%3Aagent_plan'],
+      ['Insiders', 1, '/admin/people?gotIn=plan%3Amembership'],
+      ['Utah Life', 8, '/admin/people?gotIn=group%3Autah-life'],
+    ]);
+  });
 
-    it('falls back to the modelled learners alone, with no branch in the model', () => {
-      expect(vm.kpis.map((k) => [k.label, k.value, k.sub])).toEqual([
-        ['Active Learners', '14', '5 Agent · 9 Team seats'],
-        ['AI Employees Deployed', '19', '+6 in the last 24 hours'],
-        ['Build Completion', '28%', 'Deployed ÷ builds available'],
-        ['Live Attendance', '779%', 'Session 2 · 109 attended'],
-        ['Upgrade Pipeline', '$8,000', '2 open requests · Agent → Team'],
-      ]);
-    });
+  it('lists the cohorts and what is coming up across them, every time in MT and CT', () => {
+    expect(vm.cohorts.map((c) => [c.name, c.line, c.status])).toEqual([
+      ['December 2026 Cohort', '2 weeks · twice a week · opens Sun, Nov 29', 'Active'],
+      ['January 2027 Cohort', '6 weeks · twice a week · opens Sun, Dec 27', 'Draft'],
+    ]);
+    expect(vm.coming.map((c) => [c.day, c.mon, c.line, c.flag])).toEqual([
+      ['10', 'Dec', 'Thu · 12:00 PM MT / 1:00 PM CT · December 2026', 'No link'],
+      ['16', 'Dec', 'Wed · 12:00 PM MT / 1:00 PM CT · December 2026', 'No link'],
+      ['5', 'Jan', 'Tue · 12:00 PM MT / 1:00 PM CT · January 2027', 'No link'],
+      ['7', 'Jan', 'Thu · 12:00 PM MT / 1:00 PM CT · January 2027', 'No link'],
+    ]);
+    expect(vm.schedule).toBe('/admin/cohort/dec26/schedule');
+  });
+});
 
-    it('sizes each funnel row by its eligible pool once base.mod is empty', () => {
-      expect(vm.funnel.map((f) => [f.name, f.d, f.n, f.pct])).toEqual([
-        ['Marketing', '10', '14', '71%'],
-        ['Sales', '4', '14', '29%'],
-        ['Database', '3', '14', '21%'],
-        ['Meetings', '2', '9', '22%'],
-        ['Finance', '0', '9', '0%'],
-        ['Operations', '0', '9', '0%'],
-      ]);
-    });
+describe('homeVM: what it could not read, who may see what, and archived cohorts (D-270)', () => {
+  it('says "Unavailable", never a zero, when Stripe or People can’t be read', () => {
+    const vm = homeVM(parity({ revenue: null, audiences: null }));
+    expect(vm.tiles.find((t) => t.key === 'revenue')).toMatchObject({ value: 'Unavailable', line: '' });
+    expect(vm.tiles.find((t) => t.key === 'people')).toMatchObject({ value: 'Unavailable', line: '1 in the cohort' });
+    expect(vm.audience).toBeNull();
+    // Failed payments then read the sidebar's count, from what Billing holds in memory.
+    expect(vm.needs.groups.at(-1)!.rows[0]).toMatchObject({ title: '3 payments failed', detail: 'They need a new card.' });
+  });
 
-    it('rescales the chart to the 19 modelled deployments', () => {
-      expect(vm.chart.delta).toBe('19 total');
-      expect(vm.chart.line).toBe(
-        'M0.0 184.8 L100.0 165.8 L200.0 154.4 L300.0 150.6 L400.0 150.6 L500.0 139.2 L600.0 127.8',
-      );
-    });
+  it('draws only the tiles and rows the role may open', () => {
+    const vm = homeVM(parity({ open: { program: true, cohort: false, people: false, revenue: false }, canBilling: false, canPlans: false }));
+    expect(vm.tiles.map((t) => t.key)).toEqual(['program']);
+    expect(vm.needs.groups.map((g) => g.label)).toEqual(['Payments and system']);
+    expect(vm.needs.groups[0]!.rows.map((r) => r.key)).toEqual(['incidents']);
+    expect(vm.audience).toBeNull();
+  });
 
-    it('leaves the parts that never involved the baseline untouched', () => {
-      expect(vm.replayViews).toBe('S1 312 · S2 188');
-      expect(vm.nudgeAllIds).toEqual(['u_lena', 'u_omar']);
-      expect(vm.feed).toHaveLength(6);
-    });
+  it('a draft cohort the admin is on reads how much is left before it opens', () => {
+    const vm = homeVM(parity({ cohortId: 'jan27' }));
+    expect(vm.tiles.find((t) => t.key === 'cohort')).toMatchObject({ value: 'January 2027', line: 'Draft · 8 left before it opens', to: '/admin/cohort/jan27' });
+  });
+
+  it('an archived cohort is in no group, list or line', () => {
+    const p = parity();
+    const db: Db = { ...p.db, cohorts: p.db.cohorts.map((c) => (c.id === 'jan27' ? { ...c, archivedAt: NOW - 1 } : c)) };
+    const vm = homeVM({ ...p, db });
+    expect(vm.cohorts.map((c) => c.id)).toEqual(['dec26']);
+    expect(vm.needs.groups.map((g) => g.label)).toEqual(['December 2026 Cohort', 'Payments and system']);
+    expect(vm.coming.every((c) => !c.line.includes('January'))).toBe(true);
+  });
+
+  it('on the API’s snapshot (ZERO_BASE, no roster) prints only what the rows say', () => {
+    const db: Db = { ...seed('live'), base: { ...ZERO_BASE }, roster: {} };
+    const vm = homeVM({ ...parity(), db, cohortId: db.cohorts[0]!.id, facts: null, audiences: null, revenue: null, counts: { ...COUNTS, failed: 0, incidents: 0 } });
+    expect(vm.tiles.find((t) => t.key === 'cohort')!.line).toContain(`0 of ${db.cohorts[0]!.capacity} seats`);
+    expect(vm.tiles.find((t) => t.key === 'people')!.line).toBe('0 in the cohort');
+  });
+
+  it('a Stripe line whose keys are entered says where Stripe’s answer is, as the Overview reads no Stripe', () => {
+    const p = parity();
+    const db: Db = { ...p.db, cohorts: p.db.cohorts.map((c) => (c.id === 'jan27' ? { ...c, lookupKeyFull: 'jan_full', lookupKeyRollover: 'jan_roll', twoPay: false } : c)) };
+    const facts = { ...p.facts!, jan27: { ...p.facts!.jan27!, stripe: undefined } };
+    const row = homeVM({ ...p, db, facts }).needs.groups[1]!.rows.find((r) => r.key === 'jan27:stripe')!;
+    expect(row.detail).toBe('Entered. What Stripe says is on the cohort’s Settings.');
   });
 });

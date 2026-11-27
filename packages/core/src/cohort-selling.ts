@@ -288,12 +288,15 @@ export const NO_KEYS = 'None yet. Prices and Payment Links are made in Stripe.';
  * payments' when offered) has an active price in Stripe. Done, it reads the mockup's line with Stripe's amount:
  * "$7,500, or two payments · 15 seats".
  */
+/** A Stripe line's detail when Stripe was not read (no key, Stripe failing, or a read that did not ask it: the Overview). */
+export const STRIPE_UNASKED = 'Stripe can’t be asked right now. Try again in a minute.';
+
 export function stripePriceLine(s: CohortSelling, stripe: CohortStripeFacts | null | undefined): SellingLine {
   const needed = cohortKeysNeeded(s);
   if (needed.every((k) => !k.key)) return { detail: NO_KEYS, done: false };
   const missing = needed.filter((k) => !k.key).map((k) => k.label);
   if (missing.length) return { detail: `Not entered: ${missing.join(' and ')}`, done: false };
-  if (!stripe || stripe.prices !== 'ok') return { detail: 'Stripe can’t be asked right now. Try again in a minute.', done: false };
+  if (!stripe || stripe.prices !== 'ok') return { detail: STRIPE_UNASKED, done: false };
   const lost = needed.filter((k) => !stripe.price[k.key!]).map((k) => k.key!);
   if (lost.length) return { detail: `Not found in Stripe: ${lost.join(', ')}`, done: false };
   const full = stripe.price[s.keys.full!]!;
@@ -314,7 +317,7 @@ export function paymentLinksLine(s: CohortSelling, stripe: CohortStripeFacts | n
   if (needed.every((l) => !l.url)) return { detail: 'None yet', done: false };
   const missing = needed.filter((l) => !l.url).map((l) => l.label);
   if (missing.length) return { detail: `Not entered: ${missing.join(' and ')}`, done: false };
-  if (!stripe || stripe.links === 'unavailable') return { detail: 'Stripe can’t be asked right now. Try again in a minute.', done: false };
+  if (!stripe || stripe.links === 'unavailable') return { detail: STRIPE_UNASKED, done: false };
   if (stripe.links === 'unreadable')
     return { detail: 'Entered. Stripe won’t let this key read Payment Links: give it Payment Links: Read.', done: false };
   const lost = needed.filter((l) => !stripe.link[l.url!]).map((l) => l.label);

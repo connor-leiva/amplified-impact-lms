@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { avatarColor, can, consoleCan, fmt, nextSession } from '@ai/core';
+import { avatarColor, can, cohortStatusWord, consoleCan, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
 // D-239: the sidebar's travel reads the brand's motion tokens (--aim-dur-*, --aim-ease*), defined on :root here.
@@ -390,6 +390,10 @@ export function AdminShell() {
             pages={navPages(navRole, data.fullNav, cohortId ?? '', db.groups ?? [])}
             cohortId={cohortId ?? ''}
             modules={db.modules.map((m) => ({ id: m.id, name: m.name, status: m.status }))}
+            cohorts={cohortChoices(db.cohorts, null).map((x) => {
+              const co = db.cohorts.find((y) => y.id === x.id)!;
+              return { id: co.id, label: cohortLabel(co), status: cohortStatusWord(db, co.id, now) };
+            })}
             phone={band === 'phone'}
             go={go}
             onClose={() => setPaletteOpen(false)}

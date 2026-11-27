@@ -186,7 +186,6 @@ export const ROLLOVER_LOOKUP = 'membership_monthly_team_leader' as const;
 export const COHORT_ONE = {
   id: 'dec26',
   firstBuildAt: Date.parse('2026-12-02T13:00:00-06:00'),
-  lastBuildAt: Date.parse('2027-02-03T13:00:00-06:00'),
   afterDays: 90,
 } as const;
 /** When cohort one's 90 included days end and Amplified Insiders begins: the start of May 4, 2027, Central. */

@@ -68,8 +68,8 @@ export function courseOpensAt(cohortId: string, sessions: readonly Pick<Session,
   return Number.isFinite(at) || cohortId !== DEFAULT_COHORT_ID ? at : COURSE_OPENS_AT;
 }
 
-export const buildSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-s${week}`;
-export const officeHoursSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-oh${week}`;
+export const buildSessionId = (week: number): string => `${DEFAULT_COHORT_ID}-s${week}`;
+export const officeHoursSessionId = (week: number): string => `${DEFAULT_COHORT_ID}-oh${week}`;
 /** An office hour's `n`: a second series, never equal to a module's `session` (1 to 8). */
 export const officeHoursN = (week: number): number => 100 + week;
 
