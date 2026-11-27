@@ -74,7 +74,7 @@ test.describe('selling a seat in a cohort (D-262) @g9 @console', () => {
 
     // Refused, with its reason, in the dialog: the first of Before It Opens not done.
     await card(page).getByRole('button', { name: 'Open enrollment' }).click();
-    const opening = page.getByRole('dialog', { name: 'Open enrollment for the January 2027 Cohort?' });
+    const opening = page.getByRole('dialog', { name: 'Open Enrollment for the January 2027 Cohort?' });
     await expect(opening.getByText('From now on, a team that buys a seat is placed in this cohort, up to 15 seats. They get the welcome email and can start the setup week on Sun, Dec 27.')).toBeVisible();
     await expect(opening.getByRole('alert')).toHaveText('Stripe price found for each lookup key: None yet. Prices and Payment Links are made in Stripe.');
     await expectAccessible(page);
@@ -141,7 +141,7 @@ test.describe('selling a seat in a cohort (D-262) @g9 @console', () => {
 
     // Close enrollment: no new sales; the teams already in are not affected.
     await card(page).getByRole('button', { name: 'Close enrollment' }).click();
-    const closing = page.getByRole('dialog', { name: 'Close enrollment for the January 2027 Cohort?' });
+    const closing = page.getByRole('dialog', { name: 'Close Enrollment for the January 2027 Cohort?' });
     await expect(closing.getByText('No new team can buy a seat in this cohort. The 0 already in it are not affected.')).toBeVisible();
     await expectAccessible(page);
     await closing.getByRole('button', { name: 'Close enrollment' }).click();
@@ -161,7 +161,7 @@ test.describe('selling a seat in a cohort (D-262) @g9 @console', () => {
       for (const [button, dialog] of [
         [/^(Set|Change) the price$/, /^Price for a Seat in the /],
         ['Edit enrollment', /^Enrollment for the /],
-        [/^(Open|Close) enrollment$/, /^(Open|Close) enrollment for the /],
+        [/^(Open|Close) enrollment$/, /^(Open|Close) Enrollment for the /],
       ] as const) {
         await card(page).getByRole('button', { name: button }).click();
         const d = page.getByRole('dialog', { name: dialog });

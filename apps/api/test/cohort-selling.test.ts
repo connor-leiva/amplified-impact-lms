@@ -358,6 +358,38 @@ describe('Done when: a checkout names its cohort', () => {
     expect(logs).toContain('a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up');
   });
 
+  it('Close enrollment writes nothing to Stripe: a live link stays on, and a link the cap turned off is not turned back on', async () => {
+    await readyJanuary();
+    expect((await act('st_owner', 'openCohortEnrollment', { cohortId: jan })).statusCode).toBe(200);
+    // A cap of 1: the first sale fills it, and the cap turns January's links off (D-154's switch, before any Close).
+    expect(
+      (await act('st_owner', 'saveCohortEnrollment', { cohortId: jan, founding: true, foundingCloses: { date: '2026-12-31', time: '23:59' }, linkFull: JAN_LINKS.full, linkTwoPay: JAN_LINKS.twoPay, capacity: 1, ghlValue: 'jan27' })).statusCode,
+    ).toBe(200);
+    expect(await handleStripeEvent(event('checkout.session.completed', session('capped', 'full', jan)), deps())).toBe('paid');
+    expect(fake.links.get('plink_jan_full')!.active).toBe(false);
+    const linkWrites = () => fake.writes.filter((w) => w.call === 'paymentLinks.update').length;
+    const before = { all: fake.writes.length, links: linkWrites() };
+
+    // Close: a status change on the cohort, and not one call to Stripe.
+    const closed = await act('st_owner', 'closeCohortEnrollment', { cohortId: jan });
+    expect(closed.statusCode, closed.body).toBe(200);
+    expect(fake.writes.length).toBe(before.all);
+
+    // A refund frees the seat after Close: the cap holds January's links off, as Close left them.
+    const [seat] = await handle.select({ id: plans.id }).from(plans).where(eq(plans.cohortId, jan));
+    await handle.update(plans).set({ status: 'ended' }).where(eq(plans.id, seat!.id));
+    const after = await reconcileCohortSeats({ stripe: fake.client, config, now: NOV27 + 10 * 60_000, log, db: handle });
+    expect(after.find((r) => r.cohortId === jan)!.outcome!.links.map((l) => l.action)).toEqual(['held-off', 'held-off']);
+    expect(linkWrites()).toBe(before.links);
+    expect(fake.links.get('plink_jan_full')!.active).toBe(false);
+
+    // A link someone turned back on by hand in Stripe stays on: Close and the cap leave it as it is.
+    fake.links.set('plink_jan_full', { ...fake.links.get('plink_jan_full')!, active: true, metadata: { ai_plan: 'cohort', ai_option: 'full', ai_cohort: jan } });
+    const later = await reconcileCohortSeats({ stripe: fake.client, config, now: NOV27 + 20 * 60_000, log, db: handle });
+    expect(later.find((r) => r.cohortId === jan)!.outcome!.links.map((l) => l.action)).toEqual(['on', 'held-off']);
+    expect(linkWrites()).toBe(before.links);
+  });
+
   it('an ai_cohort the database does not hold is recorded and paid, not provisioned, for Connor', async () => {
     const res = await deliver('checkout.session.completed', session('lost', 'full', 'c_nope'));
     expect(res.statusCode).toBe(200);

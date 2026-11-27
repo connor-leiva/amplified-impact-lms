@@ -205,7 +205,7 @@ export function Component() {
       {open === 'enroll' ? <EnrollmentDialog cohortId={cohortId} onClose={() => setOpen(null)} /> : null}
       {open === 'open' ? (
         <Confirm
-          title={`Open enrollment for the ${cohortLabel(co)}?`}
+          title={`Open Enrollment for the ${cohortLabel(co)}?`}
           body={openEnrollmentBody(db, cohortId)}
           cta="Open enrollment"
           keepOpen
@@ -217,7 +217,7 @@ export function Component() {
       ) : null}
       {open === 'close' ? (
         <Confirm
-          title={`Close enrollment for the ${cohortLabel(co)}?`}
+          title={`Close Enrollment for the ${cohortLabel(co)}?`}
           body={`No new team can buy a seat in this cohort. The ${facts?.teams ?? 0} already in it are not affected.`}
           cta="Close enrollment"
           keepOpen
