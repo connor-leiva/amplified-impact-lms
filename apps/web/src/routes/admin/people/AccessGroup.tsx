@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { Page } from '../../../components/r2/Page';
 import { Table } from '../../../components/r2/Table';
 import type { Column } from '../../../components/r2/Table';
-import { Find, PageHead, Two, k } from '../../../components/r2/kit';
+import { Find, PageHead, Two, k, Stamp } from '../../../components/r2/kit';
 import { useDb } from '../../../data/hooks';
 import { personPath } from '../../../shell/admin/addresses';
 import { NotFound } from '../../console/Denied';
@@ -32,7 +32,14 @@ export function Component() {
       value: (r) => r.name,
       cell: (r) => <Two a={r.name} b={r.email} />,
     },
-    { key: 'last', label: C.last, width: '170px', noSort: true, value: (r) => r.lastAt, cell: (r) => r.last },
+    {
+      key: 'last',
+      label: C.last,
+      width: '170px',
+      noSort: true,
+      value: (r) => r.lastAt,
+      cell: (r) => <Stamp v={r.last} two />,
+    },
   ];
 
   return (

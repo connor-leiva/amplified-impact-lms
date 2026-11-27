@@ -193,7 +193,9 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .fig{font:600 24px/32px Geist,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .fx{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);overflow:hidden}
 .fx>div{background:var(--sf);padding:12px 20px;display:flex;flex-direction:column;gap:2px;flex:1 0 auto;max-width:100%;white-space:nowrap}
-.ph .fx{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.ph .fx>div{padding:12px 10px 12px 12px;min-width:0}.ph .fx>div>span:last-child{font-size:15px}.ph .fx>div>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}.ph .fx>div:last-child:nth-child(odd),.ph .fx>div.fxw{grid-column:1/-1}
+.ph .fx{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.ph .fx>div{padding:12px 10px 12px 12px;min-width:0}.ph .fx>div>span:last-child{font-size:15px}.ph .fx>div>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+/* D-267: a key fact's stamp on a phone, two lines at the phone floor, 16px (D-160's decision A) */
+.ph .tzp>span{display:block;overflow:hidden;text-overflow:ellipsis;font-size:16px}.ph .fx>div:last-child:nth-child(odd),.ph .fx>div.fxw{grid-column:1/-1}
 .kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 16px;margin:0}
 .kv dt{color:var(--f3)}.kv dd{margin:0;min-width:0;overflow-wrap:break-word}
 .ph .kv,.kvs .kv{grid-template-columns:minmax(0,1fr);gap:2px}.ph .kv dd,.kvs .kv dd{margin-bottom:10px}
@@ -368,7 +370,7 @@ const P = {
 Object.assign(P, { program: P.curriculum, cohort: P.cohorts, people: P.users, revenue: P.usage });
 const I = ({ n, s = 16, w }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w || (n === 'more' || n === 'grip' ? 2.6 : 1.75)} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none' }}><path d={P[n] || P.file} /></svg>;
 
-/* ---------- sample data (fictional; "today" is Thu, Dec 10, 2026, MT) ---------- */
+/* ---------- sample data (fictional; "today" is Thu, Dec 10, 2026, MT; every time in MT with CT after it, D-267) ---------- */
 const MODS0 = [
   { id: 'm1', n: 'Marketing AI Employee', d: 'Paste an MLS listing → Fair-Housing-checked copy', ic: 'announce', tier: 'both', ses: null, st: 'Published', steps: 6, files: 3, dep: 66 },
   { id: 'm2', n: 'Week 0 · Get Ready', d: 'Your accounts, operator, and baseline', ic: 'audit', tier: 'team', ses: null, st: 'Published', steps: 6, files: 2, dep: 91 },
@@ -387,28 +389,28 @@ const MODS0 = [
   { id: 'm15', n: 'Listing AI Employee', d: 'Paste seller notes → a listing appointment follow-up', ic: 'vault', tier: 'team', ses: null, st: 'Draft', steps: 1, files: 0 },
 ];
 const WS = [
-  { id: 'ws_northshore', n: 'Northshore Group', plan: 'Team Plan · 41 seats', used: 33, cap: 41, st: 'Active', last: 'Dec 10, 8:52 AM', owner: 'Elena Vargas', mrr: '$1,495', cus: 'cus_Rk3NshoreA1', sub: 'sub_1Qn7NshoreT41' },
-  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', plan: 'Team Plan · 16 seats', used: 15, cap: 16, st: 'Active', last: 'Dec 9, 6:10 PM', owner: 'Jordan Hale', mrr: '$695', cus: 'cus_Rm8HaleMrl02', sub: 'sub_1Qp2HaleT16' },
-  { id: 'ws_redcliff', n: 'Red Cliff Collective', plan: 'Agent Plan', used: 46, cap: 50, st: 'Active', last: 'Dec 10, 12:41 AM', owner: 'Noor Haddad', mrr: '$1,450', cus: 'cus_Rj1RedClf03', sub: 'sub_1Qk9RedClfA50' },
-  { id: 'ws_copperbasin', n: 'Copper Basin Realty', plan: 'AI Accelerator', used: 2, cap: 2, st: 'Active', last: 'Dec 9, 2:15 PM', owner: 'Devon Achterberg', mrr: 'One-time', cus: 'cus_Rp4CoprBsn04', sub: '—' },
-  { id: 'ws_tidewater', n: 'Tidewater Property Co.', plan: 'Insiders', used: 1, cap: 1, st: 'Past due', last: 'Dec 4, 9:03 AM', owner: 'Sam Whitlock', mrr: '$97', cus: 'cus_Rg6Tidewtr05', sub: 'sub_1Qh3TidewI1' },
-  { id: 'ws_lantern', n: 'Lantern Street Partners', plan: 'Team Plan · 16 seats', used: 6, cap: 16, st: 'Trialing', last: 'Dec 9, 11:27 AM', owner: 'Tessa Lindqvist', mrr: '$0', cus: 'cus_Rt2Lantern06', sub: 'sub_1Qv5LanternT16' },
-  { id: 'ws_fourthmeridian', n: 'Fourth Meridian', plan: 'Team Plan · 16 seats', used: 0, cap: 16, st: 'Canceled', last: 'Nov 2, 4:40 PM', owner: 'Priya Raman', mrr: '$0', cus: 'cus_Rb9FourthM07', sub: 'sub_1Qc1FourthT16' },
+  { id: 'ws_northshore', n: 'Northshore Group', plan: 'Team Plan · 41 seats', used: 33, cap: 41, st: 'Active', last: 'Dec 10, 8:52 AM MT / 9:52 AM CT', owner: 'Elena Vargas', mrr: '$1,495', cus: 'cus_Rk3NshoreA1', sub: 'sub_1Qn7NshoreT41' },
+  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', plan: 'Team Plan · 16 seats', used: 15, cap: 16, st: 'Active', last: 'Dec 9, 6:10 PM MT / 7:10 PM CT', owner: 'Jordan Hale', mrr: '$695', cus: 'cus_Rm8HaleMrl02', sub: 'sub_1Qp2HaleT16' },
+  { id: 'ws_redcliff', n: 'Red Cliff Collective', plan: 'Agent Plan', used: 46, cap: 50, st: 'Active', last: 'Dec 10, 12:41 AM MT / 1:41 AM CT', owner: 'Noor Haddad', mrr: '$1,450', cus: 'cus_Rj1RedClf03', sub: 'sub_1Qk9RedClfA50' },
+  { id: 'ws_copperbasin', n: 'Copper Basin Realty', plan: 'AI Accelerator', used: 2, cap: 2, st: 'Active', last: 'Dec 9, 2:15 PM MT / 3:15 PM CT', owner: 'Devon Achterberg', mrr: 'One-time', cus: 'cus_Rp4CoprBsn04', sub: '—' },
+  { id: 'ws_tidewater', n: 'Tidewater Property Co.', plan: 'Insiders', used: 1, cap: 1, st: 'Past due', last: 'Dec 4, 9:03 AM MT / 10:03 AM CT', owner: 'Sam Whitlock', mrr: '$97', cus: 'cus_Rg6Tidewtr05', sub: 'sub_1Qh3TidewI1' },
+  { id: 'ws_lantern', n: 'Lantern Street Partners', plan: 'Team Plan · 16 seats', used: 6, cap: 16, st: 'Trialing', last: 'Dec 9, 11:27 AM MT / 12:27 PM CT', owner: 'Tessa Lindqvist', mrr: '$0', cus: 'cus_Rt2Lantern06', sub: 'sub_1Qv5LanternT16' },
+  { id: 'ws_fourthmeridian', n: 'Fourth Meridian', plan: 'Team Plan · 16 seats', used: 0, cap: 16, st: 'Canceled', last: 'Nov 2, 4:40 PM MT / 5:40 PM CT', owner: 'Priya Raman', mrr: '$0', cus: 'cus_Rb9FourthM07', sub: 'sub_1Qc1FourthT16' },
 ];
 const USERS = [
-  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'Northshore Group', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM', st: 'Active', pr: 4, of: 5 },
-  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'Northshore Group', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM', st: 'Active', pr: 3, of: 5 },
-  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'Hale & Marlowe Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM', st: 'Active', pr: 5, of: 5 },
-  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'Red Cliff Collective', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM', st: 'Active', pr: 2, of: 2 },
-  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'Copper Basin Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM', st: 'Active', pr: 2, of: 5 },
-  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'Tidewater Property Co.', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', st: 'Past due', pr: 1, of: 2 },
-  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'Lantern Street Partners', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', st: 'Trialing', pr: 1, of: 5 },
-  { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
+  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'Northshore Group', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM MT / 9:52 AM CT', st: 'Active', pr: 4, of: 5 },
+  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'Northshore Group', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM MT / 5:31 PM CT', st: 'Active', pr: 3, of: 5 },
+  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'Hale & Marlowe Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM MT / 7:10 PM CT', st: 'Active', pr: 5, of: 5 },
+  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'Red Cliff Collective', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM MT / 1:41 AM CT', st: 'Active', pr: 2, of: 2 },
+  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'Copper Basin Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM MT / 3:15 PM CT', st: 'Active', pr: 2, of: 5 },
+  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'Tidewater Property Co.', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM MT / 10:03 AM CT', st: 'Past due', pr: 1, of: 2 },
+  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'Lantern Street Partners', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM MT / 12:27 PM CT', st: 'Trialing', pr: 1, of: 5 },
+  { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM MT / 5:40 PM CT', st: 'Canceled', pr: 0, of: 5 },
 ];
 const STAFF = [
-  { n: 'Connor Leiva', role: 'Owner', e: 'connor@amplifiedimpact.io', last: 'Dec 10, 9:22 AM' },
-  { n: 'Avery Stone', role: 'Admin', e: 'avery@amplifiedimpact.example', last: 'Dec 9, 5:48 PM' },
-  { n: 'Imani Brooks', role: 'Support', e: 'imani@amplifiedimpact.example', last: 'Dec 9, 9:30 PM' },
+  { n: 'Connor Leiva', role: 'Owner', e: 'connor@amplifiedimpact.io', last: 'Dec 10, 9:22 AM MT / 10:22 AM CT' },
+  { n: 'Avery Stone', role: 'Admin', e: 'avery@amplifiedimpact.example', last: 'Dec 9, 5:48 PM MT / 6:48 PM CT' },
+  { n: 'Imani Brooks', role: 'Support', e: 'imani@amplifiedimpact.example', last: 'Dec 9, 9:30 PM MT / 10:30 PM CT' },
 ];
 const ROLES = ['Owner', 'Admin', 'Support'];
 const INV = [
@@ -420,23 +422,23 @@ const INV = [
   { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
 ];
 const JOBS = [
-  { j: 'session-24h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.4 s', st: 'Succeeded', next: '9:25 AM' },
-  { j: 'session-1h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.3 s', st: 'Succeeded', next: '9:25 AM' },
-  { j: 'replay-ready', sch: 'Every 15 min', last: 'Dec 10, 9:15 AM', dur: '0.9 s', st: 'Succeeded', next: '9:30 AM' },
-  { j: 'build-48h', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.5 s', st: 'Succeeded', next: '10:00 AM' },
-  { j: 'weekly-digest', sch: 'Mon 7:00 AM', last: 'Dec 7, 7:00 AM', dur: '48 s', st: 'Succeeded', next: 'Dec 14, 7:00 AM' },
-  { j: 'announcement', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.2 s', st: 'Succeeded', next: '9:25 AM' },
-  { j: 'billing', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '2.1 s', st: 'Succeeded', next: '10:00 AM' },
-  { j: 'accelerator-reminders', sch: 'Daily 9:00 AM', last: 'Dec 10, 9:00 AM', dur: '1.4 s', st: 'Succeeded', next: 'Dec 11, 9:00 AM' },
-  { j: 'ghl-sync', sch: 'Every 10 min', last: 'Dec 10, 9:20 AM', dur: '3.8 s', st: 'Running', next: '9:30 AM' },
-  { j: 'ghl-logins', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '1.1 s', st: 'Succeeded', next: '9:30 AM' },
-  { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '0.6 s', st: 'Failed', next: '9:30 AM' },
-  { j: 'ghl-extras', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.8 s', st: 'Waiting', next: '10:00 AM' },
+  { j: 'session-24h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM MT / 10:20 AM CT', dur: '0.4 s', st: 'Succeeded', next: '9:25 AM MT / 10:25 AM CT' },
+  { j: 'session-1h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM MT / 10:20 AM CT', dur: '0.3 s', st: 'Succeeded', next: '9:25 AM MT / 10:25 AM CT' },
+  { j: 'replay-ready', sch: 'Every 15 min', last: 'Dec 10, 9:15 AM MT / 10:15 AM CT', dur: '0.9 s', st: 'Succeeded', next: '9:30 AM MT / 10:30 AM CT' },
+  { j: 'build-48h', sch: 'Hourly', last: 'Dec 10, 9:00 AM MT / 10:00 AM CT', dur: '0.5 s', st: 'Succeeded', next: '10:00 AM MT / 11:00 AM CT' },
+  { j: 'weekly-digest', sch: 'Mon 7:00 AM MT / 8:00 AM CT', last: 'Dec 7, 7:00 AM MT / 8:00 AM CT', dur: '48 s', st: 'Succeeded', next: 'Dec 14, 7:00 AM MT / 8:00 AM CT' },
+  { j: 'announcement', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM MT / 10:20 AM CT', dur: '0.2 s', st: 'Succeeded', next: '9:25 AM MT / 10:25 AM CT' },
+  { j: 'billing', sch: 'Hourly', last: 'Dec 10, 9:00 AM MT / 10:00 AM CT', dur: '2.1 s', st: 'Succeeded', next: '10:00 AM MT / 11:00 AM CT' },
+  { j: 'accelerator-reminders', sch: 'Daily 9:00 AM MT / 10:00 AM CT', last: 'Dec 10, 9:00 AM MT / 10:00 AM CT', dur: '1.4 s', st: 'Succeeded', next: 'Dec 11, 9:00 AM MT / 10:00 AM CT' },
+  { j: 'ghl-sync', sch: 'Every 10 min', last: 'Dec 10, 9:20 AM MT / 10:20 AM CT', dur: '3.8 s', st: 'Running', next: '9:30 AM MT / 10:30 AM CT' },
+  { j: 'ghl-logins', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM MT / 10:10 AM CT', dur: '1.1 s', st: 'Succeeded', next: '9:30 AM MT / 10:30 AM CT' },
+  { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM MT / 10:10 AM CT', dur: '0.6 s', st: 'Failed', next: '9:30 AM MT / 10:30 AM CT' },
+  { j: 'ghl-extras', sch: 'Hourly', last: 'Dec 10, 9:00 AM MT / 10:00 AM CT', dur: '0.8 s', st: 'Waiting', next: '10:00 AM MT / 11:00 AM CT' },
 ];
 const HOOKS = [
-  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2291', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
-  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2288', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
-  { src: 'GoHighLevel', ev: 'login.sync', id: 'u_1077', st: 'Retrying', att: '2 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2291', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM MT / 10:30 AM CT', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2288', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM MT / 10:30 AM CT', err: '401 Unauthorized from GHL API' },
+  { src: 'GoHighLevel', ev: 'login.sync', id: 'u_1077', st: 'Retrying', att: '2 of 5', next: 'Dec 10, 9:30 AM MT / 10:30 AM CT', err: '401 Unauthorized from GHL API' },
   { src: 'Stripe', ev: 'invoice.payment_failed', id: 'evt_1QxP7tTw83', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
   { src: 'Stripe', ev: 'checkout.session.completed', id: 'evt_1QxQ2cCb85', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
   { src: 'Stripe', ev: 'customer.subscription.updated', id: 'evt_1QxN1hHm79', st: 'Failed', att: '5 of 5', next: 'None, attempts used', err: 'Handler timeout after 10 s' },
@@ -452,40 +454,40 @@ const ENDPOINTS = [
    was delivered (dl), its opens (op, first fo, last lo), its clicks (cl, first fc, last lc) and the last link
    clicked (ln), and a bounce's type, subtype and message (br). */
 const EMAILS = [
-  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
-  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM', dl: 'Dec 4, 9:04 AM', op: 1, fo: 'Dec 4, 9:30 AM', lo: 'Dec 4, 9:30 AM', cl: 0 },
-  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM', dl: 'Dec 9, 3:10 PM', op: 3, fo: 'Dec 9, 3:12 PM', lo: 'Dec 9, 8:12 PM', cl: 2, fc: 'Dec 9, 3:13 PM', lc: 'Dec 9, 8:13 PM', ln: 'https://learn.example.com/replays/2' },
-  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM', dl: 'Dec 9, 11:26 AM', op: 1, fo: 'Dec 9, 11:27 AM', lo: 'Dec 9, 11:27 AM', cl: 1, fc: 'Dec 9, 11:27 AM', lc: 'Dec 9, 11:27 AM', ln: 'https://learn.example.com/sign-in' },
-  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM', op: 0, cl: 0, br: 'Permanent · General · The mailbox does not exist.' },
-  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Sent', t: 'Dec 10, 9:18 AM', op: 0, cl: 0 },
-  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM', dl: 'Dec 8, 3:00 PM', op: 0, cl: 0 },
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM MT / 1:00 PM CT', dl: 'Dec 8, 12:00 PM MT / 1:00 PM CT', op: 2, fo: 'Dec 8, 12:41 PM MT / 1:41 PM CT', lo: 'Dec 8, 6:40 PM MT / 7:40 PM CT', cl: 1, fc: 'Dec 8, 12:42 PM MT / 1:42 PM CT', lc: 'Dec 8, 12:42 PM MT / 1:42 PM CT', ln: 'https://learn.example.com/sessions/2' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM MT / 10:04 AM CT', dl: 'Dec 4, 9:04 AM MT / 10:04 AM CT', op: 1, fo: 'Dec 4, 9:30 AM MT / 10:30 AM CT', lo: 'Dec 4, 9:30 AM MT / 10:30 AM CT', cl: 0 },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM MT / 4:10 PM CT', dl: 'Dec 9, 3:10 PM MT / 4:10 PM CT', op: 3, fo: 'Dec 9, 3:12 PM MT / 4:12 PM CT', lo: 'Dec 9, 8:12 PM MT / 9:12 PM CT', cl: 2, fc: 'Dec 9, 3:13 PM MT / 4:13 PM CT', lc: 'Dec 9, 8:13 PM MT / 9:13 PM CT', ln: 'https://learn.example.com/replays/2' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM MT / 12:26 PM CT', dl: 'Dec 9, 11:26 AM MT / 12:26 PM CT', op: 1, fo: 'Dec 9, 11:27 AM MT / 12:27 PM CT', lo: 'Dec 9, 11:27 AM MT / 12:27 PM CT', cl: 1, fc: 'Dec 9, 11:27 AM MT / 12:27 PM CT', lc: 'Dec 9, 11:27 AM MT / 12:27 PM CT', ln: 'https://learn.example.com/sign-in' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM MT / 8:00 AM CT', op: 0, cl: 0, br: 'Permanent · General · The mailbox does not exist.' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Sent', t: 'Dec 10, 9:18 AM MT / 10:18 AM CT', op: 0, cl: 0 },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM MT / 4:00 PM CT', dl: 'Dec 8, 3:00 PM MT / 4:00 PM CT', op: 0, cl: 0 },
 ];
 const DEPLOYS = [
-  { sha: 'a3f91c2', m: 'Scope 16px floor and 44px targets to phone widths', a: 'Connor Leiva', t: 'Dec 9, 10:42 PM', st: 'Live', dur: '1m 48s' },
-  { sha: '7be20d4', m: 'Curriculum: fitted grid, tier pill, drag handles', a: 'Avery Stone', t: 'Dec 9, 3:15 PM', st: 'Succeeded', dur: '1m 52s' },
-  { sha: 'c41d8e0', m: 'GHL orders: back off on 401 and record last error', a: 'Connor Leiva', t: 'Dec 8, 8:02 PM', st: 'Succeeded', dur: '1m 44s' },
-  { sha: '19aa6f3', m: 'Sidebar: collapsible groups and cohort switcher', a: 'Avery Stone', t: 'Dec 8, 11:20 AM', st: 'Failed', dur: '0m 39s' },
-  { sha: 'e5527b9', m: 'Cohort starts at first build (migration 0014)', a: 'Connor Leiva', t: 'Dec 2, 9:48 AM', st: 'Succeeded', dur: '2m 03s' },
+  { sha: 'a3f91c2', m: 'Scope 16px floor and 44px targets to phone widths', a: 'Connor Leiva', t: 'Dec 9, 10:42 PM MT / 11:42 PM CT', st: 'Live', dur: '1m 48s' },
+  { sha: '7be20d4', m: 'Curriculum: fitted grid, tier pill, drag handles', a: 'Avery Stone', t: 'Dec 9, 3:15 PM MT / 4:15 PM CT', st: 'Succeeded', dur: '1m 52s' },
+  { sha: 'c41d8e0', m: 'GHL orders: back off on 401 and record last error', a: 'Connor Leiva', t: 'Dec 8, 8:02 PM MT / 9:02 PM CT', st: 'Succeeded', dur: '1m 44s' },
+  { sha: '19aa6f3', m: 'Sidebar: collapsible groups and cohort switcher', a: 'Avery Stone', t: 'Dec 8, 11:20 AM MT / 12:20 PM CT', st: 'Failed', dur: '0m 39s' },
+  { sha: 'e5527b9', m: 'Cohort starts at first build (migration 0014)', a: 'Connor Leiva', t: 'Dec 2, 9:48 AM MT / 10:48 AM CT', st: 'Succeeded', dur: '2m 03s' },
 ];
 const INCIDENTS = [
-  { id: 'INC-0007', t: 'GHL order sync failing with 401', sev: 'Sev 2', st: 'Open', o: 'Dec 9, 9:14 PM', own: 'Imani Brooks', links: [['jobs', 'Job ghl-orders'], ['api', '3 webhook deliveries']],
-    tl: [['Dec 9, 9:14 PM', 'Opened automatically after 3 failed runs of ghl-orders.'], ['Dec 9, 9:20 PM', 'Imani Brooks confirmed orders are saved locally. Only the GHL copy is behind.'], ['Dec 9, 10:42 PM', 'Deploy a3f91c2 went live. No change in error rate.']] },
-  { id: 'INC-0006', t: 'Stripe subscription.updated handler timeout', sev: 'Sev 3', st: 'Acknowledged', o: 'Dec 8, 7:31 PM', own: 'Avery Stone', links: [['api', '1 webhook delivery']],
-    tl: [['Dec 8, 7:31 PM', 'Opened after a delivery used all 5 attempts.'], ['Dec 8, 7:40 PM', 'Acknowledged by Avery Stone.']] },
-  { id: 'INC-0005', t: 'Weekly digest bounces above 2%', sev: 'Sev 3', st: 'Resolved', o: 'Dec 7, 7:12 AM', own: 'Connor Leiva', links: [['email', 'Email log, weekly-digest']],
-    tl: [['Dec 7, 7:12 AM', 'Opened by Connor Leiva.'], ['Dec 7, 2:05 PM', 'Canceled workspaces removed from the digest audience.'], ['Dec 7, 2:10 PM', 'Resolved by Connor Leiva.']] },
+  { id: 'INC-0007', t: 'GHL order sync failing with 401', sev: 'Sev 2', st: 'Open', o: 'Dec 9, 9:14 PM MT / 10:14 PM CT', own: 'Imani Brooks', links: [['jobs', 'Job ghl-orders'], ['api', '3 webhook deliveries']],
+    tl: [['Dec 9, 9:14 PM MT / 10:14 PM CT', 'Opened automatically after 3 failed runs of ghl-orders.'], ['Dec 9, 9:20 PM MT / 10:20 PM CT', 'Imani Brooks confirmed orders are saved locally. Only the GHL copy is behind.'], ['Dec 9, 10:42 PM MT / 11:42 PM CT', 'Deploy a3f91c2 went live. No change in error rate.']] },
+  { id: 'INC-0006', t: 'Stripe subscription.updated handler timeout', sev: 'Sev 3', st: 'Acknowledged', o: 'Dec 8, 7:31 PM MT / 8:31 PM CT', own: 'Avery Stone', links: [['api', '1 webhook delivery']],
+    tl: [['Dec 8, 7:31 PM MT / 8:31 PM CT', 'Opened after a delivery used all 5 attempts.'], ['Dec 8, 7:40 PM MT / 8:40 PM CT', 'Acknowledged by Avery Stone.']] },
+  { id: 'INC-0005', t: 'Weekly digest bounces above 2%', sev: 'Sev 3', st: 'Resolved', o: 'Dec 7, 7:12 AM MT / 8:12 AM CT', own: 'Connor Leiva', links: [['email', 'Email log, weekly-digest']],
+    tl: [['Dec 7, 7:12 AM MT / 8:12 AM CT', 'Opened by Connor Leiva.'], ['Dec 7, 2:05 PM MT / 3:05 PM CT', 'Canceled workspaces removed from the digest audience.'], ['Dec 7, 2:10 PM MT / 3:10 PM CT', 'Resolved by Connor Leiva.']] },
 ];
 const AUDIT0 = [
-  { t: 'Dec 10, 8:58 AM', actor: 'Connor Leiva', act: 'job.run_now', tg: 'ghl-orders', d: 'Manual run. Failed with 401.' },
-  { t: 'Dec 9, 9:31 PM', actor: 'Avery Stone', act: 'masquerade.stop', tg: 'Sam Whitlock', d: 'Exited by staff after 6 min.' },
-  { t: 'Dec 9, 9:27 PM', actor: 'Avery Stone', act: 'masquerade.blocked_action', tg: 'Sam Whitlock', d: 'Tried: Refund in_1QxP7tTw0283.' },
-  { t: 'Dec 9, 9:25 PM', actor: 'Avery Stone', act: 'masquerade.start', tg: 'Sam Whitlock', d: 'Reason: Customer cannot see the Session 2 replay.' },
-  { t: 'Dec 9, 5:02 PM', actor: 'Imani Brooks', act: 'audit.export', tg: 'Audit log', d: 'CSV, last 7 days, 212 rows.' },
-  { t: 'Dec 9, 3:20 PM', actor: 'Avery Stone', act: 'module.publish', tg: 'Sales AI Employee', d: 'Draft to Published.' },
-  { t: 'Dec 9, 2:10 PM', actor: 'Connor Leiva', act: 'permission.change', tg: 'Support', d: 'Refund or void an invoice: allowed to not allowed.' },
-  { t: 'Dec 8, 4:44 PM', actor: 'Connor Leiva', act: 'tier.access_change', tg: 'Database AI Employee', d: 'Team only to Agent + Team.' },
-  { t: 'Dec 8, 9:05 AM', actor: 'Imani Brooks', act: 'email_log.export', tg: 'Email log', d: 'CSV, template weekly-digest, 388 rows.' },
-  { t: 'Nov 1, 4:44 PM', actor: 'Connor Leiva', act: 'billing.refund', tg: 'in_1QxK5fFm0270', d: '$695.00. Reason: canceled inside trial window.' },
+  { t: 'Dec 10, 8:58 AM MT / 9:58 AM CT', actor: 'Connor Leiva', act: 'job.run_now', tg: 'ghl-orders', d: 'Manual run. Failed with 401.' },
+  { t: 'Dec 9, 9:31 PM MT / 10:31 PM CT', actor: 'Avery Stone', act: 'masquerade.stop', tg: 'Sam Whitlock', d: 'Exited by staff after 6 min.' },
+  { t: 'Dec 9, 9:27 PM MT / 10:27 PM CT', actor: 'Avery Stone', act: 'masquerade.blocked_action', tg: 'Sam Whitlock', d: 'Tried: Refund in_1QxP7tTw0283.' },
+  { t: 'Dec 9, 9:25 PM MT / 10:25 PM CT', actor: 'Avery Stone', act: 'masquerade.start', tg: 'Sam Whitlock', d: 'Reason: Customer cannot see the Session 2 replay.' },
+  { t: 'Dec 9, 5:02 PM MT / 6:02 PM CT', actor: 'Imani Brooks', act: 'audit.export', tg: 'Audit log', d: 'CSV, last 7 days, 212 rows.' },
+  { t: 'Dec 9, 3:20 PM MT / 4:20 PM CT', actor: 'Avery Stone', act: 'module.publish', tg: 'Sales AI Employee', d: 'Draft to Published.' },
+  { t: 'Dec 9, 2:10 PM MT / 3:10 PM CT', actor: 'Connor Leiva', act: 'permission.change', tg: 'Support', d: 'Refund or void an invoice: allowed to not allowed.' },
+  { t: 'Dec 8, 4:44 PM MT / 5:44 PM CT', actor: 'Connor Leiva', act: 'tier.access_change', tg: 'Database AI Employee', d: 'Team only to Agent + Team.' },
+  { t: 'Dec 8, 9:05 AM MT / 10:05 AM CT', actor: 'Imani Brooks', act: 'email_log.export', tg: 'Email log', d: 'CSV, template weekly-digest, 388 rows.' },
+  { t: 'Nov 1, 4:44 PM MT / 5:44 PM CT', actor: 'Connor Leiva', act: 'billing.refund', tg: 'in_1QxK5fFm0270', d: '$695.00. Reason: canceled inside trial window.' },
 ];
 const PERMS0 = [
   ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]], ['masq', 'Start and extend masquerade', [1, 1, 0]], ['account', 'Send password reset or change email', [1, 1, 1]],
@@ -522,7 +524,7 @@ const Bar = ({ v, max = 100, v2, fx }) => <span className={'bar' + (fx && v >= m
 const KV = ({ rows }) => <dl className="kv">{rows.map(([k, v], i) => <Fragment key={i}><dt>{k}</dt><dd>{v}</dd></Fragment>)}</dl>;
 const Sel = ({ v, on, opts, label }) => <select className="in" aria-label={label} value={v} onChange={e => on(e.target.value)}>{opts.map(o => <option key={o}>{o}</option>)}</select>;
 const Find = ({ v, on, ph }) => <span className="sin"><I n="search" /><input className="in" placeholder={ph} aria-label={ph} value={v} onChange={e => on(e.target.value)} /></span>;
-const Facts = ({ items }) => <div className="cd fx">{items.map(([k, v, full], i) => <div key={i} className={full ? 'fxw' : undefined}><span className="me">{k}</span><span className="w5 el">{v}</span></div>)}</div>;
+const Facts = ({ items }) => <div className="cd fx">{items.map(([k, v, full], i) => <div key={i} className={full ? 'fxw' : undefined}><span className="me">{k}</span><span className="w5 el"><Stamp v={v} fx /></span></div>)}</div>;
 const Card = ({ t, sub, right, children, pad = true }) => <section className="cd">{t && <div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>{t}</h2>{sub && <span className="me">{sub}</span>}</div>{right}</div>}{pad ? <div className="cdb">{children}</div> : children}</section>;
 
 function GBtn({ perm, label, go, k = '', ic, children }) {
@@ -635,6 +637,13 @@ const Stat = ({ l, v, sub, go, tone }) => {
   return <C className="cd stat" onClick={go}><span className="mu stl">{l}</span><span className="fig">{v}</span>{sub && <span className="me" style={tone ? { color: 'var(--' + tone + ')' } : undefined}>{sub}</span>}</C>;
 };
 const nb = s => typeof s === 'string' && s.includes('-') ? s.split(/(\S+-\S+)/).map((p, i) => i % 2 ? <span key={i} style={{ whiteSpace: 'nowrap' }}>{p}</span> : p) : s;
+/* D-267 (PR #286's review): words with a time in MT and CT, "Dec 9, 9:14 PM MT / 10:14 PM CT" (the app's Stamp). `two`: a
+   table's narrow column, the MT moment over its zones ("Dec 9, 9:14 PM" over "MT / 10:14 PM CT"); `fx`: a key fact's, one
+   line, and those two on a phone; otherwise a line never breaks inside a time, between a time and its zone, or before
+   the "/". */
+const Stamp = ({ v, two, fx }) => { if (typeof v !== 'string' || !v.includes(' MT / ')) return v; const i = v.indexOf(' MT / '), L = { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' };
+  if (fx) return <span className="tzp"><span>{v.slice(0, i)}</span> <span>{v.slice(i + 1)}</span></span>;
+  return two ? <span style={{ display: 'block' }}><span style={L}>{v.slice(0, i)}</span> <span style={L}>{v.slice(i + 1)}</span></span> : v.split(/(\d{1,2}:\d{2} [AP]M MT \/|\d{1,2}:\d{2} [AP]M CT)/).map((p, j) => j % 2 ? <span key={j} style={{ whiteSpace: 'nowrap' }}>{p}</span> : p); };
 const brk = s => typeof s === 'string' && s.includes('@') ? s.split('@').map((p, i) => <Fragment key={i}>{i > 0 && <>@<wbr /></>}{p}</Fragment>) : s;
 const Two = ({ a, b, mo }) => <div className="col" style={{ gap: 0 }}><span className="w5 el">{a}</span><span className={'me el' + (mo ? ' mo' : '')}>{brk(b)}</span></div>;
 
@@ -705,7 +714,7 @@ function Curriculum() {
       cols={[
         { k: 'n', l: 'AI Employee', w: wide ? 'minmax(260px,1.6fr)' : 'minmax(194px,1fr)', r: (m, x) => <div className="row nw" style={{ gap: x.tw < 1100 ? 8 : 12 }}>{x.tw >= 1100 && <span className="me tn" style={{ width: 16, textAlign: 'right', flex: 'none' }}>{mods.indexOf(m) + 1}</span>}<span className="mt" style={x.tw < 1100 ? { width: 28, height: 28 } : undefined}><I n={m.ic} /></span><div className="col" style={{ gap: 0, padding: '6px 0' }}><button className={'lk' + (x.tw < 1100 ? '' : ' el')} onClick={() => go('builder', m.id)}>{m.n}</button><span className="me el">{x.drop ? (m.ses ? m.ses[0].split(' · ')[0] + ' · ' + m.ses[1].split(' · ').slice(0, 2).join(' · ') : 'Self-paced') : nb(m.d)}</span></div></div> },
         { k: 'tier', l: 'Tier access', w: wide || lap ? '124px' : '116px', ov: 1, r: m => <TierPill m={m} set={v => upd(m.id, { tier: v })} /> },
-        { k: 'ses', l: 'Live session', w: wide ? 'minmax(250px,1.6fr)' : '132px', hide: 'lap', r: (m, x) => m.ses ? <div className="col" style={{ gap: 0, padding: '6px 0' }} title={m.ses[0] + ' · ' + m.ses[1]} aria-label={m.ses[0] + ' · ' + m.ses[1]}><span className={wide ? 'cl3' : 'el'}>{wide ? nb(m.ses[0]) : m.ses[0].replace(/^Session \d+ · /, '').replace(/ Live Build$/, '')}</span><span className={wide ? 'me' : 'me el'} style={wide ? { whiteSpace: 'normal' } : undefined}>{x.tw < 1100 ? m.ses[1].split(' · ').slice(0, 2).join(' · ').replace(/ MT \/ .*$/, '') : m.ses[1]}</span></div> : <span className="mu">Self-paced</span> },
+        { k: 'ses', l: 'Live session', w: wide ? 'minmax(250px,1.6fr)' : '132px', hide: 'lap', r: (m, x) => m.ses ? <div className="col" style={{ gap: 0, padding: '6px 0' }} title={m.ses[0] + ' · ' + m.ses[1]} aria-label={m.ses[0] + ' · ' + m.ses[1]}><span className={wide ? 'cl3' : 'el'}>{wide ? nb(m.ses[0]) : m.ses[0].replace(/^Session \d+ · /, '').replace(/ Live Build$/, '')}</span><span className="me" style={{ whiteSpace: 'normal' }}>{x.tw < 1100 ? m.ses[1].split(' · ').slice(0, 2).join(' · ') : m.ses[1]}</span></div> : <span className="mu">Self-paced</span> },
         { k: 'st', l: 'Status', w: lap ? '112px' : wide ? '128px' : '120px', r: m => m.st === 'Draft' && lap ? <div className="col" style={{ gap: 2, alignItems: 'flex-start' }}><St v={m.st} /><span className="pl" title="Hidden from learners" aria-label="Hidden from learners">Hidden</span></div> : <div className="col" style={{ gap: 0 }}><St v={m.st} /><span className="me" style={{ whiteSpace: 'nowrap' }}>{m.st === 'Draft' ? 'Hidden from learners' : m.st === 'Scheduled' ? m.opens : m.steps + ' steps · ' + m.files + ' files'}</span></div> },
         { k: 'dep', l: 'Deployed', w: '96px', ov: 1, r: m => !started || m.st !== 'Published' ? <span className="mu">{m.st === 'Draft' ? 'Not published' : 'Not started'}</span> : <span className="row nw" style={{ gap: 10 }}><Bar v={m.dep} /><span className="tn w5" style={{ minWidth: 34, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{m.dep}%</span></span> },
       ]}
@@ -782,11 +791,11 @@ function Cohorts() {
 function Announce() {
   const { guard, toast, log } = useC();
   const [open, setOpen] = useState(false), [ti, setTi] = useState(''), [bo, setBo] = useState('');
-  const [rows, setRows] = useState([['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM'], ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM'], ['Session 3 is Wednesday at 12:00 PM MT / 1:00 PM CT', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'], ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—']]);
+  const [rows, setRows] = useState([['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM MT / 4:10 PM CT'], ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM MT / 4:00 PM CT'], ['Session 3 is Wednesday at 12:00 PM MT / 1:00 PM CT', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM MT / 1:00 PM CT'], ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—']]);
   return <div className="pg">
     <Head t="Announcements" d="Messages to learners in the portal and by email." right={<GBtn k="p" ic="plus" perm="build" label="New announcement" go={() => setOpen(true)}>New announcement</GBtn>} />
     <Table rows={rows} empty={{ ic: 'announce', t: 'No announcements yet', b: 'Write the first one to tell learners what is new.', cta: 'New announcement', on: () => setOpen(true) }}
-      cols={[{ k: 0, l: 'Announcement', w: 'minmax(220px,2fr)', r: r => <span className="w5 el" style={{ display: 'block' }}>{r[0]}</span> }, { k: 1, l: 'Audience', w: '104px' }, { k: 2, l: 'Channels', w: '120px', hide: 'lap' }, { k: 3, l: 'Status', w: '112px', r: r => <St v={r[3]} /> }, { k: 4, l: 'Send time', w: '136px', ns: 1 }]}
+      cols={[{ k: 0, l: 'Announcement', w: 'minmax(220px,2fr)', r: r => <span className="w5 el" style={{ display: 'block' }}>{r[0]}</span> }, { k: 1, l: 'Audience', w: '104px' }, { k: 2, l: 'Channels', w: '120px', hide: 'lap' }, { k: 3, l: 'Status', w: '112px', r: r => <St v={r[3]} /> }, { k: 4, l: 'Send time', w: '136px', ns: 1, r: x => <Stamp v={x[4]} two /> }]}
       menu={r => [{ l: 'Edit', g: 1, fn: () => guard('build', 'Edit announcement', () => toast('Editor opens here')) }, { l: 'Duplicate', g: 1, fn: () => guard('build', 'Duplicate announcement', () => toast('Duplicated as a draft')) }]} />
     {open && <Modal title="New announcement" onClose={() => setOpen(false)} foot={<><Btn onClick={() => setOpen(false)}>Cancel</Btn><Btn k="p" disabled={!ti.trim()} onClick={() => { setRows([[ti, 'Everyone', 'In-app', 'Draft', '—'], ...rows]); log('announcement.create', ti, 'Draft'); setOpen(false); setTi(''); setBo(''); toast('Saved as a draft'); }}>Save draft</Btn></>}>
       <label className="lab">Title<input className="in" autoFocus value={ti} onChange={e => setTi(e.target.value)} /></label>
@@ -805,7 +814,7 @@ function Learners() {
     <Tabs v={tab} on={setTab} tabs={[['learners', 'Learners', 148], ['teams', 'Teams', 7]]} />
     {tab === 'learners' && <><div className="row"><Find v={q} on={setQ} ph="Filter by name or team" /><Sel label="Tier" v={tier} on={setTier} opts={['All tiers', 'Agent', 'Team']} /></div>
       <Table rows={L} onRow={u => go('user', u.id)} empty={{ ic: 'learners', t: 'No learners enrolled', b: 'Learners appear here after checkout.' }}
-        cols={[{ k: 'n', l: 'Learner', w: 'minmax(200px,1.5fr)', r: u => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={u.e} /></div> }, { k: 'ws', l: 'Team', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'tier', l: 'Tier', w: '72px', r: u => <Pill v={u.tier} tone={u.tier === 'Team' ? 'warn' : 'ok'} /> }, { k: 'pr', l: 'Builds deployed', w: '160px', r: u => started ? <span className="row nw" style={{ gap: 10 }}><Bar v={u.pr} max={u.of} v2={0} /><span className="tn" style={{ minWidth: 44, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{u.pr} of {u.of}</span></span> : <span className="mu">Not started</span> }, { k: 'last', l: 'Last active', w: '128px', ns: 1 }]}
+        cols={[{ k: 'n', l: 'Learner', w: 'minmax(200px,1.5fr)', r: u => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={u.e} /></div> }, { k: 'ws', l: 'Team', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'tier', l: 'Tier', w: '72px', r: u => <Pill v={u.tier} tone={u.tier === 'Team' ? 'warn' : 'ok'} /> }, { k: 'pr', l: 'Builds deployed', w: '160px', r: u => started ? <span className="row nw" style={{ gap: 10 }}><Bar v={u.pr} max={u.of} v2={0} /><span className="tn" style={{ minWidth: 44, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{u.pr} of {u.of}</span></span> : <span className="mu">Not started</span> }, { k: 'last', l: 'Last active', w: '128px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
         menu={u => [{ l: 'Open user record', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} /></>}
     {tab === 'teams' && <Table rows={WS.filter(w => w.plan.startsWith('Team'))} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No teams yet' }}
       cols={[{ k: 'n', l: 'Team', w: 'minmax(180px,1.5fr)' }, { k: 'owner', l: 'Owner', w: 'minmax(120px,1fr)' }, { k: 'plan', l: 'Plan', w: '160px', hide: 'lap' }, { k: 'used', l: 'Seats', w: '160px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]}
@@ -816,7 +825,7 @@ function Learners() {
 function Tiers() {
   const { mods, setMods, guard, log, toast, setDlg, ph } = useC();
   const [price, setPrice] = useState({ a: '995', t16: '4995', t41: '9995' });
-  const [req, setReq] = useState([['Kenji Watanabe', 'Agent → Team · 16 seats', '$4,000', 'Dec 9, 3:02 PM', 'Pending'], ['Jordan Hale', 'Team · 16 seats → 41 seats', '$4,000', 'Dec 9, 6:12 PM', 'Pending'], ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM', 'Approved']]);
+  const [req, setReq] = useState([['Kenji Watanabe', 'Agent → Team · 16 seats', '$4,000', 'Dec 9, 3:02 PM MT / 4:02 PM CT', 'Pending'], ['Jordan Hale', 'Team · 16 seats → 41 seats', '$4,000', 'Dec 9, 6:12 PM MT / 7:12 PM CT', 'Pending'], ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM MT / 2:30 PM CT', 'Approved']]);
   const T = [['a', 'Agent Tier', '1 seat', 'per agent, per cohort', '104 licenses', '$103,480', 'For individual agents building their own AI Employees.', ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault']],
     ['t16', 'Team Tier', '16 seats', 'per team, per cohort', '5 teams', '$24,975', 'For teams that want every seat building, plus the leadership modules.', ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking']],
     ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
@@ -832,7 +841,7 @@ function Tiers() {
         <div className="row nw" style={{ borderTop: '1px solid var(--line)', paddingTop: 12, marginTop: 'auto' }}><span className="mu">Cohort revenue</span><span className="sp" /><span className="w6 tn">{t[5]}</span></div>
       </section>)}</div>
       <Table title="Upgrade requests" rows={req} empty={{ ic: 'tiers', t: 'No upgrade requests' }}
-        cols={[{ k: 0, l: 'From', w: 'minmax(140px,1fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Request', w: 'minmax(180px,1.4fr)' }, { k: 2, l: 'Value', w: '80px', num: 1 }, { k: 3, l: 'Received', w: '136px', ns: 1, hide: 'lap' }, { k: 4, l: 'Status', w: '104px', r: r => <St v={r[4]} /> }]} aw="124px"
+        cols={[{ k: 0, l: 'From', w: 'minmax(140px,1fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 1, l: 'Request', w: 'minmax(180px,1.4fr)' }, { k: 2, l: 'Value', w: '80px', num: 1 }, { k: 3, l: 'Received', w: '136px', ns: 1, hide: 'lap', r: x => <Stamp v={x[3]} two /> }, { k: 4, l: 'Status', w: '104px', r: r => <St v={r[4]} /> }]} aw="124px"
         primary={r => r[4] === 'Pending' ? <Btn onClick={() => guard('build', 'Approve upgrade for ' + r[0], () => setDlg({ title: 'Approve upgrade for ' + r[0] + '?', body: r[1] + '. They get an email with a checkout link for ' + r[2] + '.', cta: 'Approve and send link', yes: () => { setReq(req.map(x => x === r ? [r[0], r[1], r[2], r[3], 'Approved'] : x)); log('upgrade.approve', r[0], r[1]); toast('Approved. Checkout link sent.'); } }))}>Approve</Btn> : null}
         menu={r => [{ l: 'Decline', d: 1, g: 1, fn: () => guard('build', 'Decline upgrade', () => toast('Declined')) }]} />
       <Card t="Access matrix" sub="Click an Agent cell to include or gate a module. Team Tier always includes everything." pad={false}>
@@ -851,10 +860,10 @@ function Audit() {
   const rows = audit.filter(a => (actor === 'Any actor' || a.actor === actor) && (act === 'Any action' || a.act.startsWith(act)) && (a.tg + a.d).toLowerCase().includes(q.toLowerCase()));
   const exp = () => guard('export', 'Export audit log', () => { log('audit.export', 'Audit log', 'CSV, ' + range.toLowerCase() + ', ' + rows.length + ' rows.'); toast('Export started. The export is in the log.'); });
   return <div className="pg">
-    <Head t="Audit Log" d="Every staff action. Append-only. Times are MT (America/Denver)." right={<GBtn ic="download" perm="export" label="Export audit log" go={exp}>Export CSV</GBtn>} />
+    <Head t="Audit Log" d="Every staff action. Append-only." right={<GBtn ic="download" perm="export" label="Export audit log" go={exp}>Export CSV</GBtn>} />
     <div className="row"><Find v={q} on={setQ} ph="Filter target or detail" /><Sel label="Actor" v={actor} on={setActor} opts={['Any actor', ...STAFF.map(s => s.n)]} /><Sel label="Action" v={act} on={setAct} opts={['Any action', 'masquerade', 'billing', 'permission', 'module', 'tier', 'job', 'audit', 'email_log', 'incident', 'user']} /><Sel label="Date range" v={range} on={setRange} opts={['Last 24 hours', 'Last 7 days', 'Last 30 days']} /></div>
     <Table rows={rows} sel bulk={<Btn onClick={exp}>Export selected</Btn>} empty={{ ic: 'audit', t: 'No audit entries yet', b: 'Staff actions are recorded here as they happen.' }}
-      cols={[{ k: 't', l: 'Time', w: '136px', ns: 1, r: a => <span className="mo s2">{a.t}</span> }, { k: 'actor', l: 'Actor', w: '128px' }, { k: 'act', l: 'Action', w: 'minmax(210px,1.2fr)', mo: 1 }, { k: 'tg', l: 'Target', w: 'minmax(110px,.9fr)' }, { k: 'd', l: 'Detail', w: 'minmax(160px,1.6fr)', ns: 1, hide: 'lap', r: a => <span className="s2">{a.d}</span> }]} />
+      cols={[{ k: 't', l: 'Time', w: '136px', ns: 1, r: a => <span className="mo s2"><Stamp v={a.t} two /></span> }, { k: 'actor', l: 'Actor', w: '128px' }, { k: 'act', l: 'Action', w: 'minmax(210px,1.2fr)', mo: 1 }, { k: 'tg', l: 'Target', w: 'minmax(110px,.9fr)' }, { k: 'd', l: 'Detail', w: 'minmax(160px,1.6fr)', ns: 1, hide: 'lap', r: a => <span className="s2">{a.d}</span> }]} />
   </div>;
 }
 
@@ -866,7 +875,7 @@ function Roles() {
   return <div className="pg">
     <Head t="Roles & Permissions" d="Who on staff can do what. Learners, agents, and team owners never see the admin." right={<GBtn k="p" ic="plus" perm="staff" label="Invite staff" go={() => toast('Invite form opens here')}>Invite staff</GBtn>} />
     <Table title="Staff" rows={STAFF} empty={{ ic: 'roles', t: 'No staff yet' }}
-      cols={[{ k: 'n', l: 'Staff member', w: 'minmax(200px,1.4fr)', r: s => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(s.n)}</span><Two a={s.n + (s.role === role ? ' (you)' : '')} b={s.e} /></div> }, { k: 'role', l: 'Role', w: '104px', r: s => <Pill v={s.role} tone={s.role === 'Owner' ? 'ok' : ''} /> }, { k: 'last', l: 'Last sign-in', w: '136px', ns: 1 }]}
+      cols={[{ k: 'n', l: 'Staff member', w: 'minmax(200px,1.4fr)', r: s => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(s.n)}</span><Two a={s.n + (s.role === role ? ' (you)' : '')} b={s.e} /></div> }, { k: 'role', l: 'Role', w: '104px', r: s => <Pill v={s.role} tone={s.role === 'Owner' ? 'ok' : ''} /> }, { k: 'last', l: 'Last sign-in', w: '136px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
       menu={s => [{ l: 'Change role…', g: 1, off: s.role === 'Owner', fn: () => guard('staff', 'Change role for ' + s.n, () => toast('Role picker opens here')) }]} />
     <Gate n={8}><Card t="Permission matrix" sub="Owner always has every permission. Locked boxes are fixed by product rules. Changes are confirmed and audit-logged." pad={false}>
       {!ph && <div className="th" style={{ gridTemplateColumns: 'minmax(0,1fr) 88px 88px 88px' }}><span>Capability</span>{ROLES.map(r => <span key={r}>{r}</span>)}</div>}
@@ -881,7 +890,7 @@ function Health() {
   const { go, ds } = useC();
   const e = ds === 'empty';
   return <div className="pg">
-    <Head t="System Health" meta={<Pill v={e ? 'All systems normal' : '1 open incident'} tone={e ? 'ok' : 'bad'} />} d="learn.amplifiedimpact.io right now. Times are MT (America/Denver)." />
+    <Head t="System Health" meta={<Pill v={e ? 'All systems normal' : '1 open incident'} tone={e ? 'ok' : 'bad'} />} d="learn.amplifiedimpact.io right now." />
     <Gate n={8}>
       <div className="g4">
         <Stat l="Live sessions" v="37" sub="on /api/events" go={() => go('usage')} />
@@ -896,7 +905,7 @@ function Health() {
       <div className="gms">
         <Card t="Needs attention" pad={false}>
           {e ? <Empty ic="check" t="Nothing needs attention" b="Failed payments, webhooks, and jobs show up here when they happen." /> :
-            [['incident', 'INC-0007', 'GHL order sync failing with 401', 'Open since Dec 9, 9:14 PM', 'Sev 2'], ['billing', null, 'Tidewater Property Co. is past due', 'Insiders · $97.00 · 2 retries left', 'Past due'], ['api', null, 'Stripe subscription.updated used all 5 attempts', 'Handler timeout after 10 s', 'Failed'], ['workspace', 'ws_halemarlowe', 'Hale & Marlowe Realty is at 15 of 16 seats', 'Team Plan · 16 seats', 'Waiting']].map((r, i) =>
+            [['incident', 'INC-0007', 'GHL order sync failing with 401', 'Open since Dec 9, 9:14 PM MT / 10:14 PM CT', 'Sev 2'], ['billing', null, 'Tidewater Property Co. is past due', 'Insiders · $97.00 · 2 retries left', 'Past due'], ['api', null, 'Stripe subscription.updated used all 5 attempts', 'Handler timeout after 10 s', 'Failed'], ['workspace', 'ws_halemarlowe', 'Hale & Marlowe Realty is at 15 of 16 seats', 'Team Plan · 16 seats', 'Waiting']].map((r, i) =>
               <div key={i} className="li"><div className="col" style={{ flex: '1 1 220px', gap: 0 }}><button className="lk el" onClick={() => go(r[0], r[1])}>{r[2]}</button><span className="me">{r[3]}</span></div><Pill v={r[4]} /></div>)}
         </Card>
         <div className="col">
@@ -916,7 +925,7 @@ function Workspaces() {
     <Head t="Workspaces" d="Every team and solo account. Open one for members, plan, usage, billing, and staff notes." />
     <div className="row"><Find v={q} on={setQ} ph="Filter workspace or owner" /><Sel label="Plan" v={plan} on={setPlan} opts={['All plans', 'Team Plan', 'Agent Plan', 'Insiders', 'AI Accelerator']} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Active', 'Trialing', 'Past due', 'Canceled']} /></div>
     <Table rows={rows} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No workspaces yet', b: 'A workspace is created at checkout.' }}
-      cols={[{ k: 'n', l: 'Workspace', w: 'minmax(170px,1.3fr)', r: (w, dr) => <Two a={w.n} b={dr.drop ? w.owner + ' · ' + w.id : w.id} mo={!dr.drop} /> }, { k: 'owner', l: 'Owner', w: 'minmax(116px,.9fr)', hide: 'lap' }, { k: 'plan', l: 'Plan', w: 'minmax(140px,1.1fr)' }, { k: 'used', l: 'Seats', w: '132px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '96px', r: w => <St v={w.st} /> }, { k: 'last', l: 'Last activity', w: '124px', ns: 1 }]}
+      cols={[{ k: 'n', l: 'Workspace', w: 'minmax(170px,1.3fr)', r: (w, dr) => <Two a={w.n} b={dr.drop ? w.owner + ' · ' + w.id : w.id} mo={!dr.drop} /> }, { k: 'owner', l: 'Owner', w: 'minmax(116px,.9fr)', hide: 'lap' }, { k: 'plan', l: 'Plan', w: 'minmax(140px,1.1fr)' }, { k: 'used', l: 'Seats', w: '132px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '96px', r: w => <St v={w.st} /> }, { k: 'last', l: 'Last activity', w: '124px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
       menu={w => [{ l: 'Open workspace', fn: () => go('workspace', w.id) }, { l: 'Masquerade as owner…', ic: 'masquerade', fn: () => startMasq(USERS.find(u => u.n === w.owner)) }]} />
   </div>;
 }
@@ -925,7 +934,7 @@ function Workspace() {
   const { route, go, startMasq, guard, toast, log } = useC();
   const w = WS.find(x => x.id === route.id);
   const [tab, setTab] = useState('members');
-  const [notes, setNotes] = useState([['Imani Brooks', 'Dec 7, 3:40 PM', 'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.'], ['Connor Leiva', 'Nov 24, 10:05 AM', 'Onboarding call done. They want the leadership modules first.']]);
+  const [notes, setNotes] = useState([['Imani Brooks', 'Dec 7, 3:40 PM MT / 4:40 PM CT', 'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.'], ['Connor Leiva', 'Nov 24, 10:05 AM MT / 11:05 AM CT', 'Onboarding call done. They want the leadership modules first.']]);
   const [draft, setDraft] = useState('');
   if (!w) return <NotFound />;
   const mem = USERS.filter(u => u.ws === w.n);
@@ -942,12 +951,12 @@ function Workspace() {
           ['Access groups', <span className="row" style={{ gap: 6 }}><Pill v="library" tone="" /><Pill v="agent" tone="" />{w.plan.startsWith('Team') && <Pill v="team" tone="" />}{w.plan === 'AI Accelerator' && <Pill v="cohort-dec-2026" tone="" />}</span>], ['Renews', w.mrr === 'One-time' ? 'One-time purchase' : 'Jan 8, 2027']]} /></Card></Gate>}
         {tab === 'usage' && <Gate><div className="g4"><Stat l="Sign-ins, 7d" v={String(w.used * 6)} /><Stat l="Lesson plays, 7d" v={String(w.used * 4)} /><Stat l="Guide views, 7d" v={String(w.used * 9)} /><Stat l="Storage" v={(w.used * 0.2).toFixed(1) + ' GB'} /></div></Gate>}
         {tab === 'billing' && <Gate><Card><div className="col"><KV rows={[['Stripe customer', <span className="mo">{w.cus}</span>], ['Subscription', <span className="mo">{w.sub}</span>], ['MRR', w.mrr], ['Last invoice', inv ? <span className="row" style={{ gap: 8 }}><span className="mo">{inv.id}</span><St v={inv.st} /></span> : '—']]} /><div><Btn onClick={() => go('billing', null, 'invoices')}>Open in Billing</Btn></div></div></Card></Gate>}
-        {tab === 'activity' && <Gate><Card>{[['Dec 10, 8:52 AM', w.owner + ' signed in'], ['Dec 10, 8:55 AM', w.owner + ' deployed Sales AI Employee'], ['Dec 8, 10:14 AM', 'A member was invited'], ['Dec 8, 9:00 AM', 'Invoice paid']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo">{a[0]}</div></div>)}</Card></Gate>}
+        {tab === 'activity' && <Gate><Card>{[['Dec 10, 8:52 AM MT / 9:52 AM CT', w.owner + ' signed in'], ['Dec 10, 8:55 AM MT / 9:55 AM CT', w.owner + ' deployed Sales AI Employee'], ['Dec 8, 10:14 AM MT / 11:14 AM CT', 'A member was invited'], ['Dec 8, 9:00 AM MT / 10:00 AM CT', 'Invoice paid']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo"><Stamp v={a[0]} /></div></div>)}</Card></Gate>}
       </div>
       <Card t="Staff notes" sub="Internal. Never shown to the workspace."><div className="col m">
         <textarea className="in" rows={3} aria-label="Add a note" value={draft} onChange={e => setDraft(e.target.value)} placeholder="What happened, what you told them" />
         <div><Btn disabled={!draft.trim()} onClick={() => guard('account', 'Add staff note', () => { setNotes([['You', 'Just now', draft.trim()], ...notes]); log('workspace.note_add', w.n, ''); setDraft(''); toast('Note saved'); })}>Save note</Btn></div>
-        {notes.map((n, i) => <div key={i} className="note col s"><span><span className="w5">{n[0]}</span> <span className="me">· {n[1]}</span></span><p className="s2">{n[2]}</p></div>)}
+        {notes.map((n, i) => <div key={i} className="note col s"><span><span className="w5">{n[0]}</span> <span className="me">· <Stamp v={n[1]} /></span></span><p className="s2">{n[2]}</p></div>)}
       </div></Card>
     </div>
   </div>;
@@ -961,7 +970,7 @@ function Users() {
     <Head t="Users" d="Find a person by name, email, or workspace." />
     <div className="row"><Find v={q} on={setQ} ph="Filter name, email, workspace" /><Sel label="Role" v={role} on={setRole} opts={['Any role', 'Team owner', 'Agent']} /></div>
     <Table rows={rows} sel onRow={u => go('user', u.id)} empty={{ ic: 'users', t: 'No users yet' }} bulk={<Btn onClick={() => guard('export', 'Export users', () => { log('users.export', 'Users', 'CSV'); toast('Export started. It is in the audit log.'); })}>Export selected</Btn>}
-      cols={[{ k: 'n', l: 'User', w: 'minmax(220px,1.6fr)', r: (u, dr) => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={dr.drop ? u.role + ' · ' + u.e : u.e} /></div> }, { k: 'ws', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'role', l: 'Role', w: '104px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: u => <St v={u.st} /> }, { k: 'last', l: 'Last sign-in', w: '128px', ns: 1 }]}
+      cols={[{ k: 'n', l: 'User', w: 'minmax(220px,1.6fr)', r: (u, dr) => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={dr.drop ? u.role + ' · ' + u.e : u.e} /></div> }, { k: 'ws', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'role', l: 'Role', w: '104px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: u => <St v={u.st} /> }, { k: 'last', l: 'Last sign-in', w: '128px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
       menu={u => [{ l: 'Open user', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} />
   </div>;
 }
@@ -983,12 +992,12 @@ function User() {
         <Tabs v={tab} on={setTab} tabs={[['orders', 'Orders'], ['progress', 'Progress'], ['emails', 'Emails sent'], ['activity', 'Activity']]} />
         {tab === 'orders' && <Table rows={INV.filter(i => i.c === u.ws)} empty={{ ic: 'billing', t: 'No orders for this user' }} cols={[{ k: 'id', l: 'Invoice', mo: 1, w: 'minmax(150px,1.4fr)' }, { k: 'amt', l: 'Amount', num: 1, w: '96px' }, { k: 'st', l: 'Status', w: '104px', r: i => <St v={i.st} /> }, { k: 'd', l: 'Date', w: '112px', ns: 1 }]} onRow={() => go('billing', null, 'invoices')} />}
         {tab === 'progress' && <Gate><Card pad={false}>{MODS0.filter(m => m.st === 'Published' && (u.tier === 'Team' || m.tier === 'both')).map((m, i) => <div key={m.id} className="li"><span className="el" style={{ flex: 1 }}>{m.n}</span><St v={!started ? 'Not started' : i < u.pr ? 'Deployed' : i === u.pr ? 'In progress' : 'Not started'} tone={!started ? '' : i < u.pr ? 'ok' : i === u.pr ? 'info' : ''} /></div>)}</Card></Gate>}
-        {tab === 'emails' && <Table rows={EMAILS.filter(e => e.to === u.e)} empty={{ ic: 'email', t: 'No emails sent to this user' }} cols={[{ k: 'sub', l: 'Subject', w: 'minmax(200px,2fr)' }, { k: 'tpl', l: 'Template', mo: 1, w: '136px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />}
-        {tab === 'activity' && <Gate><Card>{[[u.last, 'Signed in with Google'], ['Dec 8, 2:14 PM', 'Opened the Session 2 replay'], ['Dec 2, 12:01 PM', 'Joined Session 1'], ['Nov 24, 9:30 AM', 'Account created at checkout']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo">{a[0]}</div></div>)}</Card></Gate>}
+        {tab === 'emails' && <Table rows={EMAILS.filter(e => e.to === u.e)} empty={{ ic: 'email', t: 'No emails sent to this user' }} cols={[{ k: 'sub', l: 'Subject', w: 'minmax(200px,2fr)' }, { k: 'tpl', l: 'Template', mo: 1, w: '136px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 't', l: 'Sent', w: '128px', ns: 1, r: x => <Stamp v={x.t} two /> }]} />}
+        {tab === 'activity' && <Gate><Card>{[[u.last, 'Signed in with Google'], ['Dec 8, 2:14 PM MT / 3:14 PM CT', 'Opened the Session 2 replay'], ['Dec 2, 12:01 PM MT / 1:01 PM CT', 'Joined Session 1'], ['Nov 24, 9:30 AM MT / 10:30 AM CT', 'Account created at checkout']].map((a, i) => <div key={i} className="tl"><div>{a[1]}</div><div className="me mo"><Stamp v={a[0]} /></div></div>)}</Card></Gate>}
       </div>
       <div className="col">
         <Card t="Identity"><KV rows={[['Email verified', 'Yes, Nov 24, 2026'], ['Sign-in', 'Password, Google'], ['Staff role', 'None'], ['Access groups', <span className="row" style={{ gap: 6 }}><Pill v="library" tone="" /><Pill v="agent" tone="" />{u.tier === 'Team' && <Pill v="team" tone="" />}</span>]]} /></Card>
-        <Card t="Notes" sub="Internal. Never shown to the user."><div className="note col s"><span><span className="w5">Imani Brooks</span> <span className="me">· Dec 7, 3:40 PM</span></span><p className="s2">Prefers email over calls. Mornings MT.</p></div></Card>
+        <Card t="Notes" sub="Internal. Never shown to the user."><div className="note col s"><span><span className="w5">Imani Brooks</span> <span className="me">· <Stamp v="Dec 7, 3:40 PM MT / 4:40 PM CT" /></span></span><p className="s2">Prefers email over calls. Mornings MT.</p></div></Card>
       </div>
     </div>
   </div>;
@@ -1005,8 +1014,8 @@ function Masquerade() {
           {masq ? <Card t="Active session" right={<Pill v={fmt(masq.left) + ' left'} tone="warn" />}><div className="col"><KV rows={[['Signed in as', masq.u.n + ' · ' + masq.u.ws], ['Reason', masq.reason], ['Time granted', masq.granted / 60 + ' of 60 minutes']]} /><div className="row"><Btn onClick={() => go('as')}>Open learner view</Btn><Btn k="d" onClick={() => endMasq('Exited by staff')}>Exit masquerade</Btn></div></div></Card>
             : can('masq') ? <Card t="Start a session"><div className="col m"><div className="row"><select className="in" style={{ flex: '1 1 240px' }} aria-label="User" value={pick} onChange={e => setPick(e.target.value)}>{USERS.map(u => <option key={u.id} value={u.id}>{u.n} · {u.ws}</option>)}</select><Btn k="p" ic="masquerade" onClick={() => startMasq(USERS.find(u => u.id === pick))}>Masquerade…</Btn></div><p className="me">You will be asked for a reason. You can also start from any user or workspace record.</p></div></Card>
               : <Card t="Start a session"><div className="row nw" style={{ alignItems: 'flex-start' }}><I n="lock" /><p className="s2">Your role ({role}) can't start masquerade. Ask an Owner or Admin, or send them the user record.</p></div></Card>}
-          <Table title="Recent sessions" empty={{ ic: 'masquerade', t: 'No masquerade sessions yet' }} rows={[['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'], ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'], ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff']]}
-            cols={[{ k: 1, l: 'As user', w: 'minmax(120px,1fr)', r: r => <Two a={r[1]} b={'by ' + r[0]} /> }, { k: 2, l: 'Reason', w: 'minmax(160px,2fr)', ns: 1 }, { k: 3, l: 'Started', w: '128px', ns: 1, hide: 'lap' }, { k: 4, l: 'Length', w: '64px', num: 1 }, { k: 5, l: 'Ended', w: '120px', r: (r, dr) => dr.drop ? <div className="col" style={{ gap: 0 }}><span className="el">{r[5]}</span><span className="me el">{r[3]}</span></div> : r[5] }]} />
+          <Table title="Recent sessions" empty={{ ic: 'masquerade', t: 'No masquerade sessions yet' }} rows={[['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM MT / 10:25 PM CT', '6 min', 'Exited by staff'], ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM MT / 3:02 PM CT', '15 min', 'Expired'], ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM MT / 5:18 PM CT', '11 min', 'Exited by staff']]}
+            cols={[{ k: 1, l: 'As user', w: 'minmax(120px,1fr)', r: r => <Two a={r[1]} b={'by ' + r[0]} /> }, { k: 2, l: 'Reason', w: 'minmax(160px,2fr)', ns: 1 }, { k: 3, l: 'Started', w: '128px', ns: 1, hide: 'lap', r: x => <Stamp v={x[3]} two /> }, { k: 4, l: 'Length', w: '64px', num: 1 }, { k: 5, l: 'Ended', w: '120px', r: (r, dr) => dr.drop ? <div className="col" style={{ gap: 0 }}><span className="el">{r[5]}</span><span className="me el">{r[3]}</span></div> : r[5] }]} />
         </div>
         <div className="col">
           <Card t="Rules for every session" pad={false}>{['A written reason is required to start.', '15 minutes. Each extension adds 15 and needs a new reason. 60 minutes is the maximum.', 'A banner stays on screen with the countdown and an Exit control.', 'Every write is blocked: edits, publishes, refunds, exports, retries, notes.', 'Start, stop, extend, and every blocked attempt go to the audit log.'].map((t, i) => <div key={i} className="li" style={{ alignItems: 'flex-start' }}><span className="me tn" style={{ width: 12, paddingTop: 2 }}>{i + 1}</span><span style={{ flex: 1 }}>{t}</span></div>)}</Card>
@@ -1045,10 +1054,10 @@ function Billing({ part }) {
     {tab === 'subs' && <Table rows={WS.filter(w => w.sub !== '—')} empty={{ ic: 'billing', t: 'No subscriptions yet' }} cols={[{ k: 'sub', l: 'Subscription', mo: 1, w: 'minmax(170px,1.2fr)' }, { k: 'n', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'plan', l: 'Plan', w: 'minmax(150px,1fr)', hide: 'lap' }, { k: 'mrr', l: 'MRR', w: '96px', num: 1 }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]} onRow={w => go('workspace', w.id)} />}
     {tab === 'invoices' && <Table rows={INV} empty={{ ic: 'billing', t: 'No invoices yet' }} cols={[{ k: 'id', l: 'Invoice', mo: 1, w: 'minmax(150px,1.2fr)' }, { k: 'c', l: 'Customer', w: 'minmax(150px,1.2fr)' }, { k: 'card', l: 'Payment method', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'amt', l: 'Amount', w: '96px', num: 1 }, { k: 'st', l: 'Status', w: '104px', r: i => <St v={i.st} /> }, { k: 'd', l: 'Date', w: '104px', ns: 1 }]}
       menu={i => [{ l: 'Open customer', fn: () => go('workspace', WS.find(w => w.n === i.c).id) }, ...(i.st === 'Paid' ? ['-', { l: 'Refund…', d: !ro, g: 1, off: ro, fn: () => refund(i) }] : []), ...(i.st === 'Open' || i.st === 'Failed' ? ['-', { l: 'Void invoice…', d: !ro, g: 1, off: ro, fn: () => voidI(i) }] : [])]} />}
-    {tab === 'failed' && <Table empty={{ ic: 'check', t: 'No failed payments' }} rows={[['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM'], ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM'], ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM']]}
-      cols={[{ k: 0, l: 'Customer', w: 'minmax(170px,1.2fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 2, l: 'Decline reason', mo: 1, w: 'minmax(200px,1.6fr)' }, { k: 1, l: 'Amount', w: '96px', num: 1 }, { k: 3, l: 'Attempts', w: '80px' }, { k: 4, l: 'Next retry', w: '136px', ns: 1 }]}
+    {tab === 'failed' && <Table empty={{ ic: 'check', t: 'No failed payments' }} rows={[['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM MT / 10:00 AM CT'], ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM MT / 9:00 AM CT'], ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM MT / 1:00 PM CT']]}
+      cols={[{ k: 0, l: 'Customer', w: 'minmax(170px,1.2fr)', r: r => <span className="w5">{r[0]}</span> }, { k: 2, l: 'Decline reason', mo: 1, w: 'minmax(200px,1.6fr)' }, { k: 1, l: 'Amount', w: '96px', num: 1 }, { k: 3, l: 'Attempts', w: '80px' }, { k: 4, l: 'Next retry', w: '136px', ns: 1, r: x => <Stamp v={x[4]} two /> }]}
       menu={r => [{ l: 'Open customer', fn: () => go('workspace', WS.find(w => w.n === r[0]).id) }, { l: 'Open email log', fn: () => go('email') }]} />}
-    {tab === 'refunds' && <Table empty={{ ic: 'billing', t: 'No refunds yet' }} rows={[['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']]} cols={[{ k: 0, l: 'Refund', mo: 1, w: 'minmax(120px,1fr)' }, { k: 1, l: 'Invoice', mo: 1, w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 3, l: 'Reason', w: 'minmax(180px,1.6fr)' }, { k: 4, l: 'By', w: '120px' }, { k: 2, l: 'Amount', w: '96px', num: 1 }, { k: 5, l: 'When', w: '128px', ns: 1 }]} />}
+    {tab === 'refunds' && <Table empty={{ ic: 'billing', t: 'No refunds yet' }} rows={[['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM MT / 5:44 PM CT']]} cols={[{ k: 0, l: 'Refund', mo: 1, w: 'minmax(120px,1fr)' }, { k: 1, l: 'Invoice', mo: 1, w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 3, l: 'Reason', w: 'minmax(180px,1.6fr)' }, { k: 4, l: 'By', w: '120px' }, { k: 2, l: 'Amount', w: '96px', num: 1 }, { k: 5, l: 'When', w: '128px', ns: 1, r: x => <Stamp v={x[5]} two /> }]} />}
   </div>;
 }
 
@@ -1079,7 +1088,7 @@ function Api() {
     {tab === 'endpoints' && <Table rows={ENDPOINTS} empty={{ ic: 'api', t: 'No requests in this window' }} cols={[{ k: 'p', l: 'Endpoint', mo: 1, w: 'minmax(220px,2fr)' }, { k: 'req', l: 'Requests', num: 1, ns: 1, w: '88px' }, { k: 'p50', l: 'p50', num: 1, ns: 1, w: '80px' }, { k: 'p95', l: 'p95', num: 1, ns: 1, w: '80px' }, { k: 'er', l: 'Error rate', w: '136px', r: e => <span className="row nw"><span className="tn" style={{ width: 40 }}>{e.er.toFixed(1)}%</span>{e.er >= 2 && <Pill v={e.er >= 5 ? 'High' : 'Elevated'} tone={e.er >= 5 ? 'bad' : 'warn'} />}</span> }]} />}
     {tab === 'hooks' && <><div className="row"><Sel label="Source" v={src} on={setSrc} opts={['All sources', 'Stripe', 'GoHighLevel', 'Zoom']} /></div>
       <Table rows={HOOKS.filter(h => src === 'All sources' || h.src === src)} empty={{ ic: 'api', t: 'No webhook deliveries yet' }}
-        cols={[{ k: 'ev', l: 'Event', w: 'minmax(200px,1.6fr)', r: h => <Two a={<span className="mo">{h.ev}</span>} b={h.src + (h.id !== '—' ? ' · ' + h.id : '')} /> }, { k: 'st', l: 'Status', w: '128px', r: h => <St v={h.st} /> }, { k: 'att', l: 'Attempts', w: '80px' }, { k: 'next', l: 'Next attempt', w: '152px', ns: 1, hide: 'lap' }, { k: 'err', l: 'Last error', w: 'minmax(160px,1.4fr)', ns: 1, r: h => <span className="s2">{h.err}</span> }]}
+        cols={[{ k: 'ev', l: 'Event', w: 'minmax(200px,1.6fr)', r: h => <Two a={<span className="mo">{h.ev}</span>} b={h.src + (h.id !== '—' ? ' · ' + h.id : '')} /> }, { k: 'st', l: 'Status', w: '128px', r: h => <St v={h.st} /> }, { k: 'att', l: 'Attempts', w: '80px' }, { k: 'next', l: 'Next attempt', w: '152px', ns: 1, hide: 'lap', r: x => <Stamp v={x.next} two /> }, { k: 'err', l: 'Last error', w: 'minmax(160px,1.4fr)', ns: 1, r: h => <span className="s2">{h.err}</span> }]}
         menu={h => [{ l: 'Retry now…', g: 1, off: !(h.st === 'Failed' || h.st === 'Retrying'), fn: () => guard('jobs', 'Retry ' + h.ev, () => setDlg({ title: 'Retry ' + h.ev + ' for ' + h.id + '?', body: 'Sends this ' + h.src + ' delivery again now. Handlers are idempotent, so a repeat is safe.', cta: 'Retry delivery', yes: () => { log('webhook.retry', h.ev + ' ' + h.id, ''); toast('Retry queued'); } })) }, { l: 'Related incidents', fn: () => go('incidents') }]} />
       <p className="me">Payloads and signing secrets are not shown. Event IDs link a delivery to its order or user.</p></>}
   </div>;
@@ -1088,12 +1097,12 @@ function Api() {
 function Integrations() {
   const { toast } = useC();
   const L = [
-    { n: 'Stripe', use: 'Payments, subscriptions, invoices', st: 'Connected', ok: 'Dec 10, 9:18 AM', err: 'None', sec: [['Secret key', 1], ['Webhook signing secret', 1]] },
-    { n: 'GoHighLevel', use: 'CRM sync for logins and orders', st: 'Degraded', ok: 'Dec 9, 9:04 PM', err: 'Dec 10, 9:10 AM · 401 Unauthorized', sec: [['Access token', 1], ['Location ID', 1]] },
-    { n: 'Zoom', use: 'Session join links', st: 'Connected', ok: 'Dec 9, 12:00 PM', err: 'None', sec: [['OAuth client secret', 1], ['Recording webhook secret', 0]] },
-    { n: 'Google', use: 'Sign in with Google', st: 'Connected', ok: 'Dec 10, 8:52 AM', err: 'None', sec: [['OAuth client secret', 1]] },
-    { n: 'Resend', use: 'Transactional email', st: 'Connected', ok: 'Dec 10, 9:18 AM', err: 'Dec 7, 7:00 AM · 1 hard bounce', sec: [['API key', 1]] },
-    { n: 'Storage', use: 'Railway S3-compatible bucket', st: 'Connected', ok: 'Dec 10, 9:02 AM', err: 'None', sec: [['Access key', 1]] },
+    { n: 'Stripe', use: 'Payments, subscriptions, invoices', st: 'Connected', ok: 'Dec 10, 9:18 AM MT / 10:18 AM CT', err: 'None', sec: [['Secret key', 1], ['Webhook signing secret', 1]] },
+    { n: 'GoHighLevel', use: 'CRM sync for logins and orders', st: 'Degraded', ok: 'Dec 9, 9:04 PM MT / 10:04 PM CT', err: 'Dec 10, 9:10 AM MT / 10:10 AM CT · 401 Unauthorized', sec: [['Access token', 1], ['Location ID', 1]] },
+    { n: 'Zoom', use: 'Session join links', st: 'Connected', ok: 'Dec 9, 12:00 PM MT / 1:00 PM CT', err: 'None', sec: [['OAuth client secret', 1], ['Recording webhook secret', 0]] },
+    { n: 'Google', use: 'Sign in with Google', st: 'Connected', ok: 'Dec 10, 8:52 AM MT / 9:52 AM CT', err: 'None', sec: [['OAuth client secret', 1]] },
+    { n: 'Resend', use: 'Transactional email', st: 'Connected', ok: 'Dec 10, 9:18 AM MT / 10:18 AM CT', err: 'Dec 7, 7:00 AM MT / 8:00 AM CT · 1 hard bounce', sec: [['API key', 1]] },
+    { n: 'Storage', use: 'Railway S3-compatible bucket', st: 'Connected', ok: 'Dec 10, 9:02 AM MT / 10:02 AM CT', err: 'None', sec: [['Access key', 1]] },
     { n: 'GA4', use: 'Analytics on www only', st: 'Connected', ok: '—', err: '—', id: 'G-TSQ5YB5BCP', sec: [] },
     { n: 'Meta Pixel', use: 'Ads measurement on www only', st: 'Connected', ok: '—', err: '—', id: '1835170747490806', sec: [] },
   ];
@@ -1110,7 +1119,7 @@ function Deploys() {
   return <div className="pg">
     <Head t="Deploys & Commits" d="Commits on main and their Railway production deploys. Read-only." />
     <Gate n={3}><Facts items={[['Repository', <span className="mo">amplified-impact-lms</span>], ['Branch', <span className="mo">main</span>], ['Railway service', <span className="mo">web</span>], ['Environment', 'Production'], ['Live commit', <span className="row nw" style={{ gap: 8 }}><span className="mo">a3f91c2</span><St v="Live" /></span>]]} /></Gate>
-    <Table rows={DEPLOYS} empty={{ ic: 'deploys', t: 'No deploys found' }} cols={[{ k: 'm', l: 'Commit', w: 'minmax(260px,2.4fr)', r: d => <div className="row nw" style={{ gap: 12 }}><St v="" tone={TONE[d.st]} /><Two a={d.m} b={d.sha + ' · main'} mo /></div> }, { k: 'st', l: 'Deploy', w: '112px', r: d => <span className={d.st === 'Failed' ? 'w5' : ''} style={d.st === 'Failed' ? { color: 'var(--bad)' } : undefined}>{d.st}</span> }, { k: 'dur', l: 'Build', w: '72px', num: 1, ns: 1 }, { k: 'a', l: 'Author', w: '128px', hide: 'lap' }, { k: 't', l: 'Time', w: '136px', ns: 1 }]} />
+    <Table rows={DEPLOYS} empty={{ ic: 'deploys', t: 'No deploys found' }} cols={[{ k: 'm', l: 'Commit', w: 'minmax(260px,2.4fr)', r: d => <div className="row nw" style={{ gap: 12 }}><St v="" tone={TONE[d.st]} /><Two a={d.m} b={d.sha + ' · main'} mo /></div> }, { k: 'st', l: 'Deploy', w: '112px', r: d => <span className={d.st === 'Failed' ? 'w5' : ''} style={d.st === 'Failed' ? { color: 'var(--bad)' } : undefined}>{d.st}</span> }, { k: 'dur', l: 'Build', w: '72px', num: 1, ns: 1 }, { k: 'a', l: 'Author', w: '128px', hide: 'lap' }, { k: 't', l: 'Time', w: '136px', ns: 1, r: x => <Stamp v={x.t} two /> }]} />
   </div>;
 }
 
@@ -1124,7 +1133,7 @@ function Db() {
       </div></Card>
       <div className="g2">
         <Card t="Largest tables" pad={false}>{[['activity', '412 MB', '2.1M rows'], ['progress', '288 MB', '940K rows'], ['auth_sessions', '164 MB', '310K rows'], ['job_runs', '121 MB', '1.4M rows'], ['stripe_events', '96 MB', '48K rows'], ['orders', '22 MB', '3.2K rows']].map(t => <div key={t[0]} className="li"><span className="mo" style={{ flex: 1 }}>{t[0]}</span><span className="tn">{t[1]}</span><span className="tn mu" style={{ width: 80, textAlign: 'right' }}>{t[2]}</span></div>)}</Card>
-        <Card t="Migrations" sub="Drizzle" pad={false}>{[['0014_cohort_starts_at_first_build', 'Dec 2, 9:48 AM'], ['0013_course_guide_links', 'Nov 24, 4:48 PM'], ['0012_access_group_domains', 'Nov 12, 1:10 PM'], ['0011_google_identities', 'Nov 3, 9:32 AM']].map((m, i) => <div key={m[0]} className="li"><span className="mo el" style={{ flex: 1 }}>{m[0]}</span>{i === 0 && <Pill v="Latest" tone="ok" />}<span className="me" style={{ whiteSpace: 'nowrap' }}>{m[1]}</span></div>)}</Card>
+        <Card t="Migrations" sub="Drizzle" pad={false}>{[['0014_cohort_starts_at_first_build', 'Dec 2, 9:48 AM MT / 10:48 AM CT'], ['0013_course_guide_links', 'Nov 24, 4:48 PM MT / 5:48 PM CT'], ['0012_access_group_domains', 'Nov 12, 1:10 PM MT / 2:10 PM CT'], ['0011_google_identities', 'Nov 3, 9:32 AM MT / 10:32 AM CT']].map((m, i) => <div key={m[0]} className="li"><span className="mo el" style={{ flex: '1 1 160px' }}>{m[0]}</span>{i === 0 && <Pill v="Latest" tone="ok" />}<span className="me" style={{ whiteSpace: 'nowrap' }}>{m[1]}</span></div>)}</Card>
       </div>
     </Gate>
   </div>;
@@ -1149,7 +1158,7 @@ function Jobs() {
   const [run, setRun] = useState({});
   return <div className="pg">
     <Head t="Scheduled Jobs" d="Runs are keyed in job_runs, so running a job again skips anything it already sent. One scheduler holds the lock at a time." />
-    <Table rows={JOBS} empty={{ ic: 'jobs', t: 'No jobs registered' }} cols={[{ k: 'j', l: 'Job', mo: 1, w: 'minmax(180px,1.5fr)' }, { k: 'sch', l: 'Schedule', w: 'minmax(110px,1fr)' }, { k: 'st', l: 'Last result', w: '120px', r: j => <St v={run[j.j] ? 'Running' : j.st} /> }, { k: 'last', l: 'Last run', w: '136px', ns: 1 }, { k: 'dur', l: 'Duration', num: 1, ns: 1, w: '72px', hide: 'lap' }, { k: 'next', l: 'Next run', w: '136px', ns: 1 }]}
+    <Table rows={JOBS} empty={{ ic: 'jobs', t: 'No jobs registered' }} cols={[{ k: 'j', l: 'Job', mo: 1, w: 'minmax(180px,1.5fr)' }, { k: 'sch', l: 'Schedule', w: 'minmax(110px,1fr)', r: x => <Stamp v={x.sch} two /> }, { k: 'st', l: 'Last result', w: '120px', r: j => <St v={run[j.j] ? 'Running' : j.st} /> }, { k: 'last', l: 'Last run', w: '136px', ns: 1, r: x => <Stamp v={x.last} two /> }, { k: 'dur', l: 'Duration', num: 1, ns: 1, w: '72px', hide: 'lap' }, { k: 'next', l: 'Next run', w: '136px', ns: 1, r: x => <Stamp v={x.next} two /> }]}
       menu={j => [j.j === 'billing' ? { l: 'Run now is off for billing', off: 1, fn: () => {} } : { l: 'Run now…', ic: 'play', g: 1, fn: () => guard('jobs', 'Run ' + j.j, () => setDlg({ title: 'Run ' + j.j + ' now?', body: 'Starts one extra run outside the schedule (' + j.sch.toLowerCase() + '). Anything already sent is skipped.', cta: 'Run ' + j.j, yes: () => { setRun({ ...run, [j.j]: 1 }); log('job.run_now', j.j, 'Manual run.'); toast(j.j + ' started'); } })) }, ...(j.st === 'Failed' ? [{ l: 'Open incident', fn: () => go('incident', 'INC-0007') }] : [])]} />
     <p className="me">The billing job only runs on its schedule. It cannot be started by hand.</p>
   </div>;
@@ -1162,7 +1171,7 @@ function Incidents() {
     <Head t="Incidents" d="What broke, who has it, and what it is linked to." />
     <div className="row"><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Open', 'Acknowledged', 'Resolved']} /></div>
     <Table rows={INCIDENTS.map(i => ({ ...i, st: inc[i.id] || i.st })).filter(i => st === 'Any status' || i.st === st)} onRow={i => go('incident', i.id)} empty={{ ic: 'check', t: 'No incidents', b: 'Failed jobs and webhooks open one automatically.' }}
-      cols={[{ k: 't', l: 'Incident', w: 'minmax(240px,2fr)', r: i => <Two a={i.t} b={i.id} mo /> }, { k: 'sev', l: 'Severity', w: '88px', r: i => <Pill v={i.sev} /> }, { k: 'st', l: 'Status', w: '128px', r: i => <St v={i.st} tone={i.st === 'Open' ? 'bad' : undefined} /> }, { k: 'own', l: 'Owner', w: '128px', hide: 'lap' }, { k: 'o', l: 'Opened', w: '128px', ns: 1 }]} />
+      cols={[{ k: 't', l: 'Incident', w: 'minmax(240px,2fr)', r: i => <Two a={i.t} b={i.id} mo /> }, { k: 'sev', l: 'Severity', w: '88px', r: i => <Pill v={i.sev} /> }, { k: 'st', l: 'Status', w: '128px', r: i => <St v={i.st} tone={i.st === 'Open' ? 'bad' : undefined} /> }, { k: 'own', l: 'Owner', w: '128px', hide: 'lap' }, { k: 'o', l: 'Opened', w: '128px', ns: 1, r: x => <Stamp v={x.o} two /> }]} />
   </div>;
 }
 function Incident() {
@@ -1173,9 +1182,9 @@ function Incident() {
   const set = s => guard('jobs', s + ' ' + i.id, () => { setInc({ ...inc, [i.id]: s }); log('incident.' + s.toLowerCase(), i.id, ''); toast(i.id + ' is ' + s.toLowerCase()); });
   return <div className="pg">
     <Head back={['incidents', 'Incidents']} t={i.t} meta={<Pill v={i.sev} />} right={<>{st === 'Open' && <GBtn perm="jobs" label={'Acknowledge ' + i.id} go={() => set('Acknowledged')}>Acknowledge</GBtn>}{st !== 'Resolved' && <GBtn k="p" perm="jobs" label={'Resolve ' + i.id} go={() => set('Resolved')}>Resolve</GBtn>}</>} />
-    <Gate n={3}><Facts items={[['Incident', <span className="mo">{i.id}</span>], ['Status', <St v={st} tone={st === 'Open' ? 'bad' : undefined} />], ['Severity', i.sev], ['Owner', i.own], ['Opened', stampCt(i.o)]]} /></Gate>
+    <Gate n={3}><Facts items={[['Incident', <span className="mo">{i.id}</span>], ['Status', <St v={st} tone={st === 'Open' ? 'bad' : undefined} />], ['Severity', i.sev], ['Owner', i.own], ['Opened', i.o]]} /></Gate>
     <Gate><div className="gms">
-      <Card t="Timeline">{[...i.tl, ...(st !== i.st ? [['Just now', st + ' by you.']] : [])].map((t, k) => <div key={k} className="tl"><div>{t[1]}</div><div className="me mo">{t[0]}</div></div>)}</Card>
+      <Card t="Timeline">{[...i.tl, ...(st !== i.st ? [['Just now', st + ' by you.']] : [])].map((t, k) => <div key={k} className="tl"><div>{t[1]}</div><div className="me mo"><Stamp v={t[0]} /></div></div>)}</Card>
       <Card t="Linked" pad={false}>{i.links.map((l, k) => <div key={k} className="li"><I n={l[0]} /><button className="lk" style={{ flex: 1 }} onClick={() => go(l[0], null, l[0] === 'api' ? 'hooks' : null)}>{l[1]}</button><I n="chev" /></div>)}</Card>
     </div></Gate>
   </div>;
@@ -1192,16 +1201,16 @@ function Email() {
   const bo = rows.filter(e => e.st === 'Bounced').length, cp = rows.filter(e => e.st === 'Complained').length, op = got.filter(e => e.op > 0).length, cl = got.filter(e => e.cl > 0).length;
   const pc = (n, d) => d ? Math.round(n / d * 100) + '%' : '—';
   return <div className="pg">
-    <Head t="Email Log" d="Every transactional email and notification sent through Resend. Times are MT (America/Denver)." right={<GBtn ic="download" perm="export" label="Export email log" go={exp}>Export CSV</GBtn>} />
+    <Head t="Email Log" d="Every transactional email and notification sent through Resend." right={<GBtn ic="download" perm="export" label="Export email log" go={exp}>Export CSV</GBtn>} />
     <div className="row"><Find v={q} on={setQ} ph="Filter recipient or subject" /><Sel label="Template" v={tpl} on={setTpl} opts={['Any template', ...new Set(EMAILS.map(e => e.tpl))]} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Sent', 'Delivered', 'Delayed', 'Bounced', 'Complained', 'Failed', 'Skipped']} /></div>
     <Gate n={3}><div className="g5"><Stat l="Sent" v={String(sent)} sub="Last 180 days" /><Stat l="Delivered" v={pc(got.length, sent)} sub={got.length + ' of ' + sent + ' sent'} /><Stat l="Bounced" v={String(bo)} sub={(sent ? pc(bo, sent) + ' of sent' : 'None sent') + (cp ? ' · ' + cp + (cp === 1 ? ' complaint' : ' complaints') : '')} tone={cp || bo / sent >= 0.04 ? 'bad' : null} /><Stat l="Unique opens" v={pc(op, got.length)} sub={op + ' of ' + got.length + ' delivered'} /><Stat l="Unique clicks" v={pc(cl, got.length)} sub={cl + ' of ' + got.length + ' delivered'} /></div></Gate>
     <Table rows={rows} sel onRow={setOpen} bulk={<Btn onClick={exp}>Export selected</Btn>} empty={{ ic: 'email', t: 'No emails sent yet' }}
-      cols={[{ k: 'sub', l: 'Email', w: 'minmax(260px,2fr)', r: e => <Two a={e.sub} b={e.to} mo /> }, { k: 'tpl', l: 'Template', mo: 1, w: '160px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 'op', l: 'Opens', num: 1, w: '72px' }, { k: 'cl', l: 'Clicks', num: 1, w: '72px' }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />
+      cols={[{ k: 'sub', l: 'Email', w: 'minmax(260px,2fr)', r: e => <Two a={e.sub} b={e.to} mo /> }, { k: 'tpl', l: 'Template', mo: 1, w: '160px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 'op', l: 'Opens', num: 1, w: '72px' }, { k: 'cl', l: 'Clicks', num: 1, w: '72px' }, { k: 't', l: 'Sent', w: '128px', ns: 1, r: x => <Stamp v={x.t} two /> }]} />
     {open && <Modal title={open.sub} onClose={() => setOpen(null)} foot={<Btn k="p" onClick={() => setOpen(null)}>Done</Btn>}>
-      <KV rows={[['To', <span className="mo">{open.to}</span>], ['From', 'Amplified Impact'], ['Template', <span className="mo">{open.tpl}</span>], ['Provider', 'Resend'], ['Status', <St v={open.st} />], ['Sent', stampCt(open.t)],
-        ...(open.dl ? [['Delivered', stampCt(open.dl)]] : []), ...(open.br ? [['Bounce', open.br]] : []),
-        ['Opens', String(open.op)], ...(open.op ? [['First opened', stampCt(open.fo)], ['Last opened', stampCt(open.lo)]] : []),
-        ['Clicks', String(open.cl)], ...(open.cl ? [['First clicked', stampCt(open.fc)], ['Last clicked', stampCt(open.lc)]] : []), ...(open.ln ? [['Last link clicked', <span className="mo">{open.ln}</span>]] : [])]} />
+      <KV rows={[['To', <span className="mo">{open.to}</span>], ['From', 'Amplified Impact'], ['Template', <span className="mo">{open.tpl}</span>], ['Provider', 'Resend'], ['Status', <St v={open.st} />], ['Sent', open.t],
+        ...(open.dl ? [['Delivered', open.dl]] : []), ...(open.br ? [['Bounce', open.br]] : []),
+        ['Opens', String(open.op)], ...(open.op ? [['First opened', open.fo], ['Last opened', open.lo]] : []),
+        ['Clicks', String(open.cl)], ...(open.cl ? [['First clicked', open.fc], ['Last clicked', open.lc]] : []), ...(open.ln ? [['Last link clicked', <span className="mo">{open.ln}</span>]] : [])]} />
       <p className="me">The log keeps the subject and delivery events. The message body is not stored here.</p>
     </Modal>}
   </div>;
@@ -1275,7 +1284,7 @@ function PeopleArea() {
    as Connor asked for it: the description, Find and the Agents table, each agent's line over their address and when they
    were last active, or "Invite pending"; a row opens the person). Its facts, cards, Export and the two access actions are
    Phase 7's. The mockup's own masked addresses. ---------- */
-const ULA_R2 = [['a•••••@liveutah.com', 'Dec 10, 8:02 AM'], ['c•••@liveutah.com', 'Dec 9, 5:47 PM'], ['j••••••@liveutah.com', 'Dec 8, 11:20 AM'], ['k••••@liveutah.com', 'Invite pending'], ['m••••@liveutah.com', 'Dec 7, 2:36 PM'], ['r•••••••@liveutah.com', 'Dec 6, 9:11 AM'], ['s•••@liveutah.com', 'Dec 4, 4:05 PM'], ['t••••••@liveutah.com', 'Dec 3, 10:30 AM']];
+const ULA_R2 = [['a•••••@liveutah.com', 'Dec 10, 8:02 AM MT / 9:02 AM CT'], ['c•••@liveutah.com', 'Dec 9, 5:47 PM MT / 6:47 PM CT'], ['j••••••@liveutah.com', 'Dec 8, 11:20 AM MT / 12:20 PM CT'], ['k••••@liveutah.com', 'Invite pending'], ['m••••@liveutah.com', 'Dec 7, 2:36 PM MT / 3:36 PM CT'], ['r•••••••@liveutah.com', 'Dec 6, 9:11 AM MT / 10:11 AM CT'], ['s•••@liveutah.com', 'Dec 4, 4:05 PM MT / 5:05 PM CT'], ['t••••••@liveutah.com', 'Dec 3, 10:30 AM MT / 11:30 AM CT']];
 function Groups() {
   const { go } = useC();
   const [q, setQ] = useState('');
@@ -1283,7 +1292,7 @@ function Groups() {
     <Head t="Utah Life" d="Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue." />
     <div className="row"><Find v={q} on={setQ} ph="Find an agent by email" /></div>
     <Table title="Agents" rows={ULA_R2.filter(r => r[0].includes(q.toLowerCase()))} onRow={() => go('user', 'u_1042')}
-      cols={[{ k: 0, l: 'Agent', w: 'minmax(200px,1.5fr)', r: r => <Two a="Utah Life agent" b={r[0]} /> }, { k: 1, l: 'Last active', w: '170px', ns: 1 }]} />
+      cols={[{ k: 0, l: 'Agent', w: 'minmax(200px,1.5fr)', r: r => <Two a="Utah Life agent" b={r[0]} /> }, { k: 1, l: 'Last active', w: '170px', ns: 1, r: x => <Stamp v={x[1]} two /> }]} />
   </div>;
 }
 function RevenueArea() {
@@ -1367,9 +1376,6 @@ const p3Progress = c => { if (!c.w1) return null; const b = c.weeks.filter(w => 
 const p3ProgressLine = p => !p.before ? 'Week ' + p.n + ' of ' + p.of : (p.setup ? 'Week 0 ' + (p.setup <= NOW_P3 ? 'opened ' : 'opens ') + mtDay(p.setup) + ' · ' : '') + 'Week 1 opens ' + mtDay(p.w1);
 const p3Line = c => { const p = p3Progress(c); return ['Amplified AI Accelerator', p3Shape(c) ? p3Shape(c) + ' weeks of building · ' + p3Meets(c.slots) : null, p ? p3ProgressLine(p) : null].filter(Boolean).join(' · '); };
 const includedLine = d => mtDate(zAt(d, '12:00'));
-/* R-5 audit (D-267): an event's stamp that names its zone, "Dec 10, 8:58 AM MT" (the app's adminStampZoned): the sample's
-   stamps are MT already */
-const stampCt = st => st + ' MT';
 /* the same-time sessions: one of this cohort's at the instant of another cohort's (none here: December meets Wednesdays) */
 const p3Clash = c => c.ses.filter(s => Object.values(P3_COH).some(o => o !== c && o.ses.some(x => x.start === s.start)));
 /* Before it opens: Open enrollment's refusals, in its order (the app's beforeItOpens) */
@@ -1467,7 +1473,7 @@ function WeekPick({ picks, on }) {
 function PlanList({ plan, free }) {
   return <div className={'ncl' + (free ? ' free' : '')}>{plan.weeks.map(w => { const o = w.opens !== null ? w.opens : plan.setupOpens;
     return <div key={w.id} className="ncw"><Wn n={w.n} sm pk /><span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}><span className="w5 el">{w.t}</span><span className="me">{o !== null ? 'Opens ' + mtDay(o) : 'Opens with the course'}</span>
-      <span className="row" style={{ gap: 6 }}>{w.ses.length ? w.ses.map((s, i) => <span key={i} className={'skc' + (s.kind === 'live_build' ? '' : ' alt')}>{mtDay(s.start).replace(',', '') + ' · ' + tOf(s.start, MTZ).replace(':00', '') + ' MT · ' + P3_KIND[s.kind]}</span>) : <span className="skc off">Self-paced</span>}</span></span></div>; })}</div>;
+      <span className="row" style={{ gap: 6 }}>{w.ses.length ? w.ses.map((s, i) => <span key={i} className={'skc' + (s.kind === 'live_build' ? '' : ' alt')}>{mtDay(s.start).replace(',', '') + ' · ' + mtCt(s.start).replace(/:00/g, '') + ' · ' + P3_KIND[s.kind]}</span>) : <span className="skc off">Self-paced</span>}</span></span></div>; })}</div>;
 }
 
 /* ---------- Cohort › Settings: its shape, its dates, its seats, its words, its clean-up ---------- */

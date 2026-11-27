@@ -108,7 +108,11 @@ export function cohortHeadVM(db: Db, cohortId: string, now: number): CohortHeadV
     status: { label: status, tone: STATUS_TONE[status] },
     // The mockup's `p3Line`: a cohort with no building weeks has no shape to say. R-5 audit (D-267, Connor): Week 1's
     // opening (and the setup week's) until it opens, then where the cohort is: "Week N of M".
-    line: [PROGRAM, shape && shape.shape.buildWeeks ? shapeLine(shape.shape) : null, progress ? cohortProgressLine(progress, now) : null]
+    line: [
+      PROGRAM,
+      shape && shape.shape.buildWeeks ? shapeLine(shape.shape) : null,
+      progress ? cohortProgressLine(progress, now) : null,
+    ]
       .filter(Boolean)
       .join(' · '),
     draft: co.status === 'draft',
@@ -173,7 +177,12 @@ export interface OverviewVM {
   teams: number | null;
   seats: { taken: number | null; cap: number; note: string };
   coming: ComingVM[];
-  shape: { promise: string; meets: string; seats: string; /** R-5 Phase 5 (D-262): Stripe's price, "$7,500, or two payments"; null for "Not set". */ price: string | null };
+  shape: {
+    promise: string;
+    meets: string;
+    seats: string;
+    /** R-5 Phase 5 (D-262): Stripe's price, "$7,500, or two payments"; null for "Not set". */ price: string | null;
+  };
 }
 
 /**
@@ -184,7 +193,13 @@ function secondPaymentsNeed(p: NonNullable<CohortFacts['secondPayments']>): Need
   const one = p.count === 1;
   const each = p.each !== null ? dollars(p.each) : null;
   const day = p.next !== null ? fmt.mtDay(p.next) : null;
-  const detail = !day ? (each ? `${each}${one ? '' : ' each'}.` : '') : each ? `${each}${one ? '' : ' each'}, on ${day}.` : `The next is on ${day}.`;
+  const detail = !day
+    ? each
+      ? `${each}${one ? '' : ' each'}.`
+      : ''
+    : each
+      ? `${each}${one ? '' : ' each'}, on ${day}.`
+      : `The next is on ${day}.`;
   return {
     icon: 'r2Billing',
     title: `${p.count} second payment${one ? ' is' : 's are'} on the calendar`,
@@ -212,7 +227,13 @@ const BEFORE_TO = (id: string): Record<BeforeKey, string> => ({
  * `waiting` (R-5 audit, D-267): the threads in this cohort's Community whose last word is a member's (the sidebar's
  * "3 waiting", `useWaitingThreads`, for the cohort the admin is on).
  */
-export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortFacts | null, waiting = 0): OverviewVM | null {
+export function overviewVM(
+  db: Db,
+  cohortId: string,
+  now: number,
+  facts: CohortFacts | null,
+  waiting = 0,
+): OverviewVM | null {
   const co = db.cohorts.find((c) => c.id === cohortId);
   if (!co) return null;
   const draft = co.status === 'draft';
@@ -658,9 +679,19 @@ export function enrollmentVM(db: Db, cohortId: string, facts: CohortFacts | null
     open: enrollmentOpen(co),
     seats: `${facts?.teams ?? 0} of ${s.capacity} taken`,
     price,
-    twoPay: s.twoPay && !s.keys.twoPay ? 'Offered. Set its price to see Stripe’s schedule.' : twoPayWords(s, stripePriceOf(facts, s.keys.twoPay)),
-    founding: !s.founding ? 'No' : s.foundingClosesAt === null ? 'Yes. No close is set.' : `Yes, until ${foundingCloseLine(s.foundingClosesAt)}`,
-    links: entered === 0 ? { text: 'Not set', warn: true } : { text: `${entered} of ${needed.length} entered`, warn: entered < needed.length },
+    twoPay:
+      s.twoPay && !s.keys.twoPay
+        ? 'Offered. Set its price to see Stripe’s schedule.'
+        : twoPayWords(s, stripePriceOf(facts, s.keys.twoPay)),
+    founding: !s.founding
+      ? 'No'
+      : s.foundingClosesAt === null
+        ? 'Yes. No close is set.'
+        : `Yes, until ${foundingCloseLine(s.foundingClosesAt)}`,
+    links:
+      entered === 0
+        ? { text: 'Not set', warn: true }
+        : { text: `${entered} of ${needed.length} entered`, warn: entered < needed.length },
     ghl: s.ghlValue,
     priceButton: anyKey ? 'Change the price' : 'Set the price',
     shapePrice: full ? `${dollars(full.unitAmount)}${s.twoPay ? ', or two payments' : ''}` : null,
@@ -677,7 +708,12 @@ export interface PriceForm {
 
 export function priceForm(db: Db, cohortId: string): PriceForm {
   const s = cohortSelling(db, cohortId);
-  return { full: s.keys.full ?? '', rollover: s.keys.rollover ?? '', twoPay: s.keys.twoPay ?? '', offerTwoPay: s.twoPay };
+  return {
+    full: s.keys.full ?? '',
+    rollover: s.keys.rollover ?? '',
+    twoPay: s.keys.twoPay ?? '',
+    offerTwoPay: s.twoPay,
+  };
 }
 
 /** What Stripe has under a key as the price dialog says it: its price, or why there is none to show. */
@@ -917,7 +953,7 @@ export function newCohortVM(
           sessions: mine.map((s) => {
             const clash = clashAt.has(s.start);
             return {
-              label: `${fmt.mtDay(s.start).replace(',', '')} · ${fmt.mtTime(s.start).replace(':00', '')} · ${LAYOUT_KIND_LABEL[s.kind]}`,
+              label: `${fmt.mtDay(s.start).replace(',', '')} · ${fmt.mtCt(s.start).replace(/:00/g, '')} · ${LAYOUT_KIND_LABEL[s.kind]}`,
               tone: clash ? ('warn' as const) : s.kind === 'live_build' ? ('build' as const) : ('alt' as const),
               ...(clash
                 ? { title: 'Same time as another cohort’s session' }
@@ -970,7 +1006,7 @@ function clashWordsFor(db: Db, warnings: ReturnType<typeof layoutWarnings>): str
     .join(' and ');
 }
 
-/** The same-time note's second sentence, from the other cohort's own rhythm: "Its Wednesday build and Thursday office hours are at 12:00 PM MT through Thu, Feb 4." */
+/** The same-time note's second sentence, from the other cohort's own rhythm: "Its Wednesday build and Thursday office hours are at 12:00 PM MT / 1:00 PM CT through Thu, Feb 4." */
 export function otherRhythmLine(db: Db, warnings: ReturnType<typeof layoutWarnings>): string | null {
   const id = warnings.find((w) => w.kind === 'same_time') as { cohortId: string } | undefined;
   if (!id) return null;
@@ -982,6 +1018,6 @@ export function otherRhythmLine(db: Db, warnings: ReturnType<typeof layoutWarnin
   const kinds = shape.shape.slots
     .map((s) => `${DAY_NAME[s.day]} ${s.kind === 'live_build' ? 'build' : LAYOUT_KIND_LABEL[s.kind].toLowerCase()}`)
     .join(' and ');
-  const at = times.length === 1 ? ` are at ${fmt.mtTime(Date.parse(`2027-01-05T${times[0]}:00-07:00`))}` : '';
+  const at = times.length === 1 ? ` are at ${fmt.mtCt(Date.parse(`2027-01-05T${times[0]}:00-07:00`))}` : '';
   return `Its ${kinds}${at} through ${fmt.mtDay(last.start)}.`;
 }

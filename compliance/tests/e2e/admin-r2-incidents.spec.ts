@@ -13,9 +13,16 @@ import { expectAccessible } from '../../lib/a11y';
 
 const NOW = '2026-12-10T09:30:00-07:00';
 
-async function openAt(browser: Browser, path: string, opts: { width?: number } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
+async function openAt(
+  browser: Browser,
+  path: string,
+  opts: { width?: number } = {},
+): Promise<{ page: Page; close: () => Promise<void> }> {
   const width = opts.width ?? 1280;
-  const ctx = await browser.newContext({ timezoneId: 'America/Phoenix', viewport: { width, height: width < 768 ? 844 : 900 } });
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Phoenix',
+    viewport: { width, height: width < 768 ? 844 : 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
   await page.addInitScript(() =>
@@ -26,10 +33,12 @@ async function openAt(browser: Browser, path: string, opts: { width?: number } =
   return { page, close: () => ctx.close() };
 }
 
-const rows = (page: Page) => page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
+const rows = (page: Page) =>
+  page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
 const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]');
 const toast = (page: Page, text: string) => page.locator('[role="status"]').filter({ hasText: text });
-const timeline = (page: Page) => page.locator('main section').filter({ has: page.getByRole('heading', { name: 'Timeline' }) });
+const timeline = (page: Page) =>
+  page.locator('main section').filter({ has: page.getByRole('heading', { name: 'Timeline' }) });
 
 test.describe('Incidents on R2 (D-167) @g9 @console', () => {
   test('the list, its status filter, and a row opening its incident', async ({ browser }) => {
@@ -58,7 +67,16 @@ test.describe('Incidents on R2 (D-167) @g9 @console', () => {
     const aside = page.locator('aside[aria-label="Primary"]');
     await expect(aside.getByRole('button', { name: /Incidents/ })).toContainText('1');
     await expect(page.getByRole('heading', { level: 1, name: 'GHL order sync failing with 401' })).toBeVisible();
-    for (const t of ['INC-0007', 'Open', 'Sev 2', 'Imani Brooks', 'Dec 9, 9:14 PM MT', 'Job ghl-orders', '3 webhook deliveries']) await expect(page.locator('main')).toContainText(t);
+    for (const t of [
+      'INC-0007',
+      'Open',
+      'Sev 2',
+      'Imani Brooks',
+      'Dec 9, 9:14 PM MT / 10:14 PM CT',
+      'Job ghl-orders',
+      '3 webhook deliveries',
+    ])
+      await expect(page.locator('main')).toContainText(t);
     // Exactly the mockup's two actions, and no other control in the header or the cards' heads.
     await expect(page.locator('main button')).toHaveText(['Acknowledge', 'Resolve']);
     await expectAccessible(page);
@@ -96,7 +114,10 @@ test.describe('Incidents on R2 (D-167) @g9 @console', () => {
   test('on a phone the timeline stacks, Linked under it, nothing sideways', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/incidents/INC-0007', { width: 390 });
     const tl = await timeline(page).boundingBox();
-    const linked = await page.locator('main section').filter({ has: page.getByRole('heading', { name: 'Linked' }) }).boundingBox();
+    const linked = await page
+      .locator('main section')
+      .filter({ has: page.getByRole('heading', { name: 'Linked' }) })
+      .boundingBox();
     expect(tl && linked && linked.y >= tl.y + tl.height).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     await expectAccessible(page);

@@ -16,14 +16,44 @@ const inputs = (over: Partial<HealthInputs> = {}): HealthInputs => ({
   billing: ok({ failedPayments: 3, mrrCents: 1851600, activeSubscriptions: 77, failed: [] }),
   stripeWebhooks: ok({ total: 1, rows: [] }),
   ghl: ok({ gaveUp: 3, retrying: 0 }),
-  jobs: ok({ jobs: Array.from({ length: 12 }, (_, n) => `job-${n}`), failures: [{ job: 'ghl-orders', failures: 3, lastAt: NOW - 3600_000, error: 'http_401' }] }),
-  incidents: ok([{ id: 'INC-0007', title: 'GHL order sync failing with 401', severity: 'sev2', status: 'open', openedAt: NOW - 4e7, fingerprint: 'job:ghl-orders' }]),
+  jobs: ok({
+    jobs: Array.from({ length: 12 }, (_, n) => `job-${n}`),
+    failures: [{ job: 'ghl-orders', failures: 3, lastAt: NOW - 3600_000, error: 'http_401' }],
+  }),
+  incidents: ok([
+    {
+      id: 'INC-0007',
+      title: 'GHL order sync failing with 401',
+      severity: 'sev2',
+      status: 'open',
+      openedAt: NOW - 4e7,
+      fingerprint: 'job:ghl-orders',
+    },
+  ]),
   seats: ok({ sold: 11, cap: 15 }),
   workspaces: ok([
-    { teamId: 'ws_h', name: 'Hale & Marlowe Realty', planKind: 'agents', planStatus: 'active', seatsUsed: 15, seatCap: 16 },
+    {
+      teamId: 'ws_h',
+      name: 'Hale & Marlowe Realty',
+      planKind: 'agents',
+      planStatus: 'active',
+      seatsUsed: 15,
+      seatCap: 16,
+    },
     { teamId: 'ws_c', name: 'Copper Basin Realty', planKind: 'cohort', planStatus: 'active', seatsUsed: 2, seatCap: 2 },
   ]),
-  deploys: ok({ state: 'ok', rows: [{ sha: 'a3f91c2aaaa', message: 'Scope 16px floor', author: 'Connor Leiva', at: Date.parse('2026-12-10T05:42:00Z'), status: 'live' }] }),
+  deploys: ok({
+    state: 'ok',
+    rows: [
+      {
+        sha: 'a3f91c2aaaa',
+        message: 'Scope 16px floor',
+        author: 'Connor Leiva',
+        at: Date.parse('2026-12-10T05:42:00Z'),
+        status: 'live',
+      },
+    ],
+  }),
   ...over,
 });
 const health = (over?: Partial<HealthInputs>): HealthResponse => composeHealth(inputs(over), NOW);
@@ -59,7 +89,14 @@ describe('healthVM (D-169)', () => {
       title: 'Latest deploy',
       link: { label: 'All deploys', to: '/admin/deploys' },
       state: 'ok',
-      rows: [{ sha: 'a3f91c2', status: { label: 'Live', tone: 'ok' }, message: 'Scope 16px floor', byline: 'Connor Leiva · Dec 9, 10:42 PM' }],
+      rows: [
+        {
+          sha: 'a3f91c2',
+          status: { label: 'Live', tone: 'ok' },
+          message: 'Scope 16px floor',
+          byline: 'Connor Leiva · Dec 9, 10:42 PM MT / 11:42 PM CT',
+        },
+      ],
     });
     // No production words from the mockup's own tiles.
     expect(JSON.stringify(vm)).not.toMatch(/Live sessions|p95 latency|DB connections|Services/);
@@ -125,18 +162,32 @@ describe('healthVM (D-169)', () => {
   });
 
   it('sign-ins: none over the day, and under the 95% floor', () => {
-    expect(healthVM(health({ signIns: ok({ attempts: 0, ok: 0 }) })).tiles[1]).toMatchObject({ value: '—', sub: 'No sign-ins · 24h', tone: null });
-    expect(healthVM(health({ signIns: ok({ attempts: 40, ok: 30 }) })).tiles[1]).toMatchObject({ value: '75.0%', sub: 'Below 95% · 24h', tone: 'bad' });
+    expect(healthVM(health({ signIns: ok({ attempts: 0, ok: 0 }) })).tiles[1]).toMatchObject({
+      value: '—',
+      sub: 'No sign-ins · 24h',
+      tone: null,
+    });
+    expect(healthVM(health({ signIns: ok({ attempts: 40, ok: 30 }) })).tiles[1]).toMatchObject({
+      value: '75.0%',
+      sub: 'Below 95% · 24h',
+      tone: 'bad',
+    });
   });
 
   it('deploys: three are "Recent deploys"; not configured says so; a role without ops.read has no card', () => {
-    const rows = ['a1', 'b2', 'c3'].map((sha) => ({ sha: `${sha}00000`, message: sha, author: null, at: NOW, status: null }));
+    const rows = ['a1', 'b2', 'c3'].map((sha) => ({
+      sha: `${sha}00000`,
+      message: sha,
+      author: null,
+      at: NOW,
+      status: null,
+    }));
     const three = healthVM(health({ deploys: ok({ state: 'ok', rows }) })).side[1]!;
     expect(three).toMatchObject({ title: 'Recent deploys', state: 'ok' });
     expect(three.kind === 'deploys' && three.rows.map((r) => [r.sha, r.status, r.byline])).toEqual([
-      ['a100000', null, 'Dec 10, 9:30 AM'],
-      ['b200000', null, 'Dec 10, 9:30 AM'],
-      ['c300000', null, 'Dec 10, 9:30 AM'],
+      ['a100000', null, 'Dec 10, 9:30 AM MT / 10:30 AM CT'],
+      ['b200000', null, 'Dec 10, 9:30 AM MT / 10:30 AM CT'],
+      ['c300000', null, 'Dec 10, 9:30 AM MT / 10:30 AM CT'],
     ]);
     expect(healthVM(health({ deploys: ok({ state: 'not_configured', live: 'abc1234def' }) })).side[1]).toMatchObject({
       title: 'Recent deploys',
@@ -150,35 +201,97 @@ describe('healthVM (D-169)', () => {
 describe('attentionVM (D-169)', () => {
   it('words each kind as the mockup does, and links it to its screen', () => {
     const at = Date.parse('2026-12-10T04:14:00Z'); // Dec 9, 9:14 PM MST
-    expect(attentionVM({ kind: 'incident', id: 'INC-0007', title: 'GHL order sync failing with 401', severity: 'sev2', openedAt: at })).toEqual({
+    expect(
+      attentionVM({
+        kind: 'incident',
+        id: 'INC-0007',
+        title: 'GHL order sync failing with 401',
+        severity: 'sev2',
+        openedAt: at,
+      }),
+    ).toEqual({
       key: 'i:INC-0007',
       title: 'GHL order sync failing with 401',
-      meta: 'Open since Dec 9, 9:14 PM',
+      meta: 'Open since Dec 9, 9:14 PM MT / 10:14 PM CT',
       pill: { label: 'Sev 2', tone: 'bad' },
       to: '/admin/incidents/INC-0007',
     });
     expect(
-      attentionVM({ kind: 'payment', invoiceId: 'in_1', customer: 'Tidewater Property Co.', teamId: 'ws_t', plan: 'Insiders', amountCents: 9700, attempts: 2, retriesLeft: 2 }),
-    ).toMatchObject({ title: 'Tidewater Property Co. is past due', meta: 'Insiders · $97.00 · 2 retries left', pill: { label: 'Past due', tone: 'bad' } });
+      attentionVM({
+        kind: 'payment',
+        invoiceId: 'in_1',
+        customer: 'Tidewater Property Co.',
+        teamId: 'ws_t',
+        plan: 'Insiders',
+        amountCents: 9700,
+        attempts: 2,
+        retriesLeft: 2,
+      }),
+    ).toMatchObject({
+      title: 'Tidewater Property Co. is past due',
+      meta: 'Insiders · $97.00 · 2 retries left',
+      pill: { label: 'Past due', tone: 'bad' },
+    });
     // Production never knows the retries left: it says how many attempts failed.
-    expect(attentionVM({ kind: 'payment', invoiceId: 'in_2', customer: null, teamId: null, plan: null, amountCents: 69500, attempts: 1, retriesLeft: null }).meta).toBe('$695.00 · 1 failed attempt');
-    expect(attentionVM({ kind: 'webhook', eventId: 'evt_1', eventType: 'subscription.updated', receivedAt: at, error: 'Handler timeout after 10 s', attempts: 5 })).toMatchObject({
+    expect(
+      attentionVM({
+        kind: 'payment',
+        invoiceId: 'in_2',
+        customer: null,
+        teamId: null,
+        plan: null,
+        amountCents: 69500,
+        attempts: 1,
+        retriesLeft: null,
+      }).meta,
+    ).toBe('$695.00 · 1 failed attempt');
+    expect(
+      attentionVM({
+        kind: 'webhook',
+        eventId: 'evt_1',
+        eventType: 'subscription.updated',
+        receivedAt: at,
+        error: 'Handler timeout after 10 s',
+        attempts: 5,
+      }),
+    ).toMatchObject({
       title: 'Stripe subscription.updated used all 5 attempts',
       meta: 'Handler timeout after 10 s',
       pill: { label: 'Failed', tone: 'bad' },
       to: '/admin/api/hooks',
     });
-    expect(attentionVM({ kind: 'webhook', eventId: 'evt_2', eventType: 'invoice.paid', receivedAt: at, error: null, attempts: null })).toMatchObject({
+    expect(
+      attentionVM({
+        kind: 'webhook',
+        eventId: 'evt_2',
+        eventType: 'invoice.paid',
+        receivedAt: at,
+        error: null,
+        attempts: null,
+      }),
+    ).toMatchObject({
       title: 'Stripe invoice.paid failed',
-      meta: 'Received Dec 9, 9:14 PM',
+      meta: 'Received Dec 9, 9:14 PM MT / 10:14 PM CT',
     });
-    expect(attentionVM({ kind: 'ghl', gaveUp: 0, retrying: 2 })).toMatchObject({ title: '2 GHL syncs retrying', pill: { label: 'Retrying', tone: 'run' } });
+    expect(attentionVM({ kind: 'ghl', gaveUp: 0, retrying: 2 })).toMatchObject({
+      title: '2 GHL syncs retrying',
+      pill: { label: 'Retrying', tone: 'run' },
+    });
     expect(attentionVM({ kind: 'job', job: 'session-24h', failures: 1, lastAt: at, error: 'timeout' })).toMatchObject({
       title: 'session-24h failed 1 time in 24h',
-      meta: 'Last failed Dec 9, 9:14 PM · timeout',
+      meta: 'Last failed Dec 9, 9:14 PM MT / 10:14 PM CT · timeout',
       to: '/admin/jobs',
     });
-    expect(attentionVM({ kind: 'seats', teamId: 'ws_halemarlowe', name: 'Hale & Marlowe Realty', plan: 'agents', used: 15, cap: 16 })).toEqual({
+    expect(
+      attentionVM({
+        kind: 'seats',
+        teamId: 'ws_halemarlowe',
+        name: 'Hale & Marlowe Realty',
+        plan: 'agents',
+        used: 15,
+        cap: 16,
+      }),
+    ).toEqual({
       key: 's:ws_halemarlowe',
       title: 'Hale & Marlowe Realty is at 15 of 16 seats',
       meta: 'Team Plan · 16 seats',

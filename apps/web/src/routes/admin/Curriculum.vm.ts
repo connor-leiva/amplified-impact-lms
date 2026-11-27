@@ -145,7 +145,7 @@ export const previewUrl = (r: Pick<CurriculumRow, 'id' | 'previewAs'>): string =
 // ================================================================================================
 // R2 (D-160 R2-2): the Curriculum screen of the signed-off Admin redesign (AdminRedesign.jsx
 // `Curriculum`). Same snapshot, same `db.base` rule and the same publish and preview targets as above;
-// the words are the mockup's, its times MST (`adminWhen`, BUILD-SPEC § 7).
+// the words are the mockup's, its times MT / CT (`adminWhen`, D-267).
 // ================================================================================================
 
 /** A live session, in each of the forms the R2 table prints it. */

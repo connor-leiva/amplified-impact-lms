@@ -12,8 +12,15 @@ import { expectAccessible } from '../../lib/a11y';
 
 const NOW = '2026-12-10T09:30:00-07:00';
 
-async function openAt(browser: Browser, path: string, opts: { width?: number } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Phoenix', viewport: { width: opts.width ?? 1280, height: 900 } });
+async function openAt(
+  browser: Browser,
+  path: string,
+  opts: { width?: number } = {},
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Phoenix',
+    viewport: { width: opts.width ?? 1280, height: 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
   await page.addInitScript(() =>
@@ -24,17 +31,30 @@ async function openAt(browser: Browser, path: string, opts: { width?: number } =
   return { page, close: () => ctx.close() };
 }
 
-const rows = (page: Page) => page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
+const rows = (page: Page) =>
+  page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
 const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]');
 const toast = (page: Page, text: string) => page.locator('[role="status"]').filter({ hasText: text });
 
 test.describe('API & Webhooks on R2 (D-165) @g9 @console', () => {
-  test('the stats and Endpoints; the Failed deliveries tile opens the deliveries at their own address', async ({ browser }) => {
+  test('the stats and Endpoints; the Failed deliveries tile opens the deliveries at their own address', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/api');
     await expect(page.getByRole('heading', { level: 1, name: 'API & Webhooks' })).toBeVisible();
     await expect(crumbs(page)).toHaveText('Admin/Operations/API & Webhooks');
     const main = page.locator('main');
-    for (const t of ['p95 latency', '212 ms', 'Error rate', '0.4%', 'Requests, 24h', '76,320', 'Failed deliveries', '3 GHL, 1 Stripe']) await expect(main).toContainText(t);
+    for (const t of [
+      'p95 latency',
+      '212 ms',
+      'Error rate',
+      '0.4%',
+      'Requests, 24h',
+      '76,320',
+      'Failed deliveries',
+      '3 GHL, 1 Stripe',
+    ])
+      await expect(main).toContainText(t);
     await expect(rows(page)).toHaveCount(8);
     await expect(rows(page).last()).toContainText('POST /api/crm-sync');
     await expect(rows(page).last()).toContainText('High');
@@ -51,7 +71,9 @@ test.describe('API & Webhooks on R2 (D-165) @g9 @console', () => {
     await close();
   });
 
-  test('Retry now… resets a GHL delivery through the confirm; a Stripe one is view-only, with its Dashboard link', async ({ browser }) => {
+  test('Retry now… resets a GHL delivery through the confirm; a Stripe one is view-only, with its Dashboard link', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/api/hooks');
     const first = rows(page).first();
     await expect(first).toContainText('ord_2291');
@@ -61,7 +83,9 @@ test.describe('API & Webhooks on R2 (D-165) @g9 @console', () => {
     await expect(page.getByRole('menuitem', { name: 'Related incidents' })).toBeEnabled();
     await page.getByRole('menuitem', { name: 'Retry now…' }).click();
     const dialog = page.getByRole('dialog', { name: 'Retry order.sync for ord_2291?' });
-    await expect(dialog).toContainText('Sends this GoHighLevel delivery again now. Handlers are idempotent, so a repeat is safe.');
+    await expect(dialog).toContainText(
+      'Sends this GoHighLevel delivery again now. Handlers are idempotent, so a repeat is safe.',
+    );
     await expect(dialog).toContainText('This action is audit-logged.');
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Retry delivery' }).click();
@@ -83,10 +107,14 @@ test.describe('Scheduled Jobs on R2 (D-165) @g9 @console', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Scheduled Jobs' })).toBeVisible();
     await expect(crumbs(page)).toHaveText('Admin/Operations/Scheduled Jobs');
     await expect(rows(page)).toHaveCount(12);
-    await expect(page.locator('main')).toContainText('The billing job only runs on its schedule. It cannot be started by hand.');
+    await expect(page.locator('main')).toContainText(
+      'The billing job only runs on its schedule. It cannot be started by hand.',
+    );
     await expectAccessible(page);
 
-    const billing = rows(page).filter({ hasText: /^billing/ }).first();
+    const billing = rows(page)
+      .filter({ hasText: /^billing/ })
+      .first();
     await billing.getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'Run now is off for billing' })).toBeDisabled();
     await page.keyboard.press('Escape');
@@ -95,12 +123,14 @@ test.describe('Scheduled Jobs on R2 (D-165) @g9 @console', () => {
     await first.getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Run now…' }).click();
     const dialog = page.getByRole('dialog', { name: 'Run session-24h now?' });
-    await expect(dialog).toContainText('Starts one extra run outside the schedule (every 5 min). Anything already sent is skipped.');
+    await expect(dialog).toContainText(
+      'Starts one extra run outside the schedule (every 5 min). Anything already sent is skipped.',
+    );
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Run session-24h' }).click();
     await expect(toast(page, 'session-24h started')).toBeVisible();
     // The manual run is now its latest: no longer the mockup's 9:20 AM.
-    await expect(rows(page).first()).not.toContainText('Dec 10, 9:20 AM');
+    await expect(rows(page).first()).not.toContainText('Dec 10, 9:20 AM MT / 10:20 AM CT');
     await expect(rows(page).first()).toContainText('Succeeded');
     await close();
   });

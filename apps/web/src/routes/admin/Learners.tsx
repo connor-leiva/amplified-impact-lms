@@ -10,7 +10,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../components/r2/kit';
+import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k, Stamp } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { refusal, useDb, useEmailLearner, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
@@ -120,7 +120,14 @@ function Learners() {
           <span className={k.mu}>Not started</span>
         ),
     },
-    { key: 'last', label: 'Last active', width: '128px', noSort: true, value: (u) => u.lastAt, cell: (u) => u.last },
+    {
+      key: 'last',
+      label: 'Last active',
+      width: '128px',
+      noSort: true,
+      value: (u) => u.lastAt,
+      cell: (u) => <Stamp v={u.last} two />,
+    },
   ];
 
   const teamCols: Column<TeamR2Row>[] = [
@@ -134,7 +141,10 @@ function Learners() {
       value: (t) => t.used,
       cell: (t) => (
         <span className={clsx(k.row, k.nw, s.builds)}>
-          <Bar pct={t.seats ? Math.min(100, (t.used / t.seats) * 100) : 0} kind={t.seats && t.used / t.seats >= 0.9 ? 'hot' : 'ok'} />
+          <Bar
+            pct={t.seats ? Math.min(100, (t.used / t.seats) * 100) : 0}
+            kind={t.seats && t.used / t.seats >= 0.9 ? 'hot' : 'ok'}
+          />
           <span className={clsx(k.tn, s.seatsOf)}>
             {t.used} of {t.seats}
           </span>
@@ -215,7 +225,11 @@ function Learners() {
               <Button kind={person.tierUpgrade ? 'primary' : 'secondary'} onClick={() => void changeTier()}>
                 {person.tierLabel}
               </Button>
-              <Button disabled={sending} aria-busy={sending || undefined} onClick={() => void nudge(person.id, person.invited)}>
+              <Button
+                disabled={sending}
+                aria-busy={sending || undefined}
+                onClick={() => void nudge(person.id, person.invited)}
+              >
                 {person.nudgeLabel}
               </Button>
             </>
@@ -236,7 +250,11 @@ function Learners() {
                       {m.build}
                     </span>
                   )}
-                  {m.runtime ? <Pill tone={m.runtime === 'Deployed' ? 'ok' : m.runtime === 'Paused' ? 'warn' : 'bad'}>{m.runtime}</Pill> : null}
+                  {m.runtime ? (
+                    <Pill tone={m.runtime === 'Deployed' ? 'ok' : m.runtime === 'Paused' ? 'warn' : 'bad'}>
+                      {m.runtime}
+                    </Pill>
+                  ) : null}
                 </div>
               ))}
             </div>

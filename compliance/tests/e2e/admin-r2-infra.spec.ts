@@ -13,11 +13,20 @@ import { expectAccessible } from '../../lib/a11y';
 
 const NOW = '2026-12-10T09:30:00-07:00';
 
-async function openAt(browser: Browser, path: string, opts: { width?: number } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Phoenix', viewport: { width: opts.width ?? 1280, height: 900 } });
+async function openAt(
+  browser: Browser,
+  path: string,
+  opts: { width?: number } = {},
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Phoenix',
+    viewport: { width: opts.width ?? 1280, height: 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
-  await page.addInitScript(() => localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' })));
+  await page.addInitScript(() =>
+    localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' })),
+  );
   await page.goto(`${APP_BASE}${path}${path.includes('?') ? '&' : '?'}as=admin`);
   await page.locator('body[data-app-ready="true"]').waitFor({ timeout: 15_000 });
   return { page, close: () => ctx.close() };
@@ -45,12 +54,15 @@ test.describe('the Operations pages on R2 (D-168) @g9 @console', () => {
     await close();
   });
 
-  test('Integrations: each card’s facts, Test connection for Stripe and Resend, inert elsewhere', async ({ browser }) => {
+  test('Integrations: each card’s facts, Test connection for Stripe and Resend, inert elsewhere', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/integrations');
-    const card = (name: string) => page.locator('main section').filter({ has: page.getByRole('heading', { level: 2, name, exact: true }) });
+    const card = (name: string) =>
+      page.locator('main section').filter({ has: page.getByRole('heading', { level: 2, name, exact: true }) });
     await expect(page.locator('main section')).toHaveCount(8);
     await expect(card('GoHighLevel')).toContainText('Degraded');
-    await expect(card('GoHighLevel')).toContainText('Dec 10, 9:10 AM · 401 Unauthorized');
+    await expect(card('GoHighLevel')).toContainText('Dec 10, 9:10 AM MT / 10:10 AM CT · 401 Unauthorized');
     await expect(card('Zoom')).toContainText('Not configured');
     await expect(card('GA4')).toContainText('G-TSQ5YB5BCP');
     await expect(card('GA4')).toContainText('Managed on www. View only.');
@@ -70,7 +82,9 @@ test.describe('the Operations pages on R2 (D-168) @g9 @console', () => {
   test('Deploys & Commits: the live commit and the list; "Not configured" with no token', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/deploys');
     await expect(page.locator('main')).toContainText('a3f91c2');
-    await expect(page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') })).toHaveCount(5);
+    await expect(
+      page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') }),
+    ).toHaveCount(5);
     await expect(page.locator('main')).toContainText('Sidebar: collapsible groups and cohort switcher');
     await expectAccessible(page);
     await close();
@@ -96,7 +110,9 @@ test.describe('the Operations pages on R2 (D-168) @g9 @console', () => {
     await empty.close();
   });
 
-  test('Environment Flags: the Owner turns masquerade_enabled off by typing its key; Admins and the mockup-only flags can’t', async ({ browser }) => {
+  test('Environment Flags: the Owner turns masquerade_enabled off by typing its key; Admins and the mockup-only flags can’t', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/flags');
     const main = page.locator('main');
     await expect(main).toContainText('6 of 8');
@@ -133,14 +149,19 @@ test.describe('the Operations pages on R2 (D-168) @g9 @console', () => {
     for (const path of ['/admin/integrations', '/admin/deploys', '/admin/db', '/admin/flags']) {
       const { page, close } = await openAt(browser, `${path}?console-role=Support`);
       await expect(page.getByRole('heading', { level: 1, name: /^Your role can't open / })).toBeVisible();
-      await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Environment Flags', exact: true })).toHaveCount(0);
+      await expect(
+        page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Environment Flags', exact: true }),
+      ).toHaveCount(0);
       await close();
     }
   });
 
   test('at 390: the cards stack, the phone floor holds, and the flip is a 44px target', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/flags', { width: 390 });
-    const box = await page.locator('main').getByRole('button', { name: /^masquerade_enabled/ }).boundingBox();
+    const box = await page
+      .locator('main')
+      .getByRole('button', { name: /^masquerade_enabled/ })
+      .boundingBox();
     expect(box!.width).toBeGreaterThanOrEqual(44);
     expect(box!.height).toBeGreaterThanOrEqual(44);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

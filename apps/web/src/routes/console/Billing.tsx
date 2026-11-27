@@ -10,7 +10,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Bar, KV, Locked, PageHead, Pill, Skel, Stat, Tabs, Two, k } from '../../components/r2/kit';
+import { Bar, KV, Locked, PageHead, Pill, Skel, Stat, Tabs, Two, k, Stamp } from '../../components/r2/kit';
 import { masqueradeActive } from '../../data/console';
 import type { BillingListKind, BillingRows, ConsoleApi } from '../../data/console';
 import { useAdminChrome } from '../../shell/admin/chrome';
@@ -75,7 +75,13 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
   const { tab: raw } = useParams();
   const [params] = useSearchParams();
   const tab: BillingTab | null =
-    part === 'summary' ? 'summary' : raw === undefined ? 'customers' : isBillingTab(raw) && raw !== 'summary' ? raw : null;
+    part === 'summary'
+      ? 'summary'
+      : raw === undefined
+        ? 'customers'
+        : isBillingTab(raw) && raw !== 'summary'
+          ? raw
+          : null;
   const gate = useConsoleGate('billing');
   const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
@@ -121,7 +127,13 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
             meta={ro ? <Pill tone="neutral">{C.readOnly}</Pill> : undefined}
             description={C.description}
           />
-          <Tabs tabs={tabs} value={tab} onChange={(t) => navigate(billingTabPath(t))} phone={phone} label={C.sections} />
+          <Tabs
+            tabs={tabs}
+            value={tab}
+            onChange={(t) => navigate(billingTabPath(t))}
+            phone={phone}
+            label={C.sections}
+          />
         </>
       ) : null}
       {gate.kind === 'error' ? (
@@ -130,14 +142,27 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
         summary.status === 'error' && summary.failure ? (
           <LoadError failure={summary.failure} detail={summary.detail} retry={summary.retry} />
         ) : (
-          <SummaryView vm={vm} review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'} />
+          <SummaryView
+            vm={vm}
+            review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'}
+          />
         )
       ) : api ? (
-        <List key={tab} kind={tab} api={api} can={can} version={version} act={setActing} open={(href) => navigate(href)} />
+        <List
+          key={tab}
+          kind={tab}
+          api={api}
+          can={can}
+          version={version}
+          act={setActing}
+          open={(href) => navigate(href)}
+        />
       ) : (
         <Skel lines={3} />
       )}
-      {acting && api ? <BillingActionDialog api={api} target={acting} onClose={() => setActing(null)} onDone={done} /> : null}
+      {acting && api ? (
+        <BillingActionDialog api={api} target={acting} onClose={() => setActing(null)} onDone={done} />
+      ) : null}
     </Page>
   );
 }
@@ -238,7 +263,16 @@ function SkillPurchases({ rows }: { rows: BillingSummaryVM['skillPurchases'] }) 
     },
     { key: 'refunded', label: C.skills.refunded, width: '120px', value: (r) => r.refunded },
   ];
-  return <Table title={C.skills.title} label={C.skills.title} cols={cols} rows={rows} rowKey={(r) => r.key} empty={{ icon: 'r2Billing', title: C.skills.title }} />;
+  return (
+    <Table
+      title={C.skills.title}
+      label={C.skills.title}
+      cols={cols}
+      rows={rows}
+      rowKey={(r) => r.key}
+      empty={{ icon: 'r2Billing', title: C.skills.title }}
+    />
+  );
 }
 
 const status = (s: { label: string; tone: Parameters<typeof Status>[0]['tone'] }) => (
@@ -359,12 +393,18 @@ function List({
         : { label, danger: true, onSelect: () => act(actionTarget(action, r)) },
     ];
     const actions = (r: InvoiceVM): MenuEntry[] =>
-      r.refund && can.refund ? item(C.menu.refund, 'refund', r) : r.void && can.void ? item(C.menu.void, 'void', r) : [];
+      r.refund && can.refund
+        ? item(C.menu.refund, 'refund', r)
+        : r.void && can.void
+          ? item(C.menu.void, 'void', r)
+          : [];
     // D-164: the spec's seat tier (D4), drawn in a Team Plan invoice's "…" (the one row menu the mockup
     // gives a plan; Subscriptions has none) and disabled with its reason: the webhook doesn't re-derive
     // seats on a tier change, so there is no endpoint (spec § 15).
     const tier = (r: InvoiceVM): MenuEntry[] =>
-      can.tier && r.teamPlan ? ['separator', { label: C.menu.seatTier, unavailable: SEAT_TIER_GATED, onSelect: () => {} }] : [];
+      can.tier && r.teamPlan
+        ? ['separator', { label: C.menu.seatTier, unavailable: SEAT_TIER_GATED, onSelect: () => {} }]
+        : [];
     return (
       <Table
         label={C.tabs.invoices}
@@ -389,7 +429,14 @@ function List({
       { key: 'why', label: C.columns.reason, mono: true, width: 'minmax(200px,1.6fr)', value: (r) => r.reason },
       { key: 'amt', label: C.columns.amount, width: '96px', num: true, value: (r) => r.amount },
       { key: 'n', label: C.columns.attempts, width: '80px', value: (r) => r.attempts },
-      { key: 'next', label: C.columns.retry, width: '136px', noSort: true, value: (r) => r.retry },
+      {
+        key: 'next',
+        label: C.columns.retry,
+        width: '136px',
+        noSort: true,
+        value: (r) => r.retry,
+        cell: (r) => <Stamp v={r.retry} two />,
+      },
     ];
     // D-166: the Email Log, opened to this customer's workspace.
     const email = (r: FailedVM): MenuEntry => ({ label: C.menu.email, onSelect: () => open(r.emailLog) });
@@ -418,7 +465,14 @@ function List({
     { key: 'why', label: C.columns.refundReason, width: 'minmax(180px,1.6fr)', value: (r) => r.reason },
     { key: 'by', label: C.columns.by, width: '120px', value: (r) => r.by },
     { key: 'amt', label: C.columns.amount, width: '96px', num: true, value: (r) => r.amount },
-    { key: 'when', label: C.columns.when, width: '128px', noSort: true, value: (r) => r.at, cell: (r) => r.when },
+    {
+      key: 'when',
+      label: C.columns.when,
+      width: '128px',
+      noSort: true,
+      value: (r) => r.at,
+      cell: (r) => <Stamp v={r.when} two />,
+    },
   ];
   return <Table label={C.tabs.refunds} cols={cols} rows={rows(refundVM)} rowKey={(r) => r.key} {...common} />;
 }

@@ -34,7 +34,13 @@ export const EXCEPTION_DECISION = 'D-160, Connor, Nov 16, 2026, 8:27 AM MST' as 
 /** The one reason decision A accepts. */
 export const EXCEPTION_REASON = '15px vs 16px phone key-facts text; the build keeps the 16px floor' as const;
 /** The cells decision A names, and the later ones it covers by name. The list below holds these and nothing else. */
-export const ALLOWED_EXCEPTION_CELLS = ['cohort-schedule-390', 'workspace-detail-390', 'user-390', 'incident-390', 'flags-390'] as const;
+export const ALLOWED_EXCEPTION_CELLS = [
+  'cohort-schedule-390',
+  'workspace-detail-390',
+  'user-390',
+  'incident-390',
+  'flags-390',
+] as const;
 /** Every ceiling must be under this % of the cell's pixels. */
 export const EXCEPTION_CEILING_LIMIT_PCT = 0.5;
 
@@ -70,37 +76,42 @@ export const APPROVED_EXCEPTIONS: readonly ApprovedException[] = [
     pr: 138,
   },
   // R2-1c part 1 (#136): Workspace (Northshore Group) on a phone. Its key facts' values: the workspace
-  // id, plan, seats, owner, MRR and last activity (y 276–435).
+  // id, plan, seats, owner, MRR and last activity (y 276–435). D-267 (PR #286's review): every time in MT / CT, so the
+  // last activity is two lines at 16px in the mockup too and its notes wrap: the ref is 72px taller (1341 to 1413); the
+  // same key facts, the same ceiling in pixels.
   {
     cell: 'workspace-detail-390',
     width: 390,
-    height: 1341,
+    height: 1413,
     ceilingPx: 1993,
-    ceilingPct: 0.3811,
+    ceilingPct: 0.3617,
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 136,
   },
   // R2-1c part 2 (#141): User (Elena Vargas) on a phone. Its key facts' values: the user id, email,
-  // workspace, role, tier and last sign-in (y 286–455).
+  // workspace, role, tier and last sign-in (y 286–455). D-267 (PR #286's review): the last sign-in in MT / CT, two lines
+  // at 16px in the mockup too, and its activity's times: the ref is 48px taller (1273 to 1321); the same ceiling in pixels.
   {
     cell: 'user-390',
     width: 390,
-    height: 1273,
+    height: 1321,
     ceilingPx: 1644,
-    ceilingPct: 0.3311,
+    ceilingPct: 0.3191,
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 141,
   },
   // Console PR 8 (#152, D-167): Incident (INC-0007) on a phone, a later screen with the same key-facts
-  // component. Its key facts' values: the incident id, status, severity, owner and opened (y 316–475).
+  // component. Its key facts' values: the incident id, status, severity, owner and opened (y 316–475). D-267 (PR #286's
+  // review): Opened in MT / CT wraps to two lines, at 16px in the mockup too, and the timeline's times wrap: the ref is
+  // 46px taller (1085 to 1131); the same ceiling in pixels.
   {
     cell: 'incident-390',
     width: 390,
-    height: 1085,
+    height: 1131,
     ceilingPx: 1369,
-    ceilingPct: 0.3235,
+    ceilingPct: 0.3104,
     reason: EXCEPTION_REASON,
     ref: EXCEPTION_DECISION,
     pr: 152,

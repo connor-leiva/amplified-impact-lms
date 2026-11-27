@@ -56,7 +56,11 @@ describe('the banner (D-162 3b)', () => {
   });
 
   it('ends the reason with a full stop before "All writes are blocked."; no workspace, no " · "', () => {
-    const vm = bannerVM(view({ reason: 'Ticket 4411 seat invite', target: { id: 'u', name: 'Sam Whitlock', teamName: null } }), T0, false);
+    const vm = bannerVM(
+      view({ reason: 'Ticket 4411 seat invite', target: { id: 'u', name: 'Sam Whitlock', teamName: null } }),
+      T0,
+      false,
+    );
     expect(vm.reason).toBe('Reason: Ticket 4411 seat invite. All writes are blocked.');
     expect(vm.who).toBe('Masquerading as Sam Whitlock');
   });
@@ -74,7 +78,11 @@ describe('the banner (D-162 3b)', () => {
   it('at the 60-minute cap Extend is "Max 60 min", disabled, with the mockup’s title', () => {
     const capped = view({ expiresAt: T0 + 60 * MIN, extendCount: 3, canExtend: false });
     expect(atCap(capped)).toBe(true);
-    expect(bannerVM(capped, T0, false).extend).toEqual({ label: 'Max 60 min', disabled: true, title: '60-minute maximum reached' });
+    expect(bannerVM(capped, T0, false).extend).toEqual({
+      label: 'Max 60 min',
+      disabled: true,
+      title: '60-minute maximum reached',
+    });
     expect(bannerVM(capped, T0, true).extend.label).toBe('Max 60 min');
     // Either side saying so is enough.
     expect(atCap(view({ canExtend: false }))).toBe(true);
@@ -154,15 +162,21 @@ describe('recent sessions', () => {
     expect(historyRowVM(row({}), T0)).toMatchObject({
       user: 'Sam Whitlock',
       by: 'by Avery Stone',
-      started: 'Dec 9, 9:25 PM',
+      started: 'Dec 9, 9:25 PM MT / 10:25 PM CT',
       length: '6 min',
       ended: 'Exited by staff',
     });
   });
 
   it('an expired session’s length stops at its expiry, a running one is "Running"; every end reason has words', () => {
-    expect(historyRowVM(row({ endReason: 'expired', endedAt: Date.parse('2026-12-10T04:41:30Z') }), T0)).toMatchObject({ length: '15 min', ended: 'Expired' });
-    expect(historyRowVM(row({ endReason: null, endedAt: null }), Date.parse('2026-12-10T04:33:00Z'))).toMatchObject({ length: '8 min', ended: 'Running' });
+    expect(historyRowVM(row({ endReason: 'expired', endedAt: Date.parse('2026-12-10T04:41:30Z') }), T0)).toMatchObject({
+      length: '15 min',
+      ended: 'Expired',
+    });
+    expect(historyRowVM(row({ endReason: null, endedAt: null }), Date.parse('2026-12-10T04:33:00Z'))).toMatchObject({
+      length: '8 min',
+      ended: 'Running',
+    });
     expect(historyRowVM(row({ endReason: 'signed_out' }), T0).ended).toBe('Signed out');
     expect(historyRowVM(row({ endReason: 'revoked' }), T0).ended).toBe('Revoked');
     expect(historyRowVM(row({ target: { id: 'u_gone', name: null } }), T0).user).toBe('u_gone');
@@ -175,18 +189,28 @@ describe('recent sessions', () => {
 });
 
 describe('the entry points, by role (spec § 6)', () => {
-  const me = (role: 'Owner' | 'Admin' | 'Support' | 'Instructor' | 'Content Editor', masqueradeEnabled = true) => ({ role, caps: consoleCaps(role), masqueradeEnabled });
+  const me = (role: 'Owner' | 'Admin' | 'Support' | 'Instructor' | 'Content Editor', masqueradeEnabled = true) => ({
+    role,
+    caps: consoleCaps(role),
+    masqueradeEnabled,
+  });
 
   it('Owner and Admin see them; Support, Instructor and Content Editor do not', () => {
     expect(entryState(me('Owner'))).toEqual({ show: true, off: null });
     expect(entryState(me('Admin'))).toEqual({ show: true, off: null });
-    for (const r of ['Support', 'Instructor', 'Content Editor'] as const) expect(entryState(me(r))).toEqual({ show: false });
+    for (const r of ['Support', 'Instructor', 'Content Editor'] as const)
+      expect(entryState(me(r))).toEqual({ show: false });
     expect(entryState(null)).toEqual({ show: false });
   });
 
   it('follows the capabilities `me` answers, so a Roles & Permissions change moves it', () => {
-    expect(entryState({ caps: consoleCaps('Admin').filter((c) => c !== 'masquerade.start'), masqueradeEnabled: true })).toEqual({ show: false });
-    expect(entryState({ caps: ['console.view', 'masquerade.start'], masqueradeEnabled: true })).toEqual({ show: true, off: null });
+    expect(
+      entryState({ caps: consoleCaps('Admin').filter((c) => c !== 'masquerade.start'), masqueradeEnabled: true }),
+    ).toEqual({ show: false });
+    expect(entryState({ caps: ['console.view', 'masquerade.start'], masqueradeEnabled: true })).toEqual({
+      show: true,
+      off: null,
+    });
   });
 
   it('never for a staff target; disabled, saying why, while the flag is off', () => {

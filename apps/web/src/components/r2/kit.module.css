@@ -719,6 +719,15 @@
 .nowrap {
   white-space: nowrap;
 }
+/* D-267: a stamp in a table's narrow column, the MT moment over its zones (`Stamp two`). */
+.tz2 {
+  display: block;
+}
+.tz2 > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 /* `button.pl`: a pill that is a button (the tier pill). The mockup's `.arx button` reset outranks
    `.pl`'s size and weight, so the words take the cell's; a neutral one takes its colour too. */
 .plBtn {
@@ -888,6 +897,12 @@
   }
   .fx > div > span {
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* D-267: a key fact's stamp on a phone, the MT moment over its zones (`Stamp fx`). */
+  .tzp > span {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
   }

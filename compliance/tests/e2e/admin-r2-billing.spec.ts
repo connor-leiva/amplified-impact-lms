@@ -90,7 +90,7 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await page.getByRole('tab', { name: 'Refunds' }).click();
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first()).toContainText('Canceled inside trial window');
-    await expect(rows(page).first()).toContainText('Nov 1, 4:44 PM');
+    await expect(rows(page).first()).toContainText('Nov 1, 4:44 PM MT / 5:44 PM CT');
     await page.getByRole('tab', { name: 'Invoices' }).click();
     await expect(rows(page)).toHaveCount(6);
     await expectAccessible(page);
@@ -134,7 +134,12 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     // refund or void, and every tab of Revenue.
     await expect(page.getByText('Read-only for your role')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: 'Billing' })).toHaveCount(0);
-    await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText(['Summary', 'Payments', /^Plans & Upgrades/, 'Usage']);
+    await expect(page.getByRole('tablist', { name: 'Revenue' }).getByRole('tab')).toHaveText([
+      'Summary',
+      'Payments',
+      /^Plans & Upgrades/,
+      'Usage',
+    ]);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'View in Stripe' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: /Refund|Void/ })).toHaveCount(0);
@@ -192,10 +197,16 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await close();
   });
 
-  test('every time is MT, and nothing scrolls sideways on a phone', async ({ browser }) => {
+  test('every time is MT with CT after it (D-267), and nothing scrolls sideways on a phone', async ({ browser }) => {
     for (const tab of ['', '/invoices', '/failed', '/refunds']) {
       const { page, close } = await openAt(browser, `/admin/billing${tab}`, 390);
-      await expect(page.locator('main')).not.toContainText(/\bCT\b|Central/);
+      await page.locator('main').waitFor();
+      const words = (await page.locator('main').textContent()) ?? '';
+      expect(words, tab).not.toMatch(/\bMST\b/);
+      expect(
+        words.replace(/\d{1,2}:\d{2} [AP]M MT \/ \d{1,2}:\d{2} [AP]M CT/g, '').match(/\d{1,2}:\d{2} [AP]M/g) ?? [],
+        tab,
+      ).toEqual([]);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),
       ).toBe(true);

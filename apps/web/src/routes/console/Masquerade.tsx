@@ -7,7 +7,7 @@ import { Card } from '../../components/r2/Card';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Sel, Skel, Two, k } from '../../components/r2/kit';
+import { PageHead, Sel, Skel, Two, k, Stamp } from '../../components/r2/kit';
 import { Rules } from '../../components/masquerade/Rules';
 import { Icon } from '../../components/Icon';
 import { useNow } from '../../data/hooks';
@@ -75,7 +75,7 @@ export function Component() {
       noSort: true,
       hideLap: true,
       value: (r) => r.startedAt,
-      cell: (r) => r.started,
+      cell: (r) => <Stamp v={r.started} two />,
     },
     { key: 'l', label: C.recent.length, width: '64px', num: true, value: (r) => r.minutes, cell: (r) => r.length },
     {

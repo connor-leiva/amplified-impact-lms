@@ -21,12 +21,9 @@
 }
 /* The time is a button, so the keyboard can open the entry; it keeps the cell's mono letter-spacing,
    which a button's own style would reset. */
+/* D-267: the time is the MT moment over its zones (`Stamp two`), a block as the mockup's two lines are. On a phone
+   those two lines fill its 44px target, so it no longer overhangs the card's row. */
 .time {
   letter-spacing: inherit;
-}
-/* On a phone the time's 44px target overhangs its 21px line, so the card keeps the mockup's rows. */
-@media (max-width: 767px) {
-  .time {
-    margin: -11.5px 0;
-  }
+  display: block;
 }

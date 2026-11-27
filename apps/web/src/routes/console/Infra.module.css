@@ -27,6 +27,10 @@
 .grow {
   flex: 1;
 }
+/* D-267: a migration's name keeps 160px before its time takes the rest; on a phone the time goes under it. */
+.tag {
+  flex: 1 1 160px;
+}
 .flagText {
   flex: 1;
   gap: 0;

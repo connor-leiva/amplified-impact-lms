@@ -21,7 +21,12 @@ function withRoster(): { db: Db; cohortId: string; counted: string[]; team: stri
   const owner = d.users.find((u) => u.teamId !== null)!;
   const mate = d.users.find((u) => u.teamId === owner.teamId && u.id !== owner.id && u.status !== 'invited') ?? owner;
   const counted = [...new Set([owner.id, mate.id])];
-  return { db: { ...d, roster: { [cohortId]: { teams: [owner.teamId!], learners: counted } } }, cohortId, counted, team: owner.teamId! };
+  return {
+    db: { ...d, roster: { [cohortId]: { teams: [owner.teamId!], learners: counted } } },
+    cohortId,
+    counted,
+    team: owner.teamId!,
+  };
 }
 
 describe('the Overview: the selected cohort, by its roster (Connor)', () => {
@@ -29,7 +34,11 @@ describe('the Overview: the selected cohort, by its roster (Connor)', () => {
     const { db, cohortId, counted } = withRoster();
     const vm = overviewR2VM(db, NOW, cohortId);
     const people = db.users.filter((u) => counted.includes(u.id) && u.status !== 'invited' && u.test !== true);
-    expect(vm.stats[0]).toMatchObject({ key: 'learners', value: String(people.length), to: `/admin/cohort/${cohortId}/people` });
+    expect(vm.stats[0]).toMatchObject({
+      key: 'learners',
+      value: String(people.length),
+      to: `/admin/cohort/${cohortId}/people`,
+    });
     expect(vm.stats[0]!.subPhone).toBe(`${people.filter((u) => u.tier === 'team').length} on Team Tier`);
     expect(vm.stats.find((s) => s.key === 'completion')!.to).toBe('/admin/program');
     expect(vm.stats.find((s) => s.key === 'attendance')!.to).toBe(`/admin/cohort/${cohortId}/schedule`);
@@ -40,7 +49,12 @@ describe('the Overview: the selected cohort, by its roster (Connor)', () => {
   it('a cohort whose run holds no Week 1 reads its own opening, in MT and CT, and how many are enrolled', () => {
     const { db, cohortId } = withRoster();
     const T = (local: string) => Date.parse(`${local}-07:00`);
-    const co = { ...db.cohorts[0]!, name: 'December 2026', start: T('2026-12-02T12:00:00'), run: [] as NonNullable<Db['cohorts'][number]['run']> };
+    const co = {
+      ...db.cohorts[0]!,
+      name: 'December 2026',
+      start: T('2026-12-02T12:00:00'),
+      run: [] as NonNullable<Db['cohorts'][number]['run']>,
+    };
     // Its run holds no Week 1, so the header reads the cohort's own opening (`curriculum-week.vm.test.ts` reads Week 1's).
     const plain = overviewR2VM({ ...db, cohorts: [co] }, T('2026-11-27T12:00:00'), cohortId);
     expect(plain.subline).toMatch(/^December 2026 Cohort · Opens .* · \d+ learners enrolled$/);
@@ -92,25 +106,34 @@ describe('People › an access group’s tab (Utah Life)', () => {
     expect(groupDescription(group)).toBe(
       'Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue.',
     );
-    expect(groupDescription({ emailDomain: null, plan: 'agent_plan' })).toMatch(/^Agents on its list get the Agent Plan’s skills/);
+    expect(groupDescription({ emailDomain: null, plan: 'agent_plan' })).toMatch(
+      /^Agents on its list get the Agent Plan’s skills/,
+    );
   });
 
   it('lists each person: their name or the group’s agent line over their address, and last active or Invite pending', () => {
     setViewerZone('America/Denver');
     const vm = accessGroupVM(db, 'utah-life')!;
     expect(vm.rows.map((r) => [r.name, r.email, r.last])).toEqual([
-      ['Utah Life agent', 'a@liveutah.com', 'Dec 10, 8:02 AM'],
+      ['Utah Life agent', 'a@liveutah.com', 'Dec 10, 8:02 AM MT / 9:02 AM CT'],
       ['Kim Lee', 'kim@liveutah.com', 'Invite pending'],
       ['Utah Life agent', 'z@liveutah.com', 'Never'],
     ]);
     expect(accessGroupVM(db, 'utah-life', 'KIM')!.rows.map((r) => r.id)).toEqual(['u2']);
     expect(accessGroupVM(db, 'nope')).toBeNull();
-    expect(areaCounts({ ...seed('live'), groups: [group] }, 'people', '', COUNTS)).toEqual({ [groupTabId('utah-life')]: 3 });
+    expect(areaCounts({ ...seed('live'), groups: [group] }, 'people', '', COUNTS)).toEqual({
+      [groupTabId('utah-life')]: 3,
+    });
   });
 
   it('is a People tab after Teams, named by the group, for the roles that read Users, at its own address', () => {
     const groups = [{ id: 'utah-life', name: 'Utah Life' }];
-    expect(areaTabs('people', 'Owner', groups).map((t) => t.label)).toEqual(['Everyone', 'Teams', 'Utah Life', 'Masquerade']);
+    expect(areaTabs('people', 'Owner', groups).map((t) => t.label)).toEqual([
+      'Everyone',
+      'Teams',
+      'Utah Life',
+      'Masquerade',
+    ]);
     expect(areaTabs('people', 'Support', groups).map((t) => t.label)).toContain('Utah Life');
     expect(areaTabs('people', 'Instructor', groups).map((t) => t.label)).not.toContain('Utah Life');
     expect(areaTabs('people', 'Owner').map((t) => t.label)).toEqual(['Everyone', 'Teams', 'Masquerade']);
@@ -136,7 +159,10 @@ describe('Team Hub reads its cohort’s name', () => {
     const db = seed('live');
     const alex = db.users.find((u) => u.id === 'u_alex')!;
     expect(teamHubVM(db, alex, phaseNow('live'))!.cohortName).toBe('December 2026 Cohort');
-    const renamed = { ...db, cohorts: db.cohorts.map((c) => (c.id === alex.cohortId ? { ...c, name: 'January 2027 Cohort' } : c)) };
+    const renamed = {
+      ...db,
+      cohorts: db.cohorts.map((c) => (c.id === alex.cohortId ? { ...c, name: 'January 2027 Cohort' } : c)),
+    };
     expect(teamHubVM(renamed, alex, phaseNow('live'))!.cohortName).toBe('January 2027 Cohort');
   });
 });

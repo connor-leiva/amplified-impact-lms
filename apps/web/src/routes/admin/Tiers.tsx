@@ -10,7 +10,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Pill, k } from '../../components/r2/kit';
+import { PageHead, Pill, k, Stamp } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { refusal, useDb, useMutate } from '../../data/hooks';
 import type { MutationResult } from '../../data/repository';
@@ -69,10 +69,24 @@ export function Component() {
   const toggle = useCallback((r: AccessR2Row) => void run(mutate('setModuleTier', r.toggle)), [mutate, run]);
 
   const cols: Column<RequestR2Row>[] = [
-    { key: 'name', label: 'From', width: 'minmax(140px,1fr)', value: (r) => r.name, cell: (r) => <span className={k.w5}>{r.name}</span> },
+    {
+      key: 'name',
+      label: 'From',
+      width: 'minmax(140px,1fr)',
+      value: (r) => r.name,
+      cell: (r) => <span className={k.w5}>{r.name}</span>,
+    },
     { key: 'ask', label: 'Request', width: 'minmax(180px,1.4fr)', value: (r) => r.ask },
     { key: 'value', label: 'Value', width: '80px', num: true, value: (r) => r.value },
-    { key: 'received', label: 'Received', width: '136px', noSort: true, hideLap: true, value: (r) => r.at, cell: (r) => r.received },
+    {
+      key: 'received',
+      label: 'Received',
+      width: '136px',
+      noSort: true,
+      hideLap: true,
+      value: (r) => r.at,
+      cell: (r) => <Stamp v={r.received} two />,
+    },
     {
       key: 'status',
       label: 'Status',

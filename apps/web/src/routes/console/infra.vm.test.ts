@@ -22,12 +22,15 @@ describe('Integrations (D-168) @console', () => {
       ['Meta Pixel', 'Connected', 'www'],
     ]);
     expect(cards[1]!.rows).toEqual([
-      { label: 'Last success', mono: 'Dec 9, 9:04 PM' },
-      { label: 'Last error', mono: 'Dec 10, 9:10 AM · 401 Unauthorized' },
+      { label: 'Last success', mono: 'Dec 9, 9:04 PM MT / 10:04 PM CT' },
+      { label: 'Last error', mono: 'Dec 10, 9:10 AM MT / 10:10 AM CT · 401 Unauthorized' },
       { label: 'Access token', status: { label: 'Present', tone: 'ok' } },
       { label: 'Location ID', status: { label: 'Present', tone: 'ok' } },
     ]);
-    expect(cards[2]!.rows.at(-1)).toEqual({ label: 'Recording webhook secret', status: { label: 'Not configured', tone: 'warn' } });
+    expect(cards[2]!.rows.at(-1)).toEqual({
+      label: 'Recording webhook secret',
+      status: { label: 'Not configured', tone: 'warn' },
+    });
     expect(cards[6]!.rows).toEqual([
       { label: 'Last success', mono: '—' },
       { label: 'Last error', mono: '—' },
@@ -54,23 +57,67 @@ describe('Integrations (D-168) @console', () => {
     const vm = integrationCardVM(base, true);
     expect(vm.status).toEqual({ label: 'Not configured', tone: 'warn' });
     expect(vm.rows.slice(0, 2).map((r) => r.mono)).toEqual(['Unavailable', 'Unavailable']);
-    expect(integrationCardVM({ ...base, id: 'meta', state: 'www_only', publicId: '1835170747490806', secrets: [] }, true).status).toEqual({ label: 'www only (D-155)', tone: 'neutral' });
+    expect(
+      integrationCardVM({ ...base, id: 'meta', state: 'www_only', publicId: '1835170747490806', secrets: [] }, true)
+        .status,
+    ).toEqual({ label: 'www only (D-155)', tone: 'neutral' });
     expect(integrationCardVM({ ...base, state: 'paused' }, true).status.label).toBe('Paused');
     expect(stampWords('none')).toBe('None');
-    expect(stampWords({ at: NOW, detail: null })).toBe('Dec 10, 9:30 AM');
+    expect(stampWords({ at: NOW, detail: null })).toBe('Dec 10, 9:30 AM MT / 10:30 AM CT');
   });
 });
 
 describe('Deploys & Commits (D-168) @console', () => {
   it('prints the mockup’s facts and rows from the fixture', () => {
     const vm = deploysVM(fixtureDeploys(NOW));
-    expect(vm.facts).toEqual({ repository: 'amplified-impact-lms', branch: 'main', service: 'web', environment: 'Production', live: 'a3f91c2' });
+    expect(vm.facts).toEqual({
+      repository: 'amplified-impact-lms',
+      branch: 'main',
+      service: 'web',
+      environment: 'Production',
+      live: 'a3f91c2',
+    });
     expect(vm.rows.map((r) => [r.message, r.line, r.deploy.label, r.build, r.author, r.time])).toEqual([
-      ['Scope 16px floor and 44px targets to phone widths', 'a3f91c2 · main', 'Live', '1m 48s', 'Connor Leiva', 'Dec 9, 10:42 PM'],
-      ['Curriculum: fitted grid, tier pill, drag handles', '7be20d4 · main', 'Succeeded', '1m 52s', 'Avery Stone', 'Dec 9, 3:15 PM'],
-      ['GHL orders: back off on 401 and record last error', 'c41d8e0 · main', 'Succeeded', '1m 44s', 'Connor Leiva', 'Dec 8, 8:02 PM'],
-      ['Sidebar: collapsible groups and cohort switcher', '19aa6f3 · main', 'Failed', '0m 39s', 'Avery Stone', 'Dec 8, 11:20 AM'],
-      ['Cohort starts at first build (migration 0014)', 'e5527b9 · main', 'Succeeded', '2m 03s', 'Connor Leiva', 'Dec 2, 9:48 AM'],
+      [
+        'Scope 16px floor and 44px targets to phone widths',
+        'a3f91c2 · main',
+        'Live',
+        '1m 48s',
+        'Connor Leiva',
+        'Dec 9, 10:42 PM MT / 11:42 PM CT',
+      ],
+      [
+        'Curriculum: fitted grid, tier pill, drag handles',
+        '7be20d4 · main',
+        'Succeeded',
+        '1m 52s',
+        'Avery Stone',
+        'Dec 9, 3:15 PM MT / 4:15 PM CT',
+      ],
+      [
+        'GHL orders: back off on 401 and record last error',
+        'c41d8e0 · main',
+        'Succeeded',
+        '1m 44s',
+        'Connor Leiva',
+        'Dec 8, 8:02 PM MT / 9:02 PM CT',
+      ],
+      [
+        'Sidebar: collapsible groups and cohort switcher',
+        '19aa6f3 · main',
+        'Failed',
+        '0m 39s',
+        'Avery Stone',
+        'Dec 8, 11:20 AM MT / 12:20 PM CT',
+      ],
+      [
+        'Cohort starts at first build (migration 0014)',
+        'e5527b9 · main',
+        'Succeeded',
+        '2m 03s',
+        'Connor Leiva',
+        'Dec 2, 9:48 AM MT / 10:48 AM CT',
+      ],
     ]);
     expect(vm.rows[3]!.deploy.tone).toBe('bad');
   });
@@ -79,10 +126,23 @@ describe('Deploys & Commits (D-168) @console', () => {
     const d = fixtureDeploys(NOW, false);
     expect(deploysVM(d).rows).toEqual([]);
     expect(deploysVM(d).empty.title).toBe('Not configured');
-    const off: DeploysView = { ...d, liveCommit: null, environment: 'development', history: { state: 'unavailable', source: 'github' } };
+    const off: DeploysView = {
+      ...d,
+      liveCommit: null,
+      environment: 'development',
+      history: { state: 'unavailable', source: 'github' },
+    };
     expect(deploysVM(off).empty.title).toBe('Unavailable');
     expect(deploysVM(off).facts).toMatchObject({ live: null, environment: 'Development' });
-    const github: DeploysView = { ...d, history: { state: 'ok', source: 'github', asOf: NOW, rows: [{ sha: 'abcdef1234', message: 'x', status: null, buildMs: null, author: null, at: NOW }] } };
+    const github: DeploysView = {
+      ...d,
+      history: {
+        state: 'ok',
+        source: 'github',
+        asOf: NOW,
+        rows: [{ sha: 'abcdef1234', message: 'x', status: null, buildMs: null, author: null, at: NOW }],
+      },
+    };
     expect(deploysVM(github).rows[0]).toMatchObject({ deploy: { label: '—' }, build: '—', author: '—' });
   });
 });
@@ -96,7 +156,11 @@ describe('DB Health (D-168) @console', () => {
       { label: 'Slow queries, 24h', value: '3', sub: 'over 500 ms' },
       { label: 'Migration', value: '0014', sub: 'Up to date', tone: 'ok' },
     ]);
-    expect(vm.slow!.map((q) => q.line)).toEqual(['1,940 ms mean · 96 calls', '812 ms mean · 14 calls', '604 ms mean · 7 calls']);
+    expect(vm.slow!.map((q) => q.line)).toEqual([
+      '1,940 ms mean · 96 calls',
+      '812 ms mean · 14 calls',
+      '604 ms mean · 7 calls',
+    ]);
     expect(vm.tables.map((t) => [t.name, t.size, t.rows])).toEqual([
       ['activity', '412 MB', '2.1M rows'],
       ['progress', '288 MB', '940K rows'],
@@ -106,21 +170,29 @@ describe('DB Health (D-168) @console', () => {
       ['orders', '22 MB', '3.2K rows'],
     ]);
     expect(vm.migrations.map((m) => [m.tag, m.pill?.label ?? null, m.time])).toEqual([
-      ['0014_cohort_starts_at_first_build', 'Latest', 'Dec 2, 9:48 AM'],
-      ['0013_course_guide_links', null, 'Nov 24, 4:48 PM'],
-      ['0012_access_group_domains', null, 'Nov 12, 1:10 PM'],
-      ['0011_google_identities', null, 'Nov 3, 9:32 AM'],
+      ['0014_cohort_starts_at_first_build', 'Latest', 'Dec 2, 9:48 AM MT / 10:48 AM CT'],
+      ['0013_course_guide_links', null, 'Nov 24, 4:48 PM MT / 5:48 PM CT'],
+      ['0012_access_group_domains', null, 'Nov 12, 1:10 PM MT / 2:10 PM CT'],
+      ['0011_google_identities', null, 'Nov 3, 9:32 AM MT / 10:32 AM CT'],
     ]);
   });
 
   it('says what production has: no pg_stat_statements, pending migrations, a busy pool', () => {
-    const v: DbHealthView = { ...fixtureDbHealth(NOW, false), connections: { used: 90, max: 100 }, migrations: { applied: [{ tag: '0021_incidents', at: NOW }], pending: ['0022_console_flags'] } };
+    const v: DbHealthView = {
+      ...fixtureDbHealth(NOW, false),
+      connections: { used: 90, max: 100 },
+      migrations: { applied: [{ tag: '0021_incidents', at: NOW }], pending: ['0022_console_flags'] },
+    };
     const vm = dbVM(v);
     expect(vm.slow).toBeNull();
     expect(vm.stats[0]).toEqual({ label: 'Connections', value: '90 / 100', sub: 'Near the limit', tone: 'warn' });
     expect(vm.stats[2]).toEqual({ label: 'Slow queries', value: '—', sub: 'Not available' });
     expect(vm.stats[3]).toEqual({ label: 'Migration', value: '0021', sub: '1 pending', tone: 'warn' });
-    expect(vm.migrations[0]).toEqual({ tag: '0022_console_flags', time: null, pill: { label: 'Pending', tone: 'warn' } });
+    expect(vm.migrations[0]).toEqual({
+      tag: '0022_console_flags',
+      time: null,
+      pill: { label: 'Pending', tone: 'warn' },
+    });
   });
 });
 
@@ -129,7 +201,12 @@ describe('Environment Flags (D-168) @console', () => {
 
   it('prints the mockup’s facts, flags and secrets from the fixture', () => {
     const vm = flagsVM(env(), consoleCaps('Owner'));
-    expect(vm.facts).toEqual({ environment: 'Production', stripe: { label: 'Live', tone: 'ok' }, email: 'Resend, live sending', on: '6 of 8' });
+    expect(vm.facts).toEqual({
+      environment: 'Production',
+      stripe: { label: 'Live', tone: 'ok' },
+      email: 'Resend, live sending',
+      on: '6 of 8',
+    });
     expect(vm.flags.map((f) => [f.key, f.status.label])).toEqual([
       ['masquerade_enabled', 'On'],
       ['preview_as_learner', 'On'],
@@ -140,7 +217,10 @@ describe('Environment Flags (D-168) @console', () => {
       ['zoom_recording_webhook', 'Off'],
       ['maintenance_mode', 'Off'],
     ]);
-    expect(vm.secrets.find((x) => x.name === 'Zoom recording webhook secret')!.status).toEqual({ label: 'Not configured', tone: 'warn' });
+    expect(vm.secrets.find((x) => x.name === 'Zoom recording webhook secret')!.status).toEqual({
+      label: 'Not configured',
+      tone: 'warn',
+    });
   });
 
   it('lets only the Owner flip masquerade_enabled, typed; never an env switch or a mockup-only flag', () => {
@@ -154,13 +234,32 @@ describe('Environment Flags (D-168) @console', () => {
       typed: { word: 'masquerade_enabled', label: 'Type masquerade_enabled to confirm' },
     });
     expect(flipLabel(owner[0]!)).toBe('masquerade_enabled: On. Turn off…');
-    for (const role of ['Admin', 'Support', null]) expect(flagsVM(env(), consoleCaps(role)).flags.filter((f) => f.flip), String(role)).toEqual([]);
-    expect(flipConfirm('masquerade_enabled', true, true)).toMatchObject({ title: 'Turn on masquerade_enabled?', cta: 'Turn on', danger: false });
+    for (const role of ['Admin', 'Support', null])
+      expect(
+        flagsVM(env(), consoleCaps(role)).flags.filter((f) => f.flip),
+        String(role),
+      ).toEqual([]);
+    expect(flipConfirm('masquerade_enabled', true, true)).toMatchObject({
+      title: 'Turn on masquerade_enabled?',
+      cta: 'Turn on',
+      danger: false,
+    });
   });
 
   it('prints production’s modes', () => {
-    const prod: OpsEnv = { flags: [], env: [], modes: { environment: 'development', stripe: 'unset', email: 'development', ghl: 'off' } };
-    expect(flagsVM(prod, consoleCaps('Owner')).facts).toEqual({ environment: 'Development', stripe: { label: 'Not configured', tone: 'warn' }, email: 'Log file, not sent', on: '0 of 0' });
-    expect(flagsVM({ ...prod, modes: { ...prod.modes, stripe: 'test', email: 'test' } }, consoleCaps('Owner')).facts).toMatchObject({ stripe: { label: 'Test', tone: 'info' }, email: 'Test outbox, not sent' });
+    const prod: OpsEnv = {
+      flags: [],
+      env: [],
+      modes: { environment: 'development', stripe: 'unset', email: 'development', ghl: 'off' },
+    };
+    expect(flagsVM(prod, consoleCaps('Owner')).facts).toEqual({
+      environment: 'Development',
+      stripe: { label: 'Not configured', tone: 'warn' },
+      email: 'Log file, not sent',
+      on: '0 of 0',
+    });
+    expect(
+      flagsVM({ ...prod, modes: { ...prod.modes, stripe: 'test', email: 'test' } }, consoleCaps('Owner')).facts,
+    ).toMatchObject({ stripe: { label: 'Test', tone: 'info' }, email: 'Test outbox, not sent' });
   });
 });

@@ -1,19 +1,26 @@
 // /admin/email on R2 (D-166, spec § 7.15): the words, filters, rows and detail of the mockup's `Email`,
 // and a user's "Emails sent" tab, from what the API answers. Pure; EmailLog.tsx and User.tsx only
-// render it. Times are MT (R-5 audit, D-267; BUILD-SPEC § 7 had MST), as the page's description says.
+// render it. Every time is MT with CT after it (R-5 audit, D-267; BUILD-SPEC § 7 had MST).
 //
 // D-263: DELIVERY FROM RESEND'S WEBHOOK. A row's badge is its delivery once Resend has reported one
 // (Delivered, Delayed, Bounced, Complained), else the send's outcome (Sent, Failed, Skipped), with its
 // opens and clicks beside it; the five tiles above the table are the rollup over every row the filters
 // pick (`emailRollup`), in the mockup's words.
 
-import { EMAIL_ERROR_LABELS, EMAIL_PROVIDER_LABELS, adminStamp, adminStampZoned, bounceLine, emailLogStatus, emailStatusOf } from '@ai/core';
+import {
+  EMAIL_ERROR_LABELS,
+  EMAIL_PROVIDER_LABELS,
+  adminStamp,
+  bounceLine,
+  emailLogStatus,
+  emailStatusOf,
+} from '@ai/core';
 import type { AdminStatus, EmailErrorKind, EmailLogFilters, EmailLogRow, EmailRollup } from '@ai/core';
 import type { Option } from './workspaces.vm';
 
 export const EMAIL_COPY = {
   title: 'Email Log',
-  description: 'Every transactional email and notification sent through Resend. Times are MT (America/Denver).',
+  description: 'Every transactional email and notification sent through Resend.',
   export: 'Export CSV',
   exportSelected: 'Export selected',
   exported: 'Export started. It is in the audit log.',
@@ -22,7 +29,15 @@ export const EMAIL_COPY = {
   clearWorkspace: 'Show every workspace',
   template: 'Template',
   status: 'Status',
-  columns: { email: 'Email', template: 'Template', status: 'Status', opens: 'Opens', clicks: 'Clicks', sent: 'Sent', subject: 'Subject' },
+  columns: {
+    email: 'Email',
+    template: 'Template',
+    status: 'Status',
+    opens: 'Opens',
+    clicks: 'Clicks',
+    sent: 'Sent',
+    subject: 'Subject',
+  },
   rollup: {
     sent: 'Sent',
     sentSub: 'Last 180 days',
@@ -79,17 +94,26 @@ export const DEFAULT_EMAIL_FILTERS: EmailFilterState = { q: '', template: '', st
 export function emailFiltersFromSearch(search: string): EmailFilterState {
   const p = new URLSearchParams(search);
   const teamId = p.get('teamId') ?? '';
-  return { q: p.get('q') ?? '', template: p.get('template') ?? '', status: p.get('status') ?? '', teamId, workspace: teamId ? (p.get('workspace') ?? teamId) : '' };
+  return {
+    q: p.get('q') ?? '',
+    template: p.get('template') ?? '',
+    status: p.get('status') ?? '',
+    teamId,
+    workspace: teamId ? (p.get('workspace') ?? teamId) : '',
+  };
 }
 
 /** Billing's "Open email log": the log for one workspace's people, or the whole log with none. */
 export const emailLogHref = (workspace: { teamId: string; name: string } | null): string =>
-  workspace ? `/admin/email?${new URLSearchParams({ teamId: workspace.teamId, workspace: workspace.name }).toString()}` : '/admin/email';
+  workspace
+    ? `/admin/email?${new URLSearchParams({ teamId: workspace.teamId, workspace: workspace.name }).toString()}`
+    : '/admin/email';
 
 /** The workspace filter's chip, which clears it. */
 export const workspaceChip = (name: string): string => `Workspace: ${name}`;
 
-export const isDefaultEmailFilters = (f: EmailFilterState): boolean => f.q.trim() === '' && f.template === '' && f.status === '' && f.teamId === '';
+export const isDefaultEmailFilters = (f: EmailFilterState): boolean =>
+  f.q.trim() === '' && f.template === '' && f.status === '' && f.teamId === '';
 
 /** The filters as the API reads them: only what is set, the words trimmed to 100 characters. */
 export function emailFiltersFor(f: EmailFilterState): EmailLogFilters {
@@ -155,7 +179,13 @@ export function emailRollupVM(r: EmailRollup): RollupTileVM[] {
   const complaints = r.complained ? ` · ${count(r.complained)} ${r.complained === 1 ? 'complaint' : 'complaints'}` : '';
   return [
     { key: 'sent', label: R.sent, value: count(r.sent), sub: R.sentSub, tone: null },
-    { key: 'delivered', label: R.delivered, value: pct(r.deliveredPct), sub: `${count(r.delivered)} of ${count(r.sent)} sent`, tone: null },
+    {
+      key: 'delivered',
+      label: R.delivered,
+      value: pct(r.deliveredPct),
+      sub: `${count(r.delivered)} of ${count(r.sent)} sent`,
+      tone: null,
+    },
     {
       key: 'bounced',
       label: R.bounced,
@@ -163,8 +193,20 @@ export function emailRollupVM(r: EmailRollup): RollupTileVM[] {
       sub: (r.bouncedPct === null ? R.noneSent : `${r.bouncedPct}% of sent`) + complaints,
       tone: r.alert ? 'bad' : null,
     },
-    { key: 'opens', label: R.opens, value: pct(r.openedPct), sub: `${count(r.opened)} of ${count(r.delivered)} delivered`, tone: null },
-    { key: 'clicks', label: R.clicks, value: pct(r.clickedPct), sub: `${count(r.clicked)} of ${count(r.delivered)} delivered`, tone: null },
+    {
+      key: 'opens',
+      label: R.opens,
+      value: pct(r.openedPct),
+      sub: `${count(r.opened)} of ${count(r.delivered)} delivered`,
+      tone: null,
+    },
+    {
+      key: 'clicks',
+      label: R.clicks,
+      value: pct(r.clickedPct),
+      sub: `${count(r.clicked)} of ${count(r.delivered)} delivered`,
+      tone: null,
+    },
   ];
 }
 
@@ -174,8 +216,8 @@ export interface EmailDetailVM {
   note: string;
 }
 
-// R-5 audit (D-267): a detail's time names its zone, MT (`adminStampZoned`, through `fmt.mtTime`): an email is staff's record.
-const mst = (t: number): string => adminStampZoned(t);
+// R-5 audit (D-267): a detail's time, as every admin time, in MT with CT after it (`adminStamp`, through `fmt.mtCt`).
+const mst = (t: number): string => adminStamp(t);
 
 export function emailDetailVM(r: EmailLogRow): EmailDetailVM {
   const D = EMAIL_COPY.detail;

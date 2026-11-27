@@ -82,9 +82,12 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await expect(crumbs(page).getByRole('link', { name: 'People' })).toHaveAttribute('href', '/admin/people');
     await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('People');
     // The way back is Teams (the mockup's third pass).
-    await expect(page.getByRole('main').getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/admin/people/teams');
+    await expect(page.getByRole('main').getByRole('link', { name: 'Teams' })).toHaveAttribute(
+      'href',
+      '/admin/people/teams',
+    );
     await expect(page.getByText('Active', { exact: true }).first()).toBeVisible();
-    for (const t of ['ws_northshore', 'Team Plan · 41 seats', '33 of 41', '$1,495', 'Dec 10, 8:52 AM'])
+    for (const t of ['ws_northshore', 'Team Plan · 41 seats', '33 of 41', '$1,495', 'Dec 10, 8:52 AM MT / 9:52 AM CT'])
       await expect(page.locator('main').getByText(t, { exact: true }).first()).toBeVisible();
     // Live since D-162 3b: it opens the reason dialog for the owner.
     await expect(page.getByRole('button', { name: 'Masquerade as owner' })).toBeEnabled();
@@ -175,7 +178,10 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
 
   test('production’s sidebar lists People, with Teams a tab (D-253)', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/people/teams');
-    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'People' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     // D-162 3b: Masquerade is on in production too, for the Owner and Admins: a tab of People now.
     await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab', { name: 'Masquerade' })).toHaveCount(1);
     await close();

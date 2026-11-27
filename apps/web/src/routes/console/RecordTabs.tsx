@@ -6,7 +6,7 @@ import { Empty } from '../../components/r2/Empty';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Skel, k } from '../../components/r2/kit';
+import { Skel, k, Stamp } from '../../components/r2/kit';
 import type { ConsoleApi } from '../../data/console';
 import { clock } from '../../lib/clock';
 import { LoadError } from './LoadError';
@@ -58,7 +58,14 @@ export function UserEmailsTab({ api, userId }: { api: ConsoleApi; userId: string
       value: (e) => e.status.label,
       cell: (e) => <Status tone={e.status.tone}>{e.status.label}</Status>,
     },
-    { key: 't', label: C.columns.sent, width: '128px', noSort: true, value: (e) => e.at, cell: (e) => e.sent },
+    {
+      key: 't',
+      label: C.columns.sent,
+      width: '128px',
+      noSort: true,
+      value: (e) => e.at,
+      cell: (e) => <Stamp v={e.sent} two />,
+    },
   ];
   return (
     <Table

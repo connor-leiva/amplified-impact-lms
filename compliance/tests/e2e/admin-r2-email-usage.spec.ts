@@ -15,8 +15,16 @@ import { expectAccessible } from '../../lib/a11y';
 
 const NOW = '2026-12-10T09:30:00-07:00';
 
-async function openAt(browser: Browser, path: string, opts: { width?: number } = {}): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Phoenix', viewport: { width: opts.width ?? 1280, height: 900 }, acceptDownloads: true });
+async function openAt(
+  browser: Browser,
+  path: string,
+  opts: { width?: number } = {},
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Phoenix',
+    viewport: { width: opts.width ?? 1280, height: 900 },
+    acceptDownloads: true,
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
   await page.addInitScript(() =>
@@ -27,7 +35,8 @@ async function openAt(browser: Browser, path: string, opts: { width?: number } =
   return { page, close: () => ctx.close() };
 }
 
-const rows = (page: Page) => page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
+const rows = (page: Page) =>
+  page.locator('main [role="table"] [role="row"]').filter({ has: page.locator('[role="cell"]') });
 const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]');
 
 test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
@@ -38,7 +47,7 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Email Log');
     await expect(rows(page)).toHaveCount(7);
     await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build');
-    await expect(rows(page).first()).toContainText('Dec 8, 12:00 PM');
+    await expect(rows(page).first()).toContainText('Dec 8, 12:00 PM MT / 1:00 PM CT');
     // D-263: the rollup over every row the filters pick, and each row's opens and clicks.
     // The tiles' grid is the Sent tile's parent; a tile is its label's parent ("Sent" and "Delivered" are row words too).
     const grid = page.locator('main').getByText('Last 180 days', { exact: true }).locator('../..');
@@ -74,12 +83,21 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await rows(page).nth(1).getByRole('cell').nth(2).click();
     const dialog = page.getByRole('dialog', { name: 'Your Insiders payment did not go through' });
     await expect(dialog).toBeVisible();
-    for (const t of ['sam@tidewaterproperty.example', 'Amplified Impact', 'payment-failed', 'Resend', 'First opened', 'Last opened'])
+    for (const t of [
+      'sam@tidewaterproperty.example',
+      'Amplified Impact',
+      'payment-failed',
+      'Resend',
+      'First opened',
+      'Last opened',
+    ])
       await expect(dialog.getByText(t, { exact: true })).toBeVisible();
     // Sent and Delivered the same minute; one open, so its first and last are the same minute too.
-    await expect(dialog.getByText('Dec 4, 9:04 AM MT', { exact: true })).toHaveCount(2);
-    await expect(dialog.getByText('Dec 4, 9:30 AM MT', { exact: true })).toHaveCount(2);
-    await expect(dialog).toContainText('The log keeps the subject and delivery events. The message body is not stored here.');
+    await expect(dialog.getByText('Dec 4, 9:04 AM MT / 10:04 AM CT', { exact: true })).toHaveCount(2);
+    await expect(dialog.getByText('Dec 4, 9:30 AM MT / 10:30 AM CT', { exact: true })).toHaveCount(2);
+    await expect(dialog).toContainText(
+      'The log keeps the subject and delivery events. The message body is not stored here.',
+    );
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Done' }).click();
     await expect(dialog).toHaveCount(0);
@@ -89,7 +107,9 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
   test('opens filtered from a link (Billing’s “Open email log”)', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/email?q=sam%40tidewaterproperty.example');
     await expect(rows(page)).toHaveCount(1);
-    await expect(page.getByRole('textbox', { name: 'Filter recipient or subject' })).toHaveValue('sam@tidewaterproperty.example');
+    await expect(page.getByRole('textbox', { name: 'Filter recipient or subject' })).toHaveValue(
+      'sam@tidewaterproperty.example',
+    );
     await close();
     // One workspace's people, named on a chip that clears it.
     const ws = await openAt(browser, '/admin/email?teamId=ws_tidewater&workspace=Tidewater%20Property%20Co.');
@@ -101,9 +121,14 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await ws.close();
   });
 
-  test('exports CSV, all or selected, for the Owner and Admin; Support reads and cannot export', async ({ browser }) => {
+  test('exports CSV, all or selected, for the Owner and Admin; Support reads and cannot export', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/email');
-    const [all] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
+    const [all] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', { name: 'Export CSV' }).click(),
+    ]);
     expect(all.suggestedFilename()).toMatch(/^email-log-\d{4}-\d{2}-\d{2}\.csv$/);
     const csv = (await readFile((await all.path())!, 'utf8')).trimEnd().split('\r\n');
     expect(csv[0]).toBe(
@@ -115,7 +140,10 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await expect(page.getByRole('status').filter({ hasText: 'Export started. It is in the audit log.' })).toBeVisible();
     await rows(page).nth(0).getByRole('checkbox', { name: 'Select row' }).check();
     await rows(page).nth(4).getByRole('checkbox', { name: 'Select row' }).check();
-    const [picked] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export selected' }).click()]);
+    const [picked] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', { name: 'Export selected' }).click(),
+    ]);
     const lines = (await readFile((await picked.path())!, 'utf8')).trimEnd().split('\r\n');
     expect(lines.slice(1).map((l) => l.split(',')[0])).toEqual(['"1"', '"5"']);
     await close();
@@ -160,7 +188,9 @@ test.describe('Usage on R2 (D-166) @g9 @console', () => {
     for (const t of ['1,648', '4,429', '7,622', '82%', '41.2 GB', 'of 100 GB bucket', '2,987'])
       await expect(page.locator('main').getByText(t, { exact: true })).toBeVisible();
     // The app's own clock (the fixture's "now") ends the range; the parity run freezes it at Dec 10.
-    await expect(page.getByRole('img', { name: /^Sign-ins per day, [A-Z][a-z]{2} \d+ to [A-Z][a-z]{2} \d+: / })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: /^Sign-ins per day, [A-Z][a-z]{2} \d+ to [A-Z][a-z]{2} \d+: / }),
+    ).toBeVisible();
     await expect(rows(page)).toHaveCount(6);
     await expect(rows(page).first()).toContainText('Northshore Group');
     await expect(rows(page).first()).toContainText('80%');

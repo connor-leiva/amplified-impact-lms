@@ -25,7 +25,7 @@ import type { MenuEntry } from '../../components/r2/Menu';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, CheckCell, ErrorState, PageHead, Pill, Sel, Skel, Two, k } from '../../components/r2/kit';
+import { Avatar, CheckCell, ErrorState, PageHead, Pill, Sel, Skel, Two, k, Stamp } from '../../components/r2/kit';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi, ConsoleFailure } from '../../data/console';
 import { useDb, useViewer } from '../../data/hooks';
@@ -37,7 +37,11 @@ import { Denied } from './Denied';
 import { useConsoleGate } from './useConsoleGate';
 import s from './Roles.module.css';
 
-type Load = { kind: 'loading' } | { kind: 'error'; failure: ConsoleFailure } | { kind: 'denied' } | { kind: 'ready'; matrix: RolesMatrix };
+type Load =
+  | { kind: 'loading' }
+  | { kind: 'error'; failure: ConsoleFailure }
+  | { kind: 'denied' }
+  | { kind: 'ready'; matrix: RolesMatrix };
 
 /** The open confirm: its words, the preview's token once it answers, and a refusal in words. */
 interface Dialog {
@@ -64,7 +68,16 @@ function refusalCopy(e: unknown, change: Dialog['change']): string {
 /** D-172: the Invite staff or Change role… form, then its confirm. */
 type StaffDialog =
   | { step: 'form'; kind: 'invite'; email: string; role: StaffRole; busy: boolean; error: string | null }
-  | { step: 'form'; kind: 'role'; id: string; name: string; current: StaffRole; role: StaffRole; busy: boolean; error: string | null }
+  | {
+      step: 'form';
+      kind: 'role';
+      id: string;
+      name: string;
+      current: StaffRole;
+      role: StaffRole;
+      busy: boolean;
+      error: string | null;
+    }
   | { step: 'confirm'; preview: StaffChangePreview; busy: boolean; error: string | null };
 
 function Head({ canManageStaff, onInvite }: { canManageStaff: boolean; onInvite: () => void }) {
@@ -104,7 +117,8 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
       setDialog({ change, token: null, busy: true, error: null });
       api.previewRole({ role: change.role, capability: change.capability, allowed: change.allowed }).then(
         (p) => setDialog((d) => (d && d.change === change ? { ...d, token: p.confirmToken, busy: false } : d)),
-        (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
+        (e: unknown) =>
+          setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
       );
     },
     [api],
@@ -119,7 +133,8 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
         setDialog(null);
         toast(ROLES_R2_COPY.updated);
       },
-      (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
+      (e: unknown) =>
+        setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
     );
   }, [api, dialog, toast]);
   const close = useCallback(() => setDialog(null), []);
@@ -131,10 +146,14 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
     const d = staffDialog;
     if (!d || d.step !== 'form') return;
     setStaffDialog({ ...d, busy: true, error: null });
-    const change = d.kind === 'invite' ? { kind: 'invite' as const, email: d.email, role: d.role } : { kind: 'role' as const, id: d.id, role: d.role };
+    const change =
+      d.kind === 'invite'
+        ? { kind: 'invite' as const, email: d.email, role: d.role }
+        : { kind: 'role' as const, id: d.id, role: d.role };
     api.previewStaff(change).then(
       (preview) => setStaffDialog((x) => (x === null ? x : { step: 'confirm', preview, busy: false, error: null })),
-      (e: unknown) => setStaffDialog((x) => (x && x.step === 'form' ? { ...x, busy: false, error: staffRefusalCopy(e, failed) } : x)),
+      (e: unknown) =>
+        setStaffDialog((x) => (x && x.step === 'form' ? { ...x, busy: false, error: staffRefusalCopy(e, failed) } : x)),
     );
   }, [api, failed, staffDialog]);
   const commitStaff = useCallback(() => {
@@ -146,7 +165,10 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
         setStaffDialog(null);
         toast(r.toast);
       },
-      (e: unknown) => setStaffDialog((x) => (x && x.step === 'confirm' ? { ...x, busy: false, error: staffRefusalCopy(e, failed) } : x)),
+      (e: unknown) =>
+        setStaffDialog((x) =>
+          x && x.step === 'confirm' ? { ...x, busy: false, error: staffRefusalCopy(e, failed) } : x,
+        ),
     );
   }, [api, failed, staffDialog, toast]);
 
@@ -172,7 +194,8 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
   const { staff } = rolesStaffR2(db, viewerId);
   // D-172: the Console's staff writes are the Owner's alone (`roles.write`).
   const canManageStaff = me.caps.includes('roles.write');
-  const vm = load.kind === 'ready' ? rolesMatrixR2(load.matrix, db, { canEdit: me.caps.includes('roles.write'), role }) : null;
+  const vm =
+    load.kind === 'ready' ? rolesMatrixR2(load.matrix, db, { canEdit: me.caps.includes('roles.write'), role }) : null;
 
   const cols: Column<RolesR2Staff>[] = [
     {
@@ -187,17 +210,45 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
         </div>
       ),
     },
-    { key: 'role', label: 'Role', width: '104px', value: (r) => r.role, cell: (r) => <Pill tone={r.isOwner ? 'ok' : undefined}>{r.role}</Pill> },
-    { key: 'last', label: 'Last sign-in', width: '136px', noSort: true, value: (r) => r.lastAt, cell: (r) => r.last },
+    {
+      key: 'role',
+      label: 'Role',
+      width: '104px',
+      value: (r) => r.role,
+      cell: (r) => <Pill tone={r.isOwner ? 'ok' : undefined}>{r.role}</Pill>,
+    },
+    {
+      key: 'last',
+      label: 'Last sign-in',
+      width: '136px',
+      noSort: true,
+      value: (r) => r.lastAt,
+      cell: (r) => <Stamp v={r.last} two />,
+    },
   ];
   const menu = (r: RolesR2Staff): MenuEntry[] => [
     r.isOwner || !canManageStaff
-      ? { label: ROLES_R2_COPY.changeRole, disabled: true, title: r.isOwner ? 'The Owner’s role is fixed' : 'Your role cannot do this', onSelect: () => {} }
+      ? {
+          label: ROLES_R2_COPY.changeRole,
+          disabled: true,
+          title: r.isOwner ? 'The Owner’s role is fixed' : 'Your role cannot do this',
+          onSelect: () => {},
+        }
       : {
           label: ROLES_R2_COPY.changeRole,
           onSelect: () => {
             const row = db.staff.find((x) => x.id === r.id);
-            if (row) setStaffDialog({ step: 'form', kind: 'role', id: row.id, name: row.name, current: row.role, role: row.role, busy: false, error: null });
+            if (row)
+              setStaffDialog({
+                step: 'form',
+                kind: 'role',
+                id: row.id,
+                name: row.name,
+                current: row.role,
+                role: row.role,
+                busy: false,
+                error: null,
+              });
           },
         },
   ];
@@ -206,7 +257,9 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
     <Page>
       <Head
         canManageStaff={canManageStaff}
-        onInvite={() => setStaffDialog({ step: 'form', kind: 'invite', email: '', role: 'Support', busy: false, error: null })}
+        onInvite={() =>
+          setStaffDialog({ step: 'form', kind: 'invite', email: '', role: 'Support', busy: false, error: null })
+        }
       />
       <Table
         title={ROLES_R2_COPY.staffTitle}
@@ -241,7 +294,12 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
                     {p.label}
                   </span>
                   {p.cells.map((c) => (
-                    <label key={c.role} role="cell" className={clsx(k.pcR, s.cardRow)} title={c.locked ? 'Fixed by product rules' : c.title}>
+                    <label
+                      key={c.role}
+                      role="cell"
+                      className={clsx(k.pcR, s.cardRow)}
+                      title={c.locked ? 'Fixed by product rules' : c.title}
+                    >
                       <span className={k.mu}>{c.role}</span>
                       <CheckCell
                         phone
@@ -303,7 +361,10 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
               <Button onClick={() => setStaffDialog(null)}>Cancel</Button>
               <Button
                 kind="primary"
-                disabled={staffDialog.busy || (staffDialog.kind === 'invite' ? !staffDialog.email.trim() : staffDialog.role === staffDialog.current)}
+                disabled={
+                  staffDialog.busy ||
+                  (staffDialog.kind === 'invite' ? !staffDialog.email.trim() : staffDialog.role === staffDialog.current)
+                }
                 onClick={toConfirm}
               >
                 {ROLES_R2_COPY.continue}

@@ -189,7 +189,7 @@ function Curriculum() {
         r.session ? (
           <div className={clsx(k.col, k.col0, s.two)} title={r.session.full} aria-label={r.session.full}>
             <span className={wide ? s.cl3 : k.el}>{wide ? keepHyphens(r.session.title) : r.session.short}</span>
-            <span className={clsx(k.me, wide ? s.wrap : k.el)}>{f.tw < 1100 ? r.session.date : r.session.when}</span>
+            <span className={clsx(k.me, s.wrap)}>{f.tw < 1100 ? r.session.date : r.session.when}</span>
           </div>
         ) : (
           <span className={k.mu}>Self-paced</span>

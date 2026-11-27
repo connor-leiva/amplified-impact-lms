@@ -8,7 +8,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, k } from '../../components/r2/kit';
+import { PageHead, k, Stamp } from '../../components/r2/kit';
 import { ConsoleError } from '../../data/console';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { Denied } from './Denied';
@@ -59,7 +59,13 @@ export function Component() {
           r.job
         ),
     },
-    { key: 'sch', label: C.columns.schedule, width: 'minmax(110px,1fr)', value: (r) => r.schedule },
+    {
+      key: 'sch',
+      label: C.columns.schedule,
+      width: 'minmax(110px,1fr)',
+      value: (r) => r.schedule,
+      cell: (r) => <Stamp v={r.schedule} two />,
+    },
     {
       key: 'st',
       label: C.columns.result,
@@ -67,9 +73,32 @@ export function Component() {
       value: (r) => r.status?.label ?? NONE,
       cell: (r) => (r.status ? <Status tone={r.status.tone}>{r.status.label}</Status> : NONE),
     },
-    { key: 'last', label: C.columns.last, width: '136px', noSort: true, value: (r) => r.lastAt, cell: (r) => r.last },
-    { key: 'dur', label: C.columns.duration, num: true, noSort: true, width: '72px', hideLap: true, value: (r) => r.durationMs, cell: (r) => r.duration },
-    { key: 'next', label: C.columns.next, width: '136px', noSort: true, value: (r) => r.nextAt, cell: (r) => r.next },
+    {
+      key: 'last',
+      label: C.columns.last,
+      width: '136px',
+      noSort: true,
+      value: (r) => r.lastAt,
+      cell: (r) => <Stamp v={r.last} two />,
+    },
+    {
+      key: 'dur',
+      label: C.columns.duration,
+      num: true,
+      noSort: true,
+      width: '72px',
+      hideLap: true,
+      value: (r) => r.durationMs,
+      cell: (r) => r.duration,
+    },
+    {
+      key: 'next',
+      label: C.columns.next,
+      width: '136px',
+      noSort: true,
+      value: (r) => r.nextAt,
+      cell: (r) => <Stamp v={r.next} two />,
+    },
   ];
 
   const menu = (r: JobVM): MenuEntry[] => [

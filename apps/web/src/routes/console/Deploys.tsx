@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Facts, PageHead, Two, k } from '../../components/r2/kit';
+import { Facts, PageHead, Two, k, Stamp } from '../../components/r2/kit';
 import { DEPLOYS_COPY as C, deploysVM } from './infra.vm';
 import type { DeployRowVM } from './infra.vm';
 import { InfraFrame } from './InfraFrame';
@@ -33,14 +33,34 @@ const cols: Column<DeployRowVM>[] = [
     value: (d) => d.deploy.label,
     cell: (d) => <span className={d.deploy.tone === 'bad' ? clsx(k.w5, s.bad) : undefined}>{d.deploy.label}</span>,
   },
-  { key: 'dur', label: C.columns.build, width: '72px', num: true, noSort: true, value: (d) => d.buildMs, cell: (d) => d.build },
+  {
+    key: 'dur',
+    label: C.columns.build,
+    width: '72px',
+    num: true,
+    noSort: true,
+    value: (d) => d.buildMs,
+    cell: (d) => d.build,
+  },
   { key: 'a', label: C.columns.author, width: '128px', hideLap: true, value: (d) => d.author },
-  { key: 't', label: C.columns.time, width: '136px', noSort: true, value: (d) => d.at, cell: (d) => d.time },
+  {
+    key: 't',
+    label: C.columns.time,
+    width: '136px',
+    noSort: true,
+    value: (d) => d.at,
+    cell: (d) => <Stamp v={d.time} two />,
+  },
 ];
 
 export function Component() {
   return (
-    <InfraFrame screen="deploys" lines={3} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.deploys()}>
+    <InfraFrame
+      screen="deploys"
+      lines={3}
+      head={<PageHead title={C.title} description={C.description} />}
+      read={(a) => a.deploys()}
+    >
       {(d) => {
         const vm = deploysVM(d);
         return (
@@ -64,7 +84,13 @@ export function Component() {
                 },
               ]}
             />
-            <Table label={C.label} cols={cols} rows={vm.rows} rowKey={(r) => r.key} empty={{ icon: 'r2Deploys', ...vm.empty }} />
+            <Table
+              label={C.label}
+              cols={cols}
+              rows={vm.rows}
+              rowKey={(r) => r.key}
+              empty={{ icon: 'r2Deploys', ...vm.empty }}
+            />
           </>
         );
       }}

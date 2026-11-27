@@ -7,7 +7,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
+import { PageHead, Sel, TextArea, k, Stamp } from '../../components/r2/kit';
 import type { MenuEntry } from '../../components/r2/Menu';
 import { useAct, useDb, useMutate } from '../../data/hooks';
 import {
@@ -152,7 +152,14 @@ export function Component() {
       value: (r) => r.status.label,
       cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
     },
-    { key: 'at', label: 'Send time', width: '136px', noSort: true, value: (r) => r.sendTime },
+    {
+      key: 'at',
+      label: 'Send time',
+      width: '136px',
+      noSort: true,
+      value: (r) => r.sendTime,
+      cell: (r) => <Stamp v={r.sendTime} two />,
+    },
   ];
 
   return (

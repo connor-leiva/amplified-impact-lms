@@ -94,7 +94,7 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
       'u_1042',
       'elena@northshoregroup.example',
       'Team owner',
-      'Dec 10, 8:52 AM',
+      'Dec 10, 8:52 AM MT / 9:52 AM CT',
       'Password, Google',
       'Yes, Nov 24, 2026',
     ])
@@ -283,7 +283,11 @@ test.describe('Search and the ⌘K palette (D-160 R2-1c) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/people');
     const aside = page.locator('aside[aria-label="Primary"]');
     await expect(aside.getByRole('button', { name: 'People' })).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab')).toHaveText(['Everyone', 'Teams', 'Masquerade']);
+    await expect(page.getByRole('tablist', { name: 'People' }).getByRole('tab')).toHaveText([
+      'Everyone',
+      'Teams',
+      'Masquerade',
+    ]);
     await close();
   });
 });

@@ -8,7 +8,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Pill, Sel, Skel, Stat, Tabs, k } from '../../components/r2/kit';
+import { PageHead, Pill, Sel, Skel, Stat, Tabs, k, Stamp } from '../../components/r2/kit';
 import { ConsoleError } from '../../data/console';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { useViewportWidth } from '../../shell/hooks';
@@ -48,7 +48,10 @@ export function Component() {
   const hooks = useConsoleRecord(api, (a) => a.webhooks(), `hooks:${reload}`);
   const [source, setSource] = useState<SourceOption>('All sources');
   const [confirm, setConfirm] = useState<DeliveryVM | null>(null);
-  const stats = useMemo(() => (endpoints.data ? apiStatsVM(endpoints.data, hooks.data) : null), [endpoints.data, hooks.data]);
+  const stats = useMemo(
+    () => (endpoints.data ? apiStatsVM(endpoints.data, hooks.data) : null),
+    [endpoints.data, hooks.data],
+  );
   const endpointRows = useMemo(() => endpoints.data?.rows.map(endpointVM) ?? [], [endpoints.data]);
   const deliveries = useMemo(() => hooks.data?.rows.map(deliveryVM) ?? [], [hooks.data]);
 
@@ -57,11 +60,23 @@ export function Component() {
   if (tab === null) return <NotFound />;
   // Support sees both lists and no Retry (D3).
   const canRetry = gate.kind === 'ready' && consoleCan(gate.me.role, 'webhooks.retry');
-  const tabs = API_TABS.map((id) => ({ id, label: C.tabs[id], ...(id === 'hooks' && hooks.data ? { count: hooks.data.rows.length } : {}) }));
+  const tabs = API_TABS.map((id) => ({
+    id,
+    label: C.tabs[id],
+    ...(id === 'hooks' && hooks.data ? { count: hooks.data.rows.length } : {}),
+  }));
 
   const endpointCols: Column<EndpointVM>[] = [
     { key: 'p', label: C.endpoints.endpoint, mono: true, width: 'minmax(220px,2fr)', value: (r) => r.route },
-    { key: 'req', label: C.endpoints.requests, num: true, noSort: true, width: '88px', value: (r) => r.requestsN, cell: (r) => r.requests },
+    {
+      key: 'req',
+      label: C.endpoints.requests,
+      num: true,
+      noSort: true,
+      width: '88px',
+      value: (r) => r.requestsN,
+      cell: (r) => r.requests,
+    },
     { key: 'p50', label: C.endpoints.p50, num: true, noSort: true, width: '80px', value: (r) => r.p50 },
     { key: 'p95', label: C.endpoints.p95, num: true, noSort: true, width: '80px', value: (r) => r.p95 },
     {
@@ -93,10 +108,31 @@ export function Component() {
         </div>
       ),
     },
-    { key: 'st', label: C.hooks.status, width: '128px', value: (r) => r.status.label, cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status> },
+    {
+      key: 'st',
+      label: C.hooks.status,
+      width: '128px',
+      value: (r) => r.status.label,
+      cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
+    },
     { key: 'att', label: C.hooks.attempts, width: '80px', value: (r) => r.attempts },
-    { key: 'next', label: C.hooks.next, width: '152px', noSort: true, hideLap: true, value: (r) => r.next },
-    { key: 'err', label: C.hooks.error, width: 'minmax(160px,1.4fr)', noSort: true, value: (r) => r.error, cell: (r) => <span className={k.s2}>{r.error}</span> },
+    {
+      key: 'next',
+      label: C.hooks.next,
+      width: '152px',
+      noSort: true,
+      hideLap: true,
+      value: (r) => r.next,
+      cell: (r) => <Stamp v={r.next} two />,
+    },
+    {
+      key: 'err',
+      label: C.hooks.error,
+      width: 'minmax(160px,1.4fr)',
+      noSort: true,
+      value: (r) => r.error,
+      cell: (r) => <span className={k.s2}>{r.error}</span>,
+    },
   ];
 
   const hookMenu = (r: DeliveryVM): MenuEntry[] => [
@@ -112,7 +148,9 @@ export function Component() {
       : []),
     // D-167: the Incidents screen exists now (the mockup's `go('incidents')`).
     { label: C.menu.related, onSelect: () => navigate('/admin/incidents') },
-    ...(r.stripeUrl ? [{ label: C.menu.stripe, onSelect: () => void window.open(r.stripeUrl!, '_blank', 'noopener') }] : []),
+    ...(r.stripeUrl
+      ? [{ label: C.menu.stripe, onSelect: () => void window.open(r.stripeUrl!, '_blank', 'noopener') }]
+      : []),
   ];
 
   const retry = (r: DeliveryVM) => {

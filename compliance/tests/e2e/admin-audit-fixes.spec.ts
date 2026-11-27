@@ -11,14 +11,23 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
  *   - The Overview's header and its tiles for the selected cohort; Build completion opens the builds.
  *   - Cohort › Announcements and Community are each cohort's own: an announcement made on January's tab stays on
  *     January's list, and January's Community holds none of December's threads.
- *   - The admin prints no "MST": times are MT, with CT after them where a time names its zone.
+ *   - The admin prints no "MST", and every time is MT with CT after it, "Dec 9, 9:14 PM MT / 10:14 PM CT" (Connor's rule,
+ *     PR #286's review): a session, an event's stamp, a table's stamp. A table's narrow column draws it on two lines.
  *
  * The roster itself (who counts in a cohort) is the API's (`apps/api/test/cohort-roster.test.ts`); the fixture has no
  * plans, so its screens read the learners' rows as before.
  */
 
-async function parity(browser: Browser, path: string, width = 1280): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: PARITY_TZ, locale: 'en-US', viewport: { width, height: width < 768 ? 844 : 900 } });
+async function parity(
+  browser: Browser,
+  path: string,
+  width = 1280,
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: PARITY_TZ,
+    locale: 'en-US',
+    viewport: { width, height: width < 768 ? 844 : 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(PARITY_NOW));
   await page.goto(`${APP_BASE}${path}${path.includes('?') ? '&' : '?'}${PARITY_QUERY}`);
@@ -27,8 +36,15 @@ async function parity(browser: Browser, path: string, width = 1280): Promise<{ p
 }
 
 const NOW = '2026-12-10T16:30:00.000Z';
-async function fixture(browser: Browser, path: string, width = 1280): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Denver', viewport: { width, height: width < 768 ? 844 : 900 } });
+async function fixture(
+  browser: Browser,
+  path: string,
+  width = 1280,
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Denver',
+    viewport: { width, height: width < 768 ? 844 : 900 },
+  });
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(NOW));
   await page.goto(`${APP_BASE}${path}${path.includes('?') ? '&' : '?'}as=admin&now=${encodeURIComponent(NOW)}`);
@@ -37,11 +53,15 @@ async function fixture(browser: Browser, path: string, width = 1280): Promise<{ 
 }
 
 test.describe('the R-5 audit fixes (D-267) @console', () => {
-  test('People › Utah Life: the group’s tab, its agents, Invite pending, and a row opens the person', async ({ browser }) => {
+  test('People › Utah Life: the group’s tab, its agents, Invite pending, and a row opens the person', async ({
+    browser,
+  }) => {
     for (const width of [1280, 390]) {
       const { page, close } = await parity(browser, '/admin/people/groups/utah-life', width);
       const main = page.locator('main');
-      await expect(main).toContainText('Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue.');
+      await expect(main).toContainText(
+        'Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue.',
+      );
       if (width > 768) {
         const tab = main.getByRole('tab', { name: /^Utah Life/ });
         await expect(tab).toHaveAttribute('aria-selected', 'true');
@@ -50,7 +70,7 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
       }
       await expect(main.getByText('k••••@liveutah.com')).toBeVisible();
       await expect(main.getByText('Invite pending')).toBeVisible();
-      await expect(main.getByText('Dec 10, 8:02 AM')).toBeVisible();
+      await expect(main.getByText('Dec 10, 8:02 AM MT / 9:02 AM CT')).toBeVisible();
       await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toContainText('Utah Life');
       await expectAccessible(page);
       if (width > 768) {
@@ -74,21 +94,32 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
 
   test('January’s head and Opens fact name Week 0’s and Week 1’s openings before Week 1 opens', async ({ browser }) => {
     const { page, close } = await parity(browser, '/admin/cohort/jan27', 1440);
-    await expect(page.locator('main')).toContainText('Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3');
-    await expect(page.locator('main').getByRole('link', { name: /^Opens/ })).toContainText('Sun, Jan 3 · 12:00 PM MT / 1:00 PM CT');
+    await expect(page.locator('main')).toContainText(
+      'Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3',
+    );
+    await expect(page.locator('main').getByRole('link', { name: /^Opens/ })).toContainText(
+      'Sun, Jan 3 · 12:00 PM MT / 1:00 PM CT',
+    );
     await close();
   });
 
   test('the Overview reports on the selected cohort, and Build completion opens the builds', async ({ browser }) => {
     const { page, close } = await parity(browser, '/admin', 1440);
-    await expect(page.locator('main')).toContainText('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity');
-    await expect(page.locator('main a').filter({ hasText: 'Active learners' })).toHaveAttribute('href', '/admin/cohort/dec26/people');
+    await expect(page.locator('main')).toContainText(
+      'December 2026 Cohort · Week 2 of 6 · Updated live from learner activity',
+    );
+    await expect(page.locator('main a').filter({ hasText: 'Active learners' })).toHaveAttribute(
+      'href',
+      '/admin/cohort/dec26/people',
+    );
     await page.locator('main a').filter({ hasText: 'Build completion' }).click();
     await expect(page).toHaveURL(/\/admin\/program(\?|$)/);
     await close();
   });
 
-  test('an announcement made on January’s tab is January’s; Community lists each cohort’s own threads', async ({ browser }) => {
+  test('an announcement made on January’s tab is January’s; Community lists each cohort’s own threads', async ({
+    browser,
+  }) => {
     const { page, close } = await fixture(browser, '/admin/cohort/feb27/announcements', 1440);
     const before = await page.locator('main').getByRole('row').count();
     await page.getByRole('button', { name: 'New announcement' }).click();
@@ -111,15 +142,56 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
     await feb.close();
   });
 
-  test('the admin prints no MST: its times are MT, with CT after them where a time names its zone', async ({ browser }) => {
-    for (const path of ['/admin', '/admin/program', '/admin/audit', '/admin/email', '/admin/health', '/admin/incidents/INC-0007', '/admin/cohort/dec26/schedule']) {
+  test('the admin prints no MST, and every time is MT with CT after it: a session, an event, a table', async ({
+    browser,
+  }) => {
+    // Twenty-five screens, one after another.
+    test.setTimeout(240_000);
+    // Every R2 screen that prints a time, on the mockup's data. A time is "9:14 PM MT / 10:14 PM CT" (or "12 PM MT / 1 PM
+    // CT" on a session chip), Central's day before its time where it differs; a time picker's options are a form's.
+    const PAIR =
+      /\d{1,2}(?::\d{2})? [AP]M MT \/ (?:[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}, )?\d{1,2}(?::\d{2})? [AP]M CT/g;
+    const TIME = /\d{1,2}(?::\d{2})? [AP]M\b/g;
+    for (const path of [
+      '/admin',
+      '/admin/program',
+      '/admin/cohort/dec26/schedule',
+      '/admin/cohort/dec26/announcements',
+      '/admin/cohort/dec26/people',
+      '/admin/cohort/new',
+      '/admin/people',
+      '/admin/people/u_1042',
+      '/admin/people/teams',
+      '/admin/people/teams/ws_northshore',
+      '/admin/people/groups/utah-life',
+      '/admin/people/masquerade',
+      '/admin/revenue/plans',
+      '/admin/audit',
+      '/admin/roles',
+      '/admin/api/hooks',
+      '/admin/revenue/payments',
+      '/admin/jobs',
+      '/admin/email',
+      '/admin/health',
+      '/admin/incidents',
+      '/admin/incidents/INC-0007',
+      '/admin/integrations',
+      '/admin/deploys',
+      '/admin/db',
+    ]) {
       const { page, close } = await parity(browser, path, 1440);
       await page.locator('main').waitFor();
       await expect(page.locator('main'), path).not.toContainText('MST');
+      const words = await page.locator('main').evaluate((m) => {
+        const c = m.cloneNode(true) as HTMLElement;
+        c.querySelectorAll('select, option, input, textarea').forEach((e) => e.remove());
+        return c.textContent ?? '';
+      });
+      expect(words.replace(PAIR, '').match(TIME) ?? [], path).toEqual([]);
       await close();
     }
     const { page, close } = await parity(browser, '/admin/incidents/INC-0007', 1440);
-    await expect(page.locator('main')).toContainText('Dec 9, 9:14 PM MT');
+    await expect(page.locator('main')).toContainText('Dec 9, 9:14 PM MT / 10:14 PM CT');
     await close();
   });
 });

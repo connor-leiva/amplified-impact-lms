@@ -35,8 +35,16 @@ describe('the Email Log’s filters @console', () => {
   it('sends only what is set, and opens from a link’s query', () => {
     const none = { q: '', template: '', status: '', teamId: '', workspace: '' };
     expect(emailFiltersFor({ ...none, q: '  ' })).toEqual({});
-    expect(emailFiltersFor({ ...none, q: ' jamie ', template: 'sign-in', status: 'failed' })).toEqual({ q: 'jamie', template: 'sign-in', status: 'failed' });
-    expect(emailFiltersFromSearch('?q=sam%40tidewater.example&template=payment-failed')).toEqual({ ...none, q: 'sam@tidewater.example', template: 'payment-failed' });
+    expect(emailFiltersFor({ ...none, q: ' jamie ', template: 'sign-in', status: 'failed' })).toEqual({
+      q: 'jamie',
+      template: 'sign-in',
+      status: 'failed',
+    });
+    expect(emailFiltersFromSearch('?q=sam%40tidewater.example&template=payment-failed')).toEqual({
+      ...none,
+      q: 'sam@tidewater.example',
+      template: 'payment-failed',
+    });
     expect(isDefaultEmailFilters(none)).toBe(true);
   });
   it('opens one workspace’s emails from Billing’s “Open email log”, and says which', () => {
@@ -48,18 +56,35 @@ describe('the Email Log’s filters @console', () => {
     expect(isDefaultEmailFilters(f)).toBe(false);
     expect(workspaceChip(f.workspace)).toBe('Workspace: Tidewater Property Co.');
     expect(emailLogHref(null)).toBe('/admin/email');
-    expect(fixtureEmailPage(fixtureEmails(), { teamId: 'ws_tidewater' }).rows.map((r) => r.to)).toEqual(['sam@tidewaterproperty.example']);
+    expect(fixtureEmailPage(fixtureEmails(), { teamId: 'ws_tidewater' }).rows.map((r) => r.to)).toEqual([
+      'sam@tidewaterproperty.example',
+    ]);
   });
   it('offers the log’s templates and the API’s statuses, in words', () => {
-    expect(templateOptions(['sign-in', 'team-invite'], '').map((o) => o.label)).toEqual(['Any template', 'sign-in', 'team-invite']);
+    expect(templateOptions(['sign-in', 'team-invite'], '').map((o) => o.label)).toEqual([
+      'Any template',
+      'sign-in',
+      'team-invite',
+    ]);
     expect(templateOptions([], 'payment-failed').map((o) => o.value)).toEqual(['', 'payment-failed']);
-    expect(statusOptions(['sent', 'failed', 'skipped']).map((o) => o.label)).toEqual(['Any status', 'Sent', 'Failed', 'Skipped']);
+    expect(statusOptions(['sent', 'failed', 'skipped']).map((o) => o.label)).toEqual([
+      'Any status',
+      'Sent',
+      'Failed',
+      'Skipped',
+    ]);
   });
 });
 
 describe('the Email Log’s rows and detail @console', () => {
   it('prints a row in MT and CT with its status word and tone', () => {
-    expect(emailRowVM(row)).toMatchObject({ subject: row.subject, to: row.to, template: 'session-24h', sent: 'Dec 8, 12:00 PM', status: { label: 'Failed', tone: 'bad' } });
+    expect(emailRowVM(row)).toMatchObject({
+      subject: row.subject,
+      to: row.to,
+      template: 'session-24h',
+      sent: 'Dec 8, 12:00 PM MT / 1:00 PM CT',
+      status: { label: 'Failed', tone: 'bad' },
+    });
   });
   it('says the body is not kept, and names a failure’s kind', () => {
     const d = emailDetailVM(row);
@@ -71,7 +96,7 @@ describe('the Email Log’s rows and detail @console', () => {
       ['Provider', 'Resend'],
       ['Status', 'Failed'],
       ['Error', 'Resend refused it'],
-      ['Sent', 'Dec 8, 12:00 PM MT'],
+      ['Sent', 'Dec 8, 12:00 PM MT / 1:00 PM CT'],
     ]);
     // The mockup's own note, now that the log keeps delivery events (D-263).
     expect(d.note).toBe('The log keeps the subject and delivery events. The message body is not stored here.');
@@ -80,13 +105,19 @@ describe('the Email Log’s rows and detail @console', () => {
   it('draws the mockup’s rows from the fixture, and filters them as the API does', () => {
     const rows = fixtureEmails();
     expect(rows.map(emailRowVM).map((r) => [r.subject, r.status.label, r.opens, r.clicks, r.sent])).toEqual([
-      ['Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build', 'Delivered', 2, 1, 'Dec 8, 12:00 PM'],
-      ['Your Insiders payment did not go through', 'Delivered', 1, 0, 'Dec 4, 9:04 AM'],
-      ['The Session 2 replay is ready', 'Delivered', 3, 2, 'Dec 9, 3:10 PM'],
-      ['Your sign-in link', 'Delivered', 1, 1, 'Dec 9, 11:26 AM'],
-      ['This week: 2 new AI Employees', 'Bounced', 0, 0, 'Dec 7, 7:00 AM'],
-      ['Receipt for Team Plan, 16 seats', 'Sent', 0, 0, 'Dec 10, 9:18 AM'],
-      ['New in the vault: listing appointment checklist', 'Delivered', 0, 0, 'Dec 8, 3:00 PM'],
+      [
+        'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build',
+        'Delivered',
+        2,
+        1,
+        'Dec 8, 12:00 PM MT / 1:00 PM CT',
+      ],
+      ['Your Insiders payment did not go through', 'Delivered', 1, 0, 'Dec 4, 9:04 AM MT / 10:04 AM CT'],
+      ['The Session 2 replay is ready', 'Delivered', 3, 2, 'Dec 9, 3:10 PM MT / 4:10 PM CT'],
+      ['Your sign-in link', 'Delivered', 1, 1, 'Dec 9, 11:26 AM MT / 12:26 PM CT'],
+      ['This week: 2 new AI Employees', 'Bounced', 0, 0, 'Dec 7, 7:00 AM MT / 8:00 AM CT'],
+      ['Receipt for Team Plan, 16 seats', 'Sent', 0, 0, 'Dec 10, 9:18 AM MT / 10:18 AM CT'],
+      ['New in the vault: listing appointment checklist', 'Delivered', 0, 0, 'Dec 8, 3:00 PM MT / 4:00 PM CT'],
     ]);
     expect(fixtureEmailPage(rows, { status: 'bounced' }).rows).toHaveLength(1);
     expect(fixtureEmailPage(rows, { q: 'SESSION' }).rows).toHaveLength(2);
@@ -107,9 +138,18 @@ describe('the Email Log’s rows and detail @console', () => {
 describe('the Email Log’s delivery (D-263) @console', () => {
   it('badges a row with its delivery once reported, else its send’s outcome', () => {
     expect(emailRowVM({ ...row, status: 'sent', errorKind: null }).status).toEqual({ label: 'Sent', tone: 'ok' });
-    expect(emailRowVM({ ...row, status: 'sent', errorKind: null, delivery: 'delayed' }).status).toEqual({ label: 'Delayed', tone: 'warn' });
-    expect(emailRowVM({ ...row, status: 'sent', errorKind: null, delivery: 'complained' }).status).toEqual({ label: 'Complained', tone: 'bad' });
-    expect(emailRowVM({ ...row, status: 'skipped', errorKind: null }).status).toEqual({ label: 'Skipped', tone: 'off' });
+    expect(emailRowVM({ ...row, status: 'sent', errorKind: null, delivery: 'delayed' }).status).toEqual({
+      label: 'Delayed',
+      tone: 'warn',
+    });
+    expect(emailRowVM({ ...row, status: 'sent', errorKind: null, delivery: 'complained' }).status).toEqual({
+      label: 'Complained',
+      tone: 'bad',
+    });
+    expect(emailRowVM({ ...row, status: 'skipped', errorKind: null }).status).toEqual({
+      label: 'Skipped',
+      tone: 'off',
+    });
   });
 
   it('prints the mockup’s five tiles from the fixture’s rollup', () => {
@@ -122,7 +162,9 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['Unique clicks', '60%', '3 of 5 delivered', null],
     ]);
     // The tiles follow the filters.
-    expect(emailRollupVM(fixtureEmailPage(fixtureEmails(), { template: 'replay-ready' }).rollup!).map((t) => t.value)).toEqual(['1', '100%', '0', '100%', '100%']);
+    expect(
+      emailRollupVM(fixtureEmailPage(fixtureEmails(), { template: 'replay-ready' }).rollup!).map((t) => t.value),
+    ).toEqual(['1', '100%', '0', '100%', '100%']);
   });
 
   it('says so when there is nothing to rate, and counts complaints beside bounces', () => {
@@ -133,10 +175,23 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['—', '0 of 0 delivered'],
       ['—', '0 of 0 delivered'],
     ]);
-    const tiles = emailRollupVM(emailRollup({ ...NO_ROLLUP, sent: 2400, delivered: 2390, bounced: 10, complained: 2, opened: 1200, clicked: 300 }));
+    const tiles = emailRollupVM(
+      emailRollup({
+        ...NO_ROLLUP,
+        sent: 2400,
+        delivered: 2390,
+        bounced: 10,
+        complained: 2,
+        opened: 1200,
+        clicked: 300,
+      }),
+    );
     expect(tiles.map((t) => t.value)).toEqual(['2,400', '99%', '10', '50%', '13%']);
     expect(tiles[2]).toMatchObject({ sub: '1% of sent · 2 complaints', tone: 'bad' });
-    expect(emailRollupVM(emailRollup({ ...NO_ROLLUP, sent: 100, delivered: 99, bounced: 1 }))[2]).toMatchObject({ sub: '1% of sent', tone: null });
+    expect(emailRollupVM(emailRollup({ ...NO_ROLLUP, sent: 100, delivered: 99, bounced: 1 }))[2]).toMatchObject({
+      sub: '1% of sent',
+      tone: null,
+    });
   });
 
   it('opens a delivered row’s detail with its delivery, opens, clicks and last link', () => {
@@ -147,14 +202,14 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['Template', 'session-24h'],
       ['Provider', 'Resend'],
       ['Status', 'Delivered'],
-      ['Sent', 'Dec 8, 12:00 PM MT'],
-      ['Delivered', 'Dec 8, 12:00 PM MT'],
+      ['Sent', 'Dec 8, 12:00 PM MT / 1:00 PM CT'],
+      ['Delivered', 'Dec 8, 12:00 PM MT / 1:00 PM CT'],
       ['Opens', '2'],
-      ['First opened', 'Dec 8, 12:41 PM MT'],
-      ['Last opened', 'Dec 8, 6:40 PM MT'],
+      ['First opened', 'Dec 8, 12:41 PM MT / 1:41 PM CT'],
+      ['Last opened', 'Dec 8, 6:40 PM MT / 7:40 PM CT'],
       ['Clicks', '1'],
-      ['First clicked', 'Dec 8, 12:42 PM MT'],
-      ['Last clicked', 'Dec 8, 12:42 PM MT'],
+      ['First clicked', 'Dec 8, 12:42 PM MT / 1:42 PM CT'],
+      ['Last clicked', 'Dec 8, 12:42 PM MT / 1:42 PM CT'],
       ['Last link clicked', 'https://learn.example.com/sessions/2'],
     ]);
   });
@@ -167,11 +222,13 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['Template', 'weekly-digest'],
       ['Provider', 'Resend'],
       ['Status', 'Bounced'],
-      ['Sent', 'Dec 7, 7:00 AM MT'],
+      ['Sent', 'Dec 7, 7:00 AM MT / 8:00 AM CT'],
       ['Bounce', 'Permanent · General · The mailbox does not exist.'],
       ['Opens', '0'],
       ['Clicks', '0'],
     ]);
-    expect(emailDetailVM({ ...row, status: 'skipped', errorKind: null, provider: 'outbox' }).rows.map((r) => r.label)).not.toContain('Opens');
+    expect(
+      emailDetailVM({ ...row, status: 'skipped', errorKind: null, provider: 'outbox' }).rows.map((r) => r.label),
+    ).not.toContain('Opens');
   });
 });

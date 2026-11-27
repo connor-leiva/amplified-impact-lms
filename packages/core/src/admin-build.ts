@@ -3,8 +3,8 @@
 // ONE ZONE. BUILD-SPEC § 7 set it to MST (America/Phoenix), with the label "MST". R-5 audit (D-267, Connor, Nov 26:
 // "Every admin time via the MT / CT formatter; remove ADMIN_ZONE 'MST' output"; ADMIN-RESTRUCTURE-SPEC § 4 rule 3, PLAN.md
 // § 2.12 and § 10.8): the admin's zone is MT (America/Denver), and a time that names its zone is printed on one line in
-// MT with CT after it, "12:00 PM MT / 1:00 PM CT", through `fmt.mtCt` (D-259's `mtCtTime`, the learner portal's own);
-// an event's stamp (an email sent, an incident opened) names MT alone, through `fmt.mtTime` (spec § 4 rule 3).
+// MT with CT after it, "12:00 PM MT / 1:00 PM CT", through `fmt.mtCt` (D-259's `mtCtTime`, the learner portal's own).
+// Every time is: a session, an event's stamp, a table's stamp (Connor's rule, PR #286's review).
 // Between November and March MT and MST are the same hour, so December reads the same; from mid-March MT is an hour
 // later. `scripts/check-admin-zone.mjs` fails on "MST" in the admin's output.
 
@@ -19,21 +19,14 @@ const inZone = (t: number, o: Intl.DateTimeFormatOptions): string =>
 /** "Wed, Dec 2". */
 export const adminDay = (t: number): string => inZone(t, { weekday: 'short', month: 'short', day: 'numeric' });
 
-/** "12:00 PM". */
-export const adminTime = (t: number): string => inZone(t, { hour: 'numeric', minute: '2-digit' });
+/** "12:00 PM MT / 1:00 PM CT" (D-267: through `fmt.mtCt`). */
+export const adminTime = (t: number): string => fmt.mtCt(t);
 
 /** "Dec 14". */
 export const adminMonthDay = (t: number): string => inZone(t, { month: 'short', day: 'numeric' });
 
 /** "Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT" (D-267: through `fmt.mtCt`). */
 export const adminWhen = (t: number): string => `${adminDay(t)} · ${fmt.mtCt(t)}`;
-
-/**
- * "Dec 10, 8:58 AM MT": an event's stamp that names its zone, as a record's detail prints it (D-267). An event is staff's
- * (an email sent, an incident opened), so it names MT alone (`fmt.mtTime`); Central follows a time learners see (spec § 4
- * rule 3), as `adminWhen` prints it.
- */
-export const adminStampZoned = (t: number): string => `${adminMonthDay(t)}, ${fmt.mtTime(t)}`;
 
 /** A form's date (`2026-12-02`) and time (`12:00`) in MT, as the instant they name. NaN when malformed or not a real day. */
 export function fromAdminLocal(date: string, time: string): number {

@@ -6,7 +6,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, Find, PageHead, Sel, Two, k } from '../../components/r2/kit';
+import { Avatar, Find, PageHead, Sel, Two, k, Stamp } from '../../components/r2/kit';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { consoleCan } from '@ai/core';
 import { Denied } from './Denied';
@@ -70,7 +70,14 @@ export function Component() {
       value: (u) => u.status.label,
       cell: (u) => <Status tone={u.status.tone}>{u.status.label}</Status>,
     },
-    { key: 'last', label: C.columns.last, width: '128px', noSort: true, value: (u) => u.lastAt, cell: (u) => u.last },
+    {
+      key: 'last',
+      label: C.columns.last,
+      width: '128px',
+      noSort: true,
+      value: (u) => u.lastAt,
+      cell: (u) => <Stamp v={u.last} two />,
+    },
   ];
 
   const exportSelected = (ids: string[]) => {

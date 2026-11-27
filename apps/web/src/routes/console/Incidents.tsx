@@ -5,7 +5,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Pill, Sel, Two, k } from '../../components/r2/kit';
+import { PageHead, Pill, Sel, Two, k, Stamp } from '../../components/r2/kit';
 import { Denied } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
@@ -37,7 +37,13 @@ export function Component() {
       value: (r) => r.title,
       cell: (r, f) => <Two a={r.title} b={r.id} mono to={f.phone ? undefined : r.href} />,
     },
-    { key: 'sev', label: C.columns.severity, width: '88px', value: (r) => r.severityRank, cell: (r) => <Pill status={r.severity} /> },
+    {
+      key: 'sev',
+      label: C.columns.severity,
+      width: '88px',
+      value: (r) => r.severityRank,
+      cell: (r) => <Pill status={r.severity} />,
+    },
     {
       key: 'st',
       label: C.columns.status,
@@ -46,7 +52,14 @@ export function Component() {
       cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
     },
     { key: 'own', label: C.columns.owner, width: '128px', hideLap: true, value: (r) => r.owner },
-    { key: 'o', label: C.columns.opened, width: '128px', noSort: true, value: (r) => r.openedAt, cell: (r) => r.opened },
+    {
+      key: 'o',
+      label: C.columns.opened,
+      width: '128px',
+      noSort: true,
+      value: (r) => r.openedAt,
+      cell: (r) => <Stamp v={r.opened} two />,
+    },
   ];
 
   return (

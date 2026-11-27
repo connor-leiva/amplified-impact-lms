@@ -317,7 +317,7 @@ describe('curriculumR2VM (D-160 R2-2)', () => {
       when: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
       full: 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
       short: 'Lead-Source ROI',
-      date: 'Wed, Dec 2 · 12:00 PM',
+      date: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
       brief: 'Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
       n: 'Session 1',
       day: 'Wed, Dec 2',

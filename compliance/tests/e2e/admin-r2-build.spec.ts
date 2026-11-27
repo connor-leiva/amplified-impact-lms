@@ -51,7 +51,8 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
       await expectShell(page);
       // D-253: Program › Curriculum. One h1, the page's; the tab is Curriculum's (a select on a phone).
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Amplified AI Accelerator');
-      if (w >= 768) await expect(page.getByRole('tab', { name: /^Curriculum/ })).toHaveAttribute('aria-selected', 'true');
+      if (w >= 768)
+        await expect(page.getByRole('tab', { name: /^Curriculum/ })).toHaveAttribute('aria-selected', 'true');
       else await expect(page.getByRole('combobox', { name: 'Program' })).toHaveValue('curriculum');
       await noMst(page);
       await expectAccessible(page);
@@ -74,7 +75,7 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
     const cell = desk.page.getByLabel(full);
     await expect(cell).toHaveAttribute('title', full);
     await expect(cell).toContainText('Lead-Source ROI');
-    await expect(cell).toContainText('Wed, Dec 2 · 12:00 PM');
+    await expect(cell).toContainText('Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
     await expect(cell).not.toContainText('Live Build');
     await expect(row(desk.page, 'Week 1 · Know the Business').getByRole('cell').nth(1)).not.toContainText(/^3/);
     await expect(row(desk.page, 'Finance AI Employee')).toContainText('Hidden from learners');
@@ -84,7 +85,9 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
     const hidden = row(lap.page, 'Finance AI Employee').getByLabel('Hidden from learners');
     await expect(hidden).toHaveText('Hidden');
     await expect(hidden).toHaveAttribute('title', 'Hidden from learners');
-    await expect(row(lap.page, 'Week 1 · Know the Business')).toContainText('Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
+    await expect(row(lap.page, 'Week 1 · Know the Business')).toContainText(
+      'Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
+    );
     await lap.close();
 
     const phone = await openAt(browser, '/admin/program', 390);
@@ -135,7 +138,8 @@ test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-16
         await expectShell(page);
         // D-253: each is a tab; the page's own h1 is its page's (Program, or the cohort's picker).
         await expect(page.getByRole('heading', { level: 1 })).toHaveText(h1);
-        if (w >= 768) await expect(page.getByRole('tab', { name: new RegExp(`^${tab}`) })).toHaveAttribute('aria-selected', 'true');
+        if (w >= 768)
+          await expect(page.getByRole('tab', { name: new RegExp(`^${tab}`) })).toHaveAttribute('aria-selected', 'true');
         // D-255 (R-5 Phase 3, PLAN.md § 10.8): the Schedule writes each time in Mountain with Central after it, what
         // learners see. R-5 audit (D-267): so does every page; none says MST.
         await noMst(page);
@@ -146,13 +150,19 @@ test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-16
 
   // D-255 (R-5 Phase 3): Cohorts & Sessions is Cohort › Schedule. Mountain, with Central after it for what learners
   // see (PLAN.md § 10.8); no dash in an empty cell, a muted "None".
-  test('Schedule: Mountain with Central after it, an empty Week is a muted "None", and Edit Session is in MT', async ({ browser }) => {
+  test('Schedule: Mountain with Central after it, an empty Week is a muted "None", and Edit Session is in MT', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/cohort/dec26/schedule', 1440);
-    await expect(page.locator('main')).toContainText('Times are Mountain, with Central after each for what learners see.');
+    await expect(page.locator('main')).toContainText(
+      'Times are Mountain, with Central after each for what learners see.',
+    );
     const s3 = page.getByRole('row').filter({ hasText: 'Database Live Build' });
     await expect(s3).toContainText('12:00 PM MT / 1:00 PM CT');
     await expect(s3.getByText('—', { exact: true })).toHaveCount(0);
-    expect(await s3.getByText('None', { exact: true }).evaluate((e) => getComputedStyle(e).color)).toBe('rgb(95, 106, 100)');
+    expect(await s3.getByText('None', { exact: true }).evaluate((e) => getComputedStyle(e).color)).toBe(
+      'rgb(95, 106, 100)',
+    );
     await s3.getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Edit session' }).click();
     const dialog = page.getByRole('dialog', { name: 'Edit Session' });
@@ -237,20 +247,34 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
       }
     });
 
-  test('Overview: the mockup’s figures, from the snapshot; each tile goes where the mockup’s does', async ({ browser }) => {
+  test('Overview: the mockup’s figures, from the snapshot; each tile goes where the mockup’s does', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin');
     const main = page.locator('main');
-    await expect(main.getByText('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity')).toBeVisible();
-    await expect(main.getByRole('link', { name: /Active learners\s*148\s*104 Agent · 44 Team/ })).toHaveAttribute('href', '/admin/cohort/dec26/people');
-    await expect(main.getByRole('link', { name: /Upgrade pipeline\s*\$8,000\s*2 open requests/ })).toHaveAttribute('href', '/admin/revenue/plans');
+    await expect(
+      main.getByText('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity'),
+    ).toBeVisible();
+    await expect(main.getByRole('link', { name: /Active learners\s*148\s*104 Agent · 44 Team/ })).toHaveAttribute(
+      'href',
+      '/admin/cohort/dec26/people',
+    );
+    await expect(main.getByRole('link', { name: /Upgrade pipeline\s*\$8,000\s*2 open requests/ })).toHaveAttribute(
+      'href',
+      '/admin/revenue/plans',
+    );
     await expect(main.getByText('Build completion')).toBeVisible();
-    await expect(main.getByRole('img', { name: 'Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.' })).toBeVisible();
+    await expect(
+      main.getByRole('img', { name: 'Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.' }),
+    ).toBeVisible();
     await expect(main.getByText('Session 3 · Dec 16')).toBeVisible();
     await expect(main.getByText('Upcoming')).toBeVisible();
     await close();
   });
 
-  test('Learners: a row opens the learner’s details as a drawer, with the nudge; the head is the mockup’s, with no page "…"', async ({ browser }) => {
+  test('Learners: a row opens the learner’s details as a drawer, with the nudge; the head is the mockup’s, with no page "…"', async ({
+    browser,
+  }) => {
     for (const width of [1440, 390]) {
       const { page, close } = await openAt(browser, '/admin/cohort/dec26/people', width);
       // D-160 R2-3a: the mockup's head has no page-level "…", so every "More actions" is a row's.
@@ -274,7 +298,9 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
     await close();
   });
 
-  test('Tiers: the access matrix gates a module; Approve is drawn and does nothing; the "…" keeps the old actions', async ({ browser }) => {
+  test('Tiers: the access matrix gates a module; Approve is drawn and does nothing; the "…" keeps the old actions', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/revenue/plans');
     const cell = page.getByRole('button', { name: 'Marketing AI Employee, Agent Tier: included' });
     await cell.click();
@@ -303,38 +329,56 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
       }
     });
 
-  test('Audit Log: the times in MT; selecting rows draws Export selected (D-172: it exports them); a row opens its entry', async ({ browser }) => {
+  test('Audit Log: the times in MT; selecting rows draws Export selected (D-172: it exports them); a row opens its entry', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
     const table = page.getByRole('table', { name: 'Audit log entries' });
-    await expect(table.getByRole('button', { name: 'View the entry from Dec 10, 8:58 AM' })).toBeVisible();
+    await expect(
+      table.getByRole('button', { name: 'View the entry from Dec 10, 8:58 AM MT / 9:58 AM CT' }),
+    ).toBeVisible();
     await expect(table.getByText('CSV, last 7 days, 212 rows.')).toBeVisible();
     await table.getByRole('checkbox', { name: 'Select row' }).first().check();
     const exportSelected = page.getByRole('button', { name: 'Export selected' });
     await expect(exportSelected).toBeVisible();
     await expect(exportSelected).not.toHaveAttribute('aria-disabled', 'true');
-    await table.getByRole('button', { name: 'View the entry from Dec 9, 9:27 PM' }).click();
+    await table.getByRole('button', { name: 'View the entry from Dec 9, 9:27 PM MT / 10:27 PM CT' }).click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toContainText('masquerade.blocked_action');
-    await expect(drawer).toContainText('Dec 9, 2026, 9:27 PM MT');
+    await expect(drawer).toContainText('Dec 9, 2026, 9:27 PM MT / 10:27 PM CT');
     await expectAccessible(page);
     await close();
   });
 
-  test('Roles & Permissions: the Owner column on; the mockup’s two locks; a box opens the mockup’s confirm', async ({ browser }) => {
+  test('Roles & Permissions: the Owner column on; the mockup’s two locks; a box opens the mockup’s confirm', async ({
+    browser,
+  }) => {
     // D-160 R2-3b, editable (Connor, Nov 16, 2026, 8:27 AM MST).
     for (const width of [1440, 390]) {
       const { page, close } = await openAt(browser, '/admin/roles', width);
       const matrix = page.getByRole('table', { name: 'Console permissions by role' });
-      for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix']) {
+      for (const cap of [
+        'Edit curriculum, vault, sessions, announcements, tiers',
+        'Edit staff roles and this matrix',
+      ]) {
         await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
         await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeDisabled();
       }
       for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
         await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).toBeDisabled();
       // Past the ceiling but drawn as the mockup's toggles: named so, refused by the server.
-      for (const cap of ['Run a job now, retry a webhook, update incidents', 'Export audit and email logs', 'View integrations, deploys, DB health, flags, roles', 'Edit staff roles and this matrix'])
-        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support, fixed by product rules` })).not.toBeChecked();
-      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })).toBeEnabled();
+      for (const cap of [
+        'Run a job now, retry a webhook, update incidents',
+        'Export audit and email logs',
+        'View integrations, deploys, DB health, flags, roles',
+        'Edit staff roles and this matrix',
+      ])
+        await expect(
+          matrix.getByRole('checkbox', { name: `${cap}, Support, fixed by product rules` }),
+        ).not.toBeChecked();
+      await expect(
+        matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' }),
+      ).toBeEnabled();
       await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
       await expect(dialog).toContainText('Start and extend masquerade. Applies to every Admin on staff right away.');
@@ -343,10 +387,16 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
       await expectAccessible(page);
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toHaveCount(0);
-      await expect(matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true })).toBeChecked();
-      await matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' }).click();
+      await expect(
+        matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }),
+      ).toBeChecked();
+      await matrix
+        .getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })
+        .click();
       const fixed = page.getByRole('dialog', { name: 'Give this permission to Admin?' });
-      await expect(fixed.getByRole('alert')).toHaveText('Fixed by product rules. Only the Owner can edit staff roles and this matrix.');
+      await expect(fixed.getByRole('alert')).toHaveText(
+        'Fixed by product rules. Only the Owner can edit staff roles and this matrix.',
+      );
       await expect(fixed.getByRole('button', { name: 'Allow' })).toBeDisabled();
       await expectAccessible(page);
       await page.keyboard.press('Escape');

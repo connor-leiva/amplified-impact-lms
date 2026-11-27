@@ -28,7 +28,7 @@ export const NONE = '—';
 
 export const HEALTH_COPY = {
   title: 'System Health',
-  description: 'learn.amplifiedimpact.io right now. Times are MT (America/Denver).',
+  description: 'learn.amplifiedimpact.io right now.',
   head: {
     normal: 'All systems normal',
     attention: 'Needs attention',
@@ -59,7 +59,10 @@ export const HEALTH_COPY = {
     stripe_permission_missing: 'Stripe needs a permission',
   } satisfies Record<HealthUnavailable, string>,
   attention: 'Needs attention',
-  nothing: { title: 'Nothing needs attention', body: 'Failed payments, webhooks, and jobs show up here when they happen.' },
+  nothing: {
+    title: 'Nothing needs attention',
+    body: 'Failed payments, webhooks, and jobs show up here when they happen.',
+  },
   services: 'Services',
   seats: 'Seat pressure',
   noSeats: 'No seat caps yet',
@@ -109,7 +112,13 @@ export interface DeployVM {
 export type SideCardVM =
   | { kind: 'services'; title: string; rows: { name: string; status: AdminStatus }[] }
   | { kind: 'seats'; title: string; rows: SeatVM[] | null }
-  | { kind: 'deploys'; title: string; link: { label: string; to: string }; state: 'ok' | 'not_configured' | 'unavailable'; rows: DeployVM[] };
+  | {
+      kind: 'deploys';
+      title: string;
+      link: { label: string; to: string };
+      state: 'ok' | 'not_configured' | 'unavailable';
+      rows: DeployVM[];
+    };
 
 export interface HealthVM {
   pill: AdminStatus;
@@ -162,13 +171,15 @@ const TILE_TO: Record<HealthTileKey, string> = {
   acceleratorSeats: '/admin/revenue',
 };
 
-const count = (n: number, bad: string): Pick<TileVM, 'sub' | 'tone'> => (n > 0 ? { sub: bad, tone: 'bad' } : { sub: C.none, tone: 'ok' });
+const count = (n: number, bad: string): Pick<TileVM, 'sub' | 'tone'> =>
+  n > 0 ? { sub: bad, tone: 'bad' } : { sub: C.none, tone: 'ok' };
 
 function tileVM(r: HealthResponse, key: HealthTileKey): TileVM {
   const base = { key, label: C.tiles[key], to: TILE_TO[key] };
   const t = r.tiles[key];
   if (t.status === 'unavailable' || t.value === null) {
-    if (key === 'signInSuccess' && t.status !== 'unavailable') return { ...base, value: NONE, sub: C.noSignIns, tone: null };
+    if (key === 'signInSuccess' && t.status !== 'unavailable')
+      return { ...base, value: NONE, sub: C.noSignIns, tone: null };
     return { ...base, value: NONE, sub: C.unavailable[t.reason ?? 'failed'], tone: null };
   }
   const n = t.value;
@@ -176,18 +187,28 @@ function tileVM(r: HealthResponse, key: HealthTileKey): TileVM {
     case 'connectedBrowsers':
       return { ...base, value: String(n), sub: C.thisServer, tone: null };
     case 'signInSuccess':
-      return { ...base, value: `${n.toFixed(1)}%`, ...(t.status === 'attention' ? { sub: C.low24h, tone: 'bad' } : { sub: C.healthy24h, tone: 'ok' }) };
+      return {
+        ...base,
+        value: `${n.toFixed(1)}%`,
+        ...(t.status === 'attention' ? { sub: C.low24h, tone: 'bad' } : { sub: C.healthy24h, tone: 'ok' }),
+      };
     case 'failedPayments':
       return { ...base, value: String(n), ...count(n, C.needsReview) };
     case 'failedWebhooks': {
       const d = r.tiles.failedWebhooks.detail ?? { ghl: 0, stripe: 0 };
-      const parts = [d.ghl > 0 ? `${d.ghl} GHL` : null, d.stripe > 0 ? `${d.stripe} Stripe` : null].filter(Boolean).join(', ');
+      const parts = [d.ghl > 0 ? `${d.ghl} GHL` : null, d.stripe > 0 ? `${d.stripe} Stripe` : null]
+        .filter(Boolean)
+        .join(', ');
       return { ...base, value: String(n), ...count(n, parts) };
     }
     case 'jobFailures': {
       const d = r.tiles.jobFailures.detail ?? { failedJobs: [], jobs: 0 };
       if (n > 0) return { ...base, value: String(n), sub: d.failedJobs.join(', '), tone: 'bad' };
-      return { ...base, value: '0', ...(d.jobs > 0 ? { sub: `${d.jobs} of ${d.jobs} succeeded`, tone: 'ok' } : { sub: C.noRuns, tone: null }) };
+      return {
+        ...base,
+        value: '0',
+        ...(d.jobs > 0 ? { sub: `${d.jobs} of ${d.jobs} succeeded`, tone: 'ok' } : { sub: C.noRuns, tone: null }),
+      };
     }
     case 'openIncidents': {
       const top = r.tiles.openIncidents.detail?.top;
@@ -207,9 +228,18 @@ function tileVM(r: HealthResponse, key: HealthTileKey): TileVM {
 export function attentionVM(a: HealthAttention): AttentionVM {
   switch (a.kind) {
     case 'incident':
-      return { key: `i:${a.id}`, title: a.title, meta: `Open since ${adminStamp(a.openedAt)}`, pill: statusOf(sevLabel(a.severity)), to: `/admin/incidents/${encodeURIComponent(a.id)}` };
+      return {
+        key: `i:${a.id}`,
+        title: a.title,
+        meta: `Open since ${adminStamp(a.openedAt)}`,
+        pill: statusOf(sevLabel(a.severity)),
+        to: `/admin/incidents/${encodeURIComponent(a.id)}`,
+      };
     case 'payment': {
-      const last = a.retriesLeft !== null ? `${a.retriesLeft} ${plural(a.retriesLeft, 'retry', 'retries')} left` : `${a.attempts} failed ${plural(a.attempts, 'attempt')}`;
+      const last =
+        a.retriesLeft !== null
+          ? `${a.retriesLeft} ${plural(a.retriesLeft, 'retry', 'retries')} left`
+          : `${a.attempts} failed ${plural(a.attempts, 'attempt')}`;
       return {
         key: `p:${a.invoiceId}`,
         title: `${a.customer ?? a.invoiceId} is past due`,
@@ -221,7 +251,10 @@ export function attentionVM(a: HealthAttention): AttentionVM {
     case 'webhook':
       return {
         key: `w:${a.eventId}`,
-        title: a.attempts !== null ? `Stripe ${a.eventType} used all ${a.attempts} attempts` : `Stripe ${a.eventType} failed`,
+        title:
+          a.attempts !== null
+            ? `Stripe ${a.eventType} used all ${a.attempts} attempts`
+            : `Stripe ${a.eventType} failed`,
         meta: a.error ?? `Received ${adminStamp(a.receivedAt)}`,
         pill: statusOf('Failed'),
         to: '/admin/api/hooks',
@@ -229,7 +262,10 @@ export function attentionVM(a: HealthAttention): AttentionVM {
     case 'ghl':
       return {
         key: 'ghl',
-        title: a.gaveUp > 0 ? `${a.gaveUp} GHL ${plural(a.gaveUp, 'sync')} gave up` : `${a.retrying} GHL ${plural(a.retrying, 'sync')} retrying`,
+        title:
+          a.gaveUp > 0
+            ? `${a.gaveUp} GHL ${plural(a.gaveUp, 'sync')} gave up`
+            : `${a.retrying} GHL ${plural(a.retrying, 'sync')} retrying`,
         meta: `${a.gaveUp} gave up · ${a.retrying} retrying`,
         pill: statusOf(a.gaveUp > 0 ? 'Failed' : 'Retrying'),
         to: '/admin/api/hooks',
@@ -264,7 +300,10 @@ function headPill(r: HealthResponse): AdminStatus {
 function deploysVM(d: NonNullable<HealthResponse['deploys']>, max: number): SideCardVM {
   const link = { label: C.allDeploys, to: '/admin/deploys' };
   if (d.state !== 'ok') {
-    const rows = d.state === 'not_configured' && d.live ? [{ sha: d.live.slice(0, 7), status: statusOf('Live'), message: C.deploysNeed, byline: '' }] : [];
+    const rows =
+      d.state === 'not_configured' && d.live
+        ? [{ sha: d.live.slice(0, 7), status: statusOf('Live'), message: C.deploysNeed, byline: '' }]
+        : [];
     return { kind: 'deploys', title: C.recentDeploys, link, state: d.state, rows };
   }
   const rows = d.rows.slice(0, max).map((x) => ({
@@ -277,13 +316,29 @@ function deploysVM(d: NonNullable<HealthResponse['deploys']>, max: number): Side
 }
 
 export function healthVM(r: HealthResponse, sample: HealthSample | null = null): HealthVM {
-  const tiles = (['connectedBrowsers', 'signInSuccess', 'failedPayments', 'failedWebhooks', 'jobFailures', 'openIncidents', 'mrr', 'acceleratorSeats'] as const).map((key) => {
+  const tiles = (
+    [
+      'connectedBrowsers',
+      'signInSuccess',
+      'failedPayments',
+      'failedWebhooks',
+      'jobFailures',
+      'openIncidents',
+      'mrr',
+      'acceleratorSeats',
+    ] as const
+  ).map((key) => {
     const t = tileVM(r, key);
     const over = sample?.tiles[key];
     return over ? { ...t, ...over } : t;
   });
   const side: SideCardVM[] = [];
-  if (sample) side.push({ kind: 'services', title: C.services, rows: sample.services.map(([name, st]) => ({ name, status: statusOf(st) })) });
+  if (sample)
+    side.push({
+      kind: 'services',
+      title: C.services,
+      rows: sample.services.map(([name, st]) => ({ name, status: statusOf(st) })),
+    });
   else
     side.push({
       kind: 'seats',

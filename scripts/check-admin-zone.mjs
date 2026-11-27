@@ -3,8 +3,9 @@
 //
 // In `pnpm lint`, so CI's quality job runs it. It reads the code that makes what the admin shows (not tests, not
 // comments) and fails on the word "MST" anywhere in it: a zone label, a description ("Times are MST"), a form label
-// ("Send at (MST)") or the fixture's sample data the admin draws. The admin's zone is MT (America/Denver), and a time that
-// names its zone is "12:00 PM MT / 1:00 PM CT", through `fmt.mtCt` (`packages/core/src/admin-build.ts`).
+// ("Send at (MST)") or the fixture's sample data the admin draws. The admin's zone is MT (America/Denver), and every time
+// is "12:00 PM MT / 1:00 PM CT", through `fmt.mtCt` (`packages/core/src/admin-build.ts`): a session, an event's stamp, a
+// table's stamp (Connor's rule, PR #286's review). So it also fails on `fmt.mtTime`, which prints MT alone.
 //
 // What it reads:
 //   apps/web/src/routes/admin, apps/web/src/routes/console, apps/web/src/shell/admin, apps/web/src/components/r2,
@@ -34,6 +35,7 @@ const GLOBS = [
 ];
 const SKIP = [/\.test\.tsx?$/, /\/test\//, /\/__tests__\//, /\.d\.ts$/];
 const MST = /\bMST\b/;
+const MT_ALONE = /\bmtTime\(/;
 
 const files = [...new Set(GLOBS.flatMap((g) => globSync(g)))]
   .map((f) => f.split('\\').join('/'))
@@ -46,15 +48,15 @@ for (const f of files) {
   code(readFileSync(f, 'utf8'))
     .split('\n')
     .forEach((line, i) => {
-      if (MST.test(line)) bad.push(`${f}:${i + 1}: ${line.trim().slice(0, 160)}`);
+      if (MST.test(line) || MT_ALONE.test(line)) bad.push(`${f}:${i + 1}: ${line.trim().slice(0, 160)}`);
     });
 }
 if (LIST) console.log(files.join('\n'));
 if (bad.length) {
   console.error(
-    'The admin prints "MST" (D-267): its zone is MT, and a time that names its zone is "12:00 PM MT / 1:00 PM CT" through `fmt.mtCt` (`adminWhen`, `adminStampZoned`).\n' +
+    'The admin prints "MST" or MT alone (D-267): its zone is MT, and every time is "12:00 PM MT / 1:00 PM CT" through `fmt.mtCt` (`adminWhen`, `adminStamp`).\n' +
       bad.join('\n'),
   );
   process.exit(1);
 }
-console.log(`check-admin-zone: ok (${files.length} admin files, no "MST")`);
+console.log(`check-admin-zone: ok (${files.length} admin files, no "MST", no time in MT alone)`);

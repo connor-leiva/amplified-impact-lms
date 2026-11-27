@@ -128,7 +128,11 @@ export function Stat({
         {value}
       </span>
       {sub ? (
-        <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad)}>{sub}</span>
+        <span
+          className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad)}
+        >
+          {sub}
+        </span>
       ) : null}
     </>
   );
@@ -156,7 +160,13 @@ export function Skel({ lines = 5 }: { lines?: number }) {
  * `ErrorState` (R2-3b): the mockup's `ErrBox`, a list that didn't load, its words the Console's own
  * (`errorCopy`: "Too many requests." on a 429), and Retry.
  */
-export function ErrorState({ copy, onRetry }: { copy: { title: string; body: string; retry: string }; onRetry: () => void }) {
+export function ErrorState({
+  copy,
+  onRetry,
+}: {
+  copy: { title: string; body: string; retry: string };
+  onRetry: () => void;
+}) {
   return (
     <Empty icon="r2Incidents" tone="bad" role="alert" title={copy.title} body={copy.body}>
       <Button icon="r2Refresh" className={k.retry} onClick={onRetry}>
@@ -183,8 +193,23 @@ export function TapCheck({
 }) {
   return (
     <span className={k.tapBox}>
-      <input type="checkbox" className={k.chk} checked={checked} disabled={disabled} readOnly tabIndex={-1} aria-hidden="true" />
-      <input type="checkbox" className={k.hit} aria-label={label} checked={checked} disabled={disabled} onChange={onChange} />
+      <input
+        type="checkbox"
+        className={k.chk}
+        checked={checked}
+        disabled={disabled}
+        readOnly
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+      <input
+        type="checkbox"
+        className={k.hit}
+        aria-label={label}
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+      />
     </span>
   );
 }
@@ -222,7 +247,14 @@ export function CheckCell({
   const box =
     live && phone ? (
       <>
-        <input type="checkbox" className={clsx(k.chk, k.drawn)} checked={on} readOnly tabIndex={-1} aria-hidden="true" />
+        <input
+          type="checkbox"
+          className={clsx(k.chk, k.drawn)}
+          checked={on}
+          readOnly
+          tabIndex={-1}
+          aria-hidden="true"
+        />
         <input type="checkbox" className={k.hit} aria-label={name} checked={on} onChange={onToggle} />
       </>
     ) : live ? (
@@ -275,6 +307,42 @@ export const breakAt = (s: string): ReactNode =>
       ))
     : s;
 
+/**
+ * D-267 (PR #286's review): words with a time in MT and CT, "Dec 9, 9:14 PM MT / 10:14 PM CT" (`adminStamp`), as the R2
+ * reference's `Stamp` draws them. `two`: a table's narrow column, the MT moment over its zones ("Dec 9, 9:14 PM" over
+ * "MT / 10:14 PM CT"); `fx`: a key fact's, one line, and those two on a phone. Otherwise a line never breaks inside a
+ * time, between a time and its zone, or before the "/". Words with no MT / CT read as they are ("Invite pending").
+ */
+export function Stamp({ v, two, fx }: { v: string; two?: boolean; fx?: boolean }) {
+  const i = v.indexOf(' MT / ');
+  if (i < 0) return <>{v}</>;
+  if (fx)
+    return (
+      <span className={k.tzp}>
+        <span>{v.slice(0, i)}</span> <span>{v.slice(i + 1)}</span>
+      </span>
+    );
+  if (two)
+    return (
+      <span className={k.tz2}>
+        <span>{v.slice(0, i)}</span> <span>{v.slice(i + 1)}</span>
+      </span>
+    );
+  return (
+    <>
+      {v.split(/(\d{1,2}:\d{2} [AP]M MT \/|\d{1,2}:\d{2} [AP]M CT)/).map((p, j) =>
+        j % 2 ? (
+          <span key={j} className={k.nowrap}>
+            {p}
+          </span>
+        ) : (
+          p
+        ),
+      )}
+    </>
+  );
+}
+
 /** Hyphenated words stay whole when the line wraps ("Fair-Housing-checked"): the mockup's `nb` (R2-2). */
 export const keepHyphens = (s: string): ReactNode =>
   s.includes('-')
@@ -313,7 +381,7 @@ export function Facts({ items }: { items: readonly { label: string; value: React
         <div key={f.label} className={f.wide ? k.fxw : undefined}>
           <span className={k.me}>{f.label}</span>
           <span className={clsx(k.w5, k.el)} data-number="">
-            {f.value}
+            {typeof f.value === 'string' ? <Stamp v={f.value} fx /> : f.value}
           </span>
         </div>
       ))}
@@ -460,7 +528,10 @@ export function Note({ who, when, body }: { who: string; when: string; body: str
   return (
     <div className={clsx(k.note, k.col, k.colS)}>
       <span>
-        <span className={k.w5}>{who}</span> <span className={k.me}>· {when}</span>
+        <span className={k.w5}>{who}</span>{' '}
+        <span className={k.me}>
+          · <Stamp v={when} />
+        </span>
       </span>
       <p className={clsx(k.p, k.s2)}>{body}</p>
     </div>
@@ -474,7 +545,9 @@ export function Timeline({ items }: { items: readonly { key: string; text: strin
       {items.map((a) => (
         <div key={a.key} className={k.tl}>
           <div>{a.text}</div>
-          <div className={clsx(k.me, k.mo)}>{a.when}</div>
+          <div className={clsx(k.me, k.mo)}>
+            <Stamp v={a.when} />
+          </div>
         </div>
       ))}
     </>
