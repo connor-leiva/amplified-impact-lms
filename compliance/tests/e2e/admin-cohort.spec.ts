@@ -196,7 +196,8 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
   test('the week builder no longer edits a week’s dates or sessions: Where it runs, each a link to the cohort', async ({
     browser,
   }) => {
-    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-2');
+    // D-265 (R-5 Phase 6): Where it runs is in the week's Basics.
+    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-2?section=basics');
     await expect(main(page).getByText('Where it runs')).toBeVisible();
     await expect(main(page).getByRole('link', { name: /Week 2 of the December 2026 Cohort/ })).toHaveAttribute(
       'href',

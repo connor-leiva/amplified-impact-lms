@@ -3,12 +3,14 @@
 // The deploy's pre-deploy command makes sure of it (`db:curriculum:ensure`, D-110, docs/LAUNCH.md § 6),
 // and Railway's logs do not always show that step's output. This answers the question from outside,
 // with no session and no secret: counts only. It reads three tables and only the course's own rows:
-// cohort `dec26`, the course's modules of kind `week` and that cohort's sessions. It never reads
+// the cohorts that are not archived, the course's modules of kind `week` and the sessions. It never reads
 // users, teams, progress, staff, orders or plans, and it returns no names, dates, links or text.
 //
-// THE EXPECTED COUNTS ARE THE COHORT'S OWN DATA (D-173), never constants: a week module for Week 0 and
-// for each of the cohort's `weeks`, each published, and every session a week's live-build or office-
-// hours page names. The weeks counted are the ones the course page shows (`courseWeekModules`).
+// THE EXPECTED COUNTS ARE THE COHORTS' OWN DATA (D-173), never constants: a week module for Week 0 and
+// for each of a cohort's `weeks` (the longest cohort's), each published, and every session a week's live-build
+// or office-hours page names, in whichever cohort it is. The weeks counted are the program's course weeks
+// (`isCourseWeek`). R-5 Phase 6 (D-265): the program's, read across every cohort that runs it, no longer
+// December's by id; with December alone, as production has it, every count is the one it was.
 //
 // Not `/api/health` itself: that is Railway's healthcheck and deliberately touches nothing, so a slow
 // database can never fail a deploy through it.
@@ -18,8 +20,8 @@
 // field those steps retire (the promise, the old setup order, a kit skill's use line). Still counts only.
 
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
-import { ACCELERATOR_COHORT_ID, isAcceleratorModule } from '@ai/core/accelerator';
+import { eq, isNull } from 'drizzle-orm';
+import { isCourseWeek } from '@ai/core/accelerator';
 import { hasRetired } from '@ai/core/course-retired';
 import type { ModuleCourse } from '@ai/core/course-types';
 import { getDb } from '../db/client';
@@ -28,13 +30,14 @@ import { cohorts, dataMigrations, modules, sessions } from '../db/schema';
 export const CURRICULUM_STATUS_PATH = '/api/health/curriculum';
 
 export interface CurriculumStatus {
-  /** All of the below are what the cohort's data says should be in place. */
+  /** All of the below are what the cohorts' data says should be in place. */
   ok: boolean;
+  /** A cohort runs the program (one that is not archived). */
   cohort: boolean;
   /** The cohort's week modules: how many exist, and how many of those are published. */
   modules: number;
   published: number;
-  /** Of the sessions the weeks' pages name, how many exist in cohort `dec26`. */
+  /** Of the sessions the weeks' pages name, how many exist. */
   sessions: number;
   expected: { modules: number; sessions: number };
   /** D-221: how many one-time data steps have run on this database. */
@@ -50,23 +53,23 @@ const namedSessions = (course: ModuleCourse | null): string[] =>
 export async function curriculumStatus(): Promise<CurriculumStatus> {
   const db = getDb();
   const [cohortRows, weekRows, sessionRows, stepRows] = await Promise.all([
-    db.select({ id: cohorts.id, weeks: cohorts.weeks }).from(cohorts).where(eq(cohorts.id, ACCELERATOR_COHORT_ID)),
+    db.select({ id: cohorts.id, weeks: cohorts.weeks }).from(cohorts).where(isNull(cohorts.archivedAt)),
     db.select({ id: modules.id, status: modules.status, course: modules.course }).from(modules).where(eq(modules.kind, 'week')),
-    db.select({ id: sessions.id }).from(sessions).where(eq(sessions.cohortId, ACCELERATOR_COHORT_ID)),
+    db.select({ id: sessions.id }).from(sessions),
     db.select({ id: dataMigrations.id }).from(dataMigrations),
   ]);
   // The weeks the course page shows (`courseWeekModules`): the course's own modules. A copy made with
   // the builder's Duplicate carries `kind: 'week'` too, but it is not in the course, so it is not counted.
-  const moduleRows = weekRows.filter((m) => isAcceleratorModule(m.id));
-  const cohort = cohortRows[0];
+  const moduleRows = weekRows.filter((m) => isCourseWeek(m.id));
+  const cohort = cohortRows.length > 0;
   const named = new Set(moduleRows.flatMap((m) => namedSessions(m.course as ModuleCourse | null)));
   const have = new Set(sessionRows.map((s) => s.id));
-  const expected = { modules: cohort ? (cohort.weeks ?? 0) + 1 : 0, sessions: named.size };
+  const expected = { modules: cohort ? Math.max(...cohortRows.map((c) => (c.weeks ?? 0) + 1)) : 0, sessions: named.size };
   const published = moduleRows.filter((m) => m.status === 'published').length;
   const sessionsFound = [...named].filter((id) => have.has(id)).length;
   return {
-    ok: !!cohort && expected.modules > 0 && moduleRows.length === expected.modules && published === expected.modules && sessionsFound === expected.sessions,
-    cohort: !!cohort,
+    ok: cohort && expected.modules > 0 && moduleRows.length === expected.modules && published === expected.modules && sessionsFound === expected.sessions,
+    cohort,
     modules: moduleRows.length,
     published,
     sessions: sessionsFound,

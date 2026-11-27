@@ -134,6 +134,8 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
     welcomeSends: z.strictObject({ date: text(10), time: text(5) }).nullable().optional(),
   }),
   saveCohortCourse: z.strictObject({ cohortId: id, course: cohortCourse }),
+  // R-5 Phase 6 (D-265): Program › Course Settings.
+  saveProgramCourse: z.strictObject({ programId: id, course: cohortCourse }),
   saveCopyString: z.strictObject({ key: text(120), value: text(2000), audience: z.enum(['learner', 'staff']) }),
   // R-5 (D-254): a cohort owns its run and its shape (`cohort-actions.ts`).
   createCohortFromShape: z.strictObject({

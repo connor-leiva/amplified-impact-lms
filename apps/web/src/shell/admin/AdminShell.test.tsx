@@ -433,7 +433,8 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Amplified AI Accelerator');
     expect(screen.getByText('What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates.')).toBeInTheDocument();
     expect(within(screen.getAllByRole('tablist')[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual([
-      `Curriculum${state.db.modules.length}`,
+      // D-265: Curriculum counts the program's weeks.
+      `Curriculum${state.db.modules.filter((m) => m.kind === 'week').length}`,
       'Course Settings',
       'Resource Vault',
     ]);

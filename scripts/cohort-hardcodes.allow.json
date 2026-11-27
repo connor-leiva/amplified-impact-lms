@@ -11,8 +11,8 @@
       "file": "packages/core/src/accelerator.ts",
       "match": "cohortId !== DEFAULT_COHORT_ID ? at : COURSE_OPENS_AT",
       "count": 1,
-      "reason": "courseOpensAt: D-153's instant stands in for December's first live build only where none of its sessions is in the rows read (a test database, a learner's snapshot before the preview).",
-      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
+      "reason": "courseOpensAt: D-153's instant stands in for December's first live build only where none of its sessions is in the rows read (a test database, a learner's snapshot before the preview). D-265 (Phase 6) left it: a learner's snapshot before the preview carries no session, so this instant is what December's learners read there; moving it would change their output.",
+      "phase": "9: once every reader of a cohort's opening has its sessions at hand (proposed for 6; D-265 left it)"
     },
     {
       "file": "packages/core/src/cohort-selling.ts",
@@ -22,11 +22,11 @@
       "phase": "9: once Connor confirms the data step ran in production, the constants and the fallback go"
     },
     {
-      "file": "packages/core/src/cohort-learner.ts",
+      "file": "packages/core/src/program.ts",
       "match": "db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)?.course ?? null",
       "count": 1,
-      "reason": "The program's shared words live on December's row until the program record exists (D-261).",
-      "phase": "6"
+      "reason": "The program's shared words read December's row until the data step 2026-11-28-program has copied them onto the program record (D-265; the spec's Phase 6: \"Until that step runs, a cohort with no program copy reads December's\"). The step copies, so both answer the same.",
+      "phase": "9: once Connor confirms the data step ran in production, the fallback goes"
     },
     {
       "file": "packages/core/src/cohort-learner.ts",
@@ -39,8 +39,8 @@
       "file": "packages/core/src/cohort-actions.ts",
       "match": "if (co.id === DEFAULT_COHORT_ID)",
       "count": 1,
-      "reason": "Saving December's run mirrors its dates onto its modules for the admin readers not yet on the run (D-255, D-261 item 2).",
-      "phase": "6"
+      "reason": "Saving December's run mirrors its dates onto its modules for the admin readers not yet on the run (D-255, D-261 item 2). D-265: Curriculum and the week page read the run now; the learner list (Phase 7), the dashboard (Phase 9), build-audit.ts and curriculum-week.ts still read a module's dates.",
+      "phase": "9: once the learner list (Phase 7) and the dashboard (Phase 9) read the run"
     },
     {
       "file": "packages/core/src/sessions.ts",
@@ -113,76 +113,6 @@
       "phase": "9"
     },
     {
-      "file": "apps/api/src/routes/curriculum-status.ts",
-      "match": "eq(cohorts.id, ACCELERATOR_COHORT_ID)",
-      "count": 1,
-      "reason": "Curriculum's status reads December's weeks; each cohort that runs the week is Phase 6's (PLAN § 5.1).",
-      "phase": "6"
-    },
-    {
-      "file": "apps/api/src/routes/curriculum-status.ts",
-      "match": "eq(sessions.cohortId, ACCELERATOR_COHORT_ID)",
-      "count": 1,
-      "reason": "Its sessions, likewise.",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/ModuleBuilder.tsx",
-      "match": "c.id === ACCELERATOR_COHORT_ID",
-      "count": 1,
-      "reason": "The week builder's glossary comes from December's row until the program's copy (PLAN § 5.1).",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
-      "match": "sessionFor(db, 'dec26', d.session)",
-      "count": 2,
-      "reason": "The week builder previews against December (PLAN § 5.4).",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
-      "match": "cohortId: 'dec26' }",
-      "count": 1,
-      "reason": "Its preview card, likewise.",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
-      "match": ".filter((s) => s.cohortId === 'dec26')",
-      "count": 1,
-      "reason": "Its sessions list, likewise.",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
-      "match": "DEFAULT_OPENS = Date.parse('2026-12-21T09:00:00-06:00')",
-      "count": 1,
-      "reason": "The week builder's default opening for a new week (D-174), December's calendar.",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/WeekBuilder.vm.ts",
-      "match": "c.id === 'dec26')?.previewOpensAt",
-      "count": 1,
-      "reason": "The week builder's preview date is December's (PLAN § 5.4).",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/CourseSettings.vm.ts",
-      "match": "id = 'dec26'",
-      "count": 1,
-      "reason": "Course Settings edits the course words on December's row until the program record (PLAN § 5.4).",
-      "phase": "6"
-    },
-    {
-      "file": "apps/web/src/routes/admin/Curriculum.vm.ts",
-      "match": "const COHORT_ID = 'dec26'",
-      "count": 1,
-      "reason": "Curriculum reads December's dates; each cohort that runs the week is Phase 6's (PLAN § 5.4).",
-      "phase": "6"
-    },
-    {
       "file": "apps/web/src/routes/admin/Tiers.vm.ts",
       "match": "c.id === 'dec26') ?? db.cohorts[0]",
       "count": 1,
@@ -221,8 +151,8 @@
       "file": "packages/core/src/offer.ts",
       "match": "firstBuildAt: Date.parse('2026-12-02T13:00:00-06:00')",
       "count": 1,
-      "reason": "D-153's instant (COURSE_OPENS_AT): December's first live build, read only where its sessions are not at hand; the data step checks they agree.",
-      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
+      "reason": "D-153's instant (COURSE_OPENS_AT): December's first live build, read only where its sessions are not at hand; the data step checks they agree. D-265 (Phase 6) left it, with courseOpensAt's fallback above.",
+      "phase": "9: with courseOpensAt's fallback (proposed for 6; D-265 left it)"
     },
     {
       "file": "packages/core/src/offer.ts",

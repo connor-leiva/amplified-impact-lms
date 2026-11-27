@@ -78,6 +78,12 @@
   --r2-not-started: #dad6cb;
   /* Toast */
   --r2-toast-bg: #15211d;
+  /* D-265: the unsaved-changes bar (`.svb`), the mockup's own colours */
+  --r2-svb-ink: #f4f2ec;
+  --r2-svb-line: #47534e;
+  --r2-svb-button: #202d28;
+  --r2-svb-button-hover: #2a3832;
+  --r2-mint-hover: #86ddb5;
   --r2-toast-ink: #f4f2ec;
 
   /* Shadows and overlays (exact) */

@@ -235,6 +235,8 @@ export interface Place {
   record?: true;
   /** D-255: New cohort, `/admin/cohort/new`: "Admin / Cohort / New Cohort". */
   newCohort?: true;
+  /** D-265: a page of a row's with no tab of its own yet, named in the crumb ("Admin / Cohort / Submissions"). */
+  page?: string;
 }
 
 const norm = (pathname: string): string => {
@@ -275,6 +277,8 @@ export function placeOf(pathname: string): Place | null {
     if (c === undefined) return at(undefined);
     if (d === undefined && AREAS.cohort.tabs.some((t) => t.id === c)) return at(c);
     if (c === 'community' && one(d) && e === undefined) return at('community', true);
+    // D-265 (R-5 Phase 6): what teams turned in, a page of the Cohort row's until Phase 7 draws its tab ("Admin / Cohort / Submissions").
+    if (c === 'submissions' && d === undefined) return { ...at(undefined), page: 'Submissions' };
     return null;
   }
   if (a === 'people') {
@@ -533,6 +537,12 @@ export function crumbsOf(place: Place | null, opts: { record?: string | null; co
     return [
       { kind: 'link', label: AREAS.cohort.label, to: areaPath('cohort', opts.cohortId) },
       { kind: 'record', label: 'New Cohort' },
+    ];
+  // D-265: Cohort › Submissions, a page of the cohort's until Phase 7 draws its tab.
+  if (place.page && place.area)
+    return [
+      { kind: 'link', label: AREAS[place.area].label, to: areaPath(place.area, place.cohortId ?? opts.cohortId) },
+      { kind: 'here', label: place.page },
     ];
   if (place.area) {
     const area = AREAS[place.area];

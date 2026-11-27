@@ -285,7 +285,13 @@ describe('the four pages’ addresses (spec § 3)', () => {
     // D-255: New cohort is a page of the Cohort row's, named in the crumb.
     expect(placeOf('/admin/cohort/new')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', record: true, newCohort: true });
     expect(placeOf('/admin/cohort/dec26/settings')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', tab: 'settings' });
-    for (const p of ['/admin/no-such-page', '/admin/cohort', '/admin/cohort/dec26/submissions', '/admin/program/weeks', '/admin/people/u_1/x', '/admin/revenue/summary', '/admin/denied', '/sessions'])
+    // D-265: `/admin/cohort/:id/submissions` is a page now (the staff cards that left the week); its tab is Phase 7's.
+    expect(placeOf('/admin/cohort/dec26/submissions')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', page: 'Submissions' });
+    expect(crumbsOf(placeOf('/admin/cohort/dec26/submissions'), { cohortId: 'dec26' })).toEqual([
+      { kind: 'link', label: 'Cohort', to: '/admin/cohort/dec26' },
+      { kind: 'here', label: 'Submissions' },
+    ]);
+    for (const p of ['/admin/no-such-page', '/admin/cohort', '/admin/cohort/dec26/submissions/x', '/admin/program/weeks', '/admin/people/u_1/x', '/admin/revenue/summary', '/admin/denied', '/sessions'])
       expect(placeOf(p), p).toBeNull();
   });
 });

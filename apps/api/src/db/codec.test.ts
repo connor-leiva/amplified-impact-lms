@@ -221,8 +221,11 @@ describe('§7.3 columns a snapshot must not clobber @g7', () => {
     for (const r of rows.resources) expect('storageKey' in r).toBe(false);
   });
 
-  /** Nothing is dismissed in the live seed, and it has no copy strings (D-173), so those tables have no row to inspect from it. */
-  const EMPTY_IN_SEED: readonly TableName[] = ['dismissals', 'copyStrings', 'checklistState', 'learnerPrefs', 'videoProgress'];
+  /**
+   * Nothing is dismissed in the live seed, and it has no copy strings (D-173) and no program record (D-265: the data step
+   * writes it), so those tables have no row to inspect from it.
+   */
+  const EMPTY_IN_SEED: readonly TableName[] = ['dismissals', 'copyStrings', 'checklistState', 'learnerPrefs', 'videoProgress', 'programs'];
 
   it('every row carries exactly the columns COLUMNS_OWNED declares @g7', () => {
     // The guard the point above depends on: the caller sets only the keys a row carries, so this
@@ -230,6 +233,7 @@ describe('§7.3 columns a snapshot must not clobber @g7', () => {
     const dismissing = structuredClone(seedForDatabase('live'));
     dismissing.dismissed[`${dismissing.users[0]!.id}:${dismissing.announcements[0]!.id}`] = 1;
     dismissing.copy = [{ key: 'locked.utah_life', value: 'Not included with Utah Life access', audience: 'learner' }];
+    dismissing.programs = [{ id: 'accelerator', name: 'Amplified AI Accelerator' }];
     dismissing.users[0]!.checks = [{ moduleId: dismissing.modules[0]!.id, stepId: 'c1', itemId: 'item-1', checked: true, checkedAt: 1765000000000, auto: false }];
     dismissing.users[0]!.coursePrefs = [{ key: `acc:${dismissing.modules[0]!.id}:c1:0`, value: '1', updatedAt: 1765000000000 }];
     dismissing.users[0]!.videoProgress = [{ moduleId: dismissing.modules[0]!.id, videoId: 'intro', maxPct: 0.5, lastPositionS: 12, updatedAt: 1765000000000 }];

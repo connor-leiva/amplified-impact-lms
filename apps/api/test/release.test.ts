@@ -7,7 +7,7 @@
 import { implementerWords } from '@ai/core/role-words';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { asc, eq } from 'drizzle-orm';
-import { moduleVersion } from '@ai/core';
+import { COURSE_TZ, moduleVersion, zonedInputs } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS, COURSE_OPENS_AT, isAcceleratorModule } from '@ai/core/accelerator';
 import type { LearnerCourse } from '@ai/core/course';
@@ -18,6 +18,7 @@ import type { App } from '../src/app';
 import { provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import { provisionOrder } from '../src/billing/provision';
 import { applyDataMigrations, DATA_MIGRATIONS } from '../src/db/data-migrations';
+import { planDecemberRunV1 } from '@ai/core/seed/december-run-v1';
 import { ACCELERATOR_WEEKS_CONTENT } from '@ai/core/seed/accelerator-v1';
 import { WEEK0_STEPS } from '@ai/core/seed/weeks-0-3-v2';
 import { persistDiff } from '../src/db/io';
@@ -217,18 +218,27 @@ describe('the weekly releases (D-175) @release', () => {
     }
   });
 
-  it('opens Week 1 when the builder moves its opening, with no deploy (the brief’s acceptance)', { timeout: 180_000 }, async () => {
+  it('opens Week 1 when its cohort moves its opening, with no deploy (the brief’s acceptance); the builder’s save keeps it', { timeout: 180_000 }, async () => {
     const before = await loadDb();
     const w1 = before.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[1])!;
     const opens = MT('2026-11-21T12:00:00');
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/admin/actions/saveBuilderModule',
-      headers: { cookie: cookies.get('staff')!, 'content-type': 'application/json' },
-      payload: JSON.stringify({ draft: { ...structuredClone(w1), opens }, status: 'scheduled', base: moduleVersion(w1) }),
-    });
-    expect(res.statusCode, res.body).toBe(200);
+    const post = (name: string, payload: unknown) =>
+      app.inject({ method: 'POST', url: `/api/admin/actions/${name}`, headers: { cookie: cookies.get('staff')!, 'content-type': 'application/json' }, payload: JSON.stringify(payload) });
+    // D-265 (#278's open item): a course week's dates are its cohort's (D-255), so the builder's save keeps the stored one.
+    const kept = await post('saveBuilderModule', { draft: { ...structuredClone(w1), opens }, status: 'scheduled', base: moduleVersion(w1) });
+    expect(kept.statusCode, kept.body).toBe(200);
+    expect((await loadDb()).modules.find((m) => m.id === w1.id)!.opens).toBe(w1.opens);
     try {
+      // December's run, as Phase 3's data step writes it; then Cohort › Settings › Dates and Release moves Week 1.
+      const now0 = await loadDb();
+      await persistDiff(handle, now0, planDecemberRunV1(now0).db);
+      const run = (await loadDb()).cohorts.find((c) => c.id === 'dec26')!.run!;
+      const input = (t: number | null) => (t === null ? null : zonedInputs(t, COURSE_TZ));
+      const res = await post('saveCohortRun', {
+        cohortId: 'dec26',
+        weeks: run.map((w) => ({ moduleId: w.moduleId, opens: input(w.moduleId === w1.id ? opens : w.opensAt), due: input(w.dueAt) })),
+      });
+      expect(res.statusCode, res.body).toBe(200);
       at(opens - 60_000);
       expect(weeksOf((await course('full')).json())[1]).toBe('1:locked');
       at(opens);
@@ -236,9 +246,7 @@ describe('the weekly releases (D-175) @release', () => {
       expect((await get('/api/files/resource/r_week1_prompt', 'full')).statusCode).toBe(200);
     } finally {
       const now = await loadDb();
-      const restored = structuredClone(now);
-      restored.modules = restored.modules.map((m) => (m.id === w1.id ? w1 : m));
-      await persistDiff(handle, now, restored);
+      await persistDiff(handle, now, { ...now, cohorts: before.cohorts, modules: before.modules, sessions: before.sessions });
     }
   });
 });
@@ -288,12 +296,14 @@ describe('the deploy’s one-time data steps (D-175) @release', () => {
       // D-262: December's selling values, copied onto its record (one row). Named: its two Payment Links, whose
       // variables this test does not set, so December keeps reading the environment for them.
       [DATA_MIGRATIONS[17]!.id, 1, 2],
+      // D-265: December's shared course words, copied onto the program record (one row).
+      [DATA_MIGRATIONS[18]!.id, 1, 0],
     ]);
     const after = await loadDb();
     expect(after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])).toMatchObject({ status: 'scheduled', opens: WEEK_OPENS_V1[3] });
     expect(after.copy!.map((c) => c.key).sort()).toEqual(['course.prelaunch', 'locked.opens', 'locked.utah_life', 'plan.team.ask', 'plan.team.asked', 'plan.team.lead', 'plan.team.solo', 'plan.team.title', 'skill.coming', 'skill.in_step']);
     const rows = await handle.select().from(auditLog).orderBy(asc(auditLog.id));
-    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7 + 10 + 1 + 1).fill('curriculum.migrate'));
+    expect(rows.map((r) => r.action)).toEqual(Array(34 + 28 + 7 + 10 + 1 + 1 + 1).fill('curriculum.migrate'));
     expect(after.cohorts.find((c) => c.id === 'dec26')!.course!.glossary).toHaveLength(31);
     expect(after.modules.find((m) => m.id === 'accelerator-week-0')!.course!.startHere?.title).toBe('Start Here: Week 0');
     expect(rows[1]).toMatchObject({ actorSource: 'system', targetType: 'module', targetId: ACCELERATOR_MODULE_IDS[1], after: { status: 'scheduled', opens: WEEK_OPENS_V1[1] } });

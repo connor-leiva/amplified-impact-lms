@@ -50,6 +50,14 @@ import {
   OVERVIEW_PTS,
   OVERVIEW_RECENT,
   P3_WEEKS,
+  P6_COURSE,
+  P6_GLOSS,
+  P6_KIT_FILES,
+  P6_KIT_SKILLS,
+  P6_W0_STEPS,
+  P6_WEEKS,
+  P6_WK_STEPS,
+  P6_WORDS,
   PERMS0,
   ROLES,
   STAFF,
@@ -210,10 +218,17 @@ function learnerOf(u: (typeof USERS)[number]): Learner {
   const open: readonly string[] = team ? OPEN_TEAM : OPEN_AGENT;
   const at = mst('2026-12-08T10:00:00');
   const progress: Record<string, Progress> = Object.fromEntries(
-    open.slice(0, u.pr).map((id) => [
-      id,
-      { steps: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], builtAt: at, deployedAt: at, runtime: 'deployed' } satisfies Progress,
-    ]),
+    open
+      .slice(0, u.pr)
+      .map((id) => [
+        id,
+        {
+          steps: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'],
+          builtAt: at,
+          deployedAt: at,
+          runtime: 'deployed',
+        } satisfies Progress,
+      ]),
   );
   return {
     id: u.id,
@@ -267,7 +282,8 @@ const CURRICULUM_BASE: Db['base']['mod'] = {
 
 /** The Overview's own figures (see above). */
 function overviewDb(db: Db): Db {
-  const pool = (id: string) => db.users.filter((u) => db.modules.find((m) => m.id === id)!.tier === 'agent' || u.tier === 'team').length;
+  const pool = (id: string) =>
+    db.users.filter((u) => db.modules.find((m) => m.id === id)!.tier === 'agent' || u.tier === 'team').length;
   for (const u of db.users) u.progress = {};
   const m6 = db.modules.find((m) => m.id === 'm6')!;
   Object.assign(m6, { status: 'published', opens: null });
@@ -360,6 +376,7 @@ export function parityDb(path = '/admin/curriculum'): Db {
   ];
   const at = path.replace(/\/+$/, '');
   if (COHORT_PAGE.test(at)) cohortPageDb(db, at);
+  if (PROGRAM_PAGE.test(at)) programPageDb(db);
   return at === '/admin' ? overviewDb(db) : db;
 }
 
@@ -512,4 +529,164 @@ export function parityAuditRows(): AuditRow[] {
       requestId: `req-${(9000 - i * 37).toString(36)}`,
     };
   });
+}
+
+// ------------------------------------------------------------------------------------------------
+// D-265 (R-5 Phase 6): Program's pages
+// ------------------------------------------------------------------------------------------------
+
+/** December's weeks on the Program pages: each opens at 12:00 PM MT on its day. */
+const P6_DEC_OPENS = [
+  '2026-11-29',
+  '2026-11-29',
+  '2026-12-06',
+  '2026-12-13',
+  '2027-01-03',
+  '2027-01-10',
+  '2027-01-17',
+  '2027-01-24',
+  '2027-01-31',
+];
+
+/** December's sessions on the Program pages: a Wednesday build and Thursday office hours for Weeks 1 to 4. */
+const P6_DEC_SES: readonly (readonly [title: string, week: number, day: string])[] = [
+  ['Map Your Spend', 1, '2026-12-02'],
+  ['Lead Source Review', 2, '2026-12-09'],
+  ['Numbers on the 5th', 3, '2026-12-16'],
+  ['Protect the Pipeline', 4, '2027-01-06'],
+];
+
+/** Program's addresses: Curriculum, Course Settings, the Resource Vault and a week. */
+const PROGRAM_PAGE = /^\/admin\/program(\/|$)/;
+
+/** A week's steps as the mockup lists them, with the minutes its time adds up from. */
+function weekSteps(week: number, mins: readonly number[]): Step[] {
+  const words = week === 0 ? P6_W0_STEPS : P6_WK_STEPS;
+  return mins.map((m, i) => {
+    const [title, who, time, done] = words[i % words.length]!;
+    return { id: `c${i + 1}`, text: title, ch: title, mins: m, t: 0, hint: '', who, timeLabel: time, doneWhen: done };
+  });
+}
+
+/**
+ * The program as its pages draw it (the R2 reference's `P6_LIB`): the nine course weeks with the mockup's statuses, steps,
+ * time and kit, and December running all nine on the mockup's dates with its first four weeks' sessions. The AI Employees
+ * stay, published, for the Vault's "Attached to"; Curriculum lists the course weeks (D-265). The program's shared words
+ * and its copy strings are `CourseSet`'s.
+ */
+function programPageDb(db: Db): void {
+  const weeks = P3_WEEKS.map((w, i): AIEmployee => {
+    const [status, mins, nFiles] = P6_WEEKS[i]!;
+    const base = courseWeekOf(w, i);
+    const week = w[1];
+    return {
+      ...base,
+      status,
+      // What a published week's save checks (`saveModule`): three outputs and a system prompt (sample words).
+      outputs: ['The report', 'The rubric, filled in', 'The next step'],
+      prompt: '# Role\nYou run this week’s hire for the team, on its own numbers.',
+      checklist: weekSteps(week, mins),
+      files: P6_KIT_FILES.slice(0, nFiles).map((name) => ({
+        name,
+        type: 'JSON' as const,
+        size: '1 KB',
+        desc: '',
+        steps: [],
+      })),
+      course: {
+        ...base.course!,
+        skills:
+          week <= 5
+            ? P6_KIT_SKILLS.map((title) => ({
+                title,
+                route: title.toLowerCase().replace(/\s+/g, '-'),
+                role: 'flagship' as const,
+              }))
+            : [],
+      },
+    };
+  });
+  db.modules = [...db.modules.map((m) => ({ ...m, status: 'published' as const, opens: null })), ...weeks];
+  const dec = db.cohorts[0]!;
+  dec.run = P3_WEEKS.map(([moduleId, n], i) => ({
+    moduleId,
+    n,
+    opensAt: mst(`${P6_DEC_OPENS[i]}T12:00:00`),
+    dueAt: null,
+  }));
+  db.sessions = P6_DEC_SES.flatMap(([title, week, day], i): Session[] =>
+    (['live_build', 'office_hours'] as const).map((kind, j) => ({
+      id: `${COHORT}-p${i * 2 + j + 1}`,
+      cohortId: COHORT,
+      n: i * 2 + j + 1,
+      title: `${title} ${kind === 'live_build' ? 'Live Build' : 'Office Hours'}`,
+      start: mst(`${day}T12:00:00`) + j * 864e5,
+      mins: kind === 'live_build' ? 90 : 60,
+      zoom: i === 0 ? `https://zoom.us/j/88413${String(i * 2 + j + 1).padStart(5, '0')}` : '',
+      live: false,
+      attended: null,
+      replay: null,
+      views: 0,
+      kind,
+      moduleId: P3_WEEKS[week]![0],
+    })),
+  );
+  const intro = P6_COURSE;
+  db.programs = [
+    {
+      id: 'accelerator',
+      name: intro.title,
+      course: {
+        intro: {
+          title: intro.title,
+          sub: DEC_WORDS.promise,
+          how: [...DEC_WORDS.how],
+          roles: { owner: intro.owner, operator: intro.operator },
+          scope: intro.scope,
+          support: intro.support,
+          instructor: intro.instructor,
+          holiday: DEC_WORDS.holiday,
+          join: { label: intro.joinLabel, note: intro.joinNote, path: '/join' },
+        },
+        shared: {
+          liveBuildMins: 90,
+          officeHoursMins: 60,
+          officeHoursRules: [...intro.officeHoursRules],
+          issueForm: [],
+          evidence: intro.evidence.map((label) => ({ label, hint: '' })),
+          rubric: [],
+          rubricScale: [],
+          rubricRules: [],
+          readiness: [],
+          paths: [],
+          missedAWeek: intro.missedAWeek,
+          estimateNote: '',
+        },
+        before: {
+          intake: [...intro.intake],
+          orientation: { minutes: 30, topics: [], media: '' },
+          dataPack: [],
+          practiceSetNote: intro.practiceSetNote,
+          safeSharing: [...intro.safeSharing],
+          lanes: [],
+        },
+        after: {
+          graduation: [...intro.graduation],
+          graduationNote: intro.graduationNote,
+          paths: intro.paths.map((label) => ({ label, text: '' })),
+          noPaywall: intro.noPaywall,
+          pilotQuestions: [],
+        },
+        glossary: P6_GLOSS.map(([term, short, aliases, first], i) => ({
+          id: `g${i + 1}`,
+          term,
+          short,
+          long: '',
+          aliases: aliases ? aliases.split(', ') : [],
+          firstStep: Number(/Step (\d+)/.exec(first)![1]),
+        })),
+      },
+    },
+  ];
+  db.copy = P6_WORDS.map(([key, value, audience]) => ({ key, value, audience }));
 }

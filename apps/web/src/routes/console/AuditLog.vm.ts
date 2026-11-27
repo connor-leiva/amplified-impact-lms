@@ -129,6 +129,8 @@ const GROUP_LABELS: Record<string, string> = {
   staff: 'Staff & Roles',
   // D-174: the curriculum builder's cohort release plan and shared pages, and its copy strings.
   cohort: 'Cohorts',
+  // D-265: Course Settings saves the program record.
+  program: 'Program',
   copy: 'Copy Strings',
   // D-175: the deploy's one-time data steps on the course (the release plan).
   curriculum: 'Curriculum',

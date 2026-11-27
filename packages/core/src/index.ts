@@ -43,6 +43,7 @@ export * from './cohort-run';
 export * from './cohort-roster';
 export * from './cohort-actions';
 export * from './cohort-page';
+export * from './program';
 export * from './cohort-selling';
 export * from './release';
 export * from './welcome';

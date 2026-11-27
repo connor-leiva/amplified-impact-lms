@@ -20,6 +20,7 @@ import { ACCELERATOR_WEEKS, DEFAULT_COHORT_ID, acceleratorModuleId, cohortOpensA
 import { COURSE_TZ } from './course-actions';
 import { SCHEDULE_ICS_PATH } from './schedule';
 import type { CohortCourse } from './course-types';
+import { programCourse } from './program';
 import type { AIEmployee, Announcement, Cohort, Db, Session } from './types';
 
 // ================================================================================================
@@ -103,13 +104,8 @@ export const FIRST_LIVE_BUILD_TOKEN = '{first live build}';
 /** What the token reads when the cohort has no session at all: the mockup's own words (`firstBuildOf`). */
 export const FIRST_LIVE_BUILD_NONE = 'the first session';
 
-/**
- * The program's shared words. Until the program record arrives (Phase 6), they are the `course` stored on the default
- * cohort's row (December's), which is where every word the course shares lives today (the spec's § 2 table: "the rest
- * of `cohorts.course` on the `dec26` row"). Null while the database holds no course (the seed hasn't run).
- */
-export const programCourse = (db: Pick<Db, 'cohorts'>): CohortCourse | null =>
-  db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)?.course ?? null;
+// R-5 Phase 6 (D-265): the program record and its words are `program.ts`'s (`programCourse`), re-exported here.
+export { DEFAULT_PROGRAM_ID, programCourse, programIdOf, programOf } from './program';
 
 /** The words only this cohort's learners read (spec § 2): its promise, how it works and its holiday note. */
 type OwnWords = Partial<Pick<CohortCourse['intro'], 'sub' | 'how' | 'holiday'>>;
@@ -124,14 +120,14 @@ const ownWordsOf = (c: Pick<Cohort, 'words' | 'course'>): OwnWords | undefined =
 /**
  * The course's words for one cohort, as `GET /api/course` sends them, or null while there are none (no program words,
  * or no such cohort). `intro.sub`, `intro.how` and `intro.holiday` are the cohort's own (`ownWordsOf`); everything else
- * is the program's shared words (`programCourse`). A cohort with none of its own reads the program's three too, as
+ * is the program's shared words (`programCourse`: its program's record, D-265). A cohort with none of its own reads the program's three too, as
  * Connor's amendment drafts a new cohort's words (PLAN § 10.3: "start as December's words"). Then `{first live build}`
  * is filled from the cohort (`fillFirstLiveBuild`).
  *
  * December's own words are the program row's own, so its words are that very object while no word carries the token.
  */
-export function cohortCourseCopy(db: Pick<Db, 'cohorts'> & Partial<Pick<Db, 'sessions'>>, cohortId: string): CohortCourse | null {
-  const program = programCourse(db);
+export function cohortCourseCopy(db: Pick<Db, 'cohorts'> & Partial<Pick<Db, 'sessions' | 'programs'>>, cohortId: string): CohortCourse | null {
+  const program = programCourse(db, cohortId);
   const cohort = db.cohorts.find((c) => c.id === cohortId);
   if (!program || !cohort) return null;
   return fillFirstLiveBuild(withOwnWords(program, ownWordsOf(cohort)), () => firstLiveBuildDay(cohort, db.sessions ?? []));

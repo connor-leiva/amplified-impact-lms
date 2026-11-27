@@ -44,7 +44,7 @@ const noMst = async (page: Page) => {
   expect(text).not.toMatch(/\bMST\b/);
 };
 
-test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
+test.describe('Program › Curriculum (D-265, R-5 Phase 6) @g9 @r2', () => {
   test('passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390', async ({ browser }) => {
     for (const w of [1440, 1280, 1024, 390]) {
       const { page, close } = await openAt(browser, '/admin/program', w);
@@ -60,66 +60,67 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
     }
   });
 
-  test('BUILD-SPEC § 7: row numbers at 1440 only; the short Live session at 1280; Hidden in full, as a pill, on the meta line', async ({
-    browser,
-  }) => {
-    const wide = await openAt(browser, '/admin/program', 1440);
-    const row = (p: Page, name: string) => p.getByRole('row').filter({ hasText: name });
-    await expect(row(wide.page, 'Week 1 · Know the Business').getByRole('cell').nth(1)).toContainText(/^3/);
-    await expect(row(wide.page, 'Week 1 · Know the Business')).toContainText('Session 1 · Lead-Source ROI Live Build');
-    await expect(row(wide.page, 'Finance AI Employee')).toContainText('Hidden from learners');
-    await wide.close();
-
-    const desk = await openAt(browser, '/admin/program', 1280);
-    const full = 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready';
-    const cell = desk.page.getByLabel(full);
-    await expect(cell).toHaveAttribute('title', full);
-    await expect(cell).toContainText('Lead-Source ROI');
-    await expect(cell).toContainText('Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
-    await expect(cell).not.toContainText('Live Build');
-    await expect(row(desk.page, 'Week 1 · Know the Business').getByRole('cell').nth(1)).not.toContainText(/^3/);
-    await expect(row(desk.page, 'Finance AI Employee')).toContainText('Hidden from learners');
-    await desk.close();
-
-    const lap = await openAt(browser, '/admin/program', 1024);
-    const hidden = row(lap.page, 'Finance AI Employee').getByLabel('Hidden from learners');
-    await expect(hidden).toHaveText('Hidden');
-    await expect(hidden).toHaveAttribute('title', 'Hidden from learners');
-    await expect(row(lap.page, 'Week 1 · Know the Business')).toContainText(
-      'Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
-    );
-    await lap.close();
-
-    const phone = await openAt(browser, '/admin/program', 390);
-    await expect(phone.page.getByText('Hidden from learners · Wed, Dec 30')).toBeVisible();
-    await expect(phone.page.getByLabel('Draft. Hidden from learners').first()).toHaveAttribute(
-      'title',
-      'Hidden from learners',
-    );
-    await phone.close();
-  });
-
-  test('reorders with Alt and an arrow key, changes tier access, and publishes after the confirm', async ({
+  test('lists the weeks, where each runs and Published or Publish; every count opens what it counts', async ({
     browser,
   }) => {
     const { page, close } = await openAt(browser, '/admin/program', 1440);
-    const first = () => page.getByRole('row').nth(1);
-    await expect(first()).toContainText('Marketing AI Employee');
-    await page.getByRole('button', { name: 'Reorder row 2. Alt plus arrow keys move it.' }).press('Alt+ArrowUp');
-    await expect(first()).toContainText('Week 0 · Get Ready');
+    const weeks = page.locator('main section[aria-label="Weeks"]');
+    await expect(weeks.getByText('3 published and 6 in draft. Open a week to build it.')).toBeVisible();
+    const row = (title: string) => weeks.locator('[data-week]').filter({ hasText: title });
+    await expect(row('Where the Money Goes')).toContainText('7 steps');
+    await expect(row('Where the Money Goes')).toContainText('2 hr 30 min');
+    await expect(row('Where the Money Goes').getByRole('link', { name: 'December 2026 · Week 1' })).toHaveAttribute(
+      'href',
+      '/admin/cohort/dec26',
+    );
+    // A week the mockup calls Scheduled reads Published here: "scheduled" is something a cohort says.
+    await expect(row('Leads That Pay')).toContainText('Published');
+    await expect(row('Make the Workflow Repeatable').getByRole('button', { name: 'Publish' })).toBeDisabled();
+    await expect(row('Where the Money Goes').getByRole('link', { name: /Where the Money Goes/ })).toHaveAttribute(
+      'href',
+      '/admin/program/weeks/accelerator-week-1',
+    );
+    const main = page.locator('main');
+    await expect(main.getByRole('link', { name: '10 terms' })).toHaveAttribute(
+      'href',
+      '/admin/program/course?section=glossary',
+    );
+    await expect(main.getByRole('link', { name: '5 lines learners see' })).toHaveAttribute(
+      'href',
+      '/admin/program/course?section=words',
+    );
+    await expect(main.getByRole('link', { name: '7 kit files' })).toHaveAttribute('href', '/admin/program/vault');
+    await expect(
+      main.getByRole('link', { name: /December 2026 Cohort\s*8 weeks · opens Sun, Nov 29/ }),
+    ).toHaveAttribute('href', '/admin/cohort/dec26');
+    await close();
+  });
 
-    const sales = page.getByRole('row').filter({ hasText: 'Sales AI Employee' });
-    await sales.getByRole('button', { name: 'Tier access: Agent + Team' }).click();
-    await page.getByRole('menuitem', { name: 'Team only' }).click();
-    await expect(sales.getByRole('button', { name: 'Tier access: Team only' })).toBeVisible();
+  test('reorders with Alt and an arrow key, and publishes after the confirm', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/program', 1440);
+    const rows = page.locator('main [data-week]');
+    await expect(rows.nth(3)).toContainText('Numbers on the 5th');
+    await page
+      .getByRole('button', { name: 'Move Numbers on the 5th: drag, or press Alt with an arrow key' })
+      .press('Alt+ArrowUp');
+    await expect(rows.nth(2)).toContainText('Numbers on the 5th');
 
-    const finance = page.getByRole('row').filter({ hasText: 'Finance AI Employee' });
-    await finance.getByRole('button', { name: 'Publish', exact: true }).click();
-    const dialog = page.getByRole('dialog', { name: 'Publish Finance AI Employee?' });
-    await expect(dialog).toContainText('Learners with access see it in the portal right away.');
+    const draft = rows.filter({ hasText: 'Coach from Evidence' });
+    await draft.getByRole('button', { name: 'Publish', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Publish Coach from Evidence?' });
+    await expect(dialog).toContainText(
+      'Each cohort that runs it gets it on its own date. Until then learners see its title and outcome, locked.',
+    );
     await expectAccessible(page);
-    await dialog.getByRole('button', { name: 'Cancel' }).click();
-    await expect(finance).toContainText('Draft');
+    await dialog.getByRole('button', { name: 'Publish' }).click();
+    await expect(draft).toContainText('Published');
+    await draft.getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menuitem')).toHaveText([
+      'Open week',
+      'Preview as a learner',
+      'Duplicate',
+      'Unpublish',
+    ]);
     await close();
   });
 });
@@ -197,41 +198,64 @@ test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-16
   });
 });
 
-test.describe('Module Builder on R2 (D-160 R2-2) @g9 @r2', () => {
-  test('passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, for an AI Employee and a new one', async ({
+test.describe('Program › a week (D-265, R-5 Phase 6) @g9 @r2', () => {
+  test('passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, for a week, its sections and a new week', async ({
     browser,
   }) => {
-    for (const path of ['/admin/program/weeks/m1', '/admin/program/weeks/new'])
+    for (const path of ['/admin/program/weeks/accelerator-week-1', '/admin/program/weeks/new'])
       for (const w of [1440, 1280, 1024, 390]) {
         const { page, close } = await openAt(browser, path, w);
         await expectShell(page);
-        await expect(page.getByRole('heading', { level: 1, name: 'Module Builder' })).toBeVisible();
+        await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+          path.endsWith('new') ? 'New week' : 'Where the Money Goes',
+        );
         await noMst(page);
         await expectAccessible(page);
         await close();
       }
+    for (const section of ['basics', 'page', 'live', 'cards', 'kit']) {
+      const { page, close } = await openAt(browser, `/admin/program/weeks/accelerator-week-1?section=${section}`, 1440);
+      await expectAccessible(page);
+      await close();
+    }
   });
 
-  test('edits in place, asks before leaving with unsaved changes, and keeps the details in Edit details', async ({
+  test('six sections, a seventh on Week 0; a step opens its fields; unsaved changes ask before leaving', async ({
     browser,
   }) => {
-    const { page, close } = await openAt(browser, '/admin/program/weeks/m1', 1440);
-    await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
-    await page.getByRole('textbox', { name: 'Step 1 title' }).fill('What this AI Employee does for you');
-    await expect(page.getByRole('button', { name: 'Save changes' })).toBeVisible();
-    await page.getByRole('button', { name: 'Edit details' }).click();
-    const details = page.getByRole('dialog', { name: 'Edit details' });
-    await expect(details.getByLabel('Output 1')).toBeVisible();
-    await expectAccessible(page);
-    await details.getByRole('button', { name: 'Done' }).click();
-    await page
-      .getByRole('navigation', { name: 'AI Employees' })
-      .getByRole('button', { name: 'Sales AI Employee' })
-      .click();
+    const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-1', 1440);
+    const rail = page.getByRole('navigation', { name: 'Sections' });
+    await expect(rail.getByRole('button')).toHaveText([
+      'Basics',
+      'Steps7',
+      'Course Page',
+      'Live Sessions2',
+      'Hire Cards3',
+      'Kit5',
+    ]);
+    await expect(page.getByRole('button', { name: 'Save changes' }).first()).toBeDisabled();
+    await page.getByRole('button', { name: /Join the Live Build/ }).click();
+    const step = page.getByRole('dialog', { name: 'Step 2' });
+    await step.getByRole('textbox', { name: 'Title' }).fill('Join the Live Build Together');
+    await expect(step.getByText('Claude path')).toBeVisible();
+    await step.getByRole('button', { name: 'Done' }).click();
+    await expect(page.getByText('Unsaved changes to Where the Money Goes')).toBeVisible();
+    await rail.getByRole('button', { name: 'Basics' }).click();
+    await expect(page.getByText('Week 1 of the December 2026 Cohort')).toBeVisible();
+    await page.getByRole('button', { name: 'Next week' }).click();
     await expect(page.getByRole('dialog', { name: 'Discard unsaved changes?' })).toBeVisible();
     await page.getByRole('button', { name: 'Keep Editing' }).click();
-    await expect(page.getByRole('textbox', { name: 'Step 1 title' })).toHaveValue('What this AI Employee does for you');
+    await expect(page.getByRole('dialog', { name: 'Discard unsaved changes?' })).toHaveCount(0);
+    // The unsaved-changes bar's own Discard.
+    await page.getByRole('status').filter({ hasText: 'Unsaved changes to' }).getByRole('button', { name: 'Discard' }).click();
+    await expect(page.getByText('Unsaved changes to Where the Money Goes')).toHaveCount(0);
     await close();
+
+    const w0 = await openAt(browser, '/admin/program/weeks/accelerator-week-0', 1440);
+    await expect(
+      w0.page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Forms' }),
+    ).toBeVisible();
+    await w0.close();
   });
 });
 

@@ -6,8 +6,9 @@
 // Pure: no clock (`now` comes in), no random source. Facts the snapshot does not hold (the audit rows the test sends
 // write, the cohort plans a cohort has sold) come in as `CohortFacts`, read by the API.
 
-import { DEFAULT_COHORT_ID, isCourseWeek } from './accelerator';
+import { isCourseWeek } from './accelerator';
 import { LAYOUT_KIND_LABEL, cohortRun, layoutWarnings, meetsLine } from './cohort-run';
+import { programCourse } from './program';
 import { cohortSelling, enrollmentOpen, paymentLinksLine, stripePriceLine } from './cohort-selling';
 import type { CohortStripeFacts } from './cohort-selling';
 import { COURSE_TZ, zonedInputs, zonedInstant } from './course-actions';
@@ -571,13 +572,14 @@ export function defaultSourceId(db: Pick<Db, 'cohorts'>): string | null {
 
 /**
  * The database as the staff preview of one cohort's course reads it: that cohort's own course words when it holds them
- * (December), else the default cohort's with this cohort's own words in their places (`intro.sub`, `intro.how`,
+ * (December), else the program's (D-265) with this cohort's own words in their places (`intro.sub`, `intro.how`,
  * `intro.holiday`), which is what the spec's Phase 4 assembles for its learners. Staff only: `courseFor(previewDb(db,
  * id), now, 'staff', id)`. The database is not written.
  */
-export function previewDb<T extends Pick<Db, 'cohorts'>>(db: T, cohortId: string): T {
+export function previewDb<T extends Pick<Db, 'cohorts'> & Partial<Pick<Db, 'programs'>>>(db: T, cohortId: string): T {
   const co = cohortOf(db, cohortId);
-  const base = cohortOf(db, DEFAULT_COHORT_ID)?.course;
+  // D-265: the program's shared words (its record's, else December's row until the program step has run).
+  const base = programCourse(db, cohortId);
   if (!co || co.course || !base) return db;
   const course = structuredClone(base);
   if (co.words) {

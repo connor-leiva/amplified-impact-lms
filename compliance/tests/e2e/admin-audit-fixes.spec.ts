@@ -145,8 +145,8 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
   test('the admin prints no MST, and every time is MT with CT after it: a session, an event, a table', async ({
     browser,
   }) => {
-    // Twenty-five screens, one after another.
-    test.setTimeout(240_000);
+    // Thirty-one screens, one after another.
+    test.setTimeout(300_000);
     // Every R2 screen that prints a time, on the mockup's data. A time is "9:14 PM MT / 10:14 PM CT" (or "12 PM MT / 1 PM
     // CT" on a session chip), Central's day before its time where it differs; a time picker's options are a form's.
     const PAIR =
@@ -155,6 +155,13 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
     for (const path of [
       '/admin',
       '/admin/program',
+      // D-265 (R-5 Phase 6): a week's Basics (Where It Runs) and Live Sessions, Course Settings, the Vault, Submissions.
+      '/admin/program/weeks/accelerator-week-1?section=basics',
+      '/admin/program/weeks/accelerator-week-1?section=live',
+      '/admin/program/course',
+      '/admin/program/course?section=before',
+      '/admin/program/vault',
+      '/admin/cohort/dec26/submissions',
       '/admin/cohort/dec26/schedule',
       '/admin/cohort/dec26/announcements',
       '/admin/cohort/dec26/people',

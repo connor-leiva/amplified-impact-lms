@@ -213,6 +213,8 @@ export const AUDIT_ACTIONS = [
   'session.delete',
   'cohort.save',
   'cohort.course_save',
+  // R-5 Phase 6 (D-265): Course Settings saves the program record's shared words.
+  'program.course_save',
   // R-5 (D-254): a cohort's own writes (`cohort-actions.ts`): create one from a shape, save its shape, save its run
   // (each week's dates), add the sessions its rhythm is missing.
   'cohort.create',

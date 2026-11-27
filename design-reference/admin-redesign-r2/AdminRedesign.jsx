@@ -12,7 +12,10 @@
        tab one of today's screens with its title dropped and its own tabs as a segmented control; the cohort picker; the
        crumbs; the palette's pages and tabs. build_admin.py's "third pass" edits that make the frame, without its new
        screens (Cohort › Overview, Settings, Submissions, New cohort, Utah Life, Revenue › Summary, the new Curriculum).
-       Course settings and Community are the app's own pages (D-174, D-238), not drawn here; their tabs are. */
+       Course settings and Community are the app's own pages (D-174, D-238), not drawn here; their tabs are.
+   (5) D-265 (R-5 Phase 6, the same approval): Program's pages from handoff/admin-mockup/ (p3-areas.jsx `Curriculum3`,
+       `WeekEdit`; ia-screens.jsx `CourseSet`): Curriculum is the program's weeks, a week is built in sections, and Course
+       Settings is drawn, with PLAN.md § 10.8's words. */
 /* Amplified Impact LMS — Admin redesign, round 2. One file: admin + console screens.
    Notes: "Design notes.md". Fonts: Geist + Geist Mono from Google Fonts for the mock; the product self-hosts. */
 import React from 'react';
@@ -350,6 +353,52 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .ewh{color:var(--f3);font-size:var(--m);line-height:var(--ml)}
 .ph .ewh{display:none}.ph .ewl{gap:14px}.ph .ewr{grid-template-columns:24px minmax(0,1fr);row-gap:6px}.ph .ewf{grid-column:2;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center}.ph .ewk{display:block;color:var(--f3)}
 .nsk{position:sticky;top:0}.ph .nsk{position:static}
+
+/* ---- D-265 (R-5 Phase 6): Program › Curriculum, a week and Course Settings, from build_admin.py ("third pass") ---- */
+.wn.off{background:var(--sub);color:var(--f3)}
+.srg{display:grid;grid-template-columns:216px minmax(0,1fr);gap:24px;align-items:start}
+.ph .srg{grid-template-columns:minmax(0,1fr);gap:16px}
+.srl{display:flex;flex-direction:column;gap:1px;position:sticky;top:0}
+.srb{display:flex;align-items:center;gap:8px;height:var(--c);padding:0 10px;border:0;background:none;border-radius:8px;font-size:calc(var(--t) - 1px);color:var(--f2);cursor:pointer;text-align:left}
+.srb:hover{background:var(--sub);color:var(--ink)}
+.srb.on{background:var(--tint);color:var(--for);font-weight:500}
+.srb .el{flex:1}
+.srb .tn{font-size:var(--m);color:var(--f3);font-weight:400}
+.ln{display:flex;align-items:center;gap:4px}
+.ln .in{flex:1;font-weight:400}
+.grp{display:flex;align-items:center;justify-content:center;width:20px;height:var(--c);color:var(--line2);cursor:grab;flex:none}
+.wkr:hover .grp,.ln:hover .grp{color:var(--f3)}
+.wkr{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 8px;min-height:60px}
+.ph .wkr{flex-wrap:wrap;padding:12px 12px 12px 16px;gap:8px 12px}
+.wkr.stp{padding-left:12px}
+.wkr:hover{background:var(--hov)}
+.wkm{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit;border-radius:4px}
+.wkm:hover .w5{color:var(--for);text-decoration:underline;text-decoration-color:var(--mint);text-underline-offset:3px}
+.wkc{flex:0 0 104px;display:flex;flex-direction:column;min-width:0;font-size:calc(var(--t) - 1px)}
+.wkc.wkd{flex-basis:172px}
+.stp .wkc{flex:0 0 196px}
+.stp .wkc .row{flex-wrap:nowrap}
+.ph .stp .wkc{flex:1 1 auto}
+.wks{flex:0 0 96px;display:flex;justify-content:flex-start;font-size:calc(var(--t) - 1px)}
+.lap .wkc{flex-basis:120px}
+.lap .wkc.wkd{display:none}
+.ph .wkr .wn{order:0}
+.ph .wkm{order:1;flex:1 1 calc(100% - 100px)}
+.ph .wkr>.menu{order:2}
+.ph .wkc{display:none}
+.ph .wkc.wkd,.ph .stp .wkc{display:flex;order:3;flex:1 1 auto;margin-left:40px}
+.ph .stp .wkc{margin-left:36px}
+.ph .wks{order:4;flex:0 0 auto;align-items:center}
+/* D-265: the phone's 16px floor (D-156, D-160's decision A) for these columns, as the mockup's own .ph .lab and .ph .b set it */
+.ph .wkc,.ph .wks{font-size:16px}
+.svb{position:sticky;bottom:16px;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;background:var(--ink);color:#F4F2EC;border-radius:12px;box-shadow:0 8px 24px rgba(21,33,29,.18);font-size:calc(var(--t) - 1px);z-index:3}
+.svb .b{border-color:#47534E;background:#202D28;color:#F4F2EC;box-shadow:none}
+.svb .b:hover{background:#2A3832}
+.svb .b.p{background:var(--mint);border-color:var(--mint);color:var(--ink)}
+.svb .b.p:hover{background:#86DDB5}
+.cfb{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px 14px;border:1px dashed var(--line2);border-radius:10px;background:var(--hov);font-size:calc(var(--t) - 1px)}
+.lk.uin{font-weight:400;color:var(--f2)}
+.uir{margin:0;width:100%;border:1px solid var(--line);padding:8px 12px}
 `;
 
 /* ---------- icons: 24 grid, 1.75 stroke, round caps, drawn at 16 ---------- */
@@ -761,10 +810,12 @@ function Builder() {
   </div>;
 }
 
+/* D-265: the vault's rows, also counted on Program › Curriculum (Shared by Every Week) */
+const VAULT_ROWS = [['Listing appointment checklist', 'PDF', 'Listing AI Employee', 'Agent + Team', '412 KB', 'Dec 8', 86], ['Standard chart of accounts', 'Sheet', 'Finance AI Employee', 'Team only', '88 KB', 'Dec 6', 31], ['Fair Housing review checklist', 'PDF', 'Marketing AI Employee', 'Agent + Team', '240 KB', 'Dec 2', 128], ['Session 1 replay', 'Video', 'Week 1 · Know the Business', 'Team only', '214 MB', 'Dec 2', 97], ['Session 2 replay', 'Video', 'Week 2 · Own the Day', 'Team only', '198 MB', 'Dec 9', 64], ['Skill install walkthrough', 'Video', 'Week 0 · Get Ready', 'Agent + Team', '96 MB', 'Nov 24', 141], ['Morning brief prompt pack', 'Prompt', 'Week 2 · Own the Day', 'Team only', '9 KB', 'Dec 9', 52]];
 function Vault() {
   const { guard, toast, setDlg, log } = useC();
   const [q, setQ] = useState(''), [ty, setTy] = useState('All types');
-  const R = [['Listing appointment checklist', 'PDF', 'Listing AI Employee', 'Agent + Team', '412 KB', 'Dec 8', 86], ['Standard chart of accounts', 'Sheet', 'Finance AI Employee', 'Team only', '88 KB', 'Dec 6', 31], ['Fair Housing review checklist', 'PDF', 'Marketing AI Employee', 'Agent + Team', '240 KB', 'Dec 2', 128], ['Session 1 replay', 'Video', 'Week 1 · Know the Business', 'Team only', '214 MB', 'Dec 2', 97], ['Session 2 replay', 'Video', 'Week 2 · Own the Day', 'Team only', '198 MB', 'Dec 9', 64], ['Skill install walkthrough', 'Video', 'Week 0 · Get Ready', 'Agent + Team', '96 MB', 'Nov 24', 141], ['Morning brief prompt pack', 'Prompt', 'Week 2 · Own the Day', 'Team only', '9 KB', 'Dec 9', 52]];
+  const R = VAULT_ROWS;
   return <div className="pg">
     <Head t="Resource Vault" d="Files, replays, prompts, and checklists learners can open from the portal." right={<GBtn k="p" ic="plus" perm="build" label="Add resource" go={() => toast('Upload opens here')}>Add resource</GBtn>} />
     <div className="row"><Find v={q} on={setQ} ph="Filter resources" /><Sel label="Type" v={ty} on={setTy} opts={['All types', 'PDF', 'Sheet', 'Video', 'Prompt']} /></div>
@@ -1261,9 +1312,9 @@ function Area({ k, t, meta, d, right, counts = {}, children }) {
 /* a tab whose page is the app's own (Course settings, D-174; Community, D-238): drawn there, not in this reference */
 const OffRef = ({ what }) => <div className="cd"><Empty ic="file" t={what} b="This tab's page is the app's own and is not drawn in this reference." /></div>;
 function ProgramArea() {
-  const { mods } = useC();
-  return <Area k="program" t={<span className="row nw" style={{ gap: 10 }}><PTile />Amplified AI Accelerator</span>} meta={<Pill v="Program" tone="" />} d="What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." counts={{ curriculum: mods.length }}>
-    {tab => tab === 'settings' ? <OffRef what="Course Settings" /> : tab === 'vault' ? <Vault /> : <Curriculum />}</Area>;
+  // D-265 (R-5 Phase 6): Curriculum is the program's weeks (`ProgramCurriculum`) and Course Settings is drawn (`CourseSet`).
+  return <Area k="program" t={<span className="row nw" style={{ gap: 10 }}><PTile />Amplified AI Accelerator</span>} meta={<Pill v="Program" tone="" />} d="What you teach. A week is built once here, and every cohort that runs it gets the same week on its own dates." counts={{ curriculum: P6_LIB.length }}>
+    {tab => tab === 'settings' ? <CourseSet /> : tab === 'vault' ? <Vault /> : <ProgramCurriculum />}</Area>;
 }
 function CohortArea() {
   // Schedule counts the cohort's sessions; People its teams, as Learners & Teams' own Teams tab does (7). D-255: the head's status
@@ -1599,6 +1650,218 @@ function NewCohort() {
   </div>;
 }
 
+/* ---------- D-265 (R-5 Phase 6): Program › Curriculum, a week, and Course Settings ----------
+   Ported from handoff/admin-mockup/p3-areas.jsx (`Curriculum3`, `WeekEdit`) and ia-screens.jsx (`CourseSet`), with
+   PLAN.md § 10.8's words: Title Case headings, one line of times in MT and CT ("12:00 PM MT / 1:00 PM CT"), no dashes.
+   The program is this reference's (`P3_WEEKS`) with the mockup's statuses, steps, time and kit; December runs all nine
+   weeks on the mockup's dates (its Program pages' own figures, as the app's fixture gives each page its own); a week's
+   steps and its sessions are the mockup's. A week is Published or Draft here: "scheduled" is something a cohort says. */
+const P6_LIB = [[170, 'Published', 8, 7], [150, 'Published', 7, 5], [160, 'Published', 7, 4], [140, 'Draft', 6, 3], [120, 'Draft', 5, 2], [90, 'Draft', 4, 2], [60, 'Draft', 3, 0], [0, 'Draft', 0, 0], [0, 'Draft', 0, 0]]
+  .map(([min, st, steps, kit], i) => ({ id: P3_WEEKS[i].id, n: P3_WEEKS[i].n, t: P3_WEEKS[i].t, o: P3_WEEKS[i].o, st, steps, min, kit }));
+/* December, as its Program pages draw it: each week's opening, its first meeting, and the sessions of its first weeks */
+const P6_DEC_RUN = [['2026-11-29', null], ['2026-11-29', '2026-12-02'], ['2026-12-06', '2026-12-09'], ['2026-12-13', '2026-12-16'], ['2027-01-03', '2027-01-06'], ['2027-01-10', '2027-01-13'], ['2027-01-17', '2027-01-20'], ['2027-01-24', '2027-01-27'], ['2027-01-31', '2027-02-03']]
+  .map(([o, b], i) => ({ id: P6_LIB[i].id, n: i, opens: zAt(o, '12:00'), build: b ? zAt(b, '12:00') : null }));
+const P6_DEC_SES = [['Map Your Spend', 1, '2026-12-02'], ['Lead Source Review', 2, '2026-12-09'], ['Numbers on the 5th', 3, '2026-12-16'], ['Protect the Pipeline', 4, '2027-01-06']]
+  .flatMap(([t, wk, d], i) => [{ t: t + ' Live Build', k: 'Live build', wk, start: zAt(d, '12:00'), zoom: i === 0 }, { t: t + ' Office Hours', k: 'Office hours', wk, start: zAt(dayAdd(d, 1), '12:00'), zoom: i === 0 }]);
+/* the cohorts that run a week: December, and January once it is created (its own run) */
+const p6Runs = () => [{ c: P3_COH.dec26, run: P6_DEC_RUN }, ...(P3C === P3_COH.jan27 ? [{ c: P3_COH.jan27, run: P3_COH.jan27.weeks.map(w => ({ id: w.id, n: w.n, opens: w.n === 0 ? P3_COH.jan27.opens : w.opens, build: w.ses[0] ? w.ses[0].start : null })) }] : [])];
+const p6Used = id => p6Runs().map(x => { const r = x.run.find(w => w.id === id); return r && { c: x.c, r }; }).filter(Boolean);
+const p6Short = c => c.n.replace(' Cohort', '');
+const P6_W0_STEPS = [
+  ['Fill In Your Intake and Name Your AI Implementer', ['Owner'], '10 min', 'Intake in, AI Implementer invited, stack card sent back.'],
+  ['Watch the Orientation', ['Owner', 'AI Implementer'], '30 min', 'Both know how a week runs and what a hire is.'],
+  ['Start Your Time Baseline', ['Owner'], '20 min', 'Six tasks timed per occurrence, or marked not done today.'],
+  ['Get Your AI Ready', ['AI Implementer'], '20 min', 'Paid plan, training off, skills on, both cohort skills pass their self-test.'],
+  ['Set Up Your AI Brain', ['Owner', 'AI Implementer'], '30 min', 'A new chat knows the business.'],
+  ['Connect Your Data', ['AI Implementer'], '30 min', 'Each green source answers a test question.'],
+  ['Lock the Guardrails', ['AI Implementer'], '10 min', 'Every write tool blocked except drafts and saves.'],
+  ['Run the Ready Check and Your Test Hire', ['AI Implementer'], '20 min', 'Ready Check is green and the test hire ran.'],
+];
+const P6_WK_STEPS = [
+  ['Read the Week and Pick Your Data', ['Owner'], '15 min', 'The export this week needs is in the AI Office.'],
+  ['Join the Live Build', ['Owner', 'AI Implementer'], '1 hr 30 min', 'The hire ran once on your own data.'],
+  ['Run It Again on Your Own', ['AI Implementer'], '30 min', 'A second run matches the first.'],
+  ['Check the Output with the Rubric', ['Owner'], '15 min', 'Every rubric line is a yes or has a note.'],
+  ['Turn In Your Report', ['AI Implementer'], '10 min', 'The report is turned in from the step.'],
+  ['Bring One Question to Office Hours', ['Owner', 'AI Implementer'], '1 hr', 'The question is posted or asked live.'],
+  ['Mark the Hire as Deployed', ['Owner'], '5 min', 'The week shows Deployed.'],
+];
+const p6Len = m => m ? lenOf(m) : 'Not built';
+/* a section list down the left: one section on screen at a time; a select on a phone */
+function Rail({ items, v, on }) {
+  const { ph } = useC();
+  if (ph) return <select className="in" style={{ width: '100%' }} aria-label="Section" value={v} onChange={e => on(e.target.value)}>{items.map(([k, l, c]) => <option key={k} value={k}>{l}{c !== undefined ? ' · ' + c : ''}</option>)}</select>;
+  return <nav className="srl" aria-label="Sections">{items.map(([k, l, c]) => <button key={k} className={'srb' + (v === k ? ' on' : '')} aria-current={v === k ? 'true' : undefined} onClick={() => on(k)}><span className="el">{l}</span>{c !== undefined && <span className="tn">{c}</span>}</button>)}</nav>;
+}
+const Fld = ({ l, at, children }) => <label className="lab">{l}{at && <span className="fat">Learners see it on {at}</span>}{children}</label>;
+function Lines({ l, at, v, touch }) {
+  const [rows, set] = useState(v);
+  const upd = r => { set(r); touch(); };
+  return <div className="lab"><span>{l}</span>{at && <span className="fat">Learners see it on {at}</span>}
+    <div className="lns">{rows.map((r, i) => <div key={i} className="ln"><span className="grp" aria-hidden="true"><I n="grip" s={14} /></span><input className="in" aria-label={l + ', line ' + (i + 1)} value={r} onChange={e => upd(rows.map((x, j) => j === i ? e.target.value : x))} /><button type="button" className="ib" aria-label={'Remove line ' + (i + 1)} onClick={() => upd(rows.filter((x, j) => j !== i))}><I n="x" s={14} /></button></div>)}</div>
+    <button type="button" className="b q" style={{ alignSelf: 'flex-start', marginLeft: -10 }} onClick={() => upd([...rows, ''])}><I n="plus" />Add a line</button></div>;
+}
+const StepWho = ({ v }) => <span className="row" style={{ gap: 4 }}>{v.map(x => <span key={x} className={'pl' + (x === 'Owner' ? ' info' : ' ok')}>{x}</span>)}</span>;
+/* a field that is filled in from the cohort, shown where the course's shared words are edited */
+const FromCohort = ({ l, at, v, lines }) => { const { go } = useC(); return <div className="lab"><span>{l}</span>{at && <span className="fat">Learners see it on {at}</span>}
+  <div className="cfb"><span className="pl info">From the cohort</span>{lines ? <ul className="cfl">{lines.map(x => <li key={x}>{x}</li>)}</ul> : <span style={{ fontWeight: 400 }}>{v}</span>}<button type="button" className="lk a" onClick={() => go('cohortset')}>{p6Short(P3C)} › Settings</button></div></div>; };
+
+/* ---------- Program › Curriculum: the weeks, built once ---------- */
+function ProgramCurriculum() {
+  const { go, guard, toast, setDlg, log, ph } = useC();
+  const [lib, setLib] = useState(P6_LIB);
+  const pub = w => guard('build', 'Publish ' + w.t, () => setDlg({ title: 'Publish ' + w.t + '?', body: 'Each cohort that runs it gets it on its own date. Until then learners see its title and outcome, locked.', cta: 'Publish', yes: () => { setLib(l => l.map(x => x === w ? { ...x, st: 'Published' } : x)); log('module.publish', w.t, ''); toast(w.t + ' is published'); } }));
+  const drafts = lib.filter(w => w.st === 'Draft').length;
+  return <div className="col">
+    <section className="cd">
+      <div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Weeks</h2><span className="me">{lib.length - drafts} published and {drafts} in draft. Open a week to build it.</span></div><GBtn k="p" ic="plus" perm="build" label="Add a week" go={() => go('builder', 'new')}>Add a week</GBtn></div>
+      <div className="wkl">{lib.map(w => { const u = p6Used(w.id); return <div key={w.id} className="wkr">
+        {!ph && <span className="grp" title="Drag to reorder" aria-hidden="true"><I n="grip" s={14} /></span>}
+        <span className={'wn' + (w.st === 'Draft' ? ' off' : '')}>{w.n}</span>
+        <button className="wkm" onClick={() => go('builder', w.id)}><span className="w5 el">{w.t}</span><span className="me el">{w.o}</span></button>
+        <div className="wkc"><span className="tn">{w.steps ? w.steps + ' steps' : 'No steps yet'}</span><span className="me">{p6Len(w.min)}</span></div>
+        <div className="wkc wkd">{u.length ? u.map(({ c, r }) => <button key={c.id} className="lk el uin" onClick={() => { P3C = c; go('cohort'); }}>{p6Short(c)} · Week {r.n}</button>) : <span className="me">No cohort runs it</span>}</div>
+        <div className="wks">{w.st === 'Draft' ? <Btn disabled={!w.steps} title={w.steps ? undefined : 'Add a step first'} onClick={() => pub(w)}>Publish</Btn> : <St v="Published" />}</div>
+        <Menu items={[{ l: 'Open week', ic: 'builder', fn: () => go('builder', w.id) }, { l: 'Preview as a learner', ic: 'eye', fn: () => toast('Opens the learner preview of ' + w.t) }, { l: 'Duplicate', g: 1, fn: () => guard('build', 'Duplicate ' + w.t, () => toast('Duplicated as a draft. Use it when one cohort needs its own version of a week.')) }, '-', w.st === 'Draft' ? { l: 'Publish', g: 1, fn: () => pub(w) } : { l: 'Unpublish', g: 1, d: 1, fn: () => guard('build', 'Unpublish', () => toast('Hidden from learners in every cohort. Their progress is kept.')) }]} />
+      </div>; })}</div>
+    </section>
+    <div className="set2">
+      <Card t="Cohorts That Run It" right={<Btn ic="plus" onClick={() => go('newcohort')}>New</Btn>}><div className="col m">{p6Runs().map(({ c, run }) => <button key={c.id} className="rnw" onClick={() => { P3C = c; go('cohort'); }}><PTile /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{c.n}</span><span className="me">{run.filter(r => r.n > 0).length} weeks · opens {mtDay(run[0].opens)}</span></span><I n="chev" s={12} w={2.2} /></button>)}
+        <p className="me">A cohort picks its weeks from this list and gives them dates. Change a week here and every cohort that runs it gets the change.</p></div></Card>
+      <Card t="Shared by Every Week"><div className="kvs"><KV rows={[
+        ['Course pages', <button className="lk a" onClick={() => go('course')}>Intro, rules, before and after</button>],
+        ['Glossary', <button className="lk a" onClick={() => go('course', null, 'glossary')}>{P6_GLOSS.length} terms</button>],
+        ['Words', <button className="lk a" onClick={() => go('course', null, 'words')}>{P6_WORDS.filter(w => w[2] === 'Learners').length} lines learners see</button>],
+        ['Resource Vault', <button className="lk a" onClick={() => go('vault')}>{VAULT_ROWS.length} kit files</button>]]} /></div></Card>
+    </div>
+  </div>;
+}
+
+/* ---------- Program › Curriculum › a week: the builder, one section at a time ---------- */
+function WeekEdit() {
+  const { route, go, guard, toast, ph } = useC();
+  const w = P6_LIB.find(x => x.id === (route.id || 'accelerator-week-1')) || P6_LIB[1], wi = P6_LIB.indexOf(w);
+  const steps = (w.n === 0 ? P6_W0_STEPS : P6_WK_STEPS).slice(0, w.steps);
+  const [sec, setSec] = useState(route.tab || 'steps'), [dirty, setDirty] = useState(false), [k, setK] = useState(0);
+  const touch = () => setDirty(true);
+  const used = p6Used(w.id), mine = used.find(u => u.c === P3C);
+  const ses = mine && P3C === P3_COH.dec26 ? P6_DEC_SES.filter(s => s.wk === w.n) : mine ? P3C.ses.filter(s => s.week.id === w.id).map(s => ({ t: s.title, k: P3_KIND[s.kind], start: s.start, zoom: false })) : [];
+  const save = () => guard('build', 'Save ' + w.t, () => { setDirty(false); toast(w.t + ' saved' + (used.length > 1 ? ' for ' + used.length + ' cohorts' : '')); });
+  const items = [['basics', 'Basics'], ['steps', 'Steps', steps.length], ['page', 'Course Page'], ['live', 'Live Sessions', ses.length], ['cards', 'Hire Cards', w.n === 0 ? 0 : 3], ['kit', 'Kit', w.kit], ...(w.n === 0 ? [['forms', 'Forms']] : [])];
+  return <div className="pg">
+    <Head back={['program', 'Curriculum']} t={w.t} meta={<St v={w.st} />} d={w.o}
+      right={<><span className="row nw" style={{ gap: 0 }}><button className="ib" aria-label="Previous week" disabled={wi === 0} onClick={() => go('builder', P6_LIB[wi - 1].id)}><I n="back" /></button><button className="ib" aria-label="Next week" disabled={wi === P6_LIB.length - 1} onClick={() => go('builder', P6_LIB[wi + 1].id)}><span style={{ display: 'flex', transform: 'scaleX(-1)' }}><I n="back" /></span></button></span><Btn ic="eye" onClick={() => toast('Opens the learner preview of ' + w.t)}>Preview</Btn><Btn k="p" disabled={!dirty} onClick={save}>Save changes</Btn></>} />
+    <div className="srg" key={k}>
+      <Rail v={sec} on={setSec} items={items} />
+      <div className="col">
+        {sec === 'basics' && <Card t="Basics" sub="What the week is called and what it is for."><div className="col">
+          <Fld l="Title" at="the sidebar and the week page"><input className="in" defaultValue={w.t} onChange={touch} /></Fld>
+          <Fld l="Outcome" at="the week page, under the title"><input className="in" defaultValue={w.o} onChange={touch} /></Fld>
+          <div className="lab"><span>Where it runs</span><span className="fat">A week's number and its date come from the cohort, not from the week.</span>
+            {used.length ? <div className="col m">{used.map(u => <button key={u.c.id} className="rnw uir" onClick={() => { P3C = u.c; go('cohortset'); }}><span className="wn sm pk">{u.r.n}</span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">Week {u.r.n} of the {u.c.n}</span><span className="me">Opens {mtDay(u.r.opens)} · {mtCt(u.r.opens)}{u.r.build ? ' · meets ' + mtDay(u.r.build) : ''}</span></span><I n="chev" s={12} w={2.2} /></button>)}</div> : <div className="note"><span className="s2">No cohort runs this week yet. Add it from a cohort's Overview, under The run.</span></div>}</div>
+        </div></Card>}
+        {sec === 'steps' && <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Steps</h2><span className="me">{steps.length ? 'In order. A learner ticks each one off.' : 'This week has no steps yet.'}</span></div><GBtn ic="plus" perm="build" label="Add a step" go={() => { touch(); toast('Adds a step at the end and opens it'); }}>Add a step</GBtn></div>
+          {steps.length ? <div className="wkl">{steps.map((s, i) => <div key={i} className="wkr stp">
+            {!ph && <span className="grp" aria-hidden="true"><I n="grip" s={14} /></span>}<span className="wn sm">{i + 1}</span>
+            <button className="wkm" onClick={() => toast('Opens the step: its words, who does it, its time, and its Claude and ChatGPT paths')}><span className="w5 el">{s[0]}</span><span className="me el">Done when: {s[3]}</span></button>
+            <div className="wkc"><StepWho v={s[1]} /></div><div className="wks tn">{s[2]}</div>
+            <Menu items={[{ l: 'Edit step', fn: () => toast('Opens the step') }, { l: 'Move up', fn: touch }, { l: 'Move down', fn: touch }, '-', { l: 'Remove step', d: 1, g: 1, fn: () => guard('build', 'Remove step', touch) }]} /></div>)}</div>
+            : <Empty ic="curriculum" t="No steps yet" b="Add the first step, or duplicate a built week and change it." cta="Add a step" on={() => toast('Adds a step and opens it')} />}
+        </section>}
+        {sec === 'page' && <Card t="Course Page" sub="The words on this week's page, above its steps."><div className="col">
+          <Fld l="What you will build" at="the week page"><textarea className="in" rows={3} defaultValue={w.o + ' By Friday it has run on your own numbers at least twice.'} onChange={touch} /></Fld>
+          <Lines l="Before you start" at="the week page" touch={touch} v={['Last year\'s numbers exported and saved in your AI Office.', 'Both of you can open the cohort skills.']} />
+          <Fld l="What done looks like" at="Reference"><textarea className="in" rows={2} defaultValue="The report is turned in, and you can say what you would change next month." onChange={touch} /></Fld>
+          <p className="me">What every week shares (the course intro, the rules, the glossary) is in <button className="lk a" onClick={() => go('course')}>Course Settings</button>.</p>
+        </div></Card>}
+        {sec === 'live' && <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Live Sessions</h2><span className="me">Sessions belong to the cohort. This week only says what happens in them.</span></div><Btn onClick={() => go('cohorts')}>Open Schedule</Btn></div>
+          {ses.length ? <div className="wkl">{ses.map(s => <div key={s.t} className="wkr stp"><span className="mt"><I n={s.k === 'Live build' ? 'play' : 'community'} /></span><button className="wkm" onClick={() => go('cohorts')}><span className="w5 el">{s.t}</span><span className="me el">{mtDay(s.start)} · {mtCt(s.start)}</span></button><div className="wks"><St v={s.zoom ? 'Ready' : 'Waiting'} /></div></div>)}</div>
+            : <div className="cdb"><p className="s2">{w.n === 0 ? 'The setup week is self-paced. It has no sessions.' : mine ? 'The ' + P3C.n + ' has no sessions for this week yet. ' : 'The ' + P3C.n + ' doesn\'t run this week. '}{w.n > 0 && mine && <button className="lk a" onClick={() => go('cohorts')}>Add them in Schedule</button>}</p></div>}
+          {w.n > 0 && <div className="cdb" style={{ borderTop: '1px solid var(--line)' }}><Lines l="Run of show" at="the live build's row on the week page" touch={touch} v={['0:00 What we are building and why', '0:10 Build it together, step by step', '1:00 Run it on your own data', '1:20 What to turn in by Friday']} /></div>}
+        </section>}
+        {sec === 'cards' && <Card t="Hire Cards" sub="The three cards a learner keeps from the week.">{w.n === 0 ? <p className="s2">The setup week has no hire. Cards start with the first building week.</p> : <div className="col m">{[['Seat card', 'What this hire does, for whom, and what it never touches.', 'Written'], ['Playbook card', 'How to run it, check it and fix it.', w.st === 'Draft' ? 'Empty' : 'Written'], ['Sample output', 'One finished report, from made-up numbers.', w.st === 'Draft' ? 'Empty' : 'Written']].map(c => <button key={c[0]} className="rnw" onClick={() => toast('Opens the ' + c[0].toLowerCase())}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{c[0]}</span><span className="me">{c[1]}</span></span><Pill v={c[2]} tone={c[2] === 'Written' ? 'ok' : ''} /><I n="chev" s={12} w={2.2} /></button>)}</div>}</Card>}
+        {sec === 'kit' && <Card t="Kit" sub="The skills and files this week hands out." right={<GBtn ic="plus" perm="build" label="Add to the kit" go={() => toast('Pick from the Resource Vault, or upload')}>Add</GBtn>}>{w.kit ? <div className="col m">{['Map Your Spend skill', 'Lead Source Review skill', 'Week checklist', 'Report template', 'Rubric', 'Sample week', 'Time baseline'].slice(0, w.kit).map((f, i) => <div key={f} className="row nw" style={{ gap: 10 }}><span className="mt"><I n={i < 2 ? 'bolt' : 'file'} /></span><span className="w5 el" style={{ flex: 1 }}>{f}</span><span className="me">{i < 2 ? 'Skill' : 'File'}</span></div>)}<p className="me">Files live in the <button className="lk a" onClick={() => go('vault')}>Resource Vault</button>. A week only points at them.</p></div> : <p className="s2">Nothing in this week's kit yet.</p>}</Card>}
+        {sec === 'forms' && <OffRef what="Forms" />}
+        {dirty && <div className="svb"><span className="w5" style={{ flex: 1 }}>Unsaved changes to {w.t}</span><Btn onClick={() => { setDirty(false); setK(k + 1); }}>Discard</Btn><Btn k="p" onClick={save}>Save changes</Btn></div>}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- Program › Course Settings: what every week shares ---------- */
+const P6_GLOSS = [['AI Employee', 'A piece of work your AI does on a schedule, with a seat card.', 'hire, AI hire', 'Week 0 · Step 2'], ['AI Implementer', 'The person on your team who sets the hires up and keeps them running.', 'implementer', 'Week 0 · Step 1'], ['AI Brain', 'What your AI knows about your business before you ask it anything.', 'brain', 'Week 0 · Step 5'], ['Seat card', 'One page: what a hire does, for whom, and what it never touches.', '', 'Week 1 · Step 2'], ['Playbook card', 'How to run a hire, check it and fix it.', 'playbook', 'Week 1 · Step 2'], ['Guardrails', 'The settings that stop your AI from sending or changing anything on its own.', '', 'Week 0 · Step 7'], ['Ready Check', 'A short test that says your setup is ready for a hire.', '', 'Week 0 · Step 8'], ['Stack card', 'The tools your team runs on, on one page.', '', 'Week 0 · Step 1'], ['Time baseline', 'How long six tasks take today, so you can see what changed.', 'baseline', 'Week 0 · Step 3'], ['Evidence packet', 'What you turn in to show a hire works.', 'evidence', 'Week 1 · Step 5']];
+const P6_WORDS = [['locked.opens', 'Opens {date}', 'Learners'], ['locked.utah_life', 'Not included with Utah Life access', 'Learners'], ['community.nothing_emailed', 'Nothing is emailed.', 'Learners'], ['turnin.goes_to', 'Goes to Connor\'s team. Nothing is emailed.', 'Learners'], ['week.done', 'Deployed', 'Learners'], ['staff.preview', 'Previewing as a learner. Nothing you do here is saved.', 'Staff']];
+function CourseSet() {
+  const { route, go, guard, toast, ph } = useC();
+  const [sec, setSec] = useState(route.tab || 'intro'), [dirty, setDirty] = useState(false), [k, setK] = useState(0), [q, setQ] = useState(''), [au, setAu] = useState('Everyone'), [ed, setEd] = useState(null);
+  useEffect(() => { if (route.tab) setSec(route.tab); }, [route.tab]);
+  const touch = () => setDirty(true);
+  const names = { intro: 'Course Intro', roles: 'Roles', rules: 'Rules and Support', before: 'Before Week 1', after: 'After the Cohort', join: 'Joining and Community', glossary: 'Glossary', words: 'Words' };
+  const save = () => guard('build', 'Save course settings', () => { setDirty(false); toast(names[sec] + ' saved'); });
+  const T = (l, at, v, rows) => <Fld l={l} at={at}>{rows ? <textarea className="in" rows={rows} defaultValue={v} onChange={touch} /> : <input className="in" defaultValue={v} onChange={touch} />}</Fld>;
+  const words = P6_WORDS.filter(w => (w[0] + w[1]).toLowerCase().includes(q.toLowerCase()) && (au === 'Everyone' || w[2] === au));
+  return <div className="pg">
+    <Head t="Course Settings" d="What every cohort shares: the intro, the rules, the pages before and after, the glossary and the words learners see. Anything that names a date, a weekday or a number of weeks is filled in from the cohort."
+      right={<Btn ic="eye" onClick={() => toast('Opens the learner preview of the course')}>Preview</Btn>} />
+    <div className="srg" key={k}>
+      <div className="col">
+        <Rail v={sec} on={v => { setSec(v); }} items={Object.entries(names).map(([id, l]) => [id, l, id === 'glossary' ? P6_GLOSS.length : id === 'words' ? P6_WORDS.length : undefined])} />
+        {!ph && <div className="note col s"><span className="w5">Looking for Dates?</span><span className="me">A cohort's dates, its promise, how often it meets and when its emails send are on the cohort.</span><button className="lk a" style={{ alignSelf: 'flex-start' }} onClick={() => go('cohortset')}>Open the cohort's Settings</button></div>}
+      </div>
+      <div className="col">
+        {sec === 'intro' && <Card t="Course Intro" sub="The first thing a new learner reads."><div className="col">
+          {T('Course title', 'Home', 'Amplified AI Accelerator')}
+          <FromCohort l="The promise" at="Home, under the title" v={P3C.words.promise} />
+          <FromCohort l="How it works" at="Home" lines={P3C.words.how} />
+          {T('Instructor', 'Home and each live build', 'Connor Leiva')}
+        </div></Card>}
+        {sec === 'roles' && <Card t="Roles" sub="The two seats every team fills."><div className="col">
+          {T('The owner\'s role', 'Home and Week 0', 'You decide what the hire is for and whether its work is good enough to use.', 3)}
+          {T('The AI Implementer\'s role', 'Home and Week 0', 'You set the hire up, run it, and keep it running. On a small team this can be the owner.', 3)}
+        </div></Card>}
+        {sec === 'rules' && <Card t="Rules and Support" sub="What we will and won't do, and where to get help."><div className="col">
+          {T('Scope', 'Home', 'We build the hires in this course. We don\'t set up your CRM or your books.', 2)}
+          {T('Support', 'Home and Get help', 'Ask in the Community first. For anything private, email the team.', 2)}
+          <Lines l="Office hours rules" at="each Office hours row" touch={touch} v={['Bring one question.', 'Share your screen, not your client\'s name.', 'If we can\'t fix it in ten minutes, we take it to a thread.']} />
+          <Lines l="Evidence" at="Reference" touch={touch} v={['The report the hire made.', 'The rubric, filled in.', 'One sentence on what you would change.']} />
+          {T('Missed a week', 'Reference', 'Watch the replay, run the hire, and turn it in. Nothing locks behind you.', 2)}
+          <FromCohort l="Holiday note" at="the Schedule" v={P3C.words.holiday || 'None. Every week has its sessions.'} />
+        </div></Card>}
+        {sec === 'before' && <Card t="Before Week 1" sub="What a team reads between buying and the first live build."><div className="col">
+          <Lines l="Intake" at="Week 0 · Step 1" touch={touch} v={['Fill in the intake before {first live build}.', 'Name your AI Implementer and invite them.']} />
+          <p className="me">Words in braces are filled in from the cohort. For the {P3C.n}, {'{first live build}'} reads {P3C.ses.length ? mtDay(P3C.ses[0].start) : 'the first session'}.</p>
+          {T('Practice set note', 'Week 0', 'Use the practice set until your own export is ready. It is made-up data.', 2)}
+          <Lines l="Safe sharing" at="Week 0 and the Community" touch={touch} v={['No client names in a thread.', 'No passwords or keys, ever.', 'Screenshots with numbers are fine. Screenshots with people are not.']} />
+        </div></Card>}
+        {sec === 'after' && <Card t="After the Cohort" sub="What a team reads when its last week is done."><div className="col">
+          <Lines l="Graduation" at="the last week" touch={touch} v={['{weeks of building} hires deployed.', 'A seat card and a playbook card for each.', 'Your next three hires, in order.']} />
+          {T('Graduation note', 'the last week', 'You keep everything you built, and the portal stays open to you.', 2)}
+          <Lines l="Paths" at="the last week" touch={touch} v={['Keep going with the Team Plan.', 'Bring your agents in on the Agent Plan.']} />
+          {T('No paywall', 'the last week', 'Nothing you built here locks when the cohort ends.', 2)}
+        </div></Card>}
+        {sec === 'join' && <Card t="Joining and Community" sub="The button that takes a learner into a live session, and where the cohort talks."><div className="col">
+          <div className="g2">{T('Join label', 'the top bar, 15 minutes before a session', 'Join on Zoom')}{T('Community link', 'Home, until the built-in Community replaces it', '')}</div>
+          {T('Join note', 'under the Join button', 'Opens 15 minutes before we start.', 2)}
+          <p className="me">The cohort's own threads are in <button className="lk a" onClick={() => go('community')}>Community</button>. Leave the link empty to show only that.</p>
+        </div></Card>}
+        {sec === 'glossary' && <Table title="Glossary" right={<GBtn ic="plus" perm="build" label="Add a term" go={() => setEd(['', '', '', ''])}>Add a term</GBtn>} rows={P6_GLOSS} onRow={g => setEd(g)}
+          cols={[{ k: 0, l: 'Term', w: '170px', r: g => <span className="w5 el" style={{ display: 'block' }}>{g[0]}</span> }, { k: 1, l: 'Short definition', w: 'minmax(240px,2fr)', r: g => <span className="s2 cl2">{g[1]}</span> }, { k: 2, l: 'Also matches', w: '130px', hide: 'lap', r: g => g[2] || <span className="mu">None</span> }, { k: 3, l: 'First used', w: '140px', ns: 1 }]}
+          card={g => <><span className="w6" style={{ fontSize: 17 }}>{g[0]}</span><p className="s2">{g[1]}</p><span className="me">First used: {g[3]}</span></>} />}
+        {sec === 'words' && <><div className="row"><Find v={q} on={setQ} ph="Find a line" /><Sel label="Who reads it" v={au} on={setAu} opts={['Everyone', 'Learners', 'Staff']} /></div>
+          <Table title="Words" right={<GBtn ic="plus" perm="build" label="Add a line" go={() => setEd(['', '', 'Learners', 'word'])}>Add a line</GBtn>} rows={words} onRow={w => setEd([...w, 'word'])} empty={{ ic: 'file', t: 'No line matches', b: 'Try fewer letters.' }}
+            cols={[{ k: 1, l: 'What it says', w: 'minmax(240px,2fr)', r: w => <span className="w5 cl2">{w[1]}</span> }, { k: 0, l: 'Key', w: 'minmax(190px,1fr)', mo: 1, hide: 'lap' }, { k: 2, l: 'Who reads it', w: '112px', r: w => <Pill v={w[2]} tone={w[2] === 'Staff' ? '' : 'info'} /> }]}
+            card={w => <><span className="w6">{w[1]}</span><span className="me mo">{w[0]}</span><Pill v={w[2]} tone={w[2] === 'Staff' ? '' : 'info'} /></>} />
+          <p className="me">Short lines the portal shows in fixed places. A week's own words are in the week.</p></>}
+        {dirty && <div className="svb"><span className="w5" style={{ flex: 1 }}>Unsaved changes to {names[sec]}</span><Btn onClick={() => { setDirty(false); setK(k + 1); }}>Discard</Btn><Btn k="p" onClick={save}>Save changes</Btn></div>}
+      </div>
+    </div>
+    {ed && <Modal title={ed[3] === 'word' ? (ed[0] || 'New line') : (ed[0] || 'New term')} w={560} onClose={() => setEd(null)} foot={<><Btn onClick={() => setEd(null)}>Cancel</Btn><Btn k="p" onClick={() => guard('build', 'Save', () => { setEd(null); toast('Saved'); })}>Save</Btn></>}>
+      {ed[3] === 'word' ? <><label className="lab">Key<input className="in mo" defaultValue={ed[0]} placeholder="locked.opens" /></label><label className="lab">What it says<textarea className="in" rows={3} defaultValue={ed[1]} /></label><label className="lab">Who reads it<select className="in" defaultValue={ed[2]}><option>Learners</option><option>Staff</option></select></label></>
+        : <><label className="lab">Term<input className="in" defaultValue={ed[0]} /></label><label className="lab">Short definition<textarea className="in" rows={2} defaultValue={ed[1]} /></label><label className="lab">Also matches<input className="in" defaultValue={ed[2]} placeholder="Other words to underline, separated by commas" /></label></>}
+    </Modal>}
+  </div>;
+}
+
 /* ---------- which cohort: the sidebar's switcher, and the same choice in the Cohort page's title ---------- */
 function CtxSwitch({ r }) {
   const { go, route } = useC();
@@ -1613,7 +1876,7 @@ function CohortPick() {
 
 /* ---------- the breadcrumb: Admin / the page / its tab / what is open ---------- */
 const DETAIL = { builder: 'curriculum', workspace: 'teams', user: 'everyone', as: 'masquerade' };
-const hereOf = (r, mods) => r.s === 'builder' ? (mods.find(m => m.id === (r.id || 'm1')) || {}).n : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'newcohort' ? 'New Cohort' : r.s === 'incident' ? r.id : '';
+const hereOf = (r, mods) => r.s === 'builder' ? (P6_LIB.find(w => w.id === (r.id || 'accelerator-week-1')) || P6_LIB[1]).t : r.s === 'workspace' ? (WS.find(x => x.id === r.id) || {}).n : r.s === 'user' ? (USERS.find(x => x.id === r.id) || {}).n : r.s === 'as' ? 'Learner view' : r.s === 'newcohort' ? 'New Cohort' : r.s === 'incident' ? r.id : '';
 function Crumbs() {
   const { route, go, mods } = useC();
   const par = PARENT[route.s], key = par || route.s, item = NAV.flatMap(g => g[1]).find(n => n[0] === key), grp = item && NAV.find(g => g[1].includes(item))[0];
@@ -1679,7 +1942,7 @@ function Confirm({ d, onClose }) {
   </Modal>;
 }
 
-const SCREENS = { newcohort: NewCohort, program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, overview: Overview, health: Health, curriculum: Curriculum, builder: Builder, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
+const SCREENS = { newcohort: NewCohort, program: ProgramArea, cohort: CohortArea, people: PeopleArea, revenue: RevenueArea, overview: Overview, health: Health, curriculum: Curriculum, builder: WeekEdit, vault: Vault, cohorts: Cohorts, announce: Announce, learners: Learners, workspaces: Workspaces, workspace: Workspace, users: Users, user: User, masquerade: Masquerade, as: LearnerView, tiers: Tiers, billing: Billing, usage: Usage, incidents: Incidents, incident: Incident, audit: Audit, api: Api, jobs: Jobs, email: Email, integrations: Integrations, deploys: Deploys, db: Db, flags: Flags, roles: Roles, denied: Denied };
 /* Brand lockup: paths copied verbatim from amplified-impact-wordmark.svg (ink #0A0D0C, ring-and-dot tittle #1F8A5C). The rail crops the same artwork to its first glyph. */
 const WM_VB = [41, -963.1, 7408, 1113.2];
 const WM_PATHS = [{"fill":"#0A0D0C","d":"M41 -134Q41 -202 83.5 -241.5Q126 -281 215 -298L392 -333Q392 -389 366 -418Q340 -447 290 -447Q199 -447 181 -364L50 -370Q66 -454 128 -500Q190 -546 290 -546Q403 -546 461.5 -488.5Q520 -431 520 -324V-130Q520 -109 527 -101Q534 -93 550 -93H567V0Q551 4 521 4Q474 4 445.5 -16Q417 -36 409 -83Q389 -40 340.5 -14Q292 12 227 12Q142 12 91.5 -26.5Q41 -65 41 -134ZM392 -216V-246L254 -218Q212 -210 193 -192Q174 -174 174 -146Q174 -115 194.5 -98Q215 -81 253 -81Q316 -81 354 -118Q392 -155 392 -216Z M619 -534H735L738 -444Q757 -493 796 -519.5Q835 -546 885 -546Q943 -546 983 -517Q1023 -488 1040 -436Q1058 -489 1097.5 -517.5Q1137 -546 1193 -546Q1277 -546 1324 -493.5Q1371 -441 1371 -343V0H1243V-310Q1243 -376 1220.5 -409Q1198 -442 1152 -442Q1106 -442 1080 -406Q1054 -370 1054 -306V0H935V-306Q935 -374 914 -408Q893 -442 846 -442Q800 -442 773.5 -406Q747 -370 747 -306V0H619Z M1449 -534H1572L1574 -455Q1597 -499 1639 -522.5Q1681 -546 1734 -546Q1807 -546 1858.5 -509Q1910 -472 1935.5 -409Q1961 -346 1961 -267Q1961 -188 1935 -125Q1909 -62 1858 -25Q1807 12 1733 12Q1682 12 1640.5 -11Q1599 -34 1577 -73V150H1449ZM1828 -267Q1828 -349 1795 -395.5Q1762 -442 1703 -442Q1643 -442 1610 -397.5Q1577 -353 1577 -267Q1577 -181 1610 -136.5Q1643 -92 1703 -92Q1762 -92 1795 -138.5Q1828 -185 1828 -267Z M2022 -126 2023 -710H2151V-139Q2151 -99 2191 -99H2230V0H2151Q2089 0 2055.5 -30.5Q2022 -61 2022 -126Z M2291 -534H2419V0H2291ZM2289 -719H2422V-605H2289Z M2736 -710H2840V-611H2760Q2700 -611 2700 -548V-520H2833V-421H2700V0H2571V-421H2495V-520H2571V-555Q2571 -629 2612 -669.5Q2653 -710 2736 -710Z M2902 -534H3030V0H2902ZM2900 -719H3033V-605H2900Z M3094 -267Q3094 -350 3126 -413.5Q3158 -477 3216.5 -511.5Q3275 -546 3353 -546Q3429 -546 3486.5 -512Q3544 -478 3575.5 -413.5Q3607 -349 3607 -260V-231H3227Q3231 -162 3265 -126Q3299 -90 3357 -90Q3399 -90 3428 -109.5Q3457 -129 3468 -164L3599 -156Q3577 -78 3512.5 -33Q3448 12 3356 12Q3277 12 3217.5 -22.5Q3158 -57 3126 -120Q3094 -183 3094 -267ZM3353 -445Q3301 -445 3267.5 -412Q3234 -379 3227 -317H3474Q3470 -381 3438 -413Q3406 -445 3353 -445Z M3637 -267Q3637 -352 3664.5 -415Q3692 -478 3742 -512Q3792 -546 3859 -546Q3914 -546 3956.5 -522.5Q3999 -499 4021 -458V-710H4149V0H4028L4025 -79Q4002 -36 3958 -12Q3914 12 3859 12Q3791 12 3741 -22Q3691 -56 3664 -119Q3637 -182 3637 -267ZM4021 -267Q4021 -352 3989 -397Q3957 -442 3897 -442Q3838 -442 3804 -395Q3770 -348 3770 -267Q3770 -187 3804.5 -139.5Q3839 -92 3897 -92Q3956 -92 3988.5 -137.5Q4021 -183 4021 -267Z M4435 -534H4563V0H4435Z M4659 -534H4775L4778 -444Q4797 -493 4836 -519.5Q4875 -546 4925 -546Q4983 -546 5023 -517Q5063 -488 5080 -436Q5098 -489 5137.5 -517.5Q5177 -546 5233 -546Q5317 -546 5364 -493.5Q5411 -441 5411 -343V0H5283V-310Q5283 -376 5260.5 -409Q5238 -442 5192 -442Q5146 -442 5120 -406Q5094 -370 5094 -306V0H4975V-306Q4975 -374 4954 -408Q4933 -442 4886 -442Q4840 -442 4813.5 -406Q4787 -370 4787 -306V0H4659Z M5489 -534H5612L5614 -455Q5637 -499 5679 -522.5Q5721 -546 5774 -546Q5847 -546 5898.5 -509Q5950 -472 5975.5 -409Q6001 -346 6001 -267Q6001 -188 5975 -125Q5949 -62 5898 -25Q5847 12 5773 12Q5722 12 5680.5 -11Q5639 -34 5617 -73V150H5489ZM5868 -267Q5868 -349 5835 -395.5Q5802 -442 5743 -442Q5683 -442 5650 -397.5Q5617 -353 5617 -267Q5617 -181 5650 -136.5Q5683 -92 5743 -92Q5802 -92 5835 -138.5Q5868 -185 5868 -267Z M6034 -134Q6034 -202 6076.5 -241.5Q6119 -281 6208 -298L6385 -333Q6385 -389 6359 -418Q6333 -447 6283 -447Q6192 -447 6174 -364L6043 -370Q6059 -454 6121 -500Q6183 -546 6283 -546Q6396 -546 6454.5 -488.5Q6513 -431 6513 -324V-130Q6513 -109 6520 -101Q6527 -93 6543 -93H6560V0Q6544 4 6514 4Q6467 4 6438.5 -16Q6410 -36 6402 -83Q6382 -40 6333.5 -14Q6285 12 6220 12Q6135 12 6084.5 -26.5Q6034 -65 6034 -134ZM6385 -216V-246L6247 -218Q6205 -210 6186 -192Q6167 -174 6167 -146Q6167 -115 6187.5 -98Q6208 -81 6246 -81Q6309 -81 6347 -118Q6385 -155 6385 -216Z M6579 -267Q6579 -350 6611.5 -413.5Q6644 -477 6703.5 -511.5Q6763 -546 6842 -546Q6945 -546 7012 -492.5Q7079 -439 7091 -345L6959 -338Q6952 -388 6920.5 -415Q6889 -442 6842 -442Q6780 -442 6746 -396Q6712 -350 6712 -267Q6712 -184 6746 -138Q6780 -92 6842 -92Q6890 -92 6921 -120Q6952 -148 6959 -203L7091 -197Q7080 -101 7012.5 -44.5Q6945 12 6842 12Q6763 12 6703.5 -22.5Q6644 -57 6611.5 -120Q6579 -183 6579 -267Z M7180 -153V-435H7096V-534H7180V-659H7308V-534H7449V-435H7308V-165Q7308 -128 7323.5 -113.5Q7339 -99 7374 -99H7449V0H7335Q7255 0 7217.5 -37Q7180 -74 7180 -153Z"}];

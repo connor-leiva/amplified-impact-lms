@@ -23,7 +23,8 @@ describe('the four pages (D-253)', () => {
   it('count what today’s pages count: Curriculum’s AI Employees, the cohort’s sessions and teams, waiting threads, requests', () => {
     const db = seed('live');
     void phaseNow('live');
-    expect(areaCounts(db, 'program', 'dec26', COUNTS)).toEqual({ curriculum: sortedModules(db).length });
+    // D-265: Curriculum counts the program's weeks (modules of kind `week`).
+    expect(areaCounts(db, 'program', 'dec26', COUNTS)).toEqual({ curriculum: sortedModules(db).filter((m) => m.kind === 'week').length });
     expect(areaCounts(db, 'cohort', 'dec26', COUNTS)).toEqual({
       schedule: db.sessions.filter((s) => s.cohortId === 'dec26').length,
       people: db.base.teams + db.teams.length,

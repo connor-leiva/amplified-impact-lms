@@ -27,7 +27,7 @@ import type { Actor, Ctx, Outcome } from './mutations';
 import { fmt } from './time';
 import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, tourIssues, videoIssues } from './course-rules';
-import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
+import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveProgramCourse, saveSession } from './course-actions';
 import { saveCohortEnrollment, saveCohortPrice } from './cohort-selling';
 import {
   addCohortSessions,
@@ -793,6 +793,8 @@ export const ADMIN_ACTIONS = {
   saveCohortPlan,
   saveCohortCourse,
   saveCopyString,
+  // R-5 Phase 6 (D-265): Program › Course Settings saves the program record.
+  saveProgramCourse,
   // R-5 (D-254): a cohort owns its run and its shape (`cohort-actions.ts`).
   createCohortFromShape,
   saveCohortShape,

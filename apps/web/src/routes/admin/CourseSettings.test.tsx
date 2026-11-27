@@ -47,55 +47,64 @@ describe('Course settings’ view-model (D-174)', () => {
   });
 });
 
-describe('Course settings (D-174)', () => {
-  it('shows the release plan as a read-only line that opens the cohort’s Dates and Release (D-255)', () => {
+describe('Program › Course Settings (D-174, D-265)', () => {
+  it('draws the cohort’s three words as From the cohort blocks, each a link to its Settings, and points at its dates', () => {
     show();
-    expect(screen.queryByRole('button', { name: 'Save plan' })).toBeNull();
-    expect(screen.queryByLabelText('Preview opens (MT)')).toBeNull();
-    expect(screen.getByRole('link', { name: /› Settings$/ })).toHaveAttribute('href', '/admin/cohort/dec26/settings#dates');
+    expect(screen.getAllByText('From the cohort')).toHaveLength(2);
+    for (const link of screen.getAllByRole('link', { name: 'December 2026 › Settings' })) expect(link).toHaveAttribute('href', '/admin/cohort/dec26/settings');
+    expect(screen.getByRole('link', { name: 'Open the cohort’s Settings' })).toHaveAttribute('href', '/admin/cohort/dec26/settings');
+    expect(screen.queryByRole('textbox', { name: /promise/i })).toBeNull();
+    expect(screen.getByText('Learners see it on Home, under the title')).toBeInTheDocument();
   });
 
-  it('saves the shared pages whole, only once something changed, and shows a refusal', async () => {
+  it('saves the program’s words whole, only once something changed, and shows a refusal', async () => {
     const { act, user } = show();
-    const save = screen.getByRole('button', { name: 'Saved' });
-    expect(save).toBeDisabled();
-    const sub = screen.getByRole('textbox', { name: 'Subtitle' });
-    await user.clear(sub);
-    await user.type(sub, 'Hire, train and keep your AI employees.');
-    act.mockResolvedValueOnce({ error: 'Course subtitle: Use a comma, a colon or a period instead of an em dash.' });
-    await user.click(screen.getByRole('button', { name: 'Save pages' }));
-    expect(act).toHaveBeenCalledWith('saveCohortCourse', expect.objectContaining({ cohortId: 'dec26', course: expect.objectContaining({ intro: expect.objectContaining({ sub: 'Hire, train and keep your AI employees.' }) }) }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Course subtitle: Use a comma');
+    expect(screen.queryByRole('button', { name: 'Save changes' })).toBeNull();
+    const title = screen.getByRole('textbox', { name: /Course title/ });
+    await user.clear(title);
+    await user.type(title, 'Amplified AI Accelerator — Live');
+    expect(screen.getByText('Unsaved changes to Course Intro')).toBeInTheDocument();
+    act.mockResolvedValueOnce({ error: 'Course title: Use a comma, a colon or a period instead of an em dash.' });
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(act).toHaveBeenCalledWith(
+      'saveProgramCourse',
+      expect.objectContaining({ programId: 'accelerator', course: expect.objectContaining({ intro: expect.objectContaining({ title: 'Amplified AI Accelerator — Live' }) }) }),
+    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('Course title: Use a comma');
   });
 
-  it('lists the copy strings, Utah Life’s line included, and edits one by key', async () => {
+  it('lists the words, Utah Life’s line included, and edits one by key', async () => {
     const { act, user } = show();
-    expect(screen.getByText('locked.utah_life')).toBeInTheDocument();
-    expect(screen.getByText('Not included with Utah Life access')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Edit locked.utah_life' }));
+    await user.click(screen.getByRole('button', { name: /^Words/ }));
+    await user.click(screen.getByText('Not included with Utah Life access'));
     const dialog = screen.getByRole('dialog', { name: 'locked.utah_life' });
-    const text = within(dialog).getByRole('textbox', { name: 'Text' });
+    const text = within(dialog).getByRole('textbox', { name: 'What it says' });
     await user.clear(text);
     await user.type(text, 'Not part of your Utah Life access');
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
     expect(act).toHaveBeenCalledWith('saveCopyString', { key: 'locked.utah_life', value: 'Not part of your Utah Life access', audience: 'learner' });
   });
 
-  it('D-193: adds a glossary term and saves it with the shared pages', async () => {
+  it('D-193: adds a glossary term in its dialog and saves it with the program’s words', async () => {
     const { act, user } = show();
-    await user.click(screen.getByRole('button', { name: 'Add term' }));
-    await user.clear(screen.getByRole('textbox', { name: 'Id' }));
-    await user.type(screen.getByRole('textbox', { name: 'Id' }), 'owner');
-    await user.type(screen.getByRole('textbox', { name: 'Term' }), 'Owner');
-    await user.type(screen.getByRole('textbox', { name: 'Short' }), 'The team leader.');
-    await user.type(screen.getByRole('textbox', { name: 'Long' }), 'The team leader who decides.');
-    await user.click(screen.getByRole('checkbox', { name: 'Underline on pages' }));
-    await user.click(screen.getByRole('button', { name: 'Save pages' }));
-    expect(act).toHaveBeenCalledWith('saveCohortCourse', expect.objectContaining({
-      course: expect.objectContaining({
-        glossary: [expect.objectContaining({ id: 'owner', term: 'Owner', short: 'The team leader.', long: 'The team leader who decides.', underline: false })],
+    await user.click(screen.getByRole('button', { name: /^Glossary/ }));
+    await user.click(screen.getByRole('button', { name: 'Add a term' }));
+    const dialog = screen.getByRole('dialog');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Term' }), 'Owner');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Short definition' }), 'The team leader.');
+    await user.clear(within(dialog).getByRole('textbox', { name: 'Id' }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Id' }), 'owner');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Long' }), 'The team leader who decides.');
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Underline on pages' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect(act).toHaveBeenCalledWith(
+      'saveProgramCourse',
+      expect.objectContaining({
+        course: expect.objectContaining({
+          glossary: expect.arrayContaining([expect.objectContaining({ id: 'owner', term: 'Owner', short: 'The team leader.', long: 'The team leader who decides.', underline: false })]),
+        }),
       }),
-    }));
+    );
   });
 
   it('says so when the database holds no course', () => {

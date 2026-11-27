@@ -40,6 +40,7 @@ import type {
   VideoProgress,
   Learner,
   PermKey,
+  Program,
   Progress,
   Reminder,
   Resource,
@@ -72,7 +73,8 @@ export type TableName =
   | 'requests'
   | 'permissions'
   | 'activity'
-  | 'copyStrings';
+  | 'copyStrings'
+  | 'programs';
 
 export type Rows = Record<TableName, Row[]>;
 
@@ -96,6 +98,7 @@ export const KEYS: Record<TableName, readonly string[]> = {
   permissions: ['role', 'perm'],
   activity: ['id'],
   copyStrings: ['key'],
+  programs: ['id'],
 };
 
 /**
@@ -158,6 +161,7 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
   ],
   activity: [{ by: 't', dir: 'desc' }],
   copyStrings: [{ by: 'key', dir: 'asc' }],
+  programs: [{ by: 'id', dir: 'asc' }],
 };
 
 /**
@@ -243,6 +247,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
   permissions: ['role', 'perm', 'allowed'],
   activity: ['id', 't', 'who', 'what', 'tone'],
   copyStrings: ['key', 'value', 'audience'],
+  programs: ['id', 'name', 'course'],
 };
 
 // ---------------------------------------------------------------------------
@@ -539,6 +544,7 @@ export function toRows(db: Db): Rows {
     permissions,
     activity: db.activity.map((e) => ({ id: e.id, t: e.t, who: e.who, what: e.what, tone: e.tone })),
     copyStrings: (db.copy ?? []).map((c) => ({ key: c.key, value: c.value, audience: c.audience })),
+    programs: (db.programs ?? []).map((p) => ({ id: p.id, name: p.name, course: col(p.course) })),
   };
 }
 
@@ -836,6 +842,10 @@ export function fromRows(rows: Rows, roster?: CohortRoster): Db {
     ),
     // D-173: absent when there are none, so every fixture (which has no copy strings) round-trips.
     ...(rows.copyStrings.length ? { copy: rows.copyStrings.map((r): CopyString => ({ key: str(r.key), value: str(r.value), audience: str(r.audience) })) } : {}),
+    // D-265: absent when there are none, as `copy` is, so every database before the program step round-trips as it did.
+    ...(rows.programs.length
+      ? { programs: rows.programs.map((r): Program => ({ id: str(r.id), name: str(r.name), ...(r.course ? { course: r.course as Program['course'] } : {}) })) }
+      : {}),
   };
 }
 

@@ -161,12 +161,15 @@ test.describe('learner parity: Console effects on an open learner screen', () =>
     const nav = p.learner.locator('aside[aria-label="Primary"]');
     await expect(nav.getByRole('link', { name: 'Leads That Pay Opens Dec 9' })).toBeVisible();
     await console_(p, '/admin/curriculum');
-    await p.admin
-      .getByRole('row')
-      .filter({ hasText: 'Week 2 · Leads That Pay' })
-      .getByRole('button', { name: 'More actions' })
-      .click();
-    await p.admin.getByRole('menuitem', { name: 'Publish' }).click();
+    // D-265 (R-5 Phase 6): Program › Curriculum lists the program's weeks; a week is Published or Draft there (a
+    // scheduled week reads Published: its date is its cohort's). So the week goes back to Draft first, then Publish
+    // opens it now, each after its confirm, and each reaches the open learner's nav without a reload.
+    const week2 = p.admin.locator('main [data-week="accelerator-week-2"]');
+    await week2.getByRole('button', { name: 'More actions' }).click();
+    await p.admin.getByRole('menuitem', { name: 'Unpublish' }).click();
+    await p.admin.getByRole('dialog').getByRole('button', { name: 'Unpublish', exact: true }).click();
+    await expect.poll(async () => (await storedDb(p.learner)).modules.find((m) => m.id === 'accelerator-week-2')?.status).toBe('draft');
+    await week2.getByRole('button', { name: 'Publish', exact: true }).click();
     await p.admin.getByRole('dialog').getByRole('button', { name: 'Publish', exact: true }).click();
     await expect
       .poll(async () => (await storedDb(p.learner)).modules.find((m) => m.id === 'accelerator-week-2')?.status)

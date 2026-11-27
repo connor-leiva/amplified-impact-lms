@@ -10,7 +10,7 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
  * digit that is not a date or a time) must sit inside a link or a button, so it opens the list it counts. A date
  * ("Sun, Nov 29 · 12:00 PM MT / 1:00 PM CT") opens nothing by this rule.
  *
- * It walks every screen of R-5 (the Overview, Program, every Cohort tab for December and for January as a draft, People's
+ * It walks every screen of R-5 (the Overview, Program and its pages (D-265), every Cohort tab for December and for January as a draft, People's
  * tabs and Utah Life, Revenue's Payments and Plans & Upgrades) on the mockup's data (the parity fixture), at 1440. The planted check at the end
  * proves it fails on a number that is not a link.
  */
@@ -18,7 +18,12 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
 const SCREENS = [
   '/admin',
   '/admin/program',
+  // D-265 (R-5 Phase 6): a week, Course Settings and the Resource Vault, and the week's Cohort › Submissions.
+  '/admin/program/weeks/accelerator-week-1',
+  '/admin/program/course',
+  '/admin/program/vault',
   '/admin/cohort/dec26',
+  '/admin/cohort/dec26/submissions',
   '/admin/cohort/dec26/schedule',
   '/admin/cohort/dec26/people',
   '/admin/cohort/dec26/announcements',

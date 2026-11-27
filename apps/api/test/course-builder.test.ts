@@ -96,7 +96,10 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
     expect(week.module.checklist[0]).toMatchObject({ who: 'Operator', doneWhen: 'The report runs on your own data.', openInPreview: true, paths: draft.checklist[0]!.paths });
 
     const m = (await snapshot()).modules.find((x) => x.id === W2)!;
-    expect(m).toMatchObject({ name: 'Leads That Pay', icon, tone: 'violet', dueAt: draft.dueAt });
+    expect(m).toMatchObject({ name: 'Leads That Pay', icon, tone: 'violet' });
+    // D-265 (#278's open item): a course week's dates are its cohort's (Cohort › Settings › Dates and Release, D-255), so
+    // the builder's save keeps the stored Due whatever the draft says.
+    expect(m.dueAt).toBe(stored.dueAt);
     // D-220: the retired promise an older draft still carries is dropped on save; the outcome is the one copy.
     expect(m.course!.promise).toBeUndefined();
     expect(m.course!.setup).toBeUndefined();
@@ -125,11 +128,12 @@ describe('every field the builder edits shows at once, with no deploy (brief PR 
     expect(await auditActions()).toEqual(['module.save']);
   });
 
-  it('a week’s opening day and time (scheduled, Mountain Time)', { timeout: 120_000 }, async () => {
+  it('a week’s opening day and time stay its cohort’s: the builder’s save keeps them (D-265)', { timeout: 120_000 }, async () => {
     const stored = (await loadDb()).modules.find((m) => m.id === W2)!;
     const opens = Date.parse('2026-12-09T12:00:00-07:00');
     await ok('saveBuilderModule', { draft: { ...structuredClone(stored), opens }, status: 'scheduled' });
-    expect((await snapshot()).modules.find((x) => x.id === W2)).toMatchObject({ status: 'scheduled', opens });
+    // D-255 moved a week's dates to Cohort › Settings › Dates and Release; D-265 closes #278's gap on the server.
+    expect((await snapshot()).modules.find((x) => x.id === W2)).toMatchObject({ status: 'scheduled', opens: stored.opens });
   });
 
   it('a week’s sessions: one moved and retitled, one added, any kind', { timeout: 120_000 }, async () => {

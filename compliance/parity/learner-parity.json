@@ -2679,7 +2679,7 @@
       ],
       "status": "kept",
       "tests": [
-        "compliance/tests/e2e/learn-v2-upsell.spec.ts › the Console’s Preview as Learner at 1440 (D-187) @g9 › Curriculum’s row eye takes a click from rest and lands on the preview @parity:C-15",
+        "compliance/tests/e2e/learn-v2-upsell.spec.ts › the Console’s Preview as Learner at 1440 (D-187) @g9 › a week’s Preview takes a click from rest and lands on the preview @parity:C-15",
         "compliance/tests/parity/console-effects.spec.ts › learner parity: Console effects on an open learner screen › Preview as Learner: the week the Console opens shows the learner portal with the preview banner @parity:C-15"
       ]
     },
