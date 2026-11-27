@@ -566,6 +566,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       // D-172's Invite staff and Change role…, two steps: both blocked.
       { method: 'POST', url: CONSOLE_PATHS.staffPreview },
       { method: 'POST', url: CONSOLE_PATHS.staff },
+      // Comp a team: the cohorts list and the comp, read and write alike.
+      { method: 'GET', url: CONSOLE_PATHS.compCohorts },
+      { method: 'POST', url: CONSOLE_PATHS.compTeam },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);

@@ -36,6 +36,7 @@ import { randomIds } from '../lib/clock';
 import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
 import type { PendingSend } from '../routes/mutate';
 import { COHORT_ONE, COHORT_SEATS, cartFor, initialPlanDates } from './catalog';
+import type { PlanDates } from './catalog';
 import type { PlanKind, PlanStatus } from './catalog';
 
 export interface BillingLog {
@@ -90,6 +91,16 @@ export interface ProvisionOptions {
   skillGuide?: string;
   /** The branded skill email is sent by the caller, so this does not send Set Your Password. */
   skipInvite?: boolean;
+  /** Place the owner, and a new plan, in this cohort. Defaults to cohort one. */
+  cohortId?: string;
+  /** The order's company becomes the team's name and the account's. */
+  applyTeamName?: boolean;
+  /** A placeholder owner name (blank, or the email) becomes the order's name. */
+  applyOwnerName?: boolean;
+  /** An existing owner is placed in `cohortId`. */
+  placeInCohort?: boolean;
+  /** Dates for a new plan. Defaults to `initialPlanDates` for the cart. */
+  planDates?: PlanDates;
 }
 
 export async function provisionOrder(orderId: string, options: ProvisionOptions): Promise<ProvisionOutcome> {
@@ -109,15 +120,19 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     // The team and its owner, through core.
     const before = await loadDb(tx);
     const [existingAccount] = await tx.select().from(accounts).where(eq(accounts.ownerEmail, email)).limit(1);
+    const cohortId = options.cohortId ?? OWNER_COHORT;
     const owner = provisionOwner(
       before,
       {
         email,
         name: order.name ?? '',
-        teamName: existingAccount?.name ?? (order.company || order.name || email),
+        teamName: options.applyTeamName && order.company ? order.company : (existingAccount?.name ?? (order.company || order.name || email)),
         seats: cart.seats,
         tier: ownerTier(cart.plan),
-        cohortId: OWNER_COHORT,
+        cohortId,
+        applyTeamName: options.applyTeamName,
+        applyOwnerName: options.applyOwnerName,
+        placeInCohort: options.placeInCohort,
       },
       { now, id: randomIds() },
     );
@@ -145,6 +160,10 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     } else if (!account.stripeCustomerId && order.stripeCustomerId) {
       await tx.update(accounts).set({ stripeCustomerId: order.stripeCustomerId }).where(eq(accounts.id, account.id));
     }
+    if (options.applyTeamName && order.company && account!.name !== order.company) {
+      await tx.update(accounts).set({ name: order.company }).where(eq(accounts.id, account!.id));
+      account = { ...account!, name: order.company };
+    }
     const acct = account!;
 
     // The plan: one per order.
@@ -152,7 +171,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     const createdPlan = !plan;
     if (!plan) {
       // Charged today, or a trial with nothing paid yet (the Agent Plan before Jan 4, D-106).
-      const dates = initialPlanDates(cart, now, order.status === 'paid');
+      const dates = options.planDates ?? initialPlanDates(cart, now, order.status === 'paid');
       [plan] = await tx
         .insert(plans)
         .values({
@@ -182,7 +201,8 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     // and Ampy: the offer page has already switched to the waitlist, and the webhook turns both Stripe
     // links off once this commits (D-154, `payment-links.ts`). A checkout already open when it sold
     // can still finish: that 16th seat is provisioned, and reported.
-    if (createdPlan && cart.plan === 'cohort') {
+    // A comp is not a sale: it does not fill a founding seat, so it does not announce a sell-out.
+    if (createdPlan && cart.plan === 'cohort' && order.origin !== 'comp') {
       const n = await cohortSeatsSold(tx);
       if (n === COHORT_SEATS) {
         log.error({ order: order.id, seat: n }, `AI Accelerator sold out: seat ${n} of ${COHORT_SEATS}. The page shows the waitlist; both Accelerator Payment Links are being turned off`);
@@ -305,6 +325,11 @@ export const countedCohortSeat = and(
     select 1 from ${accounts} a
     join ${users} u on u.id = a.owner_user_id
     where a.id = ${plans.accountId} and u.is_test
+  )`,
+  // A comped team is not a founding seat and not paid revenue (the same exclusion as a test account).
+  sql`not exists (
+    select 1 from ${orders} o
+    where o.id = ${plans.orderId} and o.origin = 'comp'
   )`,
 );
 

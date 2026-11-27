@@ -142,7 +142,15 @@ export function Component() {
       label: C.orders.status,
       width: '104px',
       value: (o) => o.status.label,
-      cell: (o) => <Status tone={o.status.tone}>{o.status.label}</Status>,
+      cell: (o) =>
+        o.comped ? (
+          <span className={clsx(k.row, k.nw)} style={{ gap: 8 }}>
+            <Status tone={o.status.tone}>{o.status.label}</Status>
+            <Pill tone="info">Comped</Pill>
+          </span>
+        ) : (
+          <Status tone={o.status.tone}>{o.status.label}</Status>
+        ),
     },
     { key: 'd', label: C.orders.date, width: '112px', noSort: true, value: (o) => o.at, cell: (o) => o.date },
   ];
@@ -153,7 +161,12 @@ export function Component() {
       <PageHead
         back={{ to: '/admin/people', label: C.back }}
         title={vm.title}
-        meta={<Pill status={vm.status} />}
+        meta={
+          <>
+            <Pill status={vm.status} />
+            {vm.comped ? <Pill tone="info">Comped</Pill> : null}
+          </>
+        }
         right={
           <>
             {mq.show ? (
@@ -206,6 +219,7 @@ export function Component() {
           { label: C.facts.tier, value: vm.facts.tier },
           { label: C.facts.last, value: vm.facts.last },
           ...(vm.facts.welcome ? [{ label: C.facts.welcome, value: vm.facts.welcome }] : []),
+          ...(vm.comped ? [{ label: C.facts.comp, value: 'Comped' }] : []),
         ]}
       />
       <div className={k.gms}>

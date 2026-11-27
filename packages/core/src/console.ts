@@ -51,6 +51,8 @@ export const CONSOLE_CAPS = {
   'billing.refund': ADMIN,
   'billing.void': ADMIN,
   'billing.seat_tier': ADMIN,
+  // A comped Accelerator team: Owner and Admin. Not on the signed-off Roles matrix (that screen is the mockup's nine rows).
+  'billing.comp': ADMIN,
   export: ADMIN,
   'incidents.resolve': ADMIN,
   'jobs.run_now': ADMIN,
@@ -120,6 +122,7 @@ export const CONSOLE_CAP_LABELS: Record<ConsoleCap, string> = {
   'billing.refund': 'Refund a Payment',
   'billing.void': 'Void an Invoice',
   'billing.seat_tier': 'Change a Team Plan Seat Tier',
+  'billing.comp': 'Comp an Accelerator Team',
   export: 'Export Logs as CSV',
   'incidents.resolve': 'Resolve an Incident',
   'jobs.run_now': 'Run a Job Now',
@@ -167,6 +170,7 @@ export const AUDIT_ACTIONS = [
   'billing.refund',
   'billing.void',
   'billing.seat_tier',
+  'billing.comp',
   // PR 6: webhooks and jobs
   'webhook.ghl_retry',
   'job.run_now',
@@ -617,6 +621,8 @@ export const CONSOLE_ERRORS = {
   stripe_refused: { status: 409, message: 'Stripe refused this change. Nothing was changed.' },
   // The seat tier's (spec § 7.6). Unused: its gate failed, so it has no endpoint (D-164).
   seats_in_use: { status: 409, message: null },
+  // Comp an Accelerator team: the owner already holds a paid seat, is staff, or sits on someone else's team.
+  comp_refused: { status: 409, message: 'That team can’t be comped.' },
   // R2-4a's routes and PR 5's each give the sentence, naming the Read or Write permission.
   stripe_permission_missing: { status: 503, message: null },
   // PR 4 (D-163): Billing reads Stripe. With no key, the screen says "Stripe isn't connected"; a read

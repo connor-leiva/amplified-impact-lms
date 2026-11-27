@@ -196,7 +196,13 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
   const raw = (await db.execute(sql`
     select t.id, t.name, t.seats, t.owner_id, o.name as owner_name, o.email as owner_email, pp.kind, pp.status,
       (select count(*)::int from users m where m.team_id = t.id) as used,
-      (select max(m.last) from users m where m.team_id = t.id) as last
+      (select max(m.last) from users m where m.team_id = t.id) as last,
+      exists (
+        select 1 from plans p
+        join accounts a on a.id = p.account_id
+        join orders ord on ord.id = p.order_id
+        where a.team_id = t.id and ord.origin = 'comp' and p.status <> 'ended'
+      ) as comped
     from teams t
     left join users o on o.id = t.owner_id
     left join lateral (
@@ -219,6 +225,7 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
     status: string | null;
     used: number;
     last: string | number | null;
+    comped: boolean;
   }[];
   const rows = raw.slice(0, opts.limit).map((r): WorkspaceRow => {
     const kind = isPlanKind(r.kind) ? r.kind : null;
@@ -236,6 +243,7 @@ export async function listWorkspaces(db: Database, f: WorkspaceFilters, opts: { 
       seatCap: r.seats,
       nearCap: nearCap(used, r.seats),
       lastActivity: n(r.last),
+      comped: r.comped === true,
     };
   });
   const last = rows[rows.length - 1];
@@ -273,7 +281,8 @@ export async function workspaceDetail(db: Database, teamId: string, now: number)
   const activity: WorkspaceActivity[] = [];
   for (const o of orderList) {
     activity.push({ at: o.createdAt, kind: 'order_created', subject: o.id, label: o.planLabel });
-    if (o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_paid', subject: o.id, label: o.planLabel });
+    if (o.origin === 'comp' && o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_comped', subject: o.id, label: o.planLabel });
+    else if (o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_paid', subject: o.id, label: o.planLabel });
     if (o.paymentFailedAt !== null) activity.push({ at: o.paymentFailedAt, kind: 'payment_failed', subject: o.id, label: o.planLabel });
     if (o.refundedAt !== null) activity.push({ at: o.refundedAt, kind: 'order_refunded', subject: o.id, label: o.planLabel });
     if (o.membershipEndedAt !== null) activity.push({ at: o.membershipEndedAt, kind: 'membership_ended', subject: o.id, label: o.planLabel });

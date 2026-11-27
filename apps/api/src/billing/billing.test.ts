@@ -16,6 +16,7 @@ import {
   INSIDERS_FIRST_CHARGE_AT,
   LOOKUP_KEYS,
   ORDER_OPTIONS,
+  ORDER_ORIGINS,
   ORDER_STATUSES,
   PLAN_KINDS,
   PLAN_NAMES,
@@ -51,7 +52,7 @@ const dayIn = (t: number, timeZone: string) =>
 
 describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
   it('holds the CHECK constraints and the catalog to the same lists, as migration 0008 left them', () => {
-    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql', '0012_access_groups.sql', '0039_insiders_agent.sql']
+    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql', '0012_access_groups.sql', '0039_insiders_agent.sql', '0045_comp_orders.sql']
       .map((f) => readFileSync(fileURLToPath(new URL(`../../drizzle/${f}`, import.meta.url)), 'utf8'))
       .join('\n');
     // The last definition of each constraint wins.
@@ -61,6 +62,7 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
     expect(listIn('plans_kind')).toEqual([...PLAN_KINDS]);
     expect(listIn('orders_option')).toEqual([...ORDER_OPTIONS]);
     expect(listIn('orders_status')).toEqual([...ORDER_STATUSES]);
+    expect(listIn('orders_origin')).toEqual([...ORDER_ORIGINS]);
     expect(listIn('plans_status')).toEqual([...PLAN_STATUSES]);
     expect(listIn('skills_sets')).toEqual([...SKILL_SETS]);
     // The Agent Plan is its own kind, beside the Team Plan's `agents` (D-106).

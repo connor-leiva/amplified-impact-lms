@@ -128,6 +128,7 @@ describe('workspaces (spec § 7.3) @console', () => {
       seatCap: 7,
       nearCap: false,
       lastActivity: 1796661060000,
+      comped: false,
     });
     // A lapsed Team Plan loses to a running Insiders; a team with no account has no plan.
     expect(page.rows.find((r) => r.teamId === 'harbor')).toMatchObject({ planKind: 'membership', planLabel: 'Insiders', planStatus: 'active' });

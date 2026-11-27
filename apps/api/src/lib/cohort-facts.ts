@@ -17,7 +17,7 @@
 import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { CohortFacts } from '@ai/core';
 import type { Database } from '../db/client';
-import { accounts, auditLog, plans, teamIntake, users } from '../db/schema';
+import { accounts, auditLog, orders, plans, teamIntake, users } from '../db/schema';
 
 type Reader = Pick<Database, 'select'>;
 
@@ -25,6 +25,12 @@ const notTest = sql`not exists (
   select 1 from ${accounts} a
   join ${users} u on u.id = a.owner_user_id
   where a.id = ${plans.accountId} and u.is_test
+)`;
+
+/** A comp is not a seat sold and not paid in full (the same counts a test account is left out of). */
+const notComp = sql`not exists (
+  select 1 from ${orders} o
+  where o.id = ${plans.orderId} and o.origin = 'comp'
 )`;
 
 export async function cohortFactsOf(db: Reader, cohortId: string): Promise<CohortFacts> {
@@ -43,7 +49,7 @@ export async function cohortFactsOf(db: Reader, cohortId: string): Promise<Cohor
     .select({ status: plans.status, option: plans.option, teamId: accounts.teamId })
     .from(plans)
     .innerJoin(accounts, eq(accounts.id, plans.accountId))
-    .where(and(eq(plans.kind, 'cohort'), eq(plans.cohortId, cohortId), notTest));
+    .where(and(eq(plans.kind, 'cohort'), eq(plans.cohortId, cohortId), notTest, notComp));
   const live = [...new Set(sold.filter((p) => p.status !== 'ended').map((p) => p.teamId))];
   const people = live.length
     ? await db

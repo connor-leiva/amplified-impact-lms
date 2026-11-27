@@ -46,6 +46,7 @@ interface ClaimedOrder {
   payment_failed_at: string | number | null;
   membership_ended_at: string | number | null;
   refunded_at: string | number | null;
+  origin: string;
   ghl_attempts: number;
   created_at: string | number;
 }
@@ -70,7 +71,7 @@ export async function claimDueOrders(db: Database, now: number, batch: number = 
         order by created_at, id
         limit ${batch}
         for update skip locked)
-    returning id, plan, option, status, name, email, phone, company, campaign, sms_consent, paid_at,
+    returning id, plan, option, status, origin, name, email, phone, company, campaign, sms_consent, paid_at,
               payment_failed_at, membership_ended_at, refunded_at, ghl_attempts, created_at`)) as unknown as ClaimedOrder[];
   return [...rows].sort((a, b) => Number(a.created_at) - Number(b.created_at) || (a.id < b.id ? -1 : 1));
 }
@@ -100,6 +101,7 @@ export async function runGhlOrderSync(options: { db: Database; log: GhlSyncLog; 
       campaign: row.campaign,
       smsConsent: row.sms_consent,
       phone: row.phone,
+      origin: row.origin,
     };
     const now = clock.now();
     if (buyerTags(facts).length === 0) {

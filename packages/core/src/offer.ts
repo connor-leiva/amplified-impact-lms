@@ -31,7 +31,7 @@ export type PlanKind = (typeof PLAN_KINDS)[number];
 export const ORDER_OPTIONS = ['full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly', 'yearly'] as const;
 export type OrderOption = (typeof ORDER_OPTIONS)[number];
 
-export const ORDER_ORIGINS = ['offer', 'payment_link'] as const;
+export const ORDER_ORIGINS = ['offer', 'payment_link', 'comp'] as const;
 export type OrderOrigin = (typeof ORDER_ORIGINS)[number];
 
 /** `pending` until the webhook says otherwise (D-075): only the webhook marks an order paid. */

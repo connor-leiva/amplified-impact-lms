@@ -122,6 +122,7 @@ export interface WorkspaceRowVM {
   last: string;
   lastAt: number;
   href: string;
+  comped: boolean;
 }
 
 export const workspaceRowVM = (w: WorkspaceRow): WorkspaceRowVM => ({
@@ -135,6 +136,7 @@ export const workspaceRowVM = (w: WorkspaceRow): WorkspaceRowVM => ({
   last: stampOrNever(w.lastActivity),
   lastAt: w.lastActivity ?? 0,
   href: teamPath(w.teamId),
+  comped: w.comped === true,
 });
 
 // --- one workspace -------------------------------------------------------------------------------
@@ -158,7 +160,7 @@ export const WORKSPACE_COPY = {
     billing: 'Billing',
     activity: 'Activity',
   } as Record<WorkspaceTab, string>,
-  facts: { id: 'Workspace ID', plan: 'Plan', seats: 'Seats', owner: 'Owner', mrr: 'MRR', last: 'Last activity', welcome: 'Welcome' },
+  facts: { id: 'Workspace ID', plan: 'Plan', seats: 'Seats', owner: 'Owner', mrr: 'MRR', last: 'Last activity', welcome: 'Welcome', comp: 'Comped' },
   members: {
     label: 'Members',
     name: 'Member',
@@ -222,6 +224,8 @@ export function activityLine(a: WorkspaceActivity): string {
       return `${a.label} order started`;
     case 'order_paid':
       return `${a.label} order paid`;
+    case 'order_comped':
+      return `${a.label} comped`;
     case 'payment_failed':
       return `${a.label} payment failed`;
     case 'order_refunded':
@@ -251,6 +255,7 @@ export interface MemberVM {
 
 export interface WorkspaceVM {
   title: string;
+  comped: boolean;
   status: AdminStatus;
   facts: { id: string; plan: string; seats: string; owner: string; mrr: string; last: string; welcome: string | null };
   members: MemberVM[];
@@ -279,6 +284,7 @@ export function workspaceVM(d: WorkspaceDetail): WorkspaceVM {
   const seats = seatsOf(d.seatsUsed, d.team.seats, kind);
   return {
     title: d.team.name,
+    comped: d.billing.orders.some((o) => o.origin === 'comp'),
     status: planStatusOf(p?.status ?? null),
     facts: {
       id: d.team.id,

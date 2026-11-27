@@ -258,7 +258,8 @@ export function fixtureWorkspace(r: FixtureRecords, teamId: string): WorkspaceDe
   const activity: WorkspaceActivity[] = [];
   for (const o of orderList) {
     activity.push({ at: o.createdAt, kind: 'order_created', subject: o.id, label: o.planLabel });
-    if (o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_paid', subject: o.id, label: o.planLabel });
+    if (o.origin === 'comp' && o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_comped', subject: o.id, label: o.planLabel });
+    else if (o.paidAt !== null) activity.push({ at: o.paidAt, kind: 'order_paid', subject: o.id, label: o.planLabel });
     if (o.paymentFailedAt !== null)
       activity.push({ at: o.paymentFailedAt, kind: 'payment_failed', subject: o.id, label: o.planLabel });
   }

@@ -27,7 +27,7 @@ import type { AuditRow, ConsoleCap } from '../src/index';
 
 // Spec § 5, typed out independently of `CONSOLE_CAPS`, so a change to either side is a red test.
 const EVERY_STAFF = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];
-const OWNER_ADMIN = ['masquerade.start', 'masquerade.extend', 'billing.refund', 'billing.void', 'billing.seat_tier', 'export', 'incidents.resolve', 'jobs.run_now', 'webhooks.retry', 'ops.read', 'flags.write', 'integrations.probe'];
+const OWNER_ADMIN = ['masquerade.start', 'masquerade.extend', 'billing.refund', 'billing.void', 'billing.seat_tier', 'billing.comp', 'export', 'incidents.resolve', 'jobs.run_now', 'webhooks.retry', 'ops.read', 'flags.write', 'integrations.probe'];
 // D-160 R2-3b adds `roles.write` (editing Roles & Permissions), the Owner's alone.
 const OWNER_ONLY = ['notes.delete', 'flags.write_sensitive', 'roles.write'];
 
