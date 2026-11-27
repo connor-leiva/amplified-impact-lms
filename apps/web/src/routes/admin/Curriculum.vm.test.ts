@@ -276,7 +276,7 @@ describe('curriculumVM @g6', () => {
 // ================================================================================================
 
 describe('curriculumR2VM (D-160 R2-2)', () => {
-  const NOW = Date.parse('2026-12-10T16:30:00Z'); // the mockup's "now": Thu, Dec 10, 9:30 AM MST
+  const NOW = Date.parse('2026-12-10T16:30:00Z'); // the mockup's "now": Thu, Dec 10, 9:30 AM MT / 10:30 AM CT
   const vm = curriculumR2VM(parityDb(), NOW);
   const row = (id: string) => vm.rows.find((r) => r.id === id)!;
 
@@ -311,21 +311,21 @@ describe('curriculumR2VM (D-160 R2-2)', () => {
     expect(vm.rows.filter((r) => r.deployed !== null).map((r) => r.deployed)).toEqual([66, 91, 74, 35, 38]);
   });
 
-  it('prints each live session in MST, in every form the table needs (BUILD-SPEC § 7)', () => {
+  it('prints each live session in MT and CT, in every form the table needs (D-267)', () => {
     expect(row('m3').session).toEqual({
       title: 'Session 1 · Lead-Source ROI Live Build',
-      when: 'Wed, Dec 2 · 12:00 PM MST · Replay ready',
-      full: 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MST · Replay ready',
+      when: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
+      full: 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready',
       short: 'Lead-Source ROI',
-      date: 'Wed, Dec 2 · 12:00 PM',
-      brief: 'Session 1 · Wed, Dec 2 · 12:00 PM MST',
+      date: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
+      brief: 'Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
       n: 'Session 1',
       day: 'Wed, Dec 2',
     });
-    expect(row('m7').session!.when).toBe('Wed, Dec 16 · 12:00 PM MST');
+    expect(row('m7').session!.when).toBe('Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT');
     expect(row('m13').session!.short).toBe('Handoff');
     expect(row('m1').session).toBeNull();
-    for (const r of vm.rows) expect(JSON.stringify(r)).not.toMatch(/\bCT\b|Central/);
+    for (const r of vm.rows) expect(JSON.stringify(r)).not.toMatch(/\bMST\b/); // D-267: MT, with CT after it
   });
 
   it('writes the phone card’s meta line as the mockup does', () => {

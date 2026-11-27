@@ -9,7 +9,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Find, KV, PageHead, Sel, Skel, Stat, Two, k } from '../../components/r2/kit';
+import { Find, KV, PageHead, Sel, Skel, Stat, Two, k, Stamp } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { Denied } from './Denied';
@@ -108,7 +108,14 @@ export function Component() {
     // D-263: how many times it was opened and clicked, from Resend's webhook.
     { key: 'op', label: C.columns.opens, num: true, width: '72px', value: (e) => e.opens },
     { key: 'cl', label: C.columns.clicks, num: true, width: '72px', value: (e) => e.clicks },
-    { key: 't', label: C.columns.sent, width: '128px', noSort: true, value: (e) => e.at, cell: (e) => e.sent },
+    {
+      key: 't',
+      label: C.columns.sent,
+      width: '128px',
+      noSort: true,
+      value: (e) => e.at,
+      cell: (e) => <Stamp v={e.sent} two />,
+    },
   ];
   const set = (patch: Partial<typeof filters>) => setFilters((f) => ({ ...f, ...patch }));
   const detail = open ? emailDetailVM(open) : null;

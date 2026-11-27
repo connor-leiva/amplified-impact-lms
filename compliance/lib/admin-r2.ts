@@ -53,12 +53,13 @@ export type Width = (typeof WIDTHS)[number];
  * (`cohort-*`; Schedule replaces Cohorts & Sessions, whose `cohorts-sessions` refs retire), New cohort, January once
  * created (`january-*`), and four dialogs on January's Settings (Shape, its weeks, Dates and Release, Words), each a
  * viewport frame as the Roles confirm is. D-262 (R-5 Phase 5): January's price dialog, Edit enrollment and Open
- * enrollment (refused, with Before It Opens' first line), and December's Close enrollment: 46 × 4 = 184 cells.
+ * enrollment (refused, with Before It Opens' first line), and December's Close enrollment: 46 × 4 = 184 cells. R-5 audit
+ * (D-267): People › Utah Life (`utah-life`), the access group's read-only tab: 47 × 4 = 188 cells.
  */
 export const SCREENS = [
   'overview', 'health', 'curriculum', 'builder', 'vault', 'cohort-overview', 'cohort-schedule', 'cohort-settings',
   'new-cohort', 'january-overview', 'january-schedule', 'january-settings', 'announce', 'learners',
-  'workspaces', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
+  'workspaces', 'utah-life', 'users', 'masquerade', 'tiers', 'billing', 'payments', 'usage', 'incidents', 'audit', 'api', 'jobs',
   'email', 'integrations', 'deploys', 'db', 'flags', 'roles', 'workspace-detail', 'user', 'incident', 'as',
   'missing', 'denied', 'january-shape', 'january-weeks', 'january-dates', 'january-words', 'january-price',
   'january-enrollment', 'january-open', 'cohort-close', 'roles-confirm',
@@ -158,6 +159,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // R2-1c (D-160): the Support records, on the mockup's own `WS` and `USERS` (the Console fixture
   // answers with them): Northshore Group and Elena Vargas are the mockup's detail records.
   workspaces: { path: '/admin/people/teams' },
+  // R-5 audit (D-267): People › Utah Life, the access group's tab.
+  'utah-life': { path: '/admin/people/groups/utah-life' },
   'workspace-detail': { path: '/admin/people/teams/ws_northshore' },
   users: { path: '/admin/people' },
   user: { path: '/admin/people/u_1042' },
@@ -251,6 +254,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // the 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `workspaces-${w}`,
   ...(w === 390 ? [] : [`workspace-detail-${w}`]),
+  // R-5 audit (D-267): People › Utah Life at all four widths.
+  `utah-life-${w}`,
   // R2-1c part 2 (D-160): Users at all four widths; User at 1440, 1280 and 1024. `user-390` is not here,
   // for `workspace-detail-390`'s reason (its key-facts values, 15px in the mockup on a phone, 16px here):
   // it is an approved exception (`admin-r2-exceptions.ts`, D-160).

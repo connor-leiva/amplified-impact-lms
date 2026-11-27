@@ -56,6 +56,7 @@ import {
   TIER_CARDS,
   UPGRADE_REQUESTS,
   USERS,
+  UTAH_LIFE,
   VAULT,
   WS,
 } from './parity-r2';
@@ -347,6 +348,16 @@ export function parityDb(path = '/admin/curriculum'): Db {
     teams: 0,
     mod: { ...CURRICULUM_BASE },
   };
+  // R-5 audit (D-267): staff's snapshot names its access groups (People › Utah Life), as the API's does.
+  db.groups = [
+    {
+      id: UTAH_LIFE.id,
+      name: UTAH_LIFE.name,
+      emailDomain: UTAH_LIFE.emailDomain,
+      plan: UTAH_LIFE.plan,
+      members: UTAH_LIFE.members.map(([email, last], i) => ({ userId: `u_ul${i + 1}`, name: '', email, last: last ? stamp(last) : null, invited: last === null })),
+    },
+  ];
   const at = path.replace(/\/+$/, '');
   if (COHORT_PAGE.test(at)) cohortPageDb(db, at);
   return at === '/admin' ? overviewDb(db) : db;

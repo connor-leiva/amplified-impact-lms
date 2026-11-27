@@ -131,6 +131,7 @@ import type { Send } from './due';
 import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorRoster } from '../lib/course-access';
+import { cohortRoster } from '../lib/cohort-roster';
 import { sweepMasquerades } from '../console/masquerade';
 import { SCHEDULER_TICK_JOB, recordTick } from './ticks';
 import { pruneEmailAndUsage } from './prune-logs';
@@ -432,7 +433,9 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     const rows = (await tx.execute(TRY_LOCK)) as unknown as { locked: unknown }[];
     if (!lockGranted(rows[0]?.locked)) return null;
 
-    const snapshot = await loadDb(tx);
+    // R-5 audit (D-267): with the roster, so a cohort's own announcement reaches only the people who count in it.
+    const roster = await cohortRoster(tx);
+    const snapshot = { ...(await loadDb(tx, { roster })), roster };
     // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110), read at each
     // session's start for a reminder before it (H-14, D-248), so the first live build's reminders go out.
     const accelerator = await acceleratorRoster(tx);

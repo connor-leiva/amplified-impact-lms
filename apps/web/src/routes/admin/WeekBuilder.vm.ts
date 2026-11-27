@@ -5,8 +5,31 @@
 // An AI Employee (no `kind`) never reaches these: the builder draws exactly what the R2 mockup draws
 // for it, so the enforced `builder` cells (the demo's m1) keep their numbers.
 
-import { COURSE_TZ, changedFields, checklistIssues, copyIssues, issueLine, kitVisible, moduleCopyFields, tourIssues, videoIssues, zonedInputs, zonedInstant } from '@ai/core';
-import type { AIEmployee, Db, Resource, ResourceKind, ResourcePlatform, ResourceVisibility, ReplayVisibility, Session, SessionType } from '@ai/core';
+import {
+  COURSE_TZ,
+  changedFields,
+  fmt,
+  checklistIssues,
+  copyIssues,
+  issueLine,
+  kitVisible,
+  moduleCopyFields,
+  tourIssues,
+  videoIssues,
+  zonedInputs,
+  zonedInstant,
+} from '@ai/core';
+import type {
+  AIEmployee,
+  Db,
+  Resource,
+  ResourceKind,
+  ResourcePlatform,
+  ResourceVisibility,
+  ReplayVisibility,
+  Session,
+  SessionType,
+} from '@ai/core';
 import { acceleratorModuleId } from '@ai/core/accelerator';
 import type { ContentBlock, CourseContent, MediaItem, PathBlock, VideoBlock } from '@ai/core/course-types';
 import { courseFor, courseFromSnapshot, courseSessions } from '@ai/core/course';
@@ -44,7 +67,11 @@ export const VISIBILITY_LABELS: Readonly<Record<ResourceVisibility, string>> = {
   published: 'Published',
   hidden: 'Hidden',
 };
-export const PLATFORM_LABELS: Readonly<Record<ResourcePlatform, string>> = { claude: 'Claude', chatgpt: 'ChatGPT', both: 'Claude and ChatGPT' };
+export const PLATFORM_LABELS: Readonly<Record<ResourcePlatform, string>> = {
+  claude: 'Claude',
+  chatgpt: 'ChatGPT',
+  both: 'Claude and ChatGPT',
+};
 
 /** The learner mockup's tile tones ("one icon, one topic colour"). */
 export const TONES = ['forest', 'blue', 'amber', 'terra', 'green', 'solid'] as const;
@@ -98,23 +125,26 @@ export const VIDEO_LABELS = {
   chaptersHint: 'One per line: 0:47 | Open Settings | item-1',
   // D-252: on a Week 0 Media video only.
   tour: 'Show as the LMS Tour on Sign-In',
-  tourHint: 'Opens for each learner when they sign in, until they’ve seen it, and sits at the top of Week 0. One video only, with a transcript.',
+  tourHint:
+    'Opens for each learner when they sign in, until they’ve seen it, and sits at the top of Week 0. One video only, with a transcript.',
 } as const;
 
 /** A week's Media split as the builder edits it: its lines, then its videos (D-188). */
-export const mediaLines = (media: readonly MediaItem[]): string[] => media.filter((m): m is string => typeof m === 'string');
-export const mediaVideos = (media: readonly MediaItem[]): VideoBlock[] => media.filter((m): m is VideoBlock => typeof m !== 'string');
+export const mediaLines = (media: readonly MediaItem[]): string[] =>
+  media.filter((m): m is string => typeof m === 'string');
+export const mediaVideos = (media: readonly MediaItem[]): VideoBlock[] =>
+  media.filter((m): m is VideoBlock => typeof m !== 'string');
 
 // --- Mountain Time ---------------------------------------------------------------------------------
 
 const mt = new Intl.DateTimeFormat('en-US', { timeZone: COURSE_TZ, weekday: 'short', month: 'short', day: 'numeric' });
-const mtClock = new Intl.DateTimeFormat('en-US', { timeZone: COURSE_TZ, hour: 'numeric', minute: '2-digit' });
 
-/** "Wed, Dec 9 · 12:00 PM MT": an instant as the course shows it. */
-export const mtWhen = (t: number): string => `${mt.format(new Date(t))} · ${mtClock.format(new Date(t))} MT`;
+/** "Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT": an instant as the course shows it, MT with CT after it (D-267, `fmt.mtCt`). */
+export const mtWhen = (t: number): string => `${mt.format(new Date(t))} · ${fmt.mtCt(t)}`;
 
 /** The date and time inputs for an instant (or blank), in Mountain Time. */
-export const mtInputs = (t: number | null | undefined): { date: string; time: string } => (t ? zonedInputs(t, COURSE_TZ) : { date: '', time: '' });
+export const mtInputs = (t: number | null | undefined): { date: string; time: string } =>
+  t ? zonedInputs(t, COURSE_TZ) : { date: '', time: '' };
 
 /** A date and a time typed in Mountain Time; a blank time is noon (the brief's default); a blank date is none. */
 export function mtFrom(date: string, time: string): number | null {
@@ -147,7 +177,15 @@ export function weekSessions(db: Pick<Db, 'sessions'>, d: WeekDraft): WeekSessio
   return db.sessions
     .filter((s) => s.moduleId === d.id || named.has(s.id))
     .sort((a, b) => a.start - b.start)
-    .map((s) => ({ id: s.id, title: s.title, when: mtWhen(s.start), mins: s.mins, kind: s.kind ? SESSION_KIND_LABELS[s.kind] : 'Session', named: named.has(s.id), session: s }));
+    .map((s) => ({
+      id: s.id,
+      title: s.title,
+      when: mtWhen(s.start),
+      mins: s.mins,
+      kind: s.kind ? SESSION_KIND_LABELS[s.kind] : 'Session',
+      named: named.has(s.id),
+      session: s,
+    }));
 }
 
 export interface KitRow {
@@ -187,7 +225,11 @@ export const unattached = (db: Pick<Db, 'resources'>): Resource[] => db.resource
  * What this draft would be refused for on Save: the copy rules on every string it changed. D-252: `others` is the rest
  * of the course, so a second LMS tour is said while staff tick it, as the save refuses it.
  */
-export function draftIssues(stored: AIEmployee | null, draft: AIEmployee, others: readonly AIEmployee[] = []): string[] {
+export function draftIssues(
+  stored: AIEmployee | null,
+  draft: AIEmployee,
+  others: readonly AIEmployee[] = [],
+): string[] {
   // D-188: and a video whose source isn't an uploaded mp4 or an http(s) link, as the save refuses it.
   return [
     ...copyIssues(changedFields(stored ? moduleCopyFields(stored) : [], moduleCopyFields(draft))).map(issueLine),
@@ -279,7 +321,11 @@ export const tableRows = (text: string): string[][] =>
 
 /** A list as staff type it: one item per line. */
 export const listText = (items: readonly string[]): string => items.join('\n');
-export const listItems = (text: string): string[] => text.split('\n').map((l) => l.trim()).filter(Boolean);
+export const listItems = (text: string): string[] =>
+  text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 
 // --- the live preview of the learner pages, from the unsaved draft (PR 2c) ---------------------------
 
@@ -311,7 +357,13 @@ function withOpenWeekKit(db: Db, course: CourseContent): CourseContent {
       const id = acceleratorModuleId(w.week);
       const kit: CourseKitItem[] = db.resources
         .filter((r) => r.module === id && r.status === 'published' && kitVisible(r, true, false))
-        .map((r) => ({ id: r.id, title: r.title, kind: r.kind ?? null, platform: r.platform ?? null, stepId: r.stepId ?? null }));
+        .map((r) => ({
+          id: r.id,
+          title: r.title,
+          kind: r.kind ?? null,
+          platform: r.platform ?? null,
+          stepId: r.stepId ?? null,
+        }));
       return kit.length ? { ...w, kit } : w;
     }),
   };
@@ -325,7 +377,9 @@ function withOpenWeekKit(db: Db, course: CourseContent): CourseContent {
 export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: number): Load {
   if (as === 'utah') return { kind: 'locked' };
   const next = withDraft(db, draft);
-  const copy = Object.fromEntries((next.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value]));
+  const copy = Object.fromEntries(
+    (next.copy ?? []).filter((c) => c.audience === 'learner').map((c) => [c.key, c.value]),
+  );
   if (as === 'prelaunch') {
     // D-175: once the cohort has a preview date, a buyer before launch is in the preview, as of that
     // moment: Week 0 open, every week scheduled later locked with its date. With none, the welcome.
@@ -333,11 +387,23 @@ export function previewLoad(db: Db, draft: WeekDraft, as: PreviewAs, opensAt: nu
     if (at === undefined) return { kind: 'upcoming', opensAt };
     const preview = courseFor(next, at, { open: true, preview: true });
     if (!preview) return { kind: 'failed' };
-    return { kind: 'ready', payload: { open: true, preview: false, prelaunch: true, course: preview, sessions: courseSessions(next), copy } };
+    return {
+      kind: 'ready',
+      payload: { open: true, preview: false, prelaunch: true, course: preview, sessions: courseSessions(next), copy },
+    };
   }
   const course = courseFromSnapshot(next);
   if (!course) return { kind: 'failed' };
-  return { kind: 'ready', payload: { open: true, preview: false, course: withOpenWeekKit(next, course), sessions: courseSessions(next), copy } };
+  return {
+    kind: 'ready',
+    payload: {
+      open: true,
+      preview: false,
+      course: withOpenWeekKit(next, course),
+      sessions: courseSessions(next),
+      copy,
+    },
+  };
 }
 
 /** The course page's address for the draft's week. */

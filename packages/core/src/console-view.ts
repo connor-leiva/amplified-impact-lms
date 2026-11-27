@@ -2,9 +2,9 @@
 // Workspaces, Workspace, Users and User screens' view-models read the API's shapes (console-support.ts)
 // and turn them into these words, so a screen never formats a time, a price or a status itself.
 //
-// ONE ZONE. BUILD-SPEC § 7: "One time-zone label: MST (America/Phoenix) everywhere." The R2 admin's
-// stamps are the program's Arizona time with no zone suffix, as the mockup's tables print them
-// ("Dec 10, 8:52 AM", "Dec 8, 2026").
+// ONE ZONE. R-5 audit (D-267): the admin's zone is MT (America/Denver), where BUILD-SPEC § 7 had MST (America/Phoenix):
+// the same hour from November to March (`admin-build.ts`). Every time is written in MT with CT after it, "Dec 10,
+// 8:52 AM MT / 9:52 AM CT" (Connor's rule, PR #286's review), through `fmt.mtCt`; a day alone stays "Dec 8, 2026".
 //
 // THE MOCKUP'S WORDS. Plan statuses are sentence case ("Past due"), as AdminRedesign.jsx writes them;
 // the Console's older labels (`PLAN_STATUS_LABELS`, "Past Due") stay for the API's CSV and audit.
@@ -12,16 +12,16 @@
 import { CONSOLE_PLAN_LABELS, ORDER_STATUS_LABELS, nearCap } from './console-support';
 import type { ConsoleOrder } from './console-support';
 import type { PlanKind, PlanStatus } from './offer';
+import { fmt } from './time';
 
-export const ADMIN_TZ = 'America/Phoenix';
+export const ADMIN_TZ = 'America/Denver';
 
 const part = (t: number, o: Intl.DateTimeFormatOptions): string =>
   // Some ICU builds put a narrow no-break space before AM/PM; the mockup has a plain one.
   new Intl.DateTimeFormat('en-US', { timeZone: ADMIN_TZ, ...o }).format(new Date(t)).replace(/\u202f/g, ' ');
 
-/** "Dec 10, 8:52 AM": a moment, in the admin's zone. */
-export const adminStamp = (t: number): string =>
-  `${part(t, { month: 'short', day: 'numeric' })}, ${part(t, { hour: 'numeric', minute: '2-digit' })}`;
+/** "Dec 10, 8:52 AM MT / 9:52 AM CT": a moment, in MT with CT after it (D-267, through `fmt.mtCt`). */
+export const adminStamp = (t: number): string => `${part(t, { month: 'short', day: 'numeric' })}, ${fmt.mtCt(t)}`;
 
 /** "Dec 8, 2026": a day, in the admin's zone. */
 export const adminDate = (t: number): string => part(t, { month: 'short', day: 'numeric', year: 'numeric' });

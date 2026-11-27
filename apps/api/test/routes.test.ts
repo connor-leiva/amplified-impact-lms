@@ -34,7 +34,7 @@ import { INVITE_TTL_MS, hashToken, sessionCookieOptions } from '../src/auth';
 import { authTokens, users } from '../src/db/schema';
 import { outbox, resetOutbox } from '../src/email/transport';
 import { isTestEnv } from '../src/routes/test';
-import { loadDb, resetDatabase, testDatabase } from './helpers';
+import { loadDb, resetDatabase, servedDb, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
 /**
@@ -204,7 +204,9 @@ describe('GET /api/snapshot @g7', () => {
       const cookie = await app.signInAs(id);
       const res = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie } });
       expect(res.statusCode).toBe(200);
-      expect(res.json()).toEqual(scopeSnapshot(await loadDb(), actor));
+      // R-5 audit (D-267): the database as the route reads it (`servedDb`: `enrolled` from the roster, and staff's roster
+      // and access groups), scoped.
+      expect(res.json()).toEqual(scopeSnapshot(await servedDb(actor.kind === 'staff'), actor));
     }
   });
 

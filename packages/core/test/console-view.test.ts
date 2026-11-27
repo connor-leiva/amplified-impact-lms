@@ -21,12 +21,12 @@ import {
 
 const mst = (s: string) => Date.parse(`${s}-07:00`);
 
-describe('admin stamps (BUILD-SPEC § 7: one zone, MST) @console', () => {
-  it('is America/Phoenix', () => expect(ADMIN_TZ).toBe('America/Phoenix'));
-  it('prints a moment as the mockup does', () => {
-    expect(adminStamp(mst('2026-12-10T08:52:00'))).toBe('Dec 10, 8:52 AM');
-    expect(adminStamp(mst('2026-12-10T00:41:00'))).toBe('Dec 10, 12:41 AM');
-    expect(adminStamp(mst('2026-11-02T16:40:00'))).toBe('Nov 2, 4:40 PM');
+describe('admin stamps (one zone; R-5 audit, D-267: MT, where BUILD-SPEC § 7 had MST) @console', () => {
+  it('is America/Denver', () => expect(ADMIN_TZ).toBe('America/Denver'));
+  it('prints a moment in MT with CT after it (D-267, PR #286 review)', () => {
+    expect(adminStamp(mst('2026-12-10T08:52:00'))).toBe('Dec 10, 8:52 AM MT / 9:52 AM CT');
+    expect(adminStamp(mst('2026-12-10T00:41:00'))).toBe('Dec 10, 12:41 AM MT / 1:41 AM CT');
+    expect(adminStamp(mst('2026-11-02T16:40:00'))).toBe('Nov 2, 4:40 PM MT / 5:40 PM CT');
   });
   it('prints a day with its year', () => expect(adminDate(mst('2026-12-08T09:00:00'))).toBe('Dec 8, 2026'));
   it('has no narrow no-break space', () => expect(adminStamp(mst('2026-12-09T18:10:00'))).not.toMatch(/\u202f/));

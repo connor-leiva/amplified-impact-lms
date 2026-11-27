@@ -178,6 +178,38 @@ export function week1OpensAt(db: Pick<Db, 'cohorts' | 'modules' | 'sessions'>, c
   return cohortRun(db, cohortId).find((w) => w.n === 1)?.opensAt ?? null;
 }
 
+/**
+ * R-5 audit (D-267, Connor, Nov 26): where a cohort is in its run. Before Week 1 opens: Week 1's opening, and its setup
+ * week's (the run's Week 0, else the preview it opens with), if it has one. Once Week 1 has opened: "Week N of M", N the
+ * last of its building weeks to open and M how many it has. Null for a cohort whose run holds no Week 1.
+ */
+export type CohortProgress =
+  | { kind: 'before'; setup: number | null; week1: number }
+  | { kind: 'running'; n: number; of: number };
+
+export function cohortProgress(db: Pick<Db, 'cohorts' | 'modules' | 'sessions'>, cohortId: string, now: number): CohortProgress | null {
+  const co = cohortOf(db, cohortId);
+  if (!co) return null;
+  const run = cohortRun(db, cohortId);
+  const week1 = run.find((w) => w.n === 1)?.opensAt ?? null;
+  if (week1 === null) return null;
+  const building = run.filter((w) => w.n >= 1);
+  if (now < week1) {
+    const setupWeek = run.find((w) => w.n === 0);
+    const setup = setupWeek ? (setupWeek.opensAt ?? co.previewOpensAt ?? null) : null;
+    return { kind: 'before', setup, week1 };
+  }
+  const opened = building.filter((w) => w.opensAt !== null && w.opensAt <= now);
+  return { kind: 'running', n: Math.max(1, ...opened.map((w) => w.n)), of: building.length };
+}
+
+/** "Week 0 opened Tue, Nov 24 · Week 1 opens Sun, Nov 29", "Week 1 opens Sun, Jan 3", or "Week 2 of 6". */
+export function cohortProgressLine(p: CohortProgress, now: number): string {
+  if (p.kind === 'running') return `Week ${p.n} of ${p.of}`;
+  const w1 = `Week 1 opens ${fmt.mtDay(p.week1)}`;
+  return p.setup === null ? w1 : `Week 0 ${p.setup <= now ? 'opened' : 'opens'} ${fmt.mtDay(p.setup)} · ${w1}`;
+}
+
 // ================================================================================================
 // Included time (Q-22, PLAN.md § 10.3): a date; its instant is the start of that day in America/Chicago
 // ================================================================================================
@@ -260,6 +292,27 @@ export interface CohortFacts {
    * Payment Links: Read). Absent: not asked (Before It Opens' two Stripe lines are then not done).
    */
   stripe?: CohortStripeFacts | null;
+  /**
+   * R-5 audit (D-267): the second payments still to come on its two-payment seats (Needs You's "2 second payments are on
+   * the calendar"): how many, the amount of each when they are all the same (the first payment's, as Stripe charged it),
+   * and when the next is due (`secondPaymentAt`). Absent, or a count of 0: no row.
+   */
+  secondPayments?: { count: number; each: number | null; next: number | null };
+}
+
+/**
+ * R-5 audit (D-267): when a two-payment seat's second payment comes, from when its first was paid: the same day of the
+ * next month, at the same time, in Central (Stripe bills it one month later, PLAN.md § 10.5); the last day of a shorter
+ * month when that day doesn't exist.
+ */
+export function secondPaymentAt(paidAt: number): number {
+  const { date, time } = zonedInputs(paidAt, INCLUDED_TZ);
+  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
+  const ny = m === 12 ? y + 1 : y;
+  const nm = m === 12 ? 1 : m + 1;
+  const last = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
+  const two = (n: number) => String(n).padStart(2, '0');
+  return zonedInstant(`${ny}-${two(nm)}-${two(Math.min(d, last))}`, time, INCLUDED_TZ);
 }
 
 export const NO_FACTS: CohortFacts = { testSends: { welcome: false, week0: false }, plans: 0 };

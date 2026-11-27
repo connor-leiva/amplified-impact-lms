@@ -13,7 +13,7 @@
 // The reference's inline colours become semantic tones the stylesheet keys off. Only the seeded
 // avatar fill and the seat bar's width are genuinely per-instance, and they travel as values.
 
-import { adminDate, adminStamp, buildOf, canAccess, csv, fmt, isOpen, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
+import { adminDate, adminStamp, rosterLearners, rosterTeams, buildOf, canAccess, csv, fmt, isOpen, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
 import type { BuildState, Db, Learner, RuntimeState, Tier } from '@ai/core';
 
 export type LearnersTab = 'learners' | 'teams';
@@ -360,8 +360,10 @@ export interface LearnersR2VM {
 }
 
 /**
- * D-253: `cohortId` is the cohort in the address (Cohort › People); whether it has started decides "Not started". The
- * rows and the counts are today's (every learner, every team); the cohort's own roster by rule 2 is Phase 7's.
+ * D-253: `cohortId` is the cohort in the address (Cohort › People); whether it has started decides "Not started". R-5
+ * audit (D-267): the rows and the counts are the cohort's roster by the one rule (`rosterLearners`, `rosterTeams`: a live
+ * cohort plan for it, not a test account, kind learner), so an access group's member (Utah Life) is on none of them.
+ * Without a roster (the fixture), the learners whose row names the cohort and every team, as before.
  */
 export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: string }, cohortId: string): LearnersR2VM {
   const base = db.base;
@@ -369,8 +371,10 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
   const open = visibleModules(db).filter((m) => isOpen(m, now));
   const teamOf = (u: Learner) => (u.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined);
   const ql = ui.q.trim().toLowerCase();
+  const people = rosterLearners(db, cohortId);
+  const cohortTeams = rosterTeams(db, cohortId);
 
-  const rows = db.users
+  const rows = people
     .filter((u) => (ui.tier === 'All tiers' || (u.tier === 'team' ? 'Team' : 'Agent') === ui.tier))
     .filter((u) => !ql || (u.name + u.email + (teamOf(u)?.name ?? '')).toLowerCase().includes(ql))
     .map((u): LearnerR2Row => {
@@ -390,7 +394,7 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
       };
     });
 
-  const teams = db.teams.map((t): TeamR2Row => {
+  const teams = cohortTeams.map((t): TeamR2Row => {
     const members = db.users.filter((u) => u.teamId === t.id);
     const pending = members.filter((u) => u.status === 'invited').length;
     return {
@@ -405,8 +409,8 @@ export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: s
   });
 
   return {
-    learnersCount: base.learners + db.users.filter((u) => u.test !== true).length,
-    teamsCount: base.teams + db.teams.length,
+    learnersCount: base.learners + people.filter((u) => u.test !== true).length,
+    teamsCount: base.teams + cohortTeams.length,
     started: !!cohort && now >= cohort.start,
     rows,
     teams,

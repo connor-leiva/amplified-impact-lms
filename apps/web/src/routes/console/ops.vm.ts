@@ -95,7 +95,11 @@ export const P95_ELEVATED_MS = 500;
 export const P95_HIGH_MS = 1000;
 
 const health = (v: number, elevated: number, high: number): Health =>
-  v >= high ? { label: 'High', tone: 'bad' } : v >= elevated ? { label: 'Elevated', tone: 'warn' } : { label: 'Healthy', tone: 'ok' };
+  v >= high
+    ? { label: 'High', tone: 'bad' }
+    : v >= elevated
+      ? { label: 'Elevated', tone: 'warn' }
+      : { label: 'Healthy', tone: 'ok' };
 
 /** A latency, "N ms" with a thousands comma; "—" with none. */
 export const msText = (v: number | null): string => (v === null ? NONE : `${v.toLocaleString('en-US')} ms`);
@@ -116,10 +120,17 @@ export function apiStatsVM(e: ApiEndpoints, w: ConsoleWebhooks | null): StatVM[]
   const p95 = p95Ms === null ? null : health(p95Ms, P95_ELEVATED_MS, P95_HIGH_MS);
   const err = errorRate === null ? null : health(errorRate, ERROR_RATE_ELEVATED, ERROR_RATE_HIGH);
   const failed = w ? w.failed.ghl + w.failed.stripe : null;
-  const parts = w ? [w.failed.ghl ? `${w.failed.ghl} GHL` : '', w.failed.stripe ? `${w.failed.stripe} Stripe` : ''].filter(Boolean) : [];
+  const parts = w
+    ? [w.failed.ghl ? `${w.failed.ghl} GHL` : '', w.failed.stripe ? `${w.failed.stripe} Stripe` : ''].filter(Boolean)
+    : [];
   return [
     { key: 'p95', label: API_COPY.stats.p95, value: msText(p95Ms), ...(p95 ? { sub: p95.label, tone: p95.tone } : {}) },
-    { key: 'err', label: API_COPY.stats.errorRate, value: errorRate === null ? NONE : pctText(errorRate), ...(err ? { sub: err.label, tone: err.tone } : {}) },
+    {
+      key: 'err',
+      label: API_COPY.stats.errorRate,
+      value: errorRate === null ? NONE : pctText(errorRate),
+      ...(err ? { sub: err.label, tone: err.tone } : {}),
+    },
     { key: 'req', label: API_COPY.stats.requests, value: requests.toLocaleString('en-US') },
     {
       key: 'failed',
@@ -244,8 +255,16 @@ export const deliveriesFor = (rows: readonly DeliveryVM[], source: SourceOption)
 
 export const JOBS_COPY = {
   title: 'Scheduled Jobs',
-  description: 'Runs are keyed in job_runs, so running a job again skips anything it already sent. One scheduler holds the lock at a time.',
-  columns: { job: 'Job', schedule: 'Schedule', result: 'Last result', last: 'Last run', duration: 'Duration', next: 'Next run' },
+  description:
+    'Runs are keyed in job_runs, so running a job again skips anything it already sent. One scheduler holds the lock at a time.',
+  columns: {
+    job: 'Job',
+    schedule: 'Schedule',
+    result: 'Last result',
+    last: 'Last run',
+    duration: 'Duration',
+    next: 'Next run',
+  },
   empty: 'No jobs registered',
   foot: 'The billing job only runs on its schedule. It cannot be started by hand.',
   runNow: 'Run now…',
@@ -253,7 +272,8 @@ export const JOBS_COPY = {
   openIncident: 'Open incident',
   confirm: {
     title: (job: string) => `Run ${job} now?`,
-    body: (schedule: string) => `Starts one extra run outside the schedule (${schedule.toLowerCase()}). Anything already sent is skipped.`,
+    body: (schedule: string) =>
+      `Starts one extra run outside the schedule (${schedule.toLowerCase()}). Anything already sent is skipped.`,
     cta: (job: string) => `Run ${job}`,
   },
   started: (job: string) => `${job} started`,
@@ -271,7 +291,7 @@ export function durationText(v: number | null): string {
   return `${Math.floor(whole / 60)}m ${String(whole % 60).padStart(2, '0')}s`;
 }
 
-/** The next run: its time alone when it is today (MST), else its day too. */
+/** The next run: its time alone when it is today (MT / CT), else its day too. */
 export const nextText = (t: number | null, now: number): string =>
   t === null ? NONE : adminDate(t) === adminDate(now) ? adminTime(t) : adminStamp(t);
 
@@ -312,4 +332,7 @@ export function jobVM(j: JobRow, now: number): JobVM {
 export const jobsVM = (j: ConsoleJobs, now: number): JobVM[] => j.rows.map((r) => jobVM(r, now));
 
 /** The job shows Running from Run Now's confirm until the answer comes back (the mockup's `run`). */
-export const runningVM = (v: JobVM): JobVM => ({ ...v, status: { label: JOB_STATUS_LABELS.running, tone: JOB_TONE.running } });
+export const runningVM = (v: JobVM): JobVM => ({
+  ...v,
+  status: { label: JOB_STATUS_LABELS.running, tone: JOB_TONE.running },
+});

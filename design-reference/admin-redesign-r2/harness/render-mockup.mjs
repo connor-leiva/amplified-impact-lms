@@ -26,10 +26,11 @@ const WIDTHS = arg('widths', '1440,1280,1024,390').split(',').map(Number);
 // D-255 (R-5 Phase 3): `cohorts` is Cohort › Schedule now (its old Cohorts & Sessions refs retire); `cohortov` and
 // `cohortset` are December's Overview and Settings; `newcohort` is New cohort; `january`, `janschedule` and `jansettings`
 // are January, created; and four dialogs on January's Settings (`DIALOGS`, a viewport frame each, as roles-confirm).
-const ALL = ['overview','health','curriculum','builder','vault','cohortov','cohorts','cohortset','newcohort','january','janschedule','jansettings','announce','learners','workspaces','users','masquerade','tiers','billing','payments','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
+const ALL = ['overview','health','curriculum','builder','vault','cohortov','cohorts','cohortset','newcohort','january','janschedule','jansettings','announce','learners','workspaces','utah','users','masquerade','tiers','billing','payments','usage','incidents','audit','api','jobs','email','integrations','deploys','db','flags','roles','workspace','user','incident','as','missing','denied'];
 const sArg = arg('screens', 'all');
 const SCREENS = sArg === 'all' ? ALL : sArg.split(',');
-const NAME = { workspace: 'workspace-detail', cohorts: 'cohort-schedule', cohortov: 'cohort-overview', cohortset: 'cohort-settings', newcohort: 'new-cohort', january: 'january-overview', janschedule: 'january-schedule', jansettings: 'january-settings' };
+// R-5 audit (D-267): `utah` is People › Utah Life.
+const NAME = { utah: 'utah-life', workspace: 'workspace-detail', cohorts: 'cohort-schedule', cohortov: 'cohort-overview', cohortset: 'cohort-settings', newcohort: 'new-cohort', january: 'january-overview', janschedule: 'january-schedule', jansettings: 'january-settings' };
 /** A dialog's ref: the screen it opens on, the button that opens it (its exact text) and which of them. */
 // D-262 (R-5 Phase 5): January's price dialog, its Edit enrollment dialog and its Open enrollment (refused: Before It Opens' first line
 // not done), and December's Close enrollment.

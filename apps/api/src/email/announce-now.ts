@@ -23,6 +23,7 @@ import type { Send } from '../jobs/due';
 // import here made `schedules.ts` read the scheduler's `TICK_MS` before it existed and the API not boot.
 import type { SchedulerLog, SchedulerTx } from '../jobs/scheduler';
 import { emailReady } from './ready';
+import { cohortRoster } from '../lib/cohort-roster';
 import { send } from './transport';
 import type { SendRequest, TemplateName } from './transport';
 
@@ -44,7 +45,8 @@ export async function claimSendNowEmails(tx: SchedulerTx, before: Db, after: Db,
       claims.push({ announcement: a, off: true, sends: [] });
       continue;
     }
-    const owed = announcementSends(after, a);
+    // R-5 audit (D-267): a cohort's own announcement reaches the people who count in it (`db.roster`).
+    const owed = announcementSends(a.cohortId !== undefined ? { ...after, roster: await cohortRoster(tx) } : after, a);
     const { recordSends } = await import('../jobs/scheduler');
     const recorded = await recordSends(tx, owed, now, log);
     claims.push({ announcement: a, off: false, sends: owed.filter((s) => recorded.has(s.key)) });

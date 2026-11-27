@@ -21,6 +21,7 @@ import {
   visibleModules,
 } from '@ai/core';
 import type { BuildState, Db, IconName, Learner, LearnerRole, RuntimeState } from '@ai/core';
+import { week0CohortName } from '@ai/core/cohort-learner';
 
 /** The three roles the invite modal offers, in the reference's order. */
 export type InviteRole = 'Operations Lead' | 'Sales Agent' | 'Team Owner';
@@ -153,11 +154,16 @@ export interface DrawerMember {
 export interface TeamHubVM {
   teamName: string;
   /**
-   * The reference's "December 2026 Cohort" line, shown only to a learner whose snapshot carries the
+   * The reference's cohort line ("December 2026 Cohort"), shown only to a learner whose snapshot carries the
    * cohort's AI Employees. A plan that opens none (Amplified Insiders, the Team Plan, D-119) is not
    * in a cohort as far as its buyer can see, so the line says nothing about one.
    */
   inCohort: boolean;
+  /**
+   * R-5 audit (D-267): the learner's own cohort, named as the copy names it ("December 2026 Cohort", `week0CohortName`),
+   * read from their snapshot's cohort; null without one. The reference typed December's name here.
+   */
+  cohortName: string | null;
   members: MemberRow[];
   seats: {
     used: number;
@@ -195,8 +201,12 @@ const ROLE_DEFS: readonly [InviteRole, string][] = [
   ['Team Owner', 'Full access, billing and seat management'],
 ];
 
-/** The reference's hard-coded cohort for the "earlier builds" lookback. Ported as written. */
-const COHORT = 'dec26';
+
+/** R-5 audit (D-267): the viewer's cohort's name with its noun, from their snapshot; null when it holds none. */
+const cohortNameOf = (db: Db, user: Learner): string | null => {
+  const co = db.cohorts.find((c) => c.id === user.cohortId);
+  return co ? week0CohortName(co.name) : null;
+};
 
 export const TEAM_HUB_UI: TeamHubUi = {
   invite: false,
@@ -325,7 +335,8 @@ export function teamHubVM(
   const next = nextSession(db, user, now);
   // Every Agent-tier AI Employee whose session has already started: the "earlier builds".
   const held = mods.filter((m) => {
-    const s = m.session ? sessionFor(db, COHORT, m.session) : null;
+    // R-5 audit (D-267): the viewer's own cohort's session (the reference typed December's id here).
+    const s = m.session ? sessionFor(db, user.cohortId, m.session) : null;
     return !!s && s.start < now && m.tier === 'agent';
   });
   const behind: BehindPerson[] = active
@@ -402,6 +413,7 @@ export function teamHubVM(
   return {
     teamName: team.name,
     inCohort: visibleModules(db).length > 0,
+    cohortName: cohortNameOf(db, user),
     members,
     seats,
     dep,

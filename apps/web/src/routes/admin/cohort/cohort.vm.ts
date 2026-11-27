@@ -12,7 +12,8 @@ import {
   clashWords,
   cohortClashes,
   cohortHosts,
-  cohortOpensFirst,
+  cohortProgress,
+  cohortProgressLine,
   cohortShapeOf,
   cohortShortName,
   cohortStatusWord,
@@ -88,7 +89,10 @@ const sessionsOf = (db: Db, id: string): Session[] =>
 export interface CohortHeadVM {
   label: string;
   status: { label: CohortStatusWord; tone: Tone };
-  /** "Amplified AI Accelerator · 6 weeks of building · twice a week · opens Sun, Dec 27". */
+  /**
+   * "Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3",
+   * and "… · Week 2 of 6" once Week 1 has opened (R-5 audit, D-267).
+   */
   line: string;
   draft: boolean;
 }
@@ -98,15 +102,16 @@ export function cohortHeadVM(db: Db, cohortId: string, now: number): CohortHeadV
   if (!co) return null;
   const status = cohortStatusWord(db, cohortId, now);
   const shape = cohortShapeOf(db, cohortId);
-  const opens = cohortOpensFirst(db, cohortId);
+  const progress = cohortProgress(db, cohortId, now);
   return {
     label: cohortLabel(co),
     status: { label: status, tone: STATUS_TONE[status] },
-    // The mockup's `p3Line`: a cohort with no building weeks has no shape to say.
+    // The mockup's `p3Line`: a cohort with no building weeks has no shape to say. R-5 audit (D-267, Connor): Week 1's
+    // opening (and the setup week's) until it opens, then where the cohort is: "Week N of M".
     line: [
       PROGRAM,
       shape && shape.shape.buildWeeks ? shapeLine(shape.shape) : null,
-      opens !== null ? `opens ${fmt.mtDay(opens)}` : null,
+      progress ? cohortProgressLine(progress, now) : null,
     ]
       .filter(Boolean)
       .join(' · '),
@@ -136,7 +141,7 @@ export interface TodoVM {
 }
 
 export interface NeedVM {
-  icon: 'r2File' | 'r2Integrations' | 'r2Community' | 'r2Cohorts';
+  icon: 'r2File' | 'r2Integrations' | 'r2Community' | 'r2Cohorts' | 'r2Billing';
   title: string;
   detail: string;
   to: string;
@@ -172,7 +177,36 @@ export interface OverviewVM {
   teams: number | null;
   seats: { taken: number | null; cap: number; note: string };
   coming: ComingVM[];
-  shape: { promise: string; meets: string; seats: string; /** R-5 Phase 5 (D-262): Stripe's price, "$7,500, or two payments"; null for "Not set". */ price: string | null };
+  shape: {
+    promise: string;
+    meets: string;
+    seats: string;
+    /** R-5 Phase 5 (D-262): Stripe's price, "$7,500, or two payments"; null for "Not set". */ price: string | null;
+  };
+}
+
+/**
+ * R-5 audit (D-267): "2 second payments are on the calendar · $3,750 each, on Wed, Dec 30." (the mockup's row), opening
+ * Revenue › Payments.
+ */
+function secondPaymentsNeed(p: NonNullable<CohortFacts['secondPayments']>): NeedVM {
+  const one = p.count === 1;
+  const each = p.each !== null ? dollars(p.each) : null;
+  const day = p.next !== null ? fmt.mtDay(p.next) : null;
+  const detail = !day
+    ? each
+      ? `${each}${one ? '' : ' each'}.`
+      : ''
+    : each
+      ? `${each}${one ? '' : ' each'}, on ${day}.`
+      : `The next is on ${day}.`;
+  return {
+    icon: 'r2Billing',
+    title: `${p.count} second payment${one ? ' is' : 's are'} on the calendar`,
+    detail,
+    to: '/admin/revenue/payments',
+    tone: '',
+  };
 }
 
 const BEFORE_TO = (id: string): Record<BeforeKey, string> => ({
@@ -189,23 +223,36 @@ const BEFORE_TO = (id: string): Record<BeforeKey, string> => ({
   open: enrollmentPath(id),
 });
 
-export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortFacts | null): OverviewVM | null {
+/**
+ * `waiting` (R-5 audit, D-267): the threads in this cohort's Community whose last word is a member's (the sidebar's
+ * "3 waiting", `useWaitingThreads`, for the cohort the admin is on).
+ */
+export function overviewVM(
+  db: Db,
+  cohortId: string,
+  now: number,
+  facts: CohortFacts | null,
+  waiting = 0,
+): OverviewVM | null {
   const co = db.cohorts.find((c) => c.id === cohortId);
   if (!co) return null;
   const draft = co.status === 'draft';
   const shape = cohortShapeOf(db, cohortId);
-  const opens = cohortOpensFirst(db, cohortId);
+  const progress = cohortProgress(db, cohortId, now);
   const ses = sessionsOf(db, cohortId);
   const next = ses.find((s) => s.start + s.mins * 60_000 > now) ?? null;
   const teams = facts?.teams ?? null;
   const settings = cohortPath(cohortId, 'settings');
   const factsVM: FactVM[] = [
-    {
-      label: 'Opens',
-      value: opens !== null ? `${fmt.mtDay(opens)} · ${fmt.mtCt(opens)}` : 'Not set',
-      short: opens !== null ? fmt.mtDay(opens) : 'Not set',
-      to: `${settings}#dates`,
-    },
+    // R-5 audit (D-267, Connor): Week 1's opening until it opens, then "Week 2 of 6" (the reference's Week fact).
+    progress?.kind === 'running'
+      ? { label: 'Week', value: `${progress.n} of ${progress.of}`, to: `${settings}#dates` }
+      : {
+          label: 'Opens',
+          value: progress ? `${fmt.mtDay(progress.week1)} · ${fmt.mtCt(progress.week1)}` : 'Not set',
+          short: progress ? fmt.mtDay(progress.week1) : 'Not set',
+          to: `${settings}#dates`,
+        },
     {
       label: 'Shape',
       value: shape ? `${shape.shape.buildWeeks} weeks · ${meetsHowOften(shape.shape.slots)}` : 'Not set',
@@ -257,6 +304,16 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
             tone: 'bad' as const,
           }
         : null,
+      // R-5 audit (D-267): the mockup's two rows D-255 left out, each from a source that exists.
+      waiting > 0
+        ? {
+            icon: 'r2Community' as const,
+            title: `${waiting} thread${waiting === 1 ? ' is' : 's are'} waiting on you`,
+            detail: waiting === 1 ? 'The last word in it is a member’s.' : 'The last word in each is a member’s.',
+            to: cohortPath(cohortId, 'community'),
+            tone: 'warn' as const,
+          }
+        : null,
       noZoom.length
         ? {
             icon: 'r2Cohorts' as const,
@@ -266,6 +323,7 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
             tone: 'warn' as const,
           }
         : null,
+      facts?.secondPayments?.count ? secondPaymentsNeed(facts.secondPayments) : null,
     ];
     needs = list.filter((x): x is NeedVM => x !== null);
   }
@@ -621,9 +679,19 @@ export function enrollmentVM(db: Db, cohortId: string, facts: CohortFacts | null
     open: enrollmentOpen(co),
     seats: `${facts?.teams ?? 0} of ${s.capacity} taken`,
     price,
-    twoPay: s.twoPay && !s.keys.twoPay ? 'Offered. Set its price to see Stripe’s schedule.' : twoPayWords(s, stripePriceOf(facts, s.keys.twoPay)),
-    founding: !s.founding ? 'No' : s.foundingClosesAt === null ? 'Yes. No close is set.' : `Yes, until ${foundingCloseLine(s.foundingClosesAt)}`,
-    links: entered === 0 ? { text: 'Not set', warn: true } : { text: `${entered} of ${needed.length} entered`, warn: entered < needed.length },
+    twoPay:
+      s.twoPay && !s.keys.twoPay
+        ? 'Offered. Set its price to see Stripe’s schedule.'
+        : twoPayWords(s, stripePriceOf(facts, s.keys.twoPay)),
+    founding: !s.founding
+      ? 'No'
+      : s.foundingClosesAt === null
+        ? 'Yes. No close is set.'
+        : `Yes, until ${foundingCloseLine(s.foundingClosesAt)}`,
+    links:
+      entered === 0
+        ? { text: 'Not set', warn: true }
+        : { text: `${entered} of ${needed.length} entered`, warn: entered < needed.length },
     ghl: s.ghlValue,
     priceButton: anyKey ? 'Change the price' : 'Set the price',
     shapePrice: full ? `${dollars(full.unitAmount)}${s.twoPay ? ', or two payments' : ''}` : null,
@@ -640,7 +708,12 @@ export interface PriceForm {
 
 export function priceForm(db: Db, cohortId: string): PriceForm {
   const s = cohortSelling(db, cohortId);
-  return { full: s.keys.full ?? '', rollover: s.keys.rollover ?? '', twoPay: s.keys.twoPay ?? '', offerTwoPay: s.twoPay };
+  return {
+    full: s.keys.full ?? '',
+    rollover: s.keys.rollover ?? '',
+    twoPay: s.keys.twoPay ?? '',
+    offerTwoPay: s.twoPay,
+  };
 }
 
 /** What Stripe has under a key as the price dialog says it: its price, or why there is none to show. */
@@ -880,7 +953,7 @@ export function newCohortVM(
           sessions: mine.map((s) => {
             const clash = clashAt.has(s.start);
             return {
-              label: `${fmt.mtDay(s.start).replace(',', '')} · ${fmt.mtTime(s.start).replace(':00', '')} · ${LAYOUT_KIND_LABEL[s.kind]}`,
+              label: `${fmt.mtDay(s.start).replace(',', '')} · ${fmt.mtCt(s.start).replace(/:00/g, '')} · ${LAYOUT_KIND_LABEL[s.kind]}`,
               tone: clash ? ('warn' as const) : s.kind === 'live_build' ? ('build' as const) : ('alt' as const),
               ...(clash
                 ? { title: 'Same time as another cohort’s session' }
@@ -933,7 +1006,7 @@ function clashWordsFor(db: Db, warnings: ReturnType<typeof layoutWarnings>): str
     .join(' and ');
 }
 
-/** The same-time note's second sentence, from the other cohort's own rhythm: "Its Wednesday build and Thursday office hours are at 12:00 PM MT through Thu, Feb 4." */
+/** The same-time note's second sentence, from the other cohort's own rhythm: "Its Wednesday build and Thursday office hours are at 12:00 PM MT / 1:00 PM CT through Thu, Feb 4." */
 export function otherRhythmLine(db: Db, warnings: ReturnType<typeof layoutWarnings>): string | null {
   const id = warnings.find((w) => w.kind === 'same_time') as { cohortId: string } | undefined;
   if (!id) return null;
@@ -945,6 +1018,6 @@ export function otherRhythmLine(db: Db, warnings: ReturnType<typeof layoutWarnin
   const kinds = shape.shape.slots
     .map((s) => `${DAY_NAME[s.day]} ${s.kind === 'live_build' ? 'build' : LAYOUT_KIND_LABEL[s.kind].toLowerCase()}`)
     .join(' and ');
-  const at = times.length === 1 ? ` are at ${fmt.mtTime(Date.parse(`2027-01-05T${times[0]}:00-07:00`))}` : '';
+  const at = times.length === 1 ? ` are at ${fmt.mtCt(Date.parse(`2027-01-05T${times[0]}:00-07:00`))}` : '';
   return `Its ${kinds}${at} through ${fmt.mtDay(last.start)}.`;
 }

@@ -68,12 +68,31 @@ describe('the Cohort page’s head', () => {
     expect(cohortHeadVM(db, jan, NOW)).toEqual({
       label: 'January 2027 Cohort',
       status: { label: 'Draft', tone: 'off' },
-      line: 'Amplified AI Accelerator · 6 weeks of building · twice a week · opens Sun, Dec 27',
+      line: 'Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3',
       draft: true,
     });
     expect(cohortHeadVM(db, 'dec26', NOW)).toMatchObject({
       status: { label: 'Active', tone: 'ok' },
-      line: 'Amplified AI Accelerator · 8 weeks of building · twice a week · opens Mon, Nov 23',
+      // R-5 audit (D-267, Connor): before Week 1 opens, the setup week's opening and Week 1's.
+      line: 'Amplified AI Accelerator · 8 weeks of building · twice a week · Week 0 opened Mon, Nov 23 · Week 1 opens Sun, Nov 29',
+    });
+    // Then where it is: "Week N of M", N the last building week to open, M its building weeks.
+    expect(cohortHeadVM(db, 'dec26', MT('2026-11-29T12:30:00'))?.line).toBe(
+      'Amplified AI Accelerator · 8 weeks of building · twice a week · Week 1 of 8',
+    );
+    expect(cohortHeadVM(db, 'dec26', MT('2026-12-10T12:00:00'))?.line).toBe(
+      'Amplified AI Accelerator · 8 weeks of building · twice a week · Week 2 of 8',
+    );
+    // And its Opens fact is the Week fact once running (the reference's "Week · 2 of 6").
+    expect(overviewVM(db, 'dec26', MT('2026-12-10T12:00:00'), null)!.facts[0]).toEqual({
+      label: 'Week',
+      value: '2 of 8',
+      to: '/admin/cohort/dec26/settings#dates',
+    });
+    expect(overviewVM(db, 'dec26', NOW, null)!.facts[0]).toMatchObject({
+      label: 'Opens',
+      value: 'Sun, Nov 29 · 12:00 PM MT / 1:00 PM CT',
+      short: 'Sun, Nov 29',
     });
     // A cohort with no building weeks has no shape to say (the mockup's `p3Line`).
     const none = { ...db, cohorts: db.cohorts.map((c) => (c.id === 'dec26' ? { ...c, run: [] } : c)) };
@@ -86,7 +105,7 @@ describe('Overview', () => {
     const { db, jan } = world();
     const vm = overviewVM(db, jan, NOW, null)!;
     expect(vm.facts.map((f) => [f.label, f.value, f.to])).toEqual([
-      ['Opens', 'Sun, Dec 27 · 12:00 PM MT / 1:00 PM CT', `/admin/cohort/${jan}/settings#dates`],
+      ['Opens', 'Sun, Jan 3 · 12:00 PM MT / 1:00 PM CT', `/admin/cohort/${jan}/settings#dates`],
       ['Shape', '6 weeks · twice a week', `/admin/cohort/${jan}/settings`],
       ['Teams', '0 of 15 seats', `/admin/cohort/${jan}/settings#enrollment`],
       ['Learners', '0', `/admin/cohort/${jan}/people`],
@@ -141,6 +160,60 @@ describe('Overview', () => {
       ['Intake submitted', 1],
       ['Paid in full', 2],
     ]);
+  });
+
+  it('R-5 audit (D-267): adds the threads waiting in its Community and the second payments on the calendar', () => {
+    const { db } = world();
+    const facts = {
+      testSends: { welcome: true, week0: true },
+      plans: 3,
+      teams: 3,
+      learners: 4,
+      intakeNotStarted: 0,
+      intakeGhlFailed: 0,
+      secondPayments: { count: 2, each: 375000, next: MT('2026-12-30T12:00:00') },
+    };
+    const vm = overviewVM(db, 'dec26', NOW, facts, 3)!;
+    // The mockup's order: intake, GoHighLevel, Community, Zoom, second payments; each row opens its list.
+    expect(vm.needs!.map((n) => [n.title, n.detail, n.to, n.tone])).toEqual([
+      ['3 threads are waiting on you', 'The last word in each is a member’s.', '/admin/cohort/dec26/community', 'warn'],
+      [
+        '18 sessions have no Zoom link',
+        'The next one without a link is Wed, Dec 2.',
+        '/admin/cohort/dec26/schedule',
+        'warn',
+      ],
+      ['2 second payments are on the calendar', '$3,750 each, on Wed, Dec 30.', '/admin/revenue/payments', ''],
+    ]);
+    const one = overviewVM(
+      db,
+      'dec26',
+      NOW,
+      { ...facts, secondPayments: { count: 1, each: 375000, next: MT('2026-12-30T12:00:00') } },
+      1,
+    )!;
+    expect(one.needs!.map((n) => [n.title, n.detail])).toEqual([
+      ['1 thread is waiting on you', 'The last word in it is a member’s.'],
+      ['18 sessions have no Zoom link', 'The next one without a link is Wed, Dec 2.'],
+      ['1 second payment is on the calendar', '$3,750, on Wed, Dec 30.'],
+    ]);
+    // Amounts that differ: the next one's day alone. None waiting and none owed: no rows.
+    const mixed = overviewVM(
+      db,
+      'dec26',
+      NOW,
+      { ...facts, secondPayments: { count: 2, each: null, next: MT('2026-12-30T12:00:00') } },
+      0,
+    )!;
+    expect(mixed.needs!.map((n) => n.detail)).toEqual([
+      'The next one without a link is Wed, Dec 2.',
+      'The next is on Wed, Dec 30.',
+    ]);
+    expect(
+      overviewVM(db, 'dec26', NOW, { ...facts, secondPayments: { count: 0, each: null, next: null } }, 0)!.needs!.map(
+        (n) => n.title,
+      ),
+    ).toEqual(['18 sessions have no Zoom link']);
   });
 });
 
@@ -243,8 +316,8 @@ describe('New cohort’s preview', () => {
     expect(vm.clash).toEqual({ n: 5, words: 'December’s' });
     expect(vm.included).toBe('2027-05-10');
     expect(vm.plan[1]!.sessions.map((s) => s.label)).toEqual([
-      'Tue Jan 5 · 12 PM MT · Live build',
-      'Thu Jan 7 · 12 PM MT · Office hours',
+      'Tue Jan 5 · 12 PM MT / 1 PM CT · Live build',
+      'Thu Jan 7 · 12 PM MT / 1 PM CT · Office hours',
     ]);
   });
 
@@ -280,7 +353,12 @@ describe('Settings › Enrollment (R-5 Phase 5, D-262): what a cohort sells thro
   const DEC_PRICES = {
     cohort_founding_full: { unitAmount: 750000, currency: 'usd', interval: null },
     cohort_founding_two_pay: { unitAmount: 375000, currency: 'usd', interval: 'month' as const, intervalCount: 1 },
-    membership_monthly_team_leader: { unitAmount: 16900, currency: 'usd', interval: 'month' as const, intervalCount: 1 },
+    membership_monthly_team_leader: {
+      unitAmount: 16900,
+      currency: 'usd',
+      interval: 'month' as const,
+      intervalCount: 1,
+    },
   };
 
   it('December: Stripe’s price, its two payments as Stripe schedules them, founding until Nov 30, open', () => {
@@ -314,7 +392,15 @@ describe('Settings › Enrollment (R-5 Phase 5, D-262): what a cohort sells thro
       shapePrice: null,
     });
     expect(priceForm(db, jan)).toEqual({ full: '', rollover: '', twoPay: '', offerTwoPay: true });
-    expect(enrollmentForm(db, jan)).toEqual({ founding: true, closesDate: '', closesTime: '23:59', linkFull: '', linkTwoPay: '', capacity: '15', ghl: 'jan27' });
+    expect(enrollmentForm(db, jan)).toEqual({
+      founding: true,
+      closesDate: '',
+      closesTime: '23:59',
+      linkFull: '',
+      linkTwoPay: '',
+      capacity: '15',
+      ghl: 'jan27',
+    });
     expect(openEnrollmentBody(db, jan)).toBe(
       'From now on, a team that buys a seat is placed in this cohort, up to 15 seats. They get the welcome email and can start the setup week on Sun, Dec 27.',
     );
@@ -323,7 +409,9 @@ describe('Settings › Enrollment (R-5 Phase 5, D-262): what a cohort sells thro
   it('the price dialog says what Stripe has under a saved key, and that a typed one is looked up once saved', () => {
     const facts = stripe(DEC_PRICES);
     expect(keyPriceLine(facts, 'cohort_founding_full', 'cohort_founding_full')).toBe('Stripe: $7,500 once');
-    expect(keyPriceLine(facts, 'membership_monthly_team_leader', 'membership_monthly_team_leader')).toBe('Stripe: $169 a month');
+    expect(keyPriceLine(facts, 'membership_monthly_team_leader', 'membership_monthly_team_leader')).toBe(
+      'Stripe: $169 a month',
+    );
     expect(keyPriceLine(facts, 'cohort_founding_full', 'jan27_full')).toBe('Save to look it up in Stripe.');
     expect(keyPriceLine(stripe({ k: null }), 'k', 'k')).toBe('Not found in Stripe');
     expect(keyPriceLine(facts, null, '')).toBe('Not set');

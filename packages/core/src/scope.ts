@@ -13,7 +13,7 @@
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
 import { isCourseWeek } from './accelerator';
-import { announcementInCohort } from './cohort-learner';
+import { announcementReaches } from './cohort-learner';
 import { cohortView } from './cohort-run';
 import { canOpenModule, kitVisible } from './release';
 import { can } from './can';
@@ -224,6 +224,16 @@ export interface ViewerAccess {
    * database row stays scheduled; only this viewer's snapshot is open.
    */
   early?: boolean;
+  /**
+   * R-5 audit (D-267): the cohort this learner is in, by the one rule (`viewerCohortOf`: their team's newest live cohort
+   * plan, else their row's `cohort_id`). Absent: their row's, as before.
+   */
+  cohortId?: string;
+  /**
+   * R-5 audit (D-267): whether they count in that cohort (`cohort-roster.ts`). A cohort's own announcement reaches only
+   * the people who count in it, so an access group's member (Utah Life) never gets one. Absent: no.
+   */
+  rostered?: boolean;
 }
 
 /**
@@ -289,8 +299,12 @@ function withoutAccelerator(db: Db, modules: AIEmployee[], sessions: Session[]):
 
 /** `db` is already this call's private clone, so these reads and spreads cannot reach the caller. */
 function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
-  const me = full.users.find((u) => u.id === userId);
-  if (!me) return denyAll(full);
+  const row = full.users.find((u) => u.id === userId);
+  if (!row) return denyAll(full);
+  // R-5 audit (D-267): the cohort they are in by the one rule, which the route reads (`viewerCohortId`). Their own row in
+  // the snapshot says it, so the portal finds the one cohort it is handed.
+  const cohortId = access?.cohortId ?? row.cohortId;
+  const me = cohortId === row.cohortId ? row : { ...row, cohortId };
   // R-5 (D-254): the course as the learner's own cohort has it (`cohortView`): its weeks, their numbers and dates
   // there. The same object for a cohort with no stored run, which is every cohort before R-5 and December until its
   // run is written.
@@ -351,11 +365,12 @@ function scopeForLearner(full: Db, userId: string, access?: ViewerAccess): Db {
     // Themselves, plus their team's roster. An Agent-tier learner with no team sees only themselves.
     users: db.users
       .filter((u) => u.id === me.id || (teamId !== null && u.teamId === teamId))
-      .map((u) => (u.id === me.id ? u : redactTeammate(u, showEmail))),
+      .map((u) => (u.id === me.id ? me : redactTeammate(u, showEmail))),
     teams: db.teams.filter((t) => teamId !== null && t.id === teamId),
     resources,
     // R-5 Phase 4 (D-261): an announcement about a session is that session's cohort's (`announcementInCohort`).
-    announcements: db.announcements.filter((a) => forAudience(a, me) && announcementInCohort(a, db.sessions, me.cohortId)),
+    // R-5 audit (D-267): a cohort's own announcement only to the people who count in it (`announcementReaches`).
+    announcements: db.announcements.filter((a) => forAudience(a, me) && announcementReaches(a, db.sessions, me.cohortId, access?.rostered === true)),
     dismissed: Object.fromEntries(Object.entries(db.dismissed ?? {}).filter(([k]) => k.startsWith(mine))),
     reminders: db.reminders,
     tiers: db.tiers,
@@ -371,8 +386,13 @@ function scopeForStaff(db: Db, staffId: string): Db {
   if (!db.staff.some((s) => s.id === staffId)) return denyAll(db);
   // Everything except the auth tables, which `Db` does not model in the first place.
   const out: Db = { ...db, base: zeroBase() };
-  // No `viewLearners` means no learner rows at all, and therefore no learner progress.
-  if (!can(db, { kind: 'staff', staffId }, 'viewLearners')) out.users = [];
+  // No `viewLearners` means no learner rows at all, and therefore no learner progress. Nor who counts in each cohort, or
+  // who is in an access group (D-267): that is learner data too.
+  if (!can(db, { kind: 'staff', staffId }, 'viewLearners')) {
+    out.users = [];
+    delete out.roster;
+    delete out.groups;
+  }
   return out;
 }
 

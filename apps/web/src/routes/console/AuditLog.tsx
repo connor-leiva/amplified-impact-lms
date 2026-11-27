@@ -22,7 +22,7 @@ import { Empty } from '../../components/r2/Empty';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { ErrorState, Find, KV, PageHead, Sel, Skel, k } from '../../components/r2/kit';
+import { ErrorState, Find, KV, PageHead, Sel, Skel, k, Stamp } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi, ConsoleFailure } from '../../data/console';
@@ -113,22 +113,26 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
   }, [api, list, query, toast]);
 
   /** Export CSV (the filters) or, with `ids`, Export selected (exactly those rows; D-172). */
-  const runExport = useCallback(async (ids?: string[]) => {
-    if (exporting) return;
-    setExporting(true);
-    try {
-      const { csv, filename } = await api.exportAudit(ids ? { ids } : query);
-      downloadCsv(csv, filename);
-      toast(AUDIT_COPY.exported, 'success');
-      setAttempt((n) => n + 1);
-    } catch (e) {
-      toast(exportFailure(failureOf(e), e instanceof Error ? e.message : ''), 'warn');
-    } finally {
-      setExporting(false);
-    }
-  }, [api, exporting, query, toast]);
+  const runExport = useCallback(
+    async (ids?: string[]) => {
+      if (exporting) return;
+      setExporting(true);
+      try {
+        const { csv, filename } = await api.exportAudit(ids ? { ids } : query);
+        downloadCsv(csv, filename);
+        toast(AUDIT_COPY.exported, 'success');
+        setAttempt((n) => n + 1);
+      } catch (e) {
+        toast(exportFailure(failureOf(e), e instanceof Error ? e.message : ''), 'warn');
+      } finally {
+        setExporting(false);
+      }
+    },
+    [api, exporting, query, toast],
+  );
 
-  const set = <K extends keyof AuditFilterState>(key: K, value: AuditFilterState[K]) => setFilters((f) => ({ ...f, [key]: value }));
+  const set = <K extends keyof AuditFilterState>(key: K, value: AuditFilterState[K]) =>
+    setFilters((f) => ({ ...f, [key]: value }));
   const clear = () => {
     setQ('');
     setFilters(DEFAULT_FILTERS);
@@ -148,14 +152,25 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
       value: (r) => r.time,
       cell: (r) => (
         <span className={clsx(k.mo, k.s2)}>
-          <button type="button" className={clsx(k.lk, s.time)} aria-label={AUDIT_COPY.open(r.time)} onClick={() => view(r)}>
-            {r.time}
+          <button
+            type="button"
+            className={clsx(k.lk, s.time)}
+            aria-label={AUDIT_COPY.open(r.time)}
+            onClick={() => view(r)}
+          >
+            <Stamp v={r.time} two />
           </button>
         </span>
       ),
     },
     { key: 'actor', label: AUDIT_COPY.columns.actor, width: '128px', value: (r) => r.actor },
-    { key: 'action', label: AUDIT_COPY.columns.action, width: 'minmax(210px,1.2fr)', mono: true, value: (r) => r.action },
+    {
+      key: 'action',
+      label: AUDIT_COPY.columns.action,
+      width: 'minmax(210px,1.2fr)',
+      mono: true,
+      value: (r) => r.action,
+    },
     { key: 'target', label: AUDIT_COPY.columns.target, width: 'minmax(110px,.9fr)', value: (r) => r.target },
     {
       key: 'detail',
@@ -230,7 +245,11 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
           onRow={view}
           bulk={(keys) =>
             canExport(role) ? (
-              <Button onClick={() => void runExport(keys)} aria-busy={exporting || undefined} aria-disabled={exporting || undefined}>
+              <Button
+                onClick={() => void runExport(keys)}
+                aria-busy={exporting || undefined}
+                aria-disabled={exporting || undefined}
+              >
                 {AUDIT_R2_COPY.exportSelected}
               </Button>
             ) : null
@@ -249,11 +268,20 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
       )}
 
       {open ? (
-        <Drawer title={AUDIT_COPY.drawerTitle} description={actionGroupLabel(open.action)} width={460} onClose={() => setOpen(null)}>
+        <Drawer
+          title={AUDIT_COPY.drawerTitle}
+          description={actionGroupLabel(open.action)}
+          width={460}
+          onClose={() => setOpen(null)}
+        >
           <KV
             rows={detailR2(open, role).map((p) => ({
               label: p.label,
-              value: p.pre ? <pre className={s.pre}>{p.value}</pre> : <span className={p.mono ? k.mo : undefined}>{p.value}</span>,
+              value: p.pre ? (
+                <pre className={s.pre}>{p.value}</pre>
+              ) : (
+                <span className={p.mono ? k.mo : undefined}>{p.value}</span>
+              ),
             }))}
           />
         </Drawer>

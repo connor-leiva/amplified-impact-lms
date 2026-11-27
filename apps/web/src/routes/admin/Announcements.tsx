@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react';
 import clsx from 'clsx';
+import { useParams } from 'react-router';
 import { Button } from '../../components/r2/Button';
 import { Modal } from '../../components/r2/Modal';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
+import { PageHead, Sel, TextArea, k, Stamp } from '../../components/r2/kit';
 import type { MenuEntry } from '../../components/r2/Menu';
 import { useAct, useDb, useMutate } from '../../data/hooks';
 import {
@@ -56,7 +57,9 @@ export function Component() {
   const db = useDb();
   const mutate = useMutate();
   const act = useAct();
-  const rows = announceR2Rows(db);
+  // R-5 audit (D-267): this cohort's announcements, and a new one is this cohort's (it reaches its people only).
+  const { cohortId = '' } = useParams();
+  const rows = announceR2Rows(db, cohortId);
 
   const [open, setOpen] = useState(false);
   /** The row Edit opened, or null for New announcement. */
@@ -80,7 +83,7 @@ export function Component() {
     async (when: 'draft' | 'now' | 'later') => {
       const out =
         editing === null
-          ? await act('saveAnnouncementDraft', announcementFields(form))
+          ? await act('saveAnnouncementDraft', { ...announcementFields(form), ...(cohortId ? { cohortId } : {}) })
           : await act('updateAnnouncement', { ...announcementFields(form), id: editing, when });
       if (out.error) {
         setErr(out.error);
@@ -88,7 +91,7 @@ export function Component() {
       }
       close();
     },
-    [act, close, editing, form],
+    [act, close, cohortId, editing, form],
   );
 
   const send = useCallback(async () => {
@@ -103,13 +106,14 @@ export function Component() {
       at: atForSend(form.at),
       severity: form.severity,
       action: form.action,
+      ...(cohortId ? { cohortId } : {}),
     });
     if (out.error) {
       setErr(out.error);
       return;
     }
     close();
-  }, [close, editing, form, keep, mutate]);
+  }, [close, cohortId, editing, form, keep, mutate]);
 
   const menu = (r: (typeof rows)[number]): MenuEntry[] => {
     const a = db.announcements.find((x) => x.id === r.id);
@@ -148,7 +152,14 @@ export function Component() {
       value: (r) => r.status.label,
       cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
     },
-    { key: 'at', label: 'Send time', width: '136px', noSort: true, value: (r) => r.sendTime },
+    {
+      key: 'at',
+      label: 'Send time',
+      width: '136px',
+      noSort: true,
+      value: (r) => r.sendTime,
+      cell: (r) => <Stamp v={r.sendTime} two />,
+    },
   ];
 
   return (
@@ -283,7 +294,7 @@ export function Component() {
             </label>
             {form.when === 'later' ? (
               <label className={s.lab}>
-                Send at (MST)
+                Send at (MT)
                 <input
                   className={k.in}
                   type="datetime-local"

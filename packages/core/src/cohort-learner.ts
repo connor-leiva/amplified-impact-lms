@@ -268,6 +268,23 @@ export function announcementInCohort(
   return !s || s.cohortId === cohortId;
 }
 
+/**
+ * R-5 audit (D-267): whether an announcement reaches a learner. One sent from a cohort's Announcements tab names its
+ * cohort (`cohortId`) and reaches only the people who count in it (`rostered`, `cohort-roster.ts`): never another
+ * cohort's, and never an access group's member (Utah Life), who counts in none. One that names no cohort (every
+ * announcement made before this change) reaches whom it always has (`announcementInCohort`), so nothing already sent
+ * moves.
+ */
+export function announcementReaches(
+  a: Pick<Announcement, 'sessionId' | 'cohortId'>,
+  sessions: readonly Pick<Session, 'id' | 'cohortId'>[],
+  cohortId: string,
+  rostered: boolean,
+): boolean {
+  if (a.cohortId !== undefined) return rostered && a.cohortId === cohortId;
+  return announcementInCohort(a, sessions, cohortId);
+}
+
 // ================================================================================================
 // The learner Schedule's "Add all to calendar"
 // ================================================================================================

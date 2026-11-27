@@ -11,7 +11,7 @@ import {
   defaultScheduleMst,
 } from './Announcements.vm';
 import { parityDb } from '../../data/parity-r2-db';
-import { ANNOUNCEMENTS } from '../../data/parity-r2';
+import { ANNOUNCEMENTS, mockCt } from '../../data/parity-r2';
 import type { AnnouncementForm, AnnouncementsUi, AnnouncementsVM } from './Announcements.vm';
 
 // Differential test for the Admin Announcements view-model (SCREENS § 4.7).
@@ -28,8 +28,7 @@ const ui = (over: Partial<AnnouncementForm> = {}, err = ''): AnnouncementsUi => 
 });
 
 const labels = (os: readonly { label: string }[]): string[] => os.map((o) => o.label);
-const onValue = <T>(os: readonly { value: T; on: boolean }[]): T[] =>
-  os.filter((o) => o.on).map((o) => o.value);
+const onValue = <T>(os: readonly { value: T; on: boolean }[]): T[] => os.filter((o) => o.on).map((o) => o.value);
 
 /** The snapshot the http API serves: live rows, no baseline aggregate. */
 const zeroed = (db: Db): Db => ({ ...db, base: ZERO_BASE });
@@ -149,9 +148,7 @@ describe('announcementsVM @g6', () => {
 
     it('passes an inline error straight through', () => {
       expect(vm.err).toBe('');
-      expect(announcementsVM(db, ui({}, 'Pick at least one channel.')).err).toBe(
-        'Pick at least one channel.',
-      );
+      expect(announcementsVM(db, ui({}, 'Pick at least one channel.')).err).toBe('Pick at least one channel.');
     });
 
     // -----------------------------------------------------------------------------------------
@@ -174,7 +171,7 @@ describe('announcementsVM @g6', () => {
         announcementsVM(
           db,
           ui({
-            title: 'Office hours moved to 2:00 PM',
+            title: 'Office hours moved to 2:00 PM MT / 3:00 PM CT',
             body: 'Same link as always.',
             severity: 'warning',
             action: 'calendar',
@@ -182,7 +179,7 @@ describe('announcementsVM @g6', () => {
         ).preview,
       ).toEqual({
         severity: 'warning',
-        title: 'Office hours moved to 2:00 PM',
+        title: 'Office hours moved to 2:00 PM MT / 3:00 PM CT',
         body: 'Same link as always.',
         when: 'Just now',
         actionLabel: 'Update Calendar',
@@ -286,9 +283,9 @@ describe('announcementsVM @g6', () => {
 
 describe('announceR2Rows (D-160 R2-2b)', () => {
   it('lists the announcements newest first, in the mockup’s words; a draft has no send time', () => {
-    expect(announceR2Rows(parityDb()).map((r) => [r.title, r.audience, r.channels, r.status.label, r.sendTime])).toEqual(
-      ANNOUNCEMENTS.map((r) => [...r]),
-    );
+    expect(
+      announceR2Rows(parityDb()).map((r) => [r.title, r.audience, r.channels, r.status.label, r.sendTime]),
+    ).toEqual(ANNOUNCEMENTS.map((r) => [...r.slice(0, 4), mockCt(r[4])]));
     expect(announceR2Rows(parityDb()).map((r) => r.status.tone)).toEqual(['ok', 'ok', 'info', 'off']);
   });
 

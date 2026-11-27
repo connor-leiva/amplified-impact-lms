@@ -3,6 +3,7 @@
 // in memory as the Community's routes (`apps/api/src/routes/community.ts`, D-231) answer and change them, with the same
 // core rules (`cleanThread`, `cleanPost`, `waitingOn`, the hourly limit). FIXTURE ONLY, like `parity-r2.ts`: the
 // console client imports it only when `VITE_DATA_SOURCE` is `fixture`, so no build that reaches a person carries it.
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import { COMMUNITY_ERRORS, POSTS_PER_HOUR, STAFF_TEAM, cleanPost, cleanThread, excerptOf, waitingOn } from '@ai/core/community';
 import type { CommunityList, CommunityMembers, CommunityPerson, CommunitySpace, CommunityThread, CommunityThreadRow } from '@ai/core/community';
 import { ConsoleError } from './console';
@@ -48,6 +49,8 @@ interface Thread {
   hidden: boolean;
   deleted: boolean;
   posts: Post[];
+  /** R-5 audit (D-267): the cohort it was started in; absent, the default cohort's. */
+  cohortId?: string;
 }
 
 const at = (iso: string): number => Date.parse(iso);
@@ -168,13 +171,15 @@ export function fixtureCommunity(opts: {
     };
   };
   const viewer = () => ({ me: me.id, staff: true, spaces: SPACES, people });
+  // R-5 audit (D-267): a thread is its cohort's; the sample threads are the default cohort's, as the API's are.
+  const inCohort = (t: Thread, cohortId?: string) => (t.cohortId ?? DEFAULT_COHORT_ID) === (cohortId || DEFAULT_COHORT_ID);
 
   return {
-    community: () =>
+    community: (cohortId) =>
       settle((): CommunityList => ({
         ...viewer(),
         threads: threads
-          .filter((t) => !t.deleted && live(t).length)
+          .filter((t) => !t.deleted && live(t).length && inCohort(t, cohortId))
           .map(row)
           .sort((a, b) => b.activityAt - a.activityAt || b.id - a.id),
         members: COMMUNITY_FIXTURE_MEMBERS,
@@ -194,7 +199,7 @@ export function fixtureCommunity(opts: {
           },
         };
       }),
-    startThread: (input) =>
+    startThread: (input, cohortId) =>
       settle(() => {
         const clean = cleanThread(input, SPACES.map((sp) => sp.id));
         if (!clean.ok) throw refused(422, Object.values(clean.errors)[0]!);
@@ -202,7 +207,7 @@ export function fixtureCommunity(opts: {
         const { space, title, body } = clean.value;
         const id = ++seq;
         const first: Post = { id: ++seq, by: me.id, body, createdAt: now(), edited: false, hidden: false, deleted: false };
-        threads = [{ id, space, title, pinned: false, hidden: false, deleted: false, posts: [first] }, ...threads];
+        threads = [{ id, space, title, pinned: false, hidden: false, deleted: false, posts: [first], ...(cohortId ? { cohortId } : {}) }, ...threads];
         return { id };
       }),
     replyThread: (id, body) =>

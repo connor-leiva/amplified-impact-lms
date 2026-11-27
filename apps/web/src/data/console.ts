@@ -244,10 +244,14 @@ export interface ConsoleApi {
   healthSample?(): HealthSample;
   // D-238 (B-45): Admin › Support › Community, through the Community's own routes (D-231) with the staff session; no
   // second API. A refusal is the server's own sentence (`COMMUNITY_ERRORS`), as the error's message.
-  /** The list, with staff's `waiting` on each thread and the cohort's `members`. */
-  community(): Promise<CommunityList>;
+  /**
+   * The list, with staff's `waiting` on each thread and the cohort's `members`. R-5 audit (D-267): the cohort Cohort ›
+   * Community is on (`?cohort=`); none, the default, as before.
+   */
+  community(cohortId?: string): Promise<CommunityList>;
   communityThread(id: string): Promise<CommunityThread>;
-  startThread(input: { space: string; title: string; body: string }): Promise<{ id: number }>;
+  /** Start a thread in that cohort's Community (D-267). */
+  startThread(input: { space: string; title: string; body: string }, cohortId?: string): Promise<{ id: number }>;
   replyThread(id: number, body: string): Promise<{ id: number }>;
   /** Pin or unpin, hide or show a thread (audited by the server). */
   setThread(id: number, change: { pinned: boolean } | { hidden: boolean }): Promise<void>;
@@ -312,6 +316,9 @@ export const INCIDENTS_CHANGED = 'ai-incidents-changed';
 /** D-238: a Community screen changed a thread, so the sidebar's "N waiting" reads again. */
 export const COMMUNITY_CHANGED = 'ai-community-changed';
 
+/** R-5 audit (D-267): the Community's address for staff on one cohort's tab (`?cohort=`). */
+export const communityQuery = (cohortId?: string): string => (cohortId ? `${COMMUNITY_PATH}?cohort=${encodeURIComponent(cohortId)}` : COMMUNITY_PATH);
+
 const incidentPath = (id: string): string => `/api/console/incidents/${encodeURIComponent(id)}`;
 
 const JSON_POST = (body: unknown): RequestInit => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -370,9 +377,9 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
   return {
     source: 'http',
     me: async () => json<ConsoleMe>(await request(fetchImpl, '/api/console/me')),
-    community: async () => json<CommunityList>(await request(fetchImpl, COMMUNITY_PATH)),
+    community: async (cohortId) => json<CommunityList>(await request(fetchImpl, communityQuery(cohortId))),
     communityThread: async (id) => json<CommunityThread>(await request(fetchImpl, communityThreadPath(encodeURIComponent(id)))),
-    startThread: async (input) => json<{ id: number }>(await request(fetchImpl, COMMUNITY_PATH, JSON_POST(input))),
+    startThread: async (input, cohortId) => json<{ id: number }>(await request(fetchImpl, communityQuery(cohortId), JSON_POST(input))),
     replyThread: async (id, body) => json<{ id: number }>(await request(fetchImpl, communityRepliesPath(id), JSON_POST({ body }))),
     setThread: async (id, change) => {
       await request(fetchImpl, communityThreadPath(id), JSON_PATCH(change));

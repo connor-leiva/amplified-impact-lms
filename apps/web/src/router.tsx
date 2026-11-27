@@ -153,6 +153,8 @@ const routes: RouteObject[] = [
           { path: 'teams', lazy: () => import('./routes/console/Workspaces') },
           // Masquerade on R2 (D-162 3b, spec § 6).
           { path: 'masquerade', lazy: () => import('./routes/console/Masquerade') },
+          // R-5 audit (D-267): an access group's tab (Utah Life), read-only.
+          { path: 'groups/:groupId', lazy: () => import('./routes/admin/people/AccessGroup') },
         ],
       },
       { path: 'admin/people/teams/:teamId', lazy: () => import('./routes/console/Workspace') },

@@ -61,7 +61,7 @@ export function Component() {
                 <div className={s.region} role="region" aria-label={C.migrations} tabIndex={0}>
                   {vm.migrations.map((m) => (
                     <div key={m.tag} className={k.li}>
-                      <span className={clsx(k.mo, k.el, s.grow)}>{m.tag}</span>
+                      <span className={clsx(k.mo, k.el, s.tag)}>{m.tag}</span>
                       {m.pill ? <Pill tone={m.pill.tone}>{m.pill.label}</Pill> : null}
                       {m.time ? <span className={clsx(k.me, s.nowrap)}>{m.time}</span> : null}
                     </div>

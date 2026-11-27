@@ -10,13 +10,14 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../components/r2/kit';
+import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k, Stamp } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { refusal, useDb, useEmailLearner, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
+import { cohortLabel } from '../../data/admin-shell';
 import s from './Learners.module.css';
 import { personPath, teamPath } from '../../shell/admin/addresses';
 
@@ -119,7 +120,14 @@ function Learners() {
           <span className={k.mu}>Not started</span>
         ),
     },
-    { key: 'last', label: 'Last active', width: '128px', noSort: true, value: (u) => u.lastAt, cell: (u) => u.last },
+    {
+      key: 'last',
+      label: 'Last active',
+      width: '128px',
+      noSort: true,
+      value: (u) => u.lastAt,
+      cell: (u) => <Stamp v={u.last} two />,
+    },
   ];
 
   const teamCols: Column<TeamR2Row>[] = [
@@ -133,7 +141,10 @@ function Learners() {
       value: (t) => t.used,
       cell: (t) => (
         <span className={clsx(k.row, k.nw, s.builds)}>
-          <Bar pct={t.seats ? Math.min(100, (t.used / t.seats) * 100) : 0} kind={t.seats && t.used / t.seats >= 0.9 ? 'hot' : 'ok'} />
+          <Bar
+            pct={t.seats ? Math.min(100, (t.used / t.seats) * 100) : 0}
+            kind={t.seats && t.used / t.seats >= 0.9 ? 'hot' : 'ok'}
+          />
           <span className={clsx(k.tn, s.seatsOf)}>
             {t.used} of {t.seats}
           </span>
@@ -149,13 +160,15 @@ function Learners() {
     ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: u.team }),
   ];
 
-  const cohortName = db.cohorts.find((c) => c.id === cohortId)?.name ?? 'current';
+  const cohortRow = db.cohorts.find((c) => c.id === cohortId);
+  // R-5 audit (D-267): the cohort's own name with its noun once ("January 2027 Cohort"), as the head names it.
+  const cohortName = cohortRow ? cohortLabel(cohortRow) : 'current Cohort';
 
   return (
     <Page>
       <PageHead
         title="Learners & Teams"
-        description={`Everyone enrolled in the ${cohortName} Cohort, with build progress. Account and billing support lives in Workspaces and Users.`}
+        description={`Everyone enrolled in the ${cohortName}, with build progress. Account and billing support lives in Workspaces and Users.`}
       />
 
       <Tabs
@@ -212,7 +225,11 @@ function Learners() {
               <Button kind={person.tierUpgrade ? 'primary' : 'secondary'} onClick={() => void changeTier()}>
                 {person.tierLabel}
               </Button>
-              <Button disabled={sending} aria-busy={sending || undefined} onClick={() => void nudge(person.id, person.invited)}>
+              <Button
+                disabled={sending}
+                aria-busy={sending || undefined}
+                onClick={() => void nudge(person.id, person.invited)}
+              >
                 {person.nudgeLabel}
               </Button>
             </>
@@ -233,7 +250,11 @@ function Learners() {
                       {m.build}
                     </span>
                   )}
-                  {m.runtime ? <Pill tone={m.runtime === 'Deployed' ? 'ok' : m.runtime === 'Paused' ? 'warn' : 'bad'}>{m.runtime}</Pill> : null}
+                  {m.runtime ? (
+                    <Pill tone={m.runtime === 'Deployed' ? 'ok' : m.runtime === 'Paused' ? 'warn' : 'bad'}>
+                      {m.runtime}
+                    </Pill>
+                  ) : null}
                 </div>
               ))}
             </div>

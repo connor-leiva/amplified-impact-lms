@@ -6,7 +6,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Bar, Find, PageHead, Pill, Sel, Two, k } from '../../components/r2/kit';
+import { Bar, Find, PageHead, Pill, Sel, Two, k, Stamp } from '../../components/r2/kit';
 import { isFixture } from '../../data/boot';
 import { Denied } from './Denied';
 import { LoadError } from './LoadError';
@@ -50,7 +50,9 @@ export function Component() {
       width: 'minmax(170px,1.3fr)',
       value: (w) => w.name,
       cell: (w, f) => {
-        const name = <Two a={w.name} b={f.drop ? `${w.owner} · ${w.id}` : w.id} mono={!f.drop} to={f.phone ? undefined : w.href} />;
+        const name = (
+          <Two a={w.name} b={f.drop ? `${w.owner} · ${w.id}` : w.id} mono={!f.drop} to={f.phone ? undefined : w.href} />
+        );
         if (!w.comped) return name;
         return (
           <span className={clsx(k.row, k.nw)} style={{ gap: 8 }}>
@@ -83,7 +85,14 @@ export function Component() {
       value: (w) => w.status.label,
       cell: (w) => <Status tone={w.status.tone}>{w.status.label}</Status>,
     },
-    { key: 'last', label: C.columns.last, width: '124px', noSort: true, value: (w) => w.lastAt, cell: (w) => w.last },
+    {
+      key: 'last',
+      label: C.columns.last,
+      width: '124px',
+      noSort: true,
+      value: (w) => w.lastAt,
+      cell: (w) => <Stamp v={w.last} two />,
+    },
   ];
 
   const set = (patch: Partial<typeof filters>) => setFilters((f) => ({ ...f, ...patch }));

@@ -6,6 +6,7 @@ import { Button, ButtonLink } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
 import { Bar, KV, Pill, k } from '../../../components/r2/kit';
 import { useDb, useNow } from '../../../data/hooks';
+import { useAdminChrome } from '../../../shell/admin/chrome';
 import { cohortPath, enrollmentPath, overviewVM } from './cohort.vm';
 import { LinkFacts, Wn } from './parts';
 import { WeeksDialog } from './dialogs';
@@ -21,7 +22,9 @@ export function Component() {
   const db = useDb();
   const now = useNow();
   const facts = useCohortFacts(cohortId);
-  const vm = useMemo(() => overviewVM(db, cohortId, now, facts), [db, cohortId, now, facts]);
+  // R-5 audit (D-267): the threads waiting in this cohort's Community (the sidebar's count, for the cohort on screen).
+  const { counts } = useAdminChrome();
+  const vm = useMemo(() => overviewVM(db, cohortId, now, facts, counts.waiting), [db, cohortId, now, facts, counts.waiting]);
   const [weeks, setWeeks] = useState(false);
   if (!vm) return null;
   return (
@@ -71,7 +74,9 @@ export function Component() {
                       <Icon name={n.icon} size={16} strokeWidth={1.75} />
                     </span>
                     <span className={clsx(k.col, k.col0, c.grow)}>
-                      <span className={k.w5}>{n.title}</span>
+                      <span className={k.w5} data-number="">
+                        {n.title}
+                      </span>
                       <span className={k.me}>{n.detail}</span>
                     </span>
                     <Icon name="r2Chev" size={12} strokeWidth={2.2} />
@@ -119,7 +124,7 @@ export function Component() {
                   <Link key={r.label} to={r.to} className={c.rdy}>
                     <span className={c.rdyLabel}>{r.label}</span>
                     <Bar pct={vm.teams ? (100 * r.n) / vm.teams : 0} />
-                    <span className={clsx(k.tn, k.w5, c.rdn)}>
+                    <span className={clsx(k.tn, k.w5, c.rdn)} data-number="">
                       {r.n} of {vm.teams}
                     </span>
                   </Link>
@@ -132,7 +137,7 @@ export function Component() {
                 <Link to={enrollmentPath(cohortId)} className={c.rdy}>
                   <span className={clsx(c.rdyLabel, c.seats)}>Seats taken</span>
                   <Bar pct={vm.seats.cap ? (100 * (vm.seats.taken ?? 0)) / vm.seats.cap : 0} />
-                  <span className={clsx(k.tn, k.w5, c.rdn)}>
+                  <span className={clsx(k.tn, k.w5, c.rdn)} data-number="">
                     {vm.seats.taken ?? 0} of {vm.seats.cap}
                   </span>
                 </Link>

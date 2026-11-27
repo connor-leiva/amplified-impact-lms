@@ -619,7 +619,7 @@ export function Component() {
           ) : null}
           {d.status === 'scheduled' && !week ? (
             <label className={s.lab}>
-              Opens (MST)
+              Opens (MT)
               <input
                 className={k.in}
                 type="date"

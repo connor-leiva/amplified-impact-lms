@@ -212,11 +212,14 @@ export function Component() {
 
   return (
     <div className={k.col}>
+      {/* R-5 audit (D-267, spec § 4 rule 1): every number opens the list it counts; On the calendar opens every session. */}
       <LinkFacts
         items={vm.facts.map((f) =>
           f.label === 'Without a Zoom link' || f.label === 'Same time as another cohort'
             ? { ...f, to: `?show=${encodeURIComponent(f.label)}` }
-            : f,
+            : f.label === 'On the calendar'
+              ? { ...f, to: `?show=${encodeURIComponent('All sessions')}` }
+              : f,
         )}
       />
       {vm.missing ? (

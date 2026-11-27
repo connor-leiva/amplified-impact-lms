@@ -29,13 +29,17 @@ export function LinkFacts({ items }: { items: readonly FactVM[] }) {
         return f.to ? (
           <Link key={f.label} to={f.to} className={c.fxl}>
             <span className={k.me}>{f.label}</span>
-            <span className={clsx(k.w5, k.el)}>{value}</span>
+            <span className={clsx(k.w5, k.el)} data-number="">
+              {value}
+            </span>
             <Icon name="r2Chev" size={12} strokeWidth={2.2} />
           </Link>
         ) : (
           <div key={f.label}>
             <span className={k.me}>{f.label}</span>
-            <span className={clsx(k.w5, k.el)}>{value}</span>
+            <span className={clsx(k.w5, k.el)} data-number="">
+              {value}
+            </span>
           </div>
         );
       })}

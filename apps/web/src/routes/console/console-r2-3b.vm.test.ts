@@ -2,8 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { CONSOLE_CAP_KEYS, ROLES_R2_ROWS, consoleCan, rolesMatrix, seed } from '@ai/core';
 import type { AuditRow } from '@ai/core';
 import { parityAuditRows, parityDb, parityRoleGrants } from '../../data/parity-r2-db';
-import { AUDIT0, PERMS0 } from '../../data/parity-r2';
-import { AUDIT_R2_COPY, RANGE_OPTIONS_R2, actionOptionsR2, actorOptionsR2, detailOf, detailR2, rowR2 } from './AuditLog.vm';
+import { AUDIT0, PERMS0, mockCt } from '../../data/parity-r2';
+import {
+  AUDIT_R2_COPY,
+  RANGE_OPTIONS_R2,
+  actionOptionsR2,
+  actorOptionsR2,
+  detailOf,
+  detailR2,
+  rowR2,
+} from './AuditLog.vm';
 import { ROLES_R2_COPY, guardTitle, rolesMatrixR2, rolesStaffR2 } from './Roles.vm';
 
 // D-160 R2-3b: the Audit Log and Roles & Permissions view-models of the Admin redesign R2. On the
@@ -11,17 +19,23 @@ import { ROLES_R2_COPY, guardTitle, rolesMatrixR2, rolesStaffR2 } from './Roles.
 // matrix is read from `CONSOLE_CAPS` and the snapshot's `PermKey`s, never the mockup's `PERMS0`.
 
 describe('the R2 Audit Log (D-160 R2-3b)', () => {
-  it('prints the mockup’s rows: MST times, the actor, the action, the target and the detail', () => {
-    expect(parityAuditRows().map(rowR2).map((r) => [r.time, r.actor, r.action, r.target, r.detail])).toEqual(
-      AUDIT0.map((a) => [...a]),
-    );
+  it('prints the mockup’s rows: MT times, the actor, the action, the target and the detail', () => {
+    expect(
+      parityAuditRows()
+        .map(rowR2)
+        .map((r) => [r.time, r.actor, r.action, r.target, r.detail]),
+    ).toEqual(AUDIT0.map((a) => [mockCt(a[0]), ...a.slice(1)]));
   });
 
   it('words an export from what it covered: its range and its rows', () => {
     const at = Date.parse('2026-12-09T17:02:00-07:00');
     const base: AuditRow = parityAuditRows()[4]!;
-    expect(detailOf({ ...base, at, after: { rows: 212, filters: { from: at - 7 * 864e5 } } })).toBe('CSV, last 7 days, 212 rows.');
-    expect(detailOf({ ...base, at, after: { rows: 1, filters: { from: at - 864e5 } } })).toBe('CSV, last 24 hours, 1 row.');
+    expect(detailOf({ ...base, at, after: { rows: 212, filters: { from: at - 7 * 864e5 } } })).toBe(
+      'CSV, last 7 days, 212 rows.',
+    );
+    expect(detailOf({ ...base, at, after: { rows: 1, filters: { from: at - 864e5 } } })).toBe(
+      'CSV, last 24 hours, 1 row.',
+    );
     expect(detailOf({ ...base, at, after: { rows: 12, filters: {} } })).toBe('CSV, 12 rows.');
     expect(detailOf({ ...base, at, after: { rows: 12, filters: { from: at - 3 * 864e5 } } })).toBe('CSV, 12 rows.');
   });
@@ -29,25 +43,42 @@ describe('the R2 Audit Log (D-160 R2-3b)', () => {
   it('words a Roles & Permissions change from its before and after, as the mockup does', () => {
     const base: AuditRow = parityAuditRows()[6]!;
     expect(detailOf(base)).toBe('Refund or void an invoice: allowed to not allowed.');
-    const made = { ...base, reason: null, before: { permission: 'billview', label: 'View billing', allowed: false }, after: { permission: 'billview', label: 'View billing', allowed: true } };
+    const made = {
+      ...base,
+      reason: null,
+      before: { permission: 'billview', label: 'View billing', allowed: false },
+      after: { permission: 'billview', label: 'View billing', allowed: true },
+    };
     expect(detailOf(made)).toBe('View billing: not allowed to allowed.');
   });
 
   it('has the mockup’s select words over the API’s values, and only the mockup’s filters', () => {
-    expect(actorOptionsR2(parityDb().staff).map((o) => o.label)).toEqual(['Any actor', 'System', 'Avery Stone', 'Connor Leiva', 'Imani Brooks']);
+    expect(actorOptionsR2(parityDb().staff).map((o) => o.label)).toEqual([
+      'Any actor',
+      'System',
+      'Avery Stone',
+      'Connor Leiva',
+      'Imani Brooks',
+    ]);
     expect(actionOptionsR2()[0]).toEqual({ value: '', label: 'Any action' });
-    expect(actionOptionsR2().slice(1).every((o) => o.value === o.label)).toBe(true);
+    expect(
+      actionOptionsR2()
+        .slice(1)
+        .every((o) => o.value === o.label),
+    ).toBe(true);
     expect(RANGE_OPTIONS_R2.map((o) => o.label)).toEqual(['Last 24 hours', 'Last 7 days', 'Last 30 days']);
     // No Outcome filter on the screen (the mockup draws none; the Nov 16 eye check).
     expect(Object.keys(AUDIT_R2_COPY)).not.toContain('moreFilters');
   });
 
-  it('dates the drawer’s entry in MST, with its year; Support still sees no IP', () => {
+  it('dates the drawer’s entry in MT and CT, with its year; Support still sees no IP', () => {
     const r = parityAuditRows()[2]!;
     const pairs = detailR2(r, 'Owner');
-    expect(pairs.find((p) => p.label === 'Time')!.value).toBe('Dec 9, 2026, 9:27 PM MST');
+    expect(pairs.find((p) => p.label === 'Time')!.value).toBe('Dec 9, 2026, 9:27 PM MT / 10:27 PM CT');
     // The API sends Support no IP (D3); the drawer says why.
-    expect(detailR2({ ...r, ip: null }, 'Support').find((p) => p.label === 'IP Address')!.value).toBe('Hidden for your role');
+    expect(detailR2({ ...r, ip: null }, 'Support').find((p) => p.label === 'IP Address')!.value).toBe(
+      'Hidden for your role',
+    );
   });
 });
 
@@ -55,7 +86,8 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
   const db = parityDb('/admin/roles');
   const owner = { canEdit: true, role: 'Owner' };
   const m = rolesMatrixR2(rolesMatrix(parityRoleGrants()), db, owner);
-  const cell = (key: string, role: string, mm = m) => mm.rows.find((r) => r.key === key)!.cells.find((c) => c.role === role)!;
+  const cell = (key: string, role: string, mm = m) =>
+    mm.rows.find((r) => r.key === key)!.cells.find((c) => c.role === role)!;
 
   it('draws the mockup’s nine rows, each from CONSOLE_CAPS or the PermKey matrix; the Owner always on', () => {
     expect(m.roles).toEqual(['Owner', 'Admin', 'Support']);
@@ -83,7 +115,8 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
   it('locks the two boxes the mockup locks; the other five past the ceiling are the mockup’s toggles, named fixed', () => {
     const locked = m.rows.flatMap((r) => r.cells.filter((c) => c.locked).map((c) => `${r.key} ${c.role}`));
     expect(locked).toEqual(['masq Support', 'refund Support']);
-    for (const c of m.rows.flatMap((r) => r.cells.filter((x) => x.locked))) expect(c).toMatchObject({ disabled: true, title: 'Fixed by product rules', on: false });
+    for (const c of m.rows.flatMap((r) => r.cells.filter((x) => x.locked)))
+      expect(c).toMatchObject({ disabled: true, title: 'Fixed by product rules', on: false });
     const fixed = m.rows.flatMap((r) => r.cells.filter((c) => c.fixed && !c.locked).map((c) => `${r.key} ${c.role}`));
     expect(fixed).toEqual(['jobs Support', 'export Support', 'ops Support', 'staff Admin', 'staff Support']);
     expect(cell('export', 'Support')).toMatchObject({
@@ -128,12 +161,24 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
       cta: 'Remove permission',
     });
     const off = rolesMatrixR2(rolesMatrix([{ role: 'Support', capability: 'billview', allowed: false }]), db, owner);
-    expect(cell('billview', 'Support', off)).toMatchObject({ on: false, word: 'No', change: { allowed: true, title: 'Give this permission to Support?', cta: 'Allow' } });
+    expect(cell('billview', 'Support', off)).toMatchObject({
+      on: false,
+      word: 'No',
+      change: { allowed: true, title: 'Give this permission to Support?', cta: 'Allow' },
+    });
   });
 
   it('the build row is the PermKey matrix’s: Admin holds it, Support may be given it', () => {
-    expect(cell('build', 'Admin')).toMatchObject({ on: true, disabled: false, change: { allowed: false, title: 'Remove this permission from Admin?' } });
-    expect(cell('build', 'Support')).toMatchObject({ on: false, disabled: false, change: { allowed: true, title: 'Give this permission to Support?' } });
+    expect(cell('build', 'Admin')).toMatchObject({
+      on: true,
+      disabled: false,
+      change: { allowed: false, title: 'Remove this permission from Admin?' },
+    });
+    expect(cell('build', 'Support')).toMatchObject({
+      on: false,
+      disabled: false,
+      change: { allowed: true, title: 'Give this permission to Support?' },
+    });
     const without = { ...db, perms: { ...db.perms, Admin: { ...db.perms.Admin, publish: 0 as const } } };
     expect(cell('build', 'Admin', rolesMatrixR2(rolesMatrix(), without, owner)).on).toBe(false);
   });
@@ -146,16 +191,18 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
   });
 
   it('says changes are confirmed and audit-logged, the mockup’s sentence', () => {
-    expect(ROLES_R2_COPY.matrixSub).toBe('Owner always has every permission. Locked boxes are fixed by product rules. Changes are confirmed and audit-logged.');
+    expect(ROLES_R2_COPY.matrixSub).toBe(
+      'Owner always has every permission. Locked boxes are fixed by product rules. Changes are confirmed and audit-logged.',
+    );
     expect(ROLES_R2_COPY.updated).toBe('Permission updated');
   });
 
   it('lists the staff, the viewer’s row marked; only a staff manager may invite', () => {
     const s = rolesStaffR2(db, 'st1');
     expect(s.staff.map((x) => [x.name, x.role, x.last])).toEqual([
-      ['Connor Leiva (you)', 'Owner', 'Dec 10, 9:22 AM'],
-      ['Avery Stone', 'Admin', 'Dec 9, 5:48 PM'],
-      ['Imani Brooks', 'Support', 'Dec 9, 9:30 PM'],
+      ['Connor Leiva (you)', 'Owner', 'Dec 10, 9:22 AM MT / 10:22 AM CT'],
+      ['Avery Stone', 'Admin', 'Dec 9, 5:48 PM MT / 6:48 PM CT'],
+      ['Imani Brooks', 'Support', 'Dec 9, 9:30 PM MT / 10:30 PM CT'],
     ]);
     expect(s.canManageStaff).toBe(true);
     expect(rolesStaffR2(db, 'st2').canManageStaff).toBe(false);
@@ -168,16 +215,29 @@ describe('the console fixture for the R2 parity fixture (D-160 R2-3b)', () => {
     const { createConsoleFixture } = await import('../../data/console-fixture');
     window.history.pushState({}, '', '/admin/audit?as=admin&parity=r2');
     try {
-      const api = createConsoleFixture({ role: 'Owner', state: null, staff: true, now: () => Date.parse('2026-12-10T16:30:00Z') });
+      const api = createConsoleFixture({
+        role: 'Owner',
+        state: null,
+        staff: true,
+        now: () => Date.parse('2026-12-10T16:30:00Z'),
+      });
       const all = await api.audit({ from: Date.parse('2026-12-03T16:30:00Z') });
       expect(all.rows.map((r) => r.action)).toEqual(AUDIT0.map((a) => a[2]));
-      expect((await api.audit({ actor: 'st3' })).rows.map((r) => r.actor.name)).toEqual(['Imani Brooks', 'Imani Brooks']);
+      expect((await api.audit({ actor: 'st3' })).rows.map((r) => r.actor.name)).toEqual([
+        'Imani Brooks',
+        'Imani Brooks',
+      ]);
       expect((await api.audit({ action: 'masquerade' })).rows).toHaveLength(3);
     } finally {
       window.history.pushState({}, '', '/');
     }
     // Without it, the ordinary fixture's rows.
-    const plain = createConsoleFixture({ role: 'Owner', state: null, staff: true, now: () => Date.parse('2026-12-10T16:30:00Z') });
+    const plain = createConsoleFixture({
+      role: 'Owner',
+      state: null,
+      staff: true,
+      now: () => Date.parse('2026-12-10T16:30:00Z'),
+    });
     expect((await plain.audit({})).rows[0]!.actor.name).toBe('Casey Lin');
   });
 });

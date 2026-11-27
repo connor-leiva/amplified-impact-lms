@@ -22,8 +22,15 @@ import { DB_KEY } from '../../../packages/core/src/constants';
 const NOW = '2026-11-26T19:00:00.000Z';
 const DB = JSON.stringify(launchDb());
 
-async function openAt(browser: Browser, path: string, width = 1280): Promise<{ page: Page; close: () => Promise<void> }> {
-  const ctx = await browser.newContext({ timezoneId: 'America/Denver', viewport: { width, height: width < 768 ? 844 : 900 } });
+async function openAt(
+  browser: Browser,
+  path: string,
+  width = 1280,
+): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({
+    timezoneId: 'America/Denver',
+    viewport: { width, height: width < 768 ? 844 : 900 },
+  });
   // The launch database, stored as the fixture's own once per tab, so the tab's writes stay through its navigations.
   await ctx.addInitScript(
     ({ key, db }) => {
@@ -50,10 +57,14 @@ const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]
 const main = (page: Page) => page.locator('main');
 
 test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
-  test('Connor’s January, created in one sitting on the launch database: its layout, the overlap, a draft', async ({ browser }) => {
+  test('Connor’s January, created in one sitting on the launch database: its layout, the overlap, a draft', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/cohort/dec26');
     // From the cohort picker in the sidebar: "New cohort…".
-    await aside(page).getByRole('button', { name: /^Switch cohort/ }).click();
+    await aside(page)
+      .getByRole('button', { name: /^Switch cohort/ })
+      .click();
     await page.getByRole('menuitem', { name: 'New cohort…' }).click();
     await expect.poll(() => new URL(page.url()).pathname).toBe('/admin/cohort/new');
     await expect(crumbs(page)).toHaveText('Admin/Cohort/New Cohort');
@@ -70,11 +81,19 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
     await expect(page.getByText('6 of 8 weeks')).toBeVisible();
 
     // The layout, as the mockup's: the setup week Sun, Dec 27; 12 sessions; the first Tue, Jan 5; the last Thu, Feb 11.
-    await expect(main(page).getByText('The setup week opens Sun, Dec 27. The first session is Tue, Jan 5 and the last is Thu, Feb 11.')).toBeVisible();
+    await expect(
+      main(page).getByText(
+        'The setup week opens Sun, Dec 27. The first session is Tue, Jan 5 and the last is Thu, Feb 11.',
+      ),
+    ).toBeVisible();
     await expect(main(page).locator('b', { hasText: /^12$/ })).toBeVisible();
     // The overlap with December's Thursday office hours, reported (a warning, never an error).
     await expect(main(page).getByText('5 sessions are at the same time as December’s.')).toBeVisible();
-    await expect(main(page).getByText(/Its Wednesday build and Thursday office hours are at 12:00 PM MT through Thu, Feb 4\./)).toBeVisible();
+    await expect(
+      main(page).getByText(
+        /Its Wednesday build and Thursday office hours are at 12:00 PM MT \/ 1:00 PM CT through Thu, Feb 4\./,
+      ),
+    ).toBeVisible();
     // Its included time, prefilled to the last live build (Tue, Feb 9) + 90 days.
     await expect(page.getByLabel('Included time ends')).toHaveValue('2027-05-10');
     await expectAccessible(page);
@@ -84,7 +103,12 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
     const id = new URL(page.url()).pathname.split('/').pop()!;
     await expect(page.getByRole('heading', { level: 1, name: 'January 2027 Cohort' })).toBeVisible();
     await expect(main(page).getByText('Draft', { exact: true }).first()).toBeVisible();
-    await expect(main(page).getByText('Amplified AI Accelerator · 6 weeks of building · twice a week · opens Sun, Dec 27')).toBeVisible();
+    // R-5 audit (D-267, Connor): the head names the setup week's opening and Week 1's, until Week 1 opens.
+    await expect(
+      main(page).getByText(
+        'Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3',
+      ),
+    ).toBeVisible();
     // The sidebar's Cohort row says Draft.
     await expect(aside(page).getByText('Draft', { exact: true })).toBeVisible();
 
@@ -120,7 +144,9 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
     await expect(main(page).getByText('Read them once')).toBeVisible();
     await page.getByRole('button', { name: 'Edit this cohort’s words' }).click();
     const words = page.getByRole('dialog', { name: 'Words From This Cohort' });
-    await words.getByRole('textbox', { name: 'The promise' }).fill('Six weeks of building. One hire a week. Built live, on your own numbers.');
+    await words
+      .getByRole('textbox', { name: 'The promise' })
+      .fill('Six weeks of building. One hire a week. Built live, on your own numbers.');
     await words.getByRole('button', { name: 'Save words' }).click();
     await expect(words).toHaveCount(0);
     await expect(main(page).getByText('Read them once')).toHaveCount(0);
@@ -139,7 +165,9 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
   });
 
   for (const width of [1280, 390])
-    test(`December’s Overview, Schedule and Settings, and New cohort, are accessible at ${width}`, async ({ browser }) => {
+    test(`December’s Overview, Schedule and Settings, and New cohort, are accessible at ${width}`, async ({
+      browser,
+    }) => {
       const { page, close } = await openAt(browser, '/admin/cohort/dec26', width);
       await expect(page.getByRole('heading', { level: 1, name: 'December 2026 Cohort' })).toBeVisible();
       await expectAccessible(page);
@@ -151,20 +179,29 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
         await page.goto(`${APP_BASE}${path}?as=admin&now=${encodeURIComponent(NOW)}`);
         await page.locator('body[data-app-ready="true"]').waitFor();
         await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
-        await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), { message: path }).toBe(true);
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), { message: path })
+          .toBe(true);
         await expectAccessible(page);
       }
       // December's shape is read off its sessions: only its hosts change.
       await page.goto(`${APP_BASE}/admin/cohort/dec26/settings?as=admin&now=${encodeURIComponent(NOW)}`);
       await page.locator('body[data-app-ready="true"]').waitFor();
-      await expect(main(page).getByText('This cohort’s shape is read from its own sessions. Only its hosts change here.')).toBeVisible();
+      await expect(
+        main(page).getByText('This cohort’s shape is read from its own sessions. Only its hosts change here.'),
+      ).toBeVisible();
       await close();
     });
 
-  test('the week builder no longer edits a week’s dates or sessions: Where it runs, each a link to the cohort', async ({ browser }) => {
+  test('the week builder no longer edits a week’s dates or sessions: Where it runs, each a link to the cohort', async ({
+    browser,
+  }) => {
     const { page, close } = await openAt(browser, '/admin/program/weeks/accelerator-week-2');
     await expect(main(page).getByText('Where it runs')).toBeVisible();
-    await expect(main(page).getByRole('link', { name: /Week 2 of the December 2026 Cohort/ })).toHaveAttribute('href', '/admin/cohort/dec26/settings#dates');
+    await expect(main(page).getByRole('link', { name: /Week 2 of the December 2026 Cohort/ })).toHaveAttribute(
+      'href',
+      '/admin/cohort/dec26/settings#dates',
+    );
     await expect(main(page).getByRole('button', { name: 'Add session' })).toHaveCount(0);
     await expect(main(page).getByLabel('Opens', { exact: true })).toHaveCount(0);
     await close();

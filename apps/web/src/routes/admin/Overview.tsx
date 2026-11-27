@@ -11,6 +11,7 @@ import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { weekPath } from '../../shell/admin/addresses';
+import { useAdminChrome } from '../../shell/admin/chrome';
 import { overviewR2VM, overviewVM } from './Overview.vm';
 import type { OverviewReport } from './Overview.vm';
 import s from './Overview.module.css';
@@ -50,13 +51,15 @@ export function Component() {
   const now = useNow(TICK_MS);
   const { toast } = useToaster();
   const phone = useViewportWidth() < 768;
-  const vm = useMemo(() => overviewR2VM(db, now), [db, now]);
+  // R-5 audit (D-267): the cohort the admin is on (the sidebar's switcher), and its roster.
+  const { cohort } = useAdminChrome();
+  const vm = useMemo(() => overviewR2VM(db, now, cohort.id), [db, now, cohort.id]);
 
   const exportReport = useCallback(() => {
-    const { report } = overviewVM(db, now);
+    const { report } = overviewVM(db, now, cohort.id);
     saveFile(report);
     toast(report.toast);
-  }, [db, now, toast]);
+  }, [db, now, toast, cohort.id]);
 
   return (
     <Page>

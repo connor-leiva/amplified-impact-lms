@@ -69,7 +69,7 @@ describe('admin week labels and Opens text', () => {
 
   it('reads Opens from Week 1 at 8:00 AM, and the week counter skips the holiday', () => {
     const early = cohortsR2VM(db, before, 'dec26')!;
-    expect(early.facts.opens).toBe('Wed, Dec 2 · 8:00 AM MST');
+    expect(early.facts.opens).toBe('Wed, Dec 2 · 8:00 AM MT / 9:00 AM CT');
     expect(early.facts.week).toBe('Not started');
     expect(cohortsR2VM(db, at('2026-12-23', '09:00'), 'dec26')!.facts.week).toBe('3 of 8');
     expect(cohortsR2VM(db, at('2027-01-06', '11:00'), 'dec26')!.facts.week).toBe('4 of 8');
@@ -77,14 +77,15 @@ describe('admin week labels and Opens text', () => {
 
   it('puts that Opens time in the Overview header and leaves the deploy note on Session 1', () => {
     const vm = overviewR2VM(db, before);
-    expect(vm.subline).toBe('Amplified AI Accelerator · December 2026 Cohort · Opens Wed, Dec 2 at 8:00 AM MST · 0 learners enrolled');
-    expect(vm.notStarted).toBe('Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MST.');
+    // R-5 audit (D-267, Connor): the cohort by its own name, then Week 1's opening from its run, in MT and CT.
+    expect(vm.subline).toBe('December 2026 Cohort · Week 1 opens Wed, Dec 2 · 8:00 AM MT / 9:00 AM CT · 0 learners enrolled');
+    expect(vm.notStarted).toBe('Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MT / 1:00 PM CT.');
     expect(vm.started).toBe(false);
   });
 
   it('uses the same Opens time and week on the Build hub', () => {
     const rows = Object.fromEntries(buildHubVM(db, at('2027-01-06', '11:00'), 'dec26').cohort!.rows.map((r) => [r.label, r.value]));
-    expect(rows.Opens).toBe('Wed, Dec 2 · 8:00 AM MST');
+    expect(rows.Opens).toBe('Wed, Dec 2 · 8:00 AM MT / 9:00 AM CT');
     expect(rows.Week).toBe('4 of 8');
   });
 });

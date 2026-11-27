@@ -8,7 +8,7 @@ import type { MenuEntry } from '../../components/r2/Menu';
 import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, PageHead, Sel, TapCheck, Two, k } from '../../components/r2/kit';
+import { Avatar, PageHead, Sel, TapCheck, Two, k, Stamp } from '../../components/r2/kit';
 import { useDb, useMutate, useViewer } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
 import { staffR2VM } from './Staff.vm';
@@ -43,7 +43,10 @@ function Staff() {
     if (!r.error) setEmail('');
   }, [email, mutate, newRole]);
 
-  const setRole = useCallback((row: StaffR2Row, role: StaffRole) => void mutate('setStaffRole', { id: row.id, role }), [mutate]);
+  const setRole = useCallback(
+    (row: StaffR2Row, role: StaffRole) => void mutate('setStaffRole', { id: row.id, role }),
+    [mutate],
+  );
   const remove = useCallback((row: StaffR2Row) => void mutate('removeStaff', { id: row.id }), [mutate]);
   const toggle = useCallback(
     (perm: PermRow, cell: PermCell) => {
@@ -89,7 +92,14 @@ function Staff() {
         </Sel>
       ),
     },
-    { key: 'last', label: 'Last active', width: '136px', noSort: true, value: (r) => r.lastAt, cell: (r) => r.last },
+    {
+      key: 'last',
+      label: 'Last active',
+      width: '136px',
+      noSort: true,
+      value: (r) => r.lastAt,
+      cell: (r) => <Stamp v={r.last} two />,
+    },
   ];
 
   const menu = (r: StaffR2Row): MenuEntry[] => [{ label: 'Remove', danger: true, onSelect: () => remove(r) }];

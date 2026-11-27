@@ -4,7 +4,17 @@
 // Times go through `fmt.*`: the viewer's zone first, the program zone in parentheses (CLAUDE.md).
 // Outcomes are a word and a glyph on a status token, never a colour alone.
 
-import { ADMIN_ZONE, AUDIT_ACTION_GROUPS, CONSOLE_CAP_LABELS, adminDate, adminStamp, adminTime, auditActionGroup, auditRedactsNetwork, consoleCan, fmt, permissionChangeSummary } from '@ai/core';
+import {
+  AUDIT_ACTION_GROUPS,
+  CONSOLE_CAP_LABELS,
+  adminDate,
+  adminStamp,
+  auditActionGroup,
+  auditRedactsNetwork,
+  consoleCan,
+  fmt,
+  permissionChangeSummary,
+} from '@ai/core';
 import type { AuditFilters, AuditOutcome, AuditRow, ConsoleCap, Staff } from '@ai/core';
 import type { TokenGlyph, TokenTone } from '../../components/StatusToken';
 import type { ConsoleFailure } from '../../data/console';
@@ -203,7 +213,8 @@ export function detailOf(r: AuditRow): string {
   }
   if (r.action === 'audit.export') {
     const n = typeof after.rows === 'number' ? after.rows : null;
-    if (r.outcome === 'failed') return n === null ? 'Refused: over 10,000 rows.' : `Refused: ${fmt.num(n)} rows is over 10,000.`;
+    if (r.outcome === 'failed')
+      return n === null ? 'Refused: over 10,000 rows.' : `Refused: ${fmt.num(n)} rows is over 10,000.`;
     // D-160 R2-3b: the date range it covered, when it was one of the filter's ("CSV, last 7 days, 212 rows.").
     const filters = (after.filters ?? {}) as Record<string, unknown>;
     const from = typeof filters.from === 'number' ? filters.from : null;
@@ -243,7 +254,8 @@ const json = (v: unknown): string | null => (v === null || v === undefined ? nul
 export function detailVM(r: AuditRow, viewerRole: string | null): DetailPair[] {
   const hidden = auditRedactsNetwork(viewerRole);
   const net = (v: string | null) => v ?? (hidden ? AUDIT_COPY.hidden : AUDIT_COPY.notRecorded);
-  const actor = r.actor.source === 'system' ? AUDIT_COPY.system : `${actorLabel(r)}${r.actor.role ? ` (${r.actor.role})` : ''}`;
+  const actor =
+    r.actor.source === 'system' ? AUDIT_COPY.system : `${actorLabel(r)}${r.actor.role ? ` (${r.actor.role})` : ''}`;
   const target = [r.target.type, r.target.label ?? r.target.id].filter(Boolean).join(' · ') || AUDIT_COPY.none;
   return [
     { label: 'Time', value: fmt.abs(r.at) },
@@ -253,7 +265,11 @@ export function detailVM(r: AuditRow, viewerRole: string | null): DetailPair[] {
     { label: 'Target', value: target },
     { label: 'Detail', value: detailOf(r) },
     { label: 'Reason', value: r.reason ?? AUDIT_COPY.none },
-    { label: 'Masquerade Session', value: r.masqueradeSessionId ?? AUDIT_COPY.none, mono: r.masqueradeSessionId !== null },
+    {
+      label: 'Masquerade Session',
+      value: r.masqueradeSessionId ?? AUDIT_COPY.none,
+      mono: r.masqueradeSessionId !== null,
+    },
     { label: 'IP Address', value: net(r.ip), mono: r.ip !== null },
     { label: 'Browser', value: net(r.userAgent) },
     { label: 'Request ID', value: r.requestId ?? AUDIT_COPY.notRecorded, mono: r.requestId !== null },
@@ -275,7 +291,7 @@ export const actionGroupLabel = (action: string): string => groupLabel(auditActi
 // ================================================================================================
 
 export const AUDIT_R2_COPY = {
-  description: 'Every staff action. Append-only. Times are MST (America/Phoenix).',
+  description: 'Every staff action. Append-only.',
   search: 'Filter target or detail',
   exportSelected: 'Export selected',
   emptyTitle: 'No audit entries yet',
@@ -286,10 +302,15 @@ export const AUDIT_R2_COPY = {
 export const actorOptionsR2 = (staff: readonly Pick<Staff, 'id' | 'name'>[]): Option[] =>
   actorOptions(staff).map((o) => (o.value === '' ? { ...o, label: 'Any actor' } : o));
 
-export const actionOptionsR2 = (): Option[] => [{ value: '', label: 'Any action' }, ...AUDIT_ACTION_GROUPS.map((g) => ({ value: g, label: g }))];
+export const actionOptionsR2 = (): Option[] => [
+  { value: '', label: 'Any action' },
+  ...AUDIT_ACTION_GROUPS.map((g) => ({ value: g, label: g })),
+];
 
-export const RANGE_OPTIONS_R2: Option[] = RANGES.map((r) => ({ value: r.key, label: r.label.charAt(0) + r.label.slice(1).toLowerCase() }));
-
+export const RANGE_OPTIONS_R2: Option[] = RANGES.map((r) => ({
+  value: r.key,
+  label: r.label.charAt(0) + r.label.slice(1).toLowerCase(),
+}));
 
 export interface AuditR2Row {
   key: string;
@@ -312,5 +333,7 @@ export const rowR2 = (r: AuditRow): AuditR2Row => ({
 
 /** The drawer's pairs, the time in MST with its year. */
 export function detailR2(r: AuditRow, viewerRole: string | null): DetailPair[] {
-  return detailVM(r, viewerRole).map((p) => (p.label === 'Time' ? { ...p, value: `${adminDate(r.at)}, ${adminTime(r.at)} ${ADMIN_ZONE}` } : p));
+  return detailVM(r, viewerRole).map((p) =>
+    p.label === 'Time' ? { ...p, value: `${adminDate(r.at)}, ${fmt.mtCt(r.at)}` } : p,
+  );
 }

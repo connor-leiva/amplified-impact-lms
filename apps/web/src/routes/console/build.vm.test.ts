@@ -29,7 +29,7 @@ describe('buildHubVM (D-169)', () => {
     const vm = buildHubVM(db, WEEK2, 'dec26');
     expect(vm.cohort!.name).toBe(co.name);
     const rows = Object.fromEntries(vm.cohort!.rows.map((r) => [r.label, r.value]));
-    expect(rows.Opens).toMatch(/ MST$/);
+    expect(rows.Opens).toMatch(/ MT \/ \d{1,2}:\d{2} [AP]M CT$/);
     expect(rows.Enrolled).toBe(`${co.enrolled} learners`);
     expect(vm.cohort!.cap).toBe('15 seats. Product rule, view only.');
     // Its weeks come from the data: change them and the card follows.
@@ -45,7 +45,7 @@ describe('buildHubVM (D-169)', () => {
     expect(buildHubVM({ ...seed('live'), cohorts: [] }, WEEK2, 'dec26').cohort).toBeNull();
   });
 
-  it('words a skill row: its set, its access, its status and its release day (MST)', () => {
+  it('words a skill row: its set, its access, its status and its release day (MT)', () => {
     expect(skillVM({ id: 'perfect-week', title: 'Perfect Week', sets: 'both', free: true, status: 'published', releasedAt: Date.parse('2026-11-01T05:00:00Z') })).toEqual({
       id: 'perfect-week',
       title: 'Perfect Week',

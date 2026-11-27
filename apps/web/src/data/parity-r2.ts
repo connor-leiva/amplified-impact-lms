@@ -81,7 +81,7 @@ export const MODS0 = [
     d: 'A checked view of what your business earns and spends',
     ic: 'tiers',
     tier: 'team',
-    ses: ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST · Replay ready'],
+    ses: ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready'],
     st: 'Published',
     steps: 6,
     files: 4,
@@ -105,7 +105,7 @@ export const MODS0 = [
     d: 'A ten-minute morning brief from your own data',
     ic: 'jobs',
     tier: 'team',
-    ses: ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST · Replay ready'],
+    ses: ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT · Replay ready'],
     st: 'Published',
     steps: 6,
     files: 3,
@@ -129,7 +129,7 @@ export const MODS0 = [
     d: 'Sort your sphere and plan the week of calls',
     ic: 'learners',
     tier: 'team',
-    ses: ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST'],
+    ses: ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Scheduled',
     steps: 6,
     files: 2,
@@ -153,7 +153,7 @@ export const MODS0 = [
     d: 'A weekly meeting that runs from your scorecard',
     ic: 'cohorts',
     tier: 'team',
-    ses: ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST'],
+    ses: ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Scheduled',
     steps: 6,
     files: 2,
@@ -176,7 +176,7 @@ export const MODS0 = [
     d: 'Contract-to-close checklist with dates and owners',
     ic: 'check',
     tier: 'team',
-    ses: ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST'],
+    ses: ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Draft',
     steps: 3,
     files: 0,
@@ -198,7 +198,7 @@ export const MODS0 = [
     d: 'Document each AI Employee so a teammate can run it',
     ic: 'file',
     tier: 'team',
-    ses: ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST'],
+    ses: ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Draft',
     steps: 2,
     files: 0,
@@ -262,7 +262,7 @@ export const VAULT = [
 export const ANNOUNCEMENTS = [
   ['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM'],
   ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM'],
-  ['Session 3 is Wednesday at 12:00 PM MST', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'],
+  ['Session 3 is Wednesday at 12:00 PM MT / 1:00 PM CT', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'],
   ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—'],
 ] as const;
 
@@ -330,13 +330,76 @@ export const UPGRADE_REQUESTS = [
  * is builds deployed of the builds open to that learner's tier.
  */
 export const USERS = [
-  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'ws_northshore', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM', pr: 4 },
-  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'ws_northshore', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM', pr: 3 },
-  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'ws_halemarlowe', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM', pr: 5 },
-  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'ws_redcliff', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM', pr: 2 },
-  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'ws_copperbasin', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM', pr: 2 },
-  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'ws_tidewater', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', pr: 1 },
-  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'ws_lantern', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', pr: 1 },
+  {
+    id: 'u_1042',
+    n: 'Elena Vargas',
+    e: 'elena@northshoregroup.example',
+    ws: 'ws_northshore',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 10, 8:52 AM',
+    pr: 4,
+  },
+  {
+    id: 'u_1043',
+    n: 'Marcus Oyelaran',
+    e: 'marcus@northshoregroup.example',
+    ws: 'ws_northshore',
+    role: 'Agent',
+    tier: 'Team',
+    last: 'Dec 9, 4:31 PM',
+    pr: 3,
+  },
+  {
+    id: 'u_1061',
+    n: 'Jordan Hale',
+    e: 'jordan@halemarlowe.example',
+    ws: 'ws_halemarlowe',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 6:10 PM',
+    pr: 5,
+  },
+  {
+    id: 'u_1077',
+    n: 'Noor Haddad',
+    e: 'noor@redcliffcollective.example',
+    ws: 'ws_redcliff',
+    role: 'Team owner',
+    tier: 'Agent',
+    last: 'Dec 10, 12:41 AM',
+    pr: 2,
+  },
+  {
+    id: 'u_1090',
+    n: 'Devon Achterberg',
+    e: 'devon@copperbasin.example',
+    ws: 'ws_copperbasin',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 2:15 PM',
+    pr: 2,
+  },
+  {
+    id: 'u_1104',
+    n: 'Sam Whitlock',
+    e: 'sam@tidewaterproperty.example',
+    ws: 'ws_tidewater',
+    role: 'Agent',
+    tier: 'Agent',
+    last: 'Dec 4, 9:03 AM',
+    pr: 1,
+  },
+  {
+    id: 'u_1118',
+    n: 'Tessa Lindqvist',
+    e: 'tessa@lanternstreet.example',
+    ws: 'ws_lantern',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 11:27 AM',
+    pr: 1,
+  },
 ] as const;
 
 /**
@@ -356,9 +419,30 @@ export const WS = [
 
 /** Tiers' cards (`T` in its `Tiers` screen): name, seats, price, blurb, features. */
 export const TIER_CARDS = [
-  ['agent', 'Agent', 1, 995, 'For individual agents building their own AI Employees.', ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault']],
-  ['team', 'Team', 16, 4995, 'For teams that want every seat building, plus the leadership modules.', ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking']],
-  ['team', 'Team', 41, 9995, 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']],
+  [
+    'agent',
+    'Agent',
+    1,
+    995,
+    'For individual agents building their own AI Employees.',
+    ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault'],
+  ],
+  [
+    'team',
+    'Team',
+    16,
+    4995,
+    'For teams that want every seat building, plus the leadership modules.',
+    ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking'],
+  ],
+  [
+    'team',
+    'Team',
+    41,
+    9995,
+    'The same Team Tier, sized for larger teams.',
+    ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking'],
+  ],
 ] as const;
 
 /** The Overview's chart (`pts`): AI Employees deployed, cumulative, Dec 2 to Dec 8. */
@@ -394,13 +478,31 @@ export const AUDIT0 = [
   ['Dec 10, 8:58 AM', 'Connor Leiva', 'job.run_now', 'ghl-orders', 'Manual run. Failed with 401.'],
   ['Dec 9, 9:31 PM', 'Avery Stone', 'masquerade.stop', 'Sam Whitlock', 'Exited by staff after 6 min.'],
   ['Dec 9, 9:27 PM', 'Avery Stone', 'masquerade.blocked_action', 'Sam Whitlock', 'Tried: Refund in_1QxP7tTw0283.'],
-  ['Dec 9, 9:25 PM', 'Avery Stone', 'masquerade.start', 'Sam Whitlock', 'Reason: Customer cannot see the Session 2 replay.'],
+  [
+    'Dec 9, 9:25 PM',
+    'Avery Stone',
+    'masquerade.start',
+    'Sam Whitlock',
+    'Reason: Customer cannot see the Session 2 replay.',
+  ],
   ['Dec 9, 5:02 PM', 'Imani Brooks', 'audit.export', 'Audit log', 'CSV, last 7 days, 212 rows.'],
   ['Dec 9, 3:20 PM', 'Avery Stone', 'module.publish', 'Sales AI Employee', 'Draft to Published.'],
-  ['Dec 9, 2:10 PM', 'Connor Leiva', 'permission.change', 'Support', 'Refund or void an invoice: allowed to not allowed.'],
+  [
+    'Dec 9, 2:10 PM',
+    'Connor Leiva',
+    'permission.change',
+    'Support',
+    'Refund or void an invoice: allowed to not allowed.',
+  ],
   ['Dec 8, 4:44 PM', 'Connor Leiva', 'tier.access_change', 'Database AI Employee', 'Team only to Agent + Team.'],
   ['Dec 8, 9:05 AM', 'Imani Brooks', 'email_log.export', 'Email log', 'CSV, template weekly-digest, 388 rows.'],
-  ['Nov 1, 4:44 PM', 'Connor Leiva', 'billing.refund', 'in_1QxK5fFm0270', '$695.00. Reason: canceled inside trial window.'],
+  [
+    'Nov 1, 4:44 PM',
+    'Connor Leiva',
+    'billing.refund',
+    'in_1QxK5fFm0270',
+    '$695.00. Reason: canceled inside trial window.',
+  ],
 ] as const;
 
 // ---- R2-1c: the Support screens' records (Workspaces, Workspace, Users, User), verbatim --------------
@@ -411,25 +513,197 @@ export const AUDIT0 = [
 
 /** `WS`, verbatim. */
 export const SUPPORT_WS = [
-  { id: 'ws_northshore', n: 'Northshore Group', plan: 'Team Plan · 41 seats', used: 33, cap: 41, st: 'Active', last: 'Dec 10, 8:52 AM', owner: 'Elena Vargas', mrr: '$1,495', cus: 'cus_Rk3NshoreA1', sub: 'sub_1Qn7NshoreT41' },
-  { id: 'ws_halemarlowe', n: 'Hale & Marlowe Realty', plan: 'Team Plan · 16 seats', used: 15, cap: 16, st: 'Active', last: 'Dec 9, 6:10 PM', owner: 'Jordan Hale', mrr: '$695', cus: 'cus_Rm8HaleMrl02', sub: 'sub_1Qp2HaleT16' },
-  { id: 'ws_redcliff', n: 'Red Cliff Collective', plan: 'Agent Plan', used: 46, cap: 50, st: 'Active', last: 'Dec 10, 12:41 AM', owner: 'Noor Haddad', mrr: '$1,450', cus: 'cus_Rj1RedClf03', sub: 'sub_1Qk9RedClfA50' },
-  { id: 'ws_copperbasin', n: 'Copper Basin Realty', plan: 'AI Accelerator', used: 2, cap: 2, st: 'Active', last: 'Dec 9, 2:15 PM', owner: 'Devon Achterberg', mrr: 'One-time', cus: 'cus_Rp4CoprBsn04', sub: '—' },
-  { id: 'ws_tidewater', n: 'Tidewater Property Co.', plan: 'Insiders', used: 1, cap: 1, st: 'Past due', last: 'Dec 4, 9:03 AM', owner: 'Sam Whitlock', mrr: '$97', cus: 'cus_Rg6Tidewtr05', sub: 'sub_1Qh3TidewI1' },
-  { id: 'ws_lantern', n: 'Lantern Street Partners', plan: 'Team Plan · 16 seats', used: 6, cap: 16, st: 'Trialing', last: 'Dec 9, 11:27 AM', owner: 'Tessa Lindqvist', mrr: '$0', cus: 'cus_Rt2Lantern06', sub: 'sub_1Qv5LanternT16' },
-  { id: 'ws_fourthmeridian', n: 'Fourth Meridian', plan: 'Team Plan · 16 seats', used: 0, cap: 16, st: 'Canceled', last: 'Nov 2, 4:40 PM', owner: 'Priya Raman', mrr: '$0', cus: 'cus_Rb9FourthM07', sub: 'sub_1Qc1FourthT16' },
+  {
+    id: 'ws_northshore',
+    n: 'Northshore Group',
+    plan: 'Team Plan · 41 seats',
+    used: 33,
+    cap: 41,
+    st: 'Active',
+    last: 'Dec 10, 8:52 AM',
+    owner: 'Elena Vargas',
+    mrr: '$1,495',
+    cus: 'cus_Rk3NshoreA1',
+    sub: 'sub_1Qn7NshoreT41',
+  },
+  {
+    id: 'ws_halemarlowe',
+    n: 'Hale & Marlowe Realty',
+    plan: 'Team Plan · 16 seats',
+    used: 15,
+    cap: 16,
+    st: 'Active',
+    last: 'Dec 9, 6:10 PM',
+    owner: 'Jordan Hale',
+    mrr: '$695',
+    cus: 'cus_Rm8HaleMrl02',
+    sub: 'sub_1Qp2HaleT16',
+  },
+  {
+    id: 'ws_redcliff',
+    n: 'Red Cliff Collective',
+    plan: 'Agent Plan',
+    used: 46,
+    cap: 50,
+    st: 'Active',
+    last: 'Dec 10, 12:41 AM',
+    owner: 'Noor Haddad',
+    mrr: '$1,450',
+    cus: 'cus_Rj1RedClf03',
+    sub: 'sub_1Qk9RedClfA50',
+  },
+  {
+    id: 'ws_copperbasin',
+    n: 'Copper Basin Realty',
+    plan: 'AI Accelerator',
+    used: 2,
+    cap: 2,
+    st: 'Active',
+    last: 'Dec 9, 2:15 PM',
+    owner: 'Devon Achterberg',
+    mrr: 'One-time',
+    cus: 'cus_Rp4CoprBsn04',
+    sub: '—',
+  },
+  {
+    id: 'ws_tidewater',
+    n: 'Tidewater Property Co.',
+    plan: 'Insiders',
+    used: 1,
+    cap: 1,
+    st: 'Past due',
+    last: 'Dec 4, 9:03 AM',
+    owner: 'Sam Whitlock',
+    mrr: '$97',
+    cus: 'cus_Rg6Tidewtr05',
+    sub: 'sub_1Qh3TidewI1',
+  },
+  {
+    id: 'ws_lantern',
+    n: 'Lantern Street Partners',
+    plan: 'Team Plan · 16 seats',
+    used: 6,
+    cap: 16,
+    st: 'Trialing',
+    last: 'Dec 9, 11:27 AM',
+    owner: 'Tessa Lindqvist',
+    mrr: '$0',
+    cus: 'cus_Rt2Lantern06',
+    sub: 'sub_1Qv5LanternT16',
+  },
+  {
+    id: 'ws_fourthmeridian',
+    n: 'Fourth Meridian',
+    plan: 'Team Plan · 16 seats',
+    used: 0,
+    cap: 16,
+    st: 'Canceled',
+    last: 'Nov 2, 4:40 PM',
+    owner: 'Priya Raman',
+    mrr: '$0',
+    cus: 'cus_Rb9FourthM07',
+    sub: 'sub_1Qc1FourthT16',
+  },
 ] as const;
 
 /** `USERS`, verbatim. */
 export const SUPPORT_USERS = [
-  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'Northshore Group', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM', st: 'Active', pr: 4, of: 5 },
-  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'Northshore Group', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM', st: 'Active', pr: 3, of: 5 },
-  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'Hale & Marlowe Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM', st: 'Active', pr: 5, of: 5 },
-  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'Red Cliff Collective', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM', st: 'Active', pr: 2, of: 2 },
-  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'Copper Basin Realty', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM', st: 'Active', pr: 2, of: 5 },
-  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'Tidewater Property Co.', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', st: 'Past due', pr: 1, of: 2 },
-  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'Lantern Street Partners', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', st: 'Trialing', pr: 1, of: 5 },
-  { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
+  {
+    id: 'u_1042',
+    n: 'Elena Vargas',
+    e: 'elena@northshoregroup.example',
+    ws: 'Northshore Group',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 10, 8:52 AM',
+    st: 'Active',
+    pr: 4,
+    of: 5,
+  },
+  {
+    id: 'u_1043',
+    n: 'Marcus Oyelaran',
+    e: 'marcus@northshoregroup.example',
+    ws: 'Northshore Group',
+    role: 'Agent',
+    tier: 'Team',
+    last: 'Dec 9, 4:31 PM',
+    st: 'Active',
+    pr: 3,
+    of: 5,
+  },
+  {
+    id: 'u_1061',
+    n: 'Jordan Hale',
+    e: 'jordan@halemarlowe.example',
+    ws: 'Hale & Marlowe Realty',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 6:10 PM',
+    st: 'Active',
+    pr: 5,
+    of: 5,
+  },
+  {
+    id: 'u_1077',
+    n: 'Noor Haddad',
+    e: 'noor@redcliffcollective.example',
+    ws: 'Red Cliff Collective',
+    role: 'Team owner',
+    tier: 'Agent',
+    last: 'Dec 10, 12:41 AM',
+    st: 'Active',
+    pr: 2,
+    of: 2,
+  },
+  {
+    id: 'u_1090',
+    n: 'Devon Achterberg',
+    e: 'devon@copperbasin.example',
+    ws: 'Copper Basin Realty',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 2:15 PM',
+    st: 'Active',
+    pr: 2,
+    of: 5,
+  },
+  {
+    id: 'u_1104',
+    n: 'Sam Whitlock',
+    e: 'sam@tidewaterproperty.example',
+    ws: 'Tidewater Property Co.',
+    role: 'Agent',
+    tier: 'Agent',
+    last: 'Dec 4, 9:03 AM',
+    st: 'Past due',
+    pr: 1,
+    of: 2,
+  },
+  {
+    id: 'u_1118',
+    n: 'Tessa Lindqvist',
+    e: 'tessa@lanternstreet.example',
+    ws: 'Lantern Street Partners',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Dec 9, 11:27 AM',
+    st: 'Trialing',
+    pr: 1,
+    of: 5,
+  },
+  {
+    id: 'u_1125',
+    n: 'Priya Raman',
+    e: 'priya@fourthmeridian.example',
+    ws: 'Fourth Meridian',
+    role: 'Team owner',
+    tier: 'Team',
+    last: 'Nov 2, 4:40 PM',
+    st: 'Canceled',
+    pr: 0,
+    of: 5,
+  },
 ] as const;
 
 /**
@@ -437,19 +711,82 @@ export const SUPPORT_USERS = [
  * started, length, ended. The console fixture turns each into the API's history row.
  */
 export const MASQ_SESSIONS = [
-  ['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'],
-  ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'],
-  ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff'],
+  [
+    'Avery Stone',
+    'Sam Whitlock',
+    'Customer cannot see the Session 2 replay.',
+    'Dec 9, 9:25 PM',
+    '6 min',
+    'Exited by staff',
+  ],
+  [
+    'Avery Stone',
+    'Jordan Hale',
+    'Checking seat invite flow after upgrade request.',
+    'Dec 8, 2:02 PM',
+    '15 min',
+    'Expired',
+  ],
+  [
+    'Connor Leiva',
+    'Elena Vargas',
+    'Verifying Week 2 step order on her account.',
+    'Dec 6, 4:18 PM',
+    '11 min',
+    'Exited by staff',
+  ],
 ] as const;
 
 /** `INV`: the invoices, as the workspaces' orders. */
 export const INV = [
-  { id: 'in_1QxT4mNs0291', c: 'Northshore Group', amt: '$1,495.00', st: 'Paid', d: 'Dec 8, 2026', card: 'Visa ending 4242' },
-  { id: 'in_1QxR9aRc0288', c: 'Red Cliff Collective', amt: '$1,450.00', st: 'Paid', d: 'Dec 6, 2026', card: 'Amex ending 1007' },
-  { id: 'in_1QxQ2cCb0285', c: 'Copper Basin Realty', amt: '$3,750.00', st: 'Paid', d: 'Dec 5, 2026', card: 'Visa ending 1881' },
-  { id: 'in_1QxP7tTw0283', c: 'Tidewater Property Co.', amt: '$97.00', st: 'Failed', d: 'Dec 4, 2026', card: 'Mastercard ending 5521' },
-  { id: 'in_1QxN1hHm0279', c: 'Hale & Marlowe Realty', amt: '$695.00', st: 'Open', d: 'Dec 3, 2026', card: 'Visa ending 3310' },
-  { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
+  {
+    id: 'in_1QxT4mNs0291',
+    c: 'Northshore Group',
+    amt: '$1,495.00',
+    st: 'Paid',
+    d: 'Dec 8, 2026',
+    card: 'Visa ending 4242',
+  },
+  {
+    id: 'in_1QxR9aRc0288',
+    c: 'Red Cliff Collective',
+    amt: '$1,450.00',
+    st: 'Paid',
+    d: 'Dec 6, 2026',
+    card: 'Amex ending 1007',
+  },
+  {
+    id: 'in_1QxQ2cCb0285',
+    c: 'Copper Basin Realty',
+    amt: '$3,750.00',
+    st: 'Paid',
+    d: 'Dec 5, 2026',
+    card: 'Visa ending 1881',
+  },
+  {
+    id: 'in_1QxP7tTw0283',
+    c: 'Tidewater Property Co.',
+    amt: '$97.00',
+    st: 'Failed',
+    d: 'Dec 4, 2026',
+    card: 'Mastercard ending 5521',
+  },
+  {
+    id: 'in_1QxN1hHm0279',
+    c: 'Hale & Marlowe Realty',
+    amt: '$695.00',
+    st: 'Open',
+    d: 'Dec 3, 2026',
+    card: 'Visa ending 3310',
+  },
+  {
+    id: 'in_1QxK5fFm0270',
+    c: 'Fourth Meridian',
+    amt: '$695.00',
+    st: 'Refunded',
+    d: 'Nov 1, 2026',
+    card: 'Visa ending 9034',
+  },
 ] as const;
 
 // ---- D-163: Billing's Summary and lists, verbatim (`Billing()` in AdminRedesign.jsx) ------------------
@@ -478,7 +815,13 @@ export const BILLING_PLANS = [
 ] as const;
 
 /** The AI Accelerator card: 11 of 15 sold, $67,500 collected, 4 × $3,750 = $15,000 still due. */
-export const BILLING_ACCELERATOR = { sold: 11, paidInFull: 7, twoPay: 4, collected: '$67,500', scheduled: '$15,000' } as const;
+export const BILLING_ACCELERATOR = {
+  sold: 11,
+  paidInFull: 7,
+  twoPay: 4,
+  collected: '$67,500',
+  scheduled: '$15,000',
+} as const;
 
 /** The Failed payments tab: customer, amount, decline reason, attempts, next retry. */
 export const BILLING_FAILED = [
@@ -488,19 +831,52 @@ export const BILLING_FAILED = [
 ] as const;
 
 /** The Refunds tab: refund, invoice, amount, reason, by, when. */
-export const BILLING_REFUNDS = [['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']] as const;
+export const BILLING_REFUNDS = [
+  ['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM'],
+] as const;
 
 /** The Workspace screen's staff notes (on Northshore Group), newest first. */
 export const WORKSPACE_NOTES = [
-  ['Imani Brooks', 'Dec 7, 3:40 PM', 'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.'],
+  [
+    'Imani Brooks',
+    'Dec 7, 3:40 PM',
+    'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.',
+  ],
   ['Connor Leiva', 'Nov 24, 10:05 AM', 'Onboarding call done. They want the leadership modules first.'],
 ] as const;
 
 /** The User screen's note (on Elena Vargas). */
-export const USER_NOTES = [['Imani Brooks', 'Dec 7, 3:40 PM', 'Prefers email over calls. Mornings MST.']] as const;
+/**
+ * R-5 audit (D-267): Utah Life, the access group People › Utah Life shows (the mockup's `ULA`, handoff/admin-mockup/
+ * ia-screens.jsx): its eight agents by the mockup's own masked addresses, each last active at that stamp, or still
+ * invited. None has given a name, so each reads as the group's agent.
+ */
+export const UTAH_LIFE = {
+  id: 'utah-life',
+  name: 'Utah Life',
+  emailDomain: 'liveutah.com',
+  plan: 'agent_plan',
+  members: [
+    ['a•••••@liveutah.com', 'Dec 10, 8:02 AM'],
+    ['c•••@liveutah.com', 'Dec 9, 5:47 PM'],
+    ['j••••••@liveutah.com', 'Dec 8, 11:20 AM'],
+    ['k••••@liveutah.com', null],
+    ['m••••@liveutah.com', 'Dec 7, 2:36 PM'],
+    ['r•••••••@liveutah.com', 'Dec 6, 9:11 AM'],
+    ['s•••@liveutah.com', 'Dec 4, 4:05 PM'],
+    ['t••••••@liveutah.com', 'Dec 3, 10:30 AM'],
+  ],
+} as const;
+
+export const USER_NOTES = [['Imani Brooks', 'Dec 7, 3:40 PM', 'Prefers email over calls. Mornings MT.']] as const;
 
 /** The User screen's identity card: "Yes, Nov 24, 2026", "Password, Google", and the access groups. */
-export const IDENTITY = { verified: 'Nov 24, 2026', password: true, google: true, groups: ['library', 'agent', 'team'] } as const;
+export const IDENTITY = {
+  verified: 'Nov 24, 2026',
+  password: true,
+  google: true,
+  groups: ['library', 'agent', 'team'],
+} as const;
 
 /** "Account created at checkout": the User screen's Activity, Nov 24, 9:30 AM. */
 export const JOINED = 'Nov 24, 9:30 AM';
@@ -526,13 +902,69 @@ export const ENDPOINT_STATS = { p95: '212 ms', errorRate: 0.4 } as const;
 
 /** `HOOKS`: every webhook delivery in and out. */
 export const HOOKS = [
-  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2291', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
-  { src: 'GoHighLevel', ev: 'order.sync', id: 'ord_2288', st: 'Failed', att: '3 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
-  { src: 'GoHighLevel', ev: 'login.sync', id: 'u_1077', st: 'Retrying', att: '2 of 5', next: 'Dec 10, 9:30 AM', err: '401 Unauthorized from GHL API' },
-  { src: 'Stripe', ev: 'invoice.payment_failed', id: 'evt_1QxP7tTw83', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
-  { src: 'Stripe', ev: 'checkout.session.completed', id: 'evt_1QxQ2cCb85', st: 'Delivered', att: '1 of 5', next: '—', err: '—' },
-  { src: 'Stripe', ev: 'customer.subscription.updated', id: 'evt_1QxN1hHm79', st: 'Failed', att: '5 of 5', next: 'None, attempts used', err: 'Handler timeout after 10 s' },
-  { src: 'Zoom', ev: 'recording.completed', id: '—', st: 'Not configured', att: '—', next: '—', err: 'Recording webhook is not live' },
+  {
+    src: 'GoHighLevel',
+    ev: 'order.sync',
+    id: 'ord_2291',
+    st: 'Failed',
+    att: '3 of 5',
+    next: 'Dec 10, 9:30 AM',
+    err: '401 Unauthorized from GHL API',
+  },
+  {
+    src: 'GoHighLevel',
+    ev: 'order.sync',
+    id: 'ord_2288',
+    st: 'Failed',
+    att: '3 of 5',
+    next: 'Dec 10, 9:30 AM',
+    err: '401 Unauthorized from GHL API',
+  },
+  {
+    src: 'GoHighLevel',
+    ev: 'login.sync',
+    id: 'u_1077',
+    st: 'Retrying',
+    att: '2 of 5',
+    next: 'Dec 10, 9:30 AM',
+    err: '401 Unauthorized from GHL API',
+  },
+  {
+    src: 'Stripe',
+    ev: 'invoice.payment_failed',
+    id: 'evt_1QxP7tTw83',
+    st: 'Delivered',
+    att: '1 of 5',
+    next: '—',
+    err: '—',
+  },
+  {
+    src: 'Stripe',
+    ev: 'checkout.session.completed',
+    id: 'evt_1QxQ2cCb85',
+    st: 'Delivered',
+    att: '1 of 5',
+    next: '—',
+    err: '—',
+  },
+  {
+    src: 'Stripe',
+    ev: 'customer.subscription.updated',
+    id: 'evt_1QxN1hHm79',
+    st: 'Failed',
+    att: '5 of 5',
+    next: 'None, attempts used',
+    err: 'Handler timeout after 10 s',
+  },
+  {
+    src: 'Zoom',
+    ev: 'recording.completed',
+    id: '—',
+    st: 'Not configured',
+    att: '—',
+    next: '—',
+    err: 'Recording webhook is not live',
+  },
 ] as const;
 
 /** `JOBS`: the scheduled jobs. */
@@ -541,10 +973,24 @@ export const JOBS = [
   { j: 'session-1h', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.3 s', st: 'Succeeded', next: '9:25 AM' },
   { j: 'replay-ready', sch: 'Every 15 min', last: 'Dec 10, 9:15 AM', dur: '0.9 s', st: 'Succeeded', next: '9:30 AM' },
   { j: 'build-48h', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '0.5 s', st: 'Succeeded', next: '10:00 AM' },
-  { j: 'weekly-digest', sch: 'Mon 7:00 AM', last: 'Dec 7, 7:00 AM', dur: '48 s', st: 'Succeeded', next: 'Dec 14, 7:00 AM' },
+  {
+    j: 'weekly-digest',
+    sch: 'Mon 7:00 AM MT / 8:00 AM CT',
+    last: 'Dec 7, 7:00 AM',
+    dur: '48 s',
+    st: 'Succeeded',
+    next: 'Dec 14, 7:00 AM',
+  },
   { j: 'announcement', sch: 'Every 5 min', last: 'Dec 10, 9:20 AM', dur: '0.2 s', st: 'Succeeded', next: '9:25 AM' },
   { j: 'billing', sch: 'Hourly', last: 'Dec 10, 9:00 AM', dur: '2.1 s', st: 'Succeeded', next: '10:00 AM' },
-  { j: 'accelerator-reminders', sch: 'Daily 9:00 AM', last: 'Dec 10, 9:00 AM', dur: '1.4 s', st: 'Succeeded', next: 'Dec 11, 9:00 AM' },
+  {
+    j: 'accelerator-reminders',
+    sch: 'Daily 9:00 AM MT / 10:00 AM CT',
+    last: 'Dec 10, 9:00 AM',
+    dur: '1.4 s',
+    st: 'Succeeded',
+    next: 'Dec 11, 9:00 AM',
+  },
   { j: 'ghl-sync', sch: 'Every 10 min', last: 'Dec 10, 9:20 AM', dur: '3.8 s', st: 'Running', next: '9:30 AM' },
   { j: 'ghl-logins', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '1.1 s', st: 'Succeeded', next: '9:30 AM' },
   { j: 'ghl-orders', sch: 'Every 10 min', last: 'Dec 10, 9:10 AM', dur: '0.6 s', st: 'Failed', next: '9:30 AM' },
@@ -576,17 +1022,104 @@ export interface MockEmail {
 
 /** `EMAILS`, verbatim. */
 export const EMAILS: readonly MockEmail[] = [
-  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
-  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM', dl: 'Dec 4, 9:04 AM', op: 1, fo: 'Dec 4, 9:30 AM', lo: 'Dec 4, 9:30 AM', cl: 0 },
-  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM', dl: 'Dec 9, 3:10 PM', op: 3, fo: 'Dec 9, 3:12 PM', lo: 'Dec 9, 8:12 PM', cl: 2, fc: 'Dec 9, 3:13 PM', lc: 'Dec 9, 8:13 PM', ln: 'https://learn.example.com/replays/2' },
-  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM', dl: 'Dec 9, 11:26 AM', op: 1, fo: 'Dec 9, 11:27 AM', lo: 'Dec 9, 11:27 AM', cl: 1, fc: 'Dec 9, 11:27 AM', lc: 'Dec 9, 11:27 AM', ln: 'https://learn.example.com/sign-in' },
-  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM', op: 0, cl: 0, br: 'Permanent · General · The mailbox does not exist.' },
-  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Sent', t: 'Dec 10, 9:18 AM', op: 0, cl: 0 },
-  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM', dl: 'Dec 8, 3:00 PM', op: 0, cl: 0 },
+  {
+    to: 'elena@northshoregroup.example',
+    tpl: 'session-24h',
+    sub: 'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build',
+    st: 'Delivered',
+    t: 'Dec 8, 12:00 PM',
+    dl: 'Dec 8, 12:00 PM',
+    op: 2,
+    fo: 'Dec 8, 12:41 PM',
+    lo: 'Dec 8, 6:40 PM',
+    cl: 1,
+    fc: 'Dec 8, 12:42 PM',
+    lc: 'Dec 8, 12:42 PM',
+    ln: 'https://learn.example.com/sessions/2',
+  },
+  {
+    to: 'sam@tidewaterproperty.example',
+    tpl: 'payment-failed',
+    sub: 'Your Insiders payment did not go through',
+    st: 'Delivered',
+    t: 'Dec 4, 9:04 AM',
+    dl: 'Dec 4, 9:04 AM',
+    op: 1,
+    fo: 'Dec 4, 9:30 AM',
+    lo: 'Dec 4, 9:30 AM',
+    cl: 0,
+  },
+  {
+    to: 'devon@copperbasin.example',
+    tpl: 'replay-ready',
+    sub: 'The Session 2 replay is ready',
+    st: 'Delivered',
+    t: 'Dec 9, 3:10 PM',
+    dl: 'Dec 9, 3:10 PM',
+    op: 3,
+    fo: 'Dec 9, 3:12 PM',
+    lo: 'Dec 9, 8:12 PM',
+    cl: 2,
+    fc: 'Dec 9, 3:13 PM',
+    lc: 'Dec 9, 8:13 PM',
+    ln: 'https://learn.example.com/replays/2',
+  },
+  {
+    to: 'tessa@lanternstreet.example',
+    tpl: 'magic-link',
+    sub: 'Your sign-in link',
+    st: 'Delivered',
+    t: 'Dec 9, 11:26 AM',
+    dl: 'Dec 9, 11:26 AM',
+    op: 1,
+    fo: 'Dec 9, 11:27 AM',
+    lo: 'Dec 9, 11:27 AM',
+    cl: 1,
+    fc: 'Dec 9, 11:27 AM',
+    lc: 'Dec 9, 11:27 AM',
+    ln: 'https://learn.example.com/sign-in',
+  },
+  {
+    to: 'priya@fourthmeridian.example',
+    tpl: 'weekly-digest',
+    sub: 'This week: 2 new AI Employees',
+    st: 'Bounced',
+    t: 'Dec 7, 7:00 AM',
+    op: 0,
+    cl: 0,
+    br: 'Permanent · General · The mailbox does not exist.',
+  },
+  {
+    to: 'jordan@halemarlowe.example',
+    tpl: 'receipt',
+    sub: 'Receipt for Team Plan, 16 seats',
+    st: 'Sent',
+    t: 'Dec 10, 9:18 AM',
+    op: 0,
+    cl: 0,
+  },
+  {
+    to: 'noor@redcliffcollective.example',
+    tpl: 'announcement',
+    sub: 'New in the vault: listing appointment checklist',
+    st: 'Delivered',
+    t: 'Dec 8, 3:00 PM',
+    dl: 'Dec 8, 3:00 PM',
+    op: 0,
+    cl: 0,
+  },
 ];
 
 /** The Email Log's Status options (`Sel` in `Email`), after "Any status" (D-263). */
-export const EMAIL_STATUS_OPTIONS = ['Sent', 'Delivered', 'Delayed', 'Bounced', 'Complained', 'Failed', 'Skipped'] as const;
+export const EMAIL_STATUS_OPTIONS = [
+  'Sent',
+  'Delivered',
+  'Delayed',
+  'Bounced',
+  'Complained',
+  'Failed',
+  'Skipped',
+] as const;
 
 /** `Usage`'s chart (`bars`), verbatim: each day's height in percent, Nov 27 to Dec 10. */
 export const USAGE_BARS = [62, 71, 68, 80, 77, 31, 28, 74, 85, 88, 92, 81, 36, 30] as const;
@@ -601,6 +1134,16 @@ export const USAGE_TAB_PER_SEAT = { signIns: 6, lessonPlays: 4, guideViews: 9, s
 export const USAGE_STORAGE = { bytes: 41.2e9, capBytes: 100e9 } as const;
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * D-267 (PR #286's review): a mockup stamp ("Dec 10, 8:52 AM", "9:25 AM") as the admin prints it, in MT with CT after it
+ * ("Dec 10, 8:52 AM MT / 9:52 AM CT"), as the R2 reference's sample now writes it. Anything else reads as it is.
+ */
+export const mockCt = (s: string): string =>
+  s.replace(/(\d{1,2}):(\d{2}) (AM|PM)$/, (_, h: string, m: string, ap: string) => {
+    const c = (Number(h) % 12) + (ap === 'PM' ? 12 : 0) + 1;
+    return `${h}:${m} ${ap} MT / ${c % 12 || 12}:${m} ${c >= 12 ? 'PM' : 'AM'} CT`;
+  });
 
 /**
  * A mockup stamp ("Dec 10, 8:52 AM", or a day, "Dec 8, 2026", read as 9:00 AM) as epoch ms, in the
@@ -619,17 +1162,18 @@ export function mockStamp(s: string): number {
  * D-255 (R-5 Phase 3): `P3_WEEKS`, the program's weeks as the Cohort page and New cohort list them: id, week, title,
  * outcome, steps. Week 0 is the setup week; all are published.
  */
-export const P3_WEEKS: readonly (readonly [id: string, week: number, title: string, outcome: string, steps: number])[] = [
-  ['accelerator-week-0', 0, 'Foundations', 'The office is ready for its first hire.', 8],
-  ['accelerator-week-1', 1, 'Where the Money Goes', 'A year of spend on one standard chart.', 7],
-  ['accelerator-week-2', 2, 'Leads That Pay', 'Every lead source ranked by what it returns.', 7],
-  ['accelerator-week-3', 3, 'Numbers on the 5th', 'A monthly report that builds itself.', 6],
-  ['accelerator-week-4', 4, 'Protect the Pipeline', 'No file goes quiet without someone knowing.', 5],
-  ['accelerator-week-5', 5, 'Coach from Evidence', 'One-on-ones that start from the numbers.', 4],
-  ['accelerator-week-6', 6, 'Delegate an Outcome', 'A hire that owns a result, not a task.', 3],
-  ['accelerator-week-7', 7, 'Make the Workflow Repeatable', 'What worked, written down so it runs again.', 2],
-  ['accelerator-week-8', 8, 'Sustain and Expand', 'The next three hires, in order.', 2],
-];
+export const P3_WEEKS: readonly (readonly [id: string, week: number, title: string, outcome: string, steps: number])[] =
+  [
+    ['accelerator-week-0', 0, 'Foundations', 'The office is ready for its first hire.', 8],
+    ['accelerator-week-1', 1, 'Where the Money Goes', 'A year of spend on one standard chart.', 7],
+    ['accelerator-week-2', 2, 'Leads That Pay', 'Every lead source ranked by what it returns.', 7],
+    ['accelerator-week-3', 3, 'Numbers on the 5th', 'A monthly report that builds itself.', 6],
+    ['accelerator-week-4', 4, 'Protect the Pipeline', 'No file goes quiet without someone knowing.', 5],
+    ['accelerator-week-5', 5, 'Coach from Evidence', 'One-on-ones that start from the numbers.', 4],
+    ['accelerator-week-6', 6, 'Delegate an Outcome', 'A hire that owns a result, not a task.', 3],
+    ['accelerator-week-7', 7, 'Make the Workflow Repeatable', 'What worked, written down so it runs again.', 2],
+    ['accelerator-week-8', 8, 'Sustain and Expand', 'The next three hires, in order.', 2],
+  ];
 
 /** `DEC_WORDS`: December's words, as its course holds them in the mockup. */
 export const DEC_WORDS = {

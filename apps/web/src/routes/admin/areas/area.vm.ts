@@ -12,9 +12,10 @@
 //   Cohort › Community     the threads waiting on staff (the sidebar's "N waiting"); none at zero
 //   Revenue › Plans & …    the upgrade requests not yet handled (Tiers & Upgrades' "N requests"); none at zero
 
-import { sortedModules } from '@ai/core';
+import { rosterTeams, sortedModules } from '@ai/core';
 import type { Db } from '@ai/core';
 import { PROGRAM } from '../../../data/admin-shell';
+import { groupTabId } from '../../../shell/admin/adminNav';
 import type { AreaId, NavCounts } from '../../../shell/admin/adminNav';
 
 export const AREA_COPY = {
@@ -42,9 +43,12 @@ export function areaCounts(db: Db, area: AreaId, cohortId: string, counts: NavCo
   if (area === 'cohort')
     return {
       schedule: db.sessions.filter((s) => s.cohortId === cohortId).length,
-      people: db.base.teams + db.teams.length,
+      // R-5 audit (D-267): the cohort's teams by the one rule (`rosterTeams`), as Cohort › People's own Teams tab.
+      people: db.base.teams + rosterTeams(db, cohortId).length,
       ...(counts.waiting > 0 ? { community: counts.waiting } : {}),
     };
   if (area === 'revenue') return counts.requests > 0 ? { plans: counts.requests } : {};
+  // R-5 audit (D-267): an access group's tab counts its people (the mockup's Utah Life "31").
+  if (area === 'people') return Object.fromEntries((db.groups ?? []).map((g) => [groupTabId(g.id), g.members.length]));
   return {};
 }

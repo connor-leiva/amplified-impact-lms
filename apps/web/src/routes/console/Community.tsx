@@ -58,8 +58,9 @@ const FIELD_OF: Record<string, Field> = {
 };
 
 export function Component() {
-  // D-253: Cohort › Community (`/admin/cohort/:cohortId/community`). The threads are the Community's (D-231), which is
-  // December's alone until Phase 4; the cohort in the address names it and its threads' addresses.
+  // D-253: Cohort › Community (`/admin/cohort/:cohortId/community`). The threads are the Community's (D-231). R-5 audit
+  // (D-267): the cohort in the address's own threads, its waiting count and its people, and a thread started here is
+  // that cohort's.
   const { cohortId = '' } = useParams();
   const gate = useConsoleGate('community');
   const navigate = useNavigate();
@@ -71,7 +72,8 @@ export function Component() {
   const phone = useViewportWidth() < 768;
   const api = gate.kind === 'ready' ? gate.api : null;
   const [reads, setReads] = useState(0);
-  const rec = useConsoleRecord(api, (a) => a.community(), String(reads));
+  // R-5 audit (D-267): this cohort's threads (`?cohort=`), and its people in the facts.
+  const rec = useConsoleRecord(api, (a) => a.community(cohortId), `${cohortId}:${reads}`);
   const [tab, setTab] = useState<CommunityTab>('all');
   const [space, setSpace] = useState('');
   const [q, setQ] = useState('');
@@ -120,7 +122,7 @@ export function Component() {
       if (!api || busy) return;
       setBusy(true);
       api
-        .startThread({ space: draft.space, title: draft.title.trim(), body: draft.body.trim() })
+        .startThread({ space: draft.space, title: draft.title.trim(), body: draft.body.trim() }, cohortId)
         .then(
           ({ id }) => {
             close();

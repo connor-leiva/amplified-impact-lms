@@ -163,8 +163,10 @@ export function registerSeatCardRoutes(app: FastifyInstance): void {
     const db = getDb();
     const [row] = await db.select().from(teamSeatCards).where(and(eq(teamSeatCards.teamId, me.teamId), eq(teamSeatCards.moduleId, week.mod.id)));
     const [team] = await db.select({ name: teams.name, ownerId: teams.ownerId }).from(teams).where(eq(teams.id, me.teamId));
-    const [owner] = team ? await db.select({ name: users.name, cohortId: users.cohortId }).from(users).where(eq(users.id, team.ownerId)) : [];
-    const [cohort] = owner?.cohortId ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, owner.cohortId)) : [];
+    const [owner] = team ? await db.select({ name: users.name }).from(users).where(eq(users.id, team.ownerId)) : [];
+    // R-5 audit (D-267): the team's cohort by the one rule (`viewerCohortId`, its owner's).
+    const teamCohort = team ? await viewerCohortId(db, team.ownerId) : null;
+    const [cohort] = teamCohort ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, teamCohort)) : [];
     const names = await namesOf([row?.signedBy ?? null]);
     const html = seatCardPdfHtml({
       form: seatCardForm(week.card),

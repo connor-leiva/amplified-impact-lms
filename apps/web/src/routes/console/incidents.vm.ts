@@ -7,8 +7,23 @@
 // toasts ("INC-0007 is acknowledged"). The two dialogs and the Linked card's empty line are new
 // (listed in D-167), the stack's R2 `Confirm` and `Modal`.
 
-import { INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS, adminStamp, consoleCan, incidentEventText, incidentLinked } from '@ai/core';
-import type { AdminStatus, IconName, IncidentDetail, IncidentFilters, IncidentRow, IncidentSeverity, IncidentStatus } from '@ai/core';
+import {
+  INCIDENT_SEVERITY_LABELS,
+  INCIDENT_STATUS_LABELS,
+  adminStamp,
+  consoleCan,
+  incidentEventText,
+  incidentLinked,
+} from '@ai/core';
+import type {
+  AdminStatus,
+  IconName,
+  IncidentDetail,
+  IncidentFilters,
+  IncidentRow,
+  IncidentSeverity,
+  IncidentStatus,
+} from '@ai/core';
 
 export const INCIDENTS_PATH = '/admin/incidents';
 export const NONE = '—';
@@ -34,7 +49,10 @@ export const incidentFiltersFor = (status: string): IncidentFilters =>
   status === 'open' || status === 'acknowledged' || status === 'resolved' ? { status } : {};
 
 /** A severity's pill: Sev 1 and Sev 2 red, Sev 3 amber (the mockup's `TONE`). */
-export const severityOf = (s: IncidentSeverity): AdminStatus => ({ label: INCIDENT_SEVERITY_LABELS[s], tone: s === 'sev3' ? 'warn' : 'bad' });
+export const severityOf = (s: IncidentSeverity): AdminStatus => ({
+  label: INCIDENT_SEVERITY_LABELS[s],
+  tone: s === 'sev3' ? 'warn' : 'bad',
+});
 
 /** A status, a word with its dot, never a colour alone: Open red, Acknowledged blue, Resolved green. */
 export const incidentStatusOf = (s: IncidentStatus): AdminStatus => ({
@@ -99,7 +117,11 @@ export const INCIDENT_COPY = {
   failed: 'That didn’t save. Nothing was changed.',
 } as const;
 
-const LINK_ICON: Readonly<Record<'jobs' | 'api' | 'email', IconName>> = { jobs: 'r2Jobs', api: 'r2Api', email: 'r2Email' };
+const LINK_ICON: Readonly<Record<'jobs' | 'api' | 'email', IconName>> = {
+  jobs: 'r2Jobs',
+  api: 'r2Api',
+  email: 'r2Email',
+};
 
 export interface IncidentVM {
   id: string;
@@ -120,7 +142,12 @@ export function incidentVM(d: IncidentDetail, role: string | null): IncidentVM {
     title: d.title,
     severity: severityOf(d.severity),
     status: incidentStatusOf(d.status),
-    facts: { id: d.id, severity: INCIDENT_SEVERITY_LABELS[d.severity], owner: d.owner?.name ?? NONE, opened: `${adminStamp(d.openedAt)} MST` },
+    facts: {
+      id: d.id,
+      severity: INCIDENT_SEVERITY_LABELS[d.severity],
+      owner: d.owner?.name ?? NONE,
+      opened: adminStamp(d.openedAt),
+    },
     timeline: d.events.map((e) => ({ key: e.id, text: incidentEventText(e), when: adminStamp(e.at) })),
     linked: incidentLinked(d.events).map((l) => ({ key: l.to, to: l.to, icon: LINK_ICON[l.icon], label: l.label })),
     canAck: d.status === 'open' && consoleCan(role, 'incidents.ack'),

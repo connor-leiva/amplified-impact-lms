@@ -624,12 +624,12 @@ describe('builderR2VM (D-160 R2-2)', () => {
     expect(builderR2VM(pdb, m1, { dirty: false, saved: false }, NOW).saveLabel).toBe('Save changes');
   });
 
-  it('prints a live session and an opening day in MST', () => {
+  it('prints a live session and an opening day in MT and CT', () => {
     const m7 = builderR2VM(pdb, seedDraft(pdb, 'm7', NOW), { dirty: false, saved: true }, NOW);
-    expect(m7.session).toEqual({ title: 'Session 3 · Database Live Build', when: 'Wed, Dec 16 · 12:00 PM MST' });
+    expect(m7.session).toEqual({ title: 'Session 3 · Database Live Build', when: 'Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT' });
     expect(m7.opens).toEqual({ text: 'Dec 14', muted: false });
     const m3 = builderR2VM(pdb, seedDraft(pdb, 'm3', NOW), { dirty: false, saved: true }, NOW);
-    expect(m3.session!.when).toBe('Wed, Dec 2 · 12:00 PM MST · Replay ready');
+    expect(m3.session!.when).toBe('Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready');
     const m12 = builderR2VM(pdb, seedDraft(pdb, 'm12', NOW), { dirty: false, saved: true }, NOW);
     expect(m12.opens).toEqual({ text: 'Not scheduled', muted: true });
     expect(m12.linked).toBe(false);
@@ -663,7 +663,7 @@ describe('builderR2VM (D-160 R2-2)', () => {
     expect(moveStepTo(steps, 2, 2)).toEqual(steps);
   });
 
-  it('reads and writes the opening day in MST', () => {
+  it('reads and writes the opening day in MT', () => {
     const t = opensFrom('2026-12-14')!;
     expect(t).toBe(Date.parse('2026-12-14T09:00:00-07:00'));
     expect(opensInput(t)).toBe('2026-12-14');

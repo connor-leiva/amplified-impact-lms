@@ -13,6 +13,7 @@ import { loadDb } from '../db/io';
 import { checklistState, cohorts, teamIntake, teams, users } from '../db/schema';
 import { intakePdfHtml, intakePdfName, renderPdf } from '../pdf/render';
 import { clock } from '../lib/clock';
+import { viewerCohortId } from '../lib/course-access';
 
 export const INTAKE_PATH = '/api/intake';
 
@@ -62,8 +63,10 @@ export async function teamIntakePdf(teamId: string): Promise<{ pdf: Buffer; name
   const db = getDb();
   const [row] = await db.select().from(teamIntake).where(eq(teamIntake.teamId, teamId));
   const [team] = await db.select({ name: teams.name, ownerId: teams.ownerId }).from(teams).where(eq(teams.id, teamId));
-  const [owner] = team ? await db.select({ name: users.name, cohortId: users.cohortId }).from(users).where(eq(users.id, team.ownerId)) : [];
-  const [cohort] = owner?.cohortId ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, owner.cohortId)) : [];
+  const [owner] = team ? await db.select({ name: users.name }).from(users).where(eq(users.id, team.ownerId)) : [];
+  // R-5 audit (D-267): the team's cohort by the one rule (`viewerCohortId`, its owner's).
+  const teamCohort = team ? await viewerCohortId(db, team.ownerId) : null;
+  const [cohort] = teamCohort ? await db.select({ name: cohorts.name }).from(cohorts).where(eq(cohorts.id, teamCohort)) : [];
   const html = intakePdfHtml({
     intake: form,
     answers: currentIntakeAnswers(form, row?.answers ?? {}),

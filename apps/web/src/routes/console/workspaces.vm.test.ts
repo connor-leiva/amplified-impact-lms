@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecords, fixtureWorkspace, fixtureWorkspaceRows } from '../../data/console-fixture-records';
-import { SUPPORT_WS } from '../../data/parity-r2';
+import { SUPPORT_WS, mockCt } from '../../data/parity-r2';
 import {
   PLAN_OPTIONS,
   STATUS_OPTIONS,
@@ -19,7 +19,7 @@ describe('the Workspaces list (spec § 7.3) on R2', () => {
 
   it('prints every row as the mockup does: name and id, owner, plan, seats, status, last activity', () => {
     expect(rows.map((r) => [r.name, r.id, r.owner, r.plan, r.seats.text, r.status.label, r.last])).toEqual(
-      SUPPORT_WS.map((w) => [w.n, w.id, w.owner, w.plan, `${w.used} of ${w.cap}`, w.st, w.last]),
+      SUPPORT_WS.map((w) => [w.n, w.id, w.owner, w.plan, `${w.used} of ${w.cap}`, w.st, mockCt(w.last)]),
     );
     expect(rows[0]!.href).toBe('/admin/people/teams/ws_northshore');
   });
@@ -72,7 +72,7 @@ describe('one workspace (spec § 7.3) on R2', () => {
       seats: '33 of 41',
       owner: 'Elena Vargas',
       mrr: '$1,495',
-      last: 'Dec 10, 8:52 AM',
+      last: 'Dec 10, 8:52 AM MT / 9:52 AM CT',
       welcome: null,
     });
   });
@@ -98,7 +98,7 @@ describe('one workspace (spec § 7.3) on R2', () => {
       mrr: '$1,495',
       invoice: { id: 'in_1QxT4mNs0291', status: { label: 'Paid', tone: 'ok' } },
     });
-    expect(vm.activity[0]).toMatchObject({ text: 'Team Plan order started', when: 'Dec 8, 9:00 AM' });
+    expect(vm.activity[0]).toMatchObject({ text: 'Team Plan order started', when: 'Dec 8, 9:00 AM MT / 10:00 AM CT' });
   });
 
   it('MRR: One-time for the AI Accelerator, $0 while trialing, the latest order while past due', () => {

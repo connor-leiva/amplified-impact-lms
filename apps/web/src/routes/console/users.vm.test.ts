@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecords, fixtureUser, fixtureUserRows } from '../../data/console-fixture-records';
-import { SUPPORT_USERS } from '../../data/parity-r2';
+import { SUPPORT_USERS, mockCt } from '../../data/parity-r2';
 import { ROLE_OPTIONS, canReset, isDefaultUserFilters, signInOf, userFiltersFor, userRowVM, userVM } from './users.vm';
 
 // D-160 R2-1c: the Users list and one user, from the API's shapes, in the mockup's words.
@@ -20,7 +20,7 @@ describe('the Users list (spec § 7.4) on R2', () => {
         u.ws,
         u.role,
         u.st,
-        u.last,
+        mockCt(u.last),
       ]),
     );
   });
@@ -54,7 +54,7 @@ describe('one user (spec § 7.4) on R2', () => {
       workspaceHref: '/admin/people/teams/ws_northshore',
       role: 'Team owner',
       tier: 'Team',
-      last: 'Dec 10, 8:52 AM',
+      last: 'Dec 10, 8:52 AM MT / 9:52 AM CT',
       welcome: null,
     });
   });
@@ -83,7 +83,11 @@ describe('one user (spec § 7.4) on R2', () => {
       'Deployed',
       'In progress',
     ]);
-    expect(vm.activity[0]).toEqual({ key: expect.any(String), text: 'Signed in', when: 'Dec 10, 8:52 AM' });
+    expect(vm.activity[0]).toEqual({
+      key: expect.any(String),
+      text: 'Signed in',
+      when: 'Dec 10, 8:52 AM MT / 9:52 AM CT',
+    });
     expect(vm.activity.at(-1)!.text).toBe('Account created');
   });
 

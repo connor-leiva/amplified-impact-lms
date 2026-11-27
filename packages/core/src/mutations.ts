@@ -18,6 +18,7 @@ import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
 import { NOT_IN_PLAN, isCourseWeek } from './accelerator';
 import { cohortView } from './cohort-run';
+import { rosterLearners, rosterTeams } from './cohort-roster';
 import type { CohortFacts } from './cohort-page';
 import { LMS_TOUR_MODULE_ID, LMS_TOUR_PREF } from './lms-tour';
 import { canOpenModule } from './release';
@@ -1149,10 +1150,13 @@ export function sendAnnouncement(
     at?: string;
     severity?: Announcement['severity'];
     action?: Announcement['action'] | '';
+    /** R-5 audit (D-267): the cohort whose Announcements tab it is sent from; it reaches only that cohort's people. */
+    cohortId?: string;
   },
   c: Ctx,
 ): Outcome {
   requirePerm(db, a, 'announce');
+  if (args.cohortId !== undefined && !db.cohorts.some((co) => co.id === args.cohortId)) throw new MutationError('not_found', `No cohort ${args.cohortId}`);
   const s = staffOf(db, a);
   const title = (args.title || '').trim(),
     body = (args.body || '').trim();
@@ -1163,13 +1167,14 @@ export function sendAnnouncement(
   // `at` is the composer's datetime-local value, read as Central Time. An unusable value falls
   // back to `now` rather than writing NaN into the row.
   const at = sched ? (isNaN(parsed) ? c.now : parsed) : c.now;
+  // R-5 audit (D-267): one sent from a cohort's tab counts the people who count in it.
   const B = db.base,
-    users = db.users.filter((u) => u.status !== 'invited');
+    users = (args.cohortId !== undefined ? rosterLearners(db, args.cohortId) : db.users).filter((u) => u.status !== 'invited');
   const counts: Record<Announcement['audience'], number> = {
     all: B.learners + users.length,
     agent: B.agent + users.filter((u) => u.tier === 'agent').length,
     team: B.teamSeats + users.filter((u) => u.tier === 'team').length,
-    owners: B.teams + db.teams.length,
+    owners: B.teams + (args.cohortId !== undefined ? rosterTeams(db, args.cohortId) : db.teams).length,
   };
   const action = args.action || null;
   const channels: ('inapp' | 'email')[] = [];
@@ -1179,6 +1184,7 @@ export function sendAnnouncement(
     db: produce(db, (d) => {
       d.announcements.unshift({
         id: c.id('a'),
+        ...(args.cohortId !== undefined ? { cohortId: args.cohortId } : {}),
         title,
         body,
         audience: args.audience,

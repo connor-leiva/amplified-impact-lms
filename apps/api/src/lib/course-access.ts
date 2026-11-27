@@ -13,6 +13,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { DEFAULT_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming, courseOpensAt } from '@ai/core/accelerator';
 import { cohortOfPlans } from '@ai/core/cohort-run';
+import { viewerCohortOf } from '@ai/core/cohort-roster';
 import type { CohortPlan } from '@ai/core/cohort-run';
 import type { AcceleratorPlan, CourseRoster } from '@ai/core/accelerator';
 import { courseEntry, courseUpcoming, liveCoursePlan } from '@ai/core/release';
@@ -39,20 +40,27 @@ export async function plansForLearner(db: Reader, userId: string): Promise<Accel
 }
 
 /**
- * R-5 (D-254): which cohort this viewer is in: the cohort of their team's newest `cohort` plan that has not ended
- * (`cohortOfPlans`), else `DEFAULT_COHORT_ID`. Staff, and a learner with no team or no such plan, get the default,
- * where it is inert: their plan is the gate. `users.cohort_id` is kept in step with it for a cohort team.
+ * R-5 (D-254), R-5 audit (D-267): which cohort this viewer is in, the one function for it. The cohort of their team's
+ * newest `cohort` plan that has not ended (`viewerCohortOf`, Q-23), else the cohort their row names (`users.cohort_id`,
+ * kept in step for a cohort team), else `DEFAULT_COHORT_ID`, where it is inert: their plan is the gate. Staff get the
+ * default. The snapshot, the course, Join, Community, files, the seat card, turn in, and the intake's and seat card's
+ * cohort name all read it here.
  */
 export async function viewerCohortId(db: Reader, userId: string): Promise<string> {
-  const [user] = await db.select({ teamId: users.teamId, kind: users.kind }).from(users).where(eq(users.id, userId)).limit(1);
-  if (!user || user.kind !== 'learner' || !user.teamId) return DEFAULT_COHORT_ID;
+  const [user] = await db.select({ teamId: users.teamId, kind: users.kind, cohortId: users.cohortId }).from(users).where(eq(users.id, userId)).limit(1);
+  if (!user || user.kind !== 'learner') return DEFAULT_COHORT_ID;
+  if (!user.teamId) return viewerCohortOf([], user.cohortId);
   const accts = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, user.teamId));
-  if (!accts.length) return DEFAULT_COHORT_ID;
-  const rows = await db
-    .select({ kind: plans.kind, status: plans.status, cohortId: plans.cohortId, createdAt: plans.createdAt })
-    .from(plans)
-    .where(inArray(plans.accountId, accts.map((a) => a.id)));
-  return cohortOfPlans(rows.map((r): CohortPlan => ({ kind: r.kind, status: r.status, cohortId: r.cohortId, createdAt: Number(r.createdAt) })));
+  const rows = accts.length
+    ? await db
+        .select({ kind: plans.kind, status: plans.status, cohortId: plans.cohortId, createdAt: plans.createdAt })
+        .from(plans)
+        .where(inArray(plans.accountId, accts.map((a) => a.id)))
+    : [];
+  return viewerCohortOf(
+    rows.map((r): CohortPlan => ({ kind: r.kind, status: r.status, cohortId: r.cohortId, createdAt: Number(r.createdAt) })),
+    user.cohortId,
+  );
 }
 
 /**

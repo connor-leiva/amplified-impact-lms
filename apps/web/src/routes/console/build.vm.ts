@@ -8,12 +8,20 @@
 // count is the snapshot's. Each builder row says what the mockup's own page head says about it.
 
 import { COHORT_SEATS } from '@ai/core/offer';
-import { SKILL_SET_SHORT, SKILL_STATUS_LABELS, adminDate, adminWhen, courseOpensAt, curriculumWeekAt, curriculumWeeks } from '@ai/core';
+import {
+  SKILL_SET_SHORT,
+  SKILL_STATUS_LABELS,
+  adminDate,
+  adminWhen,
+  courseOpensAt,
+  curriculumWeekAt,
+  curriculumWeeks,
+} from '@ai/core';
 import type { AdminStatus, ConsoleSkillRow, Db, IconName } from '@ai/core';
 
 export const BUILD_COPY = {
   title: 'Build',
-  description: 'The builder screens, the skill library and the cohort, in one place. Times are MST (America/Phoenix).',
+  description: 'The builder screens, the skill library and the cohort, in one place.',
   screens: 'Builder screens',
   skills: 'Skills',
   skillsEmpty: 'No skills yet',
@@ -147,7 +155,11 @@ export interface SkillVM {
   released: string;
 }
 
-const SKILL_TONE: Record<ConsoleSkillRow['status'], AdminStatus['tone']> = { published: 'ok', draft: 'off', hidden: 'off' };
+const SKILL_TONE: Record<ConsoleSkillRow['status'], AdminStatus['tone']> = {
+  published: 'ok',
+  draft: 'off',
+  hidden: 'off',
+};
 
 export const skillVM = (r: ConsoleSkillRow): SkillVM => ({
   id: r.id,

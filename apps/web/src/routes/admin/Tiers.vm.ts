@@ -14,7 +14,8 @@
 // In http mode the API returns `ZERO_BASE`, so the same arithmetic shows live numbers. Nothing here
 // branches on where the data came from.
 
-import { adminStamp, fmt, sortedModules } from '@ai/core';
+import { adminStamp, fmt, rosterLearnersAll, rosterTeamsAll, sortedModules } from '@ai/core';
+import { cohortLabel } from '../../data/admin-shell';
 import type { Db, IconName, Tier, UpgradeRequest } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -122,13 +123,15 @@ const ORDER: Record<UpgradeRequest['status'], number> = { new: 0, contacted: 1, 
 
 export function tiersVM(db: Db, now: number): TiersVM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  // R-5 audit (D-267): the learners and teams that count in a cohort (`rosterLearnersAll`, `rosterTeamsAll`), never an
+  // access group's member. Without a roster (the fixture), everyone, as before.
+  const users = rosterLearnersAll(db).filter((u) => u.status !== 'invited' && u.test !== true);
 
   // The two figures every price on this screen is multiplied by. A seeded test account's team is
   // left out, so its price is not multiplied into the revenue line (D-202).
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
-  const teamN = B.teams + db.teams.filter((t) => !testOwners.has(t.ownerId)).length;
+  const teamN = B.teams + rosterTeamsAll(db).filter((t) => !testOwners.has(t.ownerId)).length;
 
   const priceOf = (id: Tier): number => db.tiers.find((t) => t.id === id)?.price ?? 0;
 
@@ -203,7 +206,8 @@ export function tiersVM(db: Db, now: number): TiersVM {
   const total = agentN * priceOf('agent') + teamN * priceOf('team');
 
   return {
-    summary: `December 2026 Cohort revenue ${fmt.money(total)} · ${agentN} Agent licenses · ${teamN} teams`,
+    // R-5 audit (D-267): the cohort's own name, not a typed one.
+    summary: `${db.cohorts[0] ? cohortLabel(db.cohorts[0]) : 'Cohort'} revenue ${fmt.money(total)} · ${agentN} Agent licenses · ${teamN} teams`,
     tiers,
     matrix,
     requests,
@@ -275,14 +279,15 @@ const R2_REQUEST_STATUS: Record<UpgradeRequest['status'], RequestR2Row['status']
 
 export function tiersR2VM(db: Db): TiersR2VM {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  // R-5 audit (D-267): the learners and teams that count in a cohort, never an access group's member.
+  const users = rosterLearnersAll(db).filter((u) => u.status !== 'invited' && u.test !== true);
   const testOwners = new Set(db.users.filter((u) => u.test === true).map((u) => u.id));
   const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
   const teamTiers = db.tiers.filter((t) => t.id === 'team').sort((a, b) => a.seats - b.seats);
 
   /** The teams a Team Tier card counts: every team, or with several sizes, the teams of its size. */
   const teamsFor = (seats: number): number => {
-    const teams = db.teams.filter((t) => !testOwners.has(t.ownerId));
+    const teams = rosterTeamsAll(db).filter((t) => !testOwners.has(t.ownerId));
     if (teamTiers.length <= 1) return B.teams + teams.length;
     const i = teamTiers.findIndex((t) => t.seats === seats);
     const below = i > 0 ? teamTiers[i - 1]!.seats : 0;
@@ -307,7 +312,7 @@ export function tiersR2VM(db: Db): TiersR2VM {
     };
   });
   const revenue = db.tiers.reduce((a, t) => a + (t.id === 'team' ? teamsFor(t.seats) : agentN) * t.price, 0);
-  const teamN = B.teams + db.teams.length;
+  const teamN = B.teams + rosterTeamsAll(db).length;
   const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0];
 
   const agentPrice = db.tiers.find((t) => t.id === 'agent')?.price;

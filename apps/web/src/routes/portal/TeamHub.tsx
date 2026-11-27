@@ -134,7 +134,7 @@ function TeamHub() {
           <div>
             <h1 className={s.h1}>Team Hub</h1>
             <p className={s.sub}>
-              {vm.teamName} · Team Tier{vm.inCohort ? ' · December 2026 Cohort' : ''}
+              {vm.teamName} · Team Tier{vm.inCohort && vm.cohortName ? ` · ${vm.cohortName}` : ''}
             </p>
           </div>
           <div className={s.headActions} data-phone="actions">

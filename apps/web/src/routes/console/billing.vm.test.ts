@@ -2,7 +2,13 @@
 // exactly; production's print its own, with no "· sample" and nothing the API can't back.
 import { describe, expect, it } from 'vitest';
 import type { BillingSummary } from '@ai/core';
-import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from '../../data/console-fixture-billing';
+import {
+  BILLING_SAMPLE_LABELS,
+  fixtureBillingExecute,
+  fixtureBillingPreview,
+  fixtureBillingRows,
+  fixtureBillingSummary,
+} from '../../data/console-fixture-billing';
 import { ConsoleError } from '../../data/console';
 import {
   BILLING_COPY,
@@ -59,7 +65,12 @@ describe('the Summary (the mockup’s `Billing()`)', () => {
     };
     const vm = billingSummaryVM(s, null);
     expect(vm.stats[0]).toEqual({ key: 'mrr', label: 'MRR', value: '$18,516' });
-    expect(vm.stats[2]).toEqual({ key: 'failed', label: 'Failed payments', value: '0', to: '/admin/revenue/payments/failed' });
+    expect(vm.stats[2]).toEqual({
+      key: 'failed',
+      label: 'Failed payments',
+      value: '0',
+      to: '/admin/revenue/payments/failed',
+    });
     expect(vm.plansTitle).toBe('Plan economics');
     expect(vm.accelerator.seats).toEqual({ pct: 100, bar: 'full', text: '15 of 15' });
     expect(vm.accelerator.second).toBe('$0');
@@ -80,7 +91,9 @@ describe('the Summary (the mockup’s `Billing()`)', () => {
       'Refunds',
     ]);
     // D-253: Revenue › Payments' words (the mockup's third pass).
-    expect(BILLING_COPY.description).toBe('The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here.');
+    expect(BILLING_COPY.description).toBe(
+      'The lists behind the money, from Stripe. Prices and Payment Links are made in Stripe and are not edited here.',
+    );
     expect(BILLING_COPY.readOnly).toBe('Read-only for your role');
     // D-253: the Summary is Revenue's; the lists are Revenue › Payments, Customers its own address.
     expect(BILLING_TABS.map(billingTabPath)).toEqual([
@@ -115,11 +128,12 @@ describe('the lists', () => {
     });
     expect(rows.subscriptions.map((r) => r.id)).not.toContain('—');
     // D-164: the gated seat-tier control is drawn on a Team Plan's invoices only.
-    expect(rows.invoices.map(invoiceVM).filter((r) => r.teamPlan).map((r) => r.customer)).toEqual([
-      'Northshore Group',
-      'Hale & Marlowe Realty',
-      'Fourth Meridian',
-    ]);
+    expect(
+      rows.invoices
+        .map(invoiceVM)
+        .filter((r) => r.teamPlan)
+        .map((r) => r.customer),
+    ).toEqual(['Northshore Group', 'Hale & Marlowe Realty', 'Fourth Meridian']);
   });
   it('invoices: the mockup’s words, MST dates, and only the actions R2-4b may take', () => {
     const v = rows.invoices.map(invoiceVM);
@@ -143,19 +157,27 @@ describe('the lists', () => {
   });
   it('failed payments and refunds, in MST', () => {
     expect(rows.failed.map(failedVM).map((f) => [f.customer, f.reason, f.amount, f.attempts, f.retry])).toEqual([
-      ['Tidewater Property Co.', 'card_declined: insufficient_funds', '$97.00', '2', 'Dec 11, 9:00 AM'],
-      ['Hale & Marlowe Realty', 'authentication_required', '$695.00', '1', 'Dec 11, 8:00 AM'],
-      ['Copper Basin Realty', 'card_declined: do_not_honor', '$3,750.00', '1', 'Dec 12, 12:00 PM'],
+      [
+        'Tidewater Property Co.',
+        'card_declined: insufficient_funds',
+        '$97.00',
+        '2',
+        'Dec 11, 9:00 AM MT / 10:00 AM CT',
+      ],
+      ['Hale & Marlowe Realty', 'authentication_required', '$695.00', '1', 'Dec 11, 8:00 AM MT / 9:00 AM CT'],
+      ['Copper Basin Realty', 'card_declined: do_not_honor', '$3,750.00', '1', 'Dec 12, 12:00 PM MT / 1:00 PM CT'],
     ]);
     // D-166: "Open email log" opens the Email Log for the customer's workspace.
-    expect(failedVM(rows.failed[0]!).emailLog).toBe('/admin/email?teamId=ws_tidewater&workspace=Tidewater+Property+Co.');
+    expect(failedVM(rows.failed[0]!).emailLog).toBe(
+      '/admin/email?teamId=ws_tidewater&workspace=Tidewater+Property+Co.',
+    );
     expect(refundVM(rows.refunds[0]!)).toMatchObject({
       id: 're_3QxK5fFm70',
       invoice: 'in_1QxK5fFm0270',
       reason: 'Canceled inside trial window',
       by: 'Connor Leiva',
       amount: '$695.00',
-      when: 'Nov 1, 4:44 PM',
+      when: 'Nov 1, 4:44 PM MT / 5:44 PM CT',
       href: null,
     });
   });
@@ -207,14 +229,28 @@ describe('the refund and void dialogs (D-164)', () => {
 
   it('a refusal shows the server’s sentence; one the confirmation can’t get past offers Start again', () => {
     const e = (status: number, code: string | null, m: string) => new ConsoleError('failed', status, code as never, m);
-    expect(actionErrorOf(e(410, 'confirm_expired', 'This confirmation expired after 5 minutes. Start again to see the current figures.'))).toEqual({
+    expect(
+      actionErrorOf(
+        e(410, 'confirm_expired', 'This confirmation expired after 5 minutes. Start again to see the current figures.'),
+      ),
+    ).toEqual({
       message: 'This confirmation expired after 5 minutes. Start again to see the current figures.',
       restart: true,
     });
-    for (const code of ['confirm_invalid', 'confirm_used', 'invoice_not_voidable', 'refund_too_large', 'stripe_refused']) expect(actionErrorOf(e(409, code, 'x')).restart, code).toBe(true);
+    for (const code of [
+      'confirm_invalid',
+      'confirm_used',
+      'invoice_not_voidable',
+      'refund_too_large',
+      'stripe_refused',
+    ])
+      expect(actionErrorOf(e(409, code, 'x')).restart, code).toBe(true);
     // Stripe didn't answer, or a missing scope: the same confirmation may be sent again.
     expect(actionErrorOf(e(502, 'stripe_unavailable', 'Stripe didn’t answer.')).restart).toBe(false);
-    expect(actionErrorOf(e(503, 'stripe_permission_missing', 'Add Write on Refunds to the key.'))).toEqual({ message: 'Add Write on Refunds to the key.', restart: false });
+    expect(actionErrorOf(e(503, 'stripe_permission_missing', 'Add Write on Refunds to the key.'))).toEqual({
+      message: 'Add Write on Refunds to the key.',
+      restart: false,
+    });
     expect(actionErrorOf(e(429, null, 'Rate limit exceeded')).message).toBe('Too many requests.');
   });
 
@@ -224,13 +260,27 @@ describe('the refund and void dialogs (D-164)', () => {
     const body = { confirmToken: p.confirmToken, reason: 'Customer asked for it.', typed: '1495' };
     expect(() => fixtureBillingExecute(rows, 'void', body, NOW_, null)).toThrow(/isn’t valid/);
     expect(() => fixtureBillingExecute(rows, 'refund', body, NOW_ + 300_000, null)).toThrow(/expired/);
-    expect(() => fixtureBillingExecute(rows, 'refund', { ...body, typed: '1494' }, NOW_, null)).toThrow(/doesn’t match/);
-    expect(() => fixtureBillingExecute(rows, 'refund', body, NOW_, 'action_scope')).toThrow('Stripe’s restricted key can’t change Refunds. Add Write on Refunds to the key.');
+    expect(() => fixtureBillingExecute(rows, 'refund', { ...body, typed: '1494' }, NOW_, null)).toThrow(
+      /doesn’t match/,
+    );
+    expect(() => fixtureBillingExecute(rows, 'refund', body, NOW_, 'action_scope')).toThrow(
+      'Stripe’s restricted key can’t change Refunds. Add Write on Refunds to the key.',
+    );
     expect(fixtureBillingExecute(rows, 'refund', body, NOW_, null).refund).toMatchObject({ amountCents: 149_500 });
     expect(invoiceVM(rows.invoices[0]!)).toMatchObject({ status: { label: 'Refunded' }, refund: false });
-    expect(rows.refunds[0]).toMatchObject({ invoiceId: 'in_1QxT4mNs0291', reason: 'Customer asked for it.', byStaff: { name: 'Connor Leiva' } });
+    expect(rows.refunds[0]).toMatchObject({
+      invoiceId: 'in_1QxT4mNs0291',
+      reason: 'Customer asked for it.',
+      byStaff: { name: 'Connor Leiva' },
+    });
     const v = fixtureBillingPreview(rows, 'void', 'in_1QxN1hHm0279', NOW_);
-    fixtureBillingExecute(rows, 'void', { confirmToken: v.confirmToken, reason: 'Billed twice by mistake.', typed: 'in_1QxN1hHm0279' }, NOW_, null);
+    fixtureBillingExecute(
+      rows,
+      'void',
+      { confirmToken: v.confirmToken, reason: 'Billed twice by mistake.', typed: 'in_1QxN1hHm0279' },
+      NOW_,
+      null,
+    );
     expect(invoiceVM(rows.invoices[4]!)).toMatchObject({ status: { label: 'Void' }, void: false });
   });
 });

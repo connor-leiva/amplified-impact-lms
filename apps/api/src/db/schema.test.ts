@@ -80,7 +80,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-236: one seat card per team per week. Not a `Db` record.
   teamSeatCards: { table: 'team_seat_cards', columns: ['answers', 'module_id', 'ready_at', 'signed_at', 'signed_by', 'team_id', 'updated_at', 'updated_by'] },
   resources: { table: 'resources', columns: ['cat', 'desc', 'dl', 'exec', 'file_name', 'id', 'kind', 'module_id', 'platform', 'seq', 'size', 'status', 'step_id', 'storage_key', 'tier', 'title', 'type', 'updated', 'visibility'] },
-  announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
+  announcements: { table: 'announcements', columns: ['action', 'action_label', 'at', 'audience', 'body', 'channels', 'cohort_id', 'id', 'opens_pct', 'session_id', 'severity', 'status', 'title'] },
   dismissals: { table: 'dismissals', columns: ['announcement_id', 'user_id'] },
   reminders: { table: 'reminders', columns: ['channel', 'id', 'label', 'on'] },
   tiers: { table: 'tiers', columns: ['blurb', 'features', 'id', 'name', 'price', 'seats'] },

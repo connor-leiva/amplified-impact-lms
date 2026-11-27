@@ -59,6 +59,8 @@ const announcement = {
   severity: z.enum(['info', 'warning']).optional(),
   action: z.enum(['calendar', 'sessions', '']).nullable().optional(),
   at: text(16).optional(),
+  // R-5 audit (D-267): the cohort whose Announcements tab it is made on.
+  cohortId: text(80).optional(),
 };
 
 /** R-5 (D-254): a date and a time typed in the cohort's zone. */
