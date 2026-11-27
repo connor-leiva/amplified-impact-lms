@@ -68,7 +68,7 @@ export const cohorts = pgTable('cohorts', {
   run: jsonb('run'), shape: jsonb('shape'), programId: text('program_id'), archivedAt: ts('archived_at'),
   // R-5 Phase 3 (D-255, migration 0044): the Cohort page's own facts. All nullable, no default (D-173).
   includedUntil: text('included_until'), wordsCheckedAt: ts('words_checked_at'), overlapOkAt: ts('overlap_ok_at'), words: jsonb('words'), hosts: text('hosts'),
-  // R-5 Phase 5 (D-262, migration 0045): what it sells through. All nullable, no default (D-173); December's are written
+  // R-5 Phase 5 (D-262, migration 0046): what it sells through. All nullable, no default (D-173); December's are written
   // by the data step `2026-11-27-december-selling`. The price is Stripe's, under the lookup keys: no amount is stored.
   founding: boolean('founding'), foundingClosesAt: ts('founding_closes_at'),
   lookupKeyFull: text('lookup_key_full'), lookupKeyRollover: text('lookup_key_rollover'), lookupKeyTwoPay: text('lookup_key_two_pay'),
@@ -398,7 +398,7 @@ export const orders = pgTable('orders', {
   ghlSyncStamp: text('ghl_sync_stamp'), ghlLastAttemptAt: ts('ghl_last_attempt_at'), // D-134, as on ai101_waitlist
   accountId: text('account_id'),
   createdAt: ts('created_at').notNull(),
-  // R-5 Phase 5 (D-262, migration 0045): the checkout's `ai_cohort`. Null: none, which is December, forever.
+  // R-5 Phase 5 (D-262, migration 0046): the checkout's `ai_cohort`. Null: none, which is December, forever.
   cohortId: text('cohort_id'),
 }, (t) => [
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),

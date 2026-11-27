@@ -13,7 +13,7 @@ The decision entry is D-262.
 - Nothing cohort-specific is hard-coded (PLAN § 10.10). The code never creates a Stripe price or a Payment Link (§ 10.1,
   Q-21); it reads them. Stripe writes run in test mode, in tests, against a fake.
 
-## 1. The columns (migration `0045_cohort_selling.sql`)
+## 1. The columns (migration `0046_cohort_selling.sql`; numbered 0046 after #282 took 0045)
 
 Additive only, every column nullable with no default (D-173): a null reads back as an absent key, so every row made
 before reads as it did.

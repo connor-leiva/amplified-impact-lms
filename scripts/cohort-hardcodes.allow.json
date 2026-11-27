@@ -251,6 +251,20 @@
       "count": 1,
       "reason": "The prototype portal's team hub (fixture mode only); stays (PLAN § 5.4).",
       "phase": "never"
+    },
+    {
+      "file": "apps/api/src/billing/comp.ts",
+      "match": "if (!cohortId || cohortId === DEFAULT_COHORT_ID) {",
+      "count": 1,
+      "reason": "#282's comp, merged after this check: December's comp takes the sale's plan dates by id, and another cohort's takes the cohort's start and end, not its first live build and included-time end as a sale now does (planCohortOf). Left as #282 built it.",
+      "phase": "none yet: until Connor decides whether a comp's dates follow the cohort's record like a sale"
+    },
+    {
+      "file": "apps/api/src/billing/comp.ts",
+      "match": "list.some((c) => c.id === DEFAULT_COHORT_ID) ? DEFAULT_COHORT_ID",
+      "count": 1,
+      "reason": "#282's comp form opens on December when it is listed. Left as #282 built it.",
+      "phase": "none yet: until Connor decides which cohort the comp form opens on"
     }
   ],
   "notCohort": [
@@ -399,6 +413,10 @@
     {
       "file": "apps/web/src/library/content.ts",
       "reason": "The Library pages' own added dates (each skill's), not a cohort's."
+    },
+    {
+      "file": "apps/web/src/data/console-fixture.ts",
+      "reason": "The console's fixture data (fixture mode only), like the other fixture files: #282's comp form list."
     }
   ]
 }
