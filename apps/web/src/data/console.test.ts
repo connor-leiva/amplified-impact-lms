@@ -208,7 +208,12 @@ describe('the Console fixture, PR 2 (D-158, on the R2 mockup’s records since D
     expect(north.members.map((m) => m.id)).toEqual(['u_1042', 'u_1043']);
     expect(north.billing.orders.map((o) => [o.id, o.amountTotal, o.status])).toEqual([['in_1QxT4mNs0291', 149500, 'paid']]);
     await expect(owner.workspace('nope')).rejects.toMatchObject({ kind: 'not_found' });
-    expect((await owner.users({ kind: 'learner' })).rows).toHaveLength(8);
+    // D-268: the mockup's eight learners and Utah Life's eight agents, each with how they got in.
+    const learners = (await owner.users({ kind: 'learner' })).rows;
+    expect(learners).toHaveLength(16);
+    expect(learners.map((u) => u.gotIn?.label)).toEqual(['Team Plan', 'Team Plan', 'Team Plan', 'Agent Plan', 'AI Accelerator', 'Insiders', 'Team Plan', 'Team Plan', ...Array(8).fill('Utah Life')]);
+    expect((await owner.users({ kind: 'learner', gotIn: 'group:utah-life' })).rows).toHaveLength(8);
+    expect(await owner.audiences()).toMatchObject({ total: 16, teams: 7, leftOut: [{ id: 'utah-life', name: 'Utah Life', count: 8 }] });
     expect((await owner.users({ kind: 'staff' })).rows.map((u) => u.role)).toEqual(['Owner', 'Admin', 'Support']);
     expect((await owner.users({ q: 'tidewater' })).rows.map((u) => u.id)).toEqual(['u_1104']);
     expect((await owner.user('u_1042')).identity).toEqual({ emailVerifiedAt: expect.any(Number), hasPassword: true, hasGoogle: true });

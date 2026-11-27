@@ -14,6 +14,7 @@
 import { PLAN_KINDS, PLAN_NAMES, PLAN_SETS, PLAN_STATUSES } from './offer';
 import type { OrderOption, OrderStatus, PlanKind, PlanStatus } from './offer';
 import type { StaffRole } from './types';
+import type { GotIn, GotInCount } from './people';
 import { toCsv } from './console';
 
 // ================================================================================================
@@ -125,6 +126,10 @@ export interface WorkspaceRow {
   lastActivity: number | null;
   /** A live plan on this team came from a comp order. Absent on rows built before that. */
   comped?: boolean;
+  /** R-5 Phase 7 (D-268): the labels of the plans it holds that are live (People › Teams' Holds), in `PLAN_PRIORITY` order. */
+  holds?: string[];
+  /** R-5 Phase 7 (D-268): what it pays (`payingOf`): "Paid in full", "1 of 2 payments", "$1,495 a month". */
+  paying?: string;
 }
 
 export interface WorkspaceFilters {
@@ -132,6 +137,8 @@ export interface WorkspaceFilters {
   q?: string;
   plan?: PlanKind;
   status?: PlanStatus;
+  /** R-5 Phase 7 (D-268): People › Teams' Product: a team that holds a live plan of this kind. */
+  holds?: PlanKind;
 }
 
 export interface ConsolePlan {
@@ -298,6 +305,20 @@ export interface ConsoleUserRow {
   status: string | null;
   /** `users.last`, "Last active": daily (D-145). */
   lastActive: number | null;
+  /** R-5 Phase 7 (D-268): how they got in (`gotInOf`). Learners only; absent on staff and on rows built before it. */
+  gotIn?: GotIn;
+}
+
+/**
+ * R-5 Phase 7 (D-268): People's counts (`GET /api/console/users/audiences`): every learner, each counted once under how
+ * they got in (the chips, built from what exists), the teams People › Teams lists, and each access group's teams of one
+ * it leaves out.
+ */
+export interface PeopleAudiences {
+  total: number;
+  chips: GotInCount[];
+  teams: number;
+  leftOut: { id: string; name: string; count: number }[];
 }
 
 export interface UserFilters {
@@ -311,6 +332,8 @@ export interface UserFilters {
    * 500 ids; the list itself never sends it.
    */
   ids?: string[];
+  /** R-5 Phase 7 (D-268): how they got in, a `GotIn` key (`plan:cohort`, `skill`, `group:utah-life`, `none`). */
+  gotIn?: string;
 }
 
 /** The most users "Export selected" sends. */

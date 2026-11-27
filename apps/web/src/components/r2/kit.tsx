@@ -406,7 +406,7 @@ export function KV({ rows, stacked }: { rows: readonly { label: string; value: R
 export interface TabDef<T extends string> {
   id: T;
   label: string;
-  count?: number;
+  count?: number | string;
 }
 
 /**

@@ -6,7 +6,10 @@ import { ROLE_OPTIONS, canReset, isDefaultUserFilters, signInOf, userFiltersFor,
 // D-160 R2-1c: the Users list and one user, from the API's shapes, in the mockup's words.
 
 describe('the Users list (spec § 7.4) on R2', () => {
-  const rows = fixtureUserRows(fixtureRecords(), userFiltersFor({ q: '', role: '' })).map(userRowVM);
+  // D-268: the fixture's learners include Utah Life's agents now (People › Everyone lists them); these are the mockup's.
+  const rows = fixtureUserRows(fixtureRecords(), userFiltersFor({ q: '', role: '' }))
+    .filter((u) => !u.id.startsWith('u_ul'))
+    .map(userRowVM);
 
   it('lists learners as the mockup does: name, email, workspace, role, status, last sign-in', () => {
     expect(rows.map((r) => [r.initials, r.name, r.email, r.workspace, r.role, r.status.label, r.last])).toEqual(
@@ -37,6 +40,7 @@ describe('the Users list (spec § 7.4) on R2', () => {
     expect(fixtureUserRows(fixtureRecords(), userFiltersFor({ q: '', role: 'Agent' })).map((u) => u.id)).toEqual([
       'u_1043',
       'u_1104',
+      ...Array.from({ length: 8 }, (_, i) => `u_ul${i + 1}`),
     ]);
   });
 });

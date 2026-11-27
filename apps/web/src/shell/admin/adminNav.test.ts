@@ -102,7 +102,7 @@ describe('the admin sidebar (D-253: the frame)', () => {
   it('draws each page’s tabs this phase: those whose page exists', () => {
     const tabs = (a: (typeof AREA_IDS)[number]) => AREAS[a].tabs.map((t) => t.label);
     expect(tabs('program')).toEqual(['Curriculum', 'Course Settings', 'Resource Vault']);
-    expect(tabs('cohort')).toEqual(['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings']);
+    expect(tabs('cohort')).toEqual(['Overview', 'Schedule', 'People', 'Submissions', 'Community', 'Announcements', 'Settings']);
     expect(tabs('people')).toEqual(['Everyone', 'Teams', 'Masquerade']);
     expect(tabs('revenue')).toEqual(['Summary', 'Payments', 'Plans & Upgrades', 'Usage']);
   });
@@ -130,14 +130,14 @@ describe('the admin sidebar (D-253: the frame)', () => {
     expect(tabsFor('Owner')).toEqual(tabsFor('Admin'));
     expect(tabsFor('Owner')).toEqual({
       program: ['Curriculum', 'Course Settings', 'Resource Vault'],
-      cohort: ['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings'],
+      cohort: ['Overview', 'Schedule', 'People', 'Submissions', 'Community', 'Announcements', 'Settings'],
       people: ['Everyone', 'Teams', 'Masquerade'],
       revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'],
     });
     // Support: Masquerade is the Owner's and Admin's (D-162 3b); Support reads billing (D3).
     expect(tabsFor('Support')).toEqual({
       program: ['Curriculum', 'Course Settings', 'Resource Vault'],
-      cohort: ['Overview', 'Schedule', 'People', 'Community', 'Announcements', 'Settings'],
+      cohort: ['Overview', 'Schedule', 'People', 'Submissions', 'Community', 'Announcements', 'Settings'],
       people: ['Everyone', 'Teams'],
       revenue: ['Summary', 'Payments', 'Plans & Upgrades', 'Usage'],
     });
@@ -145,7 +145,7 @@ describe('the admin sidebar (D-253: the frame)', () => {
     for (const role of ['Instructor', 'Content Editor']) {
       expect(tabsFor(role), role).toEqual({
         program: ['Curriculum', 'Course Settings', 'Resource Vault'],
-        cohort: ['Overview', 'Schedule', 'People', 'Announcements', 'Settings'],
+        cohort: ['Overview', 'Schedule', 'People', 'Submissions', 'Announcements', 'Settings'],
         people: [],
         revenue: ['Plans & Upgrades'],
       });
@@ -256,6 +256,7 @@ describe('the four pages’ addresses (spec § 3)', () => {
       '/admin/cohort/dec26',
       '/admin/cohort/dec26/schedule',
       '/admin/cohort/dec26/people',
+      '/admin/cohort/dec26/submissions',
       '/admin/cohort/dec26/community',
       '/admin/cohort/dec26/announcements',
       '/admin/cohort/dec26/settings',
@@ -285,12 +286,8 @@ describe('the four pages’ addresses (spec § 3)', () => {
     // D-255: New cohort is a page of the Cohort row's, named in the crumb.
     expect(placeOf('/admin/cohort/new')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', record: true, newCohort: true });
     expect(placeOf('/admin/cohort/dec26/settings')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', tab: 'settings' });
-    // D-265: `/admin/cohort/:id/submissions` is a page now (the staff cards that left the week); its tab is Phase 7's.
-    expect(placeOf('/admin/cohort/dec26/submissions')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', page: 'Submissions' });
-    expect(crumbsOf(placeOf('/admin/cohort/dec26/submissions'), { cohortId: 'dec26' })).toEqual([
-      { kind: 'link', label: 'Cohort', to: '/admin/cohort/dec26' },
-      { kind: 'here', label: 'Submissions' },
-    ]);
+    // D-268 (R-5 Phase 7): Cohort › Submissions is a tab now (D-265 made it a page).
+    expect(placeOf('/admin/cohort/dec26/submissions')).toEqual({ row: 'cohort', group: 'Cohort', area: 'cohort', cohortId: 'dec26', tab: 'submissions' });
     for (const p of ['/admin/no-such-page', '/admin/cohort', '/admin/cohort/dec26/submissions/x', '/admin/program/weeks', '/admin/people/u_1/x', '/admin/revenue/summary', '/admin/denied', '/sessions'])
       expect(placeOf(p), p).toBeNull();
   });
@@ -356,6 +353,7 @@ describe('the palette’s pages (spec Phase 1: the four pages and their tabs)', 
       'Cohort › Overview',
       'Cohort › Schedule',
       'Cohort › People',
+      'Cohort › Submissions',
       'Cohort › Community',
       'Cohort › Announcements',
       'Cohort › Settings',

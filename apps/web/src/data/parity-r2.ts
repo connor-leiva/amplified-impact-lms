@@ -868,6 +868,31 @@ export const UTAH_LIFE = {
   ],
 } as const;
 
+/**
+ * R-5 Phase 7 (D-268): the rest of the mockup's Utah Life page (`Groups`, `ULA`): when the group began, each agent's first
+ * sign-in and skills opened (by address, the mockup's own), and its Most opened card. Sample data, as every figure in the
+ * mockup is.
+ */
+export const UTAH_LIFE_MORE = {
+  since: 'Nov 12, 2026',
+  agents: {
+    'a•••••@liveutah.com': ['Nov 12, 9:00 AM', 9],
+    'c•••@liveutah.com': ['Nov 12, 9:00 AM', 14],
+    'j••••••@liveutah.com': ['Nov 12, 9:00 AM', 4],
+    'k••••@liveutah.com': [null, 0],
+    'm••••@liveutah.com': ['Nov 12, 9:00 AM', 6],
+    'r•••••••@liveutah.com': ['Nov 13, 9:00 AM', 3],
+    's•••@liveutah.com': ['Nov 13, 9:00 AM', 2],
+    't••••••@liveutah.com': ['Nov 14, 9:00 AM', 1],
+  } as Readonly<Record<string, readonly [string | null, number]>>,
+  mostOpened: [
+    ['appointment-follow-up', 'Appointment Follow-Up', 22],
+    ['repair-request-response', 'Repair Request Response', 19],
+    ['listing-description-writer', 'Listing Description Writer', 11],
+    ['speed-to-lead-reply', 'Speed to Lead Reply', 7],
+  ],
+} as const;
+
 export const USER_NOTES = [['Imani Brooks', 'Dec 7, 3:40 PM', 'Prefers email over calls. Mornings MT.']] as const;
 
 /** The User screen's identity card: "Yes, Nov 24, 2026", "Password, Google", and the access groups. */

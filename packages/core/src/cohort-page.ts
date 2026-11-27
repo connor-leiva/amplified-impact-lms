@@ -299,6 +299,34 @@ export interface CohortFacts {
    * and when the next is due (`secondPaymentAt`). Absent, or a count of 0: no row.
    */
   secondPayments?: { count: number; each: number | null; next: number | null };
+  /**
+   * R-5 Phase 7 (D-268): Cohort › People's Paid and Intake, one row per team in its roster (by team id). Absent: not
+   * asked (the fixture); a team with no row reads "Not started" and no payment.
+   */
+  teamRows?: Record<string, CohortTeamFacts>;
+}
+
+/** R-5 Phase 7 (D-268): one roster team's Week 0 intake, for Cohort › Submissions (`GET /api/admin/cohorts/:id/intake`). */
+export interface CohortIntakeRow {
+  teamId: string;
+  name: string;
+  owner: string;
+  status: 'submitted' | 'draft' | 'not_started';
+  updatedAt: number | null;
+  submittedAt: number | null;
+  /** `team_intake.ghl_sync_status`: none, pending, synced or failed. */
+  ghl: string;
+  answers: Record<string, string | string[]>;
+}
+
+/** R-5 Phase 7 (D-268): one roster team's payment and intake, for Cohort › People. */
+export interface CohortTeamFacts {
+  /** Its live cohort plan for this cohort: paid in full, on two payments, or a comp; null when none is found. */
+  pay: 'full' | 'two_pay' | 'comp' | null;
+  /** A two-payment order's payments made (0, 1 or 2). */
+  paymentsMade: number;
+  /** Its `team_intake`: submitted, a draft (a row not submitted), or not started (no row). */
+  intake: 'submitted' | 'draft' | 'not_started';
 }
 
 /**

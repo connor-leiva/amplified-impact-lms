@@ -63,6 +63,7 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 import { commitStaffChange, previewStaffChange } from './staff';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
+import { registerAccessGroupRoutes } from './access-groups';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
 import { COMP_PATHS, registerCompRoutes } from './comp';
 import type { BillingDeps } from './billing';
@@ -387,6 +388,8 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     scope.post(CONSOLE_PATHS.staff, write, (req, reply) => commitStaffChange(req, reply, deps.broadcast));
 
     registerSupportRoutes(scope);
+    // R-5 Phase 7 (D-268): People › an access group's tab (Utah Life), its record and its two writes.
+    registerAccessGroupRoutes(scope);
     registerCompRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
     const billing = deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' as const };

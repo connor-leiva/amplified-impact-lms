@@ -11,17 +11,24 @@
 // cohort's lookup keys and whether each of its Payment Links names it, which the Enrollment card shows.
 
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { can } from '@ai/core';
+import { intakeQuestions } from '@ai/core/intake';
+import type { CohortIntakeRow } from '@ai/core';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { cohorts } from '../db/schema';
+import { cohorts, teamIntake, teams, users } from '../db/schema';
+import { staffActor } from '../console/guard';
+import { audit } from '../console/audit';
 import { cohortFactsOf } from '../lib/cohort-facts';
 import type { StripeFactsReader } from '../lib/cohort-facts';
+import { cohortRoster } from '../lib/cohort-roster';
 
 export const COHORT_FACTS_PATH = '/api/admin/cohorts/:cohortId/facts';
 export const cohortFactsPath = (cohortId: string): string => `/api/admin/cohorts/${encodeURIComponent(cohortId)}/facts`;
+/** R-5 Phase 7 (D-268): Cohort › Submissions' intake, every roster team's (audited once, `intake.read`). */
+export const COHORT_INTAKE_PATH = '/api/admin/cohorts/:cohortId/intake';
 
 /** R-5 Phase 5 (D-262): with a Stripe reader, the facts also say what Stripe has under the cohort's keys and links. */
 export function registerCohortFactsRoute(app: FastifyInstance, stripe?: StripeFactsReader): void {
@@ -34,5 +41,44 @@ export function registerCohortFactsRoute(app: FastifyInstance, stripe?: StripeFa
     const [row] = await db.select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, req.params.cohortId)).limit(1);
     if (!row) return reply.code(404).send({ error: 'No such cohort.' });
     return reply.code(200).send(await cohortFactsOf(db, row.id, stripe));
+  });
+
+  // R-5 Phase 7 (D-268): every roster team's Week 0 intake (D-267's rule), for Cohort › Submissions' two intake views.
+  // The same permission as the facts; one `intake.read` audit row for the cohort, as opening one team's is audited.
+  app.get<{ Params: { cohortId: string } }>(COHORT_INTAKE_PATH, { preHandler: requireSession }, async (req, reply): Promise<FastifyReply> => {
+    const viewer = viewerOrThrow(req);
+    reply.header('cache-control', 'no-store');
+    const db = getDb();
+    const snapshot = await loadDb(db);
+    if (viewer.actor.kind !== 'staff' || !can(snapshot, viewer.actor, 'cohorts'))
+      return reply.code(403).send({ error: 'You don’t have permission to do that.' });
+    const [row] = await db.select({ id: cohorts.id, name: cohorts.name }).from(cohorts).where(eq(cohorts.id, req.params.cohortId)).limit(1);
+    if (!row) return reply.code(404).send({ error: 'No such cohort.' });
+    const ids = (await cohortRoster(db))[row.id]?.teams ?? [];
+    const teamRows = ids.length ? await db.select({ id: teams.id, name: teams.name, ownerId: teams.ownerId }).from(teams).where(inArray(teams.id, ids)) : [];
+    const owners = teamRows.length
+      ? await db.select({ id: users.id, name: users.name }).from(users).where(inArray(users.id, teamRows.map((t) => t.ownerId)))
+      : [];
+    const intake = ids.length ? await db.select().from(teamIntake).where(inArray(teamIntake.teamId, ids)) : [];
+    const known = new Set(intakeQuestions(snapshot.modules.find((m) => m.course?.intake)?.course?.intake).map((q) => q.id));
+    const actor = staffActor(viewer);
+    if (actor) await audit(req, { action: 'intake.read', outcome: 'ok', actor, target: { type: 'cohort', id: row.id, label: 'Intake, every team' } });
+    const out: CohortIntakeRow[] = teamRows
+      .map((t) => {
+        const r = intake.find((x) => x.teamId === t.id);
+        const answers = r ? Object.fromEntries(Object.entries(r.answers).filter(([k]) => known.size === 0 || known.has(k))) : {};
+        return {
+          teamId: t.id,
+          name: t.name,
+          owner: owners.find((o) => o.id === t.ownerId)?.name ?? '',
+          status: !r ? 'not_started' : r.submittedAt !== null ? 'submitted' : 'draft',
+          updatedAt: r ? Number(r.updatedAt) : null,
+          submittedAt: r?.submittedAt != null ? Number(r.submittedAt) : null,
+          ghl: r?.ghlSyncStatus ?? 'none',
+          answers,
+        } satisfies CohortIntakeRow;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name) || a.teamId.localeCompare(b.teamId));
+    return reply.code(200).send({ teams: out });
   });
 }

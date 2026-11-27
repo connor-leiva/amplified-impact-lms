@@ -76,6 +76,8 @@ import {
   fixtureSearch,
   fixtureUser,
   fixtureUserRows,
+  fixtureAudiences,
+  fixtureGroup,
   fixtureWorkspace,
   fixtureWorkspaceRows,
 } from './console-fixture-records';
@@ -202,6 +204,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   const billing = fixtureBillingRows();
   const emails = fixtureEmails();
   let noteId = 100;
+  // R-5 Phase 7 (D-268): when the fixture's Utah Life access was ended, if it was.
+  let groupEnded: number | null = null;
   // D-165: the mockup's deliveries and jobs, changed by a retry or a Run Now as the API's would be.
   let hooks = fixtureWebhookRows();
   let jobs = fixtureJobRows();
@@ -537,6 +541,42 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         const picked = fixtureUserRows(records, filters).map((u) => ({ ...u, joined: fixtureUser(records, u.id)?.user.joined ?? null }));
         record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
         return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    // R-5 Phase 7 (D-268): People's counts, and People › Utah Life with its two writes (Owner and Admin) and its export.
+    audiences: () =>
+      settle(() => {
+        need('users.read');
+        return fixtureAudiences(records);
+      }),
+    group: (groupId) =>
+      settle(() => {
+        need('users.read');
+        const g = fixtureGroup(records, groupId, groupEnded);
+        if (!g) throw notFound();
+        return g;
+      }),
+    addGroupAddress: (groupId, email) =>
+      settle(() => {
+        need('access_group.write');
+        const g = fixtureGroup(records, groupId, groupEnded);
+        if (!g) throw notFound();
+        record('access_group.address_add', { type: 'access_group', id: g.id, label: g.name }, { email: email.trim().toLowerCase() });
+      }),
+    endGroup: (groupId, reason) =>
+      settle(() => {
+        need('access_group.write');
+        const g = fixtureGroup(records, groupId, groupEnded);
+        if (!g) throw notFound();
+        groupEnded = now();
+        record('access_group.end', { type: 'access_group', id: g.id, label: g.name }, { expiresAt: groupEnded, reason });
+      }),
+    exportGroup: (groupId) =>
+      settle(() => {
+        need('export');
+        const g = fixtureGroup(records, groupId, groupEnded);
+        if (!g) throw notFound();
+        record('user.export', { type: 'access_group', id: g.id, label: g.name }, { rows: g.agents.length, format: 'csv' });
+        return { csv: ['user_id,name,email', ...g.agents.map((a) => `${a.userId},${a.name},${a.email}`)].join('\n'), filename: `${g.id}-agents.csv` };
       }),
     // D-163: Billing, the mockup's figures and records (read-only, like the API).
     billingSummary: () =>

@@ -190,6 +190,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-263: every Resend webhook event the email log records, once, by its message id. Not a `Db` record.
   resendEvents: { table: 'resend_events', columns: ['bounce_message', 'bounce_sub_type', 'bounce_type', 'email_id', 'id', 'link', 'occurred_at', 'received_at', 'type'], gate: 9 },
   usageDaily: { table: 'usage_daily', columns: ['count', 'day', 'kind', 'team_id', 'user_id'], gate: 9 },
+  // D-268: which skill a learner opened, per day (People › Utah Life's Most opened). Not a `Db` record.
+  skillOpensDaily: { table: 'skill_opens_daily', columns: ['count', 'day', 'skill_id', 'user_id'], gate: 9 },
   // D-167: the Admin Console's incidents and their timelines (spec § 7.14). Not `Db` records, like `audit_log`.
   incidents: {
     table: 'incidents',
@@ -533,6 +535,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   jobTicks: { unit: 'epoch-ms', why: 'D-165: a run’s start and end from clock.now(); the next run is the start plus an interval in ms' },
   emailLog: { unit: 'epoch-ms', why: 'D-166: at is clock.now() as written by email/log.ts, pruned against it, and printed in MST by the R2 admin' },
   usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
+  skillOpensDaily: { unit: 'epoch-ms', why: 'D-268: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
   resendEvents: { unit: 'epoch-ms', why: 'D-263: occurred_at is Resend’s created_at parsed to ms, received_at is clock.now(); both folded into email_log and pruned against it' },
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
@@ -703,6 +706,7 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   apiMetrics: ['minute', 'route'],
   // D-166: one count per learner, day and kind; each event upserts it (`on conflict … count + 1`).
   usageDaily: ['day', 'user_id', 'kind'],
+  skillOpensDaily: ['day', 'user_id', 'skill_id'],
   // D-236: one seat card per team per week; each save upserts it (`on conflict … do update`).
   teamSeatCards: ['team_id', 'module_id'],
   // One welcome per team owner and cohort. The pair is the key, so a second plan cannot send a second welcome.

@@ -62,6 +62,8 @@ import type {
   WorkspaceDetail,
   WorkspaceFilters,
   WorkspaceRow,
+  AccessGroupDetail,
+  PeopleAudiences,
 } from '@ai/core';
 import { COMMUNITY_PATH, communityPostDeletePath, communityPostPath, communityRepliesPath, communityThreadPath } from '@ai/core/community';
 import type { CommunityList, CommunityThread } from '@ai/core/community';
@@ -165,6 +167,13 @@ export interface ConsoleApi {
   /** Which link went out: a reset, or a set-password link for someone with no password yet. */
   resetPassword(userId: string): Promise<{ link: 'reset' | 'set' }>;
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
+  /** R-5 Phase 7 (D-268): People's counts: how each learner got in, the teams listed, the teams of one left out. */
+  audiences(): Promise<PeopleAudiences>;
+  /** R-5 Phase 7 (D-268): People › an access group's tab, and its two writes (Owner and Admin) and its export. */
+  group(groupId: string): Promise<AccessGroupDetail>;
+  addGroupAddress(groupId: string, email: string): Promise<void>;
+  endGroup(groupId: string, reason: string): Promise<void>;
+  exportGroup(groupId: string): Promise<{ csv: string; filename: string }>;
   /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
   search(q: string): Promise<SearchResults>;
   /** D-160 R2-3b, the Owner's two-step change: what it would do, and the token that confirms it. */
@@ -399,7 +408,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     },
     roles: async () => json<RolesMatrix>(await request(fetchImpl, '/api/console/roles')),
     workspaces: async (f, cursor) =>
-      json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
+      json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status, holds: f.holds }, cursor)}`)),
     workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
     teamIntake: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/intake`)),
     teamIntakePdf: async (teamId) => {
@@ -407,7 +416,24 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { blob: await res.blob(), filename: filenameOf(res.headers.get('content-disposition'), 'Week 0 Intake.pdf') };
     },
     teamStack: async (teamId) => json(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}/stack`)),
-    users: async (f, cursor) => json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind }, cursor)}`)),
+    users: async (f, cursor) =>
+      json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind, gotIn: f.gotIn }, cursor)}`)),
+    audiences: async () => json<PeopleAudiences>(await request(fetchImpl, '/api/console/users/audiences')),
+    group: async (groupId) => json<AccessGroupDetail>(await request(fetchImpl, `/api/console/groups/${encodeURIComponent(groupId)}`)),
+    addGroupAddress: async (groupId, email) => {
+      await request(fetchImpl, `/api/console/groups/${encodeURIComponent(groupId)}/addresses`, JSON_POST({ email }));
+    },
+    endGroup: async (groupId, reason) => {
+      await request(fetchImpl, `/api/console/groups/${encodeURIComponent(groupId)}/end`, JSON_POST({ reason }));
+    },
+    exportGroup: async (groupId) => {
+      const res = await request(fetchImpl, `/api/console/groups/${encodeURIComponent(groupId)}/export`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/csv' },
+        body: '{}',
+      });
+      return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), `${groupId}-agents.csv`) };
+    },
     user: async (userId) => json<ConsoleUserDetail>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}`)),
     notes: async (targetType, targetId) =>
       (await json<{ rows: StaffNote[] }>(await request(fetchImpl, `/api/console/notes${listQuery({ targetType, targetId })}`))).rows,

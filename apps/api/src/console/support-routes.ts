@@ -35,6 +35,7 @@ import {
   isPlanStatus,
   isStaffNoteTarget,
   isUserKind,
+  parseGotIn,
   usersCsv,
 } from '@ai/core';
 import type { ConsoleCap, ConsolePage, ConsoleUserRow, StaffNoteTarget, UserFilters, WorkspaceFilters, WorkspaceRow } from '@ai/core';
@@ -49,7 +50,7 @@ import { readTeamStack } from '../routes/stack';
 import { audit } from './audit';
 import { consoleAllows, consoleError, requireConsole, staffActor } from './guard';
 import { createNote, deleteNote, listNotes, noteTargetLabel } from './notes';
-import { countUsers, decodeCursor, encodeCursor, exportUsers, listUsers, listWorkspaces, userDetail, workspaceDetail } from './records';
+import { countUsers, decodeCursor, encodeCursor, exportUsers, listUsers, listWorkspaces, peopleAudiences, userDetail, workspaceDetail } from './records';
 import type { NameCursor } from './records';
 import { CONSOLE_RATE, int, limit, present } from './routes';
 import { searchConsole } from './search';
@@ -67,6 +68,8 @@ export const SUPPORT_PATHS = {
   user: '/api/console/users/:userId',
   passwordReset: '/api/console/users/:userId/password-reset',
   usersExport: '/api/console/users/export',
+  /** R-5 Phase 7 (D-268): People's counts (how each learner got in, the teams listed, the teams of one left out). */
+  audiences: '/api/console/users/audiences',
   notes: '/api/console/notes',
   noteDelete: '/api/console/notes/:id/delete',
   search: '/api/console/search',
@@ -97,6 +100,10 @@ export function parseWorkspaceFilters(input: Record<string, unknown>): Parsed<Wo
     if (!isPlanStatus(input.status)) return { ok: false, field: 'status' };
     out.status = input.status;
   }
+  if (present(input.holds)) {
+    if (!isPlanKind(input.holds)) return { ok: false, field: 'holds' };
+    out.holds = input.holds;
+  }
   return { ok: true, value: out };
 }
 
@@ -120,6 +127,11 @@ export function parseUserFilters(input: Record<string, unknown>): Parsed<UserFil
     const ids = input.ids;
     if (!Array.isArray(ids) || ids.length < 1 || ids.length > USER_IDS_MAX || !ids.every((v) => typeof v === 'string' && ID.test(v))) return { ok: false, field: 'ids' };
     out.ids = [...new Set(ids as string[])];
+  }
+  // R-5 Phase 7 (D-268): how they got in, a `GotIn` key.
+  if (present(input.gotIn)) {
+    if (typeof input.gotIn !== 'string' || !parseGotIn(input.gotIn)) return { ok: false, field: 'gotIn' };
+    out.gotIn = input.gotIn;
   }
   return { ok: true, value: out };
 }
@@ -231,6 +243,10 @@ export function registerSupportRoutes(scope: FastifyInstance): void {
     const out: ConsolePage<ConsoleUserRow> = { rows, nextCursor: next ? encodeCursor(next) : null };
     return reply.send(out);
   });
+
+  scope.get(SUPPORT_PATHS.audiences, { ...read, preHandler: [requireSession, requireConsole('users.read')] }, async (_req, reply): Promise<FastifyReply> =>
+    reply.send(await peopleAudiences(getDb(), clock.now())),
+  );
 
   scope.get(SUPPORT_PATHS.user, { ...read, preHandler: [requireSession, requireConsole('users.read')] }, async (req, reply): Promise<FastifyReply> => {
     const id = paramOf(req, 'userId');

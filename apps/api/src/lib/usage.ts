@@ -28,3 +28,19 @@ export function recordUsage(req: FastifyRequest, userId: string, kind: UsageKind
     `),
   );
 }
+
+/**
+ * R-5 Phase 7 (D-268): counts one open of `skillId`'s guide for `userId` today (program zone), beside `recordUsage`'s
+ * `guide_view`, unless this request is a masquerade's. People › Utah Life's "Most opened" reads it. Learners only.
+ */
+export function recordSkillOpen(req: FastifyRequest, userId: string, skillId: string): void {
+  if (req.masquerade) return;
+  const day = programDay(clock.now());
+  observe('usage', () =>
+    getDb().execute(sql`
+      insert into skill_opens_daily (day, user_id, skill_id, count)
+      select ${day}, u.id, ${skillId}, 1 from users u where u.id = ${userId} and u.kind = 'learner'
+      on conflict (day, user_id, skill_id) do update set count = skill_opens_daily.count + 1
+    `),
+  );
+}

@@ -1,4 +1,4 @@
-import { cohortSelling } from '@ai/core';
+import { cohortSelling, rosterTeams } from '@ai/core';
 import type { CohortFacts, CohortStripeFacts, Db, StripePrice } from '@ai/core';
 
 // R-5 Phase 5 (D-262): what the fixture build answers for a cohort's facts (`GET /api/admin/cohorts/:id/facts` in http
@@ -51,8 +51,13 @@ export function fixtureStripeFacts(db: Pick<Db, 'cohorts'>, cohortId: string): C
   };
 }
 
-/** A cohort's facts in the fixture build: none sold, none sent, the fixture's Stripe, and what a test stored. */
-export function fixtureCohortFacts(db: Pick<Db, 'cohorts'>, cohortId: string): CohortFacts {
+/**
+ * A cohort's facts in the fixture build: none sold, none sent, the fixture's Stripe, and what a test stored. R-5 Phase 7
+ * (D-268): each team the fixture's roster places in it (`rosterTeams`) paid in full with no intake started, the facts of
+ * a team that has bought and not begun, for Cohort › People.
+ */
+export function fixtureCohortFacts(db: Pick<Db, 'cohorts' | 'teams' | 'roster'>, cohortId: string): CohortFacts {
   const over = stored()[cohortId] ?? {};
-  return { ...NONE, stripe: fixtureStripeFacts(db, cohortId), ...over };
+  const teamRows = Object.fromEntries(rosterTeams(db, cohortId).map((t) => [t.id, { pay: 'full' as const, paymentsMade: 0, intake: 'not_started' as const }]));
+  return { ...NONE, stripe: fixtureStripeFacts(db, cohortId), teamRows, ...over };
 }

@@ -417,7 +417,7 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(lists).toHaveLength(2);
     const sessions = state.db.sessions.filter((x) => x.cohortId === 'dec26').length;
     const teams = state.db.base.teams + state.db.teams.length;
-    expect(within(lists[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual(['Overview', `Schedule${sessions}`, `People${teams}`, 'Community', 'Announcements', 'Settings']);
+    expect(within(lists[0]!).getAllByRole('tab').map((t) => t.textContent)).toEqual(['Overview', `Schedule${sessions}`, `People${teams}`, 'Submissions', 'Community', 'Announcements', 'Settings']);
     expect(within(lists[0]!).getByRole('tab', { name: /^Schedule/ })).toHaveAttribute('aria-selected', 'true');
     expect(lists[1]!.className).toMatch(/sgm/);
     expect(within(lists[1]!).getAllByRole('tab').map((t) => t.textContent)).toEqual(['First3', 'Second']);

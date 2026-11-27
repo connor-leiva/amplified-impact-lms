@@ -53,6 +53,9 @@ export const CONSOLE_CAPS = {
   'billing.seat_tier': ADMIN,
   // A comped Accelerator team: Owner and Admin. Not on the signed-off Roles matrix (that screen is the mockup's nine rows).
   'billing.comp': ADMIN,
+  // R-5 Phase 7 (D-268, PLAN.md § 10.7): an access group's two writes (Add an address outside the domain, End access).
+  // Owner and Admin. Not on the signed-off Roles matrix, as `billing.comp` is not.
+  'access_group.write': ADMIN,
   export: ADMIN,
   'incidents.resolve': ADMIN,
   'jobs.run_now': ADMIN,
@@ -123,6 +126,7 @@ export const CONSOLE_CAP_LABELS: Record<ConsoleCap, string> = {
   'billing.void': 'Void an Invoice',
   'billing.seat_tier': 'Change a Team Plan Seat Tier',
   'billing.comp': 'Comp an Accelerator Team',
+  'access_group.write': 'Manage an Access Group',
   export: 'Export Logs as CSV',
   'incidents.resolve': 'Resolve an Incident',
   'jobs.run_now': 'Run a Job Now',
@@ -171,6 +175,9 @@ export const AUDIT_ACTIONS = [
   'billing.void',
   'billing.seat_tier',
   'billing.comp',
+  // R-5 Phase 7 (D-268): an access group's two writes, each confirmed (PLAN.md § 10.7).
+  'access_group.address_add',
+  'access_group.end',
   // PR 6: webhooks and jobs
   'webhook.ghl_retry',
   'job.run_now',

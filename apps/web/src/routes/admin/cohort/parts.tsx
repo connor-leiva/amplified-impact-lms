@@ -34,6 +34,14 @@ export function LinkFacts({ items }: { items: readonly FactVM[] }) {
             </span>
             <Icon name="r2Chev" size={12} strokeWidth={2.2} />
           </Link>
+        ) : f.onClick ? (
+          <button key={f.label} type="button" className={c.fxl} onClick={f.onClick}>
+            <span className={k.me}>{f.label}</span>
+            <span className={clsx(k.w5, k.el)} data-number="">
+              {value}
+            </span>
+            <Icon name="r2Chev" size={12} strokeWidth={2.2} />
+          </button>
         ) : (
           <div key={f.label}>
             <span className={k.me}>{f.label}</span>
