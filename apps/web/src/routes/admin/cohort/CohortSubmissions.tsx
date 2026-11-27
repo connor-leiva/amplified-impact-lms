@@ -273,7 +273,7 @@ export function Component() {
           {view === 'asks' ? (
             <>
               <Table title={C.asksTitle} label={C.asksTitle} cols={askCols} rows={asks} rowKey={(a) => a.key} onRow={(a) => go('files', { week: a.moduleId })} empty={{ icon: 'r2File', title: C.noAsks }} />
-              <p className={k.me}>{C.onlyStaff}</p>
+              <p className={clsx(k.p, k.me)}>{C.onlyStaff}</p>
             </>
           ) : null}
           {view === 'files' ? (

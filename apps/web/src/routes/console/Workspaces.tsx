@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button, ButtonLink } from '../../components/r2/Button';
@@ -140,7 +141,7 @@ export function Component() {
         />
       )}
       {list.status === 'ready' && audiences?.leftOut.length ? (
-        <p className={k.me}>
+        <p className={clsx(k.p, k.me)}>
           {audiences.leftOut.map((g) => (
             <span key={g.id}>
               {C.leftOut(g.count, g.name)}{' '}

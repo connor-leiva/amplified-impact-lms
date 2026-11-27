@@ -11,7 +11,7 @@ import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Avatar, Bar, Find, KV, PageHead, Pill, Tabs, Two, k } from '../../components/r2/kit';
+import { Avatar, Bar, Find, KV, PageHead, Pill, Stamp, Tabs, Two, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { refusal, useDb, useEmailLearner, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
@@ -109,22 +109,23 @@ function Learners() {
       value: (t) => t.intake.label,
       cell: (t) => <Status tone={t.intake.tone}>{t.intake.label}</Status>,
     },
-    { key: 'week', label: weekLabel, width: '150px', value: (t) => t.done, cell: (t) => <Week done={t.done} total={t.total} /> },
-    { key: 'last', label: C.columns.last, width: '150px', noSort: true, hideLap: true, value: (t) => t.lastAt, cell: (t) => t.last },
+    // The week the cohort is on (its run's); a cohort whose run holds no week (a draft with none, the R2 reference's December) has no column.
+    ...(vm.week ? [{ key: 'week', label: weekLabel, width: '150px', value: (t: CohortTeamRowVM) => t.done, cell: (t: CohortTeamRowVM) => <Week done={t.done} total={t.total} /> }] : []),
+    { key: 'last', label: C.columns.last, width: '150px', noSort: true, hideLap: true, value: (t) => t.lastAt, cell: (t) => <Stamp v={t.last} two /> },
   ];
 
   const learnerCols: Column<CohortLearnerRowVM>[] = [
     { key: 'name', label: C.columns.learner, width: 'minmax(210px,1.5fr)', value: (u) => u.name, cell: (u) => <Two a={u.name} b={u.email} /> },
     { key: 'team', label: C.columns.team, width: 'minmax(160px,1fr)', value: (u) => u.team },
     { key: 'seat', label: C.columns.seat, width: '190px', hideLap: true, value: (u) => u.seat },
-    { key: 'week', label: weekLabel, width: '150px', value: (u) => u.done, cell: (u) => <Week done={u.done} total={u.total} /> },
+    ...(vm.week ? [{ key: 'week', label: weekLabel, width: '150px', value: (u: CohortLearnerRowVM) => u.done, cell: (u: CohortLearnerRowVM) => <Week done={u.done} total={u.total} /> }] : []),
     {
       key: 'last',
       label: C.columns.last,
       width: '150px',
       noSort: true,
       value: (u) => u.lastAt,
-      cell: (u) => (u.invited ? <Pill tone="warn">{u.last}</Pill> : u.last),
+      cell: (u) => (u.invited ? <Pill tone="warn">{u.last}</Pill> : <Stamp v={u.last} two />),
     },
   ];
 
@@ -144,6 +145,8 @@ function Learners() {
   return (
     <Page>
       <PageHead title="People" />
+      {/* the mockup's `CohortPeople` is a `.col` (16px between its rows), not a page's 20px */}
+      <div className={k.col}>
       {none ? (
         <div className={k.cd}>
           <Empty icon="r2Learners" title={C.empty.title} body={vm.enrolling ? C.empty.open : C.empty.closed} />
@@ -196,12 +199,13 @@ function Learners() {
                 filtered={q !== ''}
                 empty={{ icon: 'r2Learners', title: C.empty.title }}
               />
-              <p className={k.me}>{C.showing(vm.learners.length, vm.learnersCount)}</p>
+              <p className={clsx(k.p, k.me)}>{C.showing(vm.learners.length, vm.learnersCount)}</p>
             </>
           )}
-          <p className={k.me}>{C.roster}</p>
+          <p className={clsx(k.p, k.me)}>{C.roster}</p>
         </>
       )}
+      </div>
 
       {person && details ? (
         <Drawer

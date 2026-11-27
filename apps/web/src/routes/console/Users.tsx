@@ -85,7 +85,8 @@ export function Component() {
       cell: (u) => (u.team ? u.team : <span className={k.mu}>{C.onOwn}</span>),
     },
     { key: 'seat', label: C.columns.seat, width: '204px', hideLap: true, value: (u) => u.seat },
-    { key: 'last', label: C.columns.last, width: '150px', noSort: true, value: (u) => u.lastAt, cell: (u) => u.last },
+    // The review's rule (D-267): a stamp in a narrow column is two lines, MT over its zones (`Stamp`).
+    { key: 'last', label: C.columns.last, width: '150px', noSort: true, value: (u) => u.lastAt, cell: (u) => <Stamp v={u.last} two /> },
     {
       key: 'status',
       label: C.columns.status,
@@ -110,7 +111,7 @@ export function Component() {
 
   return (
     <Page>
-      <PageHead title={USERS_COPY.title} description={USERS_COPY.description} />
+      <PageHead title={USERS_COPY.title} />
       {chips.length ? (
         <div className={p.chs} role="group" aria-label={C.audience}>
           {chips.map((c) => (
@@ -165,7 +166,7 @@ export function Component() {
         />
       )}
       {list.status === 'ready' ? (
-        <p className={k.me}>
+        <p className={clsx(k.p, k.me)}>
           {everyoneShowing(rows.length, audiences, gotIn)} {C.account}{' '}
           <Link className={p.inl} to={cohortPeople}>
             {C.cohortTab}

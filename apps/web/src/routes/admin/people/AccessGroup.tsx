@@ -10,7 +10,7 @@ import { AUDITED, Modal, modalStyles as ms } from '../../../components/r2/Modal'
 import { Page } from '../../../components/r2/Page';
 import { Table } from '../../../components/r2/Table';
 import type { Column } from '../../../components/r2/Table';
-import { Bar, Find, KV, PageHead, Pill, Two, k } from '../../../components/r2/kit';
+import { Bar, Find, KV, PageHead, Stamp, Two, k } from '../../../components/r2/kit';
 import { useDb, useNow } from '../../../data/hooks';
 import { personPath } from '../../../shell/admin/addresses';
 import { useAdminChrome } from '../../../shell/admin/chrome';
@@ -111,7 +111,7 @@ export function Component() {
   const cols: Column<GroupAgentRow>[] = [
     { key: 'name', label: C.columns.agent, width: 'minmax(200px,1.5fr)', value: (r) => r.name, cell: (r) => <Two a={r.name} b={r.email} /> },
     { key: 'first', label: C.columns.first, width: '120px', noSort: true, value: (r) => r.first },
-    { key: 'last', label: C.columns.last, width: '170px', noSort: true, value: (r) => r.lastAt, cell: (r) => r.last },
+    { key: 'last', label: C.columns.last, width: '170px', noSort: true, value: (r) => r.lastAt, cell: (r) => <Stamp v={r.last} two /> },
     { key: 'opened', label: C.columns.opened, width: '110px', num: true, value: (r) => r.opened },
   ];
   const top = vm.most[0]?.count ?? 0;
@@ -120,11 +120,10 @@ export function Component() {
     <Page>
       <PageHead
         title={vm.name}
-        meta={<Pill tone="neutral">{C.meta}</Pill>}
         description={groupDescriptionOf(rec.data.emailDomain, vm.planLabel)}
         right={
           <>
-            <Button icon="download" disabled={!canExport} title={canExport ? undefined : 'Your role cannot do this'} onClick={exportAgents}>
+            <Button header icon="download" disabled={!canExport} title={canExport ? undefined : 'Your role cannot do this'} onClick={exportAgents}>
               {C.export}
             </Button>
             <Menu
@@ -167,7 +166,7 @@ export function Component() {
             onRow={(r) => navigate(personPath(r.id))}
             empty={{ icon: 'r2Learners', title: C.empty }}
           />
-          <p className={k.me}>{C.showing(vm.rows.length, vm.total)}</p>
+          <p className={clsx(k.p, k.me)}>{C.showing(vm.rows.length, vm.total)}</p>
         </div>
         <div className={k.col}>
           <Card title={C.canOpen}>
@@ -211,7 +210,9 @@ export function Component() {
             </div>
           </Card>
           <Card title={C.counted}>
-            <KV rows={C.countedRows.map(([label, value]) => ({ label, value }))} stacked />
+            <div className={p.kvsLast}>
+              <KV rows={C.countedRows.map(([label, value]) => ({ label, value }))} stacked />
+            </div>
           </Card>
         </div>
       </div>

@@ -16,10 +16,9 @@
   border: 1px solid var(--r2-line2);
   border-radius: 999px;
   background: var(--r2-sf);
+  /* the reference's `.arx button { font: inherit; color: inherit }` outranks `.ch`'s own size, weight and colour */
   font: inherit;
-  font-size: calc(var(--r2-t) - 1px);
-  font-weight: 500;
-  color: var(--r2-f2);
+  color: inherit;
   cursor: pointer;
   margin: 0;
 }
@@ -163,4 +162,8 @@
 /* `.lk.a`: a link in the forest ink */
 .lka {
   color: var(--r2-for);
+}
+/* Where They Are Counted: the reference's `.kvs .kv dd` keeps its 10px under the last value too */
+.kvsLast dl dd:last-child {
+  margin-bottom: 10px;
 }

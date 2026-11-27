@@ -332,6 +332,16 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .mt.bad{background:var(--badb);color:var(--bad)}.mt.warn{background:var(--warnb);color:var(--warn)}
 .rdy{padding:6px 8px;margin:-2px -8px;width:calc(100% + 16px);border-radius:8px;gap:10px}.rdy:hover{background:var(--sub)}
 .rdn{flex:none;white-space:nowrap;text-align:right;min-width:44px}
+/* D-268 (R-5 Phase 7): People's audiences, chips to filter by and a square beside each way in (the mockup's third pass) */
+.chs{display:flex;flex-wrap:wrap;gap:6px}
+.ch{display:inline-flex;align-items:center;gap:7px;height:var(--c);padding:0 12px;border:1px solid var(--line2);border-radius:999px;background:var(--sf);font-size:calc(var(--t) - 1px);font-weight:500;color:var(--f2);cursor:pointer}
+.ch:hover{color:var(--ink);background:var(--hov)}.ch.on{background:var(--ink);border-color:var(--ink);color:#fff}.ch i,.pl.aud i{width:8px;height:8px;border-radius:2px;flex:none;display:block}
+.ch .tn{font-weight:400;color:var(--f3)}.ch.on .tn{color:#C9D2CD}
+.ph .chs{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}.ph .chs::-webkit-scrollbar{display:none}.ph .ch{flex:none}
+.mt.off{background:var(--sub);color:var(--f3)}
+/* D-268: the phone's 16px floor for a fact's value (D-156; D-265's decision 18), on Utah Life's own facts */
+.ph .p7f .fx>div>span:last-child{font-size:16px}
+.lk.inl{text-decoration:underline;text-decoration-color:var(--mint);text-underline-offset:3px}.ph .lk.inl{min-height:0;display:inline}
 .dt{width:36px;height:40px;border-radius:8px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;line-height:1}.dt b{font-size:15px;font-weight:600}.dt span{font-size:10px;color:var(--f3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 .stp2{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);border-radius:8px;background:var(--sf);align-self:flex-start;height:var(--c)}.stp2 b{min-width:28px;text-align:center;font-weight:600}.stp2 button{height:calc(var(--c) - 2px);min-width:32px;border:0;background:none;border-radius:7px;font-size:16px;color:var(--f2);cursor:pointer}.stp2 button:disabled{opacity:.35;cursor:default}
 .slt{display:flex;align-items:center;gap:4px}.slt .in{flex:1 1 0;min-width:0;font-weight:400}.ph .slt{flex-wrap:wrap}.ph .slt .in{flex:1 1 40%}
@@ -856,20 +866,32 @@ function Announce() {
   </div>;
 }
 
+/* D-268: December's teams as the parity world seats them (`WS` in parity-r2.ts: its seats are the Tiers screen's), and its
+   learners (the six who are not canceled); a team's people are those signed in of its seats. */
+const P7_SEATS = { ws_northshore: 41, ws_halemarlowe: 16, ws_redcliff: 41, ws_copperbasin: 16, ws_tidewater: 16, ws_lantern: 16, ws_fourthmeridian: 16 };
 function Learners() {
-  const { go, startMasq, started } = useC();
-  const [tab, setTab] = useState('learners'), [q, setQ] = useState(''), [tier, setTier] = useState('All tiers');
-  const L = USERS.filter(u => u.st !== 'Canceled' && (u.n + u.ws).toLowerCase().includes(q.toLowerCase()) && (tier === 'All tiers' || u.tier === tier));
-  return <div className="pg">
-    <Head t="Learners & Teams" d="Everyone enrolled in the December 2026 Cohort, with build progress. Account and billing support lives in Workspaces and Users." />
-    <Tabs v={tab} on={setTab} tabs={[['learners', 'Learners', 148], ['teams', 'Teams', 7]]} />
-    {tab === 'learners' && <><div className="row"><Find v={q} on={setQ} ph="Filter by name or team" /><Sel label="Tier" v={tier} on={setTier} opts={['All tiers', 'Agent', 'Team']} /></div>
-      <Table rows={L} onRow={u => go('user', u.id)} empty={{ ic: 'learners', t: 'No learners enrolled', b: 'Learners appear here after checkout.' }}
-        cols={[{ k: 'n', l: 'Learner', w: 'minmax(200px,1.5fr)', r: u => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={u.e} /></div> }, { k: 'ws', l: 'Team', w: 'minmax(140px,1fr)', hide: 'lap' }, { k: 'tier', l: 'Tier', w: '72px', r: u => <Pill v={u.tier} tone={u.tier === 'Team' ? 'warn' : 'ok'} /> }, { k: 'pr', l: 'Builds deployed', w: '160px', r: u => started ? <span className="row nw" style={{ gap: 10 }}><Bar v={u.pr} max={u.of} v2={0} /><span className="tn" style={{ minWidth: 44, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{u.pr} of {u.of}</span></span> : <span className="mu">Not started</span> }, { k: 'last', l: 'Last active', w: '128px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
-        menu={u => [{ l: 'Open user record', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} /></>}
-    {tab === 'teams' && <Table rows={WS.filter(w => w.plan.startsWith('Team'))} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No teams yet' }}
-      cols={[{ k: 'n', l: 'Team', w: 'minmax(180px,1.5fr)' }, { k: 'owner', l: 'Owner', w: 'minmax(120px,1fr)' }, { k: 'plan', l: 'Plan', w: '160px', hide: 'lap' }, { k: 'used', l: 'Seats', w: '160px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]}
-      menu={w => [{ l: 'Open workspace', fn: () => go('workspace', w.id) }]} />}
+  // D-268 (R-5 Phase 7): Cohort › People, the mockup's `CohortPeople`: the cohort's roster, Teams first, with Paid, Intake, the
+  // week it is on and Last active. This reference's December has no weeks in its run (D-267), so it has no week column: a
+  // cohort with weeks shows "Week N" and each team's steps done of that week's. It replaces Learners & Teams; the export stays.
+  const { go, toast, startMasq } = useC();
+  const [tab, setTab] = useState('teams'), [q, setQ] = useState('');
+  const L = USERS.filter(u => u.st !== 'Canceled');
+  const CT = WS.map(w => { const m = L.filter(u => u.ws === w.n); const last = m.map(u => p7At(u.last)).sort((a, b) => b - a)[0]; const o = L.find(u => u.n === w.owner); return { id: w.id, n: w.n, owner: o ? o.n : 'None', in: m.length, seats: P7_SEATS[w.id], last: last ? m.find(u => p7At(u.last) === last).last : null }; });
+  const f = r => (r.n + (r.owner || '') + (r.ws || '')).toLowerCase().includes(q.toLowerCase());
+  return <div className="col">
+    <div className="row"><Tabs v={tab} on={setTab} tabs={[['teams', 'Teams', CT.length + ' of ' + P3_COH.dec26.cap], ['learners', 'Learners', L.length]]} /><Find v={q} on={setQ} ph={tab === 'teams' ? 'Find a team' : 'Find a person'} /><span className="sp" /><Btn ic="download" onClick={() => toast('Exported as CSV')}>Export</Btn></div>
+    {tab === 'teams' && <Table rows={CT.filter(f)} onRow={t => go('workspace', t.id)}
+      cols={[{ k: 'n', l: 'Team', w: 'minmax(200px,1.5fr)', r: t => <Two a={t.n} b={t.owner} /> }, { k: 'seats', l: 'People', w: '120px', r: t => <span className="tn">{t.in} of {t.seats} signed in</span> },
+        { k: 'pay', l: 'Paid', w: '140px', hide: 'lap', r: () => <St v="Paid" tone="ok" /> },
+        { k: 'intake', l: 'Intake', w: '120px', r: () => <St v="Not started" tone="off" /> },
+        { k: 'last', l: 'Last active', w: '150px', ns: 1, hide: 'lap', r: t => t.last ? <Stamp v={p7Stamp(t.last)} two /> : 'Never signed in' }]}
+      menu={t => [{ l: 'Open team', fn: () => go('workspace', t.id) }, { l: 'Read their intake', fn: () => go('cohort') }, { l: 'What they turned in', fn: () => go('cohort') }]} />}
+    {tab === 'learners' && <><Table rows={L.filter(f)} onRow={u => go('user', u.id)}
+      cols={[{ k: 'n', l: 'Learner', w: 'minmax(210px,1.5fr)', r: u => <Two a={u.n} b={u.e} /> }, { k: 'ws', l: 'Team', w: 'minmax(160px,1fr)' },
+        { k: 'role', l: 'Seat', w: '190px', hide: 'lap' }, { k: 'last', l: 'Last active', w: '150px', ns: 1, r: u => <Stamp v={p7Stamp(u.last)} two /> }]}
+      menu={u => [{ l: 'Open person', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} />
+      <p className="me">Showing {L.filter(f).length} of {L.length}.</p></>}
+    <p className="me">This is the cohort’s roster: who is in it and how far along they are. For a sign-in, a plan or a seat, open the person or the team.</p>
   </div>;
 }
 
@@ -969,15 +991,21 @@ function Health() {
 }
 
 function Workspaces() {
+  // D-268 (R-5 Phase 7): People › Teams, the mockup's `TeamsPg`: today's Workspaces, an access group's team of one left out (Utah
+  // Life's agents are people here, not teams). Holds is what a team holds while live; Paying what it pays.
   const { go, startMasq } = useC();
-  const [q, setQ] = useState(''), [plan, setPlan] = useState('All plans'), [st, setSt] = useState('Any status');
-  const rows = WS.filter(w => (w.n + w.owner).toLowerCase().includes(q.toLowerCase()) && (plan === 'All plans' || w.plan.startsWith(plan)) && (st === 'Any status' || w.st === st));
+  const [q, setQ] = useState(''), [p, setP] = useState('All products');
+  const holds = w => w.st === 'Canceled' ? [] : [w.plan.split(' · ')[0]];
+  const paying = w => w.mrr === 'One-time' ? 'Paid in full' : w.st === 'Active' || w.st === 'Past due' ? w.mrr + ' a month' : '$0';
+  const rows = WS.filter(w => (w.n + w.owner).toLowerCase().includes(q.toLowerCase()) && (p === 'All products' || holds(w).includes(p)));
   return <div className="pg">
-    <Head t="Workspaces" d="Every team and solo account. Open one for members, plan, usage, billing, and staff notes." />
-    <div className="row"><Find v={q} on={setQ} ph="Filter workspace or owner" /><Sel label="Plan" v={plan} on={setPlan} opts={['All plans', 'Team Plan', 'Agent Plan', 'Insiders', 'AI Accelerator']} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Active', 'Trialing', 'Past due', 'Canceled']} /></div>
-    <Table rows={rows} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No workspaces yet', b: 'A workspace is created at checkout.' }}
-      cols={[{ k: 'n', l: 'Workspace', w: 'minmax(170px,1.3fr)', r: (w, dr) => <Two a={w.n} b={dr.drop ? w.owner + ' · ' + w.id : w.id} mo={!dr.drop} /> }, { k: 'owner', l: 'Owner', w: 'minmax(116px,.9fr)', hide: 'lap' }, { k: 'plan', l: 'Plan', w: 'minmax(140px,1.1fr)' }, { k: 'used', l: 'Seats', w: '132px', r: w => <span className="row nw" style={{ gap: 10 }}><Bar v={w.used} max={w.cap} fx={fixedSeats(w)} /><span className="tn" style={{ minWidth: 60, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>{w.used} of {w.cap}</span></span> }, { k: 'st', l: 'Status', w: '96px', r: w => <St v={w.st} /> }, { k: 'last', l: 'Last activity', w: '124px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
-      menu={w => [{ l: 'Open workspace', fn: () => go('workspace', w.id) }, { l: 'Masquerade as owner…', ic: 'masquerade', fn: () => startMasq(USERS.find(u => u.n === w.owner)) }]} />
+    <Head t="Teams" d="Every team account and what it holds." />
+    <div className="row"><Find v={q} on={setQ} ph="Find a team or its owner" /><Sel label="Product" v={p} on={setP} opts={['All products', 'AI Accelerator', 'Team Plan', 'Agent Plan', 'Insiders', 'Insiders for Agents', 'Skill Library']} /></div>
+    <Table rows={rows} onRow={w => go('workspace', w.id)} empty={{ ic: 'workspaces', t: 'No team matches' }}
+      cols={[{ k: 'n', l: 'Team', w: 'minmax(200px,1.4fr)', r: w => <Two a={w.n} b={w.owner} /> }, { k: 'p', l: 'Holds', w: 'minmax(190px,1fr)', ns: 1, r: w => <span className="row" style={{ gap: 4 }}>{holds(w).map(x => <span key={x} className={'pl' + (x === 'AI Accelerator' ? ' ok' : ' info')}>{x}</span>)}</span> },
+        { k: 'used', l: 'Seats used', w: '110px', r: w => <span className="tn">{w.used} of {w.cap}</span> }, { k: 'mrr', l: 'Paying', w: '150px', hide: 'lap', r: paying }, { k: 'st', l: 'Status', w: '104px', r: w => <St v={w.st} /> }]}
+      menu={w => [{ l: 'Open team', fn: () => go('workspace', w.id) }, ...(holds(w).includes('AI Accelerator') ? [{ l: 'See them in the cohort', fn: () => go('learners') }] : []), { l: 'Masquerade as owner…', ic: 'masquerade', fn: () => startMasq(USERS.find(u => u.n === w.owner)) }]} />
+    <p className="me">{ULA_R2.length} Utah Life agents are not listed here. <button className="lk a inl" onClick={() => go('utah')}>Utah Life</button> · <button className="lk a inl" onClick={() => go('users')}>Everyone</button></p>
   </div>;
 }
 
@@ -1014,15 +1042,21 @@ function Workspace() {
 }
 
 function Users() {
-  const { go, startMasq, toast, log, guard } = useC();
-  const [q, setQ] = useState(''), [role, setRole] = useState('Any role');
-  const rows = USERS.filter(u => (u.n + u.e + u.ws).toLowerCase().includes(q.toLowerCase()) && (role === 'Any role' || u.role === role));
+  // D-268 (R-5 Phase 7): People › Everyone, the mockup's `PeoplePg`: today's Users with "Got in through" and its chips, built from
+  // who is here (each person counted once). A Utah Life agent opens Utah Life.
+  const { go, startMasq, toast } = useC();
+  const [a, setA] = useState('all'), [q, setQ] = useState('');
+  const chips = [['all', 'Everyone', P7_PEOPLE.length, null], ...P7_AUD.map(x => [x[0], x[0], P7_PEOPLE.filter(p => p.a === x[0]).length, x[1]]).filter(x => x[2])];
+  const rows = P7_PEOPLE.filter(p => (a === 'all' || p.a === a) && (p.n + p.e + p.ws).toLowerCase().includes(q.toLowerCase()));
+  const open = p => p.a === 'Utah Life' ? go('utah') : go('user', p.id);
   return <div className="pg">
-    <Head t="Users" d="Find a person by name, email, or workspace." />
-    <div className="row"><Find v={q} on={setQ} ph="Filter name, email, workspace" /><Sel label="Role" v={role} on={setRole} opts={['Any role', 'Team owner', 'Agent']} /></div>
-    <Table rows={rows} sel onRow={u => go('user', u.id)} empty={{ ic: 'users', t: 'No users yet' }} bulk={<Btn onClick={() => guard('export', 'Export users', () => { log('users.export', 'Users', 'CSV'); toast('Export started. It is in the audit log.'); })}>Export selected</Btn>}
-      cols={[{ k: 'n', l: 'User', w: 'minmax(220px,1.6fr)', r: (u, dr) => <div className="row nw" style={{ gap: 10 }}><span className="av">{ini(u.n)}</span><Two a={u.n} b={dr.drop ? u.role + ' · ' + u.e : u.e} /></div> }, { k: 'ws', l: 'Workspace', w: 'minmax(150px,1fr)' }, { k: 'role', l: 'Role', w: '104px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: u => <St v={u.st} /> }, { k: 'last', l: 'Last sign-in', w: '128px', ns: 1, r: x => <Stamp v={x.last} two /> }]}
-      menu={u => [{ l: 'Open user', fn: () => go('user', u.id) }, { l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(u) }]} />
+    <div className="chs" role="group" aria-label="Audience">{chips.map(c => <button key={c[0]} className={'ch' + (a === c[0] ? ' on' : '')} aria-pressed={a === c[0]} onClick={() => setA(c[0])}>{c[3] && <i style={{ background: c[3] }} />}{c[1]}<span className="tn">{c[2]}</span></button>)}</div>
+    <div className="row"><Find v={q} on={setQ} ph="Find a person by name or email" /><span className="sp" /><Btn ic="download" onClick={() => toast('Export started. It is in the audit log.')}>Export</Btn></div>
+    <Table rows={rows} onRow={open} empty={{ ic: 'users', t: 'No one matches', b: 'Try another audience or fewer letters.' }}
+      cols={[{ k: 'n', l: 'Person', w: 'minmax(220px,1.5fr)', r: p => <Two a={p.n} b={p.e} /> }, { k: 'a', l: 'Got in through', w: '136px', r: p => <span className="pl aud"><i style={{ background: p7Dot(p.a) }} />{p.a}</span> },
+        { k: 'ws', l: 'Team', w: 'minmax(160px,1fr)', hide: 'lap', r: p => p.ws ? p.ws : <span className="mu">On their own</span> }, { k: 'role', l: 'Seat', w: '204px', hide: 'lap' }, { k: 'last', l: 'Last active', w: '150px', ns: 1, r: p => p.last ? <Stamp v={p7Stamp(p.last)} two /> : 'Never' }, { k: 'st', l: 'Status', w: '104px', r: p => <St v={p.st} tone={p.st === 'Invited' ? 'warn' : undefined} /> }]}
+      menu={p => [{ l: p.a === 'Utah Life' ? 'Open Utah Life' : 'Open person', fn: () => open(p) }, ...(p.a === 'AI Accelerator' ? [{ l: 'See them in the cohort', fn: () => go('learners') }] : []), ...(p.a === 'Utah Life' ? [] : [{ l: 'Masquerade…', ic: 'masquerade', fn: () => startMasq(p) }])]} />
+    <p className="me">Showing {rows.length} of {a === 'all' ? P7_PEOPLE.length : chips.find(c => c[0] === a)[2]}. This list is for the account: sign-in, plan and seat. To see how a cohort is doing, open <button className="lk a inl" onClick={() => go('learners')}>the cohort’s People tab</button>.</p>
   </div>;
 }
 
@@ -1283,7 +1317,7 @@ function Denied({ what }) {
 const SOLO = { Overview: 1, Program: 1, Cohort: 1, People: 1, Revenue: 1 };
 const AREAS = {
   program: [['curriculum', 'Curriculum'], ['settings', 'Course Settings'], ['vault', 'Resource Vault']],
-  cohort: [['overview', 'Overview'], ['schedule', 'Schedule'], ['people', 'People'], ['community', 'Community'], ['announcements', 'Announcements'], ['settings', 'Settings']],
+  cohort: [['overview', 'Overview'], ['schedule', 'Schedule'], ['people', 'People'], ['submissions', 'Submissions'], ['community', 'Community'], ['announcements', 'Announcements'], ['settings', 'Settings']],
   people: [['everyone', 'Everyone'], ['teams', 'Teams'], ['utah', 'Utah Life'], ['masquerade', 'Masquerade']],
   revenue: [['summary', 'Summary'], ['payments', 'Payments'], ['plans', 'Plans & Upgrades'], ['usage', 'Usage']],
 };
@@ -1324,11 +1358,12 @@ function CohortArea() {
   return <Area k="cohort" t={<CohortPick />} meta={<St v={c.st} />} d={p3Line(c)}
     right={<><Btn ic="eye" onClick={() => toast('Opens the staff preview of this cohort')}>Preview</Btn><Menu items={[{ l: 'New cohort…', fn: () => go('newcohort') }, { l: 'All settings', fn: () => go('cohortset') }]} /></>}
     counts={{ schedule: c.ses.length, people: 7 }}>
-    {tab => tab === 'people' ? <Learners /> : tab === 'community' ? <OffRef what="Community" /> : tab === 'announcements' ? <Announce /> : tab === 'schedule' ? <CohortSchedule /> : tab === 'settings' ? <CohortSettings /> : <CohortOverview />}</Area>;
+    {tab => tab === 'people' ? <Learners /> : tab === 'submissions' ? <OffRef what="Submissions" /> : tab === 'community' ? <OffRef what="Community" /> : tab === 'announcements' ? <Announce /> : tab === 'schedule' ? <CohortSchedule /> : tab === 'settings' ? <CohortSettings /> : <CohortOverview />}</Area>;
 }
 function PeopleArea() {
   // R-5 audit (D-267): Utah Life, the access group's own tab, counts its agents (the mockup's PeopleArea "utah").
-  return <Area k="people" t="People" d="Everyone with a sign-in, across every product. Each person is counted once, under how they got in." counts={{ utah: ULA_R2.length }}>
+  // D-268 (R-5 Phase 7): Everyone counts each person once (P7_PEOPLE), Teams the teams it lists (WS).
+  return <Area k="people" t="People" d="Everyone with a sign-in, across every product. Each person is counted once, under how they got in." counts={{ everyone: P7_PEOPLE.length, teams: WS.length, utah: ULA_R2.length }}>
     {tab => tab === 'teams' ? <Workspaces /> : tab === 'utah' ? <Groups /> : tab === 'masquerade' ? <Masquerade /> : <Users />}</Area>;
 }
 /* ---------- R-5 audit (D-267): People › Utah Life, read-only (the mockup's `Groups`, handoff/admin-mockup/ia-screens.jsx,
@@ -1336,14 +1371,45 @@ function PeopleArea() {
    were last active, or "Invite pending"; a row opens the person). Its facts, cards, Export and the two access actions are
    Phase 7's. The mockup's own masked addresses. ---------- */
 const ULA_R2 = [['a•••••@liveutah.com', 'Dec 10, 8:02 AM MT / 9:02 AM CT'], ['c•••@liveutah.com', 'Dec 9, 5:47 PM MT / 6:47 PM CT'], ['j••••••@liveutah.com', 'Dec 8, 11:20 AM MT / 12:20 PM CT'], ['k••••@liveutah.com', 'Invite pending'], ['m••••@liveutah.com', 'Dec 7, 2:36 PM MT / 3:36 PM CT'], ['r•••••••@liveutah.com', 'Dec 6, 9:11 AM MT / 10:11 AM CT'], ['s•••@liveutah.com', 'Dec 4, 4:05 PM MT / 5:05 PM CT'], ['t••••••@liveutah.com', 'Dec 3, 10:30 AM MT / 11:30 AM CT']];
+/* ---------- D-268 (R-5 Phase 7): People. Every time is "12:00 PM MT / 1:00 PM CT" (a mock stamp is Mountain's, 2026). ---------- */
+const p7At = s => Date.parse(s.replace(/ MT \/.*$/, '').replace(/^([A-Z][a-z]{2} \d{1,2}), /, '$1, 2026 ') + ' GMT-0700');
+const p7Stamp = s => s.includes(' MT / ') ? s : s.split(', ')[0] + ', ' + mtCt(p7At(s));
+/* how each person got in: their team's plan (the Console's label), else Utah Life; one square each, in the R2 tokens */
+const P7_AUD = [['AI Accelerator', 'var(--for)'], ['Team Plan', '#2E9A63'], ['Agent Plan', '#6FD3A5'], ['Insiders', '#3B74D6'], ['Utah Life', '#9AA39E']];
+const p7Plan = ws => (WS.find(w => w.n === ws) || { plan: '' }).plan.split(' · ')[0];
+const p7Dot = a => (P7_AUD.find(x => x[0] === a) || [a, '#9AA39E'])[1];
+const P7_PEOPLE = [...USERS.map(u => ({ ...u, a: p7Plan(u.ws) })), ...ULA_R2.map(([e, last], i) => ({ id: 'u_ul' + (i + 1), n: 'Utah Life agent', e, ws: '', role: 'Agent', last: last === 'Invite pending' ? null : last, st: last === 'Invite pending' ? 'Invited' : 'Active', a: 'Utah Life' }))];
+/* Utah Life's agents beyond D-267's two columns: first sign-in and skills opened (the mockup's ULA), and its Most opened */
+const P7_UL_MORE = { 'a•••••@liveutah.com': ['Nov 12', 9], 'c•••@liveutah.com': ['Nov 12', 14], 'j••••••@liveutah.com': ['Nov 12', 4], 'k••••@liveutah.com': ['Never', 0], 'm••••@liveutah.com': ['Nov 12', 6], 'r•••••••@liveutah.com': ['Nov 13', 3], 's•••@liveutah.com': ['Nov 13', 2], 't••••••@liveutah.com': ['Nov 14', 1] };
+const P7_MOST = [['Appointment Follow-Up', 22], ['Repair Request Response', 19], ['Listing Description Writer', 11], ['Speed to Lead Reply', 7]];
 function Groups() {
-  const { go } = useC();
+  // D-268 (R-5 Phase 7): the rest of the mockup's `Groups`: its facts, the Agents table's first sign-in and skills opened, what they
+  // can open, what they open most, where they are counted, Export, and the menu's two writes (Owner and Admin, confirmed, audited).
+  const { go, guard, toast, setDlg, log } = useC();
   const [q, setQ] = useState('');
+  const signed = ULA_R2.filter(r => r[1] !== 'Invite pending');
+  const rows = ULA_R2.filter(r => r[0].includes(q.toLowerCase()));
+  const toTable = () => {};
   return <div className="pg">
-    <Head t="Utah Life" d="Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue." />
-    <div className="row"><Find v={q} on={setQ} ph="Find an agent by email" /></div>
-    <Table title="Agents" rows={ULA_R2.filter(r => r[0].includes(q.toLowerCase()))} onRow={() => go('user', 'u_1042')}
-      cols={[{ k: 0, l: 'Agent', w: 'minmax(200px,1.5fr)', r: r => <Two a="Utah Life agent" b={r[0]} /> }, { k: 1, l: 'Last active', w: '170px', ns: 1, r: x => <Stamp v={x[1]} two /> }]} />
+    <Head t="Utah Life" meta={<Pill v="Access group" tone="" />} d="Agents with a liveutah.com address get the Agent Plan’s skills at no charge. They are counted here: not in a cohort, not as teams, and not in revenue."
+      right={<><Btn ic="download" onClick={() => toast('Export started. It is in the audit log.')}>Export</Btn><Menu items={[{ l: 'Add an address outside the domain…', g: 1, fn: () => guard('account', 'Add an address', () => toast('Address added')) }, '-', { l: 'End access…', d: 1, g: 1, fn: () => guard('account', 'End Utah Life access', () => setDlg({ title: 'End Utah Life access?', body: ULA_R2.length + ' agents lose the Agent Plan’s skills right away. Their accounts stay, with nothing to open.', cta: 'End access', danger: 1, needReason: 1, yes: r => { log('access_group.end', 'Utah Life', r); toast('Access ended'); } })) }]} /></>} />
+    <div className="p7f"><LFacts items={[['Agents signed in', String(signed.length), toTable], ['Active, last 30 days', String(signed.length), toTable], ['Gets', 'Agent Plan skills, free', 'course'], ['Who qualifies', 'A verified @liveutah.com address'], ['Since', 'Thu, Nov 12, 2026'], ['Ends', 'No end date']]} /></div>
+    <div className="gms">
+      <div className="col">
+        <div className="row"><Find v={q} on={setQ} ph="Find an agent by email" /></div>
+        <Table title="Agents" rows={rows} onRow={() => go('user', 'u_1042')}
+          cols={[{ k: 0, l: 'Agent', w: 'minmax(200px,1.5fr)', r: r => <Two a="Utah Life agent" b={r[0]} /> }, { k: 2, l: 'First sign-in', w: '120px', ns: 1, r: r => P7_UL_MORE[r[0]][0] }, { k: 1, l: 'Last active', w: '170px', ns: 1, r: r => <Stamp v={r[1]} two /> }, { k: 3, l: 'Skills opened', w: '110px', num: 1, r: r => P7_UL_MORE[r[0]][1] }]} />
+        <p className="me">Showing {rows.length} of {ULA_R2.length}.</p>
+      </div>
+      <div className="col">
+        <Card t="What They Can Open"><div className="col m">
+          <div className="row nw" style={{ gap: 10 }}><span className="mt"><I n="check" /></span><span className="col" style={{ gap: 0 }}><span className="w5">The Agent Plan’s skills</span><span className="me">Every agent skill, and each new one as it is released</span></span></div>
+          <div className="row nw" style={{ gap: 10 }}><span className="mt off"><I n="lock" /></span><span className="col" style={{ gap: 0 }}><span className="w5">Not the Accelerator, not team skills</span><span className="me">A locked skill says “Not included with Utah Life access”</span></span></div>
+          <button className="lk a" style={{ alignSelf: 'flex-start' }} onClick={() => go('course')}>Change that line in Words</button></div></Card>
+        <Card t="Most Opened" sub="Last 30 days"><div className="col m">{P7_MOST.map(x => <div key={x[0]} className="rdy" style={{ cursor: 'default' }}><span className="el" style={{ flex: '0 0 176px' }}>{x[0]}</span><Bar v={x[1]} max={P7_MOST[0][1]} v2={0} /><span className="tn w5 rdn" style={{ minWidth: 24 }}>{x[1]}</span></div>)}</div></Card>
+        <Card t="Where They Are Counted"><div className="kvs"><KV rows={[['A cohort', 'Never. They are not in one.'], ['Teams', 'Never. Each is one person.'], ['Revenue', 'Never. The access is free.']]} /></div></Card>
+      </div>
+    </div>
   </div>;
 }
 function RevenueArea() {
