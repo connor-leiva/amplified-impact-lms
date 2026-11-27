@@ -4,7 +4,7 @@ Written before any code, as the spec asks of each phase. The spec is `ADMIN-REST
 what is left", with § 1 (December does not move), § 4 (rules for every screen; rule 1, every number is a link) and § 7
 ("Overview and Revenue figures: computed, never the mockup's numbers"). PLAN.md § 10 governs: where it already decides
 something, this cites it and does not decide it again. The decision entry is D-270, the last of R-5. Built on R-5 Phase 8
-(D-269, `7314781b`, #289, unmerged), on `main` @ `00f57261` (Phases 1 to 7).
+(D-269, `7314781b`, #289), on `main` @ `00f57261` (Phases 1 to 7); rebased onto `main` @ `fae0330b` once #289 merged.
 
 ## What PLAN.md § 10 already decides for this phase
 
