@@ -528,6 +528,40 @@ describe('December’s data step against production’s shape, with production�
   });
 });
 
+describe('hotfix D-266: production’s December sells exactly as it did before #281', () => {
+  // Production's December record is not `enrolling`, and #281 read that as "enrollment closed": /api/offer answered
+  // `closed` for both Accelerator carts and /offer and /forum hid their links. Before R-5 the offer never read the
+  // cohort's status. Production's shape: the launch seed, its status as production may hold it, and every data step,
+  // Phase 5's run with production's two link variables set.
+  for (const status of ['live', 'enrolling', 'completed', 'draft'] as const) {
+    it(`December ${status}, its selling values stored: both cohort carts read link with its Payment Links, and the seat cap reopens as before`, async () => {
+      process.env.PAYMENT_LINK_COHORT_FULL = DEC_LINKS.full;
+      process.env.PAYMENT_LINK_COHORT_TWO_PAY = DEC_LINKS.twoPay;
+      try {
+        await resetDatabase(seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } }));
+        await handle.update(cohorts).set({ status }).where(eq(cohorts.id, DEFAULT_COHORT_ID));
+        await applyDataMigrations(handle, NOV27);
+      } finally {
+        delete process.env.PAYMENT_LINK_COHORT_FULL;
+        delete process.env.PAYMENT_LINK_COHORT_TWO_PAY;
+      }
+      const [dec] = await handle.select().from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID));
+      expect(dec).toMatchObject({ status, founding: true, twoPay: true, linkFull: DEC_LINKS.full, linkTwoPay: DEC_LINKS.twoPay, enrollmentClosedAt: null });
+      type Offer = { carts: { id: string; state: string; paymentLink: string | null }[]; seats: { total: number } };
+      const offer = (await (await appAt(NOV27)).inject({ method: 'GET', url: '/api/offer' })).json() as Offer;
+      expect(offer.carts.filter((c) => c.id.startsWith('cohort')).map((c) => [c.id, c.state, c.paymentLink])).toEqual([
+        ['cohort-full', 'link', DEC_LINKS.full],
+        ['cohort-two-pay', 'link', DEC_LINKS.twoPay],
+      ]);
+      expect(offer.seats.total).toBe(15);
+      // D-154's seat cap on December's two links: one it turned off at the cap comes back on when a seat frees.
+      fake.links.set('plink_dec_full', { ...fake.links.get('plink_dec_full')!, active: false, metadata: { ai_plan: 'cohort', ai_option: 'full', ai_soldout: '1' } });
+      const out = await reconcileCohortSeats({ stripe: fake.client, config, now: NOV27, log, db: handle });
+      expect(out.find((r) => r.cohortId === DEFAULT_COHORT_ID)!.outcome!.links.map((l) => l.action)).toEqual(['turned-on', 'on']);
+    });
+  }
+});
+
 describe('nothing creates a Stripe price, a Payment Link or a product', () => {
   it('no source file calls prices.create, paymentLinks.create or products.create', () => {
     const root = fileURLToPath(new URL('../../..', import.meta.url));

@@ -172,11 +172,30 @@ describe('which cohort the offer sells (§ 10.10)', () => {
     expect(cohortOnSale(db, NOV27)).toBe(DEFAULT_COHORT_ID);
     // One open cohort sells whether or not it has started (December is open and running).
     expect(cohortOnSale(db, MT('2026-12-10T12:00:00'))).toBe(DEFAULT_COHORT_ID);
-    const none = { ...db, cohorts: db.cohorts.map((c) => ({ ...c, status: 'live' as const })) };
+    // None open: every cohort live, and December closed by hand (December sells whatever its status, D-266).
+    const none = { ...db, cohorts: db.cohorts.map((c) => ({ ...c, status: 'live' as const, ...(c.id === DEFAULT_COHORT_ID ? { enrollmentClosedAt: NOV27 } : {}) })) };
     expect(cohortOnSale(none, NOV27)).toBeNull();
     const archived = { ...db, cohorts: db.cohorts.map((c) => ({ ...c, archivedAt: NOV27 })) };
     expect(cohortOnSale(archived, NOV27)).toBeNull();
     expect(cohortOnSale({ cohorts: [] }, NOV27)).toBe(DEFAULT_COHORT_ID);
+  });
+
+  it('hotfix D-266: December sells whatever its status, as before R-5; Close and archive stop it; another cohort needs enrolling', () => {
+    const { db, id } = withJanuary();
+    for (const status of ['live', 'completed', 'draft', 'enrolling'] as const) {
+      const shaped = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status } : c)) };
+      const dec = shaped.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!;
+      expect(enrollmentOpen(dec), status).toBe(true);
+      expect(cohortOnSale(shaped, NOV27), status).toBe(DEFAULT_COHORT_ID);
+      expect(enrollmentOpen({ ...dec, enrollmentClosedAt: NOV27 }), `${status} closed`).toBe(false);
+      expect(enrollmentOpen({ ...dec, archivedAt: NOV27 }), `${status} archived`).toBe(false);
+    }
+    const jan = db.cohorts.find((c) => c.id === id)!;
+    for (const status of ['live', 'completed', 'draft'] as const) expect(enrollmentOpen({ ...jan, status }), status).toBe(false);
+    expect(enrollmentOpen({ ...jan, status: 'enrolling' })).toBe(true);
+    // A December closed by hand reopens whatever its status (its Stripe lines decide, as for any closed cohort).
+    const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const, enrollmentClosedAt: NOV27 } : c)) };
+    expect(openCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).not.toBe('Only a draft cohort can open for enrollment.');
   });
 
   it('with two open, the next cohort to start (Connor, Nov 26): December until it starts, then January', () => {
@@ -338,10 +357,13 @@ describe('the four Enrollment actions: the billing permission, one audit row eac
     expect('enrollmentClosedAt' in jan).toBe(false);
     expect(enrollmentOpen(jan)).toBe(true);
     expect(reopened.audit).toMatchObject({ action: 'cohort.enrollment_open', before: { enrollmentClosedAt: closedAt }, after: { enrollmentClosedAt: null } });
-    // A cohort the demo seed holds as `live` is not opened: R-5 writes neither `live` nor `completed`.
-    const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const } : c)) };
-    expect(openCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Only a draft cohort can open for enrollment.');
-    expect(closeCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Enrollment is already closed.');
+    // A cohort the demo seed holds as `live` is not opened: R-5 writes neither `live` nor `completed`. December is the
+    // exception (D-266): it is on sale whatever its status, so Open answers that it is open and Close closes it.
+    const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === id ? { ...c, status: 'live' as const } : c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const } : c)) };
+    expect(openCohortEnrollment(live, OWNER, { cohortId: id }, mkCtx()).error).toBe('Only a draft cohort can open for enrollment.');
+    expect(closeCohortEnrollment(live, OWNER, { cohortId: id }, mkCtx()).error).toBe('Enrollment is already closed.');
+    expect(openCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Enrollment is already open.');
+    expect(closeCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBeUndefined();
   });
 
   it('a new cohort starts from any cohort not archived, and copies founding and two payments, never keys or links', () => {
@@ -381,7 +403,7 @@ describe('December’s selling values, copied once by a data step', () => {
     // A December whose enrollment is not open is named too: the offer would sell no cohort.
     const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const } : c)) };
     expect(planDecemberSellingV1(live, ENV).skipped).toEqual([
-      { id: 'dec26.status', reason: 'left as it is: its status is live, not enrolling, so the offer sells no cohort until its enrollment is opened' },
+      { id: 'dec26.status', reason: 'left as it is: its status is live, not enrolling; December still sells, as its sale does not read its status (D-266)' },
     ]);
   });
 
